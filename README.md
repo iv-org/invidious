@@ -1,22 +1,22 @@
 # visor
 
-TODO: Write a description here
+Alternative frontend for YouTube
 
 ## Installation
 
-TODO: Write installation instructions here
+```bash
+pacman -Syu shards crystal
+crystal deps
+```
 
 ## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
+```bash
+crystal run src/visor.cr
+```
 
 ## Contributing
 
-1. Fork it ( https://github.com/[your-github-name]/visor/fork )
+1. Fork it ( https://github.com/omarroth/visor/fork )
 2. Create your feature branch (git checkout -b my-new-feature)
 3. Commit your changes (git commit -am 'Add some feature')
 4. Push to the branch (git push origin my-new-feature)
@@ -24,4 +24,4 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [[your-github-name]](https://github.com/[your-github-name]) Omar Roth - creator, maintainer
+- [omarroth](https://github.com/omarroth) - creator, maintainer
