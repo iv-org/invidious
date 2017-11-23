@@ -1,0 +1,17 @@
+name: visor
+version: 0.1.0
+
+authors:
+  - Omar Roth <omarroth@hotmail.com>
+
+targets:
+  visor:
+    main: src/visor.cr
+
+dependencies:
+  kemal:
+     github: kemalcr/kemal
+
+crystal: 0.23.1
+
+license: MIT
