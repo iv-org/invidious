@@ -1,15 +1,20 @@
-<h1><%= URI.unescape(video_info["title"].to_s,true) %></h1>
-<video style="width: 100%" poster="<%= video_info["iurlmq"] %>" controls>
-    <% fmt_stream.each do |fmt| %>
-        <source src="<%= fmt["url"] %>" type="<%= fmt["type"].to_s.split(";")[0] %>">
-    <% end %>
+<% title = URI.unescape(video_info["title"].as(String), true) %>
+<h1><%= title %></h1>
+<video style="width: 100%" poster="<%= video_info["iurl"] %>" controls>
+<% video_info["url_encoded_fmt_stream_map"].as(Hash).each do |key, value| %>
+    <% url = value["url"] %>
+    <% type = value["type"]["0"].to_s.split(";")[0] %>
+    <source src="<%= url %>" type="<%= type %>">
+<% end %>
 </video>
 <div class="pure-g">
-<div class="pure-u-1 pure-u-md-1-5"></div>
-<div class="pure-u-1 pure-u-md-3-5">
-<% fmt_stream.each do |fmt| %>
-<p><%= fmt["quality"] %></p>
-<% end %>
-</div>
-<div class="pure-u-1 pure-u-md-1-5"></div>
+    <div class="pure-u-1 pure-u-md-1-5">
+        <p>Likes: <%= likes %></p>
+        <p>Dislikes: <%= dislikes %></p>
+    </div>
+    <div class="pure-u-1 pure-u-md-3-5"></div>
+    <div class="pure-u-1 pure-u-md-1-5">
+        <p>Views : <%= video_info["view_count"] %></p>
+        <p>Rating : <%= video_info["avg_rating"] %></p>
+    </div>
 </div>
