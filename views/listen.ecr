@@ -1,6 +1,5 @@
-<% title = URI.unescape(video_info["title"].as(String), true) %>
-<h1><%= title %></h1>
-<video style="width: 100%" poster="<%= video_info["iurlhq720"] %>" controls>
+<h1><%= video_info["title"] %></h1>
+<video style="width: 100%" poster="<%= video_info.has_key?("iurlhq720") ? video_info["iurlhq720"] : video_info["iurl"] %>" controls>
 <% video_info["adaptive_fmts"].as(Hash).each do |key, value| %>
     <% url = value["url"] %>
     <% type = value["type"].to_s.split(";")[0] %>

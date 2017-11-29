@@ -11,6 +11,7 @@ targets:
 dependencies:
   kemal:
      github: kemalcr/kemal
+     branch: master
   pg:
     github: will/crystal-pg
 

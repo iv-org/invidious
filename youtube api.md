@@ -38,7 +38,7 @@ https://www.youtube.com/embed/:ID
 
 
 https://www.youtube.com/get_video_info?video_id= + video_id +
-            &el=info&ps=default&eurl=&gl=US&hl=en"&el=info&ps=default&eurl=&gl=US&hl=en
+            &el=info&ps=default&eurl=&gl=US&hl=en
 
 ```
 
