@@ -3,6 +3,7 @@ require "json"
 require "kemal"
 require "pg"
 require "xml"
+require "time"
 
 class AdaptiveFmts
   JSON.mapping(
@@ -121,29 +122,73 @@ class VideoInfo
   )
 end
 
+class Record
+end
+
 macro templated(filename)
   render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
 end
 
+pg = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
 context = OpenSSL::SSL::Context::Client.insecure
-
-# client = HTTP::Client.new("www.youtube.com", 443, context)
-# video_id = "Vufba_ZcoR0"
-# video_info = client.get("/get_video_info?video_id=#{video_id}&el=info&ps=default&eurl=&gl=US&hl=en").body
-# p VideoInfo.from_json(video_info)
 
 get "/" do |env|
   templated "index"
 end
 
+def update_record(context, pg, video_id)
+  client = HTTP::Client.new("www.youtube.com", 443, context)
+  video_info = client.get("/get_video_info?video_id=#{video_id}&el=info&ps=default&eurl=&gl=US&hl=en").body
+  info = HTTP::Params.parse(video_info)
+  video_html = client.get("/watch?v=#{video_id}").body
+  html = XML.parse(video_html)
+  views = info["view_count"]
+  rating = info["avg_rating"].to_f64
+
+  like = html.xpath_node(%q(//button[@title="I like this"]/span))
+  if like
+    likes = like.content.delete(",").to_i
+  else
+    likes = 1
+  end
+
+  # css query [title = "I like this"] > span
+  # css query [title = "I dislike this"] > span
+  dislike = html.xpath_node(%q(//button[@title="I dislike this"]/span))
+  if dislike
+    dislikes = dislike.content.delete(",").to_i
+  else
+    dislikes = 1
+  end
+
+  pg.exec("update invidious set last_updated = $1, video_info = $2, video_html = $3, views = $4, likes = $5,\
+          dislikes = $6, rating = $7 where video_id = $8",
+    Time.now, video_info, video_html, views, likes, dislikes, rating, video_id)
+
+  return {Time.now, video_id, video_info, video_html, views, likes, dislikes, rating}
+end
+
 get "/watch/:video_id" do |env|
   video_id = env.params.url["video_id"]
 
-  client = HTTP::Client.new("www.youtube.com", 443, context)
-  video_info = client.get("/get_video_info?video_id=#{video_id}&el=info&ps=default&eurl=&gl=US&hl=en").body
-  video_info = HTTP::Params.parse(video_info)
-  pageContent = client.get("/watch?v=#{video_id}").body
-  doc = XML.parse(pageContent)
+  # last_updated, video_id, video_info, video_html, views, likes, dislikes, rating
+  video_record = pg.query_one?("select * from invidious where video_id = $1",
+    video_id,
+    as: {Time, String, String, String, Int64, Int32, Int32, Float64})
+
+  # If record was last updated less than 5 minutes ago, use data, otherwise refresh
+  if video_record.nil?
+    video_record = update_record(context, pg, video_id)
+  elsif Time.now.epoch - video_record[0].epoch > 300
+    video_record = update_record(context, pg, video_id)
+  end
+
+  video_info = HTTP::Params.parse(video_record[2])
+  video_html = XML.parse(video_record[3])
+  views = video_record[4]
+  likes = video_record[5]
+  dislikes = video_record[6]
+  rating = video_record[7]
 
   fmt_stream = [] of HTTP::Params
   video_info["url_encoded_fmt_stream_map"].split(",") do |string|
@@ -151,24 +196,16 @@ get "/watch/:video_id" do |env|
   end
 
   fmt_stream.reverse! # We want lowest quality first
-  # css query [title="I like this"] > span
-  likes = doc.xpath_node(%q(//button[@title="I like this"]/span))
-  if likes
-    likes = likes.content.delete(",").to_i
-  else
-    likes = 1
-  end
 
-  # css query [title="I dislike this"] > span
-  dislikes = doc.xpath_node(%q(//button[@title="I dislike this"]/span))
-  if dislikes
-    dislikes = dislikes.content.delete(",").to_i
-  else
-    dislikes = 1
-  end
+  likes = likes.to_f
+  dislikes = dislikes.to_f
+  views = views.to_f
+  engagement = (((dislikes + likes)*100)/views).significant(2)
+  calculated_rating = likes/(likes + dislikes) * 4 + 1
 
-  engagement = ((dislikes.to_f32 + likes.to_f32)*100 / video_info["view_count"].to_f32).significant(2)
-  calculated_rating = likes.to_f32/(likes.to_f32 + dislikes.to_f32)*4 + 1
+  likes = likes.to_s
+  dislikes = dislikes.to_s
+  views = views.to_s
 
   templated "watch"
 end
