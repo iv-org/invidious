@@ -1,3 +1,4 @@
+<title><%= video_info["title"] %> - Invidious</title>
 <video style="width: 100%" poster="<%= video_info.has_key?("iurlhq720") ? video_info["iurlhq720"] : video_info["iurlmq"] %>" controls>
 <% fmt_stream.each do |fmt| %>
     <source src="<%= fmt["url"] %>" type="<%= fmt["type"].split(";")[0] %>">

@@ -121,20 +121,16 @@ class VideoInfo
   )
 end
 
-
 macro templated(filename)
   render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
 end
 
 context = OpenSSL::SSL::Context::Client.insecure
-client = HTTP::Client.new("www.youtube.com", 443, context)
 
-
-video_id = "Vufba_ZcoR0"
-video_info = client.get("/get_video_info?video_id=#{video_id}&el=info&ps=default&eurl=&gl=US&hl=en").body
-
-p VideoInfo.from_json(video_info)
-
+# client = HTTP::Client.new("www.youtube.com", 443, context)
+# video_id = "Vufba_ZcoR0"
+# video_info = client.get("/get_video_info?video_id=#{video_id}&el=info&ps=default&eurl=&gl=US&hl=en").body
+# p VideoInfo.from_json(video_info)
 
 get "/" do |env|
   templated "index"

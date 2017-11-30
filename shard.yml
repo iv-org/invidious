@@ -1,12 +1,12 @@
-name: visor
+name: invidious
 version: 0.1.0
 
 authors:
   - Omar Roth <omarroth@hotmail.com>
 
 targets:
-  visor:
-    main: src/visor.cr
+  invidious:
+    main: src/invidious.cr
 
 dependencies:
   kemal:
