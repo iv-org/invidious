@@ -145,6 +145,7 @@ def get_record(context, video_id)
   views = info["view_count"]
   rating = info["avg_rating"].to_f64
 
+  # css query [title = "I like this"] > span
   like = html.xpath_node(%q(//button[@title="I like this"]/span))
   if like
     likes = like.content.delete(",").to_i
@@ -152,7 +153,6 @@ def get_record(context, video_id)
     likes = 1
   end
 
-  # css query [title = "I like this"] > span
   # css query [title = "I dislike this"] > span
   dislike = html.xpath_node(%q(//button[@title="I dislike this"]/span))
   if dislike
@@ -169,22 +169,22 @@ get "/watch/:video_id" do |env|
   video_id = env.params.url["video_id"]
 
   # last_updated, video_id, video_info, video_html, views, likes, dislikes, rating
-  video_record = pg.query_one?("select * from invidious where video_id = $1",
+  video_record = pg.query_one?("select * from videos where video_id = $1",
     video_id,
     as: {Time, String, String, String, Int64, Int32, Int32, Float64})
 
   # If record was last updated more than 5 minutes ago or doesn't exist, refresh
   if video_record.nil?
     video_record = get_record(context, video_id)
-    pg.exec("insert into invidious values ($1, $2, $3, $4, $5, $6, $7, $8)",
-      get_record(context, video_id).to_a)
+    pg.exec("insert into videos values ($1, $2, $3, $4, $5, $6, $7, $8)",
+      video_record.to_a)
   elsif Time.now.epoch - video_record[0].epoch > 300
     video_record = get_record(context, video_id)
-    pg.exec("update invidious set last_updated = $1, video_info = $2, video_html = $3,\
-      views = $4, likes = $5, dislikes = $6, rating = $7 where video_id = $8",
+    pg.exec("update videos set last_updated = $1, video_info = $3, video_html = $4, views = $5, likes = $6, dislikes = $7, rating = $8 where video_id = $2",
       video_record.to_a)
   end
 
+  # last_updated, video_id, video_info, video_html, views, likes, dislikes, rating
   video_info = HTTP::Params.parse(video_record[2])
   video_html = XML.parse(video_record[3])
   views = video_record[4]

@@ -1,8 +1,8 @@
--- Table: public.invidious
+-- Table: public.videos
 
--- DROP TABLE public.invidious;
+-- DROP TABLE public.videos;
 
-CREATE TABLE public.invidious
+CREATE TABLE public.videos
 (
     last_updated timestamp with time zone,
     video_id text COLLATE pg_catalog."default" NOT NULL,
@@ -12,25 +12,25 @@ CREATE TABLE public.invidious
     likes integer,
     dislikes integer,
     rating double precision,
-    CONSTRAINT invidious_pkey PRIMARY KEY (video_id)
+    CONSTRAINT videos_pkey PRIMARY KEY (video_id)
 )
 WITH (
     OIDS = FALSE
 )
 TABLESPACE pg_default;
 
-ALTER TABLE public.invidious
+ALTER TABLE public.videos
     OWNER to omar;
 
-GRANT ALL ON TABLE public.invidious TO kemal;
+GRANT ALL ON TABLE public.videos TO kemal;
 
-GRANT ALL ON TABLE public.invidious TO omar;
+GRANT ALL ON TABLE public.videos TO omar;
 
--- Index: invidious_video_id_idx
+-- Index: videos_video_id_idx
 
--- DROP INDEX public.invidious_video_id_idx;
+-- DROP INDEX public.videos_video_id_idx;
 
-CREATE INDEX invidious_video_id_idx
-    ON public.invidious USING btree
+CREATE INDEX videos_video_id_idx
+    ON public.videos USING btree
     (video_id COLLATE pg_catalog."default")
     TABLESPACE pg_default;
