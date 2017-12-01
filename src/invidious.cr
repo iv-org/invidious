@@ -136,7 +136,7 @@ get "/" do |env|
   templated "index"
 end
 
-def update_record(context, pg, video_id)
+def get_record(context, video_id)
   client = HTTP::Client.new("www.youtube.com", 443, context)
   video_info = client.get("/get_video_info?video_id=#{video_id}&el=info&ps=default&eurl=&gl=US&hl=en").body
   info = HTTP::Params.parse(video_info)
@@ -161,11 +161,8 @@ def update_record(context, pg, video_id)
     dislikes = 1
   end
 
-  pg.exec("update invidious set last_updated = $1, video_info = $2, video_html = $3, views = $4, likes = $5,\
-          dislikes = $6, rating = $7 where video_id = $8",
-    Time.now, video_info, video_html, views, likes, dislikes, rating, video_id)
-
-  return {Time.now, video_id, video_info, video_html, views, likes, dislikes, rating}
+  args = {Time.now, video_id, video_info, video_html, views, likes, dislikes, rating}
+  return args
 end
 
 get "/watch/:video_id" do |env|
@@ -176,11 +173,16 @@ get "/watch/:video_id" do |env|
     video_id,
     as: {Time, String, String, String, Int64, Int32, Int32, Float64})
 
-  # If record was last updated less than 5 minutes ago, use data, otherwise refresh
+  # If record was last updated more than 5 minutes ago or doesn't exist, refresh
   if video_record.nil?
-    video_record = update_record(context, pg, video_id)
+    video_record = get_record(context, video_id)
+    pg.exec("insert into invidious values ($1, $2, $3, $4, $5, $6, $7, $8)",
+      get_record(context, video_id).to_a)
   elsif Time.now.epoch - video_record[0].epoch > 300
-    video_record = update_record(context, pg, video_id)
+    video_record = get_record(context, video_id)
+    pg.exec("update invidious set last_updated = $1, video_info = $2, video_html = $3,\
+      views = $4, likes = $5, dislikes = $6, rating = $7 where video_id = $8",
+      video_record.to_a)
   end
 
   video_info = HTTP::Params.parse(video_record[2])
@@ -200,7 +202,8 @@ get "/watch/:video_id" do |env|
   likes = likes.to_f
   dislikes = dislikes.to_f
   views = views.to_f
-  engagement = (((dislikes + likes)*100)/views).significant(2)
+
+  engagement = ((dislikes + likes)/views * 100).significant(2)
   calculated_rating = likes/(likes + dislikes) * 4 + 1
 
   likes = likes.to_s

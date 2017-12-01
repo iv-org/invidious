@@ -16,6 +16,6 @@ dependencies:
     github: will/crystal-pg
     branch: crystalv024
 
-crystal: 0.24.0
+crystal: 0.23.1
 
 license: MIT
