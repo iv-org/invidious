@@ -11,7 +11,7 @@ crystal deps
 
 ## Usage
 ```bash
-crystal run src/invidious.cr
+./sentry
 ```
 
 ## Contributing
