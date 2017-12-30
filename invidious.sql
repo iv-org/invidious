@@ -12,6 +12,7 @@ CREATE TABLE public.videos
     likes integer,
     dislikes integer,
     rating double precision,
+    description text COLLATE pg_catalog."default",
     CONSTRAINT videos_pkey PRIMARY KEY (video_id)
 )
 WITH (
