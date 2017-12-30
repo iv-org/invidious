@@ -5,41 +5,34 @@ require "pg"
 require "xml"
 require "time"
 
-class AdaptiveFmts
-  JSON.mapping(
-    clen: Int32,
-    url: String,
-    lmt: Int64,
-    index: String,
-    fps: Int32,
-    itag: Int32,
-    projection_type: Int32,
-    size: String,
-    init: String,
-    quality_label: String,
-    bitrate: Int32,
-    type: String
-  )
-end
+# Get rid of everything except video_info, video_html, video_id
 
-class URLEncodedFmtStreamMap
-  JSON.mapping(
-    url: String,
-    itag: Int32,
-    fallback_host: String,
-    quality: String,
-    type: String
-  )
-end
+# class AdaptiveFmts
+#   JSON.mapping(
+#     clen: Int32,
+#     url: String,
+#     lmt: Int64,
+#     index: String,
+#     fps: Int32,
+#     itag: Int32,
+#     projection_type: Int32,
+#     size: String,
+#     init: String,
+#     quality_label: String,
+#     bitrate: Int32,
+#     type: String
+#   )
+# end
 
-class CaptionTracks
-  JSON.mapping(
-    v: String,
-    lc: String,
-    t: String,
-    u: String
-  )
-end
+# class URLEncodedFmtStreamMap
+#   JSON.mapping(
+#     url: String,
+#     itag: Int32,
+#     fallback_host: String,
+#     quality: String,
+#     type: String
+#   )
+# end
 
 class CaptionTranslationLanguages
   JSON.mapping(
@@ -129,68 +122,131 @@ macro templated(filename)
   render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
 end
 
-pg = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
-context = OpenSSL::SSL::Context::Client.insecure
+class Video
+  getter last_updated : Time
+  getter video_id : String
+  getter video_info : String
+  getter video_html : String
+  getter views : String
+  getter likes : Int32
+  getter dislikes : Int32
+  getter rating : Float64
+  getter description : String
 
-get "/" do |env|
-  templated "index"
+  def initialize(last_updated, video_id, video_info, video_html, views, likes, dislikes, rating, description)
+    @last_updated = last_updated
+    @video_id = video_id
+    @video_info = video_info
+    @video_html = video_html
+    @views = views
+    @likes = likes
+    @dislikes = dislikes
+    @rating = rating
+    @description = description
+  end
+
+  def to_a
+    return [@last_updated, @video_id, @video_info, @video_html, @views, @likes, @dislikes, @rating, @description]
+  end
+
+  DB.mapping({
+    last_updated: Time,
+    video_id:     String,
+    video_info:   String,
+    video_html:   String,
+    views:        Int64,
+    likes:        Int32,
+    dislikes:     Int32,
+    rating:       Float64,
+    description:  String,
+  })
 end
 
-def get_record(context, video_id)
+def get_video(video_id, context)
   client = HTTP::Client.new("www.youtube.com", 443, context)
   video_info = client.get("/get_video_info?video_id=#{video_id}&el=info&ps=default&eurl=&gl=US&hl=en").body
   info = HTTP::Params.parse(video_info)
   video_html = client.get("/watch?v=#{video_id}").body
   html = XML.parse(video_html)
-  views = info["view_count"]
+  views = info["view_count"].to_i64
   rating = info["avg_rating"].to_f64
 
-  # css query [title = "I like this"] > span
-  like = html.xpath_node(%q(//button[@title="I like this"]/span))
-  if like
-    likes = like.content.delete(",").to_i
+  likes = html.xpath_node(%q(//button[@title="I like this"]/span))
+  if likes
+    likes = likes.content.delete(",").to_i
   else
     likes = 1
   end
 
-  # css query [title = "I dislike this"] > span
-  dislike = html.xpath_node(%q(//button[@title="I dislike this"]/span))
-  if dislike
-    dislikes = dislike.content.delete(",").to_i
+  dislikes = html.xpath_node(%q(//button[@title="I dislike this"]/span))
+  if dislikes
+    dislikes = dislikes.content.delete(",").to_i
   else
     dislikes = 1
   end
 
-  args = {Time.now, video_id, video_info, video_html, views, likes, dislikes, rating}
-  return args
+  description = html.xpath_node(%q(//p[@id="eow-description"]))
+  if description
+    description = description.to_xml
+  else
+    description = ""
+  end
+
+  video_record = Video.new(Time.now, video_id, video_info, video_html, views, likes, dislikes, rating, description)
+
+  return video_record
 end
 
-get "/watch/:video_id" do |env|
-  video_id = env.params.url["video_id"]
+# See http://www.evanmiller.org/how-not-to-sort-by-average-rating.html
+def ci_lower_bound(pos, n)
+  if n == 0
+    return 0
+  end
 
-  # last_updated, video_id, video_info, video_html, views, likes, dislikes, rating
-  video_record = pg.query_one?("select * from videos where video_id = $1",
-    video_id,
-    as: {Time, String, String, String, Int64, Int32, Int32, Float64})
+  # z value here represents a confidence level of 0.95
+  z = 1.96
+  phat = 1.0*pos/n
 
-  # If record was last updated more than 5 minutes ago or doesn't exist, refresh
-  if video_record.nil?
-    video_record = get_record(context, video_id)
-    pg.exec("insert into videos values ($1, $2, $3, $4, $5, $6, $7, $8)",
+  return (phat + z*z/(2*n) - z * Math.sqrt((phat*(1 - phat) + z*z/(4*n))/n))/(1 + z*z/n)
+end
+
+get "/" do |env|
+  templated "index"
+end
+
+pg = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
+context = OpenSSL::SSL::Context::Client.insecure
+
+get "/watch" do |env|
+  video_id = env.params.query["v"]
+
+  if pg.query_one?("select exists (select true from videos where video_id = $1)", video_id, as: Bool)
+    video_record = pg.query_one("select * from videos where video_id = $1", video_id, as: Video)
+
+    # If record was last updated more than 1 hour ago, refresh
+    if Time.now - video_record.last_updated > Time::Span.new(1, 0, 0, 0)
+      video_record = get_video(video_id, context)
+      pg.exec("update videos set last_updated = $1, video_info = $3, video_html = $4,\
+      views = $5, likes = $6, dislikes = $7, rating = $8, description = $9 where video_id = $2",
       video_record.to_a)
-  elsif Time.now.epoch - video_record[0].epoch > 300
-    video_record = get_record(context, video_id)
-    pg.exec("update videos set last_updated = $1, video_info = $3, video_html = $4, views = $5, likes = $6, dislikes = $7, rating = $8 where video_id = $2",
-      video_record.to_a)
+  end
+  else
+    client = HTTP::Client.new("www.youtube.com", 443, context)
+    video_info = client.get("/get_video_info?video_id=#{video_id}&el=info&ps=default&eurl=&gl=US&hl=en").body
+    info = HTTP::Params.parse(video_info)
+
+    if info["reason"]?
+      error_message = info["reason"]
+      next templated "error"
+    end
+
+    video_record = get_video(video_id, context)
+    pg.exec("insert into videos values ($1,$2,$3,$4,$5,$6,$7,$8, $9)", video_record.to_a)
   end
 
   # last_updated, video_id, video_info, video_html, views, likes, dislikes, rating
-  video_info = HTTP::Params.parse(video_record[2])
-  video_html = XML.parse(video_record[3])
-  views = video_record[4]
-  likes = video_record[5]
-  dislikes = video_record[6]
-  rating = video_record[7]
+  video_info = HTTP::Params.parse(video_record.video_info)
+  video_html = XML.parse(video_record.video_html)
 
   fmt_stream = [] of HTTP::Params
   video_info["url_encoded_fmt_stream_map"].split(",") do |string|
@@ -199,16 +255,18 @@ get "/watch/:video_id" do |env|
 
   fmt_stream.reverse! # We want lowest quality first
 
-  likes = likes.to_f
-  dislikes = dislikes.to_f
-  views = views.to_f
+  related_videos = video_html.xpath_nodes(%q(//li/div/a[contains(@class,"content-link")]/@href))
 
-  engagement = ((dislikes + likes)/views * 100).significant(2)
-  calculated_rating = likes/(likes + dislikes) * 4 + 1
+  if related_videos.empty?
+    related_videos = video_html.xpath_nodes(%q(//ytd-compact-video-renderer/div/a/@href))
+  end
 
-  likes = likes.to_s
-  dislikes = dislikes.to_s
-  views = views.to_s
+  likes = video_record.likes.to_f
+  dislikes = video_record.dislikes.to_f
+  views = video_record.views.to_f
+
+  engagement = ((dislikes + likes)/views * 100)
+  calculated_rating = (likes/(likes + dislikes) * 4 + 1)
 
   templated "watch"
 end
