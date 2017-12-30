@@ -11,6 +11,7 @@ crystal deps
 
 ## Usage
 ```bash
+crystal deps
 ./sentry
 ```
 
