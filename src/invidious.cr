@@ -213,6 +213,31 @@ get "/watch/:video_id" do |env|
   templated "watch"
 end
 
+get "/search" do |env|
+  query = URI.escape(env.params.query["q"])
+  client = HTTP::Client.new("www.youtube.com", 443, context)
+  results_html = client.get("https://www.youtube.com/results?q=#{query}&page=1").body
+  html = XML.parse(results_html)
+
+  videos = html.xpath_nodes(%q(//div[@class="style-scope ytd-item-section-renderer"]/ytd-video-renderer))
+  channels = html.xpath_nodes(%q(//div[@class="style-scope ytd-item-section-renderer"]/ytd-channel-renderer))
+
+  if videos.empty?
+    videos = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-video")]/div/div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
+    channels = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-channel")]/div/div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
+  end
+
+  templated "search"
+end
+
+error 404 do |env|
+  templated "index"
+end
+
+error 500 do |env|
+  templated "index"
+end
+
 public_folder "assets"
 
 Kemal.run
