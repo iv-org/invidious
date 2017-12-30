@@ -8,13 +8,14 @@ module Sentry
     property files = [] of String
 
     def initialize(
-                   @process_name : String,
-                   @build_command : String,
-                   @run_command : String,
-                   @build_args : Array(String) = [] of String,
-                   @run_args : Array(String) = [] of String,
-                   files = [] of String,
-                   should_build = true)
+      @process_name : String,
+      @build_command : String,
+      @run_command : String,
+      @build_args : Array(String) = [] of String,
+      @run_args : Array(String) = [] of String,
+      files = [] of String,
+      should_build = true
+    )
       @files = files
       @should_build = should_build
       @should_kill = false

@@ -5,7 +5,6 @@ require "pg"
 require "xml"
 require "time"
 
-
 macro templated(filename)
   render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
 end
