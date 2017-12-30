@@ -5,8 +5,6 @@ require "pg"
 require "xml"
 require "time"
 
-# Get rid of everything except video_info, video_html, video_id
-
 # class AdaptiveFmts
 #   JSON.mapping(
 #     clen: Int32,
