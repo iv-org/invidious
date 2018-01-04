@@ -107,11 +107,19 @@ context = OpenSSL::SSL::Context::Client.insecure
 get "/watch" do |env|
   video_id = env.params.query["v"]
 
+  if env.params.query["listen"]? && env.params.query["listen"] == "true"
+    env.request.query_params.delete_all("listen")
+    listen = true
+  else
+    env.request.query_params["listen"] = "true"
+    listen = false
+  end
+
   if pg.query_one?("select exists (select true from videos where video_id = $1)", video_id, as: Bool)
     video_record = pg.query_one("select * from videos where video_id = $1", video_id, as: Video)
 
-    # If record was last updated more than 1 hour ago, refresh
-    if Time.now - video_record.last_updated > Time::Span.new(1, 0, 0, 0)
+    # If record was last updated more than 5 hours ago, refresh (expire param in response lasts for 6 hours)
+    if Time.now - video_record.last_updated > Time::Span.new(0, 5, 0, 0)
       video_record = get_video(video_id, context)
       pg.exec("update videos set last_updated = $1, video_info = $3, video_html = $4,\
       views = $5, likes = $6, dislikes = $7, rating = $8, description = $9 where video_id = $2",
@@ -138,6 +146,11 @@ get "/watch" do |env|
   fmt_stream = [] of HTTP::Params
   video_info["url_encoded_fmt_stream_map"].split(",") do |string|
     fmt_stream << HTTP::Params.parse(string)
+  end
+
+  adaptive_fmts = [] of HTTP::Params
+  video_info["adaptive_fmts"].split(",") do |string|
+    adaptive_fmts << HTTP::Params.parse(string)
   end
 
   fmt_stream.reverse! # We want lowest quality first
