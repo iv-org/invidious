@@ -1,0 +1,9 @@
+a.link {
+    color: #222;
+    text-decoration: none;
+}
+
+a:hover.link,
+a:active.link {
+    color: #167ac6;
+}
