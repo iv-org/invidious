@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<%= video.info["title"] %>
+<%= video.info["title"] + " - " %>
 <% end %>
 <video style="width: 100%" poster="<%= video.info.has_key?("iurlhq720") ? video.info["iurlhq720"] : video.info["iurlmq"] %>" controls>
     <% if listen %>

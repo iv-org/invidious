@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-    <%= query.size > 30 ? query[0,30] + "..." : query %>
+    <%= query.size > 30 ? query[0,30] + "... - " : query %>
 <% end %>
 <% videos_list.each do |video| %>
 <div class="pure-g">
