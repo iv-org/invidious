@@ -32,7 +32,7 @@
             <p>Allowed ads : <br><%= video.info.has_key?("allowed_ads") ? video.info["allowed_ads"] : "Unmonetized" %></p> 
         </div>
         <div class="pure-u-1 pure-u-md-3-5">
-            <p><%= video.info["author"] %></p>
+            <p><a class="link" href="https://youtube.com/channel/<%= video.info["ucid"] %>"><%= video.info["author"] %></a></p>
             <p><%= description %></p>
         </div>
         <div class="pure-u-1 pure-u-md-1-5">
@@ -40,8 +40,5 @@
             <a class="link" href="/watch?v=<%= video.id %>"><p><%= video.info["title"] %></p></a>
             <% end %>
     </div>
-</div>      <a class="link" href="/watch?v=<%= video.id %>"><p><%= video.info["title"] %></p></a>
-            <% end %>
-        </div>
     </div>
 </div>
