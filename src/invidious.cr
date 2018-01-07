@@ -82,13 +82,14 @@ def fetch_video(id)
   return video
 end
 
-def get_video(id)
-  if PG_DB.query_one?("SELECT EXISTS ( SELECT true FROM videos WHERE id = $1)", id, as: Bool)
+def get_video(id, refresh = true)
+  if PG_DB.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool)
     video = PG_DB.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
     # If record was last updated more than 5 hours ago, refresh (expire param in response lasts for 6 hours)
-    if Time.now - video.updated > Time::Span.new(0, 5, 0, 0)
+    if refresh && Time.now - video.updated > Time::Span.new(0, 5, 0, 0)
       video = fetch_video(id)
+      PG_DB.exec("UPDATE videos SET info = $2, html = $3, updated = $4 WHERE id = $1", video.to_a)
     end
   else
     video = fetch_video(id)
@@ -112,11 +113,12 @@ get "/watch" do |env|
     next templated "error"
   end
 
-  if env.params.query["listen"]? && env.params.query["listen"] == "true"
-    env.request.query_params.delete_all("listen")
+  query = HTTP::Params.parse(env.request.query.not_nil!)
+  if query["listen"]? && query["listen"] == "true"
+    query.delete_all("listen")
     listen = true
   else
-    env.request.query_params["listen"] = "true"
+    query["listen"] = "true"
     listen = false
   end
 
@@ -141,7 +143,7 @@ get "/watch" do |env|
   related_videos.each do |related_video|
     related_id = related_video.content.split("=")[1]
     begin
-      related_videos_list << get_video(related_id)
+      related_videos_list << get_video(related_id, false)
     rescue ex
       p "#{related_id}: #{ex.message}"
     end
@@ -182,24 +184,25 @@ get "/watch" do |env|
 end
 
 get "/search" do |env|
-  query = URI.escape(env.params.query["q"])
+  query = env.params.query["q"]
+
   client = HTTP::Client.new("www.youtube.com", 443, CONTEXT)
-  html = client.get("https://www.youtube.com/results?q=#{query}&page=1").body
+  html = client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=1").body
   html = XML.parse(html)
 
-  videos = html.xpath_nodes(%q(//div[@class="style-scope ytd-item-section-renderer"]/ytd-video-renderer))
-  channels = html.xpath_nodes(%q(//div[@class="style-scope ytd-item-section-renderer"]/ytd-channel-renderer))
+  videos = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-video")]/div/div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
+  channels = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-channel")]/div/div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
 
   if videos.empty?
-    videos = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-video")]/div/div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
-    channels = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-channel")]/div/div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
+    videos = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-video")]/div/div[@class="yt-lockup-content"]/h3/a/@href))
+    channels = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-channel")]/div[@class="yt-lockup-content"]/h3/a/@href))
   end
 
   videos_list = [] of Video
   videos.each do |video|
     id = video.content.split("=")[1]
     begin
-      videos_list << get_video(id)
+      videos_list << get_video(id, false)
     rescue ex
       p "#{id}: #{ex.message}"
     end
