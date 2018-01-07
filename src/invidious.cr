@@ -7,10 +7,10 @@ require "time"
 
 PG_DB   = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
 CONTEXT = OpenSSL::SSL::Context::Client.insecure
-POOL = [] of HTTP::Client
-10.times do 
+POOL    = [] of HTTP::Client
+10.times do
   POOL << HTTP::Client.new("www.youtube.com", 443, CONTEXT)
-end 
+end
 
 macro templated(filename)
   render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
@@ -71,6 +71,10 @@ end
 
 def fetch_video(id)
   # Grab connection from pool
+  while POOL.empty?
+    sleep rand(0..10).milliseconds
+  end
+
   client = POOL.pop
 
   # client = HTTP::Client.new("www.youtube.com", 443, CONTEXT)
@@ -86,9 +90,9 @@ def fetch_video(id)
 
   # Return connection to pool
   POOL << client
-  
+
   video = Video.new(id, info, html, Time.now)
-  
+
   return video
 end
 
@@ -195,6 +199,10 @@ end
 
 get "/search" do |env|
   query = env.params.query["q"]
+
+  while POOL.empty?
+    sleep rand(0..10).milliseconds
+  end
 
   client = POOL.pop
 
