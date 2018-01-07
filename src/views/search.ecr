@@ -1,3 +1,3 @@
-<% videos.each do |video| %>
-<p><a href="<%= video.content %>"><%= video.content %></a></p>
+<% videos_list.each do |video| %>
+<p><a href="/watch?v=<%= video.id %>"><%= video.info["title"] %></a></p>
 <% end %>

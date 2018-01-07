@@ -1,5 +1,5 @@
-<title><%= video_info["title"] %> - Invidious</title>
-<video style="width: 100%" poster="<%= video_info.has_key?("iurlhq720") ? video_info["iurlhq720"] : video_info["iurlmq"] %>" controls>
+<title><%= video.info["title"] %> - Invidious</title>
+<video style="width: 100%" poster="<%= video.info.has_key?("iurlhq720") ? video.info["iurlhq720"] : video.info["iurlmq"] %>" controls>
     <% if listen %>
         <% adaptive_fmts.each do |fmt| %>
             <% url = fmt["url"] %>
@@ -14,28 +14,29 @@
         <% end %>
     <% end %>
     </video>
-    <h1><%= video_info["title"] %> <a href="/watch?<%= env.request.query %>">
+    <h1><%= video.info["title"] %> <a href="/watch?<%= env.request.query %>">
             <i class="fa <%= listen ? "fa-video-camera" : "fa-volume-up" %>" aria-hidden="true"></i>
         </a>
     </h1>
     <div class="pure-g">
         <div class="pure-u-1 pure-u-md-1-5">
-            <p><i class="fa fa-eye" aria-hidden="true"></i> <%= video_record.views %></p>
-            <p><i class="fa fa-thumbs-up" aria-hidden="true"></i> <%= video_record.likes %></p>
-            <p><i class="fa fa-thumbs-down" aria-hidden="true"></i> <%= video_record.dislikes %></p>
-            <p>Wilson Score : <%= ci_lower_bound(video_record.likes, video_record.likes + video_record.dislikes).round(4) %></p>
-            <p>Rating : <%= video_record.rating.round(4) %> / 5</p>
+            <p><i class="fa fa-eye" aria-hidden="true"></i> <%= views.to_i %></p>
+            <p><i class="fa fa-thumbs-up" aria-hidden="true"></i> <%= likes.to_i %></p>
+            <p><i class="fa fa-thumbs-down" aria-hidden="true"></i> <%= dislikes.to_i %></p>
+            <p>Wilson Score : <%= ci_lower_bound(likes, likes + dislikes).round(4) %></p>
+            <p>Rating : <%= rating.round(4) %> / 5</p>
             <!-- <p>Calculated Rating : <%= calculated_rating.round(4) %> / 5</p> -->
             <p>Engagement : <%= engagement.round(2) %>%</p>
-            <p>Earnings : <%= video_info.has_key?("allowed_ads") ? "~$" + ((video_record.views.to_f / 500).round(2)).to_s : "Unmonetized" %></p>
-            <p>Allowed ads : <br><%= video_info.has_key?("allowed_ads") ? video_info["allowed_ads"] : "Unmonetized" %></p> 
+            <p>Earnings : <%= video.info.has_key?("allowed_ads") ? "~$" + ((views.to_f / 500).round(2)).to_s : "Unmonetized" %></p>
+            <p>Allowed ads : <br><%= video.info.has_key?("allowed_ads") ? video.info["allowed_ads"] : "Unmonetized" %></p> 
         </div>
         <div class="pure-u-1 pure-u-md-3-5">
-            <p><%= video_record.description %></p>
+            <p><%= video.info["author"] %></p>
+            <p><%= description %></p>
         </div>
         <div class="pure-u-1 pure-u-md-1-5">
-            <% related_videos.each do |video| %>
-            <p><a href="<%= video.content %>"><%= video.content %></a></p>
+            <% related_videos_list.each do |video| %>
+            <p><a href="/watch?v=<%= video.id %>"><%= video.info["title"] %></a></p>
             <% end %>
     </div>
 </div>
