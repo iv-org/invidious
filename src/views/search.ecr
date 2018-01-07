@@ -1,3 +1,6 @@
+<% content_for "header" do %>
+    <%= query.size > 30 ? query[0,30] + "..." : query %>
+<% end %>
 <% videos_list.each do |video| %>
 <p><a href="/watch?v=<%= video.id %>"><%= video.info["title"] %></a></p>
 <% end %>
