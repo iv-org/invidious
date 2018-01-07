@@ -7,6 +7,10 @@ require "time"
 
 PG_DB   = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
 CONTEXT = OpenSSL::SSL::Context::Client.insecure
+POOL = [] of HTTP::Client
+10.times do 
+  POOL << HTTP::Client.new("www.youtube.com", 443, CONTEXT)
+end 
 
 macro templated(filename)
   render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
@@ -66,7 +70,10 @@ def ci_lower_bound(pos, n)
 end
 
 def fetch_video(id)
-  client = HTTP::Client.new("www.youtube.com", 443, CONTEXT)
+  # Grab connection from pool
+  client = POOL.pop
+
+  # client = HTTP::Client.new("www.youtube.com", 443, CONTEXT)
   info = client.get("/get_video_info?video_id=#{id}&el=info&ps=default&eurl=&gl=US&hl=en").body
   info = HTTP::Params.parse(info)
 
@@ -77,8 +84,11 @@ def fetch_video(id)
     raise info["reason"]
   end
 
+  # Return connection to pool
+  POOL << client
+  
   video = Video.new(id, info, html, Time.now)
-
+  
   return video
 end
 
@@ -186,7 +196,8 @@ end
 get "/search" do |env|
   query = env.params.query["q"]
 
-  client = HTTP::Client.new("www.youtube.com", 443, CONTEXT)
+  client = POOL.pop
+
   html = client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=1").body
   html = XML.parse(html)
 
@@ -207,6 +218,8 @@ get "/search" do |env|
       p "#{id}: #{ex.message}"
     end
   end
+
+  POOL << client
 
   templated "search"
 end
