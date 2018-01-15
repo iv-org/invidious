@@ -25,7 +25,7 @@ class Video
 
   module XMLConverter
     def self.from_rs(rs)
-      XML.parse(rs.read(String))
+      XML.parse_html(rs.read(String))
     end
   end
 
@@ -49,7 +49,7 @@ class Video
     },
     html: {
       type:      XML::Node,
-      default:   XML.parse(""),
+      default:   XML.parse_html(""),
       converter: Video::XMLConverter,
     },
     updated: Time,
@@ -69,20 +69,24 @@ def ci_lower_bound(pos, n)
   return (phat + z*z/(2*n) - z * Math.sqrt((phat*(1 - phat) + z*z/(4*n))/n))/(1 + z*z/n)
 end
 
-def fetch_video(id)
-  # Grab connection from pool
+def get_client
   while POOL.empty?
     sleep rand(0..10).milliseconds
   end
 
-  client = POOL.pop
+  return POOL.pop
+end
+
+def fetch_video(id)
+  # Grab connection from pool
+  client = get_client
 
   # client = HTTP::Client.new("www.youtube.com", 443, CONTEXT)
-  info = client.get("/get_video_info?video_id=#{id}&el=info&ps=default&eurl=&gl=US&hl=en").body
+  info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en").body
   info = HTTP::Params.parse(info)
 
   html = client.get("/watch?v=#{id}").body
-  html = XML.parse(html)
+  html = XML.parse_html(html)
 
   if info["reason"]?
     raise info["reason"]
@@ -119,6 +123,7 @@ end
 
 get "/watch" do |env|
   id = env.params.query["v"]
+  listen = env.params.query["listen"]? || "false"
 
   begin
     video = get_video(id)
@@ -127,14 +132,7 @@ get "/watch" do |env|
     next templated "error"
   end
 
-  query = HTTP::Params.parse(env.request.query.not_nil!)
-  if query["listen"]? && query["listen"] == "true"
-    query.delete_all("listen")
-    listen = true
-  else
-    query["listen"] = "true"
-    listen = false
-  end
+  player_response = JSON.parse(video.info["player_response"])
 
   fmt_stream = [] of HTTP::Params
   video.info["url_encoded_fmt_stream_map"].split(",") do |string|
@@ -148,83 +146,65 @@ get "/watch" do |env|
     adaptive_fmts << HTTP::Params.parse(string)
   end
 
-  related_videos = video.html.xpath_nodes(%q(//li/div/a[contains(@class,"content-link")]/@href))
-  if related_videos.empty?
-    related_videos = video.html.xpath_nodes(%q(//ytd-compact-video-renderer/div/a/@href))
-  end
-
-  related_videos_list = [] of Video
-  related_videos.each do |related_video|
-    related_id = related_video.content.split("=")[1]
-    begin
-      related_videos_list << get_video(related_id, false)
-    rescue ex
-      p "#{related_id}: #{ex.message}"
-    end
-  end
-
   likes = video.html.xpath_node(%q(//button[@title="I like this"]/span))
-  if likes
-    likes = likes.content.delete(",").to_i
-  else
-    likes = 1
-  end
+  likes = likes ? likes.content.delete(",").to_i : 1
 
   dislikes = video.html.xpath_node(%q(//button[@title="I dislike this"]/span))
-  if dislikes
-    dislikes = dislikes.content.delete(",").to_i
-  else
-    dislikes = 1
-  end
+  dislikes = dislikes ? dislikes.content.delete(",").to_i : 1
 
   description = video.html.xpath_node(%q(//p[@id="eow-description"]))
-  if description
-    description = description.to_xml
-  else
-    description = ""
-  end
+  description = description ? description.to_xml : "Could not load description"
 
   views = video.info["view_count"].to_i64
   rating = video.info["avg_rating"].to_f64
 
-  likes = likes.to_f
-  dislikes = dislikes.to_f
-  views = views.to_f
+  engagement = ((dislikes.to_f + likes.to_f)/views * 100)
+  calculated_rating = (likes.to_f/(likes.to_f + dislikes.to_f) * 4 + 1)
 
-  engagement = ((dislikes + likes)/views * 100)
-  calculated_rating = (likes/(likes + dislikes) * 4 + 1)
+  rvs = [] of Hash(String, String)
+  video.info["rvs"].split(",").each do |rv|
+    rvs << HTTP::Params.parse(rv).to_h
+  end
 
   templated "watch"
 end
 
 get "/search" do |env|
   query = env.params.query["q"]
+  page = env.params.query["page"]? && env.params.query["page"].to_i? ? env.params.query["page"].to_i : 1
+  speed = env.params.query["speed"]? && env.params.query["speed"].to_i? ? env.params.query["speed"].to_i : 1
 
-  while POOL.empty?
-    sleep rand(0..10).milliseconds
-  end
+  client = get_client
 
-  client = POOL.pop
+  html = client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=#{page}").body
+  html = XML.parse_html(html)
 
-  html = client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=1").body
-  html = XML.parse(html)
+  videos = Array(Hash(String, String)).new
 
-  videos = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-video")]/div/div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
-  channels = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-channel")]/div/div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
+  html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-video")]/div)).each do |item|
+    video = {} of String => String
 
-  if videos.empty?
-    videos = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-video")]/div/div[@class="yt-lockup-content"]/h3/a/@href))
-    channels = html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-channel")]/div[@class="yt-lockup-content"]/h3/a/@href))
-  end
-
-  videos_list = [] of Video
-  videos.each do |video|
-    id = video.content.split("=")[1]
-    begin
-      videos_list << get_video(id, false)
-    rescue ex
-      p "#{id}: #{ex.message}"
+    link = item.xpath_node(%q(div/div[@class="yt-lockup-content"]/h3/a/@href))
+    if link
+      video["link"] = link.content
+    else
+      link = item.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a/@href))
+      if link
+        video["link"] = link.content
+      end
     end
+
+    title = item.xpath_node(%q(div/div[@class="yt-lockup-content"]/h3/a))
+    if title
+      video["title"] = title.content
+    else
+      title = item.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a))
+      if title
+        video["title"] = title.content
+      end
+    end
+
+    videos << video
   end
 
   POOL << client
