@@ -2,21 +2,23 @@
 <%= video.info["title"] + " - " %>
 <% end %>
 
-<video id="player" class="video-js" data-setup="{}" style="width:100%" controls>
-    <% if listen == "true" %>
-        <% adaptive_fmts.each do |fmt| %>
-            <% url = fmt["url"] %>
-            <% type = fmt["type"].to_s.split(";")[0] %>
-            <% if type.starts_with?("audio") %>
-                <source src="<%= url %>" type="<%= type %>">
-            <% end %>
-        <% end %>
-    <% else %>
-        <% fmt_stream.each do |fmt| %>
-        <source src="<%= fmt["url"] %>" type="<%= fmt["type"].split(";")[0] %>">
+<% if listen == "true" %>
+<audio id="player" class="video-js" data-setup="{}" style="width:100%" controls>
+    <% adaptive_fmts.each do |fmt| %>
+        <% url = fmt["url"] %>
+        <% type = fmt["type"].to_s.split(";")[0] %>
+        <% if type.starts_with?("audio") %>
+    <source src="<%= url %>" type="<%= type %>">
         <% end %>
     <% end %>
+</audio>
+<% else %>
+<video id="player" class="video-js" data-setup="{}" style="width:100%" controls>
+    <% fmt_stream.each do |fmt| %>
+    <source src="<%= fmt["url"] %>" type="<%= fmt["type"].split(";")[0] %>">
+    <% end %>
 </video>
+<% end %>
 
 <script>
 var options = {

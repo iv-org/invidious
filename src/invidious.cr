@@ -2,8 +2,8 @@ require "http/client"
 require "json"
 require "kemal"
 require "pg"
-require "xml"
 require "time"
+require "xml"
 
 PG_DB   = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
 CONTEXT = OpenSSL::SSL::Context::Client.insecure
@@ -124,7 +124,6 @@ end
 get "/watch" do |env|
   id = env.params.query["v"]
   listen = env.params.query["listen"]? || "false"
-  speed = env.params.query["speed"]? && env.params.query["speed"].to_f? ? env.params.query["speed"].to_f : 1
 
   env.params.query.delete_all("listen")
 
