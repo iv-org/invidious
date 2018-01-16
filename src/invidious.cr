@@ -178,35 +178,44 @@ get "/search" do |env|
 
   client = get_client
 
-  html = client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=#{page}").body
+  html = client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
 
   videos = Array(Hash(String, String)).new
 
-  html.xpath_nodes(%q(//div[contains(@class,"yt-lockup-video")]/div)).each do |item|
-    video = {} of String => String
+  html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
+    root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
+    if root
+      video = {} of String => String
 
-    link = item.xpath_node(%q(div/div[@class="yt-lockup-content"]/h3/a/@href))
-    if link
-      video["link"] = link.content
-    else
-      link = item.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a/@href))
+      link = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
       if link
         video["link"] = link.content
+      else
+        video["link"] = "#"
       end
-    end
 
-    title = item.xpath_node(%q(div/div[@class="yt-lockup-content"]/h3/a))
-    if title
-      video["title"] = title.content
-    else
-      title = item.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a))
+      title = root.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a))
       if title
         video["title"] = title.content
+      else
+        video["title"] = "Something went wrong"
       end
-    end
 
-    videos << video
+      thumbnail = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/div/span/img/@src))
+      if thumbnail && !thumbnail.content.ends_with?(".gif")
+        video["thumbnail"] = thumbnail.content
+      else
+        thumbnail = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/div/span/img/@data-thumb))
+        if thumbnail
+          video["thumbnail"] = thumbnail.content
+        else
+          video["thumbnail"] = "http://via.placeholder.com/246x138"
+        end
+      end
+
+      videos << video
+    end
   end
 
   POOL << client
