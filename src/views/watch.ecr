@@ -71,7 +71,10 @@ var player = videojs('player', options, function() {
     <div class="pure-u-1 pure-u-md-1-5">
     <% rvs.each do |rv| %>
         <% if rv.has_key?("id") %>
-        <p><a class="link" href="/watch?v=<%= rv["id"] %>"><%= rv["title"] %></a></p>
+        <a target="_blank" class="link" href="/watch?v=<%= rv["id"] %>">
+            <img style="width:100%" alt="thumbnail" src="<%= rv["iurlmq"] %>">
+        </a>
+        <p><a target="_blank" class="link" href="/watch?v=<%= rv["id"] %>"><%= rv["title"] %></a></p>
         <% end %>
     <% end %>
     </div>
