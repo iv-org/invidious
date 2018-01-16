@@ -124,6 +124,9 @@ end
 get "/watch" do |env|
   id = env.params.query["v"]
   listen = env.params.query["listen"]? || "false"
+  speed = env.params.query["speed"]? && env.params.query["speed"].to_f? ? env.params.query["speed"].to_f : 1
+
+  env.params.query.delete_all("listen")
 
   begin
     video = get_video(id)
@@ -172,7 +175,6 @@ end
 get "/search" do |env|
   query = env.params.query["q"]
   page = env.params.query["page"]? && env.params.query["page"].to_i? ? env.params.query["page"].to_i : 1
-  speed = env.params.query["speed"]? && env.params.query["speed"].to_i? ? env.params.query["speed"].to_i : 1
 
   client = get_client
 
