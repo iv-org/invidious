@@ -6,10 +6,43 @@ require "time"
 require "xml"
 
 PG_DB   = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
-CONTEXT = OpenSSL::SSL::Context::Client.insecure
-POOL    = [] of HTTP::Client
-10.times do
-  POOL << HTTP::Client.new("www.youtube.com", 443, CONTEXT)
+URL     = URI.parse("https://www.youtube.com")
+CONTEXT = OpenSSL::SSL::Context::Client.new
+CONTEXT.verify_mode = OpenSSL::SSL::VerifyMode::NONE
+CONTEXT.add_options(
+  OpenSSL::SSL::Options::ALL |
+  OpenSSL::SSL::Options::NO_SSL_V2 |
+  OpenSSL::SSL::Options::NO_SSL_V3
+)
+POOL = Deque.new(30) do
+  HTTP::Client.new(URL, CONTEXT)
+end
+
+# Refresh all the connections in the pool by crawling recommended
+spawn do
+  # Arbitrary start value
+  id = "RoEEDKwzNBw"
+  loop do
+    client = get_client
+    time = Time.now
+
+    begin
+      video = get_video(id)
+    rescue ex
+      id = "RoEEDKwzNBw"
+      next
+    end
+
+    rvs = [] of Hash(String, String)
+    video.info["rvs"].split(",").each do |rv|
+      rvs << HTTP::Params.parse(rv).to_h
+    end
+
+    id = rvs[rand(rvs.size)]["id"]
+
+    puts "#{Time.now} 200 GET #{id} #{elapsed_text(Time.now - time)}"
+    POOL << client
+  end
 end
 
 macro templated(filename)
@@ -69,19 +102,25 @@ def ci_lower_bound(pos, n)
   return (phat + z*z/(2*n) - z * Math.sqrt((phat*(1 - phat) + z*z/(4*n))/n))/(1 + z*z/n)
 end
 
+def elapsed_text(elapsed)
+  millis = elapsed.total_milliseconds
+  return "#{millis.round(2)}ms" if millis >= 1
+
+  "#{(millis * 1000).round(2)}µs"
+end
+
 def get_client
   while POOL.empty?
     sleep rand(0..10).milliseconds
   end
 
-  return POOL.pop
+  return POOL.shift
 end
 
 def fetch_video(id)
   # Grab connection from pool
   client = get_client
 
-  # client = HTTP::Client.new("www.youtube.com", 443, CONTEXT)
   info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en").body
   info = HTTP::Params.parse(info)
 
