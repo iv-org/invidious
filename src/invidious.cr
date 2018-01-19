@@ -21,27 +21,26 @@ end
 # Refresh all the connections in the pool by crawling recommended
 spawn do
   # Arbitrary start value
-  id = "RoEEDKwzNBw"
-  loop do
+  id = Deque.new(50,"0xjKNDMgE54")
+  while true
     client = get_client
     time = Time.now
 
     begin
-      video = get_video(id)
+      video = get_video(id[rand(id.size)], false)
+      rvs = [] of Hash(String, String)
+      video.info["rvs"].split(",").each do |rv|
+        rvs << HTTP::Params.parse(rv).to_h
+      end
+      rvs.each do |rv|
+          id << rv["id"]
+      end
+      puts "#{Time.now} 200 GET #{elapsed_text(Time.now - time)}"
     rescue ex
-      id = "RoEEDKwzNBw"
       next
+    ensure
+      POOL << client
     end
-
-    rvs = [] of Hash(String, String)
-    video.info["rvs"].split(",").each do |rv|
-      rvs << HTTP::Params.parse(rv).to_h
-    end
-
-    id = rvs[rand(rvs.size)]["id"]
-
-    puts "#{Time.now} 200 GET #{id} #{elapsed_text(Time.now - time)}"
-    POOL << client
   end
 end
 
