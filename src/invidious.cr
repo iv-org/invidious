@@ -21,9 +21,12 @@ end
 # Refresh all the connections in the pool by crawling recommended
 spawn do
   # Arbitrary start value
-  id = Deque.new(50,"0xjKNDMgE54")
+  id = Deque.new(50, "0xjKNDMgE54")
   while true
     client = get_client
+    if rand(30) > 1
+      client = HTTP::Client.new(URL, CONTEXT)
+    end
     time = Time.now
 
     begin
@@ -33,7 +36,7 @@ spawn do
         rvs << HTTP::Params.parse(rv).to_h
       end
       rvs.each do |rv|
-          id << rv["id"]
+        id << rv["id"]
       end
       puts "#{Time.now} 200 GET #{elapsed_text(Time.now - time)}"
     rescue ex
