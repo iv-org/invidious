@@ -121,20 +121,30 @@ get "/watch" do |env|
     next templated "error"
   end
 
-  player_response = JSON.parse(video.info["player_response"])
-
+  
   fmt_stream = [] of HTTP::Params
   video.info["url_encoded_fmt_stream_map"].split(",") do |string|
     fmt_stream << HTTP::Params.parse(string)
   end
-
+  
   fmt_stream.reverse! # We want lowest quality first
-
+  
   adaptive_fmts = [] of HTTP::Params
-  video.info["adaptive_fmts"].split(",") do |string|
-    adaptive_fmts << HTTP::Params.parse(string)
+  if video.info.has_key?("adaptive_fmts")
+    video.info["adaptive_fmts"].split(",") do |string|
+      adaptive_fmts << HTTP::Params.parse(string)
+    end
   end
-
+  
+  rvs = [] of Hash(String, String)
+  if video.info.has_key?("rvs")
+    video.info["rvs"].split(",").each do |rv|
+      rvs << HTTP::Params.parse(rv).to_h
+    end
+  end
+  
+  player_response = JSON.parse(video.info["player_response"])
+  
   likes = video.html.xpath_node(%q(//button[@title="I like this"]/span))
   likes = likes ? likes.content.delete(",").to_i : 1
 
@@ -149,11 +159,6 @@ get "/watch" do |env|
 
   engagement = ((dislikes.to_f + likes.to_f)/views * 100)
   calculated_rating = (likes.to_f/(likes.to_f + dislikes.to_f) * 4 + 1)
-
-  rvs = [] of Hash(String, String)
-  video.info["rvs"].split(",").each do |rv|
-    rvs << HTTP::Params.parse(rv).to_h
-  end
 
   templated "watch"
 end
