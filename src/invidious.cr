@@ -46,7 +46,7 @@ spawn do
 
   loop do
     if rand(600) < 1
-    client = get_client
+      client = get_client
       client = HTTP::Client.new(URL, CONTEXT)
       client.connect_timeout = Time::Span.new(0, 0, 0, 5)
       POOL << client
@@ -63,21 +63,21 @@ spawn do
       next
     end
 
-      rvs = [] of Hash(String, String)
+    rvs = [] of Hash(String, String)
     if video.info.has_key?("rvs")
       video.info["rvs"].split(",").each do |rv|
         rvs << HTTP::Params.parse(rv).to_h
       end
     end
 
-      rvs.each do |rv|
+    rvs.each do |rv|
       if rv.has_key?("id")
         if !PG_DB.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", rv["id"], as: Bool)
           id << rv["id"]
           if id.size == 50
-        id.shift
-      end
-    end
+            id.shift
+          end
+        end
       end
     end
 
@@ -146,30 +146,28 @@ get "/watch" do |env|
     next templated "error"
   end
 
-  
   fmt_stream = [] of HTTP::Params
   video.info["url_encoded_fmt_stream_map"].split(",") do |string|
     fmt_stream << HTTP::Params.parse(string)
   end
-  
+
   fmt_stream.reverse! # We want lowest quality first
-  
+
   adaptive_fmts = [] of HTTP::Params
   if video.info.has_key?("adaptive_fmts")
     video.info["adaptive_fmts"].split(",") do |string|
       adaptive_fmts << HTTP::Params.parse(string)
     end
   end
-  
   rvs = [] of Hash(String, String)
   if video.info.has_key?("rvs")
     video.info["rvs"].split(",").each do |rv|
       rvs << HTTP::Params.parse(rv).to_h
     end
   end
-  
+
   player_response = JSON.parse(video.info["player_response"])
-  
+
   likes = video.html.xpath_node(%q(//button[@title="I like this"]/span))
   likes = likes ? likes.content.delete(",").to_i : 1
 
