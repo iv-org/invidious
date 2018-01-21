@@ -16,32 +16,47 @@ CONTEXT.add_options(
   OpenSSL::SSL::Options::NO_SSL_V3
 )
 POOL = Deque.new(30) do
-  HTTP::Client.new(URL, CONTEXT)
+  client = HTTP::Client.new(URL, CONTEXT)
+  client.connect_timeout = Time::Span.new(0, 0, 0, 5)
+  client
 end
 
 # Refresh all the connections in the pool by crawling recommended
 spawn do
   # Arbitrary start value
-  id = Deque.new(50,"0xjKNDMgE54")
-  while true
+  id = Deque.new(50, "0xjKNDMgE54")
+  loop do
     client = get_client
+    if rand(100) < 1
+      client = HTTP::Client.new(URL, CONTEXT)
+      client.connect_timeout = Time::Span.new(0, 0, 0, 5)
+    end
     time = Time.now
 
     begin
       video = get_video(id[rand(id.size)], false)
+    rescue ex
+      puts ex
+      POOL << client
+      next
+    end
+
       rvs = [] of Hash(String, String)
+    if video.info.has_key?("rvs")
       video.info["rvs"].split(",").each do |rv|
         rvs << HTTP::Params.parse(rv).to_h
       end
-      rvs.each do |rv|
-          id << rv["id"]
-      end
-      puts "#{Time.now} 200 GET #{elapsed_text(Time.now - time)}"
-    rescue ex
-      next
-    ensure
-      POOL << client
     end
+
+      rvs.each do |rv|
+      if rv.has_key?("id")
+          id << rv["id"]
+        id.shift
+      end
+    end
+
+      POOL << client
+    puts "#{Time.now} 200 GET youtube.com/watch?v=#{video.id} #{elapsed_text(Time.now - time)}"
   end
 end
 
