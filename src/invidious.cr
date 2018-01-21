@@ -24,27 +24,21 @@ end
 # Refresh connections by crawling YT
 spawn do
   # Start video
-  id = Deque.new(10, "_wbqqI0IgY8")
-
-  client = get_client
+  ids = Deque.new(10, "_wbqqI0IgY8")
   random = Random.new
-  html = client.get("https://www.youtube.com/results?q=#{random.base64(3)}&sp=EgIQAVAU").body
-  html = XML.parse_html(html)
 
-  html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
-    root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
-    if root
-      link = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
-      if link
-        id << link.content.split("=")[1]
-        id.shift
-      end
-    end
+  search(random.base64(3)) do |id|
+    ids << id
   end
 
-  POOL << client
-
   loop do
+    if ids.size < 5
+      search(random.base64) do |id|
+        ids << id
+        puts "refreshed ids"
+      end
+    end
+
     if rand(600) < 1
       client = get_client
       client = HTTP::Client.new(URL, CONTEXT)
@@ -55,9 +49,9 @@ spawn do
     time = Time.now
 
     begin
-      i = id[rand(id.size)]
-      video = get_video(i, false)
-      id.delete(i)
+      id = ids[rand(ids.size)]
+      video = get_video(id, false)
+      ids.delete(id)
     rescue ex
       puts ex
       next
@@ -73,9 +67,9 @@ spawn do
     rvs.each do |rv|
       if rv.has_key?("id")
         if !PG_DB.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", rv["id"], as: Bool)
-          id << rv["id"]
-          if id.size == 50
-            id.shift
+          ids << rv["id"]
+          if ids.size == 50
+            ids.shift
           end
         end
       end

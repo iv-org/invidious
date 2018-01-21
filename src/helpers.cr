@@ -64,3 +64,22 @@ def get_video(id, refresh = true)
 
   return video
 end
+
+def search(query)
+  client = get_client
+
+  html = client.get("https://www.youtube.com/results?q=#{query}&sp=EgIQAVAU").body
+  html = XML.parse_html(html)
+
+  html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
+    root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
+    if root
+      link = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
+      if link
+        yield link.content.split("=")[1]
+      end
+    end
+  end
+
+  POOL << client
+end
