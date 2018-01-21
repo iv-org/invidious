@@ -21,23 +21,45 @@ POOL = Deque.new(30) do
   client
 end
 
-# Refresh all the connections in the pool by crawling recommended
+# Refresh connections by crawling YT
 spawn do
-  # Arbitrary start value
-  id = Deque.new(50, "0xjKNDMgE54")
+  # Start video
+  id = Deque.new(10, "_wbqqI0IgY8")
+
+  client = get_client
+  random = Random.new
+  html = client.get("https://www.youtube.com/results?q=#{random.base64(3)}&sp=EgIQAVAU").body
+  html = XML.parse_html(html)
+
+  html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
+    root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
+    if root
+      link = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
+      if link
+        id << link.content.split("=")[1]
+        id.shift
+      end
+    end
+  end
+
+  POOL << client
+
   loop do
+    if rand(600) < 1
     client = get_client
-    if rand(100) < 1
       client = HTTP::Client.new(URL, CONTEXT)
       client.connect_timeout = Time::Span.new(0, 0, 0, 5)
+      POOL << client
     end
+
     time = Time.now
 
     begin
-      video = get_video(id[rand(id.size)], false)
+      i = id[rand(id.size)]
+      video = get_video(i, false)
+      id.delete(i)
     rescue ex
       puts ex
-      POOL << client
       next
     end
 
@@ -50,13 +72,16 @@ spawn do
 
       rvs.each do |rv|
       if rv.has_key?("id")
+        if !PG_DB.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", rv["id"], as: Bool)
           id << rv["id"]
+          if id.size == 50
         id.shift
       end
     end
+      end
+    end
 
-      POOL << client
-    puts "#{Time.now} 200 GET youtube.com/watch?v=#{video.id} #{elapsed_text(Time.now - time)}"
+    puts "#{Time.now} 200 GET www.youtube.com/watch?v=#{video.id} #{elapsed_text(Time.now - time)}"
   end
 end
 
