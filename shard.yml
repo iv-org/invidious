@@ -14,8 +14,8 @@ dependencies:
      branch: master
   pg:
     github: will/crystal-pg
-    branch: crystalv024
+    branch: master
 
-crystal: 0.23.1
+crystal: 0.24.1
 
 license: AGPLv3
