@@ -1,8 +1,5 @@
-require "http/client"
-require "json"
 require "kemal"
 require "pg"
-require "time"
 require "xml"
 require "./helpers"
 
@@ -17,110 +14,77 @@ CONTEXT.add_options(
 )
 POOL = Deque.new(30) do
   client = HTTP::Client.new(URL, CONTEXT)
-  client.connect_timeout = Time::Span.new(0, 0, 0, 5)
+  client.read_timeout = 5.seconds
+  client.connect_timeout = 5.seconds
   client
 end
 
-# Refresh connections by crawling YT
-spawn do
-  # Start video
-  ids = Deque.new(10, "_wbqqI0IgY8")
-  random = Random.new
+# Refresh pool by crawling YT
+10.times do
+  spawn do
+    io = STDOUT
+    ids = Deque(String).new
+    random = Random.new
+    client = get_client(POOL)
 
-  search(random.base64(3)) do |id|
-    ids << id
-  end
+    search(random.base64(3), client) do |id|
+      ids << id
+    end
 
-  loop do
-    if ids.size < 5
-      search(random.base64) do |id|
-        ids << id
-        puts "refreshed ids"
+    loop do
+      if ids.empty?
+        search(random.base64(3), client) do |id|
+          ids << id
+        end
       end
-    end
 
-    if rand(600) < 1
-      client = get_client
-      client = HTTP::Client.new(URL, CONTEXT)
-      client.connect_timeout = Time::Span.new(0, 0, 0, 5)
-      POOL << client
-    end
-
-    time = Time.now
-
-    begin
-      id = ids[rand(ids.size)]
-      video = get_video(id, false)
-      ids.delete(id)
-    rescue ex
-      puts ex
-      next
-    end
-
-    rvs = [] of Hash(String, String)
-    if video.info.has_key?("rvs")
-      video.info["rvs"].split(",").each do |rv|
-        rvs << HTTP::Params.parse(rv).to_h
+      if rand(300) < 1
+        client = HTTP::Client.new(URL, CONTEXT)
+        client.read_timeout = 5.seconds
+        client.connect_timeout = 5.seconds
+        POOL << client
       end
-    end
 
-    rvs.each do |rv|
-      if rv.has_key?("id")
-        if !PG_DB.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", rv["id"], as: Bool)
+      time = Time.now
+
+      begin
+        id = ids[0]
+        video = get_video(id, client, PG_DB, false)
+      rescue ex
+        io << id << " : " << ex << "\n"
+        client = HTTP::Client.new(URL, CONTEXT)
+        client.read_timeout = 5.seconds
+        client.connect_timeout = 5.seconds
+        POOL << client
+        next
+      ensure
+        ids.delete(id)
+      end
+
+      rvs = [] of Hash(String, String)
+      if video.info.has_key?("rvs")
+        video.info["rvs"].split(",").each do |rv|
+          rvs << HTTP::Params.parse(rv).to_h
+        end
+      end
+
+      rvs.each do |rv|
+        if rv.has_key?("id") && !PG_DB.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", rv["id"], as: Bool)
+          ids.delete(id)
           ids << rv["id"]
-          if ids.size == 50
+          if ids.size == 150
             ids.shift
           end
         end
       end
-    end
 
-    puts "#{Time.now} 200 GET www.youtube.com/watch?v=#{video.id} #{elapsed_text(Time.now - time)}"
+      io << Time.now << " 200 GET www.youtube.com/watch?v=" << video.id << " " << elapsed_text(Time.now - time) << "\n"
+    end
   end
 end
 
 macro templated(filename)
   render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
-end
-
-class Video
-  module HTTPParamConverter
-    def self.from_rs(rs)
-      HTTP::Params.parse(rs.read(String))
-    end
-  end
-
-  module XMLConverter
-    def self.from_rs(rs)
-      XML.parse_html(rs.read(String))
-    end
-  end
-
-  def initialize(id, info, html, updated)
-    @id = id
-    @info = info
-    @html = html
-    @updated = updated
-  end
-
-  def to_a
-    return [@id, @info, @html, @updated]
-  end
-
-  DB.mapping({
-    id:   String,
-    info: {
-      type:      HTTP::Params,
-      default:   HTTP::Params.parse(""),
-      converter: Video::HTTPParamConverter,
-    },
-    html: {
-      type:      XML::Node,
-      default:   XML.parse_html(""),
-      converter: Video::XMLConverter,
-    },
-    updated: Time,
-  })
 end
 
 get "/" do |env|
@@ -133,8 +97,9 @@ get "/watch" do |env|
 
   env.params.query.delete_all("listen")
 
+  client = get_client(POOL)
   begin
-    video = get_video(id)
+    video = get_video(id, client, PG_DB)
   rescue ex
     error_message = ex.message
     next templated "error"
@@ -153,6 +118,7 @@ get "/watch" do |env|
       adaptive_fmts << HTTP::Params.parse(string)
     end
   end
+
   rvs = [] of Hash(String, String)
   if video.info.has_key?("rvs")
     video.info["rvs"].split(",").each do |rv|
@@ -162,20 +128,13 @@ get "/watch" do |env|
 
   player_response = JSON.parse(video.info["player_response"])
 
-  likes = video.html.xpath_node(%q(//button[@title="I like this"]/span))
-  likes = likes ? likes.content.delete(",").to_i : 1
-
-  dislikes = video.html.xpath_node(%q(//button[@title="I dislike this"]/span))
-  dislikes = dislikes ? dislikes.content.delete(",").to_i : 1
-
   description = video.html.xpath_node(%q(//p[@id="eow-description"]))
   description = description ? description.to_xml : "Could not load description"
 
-  views = video.info["view_count"].to_i64
   rating = video.info["avg_rating"].to_f64
 
-  engagement = ((dislikes.to_f + likes.to_f)/views * 100)
-  calculated_rating = (likes.to_f/(likes.to_f + dislikes.to_f) * 4 + 1)
+  engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
+  calculated_rating = (video.likes.to_f/(video.likes.to_f + video.dislikes.to_f) * 4 + 1)
 
   templated "watch"
 end
@@ -184,7 +143,7 @@ get "/search" do |env|
   query = env.params.query["q"]
   page = env.params.query["page"]? && env.params.query["page"].to_i? ? env.params.query["page"].to_i : 1
 
-  client = get_client
+  client = get_client(POOL)
 
   html = client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
