@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<title><%= query.size > 30 ? query[0,30].chomp("...") + "..." : query %> - Invidious</title>
+<title><%= query.size > 30 ? query[0,30].rstrip(".") + "..." : query %> - Invidious</title>
 <% end %>
 
 <% videos.each do |item| %>
