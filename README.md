@@ -21,7 +21,7 @@ $ crystal deps
 
 ### Installing Postgres:
 
-Onn Arch:
+On Arch:
 Install according to the [wiki](https://wiki.archlinux.org/index.php/PostgreSQL), then setup database with:
 ```bash
 $ ./setup.sh
