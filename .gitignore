@@ -1,7 +1,9 @@
 /doc/
+/dev/
 /lib/
 /bin/
 /.shards/
 /video_info/
 /.vscode/
 invidious
+sentry
