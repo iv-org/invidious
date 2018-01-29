@@ -1,7 +1,5 @@
 -- Table: public.videos
 
-DROP TABLE videos;
-
 CREATE TABLE public.videos
 (
     id text COLLATE pg_catalog."default" NOT NULL,
