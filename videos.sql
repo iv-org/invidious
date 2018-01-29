@@ -1,6 +1,6 @@
 -- Table: public.videos
 
--- DROP TABLE public.videos;
+DROP TABLE videos;
 
 CREATE TABLE public.videos
 (
@@ -8,6 +8,11 @@ CREATE TABLE public.videos
     info text COLLATE pg_catalog."default",
     html text COLLATE pg_catalog."default",
     updated timestamp with time zone,
+    title text COLLATE pg_catalog."default",
+    views bigint,
+    likes integer,
+    dislikes integer,
+    wilson_score double precision,
     CONSTRAINT videos_pkey PRIMARY KEY (id)
 )
 WITH (
@@ -15,16 +20,9 @@ WITH (
 )
 TABLESPACE pg_default;
 
-ALTER TABLE public.videos
-    OWNER to omar;
-
 GRANT ALL ON TABLE public.videos TO kemal;
 
-GRANT ALL ON TABLE public.videos TO omar;
-
 -- Index: id_idx
-
--- DROP INDEX public.id_idx;
 
 CREATE UNIQUE INDEX id_idx
     ON public.videos USING btree

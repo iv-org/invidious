@@ -1,18 +1,46 @@
 # Invidious
 
-Alternative frontend for YouTube
+> Invidious is a web application that indexes popular video sites
 
 ## Installation
 
+### Installing [Crystal](https://github.com/crystal-lang/crystal):
+
+On Arch:
 ```bash
-pacman -Syu shards crystal
-crystal deps
+$ sudo pacman -Syu shards crystal
+$ crystal deps
 ```
 
-## Usage
+On OSX:
 ```bash
-crystal deps
-./sentry
+$ brew update
+$ brew install shards crystal-lang
+$ crystal deps
+```
+
+### Installing Postgres:
+
+Onn Arch:
+Install according to the [wiki](https://wiki.archlinux.org/index.php/PostgreSQL), then setup database with:
+```bash
+$ ./setup.sh
+```
+On OSX:
+```bash
+$ brew install postgres
+```
+
+## Usage:
+
+```bash
+$ crystal src/invidious.cr
+```
+
+Or for development:
+```bash
+$ curl -fsSLo- https://raw.githubusercontent.com/samueleaton/sentry/master/install.cr | crystal eval
+$ ./sentry
 ```
 
 ## Contributing
