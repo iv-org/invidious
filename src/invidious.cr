@@ -15,9 +15,28 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require "kemal"
+require "option_parser"
 require "pg"
 require "xml"
 require "./helpers"
+
+threads = 10
+
+OptionParser.parse! do |parser|
+  parser.banner = "Usage: invidious [arguments]"
+  parser.on("-t THREADS", "--threads=THREADS", "Number of threads for crawling") do |number|
+    begin
+      threads = number.to_i32
+    rescue ex
+      puts "THREADS must be integer"
+      exit
+    end
+  end
+  parser.on("-h", "--help", "Show this help") do
+    puts parser
+    exit
+  end
+end
 
 PG_DB   = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
 URL     = URI.parse("https://www.youtube.com")
@@ -36,7 +55,7 @@ POOL = Deque.new(30) do
 end
 
 # Refresh pool by crawling YT
-10.times do
+threads.times do
   spawn do
     io = STDOUT
     ids = Deque(String).new
