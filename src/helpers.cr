@@ -88,7 +88,11 @@ def fetch_video(id, client)
   info = HTTP::Params.parse(info)
 
   if info["reason"]?
-    raise info["reason"]
+    info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en").body
+    info = HTTP::Params.parse(info)
+    if info["reason"]?
+      raise info["reason"]
+    end
   end
 
   title = info["title"]
