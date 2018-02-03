@@ -126,12 +126,25 @@ get "/watch" do |env|
     fmt_stream << HTTP::Params.parse(string)
   end
 
-  fmt_stream.reverse! # We want lowest quality first
+  if fmt_stream[0]["s"]?
+    fmt_stream.each do |fmt|
+      fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"])}"
+    end
+  end
+
+  # We want lowest quality first
+  fmt_stream.reverse!
 
   adaptive_fmts = [] of HTTP::Params
   if video.info.has_key?("adaptive_fmts")
     video.info["adaptive_fmts"].split(",") do |string|
       adaptive_fmts << HTTP::Params.parse(string)
+    end
+  end
+
+  if adaptive_fmts[0]["s"]?
+    adaptive_fmts.each do |fmt|
+      fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"])}"
     end
   end
 

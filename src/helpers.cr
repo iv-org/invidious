@@ -163,3 +163,13 @@ def search(query, client)
     end
   end
 end
+
+def decrypt_signature(a)
+  a = a.split("");
+  a.delete_at(0..2)
+  a = a.reverse
+  c = a[0]
+  a[0] = a[49 % a.size]
+  a[49] = c
+  return a.join("")
+end
