@@ -11,6 +11,7 @@ CREATE TABLE public.videos
     likes integer,
     dislikes integer,
     wilson_score double precision,
+    published timestamp with time zone,
     CONSTRAINT videos_pkey PRIMARY KEY (id)
 )
 WITH (

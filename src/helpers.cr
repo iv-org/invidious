@@ -11,7 +11,7 @@ class Video
     end
   end
 
-  def initialize(id, info, html, updated, title, views, likes, dislikes, wilson_score)
+  def initialize(id, info, html, updated, title, views, likes, dislikes, wilson_score, published)
     @id = id
     @info = info
     @html = html
@@ -21,10 +21,11 @@ class Video
     @likes = likes
     @dislikes = dislikes
     @wilson_score = wilson_score
+    @published = published
   end
 
   def to_a
-    return [@id, @info, @html, @updated, @title, @views, @likes, @dislikes, @wilson_score]
+    return [@id, @info, @html, @updated, @title, @views, @likes, @dislikes, @wilson_score, @published]
   end
 
   DB.mapping({
@@ -45,6 +46,7 @@ class Video
     likes:        Int32,
     dislikes:     Int32,
     wilson_score: Float64,
+    published:    Time,
   })
 end
 
@@ -101,7 +103,23 @@ def fetch_video(id, client)
 
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
-  video = Video.new(id, info, html, Time.now, title, views, likes, dislikes, wilson_score)
+  published = html.xpath_node(%q(//strong[@class="watch-time-text"]))
+  if published
+    published = published.content
+    published = published.lchop("Published on ")
+    published = published.lchop("Streamed live on ")
+    published = published.lchop("Started streaming on ")
+    if !published.includes?("ago")
+      published = Time.parse(published, "%b %-d, %Y")
+    else
+      # Time matches format "20 hours ago", "40 minutes ago"...
+      published = Time.now.date
+    end
+  else
+    published = Time.epoch(0)
+  end
+
+  video = Video.new(id, info, html, Time.now, title, views, likes, dislikes, wilson_score, published)
 
   return video
 end
@@ -114,11 +132,11 @@ def get_video(id, client, db, refresh = true)
     if refresh && Time.now - video.updated > 1.hours
       video = fetch_video(id, client)
       db.exec("UPDATE videos SET info = $2, html = $3, updated = $4,\
-       title = $5, views = $6, likes = $7, dislikes = $8, wilson_score = $9 WHERE id = $1", video.to_a)
+       title = $5, views = $6, likes = $7, dislikes = $8, wilson_score = $9, published = $10 WHERE id = $1", video.to_a)
     end
   else
     video = fetch_video(id, client)
-    db.exec("INSERT INTO videos VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", video.to_a)
+    db.exec("INSERT INTO videos VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", video.to_a)
   end
 
   return video
