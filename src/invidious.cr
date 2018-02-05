@@ -47,10 +47,10 @@ CONTEXT.add_options(
   OpenSSL::SSL::Options::NO_SSL_V2 |
   OpenSSL::SSL::Options::NO_SSL_V3
 )
-pool = Deque.new((threads * 1.2).to_i) do
+pool = Deque.new((threads * 1.2 + 1).to_i) do
   client = HTTP::Client.new(URL, CONTEXT)
-  client.read_timeout = 5.seconds
-  client.connect_timeout = 5.seconds
+  client.read_timeout = 10.seconds
+  client.connect_timeout = 10.seconds
   client
 end
 
@@ -75,8 +75,8 @@ threads.times do
 
       if rand(300) < 1
         client = HTTP::Client.new(URL, CONTEXT)
-        client.read_timeout = 5.seconds
-        client.connect_timeout = 5.seconds
+        client.read_timeout = 10.seconds
+        client.connect_timeout = 10.seconds
         pool << client
       end
 
@@ -88,8 +88,8 @@ threads.times do
       rescue ex
         io << id << " : " << ex << "\n"
         client = HTTP::Client.new(URL, CONTEXT)
-        client.read_timeout = 5.seconds
-        client.connect_timeout = 5.seconds
+        client.read_timeout = 10.seconds
+        client.connect_timeout = 10.seconds
         pool << client
         next
       ensure
@@ -198,7 +198,7 @@ get "/watch" do |env|
 
   engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
   if video.likes > 0 || video.dislikes > 0
-  calculated_rating = (video.likes.to_f/(video.likes.to_f + video.dislikes.to_f) * 4 + 1)
+    calculated_rating = (video.likes.to_f/(video.likes.to_f + video.dislikes.to_f) * 4 + 1)
   else
     calculated_rating = 0.0
   end
