@@ -47,7 +47,7 @@ CONTEXT.add_options(
   OpenSSL::SSL::Options::NO_SSL_V2 |
   OpenSSL::SSL::Options::NO_SSL_V3
 )
-POOL = Deque.new(30) do
+pool = Deque.new((threads * 1.2).to_i) do
   client = HTTP::Client.new(URL, CONTEXT)
   client.read_timeout = 5.seconds
   client.connect_timeout = 5.seconds
@@ -60,7 +60,7 @@ threads.times do
     io = STDOUT
     ids = Deque(String).new
     random = Random.new
-    client = get_client(POOL)
+    client = get_client(pool)
 
     search(random.base64(3), client) do |id|
       ids << id
@@ -77,20 +77,20 @@ threads.times do
         client = HTTP::Client.new(URL, CONTEXT)
         client.read_timeout = 5.seconds
         client.connect_timeout = 5.seconds
-        POOL << client
+        pool << client
       end
 
       time = Time.now
 
       begin
         id = ids[0]
-        video = get_video(id, client, PG_DB, false)
+        video = get_video(id, client, PG_DB)
       rescue ex
         io << id << " : " << ex << "\n"
         client = HTTP::Client.new(URL, CONTEXT)
         client.read_timeout = 5.seconds
         client.connect_timeout = 5.seconds
-        POOL << client
+        pool << client
         next
       ensure
         ids.delete(id)
@@ -132,7 +132,7 @@ get "/watch" do |env|
 
   env.params.query.delete_all("listen")
 
-  client = get_client(POOL)
+  client = get_client(pool)
   begin
     video = get_video(id, client, PG_DB)
   rescue ex
@@ -191,7 +191,7 @@ get "/search" do |env|
   query = env.params.query["q"]
   page = env.params.query["page"]? && env.params.query["page"].to_i? ? env.params.query["page"].to_i : 1
 
-  client = get_client(POOL)
+  client = get_client(pool)
 
   html = client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
@@ -233,7 +233,7 @@ get "/search" do |env|
     end
   end
 
-  POOL << client
+  pool << client
 
   templated "search"
 end
