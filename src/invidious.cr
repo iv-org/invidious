@@ -242,12 +242,12 @@ get "/search" do |env|
   templated "search"
 end
 
-error 404 do |env|
-  templated "index"
+get "/:path" do |env|
+  env.redirect "/"
 end
 
 error 500 do |env|
-  templated "index"
+  "Error 500"
 end
 
 public_folder "assets"
