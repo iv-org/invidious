@@ -100,27 +100,38 @@ def fetch_video(id, client)
   views = info["view_count"].to_i64
 
   likes = html.xpath_node(%q(//button[@title="I like this"]/span))
-  likes = likes ? likes.content.delete(",").to_i : 1
+  likes = likes ? likes.content.delete(",").to_i : 0
 
   dislikes = html.xpath_node(%q(//button[@title="I dislike this"]/span))
   dislikes = dislikes ? dislikes.content.delete(",").to_i : 0
 
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
-  published = html.xpath_node(%q(//strong[@class="watch-time-text"]))
+  published = html.xpath_node(%q(//strong[contains(@class,"watch-time-text")]))
   if published
     published = published.content
-    published = published.lchop("Published on ")
-    published = published.lchop("Streamed live on ")
-    published = published.lchop("Started streaming on ")
+  else
+    raise "Could not find date published"
+  end
+
+  published = published.lchop("Published ")
+  published = published.lchop("Streamed live ")
+  published = published.lchop("Started streaming ")
+  published = published.lchop("on ")
+  published = published.lchop("Scheduled for ")
     if !published.includes?("ago")
       published = Time.parse(published, "%b %-d, %Y")
     else
       # Time matches format "20 hours ago", "40 minutes ago"...
-      published = Time.now.date
-    end
+    delta = published.split(" ")[0].to_i
+    case published
+    when .includes? "minute"
+      published = Time.now - delta.minutes
+    when .includes? "hour"
+      published = Time.now - delta.hours
   else
-    published = Time.epoch(0)
+      raise "Could not parse #{published}"
+  end
   end
 
   video = Video.new(id, info, html, Time.now, title, views, likes, dislikes, wilson_score, published)
@@ -165,7 +176,7 @@ def search(query, client)
 end
 
 def decrypt_signature(a)
-  a = a.split("");
+  a = a.split("")
   a.delete_at(0..2)
   a = a.reverse
   c = a[0]

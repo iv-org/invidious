@@ -182,7 +182,11 @@ get "/watch" do |env|
   rating = video.info["avg_rating"].to_f64
 
   engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
+  if video.likes > 0 || video.dislikes > 0
   calculated_rating = (video.likes.to_f/(video.likes.to_f + video.dislikes.to_f) * 4 + 1)
+  else
+    calculated_rating = 0.0
+  end
 
   templated "watch"
 end
