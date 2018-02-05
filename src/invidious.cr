@@ -123,6 +123,21 @@ macro templated(filename)
 end
 
 get "/" do |env|
+  top = rank_videos(PG_DB, 120)
+
+  args = [] of String
+  1..(top.size - 1).times { |i| args << "($#{i + 1}), " }
+  args << "($#{top.size}) "
+  args = args.join("")
+
+  videos = [] of Video
+  PG_DB.query("SELECT * FROM videos d INNER JOIN (VALUES #{args}) v(id) USING (id)", top) do |rs|
+    rs.each do
+      video = rs.read(Video)
+      videos << video
+    end
+  end
+
   templated "index"
 end
 

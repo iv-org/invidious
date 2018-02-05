@@ -184,3 +184,28 @@ def decrypt_signature(a)
   a[49] = c
   return a.join("")
 end
+
+def rank_videos(db, n)
+  top = [] of {Float64, String}
+
+  db.query("SELECT id, wilson_score, published FROM videos WHERE views > 5000 ORDER BY published DESC LIMIT 10000") do |rs|
+    rs.each do
+      id = rs.read(String)
+      wilson_score = rs.read(Float64)
+      published = rs.read(Time)
+
+      # Exponential decay, older videos tend to rank lower
+      temperature = wilson_score * Math.exp(-0.02*((Time.now - published).hours))
+      top << {temperature, id}
+    end
+  end
+
+  top.sort!
+
+  # Make hottest come first
+  top.reverse!
+  top = top.map { |a, b| b }
+
+  # Return top
+  return top[1..n]
+end
