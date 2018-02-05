@@ -119,19 +119,19 @@ def fetch_video(id, client)
   published = published.lchop("Started streaming ")
   published = published.lchop("on ")
   published = published.lchop("Scheduled for ")
-    if !published.includes?("ago")
-      published = Time.parse(published, "%b %-d, %Y")
-    else
-      # Time matches format "20 hours ago", "40 minutes ago"...
+  if !published.includes?("ago")
+    published = Time.parse(published, "%b %-d, %Y")
+  else
+    # Time matches format "20 hours ago", "40 minutes ago"...
     delta = published.split(" ")[0].to_i
     case published
     when .includes? "minute"
       published = Time.now - delta.minutes
     when .includes? "hour"
       published = Time.now - delta.hours
-  else
+    else
       raise "Could not parse #{published}"
-  end
+    end
   end
 
   video = Video.new(id, info, html, Time.now, title, views, likes, dislikes, wilson_score, published)
