@@ -209,3 +209,10 @@ def rank_videos(db, n)
   # Return top
   return top[1..n]
 end
+
+def make_client(url, context)
+  client = HTTP::Client.new(URL, CONTEXT)
+  client.read_timeout = 10.seconds
+  client.connect_timeout = 10.seconds
+  return client
+end

@@ -48,10 +48,7 @@ CONTEXT.add_options(
   OpenSSL::SSL::Options::NO_SSL_V3
 )
 pool = Deque.new((threads * 1.2 + 1).to_i) do
-  client = HTTP::Client.new(URL, CONTEXT)
-  client.read_timeout = 10.seconds
-  client.connect_timeout = 10.seconds
-  client
+  make_client(URL, CONTEXT)
 end
 
 # Refresh pool by crawling YT
@@ -74,10 +71,7 @@ threads.times do
       end
 
       if rand(300) < 1
-        client = HTTP::Client.new(URL, CONTEXT)
-        client.read_timeout = 10.seconds
-        client.connect_timeout = 10.seconds
-        pool << client
+        pool << make_client(URL, CONTEXT)
       end
 
       time = Time.now
@@ -87,10 +81,7 @@ threads.times do
         video = get_video(id, client, PG_DB)
       rescue ex
         io << id << " : " << ex << "\n"
-        client = HTTP::Client.new(URL, CONTEXT)
-        client.read_timeout = 10.seconds
-        client.connect_timeout = 10.seconds
-        pool << client
+        pool << make_client(URL, CONTEXT)
         next
       ensure
         ids.delete(id)
