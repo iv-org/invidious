@@ -24,7 +24,7 @@ threads = 10
 
 OptionParser.parse! do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-t THREADS", "--threads=THREADS", "Number of threads for crawling") do |number|
+  parser.on("-t THREADS", "--threads=THREADS", "Number of threads for crawling (default: 10)") do |number|
     begin
       threads = number.to_i32
     rescue ex
