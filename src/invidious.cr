@@ -151,9 +151,11 @@ get "/watch" do |env|
     fmt_stream << HTTP::Params.parse(string)
   end
 
-  if fmt_stream[0]["s"]?
-    fmt_stream.each do |fmt|
-      fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"])}"
+  if fmt_stream[0]?
+    if fmt_stream[0]["s"]?
+      fmt_stream.each do |fmt|
+        fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"])}"
+      end
     end
   end
 
@@ -167,9 +169,11 @@ get "/watch" do |env|
     end
   end
 
-  if adaptive_fmts[0]["s"]?
-    adaptive_fmts.each do |fmt|
-      fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"])}"
+  if adaptive_fmts[0]?
+    if adaptive_fmts[0]["s"]?
+      adaptive_fmts.each do |fmt|
+        fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"])}"
+      end
     end
   end
 
