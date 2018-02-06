@@ -6,7 +6,7 @@
 <% end %>
 
 <% if listen == "true" %>
-<audio id="player" class="video-js" data-setup="{}" style="width:100%" controls>
+<audio id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
     <% adaptive_fmts.each do |fmt| %>
         <% url = fmt["url"] %>
         <% type = fmt["type"].to_s.split(";")[0] %>
@@ -16,7 +16,7 @@
     <% end %>
 </audio>
 <% else %>
-<video id="player" class="video-js" data-setup="{}" style="width:100%" controls>
+<video id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
     <% fmt_stream.each do |fmt| %>
     <source src="<%= fmt["url"] %>" type="<%= fmt["type"].split(";")[0] %>">
     <% end %>
@@ -110,10 +110,10 @@ var player = videojs('player', options, function() {
     <% rvs.each do |rv| %>
         <% if rv.has_key?("id") %>
         <a class="link" href="/watch?v=<%= rv["id"] %>">
-            <img style="width:100%" alt="thumbnail" src="<%= rv["iurlmq"] %>">
+            <img style="width:100%;" alt="thumbnail" src="<%= rv["iurlmq"] %>">
         </a>
         <p>
-            <a style="display:block; width:100%; height:100%" class="link" href="/watch?v=<%= rv["id"] %>"><%= rv["title"] %></a>
+            <a style="display:block; width:100%; height:100%;" class="link" href="/watch?v=<%= rv["id"] %>"><%= rv["title"] %></a>
         </p>
         <% end %>
     <% end %>
