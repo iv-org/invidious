@@ -22,7 +22,7 @@ require "./helpers"
 
 threads = 10
 
-OptionParser.parse! do |parser|
+Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
   parser.on("-t THREADS", "--threads=THREADS", "Number of threads for crawling (default: 10)") do |number|
     begin
@@ -110,8 +110,8 @@ threads.times do
 end
 
 macro templated(filename)
-  render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
-end
+    render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
+  end
 
 get "/" do |env|
   top = rank_videos(PG_DB, 120)
