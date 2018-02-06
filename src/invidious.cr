@@ -203,6 +203,8 @@ get "/watch" do |env|
     calculated_rating = 0.0
   end
 
+  pool << client
+
   templated "watch"
 end
 
