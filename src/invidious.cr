@@ -104,7 +104,7 @@ threads.times do
         end
       end
 
-      io << Time.now << " 200 GET www.youtube.com/watch?v=" << video.id << " " << elapsed_text(Time.now - time) << "\n"
+      # io << Time.now << " 200 GET www.youtube.com/watch?v=" << video.id << " " << elapsed_text(Time.now - time) << "\n"
     end
   end
 end
