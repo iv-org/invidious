@@ -113,10 +113,8 @@ var player = videojs('player', options, function() {
         <% if rv.has_key?("id") %>
         <a class="link" href="/watch?v=<%= rv["id"] %>">
             <img style="width:100%;" alt="thumbnail" src="<%= rv["iurlmq"] %>">
+            <%= rv["title"] %>
         </a>
-        <p>
-            <a style="display:block; width:100%; height:100%;" class="link" href="/watch?v=<%= rv["id"] %>"><%= rv["title"] %></a>
-        </p>
         <% end %>
     <% end %>
     </div>
