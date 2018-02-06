@@ -34,7 +34,42 @@ var player = videojs('player', options, function() {
     this.hotkeys({
     volumeStep: 0.1,
     seekStep: 5,
-    enableModifiersForNumbers: false
+    enableModifiersForNumbers: false,
+    enableVolumeScroll: false,
+    customKeys: {
+        play: {
+            key: function(e) {
+            // Toggle play with K Key
+            return (e.which === 75);
+            },
+            handler: function(player, options, e) {
+            // Example
+            if (player.paused()) {
+                player.play();
+            } else {
+                player.pause();
+            }
+            }
+        },
+        backward: {
+            key: function(e) {
+                // Go backward 5 seconds
+                return (e.which === 74);
+            },
+            handler: function(player, options, e) {
+                player.currentTime(player.currentTime() - 5);
+            }
+        },
+        forward: {
+            key: function(e) {
+                // Go forward 5 seconds
+                return (e.which === 76);
+            },
+            handler: function(player, options, e) {
+                player.currentTime(player.currentTime() + 5);
+            }
+        }
+    }
   });
 });
 </script>
