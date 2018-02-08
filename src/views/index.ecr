@@ -2,7 +2,7 @@
 <title>Invidious</title>
 <% end %>
 
-<% videos.each_slice(4) do |slice| %>
+<% top_videos.each_slice(4) do |slice| %>
 <div class="pure-g">
 <% slice.each do |video| %>
     <% player_response = JSON.parse(video.info["player_response"]) %>

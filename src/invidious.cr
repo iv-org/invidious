@@ -109,26 +109,36 @@ threads.times do
   end
 end
 
+top_videos = [] of Video
+
+spawn do
+  loop do
+    top = rank_videos(PG_DB, 120)
+    client = get_client(pool)
+
+    args = [] of String
+    1..(top.size - 1).times { |i| args << "($#{i + 1}), " }
+    args << "($#{top.size}) "
+    args = args.join("")
+
+    PG_DB.query("SELECT * FROM videos d INNER JOIN (VALUES #{args}) v(id) USING (id)", top) do |rs|
+      rs.each do
+        video = rs.read(Video)
+        top_videos << video
+      end
+    end
+
+    pool << client
+
+    sleep 5.minutes
+  end
+end
+
 macro templated(filename)
     render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
   end
 
 get "/" do |env|
-  top = rank_videos(PG_DB, 120)
-
-  args = [] of String
-  1..(top.size - 1).times { |i| args << "($#{i + 1}), " }
-  args << "($#{top.size}) "
-  args = args.join("")
-
-  videos = [] of Video
-  PG_DB.query("SELECT * FROM videos d INNER JOIN (VALUES #{args}) v(id) USING (id)", top) do |rs|
-    rs.each do
-      video = rs.read(Video)
-      videos << video
-    end
-  end
-
   templated "index"
 end
 
@@ -259,7 +269,7 @@ get "/:path" do |env|
 end
 
 error 500 do |env|
-  "Error 500"
+  templated "index"
 end
 
 public_folder "assets"
