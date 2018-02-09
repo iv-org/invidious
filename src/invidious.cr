@@ -63,7 +63,11 @@ threads.times do
       ids << id
     end
 
+    pool << client
+
     loop do
+      client = get_client(pool)
+
       if ids.empty?
         search(random.base64(3), client) do |id|
           ids << id
@@ -72,9 +76,8 @@ threads.times do
 
       if rand(300) < 1
         pool << make_client(URL, CONTEXT)
+        client = get_client(pool)
       end
-
-      time = Time.now
 
       begin
         id = ids[0]
@@ -104,7 +107,7 @@ threads.times do
         end
       end
 
-      # io << Time.now << " 200 GET www.youtube.com/watch?v=" << video.id << " " << elapsed_text(Time.now - time) << "\n"
+      pool << client
     end
   end
 end
@@ -113,7 +116,7 @@ top_videos = [] of Video
 
 spawn do
   loop do
-    top = rank_videos(PG_DB, 120)
+    top = rank_videos(PG_DB, 40)
     client = get_client(pool)
 
     args = [] of String
@@ -121,16 +124,18 @@ spawn do
     args << "($#{top.size}) "
     args = args.join("")
 
+    videos = [] of Video
+
     PG_DB.query("SELECT * FROM videos d INNER JOIN (VALUES #{args}) v(id) USING (id)", top) do |rs|
       rs.each do
         video = rs.read(Video)
-        top_videos << video
+        videos << video
       end
     end
 
-    pool << client
+    top_videos = videos
 
-    sleep 5.minutes
+    pool << client
   end
 end
 
