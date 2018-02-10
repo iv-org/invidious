@@ -195,7 +195,7 @@ def rank_videos(db, n)
       published = rs.read(Time)
 
       # Exponential decay, older videos tend to rank lower
-      temperature = wilson_score * Math.exp(-0.02*((Time.now - published).hours))
+      temperature = wilson_score * Math.exp(-0.000005*((Time.now - published).total_minutes))
       top << {temperature, id}
     end
   end
