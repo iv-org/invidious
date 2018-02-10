@@ -269,12 +269,14 @@ get "/search" do |env|
   templated "search"
 end
 
-get "/:path" do |env|
-  env.redirect "/"
+error 404 do |env|
+  error_message = "404 Page not found"
+  templated "error"
 end
 
 error 500 do |env|
-  templated "index"
+  error_message = "500 Server error"
+  templated "error"
 end
 
 public_folder "assets"
