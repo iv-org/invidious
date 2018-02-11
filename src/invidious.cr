@@ -32,11 +32,9 @@ Kemal.config.extra_options do |parser|
       exit
     end
   end
-  parser.on("-h", "--help", "Show this help") do
-    puts parser
-    exit
   end
-end
+
+Kemal::CLI.new
 
 PG_DB   = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
 URL     = URI.parse("https://www.youtube.com")
