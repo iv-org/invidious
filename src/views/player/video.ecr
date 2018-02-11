@@ -1,0 +1,5 @@
+<video id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
+    <% fmt_stream.each do |fmt| %>
+    <source src="<%= fmt["url"]? %>" type="<%= fmt["type"]? ? fmt["type"].to_s.split(";")[0] : "" %>">
+    <% end %>
+</video>
