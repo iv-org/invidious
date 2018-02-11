@@ -147,9 +147,13 @@ end
 
 get "/watch" do |env|
   id = env.params.query["v"]
-  listen = env.params.query["listen"]? || "false"
 
+  if env.params.query["listen"]? && env.params.query["listen"] == "true"
+    listen = true
   env.params.query.delete_all("listen")
+  else
+    listen = false
+  end
 
   client = get_client(pool)
   begin

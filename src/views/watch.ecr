@@ -5,7 +5,7 @@
 <title><%= video.title %> - Invidious</title>
 <% end %>
 
-<% if listen == "true" %>
+<% if listen %>
 <audio id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
     <% adaptive_fmts.each do |fmt| %>
         <% url = fmt["url"]? %>
@@ -76,9 +76,9 @@ var player = videojs('player', options, function() {
 
 <h1>
     <%= video.info["title"] %> 
-    <% if listen == "true" %>
+    <% if listen %>
     <a class="link" href="/watch?<%= env.params.query %>">
-        <i class="fa fa-video-camera" aria-hidden="true"></i>
+        <i class="fa fa-video" aria-hidden="true"></i>
     </a>
     <% else %>
     <a class="link" href="/watch?<%= env.params.query %>&listen=true">
