@@ -175,14 +175,39 @@ def search(query, client)
   end
 end
 
-def decrypt_signature(a)
-  a = a.split("")
-  a.delete_at(0..2)
-  a = a.reverse
+def swap(a, b)
   c = a[0]
-  a[0] = a[49 % a.size]
-  a[49] = c
-  return a.join("")
+  a[0] = a[b % a.size]
+  a[b % a.size] = c
+  return a
+end
+
+def decrypt_signature(a, base)
+  if a && base
+    a = a.split("")
+
+    if base == "vflG9lb96"
+      a = swap(a, 26)
+      a.reverse!
+      a = swap(a, 8)
+      a = swap(a, 61)
+    elsif base == "vflxuxnEY"
+      a.delete_at(0..2)
+      a.reverse!
+      c = a[0]
+      a[0] = a[49 % a.size]
+      a[49] = c
+    elsif base == "vflAXQwEj"
+      a = swap(a, 26)
+      a.reverse!
+      a = swap(a, 8)
+      a = swap(a, 61)
+    else
+      raise "Could not decrypt signature for player #{base}"
+    end
+
+    return a.join("")
+  end
 end
 
 def rank_videos(db, n)

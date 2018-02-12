@@ -168,12 +168,32 @@ get "/watch" do |env|
     fmt_stream << HTTP::Params.parse(string)
   end
 
-  if fmt_stream[0]?
-    if fmt_stream[0]["s"]?
-      fmt_stream.each do |fmt|
-        fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"])}"
-      end
+  base = nil
+  if fmt_stream[0]? && fmt_stream[0]["s"]?
+    base = video.html.xpath_node(%q(//script[@name="player/base"]))
+    
+    if !base
+      base = video.html.xpath_node(%q(//script[@name="player_ias/base"]))
     end
+
+    if base
+      base = base["src"]
+      base = base.split("/")[3].split("-")[1]
+    end
+  end
+
+  begin
+      fmt_stream.each do |fmt|
+      if fmt["s"]? && !base
+        File.write("info/#{id}.html", video.html)
+        raise "Could not find signature for #{video.id}"
+      end
+
+      fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"]?, base)}"
+    end
+  rescue ex
+    error_message = ex
+    next templated "error"
   end
 
   # We want lowest quality first
@@ -186,12 +206,8 @@ get "/watch" do |env|
     end
   end
 
-  if adaptive_fmts[0]?
-    if adaptive_fmts[0]["s"]?
       adaptive_fmts.each do |fmt|
-        fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"])}"
-      end
-    end
+    fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"]?, base)}"
   end
 
   rvs = [] of Hash(String, String)
@@ -209,6 +225,7 @@ get "/watch" do |env|
   rating = video.info["avg_rating"].to_f64
 
   engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
+
   if video.likes > 0 || video.dislikes > 0
     calculated_rating = (video.likes.to_f/(video.likes.to_f + video.dislikes.to_f) * 4 + 1)
   else
