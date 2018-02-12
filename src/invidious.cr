@@ -118,9 +118,9 @@ spawn do
     client = get_client(pool)
 
     args = [] of String
-    1..(top.size - 1).times { |i| args << "($#{i + 1}), " }
-    args << "($#{top.size}) "
+    (1..top.size).each { |i| args << "($#{i})," }
     args = args.join("")
+    args = args.chomp(",")
 
     videos = [] of Video
 
