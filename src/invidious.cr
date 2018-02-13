@@ -176,24 +176,26 @@ get "/watch" do |env|
       base = video.html.xpath_node(%q(//script[@name="player_ias/base"]))
     end
 
-    if base
+    if !base
+      error_message = "Could not find signature for #{video.id}"
+      next templated "error"
+    end
+
       base = base["src"]
       base = base.split("/")[3].split("-")[1]
+
+    begin
+      decrypt_signature(fmt_stream[0]["s"], base)
+    rescue ex
+      error_message = ex.message
+      next templated "error"
     end
   end
 
-  begin
       fmt_stream.each do |fmt|
-      if fmt["s"]? && !base
-        File.write("info/#{id}.html", video.html)
-        raise "Could not find signature for #{video.id}"
-      end
-
-      fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"]?, base)}"
+    if base
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], base)
     end
-  rescue ex
-    error_message = ex
-    next templated "error"
   end
 
   # We want lowest quality first
@@ -207,7 +209,9 @@ get "/watch" do |env|
   end
 
       adaptive_fmts.each do |fmt|
-    fmt["url"] = "#{fmt["url"]}&signature=#{decrypt_signature(fmt["s"]?, base)}"
+    if base
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], base)
+    end
   end
 
   rvs = [] of Hash(String, String)

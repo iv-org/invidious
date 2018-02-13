@@ -183,21 +183,26 @@ def swap(a, b)
 end
 
 def decrypt_signature(a, base)
-  if a && base
     a = a.split("")
 
-    if base == "vflG9lb96"
+  case base
+  when "vflG9lb96"
       a = swap(a, 26)
       a.reverse!
       a = swap(a, 8)
       a = swap(a, 61)
-    elsif base == "vflxuxnEY"
+  when "vflxuxnEY"
       a.delete_at(0..2)
       a.reverse!
       c = a[0]
       a[0] = a[49 % a.size]
       a[49] = c
-    elsif base == "vflAXQwEj"
+  when "vflAXQwEj"
+    a = swap(a, 26)
+    a.reverse!
+    a = swap(a, 8)
+    a = swap(a, 61)
+  when "vflNpPGQq"
       a = swap(a, 26)
       a.reverse!
       a = swap(a, 8)
@@ -208,7 +213,6 @@ def decrypt_signature(a, base)
 
     return a.join("")
   end
-end
 
 def rank_videos(db, n)
   top = [] of {Float64, String}
