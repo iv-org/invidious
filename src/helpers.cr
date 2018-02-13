@@ -249,7 +249,7 @@ def rank_videos(db, n)
   top = top.map { |a, b| b }
 
   # Return top
-  return top[1..n]
+  return top[0..n - 1]
 end
 
 def make_client(url, context)
