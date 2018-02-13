@@ -183,36 +183,49 @@ def swap(a, b)
 end
 
 def decrypt_signature(a, base)
-    a = a.split("")
+  a = a.split("")
 
   case base
   when "vflG9lb96"
-      a = swap(a, 26)
-      a.reverse!
-      a = swap(a, 8)
-      a = swap(a, 61)
+    a = swap(a, 26)
+    a.reverse!
+    a = swap(a, 8)
+    a = swap(a, 61)
   when "vflxuxnEY"
-      a.delete_at(0..2)
-      a.reverse!
-      c = a[0]
-      a[0] = a[49 % a.size]
-      a[49] = c
+    a.delete_at(0..2)
+    a.reverse!
+    c = a[0]
+    a[0] = a[49 % a.size]
+    a[49] = c
   when "vflAXQwEj"
     a = swap(a, 26)
     a.reverse!
     a = swap(a, 8)
     a = swap(a, 61)
   when "vflNpPGQq"
-      a = swap(a, 26)
-      a.reverse!
-      a = swap(a, 8)
-      a = swap(a, 61)
-    else
-      raise "Could not decrypt signature for player #{base}"
-    end
-
-    return a.join("")
+    a = swap(a, 26)
+    a.reverse!
+    a = swap(a, 8)
+    a = swap(a, 61)
+  when "vflCCoUi2"
+    a = swap(a, 26)
+    a.reverse!
+    a = swap(a, 8)
+    a = swap(a, 61)
+  when "vflg4IfMn"
+    a = swap(a, 6)
+    a = swap(a, 64)
+    a = swap(a, 25)
+    a = swap(a, 53)
+    a.delete_at(0..1)
+    a.reverse!
+    a.delete_at(0..2)
+  else
+    raise "Could not decrypt signature for player #{base}"
   end
+
+  return a.join("")
+end
 
 def rank_videos(db, n)
   top = [] of {Float64, String}
