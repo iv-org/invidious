@@ -32,7 +32,7 @@ Kemal.config.extra_options do |parser|
       exit
     end
   end
-  end
+end
 
 Kemal::CLI.new
 
@@ -150,7 +150,7 @@ get "/watch" do |env|
 
   if env.params.query["listen"]? && env.params.query["listen"] == "true"
     listen = true
-  env.params.query.delete_all("listen")
+    env.params.query.delete_all("listen")
   else
     listen = false
   end
@@ -171,7 +171,7 @@ get "/watch" do |env|
   base = nil
   if fmt_stream[0]? && fmt_stream[0]["s"]?
     base = video.html.xpath_node(%q(//script[@name="player/base"]))
-    
+
     if !base
       base = video.html.xpath_node(%q(//script[@name="player_ias/base"]))
     end
@@ -181,8 +181,8 @@ get "/watch" do |env|
       next templated "error"
     end
 
-      base = base["src"]
-      base = base.split("/")[3].split("-")[1]
+    base = base["src"]
+    base = base.split("/")[3].split("-")[1]
 
     begin
       decrypt_signature(fmt_stream[0]["s"], base)
@@ -192,7 +192,7 @@ get "/watch" do |env|
     end
   end
 
-      fmt_stream.each do |fmt|
+  fmt_stream.each do |fmt|
     if base
       fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], base)
     end
@@ -208,7 +208,7 @@ get "/watch" do |env|
     end
   end
 
-      adaptive_fmts.each do |fmt|
+  adaptive_fmts.each do |fmt|
     if base
       fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], base)
     end
