@@ -118,9 +118,13 @@ spawn do
     client = get_client(pool)
 
     args = [] of String
-    (1..top.size).each { |i| args << "($#{i})," }
-    args = args.join("")
-    args = args.chomp(",")
+    if top.size > 0
+      (1..top.size).each { |i| args << "($#{i})," }
+      args = args.join("")
+      args = args.chomp(",")
+    else
+      next
+    end
 
     videos = [] of Video
 
