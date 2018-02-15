@@ -150,7 +150,12 @@ get "/" do |env|
 end
 
 get "/watch" do |env|
-  id = env.params.query["v"]
+  if env.params.query["v"]?
+    id = env.params.query["v"]
+  else
+    env.redirect "/"
+    next
+  end
 
   if env.params.query["listen"]? && env.params.query["listen"] == "true"
     listen = true
@@ -246,7 +251,12 @@ get "/watch" do |env|
 end
 
 get "/search" do |env|
-  query = env.params.query["q"]
+  if env.params.query["q"]?
+    query = env.params.query["q"]
+  else
+    env.redirect "/"
+    next
+  end
   page = env.params.query["page"]? && env.params.query["page"].to_i? ? env.params.query["page"].to_i : 1
 
   client = get_client(pool)
