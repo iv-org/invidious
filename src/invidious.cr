@@ -177,34 +177,9 @@ get "/watch" do |env|
     fmt_stream << HTTP::Params.parse(string)
   end
 
-  base = nil
+  signature = false
   if fmt_stream[0]? && fmt_stream[0]["s"]?
-    base = video.html.xpath_node(%q(//script[@name="player/base"]))
-
-    if !base
-      base = video.html.xpath_node(%q(//script[@name="player_ias/base"]))
-    end
-
-    if !base
-      error_message = "Could not find signature for #{video.id}"
-      next templated "error"
-    end
-
-    base = base["src"]
-    base = base.split("/")[3].split("-")[1]
-
-    begin
-      decrypt_signature(fmt_stream[0]["s"], base)
-    rescue ex
-      error_message = ex.message
-      next templated "error"
-    end
-  end
-
-  fmt_stream.each do |fmt|
-    if base
-      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], base)
-    end
+    signature = true
   end
 
   # We want lowest quality first
@@ -217,9 +192,13 @@ get "/watch" do |env|
     end
   end
 
-  adaptive_fmts.each do |fmt|
-    if base
-      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], base)
+  if signature
+    adaptive_fmts.each do |fmt|
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
+    end
+
+    fmt_stream.each do |fmt|
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
     end
   end
 
