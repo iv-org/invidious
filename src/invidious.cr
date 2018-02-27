@@ -273,6 +273,15 @@ get "/search" do |env|
         end
       end
 
+      author = root.xpath_node(%q(div[@class="yt-lockup-content"]/div/a))
+      if author
+        video["author"] = author.content
+        video["author_url"] = author["href"]
+      else
+        video["author"] = ""
+        video["author_url"] = ""
+      end
+
       videos << video
     end
   end
