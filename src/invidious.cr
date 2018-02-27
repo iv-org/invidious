@@ -81,7 +81,7 @@ threads.times do
         id = ids[0]
         video = get_video(id, client, PG_DB)
       rescue ex
-        io << id << " : " << ex << "\n"
+        io << id << " : " << ex.message << "\n"
         pool << make_client(URL, CONTEXT)
         next
       ensure
@@ -157,11 +157,10 @@ get "/watch" do |env|
     next
   end
 
+  listen = false
   if env.params.query["listen"]? && env.params.query["listen"] == "true"
     listen = true
     env.params.query.delete_all("listen")
-  else
-    listen = false
   end
 
   client = get_client(pool)
@@ -233,6 +232,7 @@ get "/search" do |env|
     env.redirect "/"
     next
   end
+
   page = env.params.query["page"]? && env.params.query["page"].to_i? ? env.params.query["page"].to_i : 1
 
   client = get_client(pool)
