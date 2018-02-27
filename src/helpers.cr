@@ -11,10 +11,9 @@ class Video
     end
   end
 
-  def initialize(id, info, html, updated, title, views, likes, dislikes, wilson_score, published)
+  def initialize(id, info, updated, title, views, likes, dislikes, wilson_score, published, description)
     @id = id
     @info = info
-    @html = html
     @updated = updated
     @title = title
     @views = views
@@ -22,10 +21,11 @@ class Video
     @dislikes = dislikes
     @wilson_score = wilson_score
     @published = published
+    @description = description
   end
 
   def to_a
-    return [@id, @info, @html, @updated, @title, @views, @likes, @dislikes, @wilson_score, @published]
+    return [@id, @info, @updated, @title, @views, @likes, @dislikes, @wilson_score, @published, @description]
   end
 
   DB.mapping({
@@ -35,11 +35,6 @@ class Video
       default:   HTTP::Params.parse(""),
       converter: Video::HTTPParamConverter,
     },
-    html: {
-      type:      XML::Node,
-      default:   XML.parse_html(""),
-      converter: Video::XMLConverter,
-    },
     updated:      Time,
     title:        String,
     views:        Int64,
@@ -47,6 +42,7 @@ class Video
     dislikes:     Int32,
     wilson_score: Float64,
     published:    Time,
+    description:  String,
   })
 end
 
@@ -105,6 +101,9 @@ def fetch_video(id, client)
   dislikes = html.xpath_node(%q(//button[@title="I dislike this"]/span))
   dislikes = dislikes ? dislikes.content.delete(",").to_i : 0
 
+  description = html.xpath_node(%q(//p[@id="eow-description"]))
+  description = description ? description.to_xml : ""
+
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
   published = html.xpath_node(%q(//strong[contains(@class,"watch-time-text")]))
@@ -134,7 +133,7 @@ def fetch_video(id, client)
     end
   end
 
-  video = Video.new(id, info, html, Time.now, title, views, likes, dislikes, wilson_score, published)
+  video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description)
 
   return video
 end
@@ -146,8 +145,9 @@ def get_video(id, client, db, refresh = true)
     # If record was last updated over an hour ago, refresh (expire param in response lasts for 6 hours)
     if refresh && Time.now - video.updated > 1.hours
       video = fetch_video(id, client)
-      db.exec("UPDATE videos SET info = $2, html = $3, updated = $4,\
-       title = $5, views = $6, likes = $7, dislikes = $8, wilson_score = $9, published = $10 WHERE id = $1", video.to_a)
+      db.exec("UPDATE videos SET info = $2, updated = $3,\
+       title = $4, views = $5, likes = $6, dislikes = $7, wilson_score = $8,\
+      published = $9, description = $10 WHERE id = $1", video.to_a)
     end
   else
     video = fetch_video(id, client)

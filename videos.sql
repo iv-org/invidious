@@ -4,7 +4,6 @@ CREATE TABLE public.videos
 (
     id text COLLATE pg_catalog."default" NOT NULL,
     info text COLLATE pg_catalog."default",
-    html text COLLATE pg_catalog."default",
     updated timestamp with time zone,
     title text COLLATE pg_catalog."default",
     views bigint,
@@ -12,6 +11,7 @@ CREATE TABLE public.videos
     dislikes integer,
     wilson_score double precision,
     published timestamp with time zone,
+    description text COLLATE pg_catalog."default",
     CONSTRAINT videos_pkey PRIMARY KEY (id)
 )
 WITH (

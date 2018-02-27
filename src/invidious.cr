@@ -211,9 +211,6 @@ get "/watch" do |env|
 
   player_response = JSON.parse(video.info["player_response"])
 
-  description = video.html.xpath_node(%q(//p[@id="eow-description"]))
-  description = description ? description.to_xml : "Could not load description"
-
   rating = video.info["avg_rating"].to_f64
 
   engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
