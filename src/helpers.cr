@@ -46,6 +46,36 @@ class Video
   })
 end
 
+class RedditSubmit
+  JSON.mapping({
+    data: RedditSubmitData,
+  })
+end
+
+class RedditSubmitData
+  JSON.mapping({
+    children: Array(RedditThread),
+  })
+end
+
+class RedditThread
+  JSON.mapping({
+    data: RedditThreadData,
+  })
+end
+
+class RedditThreadData
+  JSON.mapping({
+    subreddit:    String,
+    id:           String,
+    num_comments: Int32,
+    score:        Int32,
+    author:       String,
+    permalink:    String,
+    title:        String,
+  })
+end
+
 # See http://www.evanmiller.org/how-not-to-sort-by-average-rating.html
 def ci_lower_bound(pos, n)
   if n == 0
@@ -225,4 +255,68 @@ def make_client(url, context)
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
   return client
+end
+
+def get_reddit_comments(id, client)
+  youtube_url = URI.escape("https://youtube.com/watch?v=#{id}")
+  search_results = client.get("/submit.json?url=#{youtube_url}").body
+  search_results = RedditSubmit.from_json(search_results)
+
+  top_reddit_thread = search_results.data.children.sort_by { |child| child.data.score }[-1]
+
+  comments = client.get("/r/#{top_reddit_thread.data.subreddit}/comments/#{top_reddit_thread.data.id}?sort=top&depth=3").body
+  comments = JSON.parse(comments)
+
+  return comments[1]["data"]["children"], top_reddit_thread
+end
+
+def template_comments(root)
+  html = ""
+  root.each do |child|
+    if child["data"]["body_html"]?
+      author = child["data"]["author"]
+      score = child["data"]["score"]
+      body_html = HTML.unescape(child["data"]["body_html"].as_s)
+
+      replies_html = ""
+      if child["data"]["replies"] != ""
+        replies_html = template_comments(child["data"]["replies"]["data"]["children"])
+      end
+
+      # TODO: Allow for expanding comments instead of just dismissing them
+
+      content = <<-END_HTML
+      <p>
+        <a class="link" href="javascript:void(0)" onclick="dismiss(this.parentNode.parentNode)">[ - ]</a> 
+        #{score} 
+        <b>#{author}</b> 
+      </p>
+      <p>#{body_html}</p>
+      #{replies_html}
+      END_HTML
+
+      if child["data"]["depth"].as_i > 0
+        html += <<-END_HTML
+          <div class="pure-g">
+          <div class="pure-u-1-24"></div>
+          <div class="pure-u-23-24">
+          #{content}
+          </div>
+          </div>
+        END_HTML
+      else
+        html += <<-END_HTML
+          <div class="pure-g">
+          <div class="pure-u-1">
+          #{content}
+          </div>
+          </div>
+        END_HTML
+      end
+    end
+  end
+
+  html = html.gsub(/(https:\/\/)|(http:\/\/)?(www\.)?(youtube\.com)/, "")
+
+  return html
 end

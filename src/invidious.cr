@@ -37,7 +37,7 @@ end
 Kemal::CLI.new
 
 PG_DB   = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
-URL     = URI.parse("https://www.youtube.com")
+YT_URL  = URI.parse("https://www.youtube.com")
 CONTEXT = OpenSSL::SSL::Context::Client.new
 CONTEXT.verify_mode = OpenSSL::SSL::VerifyMode::NONE
 CONTEXT.add_options(
@@ -45,26 +45,29 @@ CONTEXT.add_options(
   OpenSSL::SSL::Options::NO_SSL_V2 |
   OpenSSL::SSL::Options::NO_SSL_V3
 )
-pool = Deque.new((threads * 1.2 + 1).to_i) do
-  make_client(URL, CONTEXT)
+youtube_pool = Deque.new((threads * 1.2 + 1).to_i) do
+  make_client(YT_URL, CONTEXT)
+end
+reddit_pool = Deque.new((threads * 1.2 + 1).to_i) do
+  make_client(URI.parse("https://api.reddit.com"), CONTEXT)
 end
 
-# Refresh pool by crawling YT
+# Refresh youtube_pool by crawling YT
 threads.times do
   spawn do
     io = STDOUT
     ids = Deque(String).new
     random = Random.new
-    client = get_client(pool)
+    client = get_client(youtube_pool)
 
     search(random.base64(3), client) do |id|
       ids << id
     end
 
-    pool << client
+    youtube_pool << client
 
     loop do
-      client = get_client(pool)
+      yt_client = get_client(youtube_pool)
 
       if ids.empty?
         search(random.base64(3), client) do |id|
@@ -73,8 +76,8 @@ threads.times do
       end
 
       if rand(300) < 1
-        pool << make_client(URL, CONTEXT)
-        client = get_client(pool)
+        youtube_pool << make_client(YT_URL, CONTEXT)
+        yt_client = get_client(youtube_pool)
       end
 
       begin
@@ -82,7 +85,7 @@ threads.times do
         video = get_video(id, client, PG_DB)
       rescue ex
         io << id << " : " << ex.message << "\n"
-        pool << make_client(URL, CONTEXT)
+        youtube_pool << make_client(YT_URL, CONTEXT)
         next
       ensure
         ids.delete(id)
@@ -105,7 +108,20 @@ threads.times do
         end
       end
 
-      pool << client
+      youtube_pool << client
+    end
+  end
+end
+
+threads.times do
+  spawn do
+    loop do
+      client = get_client(reddit_pool)
+
+      client.get("/")
+      sleep 10.seconds
+
+      reddit_pool << client
     end
   end
 end
@@ -115,7 +131,7 @@ top_videos = [] of Video
 spawn do
   loop do
     top = rank_videos(PG_DB, 40)
-    client = get_client(pool)
+    client = get_client(youtube_pool)
 
     args = [] of String
     if top.size > 0
@@ -137,7 +153,7 @@ spawn do
 
     top_videos = videos
 
-    pool << client
+    youtube_pool << client
   end
 end
 
@@ -163,9 +179,9 @@ get "/watch" do |env|
     env.params.query.delete_all("listen")
   end
 
-  client = get_client(pool)
+  yt_client = get_client(youtube_pool)
   begin
-    video = get_video(id, client, PG_DB)
+    video = get_video(id, yt_client, PG_DB)
   rescue ex
     error_message = ex.message
     next templated "error"
@@ -220,7 +236,17 @@ get "/watch" do |env|
     calculated_rating = 0.0
   end
 
-  pool << client
+  reddit_client = get_client(reddit_pool)
+
+  begin
+    reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client)
+  rescue ex
+    reddit_comments = JSON.parse("[]")
+    reddit_thread = nil
+  end
+
+  reddit_pool << reddit_client
+  youtube_pool << yt_client
 
   templated "watch"
 end
@@ -235,7 +261,7 @@ get "/search" do |env|
 
   page = env.params.query["page"]? && env.params.query["page"].to_i? ? env.params.query["page"].to_i : 1
 
-  client = get_client(pool)
+  client = get_client(youtube_pool)
 
   html = client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
@@ -286,7 +312,7 @@ get "/search" do |env|
     end
   end
 
-  pool << client
+  youtube_pool << client
 
   templated "search"
 end
