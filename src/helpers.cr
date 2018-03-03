@@ -320,3 +320,7 @@ def template_comments(root)
 
   return html
 end
+
+def number_with_separator(number)
+  number.to_s.reverse.gsub(/(\d{3})(?=\d)/, "\\1,").reverse
+end
