@@ -132,8 +132,19 @@ def fetch_video(id, client)
   dislikes = dislikes ? dislikes.content.delete(",").to_i : 0
 
   description = html.xpath_node(%q(//p[@id="eow-description"]))
+  if description
+    description.xpath_nodes(%q(//a/@href)).each do |match|
+      uri = URI.parse(match.content)
+
+      if uri.host =~ /(www\.)?youtube.com/
+        uri = uri.full_path
+        puts uri
+      end
+
+      match.content = uri.to_s
+    end
+  end
   description = description ? description.to_xml : ""
-  description = description.gsub(/(https:\/\/)|(http:\/\/)?(www\.)?(youtube\.com)/, "")
 
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
@@ -278,6 +289,20 @@ def template_comments(root)
       author = child["data"]["author"]
       score = child["data"]["score"]
       body_html = HTML.unescape(child["data"]["body_html"].as_s)
+      body_html = XML.parse_html(body_html)
+
+      body_html.xpath_nodes(%q(//a/@href)).each do |match|
+        uri = URI.parse(match.content)
+
+        if uri.host =~ /(www\.)?youtube.com/
+          uri = uri.full_path
+          puts uri
+        end
+
+        match.content = uri.to_s
+      end
+
+      body_html = body_html.to_s
 
       replies_html = ""
       if child["data"]["replies"] != ""
@@ -316,8 +341,6 @@ def template_comments(root)
       end
     end
   end
-
-  html = html.gsub(/(https:\/\/)|(http:\/\/)?(www\.)?(youtube\.com)/, "")
 
   return html
 end
