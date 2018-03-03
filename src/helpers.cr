@@ -133,6 +133,7 @@ def fetch_video(id, client)
 
   description = html.xpath_node(%q(//p[@id="eow-description"]))
   description = description ? description.to_xml : ""
+  description = description.gsub(/(https:\/\/)|(http:\/\/)?(www\.)?(youtube\.com)/, "")
 
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
