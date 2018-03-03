@@ -66,19 +66,19 @@ threads.times do
     io = STDOUT
     ids = Deque(String).new
     random = Random.new
-    client = get_client(youtube_pool)
+    yt_client = get_client(youtube_pool)
 
-    search(random.base64(3), client) do |id|
+    search(random.base64(3), yt_client) do |id|
       ids << id
     end
 
-    youtube_pool << client
+    youtube_pool << yt_client
 
     loop do
       yt_client = get_client(youtube_pool)
 
       if ids.empty?
-        search(random.base64(3), client) do |id|
+        search(random.base64(3), yt_client) do |id|
           ids << id
         end
       end
@@ -90,7 +90,7 @@ threads.times do
 
       begin
         id = ids[0]
-        video = get_video(id, client, PG_DB)
+        video = get_video(id, yt_client, PG_DB)
       rescue ex
         io << id << " : " << ex.message << "\n"
         youtube_pool << make_client(YT_URL, CONTEXT)
@@ -118,7 +118,7 @@ threads.times do
 
       sleep sleep_time.seconds
 
-      youtube_pool << client
+      youtube_pool << yt_client
     end
   end
 end
@@ -129,8 +129,9 @@ threads.times do
       client = get_client(reddit_pool)
 
       begin
-      client.get("/")
+        client.get("/")
       rescue ex
+        STDOUT << "Reddit client : " << ex.message << "\n"
         reddit_pool << make_client(URI.parse("https://api.reddit.com"), CONTEXT)
         next
       end
@@ -201,6 +202,8 @@ get "/watch" do |env|
   rescue ex
     error_message = ex.message
     next templated "error"
+  ensure
+    youtube_pool << yt_client
   end
 
   fmt_stream = [] of HTTP::Params
@@ -253,16 +256,14 @@ get "/watch" do |env|
   end
 
   reddit_client = get_client(reddit_pool)
-
   begin
     reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client)
   rescue ex
     reddit_comments = JSON.parse("[]")
     reddit_thread = nil
+  ensure
+    reddit_pool << reddit_client
   end
-
-  reddit_pool << reddit_client
-  youtube_pool << yt_client
 
   templated "watch"
 end
