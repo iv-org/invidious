@@ -138,7 +138,6 @@ def fetch_video(id, client)
 
       if uri.host =~ /(www\.)?youtube.com/
         uri = uri.full_path
-        puts uri
       end
 
       match.content = uri.to_s
@@ -296,7 +295,6 @@ def template_comments(root)
 
         if uri.host =~ /(www\.)?youtube.com/
           uri = uri.full_path
-          puts uri
         end
 
         match.content = uri.to_s
