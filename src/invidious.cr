@@ -21,7 +21,7 @@ require "xml"
 require "./helpers"
 
 threads = 10
-
+sleep_time = 1.0
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
   parser.on("-t THREADS", "--threads=THREADS", "Number of threads for crawling (default: 10)") do |number|
@@ -29,6 +29,14 @@ Kemal.config.extra_options do |parser|
       threads = number.to_i32
     rescue ex
       puts "THREADS must be integer"
+      exit
+    end
+  end
+  parser.on("-w TIME", "--wait=TIME", "Time to wait between server requests in seconds (default: 1 second)") do |number|
+    begin
+      sleep_time = number.to_f64
+    rescue ex
+      puts "TIME must be integer or float"
       exit
     end
   end
@@ -108,6 +116,8 @@ threads.times do
         end
       end
 
+      sleep sleep_time.seconds
+
       youtube_pool << client
     end
   end
@@ -118,8 +128,14 @@ threads.times do
     loop do
       client = get_client(reddit_pool)
 
+      begin
       client.get("/")
-      sleep 10.seconds
+      rescue ex
+        reddit_pool << make_client(URI.parse("https://api.reddit.com"), CONTEXT)
+        next
+      end
+
+      sleep sleep_time.seconds
 
       reddit_pool << client
     end
