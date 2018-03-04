@@ -317,8 +317,6 @@ def template_comments(root)
         replies_html = template_comments(child["data"]["replies"]["data"]["children"])
       end
 
-      # TODO: Allow for expanding comments instead of just dismissing them
-
       content = <<-END_HTML
       <p>
         <a class="link" href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> #{score} <b>#{author}</b> 
