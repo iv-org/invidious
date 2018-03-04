@@ -26,7 +26,7 @@ yt_wait = 1.0
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-yp SIZE", "--youtube-pool=SIZE", "Number of clients in youtube pool (default: #{yt_pool_size})") do |number|
+  parser.on("-p SIZE", "--youtube-pool=SIZE", "Number of clients in youtube pool (default: #{yt_pool_size})") do |number|
     begin
       yt_pool_size = number.to_i
     rescue ex
@@ -34,7 +34,7 @@ Kemal.config.extra_options do |parser|
       exit
     end
   end
-  parser.on("-yt THREADS", "--youtube-threads=THREADS", "Number of threads for crawling (default: #{yt_threads})") do |number|
+  parser.on("-t THREADS", "--youtube-threads=THREADS", "Number of threads for crawling (default: #{yt_threads})") do |number|
     begin
       yt_threads = number.to_i
     rescue ex
@@ -42,7 +42,7 @@ Kemal.config.extra_options do |parser|
       exit
     end
   end
-  parser.on("-yw SECONDS", "--youtube-wait=SECONDS", "Time to wait between youtube server requests (default: #{yt_wait})") do |number|
+  parser.on("-w SECONDS", "--youtube-wait=SECONDS", "Time to wait between youtube server requests (default: #{yt_wait})") do |number|
     begin
       yt_wait = number.to_f64
     rescue ex
@@ -64,7 +64,7 @@ CONTEXT.add_options(
   OpenSSL::SSL::Options::NO_SSL_V2 |
   OpenSSL::SSL::Options::NO_SSL_V3
 )
-youtube_pool = Deque.new(yt_pool_size.to_i) do
+youtube_pool = Deque.new(yt_pool_size) do
   make_client(YT_URL, CONTEXT)
 end
 
