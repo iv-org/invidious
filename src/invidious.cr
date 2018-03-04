@@ -241,7 +241,7 @@ get "/watch" do |env|
   end
 
   reddit_client = HTTP::Client.new(REDDIT_URL, CONTEXT)
-  headers = HTTP::Headers{"User-Agent" => "User-Agent: web:invidio.us:v0.1.0 (by /u/omarroth)"}
+  headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.1.0 (by /u/omarroth)"}
   begin
     reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client, headers)
   rescue ex
