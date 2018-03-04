@@ -105,10 +105,8 @@ def get_client(pool)
 end
 
 def fetch_video(id, client)
-  begin
-    info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en").body
-    html = client.get("/watch?v=#{id}").body
-  end
+  info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en").body
+  html = client.get("/watch?v=#{id}").body
 
   html = XML.parse_html(html)
   info = HTTP::Params.parse(info)
@@ -188,9 +186,7 @@ def get_video(id, client, db, refresh = true)
 end
 
 def search(query, client)
-  begin
-    html = client.get("https://www.youtube.com/results?q=#{query}&sp=EgIQAVAU").body
-  end
+  html = client.get("https://www.youtube.com/results?q=#{query}&sp=EgIQAVAU").body
 
   html = XML.parse_html(html)
 
