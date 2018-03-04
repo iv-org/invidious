@@ -334,6 +334,14 @@ get "/search" do |env|
   templated "search"
 end
 
+get "/redirect" do |env|
+  if env.params.query["q"]?
+    env.redirect env.params.query["q"]
+  else
+    env.redirect "/"
+  end
+end
+
 error 404 do |env|
   error_message = "404 Page not found"
   templated "error"
