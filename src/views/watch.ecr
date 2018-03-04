@@ -61,8 +61,15 @@ var player = videojs('player', options, function() {
   });
 });
 
-function dismiss(target) {
-    target.style.display = 'none';
+function toggle(target) {
+    body = target.parentNode.parentNode.children[1];
+    if (body.style.display === null || body.style.display === '') {
+        target.innerHTML = '[ + ]';
+        body.style.display = 'none';
+    } else {
+        target.innerHTML = '[ - ]';
+        body.style.display = '';
+    }
 }
 </script>
 

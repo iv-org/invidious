@@ -321,12 +321,12 @@ def template_comments(root)
 
       content = <<-END_HTML
       <p>
-        <a class="link" href="javascript:void(0)" onclick="dismiss(this.parentNode.parentNode)">[ - ]</a> 
-        #{score} 
-        <b>#{author}</b> 
+        <a class="link" href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> #{score} <b>#{author}</b> 
       </p>
-      <p>#{body_html}</p>
+      <div>
+      #{body_html}
       #{replies_html}
+      </div>
       END_HTML
 
       if child["data"]["depth"].as_i > 0
