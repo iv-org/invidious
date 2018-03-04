@@ -249,8 +249,8 @@ def make_client(url, context)
 end
 
 def get_reddit_comments(id, client)
-  youtube_url = "https://www.youtube.com/watch?v=#{id}"
-  search_results = client.get("/submit.json?url=#{youtube_url}")
+  query = "(url:3D#{id}%20OR%20url:#{id})%20(site:youtube.com%20OR%20site:youtu.be)"
+  search_results = client.get("/search.json?q=#{query}")
 
   if search_results.status_code == 302
     search_results = client.get(search_results.headers["Location"]).body
