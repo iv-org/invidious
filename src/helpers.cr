@@ -287,19 +287,6 @@ def template_comments(root)
       author = child["data"]["author"]
       score = child["data"]["score"]
       body_html = HTML.unescape(child["data"]["body_html"].as_s)
-      body_html = XML.parse_html(body_html)
-
-      body_html.xpath_nodes(%q(//a/@href)).each do |match|
-        uri = URI.parse(match.content)
-
-        if uri.host =~ /(www\.)?youtube.com/ && uri.path == "/watch"
-          uri = uri.full_path
-        end
-
-        match.content = uri.to_s
-      end
-
-      body_html = body_html.to_s
 
       replies_html = ""
       if child["data"]["replies"] != ""
