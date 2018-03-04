@@ -26,7 +26,7 @@ yt_wait = 1.0
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-s SIZE", "--youtube-pool=SIZE", "Number of clients in youtube pool (default: #{yt_pool_size})") do |number|
+  parser.on("-z SIZE", "--youtube-pool=SIZE", "Number of clients in youtube pool (default: #{yt_pool_size})") do |number|
     begin
       yt_pool_size = number.to_i
     rescue ex
