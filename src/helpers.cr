@@ -269,16 +269,26 @@ def make_client(url, context)
 end
 
 def get_reddit_comments(id, client)
-  youtube_url = URI.escape("https://youtube.com/watch?v=#{id}")
-  search_results = client.get("/submit.json?url=#{youtube_url}").body
-  search_results = RedditSubmit.from_json(search_results)
+  youtube_url = "https://www.youtube.com/watch?v=#{id}"
+  search_results = client.get("/submit.json?url=#{youtube_url}")
 
-  top_reddit_thread = search_results.data.children.sort_by { |child| child.data.score }[-1]
+  if search_results.status_code == 302
+    search_results = client.get(search_results.headers["Location"]).body
 
-  comments = client.get("/r/#{top_reddit_thread.data.subreddit}/comments/#{top_reddit_thread.data.id}?sort=top&depth=3").body
-  comments = JSON.parse(comments)
+    result = JSON.parse(search_results)
 
-  return comments[1]["data"]["children"], top_reddit_thread
+    thread = RedditThread.from_json(result[0]["data"]["children"][0].to_json)
+  else
+    search_results = RedditSubmit.from_json(search_results.body)
+
+    thread = search_results.data.children.sort_by { |child| child.data.score }[-1]
+
+    result = client.get("/r/#{thread.data.subreddit}/comments/#{thread.data.id}?sort=top&depth=3").body
+    result = JSON.parse(result)
+  end
+  comments = result[1]["data"]["children"]
+
+  return comments, thread
 end
 
 def template_comments(root)
