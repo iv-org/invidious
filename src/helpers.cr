@@ -5,12 +5,6 @@ class Video
     end
   end
 
-  module XMLConverter
-    def self.from_rs(rs)
-      XML.parse_html(rs.read(String))
-    end
-  end
-
   def initialize(id, info, updated, title, views, likes, dislikes, wilson_score, published, description)
     @id = id
     @info = info
@@ -105,10 +99,8 @@ def get_client(pool)
 end
 
 def fetch_video(id, client)
-  begin
-    info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en").body
-    html = client.get("/watch?v=#{id}").body
-  end
+  info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en").body
+  html = client.get("/watch?v=#{id}").body
 
   html = XML.parse_html(html)
   info = HTTP::Params.parse(info)
@@ -175,22 +167,21 @@ def get_video(id, client, db, refresh = true)
     # If record was last updated over an hour ago, refresh (expire param in response lasts for 6 hours)
     if refresh && Time.now - video.updated > 1.hours
       video = fetch_video(id, client)
-      db.exec("UPDATE videos SET info = $2, updated = $3,\
-       title = $4, views = $5, likes = $6, dislikes = $7, wilson_score = $8,\
-      published = $9, description = $10 WHERE id = $1", video.to_a)
+      db.exec("DELETE FROM videos * WHERE id = $1", id)
+      args = arg_array(video.to_a)
+      db.exec("INSERT INTO videos VALUES (#{args})", video.to_a)
     end
   else
     video = fetch_video(id, client)
-    db.exec("INSERT INTO videos VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", video.to_a)
+    args = arg_array(video.to_a)
+    db.exec("INSERT INTO videos VALUES (#{args})", video.to_a)
   end
 
   return video
 end
 
 def search(query, client)
-  begin
-    html = client.get("https://www.youtube.com/results?q=#{query}&sp=EgIQAVAU").body
-  end
+  html = client.get("https://www.youtube.com/results?q=#{query}&sp=EgIQAVAU").body
 
   html = XML.parse_html(html)
 
@@ -329,4 +320,13 @@ end
 
 def number_with_separator(number)
   number.to_s.reverse.gsub(/(\d{3})(?=\d)/, "\\1,").reverse
+end
+
+def arg_array(array)
+  args = [] of String
+  (1..array.size).each { |i| args << "($#{i})," }
+  args = args.join("")
+  args = args.chomp(",")
+
+  return args
 end

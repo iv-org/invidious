@@ -150,11 +150,8 @@ spawn do
     top = rank_videos(PG_DB, 40)
     client = get_client(youtube_pool)
 
-    args = [] of String
     if top.size > 0
-      (1..top.size).each { |i| args << "($#{i})," }
-      args = args.join("")
-      args = args.chomp(",")
+      args = arg_array(top)
     else
       next
     end
