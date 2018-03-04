@@ -32,11 +32,11 @@ Kemal.config.extra_options do |parser|
       exit
     end
   end
-  parser.on("-w TIME", "--wait=TIME", "Time to wait between server requests in seconds (default: 1 second)") do |number|
+  parser.on("-w SECONDS", "--wait=SECONDS", "Time to wait between server requests (default: 1)") do |number|
     begin
       sleep_time = number.to_f64
     rescue ex
-      puts "TIME must be integer or float"
+      puts "SECONDS must be integer or float"
       exit
     end
   end
