@@ -132,17 +132,6 @@ def fetch_video(id, client)
   dislikes = dislikes ? dislikes.content.delete(",").to_i : 0
 
   description = html.xpath_node(%q(//p[@id="eow-description"]))
-  if description
-    description.xpath_nodes(%q(//a/@href)).each do |match|
-      uri = URI.parse(match.content)
-
-      if uri.host =~ /(www\.)?youtube.com/
-        uri = uri.full_path
-      end
-
-      match.content = uri.to_s
-    end
-  end
   description = description ? description.to_xml : ""
 
   wilson_score = ci_lower_bound(likes, likes + dislikes)
@@ -303,7 +292,7 @@ def template_comments(root)
       body_html.xpath_nodes(%q(//a/@href)).each do |match|
         uri = URI.parse(match.content)
 
-        if uri.host =~ /(www\.)?youtube.com/
+        if uri.host =~ /(www\.)?youtube.com/ && uri.path == "/watch"
           uri = uri.full_path
         end
 
