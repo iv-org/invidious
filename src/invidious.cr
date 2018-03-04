@@ -20,21 +20,31 @@ require "pg"
 require "xml"
 require "./helpers"
 
-threads = 10
-sleep_time = 1.0
+yt_pool_size = 10
+yt_threads = 5
+yt_wait = 1.0
+
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-t THREADS", "--threads=THREADS", "Number of threads for crawling (default: 10)") do |number|
+  parser.on("-yp SIZE", "--youtube-pool=SIZE", "Number of clients in youtube pool (default: #{yt_pool_size})") do |number|
     begin
-      threads = number.to_i32
+      yt_pool_size = number.to_i
+    rescue ex
+      puts "SIZE must be integer"
+      exit
+    end
+  end
+  parser.on("-yt THREADS", "--youtube-threads=THREADS", "Number of threads for crawling (default: #{yt_threads})") do |number|
+    begin
+      yt_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
     end
   end
-  parser.on("-w SECONDS", "--wait=SECONDS", "Time to wait between server requests (default: 1)") do |number|
+  parser.on("-yw SECONDS", "--youtube-wait=SECONDS", "Time to wait between youtube server requests (default: #{yt_wait})") do |number|
     begin
-      sleep_time = number.to_f64
+      yt_wait = number.to_f64
     rescue ex
       puts "SECONDS must be integer or float"
       exit
@@ -44,24 +54,22 @@ end
 
 Kemal::CLI.new
 
-PG_DB   = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
-YT_URL  = URI.parse("https://www.youtube.com")
-CONTEXT = OpenSSL::SSL::Context::Client.new
+PG_DB      = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
+YT_URL     = URI.parse("https://www.youtube.com")
+REDDIT_URL = URI.parse("https://api.reddit.com")
+CONTEXT    = OpenSSL::SSL::Context::Client.new
 CONTEXT.verify_mode = OpenSSL::SSL::VerifyMode::NONE
 CONTEXT.add_options(
   OpenSSL::SSL::Options::ALL |
   OpenSSL::SSL::Options::NO_SSL_V2 |
   OpenSSL::SSL::Options::NO_SSL_V3
 )
-youtube_pool = Deque.new((threads * 1.2 + 1).to_i) do
+youtube_pool = Deque.new(yt_pool_size.to_i) do
   make_client(YT_URL, CONTEXT)
-end
-reddit_pool = Deque.new((threads * 1.2 + 1).to_i) do
-  make_client(URI.parse("https://api.reddit.com"), CONTEXT)
 end
 
 # Refresh youtube_pool by crawling YT
-threads.times do
+yt_threads.times do
   spawn do
     io = STDOUT
     ids = Deque(String).new
@@ -116,29 +124,9 @@ threads.times do
         end
       end
 
-      sleep sleep_time.seconds
-
       youtube_pool << yt_client
-    end
-  end
-end
 
-threads.times do
-  spawn do
-    loop do
-      client = get_client(reddit_pool)
-
-      begin
-        client.get("/")
-      rescue ex
-        STDOUT << "Reddit client : " << ex.message << "\n"
-        reddit_pool << make_client(URI.parse("https://api.reddit.com"), CONTEXT)
-        next
-      end
-
-      sleep sleep_time.seconds
-
-      reddit_pool << client
+      sleep yt_wait.seconds
     end
   end
 end
@@ -148,7 +136,7 @@ top_videos = [] of Video
 spawn do
   loop do
     top = rank_videos(PG_DB, 40)
-    client = get_client(youtube_pool)
+    yt_client = get_client(youtube_pool)
 
     if top.size > 0
       args = arg_array(top)
@@ -167,7 +155,7 @@ spawn do
 
     top_videos = videos
 
-    youtube_pool << client
+    youtube_pool << yt_client
   end
 end
 
@@ -252,14 +240,13 @@ get "/watch" do |env|
     calculated_rating = 0.0
   end
 
-  reddit_client = get_client(reddit_pool)
+  reddit_client = HTTP::Client.new(REDDIT_URL, CONTEXT)
+  headers = HTTP::Headers{"User-Agent" => "User-Agent: web:invidio.us:v0.1.0 (by /u/omarroth)"}
   begin
-    reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client)
+    reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client, headers)
   rescue ex
     reddit_comments = JSON.parse("[]")
     reddit_thread = nil
-  ensure
-    reddit_pool << reddit_client
   end
 
   templated "watch"
@@ -275,9 +262,9 @@ get "/search" do |env|
 
   page = env.params.query["page"]? && env.params.query["page"].to_i? ? env.params.query["page"].to_i : 1
 
-  client = get_client(youtube_pool)
+  yt_client = get_client(youtube_pool)
 
-  html = client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
+  html = yt_client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
 
   videos = Array(Hash(String, String)).new
@@ -326,7 +313,7 @@ get "/search" do |env|
     end
   end
 
-  youtube_pool << client
+  youtube_pool << yt_client
 
   templated "search"
 end
