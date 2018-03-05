@@ -241,7 +241,14 @@ def rank_videos(db, n)
   return top[0..n - 1]
 end
 
-def make_client(url, context)
+def make_client(url)
+  context = OpenSSL::SSL::Context::Client.new
+  context.verify_mode = OpenSSL::SSL::VerifyMode::NONE
+  context.add_options(
+    OpenSSL::SSL::Options::ALL |
+    OpenSSL::SSL::Options::NO_SSL_V2 |
+    OpenSSL::SSL::Options::NO_SSL_V3
+  )
   client = HTTP::Client.new(url, context)
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds

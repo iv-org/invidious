@@ -20,33 +20,24 @@ require "pg"
 require "xml"
 require "./helpers"
 
-yt_pool_size = 10
-yt_threads = 5
-yt_wait = 1.0
+pool_size = 10
+threads = 5
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-z SIZE", "--youtube-pool=SIZE", "Number of clients in youtube pool (default: #{yt_pool_size})") do |number|
+  parser.on("-z SIZE", "--youtube-pool=SIZE", "Number of clients in youtube pool (default: #{pool_size})") do |number|
     begin
-      yt_pool_size = number.to_i
+      pool_size = number.to_i
     rescue ex
       puts "SIZE must be integer"
       exit
     end
   end
-  parser.on("-t THREADS", "--youtube-threads=THREADS", "Number of threads for crawling (default: #{yt_threads})") do |number|
+  parser.on("-t THREADS", "--youtube-threads=THREADS", "Number of threads for crawling (default: #{threads})") do |number|
     begin
-      yt_threads = number.to_i
+      threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
-      exit
-    end
-  end
-  parser.on("-w SECONDS", "--youtube-wait=SECONDS", "Time to wait between youtube server requests (default: #{yt_wait})") do |number|
-    begin
-      yt_wait = number.to_f64
-    rescue ex
-      puts "SECONDS must be integer or float"
       exit
     end
   end
@@ -57,51 +48,38 @@ Kemal::CLI.new
 PG_DB      = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
 YT_URL     = URI.parse("https://www.youtube.com")
 REDDIT_URL = URI.parse("https://api.reddit.com")
-CONTEXT    = OpenSSL::SSL::Context::Client.new
-CONTEXT.verify_mode = OpenSSL::SSL::VerifyMode::NONE
-CONTEXT.add_options(
-  OpenSSL::SSL::Options::ALL |
-  OpenSSL::SSL::Options::NO_SSL_V2 |
-  OpenSSL::SSL::Options::NO_SSL_V3
-)
-youtube_pool = Deque.new(yt_pool_size) do
-  make_client(YT_URL, CONTEXT)
+
+youtube_pool = Deque.new(pool_size) do
+  make_client(YT_URL)
 end
 
 # Refresh youtube_pool by crawling YT
-yt_threads.times do
+threads.times do
   spawn do
-    io = STDOUT
     ids = Deque(String).new
     random = Random.new
-    yt_client = get_client(youtube_pool)
 
-    search(random.base64(3), yt_client) do |id|
+    client = get_client(youtube_pool)
+    search(random.base64(3), client) do |id|
       ids << id
     end
-
-    youtube_pool << yt_client
+    youtube_pool << client
 
     loop do
-      yt_client = get_client(youtube_pool)
+      client = get_client(youtube_pool)
 
       if ids.empty?
-        search(random.base64(3), yt_client) do |id|
+        search(random.base64(3), client) do |id|
           ids << id
         end
       end
 
-      if rand(300) < 1
-        youtube_pool << make_client(YT_URL, CONTEXT)
-        yt_client = get_client(youtube_pool)
-      end
-
       begin
         id = ids[0]
-        video = get_video(id, yt_client, PG_DB)
+        video = get_video(id, client, PG_DB)
       rescue ex
-        io << id << " : " << ex.message << "\n"
-        youtube_pool << make_client(YT_URL, CONTEXT)
+        STDOUT << id << " : " << ex.message << "\n"
+        youtube_pool << make_client(YT_URL)
         next
       ensure
         ids.delete(id)
@@ -124,9 +102,7 @@ yt_threads.times do
         end
       end
 
-      youtube_pool << yt_client
-
-      sleep yt_wait.seconds
+      youtube_pool << client
     end
   end
 end
@@ -136,7 +112,6 @@ top_videos = [] of Video
 spawn do
   loop do
     top = rank_videos(PG_DB, 40)
-    yt_client = get_client(youtube_pool)
 
     if top.size > 0
       args = arg_array(top)
@@ -154,14 +129,12 @@ spawn do
     end
 
     top_videos = videos
-
-    youtube_pool << yt_client
   end
 end
 
 macro templated(filename)
     render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
-  end
+end
 
 get "/" do |env|
   templated "index"
@@ -240,7 +213,7 @@ get "/watch" do |env|
     calculated_rating = 0.0
   end
 
-  reddit_client = HTTP::Client.new(REDDIT_URL, CONTEXT)
+  reddit_client = make_client(REDDIT_URL)
   headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.1.0 (by /u/omarroth)"}
   begin
     reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client, headers)
@@ -262,10 +235,12 @@ get "/search" do |env|
 
   page = env.params.query["page"]? && env.params.query["page"].to_i? ? env.params.query["page"].to_i : 1
 
-  yt_client = get_client(youtube_pool)
+  client = get_client(youtube_pool)
 
-  html = yt_client.get("https://www.youtube.com/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
+  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
+
+  youtube_pool << client
 
   videos = Array(Hash(String, String)).new
 
@@ -312,8 +287,6 @@ get "/search" do |env|
       videos << video
     end
   end
-
-  youtube_pool << yt_client
 
   templated "search"
 end
