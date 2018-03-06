@@ -129,6 +129,7 @@ spawn do
     end
 
     top_videos = videos
+    Fiber.yield
   end
 end
 
