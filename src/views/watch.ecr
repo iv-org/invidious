@@ -101,12 +101,12 @@ function toggle(target) {
                 <h3><%= video.info["author"] %></h3>
             </a>
         </p>
-        <div style="margin-right:1em; word-break:break-all;">
+        <div style="margin-right:1em; overflow-wrap:break-word; word-wrap:break-word;">
             <%= video.description %>
         </div>
         <hr style="margin-right:1em;">
         <% if reddit_thread  && !reddit_comments.as_a.empty? %>
-        <div style="margin-right:1em; word-break:break-all;">
+        <div style="margin-right:1em; overflow-wrap:break-word; word-wrap:break-word;">
             <h3><%= reddit_thread.data.title %></h3>
             <b>
                 <a target="_blank" class="link" href="https://reddit.com<%= reddit_thread.data.permalink %>">View comments on Reddit</a>
