@@ -229,6 +229,8 @@ get "/watch" do |env|
   video.description = fill_links(video.description, "https", "www.youtube.com")
   video.description = add_alt_links(video.description)
 
+  thumbnail = player_response["videoDetails"]["thumbnail"]["thumbnails"][-1]["url"]?
+
   templated "watch"
 end
 

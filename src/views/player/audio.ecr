@@ -1,9 +1,7 @@
-<audio id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
+<audio poster="<%= thumbnail %>" title="<%= video.title%>" id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
     <% adaptive_fmts.each do |fmt| %>
-        <% url = fmt["url"]? %>
-        <% type = fmt["type"]? ? fmt["type"].to_s.split(";")[0] : "" %>
-        <% if type.starts_with?("audio") %>
-        <source src="<%= url %>" type="<%= type %>">
+        <% if fmt["type"].starts_with?("audio") %>
+            <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>'>
         <% end %>
     <% end %>
 </audio>

@@ -1,4 +1,5 @@
 <% content_for "header" do %>
+<meta name="thumbnail" content="<%= thumbnail %>">
 <link rel="stylesheet" href="http://vjs.zencdn.net/6.6.3/video-js.css">
 <script src="http://vjs.zencdn.net/6.6.3/video.js"></script>
 <script src="//cdn.sc.gl/videojs-hotkeys/latest/videojs.hotkeys.min.js"></script>
@@ -13,7 +14,6 @@
 
 <script>
 var options = {
-    poster: "<%= player_response["videoDetails"]["thumbnail"]["thumbnails"][-1]["url"]? %>",
     aspectRatio: "16:9",
     preload: "auto",
     playbackRates: [0.5, 1, 1.5, 2]
