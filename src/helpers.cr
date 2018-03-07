@@ -216,7 +216,7 @@ def decrypt_signature(a)
   a = splice(a, 53)
   a = splice(a, 47)
   a.delete_at(0..2)
-  
+
   return a.join("")
 end
 
@@ -300,7 +300,7 @@ def template_comments(root)
 
       content = <<-END_HTML
       <p>
-        <a class="link" href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> #{score} <b>#{author}</b> 
+        <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> #{score} <b>#{author}</b> 
       </p>
       <div>
       #{body_html}
@@ -358,7 +358,7 @@ def add_alt_links(html)
 
     if ["www.youtube.com", "youtu.be", "m.youtube.com"].includes?(url.host) && url.path == "/watch"
       alt_link = <<-END_HTML
-      <a class="link" href="#{url.full_path}">
+      <a href="#{url.full_path}">
         <i class="fa fa-link" aria-hidden="true"></i>
       </a>
       END_HTML

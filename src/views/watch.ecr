@@ -75,11 +75,11 @@ function toggle(target) {
 <h1>
     <%= video.info["title"] %> 
     <% if listen %>
-    <a class="link" href="/watch?<%= env.params.query %>">
+    <a href="/watch?<%= env.params.query %>">
         <i class="fa fa-video" aria-hidden="true"></i>
     </a>
     <% else %>
-    <a class="link" href="/watch?<%= env.params.query %>&listen=true">
+    <a href="/watch?<%= env.params.query %>&listen=true">
         <i class="fa fa-volume-up" aria-hidden="true"></i>
     </a>
     <% end %>
@@ -97,7 +97,7 @@ function toggle(target) {
 
     <div class="pure-u-1 pure-u-md-3-5">
         <p>
-            <a class="link" href="https://youtube.com/channel/<%= video.info["ucid"] %>">
+            <a href="https://youtube.com/channel/<%= video.info["ucid"] %>">
                 <h3><%= video.info["author"] %></h3>
             </a>
         </p>
@@ -109,7 +109,7 @@ function toggle(target) {
         <div style="margin-right:1em; overflow-wrap:break-word; word-wrap:break-word;">
             <h3><%= reddit_thread.data.title %></h3>
             <b>
-                <a target="_blank" class="link" href="https://reddit.com<%= reddit_thread.data.permalink %>">View comments on Reddit</a>
+                <a target="_blank" href="https://reddit.com<%= reddit_thread.data.permalink %>">View comments on Reddit</a>
             </b>
             <%= reddit_html %>
         </div>
@@ -119,7 +119,7 @@ function toggle(target) {
     <div class="pure-u-1 pure-u-md-1-5">
     <% rvs.each do |rv| %>
         <% if rv.has_key?("id") %>
-        <a class="link" href="/watch?v=<%= rv["id"] %>">
+        <a href="/watch?v=<%= rv["id"] %>">
             <img style="width:100%;" alt="thumbnail" src="<%= rv["iurlmq"] %>">
             <p style="width:100%"><%= rv["title"] %></p>
             <p><b style="width: 100%"><%= rv["author"] %></b></p>

@@ -7,11 +7,11 @@
 <% slice.each do |video| %>
     <div class="pure-u-1 pure-u-md-1-4">
         <div style="margin:1em;">
-            <a style="width:100%;" class="link" href="<%= video["link"] %>">
+            <a style="width:100%;" href="<%= video["link"] %>">
                 <img style="width:100%;" src="<%= video["thumbnail"] %>"/>
                 <%= video["title"] %>
             </a>
-            <p><b><a style="width:100%;" class="link" href="<%= video["author_url"]%>"><%= video["author"] %></a></b></p>
+            <p><b><a style="width:100%;" href="<%= video["author_url"]%>"><%= video["author"] %></a></b></p>
         </div>
     </div>
     <% end %>
@@ -19,5 +19,5 @@
 <% end %>
 
 <p style="text-align:right;">
-    <a class="link" href="/search?q=<%= query %>&page=<%= page + 1 %>">Next page</a>
+    <a href="/search?q=<%= query %>&page=<%= page + 1 %>">Next page</a>
 </p>

@@ -8,11 +8,11 @@
     <% player_response = JSON.parse(video.info["player_response"]) %>
     <div class="pure-u-1 pure-u-md-1-4">
         <div style="margin:1em;">
-            <a style="width:100%;" class="link" href="/watch?v=<%= video.id %>">
+            <a style="width:100%;" href="/watch?v=<%= video.id %>">
                 <img style="width:100%;" src="<%= player_response["videoDetails"]["thumbnail"]["thumbnails"][0]["url"] %>"/>
                 <p><%= video.title %></p>
             </a>
-            <p><b><a style="width:100%;" class="link" href="https://youtube.com/channel/<%= video.info["ucid"] %>"><%= video.info["author"] %></a></b></p>
+            <p><b><a style="width:100%;" href="https://youtube.com/channel/<%= video.info["ucid"] %>"><%= video.info["author"] %></a></b></p>
         </div>
     </div>
     <% end %>

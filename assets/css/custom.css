@@ -1,9 +1,9 @@
-a.link {
+a {
     color: #333;
     text-decoration: none;
 }
 
-a:hover.link,
-a:active.link {
+a:hover,
+a:active {
     color: #167ac6;
 }
