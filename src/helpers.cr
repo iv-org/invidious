@@ -290,6 +290,9 @@ def template_comments(root)
       score = child["data"]["score"]
       body_html = HTML.unescape(child["data"]["body_html"].as_s)
 
+      # Replace local links wtih links back to Reddit
+      body_html = fill_links(body_html, "https", "www.reddit.com")
+
       replies_html = ""
       if child["data"]["replies"] != ""
         replies_html = template_comments(child["data"]["replies"]["data"]["children"])
@@ -340,4 +343,49 @@ def arg_array(array)
   args = args.chomp(",")
 
   return args
+end
+
+def add_alt_links(html)
+  alt_links = [] of {Int32, String}
+
+  # This is painful but is likely the only way to accomplish this in Crystal,
+  # as Crystigiri and others are not able to insert XML Nodes into a document.
+  # The goal here is to use as little regex as possible
+  html.scan(/<a[^>]*>([^<]+)<\/a>/) do |match|
+    anchor = XML.parse_html(match[0])
+    anchor = anchor.xpath_node("//a").not_nil!
+    url = URI.parse(HTML.unescape(anchor["href"]))
+
+    if ["www.youtube.com", "youtu.be", "m.youtube.com"].includes?(url.host) && url.path == "/watch"
+      alt_link = <<-END_HTML
+      <a class="link" href="#{url.full_path}">
+        <i class="fa fa-link" aria-hidden="true"></i>
+      </a>
+      END_HTML
+
+      alt_links << {match.end.not_nil!, alt_link}
+    end
+  end
+
+  alt_links.reverse!
+  alt_links.each do |position, alt_link|
+    html = html.insert(position, alt_link)
+  end
+
+  return html
+end
+
+def fill_links(html, scheme, host)
+  html = XML.parse_html(html)
+
+  html.xpath_nodes("//a").each do |match|
+    url = URI.parse(match["href"])
+    if !url.host # If reddit link
+      url.scheme = scheme
+      url.host = host
+      match["href"] = url
+    end
+  end
+
+  html = html.to_xml
 end

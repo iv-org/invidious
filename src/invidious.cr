@@ -218,10 +218,16 @@ get "/watch" do |env|
   headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.1.0 (by /u/omarroth)"}
   begin
     reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client, headers)
+    reddit_html = template_comments(reddit_comments)
+
+    reddit_html = add_alt_links(reddit_html)
   rescue ex
-    reddit_comments = JSON.parse("[]")
     reddit_thread = nil
+    reddit_html = ""
   end
+
+  video.description = fill_links(video.description, "https", "www.youtube.com")
+  video.description = add_alt_links(video.description)
 
   templated "watch"
 end
