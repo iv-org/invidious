@@ -1,3 +1,18 @@
+macro add_mapping(mapping)
+  def initialize({{*mapping.keys.map { |id| "@#{id}".id }}})
+  end
+
+  def to_a
+    return [{{*mapping.keys.map { |id| "@#{id}".id }}}]
+  end
+
+  DB.mapping({{mapping}})
+end
+
+macro templated(filename)
+  render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
+end
+
 class Video
   module HTTPParamConverter
     def self.from_rs(rs)
@@ -5,24 +20,7 @@ class Video
     end
   end
 
-  def initialize(id, info, updated, title, views, likes, dislikes, wilson_score, published, description)
-    @id = id
-    @info = info
-    @updated = updated
-    @title = title
-    @views = views
-    @likes = likes
-    @dislikes = dislikes
-    @wilson_score = wilson_score
-    @published = published
-    @description = description
-  end
-
-  def to_a
-    return [@id, @info, @updated, @title, @views, @likes, @dislikes, @wilson_score, @published, @description]
-  end
-
-  DB.mapping({
+  add_mapping({
     id:   String,
     info: {
       type:      HTTP::Params,

@@ -1,4 +1,4 @@
-# "Invidious" (which indexes popular video sites)
+# "Invidious" (which is what YouTube should be)
 # Copyright (C) 2018  Omar Roth
 #
 # This program is free software: you can redistribute it and/or modify
