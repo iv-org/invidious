@@ -280,7 +280,7 @@ get "/search" do |env|
         if thumbnail
           video["thumbnail"] = thumbnail.content
         else
-          video["thumbnail"] = "http://via.placeholder.com/246x138"
+          video["thumbnail"] = "https://dummyimage.com/246x138"
         end
       end
 
