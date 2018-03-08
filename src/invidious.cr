@@ -133,10 +133,6 @@ spawn do
   end
 end
 
-macro templated(filename)
-    render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
-end
-
 get "/" do |env|
   templated "index"
 end
