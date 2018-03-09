@@ -25,6 +25,7 @@ CONFIG = Config.from_yaml(File.read("config/config.yml"))
 
 pool_size = CONFIG.pool_size
 threads = CONFIG.threads
+redirect = CONFIG.redirect
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
@@ -41,6 +42,16 @@ Kemal.config.extra_options do |parser|
       threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
+      exit
+    end
+  end
+  parser.on("-r REDIRECT", "--redirect=BOOL", "Whether insecure requests should be forced to HTTPS, requires -s (default #{redirect})") do |boolean|
+    if boolean == "true"
+      redirect = true
+    elsif boolean == "false"
+      redirect = false
+    else
+      puts "REDIRECT must be 'true' or 'false'"
       exit
     end
   end
@@ -325,6 +336,19 @@ end
 error 500 do |env|
   error_message = "500 Server error"
   templated "error"
+end
+
+# Add redirect if SSL is enabled and redirect is enabled
+if Kemal.config.ssl && redirect
+  spawn do
+    server = HTTP::Server.new("0.0.0.0", 80) do |context|
+      context.response.headers.add "Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"
+      context.response.headers.add "Location", "https://#{context.request.headers["Host"]}"
+      context.response.status_code = 302
+    end
+
+    server.listen
+  end
 end
 
 static_headers do |response, filepath, filestat|
