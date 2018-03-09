@@ -24,7 +24,7 @@ class Config
       port: Int32,
       dbname: String,
     ),
-    redirect: Bool
+    redirect: Bool,
   })
 end
 
