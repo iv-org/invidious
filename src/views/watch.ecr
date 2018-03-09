@@ -101,6 +101,9 @@ function toggle(target) {
                 <h3><%= video.info["author"] %></h3>
             </a>
         </p>
+        <p>
+            <b>Shared <%= video.published.to_s("%B %-d, %Y") %></b>
+        </p>
         <div style="margin-right:1em; overflow-wrap:break-word; word-wrap:break-word;">
             <%= video.description %>
         </div>
