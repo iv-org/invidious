@@ -315,6 +315,10 @@ error 500 do |env|
   templated "error"
 end
 
+static_headers do |response, filepath, filestat|
+  response.headers.add("Cache-Control", "max-age=86400")
+end
+
 public_folder "assets"
 
 Kemal.run
