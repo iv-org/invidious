@@ -366,15 +366,23 @@ def add_alt_links(html)
     anchor = anchor.xpath_node("//a").not_nil!
     url = URI.parse(HTML.unescape(anchor["href"]))
 
-    if ["www.youtube.com", "m.youtube.com"].includes?(url.host) && url.path == "/watch" || url.host == "youtu.be"
+    if ["www.youtube.com", "m.youtube.com"].includes?(url.host) && url.path == "/watch"
       alt_link = <<-END_HTML
       <a href="#{url.full_path}">
         <i class="fa fa-link" aria-hidden="true"></i>
       </a>
       END_HTML
-
-      alt_links << {match.end.not_nil!, alt_link}
+    elsif url.host == "youtu.be"
+      alt_link = <<-END_HTML
+      <a href="/watch?v=#{url.full_path.lchop("/")}">
+        <i class="fa fa-link" aria-hidden="true"></i>
+      </a>
+      END_HTML
+    else
+      alt_link = ""
     end
+
+    alt_links << {match.end.not_nil!, alt_link}
   end
 
   alt_links.reverse!
