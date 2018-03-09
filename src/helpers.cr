@@ -257,12 +257,12 @@ end
 def get_reddit_comments(id, client, headers)
   query = "(url:3D#{id}%20OR%20url:#{id})%20(site:youtube.com%20OR%20site:youtu.be)"
   search_results = client.get("/search.json?q=#{query}", headers)
-
+  
   if search_results.status_code == 200
     search_results = RedditSubmit.from_json(search_results.body)
-
+    
     thread = search_results.data.children.sort_by { |child| child.data.score }[-1]
-    result = client.get("/r/#{thread.data.subreddit}/comments/#{thread.data.id}?sort=top&depth=3", headers).body
+    result = client.get("/r/#{thread.data.subreddit}/comments/#{thread.data.id}?limit=100&sort=top", headers).body
     result = JSON.parse(result)
   elsif search_results.status_code == 302
     search_results = client.get(search_results.headers["Location"], headers).body
