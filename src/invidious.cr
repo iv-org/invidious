@@ -343,7 +343,8 @@ if Kemal.config.ssl && redirect
   spawn do
     server = HTTP::Server.new("0.0.0.0", 80) do |context|
       context.response.headers.add "Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"
-      context.response.headers.add "Location", "https://#{context.request.headers["Host"]}"
+      redirect_url = "https://#{context.request.host}#{context.request.path}?#{context.request.query}"
+      context.response.headers.add "Location", redirect_url
       context.response.status_code = 302
     end
 
