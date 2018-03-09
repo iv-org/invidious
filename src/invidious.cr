@@ -345,7 +345,7 @@ if Kemal.config.ssl && redirect
       context.response.headers.add "Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload"
       redirect_url = "https://#{context.request.host}#{context.request.path}?#{context.request.query}"
       context.response.headers.add "Location", redirect_url
-      context.response.status_code = 302
+      context.response.status_code = 301
     end
 
     server.listen
