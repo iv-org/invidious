@@ -1,0 +1,8 @@
+pool_size: 10
+threads: 5
+db:
+  user: kemal
+  password: kemal
+  host: localhost
+  port: 5432
+  dbname: invidious

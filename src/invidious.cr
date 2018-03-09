@@ -18,10 +18,13 @@ require "kemal"
 require "option_parser"
 require "pg"
 require "xml"
+require "yaml"
 require "./helpers"
 
-pool_size = 10
-threads = 5
+CONFIG = Config.from_yaml(File.read("config/config.yml"))
+
+pool_size = CONFIG.pool_size
+threads = CONFIG.threads
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
@@ -45,7 +48,16 @@ end
 
 Kemal::CLI.new
 
-PG_DB      = DB.open "postgres://kemal:kemal@localhost:5432/invidious"
+PG_URL = URI.new(
+  scheme: "postgres",
+  user: CONFIG.db[:user],
+  password: CONFIG.db[:password],
+  host: CONFIG.db[:host],
+  port: CONFIG.db[:port],
+  path: CONFIG.db[:dbname],
+)
+
+PG_DB      = DB.open PG_URL
 YT_URL     = URI.parse("https://www.youtube.com")
 REDDIT_URL = URI.parse("https://api.reddit.com")
 

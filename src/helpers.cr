@@ -13,6 +13,20 @@ macro templated(filename)
   render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
 end
 
+class Config
+  YAML.mapping({
+    pool_size: Int32,
+    threads:   Int32,
+    db:        NamedTuple(
+      user: String,
+      password: String,
+      host: String,
+      port: Int32,
+      dbname: String,
+    ),
+  })
+end
+
 class Video
   module HTTPParamConverter
     def self.from_rs(rs)
