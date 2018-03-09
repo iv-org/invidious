@@ -98,7 +98,7 @@ end
 
 def fetch_video(id, client)
   info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en").body
-  html = client.get("/watch?v=#{id}").body
+  html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}").body
 
   html = XML.parse_html(html)
   info = HTTP::Params.parse(info)
@@ -257,10 +257,10 @@ end
 def get_reddit_comments(id, client, headers)
   query = "(url:3D#{id}%20OR%20url:#{id})%20(site:youtube.com%20OR%20site:youtu.be)"
   search_results = client.get("/search.json?q=#{query}", headers)
-  
+
   if search_results.status_code == 200
     search_results = RedditSubmit.from_json(search_results.body)
-    
+
     thread = search_results.data.children.sort_by { |child| child.data.score }[-1]
     result = client.get("/r/#{thread.data.subreddit}/comments/#{thread.data.id}?limit=100&sort=top", headers).body
     result = JSON.parse(result)
