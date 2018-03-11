@@ -241,7 +241,6 @@ get "/watch" do |env|
 
     reddit_html = add_alt_links(reddit_html)
   rescue ex
-    STDOUT << id << " : " << ex.message << "\n"
     reddit_thread = nil
     reddit_html = ""
   end
