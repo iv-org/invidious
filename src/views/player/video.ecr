@@ -1,4 +1,4 @@
-<video poster="<%= thumbnail %>" title="<%= video.title%>" id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
+<video poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
     <% fmt_stream.each do |fmt| %>
         <source src="<%= fmt["url"]? %>" type='<%= fmt["type"]? %>'>
     <% end %>

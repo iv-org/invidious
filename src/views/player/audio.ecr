@@ -1,4 +1,4 @@
-<audio poster="<%= thumbnail %>" title="<%= video.title%>" id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
+<audio poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
     <% adaptive_fmts.each do |fmt| %>
         <% if fmt["type"].starts_with?("audio") %>
             <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>'>
