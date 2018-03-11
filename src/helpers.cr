@@ -257,7 +257,6 @@ end
 
 def make_client(url)
   context = OpenSSL::SSL::Context::Client.new
-  context.verify_mode = OpenSSL::SSL::VerifyMode::NONE
   context.add_options(
     OpenSSL::SSL::Options::ALL |
     OpenSSL::SSL::Options::NO_SSL_V2 |
