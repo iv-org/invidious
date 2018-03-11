@@ -160,10 +160,6 @@ get "/" do |env|
   templated "index"
 end
 
-before_all do |env|
-  env.response.headers.add("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
-end
-
 get "/watch" do |env|
   if env.params.query["v"]?
     id = env.params.query["v"]
@@ -355,6 +351,10 @@ if Kemal.config.ssl && redirect
     end
 
     server.listen
+  end
+
+  before_all do |env|
+    env.response.headers.add("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
   end
 end
 
