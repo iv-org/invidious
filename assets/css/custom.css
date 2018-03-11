@@ -1,9 +1,13 @@
 a {
-    color: #333;
-    text-decoration: none;
+  color: #333;
+  text-decoration: none;
 }
 
 a:hover,
 a:active {
-    color: #167ac6;
+  color: #167ac6;
+}
+
+.l-box {
+  padding: 1em;
 }
