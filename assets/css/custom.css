@@ -8,6 +8,12 @@ a:active {
   color: #167ac6;
 }
 
-.l-box {
-  padding: 1em;
+.h-box {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.v-box {
+  padding-top: 1em;
+  padding-bottom: 1em;
 }
