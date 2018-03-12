@@ -71,7 +71,18 @@ function toggle(target) {
         target.innerHTML = '[ - ]';
         body.style.display = '';
     }
+};
+
+function toggle_comments(target) {
+    body = target.parentNode.parentNode.parentNode.children[1];
+    if (body.style.display === null || body.style.display === '') {
+        target.innerHTML = '[ + ]';
+        body.style.display = 'none';
+    } else {
+        target.innerHTML = '[ - ]';
+        body.style.display = '';
 }
+};
 </script>
 
 <div class="l-box">
@@ -116,13 +127,20 @@ function toggle(target) {
         </div>
             <hr style="margin-left:1em; margin-right:1em;">
         <% if reddit_thread  && !reddit_html.empty? %>
+            <div>
             <div style="overflow-wrap:break-word; word-wrap:break-word;">
-            <h3><%= reddit_thread.data.title %></h3>
+                    <h3>
+                        <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
+                        <%= reddit_thread.data.title %>
+                    </h3>
             <b>
                 <a target="_blank" href="https://reddit.com<%= reddit_thread.data.permalink %>">View more comments on Reddit</a>
             </b>
+                </div>
+                <div>
             <%= reddit_html %>
         </div>
+            </div>
         <% end %>
     </div>
     </div>
