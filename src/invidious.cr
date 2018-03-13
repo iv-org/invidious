@@ -211,8 +211,6 @@ get "/watch" do |env|
     end
   end
 
-  # 3gpp doesn't appear to play correclty in Chrome, so here we remove it
-  fmt_stream = fmt_stream.compact_map { |s| !s["type"].starts_with?("video/3gpp") ? s : nil }
   fmt_stream = fmt_stream.uniq { |s| s["quality"] }
 
   video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video") ? s : nil }
