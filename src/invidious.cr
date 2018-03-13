@@ -352,46 +352,62 @@ get "/api/manifest/dash/id/:id" do |env|
     halt env, status_code: 403
   end
 
-  manifest = XML.build(indent: "  ") do |xml|
-    xml.element("MPD", xmlns: "urn:mpeg:dash:schema:mpd:2011", profiles: "urn:mpeg:dash:profile:full:2011",
-      mediaPresentationDuration: "PT#{video.info["length_seconds"]}S", minBufferTime: "PT2S", type: "static") do
-      host = URI.parse(adaptive_fmts[0]["url"]).host.to_s
+  signature = false
+  if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
+    signature = true
+  end
 
-      xml.element("BaseURL") { xml.text "https://#{host}" }
-      xml.element("Period", id: "0") do
+  if signature
         adaptive_fmts.each do |fmt|
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
+    end
+  end
+
+  video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video/mp4") ? s : nil }
+
+  audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio/mp4") ? s : nil }
+  audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
+  audio_streams.each do |fmt|
+    fmt["bitrate"] = (fmt["bitrate"].to_f64/1000).to_i.to_s
+  end
+
+  manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
+    xml.element("MPD", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", xmlns: "urn:mpeg:dash:schema:mpd:2011",
+      profiles: "urn:mpeg:dash:profile:full:2011", mediaPresentationDuration: "PT#{video.info["length_seconds"]}S",
+      minBufferTime: "PT2S", type: "static") do
+      xml.element("Period") do
+        xml.element("AdaptationSet", id: 0, mimeType: "audio/mp4", subsegmentAlignment: true) do
+          xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
+          video_streams.each do |fmt|
           mimetype, codecs = fmt["type"].split(";")
           codecs = codecs[9..-2]
           fmt_type = mimetype.split("/")[0]
-          fmt_id = fmt["itag"]
           bandwidth = fmt["bitrate"]
+            itag = fmt["itag"]
+            url = URI.unescape(fmt["url"])
 
-          url = fmt["url"]
-          if fmt["s"]?
-            url += "&signature="
-            url += decrypt_signature(fmt["s"])
-          end
-
-          url = URI.parse(url)
-          url = url.path.not_nil! + "?" + url.query.not_nil!
-
-          if fmt_type == "video"
-            width, height = fmt["size"].split("x")
-            framerate = fmt["fps"]
-
-            xml.element("AdaptationSet", contentType: "video", width: width,
-              height: height, frameRate: framerate, subsegmentAlignment: true, id: fmt_id) do
-              xml.element("Representation", id: fmt_id, bandwidth: bandwidth, codecs: codecs, mimeType: mimetype) do
-                xml.element("BaseURL") { xml.text url }
+            xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
+              xml.element("BaseURL") { xml.cdata url }
                 xml.element("SegmentBase", indexRange: fmt["init"]) do
                   xml.element("Initialization", range: fmt["index"])
                 end
               end
             end
-          else
-            xml.element("AdaptationSet", contentType: "audio", subsegmentAlignment: true, id: fmt_id) do
-              xml.element("Representation", id: fmt_id, bandwidth: bandwidth, codecs: codecs, mimeType: mimetype) do
-                xml.element("BaseURL") { xml.text url }
+        end
+
+        xml.element("AdaptationSet", id: 1, mimeType: "video/mp4", subsegmentAlignment: true) do
+          xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
+          video_streams.each do |fmt|
+            mimetype, codecs = fmt["type"].split(";")
+            codecs = codecs[9..-2]
+            fmt_type = mimetype.split("/")[0]
+            bandwidth = fmt["bitrate"]
+            itag = fmt["itag"]
+            url = URI.unescape(fmt["url"])
+            height, width = fmt["size"].split("x")
+
+            xml.element("Representation", id: itag, codecs: codecs, width: width, height: height, bandwidth: bandwidth, frameRate: fmt["fps"]) do
+              xml.element("BaseURL") { xml.cdata url }
                 xml.element("SegmentBase", indexRange: fmt["init"]) do
                   xml.element("Initialization", range: fmt["index"])
                 end
@@ -401,8 +417,9 @@ get "/api/manifest/dash/id/:id" do |env|
         end
       end
     end
-  end
 
+  manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8U"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
+  manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8V"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
   manifest
 end
 
