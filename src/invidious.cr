@@ -327,6 +327,85 @@ get "/redirect" do |env|
   end
 end
 
+# Return dash manifest for the given video ID
+get "/api/manifest/dash/id/:id" do |env|
+  env.response.headers.add("Access-Control-Allow-Origin", "*")
+  env.response.content_type = "application/dash+xml"
+
+  id = env.params.url["id"]
+
+  yt_client = get_client(youtube_pool)
+  begin
+    video = get_video(id, yt_client, PG_DB)
+  rescue ex
+    halt env, status_code: 403
+  ensure
+    youtube_pool << yt_client
+  end
+
+  adaptive_fmts = [] of HTTP::Params
+  if video.info.has_key?("adaptive_fmts")
+    video.info["adaptive_fmts"].split(",") do |string|
+      adaptive_fmts << HTTP::Params.parse(string)
+    end
+  else
+    halt env, status_code: 403
+  end
+
+  manifest = XML.build(indent: "  ") do |xml|
+    xml.element("MPD", xmlns: "urn:mpeg:dash:schema:mpd:2011", profiles: "urn:mpeg:dash:profile:full:2011",
+      mediaPresentationDuration: "PT#{video.info["length_seconds"]}S", minBufferTime: "PT2S", type: "static") do
+      host = URI.parse(adaptive_fmts[0]["url"]).host.to_s
+
+      xml.element("BaseURL") { xml.text "https://#{host}" }
+      xml.element("Period", id: "0") do
+        adaptive_fmts.each do |fmt|
+          mimetype, codecs = fmt["type"].split(";")
+          codecs = codecs[9..-2]
+          fmt_type = mimetype.split("/")[0]
+          fmt_id = fmt["itag"]
+          bandwidth = fmt["bitrate"]
+
+          url = fmt["url"]
+          if fmt["s"]?
+            url += "&signature="
+            url += decrypt_signature(fmt["s"])
+          end
+
+          url = URI.parse(url)
+          url = url.path.not_nil! + "?" + url.query.not_nil!
+
+          if fmt_type == "video"
+            width, height = fmt["size"].split("x")
+            framerate = fmt["fps"]
+
+            xml.element("AdaptationSet", contentType: "video", width: width,
+              height: height, frameRate: framerate, subsegmentAlignment: true, id: fmt_id) do
+              xml.element("Representation", id: fmt_id, bandwidth: bandwidth, codecs: codecs, mimeType: mimetype) do
+                xml.element("BaseURL") { xml.text url }
+                xml.element("SegmentBase", indexRange: fmt["init"]) do
+                  xml.element("Initialization", range: fmt["index"])
+                end
+              end
+            end
+          else
+            xml.element("AdaptationSet", contentType: "audio", subsegmentAlignment: true, id: fmt_id) do
+              xml.element("Representation", id: fmt_id, bandwidth: bandwidth, codecs: codecs, mimeType: mimetype) do
+                xml.element("BaseURL") { xml.text url }
+                xml.element("SegmentBase", indexRange: fmt["init"]) do
+                  xml.element("Initialization", range: fmt["index"])
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  manifest
+end
+
 error 404 do |env|
   error_message = "404 Page not found"
   templated "error"
