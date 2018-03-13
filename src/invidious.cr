@@ -189,19 +189,16 @@ get "/watch" do |env|
     fmt_stream << HTTP::Params.parse(string)
   end
 
-  signature = false
-  if fmt_stream[0]? && fmt_stream[0]["s"]?
-    signature = true
-  end
-
-  # We want lowest quality first
-  fmt_stream.reverse!
-
   adaptive_fmts = [] of HTTP::Params
   if video.info.has_key?("adaptive_fmts")
     video.info["adaptive_fmts"].split(",") do |string|
       adaptive_fmts << HTTP::Params.parse(string)
     end
+  end
+
+  signature = false
+  if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
+    signature = true
   end
 
   if signature
@@ -212,6 +209,19 @@ get "/watch" do |env|
     fmt_stream.each do |fmt|
       fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
     end
+  end
+
+  # 3gpp doesn't appear to play correclty in Chrome, so here we remove it
+  fmt_stream = fmt_stream.compact_map { |s| !s["type"].starts_with?("video/3gpp") ? s : nil }
+  fmt_stream = fmt_stream.uniq { |s| s["quality"] }
+
+  video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video") ? s : nil }
+  video_streams = video_streams.uniq { |s| s["size"] }
+
+  audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio") ? s : nil }
+  audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
+  audio_streams.each do |fmt|
+    fmt["bitrate"] = (fmt["bitrate"].to_f64/1000).to_i.to_s
   end
 
   rvs = [] of Hash(String, String)
@@ -358,7 +368,7 @@ get "/api/manifest/dash/id/:id" do |env|
   end
 
   if signature
-        adaptive_fmts.each do |fmt|
+    adaptive_fmts.each do |fmt|
       fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
     end
   end
@@ -379,20 +389,20 @@ get "/api/manifest/dash/id/:id" do |env|
         xml.element("AdaptationSet", id: 0, mimeType: "audio/mp4", subsegmentAlignment: true) do
           xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
           video_streams.each do |fmt|
-          mimetype, codecs = fmt["type"].split(";")
-          codecs = codecs[9..-2]
-          fmt_type = mimetype.split("/")[0]
-          bandwidth = fmt["bitrate"]
+            mimetype, codecs = fmt["type"].split(";")
+            codecs = codecs[9..-2]
+            fmt_type = mimetype.split("/")[0]
+            bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
             url = URI.unescape(fmt["url"])
 
             xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
               xml.element("BaseURL") { xml.cdata url }
-                xml.element("SegmentBase", indexRange: fmt["init"]) do
-                  xml.element("Initialization", range: fmt["index"])
-                end
+              xml.element("SegmentBase", indexRange: fmt["init"]) do
+                xml.element("Initialization", range: fmt["index"])
               end
             end
+          end
         end
 
         xml.element("AdaptationSet", id: 1, mimeType: "video/mp4", subsegmentAlignment: true) do
@@ -408,15 +418,15 @@ get "/api/manifest/dash/id/:id" do |env|
 
             xml.element("Representation", id: itag, codecs: codecs, width: width, height: height, bandwidth: bandwidth, frameRate: fmt["fps"]) do
               xml.element("BaseURL") { xml.cdata url }
-                xml.element("SegmentBase", indexRange: fmt["init"]) do
-                  xml.element("Initialization", range: fmt["index"])
-                end
+              xml.element("SegmentBase", indexRange: fmt["init"]) do
+                xml.element("Initialization", range: fmt["index"])
               end
             end
           end
         end
       end
     end
+  end
 
   manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8U"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
   manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8V"?>), %(<?xml version="1.0" encoding="UTF-8"?>))

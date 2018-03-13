@@ -1,24 +1,37 @@
 <% content_for "header" do %>
 <meta name="thumbnail" content="<%= thumbnail %>">
 <link rel="stylesheet" href="https://vjs.zencdn.net/6.6.3/video-js.css">
+<link rel="stylesheet" href="/css/quality-selector.css">
 <script src="https://vjs.zencdn.net/6.6.3/video.js"></script>
 <script src="https://cdn.sc.gl/videojs-hotkeys/latest/videojs.hotkeys.min.js"></script>
+<script src="/js/silvermine-videojs-quality-selector.js"></script>
 <title><%= video.title %> - Invidious</title>
 <% end %>
 
 <div class="h-box">
-<% if listen %>
-<%= render "src/views/player/audio.ecr" %>
-<% else %>
-<%= render "src/views/player/video.ecr" %>
-<% end %>
+    <% if listen %>
+    <%= render "src/views/player/audio.ecr" %>
+    <% else %>
+    <%= render "src/views/player/video.ecr" %>
+    <% end %>
 </div>
 
 <script>
 var options = {
     aspectRatio: "16:9",
     preload: "auto",
-    playbackRates: [0.5, 1, 1.5, 2]
+    playbackRates: [0.5, 1, 1.5, 2],
+    controlBar: {
+      children: [
+         'playToggle',
+         'volumePanel',
+         'progressControl',
+         'remainingTimeDisplay',
+         'qualitySelector',
+         'playbackRateMenuButton',
+         'fullscreenToggle',
+      ],
+   },
 };
 var player = videojs('player', options, function() {
     this.hotkeys({
@@ -81,7 +94,7 @@ function toggle_comments(target) {
     } else {
         target.innerHTML = '[ - ]';
         body.style.display = '';
-}
+    }
 };
 </script>
 
@@ -128,21 +141,21 @@ function toggle_comments(target) {
             <hr style="margin-left:1em; margin-right:1em;">
         <% if reddit_thread  && !reddit_html.empty? %>
             <div>
-            <div style="overflow-wrap:break-word; word-wrap:break-word;">
+                <div style="overflow-wrap:break-word; word-wrap:break-word;">
                     <h3>
                         <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
                         <%= reddit_thread.data.title %>
                     </h3>
-            <b>
-                <a target="_blank" href="https://reddit.com<%= reddit_thread.data.permalink %>">View more comments on Reddit</a>
-            </b>
+                    <b>
+                        <a target="_blank" href="https://reddit.com<%= reddit_thread.data.permalink %>">View more comments on Reddit</a>
+                    </b>
                 </div>
                 <div>
-            <%= reddit_html %>
-        </div>
+                    <%= reddit_html %>
+                </div>
             </div>
-        <% end %>
-    </div>
+            <% end %>
+        </div>
     </div>
 
     <div class="pure-u-1 pure-u-md-1-5">
