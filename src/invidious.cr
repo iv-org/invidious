@@ -186,7 +186,9 @@ get "/watch" do |env|
 
   fmt_stream = [] of HTTP::Params
   video.info["url_encoded_fmt_stream_map"].split(",") do |string|
+    if !string.empty?
     fmt_stream << HTTP::Params.parse(string)
+  end
   end
 
   adaptive_fmts = [] of HTTP::Params
