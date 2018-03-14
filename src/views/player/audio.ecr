@@ -1,5 +1,5 @@
 <audio poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js" data-setup="{}" style="width:100%;" controls>
-    <% audio_streams.each do |fmt| %>
-        <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= audio_streams[0]["url"] == fmt["url"] ? true : false %>">
+    <% audio_streams.each_with_index do |fmt, i| %>
+        <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
     <% end %>
 </audio>
