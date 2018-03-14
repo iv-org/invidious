@@ -187,8 +187,8 @@ get "/watch" do |env|
   fmt_stream = [] of HTTP::Params
   video.info["url_encoded_fmt_stream_map"].split(",") do |string|
     if !string.empty?
-    fmt_stream << HTTP::Params.parse(string)
-  end
+      fmt_stream << HTTP::Params.parse(string)
+    end
   end
 
   adaptive_fmts = [] of HTTP::Params
@@ -271,7 +271,8 @@ get "/search" do |env|
     next
   end
 
-  page = env.params.query["page"]? && env.params.query["page"].to_i? ? env.params.query["page"].to_i : 1
+  page = env.params.query["page"]?.try &.to_i
+  page ||= 1
 
   client = get_client(youtube_pool)
 

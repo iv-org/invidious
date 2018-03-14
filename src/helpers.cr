@@ -131,10 +131,12 @@ def fetch_video(id, client)
   views = info["view_count"].to_i64
 
   likes = html.xpath_node(%q(//button[@title="I like this"]/span))
-  likes = likes ? likes.content.delete(",").to_i : 0
+  likes = likes.try &.content.delete(",").try &.to_i
+  likes ||= 0
 
   dislikes = html.xpath_node(%q(//button[@title="I dislike this"]/span))
-  dislikes = dislikes ? dislikes.content.delete(",").to_i : 0
+  dislikes = dislikes.try &.content.delete(",").try &.to_i
+  dislikes ||= 0
 
   description = html.xpath_node(%q(//p[@id="eow-description"]))
   description = description ? description.to_xml : ""
