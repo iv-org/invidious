@@ -405,3 +405,21 @@ def fill_links(html, scheme, host)
 
   html = html.to_xml
 end
+
+def login_req(login_form, f_req)
+  data = {
+    "pstMsg"          => "1",
+    "checkConnection" => "youtube",
+    "checkedDomains"  => "youtube",
+    "hl"              => "en",
+    "deviceinfo"      => %q([null,null,null,[],null,"US",null,null,[],"GlifWebSignIn",null,[null,null,[]]]),
+    "f.req"           => f_req,
+    "flowName"        => "GlifWebSignIn",
+    "flowEntry"       => "ServiceLogin",
+  }
+
+  data = data.merge(login_form)
+  # pp data
+
+  return HTTP::Params.encode(data)
+end

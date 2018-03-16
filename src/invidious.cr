@@ -71,6 +71,7 @@ PG_URL = URI.new(
 PG_DB      = DB.open PG_URL
 YT_URL     = URI.parse("https://www.youtube.com")
 REDDIT_URL = URI.parse("https://api.reddit.com")
+LOGIN_URL  = URI.parse("https://accounts.google.com")
 
 youtube_pool = Deque.new(pool_size) do
   make_client(YT_URL)
@@ -328,6 +329,87 @@ get "/search" do |env|
   end
 
   templated "search"
+end
+
+get "/login" do |env|
+  templated "login"
+end
+
+# See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
+post "/login" do |env|
+  email = env.params.body["email"]?
+  password = env.params.body["password"]?
+  remember = env.params.body["remember"]? || "false"
+
+  begin
+    client = make_client(LOGIN_URL)
+    headers = HTTP::Headers.new
+    login_page = client.get("/ServiceLogin")
+    headers = login_page.cookies.add_request_headers(headers)
+
+    login_page = XML.parse_html(login_page.body)
+
+    inputs = {} of String => String
+    login_page.xpath_nodes(%q(//input[@type="submit"])).each do |node|
+      name = node["id"]? || node["name"]?
+      name ||= ""
+      value = node["value"]?
+      value ||= ""
+
+      if name != "" && value != ""
+        inputs[name] = value
+      end
+    end
+
+    login_page.xpath_nodes(%q(//input[@type="hidden"])).each do |node|
+      name = node["id"]? || node["name"]?
+      name ||= ""
+      value = node["value"]?
+      value ||= ""
+
+      if name != "" && value != ""
+        inputs[name] = value
+      end
+    end
+
+    lookup_req = %(["#{email}","#{inputs["session-state"]}",[],null,"US",null,null,2,false,true,[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fnext%3D%252F%26action_handle_signin%3Dtrue%26hl%3Den%26app%3Ddesktop%26feature%3Dsign_in_button&hl=en&service=youtube&uilel=3&requestPath=%2FServiceLogin&Page=PasswordSeparationSignIn",null,[],4,[]],1,[null,null,[]],null,null,null,true],"#{email}"])
+
+    headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
+    headers["Google-Accounts-XSRF"] = "1"
+
+    lookup_results = client.post("/_/signin/sl/lookup", headers, login_req(inputs, lookup_req))
+    headers = lookup_results.cookies.add_request_headers(headers)
+
+    lookup_results = lookup_results.body
+    lookup_results = lookup_results[5..-1]
+    lookup_results = JSON.parse(lookup_results)
+
+    user_hash = lookup_results[0][2]
+
+    challenge_req = %([#{user_hash},null,1,null,[1,null,null,null,[#{password},null,true]],[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fnext%3D%252F%26action_handle_signin%3Dtrue%26hl%3Den%26app%3Ddesktop%26feature%3Dsign_in_button&hl=en&service=youtube&uilel=3&requestPath=%2FServiceLogin&Page=PasswordSeparationSignIn", null,[],4],1,[null,null,[]],null,null,null,true]])
+
+    challenge_results = client.post("/_/signin/sl/challenge", headers, login_req(inputs, challenge_req))
+    headers = challenge_results.cookies.add_request_headers(headers)
+
+    challenge_results = challenge_results.body
+    challenge_results = challenge_results[5..-1]
+    challenge_results = JSON.parse(challenge_results)
+
+    login_res = challenge_results[0][13][2].to_s
+
+    login = client.get(login_res, headers)
+    headers = login.cookies.add_request_headers(headers)
+
+    login = client.get(login.headers["Location"], headers)
+    headers = login.cookies.add_request_headers(headers)
+
+    # We are now logged in
+
+    env.redirect "/"
+  rescue ex
+    error_message = "Login failed"
+    next templated "error"
+  end
 end
 
 get "/redirect" do |env|
