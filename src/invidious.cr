@@ -20,6 +20,7 @@ require "pg"
 require "xml"
 require "yaml"
 require "./helpers"
+require "./cookie_fix"
 
 CONFIG = Config.from_yaml(File.read("config/config.yml"))
 
