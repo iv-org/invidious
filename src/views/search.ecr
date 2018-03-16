@@ -4,14 +4,16 @@
 
 <% videos.each_slice(4) do |slice| %>
 <div class="pure-g">
-<% slice.each do |video| %>
+    <% slice.each do |video| %>
     <div class="pure-u-1 pure-u-md-1-4">
         <div class="h-box">
             <a style="width:100%;" href="<%= video["link"] %>">
                 <img style="width:100%;" src="<%= video["thumbnail"] %>"/>
                 <%= video["title"] %>
             </a>
-            <p><b><a style="width:100%;" href="<%= video["author_url"]%>"><%= video["author"] %></a></b></p>
+            <p>
+                <b><a style="width:100%;" href="<%= video["author_url"]%>"><%= video["author"] %></a></b>
+            </p>
         </div>
     </div>
     <% end %>

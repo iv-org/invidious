@@ -12,7 +12,9 @@
                 <img style="width:100%;" src="<%= player_response["videoDetails"]["thumbnail"]["thumbnails"][0]["url"] %>"/>
                 <p><%= video.title %></p>
             </a>
-            <p><b><a style="width:100%;" href="https://youtube.com/channel/<%= video.info["ucid"] %>"><%= video.info["author"] %></a></b></p>
+            <p>
+                <b><a style="width:100%;" href="https://youtube.com/channel/<%= video.info["ucid"] %>"><%= video.info["author"] %></a></b>
+            </p>
         </div>
     </div>
     <% end %>

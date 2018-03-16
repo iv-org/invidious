@@ -1,3 +1,4 @@
+# See https://github.com/crystal-lang/crystal/pull/5408
 module HTTP
   class Cookie
     module Parser
