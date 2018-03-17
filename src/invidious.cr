@@ -145,11 +145,10 @@ spawn do
 
     videos = [] of Video
 
-    PG_DB.query("SELECT * FROM videos d INNER JOIN (VALUES #{args}) v(id) USING (id)", top) do |rs|
-      rs.each do
-        video = rs.read(Video)
-        videos << video
-      end
+    top.each do |id|
+      client = get_client(youtube_pool)
+      videos << get_video(id, client, PG_DB)
+      youtube_pool << client
     end
 
     top_videos = videos

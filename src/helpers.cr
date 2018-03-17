@@ -183,8 +183,8 @@ def get_video(id, client, db, refresh = true)
 
     # If record was last updated over an hour ago, refresh (expire param in response lasts for 6 hours)
     if refresh && Time.now - video.updated > 1.hours
-      video = fetch_video(id, client)
       db.exec("DELETE FROM videos * WHERE id = $1", id)
+      video = fetch_video(id, client)
       args = arg_array(video.to_a)
       db.exec("INSERT INTO videos VALUES (#{args})", video.to_a)
     end
