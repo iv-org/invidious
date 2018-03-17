@@ -147,7 +147,11 @@ spawn do
 
     top.each do |id|
       client = get_client(youtube_pool)
-      videos << get_video(id, client, PG_DB)
+      begin
+        videos << get_video(id, client, PG_DB)
+      rescue ex
+        STDOUT << Time.now << " : " << ex.message << "\n"
+      end
       youtube_pool << client
     end
 

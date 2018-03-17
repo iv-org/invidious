@@ -234,7 +234,7 @@ end
 def rank_videos(db, n, pool, filter)
   top = [] of {Float64, String}
 
-  db.query("SELECT id, wilson_score, published FROM videos WHERE views > 5000 ORDER BY published DESC LIMIT 10000") do |rs|
+  db.query("SELECT id, wilson_score, published FROM videos WHERE views > 5000 ORDER BY published DESC LIMIT 1000") do |rs|
     rs.each do
       id = rs.read(String)
       wilson_score = rs.read(Float64)
