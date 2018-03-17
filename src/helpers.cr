@@ -267,6 +267,7 @@ def rank_videos(db, n, pool, filter)
         else
           description = XML.parse(video.description)
           content = [video.title, description.content].join(" ")
+          content = content[0,1000]
 
           results = DetectLanguage.detect(content)
           language = results[0].language
