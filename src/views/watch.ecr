@@ -126,7 +126,7 @@ function toggle_comments(target) {
     </div>
 
     <div class="pure-u-1 pure-u-md-3-5">
-        <div class="h-box">
+        <div style="overflow-wrap:break-word; word-wrap:break-word;" class="h-box">
             <p>
                 <a href="https://youtube.com/channel/<%= video.info["ucid"] %>">
                     <h3><%= video.info["author"] %></h3>
@@ -141,7 +141,7 @@ function toggle_comments(target) {
             <hr style="margin-left:1em; margin-right:1em;">
         <% if reddit_thread  && !reddit_html.empty? %>
             <div>
-                <div style="overflow-wrap:break-word; word-wrap:break-word;">
+                <div>
                     <h3>
                         <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
                         <%= reddit_thread.data.title %>
@@ -159,7 +159,7 @@ function toggle_comments(target) {
     </div>
 
     <div class="pure-u-1 pure-u-md-1-5">
-        <div class="h-box">
+        <div style="overflow-wrap:break-word; word-wrap:break-word;" class="h-box">
         <% rvs.each do |rv| %>
             <% if rv.has_key?("id") %>
             <a href="/watch?v=<%= rv["id"] %>">
