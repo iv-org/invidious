@@ -152,8 +152,9 @@ def fetch_video(id, client)
   end
 
   published = published.lchop("Published ")
-  published = published.lchop("Streamed live ")
   published = published.lchop("Started streaming ")
+  published = published.lchop("Streamed live ")
+  published = published.lchop("Uploaded ")
   published = published.lchop("on ")
   published = published.lchop("Scheduled for ")
   if !published.includes?("ago")
