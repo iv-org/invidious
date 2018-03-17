@@ -12,6 +12,7 @@ CREATE TABLE public.videos
     wilson_score double precision,
     published timestamp with time zone,
     description text COLLATE pg_catalog."default",
+    language text COLLATE pg_catalog."default",
     CONSTRAINT videos_pkey PRIMARY KEY (id)
 )
 WITH (

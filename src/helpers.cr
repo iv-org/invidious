@@ -51,6 +51,7 @@ class Video
     wilson_score: Float64,
     published:    Time,
     description:  String,
+    language:     String?,
   })
 end
 
@@ -171,7 +172,7 @@ def fetch_video(id, client)
     end
   end
 
-  video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description)
+  video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description, nil)
 
   return video
 end
@@ -261,12 +262,19 @@ def rank_videos(db, n, pool, filter)
         video = get_video(id, client, db)
         pool << client
 
-        description = XML.parse(video.description)
-        content = [video.title, description.content].join(" ")
+        if video.language
+          language = video.language
+        else
+          description = XML.parse(video.description)
+          content = [video.title, description.content].join(" ")
 
-        results = DetectLanguage.detect(content)
+          results = DetectLanguage.detect(content)
+          language = results[0].language
 
-        if results[0].language == "en"
+          db.exec("UPDATE videos SET language = $1 WHERE id = $2", language, id)
+        end
+
+        if language == "en"
           language_list << id
         end
       end
