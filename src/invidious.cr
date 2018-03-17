@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require "detect_language"
 require "kemal"
 require "option_parser"
 require "pg"
@@ -135,8 +136,14 @@ end
 top_videos = [] of Video
 
 spawn do
+  if CONFIG.dl_api_key
+    DetectLanguage.configure do |config|
+      config.api_key = CONFIG.dl_api_key.not_nil!
+    end
+  end
+
   loop do
-    top = rank_videos(PG_DB, 40)
+    top = rank_videos(PG_DB, 40, youtube_pool, true)
 
     if top.size > 0
       args = arg_array(top)

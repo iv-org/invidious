@@ -24,7 +24,8 @@ class Config
       port: Int32,
       dbname: String,
     ),
-    redirect: Bool,
+    redirect:   Bool,
+    dl_api_key: String | Nil,
   })
 end
 
@@ -229,7 +230,7 @@ def decrypt_signature(a)
   return a.join("")
 end
 
-def rank_videos(db, n)
+def rank_videos(db, n, pool, filter)
   top = [] of {Float64, String}
 
   db.query("SELECT id, wilson_score, published FROM videos WHERE views > 5000 ORDER BY published DESC LIMIT 10000") do |rs|
@@ -250,8 +251,30 @@ def rank_videos(db, n)
   top.reverse!
   top = top.map { |a, b| b }
 
-  # Return top
-  return top[0..n - 1]
+  if filter
+    language_list = [] of String
+    top.each do |id|
+      if language_list.size == n
+        break
+      else
+        client = get_client(pool)
+        video = get_video(id, client, db)
+        pool << client
+
+        description = XML.parse(video.description)
+        content = [video.title, description.content].join(" ")
+
+        results = DetectLanguage.detect(content)
+
+        if results[0].language == "en"
+          language_list << id
+        end
+      end
+    end
+    return language_list
+  else
+    return top[0..n - 1]
+  end
 end
 
 def make_client(url)

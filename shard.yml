@@ -15,6 +15,9 @@ dependencies:
   pg:
     github: will/crystal-pg
     branch: master
+  detect_language:
+    github: omarroth/detectlanguage-crystal
+    branch: v0.24.2
 
 crystal: 0.24.2
 
