@@ -150,7 +150,6 @@ spawn do
       begin
         videos << get_video(id, client, PG_DB)
       rescue ex
-        STDOUT << Time.now << " : " << ex.message << "\n"
       end
       youtube_pool << client
     end
