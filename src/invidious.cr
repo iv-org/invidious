@@ -465,22 +465,22 @@ get "/api/manifest/dash/id/:id" do |env|
   end
 
   manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
-    xml.element("MPD", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", xmlns: "urn:mpeg:dash:schema:mpd:2011",
-      profiles: "urn:mpeg:dash:profile:full:2011", mediaPresentationDuration: "PT#{video.info["length_seconds"]}S",
-      minBufferTime: "PT2S", type: "static") do
+    xml.element("MPD", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation": "urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd",
+      xmlns: "urn:mpeg:dash:schema:mpd:2011", profiles: "urn:mpeg:dash:profile:isoff-main:2011",
+      mediaPresentationDuration: "PT#{video.info["length_seconds"]}S", minBufferTime: "PT2S", type: "static") do
       xml.element("Period") do
         xml.element("AdaptationSet", id: 0, mimeType: "audio/mp4", subsegmentAlignment: true) do
           xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
-          video_streams.each do |fmt|
+          audio_streams.each do |fmt|
             mimetype, codecs = fmt["type"].split(";")
             codecs = codecs[9..-2]
             fmt_type = mimetype.split("/")[0]
             bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
-            url = URI.unescape(fmt["url"])
+            url = fmt["url"]
 
             xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
-              xml.element("BaseURL") { xml.cdata url }
+              xml.element("BaseURL") { xml.text url }
               xml.element("SegmentBase", indexRange: fmt["init"]) do
                 xml.element("Initialization", range: fmt["index"])
               end
@@ -496,11 +496,11 @@ get "/api/manifest/dash/id/:id" do |env|
             fmt_type = mimetype.split("/")[0]
             bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
-            url = URI.unescape(fmt["url"])
+            url = fmt["url"]
             height, width = fmt["size"].split("x")
 
             xml.element("Representation", id: itag, codecs: codecs, width: width, height: height, bandwidth: bandwidth, frameRate: fmt["fps"]) do
-              xml.element("BaseURL") { xml.cdata url }
+              xml.element("BaseURL") { xml.text url }
               xml.element("SegmentBase", indexRange: fmt["init"]) do
                 xml.element("Initialization", range: fmt["index"])
               end
