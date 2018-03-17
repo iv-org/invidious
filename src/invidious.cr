@@ -140,10 +140,13 @@ spawn do
     DetectLanguage.configure do |config|
       config.api_key = CONFIG.dl_api_key.not_nil!
     end
+    filter = true
+  else
+    filter = false
   end
 
   loop do
-    top = rank_videos(PG_DB, 40, youtube_pool, true)
+    top = rank_videos(PG_DB, 40, youtube_pool, filter)
 
     if top.size > 0
       args = arg_array(top)

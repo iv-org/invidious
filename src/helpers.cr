@@ -25,7 +25,7 @@ class Config
       dbname: String,
     ),
     redirect:   Bool,
-    dl_api_key: String | Nil,
+    dl_api_key: String?,
   })
 end
 
