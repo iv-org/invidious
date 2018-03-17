@@ -24,7 +24,6 @@ class Config
       port: Int32,
       dbname: String,
     ),
-    redirect:   Bool,
     dl_api_key: String?,
   })
 end
