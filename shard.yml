@@ -17,7 +17,7 @@ dependencies:
     branch: master
   detect_language:
     github: omarroth/detectlanguage-crystal
-    branch: v0.24.2
+    branch: master
 
 crystal: 0.24.2
 

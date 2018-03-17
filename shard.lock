@@ -4,6 +4,10 @@ shards:
     github: crystal-lang/crystal-db
     version: 0.5.0
 
+  detect_language:
+    github: omarroth/detectlanguage-crystal
+    commit: 3fa7fe22593e1c3dbee00f45467b4c8556c8f88e
+
   kemal:
     github: kemalcr/kemal
     commit: 11295f058407e6724554775c4ed1b11b98084411
