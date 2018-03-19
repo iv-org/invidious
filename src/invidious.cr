@@ -135,7 +135,11 @@ spawn do
   end
 
   loop do
-    top = rank_videos(PG_DB, 40, youtube_pool, filter)
+    begin
+      top = rank_videos(PG_DB, 40, youtube_pool, filter)
+    rescue ex
+      next
+    end
 
     if top.size > 0
       args = arg_array(top)
@@ -150,6 +154,7 @@ spawn do
       begin
         videos << get_video(id, client, PG_DB)
       rescue ex
+        next
       end
       youtube_pool << client
     end

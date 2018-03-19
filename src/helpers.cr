@@ -259,7 +259,12 @@ def rank_videos(db, n, pool, filter)
         break
       else
         client = get_client(pool)
-        video = get_video(id, client, db)
+        begin
+          video = get_video(id, client, db)
+        rescue ex
+          next
+        end
+
         pool << client
 
         if video.language
@@ -267,7 +272,7 @@ def rank_videos(db, n, pool, filter)
         else
           description = XML.parse(video.description)
           content = [video.title, description.content].join(" ")
-          content = content[0,10000]
+          content = content[0, 10000]
 
           results = DetectLanguage.detect(content)
           language = results[0].language
