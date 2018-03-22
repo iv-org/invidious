@@ -5,12 +5,12 @@ shards:
     version: 0.5.0
 
   detect_language:
-    github: omarroth/detectlanguage-crystal
-    commit: 3fa7fe22593e1c3dbee00f45467b4c8556c8f88e
+    github: detectlanguage/detectlanguage-crystal
+    commit: 2fad0954992f4b9f059e44f8a02b19b7a3882c3a
 
   kemal:
     github: kemalcr/kemal
-    commit: 11295f058407e6724554775c4ed1b11b98084411
+    commit: 88b4737500750068cc4102f341b45d621e4adef8
 
   kilt:
     github: jeromegn/kilt
@@ -18,7 +18,7 @@ shards:
 
   pg:
     github: will/crystal-pg
-    commit: cafec501df7332e0dae0fe5571e213799ada7bd4
+    commit: 7d183bbae1206815d1822b16a2bc1e28c5b03e3d
 
   radix:
     github: luislavena/radix
