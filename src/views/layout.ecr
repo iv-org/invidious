@@ -25,7 +25,11 @@
           </form>
         </div>
         <div class="pure-u-1 pure-u-md-1-5">
+        <% if env.get "authorized" %>
+          <a href="/logout" class="pure-menu-heading">Logout</a>
+        <% else %>
           <a href="/login" class="pure-menu-heading">Login</a>
+        <% end %>
         </div>
       </div>
       <%= content %>

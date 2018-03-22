@@ -164,6 +164,14 @@ spawn do
   end
 end
 
+before_all do |env|
+  if env.request.cookies["SID"]?
+    env.set "authorized", true
+  else
+    env.set "authorized", false
+  end
+end
+
 get "/" do |env|
   templated "index"
 end
@@ -409,14 +417,29 @@ post "/login" do |env|
 
     login = client.get(login.headers["Location"], headers)
     headers = login.cookies.add_request_headers(headers)
-
     # We are now logged in
+
+    login.cookies.each do |cookie|
+      host = URI.parse(env.request.headers["Host"]).host
+      cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
+    end
+
+    login.cookies.add_response_headers(env.response.headers)
 
     env.redirect "/"
   rescue ex
     error_message = "Login failed"
     next templated "error"
   end
+end
+
+get "/logout" do |env|
+  env.request.cookies.each do |cookie|
+    cookie.expires = Time.new(1990, 1, 1)
+  end
+
+  env.request.cookies.add_response_headers(env.response.headers)
+  env.redirect "/"
 end
 
 get "/redirect" do |env|
