@@ -5,5 +5,6 @@
 /.shards/
 /video_info/
 /.vscode/
+shard.lock
 invidious
 sentry
