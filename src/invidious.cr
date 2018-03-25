@@ -164,8 +164,8 @@ spawn do
   end
 end
 
-before_get do |env|
-  if env.request.cookies["SID"]?
+before_all do |env|
+  if env.request.cookies.has_key?("SID")
     env.set "authorized", true
   else
     env.set "authorized", false
@@ -551,7 +551,7 @@ end
 
 # Get subscriptions for authorized user
 get "/feed/subscriptions" do |env|
-  authorized = env.get "authorized"
+  authorized = env.get? "authorized"
 
   if authorized
     max_results = env.params.query["maxResults"]?.try &.to_i
