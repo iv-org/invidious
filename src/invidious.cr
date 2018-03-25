@@ -419,21 +419,24 @@ post "/login" do |env|
     headers = login.cookies.add_request_headers(headers)
     # We are now logged in
 
+    host = URI.parse(env.request.headers["Host"]).host
+
     login.cookies.each do |cookie|
-      host = URI.parse(env.request.headers["Host"]).host
+      cookie.secure = false
       cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
+      cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
     end
 
     login.cookies.add_response_headers(env.response.headers)
 
-    env.redirect "/"
+    env.redirect "/feed/subscriptions"
   rescue ex
     error_message = "Login failed"
     next templated "error"
   end
 end
 
-get "/logout" do |env|
+get "/signout" do |env|
   env.request.cookies.each do |cookie|
     cookie.expires = Time.new(1990, 1, 1)
   end
@@ -544,6 +547,62 @@ get "/api/manifest/dash/id/:id" do |env|
   manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8U"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
   manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8V"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
   manifest
+end
+
+# Get subscriptions for authorized user
+get "/feed/subscriptions" do |env|
+  authorized = env.get "authorized"
+
+  if authorized
+    max_results = env.params.query["maxResults"]?.try &.to_i
+    max_results ||= 40
+
+    page = env.params.query["page"]?.try &.to_i
+    page ||= 1
+
+    client = get_client(youtube_pool)
+
+    headers = HTTP::Headers.new
+    headers["Cookie"] = env.request.headers["Cookie"]
+
+    feed = client.get("/subscription_manager?action_takeout=1", headers).body
+
+    videos = Array(Hash(String, String | Time)).new
+
+    feed = XML.parse_html(feed)
+    feed.xpath_nodes("//opml/outline/outline").each do |channel|
+      id = channel["xmlurl"][-24..-1]
+      rss = get_channel(id, client, PG_DB).rss
+
+      rss.xpath_nodes("//feed/entry").each do |entry|
+        video = {} of String => String | Time
+
+        video["id"] = entry.xpath_node("videoid").not_nil!.content
+        video["title"] = entry.xpath_node("title").not_nil!.content
+        video["published"] = Time.parse(entry.xpath_node("published").not_nil!.content, "%FT%X%z")
+        video["author"] = entry.xpath_node("author/name").not_nil!.content
+        video["ucid"] = entry.xpath_node("channelid").not_nil!.content
+        video["thumbnail"] = entry.xpath_node("group/thumbnail").not_nil!["url"].gsub(/hqdefault\.jpg$/, "mqdefault.jpg")
+        # video["thumbnail"] = video["thumbnail"].rstrip("hqdefault.jpg")
+        # video["thumbnail"] += "mqdefault.jpg"
+
+        videos << video
+      end
+    end
+
+    youtube_pool << client
+
+    videos.sort_by! { |video| video["published"].as(Time).epoch }
+    videos.reverse!
+
+    start = (page - 1)*max_results
+    stop = start + max_results - 1
+    videos = videos[start..stop]
+
+    templated "subscriptions"
+  else
+    env.redirect "/"
+  end
 end
 
 error 404 do |env|

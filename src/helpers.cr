@@ -54,6 +54,26 @@ class Video
   })
 end
 
+class InvidiousChannel
+  module XMLConverter
+    def self.from_rs(rs)
+      XML.parse_html(rs.read(String))
+    end
+  end
+
+  add_mapping({
+    id:  String,
+    rss: {
+      type:      XML::Node,
+      default:   XML.parse_html(""),
+      converter: InvidiousChannel::XMLConverter,
+
+    },
+    updated: Time,
+    author:  String,
+  })
+end
+
 class RedditSubmit
   JSON.mapping({
     data: RedditSubmitData,
@@ -463,4 +483,34 @@ def login_req(login_form, f_req)
   # pp data
 
   return HTTP::Params.encode(data)
+end
+
+def get_channel(id, client, db)
+  if db.query_one?("SELECT EXISTS (SELECT true FROM channels WHERE id = $1)", id, as: Bool)
+    channel = db.query_one("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
+
+    if Time.now - channel.updated > 1.hours
+      db.exec("DELETE FROM channels * WHERE id = $1", id)
+      channel = fetch_channel(id, client)
+      args = arg_array(channel.to_a)
+      db.exec("INSERT INTO channels VALUES (#{args})", channel.to_a)
+    end
+  else
+    channel = fetch_channel(id, client)
+    args = arg_array(channel.to_a)
+    db.exec("INSERT INTO channels VALUES (#{args})", channel.to_a)
+  end
+
+  return channel
+end
+
+def fetch_channel(id, client)
+  rss = client.get("/feeds/videos.xml?channel_id=#{id}").body
+  rss = XML.parse_html(rss)
+
+  author = rss.xpath_node("//feed/author/name").not_nil!.content
+
+  channel = InvidiousChannel.new(id, rss, Time.now, author)
+
+  return channel
 end
