@@ -164,7 +164,7 @@ spawn do
   end
 end
 
-before_all do |env|
+before_get do |env|
   if env.request.cookies["SID"]?
     env.set "authorized", true
   else
