@@ -388,9 +388,8 @@ end
 
 def arg_array(array)
   args = [] of String
-  (1..array.size).each { |i| args << "($#{i})," }
-  args = args.join("")
-  args = args.chomp(",")
+  (1..array.size).each { |i| args << "($#{i})" }
+  args = args.join(",")
 
   return args
 end
