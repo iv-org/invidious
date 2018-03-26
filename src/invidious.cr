@@ -27,6 +27,7 @@ CONFIG = Config.from_yaml(File.read("config/config.yml"))
 
 pool_size = CONFIG.pool_size
 threads = CONFIG.threads
+channel_threads = 10
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
@@ -118,6 +119,24 @@ threads.times do
       end
 
       youtube_pool << client
+    end
+  end
+end
+
+channel_threads.times do |i|
+  spawn do
+    loop do
+      query = "SELECT id FROM channels ORDER BY updated \
+      LIMIT (SELECT count(*)/#{channel_threads} FROM channels) \
+      OFFSET (SELECT count(*)*#{i}/#{channel_threads} FROM channels)"
+      PG_DB.query(query) do |rs|
+        rs.each do
+          client = get_client(youtube_pool)
+          id = rs.read(String)
+          channel = get_channel(id, client, PG_DB)
+          youtube_pool << client
+        end
+      end
     end
   end
 end

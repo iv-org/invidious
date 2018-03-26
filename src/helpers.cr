@@ -489,11 +489,12 @@ def get_channel(id, client, db)
   if db.query_one?("SELECT EXISTS (SELECT true FROM channels WHERE id = $1)", id, as: Bool)
     channel = db.query_one("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
 
-    if Time.now - channel.updated > 1.hours
-      db.exec("DELETE FROM channels * WHERE id = $1", id)
+    if Time.now - channel.updated > 1.minutes
       channel = fetch_channel(id, client)
-      args = arg_array(channel.to_a)
-      db.exec("INSERT INTO channels VALUES (#{args})", channel.to_a)
+      channel_array = channel.to_a[1..-1]
+      args = arg_array(channel_array)
+
+      db.exec("UPDATE channels SET (rss,updated,author) = (#{args}) WHERE id = '#{channel.id}'", channel_array)
     end
   else
     channel = fetch_channel(id, client)
