@@ -457,7 +457,8 @@ def fill_links(html, scheme, host)
 
   html.xpath_nodes("//a").each do |match|
     url = URI.parse(match["href"])
-    if !url.host # If reddit link
+    # Reddit links don't have host
+    if !url.host
       url.scheme = scheme
       url.host = host
       match["href"] = url
@@ -480,7 +481,6 @@ def login_req(login_form, f_req)
   }
 
   data = data.merge(login_form)
-  # pp data
 
   return HTTP::Params.encode(data)
 end

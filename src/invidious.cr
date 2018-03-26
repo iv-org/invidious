@@ -436,6 +436,7 @@ post "/login" do |env|
 
     login = client.get(login.headers["Location"], headers)
     headers = login.cookies.add_request_headers(headers)
+
     # We are now logged in
 
     host = URI.parse(env.request.headers["Host"]).host
@@ -602,8 +603,6 @@ get "/feed/subscriptions" do |env|
         video["author"] = entry.xpath_node("author/name").not_nil!.content
         video["ucid"] = entry.xpath_node("channelid").not_nil!.content
         video["thumbnail"] = entry.xpath_node("group/thumbnail").not_nil!["url"].gsub(/hqdefault\.jpg$/, "mqdefault.jpg")
-        # video["thumbnail"] = video["thumbnail"].rstrip("hqdefault.jpg")
-        # video["thumbnail"] += "mqdefault.jpg"
 
         videos << video
       end
