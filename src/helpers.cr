@@ -244,11 +244,14 @@ def decrypt_signature(a)
   a = a.split("")
 
   a.reverse!
-  a.delete_at(0..1)
-  a = splice(a, 67)
   a.delete_at(0..2)
   a.reverse!
   a.delete_at(0..2)
+  a = splice(a, 38)
+  a.delete_at(0..0)
+  a = splice(a, 64)
+  a.reverse!
+  a.delete_at(0..1)
 
   return a.join("")
 end
