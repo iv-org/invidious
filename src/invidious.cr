@@ -266,8 +266,6 @@ get "/watch" do |env|
     end
   end
 
-  player_response = JSON.parse(video.info["player_response"])
-
   rating = video.info["avg_rating"].to_f64
 
   engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
@@ -293,7 +291,7 @@ get "/watch" do |env|
   video.description = fill_links(video.description, "https", "www.youtube.com")
   video.description = add_alt_links(video.description)
 
-  thumbnail = player_response["videoDetails"]["thumbnail"]["thumbnails"][-1]["url"]?
+  thumbnail = "https://i1.ytimg.com/vi/#{id}/mqdefault.jpg"
 
   templated "watch"
 end
