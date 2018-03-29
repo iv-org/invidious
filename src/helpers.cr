@@ -502,10 +502,11 @@ def get_channel(id, client, db)
 
     if Time.now - channel.updated > 1.minutes
       channel = fetch_channel(id, client, db)
-      channel_array = channel.to_a[1..-1]
+      channel_array = channel.to_a
       args = arg_array(channel_array)
 
-      db.exec("UPDATE channels SET (author,updated) = (#{args}) WHERE id = '#{channel.id}'", channel_array)
+      db.exec("INSERT INTO channels VALUES (#{args}) \
+      ON CONFLICT (id) DO UPDATE SET author = $2, updated = $3", channel_array)
     end
   else
     channel = fetch_channel(id, client, db)
