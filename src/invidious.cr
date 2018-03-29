@@ -321,12 +321,13 @@ get "/search" do |env|
     if root
       video = {} of String => String
 
-      link = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
-      if link
-        video["link"] = link.content
+      id = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
+      if id
+        id = id.content.lchop("/watch?v=")
       else
-        video["link"] = "#"
+        id = ""
       end
+      video["id"] = id
 
       title = root.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a))
       if title
@@ -335,25 +336,13 @@ get "/search" do |env|
         video["title"] = "Something went wrong"
       end
 
-      thumbnail = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/div/span/img/@src))
-      if thumbnail && !thumbnail.content.ends_with?(".gif")
-        video["thumbnail"] = thumbnail.content
-      else
-        thumbnail = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/div/span/img/@data-thumb))
-        if thumbnail
-          video["thumbnail"] = thumbnail.content
-        else
-          video["thumbnail"] = "https://dummyimage.com/246x138"
-        end
-      end
-
       author = root.xpath_node(%q(div[@class="yt-lockup-content"]/div/a))
       if author
         video["author"] = author.content
-        video["author_url"] = author["href"]
+        video["ucid_url"] = author["href"]
       else
         video["author"] = ""
-        video["author_url"] = ""
+        video["ucid_url"] = ""
       end
 
       videos << video
