@@ -62,15 +62,20 @@ class InvidiousChannel
   end
 
   add_mapping({
-    id:  String,
-    rss: {
-      type:      XML::Node,
-      default:   XML.parse_html(""),
-      converter: InvidiousChannel::XMLConverter,
-
-    },
-    updated: Time,
+    id:      String,
     author:  String,
+    updated: Time,
+  })
+end
+
+class ChannelVideo
+  add_mapping({
+    id:        String,
+    title:     String,
+    published: Time,
+    updated:   Time,
+    ucid:      String,
+    author:    String,
   })
 end
 
@@ -203,10 +208,16 @@ def get_video(id, client, db, refresh = true)
 
     # If record was last updated over an hour ago, refresh (expire param in response lasts for 6 hours)
     if refresh && Time.now - video.updated > 1.hours
-      db.exec("DELETE FROM videos * WHERE id = $1", id)
+      begin
       video = fetch_video(id, client)
-      args = arg_array(video.to_a)
-      db.exec("INSERT INTO videos VALUES (#{args})", video.to_a)
+        video_array = video.to_a[1..-1]
+        args = arg_array(video_array)
+
+        db.exec("UPDATE videos SET (id,info,updated,title,views,likes,dislikes,wilson_score,published,description,language)\
+        = (#{args}) WHERE id = '#{video.id}'", video_array)
+      rescue ex
+        db.exec("DELETE FROM videos * WHERE id = $1", id)
+    end
     end
   else
     video = fetch_video(id, client)
@@ -490,14 +501,14 @@ def get_channel(id, client, db)
     channel = db.query_one("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
 
     if Time.now - channel.updated > 1.minutes
-      channel = fetch_channel(id, client)
+      channel = fetch_channel(id, client, db)
       channel_array = channel.to_a[1..-1]
       args = arg_array(channel_array)
 
-      db.exec("UPDATE channels SET (rss,updated,author) = (#{args}) WHERE id = '#{channel.id}'", channel_array)
+      db.exec("UPDATE channels SET (author,updated) = (#{args}) WHERE id = '#{channel.id}'", channel_array)
     end
   else
-    channel = fetch_channel(id, client)
+    channel = fetch_channel(id, client, db)
     args = arg_array(channel.to_a)
     db.exec("INSERT INTO channels VALUES (#{args})", channel.to_a)
   end
@@ -505,13 +516,31 @@ def get_channel(id, client, db)
   return channel
 end
 
-def fetch_channel(id, client)
+def fetch_channel(id, client, db)
   rss = client.get("/feeds/videos.xml?channel_id=#{id}").body
   rss = XML.parse_html(rss)
 
+  rss.xpath_nodes("//feed/entry").each do |entry|
+    video_id = entry.xpath_node("videoid").not_nil!.content
+    title = entry.xpath_node("title").not_nil!.content
+    published = Time.parse(entry.xpath_node("published").not_nil!.content, "%FT%X%z")
+    updated = Time.parse(entry.xpath_node("updated").not_nil!.content, "%FT%X%z")
+    author = entry.xpath_node("author/name").not_nil!.content
+    ucid = entry.xpath_node("channelid").not_nil!.content
+
+    video = ChannelVideo.new(video_id, title, published, updated, ucid, author)
+
+    video_array = video.to_a[1..-1]
+    args = arg_array(video_array)
+
+    # TODO: Update record on conflict
+    db.exec("INSERT INTO channel_videos VALUES (#{arg_array(video.to_a)})\
+      ON CONFLICT (id) DO NOTHING", video.to_a)
+  end
+
   author = rss.xpath_node("//feed/author/name").not_nil!.content
 
-  channel = InvidiousChannel.new(id, rss, Time.now, author)
+  channel = InvidiousChannel.new(id, author, Time.now)
 
   return channel
 end

@@ -574,35 +574,22 @@ get "/feed/subscriptions" do |env|
 
     feed = client.get("/subscription_manager?action_takeout=1", headers).body
 
-    videos = Array(Hash(String, String | Time)).new
+    channels = [] of String
 
     feed = XML.parse_html(feed)
     feed.xpath_nodes("//opml/outline/outline").each do |channel|
       id = channel["xmlurl"][-24..-1]
-      rss = get_channel(id, client, PG_DB).rss
+      get_channel(id, client, PG_DB)
 
-      rss.xpath_nodes("//feed/entry").each do |entry|
-        video = {} of String => String | Time
-
-        video["id"] = entry.xpath_node("videoid").not_nil!.content
-        video["title"] = entry.xpath_node("title").not_nil!.content
-        video["published"] = Time.parse(entry.xpath_node("published").not_nil!.content, "%FT%X%z")
-        video["author"] = entry.xpath_node("author/name").not_nil!.content
-        video["ucid"] = entry.xpath_node("channelid").not_nil!.content
-        video["thumbnail"] = entry.xpath_node("group/thumbnail").not_nil!["url"].gsub(/hqdefault\.jpg$/, "mqdefault.jpg")
-
-        videos << video
-      end
+      channels << id
     end
-
     youtube_pool << client
 
-    videos.sort_by! { |video| video["published"].as(Time).epoch }
-    videos.reverse!
-
-    start = (page - 1)*max_results
-    stop = start + max_results - 1
-    videos = videos[start..stop]
+    time = Time.now
+    args = arg_array(channels)
+    offset = (page - 1) * max_results
+    videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args})\
+      ORDER BY published DESC LIMIT #{max_results} OFFSET #{offset}", channels, as: ChannelVideo)
 
     templated "subscriptions"
   else
