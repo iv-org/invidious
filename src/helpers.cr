@@ -207,14 +207,14 @@ def get_video(id, client, db, refresh = true)
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
     # If record was last updated over an hour ago, refresh (expire param in response lasts for 6 hours)
-    if refresh && Time.now - video.updated > 1.hours
+    if refresh && Time.now - video.updated > 1.second
       begin
       video = fetch_video(id, client)
-        video_array = video.to_a[1..-1]
-        args = arg_array(video_array)
+        video_array = video.to_a
+        args = arg_array(video_array[1..-1], 2)
 
-        db.exec("UPDATE videos SET (id,info,updated,title,views,likes,dislikes,wilson_score,published,description,language)\
-        = (#{args}) WHERE id = '#{video.id}'", video_array)
+        db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,published,description,language)\
+        = (#{args}) WHERE id = $1", video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
     end
@@ -417,9 +417,9 @@ def number_with_separator(number)
   number.to_s.reverse.gsub(/(\d{3})(?=\d)/, "\\1,").reverse
 end
 
-def arg_array(array)
+def arg_array(array, start = 1)
   args = [] of String
-  (1..array.size).each { |i| args << "($#{i})" }
+  (start..array.size + start - 1).each { |i| args << "($#{i})" }
   args = args.join(",")
 
   return args
