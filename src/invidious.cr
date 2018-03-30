@@ -567,29 +567,19 @@ get "/feed/subscriptions" do |env|
     page = env.params.query["page"]?.try &.to_i
     page ||= 1
 
-    client = get_client(youtube_pool)
-
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    feed = client.get("/subscription_manager?action_takeout=1", headers).body
+    sid = env.request.cookies["SID"].value
 
-    channels = [] of String
-
-    feed = XML.parse_html(feed)
-    feed.xpath_nodes("//opml/outline/outline").each do |channel|
-      id = channel["xmlurl"][-24..-1]
-      get_channel(id, client, PG_DB)
-
-      channels << id
-    end
+    client = get_client(youtube_pool)
+    user = get_user(sid, client, headers, PG_DB)
     youtube_pool << client
 
-    time = Time.now
-    args = arg_array(channels)
+    args = arg_array(user.subscriptions)
     offset = (page - 1) * max_results
     videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args})\
-      ORDER BY published DESC LIMIT #{max_results} OFFSET #{offset}", channels, as: ChannelVideo)
+      ORDER BY published DESC LIMIT #{max_results} OFFSET #{offset}", user.subscriptions, as: ChannelVideo)
 
     templated "subscriptions"
   else
