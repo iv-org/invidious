@@ -207,7 +207,7 @@ def get_video(id, client, db, refresh = true)
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
     # If record was last updated over an hour ago, refresh (expire param in response lasts for 6 hours)
-    if refresh && Time.now - video.updated > 1.second
+    if refresh && Time.now - video.updated > 1.hour
       begin
       video = fetch_video(id, client)
         video_array = video.to_a
