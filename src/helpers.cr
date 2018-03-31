@@ -81,10 +81,12 @@ end
 
 class User
   add_mapping({
-    id:            String,
-    updated:       Time,
-    notifications: Int32,
-    subscriptions: Array(String),
+    id:                   String,
+    updated:              Time,
+    notifications:        Int32,
+    subscriptions:        Array(String),
+    notifications_viewed: Time,
+    email:                String,
   })
 end
 
@@ -565,29 +567,41 @@ def get_user(sid, client, headers, db)
       args = arg_array(user_array)
 
       db.exec("INSERT INTO users VALUES (#{args}) \
-      ON CONFLICT (id) DO UPDATE SET updated = $2, subscriptions = $4", user_array)
+      ON CONFLICT (email) DO UPDATE SET id = $1, updated = $2, subscriptions = $4", user_array)
     end
   else
     user = fetch_user(sid, client, headers)
+    user_array = user.to_a
     args = arg_array(user.to_a)
-    db.exec("INSERT INTO users VALUES (#{args})", user.to_a)
+
+    db.exec("INSERT INTO users VALUES (#{args}) \
+    ON CONFLICT (email) DO UPDATE SET id = $1, updated = $2, subscriptions = $4", user_array)
   end
 
   return user
 end
 
 def fetch_user(sid, client, headers)
-  feed = client.get("/subscription_manager?action_takeout=1", headers).body
+  feed = client.get("/subscription_manager?disable_polymer=1", headers).body
+  File.write("feed.html", feed)
 
   channels = [] of String
   feed = XML.parse_html(feed)
-  feed.xpath_nodes("//opml/outline/outline").each do |channel|
-    id = channel["xmlurl"][-24..-1]
-    get_channel(id, client, PG_DB)
 
-    channels << id
+  feed.xpath_nodes(%q(//a[@class="subscription-title yt-uix-sessionlink"]/@href)).each do |channel|
+    channel_id = channel.content.lstrip("/channel/").not_nil!
+    get_channel(channel_id, client, PG_DB)
+
+    channels << channel_id
   end
 
-  user = User.new(sid, Time.now, 0, channels)
+  email = feed.xpath_node(%q(//a[@class="yt-masthead-picker-header yt-masthead-picker-active-account"]))
+  if email
+    email = email.content.lstrip.rstrip
+  else
+    email = ""
+  end
+
+  user = User.new(sid, Time.now, 0, channels, Time.now, email)
   return user
 end
