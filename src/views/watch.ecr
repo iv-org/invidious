@@ -132,6 +132,21 @@ function toggle_comments(target) {
                     <h3><%= video.info["author"] %></h3>
                 </a>
             </p>
+        <% if authorized %>
+            <% if subscriptions.includes? video.info["ucid"] %>
+            <p>
+                <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= video.info["ucid"] %>">
+                    <b>Unsubscribe from <%= video.info["author"] %></b>
+                </a>
+            </p>
+            <% else %>
+            <p>
+                <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.info["ucid"] %>">
+                    <b>Subscribe to <%= video.info["author"] %></b>
+                </a>
+            </p>
+            <% end %>
+        <% end %>
             <p>
                 <b>Shared <%= video.published.to_s("%B %-d, %Y") %></b>
             </p>

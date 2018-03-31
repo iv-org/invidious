@@ -209,14 +209,24 @@ get "/watch" do |env|
     env.params.query.delete_all("listen")
   end
 
-  yt_client = get_client(youtube_pool)
+  client = get_client(youtube_pool)
+
+  authorized = env.get? "authorized"
+  if authorized
+    sid = env.request.cookies["SID"].value
+
+    subscriptions = PG_DB.query_one("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
+  else
+    subscriptions = [] of String
+  end
+
   begin
-    video = get_video(id, yt_client, PG_DB)
+    video = get_video(id, client, PG_DB)
   rescue ex
     error_message = ex.message
     next templated "error"
   ensure
-    youtube_pool << yt_client
+    youtube_pool << client
   end
 
   fmt_stream = [] of HTTP::Params
@@ -611,13 +621,13 @@ get "/enable_notifications" do |env|
     headers["content-type"] = "application/x-www-form-urlencoded"
     subs = XML.parse_html(subs.body)
     subs.xpath_nodes(%q(//a[@class="subscription-title yt-uix-sessionlink"]/@href)).each do |channel|
-      channel_id = channel.content.lstrip("/channel/")
+      channel_id = channel.content.lstrip("/channel/").not_nil!
 
       channel_req = {
-        "channel_id"           => channel_id.not_nil!,
+        "channel_id"           => channel_id,
         "receive_all_updates"  => "true",
         "receive_post_updates" => "true",
-        "session_token"        => session_token.not_nil!,
+        "session_token"        => session_token,
       }
 
       channel_req = HTTP::Params.encode(channel_req)
@@ -651,14 +661,14 @@ get "/disable_notifications" do |env|
     headers["content-type"] = "application/x-www-form-urlencoded"
     subs = XML.parse_html(subs.body)
     subs.xpath_nodes(%q(//a[@class="subscription-title yt-uix-sessionlink"]/@href)).each do |channel|
-      channel_id = channel.content.lstrip("/channel/")
+      channel_id = channel.content.lstrip("/channel/").not_nil!
 
       channel_req = {
-        "channel_id"           => channel_id.not_nil!,
+        "channel_id"           => channel_id,
         "receive_all_updates"  => "false",
         "receive_no_updates"   => "false",
         "receive_post_updates" => "true",
-        "session_token"        => session_token.not_nil!,
+        "session_token"        => session_token,
       }
 
       channel_req = HTTP::Params.encode(channel_req)
@@ -670,6 +680,63 @@ get "/disable_notifications" do |env|
   end
 
   env.redirect "/"
+end
+
+get "/subscription_ajax" do |env|
+  authorized = env.get? "authorized"
+  referer = env.request.headers["referer"]?
+  referer ||= "/"
+
+  if authorized
+    if env.params.query["action_create_subscription_to_channel"]?
+      action = "action_create_subscription_to_channel"
+    elsif env.params.query["action_remove_subscriptions"]?
+      action = "action_remove_subscriptions"
+    else
+      action = ""
+      env.redirect referer
+    end
+
+    channel_id = env.params.query["c"]?
+    channel_id ||= ""
+
+    headers = HTTP::Headers.new
+    headers["Cookie"] = env.request.headers["Cookie"]
+
+    client = get_client(youtube_pool)
+    subs = client.get("/subscription_manager?disable_polymer=1", headers)
+    headers["Cookie"] += "; " + subs.cookies.add_request_headers(headers)["Cookie"]
+    match = subs.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+    if match
+      session_token = match["session_token"]
+    else
+      next env.redirect "/"
+    end
+
+    headers["content-type"] = "application/x-www-form-urlencoded"
+
+    post_req = {
+      "session_token" => session_token,
+    }
+    post_req = HTTP::Params.encode(post_req)
+    post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
+
+    # Update user
+    if client.post(post_url, headers, post_req).status_code == 200
+      sid = env.request.cookies["SID"].value
+
+      case action
+      when .starts_with? "action_create"
+        PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", channel_id, sid)
+      when .starts_with? "action_remove"
+        PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE id = $2", channel_id, sid)
+      end
+    end
+
+    youtube_pool << client
+  end
+
+  env.redirect referer
 end
 
 error 404 do |env|
