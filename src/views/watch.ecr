@@ -119,9 +119,9 @@ function toggle_comments(target) {
             <p><i class="fa fa-eye" aria-hidden="true"></i> <%= number_with_separator(video.views) %></p>
             <p><i class="fa fa-thumbs-up" aria-hidden="true"></i> <%= number_with_separator(video.likes) %></p>
             <p><i class="fa fa-thumbs-down" aria-hidden="true"></i> <%= number_with_separator(video.dislikes) %></p>
-            <p id="Wilson">Wilson Score : <%= video.wilson_score.round(4) %></p>
-            <p id="Rating">Rating : <%= rating.round(4) %> / 5</p>
-            <p id="Engagement">Engagement : <%= engagement.round(2) %>%</p>
+            <p id="Wilson">Wilson Score : <%= video.wilson_score.significant(4) %></p>
+            <p id="Rating">Rating : <%= rating.significant(4) %> / 5</p>
+            <p id="Engagement">Engagement : <%= engagement.significant(2) %>%</p>
         </div>
     </div>
 
