@@ -218,7 +218,7 @@ def get_video(id, client, db, refresh = true)
     # If record was last updated over an hour ago, refresh (expire param in response lasts for 6 hours)
     if refresh && Time.now - video.updated > 1.hour
       begin
-      video = fetch_video(id, client)
+        video = fetch_video(id, client)
         video_array = video.to_a
         args = arg_array(video_array[1..-1], 2)
 
@@ -226,7 +226,7 @@ def get_video(id, client, db, refresh = true)
         = (#{args}) WHERE id = $1", video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
-    end
+      end
     end
   else
     video = fetch_video(id, client)
@@ -540,12 +540,12 @@ def fetch_channel(id, client, db)
 
     video = ChannelVideo.new(video_id, title, published, updated, ucid, author)
 
-    video_array = video.to_a[1..-1]
+    video_array = video.to_a
     args = arg_array(video_array)
 
     # TODO: Update record on conflict
-    db.exec("INSERT INTO channel_videos VALUES (#{arg_array(video.to_a)})\
-      ON CONFLICT (id) DO NOTHING", video.to_a)
+    db.exec("INSERT INTO channel_videos VALUES (#{args})\
+      ON CONFLICT (id) DO NOTHING", video_array)
   end
 
   author = rss.xpath_node("//feed/author/name").not_nil!.content
@@ -563,7 +563,7 @@ def get_user(sid, client, headers, db)
       user = fetch_user(sid, client, headers)
       user_array = user.to_a
       args = arg_array(user_array)
-      
+
       db.exec("INSERT INTO users VALUES (#{args}) \
       ON CONFLICT (id) DO UPDATE SET updated = $2, subscriptions = $4", user_array)
     end
