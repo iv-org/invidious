@@ -24,7 +24,7 @@ $ crystal deps
 ### Installing Postgres:
 
 On Arch:  
-Install according to the [wiki](https://wiki.archlinux.org/index.php/PostgreSQL#Installing_PostgreSQL):
+Install according to the [wiki](https://wiki.archlinux.org/index.php/PostgreSQL#Installing_PostgreSQL)
 
 On OSX:
 
