@@ -532,6 +532,8 @@ def fetch_channel(id, client, db)
   rss = client.get("/feeds/videos.xml?channel_id=#{id}").body
   rss = XML.parse_html(rss)
 
+  db.exec("DELETE FROM channel_videos * WHERE ucid = $1", id)
+
   rss.xpath_nodes("//feed/entry").each do |entry|
     video_id = entry.xpath_node("videoid").not_nil!.content
     title = entry.xpath_node("title").not_nil!.content
