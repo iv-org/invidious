@@ -583,7 +583,6 @@ end
 
 def fetch_user(sid, client, headers)
   feed = client.get("/subscription_manager?disable_polymer=1", headers).body
-  File.write("feed.html", feed)
 
   channels = [] of String
   feed = XML.parse_html(feed)
