@@ -206,8 +206,7 @@ get "/watch" do |env|
   if env.params.query["v"]?
     id = env.params.query["v"]
   else
-    env.redirect "/"
-    next
+    next env.redirect "/"
   end
 
   listen = false
@@ -317,8 +316,7 @@ get "/search" do |env|
   if env.params.query["q"]?
     query = env.params.query["q"]
   else
-    env.redirect "/"
-    next
+    next env.redirect "/"
   end
 
   page = env.params.query["page"]?.try &.to_i
@@ -350,7 +348,7 @@ get "/search" do |env|
       if title
         video["title"] = title.content
       else
-        video["title"] = "Something went wrong"
+        video["title"] = ""
       end
 
       author = root.xpath_node(%q(div[@class="yt-lockup-content"]/div/a))
@@ -701,8 +699,7 @@ get "/subscription_ajax" do |env|
     elsif env.params.query["action_remove_subscriptions"]?
       action = "action_remove_subscriptions"
     else
-      action = ""
-      env.redirect referer
+      next env.redirect referer
     end
 
     channel_id = env.params.query["c"]?
@@ -713,7 +710,9 @@ get "/subscription_ajax" do |env|
 
     client = get_client(youtube_pool)
     subs = client.get("/subscription_manager?disable_polymer=1", headers)
+
     headers["Cookie"] += "; " + subs.cookies.add_request_headers(headers)["Cookie"]
+
     match = subs.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
     if match
       session_token = match["session_token"]
