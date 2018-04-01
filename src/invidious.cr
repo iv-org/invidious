@@ -377,7 +377,6 @@ end
 post "/login" do |env|
   email = env.params.body["email"]?
   password = env.params.body["password"]?
-  remember = env.params.body["remember"]? || "false"
 
   begin
     client = make_client(LOGIN_URL)
