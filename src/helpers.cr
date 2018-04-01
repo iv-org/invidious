@@ -428,9 +428,13 @@ def number_with_separator(number)
 end
 
 def arg_array(array, start = 1)
-  args = [] of String
-  (start..array.size + start - 1).each { |i| args << "($#{i})" }
-  args = args.join(",")
+  if array.size == 0
+    args = "NULL"
+  else
+    args = [] of String
+    (start..array.size + start - 1).each { |i| args << "($#{i})" }
+    args = args.join(",")
+  end
 
   return args
 end
