@@ -186,6 +186,13 @@ end
 before_all do |env|
   if env.request.cookies.has_key?("SID")
     env.set "authorized", true
+
+    sid = env.request.cookies["SID"].value
+    env.set "sid", sid
+
+    notifications = PG_DB.query_one?("SELECT cardinality(notifications) FROM users WHERE id = $1", sid, as: Int32)
+    notifications ||= 0
+    env.set "notifications", notifications
   else
     env.set "authorized", false
   end
@@ -213,7 +220,7 @@ get "/watch" do |env|
 
   authorized = env.get? "authorized"
   if authorized
-    sid = env.request.cookies["SID"].value
+    sid = env.get("sid").as(String)
 
     subscriptions = PG_DB.query_one("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
   else
@@ -580,7 +587,7 @@ get "/feed/subscriptions" do |env|
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    sid = env.request.cookies["SID"].value
+    sid = env.get("sid").as(String)
 
     client = get_client(youtube_pool)
     user = get_user(sid, client, headers, PG_DB)
@@ -589,7 +596,9 @@ get "/feed/subscriptions" do |env|
     args = arg_array(user.subscriptions)
     offset = (page - 1) * max_results
     videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args})\
-      ORDER BY published DESC LIMIT #{max_results} OFFSET #{offset}", user.subscriptions, as: ChannelVideo)
+    ORDER BY published DESC LIMIT #{max_results} OFFSET #{offset}", user.subscriptions, as: ChannelVideo)
+
+    env.set "notifications", 0
 
     templated "subscriptions"
   else
@@ -723,7 +732,7 @@ get "/subscription_ajax" do |env|
 
     # Update user
     if client.post(post_url, headers, post_req).status_code == 200
-      sid = env.request.cookies["SID"].value
+      sid = env.get("sid").as(String)
 
       case action
       when .starts_with? "action_create"

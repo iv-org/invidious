@@ -81,12 +81,11 @@ end
 
 class User
   add_mapping({
-    id:                   String,
-    updated:              Time,
-    notifications:        Int32,
-    subscriptions:        Array(String),
-    notifications_viewed: Time,
-    email:                String,
+    id:            String,
+    updated:       Time,
+    notifications: Array(String),
+    subscriptions: Array(String),
+    email:         String,
   })
 end
 
@@ -547,6 +546,11 @@ def fetch_channel(id, client, db)
     video_array = video.to_a
     args = arg_array(video_array)
 
+    db.exec("UPDATE users SET notifications = notifications || $1 \
+    WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video_id, published, ucid)
+
+    # UPDATE users SET notifications = notifications || ARRAY['Os9Rypn2rEQ'] WHERE updated < '2018-03-24 20:48:46' AND 'UCSc16oMxxlcJSb9SXkjwMjA' = ANY(subscriptions) AND 'Os9Rypn2rEQ' <> ALL (notifications);
+
     # TODO: Update record on conflict
     db.exec("INSERT INTO channel_videos VALUES (#{args})\
       ON CONFLICT (id) DO NOTHING", video_array)
@@ -569,7 +573,7 @@ def get_user(sid, client, headers, db)
       args = arg_array(user_array)
 
       db.exec("INSERT INTO users VALUES (#{args}) \
-      ON CONFLICT (email) DO UPDATE SET id = $1, updated = $2, subscriptions = $4", user_array)
+      ON CONFLICT (email) DO UPDATE SET id = $1, updated = $2, notifications = ARRAY[]::text[], subscriptions = $4", user_array)
     end
   else
     user = fetch_user(sid, client, headers)
@@ -603,6 +607,6 @@ def fetch_user(sid, client, headers)
     email = ""
   end
 
-  user = User.new(sid, Time.now, 0, channels, Time.now, email)
+  user = User.new(sid, Time.now, [] of String, channels, email)
   return user
 end
