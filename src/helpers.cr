@@ -553,8 +553,6 @@ def fetch_channel(id, client, db)
     db.exec("UPDATE users SET notifications = notifications || $1 \
     WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video_id, published, ucid)
 
-    # UPDATE users SET notifications = notifications || ARRAY['Os9Rypn2rEQ'] WHERE updated < '2018-03-24 20:48:46' AND 'UCSc16oMxxlcJSb9SXkjwMjA' = ANY(subscriptions) AND 'Os9Rypn2rEQ' <> ALL (notifications);
-
     # TODO: Update record on conflict
     db.exec("INSERT INTO channel_videos VALUES (#{args})\
       ON CONFLICT (id) DO NOTHING", video_array)

@@ -127,9 +127,9 @@ channel_threads.times do |i|
   spawn do
     loop do
       query = "SELECT id FROM channels ORDER BY updated \
-      LIMIT (SELECT count(*)/#{channel_threads} FROM channels) \
-      OFFSET (SELECT count(*)*#{i}/#{channel_threads} FROM channels)"
-      PG_DB.query(query) do |rs|
+      LIMIT (SELECT count(*)/$2 FROM channels) \
+      OFFSET (SELECT count(*)*$1/$2 FROM channels)"
+      PG_DB.query(query, i, channel_threads) do |rs|
         rs.each do
           client = get_client(youtube_pool)
           id = rs.read(String)
@@ -590,10 +590,10 @@ get "/feed/subscriptions" do |env|
     user = get_user(sid, client, headers, PG_DB)
     youtube_pool << client
 
-    args = arg_array(user.subscriptions)
+    args = arg_array(user.subscriptions, 3)
     offset = (page - 1) * max_results
-    videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args})\
-    ORDER BY published DESC LIMIT #{max_results} OFFSET #{offset}", user.subscriptions, as: ChannelVideo)
+    videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
+    ORDER BY published DESC LIMIT $1 OFFSET $2", [max_results, offset] + user.subscriptions, as: ChannelVideo)
 
     env.set "notifications", 0
 
