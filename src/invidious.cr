@@ -193,8 +193,6 @@ before_all do |env|
     notifications = PG_DB.query_one?("SELECT cardinality(notifications) FROM users WHERE id = $1", sid, as: Int32)
     notifications ||= 0
     env.set "notifications", notifications
-  else
-    env.set "authorized", false
   end
 end
 
@@ -219,9 +217,13 @@ get "/watch" do |env|
 
   authorized = env.get? "authorized"
   if authorized
+    headers = HTTP::Headers.new
+    headers["Cookie"] = env.request.headers["Cookie"]
+
     sid = env.get("sid").as(String)
 
-    subscriptions = PG_DB.query_one("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
+    user = get_user(sid, client, headers, PG_DB)
+    subscriptions = user.subscriptions
   else
     subscriptions = [] of String
   end
