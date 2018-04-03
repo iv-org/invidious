@@ -217,16 +217,12 @@ get "/watch" do |env|
 
   authorized = env.get? "authorized"
   if authorized
-    headers = HTTP::Headers.new
-    headers["Cookie"] = env.request.headers["Cookie"]
-
     sid = env.get("sid").as(String)
 
-    user = get_user(sid, client, headers, PG_DB)
-    subscriptions = user.subscriptions
-  else
-    subscriptions = [] of String
+    subscriptions = PG_DB.query_one?("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
   end
+
+  subscriptions = [] of String
 
   begin
     video = get_video(id, client, PG_DB)
