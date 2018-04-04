@@ -222,7 +222,7 @@ get "/watch" do |env|
     subscriptions = PG_DB.query_one?("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
   end
 
-  subscriptions = [] of String
+  subscriptions ||= [] of String
 
   begin
     video = get_video(id, client, PG_DB)
