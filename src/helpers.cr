@@ -381,9 +381,6 @@ def template_comments(root)
       score = child["data"]["score"]
       body_html = HTML.unescape(child["data"]["body_html"].as_s)
 
-      # Replace local links wtih links back to Reddit
-      body_html = fill_links(body_html, "https", "www.reddit.com")
-
       replies_html = ""
       if child["data"]["replies"] != ""
         replies_html = template_comments(child["data"]["replies"]["data"]["children"])
@@ -402,7 +399,8 @@ def template_comments(root)
       if child["data"]["depth"].as_i > 0
         html += <<-END_HTML
           <div class="pure-g">
-          <div class="pure-u-1-24"></div>
+          <div class="pure-u-1-24">
+          </div>
           <div class="pure-u-23-24">
           #{content}
           </div>
@@ -483,7 +481,7 @@ def fill_links(html, scheme, host)
   html.xpath_nodes("//a").each do |match|
     url = URI.parse(match["href"])
     # Reddit links don't have host
-    if !url.host
+    if !url.host && !match["href"].starts_with?("javascript")
       url.scheme = scheme
       url.host = host
       match["href"] = url

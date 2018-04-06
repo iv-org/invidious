@@ -296,6 +296,7 @@ get "/watch" do |env|
     reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client, headers)
     reddit_html = template_comments(reddit_comments)
 
+    reddit_html = fill_links(reddit_html, "https", "www.reddit.com")
     reddit_html = add_alt_links(reddit_html)
   rescue ex
     reddit_thread = nil
