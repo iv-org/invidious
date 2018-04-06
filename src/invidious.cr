@@ -594,6 +594,7 @@ get "/feed/subscriptions" do |env|
     videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
     ORDER BY published DESC LIMIT $1 OFFSET $2", [max_results, offset] + user.subscriptions, as: ChannelVideo)
 
+    PG_DB.exec("UPDATE users SET notifications = $1 WHERE id = $2", [] of String, sid)
     env.set "notifications", 0
 
     templated "subscriptions"
