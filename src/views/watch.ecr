@@ -5,6 +5,7 @@
 <script src="https://vjs.zencdn.net/6.6.3/video.js"></script>
 <script src="https://cdn.sc.gl/videojs-hotkeys/latest/videojs.hotkeys.min.js"></script>
 <script src="https://unpkg.com/silvermine-videojs-quality-selector/dist/js/silvermine-videojs-quality-selector.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/videojs-offset/dist/videojs-offset.min.js"></script>
 <title><%= video.title %> - Invidious</title>
 <% end %>
 
@@ -73,6 +74,11 @@ var player = videojs('player', options, function() {
         }
     }
   });
+});
+player.offset({
+  start: <%= video_start %>,
+  end: <%= video_end %>,
+  restart_beginning: true
 });
 
 function toggle(target) {

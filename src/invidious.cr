@@ -207,6 +207,12 @@ get "/watch" do |env|
     next env.redirect "/"
   end
 
+  video_start = env.params.query["start"]?.try &.to_i
+  video_start ||= 0
+
+  video_end = env.params.query["end"]?.try &.to_i
+  video_end ||= -1
+
   listen = false
   if env.params.query["listen"]? && env.params.query["listen"] == "true"
     listen = true
