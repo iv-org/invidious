@@ -448,7 +448,7 @@ def add_alt_links(html)
     anchor = anchor.xpath_node("//a").not_nil!
     url = URI.parse(HTML.unescape(anchor["href"]))
 
-    if ["www.youtube.com", "m.youtube.com"].includes?(url.host) && url.path == "/watch"
+    if ["www.youtube.com", "m.youtube.com"].includes?(url.host) && url.path == "/watch" || url.path == "/redirect"
       alt_link = <<-END_HTML
       <a href="#{url.full_path}">
         <i class="fa fa-link" aria-hidden="true"></i>
