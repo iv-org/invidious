@@ -293,7 +293,6 @@ get "/watch" do |env|
 
   if video.info["ad_slots"]?
     ad_slots = video.info["ad_slots"].split(",")
-    ad_slots.sort_by! { |a| a.to_i }
     ad_slots = ad_slots.join(", ")
   end
 
