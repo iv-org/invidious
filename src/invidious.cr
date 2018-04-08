@@ -296,6 +296,30 @@ get "/watch" do |env|
     calculated_rating = 0.0
   end
 
+  if video.info["ad_slots"]?
+    ad_slots = video.info["ad_slots"].split(",")
+    ad_slots.sort_by! { |a| a.to_i }
+    ad_slots = ad_slots.join(", ")
+  end
+
+  if video.info["enabled_engage_types"]?
+    engage_types = video.info["enabled_engage_types"].split(",")
+    engage_types = engage_types.join(", ")
+  end
+
+  if video.info["ad_tag"]?
+    ad_tag = URI.parse(video.info["ad_tag"])
+    ad_query = HTTP::Params.parse(ad_tag.query.not_nil!)
+
+    ad_category = URI.unescape(ad_query["iu"])
+    ad_category = ad_category.lstrip("/4061/").split(".")[-1]
+
+    ad_query = HTTP::Params.parse(ad_query["scp"])
+
+    k2 = URI.unescape(ad_query["k2"]).split(",")
+    k2 = k2.join(", ")
+  end
+
   reddit_client = make_client(REDDIT_URL)
   headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.1.0 (by /u/omarroth)"}
   begin
