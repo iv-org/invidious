@@ -397,11 +397,17 @@ get "/search" do |env|
 end
 
 get "/login" do |env|
+  referer = env.request.headers["referer"]?
+  referer ||= "/feed/subscriptions"
+
   templated "login"
 end
 
 # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
 post "/login" do |env|
+  referer = env.params.query["referer"]?
+  referer ||= "/feed/subscriptions"
+
   email = env.params.body["email"]?
   password = env.params.body["password"]?
 
@@ -465,7 +471,15 @@ post "/login" do |env|
     headers = login.cookies.add_request_headers(headers)
 
     login = client.get(login.headers["Location"], headers)
+
+    headers = HTTP::Headers.new
     headers = login.cookies.add_request_headers(headers)
+
+    sid = login.cookies["SID"].value
+
+    client = get_client(youtube_pool)
+    user = get_user(sid, client, headers, PG_DB)
+    youtube_pool << client
 
     # We are now logged in
 
@@ -479,7 +493,7 @@ post "/login" do |env|
 
     login.cookies.add_response_headers(env.response.headers)
 
-    env.redirect "/feed/subscriptions"
+    env.redirect referer
   rescue ex
     error_message = "Login failed"
     next templated "error"
@@ -487,12 +501,15 @@ post "/login" do |env|
 end
 
 get "/signout" do |env|
+  referer = env.request.headers["referer"]?
+  referer ||= "/"
+
   env.request.cookies.each do |cookie|
     cookie.expires = Time.new(1990, 1, 1)
   end
 
   env.request.cookies.add_response_headers(env.response.headers)
-  env.redirect "/"
+  env.redirect referer
 end
 
 get "/redirect" do |env|
