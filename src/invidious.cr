@@ -253,12 +253,7 @@ get "/watch" do |env|
     end
   end
 
-  signature = false
   if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
-    signature = true
-  end
-
-  if signature
     adaptive_fmts.each do |fmt|
       fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
     end
