@@ -830,5 +830,6 @@ static_headers do |response, filepath, filestat|
 end
 
 public_folder "assets"
+gzip true
 
 Kemal.run
