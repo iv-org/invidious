@@ -603,7 +603,7 @@ def fetch_user(sid, client, headers)
 
   email = feed.xpath_node(%q(//a[@class="yt-masthead-picker-header yt-masthead-picker-active-account"]))
   if email
-    email = email.content.lstrip.rstrip
+    email = email.content.strip
   else
     email = ""
   end
