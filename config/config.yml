@@ -1,4 +1,5 @@
-pool_size: 10
+pool_size: 20
+channel_threads: 5
 threads: 5
 db:
   user: kemal

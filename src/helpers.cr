@@ -15,9 +15,10 @@ end
 
 class Config
   YAML.mapping({
-    pool_size: Int32,
-    threads:   Int32,
-    db:        NamedTuple(
+    pool_size:       Int32,
+    threads:         Int32,
+    channel_threads: Int32,
+    db:              NamedTuple(
       user: String,
       password: String,
       host: String,

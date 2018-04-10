@@ -27,7 +27,7 @@ CONFIG = Config.from_yaml(File.read("config/config.yml"))
 
 pool_size = CONFIG.pool_size
 threads = CONFIG.threads
-channel_threads = 10
+channel_threads = CONFIG.channel_threads
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
@@ -42,6 +42,14 @@ Kemal.config.extra_options do |parser|
   parser.on("-t THREADS", "--youtube-threads=THREADS", "Number of threads for crawling (default: #{threads})") do |number|
     begin
       threads = number.to_i
+    rescue ex
+      puts "THREADS must be integer"
+      exit
+    end
+  end
+  parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{channel_threads})") do |number|
+    begin
+      channel_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
