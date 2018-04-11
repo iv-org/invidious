@@ -130,14 +130,14 @@ function toggle_comments(target) {
             <p id="Rating">Rating : <%= rating.round(4) %> / 5</p>
             <p id="Engagement">Engagement : <%= engagement.round(2) %>%</p>
             <% if ad_slots %>
-            <p>Ad Slots : <%= ad_slots %></p>
+            <p id="Slots">Ad Slots : <%= ad_slots %></p>
             <% end %>
             <% if engage_types %>
-            <p>Engage Types : <%= engage_types %></p>
+            <p id="Engage">Engage Types : <%= engage_types %></p>
             <% end %>
             <% if ad_tag %>
-            <p>Ad Category : <%= ad_category %></p>
-            <p>Ad Tags(?) : <%= k2 %></p>
+            <p id="Category">Ad Category : <%= ad_category %></p>
+            <p id="Tags">Ad Tags(?) : <%= k2 %></p>
             <% end %>
         </div>
     </div>
@@ -172,7 +172,7 @@ function toggle_comments(target) {
             </div>
             <hr style="margin-left:1em; margin-right:1em;">
         <% if reddit_thread  && !reddit_html.empty? %>
-            <div>
+            <div id="Comments">
                 <div>
                     <h3>
                         <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
