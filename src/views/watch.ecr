@@ -103,6 +103,7 @@ function toggle_comments(target) {
     }
 };
 
+<% if !listen %>
 var currentSources = player.currentSources();
 for ( var i = 0; i < currentSources.length; i++ ) {
     if (player.canPlayType(currentSources[i]["type"].split(";")[0]) === "") {
@@ -112,6 +113,7 @@ for ( var i = 0; i < currentSources.length; i++ ) {
 }
 
 player.src(currentSources);
+<% end %>
 </script>
 
 <div class="h-box">
