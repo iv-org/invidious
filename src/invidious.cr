@@ -140,8 +140,14 @@ channel_threads.times do |i|
       PG_DB.query(query, i, channel_threads) do |rs|
         rs.each do
           client = get_client(youtube_pool)
-          id = rs.read(String)
-          channel = get_channel(id, client, PG_DB)
+          begin
+            id = rs.read(String)
+            channel = get_channel(id, client, PG_DB)
+          rescue ex
+            STDOUT << id << " : " << ex.message << "\n"
+            youtube_pool << make_client(YT_URL)
+            next
+          end
           youtube_pool << client
         end
       end
