@@ -271,7 +271,8 @@ get "/watch" do |env|
     end
   end
 
-  fmt_stream = fmt_stream.uniq { |s| s["quality"] }
+  fmt_stream.each { |s| s.add("label", "#{s["quality"]} - #{s["type"].split(";")[0].split("/")[1]}") }
+  fmt_stream = fmt_stream.uniq { |s| s["label"] }
 
   video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video") ? s : nil }
   video_streams = video_streams.uniq { |s| s["size"] }

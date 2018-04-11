@@ -1,5 +1,5 @@
 <video playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js" data-setup="{}" controls>
     <% fmt_stream.each_with_index do |fmt, i| %>
-        <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["quality"] %>" selected="<%= i == 0 ? true : false %>">
+        <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
     <% end %>
 </video>
