@@ -1,4 +1,4 @@
-<video style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js" data-setup="{}" controls>
+<video style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js vjs-16-9" data-setup="{}" controls>
     <% fmt_stream.each_with_index do |fmt, i| %>
         <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
     <% end %>
