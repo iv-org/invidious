@@ -513,7 +513,7 @@ def get_channel(id, client, db)
   if db.query_one?("SELECT EXISTS (SELECT true FROM channels WHERE id = $1)", id, as: Bool)
     channel = db.query_one("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
 
-    if Time.now - channel.updated > 10.minutes
+    if Time.now - channel.updated > 1.minute
       channel = fetch_channel(id, client, db)
       channel_array = channel.to_a
       args = arg_array(channel_array)
