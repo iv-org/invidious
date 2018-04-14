@@ -1,13 +1,3 @@
-a {
-  color: #333;
-  text-decoration: none;
-}
-
-a:hover,
-a:active {
-  color: #167ac6;
-}
-
 .h-box {
   padding-left: 1em;
   padding-right: 1em;

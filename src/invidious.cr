@@ -208,6 +208,10 @@ before_all do |env|
     notifications ||= 0
     env.set "notifications", notifications
   end
+
+  if env.request.cookies.has_key?("darktheme") && env.request.cookies["darktheme"].value == "true"
+    env.set "darktheme", true
+  end
 end
 
 get "/" do |env|
@@ -514,7 +518,9 @@ get "/signout" do |env|
   referer ||= "/"
 
   env.request.cookies.each do |cookie|
-    cookie.expires = Time.new(1990, 1, 1)
+    if cookie.name != "darktheme"
+      cookie.expires = Time.new(1990, 1, 1)
+    end
   end
 
   env.request.cookies.add_response_headers(env.response.headers)
@@ -765,6 +771,20 @@ get "/subscription_ajax" do |env|
     end
 
     youtube_pool << client
+  end
+
+  env.redirect referer
+end
+
+get "/modify_theme" do |env|
+  referer = env.request.headers["referer"]?
+  referer ||= "/"
+
+  if env.params.query["dark"]?
+    env.response.cookies["darktheme"] = "true"
+  elsif env.params.query["light"]?
+    env.request.cookies["darktheme"].expires = Time.new(1990, 1, 1)
+    env.request.cookies.add_response_headers(env.response.headers)
   end
 
   env.redirect referer

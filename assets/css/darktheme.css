@@ -1,0 +1,26 @@
+a:hover,
+a:active {
+  color: #46aaf6;
+}
+
+a {
+  color: #f0f0f0;
+  text-decoration: none;
+}
+
+body {
+  background-color: #101010;
+  color: #f0f0f0;
+}
+
+.pure-form legend {
+  color: #f0f0f0;
+}
+
+.pure-menu-heading {
+  color: #f0f0f0;
+}
+
+.pure-form > fieldset > input {
+  color: #101010;
+}

@@ -7,7 +7,12 @@
   <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
   <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-min.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.6/css/all.css">
-  <link rel="stylesheet" href="/css/custom.css">
+  <link rel="stylesheet" href="/css/default.css">
+  <% if env.get? "darktheme" %>
+  <link rel="stylesheet" href="/css/darktheme.css">
+  <% else %>
+  <link rel="stylesheet" href="/css/lighttheme.css">
+  <% end %>
   <%= yield_content "header" %>
 </head>
 
@@ -21,7 +26,9 @@
         </div>
         <div class="pure-u-1 pure-u-md-3-5">
           <form class="pure-form" action="/search" method="get">
-            <input type="search" style="width:100%;" name="q" placeholder="search" value="<%= env.params.query["q"]? %>">
+            <fieldset>
+              <input type="search" style="width:100%;" name="q" placeholder="search" value="<%= env.params.query["q"]? %>">
+            </fieldset>
           </form>
         </div>
         <div class="pure-u-1 pure-u-md-1-5">
@@ -47,6 +54,13 @@
         </div>
       </div>
       <%= content %>
+      <center class="h-box">
+        <% if env.get? "darktheme" %>
+        <a href="/modify_theme?light">Light theme</a>
+        <% else %>
+        <a href="/modify_theme?dark">Dark theme</a>
+        <% end %>
+      </center>
       <center class="h-box">
         Released under AGPLv3 by <a href="https://github.com/omarroth">Omar Roth</a> -
         source available <a href="https://github.com/omarroth/invidious">here</a>
