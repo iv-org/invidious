@@ -659,14 +659,28 @@ get "/feed/subscriptions" do |env|
   end
 end
 
-# Two functions that are useful if you have multiple subscriptions that don't have
-# the "bell dinged". enable_notifications dings the bell for all subscriptions,
-# disable_notifications does the opposite. These don't fit conveniently anywhere,
-# so instead are here more as an undocumented utility.
-get "/enable_notifications" do |env|
+# Function that is useful if you have multiple channels that don't have
+# the "bell dinged". Request parameters are fairly self-explanatory,
+# receive_all_updates = true and receive_post_updates = true will "ding" all
+# channels. Calling /modify_notifications without any arguments will
+# request all notifications from all channels.
+# /modify_notifications?receive_all_updates=false&receive_no_updates=false
+# will "unding" all subscriptions.
+get "/modify_notifications" do |env|
   authorized = env.get? "authorized"
 
+  referer = env.request.headers["referer"]?
+  referer ||= "/"
+
   if authorized
+    channel_req = {} of String => String
+
+    channel_req["receive_all_updates"] = env.params.query["receive_all_updates"]? || "true"
+    channel_req["receive_no_updates"] = env.params.query["receive_no_updates"]? || ""
+    channel_req["receive_post_updates"] = env.params.query["receive_post_updates"]? || "true"
+
+    channel_req.reject! { |k, v| v != "true" && v != "false" }
+
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
@@ -677,71 +691,25 @@ get "/enable_notifications" do |env|
     if match
       session_token = match["session_token"]
     else
-      next env.redirect "/"
+      next env.redirect referer
     end
+
+    channel_req["session_token"] = session_token
 
     headers["content-type"] = "application/x-www-form-urlencoded"
     subs = XML.parse_html(subs.body)
     subs.xpath_nodes(%q(//a[@class="subscription-title yt-uix-sessionlink"]/@href)).each do |channel|
       channel_id = channel.content.lstrip("/channel/").not_nil!
 
-      channel_req = {
-        "channel_id"           => channel_id,
-        "receive_all_updates"  => "true",
-        "receive_post_updates" => "true",
-        "session_token"        => session_token,
-      }
+      channel_req["channel_id"] = channel_id
 
-      channel_req = HTTP::Params.encode(channel_req)
-
-      client.post("/subscription_ajax?action_update_subscription_preferences=1", headers, channel_req)
+      client.post("/subscription_ajax?action_update_subscription_preferences=1", headers, HTTP::Params.encode(channel_req)).body
     end
 
     youtube_pool << client
   end
 
-  env.redirect "/"
-end
-
-get "/disable_notifications" do |env|
-  authorized = env.get? "authorized"
-
-  if authorized
-    headers = HTTP::Headers.new
-    headers["Cookie"] = env.request.headers["Cookie"]
-
-    client = get_client(youtube_pool)
-    subs = client.get("/subscription_manager?disable_polymer=1", headers)
-    headers["Cookie"] += "; " + subs.cookies.add_request_headers(headers)["Cookie"]
-    match = subs.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
-    if match
-      session_token = match["session_token"]
-    else
-      next env.redirect "/"
-    end
-
-    headers["content-type"] = "application/x-www-form-urlencoded"
-    subs = XML.parse_html(subs.body)
-    subs.xpath_nodes(%q(//a[@class="subscription-title yt-uix-sessionlink"]/@href)).each do |channel|
-      channel_id = channel.content.lstrip("/channel/").not_nil!
-
-      channel_req = {
-        "channel_id"           => channel_id,
-        "receive_all_updates"  => "false",
-        "receive_no_updates"   => "false",
-        "receive_post_updates" => "true",
-        "session_token"        => session_token,
-      }
-
-      channel_req = HTTP::Params.encode(channel_req)
-
-      client.post("/subscription_ajax?action_update_subscription_preferences=1", headers, channel_req)
-    end
-
-    youtube_pool << client
-  end
-
-  env.redirect "/"
+  env.redirect referer
 end
 
 get "/subscription_ajax" do |env|
