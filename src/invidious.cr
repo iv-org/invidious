@@ -540,6 +540,7 @@ get "/api/manifest/dash/id/:id" do |env|
   env.response.headers.add("Access-Control-Allow-Origin", "*")
   env.response.content_type = "application/dash+xml"
 
+  local = env.params.query["local"]?.try &.== "true"
   id = env.params.url["id"]
 
   yt_client = get_client(youtube_pool)
@@ -560,12 +561,18 @@ get "/api/manifest/dash/id/:id" do |env|
     halt env, status_code: 403
   end
 
-  signature = false
-  if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
-    signature = true
+  if local
+    adaptive_fmts.each do |fmt|
+      if Kemal.config.ssl
+        scheme = "https://"
+      end
+      scheme ||= "http://"
+
+      fmt["url"] = scheme + env.request.headers["Host"] + URI.parse(fmt["url"]).full_path
+    end
   end
 
-  if signature
+  if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
     adaptive_fmts.each do |fmt|
       fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
     end
