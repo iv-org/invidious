@@ -800,8 +800,9 @@ end
 get "/videoplayback" do |env|
   query_params = env.params.query
 
+  fvip = query_params["fvip"]
   mn = query_params["mn"].split(",")[0]
-  host = "https://r5---#{mn}.googlevideo.com"
+  host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
 
   client = make_client(URI.parse(host))
