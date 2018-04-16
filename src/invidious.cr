@@ -790,6 +790,53 @@ get "/modify_theme" do |env|
   env.redirect referer
 end
 
+get "/videoplayback" do |env|
+  query_params = env.params.query
+
+  mn = query_params["mn"].split(",")[0]
+  host = "https://r5---#{mn}.googlevideo.com"
+  url = "/videoplayback?#{query_params.to_s}"
+
+  client = make_client(URI.parse(host))
+  response = client.head(url)
+
+  headers = env.request.headers
+  headers.delete("Host")
+  headers.delete("Cookie")
+  headers.delete("User-Agent")
+  headers.delete("Referer")
+
+  client.get(url, headers) do |response|
+    if response.headers["Location"]?
+      url = URI.parse(response.headers["Location"])
+      env.redirect url.full_path
+    else
+      env.response.status_code = 206
+
+      response.headers.each do |key, value|
+        env.response.headers[key] = value
+      end
+
+      chunk = Bytes[8]
+
+      loop do
+        count = response.body_io.read(chunk)
+
+        if count == 0
+          break
+        end
+
+        begin
+          env.response.write(chunk)
+          env.response.flush
+        rescue ex
+          break
+        end
+      end
+    end
+  end
+end
+
 error 404 do |env|
   error_message = "404 Page not found"
   templated "error"
