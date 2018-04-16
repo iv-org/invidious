@@ -872,6 +872,7 @@ static_headers do |response, filepath, filestat|
 end
 
 public_folder "assets"
-gzip true
+
+add_handler FilteredCompressHandler.new
 
 Kemal.run
