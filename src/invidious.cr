@@ -846,7 +846,7 @@ end
 options "/videoplayback" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET"
-  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
 end
 
 error 404 do |env|
