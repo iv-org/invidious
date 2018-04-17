@@ -825,6 +825,8 @@ get "/videoplayback" do |env|
         env.response.headers[key] = value
       end
 
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
       chunk = Bytes[8]
 
       loop do
