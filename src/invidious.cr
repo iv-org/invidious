@@ -819,7 +819,7 @@ get "/videoplayback" do |env|
       url = URI.parse(response.headers["Location"])
       env.redirect url.full_path
     else
-      env.response.status_code = 206
+      env.response.status_code = response.status_code
 
       response.headers.each do |key, value|
         env.response.headers[key] = value
@@ -829,10 +829,6 @@ get "/videoplayback" do |env|
 
       loop do
         count = response.body_io.read(chunk)
-
-        if count == 0
-          break
-        end
 
         begin
           env.response.write(chunk)
