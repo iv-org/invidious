@@ -843,6 +843,11 @@ get "/videoplayback" do |env|
   end
 end
 
+options "/videoplayback" do |env|
+  env.response.headers["Access-Control-Allow-Origin"] = "*"
+  env.response.headers["Access-Control-Allow-Methods"] = "GET"
+end
+
 error 404 do |env|
   error_message = "404 Page not found"
   templated "error"
