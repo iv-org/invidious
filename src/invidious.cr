@@ -413,6 +413,10 @@ get "/login" do |env|
   referer = env.request.headers["referer"]?
   referer ||= "/feed/subscriptions"
 
+  if referer.ends_with? "/login"
+    referer = "/feed/subscriptions"
+  end
+
   templated "login"
 end
 
