@@ -482,6 +482,11 @@ post "/login" do |env|
     challenge_results = challenge_results[5..-1]
     challenge_results = JSON.parse(challenge_results)
 
+    if challenge_results[0][5]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
+      error_message = "Incorrect password"
+      next templated "error"
+    end
+
     login_res = challenge_results[0][13][2].to_s
 
     login = client.get(login_res, headers)
