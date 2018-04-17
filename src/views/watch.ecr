@@ -132,7 +132,7 @@ player.src(currentSources);
 
 <div class="pure-g">
     <div class="pure-u-1 pure-u-md-1-5">
-        <div style="overflow-wrap:break-word; word-wrap:break-word;" class="h-box">
+        <div class="h-box">
             <p><i class="fa fa-eye" aria-hidden="true"></i> <%= number_with_separator(video.views) %></p>
             <p><i class="fa fa-thumbs-up" aria-hidden="true"></i> <%= number_with_separator(video.likes) %></p>
             <p><i class="fa fa-thumbs-down" aria-hidden="true"></i> <%= number_with_separator(video.dislikes) %></p>
@@ -153,7 +153,7 @@ player.src(currentSources);
     </div>
 
     <div class="pure-u-1 pure-u-md-3-5">
-        <div style="overflow-wrap:break-word; word-wrap:break-word;" class="h-box">
+        <div class="h-box">
             <p>
                 <a href="https://youtube.com/channel/<%= video.info["ucid"] %>">
                     <h3><%= video.info["author"] %></h3>
@@ -177,7 +177,7 @@ player.src(currentSources);
             <p>
                 <b>Shared <%= video.published.to_s("%B %-d, %Y") %></b>
             </p>
-            <div style="overflow-wrap:break-word; word-wrap:break-word;">
+            <div>
                 <%= video.description %>
             </div>
             <hr style="margin-left:1em; margin-right:1em;">
@@ -202,7 +202,7 @@ player.src(currentSources);
     </div>
 
     <div class="pure-u-1 pure-u-md-1-5">
-        <div style="overflow-wrap:break-word; word-wrap:break-word;" class="h-box">
+        <div class="h-box">
         <% rvs.each do |rv| %>
             <% if rv.has_key?("id") %>
             <a href="/watch?v=<%= rv["id"] %>">

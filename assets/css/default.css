@@ -7,3 +7,8 @@
   padding-top: 1em;
   padding-bottom: 1em;
 }
+
+div {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
