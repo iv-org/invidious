@@ -647,11 +647,18 @@ get "/feed/subscriptions" do |env|
   authorized = env.get? "authorized"
 
   if authorized
-    max_results = env.params.query["maxResults"]?.try &.to_i
-    max_results ||= 40
+    max_results = env.params.query["maxResults"]?.try &.to_i || 40
 
     page = env.params.query["page"]?.try &.to_i
     page ||= 1
+
+    if max_results < 0
+      limit = nil
+      offset = (page - 1) * 1
+    else
+      limit = max_results
+      offset = (page - 1) * max_results
+    end
 
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
@@ -663,9 +670,12 @@ get "/feed/subscriptions" do |env|
     youtube_pool << client
 
     args = arg_array(user.subscriptions, 3)
-    offset = (page - 1) * max_results
     videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
-    ORDER BY published DESC LIMIT $1 OFFSET $2", [max_results, offset] + user.subscriptions, as: ChannelVideo)
+    ORDER BY published DESC LIMIT $1 OFFSET $2", [limit, offset] + user.subscriptions, as: ChannelVideo)
+
+    if !limit
+      videos = videos[0..max_results]
+    end
 
     PG_DB.exec("UPDATE users SET notifications = $1 WHERE id = $2", [] of String, sid)
     env.set "notifications", 0
