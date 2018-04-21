@@ -114,33 +114,47 @@ class User
   })
 end
 
-class RedditSubmit
+class RedditThing
   JSON.mapping({
-    data: RedditSubmitData,
+    kind: String,
+    data: RedditComment | RedditLink | RedditMore | RedditListing,
   })
 end
 
-class RedditSubmitData
+class RedditComment
   JSON.mapping({
-    children: Array(RedditThread),
+    author:    String,
+    body_html: String,
+    replies:   RedditThing | String,
+    score:     Int32,
+    depth:     Int32,
   })
 end
 
-class RedditThread
+class RedditLink
   JSON.mapping({
-    data: RedditThreadData,
-  })
-end
-
-class RedditThreadData
-  JSON.mapping({
-    subreddit:    String,
-    id:           String,
-    num_comments: Int32,
-    score:        Int32,
     author:       String,
+    score:        Int32,
+    subreddit:    String,
+    num_comments: Int32,
+    id:           String,
     permalink:    String,
     title:        String,
+  })
+end
+
+class RedditMore
+  JSON.mapping({
+    children: Array(String),
+    count:    Int32,
+    depth:    Int32,
+  })
+end
+
+class RedditListing
+  JSON.mapping({
+    children: Array(RedditThing),
+    modhash:  String,
   })
 end
 
@@ -376,35 +390,39 @@ def get_reddit_comments(id, client, headers)
   search_results = client.get("/search.json?q=#{query}", headers)
 
   if search_results.status_code == 200
-    search_results = RedditSubmit.from_json(search_results.body)
+    search_results = RedditThing.from_json(search_results.body)
 
-    thread = search_results.data.children.sort_by { |child| child.data.score }[-1]
-    result = client.get("/r/#{thread.data.subreddit}/comments/#{thread.data.id}?limit=100&sort=top", headers).body
-    result = JSON.parse(result)
+    thread = search_results.data.as(RedditListing).children.sort_by { |child| child.data.as(RedditLink).score }[-1]
+    thread = thread.data.as(RedditLink)
+
+    result = client.get("/r/#{thread.subreddit}/comments/#{thread.id}?limit=100&sort=top", headers).body
+    result = Array(RedditThing).from_json(result)
   elsif search_results.status_code == 302
-    search_results = client.get(search_results.headers["Location"], headers).body
+    result = client.get(search_results.headers["Location"], headers).body
+    result = Array(RedditThing).from_json(result)
 
-    result = JSON.parse(search_results)
-    thread = RedditThread.from_json(result[0]["data"]["children"][0].to_json)
+    thread = result[0].data.as(RedditListing).children[0].data.as(RedditLink)
   else
     raise "Got error code #{search_results.status_code}"
   end
 
-  comments = result[1]["data"]["children"]
+  comments = result[1].data.as(RedditListing).children
   return comments, thread
 end
 
 def template_comments(root)
   html = ""
   root.each do |child|
-    if child["data"]["body_html"]?
-      author = child["data"]["author"]
-      score = child["data"]["score"]
-      body_html = HTML.unescape(child["data"]["body_html"].as_s)
+    if child.data.is_a?(RedditComment)
+      child = child.data.as(RedditComment)
+      author = child.author
+      score = child.score
+      body_html = HTML.unescape(child.body_html)
 
       replies_html = ""
-      if child["data"]["replies"] != ""
-        replies_html = template_comments(child["data"]["replies"]["data"]["children"])
+      if child.replies.is_a?(RedditThing)
+        replies = child.replies.as(RedditThing)
+        replies_html = template_comments(replies.data.as(RedditListing).children)
       end
 
       content = <<-END_HTML
@@ -417,7 +435,7 @@ def template_comments(root)
       </div>
       END_HTML
 
-      if child["data"]["depth"].as_i > 0
+      if child.depth > 0
         html += <<-END_HTML
           <div class="pure-g">
           <div class="pure-u-1-24">
