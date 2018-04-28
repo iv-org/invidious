@@ -27,6 +27,7 @@ CONFIG = Config.from_yaml(File.read("config/config.yml"))
 
 threads = CONFIG.threads
 channel_threads = CONFIG.channel_threads
+video_threads = CONFIG.video_threads
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
@@ -45,6 +46,14 @@ Kemal.config.extra_options do |parser|
       puts "THREADS must be integer"
       exit
     end
+  end
+  parser.on("-v THREADS", "--video-threads=THREADS", "Number of threads for refreshing videos (default: #{video_threads})") do |number|
+    begin
+      video_threads = number.to_i
+    rescue ex
+      puts "THREADS must be integer"
+      exit
+end
   end
 end
 
@@ -127,6 +136,31 @@ channel_threads.times do |i|
           begin
             id = rs.read(String)
             channel = get_channel(id, client, PG_DB)
+          rescue ex
+            STDOUT << id << " : " << ex.message << "\n"
+            client = make_client(YT_URL)
+            next
+          end
+        end
+      end
+      Fiber.yield
+    end
+  end
+end
+
+video_threads.times do |i|
+  spawn do
+    loop do
+      query = "SELECT id FROM videos ORDER BY updated \
+      LIMIT (SELECT count(*)/$2 FROM videos) \
+      OFFSET (SELECT count(*)*$1/$2 FROM videos)"
+      PG_DB.query(query, i, video_threads) do |rs|
+        rs.each do
+          client = make_client(YT_URL)
+
+          begin
+            id = rs.read(String)
+            video = get_video(id, client, PG_DB)
           rescue ex
             STDOUT << id << " : " << ex.message << "\n"
             client = make_client(YT_URL)

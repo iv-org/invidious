@@ -1,5 +1,6 @@
-channel_threads: 5
 threads: 5
+channel_threads: 5
+video_threads: 5
 db:
   user: kemal
   password: kemal
