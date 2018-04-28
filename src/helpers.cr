@@ -15,7 +15,6 @@ end
 
 class Config
   YAML.mapping({
-    pool_size:       Int32,
     threads:         Int32,
     channel_threads: Int32,
     db:              NamedTuple(
@@ -178,14 +177,6 @@ def elapsed_text(elapsed)
   "#{(millis * 1000).round(2)}µs"
 end
 
-def get_client(pool)
-  while pool.empty?
-    sleep rand(0..10).milliseconds
-  end
-
-  return pool.shift
-end
-
 def fetch_video(id, client)
   info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en").body
   html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}").body
@@ -312,7 +303,7 @@ def decrypt_signature(a)
   return a.join("")
 end
 
-def rank_videos(db, n, pool, filter)
+def rank_videos(db, n, filter, url)
   top = [] of {Float64, String}
 
   db.query("SELECT id, wilson_score, published FROM videos WHERE views > 5000 ORDER BY published DESC LIMIT 1000") do |rs|
@@ -339,14 +330,12 @@ def rank_videos(db, n, pool, filter)
       if language_list.size == n
         break
       else
-        client = get_client(pool)
+        client = make_client(url)
         begin
           video = get_video(id, client, db)
         rescue ex
           next
         end
-
-        pool << client
 
         if video.language
           language = video.language

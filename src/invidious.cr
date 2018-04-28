@@ -25,20 +25,11 @@ require "./cookie_fix"
 
 CONFIG = Config.from_yaml(File.read("config/config.yml"))
 
-pool_size = CONFIG.pool_size
 threads = CONFIG.threads
 channel_threads = CONFIG.channel_threads
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-z SIZE", "--youtube-pool=SIZE", "Number of clients in youtube pool (default: #{pool_size})") do |number|
-    begin
-      pool_size = number.to_i
-    rescue ex
-      puts "SIZE must be integer"
-      exit
-    end
-  end
   parser.on("-t THREADS", "--youtube-threads=THREADS", "Number of threads for crawling (default: #{threads})") do |number|
     begin
       threads = number.to_i
@@ -73,25 +64,17 @@ YT_URL     = URI.parse("https://www.youtube.com")
 REDDIT_URL = URI.parse("https://api.reddit.com")
 LOGIN_URL  = URI.parse("https://accounts.google.com")
 
-youtube_pool = Deque.new(pool_size) do
-  make_client(YT_URL)
-end
-
-# Refresh youtube_pool by crawling YT
 threads.times do
   spawn do
     ids = Deque(String).new
     random = Random.new
 
-    client = get_client(youtube_pool)
+    client = make_client(YT_URL)
     search(random.base64(3), client) do |id|
       ids << id
     end
-    youtube_pool << client
 
     loop do
-      client = get_client(youtube_pool)
-
       if ids.empty?
         search(random.base64(3), client) do |id|
           ids << id
@@ -103,7 +86,7 @@ threads.times do
         video = get_video(id, client, PG_DB)
       rescue ex
         STDOUT << id << " : " << ex.message << "\n"
-        youtube_pool << make_client(YT_URL)
+        client = make_client(YT_URL)
         next
       ensure
         ids.delete(id)
@@ -125,8 +108,6 @@ threads.times do
           end
         end
       end
-
-      youtube_pool << client
     end
   end
 end
@@ -139,16 +120,16 @@ channel_threads.times do |i|
       OFFSET (SELECT count(*)*$1/$2 FROM channels)"
       PG_DB.query(query, i, channel_threads) do |rs|
         rs.each do
-          client = get_client(youtube_pool)
+          client = make_client(YT_URL)
+
           begin
             id = rs.read(String)
             channel = get_channel(id, client, PG_DB)
           rescue ex
             STDOUT << id << " : " << ex.message << "\n"
-            youtube_pool << make_client(YT_URL)
+            client = make_client(YT_URL)
             next
           end
-          youtube_pool << client
         end
       end
     end
@@ -169,7 +150,7 @@ spawn do
 
   loop do
     begin
-      top = rank_videos(PG_DB, 40, youtube_pool, filter)
+      top = rank_videos(PG_DB, 40, filter, YT_URL)
     rescue ex
       next
     end
@@ -183,13 +164,12 @@ spawn do
     videos = [] of Video
 
     top.each do |id|
-      client = get_client(youtube_pool)
+      client = make_client(YT_URL)
       begin
         videos << get_video(id, client, PG_DB)
       rescue ex
         next
       end
-      youtube_pool << client
     end
 
     top_videos = videos
@@ -237,8 +217,6 @@ get "/watch" do |env|
     env.params.query.delete_all("listen")
   end
 
-  client = get_client(youtube_pool)
-
   authorized = env.get? "authorized"
   if authorized
     sid = env.get("sid").as(String)
@@ -248,13 +226,12 @@ get "/watch" do |env|
 
   subscriptions ||= [] of String
 
+  client = make_client(YT_URL)
   begin
     video = get_video(id, client, PG_DB)
   rescue ex
     error_message = ex.message
     next templated "error"
-  ensure
-    youtube_pool << client
   end
 
   fmt_stream = [] of HTTP::Params
@@ -364,12 +341,10 @@ get "/search" do |env|
   page = env.params.query["page"]?.try &.to_i
   page ||= 1
 
-  client = get_client(youtube_pool)
+  client = make_client(YT_URL)
 
   html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
-
-  youtube_pool << client
 
   videos = Array(Hash(String, String)).new
 
@@ -499,9 +474,8 @@ post "/login" do |env|
 
     sid = login.cookies["SID"].value
 
-    client = get_client(youtube_pool)
+    client = make_client(YT_URL)
     user = get_user(sid, client, headers, PG_DB)
-    youtube_pool << client
 
     # We are now logged in
 
@@ -552,13 +526,11 @@ get "/api/manifest/dash/id/:id" do |env|
   local = env.params.query["local"]?.try &.== "true"
   id = env.params.url["id"]
 
-  yt_client = get_client(youtube_pool)
+  client = make_client(YT_URL)
   begin
-    video = get_video(id, yt_client, PG_DB)
+    video = get_video(id, client, PG_DB)
   rescue ex
     halt env, status_code: 403
-  ensure
-    youtube_pool << yt_client
   end
 
   adaptive_fmts = [] of HTTP::Params
@@ -670,9 +642,8 @@ get "/feed/subscriptions" do |env|
 
     sid = env.get("sid").as(String)
 
-    client = get_client(youtube_pool)
+    client = make_client(YT_URL)
     user = get_user(sid, client, headers, PG_DB)
-    youtube_pool << client
 
     args = arg_array(user.subscriptions, 3)
     videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
@@ -716,7 +687,7 @@ get "/modify_notifications" do |env|
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    client = get_client(youtube_pool)
+    client = make_client(YT_URL)
     subs = client.get("/subscription_manager?disable_polymer=1", headers)
     headers["Cookie"] += "; " + subs.cookies.add_request_headers(headers)["Cookie"]
     match = subs.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
@@ -737,8 +708,6 @@ get "/modify_notifications" do |env|
 
       client.post("/subscription_ajax?action_update_subscription_preferences=1", headers, HTTP::Params.encode(channel_req)).body
     end
-
-    youtube_pool << client
   end
 
   env.redirect referer
@@ -764,7 +733,7 @@ get "/subscription_ajax" do |env|
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    client = get_client(youtube_pool)
+    client = make_client(YT_URL)
     subs = client.get("/subscription_manager?disable_polymer=1", headers)
 
     headers["Cookie"] += "; " + subs.cookies.add_request_headers(headers)["Cookie"]
@@ -795,8 +764,6 @@ get "/subscription_ajax" do |env|
         PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE id = $2", channel_id, sid)
       end
     end
-
-    youtube_pool << client
   end
 
   env.redirect referer
