@@ -108,6 +108,8 @@ threads.times do
           end
         end
       end
+
+      Fiber.yield
     end
   end
 end
@@ -132,6 +134,7 @@ channel_threads.times do |i|
           end
         end
       end
+      Fiber.yield
     end
   end
 end
