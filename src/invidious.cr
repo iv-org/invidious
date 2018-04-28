@@ -20,8 +20,8 @@ require "option_parser"
 require "pg"
 require "xml"
 require "yaml"
-require "./helpers"
 require "./cookie_fix"
+require "./helpers"
 
 CONFIG = Config.from_yaml(File.read("config/config.yml"))
 
@@ -147,9 +147,9 @@ spawn do
       config.api_key = CONFIG.dl_api_key.not_nil!
     end
     filter = true
-  else
-    filter = false
   end
+
+  filter ||= false
 
   loop do
     begin
@@ -286,9 +286,8 @@ get "/watch" do |env|
 
   if video.likes > 0 || video.dislikes > 0
     calculated_rating = (video.likes.to_f/(video.likes.to_f + video.dislikes.to_f) * 4 + 1)
-  else
-    calculated_rating = 0.0
   end
+  calculated_rating ||= 0.0
 
   if video.info["ad_slots"]?
     ad_slots = video.info["ad_slots"].split(",")
@@ -359,26 +358,23 @@ get "/search" do |env|
       id = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
       if id
         id = id.content.lchop("/watch?v=")
-      else
-        id = ""
       end
+      id ||= ""
       video["id"] = id
 
       title = root.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a))
       if title
         video["title"] = title.content
-      else
-        video["title"] = ""
       end
+      video["title"] ||= ""
 
       author = root.xpath_node(%q(div[@class="yt-lockup-content"]/div/a))
       if author
         video["author"] = author.content
         video["ucid_url"] = author["href"]
-      else
-        video["author"] = ""
-        video["ucid_url"] = ""
       end
+      video["author"] ||= ""
+      video["ucid_url"] ||= ""
 
       videos << video
     end
@@ -392,6 +388,10 @@ get "/login" do |env|
   referer ||= "/feed/subscriptions"
 
   if referer.ends_with? "/login"
+    referer = "/feed/subscriptions"
+  end
+
+  if referer.size > 32
     referer = "/feed/subscriptions"
   end
 

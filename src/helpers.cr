@@ -531,7 +531,7 @@ def login_req(login_form, f_req)
     "flowEntry"       => "ServiceLogin",
   }
 
-  data = data.merge(login_form)
+  data = login_form.merge(data)
 
   return HTTP::Params.encode(data)
 end
