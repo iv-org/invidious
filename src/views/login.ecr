@@ -15,6 +15,11 @@
 
                     <label for="password">Password</label>
                     <input class="pure-input-1" name="password" type="password" placeholder="Password">
+                    
+                    <% if tfa %>
+                    <label for="tfa">Google verification code</label>
+                    <input class="pure-input-1" name="tfa" type="text" placeholder="Google verification code">
+                    <% end %>
 
                     <button type="submit" class="pure-button pure-button-primary">Sign in</button>
                 </fieldset>

@@ -617,11 +617,10 @@ def get_user(sid, client, headers, db)
 end
 
 def fetch_user(sid, client, headers)
-  feed = client.get("/subscription_manager?disable_polymer=1", headers).body
+  feed = client.get("/subscription_manager?disable_polymer=1", headers)
+  feed = XML.parse_html(feed.body)
 
   channels = [] of String
-  feed = XML.parse_html(feed)
-
   feed.xpath_nodes(%q(//a[@class="subscription-title yt-uix-sessionlink"]/@href)).each do |channel|
     channel_id = channel.content.lstrip("/channel/").not_nil!
     get_channel(channel_id, client, PG_DB)

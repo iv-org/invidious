@@ -53,7 +53,7 @@ Kemal.config.extra_options do |parser|
     rescue ex
       puts "THREADS must be integer"
       exit
-end
+    end
   end
 end
 
@@ -421,6 +421,9 @@ get "/login" do |env|
   referer = env.request.headers["referer"]?
   referer ||= "/feed/subscriptions"
 
+  tfa = env.params.query["tfa"]?
+  tfa ||= false
+
   if referer.ends_with? "/login"
     referer = "/feed/subscriptions"
   end
@@ -439,10 +442,14 @@ post "/login" do |env|
 
   email = env.params.body["email"]?
   password = env.params.body["password"]?
+  tfa_code = env.params.body["tfa"]?.try &.lchop("G-")
 
   begin
     client = make_client(LOGIN_URL)
     headers = HTTP::Headers.new
+    headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
+    headers["Google-Accounts-XSRF"] = "1"
+
     login_page = client.get("/ServiceLogin")
     headers = login_page.cookies.add_request_headers(headers)
 
@@ -471,10 +478,7 @@ post "/login" do |env|
       end
     end
 
-    lookup_req = %(["#{email}","#{inputs["session-state"]}",[],null,"US",null,null,2,false,true,[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fnext%3D%252F%26action_handle_signin%3Dtrue%26hl%3Den%26app%3Ddesktop%26feature%3Dsign_in_button&hl=en&service=youtube&uilel=3&requestPath=%2FServiceLogin&Page=PasswordSeparationSignIn",null,[],4,[]],1,[null,null,[]],null,null,null,true],"#{email}"])
-
-    headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
-    headers["Google-Accounts-XSRF"] = "1"
+    lookup_req = %(["#{email}",null,[],null,"US",null,null,2,false,true,[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount",null,[],4,[]],1,[null,null,[]],null,null,null,true],"#{email}"])
 
     lookup_results = client.post("/_/signin/sl/lookup", headers, login_req(inputs, lookup_req))
     headers = lookup_results.cookies.add_request_headers(headers)
@@ -485,7 +489,7 @@ post "/login" do |env|
 
     user_hash = lookup_results[0][2]
 
-    challenge_req = %([#{user_hash},null,1,null,[1,null,null,null,[#{password},null,true]],[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fnext%3D%252F%26action_handle_signin%3Dtrue%26hl%3Den%26app%3Ddesktop%26feature%3Dsign_in_button&hl=en&service=youtube&uilel=3&requestPath=%2FServiceLogin&Page=PasswordSeparationSignIn", null,[],4],1,[null,null,[]],null,null,null,true]])
+    challenge_req = %(["#{user_hash}",null,1,null,[1,null,null,null,["#{password}",null,true]],[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount",null,[],4,[]],1,[null,null,[]],null,null,null,true]])
 
     challenge_results = client.post("/_/signin/sl/challenge", headers, login_req(inputs, challenge_req))
     headers = challenge_results.cookies.add_request_headers(headers)
@@ -494,9 +498,42 @@ post "/login" do |env|
     challenge_results = challenge_results[5..-1]
     challenge_results = JSON.parse(challenge_results)
 
+    headers["Cookie"] = URI.unescape(headers["Cookie"])
+
     if challenge_results[0][5]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
       error_message = "Incorrect password"
       next templated "error"
+    end
+
+    if challenge_results[0][-1][0].as_a?
+      tfa = challenge_results[0][-1][0][0]
+
+      if tfa[2] == "TWO_STEP_VERIFICATION"
+        if tfa[5] == "QUOTA_EXCEEDED"
+          error_message = "Quota exceeded, try again in a few hours"
+          next templated "error"
+        end
+
+        if !tfa_code
+          next env.redirect "/login?tfa=true"
+        end
+
+        tl = challenge_results[1][2]
+
+        tfa_req = %(["#{user_hash}",null,2,null,[9,null,null,null,null,null,null,null,[null,"#{tfa_code}",false,2]]])
+
+        challenge_results = client.post("/_/signin/challenge?hl=en&TL=#{tl}", headers, login_req(inputs, tfa_req))
+        headers = challenge_results.cookies.add_request_headers(headers)
+
+        challenge_results = challenge_results.body
+        challenge_results = challenge_results[5..-1]
+        challenge_results = JSON.parse(challenge_results)
+
+        if challenge_results[0][5]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
+          error_message = "Invalid TFA code"
+          next templated "error"
+        end
+      end
     end
 
     login_res = challenge_results[0][13][2].to_s
