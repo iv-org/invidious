@@ -15,7 +15,7 @@ end
 
 class Config
   YAML.mapping({
-    threads:         Int32,
+    crawl_threads:   Int32,
     channel_threads: Int32,
     video_threads:   Int32,
     db:              NamedTuple(

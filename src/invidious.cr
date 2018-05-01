@@ -25,15 +25,15 @@ require "./helpers"
 
 CONFIG = Config.from_yaml(File.read("config/config.yml"))
 
-threads = CONFIG.threads
+crawl_threads = CONFIG.crawl_threads
 channel_threads = CONFIG.channel_threads
 video_threads = CONFIG.video_threads
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-t THREADS", "--youtube-threads=THREADS", "Number of threads for crawling (default: #{threads})") do |number|
+  parser.on("-t THREADS", "--crawl-threads=THREADS", "Number of threads for crawling (default: #{crawl_threads})") do |number|
     begin
-      threads = number.to_i
+      crawl_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
@@ -73,7 +73,7 @@ YT_URL     = URI.parse("https://www.youtube.com")
 REDDIT_URL = URI.parse("https://api.reddit.com")
 LOGIN_URL  = URI.parse("https://accounts.google.com")
 
-threads.times do
+crawl_threads.times do
   spawn do
     ids = Deque(String).new
     random = Random.new

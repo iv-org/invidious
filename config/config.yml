@@ -1,4 +1,4 @@
-threads: 5
+crawl_threads: 5
 channel_threads: 5
 video_threads: 5
 db:
