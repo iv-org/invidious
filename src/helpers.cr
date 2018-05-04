@@ -621,11 +621,13 @@ def fetch_user(sid, client, headers)
   feed = XML.parse_html(feed.body)
 
   channels = [] of String
-  feed.xpath_nodes(%q(//a[@class="subscription-title yt-uix-sessionlink"]/@href)).each do |channel|
-    channel_id = channel.content.lstrip("/channel/").not_nil!
-    get_channel(channel_id, client, PG_DB)
+  feed.xpath_nodes(%q(//ul[@id="guide-channels"]/li/a)).each do |channel|
+    if !["Popular on YouTube", "Music", "Sports", "Gaming"].includes? channel["title"]
+      channel_id = channel["href"].lstrip("/channel/").not_nil!
+      get_channel(channel_id, client, PG_DB)
 
-    channels << channel_id
+      channels << channel_id
+    end
   end
 
   email = feed.xpath_node(%q(//a[@class="yt-masthead-picker-header yt-masthead-picker-active-account"]))
