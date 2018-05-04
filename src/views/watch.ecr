@@ -173,6 +173,12 @@ player.src(currentSources);
                 </a>
             </p>
             <% end %>
+        <% else %>
+            <p>
+                <a href="/login">
+                    <b>Login to subscribe to <%= video.info["author"] %></b>
+                </a>
+            </p>
         <% end %>
             <p>
                 <b>Shared <%= video.published.to_s("%B %-d, %Y") %></b>
