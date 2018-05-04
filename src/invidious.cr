@@ -809,9 +809,7 @@ get "/subscription_ajax" do |env|
 
     client = make_client(YT_URL)
     subs = client.get("/subscription_manager?disable_polymer=1", headers)
-
     headers["Cookie"] += "; " + subs.cookies.add_request_headers(headers)["Cookie"]
-
     match = subs.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
     if match
       session_token = match["session_token"]
