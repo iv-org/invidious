@@ -585,7 +585,8 @@ def fetch_channel(id, client, db)
       ON CONFLICT (id) DO NOTHING", video_array)
   end
 
-  author = rss.xpath_node("//feed/author/name").not_nil!.content
+  author = rss.xpath_node("//feed/author/name").try &.content
+  author ||= ""
 
   channel = InvidiousChannel.new(id, author, Time.now)
 
@@ -623,7 +624,7 @@ def fetch_user(sid, client, headers)
   channels = [] of String
   feed.xpath_nodes(%q(//ul[@id="guide-channels"]/li/a)).each do |channel|
     if !["Popular on YouTube", "Music", "Sports", "Gaming"].includes? channel["title"]
-      channel_id = channel["href"].lstrip("/channel/").not_nil!
+      channel_id = channel["href"].lstrip("/channel/")
       get_channel(channel_id, client, PG_DB)
 
       channels << channel_id
