@@ -565,7 +565,7 @@ post "/login" do |env|
 
     env.redirect referer
   rescue ex
-    error_message = "Login failed"
+    error_message = "Login failed. This may be because two-factor authentication is not enabled on your account."
     next templated "error"
   end
 end
