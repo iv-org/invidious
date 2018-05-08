@@ -242,17 +242,23 @@ get "/watch" do |env|
     next env.redirect "/"
   end
 
-  video_start = env.params.query["start"]?.try &.to_i
-  video_start ||= 0
+  if env.params.query["start"]?
+    video_start = decode_time(env.params.query["start"])
+  else
+    video_start = 0
+  end
 
-  video_end = env.params.query["end"]?.try &.to_i
-  video_end ||= -1
+  if env.params.query["end"]?
+    video_end = decode_time(env.params.query["end"])
+  else
+    video_end = -1
+  end
 
-  listen = false
   if env.params.query["listen"]? && env.params.query["listen"] == "true"
     listen = true
     env.params.query.delete_all("listen")
   end
+  listen ||= false
 
   authorized = env.get? "authorized"
   if authorized

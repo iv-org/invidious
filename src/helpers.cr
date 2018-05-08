@@ -643,3 +643,25 @@ def fetch_user(sid, client, headers)
   user = User.new(sid, Time.now, [] of String, channels, email)
   return user
 end
+
+def decode_time(string)
+  time = string.try &.to_f?
+
+  if !time
+    hours = /(?<hours>\d+)h/.match(string).try &.["hours"].try &.to_i
+    hours ||= 0
+
+    minutes = /(?<minutes>\d+)m/.match(string).try &.["minutes"].try &.to_i
+    minutes ||= 0
+
+    seconds = /(?<seconds>\d+)s/.match(string).try &.["seconds"].try &.to_i
+    seconds ||= 0
+
+    millis = /(?<millis>\d+)ms/.match(string).try &.["millis"].try &.to_i
+    millis ||= 0
+
+    time = hours * 3600 + minutes * 60 + seconds + millis / 1000
+  end
+
+  return time
+end

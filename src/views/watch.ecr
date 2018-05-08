@@ -74,10 +74,10 @@ var player = videojs('player', options, function() {
     }
   });
 });
+
 player.offset({
   start: <%= video_start %>,
-  end: <%= video_end %>,
-  restart_beginning: true
+  end: <%= video_end %>
 });
 
 function toggle(target) {
