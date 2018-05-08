@@ -732,7 +732,7 @@ get "/feed/subscriptions" do |env|
     notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email, as: Array(String))
 
     notifications = videos.select { |v| notifications.includes? v.id }
-    vidoes = videos - notifications
+    videos = videos - notifications
 
     if !limit
       videos = videos[0..max_results]
