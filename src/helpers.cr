@@ -605,7 +605,7 @@ def get_user(sid, client, headers, db)
       args = arg_array(user_array)
 
       db.exec("INSERT INTO users VALUES (#{args}) \
-      ON CONFLICT (email) DO UPDATE SET id = $1, updated = $2, notifications = $3, subscriptions = $4", user_array)
+      ON CONFLICT (email) DO UPDATE SET id = $1, updated = $2, subscriptions = $4", user_array)
     end
   else
     user = fetch_user(sid, client, headers)

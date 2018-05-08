@@ -2,6 +2,30 @@
 <title>Subscriptions - Invidious</title>
 <% end %>
 
+<% if !notifications.empty? %>
+<% notifications.each_slice(4) do |slice| %>
+<div class="pure-g">
+    <% slice.each do |video| %>
+    <div class="pure-u-1 pure-u-md-1-4">
+        <div class="h-box">
+            <a style="width:100%;" href="/watch?v=<%= video.id %>">
+                <img style="width:100%;" src="https://i.ytimg.com/vi/<%= video.id %>/mqdefault.jpg"/>
+                <p style="height:100%"><%= video.title %></p>
+            </a>
+            <p>
+                <b><a style="width:100%;" href="https://youtube.com/channel/<%= video.ucid %>"><%= video.author %></a></b>
+            </p>
+            <p>
+                <h5>Shared <%= video.published.to_s("%B %-d, %Y at %r") %></h5>
+            </p>
+        </div>
+    </div>
+    <% end %>
+</div>
+<% end %>
+<hr style="margin-left:1em; margin-right:1em;">
+<% end %>
+
 <% videos.each_slice(4) do |slice| %>
 <div class="pure-g">
     <% slice.each do |video| %>

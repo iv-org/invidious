@@ -729,6 +729,11 @@ get "/feed/subscriptions" do |env|
     videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
     ORDER BY published DESC LIMIT $1 OFFSET $2", [limit, offset] + user.subscriptions, as: ChannelVideo)
 
+    notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email, as: Array(String))
+
+    notifications = videos.select { |v| notifications.includes? v.id }
+    vidoes = videos - notifications
+
     if !limit
       videos = videos[0..max_results]
     end
