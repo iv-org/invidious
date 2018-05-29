@@ -244,15 +244,13 @@ get "/watch" do |env|
 
   if env.params.query["start"]?
     video_start = decode_time(env.params.query["start"])
-  else
-    video_start = 0
   end
+  video_start ||= 0
 
   if env.params.query["end"]?
     video_end = decode_time(env.params.query["end"])
-  else
-    video_end = -1
   end
+  video_end ||= -1
 
   if env.params.query["listen"]? && env.params.query["listen"] == "true"
     listen = true
@@ -266,7 +264,6 @@ get "/watch" do |env|
 
     subscriptions = PG_DB.query_one?("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
   end
-
   subscriptions ||= [] of String
 
   client = make_client(YT_URL)
@@ -748,8 +745,8 @@ get "/feed/subscriptions" do |env|
 end
 
 # Function that is useful if you have multiple channels that don't have
-# the "bell dinged". Request parameters are fairly self-explanatory,
-# receive_all_updates = true and receive_post_updates = true will "ding" all
+# the bell dinged. Request parameters are fairly self-explanatory,
+# receive_all_updates = true and receive_post_updates = true will ding all
 # channels. Calling /modify_notifications without any arguments will
 # request all notifications from all channels.
 # /modify_notifications?receive_all_updates=false&receive_no_updates=false
