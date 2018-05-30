@@ -245,6 +245,10 @@ get "/watch" do |env|
   if env.params.query["start"]?
     video_start = decode_time(env.params.query["start"])
   end
+
+  if env.params.query["t"]?
+    video_start = decode_time(env.params.query["t"])
+  end
   video_start ||= 0
 
   if env.params.query["end"]?
