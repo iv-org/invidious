@@ -283,9 +283,6 @@ get "/watch" do |env|
 
   fmt_stream.each { |s| s.add("label", "#{s["quality"]} - #{s["type"].split(";")[0].split("/")[1]}") }
   fmt_stream = fmt_stream.uniq { |s| s["label"] }
-  fmt_stream.each do |stream|
-    stream["url"] = URI.parse(stream["url"]).full_path
-  end
 
   adaptive_fmts = [] of HTTP::Params
   if video.info.has_key?("adaptive_fmts")
@@ -308,7 +305,6 @@ get "/watch" do |env|
   audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
   audio_streams.each do |stream|
     stream["bitrate"] = (stream["bitrate"].to_f64/1000).to_i.to_s
-    stream["url"] = URI.parse(stream["url"]).full_path
   end
 
   rvs = [] of Hash(String, String)
