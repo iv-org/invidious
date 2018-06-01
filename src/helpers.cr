@@ -13,6 +13,10 @@ macro templated(filename)
   render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
 end
 
+macro rendered(filename)
+  render "src/views/#{{{filename}}}.ecr"
+end
+
 class Config
   YAML.mapping({
     crawl_threads:   Int32,
@@ -297,7 +301,7 @@ end
 
 def decrypt_signature(a)
   a = a.split("")
-  
+
   a.reverse!
   a = splice(a, 50)
   a.delete_at(0..1)

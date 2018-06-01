@@ -386,34 +386,32 @@ get "/search" do |env|
   html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
 
-  videos = Array(Hash(String, String)).new
+  videos = [] of Video
 
   html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
     root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
     if root
-      video = {} of String => String
-
       id = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
       if id
         id = id.content.lchop("/watch?v=")
       end
       id ||= ""
-      video["id"] = id
 
       title = root.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a))
       if title
-        video["title"] = title.content
+        title = title.content
       end
-      video["title"] ||= ""
+      title ||= ""
 
       author = root.xpath_node(%q(div[@class="yt-lockup-content"]/div/a))
       if author
-        video["author"] = author.content
-        video["ucid_url"] = author["href"]
+        ucid = author["href"].rpartition("/")[-1]
+        author = author.content
       end
-      video["author"] ||= ""
-      video["ucid_url"] ||= ""
+      author ||= ""
+      ucid ||= ""
 
+      video = Video.new(id, HTTP::Params.parse(""), Time.now, title, 0_i64, 0, 0, 0.0, Time.now, "", nil, author, ucid)
       videos << video
     end
   end
