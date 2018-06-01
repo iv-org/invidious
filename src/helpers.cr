@@ -76,6 +76,8 @@ class Video
     published:    Time,
     description:  String,
     language:     String?,
+    author:       String,
+    ucid:         String,
   })
 end
 
@@ -194,8 +196,9 @@ def fetch_video(id, client)
   end
 
   title = info["title"]
-
   views = info["view_count"].to_i64
+  author = info["author"]
+  ucid = info["ucid"]
 
   likes = html.xpath_node(%q(//button[@title="I like this"]/span))
   likes = likes.try &.content.delete(",").try &.to_i
@@ -238,7 +241,7 @@ def fetch_video(id, client)
     end
   end
 
-  video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description, nil)
+  video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description, nil, author, ucid)
 
   return video
 end

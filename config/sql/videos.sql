@@ -15,6 +15,8 @@ CREATE TABLE public.videos
     published timestamp with time zone,
     description text COLLATE pg_catalog."default",
     language text COLLATE pg_catalog."default",
+    author text COLLATE pg_catalog."default",
+    ucid text COLLATE pg_catalog."default",
     CONSTRAINT videos_pkey PRIMARY KEY (id)
 )
 WITH (
