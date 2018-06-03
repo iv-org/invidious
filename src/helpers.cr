@@ -185,14 +185,14 @@ def elapsed_text(elapsed)
 end
 
 def fetch_video(id, client)
-  info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en").body
-  html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}").body
+  info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body
+  html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&disable_polymer=1").body
 
   html = XML.parse_html(html)
   info = HTTP::Params.parse(info)
 
   if info["reason"]?
-    info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en").body
+    info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body
     info = HTTP::Params.parse(info)
     if info["reason"]?
       raise info["reason"]
@@ -273,7 +273,7 @@ def get_video(id, client, db, refresh = true)
 end
 
 def search(query, client)
-  html = client.get("https://www.youtube.com/results?q=#{query}&sp=EgIQAVAU").body
+  html = client.get("https://www.youtube.com/results?q=#{query}&sp=EgIQAVAU&disable_polymer=1").body
 
   html = XML.parse_html(html)
 
