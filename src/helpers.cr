@@ -224,12 +224,8 @@ def fetch_video(id, client)
     raise "Could not find date published"
   end
 
-  published = published.lchop("Published ")
-  published = published.lchop("Started streaming ")
-  published = published.lchop("Streamed live ")
-  published = published.lchop("Uploaded ")
-  published = published.lchop("on ")
-  published = published.lchop("Scheduled for ")
+  published = published.split(" ")
+  published = published[-3..-1].join(" ")
   if !published.includes?("ago")
     published = Time.parse(published, "%b %-d, %Y")
   else
