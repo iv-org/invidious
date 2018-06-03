@@ -117,7 +117,7 @@ player.src(currentSources);
 
 <div class="h-box">
 <h1>
-    <%= video.info["title"] %> 
+    <%= video.title %> 
     <% if listen %>
     <a href="/watch?<%= env.params.query %>">
         <i class="fa fa-video" aria-hidden="true"></i>
@@ -155,28 +155,28 @@ player.src(currentSources);
     <div class="pure-u-1 pure-u-md-3-5">
         <div class="h-box">
             <p>
-                <a href="https://youtube.com/channel/<%= video.info["ucid"] %>">
-                    <h3><%= video.info["author"] %></h3>
+                <a href="/channel/<%= video.ucid %>">
+                    <h3><%= video.author %></h3>
                 </a>
             </p>
         <% if authorized %>
-            <% if subscriptions.includes? video.info["ucid"] %>
+            <% if subscriptions.includes? video.ucid %>
             <p>
-                <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= video.info["ucid"] %>">
-                    <b>Unsubscribe from <%= video.info["author"] %></b>
+                <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= video.ucid %>">
+                    <b>Unsubscribe from <%= video.author %></b>
                 </a>
             </p>
             <% else %>
             <p>
-                <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.info["ucid"] %>">
-                    <b>Subscribe to <%= video.info["author"] %></b>
+                <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.ucid %>">
+                    <b>Subscribe to <%= video.author %></b>
                 </a>
             </p>
             <% end %>
         <% else %>
             <p>
                 <a href="/login">
-                    <b>Login to subscribe to <%= video.info["author"] %></b>
+                    <b>Login to subscribe to <%= video.author %></b>
                 </a>
             </p>
         <% end %>
