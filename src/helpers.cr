@@ -561,11 +561,11 @@ def get_channel(id, client, db)
   return channel
 end
 
-def fetch_channel(id, client, db)
-  rss = client.get("/feeds/videos.xml?channel_id=#{id}").body
+def fetch_channel(ucid, client, db)
+  rss = client.get("/feeds/videos.xml?channel_id=#{ucid}").body
   rss = XML.parse_html(rss)
 
-  db.exec("DELETE FROM channel_videos * WHERE ucid = $1", id)
+  db.exec("DELETE FROM channel_videos * WHERE ucid = $1", ucid)
 
   rss.xpath_nodes("//feed/entry").each do |entry|
     video_id = entry.xpath_node("videoid").not_nil!.content
@@ -591,7 +591,7 @@ def fetch_channel(id, client, db)
   author = rss.xpath_node("//feed/author/name").try &.content
   author ||= ""
 
-  channel = InvidiousChannel.new(id, author, Time.now)
+  channel = InvidiousChannel.new(ucid, author, Time.now)
 
   return channel
 end
