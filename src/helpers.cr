@@ -670,3 +670,82 @@ def decode_time(string)
 
   return time
 end
+
+def produce_playlist_url(ucid, index)
+  ucid = ucid.lstrip("UC")
+  ucid = "VLUU" + ucid
+
+  continuation = write_var_int(index)
+  continuation.unshift(0x08_u8)
+  slice = continuation.to_unsafe.to_slice(continuation.size)
+
+  continuation = Base64.urlsafe_encode(slice, false)
+  continuation = "PT:" + continuation
+  continuation = continuation.bytes
+  continuation.unshift(0x7a_u8, continuation.size.to_u8)
+
+  slice = continuation.to_unsafe.to_slice(continuation.size)
+  continuation = Base64.urlsafe_encode(slice)
+  continuation = URI.escape(continuation)
+  continuation = continuation.bytes
+  continuation.unshift(continuation.size.to_u8)
+
+  continuation.unshift(ucid.size.to_u8)
+  continuation = ucid.bytes + continuation
+  continuation.unshift(0x12.to_u8, ucid.size.to_u8)
+  continuation.unshift(0xe2_u8, 0xa9_u8, 0x85_u8, 0xb2_u8, 2_u8, continuation.size.to_u8)
+
+  slice = continuation.to_unsafe.to_slice(continuation.size)
+  continuation = Base64.urlsafe_encode(slice)
+  continuation = URI.escape(continuation)
+
+  url = "/browse_ajax?action_continuation=1&continuation=#{continuation}"
+
+  return url
+end
+
+def read_var_int(bytes)
+  numRead = 0
+  result = 0
+
+  read = bytes[numRead]
+
+  if bytes.size == 1
+    result = bytes[0].to_i32
+  else
+    while ((read & 0b10000000) != 0)
+      read = bytes[numRead].to_u64
+      value = (read & 0b01111111)
+      result |= (value << (7 * numRead))
+
+      numRead += 1
+      if numRead > 5
+        raise "VarInt is too big"
+      end
+    end
+  end
+
+  return result
+end
+
+def write_var_int(value : Int)
+  bytes = [] of UInt8
+  value = value.to_u32
+
+  if value == 0
+    bytes = [0_u8]
+  else
+    while value != 0
+      temp = (value & 0b01111111).to_u8
+      value = value >> 7
+
+      if value != 0
+        temp |= 0b10000000
+      end
+
+      bytes << temp
+    end
+  end
+
+  return bytes
+end

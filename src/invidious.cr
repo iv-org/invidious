@@ -908,6 +908,41 @@ get "/videoplayback" do |env|
   end
 end
 
+get "/channel/:ucid" do |env|
+  ucid = env.params.url["ucid"]
+
+  page = env.params.query["page"]?.try &.to_i
+  page ||= 1
+
+  client = make_client(YT_URL)
+
+  if !ucid.starts_with? "UC"
+    rss = client.get("/feeds/videos.xml?user=#{ucid}").body
+    rss = XML.parse_html(rss)
+
+    ucid = rss.xpath_node("//feed/channelid").not_nil!.content
+    env.redirect "/channel/#{ucid}"
+  end
+
+  url = produce_playlist_url(ucid, (page - 1) * 100)
+  response = client.get(url)
+
+  json = JSON.parse(response.body)
+  document = XML.parse_html(json["content_html"].as_s)
+  author = document.xpath_node(%q(//div[@class="pl-video-owner"]/a)).not_nil!.content
+
+  videos = [] of ChannelVideo
+  document.xpath_nodes(%q(//a[contains(@class,"pl-video-title-link")])).each do |item|
+    href = URI.parse(item["href"])
+    id = HTTP::Params.parse(href.query.not_nil!)["v"]
+    title = item.content
+
+    videos << ChannelVideo.new(id, title, Time.now, Time.now, ucid, author)
+  end
+
+  templated "channel"
+end
+
 options "/videoplayback" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET"

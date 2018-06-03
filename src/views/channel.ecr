@@ -1,0 +1,26 @@
+<% content_for "header" do %>
+<title><%= author %> - Invidious</title>
+<% end %>
+
+<h1><%= author %></h1>
+<% videos.each_slice(4) do |slice| %>
+<div class="pure-g">
+    <% slice.each do |video| %>
+        <%= rendered "components/video" %>
+    <% end %>
+</div> 
+<% end %>
+
+<div class="pure-g">
+    <div class="pure-u-1 pure-u-md-1-5">
+    <% if page > 2 %>
+        <a href="/channel/<%= ucid %>?page=<%= page - 1 %>">Previous page</a>
+    <% else %>
+        <a href="/channel/<%= ucid %>">Previous page</a>
+    <% end %>
+    </div>
+    <div class="pure-u-1 pure-u-md-3-5"></div>
+    <div style="text-align:right;" class="pure-u-1 pure-u-md-1-5">
+        <a href="/channel/<%= ucid %>?page=<%= page + 1 %>">Next page</a>
+    </div>
+</div>
