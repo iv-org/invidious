@@ -594,7 +594,8 @@ get "/redirect" do |env|
   end
 end
 
-# Return dash manifest for the given video ID
+# Return dash manifest for the given video ID, note this will not work on
+# videos that already have a dashmpd in video info.
 get "/api/manifest/dash/id/:id" do |env|
   env.response.headers.add("Access-Control-Allow-Origin", "*")
   env.response.content_type = "application/dash+xml"
@@ -644,9 +645,10 @@ get "/api/manifest/dash/id/:id" do |env|
   end
 
   manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
-    xml.element("MPD", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation": "urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd",
-      xmlns: "urn:mpeg:dash:schema:mpd:2011", profiles: "urn:mpeg:dash:profile:isoff-main:2011",
-      mediaPresentationDuration: "PT#{video.info["length_seconds"]}S", minBufferTime: "PT2S", type: "static") do
+    xml.element("MPD", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "xmlns": "urn:mpeg:DASH:schema:MPD:2011",
+      "xmlns:yt": "http://youtube.com/yt/2012/10/10", "xsi:schemaLocation": "urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd",
+      minBufferTime: "PT1.5S", profiles: "urn:mpeg:dash:profile:isoff-main:2011", type: "static",
+      mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
       xml.element("Period") do
         xml.element("AdaptationSet", id: 0, mimeType: "audio/mp4", subsegmentAlignment: true) do
           xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
@@ -657,8 +659,12 @@ get "/api/manifest/dash/id/:id" do |env|
             bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
             url = fmt["url"]
+            url = url.gsub("?", "/")
+            url = url.gsub("&", "/")
+            url = url.gsub("=", "/")
 
             xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
+              xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011", value: "2")
               xml.element("BaseURL") { xml.text url }
               xml.element("SegmentBase", indexRange: fmt["init"]) do
                 xml.element("Initialization", range: fmt["index"])
@@ -672,13 +678,16 @@ get "/api/manifest/dash/id/:id" do |env|
           video_streams.each do |fmt|
             mimetype, codecs = fmt["type"].split(";")
             codecs = codecs[9..-2]
-            fmt_type = mimetype.split("/")[0]
             bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
             url = fmt["url"]
+            url = url.gsub("?", "/")
+            url = url.gsub("&", "/")
+            url = url.gsub("=", "/")
             height, width = fmt["size"].split("x")
 
-            xml.element("Representation", id: itag, codecs: codecs, width: width, height: height, bandwidth: bandwidth, frameRate: fmt["fps"]) do
+            xml.element("Representation", id: itag, codecs: codecs, width: width, startWithSAP: "1", maxPlayoutRate: "1",
+              height: height, bandwidth: bandwidth, frameRate: fmt["fps"]) do
               xml.element("BaseURL") { xml.text url }
               xml.element("SegmentBase", indexRange: fmt["init"]) do
                 xml.element("Initialization", range: fmt["index"])
@@ -862,8 +871,29 @@ get "/modify_theme" do |env|
   env.redirect referer
 end
 
-get "/videoplayback" do |env|
-  query_params = env.params.query
+get "/videoplayback*" do |env|
+  path = env.request.path
+  if path != "/videoplayback"
+    path = path.lchop("/videoplayback/")
+    path = path.split("/")
+    # puts path
+
+    raw_params = {} of String => Array(String)
+    path.each_slice(2) do |pair|
+      key, value = pair
+      value = URI.unescape(value)
+
+      if raw_params[key]?
+        raw_params[key] << value
+      else
+        raw_params[key] = [value]
+      end
+    end
+
+    query_params = HTTP::Params.new(raw_params)
+  else
+    query_params = env.params.query
+  end
 
   fvip = query_params["fvip"]
   mn = query_params["mn"].split(",")[0]
