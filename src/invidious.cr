@@ -973,7 +973,7 @@ get "/channel/:ucid" do |env|
   templated "channel"
 end
 
-options "/videoplayback" do |env|
+options "/videoplayback*" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
