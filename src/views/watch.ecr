@@ -10,11 +10,17 @@
 <% end %>
 
 <div class="h-box">
-    <% if listen %>
-    <%= render "src/views/player/audio.ecr" %>
-    <% else %>
-    <%= render "src/views/player/video.ecr" %>
-    <% end %>
+    <video style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js vjs-16-9" data-setup="{}" controls>
+        <% if listen %>
+            <% audio_streams.each_with_index do |fmt, i| %>
+                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
+            <% end %>
+        <% else %>
+            <% fmt_stream.each_with_index do |fmt, i| %>
+                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+            <% end %>    
+        <% end %>
+    </video>
 </div>
 
 <script>

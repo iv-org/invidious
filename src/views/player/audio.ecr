@@ -1,5 +1,0 @@
-<audio style="width:100%" poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js vjs-16-9" data-setup="{}" controls>
-    <% audio_streams.each_with_index do |fmt, i| %>
-        <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
-    <% end %>
-</audio>
