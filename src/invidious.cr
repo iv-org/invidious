@@ -939,6 +939,14 @@ get "/videoplayback*" do |env|
 end
 
 get "/channel/:ucid" do |env|
+  authorized = env.get? "authorized"
+  if authorized
+    sid = env.get("sid").as(String)
+
+    subscriptions = PG_DB.query_one?("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
+  end
+  subscriptions ||= [] of String
+
   ucid = env.params.url["ucid"]
 
   page = env.params.query["page"]?.try &.to_i

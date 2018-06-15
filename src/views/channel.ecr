@@ -3,6 +3,27 @@
 <% end %>
 
 <h1><%= author %></h1>
+<% if authorized %>
+    <% if subscriptions.includes? ucid %>
+    <p>
+        <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>">
+            <b>Unsubscribe from <%= author %></b>
+        </a>
+    </p>
+    <% else %>
+    <p>
+        <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>">
+            <b>Subscribe to <%= author %></b>
+        </a>
+    </p>
+    <% end %>
+<% else %>
+    <p>
+        <a href="/login">
+            <b>Login to subscribe to <%= author %></b>
+        </a>
+    </p>
+<% end %>
 <% videos.each_slice(4) do |slice| %>
 <div class="pure-g">
     <% slice.each do |video| %>
