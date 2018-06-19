@@ -1,5 +1,5 @@
 name: invidious
-version: 0.1.0
+version: 0.2.0
 
 authors:
   - Omar Roth <omarroth@hotmail.com>
@@ -19,6 +19,6 @@ dependencies:
     github: detectlanguage/detectlanguage-crystal
     branch: master
 
-crystal: 0.24.2
+crystal: 0.25.0
 
 license: AGPLv3

@@ -227,7 +227,7 @@ def fetch_video(id, client)
   published = published.split(" ")
   published = published[-3..-1].join(" ")
   if !published.includes?("ago")
-    published = Time.parse(published, "%b %-d, %Y")
+    published = Time.parse(published, "%b %-d, %Y", Time::Location.local)
   else
     # Time matches format "20 hours ago", "40 minutes ago"...
     delta = published.split(" ")[0].to_i
@@ -298,10 +298,12 @@ end
 def decrypt_signature(a)
   a = a.split("")
 
-  a.delete_at(0..2)
-  a = splice(a, 44)
+  a = splice(a, 60)
   a.delete_at(0..1)
-  a = splice(a, 34)
+  a = splice(a, 31)
+  a.reverse!
+  a = splice(a, 33)
+  a.delete_at(0..2)
 
   return a.join("")
 end
@@ -574,8 +576,8 @@ def fetch_channel(ucid, client, db, pull_videos = true)
     rss.xpath_nodes("//feed/entry").each do |entry|
       video_id = entry.xpath_node("videoid").not_nil!.content
       title = entry.xpath_node("title").not_nil!.content
-      published = Time.parse(entry.xpath_node("published").not_nil!.content, "%FT%X%z")
-      updated = Time.parse(entry.xpath_node("updated").not_nil!.content, "%FT%X%z")
+      published = Time.parse(entry.xpath_node("published").not_nil!.content, "%FT%X%z", Time::Location.local)
+      updated = Time.parse(entry.xpath_node("updated").not_nil!.content, "%FT%X%z", Time::Location.local)
       author = entry.xpath_node("author/name").not_nil!.content
       ucid = entry.xpath_node("channelid").not_nil!.content
 

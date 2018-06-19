@@ -1000,7 +1000,7 @@ end
 # Add redirect if SSL is enabled
 if Kemal.config.ssl
   spawn do
-    server = HTTP::Server.new("0.0.0.0", 80) do |context|
+    server = HTTP::Server.new do |context|
       redirect_url = "https://#{context.request.host}#{context.request.path}"
       if context.request.query
         redirect_url += "?#{context.request.query}"
@@ -1009,6 +1009,7 @@ if Kemal.config.ssl
       context.response.status_code = 301
     end
 
+    server.bind_tcp "0.0.0.0", 80
     server.listen
   end
 
