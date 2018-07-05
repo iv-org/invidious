@@ -938,6 +938,11 @@ get "/videoplayback*" do |env|
   end
 end
 
+get "/user/:user" do |env|
+  user = env.params.url["user"]
+  env.redirect "/channel/#{user}"
+end
+
 get "/channel/:ucid" do |env|
   authorized = env.get? "authorized"
   if authorized
