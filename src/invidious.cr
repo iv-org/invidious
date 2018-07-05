@@ -221,8 +221,13 @@ before_all do |env|
     sid = env.request.cookies["SID"].value
     env.set "sid", sid
 
+    subscriptions = PG_DB.query_one?("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
+    subscriptions ||= [] of String
+    env.set "subscriptions", subscriptions
+
     notifications = PG_DB.query_one?("SELECT cardinality(notifications) FROM users WHERE id = $1", sid, as: Int32)
     notifications ||= 0
+
     env.set "notifications", notifications
   end
 
@@ -236,6 +241,12 @@ get "/" do |env|
 end
 
 get "/watch" do |env|
+  authorized = env.get? "authorized"
+  if authorized
+    subscriptions = env.get("subscriptions").as(Array(String))
+  end
+  subscriptions ||= [] of String
+
   if env.params.query["v"]?
     id = env.params.query["v"]
   else
@@ -261,14 +272,6 @@ get "/watch" do |env|
     env.params.query.delete_all("listen")
   end
   listen ||= false
-
-  authorized = env.get? "authorized"
-  if authorized
-    sid = env.get("sid").as(String)
-
-    subscriptions = PG_DB.query_one?("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
-  end
-  subscriptions ||= [] of String
 
   client = make_client(YT_URL)
   begin
@@ -876,7 +879,6 @@ get "/videoplayback*" do |env|
   if path != "/videoplayback"
     path = path.lchop("/videoplayback/")
     path = path.split("/")
-    # puts path
 
     raw_params = {} of String => Array(String)
     path.each_slice(2) do |pair|
@@ -1030,5 +1032,6 @@ end
 public_folder "assets"
 
 add_handler FilteredCompressHandler.new
+add_context_storage_type(Array(String))
 
 Kemal.run
