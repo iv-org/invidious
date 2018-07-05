@@ -266,7 +266,7 @@ def get_video(id, client, db, refresh = true)
   else
     video = fetch_video(id, client)
     args = arg_array(video.to_a)
-    db.exec("INSERT INTO videos VALUES (#{args})", video.to_a)
+    db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video.to_a)
   end
 
   return video
@@ -543,12 +543,12 @@ def login_req(login_form, f_req)
   return HTTP::Params.encode(data)
 end
 
-def get_channel(id, client, db, refresh = true, pull_videos = true)
+def get_channel(id, client, db, refresh = true, pull_all_videos = true)
   if db.query_one?("SELECT EXISTS (SELECT true FROM channels WHERE id = $1)", id, as: Bool)
     channel = db.query_one("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
 
     if refresh && Time.now - channel.updated > 10.minutes
-      channel = fetch_channel(id, client, db, pull_videos)
+      channel = fetch_channel(id, client, db, pull_all_videos)
       channel_array = channel.to_a
       args = arg_array(channel_array)
 
@@ -556,7 +556,7 @@ def get_channel(id, client, db, refresh = true, pull_videos = true)
       ON CONFLICT (id) DO UPDATE SET updated = $3", channel_array)
     end
   else
-    channel = fetch_channel(id, client, db, pull_videos)
+    channel = fetch_channel(id, client, db, pull_all_videos)
     args = arg_array(channel.to_a)
     db.exec("INSERT INTO channels VALUES (#{args})", channel.to_a)
   end
@@ -564,7 +564,7 @@ def get_channel(id, client, db, refresh = true, pull_videos = true)
   return channel
 end
 
-def fetch_channel(ucid, client, db, pull_videos = true)
+def fetch_channel(ucid, client, db, pull_all_videos = true)
   rss = client.get("/feeds/videos.xml?channel_id=#{ucid}").body
   rss = XML.parse_html(rss)
 
@@ -574,7 +574,7 @@ def fetch_channel(ucid, client, db, pull_videos = true)
   end
   author = author.content
 
-  if !pull_videos
+  if !pull_all_videos
     rss.xpath_nodes("//feed/entry").each do |entry|
       video_id = entry.xpath_node("videoid").not_nil!.content
       title = entry.xpath_node("title").not_nil!.content
@@ -667,7 +667,7 @@ def fetch_channel(ucid, client, db, pull_videos = true)
 
       video_array = video.to_a
       args = arg_array(video_array)
-      db.exec("INSERT INTO channel_videos VALUES (#{args})", video_array)
+      db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
     end
   end
 
