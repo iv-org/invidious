@@ -806,6 +806,24 @@ get "/modify_notifications" do |env|
   env.redirect referer
 end
 
+get "/subscription_manager" do |env|
+  authorized = env.get? "authorized"
+  if !authorized
+    next env.redirect "/"
+  end
+
+  subscriptions = env.get?("subscriptions").as(Array(String))
+  subscriptions ||= [] of String
+
+  client = make_client(YT_URL)
+  subscriptions = subscriptions.map do |ucid|
+    get_channel(ucid, client, PG_DB, false)
+  end
+  subscriptions.sort_by! { |channel| channel.author.downcase }
+
+  templated "subscription_manager"
+end
+
 get "/subscription_ajax" do |env|
   authorized = env.get? "authorized"
   referer = env.request.headers["referer"]?

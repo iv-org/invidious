@@ -1,0 +1,19 @@
+<% content_for "header" do %>
+<title>Subscription manager - Invidious</title>
+<% end %>
+
+<h1><%= subscriptions.size %> subscriptions</h1>
+
+<% subscriptions.each do |channel| %>
+<h3 class="h-box">
+    <div class="pure-g">
+        <div class="pure-u-2-5">
+            <a href="/channel/<%= channel.id %>"><%= channel.author %></a>
+        </div>
+        <div class="pure-u-2-5"></div>
+        <div class="pure-u-1-5">
+            <a style="vertical-align: right;" href="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>">unsubscribe</a>
+        </div>
+    </div>
+</h3>
+<% end %>
