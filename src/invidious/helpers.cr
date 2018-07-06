@@ -10,11 +10,11 @@ macro add_mapping(mapping)
 end
 
 macro templated(filename)
-  render "src/views/#{{{filename}}}.ecr", "src/views/layout.ecr"
+  render "src/invidious/views/#{{{filename}}}.ecr", "src/invidious/views/layout.ecr"
 end
 
 macro rendered(filename)
-  render "src/views/#{{{filename}}}.ecr"
+  render "src/invidious/views/#{{{filename}}}.ecr"
 end
 
 class Config

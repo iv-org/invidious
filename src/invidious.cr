@@ -20,8 +20,7 @@ require "option_parser"
 require "pg"
 require "xml"
 require "yaml"
-require "./cookie_fix"
-require "./helpers"
+require "./invidious/*"
 
 CONFIG = Config.from_yaml(File.read("config/config.yml"))
 
