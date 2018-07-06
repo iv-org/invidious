@@ -580,9 +580,7 @@ get "/signout" do |env|
   referer ||= "/"
 
   env.request.cookies.each do |cookie|
-    if cookie.name != "darktheme"
-      cookie.expires = Time.new(1990, 1, 1)
-    end
+    cookie.expires = Time.new(1990, 1, 1)
   end
 
   env.request.cookies.add_response_headers(env.response.headers)
