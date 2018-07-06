@@ -505,7 +505,7 @@ post "/login" do |env|
 
     headers["Cookie"] = URI.unescape(headers["Cookie"])
 
-    if challenge_results[0][5]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
+    if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
       error_message = "Incorrect password"
       next templated "error"
     end
@@ -534,7 +534,7 @@ post "/login" do |env|
         challenge_results = challenge_results[5..-1]
         challenge_results = JSON.parse(challenge_results)
 
-        if challenge_results[0][5]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
+        if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
           error_message = "Invalid TFA code"
           next templated "error"
         end
