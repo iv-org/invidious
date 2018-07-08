@@ -524,7 +524,14 @@ post "/login" do |env|
 
         tl = challenge_results[1][2]
 
-        tfa_req = %(["#{user_hash}",null,2,null,[9,null,null,null,null,null,null,null,[null,"#{tfa_code}",false,2]]])
+        request_type = tfa[8]
+        if request_type == 6
+          # Google Authenticator code
+          tfa_req = %(["#{user_hash}",null,2,null,[6,null,null,null,null,["#{tfa_code}",false]]])
+        else
+          # SMS
+          tfa_req = %(["#{user_hash}",null,2,null,[9,null,null,null,null,null,null,null,[null,"#{tfa_code}",false,2]]])
+        end
 
         challenge_results = client.post("/_/signin/challenge?hl=en&TL=#{tl}", headers, login_req(inputs, tfa_req))
         headers = challenge_results.cookies.add_request_headers(headers)
