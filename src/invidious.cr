@@ -525,12 +525,16 @@ post "/login" do |env|
         tl = challenge_results[1][2]
 
         request_type = tfa[8]
-        if request_type == 6
-          # Google Authenticator code
+        case request_type
+        when 6
+          # Authenticator app
           tfa_req = %(["#{user_hash}",null,2,null,[6,null,null,null,null,["#{tfa_code}",false]]])
-        else
-          # SMS
+        when 9
+          # Voice or text message
           tfa_req = %(["#{user_hash}",null,2,null,[9,null,null,null,null,null,null,null,[null,"#{tfa_code}",false,2]]])
+        else
+          error_message = "Unable to login, make sure two-factor authentication (Authenticator or SMS) is enabled."
+          next templated "error"
         end
 
         challenge_results = client.post("/_/signin/challenge?hl=en&TL=#{tl}", headers, login_req(inputs, tfa_req))
