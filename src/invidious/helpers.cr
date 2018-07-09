@@ -257,7 +257,7 @@ def get_video(id, client, db, refresh = true)
         video_array = video.to_a
         args = arg_array(video_array[1..-1], 2)
 
-        db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,published,description,language)\
+        db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,published,description,language,author,ucid)\
         = (#{args}) WHERE id = $1", video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
@@ -265,8 +265,10 @@ def get_video(id, client, db, refresh = true)
     end
   else
     video = fetch_video(id, client)
-    args = arg_array(video.to_a)
-    db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video.to_a)
+    video_array = video.to_a
+    args = arg_array(video_array)
+
+    db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
   end
 
   return video
@@ -590,8 +592,9 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
 
       video_array = video.to_a
       args = arg_array(video_array)
-      db.exec("INSERT INTO channel_videos VALUES (#{args})\
-      ON CONFLICT (id) DO NOTHING", video_array)
+      db.exec("INSERT INTO channel_videos VALUES (#{args}) \
+      ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
+      updated = $4, ucid = $5, author = $6", video_array)
     end
   else
     videos = [] of ChannelVideo
