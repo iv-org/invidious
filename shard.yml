@@ -19,6 +19,6 @@ dependencies:
     github: detectlanguage/detectlanguage-crystal
     branch: master
 
-crystal: 0.25.0
+crystal: 0.25.1
 
 license: AGPLv3

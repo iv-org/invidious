@@ -301,12 +301,10 @@ def decrypt_signature(a)
   a = a.split("")
 
   a.reverse!
-  a = splice(a, 20)
+  a.delete_at(0..2)
+  a = splice(a, 23)
+  a = splice(a, 44)
   a.reverse!
-  a = splice(a, 10)
-  a.delete_at(0..0)
-  a = splice(a, 37)
-  a = splice(a, 32)
   a.delete_at(0..2)
 
   return a.join("")
