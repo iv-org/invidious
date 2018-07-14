@@ -3,8 +3,7 @@
 /lib/
 /bin/
 /.shards/
-/video_info/
 /.vscode/
+/invidious
+/sentry
 shard.lock
-invidious
-sentry
