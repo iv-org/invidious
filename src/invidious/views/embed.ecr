@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="thumbnail" content="<%= thumbnail %>">
+<link rel="stylesheet" href="https://unpkg.com/video.js@6.10.3/dist/video-js.min.css">
+<link rel="stylesheet" href="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/css/quality-selector.css">
+<script src="https://unpkg.com/video.js@6.10.3/dist/video.min.js"></script>
+<script src="https://unpkg.com/videojs-hotkeys@0.2.21/videojs.hotkeys.min.js"></script>
+<script src="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/js/silvermine-videojs-quality-selector.min.js"></script>
+<script src="https://unpkg.com/videojs-offset@2.0.0-beta.2/dist/videojs-offset.min.js"></script>
+<title><%= video.title %> - Invidious</title>
+</head>
+
+<body>
+<style>
+video, #my_video, .video-js, .vjs-default-skin
+{
+  position: fixed; 
+  right: 0; 
+  bottom: 0;
+  min-width: 100%; 
+  min-height: 100%;
+  width: auto; 
+  height: auto; 
+  z-index: -100;
+}
+</style>
+
+<video playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js vjs-default-skin" controls>
+    <% if listen %>
+        <% audio_streams.each_with_index do |fmt, i| %>
+            <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
+        <% end %>
+    <% else %>
+        <% fmt_stream.each_with_index do |fmt, i| %>
+            <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+        <% end %>    
+    <% end %>
+</video>
+
+<script>
+var options = {
+    preload: "auto",
+    playbackRates: [0.5, 1, 1.5, 2],
+    controlBar: {
+      children: [
+         'playToggle',
+         'volumePanel',
+         'progressControl',
+         'remainingTimeDisplay',
+         'qualitySelector',
+         'playbackRateMenuButton',
+         'fullscreenToggle',
+      ],
+   },
+};
+var player = videojs('player', options, function() {
+    this.hotkeys({
+    volumeStep: 0.1,
+    seekStep: 5,
+    enableModifiersForNumbers: false,
+    enableVolumeScroll: false,
+    customKeys: {
+        play: {
+            key: function(e) {
+            // Toggle play with K Key
+            return (e.which === 75);
+            },
+            handler: function(player, options, e) {
+            if (player.paused()) {
+                player.play();
+            } else {
+                player.pause();
+            }
+            }
+        },
+        backward: {
+            key: function(e) {
+                // Go backward 5 seconds
+                return (e.which === 74);
+            },
+            handler: function(player, options, e) {
+                player.currentTime(player.currentTime() - 5);
+            }
+        },
+        forward: {
+            key: function(e) {
+                // Go forward 5 seconds
+                return (e.which === 76);
+            },
+            handler: function(player, options, e) {
+                player.currentTime(player.currentTime() + 5);
+            }
+        }
+    }
+  });
+});
+
+player.offset({
+  start: <%= video_start %>,
+  end: <%= video_end %>
+});
+
+function toggle(target) {
+    body = target.parentNode.parentNode.children[1];
+    if (body.style.display === null || body.style.display === '') {
+        target.innerHTML = '[ + ]';
+        body.style.display = 'none';
+    } else {
+        target.innerHTML = '[ - ]';
+        body.style.display = '';
+    }
+};
+
+function toggle_comments(target) {
+    body = target.parentNode.parentNode.parentNode.children[1];
+    if (body.style.display === null || body.style.display === '') {
+        target.innerHTML = '[ + ]';
+        body.style.display = 'none';
+    } else {
+        target.innerHTML = '[ - ]';
+        body.style.display = '';
+    }
+};
+
+<% if !listen %>
+var currentSources = player.currentSources();
+for ( var i = 0; i < currentSources.length; i++ ) {
+    if (player.canPlayType(currentSources[i]["type"].split(";")[0]) === "") {
+        currentSources.splice(i);
+        i--;
+    }
+}
+
+player.src(currentSources);
+<% end %>
+</script>
+</body>
+
+</html>
