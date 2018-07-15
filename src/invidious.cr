@@ -373,6 +373,79 @@ get "/watch" do |env|
   templated "watch"
 end
 
+get "/embed/:id" do |env|
+  if env.params.url["id"]?
+    id = env.params.url["id"]
+  else
+    next env.redirect "/"
+  end
+
+  if env.params.query["start"]?
+    video_start = decode_time(env.params.query["start"])
+  end
+
+  if env.params.query["t"]?
+    video_start = decode_time(env.params.query["t"])
+  end
+  video_start ||= 0
+
+  if env.params.query["end"]?
+    video_end = decode_time(env.params.query["end"])
+  end
+  video_end ||= -1
+
+  if env.params.query["listen"]? && env.params.query["listen"] == "true"
+    listen = true
+    env.params.query.delete_all("listen")
+  end
+  listen ||= false
+
+  client = make_client(YT_URL)
+  begin
+    video = get_video(id, client, PG_DB)
+  rescue ex
+    error_message = ex.message
+    next templated "error"
+  end
+
+  fmt_stream = [] of HTTP::Params
+  video.info["url_encoded_fmt_stream_map"].split(",") do |string|
+    if !string.empty?
+      fmt_stream << HTTP::Params.parse(string)
+    end
+  end
+
+  fmt_stream.each { |s| s.add("label", "#{s["quality"]} - #{s["type"].split(";")[0].split("/")[1]}") }
+  fmt_stream = fmt_stream.uniq { |s| s["label"] }
+
+  adaptive_fmts = [] of HTTP::Params
+  if video.info.has_key?("adaptive_fmts")
+    video.info["adaptive_fmts"].split(",") do |string|
+      adaptive_fmts << HTTP::Params.parse(string)
+    end
+  end
+
+  if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
+    adaptive_fmts.each do |fmt|
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
+    end
+
+    fmt_stream.each do |fmt|
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
+    end
+  end
+
+  audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio") ? s : nil }
+  audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
+  audio_streams.each do |stream|
+    stream["bitrate"] = (stream["bitrate"].to_f64/1000).to_i.to_s
+  end
+
+  thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
+
+  rendered "embed"
+end
+
 get "/search" do |env|
   if env.params.query["q"]?
     query = env.params.query["q"]
