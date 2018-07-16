@@ -400,6 +400,15 @@ get "/embed/:id" do |env|
   end
   listen ||= false
 
+  autoplay = env.params.query["autoplay"]?.try &.to_i
+  autoplay ||= 0
+
+  controls = env.params.query["controls"]?.try &.to_i
+  controls ||= 1
+
+  video_loop = env.params.query["loop"]?.try &.to_i
+  video_loop ||= 0
+
   client = make_client(YT_URL)
   begin
     video = get_video(id, client, PG_DB)
