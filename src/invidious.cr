@@ -998,6 +998,12 @@ get "/videoplayback*" do |env|
   if path != "/videoplayback"
     path = path.lchop("/videoplayback/")
     path = path.rchop("/")
+
+    path = path.gsub(/mime\/\w+\/\w+/) do |mimetype|
+      mimetype = mimetype.split("/")
+      mimetype[0] + "/" + mimetype[1] + "%2F" + mimetype[2]
+    end
+
     path = path.split("/")
 
     raw_params = {} of String => Array(String)
