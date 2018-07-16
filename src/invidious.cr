@@ -1034,6 +1034,7 @@ get "/videoplayback*" do |env|
   client.get(url, headers) do |response|
     if response.headers["Location"]?
       url = URI.parse(response.headers["Location"])
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
       env.redirect url.full_path
     else
       env.response.status_code = response.status_code
