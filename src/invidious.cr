@@ -670,144 +670,6 @@ get "/signout" do |env|
   env.redirect referer
 end
 
-get "/redirect" do |env|
-  if env.params.query["q"]?
-    env.redirect env.params.query["q"]
-  else
-    env.redirect "/"
-  end
-end
-
-get "/api/manifest/dash/id/:id" do |env|
-  env.response.headers.add("Access-Control-Allow-Origin", "*")
-  env.response.content_type = "application/dash+xml"
-
-  local = env.params.query["local"]?.try &.== "true"
-  id = env.params.url["id"]
-
-  client = make_client(YT_URL)
-  begin
-    video = get_video(id, client, PG_DB)
-  rescue ex
-    halt env, status_code: 403
-  end
-
-  if video.info["dashmpd"]?
-    manifest = client.get(video.info["dashmpd"]).body
-
-    manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
-      url = baseurl.lchop("<BaseURL>")
-      url = url.rchop("</BaseURL>")
-
-      if local
-        if Kemal.config.ssl
-          scheme = "https://"
-        end
-        scheme ||= "http://"
-
-        url = scheme + env.request.headers["Host"] + URI.parse(url).full_path
-      end
-
-      "<BaseURL>#{url}</BaseURL>"
-    end
-
-    next manifest
-  end
-
-  adaptive_fmts = [] of HTTP::Params
-  if video.info.has_key?("adaptive_fmts")
-    video.info["adaptive_fmts"].split(",") do |string|
-      adaptive_fmts << HTTP::Params.parse(string)
-    end
-  else
-    halt env, status_code: 403
-  end
-
-  if local
-    adaptive_fmts.each do |fmt|
-      if Kemal.config.ssl
-        scheme = "https://"
-      end
-      scheme ||= "http://"
-
-      fmt["url"] = scheme + env.request.headers["Host"] + URI.parse(fmt["url"]).full_path
-    end
-  end
-
-  if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
-    adaptive_fmts.each do |fmt|
-      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
-    end
-  end
-
-  video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video/mp4") ? s : nil }
-
-  audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio/mp4") ? s : nil }
-  audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
-  audio_streams.each do |fmt|
-    fmt["bitrate"] = (fmt["bitrate"].to_f64/1000).to_i.to_s
-  end
-
-  manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
-    xml.element("MPD", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "xmlns": "urn:mpeg:DASH:schema:MPD:2011",
-      "xmlns:yt": "http://youtube.com/yt/2012/10/10", "xsi:schemaLocation": "urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd",
-      minBufferTime: "PT1.5S", profiles: "urn:mpeg:dash:profile:isoff-main:2011", type: "static",
-      mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
-      xml.element("Period") do
-        xml.element("AdaptationSet", id: 0, mimeType: "audio/mp4", subsegmentAlignment: true) do
-          xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
-          audio_streams.each do |fmt|
-            mimetype, codecs = fmt["type"].split(";")
-            codecs = codecs[9..-2]
-            fmt_type = mimetype.split("/")[0]
-            bandwidth = fmt["bitrate"]
-            itag = fmt["itag"]
-            url = fmt["url"]
-            url = url.gsub("?", "/")
-            url = url.gsub("&", "/")
-            url = url.gsub("=", "/")
-
-            xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
-              xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011", value: "2")
-              xml.element("BaseURL") { xml.text url }
-              xml.element("SegmentBase", indexRange: fmt["init"]) do
-                xml.element("Initialization", range: fmt["index"])
-              end
-            end
-          end
-        end
-
-        xml.element("AdaptationSet", id: 1, mimeType: "video/mp4", subsegmentAlignment: true) do
-          xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
-          video_streams.each do |fmt|
-            mimetype, codecs = fmt["type"].split(";")
-            codecs = codecs[9..-2]
-            bandwidth = fmt["bitrate"]
-            itag = fmt["itag"]
-            url = fmt["url"]
-            url = url.gsub("?", "/")
-            url = url.gsub("&", "/")
-            url = url.gsub("=", "/")
-            height, width = fmt["size"].split("x")
-
-            xml.element("Representation", id: itag, codecs: codecs, width: width, startWithSAP: "1", maxPlayoutRate: "1",
-              height: height, bandwidth: bandwidth, frameRate: fmt["fps"]) do
-              xml.element("BaseURL") { xml.text url }
-              xml.element("SegmentBase", indexRange: fmt["init"]) do
-                xml.element("Initialization", range: fmt["index"])
-              end
-            end
-          end
-        end
-      end
-    end
-  end
-
-  manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8U"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
-  manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8V"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
-  manifest
-end
-
 # Get subscriptions for authorized user
 get "/feed/subscriptions" do |env|
   authorized = env.get? "authorized"
@@ -979,6 +841,54 @@ get "/subscription_ajax" do |env|
   env.redirect referer
 end
 
+get "/user/:user" do |env|
+  user = env.params.url["user"]
+  env.redirect "/channel/#{user}"
+end
+
+get "/channel/:ucid" do |env|
+  authorized = env.get? "authorized"
+  if authorized
+    sid = env.get("sid").as(String)
+
+    subscriptions = PG_DB.query_one?("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
+  end
+  subscriptions ||= [] of String
+
+  ucid = env.params.url["ucid"]
+
+  page = env.params.query["page"]?.try &.to_i
+  page ||= 1
+
+  client = make_client(YT_URL)
+
+  if !ucid.starts_with? "UC"
+    rss = client.get("/feeds/videos.xml?user=#{ucid}").body
+    rss = XML.parse_html(rss)
+
+    ucid = rss.xpath_node("//feed/channelid").not_nil!.content
+    env.redirect "/channel/#{ucid}"
+  end
+
+  url = produce_playlist_url(ucid, (page - 1) * 100)
+  response = client.get(url)
+
+  json = JSON.parse(response.body)
+  document = XML.parse_html(json["content_html"].as_s)
+  author = document.xpath_node(%q(//div[@class="pl-video-owner"]/a)).not_nil!.content
+
+  videos = [] of ChannelVideo
+  document.xpath_nodes(%q(//a[contains(@class,"pl-video-title-link")])).each do |item|
+    href = URI.parse(item["href"])
+    id = HTTP::Params.parse(href.query.not_nil!)["v"]
+    title = item.content
+
+    videos << ChannelVideo.new(id, title, Time.now, Time.now, ucid, author)
+  end
+
+  templated "channel"
+end
+
 get "/modify_theme" do |env|
   referer = env.request.headers["referer"]?
   referer ||= "/"
@@ -991,6 +901,150 @@ get "/modify_theme" do |env|
   end
 
   env.redirect referer
+end
+
+get "/redirect" do |env|
+  if env.params.query["q"]?
+    env.redirect env.params.query["q"]
+  else
+    env.redirect "/"
+  end
+end
+
+get "/api/manifest/dash/id/:id" do |env|
+  env.response.headers.add("Access-Control-Allow-Origin", "*")
+  env.response.content_type = "application/dash+xml"
+
+  local = env.params.query["local"]?.try &.== "true"
+  id = env.params.url["id"]
+
+  client = make_client(YT_URL)
+  begin
+    video = get_video(id, client, PG_DB)
+  rescue ex
+    halt env, status_code: 403
+  end
+
+  if video.info["dashmpd"]?
+    manifest = client.get(video.info["dashmpd"]).body
+
+    manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
+      url = baseurl.lchop("<BaseURL>")
+      url = url.rchop("</BaseURL>")
+
+      if local
+        if Kemal.config.ssl
+          scheme = "https://"
+        end
+        scheme ||= "http://"
+
+        url = scheme + env.request.headers["Host"] + URI.parse(url).full_path
+      end
+
+      "<BaseURL>#{url}</BaseURL>"
+    end
+
+    next manifest
+  end
+
+  adaptive_fmts = [] of HTTP::Params
+  if video.info.has_key?("adaptive_fmts")
+    video.info["adaptive_fmts"].split(",") do |string|
+      adaptive_fmts << HTTP::Params.parse(string)
+    end
+  else
+    halt env, status_code: 403
+  end
+
+  if local
+    adaptive_fmts.each do |fmt|
+      if Kemal.config.ssl
+        scheme = "https://"
+      end
+      scheme ||= "http://"
+
+      fmt["url"] = scheme + env.request.headers["Host"] + URI.parse(fmt["url"]).full_path
+    end
+  end
+
+  if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
+    adaptive_fmts.each do |fmt|
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
+    end
+  end
+
+  video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video/mp4") ? s : nil }
+
+  audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio/mp4") ? s : nil }
+  audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
+  audio_streams.each do |fmt|
+    fmt["bitrate"] = (fmt["bitrate"].to_f64/1000).to_i.to_s
+  end
+
+  manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
+    xml.element("MPD", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "xmlns": "urn:mpeg:DASH:schema:MPD:2011",
+      "xmlns:yt": "http://youtube.com/yt/2012/10/10", "xsi:schemaLocation": "urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd",
+      minBufferTime: "PT1.5S", profiles: "urn:mpeg:dash:profile:isoff-main:2011", type: "static",
+      mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
+      xml.element("Period") do
+        xml.element("AdaptationSet", id: 0, mimeType: "audio/mp4", subsegmentAlignment: true) do
+          xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
+          audio_streams.each do |fmt|
+            mimetype, codecs = fmt["type"].split(";")
+            codecs = codecs[9..-2]
+            fmt_type = mimetype.split("/")[0]
+            bandwidth = fmt["bitrate"]
+            itag = fmt["itag"]
+            url = fmt["url"]
+            url = url.gsub("?", "/")
+            url = url.gsub("&", "/")
+            url = url.gsub("=", "/")
+
+            xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
+              xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011", value: "2")
+              xml.element("BaseURL") { xml.text url }
+              xml.element("SegmentBase", indexRange: fmt["init"]) do
+                xml.element("Initialization", range: fmt["index"])
+              end
+            end
+          end
+        end
+
+        xml.element("AdaptationSet", id: 1, mimeType: "video/mp4", subsegmentAlignment: true) do
+          xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
+          video_streams.each do |fmt|
+            mimetype, codecs = fmt["type"].split(";")
+            codecs = codecs[9..-2]
+            bandwidth = fmt["bitrate"]
+            itag = fmt["itag"]
+            url = fmt["url"]
+            url = url.gsub("?", "/")
+            url = url.gsub("&", "/")
+            url = url.gsub("=", "/")
+            height, width = fmt["size"].split("x")
+
+            xml.element("Representation", id: itag, codecs: codecs, width: width, startWithSAP: "1", maxPlayoutRate: "1",
+              height: height, bandwidth: bandwidth, frameRate: fmt["fps"]) do
+              xml.element("BaseURL") { xml.text url }
+              xml.element("SegmentBase", indexRange: fmt["init"]) do
+                xml.element("Initialization", range: fmt["index"])
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8U"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
+  manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8V"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
+  manifest
+end
+
+options "/videoplayback*" do |env|
+  env.response.headers["Access-Control-Allow-Origin"] = "*"
+  env.response.headers["Access-Control-Allow-Methods"] = "GET"
+  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
 end
 
 get "/videoplayback*" do |env|
@@ -1064,60 +1118,6 @@ get "/videoplayback*" do |env|
       end
     end
   end
-end
-
-get "/user/:user" do |env|
-  user = env.params.url["user"]
-  env.redirect "/channel/#{user}"
-end
-
-get "/channel/:ucid" do |env|
-  authorized = env.get? "authorized"
-  if authorized
-    sid = env.get("sid").as(String)
-
-    subscriptions = PG_DB.query_one?("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
-  end
-  subscriptions ||= [] of String
-
-  ucid = env.params.url["ucid"]
-
-  page = env.params.query["page"]?.try &.to_i
-  page ||= 1
-
-  client = make_client(YT_URL)
-
-  if !ucid.starts_with? "UC"
-    rss = client.get("/feeds/videos.xml?user=#{ucid}").body
-    rss = XML.parse_html(rss)
-
-    ucid = rss.xpath_node("//feed/channelid").not_nil!.content
-    env.redirect "/channel/#{ucid}"
-  end
-
-  url = produce_playlist_url(ucid, (page - 1) * 100)
-  response = client.get(url)
-
-  json = JSON.parse(response.body)
-  document = XML.parse_html(json["content_html"].as_s)
-  author = document.xpath_node(%q(//div[@class="pl-video-owner"]/a)).not_nil!.content
-
-  videos = [] of ChannelVideo
-  document.xpath_nodes(%q(//a[contains(@class,"pl-video-title-link")])).each do |item|
-    href = URI.parse(item["href"])
-    id = HTTP::Params.parse(href.query.not_nil!)["v"]
-    title = item.content
-
-    videos << ChannelVideo.new(id, title, Time.now, Time.now, ucid, author)
-  end
-
-  templated "channel"
-end
-
-options "/videoplayback*" do |env|
-  env.response.headers["Access-Control-Allow-Origin"] = "*"
-  env.response.headers["Access-Control-Allow-Methods"] = "GET"
-  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
 end
 
 error 404 do |env|
