@@ -17,6 +17,14 @@ macro rendered(filename)
   render "src/invidious/views/#{{{filename}}}.ecr"
 end
 
+DEFAULT_USER_PREFERENCES = Preferences.from_json({
+  "video_loop" => false,
+  "autoplay"   => false,
+  "quality"    => "hd720",
+  "volume"     => 100,
+  "dark_mode"  => false,
+}.to_json)
+
 class Config
   YAML.mapping({
     crawl_threads:   Int32,
@@ -86,12 +94,6 @@ class Video
 end
 
 class InvidiousChannel
-  module XMLConverter
-    def self.from_rs(rs)
-      XML.parse_html(rs.read(String))
-    end
-  end
-
   add_mapping({
     id:      String,
     author:  String,
@@ -111,12 +113,33 @@ class ChannelVideo
 end
 
 class User
+  module PreferencesConverter
+    def self.from_rs(rs)
+      Preferences.from_json(rs.read(String))
+    end
+  end
+
   add_mapping({
     id:            String,
     updated:       Time,
     notifications: Array(String),
     subscriptions: Array(String),
     email:         String,
+    preferences:   {
+      type:      Preferences,
+      default:   DEFAULT_USER_PREFERENCES,
+      converter: PreferencesConverter,
+    },
+  })
+end
+
+class Preferences
+  JSON.mapping({
+    video_loop: Bool,
+    autoplay:   Bool,
+    quality:    String,
+    volume:     Int32,
+    dark_mode:  Bool,
   })
 end
 
@@ -674,11 +697,11 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
   return channel
 end
 
-def get_user(sid, client, headers, db)
+def get_user(sid, client, headers, db, refresh = true)
   if db.query_one?("SELECT EXISTS (SELECT true FROM users WHERE id = $1)", sid, as: Bool)
     user = db.query_one("SELECT * FROM users WHERE id = $1", sid, as: User)
 
-    if Time.now - user.updated > 1.minute
+    if refresh && Time.now - user.updated > 1.minute
       user = fetch_user(sid, client, headers, db)
       user_array = user.to_a
       args = arg_array(user_array)
@@ -723,7 +746,7 @@ def fetch_user(sid, client, headers, db)
     email = ""
   end
 
-  user = User.new(sid, Time.now, [] of String, channels, email)
+  user = User.new(sid, Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES)
   return user
 end
 

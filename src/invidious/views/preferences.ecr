@@ -1,0 +1,50 @@
+<% content_for "header" do %>
+<title>Preferences - Invidious</title>
+<% end %>
+
+<script>
+function update_value(element) {
+    document.getElementById('volume-value').innerText = element.value;
+}
+</script>
+
+<form class="pure-form pure-form-aligned" action="/preferences?referer=<%= referer %>" method="post">
+    <fieldset>
+        <legend>Player preferences</legend>
+
+        <div class="pure-control-group">
+            <label for="video_loop">Always loop: </label>
+            <input name="video_loop" id="video_loop" type="checkbox" <% if user.preferences.video_loop %>checked<% end %>>
+        </div>
+
+        <div class="pure-control-group">
+            <label for="autoplay">Autoplay: </label>
+            <input name="autoplay" id="autoplay" type="checkbox" <% if user.preferences.autoplay %>checked<% end %>>
+        </div>
+
+        <div class="pure-control-group">
+            <label for="quality">Preferred video quality: </label>
+            <select name="quality" id="quality" selected="<%= user.preferences.quality %>">
+                <option>hd720</option>
+                <option>medium</option>
+                <option>small</option>
+            </select>
+        </div>
+
+        <div class="pure-control-group">
+            <label for="volume">Player volume: </label>
+            <input name="volume" id="volume" oninput="update_value(this);" type="range" min="0" max="100" step="5" value="<%= user.preferences.volume %>">
+            <span class="pure-form-message-inline" id="volume-value"><%= user.preferences.volume %></span>
+        </div>
+
+        <legend>Visual preferences</legend>
+        <div class="pure-control-group">
+            <label for="dark_mode">Dark mode: </label>
+            <input name="dark_mode" id="dark_mode" type="checkbox" <% if user.preferences.dark_mode %>checked<% end %>>
+        </div>
+
+        <div class="pure-controls">
+            <button type="submit" class="pure-button pure-button-primary">Save preferences</button>
+        </div>
+    </fieldset>
+</form>

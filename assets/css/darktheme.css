@@ -21,6 +21,10 @@ body {
   color: #f0f0f0;
 }
 
-.pure-form > fieldset > input {
+.pure-form > fieldset > input, .pure-control-group > input {
+  color: #101010;
+}
+
+.pure-form > fieldset > select, .pure-control-group > select {
   color: #101010;
 }
