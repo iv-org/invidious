@@ -997,6 +997,7 @@ get "/videoplayback*" do |env|
   path = env.request.path
   if path != "/videoplayback"
     path = path.lchop("/videoplayback/")
+    path = path.rchop("/")
     path = path.split("/")
 
     raw_params = {} of String => Array(String)
