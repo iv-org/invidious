@@ -678,8 +678,6 @@ get "/redirect" do |env|
   end
 end
 
-# Return dash manifest for the given video ID, note this will not work on
-# videos that already have a dashmpd in video info.
 get "/api/manifest/dash/id/:id" do |env|
   env.response.headers.add("Access-Control-Allow-Origin", "*")
   env.response.content_type = "application/dash+xml"
@@ -692,6 +690,28 @@ get "/api/manifest/dash/id/:id" do |env|
     video = get_video(id, client, PG_DB)
   rescue ex
     halt env, status_code: 403
+  end
+
+  if video.info["dashmpd"]?
+    manifest = client.get(video.info["dashmpd"]).body
+
+    manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
+      url = baseurl.lchop("<BaseURL>")
+      url = url.rchop("</BaseURL>")
+
+      if local
+        if Kemal.config.ssl
+          scheme = "https://"
+        end
+        scheme ||= "http://"
+
+        url = scheme + env.request.headers["Host"] + URI.parse(url).full_path
+      end
+
+      "<BaseURL>#{url}</BaseURL>"
+    end
+
+    next manifest
   end
 
   adaptive_fmts = [] of HTTP::Params
