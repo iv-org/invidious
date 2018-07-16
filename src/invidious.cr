@@ -214,24 +214,19 @@ spawn do
 end
 
 before_all do |env|
-  if env.request.cookies.has_key?("SID")
-    env.set "authorized", true
+  if env.request.cookies.has_key? "SID"
+    headers = HTTP::Headers.new
+    headers["Cookie"] = env.request.headers["Cookie"]
 
     sid = env.request.cookies["SID"].value
-    env.set "sid", sid
 
-    subscriptions = PG_DB.query_one?("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
-    subscriptions ||= [] of String
-    env.set "subscriptions", subscriptions
+    begin
+      client = make_client(YT_URL)
+      user = get_user(sid, client, headers, PG_DB, false)
 
-    notifications = PG_DB.query_one?("SELECT cardinality(notifications) FROM users WHERE id = $1", sid, as: Int32)
-    notifications ||= 0
-
-    env.set "notifications", notifications
-  end
-
-  if env.request.cookies.has_key?("darktheme") && env.request.cookies["darktheme"].value == "true"
-    env.set "darktheme", true
+      env.set "user", user
+    rescue ex
+    end
   end
 end
 
@@ -240,9 +235,11 @@ get "/" do |env|
 end
 
 get "/watch" do |env|
-  authorized = env.get? "authorized"
-  if authorized
-    subscriptions = env.get("subscriptions").as(Array(String))
+  user = env.get? "user"
+  if user
+    user = user.as(User)
+    preferences = user.preferences
+    subscriptions = user.subscriptions.as(Array(String))
   end
   subscriptions ||= [] of String
 
@@ -679,11 +676,77 @@ get "/signout" do |env|
   env.redirect referer
 end
 
+get "/preferences" do |env|
+  user = env.get? "user"
+
+  referer = env.request.headers["referer"]?
+  referer ||= "/preferences"
+
+  if referer.size > 64
+    puts "nope"
+    referer = "/preferences"
+  end
+
+  if user
+    user = user.as(User)
+    templated "preferences"
+  else
+    env.redirect referer
+  end
+end
+
+post "/preferences" do |env|
+  user = env.get? "user"
+
+  referer = env.params.query["referer"]?
+  referer ||= "/preferences"
+
+  if user
+    user = user.as(User)
+
+    video_loop = env.params.body["video_loop"]?.try &.as(String)
+    video_loop ||= "off"
+    video_loop = video_loop == "on"
+
+    autoplay = env.params.body["autoplay"]?.try &.as(String)
+    autoplay ||= "off"
+    autoplay = autoplay == "on"
+
+    speed = env.params.body["speed"]?.try &.as(String).to_f
+    speed ||= 1.0
+
+    quality = env.params.body["quality"]?.try &.as(String)
+    quality ||= "hd720"
+
+    volume = env.params.body["volume"]?.try &.as(String).to_i
+    volume ||= 100
+
+    dark_mode = env.params.body["dark_mode"]?.try &.as(String)
+    dark_mode ||= "off"
+    dark_mode = dark_mode == "on"
+
+    preferences = {
+      "video_loop" => video_loop,
+      "autoplay"   => autoplay,
+      "speed"      => speed,
+      "quality"    => quality,
+      "volume"     => volume,
+      "dark_mode"  => dark_mode,
+    }.to_json
+
+    PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
+  end
+
+  env.redirect referer
+end
+
 # Get subscriptions for authorized user
 get "/feed/subscriptions" do |env|
-  authorized = env.get? "authorized"
+  user = env.get? "user"
 
-  if authorized
+  if user
+    user = user.as(User)
+
     max_results = env.params.query["maxResults"]?.try &.to_i || 40
 
     page = env.params.query["page"]?.try &.to_i
@@ -696,14 +759,6 @@ get "/feed/subscriptions" do |env|
       limit = max_results
       offset = (page - 1) * max_results
     end
-
-    headers = HTTP::Headers.new
-    headers["Cookie"] = env.request.headers["Cookie"]
-
-    sid = env.get("sid").as(String)
-
-    client = make_client(YT_URL)
-    user = get_user(sid, client, headers, PG_DB)
 
     args = arg_array(user.subscriptions, 3)
     videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
@@ -718,7 +773,7 @@ get "/feed/subscriptions" do |env|
       videos = videos[0..max_results]
     end
 
-    PG_DB.exec("UPDATE users SET notifications = $1 WHERE id = $2", [] of String, sid)
+    PG_DB.exec("UPDATE users SET notifications = $1 WHERE id = $2", [] of String, user.id)
     env.set "notifications", 0
 
     templated "subscriptions"
@@ -735,12 +790,14 @@ end
 # /modify_notifications?receive_all_updates=false&receive_no_updates=false
 # will "unding" all subscriptions.
 get "/modify_notifications" do |env|
-  authorized = env.get? "authorized"
+  user = env.get? "user"
 
   referer = env.request.headers["referer"]?
   referer ||= "/"
 
-  if authorized
+  if user
+    user = user.as(User)
+
     channel_req = {} of String => String
 
     channel_req["receive_all_updates"] = env.params.query["receive_all_updates"]? || "true"
@@ -779,12 +836,14 @@ get "/modify_notifications" do |env|
 end
 
 get "/subscription_manager" do |env|
-  authorized = env.get? "authorized"
-  if !authorized
+  user = env.get? "user"
+
+  if !user
     next env.redirect "/"
   end
 
-  subscriptions = env.get?("subscriptions").as(Array(String))
+  user = user.as(User)
+  subscriptions = user.subscriptions
   subscriptions ||= [] of String
 
   client = make_client(YT_URL)
@@ -797,11 +856,13 @@ get "/subscription_manager" do |env|
 end
 
 get "/subscription_ajax" do |env|
-  authorized = env.get? "authorized"
+  user = env.get? "user"
   referer = env.request.headers["referer"]?
   referer ||= "/"
 
-  if authorized
+  if user
+    user = user.as(User)
+
     if env.params.query["action_create_subscription_to_channel"]?
       action = "action_create_subscription_to_channel"
     elsif env.params.query["action_remove_subscriptions"]?
@@ -836,7 +897,7 @@ get "/subscription_ajax" do |env|
 
     # Update user
     if client.post(post_url, headers, post_req).status_code == 200
-      sid = env.get("sid").as(String)
+      sid = user.id
 
       case action
       when .starts_with? "action_create"
@@ -856,11 +917,10 @@ get "/user/:user" do |env|
 end
 
 get "/channel/:ucid" do |env|
-  authorized = env.get? "authorized"
-  if authorized
-    sid = env.get("sid").as(String)
-
-    subscriptions = PG_DB.query_one?("SELECT subscriptions FROM users WHERE id = $1", sid, as: Array(String))
+  user = env.get? "user"
+  if user
+    user = user.as(User)
+    subscriptions = user.subscriptions
   end
   subscriptions ||= [] of String
 
@@ -896,20 +956,6 @@ get "/channel/:ucid" do |env|
   end
 
   templated "channel"
-end
-
-get "/modify_theme" do |env|
-  referer = env.request.headers["referer"]?
-  referer ||= "/"
-
-  if env.params.query["dark"]?
-    env.response.cookies["darktheme"] = "true"
-  elsif env.params.query["light"]?
-    env.request.cookies["darktheme"].expires = Time.new(1990, 1, 1)
-    env.request.cookies.add_response_headers(env.response.headers)
-  end
-
-  env.redirect referer
 end
 
 get "/redirect" do |env|
@@ -1167,6 +1213,6 @@ end
 public_folder "assets"
 
 add_handler FilteredCompressHandler.new
-add_context_storage_type(Array(String))
+add_context_storage_type(User)
 
 Kemal.run

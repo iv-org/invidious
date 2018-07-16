@@ -17,8 +17,12 @@
             <% end %>
         <% else %>
             <% fmt_stream.each_with_index do |fmt, i| %>
+                <% if preferences %>
+                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= preferences.quality == fmt["label"].split(" - ")[0] %>">
+                <% else %>
                 <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
-            <% end %>    
+                <% end %>
+            <% end %>
         <% end %>
     </video>
 </div>
@@ -26,6 +30,10 @@
 <script>
 var options = {
     preload: "auto",
+    <% if preferences %>
+    <% if preferences.autoplay %>autoplay: true, <% end %>
+    <% if preferences.video_loop %>loop: true, <% end %>
+    <% end %>
     playbackRates: [0.5, 1, 1.5, 2],
     controlBar: {
       children: [
@@ -81,6 +89,10 @@ var player = videojs('player', options, function() {
   });
 });
 
+<% if preferences %>
+player.volume(<%= preferences.volume.to_f / 100 %>);
+player.playbackRate(<%= preferences.speed %>);
+<% end %>
 player.offset({
   start: <%= video_start %>,
   end: <%= video_end %>
@@ -165,7 +177,7 @@ player.src(currentSources);
                     <h3><%= video.author %></h3>
                 </a>
             </p>
-        <% if authorized %>
+        <% if user %>
             <% if subscriptions.includes? video.ucid %>
             <p>
                 <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= video.ucid %>">

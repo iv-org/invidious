@@ -3,7 +3,7 @@
 <% end %>
 
 <h1><%= author %></h1>
-<% if authorized %>
+<% if user %>
     <% if subscriptions.includes? ucid %>
     <p>
         <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>">
