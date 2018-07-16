@@ -11,9 +11,13 @@
             <a href="/channel/<%= channel.id %>"><%= channel.author %></a>
         </div>
         <div class="pure-u-2-5"></div>
-        <div class="pure-u-1-5">
-            <a style="vertical-align: right;" href="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>">unsubscribe</a>
+        <div class="pure-u-1-5" style="text-align: right;">
+            <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>">unsubscribe</a>
         </div>
     </div>
 </h3>
+
+<% if subscriptions[-1].author != channel.author %>
+<hr style="margin-left:1em; margin-right:1em;">
+<% end %>
 <% end %>
