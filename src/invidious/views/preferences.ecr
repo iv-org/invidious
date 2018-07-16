@@ -23,11 +23,20 @@ function update_value(element) {
         </div>
 
         <div class="pure-control-group">
+            <label for="speed">Default speed: </label>
+            <select name="speed" id="speed">
+            <% [2.0, 1.5, 1.0, 0.5].each do |option| %>
+                <option <% if user.preferences.speed == option %> selected <% end %>><%= option %></option>
+            <% end %>
+            </select>
+        </div>
+
+        <div class="pure-control-group">
             <label for="quality">Preferred video quality: </label>
-            <select name="quality" id="quality" selected="<%= user.preferences.quality %>">
-                <option>hd720</option>
-                <option>medium</option>
-                <option>small</option>
+            <select name="quality" id="quality">
+            <% ["hd720", "medium", "small"].each do |option| %>
+                <option <% if user.preferences.quality == option %> selected <% end %>><%= option %></option>
+            <% end %>
             </select>
         </div>
 

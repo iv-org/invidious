@@ -91,6 +91,7 @@ var player = videojs('player', options, function() {
 
 <% if preferences %>
 player.volume(<%= preferences.volume.to_f / 100 %>);
+player.playbackRate(<%= preferences.speed %>);
 <% end %>
 player.offset({
   start: <%= video_start %>,

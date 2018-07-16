@@ -700,6 +700,9 @@ post "/preferences" do |env|
     autoplay ||= "off"
     autoplay = autoplay == "on"
 
+    speed = env.params.body["speed"]?.try &.as(String).to_f
+    speed ||= 1.0
+
     quality = env.params.body["quality"]?.try &.as(String)
     quality ||= "hd720"
 
@@ -713,6 +716,7 @@ post "/preferences" do |env|
     preferences = {
       "video_loop" => video_loop,
       "autoplay"   => autoplay,
+      "speed"      => speed,
       "quality"    => quality,
       "volume"     => volume,
       "dark_mode"  => dark_mode,
