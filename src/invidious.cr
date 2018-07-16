@@ -220,10 +220,13 @@ before_all do |env|
 
     sid = env.request.cookies["SID"].value
 
-    client = make_client(YT_URL)
-    user = get_user(sid, client, headers, PG_DB, false)
+    begin
+      client = make_client(YT_URL)
+      user = get_user(sid, client, headers, PG_DB, false)
 
-    env.set "user", user
+      env.set "user", user
+    rescue ex
+    end
   end
 end
 
