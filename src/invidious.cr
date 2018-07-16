@@ -514,7 +514,7 @@ get "/login" do |env|
     referer = "/feed/subscriptions"
   end
 
-  if referer.size > 32
+  if referer.size > 64
     referer = "/feed/subscriptions"
   end
 
