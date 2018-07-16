@@ -29,7 +29,7 @@ video, #my_video, .video-js, .vjs-default-skin
 }
 </style>
 
-<video playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js vjs-default-skin" controls>
+<video playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js vjs-default-skin">
     <% if listen %>
         <% audio_streams.each_with_index do |fmt, i| %>
             <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
@@ -44,6 +44,9 @@ video, #my_video, .video-js, .vjs-default-skin
 <script>
 var options = {
     preload: "auto",
+    <% if autoplay == 1 %>autoplay: true, <% end %>
+    <% if controls == 1 %>controls: true, <% end %>
+    <% if video_loop == 1 %>loop: true, <% end %>
     playbackRates: [0.5, 1, 1.5, 2],
     controlBar: {
       children: [
