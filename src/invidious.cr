@@ -1051,17 +1051,16 @@ get "/videoplayback*" do |env|
 
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
-      chunk = Bytes[8]
-
-      loop do
-        count = response.body_io.read(chunk)
-
-        begin
-          env.response.write(chunk)
+      begin
+        chunk_size = 4096
+        size = 1
+        while size > 0
+          size = IO.copy(response.body_io, env.response.output, chunk_size)
           env.response.flush
-        rescue ex
-          break
+          Fiber.yield
         end
+      rescue ex
+        break
       end
     end
   end
