@@ -173,7 +173,6 @@ video_threads.times do |i|
 end
 
 top_videos = [] of Video
-
 spawn do
   if CONFIG.dl_api_key
     DetectLanguage.configure do |config|
@@ -209,6 +208,20 @@ spawn do
     end
 
     top_videos = videos
+    Fiber.yield
+  end
+end
+
+# Refresh decrypt function
+decrypt_function = [] of {name: String, value: Int32}
+spawn do
+  loop do
+    begin
+      client = make_client(YT_URL)
+      decrypt_function = update_decrypt_function(client)
+    rescue ex
+    end
+
     Fiber.yield
   end
 end
@@ -296,11 +309,11 @@ get "/watch" do |env|
 
   if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
     adaptive_fmts.each do |fmt|
-      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
     end
 
     fmt_stream.each do |fmt|
-      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
     end
   end
 
@@ -433,11 +446,11 @@ get "/embed/:id" do |env|
 
   if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
     adaptive_fmts.each do |fmt|
-      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
     end
 
     fmt_stream.each do |fmt|
-      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
     end
   end
 
@@ -1044,7 +1057,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
     adaptive_fmts.each do |fmt|
-      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"])
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
     end
   end
 
