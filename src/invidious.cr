@@ -683,7 +683,6 @@ get "/preferences" do |env|
   referer ||= "/preferences"
 
   if referer.size > 64
-    puts "nope"
     referer = "/preferences"
   end
 
@@ -725,13 +724,17 @@ post "/preferences" do |env|
     dark_mode ||= "off"
     dark_mode = dark_mode == "on"
 
+    max_results = env.params.body["max_results"]?.try &.as(String).to_i
+    max_results ||= 40
+
     preferences = {
-      "video_loop" => video_loop,
-      "autoplay"   => autoplay,
-      "speed"      => speed,
-      "quality"    => quality,
-      "volume"     => volume,
-      "dark_mode"  => dark_mode,
+      "video_loop"  => video_loop,
+      "autoplay"    => autoplay,
+      "speed"       => speed,
+      "quality"     => quality,
+      "volume"      => volume,
+      "dark_mode"   => dark_mode,
+      "max_results" => max_results,
     }.to_json
 
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
@@ -747,7 +750,9 @@ get "/feed/subscriptions" do |env|
   if user
     user = user.as(User)
 
-    max_results = env.params.query["maxResults"]?.try &.to_i || 40
+    max_results = user.preferences.max_results
+    max_results ||= env.params.query["maxResults"]?.try &.to_i
+    max_results ||= 40
 
     page = env.params.query["page"]?.try &.to_i
     page ||= 1

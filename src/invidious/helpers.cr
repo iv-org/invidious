@@ -18,12 +18,13 @@ macro rendered(filename)
 end
 
 DEFAULT_USER_PREFERENCES = Preferences.from_json({
-  "video_loop" => false,
-  "autoplay"   => false,
-  "speed"      => 1.0,
-  "quality"    => "hd720",
-  "volume"     => 100,
-  "dark_mode"  => false,
+  "video_loop"  => false,
+  "autoplay"    => false,
+  "speed"       => 1.0,
+  "quality"     => "hd720",
+  "volume"      => 100,
+  "dark_mode"   => false,
+  "max_results" => 40,
 }.to_json)
 
 class Config
@@ -136,12 +137,13 @@ end
 
 class Preferences
   JSON.mapping({
-    video_loop: Bool,
-    autoplay:   Bool,
-    speed:      Float32,
-    quality:    String,
-    volume:     Int32,
-    dark_mode:  Bool,
+    video_loop:  Bool,
+    autoplay:    Bool,
+    speed:       Float32,
+    quality:     String,
+    volume:      Int32,
+    dark_mode:   Bool,
+    max_results: Int32,
   })
 end
 
