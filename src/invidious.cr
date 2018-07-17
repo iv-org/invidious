@@ -750,6 +750,13 @@ get "/feed/subscriptions" do |env|
   if user
     user = user.as(User)
 
+    # Refresh account
+    headers = HTTP::Headers.new
+    headers["Cookie"] = env.request.headers["Cookie"]
+
+    client = make_client(YT_URL)
+    user = get_user(user.id, client, headers, PG_DB)
+
     max_results = user.preferences.max_results
     max_results ||= env.params.query["maxResults"]?.try &.to_i
     max_results ||= 40
@@ -848,6 +855,14 @@ get "/subscription_manager" do |env|
   end
 
   user = user.as(User)
+
+  # Refresh account
+  headers = HTTP::Headers.new
+  headers["Cookie"] = env.request.headers["Cookie"]
+
+  client = make_client(YT_URL)
+  user = get_user(user.id, client, headers, PG_DB)
+
   subscriptions = user.subscriptions
   subscriptions ||= [] of String
 
