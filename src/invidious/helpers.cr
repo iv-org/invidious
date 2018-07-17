@@ -685,15 +685,19 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
       page += 1
     end
 
-    db.exec("DELETE FROM channel_videos * WHERE ucid = $1", ucid)
+    video_ids = [] of String
     videos.each do |video|
       db.exec("UPDATE users SET notifications = notifications || $1 \
       WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, ucid)
+      video_ids << video.id
 
       video_array = video.to_a
       args = arg_array(video_array)
       db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
     end
+
+    # When a video is deleted from a channel, we find and remove it here
+    db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{video_ids.map { |a| %("#{a}") }.join(",")}}') AND ucid = $1", ucid)
   end
 
   channel = InvidiousChannel.new(ucid, author, Time.now)
