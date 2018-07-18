@@ -775,6 +775,7 @@ def get_user(sid, client, headers, db, refresh = true)
   else
     user = fetch_user(sid, client, headers, db)
     user_array = user.to_a
+    user_array[5] = user_array[5].to_json
     args = arg_array(user.to_a)
 
     db.exec("INSERT INTO users VALUES (#{args}) \
