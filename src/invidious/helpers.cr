@@ -819,7 +819,7 @@ def decode_time(string)
     hours = /(?<hours>\d+)h/.match(string).try &.["hours"].try &.to_i
     hours ||= 0
 
-    minutes = /(?<minutes>\d+)m/.match(string).try &.["minutes"].try &.to_i
+    minutes = /(?<minutes>\d+)m(?!s)/.match(string).try &.["minutes"].try &.to_i
     minutes ||= 0
 
     seconds = /(?<seconds>\d+)s/.match(string).try &.["seconds"].try &.to_i
