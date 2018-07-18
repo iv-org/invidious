@@ -6,24 +6,51 @@
     <div class="pure-u-1 pure-u-md-1-5"></div>
     <div class="pure-u-1 pure-u-md-3-5">
         <div class="h-box">
+            <div class="pure-g">
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <a class="pure-button <% if account_type == "google" %>pure-button-disabled<% end %>" href="/login">Login to Google</a>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <a class="pure-button <% if account_type == "invidious" %>pure-button-disabled<% end %>" href="/login?type=invidious">Login/Register</a>
+                </div>
+            </div>
+            <hr>
+            <% if account_type == "google" %>
             <form class="pure-form pure-form-stacked" action="/login?referer=<%= referer %>" method="post">
                 <fieldset>
-                    <legend>Login to Google</legend>
-
                     <label for="email">Email</label>
-                    <input class="pure-input-1" name="email" type="email" placeholder="Email">
+                    <input required class="pure-input-1" name="email" type="email" placeholder="Email">
 
                     <label for="password">Password</label>
-                    <input class="pure-input-1" name="password" type="password" placeholder="Password">
+                    <input required class="pure-input-1" name="password" type="password" placeholder="Password">
                     
                     <% if tfa %>
                     <label for="tfa">Google verification code</label>
-                    <input class="pure-input-1" name="tfa" type="text" placeholder="Google verification code">
+                    <input required class="pure-input-1" name="tfa" type="text" placeholder="Google verification code">
                     <% end %>
 
                     <button type="submit" class="pure-button pure-button-primary">Sign in</button>
                 </fieldset>
             </form>
+            <% elsif account_type == "invidious" %>
+            <form class="pure-form pure-form-stacked" action="/login?referer=<%= referer %>&type=invidious" method="post">
+                <fieldset>
+                    <label for="email">User ID:</label>
+                    <input required class="pure-input-1" name="email" type="text" placeholder="User ID">
+
+                    <label for="password">Password</label>
+                    <input required class="pure-input-1" name="password" type="password" placeholder="Password">
+                
+                    <img src='<%= captcha.not_nil![:challenge] %>'/>
+                    <input type="hidden" name="token" value="<%= captcha.not_nil![:token] %>">
+                    <label for="challenge_response">Time (hh:mm):</label>
+                    <input required type="text" name="challenge_response" type="text>" placeholder="hh:mm">
+
+                    <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">Sign In</button>
+                    <button type="submit" name="action" value="register" class="pure-button pure-button-primary">Register</button>
+                </fieldset>
+            </form>
+            <% end %>
         </div>
     </div>
     <div class="pure-u-1 pure-u-md-1-5"></div>

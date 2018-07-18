@@ -10,6 +10,7 @@ CREATE TABLE public.users
     subscriptions text[] COLLATE pg_catalog."default",
     email text COLLATE pg_catalog."default" NOT NULL,
     preferences text COLLATE pg_catalog."default",
+    password text COLLATE pg_catalog."default",
     CONSTRAINT users_email_key UNIQUE (email),
     CONSTRAINT users_id_key UNIQUE (id)
 )

@@ -138,6 +138,7 @@ class User
       default:   DEFAULT_USER_PREFERENCES,
       converter: PreferencesConverter,
     },
+    password: String?,
   })
 end
 
@@ -814,7 +815,14 @@ def fetch_user(sid, client, headers, db)
     email = ""
   end
 
-  user = User.new(sid, Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES)
+  user = User.new(sid, Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil)
+  return user
+end
+
+def create_user(sid, email, password)
+  password = Crypto::Bcrypt::Password.create(password, cost: 10)
+  user = User.new(sid, Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s)
+
   return user
 end
 
@@ -946,4 +954,55 @@ def write_var_int(value : Int)
   end
 
   return bytes
+end
+
+def generate_captcha(key)
+  minute = Random::Secure.rand(12)
+  minute_angle = minute * 30
+  minute = minute * 5
+
+  hour = Random::Secure.rand(12)
+  hour_angle = hour * 30 + minute_angle.to_f / 12
+  if hour == 0
+    hour = 12
+  end
+
+  clock_svg = <<-END_SVG
+  <svg viewBox="0 0 100 100" width="200px">
+  <circle cx="50" cy="50" r="45" fill="#eee" stroke="black" stroke-width="2"></circle>
+  
+  <circle id="hour1" cx="69" cy="17.091" r="2" fill="black"></circle>
+  <circle id="hour2" cx="82.909" cy="31" r="2" fill="black"></circle>
+  <circle id="hour3" cx="88" cy="50" r="2" fill="black"></circle>
+  
+  <circle id="hour4" cx="82.909" cy="69" r="2" fill="black"></circle>
+  <circle id="hour5" cx="69" cy="82.909" r="2" fill="black"></circle>
+  <circle id="hour6" cx="50" cy="88" r="2" fill="black"></circle>
+  
+  <circle id="hour7" cx="31" cy="82.909" r="2" fill="black"></circle>
+  <circle id="hour8" cx="17.091" cy="69" r="2" fill="black"></circle>
+  <circle id="hour9" cx="12" cy="50" r="2" fill="black"></circle>
+  
+  <circle id="hour10" cx="17.091" cy="31" r="2" fill="black"></circle>
+  <circle id="hour11" cx="31" cy="17.091" r="2" fill="black"></circle>
+  <circle id="hour12" cx="50" cy="12" r="2" fill="black"></circle>
+  
+  <circle cx="50" cy="50" r="3" fill="black"></circle>
+  <line id="minute" transform="rotate(#{minute_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="16" fill="black" stroke="black" stroke-width="2"></line>
+  <line id="hour"   transform="rotate(#{hour_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="24" fill="black" stroke="black" stroke-width="2"></line>
+  </svg>
+  END_SVG
+
+  challenge = ""
+  convert = Process.run(%(convert -density 1200 -resize 400x400 -background none svg:- png:-), shell: true, input: IO::Memory.new(clock_svg), output: Process::Redirect::Pipe) do |proc|
+    challenge = proc.output.gets_to_end
+    challenge = Base64.encode(challenge)
+    challenge = "data:image/png; base64, #{challenge}"
+  end
+
+  answer = "#{hour}:#{minute.to_s.rjust(2, '0')}"
+  token = OpenSSL::HMAC.digest(:sha256, key, answer)
+  token = Base64.encode(token)
+
+  return {challenge: challenge, token: token}
 end
