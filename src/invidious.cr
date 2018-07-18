@@ -740,6 +740,13 @@ post "/preferences" do |env|
     max_results = env.params.body["max_results"]?.try &.as(String).to_i
     max_results ||= 40
 
+    sort = env.params.body["sort"]?.try &.as(String)
+    sort ||= "published"
+
+    latest_only = env.params.body["latest_only"]?.try &.as(String)
+    latest_only ||= "off"
+    latest_only = latest_only == "on"
+
     preferences = {
       "video_loop"  => video_loop,
       "autoplay"    => autoplay,
@@ -748,6 +755,8 @@ post "/preferences" do |env|
       "volume"      => volume,
       "dark_mode"   => dark_mode,
       "max_results" => max_results,
+      "sort"        => sort,
+      "latest_only" => latest_only,
     }.to_json
 
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
@@ -762,6 +771,7 @@ get "/feed/subscriptions" do |env|
 
   if user
     user = user.as(User)
+    preferences = user.preferences
 
     # Refresh account
     headers = HTTP::Headers.new
@@ -770,7 +780,7 @@ get "/feed/subscriptions" do |env|
     client = make_client(YT_URL)
     user = get_user(user.id, client, headers, PG_DB)
 
-    max_results = user.preferences.max_results
+    max_results = preferences.max_results
     max_results ||= env.params.query["maxResults"]?.try &.to_i
     max_results ||= 40
 
@@ -785,10 +795,29 @@ get "/feed/subscriptions" do |env|
       offset = (page - 1) * max_results
     end
 
-    args = arg_array(user.subscriptions, 3)
-    videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
+    if preferences.latest_only
+      args = arg_array(user.subscriptions)
+      videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
+      ucid IN (#{args}) ORDER BY ucid, published DESC", user.subscriptions, as: ChannelVideo)
+      videos.sort_by! { |video| video.published }.reverse!
+    else
+      args = arg_array(user.subscriptions, 3)
+      videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
     ORDER BY published DESC LIMIT $1 OFFSET $2", [limit, offset] + user.subscriptions, as: ChannelVideo)
+    end
 
+    case preferences.sort
+    when "alphabetically"
+      videos.sort_by! { |video| video.title }
+    when "alphabetically - reverse"
+      videos.sort_by! { |video| video.title }.reverse!
+    when "channel name"
+      videos.sort_by! { |video| video.author }
+    when "channel name - reverse"
+      videos.sort_by! { |video| video.author }.reverse!
+    end
+
+    # TODO: Add option to disable picking out notifications from regular feed
     notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email, as: Array(String))
 
     notifications = videos.select { |v| notifications.includes? v.id }

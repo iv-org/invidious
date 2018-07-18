@@ -25,6 +25,8 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
   "volume"      => 100,
   "dark_mode"   => false,
   "max_results" => 40,
+  "sort"        => "published",
+  "latest_only" => false,
 }.to_json)
 
 class Config
@@ -144,6 +146,8 @@ class Preferences
     volume:      Int32,
     dark_mode:   Bool,
     max_results: Int32,
+    sort:        String,
+    latest_only: Bool,
   })
 end
 
