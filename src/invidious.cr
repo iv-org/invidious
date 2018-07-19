@@ -422,6 +422,13 @@ get "/embed/:id" do |env|
   end
   listen ||= false
 
+  raw = env.params.query["raw"]? && env.params.query["raw"].to_i
+  raw ||= 0
+  raw = raw == 1
+
+  quality = env.params.query["quality"]? && env.params.query["quality"]
+  quality ||= "hd720"
+
   autoplay = env.params.query["autoplay"]?.try &.to_i
   autoplay ||= 0
 
@@ -470,6 +477,18 @@ get "/embed/:id" do |env|
   audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
   audio_streams.each do |stream|
     stream["bitrate"] = (stream["bitrate"].to_f64/1000).to_i.to_s
+  end
+
+  if raw
+    url = fmt_stream[0]["url"]
+
+    fmt_stream.each do |fmt|
+      if fmt["label"].split(" - ")[0] == quality
+        url = fmt["url"]
+      end
+    end
+
+    next env.redirect url
   end
 
   thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"

@@ -40,7 +40,11 @@ video, #my_video, .video-js, .vjs-default-skin
         <% end %>
     <% else %>
         <% fmt_stream.each_with_index do |fmt, i| %>
+            <% if quality != "hd720" %>
+            <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= quality == fmt["label"].split(" - ")[0] %>">
+            <% else %>
             <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+            <% end %>
         <% end %>    
     <% end %>
 </video>
