@@ -10,7 +10,13 @@
 <% end %>
 
 <div class="h-box">
-    <video style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" class="video-js vjs-16-9" data-setup="{}" controls>
+    <video style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" 
+        id="player" class="video-js vjs-16-9" data-setup="{}" 
+        <% if preferences %>
+        <% if preferences.autoplay %>autoplay<% end %>
+        <% if preferences.video_loop %>loop<% end %>
+        <% end %>
+        controls>
         <% if listen %>
             <% audio_streams.each_with_index do |fmt, i| %>
                 <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
@@ -30,10 +36,6 @@
 <script>
 var options = {
     preload: "auto",
-    <% if preferences %>
-    <% if preferences.autoplay %>autoplay: true, <% end %>
-    <% if preferences.video_loop %>loop: true, <% end %>
-    <% end %>
     playbackRates: [0.5, 1, 1.5, 2],
     controlBar: {
       children: [
