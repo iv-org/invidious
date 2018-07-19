@@ -23,7 +23,8 @@ $ shards
 
 ### Installing Postgres:
 
-#### On Arch:  
+#### On Arch:
+
 Install according to the [wiki](https://wiki.archlinux.org/index.php/PostgreSQL#Installing_PostgreSQL)
 
 #### On OSX:
@@ -36,6 +37,14 @@ $ brew install postgres
 
 ```bash
 $ ./setup.sh
+```
+
+### Installing ImageMagick (required for CAPTCHA):
+
+#### On Arch:
+
+```bash
+$ sudo pacman -Syu imagemagick librsvg
 ```
 
 ## Usage:
@@ -62,4 +71,4 @@ $ ./sentry
 
 ## Contributors
 
-* [omarroth](https://github.com/omarroth) - creator, maintainer
+- [omarroth](https://github.com/omarroth) - creator, maintainer
