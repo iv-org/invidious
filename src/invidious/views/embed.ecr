@@ -33,8 +33,8 @@ video, #my_video, .video-js, .vjs-default-skin
     <% if autoplay == 1 %>autoplay<% end %>
     <% if controls == 1 %>controls<% end %>
     <% if video_loop == 1 %>loop<% end %>
-    <% if listen %>
     class="video-js vjs-default-skin">
+    <% if listen %>
         <% audio_streams.each_with_index do |fmt, i| %>
             <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
         <% end %>
