@@ -6,33 +6,33 @@
 
 ### Installing [Crystal](https://github.com/crystal-lang/crystal):
 
-On Arch:
+#### On Arch:
 
 ```bash
 $ sudo pacman -Syu shards crystal
-$ crystal deps
+$ shards
 ```
 
-On OSX:
+#### On OSX:
 
 ```bash
 $ brew update
 $ brew install shards crystal-lang
-$ crystal deps
+$ shards
 ```
 
 ### Installing Postgres:
 
-On Arch:  
+#### On Arch:  
 Install according to the [wiki](https://wiki.archlinux.org/index.php/PostgreSQL#Installing_PostgreSQL)
 
-On OSX:
+#### On OSX:
 
 ```bash
 $ brew install postgres
 ```
 
-Then setup database with
+### Setup Postgres:
 
 ```bash
 $ ./setup.sh
@@ -41,7 +41,8 @@ $ ./setup.sh
 ## Usage:
 
 ```bash
-$ crystal src/invidious.cr
+$ crystal build src/invidious.cr
+$ ./invidious
 ```
 
 Or for development:
