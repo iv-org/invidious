@@ -119,7 +119,11 @@ end
 class User
   module PreferencesConverter
     def self.from_rs(rs)
-      Preferences.from_json(rs.read(String))
+      begin
+        Preferences.from_json(rs.read(String))
+      rescue ex
+        DEFAULT_USER_PREFERENCES
+      end
     end
   end
 
