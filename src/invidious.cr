@@ -663,7 +663,12 @@ post "/login" do |env|
     host = URI.parse(env.request.headers["Host"]).host
 
     login.cookies.each do |cookie|
-      cookie.secure = false
+      if Kemal.config.ssl
+        cookie.secure = true
+      else
+        cookie.secure = false
+      end
+
       cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
       cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
     end
