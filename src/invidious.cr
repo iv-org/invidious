@@ -14,15 +14,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require "crypto/bcrypt/password"
 require "detect_language"
 require "kemal"
+require "openssl/hmac"
 require "option_parser"
 require "pg"
 require "xml"
 require "yaml"
 require "./invidious/*"
 
-CONFIG = Config.from_yaml(File.read("config/config.yml"))
+CONFIG   = Config.from_yaml(File.read("config/config.yml"))
+HMAC_KEY = Random::Secure.random_bytes(32)
 
 crawl_threads = CONFIG.crawl_threads
 channel_threads = CONFIG.channel_threads
@@ -233,12 +236,21 @@ before_all do |env|
 
     sid = env.request.cookies["SID"].value
 
-    begin
-      client = make_client(YT_URL)
-      user = get_user(sid, client, headers, PG_DB, false)
+    # Invidious users only have SID
+    if !env.request.cookies.has_key? "SSID"
+      user = PG_DB.query_one?("SELECT * FROM users WHERE id = $1", sid, as: User)
 
-      env.set "user", user
-    rescue ex
+      if user
+        env.set "user", user
+      end
+    else
+      begin
+        client = make_client(YT_URL)
+        user = get_user(sid, client, headers, PG_DB, false)
+
+        env.set "user", user
+      rescue ex
+      end
     end
   end
 end
@@ -514,8 +526,20 @@ get "/search" do |env|
 end
 
 get "/login" do |env|
+  user = env.get? "user"
+  if user
+    next env.redirect "/feed/subscriptions"
+  end
+
   referer = env.request.headers["referer"]?
   referer ||= "/feed/subscriptions"
+
+  account_type = env.params.query["type"]?
+  account_type ||= "google"
+
+  if account_type == "invidious"
+    captcha = generate_captcha(HMAC_KEY)
+  end
 
   tfa = env.params.query["tfa"]?
   tfa ||= false
@@ -538,147 +562,236 @@ post "/login" do |env|
 
   email = env.params.body["email"]?
   password = env.params.body["password"]?
-  tfa_code = env.params.body["tfa"]?.try &.lchop("G-")
 
-  begin
-    client = make_client(LOGIN_URL)
-    headers = HTTP::Headers.new
-    headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
-    headers["Google-Accounts-XSRF"] = "1"
+  account_type = env.params.query["type"]?
+  account_type ||= "google"
 
-    login_page = client.get("/ServiceLogin")
-    headers = login_page.cookies.add_request_headers(headers)
+  if account_type == "google"
+    tfa_code = env.params.body["tfa"]?.try &.lchop("G-")
 
-    login_page = XML.parse_html(login_page.body)
+    begin
+      client = make_client(LOGIN_URL)
+      headers = HTTP::Headers.new
+      headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
+      headers["Google-Accounts-XSRF"] = "1"
 
-    inputs = {} of String => String
-    login_page.xpath_nodes(%q(//input[@type="submit"])).each do |node|
-      name = node["id"]? || node["name"]?
-      name ||= ""
-      value = node["value"]?
-      value ||= ""
+      login_page = client.get("/ServiceLogin")
+      headers = login_page.cookies.add_request_headers(headers)
 
-      if name != "" && value != ""
-        inputs[name] = value
+      login_page = XML.parse_html(login_page.body)
+
+      inputs = {} of String => String
+      login_page.xpath_nodes(%q(//input[@type="submit"])).each do |node|
+        name = node["id"]? || node["name"]?
+        name ||= ""
+        value = node["value"]?
+        value ||= ""
+
+        if name != "" && value != ""
+          inputs[name] = value
+        end
       end
-    end
 
-    login_page.xpath_nodes(%q(//input[@type="hidden"])).each do |node|
-      name = node["id"]? || node["name"]?
-      name ||= ""
-      value = node["value"]?
-      value ||= ""
+      login_page.xpath_nodes(%q(//input[@type="hidden"])).each do |node|
+        name = node["id"]? || node["name"]?
+        name ||= ""
+        value = node["value"]?
+        value ||= ""
 
-      if name != "" && value != ""
-        inputs[name] = value
+        if name != "" && value != ""
+          inputs[name] = value
+        end
       end
+
+      lookup_req = %(["#{email}",null,[],null,"US",null,null,2,false,true,[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount",null,[],4,[]],1,[null,null,[]],null,null,null,true],"#{email}"])
+
+      lookup_results = client.post("/_/signin/sl/lookup", headers, login_req(inputs, lookup_req))
+      headers = lookup_results.cookies.add_request_headers(headers)
+
+      lookup_results = lookup_results.body
+      lookup_results = lookup_results[5..-1]
+      lookup_results = JSON.parse(lookup_results)
+
+      user_hash = lookup_results[0][2]
+
+      challenge_req = %(["#{user_hash}",null,1,null,[1,null,null,null,["#{password}",null,true]],[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount",null,[],4,[]],1,[null,null,[]],null,null,null,true]])
+
+      challenge_results = client.post("/_/signin/sl/challenge", headers, login_req(inputs, challenge_req))
+      headers = challenge_results.cookies.add_request_headers(headers)
+
+      challenge_results = challenge_results.body
+      challenge_results = challenge_results[5..-1]
+      challenge_results = JSON.parse(challenge_results)
+
+      headers["Cookie"] = URI.unescape(headers["Cookie"])
+
+      if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
+        error_message = "Incorrect password"
+        next templated "error"
+      end
+
+      if challenge_results[0][-1][0].as_a?
+        tfa = challenge_results[0][-1][0][0]
+
+        if tfa[2] == "TWO_STEP_VERIFICATION"
+          if tfa[5] == "QUOTA_EXCEEDED"
+            error_message = "Quota exceeded, try again in a few hours"
+            next templated "error"
+          end
+
+          if !tfa_code
+            next env.redirect "/login?tfa=true"
+          end
+
+          tl = challenge_results[1][2]
+
+          request_type = tfa[8]
+          case request_type
+          when 6
+            # Authenticator app
+            tfa_req = %(["#{user_hash}",null,2,null,[6,null,null,null,null,["#{tfa_code}",false]]])
+          when 9
+            # Voice or text message
+            tfa_req = %(["#{user_hash}",null,2,null,[9,null,null,null,null,null,null,null,[null,"#{tfa_code}",false,2]]])
+          else
+            error_message = "Unable to login, make sure two-factor authentication (Authenticator or SMS) is enabled."
+            next templated "error"
+          end
+
+          challenge_results = client.post("/_/signin/challenge?hl=en&TL=#{tl}", headers, login_req(inputs, tfa_req))
+          headers = challenge_results.cookies.add_request_headers(headers)
+
+          challenge_results = challenge_results.body
+          challenge_results = challenge_results[5..-1]
+          challenge_results = JSON.parse(challenge_results)
+
+          if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
+            error_message = "Invalid TFA code"
+            next templated "error"
+          end
+        end
+      end
+
+      login_res = challenge_results[0][13][2].to_s
+
+      login = client.get(login_res, headers)
+      headers = login.cookies.add_request_headers(headers)
+
+      login = client.get(login.headers["Location"], headers)
+
+      headers = HTTP::Headers.new
+      headers = login.cookies.add_request_headers(headers)
+
+      sid = login.cookies["SID"].value
+
+      client = make_client(YT_URL)
+      user = get_user(sid, client, headers, PG_DB)
+
+      # We are now logged in
+
+      host = URI.parse(env.request.headers["Host"]).host
+
+      login.cookies.each do |cookie|
+        if Kemal.config.ssl
+          cookie.secure = true
+        else
+          cookie.secure = false
+        end
+
+        cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
+        cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
+      end
+
+      login.cookies.add_response_headers(env.response.headers)
+
+      env.redirect referer
+    rescue ex
+      error_message = "Login failed. This may be because two-factor authentication is not enabled on your account."
+      next templated "error"
     end
+  elsif account_type == "invidious"
+    challenge_response = env.params.body["challenge_response"]?
+    token = env.params.body["token"]?
 
-    lookup_req = %(["#{email}",null,[],null,"US",null,null,2,false,true,[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount",null,[],4,[]],1,[null,null,[]],null,null,null,true],"#{email}"])
+    action = env.params.body["action"]?
+    action ||= "signin"
 
-    lookup_results = client.post("/_/signin/sl/lookup", headers, login_req(inputs, lookup_req))
-    headers = lookup_results.cookies.add_request_headers(headers)
-
-    lookup_results = lookup_results.body
-    lookup_results = lookup_results[5..-1]
-    lookup_results = JSON.parse(lookup_results)
-
-    user_hash = lookup_results[0][2]
-
-    challenge_req = %(["#{user_hash}",null,1,null,[1,null,null,null,["#{password}",null,true]],[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount",null,[],4,[]],1,[null,null,[]],null,null,null,true]])
-
-    challenge_results = client.post("/_/signin/sl/challenge", headers, login_req(inputs, challenge_req))
-    headers = challenge_results.cookies.add_request_headers(headers)
-
-    challenge_results = challenge_results.body
-    challenge_results = challenge_results[5..-1]
-    challenge_results = JSON.parse(challenge_results)
-
-    headers["Cookie"] = URI.unescape(headers["Cookie"])
-
-    if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
-      error_message = "Incorrect password"
+    if !email
+      error_message = "User ID is a required field"
       next templated "error"
     end
 
-    if challenge_results[0][-1][0].as_a?
-      tfa = challenge_results[0][-1][0][0]
+    if !password
+      error_message = "Password is a required field"
+      next templated "error"
+    end
 
-      if tfa[2] == "TWO_STEP_VERIFICATION"
-        if tfa[5] == "QUOTA_EXCEEDED"
-          error_message = "Quota exceeded, try again in a few hours"
-          next templated "error"
-        end
+    if !challenge_response || !token
+      error_message = "CAPTCHA is a required field"
+      next templated "error"
+    end
 
-        if !tfa_code
-          next env.redirect "/login?tfa=true"
-        end
+    challenge_response = challenge_response.lstrip('0')
+    if OpenSSL::HMAC.digest(:sha256, HMAC_KEY, challenge_response) == Base64.decode(token)
+    else
+      error_message = "Invalid CAPTCHA response"
+      next templated "error"
+    end
 
-        tl = challenge_results[1][2]
+    if action == "signin"
+      user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1 AND password IS NOT NULL", email, as: User)
 
-        request_type = tfa[8]
-        case request_type
-        when 6
-          # Authenticator app
-          tfa_req = %(["#{user_hash}",null,2,null,[6,null,null,null,null,["#{tfa_code}",false]]])
-        when 9
-          # Voice or text message
-          tfa_req = %(["#{user_hash}",null,2,null,[9,null,null,null,null,null,null,null,[null,"#{tfa_code}",false,2]]])
+      if !user
+        error_message = "Cannot find user with ID #{email}."
+        next templated "error"
+      end
+
+      if !user.password
+        error_message = "Account appears to be a Google account."
+        next templated "error"
+      end
+
+      if Crypto::Bcrypt::Password.new(user.password.not_nil!) == password
+        sid = Base64.encode(Random::Secure.random_bytes(50))
+        PG_DB.exec("UPDATE users SET id = $1 WHERE email = $2", sid, email)
+
+        if Kemal.config.ssl
+          secure = true
         else
-          error_message = "Unable to login, make sure two-factor authentication (Authenticator or SMS) is enabled."
-          next templated "error"
+          secure = false
         end
 
-        challenge_results = client.post("/_/signin/challenge?hl=en&TL=#{tl}", headers, login_req(inputs, tfa_req))
-        headers = challenge_results.cookies.add_request_headers(headers)
-
-        challenge_results = challenge_results.body
-        challenge_results = challenge_results[5..-1]
-        challenge_results = JSON.parse(challenge_results)
-
-        if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
-          error_message = "Invalid TFA code"
-          next templated "error"
-        end
-      end
-    end
-
-    login_res = challenge_results[0][13][2].to_s
-
-    login = client.get(login_res, headers)
-    headers = login.cookies.add_request_headers(headers)
-
-    login = client.get(login.headers["Location"], headers)
-
-    headers = HTTP::Headers.new
-    headers = login.cookies.add_request_headers(headers)
-
-    sid = login.cookies["SID"].value
-
-    client = make_client(YT_URL)
-    user = get_user(sid, client, headers, PG_DB)
-
-    # We are now logged in
-
-    host = URI.parse(env.request.headers["Host"]).host
-
-    login.cookies.each do |cookie|
-      if Kemal.config.ssl
-        cookie.secure = true
+        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years, secure: secure, http_only: true)
       else
-        cookie.secure = false
+        error_message = "Invalid password"
+        next templated "error"
+      end
+    elsif action == "register"
+      user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1 AND password IS NOT NULL", email, as: User)
+      if user
+        error_message = "User already exists, please sign in"
+        next templated "error"
       end
 
-      cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
-      cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
-    end
+      sid = Base64.encode(Random::Secure.random_bytes(50))
+      user = create_user(sid, email, password)
 
-    login.cookies.add_response_headers(env.response.headers)
+      user_array = user.to_a
+      user_array[5] = user_array[5].to_json
+      args = arg_array(user_array)
+
+      PG_DB.exec("INSERT INTO users VALUES (#{args})", user_array)
+
+      if Kemal.config.ssl
+        secure = true
+      else
+        secure = false
+      end
+
+      env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years, secure: secure, http_only: true)
+    end
 
     env.redirect referer
-  rescue ex
-    error_message = "Login failed. This may be because two-factor authentication is not enabled on your account."
-    next templated "error"
   end
 end
 
@@ -782,8 +895,10 @@ get "/feed/subscriptions" do |env|
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    client = make_client(YT_URL)
-    user = get_user(user.id, client, headers, PG_DB)
+    if !user.password
+      client = make_client(YT_URL)
+      user = get_user(user.id, client, headers, PG_DB)
+    end
 
     max_results = preferences.max_results
     max_results ||= env.params.query["maxResults"]?.try &.to_i
@@ -903,15 +1018,15 @@ get "/subscription_manager" do |env|
 
   user = user.as(User)
 
-  # Refresh account
-  headers = HTTP::Headers.new
-  headers["Cookie"] = env.request.headers["Cookie"]
+  if !user.password
+    # Refresh account
+    headers = HTTP::Headers.new
+    headers["Cookie"] = env.request.headers["Cookie"]
 
-  client = make_client(YT_URL)
-  user = get_user(user.id, client, headers, PG_DB)
-
+    client = make_client(YT_URL)
+    user = get_user(user.id, client, headers, PG_DB)
+  end
   subscriptions = user.subscriptions
-  subscriptions ||= [] of String
 
   client = make_client(YT_URL)
   subscriptions = subscriptions.map do |ucid|
@@ -941,34 +1056,50 @@ get "/subscription_ajax" do |env|
     channel_id = env.params.query["c"]?
     channel_id ||= ""
 
-    headers = HTTP::Headers.new
-    headers["Cookie"] = env.request.headers["Cookie"]
+    if !user.password
+      headers = HTTP::Headers.new
+      headers["Cookie"] = env.request.headers["Cookie"]
 
-    client = make_client(YT_URL)
-    subs = client.get("/subscription_manager?disable_polymer=1", headers)
-    headers["Cookie"] += "; " + subs.cookies.add_request_headers(headers)["Cookie"]
-    match = subs.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
-    if match
-      session_token = match["session_token"]
+      client = make_client(YT_URL)
+      subs = client.get("/subscription_manager?disable_polymer=1", headers)
+      headers["Cookie"] += "; " + subs.cookies.add_request_headers(headers)["Cookie"]
+      match = subs.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+      if match
+        session_token = match["session_token"]
+      else
+        next env.redirect "/"
+      end
+
+      headers["content-type"] = "application/x-www-form-urlencoded"
+
+      post_req = {
+        "session_token" => session_token,
+      }
+      post_req = HTTP::Params.encode(post_req)
+      post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
+
+      # Update user
+      if client.post(post_url, headers, post_req).status_code == 200
+        sid = user.id
+
+        case action
+        when .starts_with? "action_create"
+          PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", channel_id, sid)
+        when .starts_with? "action_remove"
+          PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE id = $2", channel_id, sid)
+        end
+      end
     else
-      next env.redirect "/"
-    end
-
-    headers["content-type"] = "application/x-www-form-urlencoded"
-
-    post_req = {
-      "session_token" => session_token,
-    }
-    post_req = HTTP::Params.encode(post_req)
-    post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
-
-    # Update user
-    if client.post(post_url, headers, post_req).status_code == 200
       sid = user.id
 
       case action
       when .starts_with? "action_create"
-        PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", channel_id, sid)
+        if !user.subscriptions.includes? channel_id
+          PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", channel_id, sid)
+
+          client = make_client(YT_URL)
+          get_channel(channel_id, client, PG_DB, false, false)
+        end
       when .starts_with? "action_remove"
         PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE id = $2", channel_id, sid)
       end
