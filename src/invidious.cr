@@ -1022,11 +1022,11 @@ get "/feed/private" do |env|
   case sort
   when "alphabetically"
     videos.sort_by! { |video| video.title }
-  when "alphabetically - reverse"
+  when "reverse_alphabetically"
     videos.sort_by! { |video| video.title }.reverse!
-  when "channel name"
+  when "channel_name"
     videos.sort_by! { |video| video.author }
-  when "channel name - reverse"
+  when "reverse_channel_name"
     videos.sort_by! { |video| video.author }.reverse!
   end
 
