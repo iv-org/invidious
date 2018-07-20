@@ -274,6 +274,20 @@ get "/watch" do |env|
     next env.redirect "/"
   end
 
+  autoplay = env.params.query["autoplay"]?.try &.to_i
+  video_loop = env.params.query["video_loop"]?.try &.to_i
+
+  if preferences
+    autoplay ||= preferences.autoplay.to_unsafe
+    video_loop ||= preferences.video_loop.to_unsafe
+  end
+
+  autoplay ||= 0
+  video_loop ||= 0
+
+  autoplay = autoplay == 1
+  video_loop = video_loop == 1
+
   if env.params.query["start"]?
     video_start = decode_time(env.params.query["start"])
   end
