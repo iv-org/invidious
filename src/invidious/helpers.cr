@@ -221,19 +221,33 @@ def elapsed_text(elapsed)
 end
 
 def fetch_video(id, client)
-  info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body
-  html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&disable_polymer=1").body
+  info_channel = Channel(HTTP::Params).new
+  html_channel = Channel(XML::Node).new
 
-  html = XML.parse_html(html)
-  info = HTTP::Params.parse(info)
+  spawn do
+    html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&disable_polymer=1").body
+    html = XML.parse_html(html)
 
-  if info["reason"]?
-    info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body
-    info = HTTP::Params.parse(info)
-    if info["reason"]?
-      raise info["reason"]
-    end
+    html_channel.send(html)
   end
+
+  spawn do
+    info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body
+    info = HTTP::Params.parse(info)
+
+    if info["reason"]?
+      info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body
+      info = HTTP::Params.parse(info)
+      if info["reason"]?
+        raise info["reason"]
+      end
+    end
+
+    info_channel.send(info)
+  end
+
+  html = html_channel.receive
+  info = info_channel.receive
 
   title = info["title"]
   views = info["view_count"].to_i64
