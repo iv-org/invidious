@@ -2,7 +2,19 @@
 <title>Subscriptions - Invidious</title>
 <% end %>
 
-<h3><a href="/subscription_manager">Manage subscriptions</a></h3>
+<div class="pure-g">
+    <div class="pure-u-1 pure-u-md-3-5">
+        <h3>
+            <a href="/subscription_manager">Manage subscriptions</a>
+        </h3>
+    </div>
+    <div class="pure-u-1 pure-u-md-1-5"></div>
+    <div style="text-align:right;" class="pure-u-1 pure-u-md-1-5">
+        <h3>
+            <a href="/feed/private?token=<%= user.token %>"><i class="fas fa-rss-square"></i></a>
+        </h3>
+    </div>
+</div>
 
 <% if !notifications.empty? %>
     <% notifications.each_slice(4) do |slice| %>
@@ -26,13 +38,13 @@
 <div class="pure-g">
     <div class="pure-u-1 pure-u-md-1-5">
     <% if page > 2 %>
-        <a href="/feed/subscriptions?maxResults=<%= max_results %>&page=<%= page - 1 %>">Previous page</a>
+        <a href="/feed/subscriptions?max_results=<%= max_results %>&page=<%= page - 1 %>">Previous page</a>
     <% else %>
-        <a href="/feed/subscriptions?maxResults=<%= max_results %>">Previous page</a>
+        <a href="/feed/subscriptions?max_results=<%= max_results %>">Previous page</a>
     <% end %>
     </div>
     <div class="pure-u-1 pure-u-md-3-5"></div>
     <div style="text-align:right;" class="pure-u-1 pure-u-md-1-5">
-        <a href="/feed/subscriptions?maxResults=<%= max_results %>&page=<%= page + 1 %>">Next page</a>
+        <a href="/feed/subscriptions?max_results=<%= max_results %>&page=<%= page + 1 %>">Next page</a>
     </div>
 </div>

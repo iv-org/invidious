@@ -139,6 +139,7 @@ class User
       converter: PreferencesConverter,
     },
     password: String?,
+    token:    String,
   })
 end
 
@@ -829,13 +830,17 @@ def fetch_user(sid, client, headers, db)
     email = ""
   end
 
-  user = User.new(sid, Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil)
+  token = Base64.encode(Random::Secure.random_bytes(32))
+
+  user = User.new(sid, Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil, token)
   return user
 end
 
 def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
-  user = User.new(sid, Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s)
+  token = Base64.encode(Random::Secure.random_bytes(32))
+
+  user = User.new(sid, Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token)
 
   return user
 end
