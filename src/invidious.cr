@@ -761,12 +761,12 @@ post "/login" do |env|
       user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1 AND password IS NOT NULL", email, as: User)
 
       if !user
-        error_message = "Cannot find user with ID #{email}."
+        error_message = "Invalid username or password"
         next templated "error"
       end
 
       if !user.password
-        error_message = "Account appears to be a Google account."
+        error_message = "Please sign in using 'Sign in with Google'"
         next templated "error"
       end
 
@@ -782,13 +782,13 @@ post "/login" do |env|
 
         env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years, secure: secure, http_only: true)
       else
-        error_message = "Invalid password"
+        error_message = "Invalid username or password"
         next templated "error"
       end
     elsif action == "register"
       user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1 AND password IS NOT NULL", email, as: User)
       if user
-        error_message = "User already exists, please sign in"
+        error_message = "Please sign in"
         next templated "error"
       end
 
