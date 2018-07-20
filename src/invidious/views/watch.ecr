@@ -49,6 +49,7 @@ var options = {
       ],
    },
 };
+
 var player = videojs('player', options, function() {
     this.hotkeys({
     volumeStep: 0.1,
@@ -157,6 +158,8 @@ fetch("/comments/<%= video.id %>?source=reddit")
         permalink: jsonResponse.permalink,
         content_html: jsonResponse.content_html
         })
+    }, function(response){
+        comments.innerHTML = "";
     });
 
 String.prototype.supplant = function (o) {
