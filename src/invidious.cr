@@ -374,25 +374,46 @@ get "/watch" do |env|
     k2 = k2.join(", ")
   end
 
-  reddit_client = make_client(REDDIT_URL)
-  headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.1.0 (by /u/omarroth)"}
-  begin
-    reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client, headers)
-    reddit_html = template_comments(reddit_comments)
-
-    reddit_html = fill_links(reddit_html, "https", "www.reddit.com")
-    reddit_html = add_alt_links(reddit_html)
-  rescue ex
-    reddit_thread = nil
-    reddit_html = ""
-  end
-
   video.description = fill_links(video.description, "https", "www.youtube.com")
   video.description = add_alt_links(video.description)
 
   thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
 
   templated "watch"
+end
+
+get "/comments/:id" do |env|
+  id = env.params.url["id"]
+
+  source = env.params.query["source"]?
+  source ||= "youtube"
+
+  format = env.params.query["format"]?
+  format ||= "html"
+
+  if source == "reddit"
+    reddit_client = make_client(REDDIT_URL)
+    headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.1.0 (by /u/omarroth)"}
+    begin
+      reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client, headers)
+      reddit_html = template_comments(reddit_comments)
+
+      reddit_html = fill_links(reddit_html, "https", "www.reddit.com")
+      reddit_html = add_alt_links(reddit_html)
+    rescue ex
+      reddit_thread = nil
+      reddit_html = ""
+    end
+  end
+
+  if !reddit_thread
+    halt env, status_code: 404
+  end
+
+  env.response.content_type = "application/json"
+  {"title"        => reddit_thread.title,
+   "permalink"    => reddit_thread.permalink,
+   "content_html" => reddit_html}.to_json
 end
 
 get "/embed/:id" do |env|

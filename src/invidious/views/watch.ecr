@@ -133,6 +133,41 @@ for ( var i = 0; i < currentSources.length; i++ ) {
 
 player.src(currentSources);
 <% end %>
+
+fetch("/comments/<%= video.id %>?source=reddit")
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(jsonResponse) {
+        comments = document.getElementById('comments');
+        comments.innerHTML = `
+        <div>
+            <h3>
+                <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
+                {title}
+            </h3>
+            <b>
+                <a target="_blank" href="https://reddit.com{permalink}">View more comments on Reddit</a>
+            </b>
+        </div>
+        <div>{content_html}</div>
+    </div>
+    <hr style="margin-left:1em; margin-right:1em;">`.supplant({
+        title: jsonResponse.title,
+        permalink: jsonResponse.permalink,
+        content_html: jsonResponse.content_html
+        })
+    });
+
+String.prototype.supplant = function (o) {
+    return this.replace(/{([^{}]*)}/g,
+        function (a, b) {
+            var r = o[b];
+            return typeof r === 'string' || typeof r === 'number' ? r : a;
+        }
+    );
+};
+
 </script>
 
 <div class="h-box">
@@ -207,26 +242,11 @@ player.src(currentSources);
                 <%= video.description %>
             </div>
             <hr style="margin-left:1em; margin-right:1em;">
-        <% if reddit_thread  && !reddit_html.empty? %>
-            <div id="Comments">
-                <div>
-                    <h3>
-                        <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
-                        <%= reddit_thread.title %>
-                    </h3>
-                    <b>
-                        <a target="_blank" href="https://reddit.com<%= reddit_thread.permalink %>">View more comments on Reddit</a>
-                    </b>
-                </div>
-                <div>
-                    <%= reddit_html %>
-                </div>
+            <div id="comments">
+                <h3><center><i class="loading fas fa-spinner"></i></center></h3>
             </div>
-            <hr style="margin-left:1em; margin-right:1em;">
-        <% end %>
         </div>
     </div>
-
     <div class="pure-u-1 pure-u-md-1-5">
         <div class="h-box">
         <% rvs.each do |rv| %>
