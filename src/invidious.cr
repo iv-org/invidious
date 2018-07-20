@@ -920,7 +920,7 @@ get "/feed/subscriptions" do |env|
     end
 
     max_results = preferences.max_results
-    max_results ||= env.params.query["maxResults"]?.try &.to_i
+    max_results ||= env.params.query["max_results"]?.try &.to_i
     max_results ||= 40
 
     page = env.params.query["page"]?.try &.to_i
@@ -973,6 +973,110 @@ get "/feed/subscriptions" do |env|
   else
     env.redirect "/"
   end
+end
+
+get "/feed/private" do |env|
+  token = env.params.query["token"]?
+
+  if !token
+    halt env, status_code: 401
+  end
+
+  user = PG_DB.query_one?("SELECT * FROM users WHERE token = $1", token, as: User)
+  if !user
+    halt env, status_code: 401
+  end
+
+  max_results = env.params.query["max_results"]?.try &.to_i
+  max_results ||= 40
+
+  page = env.params.query["page"]?.try &.to_i
+  page ||= 1
+
+  if max_results < 0
+    limit = nil
+    offset = (page - 1) * 1
+  else
+    limit = max_results
+    offset = (page - 1) * max_results
+  end
+
+  latest_only = env.params.query["latest_only"]?.try &.to_i
+  latest_only ||= 0
+  latest_only = latest_only == 1
+
+  if latest_only
+    args = arg_array(user.subscriptions)
+    videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
+    ucid IN (#{args}) ORDER BY ucid, published DESC", user.subscriptions, as: ChannelVideo)
+    videos.sort_by! { |video| video.published }.reverse!
+  else
+    args = arg_array(user.subscriptions, 3)
+    videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
+  ORDER BY published DESC LIMIT $1 OFFSET $2", [limit, offset] + user.subscriptions, as: ChannelVideo)
+  end
+
+  sort = env.params.query["sort"]?
+  sort ||= "published"
+
+  case sort
+  when "alphabetically"
+    videos.sort_by! { |video| video.title }
+  when "alphabetically - reverse"
+    videos.sort_by! { |video| video.title }.reverse!
+  when "channel name"
+    videos.sort_by! { |video| video.author }
+  when "channel name - reverse"
+    videos.sort_by! { |video| video.author }.reverse!
+  end
+
+  if Kemal.config.ssl
+    scheme = "https://"
+  else
+    scheme = "http://"
+  end
+
+  if !limit
+    videos = videos[0..max_results]
+  end
+
+  host = env.request.headers["Host"]
+  path = env.request.path
+  query = env.request.query.not_nil!
+
+  feed = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
+    xml.element("feed", xmlns: "http://www.w3.org/2005/Atom", "xmlns:media": "http://search.yahoo.com/mrss/", "xml:lang": "en-US") do
+      xml.element("link", "type": "text/html", rel: "alternate", href: "#{scheme}#{host}/feed/subscriptions")
+      xml.element("link", "type": "application/atom+xml", rel: "self", href: "#{scheme}#{host}#{path}?#{query}")
+      xml.element("title") { xml.text "Invidious Private Feed for #{user.email}" }
+
+      videos.each do |video|
+        xml.element("entry") do
+          xml.element("id") { xml.text "yt:video:#{video.id}" }
+          xml.element("yt:videoId") { xml.text video.id }
+          xml.element("yt:channelId") { xml.text video.ucid }
+          xml.element("title") { xml.text video.title }
+          xml.element("link", rel: "alternate", href: "#{scheme}#{host}/watch?v=#{video.id}")
+
+          xml.element("author") do
+            xml.element("name") { xml.text video.author }
+            xml.element("uri") { xml.text "#{scheme}#{host}/channel/#{video.ucid}" }
+          end
+
+          xml.element("published") { xml.text video.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
+          xml.element("updated") { xml.text video.updated.to_s("%Y-%m-%dT%H:%M:%S%:z") }
+
+          xml.element("media:group") do
+            xml.element("media:title") { xml.text video.title }
+            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video.id}/hqdefault.jpg", width: "480", height: "360")
+          end
+        end
+      end
+    end
+  end
+
+  env.response.content_type = "application/atom+xml"
+  feed
 end
 
 # Function that is useful if you have multiple channels that don't have
