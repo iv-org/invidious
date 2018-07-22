@@ -861,7 +861,7 @@ post "/login" do |env|
       host = URI.parse(env.request.headers["Host"]).host
 
       login.cookies.each do |cookie|
-        if Kemal.config.ssl
+        if Kemal.config.ssl || CONFIG.https_only
           cookie.secure = true
         else
           cookie.secure = false
@@ -924,7 +924,7 @@ post "/login" do |env|
         sid = Base64.encode(Random::Secure.random_bytes(50))
         PG_DB.exec("UPDATE users SET id = $1 WHERE email = $2", sid, email)
 
-        if Kemal.config.ssl
+        if Kemal.config.ssl || CONFIG.https_only
           secure = true
         else
           secure = false
@@ -951,7 +951,7 @@ post "/login" do |env|
 
       PG_DB.exec("INSERT INTO users VALUES (#{args})", user_array)
 
-      if Kemal.config.ssl
+      if Kemal.config.ssl || CONFIG.https_only
         secure = true
       else
         secure = false
@@ -1180,7 +1180,7 @@ get "/feed/private" do |env|
     videos.sort_by! { |video| video.author }.reverse!
   end
 
-  if Kemal.config.ssl
+  if Kemal.config.ssl || CONFIG.https_only
     scheme = "https://"
   else
     scheme = "http://"
@@ -1459,7 +1459,7 @@ get "/api/manifest/dash/id/:id" do |env|
       url = url.rchop("</BaseURL>")
 
       if local
-        if Kemal.config.ssl
+        if Kemal.config.ssl || CONFIG.https_only
           scheme = "https://"
         end
         scheme ||= "http://"
@@ -1484,7 +1484,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   if local
     adaptive_fmts.each do |fmt|
-      if Kemal.config.ssl
+      if Kemal.config.ssl || CONFIG.https_only
         scheme = "https://"
       end
       scheme ||= "http://"

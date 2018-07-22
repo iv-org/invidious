@@ -42,6 +42,7 @@ class Config
       dbname: String,
     ),
     dl_api_key: String?,
+    https_only: Bool?,
   })
 end
 
