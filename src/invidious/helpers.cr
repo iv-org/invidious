@@ -43,6 +43,7 @@ class Config
     ),
     dl_api_key: String?,
     https_only: Bool?,
+    hmac_key:   String?,
   })
 end
 

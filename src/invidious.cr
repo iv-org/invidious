@@ -25,7 +25,7 @@ require "yaml"
 require "./invidious/*"
 
 CONFIG   = Config.from_yaml(File.read("config/config.yml"))
-HMAC_KEY = Random::Secure.random_bytes(32)
+HMAC_KEY = CONFIG.hmac_key || Random::Secure.random_bytes(32)
 
 crawl_threads = CONFIG.crawl_threads
 channel_threads = CONFIG.channel_threads
