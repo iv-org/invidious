@@ -1213,7 +1213,7 @@ get "/feed/subscriptions" do |env|
       videos = videos[0..max_results]
     end
 
-    PG_DB.exec("UPDATE users SET notifications = $1 WHERE id = $2", [] of String, user.id)
+    PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE id = $3", [] of String, Time.now, user.id)
     user.notifications = [] of String
     env.set "user", user
 
