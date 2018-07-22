@@ -1193,7 +1193,8 @@ get "/feed/subscriptions" do |env|
     end
 
     PG_DB.exec("UPDATE users SET notifications = $1 WHERE id = $2", [] of String, user.id)
-    env.set "notifications", 0
+    user.notifications = [] of String
+    env.set "user", user
 
     templated "subscriptions"
   else
