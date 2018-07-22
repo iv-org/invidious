@@ -241,9 +241,6 @@ def fetch_video(id, client)
     if info["reason"]?
       info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body
       info = HTTP::Params.parse(info)
-      if info["reason"]?
-        raise info["reason"]
-      end
     end
 
     info_channel.send(info)
@@ -251,6 +248,10 @@ def fetch_video(id, client)
 
   html = html_channel.receive
   info = info_channel.receive
+
+  if info["reson"]?
+    raise info["reason"]
+  end
 
   title = info["title"]
   views = info["view_count"].to_i64

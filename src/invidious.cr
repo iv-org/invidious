@@ -412,8 +412,7 @@ get "/captions/:id" do |env|
   begin
     video = get_video(id, client, PG_DB)
   rescue ex
-    error_message = ex.message
-    next templated "error"
+    halt env, status_code: 403
   end
 
   env.response.content_type = "application/json"
