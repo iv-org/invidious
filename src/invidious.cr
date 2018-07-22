@@ -405,29 +405,144 @@ get "/comments/:id" do |env|
   format = env.params.query["format"]?
   format ||= "html"
 
-  if source == "reddit"
-    reddit_client = make_client(REDDIT_URL)
+  if source == "youtube"
+    client = make_client(YT_URL)
+    headers = HTTP::Headers.new
+    html = client.get("/watch?v=#{id}&disable_polymer=1")
+
+    headers["cookie"] = html.cookies.add_request_headers(headers)["cookie"]
+    headers["content-type"] = "application/x-www-form-urlencoded"
+
+    headers["x-client-data"] = "CIi2yQEIpbbJAQipncoBCNedygEIqKPKAQ=="
+    headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}"
+    headers["x-spf-referer"] = "https://www.youtube.com/watch?v=#{id}"
+
+    headers["x-youtube-client-name"] = "1"
+    headers["x-youtube-client-version"] = "2.20180719"
+
+    body = html.body
+    session_token = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
+    ctoken = body.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
+    if !ctoken
+      env.response.content_type = "application/json"
+      next {"comments" => [] of String}.to_json
+    end
+    ctoken = ctoken["ctoken"]
+    itct = body.match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
+
+    if env.params.query["continuation"]?
+      continuation = env.params.query["continuation"]
+      ctoken = continuation
+    else
+      continuation = ctoken
+    end
+
+    post_req = {
+      "session_token" => session_token,
+    }
+    post_req = HTTP::Params.encode(post_req)
+
+    response = client.post("/comment_service_ajax?action_get_comments=1&pbj=1&ctoken=#{ctoken}&continuation=#{continuation}&itct=#{itct}", headers, post_req).body
+    response = JSON.parse(response)
+
+    response = response["response"]["continuationContents"]
+    if response["commentRepliesContinuation"]?
+      body = response["commentRepliesContinuation"]
+    else
+      body = response["itemSectionContinuation"]
+    end
+    contents = body["contents"]
+
+    comments = JSON.build do |json|
+      json.object do
+        json.field "comments" do
+          json.array do
+            contents.as_a.each do |item|
+              json.object do
+                if !response["commentRepliesContinuation"]?
+                  item = item["commentThreadRenderer"]
+                end
+
+                if item["replies"]?
+                  item_replies = item["replies"]["commentRepliesRenderer"]
+                end
+
+                if !response["commentRepliesContinuation"]?
+                  item_comment = item["comment"]["commentRenderer"]
+                else
+                  item_comment = item["commentRenderer"]
+                end
+
+                content_text = item_comment["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff')
+                content_text ||= item_comment["contentText"]["runs"][0]["text"].as_s.rchop('\ufeff')
+
+                json.field "author", item_comment["authorText"]["simpleText"]
+                json.field "authorThumbnail" do
+                  json.object do
+                    json.field "url", item_comment["authorThumbnail"]["thumbnails"][-1]["url"]
+                    json.field "width", item_comment["authorThumbnail"]["thumbnails"][-1]["width"]
+                    json.field "height", item_comment["authorThumbnail"]["thumbnails"][-1]["height"]
+                  end
+                end
+                json.field "authorId", item_comment["authorEndpoint"]["browseEndpoint"]["browseId"]
+                json.field "authorUrl", item_comment["authorEndpoint"]["browseEndpoint"]["canonicalBaseUrl"]
+                json.field "content", content_text
+                json.field "published", item_comment["publishedTimeText"]["runs"][0]["text"]
+                json.field "likeCount", item_comment["likeCount"]
+                json.field "commentId", item_comment["commentId"]
+
+                if item_replies && !response["commentRepliesContinuation"]?
+                  reply_count = item_replies["moreText"]["simpleText"].as_s.match(/View all (?<count>\d+) replies/).try &.["count"].to_i
+                  reply_count ||= 1
+
+                  continuation = item_replies["continuations"].as_a[0]["nextContinuationData"]["continuation"].as_s
+
+                  json.field "replies" do
+                    json.object do
+                      json.field "replyCount", reply_count
+                      json.field "continuation", continuation
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        if body["continuations"]?
+          continuation = body["continuations"][0]["nextContinuationData"]["continuation"]
+          json.field "continuation", continuation
+        end
+      end
+    end
+
+    env.response.content_type = "application/json"
+    comments = JSON.parse(comments)
+
+    next comments.to_pretty_json
+  elsif source == "reddit"
+    client = make_client(REDDIT_URL)
     headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.1.0 (by /u/omarroth)"}
     begin
-      reddit_comments, reddit_thread = get_reddit_comments(id, reddit_client, headers)
-      reddit_html = template_comments(reddit_comments)
+      comments, reddit_thread = get_reddit_comments(id, client, headers)
+      content_html = template_comments(comments)
 
-      reddit_html = fill_links(reddit_html, "https", "www.reddit.com")
-      reddit_html = add_alt_links(reddit_html)
+      content_html = fill_links(content_html, "https", "www.reddit.com")
+      content_html = add_alt_links(content_html)
     rescue ex
       reddit_thread = nil
-      reddit_html = ""
+      content_html = ""
     end
-  end
 
-  if !reddit_thread
-    halt env, status_code: 404
-  end
+    if !reddit_thread
+      halt env, status_code: 404
+    end
 
-  env.response.content_type = "application/json"
-  {"title"        => reddit_thread.title,
-   "permalink"    => reddit_thread.permalink,
-   "content_html" => reddit_html}.to_json
+    env.response.content_type = "application/json"
+    {"title"        => reddit_thread.title,
+     "permalink"    => reddit_thread.permalink,
+     "content_html" => content_html}.to_json
+  end
 end
 
 get "/embed/:id" do |env|
