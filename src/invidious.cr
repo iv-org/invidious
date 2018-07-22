@@ -353,10 +353,9 @@ get "/watch" do |env|
 
   player_response = JSON.parse(video.info["player_response"])
   if player_response["captions"]?
-    captions = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"].as_a
-  else
-    captions = [] of JSON::Any
+    captions = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"]?.try &.as_a
   end
+  captions ||= [] of JSON::Any
 
   rvs = [] of Hash(String, String)
   if video.info.has_key?("rvs")
