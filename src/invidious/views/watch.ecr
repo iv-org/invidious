@@ -27,6 +27,11 @@
                 <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
                 <% end %>
             <% end %>
+            
+            <% captions.each do |caption| %>
+            <track kind="captions" src="/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
+                srclang="<%= caption["languageCode"] %>" label="<%= caption["name"]["simpleText"]%> ">
+            <% end %>
         <% end %>
     </video>
 </div>
@@ -41,6 +46,7 @@ var options = {
          'volumePanel',
          'progressControl',
          'remainingTimeDisplay',
+         'captionsButton',
          'qualitySelector',
          'playbackRateMenuButton',
          'fullscreenToggle',

@@ -145,6 +145,7 @@ channel_threads.times do |i|
           end
         end
       end
+
       Fiber.yield
     end
   end
@@ -170,6 +171,7 @@ video_threads.times do |i|
           end
         end
       end
+
       Fiber.yield
     end
   end
@@ -349,6 +351,13 @@ get "/watch" do |env|
     stream["bitrate"] = (stream["bitrate"].to_f64/1000).to_i.to_s
   end
 
+  player_response = JSON.parse(video.info["player_response"])
+  if player_response["captions"]?
+    captions = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"].as_a
+  else
+    captions = [] of JSON::Any
+  end
+
   rvs = [] of Hash(String, String)
   if video.info.has_key?("rvs")
     video.info["rvs"].split(",").each do |rv|
@@ -394,6 +403,74 @@ get "/watch" do |env|
   thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
 
   templated "watch"
+end
+
+get "/captions/:id" do |env|
+  id = env.params.url["id"]
+
+  client = make_client(YT_URL)
+  begin
+    video = get_video(id, client, PG_DB)
+  rescue ex
+    error_message = ex.message
+    next templated "error"
+  end
+
+  env.response.content_type = "application/json"
+
+  player_response = JSON.parse(video.info["player_response"])
+  if !player_response["captions"]?
+    next "{}"
+  end
+
+  tracks = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"].as_a
+
+  label = env.params.query["label"]?
+  track = tracks.select { |tracks| tracks["name"]["simpleText"] == label }
+
+  env.response.content_type = "text/vtt"
+  if track.empty?
+    if tracks.empty?
+      halt env, status_code: 403
+    else
+      track = tracks[0]
+    end
+  else
+    track = track[0]
+  end
+
+  track_xml = client.get(track["baseUrl"].as_s).body
+  track_xml = XML.parse(track_xml)
+
+  webvtt = <<-END_VTT
+  WEBVTT
+  Kind: captions
+  Language: #{track["languageCode"]}
+
+
+  END_VTT
+
+  track_xml.xpath_nodes("//transcript/text").each do |node|
+    start_time = node["start"].to_f.seconds
+    end_time = start_time + node["dur"].to_f.seconds
+
+    start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
+    end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
+
+    text = HTML.unescape(node.content)
+    if md = text.match(/(?<name>.*) : (?<text>.*)/)
+      text = "<v #{md["name"]}>#{md["text"]}</v>"
+    end
+
+    webvtt = webvtt + <<-END_CUE
+    #{start_time} --> #{end_time}
+    #{text}
+
+
+    END_CUE
+  end
+
+  webvtt
 end
 
 get "/comments/:id" do |env|
