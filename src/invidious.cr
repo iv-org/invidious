@@ -414,26 +414,45 @@ get "/captions/:id" do |env|
     halt env, status_code: 403
   end
 
-  env.response.content_type = "application/json"
-
   player_response = JSON.parse(video.info["player_response"])
   if !player_response["captions"]?
-    next "{}"
+    env.response.content_type = "application/json"
+    next {
+      "captions" => [] of String,
+    }.to_json
   end
 
-  tracks = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"].as_a
+  tracks = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"]?.try &.as_a
+  tracks ||= [] of JSON::Any
 
   label = env.params.query["label"]?
+  if !label
+    env.response.content_type = "application/json"
+
+    response = JSON.build do |json|
+      json.object do
+        json.field "captions" do
+          json.array do
+            tracks.each do |caption|
+              json.object do
+                json.field "label", caption["name"]["simpleText"]
+                json.field "languageCode", caption["languageCode"]
+              end
+            end
+          end
+        end
+      end
+    end
+
+    next response
+  end
+
   track = tracks.select { |tracks| tracks["name"]["simpleText"] == label }
 
   env.response.content_type = "text/vtt"
   if track.empty?
-    if tracks.empty?
       halt env, status_code: 403
     else
-      track = tracks[0]
-    end
-  else
     track = track[0]
   end
 
@@ -597,9 +616,7 @@ get "/comments/:id" do |env|
     end
 
     env.response.content_type = "application/json"
-    comments = JSON.parse(comments)
-
-    next comments.to_pretty_json
+    next comments
   elsif source == "reddit"
     client = make_client(REDDIT_URL)
     headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.1.0 (by /u/omarroth)"}
