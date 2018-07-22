@@ -530,6 +530,11 @@ get "/comments/:id" do |env|
 
     comments = JSON.build do |json|
       json.object do
+        if body["header"]?
+          comment_count = body["header"]["commentsHeaderRenderer"]["countText"]["simpleText"].as_s.rchop(" Comments").delete(',').to_i
+          json.field "commentCount", comment_count
+        end
+
         json.field "comments" do
           json.array do
             contents.as_a.each do |item|
