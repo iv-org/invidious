@@ -402,6 +402,9 @@ get "/watch" do |env|
   description = video.description.gsub("<br>", " ")
   description = description.gsub("<br/>", " ")
   description = XML.parse_html(description).content[0..200].gsub("\n", " ").strip(" ")
+  if description.empty?
+    description = " "
+  end
 
   thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
 
