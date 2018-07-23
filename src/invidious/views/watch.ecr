@@ -1,5 +1,23 @@
 <% content_for "header" do %>
 <meta name="thumbnail" content="<%= thumbnail %>">
+<meta property="og:site_name" content="Invidious">
+<meta property="og:url" content="https://invidio.us/watch?v=<%= video.id %>">
+<meta property="og:title" content="<%= video.title %>">
+<meta property="og:image" content="https://i.ytimg.com/vi/<%= video.id %>/maxresdefault.jpg">
+<meta property="og:type" content="video.other">
+<meta property="og:video:url" content="https://invidio.us/embed/<%= video.id %>">
+<meta property="og:video:secure_url" content="https://invidio.us/embed/<%= video.id %>">
+<meta property="og:video:type" content="text/html">
+<meta property="og:video:width" content="1280">
+<meta property="og:video:height" content="720">
+<meta name="twitter:card" content="player">
+<meta name="twitter:site" content="@omarroth">
+<meta name="twitter:url" content="https://invidio.us/watch?v=<%= video.id %>">
+<meta name="twitter:title" content="<%= video.title %>">
+<meta property="twitter:image" content="https://i.ytimg.com/vi/<%= video.id %>/maxresdefault.jpg">
+<meta property="twitter:player" content="https://invidio.us/embed/<%= video.id %>">
+<meta property="twitter:player:width" content="1280">
+<meta property="twitter:player:height" content="720">
 <link rel="stylesheet" href="https://unpkg.com/video.js@6.10.3/dist/video-js.min.css">
 <link rel="stylesheet" href="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/css/quality-selector.css">
 <script src="https://unpkg.com/video.js@6.10.3/dist/video.min.js"></script>
