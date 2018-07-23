@@ -271,29 +271,8 @@ def fetch_video(id, client)
 
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
-  published = html.xpath_node(%q(//strong[contains(@class,"watch-time-text")]))
-  if published
-    published = published.content
-  else
-    raise "Could not find date published"
-  end
-
-  published = published.split(" ")
-  published = published[-3..-1].join(" ")
-  if !published.includes?("ago")
-    published = Time.parse(published, "%b %-d, %Y", Time::Location.local)
-  else
-    # Time matches format "20 hours ago", "40 minutes ago"...
-    delta = published.split(" ")[0].to_i
-    case published
-    when .includes? "minute"
-      published = Time.now - delta.minutes
-    when .includes? "hour"
-      published = Time.now - delta.hours
-    else
-      raise "Could not parse #{published}"
-    end
-  end
+  published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).not_nil!["content"]
+  published = Time.parse(published, "%Y-%m-%d", Time::Location.local)
 
   video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description, nil, author, ucid)
 
