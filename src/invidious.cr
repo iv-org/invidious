@@ -458,8 +458,8 @@ get "/captions/:id" do |env|
 
   env.response.content_type = "text/vtt"
   if track.empty?
-      halt env, status_code: 403
-    else
+    halt env, status_code: 403
+  else
     track = track[0]
   end
 
@@ -583,11 +583,15 @@ get "/comments/:id" do |env|
                 content_text ||= item_comment["contentText"]["runs"][0]["text"].as_s.rchop('\ufeff')
 
                 json.field "author", item_comment["authorText"]["simpleText"]
-                json.field "authorThumbnail" do
-                  json.object do
-                    json.field "url", item_comment["authorThumbnail"]["thumbnails"][-1]["url"]
-                    json.field "width", item_comment["authorThumbnail"]["thumbnails"][-1]["width"]
-                    json.field "height", item_comment["authorThumbnail"]["thumbnails"][-1]["height"]
+                json.field "authorThumbnails" do
+                  json.array do
+                    item_comment["authorThumbnail"]["thumbnails"].as_a.each do |thumbnail|
+                      json.object do
+                        json.field "url", thumbnail["url"]
+                        json.field "width", thumbnail["width"]
+                        json.field "height", thumbnail["height"]
+                      end
+                    end
                   end
                 end
                 json.field "authorId", item_comment["authorEndpoint"]["browseEndpoint"]["browseId"]
@@ -647,6 +651,221 @@ get "/comments/:id" do |env|
      "permalink"    => reddit_thread.permalink,
      "content_html" => content_html}.to_json
   end
+end
+
+get "/videos/:id" do |env|
+  id = env.params.url["id"]
+
+  client = make_client(YT_URL)
+  begin
+    video = get_video(id, client, PG_DB)
+  rescue ex
+    halt env, status_code: 403
+  end
+
+  adaptive_fmts = [] of HTTP::Params
+  if video.info.has_key?("adaptive_fmts")
+    video.info["adaptive_fmts"].split(",") do |string|
+      adaptive_fmts << HTTP::Params.parse(string)
+    end
+  end
+
+  fmt_stream = [] of HTTP::Params
+  video.info["url_encoded_fmt_stream_map"].split(",") do |string|
+    if !string.empty?
+      fmt_stream << HTTP::Params.parse(string)
+    end
+  end
+
+  if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
+    adaptive_fmts.each do |fmt|
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
+    end
+
+    fmt_stream.each do |fmt|
+      fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
+    end
+  end
+
+  player_response = JSON.parse(video.info["player_response"])
+  if player_response["captions"]?
+    captions = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"]?.try &.as_a
+  end
+  captions ||= [] of JSON::Any
+
+  env.response.content_type = "application/json"
+  video_info = JSON.build do |json|
+    json.object do
+      json.field "title", video.title
+      json.field "videoId", video.id
+      json.field "videoThumbnails" do
+        json.object do
+          qualities = [{name: "default", url: "default", width: 120, height: 90},
+                       {name: "high", url: "hqdefault", width: 480, height: 360},
+                       {name: "medium", url: "mqdefault", width: 320, height: 180},
+          ]
+          qualities.each do |quality|
+            json.field quality[:name] do
+              json.object do
+                json.field "url", "https://i.ytimg.com/vi/#{id}/#{quality["url"]}.jpg"
+                json.field "width", quality[:width]
+                json.field "height", quality[:height]
+              end
+            end
+          end
+        end
+      end
+
+      description = video.description.gsub("<br>", "\n")
+      description = description.gsub("<br/>", "\n")
+      description = XML.parse_html(description)
+
+      json.field "description", description.content
+      json.field "descriptionHtml", video.description
+      json.field "published", video.published.epoch
+      json.field "keywords" do
+        json.array do
+          video.info["keywords"].split(",").each { |keyword| json.string keyword }
+        end
+      end
+
+      json.field "viewCount", video.views
+      json.field "likeCount", video.likes
+      json.field "dislikeCount", video.dislikes
+
+      json.field "author", video.author
+      json.field "authorId", video.ucid
+      json.field "authorUrl", "/channel/#{video.ucid}"
+
+      json.field "lengthSeconds", video.info["length_seconds"].to_i
+      if video.info["allow_ratings"]?
+        json.field "allowRatings", video.info["allow_ratings"] == "1"
+      else
+        json.field "allowRatings", false
+      end
+      json.field "rating", video.info["avg_rating"].to_f32
+
+      if video.info["is_listed"]?
+        json.field "isListed", video.info["is_listed"] == "1"
+      end
+
+      fmt_list = video.info["fmt_list"].split(",").map { |fmt| fmt.split("/")[1] }
+      fmt_list = Hash.zip(fmt_list.map { |fmt| fmt[0] }, fmt_list.map { |fmt| fmt[1] })
+
+      json.field "adaptiveFormats" do
+        json.array do
+          adaptive_fmts.each_with_index do |adaptive_fmt, i|
+            json.object do
+              json.field "index", adaptive_fmt["index"]
+              json.field "bitrate", adaptive_fmt["bitrate"]
+              json.field "init", adaptive_fmt["init"]
+              json.field "url", adaptive_fmt["url"]
+              json.field "itag", adaptive_fmt["itag"]
+              json.field "type", adaptive_fmt["type"]
+              json.field "clen", adaptive_fmt["clen"]
+              json.field "lmt", adaptive_fmt["lmt"]
+              json.field "projectionType", adaptive_fmt["projection_type"]
+
+              fmt_info = itag_to_metadata(adaptive_fmt["itag"])
+              json.field "container", fmt_info["ext"]
+              json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
+
+              if fmt_info["fps"]?
+                json.field "fps", fmt_info["fps"]
+              end
+
+              if fmt_info["height"]?
+                json.field "qualityLabel", "#{fmt_info["height"]}p"
+                json.field "resolution", "#{fmt_info["height"]}p"
+
+                if fmt_info["width"]?
+                  json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
+                end
+              end
+            end
+          end
+        end
+      end
+
+      json.field "formatStreams" do
+        json.array do
+          fmt_stream.each do |fmt|
+            json.object do
+              json.field "url", fmt["url"]
+              json.field "itag", fmt["itag"]
+              json.field "type", fmt["type"]
+              json.field "quality", fmt["quality"]
+
+              fmt_info = itag_to_metadata(fmt["itag"])
+              json.field "container", fmt_info["ext"]
+              json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
+
+              if fmt_info["fps"]?
+                json.field "fps", fmt_info["fps"]
+              end
+
+              if fmt_info["height"]?
+                json.field "qualityLabel", "#{fmt_info["height"]}p"
+                json.field "resolution", "#{fmt_info["height"]}p"
+
+                if fmt_info["width"]?
+                  json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
+                end
+              end
+            end
+          end
+        end
+      end
+
+      json.field "captions" do
+        json.array do
+          captions.each do |caption|
+            json.object do
+              json.field "label", caption["name"]["simpleText"]
+              json.field "languageCode", caption["languageCode"]
+            end
+          end
+        end
+      end
+
+      json.field "recommendedVideos" do
+        json.array do
+          video.info["rvs"].split(",").each do |rv|
+            rv = HTTP::Params.parse(rv)
+
+            if rv["id"]?
+              json.object do
+                json.field "videoId", rv["id"]
+                json.field "title", rv["title"]
+                json.field "videoThumbnails" do
+                  json.object do
+                    qualities = [{name: "default", url: "default", width: 120, height: 90},
+                                 {name: "high", url: "hqdefault", width: 480, height: 360},
+                                 {name: "medium", url: "mqdefault", width: 320, height: 180},
+                    ]
+                    qualities.each do |quality|
+                      json.field quality[:name] do
+                        json.object do
+                          json.field "url", "https://i.ytimg.com/vi/#{id}/#{quality["url"]}.jpg"
+                          json.field "width", quality[:width]
+                          json.field "height", quality[:height]
+                        end
+                      end
+                    end
+                  end
+                end
+                json.field "author", rv["author"]
+                json.field "lengthSeconds", rv["length_seconds"]
+                json.field "viewCountText", rv["short_view_count_text"].rchop(" views")
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  video_info
 end
 
 get "/embed/:id" do |env|
