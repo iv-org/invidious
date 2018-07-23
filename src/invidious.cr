@@ -399,6 +399,10 @@ get "/watch" do |env|
   video.description = fill_links(video.description, "https", "www.youtube.com")
   video.description = add_alt_links(video.description)
 
+  description = video.description.gsub("<br>", " ")
+  description = description.gsub("<br/>", " ")
+  description = XML.parse_html(description).content[0..200].gsub("\n", " ").strip(" ")
+
   thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
 
   templated "watch"
