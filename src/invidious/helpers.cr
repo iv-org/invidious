@@ -353,14 +353,14 @@ def update_decrypt_function(client)
   url = document.match(/src="(?<url>\/yts\/jsbin\/player-.{9}\/en_US\/base.js)"/).not_nil!["url"]
   player = client.get(url).body
 
-  function_name = player.match(/\(b\|\|\(b="signature"\),d.set\(b,(?<name>[a-zA-Z]{2})\(c\)\)\)/).not_nil!["name"]
+  function_name = player.match(/\(b\|\|\(b="signature"\),d.set\(b,(?<name>[a-zA-Z0-9]{2})\(c\)\)\)/).not_nil!["name"]
   function_body = player.match(/#{function_name}=function\(a\){(?<body>[^}]+)}/).not_nil!["body"]
   function_body = function_body.split(";")[1..-2]
 
   var_name = function_body[0][0, 2]
 
   operations = {} of String => String
-  matches = player.delete("\n").match(/var #{var_name}={((?<op1>[a-zA-Z]{2}:[^}]+})),((?<op2>[a-zA-Z]{2}:[^}]+})),((?<op3>[a-zA-Z]{2}:[^}]+}))};/).not_nil!
+  matches = player.delete("\n").match(/var #{var_name}={(?<op1>[a-zA-Z0-9]{2}:[^}]+}),(?<op2>[a-zA-Z0-9]{2}:[^}]+}),(?<op3>[a-zA-Z0-9]{2}:[^}]+})};/).not_nil!
   3.times do |i|
     operation = matches["op#{i + 1}"]
     op_name = operation[0, 2]
