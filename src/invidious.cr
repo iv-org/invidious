@@ -1123,7 +1123,8 @@ post "/login" do |env|
       end
 
       if challenge_results[0][-1][0].as_a?
-        tfa = challenge_results[0][-1][0][0]
+        # Prefer Authenticator app and SMS over unsupported protocols
+        tfa = challenge_results[0][-1][0].as_a.select { |auth_type| auth_type[8] == 6 || auth_type[8] == 9 }[0]
 
         if tfa[2] == "TWO_STEP_VERIFICATION"
           if tfa[5] == "QUOTA_EXCEEDED"
