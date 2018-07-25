@@ -997,8 +997,8 @@ def generate_captcha(key)
   challenge = ""
   convert = Process.run(%(convert -density 1200 -resize 400x400 -background none svg:- png:-), shell: true, input: IO::Memory.new(clock_svg), output: Process::Redirect::Pipe) do |proc|
     challenge = proc.output.gets_to_end
-    challenge = Base64.encode(challenge)
-    challenge = "data:image/png; base64, #{challenge}"
+    challenge = Base64.strict_encode(challenge)
+    challenge = "data:image/png;base64,#{challenge}"
   end
 
   answer = "#{hour}:#{minute.to_s.rjust(2, '0')}"
