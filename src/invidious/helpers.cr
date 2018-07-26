@@ -307,9 +307,8 @@ def get_video(id, client, db, refresh = true)
   return video
 end
 
-def search(query, client)
-  html = client.get("https://www.youtube.com/results?q=#{query}&sp=EgIQAVAU&disable_polymer=1").body
-
+def search(query, client, &block)
+  html = client.get("/results?q=#{query}&sp=EgIQAVAU&disable_polymer=1").body
   html = XML.parse_html(html)
 
   html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|

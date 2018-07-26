@@ -86,6 +86,7 @@ crawl_threads.times do
     end
 
     loop do
+      client = make_client(YT_URL)
       if ids.empty?
         search(random.base64(3), client) do |id|
           ids << id
@@ -97,7 +98,6 @@ crawl_threads.times do
         video = get_video(id, client, PG_DB)
       rescue ex
         STDOUT << id << " : " << ex.message << "\n"
-        client = make_client(YT_URL)
         next
       ensure
         ids.delete(id)
