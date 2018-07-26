@@ -1359,6 +1359,10 @@ post "/preferences" do |env|
     dark_mode ||= "off"
     dark_mode = dark_mode == "on"
 
+    thin_mode = env.params.body["thin_mode"]?.try &.as(String)
+    thin_mode ||= "off"
+    thin_mode = thin_mode == "on"
+
     max_results = env.params.body["max_results"]?.try &.as(String).to_i
     max_results ||= 40
 
@@ -1376,6 +1380,7 @@ post "/preferences" do |env|
       "quality"     => quality,
       "volume"      => volume,
       "dark_mode"   => dark_mode,
+      "thin_mode"   => thin_mode,
       "max_results" => max_results,
       "sort"        => sort,
       "latest_only" => latest_only,

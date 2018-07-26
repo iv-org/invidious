@@ -53,6 +53,11 @@ function update_value(element) {
                 <input name="dark_mode" id="dark_mode" type="checkbox" <% if user.preferences.dark_mode %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="thin_mode">Thin mode: </label>
+                <input name="thin_mode" id="thin_mode" type="checkbox" <% if user.preferences.thin_mode %>checked<% end %>>
+            </div>
+
             <legend>Subscription preferences</legend>
             <div class="pure-control-group">
                 <label for="max_results">Number of videos shown in feed: </label>
