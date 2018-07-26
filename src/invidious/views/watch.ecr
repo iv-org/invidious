@@ -49,7 +49,7 @@
             <% end %>
             
             <% captions.each do |caption| %>
-            <track kind="captions" src="/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
+            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
                 srclang="<%= caption["languageCode"] %>" label="<%= caption["name"]["simpleText"]%> ">
             <% end %>
         <% end %>
@@ -158,7 +158,7 @@ for ( var i = 0; i < currentSources.length; i++ ) {
 player.src(currentSources);
 <% end %>
 
-fetch("/comments/<%= video.id %>?source=reddit")
+fetch("/api/v1/comments/<%= video.id %>?source=reddit")
     .then(function(response) {
         return response.json();
     })

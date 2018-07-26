@@ -411,7 +411,7 @@ get "/watch" do |env|
   templated "watch"
 end
 
-get "/captions/:id" do |env|
+get "/api/v1/captions/:id" do |env|
   id = env.params.url["id"]
 
   client = make_client(YT_URL)
@@ -497,7 +497,7 @@ get "/captions/:id" do |env|
   webvtt
 end
 
-get "/comments/:id" do |env|
+get "/api/v1/comments/:id" do |env|
   id = env.params.url["id"]
 
   source = env.params.query["source"]?
@@ -653,7 +653,7 @@ get "/comments/:id" do |env|
   end
 end
 
-get "/videos/:id" do |env|
+get "/api/v1/videos/:id" do |env|
   id = env.params.url["id"]
 
   client = make_client(YT_URL)
