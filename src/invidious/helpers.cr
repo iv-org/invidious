@@ -972,21 +972,18 @@ def generate_captcha(key)
   <svg viewBox="0 0 100 100" width="200px">
   <circle cx="50" cy="50" r="45" fill="#eee" stroke="black" stroke-width="2"></circle>
   
-  <circle id="hour1" cx="69" cy="17.091" r="2" fill="black"></circle>
-  <circle id="hour2" cx="82.909" cy="31" r="2" fill="black"></circle>
-  <circle id="hour3" cx="88" cy="50" r="2" fill="black"></circle>
-  
-  <circle id="hour4" cx="82.909" cy="69" r="2" fill="black"></circle>
-  <circle id="hour5" cx="69" cy="82.909" r="2" fill="black"></circle>
-  <circle id="hour6" cx="50" cy="88" r="2" fill="black"></circle>
-  
-  <circle id="hour7" cx="31" cy="82.909" r="2" fill="black"></circle>
-  <circle id="hour8" cx="17.091" cy="69" r="2" fill="black"></circle>
-  <circle id="hour9" cx="12" cy="50" r="2" fill="black"></circle>
-  
-  <circle id="hour10" cx="17.091" cy="31" r="2" fill="black"></circle>
-  <circle id="hour11" cx="31" cy="17.091" r="2" fill="black"></circle>
-  <circle id="hour12" cx="50" cy="12" r="2" fill="black"></circle>
+  <text x="69"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 1</text>
+  <text x="82.909" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 2</text>
+  <text x="88"     y="53"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 3</text>
+  <text x="82.909" y="72"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 4</text>
+  <text x="69"     y="85.909" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 5</text>
+  <text x="50"     y="91"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 6</text>
+  <text x="31"     y="85.909" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 7</text>
+  <text x="17.091" y="72"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 8</text>
+  <text x="12"     y="53"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 9</text>
+  <text x="17.091" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px">10</text>
+  <text x="31"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px">11</text>
+  <text x="50"     y="15"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px">12</text>
   
   <circle cx="50" cy="50" r="3" fill="black"></circle>
   <line id="minute" transform="rotate(#{minute_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="16" fill="black" stroke="black" stroke-width="2"></line>

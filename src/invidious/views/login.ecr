@@ -18,14 +18,14 @@
             <% if account_type == "google" %>
             <form class="pure-form pure-form-stacked" action="/login?referer=<%= referer %>" method="post">
                 <fieldset>
-                    <label for="email">Email</label>
+                    <label for="email">Email:</label>
                     <input required class="pure-input-1" name="email" type="email" placeholder="Email">
 
-                    <label for="password">Password</label>
+                    <label for="password">Password:</label>
                     <input required class="pure-input-1" name="password" type="password" placeholder="Password">
                     
                     <% if tfa %>
-                    <label for="tfa">Google verification code</label>
+                    <label for="tfa">Google verification code:</label>
                     <input required class="pure-input-1" name="tfa" type="text" placeholder="Google verification code">
                     <% end %>
 
@@ -38,12 +38,12 @@
                     <label for="email">User ID:</label>
                     <input required class="pure-input-1" name="email" type="text" placeholder="User ID">
 
-                    <label for="password">Password</label>
+                    <label for="password">Password:</label>
                     <input required class="pure-input-1" name="password" type="password" placeholder="Password">
                 
                     <img style="width:100%" src='<%= captcha.not_nil![:challenge] %>'/>
                     <input type="hidden" name="token" value="<%= captcha.not_nil![:token] %>">
-                    <label for="challenge_response">Time (hh:mm):</label>
+                    <label for="challenge_response">Time (h:mm):</label>
                     <input required type="text" name="challenge_response" type="text>" placeholder="hh:mm">
 
                     <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">Sign In</button>
