@@ -8,31 +8,14 @@
         <div class="h-box">
             <div class="pure-g">
                 <div class="pure-u-1-2">
-                    <a class="pure-button <% if account_type == "google" %>pure-button-disabled<% end %>" href="/login">Login to Google</a>
+                    <a class="pure-button <% if account_type == "invidious" %>pure-button-disabled<% end %>" href="/login">Login/Register</a>
                 </div>
                 <div class="pure-u-1-2">
-                    <a class="pure-button <% if account_type == "invidious" %>pure-button-disabled<% end %>" href="/login?type=invidious">Login/Register</a>
+                    <a class="pure-button <% if account_type == "google" %>pure-button-disabled<% end %>" href="/login?type=google">Login to Google</a>
                 </div>
             </div>
             <hr>
-            <% if account_type == "google" %>
-            <form class="pure-form pure-form-stacked" action="/login?referer=<%= referer %>" method="post">
-                <fieldset>
-                    <label for="email">Email:</label>
-                    <input required class="pure-input-1" name="email" type="email" placeholder="Email">
-
-                    <label for="password">Password:</label>
-                    <input required class="pure-input-1" name="password" type="password" placeholder="Password">
-                    
-                    <% if tfa %>
-                    <label for="tfa">Google verification code:</label>
-                    <input required class="pure-input-1" name="tfa" type="text" placeholder="Google verification code">
-                    <% end %>
-
-                    <button type="submit" class="pure-button pure-button-primary">Sign in</button>
-                </fieldset>
-            </form>
-            <% elsif account_type == "invidious" %>
+            <% if account_type == "invidious" %>
             <form class="pure-form pure-form-stacked" action="/login?referer=<%= referer %>&type=invidious" method="post">
                 <fieldset>
                     <label for="email">User ID:</label>
@@ -48,6 +31,23 @@
 
                     <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">Sign In</button>
                     <button type="submit" name="action" value="register" class="pure-button pure-button-primary">Register</button>
+                </fieldset>
+            </form>
+            <% elsif account_type == "google" %>
+            <form class="pure-form pure-form-stacked" action="/login?referer=<%= referer %>" method="post">
+                <fieldset>
+                    <label for="email">Email:</label>
+                    <input required class="pure-input-1" name="email" type="email" placeholder="Email">
+
+                    <label for="password">Password:</label>
+                    <input required class="pure-input-1" name="password" type="password" placeholder="Password">
+                    
+                    <% if tfa %>
+                    <label for="tfa">Google verification code:</label>
+                    <input required class="pure-input-1" name="tfa" type="text" placeholder="Google verification code">
+                    <% end %>
+
+                    <button type="submit" class="pure-button pure-button-primary">Sign in</button>
                 </fieldset>
             </form>
             <% end %>
