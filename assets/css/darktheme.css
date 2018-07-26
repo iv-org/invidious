@@ -28,3 +28,8 @@ body {
 .pure-form > fieldset > select, .pure-control-group > select {
   color: #101010;
 }
+
+.navbar>.searchbar input {
+  background-color: inherit;
+  color: inherit;
+}

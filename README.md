@@ -9,7 +9,7 @@
 #### On Arch:
 
 ```bash
-$ sudo pacman -Syu shards crystal
+$ sudo pacman -S shards crystal
 $ shards
 ```
 
@@ -44,7 +44,7 @@ $ ./setup.sh
 #### On Arch:
 
 ```bash
-$ sudo pacman -Syu imagemagick librsvg
+$ sudo pacman -S imagemagick librsvg
 ```
 
 ## Usage:
