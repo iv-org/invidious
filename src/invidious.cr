@@ -1124,7 +1124,18 @@ post "/login" do |env|
 
       if challenge_results[0][-1][0].as_a?
         # Prefer Authenticator app and SMS over unsupported protocols
-        tfa = challenge_results[0][-1][0].as_a.select { |auth_type| auth_type[8] == 6 || auth_type[8] == 9 }[0]
+        if challenge_results[0][-1][0][0][8] != 6 || challenge_results[0][-1][0][0][8] != 9
+          tfa = challenge_results[0][-1][0].as_a.select { |auth_type| auth_type[8] == 6 || auth_type[8] == 9 }[0]
+          select_challenge = "[#{challenge_results[0][-1][0].as_a.index(tfa).not_nil!}]"
+
+          tl = challenge_results[1][2]
+
+          tfa = client.post("/_/signin/selectchallenge?TL=#{tl}", headers, login_req(inputs, select_challenge)).body
+          tfa = tfa[5..-1]
+          tfa = JSON.parse(tfa)[0][-1]
+        else
+          tfa = challenge_results[0][-1][0][0]
+        end
 
         if tfa[2] == "TWO_STEP_VERIFICATION"
           if tfa[5] == "QUOTA_EXCEEDED"
