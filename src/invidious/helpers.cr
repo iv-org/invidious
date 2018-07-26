@@ -24,6 +24,7 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
   "quality"     => "hd720",
   "volume"      => 100,
   "dark_mode"   => false,
+  "thin_mode "  => false,
   "max_results" => 40,
   "sort"        => "published",
   "latest_only" => false,
@@ -148,14 +149,20 @@ class User
   })
 end
 
+# TODO: Migrate preferences so this will not be nilable
 class Preferences
   JSON.mapping({
-    video_loop:  Bool,
-    autoplay:    Bool,
-    speed:       Float32,
-    quality:     String,
-    volume:      Int32,
-    dark_mode:   Bool,
+    video_loop: Bool,
+    autoplay:   Bool,
+    speed:      Float32,
+    quality:    String,
+    volume:     Int32,
+    dark_mode:  Bool,
+    thin_mode:  {
+      type:    Bool,
+      nilable: true,
+      default: false,
+    },
     max_results: Int32,
     sort:        String,
     latest_only: Bool,
