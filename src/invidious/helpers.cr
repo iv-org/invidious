@@ -673,7 +673,7 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
       video = ChannelVideo.new(video_id, title, published, Time.now, ucid, author)
 
       db.exec("UPDATE users SET notifications = notifications || $1 \
-      WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, Time.now, ucid)
+      WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, ucid)
 
       video_array = video.to_a
       args = arg_array(video_array)
