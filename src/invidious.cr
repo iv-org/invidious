@@ -137,10 +137,9 @@ channel_threads.times do |i|
 
           begin
             id = rs.read(String)
-            channel = get_channel(id, client, PG_DB)
+            channel = fetch_channel(id, client, PG_DB, false)
           rescue ex
             STDOUT << id << " : " << ex.message << "\n"
-            client = make_client(YT_URL)
             next
           end
         end
