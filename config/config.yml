@@ -1,6 +1,6 @@
-crawl_threads: 5
-channel_threads: 5
-video_threads: 5
+crawl_threads: 1
+channel_threads: 1
+video_threads: 1
 db:
   user: kemal
   password: kemal
