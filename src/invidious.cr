@@ -1031,7 +1031,7 @@ get "/login" do |env|
   referer ||= "/feed/subscriptions"
 
   account_type = env.params.query["type"]?
-  account_type ||= "google"
+  account_type ||= "invidious"
 
   if account_type == "invidious"
     captcha = generate_captcha(HMAC_KEY)
@@ -1148,7 +1148,7 @@ post "/login" do |env|
           end
 
           if !tfa_code
-            next env.redirect "/login?tfa=true"
+            next env.redirect "/login?tfa=true&type=google"
           end
 
           tl = challenge_results[1][2]
