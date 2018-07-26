@@ -138,6 +138,7 @@ channel_threads.times do |i|
           begin
             id = rs.read(String)
             channel = fetch_channel(id, client, PG_DB, false)
+            PG_DB.exec("UPDATE channels SET updated = $1 WHERE id = $2", Time.now, id)
           rescue ex
             STDOUT << id << " : " << ex.message << "\n"
             next
