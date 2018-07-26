@@ -217,6 +217,8 @@ String.prototype.supplant = function (o) {
             <p><i class="fa fa-eye" aria-hidden="true"></i> <%= number_with_separator(video.views) %></p>
             <p><i class="fa fa-thumbs-up" aria-hidden="true"></i> <%= number_with_separator(video.likes) %></p>
             <p><i class="fa fa-thumbs-down" aria-hidden="true"></i> <%= number_with_separator(video.dislikes) %></p>
+            <p id="Genre">Genre : <%= video.genre %></p>
+            <p id="FamilyFriendly">Family Friendly? <%= video.is_family_friendly %></p>
             <p id="Wilson">Wilson Score : <%= video.wilson_score.round(4) %></p>
             <p id="Rating">Rating : <%= rating.round(4) %> / 5</p>
             <p id="Engagement">Engagement : <%= engagement.round(2) %>%</p>

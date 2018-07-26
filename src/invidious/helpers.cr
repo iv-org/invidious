@@ -85,17 +85,32 @@ class Video
       default:   HTTP::Params.parse(""),
       converter: Video::HTTPParamConverter,
     },
-    updated:      Time,
-    title:        String,
-    views:        Int64,
-    likes:        Int32,
-    dislikes:     Int32,
-    wilson_score: Float64,
-    published:    Time,
-    description:  String,
-    language:     String?,
-    author:       String,
-    ucid:         String,
+    updated:         Time,
+    title:           String,
+    views:           Int64,
+    likes:           Int32,
+    dislikes:        Int32,
+    wilson_score:    Float64,
+    published:       Time,
+    description:     String,
+    language:        String?,
+    author:          String,
+    ucid:            String,
+    allowed_regions: {
+      type:    Array(String),
+      nilable: true,
+      default: [] of String,
+    },
+    is_family_friendly: {
+      type:    Bool,
+      nilable: true,
+      default: nil,
+    },
+    genre: {
+      type:    String,
+      nilable: true,
+      default: nil,
+    },
   })
 end
 
@@ -274,7 +289,11 @@ def fetch_video(id, client)
   published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).not_nil!["content"]
   published = Time.parse(published, "%Y-%m-%d", Time::Location.local)
 
-  video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description, nil, author, ucid)
+  allowed_regions = html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
+  is_family_friendly = html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
+  genre = html.xpath_node(%q(//meta[@itemprop="genre"])).not_nil!["content"]
+
+  video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description, nil, author, ucid, allowed_regions, is_family_friendly, genre)
 
   return video
 end
@@ -298,7 +317,7 @@ def get_video(id, client, db, refresh = true)
     end
   else
     video = fetch_video(id, client)
-    video_array = video.to_a
+    video_array = video.to_a[0, 13]
     args = arg_array(video_array)
 
     db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
@@ -983,7 +1002,7 @@ def generate_captcha(key)
   <text x="17.091" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px">10</text>
   <text x="31"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px">11</text>
   <text x="50"     y="15"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px">12</text>
-  
+
   <circle cx="50" cy="50" r="3" fill="black"></circle>
   <line id="minute" transform="rotate(#{minute_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="16" fill="black" stroke="black" stroke-width="2"></line>
   <line id="hour"   transform="rotate(#{hour_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="24" fill="black" stroke="black" stroke-width="2"></line>

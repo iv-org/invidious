@@ -733,6 +733,10 @@ get "/api/v1/videos/:id" do |env|
       json.field "likeCount", video.likes
       json.field "dislikeCount", video.dislikes
 
+      json.field "isFamilyFriendly", video.is_family_friendly
+      json.field "allowedRegions", video.allowed_regions
+      json.field "genre", video.genre
+
       json.field "author", video.author
       json.field "authorId", video.ucid
       json.field "authorUrl", "/channel/#{video.ucid}"
@@ -984,7 +988,7 @@ get "/search" do |env|
   html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
 
-  videos = [] of Video
+  videos = [] of ChannelVideo
 
   html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
     root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
@@ -1009,7 +1013,7 @@ get "/search" do |env|
       author ||= ""
       ucid ||= ""
 
-      video = Video.new(id, HTTP::Params.parse(""), Time.now, title, 0_i64, 0, 0, 0.0, Time.now, "", nil, author, ucid)
+      video = ChannelVideo.new(id, title, Time.now, Time.now, ucid, author)
       videos << video
     end
   end
