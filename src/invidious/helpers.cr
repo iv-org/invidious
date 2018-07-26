@@ -309,7 +309,8 @@ def get_video(id, client, db, refresh = true)
         video_array = video.to_a
         args = arg_array(video_array[1..-1], 2)
 
-        db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,published,description,language,author,ucid)\
+        db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
+        published,description,language,author,ucid, allowed_regions, is_family_friendly, genre)\
         = (#{args}) WHERE id = $1", video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
@@ -317,7 +318,7 @@ def get_video(id, client, db, refresh = true)
     end
   else
     video = fetch_video(id, client)
-    video_array = video.to_a[0, 13]
+    video_array = video.to_a
     args = arg_array(video_array)
 
     db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
