@@ -872,6 +872,92 @@ get "/api/v1/videos/:id" do |env|
   video_info
 end
 
+get "/api/v1/trending" do |env|
+  client = make_client(YT_URL)
+  trending = client.get("/feed/trending?disable_polymer=1").body
+
+  trending = XML.parse_html(trending)
+  videos = JSON.build do |json|
+    json.array do
+      trending.xpath_nodes(%q(//ul/li[@class="expanded-shelf-content-item-wrapper"])).each do |node|
+        length_seconds = node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content
+        minutes, seconds = length_seconds.split(":")
+        length_seconds = minutes.to_i * 60 + seconds.to_i
+
+        video = node.xpath_node(%q(.//h3/a)).not_nil!
+        title = video.content
+        id = video["href"].lchop("/watch?v=")
+
+        channel = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).not_nil!
+        author = channel.content
+        author_url = channel["href"]
+
+        published, views = node.xpath_nodes(%q(.//ul[@class="yt-lockup-meta-info"]/li))
+        views = views.content.rchop(" views").delete(",").to_i
+
+        published = published.content
+        published = published.split(" ")
+        published = published[-3..-1].join(" ")
+
+        descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).not_nil!.to_s
+        description = descriptionHtml.gsub("<br>", "\n")
+        description = description.gsub("<br/>", "\n")
+        description = XML.parse_html(description)
+
+        # Time matches format "20 hours ago", "40 minutes ago"...
+        delta = published.split(" ")[0].to_i
+        case published
+        when .includes? "minute"
+          published = Time.now - delta.minutes
+        when .includes? "hour"
+          published = Time.now - delta.hours
+        when .includes? "day"
+          published = Time.now - delta.days
+        when .includes? "week"
+          published = Time.now - delta.weeks
+        when .includes? "month"
+          published = Time.now - delta.weeks
+        else
+          raise "Could not parse #{published}"
+        end
+
+        json.object do
+          json.field "title", title
+          json.field "videoId", id
+          json.field "videoThumbnails" do
+            json.object do
+              qualities = [{name: "default", url: "default", width: 120, height: 90},
+                           {name: "high", url: "hqdefault", width: 480, height: 360},
+                           {name: "medium", url: "mqdefault", width: 320, height: 180},
+              ]
+              qualities.each do |quality|
+                json.field quality[:name] do
+                  json.object do
+                    json.field "url", "https://i.ytimg.com/vi/#{id}/#{quality["url"]}.jpg"
+                    json.field "width", quality[:width]
+                    json.field "height", quality[:height]
+                  end
+                end
+              end
+            end
+          end
+
+          json.field "lengthSeconds", length_seconds
+          json.field "views", views
+          json.field "author", author
+          json.field "authorUrl", author_url
+          json.field "published", published.epoch
+          json.field "description", description.content
+          json.field "descriptionHtml", descriptionHtml
+        end
+      end
+    end
+  end
+
+  env.response.content_type = "application/json"
+  videos
+end
+
 get "/embed/:id" do |env|
   if env.params.url["id"]?
     id = env.params.url["id"]
@@ -1990,6 +2076,11 @@ get "/videoplayback*" do |env|
     end
   end
 end
+
+# get "/:id" do |env|
+#   id = env.params.url["id"]
+#   env.redirect "/watch?v=#{id}"
+# end
 
 error 404 do |env|
   error_message = "404 Page not found"
