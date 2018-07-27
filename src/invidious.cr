@@ -958,6 +958,52 @@ get "/api/v1/trending" do |env|
   videos
 end
 
+get "/api/v1/top" do |env|
+  videos = JSON.build do |json|
+    json.array do
+      top_videos.each do |video|
+        json.object do
+          json.field "title", video.title
+          json.field "videoId", video.id
+          json.field "videoThumbnails" do
+            json.object do
+              qualities = [{name: "default", url: "default", width: 120, height: 90},
+                           {name: "high", url: "hqdefault", width: 480, height: 360},
+                           {name: "medium", url: "mqdefault", width: 320, height: 180},
+              ]
+              qualities.each do |quality|
+                json.field quality[:name] do
+                  json.object do
+                    json.field "url", "https://i.ytimg.com/vi/#{video.id}/#{quality["url"]}.jpg"
+                    json.field "width", quality[:width]
+                    json.field "height", quality[:height]
+                  end
+                end
+              end
+            end
+          end
+
+          json.field "lengthSeconds", video.info["length_seconds"].to_i
+          json.field "views", video.views
+
+          json.field "author", video.author
+          json.field "authorUrl", "/channel/#{video.ucid}"
+          json.field "published", video.published.epoch
+
+          description = video.description.gsub("<br>", "\n")
+          description = description.gsub("<br/>", "\n")
+          description = XML.parse_html(description)
+          json.field "description", description.content
+          json.field "descriptionHtml", video.description
+        end
+      end
+    end
+  end
+
+  env.response.content_type = "application/json"
+  videos
+end
+
 get "/embed/:id" do |env|
   if env.params.url["id"]?
     id = env.params.url["id"]
