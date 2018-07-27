@@ -366,6 +366,20 @@ get "/watch" do |env|
   end
   captions ||= [] of JSON::Any
 
+  if video.info["hlsvp"]?
+    hlsvp = video.info["hlsvp"]
+
+    if Kemal.config.ssl || CONFIG.https_only
+      scheme = "https://"
+    else
+      scheme = "http://"
+  end
+    host = env.request.headers["Host"]
+    url = "#{scheme}#{host}"
+
+    hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", url)
+  end
+
   rvs = [] of Hash(String, String)
   if video.info.has_key?("rvs")
     video.info["rvs"].split(",").each do |rv|
@@ -2358,6 +2372,57 @@ options "/videoplayback*" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
+end
+
+get "/api/manifest/hls_variant/*" do |env|
+  client = make_client(YT_URL)
+  manifest = client.get(env.request.path)
+
+  if manifest.status_code != 200
+    halt env, status_code: 403
+  end
+
+  manifest = manifest.body
+
+  if Kemal.config.ssl || CONFIG.https_only
+    scheme = "https://"
+  else
+    scheme = "http://"
+  end
+  host = env.request.headers["Host"]
+
+  url = "#{scheme}#{host}"
+
+  env.response.content_type = "application/x-mpegURL"
+  env.response.headers.add("Access-Control-Allow-Origin", "*")
+  manifest.gsub("https://www.youtube.com", url)
+end
+
+get "/api/manifest/hls_playlist/*" do |env|
+  client = make_client(YT_URL)
+  manifest = client.get(env.request.path)
+
+  if manifest.status_code != 200
+    halt env, status_code: 403
+  end
+
+  if Kemal.config.ssl || CONFIG.https_only
+    scheme = "https://"
+  else
+    scheme = "http://"
+  end
+  host = env.request.headers["Host"]
+
+  url = "#{scheme}#{host}"
+
+  manifest = manifest.body.gsub("https://www.youtube.com", url)
+  manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, url)
+  fvip = manifest.match(/hls_chunk_host\/r(?<fvip>\d)---/).not_nil!["fvip"]
+  manifest = manifest.gsub("seg.ts", "seg.ts/fvip/#{fvip}")
+
+  env.response.content_type = "application/x-mpegURL"
+  env.response.headers.add("Access-Control-Allow-Origin", "*")
+  manifest
 end
 
 get "/videoplayback*" do |env|
