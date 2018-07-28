@@ -895,31 +895,13 @@ get "/api/v1/trending" do |env|
         published, views = node.xpath_nodes(%q(.//ul[@class="yt-lockup-meta-info"]/li))
         views = views.content.rchop(" views").delete(",").to_i
 
-        published = published.content
-        published = published.split(" ")
-        published = published[-3..-1].join(" ")
-
         descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).not_nil!.to_s
         description = descriptionHtml.gsub("<br>", "\n")
         description = description.gsub("<br/>", "\n")
         description = XML.parse_html(description)
 
-        # Time matches format "20 hours ago", "40 minutes ago"...
-        delta = published.split(" ")[0].to_i
-        case published
-        when .includes? "minute"
-          published = Time.now - delta.minutes
-        when .includes? "hour"
-          published = Time.now - delta.hours
-        when .includes? "day"
-          published = Time.now - delta.days
-        when .includes? "week"
-          published = Time.now - delta.weeks
-        when .includes? "month"
-          published = Time.now - delta.weeks
-        else
-          raise "Could not parse #{published}"
-        end
+        published = published.content.split(" ")[-3..-1].join(" ")
+        published = decode_date(published)
 
         json.object do
           json.field "title", title

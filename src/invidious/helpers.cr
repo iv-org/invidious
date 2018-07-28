@@ -704,46 +704,22 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
       end
       document = XML.parse_html(content_html)
 
-      document.xpath_nodes(%q(//li[contains(@class, "channels-content-item")])).each do |item|
-        root = item.xpath_node(%q(div/div/div[@class="yt-lockup-content"]))
-        if !root
-          raise "could not find root"
-        end
-
-        anchor = root.xpath_node(%q(h3[contains(@class,"yt-lockup-title")]/a))
+      document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |item|
+        anchor = item.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
         if !anchor
           raise "could not find anchor"
         end
+
         title = anchor.content.strip
         video_id = anchor["href"].lchop("/watch?v=")
 
-        published = root.xpath_node(%q(div[@class="yt-lockup-meta"]/ul/li[2]))
+        published = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[1]))
         if !published
           # This happens on Youtube red videos, here we just skip them
           next
         end
-        published = published.content.split(" ")
-        span = published[0].to_i
-        case published[1]
-        when .includes? "second"
-          span = span.seconds
-        when .includes? "minute"
-          span = span.minutes
-        when .includes? "hour"
-          span = span.hours
-        when .includes? "day"
-          span = span.days
-        when .includes? "week"
-          span = span.weeks
-        when .includes? "month"
-          span = span.months
-        when .includes? "year"
-          span = span.years
-        else
-          raise "Unrecognized time: #{published[1]}"
-        end
-
-        published = Time.now - span
+        published = published.content
+        published = decode_date(published)
 
         videos << ChannelVideo.new(video_id, title, published, Time.now, ucid, author)
       end
@@ -863,6 +839,29 @@ def decode_time(string)
   return time
 end
 
+def decode_date(date : String)
+  # Time matches format "20 hours ago", "40 minutes ago"...
+  delta = date.split(" ")[0].to_i
+  case date
+  when .includes? "minute"
+    delta = delta.minutes
+  when .includes? "hour"
+    delta = delta.hours
+  when .includes? "day"
+    delta = delta.days
+  when .includes? "week"
+    delta = delta.weeks
+  when .includes? "month"
+    delta = delta.months
+  when .includes? "year"
+    delta = delta.years
+  else
+    raise "Could not parse #{date}"
+  end
+
+  return Time.now - delta
+end
+
 def produce_playlist_url(ucid, index)
   ucid = ucid.lchop("UC")
   ucid = "VLUU" + ucid
@@ -899,7 +898,7 @@ end
 def produce_videos_url(ucid, page)
   page = "#{page}"
 
-  meta = "\x12\x06videos \x00\x30\x01\x38\x01\x60\x01\x6a\x00\x7a"
+  meta = "\x12\x06videos \x00\x30\x02\x38\x01\x60\x01\x6a\x00\x7a"
   meta += page.size.to_u8.unsafe_chr
   meta += page
   meta += "\xb8\x01\x00"
