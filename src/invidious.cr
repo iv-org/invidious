@@ -986,6 +986,197 @@ get "/api/v1/top" do |env|
   videos
 end
 
+get "/api/v1/channels/:ucid" do |env|
+  ucid = env.params.url["ucid"]
+
+  client = make_client(YT_URL)
+  channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
+
+  # TODO: Integrate this into `get_channel` function
+  # We can't get everything from RSS feed, so we get it from the channel page
+  channel_html = client.get("/channel/#{ucid}/about?disable_polymer=1").body
+  channel_html = XML.parse_html(channel_html)
+  banner = channel_html.xpath_node(%q(//div[@id="gh-banner"]/style)).not_nil!.content
+  banner = "https:" + banner.match(/background-image: url\((?<url>[^)]+)\)/).not_nil!["url"]
+
+  author_url = channel_html.xpath_node(%q(//a[@class="channel-header-profile-image-container spf-link"])).not_nil!["href"]
+  author_thumbnail = channel_html.xpath_node(%q(//img[@class="channel-header-profile-image"])).not_nil!["src"]
+  description = channel_html.xpath_node(%q(//meta[@itemprop="description"])).not_nil!["content"]
+
+  paid = channel_html.xpath_node(%q(//meta[@itemprop="paid"])).not_nil!["content"] == "True"
+  is_family_friendly = channel_html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
+  allowed_regions = channel_html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
+
+  sub_count, total_views, joined = channel_html.xpath_nodes(%q(//span[@class="about-stat"]))
+  sub_count = sub_count.content.rchop(" subscribers").delete(",").to_i64
+  total_views = total_views.content.rchop(" views").lchop(" • ").delete(",").to_i64
+  joined = Time.parse(joined.content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
+
+  latest_videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid = $1 ORDER BY published DESC LIMIT 15", channel.id, as: ChannelVideo)
+
+  channel_info = JSON.build do |json|
+    json.object do
+      json.field "author", channel.author
+      json.field "authorId", channel.id
+      json.field "authorUrl", author_url
+
+      json.field "authorBanners" do
+        json.array do
+          qualities = [{width: 2560, height: 424},
+                       {width: 2120, height: 351},
+                       {width: 1060, height: 175}]
+          qualities.each do |quality|
+            json.object do
+              json.field "url", banner.gsub("=w1060", "=w#{quality[:width]}")
+              json.field "width", quality[:width]
+              json.field "height", quality[:height]
+            end
+          end
+
+          json.object do
+            json.field "url", banner.rchop("=w1060-fcrop64=1,00005a57ffffa5a8-nd-c0xffffffff-rj-k-no")
+            json.field "width", 512
+            json.field "height", 288
+          end
+        end
+      end
+
+      json.field "authorThumbnails" do
+        json.array do
+          qualities = [32, 48, 76, 100, 512]
+
+          qualities.each do |quality|
+            json.object do
+              json.field "url", author_thumbnail.gsub("/s100-", "/s#{quality}-")
+              json.field "width", quality
+              json.field "height", quality
+            end
+          end
+        end
+      end
+
+      json.field "subCount", sub_count
+      json.field "totalViews", total_views
+      json.field "joined", joined.epoch
+      json.field "paid", paid
+
+      json.field "isFamilyFriendly", is_family_friendly
+      json.field "description", description
+      json.field "allowedRegions", allowed_regions
+
+      json.field "latestVideos" do
+        json.array do
+          latest_videos.each do |video|
+            json.object do
+              json.field "title", video.title
+              json.field "videoId", video.id
+              json.field "published", video.published.epoch
+
+              json.field "videoThumbnails" do
+                json.object do
+                  qualities = [{name: "default", url: "default", width: 120, height: 90},
+                               {name: "high", url: "hqdefault", width: 480, height: 360},
+                               {name: "medium", url: "mqdefault", width: 320, height: 180},
+                  ]
+                  qualities.each do |quality|
+                    json.field quality[:name] do
+                      json.object do
+                        json.field "url", "https://i.ytimg.com/vi/#{video.id}/#{quality["url"]}.jpg"
+                        json.field "width", quality[:width]
+                        json.field "height", quality[:height]
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  env.response.content_type = "application/json"
+  channel_info
+end
+
+get "/api/v1/channels/:ucid/videos" do |env|
+  ucid = env.params.url["ucid"]
+  page = env.params.query["page"]?
+  page ||= 1
+
+  url = produce_videos_url(ucid, page)
+  client = make_client(YT_URL)
+  response = client.get(url)
+
+  json = JSON.parse(response.body)
+  content_html = json["content_html"].as_s
+  if content_html.empty?
+    halt env, status_code: 403
+  end
+  document = XML.parse_html(content_html)
+
+  videos = JSON.build do |json|
+    json.array do
+      document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |item|
+        anchor = item.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
+        if !anchor
+          halt env, status_code: 403
+        end
+        title = anchor.content.strip
+        video_id = anchor["href"].lchop("/watch?v=")
+
+        view_count = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[2])).not_nil!
+        view_count = view_count.content.rchop(" views").delete(",").to_i
+
+        descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).not_nil!.to_s
+        description = descriptionHtml.gsub("<br>", "\n")
+        description = description.gsub("<br/>", "\n")
+        description = XML.parse_html(description).content.strip("\n ")
+
+        published = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[1]))
+        if !published
+          next
+        end
+        published = published.content
+        published = decode_date(published)
+
+        json.object do
+          json.field "title", title
+          json.field "videoId", video_id
+
+          json.field "videoThumbnails" do
+            json.object do
+              qualities = [{name: "default", url: "default", width: 120, height: 90},
+                           {name: "high", url: "hqdefault", width: 480, height: 360},
+                           {name: "medium", url: "mqdefault", width: 320, height: 180},
+              ]
+              qualities.each do |quality|
+                json.field quality[:name] do
+                  json.object do
+                    json.field "url", "https://i.ytimg.com/vi/#{video_id}/#{quality["url"]}.jpg"
+                    json.field "width", quality[:width]
+                    json.field "height", quality[:height]
+                  end
+                end
+              end
+            end
+          end
+
+          json.field "description", description
+          json.field "descriptionHtml", descriptionHtml
+
+          json.field "viewCount", view_count
+          json.field "published", published.epoch
+        end
+      end
+    end
+  end
+
+  env.response.content_type = "application/json"
+  videos
+end
+
 get "/embed/:id" do |env|
   if env.params.url["id"]?
     id = env.params.url["id"]
