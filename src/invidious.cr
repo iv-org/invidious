@@ -850,7 +850,7 @@ get "/api/v1/videos/:id" do |env|
                     qualities.each do |quality|
                       json.field quality[:name] do
                         json.object do
-                          json.field "url", "https://i.ytimg.com/vi/#{id}/#{quality["url"]}.jpg"
+                          json.field "url", "https://i.ytimg.com/vi/#{rv["id"]}/#{quality["url"]}.jpg"
                           json.field "width", quality[:width]
                           json.field "height", quality[:height]
                         end
