@@ -23,6 +23,7 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
   "speed"       => 1.0,
   "quality"     => "hd720",
   "volume"      => 100,
+  "comments"    => "youtube",
   "dark_mode"   => false,
   "thin_mode "  => false,
   "max_results" => 40,
@@ -157,8 +158,13 @@ class Preferences
     speed:      Float32,
     quality:    String,
     volume:     Int32,
-    dark_mode:  Bool,
-    thin_mode:  {
+    comments:   {
+      type:    String,
+      nilable: true,
+      default: "youtube",
+    },
+    dark_mode: Bool,
+    thin_mode: {
       type:    Bool,
       nilable: true,
       default: false,
@@ -500,7 +506,56 @@ def get_reddit_comments(id, client, headers)
   return comments, thread
 end
 
-def template_comments(root)
+def template_youtube_comments(comments)
+  html = ""
+
+  root = comments["comments"].as_a
+  root.each do |child|
+    if child["replies"]?
+      replies_html = <<-END_HTML
+      <div id="replies" class="pure-g">
+      <div class="pure-u-md-1-24"></div>
+      <div class="pure-u-md-23-24">
+        <p>
+          <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
+            onclick="load_comments(this)">View #{child["replies"]["replyCount"]} replies</a>
+        </p>
+      </div>
+      END_HTML
+    end
+
+    html += <<-END_HTML
+    <div class="pure-g">
+      <div class="pure-u-1">
+        <p>
+          <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> #{child["likeCount"]} <b>#{child["author"]}</b>
+        </p>
+        <div>
+        #{child["content"]}
+        #{replies_html}
+        </div>
+      </div>
+    </div>
+    END_HTML
+  end
+
+  if comments["continuation"]?
+    html += <<-END_HTML
+    <div class="pure-g">
+      <div class="pure-u-1">
+        <p>
+          <a href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
+            onclick="load_comments(this)">Load more</a>
+        </p>
+      </div>
+    </div>
+    END_HTML
+  end
+
+  return html
+end
+
+def template_reddit_comments(root)
   html = ""
   root.each do |child|
     if child.data.is_a?(RedditComment)
@@ -512,7 +567,7 @@ def template_comments(root)
       replies_html = ""
       if child.replies.is_a?(RedditThing)
         replies = child.replies.as(RedditThing)
-        replies_html = template_comments(replies.data.as(RedditListing).children)
+        replies_html = template_reddit_comments(replies.data.as(RedditListing).children)
       end
 
       content = <<-END_HTML

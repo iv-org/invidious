@@ -504,7 +504,7 @@ get "/api/v1/comments/:id" do |env|
   source ||= "youtube"
 
   format = env.params.query["format"]?
-  format ||= "html"
+  format ||= "json"
 
   if source == "youtube"
     client = make_client(YT_URL)
@@ -627,13 +627,20 @@ get "/api/v1/comments/:id" do |env|
     end
 
     env.response.content_type = "application/json"
-    next comments
+    if format == "json"
+      next comments
+    else
+      comments = JSON.parse(comments)
+      content_html = template_youtube_comments(comments)
+
+      {"content_html" => content_html}.to_json
+    end
   elsif source == "reddit"
     client = make_client(REDDIT_URL)
     headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.1.0 (by /u/omarroth)"}
     begin
       comments, reddit_thread = get_reddit_comments(id, client, headers)
-      content_html = template_comments(comments)
+      content_html = template_reddit_comments(comments)
 
       content_html = fill_links(content_html, "https", "www.reddit.com")
       content_html = add_alt_links(content_html)
@@ -1664,6 +1671,9 @@ post "/preferences" do |env|
     volume = env.params.body["volume"]?.try &.as(String).to_i
     volume ||= 100
 
+    comments = env.params.body["comments"]?
+    comments ||= "youtube"
+
     dark_mode = env.params.body["dark_mode"]?.try &.as(String)
     dark_mode ||= "off"
     dark_mode = dark_mode == "on"
@@ -1688,6 +1698,7 @@ post "/preferences" do |env|
       "speed"       => speed,
       "quality"     => quality,
       "volume"      => volume,
+      "comments"    => comments,
       "dark_mode"   => dark_mode,
       "thin_mode"   => thin_mode,
       "max_results" => max_results,
