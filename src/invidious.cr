@@ -2296,10 +2296,22 @@ get "/videoplayback*" do |env|
   end
 end
 
-# get "/:id" do |env|
-#   id = env.params.url["id"]
-#   env.redirect "/watch?v=#{id}"
-# end
+get "/:id" do |env|
+  id = env.params.url["id"]
+
+  params = [] of String
+  env.params.query.each do |k, v|
+    params << "#{k}=#{v}"
+  end
+  params = params.join("&")
+
+  url = "/watch?v=#{id}"
+  if params
+    url += "&#{params}"
+  end
+
+  env.redirect url
+end
 
 error 404 do |env|
   error_message = "404 Page not found"
