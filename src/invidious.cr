@@ -1145,6 +1145,11 @@ get "/api/v1/channels/:ucid/videos" do |env|
         published = published.content
         published = decode_date(published)
 
+        length_seconds = item.xpath_node(%q(.//span[@class="video-time"]/span)).not_nil!.content
+        length_seconds = length_seconds.split(":").map { |a| a.to_i }
+        length_seconds = [0] * (3 - length_seconds.size) + length_seconds
+        length_seconds = Time::Span.new(length_seconds[0], length_seconds[1], length_seconds[2])
+
         json.object do
           json.field "title", title
           json.field "videoId", video_id
@@ -1172,6 +1177,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
 
           json.field "viewCount", view_count
           json.field "published", published.epoch
+          json.field "lengthSeconds", length_seconds.total_seconds.to_i
         end
       end
     end
