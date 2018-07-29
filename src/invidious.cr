@@ -485,7 +485,9 @@ get "/api/v1/captions/:id" do |env|
 
   track_xml.xpath_nodes("//transcript/text").each do |node|
     start_time = node["start"].to_f.seconds
-    end_time = start_time + node["dur"].to_f.seconds
+    duration = node["dur"]?.try &.to_f.seconds
+    duration ||= start_time
+    end_time = start_time + duration
 
     start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
     end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
