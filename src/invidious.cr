@@ -2222,6 +2222,16 @@ get "/channel/:ucid" do |env|
   response = client.get(url)
 
   json = JSON.parse(response.body)
+  if json["content_html"].as_s.strip(" \n").empty?
+    rss = client.get("/feeds/videos.xml?channel_id=#{ucid}").body
+    rss = XML.parse_html(rss)
+    author = rss.xpath_node("//feed/author/name").not_nil!.content
+
+    videos = [] of ChannelVideo
+
+    next templated "channel"
+  end
+
   document = XML.parse_html(json["content_html"].as_s)
   author = document.xpath_node(%q(//div[@class="pl-video-owner"]/a)).not_nil!.content
 
