@@ -258,6 +258,14 @@ before_all do |env|
 end
 
 get "/" do |env|
+  user = env.get? "user"
+  if user
+    user = user.as(User)
+    if user.preferences.redirect_feed
+      env.redirect "/feed/subscriptions"
+    end
+  end
+
   templated "index"
 end
 
@@ -1689,6 +1697,10 @@ post "/preferences" do |env|
     comments = env.params.body["comments"]?
     comments ||= "youtube"
 
+    redirect_feed = env.params.body["redirect_feed"]?.try &.as(String)
+    redirect_feed ||= "off"
+    redirect_feed = redirect_feed == "on"
+
     dark_mode = env.params.body["dark_mode"]?.try &.as(String)
     dark_mode ||= "off"
     dark_mode = dark_mode == "on"
@@ -1708,17 +1720,18 @@ post "/preferences" do |env|
     latest_only = latest_only == "on"
 
     preferences = {
-      "video_loop"  => video_loop,
-      "autoplay"    => autoplay,
-      "speed"       => speed,
-      "quality"     => quality,
-      "volume"      => volume,
-      "comments"    => comments,
-      "dark_mode"   => dark_mode,
-      "thin_mode"   => thin_mode,
-      "max_results" => max_results,
-      "sort"        => sort,
-      "latest_only" => latest_only,
+      "video_loop"    => video_loop,
+      "autoplay"      => autoplay,
+      "speed"         => speed,
+      "quality"       => quality,
+      "volume"        => volume,
+      "comments"      => comments,
+      "redirect_feed" => redirect_feed,
+      "dark_mode"     => dark_mode,
+      "thin_mode"     => thin_mode,
+      "max_results"   => max_results,
+      "sort"          => sort,
+      "latest_only"   => latest_only,
     }.to_json
 
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
