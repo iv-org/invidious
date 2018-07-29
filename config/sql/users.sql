@@ -12,6 +12,7 @@ CREATE TABLE public.users
     preferences text COLLATE pg_catalog."default",
     password text COLLATE pg_catalog."default",
     token text COLLATE pg_catalog."default",
+    watched text[] COLLATE pg_catalog."default",
     CONSTRAINT users_email_key UNIQUE (email),
     CONSTRAINT users_id_key UNIQUE (id)
 )

@@ -270,19 +270,23 @@ get "/" do |env|
 end
 
 get "/watch" do |env|
-  user = env.get? "user"
-  if user
-    user = user.as(User)
-    preferences = user.preferences
-    subscriptions = user.subscriptions.as(Array(String))
-  end
-  subscriptions ||= [] of String
-
   if env.params.query["v"]?
     id = env.params.query["v"]
   else
     next env.redirect "/"
   end
+
+  user = env.get? "user"
+  if user
+    user = user.as(User)
+    if user.watched != ["N/A"] && !user.watched.includes? id
+      PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE id = $2", [id], user.id)
+    end
+
+    preferences = user.preferences
+    subscriptions = user.subscriptions.as(Array(String))
+  end
+  subscriptions ||= [] of String
 
   autoplay = env.params.query["autoplay"]?.try &.to_i
   video_loop = env.params.query["video_loop"]?.try &.to_i
@@ -1618,8 +1622,12 @@ post "/login" do |env|
 
       sid = Base64.encode(Random::Secure.random_bytes(50))
       user = create_user(sid, email, password)
+      if user.watched = ["N/A"]
+        user_array = user.to_a[0..-2]
+      else
+        user_array = user.to_a
+      end
 
-      user_array = user.to_a
       user_array[5] = user_array[5].to_json
       args = arg_array(user_array)
 
@@ -1719,6 +1727,10 @@ post "/preferences" do |env|
     latest_only ||= "off"
     latest_only = latest_only == "on"
 
+    unseen_only = env.params.body["unseen_only"]?.try &.as(String)
+    unseen_only ||= "off"
+    unseen_only = unseen_only == "on"
+
     preferences = {
       "video_loop"    => video_loop,
       "autoplay"      => autoplay,
@@ -1732,6 +1744,7 @@ post "/preferences" do |env|
       "max_results"   => max_results,
       "sort"          => sort,
       "latest_only"   => latest_only,
+      "unseen_only"   => unseen_only,
     }.to_json
 
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
@@ -1773,14 +1786,41 @@ get "/feed/subscriptions" do |env|
     end
 
     if preferences.latest_only
-      args = arg_array(user.subscriptions)
-      videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
-      ucid IN (#{args}) ORDER BY ucid, published DESC", user.subscriptions, as: ChannelVideo)
+      if preferences.unseen_only
+        ucids = arg_array(user.subscriptions)
+        if user.watched.empty?
+          watched = "'{}'"
+        else
+          watched = arg_array(user.watched, user.subscriptions.size + 1)
+        end
+
+        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
+      ucid IN (#{ucids}) AND id NOT IN (#{watched}) ORDER BY ucid, published DESC",
+          user.subscriptions + user.watched, as: ChannelVideo)
+      else
+        args = arg_array(user.subscriptions)
+        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
+        ucid IN (#{args}) ORDER BY ucid, published DESC", user.subscriptions, as: ChannelVideo)
+      end
+
       videos.sort_by! { |video| video.published }.reverse!
     else
-      args = arg_array(user.subscriptions, 3)
-      videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
-    ORDER BY published DESC LIMIT $1 OFFSET $2", [limit, offset] + user.subscriptions, as: ChannelVideo)
+      if preferences.unseen_only
+        ucids = arg_array(user.subscriptions, 3)
+        if user.watched.empty?
+          watched = "'{}'"
+        else
+          watched = arg_array(user.watched, user.subscriptions.size + 3)
+        end
+
+        videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{ucids}) \
+          AND id NOT IN (#{watched}) ORDER BY published DESC LIMIT $1 OFFSET $2",
+          [limit, offset] + user.subscriptions + user.watched, as: ChannelVideo)
+      else
+        args = arg_array(user.subscriptions, 3)
+        videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
+          ORDER BY published DESC LIMIT $1 OFFSET $2", [limit, offset] + user.subscriptions, as: ChannelVideo)
+      end
     end
 
     case preferences.sort
@@ -2162,6 +2202,20 @@ get "/subscription_ajax" do |env|
         PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE id = $2", channel_id, sid)
       end
     end
+  end
+
+  env.redirect referer
+end
+
+get "/clear_watch_history" do |env|
+  user = env.get? "user"
+  referer = env.request.headers["referer"]?
+  referer ||= "/"
+
+  if user
+    user = user.as(User)
+
+    PG_DB.exec("UPDATE users SET watched = '{}' WHERE id = $1", user.id)
   end
 
   env.redirect referer
