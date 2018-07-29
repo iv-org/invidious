@@ -221,7 +221,7 @@ end
 decrypt_function = [] of {name: String, value: Int32}
 spawn do
   loop do
-      client = make_client(YT_URL)
+    client = make_client(YT_URL)
 
     begin
       decrypt_function = update_decrypt_function(client)
@@ -589,7 +589,8 @@ get "/api/v1/comments/:id" do |env|
                 end
 
                 content_text = item_comment["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff')
-                content_text ||= item_comment["contentText"]["runs"][0]["text"].as_s.rchop('\ufeff')
+                content_text ||= item_comment["contentText"]["runs"].as_a.map { |comment| comment["text"] }
+                  .join("").rchop('\ufeff')
 
                 json.field "author", item_comment["authorText"]["simpleText"]
                 json.field "authorThumbnails" do

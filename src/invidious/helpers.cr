@@ -519,12 +519,13 @@ def template_youtube_comments(comments)
     if child["replies"]?
       replies_html = <<-END_HTML
       <div id="replies" class="pure-g">
-      <div class="pure-u-md-1-24"></div>
-      <div class="pure-u-md-23-24">
-        <p>
-          <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
-            onclick="load_comments(this)">View #{child["replies"]["replyCount"]} replies</a>
-        </p>
+        <div class="pure-u-md-1-24"></div>
+        <div class="pure-u-md-23-24">
+          <p>
+            <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
+              onclick="load_comments(this)">View #{child["replies"]["replyCount"]} replies</a>
+          </p>
+        </div>
       </div>
       END_HTML
     end
