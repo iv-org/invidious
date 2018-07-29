@@ -221,8 +221,9 @@ end
 decrypt_function = [] of {name: String, value: Int32}
 spawn do
   loop do
-    begin
       client = make_client(YT_URL)
+
+    begin
       decrypt_function = update_decrypt_function(client)
     rescue ex
     end
