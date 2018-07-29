@@ -1126,10 +1126,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
   videos = JSON.build do |json|
     json.array do
       document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |item|
-        anchor = item.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
-        if !anchor
-          halt env, status_code: 403
-        end
+        anchor = item.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
         title = anchor.content.strip
         video_id = anchor["href"].lchop("/watch?v=")
 
@@ -1784,6 +1781,96 @@ get "/feed/subscriptions" do |env|
   else
     env.redirect "/"
   end
+end
+
+get "/feed/channel/:ucid" do |env|
+  ucid = env.params.url["ucid"]
+
+  url = produce_videos_url(ucid)
+  client = make_client(YT_URL)
+  response = client.get(url)
+
+  channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
+
+  json = JSON.parse(response.body)
+  content_html = json["content_html"].as_s
+  if content_html.empty?
+    halt env, status_code: 403
+  end
+  document = XML.parse_html(content_html)
+
+  if Kemal.config.ssl || CONFIG.https_only
+    scheme = "https://"
+  else
+    scheme = "http://"
+  end
+  host = env.request.headers["Host"]
+  path = env.request.path
+
+  feed = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
+    xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
+      "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom") do
+      xml.element("link", rel: "self", href: "#{scheme}#{host}#{path}")
+      xml.element("id") { xml.text "yt:channel:#{ucid}" }
+      xml.element("yt:channelId") { xml.text ucid }
+      xml.element("title") { xml.text channel.author }
+      xml.element("link", rel: "alternate", href: "#{scheme}#{host}/channel/#{ucid}")
+
+      xml.element("author") do
+        xml.element("name") { xml.text channel.author }
+        xml.element("uri") { xml.text "#{scheme}#{host}/channel/#{ucid}" }
+      end
+
+      document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |item|
+        anchor = item.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
+        title = anchor.content.strip
+        video_id = anchor["href"].lchop("/watch?v=")
+
+        view_count = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[2])).not_nil!
+        view_count = view_count.content.rchop(" views").delete(",").to_i
+
+        descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).not_nil!.to_s
+        description = descriptionHtml.gsub("<br>", "\n")
+        description = description.gsub("<br/>", "\n")
+        description = XML.parse_html(description).content.strip("\n ")
+
+        published = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[1]))
+        if !published
+          next
+        end
+        published = published.content
+        published = decode_date(published)
+
+        xml.element("entry") do
+          xml.element("id") { xml.text "yt:video:#{video_id}" }
+          xml.element("yt:videoId") { xml.text video_id }
+          xml.element("yt:channelId") { xml.text ucid }
+          xml.element("title") { xml.text title }
+          xml.element("link", rel: "alternate", href: "#{scheme}#{host}/watch?v=#{video_id}")
+
+          xml.element("author") do
+            xml.element("name") { xml.text channel.author }
+            xml.element("uri") { xml.text "#{scheme}#{host}/channel/#{ucid}" }
+          end
+
+          xml.element("published") { xml.text published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
+
+          xml.element("media:group") do
+            xml.element("media:title") { xml.text title }
+            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video_id}/hqdefault.jpg", width: "480", height: "360")
+            xml.element("media:description") { xml.text description }
+          end
+
+          xml.element("media:community") do
+            xml.element("media:statistics", views: view_count)
+          end
+        end
+      end
+    end
+  end
+
+  env.response.content_type = "text/xml"
+  feed
 end
 
 get "/feed/private" do |env|

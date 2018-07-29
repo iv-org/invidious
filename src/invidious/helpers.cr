@@ -950,7 +950,7 @@ def produce_playlist_url(ucid, index)
   return url
 end
 
-def produce_videos_url(ucid, page)
+def produce_videos_url(ucid, page = 1)
   page = "#{page}"
 
   meta = "\x12\x06videos \x00\x30\x02\x38\x01\x60\x01\x6a\x00\x7a"
