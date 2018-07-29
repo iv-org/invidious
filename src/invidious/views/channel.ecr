@@ -2,7 +2,7 @@
 <title><%= author %> - Invidious</title>
 <% end %>
 
-<div class="pure-g" style="padding:1em;">
+<div class="pure-g h-box">
     <div class="pure-u-2-3">
         <h3><%= author %></h3>
     </div>
@@ -13,27 +13,23 @@
     </div>
 </div>
 
+<p class="h-box">
 <% if user %>
     <% if subscriptions.includes? ucid %>
-    <p>
-        <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>">
-            <b>Unsubscribe from <%= author %></b>
-        </a>
-    </p>
+    <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>">
+        <b>Unsubscribe from <%= author %></b>
+    </a>
     <% else %>
-    <p>
-        <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>">
-            <b>Subscribe to <%= author %></b>
-        </a>
-    </p>
+    <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>">
+        <b>Subscribe to <%= author %></b>
+    </a>
     <% end %>
 <% else %>
-    <p>
-        <a href="/login">
-            <b>Login to subscribe to <%= author %></b>
-        </a>
-    </p>
+    <a href="/login">
+        <b>Login to subscribe to <%= author %></b>
+    </a>
 <% end %>
+</p>
 
 <% videos.each_slice(4) do |slice| %>
 <div class="pure-g">
