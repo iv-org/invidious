@@ -563,12 +563,21 @@ get "/api/v1/comments/:id" do |env|
     else
       body = response["itemSectionContinuation"]
     end
-    contents = body["contents"]
+    contents = body["contents"]?
+    if !contents
+      env.response.content_type = "application/json"
+
+      if format == "json"
+        next {"comments" => [] of String}.to_json
+      else
+        next {"content_html" => ""}.to_json
+      end
+    end
 
     comments = JSON.build do |json|
       json.object do
         if body["header"]?
-          comment_count = body["header"]["commentsHeaderRenderer"]["countText"]["simpleText"].as_s.rchop(" Comment").delete("s,").to_i
+          comment_count = body["header"]["commentsHeaderRenderer"]["countText"]["simpleText"].as_s.delete("Comments,").to_i
           json.field "commentCount", comment_count
         end
 
