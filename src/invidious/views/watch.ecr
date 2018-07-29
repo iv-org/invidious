@@ -124,28 +124,6 @@ player.offset({
   end: <%= video_end %>
 });
 
-function toggle(target) {
-    body = target.parentNode.parentNode.children[1];
-    if (body.style.display === null || body.style.display === '') {
-        target.innerHTML = '[ + ]';
-        body.style.display = 'none';
-    } else {
-        target.innerHTML = '[ - ]';
-        body.style.display = '';
-    }
-};
-
-function toggle_comments(target) {
-    body = target.parentNode.parentNode.parentNode.children[1];
-    if (body.style.display === null || body.style.display === '') {
-        target.innerHTML = '[ + ]';
-        body.style.display = 'none';
-    } else {
-        target.innerHTML = '[ - ]';
-        body.style.display = '';
-    }
-};
-
 <% if !listen %>
 var currentSources = player.currentSources();
 for ( var i = 0; i < currentSources.length; i++ ) {
@@ -158,12 +136,74 @@ for ( var i = 0; i < currentSources.length; i++ ) {
 player.src(currentSources);
 <% end %>
 
-fetch("/api/v1/comments/<%= video.id %>?source=reddit")
+function toggle(target) {
+  body = target.parentNode.parentNode.children[1];
+  if (body.style.display === null || body.style.display === "") {
+    target.innerHTML = "[ + ]";
+    body.style.display = "none";
+  } else {
+    target.innerHTML = "[ - ]";
+    body.style.display = "";
+  }
+}
+
+function toggle_comments(target) {
+  body = target.parentNode.parentNode.parentNode.children[1];
+  if (body.style.display === null || body.style.display === "") {
+    target.innerHTML = "[ + ]";
+    body.style.display = "none";
+  } else {
+    target.innerHTML = "[ - ]";
+    body.style.display = "";
+  }
+}
+
+function timeout(ms, promise) {
+  return new Promise(function(resolve, reject) {
+    setTimeout(function() {
+      reject(new Error("timeout"));
+    }, ms);
+    promise.then(resolve, reject);
+  });
+}
+
+function load_comments(target) {
+  var continuation = target.getAttribute("data-continuation");
+
+  var body = target.parentNode.parentNode;
+  var fallback = body.innerHTML;
+  body.innerHTML =
+    '<h3><center><i class="loading fas fa-spinner"></i></center></h3>';
+
+  var url =
+    "/api/v1/comments/<%= video.id %>?format=html&continuation=" + continuation;
+  timeout(5000, fetch(url))
     .then(function(response) {
-        return response.json();
+      return response.json();
     })
-    .then(function(jsonResponse) {
-        comments = document.getElementById('comments');
+    .then(
+      function(jsonResponse) {
+        body.innerHTML = jsonResponse.content_html;
+      },
+      function(error) {
+        body.innerHTML = fallback;
+        console.log(response);
+      }
+    )
+    .catch(function(error) {
+      body.innerHTML = fallback;
+      console.log(error);
+    });
+}
+
+function get_reddit_comments() {
+  fetch("/api/v1/comments/<%= video.id %>?source=reddit")
+    .then(function(response) {
+      return response.json();
+    })
+    .then(
+      function(jsonResponse) {
+        comments = document.getElementById("comments");
         comments.innerHTML = `
         <div>
             <h3>
@@ -175,24 +215,51 @@ fetch("/api/v1/comments/<%= video.id %>?source=reddit")
             </b>
         </div>
         <div>{content_html}</div>
-    </div>
-    <hr style="margin-left:1em; margin-right:1em;">`.supplant({
-        title: jsonResponse.title,
-        permalink: jsonResponse.permalink,
-        content_html: jsonResponse.content_html
-        })
-    }, function(response){
-        comments.innerHTML = "";
-    });
 
-String.prototype.supplant = function (o) {
-    return this.replace(/{([^{}]*)}/g,
-        function (a, b) {
-            var r = o[b];
-            return typeof r === 'string' || typeof r === 'number' ? r : a;
-        }
+        <hr style="margin-left:1em; margin-right:1em;">`.supplant({
+          title: jsonResponse.title,
+          permalink: jsonResponse.permalink,
+          content_html: jsonResponse.content_html
+        });
+      },
+      function(response) {
+        get_youtube_comments();
+      }
     );
+}
+
+function get_youtube_comments() {
+  fetch("/api/v1/comments/<%= video.id %>?format=html")
+    .then(function(response) {
+      return response.json();
+    })
+    .then(
+      function(jsonResponse) {
+        comments = document.getElementById("comments");
+        comments.innerHTML = `
+        <div>{content_html}</div>
+        <hr style="margin-left:1em; margin-right:1em;">`.supplant({
+          content_html: jsonResponse.content_html
+        });
+      },
+      function(response) {
+        comments.innerHTML = "";
+      }
+    );
+}
+
+String.prototype.supplant = function(o) {
+  return this.replace(/{([^{}]*)}/g, function(a, b) {
+    var r = o[b];
+    return typeof r === "string" || typeof r === "number" ? r : a;
+  });
 };
+
+<% if preferences && preferences.comments == "reddit" %>
+get_reddit_comments();
+<% else %>
+get_youtube_comments();
+<% end %>
 
 </script>
 

@@ -47,6 +47,15 @@ function update_value(element) {
                 <span class="pure-form-message-inline" id="volume-value"><%= user.preferences.volume %></span>
             </div>
 
+            <div class="pure-control-group">
+                <label for="comments">Pull comments from: </label>
+                <select name="comments" id="comments">
+                <% ["youtube", "reddit"].each do |option| %>
+                    <option <% if user.preferences.comments == option %> selected <% end %>><%= option %></option>
+                <% end %>
+                </select>
+            </div>
+
             <legend>Visual preferences</legend>
             <div class="pure-control-group">
                 <label for="dark_mode">Dark mode: </label>
