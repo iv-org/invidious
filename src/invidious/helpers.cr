@@ -163,6 +163,11 @@ class Preferences
       nilable: true,
       default: "youtube",
     },
+    redirect_feed: {
+      type:    Bool,
+      nilable: true,
+      default: false,
+    },
     dark_mode: Bool,
     thin_mode: {
       type:    Bool,
