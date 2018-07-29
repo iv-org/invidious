@@ -902,10 +902,16 @@ get "/api/v1/trending" do |env|
         published, views = node.xpath_nodes(%q(.//ul[@class="yt-lockup-meta-info"]/li))
         views = views.content.rchop(" views").delete(",").to_i
 
-        descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).not_nil!.to_s
-        description = descriptionHtml.gsub("<br>", "\n")
-        description = description.gsub("<br/>", "\n")
-        description = XML.parse_html(description)
+        descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+        if !descriptionHtml
+          description = ""
+          descriptionHtml = ""
+        else
+          descriptionHtml = descriptionHtml.to_s
+          description = descriptionHtml.gsub("<br>", "\n")
+          description = description.gsub("<br/>", "\n")
+          description = XML.parse_html(description).content.strip("\n ")
+        end
 
         published = published.content.split(" ")[-3..-1].join(" ")
         published = decode_date(published)
@@ -936,7 +942,7 @@ get "/api/v1/trending" do |env|
           json.field "author", author
           json.field "authorUrl", author_url
           json.field "published", published.epoch
-          json.field "description", description.content
+          json.field "description", description
           json.field "descriptionHtml", descriptionHtml
         end
       end
@@ -1133,10 +1139,16 @@ get "/api/v1/channels/:ucid/videos" do |env|
         view_count = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[2])).not_nil!
         view_count = view_count.content.rchop(" views").delete(",").to_i
 
-        descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).not_nil!.to_s
-        description = descriptionHtml.gsub("<br>", "\n")
-        description = description.gsub("<br/>", "\n")
-        description = XML.parse_html(description).content.strip("\n ")
+        descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+        if !descriptionHtml
+          description = ""
+          descriptionHtml = ""
+        else
+          descriptionHtml = descriptionHtml.to_s
+          description = descriptionHtml.gsub("<br>", "\n")
+          description = description.gsub("<br/>", "\n")
+          description = XML.parse_html(description).content.strip("\n ")
+        end
 
         published = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[1]))
         if !published
@@ -1835,10 +1847,16 @@ get "/feed/channel/:ucid" do |env|
         view_count = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[2])).not_nil!
         view_count = view_count.content.rchop(" views").delete(",").to_i
 
-        descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).not_nil!.to_s
-        description = descriptionHtml.gsub("<br>", "\n")
-        description = description.gsub("<br/>", "\n")
-        description = XML.parse_html(description).content.strip("\n ")
+        descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+        if !descriptionHtml
+          description = ""
+          descriptionHtml = ""
+        else
+          descriptionHtml = descriptionHtml.to_s
+          description = descriptionHtml.gsub("<br>", "\n")
+          description = description.gsub("<br/>", "\n")
+          description = XML.parse_html(description).content.strip("\n ")
+        end
 
         published = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[1]))
         if !published
