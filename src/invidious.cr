@@ -568,7 +568,7 @@ get "/api/v1/comments/:id" do |env|
     comments = JSON.build do |json|
       json.object do
         if body["header"]?
-          comment_count = body["header"]["commentsHeaderRenderer"]["countText"]["simpleText"].as_s.rchop(" Comments").delete(',').to_i
+          comment_count = body["header"]["commentsHeaderRenderer"]["countText"]["simpleText"].as_s.rchop(" Comment").delete("s,").to_i
           json.field "commentCount", comment_count
         end
 
