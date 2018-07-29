@@ -612,7 +612,8 @@ get "/api/v1/comments/:id" do |env|
                 json.field "commentId", item_comment["commentId"]
 
                 if item_replies && !response["commentRepliesContinuation"]?
-                  reply_count = item_replies["moreText"]["simpleText"].as_s.match(/View all (?<count>\d+) replies/).try &.["count"].to_i
+                  reply_count = item_replies["moreText"]["simpleText"].as_s.match(/View all (?<count>\d+) replies/)
+                    .try &.["count"].to_i
                   reply_count ||= 1
 
                   continuation = item_replies["continuations"].as_a[0]["nextContinuationData"]["continuation"].as_s
@@ -1035,7 +1036,8 @@ get "/api/v1/channels/:ucid" do |env|
   total_views = total_views.content.rchop(" views").lchop(" • ").delete(",").to_i64
   joined = Time.parse(joined.content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
 
-  latest_videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid = $1 ORDER BY published DESC LIMIT 15", channel.id, as: ChannelVideo)
+  latest_videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid = $1 ORDER BY published DESC LIMIT 15",
+    channel.id, as: ChannelVideo)
 
   channel_info = JSON.build do |json|
     json.object do
@@ -1606,7 +1608,8 @@ post "/login" do |env|
           secure = false
         end
 
-        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years, secure: secure, http_only: true)
+        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
+          secure: secure, http_only: true)
       else
         error_message = "Invalid username or password"
         next templated "error"
@@ -1633,7 +1636,8 @@ post "/login" do |env|
         secure = false
       end
 
-      env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years, secure: secure, http_only: true)
+      env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
+        secure: secure, http_only: true)
     end
 
     env.redirect referer
@@ -1797,7 +1801,8 @@ get "/feed/subscriptions" do |env|
     end
 
     # TODO: Add option to disable picking out notifications from regular feed
-    notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email, as: Array(String))
+    notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
+      as: Array(String))
 
     notifications = videos.select { |v| notifications.includes? v.id }
     videos = videos - notifications
@@ -1806,7 +1811,8 @@ get "/feed/subscriptions" do |env|
       videos = videos[0..max_results]
     end
 
-    PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE id = $3", [] of String, Time.now, user.id)
+    PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE id = $3", [] of String, Time.now,
+      user.id)
     user.notifications = [] of String
     env.set "user", user
 
@@ -1896,7 +1902,8 @@ get "/feed/channel/:ucid" do |env|
 
           xml.element("media:group") do
             xml.element("media:title") { xml.text title }
-            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video_id}/hqdefault.jpg", width: "480", height: "360")
+            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video_id}/hqdefault.jpg",
+              width: "480", height: "360")
             xml.element("media:description") { xml.text description }
           end
 
@@ -1982,7 +1989,8 @@ get "/feed/private" do |env|
   query = env.request.query.not_nil!
 
   feed = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
-    xml.element("feed", xmlns: "http://www.w3.org/2005/Atom", "xmlns:media": "http://search.yahoo.com/mrss/", "xml:lang": "en-US") do
+    xml.element("feed", xmlns: "http://www.w3.org/2005/Atom", "xmlns:media": "http://search.yahoo.com/mrss/",
+      "xml:lang": "en-US") do
       xml.element("link", "type": "text/html", rel: "alternate", href: "#{scheme}#{host}/feed/subscriptions")
       xml.element("link", "type": "application/atom+xml", rel: "self", href: "#{scheme}#{host}#{path}?#{query}")
       xml.element("title") { xml.text "Invidious Private Feed for #{user.email}" }
@@ -2005,7 +2013,8 @@ get "/feed/private" do |env|
 
           xml.element("media:group") do
             xml.element("media:title") { xml.text video.title }
-            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video.id}/hqdefault.jpg", width: "480", height: "360")
+            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video.id}/hqdefault.jpg",
+              width: "480", height: "360")
           end
         end
       end
@@ -2062,7 +2071,8 @@ get "/modify_notifications" do |env|
 
       channel_req["channel_id"] = channel_id
 
-      client.post("/subscription_ajax?action_update_subscription_preferences=1", headers, HTTP::Params.encode(channel_req)).body
+      client.post("/subscription_ajax?action_update_subscription_preferences=1", headers,
+        HTTP::Params.encode(channel_req)).body
     end
   end
 
@@ -2314,7 +2324,8 @@ get "/api/manifest/dash/id/:id" do |env|
             url = url.gsub("=", "/")
 
             xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
-              xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011", value: "2")
+              xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
+                value: "2")
               xml.element("BaseURL") { xml.text url }
               xml.element("SegmentBase", indexRange: fmt["init"]) do
                 xml.element("Initialization", range: fmt["index"])

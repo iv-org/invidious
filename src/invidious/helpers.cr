@@ -299,7 +299,8 @@ def fetch_video(id, client)
   is_family_friendly = html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
   genre = html.xpath_node(%q(//meta[@itemprop="genre"])).not_nil!["content"]
 
-  video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description, nil, author, ucid, allowed_regions, is_family_friendly, genre)
+  video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description,
+    nil, author, ucid, allowed_regions, is_family_friendly, genre)
 
   return video
 end
@@ -1066,7 +1067,8 @@ def generate_captcha(key)
   END_SVG
 
   challenge = ""
-  convert = Process.run(%(convert -density 1200 -resize 400x400 -background none svg:- png:-), shell: true, input: IO::Memory.new(clock_svg), output: Process::Redirect::Pipe) do |proc|
+  convert = Process.run(%(convert -density 1200 -resize 400x400 -background none svg:- png:-), shell: true,
+    input: IO::Memory.new(clock_svg), output: Process::Redirect::Pipe) do |proc|
     challenge = proc.output.gets_to_end
     challenge = Base64.strict_encode(challenge)
     challenge = "data:image/png;base64,#{challenge}"
