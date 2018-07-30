@@ -378,7 +378,7 @@ get "/watch" do |env|
       scheme = "https://"
     else
       scheme = "http://"
-  end
+    end
     host = env.request.headers["Host"]
     url = "#{scheme}#{host}"
 
@@ -2615,18 +2615,22 @@ end
 get "/:id" do |env|
   id = env.params.url["id"]
 
-  params = [] of String
-  env.params.query.each do |k, v|
-    params << "#{k}=#{v}"
-  end
-  params = params.join("&")
+  if md = id.match(/[a-zA-Z0-9_-]{11}/)
+    params = [] of String
+    env.params.query.each do |k, v|
+      params << "#{k}=#{v}"
+    end
+    params = params.join("&")
 
-  url = "/watch?v=#{id}"
-  if params
-    url += "&#{params}"
-  end
+    url = "/watch?v=#{id}"
+    if params
+      url += "&#{params}"
+    end
 
-  env.redirect url
+    env.redirect url
+  else
+    env.response.status_code = 404
+  end
 end
 
 error 404 do |env|
