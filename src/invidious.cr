@@ -1139,7 +1139,7 @@ end
 
 get "/api/v1/channels/:ucid/videos" do |env|
   ucid = env.params.url["ucid"]
-  page = env.params.query["page"]?
+  page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
   url = produce_videos_url(ucid, page)
@@ -1346,7 +1346,7 @@ get "/search" do |env|
     next env.redirect "/"
   end
 
-  page = env.params.query["page"]?.try &.to_i
+  page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
   client = make_client(YT_URL)
@@ -1794,7 +1794,7 @@ get "/feed/subscriptions" do |env|
     max_results ||= env.params.query["max_results"]?.try &.to_i
     max_results ||= 40
 
-    page = env.params.query["page"]?.try &.to_i
+    page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
     if max_results < 0
@@ -1966,7 +1966,7 @@ get "/feed/private" do |env|
   max_results = env.params.query["max_results"]?.try &.to_i
   max_results ||= 40
 
-  page = env.params.query["page"]?.try &.to_i
+  page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
   if max_results < 0
@@ -2226,7 +2226,7 @@ get "/channel/:ucid" do |env|
 
   ucid = env.params.url["ucid"]
 
-  page = env.params.query["page"]?.try &.to_i
+  page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
   client = make_client(YT_URL)
