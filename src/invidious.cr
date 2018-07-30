@@ -324,6 +324,7 @@ get "/watch" do |env|
     video = get_video(id, client, PG_DB)
   rescue ex
     error_message = ex.message
+    env.response.status_code = 500
     next templated "error"
   end
 
