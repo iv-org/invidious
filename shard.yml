@@ -11,12 +11,15 @@ targets:
 dependencies:
   kemal:
      github: kemalcr/kemal
-     branch: master
+     branch: rework-param-parser
   pg:
     github: will/crystal-pg
     branch: master
   detect_language:
     github: detectlanguage/detectlanguage-crystal
+    branch: master
+  sqlite3:
+    github: crystal-lang/crystal-sqlite3
     branch: master
 
 crystal: 0.25.1

@@ -22,6 +22,7 @@ require "option_parser"
 require "pg"
 require "xml"
 require "yaml"
+require "zip"
 require "./invidious/*"
 
 CONFIG   = Config.from_yaml(File.read("config/config.yml"))
@@ -2174,13 +2175,193 @@ get "/subscription_manager" do |env|
   end
   subscriptions = user.subscriptions
 
+  action_takeout = env.params.query["action_takeout"]?.try &.to_i?
+  action_takeout ||= 0
+  action_takeout = action_takeout == 1
+
+  format = env.params.query["format"]?
+  format ||= "rss"
+
   client = make_client(YT_URL)
   subscriptions = subscriptions.map do |ucid|
     get_channel(ucid, client, PG_DB, false)
   end
   subscriptions.sort_by! { |channel| channel.author.downcase }
 
+  if action_takeout
+    if Kemal.config.ssl || CONFIG.https_only
+      scheme = "https://"
+    else
+      scheme = "http://"
+    end
+    host = env.request.headers["Host"]
+
+    url = "#{scheme}#{host}"
+
+    if format == "json"
+      env.response.content_type = "application/json"
+      env.response.headers["content-disposition"] = "attachment"
+      next {
+        "subscriptions" => user.subscriptions,
+        "watch_history" => user.watched,
+        "preferences"   => user.preferences,
+      }.to_json
+    else
+      env.response.content_type = "application/xml"
+      env.response.headers["content-disposition"] = "attachment"
+      export = XML.build do |xml|
+        xml.element("opml", version: "1.1") do
+          xml.element("body") do
+            if format == "newpipe"
+              title = "YouTube Subscriptions"
+            else
+              title = "Invidious Subscriptions"
+            end
+
+            xml.element("outline", text: title, title: title) do
+              subscriptions.each do |channel|
+                if format == "newpipe"
+                  xmlUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=#{channel.id}"
+                else
+                  xmlUrl = "#{url}/feed/channel/#{channel.id}"
+                end
+
+                xml.element("outline", text: channel.author, title: channel.author,
+                  "type": "rss", xmlUrl: xmlUrl)
+              end
+            end
+          end
+        end
+      end
+
+      next export.gsub(%(<?xml version="1.0"?>\n), "")
+    end
+  end
+
   templated "subscription_manager"
+end
+
+get "/data_control" do |env|
+  user = env.get? "user"
+  referer = env.request.headers["referer"]?
+  referer ||= "/"
+
+  if user
+    user = user.as(User)
+
+    templated "data_control"
+  else
+    env.redirect referer
+  end
+end
+
+post "/data_control" do |env|
+  user = env.get? "user"
+  referer = env.request.headers["referer"]?
+  referer ||= "/"
+
+  if user
+    user = user.as(User)
+
+    HTTP::FormData.parse(env.request) do |part|
+      body = part.body.gets_to_end
+      if body.empty?
+        next
+      end
+
+      case part.name
+      when "import_invidious"
+        body = JSON.parse(body)
+        body["subscriptions"].as_a.each do |ucid|
+          ucid = ucid.as_s
+          if !user.subscriptions.includes? ucid
+            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", ucid, user.id)
+
+            begin
+              client = make_client(YT_URL)
+              get_channel(ucid, client, PG_DB, false, false)
+            rescue ex
+              next
+            end
+          end
+        end
+
+        body["watch_history"].as_a.each do |id|
+          id = id.as_s
+          if !user.watched.includes? id
+            PG_DB.exec("UPDATE users SET watched = array_append(watched,$1) WHERE id = $2", id, user.id)
+          end
+        end
+
+        PG_DB.exec("UPDATE users SET preferences = $1 WHERE id = $2", body["preferences"].to_json, user.id)
+      when "import_youtube"
+        subscriptions = XML.parse(body)
+        subscriptions.xpath_nodes(%q(//outline[@type="rss"])).each do |channel|
+          ucid = channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
+
+          if !user.subscriptions.includes? ucid
+            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", ucid, user.id)
+
+            begin
+              client = make_client(YT_URL)
+              get_channel(ucid, client, PG_DB, false, false)
+            rescue ex
+              next
+            end
+          end
+        end
+      when "import_newpipe_subscriptions"
+        body = JSON.parse(body)
+        body["subscriptions"].as_a.each do |channel|
+          ucid = channel["url"].as_s.match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
+
+          if !user.subscriptions.includes? ucid
+            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", ucid, user.id)
+
+            begin
+              client = make_client(YT_URL)
+              get_channel(ucid, client, PG_DB, false, false)
+            rescue ex
+              next
+            end
+          end
+        end
+      when "import_newpipe"
+        Zip::Reader.open(body) do |file|
+          file.each_entry do |entry|
+            if entry.filename == "newpipe.db"
+              # We do this because the SQLite driver cannot parse a database from an IO
+              # Currently: channel URLs can **only** be subscriptions, and
+              # video URLs can **only** be watch history, so this works okay for now.
+
+              db = entry.io.gets_to_end
+              db.scan(/youtube\.com\/watch\?v\=(?<id>[a-zA-Z0-9_-]{11})/) do |md|
+                if !user.watched.includes? md["id"]
+                  PG_DB.exec("UPDATE users SET watched = array_append(watched,$1) WHERE id = $2", md["id"], user.id)
+                end
+              end
+
+              db.scan(/youtube\.com\/channel\/(?<ucid>[a-zA-Z0-9_-]{22})/) do |md|
+                ucid = md["ucid"]
+                if !user.subscriptions.includes? ucid
+                  PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", ucid, user.id)
+
+                  begin
+                    client = make_client(YT_URL)
+                    get_channel(ucid, client, PG_DB, false, false)
+                  rescue ex
+                    next
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  env.redirect referer
 end
 
 get "/subscription_ajax" do |env|
