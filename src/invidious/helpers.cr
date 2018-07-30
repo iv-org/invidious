@@ -247,24 +247,26 @@ def elapsed_text(elapsed)
   "#{(millis * 1000).round(2)}µs"
 end
 
-def fetch_video(id, client)
+def fetch_video(id)
   info_channel = Channel(HTTP::Params).new
   html_channel = Channel(XML::Node).new
 
   spawn do
-    html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&disable_polymer=1").body
-    html = XML.parse_html(html)
+    client = make_client(YT_URL)
+    html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&disable_polymer=1")
+    html = XML.parse_html(html.body)
 
     html_channel.send(html)
   end
 
   spawn do
-    info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body
-    info = HTTP::Params.parse(info)
+    client = make_client(YT_URL)
+    info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
+    info = HTTP::Params.parse(info.body)
 
     if info["reason"]?
-      info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body
-      info = HTTP::Params.parse(info)
+      info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
+      info = HTTP::Params.parse(info.body)
     end
 
     info_channel.send(info)
@@ -273,7 +275,7 @@ def fetch_video(id, client)
   html = html_channel.receive
   info = info_channel.receive
 
-  if info["reson"]?
+  if info["reason"]?
     raise info["reason"]
   end
 
@@ -308,14 +310,14 @@ def fetch_video(id, client)
   return video
 end
 
-def get_video(id, client, db, refresh = true)
+def get_video(id, db, refresh = true)
   if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool)
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
     # If record was last updated over an hour ago, refresh (expire param in response lasts for 6 hours)
     if refresh && Time.now - video.updated > 1.hour
       begin
-        video = fetch_video(id, client)
+        video = fetch_video(id)
         video_array = video.to_a
         args = arg_array(video_array[1..-1], 2)
 
@@ -324,10 +326,11 @@ def get_video(id, client, db, refresh = true)
         = (#{args}) WHERE id = $1", video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
+        raise ex
       end
     end
   else
-    video = fetch_video(id, client)
+    video = fetch_video(id)
     video_array = video.to_a
     args = arg_array(video_array)
 
@@ -448,7 +451,7 @@ def rank_videos(db, n, filter, url)
       else
         client = make_client(url)
         begin
-          video = get_video(id, client, db)
+          video = get_video(id, db)
         rescue ex
           next
         end

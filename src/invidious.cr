@@ -95,7 +95,7 @@ crawl_threads.times do
 
       begin
         id = ids[0]
-        video = get_video(id, client, PG_DB)
+        video = get_video(id, PG_DB)
       rescue ex
         STDOUT << id << " : " << ex.message << "\n"
         next
@@ -159,14 +159,11 @@ video_threads.times do |i|
       OFFSET (SELECT count(*)*$1/$2 FROM videos)"
       PG_DB.query(query, i, video_threads) do |rs|
         rs.each do
-          client = make_client(YT_URL)
-
           begin
             id = rs.read(String)
-            video = get_video(id, client, PG_DB)
+            video = get_video(id, PG_DB)
           rescue ex
             STDOUT << id << " : " << ex.message << "\n"
-            client = make_client(YT_URL)
             next
           end
         end
@@ -204,9 +201,8 @@ spawn do
     videos = [] of Video
 
     top.each do |id|
-      client = make_client(YT_URL)
       begin
-        videos << get_video(id, client, PG_DB)
+        videos << get_video(id, PG_DB)
       rescue ex
         next
       end
@@ -323,12 +319,11 @@ get "/watch" do |env|
   end
   listen ||= false
 
-  client = make_client(YT_URL)
   begin
-    video = get_video(id, client, PG_DB)
+    video = get_video(id, PG_DB)
   rescue ex
     error_message = ex.message
-    env.response.status_code = 500
+    STDOUT << id << " : " << ex.message << "\n"
     next templated "error"
   end
 
@@ -444,7 +439,7 @@ get "/api/v1/captions/:id" do |env|
 
   client = make_client(YT_URL)
   begin
-    video = get_video(id, client, PG_DB)
+    video = get_video(id, PG_DB)
   rescue ex
     halt env, status_code: 403
   end
@@ -706,9 +701,8 @@ end
 get "/api/v1/videos/:id" do |env|
   id = env.params.url["id"]
 
-  client = make_client(YT_URL)
   begin
-    video = get_video(id, client, PG_DB)
+    video = get_video(id, PG_DB)
   rescue ex
     halt env, status_code: 403
   end
@@ -1292,9 +1286,8 @@ get "/embed/:id" do |env|
   video_loop = env.params.query["loop"]?.try &.to_i
   video_loop ||= 0
 
-  client = make_client(YT_URL)
   begin
-    video = get_video(id, client, PG_DB)
+    video = get_video(id, PG_DB)
   rescue ex
     error_message = ex.message
     next templated "error"
@@ -1370,7 +1363,6 @@ get "/search" do |env|
   page ||= 1
 
   client = make_client(YT_URL)
-
   html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
 
@@ -2356,7 +2348,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   client = make_client(YT_URL)
   begin
-    video = get_video(id, client, PG_DB)
+    video = get_video(id, PG_DB)
   rescue ex
     halt env, status_code: 403
   end
