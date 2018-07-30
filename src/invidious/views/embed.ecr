@@ -51,7 +51,7 @@ video, #my_video, .video-js, .vjs-default-skin
 
 <script>
 var options = {
-    preload: "auto",
+    preload: 'auto',
     playbackRates: [0.5, 1, 1.5, 2],
     controlBar: {
       children: [
@@ -112,32 +112,10 @@ player.offset({
   end: <%= video_end %>
 });
 
-function toggle(target) {
-    body = target.parentNode.parentNode.children[1];
-    if (body.style.display === null || body.style.display === '') {
-        target.innerHTML = '[ + ]';
-        body.style.display = 'none';
-    } else {
-        target.innerHTML = '[ - ]';
-        body.style.display = '';
-    }
-};
-
-function toggle_comments(target) {
-    body = target.parentNode.parentNode.parentNode.children[1];
-    if (body.style.display === null || body.style.display === '') {
-        target.innerHTML = '[ + ]';
-        body.style.display = 'none';
-    } else {
-        target.innerHTML = '[ - ]';
-        body.style.display = '';
-    }
-};
-
 <% if !listen %>
 var currentSources = player.currentSources();
 for ( var i = 0; i < currentSources.length; i++ ) {
-    if (player.canPlayType(currentSources[i]["type"].split(";")[0]) === "") {
+    if (player.canPlayType(currentSources[i]['type'].split(';')[0]) === '') {
         currentSources.splice(i);
         i--;
     }

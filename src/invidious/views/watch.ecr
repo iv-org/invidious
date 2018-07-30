@@ -35,7 +35,7 @@
 
 <div class="h-box">
     <video style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" 
-        id="player" class="video-js vjs-16-9" data-setup="{}" 
+        id="player" class="video-js" data-setup="{}" 
         <% if autoplay %>autoplay<% end %>
         <% if video_loop %>loop<% end %>
         controls>
@@ -44,14 +44,14 @@
         <% else %>
             <% if listen %>
                 <% audio_streams.each_with_index do |fmt, i| %>
-                    <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
+                    <source src="<%= fmt["url"] %>" type="<%= fmt["type"] %>" label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
                 <% end %>
             <% else %>
                 <% fmt_stream.each_with_index do |fmt, i| %>
                     <% if preferences %>
-                    <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= preferences.quality == fmt["label"].split(" - ")[0] %>">
+                    <source src="<%= fmt["url"] %>" type="<%= fmt["type"] %>" label="<%= fmt["label"] %>" selected="<%= preferences.quality == fmt["label"].split(" - ")[0] %>">
                     <% else %>
-                    <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+                    <source src="<%= fmt["url"] %>" type="<%= fmt["type"] %>" label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
                     <% end %>
                 <% end %>
                 
@@ -66,7 +66,8 @@
 
 <script>
 var options = {
-    preload: "auto",
+    aspectRatio: '16:9',
+    preload: 'auto',
     playbackRates: [0.5, 1, 1.5, 2],
     controlBar: {
       children: [
@@ -135,7 +136,7 @@ player.offset({
 <% if !listen %>
 var currentSources = player.currentSources();
 for ( var i = 0; i < currentSources.length; i++ ) {
-    if (player.canPlayType(currentSources[i]["type"].split(";")[0]) === "") {
+    if (player.canPlayType(currentSources[i]['type'].split(';')[0]) === '') {
         currentSources.splice(i);
         i--;
     }
@@ -146,37 +147,37 @@ player.src(currentSources);
 
 function toggle(target) {
   body = target.parentNode.parentNode.children[1];
-  if (body.style.display === null || body.style.display === "") {
-    target.innerHTML = "[ + ]";
-    body.style.display = "none";
+  if (body.style.display === null || body.style.display === '') {
+    target.innerHTML = '[ + ]';
+    body.style.display = 'none';
   } else {
-    target.innerHTML = "[ - ]";
-    body.style.display = "";
+    target.innerHTML = '[ - ]';
+    body.style.display = '';
   }
 }
 
 function toggle_comments(target) {
   body = target.parentNode.parentNode.parentNode.children[1];
-  if (body.style.display === null || body.style.display === "") {
-    target.innerHTML = "[ + ]";
-    body.style.display = "none";
+  if (body.style.display === null || body.style.display === '') {
+    target.innerHTML = '[ + ]';
+    body.style.display = 'none';
   } else {
-    target.innerHTML = "[ - ]";
-    body.style.display = "";
+    target.innerHTML = '[ - ]';
+    body.style.display = '';
   }
 }
 
 function timeout(ms, promise) {
   return new Promise(function(resolve, reject) {
     setTimeout(function() {
-      reject(new Error("timeout"));
+      reject(new Error('timeout'));
     }, ms);
     promise.then(resolve, reject);
   });
 }
 
 function load_comments(target) {
-  var continuation = target.getAttribute("data-continuation");
+  var continuation = target.getAttribute('data-continuation');
 
   var body = target.parentNode.parentNode;
   var fallback = body.innerHTML;
@@ -184,7 +185,7 @@ function load_comments(target) {
     '<h3><center><i class="loading fas fa-spinner"></i></center></h3>';
 
   var url =
-    "/api/v1/comments/<%= video.id %>?format=html&continuation=" + continuation;
+    '/api/v1/comments/<%= video.id %>?format=html&continuation=' + continuation;
   timeout(5000, fetch(url))
     .then(function(response) {
       return response.json();
@@ -205,13 +206,13 @@ function load_comments(target) {
 }
 
 function get_reddit_comments() {
-  fetch("/api/v1/comments/<%= video.id %>?source=reddit")
+  fetch('/api/v1/comments/<%= video.id %>?source=reddit')
     .then(function(response) {
       return response.json();
     })
     .then(
       function(jsonResponse) {
-        comments = document.getElementById("comments");
+        comments = document.getElementById('comments');
         comments.innerHTML = `
         <div>
             <h3>
@@ -237,13 +238,13 @@ function get_reddit_comments() {
 }
 
 function get_youtube_comments() {
-  fetch("/api/v1/comments/<%= video.id %>?format=html")
+  fetch('/api/v1/comments/<%= video.id %>?format=html')
     .then(function(response) {
       return response.json();
     })
     .then(
       function(jsonResponse) {
-        comments = document.getElementById("comments");
+        comments = document.getElementById('comments');
         comments.innerHTML = `
         <div>{content_html}</div>
         <hr style="margin-left:1em; margin-right:1em;">`.supplant({
@@ -251,7 +252,7 @@ function get_youtube_comments() {
         });
       },
       function(response) {
-        comments.innerHTML = "";
+        comments.innerHTML = '';
       }
     );
 }
@@ -259,7 +260,7 @@ function get_youtube_comments() {
 String.prototype.supplant = function(o) {
   return this.replace(/{([^{}]*)}/g, function(a, b) {
     var r = o[b];
-    return typeof r === "string" || typeof r === "number" ? r : a;
+    return typeof r === 'string' || typeof r === 'number' ? r : a;
   });
 };
 
