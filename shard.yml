@@ -18,9 +18,6 @@ dependencies:
   detect_language:
     github: detectlanguage/detectlanguage-crystal
     branch: master
-  sqlite3:
-    github: crystal-lang/crystal-sqlite3
-    branch: master
 
 crystal: 0.25.1
 

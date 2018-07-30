@@ -2839,6 +2839,7 @@ end
 
 public_folder "assets"
 
+Kemal.config.powered_by_header = false
 add_handler FilteredCompressHandler.new
 add_context_storage_type(User)
 
