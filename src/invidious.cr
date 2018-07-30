@@ -558,6 +558,12 @@ get "/api/v1/comments/:id" do |env|
     response = client.post("/comment_service_ajax?action_get_comments=1&pbj=1&ctoken=#{ctoken}&continuation=#{continuation}&itct=#{itct}", headers, post_req).body
     response = JSON.parse(response)
 
+    env.response.content_type = "application/json"
+
+    if !response["response"]["continuationContents"]?
+      halt env, status_code: 401
+    end
+
     response = response["response"]["continuationContents"]
     if response["commentRepliesContinuation"]?
       body = response["commentRepliesContinuation"]
@@ -566,8 +572,6 @@ get "/api/v1/comments/:id" do |env|
     end
     contents = body["contents"]?
     if !contents
-      env.response.content_type = "application/json"
-
       if format == "json"
         next {"comments" => [] of String}.to_json
       else
@@ -649,7 +653,6 @@ get "/api/v1/comments/:id" do |env|
       end
     end
 
-    env.response.content_type = "application/json"
     if format == "json"
       next comments
     else
@@ -676,7 +679,6 @@ get "/api/v1/comments/:id" do |env|
       halt env, status_code: 404
     end
 
-    env.response.content_type = "application/json"
     {"title"        => reddit_thread.title,
      "permalink"    => reddit_thread.permalink,
      "content_html" => content_html}.to_json
