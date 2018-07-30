@@ -1146,9 +1146,15 @@ get "/api/v1/channels/:ucid/videos" do |env|
   response = client.get(url)
 
   json = JSON.parse(response.body)
+  if !json["content_html"]?
+    env.response.content_type = "application/json"
+    next {"error" => "No videos or nonexistent channel"}.to_json
+  end
+
   content_html = json["content_html"].as_s
   if content_html.empty?
-    halt env, status_code: 403
+    env.response.content_type = "application/json"
+    next Hash(String, String).new.to_json
   end
   document = XML.parse_html(content_html)
 
@@ -1843,6 +1849,11 @@ get "/feed/channel/:ucid" do |env|
   channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
 
   json = JSON.parse(response.body)
+  if !json["content_html"]?
+    error_message = "This channel does not exist or has no videos."
+    next templated "error"
+  end
+
   content_html = json["content_html"].as_s
   if content_html.empty?
     halt env, status_code: 403
@@ -2222,6 +2233,11 @@ get "/channel/:ucid" do |env|
   response = client.get(url)
 
   json = JSON.parse(response.body)
+  if !json["content_html"]?
+    error_message = "This channel does not exist or has no videos."
+    next templated "error"
+  end
+
   if json["content_html"].as_s.strip(" \n").empty?
     rss = client.get("/feeds/videos.xml?channel_id=#{ucid}").body
     rss = XML.parse_html(rss)
