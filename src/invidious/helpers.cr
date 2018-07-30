@@ -148,10 +148,7 @@ class User
     },
     password: String?,
     token:    String,
-    watched:  {
-      type:    Array(String),
-      default: ["N/A"],
-    },
+    watched:  Array(String),
   })
 end
 
@@ -825,11 +822,7 @@ def get_user(sid, client, headers, db, refresh = true)
 
     if refresh && Time.now - user.updated > 1.minute
       user = fetch_user(sid, client, headers, db)
-      if user.watched = ["N/A"]
-        user_array = user.to_a[0..-2]
-      else
-        user_array = user.to_a
-      end
+      user_array = user.to_a
 
       user_array[5] = user_array[5].to_json
       args = arg_array(user_array)
@@ -839,11 +832,7 @@ def get_user(sid, client, headers, db, refresh = true)
     end
   else
     user = fetch_user(sid, client, headers, db)
-    if user.watched = ["N/A"]
-      user_array = user.to_a[0..-2]
-    else
-      user_array = user.to_a
-    end
+    user_array = user.to_a
 
     user_array[5] = user_array[5].to_json
     args = arg_array(user.to_a)

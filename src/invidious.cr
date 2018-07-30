@@ -280,7 +280,7 @@ get "/watch" do |env|
   user = env.get? "user"
   if user
     user = user.as(User)
-    if user.watched != ["N/A"] && !user.watched.includes? id
+    if !user.watched.includes? id
       PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE id = $2", [id], user.id)
     end
 
@@ -1670,11 +1670,7 @@ post "/login" do |env|
 
       sid = Base64.encode(Random::Secure.random_bytes(50))
       user = create_user(sid, email, password)
-      if user.watched = ["N/A"]
-        user_array = user.to_a[0..-2]
-      else
-        user_array = user.to_a
-      end
+      user_array = user.to_a
 
       user_array[5] = user_array[5].to_json
       args = arg_array(user_array)
