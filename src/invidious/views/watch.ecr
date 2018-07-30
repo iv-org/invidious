@@ -29,28 +29,36 @@
 <title><%= video.title %> - Invidious</title>
 <% end %>
 
+<% if hlsvp %>
+<script src="https://unpkg.com/videojs-contrib-hls@5.14.1/dist/videojs-contrib-hls.min.js"></script>
+<% end %>
+
 <div class="h-box">
     <video style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" 
         id="player" class="video-js vjs-16-9" data-setup="{}" 
         <% if autoplay %>autoplay<% end %>
         <% if video_loop %>loop<% end %>
         controls>
-        <% if listen %>
-            <% audio_streams.each_with_index do |fmt, i| %>
-                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
-            <% end %>
+        <% if hlsvp %>
+            <source src="<%= hlsvp %>" type="application/x-mpegURL">
         <% else %>
-            <% fmt_stream.each_with_index do |fmt, i| %>
-                <% if preferences %>
-                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= preferences.quality == fmt["label"].split(" - ")[0] %>">
-                <% else %>
-                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+            <% if listen %>
+                <% audio_streams.each_with_index do |fmt, i| %>
+                    <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
                 <% end %>
-            <% end %>
-            
-            <% captions.each do |caption| %>
-            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
-                srclang="<%= caption["languageCode"] %>" label="<%= caption["name"]["simpleText"]%> ">
+            <% else %>
+                <% fmt_stream.each_with_index do |fmt, i| %>
+                    <% if preferences %>
+                    <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= preferences.quality == fmt["label"].split(" - ")[0] %>">
+                    <% else %>
+                    <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+                    <% end %>
+                <% end %>
+                
+                <% captions.each do |caption| %>
+                <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
+                    srclang="<%= caption["languageCode"] %>" label="<%= caption["name"]["simpleText"]%> ">
+                <% end %>
             <% end %>
         <% end %>
     </video>
