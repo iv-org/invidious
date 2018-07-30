@@ -1329,6 +1329,15 @@ get "/embed/:id" do |env|
   rendered "embed"
 end
 
+get "/results" do |env|
+  search_query = env.params.query["search_query"]?
+  if search_query
+    env.redirect "/search?q=#{URI.escape(search_query)}"
+  else
+    env.redirect "/"
+  end
+end
+
 get "/search" do |env|
   if env.params.query["q"]?
     query = env.params.query["q"]
