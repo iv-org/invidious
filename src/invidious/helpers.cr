@@ -29,6 +29,7 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
   "max_results" => 40,
   "sort"        => "published",
   "latest_only" => false,
+  "unseen_only" => false,
 }.to_json)
 
 class Config
@@ -147,6 +148,10 @@ class User
     },
     password: String?,
     token:    String,
+    watched:  {
+      type:    Array(String),
+      default: ["N/A"],
+    },
   })
 end
 
@@ -177,6 +182,7 @@ class Preferences
     max_results: Int32,
     sort:        String,
     latest_only: Bool,
+    unseen_only: Bool,
   })
 end
 
@@ -819,7 +825,12 @@ def get_user(sid, client, headers, db, refresh = true)
 
     if refresh && Time.now - user.updated > 1.minute
       user = fetch_user(sid, client, headers, db)
-      user_array = user.to_a
+      if user.watched = ["N/A"]
+        user_array = user.to_a[0..-2]
+      else
+        user_array = user.to_a
+      end
+
       user_array[5] = user_array[5].to_json
       args = arg_array(user_array)
 
@@ -828,7 +839,12 @@ def get_user(sid, client, headers, db, refresh = true)
     end
   else
     user = fetch_user(sid, client, headers, db)
-    user_array = user.to_a
+    if user.watched = ["N/A"]
+      user_array = user.to_a[0..-2]
+    else
+      user_array = user.to_a
+    end
+
     user_array[5] = user_array[5].to_json
     args = arg_array(user.to_a)
 
@@ -866,7 +882,7 @@ def fetch_user(sid, client, headers, db)
 
   token = Base64.encode(Random::Secure.random_bytes(32))
 
-  user = User.new(sid, Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil, token)
+  user = User.new(sid, Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil, token, [] of String)
   return user
 end
 
@@ -874,7 +890,7 @@ def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.encode(Random::Secure.random_bytes(32))
 
-  user = User.new(sid, Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token)
+  user = User.new(sid, Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token, [] of String)
 
   return user
 end

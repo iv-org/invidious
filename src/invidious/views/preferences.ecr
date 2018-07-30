@@ -88,8 +88,20 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="latest_only">Only show latest video from channel: </label>
+                <label for="latest_only">Only show latest <% if user.preferences.unseen_only %>unseen<% end %> video from channel: </label>
                 <input name="latest_only" id="latest_only" type="checkbox" <% if user.preferences.latest_only %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="unseen_only">Only show unseen: </label>
+                <input name="unseen_only" id="unseen_only" type="checkbox" <% if user.preferences.unseen_only %>checked<% end %>>
+            </div>
+
+            <legend>Data preferences</legend>
+            <div class="pure-control-group">
+                <label>
+                    <a href="/clear_watch_history">Clear watch history</a>
+                </labe>
             </div>
 
             <div class="pure-controls">
