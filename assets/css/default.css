@@ -28,11 +28,11 @@ div {
   justify-content: space-between;
 }
 
-.navbar>div {
+.navbar > div {
   flex: 1;
 }
 
-.navbar>.searchbar {
+.navbar > .searchbar {
   flex-grow: 2; /* take double the space of the other items */
 }
 
@@ -44,7 +44,7 @@ div {
   font-weight: bold;
 }
 
-.navbar>.searchbar .pure-form input[type="search"] {
+.navbar > .searchbar .pure-form input[type="search"] {
   border-top: 0;
   border-left: 0;
   border-right: 0;
@@ -58,12 +58,12 @@ div {
   transition: 0.1s border-bottom;
 }
 
-.navbar>.searchbar .pure-form fieldset {
+.navbar > .searchbar .pure-form fieldset {
   padding: 0;
 }
 
 /* attract focus to the searchbar by adding a subtle transition */
-.navbar>.searchbar .pure-form input[type="search"]:focus {
+.navbar > .searchbar .pure-form input[type="search"]:focus {
   border-bottom: 2px solid #aaa;
 }
 
@@ -87,22 +87,22 @@ div {
     flex-direction: column;
   }
 
-  .navbar>div {
+  .navbar > div {
     display: flex;
     justify-content: center;
-  } 
+  }
 
-  .navbar>div:not(:last-child) {
+  .navbar > div:not(:last-child) {
     margin-bottom: 1em;
   }
 
-  .navbar>.searchbar>form {
+  .navbar > .searchbar > form {
     width: 60%;
   }
 }
 
 @media screen and (max-width: 320px) {
-  .navbar>.searchbar>form {
+  .navbar > .searchbar > form {
     width: 100%;
     margin: 0 1em;
   }

@@ -648,13 +648,13 @@ def add_alt_links(html)
     if ["www.youtube.com", "m.youtube.com"].includes?(url.host)
       alt_link = <<-END_HTML
       <a href="#{url.full_path}">
-        <i class="fa fa-link" aria-hidden="true"></i>
+        <i class="icon ion-ios-link" aria-hidden="true"></i>
       </a>
       END_HTML
     elsif url.host == "youtu.be"
       alt_link = <<-END_HTML
       <a href="/watch?v=#{url.path.try &.lchop("/")}&#{url.query}">
-        <i class="fa fa-link" aria-hidden="true"></i>
+        <i class="icon ion-ios-link" aria-hidden="true"></i>
       </a>
       END_HTML
     else

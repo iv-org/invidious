@@ -182,7 +182,7 @@ function load_comments(target) {
   var body = target.parentNode.parentNode;
   var fallback = body.innerHTML;
   body.innerHTML =
-    '<h3><center><i class="loading fas fa-spinner"></i></center></h3>';
+    '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
 
   var url =
     '/api/v1/comments/<%= video.id %>?format=html&continuation=' + continuation;
@@ -277,11 +277,11 @@ get_youtube_comments();
     <%= video.title %> 
     <% if listen %>
     <a href="/watch?<%= env.params.query %>">
-        <i class="fa fa-video" aria-hidden="true"></i>
+        <i class="icon ion-ios-videocam" aria-hidden="true"></i>
     </a>
     <% else %>
     <a href="/watch?<%= env.params.query %>&listen=true">
-        <i class="fa fa-volume-up" aria-hidden="true"></i>
+        <i class="icon ion-ios-volume-high" aria-hidden="true"></i>
     </a>
     <% end %>
 </h1>
@@ -290,9 +290,9 @@ get_youtube_comments();
 <div class="pure-g">
     <div class="pure-u-1 pure-u-md-1-5">
         <div class="h-box">
-            <p><i class="fa fa-eye" aria-hidden="true"></i> <%= number_with_separator(video.views) %></p>
-            <p><i class="fa fa-thumbs-up" aria-hidden="true"></i> <%= number_with_separator(video.likes) %></p>
-            <p><i class="fa fa-thumbs-down" aria-hidden="true"></i> <%= number_with_separator(video.dislikes) %></p>
+            <p><i class="icon ion-ios-eye" aria-hidden="true"></i> <%= number_with_separator(video.views) %></p>
+            <p><i class="icon ion-ios-thumbs-up" aria-hidden="true"></i> <%= number_with_separator(video.likes) %></p>
+            <p><i class="icon ion-ios-thumbs-down" aria-hidden="true"></i> <%= number_with_separator(video.dislikes) %></p>
             <p id="Genre">Genre : <%= video.genre %></p>
             <p id="FamilyFriendly">Family Friendly? <%= video.is_family_friendly %></p>
             <p id="Wilson">Wilson Score : <%= video.wilson_score.round(4) %></p>
@@ -347,7 +347,7 @@ get_youtube_comments();
             </div>
             <hr style="margin-left:1em; margin-right:1em;">
             <div id="comments">
-                <h3><center><i class="loading fas fa-spinner"></i></center></h3>
+                <h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>
             </div>
         </div>
     </div>
