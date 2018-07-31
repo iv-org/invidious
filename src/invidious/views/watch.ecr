@@ -1,5 +1,7 @@
 <% content_for "header" do %>
 <meta name="thumbnail" content="<%= thumbnail %>">
+<meta name="description" content="<%= description %>">
+<meta name="keywords" content="<%= video.info["keywords"] %>">
 <meta property="og:site_name" content="Invidious">
 <meta property="og:url" content="https://invidio.us/watch?v=<%= video.id %>">
 <meta property="og:title" content="<%= video.title %>">
