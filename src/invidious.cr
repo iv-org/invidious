@@ -430,6 +430,16 @@ get "/watch" do |env|
     description = " "
   end
 
+  if Kemal.config.ssl || CONFIG.https_only
+    scheme = "https://"
+  else
+    scheme = "http://"
+  end
+  host = env.request.headers["Host"]
+  host_url = "#{scheme}#{host}"
+  host_params = env.request.query_params
+  host_params.delete_all("v")
+
   thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
 
   templated "watch"
@@ -1356,6 +1366,26 @@ get "/embed/:id" do |env|
 
     next env.redirect url
   end
+
+  video.description = fill_links(video.description, "https", "www.youtube.com")
+  video.description = add_alt_links(video.description)
+
+  description = video.description.gsub("<br>", " ")
+  description = description.gsub("<br/>", " ")
+  description = XML.parse_html(description).content[0..200].gsub('"', "&quot;").gsub("\n", " ").strip(" ")
+  if description.empty?
+    description = " "
+  end
+
+  if Kemal.config.ssl || CONFIG.https_only
+    scheme = "https://"
+  else
+    scheme = "http://"
+  end
+  host = env.request.headers["Host"]
+  host_url = "#{scheme}#{host}"
+  host_params = env.request.query_params
+  host_params.delete_all("v")
 
   thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
 
@@ -2810,7 +2840,7 @@ get "/:id" do |env|
     params = params.join("&")
 
     url = "/watch?v=#{id}"
-    if params
+    if !params.empty?
       url += "&#{params}"
     end
 
