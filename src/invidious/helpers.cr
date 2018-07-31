@@ -891,16 +891,16 @@ def decode_time(string)
   time = string.try &.to_f?
 
   if !time
-    hours = /(?<hours>\d+)h/.match(string).try &.["hours"].try &.to_i
+    hours = /(?<hours>\d+)h/.match(string).try &.["hours"].try &.to_f
     hours ||= 0
 
-    minutes = /(?<minutes>\d+)m(?!s)/.match(string).try &.["minutes"].try &.to_i
+    minutes = /(?<minutes>\d+)m(?!s)/.match(string).try &.["minutes"].try &.to_f
     minutes ||= 0
 
-    seconds = /(?<seconds>\d+)s/.match(string).try &.["seconds"].try &.to_i
+    seconds = /(?<seconds>\d+)s/.match(string).try &.["seconds"].try &.to_f
     seconds ||= 0
 
-    millis = /(?<millis>\d+)ms/.match(string).try &.["millis"].try &.to_i
+    millis = /(?<millis>\d+)ms/.match(string).try &.["millis"].try &.to_f
     millis ||= 0
 
     time = hours * 3600 + minutes * 60 + seconds + millis / 1000
@@ -909,10 +909,12 @@ def decode_time(string)
   return time
 end
 
-def decode_date(date : String)
+def decode_date(string : String)
   # Time matches format "20 hours ago", "40 minutes ago"...
-  delta = date.split(" ")[0].to_i
-  case date
+  date = string.split(" ")[-3, 3]
+  delta = date[0].to_i
+
+  case date[1]
   when .includes? "minute"
     delta = delta.minutes
   when .includes? "hour"
@@ -926,7 +928,7 @@ def decode_date(date : String)
   when .includes? "year"
     delta = delta.years
   else
-    raise "Could not parse #{date}"
+    raise "Could not parse #{string}"
   end
 
   return Time.now - delta

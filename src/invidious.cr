@@ -287,7 +287,7 @@ get "/watch" do |env|
   subscriptions ||= [] of String
 
   autoplay = env.params.query["autoplay"]?.try &.to_i
-  video_loop = env.params.query["video_loop"]?.try &.to_i
+  video_loop = env.params.query["loop"]?.try &.to_i
 
   if preferences
     autoplay ||= preferences.autoplay.to_unsafe
@@ -1287,11 +1287,29 @@ get "/embed/:id" do |env|
   video_loop = env.params.query["loop"]?.try &.to_i
   video_loop ||= 0
 
+  autoplay = autoplay == 1
+  video_loop = video_loop == 1
+  controls = controls == 1
+
   begin
     video = get_video(id, PG_DB)
   rescue ex
     error_message = ex.message
     next templated "error"
+  end
+
+  if video.info["hlsvp"]?
+    hlsvp = video.info["hlsvp"]
+
+    if Kemal.config.ssl || CONFIG.https_only
+      scheme = "https://"
+    else
+      scheme = "http://"
+    end
+    host = env.request.headers["Host"]
+    url = "#{scheme}#{host}"
+
+    hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", url)
   end
 
   fmt_stream = [] of HTTP::Params

@@ -24,10 +24,11 @@
 <meta name="twitter:player:height" content="720">
 <link rel="stylesheet" href="https://unpkg.com/video.js@6.10.3/dist/video-js.min.css">
 <link rel="stylesheet" href="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/css/quality-selector.css">
+<link rel="stylesheet" href="https://unpkg.com/videojs-markers@1.0.1/dist/videojs.markers.min.css">
 <script src="https://unpkg.com/video.js@6.10.3/dist/video.min.js"></script>
 <script src="https://unpkg.com/videojs-hotkeys@0.2.21/videojs.hotkeys.min.js"></script>
 <script src="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/js/silvermine-videojs-quality-selector.min.js"></script>
-<script src="https://unpkg.com/videojs-offset@2.0.0-beta.2/dist/videojs-offset.min.js"></script>
+<script src="https://unpkg.com/videojs-markers@1.0.1/dist/videojs-markers.min.js"></script>
 <title><%= video.title %> - Invidious</title>
 <% end %>
 
@@ -130,10 +131,30 @@ var player = videojs('player', options, function() {
 player.volume(<%= preferences.volume.to_f / 100 %>);
 player.playbackRate(<%= preferences.speed %>);
 <% end %>
-player.offset({
-  start: <%= video_start %>,
-  end: <%= video_end %>
+
+<% if video_start > 0 || video_end > 0 %>
+player.markers({
+    onMarkerReached: function(marker) {
+        if (marker.text === 'End') {
+            if (player.loop()) {
+                player.markers.prev('Start');
+            } else {
+                player.pause();
+            }
+        }
+    },
+    markers: [
+        {time: <%= video_start %>, text: 'Start'},
+        <% if video_end < 0 %>
+        {time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: 'End'}
+        <% else %>
+        {time: <%= video_end %>, text: 'End'}
+        <% end %>
+    ]
 });
+
+player.currentTime(<%= video_start %>);
+<% end %>
 
 <% if !listen %>
 var currentSources = player.currentSources();
