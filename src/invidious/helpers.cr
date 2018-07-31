@@ -176,10 +176,15 @@ class Preferences
       nilable: true,
       default: false,
     },
-    max_results: Int32,
-    sort:        String,
-    latest_only: Bool,
-    unseen_only: Bool,
+    max_results:        Int32,
+    sort:               String,
+    latest_only:        Bool,
+    unseen_only:        Bool,
+    notifications_only: {
+      type:    Bool,
+      nilable: true,
+      default: false,
+    },
   })
 end
 

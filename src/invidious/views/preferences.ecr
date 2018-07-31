@@ -97,6 +97,11 @@ function update_value(element) {
                 <input name="unseen_only" id="unseen_only" type="checkbox" <% if user.preferences.unseen_only %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="notifications_only">Only show notifications: </label>
+                <input name="notifications_only" id="notifications_only" type="checkbox" <% if user.preferences.notifications_only %>checked<% end %>>
+            </div>
+
             <legend>Data preferences</legend>
             <div class="pure-control-group">
                 <label>
