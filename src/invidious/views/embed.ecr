@@ -14,7 +14,7 @@
 <script src="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/js/silvermine-videojs-quality-selector.min.js"></script>
 <script src="https://unpkg.com/videojs-markers@1.0.1/dist/videojs-markers.min.js"></script>
 <script src="https://unpkg.com/videojs-share@1.1.0/dist/videojs-share.min.js"></script>
-<title><%= video.title %> - Invidious</title>
+<title><%= HTML.escape(video.title) %> - Invidious</title>
 </head>
 
 <body>
@@ -82,7 +82,7 @@ var shareOptions = {
   socials: ["fb", "tw", "reddit", "mail"],
 
   url: "<%= host_url %>/<%= video.id %>?<%= host_params %>",
-  title: "<%= video.title %>",
+  title: "<%= HTML.escape(video.title) %>",
   description: "<%= description %>",
   image: '<%= thumbnail %>',
   embedCode: `<iframe id='ivplayer' type='text/html' width='640' height='360'
