@@ -345,19 +345,42 @@ def get_video(id, db, refresh = true)
   return video
 end
 
-def search(query, client, &block)
-  html = client.get("/results?q=#{query}&sp=EgIQAVAU&disable_polymer=1").body
+def search(query, page = 1)
+  client = make_client(YT_URL)
+  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
   html = XML.parse_html(html)
+
+  videos = [] of ChannelVideo
 
   html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
     root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
     if root
-      link = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
-      if link
-        yield link.content.split("=")[1]
+      id = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
+      if id
+        id = id.content.lchop("/watch?v=")
       end
+      id ||= ""
+
+      title = root.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a))
+      if title
+        title = title.content
+      end
+      title ||= ""
+
+      author = root.xpath_node(%q(div[@class="yt-lockup-content"]/div/a))
+      if author
+        ucid = author["href"].rpartition("/")[-1]
+        author = author.content
+      end
+      author ||= ""
+      ucid ||= ""
+
+      video = ChannelVideo.new(id, title, Time.now, Time.now, ucid, author)
+      videos << video
     end
   end
+
+  return videos
 end
 
 def splice(a, b)

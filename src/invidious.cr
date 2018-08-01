@@ -81,16 +81,15 @@ crawl_threads.times do
     ids = Deque(String).new
     random = Random.new
 
-    client = make_client(YT_URL)
-    search(random.base64(3), client) do |id|
-      ids << id
+    search(random.base64(3)).each do |video|
+      ids << video.id
     end
 
     loop do
       client = make_client(YT_URL)
       if ids.empty?
-        search(random.base64(3), client) do |id|
-          ids << id
+        search(random.base64(3)).each do |video|
+          ids << video.id
         end
       end
 
@@ -1267,13 +1266,65 @@ get "/api/v1/channels/:ucid/videos" do |env|
   videos
 end
 
+get "/api/v1/search" do |env|
+  if env.params.query["q"]?
+    query = env.params.query["q"]
+  else
+    next env.redirect "/"
+  end
+
+  page = env.params.query["page"]?.try &.to_i?
+  page ||= 1
+
+  client = make_client(YT_URL)
+  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU&disable_polymer=1").body
+  html = XML.parse_html(html)
+
+  results = JSON.build do |json|
+    json.array do
+      html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
+        anchor = item.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
+        if anchor["href"].starts_with? "https://www.googleadservices.com"
+          next
+        end
+
+        title = anchor.content.strip
+        video_id = anchor["href"].lchop("/watch?v=")
+
+        anchor = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).not_nil!
+        author = anchor.content
+        author_url = anchor["href"]
+
+        published = item.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[1]))
         if !published
           next
         end
         published = published.content
+        if published.ends_with? "watching"
+          next
+        end
         published = decode_date(published)
 
-        length_seconds = item.xpath_node(%q(.//span[@class="video-time"]/span)).not_nil!.content
+        view_count = item.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[2])).not_nil!
+        view_count = view_count.content.rchop(" views")
+        if view_count = "No"
+          view_count = 0
+        else
+          view_count = view_count.delete(",").to_i
+        end
+
+        descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+        if !descriptionHtml
+          description = ""
+          descriptionHtml = ""
+        else
+          descriptionHtml = descriptionHtml.to_s
+          description = descriptionHtml.gsub("<br>", "\n")
+          description = description.gsub("<br/>", "\n")
+          description = XML.parse_html(description).content.strip("\n ")
+        end
+
+        length_seconds = item.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content
         length_seconds = length_seconds.split(":").map { |a| a.to_i }
         length_seconds = [0] * (3 - length_seconds.size) + length_seconds
         length_seconds = Time::Span.new(length_seconds[0], length_seconds[1], length_seconds[2])
@@ -1281,6 +1332,9 @@ end
         json.object do
           json.field "title", title
           json.field "videoId", video_id
+
+          json.field "author", author
+          json.field "authorUrl", author_url
 
           json.field "videoThumbnails" do
             json.object do
@@ -1312,7 +1366,7 @@ end
   end
 
   env.response.content_type = "application/json"
-  videos
+  results
 end
 
 get "/embed/:id" do |env|
@@ -1471,39 +1525,7 @@ get "/search" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
-  client = make_client(YT_URL)
-  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU").body
-  html = XML.parse_html(html)
-
-  videos = [] of ChannelVideo
-
-  html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
-    root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
-    if root
-      id = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
-      if id
-        id = id.content.lchop("/watch?v=")
-      end
-      id ||= ""
-
-      title = root.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a))
-      if title
-        title = title.content
-      end
-      title ||= ""
-
-      author = root.xpath_node(%q(div[@class="yt-lockup-content"]/div/a))
-      if author
-        ucid = author["href"].rpartition("/")[-1]
-        author = author.content
-      end
-      author ||= ""
-      ucid ||= ""
-
-      video = ChannelVideo.new(id, title, Time.now, Time.now, ucid, author)
-      videos << video
-    end
-  end
+  videos = search(query, page)
 
   templated "search"
 end
