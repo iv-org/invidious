@@ -286,8 +286,8 @@ get "/watch" do |env|
   end
   subscriptions ||= [] of String
 
-  autoplay = env.params.query["autoplay"]?.try &.to_i
-  video_loop = env.params.query["loop"]?.try &.to_i
+  autoplay = env.params.query["autoplay"]?.try &.to_i?
+  video_loop = env.params.query["loop"]?.try &.to_i?
 
   if preferences
     autoplay ||= preferences.autoplay.to_unsafe
@@ -653,7 +653,7 @@ get "/api/v1/comments/:id" do |env|
 
                 if item_replies && !response["commentRepliesContinuation"]?
                   reply_count = item_replies["moreText"]["simpleText"].as_s.match(/View all (?<count>\d+) replies/)
-                    .try &.["count"].to_i
+                    .try &.["count"].to_i?
                   reply_count ||= 1
 
                   continuation = item_replies["continuations"].as_a[0]["nextContinuationData"]["continuation"].as_s
@@ -947,8 +947,13 @@ get "/api/v1/trending" do |env|
         author = channel.content
         author_url = channel["href"]
 
-        published, views = node.xpath_nodes(%q(.//ul[@class="yt-lockup-meta-info"]/li))
-        views = views.content.rchop(" views").delete(",").to_i
+        published, view_count = node.xpath_nodes(%q(.//ul[@class="yt-lockup-meta-info"]/li))
+        view_count = view_count.content.rchop(" views")
+        if view_count = "No"
+          view_count = 0
+        else
+          view_count = view_count.delete(",").to_i
+        end
 
         descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
         if !descriptionHtml
@@ -986,7 +991,7 @@ get "/api/v1/trending" do |env|
           end
 
           json.field "lengthSeconds", length_seconds
-          json.field "views", views
+          json.field "viewCount", view_count
           json.field "author", author
           json.field "authorUrl", author_url
           json.field "published", published.epoch
@@ -1027,7 +1032,7 @@ get "/api/v1/top" do |env|
           end
 
           json.field "lengthSeconds", video.info["length_seconds"].to_i
-          json.field "views", video.views
+          json.field "viewCount", video.views
 
           json.field "author", video.author
           json.field "authorUrl", "/channel/#{video.ucid}"
@@ -1172,7 +1177,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
   response = client.get(url)
 
   json = JSON.parse(response.body)
-  if !json["content_html"]?
+  if !json["content_html"]? || json["content_html"].as_s.empty?
     env.response.content_type = "application/json"
     next {"error" => "No videos or nonexistent channel"}.to_json
   end
@@ -1191,8 +1196,23 @@ get "/api/v1/channels/:ucid/videos" do |env|
         title = anchor.content.strip
         video_id = anchor["href"].lchop("/watch?v=")
 
-        view_count = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[2])).not_nil!
-        view_count = view_count.content.rchop(" views").delete(",").to_i
+        published = item.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[1]))
+        if !published
+          next
+        end
+        published = published.content
+        if published.ends_with? "watching"
+          next
+        end
+        published = decode_date(published)
+
+        view_count = item.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[2])).not_nil!
+        view_count = view_count.content.rchop(" views")
+        if view_count = "No"
+          view_count = 0
+        else
+          view_count = view_count.delete(",").to_i
+        end
 
         descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
         if !descriptionHtml
@@ -1205,7 +1225,48 @@ get "/api/v1/channels/:ucid/videos" do |env|
           description = XML.parse_html(description).content.strip("\n ")
         end
 
-        published = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[1]))
+        length_seconds = item.xpath_node(%q(.//span[@class="video-time"]/span)).not_nil!.content
+        length_seconds = length_seconds.split(":").map { |a| a.to_i }
+        length_seconds = [0] * (3 - length_seconds.size) + length_seconds
+        length_seconds = Time::Span.new(length_seconds[0], length_seconds[1], length_seconds[2])
+
+        json.object do
+          json.field "title", title
+          json.field "videoId", video_id
+
+          json.field "videoThumbnails" do
+            json.object do
+              qualities = [{name: "default", url: "default", width: 120, height: 90},
+                           {name: "high", url: "hqdefault", width: 480, height: 360},
+                           {name: "medium", url: "mqdefault", width: 320, height: 180},
+              ]
+              qualities.each do |quality|
+                json.field quality[:name] do
+                  json.object do
+                    json.field "url", "https://i.ytimg.com/vi/#{video_id}/#{quality["url"]}.jpg"
+                    json.field "width", quality[:width]
+                    json.field "height", quality[:height]
+                  end
+                end
+              end
+            end
+          end
+
+          json.field "description", description
+          json.field "descriptionHtml", descriptionHtml
+
+          json.field "viewCount", view_count
+          json.field "published", published.epoch
+          json.field "lengthSeconds", length_seconds.total_seconds.to_i
+        end
+      end
+    end
+  end
+
+  env.response.content_type = "application/json"
+  videos
+end
+
         if !published
           next
         end
@@ -1281,25 +1342,24 @@ get "/embed/:id" do |env|
   end
   listen ||= false
 
-  raw = env.params.query["raw"]? && env.params.query["raw"].to_i
+  raw = env.params.query["raw"]?.try &.to_i?
   raw ||= 0
   raw = raw == 1
 
-  quality = env.params.query["quality"]? && env.params.query["quality"]
+  quality = env.params.query["quality"]?
   quality ||= "hd720"
 
-  autoplay = env.params.query["autoplay"]?.try &.to_i
+  autoplay = env.params.query["autoplay"]?.try &.to_i?
   autoplay ||= 0
-
-  controls = env.params.query["controls"]?.try &.to_i
-  controls ||= 1
-
-  video_loop = env.params.query["loop"]?.try &.to_i
-  video_loop ||= 0
-
   autoplay = autoplay == 1
-  video_loop = video_loop == 1
+
+  controls = env.params.query["controls"]?.try &.to_i?
+  controls ||= 1
   controls = controls == 1
+
+  video_loop = env.params.query["loop"]?.try &.to_i?
+  video_loop ||= 0
+  video_loop = video_loop == 1
 
   begin
     video = get_video(id, PG_DB)
@@ -1779,13 +1839,13 @@ post "/preferences" do |env|
     autoplay ||= "off"
     autoplay = autoplay == "on"
 
-    speed = env.params.body["speed"]?.try &.as(String).to_f
+    speed = env.params.body["speed"]?.try &.as(String).to_f?
     speed ||= 1.0
 
     quality = env.params.body["quality"]?.try &.as(String)
     quality ||= "hd720"
 
-    volume = env.params.body["volume"]?.try &.as(String).to_i
+    volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= 100
 
     comments = env.params.body["comments"]?
@@ -1803,7 +1863,7 @@ post "/preferences" do |env|
     thin_mode ||= "off"
     thin_mode = thin_mode == "on"
 
-    max_results = env.params.body["max_results"]?.try &.as(String).to_i
+    max_results = env.params.body["max_results"]?.try &.as(String).to_i?
     max_results ||= 40
 
     sort = env.params.body["sort"]?.try &.as(String)
@@ -1862,7 +1922,7 @@ get "/feed/subscriptions" do |env|
     end
 
     max_results = preferences.max_results
-    max_results ||= env.params.query["max_results"]?.try &.to_i
+    max_results ||= env.params.query["max_results"]?.try &.to_i?
     max_results ||= 40
 
     page = env.params.query["page"]?.try &.to_i?
@@ -1980,7 +2040,7 @@ get "/feed/channel/:ucid" do |env|
   channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
 
   json = JSON.parse(response.body)
-  if !json["content_html"]?
+  if !json["content_html"]? || json["content_html"].as_s.empty?
     error_message = "This channel does not exist or has no videos."
     next templated "error"
   end
@@ -2019,7 +2079,12 @@ get "/feed/channel/:ucid" do |env|
         video_id = anchor["href"].lchop("/watch?v=")
 
         view_count = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[2])).not_nil!
-        view_count = view_count.content.rchop(" views").delete(",").to_i
+        view_count = view_count.content.rchop(" views")
+        if view_count = "No"
+          view_count = 0
+        else
+          view_count = view_count.delete(",").to_i
+        end
 
         descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
         if !descriptionHtml
@@ -2084,7 +2149,7 @@ get "/feed/private" do |env|
     halt env, status_code: 401
   end
 
-  max_results = env.params.query["max_results"]?.try &.to_i
+  max_results = env.params.query["max_results"]?.try &.to_i?
   max_results ||= 40
 
   page = env.params.query["page"]?.try &.to_i?
@@ -2098,7 +2163,7 @@ get "/feed/private" do |env|
     offset = (page - 1) * max_results
   end
 
-  latest_only = env.params.query["latest_only"]?.try &.to_i
+  latest_only = env.params.query["latest_only"]?.try &.to_i?
   latest_only ||= 0
   latest_only = latest_only == 1
 
@@ -2249,7 +2314,6 @@ get "/subscription_manager" do |env|
     client = make_client(YT_URL)
     user = get_user(user.id, client, headers, PG_DB)
   end
-  subscriptions = user.subscriptions
 
   action_takeout = env.params.query["action_takeout"]?.try &.to_i?
   action_takeout ||= 0
@@ -2259,8 +2323,14 @@ get "/subscription_manager" do |env|
   format ||= "rss"
 
   client = make_client(YT_URL)
-  subscriptions = subscriptions.map do |ucid|
-    get_channel(ucid, client, PG_DB, false)
+
+  subscriptions = [] of InvidiousChannel
+  user.subscriptions.each do |ucid|
+    begin
+      subscriptions << get_channel(ucid, client, PG_DB, false)
+    rescue ex
+      next
+    end
   end
   subscriptions.sort_by! { |channel| channel.author.downcase }
 
@@ -2550,7 +2620,14 @@ get "/channel/:ucid" do |env|
     rss = client.get("/feeds/videos.xml?user=#{ucid}").body
     rss = XML.parse_html(rss)
 
-    ucid = rss.xpath_node("//feed/channelid").not_nil!.content
+    ucid = rss.xpath_node("//feed/channelid")
+    if ucid
+      ucid = ucid.content
+    else
+      error_message = "User does not exist"
+      next templated "error"
+    end
+
     env.redirect "/channel/#{ucid}"
   end
 
@@ -2558,7 +2635,7 @@ get "/channel/:ucid" do |env|
   response = client.get(url)
 
   json = JSON.parse(response.body)
-  if !json["content_html"]?
+  if !json["content_html"]? || json["content_html"].as_s.empty?
     error_message = "This channel does not exist or has no videos."
     next templated "error"
   end
