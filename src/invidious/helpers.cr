@@ -253,8 +253,8 @@ def elapsed_text(elapsed)
 end
 
 def fetch_video(id)
-  info_channel = Channel(HTTP::Params).new
   html_channel = Channel(XML::Node).new
+  info_channel = Channel(HTTP::Params).new
 
   spawn do
     client = make_client(YT_URL)

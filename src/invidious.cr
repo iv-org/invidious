@@ -1055,6 +1055,19 @@ get "/api/v1/channels/:ucid" do |env|
   ucid = env.params.url["ucid"]
 
   client = make_client(YT_URL)
+  if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
+    rss = client.get("/feeds/videos.xml?user=#{ucid}").body
+    rss = XML.parse_html(rss)
+
+    ucid = rss.xpath_node("//feed/channelid")
+    if ucid
+      ucid = ucid.content
+    else
+      env.response.content_type = "application/json"
+      next {"error" => "User does not exist"}.to_json
+    end
+  end
+
   channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
 
   # TODO: Integrate this into `get_channel` function
@@ -1171,8 +1184,21 @@ get "/api/v1/channels/:ucid/videos" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
-  url = produce_videos_url(ucid, page)
   client = make_client(YT_URL)
+  if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
+    rss = client.get("/feeds/videos.xml?user=#{ucid}").body
+    rss = XML.parse_html(rss)
+
+    ucid = rss.xpath_node("//feed/channelid")
+    if ucid
+      ucid = ucid.content
+    else
+      env.response.content_type = "application/json"
+      next {"error" => "User does not exist"}.to_json
+    end
+  end
+
+  url = produce_videos_url(ucid, page)
   response = client.get(url)
 
   json = JSON.parse(response.body)
@@ -2055,8 +2081,21 @@ end
 get "/feed/channel/:ucid" do |env|
   ucid = env.params.url["ucid"]
 
-  url = produce_videos_url(ucid)
   client = make_client(YT_URL)
+  if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
+    rss = client.get("/feeds/videos.xml?user=#{ucid}").body
+    rss = XML.parse_html(rss)
+
+    ucid = rss.xpath_node("//feed/channelid")
+    if ucid
+      ucid = ucid.content
+    else
+      env.response.content_type = "application/json"
+      next {"error" => "User does not exist"}.to_json
+    end
+  end
+
+  url = produce_videos_url(ucid)
   response = client.get(url)
 
   channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
@@ -2638,7 +2677,7 @@ get "/channel/:ucid" do |env|
 
   client = make_client(YT_URL)
 
-  if !ucid.starts_with? "UC"
+  if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
     rss = client.get("/feeds/videos.xml?user=#{ucid}").body
     rss = XML.parse_html(rss)
 
