@@ -287,7 +287,7 @@ get "/watch" do |env|
   subscriptions ||= [] of String
 
   autoplay = env.params.query["autoplay"]?.try &.to_i
-  video_loop = env.params.query["video_loop"]?.try &.to_i
+  video_loop = env.params.query["loop"]?.try &.to_i
 
   if preferences
     autoplay ||= preferences.autoplay.to_unsafe
@@ -429,6 +429,16 @@ get "/watch" do |env|
   if description.empty?
     description = " "
   end
+
+  if Kemal.config.ssl || CONFIG.https_only
+    scheme = "https://"
+  else
+    scheme = "http://"
+  end
+  host = env.request.headers["Host"]
+  host_url = "#{scheme}#{host}"
+  host_params = env.request.query_params
+  host_params.delete_all("v")
 
   thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
 
@@ -1287,11 +1297,29 @@ get "/embed/:id" do |env|
   video_loop = env.params.query["loop"]?.try &.to_i
   video_loop ||= 0
 
+  autoplay = autoplay == 1
+  video_loop = video_loop == 1
+  controls = controls == 1
+
   begin
     video = get_video(id, PG_DB)
   rescue ex
     error_message = ex.message
     next templated "error"
+  end
+
+  if video.info["hlsvp"]?
+    hlsvp = video.info["hlsvp"]
+
+    if Kemal.config.ssl || CONFIG.https_only
+      scheme = "https://"
+    else
+      scheme = "http://"
+    end
+    host = env.request.headers["Host"]
+    url = "#{scheme}#{host}"
+
+    hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", url)
   end
 
   fmt_stream = [] of HTTP::Params
@@ -1338,6 +1366,26 @@ get "/embed/:id" do |env|
 
     next env.redirect url
   end
+
+  video.description = fill_links(video.description, "https", "www.youtube.com")
+  video.description = add_alt_links(video.description)
+
+  description = video.description.gsub("<br>", " ")
+  description = description.gsub("<br/>", " ")
+  description = XML.parse_html(description).content[0..200].gsub('"', "&quot;").gsub("\n", " ").strip(" ")
+  if description.empty?
+    description = " "
+  end
+
+  if Kemal.config.ssl || CONFIG.https_only
+    scheme = "https://"
+  else
+    scheme = "http://"
+  end
+  host = env.request.headers["Host"]
+  host_url = "#{scheme}#{host}"
+  host_params = env.request.query_params
+  host_params.delete_all("v")
 
   thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
 
@@ -2792,7 +2840,7 @@ get "/:id" do |env|
     params = params.join("&")
 
     url = "/watch?v=#{id}"
-    if params
+    if !params.empty?
       url += "&#{params}"
     end
 

@@ -7,10 +7,13 @@
 <meta name="thumbnail" content="<%= thumbnail %>">
 <link rel="stylesheet" href="https://unpkg.com/video.js@6.10.3/dist/video-js.min.css">
 <link rel="stylesheet" href="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/css/quality-selector.css">
+<link rel="stylesheet" href="https://unpkg.com/videojs-markers@1.0.1/dist/videojs.markers.min.css">
+<link rel="stylesheet" href="https://unpkg.com/videojs-share@1.1.0/dist/videojs-share.css">
 <script src="https://unpkg.com/video.js@6.10.3/dist/video.min.js"></script>
 <script src="https://unpkg.com/videojs-hotkeys@0.2.21/videojs.hotkeys.min.js"></script>
 <script src="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/js/silvermine-videojs-quality-selector.min.js"></script>
-<script src="https://unpkg.com/videojs-offset@2.0.0-beta.2/dist/videojs-offset.min.js"></script>
+<script src="https://unpkg.com/videojs-markers@1.0.1/dist/videojs-markers.min.js"></script>
+<script src="https://unpkg.com/videojs-share@1.1.0/dist/videojs-share.min.js"></script>
 <title><%= video.title %> - Invidious</title>
 </head>
 
@@ -29,23 +32,31 @@ video, #my_video, .video-js, .vjs-default-skin
 }
 </style>
 
+<% if hlsvp %>
+<script src="https://unpkg.com/videojs-contrib-hls@5.14.1/dist/videojs-contrib-hls.min.js"></script>
+<% end %>
+
 <video playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" 
-    <% if autoplay == 1 %>autoplay<% end %>
-    <% if controls == 1 %>controls<% end %>
-    <% if video_loop == 1 %>loop<% end %>
+    <% if autoplay %>autoplay<% end %>
+    <% if controls %>controls<% end %>
+    <% if video_loop %>loop<% end %>
     class="video-js vjs-default-skin">
-    <% if listen %>
-        <% audio_streams.each_with_index do |fmt, i| %>
-            <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
-        <% end %>
+    <% if hlsvp %>
+        <source src="<%= hlsvp %>" type="application/x-mpegURL">
     <% else %>
-        <% fmt_stream.each_with_index do |fmt, i| %>
-            <% if quality != "hd720" %>
-            <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= quality == fmt["label"].split(" - ")[0] %>">
-            <% else %>
-            <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+        <% if listen %>
+            <% audio_streams.each_with_index do |fmt, i| %>
+                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
             <% end %>
-        <% end %>    
+        <% else %>
+            <% fmt_stream.each_with_index do |fmt, i| %>
+                <% if quality != "hd720" %>
+                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= quality == fmt["label"].split(" - ")[0] %>">
+                <% else %>
+                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+                <% end %>
+            <% end %>    
+        <% end %>
     <% end %>
 </video>
 
@@ -59,18 +70,28 @@ var options = {
          'volumePanel',
          'progressControl',
          'remainingTimeDisplay',
+         'captionsButton',
          'qualitySelector',
          'playbackRateMenuButton',
          'fullscreenToggle',
       ],
    },
 };
+
+var shareOptions = {
+  socials: ["fb", "tw", "reddit", "mail"],
+
+  url: "<%= host_url %>/<%= video.id %>?<%= host_params %>",
+  title: "<%= video.title %>",
+  description: "<%= description %>",
+  image: '<%= thumbnail %>'
+};
+
 var player = videojs('player', options, function() {
     this.hotkeys({
     volumeStep: 0.1,
     seekStep: 5,
     enableModifiersForNumbers: false,
-    enableVolumeScroll: false,
     customKeys: {
         play: {
             key: function(e) {
@@ -107,10 +128,31 @@ var player = videojs('player', options, function() {
   });
 });
 
-player.offset({
-  start: <%= video_start %>,
-  end: <%= video_end %>
+player.share(shareOptions);
+
+<% if video_start > 0 || video_end > 0 %>
+player.markers({
+    onMarkerReached: function(marker) {
+        if (marker.text === 'End') {
+            if (player.loop()) {
+                player.markers.prev('Start');
+            } else {
+                player.pause();
+            }
+        }
+    },
+    markers: [
+        {time: <%= video_start %>, text: 'Start'},
+        <% if video_end < 0 %>
+        {time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: 'End'}
+        <% else %>
+        {time: <%= video_end %>, text: 'End'}
+        <% end %>
+    ]
 });
+
+player.currentTime(<%= video_start %>);
+<% end %>
 
 <% if !listen %>
 var currentSources = player.currentSources();
