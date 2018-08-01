@@ -82,7 +82,7 @@ var shareOptions = {
   socials: ["fb", "tw", "reddit", "mail"],
 
   url: "<%= host_url %>/<%= video.id %>?<%= host_params %>",
-  title: "<%= HTML.escape(video.title) %>",
+  title: "<%= video.title.dump_unquoted %>",
   description: "<%= description %>",
   image: '<%= thumbnail %>',
   embedCode: `<iframe id='ivplayer' type='text/html' width='640' height='360'
