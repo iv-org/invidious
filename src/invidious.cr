@@ -1817,20 +1817,25 @@ post "/preferences" do |env|
     unseen_only ||= "off"
     unseen_only = unseen_only == "on"
 
+    notifications_only = env.params.body["notifications_only"]?.try &.as(String)
+    notifications_only ||= "off"
+    notifications_only = notifications_only == "on"
+
     preferences = {
-      "video_loop"    => video_loop,
-      "autoplay"      => autoplay,
-      "speed"         => speed,
-      "quality"       => quality,
-      "volume"        => volume,
-      "comments"      => comments,
-      "redirect_feed" => redirect_feed,
-      "dark_mode"     => dark_mode,
-      "thin_mode"     => thin_mode,
-      "max_results"   => max_results,
-      "sort"          => sort,
-      "latest_only"   => latest_only,
-      "unseen_only"   => unseen_only,
+      "video_loop"         => video_loop,
+      "autoplay"           => autoplay,
+      "speed"              => speed,
+      "quality"            => quality,
+      "volume"             => volume,
+      "comments"           => comments,
+      "redirect_feed"      => redirect_feed,
+      "dark_mode"          => dark_mode,
+      "thin_mode"          => thin_mode,
+      "max_results"        => max_results,
+      "sort"               => sort,
+      "latest_only"        => latest_only,
+      "unseen_only"        => unseen_only,
+      "notifications_only" => notifications_only,
     }.to_json
 
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
@@ -1871,61 +1876,84 @@ get "/feed/subscriptions" do |env|
       offset = (page - 1) * max_results
     end
 
-    if preferences.latest_only
-      if preferences.unseen_only
-        ucids = arg_array(user.subscriptions)
-        if user.watched.empty?
-          watched = "'{}'"
-        else
-          watched = arg_array(user.watched, user.subscriptions.size + 1)
-        end
-
-        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
-      ucid IN (#{ucids}) AND id NOT IN (#{watched}) ORDER BY ucid, published DESC",
-          user.subscriptions + user.watched, as: ChannelVideo)
-      else
-        args = arg_array(user.subscriptions)
-        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
-        ucid IN (#{args}) ORDER BY ucid, published DESC", user.subscriptions, as: ChannelVideo)
-      end
-
-      videos.sort_by! { |video| video.published }.reverse!
-    else
-      if preferences.unseen_only
-        ucids = arg_array(user.subscriptions, 3)
-        if user.watched.empty?
-          watched = "'{}'"
-        else
-          watched = arg_array(user.watched, user.subscriptions.size + 3)
-        end
-
-        videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{ucids}) \
-          AND id NOT IN (#{watched}) ORDER BY published DESC LIMIT $1 OFFSET $2",
-          [limit, offset] + user.subscriptions + user.watched, as: ChannelVideo)
-      else
-        args = arg_array(user.subscriptions, 3)
-        videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
-          ORDER BY published DESC LIMIT $1 OFFSET $2", [limit, offset] + user.subscriptions, as: ChannelVideo)
-      end
-    end
-
-    case preferences.sort
-    when "alphabetically"
-      videos.sort_by! { |video| video.title }
-    when "alphabetically - reverse"
-      videos.sort_by! { |video| video.title }.reverse!
-    when "channel name"
-      videos.sort_by! { |video| video.author }
-    when "channel name - reverse"
-      videos.sort_by! { |video| video.author }.reverse!
-    end
-
-    # TODO: Add option to disable picking out notifications from regular feed
     notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
       as: Array(String))
+    if preferences.notifications_only && !notifications.empty?
+      args = arg_array(notifications)
 
-    notifications = videos.select { |v| notifications.includes? v.id }
-    videos = videos - notifications
+      videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE id IN (#{args})
+      ORDER BY published DESC", notifications, as: ChannelVideo)
+      notifications = [] of ChannelVideo
+
+      videos.sort_by! { |video| video.published }.reverse!
+
+      case preferences.sort
+      when "alphabetically"
+        videos.sort_by! { |video| video.title }
+      when "alphabetically - reverse"
+        videos.sort_by! { |video| video.title }.reverse!
+      when "channel name"
+        videos.sort_by! { |video| video.author }
+      when "channel name - reverse"
+        videos.sort_by! { |video| video.author }.reverse!
+      end
+    else
+      if preferences.latest_only
+        if preferences.unseen_only
+          ucids = arg_array(user.subscriptions)
+          if user.watched.empty?
+            watched = "'{}'"
+          else
+            watched = arg_array(user.watched, user.subscriptions.size + 1)
+          end
+
+          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
+      ucid IN (#{ucids}) AND id NOT IN (#{watched}) ORDER BY ucid, published DESC",
+            user.subscriptions + user.watched, as: ChannelVideo)
+        else
+          args = arg_array(user.subscriptions)
+          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
+        ucid IN (#{args}) ORDER BY ucid, published DESC", user.subscriptions, as: ChannelVideo)
+        end
+
+        videos.sort_by! { |video| video.published }.reverse!
+      else
+        if preferences.unseen_only
+          ucids = arg_array(user.subscriptions, 3)
+          if user.watched.empty?
+            watched = "'{}'"
+          else
+            watched = arg_array(user.watched, user.subscriptions.size + 3)
+          end
+
+          videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{ucids}) \
+          AND id NOT IN (#{watched}) ORDER BY published DESC LIMIT $1 OFFSET $2",
+            [limit, offset] + user.subscriptions + user.watched, as: ChannelVideo)
+        else
+          args = arg_array(user.subscriptions, 3)
+          videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
+          ORDER BY published DESC LIMIT $1 OFFSET $2", [limit, offset] + user.subscriptions, as: ChannelVideo)
+        end
+      end
+
+      case preferences.sort
+      when "alphabetically"
+        videos.sort_by! { |video| video.title }
+      when "alphabetically - reverse"
+        videos.sort_by! { |video| video.title }.reverse!
+      when "channel name"
+        videos.sort_by! { |video| video.author }
+      when "channel name - reverse"
+        videos.sort_by! { |video| video.author }.reverse!
+      end
+
+      # TODO: Add option to disable picking out notifications from regular feed
+      notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
+        as: Array(String))
+
+      notifications = videos.select { |v| notifications.includes? v.id }
+      videos = videos - notifications
+    end
 
     if !limit
       videos = videos[0..max_results]
