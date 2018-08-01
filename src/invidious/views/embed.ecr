@@ -84,7 +84,9 @@ var shareOptions = {
   url: "<%= host_url %>/<%= video.id %>?<%= host_params %>",
   title: "<%= video.title %>",
   description: "<%= description %>",
-  image: '<%= thumbnail %>'
+  image: '<%= thumbnail %>',
+  embedCode: `<iframe id='ivplayer' type='text/html' width='640' height='360'
+  src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>`
 };
 
 var player = videojs('player', options, function() {

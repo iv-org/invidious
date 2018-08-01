@@ -3,23 +3,23 @@
 <meta name="description" content="<%= description %>">
 <meta name="keywords" content="<%= video.info["keywords"] %>">
 <meta property="og:site_name" content="Invidious">
-<meta property="og:url" content="https://invidio.us/watch?v=<%= video.id %>">
+<meta property="og:url" content="<%= host_url %>/watch?v=<%= video.id %>">
 <meta property="og:title" content="<%= video.title %>">
 <meta property="og:image" content="https://i.ytimg.com/vi/<%= video.id %>/hqdefault.jpg">
 <meta property="og:description" content="<%= description %>">
 <meta property="og:type" content="video.other">
-<meta property="og:video:url" content="https://invidio.us/embed/<%= video.id %>">
-<meta property="og:video:secure_url" content="https://invidio.us/embed/<%= video.id %>">
+<meta property="og:video:url" content="<%= host_url %>/embed/<%= video.id %>">
+<meta property="og:video:secure_url" content="<%= host_url %>/embed/<%= video.id %>">
 <meta property="og:video:type" content="text/html">
 <meta property="og:video:width" content="1280">
 <meta property="og:video:height" content="720">
 <meta name="twitter:card" content="player">
 <meta name="twitter:site" content="@omarroth">
-<meta name="twitter:url" content="https://invidio.us/watch?v=<%= video.id %>">
+<meta name="twitter:url" content="<%= host_url %>/watch?v=<%= video.id %>">
 <meta name="twitter:title" content="<%= video.title %>">
 <meta name="twitter:description" content="<%= description %>">
 <meta name="twitter:image" content="https://i.ytimg.com/vi/<%= video.id %>/maxresdefault.jpg">
-<meta name="twitter:player" content="https://invidio.us/embed/<%= video.id %>">
+<meta name="twitter:player" content="<%= host_url %>/embed/<%= video.id %>">
 <meta name="twitter:player:width" content="1280">
 <meta name="twitter:player:height" content="720">
 <link rel="stylesheet" href="https://unpkg.com/video.js@6.10.3/dist/video-js.min.css">
@@ -94,7 +94,9 @@ var shareOptions = {
   url: "<%= host_url %>/<%= video.id %>?<%= host_params %>",
   title: "<%= video.title %>",
   description: "<%= description %>",
-  image: '<%= thumbnail %>'
+  image: '<%= thumbnail %>',
+  embedCode: `<iframe id='ivplayer' type='text/html' width='640' height='360'
+  src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>`
 };
 
 var player = videojs('player', options, function() {
