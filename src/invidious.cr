@@ -2724,6 +2724,19 @@ get "/channel/:ucid" do |env|
   templated "channel"
 end
 
+get "/channel/:ucid/videos" do |env|
+  ucid = env.params.url["ucid"]
+  params = env.request.query
+
+  if !params || params.empty?
+    params = ""
+  else
+    params = "?#{params}"
+  end
+
+  env.redirect "/channel/#{ucid}#{params}"
+end
+
 get "/api/manifest/dash/id/:id" do |env|
   env.response.headers.add("Access-Control-Allow-Origin", "*")
   env.response.content_type = "application/dash+xml"
