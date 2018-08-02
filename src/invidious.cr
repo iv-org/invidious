@@ -934,9 +934,7 @@ get "/api/v1/trending" do |env|
   videos = JSON.build do |json|
     json.array do
       trending.xpath_nodes(%q(//ul/li[@class="expanded-shelf-content-item-wrapper"])).each do |node|
-        length_seconds = node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content
-        minutes, seconds = length_seconds.split(":")
-        length_seconds = minutes.to_i * 60 + seconds.to_i
+        length_seconds = decode_length_seconds(node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content)
 
         video = node.xpath_node(%q(.//h3/a)).not_nil!
         title = video.content
@@ -966,7 +964,7 @@ get "/api/v1/trending" do |env|
         end
 
         published = published.content.split(" ")[-3..-1].join(" ")
-        published = decode_date(published)
+        published = decode_date(published).epoch
 
         json.object do
           json.field "title", title
@@ -993,7 +991,7 @@ get "/api/v1/trending" do |env|
           json.field "viewCount", view_count
           json.field "author", author
           json.field "authorUrl", author_url
-          json.field "published", published.epoch
+          json.field "published", published
           json.field "description", description
           json.field "descriptionHtml", descriptionHtml
         end
@@ -1216,12 +1214,12 @@ get "/api/v1/channels/:ucid/videos" do |env|
 
   videos = JSON.build do |json|
     json.array do
-      document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |item|
-        anchor = item.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
+      document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |node|
+        anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
         title = anchor.content.strip
         video_id = anchor["href"].lchop("/watch?v=")
 
-        published = item.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[1]))
+        published = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[1]))
         if !published
           next
         end
@@ -1229,9 +1227,9 @@ get "/api/v1/channels/:ucid/videos" do |env|
         if published.ends_with? "watching"
           next
         end
-        published = decode_date(published)
+        published = decode_date(published).epoch
 
-        view_count = item.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[2])).not_nil!
+        view_count = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[2])).not_nil!
         view_count = view_count.content.rchop(" views")
         if view_count = "No"
           view_count = 0
@@ -1239,7 +1237,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
           view_count = view_count.delete(",").to_i
         end
 
-        descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+        descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
         if !descriptionHtml
           description = ""
           descriptionHtml = ""
@@ -1250,10 +1248,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
           description = XML.parse_html(description).content.strip("\n ")
         end
 
-        length_seconds = item.xpath_node(%q(.//span[@class="video-time"]/span)).not_nil!.content
-        length_seconds = length_seconds.split(":").map { |a| a.to_i }
-        length_seconds = [0] * (3 - length_seconds.size) + length_seconds
-        length_seconds = Time::Span.new(length_seconds[0], length_seconds[1], length_seconds[2])
+        length_seconds = decode_length_seconds(node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content)
 
         json.object do
           json.field "title", title
@@ -1281,8 +1276,8 @@ get "/api/v1/channels/:ucid/videos" do |env|
           json.field "descriptionHtml", descriptionHtml
 
           json.field "viewCount", view_count
-          json.field "published", published.epoch
-          json.field "lengthSeconds", length_seconds.total_seconds.to_i
+          json.field "published", published
+          json.field "lengthSeconds", length_seconds
         end
       end
     end
@@ -1308,8 +1303,8 @@ get "/api/v1/search" do |env|
 
   results = JSON.build do |json|
     json.array do
-      html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
-        anchor = item.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
+      html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |node|
+        anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
         if anchor["href"].starts_with? "https://www.googleadservices.com"
           next
         end
@@ -1317,11 +1312,11 @@ get "/api/v1/search" do |env|
         title = anchor.content.strip
         video_id = anchor["href"].lchop("/watch?v=")
 
-        anchor = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).not_nil!
+        anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).not_nil!
         author = anchor.content
         author_url = anchor["href"]
 
-        published = item.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[1]))
+        published = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[1]))
         if !published
           next
         end
@@ -1329,9 +1324,9 @@ get "/api/v1/search" do |env|
         if published.ends_with? "watching"
           next
         end
-        published = decode_date(published)
+        published = decode_date(published).epoch
 
-        view_count = item.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[2])).not_nil!
+        view_count = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[2])).not_nil!
         view_count = view_count.content.rchop(" views")
         if view_count = "No"
           view_count = 0
@@ -1339,7 +1334,7 @@ get "/api/v1/search" do |env|
           view_count = view_count.delete(",").to_i
         end
 
-        descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+        descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
         if !descriptionHtml
           description = ""
           descriptionHtml = ""
@@ -1350,10 +1345,7 @@ get "/api/v1/search" do |env|
           description = XML.parse_html(description).content.strip("\n ")
         end
 
-        length_seconds = item.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content
-        length_seconds = length_seconds.split(":").map { |a| a.to_i }
-        length_seconds = [0] * (3 - length_seconds.size) + length_seconds
-        length_seconds = Time::Span.new(length_seconds[0], length_seconds[1], length_seconds[2])
+        length_seconds = decode_length_seconds(node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content)
 
         json.object do
           json.field "title", title
@@ -1384,8 +1376,8 @@ get "/api/v1/search" do |env|
           json.field "descriptionHtml", descriptionHtml
 
           json.field "viewCount", view_count
-          json.field "published", published.epoch
-          json.field "lengthSeconds", length_seconds.total_seconds.to_i
+          json.field "published", published
+          json.field "lengthSeconds", length_seconds
         end
       end
     end
@@ -2134,12 +2126,12 @@ get "/feed/channel/:ucid" do |env|
         xml.element("uri") { xml.text "#{scheme}#{host}/channel/#{ucid}" }
       end
 
-      document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |item|
-        anchor = item.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
+      document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |node|
+        anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
         title = anchor.content.strip
         video_id = anchor["href"].lchop("/watch?v=")
 
-        view_count = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[2])).not_nil!
+        view_count = node.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[2])).not_nil!
         view_count = view_count.content.rchop(" views")
         if view_count = "No"
           view_count = 0
@@ -2147,7 +2139,7 @@ get "/feed/channel/:ucid" do |env|
           view_count = view_count.delete(",").to_i
         end
 
-        descriptionHtml = item.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+        descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
         if !descriptionHtml
           description = ""
           descriptionHtml = ""
@@ -2158,7 +2150,7 @@ get "/feed/channel/:ucid" do |env|
           description = XML.parse_html(description).content.strip("\n ")
         end
 
-        published = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[1]))
+        published = node.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[1]))
         if !published
           next
         end
@@ -2202,12 +2194,12 @@ get "/feed/private" do |env|
   token = env.params.query["token"]?
 
   if !token
-    halt env, status_code: 401
+    halt env, status_code: 403
   end
 
-  user = PG_DB.query_one?("SELECT * FROM users WHERE token = $1", token, as: User)
+  user = PG_DB.query_one?("SELECT * FROM users WHERE token = $1", token.strip, as: User)
   if !user
-    halt env, status_code: 401
+    halt env, status_code: 403
   end
 
   max_results = env.params.query["max_results"]?.try &.to_i?
@@ -2715,23 +2707,15 @@ get "/channel/:ucid" do |env|
   author = document.xpath_node(%q(//div[@class="pl-video-owner"]/a)).not_nil!.content
 
   videos = [] of ChannelVideo
-  document.xpath_nodes(%q(//a[contains(@class,"pl-video-title-link")])).each do |item|
-    href = URI.parse(item["href"])
+  document.xpath_nodes(%q(//a[contains(@class,"pl-video-title-link")])).each do |node|
+    href = URI.parse(node["href"])
     id = HTTP::Params.parse(href.query.not_nil!)["v"]
-    title = item.content
+    title = node.content
 
     videos << ChannelVideo.new(id, title, Time.now, Time.now, ucid, author)
   end
 
   templated "channel"
-end
-
-get "/redirect" do |env|
-  if env.params.query["q"]?
-    env.redirect env.params.query["q"]
-  else
-    env.redirect "/"
-  end
 end
 
 get "/api/manifest/dash/id/:id" do |env|

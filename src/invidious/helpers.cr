@@ -663,19 +663,27 @@ def arg_array(array, start = 1)
 end
 
 def add_alt_links(html)
-  alt_links = [] of {Int32, String}
+  alt_links = [] of {String, String}
 
-  # This is painful but is likely the only way to accomplish this in Crystal,
+  # This is painful but likely the only way to accomplish this in Crystal,
   # as Crystigiri and others are not able to insert XML Nodes into a document.
   # The goal here is to use as little regex as possible
   html.scan(/<a[^>]*>([^<]+)<\/a>/) do |match|
     anchor = XML.parse_html(match[0])
     anchor = anchor.xpath_node("//a").not_nil!
-    url = URI.parse(HTML.unescape(anchor["href"]))
+    url = URI.parse(anchor["href"])
 
     if ["www.youtube.com", "m.youtube.com"].includes?(url.host)
+      if url.path == "/redirect"
+        params = HTTP::Params.parse(url.query.not_nil!)
+        alt_url = params["q"]?
+        alt_url ||= "/"
+      else
+        alt_url = url.full_path
+      end
+
       alt_link = <<-END_HTML
-      <a href="#{url.full_path}">
+      <a href="#{alt_url}">
         <i class="icon ion-ios-link" aria-hidden="true"></i>
       </a>
       END_HTML
@@ -685,16 +693,23 @@ def add_alt_links(html)
         <i class="icon ion-ios-link" aria-hidden="true"></i>
       </a>
       END_HTML
+    elsif url.to_s == "#"
+      length_seconds = decode_length_seconds(anchor.content)
+      alt_anchor = <<-END_HTML
+      <a href="javascript:void(0)" onclick="player.currentTime(#{length_seconds})">#{anchor.content}</a>
+      END_HTML
+
+      html = html.sub(anchor.to_s, alt_anchor)
+      next
     else
       alt_link = ""
     end
 
-    alt_links << {match.end.not_nil!, alt_link}
+    alt_links << {anchor.to_s, alt_link}
   end
 
-  alt_links.reverse!
-  alt_links.each do |position, alt_link|
-    html = html.insert(position, alt_link)
+  alt_links.each do |original, alternate|
+    html = html.sub(original, original + alternate)
   end
 
   return html
@@ -706,7 +721,7 @@ def fill_links(html, scheme, host)
   html.xpath_nodes("//a").each do |match|
     url = URI.parse(match["href"])
     # Reddit links don't have host
-    if !url.host && !match["href"].starts_with?("javascript")
+    if !url.host && !match["href"].starts_with?("javascript") && !url.to_s.ends_with? "#"
       url.scheme = scheme
       url.host = host
       match["href"] = url
@@ -913,6 +928,15 @@ def create_user(sid, email, password)
   user = User.new(sid, Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token, [] of String)
 
   return user
+end
+
+def decode_length_seconds(string)
+  length_seconds = string.split(":").map { |a| a.to_i }
+  length_seconds = [0] * (3 - length_seconds.size) + length_seconds
+  length_seconds = Time::Span.new(length_seconds[0], length_seconds[1], length_seconds[2])
+  length_seconds = length_seconds.total_seconds.to_i
+
+  return length_seconds
 end
 
 def decode_time(string)
