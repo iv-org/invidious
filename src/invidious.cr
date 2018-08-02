@@ -1440,6 +1440,12 @@ get "/embed/:id" do |env|
     next templated "error"
   end
 
+  player_response = JSON.parse(video.info["player_response"])
+  if player_response["captions"]?
+    captions = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"]?.try &.as_a
+  end
+  captions ||= [] of JSON::Any
+
   if video.info["hlsvp"]?
     hlsvp = video.info["hlsvp"]
 

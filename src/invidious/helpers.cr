@@ -728,7 +728,7 @@ def fill_links(html, scheme, host)
     end
   end
 
-  html = html.to_xml
+  html = html.xpath_node(%q(//p[@id="eow-description"])).not_nil!.to_xml
 end
 
 def login_req(login_form, f_req)

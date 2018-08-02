@@ -54,10 +54,14 @@ video, #my_video, .video-js, .vjs-default-skin
                 <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= quality == fmt["label"].split(" - ")[0] %>">
                 <% else %>
                 <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
-                <% end %>
-            <% end %>    
+            <% end %>
+            <% captions.each do |caption| %>
+                <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
+                    srclang="<%= caption["languageCode"] %>" label="<%= caption["name"]["simpleText"]%> ">
+            <% end %>
         <% end %>
     <% end %>
+<% end %>
 </video>
 
 <script>
@@ -132,7 +136,7 @@ var player = videojs('player', options, function() {
 
 player.share(shareOptions);
 
-<% if video_start > 0 || video_end > 0 %>
+<%- if video_start > 0 || video_end > 0 -%>
 player.markers({
     onMarkerReached: function(marker) {
         if (marker.text === 'End') {
@@ -145,18 +149,18 @@ player.markers({
     },
     markers: [
         {time: <%= video_start %>, text: 'Start'},
-        <% if video_end < 0 %>
+        <%- if video_end < 0 -%>
         {time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: 'End'}
-        <% else %>
+        <%- else -%>
         {time: <%= video_end %>, text: 'End'}
-        <% end %>
+        <%- end -%>
     ]
 });
 
 player.currentTime(<%= video_start %>);
-<% end %>
+<%- end -%>
 
-<% if !listen %>
+<%- if !listen -%>
 var currentSources = player.currentSources();
 for ( var i = 0; i < currentSources.length; i++ ) {
     if (player.canPlayType(currentSources[i]['type'].split(';')[0]) === '') {
@@ -166,7 +170,7 @@ for ( var i = 0; i < currentSources.length; i++ ) {
 }
 
 player.src(currentSources);
-<% end %>
+<%- end -%>
 </script>
 </body>
 
