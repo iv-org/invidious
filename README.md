@@ -61,6 +61,9 @@ $ curl -fsSLo- https://raw.githubusercontent.com/samueleaton/sentry/master/insta
 $ ./sentry
 ```
 
+## Extensions
+ - [Alternate Tube Redirector](https://addons.mozilla.org/en-US/firefox/addon/alternate-tube-redirector/): Automatically open Youtube Videos on alternate sites like Invidious or Hooktube.
+
 ## Contributing
 
 1.  Fork it ( https://github.com/omarroth/invidious/fork )
