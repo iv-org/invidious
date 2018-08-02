@@ -900,7 +900,7 @@ def fetch_user(sid, client, headers, db)
     email = ""
   end
 
-  token = Base64.encode(Random::Secure.random_bytes(32))
+  token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
   user = User.new(sid, Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil, token, [] of String)
   return user
@@ -908,7 +908,7 @@ end
 
 def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
-  token = Base64.encode(Random::Secure.random_bytes(32))
+  token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
   user = User.new(sid, Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token, [] of String)
 
