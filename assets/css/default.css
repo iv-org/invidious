@@ -133,10 +133,11 @@ div {
     transform: rotate(360deg);
   }
 }
+
 /* Control Bar */
 .video-js .vjs-control-bar,
 .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
-  background-color: rgba(33, 33, 33, 0.75);
+  background-color: rgba(35, 35, 35, 0.75);
 }
 
 .vjs-menu li.vjs-menu-item:focus,
@@ -156,14 +157,14 @@ div {
   background-color: rgba(15, 15, 15, 0.5);
 }
 
-.video-js .vjs-slider:hover,
-.video-js button:hover {
-  color: rgba(0, 182, 240, 1);
-}
-
 .video-js .vjs-load-progress,
 .video-js .vjs-load-progress div {
   background: rgba(87, 87, 88, 0.5);
+}
+
+.video-js .vjs-slider:hover,
+.video-js button:hover {
+  color: rgba(0, 182, 240, 1);
 }
 
 .video-js .vjs-play-progress {
@@ -172,9 +173,9 @@ div {
 
 /* Big "Play" Button */
 .video-js .vjs-big-play-button {
-  background-color: rgba(33, 33, 33, 0.5);
+  background-color: rgba(35, 35, 35, 0.5);
 }
 
 .video-js:hover .vjs-big-play-button {
-  background-color: rgba(33, 33, 33, 0.75);
+  background-color: rgba(35, 35, 35, 0.75);
 }
