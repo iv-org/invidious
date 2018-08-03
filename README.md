@@ -65,6 +65,7 @@ $ ./sentry
 
 - [Alternate Tube Redirector](https://addons.mozilla.org/en-US/firefox/addon/alternate-tube-redirector/): Automatically open Youtube Videos on alternate sites like Invidious or Hooktube.
 - [Invidious Redirect](https://greasyfork.org/en/scripts/370461-invidious-redirect): Redirects Youtube URLs to Invidio.us (userscript)
+- [Invidio.us embed](https://greasyfork.org/en/scripts/370442-invidious-embed): Replaces YouTube embeds with Invidio.us embeds (userscript)
 
 ## Contributing
 
