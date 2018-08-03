@@ -569,7 +569,7 @@ def template_youtube_comments(comments)
     <div class="pure-g">
       <div class="pure-u-1">
         <p>
-          <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> #{child["likeCount"]} <b>#{child["author"]}</b>
+          <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> <i class="icon ion-ios-thumbs-up"></i> #{child["likeCount"]} <b>#{child["author"]}</b>
         </p>
         <div>
         #{child["content"]}
@@ -613,7 +613,7 @@ def template_reddit_comments(root)
 
       content = <<-END_HTML
       <p>
-        <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> #{score} <b>#{author}</b> 
+        <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> <i class="icon ion-ios-thumbs-up"></i> #{score} <b>#{author}</b> 
       </p>
       <div>
       #{body_html}
@@ -684,13 +684,13 @@ def add_alt_links(html)
 
       alt_link = <<-END_HTML
       <a href="#{alt_url}">
-        <i class="icon ion-ios-link" aria-hidden="true"></i>
+        <i class="icon ion-ios-link"></i>
       </a>
       END_HTML
     elsif url.host == "youtu.be"
       alt_link = <<-END_HTML
       <a href="/watch?v=#{url.path.try &.lchop("/")}&#{url.query}">
-        <i class="icon ion-ios-link" aria-hidden="true"></i>
+        <i class="icon ion-ios-link"></i>
       </a>
       END_HTML
     elsif url.to_s == "#"
