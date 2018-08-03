@@ -1,6 +1,6 @@
 a:hover,
 a:active {
-  color: #46aaf6;
+  color: rgb(0, 182, 240);
 }
 
 a {
@@ -9,7 +9,7 @@ a {
 }
 
 body {
-  background-color: #101010;
+  background-color: #232323;
   color: #f0f0f0;
 }
 
@@ -21,15 +21,14 @@ body {
   color: #f0f0f0;
 }
 
-.pure-form > fieldset > input, .pure-control-group > input {
-  color: #101010;
+.pure-form > fieldset > input,
+.pure-control-group > input,
+.pure-form > fieldset > select,
+.pure-control-group > select {
+  color: #232323;
 }
 
-.pure-form > fieldset > select, .pure-control-group > select {
-  color: #101010;
-}
-
-.navbar>.searchbar input {
+.navbar > .searchbar input {
   background-color: inherit;
   color: inherit;
 }
