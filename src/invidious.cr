@@ -439,7 +439,7 @@ get "/watch" do |env|
   host_params = env.request.query_params
   host_params.delete_all("v")
 
-  thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
+  thumbnail = "https://i.ytimg.com/vi/#{id}/maxresdefault.jpg"
 
   templated "watch"
 end
@@ -1525,7 +1525,7 @@ get "/embed/:id" do |env|
   host_params = env.request.query_params
   host_params.delete_all("v")
 
-  thumbnail = "https://i.ytimg.com/vi/#{id}/mqdefault.jpg"
+  thumbnail = "https://i.ytimg.com/vi/#{id}/maxresdefault.jpg"
 
   rendered "embed"
 end
