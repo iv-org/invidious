@@ -354,31 +354,24 @@ def search(query, page = 1)
 
   html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
     root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
-    if root
-      id = root.xpath_node(%q(div[contains(@class,"yt-lockup-thumbnail")]/a/@href))
-      if id
-        id = id.content.lchop("/watch?v=")
+    if !root
+      next
       end
-      id ||= ""
 
-      title = root.xpath_node(%q(div[@class="yt-lockup-content"]/h3/a))
-      if title
-        title = title.content
-      end
-      title ||= ""
+    id = root.xpath_node(%q(.//div[contains(@class,"yt-lockup-thumbnail")]/a/@href)).not_nil!.content.lchop("/watch?v=")
 
-      author = root.xpath_node(%q(div[@class="yt-lockup-content"]/div/a))
-      if author
+    title = root.xpath_node(%q(.//div[@class="yt-lockup-content"]/h3/a)).not_nil!.content
+
+    author = root.xpath_node(%q(.//div[@class="yt-lockup-content"]/div/a)).not_nil!
         ucid = author["href"].rpartition("/")[-1]
         author = author.content
-      end
-      author ||= ""
-      ucid ||= ""
 
-      video = ChannelVideo.new(id, title, Time.now, Time.now, ucid, author)
+    published = root.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li[1])).not_nil!.content
+    published = decode_date(published)
+
+    video = ChannelVideo.new(id, title, published, Time.now, ucid, author)
       videos << video
     end
-  end
 
   return videos
 end
@@ -984,6 +977,31 @@ def decode_date(string : String)
   end
 
   return Time.now - delta
+end
+
+def recode_date(time : Time)
+  span = Time.now - time
+
+  if span.total_days > 365.0
+    span = {span.total_days / 365, "year"}
+  elsif span.total_days > 30.0
+    span = {span.total_days / 30, "month"}
+  elsif span.total_days > 7.0
+    span = {span.total_days / 7, "week"}
+  elsif span.total_hours > 24.0
+    span = {span.total_days, "day"}
+  elsif span.total_minutes > 60.0
+    span = {span.total_hours, "hour"}
+  else
+    span = {0, "units"}
+  end
+
+  span = {span[0].to_i, span[1]}
+  if span[0] > 1
+    span = {span[0], span[1] + "s"}
+  end
+
+  return span.join(" ")
 end
 
 def produce_playlist_url(ucid, index)
