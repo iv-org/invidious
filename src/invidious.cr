@@ -173,6 +173,10 @@ end
 get "/watch" do |env|
   if env.params.query["v"]?
     id = env.params.query["v"]
+
+    if id.size > 11
+      next env.redirect "/watch?v=#{id[0, 11]}"
+    end
   else
     next env.redirect "/"
   end
@@ -355,6 +359,10 @@ end
 get "/embed/:id" do |env|
   if env.params.url["id"]?
     id = env.params.url["id"]
+
+    if id.size > 11
+      next env.redirect "/embed/#{id[0, 11]}"
+    end
   else
     next env.redirect "/"
   end
