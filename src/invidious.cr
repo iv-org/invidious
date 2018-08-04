@@ -2569,14 +2569,44 @@ get "/api/v1/search" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
+  sort_by = env.params.query["sort_by"]?.try &.downcase
+  sort_by ||= "relevance"
+
+  date = env.params.query["date"]?.try &.downcase
+  date ||= ""
+
+  duration = env.params.query["date"]?.try &.downcase
+  duration ||= ""
+
+  features = env.params.query["features"]?.try &.split(",").map { |feature| feature.downcase }
+  features ||= [] of String
+
+  # TODO: Support other content types
+  content_type = "video"
+
+  begin
+    search_params = build_search_params(sort_by, date, content_type, duration, features)
+  rescue ex
+    env.response.content_type = "application/json"
+    next JSON.build do |json|
+      json.object do
+        json.field "error", ex.message
+      end
+    end
+  end
+
   client = make_client(YT_URL)
-  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=EgIQAVAU&disable_polymer=1").body
+  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=#{search_params}&disable_polymer=1").body
   html = XML.parse_html(html)
 
   results = JSON.build do |json|
     json.array do
       html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |node|
-        anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
+        anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
+        if !anchor
+          next
+        end
+
         if anchor["href"].starts_with? "https://www.googleadservices.com"
           next
         end
