@@ -73,7 +73,7 @@ PG_URL = URI.new(
 
 PG_DB      = DB.open PG_URL
 YT_URL     = URI.parse("https://www.youtube.com")
-REDDIT_URL = URI.parse("https://api.reddit.com")
+REDDIT_URL = URI.parse("https://www.reddit.com")
 LOGIN_URL  = URI.parse("https://accounts.google.com")
 
 crawl_threads.times do
@@ -690,7 +690,7 @@ get "/api/v1/comments/:id" do |env|
     end
   elsif source == "reddit"
     client = make_client(REDDIT_URL)
-    headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.1.0 (by /u/omarroth)"}
+    headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.2.0 (by /u/omarroth)"}
     begin
       comments, reddit_thread = get_reddit_comments(id, client, headers)
       content_html = template_reddit_comments(comments)
@@ -706,6 +706,7 @@ get "/api/v1/comments/:id" do |env|
       halt env, status_code: 404
     end
 
+    env.response.content_type = "application/json"
     {"title"        => reddit_thread.title,
      "permalink"    => reddit_thread.permalink,
      "content_html" => content_html}.to_json

@@ -356,22 +356,22 @@ def search(query, page = 1)
     root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
     if !root
       next
-      end
+    end
 
     id = root.xpath_node(%q(.//div[contains(@class,"yt-lockup-thumbnail")]/a/@href)).not_nil!.content.lchop("/watch?v=")
 
     title = root.xpath_node(%q(.//div[@class="yt-lockup-content"]/h3/a)).not_nil!.content
 
     author = root.xpath_node(%q(.//div[@class="yt-lockup-content"]/div/a)).not_nil!
-        ucid = author["href"].rpartition("/")[-1]
-        author = author.content
+    ucid = author["href"].rpartition("/")[-1]
+    author = author.content
 
     published = root.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li[1])).not_nil!.content
     published = decode_date(published)
 
     video = ChannelVideo.new(id, title, published, Time.now, ucid, author)
-      videos << video
-    end
+    videos << video
+  end
 
   return videos
 end
@@ -524,7 +524,7 @@ def get_reddit_comments(id, client, headers)
     thread = search_results.data.as(RedditListing).children.sort_by { |child| child.data.as(RedditLink).score }[-1]
     thread = thread.data.as(RedditLink)
 
-    result = client.get("/r/#{thread.subreddit}/comments/#{thread.id}?limit=100&sort=top", headers).body
+    result = client.get("/r/#{thread.subreddit}/comments/#{thread.id}.json?limit=100&sort=top", headers).body
     result = Array(RedditThing).from_json(result)
   elsif search_results.status_code == 302
     result = client.get(search_results.headers["Location"], headers).body
@@ -562,7 +562,9 @@ def template_youtube_comments(comments)
     <div class="pure-g">
       <div class="pure-u-1">
         <p>
-          <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> <i class="icon ion-ios-thumbs-up"></i> #{child["likeCount"]} <b>#{child["author"]}</b>
+          <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> 
+          <i class="icon ion-ios-thumbs-up"></i> #{child["likeCount"]} 
+          <b><a href="#{child["authorUrl"]}">#{child["author"]}</a></b>
         </p>
         <div>
         #{child["content"]}
@@ -606,7 +608,9 @@ def template_reddit_comments(root)
 
       content = <<-END_HTML
       <p>
-        <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> <i class="icon ion-ios-thumbs-up"></i> #{score} <b>#{author}</b> 
+        <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> 
+        <i class="icon ion-ios-thumbs-up"></i> #{score} 
+        <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b> 
       </p>
       <div>
       #{body_html}
@@ -721,7 +725,13 @@ def fill_links(html, scheme, host)
     end
   end
 
-  html = html.xpath_node(%q(//p[@id="eow-description"])).not_nil!.to_xml
+  if host == "www.youtube.com"
+    html = html.xpath_node(%q(//p[@id="eow-description"])).not_nil!.to_xml
+  else
+    html = html.to_xml(options: XML::SaveOptions::NO_DECL)
+  end
+
+  html
 end
 
 def login_req(login_form, f_req)
