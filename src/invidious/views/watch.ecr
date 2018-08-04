@@ -40,7 +40,7 @@
 
 <div class="h-box">
     <video style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" 
-        id="player" class="video-js" data-setup="{}" 
+        id="player" class="video-js"
         <% if autoplay %>autoplay<% end %>
         <% if video_loop %>loop<% end %>
         controls>
@@ -100,7 +100,7 @@ var shareOptions = {
 };
 
 var player = videojs('player', options, function() {
-    this.hotkeys({
+  this.hotkeys({
     volumeStep: 0.1,
     seekStep: 5,
     enableModifiersForNumbers: false,
@@ -138,50 +138,50 @@ var player = videojs('player', options, function() {
         }
     }
   });
+
+  this.share(shareOptions);
+
+  <% if video_start > 0 || video_end > 0 %>
+  this.markers({
+      onMarkerReached: function(marker) {
+          if (marker.text === 'End') {
+              if (player.loop()) {
+                  player.markers.prev('Start');
+              } else {
+                  player.pause();
+              }
+          }
+      },
+      markers: [
+          {time: <%= video_start %>, text: 'Start'},
+          <% if video_end < 0 %>
+          {time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: 'End'}
+          <% else %>
+          {time: <%= video_end %>, text: 'End'}
+          <% end %>
+      ]
+  });
+
+  this.currentTime(<%= video_start %>);
+  <% end %>
+
+  <% if !listen %>
+  var currentSources = player.currentSources();
+  for ( var i = 0; i < currentSources.length; i++ ) {
+      if (player.canPlayType(currentSources[i]['type'].split(';')[0]) === '') {
+          currentSources.splice(i);
+          i--;
+      }
+  }
+  
+  player.src(currentSources);
+  <% end %>
+ 
+  <% if preferences %>
+  this.volume(<%= preferences.volume.to_f / 100 %>);
+  this.playbackRate(<%= preferences.speed %>);
+  <% end %>
 });
-
-player.share(shareOptions);
-
-<% if preferences %>
-player.volume(<%= preferences.volume.to_f / 100 %>);
-player.playbackRate(<%= preferences.speed %>);
-<% end %>
-
-<% if video_start > 0 || video_end > 0 %>
-player.markers({
-    onMarkerReached: function(marker) {
-        if (marker.text === 'End') {
-            if (player.loop()) {
-                player.markers.prev('Start');
-            } else {
-                player.pause();
-            }
-        }
-    },
-    markers: [
-        {time: <%= video_start %>, text: 'Start'},
-        <% if video_end < 0 %>
-        {time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: 'End'}
-        <% else %>
-        {time: <%= video_end %>, text: 'End'}
-        <% end %>
-    ]
-});
-
-player.currentTime(<%= video_start %>);
-<% end %>
-
-<% if !listen %>
-var currentSources = player.currentSources();
-for ( var i = 0; i < currentSources.length; i++ ) {
-    if (player.canPlayType(currentSources[i]['type'].split(';')[0]) === '') {
-        currentSources.splice(i);
-        i--;
-    }
-}
-
-player.src(currentSources);
-<% end %>
 
 function toggle(target) {
   body = target.parentNode.parentNode.children[1];
