@@ -9,7 +9,7 @@ a {
 }
 
 body {
-  background-color: #232323;
+  background-color: rgba(35, 35, 35, 1);
   color: #f0f0f0;
 }
 
@@ -25,7 +25,7 @@ body {
 .pure-control-group > input,
 .pure-form > fieldset > select,
 .pure-control-group > select {
-  color: #232323;
+  color: rgba(35, 35, 35, 1);
 }
 
 .navbar > .searchbar input {
