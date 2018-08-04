@@ -439,7 +439,11 @@ get "/watch" do |env|
   host_params = env.request.query_params
   host_params.delete_all("v")
 
-  thumbnail = "https://i.ytimg.com/vi/#{id}/maxresdefault.jpg"
+  if fmt_stream.select { |x| x["label"].starts_with? "hd720" }.size != 0
+    thumbnail = "https://i.ytimg.com/vi/#{video.id}/maxresdefault.jpg"
+  else
+    thumbnail = "https://i.ytimg.com/vi/#{video.id}/hqdefault.jpg"
+  end
 
   templated "watch"
 end
@@ -1525,7 +1529,11 @@ get "/embed/:id" do |env|
   host_params = env.request.query_params
   host_params.delete_all("v")
 
-  thumbnail = "https://i.ytimg.com/vi/#{id}/maxresdefault.jpg"
+  if fmt_stream.select { |x| x["label"].starts_with? "hd720" }.size != 0
+    thumbnail = "https://i.ytimg.com/vi/#{video.id}/maxresdefault.jpg"
+  else
+    thumbnail = "https://i.ytimg.com/vi/#{video.id}/hqdefault.jpg"
+  end
 
   rendered "embed"
 end
