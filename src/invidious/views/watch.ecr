@@ -284,6 +284,12 @@ function get_youtube_comments() {
       function(jsonResponse) {
         comments = document.getElementById('comments');
         comments.innerHTML = `
+        <div>
+            <h3>
+                <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
+                <a target="_blank" href="https://www.youtube.com/watch?v=<%= video.id %>">View more comments on YouTube</a>
+            </h3>
+        </div>
         <div>{content_html}</div>
         <hr style="margin-left:1em; margin-right:1em;">`.supplant({
           content_html: jsonResponse.content_html
