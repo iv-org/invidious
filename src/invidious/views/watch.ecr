@@ -205,15 +205,6 @@ function toggle_comments(target) {
   }
 }
 
-function timeout(ms, promise) {
-  return new Promise(function(resolve, reject) {
-    setTimeout(function() {
-      reject(new Error('timeout'));
-    }, ms);
-    promise.then(resolve, reject);
-  });
-}
-
 function load_comments(target) {
   var continuation = target.getAttribute('data-continuation');
 
@@ -222,66 +213,74 @@ function load_comments(target) {
   body.innerHTML =
     '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
 
-  var url =
-    '/api/v1/comments/<%= video.id %>?format=html&continuation=' + continuation;
-  timeout(5000, fetch(url))
-    .then(function(response) {
-      return response.json();
-    })
-    .then(
-      function(jsonResponse) {
-        body.innerHTML = jsonResponse.content_html;
-      },
-      function(error) {
-        body.innerHTML = fallback;
-        console.log(response);
-      }
-    )
-    .catch(function(error) {
+  var url = '/api/v1/comments/<%= video.id %>?format=html&continuation=' + continuation;
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = 'json';
+  xhr.timeout = 10000;
+  xhr.open("GET", url, true);
+  xhr.send();
+
+  xhr.onreadystatechange = function() {
+    if(xhr.readyState == 4 && xhr.status == 200) {
+      body.innerHTML = xhr.response.content_html;
+    } else {
       body.innerHTML = fallback;
-      console.log(error);
-    });
+    }
+  }
+
+  xhr.ontimeout = function() {
+      body.innerHTML = fallback;
+  }
 }
 
 function get_reddit_comments() {
-  fetch('/api/v1/comments/<%= video.id %>?source=reddit')
-    .then(function(response) {
-      return response.json();
-    })
-    .then(
-      function(jsonResponse) {
-        comments = document.getElementById('comments');
-        comments.innerHTML = `
-        <div>
-            <h3>
-                <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
-                {title}
-            </h3>
-            <b>
-                <a target="_blank" href="https://reddit.com{permalink}">View more comments on Reddit</a>
-            </b>
-        </div>
-        <div>{content_html}</div>
+  var url = '/api/v1/comments/<%= video.id %>?source=reddit';
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = 'json';
+  xhr.timeout = 10000;
+  xhr.open("GET", url, true);
+  xhr.send();
 
-        <hr style="margin-left:1em; margin-right:1em;">`.supplant({
-          title: jsonResponse.title,
-          permalink: jsonResponse.permalink,
-          content_html: jsonResponse.content_html
-        });
-      },
-      function(response) {
-        get_youtube_comments();
-      }
-    );
+  xhr.onreadystatechange = function() {
+    if(xhr.readyState == 4 && xhr.status == 200) {
+      comments = document.getElementById('comments');
+      comments.innerHTML = `
+      <div>
+          <h3>
+              <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
+              {title}
+          </h3>
+          <b>
+              <a target="_blank" href="https://reddit.com{permalink}">View more comments on Reddit</a>
+          </b>
+      </div>
+      <div>{content_html}</div>
+  
+      <hr style="margin-left:1em; margin-right:1em;">`.supplant({
+          title: xhr.response.title,
+          permalink: xhr.response.permalink,
+          content_html: xhr.response.content_html
+      });
+    } else {
+      get_youtube_comments();
+    }
+  };
+
+  xhr.ontimeout = function() {
+      get_reddit_comments();
+  }
 }
 
 function get_youtube_comments() {
-  fetch('/api/v1/comments/<%= video.id %>?format=html')
-    .then(function(response) {
-      return response.json();
-    })
-    .then(
-      function(jsonResponse) {
+  var url = '/api/v1/comments/<%= video.id %>?format=html';
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = 'json';
+  xhr.timeout = 10000;
+  xhr.open("GET", url, true);
+  xhr.send();
+
+  xhr.onreadystatechange = function() {
+    if(xhr.readyState == 4 && xhr.status == 200) {
         comments = document.getElementById('comments');
         comments.innerHTML = `
         <div>
@@ -292,13 +291,17 @@ function get_youtube_comments() {
         </div>
         <div>{content_html}</div>
         <hr style="margin-left:1em; margin-right:1em;">`.supplant({
-          content_html: jsonResponse.content_html
+          content_html: xhr.response.content_html
         });
-      },
-      function(response) {
-        comments.innerHTML = '';
+      } else {
+          comments = document.getElementById('comments');
+          comments.innerHTML = '';
       }
-    );
+  }
+
+  xhr.ontimeout = function () {
+    get_youtube_comments();
+  }
 }
 
 String.prototype.supplant = function(o) {
