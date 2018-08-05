@@ -1033,7 +1033,7 @@ get "/subscription_ajax" do |env|
       if match
         session_token = match["session_token"]
       else
-        next env.redirect "/"
+        next env.redirect referer
       end
 
       headers["content-type"] = "application/x-www-form-urlencoded"
@@ -2031,10 +2031,10 @@ get "/api/v1/trending" do |env|
 
           json.field "lengthSeconds", length_seconds
           json.field "viewCount", view_count
-          
+
           json.field "author", author
           json.field "authorUrl", author_url
-          
+
           json.field "published", published
           json.field "description", description
           json.field "descriptionHtml", descriptionHtml
