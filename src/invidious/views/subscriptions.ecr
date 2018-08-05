@@ -15,18 +15,18 @@
     </div>
 </div>
 
-<% if !notifications.empty? %>
+<div class="h-box">
+<% if notifications.empty? %>
+    <center><%= notifications.size %> unseen notifications</center>
+<% else %>
     <% notifications.each_slice(4) do |slice| %>
-        <div class="pure-g">
             <% slice.each do |video| %>
                 <%= rendered "components/video" %>
             <% end %>
-        </div>
     <% end %>
-<% else %>
-    <center><%= notifications.size %> unseen notifications</center>
 <% end %>
-<hr style="margin-left:1em; margin-right:1em;">
+<hr>
+</div>
 
 <% videos.each_slice(4) do |slice| %>
     <div class="pure-g">

@@ -259,7 +259,7 @@ function get_reddit_comments() {
       </div>
       <div>{content_html}</div>
   
-      <hr style="margin-left:1em; margin-right:1em;">`.supplant({
+      <hr>`.supplant({
           title: xhr.response.title,
           permalink: xhr.response.permalink,
           content_html: xhr.response.content_html
@@ -293,7 +293,7 @@ function get_youtube_comments() {
             </h3>
         </div>
         <div>{content_html}</div>
-        <hr style="margin-left:1em; margin-right:1em;">`.supplant({
+        <hr>`.supplant({
           content_html: xhr.response.content_html
         });
       } else {
@@ -396,7 +396,7 @@ get_youtube_comments();
             <div>
                 <%= video.description %>
             </div>
-            <hr style="margin-left:1em; margin-right:1em;">
+            <hr>
             <div id="comments">
                 <h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>
             </div>
