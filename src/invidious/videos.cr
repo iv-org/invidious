@@ -305,13 +305,17 @@ def process_video_params(query, preferences)
   video_loop ||= 0
   video_loop = video_loop == 1
 
-  if query["start"]?
-    video_start = decode_time(query["start"])
-  end
   if query["t"]?
     video_start = decode_time(query["t"])
   end
   video_start ||= 0
+  if query["time_continu"]?
+    video_start = decode_time(query["t"])
+  end
+  video_start ||= 0
+  if query["start"]?
+    video_start = decode_time(query["start"])
+  end
 
   if query["end"]?
     video_end = decode_time(query["end"])
