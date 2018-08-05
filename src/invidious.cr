@@ -221,7 +221,7 @@ get "/watch" do |env|
   end
   video_end ||= -1
 
-  if env.params.query["listen"]? && env.params.query["listen"] == "true"
+  if env.params.query["listen"]? && env.params.query["listen"] == "true" || env.params.query["listen"] == "1"
     listen = true
     env.params.query.delete_all("listen")
   end
@@ -381,7 +381,7 @@ get "/embed/:id" do |env|
   end
   video_end ||= -1
 
-  if env.params.query["listen"]? && env.params.query["listen"] == "true"
+  if env.params.query["listen"]? && env.params.query["listen"] == "true" || env.params.query["listen"] == "1"
     listen = true
     env.params.query.delete_all("listen")
   end

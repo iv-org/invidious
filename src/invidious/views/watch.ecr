@@ -49,14 +49,14 @@
         <% else %>
             <% if listen %>
                 <% audio_streams.each_with_index do |fmt, i| %>
-                    <source src="<%= fmt["url"] %>" type="<%= fmt["type"] %>" label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
+                    <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
                 <% end %>
             <% else %>
                 <% fmt_stream.each_with_index do |fmt, i| %>
                     <% if preferences %>
-                    <source src="<%= fmt["url"] %>" type="<%= fmt["type"] %>" label="<%= fmt["label"] %>" selected="<%= preferences.quality == fmt["label"].split(" - ")[0] %>">
+                    <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= preferences.quality == fmt["label"].split(" - ")[0] %>">
                     <% else %>
-                    <source src="<%= fmt["url"] %>" type="<%= fmt["type"] %>" label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+                    <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
                     <% end %>
                 <% end %>
                 
@@ -327,7 +327,7 @@ get_youtube_comments();
         <i class="icon ion-ios-videocam"></i>
     </a>
     <% else %>
-    <a href="/watch?<%= env.params.query %>&listen=true">
+    <a href="/watch?<%= env.params.query %>&listen=1">
         <i class="icon ion-ios-volume-high"></i>
     </a>
     <% end %>
