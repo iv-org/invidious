@@ -23,8 +23,10 @@
             <% end %>
         </div>
     <% end %>
-    <hr style="margin-left:1em; margin-right:1em;">
+<% else %>
+    <center><%= notifications.size %> unseen notifications</center>
 <% end %>
+<hr style="margin-left:1em; margin-right:1em;">
 
 <% videos.each_slice(4) do |slice| %>
     <div class="pure-g">
