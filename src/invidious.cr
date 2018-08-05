@@ -193,7 +193,7 @@ get "/watch" do |env|
   end
   subscriptions ||= [] of String
 
-  autoplay, video_loop, video_start, video_end, listen = process_video_params(env.params.query, preferences)
+  autoplay, video_loop, video_start, video_end, listen, raw, quality, autoplay = process_video_params(env.params.query, preferences)
   if listen
     env.params.query.delete_all("listen")
   end
@@ -227,6 +227,18 @@ get "/watch" do |env|
 
   # TODO: Find highest resolution thumbnail automatically
   thumbnail = "https://i.ytimg.com/vi/#{video.id}/mqdefault.jpg"
+
+  if raw
+    url = fmt_stream[0]["url"]
+
+    fmt_stream.each do |fmt|
+      if fmt["label"].split(" - ")[0] == quality
+        url = fmt["url"]
+      end
+    end
+
+    next env.redirect url
+  end
 
   rvs = [] of Hash(String, String)
   if video.info.has_key?("rvs")
