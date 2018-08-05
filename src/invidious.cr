@@ -1474,10 +1474,10 @@ get "/feed/channel/:ucid" do |env|
 
         view_count = node.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[2])).not_nil!
         view_count = view_count.content.rchop(" views")
-        if view_count = "No"
+        if view_count == "No"
           view_count = 0
         else
-          view_count = view_count.delete(",").to_i
+          view_count = view_count.delete(",").to_i64
         end
 
         descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
@@ -2226,10 +2226,10 @@ get "/api/v1/trending" do |env|
 
         published, view_count = node.xpath_nodes(%q(.//ul[@class="yt-lockup-meta-info"]/li))
         view_count = view_count.content.rchop(" views")
-        if view_count = "No"
+        if view_count == "No"
           view_count = 0
         else
-          view_count = view_count.delete(",").to_i
+          view_count = view_count.delete(",").to_i64
         end
 
         descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
@@ -2511,10 +2511,10 @@ get "/api/v1/channels/:ucid/videos" do |env|
 
         view_count = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[2])).not_nil!
         view_count = view_count.content.rchop(" views")
-        if view_count = "No"
+        if view_count == "No"
           view_count = 0
         else
-          view_count = view_count.delete(",").to_i
+          view_count = view_count.delete(",").to_i64
         end
 
         descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
@@ -2637,11 +2637,12 @@ get "/api/v1/search" do |env|
         published = decode_date(published).epoch
 
         view_count = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[2])).not_nil!
+        puts view_count
         view_count = view_count.content.rchop(" views")
-        if view_count = "No"
+        if view_count == "No"
           view_count = 0
         else
-          view_count = view_count.delete(",").to_i
+          view_count = view_count.delete(",").to_i64
         end
 
         descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
