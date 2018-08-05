@@ -1793,18 +1793,17 @@ get "/api/v1/videos/:id" do |env|
       json.field "title", video.title
       json.field "videoId", video.id
       json.field "videoThumbnails" do
-        json.object do
-          qualities = [{name: "default", url: "default", width: 120, height: 90},
-                       {name: "high", url: "hqdefault", width: 480, height: 360},
-                       {name: "medium", url: "mqdefault", width: 320, height: 180},
-          ]
+        qualities = [{name: "default", url: "default", width: 120, height: 90},
+                     {name: "high", url: "hqdefault", width: 480, height: 360},
+                     {name: "medium", url: "mqdefault", width: 320, height: 180},
+        ]
+        json.array do
           qualities.each do |quality|
-            json.field quality[:name] do
-              json.object do
-                json.field "url", "https://i.ytimg.com/vi/#{id}/#{quality["url"]}.jpg"
-                json.field "width", quality[:width]
-                json.field "height", quality[:height]
-              end
+            json.object do
+              json.field "quality", quality[:name]
+              json.field "url", "https://i.ytimg.com/vi/#{id}/#{quality["url"]}.jpg"
+              json.field "width", quality[:width]
+              json.field "height", quality[:height]
             end
           end
         end
@@ -1936,24 +1935,21 @@ get "/api/v1/videos/:id" do |env|
                 json.field "videoId", rv["id"]
                 json.field "title", rv["title"]
                 json.field "videoThumbnails" do
-                  json.object do
-                    qualities = [{name: "default", url: "default", width: 120, height: 90},
-                                 {name: "high", url: "hqdefault", width: 480, height: 360},
-                                 {name: "medium", url: "mqdefault", width: 320, height: 180},
-                    ]
+                  qualities = [{name: "default", url: "default", width: 120, height: 90},
+                               {name: "high", url: "hqdefault", width: 480, height: 360},
+                               {name: "medium", url: "mqdefault", width: 320, height: 180},
+                  ]
+                  json.array do
                     qualities.each do |quality|
-                      json.field quality[:name] do
-                        json.object do
-                          json.field "url", "https://i.ytimg.com/vi/#{rv["id"]}/#{quality["url"]}.jpg"
-                          json.field "width", quality[:width]
-                          json.field "height", quality[:height]
-                        end
-                      end
+                      json.field "quality", quality[:name]
+                      json.field "url", "https://i.ytimg.com/vi/#{rv["id"]}/#{quality["url"]}.jpg"
+                      json.field "width", quality[:width]
+                      json.field "height", quality[:height]
                     end
                   end
                 end
                 json.field "author", rv["author"]
-                json.field "lengthSeconds", rv["length_seconds"]
+                json.field "lengthSeconds", rv["length_seconds"].to_i
                 json.field "viewCountText", rv["short_view_count_text"].rchop(" views")
               end
             end
@@ -1974,22 +1970,30 @@ get "/api/v1/trending" do |env|
   videos = JSON.build do |json|
     json.array do
       trending.xpath_nodes(%q(//ul/li[@class="expanded-shelf-content-item-wrapper"])).each do |node|
-        length_seconds = decode_length_seconds(node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content)
+        anchor = node.xpath_node(%q(.//h3/a)).not_nil!
 
-        video = node.xpath_node(%q(.//h3/a)).not_nil!
-        title = video.content
-        id = video["href"].lchop("/watch?v=")
+        title = anchor.content
+        id = anchor["href"].lchop("/watch?v=")
 
-        channel = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).not_nil!
-        author = channel.content
-        author_url = channel["href"]
+        anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).not_nil!
+        author = anchor.content
+        author_url = anchor["href"]
 
-        published, view_count = node.xpath_nodes(%q(.//ul[@class="yt-lockup-meta-info"]/li))
-        view_count = view_count.content.rchop(" views")
-        if view_count == "No"
-          view_count = 0
+        metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
+        if metadata.size == 0
+          next
+        elsif metadata.size == 1
+          view_count = metadata[0].content.rchop(" watching").delete(",").to_i64
+          published = Time.now
         else
-          view_count = view_count.delete(",").to_i64
+          published = decode_date(metadata[0].content)
+
+          view_count = metadata[1].content.rchop(" views")
+          if view_count == "No"
+            view_count = 0_i64
+          else
+            view_count = view_count.delete(",").to_i64
+          end
         end
 
         descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
@@ -2003,8 +2007,7 @@ get "/api/v1/trending" do |env|
           description = XML.parse_html(description).content.strip("\n ")
         end
 
-        published = published.content.split(" ")[-3..-1].join(" ")
-        published = decode_date(published).epoch
+        length_seconds = decode_length_seconds(node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content)
 
         json.object do
           json.field "title", title
@@ -2259,22 +2262,21 @@ get "/api/v1/channels/:ucid/videos" do |env|
         title = anchor.content.strip
         video_id = anchor["href"].lchop("/watch?v=")
 
-        published = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[1]))
-        if !published
+        metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
+        if metadata.size == 0
           next
-        end
-        published = published.content
-        if published.ends_with? "watching"
-          next
-        end
-        published = decode_date(published).epoch
-
-        view_count = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li[2])).not_nil!
-        view_count = view_count.content.rchop(" views")
-        if view_count == "No"
-          view_count = 0
+        elsif metadata.size == 1
+          view_count = metadata[0].content.rchop(" watching").delete(",").to_i64
+          published = Time.now
         else
-          view_count = view_count.delete(",").to_i64
+          published = decode_date(metadata[0].content)
+
+          view_count = metadata[1].content.rchop(" views")
+          if view_count == "No"
+            view_count = 0_i64
+          else
+            view_count = view_count.delete(",").to_i64
+          end
         end
 
         descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
