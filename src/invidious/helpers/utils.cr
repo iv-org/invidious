@@ -127,3 +127,13 @@ def arg_array(array, start = 1)
 
   return args
 end
+
+def make_host_url(ssl, host)
+  if ssl
+    scheme = "https://"
+  else
+    scheme = "http://"
+  end
+
+  return "#{scheme}#{host}"
+end

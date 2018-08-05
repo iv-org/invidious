@@ -1,28 +1,92 @@
+class SearchVideo
+  add_mapping({
+    title:            String,
+    id:               String,
+    author:           String,
+    ucid:             String,
+    published:        Time,
+    view_count:       Int64,
+    description:      String,
+    description_html: String,
+    length_seconds:   Int32,
+  })
+end
+
 def search(query, page = 1, search_params = build_search_params(content_type: "video"))
   client = make_client(YT_URL)
   html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=#{search_params}").body
+  if html.empty?
+    return [] of SearchVideo
+  end
+
   html = XML.parse_html(html)
+  videos = [] of SearchVideo
 
-  videos = [] of ChannelVideo
-
-  html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |item|
-    root = item.xpath_node(%q(div[contains(@class,"yt-lockup-video")]/div))
-    if !root
+  html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |node|
+    anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
+    if !anchor
       next
     end
 
-    id = root.xpath_node(%q(.//div[contains(@class,"yt-lockup-thumbnail")]/a/@href)).not_nil!.content.lchop("/watch?v=")
+    if anchor["href"].starts_with? "https://www.googleadservices.com"
+      next
+    end
 
-    title = root.xpath_node(%q(.//div[@class="yt-lockup-content"]/h3/a)).not_nil!.content
+    title = anchor.content.strip
+    id = anchor["href"].lchop("/watch?v=")
 
-    author = root.xpath_node(%q(.//div[@class="yt-lockup-content"]/div/a)).not_nil!
-    ucid = author["href"].rpartition("/")[-1]
-    author = author.content
+    anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).not_nil!
+    author = anchor.content
+    author_url = anchor["href"]
+    ucid = author_url.split("/")[-1]
 
-    published = root.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li[1])).not_nil!.content
-    published = decode_date(published)
+    metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
+    if metadata.size == 0
+      next
+    elsif metadata.size == 1
+      view_count = metadata[0].content.rchop(" watching").delete(",").to_i64
+      published = Time.now
+    else
+      published = decode_date(metadata[0].content)
 
-    video = ChannelVideo.new(id, title, published, Time.now, ucid, author)
+      view_count = metadata[1].content.rchop(" views")
+      if view_count == "No"
+        view_count = 0_i64
+      else
+        view_count = view_count.delete(",").to_i64
+      end
+    end
+
+    description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+    if !description_html
+      description = ""
+      description_html = ""
+    else
+      description_html = description_html.to_s
+      description = description_html.gsub("<br>", "\n")
+      description = description.gsub("<br/>", "\n")
+      description = XML.parse_html(description).content.strip("\n ")
+    end
+
+    length_seconds = node.xpath_node(%q(.//span[@class="video-time"]))
+    if length_seconds
+      length_seconds = decode_length_seconds(length_seconds.content)
+    else
+      length_seconds = -1
+    end
+
+    video = SearchVideo.new(
+      title,
+      id,
+      author,
+      ucid,
+      published,
+      view_count,
+      description,
+      description_html,
+      length_seconds,
+    )
+
     videos << video
   end
 

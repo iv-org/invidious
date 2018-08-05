@@ -10,8 +10,9 @@
         <p>
             <b><a style="width:100%;" href="/channel/<%= video.ucid %>"><%= video.author %></a></b>
         </p>
-        <p>
-            <h5>Shared <%= recode_date(video.published) %> ago</h5>
-        </p>
+        
+        <% if Time.now - video.published > 1.minute %>
+        <h5>Shared <%= recode_date(video.published) %> ago</h5>
+        <% end %>
     </div>
 </div>

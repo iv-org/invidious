@@ -5,6 +5,75 @@ class Video
     end
   end
 
+  def fmt_stream(decrypt_function)
+    streams = [] of HTTP::Params
+    self.info["url_encoded_fmt_stream_map"].split(",") do |string|
+      if !string.empty?
+        streams << HTTP::Params.parse(string)
+      end
+    end
+
+    streams.each { |s| s.add("label", "#{s["quality"]} - #{s["type"].split(";")[0].split("/")[1]}") }
+    streams = streams.uniq { |s| s["label"] }
+
+    if streams[0]? && streams[0]["s"]?
+      streams.each do |fmt|
+        fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
+      end
+    end
+
+    return streams
+  end
+
+  def adaptive_fmts(decrypt_function)
+    adaptive_fmts = [] of HTTP::Params
+    if self.info.has_key?("adaptive_fmts")
+      self.info["adaptive_fmts"].split(",") do |string|
+        adaptive_fmts << HTTP::Params.parse(string)
+      end
+    end
+
+    if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
+      adaptive_fmts.each do |fmt|
+        fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
+      end
+    end
+
+    return adaptive_fmts
+  end
+
+  def audio_streams(adaptive_fmts)
+    audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio") ? s : nil }
+    audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
+    audio_streams.each do |stream|
+      stream["bitrate"] = (stream["bitrate"].to_f64/1000).to_i.to_s
+    end
+
+    return audio_streams
+  end
+
+  def captions
+    player_response = JSON.parse(self.info["player_response"])
+
+    if player_response["captions"]?
+      captions = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"]?.try &.as_a
+    end
+    captions ||= [] of JSON::Any
+
+    return captions
+  end
+
+  def short_description
+    description = self.description.gsub("<br>", " ")
+    description = description.gsub("<br/>", " ")
+    description = XML.parse_html(description).content[0..200].gsub('"', "&quot;").gsub("\n", " ").strip(" ")
+    if description.empty?
+      description = " "
+    end
+
+    return description
+  end
+
   add_mapping({
     id:   String,
     info: {
@@ -220,4 +289,54 @@ def itag_to_metadata(itag : String)
   }
 
   return formats[itag]
+end
+
+def process_video_params(query, preferences)
+  autoplay = query["autoplay"]?.try &.to_i?
+  video_loop = query["loop"]?.try &.to_i?
+
+  if preferences
+    autoplay ||= preferences.autoplay.to_unsafe
+    video_loop ||= preferences.video_loop.to_unsafe
+  end
+  autoplay ||= 0
+  autoplay = autoplay == 1
+
+  video_loop ||= 0
+  video_loop = video_loop == 1
+
+  if query["start"]?
+    video_start = decode_time(query["start"])
+  end
+  if query["t"]?
+    video_start = decode_time(query["t"])
+  end
+  video_start ||= 0
+
+  if query["end"]?
+    video_end = decode_time(query["end"])
+  end
+  video_end ||= -1
+
+  if query["listen"]? && (query["listen"] == "true" || query["listen"] == "1")
+    listen = true
+  end
+  listen ||= false
+
+  raw = query["raw"]?.try &.to_i?
+  raw ||= 0
+  raw = raw == 1
+
+  quality = query["quality"]?
+  quality ||= "hd720"
+
+  autoplay = query["autoplay"]?.try &.to_i?
+  autoplay ||= 0
+  autoplay = autoplay == 1
+
+  controls = query["controls"]?.try &.to_i?
+  controls ||= 1
+  controls = controls == 1
+
+  return autoplay, video_loop, video_start, video_end, listen, raw, quality, autoplay, controls
 end
