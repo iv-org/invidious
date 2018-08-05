@@ -19,7 +19,7 @@
     <% notifications.each_slice(4) do |slice| %>
         <div class="pure-g">
             <% slice.each do |video| %>
-                <%= rendered "components/subscription_video" %>
+                <%= rendered "components/video" %>
             <% end %>
         </div>
     <% end %>
@@ -29,7 +29,7 @@
 <% videos.each_slice(4) do |slice| %>
     <div class="pure-g">
         <% slice.each do |video| %>
-            <%= rendered "components/subscription_video" %>
+            <%= rendered "components/video" %>
         <% end %>
     </div>
 <% end %>
