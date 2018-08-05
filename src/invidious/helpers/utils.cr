@@ -63,7 +63,12 @@ def decode_time(string)
 end
 
 def decode_date(string : String)
-  # Time matches format "20 hours ago", "40 minutes ago"...
+  # String matches 'YYYY'
+  if string.match(/\d{4}/)
+    return Time.new(string.to_i, 1, 1)
+  end
+
+  # String matches format "20 hours ago", "40 minutes ago"...
   date = string.split(" ")[-3, 3]
   delta = date[0].to_i
 

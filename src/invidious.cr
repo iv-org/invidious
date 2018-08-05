@@ -336,19 +336,23 @@ end
 # Search
 
 get "/results" do |env|
-  search_query = env.params.query["search_query"]?
+  query = env.params.query["search_query"]?
+  query ||= env.params.query["q"]?
+  query ||= ""
+
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
-  if search_query
-    env.redirect "/search?q=#{URI.escape(search_query)}&page=#{page}"
+  if query
+    env.redirect "/search?q=#{URI.escape(query)}&page=#{page}"
   else
     env.redirect "/"
   end
 end
 
 get "/search" do |env|
-  query = env.params.query["q"]?
+  query = env.params.query["search_query"]?
+  query ||= env.params.query["q"]?
   query ||= ""
 
   page = env.params.query["page"]?.try &.to_i?
