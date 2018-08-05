@@ -44,12 +44,12 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
     if metadata.size == 0
       next
     elsif metadata.size == 1
-      view_count = metadata[0].content.rchop(" watching").delete(",").to_i64
+      view_count = metadata[0].content.split(" ")[0].delete(",").to_i64
       published = Time.now
     else
       published = decode_date(metadata[0].content)
 
-      view_count = metadata[1].content.rchop(" views")
+      view_count = metadata[1].content.split(" ")[0]
       if view_count == "No"
         view_count = 0_i64
       else
