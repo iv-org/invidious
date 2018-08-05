@@ -1257,9 +1257,6 @@ get "/feed/channel/:ucid" do |env|
   end
 
   content_html = json["content_html"].as_s
-  if content_html.empty?
-    halt env, status_code: 403
-  end
   document = XML.parse_html(content_html)
 
   host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"])
@@ -1280,35 +1277,52 @@ get "/feed/channel/:ucid" do |env|
       end
 
       document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |node|
-        anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
+        anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
+        if !anchor
+          next
+        end
+
+        if anchor["href"].starts_with? "https://www.googleadservices.com"
+          next
+        end
+
         title = anchor.content.strip
         video_id = anchor["href"].lchop("/watch?v=")
 
-        view_count = node.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[2])).not_nil!
-        view_count = view_count.content.rchop(" views")
-        if view_count == "No"
-          view_count = 0
+        metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
+        if metadata.size == 0
+          next
+        elsif metadata.size == 1
+          view_count = metadata[0].content.split(" ")[0].delete(",").to_i64
+          published = Time.now
         else
-          view_count = view_count.delete(",").to_i64
+          published = decode_date(metadata[0].content)
+
+          view_count = metadata[1].content.split(" ")[0]
+          if view_count == "No"
+            view_count = 0_i64
+          else
+            view_count = view_count.delete(",").to_i64
+          end
         end
 
-        descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-        if !descriptionHtml
+        description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+        if !description_html
           description = ""
-          descriptionHtml = ""
+          description_html = ""
         else
-          descriptionHtml = descriptionHtml.to_s
-          description = descriptionHtml.gsub("<br>", "\n")
+          description_html = description_html.to_s
+          description = description_html.gsub("<br>", "\n")
           description = description.gsub("<br/>", "\n")
           description = XML.parse_html(description).content.strip("\n ")
         end
 
-        published = node.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[1]))
-        if !published
-          next
+        length_seconds = node.xpath_node(%q(.//span[@class="video-time"]))
+        if length_seconds
+          length_seconds = decode_length_seconds(length_seconds.content)
+        else
+          length_seconds = -1
         end
-        published = published.content
-        published = decode_date(published)
 
         xml.element("entry") do
           xml.element("id") { xml.text "yt:video:#{video_id}" }

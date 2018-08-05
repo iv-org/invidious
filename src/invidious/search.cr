@@ -33,7 +33,7 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
     end
 
     title = anchor.content.strip
-    id = anchor["href"].lchop("/watch?v=")
+    video_id = anchor["href"].lchop("/watch?v=")
 
     anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).not_nil!
     author = anchor.content
@@ -77,7 +77,7 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
 
     video = SearchVideo.new(
       title,
-      id,
+      video_id,
       author,
       ucid,
       published,
