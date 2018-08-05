@@ -2081,18 +2081,17 @@ get "/api/v1/top" do |env|
           json.field "title", video.title
           json.field "videoId", video.id
           json.field "videoThumbnails" do
-            json.object do
-              qualities = [{name: "default", url: "default", width: 120, height: 90},
-                           {name: "high", url: "hqdefault", width: 480, height: 360},
-                           {name: "medium", url: "mqdefault", width: 320, height: 180},
-              ]
+            qualities = [{name: "default", url: "default", width: 120, height: 90},
+                         {name: "high", url: "hqdefault", width: 480, height: 360},
+                         {name: "medium", url: "mqdefault", width: 320, height: 180},
+            ]
+            json.array do
               qualities.each do |quality|
-                json.field quality[:name] do
-                  json.object do
-                    json.field "url", "https://i.ytimg.com/vi/#{video.id}/#{quality["url"]}.jpg"
-                    json.field "width", quality[:width]
-                    json.field "height", quality[:height]
-                  end
+                json.object do
+                  json.field "quality", quality[:name]
+                  json.field "url", "https://i.ytimg.com/vi/#{video.id}/#{quality["url"]}.jpg"
+                  json.field "width", quality[:width]
+                  json.field "height", quality[:height]
                 end
               end
             end
@@ -2220,18 +2219,17 @@ get "/api/v1/channels/:ucid" do |env|
               json.field "published", video.published.epoch
 
               json.field "videoThumbnails" do
-                json.object do
-                  qualities = [{name: "default", url: "default", width: 120, height: 90},
-                               {name: "high", url: "hqdefault", width: 480, height: 360},
-                               {name: "medium", url: "mqdefault", width: 320, height: 180},
-                  ]
+                qualities = [{name: "default", url: "default", width: 120, height: 90},
+                             {name: "high", url: "hqdefault", width: 480, height: 360},
+                             {name: "medium", url: "mqdefault", width: 320, height: 180},
+                ]
+                json.array do
                   qualities.each do |quality|
-                    json.field quality[:name] do
-                      json.object do
-                        json.field "url", "https://i.ytimg.com/vi/#{video.id}/#{quality["url"]}.jpg"
-                        json.field "width", quality[:width]
-                        json.field "height", quality[:height]
-                      end
+                    json.object do
+                      json.field "quality", quality[:name]
+                      json.field "url", "https://i.ytimg.com/vi/#{video.id}/#{quality["url"]}.jpg"
+                      json.field "width", quality[:width]
+                      json.field "height", quality[:height]
                     end
                   end
                 end
@@ -2324,18 +2322,17 @@ get "/api/v1/channels/:ucid/videos" do |env|
           json.field "videoId", video_id
 
           json.field "videoThumbnails" do
-            json.object do
-              qualities = [{name: "default", url: "default", width: 120, height: 90},
-                           {name: "high", url: "hqdefault", width: 480, height: 360},
-                           {name: "medium", url: "mqdefault", width: 320, height: 180},
-              ]
+            qualities = [{name: "default", url: "default", width: 120, height: 90},
+                         {name: "high", url: "hqdefault", width: 480, height: 360},
+                         {name: "medium", url: "mqdefault", width: 320, height: 180},
+            ]
+            json.array do
               qualities.each do |quality|
-                json.field quality[:name] do
-                  json.object do
-                    json.field "url", "https://i.ytimg.com/vi/#{video_id}/#{quality["url"]}.jpg"
-                    json.field "width", quality[:width]
-                    json.field "height", quality[:height]
-                  end
+                json.object do
+                  json.field "quality", quality[:name]
+                  json.field "url", "https://i.ytimg.com/vi/#{video_id}/#{quality["url"]}.jpg"
+                  json.field "width", quality[:width]
+                  json.field "height", quality[:height]
                 end
               end
             end
