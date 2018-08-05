@@ -210,7 +210,6 @@ get "/watch" do |env|
   if env.params.query["start"]?
     video_start = decode_time(env.params.query["start"])
   end
-
   if env.params.query["t"]?
     video_start = decode_time(env.params.query["t"])
   end
@@ -221,7 +220,7 @@ get "/watch" do |env|
   end
   video_end ||= -1
 
-  if env.params.query["listen"]? && env.params.query["listen"] == "true" || env.params.query["listen"] == "1"
+  if env.params.query["listen"]? && (env.params.query["listen"] == "true" || env.params.query["listen"] == "1")
     listen = true
     env.params.query.delete_all("listen")
   end
@@ -381,7 +380,7 @@ get "/embed/:id" do |env|
   end
   video_end ||= -1
 
-  if env.params.query["listen"]? && env.params.query["listen"] == "true" || env.params.query["listen"] == "1"
+  if env.params.query["listen"]? && (env.params.query["listen"] == "true" || env.params.query["listen"] == "1")
     listen = true
     env.params.query.delete_all("listen")
   end
