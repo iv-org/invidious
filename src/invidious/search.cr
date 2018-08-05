@@ -35,7 +35,10 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
     title = anchor.content.strip
     video_id = anchor["href"].lchop("/watch?v=")
 
-    anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).not_nil!
+    anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a))
+    if !anchor
+      next
+    end
     author = anchor.content
     author_url = anchor["href"]
     ucid = author_url.split("/")[-1]
