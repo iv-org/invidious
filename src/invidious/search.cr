@@ -14,7 +14,7 @@ end
 
 def search(query, page = 1, search_params = build_search_params(content_type: "video"))
   client = make_client(YT_URL)
-  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=#{search_params}").body
+  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=#{search_params}&disable_polymer=1").body
   if html.empty?
     return [] of SearchVideo
   end
@@ -47,14 +47,14 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
     if metadata.size == 0
       next
     elsif metadata.size == 1
-      # Skip movies
-      if metadata[0]["class"].includes? "ytd-movie-renderer"
-        next
-      end
-
       view_count = metadata[0].content.split(" ")[0].delete(",").to_i64
       published = Time.now
     else
+      # Skip movies
+      if metadata[0].content.includes? "·"
+        next
+      end
+
       published = decode_date(metadata[0].content)
 
       view_count = metadata[1].content.split(" ")[0]
