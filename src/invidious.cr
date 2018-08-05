@@ -2013,18 +2013,17 @@ get "/api/v1/trending" do |env|
           json.field "title", title
           json.field "videoId", id
           json.field "videoThumbnails" do
-            json.object do
-              qualities = [{name: "default", url: "default", width: 120, height: 90},
-                           {name: "high", url: "hqdefault", width: 480, height: 360},
-                           {name: "medium", url: "mqdefault", width: 320, height: 180},
-              ]
+            qualities = [{name: "default", url: "default", width: 120, height: 90},
+                         {name: "high", url: "hqdefault", width: 480, height: 360},
+                         {name: "medium", url: "mqdefault", width: 320, height: 180},
+            ]
+            json.array do
               qualities.each do |quality|
-                json.field quality[:name] do
-                  json.object do
-                    json.field "url", "https://i.ytimg.com/vi/#{id}/#{quality["url"]}.jpg"
-                    json.field "width", quality[:width]
-                    json.field "height", quality[:height]
-                  end
+                json.object do
+                  json.field "quality", quality[:name]
+                  json.field "url", "https://i.ytimg.com/vi/#{id}/#{quality["url"]}.jpg"
+                  json.field "width", quality[:width]
+                  json.field "height", quality[:height]
                 end
               end
             end
@@ -2032,8 +2031,10 @@ get "/api/v1/trending" do |env|
 
           json.field "lengthSeconds", length_seconds
           json.field "viewCount", view_count
+          
           json.field "author", author
           json.field "authorUrl", author_url
+          
           json.field "published", published
           json.field "description", description
           json.field "descriptionHtml", descriptionHtml
