@@ -179,3 +179,9 @@ div {
 .video-js:hover .vjs-big-play-button {
   background-color: rgba(35, 35, 35, 0.75);
 }
+
+.video-js .vjs-current-time,
+.video-js .vjs-time-divider,
+.video-js .vjs-duration {
+  display: block;
+}

@@ -63,20 +63,23 @@ video, #my_video, .video-js, .vjs-default-skin
 
 <script>
 var options = {
-    preload: 'auto',
-    playbackRates: [0.5, 1, 1.5, 2],
-    controlBar: {
-      children: [
-         'playToggle',
-         'volumePanel',
-         'progressControl',
-         'remainingTimeDisplay',
-         'captionsButton',
-         'qualitySelector',
-         'playbackRateMenuButton',
-         'fullscreenToggle',
-      ],
-   },
+  preload: 'auto',
+  playbackRates: [0.5, 1, 1.5, 2],
+  controlBar: {
+    children: [
+      'playToggle',
+      'volumePanel',
+      'currentTimeDisplay',
+      'timeDivider',
+      'durationDisplay',
+      'progressControl',
+      'remainingTimeDisplay',
+      'captionsButton',
+      'qualitySelector',
+      'playbackRateMenuButton',
+      'fullscreenToggle'
+    ]
+  }
 };
 
 var shareOptions = {
@@ -87,7 +90,7 @@ var shareOptions = {
   description: "<%= description %>",
   image: '<%= thumbnail %>',
   embedCode: `<iframe id='ivplayer' type='text/html' width='640' height='360'
-  src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>`
+    src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>`
 };
 
 var player = videojs('player', options, function() {
