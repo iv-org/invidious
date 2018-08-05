@@ -216,7 +216,7 @@ get "/watch" do |env|
   video.description = add_alt_links(video.description)
   description = video.short_description
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"])
+  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
   host_params = env.request.query_params
   host_params.delete_all("v")
 
@@ -306,7 +306,7 @@ get "/embed/:id" do |env|
   video.description = add_alt_links(video.description)
   description = video.short_description
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"])
+  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
   host_params = env.request.query_params
   host_params.delete_all("v")
 
@@ -847,7 +847,7 @@ get "/subscription_manager" do |env|
   subscriptions.sort_by! { |channel| channel.author.downcase }
 
   if action_takeout
-    host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"])
+    host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
 
     if format == "json"
       env.response.content_type = "application/json"
@@ -1259,7 +1259,7 @@ get "/feed/channel/:ucid" do |env|
   content_html = json["content_html"].as_s
   document = XML.parse_html(content_html)
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"])
+  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
   path = env.request.path
 
   feed = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -1416,7 +1416,7 @@ get "/feed/private" do |env|
     videos = videos[0..max_results]
   end
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"])
+  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
   path = env.request.path
   query = env.request.query.not_nil!
 

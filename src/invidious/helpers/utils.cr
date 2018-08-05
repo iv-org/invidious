@@ -135,5 +135,7 @@ def make_host_url(ssl, host)
     scheme = "http://"
   end
 
+  host ||= "invidio.us"
+
   return "#{scheme}#{host}"
 end
