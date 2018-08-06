@@ -33,6 +33,7 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
   "quality"     => "hd720",
   "volume"      => 100,
   "comments"    => "youtube",
+  "captions"    => ["", "", ""],
   "dark_mode"   => false,
   "thin_mode "  => false,
   "max_results" => 40,
@@ -41,7 +42,6 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
   "unseen_only" => false,
 }.to_json)
 
-# TODO: Migrate preferences so fields will not be nilable
 class Preferences
   JSON.mapping({
     video_loop: Bool,
@@ -51,18 +51,19 @@ class Preferences
     volume:     Int32,
     comments:   {
       type:    String,
-      nilable: true,
       default: "youtube",
+    },
+    captions: {
+      type:    Array(String),
+      default: ["", "", ""],
     },
     redirect_feed: {
       type:    Bool,
-      nilable: true,
       default: false,
     },
     dark_mode: Bool,
     thin_mode: {
       type:    Bool,
-      nilable: true,
       default: false,
     },
     max_results:        Int32,
@@ -71,7 +72,6 @@ class Preferences
     unseen_only:        Bool,
     notifications_only: {
       type:    Bool,
-      nilable: true,
       default: false,
     },
   })

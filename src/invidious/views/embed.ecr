@@ -55,7 +55,7 @@ video, #my_video, .video-js, .vjs-default-skin
             <% end %>
             <% captions.each do |caption| %>
                 <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
-                    srclang="<%= caption["languageCode"] %>" label="<%= caption["name"]["simpleText"]%> ">
+                    label="<%= caption["name"]["simpleText"]%> ">
             <% end %>
         <% end %>
     <% end %>
