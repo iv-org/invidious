@@ -14,19 +14,23 @@
 </div>
 
 <% subscriptions.each do |channel| %>
-<h3 class="h-box">
+<div class="h-box">
     <div class="pure-g">
         <div class="pure-u-2-5">
-            <a href="/channel/<%= channel.id %>"><%= channel.author %></a>
+            <h3>
+                <a href="/channel/<%= channel.id %>"><%= channel.author %></a>
+            </h3>
         </div>
         <div class="pure-u-2-5"></div>
         <div class="pure-u-1-5" style="text-align: right;">
-            <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>">unsubscribe</a>
+            <h3>
+                <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>">unsubscribe</a>
+            </h3>
         </div>
     </div>
-</h3>
 
-<% if subscriptions[-1].author != channel.author %>
-<hr>
-<% end %>
+    <% if subscriptions[-1].author != channel.author %>
+    <hr>
+    <% end %>
+</div>
 <% end %>
