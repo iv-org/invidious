@@ -53,10 +53,11 @@ video, #my_video, .video-js, .vjs-default-skin
             <% fmt_stream.each_with_index do |fmt, i| %>
                 <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= quality == fmt["label"].split(" - ")[0] %>">
             <% end %>
-            <% captions.each do |caption| %>
-                <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
-                    label="<%= caption["name"]["simpleText"]%> ">
-            <% end %>
+        <% end %>
+
+        <% captions.each do |caption| %>
+            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
+                label="<%= caption["name"]["simpleText"]%> ">
         <% end %>
     <% end %>
 </video>

@@ -64,11 +64,11 @@
                 <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
                     label="<%= caption["name"]["simpleText"]%>" <% if i == 0 %>default<% end %>>
                 <% end %>
-                
-                <% captions.each do |caption| %>
-                <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
-                    label="<%= caption["name"]["simpleText"]%>">
-                <% end %>
+            <% end %>
+
+            <% captions.each do |caption| %>
+            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption["name"]["simpleText"] %>"
+                label="<%= caption["name"]["simpleText"]%>">
             <% end %>
         <% end %>
     </video>
