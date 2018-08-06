@@ -64,7 +64,9 @@ video, #my_video, .video-js, .vjs-default-skin
 
 <script>
 var options = {
+  <% if autoplay %>
   preload: 'auto',
+  <% end %>
   playbackRates: [0.5, 1, 1.5, 2],
   controlBar: {
     children: [
