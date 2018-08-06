@@ -56,6 +56,30 @@ function update_value(element) {
                 </select>
             </div>
 
+            <div class="pure-control-group">
+                <label for="captions_0">Default captions: </label>
+                <select class="pure-u-1-5" name="captions_0" id="captions_0">
+                <% CAPTION_LANGUAGES.each do |option| %>
+                    <option <% if user.preferences.captions[0] == option %> selected <% end %>><%= option %></option>
+                <% end %>
+                </select>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="captions_fallback">Fallback languages: </label>
+                <select class="pure-u-1-5" name="captions_1" id="captions_1">
+                <% CAPTION_LANGUAGES.each do |option| %>
+                    <option <% if user.preferences.captions[1] == option %> selected <% end %>><%= option %></option>
+                <% end %>
+                </select>
+
+                <select class="pure-u-1-5" name="captions_2" id="captions_2">
+                <% CAPTION_LANGUAGES.each do |option| %>
+                    <option <% if user.preferences.captions[2] == option %> selected <% end %>><%= option %></option>
+                <% end %>
+                </select>
+            </div>
+
             <legend>Visual preferences</legend>
             <div class="pure-control-group">
                 <label for="dark_mode">Dark mode: </label>

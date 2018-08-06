@@ -215,6 +215,13 @@ get "/watch" do |env|
   audio_streams = video.audio_streams(adaptive_fmts)
 
   captions = video.captions
+  if preferences
+    preferred_captions = captions.select { |caption| preferences.captions.includes? caption["name"]["simpleText"] }
+    preferred_captions.sort_by! { |caption| preferences.captions.index(caption["name"]["simpleText"]).not_nil! }
+
+    captions = captions - preferred_captions
+  end
+  preferred_captions ||= [] of JSON::Any
 
   video.description = fill_links(video.description, "https", "www.youtube.com")
   video.description = add_alt_links(video.description)
@@ -713,6 +720,11 @@ post "/preferences" do |env|
     comments = env.params.body["comments"]?
     comments ||= "youtube"
 
+    captions_0 = env.params.body["captions_0"]?.try &.as(String) || ""
+    captions_1 = env.params.body["captions_1"]?.try &.as(String) || ""
+    captions_2 = env.params.body["captions_2"]?.try &.as(String) || ""
+    captions = [captions_0, captions_1, captions_2]
+
     redirect_feed = env.params.body["redirect_feed"]?.try &.as(String)
     redirect_feed ||= "off"
     redirect_feed = redirect_feed == "on"
@@ -750,6 +762,7 @@ post "/preferences" do |env|
       "quality"            => quality,
       "volume"             => volume,
       "comments"           => comments,
+      "captions"           => captions,
       "redirect_feed"      => redirect_feed,
       "dark_mode"          => dark_mode,
       "thin_mode"          => thin_mode,
