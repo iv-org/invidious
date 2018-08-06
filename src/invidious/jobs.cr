@@ -44,9 +44,9 @@ def crawl_videos(db)
   end
 end
 
-def refresh_channels(db)
+def refresh_channels(db, limit = 0, offset = 0)
   loop do
-    db.query("SELECT id FROM channels ORDER BY updated") do |rs|
+    db.query("SELECT id FROM channels ORDER BY updated limit $1 offset $2", limit, offset) do |rs|
       rs.each do
         client = make_client(YT_URL)
 
