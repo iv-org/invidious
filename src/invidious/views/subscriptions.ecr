@@ -15,15 +15,15 @@
     </div>
 </div>
 
-<div class="h-box">
-    <center><%= notifications.size %> unseen notifications</center>
-    <% notifications.each_slice(4) do |slice| %>
-            <% slice.each do |video| %>
-                <%= rendered "components/video" %>
-            <% end %>
-    <% end %>
-    <hr>
-</div>
+<center><%= notifications.size %> unseen notifications</center>
+<% notifications.each_slice(4) do |slice| %>
+    <div class="pure-g">
+        <% slice.each do |video| %>
+            <%= rendered "components/video" %>
+        <% end %>
+    </div>
+<% end %>
+<hr>
 
 <% videos.each_slice(4) do |slice| %>
     <div class="pure-g">
