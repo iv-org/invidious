@@ -216,12 +216,12 @@ get "/watch" do |env|
 
   captions = video.captions
   if preferences
-    preferred_captions = captions.select { |caption| preferences.captions.includes? caption["name"]["simpleText"] }
-    preferred_captions.sort_by! { |caption| preferences.captions.index(caption["name"]["simpleText"]).not_nil! }
+    preferred_captions = captions.select { |caption| preferences.captions.includes? caption.name.simpleText }
+    preferred_captions.sort_by! { |caption| preferences.captions.index(caption.name.simpleText).not_nil! }
 
     captions = captions - preferred_captions
   end
-  preferred_captions ||= [] of JSON::Any
+  preferred_captions ||= [] of Caption
 
   video.description = fill_links(video.description, "https", "www.youtube.com")
   video.description = add_alt_links(video.description)
@@ -1586,8 +1586,8 @@ get "/api/v1/captions/:id" do |env|
           json.array do
             captions.each do |caption|
               json.object do
-                json.field "label", caption["name"]["simpleText"]
-                json.field "languageCode", caption["languageCode"]
+                json.field "label", caption.name.simpleText
+                json.field "languageCode", caption.languageCode
               end
             end
           end
@@ -1598,7 +1598,7 @@ get "/api/v1/captions/:id" do |env|
     next response
   end
 
-  caption = captions.select { |caption| caption["name"]["simpleText"] == label }
+  caption = captions.select { |caption| caption.name.simpleText == label }
 
   env.response.content_type = "text/vtt"
   if caption.empty?
@@ -1607,13 +1607,13 @@ get "/api/v1/captions/:id" do |env|
     caption = caption[0]
   end
 
-  caption_xml = client.get(caption["baseUrl"].as_s).body
+  caption_xml = client.get(caption.baseUrl).body
   caption_xml = XML.parse(caption_xml)
 
   webvtt = <<-END_VTT
   WEBVTT
   Kind: captions
-  Language: #{caption["languageCode"]}
+  Language: #{caption.languageCode}
 
 
   END_VTT
@@ -1965,8 +1965,8 @@ get "/api/v1/videos/:id" do |env|
         json.array do
           captions.each do |caption|
             json.object do
-              json.field "label", caption["name"]["simpleText"]
-              json.field "languageCode", caption["languageCode"]
+              json.field "label", caption.name.simpleText
+              json.field "languageCode", caption.languageCode
             end
           end
         end

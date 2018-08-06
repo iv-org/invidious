@@ -87,6 +87,7 @@ CAPTION_LANGUAGES = [
   "Somali",
   "Southern Sotho",
   "Spanish",
+  "Spanish (Latin America)",
   "Sundanese",
   "Swahili",
   "Swedish",
@@ -164,10 +165,16 @@ class Video
   def captions
     player_response = JSON.parse(self.info["player_response"])
 
+    captions = [] of Caption
     if player_response["captions"]?
-      captions = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"]?.try &.as_a
+      caption_list = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"].as_a
+
+      caption_list.each do |caption|
+        caption = Caption.from_json(caption.to_json)
+        caption.name.simpleText = caption.name.simpleText.split(" - ")[0]
+        captions << caption
+      end
     end
-    captions ||= [] of JSON::Any
 
     return captions
   end
@@ -205,6 +212,20 @@ class Video
     is_family_friendly: Bool,
     genre:              String,
   })
+end
+
+class Caption
+  JSON.mapping(
+    name: CaptionName,
+    baseUrl: String,
+    languageCode: String
+  )
+end
+
+class CaptionName
+  JSON.mapping(
+    simpleText: String,
+  )
 end
 
 def get_video(id, db, refresh = true)
