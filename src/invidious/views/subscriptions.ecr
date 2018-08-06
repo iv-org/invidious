@@ -16,16 +16,13 @@
 </div>
 
 <div class="h-box">
-<% if notifications.empty? %>
     <center><%= notifications.size %> unseen notifications</center>
-<% else %>
     <% notifications.each_slice(4) do |slice| %>
             <% slice.each do |video| %>
                 <%= rendered "components/video" %>
             <% end %>
     <% end %>
-<% end %>
-<hr>
+    <hr>
 </div>
 
 <% videos.each_slice(4) do |slice| %>
