@@ -168,7 +168,7 @@ div {
 }
 
 .video-js .vjs-play-progress {
-  background-color: rgba(0, 182, 240, 0.5);
+  background-color: rgba(0, 182, 240, 1);
 }
 
 /* Big "Play" Button */
