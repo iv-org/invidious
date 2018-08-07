@@ -73,6 +73,8 @@ def decode_date(string : String)
   delta = date[0].to_i
 
   case date[1]
+  when .includes? "second"
+    delta = delta.seconds
   when .includes? "minute"
     delta = delta.minutes
   when .includes? "hour"
@@ -105,8 +107,10 @@ def recode_date(time : Time)
     span = {span.total_days, "day"}
   elsif span.total_minutes > 60.0
     span = {span.total_hours, "hour"}
+  elsif span.total_seconds > 60.0
+    span = {span.total_minutes, "minute"}
   else
-    span = {0, "units"}
+    span = {span.total_seconds, "second"}
   end
 
   span = {span[0].to_i, span[1]}
