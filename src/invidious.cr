@@ -2535,6 +2535,15 @@ get "/api/v1/search" do |env|
   response
 end
 
+get "/api/manifest/dash/id/videoplayback" do |env|
+  env.redirect "/videoplayback?#{env.params.query}"
+end
+
+get "/api/manifest/dash/id/videoplayback/*" do |env|
+  puts env.request.path
+  env.redirect env.request.path.lchop("/api/manifest/dash/id")
+end
+
 get "/api/manifest/dash/id/:id" do |env|
   env.response.headers.add("Access-Control-Allow-Origin", "*")
   env.response.content_type = "application/dash+xml"
@@ -2557,12 +2566,7 @@ get "/api/manifest/dash/id/:id" do |env|
       url = url.rchop("</BaseURL>")
 
       if local
-        if Kemal.config.ssl || CONFIG.https_only
-          scheme = "https://"
-        end
-        scheme ||= "http://"
-
-        url = scheme + env.request.headers["Host"] + URI.parse(url).full_path
+        url = URI.parse(url).full_path
       end
 
       "<BaseURL>#{url}</BaseURL>"
@@ -2575,13 +2579,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   if local
     adaptive_fmts.each do |fmt|
-      if Kemal.config.ssl || CONFIG.https_only
-        scheme = "https://"
-      else
-        scheme = "http://"
-      end
-
-      fmt["url"] = scheme + env.request.headers["Host"] + URI.parse(fmt["url"]).full_path
+      fmt["url"] = URI.parse(fmt["url"]).full_path
     end
   end
 
