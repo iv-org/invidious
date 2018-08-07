@@ -1051,7 +1051,10 @@ end
 get "/subscription_ajax" do |env|
   user = env.get? "user"
   referer = env.request.headers["referer"]?
-  referer ||= "/"
+
+  if !referer || URI.parse(referer).path.try &.== "/subscription_ajax"
+    referer = "/"
+  end
 
   if user
     user = user.as(User)
