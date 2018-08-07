@@ -2566,7 +2566,7 @@ get "/api/manifest/dash/id/:id" do |env|
       url = url.rchop("</BaseURL>")
 
       if local
-        url = URI.parse(url).full_path
+        url = URI.parse(url).full_path.lchop("/")
       end
 
       "<BaseURL>#{url}</BaseURL>"
@@ -2579,7 +2579,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   if local
     adaptive_fmts.each do |fmt|
-      fmt["url"] = URI.parse(fmt["url"]).full_path
+      fmt["url"] = URI.parse(fmt["url"]).full_path.lchop("/")
     end
   end
 
