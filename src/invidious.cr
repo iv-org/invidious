@@ -1708,7 +1708,12 @@ get "/api/v1/comments/:id" do |env|
     ctoken = body.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
     if !ctoken
       env.response.content_type = "application/json"
+
+      if format == "json"
       next {"comments" => [] of String}.to_json
+      else
+        next {"content_html" => ""}.to_json
+    end
     end
     ctoken = ctoken["ctoken"]
     itct = body.match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
