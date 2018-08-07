@@ -52,6 +52,11 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
     if metadata.size == 0
       next
     elsif metadata.size == 1
+      # Skip movies
+      if metadata[0].content.includes? "·"
+        next
+      end
+
       view_count = metadata[0].content.lchop("Streamed ").split(" ")[0].delete(",").to_i64
       published = Time.now
     else
