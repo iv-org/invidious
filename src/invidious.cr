@@ -806,6 +806,28 @@ post "/preferences" do |env|
   env.redirect referer
 end
 
+get "/toggle_theme" do |env|
+  user = env.get? "user"
+
+  referer = env.params.query["referer"]?
+  referer ||= "/feed/subscriptions"
+
+  if user
+    user = user.as(User)
+    preferences = user.preferences
+
+    if preferences.dark_mode
+      preferences.dark_mode = false
+    else
+      preferences.dark_mode = true
+    end
+
+    PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+  end
+
+  env.redirect referer
+end
+
 # /modify_notifications
 # will "ding" all subscriptions.
 # /modify_notifications?receive_all_updates=false&receive_no_updates=false
@@ -1712,10 +1734,10 @@ get "/api/v1/comments/:id" do |env|
       env.response.content_type = "application/json"
 
       if format == "json"
-      next {"comments" => [] of String}.to_json
+        next {"comments" => [] of String}.to_json
       else
         next {"content_html" => ""}.to_json
-    end
+      end
     end
     ctoken = ctoken["ctoken"]
     itct = body.match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
@@ -2664,35 +2686,35 @@ end
 get "/videoplayback/*" do |env|
   path = env.request.path
 
-    path = path.lchop("/videoplayback/")
-    path = path.rchop("/")
+  path = path.lchop("/videoplayback/")
+  path = path.rchop("/")
 
-    path = path.gsub(/mime\/\w+\/\w+/) do |mimetype|
-      mimetype = mimetype.split("/")
-      mimetype[0] + "/" + mimetype[1] + "%2F" + mimetype[2]
+  path = path.gsub(/mime\/\w+\/\w+/) do |mimetype|
+    mimetype = mimetype.split("/")
+    mimetype[0] + "/" + mimetype[1] + "%2F" + mimetype[2]
+  end
+
+  path = path.split("/")
+
+  raw_params = {} of String => Array(String)
+  path.each_slice(2) do |pair|
+    key, value = pair
+    value = URI.unescape(value)
+
+    if raw_params[key]?
+      raw_params[key] << value
+    else
+      raw_params[key] = [value]
     end
+  end
 
-    path = path.split("/")
-
-    raw_params = {} of String => Array(String)
-    path.each_slice(2) do |pair|
-      key, value = pair
-      value = URI.unescape(value)
-
-      if raw_params[key]?
-        raw_params[key] << value
-      else
-        raw_params[key] = [value]
-      end
-    end
-
-    query_params = HTTP::Params.new(raw_params)
+  query_params = HTTP::Params.new(raw_params)
 
   env.redirect "/videoplayback?#{query_params}"
 end
 
 get "/videoplayback" do |env|
-    query_params = env.params.query
+  query_params = env.params.query
 
   fvip = query_params["fvip"]
   mn = query_params["mn"].split(",")[0]
