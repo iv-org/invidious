@@ -57,8 +57,13 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
         next
       end
 
-      view_count = metadata[0].content.lchop("Streamed ").split(" ")[0].delete(",").to_i64
-      published = Time.now
+      if metadata[0].content.starts_with? "Starts"
+        view_count = 0_i64
+        published = Time.epoch(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
+      else
+        view_count = metadata[0].content.lchop("Streamed ").split(" ")[0].delete(",").to_i64
+        published = Time.now
+      end
     else
       # Skip movies
       if metadata[0].content.includes? "·"
