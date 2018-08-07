@@ -176,7 +176,6 @@ end
 
 get "/watch" do |env|
   if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
-    puts env.params.query.to_s
     url = "/watch?" + env.params.query.to_s.gsub("%20", "").delete("+")
     next env.redirect url
   end
