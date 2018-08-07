@@ -43,6 +43,11 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
     author_url = anchor["href"]
     ucid = author_url.split("/")[-1]
 
+    # Skip playlists
+    if node.xpath_node(%q(.//ol[contains(@class, "yt-lockup-playlist-items")]))
+      next
+    end
+
     metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
     if metadata.size == 0
       next
