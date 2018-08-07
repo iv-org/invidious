@@ -699,7 +699,7 @@ get "/preferences" do |env|
     user = user.as(User)
     templated "preferences"
   else
-    env.redirect referer
+    env.redirect "/"
   end
 end
 
