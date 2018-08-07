@@ -1646,16 +1646,24 @@ get "/api/v1/captions/:id" do |env|
 
   END_VTT
 
-  caption_xml.xpath_nodes("//transcript/text").each do |node|
+  caption_nodes = caption_xml.xpath_nodes("//transcript/text")
+  caption_nodes.each_with_index do |node, i|
     start_time = node["start"].to_f.seconds
     duration = node["dur"]?.try &.to_f.seconds
     duration ||= start_time
-    end_time = start_time + duration
+
+    if caption_nodes.size > i + 1
+      end_time = caption_nodes[i + 1]["start"].to_f.seconds
+    else
+      end_time = start_time + duration
+    end
 
     start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
     end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
 
     text = HTML.unescape(node.content)
+    text = text.gsub(/<font color="#[a-fA-F0-9]{6}">/, "")
+    text = text.gsub(/<\/font>/, "")
     if md = text.match(/(?<name>.*) : (?<text>.*)/)
       text = "<v #{md["name"]}>#{md["text"]}</v>"
     end
