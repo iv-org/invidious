@@ -2536,11 +2536,12 @@ get "/api/v1/search" do |env|
 end
 
 get "/api/manifest/dash/id/videoplayback" do |env|
+  env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.redirect "/videoplayback?#{env.params.query}"
 end
 
 get "/api/manifest/dash/id/videoplayback/*" do |env|
-  puts env.request.path
+  env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.redirect env.request.path.lchop("/api/manifest/dash/id")
 end
 
