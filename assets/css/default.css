@@ -159,7 +159,7 @@ div {
 
 .video-js .vjs-load-progress,
 .video-js .vjs-load-progress div {
-  background: rgba(87, 87, 88, 0.5);
+  background: rgba(87, 87, 88, 1);
 }
 
 .video-js .vjs-slider:hover,
