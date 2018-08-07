@@ -185,3 +185,9 @@ div {
 .video-js .vjs-duration {
   display: block;
 }
+
+.video-js .vjs-time-divider {
+  min-width: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
+}
