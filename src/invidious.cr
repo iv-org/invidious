@@ -1770,7 +1770,10 @@ get "/api/v1/comments/:id" do |env|
                 content_text ||= node_comment["contentText"]["runs"].as_a.map { |comment| comment["text"] }
                   .join("").rchop('\ufeff')
 
-                json.field "author", node_comment["authorText"]["simpleText"]
+                author = node_comment["authorText"]?.try &.["simpleText"]
+                author ||= ""
+
+                json.field "author", author
                 json.field "authorThumbnails" do
                   json.array do
                     node_comment["authorThumbnail"]["thumbnails"].as_a.each do |thumbnail|
@@ -1782,8 +1785,15 @@ get "/api/v1/comments/:id" do |env|
                     end
                   end
                 end
-                json.field "authorId", node_comment["authorEndpoint"]["browseEndpoint"]["browseId"]
-                json.field "authorUrl", node_comment["authorEndpoint"]["browseEndpoint"]["canonicalBaseUrl"]
+
+                if node_comment["authorEndpoint"]?
+                  json.field "authorId", node_comment["authorEndpoint"]["browseEndpoint"]["browseId"]
+                  json.field "authorUrl", node_comment["authorEndpoint"]["browseEndpoint"]["canonicalBaseUrl"]
+                else
+                  json.field "authorId", ""
+                  json.field "authorUrl", ""
+                end
+
                 json.field "content", content_text
                 json.field "published", node_comment["publishedTimeText"]["runs"][0]["text"]
                 json.field "likeCount", node_comment["likeCount"]
