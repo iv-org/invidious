@@ -1705,7 +1705,7 @@ get "/api/v1/comments/:id" do |env|
     ctoken = ctoken["ctoken"]
     itct = body.match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
 
-    if env.params.query["continuation"]?
+    if env.params.query["continuation"]? && !env.params.query["continuation"].empty?
       continuation = env.params.query["continuation"]
       ctoken = continuation
     else
