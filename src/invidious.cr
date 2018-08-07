@@ -175,6 +175,12 @@ get "/:id" do |env|
 end
 
 get "/watch" do |env|
+  if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
+    puts env.params.query.to_s
+    url = "/watch?" + env.params.query.to_s.gsub("%20", "").delete("+")
+    next env.redirect url
+  end
+
   if env.params.query["v"]?
     id = env.params.query["v"]
 
@@ -294,20 +300,28 @@ get "/watch" do |env|
 end
 
 get "/embed/:id" do |env|
-  if env.params.url["id"]?
-    id = env.params.url["id"]
+  id = env.params.url["id"]
 
-    if id.size > 11
-      url = "/embed/#{id[0, 11]}"
+  if id.includes?("%20") || id.includes?("+") || env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
+    id = env.params.url["id"].gsub("%20", "").delete("+")
 
-      if env.params.query.size > 0
-        url += "?#{env.params.query}"
-      end
+    url = "/embed/#{id}"
 
-      next env.redirect url
+    if env.params.query.size > 0
+      url += "?#{env.params.query.to_s.gsub("%20", "").delete("+")}"
     end
-  else
-    next env.redirect "/"
+
+    next env.redirect url
+  end
+
+  if id.size > 11
+    url = "/embed/#{id[0, 11]}"
+
+    if env.params.query.size > 0
+      url += "?#{env.params.query}"
+    end
+
+    next env.redirect url
   end
 
   autoplay, video_loop, video_start, video_end, listen, raw, quality, autoplay, controls = process_video_params(env.params.query, nil)
