@@ -1976,7 +1976,7 @@ get "/api/v1/videos/:id" do |env|
         hlsvp = video.info["hlsvp"]
         hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
 
-        json.field "hls", hlsvp
+        json.field "hlsUrl", hlsvp
       end
 
       json.field "adaptiveFormats" do
@@ -2167,7 +2167,7 @@ get "/api/v1/trending" do |env|
           json.field "author", author
           json.field "authorUrl", author_url
 
-          json.field "published", published
+          json.field "published", published.epoch
           json.field "description", description
           json.field "descriptionHtml", descriptionHtml
         end
@@ -2448,7 +2448,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
           json.field "descriptionHtml", descriptionHtml
 
           json.field "viewCount", view_count
-          json.field "published", published
+          json.field "published", published.epoch
           json.field "lengthSeconds", length_seconds
         end
       end
