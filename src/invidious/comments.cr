@@ -203,7 +203,12 @@ def add_alt_links(html)
       </a>
       END_HTML
     elsif url.to_s == "#"
-      length_seconds = decode_length_seconds(anchor.content)
+      begin
+        length_seconds = decode_length_seconds(anchor.content)
+      rescue ex
+        length_seconds = decode_time(anchor.content)
+      end
+
       alt_anchor = <<-END_HTML
       <a href="javascript:void(0)" onclick="player.currentTime(#{length_seconds})">#{anchor.content}</a>
       END_HTML
