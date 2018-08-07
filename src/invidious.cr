@@ -1968,8 +1968,16 @@ get "/api/v1/videos/:id" do |env|
         json.field "isListed", video.info["is_listed"] == "1"
       end
 
-      fmt_list = video.info["fmt_list"].split(",").map { |fmt| fmt.split("/")[1] }
-      fmt_list = Hash.zip(fmt_list.map { |fmt| fmt[0] }, fmt_list.map { |fmt| fmt[1] })
+      if video.info["hlsvp"]?
+        host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
+        host_params = env.request.query_params
+        host_params.delete_all("v")
+
+        hlsvp = video.info["hlsvp"]
+        hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
+
+        json.field "hls", hlsvp
+      end
 
       json.field "adaptiveFormats" do
         json.array do
