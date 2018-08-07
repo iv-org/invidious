@@ -167,7 +167,8 @@ class Video
 
     captions = [] of Caption
     if player_response["captions"]?
-      caption_list = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"].as_a
+      caption_list = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"]?.try &.as_a
+      caption_list ||= [] of JSON::Any
 
       caption_list.each do |caption|
         caption = Caption.from_json(caption.to_json)
