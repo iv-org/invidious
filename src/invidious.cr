@@ -2635,13 +2635,13 @@ get "/api/manifest/hls_playlist/*" do |env|
   manifest
 end
 
-options "/videoplayback*" do |env|
+options "/videoplayback/:wild/*" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
 end
 
-get "/videoplayback*" do |env|
+get "/videoplayback/:wild/*" do |env|
   path = env.request.path
   if path != "/videoplayback"
     path = path.lchop("/videoplayback/")

@@ -17,7 +17,7 @@ class Config
 end
 
 class FilteredCompressHandler < Kemal::Handler
-  exclude ["/videoplayback", "/api/*"]
+  exclude ["/videoplayback/:wild/*", "/api/*"]
 
   def call(env)
     return call_next env if exclude_match? env
