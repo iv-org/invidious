@@ -2555,19 +2555,8 @@ get "/api/manifest/dash/id/:id" do |env|
     end
   end
 
-  video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video") ? s : nil }
-  audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio") ? s : nil }
-
-  audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
-  audio_streams.each do |fmt|
-    fmt["bitrate"] = (fmt["bitrate"].to_f64/1000).to_i.to_s
-  end
-
-  (audio_streams + video_streams).each do |fmt|
-    fmt["url"] = fmt["url"].gsub('?', '/')
-    fmt["url"] = fmt["url"].gsub('&', '/')
-    fmt["url"] = fmt["url"].gsub('=', '/')
-  end
+  video_streams = video.video_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "video/mp4" }
+  audio_streams = video.audio_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "audio/mp4" }
 
   manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "xmlns": "urn:mpeg:DASH:schema:MPD:2011",
@@ -2578,10 +2567,10 @@ get "/api/manifest/dash/id/:id" do |env|
         xml.element("AdaptationSet", id: 0, mimeType: "audio/mp4", subsegmentAlignment: true) do
           xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
           audio_streams.each do |fmt|
-            mimetype, codecs = fmt["type"].split(";")
-            codecs = codecs[9..-2]
+            mimetype = fmt["type"].split(";")[0]
+            codecs = fmt["type"].split("codecs=")[1].strip('"')
             fmt_type = mimetype.split("/")[0]
-            bandwidth = fmt["bitrate"]
+            bandwidth = fmt["clen"]
             itag = fmt["itag"]
             url = fmt["url"]
 
@@ -2599,9 +2588,9 @@ get "/api/manifest/dash/id/:id" do |env|
         xml.element("AdaptationSet", id: 1, mimeType: "video/mp4", subsegmentAlignment: true) do
           xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
           video_streams.each do |fmt|
-            mimetype, codecs = fmt["type"].split(";")
-            codecs = codecs[9..-2]
-            bandwidth = fmt["bitrate"]
+            mimetype = fmt["type"].split(";")
+            codecs = fmt["type"].split("codecs=")[1].strip('"')
+            bandwidth = fmt["clen"]
             itag = fmt["itag"]
             url = fmt["url"]
             height, width = fmt["size"].split("x")
