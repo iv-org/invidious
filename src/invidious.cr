@@ -223,6 +223,7 @@ get "/watch" do |env|
 
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
+  video_streams = video.video_streams(adaptive_fmts)
   audio_streams = video.audio_streams(adaptive_fmts)
 
   captions = video.captions
@@ -334,6 +335,7 @@ get "/embed/:id" do |env|
 
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
+  video_streams = video.video_streams(adaptive_fmts)
   audio_streams = video.audio_streams(adaptive_fmts)
 
   captions = video.captions
@@ -2553,8 +2555,8 @@ get "/api/manifest/dash/id/:id" do |env|
     end
   end
 
-  video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video/mp4") ? s : nil }
-  audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio/mp4") ? s : nil }
+  video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video") ? s : nil }
+  audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio") ? s : nil }
 
   audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
   audio_streams.each do |fmt|
@@ -2658,15 +2660,21 @@ get "/api/manifest/hls_playlist/*" do |env|
   manifest
 end
 
-options "/videoplayback/:wild/*" do |env|
+options "/videoplayback*" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
 end
 
-get "/videoplayback/:wild/*" do |env|
+options "/videoplayback/*" do |env|
+  env.response.headers["Access-Control-Allow-Origin"] = "*"
+  env.response.headers["Access-Control-Allow-Methods"] = "GET"
+  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
+end
+
+get "/videoplayback/*" do |env|
   path = env.request.path
-  if path != "/videoplayback"
+
     path = path.lchop("/videoplayback/")
     path = path.rchop("/")
 
@@ -2690,9 +2698,12 @@ get "/videoplayback/:wild/*" do |env|
     end
 
     query_params = HTTP::Params.new(raw_params)
-  else
+
+  env.redirect "/videoplayback?#{query_params}"
+end
+
+get "/videoplayback" do |env|
     query_params = env.params.query
-  end
 
   fvip = query_params["fvip"]
   mn = query_params["mn"].split(",")[0]

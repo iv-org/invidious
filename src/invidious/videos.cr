@@ -152,6 +152,12 @@ class Video
     return adaptive_fmts
   end
 
+  def video_streams(adaptive_fmts)
+    video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video") ? s : nil }
+
+    return video_streams
+  end
+
   def audio_streams(adaptive_fmts)
     audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio") ? s : nil }
     audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
