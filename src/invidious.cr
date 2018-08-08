@@ -1831,8 +1831,10 @@ get "/api/v1/comments/:id" do |env|
                   json.field "authorUrl", ""
                 end
 
+                published = decode_date(node_comment["publishedTimeText"]["runs"][0]["text"].as_s.rchop(" (edited)"))
+
                 json.field "content", content_text
-                json.field "published", node_comment["publishedTimeText"]["runs"][0]["text"]
+                json.field "published", published.epoch
                 json.field "likeCount", node_comment["likeCount"]
                 json.field "commentId", node_comment["commentId"]
 
