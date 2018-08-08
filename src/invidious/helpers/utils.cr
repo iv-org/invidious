@@ -68,7 +68,7 @@ def decode_date(string : String)
     return Time.new(string.to_i, 1, 1)
   end
 
-  # String matches format "20 hours ago", "40 minutes ago"...
+  # String matches format "20 hours ago", "4 months ago"...
   date = string.split(" ")[-3, 3]
   delta = date[0].to_i
 

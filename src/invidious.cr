@@ -1752,7 +1752,7 @@ get "/api/v1/comments/:id" do |env|
     env.response.content_type = "application/json"
 
     if !response["response"]["continuationContents"]?
-      halt env, status_code: 401
+      halt env, status_code: 403
     end
 
     response = response["response"]["continuationContents"]
@@ -1862,7 +1862,7 @@ get "/api/v1/comments/:id" do |env|
       comments = JSON.parse(comments)
       content_html = template_youtube_comments(comments)
 
-      {"content_html" => content_html}.to_json
+      next {"content_html" => content_html}.to_json
     end
   elsif source == "reddit"
     client = make_client(REDDIT_URL)
@@ -1883,9 +1883,9 @@ get "/api/v1/comments/:id" do |env|
     end
 
     env.response.content_type = "application/json"
-    {"title"        => reddit_thread.title,
-     "permalink"    => reddit_thread.permalink,
-     "content_html" => content_html}.to_json
+    next {"title"        => reddit_thread.title,
+          "permalink"    => reddit_thread.permalink,
+          "content_html" => content_html}.to_json
   end
 end
 
@@ -1895,7 +1895,9 @@ get "/api/v1/videos/:id" do |env|
   begin
     video = get_video(id, PG_DB)
   rescue ex
-    halt env, status_code: 403
+    env.response.content_type = "application/json"
+    response = {"error" => ex.message}.to_json
+    halt env, status_code: 500, response: response
   end
 
   fmt_stream = video.fmt_stream(decrypt_function)
