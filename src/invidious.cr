@@ -1579,7 +1579,12 @@ get "/channel/:ucid" do |env|
   end
 
   document = XML.parse_html(json["content_html"].as_s)
-  author = document.xpath_node(%q(//div[@class="pl-video-owner"]/a)).not_nil!.content
+  anchor = document.xpath_node(%q(//div[@class="pl-video-owner"]/a))
+  if !anchor
+    error_message = "This channel is not available"
+    next templated "error"
+  end
+  author = anchor.content
 
   videos = [] of ChannelVideo
   document.xpath_nodes(%q(//a[contains(@class,"pl-video-title-link")])).each do |node|
