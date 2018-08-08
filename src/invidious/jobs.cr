@@ -44,25 +44,44 @@ def crawl_videos(db)
   end
 end
 
-def refresh_channels(db, limit = 0, offset = 0)
-  loop do
-    db.query("SELECT id FROM channels ORDER BY updated limit $1 offset $2", limit, offset) do |rs|
-      rs.each do
-        client = make_client(YT_URL)
+def refresh_channels(db, max_threads = 1)
+  max_channel = Channel(Int32).new
 
-        begin
+  spawn do
+    max_threads = max_channel.receive
+    active_threads = 0
+    active_channel = Channel(Bool).new
+
+    loop do
+      db.query("SELECT id FROM channels ORDER BY updated") do |rs|
+        rs.each do
           id = rs.read(String)
-          channel = fetch_channel(id, client, db, false)
-          db.exec("UPDATE channels SET updated = $1 WHERE id = $2", Time.now, id)
-        rescue ex
-          STDOUT << id << " : " << ex.message << "\n"
-          next
+
+          if active_threads >= max_threads
+            if active_channel.receive
+              active_threads -= 1
+            end
+          end
+
+          active_threads += 1
+          spawn do
+            begin
+              client = make_client(YT_URL)
+              channel = fetch_channel(id, client, db, false)
+
+              db.exec("UPDATE channels SET updated = $1 WHERE id = $2", Time.now, id)
+            rescue ex
+              STDOUT << id << " : " << ex.message << "\n"
+            end
+
+            active_channel.send(true)
+          end
         end
       end
     end
-
-    Fiber.yield
   end
+
+  max_channel.send(max_threads)
 end
 
 def refresh_videos(db)

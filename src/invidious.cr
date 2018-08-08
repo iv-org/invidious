@@ -83,15 +83,7 @@ crawl_threads.times do
   end
 end
 
-total_channels = PG_DB.query_one("SELECT count(*) FROM channels", as: Int64)
-channel_threads.times do |i|
-  limit = total_channels / channel_threads
-  offset = limit.not_nil! * i
-
-  spawn do
-    refresh_channels(PG_DB, limit, offset)
-  end
-end
+refresh_channels(PG_DB, channel_threads)
 
 video_threads.times do |i|
   spawn do
