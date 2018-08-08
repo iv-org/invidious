@@ -471,10 +471,6 @@ def process_video_params(query, preferences)
   quality = query["quality"]?
   quality ||= "hd720"
 
-  autoplay = query["autoplay"]?.try &.to_i?
-  autoplay ||= 0
-  autoplay = autoplay == 1
-
   controls = query["controls"]?.try &.to_i?
   controls ||= 1
   controls = controls == 1
