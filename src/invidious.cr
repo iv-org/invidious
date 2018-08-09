@@ -2576,8 +2576,7 @@ get "/api/manifest/dash/id/:id" do |env|
       minBufferTime: "PT1.5S", profiles: "urn:mpeg:dash:profile:isoff-main:2011", type: "static",
       mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
       xml.element("Period") do
-        xml.element("AdaptationSet", id: 0, mimeType: "audio/mp4", subsegmentAlignment: true) do
-          xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
+        xml.element("AdaptationSet", mimeType: "audio/mp4", startWithSAP: 1, subsegmentAlignment: true) do
           audio_streams.each do |fmt|
             mimetype = fmt["type"].split(";")[0]
             codecs = fmt["type"].split("codecs=")[1].strip('"')
@@ -2590,15 +2589,15 @@ get "/api/manifest/dash/id/:id" do |env|
               xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
                 value: "2")
               xml.element("BaseURL") { xml.text url }
-              xml.element("SegmentBase", indexRange: fmt["init"]) do
-                xml.element("Initialization", range: fmt["index"])
+              xml.element("SegmentBase", indexRange: fmt["index"]) do
+                xml.element("Initialization", range: fmt["init"])
               end
             end
           end
         end
 
-        xml.element("AdaptationSet", id: 1, mimeType: "video/mp4", subsegmentAlignment: true) do
-          xml.element("Role", schemeIdUri: "urn:mpeg:DASH:role:2011", value: "main")
+        xml.element("AdaptationSet", mimeType: "video/mp4", startWithSAP: 1, subsegmentAlignment: true,
+          scanType: "progressive") do
           video_streams.each do |fmt|
             mimetype = fmt["type"].split(";")
             codecs = fmt["type"].split("codecs=")[1].strip('"')
@@ -2607,11 +2606,12 @@ get "/api/manifest/dash/id/:id" do |env|
             url = fmt["url"]
             height, width = fmt["size"].split("x")
 
-            xml.element("Representation", id: itag, codecs: codecs, width: width, startWithSAP: "1", maxPlayoutRate: "1",
-              height: height, bandwidth: bandwidth, frameRate: fmt["fps"]) do
+            xml.element("Representation", id: itag, codecs: codecs, width: width, height: height,
+              startWithSAP: "1", maxPlayoutRate: "1",
+              bandwidth: bandwidth, frameRate: fmt["fps"]) do
               xml.element("BaseURL") { xml.text url }
-              xml.element("SegmentBase", indexRange: fmt["init"]) do
-                xml.element("Initialization", range: fmt["index"])
+              xml.element("SegmentBase", indexRange: fmt["index"]) do
+                xml.element("Initialization", range: fmt["init"])
               end
             end
           end
