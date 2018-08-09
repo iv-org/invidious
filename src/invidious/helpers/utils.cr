@@ -148,3 +148,16 @@ def make_host_url(ssl, host)
 
   return "#{scheme}#{host}"
 end
+
+def get_referer(env, fallback = "/")
+  referer = env.request.headers["referer"]?
+  referer ||= fallback
+
+  referer = URI.parse(referer).full_path
+
+  if referer == env.request.path
+    referer = fallback
+  end
+
+  return referer
+end

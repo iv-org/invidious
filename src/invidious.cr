@@ -402,8 +402,7 @@ get "/login" do |env|
     next env.redirect "/feed/subscriptions"
   end
 
-  referer = env.request.headers["referer"]?
-  referer ||= "/feed/subscriptions"
+  referer = get_referer(env, "/feed/subscriptions")
 
   account_type = env.params.query["type"]?
   account_type ||= "invidious"
@@ -415,21 +414,13 @@ get "/login" do |env|
   tfa = env.params.query["tfa"]?
   tfa ||= false
 
-  if referer.ends_with? "/login"
-    referer = "/feed/subscriptions"
-  end
-
-  if referer.size > 64
-    referer = "/feed/subscriptions"
-  end
-
   templated "login"
 end
 
 # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
 post "/login" do |env|
   referer = env.params.query["referer"]?
-  referer ||= "/feed/subscriptions"
+  referer ||= get_referer(env, "/feed/subscriptions")
 
   email = env.params.body["email"]?
   password = env.params.body["password"]?
@@ -681,8 +672,7 @@ post "/login" do |env|
 end
 
 get "/signout" do |env|
-  referer = env.request.headers["referer"]?
-  referer ||= "/"
+  referer = get_referer(env)
 
   env.request.cookies.each do |cookie|
     cookie.expires = Time.new(1990, 1, 1)
@@ -695,26 +685,20 @@ end
 get "/preferences" do |env|
   user = env.get? "user"
 
-  referer = env.request.headers["referer"]?
-  referer ||= "/preferences"
-
-  if referer.size > 64
-    referer = "/preferences"
-  end
+  referer = get_referer(env)
 
   if user
     user = user.as(User)
     templated "preferences"
   else
-    env.redirect "/"
+    env.redirect referer
   end
 end
 
 post "/preferences" do |env|
   user = env.get? "user"
 
-  referer = env.params.query["referer"]?
-  referer ||= "/preferences"
+  referer = get_referer(env)
 
   if user
     user = user.as(User)
@@ -801,8 +785,7 @@ end
 get "/toggle_theme" do |env|
   user = env.get? "user"
 
-  referer = env.params.query["referer"]?
-  referer ||= "/feed/subscriptions"
+  referer = get_referer(env)
 
   if user
     user = user.as(User)
@@ -827,8 +810,7 @@ end
 get "/modify_notifications" do |env|
   user = env.get? "user"
 
-  referer = env.request.headers["referer"]?
-  referer ||= "/"
+  referer = get_referer(env)
 
   if user
     user = user.as(User)
@@ -874,8 +856,10 @@ end
 get "/subscription_manager" do |env|
   user = env.get? "user"
 
+  referer = get_referer(env, "/")
+
   if !user
-    next env.redirect "/"
+    next env.redirect referer
   end
 
   user = user.as(User)
@@ -956,8 +940,8 @@ end
 
 get "/data_control" do |env|
   user = env.get? "user"
-  referer = env.request.headers["referer"]?
-  referer ||= "/"
+
+  referer = get_referer(env)
 
   if user
     user = user.as(User)
@@ -970,8 +954,8 @@ end
 
 post "/data_control" do |env|
   user = env.get? "user"
-  referer = env.request.headers["referer"]?
-  referer ||= "/"
+
+  referer = get_referer(env)
 
   if user
     user = user.as(User)
@@ -1079,11 +1063,8 @@ end
 
 get "/subscription_ajax" do |env|
   user = env.get? "user"
-  referer = env.request.headers["referer"]?
 
-  if !referer || URI.parse(referer).path.try &.== "/subscription_ajax"
-    referer = "/"
-  end
+  referer = get_referer(env)
 
   if user
     user = user.as(User)
@@ -1154,8 +1135,8 @@ end
 
 get "/clear_watch_history" do |env|
   user = env.get? "user"
-  referer = env.request.headers["referer"]?
-  referer ||= "/"
+
+  referer = get_referer(env)
 
   if user
     user = user.as(User)
@@ -1170,6 +1151,7 @@ end
 
 get "/feed/subscriptions" do |env|
   user = env.get? "user"
+  referer = get_referer(env)
 
   if user
     user = user.as(User)
@@ -1289,7 +1271,7 @@ get "/feed/subscriptions" do |env|
 
     templated "subscriptions"
   else
-    env.redirect "/"
+    env.redirect referer
   end
 end
 
