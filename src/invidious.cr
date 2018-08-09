@@ -2663,26 +2663,26 @@ end
 
 options "/videoplayback" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
-  env.response.headers["Access-Control-Allow-Methods"] = "GET"
-  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
+  env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 options "/videoplayback/*" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
-  env.response.headers["Access-Control-Allow-Methods"] = "GET"
-  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
+  env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 options "/api/manifest/dash/id/videoplayback" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
-  env.response.headers["Access-Control-Allow-Methods"] = "GET"
-  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
+  env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 options "/api/manifest/dash/id/videoplayback/*" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
-  env.response.headers["Access-Control-Allow-Methods"] = "GET"
-  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, range"
+  env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 get "/videoplayback/*" do |env|
