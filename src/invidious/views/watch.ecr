@@ -77,22 +77,22 @@
 
 <script>
 var options = {
-  aspectRatio: '16:9',
-  preload: 'auto',
+  aspectRatio: "16:9",
+  preload: "auto",
   playbackRates: [0.5, 1, 1.5, 2],
   controlBar: {
     children: [
-      'playToggle',
-      'volumePanel',
-      'currentTimeDisplay',
-      'timeDivider',
-      'durationDisplay',
-      'progressControl',
-      'remainingTimeDisplay',
-      'captionsButton',
-      'qualitySelector',
-      'playbackRateMenuButton',
-      'fullscreenToggle'
+      "playToggle",
+      "volumePanel",
+      "currentTimeDisplay",
+      "timeDivider",
+      "durationDisplay",
+      "progressControl",
+      "remainingTimeDisplay",
+      "captionsButton",
+      "qualitySelector",
+      "playbackRateMenuButton",
+      "fullscreenToggle"
     ]
   }
 };
@@ -103,12 +103,12 @@ var shareOptions = {
   url: "<%= host_url %>/<%= video.id %>?<%= host_params %>",
   title: "<%= video.title.dump_unquoted %>",
   description: "<%= description %>",
-  image: '<%= thumbnail %>',
+  image: "<%= thumbnail %>",
   embedCode: `<iframe id='ivplayer' type='text/html' width='640' height='360'
     src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>`
 };
 
-var player = videojs('player', options, function() {
+var player = videojs("player", options, function() {
   this.hotkeys({
     volumeStep: 0.1,
     seekStep: 5,
@@ -117,7 +117,7 @@ var player = videojs('player', options, function() {
         play: {
             key: function(e) {
             // Toggle play with K Key
-            return (e.which === 75);
+          return e.which === 75;
             },
             handler: function(player, options, e) {
             if (player.paused()) {
@@ -130,7 +130,7 @@ var player = videojs('player', options, function() {
         backward: {
             key: function(e) {
                 // Go backward 5 seconds
-                return (e.which === 74);
+          return e.which === 74;
             },
             handler: function(player, options, e) {
                 player.currentTime(player.currentTime() - 5);
@@ -139,7 +139,7 @@ var player = videojs('player', options, function() {
         forward: {
             key: function(e) {
                 // Go forward 5 seconds
-                return (e.which === 76);
+          return e.which === 76;
             },
             handler: function(player, options, e) {
                 player.currentTime(player.currentTime() + 5);
@@ -154,20 +154,20 @@ player.share(shareOptions);
 <% if video_start > 0 || video_end > 0 %>
 player.markers({
     onMarkerReached: function(marker) {
-        if (marker.text === 'End') {
+    if (marker.text === "End") {
             if (player.loop()) {
-                player.markers.prev('Start');
+        player.markers.prev("Start");
             } else {
                 player.pause();
             }
         }
     },
     markers: [
-        {time: <%= video_start %>, text: 'Start'},
+    { time: <%= video_start %>, text: "Start" },
         <% if video_end < 0 %>
-        {time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: 'End'}
+    { time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: "End" }
         <% else %>
-        {time: <%= video_end %>, text: 'End'}
+    { time: <%= video_end %>, text: "End" }
         <% end %>
     ]
 });
@@ -177,8 +177,8 @@ player.currentTime(<%= video_start %>);
 
 <% if !listen %>
 var currentSources = player.currentSources();
-for ( var i = 0; i < currentSources.length; i++ ) {
-    if (player.canPlayType(currentSources[i]['type'].split(';')[0]) === '') {
+for (var i = 0; i < currentSources.length; i++) {
+  if (player.canPlayType(currentSources[i]["type"].split(";")[0]) === "") {
         currentSources.splice(i);
         i--;
     }
@@ -194,65 +194,69 @@ player.playbackRate(<%= preferences.speed %>);
 
 function toggle(target) {
   body = target.parentNode.parentNode.children[1];
-  if (body.style.display === null || body.style.display === '') {
-    target.innerHTML = '[ + ]';
-    body.style.display = 'none';
+  if (body.style.display === null || body.style.display === "") {
+    target.innerHTML = "[ + ]";
+    body.style.display = "none";
   } else {
-    target.innerHTML = '[ - ]';
-    body.style.display = '';
+    target.innerHTML = "[ - ]";
+    body.style.display = "";
   }
 }
 
 function toggle_comments(target) {
   body = target.parentNode.parentNode.parentNode.children[1];
-  if (body.style.display === null || body.style.display === '') {
-    target.innerHTML = '[ + ]';
-    body.style.display = 'none';
+  if (body.style.display === null || body.style.display === "") {
+    target.innerHTML = "[ + ]";
+    body.style.display = "none";
   } else {
-    target.innerHTML = '[ - ]';
-    body.style.display = '';
+    target.innerHTML = "[ - ]";
+    body.style.display = "";
   }
 }
 
 function load_comments(target) {
-  var continuation = target.getAttribute('data-continuation');
+  var continuation = target.getAttribute("data-continuation");
 
   var body = target.parentNode.parentNode;
   var fallback = body.innerHTML;
   body.innerHTML =
     '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
 
-  var url = '/api/v1/comments/<%= video.id %>?format=html&continuation=' + continuation;
+  var url =
+    "/api/v1/comments/<%= video.id %>?format=html&continuation=" + continuation;
   var xhr = new XMLHttpRequest();
-  xhr.responseType = 'json';
+  xhr.responseType = "json";
   xhr.timeout = 10000;
   xhr.open("GET", url, true);
   xhr.send();
 
   xhr.onreadystatechange = function() {
-    if(xhr.readyState == 4 && xhr.status == 200) {
+    if (xhr.readyState == 4) {
+      if (xhr.statusCode == 200) {
       body.innerHTML = xhr.response.content_html;
     } else {
       body.innerHTML = fallback;
     }
   }
+  };
 
   xhr.ontimeout = function() {
       body.innerHTML = fallback;
-  }
+  };
 }
 
 function get_reddit_comments() {
-  var url = '/api/v1/comments/<%= video.id %>?source=reddit';
+  var url = "/api/v1/comments/<%= video.id %>?source=reddit";
   var xhr = new XMLHttpRequest();
-  xhr.responseType = 'json';
+  xhr.responseType = "json";
   xhr.timeout = 10000;
   xhr.open("GET", url, true);
   xhr.send();
 
   xhr.onreadystatechange = function() {
-    if(xhr.readyState == 4 && xhr.status == 200) {
-      comments = document.getElementById('comments');
+    if (xhr.readyState == 4)
+      if (xhr.status == 200) {
+        comments = document.getElementById("comments");
       comments.innerHTML = `
       <div>
           <h3>
@@ -277,20 +281,21 @@ function get_reddit_comments() {
 
   xhr.ontimeout = function() {
       get_reddit_comments();
-  }
+  };
 }
 
 function get_youtube_comments() {
-  var url = '/api/v1/comments/<%= video.id %>?format=html';
+  var url = "/api/v1/comments/<%= video.id %>?format=html";
   var xhr = new XMLHttpRequest();
-  xhr.responseType = 'json';
+  xhr.responseType = "json";
   xhr.timeout = 10000;
   xhr.open("GET", url, true);
   xhr.send();
 
   xhr.onreadystatechange = function() {
-    if(xhr.readyState == 4 && xhr.status == 200) {
-        comments = document.getElementById('comments');
+    if (xhr.readyState == 4)
+      if (xhr.status == 200) {
+        comments = document.getElementById("comments");
         comments.innerHTML = `
         <div>
             <h3>
@@ -303,20 +308,20 @@ function get_youtube_comments() {
           content_html: xhr.response.content_html
         });
       } else {
-          comments = document.getElementById('comments');
-          comments.innerHTML = '';
-      }
+        comments = document.getElementById("comments");
+        comments.innerHTML = "";
   }
+  };
 
-  xhr.ontimeout = function () {
+  xhr.ontimeout = function() {
     get_youtube_comments();
-  }
+  };
 }
 
 String.prototype.supplant = function(o) {
   return this.replace(/{([^{}]*)}/g, function(a, b) {
     var r = o[b];
-    return typeof r === 'string' || typeof r === 'number' ? r : a;
+    return typeof r === "string" || typeof r === "number" ? r : a;
   });
 };
 

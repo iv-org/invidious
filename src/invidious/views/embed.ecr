@@ -65,22 +65,22 @@ video, #my_video, .video-js, .vjs-default-skin
 <script>
 var options = {
   <% if autoplay %>
-  preload: 'auto',
+  preload: "auto",
   <% end %>
   playbackRates: [0.5, 1, 1.5, 2],
   controlBar: {
     children: [
-      'playToggle',
-      'volumePanel',
-      'currentTimeDisplay',
-      'timeDivider',
-      'durationDisplay',
-      'progressControl',
-      'remainingTimeDisplay',
-      'captionsButton',
-      'qualitySelector',
-      'playbackRateMenuButton',
-      'fullscreenToggle'
+      "playToggle",
+      "volumePanel",
+      "currentTimeDisplay",
+      "timeDivider",
+      "durationDisplay",
+      "progressControl",
+      "remainingTimeDisplay",
+      "captionsButton",
+      "qualitySelector",
+      "playbackRateMenuButton",
+      "fullscreenToggle"
     ]
   }
 };
@@ -91,12 +91,12 @@ var shareOptions = {
   url: "<%= host_url %>/<%= video.id %>?<%= host_params %>",
   title: "<%= video.title.dump_unquoted %>",
   description: "<%= description %>",
-  image: '<%= thumbnail %>',
+  image: "<%= thumbnail %>",
   embedCode: `<iframe id='ivplayer' type='text/html' width='640' height='360'
     src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>`
 };
 
-var player = videojs('player', options, function() {
+var player = videojs("player", options, function() {
   this.hotkeys({
     volumeStep: 0.1,
     seekStep: 5,
@@ -105,7 +105,7 @@ var player = videojs('player', options, function() {
         play: {
             key: function(e) {
             // Toggle play with K Key
-            return (e.which === 75);
+          return e.which === 75;
             },
             handler: function(player, options, e) {
             if (player.paused()) {
@@ -118,7 +118,7 @@ var player = videojs('player', options, function() {
         backward: {
             key: function(e) {
                 // Go backward 5 seconds
-                return (e.which === 74);
+          return e.which === 74;
             },
             handler: function(player, options, e) {
                 player.currentTime(player.currentTime() - 5);
@@ -127,7 +127,7 @@ var player = videojs('player', options, function() {
         forward: {
             key: function(e) {
                 // Go forward 5 seconds
-                return (e.which === 76);
+          return e.which === 76;
             },
             handler: function(player, options, e) {
                 player.currentTime(player.currentTime() + 5);
@@ -142,20 +142,20 @@ player.share(shareOptions);
 <% if video_start > 0 || video_end > 0 %>
 player.markers({
     onMarkerReached: function(marker) {
-        if (marker.text === 'End') {
+    if (marker.text === "End") {
             if (player.loop()) {
-                player.markers.prev('Start');
+        player.markers.prev("Start");
             } else {
                 player.pause();
             }
         }
     },
     markers: [
-        {time: <%= video_start %>, text: 'Start'},
+    { time: <%= video_start %>, text: "Start" },
         <% if video_end < 0 %>
-        {time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: 'End'}
+    { time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: "End" }
         <% else %>
-        {time: <%= video_end %>, text: 'End'}
+    { time: <%= video_end %>, text: "End" }
         <% end %>
     ]
 });
@@ -165,8 +165,8 @@ player.currentTime(<%= video_start %>);
 
 <% if !listen %>
 var currentSources = player.currentSources();
-for ( var i = 0; i < currentSources.length; i++ ) {
-    if (player.canPlayType(currentSources[i]['type'].split(';')[0]) === '') {
+for (var i = 0; i < currentSources.length; i++) {
+  if (player.canPlayType(currentSources[i]["type"].split(";")[0]) === "") {
         currentSources.splice(i);
         i--;
     }
