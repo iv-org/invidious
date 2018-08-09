@@ -10,9 +10,10 @@ class Config
       port: Int32,
       dbname: String,
     ),
-    dl_api_key: String?,
-    https_only: Bool?,
-    hmac_key:   String?,
+    dl_api_key:   String?,
+    https_only:   Bool?,
+    hmac_key:     String?,
+    full_refresh: Bool,
   })
 end
 

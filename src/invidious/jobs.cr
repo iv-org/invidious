@@ -44,7 +44,7 @@ def crawl_videos(db)
   end
 end
 
-def refresh_channels(db, max_threads = 1)
+def refresh_channels(db, max_threads = 1, full_refresh = false)
   max_channel = Channel(Int32).new
 
   spawn do
@@ -67,7 +67,7 @@ def refresh_channels(db, max_threads = 1)
           spawn do
             begin
               client = make_client(YT_URL)
-              channel = fetch_channel(id, client, db, false)
+              channel = fetch_channel(id, client, db, full_refresh)
 
               db.exec("UPDATE channels SET updated = $1 WHERE id = $2", Time.now, id)
             rescue ex

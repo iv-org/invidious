@@ -83,7 +83,7 @@ crawl_threads.times do
   end
 end
 
-refresh_channels(PG_DB, channel_threads)
+refresh_channels(PG_DB, channel_threads, CONFIG.full_refresh)
 
 video_threads.times do |i|
   spawn do
