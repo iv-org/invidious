@@ -59,7 +59,6 @@
                     <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
                     <% end %>
                 <% end %>
-                
             <% end %>
 
             <% preferred_captions.each_with_index do |caption, i| %>
@@ -105,7 +104,7 @@ var shareOptions = {
   description: "<%= description %>",
   image: "<%= thumbnail %>",
   embedCode: `<iframe id='ivplayer' type='text/html' width='640' height='360'
-    src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>`
+      src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>`
 };
 
 var player = videojs("player", options, function() {
@@ -114,37 +113,37 @@ var player = videojs("player", options, function() {
     seekStep: 5,
     enableModifiersForNumbers: false,
     customKeys: {
-        play: {
-            key: function(e) {
-            // Toggle play with K Key
+      play: {
+        key: function(e) {
+          // Toggle play with K Key
           return e.which === 75;
-            },
-            handler: function(player, options, e) {
-            if (player.paused()) {
-                player.play();
-            } else {
-                player.pause();
-            }
-            }
         },
-        backward: {
-            key: function(e) {
-                // Go backward 5 seconds
-          return e.which === 74;
-            },
-            handler: function(player, options, e) {
-                player.currentTime(player.currentTime() - 5);
-            }
-        },
-        forward: {
-            key: function(e) {
-                // Go forward 5 seconds
-          return e.which === 76;
-            },
-            handler: function(player, options, e) {
-                player.currentTime(player.currentTime() + 5);
-            }
+        handler: function(player, options, e) {
+          if (player.paused()) {
+            player.play();
+          } else {
+            player.pause();
+          }
         }
+      },
+      backward: {
+        key: function(e) {
+          // Go backward 5 seconds
+          return e.which === 74;
+        },
+        handler: function(player, options, e) {
+          player.currentTime(player.currentTime() - 5);
+        }
+      },
+      forward: {
+        key: function(e) {
+          // Go forward 5 seconds
+          return e.which === 76;
+        },
+        handler: function(player, options, e) {
+          player.currentTime(player.currentTime() + 5);
+        }
+      }
     }
   });
 });
@@ -153,23 +152,23 @@ player.share(shareOptions);
 
 <% if video_start > 0 || video_end > 0 %>
 player.markers({
-    onMarkerReached: function(marker) {
+  onMarkerReached: function(marker) {
     if (marker.text === "End") {
-            if (player.loop()) {
+      if (player.loop()) {
         player.markers.prev("Start");
-            } else {
-                player.pause();
-            }
-        }
-    },
-    markers: [
+      } else {
+        player.pause();
+      }
+    }
+  },
+  markers: [
     { time: <%= video_start %>, text: "Start" },
-        <% if video_end < 0 %>
+    <% if video_end < 0 %>
     { time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: "End" }
-        <% else %>
+    <% else %>
     { time: <%= video_end %>, text: "End" }
-        <% end %>
-    ]
+    <% end %>
+  ]
 });
 
 player.currentTime(<%= video_start %>);
@@ -179,9 +178,9 @@ player.currentTime(<%= video_start %>);
 var currentSources = player.currentSources();
 for (var i = 0; i < currentSources.length; i++) {
   if (player.canPlayType(currentSources[i]["type"].split(";")[0]) === "") {
-        currentSources.splice(i);
-        i--;
-    }
+    currentSources.splice(i);
+    i--;
+  }
 }
 
 player.src(currentSources);
@@ -233,15 +232,15 @@ function load_comments(target) {
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
       if (xhr.statusCode == 200) {
-      body.innerHTML = xhr.response.content_html;
-    } else {
-      body.innerHTML = fallback;
+        body.innerHTML = xhr.response.content_html;
+      } else {
+        body.innerHTML = fallback;
+      }
     }
-  }
   };
 
   xhr.ontimeout = function() {
-      body.innerHTML = fallback;
+    body.innerHTML = fallback;
   };
 }
 
@@ -257,30 +256,30 @@ function get_reddit_comments() {
     if (xhr.readyState == 4)
       if (xhr.status == 200) {
         comments = document.getElementById("comments");
-      comments.innerHTML = `
-      <div>
-          <h3>
-              <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
-              {title}
-          </h3>
-          <b>
-              <a target="_blank" href="https://reddit.com{permalink}">View more comments on Reddit</a>
-          </b>
-      </div>
-      <div>{content_html}</div>
-  
-      <hr>`.supplant({
+        comments.innerHTML = `
+            <div>
+                <h3>
+                    <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
+                    {title}
+                </h3>
+                <b>
+                    <a target="_blank" href="https://reddit.com{permalink}">View more comments on Reddit</a>
+                </b>
+            </div>
+            <div>{content_html}</div>
+        
+            <hr>`.supplant({
           title: xhr.response.title,
           permalink: xhr.response.permalink,
           content_html: xhr.response.content_html
-      });
-    } else {
-      get_youtube_comments();
-    }
+        });
+      } else {
+        get_youtube_comments();
+      }
   };
 
   xhr.ontimeout = function() {
-      get_reddit_comments();
+    get_reddit_comments();
   };
 }
 
@@ -297,20 +296,20 @@ function get_youtube_comments() {
       if (xhr.status == 200) {
         comments = document.getElementById("comments");
         comments.innerHTML = `
-        <div>
-            <h3>
-                <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
-                <a target="_blank" href="https://www.youtube.com/watch?v=<%= video.id %>">View more comments on YouTube</a>
-            </h3>
-        </div>
-        <div>{content_html}</div>
-        <hr>`.supplant({
+            <div>
+                <h3>
+                    <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
+                    <a target="_blank" href="https://www.youtube.com/watch?v=<%= video.id %>">View more comments on YouTube</a>
+                </h3>
+            </div>
+            <div>{content_html}</div>
+            <hr>`.supplant({
           content_html: xhr.response.content_html
         });
       } else {
         comments = document.getElementById("comments");
         comments.innerHTML = "";
-  }
+      }
   };
 
   xhr.ontimeout = function() {
