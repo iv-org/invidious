@@ -477,3 +477,20 @@ def process_video_params(query, preferences)
 
   return autoplay, video_loop, video_start, video_end, listen, raw, quality, autoplay, controls
 end
+
+def generate_thumbnails(json, id)
+  qualities = [{name: "default", url: "default", width: 120, height: 90},
+               {name: "high", url: "hqdefault", width: 480, height: 360},
+               {name: "medium", url: "mqdefault", width: 320, height: 180},
+  ]
+  json.array do
+    qualities.each do |quality|
+      json.object do
+        json.field "quality", quality[:name]
+        json.field "url", "https://i.ytimg.com/vi/#{id}/#{quality["url"]}.jpg"
+        json.field "width", quality[:width]
+        json.field "height", quality[:height]
+      end
+    end
+  end
+end
