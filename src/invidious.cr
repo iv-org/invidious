@@ -1527,46 +1527,41 @@ get "/channel/:ucid" do |env|
   client = make_client(YT_URL)
 
   if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
-    rss = client.get("/feeds/videos.xml?user=#{ucid}").body
-    rss = XML.parse_html(rss)
-
+    rss = client.get("/feeds/videos.xml?user=#{ucid}")
+    rss = XML.parse_html(rss.body)
     ucid = rss.xpath_node("//feed/channelid")
-    if ucid
-      ucid = ucid.content
-    else
-      error_message = "User does not exist"
+    if !ucid
+      error_message = "User does not exist."
       next templated "error"
     end
 
-    env.redirect "/channel/#{ucid}"
+    next env.redirect "/channel/#{ucid}"
   end
+
+  rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
+  if rss.status_code == 404
+    error_message = "This channel does not exist."
+    next templated "error"
+  end
+
+  rss = XML.parse_html(rss.body)
+  author = rss.xpath_node("//feed/author/name").not_nil!.content
 
   url = produce_playlist_url(ucid, (page - 1) * 100)
   response = client.get(url)
+  response = JSON.parse(response.body)
 
-  json = JSON.parse(response.body)
-  if !json["content_html"]? || json["content_html"].as_s.empty?
-    error_message = "This channel does not exist or has no videos."
+  if !response["content_html"]?
+    error_message = "This channel does not exist."
     next templated "error"
   end
 
-  if json["content_html"].as_s.strip(" \n").empty?
-    rss = client.get("/feeds/videos.xml?channel_id=#{ucid}").body
-    rss = XML.parse_html(rss)
-    author = rss.xpath_node("//feed/author/name").not_nil!.content
-
-    videos = [] of ChannelVideo
-
-    next templated "channel"
-  end
-
-  document = XML.parse_html(json["content_html"].as_s)
+  document = XML.parse_html(response["content_html"].as_s)
   anchor = document.xpath_node(%q(//div[@class="pl-video-owner"]/a))
   if !anchor
-    error_message = "This channel is not available"
-    next templated "error"
+    videos = [] of ChannelVideo
+    next templated "channel"
   end
-  author = anchor.content
 
   videos = [] of ChannelVideo
   document.xpath_nodes(%q(//a[contains(@class,"pl-video-title-link")])).each do |node|
