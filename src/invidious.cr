@@ -1283,23 +1283,31 @@ get "/feed/channel/:ucid" do |env|
   if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
     rss = client.get("/feeds/videos.xml?user=#{ucid}")
     rss = XML.parse_html(rss.body)
+
     ucid = rss.xpath_node("//feed/channelid")
     if !ucid
       error_message = "User does not exist."
       halt env, status_code: 404, response: error_message
     end
 
-    next env.redirect "/channel/#{ucid}"
+    ucid = ucid.content
+    next env.redirect "/feed/channel/#{ucid}"
   end
 
   url = produce_videos_url(ucid)
   response = client.get(url)
-  response = JSON.parse(response.body)
-  if !response["content_html"]?
-    error_message = "This channel does not exist."
-    halt env, status_code: 404, response: error_message
+  json = JSON.parse(response.body)
+
+  if json["content_html"].as_s.empty?
+    if response.status_code == 500
+      error_message = "This channel does not exist."
+      halt env, status_code: 404, response: error_message
+    else
+      next ""
+    end
   end
-  content_html = response["content_html"].as_s
+
+  content_html = json["content_html"].as_s
   document = XML.parse_html(content_html)
 
   channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
@@ -1321,7 +1329,8 @@ get "/feed/channel/:ucid" do |env|
         xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
       end
 
-      extract_channel_videos(document, channel.author, ucid).each do |video|
+      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+      extract_videos(nodeset).each do |video|
         xml.element("entry") do
           xml.element("id") { xml.text "yt:video:#{video.id}" }
           xml.element("yt:videoId") { xml.text video.id }
@@ -1480,12 +1489,14 @@ get "/channel/:ucid" do |env|
   if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
     rss = client.get("/feeds/videos.xml?user=#{ucid}")
     rss = XML.parse_html(rss.body)
+
     ucid = rss.xpath_node("//feed/channelid")
     if !ucid
       error_message = "User does not exist."
       next templated "error"
     end
 
+    ucid = ucid.content
     next env.redirect "/channel/#{ucid}"
   end
 
@@ -1520,7 +1531,7 @@ get "/channel/:ucid" do |env|
     id = HTTP::Params.parse(href.query.not_nil!)["v"]
     title = node.content
 
-    videos << ChannelVideo.new(id, title, Time.now, Time.now, ucid, author)
+    videos << ChannelVideo.new(id, title, Time.now, Time.now, "", "")
   end
 
   templated "channel"
@@ -2002,54 +2013,24 @@ get "/api/v1/trending" do |env|
   trending = XML.parse_html(trending)
   videos = JSON.build do |json|
     json.array do
-      trending.xpath_nodes(%q(//ul/li[@class="expanded-shelf-content-item-wrapper"])).each do |node|
-        anchor = node.xpath_node(%q(.//h3/a)).not_nil!
-
-        title = anchor.content
-        id = anchor["href"].lchop("/watch?v=")
-
-        anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).not_nil!
-        author = anchor.content
-        author_url = anchor["href"]
-
-        metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
-        if metadata.size == 0
-          next
-        elsif metadata.size == 1
-          view_count = metadata[0].content.rchop(" watching").delete(",").to_i64
-          published = Time.now
-        else
-          published = decode_date(metadata[0].content)
-
-          view_count = metadata[1].content.rchop(" views")
-          if view_count == "No"
-            view_count = 0_i64
-          else
-            view_count = view_count.delete(",").to_i64
-          end
-        end
-
-        description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-        description, description_html = html_to_description(description_html)
-
-        length_seconds = decode_length_seconds(node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content)
-
+      nodeset = trending.xpath_nodes(%q(//ul/li[@class="expanded-shelf-content-item-wrapper"]))
+      extract_videos(nodeset).each do |video|
         json.object do
-          json.field "title", title
-          json.field "videoId", id
+          json.field "title", video.title
+          json.field "videoId", video.id
           json.field "videoThumbnails" do
-            generate_thumbnails(json, id)
+            generate_thumbnails(json, video.id)
           end
 
-          json.field "lengthSeconds", length_seconds
-          json.field "viewCount", view_count
+          json.field "lengthSeconds", video.length_seconds
+          json.field "viewCount", video.views
 
-          json.field "author", author
-          json.field "authorUrl", author_url
+          json.field "author", video.author
+          json.field "authorUrl", "/channel/#{video.ucid}"
 
-          json.field "published", published.epoch
-          json.field "description", description
-          json.field "descriptionHtml", description_html
+          json.field "published", video.published.epoch
+          json.field "description", video.description
+          json.field "descriptionHtml", video.description_html
         end
       end
     end
@@ -2096,16 +2077,17 @@ get "/api/v1/channels/:ucid" do |env|
 
   client = make_client(YT_URL)
   if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
-    rss = client.get("/feeds/videos.xml?user=#{ucid}").body
-    rss = XML.parse_html(rss)
+    rss = client.get("/feeds/videos.xml?user=#{ucid}")
+    rss = XML.parse_html(rss.body)
 
     ucid = rss.xpath_node("//feed/channelid")
-    if ucid
-      ucid = ucid.content
-    else
+    if !ucid
       env.response.content_type = "application/json"
       next {"error" => "User does not exist"}.to_json
     end
+
+    ucid = ucid.content
+    next env.redirect "/api/v1/channels/#{ucid}"
   end
 
   channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
@@ -2212,25 +2194,36 @@ get "/api/v1/channels/:ucid/videos" do |env|
 
   client = make_client(YT_URL)
   if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
-    rss = client.get("/feeds/videos.xml?user=#{ucid}").body
-    rss = XML.parse_html(rss)
+    rss = client.get("/feeds/videos.xml?user=#{ucid}")
+    rss = XML.parse_html(rss.body)
 
     ucid = rss.xpath_node("//feed/channelid")
-    if ucid
-      ucid = ucid.content
-    else
+    if !ucid
       env.response.content_type = "application/json"
       next {"error" => "User does not exist"}.to_json
     end
+
+    ucid = ucid.content
+    url = "/api/v1/channels/#{ucid}/videos"
+    if env.params.query
+      url += "?#{env.params.query}"
+    end
+    next env.redirect url
   end
 
   url = produce_videos_url(ucid, page)
   response = client.get(url)
 
   json = JSON.parse(response.body)
-  if !json["content_html"]? || json["content_html"].as_s.empty?
+  if !json["content_html"]?
     env.response.content_type = "application/json"
-    next {"error" => "No videos or nonexistent channel"}.to_json
+
+    if response.status_code == 500
+      response = {"Error" => "Channel does not exist"}.to_json
+      halt env, status_code: 404, response: response
+    else
+      next Array(String).new.to_json
+    end
   end
 
   content_html = json["content_html"].as_s
@@ -2242,47 +2235,22 @@ get "/api/v1/channels/:ucid/videos" do |env|
 
   videos = JSON.build do |json|
     json.array do
-      document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |node|
-        anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a)).not_nil!
-        title = anchor.content.strip
-        video_id = anchor["href"].lchop("/watch?v=")
-
-        metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
-        if metadata.size == 0
-          next
-        elsif metadata.size == 1
-          view_count = metadata[0].content.split(" ")[0].delete(",").to_i64
-          published = Time.now
-        else
-          published = decode_date(metadata[0].content)
-
-          view_count = metadata[1].content.split(" ")[0]
-          if view_count == "No"
-            view_count = 0_i64
-          else
-            view_count = view_count.delete(",").to_i64
-          end
-        end
-
-        description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-        description, description_html = html_to_description(description_html)
-
-        length_seconds = decode_length_seconds(node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content)
-
+      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+      extract_videos(nodeset, ucid).each do |video|
         json.object do
-          json.field "title", title
-          json.field "videoId", video_id
+          json.field "title", video.title
+          json.field "videoId", video.id
 
           json.field "videoThumbnails" do
-            generate_thumbnails(json, video_id)
+            generate_thumbnails(json, video.id)
           end
 
-          json.field "description", description
-          json.field "descriptionHtml", description_html
+          json.field "description", video.description
+          json.field "descriptionHtml", video.description_html
 
-          json.field "viewCount", view_count
-          json.field "published", published.epoch
-          json.field "lengthSeconds", length_seconds
+          json.field "viewCount", video.views
+          json.field "published", video.published.epoch
+          json.field "lengthSeconds", video.length_seconds
         end
       end
     end
@@ -2344,7 +2312,7 @@ get "/api/v1/search" do |env|
           json.field "description", video.description
           json.field "descriptionHtml", video.description_html
 
-          json.field "viewCount", video.view_count
+          json.field "viewCount", video.views
           json.field "published", video.published.epoch
           json.field "lengthSeconds", video.length_seconds
         end

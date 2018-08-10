@@ -5,7 +5,7 @@ class SearchVideo
     author:           String,
     ucid:             String,
     published:        Time,
-    view_count:       Int64,
+    views:            Int64,
     description:      String,
     description_html: String,
     length_seconds:   Int32,
@@ -20,90 +20,8 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
   end
 
   html = XML.parse_html(html)
-  videos = [] of SearchVideo
-
-  html.xpath_nodes(%q(//ol[@class="item-section"]/li)).each do |node|
-    anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
-    if !anchor
-      next
-    end
-
-    if anchor["href"].starts_with? "https://www.googleadservices.com"
-      next
-    end
-
-    title = anchor.content.strip
-    video_id = anchor["href"].lchop("/watch?v=")
-
-    anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a))
-    if !anchor
-      next
-    end
-    author = anchor.content
-    author_url = anchor["href"]
-    ucid = author_url.split("/")[-1]
-
-    # Skip playlists
-    if node.xpath_node(%q(.//ol[contains(@class, "yt-lockup-playlist-items")]))
-      next
-    end
-
-    metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
-    if metadata.size == 0
-      next
-    elsif metadata.size == 1
-      # Skip movies
-      if metadata[0].content.includes? "·"
-        next
-      end
-
-      if metadata[0].content.starts_with? "Starts"
-        view_count = 0_i64
-        published = Time.epoch(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
-      else
-        view_count = metadata[0].content.lchop("Streamed ").split(" ")[0].delete(",").to_i64
-        published = Time.now
-      end
-    else
-      # Skip movies
-      if metadata[0].content.includes? "·"
-        next
-      end
-
-      published = decode_date(metadata[0].content)
-
-      view_count = metadata[1].content.split(" ")[0]
-      if view_count == "No"
-        view_count = 0_i64
-      else
-        view_count = view_count.delete(",").to_i64
-      end
-    end
-
-    description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-    description, description_html = html_to_description(description_html)
-
-    length_seconds = node.xpath_node(%q(.//span[@class="video-time"]))
-    if length_seconds
-      length_seconds = decode_length_seconds(length_seconds.content)
-    else
-      length_seconds = -1
-    end
-
-    video = SearchVideo.new(
-      title,
-      video_id,
-      author,
-      ucid,
-      published,
-      view_count,
-      description,
-      description_html,
-      length_seconds,
-    )
-
-    videos << video
-  end
+  nodeset = html.xpath_nodes(%q(//ol[@class="item-section"]/li))
+  videos = extract_videos(nodeset)
 
   return videos
 end
