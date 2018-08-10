@@ -1279,32 +1279,30 @@ get "/feed/channel/:ucid" do |env|
   ucid = env.params.url["ucid"]
 
   client = make_client(YT_URL)
-  if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
-    rss = client.get("/feeds/videos.xml?user=#{ucid}").body
-    rss = XML.parse_html(rss)
 
+  if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
+    rss = client.get("/feeds/videos.xml?user=#{ucid}")
+    rss = XML.parse_html(rss.body)
     ucid = rss.xpath_node("//feed/channelid")
-    if ucid
-      ucid = ucid.content
-    else
-      env.response.content_type = "application/json"
-      next {"error" => "User does not exist"}.to_json
+    if !ucid
+      error_message = "User does not exist."
+      halt env, status_code: 404, response: error_message
     end
+
+    next env.redirect "/channel/#{ucid}"
   end
 
   url = produce_videos_url(ucid)
   response = client.get(url)
+  response = JSON.parse(response.body)
+  if !response["content_html"]?
+    error_message = "This channel does not exist."
+    halt env, status_code: 404, response: error_message
+  end
+  content_html = response["content_html"].as_s
+  document = XML.parse_html(content_html)
 
   channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
-
-  json = JSON.parse(response.body)
-  if !json["content_html"]? || json["content_html"].as_s.empty?
-    error_message = "This channel does not exist or has no videos."
-    next templated "error"
-  end
-
-  content_html = json["content_html"].as_s
-  document = XML.parse_html(content_html)
 
   host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
   path = env.request.path
@@ -1323,77 +1321,30 @@ get "/feed/channel/:ucid" do |env|
         xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
       end
 
-      document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |node|
-        anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
-        if !anchor
-          next
-        end
-
-        if anchor["href"].starts_with? "https://www.googleadservices.com"
-          next
-        end
-
-        title = anchor.content.strip
-        video_id = anchor["href"].lchop("/watch?v=")
-
-        metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
-        if metadata.size == 0
-          next
-        elsif metadata.size == 1
-          view_count = metadata[0].content.split(" ")[0].delete(",").to_i64
-          published = Time.now
-        else
-          published = decode_date(metadata[0].content)
-
-          view_count = metadata[1].content.split(" ")[0]
-          if view_count == "No"
-            view_count = 0_i64
-          else
-            view_count = view_count.delete(",").to_i64
-          end
-        end
-
-        description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-        if !description_html
-          description = ""
-          description_html = ""
-        else
-          description_html = description_html.to_s
-          description = description_html.gsub("<br>", "\n")
-          description = description.gsub("<br/>", "\n")
-          description = XML.parse_html(description).content.strip("\n ")
-        end
-
-        length_seconds = node.xpath_node(%q(.//span[@class="video-time"]))
-        if length_seconds
-          length_seconds = decode_length_seconds(length_seconds.content)
-        else
-          length_seconds = -1
-        end
-
+      extract_channel_videos(document, channel.author, ucid).each do |video|
         xml.element("entry") do
-          xml.element("id") { xml.text "yt:video:#{video_id}" }
-          xml.element("yt:videoId") { xml.text video_id }
+          xml.element("id") { xml.text "yt:video:#{video.id}" }
+          xml.element("yt:videoId") { xml.text video.id }
           xml.element("yt:channelId") { xml.text ucid }
-          xml.element("title") { xml.text title }
-          xml.element("link", rel: "alternate", href: "#{host_url}/watch?v=#{video_id}")
+          xml.element("title") { xml.text video.title }
+          xml.element("link", rel: "alternate", href: "#{host_url}/watch?v=#{video.id}")
 
           xml.element("author") do
             xml.element("name") { xml.text channel.author }
             xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
           end
 
-          xml.element("published") { xml.text published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
+          xml.element("published") { xml.text video.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
 
           xml.element("media:group") do
-            xml.element("media:title") { xml.text title }
-            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video_id}/hqdefault.jpg",
-              width: "480", height: "360")
-            xml.element("media:description") { xml.text description }
+            xml.element("media:title") { xml.text video.title }
+            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video.id}/mqdefault.jpg",
+              width: "320", height: "180")
+            xml.element("media:description") { xml.text video.description }
           end
 
           xml.element("media:community") do
-            xml.element("media:statistics", views: view_count)
+            xml.element("media:statistics", views: video.views)
           end
         end
       end
@@ -1492,8 +1443,8 @@ get "/feed/private" do |env|
 
           xml.element("media:group") do
             xml.element("media:title") { xml.text video.title }
-            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video.id}/hqdefault.jpg",
-              width: "480", height: "360")
+            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video.id}/mqdefault.jpg",
+              width: "320", height: "180")
           end
         end
       end

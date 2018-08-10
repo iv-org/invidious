@@ -130,3 +130,69 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
 
   return channel
 end
+
+def extract_channel_videos(document, author, ucid)
+  channel_videos = [] of Video
+  document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |node|
+    anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
+    if !anchor
+      next
+    end
+
+    if anchor["href"].starts_with? "https://www.googleadservices.com"
+      next
+    end
+
+    title = anchor.content.strip
+    id = anchor["href"].lchop("/watch?v=")
+
+    metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
+    if metadata.size == 0
+      next
+    elsif metadata.size == 1
+      view_count = metadata[0].content.split(" ")[0].delete(",").to_i64
+      published = Time.now
+    else
+      published = decode_date(metadata[0].content)
+
+      view_count = metadata[1].content.split(" ")[0]
+      if view_count == "No"
+        view_count = 0_i64
+      else
+        view_count = view_count.delete(",").to_i64
+      end
+    end
+
+    description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+    description = description_html_to_description(description_html)
+
+    length_seconds = node.xpath_node(%q(.//span[@class="video-time"]))
+    if length_seconds
+      length_seconds = decode_length_seconds(length_seconds.content)
+    else
+      length_seconds = -1
+    end
+
+    info = HTTP::Params.parse("length_seconds=#{length_seconds}")
+    channel_videos << Video.new(
+      id,
+      info,
+      Time.now,
+      title,
+      view_count,
+      0,   # Like count
+      0,   # Dislike count
+      0.0, # Wilson score
+      published,
+      description,
+      "", # Language,
+      author,
+      ucid,
+      [] of String, # Allowed regions
+      true,         # Is family friendly
+      ""            # Genre
+    )
+  end
+
+  return channel_videos
+end
