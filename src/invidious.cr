@@ -1860,11 +1860,9 @@ get "/api/v1/videos/:id" do |env|
         end
       end
 
-      description = video.description.gsub("<br>", "\n")
-      description = description.gsub("<br/>", "\n")
-      description = XML.parse_html(description)
+      description = html_to_description(video.description)
 
-      json.field "description", description.content
+      json.field "description", description
       json.field "descriptionHtml", video.description
       json.field "published", video.published.epoch
       json.field "keywords" do
@@ -2057,16 +2055,8 @@ get "/api/v1/trending" do |env|
           end
         end
 
-        descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-        if !descriptionHtml
-          description = ""
-          descriptionHtml = ""
-        else
-          descriptionHtml = descriptionHtml.to_s
-          description = descriptionHtml.gsub("<br>", "\n")
-          description = description.gsub("<br/>", "\n")
-          description = XML.parse_html(description).content.strip("\n ")
-        end
+        description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+        description, description_html = html_to_description(description_html)
 
         length_seconds = decode_length_seconds(node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content)
 
@@ -2098,7 +2088,7 @@ get "/api/v1/trending" do |env|
 
           json.field "published", published.epoch
           json.field "description", description
-          json.field "descriptionHtml", descriptionHtml
+          json.field "descriptionHtml", description_html
         end
       end
     end
@@ -2339,16 +2329,8 @@ get "/api/v1/channels/:ucid/videos" do |env|
           end
         end
 
-        descriptionHtml = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-        if !descriptionHtml
-          description = ""
-          descriptionHtml = ""
-        else
-          descriptionHtml = descriptionHtml.to_s
-          description = descriptionHtml.gsub("<br>", "\n")
-          description = description.gsub("<br/>", "\n")
-          description = XML.parse_html(description).content.strip("\n ")
-        end
+        description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
+        description, description_html = html_to_description(description_html)
 
         length_seconds = decode_length_seconds(node.xpath_node(%q(.//span[@class="video-time"])).not_nil!.content)
 
@@ -2374,7 +2356,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
           end
 
           json.field "description", description
-          json.field "descriptionHtml", descriptionHtml
+          json.field "descriptionHtml", description_html
 
           json.field "viewCount", view_count
           json.field "published", published.epoch

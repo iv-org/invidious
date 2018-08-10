@@ -81,15 +81,7 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
     end
 
     description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-    if !description_html
-      description = ""
-      description_html = ""
-    else
-      description_html = description_html.to_s
-      description = description_html.gsub("<br>", "\n")
-      description = description.gsub("<br/>", "\n")
-      description = XML.parse_html(description).content.strip("\n ")
-    end
+    description, description_html = html_to_description(description_html)
 
     length_seconds = node.xpath_node(%q(.//span[@class="video-time"]))
     if length_seconds

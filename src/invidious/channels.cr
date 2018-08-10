@@ -164,7 +164,7 @@ def extract_channel_videos(document, author, ucid)
     end
 
     description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-    description = description_html_to_description(description_html)
+    description, description_html = html_to_description(description_html)
 
     length_seconds = node.xpath_node(%q(.//span[@class="video-time"]))
     if length_seconds

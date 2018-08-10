@@ -273,7 +273,7 @@ def generate_captcha(key)
   return {challenge: challenge, token: token}
 end
 
-def description_html_to_description(description_html)
+def html_to_description(description_html)
   if !description_html
     description = ""
     description_html = ""
@@ -284,5 +284,5 @@ def description_html_to_description(description_html)
     description = XML.parse_html(description).content.strip("\n ")
   end
 
-  return description
+  return description, description_html
 end
