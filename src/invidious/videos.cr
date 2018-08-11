@@ -475,7 +475,7 @@ def process_video_params(query, preferences)
   controls ||= 1
   controls = controls == 1
 
-  return autoplay, video_loop, video_start, video_end, listen, raw, quality, autoplay, controls
+  return autoplay, video_loop, video_start, video_end, listen, raw, quality, controls
 end
 
 def generate_thumbnails(json, id)

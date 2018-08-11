@@ -9,8 +9,8 @@ macro add_mapping(mapping)
     DB.mapping({{mapping}})
 end
 
-macro templated(filename)
-    render "src/invidious/views/#{{{filename}}}.ecr", "src/invidious/views/layout.ecr"
+macro templated(filename, template = "layout")
+    render "src/invidious/views/#{{{filename}}}.ecr", "src/invidious/views/#{{{template}}}.ecr"
 end
 
 macro rendered(filename)

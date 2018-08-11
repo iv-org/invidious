@@ -2,179 +2,28 @@
 <html>
 
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="thumbnail" content="<%= thumbnail %>">
-<link rel="stylesheet" href="https://unpkg.com/video.js@6.12.0/dist/video-js.min.css">
-<link rel="stylesheet" href="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/css/quality-selector.css">
-<link rel="stylesheet" href="https://unpkg.com/videojs-markers@1.0.1/dist/videojs.markers.min.css">
-<link rel="stylesheet" href="https://unpkg.com/videojs-share@1.1.0/dist/videojs-share.css">
-<script src="https://unpkg.com/video.js@6.12.0/dist/video.min.js"></script>
-<script src="https://unpkg.com/videojs-hotkeys@0.2.22/build/videojs.hotkeys.min.js"></script>
-<script src="https://unpkg.com/silvermine-videojs-quality-selector@1.1.2/dist/js/silvermine-videojs-quality-selector.min.js"></script>
-<script src="https://unpkg.com/videojs-markers@1.0.1/dist/videojs-markers.min.js"></script>
-<script src="https://unpkg.com/videojs-share@1.1.0/dist/videojs-share.min.js"></script>
-<link rel="stylesheet" href="/css/default.css">
-<title><%= HTML.escape(video.title) %> - Invidious</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="thumbnail" content="<%= thumbnail %>">
+  <%= rendered "components/player_sources" %>
+  <link rel="stylesheet" href="/css/default.css">
+  <title><%= HTML.escape(video.title) %> - Invidious</title>
+  <style>
+  video, #my_video, .video-js, .vjs-default-skin
+  {
+    position: fixed; 
+    right: 0; 
+    bottom: 0;
+    min-width: 100%; 
+    min-height: 100%;
+    width: auto; 
+    height: auto; 
+    z-index: -100;
+  }
+  </style>
 </head>
 
 <body>
-<style>
-video, #my_video, .video-js, .vjs-default-skin
-{
-  position: fixed; 
-  right: 0; 
-  bottom: 0;
-  min-width: 100%; 
-  min-height: 100%;
-  width: auto; 
-  height: auto; 
-  z-index: -100;
-}
-</style>
-
-<% if hlsvp %>
-<script src="https://unpkg.com/videojs-contrib-hls@5.14.1/dist/videojs-contrib-hls.min.js"></script>
-<% end %>
-
-<video playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" id="player" 
-    <% if autoplay %>autoplay<% end %>
-    <% if controls %>controls<% end %>
-    <% if video_loop %>loop<% end %>
-    class="video-js vjs-default-skin">
-    <% if hlsvp %>
-        <source src="<%= hlsvp %>" type="application/x-mpegURL">
-    <% else %>
-        <% if listen %>
-            <% audio_streams.each_with_index do |fmt, i| %>
-                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
-            <% end %>
-        <% else %>
-            <% fmt_stream.each_with_index do |fmt, i| %>
-                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= quality == fmt["label"].split(" - ")[0] %>">
-            <% end %>
-        <% end %>
-
-        <% captions.each do |caption| %>
-            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>"
-                label="<%= caption.name.simpleText %> ">
-        <% end %>
-    <% end %>
-</video>
-
-<script>
-var options = {
-  <% if autoplay %>
-  preload: "auto",
-  <% end %>
-  playbackRates: [0.5, 1, 1.5, 2],
-  controlBar: {
-    children: [
-      "playToggle",
-      "volumePanel",
-      "currentTimeDisplay",
-      "timeDivider",
-      "durationDisplay",
-      "progressControl",
-      "remainingTimeDisplay",
-      "captionsButton",
-      "qualitySelector",
-      "playbackRateMenuButton",
-      "fullscreenToggle"
-    ]
-  }
-};
-
-var shareOptions = {
-  socials: ["fb", "tw", "reddit", "mail"],
-
-  url: "<%= host_url %>/<%= video.id %>?<%= host_params %>",
-  title: "<%= video.title.dump_unquoted %>",
-  description: "<%= description %>",
-  image: "<%= thumbnail %>",
-  embedCode: `<iframe id='ivplayer' type='text/html' width='640' height='360'
-      src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>`
-};
-
-var player = videojs("player", options, function() {
-  this.hotkeys({
-    volumeStep: 0.1,
-    seekStep: 5,
-    enableModifiersForNumbers: false,
-    customKeys: {
-      play: {
-        key: function(e) {
-          // Toggle play with K Key
-          return e.which === 75;
-        },
-        handler: function(player, options, e) {
-          if (player.paused()) {
-            player.play();
-          } else {
-            player.pause();
-          }
-        }
-      },
-      backward: {
-        key: function(e) {
-          // Go backward 5 seconds
-          return e.which === 74;
-        },
-        handler: function(player, options, e) {
-          player.currentTime(player.currentTime() - 5);
-        }
-      },
-      forward: {
-        key: function(e) {
-          // Go forward 5 seconds
-          return e.which === 76;
-        },
-        handler: function(player, options, e) {
-          player.currentTime(player.currentTime() + 5);
-        }
-      }
-    }
-  });
-});
-
-player.share(shareOptions);
-
-<% if video_start > 0 || video_end > 0 %>
-player.markers({
-  onMarkerReached: function(marker) {
-    if (marker.text === "End") {
-      if (player.loop()) {
-        player.markers.prev("Start");
-      } else {
-        player.pause();
-      }
-    }
-  },
-  markers: [
-    { time: <%= video_start %>, text: "Start" },
-    <% if video_end < 0 %>
-    { time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: "End" }
-    <% else %>
-    { time: <%= video_end %>, text: "End" }
-    <% end %>
-  ]
-});
-
-player.currentTime(<%= video_start %>);
-<% end %>
-
-<% if !listen %>
-var currentSources = player.currentSources();
-for (var i = 0; i < currentSources.length; i++) {
-  if (player.canPlayType(currentSources[i]["type"].split(";")[0]) === "") {
-    currentSources.splice(i);
-    i--;
-  }
-}
-
-player.src(currentSources);
-<% end %>
-</script>
+  <%= rendered "components/player" %>
 </body>
-
 </html>
