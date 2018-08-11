@@ -2391,9 +2391,8 @@ get "/api/manifest/dash/id/:id" do |env|
   audio_streams = video.audio_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "audio/mp4" }
 
   manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
-    xml.element("MPD", "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance", "xmlns": "urn:mpeg:DASH:schema:MPD:2011",
-      "xmlns:yt": "http://youtube.com/yt/2012/10/10", "xsi:schemaLocation": "urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd",
-      minBufferTime: "PT1.5S", profiles: "urn:mpeg:dash:profile:isoff-main:2011", type: "static",
+    xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
+      "profiles": "urn:mpeg:dash:profile:isoff-live:2011", minBufferTime: "PT1.5S", type: "static",
       mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
       xml.element("Period") do
         xml.element("AdaptationSet", mimeType: "audio/mp4", startWithSAP: 1, subsegmentAlignment: true) do
