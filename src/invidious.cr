@@ -2401,7 +2401,7 @@ get "/api/manifest/dash/id/:id" do |env|
             mimetype = fmt["type"].split(";")[0]
             codecs = fmt["type"].split("codecs=")[1].strip('"')
             fmt_type = mimetype.split("/")[0]
-            bandwidth = fmt["clen"]
+            bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
             url = fmt["url"]
 
@@ -2421,7 +2421,7 @@ get "/api/manifest/dash/id/:id" do |env|
           video_streams.each do |fmt|
             mimetype = fmt["type"].split(";")
             codecs = fmt["type"].split("codecs=")[1].strip('"')
-            bandwidth = fmt["clen"]
+            bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
             url = fmt["url"]
             height, width = fmt["size"].split("x")
@@ -2532,6 +2532,7 @@ get "/videoplayback/*" do |env|
 
   query_params = HTTP::Params.new(raw_params)
 
+  env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.redirect "/videoplayback?#{query_params}"
 end
 
@@ -2539,7 +2540,7 @@ get "/videoplayback" do |env|
   query_params = env.params.query
 
   fvip = query_params["fvip"]
-  mn = query_params["mn"].split(",")[0]
+  mn = query_params["mn"].split(",")[-1]
   host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
 
