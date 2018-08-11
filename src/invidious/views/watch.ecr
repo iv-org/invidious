@@ -231,7 +231,7 @@ function load_comments(target) {
 
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
-      if (xhr.statusCode == 200) {
+      if (xhr.status == 200) {
         body.innerHTML = xhr.response.content_html;
       } else {
         body.innerHTML = fallback;
