@@ -108,6 +108,17 @@ CAPTION_LANGUAGES = [
   "Zulu",
 ]
 
+VIDEO_THUMBNAILS = [
+  {name: "default", url: "default", height: 90, width: 120},
+  {name: "medium", url: "mqdefault", height: 180, width: 320},
+  {name: "high", url: "hqdefault", height: 360, width: 480},
+  {name: "sddefault", url: "sddefault", height: 480, width: 640},
+  {name: "maxresdefault", url: "maxresdefault", height: 1280, width: 720},
+  {name: "start", url: "1", height: 90, width: 120},
+  {name: "middle", url: "2", height: 90, width: 120},
+  {name: "end", url: "3", height: 90, width: 120},
+]
+
 # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L380-#L476
 VIDEO_FORMATS = {
   "5"  => {"ext" => "flv", "width" => 400, "height" => 240, "acodec" => "mp3", "abr" => 64, "vcodec" => "h263"},
@@ -488,17 +499,13 @@ def process_video_params(query, preferences)
 end
 
 def generate_thumbnails(json, id)
-  qualities = [{name: "default", url: "default", width: 120, height: 90},
-               {name: "high", url: "hqdefault", width: 480, height: 360},
-               {name: "medium", url: "mqdefault", width: 320, height: 180},
-  ]
   json.array do
-    qualities.each do |quality|
+    VIDEO_THUMBNAILS.each do |thumbnail|
       json.object do
-        json.field "quality", quality[:name]
-        json.field "url", "https://i.ytimg.com/vi/#{id}/#{quality["url"]}.jpg"
-        json.field "width", quality[:width]
-        json.field "height", quality[:height]
+        json.field "quality", thumbnail[:name]
+        json.field "url", "https://i.ytimg.com/vi/#{id}/#{thumbnail["url"]}.jpg"
+        json.field "width", thumbnail[:width]
+        json.field "height", thumbnail[:height]
       end
     end
   end
