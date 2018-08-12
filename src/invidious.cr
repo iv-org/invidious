@@ -1921,32 +1921,37 @@ get "/api/v1/videos/:id" do |env|
 
       json.field "adaptiveFormats" do
         json.array do
-          adaptive_fmts.each_with_index do |adaptive_fmt, i|
+          adaptive_fmts.each do |fmt|
             json.object do
-              json.field "index", adaptive_fmt["index"]
-              json.field "bitrate", adaptive_fmt["bitrate"]
-              json.field "init", adaptive_fmt["init"]
-              json.field "url", adaptive_fmt["url"]
-              json.field "itag", adaptive_fmt["itag"]
-              json.field "type", adaptive_fmt["type"]
-              json.field "clen", adaptive_fmt["clen"]
-              json.field "lmt", adaptive_fmt["lmt"]
-              json.field "projectionType", adaptive_fmt["projection_type"]
+              json.field "index", fmt["index"]
+              json.field "bitrate", fmt["bitrate"]
+              json.field "init", fmt["init"]
+              json.field "url", fmt["url"]
+              json.field "itag", fmt["itag"]
+              json.field "type", fmt["type"]
+              json.field "clen", fmt["clen"]
+              json.field "lmt", fmt["lmt"]
+              json.field "projectionType", fmt["projection_type"]
 
-              fmt_info = itag_to_metadata(adaptive_fmt["itag"])
-              json.field "container", fmt_info["ext"]
-              json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
+              fmt_info = itag_to_metadata?(fmt["itag"])
+              if fmt_info
+                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
+                json.field "fps", fps
+                json.field "container", fmt_info["ext"]
+                json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
 
-              if fmt_info["fps"]?
-                json.field "fps", fmt_info["fps"]
-              end
+                if fmt_info["height"]?
+                  json.field "resolution", "#{fmt_info["height"]}p"
 
-              if fmt_info["height"]?
-                json.field "qualityLabel", "#{fmt_info["height"]}p"
-                json.field "resolution", "#{fmt_info["height"]}p"
+                  quality_label = "#{fmt_info["height"]}p"
+                  if fps > 30
+                    quality_label += "60"
+                  end
+                  json.field "qualityLabel", quality_label
 
-                if fmt_info["width"]?
-                  json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
+                  if fmt_info["width"]?
+                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
+                  end
                 end
               end
             end
@@ -1963,20 +1968,25 @@ get "/api/v1/videos/:id" do |env|
               json.field "type", fmt["type"]
               json.field "quality", fmt["quality"]
 
-              fmt_info = itag_to_metadata(fmt["itag"])
-              json.field "container", fmt_info["ext"]
-              json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
+              fmt_info = itag_to_metadata?(fmt["itag"])
+              if fmt_info
+                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
+                json.field "fps", fps
+                json.field "container", fmt_info["ext"]
+                json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
 
-              if fmt_info["fps"]?
-                json.field "fps", fmt_info["fps"]
-              end
+                if fmt_info["height"]?
+                  json.field "resolution", "#{fmt_info["height"]}p"
 
-              if fmt_info["height"]?
-                json.field "qualityLabel", "#{fmt_info["height"]}p"
-                json.field "resolution", "#{fmt_info["height"]}p"
+                  quality_label = "#{fmt_info["height"]}p"
+                  if fps > 30
+                    quality_label += "60"
+                  end
+                  json.field "qualityLabel", quality_label
 
-                if fmt_info["width"]?
-                  json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
+                  if fmt_info["width"]?
+                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
+                  end
                 end
               end
             end
