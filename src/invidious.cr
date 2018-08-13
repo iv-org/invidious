@@ -1002,6 +1002,21 @@ post "/data_control" do |env|
             end
           end
         end
+      when "import_freetube"
+        body.scan(/"channelId":"(?<channel_id>[a-zA-Z0-9_-]{24})"/).each do |md|
+          ucid = md["channel_id"]
+
+          if !user.subscriptions.includes? ucid
+            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", ucid, user.id)
+
+            begin
+              client = make_client(YT_URL)
+              get_channel(ucid, client, PG_DB, false, false)
+            rescue ex
+              next
+            end
+          end
+        end
       when "import_newpipe_subscriptions"
         body = JSON.parse(body)
         body["subscriptions"].as_a.each do |channel|
