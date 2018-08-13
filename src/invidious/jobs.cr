@@ -24,10 +24,8 @@ def crawl_videos(db)
     end
 
     rvs = [] of Hash(String, String)
-    if video.info.has_key?("rvs")
-      video.info["rvs"].split(",").each do |rv|
-        rvs << HTTP::Params.parse(rv).to_h
-      end
+    video.info["rvs"]?.try &.split(",").each do |rv|
+      rvs << HTTP::Params.parse(rv).to_h
     end
 
     rvs.each do |rv|

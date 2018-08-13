@@ -257,10 +257,8 @@ get "/watch" do |env|
   end
 
   rvs = [] of Hash(String, String)
-  if video.info.has_key?("rvs")
-    video.info["rvs"].split(",").each do |rv|
-      rvs << HTTP::Params.parse(rv).to_h
-    end
+  video.info["rvs"]?.try &.split(",").each do |rv|
+    rvs << HTTP::Params.parse(rv).to_h
   end
 
   rating = video.info["avg_rating"].to_f64
@@ -2007,7 +2005,7 @@ get "/api/v1/videos/:id" do |env|
 
       json.field "recommendedVideos" do
         json.array do
-          video.info["rvs"].split(",").each do |rv|
+          video.info["rvs"]?.try &.split(",").each do |rv|
             rv = HTTP::Params.parse(rv)
 
             if rv["id"]?
