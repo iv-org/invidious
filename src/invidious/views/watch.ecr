@@ -194,11 +194,11 @@ get_youtube_comments();
             <p><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
             <p><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
             <p><i class="icon ion-ios-thumbs-down"></i> <%= number_with_separator(video.dislikes) %></p>
-            <p id="Genre">Genre : <%= video.genre %></p>
+            <p id="Genre">Genre: <%= video.genre %></p>
             <p id="FamilyFriendly">Family Friendly? <%= video.is_family_friendly %></p>
-            <p id="Wilson">Wilson Score : <%= video.wilson_score.round(4) %></p>
-            <p id="Rating">Rating : <%= rating.round(4) %> / 5</p>
-            <p id="Engagement">Engagement : <%= engagement.round(2) %>%</p>
+            <p id="Wilson">Wilson Score: <%= video.wilson_score.round(4) %></p>
+            <p id="Rating">Rating: <%= rating.round(4) %> / 5</p>
+            <p id="Engagement">Engagement: <%= engagement.round(2) %>%</p>
             <% if video.allowed_regions.size != REGIONS.size %>
                 <p id="AllowedRegions">
                 <% if video.allowed_regions.size < REGIONS.size / 2 %>
@@ -209,14 +209,14 @@ get_youtube_comments();
                 </p>
             <% end %>
             <% if ad_slots %>
-            <p id="Slots">Ad Slots : <%= ad_slots %></p>
+            <p id="Slots">Ad Slots: <%= ad_slots %></p>
             <% end %>
             <% if engage_types %>
-            <p id="Engage">Engage Types : <%= engage_types %></p>
+            <p id="Engage">Engage Types: <%= engage_types %></p>
             <% end %>
             <% if ad_tag %>
-            <p id="Category">Ad Category : <%= ad_category %></p>
-            <p id="Tags">Ad Tags(?) : <%= k2 %></p>
+            <p id="Category">Ad Category: <%= ad_category %></p>
+            <p id="Tags">Ad Tags(?): <%= k2 %></p>
             <% end %>
         </div>
     </div>
