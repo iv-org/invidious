@@ -117,7 +117,6 @@ def template_youtube_comments(comments)
           #{replies_html}
           </div>
         </div>
-      </div>
     </div>
     END_HTML
   end
