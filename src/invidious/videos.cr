@@ -108,6 +108,9 @@ CAPTION_LANGUAGES = {
   "Zulu",
 }
 
+REGIONS        = {"AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW"}
+BYPASS_REGIONS = {"CA", "DE", "FR", "JP", "RU", "UK"}
+
 VIDEO_THUMBNAILS = {
   {name: "default", url: "default", height: 90, width: 120},
   {name: "medium", url: "mqdefault", height: 180, width: 320},
@@ -408,6 +411,49 @@ def fetch_video(id)
 
   html = html_channel.receive
   info = info_channel.receive
+
+  if info["reason"]? && info["reason"].includes? "your country"
+    bypass_channel = Channel({HTTP::Params | Nil, XML::Node | Nil}).new
+
+    BYPASS_REGIONS.each do |country_code|
+      spawn do
+        begin
+          proxies = get_proxies(country_code)
+
+          # Try not to overload single proxy
+          proxy = proxies[0, 5].sample(1)[0]
+          proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
+
+          client = HTTPClient.new(URI.parse("https://www.youtube.com"))
+          client.read_timeout = 10.seconds
+          client.connect_timeout = 10.seconds
+          client.set_proxy(proxy)
+
+          proxy_info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
+          proxy_info = HTTP::Params.parse(proxy_info.body)
+
+          if !proxy_info["reason"]?
+            proxy_html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
+            proxy_html = XML.parse_html(proxy_html.body)
+
+            bypass_channel.send({proxy_info, proxy_html})
+          else
+            bypass_channel.send({nil, nil})
+          end
+        rescue ex
+          bypass_channel.send({nil, nil})
+        end
+      end
+    end
+
+    BYPASS_REGIONS.size.times do
+      response = bypass_channel.receive
+      if response[0] || response[1]
+        info = response[0].not_nil!
+        html = response[1].not_nil!
+      end
+    end
+  end
 
   if info["reason"]?
     raise info["reason"]

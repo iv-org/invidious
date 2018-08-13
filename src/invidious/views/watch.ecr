@@ -199,6 +199,15 @@ get_youtube_comments();
             <p id="Wilson">Wilson Score : <%= video.wilson_score.round(4) %></p>
             <p id="Rating">Rating : <%= rating.round(4) %> / 5</p>
             <p id="Engagement">Engagement : <%= engagement.round(2) %>%</p>
+            <% if video.allowed_regions.size != REGIONS.size %>
+                <p id="AllowedRegions">
+                <% if video.allowed_regions.size < REGIONS.size / 2 %>
+                Whitelisted regions: <%= video.allowed_regions.join(", ") %>
+                <% else %>
+                Blacklisted regions: <%= (REGIONS.to_a - video.allowed_regions).join(", ") %>
+                <% end %>
+                </p>
+            <% end %>
             <% if ad_slots %>
             <p id="Slots">Ad Slots : <%= ad_slots %></p>
             <% end %>
