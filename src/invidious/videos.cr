@@ -1,4 +1,4 @@
-CAPTION_LANGUAGES = [
+CAPTION_LANGUAGES = {
   "",
   "English",
   "English (auto-generated)",
@@ -106,9 +106,9 @@ CAPTION_LANGUAGES = [
   "Yiddish",
   "Yoruba",
   "Zulu",
-]
+}
 
-VIDEO_THUMBNAILS = [
+VIDEO_THUMBNAILS = {
   {name: "default", url: "default", height: 90, width: 120},
   {name: "medium", url: "mqdefault", height: 180, width: 320},
   {name: "high", url: "hqdefault", height: 360, width: 480},
@@ -117,7 +117,7 @@ VIDEO_THUMBNAILS = [
   {name: "start", url: "1", height: 90, width: 120},
   {name: "middle", url: "2", height: 90, width: 120},
   {name: "end", url: "3", height: 90, width: 120},
-]
+}
 
 # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L380-#L476
 VIDEO_FORMATS = {
