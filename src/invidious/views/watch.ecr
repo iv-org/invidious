@@ -65,7 +65,7 @@ function load_comments(target) {
     "/api/v1/comments/<%= video.id %>?format=html&continuation=" + continuation;
   var xhr = new XMLHttpRequest();
   xhr.responseType = "json";
-  xhr.timeout = 10000;
+  xhr.timeout = 20000;
   xhr.open("GET", url, true);
   xhr.send();
 
@@ -88,7 +88,7 @@ function get_reddit_comments() {
   var url = "/api/v1/comments/<%= video.id %>?source=reddit";
   var xhr = new XMLHttpRequest();
   xhr.responseType = "json";
-  xhr.timeout = 10000;
+  xhr.timeout = 20000;
   xhr.open("GET", url, true);
   xhr.send();
 
@@ -127,7 +127,7 @@ function get_youtube_comments() {
   var url = "/api/v1/comments/<%= video.id %>?format=html";
   var xhr = new XMLHttpRequest();
   xhr.responseType = "json";
-  xhr.timeout = 10000;
+  xhr.timeout = 20000;
   xhr.open("GET", url, true);
   xhr.send();
 
@@ -153,6 +153,9 @@ function get_youtube_comments() {
   };
 
   xhr.ontimeout = function() {
+    comments = document.getElementById("comments");
+    comments.innerHTML =
+      '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
     get_youtube_comments();
   };
 }
