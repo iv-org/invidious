@@ -6,12 +6,26 @@ class RedditThing
 end
 
 class RedditComment
+  module TimeConverter
+    def self.from_json(value : JSON::PullParser) : Time
+      Time.epoch(value.read_float.to_i)
+    end
+
+    def self.to_json(value : Time, json : JSON::Builder)
+      json.number(value.epoch)
+    end
+  end
+
   JSON.mapping({
     author:    String,
     body_html: String,
     replies:   RedditThing | String,
     score:     Int32,
     depth:     Int32,
+    created:   {
+      type:      Time,
+      converter: RedditComment::TimeConverter,
+    },
   })
 end
 
@@ -144,6 +158,7 @@ def template_reddit_comments(root)
         <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> 
         <i class="icon ion-ios-thumbs-up"></i> #{score} 
         <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b> 
+        - #{recode_date(child.created)} ago
       </p>
       <div>
       #{body_html}
