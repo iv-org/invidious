@@ -2,6 +2,10 @@
 
 > Invidious is what YouTube should be
 
+Patreon: https://patreon.com/omarroth  
+BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY   
+BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk  
+
 ## Installation
 
 ### Installing [Crystal](https://github.com/crystal-lang/crystal):
