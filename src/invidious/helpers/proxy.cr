@@ -31,11 +31,11 @@ class HTTPProxy
 
     if resp[:code]? == 200
       {% if !flag?(:without_openssl) %}
-        if tls
-          tls_socket = OpenSSL::SSL::Socket::Client.new(socket, context: tls, sync_close: true, hostname: host)
-          socket = tls_socket
-        end
-      {% end %}
+          if tls
+            tls_socket = OpenSSL::SSL::Socket::Client.new(socket, context: tls, sync_close: true, hostname: host)
+            socket = tls_socket
+          end
+        {% end %}
 
       return socket
     else
@@ -102,14 +102,20 @@ def get_proxies(country_code = "US")
   headers["Referer"] = "http://spys.one/free-proxy-list/#{country_code}/"
   headers["Content-Type"] = "application/x-www-form-urlencoded"
   body = {
-    "xpp" => "2",
+    "xpp" => "5",
     "xf1" => "0",
     "xf2" => "0",
-    "xf4" => "2",
+    "xf4" => "0",
     "xf5" => "1",
   }
   response = client.post("/free-proxy-list/#{country_code}/", headers, form: body)
   response = XML.parse_html(response.body)
+
+  mapping = response.xpath_node(%q(.//body/script)).not_nil!.content
+  mapping = mapping.match(/\}\('(?<p>[^']+)',\d+,\d+,'(?<x>[^']+)'/).not_nil!
+  p = mapping["p"].not_nil!
+  x = mapping["x"].not_nil!
+  mapping = decrypt_port(p, x)
 
   proxies = [] of {ip: String, port: Int32, score: Float64}
   response = response.xpath_node(%q(//tr/td/table)).not_nil!
@@ -119,7 +125,17 @@ def get_proxies(country_code = "US")
     end
 
     ip = node.xpath_node(%q(.//td[1]/font[2])).to_s.match(/<font class="spy14">(?<address>[^<]+)</).not_nil!["address"]
-    port = 8080
+    encrypted_port = node.xpath_node(%q(.//td[1]/font[2]/script)).not_nil!.content
+    encrypted_port = encrypted_port.match(/<\\\/font>"\+(?<encrypted_port>[\d\D]+)\)$/).not_nil!["encrypted_port"]
+
+    port = ""
+    encrypted_port.split("+").each do |number|
+      number = number.delete("()")
+      left_side, right_side = number.split("^")
+      result = mapping[left_side] ^ mapping[right_side]
+      port = "#{port}#{result}"
+    end
+    port = port.to_i
 
     latency = node.xpath_node(%q(.//td[6])).not_nil!.content.to_f
     speed = node.xpath_node(%q(.//td[7]/font/table)).not_nil!["width"].to_f
@@ -142,4 +158,53 @@ def get_proxies(country_code = "US")
   end
 
   return proxies
+end
+
+def decrypt_port(p, x)
+  x = x.split("^")
+  s = {} of String => String
+
+  60.times do |i|
+    if x[i]?.try &.empty?
+      s[y_func(i)] = y_func(i)
+    else
+      s[y_func(i)] = x[i]
+    end
+  end
+
+  x = s
+  p = p.gsub(/\b\w+\b/, x)
+
+  p = p.split(";")
+  p = p.map { |item| item.split("=") }
+
+  mapping = {} of String => Int32
+  p.each do |item|
+    if item == [""]
+      next
+    end
+
+    key = item[0]
+    value = item[1]
+    value = value.split("^")
+
+    if value.size == 1
+      value = value[0].to_i
+    else
+      left_side = value[0].to_i?
+      left_side ||= mapping[value[0]]
+      right_side = value[1].to_i?
+      right_side ||= mapping[value[1]]
+
+      value = left_side ^ right_side
+    end
+
+    mapping[key] = value
+  end
+
+  return mapping
+end
+
+def y_func(c)
+  return (c < 60 ? "" : y_func((c/60).to_i)) + ((c = c % 60) > 35 ? ((c.to_u8 + 29).unsafe_chr) : c.to_s(36))
 end
