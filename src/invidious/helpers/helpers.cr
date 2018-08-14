@@ -116,33 +116,34 @@ def login_req(login_form, f_req)
   return HTTP::Params.encode(data)
 end
 
-def produce_playlist_url(ucid, index)
-  ucid = ucid.lchop("UC")
-  ucid = "VLUU" + ucid
+def produce_playlist_url(id, index)
+  if id.starts_with? "UC"
+    id = "UU" + id.lchop("UC")
+  end
+  ucid = "VL" + id
 
-  continuation = write_var_int(index)
-  continuation.unshift(0x08_u8)
+  continuation = [0x08_u8] + write_var_int(index)
   slice = continuation.to_unsafe.to_slice(continuation.size)
+  slice = Base64.urlsafe_encode(slice, false)
 
-  continuation = Base64.urlsafe_encode(slice, false)
-  continuation = "PT:" + continuation
-  continuation = continuation.bytes
-  continuation.unshift(0x7a_u8, continuation.size.to_u8)
-
+  # Inner Base64
+  continuation = "PT:" + slice
+  continuation = [0x7a_u8, continuation.bytes.size.to_u8] + continuation.bytes
   slice = continuation.to_unsafe.to_slice(continuation.size)
-  continuation = Base64.urlsafe_encode(slice)
-  continuation = URI.escape(continuation)
-  continuation = continuation.bytes
-  continuation.unshift(continuation.size.to_u8)
+  slice = Base64.urlsafe_encode(slice)
+  slice = URI.escape(slice)
 
-  continuation.unshift(ucid.size.to_u8)
+  # Outer Base64
+  continuation = [0x1a.to_u8, slice.bytes.size.to_u8] + slice.bytes
   continuation = ucid.bytes + continuation
-  continuation.unshift(0x12.to_u8, ucid.size.to_u8)
-  continuation.unshift(0xe2_u8, 0xa9_u8, 0x85_u8, 0xb2_u8, 2_u8, continuation.size.to_u8)
+  continuation = [0x12_u8, ucid.size.to_u8] + continuation
+  continuation = [0xe2_u8, 0xa9_u8, 0x85_u8, 0xb2_u8, 2_u8, continuation.size.to_u8] + continuation
 
+  # Wrap bytes
   slice = continuation.to_unsafe.to_slice(continuation.size)
-  continuation = Base64.urlsafe_encode(slice)
-  continuation = URI.escape(continuation)
+  slice = Base64.urlsafe_encode(slice)
+  slice = URI.escape(slice)
+  continuation = slice
 
   url = "/browse_ajax?action_continuation=1&continuation=#{continuation}"
 
