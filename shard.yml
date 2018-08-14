@@ -11,14 +11,12 @@ targets:
 dependencies:
   kemal:
      github: kemalcr/kemal
-     branch: rework-param-parser
+     branch: 0.24.0
   pg:
     github: will/crystal-pg
-    branch: master
   detect_language:
     github: detectlanguage/detectlanguage-crystal
-    branch: master
 
-crystal: 0.25.1
+crystal: 0.26.0
 
 license: AGPLv3
