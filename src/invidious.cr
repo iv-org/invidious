@@ -266,7 +266,7 @@ get "/watch" do |env|
 
   if video.info["enabled_engage_types"]?
     engage_types = video.info["enabled_engage_types"].split(",")
-    engage_types = engage_types.join(", ")
+    engage_types = engage_types.sort_by { |a| a.to_i }.join(", ")
   end
 
   templated "watch"
