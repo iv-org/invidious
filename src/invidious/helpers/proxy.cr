@@ -98,26 +98,28 @@ def get_proxies(country_code = "US")
   headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
   headers["Accept-Language"] = "Accept-Language: en-US,en;q=0.9"
   headers["Host"] = "spys.one"
+  headers["Origin"] = "http://spys.one"
+  headers["Referer"] = "http://spys.one/free-proxy-list/#{country_code}/"
   headers["Content-Type"] = "application/x-www-form-urlencoded"
   body = {
     "xpp" => "2",
     "xf1" => "0",
-    "xf2" => "2",
-    "xf4" => "1",
+    "xf2" => "0",
+    "xf4" => "2",
     "xf5" => "1",
   }
   response = client.post("/free-proxy-list/#{country_code}/", headers, form: body)
   response = XML.parse_html(response.body)
 
   proxies = [] of {ip: String, port: Int32, score: Float64}
-  response = response.xpath_nodes(%q(//table))[1]
+  response = response.xpath_node(%q(//tr/td/table)).not_nil!
   response.xpath_nodes(%q(.//tr)).each do |node|
     if !node["onmouseover"]?
       next
     end
 
     ip = node.xpath_node(%q(.//td[1]/font[2])).to_s.match(/<font class="spy14">(?<address>[^<]+)</).not_nil!["address"]
-    port = 3128
+    port = 8080
 
     latency = node.xpath_node(%q(.//td[6])).not_nil!.content.to_f
     speed = node.xpath_node(%q(.//td[7]/font/table)).not_nil!["width"].to_f
