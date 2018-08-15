@@ -64,8 +64,21 @@ end
 
 def decode_date(string : String)
   # String matches 'YYYY'
-  if string.match(/\d{4}/)
+  if string.match(/^\d{4}/)
     return Time.new(string.to_i, 1, 1)
+  end
+
+  # Try to parse as format Jul 10, 2000
+  begin
+    return Time.parse(string, "%b %-d, %Y", Time::Location.local)
+  rescue ex
+  end
+
+  case string
+  when "today"
+    return Time.now
+  when "yesterday"
+    return Time.now - 1.day
   end
 
   # String matches format "20 hours ago", "4 months ago"...

@@ -355,6 +355,31 @@ get "/embed/:id" do |env|
   rendered "embed"
 end
 
+# Playlists
+get "/playlist" do |env|
+  plid = env.params.query["list"]?
+  if !plid
+    next env.redirect "/"
+  end
+
+  page = env.params.query["page"]?.try &.to_i?
+  page ||= 1
+
+  if plid
+    begin
+      videos = extract_playlist(plid, page)
+    rescue ex
+      error_message = ex.message
+      next templated "error"
+    end
+    playlist = fetch_playlist(plid)
+  else
+    next env.redirect "/"
+  end
+
+  templated "playlist"
+end
+
 # Search
 
 get "/results" do |env|
@@ -1522,29 +1547,11 @@ get "/channel/:ucid" do |env|
   rss = XML.parse_html(rss.body)
   author = rss.xpath_node("//feed/author/name").not_nil!.content
 
-  url = produce_playlist_url(ucid, (page - 1) * 100)
-  response = client.get(url)
-  response = JSON.parse(response.body)
-
-  if !response["content_html"]?
-    error_message = "This channel does not exist."
+  begin
+    videos = extract_playlist(ucid, page)
+  rescue ex
+    error_message = ex.message
     next templated "error"
-  end
-
-  document = XML.parse_html(response["content_html"].as_s)
-  anchor = document.xpath_node(%q(//div[@class="pl-video-owner"]/a))
-  if !anchor
-    videos = [] of ChannelVideo
-    next templated "channel"
-  end
-
-  videos = [] of ChannelVideo
-  document.xpath_nodes(%q(//a[contains(@class,"pl-video-title-link")])).each do |node|
-    href = URI.parse(node["href"])
-    id = HTTP::Params.parse(href.query.not_nil!)["v"]
-    title = node.content
-
-    videos << ChannelVideo.new(id, title, Time.now, Time.now, "", "")
   end
 
   templated "channel"
@@ -2347,6 +2354,65 @@ get "/api/v1/search" do |env|
     end
   end
 
+  response
+end
+
+get "/api/v1/playlists/:plid" do |env|
+  plid = env.params.url["plid"]
+
+  page = env.params.query["page"]?.try &.to_i?
+  page ||= 1
+
+  begin
+    videos = extract_playlist(plid, page)
+  rescue ex
+    env.response.content_type = "application/json"
+    response = {"error" => "Playlist is empty"}.to_json
+    halt env, status_code: 404, response: response
+  end
+
+  playlist = fetch_playlist(plid)
+
+  response = JSON.build do |json|
+    json.object do
+      json.field "title", playlist.title
+      json.field "id", playlist.id
+
+      json.field "author", playlist.author
+      json.field "authorId", playlist.ucid
+      json.field "authorUrl", "/channel/#{playlist.ucid}"
+
+      json.field "description", playlist.description
+      json.field "videoCount", playlist.video_count
+
+      json.field "viewCount", playlist.views
+      json.field "updated", playlist.updated.epoch
+
+      json.field "videos" do
+        json.array do
+          videos.each do |video|
+            json.object do
+              json.field "title", video.title
+              json.field "id", video.id
+
+              json.field "author", video.author
+              json.field "authorId", video.ucid
+              json.field "authorUrl", "/channel/#{video.ucid}"
+
+              json.field "videoThumbnails" do
+                generate_thumbnails(json, video.id)
+              end
+
+              json.field "index", video.index
+              json.field "lengthSeconds", video.length_seconds
+            end
+          end
+        end
+      end
+    end
+  end
+
+  env.response.content_type = "application/json"
   response
 end
 

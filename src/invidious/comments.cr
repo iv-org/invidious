@@ -262,7 +262,7 @@ def fill_links(html, scheme, host)
   end
 
   if host == "www.youtube.com"
-    html = html.xpath_node(%q(//p[@id="eow-description"])).not_nil!.to_xml
+    html = html.xpath_node(%q(//body)).not_nil!.to_xml
   else
     html = html.to_xml(options: XML::SaveOptions::NO_DECL)
   end
