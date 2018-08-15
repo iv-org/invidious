@@ -1785,9 +1785,13 @@ get "/api/v1/comments/:id" do |env|
                 json.field "commentId", node_comment["commentId"]
 
                 if node_replies && !response["commentRepliesContinuation"]?
-                  reply_count = node_replies["moreText"]["simpleText"].as_s.match(/View all (?<count>\d+) replies/)
-                    .try &.["count"].to_i?
+                  reply_count = node_replies["moreText"]["simpleText"].as_s.delete("View all reply replies,")
+                  if reply_count.empty?
+                    reply_count = 1
+                  else
+                    reply_count = reply_count.try &.to_i?
                   reply_count ||= 1
+                  end
 
                   continuation = node_replies["continuations"].as_a[0]["nextContinuationData"]["continuation"].as_s
 
