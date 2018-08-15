@@ -103,7 +103,7 @@ def template_youtube_comments(comments)
     html += <<-END_HTML
     <div class="pure-g">
       <div class="pure-u-2-24">
-        <img style="width:90%; padding-right:1em; padding-top:1em;" src="#{child["authorThumbnails"][0]["url"]}">
+        <img style="width:90%; padding-right:1em; padding-top:1em;" src="#{child["authorThumbnails"][-1]["url"]}">
       </div>
       <div class="pure-u-22-24">
         <p>
