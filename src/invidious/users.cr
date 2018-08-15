@@ -10,7 +10,7 @@ class User
   end
 
   add_mapping({
-    id:            String,
+    id:            Array(String),
     updated:       Time,
     notifications: Array(String),
     subscriptions: Array(String),
@@ -78,8 +78,8 @@ class Preferences
 end
 
 def get_user(sid, client, headers, db, refresh = true)
-  if db.query_one?("SELECT EXISTS (SELECT true FROM users WHERE id = $1)", sid, as: Bool)
-    user = db.query_one("SELECT * FROM users WHERE id = $1", sid, as: User)
+  if db.query_one?("SELECT EXISTS (SELECT true FROM users WHERE $1 = ANY(id))", sid, as: Bool)
+    user = db.query_one("SELECT * FROM users WHERE $1 = ANY(id)", sid, as: User)
 
     if refresh && Time.now - user.updated > 1.minute
       user = fetch_user(sid, client, headers, db)
@@ -89,7 +89,7 @@ def get_user(sid, client, headers, db, refresh = true)
       args = arg_array(user_array)
 
       db.exec("INSERT INTO users VALUES (#{args}) \
-      ON CONFLICT (email) DO UPDATE SET id = $1, updated = $2, subscriptions = $4", user_array)
+      ON CONFLICT (email) DO UPDATE SET id = users.id || $1, updated = $2, subscriptions = $4", user_array)
     end
   else
     user = fetch_user(sid, client, headers, db)
@@ -99,7 +99,7 @@ def get_user(sid, client, headers, db, refresh = true)
     args = arg_array(user.to_a)
 
     db.exec("INSERT INTO users VALUES (#{args}) \
-    ON CONFLICT (email) DO UPDATE SET id = $1, updated = $2, subscriptions = $4", user_array)
+    ON CONFLICT (email) DO UPDATE SET id = users.id || $1, updated = $2, subscriptions = $4", user_array)
   end
 
   return user
@@ -132,7 +132,7 @@ def fetch_user(sid, client, headers, db)
 
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(sid, Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil, token, [] of String)
+  user = User.new([sid], Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil, token, [] of String)
   return user
 end
 
@@ -140,7 +140,7 @@ def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(sid, Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token, [] of String)
+  user = User.new([sid], Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token, [] of String)
 
   return user
 end

@@ -269,7 +269,7 @@ def generate_captcha(key)
 
   answer = "#{hour}:#{minute.to_s.rjust(2, '0')}"
   token = OpenSSL::HMAC.digest(:sha256, key, answer)
-  token = Base64.encode(token)
+  token = Base64.urlsafe_encode(token)
 
   return {challenge: challenge, token: token}
 end

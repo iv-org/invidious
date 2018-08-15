@@ -2,9 +2,9 @@
 
 -- DROP TABLE public.users;
 
-CREATE TABLE public.users
+CREATE TABLE public.users 
 (
-    id text COLLATE pg_catalog."default" NOT NULL,
+    id text[] COLLATE pg_catalog."default" NOT NULL,
     updated timestamp with time zone,
     notifications text[] COLLATE pg_catalog."default",
     subscriptions text[] COLLATE pg_catalog."default",

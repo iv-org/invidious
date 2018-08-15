@@ -114,10 +114,11 @@ before_all do |env|
 
     # Invidious users only have SID
     if !env.request.cookies.has_key? "SSID"
-      user = PG_DB.query_one?("SELECT * FROM users WHERE id = $1", sid, as: User)
+      user = PG_DB.query_one?("SELECT * FROM users WHERE $1 = ANY(id)", sid, as: User)
 
       if user
         env.set "user", user
+        env.set "sid", sid
       end
     else
       begin
@@ -125,6 +126,7 @@ before_all do |env|
         user = get_user(sid, client, headers, PG_DB, false)
 
         env.set "user", user
+        env.set "sid", sid
       rescue ex
       end
     end
@@ -621,8 +623,8 @@ post "/login" do |env|
       end
 
       if Crypto::Bcrypt::Password.new(user.password.not_nil!) == password
-        sid = Base64.encode(Random::Secure.random_bytes(50))
-        PG_DB.exec("UPDATE users SET id = $1 WHERE email = $2", sid, email)
+        sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
+        PG_DB.exec("UPDATE users SET id = id || $1 WHERE email = $2", [sid], email)
 
         if Kemal.config.ssl || CONFIG.https_only
           secure = true
@@ -643,7 +645,7 @@ post "/login" do |env|
         next templated "error"
       end
 
-      sid = Base64.encode(Random::Secure.random_bytes(50))
+      sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
       user = create_user(sid, email, password)
       user_array = user.to_a
 
@@ -671,6 +673,12 @@ get "/signout" do |env|
 
   env.request.cookies.each do |cookie|
     cookie.expires = Time.new(1990, 1, 1)
+  end
+
+  if env.get? "user"
+    user = env.get("user").as(User)
+    sid = env.get("sid").as(String)
+    PG_DB.exec("UPDATE users SET id = array_remove(id, $1) WHERE email = $2", sid, user.email)
   end
 
   env.request.cookies.add_response_headers(env.response.headers)
@@ -865,7 +873,7 @@ get "/subscription_manager" do |env|
     headers["Cookie"] = env.request.headers["Cookie"]
 
     client = make_client(YT_URL)
-    user = get_user(user.id, client, headers, PG_DB)
+    user = get_user(user.id[0], client, headers, PG_DB)
   end
 
   action_takeout = env.params.query["action_takeout"]?.try &.to_i?
@@ -1173,7 +1181,7 @@ get "/feed/subscriptions" do |env|
 
     if !user.password
       client = make_client(YT_URL)
-      user = get_user(user.id, client, headers, PG_DB)
+      user = get_user(user.id[0], client, headers, PG_DB)
     end
 
     max_results = preferences.max_results
@@ -1790,7 +1798,7 @@ get "/api/v1/comments/:id" do |env|
                     reply_count = 1
                   else
                     reply_count = reply_count.try &.to_i?
-                  reply_count ||= 1
+                    reply_count ||= 1
                   end
 
                   continuation = node_replies["continuations"].as_a[0]["nextContinuationData"]["continuation"].as_s
