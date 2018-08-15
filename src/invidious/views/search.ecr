@@ -12,10 +12,8 @@
 
 <div class="pure-g h-box">
     <div class="pure-u-1 pure-u-md-1-5">
-    <% if page > 2 %>
+    <% if page >= 2 %>
         <a href="/search?q=<%= query %>&page=<%= page - 1 %>">Previous page</a>
-    <% else %>
-        <a href="/search?q=<%= query %>">Previous page</a>
     <% end %>
     </div>
     <div class="pure-u-1 pure-u-md-3-5"></div>
