@@ -328,7 +328,9 @@ def extract_videos(nodeset, ucid = nil)
     end
 
     metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
-    if metadata.size == 1
+    if metadata.size == 0
+      next
+    elsif metadata.size == 1
       # Scheduled livestream
       if metadata[0].content.starts_with? "Starts"
         view_count = 0_i64
