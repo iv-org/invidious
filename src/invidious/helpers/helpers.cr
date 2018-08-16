@@ -302,6 +302,15 @@ def extract_videos(nodeset, ucid = nil)
       next
     end
 
+    case node.xpath_node(%q(.//div)).not_nil!["class"]
+    when .includes? "yt-lockup-movie-vertical-poster"
+      next
+    when .includes? "yt-lockup-playlist"
+      next
+    when .includes? "yt-lockup-channel"
+      next
+    end
+
     title = anchor.content.strip
     id = anchor["href"].lchop("/watch?v=")
 
@@ -318,35 +327,25 @@ def extract_videos(nodeset, ucid = nil)
       author_id = anchor["href"].split("/")[-1]
     end
 
-    # Skip playlists
-    if node.xpath_node(%q(.//div[contains(@class, "yt-playlist-renderer")]))
-      next
-    end
-
-    # Skip movies
-    if node.xpath_node(%q(.//div[contains(@class, "yt-lockup-movie-top-content")]))
-      next
-    end
-
     metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
-    if metadata.size == 0
-      next
-    elsif metadata.size == 1
+    if metadata.size == 1
+      # Scheduled livestream
       if metadata[0].content.starts_with? "Starts"
         view_count = 0_i64
         published = Time.epoch(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
       else
-        view_count = metadata[0].content.lchop("Streamed ").split(" ")[0].delete(",").to_i64
+        # Livestream
+        view_count = metadata[0].content.delete("Streamed, watching").to_i64
         published = Time.now
       end
     else
       published = decode_date(metadata[0].content)
 
-      view_count = metadata[1].content.split(" ")[0]
-      if view_count == "No"
+      view_count = metadata[1].content.delete("No views,")
+      if view_count.empty?
         view_count = 0_i64
       else
-        view_count = view_count.delete(",").to_i64
+        view_count = view_count.to_i64
       end
     end
 
