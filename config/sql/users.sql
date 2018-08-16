@@ -13,8 +13,7 @@ CREATE TABLE public.users
     password text COLLATE pg_catalog."default",
     token text COLLATE pg_catalog."default",
     watched text[] COLLATE pg_catalog."default",
-    CONSTRAINT users_email_key UNIQUE (email),
-    CONSTRAINT users_id_key UNIQUE (id)
+    CONSTRAINT users_email_key UNIQUE (email)
 )
 WITH (
     OIDS = FALSE
