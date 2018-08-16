@@ -266,11 +266,6 @@ get "/watch" do |env|
   rating = video.info["avg_rating"].to_f64
   engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
 
-  if video.info["enabled_engage_types"]?
-    engage_types = video.info["enabled_engage_types"].split(",")
-    engage_types = engage_types.sort_by { |a| a.to_i }.join(", ")
-  end
-
   templated "watch"
 end
 
