@@ -72,7 +72,7 @@ function load_comments(target) {
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
       if (xhr.status == 200) {
-        body.innerHTML = xhr.response.content_html;
+        body.innerHTML = xhr.response.contentHtml;
       } else {
         body.innerHTML = fallback;
       }
@@ -106,12 +106,12 @@ function get_reddit_comments() {
                     <a target="_blank" href="https://reddit.com{permalink}">View more comments on Reddit</a>
                 </b>
             </div>
-            <div>{content_html}</div>
+            <div>{contentHtml}</div>
         
             <hr>`.supplant({
           title: xhr.response.title,
           permalink: xhr.response.permalink,
-          content_html: xhr.response.content_html
+          contentHtml: xhr.response.contentHtml
         });
       } else {
         get_youtube_comments();
@@ -139,12 +139,13 @@ function get_youtube_comments() {
             <div>
                 <h3>
                     <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
-                    <a target="_blank" href="https://www.youtube.com/watch?v=<%= video.id %>">View more comments on YouTube</a>
+                    View {commentCount} comments
                 </h3>
             </div>
-            <div>{content_html}</div>
+            <div>{contentHtml}</div>
             <hr>`.supplant({
-          content_html: xhr.response.content_html
+          contentHtml: xhr.response.contentHtml,
+          commentCount: commaSeparateNumber(xhr.response.commentCount)
         });
       } else {
         comments = document.getElementById("comments");
@@ -158,6 +159,13 @@ function get_youtube_comments() {
       '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
     get_youtube_comments();
   };
+}
+
+function commaSeparateNumber(val){
+  while (/(\d+)(\d{3})/.test(val.toString())){
+    val = val.toString().replace(/(\d+)(\d{3})/, '$1'+','+'$2');
+  }
+  return val;
 }
 
 String.prototype.supplant = function(o) {

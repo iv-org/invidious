@@ -1685,7 +1685,7 @@ get "/api/v1/comments/:id" do |env|
       if format == "json"
         next {"comments" => [] of String}.to_json
       else
-        next {"content_html" => ""}.to_json
+        next {"contentHtml" => ""}.to_json
       end
     end
     ctoken = ctoken["ctoken"]
@@ -1723,7 +1723,7 @@ get "/api/v1/comments/:id" do |env|
       if format == "json"
         next {"comments" => [] of String}.to_json
       else
-        next {"content_html" => ""}.to_json
+        next {"contentHtml" => ""}.to_json
       end
     end
 
@@ -1823,7 +1823,8 @@ get "/api/v1/comments/:id" do |env|
       comments = JSON.parse(comments)
       content_html = template_youtube_comments(comments)
 
-      next {"content_html" => content_html}.to_json
+      next {"contentHtml"  => content_html,
+            "commentCount" => comments["commentCount"]}.to_json
     end
   elsif source == "reddit"
     client = make_client(REDDIT_URL)
@@ -1844,9 +1845,9 @@ get "/api/v1/comments/:id" do |env|
     end
 
     env.response.content_type = "application/json"
-    next {"title"        => reddit_thread.title,
-          "permalink"    => reddit_thread.permalink,
-          "content_html" => content_html}.to_json
+    next {"title"       => reddit_thread.title,
+          "permalink"   => reddit_thread.permalink,
+          "contentHtml" => content_html}.to_json
   end
 end
 
