@@ -1842,8 +1842,17 @@ get "/api/v1/comments/:id" do |env|
       comments = JSON.parse(comments)
       content_html = template_youtube_comments(comments)
 
-      next {"contentHtml"  => content_html,
-            "commentCount" => comments["commentCount"]}.to_json
+      response = JSON.build do |json|
+        json.object do
+          json.field "contentHtml", content_html
+
+          if comments["commentCount"]?
+            json.field "commentCount", comments["commentCount"]
+          end
+        end
+      end
+
+      next response
     end
   elsif source == "reddit"
     client = make_client(REDDIT_URL)
