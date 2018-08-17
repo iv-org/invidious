@@ -1,6 +1,11 @@
 <div class="pure-u-1 pure-u-md-1-4">
     <div class="h-box">
-        <a style="width:100%;" href="/watch?v=<%= video.id %>">
+        <% if video.responds_to?(:playlists) %>
+        <% params = "&list=#{video.playlists[0]}" %>
+        <% else %>
+        <% params = nil %>
+        <% end %>
+        <a style="width:100%;" href="/watch?v=<%= video.id %><%= params %>">
             <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
             <% else %>
             <img style="width:100%;" src="https://i.ytimg.com/vi/<%= video.id %>/mqdefault.jpg"/>

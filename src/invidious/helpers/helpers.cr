@@ -116,40 +116,6 @@ def login_req(login_form, f_req)
   return HTTP::Params.encode(data)
 end
 
-def produce_playlist_url(id, index)
-  if id.starts_with? "UC"
-    id = "UU" + id.lchop("UC")
-  end
-  ucid = "VL" + id
-
-  continuation = [0x08_u8] + write_var_int(index)
-  slice = continuation.to_unsafe.to_slice(continuation.size)
-  slice = Base64.urlsafe_encode(slice, false)
-
-  # Inner Base64
-  continuation = "PT:" + slice
-  continuation = [0x7a_u8, continuation.bytes.size.to_u8] + continuation.bytes
-  slice = continuation.to_unsafe.to_slice(continuation.size)
-  slice = Base64.urlsafe_encode(slice)
-  slice = URI.escape(slice)
-
-  # Outer Base64
-  continuation = [0x1a.to_u8, slice.bytes.size.to_u8] + slice.bytes
-  continuation = ucid.bytes + continuation
-  continuation = [0x12_u8, ucid.size.to_u8] + continuation
-  continuation = [0xe2_u8, 0xa9_u8, 0x85_u8, 0xb2_u8, 2_u8, continuation.size.to_u8] + continuation
-
-  # Wrap bytes
-  slice = continuation.to_unsafe.to_slice(continuation.size)
-  slice = Base64.urlsafe_encode(slice)
-  slice = URI.escape(slice)
-  continuation = slice
-
-  url = "/browse_ajax?action_continuation=1&continuation=#{continuation}"
-
-  return url
-end
-
 def produce_videos_url(ucid, page = 1)
   page = "#{page}"
 
