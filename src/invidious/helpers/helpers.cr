@@ -303,8 +303,13 @@ def extract_videos(nodeset, ucid = nil)
         published = Time.epoch(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
       else
         # Livestream
-        view_count = metadata[0].content.delete("Streamed, watching").to_i64
-        published = Time.now
+        if metadata[0].content.starts_with? "Streamed "
+          view_count = 0_i64
+          published = decode_date(metadata[0].content.lchop("Streamed "))
+        else
+          view_count = metadata[0].content.delete(" watching,").to_i64
+          published = Time.now
+        end
       end
     else
       published = decode_date(metadata[0].content)
