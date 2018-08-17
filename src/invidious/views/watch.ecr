@@ -232,20 +232,20 @@ get_youtube_comments();
         <% if user %>
             <% if subscriptions.includes? video.ucid %>
             <p>
-                <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= video.ucid %>">
+                <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>">
                     <b>Unsubscribe from <%= video.author %></b>
                 </a>
             </p>
             <% else %>
             <p>
-                <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.ucid %>">
+                <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>">
                     <b>Subscribe to <%= video.author %></b>
                 </a>
             </p>
             <% end %>
         <% else %>
             <p>
-                <a href="/login">
+                <a href="/login?referer=<%= env.get("current_page") %>">
                     <b>Login to subscribe to <%= video.author %></b>
                 </a>
             </p>

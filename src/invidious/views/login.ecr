@@ -16,7 +16,7 @@
             </div>
             <hr>
             <% if account_type == "invidious" %>
-            <form class="pure-form pure-form-stacked" action="/login?referer=<%= referer %>&type=invidious" method="post">
+            <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.escape(referer) %>&type=invidious" method="post">
                 <fieldset>
                     <label for="email">User ID:</label>
                     <input required class="pure-input-1" name="email" type="text" placeholder="User ID">
@@ -34,7 +34,7 @@
                 </fieldset>
             </form>
             <% elsif account_type == "google" %>
-            <form class="pure-form pure-form-stacked" action="/login?referer=<%= referer %>" method="post">
+            <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.escape(referer) %>" method="post">
                 <fieldset>
                     <label for="email">Email:</label>
                     <input required class="pure-input-1" name="email" type="email" placeholder="Email">

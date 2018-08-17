@@ -150,10 +150,27 @@ def make_host_url(ssl, host)
 end
 
 def get_referer(env, fallback = "/")
-  referer = env.request.headers["referer"]?
+  referer = env.params.query["referer"]?
+  referer ||= env.request.headers["referer"]?
   referer ||= fallback
 
-  referer = URI.parse(referer).full_path
+  referer = URI.parse(referer)
+
+  # "Unroll" nested referers
+  loop do
+    if referer.query
+      params = HTTP::Params.parse(referer.query.not_nil!)
+      if params["referer"]?
+        referer = URI.parse(URI.unescape(params["referer"]))
+      else
+        break
+      end
+    else
+      break
+    end
+  end
+
+  referer = referer.full_path
 
   if referer == env.request.path
     referer = fallback

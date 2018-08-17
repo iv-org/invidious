@@ -16,16 +16,16 @@
 <p class="h-box">
 <% if user %>
     <% if subscriptions.includes? ucid %>
-    <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>">
+    <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
         <b>Unsubscribe from <%= author %></b>
     </a>
     <% else %>
-    <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>">
+    <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
         <b>Subscribe to <%= author %></b>
     </a>
     <% end %>
 <% else %>
-    <a href="/login">
+    <a href="/login?referer=<%= env.get("current_page") %>">
         <b>Login to subscribe to <%= author %></b>
     </a>
 <% end %>

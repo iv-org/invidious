@@ -131,6 +131,19 @@ before_all do |env|
       end
     end
   end
+
+  current_page = env.request.path
+  if env.request.query
+    query = HTTP::Params.parse(env.request.query.not_nil!)
+
+    if query["referer"]?
+      query["referer"] = get_referer(env, "/")
+    end
+
+    current_page += "?#{query}"
+  end
+
+  env.set "current_page", URI.escape(current_page)
 end
 
 get "/" do |env|
@@ -411,8 +424,7 @@ end
 
 # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
 post "/login" do |env|
-  referer = env.params.query["referer"]?
-  referer ||= get_referer(env, "/feed/subscriptions")
+  referer = get_referer(env, "/feed/subscriptions")
 
   email = env.params.body["email"]?
   password = env.params.body["password"]?
@@ -506,7 +518,7 @@ post "/login" do |env|
           end
 
           if !tfa_code
-            next env.redirect "/login?tfa=true&type=google"
+            next env.redirect "/login?tfa=true&type=google&referer=#{URI.escape(referer)}"
           end
 
           tl = challenge_results[1][2]
@@ -677,7 +689,7 @@ get "/signout" do |env|
   end
 
   env.request.cookies.add_response_headers(env.response.headers)
-  env.redirect referer
+  env.redirect URI.unescape(referer)
 end
 
 get "/preferences" do |env|
