@@ -1866,7 +1866,8 @@ get "/api/v1/comments/:id" do |env|
     env.response.content_type = "application/json"
     next {"title"       => reddit_thread.title,
           "permalink"   => reddit_thread.permalink,
-          "contentHtml" => content_html}.to_json
+          "contentHtml" => content_html,
+    }.to_json
   end
 end
 
