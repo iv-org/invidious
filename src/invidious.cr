@@ -1386,7 +1386,7 @@ get "/feed/channel/:ucid" do |env|
       end
 
       nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-      extract_videos(nodeset).each do |video|
+      extract_videos(nodeset, ucid).each do |video|
         xml.element("entry") do
           xml.element("id") { xml.text "yt:video:#{video.id}" }
           xml.element("yt:videoId") { xml.text video.id }
