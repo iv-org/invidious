@@ -279,6 +279,12 @@ get "/watch" do |env|
   rating = video.info["avg_rating"].to_f64
   engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
 
+  playability_status = video.player_response["playabilityStatus"]?
+  if playability_status && playability_status["status"] == "LIVE_STREAM_OFFLINE"
+    reason = playability_status["reason"]?.try &.as_s
+  end
+  reason ||= ""
+
   templated "watch"
 end
 

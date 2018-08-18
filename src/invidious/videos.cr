@@ -228,6 +228,8 @@ VIDEO_FORMATS = {
 }
 
 class Video
+  property player_json : JSON::Any?
+
   module HTTPParamConverter
     def self.from_rs(rs)
       HTTP::Params.parse(rs.read(String))
@@ -287,9 +289,15 @@ class Video
     return audio_streams
   end
 
-  def captions
-    player_response = JSON.parse(self.info["player_response"])
+  def player_response
+    if !@player_json
+      @player_json = JSON.parse(@info["player_response"])
+    end
 
+    return @player_json.not_nil!
+  end
+
+  def captions
     captions = [] of Caption
     if player_response["captions"]?
       caption_list = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"]?.try &.as_a
