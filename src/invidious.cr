@@ -2707,10 +2707,6 @@ if Kemal.config.ssl
     server.bind_tcp "0.0.0.0", 80
     server.listen
   end
-
-  before_all do |env|
-    env.response.headers.add("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
-  end
 end
 
 static_headers do |response, filepath, filestat|
