@@ -1911,7 +1911,7 @@ get "/api/v1/videos/:id" do |env|
         generate_thumbnails(json, video.id)
       end
 
-      description = html_to_description(video.description)
+      description, video.description = html_to_description(video.description)
 
       json.field "description", description
       json.field "descriptionHtml", video.description
