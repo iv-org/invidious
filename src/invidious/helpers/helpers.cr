@@ -294,33 +294,29 @@ def extract_videos(nodeset, ucid = nil)
     end
 
     metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
-    if metadata.size == 0
+    if metadata.empty?
       next
-    elsif metadata.size == 1
-      # Scheduled livestream
-      if metadata[0].content.starts_with? "Starts"
-        view_count = 0_i64
-        published = Time.epoch(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
-      else
-        # Livestream
-        if metadata[0].content.starts_with? "Streamed "
-          view_count = 0_i64
-          published = decode_date(metadata[0].content.lchop("Streamed "))
-        else
-          view_count = metadata[0].content.delete(" watching,").to_i64
-          published = Time.now
-        end
-      end
-    else
-      published = decode_date(metadata[0].content)
-
-      view_count = metadata[1].content.delete("No views,")
-      if view_count.empty?
-        view_count = 0_i64
-      else
-        view_count = view_count.to_i64
-      end
     end
+
+    begin
+      published = decode_date(metadata[0].content.lchop("Streamed ").lchop("Starts "))
+    rescue ex
+    end
+    begin
+      published ||= Time.epoch(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
+    rescue ex
+    end
+    published ||= Time.now
+
+    begin
+      view_count = metadata[0].content.rchop(" watching").delete(",").try &.to_i64?
+    rescue ex
+    end
+    begin
+      view_count ||= metadata.try &.[1].content.delete("No views,").try &.to_i64?
+    rescue ex
+    end
+    view_count ||= 0_i64
 
     description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
     description, description_html = html_to_description(description_html)
