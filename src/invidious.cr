@@ -2170,10 +2170,16 @@ get "/api/v1/channels/:ucid" do |env|
   is_family_friendly = channel_html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
   allowed_regions = channel_html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
 
-  sub_count, total_views, joined = channel_html.xpath_nodes(%q(//span[@class="about-stat"]))
-  sub_count = sub_count.content.rchop(" subscribers").delete(",").to_i64
-  total_views = total_views.content.rchop(" views").lchop(" • ").delete(",").to_i64
-  joined = Time.parse(joined.content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
+  anchor = channel_html.xpath_nodes(%q(//span[@class="about-stat"]))
+  if anchor[0].content.includes? "views"
+    sub_count = 0
+    total_views = anchor[0].content.delete("views •,").to_i64
+    joined = Time.parse(anchor[1].content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
+  else
+    sub_count = anchor[0].content.delete("subscribers").delete(",").to_i64
+    total_views = anchor[1].content.delete("views •,").to_i64
+    joined = Time.parse(anchor[2].content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
+  end
 
   latest_videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid = $1 ORDER BY published DESC LIMIT 15",
     channel.id, as: ChannelVideo)
