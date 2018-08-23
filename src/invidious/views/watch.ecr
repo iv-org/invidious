@@ -53,7 +53,7 @@ function toggle_comments(target) {
   }
 }
 
-function load_comments(target) {
+function get_youtube_replies(target) {
   var continuation = target.getAttribute("data-continuation");
 
   var body = target.parentNode.parentNode;
@@ -80,6 +80,8 @@ function load_comments(target) {
   };
 
   xhr.ontimeout = function() {
+    console.log("Pulling comments timed out.");
+
     body.innerHTML = fallback;
   };
 }
@@ -119,6 +121,8 @@ function get_reddit_comments() {
   };
 
   xhr.ontimeout = function() {
+    console.log("Pulling comments timed out.");
+
     get_reddit_comments();
   };
 }
@@ -154,6 +158,8 @@ function get_youtube_comments() {
   };
 
   xhr.ontimeout = function() {
+    console.log("Pulling comments timed out.");
+
     comments = document.getElementById("comments");
     comments.innerHTML =
       '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';

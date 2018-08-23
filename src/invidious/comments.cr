@@ -93,7 +93,7 @@ def template_youtube_comments(comments)
         <div class="pure-u-23-24">
           <p>
             <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
-              onclick="load_comments(this)">View #{child["replies"]["replyCount"]} replies</a>
+              onclick="get_youtube_replies(this)">View #{child["replies"]["replyCount"]} replies</a>
           </p>
         </div>
       </div>
@@ -127,7 +127,7 @@ def template_youtube_comments(comments)
       <div class="pure-u-1">
         <p>
           <a href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
-            onclick="load_comments(this)">Load more</a>
+            onclick="get_youtube_replies(this)">Load more</a>
         </p>
       </div>
     </div>
