@@ -3,7 +3,7 @@ def fetch_decrypt_function(client, id = "CvFH_6DNRCY")
   url = document.match(/src="(?<url>\/yts\/jsbin\/player-.{9}\/en_US\/base.js)"/).not_nil!["url"]
   player = client.get(url).body
 
-  function_name = player.match(/\(b\|\|\(b="signature"\),d.set\(b,(?<name>[a-zA-Z0-9]{2})\(c\)\)\)/).not_nil!["name"]
+  function_name = player.match(/"signature",(?<name>[a-zA-Z0-9]{2})\(/).not_nil!["name"]
   function_body = player.match(/#{function_name}=function\(a\){(?<body>[^}]+)}/).not_nil!["body"]
   function_body = function_body.split(";")[1..-2]
 
