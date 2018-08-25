@@ -2659,6 +2659,12 @@ get "/videoplayback" do |env|
   client = make_client(URI.parse(host))
   response = client.head(url)
 
+  if response.headers["Location"]?
+    url = URI.parse(response.headers["Location"])
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
+    next env.redirect url.full_path
+  end
+
   headers = env.request.headers
   headers.delete("Host")
   headers.delete("Cookie")
@@ -2666,30 +2672,24 @@ get "/videoplayback" do |env|
   headers.delete("Referer")
 
   client.get(url, headers) do |response|
-    if response.headers["Location"]?
-      url = URI.parse(response.headers["Location"])
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-      env.redirect url.full_path
-    else
-      env.response.status_code = response.status_code
+    env.response.status_code = response.status_code
 
-      response.headers.each do |key, value|
-        env.response.headers[key] = value
+    response.headers.each do |key, value|
+      env.response.headers[key] = value
+    end
+
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+    begin
+      chunk_size = 4096
+      size = 1
+      while size > 0
+        size = IO.copy(response.body_io, env.response.output, chunk_size)
+        env.response.flush
+        Fiber.yield
       end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      begin
-        chunk_size = 4096
-        size = 1
-        while size > 0
-          size = IO.copy(response.body_io, env.response.output, chunk_size)
-          env.response.flush
-          Fiber.yield
-        end
-      rescue ex
-        break
-      end
+    rescue ex
+      break
     end
   end
 end
