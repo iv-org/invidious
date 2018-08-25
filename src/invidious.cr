@@ -761,8 +761,10 @@ post "/preferences" do |env|
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= 100
 
-    comments = env.params.body["comments"]?
-    comments ||= "youtube"
+    puts env.params.body
+    comments_0 = env.params.body["comments_0"]?.try &.as(String) || "youtube"
+    comments_1 = env.params.body["comments_1"]?.try &.as(String) || ""
+    comments = [comments_0, comments_1]
 
     captions_0 = env.params.body["captions_0"]?.try &.as(String) || ""
     captions_1 = env.params.body["captions_1"]?.try &.as(String) || ""

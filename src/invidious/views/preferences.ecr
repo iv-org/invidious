@@ -48,10 +48,19 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="comments">Pull comments from: </label>
-                <select name="comments" id="comments">
-                <% {"youtube", "reddit"}.each do |option| %>
-                    <option <% if user.preferences.comments == option %> selected <% end %>><%= option %></option>
+                <label for="comments_0">Default comments: </label>
+                <select name="comments_0" id="comments_0">
+                <% {"", "youtube", "reddit"}.each do |option| %>
+                    <option <% if user.preferences.comments[0] == option %> selected <% end %>><%= option %></option>
+                <% end %>
+                </select>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="comments_1">Fallback comments: </label>
+                <select name="comments_1" id="comments_1">
+                <% {"", "youtube", "reddit"}.each do |option| %>
+                    <option <% if user.preferences.comments[1] == option %> selected <% end %>><%= option %></option>
                 <% end %>
                 </select>
             </div>

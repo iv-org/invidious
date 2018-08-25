@@ -30,165 +30,6 @@
   <%= rendered "components/player" %>
 </div>
 
-<script>
-function toggle(target) {
-  body = target.parentNode.parentNode.children[1];
-  if (body.style.display === null || body.style.display === "") {
-    target.innerHTML = "[ + ]";
-    body.style.display = "none";
-  } else {
-    target.innerHTML = "[ - ]";
-    body.style.display = "";
-  }
-}
-
-function toggle_comments(target) {
-  body = target.parentNode.parentNode.parentNode.children[1];
-  if (body.style.display === null || body.style.display === "") {
-    target.innerHTML = "[ + ]";
-    body.style.display = "none";
-  } else {
-    target.innerHTML = "[ - ]";
-    body.style.display = "";
-  }
-}
-
-function get_youtube_replies(target) {
-  var continuation = target.getAttribute("data-continuation");
-
-  var body = target.parentNode.parentNode;
-  var fallback = body.innerHTML;
-  body.innerHTML =
-    '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
-
-  var url =
-    "/api/v1/comments/<%= video.id %>?format=html&continuation=" + continuation;
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = "json";
-  xhr.timeout = 20000;
-  xhr.open("GET", url, true);
-  xhr.send();
-
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4) {
-      if (xhr.status == 200) {
-        body.innerHTML = xhr.response.contentHtml;
-      } else {
-        body.innerHTML = fallback;
-      }
-    }
-  };
-
-  xhr.ontimeout = function() {
-    console.log("Pulling comments timed out.");
-
-    body.innerHTML = fallback;
-  };
-}
-
-function get_reddit_comments() {
-  var url = "/api/v1/comments/<%= video.id %>?source=reddit";
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = "json";
-  xhr.timeout = 20000;
-  xhr.open("GET", url, true);
-  xhr.send();
-
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4)
-      if (xhr.status == 200) {
-        comments = document.getElementById("comments");
-        comments.innerHTML = `
-            <div>
-                <h3>
-                    <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
-                    {title}
-                </h3>
-                <b>
-                    <a target="_blank" href="https://reddit.com{permalink}">View more comments on Reddit</a>
-                </b>
-            </div>
-            <div>{contentHtml}</div>
-        
-            <hr>`.supplant({
-          title: xhr.response.title,
-          permalink: xhr.response.permalink,
-          contentHtml: xhr.response.contentHtml
-        });
-      } else {
-        get_youtube_comments();
-      }
-  };
-
-  xhr.ontimeout = function() {
-    console.log("Pulling comments timed out.");
-
-    get_reddit_comments();
-  };
-}
-
-function get_youtube_comments() {
-  var url = "/api/v1/comments/<%= video.id %>?format=html";
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = "json";
-  xhr.timeout = 20000;
-  xhr.open("GET", url, true);
-  xhr.send();
-
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4)
-      if (xhr.status == 200) {
-        comments = document.getElementById("comments");
-        comments.innerHTML = `
-            <div>
-                <h3>
-                    <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
-                    View {commentCount} comments
-                </h3>
-            </div>
-            <div>{contentHtml}</div>
-            <hr>`.supplant({
-          contentHtml: xhr.response.contentHtml,
-          commentCount: commaSeparateNumber(xhr.response.commentCount)
-        });
-      } else {
-        comments = document.getElementById("comments");
-        comments.innerHTML = "";
-      }
-  };
-
-  xhr.ontimeout = function() {
-    console.log("Pulling comments timed out.");
-
-    comments = document.getElementById("comments");
-    comments.innerHTML =
-      '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
-    get_youtube_comments();
-  };
-}
-
-function commaSeparateNumber(val){
-  while (/(\d+)(\d{3})/.test(val.toString())){
-    val = val.toString().replace(/(\d+)(\d{3})/, '$1'+','+'$2');
-  }
-  return val;
-}
-
-String.prototype.supplant = function(o) {
-  return this.replace(/{([^{}]*)}/g, function(a, b) {
-    var r = o[b];
-    return typeof r === "string" || typeof r === "number" ? r : a;
-  });
-};
-
-<% if preferences && preferences.comments == "reddit" %>
-get_reddit_comments();
-<% else %>
-get_youtube_comments();
-<% end %>
-
-</script>
-
 <div class="h-box">
 <h1>
     <%= HTML.escape(video.title) %> 
@@ -290,3 +131,184 @@ get_youtube_comments();
         </div>
     </div>
 </div>
+
+<script>
+function toggle(target) {
+  body = target.parentNode.parentNode.children[1];
+  if (body.style.display === null || body.style.display === "") {
+    target.innerHTML = "[ + ]";
+    body.style.display = "none";
+  } else {
+    target.innerHTML = "[ - ]";
+    body.style.display = "";
+  }
+}
+
+function toggle_comments(target) {
+  body = target.parentNode.parentNode.parentNode.children[1];
+  if (body.style.display === null || body.style.display === "") {
+    target.innerHTML = "[ + ]";
+    body.style.display = "none";
+  } else {
+    target.innerHTML = "[ - ]";
+    body.style.display = "";
+  }
+}
+
+function get_youtube_replies(target) {
+  var continuation = target.getAttribute("data-continuation");
+
+  var body = target.parentNode.parentNode;
+  var fallback = body.innerHTML;
+  body.innerHTML =
+    '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+
+  var url =
+    "/api/v1/comments/<%= video.id %>?format=html&continuation=" + continuation;
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = "json";
+  xhr.timeout = 20000;
+  xhr.open("GET", url, true);
+  xhr.send();
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4) {
+      if (xhr.status == 200) {
+        body.innerHTML = xhr.response.contentHtml;
+      } else {
+        body.innerHTML = fallback;
+      }
+    }
+  };
+
+  xhr.ontimeout = function() {
+    console.log("Pulling comments timed out.");
+
+    body.innerHTML = fallback;
+  };
+}
+
+function get_reddit_comments() {
+  var url = "/api/v1/comments/<%= video.id %>?source=reddit";
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = "json";
+  xhr.timeout = 20000;
+  xhr.open("GET", url, true);
+  xhr.send();
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4)
+      if (xhr.status == 200) {
+        comments = document.getElementById("comments");
+        comments.innerHTML = `
+            <div>
+                <h3>
+                    <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
+                    {title}
+                </h3>
+                <b>
+                    <a target="_blank" href="https://reddit.com{permalink}">View more comments on Reddit</a>
+                </b>
+            </div>
+            <div>{contentHtml}</div>
+        
+            <hr>`.supplant({
+          title: xhr.response.title,
+          permalink: xhr.response.permalink,
+          contentHtml: xhr.response.contentHtml
+        });
+      } else {
+        <% if preferences && preferences.comments[1] == "youtube" %> 
+        get_youtube_comments();
+        <% else %>
+        comments = document.getElementById("comments");
+        comments.innerHTML = "";
+        <% end %>
+      }
+  };
+
+  xhr.ontimeout = function() {
+    console.log("Pulling comments timed out.");
+
+    get_reddit_comments();
+  };
+}
+
+function get_youtube_comments() {
+  var url = "/api/v1/comments/<%= video.id %>?format=html";
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = "json";
+  xhr.timeout = 20000;
+  xhr.open("GET", url, true);
+  xhr.send();
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4)
+      if (xhr.status == 200) {
+        comments = document.getElementById("comments");
+        comments.innerHTML = `
+            <div>
+                <h3>
+                    <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
+                    View {commentCount} comments
+                </h3>
+            </div>
+            <div>{contentHtml}</div>
+            <hr>`.supplant({
+          contentHtml: xhr.response.contentHtml,
+          commentCount: commaSeparateNumber(xhr.response.commentCount)
+        });
+      } else {
+        <% if preferences && preferences.comments[1] == "youtube" %> 
+        get_youtube_comments();
+        <% else %>
+        comments = document.getElementById("comments");
+        comments.innerHTML = "";
+        <% end %>
+      }
+  };
+
+  xhr.ontimeout = function() {
+    console.log("Pulling comments timed out.");
+
+    comments = document.getElementById("comments");
+    comments.innerHTML =
+      '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+    get_youtube_comments();
+  };
+}
+
+function commaSeparateNumber(val){
+  while (/(\d+)(\d{3})/.test(val.toString())){
+    val = val.toString().replace(/(\d+)(\d{3})/, '$1'+','+'$2');
+  }
+  return val;
+}
+
+String.prototype.supplant = function(o) {
+  return this.replace(/{([^{}]*)}/g, function(a, b) {
+    var r = o[b];
+    return typeof r === "string" || typeof r === "number" ? r : a;
+  });
+};
+
+<% if preferences %>
+    <% if preferences.comments[0] == "youtube" %>
+    get_youtube_comments();
+    <% elsif preferences.comments[0] == "reddit" %>
+    get_reddit_comments();
+    <% else %>
+        <% if preferences.comments[1] == "youtube" %>
+        get_youtube_comments();
+        <% elsif preferences.comments[1] == "reddit" %>
+        get_reddit_comments();
+        <% else %>
+        comments = document.getElementById("comments");
+        comments.innerHTML = "";
+        <% end %>
+    <% end %>
+<% else %>
+get_youtube_comments();
+<% end %>
+
+</script>

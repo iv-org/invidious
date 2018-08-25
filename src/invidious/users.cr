@@ -32,7 +32,7 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
   "speed"       => 1.0,
   "quality"     => "hd720",
   "volume"      => 100,
-  "comments"    => "youtube",
+  "comments"    => ["youtube", ""],
   "captions"    => ["", "", ""],
   "dark_mode"   => false,
   "thin_mode "  => false,
@@ -43,6 +43,25 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
 }.to_json)
 
 class Preferences
+  module StringToArray
+    def self.to_json(value : Array(String), json : JSON::Builder)
+      return value.to_json
+    end
+
+    def self.from_json(value : JSON::PullParser) : Array(String)
+      begin
+        result = [] of String
+        value.read_array do
+          result << value.read_string
+        end
+      rescue ex
+        result = [value.read_string, ""]
+      end
+
+      result
+    end
+  end
+
   JSON.mapping({
     video_loop: Bool,
     autoplay:   Bool,
@@ -50,8 +69,9 @@ class Preferences
     quality:    String,
     volume:     Int32,
     comments:   {
-      type:    String,
-      default: "youtube",
+      type:      Array(String),
+      default:   ["youtube", ""],
+      converter: StringToArray,
     },
     captions: {
       type:    Array(String),
