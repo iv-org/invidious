@@ -425,7 +425,7 @@ get "/search" do |env|
   page ||= 1
 
   search_params = build_search_params(sort_by: "relevance", content_type: "video")
-  videos = search(query, page, search_params)
+  count, videos = search(query, page, search_params).as(Tuple)
 
   templated "search"
 end
@@ -2365,7 +2365,7 @@ get "/api/v1/search" do |env|
 
   response = JSON.build do |json|
     json.array do
-      search_results = search(query, page, search_params)
+      count, search_results = search(query, page, search_params).as(Tuple)
       search_results.each do |video|
         json.object do
           json.field "title", video.title

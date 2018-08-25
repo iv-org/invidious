@@ -2,13 +2,13 @@ def crawl_videos(db)
   ids = Deque(String).new
   random = Random.new
 
-  search(random.base64(3)).each do |video|
+  search(random.base64(3)).as(Tuple)[1].each do |video|
     ids << video.id
   end
 
   loop do
     if ids.empty?
-      search(random.base64(3)).each do |video|
+      search(random.base64(3)).as(Tuple)[1].each do |video|
         ids << video.id
       end
     end

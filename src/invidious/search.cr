@@ -23,7 +23,7 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
   nodeset = html.xpath_nodes(%q(//ol[@class="item-section"]/li))
   videos = extract_videos(nodeset)
 
-  return videos
+  return {nodeset.size, videos}
 end
 
 def build_search_params(sort_by = "relevance", date : String = "", content_type : String = "", duration : String = "", features : Array(String) = [] of String)
