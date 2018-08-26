@@ -241,7 +241,7 @@ get "/watch" do |env|
       params[:preferred_captions].includes?(caption.languageCode.split("-")[0])
   }
   preferred_captions.sort_by! { |caption|
-    (params[:preferred_captions].index(caption.languageCode) ||
+    (params[:preferred_captions].index(caption.name.simpleText) ||
       params[:preferred_captions].index(caption.languageCode.split("-")[0])).not_nil!
   }
   captions = captions - preferred_captions
@@ -341,7 +341,7 @@ get "/embed/:id" do |env|
       params[:preferred_captions].includes?(caption.languageCode.split("-")[0])
   }
   preferred_captions.sort_by! { |caption|
-    (params[:preferred_captions].index(caption.languageCode) ||
+    (params[:preferred_captions].index(caption.name.simpleText) ||
       params[:preferred_captions].index(caption.languageCode.split("-")[0])).not_nil!
   }
   captions = captions - preferred_captions
