@@ -1034,18 +1034,18 @@ post "/data_control" do |env|
         body["watch_history"].as_a.each do |id|
           id = id.as_s
           if !user.watched.includes? id
-            PG_DB.exec("UPDATE users SET watched = array_append(watched,$1) WHERE id = $2", id, user.id)
+            PG_DB.exec("UPDATE users SET watched = array_append(watched,$1) WHERE email = $2", id, user.email)
           end
         end
 
-        PG_DB.exec("UPDATE users SET preferences = $1 WHERE id = $2", body["preferences"].to_json, user.id)
+        PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", body["preferences"].to_json, user.email)
       when "import_youtube"
         subscriptions = XML.parse(body)
         subscriptions.xpath_nodes(%q(//outline[@type="rss"])).each do |channel|
           ucid = channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
 
           if !user.subscriptions.includes? ucid
-            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", ucid, user.id)
+            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
 
             begin
               client = make_client(YT_URL)
@@ -1060,7 +1060,7 @@ post "/data_control" do |env|
           ucid = md["channel_id"]
 
           if !user.subscriptions.includes? ucid
-            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", ucid, user.id)
+            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
 
             begin
               client = make_client(YT_URL)
@@ -1076,7 +1076,7 @@ post "/data_control" do |env|
           ucid = channel["url"].as_s.match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
 
           if !user.subscriptions.includes? ucid
-            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", ucid, user.id)
+            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
 
             begin
               client = make_client(YT_URL)
@@ -1097,14 +1097,14 @@ post "/data_control" do |env|
               db = entry.io.gets_to_end
               db.scan(/youtube\.com\/watch\?v\=(?<id>[a-zA-Z0-9_-]{11})/) do |md|
                 if !user.watched.includes? md["id"]
-                  PG_DB.exec("UPDATE users SET watched = array_append(watched,$1) WHERE id = $2", md["id"], user.id)
+                  PG_DB.exec("UPDATE users SET watched = array_append(watched,$1) WHERE email = $2", md["id"], user.email)
                 end
               end
 
               db.scan(/youtube\.com\/channel\/(?<ucid>[a-zA-Z0-9_-]{22})/) do |md|
                 ucid = md["ucid"]
                 if !user.subscriptions.includes? ucid
-                  PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", ucid, user.id)
+                  PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
 
                   begin
                     client = make_client(YT_URL)
@@ -1203,9 +1203,8 @@ get "/clear_watch_history" do |env|
 
   if user
     user = user.as(User)
-    sid = env.get("sid").as(String)
 
-    PG_DB.exec("UPDATE users SET watched = '{}' WHERE $1 = ANY(id)", sid)
+    PG_DB.exec("UPDATE users SET watched = '{}' WHERE email = $1", user.email)
   end
 
   env.redirect referer
