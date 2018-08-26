@@ -1201,8 +1201,9 @@ get "/clear_watch_history" do |env|
 
   if user
     user = user.as(User)
+    sid = env.get("sid").as(String)
 
-    PG_DB.exec("UPDATE users SET watched = '{}' WHERE id = $1", user.id)
+    PG_DB.exec("UPDATE users SET watched = '{}' WHERE $1 = ANY(id)", sid)
   end
 
   env.redirect referer
