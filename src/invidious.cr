@@ -281,7 +281,9 @@ get "/watch" do |env|
     rvs << HTTP::Params.parse(rv).to_h
   end
 
+  # rating = (video.likes.to_f/(video.likes.to_f + video.dislikes.to_f) * 4 + 1)
   rating = video.info["avg_rating"].to_f64
+
   engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
 
   playability_status = video.player_response["playabilityStatus"]?
