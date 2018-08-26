@@ -33,7 +33,7 @@
 <div class="h-box">
 <h1>
     <%= HTML.escape(video.title) %> 
-    <% if listen %>
+    <% if params[:listen] %>
     <a href="/watch?<%= env.params.query %>">
         <i class="icon ion-ios-videocam"></i>
     </a>

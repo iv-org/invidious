@@ -504,16 +504,29 @@ end
 
 def process_video_params(query, preferences)
   autoplay = query["autoplay"]?.try &.to_i?
+  preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
+  quality = query["quality"]?
+  speed = query["speed"]?.try &.to_f?
   video_loop = query["loop"]?.try &.to_i?
+  volume = query["volume"]?.try &.to_i?
 
   if preferences
     autoplay ||= preferences.autoplay.to_unsafe
+    preferred_captions ||= preferences.captions
+    quality ||= preferences.quality
+    speed ||= preferences.speed
     video_loop ||= preferences.video_loop.to_unsafe
+    volume ||= preferences.volume
   end
-  autoplay ||= 0
-  autoplay = autoplay == 1
 
+  autoplay ||= 0
+  preferred_captions ||= [] of String
+  quality ||= "hd720"
+  speed ||= 1
   video_loop ||= 0
+  volume ||= 100
+
+  autoplay = autoplay == 1
   video_loop = video_loop == 1
 
   if query["t"]?
@@ -542,14 +555,25 @@ def process_video_params(query, preferences)
   raw ||= 0
   raw = raw == 1
 
-  quality = query["quality"]?
-  quality ||= "hd720"
-
   controls = query["controls"]?.try &.to_i?
   controls ||= 1
   controls = controls == 1
 
-  return autoplay, video_loop, video_start, video_end, listen, raw, quality, controls
+  params = {
+    autoplay:           autoplay,
+    controls:           controls,
+    listen:             listen,
+    preferred_captions: preferred_captions,
+    quality:            quality,
+    raw:                raw,
+    speed:              speed,
+    video_end:          video_end,
+    video_loop:         video_loop,
+    video_start:        video_start,
+    volume:             volume,
+  }
+
+  return params
 end
 
 def generate_thumbnails(json, id)

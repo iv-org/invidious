@@ -215,8 +215,9 @@ get "/watch" do |env|
   end
   subscriptions ||= [] of String
 
-  autoplay, video_loop, video_start, video_end, listen, raw, quality, controls = process_video_params(env.params.query, preferences)
-  if listen
+  params = process_video_params(env.params.query, preferences)
+
+  if params[:listen]
     env.params.query.delete_all("listen")
   end
 
@@ -234,13 +235,17 @@ get "/watch" do |env|
   audio_streams = video.audio_streams(adaptive_fmts)
 
   captions = video.captions
-  if preferences
-    preferred_captions = captions.select { |caption| preferences.captions.includes? caption.name.simpleText }
-    preferred_captions.sort_by! { |caption| preferences.captions.index(caption.name.simpleText).not_nil! }
 
-    captions = captions - preferred_captions
-  end
-  preferred_captions ||= [] of Caption
+  preferred_captions = captions.select { |caption|
+    params[:preferred_captions].includes?(caption.name.simpleText) ||
+      params[:preferred_captions].includes?(caption.languageCode.split("-")[0])
+  }
+  preferred_captions.sort_by! { |caption|
+    (params[:preferred_captions].index(caption.languageCode) ||
+      params[:preferred_captions].index(caption.languageCode.split("-")[0])).not_nil!
+  }
+  captions = captions - preferred_captions
+
   aspect_ratio = "16:9"
 
   video.description = fill_links(video.description, "https", "www.youtube.com")
@@ -259,11 +264,11 @@ get "/watch" do |env|
   # TODO: Find highest resolution thumbnail automatically
   thumbnail = "https://i.ytimg.com/vi/#{video.id}/mqdefault.jpg"
 
-  if raw
+  if params[:raw]
     url = fmt_stream[0]["url"]
 
     fmt_stream.each do |fmt|
-      if fmt["label"].split(" - ")[0] == quality
+      if fmt["label"].split(" - ")[0] == params[:quality]
         url = fmt["url"]
       end
     end
@@ -313,21 +318,7 @@ get "/embed/:id" do |env|
     next env.redirect url
   end
 
-  autoplay, video_loop, video_start, video_end, listen, raw, quality, controls = process_video_params(env.params.query, nil)
-  preferred_captions = [] of Caption
-  preferences = Preferences.from_json({
-    "video_loop"  => video_loop,
-    "autoplay"    => autoplay,
-    "speed"       => 1.0,
-    "quality"     => quality,
-    "volume"      => 100,
-    "max_results" => 0,
-    "sort"        => "",
-    "latest_only" => false,
-    "unseen_only" => false,
-    "dark_mode"   => false,
-  }.to_json)
-  aspect_ratio = nil
+  params = process_video_params(env.params.query, nil)
 
   begin
     video = get_video(id, PG_DB)
@@ -342,6 +333,18 @@ get "/embed/:id" do |env|
   audio_streams = video.audio_streams(adaptive_fmts)
 
   captions = video.captions
+
+  preferred_captions = captions.select { |caption|
+    params[:preferred_captions].includes?(caption.name.simpleText) ||
+      params[:preferred_captions].includes?(caption.languageCode.split("-")[0])
+  }
+  preferred_captions.sort_by! { |caption|
+    (params[:preferred_captions].index(caption.languageCode) ||
+      params[:preferred_captions].index(caption.languageCode.split("-")[0])).not_nil!
+  }
+  captions = captions - preferred_captions
+
+  aspect_ratio = nil
 
   video.description = fill_links(video.description, "https", "www.youtube.com")
   video.description = add_alt_links(video.description)
@@ -359,11 +362,11 @@ get "/embed/:id" do |env|
   # TODO: Find highest resolution thumbnail automatically
   thumbnail = "https://i.ytimg.com/vi/#{video.id}/mqdefault.jpg"
 
-  if raw
+  if params[:raw]
     url = fmt_stream[0]["url"]
 
     fmt_stream.each do |fmt|
-      if fmt["label"].split(" - ")[0] == quality
+      if fmt["label"].split(" - ")[0] == params[:quality]
         url = fmt["url"]
       end
     end
