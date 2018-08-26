@@ -45,7 +45,11 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
 class Preferences
   module StringToArray
     def self.to_json(value : Array(String), json : JSON::Builder)
-      return value.to_json
+      json.array do
+        value.each do |element|
+          json.string element
+        end
+      end
     end
 
     def self.from_json(value : JSON::PullParser) : Array(String)
