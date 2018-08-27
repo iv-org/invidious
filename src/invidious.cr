@@ -766,7 +766,6 @@ post "/preferences" do |env|
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= 100
 
-    puts env.params.body
     comments_0 = env.params.body["comments_0"]?.try &.as(String) || "youtube"
     comments_1 = env.params.body["comments_1"]?.try &.as(String) || ""
     comments = [comments_0, comments_1]
@@ -1249,21 +1248,21 @@ get "/feed/subscriptions" do |env|
     if preferences.notifications_only && !notifications.empty?
       args = arg_array(notifications)
 
-      videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE id IN (#{args})
+      notifications = PG_DB.query_all("SELECT * FROM channel_videos WHERE id IN (#{args})
       ORDER BY published DESC", notifications, as: ChannelVideo)
-      notifications = [] of ChannelVideo
+      videos = [] of ChannelVideo
 
-      videos.sort_by! { |video| video.published }.reverse!
+      notifications.sort_by! { |video| video.published }.reverse!
 
       case preferences.sort
       when "alphabetically"
-        videos.sort_by! { |video| video.title }
+        notifications.sort_by! { |video| video.title }
       when "alphabetically - reverse"
-        videos.sort_by! { |video| video.title }.reverse!
+        notifications.sort_by! { |video| video.title }.reverse!
       when "channel name"
-        videos.sort_by! { |video| video.author }
+        notifications.sort_by! { |video| video.author }
       when "channel name - reverse"
-        videos.sort_by! { |video| video.author }.reverse!
+        notifications.sort_by! { |video| video.author }.reverse!
       end
     else
       if preferences.latest_only
