@@ -429,7 +429,31 @@ get "/search" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
-  search_params = build_search_params(sort_by: "relevance", content_type: "video")
+  sort = "relevance"
+  date = ""
+  duration = ""
+  features = [] of String
+
+  operators = query.split(" ").select { |a| a.match(/\w+:[\w,]+/) }
+  operators.each do |operator|
+    key, value = operator.split(":")
+
+    case key
+    when "sort"
+      sort = value
+    when "date"
+      date = value
+    when "duration"
+      duration = value
+    when "features"
+      features = value.split(",")
+    end
+  end
+
+  query = (query.split(" ") - operators).join(" ")
+
+  search_params = build_search_params(sort: sort, date: date, content_type: "video",
+    duration: duration, features: features)
   count, videos = search(query, page, search_params).as(Tuple)
 
   templated "search"

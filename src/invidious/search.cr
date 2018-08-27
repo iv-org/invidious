@@ -14,9 +14,13 @@ end
 
 def search(query, page = 1, search_params = build_search_params(content_type: "video"))
   client = make_client(YT_URL)
+  if query.empty?
+    return {0, [] of SearchVideo}
+  end
+
   html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=#{search_params}&disable_polymer=1").body
   if html.empty?
-    return [] of SearchVideo
+    return {0, [] of SearchVideo}
   end
 
   html = XML.parse_html(html)
@@ -26,9 +30,10 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
   return {nodeset.size, videos}
 end
 
-def build_search_params(sort_by = "relevance", date : String = "", content_type : String = "", duration : String = "", features : Array(String) = [] of String)
+def build_search_params(sort : String = "relevance", date : String = "", content_type : String = "",
+                        duration : String = "", features : Array(String) = [] of String)
   head = "\x08"
-  head += case sort_by
+  head += case sort
           when "relevance"
             "\x00"
           when "rating"
@@ -38,7 +43,7 @@ def build_search_params(sort_by = "relevance", date : String = "", content_type 
           when "view_count"
             "\x03"
           else
-            raise "No sort #{sort_by}"
+            raise "No sort #{sort}"
           end
 
   body = ""
