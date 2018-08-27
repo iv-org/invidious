@@ -1597,6 +1597,7 @@ get "/channel/:ucid" do |env|
 
   begin
     videos = extract_playlist(ucid, page)
+    videos.each { |a| a.playlists.clear }
   rescue ex
     error_message = ex.message
     next templated "error"

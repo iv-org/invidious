@@ -1,6 +1,6 @@
 <div class="pure-u-1 pure-u-md-1-4">
     <div class="h-box">
-        <% if video.responds_to?(:playlists) %>
+        <% if video.responds_to?(:playlists) && !video.playlists.empty? %>
         <% params = "&list=#{video.playlists[0]}" %>
         <% else %>
         <% params = nil %>
