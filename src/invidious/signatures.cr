@@ -4,22 +4,21 @@ def fetch_decrypt_function(client, id = "CvFH_6DNRCY")
   player = client.get(url).body
 
   function_name = player.match(/"signature",(?<name>[a-zA-Z0-9]{2})\(/).not_nil!["name"]
-  function_body = player.match(/#{function_name}=function\(a\){(?<body>[^}]+)}/).not_nil!["body"]
+  function_body = player.match(/^#{function_name}=function\(a\){(?<body>[^}]+)}/m).not_nil!["body"]
   function_body = function_body.split(";")[1..-2]
 
   var_name = function_body[0][0, 2]
+  var_body = player.delete("\n").match(/var #{var_name}={(?<body>(.*?))};/).not_nil!["body"]
 
   operations = {} of String => String
-  matches = player.delete("\n").match(/var #{var_name}={(?<op1>[a-zA-Z0-9]{2}:[^}]+}),(?<op2>[a-zA-Z0-9]{2}:[^}]+}),(?<op3>[a-zA-Z0-9]{2}:[^}]+})};/).not_nil!
-  3.times do |i|
-    operation = matches["op#{i + 1}"]
-    op_name = operation[0, 2]
+  var_body.split("},").each do |operation|
+    op_name = operation.match(/^[^:]+/).not_nil![0]
+    op_body = operation.match(/\{[^}]+/).not_nil![0]
 
-    op_body = operation.match(/\{[^}]+\}/).not_nil![0]
     case op_body
-    when "{a.reverse()}"
+    when "{a.reverse()"
       operations[op_name] = "a"
-    when "{a.splice(0,b)}"
+    when "{a.splice(0,b)"
       operations[op_name] = "b"
     else
       operations[op_name] = "c"
@@ -28,11 +27,10 @@ def fetch_decrypt_function(client, id = "CvFH_6DNRCY")
 
   decrypt_function = [] of {name: String, value: Int32}
   function_body.each do |function|
-    function = function.lchop(var_name + ".")
-    op_name = function[0, 2]
+    function = function.lchop(var_name).delete("[].")
 
-    function = function.lchop(op_name + "(a,")
-    value = function.rchop(")").to_i
+    op_name = function.match(/[^\(]+/).not_nil![0]
+    value = function.match(/\(a,(?<value>[\d]+)\)/).not_nil!["value"].to_i
 
     decrypt_function << {name: operations[op_name], value: value}
   end
