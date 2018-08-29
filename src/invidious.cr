@@ -2181,18 +2181,29 @@ get "/api/v1/channels/:ucid" do |env|
     end
 
     ucid = ucid.content
-    next env.redirect "/api/v1/channels/#{ucid}"
+    url = "/api/v1/channels/#{ucid}"
+    next env.redirect url
   end
 
-  channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
+  url = produce_videos_url(ucid, 1)
+  response = client.get(url)
 
-  # TODO: Integrate this into `get_channel` function
-  # We can't get everything from RSS feed, so we get it from the channel page
+  json = JSON.parse(response.body)
+  if json["content_html"]? && !json["content_html"].as_s.empty?
+    document = XML.parse_html(json["content_html"].as_s)
+    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+    videos = extract_videos(nodeset, ucid)
+  else
+    videos = [] of SearchVideo
+  end
+
   channel_html = client.get("/channel/#{ucid}/about?disable_polymer=1").body
   channel_html = XML.parse_html(channel_html)
   banner = channel_html.xpath_node(%q(//div[@id="gh-banner"]/style)).not_nil!.content
   banner = "https:" + banner.match(/background-image: url\((?<url>[^)]+)\)/).not_nil!["url"]
 
+  author = channel_html.xpath_node(%q(//a[contains(@class, "branded-page-header-title-link")])).not_nil!.content
   author_url = channel_html.xpath_node(%q(//a[@class="channel-header-profile-image-container spf-link"])).not_nil!["href"]
   author_thumbnail = channel_html.xpath_node(%q(//img[@class="channel-header-profile-image"])).not_nil!["src"]
   description = channel_html.xpath_node(%q(//meta[@itemprop="description"])).not_nil!["content"]
@@ -2212,13 +2223,10 @@ get "/api/v1/channels/:ucid" do |env|
     joined = Time.parse(anchor[2].content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
   end
 
-  latest_videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid = $1 ORDER BY published DESC LIMIT 15",
-    channel.id, as: ChannelVideo)
-
   channel_info = JSON.build do |json|
     json.object do
-      json.field "author", channel.author
-      json.field "authorId", channel.id
+      json.field "author", author
+      json.field "authorId", ucid
       json.field "authorUrl", author_url
 
       json.field "authorBanners" do
@@ -2267,15 +2275,21 @@ get "/api/v1/channels/:ucid" do |env|
 
       json.field "latestVideos" do
         json.array do
-          latest_videos.each do |video|
+          videos.each do |video|
             json.object do
               json.field "title", video.title
               json.field "videoId", video.id
-              json.field "published", video.published.epoch
 
               json.field "videoThumbnails" do
                 generate_thumbnails(json, video.id)
               end
+
+              json.field "description", video.description
+              json.field "descriptionHtml", video.description_html
+
+              json.field "viewCount", video.views
+              json.field "published", video.published.epoch
+              json.field "lengthSeconds", video.length_seconds
             end
           end
         end
