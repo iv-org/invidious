@@ -34,7 +34,7 @@
         <div class="pure-u-1 pure-u-md-8-24 user-field">
         <% if env.get? "user" %>
         <div class="pure-u-1-4">
-          <a href="/toggle_theme?referer=<%= env.get("current_page") %>" class="pure-menu-heading">
+          <a href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
             <% preferences = env.get("user").as(User).preferences %>
             <% if preferences.dark_mode %>
             <i class="icon ion-ios-sunny"></i>
@@ -54,15 +54,15 @@
           </a>
         </div>
         <div class="pure-u-1-4">
-          <a href="/preferences?referer=<%= env.get("current_page") %>" class="pure-menu-heading">
+          <a href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
             <i class="icon ion-ios-cog"></i>
           </a>
         </div>
         <div class="pure-u-1-4">
-          <a href="/signout?referer=<%= env.get("current_page") %>" class="pure-menu-heading">Sign out</a>
+          <a href="/signout?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">Sign out</a>
         </div>
         <% else %>
-          <a href="/login?referer=<%= env.get("current_page") %>" class="pure-menu-heading">Login</a>
+          <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">Login</a>
         <% end %>
         </div>
       </div>
