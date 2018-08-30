@@ -16,6 +16,13 @@
 </div>
 
 <center><%= notifications.size %> unseen notifications</center>
+
+<% if !notifications.empty? %>
+<div class="h-box">
+    <hr>
+</div>
+<% end %>
+
 <% notifications.each_slice(4) do |slice| %>
     <div class="pure-g">
         <% slice.each do |video| %>
