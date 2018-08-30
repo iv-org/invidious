@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<title><%= query.not_nil!.size > 30 ? query.not_nil![0,30].rstrip(".") + "..." : query.not_nil! %> - Invidious</title>
+<title><%= search_query.not_nil!.size > 30 ? query.not_nil![0,30].rstrip(".") + "..." : query.not_nil! %> - Invidious</title>
 <% end %>
 
 <% videos.each_slice(4) do |slice| %>

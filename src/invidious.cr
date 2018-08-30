@@ -450,11 +450,11 @@ get "/search" do |env|
     end
   end
 
-  query = (query.split(" ") - operators).join(" ")
+  search_query = (query.split(" ") - operators).join(" ")
 
   search_params = build_search_params(sort: sort, date: date, content_type: "video",
     duration: duration, features: features)
-  count, videos = search(query, page, search_params).as(Tuple)
+  count, videos = search(search_query, page, search_params).as(Tuple)
 
   templated "search"
 end
