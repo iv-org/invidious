@@ -799,6 +799,10 @@ post "/preferences" do |env|
     captions_2 = env.params.body["captions_2"]?.try &.as(String) || ""
     captions = [captions_0, captions_1, captions_2]
 
+    related_videos = env.params.body["related_videos"]?.try &.as(String)
+    related_videos ||= "off"
+    related_videos = related_videos == "on"
+
     redirect_feed = env.params.body["redirect_feed"]?.try &.as(String)
     redirect_feed ||= "off"
     redirect_feed = redirect_feed == "on"
@@ -837,6 +841,7 @@ post "/preferences" do |env|
       "volume"             => volume,
       "comments"           => comments,
       "captions"           => captions,
+      "related_videos"     => related_videos,
       "redirect_feed"      => redirect_feed,
       "dark_mode"          => dark_mode,
       "thin_mode"          => thin_mode,

@@ -27,19 +27,20 @@ class User
 end
 
 DEFAULT_USER_PREFERENCES = Preferences.from_json({
-  "video_loop"  => false,
-  "autoplay"    => false,
-  "speed"       => 1.0,
-  "quality"     => "hd720",
-  "volume"      => 100,
-  "comments"    => ["youtube", ""],
-  "captions"    => ["", "", ""],
-  "dark_mode"   => false,
-  "thin_mode "  => false,
-  "max_results" => 40,
-  "sort"        => "published",
-  "latest_only" => false,
-  "unseen_only" => false,
+  "video_loop"     => false,
+  "autoplay"       => false,
+  "speed"          => 1.0,
+  "quality"        => "hd720",
+  "volume"         => 100,
+  "comments"       => ["youtube", ""],
+  "captions"       => ["", "", ""],
+  "related_videos" => true,
+  "dark_mode"      => false,
+  "thin_mode "     => false,
+  "max_results"    => 40,
+  "sort"           => "published",
+  "latest_only"    => false,
+  "unseen_only"    => false,
 }.to_json)
 
 class Preferences
@@ -84,6 +85,10 @@ class Preferences
     redirect_feed: {
       type:    Bool,
       default: false,
+    },
+    related_videos: {
+      type:    Bool,
+      default: true,
     },
     dark_mode: Bool,
     thin_mode: {

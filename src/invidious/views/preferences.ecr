@@ -75,7 +75,7 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="captions_fallback">Fallback languages: </label>
+                <label for="captions_fallback">Fallback captions: </label>
                 <select class="pure-u-1-5" name="captions_1" id="captions_1">
                 <% CAPTION_LANGUAGES.each do |option| %>
                     <option <% if user.preferences.captions[1] == option %> selected <% end %>><%= option %></option>
@@ -89,7 +89,13 @@ function update_value(element) {
                 </select>
             </div>
 
+            <div class="pure-control-group">
+                <label for="related_videos">Show related videos? </label>
+                <input name="related_videos" id="related_videos" type="checkbox" <% if user.preferences.related_videos %>checked<% end %>>
+            </div>
+
             <legend>Visual preferences</legend>
+
             <div class="pure-control-group">
                 <label for="dark_mode">Dark mode: </label>
                 <input name="dark_mode" id="dark_mode" type="checkbox" <% if user.preferences.dark_mode %>checked<% end %>>
@@ -101,6 +107,7 @@ function update_value(element) {
             </div>
 
             <legend>Subscription preferences</legend>
+
             <div class="pure-control-group">
                 <label for="redirect_feed">Redirect homepage to feed: </label>
                 <input name="redirect_feed" id="redirect_feed" type="checkbox" <% if user.preferences.redirect_feed %>checked<% end %>>
@@ -136,6 +143,7 @@ function update_value(element) {
             </div>
 
             <legend>Data preferences</legend>
+
             <div class="pure-control-group">
                 <a href="/clear_watch_history?referer=<%= referer %>">Clear watch history</a>
             </div>
