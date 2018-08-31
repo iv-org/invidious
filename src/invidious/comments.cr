@@ -113,7 +113,7 @@ def template_youtube_comments(comments)
             - #{recode_date(Time.epoch(child["published"].as_i64))} ago
           </p>
           <div>
-          #{child["content"]}
+          <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
           #{replies_html}
           </div>
         </div>
