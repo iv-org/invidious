@@ -171,6 +171,11 @@ div {
   background-color: rgba(0, 182, 240, 1);
 }
 
+/* ProgressBar marker */
+.vjs-marker {
+    background-color: rgba(255, 255, 255, 1);
+}
+
 /* Big "Play" Button */
 .video-js .vjs-big-play-button {
   background-color: rgba(35, 35, 35, 0.5);
