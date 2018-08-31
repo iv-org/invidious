@@ -1746,7 +1746,7 @@ get "/api/v1/comments/:id" do |env|
       if format == "json"
         next {"comments" => [] of String}.to_json
       else
-        next {"contentHtml" => ""}.to_json
+        next {"contentHtml" => "", "commentCount" => 0}.to_json
       end
     end
     ctoken = ctoken["ctoken"]
@@ -1784,7 +1784,7 @@ get "/api/v1/comments/:id" do |env|
       if format == "json"
         next {"comments" => [] of String}.to_json
       else
-        next {"contentHtml" => ""}.to_json
+        next {"contentHtml" => "", "commentCount" => 0}.to_json
       end
     end
 
@@ -1920,6 +1920,8 @@ get "/api/v1/comments/:id" do |env|
 
           if comments["commentCount"]?
             json.field "commentCount", comments["commentCount"]
+          else
+            json.field "commentCount", 0
           end
         end
       end
