@@ -533,7 +533,7 @@ def process_video_params(query, preferences)
     video_start = decode_time(query["t"])
   end
   video_start ||= 0
-  if query["time_continu"]?
+  if query["time_continue"]?
     video_start = decode_time(query["t"])
   end
   video_start ||= 0
