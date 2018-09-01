@@ -2125,7 +2125,7 @@ get "/api/v1/videos/:id" do |env|
                 end
                 json.field "author", rv["author"]
                 json.field "lengthSeconds", rv["length_seconds"].to_i
-                json.field "viewCountText", rv["short_view_count_text"].rchop(" views")
+                json.field "viewCountText", rv["short_view_count_text"]
               end
             end
           end
