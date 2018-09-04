@@ -1,4 +1,4 @@
-# "Invidious" (which is what YouTube should be)
+# "Invidious" (which is an alternative front-end to YouTube)
 # Copyright (C) 2018  Omar Roth
 #
 # This program is free software: you can redistribute it and/or modify

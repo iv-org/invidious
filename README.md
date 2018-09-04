@@ -1,6 +1,6 @@
 # Invidious
 
-## Invidious is what YouTube should be
+## Invidious is an alternative front-end to YouTube
 
 - Audio-only (and no need to keep window open on mobile)
 - [Open-source](https://github.com/omarroth/invidious) (AGPLv3 licensed)
