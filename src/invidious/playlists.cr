@@ -130,7 +130,7 @@ def fetch_playlist(plid)
     description = description.to_xml.strip(" \n")
     description = description.split("<button ")[0]
     description = fill_links(description, "https", "www.youtube.com")
-    description = add_alt_links(description)
+    description = replace_links(description)
   else
     description = ""
   end

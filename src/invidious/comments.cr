@@ -190,37 +190,21 @@ def template_reddit_comments(root)
   return html
 end
 
-def add_alt_links(html)
-  alt_links = [] of {String, String}
+def replace_links(html)
+  html = XML.parse_html(html)
 
-  # This is painful but likely the only way to accomplish this in Crystal,
-  # as Crystigiri and others are not able to insert XML Nodes into a document.
-  # The goal here is to use as little regex as possible
-  html.scan(/<a[^>]*>([^<]+)<\/a>/) do |match|
-    anchor = XML.parse_html(match[0])
-    anchor = anchor.xpath_node("//a").not_nil!
+  html.xpath_nodes(%q(//a)).each do |anchor|
     url = URI.parse(anchor["href"])
 
     if ["www.youtube.com", "m.youtube.com"].includes?(url.host)
       if url.path == "/redirect"
         params = HTTP::Params.parse(url.query.not_nil!)
-        alt_url = params["q"]?
-        alt_url ||= "/"
+        anchor["href"] = params["q"]?
       else
-        alt_url = url.full_path
+        anchor["href"] = url.full_path
       end
-
-      alt_link = <<-END_HTML
-      <a href="#{alt_url}">
-        <i class="icon ion-ios-link"></i>
-      </a>
-      END_HTML
     elsif url.host == "youtu.be"
-      alt_link = <<-END_HTML
-      <a href="/watch?v=#{url.path.try &.lchop("/")}&#{url.query}">
-        <i class="icon ion-ios-link"></i>
-      </a>
-      END_HTML
+      anchor["href"] = "/watch?v=#{url.path.try &.lchop("/")}&#{url.query}"
     elsif url.to_s == "#"
       begin
         length_seconds = decode_length_seconds(anchor.content)
@@ -228,23 +212,12 @@ def add_alt_links(html)
         length_seconds = decode_time(anchor.content)
       end
 
-      alt_anchor = <<-END_HTML
-      <a href="javascript:void(0)" onclick="player.currentTime(#{length_seconds})">#{anchor.content}</a>
-      END_HTML
-
-      html = html.sub(anchor.to_s, alt_anchor)
-      next
-    else
-      alt_link = ""
+      anchor["href"] = "javascript:void(0)"
+      anchor["onclick"] = "player.currentTime(#{length_seconds})"
     end
-
-    alt_links << {anchor.to_s, alt_link}
   end
 
-  alt_links.each do |original, alternate|
-    html = html.sub(original, original + alternate)
-  end
-
+  html = html.to_xml(options: XML::SaveOptions::NO_DECL)
   return html
 end
 
@@ -267,5 +240,5 @@ def fill_links(html, scheme, host)
     html = html.to_xml(options: XML::SaveOptions::NO_DECL)
   end
 
-  html
+  return html
 end

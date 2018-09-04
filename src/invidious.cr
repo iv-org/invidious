@@ -249,7 +249,7 @@ get "/watch" do |env|
   aspect_ratio = "16:9"
 
   video.description = fill_links(video.description, "https", "www.youtube.com")
-  video.description = add_alt_links(video.description)
+  video.description = replace_links(video.description)
   description = video.short_description
 
   host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
@@ -349,7 +349,7 @@ get "/embed/:id" do |env|
   aspect_ratio = nil
 
   video.description = fill_links(video.description, "https", "www.youtube.com")
-  video.description = add_alt_links(video.description)
+  video.description = replace_links(video.description)
   description = video.short_description
 
   host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
@@ -1936,7 +1936,7 @@ get "/api/v1/comments/:id" do |env|
       content_html = template_reddit_comments(comments)
 
       content_html = fill_links(content_html, "https", "www.reddit.com")
-      content_html = add_alt_links(content_html)
+      content_html = replace_links(content_html)
     rescue ex
       reddit_thread = nil
       content_html = ""
