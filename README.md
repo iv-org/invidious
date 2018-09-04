@@ -2,6 +2,25 @@
 
 ## Invidious is what YouTube should be
 
+- Audio-only (and no need to keep window open on mobile)
+- [Open-source](https://github.com/omarroth/invidious) (AGPLv3 licensed)
+- No ads
+- No need to create a Google account to save subscriptions
+- Lightweight (homepage is ~4 KB compressed)
+- Tools for managing subscriptions:
+  - Only show unseen videos
+  - Only show latest (or latest unseen) video from each channel
+  - Delivers notifications from all subscribed channels
+  - Automatically redirect homepage to feed
+  - Import subscriptions from YouTube
+- Dark mode
+- Embed support
+- Set default player options (speed, quality, autoplay, loop)
+- Does not require JS to play videos
+- Support for Reddit comments in place of YT comments
+- Import/Export subscriptions, watch history, preference
+- Does not use any of the official YouTube APIs
+
 Liberapay: https://liberapay.com/omarroth  
 Patreon: https://patreon.com/omarroth  
 BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY  
