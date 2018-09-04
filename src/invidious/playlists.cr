@@ -99,7 +99,7 @@ def produce_playlist_url(id, index)
   slice = URI.escape(slice)
 
   # Outer Base64
-  continuation = [0x1a.to_u8, slice.bytes.size.to_u8] + slice.bytes
+  continuation = [0x1a_u8, slice.bytes.size.to_u8] + slice.bytes
   continuation = ucid.bytes + continuation
   continuation = [0x12_u8, ucid.size.to_u8] + continuation
   continuation = [0xe2_u8, 0xa9_u8, 0x85_u8, 0xb2_u8, 2_u8, continuation.size.to_u8] + continuation
