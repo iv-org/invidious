@@ -1557,6 +1557,23 @@ end
 
 # Channels
 
+# YouTube appears to let users set a "brand" URL that
+# is different from their username, so we convert that here
+get "/c/:user" do |env|
+  client = make_client(YT_URL)
+  user = env.params.url["user"]
+
+  response = client.get("/c/#{user}")
+  document = XML.parse_html(response.body)
+
+  anchor = document.xpath_node(%q(//a[contains(@class,"branded-page-header-title-link")]))
+  if !anchor
+    next env.redirect "/"
+  end
+
+  env.redirect anchor["href"]
+end
+
 get "/user/:user" do |env|
   user = env.params.url["user"]
   env.redirect "/channel/#{user}"
