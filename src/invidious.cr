@@ -1385,7 +1385,7 @@ get "/feed/channel/:ucid" do |env|
     next env.redirect "/feed/channel/#{ucid}"
   end
 
-  url = produce_videos_url(ucid)
+  url = produce_channel_videos_url(ucid)
   response = client.get(url)
   json = JSON.parse(response.body)
 
@@ -1844,7 +1844,7 @@ get "/api/v1/comments/:id" do |env|
                   text
                 end.join.rchop('\ufeff')
 
-                content, contentHtml = html_to_description(contentHtml)
+                contentHtml, content = html_to_content(contentHtml)
 
                 author = node_comment["authorText"]?.try &.["simpleText"]
                 author ||= ""
@@ -1979,7 +1979,7 @@ get "/api/v1/videos/:id" do |env|
         generate_thumbnails(json, video.id)
       end
 
-      description, video.description = html_to_description(video.description)
+      video.description, description = html_to_content(video.description)
 
       json.field "description", description
       json.field "descriptionHtml", video.description
@@ -2222,7 +2222,7 @@ get "/api/v1/channels/:ucid" do |env|
     next env.redirect url
   end
 
-  url = produce_videos_url(ucid, 1)
+  url = produce_channel_videos_url(ucid, 1)
   response = client.get(url)
 
   json = JSON.parse(response.body)
@@ -2362,7 +2362,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
     next env.redirect url
   end
 
-  url = produce_videos_url(ucid, page)
+  url = produce_channel_videos_url(ucid, page)
   response = client.get(url)
 
   json = JSON.parse(response.body)

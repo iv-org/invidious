@@ -116,81 +116,6 @@ def login_req(login_form, f_req)
   return HTTP::Params.encode(data)
 end
 
-def produce_videos_url(ucid, page = 1)
-  page = "#{page}"
-
-  meta = "\x12\x06videos \x00\x30\x02\x38\x01\x60\x01\x6a\x00\x7a"
-  meta += page.size.to_u8.unsafe_chr
-  meta += page
-  meta += "\xb8\x01\x00"
-
-  meta = Base64.urlsafe_encode(meta)
-  meta = URI.escape(meta)
-
-  continuation = "\x12"
-  continuation += ucid.size.to_u8.unsafe_chr
-  continuation += ucid
-  continuation += "\x1a"
-  continuation += meta.size.to_u8.unsafe_chr
-  continuation += meta
-
-  continuation = continuation.size.to_u8.unsafe_chr + continuation
-  continuation = "\xe2\xa9\x85\xb2\x02" + continuation
-
-  continuation = Base64.urlsafe_encode(continuation)
-  continuation = URI.escape(continuation)
-
-  url = "/browse_ajax?continuation=#{continuation}"
-
-  return url
-end
-
-def read_var_int(bytes)
-  numRead = 0
-  result = 0
-
-  read = bytes[numRead]
-
-  if bytes.size == 1
-    result = bytes[0].to_i32
-  else
-    while ((read & 0b10000000) != 0)
-      read = bytes[numRead].to_u64
-      value = (read & 0b01111111)
-      result |= (value << (7 * numRead))
-
-      numRead += 1
-      if numRead > 5
-        raise "VarInt is too big"
-      end
-    end
-  end
-
-  return result
-end
-
-def write_var_int(value : Int)
-  bytes = [] of UInt8
-  value = value.to_u32
-
-  if value == 0
-    bytes = [0_u8]
-  else
-    while value != 0
-      temp = (value & 0b01111111).to_u8
-      value = value >> 7
-
-      if value != 0
-        temp |= 0b10000000
-      end
-
-      bytes << temp
-    end
-  end
-
-  return bytes
-end
-
 def generate_captcha(key)
   minute = Random::Secure.rand(12)
   minute_angle = minute * 30
@@ -240,7 +165,7 @@ def generate_captcha(key)
   return {challenge: challenge, token: token}
 end
 
-def html_to_description(description_html)
+def html_to_content(description_html)
   if !description_html
     description = ""
     description_html = ""
@@ -251,7 +176,7 @@ def html_to_description(description_html)
     description = XML.parse_html(description).content.strip("\n ")
   end
 
-  return description, description_html
+  return description_html, description
 end
 
 def extract_videos(nodeset, ucid = nil)
@@ -319,7 +244,7 @@ def extract_videos(nodeset, ucid = nil)
     view_count ||= 0_i64
 
     description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-    description, description_html = html_to_description(description_html)
+    description_html, description = html_to_content(description_html)
 
     length_seconds = node.xpath_node(%q(.//span[@class="video-time"]))
     if length_seconds

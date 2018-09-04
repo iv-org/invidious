@@ -73,7 +73,7 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
     page = 1
 
     loop do
-      url = produce_videos_url(ucid, page)
+      url = produce_channel_videos_url(ucid, page)
       response = client.get(url)
 
       json = JSON.parse(response.body)
@@ -129,4 +129,33 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
   channel = InvidiousChannel.new(ucid, author, Time.now)
 
   return channel
+end
+
+def produce_channel_videos_url(ucid, page = 1)
+  page = "#{page}"
+
+  meta = "\x12\x06videos \x00\x30\x02\x38\x01\x60\x01\x6a\x00\x7a"
+  meta += page.size.to_u8.unsafe_chr
+  meta += page
+  meta += "\xb8\x01\x00"
+
+  meta = Base64.urlsafe_encode(meta)
+  meta = URI.escape(meta)
+
+  continuation = "\x12"
+  continuation += ucid.size.to_u8.unsafe_chr
+  continuation += ucid
+  continuation += "\x1a"
+  continuation += meta.size.to_u8.unsafe_chr
+  continuation += meta
+
+  continuation = continuation.size.to_u8.unsafe_chr + continuation
+  continuation = "\xe2\xa9\x85\xb2\x02" + continuation
+
+  continuation = Base64.urlsafe_encode(continuation)
+  continuation = URI.escape(continuation)
+
+  url = "/browse_ajax?continuation=#{continuation}"
+
+  return url
 end
