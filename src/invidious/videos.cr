@@ -345,6 +345,10 @@ class Video
     allowed_regions:    Array(String),
     is_family_friendly: Bool,
     genre:              String,
+    genre_url:          {
+      type:    String,
+      default: "/",
+    },
   })
 end
 
@@ -371,6 +375,10 @@ def get_video(id, db, refresh = true)
       begin
         video = fetch_video(id)
         video_array = video.to_a
+
+        # MIGRATION POINT
+        video_array = video_array[0..-2]
+
         args = arg_array(video_array[1..-1], 2)
 
         db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
@@ -384,6 +392,10 @@ def get_video(id, db, refresh = true)
   else
     video = fetch_video(id)
     video_array = video.to_a
+
+    # MIGRATION POINT
+    video_array = video_array[0..-2]
+
     args = arg_array(video_array)
 
     db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
@@ -490,10 +502,12 @@ def fetch_video(id)
 
   allowed_regions = html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
   is_family_friendly = html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
+
   genre = html.xpath_node(%q(//meta[@itemprop="genre"])).not_nil!["content"]
+  genre_url = html.xpath_node(%(//a[text()="#{genre}"])).not_nil!["href"]
 
   video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description,
-    nil, author, ucid, allowed_regions, is_family_friendly, genre)
+    nil, author, ucid, allowed_regions, is_family_friendly, genre, genre_url)
 
   return video
 end

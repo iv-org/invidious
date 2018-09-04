@@ -2014,6 +2014,7 @@ get "/api/v1/videos/:id" do |env|
       json.field "isFamilyFriendly", video.is_family_friendly
       json.field "allowedRegions", video.allowed_regions
       json.field "genre", video.genre
+      json.field "genreUrl", video.genre_url
 
       json.field "author", video.author
       json.field "authorId", video.ucid
