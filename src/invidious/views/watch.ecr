@@ -248,18 +248,22 @@ function get_youtube_comments() {
     if (xhr.readyState == 4)
       if (xhr.status == 200) {
         comments = document.getElementById("comments");
-        comments.innerHTML = `
-            <div>
-                <h3>
-                    <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
-                    View {commentCount} comments
-                </h3>
-            </div>
-            <div>{contentHtml}</div>
-            <hr>`.supplant({
-          contentHtml: xhr.response.contentHtml,
-          commentCount: commaSeparateNumber(xhr.response.commentCount)
-        });
+        if (xhr.response.commentCount > 0)  {
+            comments.innerHTML = `
+                <div>
+                    <h3>
+                        <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> 
+                        View {commentCount} comments
+                    </h3>
+                </div>
+                <div>{contentHtml}</div>
+                <hr>`.supplant({
+            contentHtml: xhr.response.contentHtml,
+            commentCount: commaSeparateNumber(xhr.response.commentCount)
+            });
+        } else {
+          comments.innerHTML = "";
+        }
       } else {
         <% if preferences && preferences.comments[1] == "youtube" %> 
         get_youtube_comments();
