@@ -1412,7 +1412,11 @@ get "/feed/channel/:ucid" do |env|
     document = XML.parse_html(json["content_html"].as_s)
     nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
 
-    videos = extract_videos(nodeset, ucid)
+    if auto_generated
+      videos = extract_videos(nodeset)
+    else
+      videos = extract_videos(nodeset, ucid)
+    end
   else
     videos = [] of SearchVideo
   end
@@ -1440,13 +1444,18 @@ get "/feed/channel/:ucid" do |env|
         xml.element("entry") do
           xml.element("id") { xml.text "yt:video:#{video.id}" }
           xml.element("yt:videoId") { xml.text video.id }
-          xml.element("yt:channelId") { xml.text ucid }
+          xml.element("yt:channelId") { xml.text video.ucid }
           xml.element("title") { xml.text video.title }
           xml.element("link", rel: "alternate", href: "#{host_url}/watch?v=#{video.id}")
 
           xml.element("author") do
-            xml.element("name") { xml.text channel.author }
-            xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
+            if auto_generated
+              xml.element("name") { xml.text video.author }
+              xml.element("uri") { xml.text "#{host_url}/channel/#{video.ucid}" }
+            else
+              xml.element("name") { xml.text author }
+              xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
+            end
           end
 
           xml.element("published") { xml.text video.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
@@ -1650,7 +1659,11 @@ get "/channel/:ucid" do |env|
     document = XML.parse_html(json["content_html"].as_s)
     nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
 
-    videos = extract_videos(nodeset, ucid)
+    if auto_generated
+      videos = extract_videos(nodeset)
+    else
+      videos = extract_videos(nodeset, ucid)
+    end
   else
     videos = [] of SearchVideo
   end
@@ -2296,7 +2309,11 @@ get "/api/v1/channels/:ucid" do |env|
     document = XML.parse_html(json["content_html"].as_s)
     nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
 
-    videos = extract_videos(nodeset, ucid)
+    if auto_generated
+      videos = extract_videos(nodeset)
+    else
+      videos = extract_videos(nodeset, ucid)
+    end
   else
     videos = [] of SearchVideo
   end
@@ -2390,6 +2407,16 @@ get "/api/v1/channels/:ucid" do |env|
               json.field "title", video.title
               json.field "videoId", video.id
 
+              if auto_generated
+                json.field "author", video.author
+                json.field "authorId", video.ucid
+                json.field "authorUrl", "/channel/#{video.ucid}"
+              else
+                json.field "author", author
+                json.field "authorId", ucid
+                json.field "authorUrl", "/channel/#{ucid}"
+              end
+
               json.field "videoThumbnails" do
                 generate_thumbnails(json, video.id)
               end
@@ -2417,6 +2444,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
   page ||= 1
 
   client = make_client(YT_URL)
+
   if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
     rss = client.get("/feeds/videos.xml?user=#{ucid}")
     rss = XML.parse_html(rss.body)
@@ -2428,42 +2456,61 @@ get "/api/v1/channels/:ucid/videos" do |env|
     end
 
     ucid = ucid.content
-    url = "/api/v1/channels/#{ucid}/videos"
-    if env.params.query
-      url += "?#{env.params.query}"
+    author = rss.xpath_node("//author/name").not_nil!.content
+    next env.redirect "/feed/channel/#{ucid}"
+  else
+    rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
+    rss = XML.parse_html(rss.body)
+
+    ucid = rss.xpath_node("//feed/channelid")
+    if !ucid
+      error_message = "User does not exist."
+      next templated "error"
     end
-    next env.redirect url
+
+    ucid = ucid.content
+    author = rss.xpath_node("//author/name").not_nil!.content
   end
 
-  url = produce_channel_videos_url(ucid, page)
+  # Auto-generated channels
+  # https://support.google.com/youtube/answer/2579942
+  if author.ends_with? " - Topic"
+    auto_generated = true
+  end
+
+  url = produce_channel_videos_url(ucid, auto_generated: auto_generated)
   response = client.get(url)
-
   json = JSON.parse(response.body)
-  if !json["content_html"]?
-    env.response.content_type = "application/json"
 
-    if response.status_code == 500
-      response = {"Error" => "Channel does not exist"}.to_json
-      halt env, status_code: 404, response: response
+  if json["content_html"]? && !json["content_html"].as_s.empty?
+    document = XML.parse_html(json["content_html"].as_s)
+    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+    if auto_generated
+      videos = extract_videos(nodeset)
     else
-      next Array(String).new.to_json
+      videos = extract_videos(nodeset, ucid)
     end
+  else
+    videos = [] of SearchVideo
   end
 
-  content_html = json["content_html"].as_s
-  if content_html.empty?
-    env.response.content_type = "application/json"
-    next Hash(String, String).new.to_json
-  end
-  document = XML.parse_html(content_html)
-
-  videos = JSON.build do |json|
+  result = JSON.build do |json|
     json.array do
-      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-      extract_videos(nodeset, ucid).each do |video|
+      videos.each do |video|
         json.object do
           json.field "title", video.title
           json.field "videoId", video.id
+
+          if auto_generated
+            json.field "author", video.author
+            json.field "authorId", video.ucid
+            json.field "authorUrl", "/channel/#{video.ucid}"
+          else
+            json.field "author", author
+            json.field "authorId", ucid
+            json.field "authorUrl", "/channel/#{ucid}"
+          end
 
           json.field "videoThumbnails" do
             generate_thumbnails(json, video.id)
@@ -2481,7 +2528,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
   end
 
   env.response.content_type = "application/json"
-  videos
+  result
 end
 
 get "/api/v1/search" do |env|
@@ -2527,6 +2574,7 @@ get "/api/v1/search" do |env|
           json.field "videoId", video.id
 
           json.field "author", video.author
+          json.field "authorId", video.ucid
           json.field "authorUrl", "/channel/#{video.ucid}"
 
           json.field "videoThumbnails" do
