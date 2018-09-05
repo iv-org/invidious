@@ -2261,21 +2261,26 @@ get "/api/v1/channels/:ucid" do |env|
   author = channel_html.xpath_node(%q(//a[contains(@class, "branded-page-header-title-link")])).not_nil!.content
   author_url = channel_html.xpath_node(%q(//a[@class="channel-header-profile-image-container spf-link"])).not_nil!["href"]
   author_thumbnail = channel_html.xpath_node(%q(//img[@class="channel-header-profile-image"])).not_nil!["src"]
-  description = channel_html.xpath_node(%q(//meta[@itemprop="description"])).not_nil!["content"]
+  description_html = channel_html.xpath_node(%q(//div[contains(@class,"about-description")]))
+  description_html, description = html_to_content(description_html)
 
   paid = channel_html.xpath_node(%q(//meta[@itemprop="paid"])).not_nil!["content"] == "True"
   is_family_friendly = channel_html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
   allowed_regions = channel_html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
 
-  anchor = channel_html.xpath_nodes(%q(//span[@class="about-stat"]))
-  if anchor[0].content.includes? "views"
-    sub_count = 0
-    total_views = anchor[0].content.delete("views •,").to_i64
-    joined = Time.parse(anchor[1].content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
-  else
-    sub_count = anchor[0].content.delete("subscribers").delete(",").to_i64
-    total_views = anchor[1].content.delete("views •,").to_i64
-    joined = Time.parse(anchor[2].content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
+  total_views = 0_i64
+  sub_count = 0_i64
+  joined = Time.epoch(0)
+  metadata = channel_html.xpath_nodes(%q(//span[@class="about-stat"]))
+  metadata.each do |item|
+    case item.content
+    when .includes? "views"
+      total_views = item.content.delete("views •,").to_i64
+    when .includes? "subscribers"
+      sub_count = item.content.delete("subscribers").delete(",").to_i64
+    when .includes? "Joined"
+      joined = Time.parse(item.content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
+    end
   end
 
   channel_info = JSON.build do |json|
@@ -2326,6 +2331,8 @@ get "/api/v1/channels/:ucid" do |env|
 
       json.field "isFamilyFriendly", is_family_friendly
       json.field "description", description
+      json.field "descriptionHtml", description_html
+
       json.field "allowedRegions", allowed_regions
 
       json.field "latestVideos" do
@@ -2518,6 +2525,7 @@ get "/api/v1/playlists/:plid" do |env|
       json.field "authorUrl", "/channel/#{playlist.ucid}"
 
       json.field "description", playlist.description
+      json.field "descriptionHtml", playlist.description_html
       json.field "videoCount", playlist.video_count
 
       json.field "viewCount", playlist.views

@@ -1,13 +1,14 @@
 class Playlist
   add_mapping({
-    title:       String,
-    id:          String,
-    author:      String,
-    ucid:        String,
-    description: String,
-    video_count: Int32,
-    views:       Int64,
-    updated:     Time,
+    title:            String,
+    id:               String,
+    author:           String,
+    ucid:             String,
+    description:      String,
+    description_html: String,
+    video_count:      Int32,
+    views:            Int64,
+    updated:          Time,
   })
 end
 
@@ -123,17 +124,8 @@ def fetch_playlist(plid)
   title = document.xpath_node(%q(//h1[@class="pl-header-title"])).not_nil!.content
   title = title.strip(" \n")
 
-  description = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1]))
-  description ||= document.xpath_node(%q(//span[@class="pl-header-description-text"]))
-
-  if description
-    description = description.to_xml.strip(" \n")
-    description = description.split("<button ")[0]
-    description = fill_links(description, "https", "www.youtube.com")
-    description = replace_links(description)
-  else
-    description = ""
-  end
+  description_html = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1]))
+  description, description_html = html_to_content(description_html)
 
   anchor = document.xpath_node(%q(//ul[@class="pl-header-details"])).not_nil!
   author = anchor.xpath_node(%q(.//li[1]/a)).not_nil!.content
@@ -151,6 +143,7 @@ def fetch_playlist(plid)
     author,
     ucid,
     description,
+    description_html,
     video_count,
     views,
     updated
