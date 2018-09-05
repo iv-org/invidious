@@ -1382,24 +1382,40 @@ get "/feed/channel/:ucid" do |env|
     end
 
     ucid = ucid.content
+    author = rss.xpath_node("//author/name").not_nil!.content
     next env.redirect "/feed/channel/#{ucid}"
+  else
+    rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
+    rss = XML.parse_html(rss.body)
+
+    ucid = rss.xpath_node("//feed/channelid")
+    if !ucid
+      error_message = "User does not exist."
+      next templated "error"
+    end
+
+    ucid = ucid.content
+    author = rss.xpath_node("//author/name").not_nil!.content
   end
 
-  url = produce_channel_videos_url(ucid)
+  # Auto-generated channels
+  # https://support.google.com/youtube/answer/2579942
+  if author.ends_with? " - Topic"
+    auto_generated = true
+  end
+
+  url = produce_channel_videos_url(ucid, auto_generated: auto_generated)
   response = client.get(url)
   json = JSON.parse(response.body)
 
-  if json["content_html"].as_s.empty?
-    if response.status_code == 500
-      error_message = "This channel does not exist."
-      halt env, status_code: 404, response: error_message
-    else
-      next ""
-    end
-  end
+  if json["content_html"]? && !json["content_html"].as_s.empty?
+    document = XML.parse_html(json["content_html"].as_s)
+    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
 
-  content_html = json["content_html"].as_s
-  document = XML.parse_html(content_html)
+    videos = extract_videos(nodeset, ucid)
+  else
+    videos = [] of SearchVideo
+  end
 
   channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
 
@@ -1420,8 +1436,7 @@ get "/feed/channel/:ucid" do |env|
         xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
       end
 
-      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-      extract_videos(nodeset, ucid).each do |video|
+      videos.each do |video|
         xml.element("entry") do
           xml.element("id") { xml.text "yt:video:#{video.id}" }
           xml.element("yt:videoId") { xml.text video.id }
@@ -1605,24 +1620,39 @@ get "/channel/:ucid" do |env|
     end
 
     ucid = ucid.content
+    author = rss.xpath_node("//author/name").not_nil!.content
     next env.redirect "/channel/#{ucid}"
+  else
+    rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
+    rss = XML.parse_html(rss.body)
+
+    ucid = rss.xpath_node("//feed/channelid")
+    if !ucid
+      error_message = "User does not exist."
+      next templated "error"
+    end
+
+    ucid = ucid.content
+    author = rss.xpath_node("//author/name").not_nil!.content
   end
 
-  rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
-  if rss.status_code == 404
-    error_message = "This channel does not exist."
-    next templated "error"
+  # Auto-generated channels
+  # https://support.google.com/youtube/answer/2579942
+  if author.ends_with? " - Topic"
+    auto_generated = true
   end
 
-  rss = XML.parse_html(rss.body)
-  author = rss.xpath_node("//feed/author/name").not_nil!.content
+  url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
+  response = client.get(url)
+  json = JSON.parse(response.body)
 
-  begin
-    videos = extract_playlist(ucid, page)
-    videos.each { |a| a.playlists.clear }
-  rescue ex
-    error_message = ex.message
-    next templated "error"
+  if json["content_html"]? && !json["content_html"].as_s.empty?
+    document = XML.parse_html(json["content_html"].as_s)
+    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+    videos = extract_videos(nodeset, ucid)
+  else
+    videos = [] of SearchVideo
   end
 
   templated "channel"
@@ -2236,11 +2266,29 @@ get "/api/v1/channels/:ucid" do |env|
     end
 
     ucid = ucid.content
-    url = "/api/v1/channels/#{ucid}"
-    next env.redirect url
+    author = rss.xpath_node("//author/name").not_nil!.content
+    next env.redirect "/api/v1/channels/#{ucid}"
+  else
+    rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
+    rss = XML.parse_html(rss.body)
+
+    ucid = rss.xpath_node("//feed/channelid")
+    if !ucid
+      error_message = "User does not exist."
+      next templated "error"
+    end
+
+    ucid = ucid.content
+    author = rss.xpath_node("//author/name").not_nil!.content
   end
 
-  url = produce_channel_videos_url(ucid, 1)
+  # Auto-generated channels
+  # https://support.google.com/youtube/answer/2579942
+  if author.ends_with? " - Topic"
+    auto_generated = true
+  end
+
+  url = produce_channel_videos_url(ucid, 1, auto_generated)
   response = client.get(url)
 
   json = JSON.parse(response.body)

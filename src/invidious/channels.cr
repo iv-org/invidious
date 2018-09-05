@@ -131,10 +131,23 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
   return channel
 end
 
-def produce_channel_videos_url(ucid, page = 1)
-  page = "#{page}"
+def produce_channel_videos_url(ucid, page = 1, auto_generated = nil)
+  if auto_generated
+    seed = Time.epoch(1525757349)
 
-  meta = "\x12\x06videos \x00\x30\x02\x38\x01\x60\x01\x6a\x00\x7a"
+    until seed >= Time.now
+      seed += 1.month
+    end
+    timestamp = seed - (page - 1).months
+
+    page = "#{timestamp.epoch}"
+    switch = "\x36"
+  else
+    page = "#{page}"
+    switch = "\x00"
+  end
+
+  meta = "\x12\x06videos #{switch}\x30\x02\x38\x01\x60\x01\x6a\x00\x7a"
   meta += page.size.to_u8.unsafe_chr
   meta += page
   meta += "\xb8\x01\x00"

@@ -51,7 +51,7 @@
     </div>
     <div class="pure-u-1 pure-u-md-3-5"></div>
     <div style="text-align:right;" class="pure-u-1 pure-u-md-1-5">
-    <% if videos.size == 100 %>
+    <% if videos.size == 100 || auto_generated %>
         <a href="/channel/<%= ucid %>?page=<%= page + 1 %>">Next page</a>
     <% end %>
     </div>
