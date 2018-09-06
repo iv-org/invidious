@@ -1912,7 +1912,7 @@ get "/api/v1/comments/:id" do |env|
                       url = URI.parse(url)
 
                       if url.path == "/redirect"
-                      url = HTTP::Params.parse(url.query.not_nil!)["q"]
+                        url = HTTP::Params.parse(url.query.not_nil!)["q"]
                       end
                     else
                       url = run["navigationEndpoint"]["commandMetadata"]?.try &.["webCommandMetadata"]["url"].as_s
@@ -2036,9 +2036,10 @@ get "/api/v1/comments/:id" do |env|
     else
       next {
         "title"       => reddit_thread.title,
-          "permalink"   => reddit_thread.permalink,
-          "contentHtml" => content_html,
-    }.to_json
+        "permalink"   => reddit_thread.permalink,
+        "contentHtml" => content_html,
+      }.to_json
+    end
   end
 end
 
