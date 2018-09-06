@@ -106,6 +106,9 @@ spawn do
 end
 
 before_all do |env|
+  env.response.headers["X-XSS-Protection"] = "1; mode=block;"
+  env.response.headers["X-Content-Type-Options"] = "nosniff"
+
   if env.request.cookies.has_key? "SID"
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
