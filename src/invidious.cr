@@ -106,6 +106,18 @@ spawn do
 end
 
 before_all do |env|
+  # CSRF
+  if Kemal.config.ssl || CONFIG.https_only
+    host = env.request.headers["Host"]?
+
+    if (env.request.headers["Origin"]?.try &.== host) ||
+       (env.request.headers["Referer"]?.try &.== host)
+      # All good!
+    else
+      halt env, status_code: 403, response: "Failed CSRF check"
+    end
+  end
+
   if env.request.cookies.has_key? "SID"
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
