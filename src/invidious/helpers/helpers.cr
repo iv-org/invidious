@@ -184,7 +184,12 @@ def html_to_content(description_html)
     description_html = description_html.to_s
     description = description_html.gsub("<br>", "\n")
     description = description.gsub("<br/>", "\n")
-    description = XML.parse_html(description).content.strip("\n ")
+
+    if description.empty?
+      description = ""
+    else
+      description = XML.parse_html(description).content.strip("\n ")
+    end
   end
 
   return description_html, description
