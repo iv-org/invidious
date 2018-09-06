@@ -41,6 +41,17 @@ class FilteredCompressHandler < Kemal::Handler
   end
 end
 
+class DenyFrame < Kemal::Handler
+  exclude ["/embed/*"]
+
+  def call(env)
+    return call_next env if exclude_match? env
+
+    env.response.headers["X-Frame-Options"] = "sameorigin"
+    call_next env
+  end
+end
+
 def rank_videos(db, n, filter, url)
   top = [] of {Float64, String}
 

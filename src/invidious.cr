@@ -106,6 +106,9 @@ spawn do
 end
 
 before_all do |env|
+  env.response.headers["X-XSS-Protection"] = "1; mode=block;"
+  env.response.headers["X-Content-Type-Options"] = "nosniff"
+
   # CSRF
   if Kemal.config.ssl || CONFIG.https_only
     host = env.request.headers["Host"]?
@@ -2945,6 +2948,7 @@ public_folder "assets"
 
 Kemal.config.powered_by_header = false
 add_handler FilteredCompressHandler.new
+add_handler DenyFrame.new
 add_context_storage_type(User)
 
 Kemal.run
