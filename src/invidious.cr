@@ -1816,6 +1816,7 @@ get "/api/v1/comments/:id" do |env|
     body = html.body
     session_token = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
     ctoken = body.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
+
     if !ctoken
       env.response.content_type = "application/json"
 
@@ -1909,7 +1910,10 @@ get "/api/v1/comments/:id" do |env|
                     url = run["navigationEndpoint"]["urlEndpoint"]?.try &.["url"].as_s
                     if url
                       url = URI.parse(url)
+
+                      if url.path == "/redirect"
                       url = HTTP::Params.parse(url.query.not_nil!)["q"]
+                      end
                     else
                       url = run["navigationEndpoint"]["commandMetadata"]?.try &.["webCommandMetadata"]["url"].as_s
                     end
