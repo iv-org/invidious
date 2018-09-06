@@ -9,13 +9,13 @@ targets:
     main: src/invidious.cr
 
 dependencies:
-  kemal:
-     github: kemalcr/kemal
-  pg:
-    github: will/crystal-pg
   detect_language:
     github: detectlanguage/detectlanguage-crystal
+  kemal:
+    github: kemalcr/kemal
+  pg:
+    github: will/crystal-pg
 
-crystal: 0.26.0
+crystal: 0.26.1
 
 license: AGPLv3
