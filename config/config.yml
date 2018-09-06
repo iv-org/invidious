@@ -8,3 +8,4 @@ db:
   port: 5432
   dbname: invidious
 full_refresh: false
+https_only: false
