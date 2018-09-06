@@ -169,7 +169,7 @@ def get_referer(env, fallback = "/")
 
   referer = URI.parse(referer)
 
-  # "Unroll" nested referers
+  # "Unroll" nested referrers
   loop do
     if referer.query
       params = HTTP::Params.parse(referer.query.not_nil!)
