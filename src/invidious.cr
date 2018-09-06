@@ -1606,6 +1606,11 @@ get "/user/:user" do |env|
   env.redirect "/channel/#{user}"
 end
 
+get "/user/:user/videos" do |env|
+  user = env.params.url["user"]
+  env.redirect "/channel/#{user}/videos"
+end
+
 get "/channel/:ucid" do |env|
   user = env.get? "user"
   if user
