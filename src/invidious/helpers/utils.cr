@@ -184,6 +184,7 @@ def get_referer(env, fallback = "/")
   end
 
   referer = referer.full_path
+  referer = "/" + referer.lstrip("\/\\")
 
   if referer == env.request.path
     referer = fallback
