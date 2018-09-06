@@ -1407,21 +1407,26 @@ get "/feed/channel/:ucid" do |env|
     auto_generated = true
   end
 
-  url = produce_channel_videos_url(ucid, auto_generated: auto_generated)
-  response = client.get(url)
-  json = JSON.parse(response.body)
+  page = 1
 
-  if json["content_html"]? && !json["content_html"].as_s.empty?
-    document = XML.parse_html(json["content_html"].as_s)
-    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+  videos = [] of SearchVideo
+  2.times do |i|
+    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
+    response = client.get(url)
+    json = JSON.parse(response.body)
 
-    if auto_generated
-      videos = extract_videos(nodeset)
+    if json["content_html"]? && !json["content_html"].as_s.empty?
+      document = XML.parse_html(json["content_html"].as_s)
+      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+      if auto_generated
+        videos += extract_videos(nodeset)
+      else
+        videos += extract_videos(nodeset, ucid)
+      end
     else
-      videos = extract_videos(nodeset, ucid)
+      break
     end
-  else
-    videos = [] of SearchVideo
   end
 
   channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
@@ -1659,21 +1664,24 @@ get "/channel/:ucid" do |env|
     auto_generated = true
   end
 
-  url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
-  response = client.get(url)
-  json = JSON.parse(response.body)
+  videos = [] of SearchVideo
+  2.times do |i|
+    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
+    response = client.get(url)
+    json = JSON.parse(response.body)
 
-  if json["content_html"]? && !json["content_html"].as_s.empty?
-    document = XML.parse_html(json["content_html"].as_s)
-    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+    if json["content_html"]? && !json["content_html"].as_s.empty?
+      document = XML.parse_html(json["content_html"].as_s)
+      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
 
-    if auto_generated
-      videos = extract_videos(nodeset)
+      if auto_generated
+        videos += extract_videos(nodeset)
+      else
+        videos += extract_videos(nodeset, ucid)
+      end
     else
-      videos = extract_videos(nodeset, ucid)
+      break
     end
-  else
-    videos = [] of SearchVideo
   end
 
   templated "channel"
@@ -2309,21 +2317,26 @@ get "/api/v1/channels/:ucid" do |env|
     auto_generated = true
   end
 
-  url = produce_channel_videos_url(ucid, 1, auto_generated)
-  response = client.get(url)
+  page = 1
 
-  json = JSON.parse(response.body)
-  if json["content_html"]? && !json["content_html"].as_s.empty?
-    document = XML.parse_html(json["content_html"].as_s)
-    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+  videos = [] of SearchVideo
+  2.times do |i|
+    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
+    response = client.get(url)
+    json = JSON.parse(response.body)
 
-    if auto_generated
-      videos = extract_videos(nodeset)
+    if json["content_html"]? && !json["content_html"].as_s.empty?
+      document = XML.parse_html(json["content_html"].as_s)
+      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+      if auto_generated
+        videos += extract_videos(nodeset)
+      else
+        videos += extract_videos(nodeset, ucid)
+      end
     else
-      videos = extract_videos(nodeset, ucid)
+      break
     end
-  else
-    videos = [] of SearchVideo
   end
 
   channel_html = client.get("/channel/#{ucid}/about?disable_polymer=1").body
@@ -2486,21 +2499,24 @@ get "/api/v1/channels/:ucid/videos" do |env|
     auto_generated = true
   end
 
-  url = produce_channel_videos_url(ucid, auto_generated: auto_generated)
-  response = client.get(url)
-  json = JSON.parse(response.body)
+  videos = [] of SearchVideo
+  2.times do |i|
+    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
+    response = client.get(url)
+    json = JSON.parse(response.body)
 
-  if json["content_html"]? && !json["content_html"].as_s.empty?
-    document = XML.parse_html(json["content_html"].as_s)
-    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+    if json["content_html"]? && !json["content_html"].as_s.empty?
+      document = XML.parse_html(json["content_html"].as_s)
+      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
 
-    if auto_generated
-      videos = extract_videos(nodeset)
+      if auto_generated
+        videos += extract_videos(nodeset)
+      else
+        videos += extract_videos(nodeset, ucid)
+      end
     else
-      videos = extract_videos(nodeset, ucid)
+      break
     end
-  else
-    videos = [] of SearchVideo
   end
 
   result = JSON.build do |json|
