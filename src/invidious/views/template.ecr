@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <%= yield_content "header" %>
-  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
-  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-min.css">
-  <link rel="stylesheet" href="https://unpkg.com/ionicons@4.2.6/dist/css/ionicons.min.css">
+  <link rel="stylesheet" href="/css/pure-min.css">
+  <link rel="stylesheet" href="/css/grids-responsive-min.css">
+  <link rel="stylesheet" href="/css/ionicons.min.css">
   <link rel="stylesheet" href="/css/default.css">
   <% if env.get?("user") && env.get("user").as(User).preferences.dark_mode %>
   <link rel="stylesheet" href="/css/darktheme.css">
