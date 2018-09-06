@@ -191,7 +191,7 @@ function get_youtube_replies(target) {
 }
 
 function get_reddit_comments() {
-  var url = "/api/v1/comments/<%= video.id %>?source=reddit";
+  var url = "/api/v1/comments/<%= video.id %>?source=reddit&format=html";
   var xhr = new XMLHttpRequest();
   xhr.responseType = "json";
   xhr.timeout = 20000;

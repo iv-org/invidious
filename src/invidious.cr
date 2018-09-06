@@ -2014,16 +2014,24 @@ get "/api/v1/comments/:id" do |env|
       content_html = fill_links(content_html, "https", "www.reddit.com")
       content_html = replace_links(content_html)
     rescue ex
+      comments = nil
       reddit_thread = nil
       content_html = ""
     end
 
-    if !reddit_thread
+    if !reddit_thread || !comments
       halt env, status_code: 404
     end
 
     env.response.content_type = "application/json"
-    next {"title"       => reddit_thread.title,
+
+    if format == "json"
+      reddit_thread = JSON.parse(reddit_thread.to_json).as_h
+      reddit_thread["comments"] = JSON.parse(comments.to_json)
+      next reddit_thread.to_json
+    else
+      next {
+        "title"       => reddit_thread.title,
           "permalink"   => reddit_thread.permalink,
           "contentHtml" => content_html,
     }.to_json
