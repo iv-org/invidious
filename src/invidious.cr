@@ -1890,9 +1890,13 @@ get "/api/v1/comments/:id" do |env|
                   node_comment = node["commentRenderer"]
                 end
 
-                contentHtml = node_comment["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff')
-                contentHtml ||= node_comment["contentText"]["runs"].as_a.map do |run|
-                  text = run["text"].as_s
+                content_html = node_comment["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff')
+                if content_html
+                  content_html = HTML.escape(content_html)
+                end
+
+                content_html ||= node_comment["contentText"]["runs"].as_a.map do |run|
+                  text = HTML.escape(run["text"].as_s)
 
                   if run["text"] == "\n"
                     text = "<br>"
@@ -1924,7 +1928,7 @@ get "/api/v1/comments/:id" do |env|
                   text
                 end.join.rchop('\ufeff')
 
-                contentHtml, content = html_to_content(contentHtml)
+                content_html, content = html_to_content(content_html)
 
                 author = node_comment["authorText"]?.try &.["simpleText"]
                 author ||= ""
@@ -1953,7 +1957,7 @@ get "/api/v1/comments/:id" do |env|
                 published = decode_date(node_comment["publishedTimeText"]["runs"][0]["text"].as_s.rchop(" (edited)"))
 
                 json.field "content", content
-                json.field "contentHtml", contentHtml
+                json.field "contentHtml", content_html
                 json.field "published", published.epoch
                 json.field "likeCount", node_comment["likeCount"]
                 json.field "commentId", node_comment["commentId"]
