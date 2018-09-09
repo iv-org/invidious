@@ -367,8 +367,8 @@ def get_video(id, db, refresh = true)
   if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool)
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
-    # If record was last updated over an hour ago, refresh (expire param in response lasts for 6 hours)
-    if refresh && Time.now - video.updated > 1.hour
+    # If record was last updated over 10 minutes ago, refresh (expire param in response lasts for 6 hours)
+    if refresh && Time.now - video.updated > 10.minutes
       begin
         video = fetch_video(id)
         video_array = video.to_a
