@@ -345,10 +345,7 @@ class Video
     allowed_regions:    Array(String),
     is_family_friendly: Bool,
     genre:              String,
-    genre_url:          {
-      type:    String,
-      default: "/",
-    },
+    genre_url:          String,
   })
 end
 
