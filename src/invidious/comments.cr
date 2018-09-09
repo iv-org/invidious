@@ -196,15 +196,13 @@ def replace_links(html)
   html.xpath_nodes(%q(//a)).each do |anchor|
     url = URI.parse(anchor["href"])
 
-    if ["www.youtube.com", "m.youtube.com"].includes?(url.host)
+    if {"www.youtube.com", "m.youtube.com", "youtu.be"}.includes?(url.host)
       if url.path == "/redirect"
         params = HTTP::Params.parse(url.query.not_nil!)
         anchor["href"] = params["q"]?
       else
         anchor["href"] = url.full_path
       end
-    elsif url.host == "youtu.be"
-      anchor["href"] = "/watch?v=#{url.path.try &.lchop("/")}&#{url.query}"
     elsif url.to_s == "#"
       begin
         length_seconds = decode_length_seconds(anchor.content)

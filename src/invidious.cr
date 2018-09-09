@@ -1917,8 +1917,12 @@ get "/api/v1/comments/:id" do |env|
                     if url
                       url = URI.parse(url)
 
+                      if {"m.youtube.com", "www.youtube.com", "youtu.be"}.includes? url.host
                       if url.path == "/redirect"
                         url = HTTP::Params.parse(url.query.not_nil!)["q"]
+                        else
+                          url = url.full_path
+                      end
                       end
                     else
                       url = run["navigationEndpoint"]["commandMetadata"]?.try &.["webCommandMetadata"]["url"].as_s
