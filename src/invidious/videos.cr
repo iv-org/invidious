@@ -346,6 +346,10 @@ class Video
     is_family_friendly: Bool,
     genre:              String,
     genre_url:          String,
+    license:            {
+      type:    String,
+      default: "",
+    },
   })
 end
 
@@ -373,6 +377,9 @@ def get_video(id, db, refresh = true)
         video = fetch_video(id)
         video_array = video.to_a
 
+        # MIGRATION POINT
+        video_array = video_array[0..-2]
+
         args = arg_array(video_array[1..-1], 2)
 
         db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
@@ -387,6 +394,9 @@ def get_video(id, db, refresh = true)
   else
     video = fetch_video(id)
     video_array = video.to_a
+
+    # MIGRATION POINT
+    video_array = video_array[0..-2]
 
     args = arg_array(video_array)
 
@@ -498,8 +508,15 @@ def fetch_video(id)
   genre = html.xpath_node(%q(//meta[@itemprop="genre"])).not_nil!["content"]
   genre_url = html.xpath_node(%(//a[text()="#{genre}"])).not_nil!["href"]
 
+  license = html.xpath_node(%q(//h4[contains(text(),"License")]/parent::*/ul/li))
+  if license
+    license = license.content
+  else
+    license ||= ""
+  end
+
   video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description,
-    nil, author, ucid, allowed_regions, is_family_friendly, genre, genre_url)
+    nil, author, ucid, allowed_regions, is_family_friendly, genre, genre_url, license)
 
   return video
 end

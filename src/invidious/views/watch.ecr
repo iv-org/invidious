@@ -56,6 +56,9 @@
             <p><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
             <p><i class="icon ion-ios-thumbs-down"></i> <%= number_with_separator(video.dislikes) %></p>
             <p id="Genre">Genre: <a href="<%= video.genre_url %>"><%= video.genre %></a></p>
+            <% if !video.license.empty? %>
+            <p id="License">License: <%= video.license %></p>
+            <% end %>
             <p id="FamilyFriendly">Family Friendly? <%= video.is_family_friendly %></p>
             <p id="Wilson">Wilson Score: <%= video.wilson_score.round(4) %></p>
             <p id="Rating">Rating: <%= rating.round(4) %> / 5</p>
