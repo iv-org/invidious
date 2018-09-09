@@ -1403,7 +1403,8 @@ get "/feed/channel/:ucid" do |env|
 
   # Auto-generated channels
   # https://support.google.com/youtube/answer/2579942
-  if author.ends_with? " - Topic"
+  if author.ends_with?(" - Topic") ||
+     {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
     auto_generated = true
   end
 
@@ -1660,7 +1661,8 @@ get "/channel/:ucid" do |env|
 
   # Auto-generated channels
   # https://support.google.com/youtube/answer/2579942
-  if author.ends_with? " - Topic"
+  if author.ends_with?(" - Topic") ||
+     {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
     auto_generated = true
   end
 
@@ -2330,7 +2332,8 @@ get "/api/v1/channels/:ucid" do |env|
 
   # Auto-generated channels
   # https://support.google.com/youtube/answer/2579942
-  if author.ends_with? " - Topic"
+  if author.ends_with?(" - Topic") ||
+     {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
     auto_generated = true
   end
 
@@ -2512,7 +2515,8 @@ get "/api/v1/channels/:ucid/videos" do |env|
 
   # Auto-generated channels
   # https://support.google.com/youtube/answer/2579942
-  if author.ends_with? " - Topic"
+  if author.ends_with?(" - Topic") ||
+     {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
     auto_generated = true
   end
 

@@ -140,7 +140,7 @@ def fetch_user(sid, client, headers, db)
 
   channels = [] of String
   feed.xpath_nodes(%q(//ul[@id="guide-channels"]/li/a)).each do |channel|
-    if !["Popular on YouTube", "Music", "Sports", "Gaming"].includes? channel["title"]
+    if !{"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? channel["title"]
       channel_id = channel["href"].lstrip("/channel/")
 
       begin
