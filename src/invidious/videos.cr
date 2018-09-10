@@ -377,14 +377,11 @@ def get_video(id, db, refresh = true)
         video = fetch_video(id)
         video_array = video.to_a
 
-        # MIGRATION POINT
-        video_array = video_array[0..-2]
-
         args = arg_array(video_array[1..-1], 2)
 
         db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
           published,description,language,author,ucid, allowed_regions, is_family_friendly,\
-          genre, genre_url)\
+          genre, genre_url, license)\
           = (#{args}) WHERE id = $1", video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
@@ -394,9 +391,6 @@ def get_video(id, db, refresh = true)
   else
     video = fetch_video(id)
     video_array = video.to_a
-
-    # MIGRATION POINT
-    video_array = video_array[0..-2]
 
     args = arg_array(video_array)
 
