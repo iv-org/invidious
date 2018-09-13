@@ -12,6 +12,43 @@ class SearchVideo
   })
 end
 
+def channel_search(query, page, channel)
+  client = make_client(YT_URL)
+
+  response = client.get("/user/#{channel}")
+  document = XML.parse_html(response.body)
+  canonical = document.xpath_node(%q(//link[@rel="canonical"]))
+
+  if !canonical
+    response = client.get("/channel/#{channel}")
+    document = XML.parse_html(response.body)
+    canonical = document.xpath_node(%q(//link[@rel="canonical"]))
+  end
+
+  if !canonical
+    return 0, [] of SearchVideo
+  end
+
+  ucid = canonical["href"].split("/")[-1]
+
+  url = produce_channel_search_url(ucid, query, page)
+  response = client.get(url)
+  json = JSON.parse(response.body)
+
+  if json["content_html"]? && !json["content_html"].as_s.empty?
+    document = XML.parse_html(json["content_html"].as_s)
+    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+    count = nodeset.size
+    videos = extract_videos(nodeset)
+  else
+    count = 0
+    videos = [] of SearchVideo
+  end
+
+  return count, videos
+end
+
 def search(query, page = 1, search_params = build_search_params(content_type: "video"))
   client = make_client(YT_URL)
   if query.empty?
@@ -123,4 +160,36 @@ def build_search_params(sort : String = "relevance", date : String = "", content
   token = URI.escape(token)
 
   return token
+end
+
+def produce_channel_search_url(ucid, query, page)
+  page = "#{page}"
+
+  meta = "\x12\x06search0\x02\x38\x01\x60\x01\x6a\x00\x7a"
+  meta += page.size.to_u8.unsafe_chr
+  meta += page
+  meta += "\xb8\x01\x00"
+
+  meta = Base64.urlsafe_encode(meta)
+  meta = URI.escape(meta)
+
+  continuation = "\x12"
+  continuation += ucid.size.to_u8.unsafe_chr
+  continuation += ucid
+  continuation += "\x1a"
+  continuation += meta.size.to_u8.unsafe_chr
+  continuation += meta
+  continuation += "\x5a"
+  continuation += query.size.to_u8.unsafe_chr
+  continuation += query
+
+  continuation = continuation.size.to_u8.unsafe_chr + continuation
+  continuation = "\xe2\xa9\x85\xb2\x02" + continuation
+
+  continuation = Base64.urlsafe_encode(continuation)
+  continuation = URI.escape(continuation)
+
+  url = "/browse_ajax?continuation=#{continuation}"
+
+  return url
 end

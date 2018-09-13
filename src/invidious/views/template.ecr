@@ -28,7 +28,7 @@
         <div class="pure-u-1 pure-u-md-12-24 searchbar">
           <form class="pure-form" action="/search" method="get">
             <fieldset>
-              <input type="search" style="width:100%;" name="q" placeholder="search" value="<%= env.params.query["q"]? %>">
+              <input type="search" style="width:100%;" name="q" placeholder="search" value="<%= env.params.query["q"]? || env.get? "search" %>">
             </fieldset>
           </form>
         </div>

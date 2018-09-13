@@ -432,32 +432,39 @@ get "/search" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
-  sort = "relevance"
+  channel = nil
   date = ""
   duration = ""
   features = [] of String
+  sort = "relevance"
 
   operators = query.split(" ").select { |a| a.match(/\w+:[\w,]+/) }
   operators.each do |operator|
     key, value = operator.split(":")
 
     case key
-    when "sort"
-      sort = value
+    when "channel", "user"
+      channel = value
     when "date"
       date = value
     when "duration"
       duration = value
     when "features"
       features = value.split(",")
+    when "sort"
+      sort = value
     end
   end
 
   search_query = (query.split(" ") - operators).join(" ")
 
-  search_params = build_search_params(sort: sort, date: date, content_type: "video",
-    duration: duration, features: features)
-  count, videos = search(search_query, page, search_params).as(Tuple)
+  if channel
+    count, videos = channel_search(search_query, page, channel)
+  else
+    search_params = build_search_params(sort: sort, date: date, content_type: "video",
+      duration: duration, features: features)
+    count, videos = search(search_query, page, search_params).as(Tuple)
+  end
 
   templated "search"
 end
@@ -1666,6 +1673,14 @@ get "/channel/:ucid" do |env|
     auto_generated = true
   end
 
+  if !auto_generated
+    if author.includes? " "
+      env.set "search", "channel:#{ucid} "
+    else
+      env.set "search", "channel:#{author.downcase} "
+    end
+  end
+
   videos = [] of SearchVideo
   2.times do |i|
     url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
@@ -1918,11 +1933,11 @@ get "/api/v1/comments/:id" do |env|
                       url = URI.parse(url)
 
                       if {"m.youtube.com", "www.youtube.com", "youtu.be"}.includes? url.host
-                      if url.path == "/redirect"
-                        url = HTTP::Params.parse(url.query.not_nil!)["q"]
+                        if url.path == "/redirect"
+                          url = HTTP::Params.parse(url.query.not_nil!)["q"]
                         else
                           url = url.full_path
-                      end
+                        end
                       end
                     else
                       url = run["navigationEndpoint"]["commandMetadata"]?.try &.["webCommandMetadata"]["url"].as_s
