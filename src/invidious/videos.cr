@@ -262,6 +262,75 @@ class Video
       self.info["adaptive_fmts"].split(",") do |string|
         adaptive_fmts << HTTP::Params.parse(string)
       end
+    elsif self.info.has_key?("dashmpd")
+      client = make_client(YT_URL)
+      response = client.get(self.info["dashmpd"])
+      document = XML.parse_html(response.body)
+
+      document.xpath_nodes(%q(//adaptationset)).each do |adaptation_set|
+        mime_type = adaptation_set["mimetype"]
+
+        document.xpath_nodes(%q(.//representation)).each do |representation|
+          codecs = representation["codecs"]
+          itag = representation["id"]
+          bandwidth = representation["bandwidth"]
+          url = representation.xpath_node(%q(.//baseurl)).not_nil!.content
+
+          clen = url.match(/clen\/(?<clen>\d+)/).try &.["clen"]
+          clen ||= "0"
+          lmt = url.match(/lmt\/(?<lmt>\d+)/).not_nil!["lmt"]
+
+          segment_list = representation.xpath_node(%q(.//segmentlist)).not_nil!
+          init = segment_list.xpath_node(%q(.//initialization)).not_nil!["sourceurl"]
+          index = segment_list.xpath_node(%q(.//segmenturl)).not_nil!["media"]
+
+          # TODO: Replace with sane defaults when byteranges are absent
+          if init.starts_with? "sq"
+            init = "0-0"
+            index = "1-1"
+          else
+            init = init.lchop("range/")
+            index = index.lchop("range/")
+            index = "#{init.split("-")[1].to_i + 1}-#{index.split("-")[0].to_i}"
+          end
+
+          params = {
+            "type"            => ["#{mime_type}; codecs=\"#{codecs}\""],
+            "url"             => [url],
+            "projection_type" => ["1"],
+            "index"           => [index],
+            "init"            => [init],
+            "xtags"           => [] of String,
+            "lmt"             => [lmt],
+            "clen"            => [clen],
+            "bitrate"         => [bandwidth],
+            "itag"            => [itag],
+          }
+
+          if mime_type == "video/mp4"
+            width = representation["width"]?
+            height = representation["height"]?
+            fps = representation["framerate"]?
+
+            metadata = itag_to_metadata?(itag)
+            if metadata
+              width ||= metadata["width"]?
+              height ||= metadata["height"]?
+              fps ||= metadata["fps"]?
+            end
+
+            if width && height
+              params["size"] = ["#{width}x#{height}"]
+            end
+
+            if width
+              params["quality_label"] = ["#{height}p"]
+            end
+          end
+
+          adaptive_fmts << HTTP::Params.new(params)
+        end
+      end
     end
 
     if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
