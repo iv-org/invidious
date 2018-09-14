@@ -1980,7 +1980,7 @@ get "/api/v1/comments/:id" do |env|
                 json.field "content", content
                 json.field "contentHtml", content_html
                 json.field "published", published.epoch
-                json.field "publishedText", "#{recode_date(video.published)} ago"
+                json.field "publishedText", "#{recode_date(published)} ago"
                 json.field "likeCount", node_comment["likeCount"]
                 json.field "commentId", node_comment["commentId"]
 
