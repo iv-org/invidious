@@ -119,13 +119,18 @@ end
 def fetch_playlist(plid)
   client = make_client(YT_URL)
   response = client.get("/playlist?list=#{plid}&disable_polymer=1")
-  document = XML.parse_html(response.body)
+  body = response.body.gsub(<<-END_BUTTON
+  <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-link yt-uix-expander-head playlist-description-expander yt-uix-inlineedit-ignore-edit" type="button" onclick=";return false;"><span class="yt-uix-button-content">  less <img alt="" src="/yts/img/pixel-vfl3z5WfW.gif">
+  </span></button>
+  END_BUTTON
+  , "")
+  document = XML.parse_html(body)
 
   title = document.xpath_node(%q(//h1[@class="pl-header-title"])).not_nil!.content
   title = title.strip(" \n")
 
   description_html = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1]))
-  description, description_html = html_to_content(description_html)
+  description_html, description = html_to_content(description_html)
 
   anchor = document.xpath_node(%q(//ul[@class="pl-header-details"])).not_nil!
   author = anchor.xpath_node(%q(.//li[1]/a)).not_nil!.content
