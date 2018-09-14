@@ -1980,6 +1980,7 @@ get "/api/v1/comments/:id" do |env|
                 json.field "content", content
                 json.field "contentHtml", content_html
                 json.field "published", published.epoch
+                json.field "publishedText", "#{recode_date(video.published)} ago"
                 json.field "likeCount", node_comment["likeCount"]
                 json.field "commentId", node_comment["commentId"]
 
@@ -2098,6 +2099,7 @@ get "/api/v1/videos/:id" do |env|
       json.field "description", description
       json.field "descriptionHtml", video.description
       json.field "published", video.published.epoch
+      json.field "publishedText", "#{recode_date(video.published)} ago"
       json.field "keywords" do
         json.array do
           video.info["keywords"].split(",").each { |keyword| json.string keyword }
@@ -2275,6 +2277,7 @@ get "/api/v1/trending" do |env|
           json.field "authorUrl", "/channel/#{video.ucid}"
 
           json.field "published", video.published.epoch
+          json.field "publishedText", "#{recode_date(video.published)} ago"
           json.field "description", video.description
           json.field "descriptionHtml", video.description_html
         end
@@ -2303,6 +2306,7 @@ get "/api/v1/top" do |env|
           json.field "author", video.author
           json.field "authorUrl", "/channel/#{video.ucid}"
           json.field "published", video.published.epoch
+          json.field "publishedText", "#{recode_date(video.published)} ago"
 
           description = video.description.gsub("<br>", "\n")
           description = description.gsub("<br/>", "\n")
@@ -2486,6 +2490,7 @@ get "/api/v1/channels/:ucid" do |env|
 
               json.field "viewCount", video.views
               json.field "published", video.published.epoch
+              json.field "publishedText", "#{recode_date(video.published)} ago"
               json.field "lengthSeconds", video.length_seconds
             end
           end
@@ -2585,6 +2590,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
 
           json.field "viewCount", video.views
           json.field "published", video.published.epoch
+          json.field "publishedText", "#{recode_date(video.published)} ago"
           json.field "lengthSeconds", video.length_seconds
         end
       end
@@ -2650,6 +2656,7 @@ get "/api/v1/search" do |env|
 
           json.field "viewCount", video.views
           json.field "published", video.published.epoch
+          json.field "publishedText", "#{recode_date(video.published)} ago"
           json.field "lengthSeconds", video.length_seconds
         end
       end
