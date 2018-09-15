@@ -212,5 +212,7 @@ div {
 #player-container {
   position: relative;
   padding-bottom: 56.25%;
+  margin-left: 1em;
+  margin-right: 1em;
   height: 0;
 }
