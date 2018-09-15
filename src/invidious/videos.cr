@@ -278,20 +278,22 @@ class Video
 
           clen = url.match(/clen\/(?<clen>\d+)/).try &.["clen"]
           clen ||= "0"
-          lmt = url.match(/lmt\/(?<lmt>\d+)/).not_nil!["lmt"]
+          lmt = url.match(/lmt\/(?<lmt>\d+)/).try &.["lmt"]
+          lmt ||= "#{((Time.now + 1.hour).epoch_f.to_f64 * 1000000).to_i64}"
 
           segment_list = representation.xpath_node(%q(.//segmentlist)).not_nil!
-          init = segment_list.xpath_node(%q(.//initialization)).not_nil!["sourceurl"]
-          index = segment_list.xpath_node(%q(.//segmenturl)).not_nil!["media"]
+          init = segment_list.xpath_node(%q(.//initialization))
 
           # TODO: Replace with sane defaults when byteranges are absent
-          if init.starts_with? "sq"
-            init = "0-0"
-            index = "1-1"
-          else
-            init = init.lchop("range/")
+          if init
+            init = init["sourceurl"].lchop("range/")
+
+            index = segment_list.xpath_node(%q(.//segmenturl)).not_nil!["media"]
             index = index.lchop("range/")
             index = "#{init.split("-")[1].to_i + 1}-#{index.split("-")[0].to_i}"
+          else
+            init = "0-0"
+            index = "1-1"
           end
 
           params = {
