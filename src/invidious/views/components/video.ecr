@@ -8,7 +8,7 @@
         <a style="width:100%;" href="/watch?v=<%= video.id %><%= params %>">
             <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
             <% else %>
-            <img style="width:100%;" src="https://i.ytimg.com/vi/<%= video.id %>/mqdefault.jpg"/>
+            <img style="width:100%;" src="/vi/<%= video.id %>/mqdefault.jpg"/>
             <% end %>
             <p><%= video.title %></p>
         </a>

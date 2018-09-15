@@ -173,7 +173,7 @@ div {
 
 /* ProgressBar marker */
 .vjs-marker {
-    background-color: rgba(255, 255, 255, 1);
+  background-color: rgba(255, 255, 255, 1);
 }
 
 /* Big "Play" Button */
@@ -195,4 +195,14 @@ div {
   min-width: 0px;
   padding-left: 0px;
   padding-right: 0px;
+}
+
+video[poster] {
+  object-fit: cover;
+  background-color: transparent;
+}
+
+.vjs-poster {
+  background-size: cover !important;
+  object-fit: cover !important;
 }

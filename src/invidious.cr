@@ -264,8 +264,7 @@ get "/watch" do |env|
     hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
   end
 
-  # TODO: Find highest resolution thumbnail automatically
-  thumbnail = "https://i.ytimg.com/vi/#{video.id}/mqdefault.jpg"
+  thumbnail = "/vi/#{video.id}/maxres.jpg"
 
   if params[:raw]
     url = fmt_stream[0]["url"]
@@ -364,8 +363,7 @@ get "/embed/:id" do |env|
     hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
   end
 
-  # TODO: Find highest resolution thumbnail automatically
-  thumbnail = "https://i.ytimg.com/vi/#{video.id}/mqdefault.jpg"
+  thumbnail = "/vi/#{video.id}/maxres.jpg"
 
   if params[:raw]
     url = fmt_stream[0]["url"]
@@ -1478,7 +1476,7 @@ get "/feed/channel/:ucid" do |env|
 
           xml.element("media:group") do
             xml.element("media:title") { xml.text video.title }
-            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video.id}/mqdefault.jpg",
+            xml.element("media:thumbnail", url: "/vi/#{video.id}/mqdefault.jpg",
               width: "320", height: "180")
             xml.element("media:description") { xml.text video.description }
           end
@@ -1583,7 +1581,7 @@ get "/feed/private" do |env|
 
           xml.element("media:group") do
             xml.element("media:title") { xml.text video.title }
-            xml.element("media:thumbnail", url: "https://i.ytimg.com/vi/#{video.id}/mqdefault.jpg",
+            xml.element("media:thumbnail", url: "/vi/#{video.id}/mqdefault.jpg",
               width: "320", height: "180")
           end
         end
@@ -2947,6 +2945,46 @@ get "/videoplayback" do |env|
   headers.delete("Referer")
 
   client.get(url, headers) do |response|
+    env.response.status_code = response.status_code
+
+    response.headers.each do |key, value|
+      env.response.headers[key] = value
+    end
+
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+    begin
+      chunk_size = 4096
+      size = 1
+      while size > 0
+        size = IO.copy(response.body_io, env.response.output, chunk_size)
+        env.response.flush
+        Fiber.yield
+      end
+    rescue ex
+      break
+    end
+  end
+end
+
+get "/vi/:id/:name" do |env|
+  id = env.params.url["id"]
+  name = env.params.url["name"]
+
+  host = "https://i.ytimg.com"
+  client = make_client(URI.parse(host))
+
+  if name == "maxres.jpg"
+    VIDEO_THUMBNAILS.each do |thumb|
+      if client.head("/vi/#{id}/#{thumb[:url]}.jpg").status_code == 200
+        name = thumb[:url] + ".jpg"
+        break
+      end
+    end
+  end
+  url = "/vi/#{id}/#{name}"
+
+  client.get(url) do |response|
     env.response.status_code = response.status_code
 
     response.headers.each do |key, value|
