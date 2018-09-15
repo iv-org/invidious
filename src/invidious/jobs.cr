@@ -141,8 +141,7 @@ end
 def update_decrypt_function
   loop do
     begin
-      client = make_client(YT_URL)
-      decrypt_function = fetch_decrypt_function(client)
+      decrypt_function = fetch_decrypt_function
     rescue ex
       next
     end

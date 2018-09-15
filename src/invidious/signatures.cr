@@ -1,4 +1,5 @@
-def fetch_decrypt_function(client, id = "CvFH_6DNRCY")
+def fetch_decrypt_function(id = "CvFH_6DNRCY")
+  client = make_client(YT_URL)
   document = client.get("/watch?v=#{id}").body
   url = document.match(/src="(?<url>\/yts\/jsbin\/player-.{9}\/en_US\/base.js)"/).not_nil!["url"]
   player = client.get(url).body
