@@ -258,6 +258,7 @@ class Video
 
   def adaptive_fmts(decrypt_function)
     adaptive_fmts = [] of HTTP::Params
+
     if self.info.has_key?("adaptive_fmts")
       self.info["adaptive_fmts"].split(",") do |string|
         adaptive_fmts << HTTP::Params.parse(string)
@@ -285,7 +286,7 @@ class Video
           init = segment_list.xpath_node(%q(.//initialization))
 
           # TODO: Replace with sane defaults when byteranges are absent
-          if init
+          if init && !init["sourceurl"].starts_with? "sq"
             init = init["sourceurl"].lchop("range/")
 
             index = segment_list.xpath_node(%q(.//segmenturl)).not_nil!["media"]
