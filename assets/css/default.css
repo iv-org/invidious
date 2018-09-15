@@ -197,12 +197,7 @@ div {
   padding-right: 0px;
 }
 
-video[poster] {
+.video-js .vjs-poster {
+  background-size: cover;
   object-fit: cover;
-  background-color: transparent;
-}
-
-.vjs-poster {
-  background-size: cover !important;
-  object-fit: cover !important;
 }
