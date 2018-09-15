@@ -201,3 +201,16 @@ div {
   background-size: cover;
   object-fit: cover;
 }
+
+#player {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+}
+
+#player-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+}
