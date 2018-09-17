@@ -1618,6 +1618,38 @@ get "/feed/private" do |env|
   feed
 end
 
+get "/feed/playlist/:plid" do |env|
+  plid = env.params.url["plid"]
+
+  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
+  path = env.request.path
+
+  client = make_client(YT_URL)
+  response = client.get("/feeds/videos.xml?playlist_id=#{plid}")
+  document = XML.parse(response.body)
+
+  document.xpath_nodes(%q(//*[@href]|//*[@url])).each do |node|
+    node.attributes.each do |attribute|
+      case attribute.name
+      when "url"
+        node["url"] = "#{host_url}#{URI.parse(node["url"]).full_path}"
+      when "href"
+        node["href"] = "#{host_url}#{URI.parse(node["href"]).full_path}"
+      end
+    end
+  end
+
+  document = document.to_xml(options: XML::SaveOptions::NO_DECL)
+
+  document.scan(/<uri>(?<url>[^<]+)<\/uri>/).each do |match|
+    content = "#{host_url}#{URI.parse(match["url"]).full_path}"
+    document = document.gsub(match[0], "<uri>#{content}</uri>")
+  end
+
+  env.response.content_type = "text/xml"
+  document
+end
+
 # Channels
 
 # YouTube appears to let users set a "brand" URL that
