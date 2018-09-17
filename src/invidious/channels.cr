@@ -95,6 +95,8 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
         videos = extract_videos(nodeset)
       else
         videos = extract_videos(nodeset, ucid)
+        videos.each { |video| video.ucid = ucid }
+        videos.each { |video| video.author = author }
       end
 
       count = nodeset.size
@@ -103,11 +105,12 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
       videos.each do |video|
         ids << video.id
         db.exec("UPDATE users SET notifications = notifications || $1 \
-          WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, ucid)
+          WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
 
         video_array = video.to_a
         args = arg_array(video_array)
-        db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO UPDATE SET published = $3", video_array)
+        db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO UPDATE SET title = $2, \
+          published = $3, updated = $4, ucid = $5, author = $6", video_array)
       end
 
       if count < 30

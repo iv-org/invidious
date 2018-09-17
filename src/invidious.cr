@@ -430,6 +430,13 @@ get "/search" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
+  user = env.get? "user"
+  if user
+    user = user.as(User)
+    ucids = user.subscriptions
+  end
+  ucids ||= [] of String
+
   channel = nil
   date = ""
   duration = ""
@@ -467,8 +474,8 @@ get "/search" do |env|
         to_tsvector(channel_videos.title) ||
         to_tsvector(channel_videos.author)
           as document
-      FROM channel_videos
-    ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", search_query, (page - 1) * 20, as: ChannelVideo)
+      FROM channel_videos WHERE ucid IN (#{arg_array(ucids, 3)})
+    ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", [search_query, (page - 1) * 20] + ucids, as: ChannelVideo)
     count = videos.size
   else
     search_params = build_search_params(sort: sort, date: date, content_type: "video",
