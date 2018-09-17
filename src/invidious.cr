@@ -3011,7 +3011,6 @@ get "/vi/:id/:name" do |env|
 
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
-    puts response.headers.inspect
     response.headers.each do |key, value|
       env.response.headers[key] = value
     end
@@ -3021,23 +3020,23 @@ get "/vi/:id/:name" do |env|
     end
 
     chunk_size = 4096
-    size = chunk_size
+    size = 1
     if response.headers.includes_word?("Content-Encoding", "gzip")
       Gzip::Writer.open(env.response) do |deflate|
-        until size < chunk_size
+        until size == 0
           size = IO.copy(response.body_io, deflate)
           env.response.flush
         end
       end
     elsif response.headers.includes_word?("Content-Encoding", "deflate")
       Flate::Writer.open(env.response) do |deflate|
-        until size < chunk_size
+        until size == 0
           size = IO.copy(response.body_io, deflate)
           env.response.flush
         end
       end
     else
-      until size < chunk_size
+      until size == 0
         size = IO.copy(response.body_io, env.response, chunk_size)
         env.response.flush
       end
