@@ -48,6 +48,13 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
   end
   author = author.content
 
+  # Auto-generated channels
+  # https://support.google.com/youtube/answer/2579942
+  if author.ends_with?(" - Topic") ||
+     {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
+    auto_generated = true
+  end
+
   if !pull_all_videos
     rss.xpath_nodes("//feed/entry").each do |entry|
       video_id = entry.xpath_node("videoid").not_nil!.content
@@ -73,9 +80,25 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
     ids = [] of String
 
     loop do
-      videos = extract_playlist(ucid, page)
+      url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
+      response = client.get(url)
+      json = JSON.parse(response.body)
+
+      if json["content_html"]? && !json["content_html"].as_s.empty?
+        document = XML.parse_html(json["content_html"].as_s)
+        nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+      else
+        break
+      end
+
+      if auto_generated
+        videos = extract_videos(nodeset)
+      else
+        videos = extract_videos(nodeset, ucid)
+      end
+
+      count = nodeset.size
       videos = videos.map { |video| ChannelVideo.new(video.id, video.title, video.published, Time.now, video.ucid, video.author) }
-      count = videos.size
 
       videos.each do |video|
         ids << video.id
@@ -84,10 +107,10 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
 
         video_array = video.to_a
         args = arg_array(video_array)
-        db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
+        db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO UPDATE SET published = $3", video_array)
       end
 
-      if count < 100
+      if count < 30
         break
       end
 
