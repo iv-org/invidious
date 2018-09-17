@@ -88,28 +88,29 @@ def produce_playlist_url(id, index)
   end
   ucid = "VL" + id
 
-  continuation = [0x08_u8] + write_var_int(index)
-  slice = continuation.to_unsafe.to_slice(continuation.size)
-  slice = Base64.urlsafe_encode(slice, false)
+  meta = "\x08#{write_var_int(index).join}"
+  meta = Base64.urlsafe_encode(meta, false)
+  meta = "PT:#{meta}"
 
-  # Inner Base64
-  continuation = "PT:" + slice
-  continuation = [0x7a_u8, continuation.bytes.size.to_u8] + continuation.bytes
-  slice = continuation.to_unsafe.to_slice(continuation.size)
-  slice = Base64.urlsafe_encode(slice)
-  slice = URI.escape(slice)
+  wrapped = "\x7a"
+  wrapped += meta.bytes.size.unsafe_chr
+  wrapped += meta
 
-  # Outer Base64
-  continuation = [0x1a_u8, slice.bytes.size.to_u8] + slice.bytes
-  continuation = ucid.bytes + continuation
-  continuation = [0x12_u8, ucid.size.to_u8] + continuation
-  continuation = [0xe2_u8, 0xa9_u8, 0x85_u8, 0xb2_u8, 2_u8, continuation.size.to_u8] + continuation
+  wrapped = Base64.urlsafe_encode(wrapped)
+  meta = URI.escape(wrapped)
 
-  # Wrap bytes
-  slice = continuation.to_unsafe.to_slice(continuation.size)
-  slice = Base64.urlsafe_encode(slice)
-  slice = URI.escape(slice)
-  continuation = slice
+  continuation = "\x12"
+  continuation += ucid.size.unsafe_chr
+  continuation += ucid
+  continuation += "\x1a"
+  continuation += meta.bytes.size.unsafe_chr
+  continuation += meta
+
+  continuation = continuation.size.to_u8.unsafe_chr + continuation
+  continuation = "\xe2\xa9\x85\xb2\x02" + continuation
+
+  continuation = Base64.urlsafe_encode(continuation)
+  continuation = URI.escape(continuation)
 
   url = "/browse_ajax?action_continuation=1&continuation=#{continuation}"
 

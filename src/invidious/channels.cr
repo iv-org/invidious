@@ -145,10 +145,16 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil)
     switch = "\x00"
   end
 
-  meta = "\x12\x06videos #{switch}\x30\x02\x38\x01\x60\x01\x6a\x00\x7a"
+  meta = "\x12\x06videos"
+  meta += "\x30\x02"
+  meta += "\x38\x01"
+  meta += "\x60\x01"
+  meta += "\x6a\x00"
+  meta += "\xb8\x01\x00"
+  meta += "\x20#{switch}"
+  meta += "\x7a"
   meta += page.size.to_u8.unsafe_chr
   meta += page
-  meta += "\xb8\x01\x00"
 
   meta = Base64.urlsafe_encode(meta)
   meta = URI.escape(meta)

@@ -49,7 +49,7 @@ def channel_search(query, page, channel)
   return count, videos
 end
 
-def search(query, page = 1, search_params = build_search_params(content_type: "video"))
+def search(query, page = 1, search_params = produce_search_params(content_type: "video"))
   client = make_client(YT_URL)
   if query.empty?
     return {0, [] of SearchVideo}
@@ -67,8 +67,8 @@ def search(query, page = 1, search_params = build_search_params(content_type: "v
   return {nodeset.size, videos}
 end
 
-def build_search_params(sort : String = "relevance", date : String = "", content_type : String = "",
-                        duration : String = "", features : Array(String) = [] of String)
+def produce_search_params(sort : String = "relevance", date : String = "", content_type : String = "",
+                          duration : String = "", features : Array(String) = [] of String)
   head = "\x08"
   head += case sort
           when "relevance"
@@ -151,7 +151,7 @@ def build_search_params(sort : String = "relevance", date : String = "", content
   end
 
   if body.size > 0
-    token = head + "\x12" + body.size.to_u8.unsafe_chr + body
+    token = head + "\x12" + body.size.unsafe_chr + body
   else
     token = head
   end
@@ -165,25 +165,30 @@ end
 def produce_channel_search_url(ucid, query, page)
   page = "#{page}"
 
-  meta = "\x12\x06search0\x02\x38\x01\x60\x01\x6a\x00\x7a"
-  meta += page.size.to_u8.unsafe_chr
-  meta += page
+  meta = "\x12\x06search"
+  meta += "\x30\x02"
+  meta += "\x38\x01"
+  meta += "\x60\x01"
+  meta += "\x6a\x00"
   meta += "\xb8\x01\x00"
+  meta += "\x7a"
+  meta += page.size.unsafe_chr
+  meta += page
 
   meta = Base64.urlsafe_encode(meta)
   meta = URI.escape(meta)
 
   continuation = "\x12"
-  continuation += ucid.size.to_u8.unsafe_chr
+  continuation += ucid.size.unsafe_chr
   continuation += ucid
   continuation += "\x1a"
-  continuation += meta.size.to_u8.unsafe_chr
+  continuation += meta.size.unsafe_chr
   continuation += meta
   continuation += "\x5a"
-  continuation += query.size.to_u8.unsafe_chr
+  continuation += query.size.unsafe_chr
   continuation += query
 
-  continuation = continuation.size.to_u8.unsafe_chr + continuation
+  continuation = continuation.size.unsafe_chr + continuation
   continuation = "\xe2\xa9\x85\xb2\x02" + continuation
 
   continuation = Base64.urlsafe_encode(continuation)

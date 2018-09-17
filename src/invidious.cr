@@ -455,7 +455,7 @@ get "/search" do |env|
       date = value
     when "duration"
       duration = value
-    when "features"
+    when "feature", "features"
       features = value.split(",")
     when "sort"
       sort = value
@@ -478,8 +478,14 @@ get "/search" do |env|
     ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", [search_query, (page - 1) * 20] + ucids, as: ChannelVideo)
     count = videos.size
   else
-    search_params = build_search_params(sort: sort, date: date, content_type: "video",
-      duration: duration, features: features)
+    begin
+      search_params = produce_search_params(sort: sort, date: date, content_type: "video",
+        duration: duration, features: features)
+    rescue ex
+      error_message = ex.message
+      next templated "error"
+    end
+
     count, videos = search(search_query, page, search_params).as(Tuple)
   end
 
@@ -2643,7 +2649,7 @@ get "/api/v1/search" do |env|
   env.response.content_type = "application/json"
 
   begin
-    search_params = build_search_params(sort_by, date, content_type, duration, features)
+    search_params = produce_search_params(sort_by, date, content_type, duration, features)
   rescue ex
     next JSON.build do |json|
       json.object do
