@@ -3024,6 +3024,55 @@ get "/videoplayback" do |env|
   end
 end
 
+get "/ggpht*" do |env|
+end
+
+get "/ggpht/*" do |env|
+  host = "https://yt3.ggpht.com"
+  client = make_client(URI.parse(host))
+  url = env.request.path.lchop("/ggpht")
+
+  headers = env.request.headers
+  headers.delete("Host")
+  headers.delete("Cookie")
+  headers.delete("User-Agent")
+  headers.delete("Referer")
+
+  client.get(url, headers) do |response|
+    env.response.status_code = response.status_code
+    response.headers.each do |key, value|
+      env.response.headers[key] = value
+    end
+
+    if response.status_code == 304
+      break
+    end
+
+    chunk_size = 4096
+    size = 1
+    if response.headers.includes_word?("Content-Encoding", "gzip")
+      Gzip::Writer.open(env.response) do |deflate|
+        until size == 0
+          size = IO.copy(response.body_io, deflate)
+          env.response.flush
+        end
+      end
+    elsif response.headers.includes_word?("Content-Encoding", "deflate")
+      Flate::Writer.open(env.response) do |deflate|
+        until size == 0
+          size = IO.copy(response.body_io, deflate)
+          env.response.flush
+        end
+      end
+    else
+      until size == 0
+        size = IO.copy(response.body_io, env.response, chunk_size)
+        env.response.flush
+      end
+    end
+  end
+end
+
 get "/vi/:id/:name" do |env|
   id = env.params.url["id"]
   name = env.params.url["name"]
