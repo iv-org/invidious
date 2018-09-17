@@ -435,6 +435,7 @@ get "/search" do |env|
   duration = ""
   features = [] of String
   sort = "relevance"
+  subscriptions = nil
 
   operators = query.split(" ").select { |a| a.match(/\w+:[\w,]+/) }
   operators.each do |operator|
@@ -451,6 +452,8 @@ get "/search" do |env|
       features = value.split(",")
     when "sort"
       sort = value
+    when "subscriptions"
+      subscriptions = value == "true"
     end
   end
 
@@ -458,6 +461,15 @@ get "/search" do |env|
 
   if channel
     count, videos = channel_search(search_query, page, channel)
+  elsif subscriptions
+    videos = PG_DB.query_all("SELECT id,title,published,updated,ucid,author FROM (
+      SELECT *,
+        to_tsvector(channel_videos.title) ||
+        to_tsvector(channel_videos.author)
+          as document
+      FROM channel_videos
+    ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", search_query, (page - 1) * 20, as: ChannelVideo)
+    count = videos.size
   else
     search_params = build_search_params(sort: sort, date: date, content_type: "video",
       duration: duration, features: features)
