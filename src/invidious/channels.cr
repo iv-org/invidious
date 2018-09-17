@@ -69,61 +69,33 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
         updated = $4, ucid = $5, author = $6", video_array)
     end
   else
-    videos = [] of ChannelVideo
     page = 1
+    ids = [] of String
 
     loop do
-      url = produce_channel_videos_url(ucid, page)
-      response = client.get(url)
+      videos = extract_playlist(ucid, page)
+      videos = videos.map { |video| ChannelVideo.new(video.id, video.title, video.published, Time.now, video.ucid, video.author) }
+      count = videos.size
 
-      json = JSON.parse(response.body)
-      content_html = json["content_html"].as_s
-      if content_html.empty?
-        # If we don't get anything, move on
-        break
-      end
-      document = XML.parse_html(content_html)
+      videos.each do |video|
+        ids << video.id
+        db.exec("UPDATE users SET notifications = notifications || $1 \
+          WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, ucid)
 
-      document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")])).each do |item|
-        anchor = item.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
-        if !anchor
-          raise "could not find anchor"
-        end
-
-        title = anchor.content.strip
-        video_id = anchor["href"].lchop("/watch?v=")
-
-        published = item.xpath_node(%q(.//div[@class="yt-lockup-meta"]/ul/li[1]))
-        if !published
-          # This happens on Youtube red videos, here we just skip them
-          next
-        end
-        published = published.content
-        published = decode_date(published)
-
-        videos << ChannelVideo.new(video_id, title, published, Time.now, ucid, author)
+        video_array = video.to_a
+        args = arg_array(video_array)
+        db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
       end
 
-      if document.xpath_nodes(%q(//li[contains(@class, "channels-content-item")])).size < 30
+      if count < 100
         break
       end
 
       page += 1
     end
 
-    video_ids = [] of String
-    videos.each do |video|
-      db.exec("UPDATE users SET notifications = notifications || $1 \
-        WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, ucid)
-      video_ids << video.id
-
-      video_array = video.to_a
-      args = arg_array(video_array)
-      db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
-    end
-
     # When a video is deleted from a channel, we find and remove it here
-    db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{video_ids.map { |a| %("#{a}") }.join(",")}}') AND ucid = $1", ucid)
+    db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{ids.map { |id| %("#{id}") }.join(",")}}') AND ucid = $1", ucid)
   end
 
   channel = InvidiousChannel.new(ucid, author, Time.now)
