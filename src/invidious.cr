@@ -3003,25 +3003,44 @@ get "/vi/:id/:name" do |env|
   end
   url = "/vi/#{id}/#{name}"
 
-  client.get(url) do |response|
-    env.response.status_code = response.status_code
+  headers = env.request.headers
+  headers.delete("Host")
+  headers.delete("Cookie")
+  headers.delete("User-Agent")
+  headers.delete("Referer")
 
+  client.get(url, headers) do |response|
+    env.response.status_code = response.status_code
+    puts response.headers.inspect
     response.headers.each do |key, value|
       env.response.headers[key] = value
     end
 
-    env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-    begin
-      chunk_size = 4096
-      size = 1
-      while size > 0
-        size = IO.copy(response.body_io, env.response.output, chunk_size)
-        env.response.flush
-        Fiber.yield
-      end
-    rescue ex
+    if response.status_code == 304
       break
+    end
+
+    chunk_size = 4096
+    size = chunk_size
+    if response.headers.includes_word?("Content-Encoding", "gzip")
+      Gzip::Writer.open(env.response) do |deflate|
+        until size < chunk_size
+          size = IO.copy(response.body_io, deflate)
+          env.response.flush
+        end
+      end
+    elsif response.headers.includes_word?("Content-Encoding", "deflate")
+      Flate::Writer.open(env.response) do |deflate|
+        until size < chunk_size
+          size = IO.copy(response.body_io, deflate)
+          env.response.flush
+        end
+      end
+    else
+      until size < chunk_size
+        size = IO.copy(response.body_io, env.response, chunk_size)
+        env.response.flush
+      end
     end
   end
 end
