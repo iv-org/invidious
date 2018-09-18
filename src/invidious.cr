@@ -390,17 +390,13 @@ get "/playlist" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
-  if plid
-    begin
-      videos = extract_playlist(plid, page)
-    rescue ex
-      error_message = ex.message
-      next templated "error"
-    end
-    playlist = fetch_playlist(plid)
-  else
-    next env.redirect "/"
+  begin
+    videos = extract_playlist(plid, page)
+  rescue ex
+    error_message = ex.message
+    next templated "error"
   end
+  playlist = fetch_playlist(plid)
 
   templated "playlist"
 end
