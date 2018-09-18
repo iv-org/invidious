@@ -138,7 +138,12 @@ def fetch_playlist(plid)
   ucid = anchor.xpath_node(%q(.//li[1]/a)).not_nil!["href"].split("/")[2]
 
   video_count = anchor.xpath_node(%q(.//li[2])).not_nil!.content.delete("videos, ").to_i
-  views = anchor.xpath_node(%q(.//li[3])).not_nil!.content.delete("views, ").to_i64
+  views = anchor.xpath_node(%q(.//li[3])).not_nil!.content.delete("No views, ")
+  if views.empty?
+    views = 0_i64
+  else
+    views = views.to_i64
+  end
 
   updated = anchor.xpath_node(%q(.//li[4])).not_nil!.content.lchop("Last updated on ").lchop("Updated ")
   updated = decode_date(updated)
