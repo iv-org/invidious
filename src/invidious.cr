@@ -2634,7 +2634,8 @@ get "/api/v1/channels/:ucid" do |env|
   channel_info
 end
 
-get "/api/v1/channels/:ucid/videos" do |env|
+["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
+  get route do |env|
   ucid = env.params.url["ucid"]
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
@@ -2730,6 +2731,7 @@ get "/api/v1/channels/:ucid/videos" do |env|
 
   env.response.content_type = "application/json"
   result
+end
 end
 
 get "/api/v1/search" do |env|
