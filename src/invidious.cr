@@ -2120,6 +2120,86 @@ get "/api/v1/comments/:id" do |env|
   end
 end
 
+get "/api/v1/insights/:id" do |env|
+  id = env.params.url["id"]
+  env.response.content_type = "application/json"
+
+  client = make_client(YT_URL)
+  headers = HTTP::Headers.new
+  html = client.get("/watch?v=#{id}&disable_polymer=1")
+
+  headers["cookie"] = html.cookies.add_request_headers(headers)["cookie"]
+  headers["content-type"] = "application/x-www-form-urlencoded"
+
+  headers["x-client-data"] = "CIi2yQEIpbbJAQipncoBCNedygEIqKPKAQ=="
+  headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}"
+  headers["x-spf-referer"] = "https://www.youtube.com/watch?v=#{id}"
+
+  headers["x-youtube-client-name"] = "1"
+  headers["x-youtube-client-version"] = "2.20180719"
+
+  body = html.body
+  session_token = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
+
+  post_req = {
+    "session_token" => session_token,
+  }
+  post_req = HTTP::Params.encode(post_req)
+
+  response = client.post("/insight_ajax?action_get_statistics_and_data=1&v=#{id}", headers, post_req).body
+  response = XML.parse(response)
+
+  html_content = XML.parse_html(response.xpath_node(%q(//html_content)).not_nil!.content)
+  graph_data = response.xpath_node(%q(//graph_data))
+  if !graph_data
+    error = html_content.xpath_node(%q(//p)).not_nil!.content
+    next {"error" => error}.to_json
+  end
+
+  graph_data = JSON.parse(graph_data.content)
+
+  view_count = 0_i64
+  time_watched = 0_i64
+  subscriptions_driven = 0
+  shares = 0
+
+  stats_nodes = html_content.xpath_nodes(%q(//table/tr/td))
+  stats_nodes.each do |node|
+    key = node.xpath_node(%q(.//span))
+    value = node.xpath_node(%q(.//div))
+
+    if !key || !value
+      next
+    end
+
+    key = key.content
+    value = value.content
+
+    case key
+    when "Views"
+      view_count = value.delete(", ").to_i64
+    when "Time watched"
+      time_watched = value
+    when "Subscriptions driven"
+      subscriptions_driven = value.delete(", ").to_i
+    when "Shares"
+      shares = value.delete(", ").to_i
+    end
+  end
+
+  avg_view_duration_seconds = html_content.xpath_node(%q(//div[@id="stats-chart-tab-watch-time"]/span/span[2])).not_nil!.content
+  avg_view_duration_seconds = decode_length_seconds(avg_view_duration_seconds)
+
+  {
+    "viewCount"              => view_count,
+    "timeWatchedText"        => time_watched,
+    "subscriptionsDriven"    => subscriptions_driven,
+    "shares"                 => shares,
+    "avgViewDurationSeconds" => avg_view_duration_seconds,
+    "graphData"              => graph_data,
+  }.to_pretty_json
+end
+
 get "/api/v1/videos/:id" do |env|
   id = env.params.url["id"]
 
