@@ -1794,6 +1794,7 @@ get "/api/v1/captions/:id" do |env|
               json.object do
                 json.field "label", caption.name.simpleText
                 json.field "languageCode", caption.languageCode
+                json.field "url", "/api/v1/captions/#{id}?label=#{URI.escape(caption.name.simpleText)}"
               end
             end
           end
@@ -2354,6 +2355,7 @@ get "/api/v1/videos/:id" do |env|
             json.object do
               json.field "label", caption.name.simpleText
               json.field "languageCode", caption.languageCode
+              json.field "url", "/api/v1/captions/#{id}?label=#{URI.escape(caption.name.simpleText)}"
             end
           end
         end
