@@ -2197,7 +2197,7 @@ get "/api/v1/insights/:id" do |env|
     "shares"                 => shares,
     "avgViewDurationSeconds" => avg_view_duration_seconds,
     "graphData"              => graph_data,
-  }.to_pretty_json
+  }.to_json
 end
 
 get "/api/v1/videos/:id" do |env|
