@@ -112,6 +112,7 @@ REGIONS        = {"AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "A
 BYPASS_REGIONS = {"CA", "DE", "FR", "JP", "RU", "UK"}
 
 VIDEO_THUMBNAILS = {
+  {name: "maxres", url: "maxres", height: 720, width: 1280},
   {name: "maxresdefault", url: "maxresdefault", height: 720, width: 1280},
   {name: "sddefault", url: "sddefault", height: 480, width: 640},
   {name: "high", url: "hqdefault", height: 360, width: 480},
