@@ -1964,43 +1964,7 @@ get "/api/v1/comments/:id" do |env|
                   content_html = HTML.escape(content_html)
                 end
 
-                content_html ||= node_comment["contentText"]["runs"].as_a.map do |run|
-                  text = HTML.escape(run["text"].as_s)
-
-                  if run["text"] == "\n"
-                    text = "<br>"
-                  end
-
-                  if run["bold"]?
-                    text = "<b>#{text}</b>"
-                  end
-
-                  if run["italics"]?
-                    text = "<i>#{text}</i>"
-                  end
-
-                  if run["navigationEndpoint"]?
-                    url = run["navigationEndpoint"]["urlEndpoint"]?.try &.["url"].as_s
-                    if url
-                      url = URI.parse(url)
-
-                      if {"m.youtube.com", "www.youtube.com", "youtu.be"}.includes? url.host
-                        if url.path == "/redirect"
-                          url = HTTP::Params.parse(url.query.not_nil!)["q"]
-                        else
-                          url = url.full_path
-                        end
-                      end
-                    else
-                      url = run["navigationEndpoint"]["commandMetadata"]?.try &.["webCommandMetadata"]["url"].as_s
-                    end
-
-                    text = %(<a href="#{url}">#{text}</a>)
-                  end
-
-                  text
-                end.join.rchop('\ufeff')
-
+                content_html ||= content_to_comment_html(node_comment["contentText"]["runs"].as_a)
                 content_html, content = html_to_content(content_html)
 
                 author = node_comment["authorText"]?.try &.["simpleText"]
