@@ -264,8 +264,6 @@ def content_to_comment_html(content)
       if url
         url = URI.parse(url)
 
-        puts url.path
-        puts url.host
         if !url.host || {"m.youtube.com", "www.youtube.com", "youtu.be"}.includes? url.host
           if url.path == "/redirect"
             url = HTTP::Params.parse(url.query.not_nil!)["q"]
