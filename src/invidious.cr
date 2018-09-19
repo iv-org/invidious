@@ -2405,6 +2405,7 @@ get "/api/v1/trending" do |env|
           json.field "viewCount", video.views
 
           json.field "author", video.author
+          json.field "authorId", video.ucid
           json.field "authorUrl", "/channel/#{video.ucid}"
 
           json.field "published", video.published.epoch
@@ -2435,6 +2436,7 @@ get "/api/v1/top" do |env|
           json.field "viewCount", video.views
 
           json.field "author", video.author
+          json.field "authorId", video.ucid
           json.field "authorUrl", "/channel/#{video.ucid}"
           json.field "published", video.published.epoch
           json.field "publishedText", "#{recode_date(video.published)} ago"
