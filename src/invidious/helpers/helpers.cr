@@ -302,9 +302,6 @@ def extract_items(nodeset, ucid = nil)
       id = id.lchop("/watch?v=")
 
       metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
-      if metadata.empty?
-        next
-      end
 
       begin
         published = decode_date(metadata[0].content.lchop("Streamed ").lchop("Starts "))
