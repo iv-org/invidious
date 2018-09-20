@@ -671,7 +671,7 @@ def generate_thumbnails(json, id)
     VIDEO_THUMBNAILS.each do |thumbnail|
       json.object do
         json.field "quality", thumbnail[:name]
-        json.field "url", "https://i.ytimg.com/vi/#{id}/#{thumbnail["url"]}.jpg"
+        json.field "url", "/vi/#{id}/#{thumbnail["url"]}.jpg"
         json.field "width", thumbnail[:width]
         json.field "height", thumbnail[:height]
       end
