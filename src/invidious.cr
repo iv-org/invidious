@@ -2055,7 +2055,7 @@ get "/api/v1/comments/:id" do |env|
     end
   elsif source == "reddit"
     client = make_client(REDDIT_URL)
-    headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.2.0 (by /u/omarroth)"}
+    headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.6.0 (by /u/omarroth)"}
     begin
       comments, reddit_thread = get_reddit_comments(id, client, headers)
       content_html = template_reddit_comments(comments)
