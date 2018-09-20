@@ -169,7 +169,7 @@ def produce_search_params(sort : String = "relevance", date : String = "", conte
               "\x30\x01"
             when "3d"
               "\x38\x01"
-            when "live"
+            when "live", "livestream"
               "\x40\x01"
             when "purchased"
               "\x48\x01"

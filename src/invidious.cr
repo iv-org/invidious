@@ -443,7 +443,7 @@ get "/search" do |env|
 
   operators = query.split(" ").select { |a| a.match(/\w+:[\w,]+/) }
   operators.each do |operator|
-    key, value = operator.split(":")
+    key, value = operator.downcase.split(":")
 
     case key
     when "channel", "user"
