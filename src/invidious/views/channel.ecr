@@ -37,8 +37,8 @@
 
 <% videos.each_slice(4) do |slice| %>
 <div class="pure-g">
-    <% slice.each do |video| %>
-        <%= rendered "components/video" %>
+    <% slice.each do |item| %>
+        <%= rendered "components/item" %>
     <% end %>
 </div> 
 <% end %>

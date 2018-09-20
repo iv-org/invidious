@@ -9,8 +9,42 @@ class SearchVideo
     description:      String,
     description_html: String,
     length_seconds:   Int32,
+    live_now:         Bool,
   })
 end
+
+class SearchPlaylistVideo
+  add_mapping({
+    title:          String,
+    id:             String,
+    length_seconds: Int32,
+  })
+end
+
+class SearchPlaylist
+  add_mapping({
+    title:       String,
+    id:          String,
+    author:      String,
+    ucid:        String,
+    video_count: Int32,
+    videos:      Array(SearchPlaylistVideo),
+  })
+end
+
+class SearchChannel
+  add_mapping({
+    author:           String,
+    ucid:             String,
+    author_thumbnail: String,
+    subscriber_count: Int32,
+    video_count:      Int32,
+    description:      String,
+    description_html: String,
+  })
+end
+
+alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist
 
 def channel_search(query, page, channel)
   client = make_client(YT_URL)
@@ -26,7 +60,7 @@ def channel_search(query, page, channel)
   end
 
   if !canonical
-    return 0, [] of SearchVideo
+    return 0, [] of SearchItem
   end
 
   ucid = canonical["href"].split("/")[-1]
@@ -40,31 +74,31 @@ def channel_search(query, page, channel)
     nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
 
     count = nodeset.size
-    videos = extract_videos(nodeset)
+    items = extract_items(nodeset)
   else
     count = 0
-    videos = [] of SearchVideo
+    items = [] of SearchItem
   end
 
-  return count, videos
+  return count, items
 end
 
-def search(query, page = 1, search_params = produce_search_params(content_type: "video"))
+def search(query, page = 1, search_params = produce_search_params(content_type: "all"))
   client = make_client(YT_URL)
   if query.empty?
-    return {0, [] of SearchVideo}
+    return {0, [] of SearchItem}
   end
 
   html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=#{search_params}&disable_polymer=1").body
   if html.empty?
-    return {0, [] of SearchVideo}
+    return {0, [] of SearchItem}
   end
 
   html = XML.parse_html(html)
   nodeset = html.xpath_nodes(%q(//ol[@class="item-section"]/li))
-  videos = extract_videos(nodeset)
+  items = extract_items(nodeset)
 
-  return {nodeset.size, videos}
+  return {nodeset.size, items}
 end
 
 def produce_search_params(sort : String = "relevance", date : String = "", content_type : String = "",
@@ -110,8 +144,10 @@ def produce_search_params(sort : String = "relevance", date : String = "", conte
             "\x10\x04"
           when "show"
             "\x10\x05"
-          else
+          when "all"
             ""
+          else
+            "\x10\x01"
           end
 
   body += case duration

@@ -1,0 +1,54 @@
+<div class="pure-u-1 pure-u-md-1-4">
+    <div class="h-box">
+    <% case item when %>
+    <% when SearchChannel %>
+        <a style="width:100%;" href="/channel/<%= item.ucid %>">
+            <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
+            <% else %>
+            <center>
+                <img style="width:56.25%;" src="/ggpht<%= URI.parse(item.author_thumbnail).full_path %>"/>
+            </center>
+            <% end %>
+            <p><%= item.author %></p>
+        </a>
+        <p><%= number_with_separator(item.subscriber_count) %> subscribers</p>
+        <h5><%= item.description_html %></h5>
+    <% when SearchPlaylist %>
+        <a style="width:100%;" href="/playlist?list=<%= item.id %>">
+            <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
+            <% else %>
+            <img style="width:100%;" src="/vi/<%= item.videos[0].id %>/mqdefault.jpg"/>
+            <% end %>
+            <p><%= item.title %></p>
+        </a>
+        <p>
+            <b><a style="width:100%;" href="/channel/<%= item.ucid %>"><%= item.author %></a></b>
+        </p>
+        <p><%= number_with_separator(item.video_count) %> videos</p>
+        <p>PLAYLIST</p>
+    <% else %>
+        <% if item.responds_to?(:playlists) && !item.playlists.empty? %>
+        <% params = "&list=#{item.playlists[0]}" %>
+        <% else %>
+        <% params = nil %>
+        <% end %>
+        <a style="width:100%;" href="/watch?v=<%= item.id %><%= params %>">
+            <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
+            <% else %>
+            <img style="width:100%;" src="/vi/<%= item.id %>/mqdefault.jpg"/>
+            <% end %>
+            <p><%= item.title %></p>
+        </a>
+        <% if item.responds_to?(:live_now) && item.live_now %>
+        <p>LIVE</p>
+        <% end %>
+        <p>
+            <b><a style="width:100%;" href="/channel/<%= item.ucid %>"><%= item.author %></a></b>
+        </p>
+        
+        <% if Time.now - item.published > 1.minute %>
+        <h5>Shared <%= recode_date(item.published) %> ago</h5>
+        <% end %>
+    <% end %>
+    </div>
+</div>

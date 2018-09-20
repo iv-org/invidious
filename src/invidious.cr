@@ -434,6 +434,7 @@ get "/search" do |env|
   ucids ||= [] of String
 
   channel = nil
+  content_type = "all"
   date = ""
   duration = ""
   features = [] of String
@@ -447,6 +448,8 @@ get "/search" do |env|
     case key
     when "channel", "user"
       channel = value
+    when "content_type", "type"
+      content_type = value
     when "date"
       date = value
     when "duration"
@@ -475,7 +478,7 @@ get "/search" do |env|
     count = videos.size
   else
     begin
-      search_params = produce_search_params(sort: sort, date: date, content_type: "video",
+      search_params = produce_search_params(sort: sort, date: date, content_type: content_type,
         duration: duration, features: features)
     rescue ex
       error_message = ex.message
@@ -1333,12 +1336,12 @@ get "/feed/subscriptions" do |env|
           end
 
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
-      ucid IN (#{ucids}) AND id NOT IN (#{watched}) ORDER BY ucid, published DESC",
+            ucid IN (#{ucids}) AND id NOT IN (#{watched}) ORDER BY ucid, published DESC",
             user.subscriptions + user.watched, as: ChannelVideo)
         else
           args = arg_array(user.subscriptions)
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
-        ucid IN (#{args}) ORDER BY ucid, published DESC", user.subscriptions, as: ChannelVideo)
+          ucid IN (#{args}) ORDER BY ucid, published DESC", user.subscriptions, as: ChannelVideo)
         end
 
         videos.sort_by! { |video| video.published }.reverse!
@@ -2540,7 +2543,7 @@ get "/api/v1/channels/:ucid" do |env|
 
       json.field "authorThumbnails" do
         json.array do
-          qualities = [32, 48, 76, 100, 512]
+          qualities = [32, 48, 76, 100, 176, 512]
 
           qualities.each do |quality|
             json.object do
@@ -2604,102 +2607,102 @@ end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
   get route do |env|
-  ucid = env.params.url["ucid"]
-  page = env.params.query["page"]?.try &.to_i?
-  page ||= 1
+    ucid = env.params.url["ucid"]
+    page = env.params.query["page"]?.try &.to_i?
+    page ||= 1
 
-  client = make_client(YT_URL)
+    client = make_client(YT_URL)
 
-  if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
-    rss = client.get("/feeds/videos.xml?user=#{ucid}")
-    rss = XML.parse_html(rss.body)
+    if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
+      rss = client.get("/feeds/videos.xml?user=#{ucid}")
+      rss = XML.parse_html(rss.body)
 
-    ucid = rss.xpath_node("//feed/channelid")
-    if !ucid
-      env.response.content_type = "application/json"
-      next {"error" => "User does not exist"}.to_json
-    end
-
-    ucid = ucid.content
-    author = rss.xpath_node("//author/name").not_nil!.content
-    next env.redirect "/feed/channel/#{ucid}"
-  else
-    rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
-    rss = XML.parse_html(rss.body)
-
-    ucid = rss.xpath_node("//feed/channelid")
-    if !ucid
-      error_message = "User does not exist."
-      next templated "error"
-    end
-
-    ucid = ucid.content
-    author = rss.xpath_node("//author/name").not_nil!.content
-  end
-
-  # Auto-generated channels
-  # https://support.google.com/youtube/answer/2579942
-  if author.ends_with?(" - Topic") ||
-     {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
-    auto_generated = true
-  end
-
-  videos = [] of SearchVideo
-  2.times do |i|
-    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
-    response = client.get(url)
-    json = JSON.parse(response.body)
-
-    if json["content_html"]? && !json["content_html"].as_s.empty?
-      document = XML.parse_html(json["content_html"].as_s)
-      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-
-      if auto_generated
-        videos += extract_videos(nodeset)
-      else
-        videos += extract_videos(nodeset, ucid)
+      ucid = rss.xpath_node("//feed/channelid")
+      if !ucid
+        env.response.content_type = "application/json"
+        next {"error" => "User does not exist"}.to_json
       end
+
+      ucid = ucid.content
+      author = rss.xpath_node("//author/name").not_nil!.content
+      next env.redirect "/feed/channel/#{ucid}"
     else
-      break
+      rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
+      rss = XML.parse_html(rss.body)
+
+      ucid = rss.xpath_node("//feed/channelid")
+      if !ucid
+        error_message = "User does not exist."
+        next templated "error"
+      end
+
+      ucid = ucid.content
+      author = rss.xpath_node("//author/name").not_nil!.content
     end
-  end
 
-  result = JSON.build do |json|
-    json.array do
-      videos.each do |video|
-        json.object do
-          json.field "title", video.title
-          json.field "videoId", video.id
+    # Auto-generated channels
+    # https://support.google.com/youtube/answer/2579942
+    if author.ends_with?(" - Topic") ||
+       {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
+      auto_generated = true
+    end
 
-          if auto_generated
-            json.field "author", video.author
-            json.field "authorId", video.ucid
-            json.field "authorUrl", "/channel/#{video.ucid}"
-          else
-            json.field "author", author
-            json.field "authorId", ucid
-            json.field "authorUrl", "/channel/#{ucid}"
+    videos = [] of SearchVideo
+    2.times do |i|
+      url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
+      response = client.get(url)
+      json = JSON.parse(response.body)
+
+      if json["content_html"]? && !json["content_html"].as_s.empty?
+        document = XML.parse_html(json["content_html"].as_s)
+        nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+        if auto_generated
+          videos += extract_videos(nodeset)
+        else
+          videos += extract_videos(nodeset, ucid)
+        end
+      else
+        break
+      end
+    end
+
+    result = JSON.build do |json|
+      json.array do
+        videos.each do |video|
+          json.object do
+            json.field "title", video.title
+            json.field "videoId", video.id
+
+            if auto_generated
+              json.field "author", video.author
+              json.field "authorId", video.ucid
+              json.field "authorUrl", "/channel/#{video.ucid}"
+            else
+              json.field "author", author
+              json.field "authorId", ucid
+              json.field "authorUrl", "/channel/#{ucid}"
+            end
+
+            json.field "videoThumbnails" do
+              generate_thumbnails(json, video.id)
+            end
+
+            json.field "description", video.description
+            json.field "descriptionHtml", video.description_html
+
+            json.field "viewCount", video.views
+            json.field "published", video.published.epoch
+            json.field "publishedText", "#{recode_date(video.published)} ago"
+            json.field "lengthSeconds", video.length_seconds
           end
-
-          json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id)
-          end
-
-          json.field "description", video.description
-          json.field "descriptionHtml", video.description_html
-
-          json.field "viewCount", video.views
-          json.field "published", video.published.epoch
-          json.field "publishedText", "#{recode_date(video.published)} ago"
-          json.field "lengthSeconds", video.length_seconds
         end
       end
     end
-  end
 
-  env.response.content_type = "application/json"
-  result
-end
+    env.response.content_type = "application/json"
+    result
+  end
 end
 
 get "/api/v1/search" do |env|
@@ -2722,13 +2725,15 @@ get "/api/v1/search" do |env|
   features ||= [] of String
 
   # TODO: Support other content types
-  content_type = "video"
+  content_type = env.params.query["type"]?.try &.downcase
+  content_type ||= "video"
 
   env.response.content_type = "application/json"
 
   begin
     search_params = produce_search_params(sort_by, date, content_type, duration, features)
   rescue ex
+    env.response.status_code = 400
     next JSON.build do |json|
       json.object do
         json.field "error", ex.message
@@ -2739,26 +2744,79 @@ get "/api/v1/search" do |env|
   response = JSON.build do |json|
     json.array do
       count, search_results = search(query, page, search_params).as(Tuple)
-      search_results.each do |video|
+      search_results.each do |item|
         json.object do
-          json.field "title", video.title
-          json.field "videoId", video.id
+          case item
+          when SearchVideo
+            json.field "type", "video"
+            json.field "title", item.title
+            json.field "videoId", item.id
 
-          json.field "author", video.author
-          json.field "authorId", video.ucid
-          json.field "authorUrl", "/channel/#{video.ucid}"
+            json.field "author", item.author
+            json.field "authorId", item.ucid
+            json.field "authorUrl", "/channel/#{item.ucid}"
 
-          json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id)
+            json.field "videoThumbnails" do
+              generate_thumbnails(json, item.id)
+            end
+
+            json.field "description", item.description
+            json.field "descriptionHtml", item.description_html
+
+            json.field "viewCount", item.views
+            json.field "published", item.published.epoch
+            json.field "publishedText", "#{recode_date(item.published)} ago"
+            json.field "lengthSeconds", item.length_seconds
+            json.field "liveNow", item.live_now
+          when SearchPlaylist
+            json.field "type", "playlist"
+            json.field "title", item.title
+            json.field "playlistId", item.id
+
+            json.field "author", item.author
+            json.field "authorId", item.ucid
+            json.field "authorUrl", "/channel/#{item.ucid}"
+
+            json.field "videos" do
+              json.array do
+                item.videos.each do |video|
+                  json.object do
+                    json.field "title", video.title
+                    json.field "videoId", video.id
+                    json.field "lengthSeconds", video.length_seconds
+
+                    json.field "videoThumbnails" do
+                      generate_thumbnails(json, video.id)
+                    end
+                  end
+                end
+              end
+            end
+          when SearchChannel
+            json.field "type", "channel"
+            json.field "author", item.author
+            json.field "authorId", item.ucid
+            json.field "authorUrl", "/channel/#{item.ucid}"
+
+            json.field "authorThumbnails" do
+              json.array do
+                qualities = [32, 48, 76, 100, 176, 512]
+
+                qualities.each do |quality|
+                  json.object do
+                    json.field "url", item.author_thumbnail.gsub("=s176-", "=s#{quality}-")
+                    json.field "width", quality
+                    json.field "height", quality
+                  end
+                end
+              end
+            end
+
+            json.field "subCount", item.subscriber_count
+            json.field "videoCount", item.video_count
+            json.field "description", item.description
+            json.field "descriptionHtml", item.description_html
           end
-
-          json.field "description", video.description
-          json.field "descriptionHtml", video.description_html
-
-          json.field "viewCount", video.views
-          json.field "published", video.published.epoch
-          json.field "publishedText", "#{recode_date(video.published)} ago"
-          json.field "lengthSeconds", video.length_seconds
         end
       end
     end

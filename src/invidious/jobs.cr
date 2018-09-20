@@ -3,13 +3,17 @@ def crawl_videos(db)
   random = Random.new
 
   search(random.base64(3)).as(Tuple)[1].each do |video|
-    ids << video.id
+    if video.is_a?(SearchVideo)
+      ids << video.id
+    end
   end
 
   loop do
     if ids.empty?
       search(random.base64(3)).as(Tuple)[1].each do |video|
-        ids << video.id
+        if video.is_a?(SearchVideo)
+          ids << video.id
+        end
       end
     end
 
