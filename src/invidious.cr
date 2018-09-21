@@ -1399,43 +1399,17 @@ get "/feed/subscriptions" do |env|
 end
 
 get "/feed/channel/:ucid" do |env|
+  env.response.content_type = "text/xml"
   ucid = env.params.url["ucid"]
 
+  begin
+    author, ucid, auto_generated = get_about_info(ucid)
+  rescue ex
+    error_message = "User does not exist"
+    halt env, status_code: 404, response: error_message
+  end
+
   client = make_client(YT_URL)
-
-  if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
-    rss = client.get("/feeds/videos.xml?user=#{ucid}")
-    rss = XML.parse_html(rss.body)
-
-    ucid = rss.xpath_node("//feed/channelid")
-    if !ucid
-      error_message = "User does not exist."
-      halt env, status_code: 404, response: error_message
-    end
-
-    ucid = ucid.content
-    author = rss.xpath_node("//author/name").not_nil!.content
-    next env.redirect "/feed/channel/#{ucid}"
-  else
-    rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
-    rss = XML.parse_html(rss.body)
-
-    ucid = rss.xpath_node("//feed/channelid")
-    if !ucid
-      error_message = "User does not exist."
-      next templated "error"
-    end
-
-    ucid = ucid.content
-    author = rss.xpath_node("//author/name").not_nil!.content
-  end
-
-  # Auto-generated channels
-  # https://support.google.com/youtube/answer/2579942
-  if author.ends_with?(" - Topic") ||
-     {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
-    auto_generated = true
-  end
 
   page = 1
 
@@ -1459,8 +1433,6 @@ get "/feed/channel/:ucid" do |env|
     end
   end
 
-  channel = get_channel(ucid, client, PG_DB, pull_all_videos: false)
-
   host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
   path = env.request.path
 
@@ -1470,11 +1442,11 @@ get "/feed/channel/:ucid" do |env|
       xml.element("link", rel: "self", href: "#{host_url}#{path}")
       xml.element("id") { xml.text "yt:channel:#{ucid}" }
       xml.element("yt:channelId") { xml.text ucid }
-      xml.element("title") { xml.text channel.author }
+      xml.element("title") { xml.text author }
       xml.element("link", rel: "alternate", href: "#{host_url}/channel/#{ucid}")
 
       xml.element("author") do
-        xml.element("name") { xml.text channel.author }
+        xml.element("name") { xml.text author }
         xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
       end
 
@@ -1513,7 +1485,6 @@ get "/feed/channel/:ucid" do |env|
     end
   end
 
-  env.response.content_type = "text/xml"
   feed
 end
 
@@ -1691,40 +1662,11 @@ get "/channel/:ucid" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
-  client = make_client(YT_URL)
-
-  if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
-    rss = client.get("/feeds/videos.xml?user=#{ucid}")
-    rss = XML.parse_html(rss.body)
-
-    ucid = rss.xpath_node("//feed/channelid")
-    if !ucid
-      error_message = "User does not exist."
-      next templated "error"
-    end
-
-    ucid = ucid.content
-    author = rss.xpath_node("//author/name").not_nil!.content
-    next env.redirect "/channel/#{ucid}"
-  else
-    rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
-    rss = XML.parse_html(rss.body)
-
-    ucid = rss.xpath_node("//feed/channelid")
-    if !ucid
-      error_message = "User does not exist."
-      next templated "error"
-    end
-
-    ucid = ucid.content
-    author = rss.xpath_node("//author/name").not_nil!.content
-  end
-
-  # Auto-generated channels
-  # https://support.google.com/youtube/answer/2579942
-  if author.ends_with?(" - Topic") ||
-     {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
-    auto_generated = true
+  begin
+    author, ucid, auto_generated = get_about_info(ucid)
+  rescue ex
+    error_message = "User does not exist"
+    next templated "error"
   end
 
   if !auto_generated
@@ -1734,6 +1676,8 @@ get "/channel/:ucid" do |env|
       env.set "search", "channel:#{author.downcase} "
     end
   end
+
+  client = make_client(YT_URL)
 
   videos = [] of SearchVideo
   2.times do |i|
@@ -2175,8 +2119,8 @@ get "/api/v1/videos/:id" do |env|
     video = get_video(id, PG_DB)
   rescue ex
     env.response.content_type = "application/json"
-    response = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: response
+    error_message = {"error" => ex.message}.to_json
+    halt env, status_code: 500, response: error_message
   end
 
   fmt_stream = video.fmt_stream(decrypt_function)
@@ -2425,42 +2369,20 @@ get "/api/v1/top" do |env|
 end
 
 get "/api/v1/channels/:ucid" do |env|
+  env.response.content_type = "application/json"
+
   ucid = env.params.url["ucid"]
 
+  begin
+    author, ucid, auto_generated = get_about_info(ucid)
+  rescue ex
+    puts ex.message
+
+    error_message = {"error" => "User does not exist"}.to_json
+    halt env, status_code: 404, response: error_message
+  end
+
   client = make_client(YT_URL)
-  if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
-    rss = client.get("/feeds/videos.xml?user=#{ucid}")
-    rss = XML.parse_html(rss.body)
-
-    ucid = rss.xpath_node("//feed/channelid")
-    if !ucid
-      env.response.content_type = "application/json"
-      next {"error" => "User does not exist"}.to_json
-    end
-
-    ucid = ucid.content
-    author = rss.xpath_node("//author/name").not_nil!.content
-    next env.redirect "/api/v1/channels/#{ucid}"
-  else
-    rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
-    rss = XML.parse_html(rss.body)
-
-    ucid = rss.xpath_node("//feed/channelid")
-    if !ucid
-      error_message = "User does not exist."
-      next templated "error"
-    end
-
-    ucid = ucid.content
-    author = rss.xpath_node("//author/name").not_nil!.content
-  end
-
-  # Auto-generated channels
-  # https://support.google.com/youtube/answer/2579942
-  if author.ends_with?(" - Topic") ||
-     {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
-    auto_generated = true
-  end
 
   page = 1
 
@@ -2601,51 +2523,25 @@ get "/api/v1/channels/:ucid" do |env|
     end
   end
 
-  env.response.content_type = "application/json"
   channel_info
 end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
   get route do |env|
+    env.response.content_type = "application/json"
+
     ucid = env.params.url["ucid"]
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
+    begin
+      author, ucid, auto_generated = get_about_info(ucid)
+    rescue ex
+      error_message = {"error" => "User does not exist"}.to_json
+      halt env, status_code: 404, response: error_message
+    end
+
     client = make_client(YT_URL)
-
-    if !ucid.match(/UC[a-zA-Z0-9_-]{22}/)
-      rss = client.get("/feeds/videos.xml?user=#{ucid}")
-      rss = XML.parse_html(rss.body)
-
-      ucid = rss.xpath_node("//feed/channelid")
-      if !ucid
-        env.response.content_type = "application/json"
-        next {"error" => "User does not exist"}.to_json
-      end
-
-      ucid = ucid.content
-      author = rss.xpath_node("//author/name").not_nil!.content
-      next env.redirect "/feed/channel/#{ucid}"
-    else
-      rss = client.get("/feeds/videos.xml?channel_id=#{ucid}")
-      rss = XML.parse_html(rss.body)
-
-      ucid = rss.xpath_node("//feed/channelid")
-      if !ucid
-        error_message = "User does not exist."
-        next templated "error"
-      end
-
-      ucid = ucid.content
-      author = rss.xpath_node("//author/name").not_nil!.content
-    end
-
-    # Auto-generated channels
-    # https://support.google.com/youtube/answer/2579942
-    if author.ends_with?(" - Topic") ||
-       {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? author
-      auto_generated = true
-    end
 
     videos = [] of SearchVideo
     2.times do |i|
@@ -2700,7 +2596,6 @@ end
       end
     end
 
-    env.response.content_type = "application/json"
     result
   end
 end
@@ -2826,6 +2721,7 @@ get "/api/v1/search" do |env|
 end
 
 get "/api/v1/playlists/:plid" do |env|
+  env.response.content_type = "application/json"
   plid = env.params.url["plid"]
 
   page = env.params.query["page"]?.try &.to_i?
@@ -2834,9 +2730,8 @@ get "/api/v1/playlists/:plid" do |env|
   begin
     videos = extract_playlist(plid, page)
   rescue ex
-    env.response.content_type = "application/json"
-    response = {"error" => "Playlist is empty"}.to_json
-    halt env, status_code: 404, response: response
+    error_message = {"error" => "Playlist is empty"}.to_json
+    halt env, status_code: 404, response: error_message
   end
 
   playlist = fetch_playlist(plid)
@@ -2881,7 +2776,6 @@ get "/api/v1/playlists/:plid" do |env|
     end
   end
 
-  env.response.content_type = "application/json"
   response
 end
 
