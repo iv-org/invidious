@@ -2376,8 +2376,6 @@ get "/api/v1/channels/:ucid" do |env|
   begin
     author, ucid, auto_generated = get_about_info(ucid)
   rescue ex
-    puts ex.message
-
     error_message = {"error" => "User does not exist"}.to_json
     halt env, status_code: 404, response: error_message
   end
