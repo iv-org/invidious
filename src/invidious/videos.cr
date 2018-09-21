@@ -112,15 +112,15 @@ REGIONS        = {"AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "A
 BYPASS_REGIONS = {"CA", "DE", "FR", "JP", "RU", "UK"}
 
 VIDEO_THUMBNAILS = {
-  {name: "maxres", url: "maxres", height: 720, width: 1280},
-  {name: "maxresdefault", url: "maxresdefault", height: 720, width: 1280},
-  {name: "sddefault", url: "sddefault", height: 480, width: 640},
-  {name: "high", url: "hqdefault", height: 360, width: 480},
-  {name: "medium", url: "mqdefault", height: 180, width: 320},
-  {name: "default", url: "default", height: 90, width: 120},
-  {name: "start", url: "1", height: 90, width: 120},
-  {name: "middle", url: "2", height: 90, width: 120},
-  {name: "end", url: "3", height: 90, width: 120},
+  {name: "maxres", host: "invidio.us", url: "maxres", height: 720, width: 1280},
+  {name: "maxresdefault", host: "i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
+  {name: "sddefault", host: "i.ytimg.com", url: "sddefault", height: 480, width: 640},
+  {name: "high", host: "i.ytimg.com", url: "hqdefault", height: 360, width: 480},
+  {name: "medium", host: "i.ytimg.com", url: "mqdefault", height: 180, width: 320},
+  {name: "default", host: "i.ytimg.com", url: "default", height: 90, width: 120},
+  {name: "start", host: "i.ytimg.com", url: "1", height: 90, width: 120},
+  {name: "middle", host: "i.ytimg.com", url: "2", height: 90, width: 120},
+  {name: "end", host: "i.ytimg.com", url: "3", height: 90, width: 120},
 }
 
 # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L380-#L476
@@ -671,7 +671,7 @@ def generate_thumbnails(json, id)
     VIDEO_THUMBNAILS.each do |thumbnail|
       json.object do
         json.field "quality", thumbnail[:name]
-        json.field "url", "https://i.ytimg.com/vi/#{id}/#{thumbnail["url"]}.jpg"
+        json.field "url", "https://#{thumbnail[:host]}/vi/#{id}/#{thumbnail["url"]}.jpg"
         json.field "width", thumbnail[:width]
         json.field "height", thumbnail[:height]
       end
