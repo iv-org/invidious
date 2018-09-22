@@ -220,7 +220,7 @@ def extract_items(nodeset, ucid = nil)
       author = ""
       author_id = ""
     else
-      author = anchor.content
+      author = anchor.content.strip
       author_id = anchor["href"].split("/")[-1]
     end
 
@@ -234,7 +234,7 @@ def extract_items(nodeset, ucid = nil)
     description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
     description_html, description = html_to_content(description_html)
 
-    case node.xpath_node(%q(.//div)).not_nil!["class"]
+    case node.xpath_node(%q(.//div[contains(@class, "yt-lockup-tile")])).not_nil!["class"]
     when .includes? "yt-lockup-playlist"
       plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
 
@@ -245,10 +245,10 @@ def extract_items(nodeset, ucid = nil)
       video_count ||= 0
 
       videos = [] of SearchPlaylistVideo
-      node.xpath_nodes(%q(.//ol[contains(@class, "yt-lockup-playlist-items")]/li)).each do |video|
+      node.xpath_nodes(%q(.//*[contains(@class, "yt-lockup-playlist-items")]/li)).each do |video|
         anchor = video.xpath_node(%q(.//a))
         if anchor
-          video_title = anchor.content
+          video_title = anchor.content.strip
           id = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)["v"]
         end
         video_title ||= ""
@@ -276,7 +276,7 @@ def extract_items(nodeset, ucid = nil)
         videos
       )
     when .includes? "yt-lockup-channel"
-      author = title
+      author = title.strip
       ucid = id.split("/")[-1]
 
       author_thumbnail = node.xpath_node(%q(.//div/span/img)).try &.["data-thumb"]?

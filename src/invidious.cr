@@ -2598,7 +2598,104 @@ end
   end
 end
 
+get "/api/v1/channels/search/:ucid" do |env|
+  env.response.content_type = "application/json"
+
+  ucid = env.params.url["ucid"]
+
+  query = env.params.query["q"]?
+  query ||= ""
+
+  page = env.params.query["page"]?.try &.to_i?
+  page ||= 1
+
+  count, search_results = channel_search(query, page, ucid)
+  response = JSON.build do |json|
+    json.array do
+      search_results.each do |item|
+        json.object do
+          case item
+          when SearchVideo
+            json.field "type", "video"
+            json.field "title", item.title
+            json.field "videoId", item.id
+
+            json.field "author", item.author
+            json.field "authorId", item.ucid
+            json.field "authorUrl", "/channel/#{item.ucid}"
+
+            json.field "videoThumbnails" do
+              generate_thumbnails(json, item.id)
+            end
+
+            json.field "description", item.description
+            json.field "descriptionHtml", item.description_html
+
+            json.field "viewCount", item.views
+            json.field "published", item.published.epoch
+            json.field "publishedText", "#{recode_date(item.published)} ago"
+            json.field "lengthSeconds", item.length_seconds
+            json.field "liveNow", item.live_now
+          when SearchPlaylist
+            json.field "type", "playlist"
+            json.field "title", item.title
+            json.field "playlistId", item.id
+
+            json.field "author", item.author
+            json.field "authorId", item.ucid
+            json.field "authorUrl", "/channel/#{item.ucid}"
+
+            json.field "videos" do
+              json.array do
+                item.videos.each do |video|
+                  json.object do
+                    json.field "title", video.title
+                    json.field "videoId", video.id
+                    json.field "lengthSeconds", video.length_seconds
+
+                    json.field "videoThumbnails" do
+                      generate_thumbnails(json, video.id)
+                    end
+                  end
+                end
+              end
+            end
+          when SearchChannel
+            json.field "type", "channel"
+            json.field "author", item.author
+            json.field "authorId", item.ucid
+            json.field "authorUrl", "/channel/#{item.ucid}"
+
+            json.field "authorThumbnails" do
+              json.array do
+                qualities = [32, 48, 76, 100, 176, 512]
+
+                qualities.each do |quality|
+                  json.object do
+                    json.field "url", item.author_thumbnail.gsub("=s176-", "=s#{quality}-")
+                    json.field "width", quality
+                    json.field "height", quality
+                  end
+                end
+              end
+            end
+
+            json.field "subCount", item.subscriber_count
+            json.field "videoCount", item.video_count
+            json.field "description", item.description
+            json.field "descriptionHtml", item.description_html
+          end
+        end
+      end
+    end
+  end
+
+  response
+end
+
 get "/api/v1/search" do |env|
+  env.response.content_type = "application/json"
+
   query = env.params.query["q"]?
   query ||= ""
 
@@ -2621,8 +2718,6 @@ get "/api/v1/search" do |env|
   content_type = env.params.query["type"]?.try &.downcase
   content_type ||= "video"
 
-  env.response.content_type = "application/json"
-
   begin
     search_params = produce_search_params(sort_by, date, content_type, duration, features)
   rescue ex
@@ -2634,9 +2729,9 @@ get "/api/v1/search" do |env|
     end
   end
 
+  count, search_results = search(query, page, search_params).as(Tuple)
   response = JSON.build do |json|
     json.array do
-      count, search_results = search(query, page, search_params).as(Tuple)
       search_results.each do |item|
         json.object do
           case item
