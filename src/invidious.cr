@@ -2834,7 +2834,7 @@ get "/api/v1/playlists/:plid" do |env|
   response = JSON.build do |json|
     json.object do
       json.field "title", playlist.title
-      json.field "id", playlist.id
+      json.field "playlistId", playlist.id
 
       json.field "author", playlist.author
       json.field "authorId", playlist.ucid
@@ -2852,7 +2852,7 @@ get "/api/v1/playlists/:plid" do |env|
           videos.each do |video|
             json.object do
               json.field "title", video.title
-              json.field "id", video.id
+              json.field "videoId", video.id
 
               json.field "author", video.author
               json.field "authorId", video.ucid
