@@ -238,7 +238,10 @@ def extract_items(nodeset, ucid = nil)
     when .includes? "yt-lockup-playlist"
       plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
 
-      anchor = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/a))
+      anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-meta")]/a))
+      if !anchor
+        anchor = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/a))
+      end
       if anchor
         video_count = anchor.content.match(/View full playlist \((?<count>\d+)/).try &.["count"].to_i?
       end

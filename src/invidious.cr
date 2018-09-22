@@ -2645,6 +2645,7 @@ get "/api/v1/channels/search/:ucid" do |env|
             json.field "authorId", item.ucid
             json.field "authorUrl", "/channel/#{item.ucid}"
 
+            json.field "videoCount", item.video_count
             json.field "videos" do
               json.array do
                 item.videos.each do |video|
@@ -2765,6 +2766,7 @@ get "/api/v1/search" do |env|
             json.field "authorId", item.ucid
             json.field "authorUrl", "/channel/#{item.ucid}"
 
+            json.field "videoCount", item.video_count
             json.field "videos" do
               json.array do
                 item.videos.each do |video|
