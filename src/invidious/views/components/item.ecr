@@ -17,7 +17,7 @@
         <a style="width:100%;" href="/playlist?list=<%= item.id %>">
             <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
             <% else %>
-            <img style="width:100%;" src="/vi/<%= item.videos[0].id %>/mqdefault.jpg"/>
+            <img style="width:100%;" src="/vi/<%= item.videos[0]?.try &.id %>/mqdefault.jpg"/>
             <% end %>
             <p><%= item.title %></p>
         </a>
