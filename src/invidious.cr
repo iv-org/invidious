@@ -390,13 +390,14 @@ get "/playlist" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
+  playlist = fetch_playlist(plid)
+
   begin
-    videos = extract_playlist(plid, page)
+    videos = fetch_playlist_videos(plid, page, playlist.video_count)
   rescue ex
     error_message = ex.message
     next templated "error"
   end
-  playlist = fetch_playlist(plid)
 
   templated "playlist"
 end
@@ -470,11 +471,11 @@ get "/search" do |env|
   elsif subscriptions
     videos = PG_DB.query_all("SELECT id,title,published,updated,ucid,author FROM (
       SELECT *,
-        to_tsvector(channel_videos.title) ||
-        to_tsvector(channel_videos.author)
-          as document
+      to_tsvector(channel_videos.title) ||
+      to_tsvector(channel_videos.author)
+      as document
       FROM channel_videos WHERE ucid IN (#{arg_array(ucids, 3)})
-    ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", [search_query, (page - 1) * 20] + ucids, as: ChannelVideo)
+      ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", [search_query, (page - 1) * 20] + ucids, as: ChannelVideo)
     count = videos.size
   else
     begin
@@ -2822,14 +2823,14 @@ get "/api/v1/playlists/:plid" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
+  playlist = fetch_playlist(plid)
+
   begin
-    videos = extract_playlist(plid, page)
+    videos = fetch_playlist_videos(plid, page, playlist.video_count)
   rescue ex
     error_message = {"error" => "Playlist is empty"}.to_json
     halt env, status_code: 404, response: error_message
   end
-
-  playlist = fetch_playlist(plid)
 
   response = JSON.build do |json|
     json.object do
