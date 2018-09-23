@@ -142,6 +142,10 @@ def fetch_playlist(plid)
   end
 
   response = client.get("/playlist?list=#{plid}&disable_polymer=1")
+  if response.status_code != 200
+    raise "Invalid playlist."
+  end
+
   body = response.body.gsub(<<-END_BUTTON
   <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-link yt-uix-expander-head playlist-description-expander yt-uix-inlineedit-ignore-edit" type="button" onclick=";return false;"><span class="yt-uix-button-content">  less <img alt="" src="/yts/img/pixel-vfl3z5WfW.gif">
   </span></button>
