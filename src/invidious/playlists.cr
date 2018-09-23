@@ -153,8 +153,11 @@ def fetch_playlist(plid)
   , "")
   document = XML.parse_html(body)
 
-  title = document.xpath_node(%q(//h1[@class="pl-header-title"])).not_nil!.content
-  title = title.strip(" \n")
+  title = document.xpath_node(%q(//h1[@class="pl-header-title"]))
+  if !title
+    raise "Playlist does not exist."
+  end
+  title = title.content.strip(" \n")
 
   description_html = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1]))
   description_html, description = html_to_content(description_html)
