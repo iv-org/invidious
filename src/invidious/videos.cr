@@ -569,11 +569,17 @@ def fetch_video(id)
   published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).not_nil!["content"]
   published = Time.parse(published, "%Y-%m-%d", Time::Location.local)
 
-  allowed_regions = html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
-  is_family_friendly = html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
+  allowed_regions = html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).try &.["content"].split(",")
+  allowed_regions ||= [] of String
+  is_family_friendly = html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).try &.["content"] == "True"
+  is_family_friendly ||= true
 
   genre = html.xpath_node(%q(//meta[@itemprop="genre"])).not_nil!["content"]
-  genre_url = html.xpath_node(%(//a[text()="#{genre}"])).not_nil!["href"]
+  genre_url = html.xpath_node(%(//a[text()="#{genre}"])).try &.["href"]
+  if genre == "Movies"
+    genre_url ||= "/channel/UClgRkhTL3_hImCAmdLfDE4g"
+  end
+  genre_url = ""
 
   license = html.xpath_node(%q(//h4[contains(text(),"License")]/parent::*/ul/li))
   if license

@@ -234,7 +234,12 @@ def extract_items(nodeset, ucid = nil)
     description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
     description_html, description = html_to_content(description_html)
 
-    case node.xpath_node(%q(.//div[contains(@class, "yt-lockup-tile")])).not_nil!["class"]
+    tile = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-tile")]))
+    if !tile
+      next
+    end
+
+    case tile["class"]
     when .includes? "yt-lockup-playlist"
       plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
 
@@ -310,7 +315,6 @@ def extract_items(nodeset, ucid = nil)
         published = decode_date(metadata[0].content.lchop("Streamed ").lchop("Starts "))
       rescue ex
       end
-
       begin
         published ||= Time.epoch(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
       rescue ex
@@ -321,7 +325,6 @@ def extract_items(nodeset, ucid = nil)
         view_count = metadata[0].content.rchop(" watching").delete(",").try &.to_i64?
       rescue ex
       end
-
       begin
         view_count ||= metadata.try &.[1].content.delete("No views,").try &.to_i64?
       rescue ex
