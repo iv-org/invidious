@@ -157,6 +157,7 @@ def get_proxies(country_code = "US")
     proxies << {ip: ip, port: port, score: score}
   end
 
+  proxies = proxies.sort_by { |proxy| proxy[:score] }.reverse
   return proxies
 end
 
