@@ -161,6 +161,7 @@ def fetch_playlist(plid)
   title = title.content.strip(" \n")
 
   description_html = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1]))
+  description_html ||= document.xpath_node(%q(//span[@class="pl-header-description-text"]))
   description_html, description = html_to_content(description_html)
 
   anchor = document.xpath_node(%q(//ul[@class="pl-header-details"])).not_nil!
