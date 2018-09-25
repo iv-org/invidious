@@ -129,7 +129,6 @@ BYPASS_REGIONS = {
   "ID",
   "BD",
   "MX",
-  "ET",
   "PH",
   "EG",
   "VN",
@@ -466,14 +465,14 @@ class CaptionName
   )
 end
 
-def get_video(id, db, refresh = true)
+def get_video(id, db, refresh = true, proxies = {} of String => Array({ip: String, port: Int32, score: Float64}))
   if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool)
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
     # If record was last updated over 10 minutes ago, refresh (expire param in response lasts for 6 hours)
     if refresh && Time.now - video.updated > 10.minutes
       begin
-        video = fetch_video(id)
+        video = fetch_video(id, proxies)
         video_array = video.to_a
 
         args = arg_array(video_array[1..-1], 2)
@@ -488,7 +487,7 @@ def get_video(id, db, refresh = true)
       end
     end
   else
-    video = fetch_video(id)
+    video = fetch_video(id, proxies)
     video_array = video.to_a
 
     args = arg_array(video_array)
@@ -499,7 +498,7 @@ def get_video(id, db, refresh = true)
   return video
 end
 
-def fetch_video(id)
+def fetch_video(id, proxies = {} of String => Array({ip: String, port: Int32, score: Float64}))
   html_channel = Channel(XML::Node).new
   info_channel = Channel(HTTP::Params).new
 
@@ -530,21 +529,18 @@ def fetch_video(id)
   if info["reason"]? && info["reason"].includes? "your country"
     bypass_channel = Channel({HTTP::Params | Nil, XML::Node | Nil}).new
 
-    BYPASS_REGIONS.each do |country_code|
+    proxies.each do |region, list|
       spawn do
         begin
-          proxies = get_proxies(country_code)
-
-          # Try not to overload single proxy
-          proxy = proxies[0, 5].sample(1)[0]
-          proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-
-          client = HTTPClient.new(URI.parse("https://www.youtube.com"))
+          client = HTTPClient.new(YT_URL)
           client.read_timeout = 10.seconds
           client.connect_timeout = 10.seconds
+
+          proxy = list.sample(1)[0]
+          proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
           client.set_proxy(proxy)
 
-          proxy_info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
+          proxy_info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
           proxy_info = HTTP::Params.parse(proxy_info.body)
 
           if !proxy_info["reason"]?

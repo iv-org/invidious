@@ -108,7 +108,15 @@ def get_proxies(country_code = "US")
     "xf4" => "0",
     "xf5" => "1",
   }
+
   response = client.post("/free-proxy-list/#{country_code}/", headers, form: body)
+  20.times do
+    if response.status_code == 200
+      break
+    end
+    response = client.post("/free-proxy-list/#{country_code}/", headers, form: body)
+  end
+
   response = XML.parse_html(response.body)
 
   mapping = response.xpath_node(%q(.//body/script)).not_nil!.content

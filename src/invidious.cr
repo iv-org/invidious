@@ -105,6 +105,15 @@ spawn do
   end
 end
 
+proxies = {} of String => Array({ip: String, port: Int32})
+spawn do
+  find_working_proxies(BYPASS_REGIONS) do |region, list|
+    if !list.empty?
+      proxies[region] = list
+    end
+  end
+end
+
 before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
@@ -225,7 +234,7 @@ get "/watch" do |env|
   end
 
   begin
-    video = get_video(id, PG_DB)
+    video = get_video(id, PG_DB, proxies)
   rescue ex
     error_message = ex.message
     STDOUT << id << " : " << ex.message << "\n"
@@ -325,7 +334,7 @@ get "/embed/:id" do |env|
   params = process_video_params(env.params.query, nil)
 
   begin
-    video = get_video(id, PG_DB)
+    video = get_video(id, PG_DB, proxies)
   rescue ex
     error_message = ex.message
     next templated "error"
@@ -1722,7 +1731,7 @@ get "/api/v1/captions/:id" do |env|
 
   client = make_client(YT_URL)
   begin
-    video = get_video(id, PG_DB)
+    video = get_video(id, PG_DB, proxies)
   rescue ex
     halt env, status_code: 403
   end
@@ -2116,7 +2125,7 @@ get "/api/v1/videos/:id" do |env|
   id = env.params.url["id"]
 
   begin
-    video = get_video(id, PG_DB)
+    video = get_video(id, PG_DB, proxies)
   rescue ex
     env.response.content_type = "application/json"
     error_message = {"error" => ex.message}.to_json
@@ -2906,7 +2915,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   client = make_client(YT_URL)
   begin
-    video = get_video(id, PG_DB)
+    video = get_video(id, PG_DB, proxies)
   rescue ex
     halt env, status_code: 403
   end
