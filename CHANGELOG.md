@@ -1,3 +1,24 @@
+# 0.7.0 (2018-09-25)
+
+## Week 7: 1080p and Search Types
+
+Hello again everyone! I've got quite a couple announcements this week:
+
+Experimental 1080p support has been added with [`b3ca392`](https://github.com/omarroth/invidious/b3ca392)2a9073b4abb0d7fde58a3e6098668f53e, and can be enabled by going to preferences and changing `preferred video quality` to `dash`. You can find more details [here](https://github.com/omarroth/invidious/issues/34#issuecomment-424171888). Currently quality and speed controls have not yet been integrated into the player, but I'd still appreciate feedback, mainly on any issues with buffering or DASH playback. I hope to integrate 1080p support into the player and push support site-wide in the coming weeks.
+
+You can now filter content types in search with the `type:TYPE` filter. Supported content types are `playlist`, `channel`, and `video`. More info is available [here](https://github.com/omarroth/invidious/issues/126#issuecomment-423823148). I think this is quite an improvement in usability and I hope others find the same.
+
+A [CHANGELOG](https://github.com/omarroth/invidious/blob/master/CHANGELOG.md) has been added to the repository, so folks will now receive a copy of all these updates when cloning. I think this is an improvement in hosting the project, as it is no longer tied to the `/releases` tab on Github or the posts on Patreon.
+
+Recently, users have been reporting 504s when attempting to access their subscriptions, which is tracked in [#173](https://github.com/omarroth/invidious/issues/173). This is most likely caused by an uptick in usage, which I am absolutely grateful for, but unfortunately has resulted in an increase in costs for hosting the site, which is why I will be bumping my goal on Patreon from $60 to $80. I would appreciate any feedback on how subscriptions could be improved.
+
+Other minor improvements include:
+- Additional regions added to bypass geo-block with [`9a78523`](https://github.com/omarroth/invidious/9a78523)41d9d67b6bddd8a9836c1b71c124c3614
+- Fix for playlists containing less than 100 videos (previously shown as empty) with [`35ac887`](https://github.com/omarroth/invidious/35ac887)13320a970e3a87a26249c2a18a709f020
+- Fix for `published` date for Reddit comments (previously showing negative seconds) with [`6e09202`](https://github.com/omarroth/invidious/6e09202)6d29eccc3e3adf02be138fddec2354027
+
+Thank you everyone for your support!
+
 # 0.6.0 (2018-09-18)
 
 ## Week 6: Filters and Thumbnails
