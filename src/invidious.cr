@@ -1817,7 +1817,7 @@ get "/api/v1/comments/:id" do |env|
   if source == "youtube"
     client = make_client(YT_URL)
     headers = HTTP::Headers.new
-    html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&disable_polymer=1")
+    html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
 
     headers["cookie"] = html.cookies.add_request_headers(headers)["cookie"]
     headers["content-type"] = "application/x-www-form-urlencoded"
@@ -2038,7 +2038,7 @@ get "/api/v1/insights/:id" do |env|
 
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
-  html = client.get("/watch?v=#{id}&disable_polymer=1")
+  html = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1")
 
   headers["cookie"] = html.cookies.add_request_headers(headers)["cookie"]
   headers["content-type"] = "application/x-www-form-urlencoded"

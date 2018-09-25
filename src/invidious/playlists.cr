@@ -46,7 +46,7 @@ def fetch_playlist_videos(plid, page, video_count)
     if page > 1
       videos = [] of PlaylistVideo
     else
-      response = client.get("/playlist?list=#{plid}&disable_polymer=1")
+      response = client.get("/playlist?list=#{plid}&gl=US&hl=en&disable_polymer=1")
       document = XML.parse_html(response.body)
       nodeset = document.xpath_nodes(%q(.//tr[contains(@class, "pl-video")]))
 
@@ -142,7 +142,7 @@ def fetch_playlist(plid)
     plid = "UU#{plid.lchop("UC")}"
   end
 
-  response = client.get("/playlist?list=#{plid}&disable_polymer=1")
+  response = client.get("/playlist?list=#{plid}&hl=en&disable_polymer=1")
   if response.status_code != 200
     raise "Invalid playlist."
   end

@@ -89,7 +89,7 @@ def search(query, page = 1, search_params = produce_search_params(content_type: 
     return {0, [] of SearchItem}
   end
 
-  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=#{search_params}&disable_polymer=1").body
+  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=#{search_params}&hl=en&disable_polymer=1").body
   if html.empty?
     return {0, [] of SearchItem}
   end
