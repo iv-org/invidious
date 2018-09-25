@@ -3,6 +3,7 @@ class Playlist
     title:            String,
     id:               String,
     author:           String,
+    author_thumbnail: String,
     ucid:             String,
     description:      String,
     description_html: String,
@@ -164,6 +165,8 @@ def fetch_playlist(plid)
 
   anchor = document.xpath_node(%q(//ul[@class="pl-header-details"])).not_nil!
   author = anchor.xpath_node(%q(.//li[1]/a)).not_nil!.content
+  author_thumbnail = document.xpath_node(%q(//img[@class="channel-header-profile-image"])).try &.["src"]
+  author_thumbnail ||= ""
   ucid = anchor.xpath_node(%q(.//li[1]/a)).not_nil!["href"].split("/")[2]
 
   video_count = anchor.xpath_node(%q(.//li[2])).not_nil!.content.delete("videos, ").to_i
@@ -181,6 +184,7 @@ def fetch_playlist(plid)
     title,
     plid,
     author,
+    author_thumbnail,
     ucid,
     description,
     description_html,

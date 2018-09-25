@@ -2839,6 +2839,20 @@ get "/api/v1/playlists/:plid" do |env|
       json.field "authorId", playlist.ucid
       json.field "authorUrl", "/channel/#{playlist.ucid}"
 
+      json.field "authorThumbnails" do
+        json.array do
+          qualities = [32, 48, 76, 100, 176, 512]
+
+          qualities.each do |quality|
+            json.object do
+              json.field "url", playlist.author_thumbnail.gsub("=s100-", "=s#{quality}-")
+              json.field "width", quality
+              json.field "height", quality
+            end
+          end
+        end
+      end
+
       json.field "description", playlist.description
       json.field "descriptionHtml", playlist.description_html
       json.field "videoCount", playlist.video_count
