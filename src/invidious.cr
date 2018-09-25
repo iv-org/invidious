@@ -2822,7 +2822,6 @@ get "/api/v1/playlists/:plid" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
-  
   begin
     playlist = fetch_playlist(plid)
     videos = fetch_playlist_videos(plid, page, playlist.video_count)

@@ -8,4 +8,8 @@
 <script src="/js/videojs-markers.min.js"></script>
 <script src="/js/videojs-share.min.js"></script>
 <script src="/js/videojs-http-streaming.min.js"></script>
+<% if env.get?("user") && env.get("user").as(User).preferences.quality == "dash" %>
+<script src="/js/dash.mediaplayer.min.js"></script>
+<script src="/js/videojs-dash.min.js"></script>
 <script src="/js/videojs-contrib-quality-levels.min.js"></script>
+<% end %>

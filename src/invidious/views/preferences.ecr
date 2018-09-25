@@ -35,7 +35,7 @@ function update_value(element) {
             <div class="pure-control-group">
                 <label for="quality">Preferred video quality: </label>
                 <select name="quality" id="quality">
-                <% {"hd720", "medium", "small"}.each do |option| %>
+                <% {"dash", "hd720", "medium", "small"}.each do |option| %>
                     <option <% if user.preferences.quality == option %> selected <% end %>><%= option %></option>
                 <% end %>
                 </select>

@@ -11,6 +11,9 @@
                 <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
             <% end %>
         <% else %>
+            <% if params[:quality] == "dash" %>
+                <source src="/api/manifest/dash/id/<%= video.id %>?local=true" type='application/dash+xml' label="dash">
+            <% end %>
             <% fmt_stream.each_with_index do |fmt, i| %>
                 <% if params[:quality] %>
                 <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= params[:quality] == fmt["label"].split(" - ")[0] %>">
