@@ -505,7 +505,7 @@ def fetch_video(id)
 
   spawn do
     client = make_client(YT_URL)
-    html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&disable_polymer=1")
+    html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
     html = XML.parse_html(html.body)
 
     html_channel.send(html)
