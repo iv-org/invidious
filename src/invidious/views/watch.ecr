@@ -55,7 +55,13 @@
             <p><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
             <p><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
             <p><i class="icon ion-ios-thumbs-down"></i> <%= number_with_separator(video.dislikes) %></p>
-            <p id="Genre">Genre: <a href="<%= video.genre_url %>"><%= video.genre %></a></p>
+            <p id="Genre">Genre: 
+            <% if video.genre_url.empty? %>
+            <%= video.genre %>
+            <% else %>
+            <a href="<%= video.genre_url %>"><%= video.genre %></a>
+            <% end %>
+            </p>
             <% if !video.license.empty? %>
             <p id="License">License: <%= video.license %></p>
             <% end %>
