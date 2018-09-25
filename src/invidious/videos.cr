@@ -465,7 +465,7 @@ class CaptionName
   )
 end
 
-def get_video(id, db, refresh = true, proxies = {} of String => Array({ip: String, port: Int32, score: Float64}))
+def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32}), refresh = true)
   if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool)
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
@@ -498,7 +498,7 @@ def get_video(id, db, refresh = true, proxies = {} of String => Array({ip: Strin
   return video
 end
 
-def fetch_video(id, proxies = {} of String => Array({ip: String, port: Int32, score: Float64}))
+def fetch_video(id, proxies)
   html_channel = Channel(XML::Node).new
   info_channel = Channel(HTTP::Params).new
 
@@ -557,7 +557,7 @@ def fetch_video(id, proxies = {} of String => Array({ip: String, port: Int32, sc
       end
     end
 
-    BYPASS_REGIONS.size.times do
+    proxies.size.times do
       response = bypass_channel.receive
       if response[0] || response[1]
         info = response[0].not_nil!
