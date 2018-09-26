@@ -89,6 +89,49 @@ class HTTPClient < HTTP::Client
 end
 
 def get_proxies(country_code = "US")
+  # return get_spys_proxies(country_code)
+  return get_nova_proxies(country_code)
+end
+
+def get_nova_proxies(country_code = "US")
+  country_code = country_code.downcase
+  client = HTTP::Client.new(URI.parse("https://www.proxynova.com"))
+  client.read_timeout = 10.seconds
+  client.connect_timeout = 10.seconds
+
+  headers = HTTP::Headers.new
+  headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
+  headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
+  headers["Accept-Language"] = "Accept-Language: en-US,en;q=0.9"
+  headers["Host"] = "www.proxynova.com"
+  headers["Origin"] = "https://www.proxynova.com"
+  headers["Referer"] = "https://www.proxynova.com/proxy-server-list/country-#{country_code}/"
+
+  response = client.get("/proxy-server-list/country-#{country_code}/", headers)
+  document = XML.parse_html(response.body)
+
+  proxies = [] of {ip: String, port: Int32, score: Float64}
+  document.xpath_nodes(%q(//tr[@data-proxy-id])).each do |node|
+    ip = node.xpath_node(%q(.//td/abbr/script)).not_nil!.content
+    ip = ip.match(/document\.write\('(?<sub1>[^']+)'.substr\(8\) \+ '(?<sub2>[^']+)'/).not_nil!
+    ip = "#{ip["sub1"][8..-1]}#{ip["sub2"]}"
+    port = node.xpath_node(%q(.//td[2])).not_nil!.content.strip.to_i
+
+    anchor = node.xpath_node(%q(.//td[4]/div)).not_nil!
+    speed = anchor["data-value"].to_f
+    latency = anchor["title"].to_f
+    uptime = node.xpath_node(%q(.//td[5]/span)).not_nil!.content.rchop("%").to_f
+
+    # TODO: Tweak me
+    score = (uptime*4 + speed*2 + latency)/7
+    proxies << {ip: ip, port: port, score: score}
+  end
+
+  proxies = proxies.sort_by { |proxy| proxy[:score] }.reverse
+  return proxies
+end
+
+def get_spys_proxies(country_code = "US")
   client = HTTP::Client.new(URI.parse("http://spys.one"))
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
