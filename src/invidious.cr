@@ -1727,6 +1727,8 @@ end
 # API Endpoints
 
 get "/api/v1/captions/:id" do |env|
+  env.response.content_type = "application/json"
+
   id = env.params.url["id"]
 
   client = make_client(YT_URL)
@@ -1740,8 +1742,6 @@ get "/api/v1/captions/:id" do |env|
 
   label = env.params.query["label"]?
   if !label
-    env.response.content_type = "application/json"
-
     response = JSON.build do |json|
       json.object do
         json.field "captions" do
@@ -1815,6 +1815,8 @@ get "/api/v1/captions/:id" do |env|
 end
 
 get "/api/v1/comments/:id" do |env|
+  env.response.content_type = "application/json"
+
   id = env.params.url["id"]
 
   source = env.params.query["source"]?
@@ -1825,26 +1827,60 @@ get "/api/v1/comments/:id" do |env|
 
   if source == "youtube"
     client = make_client(YT_URL)
-    headers = HTTP::Headers.new
     html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
-
+    headers = HTTP::Headers.new
     headers["cookie"] = html.cookies.add_request_headers(headers)["cookie"]
-    headers["content-type"] = "application/x-www-form-urlencoded"
-
-    headers["x-client-data"] = "CIi2yQEIpbbJAQipncoBCNedygEIqKPKAQ=="
-    headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1"
-    headers["x-spf-referer"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1"
-
-    headers["x-youtube-client-name"] = "1"
-    headers["x-youtube-client-version"] = "2.20180719"
-
     body = html.body
+
     session_token = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
+    itct = body.match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
     ctoken = body.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
 
-    if !ctoken
-      env.response.content_type = "application/json"
+    if body.match(/<meta itemprop="regionsAllowed" content="">/)
+      bypass_channel = Channel({String, HTTPClient, HTTP::Headers} | Nil).new
 
+      proxies.each do |region, list|
+        spawn do
+          begin
+            proxy_client = HTTPClient.new(YT_URL)
+            proxy_client.read_timeout = 10.seconds
+            proxy_client.connect_timeout = 10.seconds
+
+            proxy = list.sample(1)[0]
+            proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
+            proxy_client.set_proxy(proxy)
+
+            proxy_html = proxy_client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
+            proxy_headers = HTTP::Headers.new
+            proxy_headers["cookie"] = proxy_html.cookies.add_request_headers(headers)["cookie"]
+            proxy_html = proxy_html.body
+
+            if proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
+              bypass_channel.send(nil)
+            else
+              bypass_channel.send({proxy_html, proxy_client, proxy_headers})
+            end
+          rescue ex
+            bypass_channel.send(nil)
+          end
+        end
+      end
+
+      proxies.size.times do
+        response = bypass_channel.receive
+        if response
+          session_token = response[0].match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
+          itct = response[0].match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
+          ctoken = response[0].match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
+
+          client = response[1]
+          headers = response[2]
+          break
+        end
+      end
+    end
+
+    if !ctoken
       if format == "json"
         next {"comments" => [] of String}.to_json
       else
@@ -1852,7 +1888,6 @@ get "/api/v1/comments/:id" do |env|
       end
     end
     ctoken = ctoken["ctoken"]
-    itct = body.match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
 
     if env.params.query["continuation"]? && !env.params.query["continuation"].empty?
       continuation = env.params.query["continuation"]
@@ -1866,10 +1901,16 @@ get "/api/v1/comments/:id" do |env|
     }
     post_req = HTTP::Params.encode(post_req)
 
-    response = client.post("/comment_service_ajax?action_get_comments=1&pbj=1&ctoken=#{ctoken}&continuation=#{continuation}&itct=#{itct}&hl=en&gl=US", headers, post_req).body
-    response = JSON.parse(response)
+    headers["content-type"] = "application/x-www-form-urlencoded"
 
-    env.response.content_type = "application/json"
+    headers["x-client-data"] = "CIi2yQEIpbbJAQipncoBCNedygEIqKPKAQ=="
+    headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1"
+    headers["x-spf-referer"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1"
+
+    headers["x-youtube-client-name"] = "1"
+    headers["x-youtube-client-version"] = "2.20180719"
+    response = client.post("/comment_service_ajax?action_get_comments=1&pbj=1&ctoken=#{ctoken}&continuation=#{continuation}&itct=#{itct}&hl=en&gl=US", headers, post_req)
+    response = JSON.parse(response.body)
 
     if !response["response"]["continuationContents"]?
       halt env, status_code: 403
@@ -2024,8 +2065,6 @@ get "/api/v1/comments/:id" do |env|
     if !reddit_thread || !comments
       halt env, status_code: 404
     end
-
-    env.response.content_type = "application/json"
 
     if format == "json"
       reddit_thread = JSON.parse(reddit_thread.to_json).as_h
