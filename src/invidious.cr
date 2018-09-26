@@ -1832,8 +1832,8 @@ get "/api/v1/comments/:id" do |env|
     headers["content-type"] = "application/x-www-form-urlencoded"
 
     headers["x-client-data"] = "CIi2yQEIpbbJAQipncoBCNedygEIqKPKAQ=="
-    headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}"
-    headers["x-spf-referer"] = "https://www.youtube.com/watch?v=#{id}"
+    headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1"
+    headers["x-spf-referer"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1"
 
     headers["x-youtube-client-name"] = "1"
     headers["x-youtube-client-version"] = "2.20180719"
@@ -1866,7 +1866,7 @@ get "/api/v1/comments/:id" do |env|
     }
     post_req = HTTP::Params.encode(post_req)
 
-    response = client.post("/comment_service_ajax?action_get_comments=1&pbj=1&ctoken=#{ctoken}&continuation=#{continuation}&itct=#{itct}", headers, post_req).body
+    response = client.post("/comment_service_ajax?action_get_comments=1&pbj=1&ctoken=#{ctoken}&continuation=#{continuation}&itct=#{itct}&hl=en&gl=US", headers, post_req).body
     response = JSON.parse(response)
 
     env.response.content_type = "application/json"
