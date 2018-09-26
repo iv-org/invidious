@@ -1,0 +1,21 @@
+version: '3'
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.postgres
+    restart: unless-stopped
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+  invidious:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+
+volumes:
+  postgresdata:
