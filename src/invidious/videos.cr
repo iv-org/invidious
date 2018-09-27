@@ -540,8 +540,13 @@ def fetch_video(id, proxies)
           proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
           client.set_proxy(proxy)
 
+          proxy_info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
+          proxy_info = HTTP::Params.parse(proxy_info.body)
+
+          if proxy_info["reason"]?
           proxy_info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
           proxy_info = HTTP::Params.parse(proxy_info.body)
+          end
 
           if !proxy_info["reason"]?
             proxy_html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
