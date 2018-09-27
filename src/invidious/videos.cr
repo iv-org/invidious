@@ -544,8 +544,8 @@ def fetch_video(id, proxies)
           proxy_info = HTTP::Params.parse(proxy_info.body)
 
           if proxy_info["reason"]?
-          proxy_info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
-          proxy_info = HTTP::Params.parse(proxy_info.body)
+            proxy_info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
+            proxy_info = HTTP::Params.parse(proxy_info.body)
           end
 
           if !proxy_info["reason"]?
@@ -604,10 +604,15 @@ def fetch_video(id, proxies)
 
   genre = html.xpath_node(%q(//meta[@itemprop="genre"])).not_nil!["content"]
   genre_url = html.xpath_node(%(//a[text()="#{genre}"])).try &.["href"]
-  if genre == "Movies"
-    genre_url ||= "/channel/UClgRkhTL3_hImCAmdLfDE4g"
+  case genre
+  when "Movies"
+    genre_url = "/channel/UClgRkhTL3_hImCAmdLfDE4g"
+  when "Education"
+    # Education channel is linked but does not exist
+    # genre_url = "/channel/UC3yA8nDwraeOfnYfBWun83g"
+    genre_url = ""
   end
-  genre_url = ""
+  genre_url ||= ""
 
   license = html.xpath_node(%q(//h4[contains(text(),"License")]/parent::*/ul/li))
   if license
