@@ -401,10 +401,15 @@ get "/playlist" do |env|
 
   begin
     playlist = fetch_playlist(plid)
-    videos = fetch_playlist_videos(plid, page, playlist.video_count)
   rescue ex
     error_message = ex.message
     next templated "error"
+  end
+
+  begin
+    videos = fetch_playlist_videos(plid, page, playlist.video_count)
+  rescue ex
+    videos = [] of PlaylistVideo
   end
 
   templated "playlist"
@@ -2872,10 +2877,15 @@ get "/api/v1/playlists/:plid" do |env|
 
   begin
     playlist = fetch_playlist(plid)
-    videos = fetch_playlist_videos(plid, page, playlist.video_count)
   rescue ex
     error_message = {"error" => "Playlist is empty"}.to_json
     halt env, status_code: 404, response: error_message
+  end
+
+  begin
+    videos = fetch_playlist_videos(plid, page, playlist.video_count)
+  rescue ex
+    videos = [] of PlaylistVideo
   end
 
   response = JSON.build do |json|
