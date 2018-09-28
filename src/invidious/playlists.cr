@@ -43,9 +43,11 @@ def fetch_playlist_videos(plid, page, video_count)
     nodeset = document.xpath_nodes(%q(.//tr[contains(@class, "pl-video")]))
     videos = extract_playlist(plid, nodeset, index)
   else
+    # Playlist has less than one page of videos, so subsequent pages will be empty
     if page > 1
       videos = [] of PlaylistVideo
     else
+      # Extract first page of videos
       response = client.get("/playlist?list=#{plid}&gl=US&hl=en&disable_polymer=1")
       document = XML.parse_html(response.body)
       nodeset = document.xpath_nodes(%q(.//tr[contains(@class, "pl-video")]))
@@ -106,7 +108,8 @@ def produce_playlist_url(id, index)
   end
   ucid = "VL" + id
 
-  meta = "\x08#{write_var_int(index).join}"
+  meta = [0x08_u8] + write_var_int(index)
+  meta = Slice.new(meta.to_unsafe, meta.size)
   meta = Base64.urlsafe_encode(meta, false)
   meta = "PT:#{meta}"
 
