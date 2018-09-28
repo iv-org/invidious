@@ -104,13 +104,17 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
 
       videos.each do |video|
         ids << video.id
-        db.exec("UPDATE users SET notifications = notifications || $1 \
+
+        # FIXME: Red videos don't provide published date, so the best we can do is ignore them
+        if Time.now - video.published > 1.minute
+          db.exec("UPDATE users SET notifications = notifications || $1 \
           WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
 
-        video_array = video.to_a
-        args = arg_array(video_array)
-        db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO UPDATE SET title = $2, \
+          video_array = video.to_a
+          args = arg_array(video_array)
+          db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO UPDATE SET title = $2, \
           published = $3, updated = $4, ucid = $5, author = $6", video_array)
+        end
       end
 
       if count < 30
