@@ -28,6 +28,29 @@ BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 
 ## Installation
 
+### Docker:
+
+#### Build and start cluster:
+
+```bash
+$ docker-compose up
+```
+
+And visit `localhost:3000` in your browser.
+
+#### Rebuild cluster:
+
+```bash
+$ docker-compose build
+```
+
+#### Delete data and rebuild:
+
+```bash
+$ docker volume rm invidious_postgresdata
+$ docker-compose build
+```
+
 ### Installing [Crystal](https://github.com/crystal-lang/crystal):
 
 #### On Arch:
@@ -74,8 +97,21 @@ $ sudo pacman -S imagemagick librsvg
 ## Usage:
 
 ```bash
-$ crystal build src/invidious.cr
-$ ./invidious
+$ crystal build src/invidious.cr --release
+$ ./invidious -h
+Usage: invidious [arguments]
+    -b HOST, --bind HOST             Host to bind (defaults to 0.0.0.0)
+    -p PORT, --port PORT             Port to listen for connections (defaults to 3000)
+    -s, --ssl                        Enables SSL
+    --ssl-key-file FILE              SSL key file
+    --ssl-cert-file FILE             SSL certificate file
+    -h, --help                       Shows this help
+    -t THREADS, --crawl-threads=THREADS
+                                     Number of threads for crawling (default: 1)
+    -c THREADS, --channel-threads=THREADS
+                                     Number of threads for refreshing channels (default: 1)
+    -v THREADS, --video-threads=THREADS
+                                     Number of threads for refreshing videos (default: 1)
 ```
 
 Or for development:
