@@ -14,7 +14,12 @@
         <p><%= number_with_separator(item.subscriber_count) %> subscribers</p>
         <h5><%= item.description_html %></h5>
     <% when SearchPlaylist %>
-        <a style="width:100%;" href="/playlist?list=<%= item.id %>">
+        <% if item.id.starts_with? "RD" %>
+        <% url = "/mix?list=#{item.id}&continuation=#{item.videos[0]?.try &.id}" %>
+        <% else %>
+        <% url = "/playlist?list=#{item.id}" %>
+        <% end %>
+        <a style="width:100%;" href="<%= url %>">
             <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
             <% else %>
             <img style="width:100%;" src="/vi/<%= item.videos[0]?.try &.id %>/mqdefault.jpg"/>
@@ -26,6 +31,17 @@
         </p>
         <p><%= number_with_separator(item.video_count) %> videos</p>
         <p>PLAYLIST</p>
+    <% when MixVideo %>
+        <a style="width:100%;" href="/watch?v=<%= item.id %>">
+            <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
+            <% else %>
+            <img style="width:100%;" src="/vi/<%= item.id %>/mqdefault.jpg"/>
+            <% end %>
+            <p><%= item.title %></p>
+        </a>
+        <p>
+            <b><a style="width:100%;" href="/channel/<%= item.ucid %>"><%= item.author %></a></b>
+        </p>
     <% else %>
         <% if item.responds_to?(:playlists) && !item.playlists.empty? %>
         <% params = "&list=#{item.playlists[0]}" %>

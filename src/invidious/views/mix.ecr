@@ -1,0 +1,22 @@
+<% content_for "header" do %>
+<title><%= mix.title %> - Invidious</title>
+<% end %>
+
+<div class="pure-g h-box">
+    <div class="pure-u-2-3">
+        <h3><%= mix.title %></h3>
+    </div>
+    <div class="pure-u-1-3" style="text-align:right;">
+        <h3>
+            <a href="/feed/playlist/<%= mix.id %>"><i class="icon ion-logo-rss"></i></a>
+        </h3>
+    </div>
+</div>
+
+<% mix.videos.each_slice(4) do |slice| %>
+<div class="pure-g">
+    <% slice.each do |item| %>
+        <%= rendered "components/item" %>
+    <% end %>
+</div> 
+<% end %>

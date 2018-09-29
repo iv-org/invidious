@@ -1,3 +1,16 @@
+class PlaylistVideo
+  add_mapping({
+    title:          String,
+    id:             String,
+    author:         String,
+    ucid:           String,
+    length_seconds: Int32,
+    published:      Time,
+    playlists:      Array(String),
+    index:          Int32,
+  })
+end
+
 class Playlist
   add_mapping({
     title:            String,
@@ -10,19 +23,6 @@ class Playlist
     video_count:      Int32,
     views:            Int64,
     updated:          Time,
-  })
-end
-
-class PlaylistVideo
-  add_mapping({
-    title:          String,
-    id:             String,
-    author:         String,
-    ucid:           String,
-    length_seconds: Int32,
-    published:      Time,
-    playlists:      Array(String),
-    index:          Int32,
   })
 end
 

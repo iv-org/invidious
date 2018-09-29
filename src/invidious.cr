@@ -390,6 +390,7 @@ get "/embed/:id" do |env|
 end
 
 # Playlists
+
 get "/playlist" do |env|
   plid = env.params.query["list"]?
   if !plid
@@ -413,6 +414,25 @@ get "/playlist" do |env|
   end
 
   templated "playlist"
+end
+
+get "/mix" do |env|
+  rdid = env.params.query["list"]?
+  if !rdid
+    next env.redirect "/"
+  end
+
+  continuation = env.params.query["continuation"]?
+  continuation ||= rdid.lchop("RD")
+
+  begin
+    mix = fetch_mix(rdid, continuation)
+  rescue ex
+    error_message = ex.message
+    next templated "error"
+  end
+
+  templated "mix"
 end
 
 # Search
@@ -2166,12 +2186,13 @@ get "/api/v1/insights/:id" do |env|
 end
 
 get "/api/v1/videos/:id" do |env|
+  env.response.content_type = "application/json"
+
   id = env.params.url["id"]
 
   begin
     video = get_video(id, PG_DB, proxies)
   rescue ex
-    env.response.content_type = "application/json"
     error_message = {"error" => ex.message}.to_json
     halt env, status_code: 500, response: error_message
   end
@@ -2181,7 +2202,6 @@ get "/api/v1/videos/:id" do |env|
 
   captions = video.captions
 
-  env.response.content_type = "application/json"
   video_info = JSON.build do |json|
     json.object do
       json.field "title", video.title
@@ -2931,6 +2951,55 @@ get "/api/v1/playlists/:plid" do |env|
 
               json.field "videoThumbnails" do
                 generate_thumbnails(json, video.id)
+              end
+
+              json.field "index", video.index
+              json.field "lengthSeconds", video.length_seconds
+            end
+          end
+        end
+      end
+    end
+  end
+
+  response
+end
+
+get "/api/v1/mixes/:rdid" do |env|
+  env.response.content_type = "application/json"
+
+  rdid = env.params.url["rdid"]
+
+  continuation = env.params.query["continuation"]?
+  continuation ||= rdid.lchop("RD")
+
+  begin
+    mix = fetch_mix(rdid, continuation)
+  rescue ex
+    error_message = {"error" => ex.message}.to_json
+    halt env, status_code: 500, response: error_message
+  end
+
+  response = JSON.build do |json|
+    json.object do
+      json.field "title", mix.title
+      json.field "mixId", mix.id
+
+      json.field "videos" do
+        json.array do
+          mix.videos.each do |video|
+            json.object do
+              json.field "title", video.title
+              json.field "videoId", video.id
+              json.field "author", video.author
+
+              json.field "authorId", video.ucid
+              json.field "authorUrl", "/channel/#{video.ucid}"
+
+              json.field "videoThumbnails" do
+                json.array do
+                  generate_thumbnails(json, video.id)
+                end
               end
 
               json.field "index", video.index

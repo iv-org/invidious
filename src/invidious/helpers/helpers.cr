@@ -244,11 +244,22 @@ def extract_items(nodeset, ucid = nil)
       plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
 
       anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-meta")]/a))
+
       if !anchor
         anchor = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/a))
       end
-      if anchor
-        video_count = anchor.content.match(/View full playlist \((?<count>\d+)/).try &.["count"].to_i?
+
+      video_count = node.xpath_node(%q(.//span[@class="formatted-video-count-label"]/b))
+      if video_count
+        video_count = video_count.content
+
+        if video_count == "50+"
+          author = "YouTube"
+          author_id = "UC-9-kyTW8ZkZNDHQJ6FgpwQ"
+          video_count = video_count.rchop("+")
+        end
+
+        video_count = video_count.to_i?
       end
       video_count ||= 0
 
