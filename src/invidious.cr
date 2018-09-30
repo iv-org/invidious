@@ -1766,7 +1766,10 @@ get "/api/v1/captions/:id" do |env|
   captions = video.captions
 
   label = env.params.query["label"]?
-  if !label
+  lang = env.params.query["lang"]?
+  tlang = env.params.query["tlang"]?
+
+  if !label && !lang
     response = JSON.build do |json|
       json.object do
         json.field "captions" do
@@ -1786,22 +1789,27 @@ get "/api/v1/captions/:id" do |env|
     next response
   end
 
+  env.response.content_type = "text/vtt"
+
   caption = captions.select { |caption| caption.name.simpleText == label }
 
-  env.response.content_type = "text/vtt"
+  if lang
+    caption = captions.select { |caption| caption.languageCode == lang }
+  end
+
   if caption.empty?
-    halt env, status_code: 403
+    halt env, status_code: 404
   else
     caption = caption[0]
   end
 
-  caption_xml = client.get(caption.baseUrl).body
+  caption_xml = client.get(caption.baseUrl + "&tlang=#{tlang}").body
   caption_xml = XML.parse(caption_xml)
 
   webvtt = <<-END_VTT
   WEBVTT
   Kind: captions
-  Language: #{caption.languageCode}
+  Language: #{tlang || caption.languageCode}
 
 
   END_VTT
