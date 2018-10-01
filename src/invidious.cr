@@ -3230,6 +3230,33 @@ get "/videoplayback" do |env|
   client = make_client(URI.parse(host))
   response = client.head(url)
 
+  if response.status_code == 403
+    ip = query_params["ip"]
+    proxy = proxies.values.flatten.select { |proxy| proxy[:ip] == ip }
+    if proxy.empty?
+      halt env, status_code: 403
+    end
+
+    proxy = proxy[0]
+    # Try to find proxy in same region
+    proxy = proxies.select { |region, list| list.includes? proxy }.values[0].sample(1)[0]
+    if proxy.empty?
+      halt env, status_code: 403
+    end
+
+    client = HTTPClient.new(URI.parse(host))
+    client.read_timeout = 10.seconds
+    client.connect_timeout = 10.seconds
+
+    proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
+    client.set_proxy(proxy)
+
+    response = client.head(url)
+
+    # For whatever reason the proxy needs to be set again
+    client.set_proxy(proxy)
+  end
+
   if response.headers["Location"]?
     url = URI.parse(response.headers["Location"])
     env.response.headers["Access-Control-Allow-Origin"] = "*"
