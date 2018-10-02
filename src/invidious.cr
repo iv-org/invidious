@@ -1874,27 +1874,30 @@ get "/api/v1/comments/:id" do |env|
 
       proxies.each do |region, list|
         spawn do
-          begin
-            proxy_client = HTTPClient.new(YT_URL)
-            proxy_client.read_timeout = 10.seconds
-            proxy_client.connect_timeout = 10.seconds
+          list.each do |proxy|
+            begin
+              proxy_client = HTTPClient.new(YT_URL)
+              proxy_client.read_timeout = 10.seconds
+              proxy_client.connect_timeout = 10.seconds
 
-            proxy = list.sample(1)[0]
-            proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-            proxy_client.set_proxy(proxy)
+              proxy = list.sample(1)[0]
+              proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
+              proxy_client.set_proxy(proxy)
 
-            proxy_html = proxy_client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
-            proxy_headers = HTTP::Headers.new
-            proxy_headers["cookie"] = proxy_html.cookies.add_request_headers(headers)["cookie"]
-            proxy_html = proxy_html.body
+              proxy_html = proxy_client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
+              proxy_headers = HTTP::Headers.new
+              proxy_headers["cookie"] = proxy_html.cookies.add_request_headers(headers)["cookie"]
+              proxy_html = proxy_html.body
 
-            if proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
-              bypass_channel.send(nil)
-            else
-              bypass_channel.send({proxy_html, proxy_client, proxy_headers})
+              if proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
+                bypass_channel.send(nil)
+              else
+                bypass_channel.send({proxy_html, proxy_client, proxy_headers})
+              end
+
+              break
+            rescue ex
             end
-          rescue ex
-            bypass_channel.send(nil)
           end
         end
       end
@@ -3227,34 +3230,39 @@ get "/videoplayback" do |env|
   host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
 
-  client = make_client(URI.parse(host))
-  response = client.head(url)
+  if query_params["region"]?
+    client = make_client(URI.parse(host))
+    response = HTTP::Client::Response.new(status_code: 403)
 
-  if response.status_code == 403
-    ip = query_params["ip"]
-    proxy = proxies.values.flatten.select { |proxy| proxy[:ip] == ip }
-    if proxy.empty?
+    if !proxies[query_params["region"]]?
       halt env, status_code: 403
     end
 
-    proxy = proxy[0]
-    # Try to find proxy in same region
-    proxy = proxies.select { |region, list| list.includes? proxy }.values[0].sample(1)[0]
-    if proxy.empty?
-      halt env, status_code: 403
+    proxies[query_params["region"]].each do |proxy|
+      begin
+        client = HTTPClient.new(URI.parse(host))
+        client.read_timeout = 10.seconds
+        client.connect_timeout = 10.seconds
+
+        proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
+        client.set_proxy(proxy)
+
+        response = client.head(url)
+        if response.status_code == 200
+          # For whatever reason the proxy needs to be set again
+          client.set_proxy(proxy)
+          break
+        end
+      rescue ex
+      end
     end
-
-    client = HTTPClient.new(URI.parse(host))
-    client.read_timeout = 10.seconds
-    client.connect_timeout = 10.seconds
-
-    proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-    client.set_proxy(proxy)
-
+  else
+    client = make_client(URI.parse(host))
     response = client.head(url)
+  end
 
-    # For whatever reason the proxy needs to be set again
-    client.set_proxy(proxy)
+  if response.status_code != 200
+    halt env, status_code: 403
   end
 
   if response.headers["Location"]?

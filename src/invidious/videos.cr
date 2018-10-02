@@ -273,6 +273,12 @@ class Video
     streams.each { |s| s.add("label", "#{s["quality"]} - #{s["type"].split(";")[0].split("/")[1]}") }
     streams = streams.uniq { |s| s["label"] }
 
+    if self.info["region"]?
+      streams.each do |fmt|
+        fmt["url"] += "&region=" + self.info["region"]
+      end
+    end
+
     if streams[0]? && streams[0]["s"]?
       streams.each do |fmt|
         fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
@@ -359,6 +365,12 @@ class Video
 
           adaptive_fmts << HTTP::Params.new(params)
         end
+      end
+    end
+
+    if self.info["region"]?
+      adaptive_fmts.each do |fmt|
+        fmt["url"] += "&region=" + self.info["region"]
       end
     end
 
@@ -527,47 +539,56 @@ def fetch_video(id, proxies)
   info = info_channel.receive
 
   if info["reason"]? && info["reason"].includes? "your country"
-    bypass_channel = Channel({HTTP::Params | Nil, XML::Node | Nil}).new
+    bypass_channel = Channel(HTTPProxy | Nil).new
 
     proxies.each do |region, list|
       spawn do
-        begin
-          client = HTTPClient.new(YT_URL)
-          client.read_timeout = 10.seconds
-          client.connect_timeout = 10.seconds
+        list.each do |proxy|
+          begin
+            client = HTTPClient.new(YT_URL)
+            client.read_timeout = 10.seconds
+            client.connect_timeout = 10.seconds
 
-          proxy = list.sample(1)[0]
-          proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-          client.set_proxy(proxy)
+            proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
+            client.set_proxy(proxy)
 
-          proxy_info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
-          proxy_info = HTTP::Params.parse(proxy_info.body)
+            response = client.head("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
+            if response.status_code == 200
+              bypass_channel.send(proxy)
+            else
+              bypass_channel.send(nil)
+            end
 
-          if proxy_info["reason"]?
-            proxy_info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
-            proxy_info = HTTP::Params.parse(proxy_info.body)
+            break
+          rescue ex
           end
-
-          if !proxy_info["reason"]?
-            proxy_html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
-            proxy_html = XML.parse_html(proxy_html.body)
-
-            bypass_channel.send({proxy_info, proxy_html})
-          else
-            bypass_channel.send({nil, nil})
-          end
-        rescue ex
-          bypass_channel.send({nil, nil})
         end
       end
     end
 
     proxies.size.times do
-      response = bypass_channel.receive
-      if response[0] || response[1]
-        info = response[0].not_nil!
-        html = response[1].not_nil!
-        break
+      proxy = bypass_channel.receive
+      if proxy
+        client = HTTPClient.new(YT_URL)
+        client.read_timeout = 10.seconds
+        client.connect_timeout = 10.seconds
+        client.set_proxy(proxy)
+
+        proxy = {ip: proxy.proxy_host, port: proxy.proxy_port}
+        region = proxies.select { |region, list| list.includes? proxy }.keys[0]
+
+        html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
+        html = XML.parse_html(html.body)
+
+        info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
+        info = HTTP::Params.parse(info.body)
+
+        if info["reason"]?
+          info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
+          info = HTTP::Params.parse(info.body)
+        end
+
+        info["region"] = region
       end
     end
   end
