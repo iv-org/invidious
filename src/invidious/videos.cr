@@ -587,6 +587,8 @@ def fetch_video(id, proxies)
           if !region.empty?
             info["region"] = region.keys[0]
           end
+
+          break
         rescue ex
         end
       end
