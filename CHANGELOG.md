@@ -1,10 +1,26 @@
+# 0.8.0 (2018-10-02)
+
+## Week 8: Mixes
+
+Hello again!
+
+Mixes have been added with [`20130db`](https://github.com/omarroth/invidious/20130db), which makes it easy to create a playlist of related content. See [#188](https://github.com/omarroth/invidious/issues/188) for more info on how they work. Currently, they return the first 50 videos rather than a continuous feed to avoid tracking by Google/YouTube, which I think is a good trade-off between usability and privacy, and I hope other folks agree. You can create mixes by adding `RD` to the beginning of a video ID, an example is provided [here](https://www.invidio.us/mix?list=RDYE7VzlLtp-4) based on Big Buck Bunny. I've been quite happy with the results returned for the mixes I've tried, and it is not limited to music, which I think is a big plus. To emulate a continuous feed provided many are used to, using the last video of each mix as a new 'seed' has worked well for me. In the coming week I'd like to to add playback support in the player to listen to these easily.
+
+A very big thanks to [**@flourgaz**](https://github.com/flourgaz) for Docker support with [#186](https://github.com/omarroth/invidious/pull/186). This is an enormous improvement in portability for the project, and opens the door for Heroku support (see [#162](https://github.com/omarroth/invidious/issues/162)), and seamless support on Windows. For most users, it should be as easy as running `docker-compose up`.
+
+I've spent quite a bit of time this past week improving support for geo-bypass (see [#92](https://github.com/omarroth/invidious/issues/92)), and am happy to note that Invidious has been able to proxy ~50% of the geo-restricted videos I've tried. In addition, you can now watch geo-restricted videos if you have `dash` enabled as your `preferred quality`, for more details see [#34](https://github.com/omarroth/invidious/issues/34) and [#185](https://github.com/omarroth/invidious/issues/185), or last week's update. For folks interested in replicating these results for themselves, I'd take a look [here](https://gist.github.com/omarroth/3ce0f276c43e0c4b13e7d9cd35524688) for the script used, and [here](https://gist.github.com/omarroth/beffc4a76a7b82a422e1b36a571878ef) for a list of videos restricted in the US.
+
+1080p has seen a fairly smooth roll-out, although there have been a couple issues reported, mainly [#193](https://github.com/omarroth/invidious/issues/193), which is likely an issue in the player. I've also encountered a couple other issues myself that I would like to investigate. Although none are major, I'd like to keep 1080p opt-in for registered users another week to better address these issues.
+
+Have an excellent week everyone.
+
 # 0.7.0 (2018-09-25)
 
 ## Week 7: 1080p and Search Types
 
 Hello again everyone! I've got quite a couple announcements this week:
 
-Experimental 1080p support has been added with [`b3ca392`](https://github.com/omarroth/invidious/b3ca392)2a9073b4abb0d7fde58a3e6098668f53e, and can be enabled by going to preferences and changing `preferred video quality` to `dash`. You can find more details [here](https://github.com/omarroth/invidious/issues/34#issuecomment-424171888). Currently quality and speed controls have not yet been integrated into the player, but I'd still appreciate feedback, mainly on any issues with buffering or DASH playback. I hope to integrate 1080p support into the player and push support site-wide in the coming weeks.
+Experimental 1080p support has been added with [`b3ca392`](https://github.com/omarroth/invidious/b3ca392), and can be enabled by going to preferences and changing `preferred video quality` to `dash`. You can find more details [here](https://github.com/omarroth/invidious/issues/34#issuecomment-424171888). Currently quality and speed controls have not yet been integrated into the player, but I'd still appreciate feedback, mainly on any issues with buffering or DASH playback. I hope to integrate 1080p support into the player and push support site-wide in the coming weeks.
 
 You can now filter content types in search with the `type:TYPE` filter. Supported content types are `playlist`, `channel`, and `video`. More info is available [here](https://github.com/omarroth/invidious/issues/126#issuecomment-423823148). I think this is quite an improvement in usability and I hope others find the same.
 
@@ -13,9 +29,9 @@ A [CHANGELOG](https://github.com/omarroth/invidious/blob/master/CHANGELOG.md) ha
 Recently, users have been reporting 504s when attempting to access their subscriptions, which is tracked in [#173](https://github.com/omarroth/invidious/issues/173). This is most likely caused by an uptick in usage, which I am absolutely grateful for, but unfortunately has resulted in an increase in costs for hosting the site, which is why I will be bumping my goal on Patreon from $60 to $80. I would appreciate any feedback on how subscriptions could be improved.
 
 Other minor improvements include:
-- Additional regions added to bypass geo-block with [`9a78523`](https://github.com/omarroth/invidious/9a78523)41d9d67b6bddd8a9836c1b71c124c3614
-- Fix for playlists containing less than 100 videos (previously shown as empty) with [`35ac887`](https://github.com/omarroth/invidious/35ac887)13320a970e3a87a26249c2a18a709f020
-- Fix for `published` date for Reddit comments (previously showing negative seconds) with [`6e09202`](https://github.com/omarroth/invidious/6e09202)6d29eccc3e3adf02be138fddec2354027
+- Additional regions added to bypass geo-block with [`9a78523`](https://github.com/omarroth/invidious/9a78523)
+- Fix for playlists containing less than 100 videos (previously shown as empty) with [`35ac887`](https://github.com/omarroth/invidious/35ac887)
+- Fix for `published` date for Reddit comments (previously showing negative seconds) with [`6e09202`](https://github.com/omarroth/invidious/6e09202)
 
 Thank you everyone for your support!
 
