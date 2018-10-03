@@ -9,3 +9,4 @@ db:
   dbname: invidious
 full_refresh: false
 https_only: false
+geo_bypass: true
