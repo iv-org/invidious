@@ -93,6 +93,25 @@ def get_proxies(country_code = "US")
   return get_nova_proxies(country_code)
 end
 
+def filter_proxies(proxies)
+  proxies.select! do |proxy|
+    begin
+      client = HTTPClient.new(YT_URL)
+      client.read_timeout = 10.seconds
+      client.connect_timeout = 10.seconds
+
+      proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
+      client.set_proxy(proxy)
+
+      client.head("/").status_code == 200
+    rescue ex
+      false
+    end
+  end
+
+  return proxies
+end
+
 def get_nova_proxies(country_code = "US")
   country_code = country_code.downcase
   client = HTTP::Client.new(URI.parse("https://www.proxynova.com"))
@@ -127,7 +146,7 @@ def get_nova_proxies(country_code = "US")
     proxies << {ip: ip, port: port, score: score}
   end
 
-  proxies = proxies.sort_by { |proxy| proxy[:score] }.reverse
+  # proxies = proxies.sort_by { |proxy| proxy[:score] }.reverse
   return proxies
 end
 

@@ -156,39 +156,14 @@ def update_decrypt_function
 end
 
 def find_working_proxies(regions)
-  proxy_channel = Channel({String, Array({ip: String, port: Int32})}).new
-
-  regions.each do |region|
-    spawn do
-      loop do
-        begin
-          proxies = get_proxies(region).first(20)
-        rescue ex
-          next proxy_channel.send({region, Array({ip: String, port: Int32}).new})
-        end
-
-        proxies.select! do |proxy|
-          begin
-            client = HTTPClient.new(YT_URL)
-            client.read_timeout = 10.seconds
-            client.connect_timeout = 10.seconds
-
-            proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-            client.set_proxy(proxy)
-
-            client.get("/").status_code == 200
-          rescue ex
-            false
-          end
-        end
-        proxies = proxies.map { |proxy| {ip: proxy[:ip], port: proxy[:port]} }
-
-        proxy_channel.send({region, proxies})
-      end
-    end
-  end
-
   loop do
-    yield proxy_channel.receive
+    regions.each do |region|
+      proxies = get_proxies(region).first(20)
+      proxies = proxies.map { |proxy| {ip: proxy[:ip], port: proxy[:port]} }
+      # proxies = filter_proxies(proxies)
+
+      yield region, proxies
+      Fiber.yield
+    end
   end
 end

@@ -107,13 +107,13 @@ end
 
 proxies = {} of String => Array({ip: String, port: Int32})
 if CONFIG.geo_bypass
-spawn do
-  find_working_proxies(BYPASS_REGIONS) do |region, list|
-    if !list.empty?
-      proxies[region] = list
+  spawn do
+    find_working_proxies(BYPASS_REGIONS) do |region, list|
+      if !list.empty?
+        proxies[region] = list
+      end
     end
   end
-end
 end
 
 before_all do |env|
@@ -1876,6 +1876,8 @@ get "/api/v1/comments/:id" do |env|
 
       proxies.each do |region, list|
         spawn do
+          proxy_html = %(<meta itemprop="regionsAllowed" content="">)
+
           list.each do |proxy|
             begin
               proxy_client = HTTPClient.new(YT_URL)
@@ -1886,10 +1888,10 @@ get "/api/v1/comments/:id" do |env|
               proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
               proxy_client.set_proxy(proxy)
 
-              proxy_html = proxy_client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
+              response = proxy_client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
               proxy_headers = HTTP::Headers.new
-              proxy_headers["cookie"] = proxy_html.cookies.add_request_headers(headers)["cookie"]
-              proxy_html = proxy_html.body
+              proxy_headers["cookie"] = response.cookies.add_request_headers(headers)["cookie"]
+              proxy_html = response.body
 
               if proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
                 bypass_channel.send(nil)
@@ -1900,6 +1902,11 @@ get "/api/v1/comments/:id" do |env|
               break
             rescue ex
             end
+          end
+
+          # If none of the proxies we tried returned a valid response
+          if proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
+            bypass_channel.send(nil)
           end
         end
       end

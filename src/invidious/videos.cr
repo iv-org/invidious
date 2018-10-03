@@ -543,6 +543,10 @@ def fetch_video(id, proxies)
 
     proxies.each do |region, list|
       spawn do
+        info = HTTP::Params.new({
+          "reason" => [info["reason"]],
+        })
+
         list.each do |proxy|
           begin
             client = HTTPClient.new(YT_URL)
@@ -562,6 +566,11 @@ def fetch_video(id, proxies)
             break
           rescue ex
           end
+        end
+
+        # If none of the proxies we tried returned a valid response
+        if info["reason"]?
+          bypass_channel.send(nil)
         end
       end
     end
