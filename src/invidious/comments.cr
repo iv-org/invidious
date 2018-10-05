@@ -104,19 +104,20 @@ def template_youtube_comments(comments)
 
     html += <<-END_HTML
     <div class="pure-g">
-      <div class="pure-u-2-24">
+      <div class="pure-u-4-24 pure-u-md-2-24">
         <img style="width:90%; padding-right:1em; padding-top:1em;" src="#{author_thumbnail}">
       </div>
-      <div class="pure-u-22-24">
+      <div class="pure-u-20-24 pure-u-md-22-24">
         <p>
-            <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> 
-            <i class="icon ion-ios-thumbs-up"></i> #{child["likeCount"]} 
             <b><a href="#{child["authorUrl"]}">#{child["author"]}</a></b> 
-            - #{recode_date(Time.epoch(child["published"].as_i64))} ago
-          </p>
-          <div>
-          <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
-          #{replies_html}
+            <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> 
+            <div>
+            <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
+            #{recode_date(Time.epoch(child["published"].as_i64))} ago
+            | 
+            <i class="icon ion-ios-thumbs-up"></i> #{child["likeCount"]} 
+            </p>
+            #{replies_html}
           </div>
         </div>
     </div>
@@ -157,9 +158,9 @@ def template_reddit_comments(root)
       content = <<-END_HTML
       <p>
         <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> 
-        <i class="icon ion-ios-thumbs-up"></i> #{score} 
         <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b> 
-        - #{recode_date(child.created_utc)} ago
+        #{score} points 
+        #{recode_date(child.created_utc)} ago
       </p>
       <div>
       #{body_html}
