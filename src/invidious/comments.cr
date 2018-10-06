@@ -109,17 +109,18 @@ def template_youtube_comments(comments)
       </div>
       <div class="pure-u-20-24 pure-u-md-22-24">
         <p>
-            <b><a href="#{child["authorUrl"]}">#{child["author"]}</a></b> 
-            <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> 
-            <div>
-            <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
-            #{recode_date(Time.epoch(child["published"].as_i64))} ago
-            | 
-            <i class="icon ion-ios-thumbs-up"></i> #{child["likeCount"]} 
-            </p>
-            #{replies_html}
-          </div>
-        </div>
+          <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> 
+          <b>
+            <a href="#{child["authorUrl"]}">#{child["author"]}</a>
+          </b> 
+          <div>
+          <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
+          #{recode_date(Time.epoch(child["published"].as_i64))} ago
+          | 
+          <i class="icon ion-ios-thumbs-up"></i> #{child["likeCount"]} 
+        </p>
+        #{replies_html}
+      </div>
     </div>
     END_HTML
   end
