@@ -217,6 +217,13 @@ function get_reddit_comments() {
                     <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> \
                     {title} \
                 </h3> \
+                <p> \
+                    <b> \
+                        <a href="javascript:void(0)" onclick="swap_comments(\'youtube\')"> \
+                            View YouTube comments \
+                        </a> \
+                    </b> \
+                </p> \
                 <b> \
                     <a rel="noopener" target="_blank" href="https://reddit.com{permalink}">View more comments on Reddit</a> \
                 </b> \
@@ -263,6 +270,11 @@ function get_youtube_comments() {
                         <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> \
                         View {commentCount} comments \
                     </h3> \
+                    <b> \
+                        <a href="javascript:void(0)" onclick="swap_comments(\'reddit\')"> \
+                            View Reddit comments \
+                        </a> \
+                    </b> \
                 </div> \
                 <div>{contentHtml}</div> \
                 <hr>'.supplant({
@@ -290,6 +302,19 @@ function get_youtube_comments() {
       '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
     get_youtube_comments();
   };
+}
+
+function swap_comments(source) {
+    comments = document.getElementById("comments");
+    var fallback = comments.innerHTML;
+    comments.innerHTML =
+      '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+
+    if (source == "youtube") {
+       get_youtube_comments();
+    } else if (source == "reddit") {
+        get_reddit_comments();
+    }
 }
 
 function commaSeparateNumber(val){
