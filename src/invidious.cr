@@ -1115,12 +1115,14 @@ post "/data_control" do |env|
         body = JSON.parse(body)
         body["subscriptions"].as_a.each do |ucid|
           ucid = ucid.as_s
-          if !user.subscriptions.includes? ucid
-            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
 
+          if !user.subscriptions.includes? ucid
             begin
               client = make_client(YT_URL)
               get_channel(ucid, client, PG_DB, false, false)
+
+              PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
+              user.subscriptions << ucid
             rescue ex
               next
             end
@@ -1129,6 +1131,7 @@ post "/data_control" do |env|
 
         body["watch_history"].as_a.each do |id|
           id = id.as_s
+
           if !user.watched.includes? id
             PG_DB.exec("UPDATE users SET watched = array_append(watched,$1) WHERE email = $2", id, user.email)
             user.watched << id
@@ -1175,11 +1178,12 @@ post "/data_control" do |env|
           ucid = channel["url"].as_s.match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
 
           if !user.subscriptions.includes? ucid
-            PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
-
             begin
               client = make_client(YT_URL)
               get_channel(ucid, client, PG_DB, false, false)
+
+              PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
+              user.subscriptions << ucid
             rescue ex
               next
             end
@@ -1196,6 +1200,7 @@ post "/data_control" do |env|
               db = entry.io.gets_to_end
               db.scan(/youtube\.com\/watch\?v\=(?<id>[a-zA-Z0-9_-]{11})/) do |md|
                 id = md["id"]
+
                 if !user.watched.includes? id
                   PG_DB.exec("UPDATE users SET watched = array_append(watched,$1) WHERE email = $2", id, user.email)
                   user.watched << id
@@ -1204,6 +1209,7 @@ post "/data_control" do |env|
 
               db.scan(/youtube\.com\/channel\/(?<ucid>[a-zA-Z0-9_-]{22})/) do |md|
                 ucid = md["ucid"]
+
                 if !user.subscriptions.includes? ucid
                   begin
                     client = make_client(YT_URL)
