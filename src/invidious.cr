@@ -402,6 +402,10 @@ get "/playlist" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
+  if plid.starts_with? "RD"
+    next env.redirect "/mix?list=#{plid}"
+  end
+
   begin
     playlist = fetch_playlist(plid)
   rescue ex
@@ -2926,6 +2930,10 @@ get "/api/v1/playlists/:plid" do |env|
 
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
+
+  if plid.starts_with? "RD"
+    next env.redirect "/api/v1/mixes/#{plid}"
+  end
 
   begin
     playlist = fetch_playlist(plid)
