@@ -6,6 +6,7 @@ class MixVideo
     ucid:           String,
     length_seconds: Int32,
     index:          Int32,
+    mixes:          Array(String),
   })
 end
 
@@ -59,7 +60,8 @@ def fetch_mix(rdid, video_id, cookies = nil)
       author,
       ucid,
       length_seconds,
-      index
+      index,
+      [rdid]
     )
   end
 

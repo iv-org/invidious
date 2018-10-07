@@ -32,7 +32,7 @@
         <p><%= number_with_separator(item.video_count) %> videos</p>
         <p>PLAYLIST</p>
     <% when MixVideo %>
-        <a style="width:100%;" href="/watch?v=<%= item.id %>">
+        <a style="width:100%;" href="/watch?v=<%= item.id %>&list=<%= item.mixes[0] %>">
             <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
             <% else %>
             <img style="width:100%;" src="/vi/<%= item.id %>/mqdefault.jpg"/>
