@@ -3437,6 +3437,24 @@ get "/vi/:id/:name" do |env|
 end
 
 error 404 do |env|
+  if md = env.request.path.match(/^\/(?<id>[a-zA-Z0-9_-]{11})/)
+    id = md["id"]
+
+    params = [] of String
+    env.params.query.each do |k, v|
+      params << "#{k}=#{v}"
+    end
+    params = params.join("&")
+
+    url = "/watch?v=#{id}"
+    if !params.empty?
+      url += "&#{params}"
+    end
+
+    env.response.headers["Location"] = url
+    halt env, status_code: 302
+  end
+
   error_message = "404 Page not found"
   templated "error"
 end
