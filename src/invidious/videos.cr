@@ -477,6 +477,9 @@ class CaptionName
   )
 end
 
+class VideoRedirect < Exception
+end
+
 def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32}), refresh = true)
   if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool)
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
@@ -511,14 +514,18 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
 end
 
 def fetch_video(id, proxies)
-  html_channel = Channel(XML::Node).new
+  html_channel = Channel(XML::Node | String).new
   info_channel = Channel(HTTP::Params).new
 
   spawn do
     client = make_client(YT_URL)
     html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
-    html = XML.parse_html(html.body)
 
+    if md = html.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
+      next html_channel.send(md["id"])
+    end
+
+    html = XML.parse_html(html.body)
     html_channel.send(html)
   end
 
@@ -536,6 +543,11 @@ def fetch_video(id, proxies)
   end
 
   html = html_channel.receive
+  if html.as?(String)
+    raise VideoRedirect.new("#{html.as(String)}")
+  end
+  html = html.as(XML::Node)
+
   info = info_channel.receive
 
   if info["reason"]? && info["reason"].includes? "your country"

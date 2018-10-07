@@ -237,6 +237,8 @@ get "/watch" do |env|
 
   begin
     video = get_video(id, PG_DB, proxies)
+  rescue ex : VideoRedirect
+    next env.redirect "/watch?v=#{ex.message}"
   rescue ex
     error_message = ex.message
     STDOUT << id << " : " << ex.message << "\n"
@@ -337,6 +339,8 @@ get "/embed/:id" do |env|
 
   begin
     video = get_video(id, PG_DB, proxies)
+  rescue ex : VideoRedirect
+    next env.redirect "/embed/#{ex.message}"
   rescue ex
     error_message = ex.message
     next templated "error"
@@ -1777,6 +1781,8 @@ get "/api/v1/captions/:id" do |env|
   client = make_client(YT_URL)
   begin
     video = get_video(id, PG_DB, proxies)
+  rescue ex : VideoRedirect
+    next env.redirect "/api/v1/captions/#{ex.message}"
   rescue ex
     halt env, status_code: 403
   end
@@ -2228,6 +2234,8 @@ get "/api/v1/videos/:id" do |env|
 
   begin
     video = get_video(id, PG_DB, proxies)
+  rescue ex : VideoRedirect
+    next env.redirect "/api/v1/videos/#{ex.message}"
   rescue ex
     error_message = {"error" => ex.message}.to_json
     halt env, status_code: 500, response: error_message
@@ -3074,6 +3082,8 @@ get "/api/manifest/dash/id/:id" do |env|
   client = make_client(YT_URL)
   begin
     video = get_video(id, PG_DB, proxies)
+  rescue ex : VideoRedirect
+    next env.redirect "/api/manifest/dash/id/#{ex.message}"
   rescue ex
     halt env, status_code: 403
   end
