@@ -109,7 +109,7 @@ def template_youtube_comments(comments)
       </div>
       <div class="pure-u-20-24 pure-u-md-22-24">
         <p>
-          <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> 
+          <a href="javascript:void(0)" onclick="toggle_parent(this)">[ - ]</a> 
           <b>
             <a href="#{child["authorUrl"]}">#{child["author"]}</a>
           </b> 
@@ -158,7 +158,7 @@ def template_reddit_comments(root)
 
       content = <<-END_HTML
       <p>
-        <a href="javascript:void(0)" onclick="toggle(this)">[ - ]</a> 
+        <a href="javascript:void(0)" onclick="toggle_parent(this)">[ - ]</a> 
         <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b> 
         #{score} points 
         #{recode_date(child.created_utc)} ago
