@@ -35,6 +35,10 @@ def fetch_mix(rdid, video_id, cookies = nil)
     raise "Could not create mix."
   end
 
+  if !yt_data["contents"]["twoColumnWatchNextResults"]["playlist"]
+    raise "Could not create mix."
+  end
+
   playlist = yt_data["contents"]["twoColumnWatchNextResults"]["playlist"]["playlist"]
   mix_title = playlist["title"].as_s
 
@@ -73,4 +77,38 @@ def fetch_mix(rdid, video_id, cookies = nil)
   videos.uniq! { |video| video.id }
   videos = videos.first(50)
   return Mix.new(mix_title, rdid, videos)
+end
+
+def template_mix(mix)
+  html = <<-END_HTML
+  <h3>
+    <a href="/mix?list=#{mix["mixId"]}">
+      #{mix["title"]}
+    </a>
+  </h3>
+  <div class="pure-menu pure-menu-scrollable playlist-restricted">
+    <ol class="pure-menu-list">
+  END_HTML
+
+  mix["videos"].as_a.each do |video|
+    html += <<-END_HTML
+      <li class="pure-menu-item">
+        <a href="/watch?v=#{video["videoId"]}&list=#{mix["mixId"]}">
+          <img style="width:100%;" src="/vi/#{video["videoId"]}/mqdefault.jpg">
+          <p style="width:100%">#{video["title"]}</p>
+          <p>
+              <b style="width: 100%">#{video["author"]}</b>
+          </p>
+        </a>
+      </li>
+    END_HTML
+  end
+
+  html += <<-END_HTML
+    </ol>
+  </div>
+  <hr>
+  END_HTML
+
+  html
 end

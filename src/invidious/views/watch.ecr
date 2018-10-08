@@ -123,6 +123,13 @@
         </div>
     </div>
     <div class="pure-u-1 pure-u-md-1-5">
+        <% if plid %>
+        <div id="playlist" class="h-box">
+            <h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>
+            <hr>
+        </div>
+        <% end %>
+
         <% if !preferences || preferences && preferences.related_videos %>
         <div class="h-box">
         <% rvs.each do |rv| %>
@@ -145,6 +152,61 @@
 </div>
 
 <script>
+<% if plid %>
+function get_playlist() {
+    var plid = "<%= plid %>"
+
+    if (plid.startsWith("RD")) {
+        var plid_url = "/api/v1/mixes/<%= plid %>?continuation=<%= video.id %>&format=html";
+    } else {
+        var plid_url = "/api/v1/playlists/<%= plid %>?continuation=<%= video.id %>&format=html";
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.timeout = 20000;
+    xhr.open("GET", plid_url, true);
+    xhr.send();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                playlist = document.getElementById("playlist");
+                playlist.innerHTML = xhr.response.playlistHtml;
+                
+                if (xhr.response.nextVideo) {
+                    player.on('ended', function() {
+                        window.location.replace("/watch?v=" 
+                            + xhr.response.nextVideo
+                            + "&list=<%= plid %>"
+                            <% if params[:listen] %>
+                            + "&listen=1"
+                            <% end %>
+                            <% if params[:autoplay] %>
+                            + "&autoplay=1"
+                            <% end %>
+                        );
+                    });
+                }
+            } else {
+                playlist.innerHTML = "";
+            }
+        }
+    };
+
+    xhr.ontimeout = function() {
+        console.log("Pulling playlist timed out.");
+
+        comments = document.getElementById("playlist");
+        comments.innerHTML =
+            '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3><hr>';
+        get_playlist();
+    };
+}
+
+get_playlist();
+<% end %>
+
 function get_reddit_comments() {
   var url = "/api/v1/comments/<%= video.id %>?source=reddit&format=html";
   var xhr = new XMLHttpRequest();
@@ -154,7 +216,7 @@ function get_reddit_comments() {
   xhr.send();
 
   xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4)
+    if (xhr.readyState == 4) {
       if (xhr.status == 200) {
         comments = document.getElementById("comments");
         comments.innerHTML = ' \
@@ -188,6 +250,7 @@ function get_reddit_comments() {
         comments.innerHTML = "";
         <% end %>
       }
+    }
   };
 
   xhr.ontimeout = function() {
@@ -206,7 +269,7 @@ function get_youtube_comments() {
   xhr.send();
 
   xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4)
+    if (xhr.readyState == 4) {
       if (xhr.status == 200) {
         comments = document.getElementById("comments");
         if (xhr.response.commentCount > 0)  {
@@ -238,6 +301,7 @@ function get_youtube_comments() {
         comments.innerHTML = "";
         <% end %>
       }
+    }
   };
 
   xhr.ontimeout = function() {

@@ -26,11 +26,23 @@ class Playlist
   })
 end
 
-def fetch_playlist_videos(plid, page, video_count)
+def fetch_playlist_videos(plid, page, video_count, continuation = nil)
   client = make_client(YT_URL)
 
-  if video_count > 100
+  if continuation
+    html = client.get("/watch?v=#{continuation}&list=#{plid}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
+    html = XML.parse_html(html.body)
+
+    index = html.xpath_node(%q(//span[@id="playlist-current-index"])).try &.content.to_i?
+    if index
+      index -= 1
+    end
+    index ||= 0
+  else
     index = (page - 1) * 100
+  end
+
+  if video_count > 100
     url = produce_playlist_url(plid, index)
 
     response = client.get(url)
@@ -198,4 +210,38 @@ def fetch_playlist(plid)
   )
 
   return playlist
+end
+
+def template_playlist(playlist)
+  html = <<-END_HTML
+  <h3>
+    <a href="/playlist?list=#{playlist["playlistId"]}">
+      #{playlist["title"]}
+    </a>
+  </h3>
+  <div class="pure-menu pure-menu-scrollable playlist-restricted">
+    <ol class="pure-menu-list">
+  END_HTML
+
+  playlist["videos"].as_a.each do |video|
+    html += <<-END_HTML
+      <li class="pure-menu-item">
+        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}">
+          <img style="width:100%;" src="/vi/#{video["videoId"]}/mqdefault.jpg">
+          <p style="width:100%">#{video["title"]}</p>
+          <p>
+              <b style="width: 100%">#{video["author"]}</b>
+          </p>
+        </a>
+      </li>
+    END_HTML
+  end
+
+  html += <<-END_HTML
+    </ol>
+  </div>
+  <hr>
+  END_HTML
+
+  html
 end

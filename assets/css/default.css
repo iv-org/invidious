@@ -17,6 +17,11 @@ div {
   animation: spin 2s linear infinite;
 }
 
+.playlist-restricted {
+  height: 20em;
+  padding-right: 10px;
+}
+
 /*
  * Navbar
  */

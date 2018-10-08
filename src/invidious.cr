@@ -217,6 +217,8 @@ get "/watch" do |env|
     next env.redirect "/"
   end
 
+  plid = env.params.query["list"]?
+
   user = env.get? "user"
   if user
     user = user.as(User)
@@ -2939,6 +2941,11 @@ get "/api/v1/playlists/:plid" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
+  format = env.params.query["format"]?
+  format ||= "json"
+
+  continuation = env.params.query["continuation"]?
+
   if plid.starts_with? "RD"
     next env.redirect "/api/v1/mixes/#{plid}"
   end
@@ -2951,7 +2958,7 @@ get "/api/v1/playlists/:plid" do |env|
   end
 
   begin
-    videos = fetch_playlist_videos(plid, page, playlist.video_count)
+    videos = fetch_playlist_videos(plid, page, playlist.video_count, continuation)
   rescue ex
     videos = [] of PlaylistVideo
   end
@@ -3010,6 +3017,17 @@ get "/api/v1/playlists/:plid" do |env|
     end
   end
 
+  if format == "html"
+    response = JSON.parse(response)
+    playlist_html = template_playlist(response)
+    next_video = response["videos"].as_a[1]?.try &.["videoId"]
+
+    response = {
+      "playlistHtml" => playlist_html,
+      "nextVideo"    => next_video,
+    }.to_json
+  end
+
   response
 end
 
@@ -3020,6 +3038,9 @@ get "/api/v1/mixes/:rdid" do |env|
 
   continuation = env.params.query["continuation"]?
   continuation ||= rdid.lchop("RD")
+
+  format = env.params.query["format"]?
+  format ||= "json"
 
   begin
     mix = fetch_mix(rdid, continuation)
@@ -3057,6 +3078,17 @@ get "/api/v1/mixes/:rdid" do |env|
         end
       end
     end
+  end
+
+  if format == "html"
+    response = JSON.parse(response)
+    playlist_html = template_mix(response)
+    next_video = response["videos"].as_a[1]?.try &.["videoId"]
+
+    response = {
+      "playlistHtml" => playlist_html,
+      "nextVideo"    => next_video,
+    }.to_json
   end
 
   response
