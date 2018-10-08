@@ -35,7 +35,7 @@ def fetch_mix(rdid, video_id, cookies = nil)
     raise "Could not create mix."
   end
 
-  if !yt_data["contents"]["twoColumnWatchNextResults"]["playlist"]
+  if !yt_data["contents"]["twoColumnWatchNextResults"]["playlist"]?
     raise "Could not create mix."
   end
 
