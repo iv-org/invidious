@@ -113,7 +113,6 @@ def template_youtube_comments(comments)
           <b>
             <a href="#{child["authorUrl"]}">#{child["author"]}</a>
           </b> 
-          <div>
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
           #{recode_date(Time.epoch(child["published"].as_i64))} ago
           | 
