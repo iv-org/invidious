@@ -98,6 +98,12 @@ spawn do
   end
 end
 
+if CONFIG.update_feeds
+  spawn do
+    update_feeds(PG_DB)
+  end
+end
+
 decrypt_function = [] of {name: String, value: Int32}
 spawn do
   update_decrypt_function do |function|
@@ -475,9 +481,8 @@ get "/search" do |env|
   user = env.get? "user"
   if user
     user = user.as(User)
-    ucids = user.subscriptions
+    view_name = "subscriptions_#{sha256(user.email)[0..7]}"
   end
-  ucids ||= [] of String
 
   channel = nil
   content_type = "all"
@@ -514,14 +519,19 @@ get "/search" do |env|
   if channel
     count, videos = channel_search(search_query, page, channel)
   elsif subscriptions
-    videos = PG_DB.query_all("SELECT id,title,published,updated,ucid,author FROM (
+    if view_name
+      videos = PG_DB.query_all("SELECT id,title,published,updated,ucid,author FROM (
       SELECT *,
-      to_tsvector(channel_videos.title) ||
-      to_tsvector(channel_videos.author)
+      to_tsvector(#{view_name}.title) ||
+      to_tsvector(#{view_name}.author)
       as document
-      FROM channel_videos WHERE ucid IN (#{arg_array(ucids, 3)})
-      ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", [search_query, (page - 1) * 20] + ucids, as: ChannelVideo)
-    count = videos.size
+      FROM #{view_name}
+      ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", search_query, (page - 1) * 20, as: ChannelVideo)
+      count = videos.size
+    else
+      videos = [] of ChannelVideo
+      count = 0
+    end
   else
     begin
       search_params = produce_search_params(sort: sort, date: date, content_type: content_type,
@@ -798,6 +808,12 @@ post "/login" do |env|
       args = arg_array(user_array)
 
       PG_DB.exec("INSERT INTO users VALUES (#{args})", user_array)
+
+      view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+      PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+        SELECT * FROM channel_videos WHERE \
+        ucid = ANY ((SELECT subscriptions FROM users WHERE email = '#{user.email}')::text[]) \
+      ORDER BY published DESC;")
 
       if Kemal.config.ssl || CONFIG.https_only
         secure = true
@@ -1364,6 +1380,8 @@ get "/feed/subscriptions" do |env|
 
     notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
       as: Array(String))
+    view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+
     if preferences.notifications_only && !notifications.empty?
       args = arg_array(notifications)
 
@@ -1386,39 +1404,34 @@ get "/feed/subscriptions" do |env|
     else
       if preferences.latest_only
         if preferences.unseen_only
-          ucids = arg_array(user.subscriptions)
           if user.watched.empty?
             watched = "'{}'"
           else
-            watched = arg_array(user.watched, user.subscriptions.size + 1)
+            watched = arg_array(user.watched)
           end
 
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
-            ucid IN (#{ucids}) AND id NOT IN (#{watched}) ORDER BY ucid, published DESC",
-            user.subscriptions + user.watched, as: ChannelVideo)
+          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE \
+            id NOT IN (#{watched}) ORDER BY ucid, published DESC",
+            user.watched, as: ChannelVideo)
         else
-          args = arg_array(user.subscriptions)
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
-          ucid IN (#{args}) ORDER BY ucid, published DESC", user.subscriptions, as: ChannelVideo)
+          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name}", as: ChannelVideo)
         end
 
         videos.sort_by! { |video| video.published }.reverse!
       else
         if preferences.unseen_only
-          ucids = arg_array(user.subscriptions, 3)
           if user.watched.empty?
             watched = "'{}'"
           else
-            watched = arg_array(user.watched, user.subscriptions.size + 3)
+            watched = arg_array(user.watched, 3)
           end
 
-          videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{ucids}) \
-          AND id NOT IN (#{watched}) ORDER BY published DESC LIMIT $1 OFFSET $2",
-            [limit, offset] + user.subscriptions + user.watched, as: ChannelVideo)
+          videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE \
+          id NOT IN (#{watched}) LIMIT $1 OFFSET $2",
+            [limit, offset] + user.watched, as: ChannelVideo)
         else
-          args = arg_array(user.subscriptions, 3)
-          videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
-          ORDER BY published DESC LIMIT $1 OFFSET $2", [limit, offset] + user.subscriptions, as: ChannelVideo)
+          videos = PG_DB.query_all("SELECT * FROM #{view_name} \
+          ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
         end
       end
 
@@ -1576,15 +1589,14 @@ get "/feed/private" do |env|
   latest_only ||= 0
   latest_only = latest_only == 1
 
+  view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+
   if latest_only
-    args = arg_array(user.subscriptions)
-    videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE \
-    ucid IN (#{args}) ORDER BY ucid, published DESC", user.subscriptions, as: ChannelVideo)
+    videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} ORDER BY ucid, published DESC", as: ChannelVideo)
     videos.sort_by! { |video| video.published }.reverse!
   else
-    args = arg_array(user.subscriptions, 3)
-    videos = PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid IN (#{args}) \
-  ORDER BY published DESC LIMIT $1 OFFSET $2", [limit, offset] + user.subscriptions, as: ChannelVideo)
+    videos = PG_DB.query_all("SELECT * FROM #{view_name} \
+    ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
   end
 
   sort = env.params.query["sort"]?

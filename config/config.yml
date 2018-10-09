@@ -10,3 +10,4 @@ db:
 full_refresh: false
 https_only: false
 geo_bypass: true
+update_feeds: true

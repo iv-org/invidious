@@ -104,6 +104,17 @@ def refresh_videos(db)
   end
 end
 
+def update_feeds(db)
+  loop do
+    users = db.query_all("SELECT email FROM users", as: String)
+
+    users.each do |email|
+      view_name = "subscriptions_#{sha256(email)[0..7]}"
+      db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
+    end
+  end
+end
+
 def pull_top_videos(config, db)
   if config.dl_api_key
     DetectLanguage.configure do |dl_config|

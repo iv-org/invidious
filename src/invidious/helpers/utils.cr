@@ -238,3 +238,9 @@ def write_var_int(value : Int)
 
   return bytes
 end
+
+def sha256(text)
+  digest = OpenSSL::Digest.new("SHA256")
+  digest << text
+  return digest.hexdigest
+end
