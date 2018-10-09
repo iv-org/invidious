@@ -2,6 +2,7 @@ class Config
   YAML.mapping({
     crawl_threads:   Int32,
     channel_threads: Int32,
+    feed_threads:    Int32,
     video_threads:   Int32,
     db:              NamedTuple(
       user: String,
@@ -15,7 +16,6 @@ class Config
     hmac_key:     String?,
     full_refresh: Bool,
     geo_bypass:   Bool,
-    update_feeds: Bool,
   })
 end
 

@@ -31,6 +31,7 @@ HMAC_KEY = CONFIG.hmac_key || Random::Secure.random_bytes(32)
 
 crawl_threads = CONFIG.crawl_threads
 channel_threads = CONFIG.channel_threads
+feed_threads = CONFIG.feed_threads
 video_threads = CONFIG.video_threads
 
 Kemal.config.extra_options do |parser|
@@ -46,6 +47,14 @@ Kemal.config.extra_options do |parser|
   parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{channel_threads})") do |number|
     begin
       channel_threads = number.to_i
+    rescue ex
+      puts "THREADS must be integer"
+      exit
+    end
+  end
+  parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{feed_threads})") do |number|
+    begin
+      feed_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
@@ -85,6 +94,8 @@ end
 
 refresh_channels(PG_DB, channel_threads, CONFIG.full_refresh)
 
+refresh_feeds(PG_DB, feed_threads)
+
 video_threads.times do |i|
   spawn do
     refresh_videos(PG_DB)
@@ -95,12 +106,6 @@ top_videos = [] of Video
 spawn do
   pull_top_videos(CONFIG, PG_DB) do |videos|
     top_videos = videos
-  end
-end
-
-if CONFIG.update_feeds
-  spawn do
-    update_feeds(PG_DB)
   end
 end
 

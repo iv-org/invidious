@@ -104,15 +104,42 @@ def refresh_videos(db)
   end
 end
 
-def update_feeds(db)
-  loop do
-    users = db.query_all("SELECT email FROM users", as: String)
+def refresh_feeds(db, max_threads = 1)
+  max_channel = Channel(Int32).new
 
-    users.each do |email|
-      view_name = "subscriptions_#{sha256(email)[0..7]}"
-      db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
+  spawn do
+    max_threads = max_channel.receive
+    active_threads = 0
+    active_channel = Channel(Bool).new
+
+    loop do
+      db.query("SELECT email FROM users") do |rs|
+        rs.each do
+          email = rs.read(String)
+          view_name = "subscriptions_#{sha256(email)[0..7]}"
+
+          if active_threads >= max_threads
+            if active_channel.receive
+              active_threads -= 1
+            end
+          end
+
+          active_threads += 1
+          spawn do
+            begin
+              db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
+            rescue ex
+              STDOUT << "REFRESH " << email << " : " << ex.message << "\n"
+            end
+
+            active_channel.send(true)
+          end
+        end
+      end
     end
   end
+
+  max_channel.send(max_threads)
 end
 
 def pull_top_videos(config, db)
