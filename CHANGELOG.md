@@ -1,3 +1,17 @@
+# 0.9.0 (2018-10-08)
+
+## Week 9: Playlists
+
+Not as much to announce this week, but I'm still quite happy to announce a couple things, namely:
+
+Playback support for playlists has finally been added with [`88430a6`](https://github.com/omarroth/invidious/88430a6). You can now view playlists with the `&list=` query param, as you would on YouTube. You can also view mixes with the mentioned `&list=`, although they require some extra handling that I would like to add in the coming week, as well as adding playlist looping and shuffle. I think playback support has been a roadblock for more exciting features such as [#114](https://github.com/omarroth/invidious/issues/114), and I look forward to improving the experience.
+
+Comments have had a bit of a cosmetic upgrade with [#132](https://github.com/omarroth/invidious/issues/132), which I think helps better distinguish between Reddit and YouTube comments, as it makes them appear similarly to their respective sites. You can also now switch between YouTube and Reddit comments with a push of a button, which I think is quite an improvement, especially for newer or less popular videos with fewer comments.
+
+I've had a small breakthrough in speeding up users' subscription feeds with PostgreSQL's [materialized views](https://www.postgresql.org/docs/current/static/rules-materializedviews.html). Without going into too much detail, materialized views essentially cache the result of a query, making it possible to run resource-intensive queries once, rather than every time a user visits their feed. In the coming week I hope to push this out to users, and hopefully close [#173](https://github.com/omarroth/invidious/issues/173).
+
+I haven't had as much time to work on the project this week, but I'm quite happy to have added some new features. Have a great week everyone.
+
 # 0.8.0 (2018-10-02)
 
 ## Week 8: Mixes
