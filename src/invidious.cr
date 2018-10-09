@@ -1419,7 +1419,8 @@ get "/feed/subscriptions" do |env|
             id NOT IN (#{watched}) ORDER BY ucid, published DESC",
             user.watched, as: ChannelVideo)
         else
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name}", as: ChannelVideo)
+          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
+          ORDER BY ucid, published DESC", as: ChannelVideo)
         end
 
         videos.sort_by! { |video| video.published }.reverse!
