@@ -755,7 +755,7 @@ post "/login" do |env|
     end
 
     if action == "signin"
-      user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1 AND password IS NOT NULL", email, as: User)
+      user = PG_DB.query_one?("SELECT * FROM users WHERE LOWER(email) = LOWER($1) AND password IS NOT NULL", email, as: User)
 
       if !user
         error_message = "Invalid username or password"
@@ -769,7 +769,7 @@ post "/login" do |env|
 
       if Crypto::Bcrypt::Password.new(user.password.not_nil!) == password
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-        PG_DB.exec("UPDATE users SET id = id || $1 WHERE email = $2", [sid], email)
+        PG_DB.exec("UPDATE users SET id = id || $1 WHERE LOWER(email) = LOWER($2)", [sid], email)
 
         if Kemal.config.ssl || CONFIG.https_only
           secure = true
@@ -784,7 +784,7 @@ post "/login" do |env|
         next templated "error"
       end
     elsif action == "register"
-      user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1 AND password IS NOT NULL", email, as: User)
+      user = PG_DB.query_one?("SELECT * FROM users WHERE LOWER(email) = LOWER($1) AND password IS NOT NULL", email, as: User)
       if user
         error_message = "Please sign in"
         next templated "error"
