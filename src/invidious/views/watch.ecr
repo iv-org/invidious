@@ -185,6 +185,9 @@ function get_playlist() {
                             <% if params[:autoplay] %>
                             + "&autoplay=1"
                             <% end %>
+                            <% if params[:speed] %>
+                            + "&speed=1"
+                            <% end %>
                         );
                     });
                 }
