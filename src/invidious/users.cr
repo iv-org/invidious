@@ -119,6 +119,15 @@ def get_user(sid, client, headers, db, refresh = true)
 
       db.exec("INSERT INTO users VALUES (#{args}) \
       ON CONFLICT (email) DO UPDATE SET id = users.id || $1, updated = $2, subscriptions = $4", user_array)
+
+      begin
+        view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+        PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+        SELECT * FROM channel_videos WHERE \
+        ucid = ANY ((SELECT subscriptions FROM users WHERE email = '#{user.email}')::text[]) \
+        ORDER BY published DESC;")
+      rescue ex
+      end
     end
   else
     user = fetch_user(sid, client, headers, db)
@@ -129,6 +138,15 @@ def get_user(sid, client, headers, db, refresh = true)
 
     db.exec("INSERT INTO users VALUES (#{args}) \
     ON CONFLICT (email) DO UPDATE SET id = users.id || $1, updated = $2, subscriptions = $4", user_array)
+
+    begin
+      view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+      PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+      SELECT * FROM channel_videos WHERE \
+      ucid = ANY ((SELECT subscriptions FROM users WHERE email = '#{user.email}')::text[]) \
+      ORDER BY published DESC;")
+    rescue ex
+    end
   end
 
   return user
