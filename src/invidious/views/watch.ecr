@@ -186,7 +186,7 @@ function get_playlist() {
                             + "&autoplay=1"
                             <% end %>
                             <% if params[:speed] %>
-                            + "&speed=1"
+                            + "&speed=<%= params[:speed] %>"
                             <% end %>
                         );
                     });
