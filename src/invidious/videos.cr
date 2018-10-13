@@ -495,7 +495,7 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
 
         db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
           published,description,language,author,ucid,allowed_regions,is_family_friendly,\
-          genre,genre_url,license)\
+          genre,genre_url,license,sub_count_text)\
           = (#{args}) WHERE id = $1", video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
