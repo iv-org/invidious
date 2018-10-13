@@ -491,9 +491,6 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
         video = fetch_video(id, proxies)
         video_array = video.to_a
 
-        # Migration point
-        video_array = video_array[0..-2]
-
         args = arg_array(video_array[1..-1], 2)
 
         db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
@@ -508,9 +505,6 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
   else
     video = fetch_video(id, proxies)
     video_array = video.to_a
-
-    # Migration point
-    video_array = video_array[0..-2]
 
     args = arg_array(video_array)
 
