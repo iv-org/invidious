@@ -196,6 +196,12 @@ def get_about_info(ucid)
     raise "User does not exist."
   end
 
+  sub_count = about.xpath_node(%q(//span[contains(text(), "subscribers")]))
+  if sub_count
+    sub_count = sub_count.content.delete(", subscribers").to_i?
+  end
+  sub_count ||= 0
+
   author = about.xpath_node(%q(//span[@class="qualified-channel-title-text"]/a)).not_nil!.content
   ucid = about.xpath_node(%q(//link[@rel="canonical"])).not_nil!["href"].split("/")[-1]
 
@@ -207,5 +213,5 @@ def get_about_info(ucid)
     auto_generated = true
   end
 
-  return {author, ucid, auto_generated}
+  return {author, ucid, auto_generated, sub_count}
 end

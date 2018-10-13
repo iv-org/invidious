@@ -13,23 +13,32 @@
     </div>
 </div>
 
-<p class="h-box">
+<div class="h-box">
 <% if user %>
     <% if subscriptions.includes? ucid %>
-    <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
-        <b>Unsubscribe from <%= author %></b>
-    </a>
+    <p>
+        <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" 
+            href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
+            <b>Unsubscribe from <%= author %> <%= number_with_separator(sub_count) %></b>
+        </a>
+    </p>
     <% else %>
-    <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
-        <b>Subscribe to <%= author %></b>
-    </a>
+    <p>
+        <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" 
+            href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
+            <b>Subscribe to <%= author %> <%= number_with_separator(sub_count) %></b>
+        </a>
+    </p>
     <% end %>
 <% else %>
-    <a href="/login?referer=<%= env.get("current_page") %>">
-        <b>Login to subscribe to <%= author %></b>
-    </a>
+    <p>
+        <a id="subscribe" class="pure-button pure-button-primary" 
+            href="/login?referer=<%= env.get("current_page") %>">
+            <b>Login to subscribe to <%= author %></b>
+        </a>
+    </p>
 <% end %>
-</p>
+</div>
 
 <p class="h-box">
     <a href="https://www.youtube.com/channel/<%= ucid %>">View channel on YouTube</a>
@@ -56,3 +65,45 @@
     <% end %>
     </div>
 </div>
+
+<script>
+document.getElementById("subscribe")["href"] = "javascript:void(0);"
+
+function subscribe() {
+    var url = "/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.timeout = 20000;
+    xhr.open("GET", url, true);
+    xhr.send();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                subscribe_button = document.getElementById("subscribe");
+                subscribe_button.onclick = unsubscribe;
+                subscribe_button.innerHTML = '<b>Unsubscribe from <%= author %> <%= number_with_separator(sub_count + 1) %></b>'
+            }
+        }
+    }
+}
+
+function unsubscribe() {
+    var url = "/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.timeout = 20000;
+    xhr.open("GET", url, true);
+    xhr.send();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                subscribe_button = document.getElementById("subscribe");
+                subscribe_button.onclick = subscribe;
+                subscribe_button.innerHTML = '<b>Subscribe to <%= author %> <%= number_with_separator(sub_count) %></b>'
+            }
+        }
+    }
+}
+</script>

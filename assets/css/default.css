@@ -22,6 +22,10 @@ div {
   padding-right: 10px;
 }
 
+.pure-button-primary {
+  background: rgba(0, 182, 240, 1);
+}
+
 /*
  * Navbar
  */

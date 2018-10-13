@@ -1739,7 +1739,7 @@ get "/channel/:ucid" do |env|
   page ||= 1
 
   begin
-    author, ucid, auto_generated = get_about_info(ucid)
+    author, ucid, auto_generated, sub_count = get_about_info(ucid)
   rescue ex
     error_message = "User does not exist"
     next templated "error"
@@ -2298,6 +2298,7 @@ get "/api/v1/videos/:id" do |env|
       json.field "author", video.author
       json.field "authorId", video.ucid
       json.field "authorUrl", "/channel/#{video.ucid}"
+      json.field "subCountText", video.sub_count_text
 
       json.field "lengthSeconds", video.info["length_seconds"].to_i
       if video.info["allow_ratings"]?

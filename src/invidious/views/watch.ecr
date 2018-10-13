@@ -92,20 +92,23 @@
         <% if user %>
             <% if subscriptions.includes? video.ucid %>
             <p>
-                <a href="/subscription_ajax?action_remove_subscriptions=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>">
-                    <b>Unsubscribe from <%= video.author %></b>
+                <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" 
+                    href="/subscription_ajax?action_remove_subscriptions=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>">
+                    <b>Unsubscribe from <%= video.author %> <%= video.sub_count_text %></b>
                 </a>
             </p>
             <% else %>
             <p>
-                <a href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>">
-                    <b>Subscribe to <%= video.author %></b>
+                <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" 
+                    href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>">
+                    <b>Subscribe to <%= video.author %> <%= video.sub_count_text %></b>
                 </a>
             </p>
             <% end %>
         <% else %>
             <p>
-                <a href="/login?referer=<%= env.get("current_page") %>">
+                <a id="subscribe" class="pure-button pure-button-primary" 
+                    href="/login?referer=<%= env.get("current_page") %>">
                     <b>Login to subscribe to <%= video.author %></b>
                 </a>
             </p>
@@ -152,6 +155,46 @@
 </div>
 
 <script>
+document.getElementById("subscribe")["href"] = "javascript:void(0);"
+
+function subscribe() {
+    var url = "/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>";
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.timeout = 20000;
+    xhr.open("GET", url, true);
+    xhr.send();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                subscribe_button = document.getElementById("subscribe");
+                subscribe_button.onclick = unsubscribe;
+                subscribe_button.innerHTML = '<b>Unsubscribe from <%= video.author %> <%= video.sub_count_text %></b>'
+            }
+        }
+    }
+}
+
+function unsubscribe() {
+    var url = "/subscription_ajax?action_remove_subscriptions=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>";
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.timeout = 20000;
+    xhr.open("GET", url, true);
+    xhr.send();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                subscribe_button = document.getElementById("subscribe");
+                subscribe_button.onclick = subscribe;
+                subscribe_button.innerHTML = '<b>Subscribe to <%= video.author %> <%= video.sub_count_text %></b>'
+            }
+        }
+    }
+}
+
 <% if plid %>
 function get_playlist() {
     var plid = "<%= plid %>"

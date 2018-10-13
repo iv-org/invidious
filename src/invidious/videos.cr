@@ -456,9 +456,10 @@ class Video
     is_family_friendly: Bool,
     genre:              String,
     genre_url:          String,
-    license:            {
+    license:            String,
+    sub_count_text:     {
       type:    String,
-      default: "",
+      default: "0",
     },
   })
 end
@@ -490,11 +491,14 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
         video = fetch_video(id, proxies)
         video_array = video.to_a
 
+        # Migration point
+        video_array = video_array[0..-2]
+
         args = arg_array(video_array[1..-1], 2)
 
         db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
-          published,description,language,author,ucid, allowed_regions, is_family_friendly,\
-          genre, genre_url, license)\
+          published,description,language,author,ucid,allowed_regions,is_family_friendly,\
+          genre,genre_url,license)\
           = (#{args}) WHERE id = $1", video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
@@ -504,6 +508,9 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
   else
     video = fetch_video(id, proxies)
     video_array = video.to_a
+
+    # Migration point
+    video_array = video_array[0..-2]
 
     args = arg_array(video_array)
 
@@ -662,11 +669,18 @@ def fetch_video(id, proxies)
   if license
     license = license.content
   else
-    license ||= ""
+    license = ""
+  end
+
+  sub_count_text = html.xpath_node(%q(//span[contains(@class, "yt-subscriber-count")]))
+  if sub_count_text
+    sub_count_text = sub_count_text["title"]
+  else
+    sub_count_text = "0"
   end
 
   video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description,
-    nil, author, ucid, allowed_regions, is_family_friendly, genre, genre_url, license)
+    nil, author, ucid, allowed_regions, is_family_friendly, genre, genre_url, license, sub_count_text)
 
   return video
 end
