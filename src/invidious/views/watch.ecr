@@ -382,7 +382,13 @@ function get_youtube_replies(target) {
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
       if (xhr.status == 200) {
-        body.innerHTML = xhr.response.contentHtml;
+        body.innerHTML = ' \
+            <p><a href="javascript:void(0)" \
+                onclick="hide_youtube_replies(this)">Hide replies \
+            </a></p> \
+            <div>{contentHtml}</div>'.supplant({
+            contentHtml: xhr.response.contentHtml,
+        });
       } else {
         body.innerHTML = fallback;
       }
@@ -394,6 +400,22 @@ function get_youtube_replies(target) {
 
     body.innerHTML = fallback;
   };
+}
+
+function show_youtube_replies(target) {
+    body = target.parentNode.parentNode.children[1];
+    body.style.display = "";
+
+    target.innerHTML = "Hide replies";
+    target.setAttribute('onclick', 'hide_youtube_replies(this)');
+}
+
+function hide_youtube_replies(target) {
+    body = target.parentNode.parentNode.children[1];
+    body.style.display = "none";
+
+    target.innerHTML = "Show replies";
+    target.setAttribute('onclick', 'show_youtube_replies(this)');
 }
 
 <% if preferences %>
