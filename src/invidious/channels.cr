@@ -215,3 +215,35 @@ def get_about_info(ucid)
 
   return {author, ucid, auto_generated, sub_count}
 end
+
+def get_60_videos(ucid, page, auto_generated)
+  count = 0
+  videos = [] of SearchVideo
+
+  client = make_client(YT_URL)
+
+  2.times do |i|
+    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
+    response = client.get(url)
+    json = JSON.parse(response.body)
+
+    if json["content_html"]? && !json["content_html"].as_s.empty?
+      document = XML.parse_html(json["content_html"].as_s)
+      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+      if !json["load_more_widget_html"]?.try &.as_s.empty?
+        count += 30
+      end
+
+      if auto_generated
+        videos += extract_videos(nodeset)
+      else
+        videos += extract_videos(nodeset, ucid)
+      end
+    else
+      break
+    end
+  end
+
+  return videos, count
+end

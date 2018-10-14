@@ -1486,29 +1486,8 @@ get "/feed/channel/:ucid" do |env|
     halt env, status_code: 404, response: error_message
   end
 
-  client = make_client(YT_URL)
-
   page = 1
-
-  videos = [] of SearchVideo
-  2.times do |i|
-    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
-    response = client.get(url)
-    json = JSON.parse(response.body)
-
-    if json["content_html"]? && !json["content_html"].as_s.empty?
-      document = XML.parse_html(json["content_html"].as_s)
-      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-
-      if auto_generated
-        videos += extract_videos(nodeset)
-      else
-        videos += extract_videos(nodeset, ucid)
-      end
-    else
-      break
-    end
-  end
+  videos, count = get_60_videos(ucid, page, auto_generated)
 
   host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
   path = env.request.path
@@ -1753,27 +1732,7 @@ get "/channel/:ucid" do |env|
     end
   end
 
-  client = make_client(YT_URL)
-
-  videos = [] of SearchVideo
-  2.times do |i|
-    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
-    response = client.get(url)
-    json = JSON.parse(response.body)
-
-    if json["content_html"]? && !json["content_html"].as_s.empty?
-      document = XML.parse_html(json["content_html"].as_s)
-      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-
-      if auto_generated
-        videos += extract_videos(nodeset)
-      else
-        videos += extract_videos(nodeset, ucid)
-      end
-    else
-      break
-    end
-  end
+  videos, count = get_60_videos(ucid, page, auto_generated)
 
   templated "channel"
 end
@@ -2533,30 +2492,10 @@ get "/api/v1/channels/:ucid" do |env|
     halt env, status_code: 404, response: error_message
   end
 
-  client = make_client(YT_URL)
-
   page = 1
+  videos, count = get_60_videos(ucid, page, auto_generated)
 
-  videos = [] of SearchVideo
-  2.times do |i|
-    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
-    response = client.get(url)
-    json = JSON.parse(response.body)
-
-    if json["content_html"]? && !json["content_html"].as_s.empty?
-      document = XML.parse_html(json["content_html"].as_s)
-      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-
-      if auto_generated
-        videos += extract_videos(nodeset)
-      else
-        videos += extract_videos(nodeset, ucid)
-      end
-    else
-      break
-    end
-  end
-
+  client = make_client(YT_URL)
   channel_html = client.get("/channel/#{ucid}/about?disable_polymer=1").body
   channel_html = XML.parse_html(channel_html)
   banner = channel_html.xpath_node(%q(//div[@id="gh-banner"]/style)).not_nil!.content
@@ -2692,27 +2631,7 @@ end
       halt env, status_code: 404, response: error_message
     end
 
-    client = make_client(YT_URL)
-
-    videos = [] of SearchVideo
-    2.times do |i|
-      url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
-      response = client.get(url)
-      json = JSON.parse(response.body)
-
-      if json["content_html"]? && !json["content_html"].as_s.empty?
-        document = XML.parse_html(json["content_html"].as_s)
-        nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-
-        if auto_generated
-          videos += extract_videos(nodeset)
-        else
-          videos += extract_videos(nodeset, ucid)
-        end
-      else
-        break
-      end
-    end
+    videos, count = get_60_videos(ucid, page, auto_generated)
 
     result = JSON.build do |json|
       json.array do
