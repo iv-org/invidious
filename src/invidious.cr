@@ -1487,7 +1487,7 @@ get "/feed/channel/:ucid" do |env|
   end
 
   page = 1
-  videos, count = get_60_videos(ucid, page, auto_generated)
+  videos, count = get_60_videos(ucid, page, auto_generated, proxies)
 
   host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
   path = env.request.path
@@ -1732,7 +1732,7 @@ get "/channel/:ucid" do |env|
     end
   end
 
-  videos, count = get_60_videos(ucid, page, auto_generated)
+  videos, count = get_60_videos(ucid, page, auto_generated, proxies)
 
   templated "channel"
 end
@@ -1885,7 +1885,6 @@ get "/api/v1/comments/:id" do |env|
               proxy_client.read_timeout = 10.seconds
               proxy_client.connect_timeout = 10.seconds
 
-              proxy = list.sample(1)[0]
               proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
               proxy_client.set_proxy(proxy)
 
@@ -1894,13 +1893,10 @@ get "/api/v1/comments/:id" do |env|
               proxy_headers["cookie"] = response.cookies.add_request_headers(headers)["cookie"]
               proxy_html = response.body
 
-              if proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
-                bypass_channel.send(nil)
-              else
+              if !proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
                 bypass_channel.send({proxy_html, proxy_client, proxy_headers})
+                break
               end
-
-              break
             rescue ex
             end
           end
@@ -2493,7 +2489,7 @@ get "/api/v1/channels/:ucid" do |env|
   end
 
   page = 1
-  videos, count = get_60_videos(ucid, page, auto_generated)
+  videos, count = get_60_videos(ucid, page, auto_generated, proxies)
 
   client = make_client(YT_URL)
   channel_html = client.get("/channel/#{ucid}/about?disable_polymer=1").body
@@ -2631,7 +2627,7 @@ end
       halt env, status_code: 404, response: error_message
     end
 
-    videos, count = get_60_videos(ucid, page, auto_generated)
+    videos, count = get_60_videos(ucid, page, auto_generated, proxies)
 
     result = JSON.build do |json|
       json.array do

@@ -176,7 +176,7 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil)
   continuation = Base64.urlsafe_encode(continuation)
   continuation = URI.escape(continuation)
 
-  url = "/browse_ajax?continuation=#{continuation}"
+  url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 
   return url
 end
@@ -216,7 +216,7 @@ def get_about_info(ucid)
   return {author, ucid, auto_generated, sub_count}
 end
 
-def get_60_videos(ucid, page, auto_generated)
+def get_60_videos(ucid, page, auto_generated, proxies)
   count = 0
   videos = [] of SearchVideo
 
@@ -233,6 +233,49 @@ def get_60_videos(ucid, page, auto_generated)
 
       if !json["load_more_widget_html"]?.try &.as_s.empty?
         count += 30
+      end
+
+      if !json["load_more_widget_html"]?.try &.as_s.empty? && nodeset.size < 30
+        bypass_channel = Channel(XML::NodeSet | Nil).new
+
+        proxies.each do |region, list|
+          spawn do
+            list.each do |proxy|
+              begin
+                proxy_client = HTTPClient.new(YT_URL)
+                proxy_client.read_timeout = 10.seconds
+                proxy_client.connect_timeout = 10.seconds
+
+                proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
+                proxy_client.set_proxy(proxy)
+
+                proxy_response = proxy_client.get(url)
+                json = JSON.parse(proxy_response.body)
+
+                document = XML.parse_html(json["content_html"].as_s)
+                nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+                if nodeset.size == 30
+                  bypass_channel.send(nodeset)
+                  break
+                end
+              rescue ex
+              end
+            end
+
+            if nodeset.size != 30
+              bypass_channel.send(nil)
+            end
+          end
+        end
+
+        proxies.size.times do
+          response = bypass_channel.receive
+          if response
+            nodeset = response
+            break
+          end
+        end
       end
 
       if auto_generated
