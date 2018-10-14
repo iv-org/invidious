@@ -573,8 +573,11 @@ def fetch_video(id, proxies)
             info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
             if !info["reason"]?
               bypass_channel.send(proxy)
-              break
+            else
+              bypass_channel.send(nil)
             end
+
+            break
           rescue ex
           end
         end
