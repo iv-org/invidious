@@ -457,9 +457,10 @@ class Video
     genre:              String,
     genre_url:          String,
     license:            String,
-    sub_count_text:     {
+    sub_count_text:     String,
+    author_thumbnail:   {
       type:    String,
-      default: "0",
+      default: "",
     },
   })
 end
@@ -491,12 +492,20 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
         video = fetch_video(id, proxies)
         video_array = video.to_a
 
+        # Migration point
+        video_array = video_array[0..-2]
+
         args = arg_array(video_array[1..-1], 2)
 
+        # Migration point
+        # db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
+        #   published,description,language,author,ucid,allowed_regions,is_family_friendly,\
+        #   genre,genre_url,license,sub_count_text,author_thumbnail)\
+        #   = (#{args}) WHERE id = $1", video_array)
         db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
-          published,description,language,author,ucid,allowed_regions,is_family_friendly,\
-          genre,genre_url,license,sub_count_text)\
-          = (#{args}) WHERE id = $1", video_array)
+        published,description,language,author,ucid,allowed_regions,is_family_friendly,\
+        genre,genre_url,license,sub_count_text)\
+        = (#{args}) WHERE id = $1", video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
         raise ex
@@ -505,6 +514,9 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
   else
     video = fetch_video(id, proxies)
     video_array = video.to_a
+
+    # Migration point
+    video_array = video_array[0..-2]
 
     args = arg_array(video_array)
 
@@ -673,8 +685,15 @@ def fetch_video(id, proxies)
     sub_count_text = "0"
   end
 
+  author_thumbnail = html.xpath_node(%(//img[@alt="#{author}"]))
+  if author_thumbnail
+    author_thumbnail = author_thumbnail["data-thumb"]
+  else
+    author_thumbnail = ""
+  end
+
   video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description,
-    nil, author, ucid, allowed_regions, is_family_friendly, genre, genre_url, license, sub_count_text)
+    nil, author, ucid, allowed_regions, is_family_friendly, genre, genre_url, license, sub_count_text, author_thumbnail)
 
   return video
 end

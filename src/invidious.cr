@@ -2298,6 +2298,21 @@ get "/api/v1/videos/:id" do |env|
       json.field "author", video.author
       json.field "authorId", video.ucid
       json.field "authorUrl", "/channel/#{video.ucid}"
+
+      json.field "authorThumbnails" do
+        json.array do
+          qualities = [32, 48, 76, 100, 176, 512]
+
+          qualities.each do |quality|
+            json.object do
+              json.field "url", video.author_thumbnail.gsub("=s48-", "=s#{quality}-")
+              json.field "width", quality
+              json.field "height", quality
+            end
+          end
+        end
+      end
+
       json.field "subCountText", video.sub_count_text
 
       json.field "lengthSeconds", video.info["length_seconds"].to_i
