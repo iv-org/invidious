@@ -1885,7 +1885,6 @@ get "/api/v1/comments/:id" do |env|
               proxy_client.read_timeout = 10.seconds
               proxy_client.connect_timeout = 10.seconds
 
-              proxy = list.sample(1)[0]
               proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
               proxy_client.set_proxy(proxy)
 
@@ -1894,13 +1893,10 @@ get "/api/v1/comments/:id" do |env|
               proxy_headers["cookie"] = response.cookies.add_request_headers(headers)["cookie"]
               proxy_html = response.body
 
-              if proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
-                bypass_channel.send(nil)
-              else
+              if !proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
                 bypass_channel.send({proxy_html, proxy_client, proxy_headers})
+                break
               end
-
-              break
             rescue ex
             end
           end

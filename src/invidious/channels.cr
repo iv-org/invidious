@@ -176,7 +176,7 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil)
   continuation = Base64.urlsafe_encode(continuation)
   continuation = URI.escape(continuation)
 
-  url = "/browse_ajax?continuation=#{continuation}"
+  url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 
   return url
 end
