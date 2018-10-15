@@ -21,11 +21,6 @@ function toggle_comments(target) {
 }
 
 function swap_comments(source) {
-  comments = document.getElementById("comments");
-  var fallback = comments.innerHTML;
-  comments.innerHTML =
-    '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
-
   if (source == "youtube") {
     get_youtube_comments();
   } else if (source == "reddit") {
@@ -46,3 +41,19 @@ String.prototype.supplant = function(o) {
     return typeof r === "string" || typeof r === "number" ? r : a;
   });
 };
+
+function show_youtube_replies(target) {
+  body = target.parentNode.parentNode.children[1];
+  body.style.display = "";
+
+  target.innerHTML = "Hide replies";
+  target.setAttribute("onclick", "hide_youtube_replies(this)");
+}
+
+function hide_youtube_replies(target) {
+  body = target.parentNode.parentNode.children[1];
+  body.style.display = "none";
+
+  target.innerHTML = "Show replies";
+  target.setAttribute("onclick", "show_youtube_replies(this)");
+}

@@ -121,15 +121,12 @@
             </div>
             <hr>
             <div id="comments">
-                <h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>
             </div>
         </div>
     </div>
     <div class="pure-u-1 pure-u-md-1-5">
         <% if plid %>
         <div id="playlist" class="h-box">
-            <h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>
-            <hr>
         </div>
         <% end %>
 
@@ -200,6 +197,11 @@ function unsubscribe() {
 
 <% if plid %>
 function get_playlist() {
+    playlist = document.getElementById("playlist");
+    playlist.innerHTML = ' \
+      <h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3> \
+      <hr>'
+
     var plid = "<%= plid %>"
 
     if (plid.startsWith("RD")) {
@@ -217,7 +219,6 @@ function get_playlist() {
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
-                playlist = document.getElementById("playlist");
                 playlist.innerHTML = xhr.response.playlistHtml;
                 
                 if (xhr.response.nextVideo) {
@@ -257,6 +258,11 @@ get_playlist();
 <% end %>
 
 function get_reddit_comments() {
+  comments = document.getElementById("comments");
+  var fallback = comments.innerHTML;
+  comments.innerHTML =
+    '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+
   var url = "/api/v1/comments/<%= video.id %>?source=reddit&format=html";
   var xhr = new XMLHttpRequest();
   xhr.responseType = "json";
@@ -267,7 +273,6 @@ function get_reddit_comments() {
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
       if (xhr.status == 200) {
-        comments = document.getElementById("comments");
         comments.innerHTML = ' \
             <div> \
                 <h3> \
@@ -295,8 +300,7 @@ function get_reddit_comments() {
         <% if preferences && preferences.comments[1] == "youtube" %> 
         get_youtube_comments();
         <% else %>
-        comments = document.getElementById("comments");
-        comments.innerHTML = "";
+        comments.innerHTML = fallback;
         <% end %>
       }
     }
@@ -310,6 +314,11 @@ function get_reddit_comments() {
 }
 
 function get_youtube_comments() {
+  comments = document.getElementById("comments");
+  var fallback = comments.innerHTML;
+  comments.innerHTML =
+    '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+
   var url = "/api/v1/comments/<%= video.id %>?format=html";
   var xhr = new XMLHttpRequest();
   xhr.responseType = "json";
@@ -320,7 +329,6 @@ function get_youtube_comments() {
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
       if (xhr.status == 200) {
-        comments = document.getElementById("comments");
         if (xhr.response.commentCount > 0)  {
             comments.innerHTML = ' \
                 <div> \
@@ -346,7 +354,6 @@ function get_youtube_comments() {
         <% if preferences && preferences.comments[1] == "youtube" %> 
         get_youtube_comments();
         <% else %>
-        comments = document.getElementById("comments");
         comments.innerHTML = "";
         <% end %>
       }
@@ -356,7 +363,6 @@ function get_youtube_comments() {
   xhr.ontimeout = function() {
     console.log("Pulling comments timed out.");
 
-    comments = document.getElementById("comments");
     comments.innerHTML =
       '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
     get_youtube_comments();
@@ -400,22 +406,6 @@ function get_youtube_replies(target) {
 
     body.innerHTML = fallback;
   };
-}
-
-function show_youtube_replies(target) {
-    body = target.parentNode.parentNode.children[1];
-    body.style.display = "";
-
-    target.innerHTML = "Hide replies";
-    target.setAttribute('onclick', 'hide_youtube_replies(this)');
-}
-
-function hide_youtube_replies(target) {
-    body = target.parentNode.parentNode.children[1];
-    body.style.display = "none";
-
-    target.innerHTML = "Show replies";
-    target.setAttribute('onclick', 'show_youtube_replies(this)');
 }
 
 <% if preferences %>
