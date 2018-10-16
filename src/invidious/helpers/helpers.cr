@@ -358,6 +358,18 @@ def extract_items(nodeset, ucid = nil)
         live_now = false
       end
 
+      if node.xpath_node(%q(.//span[text()="Premium"]))
+        premium = true
+      else
+        premium = false
+      end
+
+      if node.xpath_node(%q(.//span[contains(text(), "Get YouTube Premium")]))
+        paid = true
+      else
+        paid = false
+      end
+
       items << SearchVideo.new(
         title,
         id,
@@ -368,7 +380,9 @@ def extract_items(nodeset, ucid = nil)
         description,
         description_html,
         length_seconds,
-        live_now
+        live_now,
+        paid,
+        premium
       )
     end
   end

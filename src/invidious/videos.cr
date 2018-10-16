@@ -407,6 +407,23 @@ class Video
     return @player_json.not_nil!
   end
 
+  def paid
+    reason = self.player_response["playabilityStatus"]?.try &.["reason"]?
+
+    if reason == "This video requires payment to watch."
+      paid = true
+    else
+      paid = false
+    end
+
+    return paid
+  end
+
+  def premium
+    premium = self.player_response.to_s.includes? "Get YouTube without the ads."
+    return premium
+  end
+
   def captions
     captions = [] of Caption
     if player_response["captions"]?

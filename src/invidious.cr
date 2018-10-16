@@ -2245,6 +2245,8 @@ get "/api/v1/videos/:id" do |env|
       json.field "likeCount", video.likes
       json.field "dislikeCount", video.dislikes
 
+      json.field "paid", video.paid
+      json.field "premium", video.premium
       json.field "isFamilyFriendly", video.is_family_friendly
       json.field "allowedRegions", video.allowed_regions
       json.field "genre", video.genre
@@ -2602,6 +2604,8 @@ get "/api/v1/channels/:ucid" do |env|
               json.field "published", video.published.epoch
               json.field "publishedText", "#{recode_date(video.published)} ago"
               json.field "lengthSeconds", video.length_seconds
+              json.field "paid", video.paid
+              json.field "premium", video.premium
             end
           end
         end
@@ -2657,6 +2661,8 @@ end
             json.field "published", video.published.epoch
             json.field "publishedText", "#{recode_date(video.published)} ago"
             json.field "lengthSeconds", video.length_seconds
+            json.field "paid", video.paid
+            json.field "premium", video.premium
           end
         end
       end
@@ -2704,6 +2710,8 @@ get "/api/v1/channels/search/:ucid" do |env|
             json.field "publishedText", "#{recode_date(item.published)} ago"
             json.field "lengthSeconds", item.length_seconds
             json.field "liveNow", item.live_now
+            json.field "paid", item.paid
+            json.field "premium", item.premium
           when SearchPlaylist
             json.field "type", "playlist"
             json.field "title", item.title
@@ -2825,6 +2833,8 @@ get "/api/v1/search" do |env|
             json.field "publishedText", "#{recode_date(item.published)} ago"
             json.field "lengthSeconds", item.length_seconds
             json.field "liveNow", item.live_now
+            json.field "paid", item.paid
+            json.field "premium", item.premium
           when SearchPlaylist
             json.field "type", "playlist"
             json.field "title", item.title

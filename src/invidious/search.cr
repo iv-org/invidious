@@ -10,6 +10,8 @@ class SearchVideo
     description_html: String,
     length_seconds:   Int32,
     live_now:         Bool,
+    paid:             Bool,
+    premium:          Bool,
   })
 end
 
