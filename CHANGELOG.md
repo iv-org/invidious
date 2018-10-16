@@ -1,3 +1,22 @@
+# 0.10.0 (2018-10-16)
+
+## Week 10: Subscriptions
+
+This week I'm happy to announce that subscriptions have been drastically sped up with
+35e63fa. As I mentioned last week, this essentially "caches" a user's feed, meaning that operations that previously took 20 seconds or timed out, now can load in under a second. I'd take a look at [#173](https://github.com/omarroth/invidious/issues/173) for a sample benchmark. Previously features that made Invidious's feed so useful, such as filtering by unseen and by author would take too long to load, and so instead would timeout. I'm very happy that this has been fixed, and folks can get back to using these features.
+
+Among some smaller features that have been added this week include [#118](https://github.com/omarroth/invidious/issues/118), which adds, in my opinion, some very attractive subscribe and unsubscribe buttons. I think it's also a bit of a functional improvement as well, since it doesn't require a user to reload the page in order to subscribe or unsubscribe to a channel, and also gives the opportunity to put the channel's sub count on display.
+
+An option to swap between Reddit and YouTube comments without a page reload has been added with
+5eefab6, bringing it somewhat closer in functionality to the popular [AlienTube](https://github.com/xlexi/alientube) extension, on which it is based (although the extension unfortunately appears now to be fragmented).
+
+As always, there are a couple smaller improvements this week, including some minor fixes for geo-bypass with
+e46e618 and [`245d0b5`](https://github.com/omarroth/invidious/245d0b5), playlist preferences with [`81b4477`](https://github.com/omarroth/invidious/81b4477), and YouTube comments with [`02335f3`](https://github.com/omarroth/invidious/02335f3).
+
+This coming week I'd also recommend keeping an eye on the excellent [FreeTube](https://github.com/FreeTubeApp/FreeTube), which is looking forward to a new release. I've been very lucky to work with [**@PrestonN**](https://github.com/PrestonN) for the past few weeks to improve the Invidious API, and I'm quite looking forward to the new release.
+
+That's all for this week folks, thank you all again for your continued interest and support.
+
 # 0.9.0 (2018-10-08)
 
 ## Week 9: Playlists
@@ -43,6 +62,7 @@ A [CHANGELOG](https://github.com/omarroth/invidious/blob/master/CHANGELOG.md) ha
 Recently, users have been reporting 504s when attempting to access their subscriptions, which is tracked in [#173](https://github.com/omarroth/invidious/issues/173). This is most likely caused by an uptick in usage, which I am absolutely grateful for, but unfortunately has resulted in an increase in costs for hosting the site, which is why I will be bumping my goal on Patreon from $60 to $80. I would appreciate any feedback on how subscriptions could be improved.
 
 Other minor improvements include:
+
 - Additional regions added to bypass geo-block with [`9a78523`](https://github.com/omarroth/invidious/9a78523)
 - Fix for playlists containing less than 100 videos (previously shown as empty) with [`35ac887`](https://github.com/omarroth/invidious/35ac887)
 - Fix for `published` date for Reddit comments (previously showing negative seconds) with [`6e09202`](https://github.com/omarroth/invidious/6e09202)
@@ -55,7 +75,7 @@ Thank you everyone for your support!
 
 Hello again! This week I'm happy to mention a couple new features to search as well as some miscellaneous usability improvements.
 
-You can now constrain your search query to a specific channel with the `channel:CHANNEL` filter (see [#165](https://github.com/omarroth/invidious/issues/165) for more details). Unfortunately, other search filters combined with channel search are not yet supported. I hope to add support for them in the coming weeks. 
+You can now constrain your search query to a specific channel with the `channel:CHANNEL` filter (see [#165](https://github.com/omarroth/invidious/issues/165) for more details). Unfortunately, other search filters combined with channel search are not yet supported. I hope to add support for them in the coming weeks.
 
 You can also now search only your subscriptions by adding `subscriptions:true` to your query (see [#30](https://github.com/omarroth/invidious/issues/30) for more details). It's not quite ready for widespread use but I would appreciate feedback as the site updates to fully support it. Other search filters are not yet supported with `subscriptions:true`, but I hope to add more functionality to this as well.
 
@@ -81,7 +101,7 @@ A potential XSS vector has also been fixed in YouTube comments with [`8c45694`](
 
 All the above vulnerabilities were brought to my attention by someone who wishes to remain anonymous, but I would like to say again here how thankful I am. If anyone else would like to get in touch please feel free to email me at omarroth@hotmail.com or omarroth@protonmail.com.
 
-This week a couple changes have been made to better protect user's privacy as well. 
+This week a couple changes have been made to better protect user's privacy as well.
 All CSS and JS assets are now served locally with [`3ec684a`](https://github.com/omarroth/invidious/3ec684a), which means users no longer need to whitelist unpkg.com. Although I personally have encountered few issues, I understand that many folks would like to keep their browsing activity contained to as few parties as possible. In the coming week I also hope to proxy YouTube images, so that no user data is sent to Google.
 
 YouTube links in comments now should redirect properly to the Invidious alternate with [`1c8bd67`](https://github.com/omarroth/invidious/1c8bd67) and [`cf63c82`](https://github.com/omarroth/invidious/cf63c82), so users can more easily evade Google tracking.
@@ -131,7 +151,7 @@ I'd also like to announce that I've set up an account on [Liberapay](https://lib
 
 [Two weeks ago](https://github.com/omarroth/invidious/releases/tag/0.1.0) I mentioned adding 1080p support into the player. Currently, the only thing blocking is [#207](https://github.com/videojs/http-streaming/pull/207) in the excellent [http-streaming](https://github.com/videojs/http-streaming) library. I hope to work with the videojs team to merge it soon and finally implement 1080p support!
 
-That's all for this week, thank you again everyone for your support! 
+That's all for this week, thank you again everyone for your support!
 
 # 0.2.0 (2018-09-06)
 
@@ -146,9 +166,9 @@ A couple of miscellaneous features and bugfixes:
 
 - You can now login to Invidious simultaneously from multiple devices - [#109](https://github.com/omarroth/invidious/issues/109)
 
-- Added a note for scheduled livestreams - [#124](https://github.com/omarroth/invidious/issues/124) 
+- Added a note for scheduled livestreams - [#124](https://github.com/omarroth/invidious/issues/124)
 
-- Changed YouTube comment header to "View x comments" - [#120](https://github.com/omarroth/invidious/issues/120) 
+- Changed YouTube comment header to "View x comments" - [#120](https://github.com/omarroth/invidious/issues/120)
 
 Enjoy your week everyone!
 
