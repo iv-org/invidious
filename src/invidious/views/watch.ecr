@@ -94,14 +94,14 @@
             <p>
                 <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" 
                     href="/subscription_ajax?action_remove_subscriptions=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>">
-                    <b>Unsubscribe from <%= video.author %> <%= video.sub_count_text %></b>
+                    <b>Unsubscribe <%= video.sub_count_text %></b>
                 </a>
             </p>
             <% else %>
             <p>
                 <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" 
                     href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>">
-                    <b>Subscribe to <%= video.author %> <%= video.sub_count_text %></b>
+                    <b>Subscribe <%= video.sub_count_text %></b>
                 </a>
             </p>
             <% end %>
@@ -170,7 +170,7 @@ function subscribe() {
             if (xhr.status == 200) {
                 subscribe_button = document.getElementById("subscribe");
                 subscribe_button.onclick = unsubscribe;
-                subscribe_button.innerHTML = '<b>Unsubscribe from <%= video.author %> <%= video.sub_count_text %></b>'
+                subscribe_button.innerHTML = '<b>Unsubscribe <%= video.sub_count_text %></b>'
             }
         }
     }
@@ -189,7 +189,7 @@ function unsubscribe() {
             if (xhr.status == 200) {
                 subscribe_button = document.getElementById("subscribe");
                 subscribe_button.onclick = subscribe;
-                subscribe_button.innerHTML = '<b>Subscribe to <%= video.author %> <%= video.sub_count_text %></b>'
+                subscribe_button.innerHTML = '<b>Subscribe <%= video.sub_count_text %></b>'
             }
         }
     }

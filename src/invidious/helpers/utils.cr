@@ -138,6 +138,25 @@ def number_with_separator(number)
   number.to_s.reverse.gsub(/(\d{3})(?=\d)/, "\\1,").reverse
 end
 
+def number_to_short_text(number)
+  seperated = number_with_separator(number).gsub(",", ".").split("")
+  text = seperated.first(2).join
+
+  if seperated[2]? && seperated[2] != "."
+    text += seperated[2]
+  end
+
+  text = text.rchop(".0")
+
+  if number / 1000000 != 0
+    text += "M"
+  elsif number / 1000 != 0
+    text += "K"
+  end
+
+  text
+end
+
 def arg_array(array, start = 1)
   if array.size == 0
     args = "NULL"

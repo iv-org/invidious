@@ -19,14 +19,14 @@
     <p>
         <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" 
             href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
-            <b>Unsubscribe from <%= author %> <%= number_with_separator(sub_count) %></b>
+            <b>Unsubscribe <%= number_to_short_text(sub_count) %></b>
         </a>
     </p>
     <% else %>
     <p>
         <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" 
             href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
-            <b>Subscribe to <%= author %> <%= number_with_separator(sub_count) %></b>
+            <b>Subscribe <%= number_to_short_text(sub_count) %></b>
         </a>
     </p>
     <% end %>
@@ -82,7 +82,7 @@ function subscribe() {
             if (xhr.status == 200) {
                 subscribe_button = document.getElementById("subscribe");
                 subscribe_button.onclick = unsubscribe;
-                subscribe_button.innerHTML = '<b>Unsubscribe from <%= author %> <%= number_with_separator(sub_count + 1) %></b>'
+                subscribe_button.innerHTML = '<b>Unsubscribe <%= number_to_short_text(sub_count) %></b>'
             }
         }
     }
@@ -101,7 +101,7 @@ function unsubscribe() {
             if (xhr.status == 200) {
                 subscribe_button = document.getElementById("subscribe");
                 subscribe_button.onclick = subscribe;
-                subscribe_button.innerHTML = '<b>Subscribe to <%= author %> <%= number_with_separator(sub_count) %></b>'
+                subscribe_button.innerHTML = '<b>Subscribe <%= number_to_short_text(sub_count) %></b>'
             }
         }
     }
