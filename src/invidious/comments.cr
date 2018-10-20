@@ -115,7 +115,7 @@ def template_youtube_comments(comments)
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
           #{recode_date(Time.epoch(child["published"].as_i64))} ago
           | 
-          <i class="icon ion-ios-thumbs-up"></i> #{child["likeCount"]} 
+          <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])} 
         </p>
         #{replies_html}
       </div>
@@ -158,7 +158,7 @@ def template_reddit_comments(root)
       <p>
         <a href="javascript:void(0)" onclick="toggle_parent(this)">[ - ]</a> 
         <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b> 
-        #{score} points 
+        #{number_with_separator(score)} points 
         #{recode_date(child.created_utc)} ago
       </p>
       <div>

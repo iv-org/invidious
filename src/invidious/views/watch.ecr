@@ -152,6 +152,13 @@
 </div>
 
 <script>
+function number_with_separator(val) {
+  while (/(\d+)(\d{3})/.test(val.toString())) {
+    val = val.toString().replace(/(\d+)(\d{3})/, "$1" + "," + "$2");
+  }
+  return val;
+}
+
 subscribe_button = document.getElementById("subscribe");
 if (subscribe_button.getAttribute('onclick')) {
     subscribe_button["href"] = "javascript:void(0);";
@@ -345,7 +352,7 @@ function get_youtube_comments() {
                 <div>{contentHtml}</div> \
                 <hr>'.supplant({
             contentHtml: xhr.response.contentHtml,
-            commentCount: commaSeparateNumber(xhr.response.commentCount)
+            commentCount: number_with_separator(xhr.response.commentCount)
             });
         } else {
           comments.innerHTML = "";

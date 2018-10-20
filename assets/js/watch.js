@@ -28,13 +28,6 @@ function swap_comments(source) {
   }
 }
 
-function commaSeparateNumber(val) {
-  while (/(\d+)(\d{3})/.test(val.toString())) {
-    val = val.toString().replace(/(\d+)(\d{3})/, "$1" + "," + "$2");
-  }
-  return val;
-}
-
 String.prototype.supplant = function(o) {
   return this.replace(/{([^{}]*)}/g, function(a, b) {
     var r = o[b];
