@@ -15,6 +15,11 @@ class ChannelVideo
     ucid:      String,
     author:    String,
   })
+
+  # TODO: Add length_seconds to channel_video
+  def length_seconds
+    return 0
+  end
 end
 
 def get_channel(id, client, db, refresh = true, pull_all_videos = true)

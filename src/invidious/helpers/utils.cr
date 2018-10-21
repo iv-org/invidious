@@ -40,6 +40,23 @@ def decode_length_seconds(string)
   return length_seconds
 end
 
+def recode_length_seconds(time)
+  if time <= 0
+    return ""
+  else
+    time = time.seconds
+    text = "#{time.minutes.to_s.rjust(2, '0')}:#{time.seconds.to_s.rjust(2, '0')}"
+
+    if time.hours > 0
+      text = "#{time.hours.to_s.rjust(2, '0')}:#{text}"
+    end
+
+    text = text.lchop('0')
+
+    return text
+  end
+end
+
 def decode_time(string)
   time = string.try &.to_f?
 

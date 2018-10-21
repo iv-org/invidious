@@ -137,7 +137,10 @@
             <a href="/watch?v=<%= rv["id"] %>">
                 <% if preferences && preferences.thin_mode %>
                 <% else %>
-                <img style="width:100%;" src="/vi/<%= rv["id"] %>/mqdefault.jpg">
+                <div class="thumbnail">
+                    <img class="thumbnail" src="/vi/<%= rv["id"] %>/mqdefault.jpg">
+                    <p class="length"><%= recode_length_seconds(rv["length_seconds"]?.try &.to_i? || 0) %></p>
+                </div>
                 <% end %>
                 <p style="width:100%"><%= rv["title"] %></p>
                 <p>

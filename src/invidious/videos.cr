@@ -451,6 +451,10 @@ class Video
     return description
   end
 
+  def length_seconds
+    return self.info["length_seconds"].to_i
+  end
+
   add_mapping({
     id:   String,
     info: {
