@@ -189,15 +189,15 @@ end
 def get_about_info(ucid)
   client = make_client(YT_URL)
 
-  about = client.get("/user/#{ucid}/about?disable_polymer=1")
+  about = client.get("/user/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
   about = XML.parse_html(about.body)
 
-  if !about.xpath_node(%q(//span[@class="qualified-channel-title-text"]/a))
-    about = client.get("/channel/#{ucid}/about?disable_polymer=1")
+  if !about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a))
+    about = client.get("/channel/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
     about = XML.parse_html(about.body)
   end
 
-  if !about.xpath_node(%q(//span[@class="qualified-channel-title-text"]/a))
+  if !about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a))
     raise "User does not exist."
   end
 
@@ -207,7 +207,7 @@ def get_about_info(ucid)
   end
   sub_count ||= 0
 
-  author = about.xpath_node(%q(//span[@class="qualified-channel-title-text"]/a)).not_nil!.content
+  author = about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).not_nil!.content
   ucid = about.xpath_node(%q(//link[@rel="canonical"])).not_nil!["href"].split("/")[-1]
 
   # Auto-generated channels
