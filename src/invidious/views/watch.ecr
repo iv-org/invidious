@@ -379,7 +379,7 @@ function get_youtube_comments() {
   };
 }
 
-function get_youtube_replies(target) {
+function get_youtube_replies(target, load_more) {
   var continuation = target.getAttribute('data-continuation');
 
   var body = target.parentNode.parentNode;
@@ -398,13 +398,19 @@ function get_youtube_replies(target) {
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4) {
       if (xhr.status == 200) {
-        body.innerHTML = ' \
-            <p><a href="javascript:void(0)" \
-                onclick="hide_youtube_replies(this)">Hide replies \
-            </a></p> \
-            <div>{contentHtml}</div>'.supplant({
-            contentHtml: xhr.response.contentHtml,
-        });
+        if (load_more) {
+            body = body.parentNode.parentNode;
+            body.removeChild(body.lastElementChild);
+            body.innerHTML += xhr.response.contentHtml;
+        } else {
+            body.innerHTML = ' \
+                <p><a href="javascript:void(0)" \
+                    onclick="hide_youtube_replies(this)">Hide replies \
+                </a></p> \
+                <div>{contentHtml}</div>'.supplant({
+                contentHtml: xhr.response.contentHtml,
+            });
+        }
       } else {
         body.innerHTML = fallback;
       }

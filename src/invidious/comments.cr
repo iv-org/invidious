@@ -129,7 +129,7 @@ def template_youtube_comments(comments)
       <div class="pure-u-1">
         <p>
           <a href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
-            onclick="get_youtube_replies(this)">Load more</a>
+            onclick="get_youtube_replies(this, true)">Load more</a>
         </p>
       </div>
     </div>
