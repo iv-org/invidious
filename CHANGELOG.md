@@ -1,3 +1,15 @@
+# 0.11.0 (2018-10-23)
+
+## Week 11: FreeTube and Styling
+
+This past Friday I'm been very excited to see that FreeTube version [0.4.0](https://github.com/FreeTubeApp/FreeTube/tree/0.4.0) has been released! I'd recommend taking a look at the official patch notes, but to spoil a little bit here: FreeTube now uses the Invidious API for _all_ requests previously sent to YouTube, and has also seen support for playlists, keyboard shortcuts, and more default settings (speed, autoplay, and subtitles). I'm happy to see that FreeTube has reached 500 stars on Github, and I think it's very much deserved. I'd recommend keeping an eye on the newly-launched [FreeTube blog](https://freetube.writeas.com/) for updates on the project.
+
+Quite a few styling changes have been added this past week, including channel subscriber count to the subscribe and unsubscribe buttons. The changes sound small, but they've been a very big improvement and I'm quite satisfied with how they look. Also to note is that partial support for duration in thumbnails have been added with [#202](https://github.com/omarroth/invidious/issues/202). Overall, I think the site is becoming much more pleasing visually, and I hope to continue to improve it.
+
+I've been very pleased to see Invidious in its current state, and I believe it's many times more mature compared to even a month ago. Changes have also started slowing down a bit as it's become more mature, and therefore I'd like to transition to a monthly update schedule in order to provide more comprehensive updates for everyone. I want to thank you all for helping me reach this point. I can't say how happy I am for Invidious to be where it is now.
+
+Enjoy the rest of your week everyone, I'll see you in November!
+
 # 0.10.0 (2018-10-16)
 
 ## Week 10: Subscriptions
