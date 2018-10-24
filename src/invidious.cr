@@ -1482,8 +1482,8 @@ get "/feed/channel/:ucid" do |env|
   begin
     author, ucid, auto_generated = get_about_info(ucid)
   rescue ex
-    error_message = "User does not exist"
-    halt env, status_code: 404, response: error_message
+    error_message = ex.message
+    halt env, status_code: 500, response: error_message
   end
 
   page = 1
@@ -1720,7 +1720,7 @@ get "/channel/:ucid" do |env|
   begin
     author, ucid, auto_generated, sub_count = get_about_info(ucid)
   rescue ex
-    error_message = "User does not exist"
+    error_message = ex.message
     next templated "error"
   end
 
@@ -1763,7 +1763,7 @@ get "/api/v1/captions/:id" do |env|
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/captions/#{ex.message}"
   rescue ex
-    halt env, status_code: 403
+    halt env, status_code: 500
   end
 
   captions = video.captions
@@ -1955,7 +1955,7 @@ get "/api/v1/comments/:id" do |env|
     response = JSON.parse(response.body)
 
     if !response["response"]["continuationContents"]?
-      halt env, status_code: 403
+      halt env, status_code: 500
     end
 
     response = response["response"]["continuationContents"]
@@ -2486,8 +2486,8 @@ get "/api/v1/channels/:ucid" do |env|
   begin
     author, ucid, auto_generated = get_about_info(ucid)
   rescue ex
-    error_message = {"error" => "User does not exist"}.to_json
-    halt env, status_code: 404, response: error_message
+    error_message = {"error" => ex.message}.to_json
+    halt env, status_code: 500, response: error_message
   end
 
   page = 1
@@ -2627,8 +2627,8 @@ end
     begin
       author, ucid, auto_generated = get_about_info(ucid)
     rescue ex
-      error_message = {"error" => "User does not exist"}.to_json
-      halt env, status_code: 404, response: error_message
+      error_message = {"error" => ex.message}.to_json
+      halt env, status_code: 500, response: error_message
     end
 
     videos, count = get_60_videos(ucid, page, auto_generated)
@@ -2913,7 +2913,7 @@ get "/api/v1/playlists/:plid" do |env|
     playlist = fetch_playlist(plid)
   rescue ex
     error_message = {"error" => "Playlist is empty"}.to_json
-    halt env, status_code: 404, response: error_message
+    halt env, status_code: 500, response: error_message
   end
 
   begin

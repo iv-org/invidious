@@ -189,16 +189,19 @@ end
 def get_about_info(ucid)
   client = make_client(YT_URL)
 
-  about = client.get("/user/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
+  about = client.get("/channel/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
   about = XML.parse_html(about.body)
 
   if !about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a))
-    about = client.get("/channel/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
+    about = client.get("/user/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
     about = XML.parse_html(about.body)
   end
 
-  if !about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a))
-    raise "User does not exist."
+  if about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).try &.content.empty?
+    error_message = about.xpath_node(%q(//div[@class="yt-alert-content"])).try &.content.strip
+    error_message ||= "Could not get channel info."
+
+    raise error_message
   end
 
   sub_count = about.xpath_node(%q(//span[contains(text(), "subscribers")]))
