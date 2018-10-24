@@ -190,11 +190,16 @@ def get_about_info(ucid)
   client = make_client(YT_URL)
 
   about = client.get("/channel/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
+  if about.status_code == 404
+    about = client.get("/user/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
+  end
+
   about = XML.parse_html(about.body)
 
-  if !about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a))
-    about = client.get("/user/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
-    about = XML.parse_html(about.body)
+  if about.xpath_node(%q(//div[contains(@class, "channel-empty-message")]))
+    error_message = "This channel does not exist."
+
+    raise error_message
   end
 
   if about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).try &.content.empty?
