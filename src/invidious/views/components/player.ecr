@@ -137,18 +137,6 @@ player.markers({
 player.currentTime(<%= params[:video_start] %>);
 <% end %>
 
-<% if !params[:listen] %>
-var currentSources = player.currentSources();
-for (var i = 0; i < currentSources.length; i++) {
-  if (player.canPlayType(currentSources[i]["type"].split(";")[0]) === "") {
-    currentSources.splice(i);
-    i--;
-  }
-}
-
-player.src(currentSources);
-<% end %>
-
 player.volume(<%= params[:volume].to_f / 100 %>);
 player.playbackRate(<%= params[:speed] %>);
 </script>
