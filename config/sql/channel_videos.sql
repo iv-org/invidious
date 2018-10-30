@@ -10,7 +10,7 @@ CREATE TABLE public.channel_videos
     updated timestamp with time zone,
     ucid text COLLATE pg_catalog."default",
     author text COLLATE pg_catalog."default",
-    length_seconds integer COLLATE pg_catalog."default",
+    length_seconds integer,
     CONSTRAINT channel_videos_id_key UNIQUE (id)
 )
 WITH (
