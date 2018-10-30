@@ -8,18 +8,17 @@ end
 
 class ChannelVideo
   add_mapping({
-    id:        String,
-    title:     String,
-    published: Time,
-    updated:   Time,
-    ucid:      String,
-    author:    String,
+    id:             String,
+    title:          String,
+    published:      Time,
+    updated:        Time,
+    ucid:           String,
+    author:         String,
+    length_seconds: {
+      type:    Int32,
+      default: 0,
+    },
   })
-
-  # TODO: Add length_seconds to channel_video
-  def length_seconds
-    return 0
-  end
 end
 
 def get_channel(id, client, db, refresh = true, pull_all_videos = true)
@@ -36,8 +35,10 @@ def get_channel(id, client, db, refresh = true, pull_all_videos = true)
     end
   else
     channel = fetch_channel(id, client, db, pull_all_videos)
-    args = arg_array(channel.to_a)
-    db.exec("INSERT INTO channels VALUES (#{args})", channel.to_a)
+    channel_array = channel.to_a
+    args = arg_array(channel_array)
+
+    db.exec("INSERT INTO channels VALUES (#{args})", channel_array)
   end
 
   return channel
@@ -61,6 +62,25 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
   end
 
   if !pull_all_videos
+    url = produce_channel_videos_url(ucid, 1, auto_generated: auto_generated)
+    response = client.get(url)
+    json = JSON.parse(response.body)
+
+    if json["content_html"]? && !json["content_html"].as_s.empty?
+      document = XML.parse_html(json["content_html"].as_s)
+      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+      if auto_generated
+        videos = extract_videos(nodeset)
+      else
+        videos = extract_videos(nodeset, ucid)
+        videos.each { |video| video.ucid = ucid }
+        videos.each { |video| video.author = author }
+      end
+    end
+
+    videos ||= [] of ChannelVideo
+
     rss.xpath_nodes("//feed/entry").each do |entry|
       video_id = entry.xpath_node("videoid").not_nil!.content
       title = entry.xpath_node("title").not_nil!.content
@@ -69,16 +89,28 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
       author = entry.xpath_node("author/name").not_nil!.content
       ucid = entry.xpath_node("channelid").not_nil!.content
 
-      video = ChannelVideo.new(video_id, title, published, Time.now, ucid, author)
+      length_seconds = videos.select { |video| video.id == video_id }[0]?.try &.length_seconds
+      length_seconds ||= 0
+
+      video = ChannelVideo.new(video_id, title, published, Time.now, ucid, author, length_seconds)
 
       db.exec("UPDATE users SET notifications = notifications || $1 \
         WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, ucid)
 
-      video_array = video.to_a
+      # Migration point
+      video_array = video.to_a[0..-2]
+      # video_array = video.to_a
+
       args = arg_array(video_array)
+
+      # Migration point
       db.exec("INSERT INTO channel_videos VALUES (#{args}) \
         ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
         updated = $4, ucid = $5, author = $6", video_array)
+
+      # db.exec("INSERT INTO channel_videos VALUES (#{args}) \
+      # ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
+      # updated = $4, ucid = $5, author = $6, length_seconds = $7", video_array)
     end
   else
     page = 1
@@ -105,7 +137,7 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
       end
 
       count = nodeset.size
-      videos = videos.map { |video| ChannelVideo.new(video.id, video.title, video.published, Time.now, video.ucid, video.author) }
+      videos = videos.map { |video| ChannelVideo.new(video.id, video.title, video.published, Time.now, video.ucid, video.author, video.length_seconds) }
 
       videos.each do |video|
         ids << video.id
@@ -115,10 +147,18 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
           db.exec("UPDATE users SET notifications = notifications || $1 \
           WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
 
-          video_array = video.to_a
+          # Migration point
+          video_array = video.to_a[0..-2]
+          # video_array = video.to_a
+
           args = arg_array(video_array)
+
+          # Migration point
           db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO UPDATE SET title = $2, \
           published = $3, updated = $4, ucid = $5, author = $6", video_array)
+
+          # db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO UPDATE SET title = $2, \
+          # published = $3, updated = $4, ucid = $5, author = $6, length_seconds = $7", video_array)
         end
       end
 
