@@ -70,10 +70,14 @@ class Preferences
   JSON.mapping({
     video_loop: Bool,
     autoplay:   Bool,
-    speed:      Float32,
-    quality:    String,
-    volume:     Int32,
-    comments:   {
+    listen:     {
+      type:    Bool,
+      default: false,
+    },
+    speed:    Float32,
+    quality:  String,
+    volume:   Int32,
+    comments: {
       type:      Array(String),
       default:   ["youtube", ""],
       converter: StringToArray,

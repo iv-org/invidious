@@ -24,6 +24,11 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
+                <label for="listen">Listen by default: </label>
+                <input name="listen" id="listen" type="checkbox" <% if user.preferences.listen %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
                 <label for="speed">Default speed: </label>
                 <select name="speed" id="speed">
                 <% {2.0, 1.5, 1.0, 0.5}.each do |option| %>

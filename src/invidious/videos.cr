@@ -708,6 +708,7 @@ end
 
 def process_video_params(query, preferences)
   autoplay = query["autoplay"]?.try &.to_i?
+  listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
   preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
   quality = query["quality"]?
   speed = query["speed"]?.try &.to_f?
@@ -716,6 +717,7 @@ def process_video_params(query, preferences)
 
   if preferences
     autoplay ||= preferences.autoplay.to_unsafe
+    listen ||= preferences.listen.to_unsafe
     preferred_captions ||= preferences.captions
     quality ||= preferences.quality
     speed ||= preferences.speed
@@ -724,6 +726,7 @@ def process_video_params(query, preferences)
   end
 
   autoplay ||= 0
+  listen ||= 0
   preferred_captions ||= [] of String
   quality ||= "hd720"
   speed ||= 1
@@ -731,6 +734,7 @@ def process_video_params(query, preferences)
   volume ||= 100
 
   autoplay = autoplay == 1
+  listen = listen == 1
   video_loop = video_loop == 1
 
   if query["t"]?
@@ -749,11 +753,6 @@ def process_video_params(query, preferences)
     video_end = decode_time(query["end"])
   end
   video_end ||= -1
-
-  if query["listen"]? && (query["listen"] == "true" || query["listen"] == "1")
-    listen = true
-  end
-  listen ||= false
 
   raw = query["raw"]?.try &.to_i?
   raw ||= 0

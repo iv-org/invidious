@@ -243,10 +243,7 @@ get "/watch" do |env|
   subscriptions ||= [] of String
 
   params = process_video_params(env.params.query, preferences)
-
-  if params[:listen]
-    env.params.query.delete_all("listen")
-  end
+  env.params.query.delete_all("listen")
 
   begin
     video = get_video(id, PG_DB, proxies)
@@ -880,6 +877,10 @@ post "/preferences" do |env|
     autoplay ||= "off"
     autoplay = autoplay == "on"
 
+    listen = env.params.body["listen"]?.try &.as(String)
+    listen ||= "off"
+    listen = listen == "on"
+
     speed = env.params.body["speed"]?.try &.as(String).to_f?
     speed ||= 1.0
 
@@ -935,6 +936,7 @@ post "/preferences" do |env|
     preferences = {
       "video_loop"         => video_loop,
       "autoplay"           => autoplay,
+      "listen"             => listen,
       "speed"              => speed,
       "quality"            => quality,
       "volume"             => volume,
