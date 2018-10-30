@@ -479,10 +479,7 @@ class Video
     genre_url:          String,
     license:            String,
     sub_count_text:     String,
-    author_thumbnail:   {
-      type:    String,
-      default: "",
-    },
+    author_thumbnail:   String,
   })
 end
 
