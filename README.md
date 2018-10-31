@@ -18,7 +18,7 @@
 - Set default player options (speed, quality, autoplay, loop)
 - Does not require JS to play videos
 - Support for Reddit comments in place of YT comments
-- Import/Export subscriptions, watch history, preference
+- Import/Export subscriptions, watch history, preferences
 - Does not use any of the official YouTube APIs
 
 Liberapay: https://liberapay.com/omarroth  
@@ -51,47 +51,65 @@ $ docker volume rm invidious_postgresdata
 $ docker-compose build
 ```
 
-### Installing [Crystal](https://github.com/crystal-lang/crystal):
-
-#### On Arch:
+### Arch Linux:
 
 ```bash
-$ sudo pacman -S shards crystal
-$ shards
-```
+# Install dependencies
+$ sudo pacman -S shards crystal imagemagick librsvg
 
-#### On OSX:
+# Setup PostgresSQL
+$ sudo systemctl enable postgresql
+$ sudo systemctl start postgresql
+$ sudo -i -u postgres
+$ createuser -s YOUR_USER_NAME
+$ createdb      YOUR_USER_NAME
+$ exit
 
-```bash
-$ brew update
-$ brew install shards crystal-lang
-$ shards
-```
-
-### Installing Postgres:
-
-#### On Arch:
-
-Install according to the [wiki](https://wiki.archlinux.org/index.php/PostgreSQL#Installing_PostgreSQL)
-
-#### On OSX:
-
-```bash
-$ brew install postgres
-```
-
-### Setup Postgres:
-
-```bash
+# Setup Invidious
+$ git clone https://github.com/omarroth/invidious
+$ cd invidious
 $ ./setup.sh
+$ shards
+$ crystal build src/invidious.cr --release
 ```
 
-### Installing ImageMagick (required for CAPTCHA):
-
-#### On Arch:
+### On Ubuntu:
 
 ```bash
-$ sudo pacman -S imagemagick librsvg
+# Install dependencies
+$ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
+$ sudo apt update
+$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev librsvg2-dev postgresql imagemagick
+
+# Setup PostgreSQL
+$ sudo systemctl enable postgresql
+$ sudo systemctl start postgresql
+$ sudo -i -u postgres
+$ createuser -s YOUR_USER_NAME_HERE
+$ createdb      YOUR_USER_NAME_HERE
+$ exit
+
+# Setup Invidious
+$ git clone https://github.com/omarroth/invidious
+$ cd invidious
+$ ./setup.sh
+$ shards
+$ crystal build src/invidious.cr --release
+```
+
+### On OSX:
+
+```bash
+# Install dependencies
+$ brew update
+$ brew install shards crystal-lang postgres imagemagick librsvg
+
+# Setup Invidious
+$ git clone https://github.com/omarroth/invidious
+$ cd invidious
+$ ./setup.sh
+$ shards
+$ crystal build src/invidious.cr --release
 ```
 
 ## Usage:
@@ -110,6 +128,8 @@ Usage: invidious [arguments]
                                      Number of threads for crawling (default: 1)
     -c THREADS, --channel-threads=THREADS
                                      Number of threads for refreshing channels (default: 1)
+    -f THREADS, --feed-threads=THREADS
+                                     Number of threads for refreshing feeds (default: 1)
     -v THREADS, --video-threads=THREADS
                                      Number of threads for refreshing videos (default: 1)
 ```
