@@ -3005,6 +3005,14 @@ get "/api/v1/mixes/:rdid" do |env|
 
   begin
     mix = fetch_mix(rdid, continuation)
+
+    if !rdid.ends_with? continuation
+      mix = fetch_mix(rdid, mix.videos[1].id)
+      index = mix.videos.index(mix.videos.select { |video| video.id == continuation }[0]?)
+    end
+    index ||= 0
+
+    mix.videos = mix.videos[index..-1]
   rescue ex
     error_message = {"error" => ex.message}.to_json
     halt env, status_code: 500, response: error_message
@@ -3045,6 +3053,7 @@ get "/api/v1/mixes/:rdid" do |env|
     response = JSON.parse(response)
     playlist_html = template_mix(response)
     next_video = response["videos"].as_a[1]?.try &.["videoId"]
+    next_video ||= ""
 
     response = {
       "playlistHtml" => playlist_html,
