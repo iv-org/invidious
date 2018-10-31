@@ -1,3 +1,0 @@
-User-agent: *
-Disallow: /search
-Disallow: /login
