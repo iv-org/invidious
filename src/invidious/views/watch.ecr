@@ -121,6 +121,14 @@
             </div>
             <hr>
             <div id="comments">
+                <% if nojs %>
+                    <%= comment_html %>
+                <% else %>
+                <noscript>
+                Hi! Looks like you have JavaScript disabled. Click <a href="/watch?<%= env.params.query %>&nojs=1">here</a> to view
+                comments, keep in mind it may take a bit longer to load.
+                </noscript>
+                <% end %>
             </div>
         </div>
     </div>
