@@ -263,7 +263,10 @@ class Video
   end
 
   def keywords
-    return self.player_response["videoDetails"]["keywords"].as_a
+    keywords = self.player_response["videoDetails"]["keywords"]?.try &.as_a
+    keywords ||= [] of String
+
+    return keywords
   end
 
   def fmt_stream(decrypt_function)
