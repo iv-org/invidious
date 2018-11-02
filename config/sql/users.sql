@@ -2,22 +2,28 @@
 
 -- DROP TABLE public.users;
 
-CREATE TABLE public.users 
+CREATE TABLE public.users
 (
-    id text[] COLLATE pg_catalog."default" NOT NULL,
-    updated timestamp with time zone,
-    notifications text[] COLLATE pg_catalog."default",
-    subscriptions text[] COLLATE pg_catalog."default",
-    email text COLLATE pg_catalog."default" NOT NULL,
-    preferences text COLLATE pg_catalog."default",
-    password text COLLATE pg_catalog."default",
-    token text COLLATE pg_catalog."default",
-    watched text[] COLLATE pg_catalog."default",
-    CONSTRAINT users_email_key UNIQUE (email)
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
+  id text[] NOT NULL,
+  updated timestamp with time zone,
+  notifications text[],
+  subscriptions text[],
+  email text NOT NULL,
+  preferences text,
+  password text,
+  token text,
+  watched text[],
+  CONSTRAINT users_email_key UNIQUE (email)
+);
 
 GRANT ALL ON TABLE public.users TO kemal;
+
+-- Index: public.email_unique_idx
+
+-- DROP INDEX public.email_unique_idx;
+
+CREATE UNIQUE INDEX email_unique_idx
+  ON public.users
+  USING btree
+  (lower(email) COLLATE pg_catalog."default");
+

@@ -4,40 +4,37 @@
 
 CREATE TABLE public.videos
 (
-    id text COLLATE pg_catalog."default" NOT NULL,
-    info text COLLATE pg_catalog."default",
-    updated timestamp with time zone,
-    title text COLLATE pg_catalog."default",
-    views bigint,
-    likes integer,
-    dislikes integer,
-    wilson_score double precision,
-    published timestamp with time zone,
-    description text COLLATE pg_catalog."default",
-    language text COLLATE pg_catalog."default",
-    author text COLLATE pg_catalog."default",
-    ucid text COLLATE pg_catalog."default",
-    allowed_regions text[] COLLATE pg_catalog."default",
-    is_family_friendly boolean,
-    genre text COLLATE pg_catalog."default",
-    genre_url text COLLATE pg_catalog."default",
-    license text COLLATE pg_catalog."default",
-    sub_count_text text COLLATE pg_catalog."default",
-    author_thumbnail text COLLATE pg_catalog."default",
-    CONSTRAINT videos_pkey PRIMARY KEY (id)
-)
-WITH (
-    OIDS = FALSE
-)
-TABLESPACE pg_default;
+  id text NOT NULL,
+  info text,
+  updated timestamp with time zone,
+  title text,
+  views bigint,
+  likes integer,
+  dislikes integer,
+  wilson_score double precision,
+  published timestamp with time zone,
+  description text,
+  language text,
+  author text,
+  ucid text,
+  allowed_regions text[],
+  is_family_friendly boolean,
+  genre text,
+  genre_url text,
+  license text,
+  sub_count_text text,
+  author_thumbnail text,
+  CONSTRAINT videos_pkey PRIMARY KEY (id)
+);
 
 GRANT ALL ON TABLE public.videos TO kemal;
 
--- Index: id_idx
+-- Index: public.id_idx
 
 -- DROP INDEX public.id_idx;
 
 CREATE UNIQUE INDEX id_idx
-    ON public.videos USING btree
-    (id COLLATE pg_catalog."default")
-    TABLESPACE pg_default;
+  ON public.videos
+  USING btree
+  (id COLLATE pg_catalog."default");
+
