@@ -1,7 +1,7 @@
 <% content_for "header" do %>
 <meta name="thumbnail" content="<%= thumbnail %>">
 <meta name="description" content="<%= description %>">
-<meta name="keywords" content="<%= video.info["keywords"] %>">
+<meta name="keywords" content="<%= video.keywords.join(",") %>">
 <meta property="og:site_name" content="Invidious">
 <meta property="og:url" content="<%= host_url %>/watch?v=<%= video.id %>">
 <meta property="og:title" content="<%= HTML.escape(video.title) %>">

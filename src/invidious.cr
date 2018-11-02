@@ -2087,11 +2087,7 @@ get "/api/v1/videos/:id" do |env|
       json.field "descriptionHtml", video.description
       json.field "published", video.published.epoch
       json.field "publishedText", "#{recode_date(video.published)} ago"
-      json.field "keywords" do
-        json.array do
-          video.info["keywords"].split(",").each { |keyword| json.string keyword }
-        end
-      end
+      json.field "keywords", video.keywords
 
       json.field "viewCount", video.views
       json.field "likeCount", video.likes
