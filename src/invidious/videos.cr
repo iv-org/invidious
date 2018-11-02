@@ -262,6 +262,10 @@ class Video
     end
   end
 
+  def keywords
+    return self.player_response["videoDetails"]["keywords"].as_a
+  end
+
   def fmt_stream(decrypt_function)
     streams = [] of HTTP::Params
     self.info["url_encoded_fmt_stream_map"].split(",") do |string|
@@ -638,16 +642,19 @@ def fetch_video(id, proxies)
   end
 
   title = info["title"]
-  views = info["view_count"].to_i64
   author = info["author"]
   ucid = info["ucid"]
 
+  views = html.xpath_node(%q(//meta[@itemprop="interactionCount"]))
+  views = views.try &.["content"].to_i64?
+  views ||= 0_i64
+
   likes = html.xpath_node(%q(//button[@title="I like this"]/span))
-  likes = likes.try &.content.delete(",").try &.to_i
+  likes = likes.try &.content.delete(",").try &.to_i?
   likes ||= 0
 
   dislikes = html.xpath_node(%q(//button[@title="I dislike this"]/span))
-  dislikes = dislikes.try &.content.delete(",").try &.to_i
+  dislikes = dislikes.try &.content.delete(",").try &.to_i?
   dislikes ||= 0
 
   description = html.xpath_node(%q(//p[@id="eow-description"]))
