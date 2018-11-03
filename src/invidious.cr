@@ -803,6 +803,17 @@ post "/login" do |env|
       next templated "error"
     end
 
+    if password.empty?
+      error_message = "Password cannot be empty"
+      next templated "error"
+    end
+
+    # See https://security.stackexchange.com/a/39851
+    if password.size > 55
+      error_message = "Password cannot be longer than 55 characters"
+      next templated "error"
+    end
+
     if !challenge_response || !token
       error_message = "CAPTCHA is a required field"
       next templated "error"
