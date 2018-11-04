@@ -26,7 +26,7 @@ def fetch_mix(rdid, video_id, cookies = nil)
   if cookies
     headers = cookies.add_request_headers(headers)
   end
-  response = client.get("/watch?v=#{video_id}&list=#{rdid}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en", headers)
+  response = client.get("/watch?v=#{video_id}&list=#{rdid}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en", headers)
 
   yt_data = response.body.match(/window\["ytInitialData"\] = (?<data>.*);/)
   if yt_data

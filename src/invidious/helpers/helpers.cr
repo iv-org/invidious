@@ -236,7 +236,7 @@ def extract_items(nodeset, ucid = nil)
       rescue ex
       end
       begin
-        published ||= Time.epoch(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
+        published ||= Time.unix(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
       rescue ex
       end
       published ||= Time.now
