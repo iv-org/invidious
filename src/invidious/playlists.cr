@@ -30,7 +30,7 @@ def fetch_playlist_videos(plid, page, video_count, continuation = nil)
   client = make_client(YT_URL)
 
   if continuation
-    html = client.get("/watch?v=#{continuation}&list=#{plid}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
+    html = client.get("/watch?v=#{continuation}&list=#{plid}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1")
     html = XML.parse_html(html.body)
 
     index = html.xpath_node(%q(//span[@id="playlist-current-index"])).try &.content.to_i?
@@ -167,11 +167,10 @@ def fetch_playlist(plid)
     raise "Invalid playlist."
   end
 
-  body = response.body.gsub(<<-END_BUTTON
+  body = response.body.gsub(%(
   <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-link yt-uix-expander-head playlist-description-expander yt-uix-inlineedit-ignore-edit" type="button" onclick=";return false;"><span class="yt-uix-button-content">  less <img alt="" src="/yts/img/pixel-vfl3z5WfW.gif">
   </span></button>
-  END_BUTTON
-  , "")
+  ), "")
   document = XML.parse_html(body)
 
   title = document.xpath_node(%q(//h1[@class="pl-header-title"]))

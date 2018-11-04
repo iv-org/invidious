@@ -319,7 +319,7 @@ class Video
           clen = url.match(/clen\/(?<clen>\d+)/).try &.["clen"]
           clen ||= "0"
           lmt = url.match(/lmt\/(?<lmt>\d+)/).try &.["lmt"]
-          lmt ||= "#{((Time.now + 1.hour).epoch_f.to_f64 * 1000000).to_i64}"
+          lmt ||= "#{((Time.now + 1.hour).to_unix_f.to_f64 * 1000000).to_i64}"
 
           segment_list = representation.xpath_node(%q(.//segmentlist)).not_nil!
           init = segment_list.xpath_node(%q(.//initialization))
@@ -546,7 +546,7 @@ def fetch_video(id, proxies)
 
   spawn do
     client = make_client(YT_URL)
-    html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
+    html = client.get("/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1")
 
     if md = html.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
       next html_channel.send(md["id"])
@@ -620,7 +620,7 @@ def fetch_video(id, proxies)
           client.connect_timeout = 10.seconds
           client.set_proxy(proxy)
 
-          html = XML.parse_html(client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1").body)
+          html = XML.parse_html(client.get("/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1").body)
           info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
 
           if info["reason"]?

@@ -8,11 +8,11 @@ end
 class RedditComment
   module TimeConverter
     def self.from_json(value : JSON::PullParser) : Time
-      Time.epoch(value.read_float.to_i)
+      Time.unix(value.read_float.to_i)
     end
 
     def self.to_json(value : Time, json : JSON::Builder)
-      json.number(value.epoch)
+      json.number(value.to_unix)
     end
   end
 
@@ -58,7 +58,7 @@ end
 
 def fetch_youtube_comments(id, continuation, proxies, format)
   client = make_client(YT_URL)
-  html = client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
+  html = client.get("/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1")
   headers = HTTP::Headers.new
   headers["cookie"] = html.cookies.add_request_headers(headers)["cookie"]
   body = html.body
@@ -83,7 +83,7 @@ def fetch_youtube_comments(id, continuation, proxies, format)
             proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
             proxy_client.set_proxy(proxy)
 
-            response = proxy_client.get("/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1")
+            response = proxy_client.get("/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1")
             proxy_headers = HTTP::Headers.new
             proxy_headers["cookie"] = response.cookies.add_request_headers(headers)["cookie"]
             proxy_html = response.body
@@ -140,8 +140,8 @@ def fetch_youtube_comments(id, continuation, proxies, format)
   headers["content-type"] = "application/x-www-form-urlencoded"
 
   headers["x-client-data"] = "CIi2yQEIpbbJAQipncoBCNedygEIqKPKAQ=="
-  headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1"
-  headers["x-spf-referer"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.epoch + 2000}&gl=US&hl=en&disable_polymer=1"
+  headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1"
+  headers["x-spf-referer"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1"
 
   headers["x-youtube-client-name"] = "1"
   headers["x-youtube-client-version"] = "2.20180719"
@@ -229,7 +229,7 @@ def fetch_youtube_comments(id, continuation, proxies, format)
 
               json.field "content", content
               json.field "contentHtml", content_html
-              json.field "published", published.epoch
+              json.field "published", published.to_unix
               json.field "publishedText", "#{recode_date(published)} ago"
               json.field "likeCount", node_comment["likeCount"]
               json.field "commentId", node_comment["commentId"]
@@ -327,7 +327,7 @@ def template_youtube_comments(comments)
             <a href="#{child["authorUrl"]}">#{child["author"]}</a>
           </b> 
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
-          #{recode_date(Time.epoch(child["published"].as_i64))} ago
+          #{recode_date(Time.unix(child["published"].as_i64))} ago
           | 
           <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])} 
         </p>

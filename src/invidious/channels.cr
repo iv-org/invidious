@@ -165,14 +165,14 @@ end
 
 def produce_channel_videos_url(ucid, page = 1, auto_generated = nil)
   if auto_generated
-    seed = Time.epoch(1525757349)
+    seed = Time.unix(1525757349)
 
     until seed >= Time.now
       seed += 1.month
     end
     timestamp = seed - (page - 1).months
 
-    page = "#{timestamp.epoch}"
+    page = "#{timestamp.to_unix}"
     switch = "\x36"
   else
     page = "#{page}"

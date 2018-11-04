@@ -2096,7 +2096,7 @@ get "/api/v1/videos/:id" do |env|
 
       json.field "description", description
       json.field "descriptionHtml", video.description
-      json.field "published", video.published.epoch
+      json.field "published", video.published.to_unix
       json.field "publishedText", "#{recode_date(video.published)} ago"
       json.field "keywords", video.keywords
 
@@ -2290,7 +2290,7 @@ get "/api/v1/trending" do |env|
           json.field "authorId", video.ucid
           json.field "authorUrl", "/channel/#{video.ucid}"
 
-          json.field "published", video.published.epoch
+          json.field "published", video.published.to_unix
           json.field "publishedText", "#{recode_date(video.published)} ago"
           json.field "description", video.description
           json.field "descriptionHtml", video.description_html
@@ -2320,7 +2320,7 @@ get "/api/v1/top" do |env|
           json.field "author", video.author
           json.field "authorId", video.ucid
           json.field "authorUrl", "/channel/#{video.ucid}"
-          json.field "published", video.published.epoch
+          json.field "published", video.published.to_unix
           json.field "publishedText", "#{recode_date(video.published)} ago"
 
           description = video.description.gsub("<br>", "\n")
@@ -2370,7 +2370,7 @@ get "/api/v1/channels/:ucid" do |env|
 
   total_views = 0_i64
   sub_count = 0_i64
-  joined = Time.epoch(0)
+  joined = Time.unix(0)
   metadata = channel_html.xpath_nodes(%q(//span[@class="about-stat"]))
   metadata.each do |item|
     case item.content
@@ -2426,7 +2426,7 @@ get "/api/v1/channels/:ucid" do |env|
 
       json.field "subCount", sub_count
       json.field "totalViews", total_views
-      json.field "joined", joined.epoch
+      json.field "joined", joined.to_unix
       json.field "paid", paid
 
       json.field "isFamilyFriendly", is_family_friendly
@@ -2460,7 +2460,7 @@ get "/api/v1/channels/:ucid" do |env|
               json.field "descriptionHtml", video.description_html
 
               json.field "viewCount", video.views
-              json.field "published", video.published.epoch
+              json.field "published", video.published.to_unix
               json.field "publishedText", "#{recode_date(video.published)} ago"
               json.field "lengthSeconds", video.length_seconds
               json.field "paid", video.paid
@@ -2517,7 +2517,7 @@ end
             json.field "descriptionHtml", video.description_html
 
             json.field "viewCount", video.views
-            json.field "published", video.published.epoch
+            json.field "published", video.published.to_unix
             json.field "publishedText", "#{recode_date(video.published)} ago"
             json.field "lengthSeconds", video.length_seconds
             json.field "paid", video.paid
@@ -2565,7 +2565,7 @@ get "/api/v1/channels/search/:ucid" do |env|
             json.field "descriptionHtml", item.description_html
 
             json.field "viewCount", item.views
-            json.field "published", item.published.epoch
+            json.field "published", item.published.to_unix
             json.field "publishedText", "#{recode_date(item.published)} ago"
             json.field "lengthSeconds", item.length_seconds
             json.field "liveNow", item.live_now
@@ -2688,7 +2688,7 @@ get "/api/v1/search" do |env|
             json.field "descriptionHtml", item.description_html
 
             json.field "viewCount", item.views
-            json.field "published", item.published.epoch
+            json.field "published", item.published.to_unix
             json.field "publishedText", "#{recode_date(item.published)} ago"
             json.field "lengthSeconds", item.length_seconds
             json.field "liveNow", item.live_now
@@ -2809,7 +2809,7 @@ get "/api/v1/playlists/:plid" do |env|
       json.field "videoCount", playlist.video_count
 
       json.field "viewCount", playlist.views
-      json.field "updated", playlist.updated.epoch
+      json.field "updated", playlist.updated.to_unix
 
       json.field "videos" do
         json.array do
