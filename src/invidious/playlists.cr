@@ -187,7 +187,7 @@ def fetch_playlist(plid)
   author = anchor.xpath_node(%q(.//li[1]/a)).not_nil!.content
   author_thumbnail = document.xpath_node(%q(//img[@class="channel-header-profile-image"])).try &.["src"]
   author_thumbnail ||= ""
-  ucid = anchor.xpath_node(%q(.//li[1]/a)).not_nil!["href"].split("/")[2]
+  ucid = anchor.xpath_node(%q(.//li[1]/a)).not_nil!["href"].split("/")[-1]
 
   video_count = anchor.xpath_node(%q(.//li[2])).not_nil!.content.delete("videos, ").to_i
   views = anchor.xpath_node(%q(.//li[3])).not_nil!.content.delete("No views, ")
