@@ -212,7 +212,7 @@ get "/watch" do |env|
     next env.redirect url
   end
 
-  if env.params.query["v"]?
+  if env.params.query["v"]? && !env.params.query["v"].empty?
     id = env.params.query["v"]
 
     if id.size > 11
