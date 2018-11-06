@@ -212,8 +212,13 @@ get "/watch" do |env|
     next env.redirect url
   end
 
-  if env.params.query["v"]? && !env.params.query["v"].empty?
+  if env.params.query["v"]?
     id = env.params.query["v"]
+
+    if env.params.query["v"].empty?
+      error_message = "Invalid parameters."
+      next templated "error"
+    end
 
     if id.size > 11
       url = "/watch?v=#{id[0, 11]}"
