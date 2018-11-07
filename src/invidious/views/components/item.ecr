@@ -24,7 +24,6 @@
             <% else %>
             <div class="thumbnail">
                 <img class="thumbnail" src="/vi/<%= item.videos[0]?.try &.id %>/mqdefault.jpg"/>
-                <p class="length"><%= recode_length_seconds(item.videos[0]?.try &.length_seconds || 0) %></p>
             </div>
             <% end %>
             <p><%= item.title %></p>
