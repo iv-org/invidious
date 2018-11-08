@@ -275,6 +275,28 @@ function get_playlist() {
 get_playlist();
 <% end %>
 
+<% if params[:autoplay] %>
+var bpb = player.getChild('bigPlayButton');
+
+if (bpb) {
+  bpb.hide();
+  
+  player.ready(function() {
+    var promise = player.play();
+
+    if (promise === undefined) {
+      bpb.show();
+    } else {
+      promise.then(function() {
+        bpb.show();
+      }, function() {
+        bpb.show();
+      });
+    }
+  });
+}
+<% end %>
+
 function get_reddit_comments() {
   comments = document.getElementById("comments");
   var fallback = comments.innerHTML;
