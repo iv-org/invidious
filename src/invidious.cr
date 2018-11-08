@@ -896,6 +896,7 @@ post "/login" do |env|
   end
 end
 
+# TODO: Update this with using the same method for /clear_watch_history to prevent CSRF
 get "/signout" do |env|
   referer = get_referer(env)
 
@@ -910,7 +911,7 @@ get "/signout" do |env|
   end
 
   env.request.cookies.add_response_headers(env.response.headers)
-  env.redirect URI.unescape(referer)
+  env.redirect referer
 end
 
 get "/preferences" do |env|
@@ -1402,13 +1403,82 @@ get "/subscription_ajax" do |env|
   env.redirect referer
 end
 
-get "/clear_watch_history" do |env|
+get "/delete_account" do |env|
   user = env.get? "user"
-
   referer = get_referer(env)
 
   if user
     user = user.as(User)
+
+    challenge, token = create_response(user.email, "delete_account", HMAC_KEY)
+
+    templated "delete_account"
+  else
+    env.redirect referer
+  end
+end
+
+post "/delete_account" do |env|
+  user = env.get? "user"
+  referer = get_referer(env)
+
+  if user
+    user = user.as(User)
+
+    challenge = env.params.body["challenge"]?
+    token = env.params.body["token"]?
+
+    begin
+      validate_response(challenge, token, "delete_account", HMAC_KEY)
+    rescue ex
+      error_message = ex.message
+      next templated "error"
+    end
+
+    view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+    PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
+    PG_DB.exec("DELETE FROM users * WHERE email = $1", user.email)
+
+    env.request.cookies.each do |cookie|
+      cookie.expires = Time.new(1990, 1, 1)
+    end
+    env.request.cookies.add_response_headers(env.response.headers)
+  end
+
+  env.redirect referer
+end
+
+get "/clear_watch_history" do |env|
+  user = env.get? "user"
+  referer = get_referer(env)
+
+  if user
+    user = user.as(User)
+
+    challenge, token = create_response(user.email, "clear_watch_history", HMAC_KEY)
+
+    templated "clear_watch_history"
+  else
+    env.redirect referer
+  end
+end
+
+post "/clear_watch_history" do |env|
+  user = env.get? "user"
+  referer = get_referer(env)
+
+  if user
+    user = user.as(User)
+
+    challenge = env.params.body["challenge"]?
+    token = env.params.body["token"]?
+
+    begin
+      validate_response(challenge, token, "clear_watch_history", HMAC_KEY)
+    rescue ex
+      error_message = ex.message
+      next templated "error"
+    end
 
     PG_DB.exec("UPDATE users SET watched = '{}' WHERE email = $1", user.email)
   end
