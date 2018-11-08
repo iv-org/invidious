@@ -128,6 +128,15 @@ if CONFIG.geo_bypass
 end
 
 before_all do |env|
+  if CONFIG.domains && env.request.headers["Origin"]?
+    origin = env.request.headers["Origin"]
+    domains = CONFIG.domains.not_nil!
+
+    if !domains.includes? origin
+      halt env, status_code: 403
+    end
+  end
+
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
 
