@@ -1212,7 +1212,7 @@ post "/data_control" do |env|
       case part.name
       when "import_invidious"
         body = JSON.parse(body)
-        body["subscriptions"].as_a.each do |ucid|
+        body["subscriptions"]?.try &.as_a.each do |ucid|
           ucid = ucid.as_s
 
           if !user.subscriptions.includes? ucid
@@ -1228,7 +1228,7 @@ post "/data_control" do |env|
           end
         end
 
-        body["watch_history"].as_a.each do |id|
+        body["watch_history"]?.try &.as_a.each do |id|
           id = id.as_s
 
           if !user.watched.includes? id
@@ -1237,7 +1237,9 @@ post "/data_control" do |env|
           end
         end
 
+        if body["preferences"]?
         PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", body["preferences"].to_json, user.email)
+        end
       when "import_youtube"
         subscriptions = XML.parse(body)
         subscriptions.xpath_nodes(%q(//outline[@type="rss"])).each do |channel|
