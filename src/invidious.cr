@@ -1228,17 +1228,14 @@ post "/data_control" do |env|
           end
         end
 
-        body["watch_history"]?.try &.as_a.each do |id|
-          id = id.as_s
-
-          if !user.watched.includes? id
-            PG_DB.exec("UPDATE users SET watched = array_append(watched,$1) WHERE email = $2", id, user.email)
-            user.watched << id
-          end
+        if body["watch_history"]?
+          watched = user.watched + body["watch_history"].as_a.map { |a| a.as_s }
+          watched.uniq!
+          PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", watched, user.email)
         end
 
         if body["preferences"]?
-        PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", body["preferences"].to_json, user.email)
+          PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", body["preferences"].to_json, user.email)
         end
       when "import_youtube"
         subscriptions = XML.parse(body)
