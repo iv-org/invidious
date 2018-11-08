@@ -142,6 +142,11 @@ before_all do |env|
       user = PG_DB.query_one?("SELECT * FROM users WHERE $1 = ANY(id)", sid, as: User)
 
       if user
+        challenge, token = create_response(user.email, "sign_out", HMAC_KEY, 1.week)
+
+        env.set "challenge", challenge
+        env.set "token", token
+
         env.set "user", user
         env.set "sid", sid
       end
@@ -896,21 +901,34 @@ post "/login" do |env|
   end
 end
 
-# TODO: Update this with using the same method for /clear_watch_history to prevent CSRF
 get "/signout" do |env|
+  user = env.get? "user"
   referer = get_referer(env)
 
-  env.request.cookies.each do |cookie|
-    cookie.expires = Time.new(1990, 1, 1)
+  if user
+    user = user.as(User)
+
+    challenge = env.params.query["challenge"]?
+    token = env.params.query["token"]?
+
+    begin
+      validate_response(challenge, token, user.email, "sign_out", HMAC_KEY)
+    rescue ex
+      error_message = ex.message
+      next templated "error"
   end
 
-  if env.get? "user"
     user = env.get("user").as(User)
     sid = env.get("sid").as(String)
     PG_DB.exec("UPDATE users SET id = array_remove(id, $1) WHERE email = $2", sid, user.email)
+
+    env.request.cookies.each do |cookie|
+      cookie.expires = Time.new(1990, 1, 1)
   end
 
   env.request.cookies.add_response_headers(env.response.headers)
+  end
+
   env.redirect referer
 end
 

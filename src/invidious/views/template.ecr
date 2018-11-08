@@ -67,7 +67,7 @@
           </a>
         </div>
         <div class="pure-u-1-4">
-          <a href="/signout?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">Sign out</a>
+          <a href="/signout?referer=<%= env.get?("current_page") %>&token=<%= env.get?("token") %>&challenge=<%= env.get?("challenge") %>" class="pure-menu-heading">Sign out</a>
         </div>
         <% else %>
           <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">Login</a>

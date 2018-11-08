@@ -390,9 +390,9 @@ def extract_items(nodeset, ucid = nil)
   return items
 end
 
-def create_response(user_id, operation, key)
+def create_response(user_id, operation, key, expire = 6.hours)
+  expire = Time.now + expire
   nonce = Random::Secure.hex(4)
-  expire = Time.now + 6.hours
 
   challenge = "#{expire.to_unix}-#{nonce}-#{user_id}-#{operation}"
   token = OpenSSL::HMAC.digest(:sha256, key, challenge)
