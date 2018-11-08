@@ -1429,7 +1429,7 @@ post "/delete_account" do |env|
     token = env.params.body["token"]?
 
     begin
-      validate_response(challenge, token, "delete_account", HMAC_KEY)
+      validate_response(challenge, token, user.email, "delete_account", HMAC_KEY)
     rescue ex
       error_message = ex.message
       next templated "error"
@@ -1474,7 +1474,7 @@ post "/clear_watch_history" do |env|
     token = env.params.body["token"]?
 
     begin
-      validate_response(challenge, token, "clear_watch_history", HMAC_KEY)
+      validate_response(challenge, token, user.email, "clear_watch_history", HMAC_KEY)
     rescue ex
       error_message = ex.message
       next templated "error"

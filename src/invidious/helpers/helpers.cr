@@ -403,7 +403,7 @@ def create_response(user_id, operation, key)
   return challenge, token
 end
 
-def validate_response(challenge, token, action, key)
+def validate_response(challenge, token, user_id, operation, key)
   if !challenge
     raise "Hidden field \"challenge\" is a required field"
   end
@@ -414,7 +414,7 @@ def validate_response(challenge, token, action, key)
 
   challenge = Base64.decode_string(challenge)
   if challenge.split("-").size == 4
-    expire, nonce, user_id, operation = challenge.split("-")
+    expire, nonce, challenge_user_id, challenge_operation = challenge.split("-")
 
     expire = expire.to_i?
     expire ||= 0
@@ -429,7 +429,11 @@ def validate_response(challenge, token, action, key)
     raise "Invalid token"
   end
 
-  if operation != action
+  if challenge_operation != operation
+    raise "Invalid token"
+  end
+
+  if challenge_user_id != user_id
     raise "Invalid token"
   end
 
