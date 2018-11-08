@@ -2595,6 +2595,7 @@ end
             json.field "published", video.published.to_unix
             json.field "publishedText", "#{recode_date(video.published)} ago"
             json.field "lengthSeconds", video.length_seconds
+            json.field "liveNow", video.live_now
             json.field "paid", video.paid
             json.field "premium", video.premium
           end
