@@ -2424,7 +2424,12 @@ get "/api/v1/channels/:ucid" do |env|
   end
 
   page = 1
-  videos, count = get_60_videos(ucid, page, auto_generated)
+  begin
+    videos, count = get_60_videos(ucid, page, auto_generated)
+  rescue ex
+    error_message = {"error" => ex.message}.to_json
+    halt env, status_code: 500, response: error_message
+  end
 
   client = make_client(YT_URL)
   channel_html = client.get("/channel/#{ucid}/about?disable_polymer=1").body
@@ -2565,7 +2570,12 @@ end
       halt env, status_code: 500, response: error_message
     end
 
-    videos, count = get_60_videos(ucid, page, auto_generated)
+    begin
+      videos, count = get_60_videos(ucid, page, auto_generated)
+    rescue ex
+      error_message = {"error" => ex.message}.to_json
+      halt env, status_code: 500, response: error_message
+    end
 
     result = JSON.build do |json|
       json.array do
