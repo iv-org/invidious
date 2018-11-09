@@ -699,7 +699,7 @@ def fetch_video(id, proxies)
     sub_count_text = "0"
   end
 
-  author_thumbnail = html.xpath_node(%(//img[@alt="#{author}"]))
+  author_thumbnail = html.xpath_node(%(//span[@class="yt-thumb-clip"]/img))
   if author_thumbnail
     author_thumbnail = author_thumbnail["data-thumb"]
   else
