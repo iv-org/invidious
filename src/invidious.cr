@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require "crypto/bcrypt/password"
 require "detect_language"
 require "digest/md5"
 require "kemal"
@@ -109,6 +108,13 @@ top_videos = [] of Video
 spawn do
   pull_top_videos(CONFIG, PG_DB) do |videos|
     top_videos = videos
+  end
+end
+
+popular_videos = [] of ChannelVideo
+spawn do
+  pull_popular_videos(PG_DB) do |videos|
+    popular_videos = videos
   end
 end
 
