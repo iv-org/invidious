@@ -1230,83 +1230,85 @@ post "/data_control" do |env|
       case part.name
       when "import_invidious"
         body = JSON.parse(body)
-        body["subscriptions"]?.try &.as_a.each do |ucid|
-          ucid = ucid.as_s
 
-          if !user.subscriptions.includes? ucid
+        if body["subscriptions"]?
+          user.subscriptions += body["subscriptions"].as_a.map { |a| a.as_s }
+          user.subscriptions.uniq!
+
+          user.subscriptions.each do |ucid|
             begin
               client = make_client(YT_URL)
               get_channel(ucid, client, PG_DB, false, false)
-
-              PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
-              user.subscriptions << ucid
             rescue ex
               next
             end
           end
+
+          PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
         end
 
         if body["watch_history"]?
-          watched = user.watched + body["watch_history"].as_a.map { |a| a.as_s }
-          watched.uniq!
-          PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", watched, user.email)
+          user.watched += body["watch_history"].as_a.map { |a| a.as_s }
+          user.watched.uniq!
+          PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", user.watched, user.email)
         end
 
         if body["preferences"]?
-          PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", body["preferences"].to_json, user.email)
+          user.preferences = Preferences.from_json(body["preferences"].to_json)
+          PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", user.preferences.to_json, user.email)
         end
       when "import_youtube"
         subscriptions = XML.parse(body)
-        subscriptions.xpath_nodes(%q(//outline[@type="rss"])).each do |channel|
-          ucid = channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
+        user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
+          channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
+        end
+        user.subscriptions.uniq!
 
-          if !user.subscriptions.includes? ucid
-            begin
-              client = make_client(YT_URL)
-              get_channel(ucid, client, PG_DB, false, false)
-
-              PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
-              user.subscriptions << ucid
-            rescue ex
-              next
-            end
+        user.subscriptions.each do |ucid|
+          begin
+            client = make_client(YT_URL)
+            get_channel(ucid, client, PG_DB, false, false)
+          rescue ex
+            next
           end
         end
+
+        PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_freetube"
-        body.scan(/"channelId":"(?<channel_id>[a-zA-Z0-9_-]{24})"/).each do |md|
-          ucid = md["channel_id"]
+        user.subscriptions += body.scan(/"channelId":"(?<channel_id>[a-zA-Z0-9_-]{24})"/).map do |md|
+          md["channel_id"]
+        end
+        user.subscriptions.uniq!
 
-          if !user.subscriptions.includes? ucid
-            begin
-              client = make_client(YT_URL)
-              get_channel(ucid, client, PG_DB, false, false)
-
-              PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
-              user.subscriptions << ucid
-            rescue ex
-              next
-            end
+        user.subscriptions.each do |ucid|
+          begin
+            client = make_client(YT_URL)
+            get_channel(ucid, client, PG_DB, false, false)
+          rescue ex
+            next
           end
         end
+
+        PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe_subscriptions"
         body = JSON.parse(body)
-        body["subscriptions"].as_a.each do |channel|
-          ucid = channel["url"].as_s.match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
+        user.subscriptions += body["subscriptions"].as_a.map do |channel|
+          channel["url"].as_s.match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
+        end
+        user.subscriptions.uniq!
 
-          if !user.subscriptions.includes? ucid
-            begin
-              client = make_client(YT_URL)
-              get_channel(ucid, client, PG_DB, false, false)
-
-              PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
-              user.subscriptions << ucid
-            rescue ex
-              next
-            end
+        user.subscriptions.each do |ucid|
+          begin
+            client = make_client(YT_URL)
+            get_channel(ucid, client, PG_DB, false, false)
+          rescue ex
+            next
           end
         end
+
+        PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe"
-        Zip::Reader.open(body) do |file|
+        Zip::Reader.open(IO::Memory.new(body)) do |file|
           file.each_entry do |entry|
             if entry.filename == "newpipe.db"
               # We do this because the SQLite driver cannot parse a database from an IO
@@ -1314,30 +1316,29 @@ post "/data_control" do |env|
               # video URLs can **only** be watch history, so this works okay for now.
 
               db = entry.io.gets_to_end
-              db.scan(/youtube\.com\/watch\?v\=(?<id>[a-zA-Z0-9_-]{11})/) do |md|
-                id = md["id"]
 
-                if !user.watched.includes? id
-                  PG_DB.exec("UPDATE users SET watched = array_append(watched,$1) WHERE email = $2", id, user.email)
-                  user.watched << id
+              user.watched += db.scan(/youtube\.com\/watch\?v\=(?<id>[a-zA-Z0-9_-]{11})/).map do |md|
+                md["id"]
+              end
+              user.watched.uniq!
+
+              PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", user.watched, user.email)
+
+              user.subscriptions += db.scan(/youtube\.com\/channel\/(?<ucid>[a-zA-Z0-9_-]{22})/).map do |md|
+                md["ucid"]
+              end
+              user.subscriptions.uniq!
+
+              user.subscriptions.each do |ucid|
+                begin
+                  client = make_client(YT_URL)
+                  get_channel(ucid, client, PG_DB, false, false)
+                rescue ex
+                  next
                 end
               end
 
-              db.scan(/youtube\.com\/channel\/(?<ucid>[a-zA-Z0-9_-]{22})/) do |md|
-                ucid = md["ucid"]
-
-                if !user.subscriptions.includes? ucid
-                  begin
-                    client = make_client(YT_URL)
-                    get_channel(ucid, client, PG_DB, false, false)
-
-                    PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
-                    user.subscriptions << ucid
-                  rescue ex
-                    next
-                  end
-                end
-              end
+              PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
             end
           end
         end
@@ -1624,6 +1625,20 @@ get "/feed/subscriptions" do |env|
     env.set "user", user
 
     templated "subscriptions"
+  else
+    env.redirect referer
+  end
+end
+
+get "/feed/history" do |env|
+  user = env.get? "user"
+  referer = get_referer(env)
+
+  if user
+    user = user.as(User)
+    watched = user.watched.reverse
+
+    templated "history"
   else
     env.redirect referer
   end
