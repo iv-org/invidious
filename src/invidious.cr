@@ -916,7 +916,7 @@ get "/signout" do |env|
     rescue ex
       error_message = ex.message
       next templated "error"
-  end
+    end
 
     user = env.get("user").as(User)
     sid = env.get("sid").as(String)
@@ -924,9 +924,9 @@ get "/signout" do |env|
 
     env.request.cookies.each do |cookie|
       cookie.expires = Time.new(1990, 1, 1)
-  end
+    end
 
-  env.request.cookies.add_response_headers(env.response.headers)
+    env.request.cookies.add_response_headers(env.response.headers)
   end
 
   env.redirect referer
