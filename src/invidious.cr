@@ -188,6 +188,10 @@ get "/" do |env|
   templated "index"
 end
 
+get "/licenses" do |env|
+  rendered "licenses"
+end
+
 # Videos
 
 get "/:id" do |env|
