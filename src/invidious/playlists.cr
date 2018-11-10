@@ -30,7 +30,7 @@ def fetch_playlist_videos(plid, page, video_count, continuation = nil)
   client = make_client(YT_URL)
 
   if continuation
-    html = client.get("/watch?v=#{continuation}&list=#{plid}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1")
+    html = client.get("/watch?v=#{continuation}&list=#{plid}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
     html = XML.parse_html(html.body)
 
     index = html.xpath_node(%q(//span[@id="playlist-current-index"])).try &.content.to_i?
