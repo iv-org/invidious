@@ -2041,26 +2041,7 @@ get "/api/v1/comments/:id" do |env|
       halt env, status_code: 500, response: error_message
     end
 
-    if format == "json"
-      next comments
-    else
-      comments = JSON.parse(comments)
-      content_html = template_youtube_comments(comments)
-
-      response = JSON.build do |json|
-        json.object do
-          json.field "contentHtml", content_html
-
-          if comments["commentCount"]?
-            json.field "commentCount", comments["commentCount"]
-          else
-            json.field "commentCount", 0
-          end
-        end
-      end
-
-      next response
-    end
+    next comments
   elsif source == "reddit"
     begin
       comments, reddit_thread = fetch_reddit_comments(id)

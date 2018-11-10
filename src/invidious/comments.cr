@@ -264,6 +264,23 @@ def fetch_youtube_comments(id, continuation, proxies, format)
     end
   end
 
+  if format == "html"
+    comments = JSON.parse(comments)
+    content_html = template_youtube_comments(comments)
+
+    comments = JSON.build do |json|
+      json.object do
+        json.field "contentHtml", content_html
+
+        if comments["commentCount"]?
+          json.field "commentCount", comments["commentCount"]
+        else
+          json.field "commentCount", 0
+        end
+      end
+    end
+  end
+
   return comments
 end
 
