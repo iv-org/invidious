@@ -1630,19 +1630,19 @@ get "/feed/subscriptions" do |env|
   end
 end
 
-get "/feed/history" do |env|
-  user = env.get? "user"
-  referer = get_referer(env)
+# get "/feed/history" do |env|
+#   user = env.get? "user"
+#   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
-    watched = user.watched.reverse
+#   if user
+#     user = user.as(User)
+#     watched = user.watched.reverse
 
-    templated "history"
-  else
-    env.redirect referer
-  end
-end
+#     templated "history"
+#   else
+#     env.redirect referer
+#   end
+# end
 
 get "/feed/channel/:ucid" do |env|
   env.response.content_type = "text/xml"
