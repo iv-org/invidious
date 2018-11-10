@@ -1,4 +1,4 @@
-Do Not Track Compliance Policy
+Do Not Track Compliance Policy 
 
 Version 1.0
 
@@ -32,23 +32,23 @@ When this domain receives Web requests from a user who enables DNT by actively
 choosing an opt-out setting in their browser or by installing software that is
 primarily designed to protect privacy ("DNT User"), we will take the following
 measures with respect to those users' data, subject to the Exceptions, also
-listed below:
+listed below:  
 
-1. END USER IDENTIFIERS:
+1. END USER IDENTIFIERS:         
 
   a. If a DNT User has logged in to our service, all user identifiers, such as
-     unique or nearly unique cookies, "supercookies" and fingerprints are
-     discarded as soon as the HTTP(S) response is issued.
+     unique or nearly unique cookies, "supercookies" and fingerprints are 
+     discarded as soon as the HTTP(S) response is issued.                                    
 
      Data structures which associate user identifiers with accounts may be
      employed to recognize logged in users per Exception 4 below, but may not
      be associated with records of the user's activities unless otherwise
      excepted.
 
-  b. If a DNT User is not logged in to our service, we will take steps to ensure
-     that no user identifiers are transmitted to us at all.
+  b. If a DNT User is not logged in to our service, we will take steps to ensure 
+     that no user identifiers are transmitted to us at all.         
 
-2. LOG RETENTION:
+2. LOG RETENTION: 
 
   a. Logs with DNT Users' identifiers removed (but including IP addresses and
      User Agent strings) may be retained for a period of 10 days or less,
@@ -58,13 +58,13 @@ listed below:
      and performance problems; and that security and data aggregation systems
      have time to operate.
 
-  b. These logs will not be used for any other purposes.
+  b. These logs will not be used for any other purposes.         
 
-3. OTHER DOMAINS:
+3. OTHER DOMAINS: 
 
   a. If this domain transfers identifiable user data about DNT Users to
      contractors, affiliates or other parties, or embeds from or posts data to
-     other domains, we will either:
+     other domains, we will either:         
 
   b. ensure that the operators of those domains abide by this policy overall
      by posting it at /.well-known/dnt-policy.txt via HTTPS on the domains in
@@ -75,7 +75,7 @@ listed below:
      ensure that the recipient's policies and practices require the recipient
      to respect the policy for our DNT Users' data.
 
-    OR
+    OR  
 
      obtain a contractual commitment from the recipient to respect this policy
      for our DNT Users' data.
@@ -88,14 +88,14 @@ listed below:
   c. "Identifiable" means any records which are not Anonymized or otherwise
      covered by the Exceptions below.
 
-4. PERIODIC REASSERTION OF COMPLIANCE:
+4. PERIODIC REASSERTION OF COMPLIANCE: 
 
   At least once every 12 months, we will take reasonable steps commensurate
   with the size of our organization and the nature of our service to confirm
   our ongoing compliance with this document, and we will publicly reassert our
   compliance.
 
-5. USER NOTIFICATION:
+5. USER NOTIFICATION: 
 
   a. If we are required by law to retain or disclose user identifiers, we will
      attempt to provide the users with notice (unless we are prohibited or it
@@ -105,7 +105,7 @@ listed below:
 
   b. We will attempt to provide this notice by email, if the users have given
      us an email address, and by postal mail if the users have provided a
-     postal address.
+     postal address.                                   
 
   c. If the users do not challenge the disclosure request, we may be legally
      required to turn over their information.
@@ -120,17 +120,17 @@ EXCEPTIONS
 Data from DNT Users collected by this domain may be logged or retained only in
 the following specific situations:
 
-1. CONSENT / "OPT BACK IN"
+1. CONSENT / "OPT BACK IN"         
 
   a. DNT Users are opting out from tracking across the Web.  It is possible
      that for some feature or functionality, we will need to ask a DNT User to
-     "opt back in" to be tracked by us across the entire Web.
+     "opt back in" to be tracked by us across the entire Web.                                    
 
   b. If we do that, we will take reasonable steps to verify that the users who
      select this option have genuinely intended to opt back in to tracking.
      One way to do this is by performing scientifically reasonable user
      studies with a representative sample of our users, but smaller
-     organizations can satisfy this requirement by other means.
+     organizations can satisfy this requirement by other means.         
 
   c. Where we believe that we have opt back in consent, our server will
      send a tracking value status header "Tk: C" as described in section 6.2
@@ -138,7 +138,7 @@ the following specific situations:
 
      http://www.w3.org/TR/tracking-dnt/#tracking-status-value
 
-2. TRANSACTIONS
+2. TRANSACTIONS         
 
    If a DNT User actively and knowingly enters a transaction with our
    services (for instance, clicking on a clearly-labeled advertisement,
@@ -151,19 +151,19 @@ the following specific situations:
    item will be shipped.  By their nature, some transactions will require data
    to be retained indefinitely.
 
-3. TECHNICAL AND SECURITY LOGGING:
+3. TECHNICAL AND SECURITY LOGGING:                   
 
   a. If, during the processing of the initial request (for unique identifiers)
      or during the subsequent 10 days (for IP addresses and User Agent strings),
      we obtain specific information that causes our employees or systems to
      believe that a request is, or is likely to be, part of a security attack,
-     spam submission, or fraudulent transaction, then logs of those requests
-     are not subject to this policy.
+     spam submission, or fraudulent transaction, then logs of those requests 
+     are not subject to this policy.                                   
 
   b. If we encounter technical problems with our site, then, in rare
      circumstances, we may retain logs for longer than 10 days, if that is
      necessary to diagnose and fix those problems, but this practice will not be
-     routinized and we will strive to delete such logs as soon as possible.
+     routinized and we will strive to delete such logs as soon as possible.         
 
 4. AGGREGATION:
 
@@ -179,13 +179,13 @@ the following specific situations:
      that the dataset, plus any additional information that is in our
      possession or likely to be available to us, does not allow the
      reconstruction of reading habits, online or offline activity of groups of
-     fewer than 5000 individuals or devices.
+     fewer than 5000 individuals or devices. 
 
   c. If we generate anonymized datasets under this exception we will publicly
      document our anonymization methods in sufficient detail to allow outside
      experts to evaluate the effectiveness of those methods.
 
-5. ERRORS:
+5. ERRORS: 
 
 From time to time, there may be errors by which user data is temporarily
 logged or retained in violation of this policy.  If such errors are
