@@ -965,6 +965,10 @@ post "/preferences" do |env|
     autoplay ||= "off"
     autoplay = autoplay == "on"
 
+    continue = env.params.body["continue"]?.try &.as(String)
+    continue ||= "off"
+    continue = continue == "on"
+
     listen = env.params.body["listen"]?.try &.as(String)
     listen ||= "off"
     listen = listen == "on"
@@ -1024,6 +1028,7 @@ post "/preferences" do |env|
     preferences = {
       "video_loop"         => video_loop,
       "autoplay"           => autoplay,
+      "continue"           => continue,
       "listen"             => listen,
       "speed"              => speed,
       "quality"            => quality,

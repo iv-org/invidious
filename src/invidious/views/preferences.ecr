@@ -24,6 +24,11 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
+                <label for="continue">Automatically play next video: </label>
+                <input name="continue" id="continue" type="checkbox" <% if user.preferences.continue %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
                 <label for="listen">Listen by default: </label>
                 <input name="listen" id="listen" type="checkbox" <% if user.preferences.listen %>checked<% end %>>
             </div>

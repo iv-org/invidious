@@ -140,6 +140,15 @@
 
         <% if !preferences || preferences && preferences.related_videos %>
         <div class="h-box">
+        
+        <% if !plid && !rvs.empty? %>
+        <div class="pure-control-group">
+            <label for="continue">Autoplay next video: </label>
+            <input name="continue" onclick="continue_autoplay(this)" id="continue" type="checkbox" <% if params[:continue] %>checked<% end %>>
+        </div>
+        <hr>
+        <% end %>
+
         <% rvs.each do |rv| %>
             <% if rv.has_key?("id") %>
             <a href="/watch?v=<%= rv["id"] %>">
@@ -163,6 +172,46 @@
 </div>
 
 <script>
+<% if !rvs.empty? && !plid && params[:continue] %>
+player.on('ended', function() {
+    window.location.replace("/watch?v=" 
+        + "<%= rvs[0]?.try &.["id"] %>"
+        + "&continue=1"
+        <% if params[:listen] %>
+        + "&listen=1"
+        <% end %>
+        <% if params[:autoplay] %>
+        + "&autoplay=1"
+        <% end %>
+        <% if params[:speed] %>
+        + "&speed=<%= params[:speed] %>"
+        <% end %>
+    );
+});
+<% end %>
+
+function continue_autoplay(target) {
+    if (target.checked) {
+        player.on('ended', function() {
+            window.location.replace("/watch?v=" 
+                + "<%= rvs[0]?.try &.["id"] %>"
+                + "&continue=1"
+                <% if params[:listen] %>
+                + "&listen=1"
+                <% end %>
+                <% if params[:autoplay] %>
+                + "&autoplay=1"
+                <% end %>
+                <% if params[:speed] %>
+                + "&speed=<%= params[:speed] %>"
+                <% end %>
+            );
+        });
+    } else {
+        player.off('ended');
+    }
+}
+
 function number_with_separator(val) {
   while (/(\d+)(\d{3})/.test(val.toString())) {
     val = val.toString().replace(/(\d+)(\d{3})/, "$1" + "," + "$2");

@@ -70,7 +70,11 @@ class Preferences
   JSON.mapping({
     video_loop: Bool,
     autoplay:   Bool,
-    listen:     {
+    continue:   {
+      type:    Bool,
+      default: false,
+    },
+    listen: {
       type:    Bool,
       default: false,
     },
