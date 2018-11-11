@@ -58,7 +58,7 @@ end
 
 def fetch_youtube_comments(id, continuation, proxies, format)
   client = make_client(YT_URL)
-  html = client.get("/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1")
+  html = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
   headers = HTTP::Headers.new
   headers["cookie"] = html.cookies.add_request_headers(headers)["cookie"]
   body = html.body
@@ -83,7 +83,7 @@ def fetch_youtube_comments(id, continuation, proxies, format)
             proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
             proxy_client.set_proxy(proxy)
 
-            response = proxy_client.get("/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1")
+            response = proxy_client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
             proxy_headers = HTTP::Headers.new
             proxy_headers["cookie"] = response.cookies.add_request_headers(headers)["cookie"]
             proxy_html = response.body
@@ -140,8 +140,8 @@ def fetch_youtube_comments(id, continuation, proxies, format)
   headers["content-type"] = "application/x-www-form-urlencoded"
 
   headers["x-client-data"] = "CIi2yQEIpbbJAQipncoBCNedygEIqKPKAQ=="
-  headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1"
-  headers["x-spf-referer"] = "https://www.youtube.com/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1"
+  headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999"
+  headers["x-spf-referer"] = "https://www.youtube.com/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999"
 
   headers["x-youtube-client-name"] = "1"
   headers["x-youtube-client-version"] = "2.20180719"
@@ -260,6 +260,23 @@ def fetch_youtube_comments(id, continuation, proxies, format)
       if body["continuations"]?
         continuation = body["continuations"][0]["nextContinuationData"]["continuation"]
         json.field "continuation", continuation
+      end
+    end
+  end
+
+  if format == "html"
+    comments = JSON.parse(comments)
+    content_html = template_youtube_comments(comments)
+
+    comments = JSON.build do |json|
+      json.object do
+        json.field "contentHtml", content_html
+
+        if comments["commentCount"]?
+          json.field "commentCount", comments["commentCount"]
+        else
+          json.field "commentCount", 0
+        end
       end
     end
   end

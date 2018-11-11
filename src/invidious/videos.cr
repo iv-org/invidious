@@ -546,7 +546,7 @@ def fetch_video(id, proxies)
 
   spawn do
     client = make_client(YT_URL)
-    html = client.get("/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1")
+    html = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
 
     if md = html.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
       next html_channel.send(md["id"])
@@ -620,7 +620,7 @@ def fetch_video(id, proxies)
           client.connect_timeout = 10.seconds
           client.set_proxy(proxy)
 
-          html = XML.parse_html(client.get("/watch?v=#{id}&bpctr=#{Time.new.to_unix + 2000}&gl=US&hl=en&disable_polymer=1").body)
+          html = XML.parse_html(client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999").body)
           info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
 
           if info["reason"]?
@@ -641,7 +641,19 @@ def fetch_video(id, proxies)
   end
 
   if info["reason"]?
-    raise info["reason"]
+    html_info = html.to_s.match(/ytplayer\.config = (?<info>.*?);ytplayer\.load/).try &.["info"]
+    if html_info
+      html_info = JSON.parse(html_info)["args"].as_h
+      info.delete("reason")
+
+      html_info.each do |k, v|
+        info[k] = v.to_s
+      end
+    end
+
+    if info["reason"]?
+      raise info["reason"]
+    end
   end
 
   title = info["title"]
@@ -699,7 +711,7 @@ def fetch_video(id, proxies)
     sub_count_text = "0"
   end
 
-  author_thumbnail = html.xpath_node(%(//img[@alt="#{author}"]))
+  author_thumbnail = html.xpath_node(%(//span[@class="yt-thumb-clip"]/img))
   if author_thumbnail
     author_thumbnail = author_thumbnail["data-thumb"]
   else

@@ -216,26 +216,7 @@ get "/api/v1/comments/:id" do |env|
       halt env, status_code: 500, response: error_message
     end
 
-    if format == "json"
-      next comments
-    else
-      comments = JSON.parse(comments)
-      content_html = template_youtube_comments(comments)
-
-      response = JSON.build do |json|
-        json.object do
-          json.field "contentHtml", content_html
-
-          if comments["commentCount"]?
-            json.field "commentCount", comments["commentCount"]
-          else
-            json.field "commentCount", 0
-          end
-        end
-      end
-
-      next response
-    end
+    next comments
   elsif source == "reddit"
     begin
       comments, reddit_thread = fetch_reddit_comments(id)
@@ -598,7 +579,12 @@ get "/api/v1/channels/:ucid" do |env|
   end
 
   page = 1
-  videos, count = get_60_videos(ucid, page, auto_generated)
+  begin
+    videos, count = get_60_videos(ucid, page, auto_generated)
+  rescue ex
+    error_message = {"error" => ex.message}.to_json
+    halt env, status_code: 500, response: error_message
+  end
 
   client = make_client(YT_URL)
   channel_html = client.get("/channel/#{ucid}/about?disable_polymer=1").body
@@ -711,6 +697,7 @@ get "/api/v1/channels/:ucid" do |env|
               json.field "published", video.published.to_unix
               json.field "publishedText", "#{recode_date(video.published)} ago"
               json.field "lengthSeconds", video.length_seconds
+              json.field "liveNow", video.live_now
               json.field "paid", video.paid
               json.field "premium", video.premium
             end
@@ -738,7 +725,12 @@ end
       halt env, status_code: 500, response: error_message
     end
 
-    videos, count = get_60_videos(ucid, page, auto_generated)
+    begin
+      videos, count = get_60_videos(ucid, page, auto_generated)
+    rescue ex
+      error_message = {"error" => ex.message}.to_json
+      halt env, status_code: 500, response: error_message
+    end
 
     result = JSON.build do |json|
       json.array do
@@ -768,6 +760,7 @@ end
             json.field "published", video.published.to_unix
             json.field "publishedText", "#{recode_date(video.published)} ago"
             json.field "lengthSeconds", video.length_seconds
+            json.field "liveNow", video.live_now
             json.field "paid", video.paid
             json.field "premium", video.premium
           end
