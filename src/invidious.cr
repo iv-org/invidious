@@ -282,9 +282,7 @@ get "/watch" do |env|
 
       if source == "youtube"
         begin
-          comments = fetch_youtube_comments(id, "", proxies, "html")
-          comments = JSON.parse(comments)
-          comment_html = template_youtube_comments(comments)
+          comment_html = JSON.parse(fetch_youtube_comments(id, "", proxies, "html"))["contentHtml"]
         rescue ex
           if preferences.comments[1] == "reddit"
             comments, reddit_thread = fetch_reddit_comments(id)
@@ -303,16 +301,12 @@ get "/watch" do |env|
           comment_html = replace_links(comment_html)
         rescue ex
           if preferences.comments[1] == "youtube"
-            comments = fetch_youtube_comments(id, "", proxies, "html")
-            comments = JSON.parse(comments)
-            comment_html = template_youtube_comments(comments)
+            comment_html = JSON.parse(fetch_youtube_comments(id, "", proxies, "html"))["contentHtml"]
           end
         end
       end
     else
-      comments = fetch_youtube_comments(id, "", proxies, "html")
-      comments = JSON.parse(comments)
-      comment_html = template_youtube_comments(comments)
+      comment_html = JSON.parse(fetch_youtube_comments(id, "", proxies, "html"))["contentHtml"]
     end
 
     comment_html ||= ""
