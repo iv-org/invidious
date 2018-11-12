@@ -692,8 +692,7 @@ def fetch_video(id, proxies)
     genre_url = "/channel/UClgRkhTL3_hImCAmdLfDE4g"
   when "Education"
     # Education channel is linked but does not exist
-    # genre_url = "/channel/UC3yA8nDwraeOfnYfBWun83g"
-    genre_url = ""
+    genre_url = "/channel/UC3yA8nDwraeOfnYfBWun83g"
   end
   genre_url ||= ""
 
