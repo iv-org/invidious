@@ -1,5 +1,6 @@
 <video style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" 
     id="player" class="video-js"
+    onmouseenter='this["title"]=""'
     <% if params[:autoplay] %>autoplay<% end %>
     <% if params[:video_loop] %>loop<% end %>
     <% if params[:controls] %>controls<% end %>>
