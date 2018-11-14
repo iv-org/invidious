@@ -12,6 +12,7 @@
             <p><%= item.author %></p>
         </a>
         <p><%= number_with_separator(item.subscriber_count) %> subscribers</p>
+        <p><%= number_with_separator(item.video_count) %> videos</p>
         <h5><%= item.description_html %></h5>
     <% when SearchPlaylist %>
         <% if item.id.starts_with? "RD" %>
