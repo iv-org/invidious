@@ -1889,6 +1889,9 @@ get "/channel/:ucid" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
+  sort_by = env.params.query["sort_by"]?.try &.downcase
+  sort_by ||= "newest"
+
   begin
     author, ucid, auto_generated, sub_count = get_about_info(ucid)
   rescue ex
@@ -1904,7 +1907,7 @@ get "/channel/:ucid" do |env|
     end
   end
 
-  videos, count = get_60_videos(ucid, page, auto_generated)
+  videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
 
   templated "channel"
 end
@@ -2432,6 +2435,8 @@ get "/api/v1/channels/:ucid" do |env|
   env.response.content_type = "application/json"
 
   ucid = env.params.url["ucid"]
+  sort_by = env.params.query["sort_by"]?.try &.downcase
+  sort_by ||= "newest"
 
   begin
     author, ucid, auto_generated = get_about_info(ucid)
@@ -2442,7 +2447,7 @@ get "/api/v1/channels/:ucid" do |env|
 
   page = 1
   begin
-    videos, count = get_60_videos(ucid, page, auto_generated)
+    videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
   rescue ex
     error_message = {"error" => ex.message}.to_json
     halt env, status_code: 500, response: error_message

@@ -40,9 +40,32 @@
 <% end %>
 </div>
 
-<p class="h-box">
-    <a href="https://www.youtube.com/channel/<%= ucid %>">View channel on YouTube</a>
-</p>
+<div class="pure-g h-box">
+    <div class="pure-u-1-3">
+        <a href="https://www.youtube.com/channel/<%= ucid %>">View channel on YouTube</a>
+    </div>
+    <div class="pure-u-1-3">
+    </div>
+    <div class="pure-u-1-3">
+        <div class="pure-g" style="text-align:right;">
+        <% {"newest", "oldest", "popular"}.each do |sort| %>
+            <div class="pure-u-1-3">
+                <% if sort_by == sort %>
+                <b><%= sort %></b>
+                <% else %>
+                <a href="/channel/<%= ucid %>?page=<%= page %>&sort_by=<%= sort %>">
+                <%= sort %>
+                </a>
+                <% end %>
+            </div>
+        <% end %>
+        </div>
+    </div>
+</div>
+
+<div class="h-box">
+    <hr>
+</div>
 
 <% videos.each_slice(4) do |slice| %>
 <div class="pure-g">
@@ -55,13 +78,13 @@
 <div class="pure-g h-box">
     <div class="pure-u-1 pure-u-md-1-5">
     <% if page >= 2 %>
-        <a href="/channel/<%= ucid %>?page=<%= page - 1 %>">Previous page</a>
+        <a href="/channel/<%= ucid %>?page=<%= page - 1 %><% if sort_by != "newest" %>&sort_by=<%= sort_by %><% end %>">Previous page</a>
     <% end %>
     </div>
     <div class="pure-u-1 pure-u-md-3-5"></div>
     <div style="text-align:right;" class="pure-u-1 pure-u-md-1-5">
     <% if count == 60 %>
-        <a href="/channel/<%= ucid %>?page=<%= page + 1 %>">Next page</a>
+        <a href="/channel/<%= ucid %>?page=<%= page + 1 %><% if sort_by != "newest" %>&sort_by=<%= sort_by %><% end %>">Next page</a>
     <% end %>
     </div>
 </div>
