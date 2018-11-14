@@ -2584,6 +2584,8 @@ end
     ucid = env.params.url["ucid"]
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
+    sort_by = env.params.query["sort_by"]?.try &.downcase
+    sort_by ||= "newest"
 
     begin
       author, ucid, auto_generated = get_about_info(ucid)
@@ -2593,7 +2595,7 @@ end
     end
 
     begin
-      videos, count = get_60_videos(ucid, page, auto_generated)
+      videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       halt env, status_code: 500, response: error_message
