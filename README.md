@@ -20,6 +20,7 @@
 - Support for Reddit comments in place of YT comments
 - Import/Export subscriptions, watch history, preferences
 - Does not use any of the official YouTube APIs
+- Developer [API](https://github.com/omarroth/invidious/wiki/API)
 
 Liberapay: https://liberapay.com/omarroth  
 Patreon: https://patreon.com/omarroth  
