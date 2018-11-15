@@ -677,7 +677,8 @@ def fetch_video(id, proxies)
 
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
-  published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).not_nil!["content"]
+  published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).try &.["content"]
+  published ||= Time.now.to_s("%Y-%m-%d")
   published = Time.parse(published, "%Y-%m-%d", Time::Location.local)
 
   allowed_regions = html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).try &.["content"].split(",")
@@ -685,7 +686,9 @@ def fetch_video(id, proxies)
   is_family_friendly = html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).try &.["content"] == "True"
   is_family_friendly ||= true
 
-  genre = html.xpath_node(%q(//meta[@itemprop="genre"])).not_nil!["content"]
+  genre = html.xpath_node(%q(//meta[@itemprop="genre"])).try &.["content"]
+  genre ||= ""
+
   genre_url = html.xpath_node(%(//a[text()="#{genre}"])).try &.["href"]
   case genre
   when "Movies"
