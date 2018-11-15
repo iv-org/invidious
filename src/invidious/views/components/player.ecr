@@ -1,4 +1,4 @@
-<video style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" 
+<<% if params[:listen]%>audio<% else %>video<% end %> style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" 
     id="player" class="video-js"
     onmouseenter='this["title"]=""'
     <% if params[:autoplay] %>autoplay<% end %>
@@ -34,7 +34,7 @@
             label="<%= caption.name.simpleText %>">
         <% end %>
     <% end %>
-</video>
+</<% if params[:listen]%>audio<% else %>video<% end %>>
 
 <script>
 var options = {
