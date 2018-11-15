@@ -846,8 +846,13 @@ post "/login" do |env|
           secure = false
         end
 
-        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
-          secure: secure, http_only: true)
+        if CONFIG.domain
+          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: ".#{CONFIG.domain}", value: sid, expires: Time.now + 2.years,
+            secure: secure, http_only: true)
+        else
+          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
+            secure: secure, http_only: true)
+        end
       else
         error_message = "Invalid username or password"
         next templated "error"
@@ -891,8 +896,13 @@ post "/login" do |env|
         secure = false
       end
 
-      env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
-        secure: secure, http_only: true)
+      if CONFIG.domain
+        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: ".#{CONFIG.domain}", value: sid, expires: Time.now + 2.years,
+          secure: secure, http_only: true)
+      else
+        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
+          secure: secure, http_only: true)
+      end
     end
 
     env.redirect referer

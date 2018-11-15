@@ -16,6 +16,7 @@ class Config
     hmac_key:     String?,
     full_refresh: Bool,
     geo_bypass:   Bool,
+    domain:       String?,
   })
 end
 
