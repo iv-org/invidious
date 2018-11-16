@@ -155,6 +155,10 @@ before_all do |env|
         client = make_client(YT_URL)
         user = get_user(sid, client, headers, PG_DB, false)
 
+        challenge, token = create_response(user.email, "sign_out", HMAC_KEY, 1.week)
+        env.set "challenge", challenge
+        env.set "token", token
+
         env.set "user", user
         env.set "sid", sid
       rescue ex
