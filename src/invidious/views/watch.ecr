@@ -141,12 +141,14 @@
         <% if !preferences || preferences && preferences.related_videos %>
         <div class="h-box">
         
-        <% if !plid && !rvs.empty? %>
-        <div class="pure-control-group">
-            <label for="continue">Autoplay next video: </label>
-            <input name="continue" onclick="continue_autoplay(this)" id="continue" type="checkbox" <% if params[:continue] %>checked<% end %>>
+        <% if !rvs.empty? %>
+        <div id="continue" <% if plid %>style="display:none"<% end %>>
+            <div class="pure-control-group">
+                <label for="continue">Autoplay next video: </label>
+                <input name="continue" onclick="continue_autoplay(this)" id="continue" type="checkbox" <% if params[:continue] %>checked<% end %>>
+            </div>
+            <hr>
         </div>
-        <hr>
         <% end %>
 
         <% rvs.each do |rv| %>
@@ -307,6 +309,7 @@ function get_playlist() {
                 }
             } else {
                 playlist.innerHTML = "";
+                document.getElementById('continue').style.display = "";
             }
         }
     };
