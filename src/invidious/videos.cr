@@ -507,14 +507,14 @@ end
 class VideoRedirect < Exception
 end
 
-def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32}), refresh = true)
+def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32}), refresh = true, region = nil)
   if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool)
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
     # If record was last updated over 10 minutes ago, refresh (expire param in response lasts for 6 hours)
     if refresh && Time.now - video.updated > 10.minutes
       begin
-        video = fetch_video(id, proxies)
+        video = fetch_video(id, proxies, region)
         video_array = video.to_a
 
         args = arg_array(video_array[1..-1], 2)
@@ -529,7 +529,7 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
       end
     end
   else
-    video = fetch_video(id, proxies)
+    video = fetch_video(id, proxies, region)
     video_array = video.to_a
 
     args = arg_array(video_array)
@@ -540,12 +540,12 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
   return video
 end
 
-def fetch_video(id, proxies)
+def fetch_video(id, proxies, region)
   html_channel = Channel(XML::Node | String).new
   info_channel = Channel(HTTP::Params).new
 
   spawn do
-    client = make_client(YT_URL)
+    client = make_client(YT_URL, proxies, region)
     html = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
 
     if md = html.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
@@ -557,7 +557,7 @@ def fetch_video(id, proxies)
   end
 
   spawn do
-    client = make_client(YT_URL)
+    client = make_client(YT_URL, proxies, region)
     info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
     info = HTTP::Params.parse(info.body)
 
@@ -628,9 +628,9 @@ def fetch_video(id, proxies)
           end
 
           proxy = {ip: proxy.proxy_host, port: proxy.proxy_port}
-          region = proxies.select { |region, list| list.includes? proxy }
-          if !region.empty?
-            info["region"] = region.keys[0]
+          region_proxies = proxies.select { |region, list| list.includes? proxy }
+          if !region_proxies.empty?
+            info["region"] = region_proxies.keys[0]
           end
 
           break
@@ -736,11 +736,13 @@ def process_video_params(query, preferences)
   listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
   preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
   quality = query["quality"]?
+  region = query["region"]?
   speed = query["speed"]?.try &.to_f?
   video_loop = query["loop"]?.try &.to_i?
   volume = query["volume"]?.try &.to_i?
 
   if preferences
+    # region ||= preferences.region
     autoplay ||= preferences.autoplay.to_unsafe
     continue ||= preferences.continue.to_unsafe
     listen ||= preferences.listen.to_unsafe
@@ -798,6 +800,7 @@ def process_video_params(query, preferences)
     preferred_captions: preferred_captions,
     quality:            quality,
     raw:                raw,
+    region:             region,
     speed:              speed,
     video_end:          video_end,
     video_loop:         video_loop,

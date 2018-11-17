@@ -2215,9 +2215,10 @@ get "/api/v1/videos/:id" do |env|
   env.response.content_type = "application/json"
 
   id = env.params.url["id"]
+  region = env.params.query["region"]?
 
   begin
-    video = get_video(id, PG_DB, proxies)
+    video = get_video(id, PG_DB, proxies, region)
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/videos/#{ex.message}"
   rescue ex
