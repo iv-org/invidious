@@ -268,7 +268,7 @@ get "/watch" do |env|
   env.params.query.delete_all("listen")
 
   begin
-    video = get_video(id, PG_DB, proxies)
+    video = get_video(id, PG_DB, proxies, params[:region])
   rescue ex : VideoRedirect
     next env.redirect "/watch?v=#{ex.message}"
   rescue ex
@@ -409,7 +409,7 @@ get "/embed/:id" do |env|
   params = process_video_params(env.params.query, nil)
 
   begin
-    video = get_video(id, PG_DB, proxies)
+    video = get_video(id, PG_DB, proxies, params[:region])
   rescue ex : VideoRedirect
     next env.redirect "/embed/#{ex.message}"
   rescue ex
@@ -1983,10 +1983,11 @@ get "/api/v1/captions/:id" do |env|
   env.response.content_type = "application/json"
 
   id = env.params.url["id"]
+  region = env.params.query["region"]?
 
   client = make_client(YT_URL)
   begin
-    video = get_video(id, PG_DB, proxies)
+    video = get_video(id, PG_DB, proxies, region)
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/captions/#{ex.message}"
   rescue ex
@@ -3100,10 +3101,11 @@ get "/api/manifest/dash/id/:id" do |env|
 
   local = env.params.query["local"]?.try &.== "true"
   id = env.params.url["id"]
+  region = env.params.query["region"]?
 
   client = make_client(YT_URL)
   begin
-    video = get_video(id, PG_DB, proxies)
+    video = get_video(id, PG_DB, proxies, region)
   rescue ex : VideoRedirect
     next env.redirect "/api/manifest/dash/id/#{ex.message}"
   rescue ex
