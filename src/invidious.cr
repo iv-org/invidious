@@ -1620,7 +1620,7 @@ get "/feed/subscriptions" do |env|
           end
 
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE \
-          id NOT IN (#{watched}) ORDER BY published, ucid #{sort}",
+          id NOT IN (#{watched}) ORDER BY ucid, published #{sort}",
             user.watched, as: ChannelVideo)
         else
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
