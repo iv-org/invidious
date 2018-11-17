@@ -24,10 +24,11 @@
                     <label for="password">Password:</label>
                     <input required class="pure-input-1" name="password" type="password" placeholder="Password">
                 
-                    <img style="width:100%" src='<%= captcha.not_nil![:challenge] %>'/>
+                    <img style="width:100%" src='<%= captcha.not_nil![:image] %>'/>
                     <input type="hidden" name="token" value="<%= captcha.not_nil![:token] %>">
-                    <label for="challenge_response">Time (h:mm):</label>
-                    <input required type="text" name="challenge_response" type="text>" placeholder="hh:mm">
+                    <input type="hidden" name="challenge" value="<%= captcha.not_nil![:challenge] %>">
+                    <label for="answer">Time (h:mm):</label>
+                    <input required type="text" name="answer" type="text>" placeholder="hh:mm">
 
                     <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">Sign In</button>
                     <button type="submit" name="action" value="register" class="pure-button pure-button-primary">Register</button>

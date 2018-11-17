@@ -142,7 +142,7 @@ before_all do |env|
       user = PG_DB.query_one?("SELECT * FROM users WHERE $1 = ANY(id)", sid, as: User)
 
       if user
-        challenge, token = create_response(user.email, "sign_out", HMAC_KEY, 1.week)
+        challenge, token = create_response(user.email, "sign_out", HMAC_KEY, PG_DB, 1.week)
 
         env.set "challenge", challenge
         env.set "token", token
@@ -155,7 +155,7 @@ before_all do |env|
         client = make_client(YT_URL)
         user = get_user(sid, client, headers, PG_DB, false)
 
-        challenge, token = create_response(user.email, "sign_out", HMAC_KEY, 1.week)
+        challenge, token = create_response(user.email, "sign_out", HMAC_KEY, PG_DB, 1.week)
         env.set "challenge", challenge
         env.set "token", token
 
@@ -624,7 +624,7 @@ get "/login" do |env|
   account_type ||= "invidious"
 
   if account_type == "invidious"
-    captcha = generate_captcha(HMAC_KEY)
+    captcha = generate_captcha(HMAC_KEY, PG_DB)
   end
 
   tfa = env.params.query["tfa"]?
@@ -815,8 +815,25 @@ post "/login" do |env|
       next templated "error"
     end
   elsif account_type == "invidious"
-    challenge_response = env.params.body["challenge_response"]?
+    answer = env.params.body["answer"]?
+
+    if !answer
+      error_message = "CAPTCHA is a required field"
+      next templated "error"
+    end
+
+    answer = answer.lstrip('0')
+    answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
+
+    challenge = env.params.body["challenge"]?
     token = env.params.body["token"]?
+
+    begin
+      validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB)
+    rescue ex
+      error_message = ex.message
+      next templated "error"
+    end
 
     action = env.params.body["action"]?
     action ||= "signin"
@@ -828,18 +845,6 @@ post "/login" do |env|
 
     if !password
       error_message = "Password is a required field"
-      next templated "error"
-    end
-
-    if !challenge_response || !token
-      error_message = "CAPTCHA is a required field"
-      next templated "error"
-    end
-
-    challenge_response = challenge_response.lstrip('0')
-    if OpenSSL::HMAC.digest(:sha256, HMAC_KEY, challenge_response) == Base64.decode(token)
-    else
-      error_message = "Invalid CAPTCHA response"
       next templated "error"
     end
 
@@ -940,7 +945,7 @@ get "/signout" do |env|
     token = env.params.query["token"]?
 
     begin
-      validate_response(challenge, token, user.email, "sign_out", HMAC_KEY)
+      validate_response(challenge, token, user.email, "sign_out", HMAC_KEY, PG_DB)
     rescue ex
       error_message = ex.message
       next templated "error"
@@ -1461,7 +1466,7 @@ get "/delete_account" do |env|
   if user
     user = user.as(User)
 
-    challenge, token = create_response(user.email, "delete_account", HMAC_KEY)
+    challenge, token = create_response(user.email, "delete_account", HMAC_KEY, PG_DB)
 
     templated "delete_account"
   else
@@ -1480,7 +1485,7 @@ post "/delete_account" do |env|
     token = env.params.body["token"]?
 
     begin
-      validate_response(challenge, token, user.email, "delete_account", HMAC_KEY)
+      validate_response(challenge, token, user.email, "delete_account", HMAC_KEY, PG_DB)
     rescue ex
       error_message = ex.message
       next templated "error"
@@ -1506,7 +1511,7 @@ get "/clear_watch_history" do |env|
   if user
     user = user.as(User)
 
-    challenge, token = create_response(user.email, "clear_watch_history", HMAC_KEY)
+    challenge, token = create_response(user.email, "clear_watch_history", HMAC_KEY, PG_DB)
 
     templated "clear_watch_history"
   else
@@ -1525,7 +1530,7 @@ post "/clear_watch_history" do |env|
     token = env.params.body["token"]?
 
     begin
-      validate_response(challenge, token, user.email, "clear_watch_history", HMAC_KEY)
+      validate_response(challenge, token, user.email, "clear_watch_history", HMAC_KEY, PG_DB)
     rescue ex
       error_message = ex.message
       next templated "error"
