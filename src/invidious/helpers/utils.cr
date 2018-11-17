@@ -18,16 +18,28 @@ def elapsed_text(elapsed)
   "#{(millis * 1000).round(2)}µs"
 end
 
-def make_client(url)
+def make_client(url, proxies = {} of String => Array({ip: String, port: Int32}), region = nil)
   context = OpenSSL::SSL::Context::Client.new
   context.add_options(
     OpenSSL::SSL::Options::ALL |
     OpenSSL::SSL::Options::NO_SSL_V2 |
     OpenSSL::SSL::Options::NO_SSL_V3
   )
-  client = HTTP::Client.new(url, context)
+  client = HTTPClient.new(url, context)
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
+
+  if region
+    proxies[region]?.try &.each do |proxy|
+      begin
+        proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
+        client.set_proxy(proxy)
+        break
+      rescue ex
+      end
+    end
+  end
+
   return client
 end
 

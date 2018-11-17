@@ -163,7 +163,7 @@ def fetch_channel(ucid, client, db, pull_all_videos = true)
   return channel
 end
 
-def produce_channel_videos_url(ucid, page = 1, auto_generated = nil)
+def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "newest")
   if auto_generated
     seed = Time.unix(1525757349)
 
@@ -189,6 +189,16 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil)
   meta += "\x7a"
   meta += page.size.to_u8.unsafe_chr
   meta += page
+
+  case sort_by
+  when "newest"
+    # Empty tags can be omitted
+    # meta += "\x18\x00"
+  when "popular"
+    meta += "\x18\x01"
+  when "oldest"
+    meta += "\x18\x02"
+  end
 
   meta = Base64.urlsafe_encode(meta)
   meta = URI.escape(meta)
@@ -254,14 +264,14 @@ def get_about_info(ucid)
   return {author, ucid, auto_generated, sub_count}
 end
 
-def get_60_videos(ucid, page, auto_generated)
+def get_60_videos(ucid, page, auto_generated, sort_by = "newest")
   count = 0
   videos = [] of SearchVideo
 
   client = make_client(YT_URL)
 
   2.times do |i|
-    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated)
+    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
     response = client.get(url)
     json = JSON.parse(response.body)
 

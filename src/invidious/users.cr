@@ -70,7 +70,11 @@ class Preferences
   JSON.mapping({
     video_loop: Bool,
     autoplay:   Bool,
-    listen:     {
+    continue:   {
+      type:    Bool,
+      default: false,
+    },
+    listen: {
       type:    Bool,
       default: false,
     },
@@ -194,4 +198,113 @@ def create_user(sid, email, password)
   user = User.new([sid], Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token, [] of String)
 
   return user
+end
+
+def create_response(user_id, operation, key, db, expire = 6.hours)
+  expire = Time.now + expire
+  nonce = Random::Secure.hex(16)
+  db.exec("INSERT INTO nonces VALUES ($1) ON CONFLICT DO NOTHING", nonce)
+
+  challenge = "#{expire.to_unix}-#{nonce}-#{user_id}-#{operation}"
+  token = OpenSSL::HMAC.digest(:sha256, key, challenge)
+
+  challenge = Base64.urlsafe_encode(challenge)
+  token = Base64.urlsafe_encode(token)
+
+  return challenge, token
+end
+
+def validate_response(challenge, token, user_id, operation, key, db)
+  if !challenge
+    raise "Hidden field \"challenge\" is a required field"
+  end
+
+  if !token
+    raise "Hidden field \"token\" is a required field"
+  end
+
+  challenge = Base64.decode_string(challenge)
+  if challenge.split("-").size == 4
+    expire, nonce, challenge_user_id, challenge_operation = challenge.split("-")
+
+    expire = expire.to_i?
+    expire ||= 0
+  else
+    raise "Invalid challenge"
+  end
+
+  challenge = OpenSSL::HMAC.digest(:sha256, HMAC_KEY, challenge)
+  challenge = Base64.urlsafe_encode(challenge)
+
+  if db.query_one?("SELECT EXISTS (SELECT true FROM nonces WHERE nonce = $1)", nonce, as: Bool)
+    db.exec("DELETE FROM nonces * WHERE nonce = $1", nonce)
+  else
+    raise "Invalid token"
+  end
+
+  if challenge != token
+    raise "Invalid token"
+  end
+
+  if challenge_operation != operation
+    raise "Invalid token"
+  end
+
+  if challenge_user_id != user_id
+    raise "Invalid user"
+  end
+
+  if expire < Time.now.to_unix
+    raise "Token is expired, please try again"
+  end
+end
+
+def generate_captcha(key, db)
+  minute = Random::Secure.rand(12)
+  minute_angle = minute * 30
+  minute = minute * 5
+
+  hour = Random::Secure.rand(12)
+  hour_angle = hour * 30 + minute_angle.to_f / 12
+  if hour == 0
+    hour = 12
+  end
+
+  clock_svg = <<-END_SVG
+  <svg viewBox="0 0 100 100" width="200px">
+  <circle cx="50" cy="50" r="45" fill="#eee" stroke="black" stroke-width="2"></circle>
+  
+  <text x="69"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 1</text>
+  <text x="82.909" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 2</text>
+  <text x="88"     y="53"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 3</text>
+  <text x="82.909" y="72"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 4</text>
+  <text x="69"     y="85.909" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 5</text>
+  <text x="50"     y="91"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 6</text>
+  <text x="31"     y="85.909" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 7</text>
+  <text x="17.091" y="72"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 8</text>
+  <text x="12"     y="53"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 9</text>
+  <text x="17.091" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px">10</text>
+  <text x="31"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px">11</text>
+  <text x="50"     y="15"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px">12</text>
+
+  <circle cx="50" cy="50" r="3" fill="black"></circle>
+  <line id="minute" transform="rotate(#{minute_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="16" fill="black" stroke="black" stroke-width="2"></line>
+  <line id="hour"   transform="rotate(#{hour_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="24" fill="black" stroke="black" stroke-width="2"></line>
+  </svg>
+  END_SVG
+
+  image = ""
+  convert = Process.run(%(convert -density 1200 -resize 400x400 -background none svg:- png:-), shell: true,
+    input: IO::Memory.new(clock_svg), output: Process::Redirect::Pipe) do |proc|
+    image = proc.output.gets_to_end
+    image = Base64.strict_encode(image)
+    image = "data:image/png;base64,#{image}"
+  end
+
+  answer = "#{hour}:#{minute.to_s.rjust(2, '0')}"
+  answer = OpenSSL::HMAC.hexdigest(:sha256, key, answer)
+
+  challenge, token = create_response(answer, "sign_in", key, db)
+
+  return {image: image, challenge: challenge, token: token}
 end

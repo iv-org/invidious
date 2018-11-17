@@ -16,6 +16,7 @@ class Config
     hmac_key:     String?,
     full_refresh: Bool,
     geo_bypass:   Bool,
+    domain:       String?,
   })
 end
 
@@ -34,55 +35,6 @@ def login_req(login_form, f_req)
   data = login_form.merge(data)
 
   return HTTP::Params.encode(data)
-end
-
-def generate_captcha(key)
-  minute = Random::Secure.rand(12)
-  minute_angle = minute * 30
-  minute = minute * 5
-
-  hour = Random::Secure.rand(12)
-  hour_angle = hour * 30 + minute_angle.to_f / 12
-  if hour == 0
-    hour = 12
-  end
-
-  clock_svg = <<-END_SVG
-  <svg viewBox="0 0 100 100" width="200px">
-  <circle cx="50" cy="50" r="45" fill="#eee" stroke="black" stroke-width="2"></circle>
-  
-  <text x="69"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 1</text>
-  <text x="82.909" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 2</text>
-  <text x="88"     y="53"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 3</text>
-  <text x="82.909" y="72"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 4</text>
-  <text x="69"     y="85.909" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 5</text>
-  <text x="50"     y="91"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 6</text>
-  <text x="31"     y="85.909" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 7</text>
-  <text x="17.091" y="72"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 8</text>
-  <text x="12"     y="53"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 9</text>
-  <text x="17.091" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px">10</text>
-  <text x="31"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px">11</text>
-  <text x="50"     y="15"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px">12</text>
-
-  <circle cx="50" cy="50" r="3" fill="black"></circle>
-  <line id="minute" transform="rotate(#{minute_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="16" fill="black" stroke="black" stroke-width="2"></line>
-  <line id="hour"   transform="rotate(#{hour_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="24" fill="black" stroke="black" stroke-width="2"></line>
-  </svg>
-  END_SVG
-
-  challenge = ""
-  convert = Process.run(%(convert -density 1200 -resize 400x400 -background none svg:- png:-), shell: true,
-    input: IO::Memory.new(clock_svg), output: Process::Redirect::Pipe) do |proc|
-    challenge = proc.output.gets_to_end
-    challenge = Base64.strict_encode(challenge)
-    challenge = "data:image/png;base64,#{challenge}"
-  end
-
-  answer = "#{hour}:#{minute.to_s.rjust(2, '0')}"
-  token = OpenSSL::HMAC.digest(:sha256, key, answer)
-  token = Base64.urlsafe_encode(token)
-
-  return {challenge: challenge, token: token}
 end
 
 def html_to_content(description_html)
@@ -295,56 +247,4 @@ def extract_items(nodeset, ucid = nil)
   end
 
   return items
-end
-
-def create_response(user_id, operation, key, expire = 6.hours)
-  expire = Time.now + expire
-  nonce = Random::Secure.hex(4)
-
-  challenge = "#{expire.to_unix}-#{nonce}-#{user_id}-#{operation}"
-  token = OpenSSL::HMAC.digest(:sha256, key, challenge)
-
-  challenge = Base64.urlsafe_encode(challenge)
-  token = Base64.urlsafe_encode(token)
-
-  return challenge, token
-end
-
-def validate_response(challenge, token, user_id, operation, key)
-  if !challenge
-    raise "Hidden field \"challenge\" is a required field"
-  end
-
-  if !token
-    raise "Hidden field \"token\" is a required field"
-  end
-
-  challenge = Base64.decode_string(challenge)
-  if challenge.split("-").size == 4
-    expire, nonce, challenge_user_id, challenge_operation = challenge.split("-")
-
-    expire = expire.to_i?
-    expire ||= 0
-  else
-    raise "Invalid challenge"
-  end
-
-  challenge = OpenSSL::HMAC.digest(:sha256, HMAC_KEY, challenge)
-  challenge = Base64.urlsafe_encode(challenge)
-
-  if challenge != token
-    raise "Invalid token"
-  end
-
-  if challenge_operation != operation
-    raise "Invalid token"
-  end
-
-  if challenge_user_id != user_id
-    raise "Invalid token"
-  end
-
-  if expire < Time.now.to_unix
-    raise "Token is expired, please try again"
-  end
 end
