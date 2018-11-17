@@ -680,7 +680,15 @@ post "/login" do |env|
         end
       end
 
-      lookup_req = %(["#{email}",null,[],null,"US",null,null,2,false,true,[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount",null,[],4,[]],1,[null,null,[]],null,null,null,true],"#{email}"])
+      lookup_req = {
+        email, nil, [] of String, nil, "US", nil, nil, 2, false, true,
+        {nil, nil,
+         {2, 1, nil, 1, "https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount", nil, [] of String, 4, [] of String},
+         1,
+         {nil, nil, [] of String},
+         nil, nil, nil, true,
+        }, email,
+      }.to_json
 
       lookup_results = client.post("/_/signin/sl/lookup", headers, login_req(inputs, lookup_req))
       headers = lookup_results.cookies.add_request_headers(headers)
@@ -691,7 +699,15 @@ post "/login" do |env|
 
       user_hash = lookup_results[0][2]
 
-      challenge_req = %(["#{user_hash}",null,1,null,[1,null,null,null,["#{password}",null,true]],[null,null,[2,1,null,1,"https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount",null,[],4,[]],1,[null,null,[]],null,null,null,true]])
+      challenge_req = {
+        user_hash, nil, 1, nil,
+        {1, nil, nil, nil, {password, nil, true}},
+        {nil, nil,
+         {2, 1, nil, 1, "https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount", nil, [] of String, 4, [] of String},
+         1,
+         {nil, nil, [] of String},
+         nil, nil, nil, true},
+      }.to_json
 
       challenge_results = client.post("/_/signin/sl/challenge", headers, login_req(inputs, challenge_req))
       headers = challenge_results.cookies.add_request_headers(headers)
