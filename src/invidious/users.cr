@@ -251,7 +251,7 @@ def validate_response(challenge, token, user_id, operation, key, db)
   end
 
   if challenge_user_id != user_id
-    raise "Invalid token"
+    raise "Invalid user"
   end
 
   if expire < Time.now.to_unix

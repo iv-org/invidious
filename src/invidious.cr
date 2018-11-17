@@ -831,7 +831,12 @@ post "/login" do |env|
     begin
       validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB)
     rescue ex
-      error_message = ex.message
+      if ex.message && ex.message == "Invalid user"
+        error_message = "Invalid CAPTCHA response"
+      else
+        error_message = ex.message
+      end
+
       next templated "error"
     end
 
