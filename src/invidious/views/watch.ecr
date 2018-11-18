@@ -177,7 +177,7 @@
 <% if !rvs.empty? && !plid && params[:continue] %>
 player.on('ended', function() {
     window.location.replace("/watch?v=" 
-        + "<%= rvs.select { |rv| rv["id"]? }[0]? %>"
+        + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
         + "&continue=1"
         <% if params[:listen] %>
         + "&listen=1"
@@ -196,7 +196,7 @@ function continue_autoplay(target) {
     if (target.checked) {
         player.on('ended', function() {
             window.location.replace("/watch?v=" 
-                + "<%= rvs.select { |rv| rv["id"]? }[0]? %>"
+                + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
                 + "&continue=1"
                 <% if params[:listen] %>
                 + "&listen=1"
