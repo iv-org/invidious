@@ -152,7 +152,7 @@
         <% end %>
 
         <% rvs.each do |rv| %>
-            <% if rv.has_key?("id") %>
+            <% if rv["id"]? %>
             <a href="/watch?v=<%= rv["id"] %>">
                 <% if preferences && preferences.thin_mode %>
                 <% else %>
@@ -177,7 +177,7 @@
 <% if !rvs.empty? && !plid && params[:continue] %>
 player.on('ended', function() {
     window.location.replace("/watch?v=" 
-        + "<%= rvs[0]?.try &.["id"] %>"
+        + "<%= rvs.select { |rv| rv["id"]? }[0]? %>"
         + "&continue=1"
         <% if params[:listen] %>
         + "&listen=1"
@@ -196,7 +196,7 @@ function continue_autoplay(target) {
     if (target.checked) {
         player.on('ended', function() {
             window.location.replace("/watch?v=" 
-                + "<%= rvs[0]?.try &.["id"] %>"
+                + "<%= rvs.select { |rv| rv["id"]? }[0]? %>"
                 + "&continue=1"
                 <% if params[:listen] %>
                 + "&listen=1"
