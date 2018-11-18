@@ -104,7 +104,7 @@ get "/api/v1/captions/:id" do |env|
 
   client = make_client(YT_URL)
   begin
-    video = fetch_video(id, proxies, region)
+    video = fetch_video(id, proxies, region: region)
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/captions/#{ex.message}"
   rescue ex
@@ -336,7 +336,7 @@ get "/api/v1/videos/:id" do |env|
   region = env.params.query["region"]?
 
   begin
-    video = fetch_video(id, proxies, region)
+    video = fetch_video(id, proxies, region: region)
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/videos/#{ex.message}"
   rescue ex
@@ -1188,7 +1188,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   client = make_client(YT_URL)
   begin
-    video = fetch_video(id, proxies, region)
+    video = fetch_video(id, proxies, region: region)
   rescue ex : VideoRedirect
     next env.redirect "/api/manifest/dash/id/#{ex.message}"
   rescue ex
