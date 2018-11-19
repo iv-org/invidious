@@ -82,7 +82,7 @@
         </div>
     </div>
 
-    <div class="pure-u-1 pure-u-md-3-5">
+    <div class="pure-u-1 <% if preferences && !preferences.related_videos && !plid %>pure-u-md-4-5<% else %>pure-u-md-3-5<% end %>">
         <div class="h-box">
             <p>
                 <a href="/channel/<%= video.ucid %>">
@@ -132,6 +132,7 @@
             </div>
         </div>
     </div>
+    <% if preferences && preferences.related_videos || plid %>
     <div class="pure-u-1 pure-u-md-1-5">
         <% if plid %>
         <div id="playlist" class="h-box">
@@ -171,6 +172,7 @@
         </div>
         <% end %>
     </div>
+    <% end %>
 </div>
 
 <script>
