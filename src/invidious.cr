@@ -116,16 +116,7 @@ spawn do
   end
 end
 
-proxies = {} of String => Array({ip: String, port: Int32})
-if CONFIG.geo_bypass
-  spawn do
-    find_working_proxies(BYPASS_REGIONS) do |region, list|
-      if !list.empty?
-        proxies[region] = list
-      end
-    end
-  end
-end
+proxies = PROXY_LIST
 
 before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"

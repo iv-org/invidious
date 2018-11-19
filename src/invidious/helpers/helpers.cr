@@ -15,7 +15,6 @@ class Config
     https_only:   Bool?,
     hmac_key:     String?,
     full_refresh: Bool,
-    geo_bypass:   Bool,
     domain:       String?,
   })
 end
