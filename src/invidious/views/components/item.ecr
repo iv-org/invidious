@@ -25,6 +25,7 @@
             <% else %>
             <div class="thumbnail">
                 <img class="thumbnail" src="/vi/<%= item.videos[0]?.try &.id %>/mqdefault.jpg"/>
+                <p class="length"><%= number_with_separator(item.video_count) %> videos</p>
             </div>
             <% end %>
             <p><%= item.title %></p>
@@ -32,8 +33,6 @@
         <p>
             <b><a style="width:100%;" href="/channel/<%= item.ucid %>"><%= item.author %></a></b>
         </p>
-        <p><%= number_with_separator(item.video_count) %> videos</p>
-        <p>PLAYLIST</p>
     <% when MixVideo %>
         <a style="width:100%;" href="/watch?v=<%= item.id %>&list=<%= item.mixes[0] %>">
             <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
