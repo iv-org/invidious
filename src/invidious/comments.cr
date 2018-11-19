@@ -491,8 +491,7 @@ def content_to_comment_html(content)
     end
 
     if run["navigationEndpoint"]?
-      url = run["navigationEndpoint"]["urlEndpoint"]?.try &.["url"].as_s
-      if url
+      if url = run["navigationEndpoint"]["urlEndpoint"]?.try &.["url"].as_s
         url = URI.parse(url)
 
         if !url.host || {"m.youtube.com", "www.youtube.com", "youtu.be"}.includes? url.host
@@ -502,11 +501,16 @@ def content_to_comment_html(content)
             url = url.full_path
           end
         end
-      else
-        url = run["navigationEndpoint"]["commandMetadata"]?.try &.["webCommandMetadata"]["url"].as_s
-      end
 
-      text = %(<a href="#{url}">#{text}</a>)
+        text = %(<a href="#{url}">#{text}</a>)
+      elsif watch_endpoint = run["navigationEndpoint"]["watchEndpoint"]?
+        length_seconds = watch_endpoint["startTimeSeconds"].as_i
+        video_id = watch_endpoint["videoId"].as_s
+
+        text = %(<a onmouseenter='this["href"]="javascript:void();"' onclick="player.currentTime(#{length_seconds})" href="/watch?v=#{video_id}&t=#{length_seconds}">#{text}</a>)
+      elsif url = run["navigationEndpoint"]["commandMetadata"]?.try &.["webCommandMetadata"]["url"].as_s
+        text = %(<a href="#{url}">#{text}</a>)
+      end
     end
 
     text
