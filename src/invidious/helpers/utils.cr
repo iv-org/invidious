@@ -30,7 +30,7 @@ def make_client(url, proxies = {} of String => Array({ip: String, port: Int32}),
   client.connect_timeout = 10.seconds
 
   if region
-    proxies[region]?.try &.each do |proxy|
+    proxies[region]?.try &.sample(40).each do |proxy|
       begin
         proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
         client.set_proxy(proxy)
