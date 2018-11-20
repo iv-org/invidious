@@ -4,7 +4,8 @@
 
 CREATE TABLE public.nonces
 (
-  nonce text
+  nonce text,
+  expire timestamp with time zone,
 )
 WITH (
   OIDS=FALSE
