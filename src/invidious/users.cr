@@ -203,7 +203,7 @@ end
 def create_response(user_id, operation, key, db, expire = 6.hours)
   expire = Time.now + expire
   nonce = Random::Secure.hex(16)
-  db.exec("INSERT INTO nonces VALUES ($1) ON CONFLICT DO NOTHING", nonce)
+  db.exec("INSERT INTO nonces VALUES ($1, $2) ON CONFLICT DO NOTHING", nonce, expire)
 
   challenge = "#{expire.to_unix}-#{nonce}-#{user_id}-#{operation}"
   token = OpenSSL::HMAC.digest(:sha256, key, challenge)
