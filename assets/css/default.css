@@ -55,6 +55,19 @@ img.thumbnail {
   bottom: -0.5em;
 }
 
+.watched {
+  z-index: 100;
+  position: absolute;
+  background-color: rgba(35, 35, 35, 0.75);
+  color: #fff;
+  border-radius: 2px;
+  padding: 4px 8px 4px 8px;
+  font-size: 25px;
+  font-family: sans-serif;
+  left: 0.25em;
+  top: -0.75em;
+}
+
 /*
  * Navbar
  */

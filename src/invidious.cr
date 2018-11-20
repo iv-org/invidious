@@ -246,12 +246,10 @@ get "/watch" do |env|
   user = env.get? "user"
   if user
     user = user.as(User)
-    if !user.watched.includes? id
-      PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE id = $2", [id], user.id)
-    end
 
     preferences = user.preferences
     subscriptions = user.subscriptions
+    watched = user.watched
   end
   subscriptions ||= [] of String
 
@@ -266,6 +264,10 @@ get "/watch" do |env|
     error_message = ex.message
     STDOUT << id << " : " << ex.message << "\n"
     next templated "error"
+  end
+
+  if watched && !watched.includes? id
+    PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE $2 = id", [id], user.as(User).id)
   end
 
   if nojs
@@ -963,7 +965,6 @@ end
 
 get "/preferences" do |env|
   user = env.get? "user"
-
   referer = get_referer(env)
 
   if user
@@ -976,7 +977,6 @@ end
 
 post "/preferences" do |env|
   user = env.get? "user"
-
   referer = get_referer(env)
 
   if user
@@ -1079,7 +1079,6 @@ end
 
 get "/toggle_theme" do |env|
   user = env.get? "user"
-
   referer = get_referer(env)
 
   if user
@@ -1098,13 +1097,66 @@ get "/toggle_theme" do |env|
   env.redirect referer
 end
 
+get "/mark_watched" do |env|
+  user = env.get? "user"
+  referer = get_referer(env, "/feed/subscriptions")
+
+  id = env.params.query["id"]?
+  if !id
+    halt env, status_code: 400
+  end
+
+  redirect = env.params.query["redirect"]?
+  redirect ||= "false"
+  redirect = redirect == "true"
+
+  if user
+    user = user.as(User)
+    if !user.watched.includes? id
+      PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE $2 = id", [id], user.id)
+    end
+  end
+
+  if redirect
+    env.redirect referer
+  else
+    env.response.content_type = "application/json"
+    "{}"
+  end
+end
+
+get "/mark_unwatched" do |env|
+  user = env.get? "user"
+  referer = get_referer(env, "/feed/history")
+
+  id = env.params.query["id"]?
+  if !id
+    halt env, status_code: 400
+  end
+
+  redirect = env.params.query["redirect"]?
+  redirect ||= "false"
+  redirect = redirect == "true"
+
+  if user
+    user = user.as(User)
+    PG_DB.exec("UPDATE users SET watched = array_remove(watched, $1) WHERE id = $2", id, user.id)
+  end
+
+  if redirect
+    env.redirect referer
+  else
+    env.response.content_type = "application/json"
+    "{}"
+  end
+end
+
 # /modify_notifications
 # will "ding" all subscriptions.
 # /modify_notifications?receive_all_updates=false&receive_no_updates=false
 # will "unding" all subscriptions.
 get "/modify_notifications" do |env|
   user = env.get? "user"
-
   referer = get_referer(env)
 
   if user
@@ -1150,7 +1202,6 @@ end
 
 get "/subscription_manager" do |env|
   user = env.get? "user"
-
   referer = get_referer(env, "/")
 
   if !user
@@ -1235,7 +1286,6 @@ end
 
 get "/data_control" do |env|
   user = env.get? "user"
-
   referer = get_referer(env)
 
   if user
@@ -1249,7 +1299,6 @@ end
 
 post "/data_control" do |env|
   user = env.get? "user"
-
   referer = get_referer(env)
 
   if user
@@ -1385,7 +1434,6 @@ end
 
 get "/subscription_ajax" do |env|
   user = env.get? "user"
-
   referer = get_referer(env)
 
   if user
@@ -1547,6 +1595,7 @@ get "/feed/subscriptions" do |env|
   if user
     user = user.as(User)
     preferences = user.preferences
+    env.set "show_watched", true
 
     # Refresh account
     headers = HTTP::Headers.new
@@ -1670,19 +1719,28 @@ get "/feed/subscriptions" do |env|
   end
 end
 
-# get "/feed/history" do |env|
-#   user = env.get? "user"
-#   referer = get_referer(env)
+get "/feed/history" do |env|
+  user = env.get? "user"
+  referer = get_referer(env)
 
-#   if user
-#     user = user.as(User)
-#     watched = user.watched.reverse
+  page = env.params.query["page"]?.try &.to_i?
+  page ||= 1
 
-#     templated "history"
-#   else
-#     env.redirect referer
-#   end
-# end
+  if user
+    user = user.as(User)
+
+    limit = user.preferences.max_results
+    if user.watched[(page - 1)*limit]?
+      watched = user.watched.reverse[(page - 1)*limit, limit]
+    else
+      watched = [] of String
+    end
+
+    templated "history"
+  else
+    env.redirect referer
+  end
+end
 
 get "/feed/channel/:ucid" do |env|
   env.response.content_type = "text/xml"

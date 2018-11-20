@@ -74,6 +74,21 @@
             <% else %>
             <div class="thumbnail">
                 <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
+                <% if env.get? "show_watched" %>
+                <p class="watched">
+                    <a onclick="mark_watched(this)"
+                        data-id="<%= item.id %>"
+                        onmouseenter='this["href"]="javascript:void(0)"'
+                        href="/mark_watched?id=<%= item.id %>"'
+                    >
+                        <i onmouseenter='this.setAttribute("class", "icon ion-ios-eye-off")'
+                            onmouseleave='this.setAttribute("class", "icon ion-ios-eye")'
+                            class="icon ion-ios-eye"
+                        >
+                        </i>
+                    </a>
+                </p>
+                <% end %>
                 <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
             </div>
             <% end %>

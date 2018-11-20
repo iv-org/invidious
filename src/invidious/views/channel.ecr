@@ -90,7 +90,7 @@
 </div>
 
 <script>
-document.getElementById("subscribe")["href"] = "javascript:void(0);"
+document.getElementById("subscribe")["href"] = "javascript:void(0)"
 
 function subscribe() {
     var url = "/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>";

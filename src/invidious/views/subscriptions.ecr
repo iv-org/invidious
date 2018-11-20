@@ -43,6 +43,28 @@
 <% end %>
 </div>
 
+<script>
+function mark_watched(target) {
+    var tile = target.parentNode.parentNode.parentNode.parentNode;
+    tile.style.display = "none";
+
+    var url = "/mark_watched?redirect=false&id=" + target.getAttribute("data-id");
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.timeout = 20000;
+    xhr.open("GET", url, true);
+    xhr.send();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if (xhr.status != 200) {
+                tile.style.display = "";
+            }
+        }
+    }
+}
+</script>
+
 <div class="pure-g">
     <div class="pure-u-1 pure-u-md-1-5">
     <% if page >= 2 %>
