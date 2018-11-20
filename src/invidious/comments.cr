@@ -70,34 +70,18 @@ def fetch_youtube_comments(id, continuation, proxies, format)
   if body.match(/<meta itemprop="regionsAllowed" content="">/)
     bypass_channel = Channel({String, HTTPClient, HTTP::Headers} | Nil).new
 
-    proxies.each do |region, list|
+    proxies.each do |proxy_region, list|
       spawn do
-        proxy_html = %(<meta itemprop="regionsAllowed" content="">)
+        proxy_client = make_client(YT_URL, proxies, proxy_region)
 
-        list.each do |proxy|
-          begin
-            proxy_client = HTTPClient.new(YT_URL)
-            proxy_client.read_timeout = 10.seconds
-            proxy_client.connect_timeout = 10.seconds
+        response = proxy_client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
+        proxy_headers = HTTP::Headers.new
+        proxy_headers["Cookie"] = response.cookies.add_request_headers(headers)["cookie"]
+        proxy_html = response.body
 
-            proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-            proxy_client.set_proxy(proxy)
-
-            response = proxy_client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
-            proxy_headers = HTTP::Headers.new
-            proxy_headers["cookie"] = response.cookies.add_request_headers(headers)["cookie"]
-            proxy_html = response.body
-
-            if !proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
-              bypass_channel.send({proxy_html, proxy_client, proxy_headers})
-              break
-            end
-          rescue ex
-          end
-        end
-
-        # If none of the proxies we tried returned a valid response
-        if proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
+        if !proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
+          bypass_channel.send({proxy_html, proxy_client, proxy_headers})
+        else
           bypass_channel.send(nil)
         end
       end
@@ -106,12 +90,12 @@ def fetch_youtube_comments(id, continuation, proxies, format)
     proxies.size.times do
       response = bypass_channel.receive
       if response
-        session_token = response[0].match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
-        itct = response[0].match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
-        ctoken = response[0].match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
+        html, client, headers = response
 
-        client = response[1]
-        headers = response[2]
+        session_token = html.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
+        itct = html.match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
+        ctoken = html.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
+
         break
       end
     end

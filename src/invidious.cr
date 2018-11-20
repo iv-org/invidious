@@ -694,7 +694,9 @@ post "/login" do |env|
 
       challenge_req = {
         user_hash, nil, 1, nil,
-        {1, nil, nil, nil, {password, nil, true}},
+        {1, nil, nil, nil,
+         {password, nil, true},
+        },
         {nil, nil,
          {2, 1, nil, 1, "https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount", nil, [] of String, 4, [] of String},
          1,
@@ -3342,45 +3344,24 @@ get "/videoplayback" do |env|
   host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
 
-  if query_params["region"]?
-    client = make_client(URI.parse(host))
-    response = HTTP::Client::Response.new(status_code: 403)
-
-    if !proxies[query_params["region"]]?
-      halt env, status_code: 403
-    end
-
-    proxies[query_params["region"]].each do |proxy|
-      begin
-        client = HTTPClient.new(URI.parse(host))
-        client.read_timeout = 10.seconds
-        client.connect_timeout = 10.seconds
-
-        proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-        client.set_proxy(proxy)
-
-        response = client.head(url)
-        if response.status_code == 200
-          # For whatever reason the proxy needs to be set again
-          client.set_proxy(proxy)
-          break
-        end
-      rescue ex
-      end
-    end
-  else
-    client = make_client(URI.parse(host))
-    response = client.head(url)
-  end
-
-  if response.status_code != 200
-    halt env, status_code: 403
-  end
+  region = query_params["region"]?
+  client = make_client(URI.parse(host), proxies, region)
+  response = client.head(url)
 
   if response.headers["Location"]?
     url = URI.parse(response.headers["Location"])
     env.response.headers["Access-Control-Allow-Origin"] = "*"
-    next env.redirect url.full_path
+
+    url = url.full_path
+    if region
+      url += "&region=#{region}"
+    end
+
+    next env.redirect url
+  end
+
+  if response.status_code >= 400
+    halt env, status_code: 403
   end
 
   headers = env.request.headers
@@ -3389,6 +3370,7 @@ get "/videoplayback" do |env|
   headers.delete("User-Agent")
   headers.delete("Referer")
 
+  client = make_client(URI.parse(host), proxies, region)
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
 

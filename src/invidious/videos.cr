@@ -578,47 +578,26 @@ def fetch_video(id, proxies, region)
   info = info_channel.receive
 
   if info["reason"]? && info["reason"].includes? "your country"
-    bypass_channel = Channel(HTTPProxy | Nil).new
+    bypass_channel = Channel({HTTPClient, String} | Nil).new
 
-    proxies.each do |region, list|
+    proxies.each do |proxy_region, list|
       spawn do
-        info = HTTP::Params.new({
-          "reason" => [info["reason"]],
-        })
+        client = make_client(YT_URL, proxies, proxy_region)
 
-        list.each do |proxy|
-          begin
-            client = HTTPClient.new(YT_URL)
-            client.read_timeout = 10.seconds
-            client.connect_timeout = 10.seconds
-
-            proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-            client.set_proxy(proxy)
-
-            info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
-            if !info["reason"]?
-              bypass_channel.send(proxy)
-              break
-            end
-          rescue ex
-          end
-        end
-
-        # If none of the proxies we tried returned a valid response
-        if info["reason"]?
+        info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
+        if !info["reason"]?
+          bypass_channel.send({client, proxy_region})
+        else
           bypass_channel.send(nil)
         end
       end
     end
 
     proxies.size.times do
-      proxy = bypass_channel.receive
-      if proxy
+      response = bypass_channel.receive
+      if response
         begin
-          client = HTTPClient.new(YT_URL)
-          client.read_timeout = 10.seconds
-          client.connect_timeout = 10.seconds
-          client.set_proxy(proxy)
+          client, proxy_region = response
 
           html = XML.parse_html(client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999").body)
           info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
@@ -627,11 +606,7 @@ def fetch_video(id, proxies, region)
             info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
           end
 
-          proxy = {ip: proxy.proxy_host, port: proxy.proxy_port}
-          region_proxies = proxies.select { |region, list| list.includes? proxy }
-          if !region_proxies.empty?
-            info["region"] = region_proxies.keys[0]
-          end
+          info["region"] = proxy_region
 
           break
         rescue ex
