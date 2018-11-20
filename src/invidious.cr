@@ -1590,6 +1590,20 @@ end
 
 # Feeds
 
+get "/feed/trending" do |env|
+  trending_type = env.params.query["type"]?
+  region = env.params.query["region"]?
+
+  begin
+    trending = fetch_trending(trending_type, proxies, region)
+  rescue ex
+    error_message = "#{ex.message}"
+    next templated "error"
+  end
+
+  templated "trending"
+end
+
 get "/feed/subscriptions" do |env|
   user = env.get? "user"
   referer = get_referer(env)
@@ -2467,14 +2481,19 @@ get "/api/v1/videos/:id" do |env|
 end
 
 get "/api/v1/trending" do |env|
-  client = make_client(YT_URL)
-  trending = client.get("/feed/trending?disable_polymer=1").body
+  region = env.params.query["region"]?
+  trending_type = env.params.query["type"]?
 
-  trending = XML.parse_html(trending)
+  begin
+    trending = fetch_trending(trending_type, proxies, region)
+  rescue ex
+    error_message = {"error" => ex.message}.to_json
+    halt env, status_code: 500, response: error_message
+  end
+
   videos = JSON.build do |json|
     json.array do
-      nodeset = trending.xpath_nodes(%q(//ul/li[@class="expanded-shelf-content-item-wrapper"]))
-      extract_videos(nodeset).each do |video|
+      trending.each do |video|
         json.object do
           json.field "title", video.title
           json.field "videoId", video.id
@@ -2493,6 +2512,9 @@ get "/api/v1/trending" do |env|
           json.field "publishedText", "#{recode_date(video.published)} ago"
           json.field "description", video.description
           json.field "descriptionHtml", video.description_html
+          json.field "liveNow", video.live_now
+          json.field "paid", video.paid
+          json.field "premium", video.premium
         end
       end
     end
