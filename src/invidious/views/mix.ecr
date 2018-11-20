@@ -13,10 +13,10 @@
     </div>
 </div>
 
-<% mix.videos.each_slice(4) do |slice| %>
 <div class="pure-g">
+<% mix.videos.each_slice(4) do |slice| %>
     <% slice.each do |item| %>
         <%= rendered "components/item" %>
     <% end %>
-</div> 
 <% end %>
+</div> 

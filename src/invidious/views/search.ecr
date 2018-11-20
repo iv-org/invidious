@@ -2,13 +2,13 @@
 <title><%= search_query.not_nil!.size > 30 ? HTML.escape(query.not_nil![0,30].rstrip(".") + "...") : HTML.escape(query.not_nil!) %> - Invidious</title>
 <% end %>
 
-<% videos.each_slice(4) do |slice| %>
 <div class="pure-g">
+<% videos.each_slice(4) do |slice| %>
     <% slice.each do |item| %>
         <%= rendered "components/item" %>
     <% end %>
-</div> 
 <% end %>
+</div> 
 
 <div class="pure-g h-box">
     <div class="pure-u-1 pure-u-md-1-5">
