@@ -40,7 +40,6 @@ function mark_unwatched(target) {
     xhr.responseType = "json";
     xhr.timeout = 20000;
     xhr.open("GET", url, true);
-    xhr.setRequestHeader("Redirect", "false");
     xhr.send();
 
     xhr.onreadystatechange = function() {
