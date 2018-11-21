@@ -16,7 +16,9 @@ dependencies:
     commit: afd17fc
   pg:
     github: will/crystal-pg
+  sqlite3:
+    github: crystal-lang/crystal-sqlite3
 
-crystal: 0.26.1
+crystal: 0.27.0
 
 license: AGPLv3

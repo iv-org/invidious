@@ -20,6 +20,7 @@ require "kemal"
 require "openssl/hmac"
 require "option_parser"
 require "pg"
+require "sqlite3"
 require "xml"
 require "yaml"
 require "zip"
@@ -1142,7 +1143,7 @@ get "/mark_unwatched" do |env|
 
   if user
     user = user.as(User)
-    PG_DB.exec("UPDATE users SET watched = array_remove(watched, $1) WHERE id = $2", id, user.id)
+    PG_DB.exec("UPDATE users SET watched = array_remove(watched, $1) WHERE email = $2", id, user.email)
   end
 
   if redirect
@@ -1320,12 +1321,13 @@ post "/data_control" do |env|
           user.subscriptions += body["subscriptions"].as_a.map { |a| a.as_s }
           user.subscriptions.uniq!
 
-          user.subscriptions.each do |ucid|
+          user.subscriptions.select! do |ucid|
             begin
               client = make_client(YT_URL)
               get_channel(ucid, client, PG_DB, false, false)
+              true
             rescue ex
-              next
+              false
             end
           end
 
@@ -1349,12 +1351,13 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions.each do |ucid|
+        user.subscriptions.select! do |ucid|
           begin
             client = make_client(YT_URL)
             get_channel(ucid, client, PG_DB, false, false)
+            true
           rescue ex
-            next
+            false
           end
         end
 
@@ -1365,12 +1368,13 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions.each do |ucid|
+        user.subscriptions.select! do |ucid|
           begin
             client = make_client(YT_URL)
             get_channel(ucid, client, PG_DB, false, false)
+            true
           rescue ex
-            next
+            false
           end
         end
 
@@ -1396,34 +1400,32 @@ post "/data_control" do |env|
         Zip::Reader.open(IO::Memory.new(body)) do |file|
           file.each_entry do |entry|
             if entry.filename == "newpipe.db"
-              # We do this because the SQLite driver cannot parse a database from an IO
-              # Currently: channel URLs can **only** be subscriptions, and
-              # video URLs can **only** be watch history, so this works okay for now.
+              tempfile = File.tempfile(".db")
+              File.write(tempfile.path, entry.io.gets_to_end)
+              db = DB.open("sqlite3://" + tempfile.path)
 
-              db = entry.io.gets_to_end
-
-              user.watched += db.scan(/youtube\.com\/watch\?v\=(?<id>[a-zA-Z0-9_-]{11})/).map do |md|
-                md["id"]
-              end
+              user.watched += db.query_all("SELECT url FROM streams", as: String).map { |url| url.lchop("https://www.youtube.com/watch?v=") }
               user.watched.uniq!
 
               PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", user.watched, user.email)
 
-              user.subscriptions += db.scan(/youtube\.com\/channel\/(?<ucid>[a-zA-Z0-9_-]{22})/).map do |md|
-                md["ucid"]
-              end
+              user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map { |url| url.lchop("https://www.youtube.com/channel/") }
               user.subscriptions.uniq!
 
-              user.subscriptions.each do |ucid|
+              user.subscriptions.select! do |ucid|
                 begin
                   client = make_client(YT_URL)
                   get_channel(ucid, client, PG_DB, false, false)
+                  true
                 rescue ex
-                  next
+                  false
                 end
               end
 
               PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+
+              db.close
+              tempfile.delete
             end
           end
         end
@@ -1482,32 +1484,32 @@ get "/subscription_ajax" do |env|
 
       # Update user
       if client.post(post_url, headers, post_req).status_code == 200
-        sid = user.id
+        email = user.email
 
         case action
         when .starts_with? "action_create"
-          PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", channel_id, sid)
+          PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", channel_id, email)
         when .starts_with? "action_remove"
-          PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE id = $2", channel_id, sid)
+          PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", channel_id, email)
         end
       end
     else
-      sid = user.id
+      email = user.email
 
       case action
       when .starts_with? "action_create"
         if !user.subscriptions.includes? channel_id
-          PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE id = $2", channel_id, sid)
+          PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", channel_id, email)
 
           client = make_client(YT_URL)
           get_channel(channel_id, client, PG_DB, false, false)
         end
       when .starts_with? "action_remove"
-        PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE id = $2", channel_id, sid)
+        PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", channel_id, email)
       end
     end
 
-    count_text = PG_DB.query_one?("SELECT cardinality(subscriptions) FROM users WHERE id = $1", [sid], as: Int64)
+    count_text = PG_DB.query_one?("SELECT cardinality(subscriptions) FROM users WHERE email = $1", email, as: Int32)
     count_text ||= 0
     count_text = "#{number_with_separator(count_text)} subscriptions"
   end
@@ -1742,8 +1744,8 @@ get "/feed/subscriptions" do |env|
       videos = videos[0..max_results]
     end
 
-    PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE id = $3", [] of String, Time.now,
-      user.id)
+    PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE email = $3", [] of String, Time.now,
+      user.email)
     user.notifications = [] of String
     env.set "user", user
 
