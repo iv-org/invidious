@@ -1611,7 +1611,10 @@ get "/feed/subscriptions" do |env|
   if user
     user = user.as(User)
     preferences = user.preferences
-    env.set "show_watched", true
+
+    if preferences.unseen_only
+      env.set "show_watched", true
+    end
 
     # Refresh account
     headers = HTTP::Headers.new
