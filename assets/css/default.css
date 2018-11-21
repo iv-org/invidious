@@ -62,10 +62,10 @@ img.thumbnail {
   color: #fff;
   border-radius: 2px;
   padding: 4px 8px 4px 8px;
-  font-size: 25px;
+  font-size: 16px;
   font-family: sans-serif;
-  left: 0.25em;
-  top: -0.75em;
+  left: 0.20em;
+  top: -0.70em;
 }
 
 /*
