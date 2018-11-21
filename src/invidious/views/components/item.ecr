@@ -69,9 +69,9 @@
         <h5>Shared <%= recode_date(item.published) %> ago</h5>
         <% end %>
     <% else %>
+        <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
+        <% else %>
         <a style="width:100%;" href="/watch?v=<%= item.id %>">
-            <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
-            <% else %>
             <div class="thumbnail">
                 <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                 <% if env.get? "show_watched" %>
@@ -79,21 +79,19 @@
                     <a onclick="mark_watched(this)"
                         data-id="<%= item.id %>"
                         onmouseenter='this["href"]="javascript:void(0)"'
-                        href="/mark_watched?id=<%= item.id %>"'
-                    >
+                        href="/mark_watched?id=<%= item.id %>">
                         <i onmouseenter='this.setAttribute("class", "icon ion-ios-eye-off")'
                             onmouseleave='this.setAttribute("class", "icon ion-ios-eye")'
-                            class="icon ion-ios-eye"
-                        >
+                            class="icon ion-ios-eye">
                         </i>
                     </a>
                 </p>
                 <% end %>
                 <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
             </div>
-            <% end %>
-            <p><%= item.title %></p>
         </a>
+        <% end %>
+        <p><a href="/watch?v=<%= item.id %>"><%= item.title %></a></p>
         <% if item.responds_to?(:live_now) && item.live_now %>
         <p>LIVE</p>
         <% end %>
