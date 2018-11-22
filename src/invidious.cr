@@ -16,6 +16,7 @@
 
 require "crypto/bcrypt/password"
 require "detect_language"
+require "digest/md5"
 require "kemal"
 require "openssl/hmac"
 require "option_parser"
@@ -82,10 +83,11 @@ PG_URL = URI.new(
   path: CONFIG.db[:dbname],
 )
 
-PG_DB      = DB.open PG_URL
-YT_URL     = URI.parse("https://www.youtube.com")
-REDDIT_URL = URI.parse("https://www.reddit.com")
-LOGIN_URL  = URI.parse("https://accounts.google.com")
+PG_DB           = DB.open PG_URL
+YT_URL          = URI.parse("https://www.youtube.com")
+REDDIT_URL      = URI.parse("https://www.reddit.com")
+LOGIN_URL       = URI.parse("https://accounts.google.com")
+TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@hotmail.com.json")
 
 crawl_threads.times do
   spawn do
@@ -632,8 +634,25 @@ get "/login" do |env|
   account_type = env.params.query["type"]?
   account_type ||= "invidious"
 
+  captcha_type = env.params.query["captcha"]?
+  captcha_type ||= "image"
+
   if account_type == "invidious"
-    captcha = generate_captcha(HMAC_KEY, PG_DB)
+    if captcha_type == "image"
+      captcha = generate_captcha(HMAC_KEY, PG_DB)
+    else
+      response = HTTP::Client.get(TEXTCAPTCHA_URL).body
+      response = JSON.parse(response)
+
+      tokens = response["a"].as_a.map do |answer|
+        create_response(answer.as_s, "sign_in", HMAC_KEY, PG_DB)
+      end
+
+      text_captcha = {
+        question: response["q"].as_s,
+        tokens:   tokens,
+      }
+    end
   end
 
   tfa = env.params.query["tfa"]?
@@ -827,27 +846,55 @@ post "/login" do |env|
     end
   elsif account_type == "invidious"
     answer = env.params.body["answer"]?
+    text_answer = env.params.body["text_answer"]?
 
-    if !answer
-      error_message = "CAPTCHA is a required field"
-      next templated "error"
-    end
+    if answer
+      answer = answer.lstrip('0')
+      answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
 
-    answer = answer.lstrip('0')
-    answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
+      challenge = env.params.body["challenge"]?
+      token = env.params.body["token"]?
 
-    challenge = env.params.body["challenge"]?
-    token = env.params.body["token"]?
+      begin
+        validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB)
+      rescue ex
+        if ex.message == "Invalid user"
+          error_message = "Invalid answer"
+        else
+          error_message = ex.message
+        end
 
-    begin
-      validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB)
-    rescue ex
-      if ex.message && ex.message == "Invalid user"
-        error_message = "Invalid CAPTCHA response"
-      else
-        error_message = ex.message
+        next templated "error"
+      end
+    elsif text_answer
+      text_answer = Digest::MD5.hexdigest(text_answer.downcase.strip)
+
+      challenges = env.params.body.select { |k, v| k.match(/text_challenge\d+/) }
+      tokens = env.params.body.select { |k, v| k.match(/text_token\d+/) }
+
+      found_valid_captcha = false
+
+      error_message = "Invalid CAPTCHA"
+      challenges.each_with_index do |challenge, i|
+        begin
+          challenge = challenge[1]
+          token = tokens[i][1]
+          validate_response(challenge, token, text_answer, "sign_in", HMAC_KEY, PG_DB)
+          found_valid_captcha = true
+        rescue ex
+          if ex.message == "Invalid user"
+            error_message = "Invalid answer"
+          else
+            error_message = ex.message
+          end
+        end
       end
 
+      if !found_valid_captcha
+        next templated "error"
+      end
+    else
+      error_message = "CAPTCHA is a required field"
       next templated "error"
     end
 
