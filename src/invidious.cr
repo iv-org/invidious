@@ -512,6 +512,21 @@ end
 
 # Search
 
+get "/opensearch.xml" do |env|
+  env.response.content_type = "application/opensearchdescription+xml"
+
+  XML.build(indent: "  ", encoding: "UTF-8") do |xml|
+    xml.element("OpenSearchDescription", xmlns: "http://a9.com/-/spec/opensearch/1.1/") do
+      xml.element("ShortName") { xml.text "Invidious" }
+      xml.element("LongName") { xml.text "Invidious Search" }
+      xml.element("Description") { xml.text "Search for videos, channels, and playlists on Invidious" }
+      xml.element("InputEncoding") { xml.text "UTF-8" }
+      xml.element("Image", width: 48, height: 48, type: "image/x-icon") { xml.text "/favicon.ico" }
+      xml.element("Url", type: "text/html", method: "get", template: "/search?q={searchTerms}")
+    end
+  end
+end
+
 get "/results" do |env|
   query = env.params.query["search_query"]?
   query ||= env.params.query["q"]?
