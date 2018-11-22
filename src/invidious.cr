@@ -1444,8 +1444,6 @@ get "/subscription_ajax" do |env|
   redirect ||= "false"
   redirect = redirect == "true"
 
-  count_text = ""
-
   if user
     user = user.as(User)
 
@@ -1508,17 +1506,13 @@ get "/subscription_ajax" do |env|
         PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", channel_id, email)
       end
     end
-
-    count_text = PG_DB.query_one?("SELECT cardinality(subscriptions) FROM users WHERE email = $1", email, as: Int32)
-    count_text ||= 0
-    count_text = "#{number_with_separator(count_text)} subscriptions"
   end
 
   if redirect
     env.redirect referer
   else
     env.response.content_type = "application/json"
-    {"countText" => count_text}.to_json
+    "{}"
   end
 end
 
