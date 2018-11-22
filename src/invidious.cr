@@ -521,8 +521,8 @@ get "/opensearch.xml" do |env|
       xml.element("LongName") { xml.text "Invidious Search" }
       xml.element("Description") { xml.text "Search for videos, channels, and playlists on Invidious" }
       xml.element("InputEncoding") { xml.text "UTF-8" }
-      xml.element("Image", width: 48, height: 48, type: "image/x-icon") { xml.text "/favicon.ico" }
-      xml.element("Url", type: "text/html", method: "get", template: "/search?q={searchTerms}")
+      xml.element("Image", width: 48, height: 48, type: "image/x-icon") { xml.text "https://invidio.us/favicon.ico" }
+      xml.element("Url", type: "text/html", method: "get", template: "https://invidio.us/search?q={searchTerms}")
     end
   end
 end
