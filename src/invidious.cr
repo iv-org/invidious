@@ -16,10 +16,12 @@
 
 require "crypto/bcrypt/password"
 require "detect_language"
+require "digest/md5"
 require "kemal"
 require "openssl/hmac"
 require "option_parser"
 require "pg"
+require "sqlite3"
 require "xml"
 require "yaml"
 require "zip"
@@ -524,14 +526,19 @@ get "/api/v1/videos/:id" do |env|
 end
 
 get "/api/v1/trending" do |env|
-  client = make_client(YT_URL)
-  trending = client.get("/feed/trending?disable_polymer=1").body
+  region = env.params.query["region"]?
+  trending_type = env.params.query["type"]?
 
-  trending = XML.parse_html(trending)
+  begin
+    trending = fetch_trending(trending_type, proxies, region)
+  rescue ex
+    error_message = {"error" => ex.message}.to_json
+    halt env, status_code: 500, response: error_message
+  end
+
   videos = JSON.build do |json|
     json.array do
-      nodeset = trending.xpath_nodes(%q(//ul/li[@class="expanded-shelf-content-item-wrapper"]))
-      extract_videos(nodeset).each do |video|
+      trending.each do |video|
         json.object do
           json.field "title", video.title
           json.field "videoId", video.id
@@ -550,6 +557,9 @@ get "/api/v1/trending" do |env|
           json.field "publishedText", "#{recode_date(video.published)} ago"
           json.field "description", video.description
           json.field "descriptionHtml", video.description_html
+          json.field "liveNow", video.live_now
+          json.field "paid", video.paid
+          json.field "premium", video.premium
         end
       end
     end
@@ -1367,45 +1377,24 @@ get "/videoplayback" do |env|
   host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
 
-  if query_params["region"]?
-    client = make_client(URI.parse(host))
-    response = HTTP::Client::Response.new(status_code: 403)
-
-    if !proxies[query_params["region"]]?
-      halt env, status_code: 403
-    end
-
-    proxies[query_params["region"]].each do |proxy|
-      begin
-        client = HTTPClient.new(URI.parse(host))
-        client.read_timeout = 10.seconds
-        client.connect_timeout = 10.seconds
-
-        proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-        client.set_proxy(proxy)
-
-        response = client.head(url)
-        if response.status_code == 200
-          # For whatever reason the proxy needs to be set again
-          client.set_proxy(proxy)
-          break
-        end
-      rescue ex
-      end
-    end
-  else
-    client = make_client(URI.parse(host))
-    response = client.head(url)
-  end
-
-  if response.status_code != 200
-    halt env, status_code: 403
-  end
+  region = query_params["region"]?
+  client = make_client(URI.parse(host), proxies, region)
+  response = client.head(url)
 
   if response.headers["Location"]?
     url = URI.parse(response.headers["Location"])
     env.response.headers["Access-Control-Allow-Origin"] = "*"
-    next env.redirect url.full_path
+
+    url = url.full_path
+    if region
+      url += "&region=#{region}"
+    end
+
+    next env.redirect url
+  end
+
+  if response.status_code >= 400
+    halt env, status_code: 403
   end
 
   headers = env.request.headers
@@ -1414,6 +1403,7 @@ get "/videoplayback" do |env|
   headers.delete("User-Agent")
   headers.delete("Referer")
 
+  client = make_client(URI.parse(host), proxies, region)
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
 
