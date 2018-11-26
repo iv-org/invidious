@@ -1669,6 +1669,14 @@ end
 
 # Feeds
 
+get "/feed/top" do |env|
+  templated "top"
+end
+
+get "/feed/popular" do |env|
+  templated "popular"
+end
+
 get "/feed/trending" do |env|
   trending_type = env.params.query["type"]?
   region = env.params.query["region"]?
