@@ -1,6 +1,8 @@
 <<% if params[:listen]%>audio<% else %>video<% end %> style="width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" 
     id="player" class="video-js"
-    onmouseenter='this["title"]=""'
+    onmouseenter='this["data-title"]=this["title"];this["title"]=""'
+    onmouseleave='this["title"]=this["data-title"];this["data-title"]=""'
+    oncontextmenu='this["title"]=this["data-title"]'
     <% if params[:autoplay] %>autoplay<% end %>
     <% if params[:video_loop] %>loop<% end %>
     <% if params[:controls] %>controls<% end %>>
