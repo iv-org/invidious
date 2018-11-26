@@ -180,6 +180,21 @@ def pull_top_videos(config, db)
   end
 end
 
+def pull_popular_videos(db)
+  loop do
+    subscriptions = PG_DB.query_all("SELECT channel FROM \
+      (SELECT UNNEST(subscriptions) AS channel FROM users) AS d \
+    GROUP BY channel ORDER BY COUNT(channel) DESC LIMIT 40", as: String)
+
+    videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM \
+      channel_videos WHERE ucid IN (#{arg_array(subscriptions)}) \
+    ORDER BY ucid, published DESC", subscriptions, as: ChannelVideo).sort_by { |video| video.published }.reverse
+
+    yield videos
+    Fiber.yield
+  end
+end
+
 def update_decrypt_function
   loop do
     begin

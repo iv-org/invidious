@@ -1,3 +1,5 @@
+require "crypto/bcrypt/password"
+
 class User
   module PreferencesConverter
     def self.from_rs(rs)
