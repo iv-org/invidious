@@ -2617,20 +2617,13 @@ get "/api/v1/popular" do |env|
             generate_thumbnails(json, video.id)
           end
 
-          json.field "lengthSeconds", video.info["length_seconds"].to_i
-          json.field "viewCount", video.views
+          json.field "lengthSeconds", video.length_seconds
 
           json.field "author", video.author
           json.field "authorId", video.ucid
           json.field "authorUrl", "/channel/#{video.ucid}"
           json.field "published", video.published.to_unix
           json.field "publishedText", "#{recode_date(video.published)} ago"
-
-          description = video.description.gsub("<br>", "\n")
-          description = description.gsub("<br/>", "\n")
-          description = XML.parse_html(description)
-          json.field "description", description.content
-          json.field "descriptionHtml", video.description
         end
       end
     end
