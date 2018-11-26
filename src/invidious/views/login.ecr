@@ -28,7 +28,8 @@
                     <img style="width:100%" src='<%= captcha.not_nil![:image] %>'/>
                     <input type="hidden" name="token" value="<%= captcha.not_nil![:token] %>">
                     <input type="hidden" name="challenge" value="<%= captcha.not_nil![:challenge] %>">
-                    <input required type="text" name="answer" type="text" placeholder="h:mm">
+                    <label for="answer">Time (h:mm:ss):</label>
+                    <input required type="text" name="answer" type="text" placeholder="h:mm:ss">
                     
                     <label>
                         <a href="/login?referer=<%= URI.escape(referer) %>&type=invidious&captcha=text">Text CAPTCHA</a>
