@@ -37,7 +37,7 @@ video_threads = CONFIG.video_threads
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-t THREADS", "--crawl-threads=THREADS", "Number of threads for crawling (default: #{crawl_threads})") do |number|
+  parser.on("-t THREADS", "--crawl-threads=THREADS", "Number of threads for crawling YouTube (default: #{crawl_threads})") do |number|
     begin
       crawl_threads = number.to_i
     rescue ex

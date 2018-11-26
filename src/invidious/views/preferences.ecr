@@ -138,7 +138,7 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="latest_only">Only show latest <% if user.preferences.unseen_only %>unseen<% end %> video from channel: </label>
+                <label for="latest_only">Only show latest <% if user.preferences.unseen_only %>unwatched<% end %> video from channel: </label>
                 <input name="latest_only" id="latest_only" type="checkbox" <% if user.preferences.latest_only %>checked<% end %>>
             </div>
 
@@ -148,7 +148,7 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="notifications_only">Only show notifications: </label>
+                <label for="notifications_only">Only show notifications (if there are any): </label>
                 <input name="notifications_only" id="notifications_only" type="checkbox" <% if user.preferences.notifications_only %>checked<% end %>>
             </div>
 

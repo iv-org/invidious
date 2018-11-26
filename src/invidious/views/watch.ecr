@@ -66,8 +66,8 @@
             <% if !video.license.empty? %>
             <p id="License">License: <%= video.license %></p>
             <% end %>
-            <p id="FamilyFriendly">Family Friendly? <%= video.is_family_friendly %></p>
-            <p id="Wilson">Wilson Score: <%= video.wilson_score.round(4) %></p>
+            <p id="FamilyFriendly">Family friendly? <%= video.is_family_friendly %></p>
+            <p id="Wilson">Wilson score: <%= video.wilson_score.round(4) %></p>
             <p id="Rating">Rating: <%= rating.round(4) %> / 5</p>
             <p id="Engagement">Engagement: <%= engagement.round(2) %>%</p>
             <% if video.allowed_regions.size != REGIONS.size %>
