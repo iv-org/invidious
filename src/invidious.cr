@@ -2606,6 +2606,40 @@ get "/api/v1/trending" do |env|
   videos
 end
 
+get "/api/v1/popular" do |env|
+  videos = JSON.build do |json|
+    json.array do
+      popular_videos.each do |video|
+        json.object do
+          json.field "title", video.title
+          json.field "videoId", video.id
+          json.field "videoThumbnails" do
+            generate_thumbnails(json, video.id)
+          end
+
+          json.field "lengthSeconds", video.info["length_seconds"].to_i
+          json.field "viewCount", video.views
+
+          json.field "author", video.author
+          json.field "authorId", video.ucid
+          json.field "authorUrl", "/channel/#{video.ucid}"
+          json.field "published", video.published.to_unix
+          json.field "publishedText", "#{recode_date(video.published)} ago"
+
+          description = video.description.gsub("<br>", "\n")
+          description = description.gsub("<br/>", "\n")
+          description = XML.parse_html(description)
+          json.field "description", description.content
+          json.field "descriptionHtml", video.description
+        end
+      end
+    end
+  end
+
+  env.response.content_type = "application/json"
+  videos
+end
+
 get "/api/v1/top" do |env|
   videos = JSON.build do |json|
     json.array do
