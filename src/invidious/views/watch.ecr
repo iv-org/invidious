@@ -338,14 +338,11 @@ if (bpb) {
   player.ready(function() {
     var promise = player.play();
 
-    if (promise === undefined) {
-      bpb.show();
-    } else {
-      promise.then(function() {
-        bpb.show();
-      }, function() {
-        bpb.show();
-      });
+    if (promise !== undefined) {
+        promise.then(_ => {
+        }).catch(error => {
+            bpb.show();
+        });
     }
   });
 }
