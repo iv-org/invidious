@@ -329,25 +329,6 @@ function get_playlist() {
 get_playlist();
 <% end %>
 
-<% if params[:autoplay] %>
-var bpb = player.getChild('bigPlayButton');
-
-if (bpb) {
-  bpb.hide();
-  
-  player.ready(function() {
-    var promise = player.play();
-
-    if (promise !== undefined) {
-        promise.then(_ => {
-        }).catch(error => {
-            bpb.show();
-        });
-    }
-  });
-}
-<% end %>
-
 function get_reddit_comments() {
   comments = document.getElementById("comments");
   var fallback = comments.innerHTML;
@@ -523,5 +504,4 @@ function get_youtube_replies(target, load_more) {
 <% else %>
 get_youtube_comments();
 <% end %>
-
 </script>

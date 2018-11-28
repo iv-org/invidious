@@ -142,4 +142,28 @@ player.currentTime(<%= params[:video_start] %>);
 
 player.volume(<%= params[:volume].to_f / 100 %>);
 player.playbackRate(<%= params[:speed] %>);
+
+<% if params[:autoplay] %>
+var bpb = player.getChild('bigPlayButton');
+
+if (bpb) {
+  bpb.hide();
+  
+  player.ready(function() {
+    new Promise(function(resolve, reject) {
+      setTimeout(() => resolve(1), 1);
+    }).then(function(result) {
+      var promise = player.play();
+
+      if (promise !== undefined) {
+          promise.then(_ => {
+          }).catch(error => {
+              bpb.show();
+              console.log(error);
+          });
+      }
+    });
+  });
+}
+<% end %>
 </script>
