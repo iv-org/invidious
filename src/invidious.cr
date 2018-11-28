@@ -2713,6 +2713,29 @@ get "/api/v1/channels/:ucid" do |env|
   is_family_friendly = channel_html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
   allowed_regions = channel_html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
 
+  related_channels = channel_html.xpath_nodes(%q(//div[contains(@class, "branded-page-related-channels")]/ul/li))
+  related_channels = related_channels.map do |node|
+    related_id = node["data-external-id"]?
+    related_id ||= ""
+
+    anchor = node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
+    related_title = anchor.try &.["title"]
+    related_title ||= ""
+
+    related_author_url = anchor.try &.["href"]
+    related_author_url ||= ""
+
+    related_author_thumbnail = node.xpath_node(%q(.//img)).try &.["data-thumb"]
+    related_author_thumbnail ||= ""
+
+    {
+      id:               related_id,
+      author:           related_title,
+      author_url:       related_author_url,
+      author_thumbnail: related_author_thumbnail,
+    }
+  end
+
   total_views = 0_i64
   sub_count = 0_i64
   joined = Time.unix(0)
@@ -2811,6 +2834,32 @@ get "/api/v1/channels/:ucid" do |env|
               json.field "liveNow", video.live_now
               json.field "paid", video.paid
               json.field "premium", video.premium
+            end
+          end
+        end
+      end
+
+      json.field "relatedChannels" do
+        json.array do
+          related_channels.each do |related_channel|
+            json.object do
+              json.field "author", related_channel[:author]
+              json.field "authorId", related_channel[:id]
+              json.field "authorUrl", related_channel[:author_url]
+
+              json.field "authorThumbnails" do
+                json.array do
+                  qualities = [32, 48, 76, 100, 176, 512]
+
+                  qualities.each do |quality|
+                    json.object do
+                      json.field "url", related_channel[:author_thumbnail].gsub("=s48-", "=s#{quality}-")
+                      json.field "width", quality
+                      json.field "height", quality
+                    end
+                  end
+                end
+              end
             end
           end
         end
