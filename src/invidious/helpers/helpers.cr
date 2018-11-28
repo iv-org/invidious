@@ -156,7 +156,9 @@ def extract_items(nodeset, ucid = nil)
       )
     when .includes? "yt-lockup-channel"
       author = title.strip
-      ucid = id.split("/")[-1]
+
+      ucid = node.xpath_node(%q(.//button[contains(@class, "yt-uix-subscription-button")])).try &.["data-channel-external-id"]?
+      ucid ||= id.split("/")[-1]
 
       author_thumbnail = node.xpath_node(%q(.//div/span/img)).try &.["data-thumb"]?
       author_thumbnail ||= node.xpath_node(%q(.//div/span/img)).try &.["src"]

@@ -508,7 +508,7 @@ class VideoRedirect < Exception
 end
 
 def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32}), refresh = true, region = nil)
-  if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool)
+  if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool) && !region
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
     # If record was last updated over 10 minutes ago, refresh (expire param in response lasts for 6 hours)
@@ -534,7 +534,9 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
 
     args = arg_array(video_array)
 
-    db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
+    if !region
+      db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
+    end
   end
 
   return video

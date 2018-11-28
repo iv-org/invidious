@@ -51,12 +51,12 @@ alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist
 def channel_search(query, page, channel)
   client = make_client(YT_URL)
 
-  response = client.get("/user/#{channel}")
+  response = client.get("/user/#{channel}?disable_polymer=1&hl=en&gl=US")
   document = XML.parse_html(response.body)
   canonical = document.xpath_node(%q(//link[@rel="canonical"]))
 
   if !canonical
-    response = client.get("/channel/#{channel}")
+    response = client.get("/channel/#{channel}?disable_polymer=1&hl=en&gl=US")
     document = XML.parse_html(response.body)
     canonical = document.xpath_node(%q(//link[@rel="canonical"]))
   end
