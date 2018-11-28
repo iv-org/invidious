@@ -578,7 +578,7 @@ get "/search" do |env|
 
     case key
     when "channel", "user"
-      channel = value
+      channel = operator.split(":")[-1]
     when "content_type", "type"
       content_type = value
     when "date"
