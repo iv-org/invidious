@@ -78,9 +78,11 @@ REDDIT_URL = URI.parse("https://www.reddit.com")
 LOGIN_URL  = URI.parse("https://accounts.google.com")
 
 decrypt_function = [] of {name: String, value: Int32}
-spawn do
-  update_decrypt_function do |function|
-    decrypt_function = function
+if CONFIG.decrypt_drm
+  spawn do
+    update_decrypt_function do |function|
+      decrypt_function = function
+    end
   end
 end
 

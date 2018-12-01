@@ -16,6 +16,10 @@ class Config
     hmac_key:     String?,
     full_refresh: Bool,
     domain:       String?,
+    decrypt_drm:  {
+      type:    Bool?,
+      default: true,
+    },
   })
 end
 
