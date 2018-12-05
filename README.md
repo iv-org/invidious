@@ -150,6 +150,10 @@ $ ./sentry
 - [Invidio.us embed](https://greasyfork.org/en/scripts/370442-invidious-embed): Replaces YouTube embeds with Invidio.us embeds (userscript)
 - [Invidious Downloader](https://github.com/erupete/InvidiousDownloader): Tampermonkey userscript for downloading videos or audio on Invidious (userscript)
 
+## Made with Invidious
+- [FreeTube](https://github.com/FreeTubeApp/FreeTube): An Open Source YouTube app for privacy.
+
+
 ## Contributing
 
 1.  Fork it ( https://github.com/omarroth/invidious/fork )
