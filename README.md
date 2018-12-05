@@ -151,8 +151,10 @@ $ ./sentry
 - [Invidious Downloader](https://github.com/erupete/InvidiousDownloader): Tampermonkey userscript for downloading videos or audio on Invidious (userscript)
 
 ## Made with Invidious
-- [FreeTube](https://github.com/FreeTubeApp/FreeTube): An Open Source YouTube app for privacy.
 
+- [FreeTube](https://github.com/FreeTubeApp/FreeTube): An Open Source YouTube app for privacy.
+- [CloudTube](https://github.com/cloudrac3r/cadencegq): Website featuring pastebin, image host, and YouTube player
+- [PeerTubeify](https://gitlab.com/Ealhad/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 
 ## Contributing
 
