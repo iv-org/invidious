@@ -57,6 +57,7 @@ function remove_subscription(target) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
             if (xhr.status != 200) {
+                count.innerText = count.innerText - 1 + 2;
                 row.style.display = "";
             }
         }

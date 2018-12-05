@@ -2,6 +2,17 @@
 <title>History - Invidious</title>
 <% end %>
 
+<div class="pure-g h-box">
+    <div class="pure-u-2-3">
+        <h3><span id="count"><%= user.watched.size %></span> videos</h3>
+    </div>
+    <div class="pure-u-1-3" style="text-align:right;">
+        <h3>
+            <a href="/clear_watch_history">Clear watch history</a>
+        </h3>
+    </div>
+</div>
+
 <div class="pure-g">
 <% watched.each_slice(4) do |slice| %>
         <% slice.each do |item| %>
@@ -34,6 +45,8 @@
 function mark_unwatched(target) {
     var tile = target.parentNode.parentNode.parentNode.parentNode;
     tile.style.display = "none";
+    var count = document.getElementById("count")
+    count.innerText = count.innerText - 1;
 
     var url = "/mark_unwatched?redirect=false&id=" + target.getAttribute("data-id");
     var xhr = new XMLHttpRequest();
@@ -45,6 +58,7 @@ function mark_unwatched(target) {
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
             if (xhr.status != 200) {
+                count.innerText = count.innerText - 1 + 2;
                 tile.style.display = "";
             }
         }
