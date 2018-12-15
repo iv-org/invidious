@@ -264,13 +264,13 @@ def extract_items(nodeset, ucid = nil)
       video_count ||= 0
 
       items << SearchChannel.new(
-        author,
-        ucid,
-        author_thumbnail,
-        subscriber_count,
-        video_count,
-        description,
-        description_html
+        author: author,
+        ucid: ucid,
+        author_thumbnail: author_thumbnail,
+        subscriber_count: subscriber_count,
+        video_count: video_count,
+        description: description,
+        description_html: description_html
       )
     else
       id = id.lchop("/watch?v=")
@@ -324,18 +324,18 @@ def extract_items(nodeset, ucid = nil)
       end
 
       items << SearchVideo.new(
-        title,
-        id,
-        author,
-        author_id,
-        published,
-        view_count,
-        description,
-        description_html,
-        length_seconds,
-        live_now,
-        paid,
-        premium
+        title: title,
+        id: id,
+        author: author,
+        ucid: author_id,
+        published: published,
+        views: view_count,
+        description: description,
+        description_html: description_html,
+        length_seconds: length_seconds,
+        live_now: live_now,
+        paid: paid,
+        premium: premium
       )
     end
   end

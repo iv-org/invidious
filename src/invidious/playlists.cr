@@ -201,16 +201,16 @@ def fetch_playlist(plid)
   updated = decode_date(updated)
 
   playlist = Playlist.new(
-    title,
-    plid,
-    author,
-    author_thumbnail,
-    ucid,
-    description,
-    description_html,
-    video_count,
-    views,
-    updated
+    title: title,
+    id: plid,
+    author: author,
+    author_thumbnail: author_thumbnail,
+    ucid: ucid,
+    description: description,
+    description_html: description_html,
+    video_count: video_count,
+    views: views,
+    updated: updated
   )
 
   return playlist
