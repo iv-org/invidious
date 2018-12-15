@@ -31,7 +31,7 @@ def get_channel(id, client, db, refresh = true, pull_all_videos = true)
       args = arg_array(channel_array)
 
       db.exec("INSERT INTO channels VALUES (#{args}) \
-        ON CONFLICT (id) DO UPDATE SET updated = $3", channel_array)
+        ON CONFLICT (id) DO UPDATE SET author = $2, updated = $3", channel_array)
     end
   else
     channel = fetch_channel(id, client, db, pull_all_videos)

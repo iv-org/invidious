@@ -71,7 +71,7 @@ def refresh_channels(db, max_threads = 1, full_refresh = false)
               client = make_client(YT_URL)
               channel = fetch_channel(id, client, db, full_refresh)
 
-              db.exec("UPDATE channels SET updated = $1 WHERE id = $2", Time.now, id)
+              db.exec("UPDATE channels SET updated = $1, author = $2 WHERE id = $3", Time.now, channel.author, id)
             rescue ex
               STDOUT << id << " : " << ex.message << "\n"
             end
