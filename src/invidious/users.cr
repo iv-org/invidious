@@ -116,12 +116,12 @@ class Preferences
   })
 end
 
-def get_user(sid, client, headers, db, refresh = true)
+def get_user(sid, headers, db, refresh = true)
   if db.query_one?("SELECT EXISTS (SELECT true FROM users WHERE $1 = ANY(id))", sid, as: Bool)
     user = db.query_one("SELECT * FROM users WHERE $1 = ANY(id)", sid, as: User)
 
     if refresh && Time.now - user.updated > 1.minute
-      user = fetch_user(sid, client, headers, db)
+      user = fetch_user(sid, headers, db)
       user_array = user.to_a
 
       user_array[5] = user_array[5].to_json
@@ -140,7 +140,7 @@ def get_user(sid, client, headers, db, refresh = true)
       end
     end
   else
-    user = fetch_user(sid, client, headers, db)
+    user = fetch_user(sid, headers, db)
     user_array = user.to_a
 
     user_array[5] = user_array[5].to_json
@@ -162,7 +162,8 @@ def get_user(sid, client, headers, db, refresh = true)
   return user
 end
 
-def fetch_user(sid, client, headers, db)
+def fetch_user(sid, headers, db)
+  client = make_client(YT_URL)
   feed = client.get("/subscription_manager?disable_polymer=1", headers)
   feed = XML.parse_html(feed.body)
 
@@ -172,7 +173,7 @@ def fetch_user(sid, client, headers, db)
       channel_id = channel["href"].lstrip("/channel/")
 
       begin
-        channel = get_channel(channel_id, client, db, false, false)
+        channel = get_channel(channel_id, db, false, false)
         channels << channel.id
       rescue ex
         next

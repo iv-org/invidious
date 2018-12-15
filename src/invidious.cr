@@ -152,8 +152,7 @@ before_all do |env|
       end
     else
       begin
-        client = make_client(YT_URL)
-        user = get_user(sid, client, headers, PG_DB, false)
+        user = get_user(sid, headers, PG_DB, false)
 
         challenge, token = create_response(user.email, "sign_out", HMAC_KEY, PG_DB, 1.week)
         env.set "challenge", challenge
@@ -825,8 +824,7 @@ post "/login" do |env|
 
       sid = login.cookies["SID"].value
 
-      client = make_client(YT_URL)
-      user = get_user(sid, client, headers, PG_DB)
+      user = get_user(sid, headers, PG_DB)
 
       # We are now logged in
 
@@ -1286,8 +1284,7 @@ get "/subscription_manager" do |env|
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    client = make_client(YT_URL)
-    user = get_user(user.id[0], client, headers, PG_DB)
+    user = get_user(user.id[0], headers, PG_DB)
   end
 
   action_takeout = env.params.query["action_takeout"]?.try &.to_i?
@@ -1297,12 +1294,10 @@ get "/subscription_manager" do |env|
   format = env.params.query["format"]?
   format ||= "rss"
 
-  client = make_client(YT_URL)
-
   subscriptions = [] of InvidiousChannel
   user.subscriptions.each do |ucid|
     begin
-      subscriptions << get_channel(ucid, client, PG_DB, false)
+      subscriptions << get_channel(ucid, PG_DB, false)
     rescue ex
       next
     end
@@ -1391,8 +1386,7 @@ post "/data_control" do |env|
 
           user.subscriptions.select! do |ucid|
             begin
-              client = make_client(YT_URL)
-              get_channel(ucid, client, PG_DB, false, false)
+              get_channel(ucid, PG_DB, false, false)
               true
             rescue ex
               false
@@ -1421,8 +1415,7 @@ post "/data_control" do |env|
 
         user.subscriptions.select! do |ucid|
           begin
-            client = make_client(YT_URL)
-            get_channel(ucid, client, PG_DB, false, false)
+            get_channel(ucid, PG_DB, false, false)
             true
           rescue ex
             false
@@ -1438,8 +1431,7 @@ post "/data_control" do |env|
 
         user.subscriptions.select! do |ucid|
           begin
-            client = make_client(YT_URL)
-            get_channel(ucid, client, PG_DB, false, false)
+            get_channel(ucid, PG_DB, false, false)
             true
           rescue ex
             false
@@ -1456,8 +1448,7 @@ post "/data_control" do |env|
 
         user.subscriptions.each do |ucid|
           begin
-            client = make_client(YT_URL)
-            get_channel(ucid, client, PG_DB, false, false)
+            get_channel(ucid, PG_DB, false, false)
           rescue ex
             next
           end
@@ -1482,8 +1473,7 @@ post "/data_control" do |env|
 
               user.subscriptions.select! do |ucid|
                 begin
-                  client = make_client(YT_URL)
-                  get_channel(ucid, client, PG_DB, false, false)
+                  get_channel(ucid, PG_DB, false, false)
                   true
                 rescue ex
                   false
@@ -1567,8 +1557,7 @@ get "/subscription_ajax" do |env|
         if !user.subscriptions.includes? channel_id
           PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", channel_id, email)
 
-          client = make_client(YT_URL)
-          get_channel(channel_id, client, PG_DB, false, false)
+          get_channel(channel_id, PG_DB, false, false)
         end
       when .starts_with? "action_remove"
         PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", channel_id, email)
@@ -1708,8 +1697,7 @@ get "/feed/subscriptions" do |env|
     headers["Cookie"] = env.request.headers["Cookie"]
 
     if !user.password
-      client = make_client(YT_URL)
-      user = get_user(user.id[0], client, headers, PG_DB)
+      user = get_user(user.id[0], headers, PG_DB)
     end
 
     max_results = preferences.max_results

@@ -21,7 +21,9 @@ class ChannelVideo
   })
 end
 
-def get_channel(id, client, db, refresh = true, pull_all_videos = true)
+def get_channel(id, db, refresh = true, pull_all_videos = true)
+  client = make_client(YT_URL)
+
   if db.query_one?("SELECT EXISTS (SELECT true FROM channels WHERE id = $1)", id, as: Bool)
     channel = db.query_one("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
 
