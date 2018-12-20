@@ -951,7 +951,7 @@ post "/login" do |env|
     end
 
     if action == "signin"
-      user = PG_DB.query_one?("SELECT * FROM users WHERE LOWER(email) = LOWER($1) AND password IS NOT NULL", email, as: User)
+      user = PG_DB.query_one?("SELECT * FROM users WHERE LOWER(email) = LOWER($1)", email, as: User)
 
       if !user
         error_message = translate(locale, "Invalid username or password")
