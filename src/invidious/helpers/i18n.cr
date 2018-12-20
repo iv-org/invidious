@@ -3,8 +3,8 @@ def load_locale(name)
 end
 
 def translate(locale : Hash(String, JSON::Any) | Nil, translation : String, text : String | Nil = nil)
-  # if !locale[translation]?
-  #   puts "Could not find translation for #{translation}"
+  # if locale && !locale[translation]?
+  #   puts "Could not find translation for #{translation.dump}"
   # end
 
   if locale && locale[translation]? && !locale[translation].as_s.empty?
