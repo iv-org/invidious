@@ -151,5 +151,9 @@
   "`x` days": "`x` days",
   "`x` hours": "`x` hours",
   "`x` minutes": "`x` minutes",
-  "`x` seconds": "`x` seconds"
+  "`x` seconds": "`x` seconds",
+  "Popular": "Popular",
+  "Top": "Top",
+  "About": "About",
+  "Rating: ": "Rating: "
 }
