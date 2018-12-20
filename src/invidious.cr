@@ -1743,7 +1743,10 @@ get "/feed/trending" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
 
   trending_type = env.params.query["type"]?
+  trending_type ||= "Default"
+
   region = env.params.query["region"]?
+  region ||= "US"
 
   begin
     trending = fetch_trending(trending_type, proxies, region, locale)

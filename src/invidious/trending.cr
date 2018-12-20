@@ -7,7 +7,7 @@ def fetch_trending(trending_type, proxies, region, locale)
   region = region.upcase
 
   trending = ""
-  if trending_type
+  if trending_type && trending_type != "Default"
     trending_type = trending_type.downcase.capitalize
 
     response = client.get("/feed/trending?gl=#{region}&hl=en", headers).body
