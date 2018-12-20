@@ -1,3 +1,7 @@
+<% content_for "header" do %>
+<title><%= translate(locale, "Top") %> - Invidious</title>
+<% end %>
+
 <div class="pure-g">
 <% top_videos.each_slice(4) do |slice| %>
         <% slice.each do |item| %>

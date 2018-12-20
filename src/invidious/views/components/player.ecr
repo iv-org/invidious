@@ -27,12 +27,12 @@
         <% end %>
 
         <% preferred_captions.each_with_index do |caption, i| %>
-        <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>"
+        <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>&hl=<%= env.get("locale").as(String) %>"
             label="<%= caption.name.simpleText %>" <% if i == 0 %>default<% end %>>
         <% end %>
 
         <% captions.each do |caption| %>
-        <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>"
+        <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>&hl=<%= env.get("locale").as(String) %>"
             label="<%= caption.name.simpleText %>">
         <% end %>
     <% end %>

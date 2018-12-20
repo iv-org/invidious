@@ -13,13 +13,17 @@
 <div class="pure-g h-box">
     <div class="pure-u-1 pure-u-md-1-5">
     <% if page >= 2 %>
-        <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page - 1 %>">Previous page</a>
+        <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page - 1 %>">
+            <%= translate(locale, "Previous page") %>
+        </a>
     <% end %>
     </div>
     <div class="pure-u-1 pure-u-md-3-5"></div>
     <div style="text-align:right;" class="pure-u-1 pure-u-md-1-5">
     <% if count >= 20 %>
-        <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page + 1 %>">Next page</a>
+        <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page + 1 %>">
+            <%= translate(locale, "Next page") %>
+        </a>
     <% end %>
     </div>
 </div>

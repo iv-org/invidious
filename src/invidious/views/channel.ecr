@@ -19,14 +19,14 @@
     <p>
         <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" 
             href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
-            <b>Unsubscribe | <%= number_to_short_text(sub_count) %></b>
+            <b><%= translate(locale, "Unsubscribe") %> | <%= number_to_short_text(sub_count) %></b>
         </a>
     </p>
     <% else %>
     <p>
         <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" 
             href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
-            <b>Subscribe | <%= number_to_short_text(sub_count) %></b>
+            <b><%= translate(locale, "Subscribe") %> | <%= number_to_short_text(sub_count) %></b>
         </a>
     </p>
     <% end %>
@@ -34,7 +34,7 @@
     <p>
         <a id="subscribe" class="pure-button pure-button-primary" 
             href="/login?referer=<%= env.get("current_page") %>">
-            <b>Login to subscribe to <%= author %></b>
+            <b><%= translate(locale, "Login to subscribe to `x`", author) %></b>
         </a>
     </p>
 <% end %>
@@ -42,7 +42,7 @@
 
 <div class="pure-g h-box">
     <div class="pure-u-1-3">
-        <a href="https://www.youtube.com/channel/<%= ucid %>">View channel on YouTube</a>
+        <a href="https://www.youtube.com/channel/<%= ucid %>"><%= translate(locale, "View channel on YouTube") %></a>
     </div>
     <div class="pure-u-1-3">
     </div>
@@ -51,10 +51,10 @@
         <% {"newest", "oldest", "popular"}.each do |sort| %>
             <div class="pure-u-1 pure-md-1-3">
                 <% if sort_by == sort %>
-                <b><%= sort %></b>
+                <b><%= translate(locale, sort) %></b>
                 <% else %>
                 <a href="/channel/<%= ucid %>?page=<%= page %>&sort_by=<%= sort %>">
-                <%= sort %>
+                <%= translate(locale, sort) %>
                 </a>
                 <% end %>
             </div>
@@ -78,13 +78,17 @@
 <div class="pure-g h-box">
     <div class="pure-u-1 pure-u-md-1-5">
     <% if page >= 2 %>
-        <a href="/channel/<%= ucid %>?page=<%= page - 1 %><% if sort_by != "newest" %>&sort_by=<%= sort_by %><% end %>">Previous page</a>
+        <a href="/channel/<%= ucid %>?page=<%= page - 1 %><% if sort_by != "newest" %>&sort_by=<%= sort_by %><% end %>">
+            <%= translate(locale, "Previous page") %>
+        </a>
     <% end %>
     </div>
     <div class="pure-u-1 pure-u-md-3-5"></div>
     <div style="text-align:right;" class="pure-u-1 pure-u-md-1-5">
     <% if count == 60 %>
-        <a href="/channel/<%= ucid %>?page=<%= page + 1 %><% if sort_by != "newest" %>&sort_by=<%= sort_by %><% end %>">Next page</a>
+        <a href="/channel/<%= ucid %>?page=<%= page + 1 %><% if sort_by != "newest" %>&sort_by=<%= sort_by %><% end %>">
+            <%= translate(locale, "Next page") %>
+        </a>
     <% end %>
     </div>
 </div>
@@ -105,7 +109,7 @@ function subscribe() {
             if (xhr.status == 200) {
                 subscribe_button = document.getElementById("subscribe");
                 subscribe_button.onclick = unsubscribe;
-                subscribe_button.innerHTML = '<b>Unsubscribe | <%= number_to_short_text(sub_count) %></b>'
+                subscribe_button.innerHTML = '<b><%= translate(locale, "Unsubscribe") %> | <%= number_to_short_text(sub_count) %></b>'
             }
         }
     }
@@ -124,7 +128,7 @@ function unsubscribe() {
             if (xhr.status == 200) {
                 subscribe_button = document.getElementById("subscribe");
                 subscribe_button.onclick = subscribe;
-                subscribe_button.innerHTML = '<b>Subscribe | <%= number_to_short_text(sub_count) %></b>'
+                subscribe_button.innerHTML = '<b><%= translate(locale, "Subscribe") %> | <%= number_to_short_text(sub_count) %></b>'
             }
         }
     }

@@ -1,14 +1,14 @@
 <% content_for "header" do %>
-<title>History - Invidious</title>
+<title><%= translate(locale, "History") %> - Invidious</title>
 <% end %>
 
 <div class="pure-g h-box">
     <div class="pure-u-2-3">
-        <h3><span id="count"><%= user.watched.size %></span> videos</h3>
+        <h3><%= translate(locale, "`x` videos", %(<span id="count">#{user.watched.size}</span>)) %></h3>
     </div>
     <div class="pure-u-1-3" style="text-align:right;">
         <h3>
-            <a href="/clear_watch_history">Clear watch history</a>
+            <a href="/clear_watch_history"><%= translate(locale, "Clear watch history") %></a>
         </h3>
     </div>
 </div>
@@ -69,13 +69,17 @@ function mark_unwatched(target) {
 <div class="pure-g h-box">
     <div class="pure-u-1 pure-u-md-1-5">
     <% if page >= 2 %>
-        <a href="/feed/history?page=<%= page - 1 %>">Previous page</a>
+        <a href="/feed/history?page=<%= page - 1 %>">
+            <%= translate(locale, "Previous page") %>
+        </a>
     <% end %>
     </div>
     <div class="pure-u-1 pure-u-md-3-5"></div>
     <div style="text-align:right;" class="pure-u-1 pure-u-md-1-5">
     <% if watched.size >= limit %>
-        <a href="/feed/history?page=<%= page + 1 %>">Next page</a>
+        <a href="/feed/history?page=<%= page + 1 %>">
+            <%= translate(locale, "Next page") %>
+        </a>
     <% end %>
     </div>
 </div>

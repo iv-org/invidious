@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<title>Login - Invidious</title>
+<title><%= translate(locale, "Login") %> - Invidious</title>
 <% end %>
 
 <div class="pure-g">
@@ -8,31 +8,37 @@
         <div class="h-box">
             <div class="pure-g">
                 <div class="pure-u-1-2">
-                    <a class="pure-button <% if account_type == "invidious" %>pure-button-disabled<% end %>" href="/login">Login/Register</a>
+                    <a class="pure-button <% if account_type == "invidious" %>pure-button-disabled<% end %>" href="/login">
+                        <%= translate(locale, "Login/Register") %>
+                    </a>
                 </div>
                 <div class="pure-u-1-2">
-                    <a class="pure-button <% if account_type == "google" %>pure-button-disabled<% end %>" href="/login?type=google">Login to Google</a>
+                    <a class="pure-button <% if account_type == "google" %>pure-button-disabled<% end %>" href="/login?type=google">
+                        <%= translate(locale, "Login to Google") %>
+                    </a>
                 </div>
             </div>
             <hr>
             <% if account_type == "invidious" %>
             <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.escape(referer) %>&type=invidious" method="post">
                 <fieldset>
-                    <label for="email">User ID:</label>
+                    <label for="email"><%= translate(locale, "User ID:") %></label>
                     <input required class="pure-input-1" name="email" type="text" placeholder="User ID">
 
-                    <label for="password">Password:</label>
+                    <label for="password"><%= translate(locale, "Password:") %></label>
                     <input required class="pure-input-1" name="password" type="password" placeholder="Password">
                 
                 <% if captcha_type == "image" %>
                     <img style="width:100%" src='<%= captcha.not_nil![:image] %>'/>
                     <input type="hidden" name="token" value="<%= captcha.not_nil![:token] %>">
                     <input type="hidden" name="challenge" value="<%= captcha.not_nil![:challenge] %>">
-                    <label for="answer">Time (h:mm:ss):</label>
+                    <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
                     <input required type="text" name="answer" type="text" placeholder="h:mm:ss">
                     
                     <label>
-                        <a href="/login?referer=<%= URI.escape(referer) %>&type=invidious&captcha=text">Text CAPTCHA</a>
+                        <a href="/login?referer=<%= URI.escape(referer) %>&type=invidious&captcha=text">
+                            <%= translate(locale, "Text CAPTCHA") %>
+                        </a>
                     </label>
                 <% else %>
                     <% text_captcha.not_nil![:tokens].each_with_index do |token, i| %>
@@ -43,29 +49,31 @@
                     <input required type="text" name="text_answer" type="text" placeholder="Answer">
 
                     <label>
-                        <a href="/login?referer=<%= URI.escape(referer) %>&type=invidious">Image CAPTCHA</a>
+                        <a href="/login?referer=<%= URI.escape(referer) %>&type=invidious">
+                            <%= translate(locale, "Image CAPTCHA") %>
+                        </a>
                     </label>
                 <% end %>
 
-                    <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">Sign In</button>
-                    <button type="submit" name="action" value="register" class="pure-button pure-button-primary">Register</button>
+                    <button type="submit" name="action" value="signin" class="pure-button pure-button-primary"><%= translate(locale, "Sign In") %></button>
+                    <button type="submit" name="action" value="register" class="pure-button pure-button-primary"><%= translate(locale, "Register") %></button>
                 </fieldset>
             </form>
             <% elsif account_type == "google" %>
             <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.escape(referer) %>" method="post">
                 <fieldset>
-                    <label for="email">Email:</label>
+                    <label for="email"><%= translate(locale, "Email:") %></label>
                     <input required class="pure-input-1" name="email" type="email" placeholder="Email">
 
-                    <label for="password">Password:</label>
+                    <label for="password"><%= translate(locale, "Password:") %></label>
                     <input required class="pure-input-1" name="password" type="password" placeholder="Password">
                     
                     <% if tfa %>
-                    <label for="tfa">Google verification code:</label>
+                    <label for="tfa"><%= translate(locale, "Google verification code:") %></label>
                     <input required class="pure-input-1" name="tfa" type="text" placeholder="Google verification code">
                     <% end %>
 
-                    <button type="submit" class="pure-button pure-button-primary">Sign In</button>
+                    <button type="submit" class="pure-button pure-button-primary"><%= translate(locale, "Sign In") %></button>
                 </fieldset>
             </form>
             <% end %>

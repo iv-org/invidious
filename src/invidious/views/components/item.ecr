@@ -11,8 +11,8 @@
             <% end %>
             <p><%= item.author %></p>
         </a>
-        <p><%= number_with_separator(item.subscriber_count) %> subscribers</p>
-        <p><%= number_with_separator(item.video_count) %> videos</p>
+        <p><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></p>
+        <p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p>
         <h5><%= item.description_html %></h5>
     <% when SearchPlaylist %>
         <% if item.id.starts_with? "RD" %>
@@ -59,14 +59,14 @@
             <p><%= item.title %></p>
         </a>
         <% if item.responds_to?(:live_now) && item.live_now %>
-        <p>LIVE</p>
+        <p><%= translate(locale, "LIVE") %></p>
         <% end %>
         <p>
             <b><a style="width:100%;" href="/channel/<%= item.ucid %>"><%= item.author %></a></b>
         </p>
         
         <% if Time.now - item.published > 1.minute %>
-        <h5>Shared <%= recode_date(item.published) %> ago</h5>
+        <h5><%= translate(locale, "Shared `x` ago", recode_date(item.published)) %></h5>
         <% end %>
     <% else %>
         <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
@@ -93,14 +93,14 @@
         <% end %>
         <p><a href="/watch?v=<%= item.id %>"><%= item.title %></a></p>
         <% if item.responds_to?(:live_now) && item.live_now %>
-        <p>LIVE</p>
+        <p><%= translate(locale, "LIVE") %></p>
         <% end %>
         <p>
             <b><a style="width:100%;" href="/channel/<%= item.ucid %>"><%= item.author %></a></b>
         </p>
         
         <% if Time.now - item.published > 1.minute %>
-        <h5>Shared <%= recode_date(item.published) %> ago</h5>
+        <h5><%= translate(locale, "Shared `x` ago", recode_date(item.published)) %></h5>
         <% end %>
     <% end %>
     </div>

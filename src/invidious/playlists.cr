@@ -26,7 +26,7 @@ class Playlist
   })
 end
 
-def fetch_playlist_videos(plid, page, video_count, continuation = nil)
+def fetch_playlist_videos(plid, page, video_count, continuation = nil, locale = nil)
   client = make_client(YT_URL)
 
   if continuation
@@ -48,7 +48,7 @@ def fetch_playlist_videos(plid, page, video_count, continuation = nil)
     response = client.get(url)
     response = JSON.parse(response.body)
     if !response["content_html"]? || response["content_html"].as_s.empty?
-      raise "Playlist is empty"
+      raise translate(locale, "Playlist is empty")
     end
 
     document = XML.parse_html(response["content_html"].as_s)
@@ -105,14 +105,14 @@ def extract_playlist(plid, nodeset, index)
     end
 
     videos << PlaylistVideo.new(
-      title,
-      id,
-      author,
-      ucid,
-      length_seconds,
-      Time.now,
-      [plid],
-      index + offset,
+      title: title,
+      id: id,
+      author: author,
+      ucid: ucid,
+      length_seconds: length_seconds,
+      published: Time.now,
+      playlists: [plid],
+      index: index + offset,
     )
   end
 
@@ -155,7 +155,7 @@ def produce_playlist_url(id, index)
   return url
 end
 
-def fetch_playlist(plid)
+def fetch_playlist(plid, locale)
   client = make_client(YT_URL)
 
   if plid.starts_with? "UC"
@@ -164,7 +164,7 @@ def fetch_playlist(plid)
 
   response = client.get("/playlist?list=#{plid}&hl=en&disable_polymer=1")
   if response.status_code != 200
-    raise "Invalid playlist."
+    raise translate(locale, "Invalid playlist.")
   end
 
   body = response.body.gsub(%(
@@ -175,7 +175,7 @@ def fetch_playlist(plid)
 
   title = document.xpath_node(%q(//h1[@class="pl-header-title"]))
   if !title
-    raise "Playlist does not exist."
+    raise translate(locale, "Playlist does not exist.")
   end
   title = title.content.strip(" \n")
 

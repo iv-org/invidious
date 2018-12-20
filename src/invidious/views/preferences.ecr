@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<title>Preferences - Invidious</title>
+<title><%= translate(locale, "Preferences") %> - Invidious</title>
 <% end %>
 
 <script>
@@ -11,30 +11,30 @@ function update_value(element) {
 <div class="h-box">
     <form class="pure-form pure-form-aligned" action="/preferences?referer=<%= referer %>" method="post">
         <fieldset>
-            <legend>Player preferences</legend>
+            <legend><%= translate(locale, "Player preferences") %></legend>
 
             <div class="pure-control-group">
-                <label for="video_loop">Always loop: </label>
+                <label for="video_loop"><%= translate(locale, "Always loop: ") %></label>
                 <input name="video_loop" id="video_loop" type="checkbox" <% if user.preferences.video_loop %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="autoplay">Autoplay: </label>
+                <label for="autoplay"><%= translate(locale, "Autoplay: ") %></label>
                 <input name="autoplay" id="autoplay" type="checkbox" <% if user.preferences.autoplay %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="continue">Autoplay next video: </label>
+                <label for="continue"><%= translate(locale, "Autoplay next video: ") %></label>
                 <input name="continue" id="continue" type="checkbox" <% if user.preferences.continue %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="listen">Listen by default: </label>
+                <label for="listen"><%= translate(locale, "Listen by default: ") %></label>
                 <input name="listen" id="listen" type="checkbox" <% if user.preferences.listen %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="speed">Default speed: </label>
+                <label for="speed"><%= translate(locale, "Default speed: ") %></label>
                 <select name="speed" id="speed">
                 <% {2.0, 1.5, 1.0, 0.5}.each do |option| %>
                     <option <% if user.preferences.speed == option %> selected <% end %>><%= option %></option>
@@ -43,96 +43,105 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="quality">Preferred video quality: </label>
+                <label for="quality"><%= translate(locale, "Preferred video quality: ") %></label>
                 <select name="quality" id="quality">
                 <% {"dash", "hd720", "medium", "small"}.each do |option| %>
-                    <option <% if user.preferences.quality == option %> selected <% end %>><%= option %></option>
+                    <option value="<%= option %>" <% if user.preferences.quality == option %> selected <% end %>><%= translate(locale, option) %></option>
                 <% end %>
                 </select>
             </div>
 
             <div class="pure-control-group">
-                <label for="volume">Player volume: </label>
+                <label for="volume"><%= translate(locale, "Player volume: ") %></label>
                 <input name="volume" id="volume" oninput="update_value(this);" type="range" min="0" max="100" step="5" value="<%= user.preferences.volume %>">
                 <span class="pure-form-message-inline" id="volume-value"><%= user.preferences.volume %></span>
             </div>
 
             <div class="pure-control-group">
-                <label for="comments_0">Default comments: </label>
+                <label for="comments_0"><%= translate(locale, "Default comments: ") %></label>
                 <select name="comments_0" id="comments_0">
                 <% {"", "youtube", "reddit"}.each do |option| %>
-                    <option <% if user.preferences.comments[0] == option %> selected <% end %>><%= option %></option>
+                    <option value="<%= option %>" <% if user.preferences.comments[0] == option %> selected <% end %>><%= translate(locale, option) %></option>
                 <% end %>
                 </select>
             </div>
 
             <div class="pure-control-group">
-                <label for="comments_1">Fallback comments: </label>
+                <label for="comments_1"><%= translate(locale, "Fallback comments: ") %></label>
                 <select name="comments_1" id="comments_1">
                 <% {"", "youtube", "reddit"}.each do |option| %>
-                    <option <% if user.preferences.comments[1] == option %> selected <% end %>><%= option %></option>
+                    <option value="<%= option %>" <% if user.preferences.comments[1] == option %> selected <% end %>><%= translate(locale, option) %></option>
                 <% end %>
                 </select>
             </div>
 
             <div class="pure-control-group">
-                <label for="captions_0">Default captions: </label>
+                <label for="captions_0"><%= translate(locale, "Default captions: ") %></label>
                 <select class="pure-u-1-5" name="captions_0" id="captions_0">
                 <% CAPTION_LANGUAGES.each do |option| %>
-                    <option <% if user.preferences.captions[0] == option %> selected <% end %>><%= option %></option>
+                    <option value="<%= option %>" <% if user.preferences.captions[0] == option %> selected <% end %>><%= translate(locale, option) %></option>
                 <% end %>
                 </select>
             </div>
 
             <div class="pure-control-group">
-                <label for="captions_fallback">Fallback captions: </label>
+                <label for="captions_fallback"><%= translate(locale, "Fallback captions: ") %></label>
                 <select class="pure-u-1-5" name="captions_1" id="captions_1">
                 <% CAPTION_LANGUAGES.each do |option| %>
-                    <option <% if user.preferences.captions[1] == option %> selected <% end %>><%= option %></option>
+                    <option value="<%= option %>" <% if user.preferences.captions[1] == option %> selected <% end %>><%= translate(locale, option) %></option>
                 <% end %>
                 </select>
 
                 <select class="pure-u-1-5" name="captions_2" id="captions_2">
                 <% CAPTION_LANGUAGES.each do |option| %>
-                    <option <% if user.preferences.captions[2] == option %> selected <% end %>><%= option %></option>
+                    <option value="<%= option %>" <% if user.preferences.captions[2] == option %> selected <% end %>><%= translate(locale, option) %></option>
                 <% end %>
                 </select>
             </div>
 
             <div class="pure-control-group">
-                <label for="related_videos">Show related videos? </label>
+                <label for="related_videos"><%= translate(locale, "Show related videos? ") %></label>
                 <input name="related_videos" id="related_videos" type="checkbox" <% if user.preferences.related_videos %>checked<% end %>>
             </div>
 
-            <legend>Visual preferences</legend>
+            <legend><%= translate(locale, "Visual preferences") %></legend>
 
             <div class="pure-control-group">
-                <label for="dark_mode">Dark mode: </label>
+                <label for="locale"><%= translate(locale, "Language: ") %></label>
+                <select name="locale" id="locale">
+                <% LOCALES.each_key do |option| %>
+                    <option value="<%= option %>" <% if user.preferences.locale == option %> selected <% end %>><%= option %></option>
+                <% end %>
+                </select>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="dark_mode"><%= translate(locale, "Dark mode: ") %></label>
                 <input name="dark_mode" id="dark_mode" type="checkbox" <% if user.preferences.dark_mode %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="thin_mode">Thin mode: </label>
+                <label for="thin_mode"><%= translate(locale, "Thin mode: ") %></label>
                 <input name="thin_mode" id="thin_mode" type="checkbox" <% if user.preferences.thin_mode %>checked<% end %>>
             </div>
 
-            <legend>Subscription preferences</legend>
+            <legend><%= translate(locale, "Subscription preferences") %></legend>
 
             <div class="pure-control-group">
-                <label for="redirect_feed">Redirect homepage to feed: </label>
+                <label for="redirect_feed"><%= translate(locale, "Redirect homepage to feed: ") %></label>
                 <input name="redirect_feed" id="redirect_feed" type="checkbox" <% if user.preferences.redirect_feed %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="max_results">Number of videos shown in feed: </label>
+                <label for="max_results"><%= translate(locale, "Number of videos shown in feed: ") %></label>
                 <input name="max_results" id="max_results" type="number" value="<%= user.preferences.max_results %>">
             </div>
 
             <div class="pure-control-group">
-                <label for="sort">Sort videos by: </label>
+                <label for="sort"><%= translate(locale, "Sort videos by: ") %></label>
                 <select name="sort" id="sort">
                 <% {"published", "published - reverse", "alphabetically", "alphabetically - reverse", "channel name", "channel name - reverse"}.each do |option| %>
-                    <option <% if user.preferences.sort == option %> selected <% end %>><%= option %></option>
+                    <option value="<%= option %>" <% if user.preferences.sort == option %> selected <% end %>><%= translate(locale, option) %></option>
                 <% end %>
                 </select>
             </div>
@@ -143,39 +152,39 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="unseen_only">Only show unwatched: </label>
+                <label for="unseen_only"><%= translate(locale, "Only show unwatched: ") %></label>
                 <input name="unseen_only" id="unseen_only" type="checkbox" <% if user.preferences.unseen_only %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="notifications_only">Only show notifications (if there are any): </label>
+                <label for="notifications_only"><%= translate(locale, "Only show notifications (if there are any): ") %></label>
                 <input name="notifications_only" id="notifications_only" type="checkbox" <% if user.preferences.notifications_only %>checked<% end %>>
             </div>
 
-            <legend>Data preferences</legend>
+            <legend><%= translate(locale, "Data preferences") %></legend>
 
             <div class="pure-control-group">
-                <a href="/clear_watch_history?referer=<%= URI.escape(referer) %>">Clear watch history</a>
+                <a href="/clear_watch_history?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Clear watch history") %></a>
             </div>
             
             <div class="pure-control-group">
-                <a href="/data_control?referer=<%= URI.escape(referer) %>">Import/Export data</a>
+                <a href="/data_control?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Import/Export data") %></a>
             </div>
 
             <div class="pure-control-group">
-                <a href="/subscription_manager">Manage subscriptions</a>
+                <a href="/subscription_manager"><%= translate(locale, "Manage subscriptions") %></a>
             </div>
 
             <div class="pure-control-group">
-                <a href="/feed/history">Watch history</a>
+                <a href="/feed/history"><%= translate(locale, "Watch history") %></a>
             </div>
 
             <div class="pure-control-group">
-                <a href="/delete_account?referer=<%= URI.escape(referer) %>">Delete account</a>
+                <a href="/delete_account?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Delete account") %></a>
             </div>
 
             <div class="pure-controls">
-                <button type="submit" class="pure-button pure-button-primary">Save preferences</button>
+                <button type="submit" class="pure-button pure-button-primary"><%= translate(locale, "Save preferences") %></button>
             </div>
         </fieldset>
     </form>

@@ -1,4 +1,4 @@
-def fetch_trending(trending_type, proxies, region)
+def fetch_trending(trending_type, proxies, region, locale)
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
   headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
@@ -16,7 +16,7 @@ def fetch_trending(trending_type, proxies, region)
     if yt_data
       yt_data = JSON.parse(yt_data["data"].rchop(";"))
     else
-      raise "Could not pull trending pages."
+      raise translate(locale, "Could not pull trending pages.")
     end
 
     tabs = yt_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][0]["tabRenderer"]["content"]["sectionListRenderer"]["subMenu"]["channelListSubMenuRenderer"]["contents"].as_a

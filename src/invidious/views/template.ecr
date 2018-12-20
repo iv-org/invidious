@@ -25,6 +25,8 @@
   <% end %>
 </head>
 
+<% locale = LOCALES[env.get("locale").as(String)]? %>
+
 <body>
   <div class="pure-g">
     <div class="pure-u-1 pure-u-md-2-24"></div>
@@ -68,32 +70,46 @@
           </a>
         </div>
         <div class="pure-u-1-4">
-          <a href="/signout?referer=<%= env.get?("current_page") %>&token=<%= env.get?("token") %>&challenge=<%= env.get?("challenge") %>" class="pure-menu-heading">Sign out</a>
+          <a href="/signout?referer=<%= env.get?("current_page") %>&token=<%= env.get?("token") %>&challenge=<%= env.get?("challenge") %>" class="pure-menu-heading">
+            <%= translate(locale, "Sign out") %>
+          </a>
         </div>
         <% else %>
-          <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">Login</a>
+          <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+            <%= translate(locale, "Login") %>
+          </a>
         <% end %>
         </div>
       </div>
       <%= content %>
       <div class="footer">
-        Released under the AGPLv3 by <a href="https://github.com/omarroth">Omar
-          Roth</a>.
-        Source available <a
-          href="https://github.com/omarroth/invidious">here</a>.
-        <p>Liberapay: 
+        <p>
+          <a href="https://github.com/omarroth">
+            <%= translate(locale, "Released under the AGPLv3 by Omar Roth.") %>
+          </a>
+        </p>
+        <p>
+          <a href="https://github.com/omarroth/invidious">
+            <%= translate(locale, "Source available here.") %>
+          </a>
+        </p>
+        <p><%= translate(locale, "Liberapay: ") %>
           <a href="https://liberapay.com/omarroth">
             https://liberapay.com/omarroth
           </a>
         </p>
-        <p>Patreon: 
+        <p><%= translate(locale, "Patreon: ") %>
           <a href="https://patreon.com/omarroth">
             https://patreon.com/omarroth
           </a>
         </p>
-        <p>BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY</p>
-        <p>BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk</p>
-        <p>View <a rel="jslicense" href="/licenses">JavaScript license information</a>.</p>
+        <p><%= translate(locale, "BTC: ") %>356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY</p>
+        <p><%= translate(locale, "BCH: ") %>qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk</p>
+        <p>
+          <a rel="jslicense" href="/licenses">
+            <%= translate(locale, "View JavaScript license information.") %>
+          </a>
+        </p>
       </div>
     </div>
     <div class="pure-u-1 pure-u-md-2-24"></div>
