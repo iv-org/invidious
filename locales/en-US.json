@@ -152,8 +152,10 @@
   "`x` hours": "`x` hours",
   "`x` minutes": "`x` minutes",
   "`x` seconds": "`x` seconds",
+  "Fallback comments: ": "Fallback comments: ",
   "Popular": "Popular",
   "Top": "Top",
   "About": "About",
-  "Rating: ": "Rating: "
+  "Rating: ": "Rating: ",
+  "Language: ": "Language: "
 }
