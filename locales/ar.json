@@ -263,5 +263,11 @@
   "`x` days": "`x` ايام",
   "`x` hours": "`x` ساعات",
   "`x` minutes": "`x` دقائق",
-  "`x` seconds": "`x` ثوانى"
+  "`x` seconds": "`x` ثوانى",
+  "Fallback comments: ": "",
+  "Popular": "",
+  "Top": "",
+  "About": "",
+  "Rating: ": "",
+  "Language: ": ""
 }

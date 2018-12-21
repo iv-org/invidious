@@ -263,5 +263,11 @@
   "`x` days": "`x` д`y`",
   "`x` hours": "`x` час`y`",
   "`x` minutes": "`x` минут`y`",
-  "`x` seconds": "`x` секунд`y`"
+  "`x` seconds": "`x` секунд`y`",
+  "Fallback comments: ": "",
+  "Popular": "",
+  "Top": "",
+  "About": "",
+  "Rating: ": "",
+  "Language: ": ""
 }

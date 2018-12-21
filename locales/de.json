@@ -263,5 +263,11 @@
   "`x` days": "`x` Tage",
   "`x` hours": "`x` Stunden",
   "`x` minutes": "`x` Minuten",
-  "`x` seconds": "`x` Sekunden"
+  "`x` seconds": "`x` Sekunden",
+  "Fallback comments: ": "",
+  "Popular": "",
+  "Top": "",
+  "About": "",
+  "Rating: ": "",
+  "Language: ": ""
 }
