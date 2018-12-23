@@ -2060,7 +2060,7 @@ get "/feed/private" do |env|
   query = env.request.query.not_nil!
 
   feed = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
-    xml.element("feed", xmlns: "http://www.w3.org/2005/Atom", "xmlns:media": "http://search.yahoo.com/mrss/",
+    xml.element("feed", "xmlns:yt": "http://www.w3.org/2005/Atom", "xmlns:media": "http://search.yahoo.com/mrss/",
       "xml:lang": "en-US") do
       xml.element("link", "type": "text/html", rel: "alternate", href: "#{host_url}/feed/subscriptions")
       xml.element("link", "type": "application/atom+xml", rel: "self", href: "#{host_url}#{path}?#{query}")
