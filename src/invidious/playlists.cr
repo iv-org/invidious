@@ -65,6 +65,7 @@ def fetch_playlist_videos(plid, page, video_count, continuation = nil, locale = 
       nodeset = document.xpath_nodes(%q(.//tr[contains(@class, "pl-video")]))
 
       videos = extract_playlist(plid, nodeset, 0)
+
       if continuation
         until videos[0].id == continuation
           videos.shift

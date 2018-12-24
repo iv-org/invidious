@@ -514,7 +514,7 @@ get "/playlist" do |env|
   end
 
   begin
-    videos = fetch_playlist_videos(plid, page, playlist.video_count, locale)
+    videos = fetch_playlist_videos(plid, page, playlist.video_count, locale: locale)
   rescue ex
     videos = [] of PlaylistVideo
   end
