@@ -56,7 +56,7 @@ class RedditListing
   })
 end
 
-def fetch_youtube_comments(id, continuation, proxies, format)
+def fetch_youtube_comments(id, continuation, proxies, format, locale)
   client = make_client(YT_URL)
   html = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
   headers = HTTP::Headers.new
@@ -133,7 +133,7 @@ def fetch_youtube_comments(id, continuation, proxies, format)
   response = JSON.parse(response.body)
 
   if !response["response"]["continuationContents"]?
-    raise "Could not fetch comments"
+    raise translate(locale, "Could not fetch comments")
   end
 
   response = response["response"]["continuationContents"]
@@ -214,7 +214,7 @@ def fetch_youtube_comments(id, continuation, proxies, format)
               json.field "content", content
               json.field "contentHtml", content_html
               json.field "published", published.to_unix
-              json.field "publishedText", "#{recode_date(published)} ago"
+              json.field "publishedText", translate(locale, "`x` ago", recode_date(published))
               json.field "likeCount", node_comment["likeCount"]
               json.field "commentId", node_comment["commentId"]
 
@@ -250,7 +250,7 @@ def fetch_youtube_comments(id, continuation, proxies, format)
 
   if format == "html"
     comments = JSON.parse(comments)
-    content_html = template_youtube_comments(comments)
+    content_html = template_youtube_comments(comments, locale)
 
     comments = JSON.build do |json|
       json.object do
@@ -270,7 +270,7 @@ end
 
 def fetch_reddit_comments(id)
   client = make_client(REDDIT_URL)
-  headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.11.0 (by /u/omarroth)"}
+  headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.12.0 (by /u/omarroth)"}
 
   query = "(url:3D#{id}%20OR%20url:#{id})%20(site:youtube.com%20OR%20site:youtu.be)"
   search_results = client.get("/search.json?q=#{query}", headers)
@@ -296,7 +296,7 @@ def fetch_reddit_comments(id)
   return comments, thread
 end
 
-def template_youtube_comments(comments)
+def template_youtube_comments(comments, locale)
   html = ""
 
   root = comments["comments"].as_a
@@ -308,7 +308,7 @@ def template_youtube_comments(comments)
         <div class="pure-u-23-24">
           <p>
             <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
-              onclick="get_youtube_replies(this)">View #{child["replies"]["replyCount"]} replies</a>
+              onclick="get_youtube_replies(this)">#{translate(locale, "View `x` replies", child["replies"]["replyCount"].to_s)}</a>
           </p>
         </div>
       </div>
@@ -328,7 +328,7 @@ def template_youtube_comments(comments)
             <a href="#{child["authorUrl"]}">#{child["author"]}</a>
           </b> 
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
-          #{recode_date(Time.unix(child["published"].as_i64))} ago
+          #{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64)))}
           | 
           <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])} 
         </p>
@@ -344,7 +344,7 @@ def template_youtube_comments(comments)
       <div class="pure-u-1">
         <p>
           <a href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
-            onclick="get_youtube_replies(this, true)">Load more</a>
+            onclick="get_youtube_replies(this, true)">#{translate(locale, "Load more")}</a>
         </p>
       </div>
     </div>
@@ -354,7 +354,7 @@ def template_youtube_comments(comments)
   return html
 end
 
-def template_reddit_comments(root)
+def template_reddit_comments(root, locale)
   html = ""
   root.each do |child|
     if child.data.is_a?(RedditComment)
@@ -366,15 +366,15 @@ def template_reddit_comments(root)
       replies_html = ""
       if child.replies.is_a?(RedditThing)
         replies = child.replies.as(RedditThing)
-        replies_html = template_reddit_comments(replies.data.as(RedditListing).children)
+        replies_html = template_reddit_comments(replies.data.as(RedditListing).children, locale)
       end
 
       content = <<-END_HTML
       <p>
         <a href="javascript:void(0)" onclick="toggle_parent(this)">[ - ]</a> 
         <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b> 
-        #{number_with_separator(score)} points 
-        #{recode_date(child.created_utc)} ago
+        #{translate(locale, "`x` points", number_with_separator(score))}
+        #{translate(locale, "`x` ago", recode_date(child.created_utc))}
       </p>
       <div>
       #{body_html}

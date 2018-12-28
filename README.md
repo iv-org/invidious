@@ -146,8 +146,15 @@ $ ./sentry
 
 - [Alternate Tube Redirector](https://addons.mozilla.org/en-US/firefox/addon/alternate-tube-redirector/): Automatically open Youtube Videos on alternate sites like Invidious or Hooktube.
 - [Invidious Redirect](https://greasyfork.org/en/scripts/370461-invidious-redirect): Redirects Youtube URLs to Invidio.us (userscript)
-- [Invidio.us embed](https://greasyfork.org/en/scripts/370442-invidious-embed): Replaces YouTube embeds with Invidio.us embeds (userscript)
+- [iPhone Redirector Shortcut](https://www.icloud.com/shortcuts/6bbf26d989cf4d07a5fe1626efbc0950): Automatically open YouTube videos in Invidious (iPhone shortcut)
+- [Youtube to Invidious](https://greasyfork.org/en/scripts/375264-youtube-to-invidious): Scan page for youtube embeds and urls and replace with Invidious (userscript)
 - [Invidious Downloader](https://github.com/erupete/InvidiousDownloader): Tampermonkey userscript for downloading videos or audio on Invidious (userscript)
+
+## Made with Invidious
+
+- [FreeTube](https://github.com/FreeTubeApp/FreeTube): An Open Source YouTube app for privacy.
+- [CloudTube](https://github.com/cloudrac3r/cadencegq): Website featuring pastebin, image host, and YouTube player
+- [PeerTubeify](https://gitlab.com/Ealhad/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 
 ## Contributing
 

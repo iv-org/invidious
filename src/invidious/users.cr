@@ -29,20 +29,25 @@ class User
 end
 
 DEFAULT_USER_PREFERENCES = Preferences.from_json({
-  "video_loop"     => false,
-  "autoplay"       => false,
-  "speed"          => 1.0,
-  "quality"        => "hd720",
-  "volume"         => 100,
-  "comments"       => ["youtube", ""],
-  "captions"       => ["", "", ""],
-  "related_videos" => true,
-  "dark_mode"      => false,
-  "thin_mode"      => false,
-  "max_results"    => 40,
-  "sort"           => "published",
-  "latest_only"    => false,
-  "unseen_only"    => false,
+  "video_loop"         => false,
+  "autoplay"           => false,
+  "continue"           => false,
+  "listen"             => false,
+  "speed"              => 1.0,
+  "quality"            => "hd720",
+  "volume"             => 100,
+  "comments"           => ["youtube", ""],
+  "captions"           => ["", "", ""],
+  "related_videos"     => true,
+  "redirect_feed"      => false,
+  "locale"             => "en-US",
+  "dark_mode"          => false,
+  "thin_mode"          => false,
+  "max_results"        => 40,
+  "sort"               => "published",
+  "latest_only"        => false,
+  "unseen_only"        => false,
+  "notifications_only" => false,
 }.to_json)
 
 class Preferences
@@ -113,15 +118,19 @@ class Preferences
       type:    Bool,
       default: false,
     },
+    locale: {
+      type:    String,
+      default: "en-US",
+    },
   })
 end
 
-def get_user(sid, client, headers, db, refresh = true)
+def get_user(sid, headers, db, refresh = true)
   if db.query_one?("SELECT EXISTS (SELECT true FROM users WHERE $1 = ANY(id))", sid, as: Bool)
     user = db.query_one("SELECT * FROM users WHERE $1 = ANY(id)", sid, as: User)
 
     if refresh && Time.now - user.updated > 1.minute
-      user = fetch_user(sid, client, headers, db)
+      user = fetch_user(sid, headers, db)
       user_array = user.to_a
 
       user_array[5] = user_array[5].to_json
@@ -140,7 +149,7 @@ def get_user(sid, client, headers, db, refresh = true)
       end
     end
   else
-    user = fetch_user(sid, client, headers, db)
+    user = fetch_user(sid, headers, db)
     user_array = user.to_a
 
     user_array[5] = user_array[5].to_json
@@ -162,7 +171,8 @@ def get_user(sid, client, headers, db, refresh = true)
   return user
 end
 
-def fetch_user(sid, client, headers, db)
+def fetch_user(sid, headers, db)
+  client = make_client(YT_URL)
   feed = client.get("/subscription_manager?disable_polymer=1", headers)
   feed = XML.parse_html(feed.body)
 
@@ -172,7 +182,7 @@ def fetch_user(sid, client, headers, db)
       channel_id = channel["href"].lstrip("/channel/")
 
       begin
-        channel = get_channel(channel_id, client, db, false, false)
+        channel = get_channel(channel_id, db, false, false)
         channels << channel.id
       rescue ex
         next
@@ -216,13 +226,13 @@ def create_response(user_id, operation, key, db, expire = 6.hours)
   return challenge, token
 end
 
-def validate_response(challenge, token, user_id, operation, key, db)
+def validate_response(challenge, token, user_id, operation, key, db, locale)
   if !challenge
-    raise "Hidden field \"challenge\" is a required field"
+    raise translate(locale, "Hidden field \"challenge\" is a required field")
   end
 
   if !token
-    raise "Hidden field \"token\" is a required field"
+    raise translate(locale, "Hidden field \"token\" is a required field")
   end
 
   challenge = Base64.decode_string(challenge)
@@ -232,7 +242,7 @@ def validate_response(challenge, token, user_id, operation, key, db)
     expire = expire.to_i?
     expire ||= 0
   else
-    raise "Invalid challenge"
+    raise translate(locale, "Invalid challenge")
   end
 
   challenge = OpenSSL::HMAC.digest(:sha256, HMAC_KEY, challenge)
@@ -241,23 +251,23 @@ def validate_response(challenge, token, user_id, operation, key, db)
   if db.query_one?("SELECT EXISTS (SELECT true FROM nonces WHERE nonce = $1)", nonce, as: Bool)
     db.exec("DELETE FROM nonces * WHERE nonce = $1", nonce)
   else
-    raise "Invalid token"
+    raise translate(locale, "Invalid token")
   end
 
   if challenge != token
-    raise "Invalid token"
+    raise translate(locale, "Invalid token")
   end
 
   if challenge_operation != operation
-    raise "Invalid token"
+    raise translate(locale, "Invalid token")
   end
 
   if challenge_user_id != user_id
-    raise "Invalid user"
+    raise translate(locale, "Invalid user")
   end
 
   if expire < Time.now.to_unix
-    raise "Token is expired, please try again"
+    raise translate(locale, "Token is expired, please try again")
   end
 end
 

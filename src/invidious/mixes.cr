@@ -18,7 +18,7 @@ class Mix
   })
 end
 
-def fetch_mix(rdid, video_id, cookies = nil)
+def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
   headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
@@ -32,11 +32,11 @@ def fetch_mix(rdid, video_id, cookies = nil)
   if yt_data
     yt_data = JSON.parse(yt_data["data"].rchop(";"))
   else
-    raise "Could not create mix."
+    raise translate(locale, "Could not create mix.")
   end
 
   if !yt_data["contents"]["twoColumnWatchNextResults"]["playlist"]?
-    raise "Could not create mix."
+    raise translate(locale, "Could not create mix.")
   end
 
   playlist = yt_data["contents"]["twoColumnWatchNextResults"]["playlist"]["playlist"]
@@ -70,7 +70,7 @@ def fetch_mix(rdid, video_id, cookies = nil)
   end
 
   if !cookies
-    next_page = fetch_mix(rdid, videos[-1].id, response.cookies)
+    next_page = fetch_mix(rdid, videos[-1].id, response.cookies, locale)
     videos += next_page.videos
   end
 

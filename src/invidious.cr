@@ -77,6 +77,16 @@ YT_URL     = URI.parse("https://www.youtube.com")
 REDDIT_URL = URI.parse("https://www.reddit.com")
 LOGIN_URL  = URI.parse("https://accounts.google.com")
 
+LOCALES = {
+  "ar"    => load_locale("ar"),
+  "de"    => load_locale("de"),
+  "en-US" => load_locale("en-US"),
+  "nb_NO" => load_locale("nb_NO"),
+  "nl"    => load_locale("nl"),
+  "pl"    => load_locale("pl"),
+  "ru"    => load_locale("ru"),
+}
+
 decrypt_function = [] of {name: String, value: Int32}
 if CONFIG.decrypt_drm
   spawn do
@@ -88,9 +98,19 @@ end
 
 proxies = PROXY_LIST
 
+before_all do |env|
+  env.response.headers["X-XSS-Protection"] = "1; mode=block;"
+  env.response.headers["X-Content-Type-Options"] = "nosniff"
+
+  locale = env.params.query["hl"]?
+  locale ||= "en-US"
+  env.set "locale", locale
+end
 # API Endpoints
 
 get "/api/v1/captions/:id" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
   env.response.content_type = "application/json"
 
   id = env.params.url["id"]
@@ -190,6 +210,8 @@ get "/api/v1/captions/:id" do |env|
 end
 
 get "/api/v1/comments/:id" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
   env.response.content_type = "application/json"
 
   id = env.params.url["id"]
@@ -205,7 +227,7 @@ get "/api/v1/comments/:id" do |env|
 
   if source == "youtube"
     begin
-      comments = fetch_youtube_comments(id, continuation, proxies, format)
+      comments = fetch_youtube_comments(id, continuation, proxies, format, locale)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       halt env, status_code: 500, response: error_message
@@ -215,7 +237,7 @@ get "/api/v1/comments/:id" do |env|
   elsif source == "reddit"
     begin
       comments, reddit_thread = fetch_reddit_comments(id)
-      content_html = template_reddit_comments(comments)
+      content_html = template_reddit_comments(comments, locale)
 
       content_html = fill_links(content_html, "https", "www.reddit.com")
       content_html = replace_links(content_html)
@@ -244,6 +266,8 @@ get "/api/v1/comments/:id" do |env|
 end
 
 get "/api/v1/insights/:id" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
   id = env.params.url["id"]
   env.response.content_type = "application/json"
 
@@ -324,6 +348,8 @@ get "/api/v1/insights/:id" do |env|
 end
 
 get "/api/v1/videos/:id" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
   env.response.content_type = "application/json"
 
   id = env.params.url["id"]
@@ -356,7 +382,7 @@ get "/api/v1/videos/:id" do |env|
       json.field "description", description
       json.field "descriptionHtml", video.description
       json.field "published", video.published.to_unix
-      json.field "publishedText", "#{recode_date(video.published)} ago"
+      json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
       json.field "keywords", video.keywords
 
       json.field "viewCount", video.views
@@ -527,11 +553,13 @@ get "/api/v1/videos/:id" do |env|
 end
 
 get "/api/v1/trending" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
   region = env.params.query["region"]?
   trending_type = env.params.query["type"]?
 
   begin
-    trending = fetch_trending(trending_type, proxies, region)
+    trending = fetch_trending(trending_type, proxies, region, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
     halt env, status_code: 500, response: error_message
@@ -555,7 +583,7 @@ get "/api/v1/trending" do |env|
           json.field "authorUrl", "/channel/#{video.ucid}"
 
           json.field "published", video.published.to_unix
-          json.field "publishedText", "#{recode_date(video.published)} ago"
+          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
           json.field "description", video.description
           json.field "descriptionHtml", video.description_html
           json.field "liveNow", video.live_now
@@ -571,6 +599,8 @@ get "/api/v1/trending" do |env|
 end
 
 get "/api/v1/channels/:ucid" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
   env.response.content_type = "application/json"
 
   ucid = env.params.url["ucid"]
@@ -578,7 +608,7 @@ get "/api/v1/channels/:ucid" do |env|
   sort_by ||= "newest"
 
   begin
-    author, ucid, auto_generated = get_about_info(ucid)
+    author, ucid, auto_generated = get_about_info(ucid, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
     halt env, status_code: 500, response: error_message
@@ -724,7 +754,7 @@ get "/api/v1/channels/:ucid" do |env|
 
               json.field "viewCount", video.views
               json.field "published", video.published.to_unix
-              json.field "publishedText", "#{recode_date(video.published)} ago"
+              json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
               json.field "lengthSeconds", video.length_seconds
               json.field "liveNow", video.live_now
               json.field "paid", video.paid
@@ -767,6 +797,8 @@ end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
   get route do |env|
+    locale = LOCALES[env.get("locale").as(String)]?
+
     env.response.content_type = "application/json"
 
     ucid = env.params.url["ucid"]
@@ -776,7 +808,7 @@ end
     sort_by ||= "newest"
 
     begin
-      author, ucid, auto_generated = get_about_info(ucid)
+      author, ucid, auto_generated = get_about_info(ucid, locale)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       halt env, status_code: 500, response: error_message
@@ -815,7 +847,7 @@ end
 
             json.field "viewCount", video.views
             json.field "published", video.published.to_unix
-            json.field "publishedText", "#{recode_date(video.published)} ago"
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
             json.field "lengthSeconds", video.length_seconds
             json.field "liveNow", video.live_now
             json.field "paid", video.paid
@@ -830,6 +862,8 @@ end
 end
 
 get "/api/v1/channels/search/:ucid" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
   env.response.content_type = "application/json"
 
   ucid = env.params.url["ucid"]
@@ -864,7 +898,7 @@ get "/api/v1/channels/search/:ucid" do |env|
 
             json.field "viewCount", item.views
             json.field "published", item.published.to_unix
-            json.field "publishedText", "#{recode_date(item.published)} ago"
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published))
             json.field "lengthSeconds", item.length_seconds
             json.field "liveNow", item.live_now
             json.field "paid", item.paid
@@ -928,6 +962,8 @@ get "/api/v1/channels/search/:ucid" do |env|
 end
 
 get "/api/v1/search" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
   env.response.content_type = "application/json"
 
   query = env.params.query["q"]?
@@ -987,7 +1023,7 @@ get "/api/v1/search" do |env|
 
             json.field "viewCount", item.views
             json.field "published", item.published.to_unix
-            json.field "publishedText", "#{recode_date(item.published)} ago"
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published))
             json.field "lengthSeconds", item.length_seconds
             json.field "liveNow", item.live_now
             json.field "paid", item.paid
@@ -1051,6 +1087,8 @@ get "/api/v1/search" do |env|
 end
 
 get "/api/v1/playlists/:plid" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
   env.response.content_type = "application/json"
   plid = env.params.url["plid"]
 
@@ -1067,14 +1105,14 @@ get "/api/v1/playlists/:plid" do |env|
   end
 
   begin
-    playlist = fetch_playlist(plid)
+    playlist = fetch_playlist(plid, locale)
   rescue ex
     error_message = {"error" => "Playlist is empty"}.to_json
     halt env, status_code: 500, response: error_message
   end
 
   begin
-    videos = fetch_playlist_videos(plid, page, playlist.video_count, continuation)
+    videos = fetch_playlist_videos(plid, page, playlist.video_count, continuation, locale)
   rescue ex
     videos = [] of PlaylistVideo
   end
@@ -1148,6 +1186,8 @@ get "/api/v1/playlists/:plid" do |env|
 end
 
 get "/api/v1/mixes/:rdid" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
   env.response.content_type = "application/json"
 
   rdid = env.params.url["rdid"]
@@ -1159,7 +1199,7 @@ get "/api/v1/mixes/:rdid" do |env|
   format ||= "json"
 
   begin
-    mix = fetch_mix(rdid, continuation)
+    mix = fetch_mix(rdid, continuation, locale: locale)
 
     if !rdid.ends_with? continuation
       mix = fetch_mix(rdid, mix.videos[1].id)

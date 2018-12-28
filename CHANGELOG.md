@@ -1,3 +1,57 @@
+# 0.12.0 (2018-12-06)
+
+## Version 0.12.0: Accessibility, Privacy, Transparency
+
+Hello again, it's been a while! A lot has happened since the last release. Invidious has seen [134 commits](https://github.com/omarroth/invidious/compare/0.11.0...0.12.0) from 3 contributors, and I'm quite happy with the progress that has been made. I enjoyed this past month, and I believe having a monthly release schedule allows me to focus on more long-term improvements, and I hope people enjoy these more substantial updates as well.
+
+## Accessability and Privacy
+
+There have been quite a few improvements for user privacy, and improvements that improve accessibility for both people and software.
+
+You can now view comments without JS with [`19516ea`](https://github.com/omarroth/invidious/19516ea). Currently, this functionality is limited to the first 20 comments, but expect this functionality to be improved to come as close to the JS version as possible. Folks can track progress in [#204](https://github.com/omarroth/invidious/issues/204).
+
+Invidious is now compatible with [LibreJS](https://www.gnu.org/software/librejs/), and provides license information [here](https://invidio.us/licenses) with [`7f868ec`](https://github.com/omarroth/invidious/7f868ec). As expected, all libraries are compatible under the AGPLv3, and I'm happy to mention that no other changes were required to make Invidious compatible with LibreJS.
+
+A DNT policy has also been added with [`9194f47`](https://github.com/omarroth/invidious/9194f47) for compatibility with [Privacy Badger](https://www.eff.org/privacybadger). I'm pleased to mention that here too no other changes had to be made in order for Invidious to be compatible with this extension. I expect a privacy policy to be added soon as well, so users can better understand how Invidious uses their data.
+
+For users that are visually impaired, there is now a text CAPTCHA available so it's easier to register and login. Because of the simple front-end of the project, I expect screen readers and other software to be able to easily understand the site's interface. In combination with the ability to listen-only, I believe Invidious is much more accessible than YouTube. Folks can read [#244](https://github.com/omarroth/invidious/issues/244) for more details, and I would very much appreciate any feedback on how this can be improved.
+
+## User Preferences
+
+There have been a lot of improvements to preferences. Options for enabling audio-only by default and continuous playback (autoplay) have been added with [`e39dec9`](https://github.com/omarroth/invidious/e39dec9), with [`4b76b93`](https://github.com/omarroth/invidious/4b76b93), respectively. Users can also now mark videos as watched from their subscription feed and view watch history by going to https://invidio.us/feed/history. I expect to add more information to history so that it's easier to use. Folks can track progress with [#182](https://github.com/omarroth/invidious/issues/182). As with all data Invidious keeps, watch history can be exported [here](https://invidio.us/data_control).
+
+Users can now delete their account with [`b9c29bf`](https://github.com/omarroth/invidious/b9c29bf). This will remove _all_ user data from Invidious, including session IDs, watch history, and subscriptions. As mentioned above, it's easy to export that data and import it to a local instance, or export subscriptions for use with other applications such as [FreeTube](https://github.com/FreeTubeApp/FreeTube) or [NewPipe](https://github.com/TeamNewPipe/NewPipe).
+
+## Translation and Internationalis(z)ation
+
+Invidious has been approved for hosting by Weblate, available [here](https://hosted.weblate.org/projects/invidious/translations/). At the time of writing, translations for Arabic, Dutch, German, Polish, and Russian are currently underway. I would like to say a very big thank you to everyone working on them, and I hope to fully support them within around 2 weeks. Folks can track progress with [#251](https://github.com/omarroth/invidious/issues/251).
+
+## Transperency and Finances
+
+For the sake of transparency, I plan on publishing each month's finances. This is currently already done on Liberapay and Patreon, but there is not a total amount currently provided anywhere, and I would also like to include expenses to provide a better explanation of how patrons' money is being spent.
+
+### Donations
+
+- [Patreon](https://www.patreon.com/omarroth): \$43.60 (Patreon takes roughly 9%)
+- [Liberapay](https://liberapay.com/omarroth) : \$22.10
+- Crypto : ~\$1.25 (converted from BCH, BTC)
+- Total : \$66.95
+
+### Expenses
+
+- invidious-load1 (nyc1) : \$10.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$75.00
+
+I'd be happy to provide any explanation where needed. I would also like to thank everyone who donates, it really helps and I can't say how happy I am to see that so many people find it valuable.
+
+That's all for this month. I wish everyone the best for the holidays, and I'll see you all again in January!
+
 # 0.11.0 (2018-10-23)
 
 ## Week 11: FreeTube and Styling
