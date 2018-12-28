@@ -204,7 +204,6 @@ def update_decrypt_function
     end
 
     yield decrypt_function
-    Fiber.yield
   end
 end
 
