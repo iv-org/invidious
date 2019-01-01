@@ -80,7 +80,7 @@ $ crystal build src/invidious.cr --release
 # Install dependencies
 $ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
 $ sudo apt update
-$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev librsvg2-dev postgresql imagemagick
+$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev librsvg2-dev postgresql imagemagick libsqlite3-dev
 
 # Setup PostgreSQL
 $ sudo systemctl enable postgresql
