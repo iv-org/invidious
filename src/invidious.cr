@@ -633,7 +633,7 @@ get "/search" do |env|
     count, videos = channel_search(search_query, page, channel)
   elsif subscriptions
     if view_name
-      videos = PG_DB.query_all("SELECT id,title,published,updated,ucid,author FROM (
+      videos = PG_DB.query_all("SELECT id,title,published,updated,ucid,author,length_seconds FROM (
       SELECT *,
       to_tsvector(#{view_name}.title) ||
       to_tsvector(#{view_name}.author)
