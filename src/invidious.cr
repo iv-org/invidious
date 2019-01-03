@@ -1909,6 +1909,7 @@ get "/feed/channel/:ucid" do |env|
 
   page = 1
   videos, count = get_60_videos(ucid, page, auto_generated)
+  videos.select! { |video| !video.paid }
 
   host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
   path = env.request.path
@@ -2173,6 +2174,7 @@ get "/channel/:ucid" do |env|
   end
 
   videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
+  videos.select! { |video| !video.paid }
 
   templated "channel"
 end

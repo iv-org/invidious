@@ -317,10 +317,10 @@ def extract_items(nodeset, ucid = nil)
         premium = false
       end
 
-      if node.xpath_node(%q(.//span[contains(text(), "Get YouTube Premium")]))
-        paid = true
-      else
+      if !premium || node.xpath_node(%q(.//span[contains(text(), "Free episode")]))
         paid = false
+      else
+        paid = true
       end
 
       items << SearchVideo.new(
