@@ -588,6 +588,10 @@ get "/search" do |env|
   query ||= env.params.query["q"]?
   query ||= ""
 
+  if query.empty?
+    next env.redirect "/"
+  end
+
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
