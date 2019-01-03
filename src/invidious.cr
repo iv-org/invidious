@@ -1355,7 +1355,7 @@ get "/subscription_manager" do |env|
   subscriptions = [] of InvidiousChannel
   user.subscriptions.each do |ucid|
     begin
-      subscriptions << get_channel(ucid, PG_DB, false)
+      subscriptions << get_channel(ucid, PG_DB, false, false)
     rescue ex
       next
     end
@@ -1475,14 +1475,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions.select! do |ucid|
-          begin
-            get_channel(ucid, PG_DB, false, false)
-            true
-          rescue ex
-            false
-          end
-        end
+        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
         PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_freetube"
@@ -1491,14 +1484,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions.select! do |ucid|
-          begin
-            get_channel(ucid, PG_DB, false, false)
-            true
-          rescue ex
-            false
-          end
-        end
+        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
         PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe_subscriptions"
@@ -1508,13 +1494,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions.each do |ucid|
-          begin
-            get_channel(ucid, PG_DB, false, false)
-          rescue ex
-            next
-          end
-        end
+        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
         PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe"
@@ -1533,14 +1513,7 @@ post "/data_control" do |env|
               user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map { |url| url.lchop("https://www.youtube.com/channel/") }
               user.subscriptions.uniq!
 
-              user.subscriptions.select! do |ucid|
-                begin
-                  get_channel(ucid, PG_DB, false, false)
-                  true
-                rescue ex
-                  false
-                end
-              end
+              user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
               PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
 

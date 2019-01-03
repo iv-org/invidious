@@ -177,18 +177,15 @@ def fetch_user(sid, headers, db)
   feed = XML.parse_html(feed.body)
 
   channels = [] of String
-  feed.xpath_nodes(%q(//ul[@id="guide-channels"]/li/a)).each do |channel|
-    if !{"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? channel["title"]
-      channel_id = channel["href"].lstrip("/channel/")
-
-      begin
-        channel = get_channel(channel_id, db, false, false)
-        channels << channel.id
-      rescue ex
-        next
-      end
+  channels = feed.xpath_nodes(%q(//ul[@id="guide-channels"]/li/a)).compact_map do |channel|
+    if {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? channel["title"]
+      nil
+    else
+      channel["href"].lstrip("/channel/")
     end
   end
+
+  channels = get_batch_channels(channels, db, false, false)
 
   email = feed.xpath_node(%q(//a[@class="yt-masthead-picker-header yt-masthead-picker-active-account"]))
   if email
