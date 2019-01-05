@@ -1,15 +1,15 @@
 def fetch_decrypt_function(id = "CvFH_6DNRCY")
   client = make_client(YT_URL)
-  document = client.get("/watch?v=#{id}").body
-  url = document.match(/src="(?<url>\/yts\/jsbin\/player-.{9}\/en_US\/base.js)"/).not_nil!["url"]
+  document = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1").body
+  url = document.match(/src="(?<url>\/yts\/jsbin\/player_ias-.{9}\/en_US\/base.js)"/).not_nil!["url"]
   player = client.get(url).body
 
   function_name = player.match(/^(?<name>[^=]+)=function\(a\){a=a\.split\(""\)/m).not_nil!["name"]
-  function_body = player.match(/^#{function_name}=function\(a\){(?<body>[^}]+)}/m).not_nil!["body"]
+  function_body = player.match(/^#{Regex.escape(function_name)}=function\(a\){(?<body>[^}]+)}/m).not_nil!["body"]
   function_body = function_body.split(";")[1..-2]
 
   var_name = function_body[0][0, 2]
-  var_body = player.delete("\n").match(/var #{var_name}={(?<body>(.*?))};/).not_nil!["body"]
+  var_body = player.delete("\n").match(/var #{Regex.escape(var_name)}={(?<body>(.*?))};/).not_nil!["body"]
 
   operations = {} of String => String
   var_body.split("},").each do |operation|
