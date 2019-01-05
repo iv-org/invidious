@@ -168,10 +168,7 @@ def fetch_playlist(plid, locale)
     raise translate(locale, "Invalid playlist.")
   end
 
-  body = response.body.gsub(%(
-  <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-link yt-uix-expander-head playlist-description-expander yt-uix-inlineedit-ignore-edit" type="button" onclick=";return false;"><span class="yt-uix-button-content">  less <img alt="" src="/yts/img/pixel-vfl3z5WfW.gif">
-  </span></button>
-  ), "")
+  body = response.body.gsub(/<button[^>]+><span[^>]+>\s*less\s*<img[^>]+>\n<\/span><\/button>/, "")
   document = XML.parse_html(body)
 
   title = document.xpath_node(%q(//h1[@class="pl-header-title"]))
