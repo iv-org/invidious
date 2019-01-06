@@ -27,6 +27,11 @@ Patreon: https://patreon.com/omarroth
 BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY  
 BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 
+Onion links:
+
+- kgg2m7yk5aybusll.onion
+- axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion
+
 ## Installation
 
 ### Docker:
