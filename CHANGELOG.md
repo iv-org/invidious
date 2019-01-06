@@ -1,3 +1,74 @@
+# 0.13.0 (2019-01-06)
+
+## Version 0.13.0: Translations, Annotations, and Tor
+
+I hope everyone had a happy New Year! There's been a couple new additions since last release, with [44 commits](https://github.com/omarroth/invidious/compare/0.12.0...0.13.0) from 9 contributors. It's been quite a year for the project, and I hope to continue improving the project into 2019! Starting off the new year:
+
+## Translations
+
+I'm happy to announce support for translations has been added with [`a160c64`](https://github.com/omarroth/invidious/a160c64). Currently, there is support for:
+
+- Arabic (`ar`)
+- Dutch (`nl`)
+- English (`en-US`)
+- German (`de`)
+- Norwegian Bokmål (`nb_NO`)
+- Polish (`pl`)
+- Russian (`ru`)
+
+Which you can change in your preferences under `Language`. You can also add `&hl=LANGUAGE` to the end of any request to translate it to your preferred language, for example https://invidio.us/?hl=ru. I'd like to say thank you again to everyone who has helped translate the site! I've mentioned this before, but I'm delighted that so many people find the project useful.
+
+## Annotations
+
+Recently, [YouTube announced that all annotations will be deleted on January 15th, 2019](https://support.google.com/youtube/answer/7342737). I believe that annotations have a very important place in YouTube's history, and [announced a project to archive them](https://www.reddit.com/r/DataHoarder/comments/aa6czg/youtube_annotation_archive/).
+
+I expect annotations to be supported in the Invidious player once archiving is complete (see [#110](https://github.com/omarroth/invidious/issues/110) for details), and would also like to host them for other developers to use in their projects.
+
+The code is available [here](https://github.com/omarroth/archive), and contains instructions for running a worker if you would like to contribute. There's much more information available in the announcement as well for anyone who is interested.
+
+## Tor
+
+I unfortunately missed the chance to mention this in the previous release, but I'm now happy to announce that you can now view Invidious through Tor at the following links:
+
+kgg2m7yk5aybusll.onion  
+axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion
+
+Invidious is well suited to use through Tor, as it does not require any JS and is fairly lightweight. I'd recommend looking [here](https://diasp.org/posts/10965196) and [here](https://www.reddit.com/r/TOR/comments/a3c1ak/you_can_now_watch_youtube_videos_anonymously_with/) for more details on how to use the onion links, and would like to say thank you to [/u/whonix-os](https://www.reddit.com/user/whonix-os) for suggesting it and providing support setting setting them up.
+
+## Popular and Trending
+
+You can now easily view videos trending on YouTube with [`a16f967`](https://github.com/omarroth/invidious/a16f967). It also provides support for viewing YouTube's various categories categories, such as `News`, `Gaming`, and `Music`. You can also change the `region` parameter to view trending in different countries, which should be made easier to use in the coming weeks.
+
+A link to `/feed/popular` has also been added, which provides a list of videos sorted using the algorithm described [here](https://github.com/omarroth/invidious/issues/217#issuecomment-436503761). I think it better reflects what users watch on the site, but I'd like to hear peoples' thoughts on this and on how it could be improved.
+
+## Finances
+
+### Donations
+
+- [Patreon](https://www.patreon.com/omarroth): \$64.63
+- [Liberapay](https://liberapay.com/omarroth) : \$30.05
+- Crypto : ~\$28.74 (converted from BCH, BTC)
+- Total : \$123.42
+
+### Expenses
+
+- invidious-load1 (nyc1) : \$10.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$75.00
+
+### What will happen with what's left over?
+
+I believe this is the first month that all expenses have been fully paid for by donations. Thank you! I expect to allocate the current amount for hardware to improve performance and for hosting annotation data, as mentioned above.
+
+Anything that is left over is kept to continue hosting the project for as long as possible. Thank you again everyone!
+
+I think that's everything for 2018. There's lots still planned, and I'm very excited for the future of this project!
+
 # 0.12.0 (2018-12-06)
 
 ## Version 0.12.0: Accessibility, Privacy, Transparency
