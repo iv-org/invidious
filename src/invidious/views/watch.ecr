@@ -179,7 +179,7 @@
 <script>
 <% if !rvs.empty? && !plid && params[:continue] %>
 player.on('ended', function() {
-    window.location.replace("/watch?v=" 
+    location.assign("/watch?v=" 
         + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
         + "&continue=1"
         <% if params[:listen] %>
@@ -198,7 +198,7 @@ player.on('ended', function() {
 function continue_autoplay(target) {
     if (target.checked) {
         player.on('ended', function() {
-            window.location.replace("/watch?v=" 
+            location.assign("/watch?v=" 
                 + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
                 + "&continue=1"
                 <% if params[:listen] %>
@@ -295,7 +295,7 @@ function get_playlist() {
                 
                 if (xhr.response.nextVideo) {
                     player.on('ended', function() {
-                        window.location.replace("/watch?v=" 
+                        location.assign("/watch?v=" 
                             + xhr.response.nextVideo
                             + "&list=<%= plid %>"
                             <% if params[:listen] %>
