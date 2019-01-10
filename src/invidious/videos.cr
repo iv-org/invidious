@@ -649,6 +649,8 @@ def fetch_video(id, proxies, region)
   dislikes = dislikes.try &.content.delete(",").try &.to_i?
   dislikes ||= 0
 
+  info["avg_rating"] = "#{(likes.to_f/(likes.to_f + dislikes.to_f) * 4 + 1)}"
+
   description = html.xpath_node(%q(//p[@id="eow-description"]))
   description = description ? description.to_xml : ""
 
