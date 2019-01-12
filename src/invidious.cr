@@ -368,8 +368,8 @@ get "/watch" do |env|
   host_params = env.request.query_params
   host_params.delete_all("v")
 
-  if video.info["hlsvp"]?
-    hlsvp = video.info["hlsvp"]
+  if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
+    hlsvp = video.player_response["streamingData"]["hlsManifestUrl"].as_s
     hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
   end
 
@@ -470,8 +470,8 @@ get "/embed/:id" do |env|
   host_params = env.request.query_params
   host_params.delete_all("v")
 
-  if video.info["hlsvp"]?
-    hlsvp = video.info["hlsvp"]
+  if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
+    hlsvp = video.player_response["streamingData"]["hlsManifestUrl"].as_s
     hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
   end
 
@@ -2520,12 +2520,12 @@ get "/api/v1/videos/:id" do |env|
         json.field "isListed", video.info["is_listed"] == "1"
       end
 
-      if video.info["hlsvp"]?
+      if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
         host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
         host_params = env.request.query_params
         host_params.delete_all("v")
 
-        hlsvp = video.info["hlsvp"]
+        hlsvp = video.player_response["streamingData"]["hlsManifestUrl"].as_s
         hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
 
         json.field "hlsUrl", hlsvp
