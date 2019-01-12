@@ -3800,12 +3800,21 @@ error 404 do |env|
     halt env, status_code: 302
   end
 
-  error_message = "404 Page not found"
-  templated "error"
+  env.response.headers["Location"] = "/"
+  halt env, status_code: 302
 end
 
 error 500 do |env|
-  error_message = "500 Server error"
+  error_message = <<-END_HTML
+  Looks like you've found a bug in Invidious. Feel free to open a new issue 
+  <a href="https://github.com/omarroth/invidious/issues/github.com/omarroth/invidious">
+    here
+  </a>
+  or send an email to 
+  <a href="mailto:omarroth@protonmail.com">
+    omarroth@protonmail.com
+  </a>.
+  END_HTML
   templated "error"
 end
 
