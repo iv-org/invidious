@@ -392,9 +392,7 @@ get "/watch" do |env|
     rvs << HTTP::Params.parse(rv).to_h
   end
 
-  # rating = (video.likes.to_f/(video.likes.to_f + video.dislikes.to_f) * 4 + 1)
   rating = video.info["avg_rating"].to_f64
-
   engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
 
   playability_status = video.player_response["playabilityStatus"]?
@@ -2524,7 +2522,7 @@ get "/api/v1/videos/:id" do |env|
 
       if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
         host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
-        
+
         host_params = env.request.query_params
         host_params.delete_all("v")
 
