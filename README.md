@@ -147,6 +147,14 @@ $ curl -fsSLo- https://raw.githubusercontent.com/samueleaton/sentry/master/insta
 $ ./sentry
 ```
 
+## Optional
+Create a systemd service to run Invidious in background. Edit `invidious.service` to change your installation path and log location. Than copy and enable the systemd service.
+```
+$ sudo cp invidious.service /etc/systemd/system/invidious.service
+$ sudo systemctl enable invidious.service
+$ sudo systemctl start invidious.service
+```
+
 ## Extensions
 
 - [Alternate Tube Redirector](https://addons.mozilla.org/en-US/firefox/addon/alternate-tube-redirector/): Automatically open Youtube Videos on alternate sites like Invidious or Hooktube.
