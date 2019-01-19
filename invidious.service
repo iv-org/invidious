@@ -1,0 +1,25 @@
+[Unit]
+Description=Invidious (An alternative YouTube front-end)
+After=syslog.target
+After=network.target
+
+[Service]
+RestartSec=2s
+Type=simple
+
+# set user and group
+User=invidious
+Group=invidious
+
+# configure location
+WorkingDirectory=/home/invidious
+ExecStart=/home/invidious/invidious/invidious
+
+Restart=always
+
+# default log output is syslog, to disable log enable both
+#StandardOutput=null
+#StandardError=null
+
+[Install]
+WantedBy=multi-user.target
