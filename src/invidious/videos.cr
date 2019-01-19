@@ -137,7 +137,7 @@ BYPASS_REGIONS = {
 }
 
 VIDEO_THUMBNAILS = {
-  {name: "maxres", host: "invidio.us", url: "maxres", height: 720, width: 1280},
+  {name: "maxres", host: "#{CONFIG.domain}", url: "maxres", height: 720, width: 1280},
   {name: "maxresdefault", host: "i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
   {name: "sddefault", host: "i.ytimg.com", url: "sddefault", height: 480, width: 640},
   {name: "high", host: "i.ytimg.com", url: "hqdefault", height: 360, width: 480},
