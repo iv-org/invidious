@@ -488,10 +488,14 @@ def content_to_comment_html(content)
 
         text = %(<a href="#{url}">#{text}</a>)
       elsif watch_endpoint = run["navigationEndpoint"]["watchEndpoint"]?
-        length_seconds = watch_endpoint["startTimeSeconds"].as_i
+        length_seconds = watch_endpoint["startTimeSeconds"]?
         video_id = watch_endpoint["videoId"].as_s
 
-        text = %(<a href="javascript:void(0)" onclick="player.currentTime(#{length_seconds})">#{text}</a>)
+        if length_seconds
+          text = %(<a href="javascript:void(0)" onclick="player.currentTime(#{length_seconds})">#{text}</a>)
+        else
+          text = %(<a href="/watch?v=#{video_id}">#{text}</a>)
+        end
       elsif url = run["navigationEndpoint"]["commandMetadata"]?.try &.["webCommandMetadata"]["url"].as_s
         text = %(<a href="#{url}">#{text}</a>)
       end
