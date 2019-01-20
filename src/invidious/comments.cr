@@ -67,7 +67,7 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale)
   itct = body.match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
   ctoken = body.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
 
-  if body.match(/<meta itemprop="regionsAllowed" content="">/)
+  if body.match(/<meta itemprop="regionsAllowed" content="">/) && !body.match(/player-age-gate-content\">/)
     bypass_channel = Channel({String, HTTPClient, HTTP::Headers} | Nil).new
 
     proxies.each do |proxy_region, list|
@@ -79,7 +79,7 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale)
         proxy_headers["Cookie"] = response.cookies.add_request_headers(headers)["cookie"]
         proxy_html = response.body
 
-        if !proxy_html.match(/<meta itemprop="regionsAllowed" content="">/)
+        if !proxy_html.match(/<meta itemprop="regionsAllowed" content="">/) && !proxy_html.match(/player-age-gate-content\">/)
           bypass_channel.send({proxy_html, proxy_client, proxy_headers})
         else
           bypass_channel.send(nil)
