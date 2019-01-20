@@ -227,7 +227,8 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale)
                   reply_count ||= 1
                 end
 
-                continuation = node_replies["continuations"].as_a[0]["nextContinuationData"]["continuation"].as_s
+                continuation = node_replies["continuations"]?.try &.as_a[0]["nextContinuationData"]["continuation"].as_s
+                continuation ||= ""
 
                 json.field "replies" do
                   json.object do
