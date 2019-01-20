@@ -213,6 +213,49 @@ if (bpb) {
 
 player.httpSourceSelector();
 
+<% if !params[:listen] %>
+var video_container = document.getElementById("player");
+let xhr = new XMLHttpRequest();
+xhr.responseType = "text";
+xhr.timeout = 60000;
+xhr.open("GET", "/api/v1/annotations/<%= video.id %>", true);
+xhr.send();
+
+xhr.onreadystatechange = function () {
+  if (xhr.readyState === 4) {
+    if (xhr.status === 200) {
+      videojs.registerPlugin("youtubeAnnotationsPlugin", youtubeAnnotationsPlugin);
+      if (!player.paused()) {
+        player.youtubeAnnotationsPlugin({annotationXml: xhr.response, videoContainer: video_container});
+      } else {
+        player.one('play', function(event) {
+          player.youtubeAnnotationsPlugin({annotationXml: xhr.response, videoContainer: video_container});
+        });
+      }
+    }
+  }
+};
+
+window.addEventListener("__ar_annotation_click", e => {
+    const { url, target, seconds } = e.detail;
+
+    var path = new URL(url);
+
+    if (path.href.startsWith("https://www.youtube.com/watch?") && seconds) {
+        path.search += "&t=" + seconds;
+    }
+
+    path  = path.pathname + path.search;
+
+    if (target === "current") {
+        window.location.href = path;
+    }
+    else if (target === "new") {
+        window.open(path, "_blank");
+    }
+});
+<% end %>
+
 // Since videojs-share can sometimes be blocked, we try to load it last
 player.share(shareOptions);
 </script>
