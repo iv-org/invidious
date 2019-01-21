@@ -147,7 +147,11 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="latest_only">Only show latest <% if user.preferences.unseen_only %>unwatched<% end %> video from channel: </label>
+                <% if user.preferences.unseen_only %>
+                <label for="latest_only"><%= translate(locale, "Only show latest unwatched video from channel: ") %></label>
+                <% else %>
+                <label for="latest_only"><%= translate(locale, "Only show latest video from channel: ") %></label>
+                <% end %>
                 <input name="latest_only" id="latest_only" type="checkbox" <% if user.preferences.latest_only %>checked<% end %>>
             </div>
 
