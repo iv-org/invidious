@@ -3,7 +3,7 @@
 dbpass=$(openssl rand -hex 20)
 
 createdb invidious
-#createuser kemal
+# create database user and import templates
 psql -c "CREATE USER kemal WITH PASSWORD '$dbpass';"
 psql invidious < config/sql/channels.sql
 psql invidious < config/sql/videos.sql
