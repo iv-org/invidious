@@ -148,7 +148,9 @@ $ ./sentry
 ```
 
 ## Optional
+
 Create a systemd service to run Invidious in background. Edit `invidious.service` to change your installation path and log location. Than copy and enable the systemd service.
+
 ```
 $ sudo cp invidious.service /etc/systemd/system/invidious.service
 $ sudo systemctl enable invidious.service
@@ -177,6 +179,18 @@ $ sudo systemctl start invidious.service
 4.  Push to the branch (git push origin my-new-feature)
 5.  Create a new Pull Request
 
-## Contributors
+## Contact
 
-- [omarroth](https://github.com/omarroth) - creator, maintainer
+Feel free to send an email to omarroth@protonmail.com or join our [Matrix Server](https://riot.im/app/#/room/#invidious:matrix.org).
+
+You can also view release notes on the [releases](https://github.com/omarroth/invidious/releases) page or in the CHANGELOG.md included in the repository.
+
+## License
+
+[![GNU AGPLv3 Image](https://www.gnu.org/graphics/agplv3-155x51.png)](http://www.gnu.org/licenses/agpl-3.0.en.html)
+
+Invidious is Free Software: You can use, study share and improve it at your
+will. Specifically you can redistribute and/or modify it under the terms of the
+[GNU Affero General Public License](https://www.gnu.org/licenses/agpl.html) as
+published by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
