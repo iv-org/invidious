@@ -15,10 +15,7 @@ class Config
     https_only:   Bool?,
     hmac_key:     String?,
     full_refresh: Bool,
-    domain:       {
-      type:    String?,
-      default: "invidio.us",
-    },
+    domain:       String,
   })
 end
 
