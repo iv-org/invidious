@@ -262,8 +262,8 @@ img.thumbnail {
 
 #player-container {
   position: relative;
-  padding-bottom: 56.25%;
-  margin-left: 1em;
-  margin-right: 1em;
+  padding-bottom: 55.25%;
+  margin-left: 2em;
+  margin-right: 2em;
   height: 0;
 }
