@@ -151,13 +151,14 @@ Usage: invidious [arguments]
     --ssl-cert-file FILE             SSL certificate file
     -h, --help                       Shows this help
     -t THREADS, --crawl-threads=THREADS
-                                     Number of threads for crawling (default: 1)
+                                     Number of threads for crawling YouTube (default: 0)
     -c THREADS, --channel-threads=THREADS
                                      Number of threads for refreshing channels (default: 1)
     -f THREADS, --feed-threads=THREADS
                                      Number of threads for refreshing feeds (default: 1)
     -v THREADS, --video-threads=THREADS
-                                     Number of threads for refreshing videos (default: 1)
+                                     Number of threads for refreshing videos (default: 0)
+    -o OUTPUT, --output=OUTPUT       Redirect output (default: STDOUT)
 ```
 
 Or for development:
