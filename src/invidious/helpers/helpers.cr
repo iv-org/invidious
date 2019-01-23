@@ -1,6 +1,6 @@
 class Config
   YAML.mapping({
-    crawl_threads:   Int32,      # Number of threads to use for finding new videos from YouTube (used to popular top page)
+    crawl_threads:   Int32,      # Number of threads to use for finding new videos from YouTube (used to populate "top" page)
     channel_threads: Int32,      # Number of threads to use for crawling videos from channels (for updating subscriptions)
     feed_threads:    Int32,      # Number of threads to use for updating feeds
     video_threads:   Int32,      # Number of threads to use for updating videos in cache (mostly non-functional)
@@ -11,7 +11,7 @@ class Config
       port: Int32,                       
       dbname: String,                       
     ),                       
-    dl_api_key:   String?,      # DetectLanguage API Key (used to filter non-English results from top page), mostly non-functional
+    dl_api_key:   String?,      # DetectLanguage API Key (used to filter non-English results from "top" page), mostly non-functional
     https_only:   Bool?,        # Used to tell Invidious it is behind a proxy, so links to resources should be https://
     hmac_key:     String?,      # HMAC signing key for CSRF tokens
     full_refresh: Bool,         # Used for crawling channels: threads should check all videos uploaded by a channel
