@@ -53,6 +53,34 @@
     <div class="pure-u-1 pure-u-md-1-5">
         <div class="h-box">
             <p><a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch video on Youtube") %></a></p>
+        
+            <form class="pure-form pure-form-stacked">
+                <div class="pure-control-group">
+                    <label for="download_widget"><%= translate(locale, "Download as: ") %></label>
+                    <select style="width:100%" name="download_widget" id="download_widget">
+                    <% video_streams.each do |option| %>
+                        <option data-url="<%= option["url"] %>"><%= option["quality_label"] %> - <%= option["type"].split(";")[0] %> @ <%= option["fps"] %>fps - video only</option>
+                    <% end %>
+                    <% audio_streams.each do |option| %>
+                        <option data-url="<%= option["url"] %>"><%= option["type"].split(";")[0] %> @ <%= option["bitrate"] %>k - audio only</option>
+                    <% end %>
+                    <% fmt_stream.each do |option| %>
+                        <option data-url="<%= option["url"] %>"><%= itag_to_metadata?(option["itag"]).try &.["height"]? || "~240" %>p - <%= option["type"].split(";")[0] %></option>
+                    <% end %>
+                    </select>
+                </div>
+
+                <div id="progress-container" style="width:100%; display:none">
+                    <div id="download-progress">
+                    </div>
+                </div>
+
+                <button type="button" onclick='download_video("<%= video.title.dump_unquoted %>-<%= video.id %>.mp4")' 
+                    class="pure-button pure-button-primary">
+                    <%= translate(locale, "Download") %>
+                </button>
+            </form>
+
             <p><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
             <p><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
             <p><i class="icon ion-ios-thumbs-down"></i> <%= number_with_separator(video.dislikes) %></p>

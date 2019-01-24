@@ -267,3 +267,19 @@ img.thumbnail {
   margin-right: 2em;
   height: 0;
 }
+
+#progress-container {
+  width: 100%;
+  border-radius: 2px;
+  background: #aaa;
+  display: none;
+}
+
+#download-progress {
+  width: 0%;
+  border-radius: 2px;
+  height: 10px;
+  background-color: #0078e7;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
