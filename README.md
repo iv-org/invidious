@@ -32,6 +32,8 @@ Onion links:
 - kgg2m7yk5aybusll.onion
 - axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion
 
+[Alternative Invidious instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances)
+
 ## Installation
 
 ### Docker:
@@ -139,6 +141,9 @@ $ shards
 $ crystal build src/invidious.cr --release
 ```
 
+## Update Invidious
+You can find information about how to update in the wiki: [Update Invidious](https://github.com/omarroth/invidious/wiki/Update-Invidious)
+
 ## Usage:
 
 ```bash
@@ -167,6 +172,9 @@ Or for development:
 $ curl -fsSLo- https://raw.githubusercontent.com/samueleaton/sentry/master/install.cr | crystal eval
 $ ./sentry
 ```
+
+## Documentation
+[Documentation](https://github.com/omarroth/invidious/wiki) can be found in the wiki.
 
 ## Extensions
 
