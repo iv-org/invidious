@@ -262,8 +262,23 @@ img.thumbnail {
 
 #player-container {
   position: relative;
-  padding-bottom: 56.25%;
-  margin-left: 1em;
-  margin-right: 1em;
+  padding-bottom: 55.25%;
+  margin-left: 2em;
+  margin-right: 2em;
   height: 0;
+}
+
+#progress-container {
+  width: 100%;
+  border-radius: 2px;
+  background: #aaa;
+}
+
+#download-progress {
+  width: 0%;
+  border-radius: 2px;
+  height: 10px;
+  background-color: #0078e7;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
 }

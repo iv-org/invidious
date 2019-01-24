@@ -16,6 +16,7 @@
 
 require "detect_language"
 require "digest/md5"
+require "file_utils"
 require "kemal"
 require "openssl/hmac"
 require "option_parser"
@@ -34,6 +35,8 @@ crawl_threads = CONFIG.crawl_threads
 channel_threads = CONFIG.channel_threads
 feed_threads = CONFIG.feed_threads
 video_threads = CONFIG.video_threads
+
+logger = Invidious::LogHandler.new
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
@@ -68,6 +71,10 @@ Kemal.config.extra_options do |parser|
       puts "THREADS must be integer"
       exit
     end
+  end
+  parser.on("-o OUTPUT", "--output=OUTPUT", "Redirect output (default: STDOUT)") do |output|
+    FileUtils.mkdir_p(File.dirname(output))
+    logger = Invidious::LogHandler.new(File.open(output, mode: "a"))
   end
 end
 
@@ -295,7 +302,7 @@ get "/watch" do |env|
     next env.redirect "/watch?v=#{ex.message}"
   rescue ex
     error_message = ex.message
-    STDOUT << id << " : " << ex.message << "\n"
+    logger.write("#{id} : #{ex.message}\n")
     next templated "error"
   end
 
@@ -2135,6 +2142,16 @@ get "/c/:user" do |env|
   env.redirect anchor["href"]
 end
 
+# Legacy endpoint for /user/:username
+get "/profile" do |env|
+  user = env.params.query["user"]?
+  if !user
+    env.redirect "/"
+  else
+    env.redirect "/user/#{user}"
+  end
+end
+
 get "/user/:user" do |env|
   user = env.params.url["user"]
   env.redirect "/channel/#{user}"
@@ -3849,4 +3866,5 @@ add_handler FilteredCompressHandler.new
 add_handler DenyFrame.new
 add_context_storage_type(User)
 
+Kemal.config.logger = logger
 Kemal.run
