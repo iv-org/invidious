@@ -3644,9 +3644,23 @@ get "/videoplayback" do |env|
   host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
 
+  headers = env.request.headers
+  headers.delete("Host")
+  headers.delete("Cookie")
+  headers.delete("User-Agent")
+  headers.delete("Referer")
+
   region = query_params["region"]?
-  client = make_client(URI.parse(host), proxies, region)
-  response = client.head(url)
+
+  response = HTTP::Client::Response.new(403)
+  loop do
+    begin
+      client = make_client(URI.parse(host), proxies, region)
+      response = client.head(url, headers)
+      break
+    rescue ex
+    end
+  end
 
   if response.headers["Location"]?
     url = URI.parse(response.headers["Location"])
@@ -3663,12 +3677,6 @@ get "/videoplayback" do |env|
   if response.status_code >= 400
     halt env, status_code: 403
   end
-
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
 
   client = make_client(URI.parse(host), proxies, region)
   client.get(url, headers) do |response|
