@@ -2142,6 +2142,16 @@ get "/c/:user" do |env|
   env.redirect anchor["href"]
 end
 
+# Legacy endpoint for /user/:username
+get "/profile" do |env|
+  user = env.params.query["user"]?
+  if !user
+    env.redirect "/"
+  else
+    env.redirect "/user/#{user}"
+  end
+end
+
 get "/user/:user" do |env|
   user = env.params.url["user"]
   env.redirect "/channel/#{user}"
