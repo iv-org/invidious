@@ -108,17 +108,17 @@ LOCALES = {
 
 crawl_threads.times do
   spawn do
-    crawl_videos(PG_DB)
+    crawl_videos(PG_DB, logger)
   end
 end
 
-refresh_channels(PG_DB, channel_threads, CONFIG.full_refresh)
+refresh_channels(PG_DB, logger, channel_threads, CONFIG.full_refresh)
 
-refresh_feeds(PG_DB, feed_threads)
+refresh_feeds(PG_DB, logger, feed_threads)
 
 video_threads.times do |i|
   spawn do
-    refresh_videos(PG_DB)
+    refresh_videos(PG_DB, logger)
   end
 end
 
