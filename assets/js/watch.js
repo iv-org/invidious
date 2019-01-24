@@ -51,7 +51,8 @@ function hide_youtube_replies(target) {
   target.setAttribute("onclick", "show_youtube_replies(this)");
 }
 
-function download_video(title) {
+function download_video(target) {
+  var title = target.getAttribute("data-title");
   var children = document.getElementById("download_widget").children;
   var progress = document.getElementById("download-progress");
   var url = "";

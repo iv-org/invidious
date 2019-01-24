@@ -75,7 +75,7 @@
                     </div>
                 </div>
 
-                <button type="button" onclick='download_video("<%= video.title.dump_unquoted %>-<%= video.id %>.mp4")' 
+                <button type="button" data-title="<%= video.title.dump_unquoted %>-<%= video.id %>.mp4" onclick="download_video(this)"
                     class="pure-button pure-button-primary">
                     <%= translate(locale, "Download") %>
                 </button>
