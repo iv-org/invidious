@@ -268,8 +268,15 @@ function unsubscribe() {
 }
 
 <% if plid %>
-function get_playlist() {
+function get_playlist(timeouts = 0) {
     playlist = document.getElementById("playlist");
+
+    if (timeouts > 10) {
+        console.log("Failed to pull playlist");
+        playlist.innerHTML = "";
+        return;
+    }
+
     playlist.innerHTML = ' \
       <h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3> \
       <hr>'
@@ -323,15 +330,22 @@ function get_playlist() {
         comments = document.getElementById("playlist");
         comments.innerHTML =
             '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3><hr>';
-        get_playlist();
+        get_playlist(timeouts + 1);
     };
 }
 
 get_playlist();
 <% end %>
 
-function get_reddit_comments() {
+function get_reddit_comments(timeouts = 0) {
   comments = document.getElementById("comments");
+
+  if (timeouts > 10) {
+    console.log("Failed to pull comments");
+    comments.innerHTML = "";
+    return;
+  }
+
   var fallback = comments.innerHTML;
   comments.innerHTML =
     '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
@@ -382,12 +396,19 @@ function get_reddit_comments() {
   xhr.ontimeout = function() {
     console.log("Pulling comments timed out.");
 
-    get_reddit_comments();
+    get_reddit_comments(timeouts + 1);
   };
 }
 
-function get_youtube_comments() {
+function get_youtube_comments(timeouts = 0) {
   comments = document.getElementById("comments");
+
+  if (timeouts > 10) {
+    console.log("Failed to pull comments");
+    comments.innerHTML = "";
+    return;
+  }
+
   var fallback = comments.innerHTML;
   comments.innerHTML =
     '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
@@ -438,7 +459,7 @@ function get_youtube_comments() {
 
     comments.innerHTML =
       '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
-    get_youtube_comments();
+    get_youtube_comments(timeouts + 1);
   };
 }
 
