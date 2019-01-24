@@ -272,7 +272,6 @@ img.thumbnail {
   width: 100%;
   border-radius: 2px;
   background: #aaa;
-  display: none;
 }
 
 #download-progress {

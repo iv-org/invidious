@@ -79,6 +79,9 @@ function download_video(title) {
   xhr.onload = function(event) {
     if (event.currentTarget.status != 200) {
       console.log("Downloading " + title + " failed.")
+      document.getElementById("progress-container").style.display = "none";
+      progress.style.width = "0%";
+
       return;
     }
 
