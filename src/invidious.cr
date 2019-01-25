@@ -2262,7 +2262,11 @@ get "/api/v1/captions/:id" do |env|
       end
     end
 
-    next response
+    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+      next JSON.parse(response).to_pretty_json
+    else
+      next response
+    end
   end
 
   env.response.content_type = "text/vtt"
@@ -2368,13 +2372,24 @@ get "/api/v1/comments/:id" do |env|
     if format == "json"
       reddit_thread = JSON.parse(reddit_thread.to_json).as_h
       reddit_thread["comments"] = JSON.parse(comments.to_json)
-      next reddit_thread.to_json
+
+      if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+        next reddit_thread.to_pretty_json
+      else
+        next reddit_thread.to_json
+      end
     else
-      next {
+      response = {
         "title"       => reddit_thread.title,
         "permalink"   => reddit_thread.permalink,
         "contentHtml" => content_html,
-      }.to_json
+      }
+
+      if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+        next response.to_pretty_json
+      else
+        next response.to_json
+      end
     end
   end
 end
@@ -2454,14 +2469,20 @@ get "/api/v1/insights/:id" do |env|
   avg_view_duration_seconds = html_content.xpath_node(%q(//div[@id="stats-chart-tab-watch-time"]/span/span[2])).not_nil!.content
   avg_view_duration_seconds = decode_length_seconds(avg_view_duration_seconds)
 
-  {
+  response = {
     "viewCount"              => view_count,
     "timeWatchedText"        => time_watched,
     "subscriptionsDriven"    => subscriptions_driven,
     "shares"                 => shares,
     "avgViewDurationSeconds" => avg_view_duration_seconds,
     "graphData"              => graph_data,
-  }.to_json
+  }
+
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    next response.to_pretty_json
+  else
+    next response.to_json
+  end
 end
 
 get "/api/v1/videos/:id" do |env|
@@ -2667,11 +2688,17 @@ get "/api/v1/videos/:id" do |env|
     end
   end
 
-  video_info
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(video_info).to_pretty_json
+  else
+    video_info
+  end
 end
 
 get "/api/v1/trending" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+
+  env.response.content_type = "application/json"
 
   region = env.params.query["region"]?
   trending_type = env.params.query["type"]?
@@ -2712,12 +2739,17 @@ get "/api/v1/trending" do |env|
     end
   end
 
-  env.response.content_type = "application/json"
-  videos
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(videos).to_pretty_json
+  else
+    videos
+  end
 end
 
 get "/api/v1/popular" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+
+  env.response.content_type = "application/json"
 
   videos = JSON.build do |json|
     json.array do
@@ -2741,12 +2773,17 @@ get "/api/v1/popular" do |env|
     end
   end
 
-  env.response.content_type = "application/json"
-  videos
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(videos).to_pretty_json
+  else
+    videos
+  end
 end
 
 get "/api/v1/top" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+
+  env.response.content_type = "application/json"
 
   videos = JSON.build do |json|
     json.array do
@@ -2777,8 +2814,11 @@ get "/api/v1/top" do |env|
     end
   end
 
-  env.response.content_type = "application/json"
-  videos
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(videos).to_pretty_json
+  else
+    videos
+  end
 end
 
 get "/api/v1/channels/:ucid" do |env|
@@ -2975,7 +3015,11 @@ get "/api/v1/channels/:ucid" do |env|
     end
   end
 
-  channel_info
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(channel_info).to_pretty_json
+  else
+    channel_info
+  end
 end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
@@ -3040,7 +3084,11 @@ end
       end
     end
 
-    result
+    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+      JSON.parse(result).to_pretty_json
+    else
+      result
+    end
   end
 end
 
@@ -3141,7 +3189,11 @@ get "/api/v1/channels/search/:ucid" do |env|
     end
   end
 
-  response
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(response).to_pretty_json
+  else
+    response
+  end
 end
 
 get "/api/v1/search" do |env|
@@ -3266,7 +3318,11 @@ get "/api/v1/search" do |env|
     end
   end
 
-  response
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(response).to_pretty_json
+  else
+    response
+  end
 end
 
 get "/api/v1/playlists/:plid" do |env|
@@ -3365,7 +3421,11 @@ get "/api/v1/playlists/:plid" do |env|
     }.to_json
   end
 
-  response
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(response).to_pretty_json
+  else
+    response
+  end
 end
 
 get "/api/v1/mixes/:rdid" do |env|
@@ -3439,7 +3499,11 @@ get "/api/v1/mixes/:rdid" do |env|
     }.to_json
   end
 
-  response
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(response).to_pretty_json
+  else
+    response
+  end
 end
 
 get "/api/manifest/dash/id/videoplayback" do |env|
