@@ -2192,7 +2192,7 @@ get "/channel/:ucid" do |env|
   end
 
   if !auto_generated
-    if author.includes? " "
+    if author.includes?(" ") || author.includes?("-")
       env.set "search", "channel:#{ucid} "
     else
       env.set "search", "channel:#{author.downcase} "
