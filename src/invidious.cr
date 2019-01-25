@@ -2385,6 +2385,9 @@ get "/api/v1/insights/:id" do |env|
   id = env.params.url["id"]
   env.response.content_type = "application/json"
 
+  error_message = {"error" => "YouTube has removed publicly-available analytics."}.to_json
+  halt env, status_code: 503, response: error_message
+
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
   html = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1")
