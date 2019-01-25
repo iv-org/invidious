@@ -670,13 +670,20 @@ def fetch_video(id, proxies, region)
   genre = html.xpath_node(%q(//meta[@itemprop="genre"])).try &.["content"]
   genre ||= ""
 
-  genre_url = html.xpath_node(%(//a[text()="#{genre}"])).try &.["href"]
+  genre_url = html.xpath_node(%(//ul[contains(@class, "watch-info-tag-list")]/li/a[text()="#{genre}"])).try &.["href"]
+
+  # Sometimes YouTube tries to link to invalid/missing channels, so we fix that here
   case genre
+  when "Education"
+    genre_url = "/channel/UCdxpofrI-dO6oYfsqHDHphw"
+  when "Gaming"
+    genre_url = "/channel/UCOpNcN46UbXVtpKMrmU4Abg"
   when "Movies"
     genre_url = "/channel/UClgRkhTL3_hImCAmdLfDE4g"
-  when "Education"
-    # Education channel is linked but does not exist
-    genre_url = "/channel/UC3yA8nDwraeOfnYfBWun83g"
+  when "Nonprofits & Activism"
+    genre_url = "/channel/UCfFyYRYslvuhwMDnx6KjUvw"
+  when "Trailers"
+    genre_url = "/channel/UClgRkhTL3_hImCAmdLfDE4g"
   end
   genre_url ||= ""
 
