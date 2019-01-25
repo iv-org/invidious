@@ -108,17 +108,17 @@ LOCALES = {
 
 crawl_threads.times do
   spawn do
-    crawl_videos(PG_DB)
+    crawl_videos(PG_DB, logger)
   end
 end
 
-refresh_channels(PG_DB, channel_threads, CONFIG.full_refresh)
+refresh_channels(PG_DB, logger, channel_threads, CONFIG.full_refresh)
 
-refresh_feeds(PG_DB, feed_threads)
+refresh_feeds(PG_DB, logger, feed_threads)
 
 video_threads.times do |i|
   spawn do
-    refresh_videos(PG_DB)
+    refresh_videos(PG_DB, logger)
   end
 end
 
@@ -126,6 +126,8 @@ top_videos = [] of Video
 spawn do
   pull_top_videos(CONFIG, PG_DB) do |videos|
     top_videos = videos
+    sleep 1.minutes
+    Fiber.yield
   end
 end
 
@@ -133,6 +135,8 @@ popular_videos = [] of ChannelVideo
 spawn do
   pull_popular_videos(PG_DB) do |videos|
     popular_videos = videos
+    sleep 1.minutes
+    Fiber.yield
   end
 end
 
@@ -3644,9 +3648,23 @@ get "/videoplayback" do |env|
   host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
 
+  headers = env.request.headers
+  headers.delete("Host")
+  headers.delete("Cookie")
+  headers.delete("User-Agent")
+  headers.delete("Referer")
+
   region = query_params["region"]?
-  client = make_client(URI.parse(host), proxies, region)
-  response = client.head(url)
+
+  response = HTTP::Client::Response.new(403)
+  loop do
+    begin
+      client = make_client(URI.parse(host), proxies, region)
+      response = client.head(url, headers)
+      break
+    rescue ex
+    end
+  end
 
   if response.headers["Location"]?
     url = URI.parse(response.headers["Location"])
@@ -3663,12 +3681,6 @@ get "/videoplayback" do |env|
   if response.status_code >= 400
     halt env, status_code: 403
   end
-
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
 
   client = make_client(URI.parse(host), proxies, region)
   client.get(url, headers) do |response|

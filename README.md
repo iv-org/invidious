@@ -32,6 +32,8 @@ Onion links:
 - kgg2m7yk5aybusll.onion
 - axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion
 
+[Alternative Invidious instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances)
+
 ## Installation
 
 ### Docker:
@@ -57,71 +59,94 @@ $ docker volume rm invidious_postgresdata
 $ docker-compose build
 ```
 
-### Arch Linux:
+### Linux:
+
+#### Install dependencies
 
 ```bash
-# Install dependencies
-$ sudo pacman -S shards crystal imagemagick librsvg
+# Arch Linux
+$ sudo pacman -S shards crystal imagemagick librsvg postgresql
 
-# Setup PostgresSQL
-$ sudo systemctl enable postgresql
-$ sudo systemctl start postgresql
-$ sudo -i -u postgres
-$ createuser -s YOUR_USER_NAME
-$ createdb      YOUR_USER_NAME
-$ exit
-
-# Setup Invidious
-$ git clone https://github.com/omarroth/invidious
-$ cd invidious
-$ ./setup.sh
-$ shards
-$ crystal build src/invidious.cr --release
-```
-
-### On Ubuntu:
-
-```bash
-# Install dependencies
+# Ubuntu or Debian
 $ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
 $ sudo apt update
 $ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev librsvg2-dev postgresql imagemagick libsqlite3-dev
+```
 
-# Setup PostgreSQL
+#### Add invidious user and clone repository
+
+```bash
+$ useradd -m invidious
+$ sudo -i -u invidious
+$ git clone https://github.com/omarroth/invidious
+$ exit
+```
+
+#### Setup PostgresSQL
+
+```bash
 $ sudo systemctl enable postgresql
 $ sudo systemctl start postgresql
 $ sudo -i -u postgres
-$ createuser -s YOUR_USER_NAME_HERE
-$ createdb      YOUR_USER_NAME_HERE
+$ psql -c "CREATE USER kemal WITH PASSWORD 'kemal';"
+$ createdb -O kemal invidious
+$ psql invidious < /home/invidious/invidious/config/sql/channels.sql
+$ psql invidious < /home/invidious/invidious/config/sql/videos.sql
+$ psql invidious < /home/invidious/invidious/config/sql/channel_videos.sql
+$ psql invidious < /home/invidious/invidious/config/sql/users.sql
+$ psql invidious < /home/invidious/invidious/config/sql/nonces.sql
 $ exit
-
-# Setup Invidious
-$ git clone https://github.com/omarroth/invidious
-$ cd invidious
-$ ./setup.sh
-$ shards
-$ crystal build src/invidious.cr --release
 ```
 
-### On OSX:
+#### Setup Invidious
+
+```bash
+$ sudo -i -u invidious
+$ cd invidious
+$ shards
+$ crystal build src/invidious.cr --release
+# test compiled binary
+$ ./invidious # stop with ctrl c
+$ exit
+```
+
+#### systemd service
+```bash
+$ sudo cp invidious.service /etc/systemd/system/invidious.service
+$ sudo systemctl enable invidious.service
+$ sudo systemctl start invidious.service
+```
+
+### OSX:
 
 ```bash
 # Install dependencies
 $ brew update
 $ brew install shards crystal-lang postgres imagemagick librsvg
 
-# Setup Invidious
+# Clone repository and setup postgres database
 $ git clone https://github.com/omarroth/invidious
 $ cd invidious
-$ ./setup.sh
+$ brew services start postgresql
+$ psql -c "CREATE ROLE kemal WITH LOGIN PASSWORD 'kemal';"
+$ createdb invidious -U kemal
+$ psql invidious < config/sql/channels.sql
+$ psql invidious < config/sql/videos.sql
+$ psql invidious < config/sql/channel_videos.sql
+$ psql invidious < config/sql/users.sql
+$ psql invidious < config/sql/nonces.sql
+
+# Setup Invidious
 $ shards
 $ crystal build src/invidious.cr --release
 ```
 
+## Update Invidious
+You can find information about how to update in the wiki: [Update Invidious](https://github.com/omarroth/invidious/wiki/Update-Invidious)
+
 ## Usage:
 
 ```bash
-$ crystal build src/invidious.cr --release
 $ ./invidious -h
 Usage: invidious [arguments]
     -b HOST, --bind HOST             Host to bind (defaults to 0.0.0.0)
@@ -131,13 +156,14 @@ Usage: invidious [arguments]
     --ssl-cert-file FILE             SSL certificate file
     -h, --help                       Shows this help
     -t THREADS, --crawl-threads=THREADS
-                                     Number of threads for crawling (default: 1)
+                                     Number of threads for crawling YouTube (default: 0)
     -c THREADS, --channel-threads=THREADS
                                      Number of threads for refreshing channels (default: 1)
     -f THREADS, --feed-threads=THREADS
                                      Number of threads for refreshing feeds (default: 1)
     -v THREADS, --video-threads=THREADS
-                                     Number of threads for refreshing videos (default: 1)
+                                     Number of threads for refreshing videos (default: 0)
+    -o OUTPUT, --output=OUTPUT       Redirect output (default: STDOUT)
 ```
 
 Or for development:
@@ -147,15 +173,8 @@ $ curl -fsSLo- https://raw.githubusercontent.com/samueleaton/sentry/master/insta
 $ ./sentry
 ```
 
-## Optional
-
-Create a systemd service to run Invidious in background. Edit `invidious.service` to change your installation path and log location. Than copy and enable the systemd service.
-
-```
-$ sudo cp invidious.service /etc/systemd/system/invidious.service
-$ sudo systemctl enable invidious.service
-$ sudo systemctl start invidious.service
-```
+## Documentation
+[Documentation](https://github.com/omarroth/invidious/wiki) can be found in the wiki.
 
 ## Extensions
 

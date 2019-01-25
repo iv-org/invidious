@@ -1,4 +1,4 @@
-def crawl_videos(db)
+def crawl_videos(db, logger)
   ids = Deque(String).new
   random = Random.new
 
@@ -21,7 +21,7 @@ def crawl_videos(db)
       id = ids[0]
       video = get_video(id, db)
     rescue ex
-      STDOUT << id << " : " << ex.message << "\n"
+      logger.write("#{id} : #{ex.message}\n")
       next
     ensure
       ids.delete(id)
@@ -46,7 +46,7 @@ def crawl_videos(db)
   end
 end
 
-def refresh_channels(db, max_threads = 1, full_refresh = false)
+def refresh_channels(db, logger, max_threads = 1, full_refresh = false)
   max_channel = Channel(Int32).new
 
   spawn do
@@ -73,7 +73,7 @@ def refresh_channels(db, max_threads = 1, full_refresh = false)
 
               db.exec("UPDATE channels SET updated = $1, author = $2 WHERE id = $3", Time.now, channel.author, id)
             rescue ex
-              STDOUT << id << " : " << ex.message << "\n"
+              logger.write("#{id} : #{ex.message}\n")
             end
 
             active_channel.send(true)
@@ -86,7 +86,7 @@ def refresh_channels(db, max_threads = 1, full_refresh = false)
   max_channel.send(max_threads)
 end
 
-def refresh_videos(db)
+def refresh_videos(db, logger)
   loop do
     db.query("SELECT id FROM videos ORDER BY updated") do |rs|
       rs.each do
@@ -94,7 +94,7 @@ def refresh_videos(db)
           id = rs.read(String)
           video = get_video(id, db)
         rescue ex
-          STDOUT << id << " : " << ex.message << "\n"
+          logger.write("#{id} : #{ex.message}\n")
           next
         end
       end
@@ -104,7 +104,7 @@ def refresh_videos(db)
   end
 end
 
-def refresh_feeds(db, max_threads = 1)
+def refresh_feeds(db, logger, max_threads = 1)
   max_channel = Channel(Int32).new
 
   spawn do
@@ -129,7 +129,7 @@ def refresh_feeds(db, max_threads = 1)
             begin
               db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
             rescue ex
-              STDOUT << "REFRESH " << email << " : " << ex.message << "\n"
+              logger.write("REFRESH #{email} : #{ex.message}\n")
             end
 
             active_channel.send(true)

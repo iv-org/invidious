@@ -7,19 +7,13 @@ After=network.target
 RestartSec=2s
 Type=simple
 
-# set user and group
 User=invidious
 Group=invidious
 
-# configure location
-WorkingDirectory=/home/invidious
-ExecStart=/home/invidious/invidious/invidious
+WorkingDirectory=/home/invidious/invidious
+ExecStart=/home/invidious/invidious/invidious -o invidious.log
 
 Restart=always
-
-# default log output is syslog, to disable log enable both
-#StandardOutput=null
-#StandardError=null
 
 [Install]
 WantedBy=multi-user.target
