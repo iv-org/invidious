@@ -126,6 +126,8 @@ top_videos = [] of Video
 spawn do
   pull_top_videos(CONFIG, PG_DB) do |videos|
     top_videos = videos
+    sleep 1.minutes
+    Fiber.yield
   end
 end
 
@@ -133,6 +135,8 @@ popular_videos = [] of ChannelVideo
 spawn do
   pull_popular_videos(PG_DB) do |videos|
     popular_videos = videos
+    sleep 1.minutes
+    Fiber.yield
   end
 end
 
