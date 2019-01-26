@@ -112,7 +112,7 @@ $ exit
 
 #### systemd service
 ```bash
-$ sudo cp invidious.service /etc/systemd/system/invidious.service
+$ sudo cp /home/invidious/invidious/invidious.service /etc/systemd/system/invidious.service
 $ sudo systemctl enable invidious.service
 $ sudo systemctl start invidious.service
 ```
