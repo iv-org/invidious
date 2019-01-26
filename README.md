@@ -177,12 +177,7 @@ $ ./sentry
 [Documentation](https://github.com/omarroth/invidious/wiki) can be found in the wiki.
 
 ## Extensions
-
-- [Alternate Tube Redirector](https://addons.mozilla.org/en-US/firefox/addon/alternate-tube-redirector/): Automatically open Youtube Videos on alternate sites like Invidious or Hooktube.
-- [Invidious Redirect](https://greasyfork.org/en/scripts/370461-invidious-redirect): Redirects Youtube URLs to Invidio.us (userscript)
-- [iPhone Redirector Shortcut](https://www.icloud.com/shortcuts/6bbf26d989cf4d07a5fe1626efbc0950): Automatically open YouTube videos in Invidious (iPhone shortcut)
-- [Youtube to Invidious](https://greasyfork.org/en/scripts/375264-youtube-to-invidious): Scan page for youtube embeds and urls and replace with Invidious (userscript)
-- [Invidious Downloader](https://github.com/erupete/InvidiousDownloader): Tampermonkey userscript for downloading videos or audio on Invidious (userscript)
+Extensions for Invidious and for integrating Invidious into other projects [are in the wiki](https://github.com/omarroth/invidious/wiki/Extensions)
 
 ## Made with Invidious
 
