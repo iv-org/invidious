@@ -142,7 +142,7 @@ $ crystal build src/invidious.cr --release
 ```
 
 ## Update Invidious
-You can find information about how to update in the wiki: [Update Invidious](https://github.com/omarroth/invidious/wiki/Update-Invidious)
+You can find information about how to update in the wiki: [Updating](https://github.com/omarroth/invidious/wiki/Updating).
 
 ## Usage:
 
