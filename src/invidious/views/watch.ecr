@@ -59,13 +59,13 @@
                     <label for="download_widget"><%= translate(locale, "Download as: ") %></label>
                     <select style="width:100%" name="download_widget" id="download_widget">
                     <% video_streams.each do |option| %>
-                        <option data-url="<%= option["url"] %>"><%= option["quality_label"] %> - <%= option["type"].split(";")[0] %> @ <%= option["fps"] %>fps - video only</option>
+                        <option data-url="/latest_version?id=<%= video.id %>&itag=<%= option["itag"] %>&local=true"><%= option["quality_label"] %> - <%= option["type"].split(";")[0] %> @ <%= option["fps"] %>fps - video only</option>
                     <% end %>
                     <% audio_streams.each do |option| %>
-                        <option data-url="<%= option["url"] %>"><%= option["type"].split(";")[0] %> @ <%= option["bitrate"] %>k - audio only</option>
+                        <option data-url="/latest_version?id=<%= video.id %>&itag=<%= option["itag"] %>&local=true"><%= option["type"].split(";")[0] %> @ <%= option["bitrate"] %>k - audio only</option>
                     <% end %>
                     <% fmt_stream.each do |option| %>
-                        <option data-url="<%= option["url"] %>"><%= itag_to_metadata?(option["itag"]).try &.["height"]? || "~240" %>p - <%= option["type"].split(";")[0] %></option>
+                        <option data-url="/latest_version?id=<%= video.id %>&itag=<%= option["itag"] %>&local=true"><%= itag_to_metadata?(option["itag"]).try &.["height"]? || "~240" %>p - <%= option["type"].split(";")[0] %></option>
                     <% end %>
                     </select>
                 </div>
@@ -77,7 +77,7 @@
 
                 <button type="button" data-title="<%= video.title.dump_unquoted %>-<%= video.id %>.mp4" onclick="download_video(this)"
                     class="pure-button pure-button-primary">
-                    <%= translate(locale, "Download") %>
+                    <b><%= translate(locale, "Download") %></b>
                 </button>
             </form>
 

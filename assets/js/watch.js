@@ -65,8 +65,6 @@ function download_video(target) {
     }
   }
 
-  url = "/videoplayback" + url.split("/videoplayback")[1];
-
   var xhr = new XMLHttpRequest();
   xhr.open("GET", url);
   xhr.responseType = "arraybuffer";

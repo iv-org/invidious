@@ -22,11 +22,13 @@ div {
   padding-right: 10px;
 }
 
+button.pure-button-primary,
 a.pure-button-primary {
   background-color: #a0a0a0;
   color: rgba(35, 35, 35, 1);
 }
 
+button.pure-button-primary:hover,
 a.pure-button-primary:hover {
   background-color: rgba(0, 182, 240, 1);
   color: #fff;
@@ -271,14 +273,16 @@ img.thumbnail {
 #progress-container {
   width: 100%;
   border-radius: 2px;
-  background: #aaa;
+  background-color: #a0a0a0;
+  color: rgba(35, 35, 35, 1);
 }
 
 #download-progress {
   width: 0%;
   border-radius: 2px;
   height: 10px;
-  background-color: #0078e7;
+  background-color: rgba(0, 182, 240, 1);
+  color: #fff;
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }

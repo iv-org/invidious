@@ -3658,6 +3658,10 @@ get "/latest_version" do |env|
   id = env.params.query["id"]?
   itag = env.params.query["itag"]?
 
+  local = env.params.query["local"]?
+  local ||= "false"
+  local = local == "true"
+
   if !id || !itag
     halt env, status_code: 400
   end
@@ -3674,7 +3678,12 @@ get "/latest_version" do |env|
     halt env, status_code: 409
   end
 
-  env.redirect urls[0]["url"]
+  url = urls[0]["url"]
+  if local
+    url = URI.parse(url).full_path.not_nil!
+  end
+
+  env.redirect url
 end
 
 options "/videoplayback" do |env|
