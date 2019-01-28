@@ -3652,6 +3652,31 @@ get "/api/manifest/hls_playlist/*" do |env|
   manifest
 end
 
+# YouTube /videoplayback links expire after 6 hours,
+# so we have a mechanism here to redirect to the latest version
+get "/latest_version" do |env|
+  id = env.params.query["id"]?
+  itag = env.params.query["itag"]?
+
+  if !id || !itag
+    halt env, status_code: 400
+  end
+
+  video = get_video(id, PG_DB, proxies)
+
+  fmt_stream = video.fmt_stream(decrypt_function)
+  adaptive_fmts = video.adaptive_fmts(decrypt_function)
+
+  urls = (fmt_stream + adaptive_fmts).select { |fmt| fmt["itag"] == itag }
+  if urls.empty?
+    halt env, status_code: 404
+  elsif urls.size > 1
+    halt env, status_code: 409
+  end
+
+  env.redirect urls[0]["url"]
+end
+
 options "/videoplayback" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"

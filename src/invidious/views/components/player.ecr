@@ -11,7 +11,7 @@
     <% else %>
         <% if params[:listen] %>
             <% audio_streams.each_with_index do |fmt, i| %>
-                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
+                <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
             <% end %>
         <% else %>
             <% if params[:quality] == "dash" %>
@@ -19,9 +19,9 @@
             <% end %>
             <% fmt_stream.each_with_index do |fmt, i| %>
                 <% if params[:quality] %>
-                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= params[:quality] == fmt["label"].split(" - ")[0] %>">
+                <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= params[:quality] == fmt["label"].split(" - ")[0] %>">
                 <% else %>
-                <source src="<%= fmt["url"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+                <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
                 <% end %>
             <% end %>
         <% end %>
