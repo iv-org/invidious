@@ -117,30 +117,10 @@
                     <h3><%= video.author %></h3>
                 </a>
             </p>
-        <% if user %>
-            <% if subscriptions.includes? video.ucid %>
-            <p>
-                <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" 
-                    href="/subscription_ajax?action_remove_subscriptions=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>">
-                    <b><%= translate(locale, "Unsubscribe") %> | <%= video.sub_count_text %></b>
-                </a>
-            </p>
-            <% else %>
-            <p>
-                <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" 
-                    href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>">
-                    <b><%= translate(locale, "Subscribe") %> | <%= video.sub_count_text %></b>
-                </a>
-            </p>
-            <% end %>
-        <% else %>
-            <p>
-                <a id="subscribe" class="pure-button pure-button-primary" 
-                    href="/login?referer=<%= env.get("current_page") %>">
-                    <b><%= translate(locale, "Login to subscribe to `x`", video.author) %></b>
-                </a>
-            </p>
-        <% end %>
+            <% ucid = video.ucid %>
+            <% author = video.author %>
+            <% sub_count_text = video.sub_count_text %>
+            <%= rendered "components/subscribe_widget" %>
             <p>
                 <b><%= translate(locale, "Shared `x`", video.published.to_s("%B %-d, %Y")) %></b>
             </p>
@@ -252,48 +232,11 @@ function number_with_separator(val) {
   return val;
 }
 
-subscribe_button = document.getElementById("subscribe");
-if (subscribe_button.getAttribute('onclick')) {
-    subscribe_button["href"] = "javascript:void(0)";
-}
+<% ucid = video.ucid %>
+<% author = video.author %>
+<% sub_count_text = video.sub_count_text %>
+<%= rendered "components/subscribe_widget_script" %>
 
-function subscribe() {
-    var url = "/subscription_ajax?action_create_subscription_to_channel=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>";
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = "json";
-    xhr.timeout = 20000;
-    xhr.open("GET", url, true);
-    xhr.send();
-
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
-                subscribe_button = document.getElementById("subscribe");
-                subscribe_button.onclick = unsubscribe;
-                subscribe_button.innerHTML = '<b><%= translate(locale, "Unsubscribe") %> | <%= video.sub_count_text %></b>'
-            }
-        }
-    }
-}
-
-function unsubscribe() {
-    var url = "/subscription_ajax?action_remove_subscriptions=1&c=<%= video.ucid %>&referer=<%= env.get("current_page") %>";
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = "json";
-    xhr.timeout = 20000;
-    xhr.open("GET", url, true);
-    xhr.send();
-
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
-                subscribe_button = document.getElementById("subscribe");
-                subscribe_button.onclick = subscribe;
-                subscribe_button.innerHTML = '<b><%= translate(locale, "Subscribe") %> | <%= video.sub_count_text %></b>'
-            }
-        }
-    }
-}
 
 <% if plid %>
 function get_playlist(timeouts = 0) {

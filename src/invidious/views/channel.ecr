@@ -14,30 +14,8 @@
 </div>
 
 <div class="h-box">
-<% if user %>
-    <% if subscriptions.includes? ucid %>
-    <p>
-        <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" 
-            href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
-            <b><%= translate(locale, "Unsubscribe") %> | <%= number_to_short_text(sub_count) %></b>
-        </a>
-    </p>
-    <% else %>
-    <p>
-        <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" 
-            href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
-            <b><%= translate(locale, "Subscribe") %> | <%= number_to_short_text(sub_count) %></b>
-        </a>
-    </p>
-    <% end %>
-<% else %>
-    <p>
-        <a id="subscribe" class="pure-button pure-button-primary" 
-            href="/login?referer=<%= env.get("current_page") %>">
-            <b><%= translate(locale, "Login to subscribe to `x`", author) %></b>
-        </a>
-    </p>
-<% end %>
+<% sub_count_text = number_to_short_text(sub_count) %>
+<%= rendered "components/subscribe_widget" %>
 </div>
 
 <div class="pure-g h-box">
@@ -94,43 +72,6 @@
 </div>
 
 <script>
-document.getElementById("subscribe")["href"] = "javascript:void(0)"
-
-function subscribe() {
-    var url = "/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = "json";
-    xhr.timeout = 20000;
-    xhr.open("GET", url, true);
-    xhr.send();
-
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
-                subscribe_button = document.getElementById("subscribe");
-                subscribe_button.onclick = unsubscribe;
-                subscribe_button.innerHTML = '<b><%= translate(locale, "Unsubscribe") %> | <%= number_to_short_text(sub_count) %></b>'
-            }
-        }
-    }
-}
-
-function unsubscribe() {
-    var url = "/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = "json";
-    xhr.timeout = 20000;
-    xhr.open("GET", url, true);
-    xhr.send();
-
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
-                subscribe_button = document.getElementById("subscribe");
-                subscribe_button.onclick = subscribe;
-                subscribe_button.innerHTML = '<b><%= translate(locale, "Subscribe") %> | <%= number_to_short_text(sub_count) %></b>'
-            }
-        }
-    }
-}
+<% sub_count_text = number_to_short_text(sub_count) %>
+<%= rendered "components/subscribe_widget_script" %>
 </script>
