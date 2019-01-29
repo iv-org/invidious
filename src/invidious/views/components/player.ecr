@@ -118,11 +118,13 @@ player.on('error', function(event) {
   console.log("An error occured in the player, reloading...");
 
   var currentTime = player.currentTime();
+  var playbackRate = player.playbackRate()
   player.load();
   if (currentTime > 0.5) {
     currentTime -= 0.5;
   }
   player.currentTime(currentTime);
+  player.playbackRate(playbackRate);
   player.play()
 });
 
