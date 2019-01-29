@@ -114,6 +114,18 @@ var player = videojs("player", options, function() {
   });
 });
 
+player.on('error', function(event) {
+  console.log("An error occured in the player, reloading...");
+
+  var currentTime = player.currentTime();
+  player.load();
+  if (currentTime > 0.5) {
+    currentTime -= 0.5;
+  }
+  player.currentTime(currentTime);
+  player.play()
+});
+
 player.share(shareOptions);
 
 <% if params[:video_start] > 0 || params[:video_end] > 0 %>
