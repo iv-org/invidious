@@ -329,7 +329,9 @@ def template_youtube_comments(comments, locale)
             <a href="#{child["authorUrl"]}">#{child["author"]}</a>
           </b> 
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
-          #{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64)))}
+          <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale,"%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64)))}</span>
+          |
+          <a href="https://www.youtube.com/watch?v=%s&lc=#{child["commentId"]}" title="#{translate(locale, "Youtube permalink of the comment")}">[YT]</a>
           | 
           <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])} 
         </p>
