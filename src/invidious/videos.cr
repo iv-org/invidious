@@ -633,6 +633,10 @@ def fetch_video(id, proxies, region)
     end
   end
 
+  if info["errorcode"]?.try &.== "2"
+    raise "Video unavailable."
+  end
+
   title = info["title"]
   author = info["author"]
   ucid = info["ucid"]
