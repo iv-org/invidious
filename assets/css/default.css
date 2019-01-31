@@ -1,3 +1,10 @@
+.channel-owner {
+  background-color: #008BEC;
+  color: beige;
+  border-radius: 9px;
+  padding: 1px 6px;
+}
+
 .h-box {
   padding-left: 1em;
   padding-right: 1em;
