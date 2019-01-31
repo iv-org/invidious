@@ -116,17 +116,19 @@ var player = videojs("player", options, function() {
 
 player.on('error', function(event) {
   if (player.error().code === 2 || player.error().code === 4) {
-    console.log("An error occured in the player, reloading...");
+    setInterval(setTimeout(function (event) {
+      console.log("An error occured in the player, reloading...");
 
-    var currentTime = player.currentTime();
-    var playbackRate = player.playbackRate();
-    player.load();
-    if (currentTime > 0.5) {
-      currentTime -= 0.5;
-    }
-    player.currentTime(currentTime);
-    player.playbackRate(playbackRate);
-    player.play();
+      var currentTime = player.currentTime();
+      var playbackRate = player.playbackRate();
+      player.load();
+      if (currentTime > 0.5) {
+        currentTime -= 0.5;
+      }
+      player.currentTime(currentTime);
+      player.playbackRate(playbackRate);
+      player.play();
+    }, 5000), 5000);
   }
 });
 
