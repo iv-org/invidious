@@ -1146,7 +1146,7 @@ post "/preferences" do |env|
     captions = [captions_0, captions_1, captions_2]
 
     related_videos = env.params.body["related_videos"]?.try &.as(String)
-    related_videos ||= "off"
+    related_videos ||= "on"
     related_videos = related_videos == "on"
 
     redirect_feed = env.params.body["redirect_feed"]?.try &.as(String)
