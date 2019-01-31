@@ -79,36 +79,36 @@ class Preferences
     autoplay:   Bool,
     continue:   {
       type:    Bool,
-      default: false,
+      default: DEFAULT_USER_PREFERENCES.continue,
     },
     listen: {
       type:    Bool,
-      default: false,
+      default: DEFAULT_USER_PREFERENCES.listen,
     },
     speed:    Float32,
     quality:  String,
     volume:   Int32,
     comments: {
       type:      Array(String),
-      default:   ["youtube", ""],
+      default:   DEFAULT_USER_PREFERENCES.comments,
       converter: StringToArray,
     },
     captions: {
       type:    Array(String),
-      default: ["", "", ""],
+      default: DEFAULT_USER_PREFERENCES.captions,
     },
     redirect_feed: {
       type:    Bool,
-      default: false,
+      default: DEFAULT_USER_PREFERENCES.redirect_feed,
     },
     related_videos: {
       type:    Bool,
-      default: true,
+      default: DEFAULT_USER_PREFERENCES.related_videos,
     },
     dark_mode: Bool,
     thin_mode: {
       type:    Bool,
-      default: false,
+      default: DEFAULT_USER_PREFERENCES.thin_mode,
     },
     max_results:        Int32,
     sort:               String,
@@ -116,11 +116,11 @@ class Preferences
     unseen_only:        Bool,
     notifications_only: {
       type:    Bool,
-      default: false,
+      default: DEFAULT_USER_PREFERENCES.notifications_only,
     },
     locale: {
       type:    String,
-      default: "en-US",
+      default: DEFAULT_USER_PREFERENCES.locale,
     },
   })
 end

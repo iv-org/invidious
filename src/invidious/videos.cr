@@ -745,14 +745,14 @@ def process_video_params(query, preferences)
     volume ||= preferences.volume
   end
 
-  autoplay ||= 0
-  continue ||= 0
-  listen ||= 0
-  preferred_captions ||= [] of String
-  quality ||= "hd720"
-  speed ||= 1
-  video_loop ||= 0
-  volume ||= 100
+  autoplay ||= DEFAULT_USER_PREFERENCES.autoplay.to_unsafe
+  continue ||= DEFAULT_USER_PREFERENCES.continue.to_unsafe
+  listen ||= DEFAULT_USER_PREFERENCES.listen.to_unsafe
+  preferred_captions ||= DEFAULT_USER_PREFERENCES.captions
+  quality ||= DEFAULT_USER_PREFERENCES.quality
+  speed ||= DEFAULT_USER_PREFERENCES.speed
+  video_loop ||= DEFAULT_USER_PREFERENCES.video_loop.to_unsafe
+  volume ||= DEFAULT_USER_PREFERENCES.volume
 
   autoplay = autoplay == 1
   continue = continue == 1

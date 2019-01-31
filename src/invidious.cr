@@ -1128,21 +1128,21 @@ post "/preferences" do |env|
     listen = listen == "on"
 
     speed = env.params.body["speed"]?.try &.as(String).to_f?
-    speed ||= 1.0
+    speed ||= DEFAULT_USER_PREFERENCES.speed
 
     quality = env.params.body["quality"]?.try &.as(String)
-    quality ||= "hd720"
+    quality ||= DEFAULT_USER_PREFERENCES.quality
 
     volume = env.params.body["volume"]?.try &.as(String).to_i?
-    volume ||= 100
+    volume ||= DEFAULT_USER_PREFERENCES.volume
 
-    comments_0 = env.params.body["comments_0"]?.try &.as(String) || "youtube"
-    comments_1 = env.params.body["comments_1"]?.try &.as(String) || ""
+    comments_0 = env.params.body["comments_0"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.comments[0]
+    comments_1 = env.params.body["comments_1"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.comments[1]
     comments = [comments_0, comments_1]
 
-    captions_0 = env.params.body["captions_0"]?.try &.as(String) || ""
-    captions_1 = env.params.body["captions_1"]?.try &.as(String) || ""
-    captions_2 = env.params.body["captions_2"]?.try &.as(String) || ""
+    captions_0 = env.params.body["captions_0"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[0]
+    captions_1 = env.params.body["captions_1"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[1]
+    captions_2 = env.params.body["captions_2"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[2]
     captions = [captions_0, captions_1, captions_2]
 
     related_videos = env.params.body["related_videos"]?.try &.as(String)
@@ -1154,7 +1154,7 @@ post "/preferences" do |env|
     redirect_feed = redirect_feed == "on"
 
     locale = env.params.body["locale"]?.try &.as(String)
-    locale ||= "en-US"
+    locale ||= DEFAULT_USER_PREFERENCES.locale
 
     dark_mode = env.params.body["dark_mode"]?.try &.as(String)
     dark_mode ||= "off"
@@ -1165,10 +1165,10 @@ post "/preferences" do |env|
     thin_mode = thin_mode == "on"
 
     max_results = env.params.body["max_results"]?.try &.as(String).to_i?
-    max_results ||= 40
+    max_results ||= DEFAULT_USER_PREFERENCES.max_results
 
     sort = env.params.body["sort"]?.try &.as(String)
-    sort ||= "published"
+    sort ||= DEFAULT_USER_PREFERENCES.sort
 
     latest_only = env.params.body["latest_only"]?.try &.as(String)
     latest_only ||= "off"
