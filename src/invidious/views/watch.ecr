@@ -141,7 +141,7 @@
             </div>
         </div>
     </div>
-    <% if preferences && preferences.related_videos || plid %>
+    <% if !preferences || preferences && preferences.related_videos || plid %>
     <div class="pure-u-1 pure-u-md-1-5">
         <% if plid %>
         <div id="playlist" class="h-box">

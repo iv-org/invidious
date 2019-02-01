@@ -115,37 +115,25 @@ var player = videojs("player", options, function() {
 });
 
 player.on('error', function(event) {
-  if (player.error().code === 2) {
-    console.log("An error occured in the player, reloading...");
+  if (player.error().code === 2 || player.error().code === 4) {
+    setInterval(setTimeout(function (event) {
+      console.log("An error occured in the player, reloading...");
 
-    var currentTime = player.currentTime();
-    var playbackRate = player.playbackRate();
-    player.load();
-    if (currentTime > 0.5) {
-      currentTime -= 0.5;
-    }
-    player.currentTime(currentTime);
-    player.playbackRate(playbackRate);
-    player.play()
-  } else if (player.error().code === 4) {
-    console.log("Detected invalid source, removing...");
-    var currentTime = player.currentTime();
-    var sources = player.options().sources;
+      var currentTime = player.currentTime();
+      var playbackRate = player.playbackRate();
+      var paused = player.paused()
 
-    for (var i = 0; i < sources.length; i++) {
-      if (sources[i].src === player.currentSource().src) {
-        sources.splice(i, 1);
-        break
+      player.load();
+      if (currentTime > 0.5) {
+        currentTime -= 0.5;
       }
-    };
-
-    player.load();
-    if (currentTime > 0.5) {
-      currentTime -= 0.5;
-    }
-    player.currentTime(currentTime);
-    player.src(sources);
-    player.play();
+      player.currentTime(currentTime);
+      player.playbackRate(playbackRate);
+      
+      if (!paused) {
+        player.play();
+      }
+    }, 5000), 5000);
   }
 });
 
