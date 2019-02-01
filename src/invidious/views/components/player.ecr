@@ -121,13 +121,18 @@ player.on('error', function(event) {
 
       var currentTime = player.currentTime();
       var playbackRate = player.playbackRate();
+      var paused = player.paused()
+
       player.load();
       if (currentTime > 0.5) {
         currentTime -= 0.5;
       }
       player.currentTime(currentTime);
       player.playbackRate(playbackRate);
-      player.play();
+      
+      if (!paused) {
+        player.play();
+      }
     }, 5000), 5000);
   }
 });
