@@ -5,6 +5,39 @@
   padding: 1px 6px;
 }
 
+.creator-heart-container {
+    display: inline-block;
+    padding: 0px 7px 6px 0px;
+    margin: 0px -7px -4px 0px;
+}
+
+.creator-heart {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    border: 2px none;
+}
+
+.creator-heart-background-hearted {
+    width: 16px;
+    height: 16px;
+    padding: 0px;
+    position: relative;
+}
+
+.creator-heart-small-hearted {
+    position: absolute;
+    right: -7px;
+    bottom: -4px;
+}
+
+.creator-heart-small-container {
+    position: relative;
+    width: 13px;
+    height: 13px;
+    color: rgb(255, 0, 0);
+}
+
 .h-box {
   padding-left: 1em;
   padding-right: 1em;

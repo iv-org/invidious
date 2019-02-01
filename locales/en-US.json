@@ -270,5 +270,9 @@
   "News": "News",
   "Movies": "Movies",
   "Download": "Download",
-  "Download as: ": "Download as: "
+  "Download as: ": "Download as: ",
+  "%A %B %-d, %Y": "%A %B %-d, %Y",
+  "(edited)": "(edited)",
+  "Youtube permalink of the comment": "Youtube permalink of the comment",
+  "`x` marked it with a ❤": "`x` marked it with a ❤"
 }
