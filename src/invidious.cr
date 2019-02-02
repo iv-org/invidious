@@ -1033,7 +1033,7 @@ post "/login" do |env|
       view_name = "subscriptions_#{sha256(user.email)[0..7]}"
       PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
         SELECT * FROM channel_videos WHERE \
-        ucid = ANY ((SELECT subscriptions FROM users WHERE email = '#{user.email}')::text[]) \
+        ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
       ORDER BY published DESC;")
 
       if Kemal.config.ssl || CONFIG.https_only
