@@ -68,8 +68,12 @@ $ docker-compose build
 $ sudo pacman -S shards crystal imagemagick librsvg postgresql
 
 # Ubuntu or Debian
+# First you have to add the repository to your APT configuration. For easy setup just run in your command line:
 $ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
-$ sudo apt update
+# That will add the signing key and the repository configuration. If you prefer to do it manually, execute the following commands:
+$ curl -sL "https://keybase.io/crystal/pgp_keys.asc" | sudo apt-key add -
+$ echo "deb https://dist.crystal-lang.org/apt crystal main" | sudo tee /etc/apt/sources.list.d/crystal.list
+$ sudo apt-get update
 $ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev librsvg2-dev postgresql imagemagick libsqlite3-dev
 ```
 
