@@ -43,6 +43,18 @@ class FilteredCompressHandler < Kemal::Handler
   end
 end
 
+class APIHandler < Kemal::Handler
+  only ["/api/v1/*"]
+
+  def call(env)
+    return call_next env unless only_match? env
+
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+    call_next env
+  end
+end
+
 class DenyFrame < Kemal::Handler
   exclude ["/embed/*"]
 
