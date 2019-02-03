@@ -158,6 +158,8 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale)
         comment_count = body["header"]["commentsHeaderRenderer"]["countText"]["simpleText"].as_s.delete("Comments,").to_i
         json.field "commentCount", comment_count
       end
+      
+      json.field "videoId", id
 
       json.field "comments" do
         json.array do
@@ -209,7 +211,14 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale)
                 json.field "authorUrl", ""
               end
 
-              published = decode_date(node_comment["publishedTimeText"]["runs"][0]["text"].as_s.rchop(" (edited)"))
+              published_text = node_comment["publishedTimeText"]["runs"][0]["text"].as_s
+              published = decode_date(published_text.rchop(" (edited)"))
+              
+              if published_text.includes?(" (edited)")
+                json.field "isEdited", true
+              else
+                json.field "isEdited", false
+              end
 
               json.field "content", content
               json.field "contentHtml", content_html
@@ -217,6 +226,17 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale)
               json.field "publishedText", translate(locale, "`x` ago", recode_date(published))
               json.field "likeCount", node_comment["likeCount"]
               json.field "commentId", node_comment["commentId"]
+              json.field "authorIsChannelOwner", node_comment["authorIsChannelOwner"]
+              
+              if node_comment["actionButtons"]["commentActionButtonsRenderer"]["creatorHeart"]?
+                hearth_data = node_comment["actionButtons"]["commentActionButtonsRenderer"]["creatorHeart"]["creatorHeartRenderer"]["creatorThumbnail"]
+                json.field "creatorHeart" do
+                  json.object do
+                    json.field "creatorThumbnail", hearth_data["thumbnails"][-1]["url"]
+                    json.field "creatorName", hearth_data["accessibility"]["accessibilityData"]["label"]
+                  end
+                end
+              end
 
               if node_replies && !response["commentRepliesContinuation"]?
                 reply_count = node_replies["moreText"]["simpleText"].as_s.delete("View all reply replies,")
@@ -326,12 +346,30 @@ def template_youtube_comments(comments, locale)
       <div class="pure-u-20-24 pure-u-md-22-24">
         <p>
           <b>
-            <a href="#{child["authorUrl"]}">#{child["author"]}</a>
+            <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{child["author"]}</a>
           </b> 
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
-          #{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64)))}
+          <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale,"%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64)))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
+          |
+          <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "Youtube permalink of the comment")}">[YT]</a>
           | 
           <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])} 
+    END_HTML
+    
+    if child["creatorHeart"]?
+      html += <<-END_HTML
+          <span class="creator-heart-container" title="#{translate(locale, "`x` marked it with a ❤", child["creatorHeart"]["creatorName"].as_s)}">
+              <div class="creator-heart">
+                  <img class="creator-heart-background-hearted" src="#{child["creatorHeart"]["creatorThumbnail"]}"></img>
+                  <div class="creator-heart-small-hearted">
+                      <div class="creator-heart-small-container">🖤</div>
+                  </div>
+              </div>
+          </span>
+      END_HTML
+    end
+    
+    html += <<-END_HTML
         </p>
         #{replies_html}
       </div>
