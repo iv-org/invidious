@@ -725,6 +725,7 @@ end
 def process_video_params(query, preferences)
   autoplay = query["autoplay"]?.try &.to_i?
   continue = query["continue"]?.try &.to_i?
+  related_videos = query["related_videos"]?
   listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
   preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
   quality = query["quality"]?
@@ -737,6 +738,7 @@ def process_video_params(query, preferences)
     # region ||= preferences.region
     autoplay ||= preferences.autoplay.to_unsafe
     continue ||= preferences.continue.to_unsafe
+    related_videos ||= preferences.related_videos.to_unsafe
     listen ||= preferences.listen.to_unsafe
     preferred_captions ||= preferences.captions
     quality ||= preferences.quality
@@ -747,6 +749,7 @@ def process_video_params(query, preferences)
 
   autoplay ||= DEFAULT_USER_PREFERENCES.autoplay.to_unsafe
   continue ||= DEFAULT_USER_PREFERENCES.continue.to_unsafe
+  related_videos ||= DEFAULT_USER_PREFERENCES.related_videos.to_unsafe
   listen ||= DEFAULT_USER_PREFERENCES.listen.to_unsafe
   preferred_captions ||= DEFAULT_USER_PREFERENCES.captions
   quality ||= DEFAULT_USER_PREFERENCES.quality
@@ -756,6 +759,7 @@ def process_video_params(query, preferences)
 
   autoplay = autoplay == 1
   continue = continue == 1
+  related_videos = related_videos == 1
   listen = listen == 1
   video_loop = video_loop == 1
 
@@ -793,6 +797,7 @@ def process_video_params(query, preferences)
     quality:            quality,
     raw:                raw,
     region:             region,
+    related_videos:     related_videos,
     speed:              speed,
     video_end:          video_end,
     video_loop:         video_loop,
