@@ -126,32 +126,37 @@ def produce_playlist_url(id, index)
   end
   ucid = "VL" + id
 
-  meta = [0x08_u8] + write_var_int(index)
-  meta = Slice.new(meta.to_unsafe, meta.size)
-  meta = Base64.urlsafe_encode(meta, false)
+  meta = IO::Memory.new
+  meta.write(Bytes[0x08])
+  meta.write(write_var_int(index))
+
+  meta.rewind
+  meta = Base64.urlsafe_encode(meta.to_slice, false)
   meta = "PT:#{meta}"
 
-  wrapped = "\x7a"
-  wrapped += meta.bytes.size.unsafe_chr
-  wrapped += meta
+  continuation = IO::Memory.new
+  continuation.write(Bytes[0x7a, meta.size])
+  continuation.print(meta)
 
-  wrapped = Base64.urlsafe_encode(wrapped)
-  meta = URI.escape(wrapped)
+  continuation.rewind
+  meta = Base64.urlsafe_encode(continuation.to_slice)
+  meta = URI.escape(meta)
 
-  continuation = "\x12"
-  continuation += ucid.size.unsafe_chr
-  continuation += ucid
-  continuation += "\x1a"
-  continuation += meta.bytes.size.unsafe_chr
-  continuation += meta
+  continuation = IO::Memory.new
+  continuation.write(Bytes[0x12, ucid.size])
+  continuation.print(ucid)
+  continuation.write(Bytes[0x1a, meta.size])
+  continuation.print(meta)
 
-  continuation = continuation.size.to_u8.unsafe_chr + continuation
-  continuation = "\xe2\xa9\x85\xb2\x02" + continuation
+  wrapper = IO::Memory.new
+  wrapper.write(Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02, continuation.size])
+  wrapper.print(continuation)
+  wrapper.rewind
 
-  continuation = Base64.urlsafe_encode(continuation)
-  continuation = URI.escape(continuation)
+  wrapper = Base64.urlsafe_encode(wrapper.to_slice)
+  wrapper = URI.escape(wrapper)
 
-  url = "/browse_ajax?continuation=#{continuation}"
+  url = "/browse_ajax?continuation=#{wrapper}&gl=US&hl=en"
 
   return url
 end

@@ -24,25 +24,25 @@ describe "Helpers" do
 
   describe "#produce_channel_search_url" do
     it "correctly produces token for searching a specific channel" do
-      produce_channel_search_url("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100).should eq("/browse_ajax?continuation=4qmFsgI-EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FqZ0JZQUZxQUxnQkFIb0RNVEF3WgA%3D")
+      produce_channel_search_url("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100).should eq("/browse_ajax?continuation=4qmFsgI-EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FqZ0JZQUZxQUxnQkFIb0RNVEF3WgA%3D&gl=US&hl=en")
 
-      produce_channel_search_url("UCXuqSBlHAE6Xw-yeJA0Tunw", "По ожиशुपतिरपि子而時ஸ்றீனி", 0).should eq("/browse_ajax?continuation=4qmFsgJZEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaJEVnWnpaV0Z5WTJnd0FqZ0JZQUZxQUxnQkFIb0JNQSUzRCUzRFoX0J_QviDQvtC20LjgpLbgpYHgpKrgpKTgpL_gpLDgpKrgpL_lrZDogIzmmYLgrrjgr43grrHgr4Dgrqngrr8%3D")
+      produce_channel_search_url("UCXuqSBlHAE6Xw-yeJA0Tunw", "По ожиशुपतिरपि子而時ஸ்றீனி", 0).should eq("/browse_ajax?continuation=4qmFsgJZEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaJEVnWnpaV0Z5WTJnd0FqZ0JZQUZxQUxnQkFIb0JNQSUzRCUzRFoX0J_QviDQvtC20LjgpLbgpYHgpKrgpKTgpL_gpLDgpKrgpL_lrZDogIzmmYLgrrjgr43grrHgr4Dgrqngrr8%3D&gl=US&hl=en")
     end
   end
 
   describe "#produce_playlist_url" do
     it "correctly produces url for requesting index `x` of a playlist" do
-      produce_playlist_url("UUCla9fZca4I7KagBtgRGnOw", 0).should eq("/browse_ajax?continuation=4qmFsgIsEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoOZWdaUVZEcERRVUUlM0Q%3D")
+      produce_playlist_url("UUCla9fZca4I7KagBtgRGnOw", 0).should eq("/browse_ajax?continuation=4qmFsgIsEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoOZWdaUVZEcERRVUUlM0Q%3D&gl=US&hl=en")
 
-      produce_playlist_url("UCCla9fZca4I7KagBtgRGnOw", 0).should eq("/browse_ajax?continuation=4qmFsgIsEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoOZWdaUVZEcERRVUUlM0Q%3D")
+      produce_playlist_url("UCCla9fZca4I7KagBtgRGnOw", 0).should eq("/browse_ajax?continuation=4qmFsgIsEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoOZWdaUVZEcERRVUUlM0Q%3D&gl=US&hl=en")
 
-      produce_playlist_url("PLt5AfwLFPxWLNVixpe1w3fi6lE2OTq0ET", 0).should eq("/browse_ajax?continuation=4qmFsgI2EiRWTFBMdDVBZndMRlB4V0xOVml4cGUxdzNmaTZsRTJPVHEwRVQaDmVnWlFWRHBEUVVFJTNE")
+      produce_playlist_url("PLt5AfwLFPxWLNVixpe1w3fi6lE2OTq0ET", 0).should eq("/browse_ajax?continuation=4qmFsgI2EiRWTFBMdDVBZndMRlB4V0xOVml4cGUxdzNmaTZsRTJPVHEwRVQaDmVnWlFWRHBEUVVFJTNE&gl=US&hl=en")
 
-      produce_playlist_url("PLt5AfwLFPxWLNVixpe1w3fi6lE2OTq0ET", 10000).should eq("/browse_ajax?continuation=4qmFsgI0EiRWTFBMdDVBZndMRlB4V0xOVml4cGUxdzNmaTZsRTJPVHEwRVQaDGVnZFFWRHBEU2tKUA%3D%3D")
+      produce_playlist_url("PLt5AfwLFPxWLNVixpe1w3fi6lE2OTq0ET", 10000).should eq("/browse_ajax?continuation=4qmFsgI0EiRWTFBMdDVBZndMRlB4V0xOVml4cGUxdzNmaTZsRTJPVHEwRVQaDGVnZFFWRHBEU2tKUA%3D%3D&gl=US&hl=en")
 
-      produce_playlist_url("PL55713C70BA91BD6E", 0).should eq("/browse_ajax?continuation=4qmFsgImEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoOZWdaUVZEcERRVUUlM0Q%3D")
+      produce_playlist_url("PL55713C70BA91BD6E", 0).should eq("/browse_ajax?continuation=4qmFsgImEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoOZWdaUVZEcERRVUUlM0Q%3D&gl=US&hl=en")
 
-      produce_playlist_url("PL55713C70BA91BD6E", 10000).should eq("/browse_ajax?continuation=4qmFsgIkEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoMZWdkUVZEcERTa0pQ")
+      produce_playlist_url("PL55713C70BA91BD6E", 10000).should eq("/browse_ajax?continuation=4qmFsgIkEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoMZWdkUVZEcERTa0pQ&gl=US&hl=en")
     end
   end
 

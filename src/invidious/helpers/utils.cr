@@ -282,7 +282,7 @@ def write_var_int(value : Int)
     end
   end
 
-  return bytes
+  return Slice.new(bytes.to_unsafe, bytes.size)
 end
 
 def sha256(text)

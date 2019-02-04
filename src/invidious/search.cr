@@ -203,36 +203,45 @@ end
 def produce_channel_search_url(ucid, query, page)
   page = "#{page}"
 
-  meta = "\x12\x06search"
-  meta += "\x30\x02"
-  meta += "\x38\x01"
-  meta += "\x60\x01"
-  meta += "\x6a\x00"
-  meta += "\xb8\x01\x00"
-  meta += "\x7a"
-  meta += page.size.unsafe_chr
-  meta += page
+  meta = IO::Memory.new
+  meta.write(Bytes[0x12, 0x06])
+  meta.print("search")
 
-  meta = Base64.urlsafe_encode(meta)
+  meta.write(Bytes[0x30, 0x02])
+  meta.write(Bytes[0x38, 0x01])
+  meta.write(Bytes[0x60, 0x01])
+  meta.write(Bytes[0x6a, 0x00])
+  meta.write(Bytes[0xb8, 0x01, 0x00])
+
+  meta.write(Bytes[0x7a, page.size])
+  meta.print(page)
+
+  meta.rewind
+  meta = Base64.urlsafe_encode(meta.to_slice)
   meta = URI.escape(meta)
 
-  continuation = "\x12"
-  continuation += ucid.size.unsafe_chr
-  continuation += ucid
-  continuation += "\x1a"
-  continuation += meta.size.unsafe_chr
-  continuation += meta
-  continuation += "\x5a"
-  continuation += query.size.unsafe_chr
-  continuation += query
+  continuation = IO::Memory.new
+  continuation.write(Bytes[0x12, ucid.size])
+  continuation.print(ucid)
 
-  continuation = continuation.size.unsafe_chr + continuation
-  continuation = "\xe2\xa9\x85\xb2\x02" + continuation
+  continuation.write(Bytes[0x1a, meta.size])
+  continuation.print(meta)
 
-  continuation = Base64.urlsafe_encode(continuation)
-  continuation = URI.escape(continuation)
+  continuation.write(Bytes[0x5a, query.size])
+  continuation.print(query)
 
-  url = "/browse_ajax?continuation=#{continuation}"
+  continuation.rewind
+  continuation = continuation.gets_to_end
+
+  wrapper = IO::Memory.new
+  wrapper.write(Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02, continuation.size])
+  wrapper.print(continuation)
+  wrapper.rewind
+
+  wrapper = Base64.urlsafe_encode(wrapper.to_slice)
+  wrapper = URI.escape(wrapper)
+
+  url = "/browse_ajax?continuation=#{wrapper}&gl=US&hl=en"
 
   return url
 end
