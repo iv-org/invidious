@@ -13,12 +13,11 @@ dependencies:
     github: detectlanguage/detectlanguage-crystal
   kemal:
     github: kemalcr/kemal
-    commit: afd17fc
   pg:
     github: will/crystal-pg
   sqlite3:
     github: crystal-lang/crystal-sqlite3
 
-crystal: 0.27.0
+crystal: 0.27.1
 
 license: AGPLv3
