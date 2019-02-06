@@ -254,6 +254,7 @@ end
 
 get "/watch" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+  region = env.params.query["region"]?
 
   if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
     url = "/watch?" + env.params.query.to_s.gsub("%20", "").delete("+")
@@ -323,7 +324,7 @@ get "/watch" do |env|
 
       if source == "youtube"
         begin
-          comment_html = JSON.parse(fetch_youtube_comments(id, "", proxies, "html", locale))["contentHtml"]
+          comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, region))["contentHtml"]
         rescue ex
           if preferences.comments[1] == "reddit"
             comments, reddit_thread = fetch_reddit_comments(id)
@@ -342,12 +343,12 @@ get "/watch" do |env|
           comment_html = replace_links(comment_html)
         rescue ex
           if preferences.comments[1] == "youtube"
-            comment_html = JSON.parse(fetch_youtube_comments(id, "", proxies, "html", locale))["contentHtml"]
+            comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, region))["contentHtml"]
           end
         end
       end
     else
-      comment_html = JSON.parse(fetch_youtube_comments(id, "", proxies, "html", locale))["contentHtml"]
+      comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, region))["contentHtml"]
     end
 
     comment_html ||= ""
@@ -2329,6 +2330,7 @@ end
 
 get "/api/v1/comments/:id" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+  region = env.params.query["region"]?
 
   env.response.content_type = "application/json"
 
@@ -2341,11 +2343,10 @@ get "/api/v1/comments/:id" do |env|
   format ||= "json"
 
   continuation = env.params.query["continuation"]?
-  continuation ||= ""
 
   if source == "youtube"
     begin
-      comments = fetch_youtube_comments(id, continuation, proxies, format, locale)
+      comments = fetch_youtube_comments(id, PG_DB, continuation, proxies, format, locale, region)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       halt env, status_code: 500, response: error_message

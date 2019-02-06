@@ -543,29 +543,29 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
 end
 
 def extract_player_config(body, html)
-  html_info = body.match(/ytplayer\.config = (?<info>.*?);ytplayer\.load/).try &.["info"]
   params = HTTP::Params.new
+
+  if md = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+    params["session_token"] = md["session_token"]
+  end
+
+  if md = body.match(/itct=(?<itct>[^"]+)"/)
+    params["itct"] = md["itct"]
+  end
+
+  if md = body.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
+    params["ctoken"] = md["ctoken"]
+  end
+
+  if md = body.match(/'RELATED_PLAYER_ARGS': (?<rvs>{"rvs":"[^"]+"})/)
+    params["rvs"] = JSON.parse(md["rvs"])["rvs"].as_s
+  end
+
+  html_info = body.match(/ytplayer\.config = (?<info>.*?);ytplayer\.load/).try &.["info"]
 
   if html_info
     JSON.parse(html_info)["args"].as_h.each do |key, value|
       params[key] = value.to_s
-    end
-
-    if md = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
-      params["session_token"] = md["session_token"]
-    end
-
-    if md = body.match(/itct=(?<itct>[^"]+)"/)
-      params["itct"] = md["itct"]
-    end
-
-    if md = body.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
-      params["ctoken"] = md["ctoken"]
-    end
-
-    # 'RELATED_PLAYER_ARGS': {"rvs":"endscreen_autoplay_session_data=autonav%3D1%26itct%3DCBYQ4ZIBIhMIkLz0mYuo4AIVBBRgCh0s8Q_4KPgdMgxyZWxhdGVkLWF1dG9IxLTo_IDLvsmwAQ%253D%253D%26playnext%3D1\u0026iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FnofDVbl437Q%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLCjePolZCv0jzoC8xQnJToXvVUniA\u0026session_data=itct%3DCBUQvU4YACITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026author=%E8%A5%BF%E9%87%8E%E3%82%AB%E3%83%8A+Official+YouTube+Channel\u0026id=nofDVbl437Q\u0026title=%E8%A5%BF%E9%87%8E%E3%82%AB%E3%83%8A+%E3%80%8E%E3%82%A2%E3%82%A4%E3%83%A9%E3%83%96%E3%83%A6%E3%83%BC%E3%80%8FMV%28Short+Ver.%29\u0026short_view_count_text=5.4M+views\u0026iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FnofDVbl437Q%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLCjePolZCv0jzoC8xQnJToXvVUniA\u0026length_seconds=101,thumbnail_ids=VeP9jRiTazc\u0026session_data=itct%3DCBQQvk4YASITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026playlist_iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FsJL6WA-aGkQ%2Fmqdefault.jpg\u0026playlist_length=0\u0026list=RDsJL6WA-aGkQ\u0026video_id=VeP9jRiTazc\u0026playlist_title=Mix+-+%E8%A5%BF%E9%87%8E%E3%82%AB%E3%83%8A+%E3%80%8EDear+Bride%E3%80%8FMV%28Short+Ver.%29\u0026playlist_iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FsJL6WA-aGkQ%2Fhqdefault.jpg,iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FSX_ViT4Ra7k%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLCNnEUPZeEd4VerhkKn_JRt27Iu5A\u0026session_data=itct%3DCBMQvU4YAiITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026author=%E7%B1%B3%E6%B4%A5%E7%8E%84%E5%B8%AB\u0026id=SX_ViT4Ra7k\u0026title=%E7%B1%B3%E6%B4%A5%E7%8E%84%E5%B8%AB++MV%E3%80%8CLemon%E3%80%8D\u0026short_view_count_text=297M+views\u0026iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FSX_ViT4Ra7k%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLCNnEUPZeEd4VerhkKn_JRt27Iu5A\u0026length_seconds=275,iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FDeGkiItB9d8%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLDL_BPCIkguhgTWn24lmm_9TOTXKA\u0026session_data=itct%3DCBIQvU4YAyITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026author=%E6%AC%85%E5%9D%8246+OFFICIAL+YouTube+CHANNEL\u0026id=DeGkiItB9d8\u0026title=%E6%AC%85%E5%9D%8246+%E3%80%8E%E3%82%B5%E3%82%A4%E3%83%AC%E3%83%B3%E3%83%88%E3%83%9E%E3%82%B8%E3%83%A7%E3%83%AA%E3%83%86%E3%82%A3%E3%83%BC%E3%80%8F\u0026short_view_count_text=118M+views\u0026iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FDeGkiItB9d8%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLDL_BPCIkguhgTWn24lmm_9TOTXKA\u0026length_seconds=267,iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FJ5Z7tIq7bco%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLCO8gs2FfZwdwc_sQDFAx91lHYdxA\u0026session_data=itct%3DCBEQvU4YBCITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026author=OfficeAugusta\u0026id=J5Z7tIq7bco\u0026title=%E3%82%B9%E3%82%AD%E3%83%9E%E3%82%B9%E3%82%A4%E3%83%83%E3%83%81+%2F+%E5%A5%8F%28%E3%81%8B%E3%81%AA%E3%81%A7%29+%E3%80%8C%E3%82%B9%E3%82%AD%E3%83%9E%E3%83%8E%E3%83%8F%E3%83%8A%E3%82%BF%E3%83%90+%EF%BD%9ELove+Song+Selection%EF%BD%9E%E3%80%8D2018%E5%B9%B49%E6%9C%8819%E6%97%A5%E7%99%BA%E5%A3%B2%EF%BC%81\u0026short_view_count_text=96M+views\u0026iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FJ5Z7tIq7bco%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLCO8gs2FfZwdwc_sQDFAx91lHYdxA\u0026length_seconds=345,thumbnail_ids=JZqplTvRex8\u0026session_data=itct%3DCBAQvk4YBSITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026playlist_iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FJZqplTvRex8%2Fmqdefault.jpg\u0026playlist_length=503\u0026list=PLH8SlvExlZpESVwF5uiYLVKI9NCQTSlHO\u0026video_id=JZqplTvRex8\u0026playlist_title=%E3%80%90400%E6%9B%B2%E3%80%91%E9%82%A6%E6%A5%BD+%E3%83%A9%E3%83%B3%E3%82%AD%E3%83%B3%E3%82%B0+%E6%9C%80%E6%96%B0+2019%E5%B9%B4+2018%E5%B9%B4+2017%E5%B9%B4+2016%E5%B9%B4+2015%E5%B9%B4+J-POP+J%E3%83%9D%E3%83%83%E3%83%97+%E5%90%8D%E6%9B%B2%E9%9B%86\u0026playlist_iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FJZqplTvRex8%2Fhqdefault.jpg,iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FWA4iX5D9Z64%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLC_mXb4rEzwwNIcdNtHDWh8aLuEbw\u0026session_data=itct%3DCA8QvU4YBiITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026author=TaylorSwiftVEVO\u0026id=WA4iX5D9Z64\u0026title=Taylor+Swift+-+We+Are+Never+Ever+Getting+Back+Together\u0026short_view_count_text=558M+views\u0026iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FWA4iX5D9Z64%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLC_mXb4rEzwwNIcdNtHDWh8aLuEbw\u0026length_seconds=216,iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FaPHGClLjZWk%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLBl5J229L8gTC5TUTPVLi3yrk438w\u0026session_data=itct%3DCA4QvU4YByITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026author=%E8%A5%BF%E9%87%8E%E3%82%AB%E3%83%8A+Official+YouTube+Channel\u0026id=aPHGClLjZWk\u0026title=%E8%A5%BF%E9%87%8E%E3%82%AB%E3%83%8A+%E3%80%8E%E3%83%88%E3%83%AA%E3%82%BB%E3%83%84%E3%80%8FMV%28Short+Ver.%29\u0026short_view_count_text=53M+views\u0026iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FaPHGClLjZWk%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLBl5J229L8gTC5TUTPVLi3yrk438w\u0026length_seconds=135,iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FhzWDXge2ANM%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLAc4Sk_-Uap8_Qf9470Lkvuhvv2ag\u0026session_data=itct%3DCA0QvU4YCCITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026author=UNIVERSAL+MUSIC+JAPAN\u0026id=hzWDXge2ANM\u0026title=back+number+-+%E3%80%8C%E3%83%8F%E3%83%83%E3%83%94%E3%83%BC%E3%82%A8%E3%83%B3%E3%83%89%E3%80%8DMusic+Video\u0026short_view_count_text=40M+views\u0026iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FhzWDXge2ANM%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLAc4Sk_-Uap8_Qf9470Lkvuhvv2ag\u0026length_seconds=119,iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FM1HRI_egra4%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLBpY8yFrVNSRQnEbnTRyLh4M8PYDg\u0026session_data=itct%3DCAwQvU4YCSITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026author=JUJU+Official+YouTube+Channel\u0026id=M1HRI_egra4\u0026title=JUJU+%E3%80%8C%E3%81%84%E3%81%84%E3%82%8F%E3%81%91%E3%80%8D%C3%97%E7%9F%A2%E6%B2%A2%E3%81%82%E3%81%84+%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%91%E3%82%A4%E3%82%A2%E3%83%BC%E3%83%89%E3%83%A0%E3%83%BC%E3%83%93%E3%83%BC\u0026short_view_count_text=3.7M+views\u0026iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FM1HRI_egra4%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLBpY8yFrVNSRQnEbnTRyLh4M8PYDg\u0026length_seconds=214,iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FPDSkFeMVNFs%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLD2fA627uKtoKe5ZPhiY61AW1RoIA\u0026session_data=itct%3DCAsQvU4YCiITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026author=radwimpsstaff\u0026id=PDSkFeMVNFs\u0026title=%E5%89%8D%E5%89%8D%E5%89%8D%E4%B8%96+%28movie+ver.%29+RADWIMPS+MV\u0026short_view_count_text=206M+views\u0026iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FPDSkFeMVNFs%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLD2fA627uKtoKe5ZPhiY61AW1RoIA\u0026length_seconds=293,iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FiLnX9s0EJhU%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLDuEGQQJpN61f5Yr7QIAGxnkhfbcw\u0026session_data=itct%3DCAoQvU4YCyITCJC89JmLqOACFQQUYAodLPEP-Cj4HTIJZW5kc2NyZWVuSMS06PyAy77JsAE%253D\u0026author=avex\u0026id=iLnX9s0EJhU\u0026title=AAA+%2F+%E3%80%8CLil%27+Infinity%E3%80%8DMusic+Video\u0026short_view_count_text=25M+views\u0026iurlmq=https%3A%2F%2Fi.ytimg.com%2Fvi%2FiLnX9s0EJhU%2Fhqdefault.jpg%3Fsqp%3D-oaymwEjCNACELwBSFryq4qpAxUIARUAAAAAGAElAADIQj0AgKJDeAE%3D%26rs%3DAOn4CLDuEGQQJpN61f5Yr7QIAGxnkhfbcw\u0026length_seconds=328"},
-    if md = body.match(/'RELATED_PLAYER_ARGS': (?<rvs>{"rvs":"[^"]+"})/)
-      params["rvs"] = JSON.parse(md["rvs"])["rvs"].as_s
     end
   else
     error_message = html.xpath_node(%q(//h1[@id="unavailable-message"]))
@@ -589,6 +589,7 @@ def fetch_video(id, proxies, region)
 
   html = XML.parse_html(response.body)
   info = extract_player_config(response.body, html)
+  info["cookie"] = response.cookies.to_h.map { |name, cookie| "#{name}=#{cookie.value}" }.join("; ")
 
   # Try to use proxies for region-blocked videos
   if info["reason"]? && info["reason"].includes? "your country"
@@ -597,13 +598,14 @@ def fetch_video(id, proxies, region)
     proxies.each do |proxy_region, list|
       spawn do
         client = make_client(YT_URL, proxies, proxy_region)
-        body = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999").body
+        proxy_response = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
 
-        proxy_html = XML.parse_html(body)
-        proxy_info = extract_player_config(body, proxy_html)
+        proxy_html = XML.parse_html(proxy_response.body)
+        proxy_info = extract_player_config(proxy_response.body, proxy_html)
 
         if !proxy_info["reason"]?
           proxy_info["region"] = proxy_region
+          proxy_info["cookie"] = proxy_response.cookies.to_h.map { |name, cookie| "#{name}=#{cookie.value}" }.join("; ")
           bypass_channel.send({proxy_html, proxy_info})
         else
           bypass_channel.send(nil)
@@ -625,7 +627,9 @@ def fetch_video(id, proxies, region)
     embed_info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
 
     if !embed_info["reason"]?
-      info = embed_info
+      embed_info.each do |key, value|
+        info[key] = value.to_s
+      end
     else
       raise info["reason"]
     end

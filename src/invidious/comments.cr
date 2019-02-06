@@ -56,72 +56,32 @@ class RedditListing
   })
 end
 
-def fetch_youtube_comments(id, continuation, proxies, format, locale)
-  client = make_client(YT_URL)
-  html = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
-  headers = HTTP::Headers.new
-  headers["cookie"] = html.cookies.add_request_headers(headers)["cookie"]
-  body = html.body
+def fetch_youtube_comments(id, db, continuation, proxies, format, locale, region)
+  video = get_video(id, db, proxies, region: region)
 
-  session_token = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
-  itct = body.match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
-  ctoken = body.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
+  session_token = video.info["session_token"]?
+  itct = video.info["itct"]?
+  ctoken = video.info["ctoken"]?
+  continuation ||= ctoken
 
-  if body.match(/<meta itemprop="regionsAllowed" content="">/) && !body.match(/player-age-gate-content\">/)
-    bypass_channel = Channel({String, HTTPClient, HTTP::Headers} | Nil).new
-
-    proxies.each do |proxy_region, list|
-      spawn do
-        proxy_client = make_client(YT_URL, proxies, proxy_region)
-
-        response = proxy_client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
-        proxy_headers = HTTP::Headers.new
-        proxy_headers["Cookie"] = response.cookies.add_request_headers(headers)["cookie"]
-        proxy_html = response.body
-
-        if !proxy_html.match(/<meta itemprop="regionsAllowed" content="">/) && !proxy_html.match(/player-age-gate-content\">/)
-          bypass_channel.send({proxy_html, proxy_client, proxy_headers})
-        else
-          bypass_channel.send(nil)
-        end
-      end
-    end
-
-    proxies.size.times do
-      response = bypass_channel.receive
-      if response
-        html, client, headers = response
-
-        session_token = html.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
-        itct = html.match(/itct=(?<itct>[^"]+)"/).not_nil!["itct"]
-        ctoken = html.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
-
-        break
-      end
-    end
-  end
-
-  if !ctoken
+  if !continuation || !itct || !session_token
     if format == "json"
       return {"comments" => [] of String}.to_json
     else
       return {"contentHtml" => "", "commentCount" => 0}.to_json
     end
   end
-  ctoken = ctoken["ctoken"]
-
-  if !continuation.empty?
-    ctoken = continuation
-  else
-    continuation = ctoken
-  end
 
   post_req = {
-    "session_token" => session_token,
+    "session_token" => session_token.not_nil!,
   }
   post_req = HTTP::Params.encode(post_req)
 
+  client = make_client(YT_URL, proxies, video.info["region"]?)
+  headers = HTTP::Headers.new
+
   headers["content-type"] = "application/x-www-form-urlencoded"
+  headers["cookie"] = video.info["cookie"]
 
   headers["x-client-data"] = "CIi2yQEIpbbJAQipncoBCNedygEIqKPKAQ=="
   headers["x-spf-previous"] = "https://www.youtube.com/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999"
@@ -129,7 +89,8 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale)
 
   headers["x-youtube-client-name"] = "1"
   headers["x-youtube-client-version"] = "2.20180719"
-  response = client.post("/comment_service_ajax?action_get_comments=1&pbj=1&ctoken=#{ctoken}&continuation=#{continuation}&itct=#{itct}&hl=en&gl=US", headers, post_req)
+
+  response = client.post("/comment_service_ajax?action_get_comments=1&pbj=1&ctoken=#{continuation}&continuation=#{continuation}&itct=#{itct}&hl=en&gl=US", headers, post_req)
   response = JSON.parse(response.body)
 
   if !response["response"]["continuationContents"]?
