@@ -85,8 +85,8 @@ def channel_search(query, page, channel)
   return count, items
 end
 
-def search(query, page = 1, search_params = produce_search_params(content_type: "all"))
-  client = make_client(YT_URL)
+def search(query, page = 1, search_params = produce_search_params(content_type: "all"), proxies = nil, region = nil)
+  client = make_client(YT_URL, proxies, region)
   if query.empty?
     return {0, [] of SearchItem}
   end

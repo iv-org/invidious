@@ -596,6 +596,7 @@ end
 
 get "/search" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+  region = env.params.query["region"]?
 
   query = env.params.query["search_query"]?
   query ||= env.params.query["q"]?
@@ -671,7 +672,7 @@ get "/search" do |env|
       next templated "error"
     end
 
-    count, videos = search(search_query, page, search_params).as(Tuple)
+    count, videos = search(search_query, page, search_params, proxies, region).as(Tuple)
   end
 
   templated "search"
@@ -3199,6 +3200,7 @@ end
 
 get "/api/v1/search" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+  region = env.params.query["region"]?
 
   env.response.content_type = "application/json"
 
@@ -3220,7 +3222,6 @@ get "/api/v1/search" do |env|
   features = env.params.query["features"]?.try &.split(",").map { |feature| feature.downcase }
   features ||= [] of String
 
-  # TODO: Support other content types
   content_type = env.params.query["type"]?.try &.downcase
   content_type ||= "video"
 
@@ -3235,7 +3236,7 @@ get "/api/v1/search" do |env|
     end
   end
 
-  count, search_results = search(query, page, search_params).as(Tuple)
+  count, search_results = search(query, page, search_params, proxies, region).as(Tuple)
   response = JSON.build do |json|
     json.array do
       search_results.each do |item|
