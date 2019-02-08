@@ -3530,7 +3530,12 @@ get "/api/manifest/dash/id/:id" do |env|
   begin
     video = get_video(id, PG_DB, proxies, region: region)
   rescue ex : VideoRedirect
-    next env.redirect "/api/manifest/dash/id/#{ex.message}"
+    url = "/api/manifest/dash/id/#{ex.message}"
+    if local
+      url += "?local=true"
+    end
+
+    next env.redirect url
   rescue ex
     halt env, status_code: 403
   end
@@ -3560,8 +3565,8 @@ get "/api/manifest/dash/id/:id" do |env|
     end
   end
 
-  video_streams = video.video_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "video/mp4" }
   audio_streams = video.audio_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "audio/mp4" }
+  video_streams = video.video_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "video/mp4" }.uniq { |stream| stream["size"] }
 
   manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
@@ -3570,9 +3575,7 @@ get "/api/manifest/dash/id/:id" do |env|
       xml.element("Period") do
         xml.element("AdaptationSet", mimeType: "audio/mp4", startWithSAP: 1, subsegmentAlignment: true) do
           audio_streams.each do |fmt|
-            mimetype = fmt["type"].split(";")[0]
             codecs = fmt["type"].split("codecs=")[1].strip('"')
-            fmt_type = mimetype.split("/")[0]
             bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
             url = fmt["url"]
@@ -3591,7 +3594,6 @@ get "/api/manifest/dash/id/:id" do |env|
         xml.element("AdaptationSet", mimeType: "video/mp4", startWithSAP: 1, subsegmentAlignment: true,
           scanType: "progressive") do
           video_streams.each do |fmt|
-            mimetype = fmt["type"].split(";")
             codecs = fmt["type"].split("codecs=")[1].strip('"')
             bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
