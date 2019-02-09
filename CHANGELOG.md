@@ -1,3 +1,150 @@
+# 0.14.0 (2019-02-06)
+
+## Version 0.14.0: Community
+
+This last month several contributors have made improvements specifically for the people using this project. New pages have been added to the wiki, and there is now a [Matrix Server](https://riot.im/app/#/room/#invidious:matrix.org) and IRC channel so it's easier and faster for people to ask questions or chat. There have been [101 commits](https://github.com/omarroth/invidious/compare/0.13.0...0.14.0) since the last major release from 8 contributors.
+
+It has come to my attention in the past month how many people are self-hosting, and I would like to make it easier for them to do so.
+
+With that in mind, expect future releases to have a section for For Administrators (if any relevant changes) and For Developers (if any relevant changes).
+
+## For Administrators
+
+This month the most notable change for administrators is releases. As always, there will be a major release each month. However, a new minor release will be made whenever there are any critical bugs that need to be fixed.
+
+This past month is the first time there has been a minor release - `0.13.1` - which fixes a breaking change made by YouTube. Administrators using versioning for their instances will be able to rely on the latest version, and should have a system in place to upgrade their instance as soon as a new release is available.
+
+Several new pages have been added to the [wiki](https://github.com/omarroth/invidious/wiki#for-administrators) (as mentioned below) that will help administrators better setup their own instances. Configuration, maintenance, and instructions for updating are of note, as well as several common issues that are encountered when first setting up.
+
+## For Developers
+
+There's now a `pretty=1` parameter for most endpoints so you can view data easily from the browser, which is convenient for debugging and casual use. You can see an example [here](https://invidio.us/api/v1/videos/CvFH_6DNRCY?pretty=1).
+
+Unfortunately the `/api/v1/insights/:id` endpoint is no longer functional, as YouTube removed all publicly available analytics around a month ago. The YouTube endpoint now returns a 404, so it's unlikely it will be functional again.
+
+## Wiki
+
+There have been a sizable number of changes to the Wiki, including a [list of public Invidious instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances), the [list of extensions](https://github.com/omarroth/invidious/wiki/Extensions), and documentation for administrators (as mentioned above) and developers.
+
+The wiki is editable by anyone so feel free to add anything you think is useful.
+
+## Matrix & IRC
+
+Thee is now a [Matrix Server](https://riot.im/app/#/room/#invidious:matrix.org) for Invidious, so please feel free to hop on if you have any questions or want to chat. There is also a registered IRC channel: #invidious on Freenode which is bridged to Matrix.
+
+## Features
+
+Several new features have been added, including a download button, creator hearts and comment colors, and a French translation.
+
+There have been fixes for Google logins, missing text in locales, invalid links to genre channels, and better error handling in the player, among others.
+
+Several fixes and features are omitted for space, so I'd recommend taking a look at the [compare tab](https://github.com/omarroth/invidious/compare/0.13.0...0.14.0) for more information.
+
+## Annotations Update
+
+Annotations were removed January 15th, 2019 around15:00 UTC. Before they were deleted we were able to archive annotations from around 1.4 billion videos. I'd very much recommend taking a look [here](https://www.reddit.com/r/DataHoarder/comments/al7exa/youtube_annotation_archive_update_and_preview/) for more information and a list of acknowledgements. I'm extremely thankful to everyone who was able to contribute and I'm glad we were able to save such a large part of internet history.
+
+There's been large strides in supporting them in the player as well, which you can follow in [#303](https://github.com/omarroth/invidious/pull/303). You can preview the functionality at https://dev.invidio.us . Before they are added to the main site expect to see an option to disable them, both site-wide and per video.
+
+Organizing this project has unfortunately taken up quite a bit of my time, and I've been very grateful for everyone's patience.
+
+## Finances
+
+### Donations
+
+- [Patreon](https://www.patreon.com/omarroth) : \$49.42
+- [Liberapay](https://liberapay.com/omarroth) : \$27.89
+- Crypto : ~\$0.00 (converted from BCH, BTC)
+- Total : \$77.31
+
+### Expenses
+
+invidious-load1 (nyc1) : $10.00 (load balancer)
+invidious-update1 (s-1vcpu-1gb) : $5.00 (updates feeds)
+invidious-node1 (s-1vcpu-1gb) : $5.00 (web server)
+invidious-node2 (s-1vcpu-1gb) : $5.00 (web server)
+invidious-node3 (s-1vcpu-1gb) : $5.00 (web server)
+invidious-node4 (s-1vcpu-1gb) : $5.00 (web server)
+invidious-db1 (s-4vcpu-8gb) : $40.00 (database)
+Total : $75.00
+
+As always I'm grateful for everyone's contributions and support. I'll see you all in March.
+
+# 0.13.1 (2019-01-19)
+
+##
+
+# 0.13.0 (2019-01-06)
+
+## Version 0.13.0: Translations, Annotations, and Tor
+
+I hope everyone had a happy New Year! There's been a couple new additions since last release, with [44 commits](https://github.com/omarroth/invidious/compare/0.12.0...0.13.0) from 9 contributors. It's been quite a year for the project, and I hope to continue improving the project into 2019! Starting off the new year:
+
+## Translations
+
+I'm happy to announce support for translations has been added with [`a160c64`](https://github.com/omarroth/invidious/a160c64). Currently, there is support for:
+
+- Arabic (`ar`)
+- Dutch (`nl`)
+- English (`en-US`)
+- German (`de`)
+- Norwegian Bokmål (`nb_NO`)
+- Polish (`pl`)
+- Russian (`ru`)
+
+Which you can change in your preferences under `Language`. You can also add `&hl=LANGUAGE` to the end of any request to translate it to your preferred language, for example https://invidio.us/?hl=ru. I'd like to say thank you again to everyone who has helped translate the site! I've mentioned this before, but I'm delighted that so many people find the project useful.
+
+## Annotations
+
+Recently, [YouTube announced that all annotations will be deleted on January 15th, 2019](https://support.google.com/youtube/answer/7342737). I believe that annotations have a very important place in YouTube's history, and [announced a project to archive them](https://www.reddit.com/r/DataHoarder/comments/aa6czg/youtube_annotation_archive/).
+
+I expect annotations to be supported in the Invidious player once archiving is complete (see [#110](https://github.com/omarroth/invidious/issues/110) for details), and would also like to host them for other developers to use in their projects.
+
+The code is available [here](https://github.com/omarroth/archive), and contains instructions for running a worker if you would like to contribute. There's much more information available in the announcement as well for anyone who is interested.
+
+## Tor
+
+I unfortunately missed the chance to mention this in the previous release, but I'm now happy to announce that you can now view Invidious through Tor at the following links:
+
+kgg2m7yk5aybusll.onion  
+axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion
+
+Invidious is well suited to use through Tor, as it does not require any JS and is fairly lightweight. I'd recommend looking [here](https://diasp.org/posts/10965196) and [here](https://www.reddit.com/r/TOR/comments/a3c1ak/you_can_now_watch_youtube_videos_anonymously_with/) for more details on how to use the onion links, and would like to say thank you to [/u/whonix-os](https://www.reddit.com/user/whonix-os) for suggesting it and providing support setting setting them up.
+
+## Popular and Trending
+
+You can now easily view videos trending on YouTube with [`a16f967`](https://github.com/omarroth/invidious/a16f967). It also provides support for viewing YouTube's various categories categories, such as `News`, `Gaming`, and `Music`. You can also change the `region` parameter to view trending in different countries, which should be made easier to use in the coming weeks.
+
+A link to `/feed/popular` has also been added, which provides a list of videos sorted using the algorithm described [here](https://github.com/omarroth/invidious/issues/217#issuecomment-436503761). I think it better reflects what users watch on the site, but I'd like to hear peoples' thoughts on this and on how it could be improved.
+
+## Finances
+
+### Donations
+
+- [Patreon](https://www.patreon.com/omarroth): \$64.63
+- [Liberapay](https://liberapay.com/omarroth) : \$30.05
+- Crypto : ~\$28.74 (converted from BCH, BTC)
+- Total : \$123.42
+
+### Expenses
+
+- invidious-load1 (nyc1) : \$10.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$75.00
+
+### What will happen with what's left over?
+
+I believe this is the first month that all expenses have been fully paid for by donations. Thank you! I expect to allocate the current amount for hardware to improve performance and for hosting annotation data, as mentioned above.
+
+Anything that is left over is kept to continue hosting the project for as long as possible. Thank you again everyone!
+
+I think that's everything for 2018. There's lots still planned, and I'm very excited for the future of this project!
+
 # 0.12.0 (2018-12-06)
 
 ## Version 0.12.0: Accessibility, Privacy, Transparency

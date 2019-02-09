@@ -2,7 +2,6 @@ FROM postgres:10
 
 ENV POSTGRES_USER postgres
 
-ADD ./setup.sh /setup.sh
 ADD ./config/sql /config/sql
 ADD ./docker/entrypoint.postgres.sh /entrypoint.sh
 

@@ -137,7 +137,7 @@ BYPASS_REGIONS = {
 }
 
 VIDEO_THUMBNAILS = {
-  {name: "maxres", host: "invidio.us", url: "maxres", height: 720, width: 1280},
+  {name: "maxres", host: "#{CONFIG.domain}", url: "maxres", height: 720, width: 1280},
   {name: "maxresdefault", host: "i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
   {name: "sddefault", host: "i.ytimg.com", url: "sddefault", height: 480, width: 640},
   {name: "high", host: "i.ytimg.com", url: "hqdefault", height: 360, width: 480},
@@ -514,7 +514,7 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
     # If record was last updated over 10 minutes ago, refresh (expire param in response lasts for 6 hours)
     if refresh && Time.now - video.updated > 10.minutes
       begin
-        video = fetch_video(id, proxies, region)
+        video = fetch_video(id, proxies, region: region)
         video_array = video.to_a
 
         args = arg_array(video_array[1..-1], 2)
@@ -529,7 +529,7 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
       end
     end
   else
-    video = fetch_video(id, proxies, region)
+    video = fetch_video(id, proxies, region: region)
     video_array = video.to_a
 
     args = arg_array(video_array)
@@ -542,53 +542,71 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
   return video
 end
 
+def extract_player_config(body, html)
+  params = HTTP::Params.new
+
+  if md = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+    params["session_token"] = md["session_token"]
+  end
+
+  if md = body.match(/itct=(?<itct>[^"]+)"/)
+    params["itct"] = md["itct"]
+  end
+
+  if md = body.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
+    params["ctoken"] = md["ctoken"]
+  end
+
+  if md = body.match(/'RELATED_PLAYER_ARGS': (?<rvs>{"rvs":"[^"]+"})/)
+    params["rvs"] = JSON.parse(md["rvs"])["rvs"].as_s
+  end
+
+  html_info = body.match(/ytplayer\.config = (?<info>.*?);ytplayer\.load/).try &.["info"]
+
+  if html_info
+    JSON.parse(html_info)["args"].as_h.each do |key, value|
+      params[key] = value.to_s
+    end
+  else
+    error_message = html.xpath_node(%q(//h1[@id="unavailable-message"]))
+    if error_message
+      params["reason"] = error_message.content.strip
+    else
+      params["reason"] = "Could not extract video info."
+    end
+  end
+
+  return params
+end
+
 def fetch_video(id, proxies, region)
-  html_channel = Channel(XML::Node | String).new
-  info_channel = Channel(HTTP::Params).new
+  client = make_client(YT_URL, proxies, region)
+  response = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
 
-  spawn do
-    client = make_client(YT_URL, proxies, region)
-    html = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
-
-    if md = html.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
-      next html_channel.send(md["id"])
-    end
-
-    html = XML.parse_html(html.body)
-    html_channel.send(html)
+  if md = response.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
+    raise VideoRedirect.new(md["id"])
   end
 
-  spawn do
-    client = make_client(YT_URL, proxies, region)
-    info = client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
-    info = HTTP::Params.parse(info.body)
+  html = XML.parse_html(response.body)
+  info = extract_player_config(response.body, html)
+  info["cookie"] = response.cookies.to_h.map { |name, cookie| "#{name}=#{cookie.value}" }.join("; ")
 
-    if info["reason"]?
-      info = client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1")
-      info = HTTP::Params.parse(info.body)
-    end
-
-    info_channel.send(info)
-  end
-
-  html = html_channel.receive
-  if html.as?(String)
-    raise VideoRedirect.new("#{html.as(String)}")
-  end
-  html = html.as(XML::Node)
-
-  info = info_channel.receive
-
+  # Try to use proxies for region-blocked videos
   if info["reason"]? && info["reason"].includes? "your country"
-    bypass_channel = Channel({HTTPClient, String} | Nil).new
+    bypass_channel = Channel({XML::Node, HTTP::Params} | Nil).new
 
     proxies.each do |proxy_region, list|
       spawn do
         client = make_client(YT_URL, proxies, proxy_region)
+        proxy_response = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
 
-        info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
-        if !info["reason"]?
-          bypass_channel.send({client, proxy_region})
+        proxy_html = XML.parse_html(proxy_response.body)
+        proxy_info = extract_player_config(proxy_response.body, proxy_html)
+
+        if !proxy_info["reason"]?
+          proxy_info["region"] = proxy_region
+          proxy_info["cookie"] = proxy_response.cookies.to_h.map { |name, cookie| "#{name}=#{cookie.value}" }.join("; ")
+          bypass_channel.send({proxy_html, proxy_info})
         else
           bypass_channel.send(nil)
         end
@@ -598,39 +616,27 @@ def fetch_video(id, proxies, region)
     proxies.size.times do
       response = bypass_channel.receive
       if response
-        begin
-          client, proxy_region = response
-
-          html = XML.parse_html(client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999").body)
-          info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&el=detailpage&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
-
-          if info["reason"]?
-            info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
-          end
-
-          info["region"] = proxy_region
-
-          break
-        rescue ex
-        end
+        html, info = response
+        break
       end
     end
   end
 
+  # Try to pull streams from embed URL
   if info["reason"]?
-    html_info = html.to_s.match(/ytplayer\.config = (?<info>.*?);ytplayer\.load/).try &.["info"]
-    if html_info
-      html_info = JSON.parse(html_info)["args"].as_h
-      info.delete("reason")
+    embed_info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
 
-      html_info.each do |k, v|
-        info[k] = v.to_s
+    if !embed_info["reason"]?
+      embed_info.each do |key, value|
+        info[key] = value.to_s
       end
-    end
-
-    if info["reason"]?
+    else
       raise info["reason"]
     end
+  end
+
+  if info["errorcode"]?.try &.== "2"
+    raise "Video unavailable."
   end
 
   title = info["title"]
@@ -649,6 +655,10 @@ def fetch_video(id, proxies, region)
   dislikes = dislikes.try &.content.delete(",").try &.to_i?
   dislikes ||= 0
 
+  avg_rating = (likes.to_f/(likes.to_f + dislikes.to_f) * 4 + 1)
+  avg_rating = avg_rating.nan? ? 0.0 : avg_rating
+  info["avg_rating"] = "#{avg_rating}"
+
   description = html.xpath_node(%q(//p[@id="eow-description"]))
   description = description ? description.to_xml : ""
 
@@ -660,19 +670,27 @@ def fetch_video(id, proxies, region)
 
   allowed_regions = html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).try &.["content"].split(",")
   allowed_regions ||= [] of String
+
   is_family_friendly = html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).try &.["content"] == "True"
   is_family_friendly ||= true
 
   genre = html.xpath_node(%q(//meta[@itemprop="genre"])).try &.["content"]
   genre ||= ""
 
-  genre_url = html.xpath_node(%(//a[text()="#{genre}"])).try &.["href"]
+  genre_url = html.xpath_node(%(//ul[contains(@class, "watch-info-tag-list")]/li/a[text()="#{genre}"])).try &.["href"]
+
+  # Sometimes YouTube tries to link to invalid/missing channels, so we fix that here
   case genre
+  when "Education"
+    genre_url = "/channel/UCdxpofrI-dO6oYfsqHDHphw"
+  when "Gaming"
+    genre_url = "/channel/UCOpNcN46UbXVtpKMrmU4Abg"
   when "Movies"
     genre_url = "/channel/UClgRkhTL3_hImCAmdLfDE4g"
-  when "Education"
-    # Education channel is linked but does not exist
-    genre_url = "/channel/UC3yA8nDwraeOfnYfBWun83g"
+  when "Nonprofits & Activism"
+    genre_url = "/channel/UCfFyYRYslvuhwMDnx6KjUvw"
+  when "Trailers"
+    genre_url = "/channel/UClgRkhTL3_hImCAmdLfDE4g"
   end
   genre_url ||= ""
 
@@ -710,6 +728,7 @@ end
 def process_video_params(query, preferences)
   autoplay = query["autoplay"]?.try &.to_i?
   continue = query["continue"]?.try &.to_i?
+  related_videos = query["related_videos"]?
   listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
   preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
   quality = query["quality"]?
@@ -722,6 +741,7 @@ def process_video_params(query, preferences)
     # region ||= preferences.region
     autoplay ||= preferences.autoplay.to_unsafe
     continue ||= preferences.continue.to_unsafe
+    related_videos ||= preferences.related_videos.to_unsafe
     listen ||= preferences.listen.to_unsafe
     preferred_captions ||= preferences.captions
     quality ||= preferences.quality
@@ -730,17 +750,19 @@ def process_video_params(query, preferences)
     volume ||= preferences.volume
   end
 
-  autoplay ||= 0
-  continue ||= 0
-  listen ||= 0
-  preferred_captions ||= [] of String
-  quality ||= "hd720"
-  speed ||= 1
-  video_loop ||= 0
-  volume ||= 100
+  autoplay ||= DEFAULT_USER_PREFERENCES.autoplay.to_unsafe
+  continue ||= DEFAULT_USER_PREFERENCES.continue.to_unsafe
+  related_videos ||= DEFAULT_USER_PREFERENCES.related_videos.to_unsafe
+  listen ||= DEFAULT_USER_PREFERENCES.listen.to_unsafe
+  preferred_captions ||= DEFAULT_USER_PREFERENCES.captions
+  quality ||= DEFAULT_USER_PREFERENCES.quality
+  speed ||= DEFAULT_USER_PREFERENCES.speed
+  video_loop ||= DEFAULT_USER_PREFERENCES.video_loop.to_unsafe
+  volume ||= DEFAULT_USER_PREFERENCES.volume
 
   autoplay = autoplay == 1
   continue = continue == 1
+  related_videos = related_videos == 1
   listen = listen == 1
   video_loop = video_loop == 1
 
@@ -778,6 +800,7 @@ def process_video_params(query, preferences)
     quality:            quality,
     raw:                raw,
     region:             region,
+    related_videos:     related_videos,
     speed:              speed,
     video_end:          video_end,
     video_loop:         video_loop,

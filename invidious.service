@@ -1,0 +1,19 @@
+[Unit]
+Description=Invidious (An alternative YouTube front-end)
+After=syslog.target
+After=network.target
+
+[Service]
+RestartSec=2s
+Type=simple
+
+User=invidious
+Group=invidious
+
+WorkingDirectory=/home/invidious/invidious
+ExecStart=/home/invidious/invidious/invidious -o invidious.log
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

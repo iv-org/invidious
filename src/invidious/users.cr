@@ -79,36 +79,36 @@ class Preferences
     autoplay:   Bool,
     continue:   {
       type:    Bool,
-      default: false,
+      default: DEFAULT_USER_PREFERENCES.continue,
     },
     listen: {
       type:    Bool,
-      default: false,
+      default: DEFAULT_USER_PREFERENCES.listen,
     },
     speed:    Float32,
     quality:  String,
     volume:   Int32,
     comments: {
       type:      Array(String),
-      default:   ["youtube", ""],
+      default:   DEFAULT_USER_PREFERENCES.comments,
       converter: StringToArray,
     },
     captions: {
       type:    Array(String),
-      default: ["", "", ""],
+      default: DEFAULT_USER_PREFERENCES.captions,
     },
     redirect_feed: {
       type:    Bool,
-      default: false,
+      default: DEFAULT_USER_PREFERENCES.redirect_feed,
     },
     related_videos: {
       type:    Bool,
-      default: true,
+      default: DEFAULT_USER_PREFERENCES.related_videos,
     },
     dark_mode: Bool,
     thin_mode: {
       type:    Bool,
-      default: false,
+      default: DEFAULT_USER_PREFERENCES.thin_mode,
     },
     max_results:        Int32,
     sort:               String,
@@ -116,11 +116,11 @@ class Preferences
     unseen_only:        Bool,
     notifications_only: {
       type:    Bool,
-      default: false,
+      default: DEFAULT_USER_PREFERENCES.notifications_only,
     },
     locale: {
       type:    String,
-      default: "en-US",
+      default: DEFAULT_USER_PREFERENCES.locale,
     },
   })
 end
@@ -177,18 +177,15 @@ def fetch_user(sid, headers, db)
   feed = XML.parse_html(feed.body)
 
   channels = [] of String
-  feed.xpath_nodes(%q(//ul[@id="guide-channels"]/li/a)).each do |channel|
-    if !{"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? channel["title"]
-      channel_id = channel["href"].lstrip("/channel/")
-
-      begin
-        channel = get_channel(channel_id, db, false, false)
-        channels << channel.id
-      rescue ex
-        next
-      end
+  channels = feed.xpath_nodes(%q(//ul[@id="guide-channels"]/li/a)).compact_map do |channel|
+    if {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? channel["title"]
+      nil
+    else
+      channel["href"].lstrip("/channel/")
     end
   end
+
+  channels = get_batch_channels(channels, db, false, false)
 
   email = feed.xpath_node(%q(//a[@class="yt-masthead-picker-header yt-masthead-picker-active-account"]))
   if email

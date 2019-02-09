@@ -1,26 +1,127 @@
 class Config
   YAML.mapping({
-    crawl_threads:   Int32,
-    channel_threads: Int32,
-    feed_threads:    Int32,
-    video_threads:   Int32,
-    db:              NamedTuple(
-      user: String,
+    crawl_threads:   Int32,      # Number of threads to use for finding new videos from YouTube (used to populate "top" page)
+    channel_threads: Int32,      # Number of threads to use for crawling videos from channels (for updating subscriptions)
+    feed_threads:    Int32,      # Number of threads to use for updating feeds
+    video_threads:   Int32,      # Number of threads to use for updating videos in cache (mostly non-functional)
+    db:              NamedTuple( # Database configuration
+user: String,
       password: String,
       host: String,
       port: Int32,
       dbname: String,
     ),
-    dl_api_key:   String?,
-    https_only:   Bool?,
-    hmac_key:     String?,
-    full_refresh: Bool,
-    domain:       String?,
-    decrypt_drm:  {
-      type:    Bool?,
-      default: true,
-    },
+    dl_api_key:   String?, # DetectLanguage API Key (used to filter non-English results from "top" page), mostly non-functional
+    https_only:   Bool?,   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
+    hmac_key:     String?, # HMAC signing key for CSRF tokens
+    full_refresh: Bool,    # Used for crawling channels: threads should check all videos uploaded by a channel
+    domain:       String,  # Domain to be used for links to resources on the site where an absolute URL is required
   })
+end
+
+class FilteredCompressHandler < Kemal::Handler
+  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/api/*", "/ggpht/*"]
+
+  def call(env)
+    return call_next env if exclude_match? env
+
+    {% if flag?(:without_zlib) %}
+      call_next env
+    {% else %}
+      request_headers = env.request.headers
+
+      if request_headers.includes_word?("Accept-Encoding", "gzip")
+        env.response.headers["Content-Encoding"] = "gzip"
+        env.response.output = Gzip::Writer.new(env.response.output, sync_close: true)
+      elsif request_headers.includes_word?("Accept-Encoding", "deflate")
+        env.response.headers["Content-Encoding"] = "deflate"
+        env.response.output = Flate::Writer.new(env.response.output, sync_close: true)
+      end
+
+      call_next env
+    {% end %}
+  end
+end
+
+class APIHandler < Kemal::Handler
+  only ["/api/v1/*"]
+
+  def call(env)
+    return call_next env unless only_match? env
+
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+    call_next env
+  end
+end
+
+class DenyFrame < Kemal::Handler
+  exclude ["/embed/*"]
+
+  def call(env)
+    return call_next env if exclude_match? env
+
+    env.response.headers["X-Frame-Options"] = "sameorigin"
+    call_next env
+  end
+end
+
+def rank_videos(db, n, filter, url)
+  top = [] of {Float64, String}
+
+  db.query("SELECT id, wilson_score, published FROM videos WHERE views > 5000 ORDER BY published DESC LIMIT 1000") do |rs|
+    rs.each do
+      id = rs.read(String)
+      wilson_score = rs.read(Float64)
+      published = rs.read(Time)
+
+      # Exponential decay, older videos tend to rank lower
+      temperature = wilson_score * Math.exp(-0.000005*((Time.now - published).total_minutes))
+      top << {temperature, id}
+    end
+  end
+
+  top.sort!
+
+  # Make hottest come first
+  top.reverse!
+  top = top.map { |a, b| b }
+
+  if filter
+    language_list = [] of String
+    top.each do |id|
+      if language_list.size == n
+        break
+      else
+        client = make_client(url)
+        begin
+          video = get_video(id, db)
+        rescue ex
+          next
+        end
+
+        if video.language
+          language = video.language
+        else
+          description = XML.parse(video.description)
+          content = [video.title, description.content].join(" ")
+          content = content[0, 10000]
+
+          results = DetectLanguage.detect(content)
+          language = results[0].language
+
+          db.exec("UPDATE videos SET language = $1 WHERE id = $2", language, id)
+        end
+
+        if language == "en"
+          language_list << id
+        end
+      end
+    end
+    return language_list
+  else
+    return top[0..n - 1]
+  end
 end
 
 def login_req(login_form, f_req)
@@ -228,10 +329,10 @@ def extract_items(nodeset, ucid = nil)
         premium = false
       end
 
-      if node.xpath_node(%q(.//span[contains(text(), "Get YouTube Premium")]))
-        paid = true
-      else
+      if !premium || node.xpath_node(%q(.//span[contains(text(), "Free episode")]))
         paid = false
+      else
+        paid = true
       end
 
       items << SearchVideo.new(

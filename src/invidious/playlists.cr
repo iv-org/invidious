@@ -126,34 +126,150 @@ def produce_playlist_url(id, index)
   end
   ucid = "VL" + id
 
-  meta = [0x08_u8] + write_var_int(index)
-  meta = Slice.new(meta.to_unsafe, meta.size)
-  meta = Base64.urlsafe_encode(meta, false)
+  meta = IO::Memory.new
+  meta.write(Bytes[0x08])
+  meta.write(write_var_int(index))
+
+  meta.rewind
+  meta = Base64.urlsafe_encode(meta.to_slice, false)
   meta = "PT:#{meta}"
 
-  wrapped = "\x7a"
-  wrapped += meta.bytes.size.unsafe_chr
-  wrapped += meta
+  continuation = IO::Memory.new
+  continuation.write(Bytes[0x7a, meta.size])
+  continuation.print(meta)
 
-  wrapped = Base64.urlsafe_encode(wrapped)
-  meta = URI.escape(wrapped)
+  continuation.rewind
+  meta = Base64.urlsafe_encode(continuation.to_slice)
+  meta = URI.escape(meta)
 
-  continuation = "\x12"
-  continuation += ucid.size.unsafe_chr
-  continuation += ucid
-  continuation += "\x1a"
-  continuation += meta.bytes.size.unsafe_chr
-  continuation += meta
+  continuation = IO::Memory.new
+  continuation.write(Bytes[0x12, ucid.size])
+  continuation.print(ucid)
+  continuation.write(Bytes[0x1a, meta.size])
+  continuation.print(meta)
 
-  continuation = continuation.size.to_u8.unsafe_chr + continuation
-  continuation = "\xe2\xa9\x85\xb2\x02" + continuation
+  wrapper = IO::Memory.new
+  wrapper.write(Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02, continuation.size])
+  wrapper.print(continuation)
+  wrapper.rewind
 
-  continuation = Base64.urlsafe_encode(continuation)
-  continuation = URI.escape(continuation)
+  wrapper = Base64.urlsafe_encode(wrapper.to_slice)
+  wrapper = URI.escape(wrapper)
 
-  url = "/browse_ajax?continuation=#{continuation}"
+  url = "/browse_ajax?continuation=#{wrapper}&gl=US&hl=en"
 
   return url
+end
+
+def produce_channel_playlists_url(ucid, cursor, sort = "newest")
+  cursor = Base64.urlsafe_encode(cursor, false)
+
+  meta = IO::Memory.new
+  meta.write(Bytes[0x12, 0x09])
+  meta.print("playlists")
+
+  # TODO: Look at 0x01, 0x00
+  case sort
+  when "oldest", "oldest_created"
+    meta.write(Bytes[0x18, 0x02])
+  when "newest", "newest_created"
+    meta.write(Bytes[0x18, 0x03])
+  when "last", "last_added"
+    meta.write(Bytes[0x18, 0x04])
+  end
+
+  meta.write(Bytes[0x20, 0x01])
+  meta.write(Bytes[0x30, 0x02])
+  meta.write(Bytes[0x38, 0x01])
+  meta.write(Bytes[0x60, 0x01])
+  meta.write(Bytes[0x6a, 0x00])
+
+  meta.write(Bytes[0x7a, cursor.size])
+  meta.print(cursor)
+
+  meta.write(Bytes[0xb8, 0x01, 0x00])
+
+  meta.rewind
+  meta = Base64.urlsafe_encode(meta.to_slice)
+  meta = URI.escape(meta)
+
+  continuation = IO::Memory.new
+  continuation.write(Bytes[0x12, ucid.size])
+  continuation.print(ucid)
+
+  continuation.write(Bytes[0x1a])
+  continuation.write(write_var_int(meta.size))
+  continuation.print(meta)
+
+  continuation.rewind
+  continuation = continuation.gets_to_end
+
+  wrapper = IO::Memory.new
+  wrapper.write(Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02])
+  wrapper.write(write_var_int(continuation.size))
+  wrapper.print(continuation)
+  wrapper.rewind
+
+  wrapper = Base64.urlsafe_encode(wrapper.to_slice)
+  wrapper = URI.escape(wrapper)
+
+  url = "/browse_ajax?continuation=#{wrapper}&gl=US&hl=en"
+
+  return url
+end
+
+def extract_channel_playlists_cursor(url)
+  wrapper = HTTP::Params.parse(URI.parse(url).query.not_nil!)["continuation"]
+
+  wrapper = URI.unescape(wrapper)
+  wrapper = Base64.decode(wrapper)
+
+  # 0xe2 0xa9 0x85 0xb2 0x02
+  wrapper += 5
+
+  continuation_size = read_var_int(wrapper[0, 4])
+  wrapper += write_var_int(continuation_size).size
+  continuation = wrapper[0, continuation_size]
+
+  # 0x12
+  continuation += 1
+  ucid_size = continuation[0]
+  continuation += 1
+  ucid = continuation[0, ucid_size]
+  continuation += ucid_size
+
+  # 0x1a
+  continuation += 1
+  meta_size = read_var_int(continuation[0, 4])
+  continuation += write_var_int(meta_size).size
+  meta = continuation[0, meta_size]
+  continuation += meta_size
+
+  meta = String.new(meta)
+  meta = URI.unescape(meta)
+  meta = Base64.decode(meta)
+
+  # 0x12 0x09 playlists
+  meta += 11
+
+  until meta[0] == 0x7a
+    tag = read_var_int(meta[0, 4])
+    meta += write_var_int(tag).size
+    value = meta[0]
+    meta += 1
+  end
+
+  # 0x7a
+  meta += 1
+  cursor_size = meta[0]
+  meta += 1
+  cursor = meta[0, cursor_size]
+
+  cursor = String.new(cursor)
+  cursor = URI.unescape(cursor)
+  cursor = Base64.decode_string(cursor)
+
+  return cursor
 end
 
 def fetch_playlist(plid, locale)
@@ -168,10 +284,7 @@ def fetch_playlist(plid, locale)
     raise translate(locale, "Invalid playlist.")
   end
 
-  body = response.body.gsub(%(
-  <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-link yt-uix-expander-head playlist-description-expander yt-uix-inlineedit-ignore-edit" type="button" onclick=";return false;"><span class="yt-uix-button-content">  less <img alt="" src="/yts/img/pixel-vfl3z5WfW.gif">
-  </span></button>
-  ), "")
+  body = response.body.gsub(/<button[^>]+><span[^>]+>\s*less\s*<img[^>]+>\n<\/span><\/button>/, "")
   document = XML.parse_html(body)
 
   title = document.xpath_node(%q(//h1[@class="pl-header-title"]))

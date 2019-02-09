@@ -10,3 +10,4 @@ db:
   dbname: invidious
 full_refresh: false
 https_only: false
+domain: invidio.us

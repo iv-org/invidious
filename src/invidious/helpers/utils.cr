@@ -205,8 +205,6 @@ def make_host_url(ssl, host)
     scheme = "http://"
   end
 
-  host ||= "invidio.us"
-
   return "#{scheme}#{host}"
 end
 
@@ -242,21 +240,21 @@ def get_referer(env, fallback = "/")
 end
 
 def read_var_int(bytes)
-  numRead = 0
+  num_read = 0
   result = 0
 
-  read = bytes[numRead]
+  read = bytes[num_read]
 
   if bytes.size == 1
     result = bytes[0].to_i32
   else
     while ((read & 0b10000000) != 0)
-      read = bytes[numRead].to_u64
+      read = bytes[num_read].to_u64
       value = (read & 0b01111111)
-      result |= (value << (7 * numRead))
+      result |= (value << (7 * num_read))
 
-      numRead += 1
-      if numRead > 5
+      num_read += 1
+      if num_read > 5
         raise "VarInt is too big"
       end
     end
@@ -284,7 +282,7 @@ def write_var_int(value : Int)
     end
   end
 
-  return bytes
+  return Slice.new(bytes.to_unsafe, bytes.size)
 end
 
 def sha256(text)

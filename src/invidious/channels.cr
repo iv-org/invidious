@@ -3,6 +3,7 @@ class InvidiousChannel
     id:      String,
     author:  String,
     updated: Time,
+    deleted: Bool,
   })
 end
 
@@ -19,6 +20,33 @@ class ChannelVideo
       default: 0,
     },
   })
+end
+
+def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, max_threads = 10)
+  active_threads = 0
+  active_channel = Channel(String | Nil).new
+
+  final = [] of String
+  channels.map do |ucid|
+    if active_threads >= max_threads
+      if response = active_channel.receive
+        active_threads -= 1
+        final << response
+      end
+    end
+
+    active_threads += 1
+    spawn do
+      begin
+        get_channel(ucid, db, refresh, pull_all_videos)
+        active_channel.send(ucid)
+      rescue ex
+        active_channel.send(nil)
+      end
+    end
+  end
+
+  return final
 end
 
 def get_channel(id, db, refresh = true, pull_all_videos = true)
@@ -160,7 +188,7 @@ def fetch_channel(ucid, client, db, pull_all_videos = true, locale = nil)
     db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{ids.map { |id| %("#{id}") }.join(",")}}') AND ucid = $1", ucid)
   end
 
-  channel = InvidiousChannel.new(ucid, author, Time.now)
+  channel = InvidiousChannel.new(ucid, author, Time.now, false)
 
   return channel
 end
@@ -175,50 +203,59 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
     timestamp = seed - (page - 1).months
 
     page = "#{timestamp.to_unix}"
-    switch = "\x36"
+    switch = 0x36
   else
     page = "#{page}"
-    switch = "\x00"
+    switch = 0x00
   end
 
-  meta = "\x12\x06videos"
-  meta += "\x30\x02"
-  meta += "\x38\x01"
-  meta += "\x60\x01"
-  meta += "\x6a\x00"
-  meta += "\xb8\x01\x00"
-  meta += "\x20#{switch}"
-  meta += "\x7a"
-  meta += page.size.to_u8.unsafe_chr
-  meta += page
+  meta = IO::Memory.new
+  meta.write(Bytes[0x12, 0x06])
+  meta.print("videos")
+
+  meta.write(Bytes[0x30, 0x02])
+  meta.write(Bytes[0x38, 0x01])
+  meta.write(Bytes[0x60, 0x01])
+  meta.write(Bytes[0x6a, 0x00])
+  meta.write(Bytes[0xb8, 0x01, 0x00])
+
+  meta.write(Bytes[0x20, switch])
+  meta.write(Bytes[0x7a, page.size])
+  meta.print(page)
 
   case sort_by
   when "newest"
     # Empty tags can be omitted
-    # meta += "\x18\x00"
+    # meta.write(Bytes[0x18,0x00])
   when "popular"
-    meta += "\x18\x01"
+    meta.write(Bytes[0x18, 0x01])
   when "oldest"
-    meta += "\x18\x02"
+    meta.write(Bytes[0x18, 0x02])
   end
 
-  meta = Base64.urlsafe_encode(meta)
+  meta.rewind
+  meta = Base64.urlsafe_encode(meta.to_slice)
   meta = URI.escape(meta)
 
-  continuation = "\x12"
-  continuation += ucid.size.to_u8.unsafe_chr
-  continuation += ucid
-  continuation += "\x1a"
-  continuation += meta.size.to_u8.unsafe_chr
-  continuation += meta
+  continuation = IO::Memory.new
+  continuation.write(Bytes[0x12, ucid.size])
+  continuation.print(ucid)
 
-  continuation = continuation.size.to_u8.unsafe_chr + continuation
-  continuation = "\xe2\xa9\x85\xb2\x02" + continuation
+  continuation.write(Bytes[0x1a, meta.size])
+  continuation.print(meta)
 
-  continuation = Base64.urlsafe_encode(continuation)
-  continuation = URI.escape(continuation)
+  continuation.rewind
+  continuation = continuation.gets_to_end
 
-  url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
+  wrapper = IO::Memory.new
+  wrapper.write(Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02, continuation.size])
+  wrapper.print(continuation)
+  wrapper.rewind
+
+  wrapper = Base64.urlsafe_encode(wrapper.to_slice)
+  wrapper = URI.escape(wrapper)
+
+  url = "/browse_ajax?continuation=#{wrapper}&gl=US&hl=en"
 
   return url
 end

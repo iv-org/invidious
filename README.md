@@ -27,6 +27,13 @@ Patreon: https://patreon.com/omarroth
 BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY  
 BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 
+Onion links:
+
+- kgg2m7yk5aybusll.onion
+- axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion
+
+[Alternative Invidious instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances)
+
 ## Installation
 
 ### Docker:
@@ -52,71 +59,98 @@ $ docker volume rm invidious_postgresdata
 $ docker-compose build
 ```
 
-### Arch Linux:
+### Linux:
+
+#### Install dependencies
 
 ```bash
-# Install dependencies
-$ sudo pacman -S shards crystal imagemagick librsvg
+# Arch Linux
+$ sudo pacman -S shards crystal imagemagick librsvg postgresql
 
-# Setup PostgresSQL
-$ sudo systemctl enable postgresql
-$ sudo systemctl start postgresql
-$ sudo -i -u postgres
-$ createuser -s YOUR_USER_NAME
-$ createdb      YOUR_USER_NAME
-$ exit
-
-# Setup Invidious
-$ git clone https://github.com/omarroth/invidious
-$ cd invidious
-$ ./setup.sh
-$ shards
-$ crystal build src/invidious.cr --release
-```
-
-### On Ubuntu:
-
-```bash
-# Install dependencies
+# Ubuntu or Debian
+# First you have to add the repository to your APT configuration. For easy setup just run in your command line:
 $ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
-$ sudo apt update
-$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev librsvg2-dev postgresql imagemagick
+# That will add the signing key and the repository configuration. If you prefer to do it manually, execute the following commands:
+$ curl -sL "https://keybase.io/crystal/pgp_keys.asc" | sudo apt-key add -
+$ echo "deb https://dist.crystal-lang.org/apt crystal main" | sudo tee /etc/apt/sources.list.d/crystal.list
+$ sudo apt-get update
+$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev librsvg2-dev postgresql imagemagick libsqlite3-dev
+```
 
-# Setup PostgreSQL
+#### Add invidious user and clone repository
+
+```bash
+$ useradd -m invidious
+$ sudo -i -u invidious
+$ git clone https://github.com/omarroth/invidious
+$ exit
+```
+
+#### Setup PostgresSQL
+
+```bash
 $ sudo systemctl enable postgresql
 $ sudo systemctl start postgresql
 $ sudo -i -u postgres
-$ createuser -s YOUR_USER_NAME_HERE
-$ createdb      YOUR_USER_NAME_HERE
+$ psql -c "CREATE USER kemal WITH PASSWORD 'kemal';"
+$ createdb -O kemal invidious
+$ psql invidious < /home/invidious/invidious/config/sql/channels.sql
+$ psql invidious < /home/invidious/invidious/config/sql/videos.sql
+$ psql invidious < /home/invidious/invidious/config/sql/channel_videos.sql
+$ psql invidious < /home/invidious/invidious/config/sql/users.sql
+$ psql invidious < /home/invidious/invidious/config/sql/nonces.sql
 $ exit
-
-# Setup Invidious
-$ git clone https://github.com/omarroth/invidious
-$ cd invidious
-$ ./setup.sh
-$ shards
-$ crystal build src/invidious.cr --release
 ```
 
-### On OSX:
+#### Setup Invidious
+
+```bash
+$ sudo -i -u invidious
+$ cd invidious
+$ shards
+$ crystal build src/invidious.cr --release
+# test compiled binary
+$ ./invidious # stop with ctrl c
+$ exit
+```
+
+#### systemd service
+```bash
+$ sudo cp /home/invidious/invidious/invidious.service /etc/systemd/system/invidious.service
+$ sudo systemctl enable invidious.service
+$ sudo systemctl start invidious.service
+```
+
+### OSX:
 
 ```bash
 # Install dependencies
 $ brew update
 $ brew install shards crystal-lang postgres imagemagick librsvg
 
-# Setup Invidious
+# Clone repository and setup postgres database
 $ git clone https://github.com/omarroth/invidious
 $ cd invidious
-$ ./setup.sh
+$ brew services start postgresql
+$ psql -c "CREATE ROLE kemal WITH LOGIN PASSWORD 'kemal';"
+$ createdb invidious -U kemal
+$ psql invidious < config/sql/channels.sql
+$ psql invidious < config/sql/videos.sql
+$ psql invidious < config/sql/channel_videos.sql
+$ psql invidious < config/sql/users.sql
+$ psql invidious < config/sql/nonces.sql
+
+# Setup Invidious
 $ shards
 $ crystal build src/invidious.cr --release
 ```
 
+## Update Invidious
+You can find information about how to update in the wiki: [Updating](https://github.com/omarroth/invidious/wiki/Updating).
+
 ## Usage:
 
 ```bash
-$ crystal build src/invidious.cr --release
 $ ./invidious -h
 Usage: invidious [arguments]
     -b HOST, --bind HOST             Host to bind (defaults to 0.0.0.0)
@@ -126,13 +160,14 @@ Usage: invidious [arguments]
     --ssl-cert-file FILE             SSL certificate file
     -h, --help                       Shows this help
     -t THREADS, --crawl-threads=THREADS
-                                     Number of threads for crawling (default: 1)
+                                     Number of threads for crawling YouTube (default: 0)
     -c THREADS, --channel-threads=THREADS
                                      Number of threads for refreshing channels (default: 1)
     -f THREADS, --feed-threads=THREADS
                                      Number of threads for refreshing feeds (default: 1)
     -v THREADS, --video-threads=THREADS
-                                     Number of threads for refreshing videos (default: 1)
+                                     Number of threads for refreshing videos (default: 0)
+    -o OUTPUT, --output=OUTPUT       Redirect output (default: STDOUT)
 ```
 
 Or for development:
@@ -142,13 +177,11 @@ $ curl -fsSLo- https://raw.githubusercontent.com/samueleaton/sentry/master/insta
 $ ./sentry
 ```
 
-## Extensions
+## Documentation
+[Documentation](https://github.com/omarroth/invidious/wiki) can be found in the wiki.
 
-- [Alternate Tube Redirector](https://addons.mozilla.org/en-US/firefox/addon/alternate-tube-redirector/): Automatically open Youtube Videos on alternate sites like Invidious or Hooktube.
-- [Invidious Redirect](https://greasyfork.org/en/scripts/370461-invidious-redirect): Redirects Youtube URLs to Invidio.us (userscript)
-- [iPhone Redirector Shortcut](https://www.icloud.com/shortcuts/6bbf26d989cf4d07a5fe1626efbc0950): Automatically open YouTube videos in Invidious (iPhone shortcut)
-- [Youtube to Invidious](https://greasyfork.org/en/scripts/375264-youtube-to-invidious): Scan page for youtube embeds and urls and replace with Invidious (userscript)
-- [Invidious Downloader](https://github.com/erupete/InvidiousDownloader): Tampermonkey userscript for downloading videos or audio on Invidious (userscript)
+## Extensions
+Extensions for Invidious and for integrating Invidious into other projects [are in the wiki](https://github.com/omarroth/invidious/wiki/Extensions)
 
 ## Made with Invidious
 
@@ -164,6 +197,18 @@ $ ./sentry
 4.  Push to the branch (git push origin my-new-feature)
 5.  Create a new Pull Request
 
-## Contributors
+## Contact
 
-- [omarroth](https://github.com/omarroth) - creator, maintainer
+Feel free to send an email to omarroth@protonmail.com or join our [Matrix Server](https://riot.im/app/#/room/#invidious:matrix.org), or #invidious on Freenode.
+
+You can also view release notes on the [releases](https://github.com/omarroth/invidious/releases) page or in the CHANGELOG.md included in the repository.
+
+## License
+
+[![GNU AGPLv3 Image](https://www.gnu.org/graphics/agplv3-155x51.png)](http://www.gnu.org/licenses/agpl-3.0.en.html)
+
+Invidious is Free Software: You can use, study share and improve it at your
+will. Specifically you can redistribute and/or modify it under the terms of the
+[GNU Affero General Public License](https://www.gnu.org/licenses/agpl.html) as
+published by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.

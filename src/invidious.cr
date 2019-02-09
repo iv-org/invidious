@@ -16,6 +16,7 @@
 
 require "detect_language"
 require "digest/md5"
+require "file_utils"
 require "kemal"
 require "openssl/hmac"
 require "option_parser"
@@ -34,6 +35,8 @@ crawl_threads = CONFIG.crawl_threads
 channel_threads = CONFIG.channel_threads
 feed_threads = CONFIG.feed_threads
 video_threads = CONFIG.video_threads
+
+logger = Invidious::LogHandler.new
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
@@ -69,6 +72,10 @@ Kemal.config.extra_options do |parser|
       exit
     end
   end
+  parser.on("-o OUTPUT", "--output=OUTPUT", "Redirect output (default: STDOUT)") do |output|
+    FileUtils.mkdir_p(File.dirname(output))
+    logger = Invidious::LogHandler.new(File.open(output, mode: "a"))
+  end
 end
 
 Kemal::CLI.new
@@ -81,6 +88,7 @@ LOCALES = {
   "ar"    => load_locale("ar"),
   "de"    => load_locale("de"),
   "en-US" => load_locale("en-US"),
+  "fr"    => load_locale("fr"),
   "nb_NO" => load_locale("nb_NO"),
   "nl"    => load_locale("nl"),
   "pl"    => load_locale("pl"),
@@ -88,11 +96,9 @@ LOCALES = {
 }
 
 decrypt_function = [] of {name: String, value: Int32}
-if CONFIG.decrypt_drm
-  spawn do
-    update_decrypt_function do |function|
-      decrypt_function = function
-    end
+spawn do
+  update_decrypt_function do |function|
+    decrypt_function = function
   end
 end
 
@@ -148,7 +154,11 @@ get "/api/v1/captions/:id" do |env|
       end
     end
 
-    next response
+    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+      next JSON.parse(response).to_pretty_json
+    else
+      next response
+    end
   end
 
   env.response.content_type = "text/vtt"
@@ -211,6 +221,7 @@ end
 
 get "/api/v1/comments/:id" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+  region = env.params.query["region"]?
 
   env.response.content_type = "application/json"
 
@@ -223,11 +234,10 @@ get "/api/v1/comments/:id" do |env|
   format ||= "json"
 
   continuation = env.params.query["continuation"]?
-  continuation ||= ""
 
   if source == "youtube"
     begin
-      comments = fetch_youtube_comments(id, continuation, proxies, format, locale)
+      comments = fetch_youtube_comments(id, continuation, proxies, format, locale, region)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       halt env, status_code: 500, response: error_message
@@ -254,13 +264,24 @@ get "/api/v1/comments/:id" do |env|
     if format == "json"
       reddit_thread = JSON.parse(reddit_thread.to_json).as_h
       reddit_thread["comments"] = JSON.parse(comments.to_json)
-      next reddit_thread.to_json
+
+      if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+        next reddit_thread.to_pretty_json
+      else
+        next reddit_thread.to_json
+      end
     else
-      next {
+      response = {
         "title"       => reddit_thread.title,
         "permalink"   => reddit_thread.permalink,
         "contentHtml" => content_html,
-      }.to_json
+      }
+
+      if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+        next response.to_pretty_json
+      else
+        next response.to_json
+      end
     end
   end
 end
@@ -270,6 +291,9 @@ get "/api/v1/insights/:id" do |env|
 
   id = env.params.url["id"]
   env.response.content_type = "application/json"
+
+  error_message = {"error" => "YouTube has removed publicly-available analytics."}.to_json
+  halt env, status_code: 503, response: error_message
 
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
@@ -337,14 +361,20 @@ get "/api/v1/insights/:id" do |env|
   avg_view_duration_seconds = html_content.xpath_node(%q(//div[@id="stats-chart-tab-watch-time"]/span/span[2])).not_nil!.content
   avg_view_duration_seconds = decode_length_seconds(avg_view_duration_seconds)
 
-  {
+  response = {
     "viewCount"              => view_count,
     "timeWatchedText"        => time_watched,
     "subscriptionsDriven"    => subscriptions_driven,
     "shares"                 => shares,
     "avgViewDurationSeconds" => avg_view_duration_seconds,
     "graphData"              => graph_data,
-  }.to_json
+  }
+
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    next response.to_pretty_json
+  else
+    next response.to_json
+  end
 end
 
 get "/api/v1/videos/:id" do |env|
@@ -428,12 +458,13 @@ get "/api/v1/videos/:id" do |env|
         json.field "isListed", video.info["is_listed"] == "1"
       end
 
-      if video.info["hlsvp"]?
-        host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"]?)
+      if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
+        host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+
         host_params = env.request.query_params
         host_params.delete_all("v")
 
-        hlsvp = video.info["hlsvp"]
+        hlsvp = video.player_response["streamingData"]["hlsManifestUrl"].as_s
         hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
 
         json.field "hlsUrl", hlsvp
@@ -549,11 +580,17 @@ get "/api/v1/videos/:id" do |env|
     end
   end
 
-  video_info
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(video_info).to_pretty_json
+  else
+    video_info
+  end
 end
 
 get "/api/v1/trending" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+
+  env.response.content_type = "application/json"
 
   region = env.params.query["region"]?
   trending_type = env.params.query["type"]?
@@ -594,8 +631,11 @@ get "/api/v1/trending" do |env|
     end
   end
 
-  env.response.content_type = "application/json"
-  videos
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(videos).to_pretty_json
+  else
+    videos
+  end
 end
 
 get "/api/v1/channels/:ucid" do |env|
@@ -792,7 +832,11 @@ get "/api/v1/channels/:ucid" do |env|
     end
   end
 
-  channel_info
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(channel_info).to_pretty_json
+  else
+    channel_info
+  end
 end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
@@ -857,7 +901,11 @@ end
       end
     end
 
-    result
+    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+      JSON.parse(result).to_pretty_json
+    else
+      result
+    end
   end
 end
 
@@ -958,11 +1006,16 @@ get "/api/v1/channels/search/:ucid" do |env|
     end
   end
 
-  response
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(response).to_pretty_json
+  else
+    response
+  end
 end
 
 get "/api/v1/search" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+  region = env.params.query["region"]?
 
   env.response.content_type = "application/json"
 
@@ -984,7 +1037,6 @@ get "/api/v1/search" do |env|
   features = env.params.query["features"]?.try &.split(",").map { |feature| feature.downcase }
   features ||= [] of String
 
-  # TODO: Support other content types
   content_type = env.params.query["type"]?.try &.downcase
   content_type ||= "video"
 
@@ -999,7 +1051,7 @@ get "/api/v1/search" do |env|
     end
   end
 
-  count, search_results = search(query, page, search_params).as(Tuple)
+  count, search_results = search(query, page, search_params, proxies, region).as(Tuple)
   response = JSON.build do |json|
     json.array do
       search_results.each do |item|
@@ -1083,7 +1135,11 @@ get "/api/v1/search" do |env|
     end
   end
 
-  response
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(response).to_pretty_json
+  else
+    response
+  end
 end
 
 get "/api/v1/playlists/:plid" do |env|
@@ -1182,7 +1238,11 @@ get "/api/v1/playlists/:plid" do |env|
     }.to_json
   end
 
-  response
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(response).to_pretty_json
+  else
+    response
+  end
 end
 
 get "/api/v1/mixes/:rdid" do |env|
@@ -1256,7 +1316,11 @@ get "/api/v1/mixes/:rdid" do |env|
     }.to_json
   end
 
-  response
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    JSON.parse(response).to_pretty_json
+  else
+    response
+  end
 end
 
 get "/api/manifest/dash/id/videoplayback" do |env|
@@ -1281,7 +1345,12 @@ get "/api/manifest/dash/id/:id" do |env|
   begin
     video = fetch_video(id, proxies, region: region)
   rescue ex : VideoRedirect
-    next env.redirect "/api/manifest/dash/id/#{ex.message}"
+    url = "/api/manifest/dash/id/#{ex.message}"
+    if local
+      url += "?local=true"
+    end
+
+    next env.redirect url
   rescue ex
     halt env, status_code: 403
   end
@@ -1311,8 +1380,8 @@ get "/api/manifest/dash/id/:id" do |env|
     end
   end
 
-  video_streams = video.video_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "video/mp4" }
   audio_streams = video.audio_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "audio/mp4" }
+  video_streams = video.video_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "video/mp4" }.uniq { |stream| stream["size"] }
 
   manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
@@ -1321,9 +1390,7 @@ get "/api/manifest/dash/id/:id" do |env|
       xml.element("Period") do
         xml.element("AdaptationSet", mimeType: "audio/mp4", startWithSAP: 1, subsegmentAlignment: true) do
           audio_streams.each do |fmt|
-            mimetype = fmt["type"].split(";")[0]
             codecs = fmt["type"].split("codecs=")[1].strip('"')
-            fmt_type = mimetype.split("/")[0]
             bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
             url = fmt["url"]
@@ -1342,7 +1409,6 @@ get "/api/manifest/dash/id/:id" do |env|
         xml.element("AdaptationSet", mimeType: "video/mp4", startWithSAP: 1, subsegmentAlignment: true,
           scanType: "progressive") do
           video_streams.each do |fmt|
-            mimetype = fmt["type"].split(";")
             codecs = fmt["type"].split("codecs=")[1].strip('"')
             bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
@@ -1379,7 +1445,8 @@ get "/api/manifest/hls_variant/*" do |env|
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"])
+  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+
   manifest = manifest.body
   manifest.gsub("https://www.youtube.com", host_url)
 end
@@ -1392,7 +1459,7 @@ get "/api/manifest/hls_playlist/*" do |env|
     halt env, status_code: manifest.status_code
   end
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, env.request.headers["Host"])
+  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
 
   manifest = manifest.body.gsub("https://www.youtube.com", host_url)
   manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, host_url)
@@ -1402,6 +1469,42 @@ get "/api/manifest/hls_playlist/*" do |env|
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
   manifest
+end
+
+# YouTube /videoplayback links expire after 6 hours,
+# so we have a mechanism here to redirect to the latest version
+get "/latest_version" do |env|
+  id = env.params.query["id"]?
+  itag = env.params.query["itag"]?
+
+  region = env.params.query["region"]?
+
+  local = env.params.query["local"]?
+  local ||= "false"
+  local = local == "true"
+
+  if !id || !itag
+    halt env, status_code: 400
+  end
+
+  video = fetch_video(id, proxies, region: region)
+
+  fmt_stream = video.fmt_stream(decrypt_function)
+  adaptive_fmts = video.adaptive_fmts(decrypt_function)
+
+  urls = (fmt_stream + adaptive_fmts).select { |fmt| fmt["itag"] == itag }
+  if urls.empty?
+    halt env, status_code: 404
+  elsif urls.size > 1
+    halt env, status_code: 409
+  end
+
+  url = urls[0]["url"]
+  if local
+    url = URI.parse(url).full_path.not_nil!
+  end
+
+  env.redirect url
 end
 
 options "/videoplayback" do |env|
@@ -1467,9 +1570,23 @@ get "/videoplayback" do |env|
   host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
 
+  headers = env.request.headers
+  headers.delete("Host")
+  headers.delete("Cookie")
+  headers.delete("User-Agent")
+  headers.delete("Referer")
+
   region = query_params["region"]?
-  client = make_client(URI.parse(host), proxies, region)
-  response = client.head(url)
+
+  response = HTTP::Client::Response.new(403)
+  loop do
+    begin
+      client = make_client(URI.parse(host), proxies, region)
+      response = client.head(url, headers)
+      break
+    rescue ex
+    end
+  end
 
   if response.headers["Location"]?
     url = URI.parse(response.headers["Location"])
@@ -1486,12 +1603,6 @@ get "/videoplayback" do |env|
   if response.status_code >= 400
     halt env, status_code: 403
   end
-
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
 
   client = make_client(URI.parse(host), proxies, region)
   client.get(url, headers) do |response|
@@ -1656,5 +1767,7 @@ if Kemal.config.ssl
 end
 
 Kemal.config.powered_by_header = false
+add_handler APIHandler.new
 
+Kemal.config.logger = logger
 Kemal.run
