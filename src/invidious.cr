@@ -3662,6 +3662,8 @@ get "/latest_version" do |env|
   id = env.params.query["id"]?
   itag = env.params.query["itag"]?
 
+  region = env.params.query["region"]?
+
   local = env.params.query["local"]?
   local ||= "false"
   local = local == "true"
@@ -3670,7 +3672,7 @@ get "/latest_version" do |env|
     halt env, status_code: 400
   end
 
-  video = get_video(id, PG_DB, proxies)
+  video = get_video(id, PG_DB, proxies, region: region)
 
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
