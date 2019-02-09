@@ -35,11 +35,11 @@
 <h1>
     <%= HTML.escape(video.title) %> 
     <% if params[:listen] %>
-    <a href="/watch?<%= env.params.query %>&listen=0">
+    <a title="Video/audio mode" href="/watch?<%= env.params.query %>&listen=0">
         <i class="icon ion-ios-videocam"></i>
     </a>
     <% else %>
-    <a href="/watch?<%= env.params.query %>&listen=1">
+    <a title="Audio only mode" href="/watch?<%= env.params.query %>&listen=1">
         <i class="icon ion-ios-volume-high"></i>
     </a>
     <% end %>
