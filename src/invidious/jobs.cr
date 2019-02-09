@@ -55,7 +55,7 @@ def refresh_channels(db, logger, max_threads = 1, full_refresh = false)
     active_channel = Channel(Bool).new
 
     loop do
-      db.query("SELECT id FROM channels ORDER BY updated") do |rs|
+      db.query("SELECT id FROM channels WHERE deleted = false ORDER BY updated") do |rs|
         rs.each do
           id = rs.read(String)
 
@@ -73,6 +73,9 @@ def refresh_channels(db, logger, max_threads = 1, full_refresh = false)
 
               db.exec("UPDATE channels SET updated = $1, author = $2 WHERE id = $3", Time.now, channel.author, id)
             rescue ex
+              if ex.message == "Deleted or invalid channel"
+                db.exec("UPDATE channels SET deleted = true WHERE id = $1", id)
+              end
               logger.write("#{id} : #{ex.message}\n")
             end
 

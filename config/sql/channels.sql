@@ -7,6 +7,7 @@ CREATE TABLE public.channels
   id text NOT NULL,
   author text,
   updated timestamp with time zone,
+  deleted boolean,
   CONSTRAINT channels_id_key UNIQUE (id)
 );
 

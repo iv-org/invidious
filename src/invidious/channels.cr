@@ -3,6 +3,7 @@ class InvidiousChannel
     id:      String,
     author:  String,
     updated: Time,
+    deleted: Bool,
   })
 end
 
@@ -187,7 +188,7 @@ def fetch_channel(ucid, client, db, pull_all_videos = true, locale = nil)
     db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{ids.map { |id| %("#{id}") }.join(",")}}') AND ucid = $1", ucid)
   end
 
-  channel = InvidiousChannel.new(ucid, author, Time.now)
+  channel = InvidiousChannel.new(ucid, author, Time.now, false)
 
   return channel
 end
