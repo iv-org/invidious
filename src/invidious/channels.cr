@@ -218,7 +218,8 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
   meta.write(Bytes[0x6a, 0x00])
   meta.write(Bytes[0xb8, 0x01, 0x00])
 
-  meta.write(Bytes[0x20, switch, 0x7a, page.size])
+  meta.write(Bytes[0x20, switch])
+  meta.write(Bytes[0x7a, page.size])
   meta.print(page)
 
   case sort_by

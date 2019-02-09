@@ -16,9 +16,9 @@ describe "Helpers" do
 
       produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw", page: 20).should eq("/browse_ajax?continuation=4qmFsgJEEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaKEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0l5TUElM0QlM0Q%3D&gl=US&hl=en")
 
-      produce_channel_videos_url(ucid: "UC-9-kyTW8ZkZNDHQJ6FgpwQ", auto_generated: true).should eq("/browse_ajax?continuation=4qmFsgJIEhhVQy05LWt5VFc4WmtaTkRIUUo2Rmdwd1EaLEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQTJlZ294TlRRNU5qQXpOelE1&gl=US&hl=en")
+      produce_channel_videos_url(ucid: "UC-9-kyTW8ZkZNDHQJ6FgpwQ", auto_generated: true).should eq("/browse_ajax?continuation=4qmFsgJIEhhVQy05LWt5VFc4WmtaTkRIUUo2Rmdwd1EaLEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQTJlZ294TlRVeU1ESXlPVFE1&gl=US&hl=en")
 
-      produce_channel_videos_url(ucid: "UC-9-kyTW8ZkZNDHQJ6FgpwQ", page: 20, auto_generated: true, sort_by: "popular").should eq("/browse_ajax?continuation=4qmFsgJOEhhVQy05LWt5VFc4WmtaTkRIUUo2Rmdwd1EaMkVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQTJlZ294TkRrNU5Ea3hOelE1R0FFJTNE&gl=US&hl=en")
+      produce_channel_videos_url(ucid: "UC-9-kyTW8ZkZNDHQJ6FgpwQ", page: 20, auto_generated: true, sort_by: "popular").should eq("/browse_ajax?continuation=4qmFsgJOEhhVQy05LWt5VFc4WmtaTkRIUUo2Rmdwd1EaMkVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQTJlZ294TlRBeU1UY3dNVFE1R0FFJTNE&gl=US&hl=en")
     end
   end
 
