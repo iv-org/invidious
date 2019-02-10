@@ -98,6 +98,7 @@ $ psql invidious < /home/invidious/invidious/config/sql/channels.sql
 $ psql invidious < /home/invidious/invidious/config/sql/videos.sql
 $ psql invidious < /home/invidious/invidious/config/sql/channel_videos.sql
 $ psql invidious < /home/invidious/invidious/config/sql/users.sql
+$ psql invidious < /home/invidious/invidious/config/sql/session_ids.sql
 $ psql invidious < /home/invidious/invidious/config/sql/nonces.sql
 $ exit
 ```
@@ -138,6 +139,7 @@ $ psql invidious < config/sql/channels.sql
 $ psql invidious < config/sql/videos.sql
 $ psql invidious < config/sql/channel_videos.sql
 $ psql invidious < config/sql/users.sql
+$ psql invidious < config/sql/session_ids.sql
 $ psql invidious < config/sql/nonces.sql
 
 # Setup Invidious

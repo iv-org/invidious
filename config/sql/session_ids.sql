@@ -21,4 +21,3 @@ CREATE INDEX session_ids_id_idx
   USING btree
   (id COLLATE pg_catalog."default");
 
-  
