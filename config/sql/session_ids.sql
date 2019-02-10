@@ -10,7 +10,7 @@ CREATE TABLE public.session_ids
   CONSTRAINT session_ids_pkey PRIMARY KEY (id)
 );
 
-GRANT ALL ON TABLE public.channel_videos TO kemal;
+GRANT ALL ON TABLE public.session_ids TO kemal;
 
 -- Index: public.session_ids_id_idx
 
