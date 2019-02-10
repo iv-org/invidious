@@ -818,7 +818,7 @@ post "/login" do |env|
         # Prefer Authenticator app and SMS over unsupported protocols
         if challenge_results[0][-1][0][0][8] != 6 && challenge_results[0][-1][0][0][8] != 9
           tfa = challenge_results[0][-1][0].as_a.select { |auth_type| auth_type[8] == 6 || auth_type[8] == 9 }[0]
-          select_challenge = "[#{challenge_results[0][-1][0].as_a.index(tfa).not_nil!}]"
+          select_challenge = "[2,null,null,null,[#{tfa[8]}]]"
 
           tl = challenge_results[1][2]
 
