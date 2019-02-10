@@ -4,7 +4,6 @@
 
 CREATE TABLE public.users
 (
-  id text[] NOT NULL,
   updated timestamp with time zone,
   notifications text[],
   subscriptions text[],
