@@ -34,6 +34,11 @@ Onion links:
 
 [Alternative Invidious instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances)
 
+## Screenshots
+<img src="/screenshots/invidious_popular.png?raw=true" height="140" width="280"> <img src="/screenshots/invidious_video.png?raw=true" height="140" width="280"> <img src="/screenshots/invidious_preferences.png?raw=true" height="140" width="280">
+
+<img src="/screenshots/invidious_popular_dark.png?raw=true" height="140" width="280"> <img src="/screenshots/invidious_video_dark.png?raw=true" height="140" width="280"> <img src="/screenshots/invidious_preferences_dark.png?raw=true" height="140" width="280">
+
 ## Installation
 
 ### Docker:
