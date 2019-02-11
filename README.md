@@ -36,6 +36,8 @@ Onion links:
 
 ## Installation
 
+See [Invidious-Updater](https://github.com/tmiland/Invidious-Updater) for a self-contained script that can automatically install and update Invidious.
+
 ### Docker:
 
 #### Build and start cluster:
@@ -116,6 +118,7 @@ $ exit
 ```
 
 #### systemd service
+
 ```bash
 $ sudo cp /home/invidious/invidious/invidious.service /etc/systemd/system/invidious.service
 $ sudo systemctl enable invidious.service
@@ -148,7 +151,8 @@ $ crystal build src/invidious.cr --release
 ```
 
 ## Update Invidious
-You can find information about how to update in the wiki: [Updating](https://github.com/omarroth/invidious/wiki/Updating).
+
+You can see how to update Invidious [here](https://github.com/omarroth/invidious/wiki/Updating).
 
 ## Usage:
 
@@ -180,10 +184,12 @@ $ ./sentry
 ```
 
 ## Documentation
+
 [Documentation](https://github.com/omarroth/invidious/wiki) can be found in the wiki.
 
 ## Extensions
-Extensions for Invidious and for integrating Invidious into other projects [are in the wiki](https://github.com/omarroth/invidious/wiki/Extensions)
+
+[Extensions](https://github.com/omarroth/invidious/wiki/Extensions) can be found in the wiki, as well as documentation for integrating it into other projects.
 
 ## Made with Invidious
 
