@@ -3947,10 +3947,9 @@ error 500 do |env|
   <a href="https://github.com/omarroth/invidious/issues">
     here
   </a>
-  or send an email to
+  or send an email to 
   <a href="mailto:omarroth@protonmail.com">
-    omarroth@protonmail.com
-  </a>.
+    omarroth@protonmail.com</a>.
   END_HTML
   templated "error"
 end
