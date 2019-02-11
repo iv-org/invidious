@@ -1375,10 +1375,8 @@ get "/subscription_manager" do |env|
 
   subscriptions = [] of InvidiousChannel
   user.subscriptions.each do |ucid|
-    begin
-      subscriptions << get_channel(ucid, PG_DB, false, false)
-    rescue ex
-      next
+    if channel = PG_DB.query_one?("SELECT * FROM channels WHERE id = $1", ucid, as: InvidiousChannel)
+      subscriptions << channel
     end
   end
   subscriptions.sort_by! { |channel| channel.author.downcase }
