@@ -132,7 +132,7 @@ def get_user(sid, headers, db, refresh = true)
       user, sid = fetch_user(sid, headers, db)
       user_array = user.to_a
 
-      user_array[5] = user_array[5].to_json
+      user_array[4] = user_array[4].to_json
       args = arg_array(user_array)
 
       db.exec("INSERT INTO users VALUES (#{args}) \
@@ -154,7 +154,7 @@ def get_user(sid, headers, db, refresh = true)
     user, sid = fetch_user(sid, headers, db)
     user_array = user.to_a
 
-    user_array[5] = user_array[5].to_json
+    user_array[4] = user_array[4].to_json
     args = arg_array(user.to_a)
 
     db.exec("INSERT INTO users VALUES (#{args}) \
