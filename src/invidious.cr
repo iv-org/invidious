@@ -163,10 +163,10 @@ before_all do |env|
 
     # Invidious users only have SID
     if !env.request.cookies.has_key? "SSID"
-email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
+      email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
 
-if email
-  user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+      if email
+        user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
         challenge, token = create_response(user.email, "sign_out", HMAC_KEY, PG_DB, 1.week)
 
         env.set "challenge", challenge
