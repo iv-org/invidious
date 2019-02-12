@@ -20,7 +20,7 @@ function subscribe(timeouts = 0) {
 
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = unsubscribe;
-    subscribe_button.innerHTML = '<b><%= translate(locale, "Unsubscribe") %> | <%= sub_count_text %></b>'
+    subscribe_button.innerHTML = '<b><%= translate(locale, "Unsubscribe").gsub("'", "\\'") %> | <%= sub_count_text %></b>'
     
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
@@ -55,7 +55,7 @@ function unsubscribe(timeouts = 0) {
 
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = subscribe;
-    subscribe_button.innerHTML = '<b><%= translate(locale, "Subscribe") %> | <%= sub_count_text %></b>'
+    subscribe_button.innerHTML = '<b><%= translate(locale, "Subscribe").gsub("'", "\\'") %> | <%= sub_count_text %></b>'
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
