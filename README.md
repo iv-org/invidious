@@ -35,10 +35,10 @@ Onion links:
 [Alternative Invidious instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances)
 
 ## Screenshots
-<img src="/screenshots/invidious_popular.png?raw=true" height="140" width="280"> <img src="/screenshots/invidious_video.png?raw=true" height="140" width="280"> <img src="/screenshots/invidious_preferences.png?raw=true" height="140" width="280">
-
-<img src="/screenshots/invidious_popular_dark.png?raw=true" height="140" width="280"> <img src="/screenshots/invidious_video_dark.png?raw=true" height="140" width="280"> <img src="/screenshots/invidious_preferences_dark.png?raw=true" height="140" width="280">
-
+| Player  | Preferences | Subscribtions |
+| ------------- | ------------- | ------------- |
+|[<img src="screenshots/01_player.png?raw=true" height="140" width="280">](screenshots/01_player.png?raw=true)|[<img src="screenshots/02_preferences.png?raw=true" height="140" width="280">](screenshots/02_preferences.png?raw=true)|[<img src="screenshots/03_subscribtions.png?raw=true" height="140" width="280">](screenshots/03_subscribtions.png?raw=true)|
+| [<img src="screenshots/04_description.png?raw=true" height="140" width="280">](screenshots/04_description.png?raw=true)|[<img src="screenshots/05_preferences.png?raw=true" height="140" width="280">](screenshots/05_preferences.png?raw=true)|[<img src="screenshots/06_subscribtions.png?raw=true" height="140" width="280">](screenshots/06_subscribtions.png?raw=true)|
 ## Installation
 
 ### Docker:
