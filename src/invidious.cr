@@ -3031,7 +3031,8 @@ end
     ucid = env.params.url["ucid"]
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
-    sort_by = env.params.query["sort_by"]?.try &.downcase
+    sort_by = env.params.query["sort"]?.try &.downcase
+    sort_by ||= env.params.query["sort_by"]?.try &.downcase
     sort_by ||= "newest"
 
     begin
@@ -3436,7 +3437,7 @@ get "/api/v1/mixes/:rdid" do |env|
   rdid = env.params.url["rdid"]
 
   continuation = env.params.query["continuation"]?
-  continuation ||= rdid.lchop("RD")
+  continuation ||= rdid.lchop("RD")[0, 11]
 
   format = env.params.query["format"]?
   format ||= "json"
