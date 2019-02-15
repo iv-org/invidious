@@ -1373,12 +1373,7 @@ get "/subscription_manager" do |env|
   format = env.params.query["format"]?
   format ||= "rss"
 
-  subscriptions = [] of InvidiousChannel
-  user.subscriptions.each do |ucid|
-    if channel = PG_DB.query_one?("SELECT * FROM channels WHERE id = $1", ucid, as: InvidiousChannel)
-      subscriptions << channel
-    end
-  end
+  subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY('{#{user.subscriptions.join(",")}}')", as: InvidiousChannel)
   subscriptions.sort_by! { |channel| channel.author.downcase }
 
   if action_takeout
