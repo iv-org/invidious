@@ -163,9 +163,10 @@ before_all do |env|
 
     # Invidious users only have SID
     if !env.request.cookies.has_key? "SSID"
-      user = PG_DB.query_one?("SELECT * FROM users WHERE $1 = ANY(id)", sid, as: User)
+      email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
 
-      if user
+      if email
+        user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
         challenge, token = create_response(user.email, "sign_out", HMAC_KEY, PG_DB, 1.week)
 
         env.set "challenge", challenge
@@ -177,7 +178,7 @@ before_all do |env|
       end
     else
       begin
-        user = get_user(sid, headers, PG_DB, false)
+        user, sid = get_user(sid, headers, PG_DB, false)
 
         challenge, token = create_response(user.email, "sign_out", HMAC_KEY, PG_DB, 1.week)
         env.set "challenge", challenge
@@ -312,7 +313,7 @@ get "/watch" do |env|
   end
 
   if watched && !watched.includes? id
-    PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE $2 = id", [id], user.as(User).id)
+    PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.as(User).email)
   end
 
   if nojs
@@ -818,7 +819,7 @@ post "/login" do |env|
         # Prefer Authenticator app and SMS over unsupported protocols
         if challenge_results[0][-1][0][0][8] != 6 && challenge_results[0][-1][0][0][8] != 9
           tfa = challenge_results[0][-1][0].as_a.select { |auth_type| auth_type[8] == 6 || auth_type[8] == 9 }[0]
-          select_challenge = "[#{challenge_results[0][-1][0].as_a.index(tfa).not_nil!}]"
+          select_challenge = "[2,null,null,null,[#{tfa[8]}]]"
 
           tl = challenge_results[1][2]
 
@@ -880,7 +881,7 @@ post "/login" do |env|
 
       sid = login.cookies["SID"].value
 
-      user = get_user(sid, headers, PG_DB)
+      user, sid = get_user(sid, headers, PG_DB)
 
       # We are now logged in
 
@@ -986,7 +987,7 @@ post "/login" do |env|
 
       if Crypto::Bcrypt::Password.new(user.password.not_nil!) == password
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-        PG_DB.exec("UPDATE users SET id = id || $1 WHERE LOWER(email) = LOWER($2)", [sid], email)
+        PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.now)
 
         if Kemal.config.ssl || CONFIG.https_only
           secure = true
@@ -1024,13 +1025,14 @@ post "/login" do |env|
       end
 
       sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-      user = create_user(sid, email, password)
+      user, sid = create_user(sid, email, password)
       user_array = user.to_a
 
-      user_array[5] = user_array[5].to_json
+      user_array[4] = user_array[4].to_json
       args = arg_array(user_array)
 
       PG_DB.exec("INSERT INTO users VALUES (#{args})", user_array)
+      PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.now)
 
       view_name = "subscriptions_#{sha256(user.email)[0..7]}"
       PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
@@ -1078,7 +1080,7 @@ get "/signout" do |env|
 
     user = env.get("user").as(User)
     sid = env.get("sid").as(String)
-    PG_DB.exec("UPDATE users SET id = array_remove(id, $1) WHERE email = $2", sid, user.email)
+    PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", sid)
 
     env.request.cookies.each do |cookie|
       cookie.expires = Time.new(1990, 1, 1)
@@ -1252,7 +1254,7 @@ get "/mark_watched" do |env|
   if user
     user = user.as(User)
     if !user.watched.includes? id
-      PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE $2 = id", [id], user.id)
+      PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.email)
     end
   end
 
@@ -1347,9 +1349,10 @@ get "/subscription_manager" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
 
   user = env.get? "user"
+  sid = env.get? "sid"
   referer = get_referer(env, "/")
 
-  if !user
+  if !user && !sid
     next env.redirect referer
   end
 
@@ -1360,7 +1363,7 @@ get "/subscription_manager" do |env|
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    user = get_user(user.id[0], headers, PG_DB)
+    user, sid = get_user(sid, headers, PG_DB)
   end
 
   action_takeout = env.params.query["action_takeout"]?.try &.to_i?
@@ -1370,14 +1373,7 @@ get "/subscription_manager" do |env|
   format = env.params.query["format"]?
   format ||= "rss"
 
-  subscriptions = [] of InvidiousChannel
-  user.subscriptions.each do |ucid|
-    begin
-      subscriptions << get_channel(ucid, PG_DB, false, false)
-    rescue ex
-      next
-    end
-  end
+  subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY('{#{user.subscriptions.join(",")}}')", as: InvidiousChannel)
   subscriptions.sort_by! { |channel| channel.author.downcase }
 
   if action_takeout
@@ -1756,10 +1752,12 @@ get "/feed/subscriptions" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
 
   user = env.get? "user"
+  sid = env.get? "sid"
   referer = get_referer(env)
 
   if user
     user = user.as(User)
+    sid = sid.as(String)
     preferences = user.preferences
 
     if preferences.unseen_only
@@ -1771,7 +1769,7 @@ get "/feed/subscriptions" do |env|
     headers["Cookie"] = env.request.headers["Cookie"]
 
     if !user.password
-      user = get_user(user.id[0], headers, PG_DB)
+      user, sid = get_user(sid, headers, PG_DB)
     end
 
     max_results = preferences.max_results
@@ -3033,7 +3031,8 @@ end
     ucid = env.params.url["ucid"]
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
-    sort_by = env.params.query["sort_by"]?.try &.downcase
+    sort_by = env.params.query["sort"]?.try &.downcase
+    sort_by ||= env.params.query["sort_by"]?.try &.downcase
     sort_by ||= "newest"
 
     begin
@@ -3438,7 +3437,7 @@ get "/api/v1/mixes/:rdid" do |env|
   rdid = env.params.url["rdid"]
 
   continuation = env.params.query["continuation"]?
-  continuation ||= rdid.lchop("RD")
+  continuation ||= rdid.lchop("RD")[0, 11]
 
   format = env.params.query["format"]?
   format ||= "json"
@@ -3662,6 +3661,8 @@ get "/latest_version" do |env|
   id = env.params.query["id"]?
   itag = env.params.query["itag"]?
 
+  region = env.params.query["region"]?
+
   local = env.params.query["local"]?
   local ||= "false"
   local = local == "true"
@@ -3670,7 +3671,7 @@ get "/latest_version" do |env|
     halt env, status_code: 400
   end
 
-  video = get_video(id, PG_DB, proxies)
+  video = get_video(id, PG_DB, proxies, region: region)
 
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
@@ -3943,14 +3944,13 @@ end
 
 error 500 do |env|
   error_message = <<-END_HTML
-  Looks like you've found a bug in Invidious. Feel free to open a new issue 
-  <a href="https://github.com/omarroth/invidious/issues/github.com/omarroth/invidious">
+  Looks like you've found a bug in Invidious. Feel free to open a new issue
+  <a href="https://github.com/omarroth/invidious/issues">
     here
   </a>
   or send an email to 
   <a href="mailto:omarroth@protonmail.com">
-    omarroth@protonmail.com
-  </a>.
+    omarroth@protonmail.com</a>.
   END_HTML
   templated "error"
 end

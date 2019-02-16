@@ -52,7 +52,10 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
     item = item["playlistPanelVideoRenderer"]
 
     id = item["videoId"].as_s
-    title = item["title"]["simpleText"].as_s
+    title = item["title"]?.try &.["simpleText"].as_s
+    if !title
+      next
+    end
     author = item["longBylineText"]["runs"][0]["text"].as_s
     ucid = item["longBylineText"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
     length_seconds = decode_length_seconds(item["lengthText"]["simpleText"].as_s)

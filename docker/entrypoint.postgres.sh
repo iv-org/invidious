@@ -16,6 +16,7 @@ if [ ! -f /var/lib/postgresql/data/setupFinished ]; then
     su postgres -c 'psql invidious < config/sql/videos.sql'
     su postgres -c 'psql invidious < config/sql/channel_videos.sql'
     su postgres -c 'psql invidious < config/sql/users.sql'
+    su postgres -c 'psql invidious < config/sql/session_ids.sql'
     su postgres -c 'psql invidious < config/sql/nonces.sql'
     touch /var/lib/postgresql/data/setupFinished
     echo "### invidious database setup finished"

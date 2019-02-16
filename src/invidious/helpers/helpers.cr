@@ -166,35 +166,33 @@ def extract_videos(nodeset, ucid = nil)
   videos.map { |video| video.as(SearchVideo) }
 end
 
-def extract_items(nodeset, ucid = nil)
+def extract_items(nodeset, ucid = nil, author_name = nil)
   # TODO: Make this a 'common', so it makes more sense to be used here
   items = [] of SearchItem
 
   nodeset.each do |node|
-    anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
-    if !anchor
-      next
-    end
-
-    if anchor["href"].starts_with? "https://www.googleadservices.com"
-      next
-    end
-
-    anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a))
-    if !anchor
-      author = ""
-      author_id = ""
-    else
-      author = anchor.content.strip
-      author_id = anchor["href"].split("/")[-1]
-    end
-
     anchor = node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
     if !anchor
       next
     end
     title = anchor.content.strip
     id = anchor["href"]
+
+    if anchor["href"].starts_with? "https://www.googleadservices.com"
+      next
+    end
+
+    anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a))
+    if anchor
+      author = anchor.content.strip
+      author_id = anchor["href"].split("/")[-1]
+    end
+
+    author ||= author_name
+    author_id ||= ucid
+
+    author ||= ""
+    author_id ||= ""
 
     description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
     description_html, description = html_to_content(description_html)
@@ -348,6 +346,97 @@ def extract_items(nodeset, ucid = nil)
         live_now: live_now,
         paid: paid,
         premium: premium
+      )
+    end
+  end
+
+  return items
+end
+
+def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
+  items = [] of SearchPlaylist
+
+  nodeset.each do |shelf|
+    shelf_anchor = shelf.xpath_node(%q(.//h2[contains(@class, "branded-page-module-title")]))
+
+    if !shelf_anchor
+      next
+    end
+
+    title = shelf_anchor.xpath_node(%q(.//span[contains(@class, "branded-page-module-title-text")]))
+    if title
+      title = title.content.strip
+    end
+    title ||= ""
+
+    id = shelf_anchor.xpath_node(%q(.//a)).try &.["href"]
+    if !id
+      next
+    end
+
+    is_playlist = false
+    videos = [] of SearchPlaylistVideo
+
+    shelf.xpath_nodes(%q(.//ul[contains(@class, "yt-uix-shelfslider-list")]/li)).each do |child_node|
+      type = child_node.xpath_node(%q(./div))
+      if !type
+        next
+      end
+
+      case type["class"]
+      when .includes? "yt-lockup-video"
+        is_playlist = true
+
+        anchor = child_node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
+        if anchor
+          video_title = anchor.content.strip
+          video_id = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)["v"]
+        end
+        video_title ||= ""
+        video_id ||= ""
+
+        anchor = child_node.xpath_node(%q(.//span[@class="video-time"]))
+        if anchor
+          length_seconds = decode_length_seconds(anchor.content)
+        end
+        length_seconds ||= 0
+
+        videos << SearchPlaylistVideo.new(
+          video_title,
+          video_id,
+          length_seconds
+        )
+      when .includes? "yt-lockup-playlist"
+        anchor = child_node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
+        if anchor
+          playlist_title = anchor.content.strip
+          params = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)
+          plid = params["list"]
+        end
+        playlist_title ||= ""
+        plid ||= ""
+
+        items << SearchPlaylist.new(
+          playlist_title,
+          plid,
+          author_name,
+          ucid,
+          50,
+          Array(SearchPlaylistVideo).new
+        )
+      end
+    end
+
+    if is_playlist
+      plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
+
+      items << SearchPlaylist.new(
+        title,
+        plid,
+        author_name,
+        ucid,
+        videos.size,
+        videos
       )
     end
   end

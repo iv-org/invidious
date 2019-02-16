@@ -31,6 +31,6 @@ CREATE INDEX channel_videos_published_idx
 
 CREATE INDEX channel_videos_ucid_idx
   ON public.channel_videos
-  USING hash
+  USING btree
   (ucid COLLATE pg_catalog."default");
 

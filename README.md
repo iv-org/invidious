@@ -43,6 +43,8 @@ Onion links:
 
 ## Installation
 
+See [Invidious-Updater](https://github.com/tmiland/Invidious-Updater) for a self-contained script that can automatically install and update Invidious.
+
 ### Docker:
 
 #### Build and start cluster:
@@ -105,6 +107,7 @@ $ psql invidious < /home/invidious/invidious/config/sql/channels.sql
 $ psql invidious < /home/invidious/invidious/config/sql/videos.sql
 $ psql invidious < /home/invidious/invidious/config/sql/channel_videos.sql
 $ psql invidious < /home/invidious/invidious/config/sql/users.sql
+$ psql invidious < /home/invidious/invidious/config/sql/session_ids.sql
 $ psql invidious < /home/invidious/invidious/config/sql/nonces.sql
 $ exit
 ```
@@ -146,6 +149,7 @@ $ psql invidious < config/sql/channels.sql
 $ psql invidious < config/sql/videos.sql
 $ psql invidious < config/sql/channel_videos.sql
 $ psql invidious < config/sql/users.sql
+$ psql invidious < config/sql/session_ids.sql
 $ psql invidious < config/sql/nonces.sql
 
 # Setup Invidious
@@ -155,7 +159,7 @@ $ crystal build src/invidious.cr --release
 
 ## Update Invidious
 
-You can find information about how to update in the wiki: [Updating](https://github.com/omarroth/invidious/wiki/Updating).
+You can see how to update Invidious [here](https://github.com/omarroth/invidious/wiki/Updating).
 
 ## Usage:
 
@@ -192,13 +196,14 @@ $ ./sentry
 
 ## Extensions
 
-Extensions for Invidious and for integrating Invidious into other projects [are in the wiki](https://github.com/omarroth/invidious/wiki/Extensions)
+[Extensions](https://github.com/omarroth/invidious/wiki/Extensions) can be found in the wiki, as well as documentation for integrating it into other projects.
 
 ## Made with Invidious
 
 - [FreeTube](https://github.com/FreeTubeApp/FreeTube): An Open Source YouTube app for privacy.
 - [CloudTube](https://github.com/cloudrac3r/cadencegq): Website featuring pastebin, image host, and YouTube player
 - [PeerTubeify](https://gitlab.com/Ealhad/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
+- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A materialistic music player that streams music from YouTube.
 
 ## Contributing
 
