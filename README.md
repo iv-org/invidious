@@ -34,6 +34,13 @@ Onion links:
 
 [Alternative Invidious instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances)
 
+## Screenshots
+
+| Player                                                                                                                  | Preferences                                                                                                             | Subscriptions                                                                                                               |
+| ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| [<img src="screenshots/01_player.png?raw=true" height="140" width="280">](screenshots/01_player.png?raw=true)           | [<img src="screenshots/02_preferences.png?raw=true" height="140" width="280">](screenshots/02_preferences.png?raw=true) | [<img src="screenshots/03_subscriptions.png?raw=true" height="140" width="280">](screenshots/03_subscriptions.png?raw=true) |
+| [<img src="screenshots/04_description.png?raw=true" height="140" width="280">](screenshots/04_description.png?raw=true) | [<img src="screenshots/05_preferences.png?raw=true" height="140" width="280">](screenshots/05_preferences.png?raw=true) | [<img src="screenshots/06_subscriptions.png?raw=true" height="140" width="280">](screenshots/06_subscriptions.png?raw=true) |
+
 ## Installation
 
 See [Invidious-Updater](https://github.com/tmiland/Invidious-Updater) for a self-contained script that can automatically install and update Invidious.
