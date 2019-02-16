@@ -460,7 +460,7 @@ function get_youtube_replies(target, load_more) {
         } else {
             body.innerHTML = ' \
                 <p><a href="javascript:void(0)" \
-                    onclick="hide_youtube_replies(this)"><%= translate(locale, "Hide replies") %> \
+                    onclick="hide_youtube_replies(this, \'<%= translate(locale, "Hide replies") %>\', \'<%= translate(locale, "Show replies") %>\')"><%= translate(locale, "Hide replies") %> \
                 </a></p> \
                 <div>{contentHtml}</div>'.supplant({
                 contentHtml: xhr.response.contentHtml,

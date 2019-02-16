@@ -35,20 +35,20 @@ String.prototype.supplant = function(o) {
   });
 };
 
-function show_youtube_replies(target) {
+function show_youtube_replies(target, inner_text, sub_text) {
   body = target.parentNode.parentNode.children[1];
   body.style.display = "";
 
-  target.innerHTML = "Hide replies";
-  target.setAttribute("onclick", "hide_youtube_replies(this)");
+  target.innerHTML = inner_text;
+  target.setAttribute("onclick", "hide_youtube_replies(this, \'" + inner_text + "\', \'" + sub_text + "\')");
 }
 
-function hide_youtube_replies(target) {
+function hide_youtube_replies(target, inner_text, sub_text) {
   body = target.parentNode.parentNode.children[1];
   body.style.display = "none";
 
-  target.innerHTML = "Show replies";
-  target.setAttribute("onclick", "show_youtube_replies(this)");
+  target.innerHTML = sub_text;
+  target.setAttribute("onclick", "show_youtube_replies(this, \'" + inner_text + "\', \'" + sub_text + "\')");
 }
 
 function download_video(target) {
