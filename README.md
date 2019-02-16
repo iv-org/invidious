@@ -35,10 +35,12 @@ Onion links:
 [Alternative Invidious instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances)
 
 ## Screenshots
-| Player  | Preferences | Subscribtions |
-| ------------- | ------------- | ------------- |
-|[<img src="screenshots/01_player.png?raw=true" height="140" width="280">](screenshots/01_player.png?raw=true)|[<img src="screenshots/02_preferences.png?raw=true" height="140" width="280">](screenshots/02_preferences.png?raw=true)|[<img src="screenshots/03_subscribtions.png?raw=true" height="140" width="280">](screenshots/03_subscribtions.png?raw=true)|
-| [<img src="screenshots/04_description.png?raw=true" height="140" width="280">](screenshots/04_description.png?raw=true)|[<img src="screenshots/05_preferences.png?raw=true" height="140" width="280">](screenshots/05_preferences.png?raw=true)|[<img src="screenshots/06_subscribtions.png?raw=true" height="140" width="280">](screenshots/06_subscribtions.png?raw=true)|
+
+| Player                                                                                                                  | Preferences                                                                                                             | Subscriptions                                                                                                               |
+| ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| [<img src="screenshots/01_player.png?raw=true" height="140" width="280">](screenshots/01_player.png?raw=true)           | [<img src="screenshots/02_preferences.png?raw=true" height="140" width="280">](screenshots/02_preferences.png?raw=true) | [<img src="screenshots/03_subscriptions.png?raw=true" height="140" width="280">](screenshots/03_subscriptions.png?raw=true) |
+| [<img src="screenshots/04_description.png?raw=true" height="140" width="280">](screenshots/04_description.png?raw=true) | [<img src="screenshots/05_preferences.png?raw=true" height="140" width="280">](screenshots/05_preferences.png?raw=true) | [<img src="screenshots/06_subscriptions.png?raw=true" height="140" width="280">](screenshots/06_subscriptions.png?raw=true) |
+
 ## Installation
 
 ### Docker:
@@ -120,6 +122,7 @@ $ exit
 ```
 
 #### systemd service
+
 ```bash
 $ sudo cp /home/invidious/invidious/invidious.service /etc/systemd/system/invidious.service
 $ sudo systemctl enable invidious.service
@@ -151,6 +154,7 @@ $ crystal build src/invidious.cr --release
 ```
 
 ## Update Invidious
+
 You can find information about how to update in the wiki: [Updating](https://github.com/omarroth/invidious/wiki/Updating).
 
 ## Usage:
@@ -183,9 +187,11 @@ $ ./sentry
 ```
 
 ## Documentation
+
 [Documentation](https://github.com/omarroth/invidious/wiki) can be found in the wiki.
 
 ## Extensions
+
 Extensions for Invidious and for integrating Invidious into other projects [are in the wiki](https://github.com/omarroth/invidious/wiki/Extensions)
 
 ## Made with Invidious
