@@ -1,9 +1,16 @@
 a:hover,
 a:active {
-  color: #167ac6;
+  color: #167ac6 !important;
 }
 
 a {
   color: #61809b;
   text-decoration: none;
+}
+
+/* All links that do not fit with the default color goes here */
+a > .icon, 
+.pure-u-md-1-5 > .h-box > a[href^="/watch?"],
+.playlist-restricted > ol > li > a {
+  color: #303030;
 }

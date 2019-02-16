@@ -324,7 +324,7 @@ def template_youtube_comments(comments, locale)
               <div class="creator-heart">
                   <img class="creator-heart-background-hearted" src="#{creator_thumbnail}"></img>
                   <div class="creator-heart-small-hearted">
-                      <div class="creator-heart-small-container">🖤</div>
+                      <div class="icon ion-ios-heart creator-heart-small-container"></div>
                   </div>
               </div>
           </span>
