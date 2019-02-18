@@ -1929,9 +1929,39 @@ get "/feed/channel/:ucid" do |env|
     halt env, status_code: 500, response: error_message
   end
 
-  page = 1
-  videos, count = get_60_videos(ucid, page, auto_generated)
-  videos.select! { |video| !video.paid }
+  client = make_client(YT_URL)
+  rss = client.get("/feeds/videos.xml?channel_id=#{ucid}").body
+  rss = XML.parse_html(rss)
+
+  videos = [] of SearchVideo
+
+  rss.xpath_nodes("//feed/entry").each do |entry|
+    video_id = entry.xpath_node("videoid").not_nil!.content
+    title = entry.xpath_node("title").not_nil!.content
+
+    published = Time.parse(entry.xpath_node("published").not_nil!.content, "%FT%X%z", Time::Location.local)
+    updated = Time.parse(entry.xpath_node("updated").not_nil!.content, "%FT%X%z", Time::Location.local)
+
+    author = entry.xpath_node("author/name").not_nil!.content
+    ucid = entry.xpath_node("channelid").not_nil!.content
+    description = entry.xpath_node("group/description").not_nil!.content
+    views = entry.xpath_node("group/community/statistics").not_nil!.["views"].to_i64
+
+    videos << SearchVideo.new(
+      title: title,
+      id: video_id,
+      author: author,
+      ucid: ucid,
+      published: published,
+      views: views,
+      description: description,
+      description_html: "",
+      length_seconds: 0,
+      live_now: false,
+      paid: false,
+      premium: false
+    )
+  end
 
   host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
   path = env.request.path
