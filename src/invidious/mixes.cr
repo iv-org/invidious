@@ -43,8 +43,10 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
   mix_title = playlist["title"].as_s
 
   contents = playlist["contents"].as_a
-  until contents[0]["playlistPanelVideoRenderer"]["videoId"].as_s == video_id
-    contents.shift
+  if contents.map { |video| video["playlistPanelVideoRenderer"]["videoId"] }.includes? video_id
+    until contents[0]["playlistPanelVideoRenderer"]["videoId"].as_s == video_id
+      contents.shift
+    end
   end
 
   videos = [] of MixVideo
