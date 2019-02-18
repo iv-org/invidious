@@ -1798,6 +1798,8 @@ get "/feed/subscriptions" do |env|
     view_name = "subscriptions_#{sha256(user.email)[0..7]}"
 
     if preferences.notifications_only && !notifications.empty?
+      # Only show notifications
+
       args = arg_array(notifications)
 
       notifications = PG_DB.query_all("SELECT * FROM channel_videos WHERE id IN (#{args})
@@ -1819,27 +1821,38 @@ get "/feed/subscriptions" do |env|
     else
       if preferences.latest_only
         if preferences.unseen_only
+          # Show latest video from a channel that a user hasn't watched
+          # "unseen_only" isn't really correct here, more accurate would be "unwatched_only"
+
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE \
           NOT id = ANY (VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}) \
           ORDER BY ucid, published #{sort}", as: ChannelVideo)
         else
+          # Show latest video from each channel
+
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
-          ORDER BY ucid, published #{sort}", as: ChannelVideo)
+          ORDER BY ucid, published", as: ChannelVideo)
         end
 
         videos.sort_by! { |video| video.published }.reverse!
       else
         if preferences.unseen_only
+          # Only show unwatched
+
           videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE \
           NOT id = ANY (VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}) \
           ORDER BY published #{sort} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
         else
+          # Sort subscriptions as normal
+
           videos = PG_DB.query_all("SELECT * FROM #{view_name} \
           ORDER BY published #{sort} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
         end
       end
 
       case preferences.sort
+      when "published - reverse"
+        videos.sort_by! { |video| video.published }
       when "alphabetically"
         videos.sort_by! { |video| video.title }
       when "alphabetically - reverse"
@@ -1850,7 +1863,6 @@ get "/feed/subscriptions" do |env|
         videos.sort_by! { |video| video.author }.reverse!
       end
 
-      # TODO: Add option to disable picking out notifications from regular feed
       notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
         as: Array(String))
 
@@ -1862,6 +1874,12 @@ get "/feed/subscriptions" do |env|
       videos = videos[0..max_results]
     end
 
+    # Clear user's notifications and set updated to the current time.
+
+    # "updated" here is used for delivering new notifications, so if
+    # we know a user has looked at their feed e.g. in the past 10 minutes,
+    # they've already seen a video posted 20 minutes ago, and don't need
+    # to be notified.
     PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE email = $3", [] of String, Time.now,
       user.email)
     user.notifications = [] of String
@@ -1886,8 +1904,8 @@ get "/feed/history" do |env|
     user = user.as(User)
 
     limit = user.preferences.max_results
-    if user.watched[(page - 1)*limit]?
-      watched = user.watched.reverse[(page - 1)*limit, limit]
+    if user.watched[(page - 1) * limit]?
+      watched = user.watched.reverse[(page - 1) * limit, limit]
     else
       watched = [] of String
     end
