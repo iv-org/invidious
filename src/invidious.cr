@@ -1819,15 +1819,9 @@ get "/feed/subscriptions" do |env|
     else
       if preferences.latest_only
         if preferences.unseen_only
-          if user.watched.empty?
-            watched = "'{}'"
-          else
-            watched = arg_array(user.watched)
-          end
-
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE \
-          id NOT IN (#{watched}) ORDER BY ucid, published #{sort}",
-            user.watched, as: ChannelVideo)
+          NOT id = ANY (VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}) \
+          ORDER BY ucid, published #{sort}", as: ChannelVideo)
         else
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
           ORDER BY ucid, published #{sort}", as: ChannelVideo)
@@ -1836,15 +1830,9 @@ get "/feed/subscriptions" do |env|
         videos.sort_by! { |video| video.published }.reverse!
       else
         if preferences.unseen_only
-          if user.watched.empty?
-            watched = "'{}'"
-          else
-            watched = arg_array(user.watched, 3)
-          end
-
           videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE \
-          id NOT IN (#{watched}) ORDER BY published #{sort} LIMIT $1 OFFSET $2",
-            [limit, offset] + user.watched, as: ChannelVideo)
+          NOT id = ANY (VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}) \
+          ORDER BY published #{sort} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
         else
           videos = PG_DB.query_all("SELECT * FROM #{view_name} \
           ORDER BY published #{sort} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
