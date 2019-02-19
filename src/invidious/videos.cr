@@ -263,7 +263,7 @@ class Video
   end
 
   def keywords
-    keywords = self.player_response["videoDetails"]["keywords"]?.try &.as_a
+    keywords = self.player_response["videoDetails"]?.try &.["keywords"]?.try &.as_a
     keywords ||= [] of String
 
     return keywords
