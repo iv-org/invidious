@@ -100,6 +100,7 @@ LOCALES = {
   "de"    => load_locale("de"),
   "en-US" => load_locale("en-US"),
   "fr"    => load_locale("fr"),
+  "it"    => load_locale("it"),
   "nb_NO" => load_locale("nb_NO"),
   "nl"    => load_locale("nl"),
   "pl"    => load_locale("pl"),
