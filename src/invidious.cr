@@ -3179,6 +3179,139 @@ end
   end
 end
 
+["/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"].each do |route|
+  get route do |env|
+    locale = LOCALES[env.get("locale").as(String)]?
+
+    env.response.content_type = "application/json"
+
+    ucid = env.params.url["ucid"]
+    continuation = env.params.query["continuation"]?
+    sort_by = env.params.query["sort"]?.try &.downcase
+    sort_by ||= env.params.query["sort_by"]?.try &.downcase
+    sort_by ||= "last"
+
+    begin
+      author, ucid, auto_generated = get_about_info(ucid, locale)
+    rescue ex
+      error_message = ex.message
+      halt env, status_code: 500, response: error_message
+    end
+
+    client = make_client(YT_URL)
+
+    if continuation
+      url = produce_channel_playlists_url(ucid, continuation, sort_by, auto_generated)
+
+      response = client.get(url)
+      json = JSON.parse(response.body)
+
+      if json["load_more_widget_html"].as_s.empty?
+        response = {
+          "playlists"    => [] of String,
+          "continuation" => nil,
+        }
+
+        if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+          response = response.to_pretty_json
+        else
+          response = response.to_json
+        end
+
+        halt env, status_code: 200, response: response
+      end
+
+      continuation = XML.parse_html(json["load_more_widget_html"].as_s)
+      continuation = continuation.xpath_node(%q(//button[@data-uix-load-more-href]))
+      if continuation
+        continuation = extract_channel_playlists_cursor(continuation["data-uix-load-more-href"], auto_generated)
+      end
+
+      html = XML.parse_html(json["content_html"].as_s)
+      nodeset = html.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+    else
+      url = "/channel/#{ucid}/playlists?disable_polymer=1&flow=list"
+
+      if auto_generated
+        url += "&view=50"
+      else
+        url += "&view=1"
+      end
+
+      case sort_by
+      when "last", "last_added"
+        #
+      when "oldest", "oldest_created"
+        url += "&sort=da"
+      when "newest", "newest_created"
+        url += "&sort=dd"
+      end
+
+      response = client.get(url)
+      html = XML.parse_html(response.body)
+
+      continuation = html.xpath_node(%q(//button[@data-uix-load-more-href]))
+      if continuation
+        continuation = extract_channel_playlists_cursor(continuation["data-uix-load-more-href"], auto_generated)
+      end
+
+      nodeset = html.xpath_nodes(%q(//ul[@id="browse-items-primary"]/li[contains(@class, "feed-item-container")]))
+    end
+
+    if auto_generated
+      items = extract_shelf_items(nodeset, ucid, author)
+    else
+      items = extract_items(nodeset, ucid, author)
+    end
+
+    response = JSON.build do |json|
+      json.object do
+        json.field "playlists" do
+          json.array do
+            items.each do |item|
+              json.object do
+                if item.is_a?(SearchPlaylist)
+                  json.field "title", item.title
+                  json.field "playlistId", item.id
+
+                  json.field "author", item.author
+                  json.field "authorId", item.ucid
+                  json.field "authorUrl", "/channel/#{item.ucid}"
+
+                  json.field "videoCount", item.video_count
+                  json.field "videos" do
+                    json.array do
+                      item.videos.each do |video|
+                        json.object do
+                          json.field "title", video.title
+                          json.field "videoId", video.id
+                          json.field "lengthSeconds", video.length_seconds
+
+                          json.field "videoThumbnails" do
+                            generate_thumbnails(json, video.id)
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        json.field "continuation", continuation
+      end
+    end
+
+    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+      JSON.parse(response).to_pretty_json
+    else
+      response
+    end
+  end
+end
+
 get "/api/v1/channels/search/:ucid" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
 
