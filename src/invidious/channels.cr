@@ -460,3 +460,21 @@ def get_60_videos(ucid, page, auto_generated, sort_by = "newest")
 
   return videos, count
 end
+
+def get_latest_videos(ucid)
+  client = make_client(YT_URL)
+  videos = [] of SearchVideo
+
+  url = produce_channel_videos_url(ucid, 0)
+  response = client.get(url)
+  json = JSON.parse(response.body)
+
+  if json["content_html"]? && !json["content_html"].as_s.empty?
+    document = XML.parse_html(json["content_html"].as_s)
+    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+    videos = extract_videos(nodeset, ucid)
+  end
+
+  return videos
+end

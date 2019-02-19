@@ -3129,6 +3129,56 @@ end
   end
 end
 
+["/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"].each do |route|
+  get route do |env|
+    env.response.content_type = "application/json"
+
+    ucid = env.params.url["ucid"]
+
+    begin
+      videos = get_latest_videos(ucid)
+    rescue ex
+      error_message = {"error" => ex.message}.to_json
+      halt env, status_code: 500, response: error_message
+    end
+
+    response = JSON.build do |json|
+      json.array do
+        videos.each do |video|
+          json.object do
+            json.field "title", video.title
+            json.field "videoId", video.id
+
+            json.field "authorId", ucid
+            json.field "authorUrl", "/channel/#{ucid}"
+
+            json.field "videoThumbnails" do
+              generate_thumbnails(json, video.id)
+            end
+
+            json.field "description", video.description
+            json.field "descriptionHtml", video.description_html
+
+            json.field "viewCount", video.views
+            json.field "published", video.published.to_unix
+            json.field "publishedText", "#{recode_date(video.published)} ago"
+            json.field "lengthSeconds", video.length_seconds
+            json.field "liveNow", video.live_now
+            json.field "paid", video.paid
+            json.field "premium", video.premium
+          end
+        end
+      end
+    end
+
+    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+      JSON.parse(response).to_pretty_json
+    else
+      response
+    end
+  end
+end
+
 get "/api/v1/channels/search/:ucid" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
 
