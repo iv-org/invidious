@@ -184,7 +184,7 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, region
               json.field "content", content
               json.field "contentHtml", content_html
               json.field "published", published.to_unix
-              json.field "publishedText", translate(locale, "`x` ago", recode_date(published))
+              json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
               json.field "likeCount", node_comment["likeCount"]
               json.field "commentId", node_comment["commentId"]
               json.field "authorIsChannelOwner", node_comment["authorIsChannelOwner"]
@@ -310,7 +310,7 @@ def template_youtube_comments(comments, locale)
             <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{child["author"]}</a>
           </b> 
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
-          <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64)))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
+          <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
           |
           <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "Youtube permalink of the comment")}">[YT]</a>
           | 
@@ -375,7 +375,7 @@ def template_reddit_comments(root, locale)
         <a href="javascript:void(0)" onclick="toggle_parent(this)">[ - ]</a> 
         <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b> 
         #{translate(locale, "`x` points", number_with_separator(score))}
-        #{translate(locale, "`x` ago", recode_date(child.created_utc))}
+        #{translate(locale, "`x` ago", recode_date(child.created_utc, locale))}
       </p>
       <div>
       #{body_html}

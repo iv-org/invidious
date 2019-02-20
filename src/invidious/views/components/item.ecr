@@ -66,7 +66,7 @@
         </p>
         
         <% if Time.now - item.published > 1.minute %>
-        <h5><%= translate(locale, "Shared `x` ago", recode_date(item.published)) %></h5>
+        <h5><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></h5>
         <% end %>
     <% else %>
         <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
@@ -100,7 +100,7 @@
         </p>
         
         <% if Time.now - item.published > 1.minute %>
-        <h5><%= translate(locale, "Shared `x` ago", recode_date(item.published)) %></h5>
+        <h5><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></h5>
         <% end %>
     <% end %>
     </div>

@@ -2558,7 +2558,7 @@ get "/api/v1/videos/:id" do |env|
       json.field "description", description
       json.field "descriptionHtml", video.description
       json.field "published", video.published.to_unix
-      json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
+      json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
       json.field "keywords", video.keywords
 
       json.field "viewCount", video.views
@@ -2766,7 +2766,7 @@ get "/api/v1/trending" do |env|
           json.field "authorUrl", "/channel/#{video.ucid}"
 
           json.field "published", video.published.to_unix
-          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
+          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
           json.field "description", video.description
           json.field "descriptionHtml", video.description_html
           json.field "liveNow", video.live_now
@@ -2805,7 +2805,7 @@ get "/api/v1/popular" do |env|
           json.field "authorId", video.ucid
           json.field "authorUrl", "/channel/#{video.ucid}"
           json.field "published", video.published.to_unix
-          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
+          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
         end
       end
     end
@@ -2840,7 +2840,7 @@ get "/api/v1/top" do |env|
           json.field "authorId", video.ucid
           json.field "authorUrl", "/channel/#{video.ucid}"
           json.field "published", video.published.to_unix
-          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
+          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
 
           description = video.description.gsub("<br>", "\n")
           description = description.gsub("<br/>", "\n")
@@ -3015,7 +3015,7 @@ get "/api/v1/channels/:ucid" do |env|
 
               json.field "viewCount", video.views
               json.field "published", video.published.to_unix
-              json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
+              json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
               json.field "lengthSeconds", video.length_seconds
               json.field "liveNow", video.live_now
               json.field "paid", video.paid
@@ -3113,7 +3113,7 @@ end
 
             json.field "viewCount", video.views
             json.field "published", video.published.to_unix
-            json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
             json.field "lengthSeconds", video.length_seconds
             json.field "liveNow", video.live_now
             json.field "paid", video.paid
@@ -3133,6 +3133,8 @@ end
 
 ["/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"].each do |route|
   get route do |env|
+    locale = LOCALES[env.get("locale").as(String)]?
+
     env.response.content_type = "application/json"
 
     ucid = env.params.url["ucid"]
@@ -3163,7 +3165,7 @@ end
 
             json.field "viewCount", video.views
             json.field "published", video.published.to_unix
-            json.field "publishedText", "#{recode_date(video.published)} ago"
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
             json.field "lengthSeconds", video.length_seconds
             json.field "liveNow", video.live_now
             json.field "paid", video.paid
@@ -3351,7 +3353,7 @@ get "/api/v1/channels/search/:ucid" do |env|
 
             json.field "viewCount", item.views
             json.field "published", item.published.to_unix
-            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published))
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published, locale))
             json.field "lengthSeconds", item.length_seconds
             json.field "liveNow", item.live_now
             json.field "paid", item.paid
@@ -3480,7 +3482,7 @@ get "/api/v1/search" do |env|
 
             json.field "viewCount", item.views
             json.field "published", item.published.to_unix
-            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published))
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published, locale))
             json.field "lengthSeconds", item.length_seconds
             json.field "liveNow", item.live_now
             json.field "paid", item.paid
