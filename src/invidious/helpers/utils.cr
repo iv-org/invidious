@@ -146,13 +146,13 @@ def recode_date(time : Time, locale)
   elsif span.total_days > 7.0
     span = translate(locale, "`x` weeks", (span.total_days.to_i / 7).to_s)
   elsif span.total_hours > 24.0
-    span = translate(locale, "`x` days", (span.total_days).to_s)
+    span = translate(locale, "`x` days", (span.total_days.to_i).to_s)
   elsif span.total_minutes > 60.0
-    span = translate(locale, "`x` hours", (span.total_hours).to_s)
+    span = translate(locale, "`x` hours", (span.total_hours.to_i).to_s)
   elsif span.total_seconds > 60.0
-    span = translate(locale, "`x` minutes", (span.total_minutes).to_s)
+    span = translate(locale, "`x` minutes", (span.total_minutes.to_i).to_s)
   else
-    span = translate(locale, "`x` seconds", (span.total_seconds).to_s)
+    span = translate(locale, "`x` seconds", (span.total_seconds.to_i).to_s)
   end
 
   return span
