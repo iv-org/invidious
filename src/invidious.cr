@@ -2053,26 +2053,30 @@ get "/feed/private" do |env|
   latest_only ||= 0
   latest_only = latest_only == 1
 
-  if user.preferences.sort == "published - reverse"
-    sort = ""
+  sort = env.params.query["sort"]?
+  sort ||= "published"
+
+  if sort == "published - reverse"
+    desc = ""
   else
-    sort = "DESC"
+    desc = "DESC"
   end
 
   view_name = "subscriptions_#{sha256(user.email)[0..7]}"
 
   if latest_only
-    videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} ORDER BY ucid, published #{sort}", as: ChannelVideo)
+    videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
+    ORDER BY ucid, published", as: ChannelVideo)
+
     videos.sort_by! { |video| video.published }.reverse!
   else
     videos = PG_DB.query_all("SELECT * FROM #{view_name} \
-    ORDER BY published #{sort} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+    ORDER BY published #{desc} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
   end
 
-  sort = env.params.query["sort"]?
-  sort ||= "published"
-
   case sort
+  when "reverse_published"
+    videos.sort_by! { |video| video.published }
   when "alphabetically"
     videos.sort_by! { |video| video.title }
   when "reverse_alphabetically"
