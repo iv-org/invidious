@@ -1,41 +1,41 @@
 .channel-owner {
-  background-color: #008BEC;
+  background-color: #008bec;
   color: #fff;
   border-radius: 9px;
   padding: 1px 6px;
 }
 
 .creator-heart-container {
-    display: inline-block;
-    padding: 0px 7px 6px 0px;
-    margin: 0px -7px -4px 0px;
+  display: inline-block;
+  padding: 0px 7px 6px 0px;
+  margin: 0px -7px -4px 0px;
 }
 
 .creator-heart {
-    position: relative;
-    width: 16px;
-    height: 16px;
-    border: 2px none;
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border: 2px none;
 }
 
 .creator-heart-background-hearted {
-    width: 16px;
-    height: 16px;
-    padding: 0px;
-    position: relative;
+  width: 16px;
+  height: 16px;
+  padding: 0px;
+  position: relative;
 }
 
 .creator-heart-small-hearted {
-    position: absolute;
-    right: -7px;
-    bottom: -4px;
+  position: absolute;
+  right: -7px;
+  bottom: -4px;
 }
 
 .creator-heart-small-container {
-    position: relative;
-    width: 13px;
-    height: 13px;
-    color: rgb(255, 0, 0);
+  position: relative;
+  width: 13px;
+  height: 13px;
+  color: rgb(255, 0, 0);
 }
 
 .h-box {
@@ -63,7 +63,8 @@ div {
 }
 
 button.pure-button-primary,
-a.pure-button-primary, .channel-owner:hover {
+a.pure-button-primary,
+.channel-owner:hover {
   background-color: #a0a0a0;
   color: rgba(35, 35, 35, 1);
 }
@@ -231,6 +232,8 @@ img.thumbnail {
 .video-js .vjs-control-bar,
 .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
   background-color: rgba(35, 35, 35, 0.75);
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .vjs-menu li.vjs-menu-item:focus,
