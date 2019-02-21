@@ -229,6 +229,13 @@ img.thumbnail {
 }
 
 /* Control Bar */
+@media screen and (max-width: 480px) {
+  .video-js .vjs-control-bar,
+  .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+    overflow: -webkit-paged-x;
+  }
+}
+
 .video-js .vjs-control-bar,
 .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
   background-color: rgba(35, 35, 35, 0.75);
