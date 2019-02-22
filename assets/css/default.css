@@ -310,11 +310,15 @@ img.thumbnail {
   height: 100%;
 }
 
+.player-dimensions.vjs-fluid {
+  padding-top: 46.86%;
+}
+
 #player-container {
   position: relative;
-  padding-bottom: 55.25%;
-  margin-left: 2em;
-  margin-right: 2em;
+  padding-bottom: 46.86%;
+  margin-left: 1em;
+  margin-right: 1em;
   height: 0;
 }
 
