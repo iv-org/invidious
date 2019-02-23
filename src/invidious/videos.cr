@@ -286,10 +286,8 @@ class Video
       end
     end
 
-    if streams[0]? && streams[0]["s"]?
-      streams.each do |fmt|
-        fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
-      end
+    streams.each do |fmt|
+      fmt["url"] += decrypt_signature(fmt, decrypt_function)
     end
 
     return streams
@@ -381,10 +379,8 @@ class Video
       end
     end
 
-    if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
-      adaptive_fmts.each do |fmt|
-        fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
-      end
+    adaptive_fmts.each do |fmt|
+      fmt["url"] += decrypt_signature(fmt, decrypt_function)
     end
 
     return adaptive_fmts
