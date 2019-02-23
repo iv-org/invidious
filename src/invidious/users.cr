@@ -145,7 +145,7 @@ def get_user(sid, headers, db, refresh = true)
         view_name = "subscriptions_#{sha256(user.email)[0..7]}"
         PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
         SELECT * FROM channel_videos WHERE \
-        ucid = ANY ((SELECT subscriptions FROM users WHERE email = '#{user.email}')::text[]) \
+        ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
         ORDER BY published DESC;")
       rescue ex
       end
@@ -167,7 +167,7 @@ def get_user(sid, headers, db, refresh = true)
       view_name = "subscriptions_#{sha256(user.email)[0..7]}"
       PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
       SELECT * FROM channel_videos WHERE \
-      ucid = ANY ((SELECT subscriptions FROM users WHERE email = '#{user.email}')::text[]) \
+      ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
       ORDER BY published DESC;")
     rescue ex
     end
