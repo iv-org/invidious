@@ -4051,7 +4051,7 @@ get "/videoplayback" do |env|
     env.response.status_code = response.status_code
 
     if title = env.params.query["title"]?
-      env.response.headers["Content-Disposition"] = "attachment; filename=#{title}"
+      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{title}\""
     end
 
     response.headers.each do |key, value|
