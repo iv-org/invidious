@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/css/grids-responsive-min.css">
   <link rel="stylesheet" href="/css/ionicons.min.css">
   <link rel="stylesheet" href="/css/default.css">
-  <% if env.get?("user") && env.get("user").as(User).preferences.dark_mode %>
+  <% if env.get?("preferences").try &.as(Preferences).dark_mode %>
   <link rel="stylesheet" href="/css/darktheme.css">
   <% else %>
   <link rel="stylesheet" href="/css/lighttheme.css">
@@ -75,9 +75,25 @@
           </a>
         </div>
         <% else %>
+        <div class="pure-u-1-3">
+          <a href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+            <% if env.get?("preferences").try &.as(Preferences).dark_mode %>
+            <i class="icon ion-ios-sunny"></i>
+            <% else %>
+            <i class="icon ion-ios-moon"></i>
+            <% end %>
+          </a>
+        </div>
+        <div class="pure-u-1-3">
+          <a href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+            <i class="icon ion-ios-cog"></i>
+          </a>
+        </div>
+        <div class="pure-u-1-3">
           <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
             <%= translate(locale, "Login") %>
           </a>
+        </div>
         <% end %>
         </div>
       </div>

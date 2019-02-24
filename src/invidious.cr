@@ -175,6 +175,7 @@ before_all do |env|
 
         locale = user.preferences.locale
         env.set "user", user
+        env.set "preferences", user.preferences
         env.set "sid", sid
       end
     else
@@ -187,10 +188,18 @@ before_all do |env|
 
         locale = user.preferences.locale
         env.set "user", user
+        env.set "preferences", user.preferences
         env.set "sid", sid
       rescue ex
       end
     end
+  end
+
+  if env.request.cookies.has_key? "PREFS"
+    preferences = Preferences.from_json(env.request.cookies["PREFS"].value)
+
+    locale = preferences.locale
+    env.set "preferences", preferences
   end
 
   locale = env.params.query["hl"]? || locale
@@ -268,11 +277,12 @@ get "/watch" do |env|
   nojs ||= "0"
   nojs = nojs == "1"
 
-  user = env.get? "user"
-  if user
-    user = user.as(User)
+  if env.get? "preferences"
+    preferences = env.get("preferences").as(Preferences)
+  end
 
-    preferences = user.preferences
+  if env.get? "user"
+    user = env.get("user").as(User)
     subscriptions = user.subscriptions
     watched = user.watched
   end
@@ -866,15 +876,29 @@ post "/login" do |env|
 
       host = URI.parse(env.request.headers["Host"]).host
 
+      if Kemal.config.ssl || CONFIG.https_only
+        secure = true
+      else
+        secure = false
+      end
+
       login.cookies.each do |cookie|
         if Kemal.config.ssl || CONFIG.https_only
-          cookie.secure = true
+          cookie.secure = secure
         else
-          cookie.secure = false
+          cookie.secure = secure
         end
 
         cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
         cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
+      end
+
+      if env.request.cookies["PREFS"]?
+        preferences = env.get("preferences").as(Preferences)
+        PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
+
+        login.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: "", expires: Time.new(1990, 1, 1),
+          secure: secure, http_only: true)
       end
 
       login.cookies.add_response_headers(env.response.headers)
@@ -985,6 +1009,12 @@ post "/login" do |env|
         error_message = translate(locale, "Invalid username or password")
         next templated "error"
       end
+
+      # Since this user has already registered, we don't want to overwrite their preferences
+      if env.request.cookies["PREFS"]?
+        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: "", expires: Time.new(1990, 1, 1),
+          secure: secure, http_only: true)
+      end
     elsif action == "register"
       if password.empty?
         error_message = translate(locale, "Password cannot be empty")
@@ -1032,6 +1062,14 @@ post "/login" do |env|
         env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
           secure: secure, http_only: true)
       end
+
+      if env.request.cookies["PREFS"]?
+        preferences = env.get("preferences").as(Preferences)
+        PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
+
+        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: "", expires: Time.new(1990, 1, 1),
+          secure: secure, http_only: true)
+      end
     end
 
     env.redirect referer
@@ -1073,121 +1111,121 @@ end
 
 get "/preferences" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
-
-  user = env.get? "user"
   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
+  if preferences = env.get? "preferences"
+    preferences = preferences.as(Preferences)
+
     templated "preferences"
   else
-    env.redirect referer
+    preferences = DEFAULT_USER_PREFERENCES
+
+    templated "preferences"
   end
 end
 
 post "/preferences" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
-
-  user = env.get? "user"
   referer = get_referer(env)
 
-  if user
+  video_loop = env.params.body["video_loop"]?.try &.as(String)
+  video_loop ||= "off"
+  video_loop = video_loop == "on"
+
+  autoplay = env.params.body["autoplay"]?.try &.as(String)
+  autoplay ||= "off"
+  autoplay = autoplay == "on"
+
+  continue = env.params.body["continue"]?.try &.as(String)
+  continue ||= "off"
+  continue = continue == "on"
+
+  listen = env.params.body["listen"]?.try &.as(String)
+  listen ||= "off"
+  listen = listen == "on"
+
+  speed = env.params.body["speed"]?.try &.as(String).to_f?
+  speed ||= DEFAULT_USER_PREFERENCES.speed
+
+  quality = env.params.body["quality"]?.try &.as(String)
+  quality ||= DEFAULT_USER_PREFERENCES.quality
+
+  volume = env.params.body["volume"]?.try &.as(String).to_i?
+  volume ||= DEFAULT_USER_PREFERENCES.volume
+
+  comments_0 = env.params.body["comments_0"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.comments[0]
+  comments_1 = env.params.body["comments_1"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.comments[1]
+  comments = [comments_0, comments_1]
+
+  captions_0 = env.params.body["captions_0"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[0]
+  captions_1 = env.params.body["captions_1"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[1]
+  captions_2 = env.params.body["captions_2"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[2]
+  captions = [captions_0, captions_1, captions_2]
+
+  related_videos = env.params.body["related_videos"]?.try &.as(String)
+  related_videos ||= "off"
+  related_videos = related_videos == "on"
+
+  redirect_feed = env.params.body["redirect_feed"]?.try &.as(String)
+  redirect_feed ||= "off"
+  redirect_feed = redirect_feed == "on"
+
+  locale = env.params.body["locale"]?.try &.as(String)
+  locale ||= DEFAULT_USER_PREFERENCES.locale
+
+  dark_mode = env.params.body["dark_mode"]?.try &.as(String)
+  dark_mode ||= "off"
+  dark_mode = dark_mode == "on"
+
+  thin_mode = env.params.body["thin_mode"]?.try &.as(String)
+  thin_mode ||= "off"
+  thin_mode = thin_mode == "on"
+
+  max_results = env.params.body["max_results"]?.try &.as(String).to_i?
+  max_results ||= DEFAULT_USER_PREFERENCES.max_results
+
+  sort = env.params.body["sort"]?.try &.as(String)
+  sort ||= DEFAULT_USER_PREFERENCES.sort
+
+  latest_only = env.params.body["latest_only"]?.try &.as(String)
+  latest_only ||= "off"
+  latest_only = latest_only == "on"
+
+  unseen_only = env.params.body["unseen_only"]?.try &.as(String)
+  unseen_only ||= "off"
+  unseen_only = unseen_only == "on"
+
+  notifications_only = env.params.body["notifications_only"]?.try &.as(String)
+  notifications_only ||= "off"
+  notifications_only = notifications_only == "on"
+
+  preferences = {
+    "video_loop"         => video_loop,
+    "autoplay"           => autoplay,
+    "continue"           => continue,
+    "listen"             => listen,
+    "speed"              => speed,
+    "quality"            => quality,
+    "volume"             => volume,
+    "comments"           => comments,
+    "captions"           => captions,
+    "related_videos"     => related_videos,
+    "redirect_feed"      => redirect_feed,
+    "locale"             => locale,
+    "dark_mode"          => dark_mode,
+    "thin_mode"          => thin_mode,
+    "max_results"        => max_results,
+    "sort"               => sort,
+    "latest_only"        => latest_only,
+    "unseen_only"        => unseen_only,
+    "notifications_only" => notifications_only,
+  }.to_json
+
+  if user = env.get? "user"
     user = user.as(User)
-
-    video_loop = env.params.body["video_loop"]?.try &.as(String)
-    video_loop ||= "off"
-    video_loop = video_loop == "on"
-
-    autoplay = env.params.body["autoplay"]?.try &.as(String)
-    autoplay ||= "off"
-    autoplay = autoplay == "on"
-
-    continue = env.params.body["continue"]?.try &.as(String)
-    continue ||= "off"
-    continue = continue == "on"
-
-    listen = env.params.body["listen"]?.try &.as(String)
-    listen ||= "off"
-    listen = listen == "on"
-
-    speed = env.params.body["speed"]?.try &.as(String).to_f?
-    speed ||= DEFAULT_USER_PREFERENCES.speed
-
-    quality = env.params.body["quality"]?.try &.as(String)
-    quality ||= DEFAULT_USER_PREFERENCES.quality
-
-    volume = env.params.body["volume"]?.try &.as(String).to_i?
-    volume ||= DEFAULT_USER_PREFERENCES.volume
-
-    comments_0 = env.params.body["comments_0"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.comments[0]
-    comments_1 = env.params.body["comments_1"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.comments[1]
-    comments = [comments_0, comments_1]
-
-    captions_0 = env.params.body["captions_0"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[0]
-    captions_1 = env.params.body["captions_1"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[1]
-    captions_2 = env.params.body["captions_2"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[2]
-    captions = [captions_0, captions_1, captions_2]
-
-    related_videos = env.params.body["related_videos"]?.try &.as(String)
-    related_videos ||= "off"
-    related_videos = related_videos == "on"
-
-    redirect_feed = env.params.body["redirect_feed"]?.try &.as(String)
-    redirect_feed ||= "off"
-    redirect_feed = redirect_feed == "on"
-
-    locale = env.params.body["locale"]?.try &.as(String)
-    locale ||= DEFAULT_USER_PREFERENCES.locale
-
-    dark_mode = env.params.body["dark_mode"]?.try &.as(String)
-    dark_mode ||= "off"
-    dark_mode = dark_mode == "on"
-
-    thin_mode = env.params.body["thin_mode"]?.try &.as(String)
-    thin_mode ||= "off"
-    thin_mode = thin_mode == "on"
-
-    max_results = env.params.body["max_results"]?.try &.as(String).to_i?
-    max_results ||= DEFAULT_USER_PREFERENCES.max_results
-
-    sort = env.params.body["sort"]?.try &.as(String)
-    sort ||= DEFAULT_USER_PREFERENCES.sort
-
-    latest_only = env.params.body["latest_only"]?.try &.as(String)
-    latest_only ||= "off"
-    latest_only = latest_only == "on"
-
-    unseen_only = env.params.body["unseen_only"]?.try &.as(String)
-    unseen_only ||= "off"
-    unseen_only = unseen_only == "on"
-
-    notifications_only = env.params.body["notifications_only"]?.try &.as(String)
-    notifications_only ||= "off"
-    notifications_only = notifications_only == "on"
-
-    preferences = {
-      "video_loop"         => video_loop,
-      "autoplay"           => autoplay,
-      "continue"           => continue,
-      "listen"             => listen,
-      "speed"              => speed,
-      "quality"            => quality,
-      "volume"             => volume,
-      "comments"           => comments,
-      "captions"           => captions,
-      "related_videos"     => related_videos,
-      "redirect_feed"      => redirect_feed,
-      "locale"             => locale,
-      "dark_mode"          => dark_mode,
-      "thin_mode"          => thin_mode,
-      "max_results"        => max_results,
-      "sort"               => sort,
-      "latest_only"        => latest_only,
-      "unseen_only"        => unseen_only,
-      "notifications_only" => notifications_only,
-    }.to_json
-
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
+  else
+    env.response.cookies["PREFS"] = preferences
   end
 
   env.redirect referer
@@ -1195,21 +1233,24 @@ end
 
 get "/toggle_theme" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
-
-  user = env.get? "user"
   referer = get_referer(env)
 
-  if user
+  if user = env.get? "user"
     user = user.as(User)
     preferences = user.preferences
-
-    if preferences.dark_mode
-      preferences.dark_mode = false
-    else
-      preferences.dark_mode = true
-    end
+    preferences.dark_mode = !preferences.dark_mode
 
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+  elsif preferences = env.get? "preferences"
+    preferences = preferences.as(Preferences)
+    preferences.dark_mode = !preferences.dark_mode
+
+    env.response.cookies["PREFS"] = preferences.to_json
+  else
+    preferences = DEFAULT_USER_PREFERENCES
+    preferences.dark_mode = true
+
+    env.response.cookies["PREFS"] = preferences.to_json
   end
 
   env.redirect referer
@@ -4210,6 +4251,7 @@ add_handler FilteredCompressHandler.new
 add_handler DenyFrame.new
 add_handler APIHandler.new
 add_context_storage_type(User)
+add_context_storage_type(Preferences)
 
 Kemal.config.logger = logger
 Kemal.run
