@@ -3904,12 +3904,20 @@ end
 # YouTube /videoplayback links expire after 6 hours,
 # so we have a mechanism here to redirect to the latest version
 get "/latest_version" do |env|
-  id = env.params.query["id"]?
-  itag = env.params.query["itag"]?
+  if env.params.query["download_widget"]?
+    download_widget = JSON.parse(env.params.query["download_widget"])
+    id = download_widget["id"].as_s
+    itag = download_widget["itag"].as_s
+    title = download_widget["title"].as_s
+    local = "true"
+  end
+
+  id ||= env.params.query["id"]?
+  itag ||= env.params.query["itag"]?
 
   region = env.params.query["region"]?
 
-  local = env.params.query["local"]?
+  local ||= env.params.query["local"]?
   local ||= "false"
   local = local == "true"
 
@@ -3932,6 +3940,10 @@ get "/latest_version" do |env|
   url = urls[0]["url"]
   if local
     url = URI.parse(url).full_path.not_nil!
+  end
+
+  if title
+    url += "&title=#{title}"
   end
 
   env.redirect url
@@ -4037,6 +4049,10 @@ get "/videoplayback" do |env|
   client = make_client(URI.parse(host), proxies, region)
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
+
+    if title = env.params.query["title"]?
+      env.response.headers["Content-Disposition"] = "attachment; filename=#{title}"
+    end
 
     response.headers.each do |key, value|
       env.response.headers[key] = value
