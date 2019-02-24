@@ -50,13 +50,11 @@ def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, ma
 end
 
 def get_channel(id, db, refresh = true, pull_all_videos = true)
-  client = make_client(YT_URL)
-
   if db.query_one?("SELECT EXISTS (SELECT true FROM channels WHERE id = $1)", id, as: Bool)
     channel = db.query_one("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
 
     if refresh && Time.now - channel.updated > 10.minutes
-      channel = fetch_channel(id, client, db, pull_all_videos: pull_all_videos)
+      channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
       channel_array = channel.to_a
       args = arg_array(channel_array)
 
@@ -64,7 +62,7 @@ def get_channel(id, db, refresh = true, pull_all_videos = true)
         ON CONFLICT (id) DO UPDATE SET author = $2, updated = $3", channel_array)
     end
   else
-    channel = fetch_channel(id, client, db, pull_all_videos: pull_all_videos)
+    channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
     channel_array = channel.to_a
     args = arg_array(channel_array)
 
@@ -74,7 +72,9 @@ def get_channel(id, db, refresh = true, pull_all_videos = true)
   return channel
 end
 
-def fetch_channel(ucid, client, db, pull_all_videos = true, locale = nil)
+def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
+  client = make_client(YT_URL)
+
   rss = client.get("/feeds/videos.xml?channel_id=#{ucid}").body
   rss = XML.parse_html(rss)
 
@@ -191,6 +191,65 @@ def fetch_channel(ucid, client, db, pull_all_videos = true, locale = nil)
   channel = InvidiousChannel.new(ucid, author, Time.now, false)
 
   return channel
+end
+
+def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
+  client = make_client(YT_URL)
+
+  if continuation
+    url = produce_channel_playlists_url(ucid, continuation, sort_by, auto_generated)
+
+    response = client.get(url)
+    json = JSON.parse(response.body)
+
+    if json["load_more_widget_html"].as_s.empty?
+      return [] of SearchItem, nil
+    end
+
+    continuation = XML.parse_html(json["load_more_widget_html"].as_s)
+    continuation = continuation.xpath_node(%q(//button[@data-uix-load-more-href]))
+    if continuation
+      continuation = extract_channel_playlists_cursor(continuation["data-uix-load-more-href"], auto_generated)
+    end
+
+    html = XML.parse_html(json["content_html"].as_s)
+    nodeset = html.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+  else
+    url = "/channel/#{ucid}/playlists?disable_polymer=1&flow=list"
+
+    if auto_generated
+      url += "&view=50"
+    else
+      url += "&view=1"
+    end
+
+    case sort_by
+    when "last", "last_added"
+      #
+    when "oldest", "oldest_created"
+      url += "&sort=da"
+    when "newest", "newest_created"
+      url += "&sort=dd"
+    end
+
+    response = client.get(url)
+    html = XML.parse_html(response.body)
+
+    continuation = html.xpath_node(%q(//button[@data-uix-load-more-href]))
+    if continuation
+      continuation = extract_channel_playlists_cursor(continuation["data-uix-load-more-href"], auto_generated)
+    end
+
+    nodeset = html.xpath_nodes(%q(//ul[@id="browse-items-primary"]/li[contains(@class, "feed-item-container")]))
+  end
+
+  if auto_generated
+    items = extract_shelf_items(nodeset, ucid, author)
+  else
+    items = extract_items(nodeset, ucid, author)
+  end
+
+  return items, continuation
 end
 
 def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "newest")
