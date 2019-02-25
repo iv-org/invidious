@@ -2266,6 +2266,7 @@ get "/channel/:ucid" do |env|
     items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
     items.select! { |item| item.is_a?(SearchPlaylist) && !item.videos.empty? }
     items = items.map { |item| item.as(SearchPlaylist) }
+    items.each { |item| item.author = "" }
   else
     items, count = get_60_videos(ucid, page, auto_generated, sort_by)
     items.select! { |item| !item.paid }
