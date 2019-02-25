@@ -3735,8 +3735,8 @@ get "/api/manifest/dash/id/:id" do |env|
     halt env, status_code: 403
   end
 
-  if video.info["dashmpd"]?
-    manifest = client.get(video.info["dashmpd"]).body
+  if dashmpd = video.player_response["streamingData"]["dashManifestUrl"]?.try &.as_s
+    manifest = client.get(dashmpd).body
 
     manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
       url = baseurl.lchop("<BaseURL>")
@@ -3993,7 +3993,7 @@ get "/videoplayback" do |env|
   end
 
   if response.status_code >= 400
-    halt env, status_code: 403
+    halt env, status_code: response.status_code
   end
 
   client = make_client(URI.parse(host), proxies, region)

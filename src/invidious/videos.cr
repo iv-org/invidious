@@ -300,9 +300,9 @@ class Video
       self.info["adaptive_fmts"].split(",") do |string|
         adaptive_fmts << HTTP::Params.parse(string)
       end
-    elsif self.info.has_key?("dashmpd")
+    elsif dashmpd = self.player_response["streamingData"]["dashManifestUrl"]?.try &.as_s
       client = make_client(YT_URL)
-      response = client.get(self.info["dashmpd"])
+      response = client.get(dashmpd)
       document = XML.parse_html(response.body)
 
       document.xpath_nodes(%q(//adaptationset)).each do |adaptation_set|
