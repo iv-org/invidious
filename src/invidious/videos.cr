@@ -272,7 +272,7 @@ class Video
   def fmt_stream(decrypt_function)
     streams = [] of HTTP::Params
 
-    if fmt_streams = self.player_response["streamingData"]["formats"]?
+    if fmt_streams = self.player_response["streamingData"]?.try &.["formats"]?
       fmt_streams.as_a.each do |fmt_stream|
         if !fmt_stream.as_h?
           next
@@ -280,11 +280,11 @@ class Video
 
         fmt = {} of String => String
 
-        fmt["lmt"] = fmt_stream["lastModified"].as_s
+        fmt["lmt"] = fmt_stream["lastModified"]?.try &.as_s || "0"
         fmt["projection_type"] = "1"
         fmt["type"] = fmt_stream["mimeType"].as_s
         fmt["clen"] = fmt_stream["contentLength"]?.try &.as_s || "0"
-        fmt["bitrate"] = fmt_stream["bitrate"].as_i.to_s
+        fmt["bitrate"] = fmt_stream["bitrate"]?.try &.as_i.to_s || "0"
         fmt["itag"] = fmt_stream["itag"].as_i.to_s
         fmt["url"] = fmt_stream["url"].as_s
         fmt["quality"] = fmt_stream["quality"].as_s
@@ -338,7 +338,7 @@ class Video
   def adaptive_fmts(decrypt_function)
     adaptive_fmts = [] of HTTP::Params
 
-    if fmts = self.player_response["streamingData"]["adaptiveFormats"]?
+    if fmts = self.player_response["streamingData"]?.try &.["adaptiveFormats"]?
       fmts.as_a.each do |adaptive_fmt|
         if !adaptive_fmt.as_h?
           next
@@ -351,11 +351,11 @@ class Video
         end
         fmt["init"] ||= "0-0"
 
-        fmt["lmt"] = adaptive_fmt["lastModified"].as_s
+        fmt["lmt"] = adaptive_fmt["lastModified"]?.try &.as_s || "0"
         fmt["projection_type"] = "1"
         fmt["type"] = adaptive_fmt["mimeType"].as_s
         fmt["clen"] = adaptive_fmt["contentLength"]?.try &.as_s || "0"
-        fmt["bitrate"] = adaptive_fmt["bitrate"].as_i.to_s
+        fmt["bitrate"] = adaptive_fmt["bitrate"]?.try &.as_i.to_s || "0"
         fmt["itag"] = adaptive_fmt["itag"].as_i.to_s
         fmt["url"] = adaptive_fmt["url"].as_s
 
