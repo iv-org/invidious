@@ -3412,7 +3412,7 @@ get "/api/v1/search" do |env|
   date = env.params.query["date"]?.try &.downcase
   date ||= ""
 
-  duration = env.params.query["date"]?.try &.downcase
+  duration = env.params.query["duration"]?.try &.downcase
   duration ||= ""
 
   features = env.params.query["features"]?.try &.split(",").map { |feature| feature.downcase }
