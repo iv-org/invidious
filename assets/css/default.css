@@ -150,6 +150,7 @@ img.thumbnail {
   box-shadow: none;
 
   transition: 0.1s border-bottom;
+  -webkit-appearance: none;
 }
 
 .navbar > .searchbar .pure-form fieldset {
