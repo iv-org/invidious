@@ -3958,7 +3958,7 @@ end
 get "/videoplayback" do |env|
   query_params = env.params.query
 
-  fvip = query_params["fvip"]
+  fvip = query_params["fvip"]? || "3"
   mn = query_params["mn"].split(",")[-1]
   host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
