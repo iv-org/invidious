@@ -131,7 +131,16 @@ def refresh_feeds(db, logger, max_threads = 1)
             begin
               db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
             rescue ex
-              logger.write("REFRESH #{email} : #{ex.message}\n")
+              # Create view if it doesn't exist
+              if ex.message.try &.ends_with? "does not exist"
+                PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+                SELECT * FROM channel_videos WHERE \
+                ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{email.gsub("'", "\\'")}')::text[]) \
+                ORDER BY published DESC;")
+                logger.write("CREATE #{view_name}")
+              else
+                logger.write("REFRESH #{email} : #{ex.message}\n")
+              end
             end
 
             active_channel.send(true)
