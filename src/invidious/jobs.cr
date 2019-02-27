@@ -73,7 +73,7 @@ def refresh_channels(db, logger, max_threads = 1, full_refresh = false)
               db.exec("UPDATE channels SET updated = $1, author = $2, deleted = false WHERE id = $3", Time.now, channel.author, id)
             rescue ex
               if ex.message == "Deleted or invalid channel"
-                db.exec("UPDATE channels SET deleted = true WHERE id = $1", id)
+                db.exec("UPDATE channels SET updated = $1, deleted = true WHERE id = $2", Time.now, id)
               end
               logger.write("#{id} : #{ex.message}\n")
             end
