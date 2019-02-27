@@ -636,7 +636,10 @@ def fetch_video(id, proxies, region)
 
   # Try to pull streams from embed URL
   if info["reason"]?
-    embed_info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
+    embed_page = client.get("/embed/#{id}").body
+    sts = embed_page.match(/"sts"\s*:\s*(?<sts>\d+)/).try &.["sts"]?
+    sts ||= ""
+    embed_info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&eurl=https://youtube.googleapis.com/v/#{id}&gl=US&hl=en&disable_polymer=1&sts=#{sts}").body)
 
     if !embed_info["reason"]?
       embed_info.each do |key, value|
