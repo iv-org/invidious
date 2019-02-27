@@ -2024,7 +2024,7 @@ get "/feed/channel/:ucid" do |env|
 
           xml.element("media:group") do
             xml.element("media:title") { xml.text video.title }
-            xml.element("media:thumbnail", url: "/vi/#{video.id}/mqdefault.jpg",
+            xml.element("media:thumbnail", url: "#{host_url}/vi/#{video.id}/mqdefault.jpg",
               width: "320", height: "180")
             xml.element("media:description") { xml.text video.description }
           end
@@ -2140,7 +2140,7 @@ get "/feed/private" do |env|
 
           xml.element("media:group") do
             xml.element("media:title") { xml.text video.title }
-            xml.element("media:thumbnail", url: "/vi/#{video.id}/mqdefault.jpg",
+            xml.element("media:thumbnail", url: "#{host_url}/vi/#{video.id}/mqdefault.jpg",
               width: "320", height: "180")
           end
         end
