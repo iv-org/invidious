@@ -78,7 +78,7 @@ Kemal.config.extra_options do |parser|
   end
 end
 
-Kemal::CLI.new
+Kemal::CLI.new ARGV
 
 PG_URL = URI.new(
   scheme: "postgres",
