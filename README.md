@@ -117,7 +117,7 @@ $ exit
 ```bash
 $ sudo -i -u invidious
 $ cd invidious
-$ shards
+$ shards update && shards install
 $ crystal build src/invidious.cr --release
 # test compiled binary
 $ ./invidious # stop with ctrl c
@@ -153,7 +153,7 @@ $ psql invidious < config/sql/session_ids.sql
 $ psql invidious < config/sql/nonces.sql
 
 # Setup Invidious
-$ shards
+$ shards update && shards install
 $ crystal build src/invidious.cr --release
 ```
 
