@@ -4002,7 +4002,8 @@ get "/videoplayback" do |env|
     env.response.status_code = response.status_code
 
     if title = env.params.query["title"]?
-      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{title}\""
+      # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
     end
 
     response.headers.each do |key, value|
