@@ -2020,6 +2020,14 @@ get "/feed/channel/:ucid" do |env|
             end
           end
 
+          xml.element("content", type: "xhtml") do
+            xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
+              xml.element("a", href: "#{host_url}/watch?v=#{video.id}") do
+                xml.element("img", src: "#{host_url}/vi/#{video.id}/mqdefault.jpg")
+              end
+            end
+          end
+
           xml.element("published") { xml.text video.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
 
           xml.element("media:group") do
@@ -2133,6 +2141,14 @@ get "/feed/private" do |env|
           xml.element("author") do
             xml.element("name") { xml.text video.author }
             xml.element("uri") { xml.text "#{host_url}/channel/#{video.ucid}" }
+          end
+
+          xml.element("content", type: "xhtml") do
+            xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
+              xml.element("a", href: "#{host_url}/watch?v=#{video.id}") do
+                xml.element("img", src: "#{host_url}/vi/#{video.id}/mqdefault.jpg")
+              end
+            end
           end
 
           xml.element("published") { xml.text video.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
