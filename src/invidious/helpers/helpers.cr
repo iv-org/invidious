@@ -1,9 +1,9 @@
 class Config
   YAML.mapping({
+    video_threads:   Int32,      # Number of threads to use for updating videos in cache (mostly non-functional)
     crawl_threads:   Int32,      # Number of threads to use for finding new videos from YouTube (used to populate "top" page)
     channel_threads: Int32,      # Number of threads to use for crawling videos from channels (for updating subscriptions)
     feed_threads:    Int32,      # Number of threads to use for updating feeds
-    video_threads:   Int32,      # Number of threads to use for updating videos in cache (mostly non-functional)
     db:              NamedTuple( # Database configuration
 user: String,
       password: String,
@@ -11,11 +11,18 @@ user: String,
       port: Int32,
       dbname: String,
     ),
-    dl_api_key:   String?, # DetectLanguage API Key (used to filter non-English results from "top" page), mostly non-functional
-    https_only:   Bool?,   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
-    hmac_key:     String?, # HMAC signing key for CSRF tokens
-    full_refresh: Bool,    # Used for crawling channels: threads should check all videos uploaded by a channel
-    domain:       String,  # Domain to be used for links to resources on the site where an absolute URL is required
+    full_refresh:         Bool,    # Used for crawling channels: threads should check all videos uploaded by a channel
+    https_only:           Bool?,   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
+    hmac_key:             String?, # HMAC signing key for CSRF tokens
+    domain:               String,  # Domain to be used for links to resources on the site where an absolute URL is required
+    dl_api_key:           String?, # DetectLanguage API Key (used to filter non-English results from "top" page), mostly non-functional
+    default_home:         {type: String, default: "Top"},
+    feed_menu:            {type: Array(String), default: ["Popular", "Top", "Trending"]},
+    top_enabled:          {type: Bool, default: true},
+    captcha_enabled:      {type: Bool, default: true},
+    login_enabled:        {type: Bool, default: true},
+    registration_enabled: {type: Bool, default: true},
+    admins:               {type: Array(String), default: [] of String},
   })
 end
 

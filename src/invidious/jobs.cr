@@ -133,7 +133,7 @@ def refresh_feeds(db, logger, max_threads = 1)
             rescue ex
               # Create view if it doesn't exist
               if ex.message.try &.ends_with? "does not exist"
-                PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+                db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
                 SELECT * FROM channel_videos WHERE \
                 ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{email.gsub("'", "\\'")}')::text[]) \
                 ORDER BY published DESC;")
@@ -193,11 +193,11 @@ end
 
 def pull_popular_videos(db)
   loop do
-    subscriptions = PG_DB.query_all("SELECT channel FROM \
+    subscriptions = db.query_all("SELECT channel FROM \
       (SELECT UNNEST(subscriptions) AS channel FROM users) AS d \
     GROUP BY channel ORDER BY COUNT(channel) DESC LIMIT 40", as: String)
 
-    videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM \
+    videos = db.query_all("SELECT DISTINCT ON (ucid) * FROM \
       channel_videos WHERE ucid IN (#{arg_array(subscriptions)}) \
     ORDER BY ucid, published DESC", subscriptions, as: ChannelVideo).sort_by { |video| video.published }.reverse
 

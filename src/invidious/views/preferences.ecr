@@ -58,45 +58,25 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="comments_0"><%= translate(locale, "Default comments: ") %></label>
-                <select name="comments_0" id="comments_0">
+                <label for="comments[0]"><%= translate(locale, "Default comments: ") %></label>
+                <% preferences.comments.each_with_index do |comments, index| %>
+                <select name="comments[<%= index %>]" id="comments[<%= index %>]">
                 <% {"", "youtube", "reddit"}.each do |option| %>
-                    <option value="<%= option %>" <% if preferences.comments[0] == option %> selected <% end %>><%= translate(locale, option) %></option>
+                    <option value="<%= option %>" <% if preferences.comments[index] == option %> selected <% end %>><%= translate(locale, option) %></option>
                 <% end %>
                 </select>
+                <% end %>
             </div>
 
             <div class="pure-control-group">
-                <label for="comments_1"><%= translate(locale, "Fallback comments: ") %></label>
-                <select name="comments_1" id="comments_1">
-                <% {"", "youtube", "reddit"}.each do |option| %>
-                    <option value="<%= option %>" <% if preferences.comments[1] == option %> selected <% end %>><%= translate(locale, option) %></option>
-                <% end %>
-                </select>
-            </div>
-
-            <div class="pure-control-group">
-                <label for="captions_0"><%= translate(locale, "Default captions: ") %></label>
-                <select class="pure-u-1-5" name="captions_0" id="captions_0">
+                <label for="captions[0]"><%= translate(locale, "Default captions: ") %></label>
+                <% preferences.captions.each_with_index do |caption, index| %>
+                <select class="pure-u-1-6" name="captions[<%= index %>]" id="captions[<%= index %>]">
                 <% CAPTION_LANGUAGES.each do |option| %>
-                    <option value="<%= option %>" <% if preferences.captions[0] == option %> selected <% end %>><%= translate(locale, option) %></option>
+                    <option value="<%= option %>" <% if preferences.captions[index] == option %> selected <% end %>><%= translate(locale, option) %></option>
                 <% end %>
                 </select>
-            </div>
-
-            <div class="pure-control-group">
-                <label for="captions_fallback"><%= translate(locale, "Fallback captions: ") %></label>
-                <select class="pure-u-1-5" name="captions_1" id="captions_1">
-                <% CAPTION_LANGUAGES.each do |option| %>
-                    <option value="<%= option %>" <% if preferences.captions[1] == option %> selected <% end %>><%= translate(locale, option) %></option>
                 <% end %>
-                </select>
-
-                <select class="pure-u-1-5" name="captions_2" id="captions_2">
-                <% CAPTION_LANGUAGES.each do |option| %>
-                    <option value="<%= option %>" <% if preferences.captions[2] == option %> selected <% end %>><%= translate(locale, option) %></option>
-                <% end %>
-                </select>
             </div>
 
             <div class="pure-control-group">
@@ -167,13 +147,57 @@ function update_value(element) {
             </div>
             <% end %>
 
+            <% if env.get?("user") && config.admins.includes? env.get?("user").as(User).email %>
+            <legend><%= translate(locale, "Administrator preferences") %></legend>
+
+            <div class="pure-control-group">
+                <label for="default_home"><%= translate(locale, "Default homepage: ") %></label>
+                <select name="default_home" id="default_home">
+                <% {"Popular", "Top", "Trending", "Subscriptions"}.each do |option| %>
+                    <option value="<%= option %>" <% if config.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
+                <% end %>
+                </select>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="feed_menu"><%= translate(locale, "Feed menu: ") %></label>
+                <% 4.times do |index| %>
+                <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
+                <% {"", "Popular", "Top", "Trending", "Subscriptions"}.each do |option| %>
+                    <option value="<%= option %>" <% if config.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option) %></option>
+                <% end %>
+                </select>
+                <% end %>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="top_enabled"><%= translate(locale, "Top enabled? ") %></label>
+                <input name="top_enabled" id="top_enabled" type="checkbox" <% if config.top_enabled %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="captcha_enabled"><%= translate(locale, "CAPTCHA enabled? ") %></label>
+                <input name="captcha_enabled" id="captcha_enabled" type="checkbox" <% if config.captcha_enabled %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="login_enabled"><%= translate(locale, "Login enabled? ") %></label>
+                <input name="login_enabled" id="login_enabled" type="checkbox" <% if config.login_enabled %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="registration_enabled"><%= translate(locale, "Registration enabled? ") %></label>
+                <input name="registration_enabled" id="registration_enabled" type="checkbox" <% if config.registration_enabled %>checked<% end %>>
+            </div>
+            <% end %>
+
             <% if env.get? "user" %>
             <legend><%= translate(locale, "Data preferences") %></legend>
 
             <div class="pure-control-group">
                 <a href="/clear_watch_history?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Clear watch history") %></a>
             </div>
-            
+
             <div class="pure-control-group">
                 <a href="/data_control?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Import/Export data") %></a>
             </div>

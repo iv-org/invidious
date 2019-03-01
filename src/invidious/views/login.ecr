@@ -27,36 +27,40 @@
 
                     <label for="password"><%= translate(locale, "Password:") %></label>
                     <input required class="pure-input-1" name="password" type="password" placeholder="Password">
-                
-                <% if captcha_type == "image" %>
-                    <img style="width:100%" src='<%= captcha.not_nil![:image] %>'/>
-                    <input type="hidden" name="token" value="<%= captcha.not_nil![:token] %>">
-                    <input type="hidden" name="challenge" value="<%= captcha.not_nil![:challenge] %>">
-                    <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
-                    <input required type="text" name="answer" type="text" placeholder="h:mm:ss">
-                    
-                    <label>
-                        <a href="/login?referer=<%= URI.escape(referer) %>&type=invidious&captcha=text">
-                            <%= translate(locale, "Text CAPTCHA") %>
-                        </a>
-                    </label>
-                <% else %>
-                    <% text_captcha.not_nil![:tokens].each_with_index do |token, i| %>
-                        <input type="hidden" name="text_challenge<%= i %>" value="<%= token[0] %>">
-                        <input type="hidden" name="text_token<%= i %>" value="<%= token[1] %>">
-                    <% end %>
-                    <label for="text_answer"><%= text_captcha.not_nil![:question] %></label>
-                    <input required type="text" name="text_answer" type="text" placeholder="Answer">
 
-                    <label>
-                        <a href="/login?referer=<%= URI.escape(referer) %>&type=invidious">
-                            <%= translate(locale, "Image CAPTCHA") %>
-                        </a>
-                    </label>
+                <% if config.captcha_enabled %>
+                    <% if captcha_type == "image" %>
+                        <img style="width:100%" src='<%= captcha.not_nil![:image] %>'/>
+                        <input type="hidden" name="token" value="<%= captcha.not_nil![:token] %>">
+                        <input type="hidden" name="challenge" value="<%= captcha.not_nil![:challenge] %>">
+                        <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
+                        <input required type="text" name="answer" type="text" placeholder="h:mm:ss">
+
+                        <label>
+                            <a href="/login?referer=<%= URI.escape(referer) %>&type=invidious&captcha=text">
+                                <%= translate(locale, "Text CAPTCHA") %>
+                            </a>
+                        </label>
+                    <% else %>
+                        <% text_captcha.not_nil![:tokens].each_with_index do |token, i| %>
+                            <input type="hidden" name="text_challenge<%= i %>" value="<%= token[0] %>">
+                            <input type="hidden" name="text_token<%= i %>" value="<%= token[1] %>">
+                        <% end %>
+                        <label for="text_answer"><%= text_captcha.not_nil![:question] %></label>
+                        <input required type="text" name="text_answer" type="text" placeholder="Answer">
+
+                        <label>
+                            <a href="/login?referer=<%= URI.escape(referer) %>&type=invidious">
+                                <%= translate(locale, "Image CAPTCHA") %>
+                            </a>
+                        </label>
+                    <% end %>
                 <% end %>
 
                     <button type="submit" name="action" value="signin" class="pure-button pure-button-primary"><%= translate(locale, "Sign In") %></button>
+                    <% if config.registration_enabled %>
                     <button type="submit" name="action" value="register" class="pure-button pure-button-primary"><%= translate(locale, "Register") %></button>
+                    <% end %>
                 </fieldset>
             </form>
             <% elsif account_type == "google" %>
@@ -67,7 +71,7 @@
 
                     <label for="password"><%= translate(locale, "Password:") %></label>
                     <input required class="pure-input-1" name="password" type="password" placeholder="Password">
-                    
+
                     <% if tfa %>
                     <label for="tfa"><%= translate(locale, "Google verification code:") %></label>
                     <input required class="pure-input-1" name="tfa" type="text" placeholder="Google verification code">

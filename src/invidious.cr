@@ -31,42 +31,38 @@ require "./invidious/*"
 CONFIG   = Config.from_yaml(File.read("config/config.yml"))
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.random_bytes(32)
 
-crawl_threads = CONFIG.crawl_threads
-channel_threads = CONFIG.channel_threads
-feed_threads = CONFIG.feed_threads
-video_threads = CONFIG.video_threads
-
+config = CONFIG
 logger = Invidious::LogHandler.new
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-t THREADS", "--crawl-threads=THREADS", "Number of threads for crawling YouTube (default: #{crawl_threads})") do |number|
+  parser.on("-t THREADS", "--crawl-threads=THREADS", "Number of threads for crawling YouTube (default: #{config.crawl_threads})") do |number|
     begin
-      crawl_threads = number.to_i
+      config.crawl_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
     end
   end
-  parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{channel_threads})") do |number|
+  parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{config.channel_threads})") do |number|
     begin
-      channel_threads = number.to_i
+      config.channel_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
     end
   end
-  parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{feed_threads})") do |number|
+  parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{config.feed_threads})") do |number|
     begin
-      feed_threads = number.to_i
+      config.feed_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
     end
   end
-  parser.on("-v THREADS", "--video-threads=THREADS", "Number of threads for refreshing videos (default: #{video_threads})") do |number|
+  parser.on("-v THREADS", "--video-threads=THREADS", "Number of threads for refreshing videos (default: #{config.video_threads})") do |number|
     begin
-      video_threads = number.to_i
+      config.video_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
@@ -107,28 +103,30 @@ LOCALES = {
   "ru"    => load_locale("ru"),
 }
 
-crawl_threads.times do
+config.crawl_threads.times do
   spawn do
     crawl_videos(PG_DB, logger)
   end
 end
 
-refresh_channels(PG_DB, logger, channel_threads, CONFIG.full_refresh)
+refresh_channels(PG_DB, logger, config.channel_threads, config.full_refresh)
 
-refresh_feeds(PG_DB, logger, feed_threads)
+refresh_feeds(PG_DB, logger, config.feed_threads)
 
-video_threads.times do |i|
+config.video_threads.times do |i|
   spawn do
     refresh_videos(PG_DB, logger)
   end
 end
 
 top_videos = [] of Video
-spawn do
-  pull_top_videos(CONFIG, PG_DB) do |videos|
-    top_videos = videos
-    sleep 1.minutes
-    Fiber.yield
+if config.top_enabled
+  spawn do
+    pull_top_videos(config, PG_DB) do |videos|
+      top_videos = videos
+      sleep 1.minutes
+      Fiber.yield
+    end
   end
 end
 
@@ -231,7 +229,20 @@ get "/" do |env|
     end
   end
 
-  templated "index"
+  case config.default_home
+  when "Popular"
+    templated "popular"
+  when "Top"
+    templated "top"
+  when "Trending"
+    env.redirect "/feed/trending"
+  when "Subscriptions"
+    if user
+      env.redirect "/feed/subscriptions"
+    else
+      templated "popular"
+    end
+  end
 end
 
 get "/licenses" do |env|
@@ -367,7 +378,7 @@ get "/watch" do |env|
   video.description = replace_links(video.description)
   description = video.short_description
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
   host_params = env.request.query_params
   host_params.delete_all("v")
 
@@ -467,7 +478,7 @@ get "/embed/:id" do |env|
   video.description = replace_links(video.description)
   description = video.short_description
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
   host_params = env.request.query_params
   host_params.delete_all("v")
 
@@ -553,7 +564,7 @@ get "/opensearch.xml" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
   env.response.content_type = "application/opensearchdescription+xml"
 
-  host = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+  host = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
 
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("OpenSearchDescription", xmlns: "http://a9.com/-/spec/opensearch/1.1/") do
@@ -678,6 +689,11 @@ get "/login" do |env|
     next env.redirect "/feed/subscriptions"
   end
 
+  if !config.login_enabled
+    error_message = "Login has been disabled by administrator."
+    next templated "error"
+  end
+
   referer = get_referer(env, "/feed/subscriptions")
 
   account_type = env.params.query["type"]?
@@ -715,6 +731,11 @@ post "/login" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
 
   referer = get_referer(env, "/feed/subscriptions")
+
+  if !config.login_enabled
+    error_message = "Login has been disabled by administrator."
+    next templated "error"
+  end
 
   email = env.params.body["email"]?
   password = env.params.body["password"]?
@@ -876,14 +897,14 @@ post "/login" do |env|
 
       host = URI.parse(env.request.headers["Host"]).host
 
-      if Kemal.config.ssl || CONFIG.https_only
+      if Kemal.config.ssl || config.https_only
         secure = true
       else
         secure = false
       end
 
       login.cookies.each do |cookie|
-        if Kemal.config.ssl || CONFIG.https_only
+        if Kemal.config.ssl || config.https_only
           cookie.secure = secure
         else
           cookie.secure = secure
@@ -912,54 +933,56 @@ post "/login" do |env|
     answer = env.params.body["answer"]?
     text_answer = env.params.body["text_answer"]?
 
-    if answer
-      answer = answer.lstrip('0')
-      answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
+    if config.captcha_enabled
+      if answer
+        answer = answer.lstrip('0')
+        answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
 
-      challenge = env.params.body["challenge"]?
-      token = env.params.body["token"]?
+        challenge = env.params.body["challenge"]?
+        token = env.params.body["token"]?
 
-      begin
-        validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB, locale)
-      rescue ex
-        if ex.message == translate(locale, "Invalid user")
-          error_message = translate(locale, "Invalid answer")
-        else
-          error_message = ex.message
-        end
-
-        next templated "error"
-      end
-    elsif text_answer
-      text_answer = Digest::MD5.hexdigest(text_answer.downcase.strip)
-
-      challenges = env.params.body.select { |k, v| k.match(/text_challenge\d+/) }
-      tokens = env.params.body.select { |k, v| k.match(/text_token\d+/) }
-
-      found_valid_captcha = false
-
-      error_message = translate(locale, "Invalid CAPTCHA")
-      challenges.each_with_index do |challenge, i|
         begin
-          challenge = challenge[1]
-          token = tokens[i][1]
-          validate_response(challenge, token, text_answer, "sign_in", HMAC_KEY, PG_DB, locale)
-          found_valid_captcha = true
+          validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB, locale)
         rescue ex
           if ex.message == translate(locale, "Invalid user")
             error_message = translate(locale, "Invalid answer")
           else
             error_message = ex.message
           end
-        end
-      end
 
-      if !found_valid_captcha
+          next templated "error"
+        end
+      elsif text_answer
+        text_answer = Digest::MD5.hexdigest(text_answer.downcase.strip)
+
+        challenges = env.params.body.select { |k, v| k.match(/text_challenge\d+/) }
+        tokens = env.params.body.select { |k, v| k.match(/text_token\d+/) }
+
+        found_valid_captcha = false
+
+        error_message = translate(locale, "Invalid CAPTCHA")
+        challenges.each_with_index do |challenge, i|
+          begin
+            challenge = challenge[1]
+            token = tokens[i][1]
+            validate_response(challenge, token, text_answer, "sign_in", HMAC_KEY, PG_DB, locale)
+            found_valid_captcha = true
+          rescue ex
+            if ex.message == translate(locale, "Invalid user")
+              error_message = translate(locale, "Invalid answer")
+            else
+              error_message = ex.message
+            end
+          end
+        end
+
+        if !found_valid_captcha
+          next templated "error"
+        end
+      else
+        error_message = translate(locale, "CAPTCHA is a required field")
         next templated "error"
       end
-    else
-      error_message = translate(locale, "CAPTCHA is a required field")
-      next templated "error"
     end
 
     action = env.params.body["action"]?
@@ -992,14 +1015,14 @@ post "/login" do |env|
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.now)
 
-        if Kemal.config.ssl || CONFIG.https_only
+        if Kemal.config.ssl || config.https_only
           secure = true
         else
           secure = false
         end
 
-        if CONFIG.domain
-          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: ".#{CONFIG.domain}", value: sid, expires: Time.now + 2.years,
+        if config.domain
+          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: ".#{config.domain}", value: sid, expires: Time.now + 2.years,
             secure: secure, http_only: true)
         else
           env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
@@ -1016,6 +1039,11 @@ post "/login" do |env|
           secure: secure, http_only: true)
       end
     elsif action == "register"
+      if !config.registration_enabled
+        error_message = "Registration has been disabled by administrator."
+        next templated "error"
+      end
+
       if password.empty?
         error_message = translate(locale, "Password cannot be empty")
         next templated "error"
@@ -1049,14 +1077,14 @@ post "/login" do |env|
         ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
       ORDER BY published DESC;")
 
-      if Kemal.config.ssl || CONFIG.https_only
+      if Kemal.config.ssl || config.https_only
         secure = true
       else
         secure = false
       end
 
-      if CONFIG.domain
-        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: ".#{CONFIG.domain}", value: sid, expires: Time.now + 2.years,
+      if config.domain
+        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: ".#{config.domain}", value: sid, expires: Time.now + 2.years,
           secure: secure, http_only: true)
       else
         env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
@@ -1153,14 +1181,15 @@ post "/preferences" do |env|
   volume = env.params.body["volume"]?.try &.as(String).to_i?
   volume ||= DEFAULT_USER_PREFERENCES.volume
 
-  comments_0 = env.params.body["comments_0"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.comments[0]
-  comments_1 = env.params.body["comments_1"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.comments[1]
-  comments = [comments_0, comments_1]
+  comments = [] of String
+  2.times do |i|
+    comments << (env.params.body["comments[#{i}]"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.comments[i])
+  end
 
-  captions_0 = env.params.body["captions_0"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[0]
-  captions_1 = env.params.body["captions_1"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[1]
-  captions_2 = env.params.body["captions_2"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[2]
-  captions = [captions_0, captions_1, captions_2]
+  captions = [] of String
+  3.times do |i|
+    captions << (env.params.body["captions[#{i}]"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[i])
+  end
 
   related_videos = env.params.body["related_videos"]?.try &.as(String)
   related_videos ||= "off"
@@ -1224,6 +1253,37 @@ post "/preferences" do |env|
   if user = env.get? "user"
     user = user.as(User)
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
+
+    if config.admins.includes? user.email
+      config.default_home = env.params.body["default_home"]?.try &.as(String) || config.default_home
+
+      feed_menu = [] of String
+      4.times do |index|
+        option = env.params.body["feed_menu[#{index}]"]?.try &.as(String) || ""
+        if !option.empty?
+          feed_menu << option
+        end
+      end
+      config.feed_menu = feed_menu
+
+      top_enabled = env.params.body["top_enabled"]?.try &.as(String)
+      top_enabled ||= "off"
+      config.top_enabled = top_enabled == "on"
+
+      captcha_enabled = env.params.body["captcha_enabled"]?.try &.as(String)
+      captcha_enabled ||= "off"
+      config.captcha_enabled = captcha_enabled == "on"
+
+      login_enabled = env.params.body["login_enabled"]?.try &.as(String)
+      login_enabled ||= "off"
+      config.login_enabled = login_enabled == "on"
+
+      registration_enabled = env.params.body["registration_enabled"]?.try &.as(String)
+      registration_enabled ||= "off"
+      config.registration_enabled = registration_enabled == "on"
+
+      File.write("config/config.yml", config.to_yaml)
+    end
   else
     env.response.cookies["PREFS"] = preferences
   end
@@ -1397,7 +1457,7 @@ get "/subscription_manager" do |env|
   subscriptions.sort_by! { |channel| channel.author.downcase }
 
   if action_takeout
-    host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+    host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
 
     if format == "json"
       env.response.content_type = "application/json"
@@ -1741,7 +1801,11 @@ end
 get "/feed/top" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
 
-  templated "top"
+  if config.top_enabled
+    templated "top"
+  else
+    env.redirect "/"
+  end
 end
 
 get "/feed/popular" do |env|
@@ -1984,7 +2048,7 @@ get "/feed/channel/:ucid" do |env|
     )
   end
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
   path = env.request.path
 
   feed = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -2118,7 +2182,7 @@ get "/feed/private" do |env|
     videos = videos[0..max_results]
   end
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
   path = env.request.path
   query = env.request.query.not_nil!
 
@@ -2173,7 +2237,7 @@ get "/feed/playlist/:plid" do |env|
 
   plid = env.params.url["plid"]
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
   path = env.request.path
 
   client = make_client(YT_URL)
@@ -2487,7 +2551,7 @@ get "/api/v1/insights/:id" do |env|
   env.response.content_type = "application/json"
 
   error_message = {"error" => "YouTube has removed publicly-available analytics."}.to_json
-  halt env, status_code: 503, response: error_message
+  halt env, status_code: 410, response: error_message
 
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
@@ -2653,7 +2717,7 @@ get "/api/v1/videos/:id" do |env|
       end
 
       if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-        host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+        host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
 
         host_params = env.request.query_params
         host_params.delete_all("v")
@@ -2870,6 +2934,11 @@ get "/api/v1/top" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
 
   env.response.content_type = "application/json"
+
+  if !config.top_enabled
+    error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
+    halt env, status_code: 400, response: error_message
+  end
 
   videos = JSON.build do |json|
     json.array do
@@ -3842,7 +3911,7 @@ get "/api/manifest/hls_variant/*" do |env|
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
 
   manifest = manifest.body
   manifest.gsub("https://www.youtube.com", host_url)
@@ -3856,7 +3925,7 @@ get "/api/manifest/hls_playlist/*" do |env|
     halt env, status_code: manifest.status_code
   end
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
 
   manifest = manifest.body.gsub("https://www.youtube.com", host_url)
   manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, host_url)

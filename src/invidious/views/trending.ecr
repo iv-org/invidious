@@ -1,6 +1,6 @@
 <% content_for "header" do %>
 <meta name="description" content="<%= translate(locale, "An alternative front-end to YouTube") %>">
-<title><%= translate(locale, "Trending") %> - Invidious</title>
+<title><% if config.default_home != "Trending" %><%= translate(locale, "Trending") %> - <% end %>Invidious</title>
 <% end %>
 
 <%= rendered "components/feed_menu" %>

@@ -2,12 +2,12 @@
     <div class="pure-u-1 pure-u-md-1-4"></div>
     <div class="pure-u-1 pure-u-md-1-2">
         <div class="pure-g">
-            <% feeds = ["Popular", "Top", "Trending"] %>
-            <% if env.get? "user" %>
-            <% feeds << "Subscriptions" %>
+            <% feed_menu = config.feed_menu.dup %>
+            <% if !env.get?("user") %>
+            <% feed_menu.reject! {|feed| feed == "Subscriptions"} %>
             <% end %>
-            <% feeds.each do |feed| %>
-            <div class="pure-u-1-2 pure-u-md-1-<%= feeds.size %>">
+            <% feed_menu.each do |feed| %>
+            <div class="pure-u-1-2 pure-u-md-1-<%= feed_menu.size %>">
                 <a href="/feed/<%= feed.downcase %>" style="text-align:center;" class="pure-menu-heading">
                     <%= translate(locale, feed) %>
                 </a>

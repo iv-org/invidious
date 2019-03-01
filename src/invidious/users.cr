@@ -143,7 +143,7 @@ def get_user(sid, headers, db, refresh = true)
 
       begin
         view_name = "subscriptions_#{sha256(user.email)[0..7]}"
-        PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+        db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
         SELECT * FROM channel_videos WHERE \
         ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
         ORDER BY published DESC;")
@@ -165,7 +165,7 @@ def get_user(sid, headers, db, refresh = true)
 
     begin
       view_name = "subscriptions_#{sha256(user.email)[0..7]}"
-      PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+      db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
       SELECT * FROM channel_videos WHERE \
       ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
       ORDER BY published DESC;")
@@ -247,7 +247,7 @@ def validate_response(challenge, token, user_id, operation, key, db, locale)
     raise translate(locale, "Invalid challenge")
   end
 
-  challenge = OpenSSL::HMAC.digest(:sha256, HMAC_KEY, challenge)
+  challenge = OpenSSL::HMAC.digest(:sha256, key, challenge)
   challenge = Base64.urlsafe_encode(challenge)
 
   if db.query_one?("SELECT EXISTS (SELECT true FROM nonces WHERE nonce = $1)", nonce, as: Bool)
