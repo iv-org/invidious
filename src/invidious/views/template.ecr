@@ -100,34 +100,30 @@
         </div>
       </div>
       <%= content %>
+      <div class="h-box">
+        <hr>
+      </div>
       <div class="footer">
-        <p>
-          <a href="https://github.com/omarroth">
-            <%= translate(locale, "Released under the AGPLv3 by Omar Roth.") %>
-          </a>
-        </p>
-        <p>
-          <a href="https://github.com/omarroth/invidious">
-            <%= translate(locale, "Source available here.") %>
-          </a>
-        </p>
-        <p><%= translate(locale, "Liberapay: ") %>
-          <a href="https://liberapay.com/omarroth">
-            https://liberapay.com/omarroth
-          </a>
-        </p>
-        <p><%= translate(locale, "Patreon: ") %>
-          <a href="https://patreon.com/omarroth">
-            https://patreon.com/omarroth
-          </a>
-        </p>
-        <p><%= translate(locale, "BTC: ") %>356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY</p>
-        <p><%= translate(locale, "BCH: ") %>qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk</p>
-        <p>
-          <a rel="jslicense" href="/licenses">
-            <%= translate(locale, "View JavaScript license information.") %>
-          </a>
-        </p>
+        <div class="pure-g">
+          <div class="pure-u-1 pure-u-md-1-3">
+            <a href="https://github.com/omarroth/invidious">
+              <%= translate(locale, "Released under the AGPLv3 by Omar Roth.") %>
+            </a>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3"><%= translate(locale, "BTC: ") %>356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY</div>
+          <div class="pure-u-1 pure-u-md-1-3"><%= translate(locale, "BCH: ") %>qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk</div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <a href="https://liberapay.com/omarroth"><%= translate(locale, "Liberapay") %></a>
+             / 
+            <a href="https://patreon.com/omarroth"><%= translate(locale, "Patreon") %></a>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3">
+            <a rel="jslicense" href="/licenses">
+              <%= translate(locale, "View JavaScript license information.") %>
+            </a>
+          </div>
+          <div class="pure-u-1 pure-u-md-1-3"><%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %></div>
+        </div>
       </div>
     </div>
     <div class="pure-u-1 pure-u-md-2-24"></div>

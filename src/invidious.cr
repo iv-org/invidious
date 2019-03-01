@@ -90,6 +90,8 @@ YT_URL          = URI.parse("https://www.youtube.com")
 REDDIT_URL      = URI.parse("https://www.reddit.com")
 LOGIN_URL       = URI.parse("https://accounts.google.com")
 TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@hotmail.com.json")
+CURRENT_COMMIT  = `git rev-list HEAD --max-count=1 --abbrev-commit`.strip
+CURRENT_VERSION = `git describe --tags $(git rev-list --tags --max-count=1)`.strip
 
 LOCALES = {
   "ar"    => load_locale("ar"),
@@ -118,6 +120,12 @@ config.video_threads.times do |i|
     refresh_videos(PG_DB, logger)
   end
 end
+
+# stats = Statistics.new
+# if config.statistics
+#   spawn do
+#   end
+# end
 
 top_videos = [] of Video
 if config.top_enabled
