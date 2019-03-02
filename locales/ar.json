@@ -89,6 +89,7 @@
   "CAPTCHA enabled? ": "",
   "Login enabled? ": "",
   "Registration enabled? ": "",
+  "Report statistics? ": "",
   "Save preferences": "حفظ التفضيلات",
   "Subscription manager": "مدير الإشتراكات",
   "`x` subscriptions": "`x` مشتركين",

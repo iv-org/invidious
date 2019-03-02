@@ -86,6 +86,7 @@
   "CAPTCHA enabled? ": "",
   "Login enabled? ": "",
   "Registration enabled? ": "",
+  "Report statistics? ": "",
   "Save preferences": "Salva le preferenze",
   "Subscription manager": "Gestisci le iscrizioni",
   "`x` subscriptions": "`x` iscrizioni",

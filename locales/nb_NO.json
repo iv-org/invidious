@@ -87,6 +87,7 @@
   "CAPTCHA enabled? ": "",
   "Login enabled? ": "",
   "Registration enabled? ": "",
+  "Report statistics? ": "",
   "Save preferences": "Lagre innstillinger",
   "Subscription manager": "Abonnementsbehandler",
   "`x` subscriptions": "`x` abonnementer",
