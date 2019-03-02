@@ -145,7 +145,8 @@ if config.statistics_enabled
           },
         },
         "metadata" => {
-          "updatedAt" => Time.now.to_unix,
+          "updatedAt"              => Time.now.to_unix,
+          "lastChannelRefreshedAt" => PG_DB.query_one?("SELECT updated FROM channels ORDER BY updated DESC LIMIT 1", as: Time).try &.to_unix || 0,
         },
       }
 
