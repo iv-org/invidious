@@ -189,6 +189,11 @@ function update_value(element) {
                 <label for="registration_enabled"><%= translate(locale, "Registration enabled? ") %></label>
                 <input name="registration_enabled" id="registration_enabled" type="checkbox" <% if config.registration_enabled %>checked<% end %>>
             </div>
+
+            <div class="pure-control-group">
+                <label for="statistics_enabled"><%= translate(locale, "Report statistics? ") %></label>
+                <input name="statistics_enabled" id="statistics_enabled" type="checkbox" <% if config.statistics_enabled %>checked<% end %>>
+            </div>
             <% end %>
 
             <% if env.get? "user" %>

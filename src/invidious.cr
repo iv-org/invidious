@@ -122,11 +122,32 @@ config.video_threads.times do |i|
   end
 end
 
-# stats = Statistics.new
-# if config.statistics
-#   spawn do
-#   end
-# end
+statistics = {
+  "error" => "Statistics are not availabile.",
+}
+if config.statistics_enabled
+  spawn do
+    loop do
+      statistics = {
+        "version"  => "2.0",
+        "software" => {
+          "name"    => "invidious",
+          "version" => "#{CURRENT_VERSION}-#{CURRENT_COMMIT}",
+        },
+        "openRegistrations" => config.registration_enabled,
+        "usage"             => {
+          "total"          => PG_DB.query_one("SELECT count(*) FROM users", as: Int64),
+          "activeHalfyear" => PG_DB.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '6 months'", as: Int64),
+          "activeMonth"    => PG_DB.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '1 month'", as: Int64),
+        },
+        "updatedAt" => Time.now.to_unix,
+      }
+
+      sleep 1.minute
+      Fiber.yield
+    end
+  end
+end
 
 top_videos = [] of Video
 if config.top_enabled
@@ -1291,6 +1312,10 @@ post "/preferences" do |env|
       registration_enabled ||= "off"
       config.registration_enabled = registration_enabled == "on"
 
+      statistics_enabled = env.params.body["statistics_enabled"]?.try &.as(String)
+      statistics_enabled ||= "off"
+      config.statistics_enabled = statistics_enabled == "on"
+
       File.write("config/config.yml", config.to_yaml)
     end
   else
@@ -2380,6 +2405,25 @@ get "/channel/:ucid/videos" do |env|
 end
 
 # API Endpoints
+
+get "/api/v1/stats" do |env|
+  env.response.content_type = "application/json"
+
+  if statistics["error"]?
+    halt env, status_code: 500, response: statistics.to_json
+  end
+
+  if !config.statistics_enabled
+    error_message = {"error" => "Statistics are not enabled."}.to_json
+    halt env, status_code: 400, response: error_message
+  end
+
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    statistics.to_pretty_json
+  else
+    statistics.to_json
+  end
+end
 
 get "/api/v1/captions/:id" do |env|
   locale = LOCALES[env.get("locale").as(String)]?

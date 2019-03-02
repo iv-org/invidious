@@ -22,6 +22,7 @@ user: String,
     captcha_enabled:      {type: Bool, default: true},
     login_enabled:        {type: Bool, default: true},
     registration_enabled: {type: Bool, default: true},
+    statistics_enabled:   {type: Bool, default: false},
     admins:               {type: Array(String), default: [] of String},
   })
 end
