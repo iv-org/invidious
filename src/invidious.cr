@@ -136,12 +136,10 @@ if config.statistics_enabled
         },
         "openRegistrations" => config.registration_enabled,
         "usage"             => {
-          {
-            "users" => {
-              "total"          => PG_DB.query_one("SELECT count(*) FROM users", as: Int64),
-              "activeHalfyear" => PG_DB.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '6 months'", as: Int64),
-              "activeMonth"    => PG_DB.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '1 month'", as: Int64),
-            },
+          "users" => {
+            "total"          => PG_DB.query_one("SELECT count(*) FROM users", as: Int64),
+            "activeHalfyear" => PG_DB.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '6 months'", as: Int64),
+            "activeMonth"    => PG_DB.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '1 month'", as: Int64),
           },
         },
         "metadata" => {
