@@ -154,18 +154,9 @@ def refresh_feeds(db, logger, max_threads = 1)
 end
 
 def pull_top_videos(config, db)
-  if config.dl_api_key
-    DetectLanguage.configure do |dl_config|
-      dl_config.api_key = config.dl_api_key.not_nil!
-    end
-    filter = true
-  end
-
-  filter ||= false
-
   loop do
     begin
-      top = rank_videos(db, 40, filter, YT_URL)
+      top = rank_videos(db, 40)
     rescue ex
       next
     end

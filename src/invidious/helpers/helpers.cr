@@ -14,8 +14,7 @@ user: String,
     full_refresh:         Bool,    # Used for crawling channels: threads should check all videos uploaded by a channel
     https_only:           Bool?,   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
     hmac_key:             String?, # HMAC signing key for CSRF tokens
-    domain:               String,  # Domain to be used for links to resources on the site where an absolute URL is required
-    dl_api_key:           String?, # DetectLanguage API Key (used to filter non-English results from "top" page), mostly non-functional
+    domain:               String?, # Domain to be used for links to resources on the site where an absolute URL is required
     default_home:         {type: String, default: "Top"},
     feed_menu:            {type: Array(String), default: ["Popular", "Top", "Trending"]},
     top_enabled:          {type: Bool, default: true},
@@ -74,7 +73,7 @@ class DenyFrame < Kemal::Handler
   end
 end
 
-def rank_videos(db, n, filter, url)
+def rank_videos(db, n)
   top = [] of {Float64, String}
 
   db.query("SELECT id, wilson_score, published FROM videos WHERE views > 5000 ORDER BY published DESC LIMIT 1000") do |rs|
@@ -95,41 +94,7 @@ def rank_videos(db, n, filter, url)
   top.reverse!
   top = top.map { |a, b| b }
 
-  if filter
-    language_list = [] of String
-    top.each do |id|
-      if language_list.size == n
-        break
-      else
-        client = make_client(url)
-        begin
-          video = get_video(id, db)
-        rescue ex
-          next
-        end
-
-        if video.language
-          language = video.language
-        else
-          description = XML.parse(video.description)
-          content = [video.title, description.content].join(" ")
-          content = content[0, 10000]
-
-          results = DetectLanguage.detect(content)
-          language = results[0].language
-
-          db.exec("UPDATE videos SET language = $1 WHERE id = $2", language, id)
-        end
-
-        if language == "en"
-          language_list << id
-        end
-      end
-    end
-    return language_list
-  else
-    return top[0..n - 1]
-  end
+  return top[0..n - 1]
 end
 
 def login_req(login_form, f_req)
