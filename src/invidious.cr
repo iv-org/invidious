@@ -1056,7 +1056,7 @@ post "/login" do |env|
         end
 
         if config.domain
-          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: ".#{config.domain}", value: sid, expires: Time.now + 2.years,
+          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{config.domain}", value: sid, expires: Time.now + 2.years,
             secure: secure, http_only: true)
         else
           env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
@@ -1118,7 +1118,7 @@ post "/login" do |env|
       end
 
       if config.domain
-        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: ".#{config.domain}", value: sid, expires: Time.now + 2.years,
+        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{config.domain}", value: sid, expires: Time.now + 2.years,
           secure: secure, http_only: true)
       else
         env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,

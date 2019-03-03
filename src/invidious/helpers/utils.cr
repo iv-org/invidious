@@ -200,7 +200,12 @@ def make_host_url(ssl, host)
     scheme = "http://"
   end
 
-  return "#{scheme}#{host}"
+  if host
+    host = host.lchop(".")
+    return "#{scheme}#{host}"
+  else
+    return ""
+  end
 end
 
 def get_referer(env, fallback = "/")
