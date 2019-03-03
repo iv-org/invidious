@@ -2374,7 +2374,6 @@ get "/channel/:ucid" do |env|
   continuation = env.params.query["continuation"]?
 
   sort_by = env.params.query["sort_by"]?.try &.downcase
-  sort_by ||= "newest"
 
   begin
     author, ucid, auto_generated, sub_count = get_about_info(ucid, locale)
@@ -2392,11 +2391,17 @@ get "/channel/:ucid" do |env|
   end
 
   if auto_generated
+    sort_options = {"last", "oldest", "newest"}
+    sort_by ||= "last"
+
     items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
     items.select! { |item| item.is_a?(SearchPlaylist) && !item.videos.empty? }
     items = items.map { |item| item.as(SearchPlaylist) }
     items.each { |item| item.author = "" }
   else
+    sort_options = {"newest", "oldest", "popular"}
+    sort_by ||= "newest"
+
     items, count = get_60_videos(ucid, page, auto_generated, sort_by)
     items.select! { |item| !item.paid }
   end
@@ -2417,6 +2422,42 @@ get "/channel/:ucid/videos" do |env|
   end
 
   env.redirect "/channel/#{ucid}#{params}"
+end
+
+get "/channel/:ucid/playlists" do |env|
+  locale = LOCALES[env.get("locale").as(String)]?
+
+  user = env.get? "user"
+  if user
+    user = user.as(User)
+    subscriptions = user.subscriptions
+  end
+  subscriptions ||= [] of String
+
+  ucid = env.params.url["ucid"]
+
+  continuation = env.params.query["continuation"]?
+
+  sort_by = env.params.query["sort_by"]?.try &.downcase
+  sort_by ||= "last"
+
+  begin
+    author, ucid, auto_generated, sub_count = get_about_info(ucid, locale)
+  rescue ex
+    error_message = ex.message
+    next templated "error"
+  end
+
+  if auto_generated
+    next env.redirect "/channel/#{ucid}"
+  end
+
+  items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
+  items.select! { |item| item.is_a?(SearchPlaylist) && !item.videos.empty? }
+  items = items.map { |item| item.as(SearchPlaylist) }
+  items.each { |item| item.author = "" }
+
+  templated "playlists"
 end
 
 # API Endpoints
