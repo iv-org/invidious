@@ -92,7 +92,7 @@ PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
 TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@hotmail.com.json")
 CURRENT_COMMIT  = `git rev-list HEAD --max-count=1 --abbrev-commit`.strip
 CURRENT_VERSION = `git describe --tags $(git rev-list --tags --max-count=1)`.strip
-CURRENT_BRANCH = `git status | head -1`.strip
+CURRENT_BRANCH  = `git status | head -1`.strip
 
 LOCALES = {
   "ar"    => load_locale("ar"),
@@ -136,7 +136,7 @@ if config.statistics_enabled
         "software" => {
           "name"    => "invidious",
           "version" => "#{CURRENT_VERSION}-#{CURRENT_COMMIT}",
-          "branch" => "#{CURRENT_BRANCH}",
+          "branch"  => "#{CURRENT_BRANCH}",
         },
         "openRegistrations" => config.registration_enabled,
         "usage"             => {
@@ -2329,13 +2329,19 @@ get "/feed/webhook/:token" do |env|
   challenge = env.params.query["hub.challenge"]
   lease_seconds = env.params.query["hub.lease_seconds"]
 
-  time, signature = verify_token.split(":")
+  if verify_token.starts_with? "v1"
+    _, time, nonce, signature = verify_token.split(":")
+    data = "#{time}:#{nonce}"
+  else
+    time, signature = verify_token.split(":")
+    data = "#{time}"
+  end
 
   if Time.now.to_unix - time.to_i > 600
     halt env, status_code: 400
   end
 
-  if OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, time) != signature
+  if OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, data) != signature
     halt env, status_code: 400
   end
 

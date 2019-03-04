@@ -194,11 +194,13 @@ end
 def subscribe_pubsub(ucid, key, config)
   client = make_client(PUBSUB_URL)
   time = Time.now.to_unix.to_s
+  nonce = Random::Secure.hex(4)
+  signature = "#{time}:#{nonce}"
 
   host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
 
   body = {
-    "hub.callback"      => "#{host_url}/feed/webhook/#{time}:#{OpenSSL::HMAC.hexdigest(:sha1, key, time)}",
+    "hub.callback"      => "#{host_url}/feed/webhook/v1:#{time}:#{nonce}:#{OpenSSL::HMAC.hexdigest(:sha1, key, signature)}",
     "hub.topic"         => "https://www.youtube.com/feeds/videos.xml?channel_id=#{ucid}",
     "hub.verify"        => "async",
     "hub.mode"          => "subscribe",
