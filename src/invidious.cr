@@ -90,9 +90,9 @@ REDDIT_URL      = URI.parse("https://www.reddit.com")
 LOGIN_URL       = URI.parse("https://accounts.google.com")
 PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
 TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@hotmail.com.json")
+CURRENT_BRANCH  = `git branch | sed -n '/\* /s///p'`.strip
 CURRENT_COMMIT  = `git rev-list HEAD --max-count=1 --abbrev-commit`.strip
 CURRENT_VERSION = `git describe --tags $(git rev-list --tags --max-count=1)`.strip
-CURRENT_BRANCH  = `git status | head -1`.strip
 
 LOCALES = {
   "ar"    => load_locale("ar"),
@@ -2536,13 +2536,13 @@ end
 get "/api/v1/stats" do |env|
   env.response.content_type = "application/json"
 
-  if statistics["error"]?
-    halt env, status_code: 500, response: statistics.to_json
-  end
-
   if !config.statistics_enabled
     error_message = {"error" => "Statistics are not enabled."}.to_json
     halt env, status_code: 400, response: error_message
+  end
+
+  if statistics["error"]?
+    halt env, status_code: 500, response: statistics.to_json
   end
 
   if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
