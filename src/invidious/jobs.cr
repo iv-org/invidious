@@ -157,7 +157,7 @@ def subscribe_to_feeds(db, logger, key, config)
   if config.use_pubsub_feeds
     spawn do
       loop do
-        db.query_all("SELECT ucid FROM channels WHERE subscribed = false") do |rs|
+        db.query_all("SELECT id FROM channels WHERE subscribed = false") do |rs|
           ucid = rs.read(String)
           response = subscribe_pubsub(ucid, key, config)
 
