@@ -17,7 +17,7 @@ user: String,
     domain:               String?,                      # Domain to be used for links to resources on the site where an absolute URL is required
     use_pubsub_feeds:     {type: Bool, default: false}, # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
     default_home:         {type: String, default: "Top"},
-    feed_menu:            {type: Array(String), default: ["Popular", "Top", "Trending"]},
+    feed_menu:            {type: Array(String), default: ["Popular", "Top", "Trending", "Subscriptions"]},
     top_enabled:          {type: Bool, default: true},
     captcha_enabled:      {type: Bool, default: true},
     login_enabled:        {type: Bool, default: true},

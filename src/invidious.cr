@@ -2319,7 +2319,7 @@ get "/feed/playlist/:plid" do |env|
   document
 end
 
-# Add support for subscribing to channels via PubSubHubbub
+# Support push notifications via PubSubHubbub
 
 get "/feed/webhook/:token" do |env|
   verify_token = env.params.url["token"]
@@ -2363,11 +2363,11 @@ post "/feed/webhook/:token" do |env|
   rss.xpath_nodes("//feed/entry").each do |entry|
     id = entry.xpath_node("videoid").not_nil!.content
 
-    video = get_video(id, PG_DB, proxies)
+    video = get_video(id, PG_DB, proxies, region: nil)
     video = ChannelVideo.new(id, video.title, video.published, Time.now, video.ucid, video.author, video.length_seconds)
 
     PG_DB.exec("UPDATE users SET notifications = notifications || $1 \
-      WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
+    WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
 
     video_array = video.to_a
     args = arg_array(video_array)
