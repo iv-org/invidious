@@ -92,6 +92,7 @@ PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
 TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@hotmail.com.json")
 CURRENT_COMMIT  = `git rev-list HEAD --max-count=1 --abbrev-commit`.strip
 CURRENT_VERSION = `git describe --tags $(git rev-list --tags --max-count=1)`.strip
+CURRENT_BRANCH = `git status | head -1`.strip
 
 LOCALES = {
   "ar"    => load_locale("ar"),
@@ -135,6 +136,7 @@ if config.statistics_enabled
         "software" => {
           "name"    => "invidious",
           "version" => "#{CURRENT_VERSION}-#{CURRENT_COMMIT}",
+          "branch" => "#{CURRENT_BRANCH}",
         },
         "openRegistrations" => config.registration_enabled,
         "usage"             => {
