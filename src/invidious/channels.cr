@@ -4,7 +4,7 @@ class InvidiousChannel
     author:     String,
     updated:    Time,
     deleted:    Bool,
-    subscribed: {type: Bool, default: false},
+    subscribed: Time?,
   })
 end
 
@@ -186,7 +186,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{ids.map { |id| %("#{id}") }.join(",")}}') AND ucid = $1", ucid)
   end
 
-  channel = InvidiousChannel.new(ucid, author, Time.now, false, false)
+  channel = InvidiousChannel.new(ucid, author, Time.now, false, nil)
 
   return channel
 end
@@ -198,12 +198,12 @@ def subscribe_pubsub(ucid, key, config)
   host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
 
   body = {
-    "hub.callback"     => "#{host_url}/feed/webhook",
-    "hub.topic"        => "https://www.youtube.com/feeds/videos.xml?channel_id=#{ucid}",
-    "hub.verify"       => "async",
-    "hub.mode"         => "subscribe",
-    "hub.verify_token" => "#{time}:#{OpenSSL::HMAC.hexdigest(:sha1, key, time)}",
-    "hub.secret"       => key.to_s,
+    "hub.callback"      => "#{host_url}/feed/webhook/#{time}:#{OpenSSL::HMAC.hexdigest(:sha1, key, time)}",
+    "hub.topic"         => "https://www.youtube.com/feeds/videos.xml?channel_id=#{ucid}",
+    "hub.verify"        => "async",
+    "hub.mode"          => "subscribe",
+    "hub.lease_seconds" => "432000",
+    "hub.secret"        => key.to_s,
   }
 
   return client.post("/subscribe", form: body)

@@ -8,6 +8,7 @@ CREATE TABLE public.channels
   author text,
   updated timestamp with time zone,
   deleted boolean,
+  subscribed timestamp with time zone,
   CONSTRAINT channels_id_key UNIQUE (id)
 );
 

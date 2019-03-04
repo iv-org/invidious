@@ -2319,12 +2319,13 @@ end
 
 # Add support for subscribing to channels via PubSubHubbub
 
-get "/feed/webhook" do |env|
+get "/feed/webhook/:token" do |env|
+  verify_token = env.params.url["token"]
+
   mode = env.params.query["hub.mode"]
   topic = env.params.query["hub.topic"]
   challenge = env.params.query["hub.challenge"]
   lease_seconds = env.params.query["hub.lease_seconds"]
-  verify_token = env.params.query["hub.verify_token"]
 
   time, signature = verify_token.split(":")
 
@@ -2337,12 +2338,12 @@ get "/feed/webhook" do |env|
   end
 
   ucid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["channel_id"]
-  PG_DB.exec("UPDATE channels SET subscribed = true WHERE id = $1", ucid)
+  PG_DB.exec("UPDATE channels SET subscribed = $1 WHERE id = $2", Time.now, ucid)
 
   halt env, status_code: 200, response: challenge
 end
 
-post "/feed/webhook" do |env|
+post "/feed/webhook/:token" do |env|
   body = env.request.body.not_nil!.gets_to_end
   signature = env.request.headers["X-Hub-Signature"].lchop("sha1=")
 
