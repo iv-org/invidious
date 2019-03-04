@@ -341,5 +341,5 @@ img.thumbnail {
 }
 
 .pure-control-group label {
-    width: 10.6em; /* Enlarged width for long words, is needed for RU translation. */
+  word-wrap: normal;
 }
