@@ -2337,7 +2337,7 @@ get "/feed/webhook" do |env|
   end
 
   ucid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["channel_id"]
-  PG_DB.exec("UPDATE channels SET subscribed = true WHERE ucid = $1", ucid)
+  PG_DB.exec("UPDATE channels SET subscribed = true WHERE id = $1", ucid)
 
   halt env, status_code: 200, response: challenge
 end
@@ -2367,6 +2367,8 @@ post "/feed/webhook" do |env|
     ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
     updated = $4, ucid = $5, author = $6, length_seconds = $7", video_array)
   end
+
+  halt env, status_code: 200
 end
 
 # Channels
