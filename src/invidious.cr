@@ -105,6 +105,8 @@ decrypt_function = [] of {name: String, value: Int32}
 spawn do
   update_decrypt_function do |function|
     decrypt_function = function
+    sleep 1.minutes
+    Fiber.yield
   end
 end
 
@@ -118,6 +120,7 @@ before_all do |env|
   locale ||= "en-US"
   env.set "locale", locale
 end
+
 # API Endpoints
 
 get "/api/v1/stats" do |env|
