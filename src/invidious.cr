@@ -28,7 +28,7 @@ require "./invidious/helpers/*"
 require "./invidious/*"
 
 CONFIG   = Config.from_yaml(File.read("config/config.yml"))
-HMAC_KEY = CONFIG.hmac_key || Random::Secure.random_bytes(32)
+HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
 config = CONFIG
 logger = Invidious::LogHandler.new
@@ -88,6 +88,7 @@ PG_DB           = DB.open PG_URL
 YT_URL          = URI.parse("https://www.youtube.com")
 REDDIT_URL      = URI.parse("https://www.reddit.com")
 LOGIN_URL       = URI.parse("https://accounts.google.com")
+PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
 TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@hotmail.com.json")
 CURRENT_COMMIT  = `git rev-list HEAD --max-count=1 --abbrev-commit`.strip
 CURRENT_VERSION = `git describe --tags $(git rev-list --tags --max-count=1)`.strip
@@ -114,6 +115,8 @@ end
 refresh_channels(PG_DB, logger, config.channel_threads, config.full_refresh)
 
 refresh_feeds(PG_DB, logger, config.feed_threads)
+
+subscribe_to_feeds(PG_DB, logger, HMAC_KEY, config)
 
 config.video_threads.times do |i|
   spawn do
@@ -2312,6 +2315,58 @@ get "/feed/playlist/:plid" do |env|
 
   env.response.content_type = "text/xml"
   document
+end
+
+# Add support for subscribing to channels via PubSubHubbub
+
+get "/feed/webhook" do |env|
+  mode = env.params.query["hub.mode"]
+  topic = env.params.query["hub.topic"]
+  challenge = env.params.query["hub.challenge"]
+  lease_seconds = env.params.query["hub.lease_seconds"]
+  verify_token = env.params.query["hub.verify_token"]
+
+  time, signature = verify_token.split(":")
+
+  if Time.now.to_unix - time.to_i > 600
+    halt env, status_code: 400
+  end
+
+  if OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, time) != signature
+    halt env, status_code: 400
+  end
+
+  ucid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["channel_id"]
+  PG_DB.exec("UPDATE channels SET subscribed = true WHERE ucid = $1", ucid)
+
+  halt env, status_code: 200, response: challenge
+end
+
+post "/feed/webhook" do |env|
+  body = env.request.body.not_nil!.gets_to_end
+  signature = env.request.headers["X-Hub-Signature"].lchop("sha1=")
+
+  if signature != OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, body)
+    halt env, status_code: 200
+  end
+
+  rss = XML.parse_html(body)
+  rss.xpath_nodes("//feed/entry").each do |entry|
+    id = entry.xpath_node("videoid").not_nil!.content
+
+    video = get_video(id, PG_DB, proxies)
+    video = ChannelVideo.new(id, video.title, video.published, Time.now, video.ucid, video.author, video.length_seconds)
+
+    PG_DB.exec("UPDATE users SET notifications = notifications || $1 \
+      WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
+
+    video_array = video.to_a
+    args = arg_array(video_array)
+
+    PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
+    ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
+    updated = $4, ucid = $5, author = $6, length_seconds = $7", video_array)
+  end
 end
 
 # Channels

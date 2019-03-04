@@ -153,6 +153,26 @@ def refresh_feeds(db, logger, max_threads = 1)
   max_channel.send(max_threads)
 end
 
+def subscribe_to_feeds(db, logger, key, config)
+  if config.use_pubsub_feeds
+    spawn do
+      loop do
+        db.query_all("SELECT ucid FROM channels WHERE subscribed = false") do |rs|
+          ucid = rs.read(String)
+          response = subscribe_pubsub(ucid, key, config)
+
+          if response.status_code >= 400
+            logger.write("#{ucid} : #{response.body}\n")
+          end
+        end
+
+        sleep 1.minute
+        Fiber.yield
+      end
+    end
+  end
+end
+
 def pull_top_videos(config, db)
   loop do
     begin

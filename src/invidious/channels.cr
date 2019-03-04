@@ -1,9 +1,10 @@
 class InvidiousChannel
   add_mapping({
-    id:      String,
-    author:  String,
-    updated: Time,
-    deleted: Bool,
+    id:         String,
+    author:     String,
+    updated:    Time,
+    deleted:    Bool,
+    subscribed: {type: Bool, default: false},
   })
 end
 
@@ -15,10 +16,7 @@ class ChannelVideo
     updated:        Time,
     ucid:           String,
     author:         String,
-    length_seconds: {
-      type:    Int32,
-      default: 0,
-    },
+    length_seconds: {type: Int32, default: 0},
   })
 end
 
@@ -188,9 +186,27 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{ids.map { |id| %("#{id}") }.join(",")}}') AND ucid = $1", ucid)
   end
 
-  channel = InvidiousChannel.new(ucid, author, Time.now, false)
+  channel = InvidiousChannel.new(ucid, author, Time.now, false, false)
 
   return channel
+end
+
+def subscribe_pubsub(ucid, key, config)
+  client = make_client(PUBSUB_URL)
+  time = Time.now.to_unix.to_s
+
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+
+  body = {
+    "hub.callback"     => "#{host_url}/feed/webhook",
+    "hub.topic"        => "https://www.youtube.com/feeds/videos.xml?channel_id=#{ucid}",
+    "hub.verify"       => "async",
+    "hub.mode"         => "subscribe",
+    "hub.verify_token" => "#{time}:#{OpenSSL::HMAC.hexdigest(:sha1, key, time)}",
+    "hub.secret"       => key.to_s,
+  }
+
+  return client.post("/subscribe", form: body)
 end
 
 def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
