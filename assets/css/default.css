@@ -339,3 +339,7 @@ img.thumbnail {
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
+
+.pure-control-group label {
+  word-wrap: normal;
+}
