@@ -2352,29 +2352,35 @@ get "/feed/webhook/:token" do |env|
 end
 
 post "/feed/webhook/:token" do |env|
+  token = env.params.url["token"]
   body = env.request.body.not_nil!.gets_to_end
   signature = env.request.headers["X-Hub-Signature"].lchop("sha1=")
 
   if signature != OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, body)
+    logger.write("#{token} : Invalid signature")
     halt env, status_code: 200
   end
 
-  rss = XML.parse_html(body)
-  rss.xpath_nodes("//feed/entry").each do |entry|
-    id = entry.xpath_node("videoid").not_nil!.content
+  spawn do
+    rss = XML.parse_html(body)
+    rss.xpath_nodes("//feed/entry").each do |entry|
+      id = entry.xpath_node("videoid").not_nil!.content
+      published = Time.parse(entry.xpath_node("published").not_nil!.content, "%FT%X%z", Time::Location.local)
+      updated = Time.parse(entry.xpath_node("updated").not_nil!.content, "%FT%X%z", Time::Location.local)
 
-    video = get_video(id, PG_DB, proxies, region: nil)
-    video = ChannelVideo.new(id, video.title, video.published, Time.now, video.ucid, video.author, video.length_seconds)
+      video = get_video(id, PG_DB, proxies, region: nil)
+      video = ChannelVideo.new(id, video.title, published, updated, video.ucid, video.author, video.length_seconds)
 
-    PG_DB.exec("UPDATE users SET notifications = notifications || $1 \
-    WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
+      PG_DB.exec("UPDATE users SET notifications = notifications || $1 \
+      WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
 
-    video_array = video.to_a
-    args = arg_array(video_array)
+      video_array = video.to_a
+      args = arg_array(video_array)
 
-    PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
-    ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
-    updated = $4, ucid = $5, author = $6, length_seconds = $7", video_array)
+      PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
+      ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
+      updated = $4, ucid = $5, author = $6, length_seconds = $7", video_array)
+    end
   end
 
   halt env, status_code: 200
