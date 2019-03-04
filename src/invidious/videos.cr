@@ -263,7 +263,7 @@ class Video
   end
 
   def keywords
-    keywords = self.player_response["videoDetails"]["keywords"]?.try &.as_a
+    keywords = self.player_response["videoDetails"]?.try &.["keywords"]?.try &.as_a
     keywords ||= [] of String
 
     return keywords
@@ -271,9 +271,51 @@ class Video
 
   def fmt_stream(decrypt_function)
     streams = [] of HTTP::Params
-    self.info["url_encoded_fmt_stream_map"].split(",") do |string|
-      if !string.empty?
-        streams << HTTP::Params.parse(string)
+
+    if fmt_streams = self.player_response["streamingData"]?.try &.["formats"]?
+      fmt_streams.as_a.each do |fmt_stream|
+        if !fmt_stream.as_h?
+          next
+        end
+
+        fmt = {} of String => String
+
+        fmt["lmt"] = fmt_stream["lastModified"]?.try &.as_s || "0"
+        fmt["projection_type"] = "1"
+        fmt["type"] = fmt_stream["mimeType"].as_s
+        fmt["clen"] = fmt_stream["contentLength"]?.try &.as_s || "0"
+        fmt["bitrate"] = fmt_stream["bitrate"]?.try &.as_i.to_s || "0"
+        fmt["itag"] = fmt_stream["itag"].as_i.to_s
+        fmt["url"] = fmt_stream["url"].as_s
+        fmt["quality"] = fmt_stream["quality"].as_s
+
+        if fmt_stream["width"]?
+          fmt["size"] = "#{fmt_stream["width"]}x#{fmt_stream["height"]}"
+          fmt["height"] = fmt_stream["height"].as_i.to_s
+        end
+
+        if fmt_stream["fps"]?
+          fmt["fps"] = fmt_stream["fps"].as_i.to_s
+        end
+
+        if fmt_stream["qualityLabel"]?
+          fmt["quality_label"] = fmt_stream["qualityLabel"].as_s
+        end
+
+        params = HTTP::Params.new
+        fmt.each do |key, value|
+          params[key] = value
+        end
+
+        streams << params
+      end
+
+      streams.sort_by! { |stream| stream["height"].to_i }.reverse!
+    elsif fmt_stream = self.info["url_encoded_fmt_stream_map"]?
+      fmt_stream.split(",").each do |string|
+        if !string.empty?
+          streams << HTTP::Params.parse(string)
+        end
       end
     end
 
@@ -286,10 +328,8 @@ class Video
       end
     end
 
-    if streams[0]? && streams[0]["s"]?
-      streams.each do |fmt|
-        fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
-      end
+    streams.each do |fmt|
+      fmt["url"] += decrypt_signature(fmt, decrypt_function)
     end
 
     return streams
@@ -298,80 +338,54 @@ class Video
   def adaptive_fmts(decrypt_function)
     adaptive_fmts = [] of HTTP::Params
 
-    if self.info.has_key?("adaptive_fmts")
-      self.info["adaptive_fmts"].split(",") do |string|
-        adaptive_fmts << HTTP::Params.parse(string)
-      end
-    elsif self.info.has_key?("dashmpd")
-      client = make_client(YT_URL)
-      response = client.get(self.info["dashmpd"])
-      document = XML.parse_html(response.body)
-
-      document.xpath_nodes(%q(//adaptationset)).each do |adaptation_set|
-        mime_type = adaptation_set["mimetype"]
-
-        document.xpath_nodes(%q(.//representation)).each do |representation|
-          codecs = representation["codecs"]
-          itag = representation["id"]
-          bandwidth = representation["bandwidth"]
-          url = representation.xpath_node(%q(.//baseurl)).not_nil!.content
-
-          clen = url.match(/clen\/(?<clen>\d+)/).try &.["clen"]
-          clen ||= "0"
-          lmt = url.match(/lmt\/(?<lmt>\d+)/).try &.["lmt"]
-          lmt ||= "#{((Time.now + 1.hour).to_unix_f.to_f64 * 1000000).to_i64}"
-
-          segment_list = representation.xpath_node(%q(.//segmentlist)).not_nil!
-          init = segment_list.xpath_node(%q(.//initialization))
-
-          # TODO: Replace with sane defaults when byteranges are absent
-          if init && !init["sourceurl"].starts_with? "sq"
-            init = init["sourceurl"].lchop("range/")
-
-            index = segment_list.xpath_node(%q(.//segmenturl)).not_nil!["media"]
-            index = index.lchop("range/")
-            index = "#{init.split("-")[1].to_i + 1}-#{index.split("-")[0].to_i}"
-          else
-            init = "0-0"
-            index = "1-1"
-          end
-
-          params = {
-            "type"            => ["#{mime_type}; codecs=\"#{codecs}\""],
-            "url"             => [url],
-            "projection_type" => ["1"],
-            "index"           => [index],
-            "init"            => [init],
-            "xtags"           => [] of String,
-            "lmt"             => [lmt],
-            "clen"            => [clen],
-            "bitrate"         => [bandwidth],
-            "itag"            => [itag],
-          }
-
-          if mime_type == "video/mp4"
-            width = representation["width"]?
-            height = representation["height"]?
-            fps = representation["framerate"]?
-
-            metadata = itag_to_metadata?(itag)
-            if metadata
-              width ||= metadata["width"]?
-              height ||= metadata["height"]?
-              fps ||= metadata["fps"]?
-            end
-
-            if width && height
-              params["size"] = ["#{width}x#{height}"]
-            end
-
-            if width
-              params["quality_label"] = ["#{height}p"]
-            end
-          end
-
-          adaptive_fmts << HTTP::Params.new(params)
+    if fmts = self.player_response["streamingData"]?.try &.["adaptiveFormats"]?
+      fmts.as_a.each do |adaptive_fmt|
+        if !adaptive_fmt.as_h?
+          next
         end
+
+        fmt = {} of String => String
+
+        if init = adaptive_fmt["initRange"]?
+          fmt["init"] = "#{init["start"]}-#{init["end"]}"
+        end
+        fmt["init"] ||= "0-0"
+
+        fmt["lmt"] = adaptive_fmt["lastModified"]?.try &.as_s || "0"
+        fmt["projection_type"] = "1"
+        fmt["type"] = adaptive_fmt["mimeType"].as_s
+        fmt["clen"] = adaptive_fmt["contentLength"]?.try &.as_s || "0"
+        fmt["bitrate"] = adaptive_fmt["bitrate"]?.try &.as_i.to_s || "0"
+        fmt["itag"] = adaptive_fmt["itag"].as_i.to_s
+        fmt["url"] = adaptive_fmt["url"].as_s
+
+        if index = adaptive_fmt["indexRange"]?
+          fmt["index"] = "#{index["start"]}-#{index["end"]}"
+        end
+        fmt["index"] ||= "0-0"
+
+        if adaptive_fmt["width"]?
+          fmt["size"] = "#{adaptive_fmt["width"]}x#{adaptive_fmt["height"]}"
+        end
+
+        if adaptive_fmt["fps"]?
+          fmt["fps"] = adaptive_fmt["fps"].as_i.to_s
+        end
+
+        if adaptive_fmt["qualityLabel"]?
+          fmt["quality_label"] = adaptive_fmt["qualityLabel"].as_s
+        end
+
+        params = HTTP::Params.new
+        fmt.each do |key, value|
+          params[key] = value
+        end
+
+        adaptive_fmts << params
+      end
+    elsif fmts = self.info["adaptive_fmts"]?
+      fmts.split(",") do |string|
+        adaptive_fmts << HTTP::Params.parse(string)
       end
     end
 
@@ -381,23 +395,21 @@ class Video
       end
     end
 
-    if adaptive_fmts[0]? && adaptive_fmts[0]["s"]?
-      adaptive_fmts.each do |fmt|
-        fmt["url"] += "&signature=" + decrypt_signature(fmt["s"], decrypt_function)
-      end
+    adaptive_fmts.each do |fmt|
+      fmt["url"] += decrypt_signature(fmt, decrypt_function)
     end
 
     return adaptive_fmts
   end
 
   def video_streams(adaptive_fmts)
-    video_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("video") ? s : nil }
+    video_streams = adaptive_fmts.select { |s| s["type"].starts_with? "video" }
 
     return video_streams
   end
 
   def audio_streams(adaptive_fmts)
-    audio_streams = adaptive_fmts.compact_map { |s| s["type"].starts_with?("audio") ? s : nil }
+    audio_streams = adaptive_fmts.select { |s| s["type"].starts_with? "audio" }
     audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
     audio_streams.each do |stream|
       stream["bitrate"] = (stream["bitrate"].to_f64/1000).to_i.to_s
@@ -624,7 +636,10 @@ def fetch_video(id, proxies, region)
 
   # Try to pull streams from embed URL
   if info["reason"]?
-    embed_info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&ps=default&eurl=&gl=US&hl=en&disable_polymer=1").body)
+    embed_page = client.get("/embed/#{id}").body
+    sts = embed_page.match(/"sts"\s*:\s*(?<sts>\d+)/).try &.["sts"]?
+    sts ||= ""
+    embed_info = HTTP::Params.parse(client.get("/get_video_info?video_id=#{id}&eurl=https://youtube.googleapis.com/v/#{id}&gl=US&hl=en&disable_polymer=1&sts=#{sts}").body)
 
     if !embed_info["reason"]?
       embed_info.each do |key, value|

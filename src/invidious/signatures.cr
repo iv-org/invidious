@@ -39,7 +39,12 @@ def fetch_decrypt_function(id = "CvFH_6DNRCY")
   return decrypt_function
 end
 
-def decrypt_signature(a, code)
+def decrypt_signature(fmt, code)
+  if !fmt["s"]?
+    return ""
+  end
+
+  a = fmt["s"]
   a = a.split("")
 
   code.each do |item|
@@ -53,7 +58,8 @@ def decrypt_signature(a, code)
     end
   end
 
-  return a.join("")
+  signature = a.join("")
+  return "&#{fmt["sp"]?}=#{signature}"
 end
 
 def splice(a, b)

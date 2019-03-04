@@ -184,7 +184,7 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale, region)
               json.field "content", content
               json.field "contentHtml", content_html
               json.field "published", published.to_unix
-              json.field "publishedText", translate(locale, "`x` ago", recode_date(published))
+              json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
               json.field "likeCount", node_comment["likeCount"]
               json.field "commentId", node_comment["commentId"]
               json.field "authorIsChannelOwner", node_comment["authorIsChannelOwner"]
@@ -252,7 +252,7 @@ end
 
 def fetch_reddit_comments(id)
   client = make_client(REDDIT_URL)
-  headers = HTTP::Headers{"User-Agent" => "web:invidio.us:v0.14.0 (by /u/omarroth)"}
+  headers = HTTP::Headers{"User-Agent" => "web:invidious:v#{CURRENT_VERSION} (by /u/omarroth)"}
 
   query = "(url:3D#{id}%20OR%20url:#{id})%20(site:youtube.com%20OR%20site:youtu.be)"
   search_results = client.get("/search.json?q=#{query}", headers)
@@ -310,7 +310,7 @@ def template_youtube_comments(comments, locale)
             <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{child["author"]}</a>
           </b> 
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
-          <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64)))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
+          <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
           |
           <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "Youtube permalink of the comment")}">[YT]</a>
           | 
@@ -324,7 +324,7 @@ def template_youtube_comments(comments, locale)
               <div class="creator-heart">
                   <img class="creator-heart-background-hearted" src="#{creator_thumbnail}"></img>
                   <div class="creator-heart-small-hearted">
-                      <div class="creator-heart-small-container">🖤</div>
+                      <div class="icon ion-ios-heart creator-heart-small-container"></div>
                   </div>
               </div>
           </span>
@@ -375,7 +375,7 @@ def template_reddit_comments(root, locale)
         <a href="javascript:void(0)" onclick="toggle_parent(this)">[ - ]</a> 
         <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b> 
         #{translate(locale, "`x` points", number_with_separator(score))}
-        #{translate(locale, "`x` ago", recode_date(child.created_utc))}
+        #{translate(locale, "`x` ago", recode_date(child.created_utc, locale))}
       </p>
       <div>
       #{body_html}

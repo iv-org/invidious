@@ -82,6 +82,14 @@
   "Manage subscriptions": "إدارة المشتركين",
   "Watch history": "سجل المشاهدة",
   "Delete account": "حذف الحساب",
+  "Administrator preferences": "",
+  "Default homepage: ": "",
+  "Feed menu: ": "",
+  "Top enabled? ": "",
+  "CAPTCHA enabled? ": "",
+  "Login enabled? ": "",
+  "Registration enabled? ": "",
+  "Report statistics? ": "",
   "Save preferences": "حفظ التفضيلات",
   "Subscription manager": "مدير الإشتراكات",
   "`x` subscriptions": "`x` مشتركين",
@@ -280,5 +288,7 @@
   "%A %B %-d, %Y": "",
   "(edited)": "",
   "Youtube permalink of the comment": "",
-  "`x` marked it with a ❤": ""
+  "`x` marked it with a ❤": "",
+  "Audio mode": "",
+  "Video mode": ""
 }

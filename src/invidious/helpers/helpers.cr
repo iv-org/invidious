@@ -1,9 +1,9 @@
 class Config
   YAML.mapping({
+    video_threads:   Int32,      # Number of threads to use for updating videos in cache (mostly non-functional)
     crawl_threads:   Int32,      # Number of threads to use for finding new videos from YouTube (used to populate "top" page)
     channel_threads: Int32,      # Number of threads to use for crawling videos from channels (for updating subscriptions)
     feed_threads:    Int32,      # Number of threads to use for updating feeds
-    video_threads:   Int32,      # Number of threads to use for updating videos in cache (mostly non-functional)
     db:              NamedTuple( # Database configuration
 user: String,
       password: String,
@@ -11,11 +11,19 @@ user: String,
       port: Int32,
       dbname: String,
     ),
-    dl_api_key:   String?, # DetectLanguage API Key (used to filter non-English results from "top" page), mostly non-functional
-    https_only:   Bool?,   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
-    hmac_key:     String?, # HMAC signing key for CSRF tokens
-    full_refresh: Bool,    # Used for crawling channels: threads should check all videos uploaded by a channel
-    domain:       String,  # Domain to be used for links to resources on the site where an absolute URL is required
+    full_refresh:         Bool,                         # Used for crawling channels: threads should check all videos uploaded by a channel
+    https_only:           Bool?,                        # Used to tell Invidious it is behind a proxy, so links to resources should be https://
+    hmac_key:             String?,                      # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
+    domain:               String?,                      # Domain to be used for links to resources on the site where an absolute URL is required
+    use_pubsub_feeds:     {type: Bool, default: false}, # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
+    default_home:         {type: String, default: "Top"},
+    feed_menu:            {type: Array(String), default: ["Popular", "Top", "Trending"]},
+    top_enabled:          {type: Bool, default: true},
+    captcha_enabled:      {type: Bool, default: true},
+    login_enabled:        {type: Bool, default: true},
+    registration_enabled: {type: Bool, default: true},
+    statistics_enabled:   {type: Bool, default: false},
+    admins:               {type: Array(String), default: [] of String},
   })
 end
 
@@ -66,7 +74,7 @@ class DenyFrame < Kemal::Handler
   end
 end
 
-def rank_videos(db, n, filter, url)
+def rank_videos(db, n)
   top = [] of {Float64, String}
 
   db.query("SELECT id, wilson_score, published FROM videos WHERE views > 5000 ORDER BY published DESC LIMIT 1000") do |rs|
@@ -87,41 +95,7 @@ def rank_videos(db, n, filter, url)
   top.reverse!
   top = top.map { |a, b| b }
 
-  if filter
-    language_list = [] of String
-    top.each do |id|
-      if language_list.size == n
-        break
-      else
-        client = make_client(url)
-        begin
-          video = get_video(id, db)
-        rescue ex
-          next
-        end
-
-        if video.language
-          language = video.language
-        else
-          description = XML.parse(video.description)
-          content = [video.title, description.content].join(" ")
-          content = content[0, 10000]
-
-          results = DetectLanguage.detect(content)
-          language = results[0].language
-
-          db.exec("UPDATE videos SET language = $1 WHERE id = $2", language, id)
-        end
-
-        if language == "en"
-          language_list << id
-        end
-      end
-    end
-    return language_list
-  else
-    return top[0..n - 1]
-  end
+  return top[0..n - 1]
 end
 
 def login_req(login_form, f_req)
@@ -166,35 +140,33 @@ def extract_videos(nodeset, ucid = nil)
   videos.map { |video| video.as(SearchVideo) }
 end
 
-def extract_items(nodeset, ucid = nil)
+def extract_items(nodeset, ucid = nil, author_name = nil)
   # TODO: Make this a 'common', so it makes more sense to be used here
   items = [] of SearchItem
 
   nodeset.each do |node|
-    anchor = node.xpath_node(%q(.//h3[contains(@class,"yt-lockup-title")]/a))
-    if !anchor
-      next
-    end
-
-    if anchor["href"].starts_with? "https://www.googleadservices.com"
-      next
-    end
-
-    anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a))
-    if !anchor
-      author = ""
-      author_id = ""
-    else
-      author = anchor.content.strip
-      author_id = anchor["href"].split("/")[-1]
-    end
-
     anchor = node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
     if !anchor
       next
     end
     title = anchor.content.strip
     id = anchor["href"]
+
+    if anchor["href"].starts_with? "https://www.googleadservices.com"
+      next
+    end
+
+    anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a))
+    if anchor
+      author = anchor.content.strip
+      author_id = anchor["href"].split("/")[-1]
+    end
+
+    author ||= author_name
+    author_id ||= ucid
+
+    author ||= ""
+    author_id ||= ""
 
     description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
     description_html, description = html_to_content(description_html)
@@ -348,6 +320,97 @@ def extract_items(nodeset, ucid = nil)
         live_now: live_now,
         paid: paid,
         premium: premium
+      )
+    end
+  end
+
+  return items
+end
+
+def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
+  items = [] of SearchPlaylist
+
+  nodeset.each do |shelf|
+    shelf_anchor = shelf.xpath_node(%q(.//h2[contains(@class, "branded-page-module-title")]))
+
+    if !shelf_anchor
+      next
+    end
+
+    title = shelf_anchor.xpath_node(%q(.//span[contains(@class, "branded-page-module-title-text")]))
+    if title
+      title = title.content.strip
+    end
+    title ||= ""
+
+    id = shelf_anchor.xpath_node(%q(.//a)).try &.["href"]
+    if !id
+      next
+    end
+
+    is_playlist = false
+    videos = [] of SearchPlaylistVideo
+
+    shelf.xpath_nodes(%q(.//ul[contains(@class, "yt-uix-shelfslider-list")]/li)).each do |child_node|
+      type = child_node.xpath_node(%q(./div))
+      if !type
+        next
+      end
+
+      case type["class"]
+      when .includes? "yt-lockup-video"
+        is_playlist = true
+
+        anchor = child_node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
+        if anchor
+          video_title = anchor.content.strip
+          video_id = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)["v"]
+        end
+        video_title ||= ""
+        video_id ||= ""
+
+        anchor = child_node.xpath_node(%q(.//span[@class="video-time"]))
+        if anchor
+          length_seconds = decode_length_seconds(anchor.content)
+        end
+        length_seconds ||= 0
+
+        videos << SearchPlaylistVideo.new(
+          video_title,
+          video_id,
+          length_seconds
+        )
+      when .includes? "yt-lockup-playlist"
+        anchor = child_node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
+        if anchor
+          playlist_title = anchor.content.strip
+          params = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)
+          plid = params["list"]
+        end
+        playlist_title ||= ""
+        plid ||= ""
+
+        items << SearchPlaylist.new(
+          playlist_title,
+          plid,
+          author_name,
+          ucid,
+          50,
+          Array(SearchPlaylistVideo).new
+        )
+      end
+    end
+
+    if is_playlist
+      plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
+
+      items << SearchPlaylist.new(
+        title,
+        plid,
+        author_name,
+        ucid,
+        videos.size,
+        videos
       )
     end
   end

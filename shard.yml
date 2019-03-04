@@ -1,5 +1,5 @@
 name: invidious
-version: 0.14.0
+version: 0.14.1
 
 authors:
   - Omar Roth <omarroth@hotmail.com>
@@ -9,16 +9,13 @@ targets:
     main: src/invidious.cr
 
 dependencies:
-  detect_language:
-    github: detectlanguage/detectlanguage-crystal
   kemal:
     github: kemalcr/kemal
-    commit: afd17fc
   pg:
     github: will/crystal-pg
   sqlite3:
     github: crystal-lang/crystal-sqlite3
 
-crystal: 0.27.1
+crystal: 0.27.2
 
 license: AGPLv3

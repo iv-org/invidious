@@ -80,6 +80,14 @@
   "Manage subscriptions": "Manage subscriptions",
   "Watch history": "Watch history",
   "Delete account": "Delete account",
+  "Administrator preferences": "Administrator preferences",
+  "Default homepage: ": "Default homepage: ",
+  "Feed menu: ": "Feed menu: ",
+  "Top enabled? ": "Top enabled? ",
+  "CAPTCHA enabled? ": "CAPTCHA enabled? ",
+  "Login enabled? ": "Login enabled? ",
+  "Registration enabled? ": "Registration enabled? ",
+  "Report statistics? ": "Report statistics? ",
   "Save preferences": "Save preferences",
   "Subscription manager": "Subscription manager",
   "`x` subscriptions": "`x` subscriptions",
@@ -274,5 +282,7 @@
   "%A %B %-d, %Y": "%A %B %-d, %Y",
   "(edited)": "(edited)",
   "Youtube permalink of the comment": "Youtube permalink of the comment",
-  "`x` marked it with a ❤": "`x` marked it with a ❤"
+  "`x` marked it with a ❤": "`x` marked it with a ❤",
+  "Audio mode": "Audio mode",
+  "Video mode": "Video mode"
 }

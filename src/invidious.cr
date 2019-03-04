@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require "detect_language"
 require "digest/md5"
 require "file_utils"
 require "kemal"
@@ -29,44 +28,40 @@ require "./invidious/helpers/*"
 require "./invidious/*"
 
 CONFIG   = Config.from_yaml(File.read("config/config.yml"))
-HMAC_KEY = CONFIG.hmac_key || Random::Secure.random_bytes(32)
+HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
-crawl_threads = CONFIG.crawl_threads
-channel_threads = CONFIG.channel_threads
-feed_threads = CONFIG.feed_threads
-video_threads = CONFIG.video_threads
-
+config = CONFIG
 logger = Invidious::LogHandler.new
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-t THREADS", "--crawl-threads=THREADS", "Number of threads for crawling YouTube (default: #{crawl_threads})") do |number|
+  parser.on("-t THREADS", "--crawl-threads=THREADS", "Number of threads for crawling YouTube (default: #{config.crawl_threads})") do |number|
     begin
-      crawl_threads = number.to_i
+      config.crawl_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
     end
   end
-  parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{channel_threads})") do |number|
+  parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{config.channel_threads})") do |number|
     begin
-      channel_threads = number.to_i
+      config.channel_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
     end
   end
-  parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{feed_threads})") do |number|
+  parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{config.feed_threads})") do |number|
     begin
-      feed_threads = number.to_i
+      config.feed_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
     end
   end
-  parser.on("-v THREADS", "--video-threads=THREADS", "Number of threads for refreshing videos (default: #{video_threads})") do |number|
+  parser.on("-v THREADS", "--video-threads=THREADS", "Number of threads for refreshing videos (default: #{config.video_threads})") do |number|
     begin
-      video_threads = number.to_i
+      config.video_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
@@ -78,21 +73,32 @@ Kemal.config.extra_options do |parser|
   end
 end
 
-Kemal::CLI.new
+Kemal::CLI.new ARGV
 
-YT_URL     = URI.parse("https://www.youtube.com")
-REDDIT_URL = URI.parse("https://www.reddit.com")
-LOGIN_URL  = URI.parse("https://accounts.google.com")
+YT_URL          = URI.parse("https://www.youtube.com")
+REDDIT_URL      = URI.parse("https://www.reddit.com")
+LOGIN_URL       = URI.parse("https://accounts.google.com")
+PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
+TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@hotmail.com.json")
+CURRENT_COMMIT  = `git rev-list HEAD --max-count=1 --abbrev-commit`.strip
+CURRENT_VERSION = `git describe --tags $(git rev-list --tags --max-count=1)`.strip
+CURRENT_BRANCH  = `git status | head -1`.strip
 
 LOCALES = {
   "ar"    => load_locale("ar"),
   "de"    => load_locale("de"),
   "en-US" => load_locale("en-US"),
+  "eu"    => load_locale("eu"),
   "fr"    => load_locale("fr"),
+  "it"    => load_locale("it"),
   "nb_NO" => load_locale("nb_NO"),
   "nl"    => load_locale("nl"),
   "pl"    => load_locale("pl"),
   "ru"    => load_locale("ru"),
+}
+
+statistics = {
+  "error" => "Statistics are not availabile.",
 }
 
 decrypt_function = [] of {name: String, value: Int32}
@@ -113,6 +119,25 @@ before_all do |env|
   env.set "locale", locale
 end
 # API Endpoints
+
+get "/api/v1/stats" do |env|
+  env.response.content_type = "application/json"
+
+  if statistics["error"]?
+    halt env, status_code: 500, response: statistics.to_json
+  end
+
+  if !config.statistics_enabled
+    error_message = {"error" => "Statistics are not enabled."}.to_json
+    halt env, status_code: 400, response: error_message
+  end
+
+  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+    statistics.to_pretty_json
+  else
+    statistics.to_json
+  end
+end
 
 get "/api/v1/captions/:id" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
@@ -293,7 +318,7 @@ get "/api/v1/insights/:id" do |env|
   env.response.content_type = "application/json"
 
   error_message = {"error" => "YouTube has removed publicly-available analytics."}.to_json
-  halt env, status_code: 503, response: error_message
+  halt env, status_code: 410, response: error_message
 
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
@@ -412,7 +437,7 @@ get "/api/v1/videos/:id" do |env|
       json.field "description", description
       json.field "descriptionHtml", video.description
       json.field "published", video.published.to_unix
-      json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
+      json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
       json.field "keywords", video.keywords
 
       json.field "viewCount", video.views
@@ -459,7 +484,7 @@ get "/api/v1/videos/:id" do |env|
       end
 
       if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-        host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+        host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
 
         host_params = env.request.query_params
         host_params.delete_all("v")
@@ -620,7 +645,7 @@ get "/api/v1/trending" do |env|
           json.field "authorUrl", "/channel/#{video.ucid}"
 
           json.field "published", video.published.to_unix
-          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
+          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
           json.field "description", video.description
           json.field "descriptionHtml", video.description_html
           json.field "liveNow", video.live_now
@@ -655,11 +680,16 @@ get "/api/v1/channels/:ucid" do |env|
   end
 
   page = 1
-  begin
-    videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
-  rescue ex
-    error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+  if auto_generated
+    videos = [] of SearchVideo
+    count = 0
+  else
+    begin
+      videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
+    rescue ex
+      error_message = {"error" => ex.message}.to_json
+      halt env, status_code: 500, response: error_message
+    end
   end
 
   client = make_client(YT_URL)
@@ -762,6 +792,7 @@ get "/api/v1/channels/:ucid" do |env|
       json.field "joined", joined.to_unix
       json.field "paid", paid
 
+      json.field "autoGenerated", auto_generated
       json.field "isFamilyFriendly", is_family_friendly
       json.field "description", description
       json.field "descriptionHtml", description_html
@@ -794,7 +825,7 @@ get "/api/v1/channels/:ucid" do |env|
 
               json.field "viewCount", video.views
               json.field "published", video.published.to_unix
-              json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
+              json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
               json.field "lengthSeconds", video.length_seconds
               json.field "liveNow", video.live_now
               json.field "paid", video.paid
@@ -848,7 +879,8 @@ end
     ucid = env.params.url["ucid"]
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
-    sort_by = env.params.query["sort_by"]?.try &.downcase
+    sort_by = env.params.query["sort"]?.try &.downcase
+    sort_by ||= env.params.query["sort_by"]?.try &.downcase
     sort_by ||= "newest"
 
     begin
@@ -891,7 +923,7 @@ end
 
             json.field "viewCount", video.views
             json.field "published", video.published.to_unix
-            json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published))
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
             json.field "lengthSeconds", video.length_seconds
             json.field "liveNow", video.live_now
             json.field "paid", video.paid
@@ -905,6 +937,127 @@ end
       JSON.parse(result).to_pretty_json
     else
       result
+    end
+  end
+end
+
+["/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"].each do |route|
+  get route do |env|
+    locale = LOCALES[env.get("locale").as(String)]?
+
+    env.response.content_type = "application/json"
+
+    ucid = env.params.url["ucid"]
+
+    begin
+      videos = get_latest_videos(ucid)
+    rescue ex
+      error_message = {"error" => ex.message}.to_json
+      halt env, status_code: 500, response: error_message
+    end
+
+    response = JSON.build do |json|
+      json.array do
+        videos.each do |video|
+          json.object do
+            json.field "title", video.title
+            json.field "videoId", video.id
+
+            json.field "authorId", ucid
+            json.field "authorUrl", "/channel/#{ucid}"
+
+            json.field "videoThumbnails" do
+              generate_thumbnails(json, video.id)
+            end
+
+            json.field "description", video.description
+            json.field "descriptionHtml", video.description_html
+
+            json.field "viewCount", video.views
+            json.field "published", video.published.to_unix
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
+            json.field "lengthSeconds", video.length_seconds
+            json.field "liveNow", video.live_now
+            json.field "paid", video.paid
+            json.field "premium", video.premium
+          end
+        end
+      end
+    end
+
+    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+      JSON.parse(response).to_pretty_json
+    else
+      response
+    end
+  end
+end
+
+["/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"].each do |route|
+  get route do |env|
+    locale = LOCALES[env.get("locale").as(String)]?
+
+    env.response.content_type = "application/json"
+
+    ucid = env.params.url["ucid"]
+    continuation = env.params.query["continuation"]?
+    sort_by = env.params.query["sort"]?.try &.downcase
+    sort_by ||= env.params.query["sort_by"]?.try &.downcase
+    sort_by ||= "last"
+
+    begin
+      author, ucid, auto_generated = get_about_info(ucid, locale)
+    rescue ex
+      error_message = ex.message
+      halt env, status_code: 500, response: error_message
+    end
+
+    items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
+
+    response = JSON.build do |json|
+      json.object do
+        json.field "playlists" do
+          json.array do
+            items.each do |item|
+              json.object do
+                if item.is_a?(SearchPlaylist)
+                  json.field "title", item.title
+                  json.field "playlistId", item.id
+
+                  json.field "author", item.author
+                  json.field "authorId", item.ucid
+                  json.field "authorUrl", "/channel/#{item.ucid}"
+
+                  json.field "videoCount", item.video_count
+                  json.field "videos" do
+                    json.array do
+                      item.videos.each do |video|
+                        json.object do
+                          json.field "title", video.title
+                          json.field "videoId", video.id
+                          json.field "lengthSeconds", video.length_seconds
+
+                          json.field "videoThumbnails" do
+                            generate_thumbnails(json, video.id)
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        json.field "continuation", continuation
+      end
+    end
+
+    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+      JSON.parse(response).to_pretty_json
+    else
+      response
     end
   end
 end
@@ -946,7 +1099,7 @@ get "/api/v1/channels/search/:ucid" do |env|
 
             json.field "viewCount", item.views
             json.field "published", item.published.to_unix
-            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published))
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published, locale))
             json.field "lengthSeconds", item.length_seconds
             json.field "liveNow", item.live_now
             json.field "paid", item.paid
@@ -1031,7 +1184,7 @@ get "/api/v1/search" do |env|
   date = env.params.query["date"]?.try &.downcase
   date ||= ""
 
-  duration = env.params.query["date"]?.try &.downcase
+  duration = env.params.query["duration"]?.try &.downcase
   duration ||= ""
 
   features = env.params.query["features"]?.try &.split(",").map { |feature| feature.downcase }
@@ -1075,7 +1228,7 @@ get "/api/v1/search" do |env|
 
             json.field "viewCount", item.views
             json.field "published", item.published.to_unix
-            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published))
+            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published, locale))
             json.field "lengthSeconds", item.length_seconds
             json.field "liveNow", item.live_now
             json.field "paid", item.paid
@@ -1253,7 +1406,7 @@ get "/api/v1/mixes/:rdid" do |env|
   rdid = env.params.url["rdid"]
 
   continuation = env.params.query["continuation"]?
-  continuation ||= rdid.lchop("RD")
+  continuation ||= rdid.lchop("RD")[0, 11]
 
   format = env.params.query["format"]?
   format ||= "json"
@@ -1355,8 +1508,8 @@ get "/api/manifest/dash/id/:id" do |env|
     halt env, status_code: 403
   end
 
-  if video.info["dashmpd"]?
-    manifest = client.get(video.info["dashmpd"]).body
+  if dashmpd = video.player_response["streamingData"]["dashManifestUrl"]?.try &.as_s
+    manifest = client.get(dashmpd).body
 
     manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
       url = baseurl.lchop("<BaseURL>")
@@ -1445,7 +1598,7 @@ get "/api/manifest/hls_variant/*" do |env|
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
 
   manifest = manifest.body
   manifest.gsub("https://www.youtube.com", host_url)
@@ -1459,7 +1612,7 @@ get "/api/manifest/hls_playlist/*" do |env|
     halt env, status_code: manifest.status_code
   end
 
-  host_url = make_host_url(Kemal.config.ssl || CONFIG.https_only, CONFIG.domain)
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
 
   manifest = manifest.body.gsub("https://www.youtube.com", host_url)
   manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, host_url)
@@ -1474,12 +1627,20 @@ end
 # YouTube /videoplayback links expire after 6 hours,
 # so we have a mechanism here to redirect to the latest version
 get "/latest_version" do |env|
-  id = env.params.query["id"]?
-  itag = env.params.query["itag"]?
+  if env.params.query["download_widget"]?
+    download_widget = JSON.parse(env.params.query["download_widget"])
+    id = download_widget["id"].as_s
+    itag = download_widget["itag"].as_s
+    title = download_widget["title"].as_s
+    local = "true"
+  end
+
+  id ||= env.params.query["id"]?
+  itag ||= env.params.query["itag"]?
 
   region = env.params.query["region"]?
 
-  local = env.params.query["local"]?
+  local ||= env.params.query["local"]?
   local ||= "false"
   local = local == "true"
 
@@ -1502,6 +1663,10 @@ get "/latest_version" do |env|
   url = urls[0]["url"]
   if local
     url = URI.parse(url).full_path.not_nil!
+  end
+
+  if title
+    url += "&title=#{title}"
   end
 
   env.redirect url
@@ -1565,7 +1730,7 @@ end
 get "/videoplayback" do |env|
   query_params = env.params.query
 
-  fvip = query_params["fvip"]
+  fvip = query_params["fvip"]? || "3"
   mn = query_params["mn"].split(",")[-1]
   host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
@@ -1601,12 +1766,17 @@ get "/videoplayback" do |env|
   end
 
   if response.status_code >= 400
-    halt env, status_code: 403
+    halt env, status_code: response.status_code
   end
 
   client = make_client(URI.parse(host), proxies, region)
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
+
+    if title = env.params.query["title"]?
+      # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
+    end
 
     response.headers.each do |key, value|
       env.response.headers[key] = value

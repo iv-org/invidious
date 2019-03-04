@@ -12,7 +12,6 @@ class User
   end
 
   add_mapping({
-    id:            Array(String),
     updated:       Time,
     notifications: Array(String),
     subscriptions: Array(String),
@@ -126,49 +125,55 @@ class Preferences
 end
 
 def get_user(sid, headers, db, refresh = true)
-  if db.query_one?("SELECT EXISTS (SELECT true FROM users WHERE $1 = ANY(id))", sid, as: Bool)
-    user = db.query_one("SELECT * FROM users WHERE $1 = ANY(id)", sid, as: User)
+  if email = db.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
+    user = db.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
 
     if refresh && Time.now - user.updated > 1.minute
-      user = fetch_user(sid, headers, db)
+      user, sid = fetch_user(sid, headers, db)
       user_array = user.to_a
 
-      user_array[5] = user_array[5].to_json
+      user_array[4] = user_array[4].to_json
       args = arg_array(user_array)
 
       db.exec("INSERT INTO users VALUES (#{args}) \
-      ON CONFLICT (email) DO UPDATE SET id = users.id || $1, updated = $2, subscriptions = $4", user_array)
+      ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", user_array)
+
+      db.exec("INSERT INTO session_ids VALUES ($1,$2,$3) \
+      ON CONFLICT (id) DO NOTHING", sid, user.email, Time.now)
 
       begin
         view_name = "subscriptions_#{sha256(user.email)[0..7]}"
-        PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+        db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
         SELECT * FROM channel_videos WHERE \
-        ucid = ANY ((SELECT subscriptions FROM users WHERE email = '#{user.email}')::text[]) \
+        ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
         ORDER BY published DESC;")
       rescue ex
       end
     end
   else
-    user = fetch_user(sid, headers, db)
+    user, sid = fetch_user(sid, headers, db)
     user_array = user.to_a
 
-    user_array[5] = user_array[5].to_json
+    user_array[4] = user_array[4].to_json
     args = arg_array(user.to_a)
 
     db.exec("INSERT INTO users VALUES (#{args}) \
-    ON CONFLICT (email) DO UPDATE SET id = users.id || $1, updated = $2, subscriptions = $4", user_array)
+    ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", user_array)
+
+    db.exec("INSERT INTO session_ids VALUES ($1,$2,$3) \
+    ON CONFLICT (id) DO NOTHING", sid, user.email, Time.now)
 
     begin
       view_name = "subscriptions_#{sha256(user.email)[0..7]}"
-      PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+      db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
       SELECT * FROM channel_videos WHERE \
-      ucid = ANY ((SELECT subscriptions FROM users WHERE email = '#{user.email}')::text[]) \
+      ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
       ORDER BY published DESC;")
     rescue ex
     end
   end
 
-  return user
+  return user, sid
 end
 
 def fetch_user(sid, headers, db)
@@ -196,17 +201,17 @@ def fetch_user(sid, headers, db)
 
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new([sid], Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil, token, [] of String)
-  return user
+  user = User.new(Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil, token, [] of String)
+  return user, sid
 end
 
 def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new([sid], Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token, [] of String)
+  user = User.new(Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token, [] of String)
 
-  return user
+  return user, sid
 end
 
 def create_response(user_id, operation, key, db, expire = 6.hours)
@@ -242,7 +247,7 @@ def validate_response(challenge, token, user_id, operation, key, db, locale)
     raise translate(locale, "Invalid challenge")
   end
 
-  challenge = OpenSSL::HMAC.digest(:sha256, HMAC_KEY, challenge)
+  challenge = OpenSSL::HMAC.digest(:sha256, key, challenge)
   challenge = Base64.urlsafe_encode(challenge)
 
   if db.query_one?("SELECT EXISTS (SELECT true FROM nonces WHERE nonce = $1)", nonce, as: Bool)

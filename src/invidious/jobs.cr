@@ -55,7 +55,7 @@ def refresh_channels(db, logger, max_threads = 1, full_refresh = false)
     active_channel = Channel(Bool).new
 
     loop do
-      db.query("SELECT id FROM channels WHERE deleted = false ORDER BY updated") do |rs|
+      db.query("SELECT id FROM channels ORDER BY updated") do |rs|
         rs.each do
           id = rs.read(String)
 
@@ -68,13 +68,12 @@ def refresh_channels(db, logger, max_threads = 1, full_refresh = false)
           active_threads += 1
           spawn do
             begin
-              client = make_client(YT_URL)
-              channel = fetch_channel(id, client, db, full_refresh)
+              channel = fetch_channel(id, db, full_refresh)
 
-              db.exec("UPDATE channels SET updated = $1, author = $2 WHERE id = $3", Time.now, channel.author, id)
+              db.exec("UPDATE channels SET updated = $1, author = $2, deleted = false WHERE id = $3", Time.now, channel.author, id)
             rescue ex
               if ex.message == "Deleted or invalid channel"
-                db.exec("UPDATE channels SET deleted = true WHERE id = $1", id)
+                db.exec("UPDATE channels SET updated = $1, deleted = true WHERE id = $2", Time.now, id)
               end
               logger.write("#{id} : #{ex.message}\n")
             end
@@ -132,7 +131,16 @@ def refresh_feeds(db, logger, max_threads = 1)
             begin
               db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
             rescue ex
-              logger.write("REFRESH #{email} : #{ex.message}\n")
+              # Create view if it doesn't exist
+              if ex.message.try &.ends_with? "does not exist"
+                db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+                SELECT * FROM channel_videos WHERE \
+                ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{email.gsub("'", "\\'")}')::text[]) \
+                ORDER BY published DESC;")
+                logger.write("CREATE #{view_name}")
+              else
+                logger.write("REFRESH #{email} : #{ex.message}\n")
+              end
             end
 
             active_channel.send(true)
@@ -145,19 +153,30 @@ def refresh_feeds(db, logger, max_threads = 1)
   max_channel.send(max_threads)
 end
 
-def pull_top_videos(config, db)
-  if config.dl_api_key
-    DetectLanguage.configure do |dl_config|
-      dl_config.api_key = config.dl_api_key.not_nil!
+def subscribe_to_feeds(db, logger, key, config)
+  if config.use_pubsub_feeds
+    spawn do
+      loop do
+        db.query_all("SELECT id FROM channels WHERE CURRENT_TIMESTAMP - subscribed > '4 days'") do |rs|
+          ucid = rs.read(String)
+          response = subscribe_pubsub(ucid, key, config)
+
+          if response.status_code >= 400
+            logger.write("#{ucid} : #{response.body}\n")
+          end
+        end
+
+        sleep 1.minute
+        Fiber.yield
+      end
     end
-    filter = true
   end
+end
 
-  filter ||= false
-
+def pull_top_videos(config, db)
   loop do
     begin
-      top = rank_videos(db, 40, filter, YT_URL)
+      top = rank_videos(db, 40)
     rescue ex
       next
     end
@@ -185,11 +204,11 @@ end
 
 def pull_popular_videos(db)
   loop do
-    subscriptions = PG_DB.query_all("SELECT channel FROM \
+    subscriptions = db.query_all("SELECT channel FROM \
       (SELECT UNNEST(subscriptions) AS channel FROM users) AS d \
     GROUP BY channel ORDER BY COUNT(channel) DESC LIMIT 40", as: String)
 
-    videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM \
+    videos = db.query_all("SELECT DISTINCT ON (ucid) * FROM \
       channel_videos WHERE ucid IN (#{arg_array(subscriptions)}) \
     ORDER BY ucid, published DESC", subscriptions, as: ChannelVideo).sort_by { |video| video.published }.reverse
 

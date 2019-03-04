@@ -1,9 +1,10 @@
 class InvidiousChannel
   add_mapping({
-    id:      String,
-    author:  String,
-    updated: Time,
-    deleted: Bool,
+    id:         String,
+    author:     String,
+    updated:    Time,
+    deleted:    Bool,
+    subscribed: Time?,
   })
 end
 
@@ -15,10 +16,7 @@ class ChannelVideo
     updated:        Time,
     ucid:           String,
     author:         String,
-    length_seconds: {
-      type:    Int32,
-      default: 0,
-    },
+    length_seconds: {type: Int32, default: 0},
   })
 end
 
@@ -50,13 +48,11 @@ def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, ma
 end
 
 def get_channel(id, db, refresh = true, pull_all_videos = true)
-  client = make_client(YT_URL)
-
   if db.query_one?("SELECT EXISTS (SELECT true FROM channels WHERE id = $1)", id, as: Bool)
     channel = db.query_one("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
 
     if refresh && Time.now - channel.updated > 10.minutes
-      channel = fetch_channel(id, client, db, pull_all_videos: pull_all_videos)
+      channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
       channel_array = channel.to_a
       args = arg_array(channel_array)
 
@@ -64,7 +60,7 @@ def get_channel(id, db, refresh = true, pull_all_videos = true)
         ON CONFLICT (id) DO UPDATE SET author = $2, updated = $3", channel_array)
     end
   else
-    channel = fetch_channel(id, client, db, pull_all_videos: pull_all_videos)
+    channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
     channel_array = channel.to_a
     args = arg_array(channel_array)
 
@@ -74,7 +70,9 @@ def get_channel(id, db, refresh = true, pull_all_videos = true)
   return channel
 end
 
-def fetch_channel(ucid, client, db, pull_all_videos = true, locale = nil)
+def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
+  client = make_client(YT_URL)
+
   rss = client.get("/feeds/videos.xml?channel_id=#{ucid}").body
   rss = XML.parse_html(rss)
 
@@ -188,9 +186,86 @@ def fetch_channel(ucid, client, db, pull_all_videos = true, locale = nil)
     db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{ids.map { |id| %("#{id}") }.join(",")}}') AND ucid = $1", ucid)
   end
 
-  channel = InvidiousChannel.new(ucid, author, Time.now, false)
+  channel = InvidiousChannel.new(ucid, author, Time.now, false, nil)
 
   return channel
+end
+
+def subscribe_pubsub(ucid, key, config)
+  client = make_client(PUBSUB_URL)
+  time = Time.now.to_unix.to_s
+
+  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+
+  body = {
+    "hub.callback"      => "#{host_url}/feed/webhook/#{time}:#{OpenSSL::HMAC.hexdigest(:sha1, key, time)}",
+    "hub.topic"         => "https://www.youtube.com/feeds/videos.xml?channel_id=#{ucid}",
+    "hub.verify"        => "async",
+    "hub.mode"          => "subscribe",
+    "hub.lease_seconds" => "432000",
+    "hub.secret"        => key.to_s,
+  }
+
+  return client.post("/subscribe", form: body)
+end
+
+def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
+  client = make_client(YT_URL)
+
+  if continuation
+    url = produce_channel_playlists_url(ucid, continuation, sort_by, auto_generated)
+
+    response = client.get(url)
+    json = JSON.parse(response.body)
+
+    if json["load_more_widget_html"].as_s.empty?
+      return [] of SearchItem, nil
+    end
+
+    continuation = XML.parse_html(json["load_more_widget_html"].as_s)
+    continuation = continuation.xpath_node(%q(//button[@data-uix-load-more-href]))
+    if continuation
+      continuation = extract_channel_playlists_cursor(continuation["data-uix-load-more-href"], auto_generated)
+    end
+
+    html = XML.parse_html(json["content_html"].as_s)
+    nodeset = html.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+  else
+    url = "/channel/#{ucid}/playlists?disable_polymer=1&flow=list"
+
+    if auto_generated
+      url += "&view=50"
+    else
+      url += "&view=1"
+    end
+
+    case sort_by
+    when "last", "last_added"
+      #
+    when "oldest", "oldest_created"
+      url += "&sort=da"
+    when "newest", "newest_created"
+      url += "&sort=dd"
+    end
+
+    response = client.get(url)
+    html = XML.parse_html(response.body)
+
+    continuation = html.xpath_node(%q(//button[@data-uix-load-more-href]))
+    if continuation
+      continuation = extract_channel_playlists_cursor(continuation["data-uix-load-more-href"], auto_generated)
+    end
+
+    nodeset = html.xpath_nodes(%q(//ul[@id="browse-items-primary"]/li[contains(@class, "feed-item-container")]))
+  end
+
+  if auto_generated
+    items = extract_shelf_items(nodeset, ucid, author)
+  else
+    items = extract_items(nodeset, ucid, author)
+  end
+
+  return items, continuation
 end
 
 def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "newest")
@@ -260,6 +335,132 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
   return url
 end
 
+def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated = false)
+  if !auto_generated
+    cursor = Base64.urlsafe_encode(cursor, false)
+  end
+
+  meta = IO::Memory.new
+
+  if auto_generated
+    meta.write(Bytes[0x08, 0x0a])
+  end
+
+  meta.write(Bytes[0x12, 0x09])
+  meta.print("playlists")
+
+  if auto_generated
+    meta.write(Bytes[0x20, 0x32])
+  else
+    # TODO: Look at 0x01, 0x00
+    case sort
+    when "oldest", "oldest_created"
+      meta.write(Bytes[0x18, 0x02])
+    when "newest", "newest_created"
+      meta.write(Bytes[0x18, 0x03])
+    when "last", "last_added"
+      meta.write(Bytes[0x18, 0x04])
+    end
+
+    meta.write(Bytes[0x20, 0x01])
+  end
+
+  meta.write(Bytes[0x30, 0x02])
+  meta.write(Bytes[0x38, 0x01])
+  meta.write(Bytes[0x60, 0x01])
+  meta.write(Bytes[0x6a, 0x00])
+
+  meta.write(Bytes[0x7a, cursor.size])
+  meta.print(cursor)
+
+  meta.write(Bytes[0xb8, 0x01, 0x00])
+
+  meta.rewind
+  meta = Base64.urlsafe_encode(meta.to_slice)
+  meta = URI.escape(meta)
+
+  continuation = IO::Memory.new
+  continuation.write(Bytes[0x12, ucid.size])
+  continuation.print(ucid)
+
+  continuation.write(Bytes[0x1a])
+  continuation.write(write_var_int(meta.size))
+  continuation.print(meta)
+
+  continuation.rewind
+  continuation = continuation.gets_to_end
+
+  wrapper = IO::Memory.new
+  wrapper.write(Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02])
+  wrapper.write(write_var_int(continuation.size))
+  wrapper.print(continuation)
+  wrapper.rewind
+
+  wrapper = Base64.urlsafe_encode(wrapper.to_slice)
+  wrapper = URI.escape(wrapper)
+
+  url = "/browse_ajax?continuation=#{wrapper}&gl=US&hl=en"
+
+  return url
+end
+
+def extract_channel_playlists_cursor(url, auto_generated)
+  wrapper = HTTP::Params.parse(URI.parse(url).query.not_nil!)["continuation"]
+
+  wrapper = URI.unescape(wrapper)
+  wrapper = Base64.decode(wrapper)
+
+  # 0xe2 0xa9 0x85 0xb2 0x02
+  wrapper += 5
+
+  continuation_size = read_var_int(wrapper[0, 4])
+  wrapper += write_var_int(continuation_size).size
+  continuation = wrapper[0, continuation_size]
+
+  # 0x12
+  continuation += 1
+  ucid_size = continuation[0]
+  continuation += 1
+  ucid = continuation[0, ucid_size]
+  continuation += ucid_size
+
+  # 0x1a
+  continuation += 1
+  meta_size = read_var_int(continuation[0, 4])
+  continuation += write_var_int(meta_size).size
+  meta = continuation[0, meta_size]
+  continuation += meta_size
+
+  meta = String.new(meta)
+  meta = URI.unescape(meta)
+  meta = Base64.decode(meta)
+
+  # 0x12 0x09 playlists
+  meta += 11
+
+  until meta[0] == 0x7a
+    tag = read_var_int(meta[0, 4])
+    meta += write_var_int(tag).size
+    value = meta[0]
+    meta += 1
+  end
+
+  # 0x7a
+  meta += 1
+  cursor_size = meta[0]
+  meta += 1
+  cursor = meta[0, cursor_size]
+
+  cursor = String.new(cursor)
+
+  if !auto_generated
+    cursor = URI.unescape(cursor)
+    cursor = Base64.decode_string(cursor)
+  end
+
+  return cursor
+end
+
 def get_about_info(ucid, locale)
   client = make_client(YT_URL)
 
@@ -290,7 +491,7 @@ def get_about_info(ucid, locale)
   sub_count ||= 0
 
   author = about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).not_nil!.content
-  ucid = about.xpath_node(%q(//link[@rel="canonical"])).not_nil!["href"].split("/")[-1]
+  ucid = about.xpath_node(%q(//meta[@itemprop="channelId"])).not_nil!["content"]
 
   # Auto-generated channels
   # https://support.google.com/youtube/answer/2579942
@@ -333,4 +534,22 @@ def get_60_videos(ucid, page, auto_generated, sort_by = "newest")
   end
 
   return videos, count
+end
+
+def get_latest_videos(ucid)
+  client = make_client(YT_URL)
+  videos = [] of SearchVideo
+
+  url = produce_channel_videos_url(ucid, 0)
+  response = client.get(url)
+  json = JSON.parse(response.body)
+
+  if json["content_html"]? && !json["content_html"].as_s.empty?
+    document = XML.parse_html(json["content_html"].as_s)
+    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+    videos = extract_videos(nodeset, ucid)
+  end
+
+  return videos
 end

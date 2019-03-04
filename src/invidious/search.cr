@@ -188,7 +188,7 @@ def produce_search_params(sort : String = "relevance", date : String = "", conte
             end
   end
 
-  if body.size > 0
+  if !body.empty?
     token = head + "\x12" + body.size.unsafe_chr + body
   else
     token = head

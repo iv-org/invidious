@@ -9,7 +9,7 @@ ADD . /invidious
 WORKDIR /invidious
 
 RUN sed -i 's/host: localhost/host: postgres/' config/config.yml && \
-    shards && \
+    shards update && shards install && \
     crystal build src/invidious.cr
 
 CMD [ "/invidious/invidious" ]
