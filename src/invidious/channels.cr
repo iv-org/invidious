@@ -201,7 +201,7 @@ def subscribe_pubsub(ucid, key, config)
 
   body = {
     "hub.callback"      => "#{host_url}/feed/webhook/v1:#{time}:#{nonce}:#{OpenSSL::HMAC.hexdigest(:sha1, key, signature)}",
-    "hub.topic"         => "https://www.youtube.com/feeds/videos.xml?channel_id=#{ucid}",
+    "hub.topic"         => "https://www.youtube.com/xml/feeds/videos.xml?channel_id=#{ucid}",
     "hub.verify"        => "async",
     "hub.mode"          => "subscribe",
     "hub.lease_seconds" => "432000",
