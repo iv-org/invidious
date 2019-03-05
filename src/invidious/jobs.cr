@@ -158,11 +158,13 @@ def subscribe_to_feeds(db, logger, key, config)
     spawn do
       loop do
         db.query_all("SELECT id FROM channels WHERE CURRENT_TIMESTAMP - subscribed > '4 days'") do |rs|
-          ucid = rs.read(String)
-          response = subscribe_pubsub(ucid, key, config)
+          rs.each do
+            ucid = rs.read(String)
+            response = subscribe_pubsub(ucid, key, config)
 
-          if response.status_code >= 400
-            logger.write("#{ucid} : #{response.body}\n")
+            if response.status_code >= 400
+              logger.write("#{ucid} : #{response.body}\n")
+            end
           end
         end
 
