@@ -137,8 +137,6 @@ player.on('error', function(event) {
   }
 });
 
-player.share(shareOptions);
-
 <% if params[:video_start] > 0 || params[:video_end] > 0 %>
 player.markers({
   onMarkerReached: function(marker) {
@@ -188,4 +186,7 @@ if (bpb) {
   });
 }
 <% end %>
+
+// Since videojs-share can sometimes be blocked, we try to load it last
+player.share(shareOptions);
 </script>
