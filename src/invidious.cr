@@ -1964,7 +1964,7 @@ get "/feed/subscriptions" do |env|
           # Show latest video from each channel
 
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
-          ORDER BY ucid, published", as: ChannelVideo)
+          ORDER BY ucid, published DESC", as: ChannelVideo)
         end
 
         videos.sort_by! { |video| video.published }.reverse!
@@ -2210,7 +2210,7 @@ get "/feed/private" do |env|
 
   if latest_only
     videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
-    ORDER BY ucid, published", as: ChannelVideo)
+    ORDER BY ucid, published DESC", as: ChannelVideo)
 
     videos.sort_by! { |video| video.published }.reverse!
   else
