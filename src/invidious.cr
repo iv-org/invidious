@@ -2330,7 +2330,6 @@ get "/feed/webhook/:token" do |env|
   mode = env.params.query["hub.mode"]
   topic = env.params.query["hub.topic"]
   challenge = env.params.query["hub.challenge"]
-  lease_seconds = env.params.query["hub.lease_seconds"]
 
   if verify_token.starts_with? "v1"
     _, time, nonce, signature = verify_token.split(":")
