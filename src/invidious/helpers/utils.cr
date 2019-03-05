@@ -193,19 +193,28 @@ def arg_array(array, start = 1)
   return args
 end
 
-def make_host_url(ssl, host)
+def make_host_url(config, kemal_config)
+  ssl = config.https_only || kemal_config.ssl
+
   if ssl
     scheme = "https://"
   else
     scheme = "http://"
   end
 
-  if host
-    host = host.lchop(".")
-    return "#{scheme}#{host}"
+  if kemal_config.port != 80 && kemal_config.port != 443
+    port = ":#{kemal_config.port}"
   else
+    port = ""
+  end
+
+  if !config.domain
     return ""
   end
+
+  host = config.domain.not_nil!.lchop(".")
+
+  return "#{scheme}#{host}#{port}"
 end
 
 def get_referer(env, fallback = "/")

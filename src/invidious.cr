@@ -417,7 +417,7 @@ get "/watch" do |env|
   video.description = replace_links(video.description)
   description = video.short_description
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
   host_params = env.request.query_params
   host_params.delete_all("v")
 
@@ -517,7 +517,7 @@ get "/embed/:id" do |env|
   video.description = replace_links(video.description)
   description = video.short_description
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
   host_params = env.request.query_params
   host_params.delete_all("v")
 
@@ -603,7 +603,7 @@ get "/opensearch.xml" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
   env.response.content_type = "application/opensearchdescription+xml"
 
-  host = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host = make_host_url(config, Kemal.config)
 
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("OpenSearchDescription", xmlns: "http://a9.com/-/spec/opensearch/1.1/") do
@@ -1500,7 +1500,7 @@ get "/subscription_manager" do |env|
   subscriptions.sort_by! { |channel| channel.author.downcase }
 
   if action_takeout
-    host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+    host_url = make_host_url(config, Kemal.config)
 
     if format == "json"
       env.response.content_type = "application/json"
@@ -2057,7 +2057,8 @@ end
 get "/feed/channel/:ucid" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
 
-  env.response.content_type = "text/xml"
+  env.response.content_type = "application/atom+xml"
+
   ucid = env.params.url["ucid"]
 
   begin
@@ -2101,7 +2102,7 @@ get "/feed/channel/:ucid" do |env|
     )
   end
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
   path = env.request.path
 
   feed = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -2167,6 +2168,8 @@ end
 
 get "/feed/private" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
+
+  env.response.content_type = "application/atom+xml"
 
   token = env.params.query["token"]?
 
@@ -2235,7 +2238,7 @@ get "/feed/private" do |env|
     videos = videos[0..max_results]
   end
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
   path = env.request.path
   query = env.request.query.not_nil!
 
@@ -2281,16 +2284,17 @@ get "/feed/private" do |env|
     end
   end
 
-  env.response.content_type = "application/atom+xml"
   feed
 end
 
 get "/feed/playlist/:plid" do |env|
   locale = LOCALES[env.get("locale").as(String)]?
 
+  env.response.content_type = "application/atom+xml"
+
   plid = env.params.url["plid"]
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
   path = env.request.path
 
   client = make_client(YT_URL)
@@ -2315,7 +2319,6 @@ get "/feed/playlist/:plid" do |env|
     document = document.gsub(match[0], "<uri>#{content}</uri>")
   end
 
-  env.response.content_type = "text/xml"
   document
 end
 
@@ -2897,7 +2900,7 @@ get "/api/v1/videos/:id" do |env|
       end
 
       if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-        host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+        host_url = make_host_url(config, Kemal.config)
 
         host_params = env.request.query_params
         host_params.delete_all("v")
@@ -4091,7 +4094,7 @@ get "/api/manifest/hls_variant/*" do |env|
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
 
   manifest = manifest.body
   manifest.gsub("https://www.youtube.com", host_url)
@@ -4105,7 +4108,7 @@ get "/api/manifest/hls_playlist/*" do |env|
     halt env, status_code: manifest.status_code
   end
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
 
   manifest = manifest.body.gsub("https://www.youtube.com", host_url)
   manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, host_url)

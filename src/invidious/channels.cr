@@ -197,7 +197,7 @@ def subscribe_pubsub(ucid, key, config)
   nonce = Random::Secure.hex(4)
   signature = "#{time}:#{nonce}"
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
 
   body = {
     "hub.callback"      => "#{host_url}/feed/webhook/v1:#{time}:#{nonce}:#{OpenSSL::HMAC.hexdigest(:sha1, key, signature)}",
