@@ -264,7 +264,7 @@ get "/" do |env|
   if user
     user = user.as(User)
     if user.preferences.redirect_feed
-      env.redirect "/feed/subscriptions"
+      next env.redirect "/feed/subscriptions"
     end
   end
 
