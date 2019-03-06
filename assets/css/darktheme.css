@@ -28,6 +28,10 @@ body {
   color: rgba(35, 35, 35, 1);
 }
 
+.pure-form input[type="file"] {
+  color: #f0f0f0;
+}
+
 .navbar > .searchbar input {
   background-color: inherit;
   color: inherit;

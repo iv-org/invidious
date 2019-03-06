@@ -1,3 +1,7 @@
+.deleted {
+  background-color: rgb(255, 0, 0, 0.5);
+}
+
 .channel-owner {
   background-color: #008bec;
   color: #fff;

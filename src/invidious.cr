@@ -1583,14 +1583,7 @@ post "/data_control" do |env|
           user.subscriptions += body["subscriptions"].as_a.map { |a| a.as_s }
           user.subscriptions.uniq!
 
-          user.subscriptions.select! do |ucid|
-            begin
-              get_channel(ucid, PG_DB, false, false)
-              true
-            rescue ex
-              false
-            end
-          end
+          user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
           PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
         end
