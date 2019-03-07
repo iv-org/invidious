@@ -1,5 +1,6 @@
 <% content_for "header" do %>
 <title><%= playlist.title %> - Invidious</title>
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/playlist/<%= plid %>" />
 <% end %>
 
 <div class="pure-g h-box">
