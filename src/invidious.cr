@@ -1880,6 +1880,7 @@ get "/feed/subscriptions" do |env|
     user = user.as(User)
     sid = sid.as(String)
     preferences = user.preferences
+    token = user.token
 
     if preferences.unseen_only
       env.set "show_watched", true
