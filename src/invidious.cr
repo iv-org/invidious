@@ -1909,12 +1909,6 @@ get "/feed/subscriptions" do |env|
       offset = (page - 1) * max_results
     end
 
-    if preferences.sort == "published - reverse"
-      sort = ""
-    else
-      sort = "DESC"
-    end
-
     notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
       as: Array(String))
     view_name = "subscriptions_#{sha256(user.email)[0..7]}"
@@ -1925,7 +1919,7 @@ get "/feed/subscriptions" do |env|
       args = arg_array(notifications)
 
       notifications = PG_DB.query_all("SELECT * FROM channel_videos WHERE id IN (#{args})
-      ORDER BY published #{sort}", notifications, as: ChannelVideo)
+      ORDER BY published DESC", notifications, as: ChannelVideo)
       videos = [] of ChannelVideo
 
       notifications.sort_by! { |video| video.published }.reverse!
@@ -1953,7 +1947,7 @@ get "/feed/subscriptions" do |env|
           end
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE \
           NOT id = ANY (#{values}) \
-          ORDER BY ucid, published #{sort}", as: ChannelVideo)
+          ORDER BY ucid, published DESC", as: ChannelVideo)
         else
           # Show latest video from each channel
 
@@ -1973,12 +1967,12 @@ get "/feed/subscriptions" do |env|
           end
           videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE \
           NOT id = ANY (#{values}) \
-          ORDER BY published #{sort} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+          ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
         else
           # Sort subscriptions as normal
 
           videos = PG_DB.query_all("SELECT * FROM #{view_name} \
-          ORDER BY published #{sort} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+          ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
         end
       end
 
@@ -2197,12 +2191,6 @@ get "/feed/private" do |env|
   sort = env.params.query["sort"]?
   sort ||= "published"
 
-  if sort == "published - reverse"
-    desc = ""
-  else
-    desc = "DESC"
-  end
-
   view_name = "subscriptions_#{sha256(user.email)[0..7]}"
 
   if latest_only
@@ -2212,7 +2200,7 @@ get "/feed/private" do |env|
     videos.sort_by! { |video| video.published }.reverse!
   else
     videos = PG_DB.query_all("SELECT * FROM #{view_name} \
-    ORDER BY published #{desc} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+    ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
   end
 
   case sort
