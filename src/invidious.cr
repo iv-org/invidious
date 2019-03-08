@@ -2361,7 +2361,7 @@ post "/feed/webhook/:token" do |env|
     rss = XML.parse_html(body)
     rss.xpath_nodes("//feed/entry").each do |entry|
       id = entry.xpath_node("videoid").not_nil!.content
-      published = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
+      published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
       updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
 
       video = get_video(id, PG_DB, proxies, region: nil)
