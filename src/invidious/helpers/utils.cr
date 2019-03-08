@@ -195,6 +195,7 @@ end
 
 def make_host_url(config, kemal_config)
   ssl = config.https_only || kemal_config.ssl
+  port = config.external_port || kemal_config.port
 
   if ssl
     scheme = "https://"
@@ -202,7 +203,8 @@ def make_host_url(config, kemal_config)
     scheme = "http://"
   end
 
-  if kemal_config.port != 80 && kemal_config.port != 443
+  # Add if non-standard port
+  if port != 80 && port != 443
     port = ":#{kemal_config.port}"
   else
     port = ""

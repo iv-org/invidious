@@ -24,6 +24,7 @@ user: String,
     registration_enabled: {type: Bool, default: true},
     statistics_enabled:   {type: Bool, default: false},
     admins:               {type: Array(String), default: [] of String},
+    external_port:        {type: Int32 | Nil, default: nil},
   })
 end
 
