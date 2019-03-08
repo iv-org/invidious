@@ -112,8 +112,8 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     rss.xpath_nodes("//feed/entry").each do |entry|
       video_id = entry.xpath_node("videoid").not_nil!.content
       title = entry.xpath_node("title").not_nil!.content
-      published = Time.parse(entry.xpath_node("published").not_nil!.content, "%FT%X%z", Time::Location.local)
-      updated = Time.parse(entry.xpath_node("updated").not_nil!.content, "%FT%X%z", Time::Location.local)
+      published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
+      updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
       author = entry.xpath_node("author/name").not_nil!.content
       ucid = entry.xpath_node("channelid").not_nil!.content
 
