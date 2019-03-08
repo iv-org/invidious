@@ -2826,7 +2826,7 @@ get "/api/v1/videos/:id" do |env|
       json.field "title", video.title
       json.field "videoId", video.id
       json.field "videoThumbnails" do
-        generate_thumbnails(json, video.id)
+        generate_thumbnails(json, video.id, config, Kemal.config)
       end
 
       video.description, description = html_to_content(video.description)
@@ -2989,7 +2989,7 @@ get "/api/v1/videos/:id" do |env|
                 json.field "videoId", rv["id"]
                 json.field "title", rv["title"]
                 json.field "videoThumbnails" do
-                  generate_thumbnails(json, rv["id"])
+                  generate_thumbnails(json, rv["id"], config, Kemal.config)
                 end
                 json.field "author", rv["author"]
                 json.field "lengthSeconds", rv["length_seconds"].to_i
@@ -3031,7 +3031,7 @@ get "/api/v1/trending" do |env|
           json.field "title", video.title
           json.field "videoId", video.id
           json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id)
+            generate_thumbnails(json, video.id, config, Kemal.config)
           end
 
           json.field "lengthSeconds", video.length_seconds
@@ -3072,7 +3072,7 @@ get "/api/v1/popular" do |env|
           json.field "title", video.title
           json.field "videoId", video.id
           json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id)
+            generate_thumbnails(json, video.id, config, Kemal.config)
           end
 
           json.field "lengthSeconds", video.length_seconds
@@ -3111,7 +3111,7 @@ get "/api/v1/top" do |env|
           json.field "title", video.title
           json.field "videoId", video.id
           json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id)
+            generate_thumbnails(json, video.id, config, Kemal.config)
           end
 
           json.field "lengthSeconds", video.info["length_seconds"].to_i
@@ -3294,7 +3294,7 @@ get "/api/v1/channels/:ucid" do |env|
               end
 
               json.field "videoThumbnails" do
-                generate_thumbnails(json, video.id)
+                generate_thumbnails(json, video.id, config, Kemal.config)
               end
 
               json.field "description", video.description
@@ -3392,7 +3392,7 @@ end
             end
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, video.id)
+              generate_thumbnails(json, video.id, config, Kemal.config)
             end
 
             json.field "description", video.description
@@ -3444,7 +3444,7 @@ end
             json.field "authorUrl", "/channel/#{ucid}"
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, video.id)
+              generate_thumbnails(json, video.id, config, Kemal.config)
             end
 
             json.field "description", video.description
@@ -3515,7 +3515,7 @@ end
                           json.field "lengthSeconds", video.length_seconds
 
                           json.field "videoThumbnails" do
-                            generate_thumbnails(json, video.id)
+                            generate_thumbnails(json, video.id, config, Kemal.config)
                           end
                         end
                       end
@@ -3568,7 +3568,7 @@ get "/api/v1/channels/search/:ucid" do |env|
             json.field "authorUrl", "/channel/#{item.ucid}"
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, item.id)
+              generate_thumbnails(json, item.id, config, Kemal.config)
             end
 
             json.field "description", item.description
@@ -3600,7 +3600,7 @@ get "/api/v1/channels/search/:ucid" do |env|
                     json.field "lengthSeconds", video.length_seconds
 
                     json.field "videoThumbnails" do
-                      generate_thumbnails(json, video.id)
+                      generate_thumbnails(json, video.id, config, Kemal.config)
                     end
                   end
                 end
@@ -3697,7 +3697,7 @@ get "/api/v1/search" do |env|
             json.field "authorUrl", "/channel/#{item.ucid}"
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, item.id)
+              generate_thumbnails(json, item.id, config, Kemal.config)
             end
 
             json.field "description", item.description
@@ -3729,7 +3729,7 @@ get "/api/v1/search" do |env|
                     json.field "lengthSeconds", video.length_seconds
 
                     json.field "videoThumbnails" do
-                      generate_thumbnails(json, video.id)
+                      generate_thumbnails(json, video.id, config, Kemal.config)
                     end
                   end
                 end
@@ -3845,7 +3845,7 @@ get "/api/v1/playlists/:plid" do |env|
               json.field "authorUrl", "/channel/#{video.ucid}"
 
               json.field "videoThumbnails" do
-                generate_thumbnails(json, video.id)
+                generate_thumbnails(json, video.id, config, Kemal.config)
               end
 
               json.field "index", video.index
@@ -3921,7 +3921,7 @@ get "/api/v1/mixes/:rdid" do |env|
 
               json.field "videoThumbnails" do
                 json.array do
-                  generate_thumbnails(json, video.id)
+                  generate_thumbnails(json, video.id, config, Kemal.config)
                 end
               end
 
@@ -4332,7 +4332,7 @@ get "/vi/:id/:name" do |env|
   client = make_client(URI.parse(host))
 
   if name == "maxres.jpg"
-    VIDEO_THUMBNAILS.each do |thumb|
+    build_thumbnails(id, config, Kemal.config).each do |thumb|
       if client.head("/vi/#{id}/#{thumb[:url]}.jpg").status_code == 200
         name = thumb[:url] + ".jpg"
         break

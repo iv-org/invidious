@@ -136,18 +136,6 @@ BYPASS_REGIONS = {
   "TR",
 }
 
-VIDEO_THUMBNAILS = {
-  {name: "maxres", host: "#{CONFIG.domain}", url: "maxres", height: 720, width: 1280},
-  {name: "maxresdefault", host: "i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
-  {name: "sddefault", host: "i.ytimg.com", url: "sddefault", height: 480, width: 640},
-  {name: "high", host: "i.ytimg.com", url: "hqdefault", height: 360, width: 480},
-  {name: "medium", host: "i.ytimg.com", url: "mqdefault", height: 180, width: 320},
-  {name: "default", host: "i.ytimg.com", url: "default", height: 90, width: 120},
-  {name: "start", host: "i.ytimg.com", url: "1", height: 90, width: 120},
-  {name: "middle", host: "i.ytimg.com", url: "2", height: 90, width: 120},
-  {name: "end", host: "i.ytimg.com", url: "3", height: 90, width: 120},
-}
-
 # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L380-#L476
 VIDEO_FORMATS = {
   "5"  => {"ext" => "flv", "width" => 400, "height" => 240, "acodec" => "mp3", "abr" => 64, "vcodec" => "h263"},
@@ -826,12 +814,26 @@ def process_video_params(query, preferences)
   return params
 end
 
-def generate_thumbnails(json, id)
+def build_thumbnails(id, config, kemal_config)
+  return {
+    {name: "maxres", host: "#{make_host_url(config, kemal_config)}", url: "maxres", height: 720, width: 1280},
+    {name: "maxresdefault", host: "https://i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
+    {name: "sddefault", host: "https://i.ytimg.com", url: "sddefault", height: 480, width: 640},
+    {name: "high", host: "https://i.ytimg.com", url: "hqdefault", height: 360, width: 480},
+    {name: "medium", host: "https://i.ytimg.com", url: "mqdefault", height: 180, width: 320},
+    {name: "default", host: "https://i.ytimg.com", url: "default", height: 90, width: 120},
+    {name: "start", host: "https://i.ytimg.com", url: "1", height: 90, width: 120},
+    {name: "middle", host: "https://i.ytimg.com", url: "2", height: 90, width: 120},
+    {name: "end", host: "https://i.ytimg.com", url: "3", height: 90, width: 120},
+  }
+end
+
+def generate_thumbnails(json, id, config, kemal_config)
   json.array do
-    VIDEO_THUMBNAILS.each do |thumbnail|
+    build_thumbnails(id, config, kemal_config).each do |thumbnail|
       json.object do
         json.field "quality", thumbnail[:name]
-        json.field "url", "https://#{thumbnail[:host]}/vi/#{id}/#{thumbnail["url"]}.jpg"
+        json.field "url", "#{thumbnail[:host]}/vi/#{id}/#{thumbnail["url"]}.jpg"
         json.field "width", thumbnail[:width]
         json.field "height", thumbnail[:height]
       end
