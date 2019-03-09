@@ -10,8 +10,9 @@
   "newest": "nieuwste",
   "oldest": "oudste",
   "popular": "populair",
-  "Preview page": "Pagina voorvertonen",
+  "last": "",
   "Next page": "Volgende pagina",
+  "Previous page": "Vorige pagina",
   "Clear watch history?": "Kijk geschiedenis wissen?",
   "Yes": "Ja",
   "No": "Nee",
@@ -28,7 +29,6 @@
   "Export data as JSON": "Exporteer gegevens als JSON",
   "Delete account?": "Verwijder account?",
   "History": "Geschiedenis",
-  "Previous page": "Vorige pagina",
   "An alternative front-end to YouTube": "Een alternatieve front-end voor YouTube",
   "JavaScript license information": "JavaScript licentie informatie",
   "source": "bron",
@@ -284,5 +284,8 @@
   "Youtube permalink of the comment": "",
   "`x` marked it with a ❤": "",
   "Audio mode": "",
-  "Video mode": ""
+  "Video mode": "",
+  "Videos": "",
+  "Playlists": "",
+  "Current version: ": ""
 }

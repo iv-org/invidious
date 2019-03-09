@@ -10,8 +10,9 @@
   "newest": "newest",
   "oldest": "oldest",
   "popular": "popular",
-  "Preview page": "Preview page",
+  "last": "last",
   "Next page": "Next page",
+  "Previous page": "Previous page",
   "Clear watch history?": "Clear watch history?",
   "Yes": "Yes",
   "No": "No",
@@ -28,7 +29,6 @@
   "Export data as JSON": "Export data as JSON",
   "Delete account?": "Delete account?",
   "History": "History",
-  "Previous page": "Previous page",
   "An alternative front-end to YouTube": "An alternative front-end to YouTube",
   "JavaScript license information": "JavaScript license information",
   "source": "source",
@@ -284,5 +284,8 @@
   "Youtube permalink of the comment": "Youtube permalink of the comment",
   "`x` marked it with a ❤": "`x` marked it with a ❤",
   "Audio mode": "Audio mode",
-  "Video mode": "Video mode"
+  "Video mode": "Video mode",
+  "Videos": "Videos",
+  "Playlists": "Playlists",
+  "Current version: ": "Current version: "
 }

@@ -10,7 +10,9 @@
   "newest": "Data di aggiunta (più recente)",
   "oldest": "Data di aggiunta (più vecchia)",
   "popular": "Tendenze",
+  "last": "",
   "Next page": "Pagina successiva",
+  "Previous page": "Pagina precedente",
   "Clear watch history?": "Sei sicuro di voler cancellare la cronologia dei video guardati?",
   "Yes": "Si",
   "No": "No",
@@ -27,7 +29,6 @@
   "Export data as JSON": "Esporta i dati in formato JSON",
   "Delete account?": "Sei sicuro di voler cancellare l'account?",
   "History": "Cronologia",
-  "Previous page": "Pagina precedente",
   "An alternative front-end to YouTube": "Un'interfaccia alternativa per YouTube",
   "JavaScript license information": "Info licenze JavaScript",
   "source": "sorgente",
@@ -283,5 +284,8 @@
   "Youtube permalink of the comment": "Link permanente al commento di YouTube",
   "`x` marked it with a ❤": "`x` l'ha contrassegnato con un ❤",
   "Audio mode": "Modalità audio",
-  "Video mode": "Modalità video"
+  "Video mode": "Modalità video",
+  "Videos": "",
+  "Playlists": "",
+  "Current version: ": ""
 }

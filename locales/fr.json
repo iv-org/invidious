@@ -10,7 +10,9 @@
   "newest": "Date d'ajout (la plus récente)",
   "oldest": "Date d'ajout (la plus ancienne)",
   "popular": "Les plus populaires",
+  "last": "",
   "Next page": "Page suivante",
+  "Previous page": "Page précédente",
   "Clear watch history?": "Êtes-vous sûr de vouloir supprimer l'historique des vidéos regardées ?",
   "Yes": "Oui",
   "No": "Non",
@@ -27,7 +29,6 @@
   "Export data as JSON": "Exporter les données au format JSON",
   "Delete account?": "Supprimer votre compte ?",
   "History": "Historique",
-  "Previous page": "Page précédente",
   "An alternative front-end to YouTube": "Un front-end alternatif à YouTube",
   "JavaScript license information": "Informations sur les licences JavaScript",
   "source": "source",
@@ -283,5 +284,8 @@
   "Youtube permalink of the comment": "Lien YouTube permanent vers le commentaire",
   "`x` marked it with a ❤": "`x` l'a marqué d'un ❤",
   "Audio mode": "Mode Audio",
-  "Video mode": "Mode Vidéo"
+  "Video mode": "Mode Vidéo",
+  "Videos": "",
+  "Playlists": "",
+  "Current version: ": ""
 }
