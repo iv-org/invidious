@@ -22,13 +22,17 @@
 <div class="pure-g h-box">
     <div class="pure-u-1-3">
         <a href="https://www.youtube.com/channel/<%= ucid %>"><%= translate(locale, "View channel on YouTube") %></a>
+        <% if !auto_generated %>
         <div class="pure-u-1 pure-md-1-3">
             <b><%= translate(locale, "Videos") %></b>
         </div>
+        <% end %>
         <div class="pure-u-1 pure-md-1-3">
-            <% if !auto_generated %>
-                <a href="/channel/<%= ucid %>/playlists"><%= translate(locale, "Playlists") %></a>
-            <% end %>
+        <% if auto_generated %>
+            <b><%= translate(locale, "Playlists") %></b>
+        <% else %>
+            <a href="/channel/<%= ucid %>/playlists"><%= translate(locale, "Playlists") %></a>
+        <% end %>
         </div>
     </div>
     <div class="pure-u-1-3">
