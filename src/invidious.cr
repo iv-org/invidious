@@ -4217,13 +4217,14 @@ end
 get "/videoplayback" do |env|
   query_params = env.params.query
 
+  fvip = query_params["fvip"]? || "3"
+  mns = query_params["mn"].split(",")
+
   if query_params["host"]? && !query_params["host"].empty?
     host = "https://#{query_params["host"]}"
     query_params.delete("host")
   else
-    fvip = query_params["fvip"]? || "3"
-    mn = query_params["mn"].split(",").pop
-    host = "https://r#{fvip}---#{mn}.googlevideo.com"
+    host = "https://r#{fvip}---#{mns.pop}.googlevideo.com"
   end
 
   url = "/videoplayback?#{query_params.to_s}"
@@ -4244,11 +4245,11 @@ get "/videoplayback" do |env|
       response = client.head(url, headers)
       break
     rescue Socket::Addrinfo::Error
-      if fvip == "3"
-        break
+      if !mns.empty?
+        mn = mns.pop
       end
-
       fvip = "3"
+
       host = "https://r#{fvip}---#{mn}.googlevideo.com"
     rescue ex
     end
