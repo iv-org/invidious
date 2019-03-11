@@ -405,8 +405,8 @@ get "/watch" do |env|
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
 
   if params[:local]
-    fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).query.not_nil! }
-    adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).query.not_nil! }
+    fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
+    adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
   end
 
   video_streams = video.video_streams(adaptive_fmts)
@@ -511,8 +511,8 @@ get "/embed/:id" do |env|
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
 
   if params[:local]
-    fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).query.not_nil! }
-    adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).query.not_nil! }
+    fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
+    adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
   end
 
   video_streams = video.video_streams(adaptive_fmts)
