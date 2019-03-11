@@ -18,14 +18,14 @@
   <link rel="stylesheet" href="/css/grids-responsive-min.css">
   <link rel="stylesheet" href="/css/ionicons.min.css">
   <link rel="stylesheet" href="/css/default.css">
-  <% if env.get?("preferences").try &.as(Preferences).dark_mode %>
+  <% if env.get("preferences").as(Preferences).dark_mode %>
   <link rel="stylesheet" href="/css/darktheme.css">
   <% else %>
   <link rel="stylesheet" href="/css/lighttheme.css">
   <% end %>
 </head>
 
-<% locale = LOCALES[env.get("locale").as(String)]? %>
+<% locale = LOCALES[env.get("preferences").as(Preferences).locale]? %>
 
 <body>
   <div class="pure-g">

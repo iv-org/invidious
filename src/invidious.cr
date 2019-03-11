@@ -192,6 +192,7 @@ proxies = PROXY_LIST
 before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
+  preferences = DEFAULT_USER_PREFERENCES.dup
 
   if env.request.cookies.has_key? "SID"
     headers = HTTP::Headers.new
@@ -210,9 +211,9 @@ before_all do |env|
         env.set "challenge", challenge
         env.set "token", token
 
-        locale = user.preferences.locale
+        preferences = user.preferences
+
         env.set "user", user
-        env.set "preferences", user.preferences
         env.set "sid", sid
       end
     else
@@ -223,9 +224,9 @@ before_all do |env|
         env.set "challenge", challenge
         env.set "token", token
 
-        locale = user.preferences.locale
+        preferences = user.preferences
+
         env.set "user", user
-        env.set "preferences", user.preferences
         env.set "sid", sid
       rescue ex
       end
@@ -234,14 +235,20 @@ before_all do |env|
 
   if env.request.cookies.has_key? "PREFS"
     preferences = Preferences.from_json(env.request.cookies["PREFS"].value)
-
-    locale = preferences.locale
-    env.set "preferences", preferences
   end
 
-  locale = env.params.query["hl"]? || locale
-  locale ||= "en-US"
-  env.set "locale", locale
+  dark_mode = env.params.query["dark_mode"]? || preferences.dark_mode.to_s
+  dark_mode = dark_mode == "true"
+
+  thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
+  thin_mode = thin_mode == "true"
+
+  locale = env.params.query["hl"]? || preferences.locale
+
+  preferences.dark_mode = dark_mode
+  preferences.thin_mode = thin_mode
+  preferences.locale = locale
+  env.set "preferences", preferences
 
   current_page = env.request.path
   if env.request.query
@@ -258,7 +265,7 @@ before_all do |env|
 end
 
 get "/" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   user = env.get? "user"
 
   if user
@@ -285,14 +292,14 @@ get "/" do |env|
 end
 
 get "/licenses" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   rendered "licenses"
 end
 
 # Videos
 
 get "/watch" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   region = env.params.query["region"]?
 
   if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
@@ -464,7 +471,7 @@ get "/watch" do |env|
 end
 
 get "/embed/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   id = env.params.url["id"]
 
   if id.includes?("%20") || id.includes?("+") || env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
@@ -558,7 +565,7 @@ end
 # Playlists
 
 get "/playlist" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   plid = env.params.query["list"]?
   if !plid
@@ -589,7 +596,7 @@ get "/playlist" do |env|
 end
 
 get "/mix" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   rdid = env.params.query["list"]?
   if !rdid
@@ -612,7 +619,7 @@ end
 # Search
 
 get "/opensearch.xml" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   env.response.content_type = "application/opensearchdescription+xml"
 
   host = make_host_url(config, Kemal.config)
@@ -630,7 +637,7 @@ get "/opensearch.xml" do |env|
 end
 
 get "/results" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   query = env.params.query["search_query"]?
   query ||= env.params.query["q"]?
@@ -647,7 +654,7 @@ get "/results" do |env|
 end
 
 get "/search" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   region = env.params.query["region"]?
 
   query = env.params.query["search_query"]?
@@ -733,7 +740,7 @@ end
 # Users
 
 get "/login" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   if user
@@ -779,7 +786,7 @@ end
 
 # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
 post "/login" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   referer = get_referer(env, "/feed/subscriptions")
 
@@ -1156,7 +1163,7 @@ post "/login" do |env|
 end
 
 get "/signout" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1189,22 +1196,17 @@ get "/signout" do |env|
 end
 
 get "/preferences" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
   referer = get_referer(env)
 
-  if preferences = env.get? "preferences"
-    preferences = preferences.as(Preferences)
+  preferences = env.get("preferences").as(Preferences)
 
-    templated "preferences"
-  else
-    preferences = DEFAULT_USER_PREFERENCES
-
-    templated "preferences"
-  end
+  templated "preferences"
 end
 
 post "/preferences" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   referer = get_referer(env)
 
   video_loop = env.params.body["video_loop"]?.try &.as(String)
@@ -1347,7 +1349,7 @@ post "/preferences" do |env|
 end
 
 get "/toggle_theme" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   referer = get_referer(env)
 
   if user = env.get? "user"
@@ -1356,14 +1358,9 @@ get "/toggle_theme" do |env|
     preferences.dark_mode = !preferences.dark_mode
 
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
-  elsif preferences = env.get? "preferences"
-    preferences = preferences.as(Preferences)
-    preferences.dark_mode = !preferences.dark_mode
-
-    env.response.cookies["PREFS"] = preferences.to_json
   else
-    preferences = DEFAULT_USER_PREFERENCES
-    preferences.dark_mode = true
+    preferences = env.get("preferences").as(Preferences)
+    preferences.dark_mode = !preferences.dark_mode
 
     env.response.cookies["PREFS"] = preferences.to_json
   end
@@ -1372,7 +1369,7 @@ get "/toggle_theme" do |env|
 end
 
 get "/mark_watched" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env, "/feed/subscriptions")
@@ -1402,7 +1399,7 @@ get "/mark_watched" do |env|
 end
 
 get "/mark_unwatched" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env, "/feed/history")
@@ -1434,7 +1431,7 @@ end
 # /modify_notifications?receive_all_updates=false&receive_no_updates=false
 # will "unding" all subscriptions.
 get "/modify_notifications" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1481,7 +1478,7 @@ get "/modify_notifications" do |env|
 end
 
 get "/subscription_manager" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -1558,7 +1555,7 @@ get "/subscription_manager" do |env|
 end
 
 get "/data_control" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1573,7 +1570,7 @@ get "/data_control" do |env|
 end
 
 post "/data_control" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1672,7 +1669,7 @@ post "/data_control" do |env|
 end
 
 get "/subscription_ajax" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1753,7 +1750,7 @@ get "/subscription_ajax" do |env|
 end
 
 get "/delete_account" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1770,7 +1767,7 @@ get "/delete_account" do |env|
 end
 
 post "/delete_account" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1803,7 +1800,7 @@ post "/delete_account" do |env|
 end
 
 get "/clear_watch_history" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1820,7 +1817,7 @@ get "/clear_watch_history" do |env|
 end
 
 post "/clear_watch_history" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1847,7 +1844,7 @@ end
 # Feeds
 
 get "/feed/top" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   if config.top_enabled
     templated "top"
@@ -1857,13 +1854,13 @@ get "/feed/top" do |env|
 end
 
 get "/feed/popular" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   templated "popular"
 end
 
 get "/feed/trending" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   trending_type = env.params.query["type"]?
   trending_type ||= "Default"
@@ -1882,7 +1879,7 @@ get "/feed/trending" do |env|
 end
 
 get "/feed/subscriptions" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -2030,7 +2027,7 @@ get "/feed/subscriptions" do |env|
 end
 
 get "/feed/history" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -2055,7 +2052,7 @@ get "/feed/history" do |env|
 end
 
 get "/feed/channel/:ucid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/atom+xml"
 
@@ -2167,7 +2164,7 @@ get "/feed/channel/:ucid" do |env|
 end
 
 get "/feed/private" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/atom+xml"
 
@@ -2282,7 +2279,7 @@ get "/feed/private" do |env|
 end
 
 get "/feed/playlist/:plid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/atom+xml"
 
@@ -2388,7 +2385,7 @@ end
 # YouTube appears to let users set a "brand" URL that
 # is different from their username, so we convert that here
 get "/c/:user" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   client = make_client(YT_URL)
   user = env.params.url["user"]
@@ -2425,7 +2422,7 @@ get "/user/:user/videos" do |env|
 end
 
 get "/channel/:ucid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   if user
@@ -2478,7 +2475,7 @@ get "/channel/:ucid" do |env|
 end
 
 get "/channel/:ucid/videos" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   ucid = env.params.url["ucid"]
   params = env.request.query
@@ -2493,7 +2490,7 @@ get "/channel/:ucid/videos" do |env|
 end
 
 get "/channel/:ucid/playlists" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   if user
@@ -2550,7 +2547,7 @@ get "/api/v1/stats" do |env|
 end
 
 get "/api/v1/captions/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -2655,7 +2652,7 @@ get "/api/v1/captions/:id" do |env|
 end
 
 get "/api/v1/comments/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   region = env.params.query["region"]?
 
   env.response.content_type = "application/json"
@@ -2722,7 +2719,7 @@ get "/api/v1/comments/:id" do |env|
 end
 
 get "/api/v1/insights/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   id = env.params.url["id"]
   env.response.content_type = "application/json"
@@ -2813,7 +2810,7 @@ get "/api/v1/insights/:id" do |env|
 end
 
 get "/api/v1/videos/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3023,7 +3020,7 @@ get "/api/v1/videos/:id" do |env|
 end
 
 get "/api/v1/trending" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3074,7 +3071,7 @@ get "/api/v1/trending" do |env|
 end
 
 get "/api/v1/popular" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3108,7 +3105,7 @@ get "/api/v1/popular" do |env|
 end
 
 get "/api/v1/top" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3154,7 +3151,7 @@ get "/api/v1/top" do |env|
 end
 
 get "/api/v1/channels/:ucid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3362,7 +3359,7 @@ end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
   get route do |env|
-    locale = LOCALES[env.get("locale").as(String)]?
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
 
@@ -3433,7 +3430,7 @@ end
 
 ["/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"].each do |route|
   get route do |env|
-    locale = LOCALES[env.get("locale").as(String)]?
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
 
@@ -3485,7 +3482,7 @@ end
 
 ["/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"].each do |route|
   get route do |env|
-    locale = LOCALES[env.get("locale").as(String)]?
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
 
@@ -3553,7 +3550,7 @@ end
 end
 
 get "/api/v1/channels/search/:ucid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3657,7 +3654,7 @@ get "/api/v1/channels/search/:ucid" do |env|
 end
 
 get "/api/v1/search" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   region = env.params.query["region"]?
 
   env.response.content_type = "application/json"
@@ -3786,7 +3783,7 @@ get "/api/v1/search" do |env|
 end
 
 get "/api/v1/playlists/:plid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
   plid = env.params.url["plid"]
@@ -3889,7 +3886,7 @@ get "/api/v1/playlists/:plid" do |env|
 end
 
 get "/api/v1/mixes/:rdid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
