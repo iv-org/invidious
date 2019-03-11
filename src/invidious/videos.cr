@@ -317,6 +317,7 @@ class Video
     end
 
     streams.each do |fmt|
+      fmt["url"] += "&host=" + (URI.parse(fmt["url"]).host || "")
       fmt["url"] += decrypt_signature(fmt, decrypt_function)
     end
 
@@ -384,6 +385,7 @@ class Video
     end
 
     adaptive_fmts.each do |fmt|
+      fmt["url"] += "&host=" + (URI.parse(fmt["url"]).host || "")
       fmt["url"] += decrypt_signature(fmt, decrypt_function)
     end
 

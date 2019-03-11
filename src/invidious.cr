@@ -4217,9 +4217,15 @@ end
 get "/videoplayback" do |env|
   query_params = env.params.query
 
-  fvip = query_params["fvip"]? || "3"
-  mn = query_params["mn"].split(",").pop
-  host = "https://r#{fvip}---#{mn}.googlevideo.com"
+  if query_params["host"]? && !query_params["host"].empty?
+    pp query_params["host"]
+    host = "https://#{query_params["host"]}"
+  else
+    fvip = query_params["fvip"]? || "3"
+    mn = query_params["mn"].split(",").pop
+    host = "https://r#{fvip}---#{mn}.googlevideo.com"
+  end
+
   url = "/videoplayback?#{query_params.to_s}"
 
   headers = HTTP::Headers.new
