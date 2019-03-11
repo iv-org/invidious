@@ -4218,8 +4218,8 @@ get "/videoplayback" do |env|
   query_params = env.params.query
 
   if query_params["host"]? && !query_params["host"].empty?
-    pp query_params["host"]
     host = "https://#{query_params["host"]}"
+    query_params.delete("host")
   else
     fvip = query_params["fvip"]? || "3"
     mn = query_params["mn"].split(",").pop
