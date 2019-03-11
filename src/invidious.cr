@@ -396,6 +396,12 @@ get "/watch" do |env|
 
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
+
+  if params[:local]
+    fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).query.not_nil! }
+    adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).query.not_nil! }
+  end
+
   video_streams = video.video_streams(adaptive_fmts)
   audio_streams = video.audio_streams(adaptive_fmts)
 
@@ -496,6 +502,12 @@ get "/embed/:id" do |env|
 
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
+
+  if params[:local]
+    fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).query.not_nil! }
+    adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).query.not_nil! }
+  end
+
   video_streams = video.video_streams(adaptive_fmts)
   audio_streams = video.audio_streams(adaptive_fmts)
 
@@ -4209,24 +4221,32 @@ get "/videoplayback" do |env|
   query_params = env.params.query
 
   fvip = query_params["fvip"]? || "3"
-  mn = query_params["mn"].split(",")[-1]
+  mn = query_params["mn"].split(",").pop
   host = "https://r#{fvip}---#{mn}.googlevideo.com"
   url = "/videoplayback?#{query_params.to_s}"
 
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
+  headers = HTTP::Headers.new
+  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
 
   region = query_params["region"]?
 
   response = HTTP::Client::Response.new(403)
-  loop do
+  5.times do
     begin
       client = make_client(URI.parse(host), proxies, region)
       response = client.head(url, headers)
       break
+    rescue Socket::Addrinfo::Error
+      if fvip == "3"
+        break
+      end
+
+      fvip = "3"
+      host = "https://r#{fvip}---#{mn}.googlevideo.com"
     rescue ex
     end
   end
@@ -4284,11 +4304,12 @@ get "/ggpht/*" do |env|
   client = make_client(URI.parse(host))
   url = env.request.path.lchop("/ggpht")
 
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
+  headers = HTTP::Headers.new
+  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
 
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
@@ -4342,11 +4363,12 @@ get "/vi/:id/:name" do |env|
   end
   url = "/vi/#{id}/#{name}"
 
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
+  headers = HTTP::Headers.new
+  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
 
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code

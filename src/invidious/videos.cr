@@ -731,11 +731,12 @@ end
 def process_video_params(query, preferences)
   autoplay = query["autoplay"]?.try &.to_i?
   continue = query["continue"]?.try &.to_i?
-  related_videos = query["related_videos"]?
   listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
+  local = query["local"]? && (query["local"] == "true").to_unsafe
   preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
   quality = query["quality"]?
   region = query["region"]?
+  related_videos = query["related_videos"]?
   speed = query["speed"]?.try &.to_f?
   video_loop = query["loop"]?.try &.to_i?
   volume = query["volume"]?.try &.to_i?
@@ -765,8 +766,9 @@ def process_video_params(query, preferences)
 
   autoplay = autoplay == 1
   continue = continue == 1
-  related_videos = related_videos == 1
   listen = listen == 1
+  local = local == 1
+  related_videos = related_videos == 1
   video_loop = video_loop == 1
 
   if query["t"]?
@@ -799,6 +801,7 @@ def process_video_params(query, preferences)
     continue:           continue,
     controls:           controls,
     listen:             listen,
+    local:              local,
     preferred_captions: preferred_captions,
     quality:            quality,
     raw:                raw,
