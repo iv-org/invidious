@@ -4230,7 +4230,7 @@ get "/videoplayback" do |env|
   url = "/videoplayback?#{query_params.to_s}"
 
   headers = HTTP::Headers.new
-  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+  {"Accept", "Accept-Encoding", "Connection", "Range"}.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end

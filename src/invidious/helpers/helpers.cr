@@ -75,6 +75,14 @@ class DenyFrame < Kemal::Handler
   end
 end
 
+# Temp fix for https://github.com/crystal-lang/crystal/issues/7383
+class HTTP::Client
+  private def handle_response(response)
+    # close unless response.keep_alive?
+    response
+  end
+end
+
 def rank_videos(db, n)
   top = [] of {Float64, String}
 
