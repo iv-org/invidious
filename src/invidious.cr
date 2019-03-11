@@ -2321,7 +2321,8 @@ get "/feed/webhook/:token" do |env|
     data = "#{time}"
   end
 
-  if Time.now.to_unix - time.to_i > 600
+  # The hub will sometimes check if we're still subscribed after delivery errors
+  if Time.now.to_unix - time.to_i > 432000
     halt env, status_code: 400
   end
 
