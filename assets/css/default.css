@@ -225,6 +225,10 @@ img.thumbnail {
   color: #666666;
   margin: 2em 0;
   text-align: center;
+  font-size: 90%;
+  border-top: 1px solid #666666;
+  margin-top: 3.4286em;
+  padding: 1.1429em;
 }
 
 .footer a {
