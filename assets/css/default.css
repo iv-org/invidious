@@ -316,12 +316,12 @@ img.thumbnail {
 }
 
 .player-dimensions.vjs-fluid {
-  padding-top: 46.86%;
+  padding-top: 82vh;
 }
 
 #player-container {
   position: relative;
-  padding-bottom: 46.86%;
+  padding-bottom: 82vh;
   margin-left: 1em;
   margin-right: 1em;
   height: 0;
