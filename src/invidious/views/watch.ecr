@@ -255,9 +255,9 @@ function get_playlist(timeouts = 0) {
     var plid = "<%= plid %>"
 
     if (plid.startsWith("RD")) {
-        var plid_url = "/api/v1/mixes/<%= plid %>?continuation=<%= video.id %>&format=html&hl=<%= env.get("locale").as(String) %>";
+        var plid_url = "/api/v1/mixes/<%= plid %>?continuation=<%= video.id %>&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
     } else {
-        var plid_url = "/api/v1/playlists/<%= plid %>?continuation=<%= video.id %>&format=html&hl=<%= env.get("locale").as(String) %>";
+        var plid_url = "/api/v1/playlists/<%= plid %>?continuation=<%= video.id %>&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
     }
 
     var xhr = new XMLHttpRequest();
@@ -321,7 +321,7 @@ function get_reddit_comments(timeouts = 0) {
   comments.innerHTML =
     '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
 
-  var url = "/api/v1/comments/<%= video.id %>?source=reddit&format=html&hl=<%= env.get("locale").as(String) %>";
+  var url = "/api/v1/comments/<%= video.id %>?source=reddit&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
   var xhr = new XMLHttpRequest();
   xhr.responseType = "json";
   xhr.timeout = 20000;
@@ -384,7 +384,7 @@ function get_youtube_comments(timeouts = 0) {
   comments.innerHTML =
     '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
 
-  var url = "/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("locale").as(String) %>";
+  var url = "/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
   var xhr = new XMLHttpRequest();
   xhr.responseType = "json";
   xhr.timeout = 20000;
@@ -442,7 +442,7 @@ function get_youtube_replies(target, load_more) {
   body.innerHTML =
       '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
 
-  var url = '/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("locale").as(String) %>&continuation=' +
+  var url = '/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>&continuation=' +
       continuation;
   var xhr = new XMLHttpRequest();
   xhr.responseType = 'json';

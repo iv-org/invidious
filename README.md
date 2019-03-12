@@ -3,7 +3,7 @@
 ## Invidious is an alternative front-end to YouTube
 
 - Audio-only mode (and no need to keep window open on mobile)
-- [Open-source](https://github.com/omarroth/invidious) (AGPLv3 licensed)
+- [Free software](https://github.com/omarroth/invidious) (AGPLv3 licensed)
 - No ads
 - No need to create a Google account to save subscriptions
 - Lightweight (homepage is ~4 KB compressed)

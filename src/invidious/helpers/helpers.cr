@@ -24,6 +24,7 @@ user: String,
     registration_enabled: {type: Bool, default: true},
     statistics_enabled:   {type: Bool, default: false},
     admins:               {type: Array(String), default: [] of String},
+    external_port:        {type: Int32 | Nil, default: nil},
   })
 end
 
@@ -71,6 +72,14 @@ class DenyFrame < Kemal::Handler
 
     env.response.headers["X-Frame-Options"] = "sameorigin"
     call_next env
+  end
+end
+
+# Temp fix for https://github.com/crystal-lang/crystal/issues/7383
+class HTTP::Client
+  private def handle_response(response)
+    # close unless response.keep_alive?
+    response
   end
 end
 

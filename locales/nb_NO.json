@@ -10,8 +10,9 @@
   "newest": "nyeste",
   "oldest": "eldste",
   "popular": "populært",
-  "Preview page": "Forhåndsvis side",
+  "last": "",
   "Next page": "Neste side",
+  "Previous page": "Forrige side",
   "Clear watch history?": "Tøm visningshistorikk?",
   "Yes": "Ja",
   "No": "Nei",
@@ -28,7 +29,6 @@
   "Export data as JSON": "Eksporter data som JSON",
   "Delete account?": "Slett konto?",
   "History": "Historikk",
-  "Previous page": "Forrige side",
   "An alternative front-end to YouTube": "En alternativ grenseflate for YouTube",
   "JavaScript license information": "JavaScript-lisensinformasjon",
   "source": "kilde",
@@ -87,7 +87,7 @@
   "CAPTCHA enabled? ": "CAPTCHA påskrudd? ",
   "Login enabled? ": "Innlogging påskrudd? ",
   "Registration enabled? ": "Registrering påskrudd? ",
-  "Report statistics? ": "",
+  "Report statistics? ": "Innrapporter statistikk? ",
   "Save preferences": "Lagre innstillinger",
   "Subscription manager": "Abonnementsbehandler",
   "`x` subscriptions": "`x` abonnementer",
@@ -284,5 +284,8 @@
   "Youtube permalink of the comment": "Permanent YouTube-lenke til innholdet",
   "`x` marked it with a ❤": "`x` levnet et ❤",
   "Audio mode": "Lydmodus",
-  "Video mode": "Video-modus"
+  "Video mode": "Video-modus",
+  "Videos": "",
+  "Playlists": "",
+  "Current version: ": ""
 }

@@ -192,6 +192,7 @@ proxies = PROXY_LIST
 before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
+  preferences = DEFAULT_USER_PREFERENCES.dup
 
   if env.request.cookies.has_key? "SID"
     headers = HTTP::Headers.new
@@ -210,9 +211,9 @@ before_all do |env|
         env.set "challenge", challenge
         env.set "token", token
 
-        locale = user.preferences.locale
+        preferences = user.preferences
+
         env.set "user", user
-        env.set "preferences", user.preferences
         env.set "sid", sid
       end
     else
@@ -223,9 +224,9 @@ before_all do |env|
         env.set "challenge", challenge
         env.set "token", token
 
-        locale = user.preferences.locale
+        preferences = user.preferences
+
         env.set "user", user
-        env.set "preferences", user.preferences
         env.set "sid", sid
       rescue ex
       end
@@ -234,14 +235,20 @@ before_all do |env|
 
   if env.request.cookies.has_key? "PREFS"
     preferences = Preferences.from_json(env.request.cookies["PREFS"].value)
-
-    locale = preferences.locale
-    env.set "preferences", preferences
   end
 
-  locale = env.params.query["hl"]? || locale
-  locale ||= "en-US"
-  env.set "locale", locale
+  dark_mode = env.params.query["dark_mode"]? || preferences.dark_mode.to_s
+  dark_mode = dark_mode == "true"
+
+  thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
+  thin_mode = thin_mode == "true"
+
+  locale = env.params.query["hl"]? || preferences.locale
+
+  preferences.dark_mode = dark_mode
+  preferences.thin_mode = thin_mode
+  preferences.locale = locale
+  env.set "preferences", preferences
 
   current_page = env.request.path
   if env.request.query
@@ -258,7 +265,7 @@ before_all do |env|
 end
 
 get "/" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   user = env.get? "user"
 
   if user
@@ -285,14 +292,14 @@ get "/" do |env|
 end
 
 get "/licenses" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   rendered "licenses"
 end
 
 # Videos
 
 get "/watch" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   region = env.params.query["region"]?
 
   if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
@@ -396,6 +403,12 @@ get "/watch" do |env|
 
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
+
+  if params[:local]
+    fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
+    adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
+  end
+
   video_streams = video.video_streams(adaptive_fmts)
   audio_streams = video.audio_streams(adaptive_fmts)
 
@@ -458,7 +471,7 @@ get "/watch" do |env|
 end
 
 get "/embed/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   id = env.params.url["id"]
 
   if id.includes?("%20") || id.includes?("+") || env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
@@ -496,6 +509,12 @@ get "/embed/:id" do |env|
 
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
+
+  if params[:local]
+    fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
+    adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
+  end
+
   video_streams = video.video_streams(adaptive_fmts)
   audio_streams = video.audio_streams(adaptive_fmts)
 
@@ -546,7 +565,7 @@ end
 # Playlists
 
 get "/playlist" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   plid = env.params.query["list"]?
   if !plid
@@ -577,7 +596,7 @@ get "/playlist" do |env|
 end
 
 get "/mix" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   rdid = env.params.query["list"]?
   if !rdid
@@ -600,7 +619,7 @@ end
 # Search
 
 get "/opensearch.xml" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   env.response.content_type = "application/opensearchdescription+xml"
 
   host = make_host_url(config, Kemal.config)
@@ -618,7 +637,7 @@ get "/opensearch.xml" do |env|
 end
 
 get "/results" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   query = env.params.query["search_query"]?
   query ||= env.params.query["q"]?
@@ -635,7 +654,7 @@ get "/results" do |env|
 end
 
 get "/search" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   region = env.params.query["region"]?
 
   query = env.params.query["search_query"]?
@@ -721,7 +740,7 @@ end
 # Users
 
 get "/login" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   if user
@@ -767,7 +786,7 @@ end
 
 # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
 post "/login" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   referer = get_referer(env, "/feed/subscriptions")
 
@@ -1144,7 +1163,7 @@ post "/login" do |env|
 end
 
 get "/signout" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1177,22 +1196,17 @@ get "/signout" do |env|
 end
 
 get "/preferences" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
   referer = get_referer(env)
 
-  if preferences = env.get? "preferences"
-    preferences = preferences.as(Preferences)
+  preferences = env.get("preferences").as(Preferences)
 
-    templated "preferences"
-  else
-    preferences = DEFAULT_USER_PREFERENCES
-
-    templated "preferences"
-  end
+  templated "preferences"
 end
 
 post "/preferences" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   referer = get_referer(env)
 
   video_loop = env.params.body["video_loop"]?.try &.as(String)
@@ -1335,7 +1349,7 @@ post "/preferences" do |env|
 end
 
 get "/toggle_theme" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   referer = get_referer(env)
 
   if user = env.get? "user"
@@ -1344,14 +1358,9 @@ get "/toggle_theme" do |env|
     preferences.dark_mode = !preferences.dark_mode
 
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
-  elsif preferences = env.get? "preferences"
-    preferences = preferences.as(Preferences)
-    preferences.dark_mode = !preferences.dark_mode
-
-    env.response.cookies["PREFS"] = preferences.to_json
   else
-    preferences = DEFAULT_USER_PREFERENCES
-    preferences.dark_mode = true
+    preferences = env.get("preferences").as(Preferences)
+    preferences.dark_mode = !preferences.dark_mode
 
     env.response.cookies["PREFS"] = preferences.to_json
   end
@@ -1360,7 +1369,7 @@ get "/toggle_theme" do |env|
 end
 
 get "/mark_watched" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env, "/feed/subscriptions")
@@ -1390,7 +1399,7 @@ get "/mark_watched" do |env|
 end
 
 get "/mark_unwatched" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env, "/feed/history")
@@ -1422,7 +1431,7 @@ end
 # /modify_notifications?receive_all_updates=false&receive_no_updates=false
 # will "unding" all subscriptions.
 get "/modify_notifications" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1469,7 +1478,7 @@ get "/modify_notifications" do |env|
 end
 
 get "/subscription_manager" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -1546,7 +1555,7 @@ get "/subscription_manager" do |env|
 end
 
 get "/data_control" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1561,7 +1570,7 @@ get "/data_control" do |env|
 end
 
 post "/data_control" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1660,7 +1669,7 @@ post "/data_control" do |env|
 end
 
 get "/subscription_ajax" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1741,7 +1750,7 @@ get "/subscription_ajax" do |env|
 end
 
 get "/delete_account" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1758,7 +1767,7 @@ get "/delete_account" do |env|
 end
 
 post "/delete_account" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1791,7 +1800,7 @@ post "/delete_account" do |env|
 end
 
 get "/clear_watch_history" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1808,7 +1817,7 @@ get "/clear_watch_history" do |env|
 end
 
 post "/clear_watch_history" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -1835,7 +1844,7 @@ end
 # Feeds
 
 get "/feed/top" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   if config.top_enabled
     templated "top"
@@ -1845,13 +1854,13 @@ get "/feed/top" do |env|
 end
 
 get "/feed/popular" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   templated "popular"
 end
 
 get "/feed/trending" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   trending_type = env.params.query["type"]?
   trending_type ||= "Default"
@@ -1870,7 +1879,7 @@ get "/feed/trending" do |env|
 end
 
 get "/feed/subscriptions" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -1909,12 +1918,6 @@ get "/feed/subscriptions" do |env|
       offset = (page - 1) * max_results
     end
 
-    if preferences.sort == "published - reverse"
-      sort = ""
-    else
-      sort = "DESC"
-    end
-
     notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
       as: Array(String))
     view_name = "subscriptions_#{sha256(user.email)[0..7]}"
@@ -1925,7 +1928,7 @@ get "/feed/subscriptions" do |env|
       args = arg_array(notifications)
 
       notifications = PG_DB.query_all("SELECT * FROM channel_videos WHERE id IN (#{args})
-      ORDER BY published #{sort}", notifications, as: ChannelVideo)
+      ORDER BY published DESC", notifications, as: ChannelVideo)
       videos = [] of ChannelVideo
 
       notifications.sort_by! { |video| video.published }.reverse!
@@ -1953,7 +1956,7 @@ get "/feed/subscriptions" do |env|
           end
           videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE \
           NOT id = ANY (#{values}) \
-          ORDER BY ucid, published #{sort}", as: ChannelVideo)
+          ORDER BY ucid, published DESC", as: ChannelVideo)
         else
           # Show latest video from each channel
 
@@ -1973,12 +1976,12 @@ get "/feed/subscriptions" do |env|
           end
           videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE \
           NOT id = ANY (#{values}) \
-          ORDER BY published #{sort} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+          ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
         else
           # Sort subscriptions as normal
 
           videos = PG_DB.query_all("SELECT * FROM #{view_name} \
-          ORDER BY published #{sort} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+          ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
         end
       end
 
@@ -2024,7 +2027,7 @@ get "/feed/subscriptions" do |env|
 end
 
 get "/feed/history" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -2049,7 +2052,7 @@ get "/feed/history" do |env|
 end
 
 get "/feed/channel/:ucid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/atom+xml"
 
@@ -2161,7 +2164,7 @@ get "/feed/channel/:ucid" do |env|
 end
 
 get "/feed/private" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/atom+xml"
 
@@ -2197,12 +2200,6 @@ get "/feed/private" do |env|
   sort = env.params.query["sort"]?
   sort ||= "published"
 
-  if sort == "published - reverse"
-    desc = ""
-  else
-    desc = "DESC"
-  end
-
   view_name = "subscriptions_#{sha256(user.email)[0..7]}"
 
   if latest_only
@@ -2212,7 +2209,7 @@ get "/feed/private" do |env|
     videos.sort_by! { |video| video.published }.reverse!
   else
     videos = PG_DB.query_all("SELECT * FROM #{view_name} \
-    ORDER BY published #{desc} LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+    ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
   end
 
   case sort
@@ -2282,7 +2279,7 @@ get "/feed/private" do |env|
 end
 
 get "/feed/playlist/:plid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/atom+xml"
 
@@ -2333,7 +2330,8 @@ get "/feed/webhook/:token" do |env|
     data = "#{time}"
   end
 
-  if Time.now.to_unix - time.to_i > 600
+  # The hub will sometimes check if we're still subscribed after delivery errors
+  if Time.now.to_unix - time.to_i > 432000
     halt env, status_code: 400
   end
 
@@ -2387,7 +2385,7 @@ end
 # YouTube appears to let users set a "brand" URL that
 # is different from their username, so we convert that here
 get "/c/:user" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   client = make_client(YT_URL)
   user = env.params.url["user"]
@@ -2424,7 +2422,7 @@ get "/user/:user/videos" do |env|
 end
 
 get "/channel/:ucid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   if user
@@ -2477,7 +2475,7 @@ get "/channel/:ucid" do |env|
 end
 
 get "/channel/:ucid/videos" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   ucid = env.params.url["ucid"]
   params = env.request.query
@@ -2492,7 +2490,7 @@ get "/channel/:ucid/videos" do |env|
 end
 
 get "/channel/:ucid/playlists" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
   if user
@@ -2549,7 +2547,7 @@ get "/api/v1/stats" do |env|
 end
 
 get "/api/v1/captions/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -2654,7 +2652,7 @@ get "/api/v1/captions/:id" do |env|
 end
 
 get "/api/v1/comments/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   region = env.params.query["region"]?
 
   env.response.content_type = "application/json"
@@ -2721,7 +2719,7 @@ get "/api/v1/comments/:id" do |env|
 end
 
 get "/api/v1/insights/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   id = env.params.url["id"]
   env.response.content_type = "application/json"
@@ -2812,7 +2810,7 @@ get "/api/v1/insights/:id" do |env|
 end
 
 get "/api/v1/videos/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -2838,7 +2836,7 @@ get "/api/v1/videos/:id" do |env|
       json.field "title", video.title
       json.field "videoId", video.id
       json.field "videoThumbnails" do
-        generate_thumbnails(json, video.id)
+        generate_thumbnails(json, video.id, config, Kemal.config)
       end
 
       video.description, description = html_to_content(video.description)
@@ -3001,7 +2999,7 @@ get "/api/v1/videos/:id" do |env|
                 json.field "videoId", rv["id"]
                 json.field "title", rv["title"]
                 json.field "videoThumbnails" do
-                  generate_thumbnails(json, rv["id"])
+                  generate_thumbnails(json, rv["id"], config, Kemal.config)
                 end
                 json.field "author", rv["author"]
                 json.field "lengthSeconds", rv["length_seconds"].to_i
@@ -3022,7 +3020,7 @@ get "/api/v1/videos/:id" do |env|
 end
 
 get "/api/v1/trending" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3043,7 +3041,7 @@ get "/api/v1/trending" do |env|
           json.field "title", video.title
           json.field "videoId", video.id
           json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id)
+            generate_thumbnails(json, video.id, config, Kemal.config)
           end
 
           json.field "lengthSeconds", video.length_seconds
@@ -3073,7 +3071,7 @@ get "/api/v1/trending" do |env|
 end
 
 get "/api/v1/popular" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3084,7 +3082,7 @@ get "/api/v1/popular" do |env|
           json.field "title", video.title
           json.field "videoId", video.id
           json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id)
+            generate_thumbnails(json, video.id, config, Kemal.config)
           end
 
           json.field "lengthSeconds", video.length_seconds
@@ -3107,7 +3105,7 @@ get "/api/v1/popular" do |env|
 end
 
 get "/api/v1/top" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3123,7 +3121,7 @@ get "/api/v1/top" do |env|
           json.field "title", video.title
           json.field "videoId", video.id
           json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id)
+            generate_thumbnails(json, video.id, config, Kemal.config)
           end
 
           json.field "lengthSeconds", video.info["length_seconds"].to_i
@@ -3153,7 +3151,7 @@ get "/api/v1/top" do |env|
 end
 
 get "/api/v1/channels/:ucid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3306,7 +3304,7 @@ get "/api/v1/channels/:ucid" do |env|
               end
 
               json.field "videoThumbnails" do
-                generate_thumbnails(json, video.id)
+                generate_thumbnails(json, video.id, config, Kemal.config)
               end
 
               json.field "description", video.description
@@ -3361,7 +3359,7 @@ end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
   get route do |env|
-    locale = LOCALES[env.get("locale").as(String)]?
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
 
@@ -3404,7 +3402,7 @@ end
             end
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, video.id)
+              generate_thumbnails(json, video.id, config, Kemal.config)
             end
 
             json.field "description", video.description
@@ -3432,7 +3430,7 @@ end
 
 ["/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"].each do |route|
   get route do |env|
-    locale = LOCALES[env.get("locale").as(String)]?
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
 
@@ -3456,7 +3454,7 @@ end
             json.field "authorUrl", "/channel/#{ucid}"
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, video.id)
+              generate_thumbnails(json, video.id, config, Kemal.config)
             end
 
             json.field "description", video.description
@@ -3484,7 +3482,7 @@ end
 
 ["/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"].each do |route|
   get route do |env|
-    locale = LOCALES[env.get("locale").as(String)]?
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
 
@@ -3527,7 +3525,7 @@ end
                           json.field "lengthSeconds", video.length_seconds
 
                           json.field "videoThumbnails" do
-                            generate_thumbnails(json, video.id)
+                            generate_thumbnails(json, video.id, config, Kemal.config)
                           end
                         end
                       end
@@ -3552,7 +3550,7 @@ end
 end
 
 get "/api/v1/channels/search/:ucid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3580,7 +3578,7 @@ get "/api/v1/channels/search/:ucid" do |env|
             json.field "authorUrl", "/channel/#{item.ucid}"
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, item.id)
+              generate_thumbnails(json, item.id, config, Kemal.config)
             end
 
             json.field "description", item.description
@@ -3612,7 +3610,7 @@ get "/api/v1/channels/search/:ucid" do |env|
                     json.field "lengthSeconds", video.length_seconds
 
                     json.field "videoThumbnails" do
-                      generate_thumbnails(json, video.id)
+                      generate_thumbnails(json, video.id, config, Kemal.config)
                     end
                   end
                 end
@@ -3656,7 +3654,7 @@ get "/api/v1/channels/search/:ucid" do |env|
 end
 
 get "/api/v1/search" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   region = env.params.query["region"]?
 
   env.response.content_type = "application/json"
@@ -3709,7 +3707,7 @@ get "/api/v1/search" do |env|
             json.field "authorUrl", "/channel/#{item.ucid}"
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, item.id)
+              generate_thumbnails(json, item.id, config, Kemal.config)
             end
 
             json.field "description", item.description
@@ -3741,7 +3739,7 @@ get "/api/v1/search" do |env|
                     json.field "lengthSeconds", video.length_seconds
 
                     json.field "videoThumbnails" do
-                      generate_thumbnails(json, video.id)
+                      generate_thumbnails(json, video.id, config, Kemal.config)
                     end
                   end
                 end
@@ -3785,7 +3783,7 @@ get "/api/v1/search" do |env|
 end
 
 get "/api/v1/playlists/:plid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
   plid = env.params.url["plid"]
@@ -3857,7 +3855,7 @@ get "/api/v1/playlists/:plid" do |env|
               json.field "authorUrl", "/channel/#{video.ucid}"
 
               json.field "videoThumbnails" do
-                generate_thumbnails(json, video.id)
+                generate_thumbnails(json, video.id, config, Kemal.config)
               end
 
               json.field "index", video.index
@@ -3888,7 +3886,7 @@ get "/api/v1/playlists/:plid" do |env|
 end
 
 get "/api/v1/mixes/:rdid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -3933,7 +3931,7 @@ get "/api/v1/mixes/:rdid" do |env|
 
               json.field "videoThumbnails" do
                 json.array do
-                  generate_thumbnails(json, video.id)
+                  generate_thumbnails(json, video.id, config, Kemal.config)
                 end
               end
 
@@ -4220,24 +4218,39 @@ get "/videoplayback" do |env|
   query_params = env.params.query
 
   fvip = query_params["fvip"]? || "3"
-  mn = query_params["mn"].split(",")[-1]
-  host = "https://r#{fvip}---#{mn}.googlevideo.com"
+  mns = query_params["mn"].split(",")
+
+  if query_params["host"]? && !query_params["host"].empty?
+    host = "https://#{query_params["host"]}"
+    query_params.delete("host")
+  else
+    host = "https://r#{fvip}---#{mns.pop}.googlevideo.com"
+  end
+
   url = "/videoplayback?#{query_params.to_s}"
 
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
+  headers = HTTP::Headers.new
+  {"Accept", "Accept-Encoding", "Connection", "Range"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
 
   region = query_params["region"]?
 
   response = HTTP::Client::Response.new(403)
-  loop do
+  5.times do
     begin
       client = make_client(URI.parse(host), proxies, region)
       response = client.head(url, headers)
       break
+    rescue Socket::Addrinfo::Error
+      if !mns.empty?
+        mn = mns.pop
+      end
+      fvip = "3"
+
+      host = "https://r#{fvip}---#{mn}.googlevideo.com"
     rescue ex
     end
   end
@@ -4295,11 +4308,12 @@ get "/ggpht/*" do |env|
   client = make_client(URI.parse(host))
   url = env.request.path.lchop("/ggpht")
 
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
+  headers = HTTP::Headers.new
+  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
 
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
@@ -4344,7 +4358,7 @@ get "/vi/:id/:name" do |env|
   client = make_client(URI.parse(host))
 
   if name == "maxres.jpg"
-    VIDEO_THUMBNAILS.each do |thumb|
+    build_thumbnails(id, config, Kemal.config).each do |thumb|
       if client.head("/vi/#{id}/#{thumb[:url]}.jpg").status_code == 200
         name = thumb[:url] + ".jpg"
         break
@@ -4353,11 +4367,12 @@ get "/vi/:id/:name" do |env|
   end
   url = "/vi/#{id}/#{name}"
 
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
+  headers = HTTP::Headers.new
+  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
 
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
