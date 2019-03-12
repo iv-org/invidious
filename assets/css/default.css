@@ -181,6 +181,16 @@ img.thumbnail {
   margin-right: 1em;
 }
 
+@media only screen and (max-aspect-ratio: 16/9) {
+  .player-dimensions.vjs-fluid {
+    padding-top: 46.86% !important;
+  }
+
+  #player-container {
+    padding-bottom: 46.86% !important;
+  }
+}
+
 @media screen and (max-width: 767px) {
   .navbar {
     flex-direction: column;
