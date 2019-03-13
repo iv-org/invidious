@@ -142,7 +142,7 @@ appears on the left side of the page.
     This styles the menu heading.
     */
     #menu .pure-menu-heading {
-        font-size: 110%;
+        font-size: 100%;
         color: #fff;
         margin: 0;
     }
