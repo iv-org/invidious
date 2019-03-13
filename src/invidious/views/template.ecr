@@ -48,39 +48,63 @@
               <%= translate(locale, "Subscriptions") %>
             </a>
           </li>
+          <li class="pure-menu-item menu-item-divided"></li>
           <li class="pure-menu-item">
             <a title="<%= translate(locale, " Trending") %>" href="/feed/trending" class="pure-menu-link">
               <i class="icon ion-ios-flame"></i>
               <%= translate(locale, "Trending") %>
             </a>
-          </li>
-          <li class="pure-menu-item">
-            <a title="<%= translate(locale, " History") %>" href="/feed/history" class="pure-menu-link">
-              <i class="icon ion-ios-timer"></i>
-              <%= translate(locale, "History") %>
-            </a>
-          </li>
-          <li class="pure-menu-item menu-item-divided">
-          </li>
-          <li class="pure-menu-item">
-            <a title="<%= translate(locale, " Preferences") %>" href="/preferences?referer=
-              <%= env.get?("current_page") %>" class="pure-menu-link">
-              <i class="icon ion-ios-options"></i>
-              <%= translate(locale, "Preferences") %>
-            </a>
-          </li>
-          <li class="pure-menu-item menu-item-divided">
-          </li>
-          <li class="pure-menu-item"><a href="https://github.com/omarroth/invidious/wiki" class="pure-menu-link">
-              <i class="icon ion-ios-information-circle"></i>
-              <%= translate(locale, "Wiki") %>
-            </a>
-          </li>
-          <li class="pure-menu-item"><a href="https://github.com/omarroth/invidious/issues" class="pure-menu-link">
-              <i class="icon ion-ios-create"></i>
-              <%= translate(locale, "Send Feedback") %>
-            </a>
-          </li>
+        </ul>
+        <li class="pure-menu-item">
+          <a title="<%= translate(locale, " Music") %>" href="/feed/trending?type=Music" class="pure-menu-link">
+            <i class="icon ion-ios-musical-notes"></i>
+            <%= translate(locale, "Music") %>
+          </a>
+        </li>
+        <li class="pure-menu-item">
+          <a title="<%= translate(locale, " Gaming") %>" href="/feed/trending?type=Gaming" class="pure-menu-link">
+            <i class="icon ion-logo-game-controller-b"></i>
+            <%= translate(locale, "Gaming") %>
+          </a>
+        </li>
+        <li class="pure-menu-item">
+          <a title="<%= translate(locale, " News") %>" href="/feed/trending?type=News" class="pure-menu-link">
+            <i class="icon ion-ios-paper"></i>
+            <%= translate(locale, "News") %>
+          </a>
+        </li>
+        <li class="pure-menu-item">
+          <a title="<%= translate(locale, " Movies") %>" href="/feed/trending?type=Movies" class="pure-menu-link">
+            <i class="icon ion-ios-film"></i>
+            <%= translate(locale, "Movies") %>
+          </a>
+        </li>
+        <li class="pure-menu-item menu-item-divided">
+          <a title="<%= translate(locale, " History") %>" href="/feed/history" class="pure-menu-link">
+            <i class="icon ion-ios-timer"></i>
+            <%= translate(locale, "History") %>
+          </a>
+        </li>
+        <li class="pure-menu-item menu-item-divided">
+          <a title="<%= translate(locale, " Preferences") %>" href="/preferences?referer=
+            <%= env.get?("current_page") %>" class="pure-menu-link">
+            <i class="icon ion-ios-options"></i>
+            <%= translate(locale, "Preferences") %>
+          </a>
+        </li>
+        <li class="pure-menu-item menu-item-divided"></li>
+        <li class="pure-menu-item">
+          <a href="https://github.com/omarroth/invidious/wiki" class="pure-menu-link">
+            <i class="icon ion-ios-information-circle"></i>
+            <%= translate(locale, "Wiki") %>
+          </a>
+        </li>
+        <li class="pure-menu-item">
+          <a href="https://github.com/omarroth/invidious/issues" class="pure-menu-link">
+            <i class="icon ion-ios-create"></i>
+            <%= translate(locale, "Send Feedback") %>
+          </a>
+        </li>
         </ul>
       </div>
     </div>
