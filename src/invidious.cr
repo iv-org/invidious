@@ -17,6 +17,7 @@
 require "digest/md5"
 require "file_utils"
 require "kemal"
+require "markdown"
 require "openssl/hmac"
 require "option_parser"
 require "pg"
@@ -289,6 +290,11 @@ get "/" do |env|
       templated "popular"
     end
   end
+end
+
+get "/privacy" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  templated "privacy"
 end
 
 get "/licenses" do |env|
