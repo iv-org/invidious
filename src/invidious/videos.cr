@@ -747,10 +747,11 @@ def process_video_params(query, preferences)
     # region ||= preferences.region
     autoplay ||= preferences.autoplay.to_unsafe
     continue ||= preferences.continue.to_unsafe
-    related_videos ||= preferences.related_videos.to_unsafe
     listen ||= preferences.listen.to_unsafe
+    local ||= preferences.local.to_unsafe
     preferred_captions ||= preferences.captions
     quality ||= preferences.quality
+    related_videos ||= preferences.related_videos.to_unsafe
     speed ||= preferences.speed
     video_loop ||= preferences.video_loop.to_unsafe
     volume ||= preferences.volume
@@ -758,10 +759,11 @@ def process_video_params(query, preferences)
 
   autoplay ||= DEFAULT_USER_PREFERENCES.autoplay.to_unsafe
   continue ||= DEFAULT_USER_PREFERENCES.continue.to_unsafe
-  related_videos ||= DEFAULT_USER_PREFERENCES.related_videos.to_unsafe
   listen ||= DEFAULT_USER_PREFERENCES.listen.to_unsafe
+  local ||= DEFAULT_USER_PREFERENCES.local.to_unsafe
   preferred_captions ||= DEFAULT_USER_PREFERENCES.captions
   quality ||= DEFAULT_USER_PREFERENCES.quality
+  related_videos ||= DEFAULT_USER_PREFERENCES.related_videos.to_unsafe
   speed ||= DEFAULT_USER_PREFERENCES.speed
   video_loop ||= DEFAULT_USER_PREFERENCES.video_loop.to_unsafe
   volume ||= DEFAULT_USER_PREFERENCES.volume

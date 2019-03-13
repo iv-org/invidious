@@ -1231,6 +1231,10 @@ post "/preferences" do |env|
   listen ||= "off"
   listen = listen == "on"
 
+  local = env.params.body["local"]?.try &.as(String)
+  local ||= "off"
+  local = local == "on"
+
   speed = env.params.body["speed"]?.try &.as(String).to_f?
   speed ||= DEFAULT_USER_PREFERENCES.speed
 
@@ -1292,6 +1296,7 @@ post "/preferences" do |env|
     "autoplay"           => autoplay,
     "continue"           => continue,
     "listen"             => listen,
+    "local"              => local,
     "speed"              => speed,
     "quality"            => quality,
     "volume"             => volume,

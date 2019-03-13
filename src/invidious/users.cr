@@ -31,6 +31,7 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
   "video_loop"         => false,
   "autoplay"           => false,
   "continue"           => false,
+  "local"              => false,
   "listen"             => false,
   "speed"              => 1.0,
   "quality"            => "hd720",
@@ -79,6 +80,10 @@ class Preferences
     continue:   {
       type:    Bool,
       default: DEFAULT_USER_PREFERENCES.continue,
+    },
+    local: {
+      type:    Bool,
+      default: DEFAULT_USER_PREFERENCES.local,
     },
     listen: {
       type:    Bool,
