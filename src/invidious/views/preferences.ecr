@@ -29,6 +29,11 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
+                <label for="local"><%= translate(locale, "Proxy videos? ") %></label>
+                <input name="local" id="local" type="checkbox" <% if preferences.local %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
                 <label for="listen"><%= translate(locale, "Listen by default: ") %></label>
                 <input name="listen" id="listen" type="checkbox" <% if preferences.listen %>checked<% end %>>
             </div>

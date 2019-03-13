@@ -17,6 +17,7 @@
 require "digest/md5"
 require "file_utils"
 require "kemal"
+require "markdown"
 require "openssl/hmac"
 require "option_parser"
 require "pg"
@@ -289,6 +290,11 @@ get "/" do |env|
       templated "popular"
     end
   end
+end
+
+get "/privacy" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  templated "privacy"
 end
 
 get "/licenses" do |env|
@@ -1225,6 +1231,10 @@ post "/preferences" do |env|
   listen ||= "off"
   listen = listen == "on"
 
+  local = env.params.body["local"]?.try &.as(String)
+  local ||= "off"
+  local = local == "on"
+
   speed = env.params.body["speed"]?.try &.as(String).to_f?
   speed ||= DEFAULT_USER_PREFERENCES.speed
 
@@ -1286,6 +1296,7 @@ post "/preferences" do |env|
     "autoplay"           => autoplay,
     "continue"           => continue,
     "listen"             => listen,
+    "local"              => local,
     "speed"              => speed,
     "quality"            => quality,
     "volume"             => volume,
