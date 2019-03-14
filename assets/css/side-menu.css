@@ -108,6 +108,10 @@ appears on the left side of the page.
         border: none;
         background: transparent;
     }
+    
+    #menu .pure-menu li {
+        list-style-type: none;
+    }
 
     /*
     Add that light border to separate items into groups.
@@ -207,7 +211,7 @@ small screens.
 /*
 Hides the menu at `48em`, but modify this based on your app's needs.
 */
-@media (min-width: 48em) {
+min-width: 200em {
 
     .header,
     .content {
@@ -234,7 +238,7 @@ Hides the menu at `48em`, but modify this based on your app's needs.
     }
 }
 
-@media (max-width: 48em) {
+max-width: 48em {
     /* Only apply this when the window is small. Otherwise, the following
     case results in extra padding on the left:
         * Make the window small.
