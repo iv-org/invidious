@@ -25,7 +25,6 @@ This is the parent `<div>` that contains the menu and the content area.
 */
 #layout {
     position: relative;
-    left: 0;
     padding-left: 0;
 }
     #layout.active #menu {
@@ -48,22 +47,27 @@ The content `<div>` is where all your content goes.
 }
 
 .header {
-     margin: 0;
-     color: #333;
-     text-align: center;
-     padding: 2.5em 2em 0;
-     border-bottom: 1px solid #eee;
- }
+    font-family: "Raleway", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 1em;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    background: #fff;
+    letter-spacing: 0.05em;
+}
     .header h1 {
-        margin: 0.2em 0;
-        font-size: 3em;
-        font-weight: 300;
+        font-size: 300%;
+        font-weight: 100;
+        margin: 0;
     }
      .header h2 {
-        font-weight: 300;
-        color: #ccc;
-        padding: 0;
-        margin-top: 0;
+        font-size: 125%;
+        font-weight: 100;
+        line-height: 1.5;
+        margin: 0;
+        color: #666;
+        letter-spacing: -0.02em;
     }
 
 .content-subhead {
@@ -71,8 +75,6 @@ The content `<div>` is where all your content goes.
     font-weight: 300;
     color: #888;
 }
-
-
 
 /*
 The `#menu` `<div>` is the parent `<div>` that contains the `.pure-menu` that
@@ -191,19 +193,44 @@ small screens.
     .menu-link span:after {
         background-color: #fff;
         width: 100%;
-        height: 0.2em;
+        height: .2em;
+        -webkit-transition: all 0.4s;
+           -moz-transition: all 0.4s;
+            -ms-transition: all 0.4s;
+             -o-transition: all 0.4s;
+                transition: all 0.4s;
     }
 
-        .menu-link span:before,
-        .menu-link span:after {
-            position: absolute;
-            margin-top: -0.6em;
-            content: " ";
-        }
+    .menu-link span:before,
+    .menu-link span:after {
+        position: absolute;
+        top: -.55em;
+        content: " ";
+    }
 
-        .menu-link span:after {
-            margin-top: 0.6em;
-        }
+    .menu-link span:after {
+        top: .55em;
+    }
+        
+        .menu-link.active span {
+          background: transparent;
+    }
+
+    .menu-link.active span:before {
+        -webkit-transform: rotate(45deg) translate(.5em, .4em);
+           -moz-transform: rotate(45deg) translate(.5em, .4em);
+            -ms-transform: rotate(45deg) translate(.5em, .4em);
+             -o-transform: rotate(45deg) translate(.5em, .4em);
+                transform: rotate(45deg) translate(.5em, .4em);
+    }
+
+    .menu-link.active span:after {
+        -webkit-transform: rotate(-45deg) translate(.4em, -.3em);
+           -moz-transform: rotate(-45deg) translate(.4em, -.3em);
+            -ms-transform: rotate(-45deg) translate(.4em, -.3em);
+             -o-transform: rotate(-45deg) translate(.4em, -.3em);
+                transform: rotate(-45deg) translate(.4em, -.3em);
+    }
 
 
 /* -- Responsive Styles (Media Queries) ------------------------------------- */
@@ -238,12 +265,12 @@ min-width: 200em {
     }
 }
 
-max-width: 48em {
-    /* Only apply this when the window is small. Otherwise, the following
+max-width: 58em {
+    /* Only apply this when the window is smaller. Otherwise, the following
     case results in extra padding on the left:
-        * Make the window small.
+        * Make the window small. (Rotate to portrait on a mobile.)
         * Tap the menu to trigger the active state.
-        * Make the window large again.
+        * Make the window large again. (Rotate to landscape on mobile.)
     */
     #layout.active {
         position: relative;
