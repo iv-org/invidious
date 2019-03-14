@@ -86,8 +86,8 @@
           </a>
         </li>
         <li class="pure-menu-item menu-item-divided">
-          <a title="<%= translate(locale, " Preferences") %>" href="/preferences?referer=
-            <%= env.get?("current_page") %>" class="pure-menu-link">
+          <a title="<%= translate(locale, " Preferences") %>" 
+            href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-link">
             <i class="icon ion-ios-options"></i>
             <%= translate(locale, "Preferences") %>
           </a>
@@ -118,70 +118,65 @@
           <div class="pure-u-1 pure-u-md-12-24 searchbar">
             <form class="pure-form" action="/search" method="get">
               <fieldset>
-                <input type="search" style="width:100%;" name="q" placeholder="<%= translate(locale, " search") %>" value="
-                <%= env.get?("search").try {|x| HTML.escape(x.as(String)) } || env.params.query["q"]?.try {|x| HTML.escape(x)} %>">
+                <input type="search" style="width:100%;" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } || env.params.query["q"]?.try {|x| HTML.escape(x)} %>">
               </fieldset>
             </form>
           </div>
           <div class="pure-u-1 pure-u-md-8-24 user-field">
-            <% if env.get? "user" %>
-            <div class="pure-u-1-4">
-              <a href="/toggle_theme?referer=<%= env.get?(" current_page") %>" class="pure-menu-heading">
-                <% preferences = env.get("user").as(User).preferences %>
-                <% if preferences.dark_mode %>
-                <i class="icon ion-ios-sunny"></i>
-                <% else %>
-                <i class="icon ion-ios-moon"></i>
-                <% end %>
-              </a>
-            </div>
-            <div class="pure-u-1-4">
-              <a title="<%= translate(locale, " Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
-                <% notification_count = env.get("user").as(User).notifications.size %>
-                <% if notification_count > 0 %>
-                <%= notification_count %> <i class="icon ion-ios-notifications"></i>
-                <% else %>
-                <i class="icon ion-ios-notifications-outline"></i>
-                <% end %>
-              </a>
-            </div>
-            <div class="pure-u-1-4">
-              <a title="<%= translate(locale, " Preferences") %>" href="/preferences?referer=
-                <%= env.get?("current_page") %>" class="pure-menu-heading">
-                <i class="icon ion-ios-cog"></i>
-              </a>
-            </div>
-            <div class="pure-u-1-4">
-              <a href="/signout?referer=<%= env.get?(" current_page") %>&token=
-                <%= env.get?("token") %>&challenge=
-                <%= env.get?("challenge") %>" class="pure-menu-heading">
-                <%= translate(locale, "Sign out") %>
-              </a>
-            </div>
-            <% else %>
-            <div class="pure-u-1-3">
-              <a href="/toggle_theme?referer=<%= env.get?(" current_page") %>" class="pure-menu-heading">
-                <% if env.get?("preferences").try &.as(Preferences).dark_mode %>
-                <i class="icon ion-ios-sunny"></i>
-                <% else %>
-                <i class="icon ion-ios-moon"></i>
-                <% end %>
-              </a>
-            </div>
-            <div class="pure-u-1-3">
-              <a title="<%= translate(locale, " Preferences") %>" href="/preferences?referer=
-                <%= env.get?("current_page") %>" class="pure-menu-heading">
-                <i class="icon ion-ios-cog"></i>
-              </a>
-            </div>
-            <% if config.login_enabled %>
-            <div class="pure-u-1-3">
-              <a href="/login?referer=<%= env.get?(" current_page") %>" class="pure-menu-heading">
-                <%= translate(locale, "Login") %>
-              </a>
-            </div>
-            <% end %>
-            <% end %>
+          <% if env.get? "user" %>
+          <div class="pure-u-1-4">
+            <a href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+              <% preferences = env.get("user").as(User).preferences %>
+              <% if preferences.dark_mode %>
+              <i class="icon ion-ios-sunny"></i>
+              <% else %>
+              <i class="icon ion-ios-moon"></i>
+              <% end %>
+            </a>
+          </div>
+          <div class="pure-u-1-4">
+            <a title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
+              <% notification_count = env.get("user").as(User).notifications.size %>
+              <% if notification_count > 0 %>
+              <%= notification_count %> <i class="icon ion-ios-notifications"></i>
+              <% else %>
+              <i class="icon ion-ios-notifications-outline"></i>
+              <% end %>
+            </a>
+          </div>
+          <div class="pure-u-1-4">
+            <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+              <i class="icon ion-ios-cog"></i>
+            </a>
+          </div>
+          <div class="pure-u-1-4">
+            <a href="/signout?referer=<%= env.get?("current_page") %>&token=<%= env.get?("token") %>&challenge=<%= env.get?("challenge") %>" class="pure-menu-heading">
+              <%= translate(locale, "Sign out") %>
+            </a>
+          </div>
+          <% else %>
+          <div class="pure-u-1-3">
+            <a href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+              <% if env.get?("preferences").try &.as(Preferences).dark_mode %>
+              <i class="icon ion-ios-sunny"></i>
+              <% else %>
+              <i class="icon ion-ios-moon"></i>
+              <% end %>
+            </a>
+          </div>
+          <div class="pure-u-1-3">
+            <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+              <i class="icon ion-ios-cog"></i>
+            </a>
+          </div>
+          <% if config.login_enabled %>
+          <div class="pure-u-1-3">
+            <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+              <%= translate(locale, "Login") %>
+            </a>
+          </div>
+          <% end %>
+          <% end %>
           </div>
         </div>
         <%= content %>
@@ -201,7 +196,7 @@
             <div class="pure-u-1 pure-u-md-1-3">
               <i class="icon ion-logo-usd"></i>
               <a href="https://liberapay.com/omarroth">Liberapay</a>
-              /
+               / 
               <a href="https://patreon.com/omarroth">Patreon</a>
             </div>
             <div class="pure-u-1 pure-u-md-1-3">
@@ -220,13 +215,12 @@
               <%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %>
               <i class="icon ion-logo-github"></i>
               <%= CURRENT_BRANCH %></div>
-            </div>
           </div>
         </div>
-      </div>
+        </div>
       <div class="pure-u-1 pure-u-md-2-24"></div>
     </div>
-  </div>
+    </div>
   <script src="/js/ui.js"></script>
 </body>
 
