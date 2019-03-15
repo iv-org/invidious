@@ -1,5 +1,5 @@
 # "Invidious" (which is an alternative front-end to YouTube)
-# Copyright (C) 2018  Omar Roth
+# Copyright (C) 2019  Omar Roth
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
