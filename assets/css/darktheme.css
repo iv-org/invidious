@@ -36,3 +36,46 @@ body {
   background-color: inherit;
   color: inherit;
 }
+/***** Side menu *****/
+.header h2 {
+   color: #666;
+}
+
+.content-subhead {
+    color: #888;
+}
+
+#menu {
+    background: #191818;
+}
+
+#menu a {
+    color: #999;
+}
+
+#menu .pure-menu li a:hover,
+#menu .pure-menu li a:focus {
+    background: #333;
+}
+
+#menu .pure-menu ul,
+#menu .pure-menu .menu-item-divided {
+    border-top: 1px solid #333;
+}
+
+.menu-link {
+    background: #000;
+    background: rgba(0,0,0,0.7);
+}
+
+.menu-link:hover,
+.menu-link:focus {
+    background: #000;
+}
+
+.menu-link span,
+.menu-link span:before,
+.menu-link span:after {
+    background-color: #fff;
+}
+/***** Side menu end *****/

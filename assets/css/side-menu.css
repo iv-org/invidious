@@ -41,19 +41,19 @@ The content `<div>` is where all your content goes.
 .content {
     margin: 0 auto;
     padding: 0 2em;
-    max-width: 800px;
+    max-width: 1284px;
     margin-bottom: 50px;
     line-height: 1.6em;
 }
 
 .header {
     font-family: "Raleway", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    max-width: 768px;
+    max-width: 1284px;
     margin: 0 auto;
     padding: 1em;
     text-align: center;
-    border-bottom: 1px solid #eee;
-    background: #fff;
+/*    border-bottom: 1px solid #eee;
+    background: #fff;*/
     letter-spacing: 0.05em;
 }
     .header h1 {
@@ -66,14 +66,14 @@ The content `<div>` is where all your content goes.
         font-weight: 100;
         line-height: 1.5;
         margin: 0;
-        color: #666;
+        /* color: #666; */
         letter-spacing: -0.02em;
     }
 
 .content-subhead {
     margin: 50px 0 20px 0;
     font-weight: 300;
-    color: #888;
+    /* color: #888; */
 }
 
 /*
@@ -89,15 +89,19 @@ appears on the left side of the page.
     left: 0;
     bottom: 0;
     z-index: 1000; /* so the menu or its navicon stays above all content */
-    background: #191818;
+    background: #f5f5f5; 
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    -moz-transition:all 200ms ease-in;
+    -webkit-transition:all 200ms ease-in;
+    -o-transition:all 200ms ease-in;
+    transition:all 200ms ease-in;
 }
     /*
     All anchors inside the menu should be styled like this.
     */
     #menu a {
-        color: #999;
+         color: #999; 
         border: none;
         padding: 0.6em 0 0.6em 0.6em;
     }
@@ -120,14 +124,14 @@ appears on the left side of the page.
     */
     #menu .pure-menu ul,
     #menu .pure-menu .menu-item-divided {
-        border-top: 1px solid #333;
+        border-top: 1px solid #ececec;
     }
         /*
         Change color of the anchor links on hover/focus.
         */
         #menu .pure-menu li a:hover,
         #menu .pure-menu li a:focus {
-            background: #333;
+            background: #ececec;
         }
 
     /*
@@ -148,9 +152,13 @@ appears on the left side of the page.
     This styles the menu heading.
     */
     #menu .pure-menu-heading {
-        font-size: 100%;
+        font-size: 125%;
+        font-weight: 300;
+        letter-spacing: 0.1em;
         color: #fff;
-        margin: 0;
+        margin-top: 0;
+        padding: 0.5em 0.8em;
+        text-transform: uppercase;
     }
 
 /* -- Dynamic Button For Responsive Menu -------------------------------------*/
