@@ -318,13 +318,6 @@ img.thumbnail {
   object-fit: cover;
 }
 
-#player {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-}
-
 .player-dimensions.vjs-fluid {
   padding-top: 82vh;
 }
@@ -332,8 +325,6 @@ img.thumbnail {
 #player-container {
   position: relative;
   padding-bottom: 82vh;
-  margin-left: 1em;
-  margin-right: 1em;
   height: 0;
 }
 
