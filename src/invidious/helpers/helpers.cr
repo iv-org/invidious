@@ -232,13 +232,22 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         )
       end
 
+      playlist_thumbnail = node.xpath_node(%q(.//div/span/img)).try &.["data-thumb"]?
+      playlist_thumbnail ||= node.xpath_node(%q(.//div/span/img)).try &.["src"]
+      if !playlist_thumbnail || playlist_thumbnail.empty?
+        thumbnail_id = videos[0]?.try &.id
+      else
+        thumbnail_id = playlist_thumbnail.match(/\/vi\/(?<video_id>[a-zA-Z0-9_-]{11})\/\w+\.jpg/).try &.["video_id"]
+      end
+
       items << SearchPlaylist.new(
         title,
         plid,
         author,
         author_id,
         video_count,
-        videos
+        videos,
+        thumbnail_id
       )
     when .includes? "yt-lockup-channel"
       author = title.strip
@@ -399,13 +408,22 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
         playlist_title ||= ""
         plid ||= ""
 
+        playlist_thumbnail = child_node.xpath_node(%q(.//span/img)).try &.["data-thumb"]?
+        playlist_thumbnail ||= child_node.xpath_node(%q(.//span/img)).try &.["src"]
+        if !playlist_thumbnail || playlist_thumbnail.empty?
+          thumbnail_id = videos[0]?.try &.id
+        else
+          thumbnail_id = playlist_thumbnail.match(/\/vi\/(?<video_id>[a-zA-Z0-9_-]{11})\/\w+\.jpg/).try &.["video_id"]
+        end
+
         items << SearchPlaylist.new(
           playlist_title,
           plid,
           author_name,
           ucid,
           50,
-          Array(SearchPlaylistVideo).new
+          Array(SearchPlaylistVideo).new,
+          thumbnail_id
         )
       end
     end
@@ -419,7 +437,8 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
         author_name,
         ucid,
         videos.size,
-        videos
+        videos,
+        videos[0].try &.id
       )
     end
   end

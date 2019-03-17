@@ -162,6 +162,23 @@ def number_with_separator(number)
   number.to_s.reverse.gsub(/(\d{3})(?=\d)/, "\\1,").reverse
 end
 
+def short_text_to_number(short_text)
+  case short_text
+  when .ends_with? "M"
+    number = short_text.rstrip(" mM").to_f
+    number *= 1000000
+  when .ends_with? "K"
+    number = short_text.rstrip(" kK").to_f
+    number *= 1000
+  else
+    number = short_text.rstrip(" ")
+  end
+
+  number = number.to_i
+
+  return number
+end
+
 def number_to_short_text(number)
   seperated = number_with_separator(number).gsub(",", ".").split("")
   text = seperated.first(2).join

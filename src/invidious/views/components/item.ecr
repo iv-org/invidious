@@ -16,7 +16,7 @@
         <h5><%= item.description_html %></h5>
     <% when SearchPlaylist %>
         <% if item.id.starts_with? "RD" %>
-        <% url = "/mix?list=#{item.id}&continuation=#{item.videos[0]?.try &.id}" %>
+        <% url = "/mix?list=#{item.id}&continuation=#{item.thumbnail_id}" %>
         <% else %>
         <% url = "/playlist?list=#{item.id}" %>
         <% end %>
@@ -24,7 +24,7 @@
             <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
             <% else %>
             <div class="thumbnail">
-                <img class="thumbnail" src="/vi/<%= item.videos[0]?.try &.id %>/mqdefault.jpg"/>
+                <img class="thumbnail" src="/vi/<%= item.thumbnail_id %>/mqdefault.jpg"/>
                 <p class="length"><%= number_with_separator(item.video_count) %> videos</p>
             </div>
             <% end %>
