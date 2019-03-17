@@ -79,9 +79,9 @@ var player = videojs("player", options, function() {
     seekStep: 5,
     enableModifiersForNumbers: false,
     customKeys: {
+      // Toggle play with K Key
       play: {
         key: function(e) {
-          // Toggle play with K Key
           return e.which === 75;
         },
         handler: function(player, options, e) {
@@ -92,22 +92,44 @@ var player = videojs("player", options, function() {
           }
         }
       },
+      // Go backward 5 seconds
       backward: {
         key: function(e) {
-          // Go backward 5 seconds
           return e.which === 74;
         },
         handler: function(player, options, e) {
           player.currentTime(player.currentTime() - 5);
         }
       },
+      // Go forward 5 seconds
       forward: {
         key: function(e) {
-          // Go forward 5 seconds
           return e.which === 76;
         },
         handler: function(player, options, e) {
           player.currentTime(player.currentTime() + 5);
+        }
+      },
+      // Increase speed
+      increase_speed: {
+        key: function(e) {
+          return e.which === 190;
+        },
+        handler: function(player, _, e) {
+          size = options.playbackRates.length;
+          index = options.playbackRates.indexOf(player.playbackRate());
+          player.playbackRate(options.playbackRates[(index + 1) % size]);
+        }
+      },
+      // Decrease speed
+      decrease_speed: {
+        key: function(e) {
+          return e.which === 188;
+        },
+        handler: function(player, _, e) {
+          size = options.playbackRates.length;
+          index = options.playbackRates.indexOf(player.playbackRate());
+          player.playbackRate(options.playbackRates[(size + index - 1) % size]);
         }
       }
     }
