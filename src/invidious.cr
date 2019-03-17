@@ -2471,7 +2471,14 @@ get "/channel/:ucid" do |env|
     sort_by ||= "last"
 
     items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
-    items.select! { |item| item.is_a?(SearchPlaylist) && !item.videos.empty? }
+    items.uniq! do |item|
+      if item.responds_to?(:title)
+        item.title
+      elsif item.responds_to?(:author)
+        item.author
+      end
+    end
+    items.select! { |item| item.responds_to?(:thumbnail_id) && item.thumbnail_id }
     items = items.map { |item| item.as(SearchPlaylist) }
     items.each { |item| item.author = "" }
   else

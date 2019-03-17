@@ -416,12 +416,18 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
           thumbnail_id = playlist_thumbnail.match(/\/vi\/(?<video_id>[a-zA-Z0-9_-]{11})\/\w+\.jpg/).try &.["video_id"]
         end
 
+        video_count_label = child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
+        if video_count_label
+          video_count = video_count_label.content.strip.match(/^\d+/).try &.[0].to_i?
+        end
+        video_count ||= 50
+
         items << SearchPlaylist.new(
           playlist_title,
           plid,
           author_name,
           ucid,
-          50,
+          video_count,
           Array(SearchPlaylistVideo).new,
           thumbnail_id
         )
