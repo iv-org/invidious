@@ -284,12 +284,12 @@
   "Download as: ": "تحميل كـ",
   "Download": "تحميل",
   "%A %B %-d, %Y": "",
-  "(edited)": "",
-  "Youtube permalink of the comment": "",
-  "`x` marked it with a ❤": "",
-  "Audio mode": "",
-  "Video mode": "",
-  "Videos": "",
-  "Playlists": "",
-  "Current version: ": ""
+  "(edited)": "(تم تعديلة)",
+  "Youtube permalink of the comment": "رابط التعليق على اليوتيوب",
+  "`x` marked it with a ❤": "'x' اعجب بهذا",
+  "Audio mode": "الوضع الصوتى",
+  "Video mode": "وضع الفيديو",
+  "Videos": "الفيديوهات",
+  "Playlists": "قوائم التشغيل",
+  "Current version: ": "الإصدار الحالى"
 }
