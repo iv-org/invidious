@@ -25,12 +25,13 @@ end
 
 class SearchPlaylist
   add_mapping({
-    title:       String,
-    id:          String,
-    author:      String,
-    ucid:        String,
-    video_count: Int32,
-    videos:      Array(SearchPlaylistVideo),
+    title:        String,
+    id:           String,
+    author:       String,
+    ucid:         String,
+    video_count:  Int32,
+    videos:       Array(SearchPlaylistVideo),
+    thumbnail_id: String?,
   })
 end
 

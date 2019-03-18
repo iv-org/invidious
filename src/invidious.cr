@@ -982,11 +982,10 @@ post "/login" do |env|
         preferences = env.get("preferences").as(Preferences)
         PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
 
-        login.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: "", expires: Time.new(1990, 1, 1),
-          secure: secure, http_only: true)
+        cookie = env.request.cookies["PREFS"]
+        cookie.expires = Time.new(1990, 1, 1)
+        env.response.cookies << cookie
       end
-
-      login.cookies.add_response_headers(env.response.headers)
 
       env.redirect referer
     rescue ex
@@ -1099,8 +1098,9 @@ post "/login" do |env|
 
       # Since this user has already registered, we don't want to overwrite their preferences
       if env.request.cookies["PREFS"]?
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: "", expires: Time.new(1990, 1, 1),
-          secure: secure, http_only: true)
+        cookie = env.request.cookies["PREFS"]
+        cookie.expires = Time.new(1990, 1, 1)
+        env.response.cookies << cookie
       end
     elsif action == "register"
       if !config.registration_enabled
@@ -1156,11 +1156,12 @@ post "/login" do |env|
       end
 
       if env.request.cookies["PREFS"]?
-        preferences = env.get("preferences").as(Preferences)
+        preferences = env.get("preferences").as(Preferences).to_json
         PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
 
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: "", expires: Time.new(1990, 1, 1),
-          secure: secure, http_only: true)
+        cookie = env.request.cookies["PREFS"]
+        cookie.expires = Time.new(1990, 1, 1)
+        env.response.cookies << cookie
       end
     end
 
@@ -1193,9 +1194,8 @@ get "/signout" do |env|
 
     env.request.cookies.each do |cookie|
       cookie.expires = Time.new(1990, 1, 1)
+      env.response.cookies << cookie
     end
-
-    env.request.cookies.add_response_headers(env.response.headers)
   end
 
   env.redirect referer
@@ -1803,8 +1803,8 @@ post "/delete_account" do |env|
 
     env.request.cookies.each do |cookie|
       cookie.expires = Time.new(1990, 1, 1)
+      env.response.cookies << cookie
     end
-    env.request.cookies.add_response_headers(env.response.headers)
   end
 
   env.redirect referer
@@ -2471,7 +2471,14 @@ get "/channel/:ucid" do |env|
     sort_by ||= "last"
 
     items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
-    items.select! { |item| item.is_a?(SearchPlaylist) && !item.videos.empty? }
+    items.uniq! do |item|
+      if item.responds_to?(:title)
+        item.title
+      elsif item.responds_to?(:author)
+        item.author
+      end
+    end
+    items.select! { |item| item.responds_to?(:thumbnail_id) && item.thumbnail_id }
     items = items.map { |item| item.as(SearchPlaylist) }
     items.each { |item| item.author = "" }
   else
