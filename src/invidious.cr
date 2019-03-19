@@ -760,29 +760,15 @@ get "/login" do |env|
 
   referer = get_referer(env, "/feed/subscriptions")
 
+  email = nil
+  password = nil
+  captcha = nil
+
   account_type = env.params.query["type"]?
   account_type ||= "invidious"
 
   captcha_type = env.params.query["captcha"]?
   captcha_type ||= "image"
-
-  if account_type == "invidious"
-    if captcha_type == "image"
-      captcha = generate_captcha(HMAC_KEY, PG_DB)
-    else
-      response = HTTP::Client.get(TEXTCAPTCHA_URL).body
-      response = JSON.parse(response)
-
-      tokens = response["a"].as_a.map do |answer|
-        create_response(answer.as_s, "sign_in", HMAC_KEY, PG_DB)
-      end
-
-      text_captcha = {
-        question: response["q"].as_s,
-        tokens:   tokens,
-      }
-    end
-  end
 
   tfa = env.params.query["tfa"]?
   tfa ||= false
@@ -790,7 +776,6 @@ get "/login" do |env|
   templated "login"
 end
 
-# See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
 post "/login" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -805,11 +790,13 @@ post "/login" do |env|
   password = env.params.body["password"]?
 
   account_type = env.params.query["type"]?
-  account_type ||= "google"
+  account_type ||= "invidious"
 
-  if account_type == "google"
+  case account_type
+  when "google"
     tfa_code = env.params.body["tfa"]?.try &.lchop("G-")
 
+    # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
     begin
       client = make_client(LOGIN_URL)
       headers = HTTP::Headers.new
@@ -911,7 +898,11 @@ post "/login" do |env|
           end
 
           if !tfa_code
-            next env.redirect "/login?tfa=true&type=google&referer=#{URI.escape(referer)}"
+            account_type = "google"
+            captcha_type = "image"
+            tfa = true
+            captcha = nil
+            next templated "login"
           end
 
           tl = challenge_results[1][2]
@@ -976,6 +967,7 @@ post "/login" do |env|
 
         cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
         cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
+        env.response.cookies << cookie
       end
 
       if env.request.cookies["PREFS"]?
@@ -992,65 +984,7 @@ post "/login" do |env|
       error_message = translate(locale, "Login failed. This may be because two-factor authentication is not enabled on your account.")
       next templated "error"
     end
-  elsif account_type == "invidious"
-    answer = env.params.body["answer"]?
-    text_answer = env.params.body["text_answer"]?
-
-    if config.captcha_enabled
-      if answer
-        answer = answer.lstrip('0')
-        answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
-
-        challenge = env.params.body["challenge"]?
-        token = env.params.body["token"]?
-
-        begin
-          validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB, locale)
-        rescue ex
-          if ex.message == translate(locale, "Invalid user")
-            error_message = translate(locale, "Invalid answer")
-          else
-            error_message = ex.message
-          end
-
-          next templated "error"
-        end
-      elsif text_answer
-        text_answer = Digest::MD5.hexdigest(text_answer.downcase.strip)
-
-        challenges = env.params.body.select { |k, v| k.match(/text_challenge\d+/) }
-        tokens = env.params.body.select { |k, v| k.match(/text_token\d+/) }
-
-        found_valid_captcha = false
-
-        error_message = translate(locale, "Invalid CAPTCHA")
-        challenges.each_with_index do |challenge, i|
-          begin
-            challenge = challenge[1]
-            token = tokens[i][1]
-            validate_response(challenge, token, text_answer, "sign_in", HMAC_KEY, PG_DB, locale)
-            found_valid_captcha = true
-          rescue ex
-            if ex.message == translate(locale, "Invalid user")
-              error_message = translate(locale, "Invalid answer")
-            else
-              error_message = ex.message
-            end
-          end
-        end
-
-        if !found_valid_captcha
-          next templated "error"
-        end
-      else
-        error_message = translate(locale, "CAPTCHA is a required field")
-        next templated "error"
-      end
-    end
-
-    action = env.params.body["action"]?
-    action ||= "signin"
-
+  when "invidious"
     if !email
       error_message = translate(locale, "User ID is a required field")
       next templated "error"
@@ -1061,14 +995,9 @@ post "/login" do |env|
       next templated "error"
     end
 
-    if action == "signin"
-      user = PG_DB.query_one?("SELECT * FROM users WHERE LOWER(email) = LOWER($1)", email, as: User)
+    user = PG_DB.query_one?("SELECT * FROM users WHERE LOWER(email) = LOWER($1)", email, as: User)
 
-      if !user
-        error_message = translate(locale, "Invalid username or password")
-        next templated "error"
-      end
-
+    if user
       if !user.password
         error_message = translate(locale, "Please sign in using 'Sign in with Google'")
         next templated "error"
@@ -1102,10 +1031,76 @@ post "/login" do |env|
         cookie.expires = Time.new(1990, 1, 1)
         env.response.cookies << cookie
       end
-    elsif action == "register"
+    else
       if !config.registration_enabled
         error_message = "Registration has been disabled by administrator."
         next templated "error"
+      end
+
+      if config.captcha_enabled
+        captcha_type = env.params.body["captcha_type"]?
+        answer = env.params.body["answer"]?
+        change_type = env.params.body["change_type"]?
+
+        if !captcha_type || change_type
+          if change_type
+            captcha_type = change_type
+          end
+          captcha_type ||= "image"
+
+          account_type = "invidious"
+          tfa = false
+
+          if captcha_type == "image"
+            captcha = generate_captcha(HMAC_KEY, PG_DB)
+          else
+            captcha = generate_text_captcha(HMAC_KEY, PG_DB)
+          end
+
+          next templated "login"
+        end
+
+        challenges = env.params.body.select { |k, v| k.match(/^challenge\[\d+\]$/) }
+        tokens = env.params.body.select { |k, v| k.match(/^token\[\d+\]$/) }
+
+        answer ||= ""
+        captcha_type ||= "image"
+
+        case captcha_type
+        when "image"
+          answer = answer.lstrip('0')
+          answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
+
+          challenge = env.params.body["challenge[0]"]?
+          token = env.params.body["token[0]"]?
+
+          begin
+            validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB, locale)
+          rescue ex
+            error_message = ex.message
+            next templated "error"
+          end
+        when "text"
+          answer = Digest::MD5.hexdigest(answer.downcase.strip)
+
+          found_valid_captcha = false
+
+          error_message = translate(locale, "Invalid CAPTCHA")
+          challenges.each_with_index do |challenge, i|
+            begin
+              challenge = challenge[1]
+              token = tokens[i][1]
+              validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB, locale)
+              found_valid_captcha = true
+            rescue ex
+              error_message = ex.message
+            end
+          end
+
+          if !found_valid_captcha
+            next templated "error"
+          end
+        end
       end
 
       if password.empty?
@@ -1165,6 +1160,8 @@ post "/login" do |env|
       end
     end
 
+    env.redirect referer
+  else
     env.redirect referer
   end
 end

@@ -328,7 +328,22 @@ def generate_captcha(key, db)
   answer = "#{hour}:#{minute.to_s.rjust(2, '0')}:#{second.to_s.rjust(2, '0')}"
   answer = OpenSSL::HMAC.hexdigest(:sha256, key, answer)
 
-  challenge, token = create_response(answer, "sign_in", key, db)
+  return {
+    question: image,
+    tokens:   [create_response(answer, "sign_in", key, db)],
+  }
+end
 
-  return {image: image, challenge: challenge, token: token}
+def generate_text_captcha(key, db)
+  response = HTTP::Client.get(TEXTCAPTCHA_URL).body
+  response = JSON.parse(response)
+
+  tokens = response["a"].as_a.map do |answer|
+    create_response(answer.as_s, "sign_in", key, db)
+  end
+
+  return {
+    question: response["q"].as_s,
+    tokens:   tokens,
+  }
 end
