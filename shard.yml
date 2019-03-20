@@ -2,7 +2,7 @@ name: invidious
 version: 0.15.0
 
 authors:
-  - Omar Roth <omarroth@hotmail.com>
+  - Omar Roth <omarroth@protonmail.com>
 
 targets:
   invidious:
