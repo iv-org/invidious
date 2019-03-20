@@ -880,7 +880,7 @@ post "/login" do |env|
         # Prefer Authenticator app and SMS over unsupported protocols
         if challenge_results[0][-1][0][0][8] != 6 && challenge_results[0][-1][0][0][8] != 9
           tfa = challenge_results[0][-1][0].as_a.select { |auth_type| auth_type[8] == 6 || auth_type[8] == 9 }[0]
-          select_challenge = "[2,null,null,null,[#{tfa[8]}]]"
+          select_challenge = {2, nil, nil, nil, {tfa[8]}}.to_json
 
           tl = challenge_results[1][2]
 
@@ -940,11 +940,10 @@ post "/login" do |env|
       headers = login.cookies.add_request_headers(headers)
 
       login = client.get(login.headers["Location"], headers)
-
-      headers = HTTP::Headers.new
       headers = login.cookies.add_request_headers(headers)
+      cookies = HTTP::Cookies.from_headers(headers)
 
-      sid = login.cookies["SID"].value
+      sid = cookies["SID"].value
 
       user, sid = get_user(sid, headers, PG_DB)
 
@@ -958,15 +957,17 @@ post "/login" do |env|
         secure = false
       end
 
-      login.cookies.each do |cookie|
+      cookies.each do |cookie|
         if Kemal.config.ssl || config.https_only
           cookie.secure = secure
         else
           cookie.secure = secure
         end
 
+        if cookie.extension
         cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
         cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
+        end
         env.response.cookies << cookie
       end
 
