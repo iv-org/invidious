@@ -249,7 +249,7 @@ function get_playlist(timeouts = 0) {
     }
 
     playlist.innerHTML = ' \
-      <h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3> \
+      <h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3> \
       <hr>'
 
     var plid = "<%= plid %>"
@@ -300,7 +300,7 @@ function get_playlist(timeouts = 0) {
 
         comments = document.getElementById("playlist");
         comments.innerHTML =
-            '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3><hr>';
+            '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3><hr>';
         get_playlist(timeouts + 1);
     };
 }
@@ -319,7 +319,7 @@ function get_reddit_comments(timeouts = 0) {
 
   var fallback = comments.innerHTML;
   comments.innerHTML =
-    '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+    '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
   var url = "/api/v1/comments/<%= video.id %>?source=reddit&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
   var xhr = new XMLHttpRequest();
@@ -382,7 +382,7 @@ function get_youtube_comments(timeouts = 0) {
 
   var fallback = comments.innerHTML;
   comments.innerHTML =
-    '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+    '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
   var url = "/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
   var xhr = new XMLHttpRequest();
@@ -429,7 +429,7 @@ function get_youtube_comments(timeouts = 0) {
     console.log("Pulling comments timed out.");
 
     comments.innerHTML =
-      '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+      '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
     get_youtube_comments(timeouts + 1);
   };
 }
@@ -440,7 +440,7 @@ function get_youtube_replies(target, load_more) {
   var body = target.parentNode.parentNode;
   var fallback = body.innerHTML;
   body.innerHTML =
-      '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+      '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
   var url = '/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>&continuation=' +
       continuation;
