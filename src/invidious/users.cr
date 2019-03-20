@@ -255,8 +255,12 @@ def validate_response(challenge, token, user_id, operation, key, db, locale)
   challenge = OpenSSL::HMAC.digest(:sha256, key, challenge)
   challenge = Base64.urlsafe_encode(challenge)
 
-  if db.query_one?("SELECT EXISTS (SELECT true FROM nonces WHERE nonce = $1)", nonce, as: Bool)
-    db.exec("DELETE FROM nonces * WHERE nonce = $1", nonce)
+  if nonce = db.query_one?("SELECT * FROM nonces WHERE nonce = $1", nonce, as: {String, Time})
+    if nonce[1] > Time.now
+       db.exec("UPDATE nonces SET expire = $1 WHERE nonce = $2", Time.new(1990, 1, 1), nonce[0])
+    else
+      raise translate(locale, "Invalid token")
+    end
   else
     raise translate(locale, "Invalid token")
   end
@@ -270,7 +274,7 @@ def validate_response(challenge, token, user_id, operation, key, db, locale)
   end
 
   if challenge_user_id != user_id
-    raise translate(locale, "Invalid user")
+    raise translate(locale, "Invalid token")
   end
 
   if expire < Time.now.to_unix

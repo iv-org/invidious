@@ -132,12 +132,15 @@ def refresh_feeds(db, logger, max_threads = 1)
               db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
             rescue ex
               # Create view if it doesn't exist
-              if ex.message.try &.ends_with? "does not exist"
-                db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
-                SELECT * FROM channel_videos WHERE \
-                ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{email.gsub("'", "\\'")}')::text[]) \
-                ORDER BY published DESC;")
-                logger.write("CREATE #{view_name}")
+              if ex.message.try &.ends_with?("does not exist")
+                # While iterating through, we may have an email stored from a deleted account
+                if db.query_one?("SELECT true FROM users WHERE email = $1", email, as: Bool)
+                  db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+                  SELECT * FROM channel_videos WHERE \
+                  ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{email.gsub("'", "\\'")}')::text[]) \
+                  ORDER BY published DESC;")
+                  logger.write("CREATE #{view_name}")
+                end
               else
                 logger.write("REFRESH #{email} : #{ex.message}\n")
               end

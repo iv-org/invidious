@@ -1795,9 +1795,9 @@ post "/delete_account" do |env|
     end
 
     view_name = "subscriptions_#{sha256(user.email)[0..7]}"
-    PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
     PG_DB.exec("DELETE FROM users * WHERE email = $1", user.email)
     PG_DB.exec("DELETE FROM session_ids * WHERE email = $1", user.email)
+    PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
     env.request.cookies.each do |cookie|
       cookie.expires = Time.new(1990, 1, 1)
