@@ -139,7 +139,7 @@ def refresh_feeds(db, logger, max_threads = 1)
                   SELECT * FROM channel_videos WHERE \
                   ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{email.gsub("'", "\\'")}')::text[]) \
                   ORDER BY published DESC;")
-                  logger.write("CREATE #{view_name}")
+                  logger.write("CREATE #{view_name}\n")
                 end
               else
                 logger.write("REFRESH #{email} : #{ex.message}\n")
