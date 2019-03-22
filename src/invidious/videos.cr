@@ -298,11 +298,13 @@ class Video
             .try &.["offlineSlate"]?
               .try &.["liveStreamOfflineSlateRenderer"]?
                 .try &.["scheduledStartTime"].as_s.to_i64
-
-      return premiere_timestamp
-    else
-      return nil
     end
+
+    if premiere_timestamp
+      premiere_timestamp = Time.unix(premiere_timestamp)
+    end
+
+    return premiere_timestamp
   end
 
   def keywords

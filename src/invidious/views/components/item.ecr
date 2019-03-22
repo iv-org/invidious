@@ -67,8 +67,10 @@
         <p>
             <b><a style="width:100%;" href="/channel/<%= item.ucid %>"><%= item.author %></a></b>
         </p>
-        
-        <% if Time.now - item.published > 1.minute %>
+
+        <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp && item.premiere_timestamp.not_nil! > Time.now %>
+        <h5><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.now).ago, locale)) %></h5>
+        <% elsif Time.now - item.published > 1.minute %>
         <h5><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></h5>
         <% end %>
     <% else %>
@@ -102,8 +104,10 @@
         <p>
             <b><a style="width:100%;" href="/channel/<%= item.ucid %>"><%= item.author %></a></b>
         </p>
-        
-        <% if Time.now - item.published > 1.minute %>
+
+        <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp && item.premiere_timestamp.not_nil! > Time.now %>
+        <h5><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.now).ago, locale)) %></h5>
+        <% elsif Time.now - item.published > 1.minute %>
         <h5><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></h5>
         <% end %>
     <% end %>

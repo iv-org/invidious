@@ -325,6 +325,11 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         paid = true
       end
 
+      premiere_timestamp = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/span[@class="localized-date"])).try &.["data-timestamp"]?.try &.to_i64
+      if premiere_timestamp
+        premiere_timestamp = Time.unix(premiere_timestamp)
+      end
+
       items << SearchVideo.new(
         title: title,
         id: id,
@@ -337,7 +342,8 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         length_seconds: length_seconds,
         live_now: live_now,
         paid: paid,
-        premium: premium
+        premium: premium,
+        premiere_timestamp: premiere_timestamp
       )
     end
   end

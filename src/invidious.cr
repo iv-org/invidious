@@ -2104,7 +2104,8 @@ get "/feed/channel/:ucid" do |env|
       length_seconds: 0,
       live_now: false,
       paid: false,
-      premium: false
+      premium: false,
+      premiere_timestamp: nil
     )
   end
 
@@ -2372,7 +2373,7 @@ post "/feed/webhook/:token" do |env|
       updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
 
       video = get_video(id, PG_DB, proxies, region: nil)
-      video = ChannelVideo.new(id, video.title, published, updated, video.ucid, video.author, video.length_seconds, video.live_now)
+      video = ChannelVideo.new(id, video.title, published, updated, video.ucid, video.author, video.length_seconds, video.live_now, video.premiere_timestamp)
 
       PG_DB.exec("UPDATE users SET notifications = notifications || $1 \
       WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
@@ -2382,7 +2383,8 @@ post "/feed/webhook/:token" do |env|
 
       PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
       ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
-      updated = $4, ucid = $5, author = $6, length_seconds = $7, live_now = $8", video_array)
+      updated = $4, ucid = $5, author = $6, length_seconds = $7, \
+      live_now = $8, premiere_timestamp = $9", video_array)
     end
   end
 
@@ -2901,8 +2903,8 @@ get "/api/v1/videos/:id" do |env|
       json.field "liveNow", video.live_now
       json.field "isUpcoming", video.is_upcoming
 
-      if video.is_upcoming
-        json.field "premiereTimestamp", video.premiere_timestamp
+      if video.premiere_timestamp
+        json.field "premiereTimestamp", video.premiere_timestamp.not_nil!.to_unix
       end
 
       if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
