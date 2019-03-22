@@ -2372,7 +2372,7 @@ post "/feed/webhook/:token" do |env|
       updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
 
       video = get_video(id, PG_DB, proxies, region: nil)
-      video = ChannelVideo.new(id, video.title, published, updated, video.ucid, video.author, video.length_seconds)
+      video = ChannelVideo.new(id, video.title, published, updated, video.ucid, video.author, video.length_seconds, video.live_now)
 
       PG_DB.exec("UPDATE users SET notifications = notifications || $1 \
       WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
@@ -2382,7 +2382,7 @@ post "/feed/webhook/:token" do |env|
 
       PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
       ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
-      updated = $4, ucid = $5, author = $6, length_seconds = $7", video_array)
+      updated = $4, ucid = $5, author = $6, length_seconds = $7, live_now = $8", video_array)
     end
   end
 
@@ -2895,16 +2895,10 @@ get "/api/v1/videos/:id" do |env|
       json.field "subCountText", video.sub_count_text
 
       json.field "lengthSeconds", video.info["length_seconds"].to_i
-      if video.info["allow_ratings"]?
-        json.field "allowRatings", video.info["allow_ratings"] == "1"
-      else
-        json.field "allowRatings", false
-      end
+      json.field "allowRatings", video.allow_ratings
       json.field "rating", video.info["avg_rating"].to_f32
-
-      if video.info["is_listed"]?
-        json.field "isListed", video.info["is_listed"] == "1"
-      end
+      json.field "isListed", video.is_listed
+      json.field "liveNow", video.live_now
 
       if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
         host_url = make_host_url(config, Kemal.config)
@@ -4011,7 +4005,7 @@ get "/api/manifest/dash/id/:id" do |env|
     halt env, status_code: 403
   end
 
-  if dashmpd = video.player_response["streamingData"]["dashManifestUrl"]?.try &.as_s
+  if dashmpd = video.player_response["streamingData"]?.try &.["dashManifestUrl"]?.try &.as_s
     manifest = client.get(dashmpd).body
 
     manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|

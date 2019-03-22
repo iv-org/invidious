@@ -250,6 +250,36 @@ class Video
     end
   end
 
+  def allow_ratings
+    allow_ratings = player_response["videoDetails"].try &.["allowRatings"]?.try &.as_bool
+
+    if !allow_ratings
+      return true
+    end
+
+    return allow_ratings
+  end
+
+  def live_now
+    live_now = self.player_response["videoDetails"]?.try &.["isLive"]?.try &.as_bool
+
+    if !live_now
+      return false
+    end
+
+    return live_now
+  end
+
+  def is_listed
+    is_listed = player_response["videoDetails"].try &.["isCrawlable"]?.try &.as_bool
+
+    if !is_listed
+      return true
+    end
+
+    return is_listed
+  end
+
   def keywords
     keywords = self.player_response["videoDetails"]?.try &.["keywords"]?.try &.as_a
     keywords ||= [] of String
