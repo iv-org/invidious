@@ -253,7 +253,7 @@ class Video
   def allow_ratings
     allow_ratings = player_response["videoDetails"].try &.["allowRatings"]?.try &.as_bool
 
-    if !allow_ratings
+    if allow_ratings.nil?
       return true
     end
 
@@ -263,7 +263,7 @@ class Video
   def live_now
     live_now = self.player_response["videoDetails"]?.try &.["isLive"]?.try &.as_bool
 
-    if !live_now
+    if live_now.nil?
       return false
     end
 
@@ -273,11 +273,36 @@ class Video
   def is_listed
     is_listed = player_response["videoDetails"].try &.["isCrawlable"]?.try &.as_bool
 
-    if !is_listed
+    if is_listed.nil?
       return true
     end
 
     return is_listed
+  end
+
+  def is_upcoming
+    is_upcoming = player_response["videoDetails"].try &.["isUpcoming"]?.try &.as_bool
+
+    if is_upcoming.nil?
+      return false
+    end
+
+    return is_upcoming
+  end
+
+  def premiere_timestamp
+    if self.is_upcoming
+      premiere_timestamp = player_response["playabilityStatus"]?
+        .try &.["liveStreamability"]?
+          .try &.["liveStreamabilityRenderer"]?
+            .try &.["offlineSlate"]?
+              .try &.["liveStreamOfflineSlateRenderer"]?
+                .try &.["scheduledStartTime"].as_s.to_i64
+
+      return premiere_timestamp
+    else
+      return nil
+    end
   end
 
   def keywords

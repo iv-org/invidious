@@ -39,7 +39,9 @@
             <% else %>
             <div class="thumbnail">
                 <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
+                <% if item.length_seconds != 0 %>
                 <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
+                <% end %>
             </div>
             <% end %>
             <p><%= item.title %></p>
@@ -55,7 +57,7 @@
                 <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                 <% if item.responds_to?(:live_now) && item.live_now %>
                 <p class="length"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
-                <% else %>
+                <% elsif item.length_seconds != 0 %>
                 <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
                 <% end %>
             </div>
@@ -90,7 +92,7 @@
                 <% end %>
                 <% if item.responds_to?(:live_now) && item.live_now %>
                 <p class="length"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
-                <% else %>
+                <% elsif item.length_seconds != 0 %>
                 <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
                 <% end %>
             </div>

@@ -2899,6 +2899,11 @@ get "/api/v1/videos/:id" do |env|
       json.field "rating", video.info["avg_rating"].to_f32
       json.field "isListed", video.is_listed
       json.field "liveNow", video.live_now
+      json.field "isUpcoming", video.is_upcoming
+
+      if video.is_upcoming
+        json.field "premiereTimestamp", video.premiere_timestamp
+      end
 
       if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
         host_url = make_host_url(config, Kemal.config)

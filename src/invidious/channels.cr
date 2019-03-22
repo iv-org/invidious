@@ -118,10 +118,12 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       author = entry.xpath_node("author/name").not_nil!.content
       ucid = entry.xpath_node("channelid").not_nil!.content
 
-      length_seconds = videos.select { |video| video.id == video_id }[0]?.try &.length_seconds
+      channel_video = videos.select { |video| video.id == video_id }[0]?
+
+      length_seconds = channel_video.try &.length_seconds
       length_seconds ||= 0
 
-      live_now = videos.select { |video| video.id == video_id }[0]?.try &.live_now
+      live_now = channel_video.try &.live_now
       live_now ||= false
 
       video = ChannelVideo.new(video_id, title, published, Time.now, ucid, author, length_seconds, live_now)
