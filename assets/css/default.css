@@ -255,6 +255,41 @@ img.thumbnail {
   }
 }
 
+.vjs-play-control,
+.vjs-volume-panel,
+.vjs-current-time,
+.vjs-time-control,
+.vjs-duration,
+.vjs-progress-control,
+.vjs-remaining-time {
+  order: 1;
+}
+
+.vjs-captions-button {
+  order: 2;
+}
+
+.vjs-quality-selector {
+  order: 3;
+}
+
+.vjs-playback-rate {
+  order: 4;
+}
+
+.vjs-share-control {
+  order: 5;
+}
+
+.vjs-fullscreen-control {
+  order: 6;
+}
+
+.vjs-control-bar {
+  display: flex;
+  flex-direction: row;
+}
+
 .video-js .vjs-control-bar,
 .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
   background-color: rgba(35, 35, 35, 0.75);
