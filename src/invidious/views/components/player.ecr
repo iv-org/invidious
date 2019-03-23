@@ -13,18 +13,19 @@
             <% audio_streams.each_with_index do |fmt, i| %>
                 <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params[:local] %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
             <% end %>
-        <% else %>
+          <% else %>
             <% if params[:quality] == "dash" %>
                 <source src="/api/manifest/dash/id/<%= video.id %>?local=true" type='application/dash+xml' label="dash">
             <% end %>
+
             <% fmt_stream.each_with_index do |fmt, i| %>
                 <% if params[:quality] %>
-                <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params[:local] %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= params[:quality] == fmt["label"].split(" - ")[0] %>">
+                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params[:local] %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= params[:quality] == fmt["label"].split(" - ")[0] %>">
                 <% else %>
-                <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params[:local] %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params[:local] %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
                 <% end %>
             <% end %>
-        <% end %>
+        <% end %> 
 
         <% preferred_captions.each_with_index do |caption, i| %>
         <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>&hl=<%= env.get("preferences").as(Preferences).locale %>"
@@ -209,6 +210,8 @@ if (bpb) {
   });
 }
 <% end %>
+
+player.httpSourceSelector();
 
 // Since videojs-share can sometimes be blocked, we try to load it last
 player.share(shareOptions);

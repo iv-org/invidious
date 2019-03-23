@@ -279,7 +279,8 @@ input[type="search"]::-webkit-search-cancel-button {
   order: 2;
 }
 
-.vjs-quality-selector {
+.vjs-quality-selector,
+.video-js .vjs-http-source-selector {
   order: 3;
 }
 
@@ -298,6 +299,10 @@ input[type="search"]::-webkit-search-cancel-button {
 .vjs-control-bar {
   display: flex;
   flex-direction: row;
+}
+
+.video-js .vjs-icon-cog {
+  font-size: 18px;
 }
 
 .video-js .vjs-control-bar,
