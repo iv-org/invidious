@@ -18,7 +18,7 @@
 <meta name="twitter:url" content="<%= host_url %>/watch?v=<%= video.id %>">
 <meta name="twitter:title" content="<%= HTML.escape(video.title) %>">
 <meta name="twitter:description" content="<%= description %>">
-<meta name="twitter:image" content="/vi/<%= video.id %>/hqdefault.jpg">
+<meta name="twitter:image" content="<%= host_url %>/vi/<%= video.id %>/maxres.jpg">
 <meta name="twitter:player" content="<%= host_url %>/embed/<%= video.id %>">
 <meta name="twitter:player:width" content="1280">
 <meta name="twitter:player:height" content="720">
@@ -33,7 +33,7 @@
 
 <div class="h-box">
 <h1>
-    <%= HTML.escape(video.title) %> 
+    <%= HTML.escape(video.title) %>
     <% if params[:listen] %>
     <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
         <i class="icon ion-ios-videocam"></i>
@@ -53,7 +53,7 @@
     <div class="pure-u-1 pure-u-md-1-5">
         <div class="h-box">
             <p><a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch video on Youtube") %></a></p>
-        
+
             <form class="pure-form pure-form-stacked" action="/latest_version" method="get" rel="noopener" target="_blank">
                 <div class="pure-control-group">
                     <label for="download_widget"><%= translate(locale, "Download as: ") %></label>
@@ -150,7 +150,7 @@
 
         <% if params[:related_videos] %>
         <div class="h-box">
-        
+
         <% if !rvs.empty? %>
         <div id="continue" <% if plid %>style="display:none"<% end %>>
             <div class="pure-control-group">
@@ -187,7 +187,7 @@
 <script>
 <% if !rvs.empty? && !plid && params[:continue] %>
 player.on('ended', function() {
-    location.assign("/watch?v=" 
+    location.assign("/watch?v="
         + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
         + "&continue=1"
         <% if params[:listen] %>
@@ -206,7 +206,7 @@ player.on('ended', function() {
 function continue_autoplay(target) {
     if (target.checked) {
         player.on('ended', function() {
-            location.assign("/watch?v=" 
+            location.assign("/watch?v="
                 + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
                 + "&continue=1"
                 <% if params[:listen] %>
@@ -270,10 +270,10 @@ function get_playlist(timeouts = 0) {
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
                 playlist.innerHTML = xhr.response.playlistHtml;
-                
+
                 if (xhr.response.nextVideo) {
                     player.on('ended', function() {
-                        location.assign("/watch?v=" 
+                        location.assign("/watch?v="
                             + xhr.response.nextVideo
                             + "&list=<%= plid %>"
                             <% if params[:listen] %>
@@ -355,7 +355,7 @@ function get_reddit_comments(timeouts = 0) {
           contentHtml: xhr.response.contentHtml
         });
       } else {
-        <% if preferences && preferences.comments[1] == "youtube" %> 
+        <% if preferences && preferences.comments[1] == "youtube" %>
         get_youtube_comments();
         <% else %>
         comments.innerHTML = fallback;
@@ -416,7 +416,7 @@ function get_youtube_comments(timeouts = 0) {
           comments.innerHTML = "";
         }
       } else {
-        <% if preferences && preferences.comments[1] == "youtube" %> 
+        <% if preferences && preferences.comments[1] == "youtube" %>
         get_youtube_comments();
         <% else %>
         comments.innerHTML = "";

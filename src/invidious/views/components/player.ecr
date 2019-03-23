@@ -1,4 +1,4 @@
-<video style="outline:none;width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" 
+<video style="outline:none;width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>"
     id="player" class="video-js"
     onmouseenter='this["data-title"]=this["title"];this["title"]=""'
     onmouseleave='this["title"]=this["data-title"];this["data-title"]=""'
@@ -152,7 +152,7 @@ player.on('error', function(event) {
       }
       player.currentTime(currentTime);
       player.playbackRate(playbackRate);
-      
+
       if (!paused) {
         player.play();
       }
@@ -192,7 +192,7 @@ var bpb = player.getChild('bigPlayButton');
 
 if (bpb) {
   bpb.hide();
-  
+
   player.ready(function() {
     new Promise(function(resolve, reject) {
       setTimeout(() => resolve(1), 1);

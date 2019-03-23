@@ -300,7 +300,7 @@ def generate_captcha(key, db)
   clock_svg = <<-END_SVG
   <svg viewBox="0 0 100 100" width="200px">
   <circle cx="50" cy="50" r="45" fill="#eee" stroke="black" stroke-width="2"></circle>
-  
+
   <text x="69"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 1</text>
   <text x="82.909" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 2</text>
   <text x="88"     y="53"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 3</text>

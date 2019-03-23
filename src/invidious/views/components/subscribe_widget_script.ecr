@@ -4,13 +4,13 @@ if (subscribe_button.getAttribute('onclick')) {
 }
 
 function subscribe(timeouts = 0) {
-    subscribe_button = document.getElementById("subscribe");    
+    subscribe_button = document.getElementById("subscribe");
 
     if (timeouts > 10) {
         console.log("Failed to subscribe.");
         return;
     }
-    
+
     var url = "/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
     var xhr = new XMLHttpRequest();
     xhr.responseType = "json";
@@ -21,7 +21,7 @@ function subscribe(timeouts = 0) {
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = unsubscribe;
     subscribe_button.innerHTML = '<b><%= translate(locale, "Unsubscribe").gsub("'", "\\'") %> | <%= sub_count_text %></b>'
-    
+
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
             if (xhr.status != 200) {
@@ -30,7 +30,7 @@ function subscribe(timeouts = 0) {
             }
         }
     }
-    
+
     xhr.ontimeout = function() {
         console.log("Subscribing timed out.");
 
@@ -39,8 +39,8 @@ function subscribe(timeouts = 0) {
 }
 
 function unsubscribe(timeouts = 0) {
-    subscribe_button = document.getElementById("subscribe");    
-    
+    subscribe_button = document.getElementById("subscribe");
+
     if (timeouts > 10) {
         console.log("Failed to subscribe");
         return;

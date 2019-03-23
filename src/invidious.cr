@@ -965,8 +965,8 @@ post "/login" do |env|
         end
 
         if cookie.extension
-        cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
-        cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
+          cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
+          cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
         end
         env.response.cookies << cookie
       end
@@ -2569,8 +2569,8 @@ get "/api/v1/stats" do |env|
     next statistics.to_json
   end
 
-    statistics.to_json
-  end
+  statistics.to_json
+end
 
 get "/api/v1/captions/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -2613,8 +2613,8 @@ get "/api/v1/captions/:id" do |env|
       end
     end
 
-      next response
-    end
+    next response
+  end
 
   env.response.content_type = "text/vtt"
 
@@ -2723,7 +2723,7 @@ get "/api/v1/comments/:id" do |env|
       reddit_thread = JSON.parse(reddit_thread.to_json).as_h
       reddit_thread["comments"] = JSON.parse(comments.to_json)
 
-        next reddit_thread.to_json
+      next reddit_thread.to_json
     else
       response = {
         "title"       => reddit_thread.title,
@@ -2731,10 +2731,10 @@ get "/api/v1/comments/:id" do |env|
         "contentHtml" => content_html,
       }
 
-        next response.to_json
-      end
+      next response.to_json
     end
   end
+end
 
 get "/api/v1/insights/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -2821,8 +2821,8 @@ get "/api/v1/insights/:id" do |env|
     "graphData"              => graph_data,
   }
 
-    next response.to_json
-  end
+  next response.to_json
+end
 
 get "/api/v1/videos/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3027,8 +3027,8 @@ get "/api/v1/videos/:id" do |env|
     end
   end
 
-    video_info
-  end
+  video_info
+end
 
 get "/api/v1/trending" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3075,8 +3075,8 @@ get "/api/v1/trending" do |env|
     end
   end
 
-    videos
-  end
+  videos
+end
 
 get "/api/v1/popular" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3105,8 +3105,8 @@ get "/api/v1/popular" do |env|
     end
   end
 
-    videos
-  end
+  videos
+end
 
 get "/api/v1/top" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3148,8 +3148,8 @@ get "/api/v1/top" do |env|
     end
   end
 
-    videos
-  end
+  videos
+end
 
 get "/api/v1/channels/:ucid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3353,8 +3353,8 @@ get "/api/v1/channels/:ucid" do |env|
     end
   end
 
-    channel_info
-  end
+  channel_info
+end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
   get route do |env|
@@ -3421,9 +3421,9 @@ get "/api/v1/channels/:ucid" do |env|
       end
     end
 
-      result
-    end
+    result
   end
+end
 
 ["/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"].each do |route|
   get route do |env|
@@ -3470,9 +3470,9 @@ get "/api/v1/channels/:ucid" do |env|
       end
     end
 
-      response
-    end
+    response
   end
+end
 
 ["/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"].each do |route|
   get route do |env|
@@ -3536,9 +3536,9 @@ get "/api/v1/channels/:ucid" do |env|
       end
     end
 
-      response
-    end
+    response
   end
+end
 
 get "/api/v1/channels/search/:ucid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3637,8 +3637,8 @@ get "/api/v1/channels/search/:ucid" do |env|
     end
   end
 
-    response
-  end
+  response
+end
 
 get "/api/v1/search" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3762,8 +3762,8 @@ get "/api/v1/search" do |env|
     end
   end
 
-    response
-  end
+  response
+end
 
 get "/api/v1/playlists/:plid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3862,8 +3862,8 @@ get "/api/v1/playlists/:plid" do |env|
     }.to_json
   end
 
-    response
-  end
+  response
+end
 
 get "/api/v1/mixes/:rdid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -4444,7 +4444,7 @@ error 500 do |env|
   <a href="https://github.com/omarroth/invidious/issues">
     here
   </a>
-  or send an email to 
+  or send an email to
   <a href="mailto:omarroth@protonmail.com">
     omarroth@protonmail.com</a>.
   END_HTML
