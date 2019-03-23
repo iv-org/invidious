@@ -81,10 +81,13 @@ a.pure-button-primary:hover {
 }
 
 div.thumbnail {
+  padding: 28.125%;
   position: relative;
+  box-sizing: border-box;
 }
 
 img.thumbnail {
+  position: absolute;
   width: 100%;
   left: 0;
   top: 0;
