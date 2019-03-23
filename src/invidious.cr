@@ -1385,7 +1385,8 @@ get "/mark_watched" do |env|
 
   id = env.params.query["id"]?
   if !id
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   redirect = env.params.query["redirect"]?
@@ -1415,7 +1416,8 @@ get "/mark_unwatched" do |env|
 
   id = env.params.query["id"]?
   if !id
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   redirect = env.params.query["redirect"]?
@@ -2071,7 +2073,8 @@ get "/feed/channel/:ucid" do |env|
     author, ucid, auto_generated = get_about_info(ucid, locale)
   rescue ex
     error_message = ex.message
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   client = make_client(YT_URL)
@@ -2181,12 +2184,14 @@ get "/feed/private" do |env|
   token = env.params.query["token"]?
 
   if !token
-    halt env, status_code: 403
+    env.response.status_code = 403
+    next
   end
 
   user = PG_DB.query_one?("SELECT * FROM users WHERE token = $1", token.strip, as: User)
   if !user
-    halt env, status_code: 403
+    env.response.status_code = 403
+    next
   end
 
   max_results = env.params.query["max_results"]?.try &.to_i?
@@ -2342,17 +2347,20 @@ get "/feed/webhook/:token" do |env|
 
   # The hub will sometimes check if we're still subscribed after delivery errors
   if Time.now.to_unix - time.to_i > 432000
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   if OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, data) != signature
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   ucid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["channel_id"]
   PG_DB.exec("UPDATE channels SET subscribed = $1 WHERE id = $2", Time.now, ucid)
 
-  halt env, status_code: 200, response: challenge
+  env.response.status_code = 200
+  next challenge
 end
 
 post "/feed/webhook/:token" do |env|
@@ -2362,7 +2370,8 @@ post "/feed/webhook/:token" do |env|
 
   if signature != OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, body)
     logger.write("#{token} : Invalid signature")
-    halt env, status_code: 200
+    env.response.status_code = 200
+    next
   end
 
   spawn do
@@ -2388,7 +2397,8 @@ post "/feed/webhook/:token" do |env|
     end
   end
 
-  halt env, status_code: 200
+  env.response.status_code = 200
+  next
 end
 
 # Channels
@@ -2550,19 +2560,17 @@ get "/api/v1/stats" do |env|
 
   if !config.statistics_enabled
     error_message = {"error" => "Statistics are not enabled."}.to_json
-    halt env, status_code: 400, response: error_message
+    env.response.status_code = 400
+    next error_message
   end
 
   if statistics["error"]?
-    halt env, status_code: 500, response: statistics.to_json
+    env.response.status_code = 500
+    next statistics.to_json
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    statistics.to_pretty_json
-  else
     statistics.to_json
   end
-end
 
 get "/api/v1/captions/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -2578,7 +2586,8 @@ get "/api/v1/captions/:id" do |env|
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/captions/#{ex.message}"
   rescue ex
-    halt env, status_code: 500
+    env.response.status_code = 500
+    next
   end
 
   captions = video.captions
@@ -2604,12 +2613,8 @@ get "/api/v1/captions/:id" do |env|
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      next JSON.parse(response).to_pretty_json
-    else
       next response
     end
-  end
 
   env.response.content_type = "text/vtt"
 
@@ -2620,7 +2625,8 @@ get "/api/v1/captions/:id" do |env|
   end
 
   if caption.empty?
-    halt env, status_code: 404
+    env.response.status_code = 404
+    next
   else
     caption = caption[0]
   end
@@ -2690,7 +2696,8 @@ get "/api/v1/comments/:id" do |env|
       comments = fetch_youtube_comments(id, PG_DB, continuation, proxies, format, locale, region)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     next comments
@@ -2708,18 +2715,15 @@ get "/api/v1/comments/:id" do |env|
     end
 
     if !reddit_thread || !comments
-      halt env, status_code: 404
+      env.response.status_code = 404
+      next
     end
 
     if format == "json"
       reddit_thread = JSON.parse(reddit_thread.to_json).as_h
       reddit_thread["comments"] = JSON.parse(comments.to_json)
 
-      if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-        next reddit_thread.to_pretty_json
-      else
         next reddit_thread.to_json
-      end
     else
       response = {
         "title"       => reddit_thread.title,
@@ -2727,14 +2731,10 @@ get "/api/v1/comments/:id" do |env|
         "contentHtml" => content_html,
       }
 
-      if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-        next response.to_pretty_json
-      else
         next response.to_json
       end
     end
   end
-end
 
 get "/api/v1/insights/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -2743,7 +2743,8 @@ get "/api/v1/insights/:id" do |env|
   env.response.content_type = "application/json"
 
   error_message = {"error" => "YouTube has removed publicly-available analytics."}.to_json
-  halt env, status_code: 410, response: error_message
+  env.response.status_code = 410
+  next error_message
 
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
@@ -2820,12 +2821,8 @@ get "/api/v1/insights/:id" do |env|
     "graphData"              => graph_data,
   }
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    next response.to_pretty_json
-  else
     next response.to_json
   end
-end
 
 get "/api/v1/videos/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -2841,7 +2838,8 @@ get "/api/v1/videos/:id" do |env|
     next env.redirect "/api/v1/videos/#{ex.message}"
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   fmt_stream = video.fmt_stream(decrypt_function)
@@ -3029,12 +3027,8 @@ get "/api/v1/videos/:id" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(video_info).to_pretty_json
-  else
     video_info
   end
-end
 
 get "/api/v1/trending" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3048,7 +3042,8 @@ get "/api/v1/trending" do |env|
     trending = fetch_trending(trending_type, proxies, region, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   videos = JSON.build do |json|
@@ -3080,12 +3075,8 @@ get "/api/v1/trending" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(videos).to_pretty_json
-  else
     videos
   end
-end
 
 get "/api/v1/popular" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3114,12 +3105,8 @@ get "/api/v1/popular" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(videos).to_pretty_json
-  else
     videos
   end
-end
 
 get "/api/v1/top" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3128,7 +3115,8 @@ get "/api/v1/top" do |env|
 
   if !config.top_enabled
     error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
-    halt env, status_code: 400, response: error_message
+    env.response.status_code = 400
+    next error_message
   end
 
   videos = JSON.build do |json|
@@ -3160,12 +3148,8 @@ get "/api/v1/top" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(videos).to_pretty_json
-  else
     videos
   end
-end
 
 get "/api/v1/channels/:ucid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3180,7 +3164,8 @@ get "/api/v1/channels/:ucid" do |env|
     author, ucid, auto_generated = get_about_info(ucid, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   page = 1
@@ -3192,7 +3177,8 @@ get "/api/v1/channels/:ucid" do |env|
       videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
   end
 
@@ -3367,12 +3353,8 @@ get "/api/v1/channels/:ucid" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(channel_info).to_pretty_json
-  else
     channel_info
   end
-end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
   get route do |env|
@@ -3391,14 +3373,16 @@ end
       author, ucid, auto_generated = get_about_info(ucid, locale)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     begin
       videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     result = JSON.build do |json|
@@ -3437,13 +3421,9 @@ end
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      JSON.parse(result).to_pretty_json
-    else
       result
     end
   end
-end
 
 ["/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"].each do |route|
   get route do |env|
@@ -3457,7 +3437,8 @@ end
       videos = get_latest_videos(ucid)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     response = JSON.build do |json|
@@ -3489,13 +3470,9 @@ end
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      JSON.parse(response).to_pretty_json
-    else
       response
     end
   end
-end
 
 ["/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"].each do |route|
   get route do |env|
@@ -3512,8 +3489,9 @@ end
     begin
       author, ucid, auto_generated = get_about_info(ucid, locale)
     rescue ex
-      error_message = ex.message
-      halt env, status_code: 500, response: error_message
+      error_message = {"error" => ex.message}.to_json
+      env.response.status_code = 500
+      next error_message
     end
 
     items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
@@ -3558,13 +3536,9 @@ end
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      JSON.parse(response).to_pretty_json
-    else
       response
     end
   end
-end
 
 get "/api/v1/channels/search/:ucid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3663,12 +3637,8 @@ get "/api/v1/channels/search/:ucid" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
     response
   end
-end
 
 get "/api/v1/search" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3792,12 +3762,8 @@ get "/api/v1/search" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
     response
   end
-end
 
 get "/api/v1/playlists/:plid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3821,7 +3787,8 @@ get "/api/v1/playlists/:plid" do |env|
     playlist = fetch_playlist(plid, locale)
   rescue ex
     error_message = {"error" => "Playlist is empty"}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   begin
@@ -3895,12 +3862,8 @@ get "/api/v1/playlists/:plid" do |env|
     }.to_json
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
     response
   end
-end
 
 get "/api/v1/mixes/:rdid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -3927,7 +3890,8 @@ get "/api/v1/mixes/:rdid" do |env|
     mix.videos = mix.videos[index..-1]
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   response = JSON.build do |json|
@@ -3973,11 +3937,7 @@ get "/api/v1/mixes/:rdid" do |env|
     }.to_json
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
-    response
-  end
+  response
 end
 
 get "/api/manifest/dash/id/videoplayback" do |env|
@@ -4009,7 +3969,8 @@ get "/api/manifest/dash/id/:id" do |env|
 
     next env.redirect url
   rescue ex
-    halt env, status_code: 403
+    env.response.status_code = 403
+    next
   end
 
   if dashmpd = video.player_response["streamingData"]?.try &.["dashManifestUrl"]?.try &.as_s
@@ -4096,7 +4057,8 @@ get "/api/manifest/hls_variant/*" do |env|
   manifest = client.get(env.request.path)
 
   if manifest.status_code != 200
-    halt env, status_code: manifest.status_code
+    env.response.status_code = manifest.status_code
+    next
   end
 
   env.response.content_type = "application/x-mpegURL"
@@ -4113,7 +4075,8 @@ get "/api/manifest/hls_playlist/*" do |env|
   manifest = client.get(env.request.path)
 
   if manifest.status_code != 200
-    halt env, status_code: manifest.status_code
+    env.response.status_code = manifest.status_code
+    next
   end
 
   host_url = make_host_url(config, Kemal.config)
@@ -4149,7 +4112,8 @@ get "/latest_version" do |env|
   local = local == "true"
 
   if !id || !itag
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   video = get_video(id, PG_DB, proxies, region: region)
@@ -4159,9 +4123,11 @@ get "/latest_version" do |env|
 
   urls = (fmt_stream + adaptive_fmts).select { |fmt| fmt["itag"] == itag }
   if urls.empty?
-    halt env, status_code: 404
+    env.response.status_code = 404
+    next
   elsif urls.size > 1
-    halt env, status_code: 409
+    env.response.status_code = 409
+    next
   end
 
   url = urls[0]["url"]
@@ -4285,7 +4251,8 @@ get "/videoplayback" do |env|
   end
 
   if response.status_code >= 400
-    halt env, status_code: response.status_code
+    env.response.status_code = response.status_code
+    next
   end
 
   client = make_client(URI.parse(host), proxies, region)
@@ -4509,8 +4476,8 @@ public_folder "assets"
 
 Kemal.config.powered_by_header = false
 add_handler FilteredCompressHandler.new
-add_handler DenyFrame.new
 add_handler APIHandler.new
+add_handler DenyFrame.new
 add_context_storage_type(User)
 add_context_storage_type(Preferences)
 

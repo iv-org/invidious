@@ -28,61 +28,6 @@ user: String,
   })
 end
 
-class FilteredCompressHandler < Kemal::Handler
-  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/api/*", "/ggpht/*"]
-
-  def call(env)
-    return call_next env if exclude_match? env
-
-    {% if flag?(:without_zlib) %}
-      call_next env
-    {% else %}
-      request_headers = env.request.headers
-
-      if request_headers.includes_word?("Accept-Encoding", "gzip")
-        env.response.headers["Content-Encoding"] = "gzip"
-        env.response.output = Gzip::Writer.new(env.response.output, sync_close: true)
-      elsif request_headers.includes_word?("Accept-Encoding", "deflate")
-        env.response.headers["Content-Encoding"] = "deflate"
-        env.response.output = Flate::Writer.new(env.response.output, sync_close: true)
-      end
-
-      call_next env
-    {% end %}
-  end
-end
-
-class APIHandler < Kemal::Handler
-  only ["/api/v1/*"]
-
-  def call(env)
-    return call_next env unless only_match? env
-
-    env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-    call_next env
-  end
-end
-
-class DenyFrame < Kemal::Handler
-  exclude ["/embed/*"]
-
-  def call(env)
-    return call_next env if exclude_match? env
-
-    env.response.headers["X-Frame-Options"] = "sameorigin"
-    call_next env
-  end
-end
-
-# Temp fix for https://github.com/crystal-lang/crystal/issues/7383
-class HTTP::Client
-  private def handle_response(response)
-    # close unless response.keep_alive?
-    response
-  end
-end
-
 def rank_videos(db, n)
   top = [] of {Float64, String}
 
