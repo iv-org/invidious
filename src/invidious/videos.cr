@@ -701,6 +701,10 @@ def fetch_video(id, proxies, region)
     raise "Video unavailable."
   end
 
+  if !info["title"]?
+    raise "Video unavailable."
+  end
+
   title = info["title"]
   author = info["author"]
   ucid = info["ucid"]
