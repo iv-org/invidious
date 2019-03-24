@@ -103,6 +103,7 @@ class APIHandler < Kemal::Handler
           response = response.to_json
         end
       end
+    rescue
     ensure
       env.response.output = output
       env.response.puts response
