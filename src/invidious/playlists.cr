@@ -8,6 +8,7 @@ class PlaylistVideo
     published:      Time,
     playlists:      Array(String),
     index:          Int32,
+    live_now:       Bool,
   })
 end
 
@@ -101,8 +102,10 @@ def extract_playlist(plid, nodeset, index)
     anchor = video.xpath_node(%q(.//td[@class="pl-video-time"]/div/div[1]))
     if anchor && !anchor.content.empty?
       length_seconds = decode_length_seconds(anchor.content)
+      live_now = false
     else
       length_seconds = 0
+      live_now = true
     end
 
     videos << PlaylistVideo.new(
@@ -114,6 +117,7 @@ def extract_playlist(plid, nodeset, index)
       published: Time.now,
       playlists: [plid],
       index: index + offset,
+      live_now: live_now
     )
   end
 
