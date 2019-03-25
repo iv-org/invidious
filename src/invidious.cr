@@ -92,8 +92,6 @@ decrypt_function = [] of {name: String, value: Int32}
 spawn do
   update_decrypt_function do |function|
     decrypt_function = function
-    sleep 1.minutes
-    Fiber.yield
   end
 end
 
