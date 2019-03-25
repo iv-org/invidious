@@ -59,17 +59,17 @@
                     <label for="download_widget"><%= translate(locale, "Download as: ") %></label>
                     <select style="width:100%" name="download_widget" id="download_widget">
                     <% video_streams.each do |option| %>
-                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split("/")[1].split(";")[0] %>"}'>
+                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
                             <%= option["quality_label"] %> - <%= option["type"].split(";")[0] %> @ <%= option["fps"] %>fps - video only
                         </option>
                     <% end %>
                     <% audio_streams.each do |option| %>
-                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split("/")[1].split(";")[0] %>"}'>
+                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
                             <%= option["type"].split(";")[0] %> @ <%= option["bitrate"] %>k - audio only
                         </option>
                     <% end %>
                     <% fmt_stream.each do |option| %>
-                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split("/")[1].split(";")[0] %>"}'>
+                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
                             <%= itag_to_metadata?(option["itag"]).try &.["height"]? || "~240" %>p - <%= option["type"].split(";")[0] %>
                         </option>
                     <% end %>

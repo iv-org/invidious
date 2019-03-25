@@ -4228,13 +4228,13 @@ get "/videoplayback" do |env|
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
 
-    if title = env.params.query["title"]?
-      # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
-    end
-
     response.headers.each do |key, value|
       env.response.headers[key] = value
+    end
+
+    if title = query_params["title"]?
+      # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
     end
 
     env.response.headers["Access-Control-Allow-Origin"] = "*"
