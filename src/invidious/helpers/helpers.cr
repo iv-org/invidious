@@ -1,7 +1,5 @@
 class Config
   YAML.mapping({
-    video_threads:   Int32,      # Number of threads to use for updating videos in cache (mostly non-functional)
-    crawl_threads:   Int32,      # Number of threads to use for finding new videos from YouTube (used to populate "top" page)
     channel_threads: Int32,      # Number of threads to use for crawling videos from channels (for updating subscriptions)
     feed_threads:    Int32,      # Number of threads to use for updating feeds
     db:              NamedTuple( # Database configuration

@@ -36,14 +36,6 @@ logger = Invidious::LogHandler.new
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-t THREADS", "--crawl-threads=THREADS", "Number of threads for crawling YouTube (default: #{config.crawl_threads})") do |number|
-    begin
-      config.crawl_threads = number.to_i
-    rescue ex
-      puts "THREADS must be integer"
-      exit
-    end
-  end
   parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{config.channel_threads})") do |number|
     begin
       config.channel_threads = number.to_i
@@ -55,14 +47,6 @@ Kemal.config.extra_options do |parser|
   parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{config.feed_threads})") do |number|
     begin
       config.feed_threads = number.to_i
-    rescue ex
-      puts "THREADS must be integer"
-      exit
-    end
-  end
-  parser.on("-v THREADS", "--video-threads=THREADS", "Number of threads for refreshing videos (default: #{config.video_threads})") do |number|
-    begin
-      config.video_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
@@ -108,23 +92,11 @@ LOCALES = {
   "ru"    => load_locale("ru"),
 }
 
-config.crawl_threads.times do
-  spawn do
-    crawl_videos(PG_DB, logger)
-  end
-end
-
 refresh_channels(PG_DB, logger, config.channel_threads, config.full_refresh)
 
 refresh_feeds(PG_DB, logger, config.feed_threads)
 
 subscribe_to_feeds(PG_DB, logger, HMAC_KEY, config)
-
-config.video_threads.times do |i|
-  spawn do
-    refresh_videos(PG_DB, logger)
-  end
-end
 
 statistics = {
   "error" => "Statistics are not availabile.",
@@ -154,7 +126,6 @@ if config.statistics_enabled
       }
 
       sleep 1.minute
-      Fiber.yield
     end
   end
 end
@@ -164,8 +135,7 @@ if config.top_enabled
   spawn do
     pull_top_videos(config, PG_DB) do |videos|
       top_videos = videos
-      sleep 1.minutes
-      Fiber.yield
+      sleep 1.minute
     end
   end
 end
@@ -174,8 +144,7 @@ popular_videos = [] of ChannelVideo
 spawn do
   pull_popular_videos(PG_DB) do |videos|
     popular_videos = videos
-    sleep 1.minutes
-    Fiber.yield
+    sleep 1.minute
   end
 end
 
@@ -183,8 +152,6 @@ decrypt_function = [] of {name: String, value: Int32}
 spawn do
   update_decrypt_function do |function|
     decrypt_function = function
-    sleep 1.minutes
-    Fiber.yield
   end
 end
 
@@ -4284,6 +4251,7 @@ get "/videoplayback" do |env|
   end
 end
 
+# We need this so the below route works as expected
 get "/ggpht*" do |env|
 end
 

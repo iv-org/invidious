@@ -1,51 +1,3 @@
-def crawl_videos(db, logger)
-  ids = Deque(String).new
-  random = Random.new
-
-  search(random.base64(3)).as(Tuple)[1].each do |video|
-    if video.is_a?(SearchVideo)
-      ids << video.id
-    end
-  end
-
-  loop do
-    if ids.empty?
-      search(random.base64(3)).as(Tuple)[1].each do |video|
-        if video.is_a?(SearchVideo)
-          ids << video.id
-        end
-      end
-    end
-
-    begin
-      id = ids[0]
-      video = get_video(id, db)
-    rescue ex
-      logger.write("#{id} : #{ex.message}\n")
-      next
-    ensure
-      ids.delete(id)
-    end
-
-    rvs = [] of Hash(String, String)
-    video.info["rvs"]?.try &.split(",").each do |rv|
-      rvs << HTTP::Params.parse(rv).to_h
-    end
-
-    rvs.each do |rv|
-      if rv.has_key?("id") && !db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", rv["id"], as: Bool)
-        ids.delete(id)
-        ids << rv["id"]
-        if ids.size == 150
-          ids.shift
-        end
-      end
-    end
-
-    Fiber.yield
-  end
-end
-
 def refresh_channels(db, logger, max_threads = 1, full_refresh = false)
   max_channel = Channel(Int32).new
 
@@ -82,28 +34,12 @@ def refresh_channels(db, logger, max_threads = 1, full_refresh = false)
           end
         end
       end
+
+      sleep 1.minute
     end
   end
 
   max_channel.send(max_threads)
-end
-
-def refresh_videos(db, logger)
-  loop do
-    db.query("SELECT id FROM videos ORDER BY updated") do |rs|
-      rs.each do
-        begin
-          id = rs.read(String)
-          video = get_video(id, db)
-        rescue ex
-          logger.write("#{id} : #{ex.message}\n")
-          next
-        end
-      end
-    end
-
-    Fiber.yield
-  end
 end
 
 def refresh_feeds(db, logger, max_threads = 1)
@@ -158,6 +94,8 @@ def refresh_feeds(db, logger, max_threads = 1)
           end
         end
       end
+
+      sleep 1.minute
     end
   end
 
@@ -180,7 +118,6 @@ def subscribe_to_feeds(db, logger, key, config)
         end
 
         sleep 1.minute
-        Fiber.yield
       end
     end
   end
@@ -211,7 +148,7 @@ def pull_top_videos(config, db)
     end
 
     yield videos
-    Fiber.yield
+    sleep 1.minute
   end
 end
 
@@ -226,7 +163,7 @@ def pull_popular_videos(db)
     ORDER BY ucid, published DESC", subscriptions, as: ChannelVideo).sort_by { |video| video.published }.reverse
 
     yield videos
-    Fiber.yield
+    sleep 1.minute
   end
 end
 
@@ -239,6 +176,7 @@ def update_decrypt_function
     end
 
     yield decrypt_function
+    sleep 1.minute
   end
 end
 
@@ -250,7 +188,8 @@ def find_working_proxies(regions)
       # proxies = filter_proxies(proxies)
 
       yield region, proxies
-      Fiber.yield
     end
+
+    sleep 1.minute
   end
 end
