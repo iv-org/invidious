@@ -86,6 +86,8 @@ statistics = {
   "error" => "Statistics are not availabile.",
 }
 
+proxies = PROXY_LIST
+
 decrypt_function = [] of {name: String, value: Int32}
 spawn do
   update_decrypt_function do |function|
@@ -99,9 +101,14 @@ before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
 
+  preferences = DEFAULT_USER_PREFERENCES.dup
+
   locale = env.params.query["hl"]?
   locale ||= "en-US"
-  env.set "locale", locale
+
+  preferences.locale = locale
+
+  env.set "preferences", preferences
 end
 
 # API Endpoints
@@ -1904,7 +1911,11 @@ if Kemal.config.ssl
 end
 
 Kemal.config.powered_by_header = false
+add_handler FilteredCompressHandler.new
 add_handler APIHandler.new
+add_handler DenyFrame.new
+add_context_storage_type(User)
+add_context_storage_type(Preferences)
 
 Kemal.config.logger = logger
 Kemal.run
