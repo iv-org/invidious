@@ -2847,7 +2847,7 @@ get "/api/v1/videos/:id" do |env|
 
       json.field "authorThumbnails" do
         json.array do
-          qualities = [32, 48, 76, 100, 176, 512]
+          qualities = {32, 48, 76, 100, 176, 512}
 
           qualities.each do |quality|
             json.object do
@@ -3211,9 +3211,11 @@ get "/api/v1/channels/:ucid" do |env|
 
       json.field "authorBanners" do
         json.array do
-          qualities = [{width: 2560, height: 424},
-                       {width: 2120, height: 351},
-                       {width: 1060, height: 175}]
+          qualities = {
+            {width: 2560, height: 424},
+            {width: 2120, height: 351},
+            {width: 1060, height: 175},
+          }
           qualities.each do |quality|
             json.object do
               json.field "url", banner.gsub("=w1060", "=w#{quality[:width]}")
@@ -3232,7 +3234,7 @@ get "/api/v1/channels/:ucid" do |env|
 
       json.field "authorThumbnails" do
         json.array do
-          qualities = [32, 48, 76, 100, 176, 512]
+          qualities = {32, 48, 76, 100, 176, 512}
 
           qualities.each do |quality|
             json.object do
@@ -3302,7 +3304,7 @@ get "/api/v1/channels/:ucid" do |env|
 
               json.field "authorThumbnails" do
                 json.array do
-                  qualities = [32, 48, 76, 100, 176, 512]
+                  qualities = {32, 48, 76, 100, 176, 512}
 
                   qualities.each do |quality|
                     json.object do
@@ -3582,7 +3584,7 @@ get "/api/v1/channels/search/:ucid" do |env|
 
             json.field "authorThumbnails" do
               json.array do
-                qualities = [32, 48, 76, 100, 176, 512]
+                qualities = {32, 48, 76, 100, 176, 512}
 
                 qualities.each do |quality|
                   json.object do
@@ -3707,7 +3709,7 @@ get "/api/v1/search" do |env|
 
             json.field "authorThumbnails" do
               json.array do
-                qualities = [32, 48, 76, 100, 176, 512]
+                qualities = {32, 48, 76, 100, 176, 512}
 
                 qualities.each do |quality|
                   json.object do
@@ -3775,7 +3777,7 @@ get "/api/v1/playlists/:plid" do |env|
 
       json.field "authorThumbnails" do
         json.array do
-          qualities = [32, 48, 76, 100, 176, 512]
+          qualities = {32, 48, 76, 100, 176, 512}
 
           qualities.each do |quality|
             json.object do
