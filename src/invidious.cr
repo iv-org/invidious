@@ -447,6 +447,10 @@ get "/embed/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   id = env.params.url["id"]
 
+  if env.get? "preferences"
+    preferences = env.get("preferences").as(Preferences)
+  end
+
   if id.includes?("%20") || id.includes?("+") || env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
     id = env.params.url["id"].gsub("%20", "").delete("+")
 
@@ -469,7 +473,7 @@ get "/embed/:id" do |env|
     next env.redirect url
   end
 
-  params = process_video_params(env.params.query, nil)
+  params = process_video_params(env.params.query, preferences)
 
   begin
     video = get_video(id, PG_DB, proxies, region: params[:region])
