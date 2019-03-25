@@ -10,13 +10,15 @@ end
 
 class ChannelVideo
   add_mapping({
-    id:             String,
-    title:          String,
-    published:      Time,
-    updated:        Time,
-    ucid:           String,
-    author:         String,
-    length_seconds: {type: Int32, default: 0},
+    id:                 String,
+    title:              String,
+    published:          Time,
+    updated:            Time,
+    ucid:               String,
+    author:             String,
+    length_seconds:     {type: Int32, default: 0},
+    live_now:           {type: Bool, default: false},
+    premiere_timestamp: {type: Time?, default: nil},
   })
 end
 
@@ -112,15 +114,32 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     rss.xpath_nodes("//feed/entry").each do |entry|
       video_id = entry.xpath_node("videoid").not_nil!.content
       title = entry.xpath_node("title").not_nil!.content
-      published = Time.parse(entry.xpath_node("published").not_nil!.content, "%FT%X%z", Time::Location.local)
-      updated = Time.parse(entry.xpath_node("updated").not_nil!.content, "%FT%X%z", Time::Location.local)
+      published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
+      updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
       author = entry.xpath_node("author/name").not_nil!.content
       ucid = entry.xpath_node("channelid").not_nil!.content
 
-      length_seconds = videos.select { |video| video.id == video_id }[0]?.try &.length_seconds
+      channel_video = videos.select { |video| video.id == video_id }[0]?
+
+      length_seconds = channel_video.try &.length_seconds
       length_seconds ||= 0
 
-      video = ChannelVideo.new(video_id, title, published, Time.now, ucid, author, length_seconds)
+      live_now = channel_video.try &.live_now
+      live_now ||= false
+
+      premiere_timestamp = channel_video.try &.premiere_timestamp
+
+      video = ChannelVideo.new(
+        video_id,
+        title,
+        published,
+        Time.now,
+        ucid,
+        author,
+        length_seconds,
+        live_now,
+        premiere_timestamp
+      )
 
       db.exec("UPDATE users SET notifications = notifications || $1 \
         WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, ucid)
@@ -128,9 +147,12 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       video_array = video.to_a
       args = arg_array(video_array)
 
+      # We don't include the 'premire_timestamp' here because channel pages don't include them,
+      # meaning the above timestamp is always null
       db.exec("INSERT INTO channel_videos VALUES (#{args}) \
       ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
-      updated = $4, ucid = $5, author = $6, length_seconds = $7", video_array)
+      updated = $4, ucid = $5, author = $6, length_seconds = $7, \
+      live_now = $8", video_array)
     end
   else
     page = 1
@@ -157,7 +179,17 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       end
 
       count = nodeset.size
-      videos = videos.map { |video| ChannelVideo.new(video.id, video.title, video.published, Time.now, video.ucid, video.author, video.length_seconds) }
+      videos = videos.map { |video| ChannelVideo.new(
+        video.id,
+        video.title,
+        video.published,
+        Time.now,
+        video.ucid,
+        video.author,
+        video.length_seconds,
+        video.live_now,
+        video.premiere_timestamp
+      ) }
 
       videos.each do |video|
         ids << video.id
@@ -170,8 +202,12 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
           video_array = video.to_a
           args = arg_array(video_array)
 
-          db.exec("INSERT INTO channel_videos VALUES (#{args}) ON CONFLICT (id) DO UPDATE SET title = $2, \
-          published = $3, updated = $4, ucid = $5, author = $6, length_seconds = $7", video_array)
+          # We don't include the 'premire_timestamp' here because channel pages don't include them,
+          # meaning the above timestamp is always null
+          db.exec("INSERT INTO channel_videos VALUES (#{args}) \
+          ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
+          updated = $4, ucid = $5, author = $6, length_seconds = $7, \
+          live_now = $8", video_array)
         end
       end
 
@@ -194,12 +230,14 @@ end
 def subscribe_pubsub(ucid, key, config)
   client = make_client(PUBSUB_URL)
   time = Time.now.to_unix.to_s
+  nonce = Random::Secure.hex(4)
+  signature = "#{time}:#{nonce}"
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
 
   body = {
-    "hub.callback"      => "#{host_url}/feed/webhook/#{time}:#{OpenSSL::HMAC.hexdigest(:sha1, key, time)}",
-    "hub.topic"         => "https://www.youtube.com/feeds/videos.xml?channel_id=#{ucid}",
+    "hub.callback"      => "#{host_url}/feed/webhook/v1:#{time}:#{nonce}:#{OpenSSL::HMAC.hexdigest(:sha1, key, signature)}",
+    "hub.topic"         => "https://www.youtube.com/xml/feeds/videos.xml?channel_id=#{ucid}",
     "hub.verify"        => "async",
     "hub.mode"          => "subscribe",
     "hub.lease_seconds" => "432000",

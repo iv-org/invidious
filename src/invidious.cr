@@ -1,5 +1,5 @@
 # "Invidious" (which is an alternative front-end to YouTube)
-# Copyright (C) 2018  Omar Roth
+# Copyright (C) 2019  Omar Roth
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -17,6 +17,7 @@
 require "digest/md5"
 require "file_utils"
 require "kemal"
+require "markdown"
 require "openssl/hmac"
 require "option_parser"
 require "pg"
@@ -35,14 +36,6 @@ logger = Invidious::LogHandler.new
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-t THREADS", "--crawl-threads=THREADS", "Number of threads for crawling YouTube (default: #{config.crawl_threads})") do |number|
-    begin
-      config.crawl_threads = number.to_i
-    rescue ex
-      puts "THREADS must be integer"
-      exit
-    end
-  end
   parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{config.channel_threads})") do |number|
     begin
       config.channel_threads = number.to_i
@@ -54,14 +47,6 @@ Kemal.config.extra_options do |parser|
   parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{config.feed_threads})") do |number|
     begin
       config.feed_threads = number.to_i
-    rescue ex
-      puts "THREADS must be integer"
-      exit
-    end
-  end
-  parser.on("-v THREADS", "--video-threads=THREADS", "Number of threads for refreshing videos (default: #{config.video_threads})") do |number|
-    begin
-      config.video_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
@@ -79,10 +64,10 @@ YT_URL          = URI.parse("https://www.youtube.com")
 REDDIT_URL      = URI.parse("https://www.reddit.com")
 LOGIN_URL       = URI.parse("https://accounts.google.com")
 PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
-TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@hotmail.com.json")
-CURRENT_COMMIT  = `git rev-list HEAD --max-count=1 --abbrev-commit`.strip
-CURRENT_VERSION = `git describe --tags $(git rev-list --tags --max-count=1)`.strip
-CURRENT_BRANCH  = `git status | head -1`.strip
+TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@protonmail.com.json")
+CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
+CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
+CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
 
 LOCALES = {
   "ar"    => load_locale("ar"),
@@ -110,8 +95,6 @@ spawn do
   end
 end
 
-proxies = PROXY_LIST
-
 before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
@@ -126,24 +109,22 @@ end
 get "/api/v1/stats" do |env|
   env.response.content_type = "application/json"
 
-  if statistics["error"]?
-    halt env, status_code: 500, response: statistics.to_json
-  end
-
   if !config.statistics_enabled
     error_message = {"error" => "Statistics are not enabled."}.to_json
-    halt env, status_code: 400, response: error_message
+    env.response.status_code = 400
+    next error_message
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    statistics.to_pretty_json
-  else
-    statistics.to_json
+  if statistics["error"]?
+    env.response.status_code = 500
+    next statistics.to_json
   end
+
+  statistics.to_json
 end
 
 get "/api/v1/captions/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -156,7 +137,8 @@ get "/api/v1/captions/:id" do |env|
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/captions/#{ex.message}"
   rescue ex
-    halt env, status_code: 500
+    env.response.status_code = 500
+    next
   end
 
   captions = video.captions
@@ -182,11 +164,7 @@ get "/api/v1/captions/:id" do |env|
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      next JSON.parse(response).to_pretty_json
-    else
-      next response
-    end
+    next response
   end
 
   env.response.content_type = "text/vtt"
@@ -198,7 +176,8 @@ get "/api/v1/captions/:id" do |env|
   end
 
   if caption.empty?
-    halt env, status_code: 404
+    env.response.status_code = 404
+    next
   else
     caption = caption[0]
   end
@@ -248,7 +227,7 @@ get "/api/v1/captions/:id" do |env|
 end
 
 get "/api/v1/comments/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   region = env.params.query["region"]?
 
   env.response.content_type = "application/json"
@@ -268,7 +247,8 @@ get "/api/v1/comments/:id" do |env|
       comments = fetch_youtube_comments(id, continuation, proxies, format, locale, region)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     next comments
@@ -286,18 +266,15 @@ get "/api/v1/comments/:id" do |env|
     end
 
     if !reddit_thread || !comments
-      halt env, status_code: 404
+      env.response.status_code = 404
+      next
     end
 
     if format == "json"
       reddit_thread = JSON.parse(reddit_thread.to_json).as_h
       reddit_thread["comments"] = JSON.parse(comments.to_json)
 
-      if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-        next reddit_thread.to_pretty_json
-      else
-        next reddit_thread.to_json
-      end
+      next reddit_thread.to_json
     else
       response = {
         "title"       => reddit_thread.title,
@@ -305,23 +282,20 @@ get "/api/v1/comments/:id" do |env|
         "contentHtml" => content_html,
       }
 
-      if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-        next response.to_pretty_json
-      else
-        next response.to_json
-      end
+      next response.to_json
     end
   end
 end
 
 get "/api/v1/insights/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   id = env.params.url["id"]
   env.response.content_type = "application/json"
 
   error_message = {"error" => "YouTube has removed publicly-available analytics."}.to_json
-  halt env, status_code: 410, response: error_message
+  env.response.status_code = 410
+  next error_message
 
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
@@ -398,15 +372,11 @@ get "/api/v1/insights/:id" do |env|
     "graphData"              => graph_data,
   }
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    next response.to_pretty_json
-  else
-    next response.to_json
-  end
+  next response.to_json
 end
 
 get "/api/v1/videos/:id" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -419,7 +389,8 @@ get "/api/v1/videos/:id" do |env|
     next env.redirect "/api/v1/videos/#{ex.message}"
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   fmt_stream = video.fmt_stream(decrypt_function)
@@ -432,7 +403,7 @@ get "/api/v1/videos/:id" do |env|
       json.field "title", video.title
       json.field "videoId", video.id
       json.field "videoThumbnails" do
-        generate_thumbnails(json, video.id)
+        generate_thumbnails(json, video.id, config, Kemal.config)
       end
 
       video.description, description = html_to_content(video.description)
@@ -475,19 +446,18 @@ get "/api/v1/videos/:id" do |env|
       json.field "subCountText", video.sub_count_text
 
       json.field "lengthSeconds", video.info["length_seconds"].to_i
-      if video.info["allow_ratings"]?
-        json.field "allowRatings", video.info["allow_ratings"] == "1"
-      else
-        json.field "allowRatings", false
-      end
+      json.field "allowRatings", video.allow_ratings
       json.field "rating", video.info["avg_rating"].to_f32
+      json.field "isListed", video.is_listed
+      json.field "liveNow", video.live_now
+      json.field "isUpcoming", video.is_upcoming
 
-      if video.info["is_listed"]?
-        json.field "isListed", video.info["is_listed"] == "1"
+      if video.premiere_timestamp
+        json.field "premiereTimestamp", video.premiere_timestamp.not_nil!.to_unix
       end
 
       if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-        host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+        host_url = make_host_url(config, Kemal.config)
 
         host_params = env.request.query_params
         host_params.delete_all("v")
@@ -595,7 +565,7 @@ get "/api/v1/videos/:id" do |env|
                 json.field "videoId", rv["id"]
                 json.field "title", rv["title"]
                 json.field "videoThumbnails" do
-                  generate_thumbnails(json, rv["id"])
+                  generate_thumbnails(json, rv["id"], config, Kemal.config)
                 end
                 json.field "author", rv["author"]
                 json.field "lengthSeconds", rv["length_seconds"].to_i
@@ -608,15 +578,11 @@ get "/api/v1/videos/:id" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(video_info).to_pretty_json
-  else
-    video_info
-  end
+  video_info
 end
 
 get "/api/v1/trending" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -627,7 +593,8 @@ get "/api/v1/trending" do |env|
     trending = fetch_trending(trending_type, proxies, region, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   videos = JSON.build do |json|
@@ -637,7 +604,7 @@ get "/api/v1/trending" do |env|
           json.field "title", video.title
           json.field "videoId", video.id
           json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id)
+            generate_thumbnails(json, video.id, config, Kemal.config)
           end
 
           json.field "lengthSeconds", video.length_seconds
@@ -659,15 +626,11 @@ get "/api/v1/trending" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(videos).to_pretty_json
-  else
-    videos
-  end
+  videos
 end
 
 get "/api/v1/channels/:ucid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -679,7 +642,8 @@ get "/api/v1/channels/:ucid" do |env|
     author, ucid, auto_generated = get_about_info(ucid, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   page = 1
@@ -691,7 +655,8 @@ get "/api/v1/channels/:ucid" do |env|
       videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
   end
 
@@ -820,7 +785,7 @@ get "/api/v1/channels/:ucid" do |env|
               end
 
               json.field "videoThumbnails" do
-                generate_thumbnails(json, video.id)
+                generate_thumbnails(json, video.id, config, Kemal.config)
               end
 
               json.field "description", video.description
@@ -866,16 +831,12 @@ get "/api/v1/channels/:ucid" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(channel_info).to_pretty_json
-  else
-    channel_info
-  end
+  channel_info
 end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
   get route do |env|
-    locale = LOCALES[env.get("locale").as(String)]?
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
 
@@ -890,14 +851,16 @@ end
       author, ucid, auto_generated = get_about_info(ucid, locale)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     begin
       videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     result = JSON.build do |json|
@@ -918,7 +881,7 @@ end
             end
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, video.id)
+              generate_thumbnails(json, video.id, config, Kemal.config)
             end
 
             json.field "description", video.description
@@ -936,17 +899,13 @@ end
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      JSON.parse(result).to_pretty_json
-    else
-      result
-    end
+    result
   end
 end
 
 ["/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"].each do |route|
   get route do |env|
-    locale = LOCALES[env.get("locale").as(String)]?
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
 
@@ -956,7 +915,8 @@ end
       videos = get_latest_videos(ucid)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     response = JSON.build do |json|
@@ -970,7 +930,7 @@ end
             json.field "authorUrl", "/channel/#{ucid}"
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, video.id)
+              generate_thumbnails(json, video.id, config, Kemal.config)
             end
 
             json.field "description", video.description
@@ -988,17 +948,13 @@ end
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      JSON.parse(response).to_pretty_json
-    else
-      response
-    end
+    response
   end
 end
 
 ["/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"].each do |route|
   get route do |env|
-    locale = LOCALES[env.get("locale").as(String)]?
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
 
@@ -1011,8 +967,9 @@ end
     begin
       author, ucid, auto_generated = get_about_info(ucid, locale)
     rescue ex
-      error_message = ex.message
-      halt env, status_code: 500, response: error_message
+      error_message = {"error" => ex.message}.to_json
+      env.response.status_code = 500
+      next error_message
     end
 
     items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
@@ -1041,7 +998,7 @@ end
                           json.field "lengthSeconds", video.length_seconds
 
                           json.field "videoThumbnails" do
-                            generate_thumbnails(json, video.id)
+                            generate_thumbnails(json, video.id, config, Kemal.config)
                           end
                         end
                       end
@@ -1057,16 +1014,12 @@ end
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      JSON.parse(response).to_pretty_json
-    else
-      response
-    end
+    response
   end
 end
 
 get "/api/v1/channels/search/:ucid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -1094,7 +1047,7 @@ get "/api/v1/channels/search/:ucid" do |env|
             json.field "authorUrl", "/channel/#{item.ucid}"
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, item.id)
+              generate_thumbnails(json, item.id, config, Kemal.config)
             end
 
             json.field "description", item.description
@@ -1126,7 +1079,7 @@ get "/api/v1/channels/search/:ucid" do |env|
                     json.field "lengthSeconds", video.length_seconds
 
                     json.field "videoThumbnails" do
-                      generate_thumbnails(json, video.id)
+                      generate_thumbnails(json, video.id, config, Kemal.config)
                     end
                   end
                 end
@@ -1162,15 +1115,11 @@ get "/api/v1/channels/search/:ucid" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
-    response
-  end
+  response
 end
 
 get "/api/v1/search" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   region = env.params.query["region"]?
 
   env.response.content_type = "application/json"
@@ -1223,7 +1172,7 @@ get "/api/v1/search" do |env|
             json.field "authorUrl", "/channel/#{item.ucid}"
 
             json.field "videoThumbnails" do
-              generate_thumbnails(json, item.id)
+              generate_thumbnails(json, item.id, config, Kemal.config)
             end
 
             json.field "description", item.description
@@ -1255,7 +1204,7 @@ get "/api/v1/search" do |env|
                     json.field "lengthSeconds", video.length_seconds
 
                     json.field "videoThumbnails" do
-                      generate_thumbnails(json, video.id)
+                      generate_thumbnails(json, video.id, config, Kemal.config)
                     end
                   end
                 end
@@ -1291,15 +1240,11 @@ get "/api/v1/search" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
-    response
-  end
+  response
 end
 
 get "/api/v1/playlists/:plid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
   plid = env.params.url["plid"]
@@ -1320,7 +1265,8 @@ get "/api/v1/playlists/:plid" do |env|
     playlist = fetch_playlist(plid, locale)
   rescue ex
     error_message = {"error" => "Playlist is empty"}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   begin
@@ -1371,7 +1317,7 @@ get "/api/v1/playlists/:plid" do |env|
               json.field "authorUrl", "/channel/#{video.ucid}"
 
               json.field "videoThumbnails" do
-                generate_thumbnails(json, video.id)
+                generate_thumbnails(json, video.id, config, Kemal.config)
               end
 
               json.field "index", video.index
@@ -1394,15 +1340,11 @@ get "/api/v1/playlists/:plid" do |env|
     }.to_json
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
-    response
-  end
+  response
 end
 
 get "/api/v1/mixes/:rdid" do |env|
-  locale = LOCALES[env.get("locale").as(String)]?
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
 
@@ -1426,7 +1368,8 @@ get "/api/v1/mixes/:rdid" do |env|
     mix.videos = mix.videos[index..-1]
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   response = JSON.build do |json|
@@ -1447,7 +1390,7 @@ get "/api/v1/mixes/:rdid" do |env|
 
               json.field "videoThumbnails" do
                 json.array do
-                  generate_thumbnails(json, video.id)
+                  generate_thumbnails(json, video.id, config, Kemal.config)
                 end
               end
 
@@ -1472,11 +1415,7 @@ get "/api/v1/mixes/:rdid" do |env|
     }.to_json
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
-    response
-  end
+  response
 end
 
 get "/api/manifest/dash/id/videoplayback" do |env|
@@ -1508,10 +1447,11 @@ get "/api/manifest/dash/id/:id" do |env|
 
     next env.redirect url
   rescue ex
-    halt env, status_code: 403
+    env.response.status_code = 403
+    next
   end
 
-  if dashmpd = video.player_response["streamingData"]["dashManifestUrl"]?.try &.as_s
+  if dashmpd = video.player_response["streamingData"]?.try &.["dashManifestUrl"]?.try &.as_s
     manifest = client.get(dashmpd).body
 
     manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
@@ -1595,13 +1535,14 @@ get "/api/manifest/hls_variant/*" do |env|
   manifest = client.get(env.request.path)
 
   if manifest.status_code != 200
-    halt env, status_code: manifest.status_code
+    env.response.status_code = manifest.status_code
+    next
   end
 
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
 
   manifest = manifest.body
   manifest.gsub("https://www.youtube.com", host_url)
@@ -1612,10 +1553,11 @@ get "/api/manifest/hls_playlist/*" do |env|
   manifest = client.get(env.request.path)
 
   if manifest.status_code != 200
-    halt env, status_code: manifest.status_code
+    env.response.status_code = manifest.status_code
+    next
   end
 
-  host_url = make_host_url(Kemal.config.ssl || config.https_only, config.domain)
+  host_url = make_host_url(config, Kemal.config)
 
   manifest = manifest.body.gsub("https://www.youtube.com", host_url)
   manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, host_url)
@@ -1648,7 +1590,8 @@ get "/latest_version" do |env|
   local = local == "true"
 
   if !id || !itag
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   video = fetch_video(id, proxies, region: region)
@@ -1658,9 +1601,11 @@ get "/latest_version" do |env|
 
   urls = (fmt_stream + adaptive_fmts).select { |fmt| fmt["itag"] == itag }
   if urls.empty?
-    halt env, status_code: 404
+    env.response.status_code = 404
+    next
   elsif urls.size > 1
-    halt env, status_code: 409
+    env.response.status_code = 409
+    next
   end
 
   url = urls[0]["url"]
@@ -1734,24 +1679,39 @@ get "/videoplayback" do |env|
   query_params = env.params.query
 
   fvip = query_params["fvip"]? || "3"
-  mn = query_params["mn"].split(",")[-1]
-  host = "https://r#{fvip}---#{mn}.googlevideo.com"
+  mns = query_params["mn"].split(",")
+
+  if query_params["host"]? && !query_params["host"].empty?
+    host = "https://#{query_params["host"]}"
+    query_params.delete("host")
+  else
+    host = "https://r#{fvip}---#{mns.pop}.googlevideo.com"
+  end
+
   url = "/videoplayback?#{query_params.to_s}"
 
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
+  headers = HTTP::Headers.new
+  {"Accept", "Accept-Encoding", "Connection", "Range"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
 
   region = query_params["region"]?
 
   response = HTTP::Client::Response.new(403)
-  loop do
+  5.times do
     begin
       client = make_client(URI.parse(host), proxies, region)
       response = client.head(url, headers)
       break
+    rescue Socket::Addrinfo::Error
+      if !mns.empty?
+        mn = mns.pop
+      end
+      fvip = "3"
+
+      host = "https://r#{fvip}---#{mn}.googlevideo.com"
     rescue ex
     end
   end
@@ -1769,7 +1729,8 @@ get "/videoplayback" do |env|
   end
 
   if response.status_code >= 400
-    halt env, status_code: response.status_code
+    env.response.status_code = response.status_code
+    next
   end
 
   client = make_client(URI.parse(host), proxies, region)
@@ -1801,6 +1762,7 @@ get "/videoplayback" do |env|
   end
 end
 
+# We need this so the below route works as expected
 get "/ggpht*" do |env|
 end
 
@@ -1809,11 +1771,12 @@ get "/ggpht/*" do |env|
   client = make_client(URI.parse(host))
   url = env.request.path.lchop("/ggpht")
 
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
+  headers = HTTP::Headers.new
+  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
 
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
@@ -1858,7 +1821,7 @@ get "/vi/:id/:name" do |env|
   client = make_client(URI.parse(host))
 
   if name == "maxres.jpg"
-    VIDEO_THUMBNAILS.each do |thumb|
+    build_thumbnails(id, config, Kemal.config).each do |thumb|
       if client.head("/vi/#{id}/#{thumb[:url]}.jpg").status_code == 200
         name = thumb[:url] + ".jpg"
         break
@@ -1867,11 +1830,12 @@ get "/vi/:id/:name" do |env|
   end
   url = "/vi/#{id}/#{name}"
 
-  headers = env.request.headers
-  headers.delete("Host")
-  headers.delete("Cookie")
-  headers.delete("User-Agent")
-  headers.delete("Referer")
+  headers = HTTP::Headers.new
+  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
 
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code

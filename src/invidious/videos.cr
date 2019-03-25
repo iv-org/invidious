@@ -136,18 +136,6 @@ BYPASS_REGIONS = {
   "TR",
 }
 
-VIDEO_THUMBNAILS = {
-  {name: "maxres", host: "#{CONFIG.domain}", url: "maxres", height: 720, width: 1280},
-  {name: "maxresdefault", host: "i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
-  {name: "sddefault", host: "i.ytimg.com", url: "sddefault", height: 480, width: 640},
-  {name: "high", host: "i.ytimg.com", url: "hqdefault", height: 360, width: 480},
-  {name: "medium", host: "i.ytimg.com", url: "mqdefault", height: 180, width: 320},
-  {name: "default", host: "i.ytimg.com", url: "default", height: 90, width: 120},
-  {name: "start", host: "i.ytimg.com", url: "1", height: 90, width: 120},
-  {name: "middle", host: "i.ytimg.com", url: "2", height: 90, width: 120},
-  {name: "end", host: "i.ytimg.com", url: "3", height: 90, width: 120},
-}
-
 # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L380-#L476
 VIDEO_FORMATS = {
   "5"  => {"ext" => "flv", "width" => 400, "height" => 240, "acodec" => "mp3", "abr" => 64, "vcodec" => "h263"},
@@ -262,6 +250,63 @@ class Video
     end
   end
 
+  def allow_ratings
+    allow_ratings = player_response["videoDetails"].try &.["allowRatings"]?.try &.as_bool
+
+    if allow_ratings.nil?
+      return true
+    end
+
+    return allow_ratings
+  end
+
+  def live_now
+    live_now = self.player_response["videoDetails"]?.try &.["isLive"]?.try &.as_bool
+
+    if live_now.nil?
+      return false
+    end
+
+    return live_now
+  end
+
+  def is_listed
+    is_listed = player_response["videoDetails"].try &.["isCrawlable"]?.try &.as_bool
+
+    if is_listed.nil?
+      return true
+    end
+
+    return is_listed
+  end
+
+  def is_upcoming
+    is_upcoming = player_response["videoDetails"].try &.["isUpcoming"]?.try &.as_bool
+
+    if is_upcoming.nil?
+      return false
+    end
+
+    return is_upcoming
+  end
+
+  def premiere_timestamp
+    if self.is_upcoming
+      premiere_timestamp = player_response["playabilityStatus"]?
+        .try &.["liveStreamability"]?
+          .try &.["liveStreamabilityRenderer"]?
+            .try &.["offlineSlate"]?
+              .try &.["liveStreamOfflineSlateRenderer"]?
+                .try &.["scheduledStartTime"].as_s.to_i64
+    end
+
+    if premiere_timestamp
+      premiere_timestamp = Time.unix(premiere_timestamp)
+    end
+
+    return premiere_timestamp
+  end
+
   def keywords
     keywords = self.player_response["videoDetails"]?.try &.["keywords"]?.try &.as_a
     keywords ||= [] of String
@@ -329,6 +374,7 @@ class Video
     end
 
     streams.each do |fmt|
+      fmt["url"] += "&host=" + (URI.parse(fmt["url"]).host || "")
       fmt["url"] += decrypt_signature(fmt, decrypt_function)
     end
 
@@ -396,6 +442,7 @@ class Video
     end
 
     adaptive_fmts.each do |fmt|
+      fmt["url"] += "&host=" + (URI.parse(fmt["url"]).host || "")
       fmt["url"] += decrypt_signature(fmt, decrypt_function)
     end
 
@@ -654,6 +701,10 @@ def fetch_video(id, proxies, region)
     raise "Video unavailable."
   end
 
+  if !info["title"]?
+    raise "Video unavailable."
+  end
+
   title = info["title"]
   author = info["author"]
   ucid = info["ucid"]
@@ -743,11 +794,12 @@ end
 def process_video_params(query, preferences)
   autoplay = query["autoplay"]?.try &.to_i?
   continue = query["continue"]?.try &.to_i?
-  related_videos = query["related_videos"]?
   listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
+  local = query["local"]? && (query["local"] == "true").to_unsafe
   preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
   quality = query["quality"]?
   region = query["region"]?
+  related_videos = query["related_videos"]?
   speed = query["speed"]?.try &.to_f?
   video_loop = query["loop"]?.try &.to_i?
   volume = query["volume"]?.try &.to_i?
@@ -756,10 +808,11 @@ def process_video_params(query, preferences)
     # region ||= preferences.region
     autoplay ||= preferences.autoplay.to_unsafe
     continue ||= preferences.continue.to_unsafe
-    related_videos ||= preferences.related_videos.to_unsafe
     listen ||= preferences.listen.to_unsafe
+    local ||= preferences.local.to_unsafe
     preferred_captions ||= preferences.captions
     quality ||= preferences.quality
+    related_videos ||= preferences.related_videos.to_unsafe
     speed ||= preferences.speed
     video_loop ||= preferences.video_loop.to_unsafe
     volume ||= preferences.volume
@@ -767,18 +820,20 @@ def process_video_params(query, preferences)
 
   autoplay ||= DEFAULT_USER_PREFERENCES.autoplay.to_unsafe
   continue ||= DEFAULT_USER_PREFERENCES.continue.to_unsafe
-  related_videos ||= DEFAULT_USER_PREFERENCES.related_videos.to_unsafe
   listen ||= DEFAULT_USER_PREFERENCES.listen.to_unsafe
+  local ||= DEFAULT_USER_PREFERENCES.local.to_unsafe
   preferred_captions ||= DEFAULT_USER_PREFERENCES.captions
   quality ||= DEFAULT_USER_PREFERENCES.quality
+  related_videos ||= DEFAULT_USER_PREFERENCES.related_videos.to_unsafe
   speed ||= DEFAULT_USER_PREFERENCES.speed
   video_loop ||= DEFAULT_USER_PREFERENCES.video_loop.to_unsafe
   volume ||= DEFAULT_USER_PREFERENCES.volume
 
   autoplay = autoplay == 1
   continue = continue == 1
-  related_videos = related_videos == 1
   listen = listen == 1
+  local = local == 1
+  related_videos = related_videos == 1
   video_loop = video_loop == 1
 
   if query["t"]?
@@ -811,6 +866,7 @@ def process_video_params(query, preferences)
     continue:           continue,
     controls:           controls,
     listen:             listen,
+    local:              local,
     preferred_captions: preferred_captions,
     quality:            quality,
     raw:                raw,
@@ -826,12 +882,26 @@ def process_video_params(query, preferences)
   return params
 end
 
-def generate_thumbnails(json, id)
+def build_thumbnails(id, config, kemal_config)
+  return {
+    {name: "maxres", host: "#{make_host_url(config, kemal_config)}", url: "maxres", height: 720, width: 1280},
+    {name: "maxresdefault", host: "https://i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
+    {name: "sddefault", host: "https://i.ytimg.com", url: "sddefault", height: 480, width: 640},
+    {name: "high", host: "https://i.ytimg.com", url: "hqdefault", height: 360, width: 480},
+    {name: "medium", host: "https://i.ytimg.com", url: "mqdefault", height: 180, width: 320},
+    {name: "default", host: "https://i.ytimg.com", url: "default", height: 90, width: 120},
+    {name: "start", host: "https://i.ytimg.com", url: "1", height: 90, width: 120},
+    {name: "middle", host: "https://i.ytimg.com", url: "2", height: 90, width: 120},
+    {name: "end", host: "https://i.ytimg.com", url: "3", height: 90, width: 120},
+  }
+end
+
+def generate_thumbnails(json, id, config, kemal_config)
   json.array do
-    VIDEO_THUMBNAILS.each do |thumbnail|
+    build_thumbnails(id, config, kemal_config).each do |thumbnail|
       json.object do
         json.field "quality", thumbnail[:name]
-        json.field "url", "https://#{thumbnail[:host]}/vi/#{id}/#{thumbnail["url"]}.jpg"
+        json.field "url", "#{thumbnail[:host]}/vi/#{id}/#{thumbnail["url"]}.jpg"
         json.field "width", thumbnail[:width]
         json.field "height", thumbnail[:height]
       end

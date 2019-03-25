@@ -162,6 +162,23 @@ def number_with_separator(number)
   number.to_s.reverse.gsub(/(\d{3})(?=\d)/, "\\1,").reverse
 end
 
+def short_text_to_number(short_text)
+  case short_text
+  when .ends_with? "M"
+    number = short_text.rstrip(" mM").to_f
+    number *= 1000000
+  when .ends_with? "K"
+    number = short_text.rstrip(" kK").to_f
+    number *= 1000
+  else
+    number = short_text.rstrip(" ")
+  end
+
+  number = number.to_i
+
+  return number
+end
+
 def number_to_short_text(number)
   seperated = number_with_separator(number).gsub(",", ".").split("")
   text = seperated.first(2).join
@@ -193,19 +210,30 @@ def arg_array(array, start = 1)
   return args
 end
 
-def make_host_url(ssl, host)
+def make_host_url(config, kemal_config)
+  ssl = config.https_only || kemal_config.ssl
+  port = config.external_port || kemal_config.port
+
   if ssl
     scheme = "https://"
   else
     scheme = "http://"
   end
 
-  if host
-    host = host.lchop(".")
-    return "#{scheme}#{host}"
+  # Add if non-standard port
+  if port != 80 && port != 443
+    port = ":#{kemal_config.port}"
   else
+    port = ""
+  end
+
+  if !config.domain
     return ""
   end
+
+  host = config.domain.not_nil!.lchop(".")
+
+  return "#{scheme}#{host}#{port}"
 end
 
 def get_referer(env, fallback = "/")

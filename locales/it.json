@@ -10,7 +10,9 @@
   "newest": "Data di aggiunta (più recente)",
   "oldest": "Data di aggiunta (più vecchia)",
   "popular": "Tendenze",
+  "last": "",
   "Next page": "Pagina successiva",
+  "Previous page": "Pagina precedente",
   "Clear watch history?": "Sei sicuro di voler cancellare la cronologia dei video guardati?",
   "Yes": "Si",
   "No": "No",
@@ -27,7 +29,6 @@
   "Export data as JSON": "Esporta i dati in formato JSON",
   "Delete account?": "Sei sicuro di voler cancellare l'account?",
   "History": "Cronologia",
-  "Previous page": "Pagina precedente",
   "An alternative front-end to YouTube": "Un'interfaccia alternativa per YouTube",
   "JavaScript license information": "Info licenze JavaScript",
   "source": "sorgente",
@@ -49,6 +50,7 @@
   "Autoplay: ": "Riproduzione automatica: ",
   "Autoplay next video: ": "Riproduci automaticamente il prossimo video: ",
   "Listen by default: ": "Modalità solo audio come predefinita: ",
+  "Proxy videos? ": "",
   "Default speed: ": "Velocità di riproduzione predefinita: ",
   "Preferred video quality: ": "Preferenza sulla qualità video: ",
   "Player volume: ": "Volume di riproduzione: ",
@@ -99,6 +101,7 @@
   "Released under the AGPLv3 by Omar Roth.": "Pubblicato con licenza AGPLv3 da Omar Roth.",
   "Source available here.": "Codice sorgente.",
   "View JavaScript license information.": "Guarda le informazioni di licenza del codice JavaScript.",
+  "View privacy policy.": "",
   "Trending": "Tendenze",
   "Watch video on Youtube": "Guarda il video su YouTube",
   "Genre: ": "Genere: ",
@@ -283,5 +286,8 @@
   "Youtube permalink of the comment": "Link permanente al commento di YouTube",
   "`x` marked it with a ❤": "`x` l'ha contrassegnato con un ❤",
   "Audio mode": "Modalità audio",
-  "Video mode": "Modalità video"
+  "Video mode": "Modalità video",
+  "Videos": "",
+  "Playlists": "",
+  "Current version: ": ""
 }

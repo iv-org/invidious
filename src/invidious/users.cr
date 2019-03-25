@@ -31,6 +31,7 @@ DEFAULT_USER_PREFERENCES = Preferences.from_json({
   "video_loop"         => false,
   "autoplay"           => false,
   "continue"           => false,
+  "local"              => false,
   "listen"             => false,
   "speed"              => 1.0,
   "quality"            => "hd720",
@@ -79,6 +80,10 @@ class Preferences
     continue:   {
       type:    Bool,
       default: DEFAULT_USER_PREFERENCES.continue,
+    },
+    local: {
+      type:    Bool,
+      default: DEFAULT_USER_PREFERENCES.local,
     },
     listen: {
       type:    Bool,
@@ -250,8 +255,12 @@ def validate_response(challenge, token, user_id, operation, key, db, locale)
   challenge = OpenSSL::HMAC.digest(:sha256, key, challenge)
   challenge = Base64.urlsafe_encode(challenge)
 
-  if db.query_one?("SELECT EXISTS (SELECT true FROM nonces WHERE nonce = $1)", nonce, as: Bool)
-    db.exec("DELETE FROM nonces * WHERE nonce = $1", nonce)
+  if nonce = db.query_one?("SELECT * FROM nonces WHERE nonce = $1", nonce, as: {String, Time})
+    if nonce[1] > Time.now
+      db.exec("UPDATE nonces SET expire = $1 WHERE nonce = $2", Time.new(1990, 1, 1), nonce[0])
+    else
+      raise translate(locale, "Invalid token")
+    end
   else
     raise translate(locale, "Invalid token")
   end
@@ -265,7 +274,7 @@ def validate_response(challenge, token, user_id, operation, key, db, locale)
   end
 
   if challenge_user_id != user_id
-    raise translate(locale, "Invalid user")
+    raise translate(locale, "Invalid token")
   end
 
   if expire < Time.now.to_unix
@@ -291,7 +300,7 @@ def generate_captcha(key, db)
   clock_svg = <<-END_SVG
   <svg viewBox="0 0 100 100" width="200px">
   <circle cx="50" cy="50" r="45" fill="#eee" stroke="black" stroke-width="2"></circle>
-  
+
   <text x="69"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 1</text>
   <text x="82.909" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 2</text>
   <text x="88"     y="53"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 3</text>
@@ -323,7 +332,22 @@ def generate_captcha(key, db)
   answer = "#{hour}:#{minute.to_s.rjust(2, '0')}:#{second.to_s.rjust(2, '0')}"
   answer = OpenSSL::HMAC.hexdigest(:sha256, key, answer)
 
-  challenge, token = create_response(answer, "sign_in", key, db)
+  return {
+    question: image,
+    tokens:   [create_response(answer, "sign_in", key, db)],
+  }
+end
 
-  return {image: image, challenge: challenge, token: token}
+def generate_text_captcha(key, db)
+  response = HTTP::Client.get(TEXTCAPTCHA_URL).body
+  response = JSON.parse(response)
+
+  tokens = response["a"].as_a.map do |answer|
+    create_response(answer.as_s, "sign_in", key, db)
+  end
+
+  return {
+    question: response["q"].as_s,
+    tokens:   tokens,
+  }
 end

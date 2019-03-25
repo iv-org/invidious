@@ -1,7 +1,5 @@
 class Config
   YAML.mapping({
-    video_threads:   Int32,      # Number of threads to use for updating videos in cache (mostly non-functional)
-    crawl_threads:   Int32,      # Number of threads to use for finding new videos from YouTube (used to populate "top" page)
     channel_threads: Int32,      # Number of threads to use for crawling videos from channels (for updating subscriptions)
     feed_threads:    Int32,      # Number of threads to use for updating feeds
     db:              NamedTuple( # Database configuration
@@ -17,61 +15,15 @@ user: String,
     domain:               String?,                      # Domain to be used for links to resources on the site where an absolute URL is required
     use_pubsub_feeds:     {type: Bool, default: false}, # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
     default_home:         {type: String, default: "Top"},
-    feed_menu:            {type: Array(String), default: ["Popular", "Top", "Trending"]},
+    feed_menu:            {type: Array(String), default: ["Popular", "Top", "Trending", "Subscriptions"]},
     top_enabled:          {type: Bool, default: true},
     captcha_enabled:      {type: Bool, default: true},
     login_enabled:        {type: Bool, default: true},
     registration_enabled: {type: Bool, default: true},
     statistics_enabled:   {type: Bool, default: false},
     admins:               {type: Array(String), default: [] of String},
+    external_port:        {type: Int32 | Nil, default: nil},
   })
-end
-
-class FilteredCompressHandler < Kemal::Handler
-  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/api/*", "/ggpht/*"]
-
-  def call(env)
-    return call_next env if exclude_match? env
-
-    {% if flag?(:without_zlib) %}
-      call_next env
-    {% else %}
-      request_headers = env.request.headers
-
-      if request_headers.includes_word?("Accept-Encoding", "gzip")
-        env.response.headers["Content-Encoding"] = "gzip"
-        env.response.output = Gzip::Writer.new(env.response.output, sync_close: true)
-      elsif request_headers.includes_word?("Accept-Encoding", "deflate")
-        env.response.headers["Content-Encoding"] = "deflate"
-        env.response.output = Flate::Writer.new(env.response.output, sync_close: true)
-      end
-
-      call_next env
-    {% end %}
-  end
-end
-
-class APIHandler < Kemal::Handler
-  only ["/api/v1/*"]
-
-  def call(env)
-    return call_next env unless only_match? env
-
-    env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-    call_next env
-  end
-end
-
-class DenyFrame < Kemal::Handler
-  exclude ["/embed/*"]
-
-  def call(env)
-    return call_next env if exclude_match? env
-
-    env.response.headers["X-Frame-Options"] = "sameorigin"
-    call_next env
-  end
 end
 
 def rank_videos(db, n)
@@ -223,13 +175,22 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         )
       end
 
+      playlist_thumbnail = node.xpath_node(%q(.//div/span/img)).try &.["data-thumb"]?
+      playlist_thumbnail ||= node.xpath_node(%q(.//div/span/img)).try &.["src"]
+      if !playlist_thumbnail || playlist_thumbnail.empty?
+        thumbnail_id = videos[0]?.try &.id
+      else
+        thumbnail_id = playlist_thumbnail.match(/\/vi\/(?<video_id>[a-zA-Z0-9_-]{11})\/\w+\.jpg/).try &.["video_id"]
+      end
+
       items << SearchPlaylist.new(
         title,
         plid,
         author,
         author_id,
         video_count,
-        videos
+        videos,
+        thumbnail_id
       )
     when .includes? "yt-lockup-channel"
       author = title.strip
@@ -307,6 +268,11 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         paid = true
       end
 
+      premiere_timestamp = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/span[@class="localized-date"])).try &.["data-timestamp"]?.try &.to_i64
+      if premiere_timestamp
+        premiere_timestamp = Time.unix(premiere_timestamp)
+      end
+
       items << SearchVideo.new(
         title: title,
         id: id,
@@ -319,7 +285,8 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         length_seconds: length_seconds,
         live_now: live_now,
         paid: paid,
-        premium: premium
+        premium: premium,
+        premiere_timestamp: premiere_timestamp
       )
     end
   end
@@ -390,13 +357,28 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
         playlist_title ||= ""
         plid ||= ""
 
+        playlist_thumbnail = child_node.xpath_node(%q(.//span/img)).try &.["data-thumb"]?
+        playlist_thumbnail ||= child_node.xpath_node(%q(.//span/img)).try &.["src"]
+        if !playlist_thumbnail || playlist_thumbnail.empty?
+          thumbnail_id = videos[0]?.try &.id
+        else
+          thumbnail_id = playlist_thumbnail.match(/\/vi\/(?<video_id>[a-zA-Z0-9_-]{11})\/\w+\.jpg/).try &.["video_id"]
+        end
+
+        video_count_label = child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
+        if video_count_label
+          video_count = video_count_label.content.strip.match(/^\d+/).try &.[0].to_i?
+        end
+        video_count ||= 50
+
         items << SearchPlaylist.new(
           playlist_title,
           plid,
           author_name,
           ucid,
-          50,
-          Array(SearchPlaylistVideo).new
+          video_count,
+          Array(SearchPlaylistVideo).new,
+          thumbnail_id
         )
       end
     end
@@ -410,7 +392,8 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
         author_name,
         ucid,
         videos.size,
-        videos
+        videos,
+        videos[0].try &.id
       )
     end
   end
