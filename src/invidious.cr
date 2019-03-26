@@ -36,14 +36,6 @@ logger = Invidious::LogHandler.new
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-t THREADS", "--crawl-threads=THREADS", "Number of threads for crawling YouTube (default: #{config.crawl_threads})") do |number|
-    begin
-      config.crawl_threads = number.to_i
-    rescue ex
-      puts "THREADS must be integer"
-      exit
-    end
-  end
   parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{config.channel_threads})") do |number|
     begin
       config.channel_threads = number.to_i
@@ -55,14 +47,6 @@ Kemal.config.extra_options do |parser|
   parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{config.feed_threads})") do |number|
     begin
       config.feed_threads = number.to_i
-    rescue ex
-      puts "THREADS must be integer"
-      exit
-    end
-  end
-  parser.on("-v THREADS", "--video-threads=THREADS", "Number of threads for refreshing videos (default: #{config.video_threads})") do |number|
-    begin
-      config.video_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
@@ -90,10 +74,10 @@ YT_URL          = URI.parse("https://www.youtube.com")
 REDDIT_URL      = URI.parse("https://www.reddit.com")
 LOGIN_URL       = URI.parse("https://accounts.google.com")
 PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
-TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@hotmail.com.json")
-CURRENT_BRANCH  = `git branch | sed -n '/\* /s///p'`.strip
-CURRENT_COMMIT  = `git rev-list HEAD --max-count=1 --abbrev-commit`.strip
-CURRENT_VERSION = `git describe --tags --abbrev=0`.strip
+TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@protonmail.com.json")
+CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
+CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
+CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
 
 LOCALES = {
   "ar"    => load_locale("ar"),
@@ -108,23 +92,11 @@ LOCALES = {
   "ru"    => load_locale("ru"),
 }
 
-config.crawl_threads.times do
-  spawn do
-    crawl_videos(PG_DB, logger)
-  end
-end
-
 refresh_channels(PG_DB, logger, config.channel_threads, config.full_refresh)
 
 refresh_feeds(PG_DB, logger, config.feed_threads)
 
 subscribe_to_feeds(PG_DB, logger, HMAC_KEY, config)
-
-config.video_threads.times do |i|
-  spawn do
-    refresh_videos(PG_DB, logger)
-  end
-end
 
 statistics = {
   "error" => "Statistics are not availabile.",
@@ -154,7 +126,6 @@ if config.statistics_enabled
       }
 
       sleep 1.minute
-      Fiber.yield
     end
   end
 end
@@ -164,8 +135,7 @@ if config.top_enabled
   spawn do
     pull_top_videos(config, PG_DB) do |videos|
       top_videos = videos
-      sleep 1.minutes
-      Fiber.yield
+      sleep 1.minute
     end
   end
 end
@@ -174,8 +144,7 @@ popular_videos = [] of ChannelVideo
 spawn do
   pull_popular_videos(PG_DB) do |videos|
     popular_videos = videos
-    sleep 1.minutes
-    Fiber.yield
+    sleep 1.minute
   end
 end
 
@@ -183,8 +152,6 @@ decrypt_function = [] of {name: String, value: Int32}
 spawn do
   update_decrypt_function do |function|
     decrypt_function = function
-    sleep 1.minutes
-    Fiber.yield
   end
 end
 
@@ -480,6 +447,10 @@ get "/embed/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   id = env.params.url["id"]
 
+  if env.get? "preferences"
+    preferences = env.get("preferences").as(Preferences)
+  end
+
   if id.includes?("%20") || id.includes?("+") || env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
     id = env.params.url["id"].gsub("%20", "").delete("+")
 
@@ -502,7 +473,7 @@ get "/embed/:id" do |env|
     next env.redirect url
   end
 
-  params = process_video_params(env.params.query, nil)
+  params = process_video_params(env.params.query, preferences)
 
   begin
     video = get_video(id, PG_DB, proxies, region: params[:region])
@@ -760,29 +731,15 @@ get "/login" do |env|
 
   referer = get_referer(env, "/feed/subscriptions")
 
+  email = nil
+  password = nil
+  captcha = nil
+
   account_type = env.params.query["type"]?
   account_type ||= "invidious"
 
   captcha_type = env.params.query["captcha"]?
   captcha_type ||= "image"
-
-  if account_type == "invidious"
-    if captcha_type == "image"
-      captcha = generate_captcha(HMAC_KEY, PG_DB)
-    else
-      response = HTTP::Client.get(TEXTCAPTCHA_URL).body
-      response = JSON.parse(response)
-
-      tokens = response["a"].as_a.map do |answer|
-        create_response(answer.as_s, "sign_in", HMAC_KEY, PG_DB)
-      end
-
-      text_captcha = {
-        question: response["q"].as_s,
-        tokens:   tokens,
-      }
-    end
-  end
 
   tfa = env.params.query["tfa"]?
   tfa ||= false
@@ -790,7 +747,6 @@ get "/login" do |env|
   templated "login"
 end
 
-# See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
 post "/login" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -805,11 +761,13 @@ post "/login" do |env|
   password = env.params.body["password"]?
 
   account_type = env.params.query["type"]?
-  account_type ||= "google"
+  account_type ||= "invidious"
 
-  if account_type == "google"
+  case account_type
+  when "google"
     tfa_code = env.params.body["tfa"]?.try &.lchop("G-")
 
+    # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
     begin
       client = make_client(LOGIN_URL)
       headers = HTTP::Headers.new
@@ -893,7 +851,7 @@ post "/login" do |env|
         # Prefer Authenticator app and SMS over unsupported protocols
         if challenge_results[0][-1][0][0][8] != 6 && challenge_results[0][-1][0][0][8] != 9
           tfa = challenge_results[0][-1][0].as_a.select { |auth_type| auth_type[8] == 6 || auth_type[8] == 9 }[0]
-          select_challenge = "[2,null,null,null,[#{tfa[8]}]]"
+          select_challenge = {2, nil, nil, nil, {tfa[8]}}.to_json
 
           tl = challenge_results[1][2]
 
@@ -911,7 +869,11 @@ post "/login" do |env|
           end
 
           if !tfa_code
-            next env.redirect "/login?tfa=true&type=google&referer=#{URI.escape(referer)}"
+            account_type = "google"
+            captcha_type = "image"
+            tfa = true
+            captcha = nil
+            next templated "login"
           end
 
           tl = challenge_results[1][2]
@@ -949,11 +911,10 @@ post "/login" do |env|
       headers = login.cookies.add_request_headers(headers)
 
       login = client.get(login.headers["Location"], headers)
-
-      headers = HTTP::Headers.new
       headers = login.cookies.add_request_headers(headers)
+      cookies = HTTP::Cookies.from_headers(headers)
 
-      sid = login.cookies["SID"].value
+      sid = cookies["SID"].value
 
       user, sid = get_user(sid, headers, PG_DB)
 
@@ -967,15 +928,18 @@ post "/login" do |env|
         secure = false
       end
 
-      login.cookies.each do |cookie|
+      cookies.each do |cookie|
         if Kemal.config.ssl || config.https_only
           cookie.secure = secure
         else
           cookie.secure = secure
         end
 
-        cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
-        cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
+        if cookie.extension
+          cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
+          cookie.extension = cookie.extension.not_nil!.gsub("Secure; ", "")
+        end
+        env.response.cookies << cookie
       end
 
       if env.request.cookies["PREFS"]?
@@ -992,65 +956,7 @@ post "/login" do |env|
       error_message = translate(locale, "Login failed. This may be because two-factor authentication is not enabled on your account.")
       next templated "error"
     end
-  elsif account_type == "invidious"
-    answer = env.params.body["answer"]?
-    text_answer = env.params.body["text_answer"]?
-
-    if config.captcha_enabled
-      if answer
-        answer = answer.lstrip('0')
-        answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
-
-        challenge = env.params.body["challenge"]?
-        token = env.params.body["token"]?
-
-        begin
-          validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB, locale)
-        rescue ex
-          if ex.message == translate(locale, "Invalid user")
-            error_message = translate(locale, "Invalid answer")
-          else
-            error_message = ex.message
-          end
-
-          next templated "error"
-        end
-      elsif text_answer
-        text_answer = Digest::MD5.hexdigest(text_answer.downcase.strip)
-
-        challenges = env.params.body.select { |k, v| k.match(/text_challenge\d+/) }
-        tokens = env.params.body.select { |k, v| k.match(/text_token\d+/) }
-
-        found_valid_captcha = false
-
-        error_message = translate(locale, "Invalid CAPTCHA")
-        challenges.each_with_index do |challenge, i|
-          begin
-            challenge = challenge[1]
-            token = tokens[i][1]
-            validate_response(challenge, token, text_answer, "sign_in", HMAC_KEY, PG_DB, locale)
-            found_valid_captcha = true
-          rescue ex
-            if ex.message == translate(locale, "Invalid user")
-              error_message = translate(locale, "Invalid answer")
-            else
-              error_message = ex.message
-            end
-          end
-        end
-
-        if !found_valid_captcha
-          next templated "error"
-        end
-      else
-        error_message = translate(locale, "CAPTCHA is a required field")
-        next templated "error"
-      end
-    end
-
-    action = env.params.body["action"]?
-    action ||= "signin"
-
+  when "invidious"
     if !email
       error_message = translate(locale, "User ID is a required field")
       next templated "error"
@@ -1061,14 +967,9 @@ post "/login" do |env|
       next templated "error"
     end
 
-    if action == "signin"
-      user = PG_DB.query_one?("SELECT * FROM users WHERE LOWER(email) = LOWER($1)", email, as: User)
+    user = PG_DB.query_one?("SELECT * FROM users WHERE LOWER(email) = LOWER($1)", email, as: User)
 
-      if !user
-        error_message = translate(locale, "Invalid username or password")
-        next templated "error"
-      end
-
+    if user
       if !user.password
         error_message = translate(locale, "Please sign in using 'Sign in with Google'")
         next templated "error"
@@ -1102,10 +1003,76 @@ post "/login" do |env|
         cookie.expires = Time.new(1990, 1, 1)
         env.response.cookies << cookie
       end
-    elsif action == "register"
+    else
       if !config.registration_enabled
         error_message = "Registration has been disabled by administrator."
         next templated "error"
+      end
+
+      if config.captcha_enabled
+        captcha_type = env.params.body["captcha_type"]?
+        answer = env.params.body["answer"]?
+        change_type = env.params.body["change_type"]?
+
+        if !captcha_type || change_type
+          if change_type
+            captcha_type = change_type
+          end
+          captcha_type ||= "image"
+
+          account_type = "invidious"
+          tfa = false
+
+          if captcha_type == "image"
+            captcha = generate_captcha(HMAC_KEY, PG_DB)
+          else
+            captcha = generate_text_captcha(HMAC_KEY, PG_DB)
+          end
+
+          next templated "login"
+        end
+
+        challenges = env.params.body.select { |k, v| k.match(/^challenge\[\d+\]$/) }
+        tokens = env.params.body.select { |k, v| k.match(/^token\[\d+\]$/) }
+
+        answer ||= ""
+        captcha_type ||= "image"
+
+        case captcha_type
+        when "image"
+          answer = answer.lstrip('0')
+          answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
+
+          challenge = env.params.body["challenge[0]"]?
+          token = env.params.body["token[0]"]?
+
+          begin
+            validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB, locale)
+          rescue ex
+            error_message = ex.message
+            next templated "error"
+          end
+        when "text"
+          answer = Digest::MD5.hexdigest(answer.downcase.strip)
+
+          found_valid_captcha = false
+
+          error_message = translate(locale, "Invalid CAPTCHA")
+          challenges.each_with_index do |challenge, i|
+            begin
+              challenge = challenge[1]
+              token = tokens[i][1]
+              validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB, locale)
+              found_valid_captcha = true
+            rescue ex
+              error_message = ex.message
+            end
+          end
+
+          if !found_valid_captcha
+            next templated "error"
+          end
+        end
       end
 
       if password.empty?
@@ -1165,6 +1132,8 @@ post "/login" do |env|
       end
     end
 
+    env.redirect referer
+  else
     env.redirect referer
   end
 end
@@ -1387,7 +1356,8 @@ get "/mark_watched" do |env|
 
   id = env.params.query["id"]?
   if !id
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   redirect = env.params.query["redirect"]?
@@ -1417,7 +1387,8 @@ get "/mark_unwatched" do |env|
 
   id = env.params.query["id"]?
   if !id
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   redirect = env.params.query["redirect"]?
@@ -1797,9 +1768,9 @@ post "/delete_account" do |env|
     end
 
     view_name = "subscriptions_#{sha256(user.email)[0..7]}"
-    PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
     PG_DB.exec("DELETE FROM users * WHERE email = $1", user.email)
     PG_DB.exec("DELETE FROM session_ids * WHERE email = $1", user.email)
+    PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
     env.request.cookies.each do |cookie|
       cookie.expires = Time.new(1990, 1, 1)
@@ -2073,7 +2044,8 @@ get "/feed/channel/:ucid" do |env|
     author, ucid, auto_generated = get_about_info(ucid, locale)
   rescue ex
     error_message = ex.message
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   client = make_client(YT_URL)
@@ -2106,7 +2078,8 @@ get "/feed/channel/:ucid" do |env|
       length_seconds: 0,
       live_now: false,
       paid: false,
-      premium: false
+      premium: false,
+      premiere_timestamp: nil
     )
   end
 
@@ -2182,12 +2155,14 @@ get "/feed/private" do |env|
   token = env.params.query["token"]?
 
   if !token
-    halt env, status_code: 403
+    env.response.status_code = 403
+    next
   end
 
   user = PG_DB.query_one?("SELECT * FROM users WHERE token = $1", token.strip, as: User)
   if !user
-    halt env, status_code: 403
+    env.response.status_code = 403
+    next
   end
 
   max_results = env.params.query["max_results"]?.try &.to_i?
@@ -2343,17 +2318,20 @@ get "/feed/webhook/:token" do |env|
 
   # The hub will sometimes check if we're still subscribed after delivery errors
   if Time.now.to_unix - time.to_i > 432000
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   if OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, data) != signature
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   ucid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["channel_id"]
   PG_DB.exec("UPDATE channels SET subscribed = $1 WHERE id = $2", Time.now, ucid)
 
-  halt env, status_code: 200, response: challenge
+  env.response.status_code = 200
+  next challenge
 end
 
 post "/feed/webhook/:token" do |env|
@@ -2363,7 +2341,8 @@ post "/feed/webhook/:token" do |env|
 
   if signature != OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, body)
     logger.write("#{token} : Invalid signature")
-    halt env, status_code: 200
+    env.response.status_code = 200
+    next
   end
 
   spawn do
@@ -2374,7 +2353,7 @@ post "/feed/webhook/:token" do |env|
       updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
 
       video = get_video(id, PG_DB, proxies, region: nil)
-      video = ChannelVideo.new(id, video.title, published, updated, video.ucid, video.author, video.length_seconds)
+      video = ChannelVideo.new(id, video.title, published, updated, video.ucid, video.author, video.length_seconds, video.live_now, video.premiere_timestamp)
 
       PG_DB.exec("UPDATE users SET notifications = notifications || $1 \
       WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
@@ -2384,11 +2363,13 @@ post "/feed/webhook/:token" do |env|
 
       PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
       ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
-      updated = $4, ucid = $5, author = $6, length_seconds = $7", video_array)
+      updated = $4, ucid = $5, author = $6, length_seconds = $7, \
+      live_now = $8, premiere_timestamp = $9", video_array)
     end
   end
 
-  halt env, status_code: 200
+  env.response.status_code = 200
+  next
 end
 
 # Channels
@@ -2550,18 +2531,16 @@ get "/api/v1/stats" do |env|
 
   if !config.statistics_enabled
     error_message = {"error" => "Statistics are not enabled."}.to_json
-    halt env, status_code: 400, response: error_message
+    env.response.status_code = 400
+    next error_message
   end
 
   if statistics["error"]?
-    halt env, status_code: 500, response: statistics.to_json
+    env.response.status_code = 500
+    next statistics.to_json
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    statistics.to_pretty_json
-  else
-    statistics.to_json
-  end
+  statistics.to_json
 end
 
 get "/api/v1/captions/:id" do |env|
@@ -2578,7 +2557,8 @@ get "/api/v1/captions/:id" do |env|
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/captions/#{ex.message}"
   rescue ex
-    halt env, status_code: 500
+    env.response.status_code = 500
+    next
   end
 
   captions = video.captions
@@ -2604,11 +2584,7 @@ get "/api/v1/captions/:id" do |env|
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      next JSON.parse(response).to_pretty_json
-    else
-      next response
-    end
+    next response
   end
 
   env.response.content_type = "text/vtt"
@@ -2620,7 +2596,8 @@ get "/api/v1/captions/:id" do |env|
   end
 
   if caption.empty?
-    halt env, status_code: 404
+    env.response.status_code = 404
+    next
   else
     caption = caption[0]
   end
@@ -2690,7 +2667,8 @@ get "/api/v1/comments/:id" do |env|
       comments = fetch_youtube_comments(id, PG_DB, continuation, proxies, format, locale, region)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     next comments
@@ -2708,18 +2686,15 @@ get "/api/v1/comments/:id" do |env|
     end
 
     if !reddit_thread || !comments
-      halt env, status_code: 404
+      env.response.status_code = 404
+      next
     end
 
     if format == "json"
       reddit_thread = JSON.parse(reddit_thread.to_json).as_h
       reddit_thread["comments"] = JSON.parse(comments.to_json)
 
-      if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-        next reddit_thread.to_pretty_json
-      else
-        next reddit_thread.to_json
-      end
+      next reddit_thread.to_json
     else
       response = {
         "title"       => reddit_thread.title,
@@ -2727,11 +2702,7 @@ get "/api/v1/comments/:id" do |env|
         "contentHtml" => content_html,
       }
 
-      if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-        next response.to_pretty_json
-      else
-        next response.to_json
-      end
+      next response.to_json
     end
   end
 end
@@ -2743,7 +2714,8 @@ get "/api/v1/insights/:id" do |env|
   env.response.content_type = "application/json"
 
   error_message = {"error" => "YouTube has removed publicly-available analytics."}.to_json
-  halt env, status_code: 410, response: error_message
+  env.response.status_code = 410
+  next error_message
 
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
@@ -2820,11 +2792,7 @@ get "/api/v1/insights/:id" do |env|
     "graphData"              => graph_data,
   }
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    next response.to_pretty_json
-  else
-    next response.to_json
-  end
+  next response.to_json
 end
 
 get "/api/v1/videos/:id" do |env|
@@ -2841,7 +2809,8 @@ get "/api/v1/videos/:id" do |env|
     next env.redirect "/api/v1/videos/#{ex.message}"
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   fmt_stream = video.fmt_stream(decrypt_function)
@@ -2882,7 +2851,7 @@ get "/api/v1/videos/:id" do |env|
 
       json.field "authorThumbnails" do
         json.array do
-          qualities = [32, 48, 76, 100, 176, 512]
+          qualities = {32, 48, 76, 100, 176, 512}
 
           qualities.each do |quality|
             json.object do
@@ -2897,15 +2866,14 @@ get "/api/v1/videos/:id" do |env|
       json.field "subCountText", video.sub_count_text
 
       json.field "lengthSeconds", video.info["length_seconds"].to_i
-      if video.info["allow_ratings"]?
-        json.field "allowRatings", video.info["allow_ratings"] == "1"
-      else
-        json.field "allowRatings", false
-      end
+      json.field "allowRatings", video.allow_ratings
       json.field "rating", video.info["avg_rating"].to_f32
+      json.field "isListed", video.is_listed
+      json.field "liveNow", video.live_now
+      json.field "isUpcoming", video.is_upcoming
 
-      if video.info["is_listed"]?
-        json.field "isListed", video.info["is_listed"] == "1"
+      if video.premiere_timestamp
+        json.field "premiereTimestamp", video.premiere_timestamp.not_nil!.to_unix
       end
 
       if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
@@ -3030,11 +2998,7 @@ get "/api/v1/videos/:id" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(video_info).to_pretty_json
-  else
-    video_info
-  end
+  video_info
 end
 
 get "/api/v1/trending" do |env|
@@ -3049,7 +3013,8 @@ get "/api/v1/trending" do |env|
     trending = fetch_trending(trending_type, proxies, region, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   videos = JSON.build do |json|
@@ -3081,11 +3046,7 @@ get "/api/v1/trending" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(videos).to_pretty_json
-  else
-    videos
-  end
+  videos
 end
 
 get "/api/v1/popular" do |env|
@@ -3115,11 +3076,7 @@ get "/api/v1/popular" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(videos).to_pretty_json
-  else
-    videos
-  end
+  videos
 end
 
 get "/api/v1/top" do |env|
@@ -3129,7 +3086,8 @@ get "/api/v1/top" do |env|
 
   if !config.top_enabled
     error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
-    halt env, status_code: 400, response: error_message
+    env.response.status_code = 400
+    next error_message
   end
 
   videos = JSON.build do |json|
@@ -3161,11 +3119,7 @@ get "/api/v1/top" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(videos).to_pretty_json
-  else
-    videos
-  end
+  videos
 end
 
 get "/api/v1/channels/:ucid" do |env|
@@ -3181,7 +3135,8 @@ get "/api/v1/channels/:ucid" do |env|
     author, ucid, auto_generated = get_about_info(ucid, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   page = 1
@@ -3193,7 +3148,8 @@ get "/api/v1/channels/:ucid" do |env|
       videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
   end
 
@@ -3259,9 +3215,11 @@ get "/api/v1/channels/:ucid" do |env|
 
       json.field "authorBanners" do
         json.array do
-          qualities = [{width: 2560, height: 424},
-                       {width: 2120, height: 351},
-                       {width: 1060, height: 175}]
+          qualities = {
+            {width: 2560, height: 424},
+            {width: 2120, height: 351},
+            {width: 1060, height: 175},
+          }
           qualities.each do |quality|
             json.object do
               json.field "url", banner.gsub("=w1060", "=w#{quality[:width]}")
@@ -3280,7 +3238,7 @@ get "/api/v1/channels/:ucid" do |env|
 
       json.field "authorThumbnails" do
         json.array do
-          qualities = [32, 48, 76, 100, 176, 512]
+          qualities = {32, 48, 76, 100, 176, 512}
 
           qualities.each do |quality|
             json.object do
@@ -3350,7 +3308,7 @@ get "/api/v1/channels/:ucid" do |env|
 
               json.field "authorThumbnails" do
                 json.array do
-                  qualities = [32, 48, 76, 100, 176, 512]
+                  qualities = {32, 48, 76, 100, 176, 512}
 
                   qualities.each do |quality|
                     json.object do
@@ -3368,11 +3326,7 @@ get "/api/v1/channels/:ucid" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(channel_info).to_pretty_json
-  else
-    channel_info
-  end
+  channel_info
 end
 
 ["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
@@ -3392,14 +3346,16 @@ end
       author, ucid, auto_generated = get_about_info(ucid, locale)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     begin
       videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     result = JSON.build do |json|
@@ -3438,11 +3394,7 @@ end
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      JSON.parse(result).to_pretty_json
-    else
-      result
-    end
+    result
   end
 end
 
@@ -3458,7 +3410,8 @@ end
       videos = get_latest_videos(ucid)
     rescue ex
       error_message = {"error" => ex.message}.to_json
-      halt env, status_code: 500, response: error_message
+      env.response.status_code = 500
+      next error_message
     end
 
     response = JSON.build do |json|
@@ -3490,11 +3443,7 @@ end
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      JSON.parse(response).to_pretty_json
-    else
-      response
-    end
+    response
   end
 end
 
@@ -3513,8 +3462,9 @@ end
     begin
       author, ucid, auto_generated = get_about_info(ucid, locale)
     rescue ex
-      error_message = ex.message
-      halt env, status_code: 500, response: error_message
+      error_message = {"error" => ex.message}.to_json
+      env.response.status_code = 500
+      next error_message
     end
 
     items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
@@ -3559,11 +3509,7 @@ end
       end
     end
 
-    if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-      JSON.parse(response).to_pretty_json
-    else
-      response
-    end
+    response
   end
 end
 
@@ -3642,7 +3588,7 @@ get "/api/v1/channels/search/:ucid" do |env|
 
             json.field "authorThumbnails" do
               json.array do
-                qualities = [32, 48, 76, 100, 176, 512]
+                qualities = {32, 48, 76, 100, 176, 512}
 
                 qualities.each do |quality|
                   json.object do
@@ -3664,11 +3610,7 @@ get "/api/v1/channels/search/:ucid" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
-    response
-  end
+  response
 end
 
 get "/api/v1/search" do |env|
@@ -3771,7 +3713,7 @@ get "/api/v1/search" do |env|
 
             json.field "authorThumbnails" do
               json.array do
-                qualities = [32, 48, 76, 100, 176, 512]
+                qualities = {32, 48, 76, 100, 176, 512}
 
                 qualities.each do |quality|
                   json.object do
@@ -3793,11 +3735,7 @@ get "/api/v1/search" do |env|
     end
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
-    response
-  end
+  response
 end
 
 get "/api/v1/playlists/:plid" do |env|
@@ -3822,7 +3760,8 @@ get "/api/v1/playlists/:plid" do |env|
     playlist = fetch_playlist(plid, locale)
   rescue ex
     error_message = {"error" => "Playlist is empty"}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   begin
@@ -3842,7 +3781,7 @@ get "/api/v1/playlists/:plid" do |env|
 
       json.field "authorThumbnails" do
         json.array do
-          qualities = [32, 48, 76, 100, 176, 512]
+          qualities = {32, 48, 76, 100, 176, 512}
 
           qualities.each do |quality|
             json.object do
@@ -3896,11 +3835,7 @@ get "/api/v1/playlists/:plid" do |env|
     }.to_json
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
-    response
-  end
+  response
 end
 
 get "/api/v1/mixes/:rdid" do |env|
@@ -3928,7 +3863,8 @@ get "/api/v1/mixes/:rdid" do |env|
     mix.videos = mix.videos[index..-1]
   rescue ex
     error_message = {"error" => ex.message}.to_json
-    halt env, status_code: 500, response: error_message
+    env.response.status_code = 500
+    next error_message
   end
 
   response = JSON.build do |json|
@@ -3974,11 +3910,7 @@ get "/api/v1/mixes/:rdid" do |env|
     }.to_json
   end
 
-  if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
-    JSON.parse(response).to_pretty_json
-  else
-    response
-  end
+  response
 end
 
 get "/api/manifest/dash/id/videoplayback" do |env|
@@ -4010,10 +3942,11 @@ get "/api/manifest/dash/id/:id" do |env|
 
     next env.redirect url
   rescue ex
-    halt env, status_code: 403
+    env.response.status_code = 403
+    next
   end
 
-  if dashmpd = video.player_response["streamingData"]["dashManifestUrl"]?.try &.as_s
+  if dashmpd = video.player_response["streamingData"]?.try &.["dashManifestUrl"]?.try &.as_s
     manifest = client.get(dashmpd).body
 
     manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
@@ -4097,7 +4030,8 @@ get "/api/manifest/hls_variant/*" do |env|
   manifest = client.get(env.request.path)
 
   if manifest.status_code != 200
-    halt env, status_code: manifest.status_code
+    env.response.status_code = manifest.status_code
+    next
   end
 
   env.response.content_type = "application/x-mpegURL"
@@ -4114,7 +4048,8 @@ get "/api/manifest/hls_playlist/*" do |env|
   manifest = client.get(env.request.path)
 
   if manifest.status_code != 200
-    halt env, status_code: manifest.status_code
+    env.response.status_code = manifest.status_code
+    next
   end
 
   host_url = make_host_url(config, Kemal.config)
@@ -4150,7 +4085,8 @@ get "/latest_version" do |env|
   local = local == "true"
 
   if !id || !itag
-    halt env, status_code: 400
+    env.response.status_code = 400
+    next
   end
 
   video = get_video(id, PG_DB, proxies, region: region)
@@ -4160,9 +4096,11 @@ get "/latest_version" do |env|
 
   urls = (fmt_stream + adaptive_fmts).select { |fmt| fmt["itag"] == itag }
   if urls.empty?
-    halt env, status_code: 404
+    env.response.status_code = 404
+    next
   elsif urls.size > 1
-    halt env, status_code: 409
+    env.response.status_code = 409
+    next
   end
 
   url = urls[0]["url"]
@@ -4286,20 +4224,21 @@ get "/videoplayback" do |env|
   end
 
   if response.status_code >= 400
-    halt env, status_code: response.status_code
+    env.response.status_code = response.status_code
+    next
   end
 
   client = make_client(URI.parse(host), proxies, region)
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
 
-    if title = env.params.query["title"]?
-      # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
-    end
-
     response.headers.each do |key, value|
       env.response.headers[key] = value
+    end
+
+    if title = query_params["title"]?
+      # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
     end
 
     env.response.headers["Access-Control-Allow-Origin"] = "*"
@@ -4318,6 +4257,7 @@ get "/videoplayback" do |env|
   end
 end
 
+# We need this so the below route works as expected
 get "/ggpht*" do |env|
 end
 
@@ -4478,7 +4418,7 @@ error 500 do |env|
   <a href="https://github.com/omarroth/invidious/issues">
     here
   </a>
-  or send an email to 
+  or send an email to
   <a href="mailto:omarroth@protonmail.com">
     omarroth@protonmail.com</a>.
   END_HTML
@@ -4510,8 +4450,8 @@ public_folder "assets"
 
 Kemal.config.powered_by_header = false
 add_handler FilteredCompressHandler.new
-add_handler DenyFrame.new
 add_handler APIHandler.new
+add_handler DenyFrame.new
 add_context_storage_type(User)
 add_context_storage_type(Preferences)
 

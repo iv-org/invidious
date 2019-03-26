@@ -1,7 +1,5 @@
 class Config
   YAML.mapping({
-    video_threads:   Int32,      # Number of threads to use for updating videos in cache (mostly non-functional)
-    crawl_threads:   Int32,      # Number of threads to use for finding new videos from YouTube (used to populate "top" page)
     channel_threads: Int32,      # Number of threads to use for crawling videos from channels (for updating subscriptions)
     feed_threads:    Int32,      # Number of threads to use for updating feeds
     db:              NamedTuple( # Database configuration
@@ -26,61 +24,6 @@ user: String,
     admins:               {type: Array(String), default: [] of String},
     external_port:        {type: Int32 | Nil, default: nil},
   })
-end
-
-class FilteredCompressHandler < Kemal::Handler
-  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/api/*", "/ggpht/*"]
-
-  def call(env)
-    return call_next env if exclude_match? env
-
-    {% if flag?(:without_zlib) %}
-      call_next env
-    {% else %}
-      request_headers = env.request.headers
-
-      if request_headers.includes_word?("Accept-Encoding", "gzip")
-        env.response.headers["Content-Encoding"] = "gzip"
-        env.response.output = Gzip::Writer.new(env.response.output, sync_close: true)
-      elsif request_headers.includes_word?("Accept-Encoding", "deflate")
-        env.response.headers["Content-Encoding"] = "deflate"
-        env.response.output = Flate::Writer.new(env.response.output, sync_close: true)
-      end
-
-      call_next env
-    {% end %}
-  end
-end
-
-class APIHandler < Kemal::Handler
-  only ["/api/v1/*"]
-
-  def call(env)
-    return call_next env unless only_match? env
-
-    env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-    call_next env
-  end
-end
-
-class DenyFrame < Kemal::Handler
-  exclude ["/embed/*"]
-
-  def call(env)
-    return call_next env if exclude_match? env
-
-    env.response.headers["X-Frame-Options"] = "sameorigin"
-    call_next env
-  end
-end
-
-# Temp fix for https://github.com/crystal-lang/crystal/issues/7383
-class HTTP::Client
-  private def handle_response(response)
-    # close unless response.keep_alive?
-    response
-  end
 end
 
 def rank_videos(db, n)
@@ -325,6 +268,11 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         paid = true
       end
 
+      premiere_timestamp = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/span[@class="localized-date"])).try &.["data-timestamp"]?.try &.to_i64
+      if premiere_timestamp
+        premiere_timestamp = Time.unix(premiere_timestamp)
+      end
+
       items << SearchVideo.new(
         title: title,
         id: id,
@@ -337,7 +285,8 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         length_seconds: length_seconds,
         live_now: live_now,
         paid: paid,
-        premium: premium
+        premium: premium,
+        premiere_timestamp: premiere_timestamp
       )
     end
   end

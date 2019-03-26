@@ -18,7 +18,7 @@
 <meta name="twitter:url" content="<%= host_url %>/watch?v=<%= video.id %>">
 <meta name="twitter:title" content="<%= HTML.escape(video.title) %>">
 <meta name="twitter:description" content="<%= description %>">
-<meta name="twitter:image" content="/vi/<%= video.id %>/hqdefault.jpg">
+<meta name="twitter:image" content="<%= host_url %>/vi/<%= video.id %>/maxres.jpg">
 <meta name="twitter:player" content="<%= host_url %>/embed/<%= video.id %>">
 <meta name="twitter:player:width" content="1280">
 <meta name="twitter:player:height" content="720">
@@ -33,7 +33,7 @@
 
 <div class="h-box">
 <h1>
-    <%= HTML.escape(video.title) %> 
+    <%= HTML.escape(video.title) %>
     <% if params[:listen] %>
     <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
         <i class="icon ion-ios-videocam"></i>
@@ -53,23 +53,23 @@
     <div class="pure-u-1 pure-u-md-1-5">
         <div class="h-box">
             <p><a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch video on Youtube") %></a></p>
-        
+
             <form class="pure-form pure-form-stacked" action="/latest_version" method="get" rel="noopener" target="_blank">
                 <div class="pure-control-group">
                     <label for="download_widget"><%= translate(locale, "Download as: ") %></label>
                     <select style="width:100%" name="download_widget" id="download_widget">
                     <% video_streams.each do |option| %>
-                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split("/")[1].split(";")[0] %>"}'>
+                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
                             <%= option["quality_label"] %> - <%= option["type"].split(";")[0] %> @ <%= option["fps"] %>fps - video only
                         </option>
                     <% end %>
                     <% audio_streams.each do |option| %>
-                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split("/")[1].split(";")[0] %>"}'>
+                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
                             <%= option["type"].split(";")[0] %> @ <%= option["bitrate"] %>k - audio only
                         </option>
                     <% end %>
                     <% fmt_stream.each do |option| %>
-                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split("/")[1].split(";")[0] %>"}'>
+                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
                             <%= itag_to_metadata?(option["itag"]).try &.["height"]? || "~240" %>p - <%= option["type"].split(";")[0] %>
                         </option>
                     <% end %>
@@ -150,7 +150,7 @@
 
         <% if params[:related_videos] %>
         <div class="h-box">
-        
+
         <% if !rvs.empty? %>
         <div id="continue" <% if plid %>style="display:none"<% end %>>
             <div class="pure-control-group">
@@ -187,7 +187,7 @@
 <script>
 <% if !rvs.empty? && !plid && params[:continue] %>
 player.on('ended', function() {
-    location.assign("/watch?v=" 
+    location.assign("/watch?v="
         + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
         + "&continue=1"
         <% if params[:listen] %>
@@ -206,7 +206,7 @@ player.on('ended', function() {
 function continue_autoplay(target) {
     if (target.checked) {
         player.on('ended', function() {
-            location.assign("/watch?v=" 
+            location.assign("/watch?v="
                 + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
                 + "&continue=1"
                 <% if params[:listen] %>
@@ -249,7 +249,7 @@ function get_playlist(timeouts = 0) {
     }
 
     playlist.innerHTML = ' \
-      <h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3> \
+      <h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3> \
       <hr>'
 
     var plid = "<%= plid %>"
@@ -270,10 +270,10 @@ function get_playlist(timeouts = 0) {
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
                 playlist.innerHTML = xhr.response.playlistHtml;
-                
+
                 if (xhr.response.nextVideo) {
                     player.on('ended', function() {
-                        location.assign("/watch?v=" 
+                        location.assign("/watch?v="
                             + xhr.response.nextVideo
                             + "&list=<%= plid %>"
                             <% if params[:listen] %>
@@ -300,7 +300,7 @@ function get_playlist(timeouts = 0) {
 
         comments = document.getElementById("playlist");
         comments.innerHTML =
-            '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3><hr>';
+            '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3><hr>';
         get_playlist(timeouts + 1);
     };
 }
@@ -319,7 +319,7 @@ function get_reddit_comments(timeouts = 0) {
 
   var fallback = comments.innerHTML;
   comments.innerHTML =
-    '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+    '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
   var url = "/api/v1/comments/<%= video.id %>?source=reddit&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
   var xhr = new XMLHttpRequest();
@@ -355,7 +355,7 @@ function get_reddit_comments(timeouts = 0) {
           contentHtml: xhr.response.contentHtml
         });
       } else {
-        <% if preferences && preferences.comments[1] == "youtube" %> 
+        <% if preferences && preferences.comments[1] == "youtube" %>
         get_youtube_comments();
         <% else %>
         comments.innerHTML = fallback;
@@ -382,7 +382,7 @@ function get_youtube_comments(timeouts = 0) {
 
   var fallback = comments.innerHTML;
   comments.innerHTML =
-    '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+    '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
   var url = "/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
   var xhr = new XMLHttpRequest();
@@ -416,7 +416,7 @@ function get_youtube_comments(timeouts = 0) {
           comments.innerHTML = "";
         }
       } else {
-        <% if preferences && preferences.comments[1] == "youtube" %> 
+        <% if preferences && preferences.comments[1] == "youtube" %>
         get_youtube_comments();
         <% else %>
         comments.innerHTML = "";
@@ -429,7 +429,7 @@ function get_youtube_comments(timeouts = 0) {
     console.log("Pulling comments timed out.");
 
     comments.innerHTML =
-      '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+      '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
     get_youtube_comments(timeouts + 1);
   };
 }
@@ -440,7 +440,7 @@ function get_youtube_replies(target, load_more) {
   var body = target.parentNode.parentNode;
   var fallback = body.innerHTML;
   body.innerHTML =
-      '<h3><center class="loading"><i class="icon ion-ios-refresh"></i></center></h3>';
+      '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
   var url = '/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>&continuation=' +
       continuation;

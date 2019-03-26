@@ -58,6 +58,7 @@ div {
 }
 
 .loading {
+  display: inline-block;
   animation: spin 2s linear infinite;
 }
 
@@ -80,11 +81,15 @@ a.pure-button-primary:hover {
 }
 
 div.thumbnail {
+  padding: 28.125%;
   position: relative;
+  box-sizing: border-box;
 }
 
 img.thumbnail {
+  position: absolute;
   width: 100%;
+  height: 100%;
   left: 0;
   top: 0;
 }
@@ -255,6 +260,41 @@ img.thumbnail {
   }
 }
 
+.vjs-play-control,
+.vjs-volume-panel,
+.vjs-current-time,
+.vjs-time-control,
+.vjs-duration,
+.vjs-progress-control,
+.vjs-remaining-time {
+  order: 1;
+}
+
+.vjs-captions-button {
+  order: 2;
+}
+
+.vjs-quality-selector {
+  order: 3;
+}
+
+.vjs-playback-rate {
+  order: 4;
+}
+
+.vjs-share-control {
+  order: 5;
+}
+
+.vjs-fullscreen-control {
+  order: 6;
+}
+
+.vjs-control-bar {
+  display: flex;
+  flex-direction: row;
+}
+
 .video-js .vjs-control-bar,
 .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
   background-color: rgba(35, 35, 35, 0.75);
@@ -326,27 +366,15 @@ img.thumbnail {
   padding-top: 82vh;
 }
 
+video.video-js {
+  position: absolute;
+  height: 100%;
+}
+
 #player-container {
   position: relative;
   padding-bottom: 82vh;
   height: 0;
-}
-
-#progress-container {
-  width: 100%;
-  border-radius: 2px;
-  background-color: #a0a0a0;
-  color: rgba(35, 35, 35, 1);
-}
-
-#download-progress {
-  width: 0%;
-  border-radius: 2px;
-  height: 10px;
-  background-color: rgba(0, 182, 240, 1);
-  color: #fff;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
 }
 
 .pure-control-group label {

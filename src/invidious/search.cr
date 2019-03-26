@@ -1,17 +1,18 @@
 class SearchVideo
   add_mapping({
-    title:            String,
-    id:               String,
-    author:           String,
-    ucid:             String,
-    published:        Time,
-    views:            Int64,
-    description:      String,
-    description_html: String,
-    length_seconds:   Int32,
-    live_now:         Bool,
-    paid:             Bool,
-    premium:          Bool,
+    title:              String,
+    id:                 String,
+    author:             String,
+    ucid:               String,
+    published:          Time,
+    views:              Int64,
+    description:        String,
+    description_html:   String,
+    length_seconds:     Int32,
+    live_now:           Bool,
+    paid:               Bool,
+    premium:            Bool,
+    premiere_timestamp: Time?,
   })
 end
 

@@ -1,4 +1,4 @@
-<video style="outline:none;width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>" 
+<video style="outline:none;width:100%" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>"
     id="player" class="video-js"
     onmouseenter='this["data-title"]=this["title"];this["title"]=""'
     onmouseleave='this["title"]=this["data-title"];this["data-title"]=""'
@@ -44,7 +44,7 @@ var options = {
   aspectRatio: "<%= aspect_ratio %>",
   <% end %>
   preload: "auto",
-  playbackRates: [0.5, 0.75, 1.0, 1.25, 1.5, 2.0],
+  playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0],
   controlBar: {
     children: [
       "playToggle",
@@ -78,6 +78,7 @@ var player = videojs("player", options, function() {
     volumeStep: 0.1,
     seekStep: 5,
     enableModifiersForNumbers: false,
+    enableHoverScroll: true,
     customKeys: {
       // Toggle play with K Key
       play: {
@@ -151,7 +152,7 @@ player.on('error', function(event) {
       }
       player.currentTime(currentTime);
       player.playbackRate(playbackRate);
-      
+
       if (!paused) {
         player.play();
       }
@@ -191,7 +192,7 @@ var bpb = player.getChild('bigPlayButton');
 
 if (bpb) {
   bpb.hide();
-  
+
   player.ready(function() {
     new Promise(function(resolve, reject) {
       setTimeout(() => resolve(1), 1);

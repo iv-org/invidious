@@ -250,6 +250,63 @@ class Video
     end
   end
 
+  def allow_ratings
+    allow_ratings = player_response["videoDetails"].try &.["allowRatings"]?.try &.as_bool
+
+    if allow_ratings.nil?
+      return true
+    end
+
+    return allow_ratings
+  end
+
+  def live_now
+    live_now = self.player_response["videoDetails"]?.try &.["isLive"]?.try &.as_bool
+
+    if live_now.nil?
+      return false
+    end
+
+    return live_now
+  end
+
+  def is_listed
+    is_listed = player_response["videoDetails"].try &.["isCrawlable"]?.try &.as_bool
+
+    if is_listed.nil?
+      return true
+    end
+
+    return is_listed
+  end
+
+  def is_upcoming
+    is_upcoming = player_response["videoDetails"].try &.["isUpcoming"]?.try &.as_bool
+
+    if is_upcoming.nil?
+      return false
+    end
+
+    return is_upcoming
+  end
+
+  def premiere_timestamp
+    if self.is_upcoming
+      premiere_timestamp = player_response["playabilityStatus"]?
+        .try &.["liveStreamability"]?
+          .try &.["liveStreamabilityRenderer"]?
+            .try &.["offlineSlate"]?
+              .try &.["liveStreamOfflineSlateRenderer"]?
+                .try &.["scheduledStartTime"].as_s.to_i64
+    end
+
+    if premiere_timestamp
+      premiere_timestamp = Time.unix(premiere_timestamp)
+    end
+
+    return premiere_timestamp
+  end
+
   def keywords
     keywords = self.player_response["videoDetails"]?.try &.["keywords"]?.try &.as_a
     keywords ||= [] of String
@@ -641,6 +698,10 @@ def fetch_video(id, proxies, region)
   end
 
   if info["errorcode"]?.try &.== "2"
+    raise "Video unavailable."
+  end
+
+  if !info["title"]?
     raise "Video unavailable."
   end
 

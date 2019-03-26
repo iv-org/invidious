@@ -308,13 +308,13 @@ def template_youtube_comments(comments, locale)
         <p>
           <b>
             <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{child["author"]}</a>
-          </b> 
+          </b>
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
           <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
           |
           <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "Youtube permalink of the comment")}">[YT]</a>
-          | 
-          <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])} 
+          |
+          <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
     END_HTML
 
     if child["creatorHeart"]?
@@ -372,8 +372,8 @@ def template_reddit_comments(root, locale)
 
       content = <<-END_HTML
       <p>
-        <a href="javascript:void(0)" onclick="toggle_parent(this)">[ - ]</a> 
-        <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b> 
+        <a href="javascript:void(0)" onclick="toggle_parent(this)">[ - ]</a>
+        <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b>
         #{translate(locale, "`x` points", number_with_separator(score))}
         #{translate(locale, "`x` ago", recode_date(child.created_utc, locale))}
       </p>

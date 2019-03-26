@@ -11,6 +11,8 @@ CREATE TABLE public.channel_videos
   ucid text,
   author text,
   length_seconds integer,
+  live_now boolean,
+  premiere_timestamp timestamp with time zone,
   CONSTRAINT channel_videos_id_key UNIQUE (id)
 );
 
