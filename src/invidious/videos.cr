@@ -251,7 +251,7 @@ class Video
   end
 
   def allow_ratings
-    allow_ratings = player_response["videoDetails"].try &.["allowRatings"]?.try &.as_bool
+    allow_ratings = player_response["videoDetails"]?.try &.["allowRatings"]?.try &.as_bool
 
     if allow_ratings.nil?
       return true
@@ -271,7 +271,7 @@ class Video
   end
 
   def is_listed
-    is_listed = player_response["videoDetails"].try &.["isCrawlable"]?.try &.as_bool
+    is_listed = player_response["videoDetails"]?.try &.["isCrawlable"]?.try &.as_bool
 
     if is_listed.nil?
       return true
@@ -281,7 +281,7 @@ class Video
   end
 
   def is_upcoming
-    is_upcoming = player_response["videoDetails"].try &.["isUpcoming"]?.try &.as_bool
+    is_upcoming = player_response["videoDetails"]?.try &.["isUpcoming"]?.try &.as_bool
 
     if is_upcoming.nil?
       return false
