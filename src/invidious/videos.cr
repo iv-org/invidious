@@ -297,7 +297,7 @@ class Video
           .try &.["liveStreamabilityRenderer"]?
             .try &.["offlineSlate"]?
               .try &.["liveStreamOfflineSlateRenderer"]?
-                .try &.["scheduledStartTime"].as_s.to_i64
+                .try &.["scheduledStartTime"]?.try &.as_s.to_i64
     end
 
     if premiere_timestamp
