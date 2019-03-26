@@ -44,6 +44,9 @@
     </a>
     <% end %>
 </h1>
+<% if !video.is_listed %>
+<h3><i class="icon ion-ios-lock"></i> <%= translate(locale, "Unlisted") %></h3>
+<% end %>
 <% if !reason.empty? %>
 <h3><%= reason %></h3>
 <% end %>
