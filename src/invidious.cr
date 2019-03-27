@@ -4200,6 +4200,11 @@ get "/videoplayback" do |env|
   fvip = query_params["fvip"]? || "3"
   mns = query_params["mn"].split(",")
 
+  if query_params["region"]?
+    region = query_params["region"]
+    query_params.delete("region")
+  end
+
   if query_params["host"]? && !query_params["host"].empty?
     host = "https://#{query_params["host"]}"
     query_params.delete("host")
@@ -4215,8 +4220,6 @@ get "/videoplayback" do |env|
       headers[header] = env.request.headers[header]
     end
   end
-
-  region = query_params["region"]?
 
   response = HTTP::Client::Response.new(403)
   5.times do
@@ -4240,6 +4243,8 @@ get "/videoplayback" do |env|
     env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     url = url.full_path
+    url += "&host=#{host.lchop("https://")}"
+
     if region
       url += "&region=#{region}"
     end
@@ -4258,6 +4263,20 @@ get "/videoplayback" do |env|
 
     response.headers.each do |key, value|
       env.response.headers[key] = value
+    end
+
+    if response.headers["Location"]?
+      url = URI.parse(response.headers["Location"])
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      url = url.full_path
+      url += "&host=#{host.lchop("https://")}"
+
+      if region
+        url += "&region=#{region}"
+      end
+
+      next env.redirect url
     end
 
     if title = query_params["title"]?
