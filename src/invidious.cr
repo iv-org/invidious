@@ -4368,8 +4368,23 @@ get "/vi/:id/:name" do |env|
 end
 
 error 404 do |env|
-  if md = env.request.path.match(/^\/(?<id>[a-zA-Z0-9_-]{11})$/)
+  if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)
     id = md["id"]
+
+    client = make_client(YT_URL)
+    response = client.get("/#{id}")
+
+    if response.status_code == 301
+      response = client.get(response.headers["Location"])
+    end
+
+    html = XML.parse_html(response.body)
+    ucid = html.xpath_node(%q(//meta[@itemprop="channelId"]))
+
+    if ucid
+      env.response.headers["Location"] = "/channel/#{ucid["content"]}"
+      halt env, status_code: 302
+    end
 
     params = [] of String
     env.params.query.each do |k, v|
@@ -4385,25 +4400,6 @@ error 404 do |env|
     client = make_client(YT_URL)
     if client.head("/#{id}").status_code == 404
       env.response.headers["Location"] = url
-      halt env, status_code: 302
-    end
-  end
-
-  if md = env.request.path.match(/^\/(?<name>\w+)$/)
-    name = md["name"]
-
-    client = make_client(YT_URL)
-    response = client.get("/#{name}")
-
-    if response.status_code == 301
-      response = client.get(response.headers["Location"])
-    end
-
-    html = XML.parse_html(response.body)
-    ucid = html.xpath_node(%q(//meta[@itemprop="channelId"]))
-
-    if ucid
-      env.response.headers["Location"] = "/channel/#{ucid["content"]}"
       halt env, status_code: 302
     end
   end
