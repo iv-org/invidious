@@ -4240,10 +4240,11 @@ get "/videoplayback" do |env|
 
   if response.headers["Location"]?
     url = URI.parse(response.headers["Location"])
+    host = url.host
     env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     url = url.full_path
-    url += "&host=#{host.lchop("https://")}"
+    url += "&host=#{host}"
 
     if region
       url += "&region=#{region}"
@@ -4267,10 +4268,11 @@ get "/videoplayback" do |env|
 
     if response.headers["Location"]?
       url = URI.parse(response.headers["Location"])
+      host = url.host
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       url = url.full_path
-      url += "&host=#{host.lchop("https://")}"
+      url += "&host=#{host}"
 
       if region
         url += "&region=#{region}"
