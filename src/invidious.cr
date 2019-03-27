@@ -1322,7 +1322,19 @@ post "/preferences" do |env|
       File.write("config/config.yml", config.to_yaml)
     end
   else
-    env.response.cookies["PREFS"] = preferences
+    if Kemal.config.ssl || config.https_only
+      secure = true
+    else
+      secure = false
+    end
+
+    if config.domain
+      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.now + 2.years,
+        secure: secure, http_only: true)
+    else
+      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.now + 2.years,
+        secure: secure, http_only: true)
+    end
   end
 
   env.redirect referer
@@ -1341,8 +1353,21 @@ get "/toggle_theme" do |env|
   else
     preferences = env.get("preferences").as(Preferences)
     preferences.dark_mode = !preferences.dark_mode
+    preferences = preferences.to_json
 
-    env.response.cookies["PREFS"] = preferences.to_json
+    if Kemal.config.ssl || config.https_only
+      secure = true
+    else
+      secure = false
+    end
+
+    if config.domain
+      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.now + 2.years,
+        secure: secure, http_only: true)
+    else
+      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.now + 2.years,
+        secure: secure, http_only: true)
+    end
   end
 
   env.redirect referer
