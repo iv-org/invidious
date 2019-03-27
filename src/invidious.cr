@@ -307,9 +307,7 @@ get "/watch" do |env|
   nojs ||= "0"
   nojs = nojs == "1"
 
-  if env.get? "preferences"
-    preferences = env.get("preferences").as(Preferences)
-  end
+  preferences = env.get("preferences").as(Preferences)
 
   if env.get? "user"
     user = env.get("user").as(User)
@@ -344,7 +342,7 @@ get "/watch" do |env|
 
       if source == "youtube"
         begin
-          comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, region))["contentHtml"]
+          comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, preferences.thin_mode, region))["contentHtml"]
         rescue ex
           if preferences.comments[1] == "reddit"
             comments, reddit_thread = fetch_reddit_comments(id)
@@ -363,12 +361,12 @@ get "/watch" do |env|
           comment_html = replace_links(comment_html)
         rescue ex
           if preferences.comments[1] == "youtube"
-            comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, region))["contentHtml"]
+            comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, preferences.thin_mode, region))["contentHtml"]
           end
         end
       end
     else
-      comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, region))["contentHtml"]
+      comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, preferences.thin_mode, region))["contentHtml"]
     end
 
     comment_html ||= ""
@@ -447,9 +445,7 @@ get "/embed/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   id = env.params.url["id"]
 
-  if env.get? "preferences"
-    preferences = env.get("preferences").as(Preferences)
-  end
+  preferences = env.get("preferences").as(Preferences)
 
   if id.includes?("%20") || id.includes?("+") || env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")
     id = env.params.url["id"].gsub("%20", "").delete("+")
@@ -2682,6 +2678,9 @@ get "/api/v1/comments/:id" do |env|
   source = env.params.query["source"]?
   source ||= "youtube"
 
+  thin_mode = env.params.query["thin_mode"]?
+  thin_mode = thin_mode == "true"
+
   format = env.params.query["format"]?
   format ||= "json"
 
@@ -2689,7 +2688,7 @@ get "/api/v1/comments/:id" do |env|
 
   if source == "youtube"
     begin
-      comments = fetch_youtube_comments(id, PG_DB, continuation, proxies, format, locale, region)
+      comments = fetch_youtube_comments(id, PG_DB, continuation, proxies, format, locale, thin_mode, region)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500

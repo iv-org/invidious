@@ -167,7 +167,7 @@
         <% rvs.each do |rv| %>
             <% if rv["id"]? %>
             <a href="/watch?v=<%= rv["id"] %>">
-                <% if preferences && preferences.thin_mode %>
+                <% if env.get("preferences").as(Preferences).thin_mode %>
                 <% else %>
                 <div class="thumbnail">
                     <img class="thumbnail" src="/vi/<%= rv["id"] %>/mqdefault.jpg">
@@ -387,7 +387,7 @@ function get_youtube_comments(timeouts = 0) {
   comments.innerHTML =
     '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
-  var url = "/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
+  var url = "/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>&thin_mode=<%= env.get("preferences").as(Preferences).thin_mode %>";
   var xhr = new XMLHttpRequest();
   xhr.responseType = "json";
   xhr.timeout = 20000;
@@ -445,7 +445,7 @@ function get_youtube_replies(target, load_more) {
   body.innerHTML =
       '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
-  var url = '/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>&continuation=' +
+  var url = '/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>&thin_mode=<%= env.get("preferences").as(Preferences).thin_mode %>&continuation=' +
       continuation;
   var xhr = new XMLHttpRequest();
   xhr.responseType = 'json';

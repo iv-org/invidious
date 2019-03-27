@@ -56,7 +56,7 @@ class RedditListing
   })
 end
 
-def fetch_youtube_comments(id, db, continuation, proxies, format, locale, region)
+def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_mode, region)
   video = get_video(id, db, proxies, region: region)
 
   session_token = video.info["session_token"]?
@@ -232,7 +232,7 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, region
 
   if format == "html"
     comments = JSON.parse(comments)
-    content_html = template_youtube_comments(comments, locale)
+    content_html = template_youtube_comments(comments, locale, thin_mode)
 
     comments = JSON.build do |json|
       json.object do
@@ -278,7 +278,7 @@ def fetch_reddit_comments(id)
   return comments, thread
 end
 
-def template_youtube_comments(comments, locale)
+def template_youtube_comments(comments, locale, thin_mode)
   html = ""
 
   root = comments["comments"].as_a
@@ -297,7 +297,11 @@ def template_youtube_comments(comments, locale)
       END_HTML
     end
 
-    author_thumbnail = "/ggpht#{URI.parse(child["authorThumbnails"][-1]["url"].as_s).full_path}"
+    if !thin_mode
+      author_thumbnail = "/ggpht#{URI.parse(child["authorThumbnails"][-1]["url"].as_s).full_path}"
+    else
+      author_thumbnail = ""
+    end
 
     html += <<-END_HTML
     <div class="pure-g">
@@ -318,7 +322,12 @@ def template_youtube_comments(comments, locale)
     END_HTML
 
     if child["creatorHeart"]?
-      creator_thumbnail = "/ggpht#{URI.parse(child["creatorHeart"]["creatorThumbnail"].as_s).full_path}"
+      if !thin_mode
+        creator_thumbnail = "/ggpht#{URI.parse(child["creatorHeart"]["creatorThumbnail"].as_s).full_path}"
+      else
+        creator_thumbnail = ""
+      end
+
       html += <<-END_HTML
           <span class="creator-heart-container" title="#{translate(locale, "`x` marked it with a ❤", child["creatorHeart"]["creatorName"].as_s)}">
               <div class="creator-heart">

@@ -3,7 +3,7 @@
     <% case item when %>
     <% when SearchChannel %>
         <a style="width:100%;" href="/channel/<%= item.ucid %>">
-            <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
+            <% if env.get("preferences").as(Preferences).thin_mode %>
             <% else %>
             <center>
                 <img style="width:56.25%;" src="/ggpht<%= URI.parse(item.author_thumbnail).full_path %>"/>
@@ -21,7 +21,7 @@
         <% url = "/playlist?list=#{item.id}" %>
         <% end %>
         <a style="width:100%;" href="<%= url %>">
-            <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
+            <% if env.get("preferences").as(Preferences).thin_mode %>
             <% else %>
             <div class="thumbnail">
                 <img class="thumbnail" src="/vi/<%= item.thumbnail_id %>/mqdefault.jpg"/>
@@ -35,7 +35,7 @@
         </p>
     <% when MixVideo %>
         <a style="width:100%;" href="/watch?v=<%= item.id %>&list=<%= item.mixes[0] %>">
-            <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
+            <% if env.get("preferences").as(Preferences).thin_mode %>
             <% else %>
             <div class="thumbnail">
                 <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
@@ -51,7 +51,7 @@
         </p>
     <% when PlaylistVideo %>
         <a style="width:100%;" href="/watch?v=<%= item.id %>&list=<%= item.playlists[0] %>">
-            <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
+            <% if env.get("preferences").as(Preferences).thin_mode %>
             <% else %>
             <div class="thumbnail">
                 <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
@@ -74,7 +74,7 @@
         <h5><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></h5>
         <% end %>
     <% else %>
-        <% if env.get?("user") && env.get("user").as(User).preferences.thin_mode %>
+        <% if env.get("preferences").as(Preferences).thin_mode %>
         <% else %>
         <a style="width:100%;" href="/watch?v=<%= item.id %>">
             <div class="thumbnail">
