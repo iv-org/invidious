@@ -6,7 +6,7 @@ class User
       begin
         Preferences.from_json(rs.read(String))
       rescue ex
-        DEFAULT_USER_PREFERENCES
+        Preferences.from_json("{}")
       end
     end
   end
@@ -18,7 +18,6 @@ class User
     email:         String,
     preferences:   {
       type:      Preferences,
-      default:   DEFAULT_USER_PREFERENCES,
       converter: PreferencesConverter,
     },
     password: String?,
@@ -27,30 +26,30 @@ class User
   })
 end
 
-DEFAULT_USER_PREFERENCES = Preferences.from_json({
-  "video_loop"         => false,
-  "autoplay"           => false,
-  "continue"           => false,
-  "local"              => false,
-  "listen"             => false,
-  "speed"              => 1.0,
-  "quality"            => "hd720",
-  "volume"             => 100,
-  "comments"           => ["youtube", ""],
-  "captions"           => ["", "", ""],
-  "related_videos"     => true,
-  "redirect_feed"      => false,
-  "locale"             => "en-US",
-  "dark_mode"          => false,
-  "thin_mode"          => false,
-  "max_results"        => 40,
-  "sort"               => "published",
-  "latest_only"        => false,
-  "unseen_only"        => false,
-  "notifications_only" => false,
-}.to_json)
+DEFAULT_USER_PREFERENCES = Preferences.new(
+  video_loop: false,
+  autoplay: false,
+  continue: false,
+  local: false,
+  listen: false,
+  speed: 1.0_f32,
+  quality: "hd720",
+  volume: 100,
+  comments: ["youtube", ""],
+  captions: ["", "", ""],
+  related_videos: true,
+  redirect_feed: false,
+  locale: "en-US",
+  dark_mode: false,
+  thin_mode: false,
+  max_results: 40,
+  sort: "published",
+  latest_only: false,
+  unseen_only: false,
+  notifications_only: false,
+)
 
-class Preferences
+struct Preferences
   module StringToArray
     def self.to_json(value : Array(String), json : JSON::Builder)
       json.array do
@@ -74,58 +73,27 @@ class Preferences
     end
   end
 
-  JSON.mapping({
-    video_loop: Bool,
-    autoplay:   Bool,
-    continue:   {
-      type:    Bool,
-      default: DEFAULT_USER_PREFERENCES.continue,
-    },
-    local: {
-      type:    Bool,
-      default: DEFAULT_USER_PREFERENCES.local,
-    },
-    listen: {
-      type:    Bool,
-      default: DEFAULT_USER_PREFERENCES.listen,
-    },
-    speed:    Float32,
-    quality:  String,
-    volume:   Int32,
-    comments: {
-      type:      Array(String),
-      default:   DEFAULT_USER_PREFERENCES.comments,
-      converter: StringToArray,
-    },
-    captions: {
-      type:    Array(String),
-      default: DEFAULT_USER_PREFERENCES.captions,
-    },
-    redirect_feed: {
-      type:    Bool,
-      default: DEFAULT_USER_PREFERENCES.redirect_feed,
-    },
-    related_videos: {
-      type:    Bool,
-      default: DEFAULT_USER_PREFERENCES.related_videos,
-    },
-    dark_mode: Bool,
-    thin_mode: {
-      type:    Bool,
-      default: DEFAULT_USER_PREFERENCES.thin_mode,
-    },
-    max_results:        Int32,
-    sort:               String,
-    latest_only:        Bool,
-    unseen_only:        Bool,
-    notifications_only: {
-      type:    Bool,
-      default: DEFAULT_USER_PREFERENCES.notifications_only,
-    },
-    locale: {
-      type:    String,
-      default: DEFAULT_USER_PREFERENCES.locale,
-    },
+  json_mapping({
+    video_loop:         {type: Bool, default: DEFAULT_USER_PREFERENCES.video_loop},
+    autoplay:           {type: Bool, default: DEFAULT_USER_PREFERENCES.autoplay},
+    continue:           {type: Bool, default: DEFAULT_USER_PREFERENCES.continue},
+    local:              {type: Bool, default: DEFAULT_USER_PREFERENCES.local},
+    listen:             {type: Bool, default: DEFAULT_USER_PREFERENCES.listen},
+    speed:              {type: Float32, default: DEFAULT_USER_PREFERENCES.speed},
+    quality:            {type: String, default: DEFAULT_USER_PREFERENCES.quality},
+    volume:             {type: Int32, default: DEFAULT_USER_PREFERENCES.volume},
+    comments:           {type: Array(String), default: DEFAULT_USER_PREFERENCES.comments, converter: StringToArray},
+    captions:           {type: Array(String), default: DEFAULT_USER_PREFERENCES.captions, converter: StringToArray},
+    redirect_feed:      {type: Bool, default: DEFAULT_USER_PREFERENCES.redirect_feed},
+    related_videos:     {type: Bool, default: DEFAULT_USER_PREFERENCES.related_videos},
+    dark_mode:          {type: Bool, default: DEFAULT_USER_PREFERENCES.dark_mode},
+    thin_mode:          {type: Bool, default: DEFAULT_USER_PREFERENCES.thin_mode},
+    max_results:        {type: Int32, default: DEFAULT_USER_PREFERENCES.max_results},
+    sort:               {type: String, default: DEFAULT_USER_PREFERENCES.sort},
+    latest_only:        {type: Bool, default: DEFAULT_USER_PREFERENCES.latest_only},
+    unseen_only:        {type: Bool, default: DEFAULT_USER_PREFERENCES.unseen_only},
+    notifications_only: {type: Bool, default: DEFAULT_USER_PREFERENCES.notifications_only},
+    locale:             {type: String, default: DEFAULT_USER_PREFERENCES.locale},
   })
 end
 

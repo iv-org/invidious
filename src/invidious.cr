@@ -160,7 +160,12 @@ proxies = PROXY_LIST
 before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
-  preferences = DEFAULT_USER_PREFERENCES.dup
+
+  begin
+    preferences = Preferences.from_json(env.request.cookies["PREFS"]?.try &.value || "{}")
+  rescue
+    preferences = Preferences.from_json("{}")
+  end
 
   if env.request.cookies.has_key? "SID"
     headers = HTTP::Headers.new
@@ -199,10 +204,6 @@ before_all do |env|
       rescue ex
       end
     end
-  end
-
-  if env.request.cookies.has_key? "PREFS"
-    preferences = Preferences.from_json(env.request.cookies["PREFS"].value)
   end
 
   dark_mode = env.params.query["dark_mode"]? || preferences.dark_mode.to_s
@@ -1079,12 +1080,6 @@ post "/login" do |env|
       # See https://security.stackexchange.com/a/39851
       if password.size > 55
         error_message = translate(locale, "Password cannot be longer than 55 characters")
-        next templated "error"
-      end
-
-      user = PG_DB.query_one?("SELECT * FROM users WHERE LOWER(email) = LOWER($1) AND password IS NOT NULL", email, as: User)
-      if user
-        error_message = translate(locale, "Please sign in")
         next templated "error"
       end
 

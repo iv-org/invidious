@@ -46,8 +46,7 @@
         <% if env.get? "user" %>
         <div class="pure-u-1-4">
           <a href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-            <% preferences = env.get("user").as(User).preferences %>
-            <% if preferences.dark_mode %>
+            <% if env.get("preferences").as(Preferences).dark_mode %>
             <i class="icon ion-ios-sunny"></i>
             <% else %>
             <i class="icon ion-ios-moon"></i>
