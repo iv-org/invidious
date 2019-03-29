@@ -2315,6 +2315,16 @@ get "/feed/playlist/:plid" do |env|
   document
 end
 
+get "/feeds/videos.xml" do |env|
+  if ucid = env.params.query["channel_id"]?
+    env.redirect "/feed/channel/#{ucid}"
+  elsif user = env.params.query["user"]?
+    env.redirect "/feed/channel/#{user}"
+  elsif plid = env.params.query["playlist_id"]?
+    env.redirect "/feed/playlist/#{plid}"
+  end
+end
+
 # Support push notifications via PubSubHubbub
 
 get "/feed/webhook/:token" do |env|
