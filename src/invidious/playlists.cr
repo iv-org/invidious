@@ -1,4 +1,4 @@
-class PlaylistVideo
+struct PlaylistVideo
   add_mapping({
     title:          String,
     id:             String,
@@ -12,7 +12,7 @@ class PlaylistVideo
   })
 end
 
-class Playlist
+struct Playlist
   add_mapping({
     title:            String,
     id:               String,

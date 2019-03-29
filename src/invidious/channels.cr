@@ -1,4 +1,4 @@
-class InvidiousChannel
+struct InvidiousChannel
   add_mapping({
     id:         String,
     author:     String,
@@ -8,7 +8,7 @@ class InvidiousChannel
   })
 end
 
-class ChannelVideo
+struct ChannelVideo
   add_mapping({
     id:                 String,
     title:              String,

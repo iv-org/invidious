@@ -241,7 +241,7 @@ VIDEO_FORMATS = {
   "251" => {"ext" => "webm", "format" => "DASH audio", "acodec" => "opus", "abr" => 160},
 }
 
-class Video
+struct Video
   property player_json : JSON::Any?
 
   module HTTPParamConverter
@@ -549,7 +549,7 @@ class Video
   })
 end
 
-class Caption
+struct Caption
   JSON.mapping(
     name: CaptionName,
     baseUrl: String,
@@ -557,7 +557,7 @@ class Caption
   )
 end
 
-class CaptionName
+struct CaptionName
   JSON.mapping(
     simpleText: String,
   )

@@ -29,7 +29,7 @@ class RedditComment
   })
 end
 
-class RedditLink
+struct RedditLink
   JSON.mapping({
     author:       String,
     score:        Int32,
@@ -41,7 +41,7 @@ class RedditLink
   })
 end
 
-class RedditMore
+struct RedditMore
   JSON.mapping({
     children: Array(String),
     count:    Int32,

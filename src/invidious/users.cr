@@ -1,6 +1,6 @@
 require "crypto/bcrypt/password"
 
-class User
+struct User
   module PreferencesConverter
     def self.from_rs(rs)
       begin

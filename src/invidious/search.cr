@@ -1,4 +1,4 @@
-class SearchVideo
+struct SearchVideo
   add_mapping({
     title:              String,
     id:                 String,
@@ -16,7 +16,7 @@ class SearchVideo
   })
 end
 
-class SearchPlaylistVideo
+struct SearchPlaylistVideo
   add_mapping({
     title:          String,
     id:             String,
@@ -24,7 +24,7 @@ class SearchPlaylistVideo
   })
 end
 
-class SearchPlaylist
+struct SearchPlaylist
   add_mapping({
     title:        String,
     id:           String,
@@ -36,7 +36,7 @@ class SearchPlaylist
   })
 end
 
-class SearchChannel
+struct SearchChannel
   add_mapping({
     author:           String,
     ucid:             String,
