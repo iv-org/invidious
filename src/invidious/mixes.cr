@@ -1,4 +1,4 @@
-class MixVideo
+struct MixVideo
   add_mapping({
     title:          String,
     id:             String,
@@ -10,7 +10,7 @@ class MixVideo
   })
 end
 
-class Mix
+struct Mix
   add_mapping({
     title:  String,
     id:     String,

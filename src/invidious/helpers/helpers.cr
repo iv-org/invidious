@@ -1,4 +1,4 @@
-class Config
+struct Config
   YAML.mapping({
     channel_threads: Int32,      # Number of threads to use for crawling videos from channels (for updating subscriptions)
     feed_threads:    Int32,      # Number of threads to use for updating feeds

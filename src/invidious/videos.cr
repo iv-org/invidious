@@ -241,7 +241,7 @@ VIDEO_FORMATS = {
   "251" => {"ext" => "webm", "format" => "DASH audio", "acodec" => "opus", "abr" => 160},
 }
 
-class Video
+struct Video
   property player_json : JSON::Any?
 
   module HTTPParamConverter
@@ -251,7 +251,7 @@ class Video
   end
 
   def allow_ratings
-    allow_ratings = player_response["videoDetails"].try &.["allowRatings"]?.try &.as_bool
+    allow_ratings = player_response["videoDetails"]?.try &.["allowRatings"]?.try &.as_bool
 
     if allow_ratings.nil?
       return true
@@ -271,7 +271,7 @@ class Video
   end
 
   def is_listed
-    is_listed = player_response["videoDetails"].try &.["isCrawlable"]?.try &.as_bool
+    is_listed = player_response["videoDetails"]?.try &.["isCrawlable"]?.try &.as_bool
 
     if is_listed.nil?
       return true
@@ -281,7 +281,7 @@ class Video
   end
 
   def is_upcoming
-    is_upcoming = player_response["videoDetails"].try &.["isUpcoming"]?.try &.as_bool
+    is_upcoming = player_response["videoDetails"]?.try &.["isUpcoming"]?.try &.as_bool
 
     if is_upcoming.nil?
       return false
@@ -297,7 +297,7 @@ class Video
           .try &.["liveStreamabilityRenderer"]?
             .try &.["offlineSlate"]?
               .try &.["liveStreamOfflineSlateRenderer"]?
-                .try &.["scheduledStartTime"].as_s.to_i64
+                .try &.["scheduledStartTime"]?.try &.as_s.to_i64
     end
 
     if premiere_timestamp
@@ -549,7 +549,7 @@ class Video
   })
 end
 
-class Caption
+struct Caption
   JSON.mapping(
     name: CaptionName,
     baseUrl: String,
@@ -557,7 +557,7 @@ class Caption
   )
 end
 
-class CaptionName
+struct CaptionName
   JSON.mapping(
     simpleText: String,
   )

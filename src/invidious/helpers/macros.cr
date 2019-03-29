@@ -9,6 +9,17 @@ macro add_mapping(mapping)
     DB.mapping({{mapping}})
 end
 
+macro json_mapping(mapping)
+    def initialize({{*mapping.keys.map { |id| "@#{id}".id }}})
+    end
+
+    def to_a
+        return [{{*mapping.keys.map { |id| "@#{id}".id }}}]
+    end
+
+    JSON.mapping({{mapping}})
+end
+
 macro templated(filename, template = "template")
     render "src/invidious/views/#{{{filename}}}.ecr", "src/invidious/views/#{{{template}}}.ecr"
 end

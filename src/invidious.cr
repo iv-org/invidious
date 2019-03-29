@@ -242,6 +242,9 @@ get "/api/v1/comments/:id" do |env|
   source = env.params.query["source"]?
   source ||= "youtube"
 
+  thin_mode = env.params.query["thin_mode"]?
+  thin_mode = thin_mode == "true"
+
   format = env.params.query["format"]?
   format ||= "json"
 
@@ -249,7 +252,7 @@ get "/api/v1/comments/:id" do |env|
 
   if source == "youtube"
     begin
-      comments = fetch_youtube_comments(id, continuation, proxies, format, locale, region)
+      comments = fetch_youtube_comments(id, continuation, proxies, format, locale, thin_mode, region)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -1688,6 +1691,11 @@ get "/videoplayback" do |env|
   fvip = query_params["fvip"]? || "3"
   mns = query_params["mn"].split(",")
 
+  if query_params["region"]?
+    region = query_params["region"]
+    query_params.delete("region")
+  end
+
   if query_params["host"]? && !query_params["host"].empty?
     host = "https://#{query_params["host"]}"
     query_params.delete("host")
@@ -1703,8 +1711,6 @@ get "/videoplayback" do |env|
       headers[header] = env.request.headers[header]
     end
   end
-
-  region = query_params["region"]?
 
   response = HTTP::Client::Response.new(403)
   5.times do
@@ -1725,9 +1731,12 @@ get "/videoplayback" do |env|
 
   if response.headers["Location"]?
     url = URI.parse(response.headers["Location"])
+    host = url.host
     env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     url = url.full_path
+    url += "&host=#{host}"
+
     if region
       url += "&region=#{region}"
     end
@@ -1744,13 +1753,28 @@ get "/videoplayback" do |env|
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
 
-    if title = env.params.query["title"]?
-      # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
-    end
-
     response.headers.each do |key, value|
       env.response.headers[key] = value
+    end
+
+    if response.headers["Location"]?
+      url = URI.parse(response.headers["Location"])
+      host = url.host
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      url = url.full_path
+      url += "&host=#{host}"
+
+      if region
+        url += "&region=#{region}"
+      end
+
+      next env.redirect url
+    end
+
+    if title = query_params["title"]?
+      # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
     end
 
     env.response.headers["Access-Control-Allow-Origin"] = "*"
