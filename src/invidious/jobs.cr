@@ -106,7 +106,7 @@ def subscribe_to_feeds(db, logger, key, config)
   if config.use_pubsub_feeds
     spawn do
       loop do
-        db.query_all("SELECT id FROM channels WHERE CURRENT_TIMESTAMP - subscribed > '4 days'") do |rs|
+        db.query_all("SELECT id FROM channels WHERE CURRENT_TIMESTAMP - subscribed > '4 days' OR subscribed IS NULL") do |rs|
           rs.each do
             ucid = rs.read(String)
             response = subscribe_pubsub(ucid, key, config)
