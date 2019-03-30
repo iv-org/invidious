@@ -1,5 +1,3 @@
-require "json"
-
 module JSONFilter
   alias BracketIndex = Hash(Int64, Int64)
 
