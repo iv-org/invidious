@@ -144,7 +144,7 @@ module JSONFilter
 
     def self.get_bracket_pairs(text : String, recursive = true) : BracketIndex
       istart = [] of Int64
-      d = BracketIndex.new
+      bracket_index = BracketIndex.new
 
       text.each_char_with_index do |char, index|
         if char == '('
@@ -155,7 +155,7 @@ module JSONFilter
           begin
             opening = istart.pop
             if recursive || (!recursive && istart.size == 0)
-              d[opening] = index.to_i64
+              bracket_index[opening] = index.to_i64
             end
           rescue
             raise FieldsParser::ParseError.new "No matching opening parenthesis at: #{index}"
@@ -168,7 +168,7 @@ module JSONFilter
         raise FieldsParser::ParseError.new "No matching closing parenthesis at: #{idx}"
       end
 
-      return d
+      return bracket_index
     end
   end
 
