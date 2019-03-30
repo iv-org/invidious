@@ -3,7 +3,7 @@ require "json"
 module JSONFilter
   alias BracketIndex = Hash(Int64, Int64)
 
-  alias GroupedFieldsValue = String | Array(String) | Array(GroupedFieldsValue)
+  alias GroupedFieldsValue = String | Array(GroupedFieldsValue)
   alias GroupedFieldsList = Array(GroupedFieldsValue)
 
   class FieldsParser
