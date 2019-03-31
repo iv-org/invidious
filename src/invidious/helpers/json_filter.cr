@@ -171,11 +171,10 @@ module JSONFilter
   end
 
   class FieldsGrouper
-    alias JSONSkeleton = Hash(String, JSONSkeleton)
-    alias SkeletonValue = Hash(String, JSONSkeleton)
+    alias SkeletonValue = Hash(String, SkeletonValue)
 
     def self.create_json_skeleton(fields_text : String) : SkeletonValue
-      root_hash = SkeletonValue.new
+      root_hash = {} of String => SkeletonValue
 
       FieldsParser.parse_fields(fields_text) do |nest_list|
         current_item = root_hash
@@ -183,7 +182,7 @@ module JSONFilter
           if current_item[key]?
             current_item = current_item[key]
           else
-            current_item[key] = SkeletonValue.new
+            current_item[key] = {} of String => SkeletonValue
             current_item = current_item[key]
           end
         end
