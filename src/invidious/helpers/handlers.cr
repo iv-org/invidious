@@ -97,6 +97,16 @@ class APIHandler < Kemal::Handler
       if env.response.headers["Content-Type"]?.try &.== "application/json"
         response = JSON.parse(response)
 
+        if env.params.query["fields"]?
+          fields_text = env.params.query["fields"]
+          begin
+            JSONFilter.filter(response, fields_text)
+          rescue ex
+            env.response.status_code = 400
+            response = {"error" => ex.message}
+          end
+        end
+
         if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
           response = response.to_pretty_json
         else
