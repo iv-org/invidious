@@ -70,11 +70,13 @@ PG_URL = URI.new(
 )
 
 PG_DB           = DB.open PG_URL
-YT_URL          = URI.parse("https://www.youtube.com")
-REDDIT_URL      = URI.parse("https://www.reddit.com")
+ARCHIVE_URL     = URI.parse("https://archive.org")
 LOGIN_URL       = URI.parse("https://accounts.google.com")
 PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
+REDDIT_URL      = URI.parse("https://www.reddit.com")
 TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@protonmail.com.json")
+YT_URL          = URI.parse("https://www.youtube.com")
+CHARS_SAFE      = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
 CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
 CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
@@ -2822,6 +2824,66 @@ get "/api/v1/insights/:id" do |env|
   }
 
   next response.to_json
+end
+
+get "/api/v1/annotations/:id" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  env.response.content_type = "text/xml"
+
+  id = env.params.url["id"]
+  source = env.params.query["source"]?
+  source ||= "archive"
+
+  if !id.match(/[a-zA-Z0-9_-]{11}/)
+    env.response.status_code = 400
+    next
+  end
+
+  annotations = ""
+
+  case source
+  when "archive"
+    index = CHARS_SAFE.index(id[0]).not_nil!.to_s.rjust(2, '0')
+
+    # IA doesn't handle leading hyphens,
+    # so we use https://archive.org/details/youtubeannotations_64
+    if index == "62"
+      index = "64"
+      id = id.sub(/^-/, 'A')
+    end
+
+    file = URI.escape("#{id[0, 3]}/#{id}.xml")
+
+    client = make_client(ARCHIVE_URL)
+    location = client.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}")
+
+    if !location.headers["Location"]?
+      env.response.status_code = location.status_code
+    end
+
+    response = HTTP::Client.get(URI.parse(location.headers["Location"]))
+
+    if response.status_code != 200
+      env.response.status_code = response.status_code
+      next
+    end
+
+    annotations = response.body
+  when "youtube"
+    client = make_client(YT_URL)
+
+    response = client.get("/annotations_invideo?video_id=#{id}")
+
+    if response.status_code != 200
+      env.response.status_code = response.status_code
+      next
+    end
+
+    annotations = response.body
+  end
+
+  annotations
 end
 
 get "/api/v1/videos/:id" do |env|
