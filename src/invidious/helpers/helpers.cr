@@ -200,6 +200,12 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
 
       author_thumbnail = node.xpath_node(%q(.//div/span/img)).try &.["data-thumb"]?
       author_thumbnail ||= node.xpath_node(%q(.//div/span/img)).try &.["src"]
+      if author_thumbnail
+        author_thumbnail = URI.parse(author_thumbnail)
+        author_thumbnail.scheme = "https"
+        author_thumbnail = author_thumbnail.to_s
+      end
+
       author_thumbnail ||= ""
 
       subscriber_count = node.xpath_node(%q(.//span[contains(@class, "yt-subscriber-count")])).try &.["title"].delete(",").to_i?
