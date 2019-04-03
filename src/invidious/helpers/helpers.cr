@@ -99,6 +99,7 @@ user: String,
                                default: Preferences.new(*ConfigPreferences.from_yaml("").to_tuple),
                                converter: ConfigPreferencesConverter,
     },
+    dmca_content: {type: Array(String), default: [] of String}, # For compliance with DMCA, disables download widget using list of video IDs
   })
 end
 

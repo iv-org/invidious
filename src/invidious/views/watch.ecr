@@ -57,6 +57,9 @@
         <div class="h-box">
             <p><a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch video on Youtube") %></a></p>
 
+            <% if CONFIG.dmca_content.includes? video.id %>
+            <p>Download is disabled.</p>
+            <% else %>
             <form class="pure-form pure-form-stacked" action="/latest_version" method="get" rel="noopener" target="_blank">
                 <div class="pure-control-group">
                     <label for="download_widget"><%= translate(locale, "Download as: ") %></label>
@@ -83,6 +86,7 @@
                     <b><%= translate(locale, "Download") %></b>
                 </button>
             </form>
+            <% end %>
 
             <p><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
             <p><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
