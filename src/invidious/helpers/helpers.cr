@@ -1,4 +1,76 @@
+require "./macros"
+
+struct ConfigPreferences
+  module StringToArray
+    def self.to_yaml(value : Array(String), yaml : YAML::Nodes::Builder)
+      yaml.sequence do
+        value.each do |element|
+          yaml.scalar element
+        end
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Array(String)
+      begin
+        unless node.is_a?(YAML::Nodes::Sequence)
+          node.raise "Expected sequence, not #{node.class}"
+        end
+
+        result = [] of String
+        node.nodes.each do
+          unless node.is_a?(YAML::Nodes::Scalar)
+            node.raise "Expected scalar, not #{node.class}"
+          end
+
+          result << node.value
+        end
+      rescue ex
+        if node.is_a?(YAML::Nodes::Scalar)
+          result = [node.value, ""]
+        else
+          result = ["", ""]
+        end
+      end
+
+      result
+    end
+  end
+
+  yaml_mapping({
+    autoplay:           {type: Bool, default: false},
+    captions:           {type: Array(String), default: ["", "", ""], converter: StringToArray},
+    comments:           {type: Array(String), default: ["youtube", ""], converter: StringToArray},
+    continue:           {type: Bool, default: false},
+    dark_mode:          {type: Bool, default: false},
+    latest_only:        {type: Bool, default: false},
+    listen:             {type: Bool, default: false},
+    local:              {type: Bool, default: false},
+    locale:             {type: String, default: "en-US"},
+    max_results:        {type: Int32, default: 40},
+    notifications_only: {type: Bool, default: false},
+    quality:            {type: String, default: "hd720"},
+    redirect_feed:      {type: Bool, default: false},
+    related_videos:     {type: Bool, default: true},
+    sort:               {type: String, default: "published"},
+    speed:              {type: Float32, default: 1.0_f32},
+    thin_mode:          {type: Bool, default: false},
+    unseen_only:        {type: Bool, default: false},
+    video_loop:         {type: Bool, default: false},
+    volume:             {type: Int32, default: 100},
+  })
+end
+
 struct Config
+  module ConfigPreferencesConverter
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Preferences
+      Preferences.new(*ConfigPreferences.new(ctx, node).to_tuple)
+    end
+
+    def self.to_yaml(value : Preferences, yaml : YAML::Nodes::Builder)
+      value.to_yaml(yaml)
+    end
+  end
+
   YAML.mapping({
     channel_threads: Int32,      # Number of threads to use for crawling videos from channels (for updating subscriptions)
     feed_threads:    Int32,      # Number of threads to use for updating feeds
@@ -9,20 +81,24 @@ user: String,
       port: Int32,
       dbname: String,
     ),
-    full_refresh:         Bool,                         # Used for crawling channels: threads should check all videos uploaded by a channel
-    https_only:           Bool?,                        # Used to tell Invidious it is behind a proxy, so links to resources should be https://
-    hmac_key:             String?,                      # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
-    domain:               String?,                      # Domain to be used for links to resources on the site where an absolute URL is required
-    use_pubsub_feeds:     {type: Bool, default: false}, # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
-    default_home:         {type: String, default: "Top"},
-    feed_menu:            {type: Array(String), default: ["Popular", "Top", "Trending", "Subscriptions"]},
-    top_enabled:          {type: Bool, default: true},
-    captcha_enabled:      {type: Bool, default: true},
-    login_enabled:        {type: Bool, default: true},
-    registration_enabled: {type: Bool, default: true},
-    statistics_enabled:   {type: Bool, default: false},
-    admins:               {type: Array(String), default: [] of String},
-    external_port:        {type: Int32 | Nil, default: nil},
+    full_refresh:             Bool,                         # Used for crawling channels: threads should check all videos uploaded by a channel
+    https_only:               Bool?,                        # Used to tell Invidious it is behind a proxy, so links to resources should be https://
+    hmac_key:                 String?,                      # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
+    domain:                   String?,                      # Domain to be used for links to resources on the site where an absolute URL is required
+    use_pubsub_feeds:         {type: Bool, default: false}, # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
+    default_home:             {type: String, default: "Top"},
+    feed_menu:                {type: Array(String), default: ["Popular", "Top", "Trending", "Subscriptions"]},
+    top_enabled:              {type: Bool, default: true},
+    captcha_enabled:          {type: Bool, default: true},
+    login_enabled:            {type: Bool, default: true},
+    registration_enabled:     {type: Bool, default: true},
+    statistics_enabled:       {type: Bool, default: false},
+    admins:                   {type: Array(String), default: [] of String},
+    external_port:            {type: Int32?, default: nil},
+    default_user_preferences: {type: Preferences,
+                               default: Preferences.new(*ConfigPreferences.from_yaml("").to_tuple),
+                               converter: ConfigPreferencesConverter,
+    },
   })
 end
 

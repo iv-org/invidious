@@ -11,7 +11,7 @@ struct User
     end
   end
 
-  add_mapping({
+  db_mapping({
     updated:       Time,
     notifications: Array(String),
     subscriptions: Array(String),
@@ -25,29 +25,6 @@ struct User
     watched:  Array(String),
   })
 end
-
-DEFAULT_USER_PREFERENCES = Preferences.new(
-  video_loop: false,
-  autoplay: false,
-  continue: false,
-  local: false,
-  listen: false,
-  speed: 1.0_f32,
-  quality: "hd720",
-  volume: 100,
-  comments: ["youtube", ""],
-  captions: ["", "", ""],
-  related_videos: true,
-  redirect_feed: false,
-  locale: "en-US",
-  dark_mode: false,
-  thin_mode: false,
-  max_results: 40,
-  sort: "published",
-  latest_only: false,
-  unseen_only: false,
-  notifications_only: false,
-)
 
 struct Preferences
   module StringToArray
@@ -71,29 +48,62 @@ struct Preferences
 
       result
     end
+
+    def self.to_yaml(value : Array(String), yaml : YAML::Nodes::Builder)
+      yaml.sequence do
+        value.each do |element|
+          yaml.scalar element
+        end
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Array(String)
+      begin
+        unless node.is_a?(YAML::Nodes::Sequence)
+          node.raise "Expected sequence, not #{node.class}"
+        end
+
+        result = [] of String
+        node.nodes.each do
+          unless node.is_a?(YAML::Nodes::Scalar)
+            node.raise "Expected scalar, not #{node.class}"
+          end
+
+          result << node.value
+        end
+      rescue ex
+        if node.is_a?(YAML::Nodes::Scalar)
+          result = [node.value, ""]
+        else
+          result = ["", ""]
+        end
+      end
+
+      result
+    end
   end
 
   json_mapping({
-    video_loop:         {type: Bool, default: DEFAULT_USER_PREFERENCES.video_loop},
-    autoplay:           {type: Bool, default: DEFAULT_USER_PREFERENCES.autoplay},
-    continue:           {type: Bool, default: DEFAULT_USER_PREFERENCES.continue},
-    local:              {type: Bool, default: DEFAULT_USER_PREFERENCES.local},
-    listen:             {type: Bool, default: DEFAULT_USER_PREFERENCES.listen},
-    speed:              {type: Float32, default: DEFAULT_USER_PREFERENCES.speed},
-    quality:            {type: String, default: DEFAULT_USER_PREFERENCES.quality},
-    volume:             {type: Int32, default: DEFAULT_USER_PREFERENCES.volume},
-    comments:           {type: Array(String), default: DEFAULT_USER_PREFERENCES.comments, converter: StringToArray},
-    captions:           {type: Array(String), default: DEFAULT_USER_PREFERENCES.captions, converter: StringToArray},
-    redirect_feed:      {type: Bool, default: DEFAULT_USER_PREFERENCES.redirect_feed},
-    related_videos:     {type: Bool, default: DEFAULT_USER_PREFERENCES.related_videos},
-    dark_mode:          {type: Bool, default: DEFAULT_USER_PREFERENCES.dark_mode},
-    thin_mode:          {type: Bool, default: DEFAULT_USER_PREFERENCES.thin_mode},
-    max_results:        {type: Int32, default: DEFAULT_USER_PREFERENCES.max_results},
-    sort:               {type: String, default: DEFAULT_USER_PREFERENCES.sort},
-    latest_only:        {type: Bool, default: DEFAULT_USER_PREFERENCES.latest_only},
-    unseen_only:        {type: Bool, default: DEFAULT_USER_PREFERENCES.unseen_only},
-    notifications_only: {type: Bool, default: DEFAULT_USER_PREFERENCES.notifications_only},
-    locale:             {type: String, default: DEFAULT_USER_PREFERENCES.locale},
+    autoplay:           {type: Bool, default: CONFIG.default_user_preferences.autoplay},
+    captions:           {type: Array(String), default: CONFIG.default_user_preferences.captions, converter: StringToArray},
+    comments:           {type: Array(String), default: CONFIG.default_user_preferences.comments, converter: StringToArray},
+    continue:           {type: Bool, default: CONFIG.default_user_preferences.continue},
+    dark_mode:          {type: Bool, default: CONFIG.default_user_preferences.dark_mode},
+    latest_only:        {type: Bool, default: CONFIG.default_user_preferences.latest_only},
+    listen:             {type: Bool, default: CONFIG.default_user_preferences.listen},
+    local:              {type: Bool, default: CONFIG.default_user_preferences.local},
+    locale:             {type: String, default: CONFIG.default_user_preferences.locale},
+    max_results:        {type: Int32, default: CONFIG.default_user_preferences.max_results},
+    notifications_only: {type: Bool, default: CONFIG.default_user_preferences.notifications_only},
+    quality:            {type: String, default: CONFIG.default_user_preferences.quality},
+    redirect_feed:      {type: Bool, default: CONFIG.default_user_preferences.redirect_feed},
+    related_videos:     {type: Bool, default: CONFIG.default_user_preferences.related_videos},
+    sort:               {type: String, default: CONFIG.default_user_preferences.sort},
+    speed:              {type: Float32, default: CONFIG.default_user_preferences.speed},
+    thin_mode:          {type: Bool, default: CONFIG.default_user_preferences.thin_mode},
+    unseen_only:        {type: Bool, default: CONFIG.default_user_preferences.unseen_only},
+    video_loop:         {type: Bool, default: CONFIG.default_user_preferences.video_loop},
+    volume:             {type: Int32, default: CONFIG.default_user_preferences.volume},
   })
 end
 
@@ -174,7 +184,7 @@ def fetch_user(sid, headers, db)
 
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil, token, [] of String)
+  user = User.new(Time.now, [] of String, channels, email, CONFIG.default_user_preferences, nil, token, [] of String)
   return user, sid
 end
 
@@ -182,7 +192,7 @@ def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token, [] of String)
+  user = User.new(Time.now, [] of String, [] of String, email, CONFIG.default_user_preferences, password.to_s, token, [] of String)
 
   return user, sid
 end

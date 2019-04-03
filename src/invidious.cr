@@ -1198,22 +1198,22 @@ post "/preferences" do |env|
   local = local == "on"
 
   speed = env.params.body["speed"]?.try &.as(String).to_f?
-  speed ||= DEFAULT_USER_PREFERENCES.speed
+  speed ||= CONFIG.default_user_preferences.speed
 
   quality = env.params.body["quality"]?.try &.as(String)
-  quality ||= DEFAULT_USER_PREFERENCES.quality
+  quality ||= CONFIG.default_user_preferences.quality
 
   volume = env.params.body["volume"]?.try &.as(String).to_i?
-  volume ||= DEFAULT_USER_PREFERENCES.volume
+  volume ||= CONFIG.default_user_preferences.volume
 
   comments = [] of String
   2.times do |i|
-    comments << (env.params.body["comments[#{i}]"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.comments[i])
+    comments << (env.params.body["comments[#{i}]"]?.try &.as(String) || CONFIG.default_user_preferences.comments[i])
   end
 
   captions = [] of String
   3.times do |i|
-    captions << (env.params.body["captions[#{i}]"]?.try &.as(String) || DEFAULT_USER_PREFERENCES.captions[i])
+    captions << (env.params.body["captions[#{i}]"]?.try &.as(String) || CONFIG.default_user_preferences.captions[i])
   end
 
   related_videos = env.params.body["related_videos"]?.try &.as(String)
@@ -1225,7 +1225,7 @@ post "/preferences" do |env|
   redirect_feed = redirect_feed == "on"
 
   locale = env.params.body["locale"]?.try &.as(String)
-  locale ||= DEFAULT_USER_PREFERENCES.locale
+  locale ||= CONFIG.default_user_preferences.locale
 
   dark_mode = env.params.body["dark_mode"]?.try &.as(String)
   dark_mode ||= "off"
@@ -1236,10 +1236,10 @@ post "/preferences" do |env|
   thin_mode = thin_mode == "on"
 
   max_results = env.params.body["max_results"]?.try &.as(String).to_i?
-  max_results ||= DEFAULT_USER_PREFERENCES.max_results
+  max_results ||= CONFIG.default_user_preferences.max_results
 
   sort = env.params.body["sort"]?.try &.as(String)
-  sort ||= DEFAULT_USER_PREFERENCES.sort
+  sort ||= CONFIG.default_user_preferences.sort
 
   latest_only = env.params.body["latest_only"]?.try &.as(String)
   latest_only ||= "off"

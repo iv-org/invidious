@@ -1,5 +1,5 @@
 struct PlaylistVideo
-  add_mapping({
+  db_mapping({
     title:          String,
     id:             String,
     author:         String,
@@ -13,7 +13,7 @@ struct PlaylistVideo
 end
 
 struct Playlist
-  add_mapping({
+  db_mapping({
     title:            String,
     id:               String,
     author:           String,

@@ -1,5 +1,5 @@
 struct SearchVideo
-  add_mapping({
+  db_mapping({
     title:              String,
     id:                 String,
     author:             String,
@@ -17,7 +17,7 @@ struct SearchVideo
 end
 
 struct SearchPlaylistVideo
-  add_mapping({
+  db_mapping({
     title:          String,
     id:             String,
     length_seconds: Int32,
@@ -25,7 +25,7 @@ struct SearchPlaylistVideo
 end
 
 struct SearchPlaylist
-  add_mapping({
+  db_mapping({
     title:        String,
     id:           String,
     author:       String,
@@ -37,7 +37,7 @@ struct SearchPlaylist
 end
 
 struct SearchChannel
-  add_mapping({
+  db_mapping({
     author:           String,
     ucid:             String,
     author_thumbnail: String,

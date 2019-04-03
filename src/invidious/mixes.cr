@@ -1,5 +1,5 @@
 struct MixVideo
-  add_mapping({
+  db_mapping({
     title:          String,
     id:             String,
     author:         String,
@@ -11,7 +11,7 @@ struct MixVideo
 end
 
 struct Mix
-  add_mapping({
+  db_mapping({
     title:  String,
     id:     String,
     videos: Array(MixVideo),

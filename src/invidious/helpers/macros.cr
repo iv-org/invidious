@@ -1,4 +1,4 @@
-macro add_mapping(mapping)
+macro db_mapping(mapping)
     def initialize({{*mapping.keys.map { |id| "@#{id}".id }}})
     end
 
@@ -18,6 +18,22 @@ macro json_mapping(mapping)
     end
 
     JSON.mapping({{mapping}})
+    YAML.mapping({{mapping}})
+end
+
+macro yaml_mapping(mapping)
+    def initialize({{*mapping.keys.map { |id| "@#{id}".id }}})
+    end
+
+    def to_a
+        return [{{*mapping.keys.map { |id| "@#{id}".id }}}]
+    end
+
+    def to_tuple
+        return { {{*mapping.keys.map { |id| "@#{id}".id }}} }
+    end
+
+    YAML.mapping({{mapping}})
 end
 
 macro templated(filename, template = "template")

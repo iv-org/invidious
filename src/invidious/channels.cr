@@ -1,5 +1,5 @@
 struct InvidiousChannel
-  add_mapping({
+  db_mapping({
     id:         String,
     author:     String,
     updated:    Time,
@@ -9,7 +9,7 @@ struct InvidiousChannel
 end
 
 struct ChannelVideo
-  add_mapping({
+  db_mapping({
     id:                 String,
     title:              String,
     published:          Time,

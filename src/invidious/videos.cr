@@ -521,7 +521,7 @@ struct Video
     return self.info["length_seconds"].to_i
   end
 
-  add_mapping({
+  db_mapping({
     id:   String,
     info: {
       type:      HTTP::Params,
@@ -818,16 +818,16 @@ def process_video_params(query, preferences)
     volume ||= preferences.volume
   end
 
-  autoplay ||= DEFAULT_USER_PREFERENCES.autoplay.to_unsafe
-  continue ||= DEFAULT_USER_PREFERENCES.continue.to_unsafe
-  listen ||= DEFAULT_USER_PREFERENCES.listen.to_unsafe
-  local ||= DEFAULT_USER_PREFERENCES.local.to_unsafe
-  preferred_captions ||= DEFAULT_USER_PREFERENCES.captions
-  quality ||= DEFAULT_USER_PREFERENCES.quality
-  related_videos ||= DEFAULT_USER_PREFERENCES.related_videos.to_unsafe
-  speed ||= DEFAULT_USER_PREFERENCES.speed
-  video_loop ||= DEFAULT_USER_PREFERENCES.video_loop.to_unsafe
-  volume ||= DEFAULT_USER_PREFERENCES.volume
+  autoplay ||= CONFIG.default_user_preferences.autoplay.to_unsafe
+  continue ||= CONFIG.default_user_preferences.continue.to_unsafe
+  listen ||= CONFIG.default_user_preferences.listen.to_unsafe
+  local ||= CONFIG.default_user_preferences.local.to_unsafe
+  preferred_captions ||= CONFIG.default_user_preferences.captions
+  quality ||= CONFIG.default_user_preferences.quality
+  related_videos ||= CONFIG.default_user_preferences.related_videos.to_unsafe
+  speed ||= CONFIG.default_user_preferences.speed
+  video_loop ||= CONFIG.default_user_preferences.video_loop.to_unsafe
+  volume ||= CONFIG.default_user_preferences.volume
 
   autoplay = autoplay == 1
   continue = continue == 1
