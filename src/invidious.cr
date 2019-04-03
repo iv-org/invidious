@@ -2691,11 +2691,14 @@ get "/api/v1/comments/:id" do |env|
   format = env.params.query["format"]?
   format ||= "json"
 
+  sort_by = env.params.query["sort_by"]?.try &.downcase
+  sort_by ||= "top"
+
   continuation = env.params.query["continuation"]?
 
   if source == "youtube"
     begin
-      comments = fetch_youtube_comments(id, PG_DB, continuation, proxies, format, locale, thin_mode, region)
+      comments = fetch_youtube_comments(id, PG_DB, continuation, proxies, format, locale, thin_mode, region, sort_by: sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500

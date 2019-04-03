@@ -56,15 +56,14 @@ class RedditListing
   })
 end
 
-def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_mode, region)
+def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_mode, region, sort_by = "top")
   video = get_video(id, db, proxies, region: region)
-
   session_token = video.info["session_token"]?
-  itct = video.info["itct"]?
-  ctoken = video.info["ctoken"]?
+
+  ctoken = produce_comment_continuation(id, cursor: "", sort_by: sort_by)
   continuation ||= ctoken
 
-  if !continuation || !itct || !session_token
+  if !continuation || !session_token
     if format == "json"
       return {"comments" => [] of String}.to_json
     else
@@ -73,7 +72,7 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
   end
 
   post_req = {
-    "session_token" => session_token.not_nil!,
+    "session_token" => session_token,
   }
   post_req = HTTP::Params.encode(post_req)
 
@@ -90,7 +89,7 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
   headers["x-youtube-client-name"] = "1"
   headers["x-youtube-client-version"] = "2.20180719"
 
-  response = client.post("/comment_service_ajax?action_get_comments=1&pbj=1&ctoken=#{continuation}&continuation=#{continuation}&itct=#{itct}&hl=en&gl=US", headers, post_req)
+  response = client.post("/comment_service_ajax?action_get_comments=1&ctoken=#{continuation}&continuation=#{continuation}&hl=en&gl=US", headers, post_req)
   response = JSON.parse(response.body)
 
   if !response["response"]["continuationContents"]?
@@ -515,4 +514,112 @@ def content_to_comment_html(content)
   end.join.rchop('\ufeff')
 
   return comment_html
+end
+
+def produce_comment_continuation(video_id, cursor = "", sort_by = "top")
+  continuation = IO::Memory.new
+
+  continuation.write(Bytes[0x12, 0x26])
+
+  continuation.write(Bytes[0x12, video_id.size])
+  continuation.print(video_id)
+
+  continuation.write(Bytes[0xc0, 0x01, 0x01])
+  continuation.write(Bytes[0xc8, 0x01, 0x01])
+  continuation.write(Bytes[0xe0, 0x01, 0x01])
+
+  continuation.write(Bytes[0xa2, 0x02, 0x0d])
+  continuation.write(Bytes[0x28, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01])
+
+  continuation.write(Bytes[0x40, 0x00])
+  continuation.write(Bytes[0x18, 0x06])
+
+  if cursor.empty?
+    continuation.write(Bytes[0x32])
+    continuation.write(write_var_int(video_id.size + 8))
+
+    continuation.write(Bytes[0x22, video_id.size + 4])
+    continuation.write(Bytes[0x22, video_id.size])
+    continuation.print(video_id)
+
+    case sort_by
+    when "top"
+      continuation.write(Bytes[0x30, 0x00])
+    when "new", "newest"
+      continuation.write(Bytes[0x30, 0x01])
+    end
+
+    continuation.write(Bytes[0x78, 0x02])
+  else
+    continuation.write(Bytes[0x32])
+    continuation.write(write_var_int(cursor.size + video_id.size + 11))
+
+    continuation.write(Bytes[0x0a])
+    continuation.write(write_var_int(cursor.size))
+    continuation.print(cursor)
+
+    continuation.write(Bytes[0x22, video_id.size + 4])
+    continuation.write(Bytes[0x22, video_id.size])
+    continuation.print(video_id)
+
+    case sort_by
+    when "top"
+      continuation.write(Bytes[0x30, 0x00])
+    when "new", "newest"
+      continuation.write(Bytes[0x30, 0x01])
+    end
+
+    continuation.write(Bytes[0x28, 0x14])
+  end
+
+  continuation.rewind
+  continuation = continuation.gets_to_end
+
+  continuation = Base64.urlsafe_encode(continuation.to_slice)
+  continuation = URI.escape(continuation)
+
+  return continuation
+end
+
+def produce_comment_reply_continuation(video_id, ucid, comment_id)
+  continuation = IO::Memory.new
+
+  continuation.write(Bytes[0x12, 0x26])
+
+  continuation.write(Bytes[0x12, video_id.size])
+  continuation.print(video_id)
+
+  continuation.write(Bytes[0xc0, 0x01, 0x01])
+  continuation.write(Bytes[0xc8, 0x01, 0x01])
+  continuation.write(Bytes[0xe0, 0x01, 0x01])
+
+  continuation.write(Bytes[0xa2, 0x02, 0x0d])
+  continuation.write(Bytes[0x28, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01])
+
+  continuation.write(Bytes[0x40, 0x00])
+  continuation.write(Bytes[0x18, 0x06])
+
+  continuation.write(Bytes[0x32, ucid.size + video_id.size + comment_id.size + 16])
+  continuation.write(Bytes[0x1a, ucid.size + video_id.size + comment_id.size + 14])
+
+  continuation.write(Bytes[0x12, comment_id.size])
+  continuation.print(comment_id)
+
+  continuation.write(Bytes[0x22, 0x02, 0x08, 0x00]) # ??
+
+  continuation.write(Bytes[ucid.size + video_id.size + 7])
+  continuation.write(Bytes[ucid.size])
+  continuation.print(ucid)
+  continuation.write(Bytes[0x32, video_id.size])
+  continuation.print(video_id)
+  continuation.write(Bytes[0x40, 0x01])
+  continuation.write(Bytes[0x48, 0x0a])
+
+  continuation.rewind
+  continuation = continuation.gets_to_end
+
+  continuation = Base64.urlsafe_encode(continuation.to_slice)
+  continuation = URI.escape(continuation)
+
+  return continuation
 end

@@ -608,14 +608,6 @@ def extract_player_config(body, html)
     params["session_token"] = md["session_token"]
   end
 
-  if md = body.match(/itct=(?<itct>[^"]+)"/)
-    params["itct"] = md["itct"]
-  end
-
-  if md = body.match(/'COMMENTS_TOKEN': "(?<ctoken>[^"]+)"/)
-    params["ctoken"] = md["ctoken"]
-  end
-
   if md = body.match(/'RELATED_PLAYER_ARGS': (?<rvs>{"rvs":"[^"]+"})/)
     params["rvs"] = JSON.parse(md["rvs"])["rvs"].as_s
   end
