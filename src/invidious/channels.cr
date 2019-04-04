@@ -23,26 +23,37 @@ struct ChannelVideo
 end
 
 def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, max_threads = 10)
-  active_threads = 0
-  active_channel = Channel(String | Nil).new
+  finished_channel = Channel(String | Nil).new
 
-  final = [] of String
-  channels.map do |ucid|
-    if active_threads >= max_threads
-      if response = active_channel.receive
+  spawn do
+    active_threads = 0
+    active_channel = Channel(Nil).new
+
+    channels.each do |ucid|
+      if active_threads >= max_threads
+        active_channel.receive
         active_threads -= 1
-        final << response
+      end
+
+      active_threads += 1
+      spawn do
+        begin
+          get_channel(ucid, db, refresh, pull_all_videos)
+          finished_channel.send(ucid)
+        rescue ex
+          finished_channel.send(nil)
+        ensure
+          active_channel.send(nil)
+        end
       end
     end
+  end
 
-    active_threads += 1
-    spawn do
-      begin
-        get_channel(ucid, db, refresh, pull_all_videos)
-        active_channel.send(ucid)
-      rescue ex
-        active_channel.send(nil)
-      end
+  final = [] of String
+  channels.size.times do
+    ucid = finished_channel.receive
+    if ucid
+      final << ucid
     end
   end
 
