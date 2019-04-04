@@ -104,15 +104,43 @@ end
 
 def subscribe_to_feeds(db, logger, key, config)
   if config.use_pubsub_feeds
+    case config.use_pubsub_feeds
+    when Bool
+      max_threads = config.use_pubsub_feeds.as(Bool).to_unsafe
+    when Int32
+      max_threads = config.use_pubsub_feeds.as(Int32)
+    end
+    max_channel = Channel(Int32).new
+
     spawn do
+      max_threads = max_channel.receive
+      active_threads = 0
+      active_channel = Channel(Bool).new
+
       loop do
-        db.query_all("SELECT id FROM channels WHERE CURRENT_TIMESTAMP - subscribed > '4 days' OR subscribed IS NULL") do |rs|
+        db.query_all("SELECT id FROM channels WHERE CURRENT_TIMESTAMP - subscribed > interval '4 days' OR subscribed IS NULL") do |rs|
           rs.each do
             ucid = rs.read(String)
-            response = subscribe_pubsub(ucid, key, config)
 
-            if response.status_code >= 400
-              logger.write("#{ucid} : #{response.body}\n")
+            if active_threads >= max_threads.as(Int32)
+              if active_channel.receive
+                active_threads -= 1
+              end
+            end
+
+            active_threads += 1
+
+            spawn do
+              begin
+                response = subscribe_pubsub(ucid, key, config)
+
+                if response.status_code >= 400
+                  logger.write("#{ucid} : #{response.body}\n")
+                end
+              rescue ex
+              end
+
+              active_channel.send(true)
             end
           end
         end
@@ -120,6 +148,8 @@ def subscribe_to_feeds(db, logger, key, config)
         sleep 1.minute
       end
     end
+
+    max_channel.send(max_threads.as(Int32))
   end
 end
 

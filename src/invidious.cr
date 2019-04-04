@@ -2344,7 +2344,8 @@ get "/feed/webhook/:token" do |env|
     data = "#{time}"
   end
 
-  # The hub will sometimes check if we're still subscribed after delivery errors
+  # The hub will sometimes check if we're still subscribed after delivery errors,
+  # so we reply with a 200 as long as the request hasn't expired
   if Time.now.to_unix - time.to_i > 432000
     env.response.status_code = 400
     next
@@ -2377,11 +2378,12 @@ post "/feed/webhook/:token" do |env|
     rss = XML.parse_html(body)
     rss.xpath_nodes("//feed/entry").each do |entry|
       id = entry.xpath_node("videoid").not_nil!.content
+      author = entry.xpath_node("author/name").not_nil!.content
       published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
       updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
 
       video = get_video(id, PG_DB, proxies, region: nil)
-      video = ChannelVideo.new(id, video.title, published, updated, video.ucid, video.author, video.length_seconds, video.live_now, video.premiere_timestamp)
+      video = ChannelVideo.new(id, video.title, published, updated, video.ucid, author, video.length_seconds, video.live_now, video.premiere_timestamp)
 
       PG_DB.exec("UPDATE users SET notifications = notifications || $1 \
       WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
