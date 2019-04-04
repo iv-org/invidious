@@ -17,12 +17,12 @@ struct ConfigPreferences
         end
 
         result = [] of String
-        node.nodes.each do
-          unless node.is_a?(YAML::Nodes::Scalar)
-            node.raise "Expected scalar, not #{node.class}"
+        node.nodes.each do |item|
+          unless item.is_a?(YAML::Nodes::Scalar)
+            node.raise "Expected scalar, not #{item.class}"
           end
 
-          result << node.value
+          result << item.value
         end
       rescue ex
         if node.is_a?(YAML::Nodes::Scalar)
