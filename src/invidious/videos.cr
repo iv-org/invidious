@@ -851,7 +851,7 @@ def process_video_params(query, preferences)
 
   controls = query["controls"]?.try &.to_i?
   controls ||= 1
-  controls = controls == 1
+  controls = controls >= 1
 
   params = {
     autoplay:           autoplay,
