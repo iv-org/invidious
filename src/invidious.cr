@@ -85,6 +85,7 @@ LOCALES = {
   "ar"    => load_locale("ar"),
   "de"    => load_locale("de"),
   "en-US" => load_locale("en-US"),
+  "es"    => load_locale("es"),
   "eu"    => load_locale("eu"),
   "fr"    => load_locale("fr"),
   "it"    => load_locale("it"),
