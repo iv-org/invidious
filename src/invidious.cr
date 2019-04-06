@@ -31,6 +31,47 @@ require "./invidious/*"
 CONFIG   = Config.from_yaml(File.read("config/config.yml"))
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
+PG_URL = URI.new(
+  scheme: "postgres",
+  user: CONFIG.db[:user],
+  password: CONFIG.db[:password],
+  host: CONFIG.db[:host],
+  port: CONFIG.db[:port],
+  path: CONFIG.db[:dbname],
+)
+
+PG_DB           = DB.open PG_URL
+ARCHIVE_URL     = URI.parse("https://archive.org")
+LOGIN_URL       = URI.parse("https://accounts.google.com")
+PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
+REDDIT_URL      = URI.parse("https://www.reddit.com")
+TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@protonmail.com.json")
+YT_URL          = URI.parse("https://www.youtube.com")
+CHARS_SAFE      = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
+CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
+CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
+
+SOFTWARE = {
+  "name"    => "invidious",
+  "version" => "#{CURRENT_VERSION}-#{CURRENT_COMMIT}",
+  "branch"  => "#{CURRENT_BRANCH}",
+}
+
+LOCALES = {
+  "ar"    => load_locale("ar"),
+  "de"    => load_locale("de"),
+  "en-US" => load_locale("en-US"),
+  "es"    => load_locale("es"),
+  "eu"    => load_locale("eu"),
+  "fr"    => load_locale("fr"),
+  "it"    => load_locale("it"),
+  "nb_NO" => load_locale("nb_NO"),
+  "nl"    => load_locale("nl"),
+  "pl"    => load_locale("pl"),
+  "ru"    => load_locale("ru"),
+}
+
 config = CONFIG
 logger = Invidious::LogHandler.new
 
@@ -56,44 +97,13 @@ Kemal.config.extra_options do |parser|
     FileUtils.mkdir_p(File.dirname(output))
     logger = Invidious::LogHandler.new(File.open(output, mode: "a"))
   end
+  parser.on("-v", "--version", "Print version") do |output|
+    puts SOFTWARE.to_pretty_json
+    exit
+  end
 end
 
 Kemal::CLI.new ARGV
-
-PG_URL = URI.new(
-  scheme: "postgres",
-  user: CONFIG.db[:user],
-  password: CONFIG.db[:password],
-  host: CONFIG.db[:host],
-  port: CONFIG.db[:port],
-  path: CONFIG.db[:dbname],
-)
-
-PG_DB           = DB.open PG_URL
-ARCHIVE_URL     = URI.parse("https://archive.org")
-LOGIN_URL       = URI.parse("https://accounts.google.com")
-PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
-REDDIT_URL      = URI.parse("https://www.reddit.com")
-TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@protonmail.com.json")
-YT_URL          = URI.parse("https://www.youtube.com")
-CHARS_SAFE      = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
-CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
-CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
-
-LOCALES = {
-  "ar"    => load_locale("ar"),
-  "de"    => load_locale("de"),
-  "en-US" => load_locale("en-US"),
-  "es"    => load_locale("es"),
-  "eu"    => load_locale("eu"),
-  "fr"    => load_locale("fr"),
-  "it"    => load_locale("it"),
-  "nb_NO" => load_locale("nb_NO"),
-  "nl"    => load_locale("nl"),
-  "pl"    => load_locale("pl"),
-  "ru"    => load_locale("ru"),
-}
 
 refresh_channels(PG_DB, logger, config.channel_threads, config.full_refresh)
 
@@ -108,12 +118,8 @@ if config.statistics_enabled
   spawn do
     loop do
       statistics = {
-        "version"  => "2.0",
-        "software" => {
-          "name"    => "invidious",
-          "version" => "#{CURRENT_VERSION}-#{CURRENT_COMMIT}",
-          "branch"  => "#{CURRENT_BRANCH}",
-        },
+        "version"           => "2.0",
+        "software"          => SOFTWARE,
         "openRegistrations" => config.registration_enabled,
         "usage"             => {
           "users" => {
