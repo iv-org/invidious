@@ -1,4 +1,4 @@
 #!/bin/sh
 
-psql invidious -c "ALTER TABLE channels ADD COLUMN deleted bool;"
-psql invidious -c "UPDATE channels SET deleted = false;"
+psql invidious kemal -c "ALTER TABLE channels ADD COLUMN deleted bool;"
+psql invidious kemal -c "UPDATE channels SET deleted = false;"

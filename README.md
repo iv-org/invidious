@@ -101,7 +101,7 @@ $ exit
 $ sudo systemctl enable postgresql
 $ sudo systemctl start postgresql
 $ sudo -i -u postgres
-$ psql -c "CREATE USER kemal WITH PASSWORD 'kemal';"
+$ psql -c "CREATE USER kemal WITH PASSWORD 'kemal';" # Change 'kemal' here to a stronger password, and update `password` in config/config.yml
 $ createdb -O kemal invidious
 $ psql invidious < /home/invidious/invidious/config/sql/channels.sql
 $ psql invidious < /home/invidious/invidious/config/sql/videos.sql
@@ -143,8 +143,8 @@ $ brew install shards crystal-lang postgres imagemagick librsvg
 $ git clone https://github.com/omarroth/invidious
 $ cd invidious
 $ brew services start postgresql
-$ psql -c "CREATE ROLE kemal WITH LOGIN PASSWORD 'kemal';"
-$ createdb invidious -U kemal
+$ psql -c "CREATE ROLE kemal WITH PASSWORD 'kemal';" # Change 'kemal' here to a stronger password, and update `password` in config/config.yml
+$ createdb -O kemal invidious
 $ psql invidious < config/sql/channels.sql
 $ psql invidious < config/sql/videos.sql
 $ psql invidious < config/sql/channel_videos.sql
