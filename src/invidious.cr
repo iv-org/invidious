@@ -1441,11 +1441,20 @@ get "/modify_notifications" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
-  referer = get_referer(env)
+  sid = env.get? "sid"
+  referer = get_referer(env, "/")
 
-  if user
-    user = user.as(User)
+  redirect = env.params.query["redirect"]?
+  redirect ||= "false"
+  redirect = redirect == "true"
 
+  if !user && !sid
+    next env.redirect referer
+  end
+
+  user = user.as(User)
+
+  if !user.password
     channel_req = {} of String => String
 
     channel_req["receive_all_updates"] = env.params.query["receive_all_updates"]? || "true"
@@ -1458,30 +1467,132 @@ get "/modify_notifications" do |env|
     headers["Cookie"] = env.request.headers["Cookie"]
 
     client = make_client(YT_URL)
-    subs = client.get("/subscription_manager?disable_polymer=1", headers)
-    headers["Cookie"] += "; " + subs.cookies.add_request_headers(headers)["Cookie"]
-    match = subs.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+    html = client.get("/subscription_manager?disable_polymer=1", headers)
+
+    cookies = HTTP::Cookies.from_headers(headers)
+    html.cookies.each do |cookie|
+      if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
+        if cookies[cookie.name]?
+          cookies[cookie.name] = cookie
+        else
+          cookies << cookie
+        end
+      end
+    end
+    headers = cookies.add_request_headers(headers)
+
+    match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
     if match
       session_token = match["session_token"]
     else
       next env.redirect referer
     end
 
+    headers["content-type"] = "application/x-www-form-urlencoded"
     channel_req["session_token"] = session_token
 
-    headers["content-type"] = "application/x-www-form-urlencoded"
-    subs = XML.parse_html(subs.body)
+    subs = XML.parse_html(html.body)
     subs.xpath_nodes(%q(//a[@class="subscription-title yt-uix-sessionlink"]/@href)).each do |channel|
       channel_id = channel.content.lstrip("/channel/").not_nil!
-
       channel_req["channel_id"] = channel_id
 
-      client.post("/subscription_ajax?action_update_subscription_preferences=1", headers,
-        HTTP::Params.encode(channel_req)).body
+      client.post("/subscription_ajax?action_update_subscription_preferences=1", headers, form: channel_req)
     end
   end
 
-  env.redirect referer
+  if redirect
+    env.redirect referer
+  else
+    env.response.content_type = "application/json"
+    "{}"
+  end
+end
+
+# TODO: Add CSRF
+get "/subscription_ajax" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  user = env.get? "user"
+  sid = env.get? "sid"
+  referer = get_referer(env, "/")
+
+  redirect = env.params.query["redirect"]?
+  redirect ||= "false"
+  redirect = redirect == "true"
+
+  if !user && !sid
+    next env.redirect referer
+  end
+
+  user = user.as(User)
+
+  if env.params.query["action_create_subscription_to_channel"]?
+    action = "action_create_subscription_to_channel"
+  elsif env.params.query["action_remove_subscriptions"]?
+    action = "action_remove_subscriptions"
+  else
+    next env.redirect referer
+  end
+
+  channel_id = env.params.query["c"]?
+  channel_id ||= ""
+
+  if !user.password
+    headers = HTTP::Headers.new
+    headers["Cookie"] = env.request.headers["Cookie"]
+
+    client = make_client(YT_URL)
+    html = client.get("/subscription_manager?disable_polymer=1", headers)
+
+    cookies = HTTP::Cookies.from_headers(headers)
+    html.cookies.each do |cookie|
+      if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
+        if cookies[cookie.name]?
+          cookies[cookie.name] = cookie
+        else
+          cookies << cookie
+        end
+      end
+    end
+    headers = cookies.add_request_headers(headers)
+
+    match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+    if match
+      session_token = match["session_token"]
+    else
+      next env.redirect referer
+    end
+
+    headers["content-type"] = "application/x-www-form-urlencoded"
+
+    post_req = {
+      "session_token" => session_token,
+    }
+    post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
+
+    # Sync subscription with YouTube
+    client.post(post_url, headers, form: post_req)
+    email = user.email
+  else
+    email = user.email
+  end
+
+  case action
+  when .starts_with? "action_create"
+    if !user.subscriptions.includes? channel_id
+      get_channel(channel_id, PG_DB, false, false)
+      PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", channel_id, email)
+    end
+  when .starts_with? "action_remove"
+    PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", channel_id, email)
+  end
+
+  if redirect
+    env.redirect referer
+  else
+    env.response.content_type = "application/json"
+    "{}"
+  end
 end
 
 get "/subscription_manager" do |env|
@@ -1673,87 +1784,6 @@ post "/data_control" do |env|
   end
 
   env.redirect referer
-end
-
-get "/subscription_ajax" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  user = env.get? "user"
-  referer = get_referer(env)
-
-  redirect = env.params.query["redirect"]?
-  redirect ||= "false"
-  redirect = redirect == "true"
-
-  if user
-    user = user.as(User)
-
-    if env.params.query["action_create_subscription_to_channel"]?
-      action = "action_create_subscription_to_channel"
-    elsif env.params.query["action_remove_subscriptions"]?
-      action = "action_remove_subscriptions"
-    else
-      next env.redirect referer
-    end
-
-    channel_id = env.params.query["c"]?
-    channel_id ||= ""
-
-    if !user.password
-      headers = HTTP::Headers.new
-      headers["Cookie"] = env.request.headers["Cookie"]
-
-      client = make_client(YT_URL)
-      subs = client.get("/subscription_manager?disable_polymer=1", headers)
-      headers["Cookie"] += "; " + subs.cookies.add_request_headers(headers)["Cookie"]
-      match = subs.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
-      if match
-        session_token = match["session_token"]
-      else
-        next env.redirect referer
-      end
-
-      headers["content-type"] = "application/x-www-form-urlencoded"
-
-      post_req = {
-        "session_token" => session_token,
-      }
-      post_req = HTTP::Params.encode(post_req)
-      post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
-
-      # Update user
-      if client.post(post_url, headers, post_req).status_code == 200
-        email = user.email
-
-        case action
-        when .starts_with? "action_create"
-          PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", channel_id, email)
-        when .starts_with? "action_remove"
-          PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", channel_id, email)
-        end
-      end
-    else
-      email = user.email
-
-      case action
-      when .starts_with? "action_create"
-        if !user.subscriptions.includes? channel_id
-          PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", channel_id, email)
-
-          get_channel(channel_id, PG_DB, false, false)
-        end
-      when .starts_with? "action_remove"
-        PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", channel_id, email)
-      end
-    end
-  end
-
-  if redirect
-    env.redirect referer
-  else
-    env.response.content_type = "application/json"
-    "{}"
-  end
 end
 
 get "/delete_account" do |env|

@@ -11,7 +11,7 @@ function subscribe(timeouts = 0) {
         return;
     }
 
-    var url = "/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
+    var url = "/subscription_ajax?action_create_subscription_to_channel=1&redirect=false&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
     var xhr = new XMLHttpRequest();
     xhr.responseType = "json";
     xhr.timeout = 20000;
@@ -46,7 +46,7 @@ function unsubscribe(timeouts = 0) {
         return;
     }
 
-    var url = "/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
+    var url = "/subscription_ajax?action_remove_subscriptions=1&redirect=false&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
     var xhr = new XMLHttpRequest();
     xhr.responseType = "json";
     xhr.timeout = 20000;
