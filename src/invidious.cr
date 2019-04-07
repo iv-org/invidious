@@ -169,6 +169,12 @@ proxies = PROXY_LIST
 before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
+  env.response.headers["Content-Security-Policy"] = "default-src data: 'self' 'unsafe-inline' 'unsafe-eval'; media-src 'self' https://*.googlevideo.com:443"
+  env.response.headers["Referrer-Policy"] = "same-origin"
+
+  if Kemal.config.ssl || config.https_only
+    env.response.headers["Strict-Transport-Security"] = "max-age=604800; includeSubDomains"
+  end
 
   begin
     preferences = Preferences.from_json(env.request.cookies["PREFS"]?.try &.value || "{}")
@@ -4578,13 +4584,15 @@ end
 # Add redirect if SSL is enabled
 if Kemal.config.ssl
   spawn do
-    server = HTTP::Server.new do |context|
-      redirect_url = "https://#{context.request.host}#{context.request.path}"
-      if context.request.query
-        redirect_url += "?#{context.request.query}"
+    server = HTTP::Server.new do |env|
+      redirect_url = "https://#{env.request.host}#{env.request.path}"
+      if env.request.query
+        redirect_url += "?#{env.request.query}"
       end
-      context.response.headers.add("Location", redirect_url)
-      context.response.status_code = 301
+
+      env.response.headers["Strict-Transport-Security"] = "max-age=604800; includeSubDomains"
+      env.response.headers["Location"] = redirect_url
+      env.response.status_code = 301
     end
 
     server.bind_tcp "0.0.0.0", 80
