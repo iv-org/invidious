@@ -169,7 +169,7 @@ proxies = PROXY_LIST
 before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
-  env.response.headers["Content-Security-Policy"] = "default-src data: 'self' 'unsafe-inline' 'unsafe-eval'; media-src 'self' https://*.googlevideo.com:443"
+  env.response.headers["Content-Security-Policy"] = "default-src blob: data: 'self' 'unsafe-inline' 'unsafe-eval'; media-src 'self' https://*.googlevideo.com:443"
   env.response.headers["Referrer-Policy"] = "same-origin"
 
   if Kemal.config.ssl || config.https_only
