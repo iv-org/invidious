@@ -956,7 +956,7 @@ post "/login" do |env|
 
       if env.request.cookies["PREFS"]?
         preferences = env.get("preferences").as(Preferences)
-        PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
+        PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
 
         cookie = env.request.cookies["PREFS"]
         cookie.expires = Time.new(1990, 1, 1)
@@ -1129,8 +1129,8 @@ post "/login" do |env|
       end
 
       if env.request.cookies["PREFS"]?
-        preferences = env.get("preferences").as(Preferences).to_json
-        PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
+        preferences = env.get("preferences").as(Preferences)
+        PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
 
         cookie = env.request.cookies["PREFS"]
         cookie.expires = Time.new(1990, 1, 1)
