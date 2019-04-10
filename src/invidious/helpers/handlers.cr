@@ -57,7 +57,7 @@ class Kemal::ExceptionHandler
 end
 
 class FilteredCompressHandler < Kemal::Handler
-  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/ggpht/*"]
+  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/ggpht/*", "/api/v1/auth/notifications"]
 
   def call(env)
     return call_next env if exclude_match? env
@@ -133,11 +133,16 @@ class APIHandler < Kemal::Handler
   {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
   only ["/api/v1/*"], {{method}}
   {% end %}
+  exclude ["/api/v1/auth/notifications"]
 
   def call(env)
     return call_next env unless only_match? env
 
     env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+    # Since /api/v1/notifications is an event-stream, we don't want
+    # to wrap the response
+    return call_next env if exclude_match? env
 
     # Here we swap out the socket IO so we can modify the response as needed
     output = env.response.output
@@ -152,8 +157,7 @@ class APIHandler < Kemal::Handler
       if env.response.headers["Content-Type"]?.try &.== "application/json"
         response = JSON.parse(response)
 
-        if env.params.query["fields"]?
-          fields_text = env.params.query["fields"]
+        if fields_text = env.params.query["fields"]?
           begin
             JSONFilter.filter(response, fields_text)
           rescue ex
@@ -168,7 +172,7 @@ class APIHandler < Kemal::Handler
           response = response.to_json
         end
       end
-    rescue
+    rescue ex
     ensure
       env.response.output = output
       env.response.puts response

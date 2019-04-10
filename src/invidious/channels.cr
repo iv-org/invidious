@@ -138,16 +138,23 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
       premiere_timestamp = channel_video.try &.premiere_timestamp
 
+      # Deliver notifications to `/api/v1/auth/notifications`
+      # payload = {
+      #   "key"   => video_id,
+      #   "topic" => ucid,
+      # }.to_json
+      # PG_DB.exec("NOTIFY notifications, E'#{payload}'")
+
       video = ChannelVideo.new(
-        video_id,
-        title,
-        published,
-        Time.now,
-        ucid,
-        author,
-        length_seconds,
-        live_now,
-        premiere_timestamp
+        id: video_id,
+        title: title,
+        published: published,
+        updated: Time.now,
+        ucid: ucid,
+        author: author,
+        length_seconds: length_seconds,
+        live_now: live_now,
+        premiere_timestamp: premiere_timestamp
       )
 
       db.exec("UPDATE users SET notifications = notifications || $1 \
@@ -187,15 +194,15 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
       count = nodeset.size
       videos = videos.map { |video| ChannelVideo.new(
-        video.id,
-        video.title,
-        video.published,
-        Time.now,
-        video.ucid,
-        video.author,
-        video.length_seconds,
-        video.live_now,
-        video.premiere_timestamp
+        id: video.id,
+        title: video.title,
+        published: video.published,
+        updated: Time.now,
+        ucid: video.ucid,
+        author: video.author,
+        length_seconds: video.length_seconds,
+        live_now: video.live_now,
+        premiere_timestamp: video.premiere_timestamp
       ) }
 
       videos.each do |video|

@@ -2625,12 +2625,14 @@ get "/feed/webhook/:token" do |env|
 end
 
 post "/feed/webhook/:token" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
   token = env.params.url["token"]
   body = env.request.body.not_nil!.gets_to_end
   signature = env.request.headers["X-Hub-Signature"].lchop("sha1=")
 
   if signature != OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, body)
-    logger.write("#{token} : Invalid signature")
+    logger.write("#{token} : Invalid signature\n")
     env.response.status_code = 200
     next
   end
@@ -2644,7 +2646,25 @@ post "/feed/webhook/:token" do |env|
       updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
 
       video = get_video(id, PG_DB, proxies, region: nil)
-      video = ChannelVideo.new(id, video.title, published, updated, video.ucid, author, video.length_seconds, video.live_now, video.premiere_timestamp)
+
+      # Deliver notifications to `/api/v1/auth/notifications`
+      payload = {
+        "key"   => video.id,
+        "topic" => video.ucid,
+      }.to_json
+      PG_DB.exec("NOTIFY notifications, E'#{payload}'")
+
+      video = ChannelVideo.new(
+        id: id,
+        title: video.title,
+        published: published,
+        updated: updated,
+        ucid: video.ucid,
+        author: author,
+        length_seconds: video.length_seconds,
+        live_now: video.live_now,
+        premiere_timestamp: video.premiere_timestamp,
+      )
 
       PG_DB.exec("UPDATE users SET notifications = notifications || $1 \
       WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
@@ -3184,197 +3204,7 @@ get "/api/v1/videos/:id" do |env|
     next error_message
   end
 
-  fmt_stream = video.fmt_stream(decrypt_function)
-  adaptive_fmts = video.adaptive_fmts(decrypt_function)
-
-  captions = video.captions
-
-  video_info = JSON.build do |json|
-    json.object do
-      json.field "title", video.title
-      json.field "videoId", video.id
-      json.field "videoThumbnails" do
-        generate_thumbnails(json, video.id, config, Kemal.config)
-      end
-      json.field "storyboards" do
-        generate_storyboards(json, video.storyboards, config, Kemal.config)
-      end
-
-      video.description, description = html_to_content(video.description)
-
-      json.field "description", description
-      json.field "descriptionHtml", video.description
-      json.field "published", video.published.to_unix
-      json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
-      json.field "keywords", video.keywords
-
-      json.field "viewCount", video.views
-      json.field "likeCount", video.likes
-      json.field "dislikeCount", video.dislikes
-
-      json.field "paid", video.paid
-      json.field "premium", video.premium
-      json.field "isFamilyFriendly", video.is_family_friendly
-      json.field "allowedRegions", video.allowed_regions
-      json.field "genre", video.genre
-      json.field "genreUrl", video.genre_url
-
-      json.field "author", video.author
-      json.field "authorId", video.ucid
-      json.field "authorUrl", "/channel/#{video.ucid}"
-
-      json.field "authorThumbnails" do
-        json.array do
-          qualities = {32, 48, 76, 100, 176, 512}
-
-          qualities.each do |quality|
-            json.object do
-              json.field "url", video.author_thumbnail.gsub("=s48-", "=s#{quality}-")
-              json.field "width", quality
-              json.field "height", quality
-            end
-          end
-        end
-      end
-
-      json.field "subCountText", video.sub_count_text
-
-      json.field "lengthSeconds", video.info["length_seconds"].to_i
-      json.field "allowRatings", video.allow_ratings
-      json.field "rating", video.info["avg_rating"].to_f32
-      json.field "isListed", video.is_listed
-      json.field "liveNow", video.live_now
-      json.field "isUpcoming", video.is_upcoming
-
-      if video.premiere_timestamp
-        json.field "premiereTimestamp", video.premiere_timestamp.not_nil!.to_unix
-      end
-
-      if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-        host_url = make_host_url(config, Kemal.config)
-
-        host_params = env.request.query_params
-        host_params.delete_all("v")
-
-        hlsvp = video.player_response["streamingData"]["hlsManifestUrl"].as_s
-        hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
-
-        json.field "hlsUrl", hlsvp
-      end
-
-      json.field "dashUrl", "#{make_host_url(config, Kemal.config)}/api/manifest/dash/id/#{id}"
-
-      json.field "adaptiveFormats" do
-        json.array do
-          adaptive_fmts.each do |fmt|
-            json.object do
-              json.field "index", fmt["index"]
-              json.field "bitrate", fmt["bitrate"]
-              json.field "init", fmt["init"]
-              json.field "url", fmt["url"]
-              json.field "itag", fmt["itag"]
-              json.field "type", fmt["type"]
-              json.field "clen", fmt["clen"]
-              json.field "lmt", fmt["lmt"]
-              json.field "projectionType", fmt["projection_type"]
-
-              fmt_info = itag_to_metadata?(fmt["itag"])
-              if fmt_info
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
-                json.field "fps", fps
-                json.field "container", fmt_info["ext"]
-                json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
-
-                if fmt_info["height"]?
-                  json.field "resolution", "#{fmt_info["height"]}p"
-
-                  quality_label = "#{fmt_info["height"]}p"
-                  if fps > 30
-                    quality_label += "60"
-                  end
-                  json.field "qualityLabel", quality_label
-
-                  if fmt_info["width"]?
-                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-
-      json.field "formatStreams" do
-        json.array do
-          fmt_stream.each do |fmt|
-            json.object do
-              json.field "url", fmt["url"]
-              json.field "itag", fmt["itag"]
-              json.field "type", fmt["type"]
-              json.field "quality", fmt["quality"]
-
-              fmt_info = itag_to_metadata?(fmt["itag"])
-              if fmt_info
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
-                json.field "fps", fps
-                json.field "container", fmt_info["ext"]
-                json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
-
-                if fmt_info["height"]?
-                  json.field "resolution", "#{fmt_info["height"]}p"
-
-                  quality_label = "#{fmt_info["height"]}p"
-                  if fps > 30
-                    quality_label += "60"
-                  end
-                  json.field "qualityLabel", quality_label
-
-                  if fmt_info["width"]?
-                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-
-      json.field "captions" do
-        json.array do
-          captions.each do |caption|
-            json.object do
-              json.field "label", caption.name.simpleText
-              json.field "languageCode", caption.languageCode
-              json.field "url", "/api/v1/captions/#{id}?label=#{URI.escape(caption.name.simpleText)}"
-            end
-          end
-        end
-      end
-
-      json.field "recommendedVideos" do
-        json.array do
-          video.info["rvs"]?.try &.split(",").each do |rv|
-            rv = HTTP::Params.parse(rv)
-
-            if rv["id"]?
-              json.object do
-                json.field "videoId", rv["id"]
-                json.field "title", rv["title"]
-                json.field "videoThumbnails" do
-                  generate_thumbnails(json, rv["id"], config, Kemal.config)
-                end
-                json.field "author", rv["author"]
-                json.field "lengthSeconds", rv["length_seconds"].to_i
-                json.field "viewCountText", rv["short_view_count_text"]
-              end
-            end
-          end
-        end
-      end
-    end
-  end
-
-  video_info
+  video.to_json(locale, config, Kemal.config, decrypt_function)
 end
 
 get "/api/v1/trending" do |env|
@@ -4287,6 +4117,56 @@ get "/api/v1/mixes/:rdid" do |env|
   end
 
   response
+end
+
+get "/api/v1/auth/notifications" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  env.response.content_type = "text/event-stream"
+
+  topics = env.params.query["topics"]?.try &.split(",").uniq.first(1000)
+  topics ||= [] of String
+
+  begin
+    id = 0
+
+    spawn do
+      PG.connect_listen(PG_URL, "notifications") do |event|
+        notification = JSON.parse(event.payload)
+        topic = notification["topic"].as_s
+        key = notification["key"].as_s
+
+        response = JSON.parse(get_video(key, PG_DB, proxies).to_json(locale, config, Kemal.config, decrypt_function))
+
+        if fields_text = env.params.query["fields"]?
+          begin
+            JSONFilter.filter(response, fields_text)
+          rescue ex
+            env.response.status_code = 400
+            response = {"error" => ex.message}
+          end
+        end
+
+        if topics.try &.includes? topic
+          env.response.puts "id: #{id}"
+          env.response.puts "data: #{response.to_json}"
+          env.response.puts
+          env.response.flush
+
+          id += 1
+        end
+      end
+    end
+
+    # Send heartbeat
+    loop do
+      env.response.puts ":keepalive #{Time.now.to_unix}"
+      env.response.puts
+      env.response.flush
+      sleep (20 + rand(11)).seconds
+    end
+  rescue
+  end
 end
 
 # TODO
