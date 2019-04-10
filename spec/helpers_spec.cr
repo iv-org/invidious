@@ -1,4 +1,5 @@
 require "kemal"
+require "openssl/hmac"
 require "pg"
 require "spec"
 require "yaml"
@@ -79,6 +80,29 @@ describe "Helpers" do
       produce_comment_reply_continuation("cIHQWOoJeag", "UCq6VFHwMzcMXbuKyG7SQYIg", "Ugza62y_TlmTu9o2RfF4AaABAg").should eq("EiYSC2NJSFFXT29KZWFnwAEByAEB4AEBogINKP___________wFAABgGMk0aSxIaVWd6YTYyeV9UbG1UdTlvMlJmRjRBYUFCQWciAggAKhhVQ3E2VkZId016Y01YYnVLeUc3U1FZSWcyC2NJSFFXT29KZWFnQAFICg%3D%3D")
 
       produce_comment_reply_continuation("_cE8xSu6swE", "UC1AZY74-dGVPe6bfxFwwEMg", "UgyBUaRGHB9Jmt1dsUZ4AaABAg").should eq("EiYSC19jRTh4U3U2c3dFwAEByAEB4AEBogINKP___________wFAABgGMk0aSxIaVWd5QlVhUkdIQjlKbXQxZHNVWjRBYUFCQWciAggAKhhVQzFBWlk3NC1kR1ZQZTZiZnhGd3dFTWcyC19jRTh4U3U2c3dFQAFICg%3D%3D")
+    end
+  end
+
+  describe "#sign_token" do
+    it "correctly signs a given hash" do
+      token = {
+        "session" => "v1:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "expires" => 1554680038,
+        "scopes"  => [
+          ":notifications",
+          ":subscriptions/*",
+          "GET:tokens*",
+        ],
+        "signature" => "f//2hS20th8pALF305PJFK+D2aVtvefNnQheILHD2vU=",
+      }
+      sign_token("SECRET_KEY", token).should eq(token["signature"])
+
+      token = {
+        "session"   => "v1:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "scopes"    => [":notifications", "POST:subscriptions/*"],
+        "signature" => "fNvXoT0MRAL9eE6lTE33CEg8HitYJDOL9a22rSN2Ihg=",
+      }
+      sign_token("SECRET_KEY", token).should eq(token["signature"])
     end
   end
 end

@@ -211,6 +211,25 @@ def create_response(user_id, operation, key, db, expire = 6.hours)
   return challenge, token
 end
 
+def sign_token(key, hash)
+  string_to_sign = [] of String
+  hash.each do |key, value|
+    if key == "signature"
+      next
+    end
+
+    case value
+    when Array
+      string_to_sign << "#{key}=#{value.sort.join(",")}"
+    else
+      string_to_sign << "#{key}=#{value}"
+    end
+  end
+
+  string_to_sign = string_to_sign.sort.join("\n")
+  return Base64.encode(OpenSSL::HMAC.digest(:sha256, key, string_to_sign)).strip
+end
+
 def validate_response(challenge, token, user_id, operation, key, db, locale)
   if !challenge
     raise translate(locale, "Hidden field \"challenge\" is a required field")
