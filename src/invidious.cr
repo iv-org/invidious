@@ -105,10 +105,16 @@ end
 
 Kemal::CLI.new ARGV
 
+# Check table integrity
+analyze_table(PG_DB, logger, "channel_videos", ChannelVideo)
+analyze_table(PG_DB, logger, "nonces", Nonce)
+analyze_table(PG_DB, logger, "session_ids", SessionId)
+analyze_table(PG_DB, logger, "users", User)
+analyze_table(PG_DB, logger, "videos", Video)
+
+# Start jobs
 refresh_channels(PG_DB, logger, config.channel_threads, config.full_refresh)
-
 refresh_feeds(PG_DB, logger, config.feed_threads)
-
 subscribe_to_feeds(PG_DB, logger, HMAC_KEY, config)
 
 statistics = {

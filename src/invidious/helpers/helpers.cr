@@ -1,5 +1,20 @@
 require "./macros"
 
+struct Nonce
+  db_mapping({
+    nonce:  String,
+    expire: Time,
+  })
+end
+
+struct SessionId
+  db_mapping({
+    id:     String,
+    email:  String,
+    issued: String,
+  })
+end
+
 struct ConfigPreferences
   module StringToArray
     def self.to_yaml(value : Array(String), yaml : YAML::Nodes::Builder)
@@ -482,4 +497,93 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
   end
 
   return items
+end
+
+def analyze_table(db, logger, table_name, struct_type = nil)
+  # Create table if it doesn't exist
+  if !db.query_one?("SELECT true FROM information_schema.tables WHERE table_name = $1", table_name, as: Bool)
+    db.using_connection do |conn|
+      conn.as(PG::Connection).exec_all(File.read("config/sql/#{table_name}.sql"))
+    end
+
+    logger.write("CREATE TABLE #{table_name}\n")
+  end
+
+  if !struct_type
+    return
+  end
+
+  struct_array = struct_type.to_type_tuple
+  column_array = get_column_array(db, table_name)
+  column_types = File.read("config/sql/#{table_name}.sql").match(/CREATE TABLE public\.#{table_name}\n\((?<types>[\d\D]*?)\);/)
+    .try &.["types"].split(",").map { |line| line.strip }
+
+  if !column_types
+    return
+  end
+
+  struct_array.each_with_index do |name, i|
+    if name != column_array[i]?
+      if !column_array[i]?
+        new_column = column_types.select { |line| line.starts_with? name }[0]
+        db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
+        logger.write("ALTER TABLE #{table_name} ADD COLUMN #{new_column}\n")
+        next
+      end
+
+      # Column doesn't exist
+      if !column_array.includes? name
+        new_column = column_types.select { |line| line.starts_with? name }[0]
+        db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
+      end
+
+      # Column exists but in the wrong position, rotate
+      if struct_array.includes? column_array[i]
+        until name == column_array[i]
+          new_column = column_types.select { |line| line.starts_with? column_array[i] }[0]?.try &.gsub("#{column_array[i]}", "#{column_array[i]}_new")
+
+          # There's a column we didn't expect
+          if !new_column
+            db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
+            logger.write("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]}\n")
+
+            column_array = get_column_array(db, table_name)
+            next
+          end
+
+          db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
+          logger.write("ALTER TABLE #{table_name} ADD COLUMN #{new_column}\n")
+          db.exec("UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}")
+          logger.write("UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}\n")
+          db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
+          logger.write("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE\n")
+          db.exec("ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}")
+          logger.write("ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}\n")
+
+          column_array = get_column_array(db, table_name)
+        end
+      else
+        db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
+        logger.write("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE\n")
+      end
+    end
+  end
+end
+
+class PG::ResultSet
+  def field(index = @column_index)
+    @fields.not_nil![index]
+  end
+end
+
+def get_column_array(db, table_name)
+  column_array = [] of String
+  db.query("SELECT * FROM #{table_name} LIMIT 0") do |rs|
+    rs.column_count.times do |i|
+      column = rs.as(PG::ResultSet).field(i)
+      column_array << column.name
+    end
+  end
+
+  return column_array
 end

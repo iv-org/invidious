@@ -66,7 +66,7 @@ def refresh_feeds(db, logger, max_threads = 1)
           spawn do
             begin
               db.query("SELECT * FROM #{view_name} LIMIT 1") do |rs|
-                # View doesn't contain same number of rows as ChannelVideo
+                # Drop view that doesn't contain same number of rows as ChannelVideo
                 if ChannelVideo.from_rs(rs)[0]?.try &.to_a.size.try &.!= rs.column_count
                   db.exec("DROP MATERIALIZED VIEW #{view_name}")
                   raise "valid schema does not exist"

@@ -3,10 +3,14 @@ macro db_mapping(mapping)
     end
 
     def to_a
-        return [{{*mapping.keys.map { |id| "@#{id}".id }}}]
+        return [ {{*mapping.keys.map { |id| "@#{id}".id }}} ]
     end
 
-    DB.mapping({{mapping}})
+    def self.to_type_tuple
+        return { {{*mapping.keys.map { |id| "#{id}" }}} }
+    end
+
+    DB.mapping( {{mapping}} )
 end
 
 macro json_mapping(mapping)
@@ -14,11 +18,11 @@ macro json_mapping(mapping)
     end
 
     def to_a
-        return [{{*mapping.keys.map { |id| "@#{id}".id }}}]
+        return [ {{*mapping.keys.map { |id| "@#{id}".id }}} ]
     end
 
-    JSON.mapping({{mapping}})
-    YAML.mapping({{mapping}})
+    JSON.mapping( {{mapping}} )
+    YAML.mapping( {{mapping}} )
 end
 
 macro yaml_mapping(mapping)
@@ -26,7 +30,7 @@ macro yaml_mapping(mapping)
     end
 
     def to_a
-        return [{{*mapping.keys.map { |id| "@#{id}".id }}}]
+        return [ {{*mapping.keys.map { |id| "@#{id}".id }}} ]
     end
 
     def to_tuple
