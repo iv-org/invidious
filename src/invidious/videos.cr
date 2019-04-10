@@ -601,6 +601,168 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
   return video
 end
 
+def extract_polymer_config(body, html)
+  params = HTTP::Params.new
+
+  params["session_token"] = body.match(/"XSRF_TOKEN":"(?<session_token>[A-Za-z0-9\_\-\=]+)"/).try &.["session_token"] || ""
+
+  html_info = JSON.parse(body.match(/ytplayer\.config = (?<info>.*?);ytplayer\.load/).try &.["info"] || "{}").try &.["args"]?.try &.as_h
+
+  if html_info
+    html_info.each do |key, value|
+      params[key] = value.to_s
+    end
+  end
+
+  initial_data = JSON.parse(body.match(/window\["ytInitialData"\] = (?<info>.*?);\n/).try &.["info"] || "{}")
+
+  primary_results = initial_data["contents"]?
+    .try &.["twoColumnWatchNextResults"]?
+      .try &.["results"]?
+        .try &.["results"]?
+          .try &.["contents"]?
+
+  comment_continuation = primary_results.try &.as_a.select { |object| object["itemSectionRenderer"]? }[0]?
+    .try &.["itemSectionRenderer"]?
+      .try &.["continuations"]?
+        .try &.[0]?
+          .try &.["nextContinuationData"]?
+
+  params["ctoken"] = comment_continuation.try &.["continuation"]?.try &.as_s || ""
+  params["itct"] = comment_continuation.try &.["clickTrackingParams"]?.try &.as_s || ""
+
+  recommended_videos = initial_data["contents"]?
+    .try &.["twoColumnWatchNextResults"]?
+      .try &.["secondaryResults"]?
+        .try &.["secondaryResults"]?
+          .try &.["results"]?
+            .try &.as_a
+
+  rvs = [] of String
+
+  recommended_videos.try &.each do |compact_renderer|
+    if compact_renderer["compactRadioRenderer"]? || compact_renderer["compactPlaylistRenderer"]?
+      # TODO
+    elsif compact_renderer["compactVideoRenderer"]?
+      compact_renderer = compact_renderer["compactVideoRenderer"]
+
+      recommended_video = HTTP::Params.new
+      recommended_video["id"] = compact_renderer["videoId"].as_s
+      recommended_video["title"] = compact_renderer["title"]["simpleText"].as_s
+      recommended_video["author"] = compact_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
+      recommended_video["ucid"] = compact_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
+      recommended_video["author_thumbnail"] = compact_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
+
+      recommended_video["short_view_count_text"] = compact_renderer["shortViewCountText"]["simpleText"].as_s
+      recommended_video["view_count"] = compact_renderer["viewCountText"]?.try &.["simpleText"]?.try &.as_s.delete(", views").to_i64?.try &.to_s || "0"
+      recommended_video["length_seconds"] = decode_length_seconds(compact_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
+
+      rvs << recommended_video.to_s
+    end
+  end
+  params["rvs"] = rvs.join(",")
+
+  # TODO: Watching now
+  params["views"] = primary_results.try &.as_a.select { |object| object["videoPrimaryInfoRenderer"]? }[0]?
+    .try &.["videoPrimaryInfoRenderer"]?
+      .try &.["viewCount"]?
+        .try &.["videoViewCountRenderer"]?
+          .try &.["viewCount"]?
+            .try &.["simpleText"]?
+              .try &.as_s.gsub(/\D/, "").to_i64.to_s || "0"
+
+  sentiment_bar = primary_results.try &.as_a.select { |object| object["videoPrimaryInfoRenderer"]? }[0]?
+    .try &.["videoPrimaryInfoRenderer"]?
+      .try &.["sentimentBar"]?
+        .try &.["sentimentBarRenderer"]?
+          .try &.["tooltip"]?
+            .try &.as_s
+
+  likes, dislikes = sentiment_bar.try &.split(" / ").map { |a| a.delete(", ").to_i32 }[0, 2] || {0, 0}
+
+  params["likes"] = "#{likes}"
+  params["dislikes"] = "#{dislikes}"
+
+  published = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
+    .try &.["videoSecondaryInfoRenderer"]?
+      .try &.["dateText"]?
+        .try &.["simpleText"]?
+          .try &.as_s.split(" ")[-3..-1].join(" ")
+
+  if published
+    params["published"] = Time.parse(published, "%b %-d, %Y", Time::Location.local).to_unix.to_s
+  else
+    params["published"] = Time.new(1990, 1, 1).to_unix.to_s
+  end
+
+  params["description_html"] = "<p></p>"
+
+  description_html = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
+    .try &.["videoSecondaryInfoRenderer"]?
+      .try &.["description"]?
+        .try &.["runs"]?
+          .try &.as_a
+
+  if description_html
+    params["description_html"] = content_to_comment_html(description_html)
+  end
+
+  metadata = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
+    .try &.["videoSecondaryInfoRenderer"]?
+      .try &.["metadataRowContainer"]?
+        .try &.["metadataRowContainerRenderer"]?
+          .try &.["rows"]?
+            .try &.as_a
+
+  params["genre"] = ""
+  params["genre_ucid"] = ""
+  params["license"] = ""
+
+  metadata.try &.each do |row|
+    title = row["metadataRowRenderer"]?.try &.["title"]?.try &.["simpleText"]?.try &.as_s
+    contents = row["metadataRowRenderer"]?
+      .try &.["contents"]?
+        .try &.as_a[0]?
+
+    if title.try &.== "Category"
+      contents = contents.try &.["runs"]?
+        .try &.as_a[0]?
+
+      params["genre"] = contents.try &.["text"]?
+        .try &.as_s || ""
+      params["genre_ucid"] = contents.try &.["navigationEndpoint"]?
+        .try &.["browseEndpoint"]?
+          .try &.["browseId"]?.try &.as_s || ""
+    elsif title.try &.== "License"
+      contents = contents.try &.["runs"]?
+        .try &.as_a[0]?
+
+      params["license"] = contents.try &.["text"]?
+        .try &.as_s || ""
+    elsif title.try &.== "Licensed to YouTube by"
+      params["license"] = contents.try &.["simpleText"]?
+        .try &.as_s || ""
+    end
+  end
+
+  author_info = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
+    .try &.["videoSecondaryInfoRenderer"]?
+      .try &.["owner"]?
+        .try &.["videoOwnerRenderer"]?
+
+  params["author_thumbnail"] = author_info.try &.["thumbnail"]?
+    .try &.["thumbnails"]?
+      .try &.as_a[0]?
+        .try &.["url"]?
+          .try &.as_s || ""
+
+  params["sub_count_text"] = author_info.try &.["subscriberCountText"]?
+    .try &.["simpleText"]?
+      .try &.as_s.gsub(/\D/, "") || "0"
+
+  return params
+end
+
 def extract_player_config(body, html)
   params = HTTP::Params.new
 
