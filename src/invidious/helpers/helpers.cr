@@ -501,7 +501,9 @@ end
 
 def analyze_table(db, logger, table_name, struct_type = nil)
   # Create table if it doesn't exist
-  if !db.query_one?("SELECT true FROM information_schema.tables WHERE table_name = $1", table_name, as: Bool)
+  begin
+    db.exec("SELECT * FROM #{table_name} LIMIT 0")
+  rescue ex
     logger.write("CREATE TABLE #{table_name}\n")
 
     db.using_connection do |conn|
