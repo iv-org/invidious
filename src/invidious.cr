@@ -2722,6 +2722,11 @@ get "/api/v1/captions/:id" do |env|
     END_CUE
   end
 
+  if title = env.params.query["title"]?
+    # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+    env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
+  end
+
   webvtt
 end
 
@@ -4214,10 +4219,17 @@ end
 get "/latest_version" do |env|
   if env.params.query["download_widget"]?
     download_widget = JSON.parse(env.params.query["download_widget"])
+
     id = download_widget["id"].as_s
-    itag = download_widget["itag"].as_s
     title = download_widget["title"].as_s
+
+    if label = download_widget["label"]?
+      env.redirect "/api/v1/captions/#{id}?label=#{label}&title=#{title}"
+      next
+    else
+    itag = download_widget["itag"].as_s
     local = "true"
+  end
   end
 
   id ||= env.params.query["id"]?

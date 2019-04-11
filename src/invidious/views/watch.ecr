@@ -79,6 +79,11 @@
                             <%= itag_to_metadata?(option["itag"]).try &.["height"]? || "~240" %>p - <%= option["type"].split(";")[0] %>
                         </option>
                     <% end %>
+                    <% captions.each do |caption| %>
+                        <option value='{"id":"<%= video.id %>","label":"<%= caption.name.simpleText %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= caption.languageCode %>.vtt"}'>
+                            <%= translate(locale, "Subtitles - `x` (.vtt)", caption.name.simpleText) %>
+                        </option>
+                    <% end %>
                     </select>
                 </div>
 
