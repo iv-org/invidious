@@ -3036,6 +3036,8 @@ get "/api/v1/videos/:id" do |env|
         json.field "hlsUrl", hlsvp
       end
 
+      json.field "dashUrl", "#{make_host_url(config, Kemal.config)}/api/manifest/dash/id/#{id}"
+
       json.field "adaptiveFormats" do
         json.array do
           adaptive_fmts.each do |fmt|
