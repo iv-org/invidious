@@ -2973,6 +2973,9 @@ get "/api/v1/videos/:id" do |env|
       json.field "videoThumbnails" do
         generate_thumbnails(json, video.id, config, Kemal.config)
       end
+      json.field "storyboards" do
+        generate_storyboards(json, video.storyboards, config, Kemal.config)
+      end
 
       video.description, description = html_to_content(video.description)
 
@@ -4348,7 +4351,7 @@ get "/videoplayback" do |env|
   url = "/videoplayback?#{query_params.to_s}"
 
   headers = HTTP::Headers.new
-  {"Accept", "Accept-Encoding", "Connection", "Range"}.each do |header|
+  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end
@@ -4445,7 +4448,63 @@ get "/ggpht/*" do |env|
   url = env.request.path.lchop("/ggpht")
 
   headers = HTTP::Headers.new
-  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
+
+  client.get(url, headers) do |response|
+    env.response.status_code = response.status_code
+    response.headers.each do |key, value|
+      env.response.headers[key] = value
+    end
+
+    if response.status_code == 304
+      break
+    end
+
+    chunk_size = 4096
+    size = 1
+    if response.headers.includes_word?("Content-Encoding", "gzip")
+      Gzip::Writer.open(env.response) do |deflate|
+        until size == 0
+          size = IO.copy(response.body_io, deflate)
+          env.response.flush
+        end
+      end
+    elsif response.headers.includes_word?("Content-Encoding", "deflate")
+      Flate::Writer.open(env.response) do |deflate|
+        until size == 0
+          size = IO.copy(response.body_io, deflate)
+          env.response.flush
+        end
+      end
+    else
+      until size == 0
+        size = IO.copy(response.body_io, env.response, chunk_size)
+        env.response.flush
+      end
+    end
+  end
+end
+
+get "/sb/:id/:storyboard/:index" do |env|
+  id = env.params.url["id"]
+  storyboard = env.params.url["storyboard"]
+  index = env.params.url["index"]
+
+  if storyboard.starts_with? "storyboard_live"
+    host = "https://i.ytimg.com"
+  else
+    host = "https://i9.ytimg.com"
+  end
+  client = make_client(URI.parse(host))
+
+  url = "/sb/#{id}/#{storyboard}/#{index}?#{env.params.query}"
+
+  headers = HTTP::Headers.new
+  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end
@@ -4504,7 +4563,7 @@ get "/vi/:id/:name" do |env|
   url = "/vi/#{id}/#{name}"
 
   headers = HTTP::Headers.new
-  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end

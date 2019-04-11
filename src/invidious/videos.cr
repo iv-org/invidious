@@ -473,6 +473,75 @@ struct Video
     return @player_json.not_nil!
   end
 
+  def storyboards
+    storyboards = self.player_response["storyboards"]?
+      .try &.as_h
+        .try &.["playerStoryboardSpecRenderer"]?
+
+    if !storyboards
+      storyboards = self.player_response["storyboards"]?
+        .try &.as_h
+          .try &.["playerLiveStoryboardSpecRenderer"]?
+
+      if storyboard = storyboards.try &.["spec"]?
+           .try &.as_s
+        return [{
+                  url:               storyboard.split("#")[0].sub("M$M", "$N"),
+                  width:             106,
+                  height:            60,
+                  count:             -1,
+                  interval:          5000,
+                  storyboard_width:  3,
+                  storyboard_height: 3,
+                  storyboard_count:  -1,
+                }]
+      end
+    end
+
+    storyboards = storyboards.try &.["spec"]?
+      .try &.as_s.split("|")
+
+    items = [] of NamedTuple(
+      url: String,
+      width: Int32,
+      height: Int32,
+      count: Int32,
+      interval: Int32,
+      storyboard_width: Int32,
+      storyboard_height: Int32,
+      storyboard_count: Int32)
+
+    if !storyboards
+      return items
+    end
+
+    url = storyboards.shift
+
+    storyboards.each_with_index do |storyboard, i|
+      width, height, count, storyboard_width, storyboard_height, interval, _, sigh = storyboard.split("#")
+
+      width = width.to_i
+      height = height.to_i
+      count = count.to_i
+      interval = interval.to_i
+      storyboard_width = storyboard_width.to_i
+      storyboard_height = storyboard_height.to_i
+
+      items << {
+        url:               "#{url}&sigh=#{sigh}".sub("$L", i),
+        width:             width,
+        height:            height,
+        count:             count,
+        interval:          interval,
+        storyboard_width:  storyboard_width,
+        storyboard_height: storyboard_height,
+        storyboard_count:  (count.to_f / (storyboard_width.to_f * storyboard_height.to_f)).ceil.to_i,
+      }
+    end
+
+    items
+  end
+
   def paid
     reason = self.player_response["playabilityStatus"]?.try &.["reason"]?
 
@@ -1058,6 +1127,23 @@ def generate_thumbnails(json, id, config, kemal_config)
         json.field "url", "#{thumbnail[:host]}/vi/#{id}/#{thumbnail["url"]}.jpg"
         json.field "width", thumbnail[:width]
         json.field "height", thumbnail[:height]
+      end
+    end
+  end
+end
+
+def generate_storyboards(json, storyboards, config, kemal_config)
+  json.array do
+    storyboards.each do |storyboard|
+      json.object do
+        json.field "url", storyboard[:url]
+        json.field "width", storyboard[:width]
+        json.field "height", storyboard[:height]
+        json.field "count", storyboard[:count]
+        json.field "interval", storyboard[:interval]
+        json.field "storyboardWidth", storyboard[:storyboard_width]
+        json.field "storyboardHeight", storyboard[:storyboard_height]
+        json.field "storyboardCount", storyboard[:storyboard_count]
       end
     end
   end
