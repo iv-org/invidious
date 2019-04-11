@@ -115,6 +115,7 @@ user: String,
                                converter: ConfigPreferencesConverter,
     },
     dmca_content: {type: Array(String), default: [] of String}, # For compliance with DMCA, disables download widget using list of video IDs
+    check_tables: {type: Bool, default: false},                 # Check table integrity, automatically try to add any missing columns, create tables, etc.
   })
 end
 
