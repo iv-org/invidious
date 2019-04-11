@@ -441,8 +441,12 @@ def replace_links(html)
     end
   end
 
-  html = html.to_xml(options: XML::SaveOptions::NO_DECL)
-  return html
+  html = html.xpath_node(%q(//body)).not_nil!
+  if node = html.xpath_node(%q(./p))
+    html = node
+  end
+
+  return html.to_xml(options: XML::SaveOptions::NO_DECL)
 end
 
 def fill_links(html, scheme, host)
@@ -459,12 +463,10 @@ def fill_links(html, scheme, host)
   end
 
   if host == "www.youtube.com"
-    html = html.xpath_node(%q(//body)).not_nil!.to_xml
-  else
-    html = html.to_xml(options: XML::SaveOptions::NO_DECL)
+    html = html.xpath_node(%q(//body/p)).not_nil!
   end
 
-  return html
+  return html.to_xml(options: XML::SaveOptions::NO_DECL)
 end
 
 def content_to_comment_html(content)

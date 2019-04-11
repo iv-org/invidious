@@ -880,7 +880,7 @@ def fetch_video(id, proxies, region)
   info["avg_rating"] = "#{avg_rating}"
 
   description = html.xpath_node(%q(//p[@id="eow-description"]))
-  description = description ? description.to_xml : ""
+  description = description ? description.to_xml(options: XML::SaveOptions::NO_DECL) : ""
 
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
