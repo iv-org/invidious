@@ -54,7 +54,7 @@ def refresh_feeds(db, logger, max_threads = 1)
       db.query("SELECT email FROM users") do |rs|
         rs.each do
           email = rs.read(String)
-          view_name = "subscriptions_#{sha256(email)[0..7]}"
+          view_name = "subscriptions_#{sha256(email)}"
 
           if active_threads >= max_threads
             if active_channel.receive
@@ -65,28 +65,38 @@ def refresh_feeds(db, logger, max_threads = 1)
           active_threads += 1
           spawn do
             begin
-              db.query("SELECT * FROM #{view_name} LIMIT 1") do |rs|
-                # Drop view that doesn't contain same number of rows as ChannelVideo
-                if ChannelVideo.from_rs(rs)[0]?.try &.to_a.size.try &.!= rs.column_count
+              # Drop outdated views
+              column_array = get_column_array(db, view_name)
+              ChannelVideo.to_type_tuple.each_with_index do |name, i|
+                if name != column_array[i]?
+                  logger.write("DROP MATERIALIZED VIEW #{view_name}\n")
                   db.exec("DROP MATERIALIZED VIEW #{view_name}")
-                  raise "valid schema does not exist"
+                  raise "view does not exist"
                 end
               end
 
               db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
             rescue ex
-              # Create view if it doesn't exist
-              if ex.message.try &.ends_with?("does not exist")
-                # While iterating through, we may have an email stored from a deleted account
-                if db.query_one?("SELECT true FROM users WHERE email = $1", email, as: Bool)
-                  db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
-                  SELECT * FROM channel_videos WHERE \
-                  ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{email.gsub("'", "\\'")}')::text[]) \
-                  ORDER BY published DESC;")
-                  logger.write("CREATE #{view_name}\n")
+              # Rename old views
+              begin
+                legacy_view_name = "subscriptions_#{sha256(email)[0..7]}"
+
+                db.exec("SELECT * FROM #{legacy_view_name} LIMIT 0")
+                logger.write("RENAME MATERIALIZED VIEW #{legacy_view_name}\n")
+                db.exec("ALTER MATERIALIZED VIEW #{legacy_view_name} RENAME TO #{view_name}")
+              rescue ex
+                begin
+                  # While iterating through, we may have an email stored from a deleted account
+                  if db.query_one?("SELECT true FROM users WHERE email = $1", email, as: Bool)
+                    logger.write("CREATE #{view_name}\n")
+                    db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
+                    SELECT * FROM channel_videos WHERE \
+                    ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{email.gsub("'", "\\'")}')::text[]) \
+                    ORDER BY published DESC;")
+                  end
+                rescue ex
+                  logger.write("REFRESH #{email} : #{ex.message}\n")
                 end
-              else
-                logger.write("REFRESH #{email} : #{ex.message}\n")
               end
             end
 

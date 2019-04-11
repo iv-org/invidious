@@ -666,7 +666,7 @@ get "/search" do |env|
   user = env.get? "user"
   if user
     user = user.as(User)
-    view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+    view_name = "subscriptions_#{sha256(user.email)}"
   end
 
   channel = nil
@@ -1114,7 +1114,7 @@ post "/login" do |env|
       PG_DB.exec("INSERT INTO users VALUES (#{args})", user_array)
       PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.now)
 
-      view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+      view_name = "subscriptions_#{sha256(user.email)}"
       PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
         SELECT * FROM channel_videos WHERE \
         ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
@@ -1834,7 +1834,7 @@ post "/delete_account" do |env|
       next templated "error"
     end
 
-    view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+    view_name = "subscriptions_#{sha256(user.email)}"
     PG_DB.exec("DELETE FROM users * WHERE email = $1", user.email)
     PG_DB.exec("DELETE FROM session_ids * WHERE email = $1", user.email)
     PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
@@ -1969,7 +1969,7 @@ get "/feed/subscriptions" do |env|
 
     notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
       as: Array(String))
-    view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+    view_name = "subscriptions_#{sha256(user.email)}"
 
     if preferences.notifications_only && !notifications.empty?
       # Only show notifications
@@ -2253,7 +2253,7 @@ get "/feed/private" do |env|
   sort = env.params.query["sort"]?
   sort ||= "published"
 
-  view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+  view_name = "subscriptions_#{sha256(user.email)}"
 
   if latest_only
     videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
