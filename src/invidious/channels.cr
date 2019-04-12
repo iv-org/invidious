@@ -114,9 +114,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       if auto_generated
         videos = extract_videos(nodeset)
       else
-        videos = extract_videos(nodeset, ucid)
-        videos.each { |video| video.ucid = ucid }
-        videos.each { |video| video.author = author }
+        videos = extract_videos(nodeset, ucid, author)
       end
     end
 
@@ -184,9 +182,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       if auto_generated
         videos = extract_videos(nodeset)
       else
-        videos = extract_videos(nodeset, ucid)
-        videos.each { |video| video.ucid = ucid }
-        videos.each { |video| video.author = author }
+        videos = extract_videos(nodeset, ucid, author)
       end
 
       count = nodeset.size

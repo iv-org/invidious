@@ -179,8 +179,8 @@ def html_to_content(description_html)
   return description_html, description
 end
 
-def extract_videos(nodeset, ucid = nil)
-  videos = extract_items(nodeset, ucid)
+def extract_videos(nodeset, ucid = nil, author_name = nil)
+  videos = extract_items(nodeset, ucid, author_name)
   videos.select! { |item| !item.is_a?(SearchChannel | SearchPlaylist) }
   videos.map { |video| video.as(SearchVideo) }
 end
