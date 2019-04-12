@@ -4134,8 +4134,10 @@ get "/api/manifest/dash/id/:id" do |env|
       "profiles": "urn:mpeg:dash:profile:isoff-live:2011", minBufferTime: "PT1.5S", type: "static",
       mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
       xml.element("Period") do
+        i = 0
+
         {"audio/mp4", "audio/webm"}.each do |mime_type|
-          xml.element("AdaptationSet", mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true) do
+          xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true) do
             audio_streams.select { |stream| stream["type"].starts_with? mime_type }.each do |fmt|
               codecs = fmt["type"].split("codecs=")[1].strip('"')
               bandwidth = fmt["bitrate"]
@@ -4152,11 +4154,12 @@ get "/api/manifest/dash/id/:id" do |env|
               end
             end
           end
+
+          i += 1
         end
 
         {"video/mp4", "video/webm"}.each do |mime_type|
-          xml.element("AdaptationSet", mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true,
-            scanType: "progressive") do
+          xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
             video_streams.select { |stream| stream["type"].starts_with? mime_type }.each do |fmt|
               codecs = fmt["type"].split("codecs=")[1].strip('"')
               bandwidth = fmt["bitrate"]
@@ -4174,6 +4177,8 @@ get "/api/manifest/dash/id/:id" do |env|
               end
             end
           end
+
+          i += 1
         end
       end
     end
