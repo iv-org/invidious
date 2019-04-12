@@ -4124,47 +4124,51 @@ get "/api/manifest/dash/id/:id" do |env|
     end
   end
 
-  audio_streams = video.audio_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "audio/mp4" }
-  video_streams = video.video_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "video/mp4" }.uniq { |stream| stream["size"] }
+  audio_streams = video.audio_streams(adaptive_fmts)
+  video_streams = video.video_streams(adaptive_fmts)
 
   manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
       "profiles": "urn:mpeg:dash:profile:isoff-live:2011", minBufferTime: "PT1.5S", type: "static",
       mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
       xml.element("Period") do
-        xml.element("AdaptationSet", mimeType: "audio/mp4", startWithSAP: 1, subsegmentAlignment: true) do
-          audio_streams.each do |fmt|
-            codecs = fmt["type"].split("codecs=")[1].strip('"')
-            bandwidth = fmt["bitrate"]
-            itag = fmt["itag"]
-            url = fmt["url"]
+        {"audio/mp4", "audio/webm"}.each do |mime_type|
+          xml.element("AdaptationSet", mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true) do
+            audio_streams.select { |stream| stream["type"].starts_with? mime_type }.each do |fmt|
+              codecs = fmt["type"].split("codecs=")[1].strip('"')
+              bandwidth = fmt["bitrate"]
+              itag = fmt["itag"]
+              url = fmt["url"]
 
-            xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
-              xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
-                value: "2")
-              xml.element("BaseURL") { xml.text url }
-              xml.element("SegmentBase", indexRange: fmt["index"]) do
-                xml.element("Initialization", range: fmt["init"])
+              xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
+                xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
+                  value: "2")
+                xml.element("BaseURL") { xml.text url }
+                xml.element("SegmentBase", indexRange: fmt["index"]) do
+                  xml.element("Initialization", range: fmt["init"])
+                end
               end
             end
           end
         end
 
-        xml.element("AdaptationSet", mimeType: "video/mp4", startWithSAP: 1, subsegmentAlignment: true,
-          scanType: "progressive") do
-          video_streams.each do |fmt|
-            codecs = fmt["type"].split("codecs=")[1].strip('"')
-            bandwidth = fmt["bitrate"]
-            itag = fmt["itag"]
-            url = fmt["url"]
-            width, height = fmt["size"].split("x")
+        {"video/mp4", "video/webm"}.each do |mime_type|
+          xml.element("AdaptationSet", mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true,
+            scanType: "progressive") do
+            video_streams.select { |stream| stream["type"].starts_with? mime_type }.each do |fmt|
+              codecs = fmt["type"].split("codecs=")[1].strip('"')
+              bandwidth = fmt["bitrate"]
+              itag = fmt["itag"]
+              url = fmt["url"]
+              width, height = fmt["size"].split("x")
 
-            xml.element("Representation", id: itag, codecs: codecs, width: width, height: height,
-              startWithSAP: "1", maxPlayoutRate: "1",
-              bandwidth: bandwidth, frameRate: fmt["fps"]) do
-              xml.element("BaseURL") { xml.text url }
-              xml.element("SegmentBase", indexRange: fmt["index"]) do
-                xml.element("Initialization", range: fmt["init"])
+              xml.element("Representation", id: itag, codecs: codecs, width: width, height: height,
+                startWithSAP: "1", maxPlayoutRate: "1",
+                bandwidth: bandwidth, frameRate: fmt["fps"]) do
+                xml.element("BaseURL") { xml.text url }
+                xml.element("SegmentBase", indexRange: fmt["index"]) do
+                  xml.element("Initialization", range: fmt["init"])
+                end
               end
             end
           end
