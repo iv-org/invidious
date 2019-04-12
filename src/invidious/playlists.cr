@@ -196,7 +196,7 @@ def fetch_playlist(plid, locale)
   author_thumbnail ||= ""
   ucid = anchor.xpath_node(%q(.//li[1]/a)).not_nil!["href"].split("/")[-1]
 
-  video_count = anchor.xpath_node(%q(.//li[2])).not_nil!.content.delete("videos, ").to_i
+  video_count = anchor.xpath_node(%q(.//li[2])).not_nil!.content.gsub(/\D/, "").to_i
   views = anchor.xpath_node(%q(.//li[3])).not_nil!.content.delete("No views, ")
   if views.empty?
     views = 0_i64

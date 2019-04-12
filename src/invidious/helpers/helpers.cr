@@ -241,7 +241,7 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
           video_count = video_count.rchop("+")
         end
 
-        video_count = video_count.to_i?
+        video_count = video_count.gsub(/\D/, "").to_i?
       end
       video_count ||= 0
 
@@ -301,10 +301,10 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
 
       author_thumbnail ||= ""
 
-      subscriber_count = node.xpath_node(%q(.//span[contains(@class, "yt-subscriber-count")])).try &.["title"].delete(",").to_i?
+      subscriber_count = node.xpath_node(%q(.//span[contains(@class, "yt-subscriber-count")])).try &.["title"].gsub(/\D/, "").to_i?
       subscriber_count ||= 0
 
-      video_count = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li)).try &.content.split(" ")[0].delete(",").to_i?
+      video_count = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li)).try &.content.split(" ")[0].gsub(/\D/, "").to_i?
       video_count ||= 0
 
       items << SearchChannel.new(
@@ -466,7 +466,7 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
 
         video_count_label = child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
         if video_count_label
-          video_count = video_count_label.content.strip.match(/^\d+/).try &.[0].to_i?
+          video_count = video_count_label.content.gsub(/\D/, "").to_i?
         end
         video_count ||= 50
 
