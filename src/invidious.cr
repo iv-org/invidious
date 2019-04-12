@@ -106,12 +106,12 @@ end
 Kemal::CLI.new ARGV
 
 if CONFIG.check_tables
-# Check table integrity
-analyze_table(PG_DB, logger, "channel_videos", ChannelVideo)
-analyze_table(PG_DB, logger, "nonces", Nonce)
-analyze_table(PG_DB, logger, "session_ids", SessionId)
-analyze_table(PG_DB, logger, "users", User)
-analyze_table(PG_DB, logger, "videos", Video)
+  # Check table integrity
+  analyze_table(PG_DB, logger, "channel_videos", ChannelVideo)
+  analyze_table(PG_DB, logger, "nonces", Nonce)
+  analyze_table(PG_DB, logger, "session_ids", SessionId)
+  analyze_table(PG_DB, logger, "users", User)
+  analyze_table(PG_DB, logger, "videos", Video)
 end
 
 # Start jobs
@@ -4157,7 +4157,7 @@ get "/api/manifest/dash/id/:id" do |env|
             bandwidth = fmt["bitrate"]
             itag = fmt["itag"]
             url = fmt["url"]
-            height, width = fmt["size"].split("x")
+            width, height = fmt["size"].split("x")
 
             xml.element("Representation", id: itag, codecs: codecs, width: width, height: height,
               startWithSAP: "1", maxPlayoutRate: "1",
