@@ -63,9 +63,9 @@ var options = {
 };
 
 var shareOptions = {
-  socials: ["fb", "tw", "reddit", "mail"],
+  socials: ["fbFeed", "tw", "reddit", "email"],
 
-  url: "<%= host_url %>/<%= video.id %>?<%= host_params %>",
+  url: window.location.href,
   title: "<%= video.title.dump_unquoted %>",
   description: "<%= description %>",
   image: "<%= thumbnail %>",
