@@ -4067,11 +4067,13 @@ get "/api/v1/mixes/:rdid" do |env|
 end
 
 get "/api/manifest/dash/id/videoplayback" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.redirect "/videoplayback?#{env.params.query}"
 end
 
 get "/api/manifest/dash/id/videoplayback/*" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.redirect env.request.path.lchop("/api/manifest/dash/id")
 end
@@ -4127,7 +4129,7 @@ get "/api/manifest/dash/id/:id" do |env|
   audio_streams = video.audio_streams(adaptive_fmts)
   video_streams = video.video_streams(adaptive_fmts)
 
-  manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
+  XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
       "profiles": "urn:mpeg:dash:profile:isoff-live:2011", minBufferTime: "PT1.5S", type: "static",
       mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
@@ -4176,10 +4178,6 @@ get "/api/manifest/dash/id/:id" do |env|
       end
     end
   end
-
-  manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8U"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
-  manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8V"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
-  manifest
 end
 
 get "/api/manifest/hls_variant/*" do |env|
@@ -4280,24 +4278,28 @@ get "/latest_version" do |env|
 end
 
 options "/videoplayback" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 options "/videoplayback/*" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 options "/api/manifest/dash/id/videoplayback" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 options "/api/manifest/dash/id/videoplayback/*" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
