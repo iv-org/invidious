@@ -4230,9 +4230,9 @@ get "/latest_version" do |env|
       env.redirect "/api/v1/captions/#{id}?label=#{label}&title=#{title}"
       next
     else
-    itag = download_widget["itag"].as_s
-    local = "true"
-  end
+      itag = download_widget["itag"].as_s
+      local = "true"
+    end
   end
 
   id ||= env.params.query["id"]?

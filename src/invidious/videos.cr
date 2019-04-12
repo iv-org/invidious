@@ -486,7 +486,7 @@ struct Video
       if storyboard = storyboards.try &.["spec"]?
            .try &.as_s
         return [{
-                  url:               storyboard.split("#")[0].sub("M$M", "$N"),
+                  url:               storyboard.split("#")[0],
                   width:             106,
                   height:            60,
                   count:             -1,
@@ -528,7 +528,7 @@ struct Video
       storyboard_height = storyboard_height.to_i
 
       items << {
-        url:               "#{url}&sigh=#{sigh}".sub("$L", i),
+        url:               "#{url}&sigh=#{sigh}".sub("$L", i).sub("$N", "M$M"),
         width:             width,
         height:            height,
         count:             count,
