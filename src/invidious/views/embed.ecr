@@ -23,6 +23,80 @@
 </head>
 
 <body>
-  <%= rendered "components/player" %>
+<%= rendered "components/player" %>
+
+<script>
+<% if plid %>
+function get_playlist(timeouts = 0) {
+    if (timeouts > 10) {
+        console.log("Failed to pull playlist");
+        return;
+    }
+
+    var plid = "<%= plid %>"
+
+    if (plid.startsWith("RD")) {
+        var plid_url = "/api/v1/mixes/<%= plid %>?continuation=<%= video.id %>&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
+    } else {
+        var plid_url = "/api/v1/playlists/<%= plid %>?continuation=<%= video.id %>&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.timeout = 20000;
+    xhr.open("GET", plid_url, true);
+    xhr.send();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                if (xhr.response.nextVideo) {
+                    player.on('ended', function() {
+                        location.assign("/embed/"
+                            + xhr.response.nextVideo
+                            + "?list=<%= plid %>"
+                            <% if params[:listen] %>
+                            + "&listen=1"
+                            <% end %>
+                            <% if params[:autoplay] %>
+                            + "&autoplay=1"
+                            <% end %>
+                            <% if params[:speed] %>
+                            + "&speed=<%= params[:speed] %>"
+                            <% end %>
+                        );
+                    });
+                }
+            }
+        }
+    };
+
+    xhr.ontimeout = function() {
+        console.log("Pulling playlist timed out.");
+        get_playlist(timeouts + 1);
+    };
+}
+
+get_playlist();
+<% elsif video_series %>
+player.on('ended', function() {
+  location.assign("/embed/"
+    + "<%= video_series.shift %>"
+    <% if !video_series.empty? %>
+    + "?playlist=<%= video_series.join(",") %>"
+    <% end %>
+    <% if params[:listen] %>
+    + "&listen=1"
+    <% end %>
+    <% if params[:autoplay] %>
+    + "&autoplay=1"
+    <% end %>
+    <% if params[:speed] %>
+    + "&speed=<%= params[:speed] %>"
+    <% end %>
+  );
+});
+<% end %>
+</script>
 </body>
 </html>

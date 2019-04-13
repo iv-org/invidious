@@ -249,7 +249,6 @@ function number_with_separator(val) {
 <% sub_count_text = video.sub_count_text %>
 <%= rendered "components/subscribe_widget_script" %>
 
-
 <% if plid %>
 function get_playlist(timeouts = 0) {
     playlist = document.getElementById("playlist");
@@ -310,8 +309,8 @@ function get_playlist(timeouts = 0) {
     xhr.ontimeout = function() {
         console.log("Pulling playlist timed out.");
 
-        comments = document.getElementById("playlist");
-        comments.innerHTML =
+        playlist = document.getElementById("playlist");
+        playlist.innerHTML =
             '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3><hr>';
         get_playlist(timeouts + 1);
     };

@@ -468,6 +468,13 @@ end
 get "/embed/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   id = env.params.url["id"]
+  plid = env.params.query["list"]?
+
+  if md = env.params.query["playlist"]?
+       .try &.match(/[a-zA-Z0-9_-]{11}(,[a-zA-Z0-9_-]{11})*/)
+    video_series = md[0].split(",")
+    env.params.query.delete("playlist")
+  end
 
   preferences = env.get("preferences").as(Preferences)
 
@@ -483,7 +490,33 @@ get "/embed/:id" do |env|
     next env.redirect url
   end
 
-  if id.size > 11
+  # YouTube embed supports `videoseries` with either `list=PLID`
+  # or `playlist=VIDEO_ID,VIDEO_ID`
+  if id == "videoseries"
+    url = ""
+
+    if plid
+      begin
+        videos = fetch_playlist_videos(plid, 1, 1, locale: locale)
+      rescue ex
+        error_message = ex.message
+        next templated "error"
+      end
+
+      url = "/embed/#{videos[0].id}"
+    elsif video_series
+      url = "/embed/#{video_series.shift}"
+      env.params.query["playlist"] = video_series.join(",")
+    else
+      next env.redirect "/"
+    end
+
+    if env.params.query.size > 0
+      url += "?#{env.params.query}"
+    end
+
+    next env.redirect url
+  elsif id.size > 11
     url = "/embed/#{id[0, 11]}"
 
     if env.params.query.size > 0
