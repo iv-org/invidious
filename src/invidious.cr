@@ -2921,6 +2921,11 @@ get "/api/v1/annotations/:id" do |env|
 
     response = HTTP::Client.get(URI.parse(location.headers["Location"]))
 
+    if response.body.empty?
+      env.response.status_code = 404
+      next
+    end
+
     if response.status_code != 200
       env.response.status_code = response.status_code
       next
