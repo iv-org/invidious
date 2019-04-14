@@ -1617,7 +1617,7 @@ get "/subscription_ajax" do |env|
     }
     post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
 
-    # Sync subscription with YouTube
+    # Sync subscriptions with YouTube
     client.post(post_url, headers, form: post_req)
     email = user.email
   else
@@ -2778,12 +2778,12 @@ get "/api/v1/comments/:id" do |env|
   format = env.params.query["format"]?
   format ||= "json"
 
-  sort_by = env.params.query["sort_by"]?.try &.downcase
-  sort_by ||= "top"
-
   continuation = env.params.query["continuation"]?
+  sort_by = env.params.query["sort_by"]?.try &.downcase
 
   if source == "youtube"
+    sort_by ||= "top"
+
     begin
       comments = fetch_youtube_comments(id, PG_DB, continuation, proxies, format, locale, thin_mode, region, sort_by: sort_by)
     rescue ex
@@ -2794,8 +2794,10 @@ get "/api/v1/comments/:id" do |env|
 
     next comments
   elsif source == "reddit"
+    sort_by ||= "confidence"
+
     begin
-      comments, reddit_thread = fetch_reddit_comments(id)
+      comments, reddit_thread = fetch_reddit_comments(id, sort_by: sort_by)
       content_html = template_reddit_comments(comments, locale)
 
       content_html = fill_links(content_html, "https", "www.reddit.com")

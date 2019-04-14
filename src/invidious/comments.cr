@@ -249,7 +249,7 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
   return comments
 end
 
-def fetch_reddit_comments(id)
+def fetch_reddit_comments(id, sort_by = "confidence")
   client = make_client(REDDIT_URL)
   headers = HTTP::Headers{"User-Agent" => "web:invidious:v#{CURRENT_VERSION} (by /u/omarroth)"}
 
@@ -259,12 +259,16 @@ def fetch_reddit_comments(id)
   if search_results.status_code == 200
     search_results = RedditThing.from_json(search_results.body)
 
+    # For videos that have more than one thread, choose the one with the highest score
     thread = search_results.data.as(RedditListing).children.sort_by { |child| child.data.as(RedditLink).score }[-1]
     thread = thread.data.as(RedditLink)
 
-    result = client.get("/r/#{thread.subreddit}/comments/#{thread.id}.json?limit=100&sort=top", headers).body
+    result = client.get("/r/#{thread.subreddit}/comments/#{thread.id}.json?limit=100&sort=#{sort_by}", headers).body
     result = Array(RedditThing).from_json(result)
   elsif search_results.status_code == 302
+    # Previously, if there was only one result then the API would redirect to that result.
+    # Now, it appears it will still return a listing so this section is likely unnecessary.
+
     result = client.get(search_results.headers["Location"], headers).body
     result = Array(RedditThing).from_json(result)
 
