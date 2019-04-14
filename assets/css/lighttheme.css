@@ -10,7 +10,7 @@ a {
 
 /* All links that do not fit with the default color goes here */
 a:not([data-id]) > .icon,
-.pure-u-md-1-5 > .h-box > a[href^="/watch?"],
+.pure-u-lg-1-5 > .h-box > a[href^="/watch?"],
 .playlist-restricted > ol > li > a {
   color: #303030;
 }
