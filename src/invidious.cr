@@ -731,6 +731,8 @@ get "/search" do |env|
       sort = value
     when "subscriptions"
       subscriptions = value == "true"
+    else
+      operators.delete(operator)
     end
   end
 
