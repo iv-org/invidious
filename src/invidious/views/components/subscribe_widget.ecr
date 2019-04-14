@@ -18,7 +18,7 @@
     <p>
         <a id="subscribe" class="pure-button pure-button-primary"
             href="/login?referer=<%= env.get("current_page") %>">
-            <b><%= translate(locale, "Login to subscribe to `x`", author) %></b>
+            <b><%= translate(locale, "Subscribe") %> | <%= sub_count_text %></b>
         </a>
     </p>
 <% end %>
