@@ -189,7 +189,9 @@ def number_to_short_text(number)
 
   text = text.rchop(".0")
 
-  if number / 1000000 != 0
+  if number / 1_000_000_000 != 0
+    text += "B"
+  elsif number / 1_000_000 != 0
     text += "M"
   elsif number / 1000 != 0
     text += "K"

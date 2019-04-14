@@ -5,7 +5,6 @@
   "Shared `x` ago": "Delt for `x` siden",
   "Unsubscribe": "Opphev abonnement",
   "Subscribe": "Abonner",
-
   "View channel on YouTube": "Vis kanal på YouTube",
   "newest": "nyeste",
   "oldest": "eldste",
@@ -113,6 +112,7 @@
   "Whitelisted regions: ": "Hvitlistede regioner: ",
   "Blacklisted regions: ": "Svartelistede regioner: ",
   "Shared `x`": "Delt `x`",
+  "`x` views": "",
   "Premieres in `x`": "Premiere om `x`",
   "Hi! Looks like you have JavaScript disabled. Click here to view comments, keep in mind it may take a bit longer to load.": "Hei. Det ser ut til at du har JavaScript avslått. Klikk her for å vise kommentarer, ha i minnet at innlasting tar lengre tid.",
   "View YouTube comments": "Vis YouTube-kommentarer",

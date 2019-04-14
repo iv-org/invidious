@@ -5,7 +5,6 @@
   "Shared `x` ago": "Condiviso `x` fa",
   "Unsubscribe": "Disiscriviti",
   "Subscribe": "Iscriviti",
-
   "View channel on YouTube": "Vedi canale su YouTube",
   "newest": "Data di aggiunta (più recente)",
   "oldest": "Data di aggiunta (più vecchia)",
@@ -113,6 +112,7 @@
   "Whitelisted regions: ": "Regioni nella lista bianca: ",
   "Blacklisted regions: ": "Regioni nella lista nera: ",
   "Shared `x`": "Condiviso `x`",
+  "`x` views": "",
   "Premieres in `x`": "",
   "Hi! Looks like you have JavaScript disabled. Click here to view comments, keep in mind it may take a bit longer to load.": "Ciao! Sembra che tu abbia disattivato JavaScript. Clicca qui per visualizzare i commenti. Considera che potrebbe volerci più tempo.",
   "View YouTube comments": "Visualizza i commenti da YouTube",

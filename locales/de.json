@@ -5,7 +5,6 @@
   "Shared `x` ago": "Vor `x` geteilt",
   "Unsubscribe": "Abbestellen",
   "Subscribe": "Abonnieren",
-
   "View channel on YouTube": "Kanal auf YouTube anzeigen",
   "newest": "neueste",
   "oldest": "älteste",
@@ -115,6 +114,7 @@
   "Whitelisted regions: ": "Erlaubte Regionen: ",
   "Blacklisted regions: ": "Unerlaubte Regionen: ",
   "Shared `x`": "Geteilt `x`",
+  "`x` views": "",
   "Premieres in `x`": "",
   "Hi! Looks like you have JavaScript disabled. Click here to view comments, keep in mind it may take a bit longer to load.": "Hallo! Anscheinend haben Sie JavaScript deaktiviert. Klicken Sie hier um Kommentare anzuzeigen, beachten sie dass es etwas länger dauern kann um sie zu laden.",
   "View YouTube comments": "YouTube Kommentare anzeigen",

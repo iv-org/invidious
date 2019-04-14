@@ -5,7 +5,6 @@
   "Shared `x` ago": "Duela `x` partekatua",
   "Unsubscribe": "Harpidetza kendu",
   "Subscribe": "Harpidetu",
-
   "View channel on YouTube": "Ikusi kanala YouTuben",
   "newest": "berrienak",
   "oldest": "zaharrenak",
@@ -113,6 +112,7 @@
   "Whitelisted regions: ": "",
   "Blacklisted regions: ": "",
   "Shared `x`": "",
+  "`x` views": "",
   "Premieres in `x`": "",
   "Hi! Looks like you have JavaScript disabled. Click here to view comments, keep in mind it may take a bit longer to load.": "",
   "View YouTube comments": "",
