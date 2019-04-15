@@ -25,15 +25,15 @@
                     <% if email %>
                     <input name="email" type="hidden" value="<%= email %>">
                     <% else %>
-                    <label for="email"><%= translate(locale, "User ID:") %></label>
-                    <input required class="pure-input-1" name="email" type="text" placeholder="User ID">
+                    <label for="email"><%= translate(locale, "User ID") %> :</label>
+                    <input required class="pure-input-1" name="email" type="text" placeholder="<%= translate(locale, "User ID") %>">
                     <% end %>
 
                     <% if password %>
                     <input name="password" type="hidden" value="<%= password %>">
                     <% else %>
-                    <label for="password"><%= translate(locale, "Password:") %></label>
-                    <input required class="pure-input-1" name="password" type="password" placeholder="Password">
+                    <label for="password"><%= translate(locale, "Password") %> :</label>
+                    <input required class="pure-input-1" name="password" type="password" placeholder="<%= translate(locale, "Password") %>">
                     <% end %>
 
                 <% if captcha %>
@@ -56,7 +56,7 @@
                         <% end %>
                         <input type="hidden" name="captcha_type" value="text">
                         <label for="answer"><%= captcha[:question] %></label>
-                        <input type="text" name="answer" type="text" placeholder="Answer">
+                        <input type="text" name="answer" type="text" placeholder="<%= translate(locale, "Answer") %>">
                     <% end %>
 
                     <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
@@ -90,20 +90,20 @@
                     <% if email %>
                     <input name="email" type="hidden" value="<%= email %>">
                     <% else %>
-                    <label for="email"><%= translate(locale, "Email:") %></label>
-                    <input required class="pure-input-1" name="email" type="email" placeholder="Email">
+                    <label for="email"><%= translate(locale, "Email") %> :</label>
+                    <input required class="pure-input-1" name="email" type="email" placeholder="<%= translate(locale, "Email") %>">
                     <% end %>
 
                     <% if password %>
                     <input name="password" type="hidden" value="<%= password %>">
                     <% else %>
-                    <label for="password"><%= translate(locale, "Password:") %></label>
-                    <input required class="pure-input-1" name="password" type="password" placeholder="Password">
+                    <label for="password"><%= translate(locale, "Password") %> :</label>
+                    <input required class="pure-input-1" name="password" type="password" placeholder="<%= translate(locale, "Password") %>">
                     <% end %>
 
                     <% if tfa %>
-                    <label for="tfa"><%= translate(locale, "Google verification code:") %></label>
-                    <input required class="pure-input-1" name="tfa" type="text" placeholder="Google verification code">
+                    <label for="tfa"><%= translate(locale, "Google verification code") %> :</label>
+                    <input required class="pure-input-1" name="tfa" type="text" placeholder="<%= translate(locale, "Google verification code") %>">
                     <% end %>
 
                     <button type="submit" class="pure-button pure-button-primary"><%= translate(locale, "Sign In") %></button>
