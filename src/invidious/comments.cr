@@ -319,7 +319,7 @@ def template_youtube_comments(comments, locale, thin_mode)
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
           <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
           |
-          <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "Youtube permalink of the comment")}">[YT]</a>
+          <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
           |
           <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
     END_HTML

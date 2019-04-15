@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<title><%= translate(locale, "Login") %> - Invidious</title>
+<title><%= translate(locale, "Log in") %> - Invidious</title>
 <% end %>
 
 <div class="pure-g">
@@ -9,12 +9,12 @@
             <div class="pure-g">
                 <div class="pure-u-1-2">
                     <a class="pure-button <% if account_type == "invidious" %>pure-button-disabled<% end %>" href="/login?type=invidious">
-                        <%= translate(locale, "Login/Register") %>
+                        <%= translate(locale, "Log in/register") %>
                     </a>
                 </div>
                 <div class="pure-u-1-2">
                     <a class="pure-button <% if account_type == "google" %>pure-button-disabled<% end %>" href="/login?type=google">
-                        <%= translate(locale, "Login to Google") %>
+                        <%= translate(locale, "Log in with Google") %>
                     </a>
                 </div>
             </div>
@@ -88,8 +88,8 @@
                     <% if email %>
                     <input name="email" type="hidden" value="<%= email %>">
                     <% else %>
-                    <label for="email"><%= translate(locale, "Email") %> :</label>
-                    <input required class="pure-input-1" name="email" type="email" placeholder="<%= translate(locale, "Email") %>">
+                    <label for="email"><%= translate(locale, "E-mail") %> :</label>
+                    <input required class="pure-input-1" name="email" type="email" placeholder="<%= translate(locale, "E-mail") %>">
                     <% end %>
 
                     <% if password %>

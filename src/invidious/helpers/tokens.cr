@@ -81,14 +81,14 @@ def validate_request(token, session, request, key, db, locale = nil)
   end
 
   if token["session"] != session
-    raise translate(locale, "Invalid token")
+    raise translate(locale, "Erroneous token")
   end
 
   if token["nonce"]? && (nonce = db.query_one?("SELECT * FROM nonces WHERE nonce = $1", token["nonce"], as: {String, Time}))
     if nonce[1] > Time.now
       db.exec("UPDATE nonces SET expire = $1 WHERE nonce = $2", Time.new(1990, 1, 1), nonce[0])
     else
-      raise translate(locale, "Invalid token")
+      raise translate(locale, "Erroneous token")
     end
   end
 

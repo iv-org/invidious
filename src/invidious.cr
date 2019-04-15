@@ -944,7 +944,7 @@ post "/login" do |env|
             # Voice or text message
             tfa_req = %(["#{user_hash}",null,2,null,[9,null,null,null,null,null,null,null,[null,"#{tfa_code}",false,2]]])
           else
-            error_message = "Unable to login, make sure two-factor authentication (Authenticator or SMS) is enabled."
+            error_message = translate(locale, "Unable to log in, make sure two-factor authentication (Authenticator or SMS) is turned on.")
             next templated "error"
           end
 
@@ -1010,7 +1010,7 @@ post "/login" do |env|
 
       env.redirect referer
     rescue ex
-      error_message = translate(locale, "Login failed. This may be because two-factor authentication is not enabled on your account.")
+      error_message = translate(locale, "Login failed. This may be because two-factor authentication is not turned on for your account.")
       next templated "error"
     end
   when "invidious"
@@ -1028,7 +1028,7 @@ post "/login" do |env|
 
     if user
       if !user.password
-        error_message = translate(locale, "Please sign in using 'Sign in with Google'")
+        error_message = translate(locale, "Please sign in using 'Log in with Google'")
         next templated "error"
       end
 
@@ -1050,7 +1050,7 @@ post "/login" do |env|
             secure: secure, http_only: true)
         end
       else
-        error_message = translate(locale, "Invalid username or password")
+        error_message = translate(locale, "Wrong username or password")
         next templated "error"
       end
 
@@ -1111,7 +1111,7 @@ post "/login" do |env|
 
           found_valid_captcha = false
 
-          error_message = translate(locale, "Invalid CAPTCHA")
+          error_message = translate(locale, "Erroneous CAPTCHA")
           tokens.each_with_index do |token, i|
             begin
               validate_request(token, answer, env.request, HMAC_KEY, PG_DB, locale)
