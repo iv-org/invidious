@@ -1955,7 +1955,7 @@ get "/feed/trending" do |env|
   region ||= "US"
 
   begin
-    trending = fetch_trending(trending_type, proxies, region, locale)
+    trending, plid = fetch_trending(trending_type, proxies, region, locale)
   rescue ex
     error_message = "#{ex.message}"
     next templated "error"
@@ -3205,7 +3205,7 @@ get "/api/v1/trending" do |env|
   trending_type = env.params.query["type"]?
 
   begin
-    trending = fetch_trending(trending_type, proxies, region, locale)
+    trending, plid = fetch_trending(trending_type, proxies, region, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
     env.response.status_code = 500
