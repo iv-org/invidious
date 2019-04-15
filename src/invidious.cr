@@ -105,13 +105,17 @@ end
 
 Kemal::CLI.new ARGV
 
+# Check table integrity
 if CONFIG.check_tables
-  # Check table integrity
   analyze_table(PG_DB, logger, "channel_videos", ChannelVideo)
   analyze_table(PG_DB, logger, "nonces", Nonce)
   analyze_table(PG_DB, logger, "session_ids", SessionId)
   analyze_table(PG_DB, logger, "users", User)
   analyze_table(PG_DB, logger, "videos", Video)
+
+  if CONFIG.cache_annotations
+    analyze_table(PG_DB, logger, "annotations", Annotation)
+  end
 end
 
 # Start jobs
@@ -2938,37 +2942,43 @@ get "/api/v1/annotations/:id" do |env|
 
   case source
   when "archive"
-    index = CHARS_SAFE.index(id[0]).not_nil!.to_s.rjust(2, '0')
+    if CONFIG.cache_annotations && (cached_annotation = PG_DB.query_one?("SELECT * FROM annotations WHERE id = $1", id, as: Annotation))
+      annotations = cached_annotation.annotations
+    else
+      index = CHARS_SAFE.index(id[0]).not_nil!.to_s.rjust(2, '0')
 
-    # IA doesn't handle leading hyphens,
-    # so we use https://archive.org/details/youtubeannotations_64
-    if index == "62"
-      index = "64"
-      id = id.sub(/^-/, 'A')
+      # IA doesn't handle leading hyphens,
+      # so we use https://archive.org/details/youtubeannotations_64
+      if index == "62"
+        index = "64"
+        id = id.sub(/^-/, 'A')
+      end
+
+      file = URI.escape("#{id[0, 3]}/#{id}.xml")
+
+      client = make_client(ARCHIVE_URL)
+      location = client.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}")
+
+      if !location.headers["Location"]?
+        env.response.status_code = location.status_code
+      end
+
+      response = HTTP::Client.get(URI.parse(location.headers["Location"]))
+
+      if response.body.empty?
+        env.response.status_code = 404
+        next
+      end
+
+      if response.status_code != 200
+        env.response.status_code = response.status_code
+        next
+      end
+
+      annotations = response.body
+
+      cache_annotation(PG_DB, id, annotations)
     end
-
-    file = URI.escape("#{id[0, 3]}/#{id}.xml")
-
-    client = make_client(ARCHIVE_URL)
-    location = client.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}")
-
-    if !location.headers["Location"]?
-      env.response.status_code = location.status_code
-    end
-
-    response = HTTP::Client.get(URI.parse(location.headers["Location"]))
-
-    if response.body.empty?
-      env.response.status_code = 404
-      next
-    end
-
-    if response.status_code != 200
-      env.response.status_code = response.status_code
-      next
-    end
-
-    annotations = response.body
   when "youtube"
     client = make_client(YT_URL)
 

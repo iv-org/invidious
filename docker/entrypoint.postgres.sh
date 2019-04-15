@@ -18,6 +18,7 @@ if [ ! -f /var/lib/postgresql/data/setupFinished ]; then
     su postgres -c 'psql invidious kemal < config/sql/users.sql'
     su postgres -c 'psql invidious kemal < config/sql/session_ids.sql'
     su postgres -c 'psql invidious kemal < config/sql/nonces.sql'
+    su postgres -c 'psql invidious kemal < config/sql/annotations.sql'
     touch /var/lib/postgresql/data/setupFinished
     echo "### invidious database setup finished"
     exit

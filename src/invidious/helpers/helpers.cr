@@ -15,6 +15,13 @@ struct SessionId
   })
 end
 
+struct Annotation
+  db_mapping({
+    id:          String,
+    annotations: String,
+  })
+end
+
 struct ConfigPreferences
   module StringToArray
     def self.to_yaml(value : Array(String), yaml : YAML::Nodes::Builder)
@@ -114,8 +121,9 @@ user: String,
                                default: Preferences.new(*ConfigPreferences.from_yaml("").to_tuple),
                                converter: ConfigPreferencesConverter,
     },
-    dmca_content: {type: Array(String), default: [] of String}, # For compliance with DMCA, disables download widget using list of video IDs
-    check_tables: {type: Bool, default: false},                 # Check table integrity, automatically try to add any missing columns, create tables, etc.
+    dmca_content:      {type: Array(String), default: [] of String}, # For compliance with DMCA, disables download widget using list of video IDs
+    check_tables:      {type: Bool, default: false},                 # Check table integrity, automatically try to add any missing columns, create tables, etc.
+    cache_annotations: {type: Bool, default: false},                 # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
   })
 end
 
@@ -589,4 +597,28 @@ def get_column_array(db, table_name)
   end
 
   return column_array
+end
+
+def cache_annotation(db, id, annotations)
+  if !CONFIG.cache_annotations
+    return
+  end
+
+  body = XML.parse(annotations)
+  nodeset = body.xpath_nodes(%q(/document/annotations/annotation))
+
+  if nodeset == 0
+    return
+  end
+
+  has_legacy_annotations = false
+  nodeset.each do |node|
+    if !{"branding", "card", "drawer"}.includes? node["type"]?
+      has_legacy_annotations = true
+      break
+    end
+  end
+
+  # TODO: Update on conflict?
+  db.exec("INSERT INTO annotations VALUES ($1, $2) ON CONFLICT DO NOTHING", id, annotations)
 end

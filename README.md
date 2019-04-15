@@ -103,12 +103,13 @@ $ sudo systemctl start postgresql
 $ sudo -i -u postgres
 $ psql -c "CREATE USER kemal WITH PASSWORD 'kemal';" # Change 'kemal' here to a stronger password, and update `password` in config/config.yml
 $ createdb -O kemal invidious
-$ psql invidious < /home/invidious/invidious/config/sql/channels.sql
-$ psql invidious < /home/invidious/invidious/config/sql/videos.sql
-$ psql invidious < /home/invidious/invidious/config/sql/channel_videos.sql
-$ psql invidious < /home/invidious/invidious/config/sql/users.sql
-$ psql invidious < /home/invidious/invidious/config/sql/session_ids.sql
-$ psql invidious < /home/invidious/invidious/config/sql/nonces.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/channels.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/videos.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/channel_videos.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/users.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/session_ids.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/nonces.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/annotations.sql
 $ exit
 ```
 
@@ -145,12 +146,13 @@ $ cd invidious
 $ brew services start postgresql
 $ psql -c "CREATE ROLE kemal WITH PASSWORD 'kemal';" # Change 'kemal' here to a stronger password, and update `password` in config/config.yml
 $ createdb -O kemal invidious
-$ psql invidious < config/sql/channels.sql
-$ psql invidious < config/sql/videos.sql
-$ psql invidious < config/sql/channel_videos.sql
-$ psql invidious < config/sql/users.sql
-$ psql invidious < config/sql/session_ids.sql
-$ psql invidious < config/sql/nonces.sql
+$ psql invidious kemal < config/sql/channels.sql
+$ psql invidious kemal < config/sql/videos.sql
+$ psql invidious kemal < config/sql/channel_videos.sql
+$ psql invidious kemal < config/sql/users.sql
+$ psql invidious kemal < config/sql/session_ids.sql
+$ psql invidious kemal < config/sql/nonces.sql
+$ psql invidious kemal < config/sql/annotations.sql
 
 # Setup Invidious
 $ shards update && shards install
