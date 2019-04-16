@@ -367,7 +367,7 @@ function get_reddit_comments(timeouts = 0) {
         });
       } else {
         <% if preferences && preferences.comments[1] == "youtube" %>
-        get_youtube_comments();
+        get_youtube_comments(timeouts + 1);
         <% else %>
         comments.innerHTML = fallback;
         <% end %>
@@ -428,7 +428,7 @@ function get_youtube_comments(timeouts = 0) {
         }
       } else {
         <% if preferences && preferences.comments[1] == "youtube" %>
-        get_youtube_comments();
+        get_youtube_comments(timeouts + 1);
         <% else %>
         comments.innerHTML = "";
         <% end %>
