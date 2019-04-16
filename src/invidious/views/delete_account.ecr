@@ -19,7 +19,6 @@
             </div>
         </div>
 
-        <input type="hidden" name="token" value="<%= token %>">
-        <input type="hidden" name="challenge" value="<%= challenge %>">
+        <input type="hidden" name="token" value="<%= URI.escape(token) %>">
     </form>
 </div>

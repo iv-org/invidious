@@ -197,84 +197,79 @@ def create_user(sid, email, password)
   return user, sid
 end
 
-def create_response(user_id, operation, key, db, expire = 6.hours)
+def create_response(session, scopes, key, db, expire = 6.hours, use_nonce = false)
   expire = Time.now + expire
-  nonce = Random::Secure.hex(16)
-  db.exec("INSERT INTO nonces VALUES ($1, $2) ON CONFLICT DO NOTHING", nonce, expire)
 
-  challenge = "#{expire.to_unix}-#{nonce}-#{user_id}-#{operation}"
-  token = OpenSSL::HMAC.digest(:sha256, key, challenge)
+  token = {
+    "session" => session,
+    "expire"  => expire.to_unix,
+    "scopes"  => scopes,
+  }
 
-  challenge = Base64.urlsafe_encode(challenge)
-  token = Base64.urlsafe_encode(token)
+  if use_nonce
+    nonce = Random::Secure.hex(16)
+    db.exec("INSERT INTO nonces VALUES ($1, $2) ON CONFLICT DO NOTHING", nonce, expire)
+    token["nonce"] = nonce
+  end
 
-  return challenge, token
+  token["signature"] = sign_token(key, token)
+
+  return token.to_json
 end
 
 def sign_token(key, hash)
   string_to_sign = [] of String
+
   hash.each do |key, value|
     if key == "signature"
       next
     end
 
+    if value.is_a?(JSON::Any)
+      case value
+      when .as_a?
+        value = value.as_a.map { |item| item.as_s }
+      end
+    end
+
     case value
     when Array
       string_to_sign << "#{key}=#{value.sort.join(",")}"
+    when Tuple
+      string_to_sign << "#{key}=#{value.to_a.sort.join(",")}"
     else
       string_to_sign << "#{key}=#{value}"
     end
   end
 
   string_to_sign = string_to_sign.sort.join("\n")
-  return Base64.encode(OpenSSL::HMAC.digest(:sha256, key, string_to_sign)).strip
+  return Base64.urlsafe_encode(OpenSSL::HMAC.digest(:sha256, key, string_to_sign)).strip
 end
 
-def validate_response(challenge, token, user_id, operation, key, db, locale)
-  if !challenge
-    raise translate(locale, "Hidden field \"challenge\" is a required field")
-  end
-
+def validate_response(token, session, scope, key, db, locale)
   if !token
     raise translate(locale, "Hidden field \"token\" is a required field")
   end
 
-  challenge = Base64.decode_string(challenge)
-  if challenge.split("-").size == 4
-    expire, nonce, challenge_user_id, challenge_operation = challenge.split("-")
+  token = JSON.parse(URI.unescape(token)).as_h
 
-    expire = expire.to_i?
-    expire ||= 0
-  else
-    raise translate(locale, "Invalid challenge")
+  if token["signature"]? != sign_token(key, token)
+    raise translate(locale, "Invalid token")
   end
 
-  challenge = OpenSSL::HMAC.digest(:sha256, key, challenge)
-  challenge = Base64.urlsafe_encode(challenge)
-
-  if nonce = db.query_one?("SELECT * FROM nonces WHERE nonce = $1", nonce, as: {String, Time})
+  if token["nonce"]? && (nonce = db.query_one?("SELECT * FROM nonces WHERE nonce = $1", token["nonce"], as: {String, Time}))
     if nonce[1] > Time.now
       db.exec("UPDATE nonces SET expire = $1 WHERE nonce = $2", Time.new(1990, 1, 1), nonce[0])
     else
       raise translate(locale, "Invalid token")
     end
-  else
+  end
+
+  if !token["scopes"].as_a.includes? scope.strip("/")
     raise translate(locale, "Invalid token")
   end
 
-  if challenge != token
-    raise translate(locale, "Invalid token")
-  end
-
-  if challenge_operation != operation
-    raise translate(locale, "Invalid token")
-  end
-
-  if challenge_user_id != user_id
-    raise translate(locale, "Invalid token")
-  end
-
-  if expire < Time.now.to_unix
+  if token["expire"].as_i < Time.now.to_unix
     raise translate(locale, "Token is expired, please try again")
   end
 end
@@ -331,7 +326,7 @@ def generate_captcha(key, db)
 
   return {
     question: image,
-    tokens:   [create_response(answer, "sign_in", key, db)],
+    tokens:   {create_response(answer, {"login"}, key, db, use_nonce: true)},
   }
 end
 
@@ -340,7 +335,7 @@ def generate_text_captcha(key, db)
   response = JSON.parse(response)
 
   tokens = response["a"].as_a.map do |answer|
-    create_response(answer.as_s, "sign_in", key, db)
+    create_response(answer.as_s, {"login"}, key, db, use_nonce: true)
   end
 
   return {

@@ -85,17 +85,19 @@
             <div class="thumbnail">
                 <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                 <% if env.get? "show_watched" %>
-                <p class="watched">
-                    <a onclick="mark_watched(this)"
-                        data-id="<%= item.id %>"
-                        onmouseenter='this["href"]="javascript:void(0)"'
-                        href="/mark_watched?id=<%= item.id %>">
-                        <i onmouseenter='this.setAttribute("class", "icon ion-ios-eye-off")'
-                           onmouseleave='this.setAttribute("class", "icon ion-ios-eye")'
-                           class="icon ion-ios-eye">
-                        </i>
-                    </a>
-                </p>
+                <form onsubmit="return false;" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
+                    <input type="hidden" name="token" value="<%= URI.escape(env.get?("token").try &.as(String) || "") %>">
+                    <p class="watched">
+                        <a onclick="mark_watched(this)" data-id="<%= item.id %>" href="#">
+                            <button type="submit" style="all:unset">
+                                <i onmouseenter='this.setAttribute("class", "icon ion-ios-eye-off")'
+                                onmouseleave='this.setAttribute("class", "icon ion-ios-eye")'
+                                class="icon ion-ios-eye">
+                                </i>
+                            </button>
+                        </a>
+                    </p>
+                </form>
                 <% end %>
                 <% if item.responds_to?(:live_now) && item.live_now %>
                 <p class="length"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>

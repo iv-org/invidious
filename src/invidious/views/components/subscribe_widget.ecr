@@ -1,17 +1,21 @@
 <% if user %>
     <% if subscriptions.includes? ucid %>
     <p>
-        <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary"
-            href="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
-            <b><%= translate(locale, "Unsubscribe") %> | <%= sub_count_text %></b>
-        </a>
+        <form onsubmit="return false;" action="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
+          <input type="hidden" name="token" value="<%= URI.escape(env.get?("token").try &.as(String) || "") %>">
+          <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" href="#">
+              <b><input style="all:unset" type="submit" value="<%= translate(locale, "Unsubscribe") %> | <%= sub_count_text %>"></b>
+          </a>
+        </form>
     </p>
     <% else %>
     <p>
-        <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary"
-            href="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>">
-            <b><%= translate(locale, "Subscribe") %> | <%= sub_count_text %></b>
+      <form onsubmit="return false;" action="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
+        <input type="hidden" name="token" value="<%= URI.escape(env.get?("token").try &.as(String) || "") %>">
+        <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" href="#">
+            <b><input style="all:unset" type="submit" value="<%= translate(locale, "Subscribe") %> | <%= sub_count_text %>"></b>
         </a>
+      </form>
     </p>
     <% end %>
 <% else %>

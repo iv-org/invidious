@@ -28,14 +28,16 @@
                     <% else %>
                     <div class="thumbnail">
                         <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg"/>
-                        <p class="watched">
-                            <a onclick="mark_unwatched(this)"
-                                data-id="<%= item %>"
-                                onmouseenter='this["href"]="javascript:void(0)"'
-                                href="/mark_unwatched?id=<%= item %>">
-                                <i class="icon ion-md-trash"></i>
-                            </a>
-                        </p>
+                        <form onsubmit="return false;" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
+                            <input type="hidden" name="token" value="<%= URI.escape(env.get?("token").try &.as(String) || "") %>">
+                            <p class="watched">
+                                <a onclick="mark_unwatched(this)" data-id="<%= item %>" href="#">
+                                    <button type="submit" style="all:unset">
+                                        <i class="icon ion-md-trash"></i>
+                                    </button>
+                                </a>
+                            </p>
+                        </form>
                     </div>
                     <p></p>
                     <% end %>
@@ -48,17 +50,18 @@
 
 <script>
 function mark_unwatched(target) {
-    var tile = target.parentNode.parentNode.parentNode.parentNode;
+    var tile = target.parentNode.parentNode.parentNode.parentNode.parentNode;
     tile.style.display = "none";
     var count = document.getElementById("count")
     count.innerText = count.innerText - 1;
 
-    var url = "/mark_unwatched?redirect=false&id=" + target.getAttribute("data-id");
+    var url = "/watch_ajax?action_mark_unwatched=1&redirect=false&id=" + target.getAttribute("data-id");
     var xhr = new XMLHttpRequest();
     xhr.responseType = "json";
     xhr.timeout = 20000;
-    xhr.open("GET", url, true);
-    xhr.send();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("token=<%= URI.escape(env.get?("token").try &.as(String) || "") %>");
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {

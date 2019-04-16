@@ -195,39 +195,33 @@ before_all do |env|
   end
 
   if env.request.cookies.has_key? "SID"
-    headers = HTTP::Headers.new
-    headers["Cookie"] = env.request.headers["Cookie"]
-
     sid = env.request.cookies["SID"].value
 
     # Invidious users only have SID
     if !env.request.cookies.has_key? "SSID"
-      email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
-
-      if email
+      if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
         user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
-        challenge, token = create_response(user.email, "sign_out", HMAC_KEY, PG_DB, 1.week)
-
-        env.set "challenge", challenge
-        env.set "token", token
+        token = create_response(sid, {"signout", "watch_ajax", "subscription_ajax"}, HMAC_KEY, PG_DB, 1.week)
 
         preferences = user.preferences
 
-        env.set "user", user
         env.set "sid", sid
+        env.set "token", token
+        env.set "user", user
       end
     else
+      headers = HTTP::Headers.new
+      headers["Cookie"] = env.request.headers["Cookie"]
+
       begin
         user, sid = get_user(sid, headers, PG_DB, false)
-
-        challenge, token = create_response(user.email, "sign_out", HMAC_KEY, PG_DB, 1.week)
-        env.set "challenge", challenge
-        env.set "token", token
+        token = create_response(sid, {"signout", "watch_ajax", "subscription_ajax"}, HMAC_KEY, PG_DB, 1.week)
 
         preferences = user.preferences
 
-        env.set "user", user
         env.set "sid", sid
+        env.set "token", token
+        env.set "user", user
       rescue ex
       end
     end
@@ -826,7 +820,7 @@ post "/login" do |env|
   when "google"
     tfa_code = env.params.body["tfa"]?.try &.lchop("G-")
 
-    # See https://github.com/rg3/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L79
+    # See https://github.com/ytdl-org/youtube-dl/blob/2019.04.07/youtube_dl/extractor/youtube.py#L82
     begin
       client = make_client(LOGIN_URL)
       headers = HTTP::Headers.new
@@ -1091,8 +1085,7 @@ post "/login" do |env|
           next templated "login"
         end
 
-        challenges = env.params.body.select { |k, v| k.match(/^challenge\[\d+\]$/) }
-        tokens = env.params.body.select { |k, v| k.match(/^token\[\d+\]$/) }
+        tokens = env.params.body.select { |k, v| k.match(/^token\[\d+\]$/) }.map { |k, v| v }
 
         answer ||= ""
         captcha_type ||= "image"
@@ -1102,11 +1095,8 @@ post "/login" do |env|
           answer = answer.lstrip('0')
           answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
 
-          challenge = env.params.body["challenge[0]"]?
-          token = env.params.body["token[0]"]?
-
           begin
-            validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB, locale)
+            validate_response(tokens[0], answer, env.request.path, HMAC_KEY, PG_DB, locale)
           rescue ex
             error_message = ex.message
             next templated "error"
@@ -1117,11 +1107,9 @@ post "/login" do |env|
           found_valid_captcha = false
 
           error_message = translate(locale, "Invalid CAPTCHA")
-          challenges.each_with_index do |challenge, i|
+          tokens.each_with_index do |token, i|
             begin
-              challenge = challenge[1]
-              token = tokens[i][1]
-              validate_response(challenge, token, answer, "sign_in", HMAC_KEY, PG_DB, locale)
+              validate_response(token, answer, env.request.path, HMAC_KEY, PG_DB, locale)
               found_valid_captcha = true
             rescue ex
               error_message = ex.message
@@ -1191,27 +1179,25 @@ post "/login" do |env|
   end
 end
 
-get "/signout" do |env|
+post "/signout" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
+  sid = env.get? "sid"
   referer = get_referer(env)
 
   if user
     user = user.as(User)
-
-    challenge = env.params.query["challenge"]?
-    token = env.params.query["token"]?
+    sid = sid.as(String)
+    token = env.params.body["token"]?
 
     begin
-      validate_response(challenge, token, user.email, "sign_out", HMAC_KEY, PG_DB, locale)
+      validate_response(token, sid, env.request.path, HMAC_KEY, PG_DB, locale)
     rescue ex
       error_message = ex.message
       next templated "error"
     end
 
-    user = env.get("user").as(User)
-    sid = env.get("sid").as(String)
     PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", sid)
 
     env.request.cookies.each do |cookie|
@@ -1426,11 +1412,24 @@ get "/toggle_theme" do |env|
   env.redirect referer
 end
 
-get "/mark_watched" do |env|
+post "/watch_ajax" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
+  sid = env.get? "sid"
   referer = get_referer(env, "/feed/subscriptions")
+
+  redirect = env.params.query["redirect"]?
+  redirect ||= "true"
+  redirect = redirect == "true"
+
+  if !user
+    next env.redirect referer
+  end
+
+  user = user.as(User)
+  sid = sid.as(String)
+  token = env.params.body["token"]?
 
   id = env.params.query["id"]?
   if !id
@@ -1438,43 +1437,37 @@ get "/mark_watched" do |env|
     next
   end
 
-  redirect = env.params.query["redirect"]?
-  redirect ||= "false"
-  redirect = redirect == "true"
+  user = user.as(User)
+  sid = sid.as(String)
+  token = env.params.body["token"]?
 
-  if user
-    user = user.as(User)
-    if !user.watched.includes? id
-      PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.email)
+  begin
+    validate_response(token, sid, env.request.path, HMAC_KEY, PG_DB, locale)
+  rescue ex
+    if redirect
+      error_message = ex.message
+      next templated "error"
+    else
+      error_message = {"error" => ex.message}.to_json
+      env.response.status_code = 500
+      next error_message
     end
   end
 
-  if redirect
-    env.redirect referer
+  if env.params.query["action_mark_watched"]?
+    action = "action_mark_watched"
+  elsif env.params.query["action_mark_unwatched"]?
+    action = "action_mark_unwatched"
   else
-    env.response.content_type = "application/json"
-    "{}"
-  end
-end
-
-get "/mark_unwatched" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  user = env.get? "user"
-  referer = get_referer(env, "/feed/history")
-
-  id = env.params.query["id"]?
-  if !id
-    env.response.status_code = 400
-    next
+    next env.redirect referer
   end
 
-  redirect = env.params.query["redirect"]?
-  redirect ||= "false"
-  redirect = redirect == "true"
-
-  if user
-    user = user.as(User)
+  case action
+  when "action_mark_watched"
+    if !user.watched.includes? id
+      PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.email)
+    end
+  when "action_mark_unwatched"
     PG_DB.exec("UPDATE users SET watched = array_remove(watched, $1) WHERE email = $2", id, user.email)
   end
 
@@ -1561,8 +1554,7 @@ get "/modify_notifications" do |env|
   end
 end
 
-# TODO: Add CSRF
-get "/subscription_ajax" do |env|
+post "/subscription_ajax" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
@@ -1570,14 +1562,29 @@ get "/subscription_ajax" do |env|
   referer = get_referer(env, "/")
 
   redirect = env.params.query["redirect"]?
-  redirect ||= "false"
+  redirect ||= "true"
   redirect = redirect == "true"
 
-  if !user && !sid
+  if !user
     next env.redirect referer
   end
 
   user = user.as(User)
+  sid = sid.as(String)
+  token = env.params.body["token"]?
+
+  begin
+    validate_response(token, sid, env.request.path, HMAC_KEY, PG_DB, locale)
+  rescue ex
+    if redirect
+      error_message = ex.message
+      next templated "error"
+    else
+      error_message = {"error" => ex.message}.to_json
+      env.response.status_code = 500
+      next error_message
+    end
+  end
 
   if env.params.query["action_create_subscription_to_channel"]?
     action = "action_create_subscription_to_channel"
@@ -1653,7 +1660,7 @@ get "/subscription_manager" do |env|
 
   user = env.get? "user"
   sid = env.get? "sid"
-  referer = get_referer(env, "/")
+  referer = get_referer(env, "/subscription_manager")
 
   if !user && !sid
     next env.redirect referer
@@ -1843,12 +1850,13 @@ get "/delete_account" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
+  sid = env.get? "sid"
   referer = get_referer(env)
 
   if user
     user = user.as(User)
-
-    challenge, token = create_response(user.email, "delete_account", HMAC_KEY, PG_DB)
+    sid = sid.as(String)
+    token = create_response(sid, {"delete_account"}, HMAC_KEY, PG_DB)
 
     templated "delete_account"
   else
@@ -1860,16 +1868,16 @@ post "/delete_account" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
+  sid = env.get? "sid"
   referer = get_referer(env)
 
   if user
     user = user.as(User)
-
-    challenge = env.params.body["challenge"]?
+    sid = sid.as(String)
     token = env.params.body["token"]?
 
     begin
-      validate_response(challenge, token, user.email, "delete_account", HMAC_KEY, PG_DB, locale)
+      validate_response(token, sid, env.request.path, HMAC_KEY, PG_DB, locale)
     rescue ex
       error_message = ex.message
       next templated "error"
@@ -1893,12 +1901,13 @@ get "/clear_watch_history" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
+  sid = env.get? "sid"
   referer = get_referer(env)
 
   if user
     user = user.as(User)
-
-    challenge, token = create_response(user.email, "clear_watch_history", HMAC_KEY, PG_DB)
+    sid = sid.as(String)
+    token = create_response(sid, {"clear_watch_history"}, HMAC_KEY, PG_DB)
 
     templated "clear_watch_history"
   else
@@ -1910,16 +1919,16 @@ post "/clear_watch_history" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get? "user"
+  sid = env.get? "sid"
   referer = get_referer(env)
 
   if user
     user = user.as(User)
-
-    challenge = env.params.body["challenge"]?
+    sid = sid.as(String)
     token = env.params.body["token"]?
 
     begin
-      validate_response(challenge, token, user.email, "clear_watch_history", HMAC_KEY, PG_DB, locale)
+      validate_response(token, sid, env.request.path, HMAC_KEY, PG_DB, locale)
     rescue ex
       error_message = ex.message
       next templated "error"

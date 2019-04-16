@@ -31,12 +31,12 @@
         <div class="pure-u-2-5"></div>
         <div class="pure-u-1-5" style="text-align: right;">
             <h3 style="padding-right: 0.5em">
-                <a onclick="remove_subscription(this)"
-                    data-id="<%= channel.id %>"
-                    onmouseenter='this["href"]="javascript:void(0)"'
-                    href="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>">
-                    <%= translate(locale, "unsubscribe") %>
-                </a>
+                <form onsubmit="return false;" action="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>&referer=<%= env.get("current_page") %>" method="post">
+                    <input type="hidden" name="token" value="<%= URI.escape(env.get?("token").try &.as(String) || "") %>">
+                    <a onclick="remove_subscription(this)" data-ucid="<%= channel.id %>" href="#">
+                        <input style="all:unset" type="submit" value="<%= translate(locale, "unsubscribe") %>">
+                    </a>
+                </form>
             </h3>
         </div>
     </div>
@@ -49,17 +49,18 @@
 
 <script>
 function remove_subscription(target) {
-    var row = target.parentNode.parentNode.parentNode.parentNode;
+    var row = target.parentNode.parentNode.parentNode.parentNode.parentNode;
     row.style.display = "none";
     var count = document.getElementById("count")
     count.innerText = count.innerText - 1;
 
-    var url = "/subscription_ajax?action_remove_subscriptions=1&redirect=false&c=" + target.getAttribute("data-id");
+    var url = "/subscription_ajax?action_remove_subscriptions=1&redirect=false&referer=<%= env.get("current_page") %>&c=" + target.getAttribute("data-ucid");
     var xhr = new XMLHttpRequest();
     xhr.responseType = "json";
     xhr.timeout = 20000;
-    xhr.open("GET", url, true);
-    xhr.send();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("token=<%= URI.escape(env.get?("token").try &.as(String) || "") %>");
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
