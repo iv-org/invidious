@@ -4678,10 +4678,11 @@ end
 
 error 404 do |env|
   if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)
-    id = md["id"]
+    item = md["id"]
 
+    # Check if item is branding URL e.g. https://youtube.com/gaming
     client = make_client(YT_URL)
-    response = client.get("/#{id}")
+    response = client.get("/#{item}")
 
     if response.status_code == 301
       response = client.get(response.headers["Location"])
@@ -4701,13 +4702,14 @@ error 404 do |env|
     end
     params = params.join("&")
 
-    url = "/watch?v=#{id}"
+    url = "/watch?v=#{item}"
     if !params.empty?
       url += "&#{params}"
     end
 
-    client = make_client(YT_URL)
-    if client.head("/#{id}").status_code == 404
+    # Check if item is video ID
+    client = make_client(URI.parse("https://youtu.be"))
+    if client.head("/#{item}").status_code != 404
       env.response.headers["Location"] = url
       halt env, status_code: 302
     end
