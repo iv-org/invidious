@@ -619,6 +619,8 @@ def cache_annotation(db, id, annotations)
     end
   end
 
-  # TODO: Update on conflict?
-  db.exec("INSERT INTO annotations VALUES ($1, $2) ON CONFLICT DO NOTHING", id, annotations)
+  if has_legacy_annotations
+    # TODO: Update on conflict?
+    db.exec("INSERT INTO annotations VALUES ($1, $2) ON CONFLICT DO NOTHING", id, annotations)
+  end
 end

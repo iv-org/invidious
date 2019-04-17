@@ -45,7 +45,7 @@ ARCHIVE_URL     = URI.parse("https://archive.org")
 LOGIN_URL       = URI.parse("https://accounts.google.com")
 PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
 REDDIT_URL      = URI.parse("https://www.reddit.com")
-TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@protonmail.com.json")
+TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com")
 YT_URL          = URI.parse("https://www.youtube.com")
 CHARS_SAFE      = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
@@ -2972,7 +2972,7 @@ get "/api/v1/annotations/:id" do |env|
         env.response.status_code = location.status_code
       end
 
-      response = HTTP::Client.get(URI.parse(location.headers["Location"]))
+      response = make_client(URI.parse(location.headers["Location"])).get(location.headers["Location"])
 
       if response.body.empty?
         env.response.status_code = 404
