@@ -15,7 +15,8 @@ dependencies:
     github: will/crystal-pg
   sqlite3:
     github: crystal-lang/crystal-sqlite3
+    branch: crystal/0.28.0
 
-crystal: 0.27.2
+crystal: 0.28.0
 
 license: AGPLv3
