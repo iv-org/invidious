@@ -8,12 +8,12 @@
             <a href="/feed/subscriptions"><%= translate(locale, "`x` subscriptions", %(<span id="count">#{subscriptions.size}</span>)) %></a>
         </h3>
     </div>
-    <div class="pure-u-1-3" style="text-align:center;">
+    <div class="pure-u-1-3" style="text-align:center">
         <h3>
             <a href="/feed/history"><%= translate(locale, "Watch history") %></a>
         </h3>
     </div>
-    <div class="pure-u-1-3" style="text-align:right;">
+    <div class="pure-u-1-3" style="text-align:right">
         <h3>
             <a href="/data_control?referer=<%= referer %>"><%= translate(locale, "Import/Export") %></a>
         </h3>
@@ -22,17 +22,17 @@
 
 <% subscriptions.each do |channel| %>
 <div class="h-box">
-    <div class="pure-g<% if channel.deleted %> deleted <% end%>">
+    <div class="pure-g<% if channel.deleted %> deleted <% end %>">
         <div class="pure-u-2-5">
-            <h3 style="padding-left: 0.5em">
+            <h3 style="padding-left:0.5em">
                 <a href="/channel/<%= channel.id %>"><%= channel.author %></a>
             </h3>
         </div>
         <div class="pure-u-2-5"></div>
-        <div class="pure-u-1-5" style="text-align: right;">
-            <h3 style="padding-right: 0.5em">
-                <form onsubmit="return false;" action="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>&referer=<%= env.get("current_page") %>" method="post">
-                    <input type="hidden" name="token" value="<%= URI.escape(env.get?("token").try &.as(String) || "") %>">
+        <div class="pure-u-1-5" style="text-align:right">
+            <h3 style="padding-right:0.5em">
+                <form onsubmit="return false" action="/subscription_ajax?action_remove_subscriptions=1&c=<%= channel.id %>&referer=<%= env.get("current_page") %>" method="post">
+                    <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                     <a onclick="remove_subscription(this)" data-ucid="<%= channel.id %>" href="#">
                         <input style="all:unset" type="submit" value="<%= translate(locale, "unsubscribe") %>">
                     </a>
@@ -60,7 +60,7 @@ function remove_subscription(target) {
     xhr.timeout = 20000;
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("token=<%= URI.escape(env.get?("token").try &.as(String) || "") %>");
+    xhr.send("csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>");
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {

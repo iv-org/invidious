@@ -70,7 +70,7 @@
                 </div>
                 <div class="pure-u-1-4">
                     <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
-                        <input type="hidden" name="token" value="<%= URI.escape(env.get?("token").try &.as(String) || "") %>">
+                        <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                         <a class="pure-menu-heading" href="#">
                             <input style="all:unset" type="submit" value="<%= translate(locale, "Sign out") %>">
                         </a>

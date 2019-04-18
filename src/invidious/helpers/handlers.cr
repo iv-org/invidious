@@ -20,7 +20,9 @@ module HTTP::Handler
 end
 
 class Kemal::RouteHandler
-  exclude ["/api/v1/*"]
+  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  exclude ["/api/v1/*"], {{method}}
+  {% end %}
 
   # Processes the route if it's a match. Otherwise renders 404.
   private def process_request(context)
@@ -37,7 +39,9 @@ class Kemal::RouteHandler
 end
 
 class Kemal::ExceptionHandler
-  exclude ["/api/v1/*"]
+  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  exclude ["/api/v1/*"], {{method}}
+  {% end %}
 
   private def call_exception_with_status_code(context : HTTP::Server::Context, exception : Exception, status_code : Int32)
     return if context.response.closed?
@@ -76,8 +80,59 @@ class FilteredCompressHandler < Kemal::Handler
   end
 end
 
+class AuthHandler < Kemal::Handler
+  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+    only ["/api/v1/auth/*"], {{method}}
+  {% end %}
+
+  def call(env)
+    return call_next env unless only_match? env
+
+    begin
+      if token = env.request.headers["Authorization"]?
+        token = JSON.parse(URI.unescape(token.lchop("Bearer ")))
+        session = URI.unescape(token["session"].as_s)
+        scopes, expire, signature = validate_request(token, session, env.request, HMAC_KEY, PG_DB, nil)
+
+        if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", session, as: String)
+          user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+        end
+      elsif sid = env.request.cookies["SID"]?.try &.value
+        if sid.starts_with? "v1:"
+          raise "Cannot use token as SID"
+        end
+
+        if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
+          user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+        end
+
+        scopes = [":*"]
+        session = sid
+      end
+
+      if !user
+        raise "Request must be authenticated"
+      end
+
+      env.set "scopes", scopes
+      env.set "user", user
+      env.set "session", session
+
+      call_next env
+    rescue ex
+      env.response.content_type = "application/json"
+
+      error_message = {"error" => ex.message}.to_json
+      env.response.status_code = 403
+      env.response.puts error_message
+    end
+  end
+end
+
 class APIHandler < Kemal::Handler
-  only ["/api/v1/*"]
+  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  only ["/api/v1/*"], {{method}}
+  {% end %}
 
   def call(env)
     return call_next env unless only_match? env

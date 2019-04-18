@@ -197,16 +197,20 @@ before_all do |env|
   if env.request.cookies.has_key? "SID"
     sid = env.request.cookies["SID"].value
 
+    if sid.starts_with? "v1:"
+      raise "Cannot use token as SID"
+    end
+
     # Invidious users only have SID
     if !env.request.cookies.has_key? "SSID"
       if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
         user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
-        token = create_response(sid, {"signout", "watch_ajax", "subscription_ajax"}, HMAC_KEY, PG_DB, 1.week)
+        csrf_token = generate_response(sid, {":signout", ":watch_ajax", ":subscription_ajax", ":token_ajax", ":authorize_token"}, HMAC_KEY, PG_DB, 1.week)
 
         preferences = user.preferences
 
         env.set "sid", sid
-        env.set "token", token
+        env.set "csrf_token", csrf_token
         env.set "user", user
       end
     else
@@ -215,12 +219,12 @@ before_all do |env|
 
       begin
         user, sid = get_user(sid, headers, PG_DB, false)
-        token = create_response(sid, {"signout", "watch_ajax", "subscription_ajax"}, HMAC_KEY, PG_DB, 1.week)
+        csrf_token = generate_response(sid, {":signout", ":watch_ajax", ":subscription_ajax", ":token_ajax", ":authorize_token"}, HMAC_KEY, PG_DB, 1.week)
 
         preferences = user.preferences
 
         env.set "sid", sid
-        env.set "token", token
+        env.set "csrf_token", csrf_token
         env.set "user", user
       rescue ex
       end
@@ -1096,9 +1100,10 @@ post "/login" do |env|
           answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
 
           begin
-            validate_response(tokens[0], answer, env.request.path, HMAC_KEY, PG_DB, locale)
+            validate_request(tokens[0], answer, env.request, HMAC_KEY, PG_DB, locale)
           rescue ex
             error_message = ex.message
+            env.response.status_code = 400
             next templated "error"
           end
         when "text"
@@ -1109,7 +1114,7 @@ post "/login" do |env|
           error_message = translate(locale, "Invalid CAPTCHA")
           tokens.each_with_index do |token, i|
             begin
-              validate_response(token, answer, env.request.path, HMAC_KEY, PG_DB, locale)
+              validate_request(token, answer, env.request, HMAC_KEY, PG_DB, locale)
               found_valid_captcha = true
             rescue ex
               error_message = ex.message
@@ -1189,12 +1194,13 @@ post "/signout" do |env|
   if user
     user = user.as(User)
     sid = sid.as(String)
-    token = env.params.body["token"]?
+    token = env.params.body["csrf_token"]?
 
     begin
-      validate_response(token, sid, env.request.path, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
     rescue ex
       error_message = ex.message
+      env.response.status_code = 400
       next templated "error"
     end
 
@@ -1424,12 +1430,18 @@ post "/watch_ajax" do |env|
   redirect = redirect == "true"
 
   if !user
-    next env.redirect referer
+    if redirect
+      next env.redirect referer
+    else
+      error_message = {"error" => "No such user"}.to_json
+      env.response.status_code = 403
+      next error_message
+    end
   end
 
   user = user.as(User)
   sid = sid.as(String)
-  token = env.params.body["token"]?
+  token = env.params.body["csrf_token"]?
 
   id = env.params.query["id"]?
   if !id
@@ -1437,19 +1449,16 @@ post "/watch_ajax" do |env|
     next
   end
 
-  user = user.as(User)
-  sid = sid.as(String)
-  token = env.params.body["token"]?
-
   begin
-    validate_response(token, sid, env.request.path, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
   rescue ex
     if redirect
       error_message = ex.message
+      env.response.status_code = 400
       next templated "error"
     else
       error_message = {"error" => ex.message}.to_json
-      env.response.status_code = 500
+      env.response.status_code = 400
       next error_message
     end
   end
@@ -1494,8 +1503,14 @@ get "/modify_notifications" do |env|
   redirect ||= "false"
   redirect = redirect == "true"
 
-  if !user && !sid
-    next env.redirect referer
+  if !user
+    if redirect
+      next env.redirect referer
+    else
+      error_message = {"error" => "No such user"}.to_json
+      env.response.status_code = 403
+      next error_message
+    end
   end
 
   user = user.as(User)
@@ -1566,22 +1581,29 @@ post "/subscription_ajax" do |env|
   redirect = redirect == "true"
 
   if !user
-    next env.redirect referer
+    if redirect
+      next env.redirect referer
+    else
+      error_message = {"error" => "No such user"}.to_json
+      env.response.status_code = 403
+      next error_message
+    end
   end
 
   user = user.as(User)
   sid = sid.as(String)
-  token = env.params.body["token"]?
+  token = env.params.body["csrf_token"]?
 
   begin
-    validate_response(token, sid, env.request.path, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
   rescue ex
     if redirect
       error_message = ex.message
+      env.response.status_code = 400
       next templated "error"
     else
       error_message = {"error" => ex.message}.to_json
-      env.response.status_code = 500
+      env.response.status_code = 400
       next error_message
     end
   end
@@ -1660,9 +1682,9 @@ get "/subscription_manager" do |env|
 
   user = env.get? "user"
   sid = env.get? "sid"
-  referer = get_referer(env, "/subscription_manager")
+  referer = get_referer(env)
 
-  if !user && !sid
+  if !user
     next env.redirect referer
   end
 
@@ -1856,7 +1878,7 @@ get "/delete_account" do |env|
   if user
     user = user.as(User)
     sid = sid.as(String)
-    token = create_response(sid, {"delete_account"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY, PG_DB)
 
     templated "delete_account"
   else
@@ -1874,12 +1896,13 @@ post "/delete_account" do |env|
   if user
     user = user.as(User)
     sid = sid.as(String)
-    token = env.params.body["token"]?
+    token = env.params.body["csrf_token"]?
 
     begin
-      validate_response(token, sid, env.request.path, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
     rescue ex
       error_message = ex.message
+      env.response.status_code = 400
       next templated "error"
     end
 
@@ -1907,7 +1930,7 @@ get "/clear_watch_history" do |env|
   if user
     user = user.as(User)
     sid = sid.as(String)
-    token = create_response(sid, {"clear_watch_history"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":clear_watch_history"}, HMAC_KEY, PG_DB)
 
     templated "clear_watch_history"
   else
@@ -1925,12 +1948,13 @@ post "/clear_watch_history" do |env|
   if user
     user = user.as(User)
     sid = sid.as(String)
-    token = env.params.body["token"]?
+    token = env.params.body["csrf_token"]?
 
     begin
-      validate_response(token, sid, env.request.path, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
     rescue ex
       error_message = ex.message
+      env.response.status_code = 400
       next templated "error"
     end
 
@@ -1938,6 +1962,137 @@ post "/clear_watch_history" do |env|
   end
 
   env.redirect referer
+end
+
+# TODO?
+# get "/authorize_token" do |env|
+# ...
+# end
+
+post "/authorize_token" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  user = env.get? "user"
+  sid = env.get? "sid"
+  referer = get_referer(env)
+
+  if user
+    user = env.get("user").as(User)
+    sid = sid.as(String)
+    token = env.params.body["csrf_token"]?
+
+    begin
+      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    rescue ex
+      error_message = ex.message
+      env.response.status_code = 400
+      next templated "error"
+    end
+
+    scopes = env.params.body.select { |k, v| k.match(/^scopes\[\d+\]$/) }.map { |k, v| v }
+    callback_url = env.params.body["callbackUrl"]?
+    expire = env.params.body["expire"]?.try &.to_i?
+
+    access_token = generate_token(user.email, scopes, expire, HMAC_KEY, PG_DB)
+
+    if callback_url
+      access_token = URI.escape(access_token)
+      url = URI.parse(callback_url)
+
+      if url.query
+        query = HTTP::Params.parse(url.query.not_nil!)
+      else
+        query = HTTP::Params.new
+      end
+
+      query["token"] = access_token
+      url.query = query.to_s
+
+      env.redirect url.to_s
+    else
+      csrf_token = ""
+      env.set "access_token", access_token
+      templated "authorize_token"
+    end
+  end
+end
+
+get "/token_manager" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  user = env.get? "user"
+  sid = env.get? "sid"
+  referer = get_referer(env, "/subscription_manager")
+
+  if !user
+    next env.redirect referer
+  end
+
+  user = user.as(User)
+
+  tokens = PG_DB.query_all("SELECT id, issued FROM session_ids WHERE email = $1 ORDER BY issued DESC", user.email, as: {session: String, issued: Time})
+
+  templated "token_manager"
+end
+
+post "/token_ajax" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  user = env.get? "user"
+  sid = env.get? "sid"
+  referer = get_referer(env)
+
+  redirect = env.params.query["redirect"]?
+  redirect ||= "true"
+  redirect = redirect == "true"
+
+  if !user
+    if redirect
+      next env.redirect referer
+    else
+      error_message = {"error" => "No such user"}.to_json
+      env.response.status_code = 403
+      next error_message
+    end
+  end
+
+  user = user.as(User)
+  sid = sid.as(String)
+  token = env.params.body["csrf_token"]?
+
+  begin
+    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+  rescue ex
+    if redirect
+      error_message = ex.message
+      next templated "error"
+    else
+      error_message = {"error" => ex.message}.to_json
+      env.response.status_code = 400
+      next error_message
+    end
+  end
+
+  if env.params.query["action_revoke_token"]?
+    action = "action_revoke_token"
+  else
+    next env.redirect referer
+  end
+
+  session = env.params.query["session"]?
+  session ||= ""
+
+  case action
+  when .starts_with? "action_revoke_token"
+    PG_DB.exec("DELETE FROM session_ids * WHERE id = $1 AND email = $2", session, user.email)
+  end
+
+  if redirect
+    env.redirect referer
+  else
+    env.response.content_type = "application/json"
+    "{}"
+  end
 end
 
 # Feeds
@@ -4127,6 +4282,142 @@ get "/api/v1/mixes/:rdid" do |env|
   response
 end
 
+# TODO
+# get "/api/v1/auth/preferences" do |env|
+# ...
+# end
+
+# TODO
+# post "/api/v1/auth/preferences" do |env|
+# ...
+# end
+
+# TODO
+# get "/api/v1/auth/subscriptions" do |env|
+# ...
+# end
+
+# TODO
+# post "/api/v1/auth/subscriptions/:ucid" do |env|
+# ...
+# end
+
+# TODO
+# delete "/api/v1/auth/subscriptions/:ucid" do |env|
+# ...
+# end
+
+get "/api/v1/auth/tokens" do |env|
+  env.response.content_type = "application/json"
+  user = env.get("user").as(User)
+  scopes = env.get("scopes").as(Array(String))
+
+  tokens = PG_DB.query_all("SELECT id, issued FROM session_ids WHERE email = $1", user.email, as: {session: String, issued: Time})
+
+  # Only allow user sessions to view other user sessions
+  # if !scopes.includes? [":*"]
+  #   tokens.select { |token| token[:session].starts_with? "v1:" }
+  # end
+
+  JSON.build do |json|
+    json.array do
+      tokens.each do |token|
+        json.object do
+          json.field "session", token[:session]
+          json.field "issued", token[:issued].to_unix
+        end
+      end
+    end
+  end
+end
+
+post "/api/v1/auth/tokens/register" do |env|
+  user = env.get("user").as(User)
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  case env.request.headers["Content-Type"]?
+  when "application/x-www-form-urlencoded"
+    scopes = env.params.body.select { |k, v| k.match(/^scopes\[\d+\]$/) }.map { |k, v| v }
+    callback_url = env.params.body["callbackUrl"]?
+    expire = env.params.body["expire"]?.try &.to_i?
+  when "application/json"
+    scopes = env.params.json["scopes"].as(Array).map { |v| v.as_s }
+    callback_url = env.params.json["callbackUrl"]?.try &.as(String)
+    expire = env.params.json["expire"]?.try &.as(Int64)
+  else
+    error_message = {"error" => "Invalid or missing header 'Content-Type'"}.to_json
+    env.response.status_code = 400
+    next error_message
+  end
+
+  if callback_url && callback_url.empty?
+    callback_url = nil
+  end
+
+  if callback_url
+    callback_url = URI.parse(callback_url)
+  end
+
+  if sid = env.get?("sid").try &.as(String)
+    env.response.content_type = "text/html"
+
+    csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, PG_DB, use_nonce: true)
+    next templated "authorize_token"
+  else
+    env.response.content_type = "application/json"
+
+    superset_scopes = env.get("scopes").as(Array(String))
+
+    authorized_scopes = [] of String
+    scopes.each do |scope|
+      if scopes_include_scope(superset_scopes, scope)
+        authorized_scopes << scope
+      end
+    end
+
+    access_token = generate_token(user.email, authorized_scopes, expire, HMAC_KEY, PG_DB)
+
+    if callback_url
+      access_token = URI.escape(access_token)
+
+      if query = callback_url.query
+        query = HTTP::Params.parse(query.not_nil!)
+      else
+        query = HTTP::Params.new
+      end
+
+      query["token"] = access_token
+      callback_url.query = query.to_s
+
+      env.redirect callback_url.to_s
+    else
+      access_token
+    end
+  end
+end
+
+post "/api/v1/auth/tokens/unregister" do |env|
+  env.response.content_type = "application/json"
+  user = env.get("user").as(User)
+  scopes = env.get("scopes").as(Array(String))
+
+  session = env.params.json["session"]?.try &.as(String)
+  session ||= env.get("session").as(String)
+
+  # Allow tokens to revoke other tokens with correct scope
+  if session == env.get("session").as(String)
+    PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", session)
+  elsif scopes_include_scope(scopes, "GET:tokens")
+    PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", session)
+  else
+    error_message = {"error" => "Cannot revoke session #{session}"}.to_json
+    env.response.status_code = 400
+    next error_message
+  end
+
+  env.response.status_code = 204
+end
+
 get "/api/manifest/dash/id/videoplayback" do |env|
   env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
@@ -4708,8 +4999,8 @@ error 404 do |env|
     end
 
     # Check if item is video ID
-    client = make_client(URI.parse("https://youtu.be"))
-    if client.head("/#{item}").status_code != 404
+    client = make_client(YT_URL)
+    if item.match(/^[a-zA-Z0-9_-]{11}$/) && client.head("/watch?v=#{item}").status_code != 404
       env.response.headers["Location"] = url
       halt env, status_code: 302
     end
@@ -4760,9 +5051,11 @@ public_folder "assets"
 Kemal.config.powered_by_header = false
 add_handler FilteredCompressHandler.new
 add_handler APIHandler.new
+add_handler AuthHandler.new
 add_handler DenyFrame.new
-add_context_storage_type(User)
+add_context_storage_type(Array(String))
 add_context_storage_type(Preferences)
+add_context_storage_type(User)
 
 Kemal.config.logger = logger
 Kemal.run

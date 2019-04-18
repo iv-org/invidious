@@ -86,7 +86,7 @@
                 <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                 <% if env.get? "show_watched" %>
                 <form onsubmit="return false;" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
-                    <input type="hidden" name="token" value="<%= URI.escape(env.get?("token").try &.as(String) || "") %>">
+                    <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                     <p class="watched">
                         <a onclick="mark_watched(this)" data-id="<%= item.id %>" href="#">
                             <button type="submit" style="all:unset">

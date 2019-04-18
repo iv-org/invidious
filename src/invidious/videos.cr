@@ -486,15 +486,15 @@ struct Video
       if storyboard = storyboards.try &.["spec"]?
            .try &.as_s
         return [{
-                  url:               storyboard.split("#")[0],
-                  width:             106,
-                  height:            60,
-                  count:             -1,
-                  interval:          5000,
-                  storyboard_width:  3,
-                  storyboard_height: 3,
-                  storyboard_count:  -1,
-                }]
+          url:               storyboard.split("#")[0],
+          width:             106,
+          height:            60,
+          count:             -1,
+          interval:          5000,
+          storyboard_width:  3,
+          storyboard_height: 3,
+          storyboard_count:  -1,
+        }]
       end
     end
 

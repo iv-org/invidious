@@ -17,7 +17,7 @@ function subscribe(timeouts = 0) {
     xhr.timeout = 20000;
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("token=<%= URI.escape(env.get?("token").try &.as(String) || "") %>");
+    xhr.send("csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>");
 
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = unsubscribe;
@@ -53,7 +53,7 @@ function unsubscribe(timeouts = 0) {
     xhr.timeout = 20000;
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("token=<%= URI.escape(env.get?("token").try &.as(String) || "") %>");
+    xhr.send("csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>");
 
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = subscribe;

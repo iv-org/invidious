@@ -29,7 +29,7 @@
                     <div class="thumbnail">
                         <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg"/>
                         <form onsubmit="return false;" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
-                            <input type="hidden" name="token" value="<%= URI.escape(env.get?("token").try &.as(String) || "") %>">
+                            <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                             <p class="watched">
                                 <a onclick="mark_unwatched(this)" data-id="<%= item %>" href="#">
                                     <button type="submit" style="all:unset">
@@ -61,7 +61,7 @@ function mark_unwatched(target) {
     xhr.timeout = 20000;
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("token=<%= URI.escape(env.get?("token").try &.as(String) || "") %>");
+    xhr.send("csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>");
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
