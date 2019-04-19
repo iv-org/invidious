@@ -1017,6 +1017,7 @@ end
 def process_video_params(query, preferences)
   autoplay = query["autoplay"]?.try &.to_i?
   continue = query["continue"]?.try &.to_i?
+  continue_autoplay = query["continue_autoplay"]?.try &.to_i?
   listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
   local = query["local"]? && (query["local"] == "true").to_unsafe
   preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
@@ -1031,6 +1032,7 @@ def process_video_params(query, preferences)
     # region ||= preferences.region
     autoplay ||= preferences.autoplay.to_unsafe
     continue ||= preferences.continue.to_unsafe
+    continue_autoplay ||= preferences.continue_autoplay.to_unsafe
     listen ||= preferences.listen.to_unsafe
     local ||= preferences.local.to_unsafe
     preferred_captions ||= preferences.captions
@@ -1043,6 +1045,7 @@ def process_video_params(query, preferences)
 
   autoplay ||= CONFIG.default_user_preferences.autoplay.to_unsafe
   continue ||= CONFIG.default_user_preferences.continue.to_unsafe
+  continue_autoplay ||= CONFIG.default_user_preferences.continue_autoplay.to_unsafe
   listen ||= CONFIG.default_user_preferences.listen.to_unsafe
   local ||= CONFIG.default_user_preferences.local.to_unsafe
   preferred_captions ||= CONFIG.default_user_preferences.captions
@@ -1054,6 +1057,7 @@ def process_video_params(query, preferences)
 
   autoplay = autoplay == 1
   continue = continue == 1
+  continue_autoplay = continue_autoplay == 1
   listen = listen == 1
   local = local == 1
   related_videos = related_videos == 1
@@ -1087,6 +1091,7 @@ def process_video_params(query, preferences)
   params = {
     autoplay:           autoplay,
     continue:           continue,
+    continue_autoplay:  continue_autoplay,
     controls:           controls,
     listen:             listen,
     local:              local,

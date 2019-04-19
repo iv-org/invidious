@@ -202,13 +202,13 @@ player.on('ended', function() {
     location.assign("/watch?v="
         + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
         + "&continue=1"
-        <% if params[:listen] %>
-        + "&listen=1"
+        <% if params[:listen] != preferences.listen %>
+        + "&listen=<%= params[:listen] %>"
         <% end %>
-        <% if params[:autoplay] %>
+        <% if params[:autoplay] || params[:continue_autoplay] %>
         + "&autoplay=1"
         <% end %>
-        <% if params[:speed] %>
+        <% if params[:speed] != preferences.speed %>
         + "&speed=<%= params[:speed] %>"
         <% end %>
     );
@@ -221,13 +221,13 @@ function continue_autoplay(target) {
             location.assign("/watch?v="
                 + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
                 + "&continue=1"
-                <% if params[:listen] %>
-                + "&listen=1"
+                <% if params[:listen] != preferences.listen %>
+                + "&listen=<%= params[:listen] %>"
                 <% end %>
-                <% if params[:autoplay] %>
+                <% if params[:autoplay] || params[:continue_autoplay] %>
                 + "&autoplay=1"
                 <% end %>
-                <% if params[:speed] %>
+                <% if params[:speed] != preferences.speed %>
                 + "&speed=<%= params[:speed] %>"
                 <% end %>
             );
@@ -287,13 +287,13 @@ function get_playlist(timeouts = 0) {
                         location.assign("/watch?v="
                             + xhr.response.nextVideo
                             + "&list=<%= plid %>"
-                            <% if params[:listen] %>
-                            + "&listen=1"
+                            <% if params[:listen] != preferences.listen %>
+                            + "&listen=<%= params[:listen] %>"
                             <% end %>
-                            <% if params[:autoplay] %>
+                            <% if params[:autoplay] || params[:continue_autoplay] %>
                             + "&autoplay=1"
                             <% end %>
-                            <% if params[:speed] %>
+                            <% if params[:speed] != preferences.speed %>
                             + "&speed=<%= params[:speed] %>"
                             <% end %>
                         );

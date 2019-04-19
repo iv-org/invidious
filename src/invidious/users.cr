@@ -88,6 +88,7 @@ struct Preferences
     captions:           {type: Array(String), default: CONFIG.default_user_preferences.captions, converter: StringToArray},
     comments:           {type: Array(String), default: CONFIG.default_user_preferences.comments, converter: StringToArray},
     continue:           {type: Bool, default: CONFIG.default_user_preferences.continue},
+    continue_autoplay:  {type: Bool, default: CONFIG.default_user_preferences.continue_autoplay},
     dark_mode:          {type: Bool, default: CONFIG.default_user_preferences.dark_mode},
     latest_only:        {type: Bool, default: CONFIG.default_user_preferences.latest_only},
     listen:             {type: Bool, default: CONFIG.default_user_preferences.listen},

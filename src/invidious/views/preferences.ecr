@@ -24,8 +24,13 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="continue"><%= translate(locale, "Autoplay next video: ") %></label>
+                <label for="continue"><%= translate(locale, "Play next by default: ") %></label>
                 <input name="continue" id="continue" type="checkbox" <% if preferences.continue %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="continue_autoplay"><%= translate(locale, "Autoplay next video: ") %></label>
+                <input name="continue_autoplay" id="continue_autoplay" type="checkbox" <% if preferences.continue_autoplay %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">

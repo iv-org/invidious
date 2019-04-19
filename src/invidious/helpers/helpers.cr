@@ -63,6 +63,7 @@ struct ConfigPreferences
     captions:           {type: Array(String), default: ["", "", ""], converter: StringToArray},
     comments:           {type: Array(String), default: ["youtube", ""], converter: StringToArray},
     continue:           {type: Bool, default: false},
+    continue_autoplay:  {type: Bool, default: true},
     dark_mode:          {type: Bool, default: false},
     latest_only:        {type: Bool, default: false},
     listen:             {type: Bool, default: false},

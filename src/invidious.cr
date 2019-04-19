@@ -1150,8 +1150,8 @@ post "/login" do |env|
 
       view_name = "subscriptions_#{sha256(user.email)}"
       PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
-        SELECT * FROM channel_videos WHERE \
-        ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
+      SELECT * FROM channel_videos WHERE \
+      ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
       ORDER BY published DESC;")
 
       if Kemal.config.ssl || config.https_only
@@ -1241,6 +1241,10 @@ post "/preferences" do |env|
   continue ||= "off"
   continue = continue == "on"
 
+  continue_autoplay = env.params.body["continue_autoplay"]?.try &.as(String)
+  continue_autoplay ||= "off"
+  continue_autoplay = continue_autoplay == "on"
+
   listen = env.params.body["listen"]?.try &.as(String)
   listen ||= "off"
   listen = listen == "on"
@@ -1309,6 +1313,7 @@ post "/preferences" do |env|
     "video_loop"         => video_loop,
     "autoplay"           => autoplay,
     "continue"           => continue,
+    "continue_autoplay"  => continue_autoplay,
     "listen"             => listen,
     "local"              => local,
     "speed"              => speed,
