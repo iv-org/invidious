@@ -62,6 +62,7 @@ LOCALES = {
   "ar"    => load_locale("ar"),
   "de"    => load_locale("de"),
   "en-US" => load_locale("en-US"),
+  "eo"    => load_locale("eo"),
   "es"    => load_locale("es"),
   "eu"    => load_locale("eu"),
   "fr"    => load_locale("fr"),
@@ -70,6 +71,7 @@ LOCALES = {
   "nl"    => load_locale("nl"),
   "pl"    => load_locale("pl"),
   "ru"    => load_locale("ru"),
+  "uk"    => load_locale("uk"),
 }
 
 config = CONFIG
