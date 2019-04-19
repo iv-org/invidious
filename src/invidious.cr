@@ -814,7 +814,7 @@ post "/login" do |env|
     next templated "error"
   end
 
-  email = env.params.body["email"]?
+  email = env.params.body["email"]?.try &.downcase
   password = env.params.body["password"]?
 
   account_type = env.params.query["type"]?
@@ -1024,7 +1024,7 @@ post "/login" do |env|
       next templated "error"
     end
 
-    user = PG_DB.query_one?("SELECT * FROM users WHERE LOWER(email) = LOWER($1)", email, as: User)
+    user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1", email, as: User)
 
     if user
       if !user.password
