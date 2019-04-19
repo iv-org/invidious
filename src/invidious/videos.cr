@@ -67,7 +67,7 @@ CAPTION_LANGUAGES = {
   "Marathi",
   "Mongolian",
   "Nepali",
-  "Norwegian",
+  "Norwegian Bokmål",
   "Nyanja",
   "Pashto",
   "Persian",

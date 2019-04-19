@@ -49,7 +49,7 @@ def fetch_playlist_videos(plid, page, video_count, continuation = nil, locale = 
     response = client.get(url)
     response = JSON.parse(response.body)
     if !response["content_html"]? || response["content_html"].as_s.empty?
-      raise translate(locale, "Playlist is empty")
+      raise translate(locale, "Empty playlist")
     end
 
     document = XML.parse_html(response["content_html"].as_s)
@@ -174,7 +174,7 @@ def fetch_playlist(plid, locale)
 
   response = client.get("/playlist?list=#{plid}&hl=en&disable_polymer=1")
   if response.status_code != 200
-    raise translate(locale, "Invalid playlist.")
+    raise translate(locale, "Not a playlist.")
   end
 
   body = response.body.gsub(/<button[^>]+><span[^>]+>\s*less\s*<img[^>]+>\n<\/span><\/button>/, "")
