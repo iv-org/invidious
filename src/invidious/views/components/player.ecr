@@ -99,7 +99,7 @@ var player = videojs("player", options, function() {
           return e.which === 74;
         },
         handler: function(player, options, e) {
-          player.currentTime(player.currentTime() - 5);
+          player.currentTime(player.currentTime() - 10);
         }
       },
       // Go forward 5 seconds
@@ -108,13 +108,13 @@ var player = videojs("player", options, function() {
           return e.which === 76;
         },
         handler: function(player, options, e) {
-          player.currentTime(player.currentTime() + 5);
+          player.currentTime(player.currentTime() + 10);
         }
       },
       // Increase speed
       increase_speed: {
         key: function(e) {
-          return e.which === 190;
+          return (e.which === 190 && e.shiftKey);
         },
         handler: function(player, _, e) {
           size = options.playbackRates.length;
@@ -125,7 +125,7 @@ var player = videojs("player", options, function() {
       // Decrease speed
       decrease_speed: {
         key: function(e) {
-          return e.which === 188;
+          return (e.which === 188 && e.shiftKey);
         },
         handler: function(player, _, e) {
           size = options.playbackRates.length;
