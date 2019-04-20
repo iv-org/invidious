@@ -2649,8 +2649,9 @@ post "/feed/webhook/:token" do |env|
 
       # Deliver notifications to `/api/v1/auth/notifications`
       payload = {
-        "key"   => video.id,
-        "topic" => video.ucid,
+        "topic"     => video.ucid,
+        "videoId"   => video.id,
+        "published" => published.to_unix,
       }.to_json
       PG_DB.exec("NOTIFY notifications, E'#{payload}'")
 
@@ -4134,9 +4135,12 @@ get "/api/v1/auth/notifications" do |env|
       PG.connect_listen(PG_URL, "notifications") do |event|
         notification = JSON.parse(event.payload)
         topic = notification["topic"].as_s
-        key = notification["key"].as_s
+        video_id = notification["videoId"].as_s
+        published = notification["published"].as_i64
 
-        response = JSON.parse(get_video(key, PG_DB, proxies).to_json(locale, config, Kemal.config, decrypt_function))
+        video = get_video(video_id, PG_DB, proxies)
+        video.published = Time.unix(published)
+        response = JSON.parse(video.to_json(locale, config, Kemal.config, decrypt_function))
 
         if fields_text = env.params.query["fields"]?
           begin
