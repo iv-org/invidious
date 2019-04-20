@@ -262,8 +262,8 @@ struct Video
           generate_storyboards(json, self.storyboards, config, kemal_config)
         end
 
-        json.field "description", html_to_content(self.description)
-        json.field "descriptionHtml", self.description
+        json.field "description", html_to_content(self.description).last
+        json.field "descriptionHtml", html_to_content(self.description).first
         json.field "published", self.published.to_unix
         json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
         json.field "keywords", self.keywords
