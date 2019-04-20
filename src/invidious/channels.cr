@@ -102,76 +102,72 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     auto_generated = true
   end
 
-  if !pull_all_videos
-    url = produce_channel_videos_url(ucid, 1, auto_generated: auto_generated)
-    response = client.get(url)
-    json = JSON.parse(response.body)
+  page = 1
 
-    if json["content_html"]? && !json["content_html"].as_s.empty?
-      document = XML.parse_html(json["content_html"].as_s)
-      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+  url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
+  response = client.get(url)
+  json = JSON.parse(response.body)
 
-      if auto_generated
-        videos = extract_videos(nodeset)
-      else
-        videos = extract_videos(nodeset, ucid, author)
-      end
+  if json["content_html"]? && !json["content_html"].as_s.empty?
+    document = XML.parse_html(json["content_html"].as_s)
+    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+
+    if auto_generated
+      videos = extract_videos(nodeset)
+    else
+      videos = extract_videos(nodeset, ucid, author)
     end
+  end
 
-    videos ||= [] of ChannelVideo
+  videos ||= [] of ChannelVideo
 
-    rss.xpath_nodes("//feed/entry").each do |entry|
-      video_id = entry.xpath_node("videoid").not_nil!.content
-      title = entry.xpath_node("title").not_nil!.content
-      published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
-      updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
-      author = entry.xpath_node("author/name").not_nil!.content
-      ucid = entry.xpath_node("channelid").not_nil!.content
+  rss.xpath_nodes("//feed/entry").each do |entry|
+    video_id = entry.xpath_node("videoid").not_nil!.content
+    title = entry.xpath_node("title").not_nil!.content
+    published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
+    updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
+    author = entry.xpath_node("author/name").not_nil!.content
+    ucid = entry.xpath_node("channelid").not_nil!.content
 
-      channel_video = videos.select { |video| video.id == video_id }[0]?
+    channel_video = videos.select { |video| video.id == video_id }[0]?
 
-      length_seconds = channel_video.try &.length_seconds
-      length_seconds ||= 0
+    length_seconds = channel_video.try &.length_seconds
+    length_seconds ||= 0
 
-      live_now = channel_video.try &.live_now
-      live_now ||= false
+    live_now = channel_video.try &.live_now
+    live_now ||= false
 
-      premiere_timestamp = channel_video.try &.premiere_timestamp
+    premiere_timestamp = channel_video.try &.premiere_timestamp
 
-      # Deliver notifications to `/api/v1/auth/notifications`
-      # payload = {
-      #   "key"   => video_id,
-      #   "topic" => ucid,
-      # }.to_json
-      # PG_DB.exec("NOTIFY notifications, E'#{payload}'")
+    video = ChannelVideo.new(
+      id: video_id,
+      title: title,
+      published: published,
+      updated: Time.now,
+      ucid: ucid,
+      author: author,
+      length_seconds: length_seconds,
+      live_now: live_now,
+      premiere_timestamp: premiere_timestamp
+    )
 
-      video = ChannelVideo.new(
-        id: video_id,
-        title: title,
-        published: published,
-        updated: Time.now,
-        ucid: ucid,
-        author: author,
-        length_seconds: length_seconds,
-        live_now: live_now,
-        premiere_timestamp: premiere_timestamp
-      )
-
-      db.exec("UPDATE users SET notifications = notifications || $1 \
+    db.exec("UPDATE users SET notifications = notifications || $1 \
         WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, ucid)
 
-      video_array = video.to_a
-      args = arg_array(video_array)
+    video_array = video.to_a
+    args = arg_array(video_array)
 
-      # We don't include the 'premire_timestamp' here because channel pages don't include them,
-      # meaning the above timestamp is always null
-      db.exec("INSERT INTO channel_videos VALUES (#{args}) \
+    # We don't include the 'premire_timestamp' here because channel pages don't include them,
+    # meaning the above timestamp is always null
+    db.exec("INSERT INTO channel_videos VALUES (#{args}) \
       ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
       updated = $4, ucid = $5, author = $6, length_seconds = $7, \
       live_now = $8", video_array)
-    end
-  else
-    page = 1
+  end
+
+  if pull_all_videos
+    page += 1
+
     ids = [] of String
 
     loop do
@@ -185,6 +181,8 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       else
         break
       end
+
+      nodeset = nodeset.not_nil!
 
       if auto_generated
         videos = extract_videos(nodeset)
@@ -216,16 +214,14 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
           video_array = video.to_a
           args = arg_array(video_array)
 
-          # We don't include the 'premire_timestamp' here because channel pages don't include them,
-          # meaning the above timestamp is always null
+          # We don't update the 'premire_timestamp' here because channel pages don't include them
           db.exec("INSERT INTO channel_videos VALUES (#{args}) \
-          ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
-          updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-          live_now = $8", video_array)
+          ON CONFLICT (id) DO UPDATE SET title = $2, updated = $4, \
+          ucid = $5, author = $6, length_seconds = $7, live_now = $8", video_array)
         end
       end
 
-      if count < 30
+      if count < 25
         break
       end
 
