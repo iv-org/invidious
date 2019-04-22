@@ -51,8 +51,7 @@ def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, ma
 
   final = [] of String
   channels.size.times do
-    ucid = finished_channel.receive
-    if ucid
+    if ucid = finished_channel.receive
       final << ucid
     end
   end

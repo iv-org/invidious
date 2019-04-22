@@ -64,6 +64,12 @@ def channel_search(query, page, channel)
   end
 
   if !canonical
+    response = client.get("/user/#{channel}?disable_polymer=1&hl=en&gl=US")
+    document = XML.parse_html(response.body)
+    canonical = document.xpath_node(%q(//link[@rel="canonical"]))
+  end
+
+  if !canonical
     return 0, [] of SearchItem
   end
 

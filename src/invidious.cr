@@ -1842,8 +1842,22 @@ post "/data_control" do |env|
         PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe_subscriptions"
         body = JSON.parse(body)
-        user.subscriptions += body["subscriptions"].as_a.map do |channel|
-          channel["url"].as_s.match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
+        user.subscriptions += body["subscriptions"].as_a.compact_map do |channel|
+          if match = channel["url"].as_s.match(/\/channel\/(?<channel>UC[a-zA-Z0-9_-]{22})/)
+            next match["channel"]
+          elsif match = channel["url"].as_s.match(/\/user\/(?<user>.+)/)
+            client = make_client(YT_URL)
+            response = client.get("/user/#{match["user"]}?disable_polymer=1&hl=en&gl=US")
+            document = XML.parse_html(response.body)
+            canonical = document.xpath_node(%q(//link[@rel="canonical"]))
+
+            if canonical
+              ucid = canonical["href"].split("/")[-1]
+              next ucid
+            end
+          end
+
+          nil
         end
         user.subscriptions.uniq!
 
