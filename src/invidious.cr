@@ -1875,6 +1875,86 @@ post "/data_control" do |env|
   env.redirect referer
 end
 
+get "/change_password" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  user = env.get? "user"
+  sid = env.get? "sid"
+  referer = get_referer(env)
+
+  if user
+    user = user.as(User)
+    sid = sid.as(String)
+    csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY, PG_DB)
+
+    templated "change_password"
+  else
+    env.redirect referer
+  end
+end
+
+post "/change_password" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  user = env.get? "user"
+  sid = env.get? "sid"
+  referer = get_referer(env)
+
+  if user
+    user = user.as(User)
+    sid = sid.as(String)
+    token = env.params.body["csrf_token"]?
+
+    # We don't store passwords for Google accounts
+    if !user.password
+      error_message = "Cannot change password for Google accounts"
+      next templated "error"
+    end
+
+    begin
+      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    rescue ex
+      error_message = ex.message
+      env.response.status_code = 400
+      next templated "error"
+    end
+
+    password = env.params.body["password"]?
+    if !password
+      error_message = translate(locale, "Password is a required field")
+      next templated "error"
+    end
+
+    new_passwords = env.params.body.select { |k, v| k.match(/^new_password\[\d+\]$/) }.map { |k, v| v }
+
+    if new_passwords.size <= 1 || new_passwords.uniq.size != 1
+      error_message = translate(locale, "New passwords must match")
+      next templated "error"
+    end
+
+    new_password = new_passwords.uniq[0]
+    if new_password.empty?
+      error_message = translate(locale, "Password cannot be empty")
+      next templated "error"
+    end
+
+    if new_password.size > 55
+      error_message = translate(locale, "Password cannot be longer than 55 characters")
+      next templated "error"
+    end
+
+    if Crypto::Bcrypt::Password.new(user.password.not_nil!) != password
+      error_message = translate(locale, "Incorrect password")
+      next templated "error"
+    end
+
+    new_password = Crypto::Bcrypt::Password.create(new_password, cost: 10)
+    PG_DB.exec("UPDATE users SET password = $1 WHERE email = $2", new_password.to_s, user.email)
+  end
+
+  env.redirect referer
+end
+
 get "/delete_account" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 

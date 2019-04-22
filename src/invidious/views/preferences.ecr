@@ -214,6 +214,10 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
+                <a href="/change_password?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Change password") %></a>
+            </div>
+
+            <div class="pure-control-group">
                 <a href="/data_control?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Import/export data") %></a>
             </div>
 
