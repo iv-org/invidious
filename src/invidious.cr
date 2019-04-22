@@ -2732,7 +2732,7 @@ post "/feed/webhook/:token" do |env|
       published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
       updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
 
-      video = get_video(id, PG_DB, proxies, region: nil)
+      video = get_video(id, PG_DB, proxies, force_refresh: true)
 
       # Deliver notifications to `/api/v1/auth/notifications`
       payload = {

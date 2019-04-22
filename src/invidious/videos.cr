@@ -817,12 +817,12 @@ end
 class VideoRedirect < Exception
 end
 
-def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32}), refresh = true, region = nil)
+def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32}), refresh = true, region = nil, force_refresh = false)
   if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool) && !region
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
     # If record was last updated over 10 minutes ago, refresh (expire param in response lasts for 6 hours)
-    if refresh && Time.now - video.updated > 10.minutes
+    if (refresh && Time.now - video.updated > 10.minutes) || force_refresh
       begin
         video = fetch_video(id, proxies, region)
         video_array = video.to_a
