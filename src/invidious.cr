@@ -1712,7 +1712,14 @@ get "/subscription_manager" do |env|
   format = env.params.query["format"]?
   format ||= "rss"
 
-  subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY('{#{user.subscriptions.join(",")}}')", as: InvidiousChannel)
+  if user.subscriptions.empty?
+    values = "'{}'"
+  else
+    values = "VALUES #{user.subscriptions.map { |id| %(('#{id}')) }.join(",")}"
+  end
+
+  subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousChannel)
+
   subscriptions.sort_by! { |channel| channel.author.downcase }
 
   if action_takeout
@@ -4263,20 +4270,54 @@ end
 # ...
 # end
 
-# TODO
-# get "/api/v1/auth/subscriptions" do |env|
-# ...
-# end
+get "/api/v1/auth/subscriptions" do |env|
+  env.response.content_type = "application/json"
+  user = env.get("user").as(User)
 
-# TODO
-# post "/api/v1/auth/subscriptions/:ucid" do |env|
-# ...
-# end
+  if user.subscriptions.empty?
+    values = "'{}'"
+  else
+    values = "VALUES #{user.subscriptions.map { |id| %(('#{id}')) }.join(",")}"
+  end
 
-# TODO
-# delete "/api/v1/auth/subscriptions/:ucid" do |env|
-# ...
-# end
+  subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousChannel)
+
+  JSON.build do |json|
+    json.array do
+      subscriptions.each do |subscription|
+        json.object do
+          json.field "author", subscription.author
+          json.field "authorId", subscription.id
+        end
+      end
+    end
+  end
+end
+
+post "/api/v1/auth/subscriptions/:ucid" do |env|
+  env.response.content_type = "application/json"
+  user = env.get("user").as(User)
+
+  ucid = env.params.url["ucid"]
+
+  if !user.subscriptions.includes? ucid
+    get_channel(ucid, PG_DB, false, false)
+    PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
+  end
+
+  env.response.status_code = 204
+end
+
+delete "/api/v1/auth/subscriptions/:ucid" do |env|
+  env.response.content_type = "application/json"
+  user = env.get("user").as(User)
+
+  ucid = env.params.url["ucid"]
+
+  PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", ucid, user.email)
+
+  env.response.status_code = 204
+end
 
 get "/api/v1/auth/tokens" do |env|
   env.response.content_type = "application/json"
