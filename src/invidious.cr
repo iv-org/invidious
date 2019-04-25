@@ -4602,13 +4602,21 @@ get "/api/manifest/hls_variant/*" do |env|
     next
   end
 
+  local = env.params.query["local"]?.try &.== "true"
+
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
 
   host_url = make_host_url(config, Kemal.config)
 
   manifest = manifest.body
-  manifest.gsub("https://www.youtube.com", host_url)
+
+  if local
+    manifest = manifest.gsub("https://www.youtube.com", host_url)
+    manifest = manifest.gsub("index.m3u8", "index.m3u8?local=true")
+  end
+
+  manifest
 end
 
 get "/api/manifest/hls_playlist/*" do |env|
@@ -4620,15 +4628,24 @@ get "/api/manifest/hls_playlist/*" do |env|
     next
   end
 
-  host_url = make_host_url(config, Kemal.config)
-
-  manifest = manifest.body.gsub("https://www.youtube.com", host_url)
-  manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, host_url)
-  fvip = manifest.match(/hls_chunk_host\/r(?<fvip>\d)---/).not_nil!["fvip"]
-  manifest = manifest.gsub("seg.ts", "seg.ts/fvip/#{fvip}")
+  local = env.params.query["local"]?.try &.== "true"
 
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
+
+  host_url = make_host_url(config, Kemal.config)
+
+  manifest = manifest.body
+
+  if local
+    manifest = manifest.gsub("https://www.youtube.com", host_url)
+    manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, host_url)
+    manifest = manifest.gsub("seg.ts", "seg.ts?local=true")
+  end
+
+  fvip = manifest.match(/hls_chunk_host\/r(?<fvip>\d+)---/).not_nil!["fvip"]
+  manifest = manifest.gsub("seg.ts", "seg.ts/fvip/#{fvip}")
+
   manifest
 end
 

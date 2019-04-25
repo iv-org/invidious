@@ -7,7 +7,7 @@
     <% if params[:video_loop] %>loop<% end %>
     <% if params[:controls] %>controls<% end %>>
     <% if hlsvp %>
-        <source src="<%= hlsvp %>" type="application/x-mpegURL" label="livestream">
+        <source src="<%= hlsvp %>?local=true" type="application/x-mpegURL" label="livestream">
     <% else %>
         <% if params[:listen] %>
             <% audio_streams.each_with_index do |fmt, i| %>
