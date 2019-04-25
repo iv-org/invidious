@@ -1792,6 +1792,36 @@ post "/data_control" do |env|
   if user
     user = user.as(User)
 
+    spawn do
+      # Since import can take a while, if we're not done after 20 seconds
+      # push out content to prevent timeout.
+
+      # Interesting to note is that Chrome will try to render before the content has finished loading,
+      # which is why we include a loading icon. Firefox and its derivatives will not see this page,
+      # instead redirecting immediately once the connection has closed.
+
+      # https://stackoverflow.com/q/2091239 is helpful but not directly applicable here.
+
+      sleep 20.seconds
+      env.response.puts %(<meta http-equiv="refresh" content="0; url=#{referer}">)
+      env.response.puts %(<link rel="stylesheet" href="/css/ionicons.min.css">)
+      env.response.puts %(<link rel="stylesheet" href="/css/default.css">)
+      if env.get("preferences").as(Preferences).dark_mode
+        env.response.puts %(<link rel="stylesheet" href="/css/darktheme.css">)
+      else
+        env.response.puts %(<link rel="stylesheet" href="/css/lighttheme.css">)
+      end
+      env.response.puts %(<h3><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>)
+      env.response.flush
+
+      loop do
+        env.response.puts %(<!-- keepalive #{Time.now.to_unix} -->)
+        env.response.flush
+
+        sleep (20 + rand(11)).seconds
+      end
+    end
+
     HTTP::FormData.parse(env.request) do |part|
       body = part.body.gets_to_end
       if body.empty?
