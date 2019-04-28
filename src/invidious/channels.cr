@@ -9,6 +9,34 @@ struct InvidiousChannel
 end
 
 struct ChannelVideo
+  def to_json(locale, config, kemal_config, json : JSON::Builder)
+    json.object do
+      json.field "title", self.title
+      json.field "videoId", self.id
+      json.field "videoThumbnails" do
+        generate_thumbnails(json, self.id, config, Kemal.config)
+      end
+
+      json.field "lengthSeconds", self.length_seconds
+
+      json.field "author", self.author
+      json.field "authorId", self.ucid
+      json.field "authorUrl", "/channel/#{self.ucid}"
+      json.field "published", self.published.to_unix
+      json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
+    end
+  end
+
+  def to_json(locale, config, kemal_config, json : JSON::Builder | Nil = nil)
+    if json
+      to_json(locale, config, kemal_config, json)
+    else
+      JSON.build do |json|
+        to_json(locale, config, kemal_config, json)
+      end
+    end
+  end
+
   db_mapping({
     id:                 String,
     title:              String,

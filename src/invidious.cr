@@ -3428,29 +3428,13 @@ get "/api/v1/popular" do |env|
 
   env.response.content_type = "application/json"
 
-  videos = JSON.build do |json|
+  JSON.build do |json|
     json.array do
       popular_videos.each do |video|
-        json.object do
-          json.field "title", video.title
-          json.field "videoId", video.id
-          json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id, config, Kemal.config)
-          end
-
-          json.field "lengthSeconds", video.length_seconds
-
-          json.field "author", video.author
-          json.field "authorId", video.ucid
-          json.field "authorUrl", "/channel/#{video.ucid}"
-          json.field "published", video.published.to_unix
-          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
-        end
+        video.to_json(locale, config, Kemal.config, json)
       end
     end
   end
-
-  videos
 end
 
 get "/api/v1/top" do |env|
@@ -3573,9 +3557,9 @@ get "/api/v1/channels/:ucid" do |env|
   metadata.each do |item|
     case item.content
     when .includes? "views"
-      total_views = item.content.delete("views •,").to_i64
+      total_views = item.content.gsub(/\D/, "").to_i64
     when .includes? "subscribers"
-      sub_count = item.content.delete("subscribers").delete(",").to_i64
+      sub_count = item.content.delete("subscribers").gsub(/\D/, "").to_i64
     when .includes? "Joined"
       joined = Time.parse(item.content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
     end
@@ -3788,7 +3772,7 @@ end
       next error_message
     end
 
-    response = JSON.build do |json|
+    JSON.build do |json|
       json.array do
         videos.each do |video|
           json.object do
@@ -3816,8 +3800,6 @@ end
         end
       end
     end
-
-    response
   end
 end
 
@@ -4295,10 +4277,42 @@ get "/api/v1/auth/notifications" do |env|
   topics = env.params.query["topics"]?.try &.split(",").uniq.first(1000)
   topics ||= [] of String
 
+  since = env.params.query["since"]?.try &.to_i?
+
   begin
     id = 0
 
     spawn do
+      if since
+        topics.try &.each do |topic|
+          case topic
+          when .match(/UC[A-Za-z0-9_-]{22}/)
+            PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid = $1 AND published > $2 ORDER BY published DESC LIMIT 15",
+              topic, Time.unix(since.not_nil!), as: ChannelVideo).each do |video|
+              response = JSON.parse(video.to_json(locale, config, Kemal.config))
+
+              if fields_text = env.params.query["fields"]?
+                begin
+                  JSONFilter.filter(response, fields_text)
+                rescue ex
+                  env.response.status_code = 400
+                  response = {"error" => ex.message}
+                end
+              end
+
+              env.response.puts "id: #{id}"
+              env.response.puts "data: #{response.to_json}"
+              env.response.puts
+              env.response.flush
+
+              id += 1
+            end
+          else
+            # TODO
+          end
+        end
+      end
+
       PG.connect_listen(PG_URL, "notifications") do |event|
         notification = JSON.parse(event.payload)
         topic = notification["topic"].as_s
