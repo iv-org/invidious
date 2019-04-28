@@ -184,9 +184,17 @@
                 </div>
                 <% end %>
                 <p style="width:100%"><%= rv["title"] %></p>
-                <p>
-                    <b style="width: 100%"><%= rv["author"] %></b>
-                </p>
+                <h5 class="pure-g">
+                    <div class="pure-u-14-24">
+                        <b style="width:100%"><%= rv["author"] %></b>
+                    </div>
+
+                    <div class="pure-u-10-24" style="text-align:right">
+                        <% if views = rv["short_view_count_text"]?.try &.delete(", views") %>
+                            <b class="width:100%"><%= translate(locale, "`x` views", views) %></b>
+                        <% end %>
+                    </div>
+                </h5>
             </a>
             <% end %>
         <% end %>
