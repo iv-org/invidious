@@ -2817,6 +2817,42 @@ end
 
 # Channels
 
+{"/channel/:ucid/live", "/user/:user/live", "/c/:user/live"}.each do |route|
+  get route do |env|
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    client = make_client(YT_URL)
+
+    # Appears to be a bug in routing, having several routes configured
+    # as `/a/:a`, `/b/:a`, `/c/:a` results in 404
+    value = env.request.resource.split("/")[2]
+    body = ""
+    {"channel", "user", "c"}.each do |type|
+      response = client.get("/#{type}/#{value}/live?disable_polymer=1")
+      if response.status_code == 200
+        body = response.body
+      end
+    end
+
+    video_id = body.match(/'VIDEO_ID': "(?<id>[a-zA-Z0-9_-]{11})"/).try &.["id"]?
+    if video_id
+      params = [] of String
+      env.params.query.each do |k, v|
+        params << "#{k}=#{v}"
+      end
+      params = params.join("&")
+
+      url = "/watch?v=#{video_id}"
+      if !params.empty?
+        url += "&#{params}"
+      end
+
+      env.redirect url
+    else
+      env.redirect "/channel/#{value}"
+    end
+  end
+end
+
 # YouTube appears to let users set a "brand" URL that
 # is different from their username, so we convert that here
 get "/c/:user" do |env|
@@ -3667,7 +3703,7 @@ get "/api/v1/channels/:ucid" do |env|
   channel_info
 end
 
-["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
+{"/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"}.each do |route|
   get route do |env|
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -3736,7 +3772,7 @@ end
   end
 end
 
-["/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"].each do |route|
+{"/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"}.each do |route|
   get route do |env|
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -3785,7 +3821,7 @@ end
   end
 end
 
-["/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"].each do |route|
+{"/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"}.each do |route|
   get route do |env|
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
