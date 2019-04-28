@@ -18,15 +18,6 @@ CREATE TABLE public.channel_videos
 
 GRANT ALL ON TABLE public.channel_videos TO kemal;
 
--- Index: public.channel_videos_published_idx
-
--- DROP INDEX public.channel_videos_published_idx;
-
-CREATE INDEX channel_videos_published_idx
-  ON public.channel_videos
-  USING btree
-  (published);
-
 -- Index: public.channel_videos_ucid_idx
 
 -- DROP INDEX public.channel_videos_ucid_idx;
