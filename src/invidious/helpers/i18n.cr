@@ -33,3 +33,12 @@ def translate(locale : Hash(String, JSON::Any) | Nil, translation : String, text
 
   return translation
 end
+
+def translate_bool(locale : Hash(String, JSON::Any) | Nil, translation : Bool)
+  case translation
+  when true
+    return translate(locale, "Yes")
+  when false
+    return translate(locale, "No")
+  end
+end
