@@ -48,6 +48,7 @@ REDDIT_URL      = URI.parse("https://www.reddit.com")
 TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com")
 YT_URL          = URI.parse("https://www.youtube.com")
 CHARS_SAFE      = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+TEST_IDS        = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
 CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
 CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
 CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
@@ -4281,6 +4282,39 @@ get "/api/v1/auth/notifications" do |env|
 
   begin
     id = 0
+
+    if topics.includes? "debug"
+      spawn do
+        loop do
+          time_span = [0, 0, 0, 0]
+          time_span[rand(4)] = rand(30) + 5
+          published = Time.now - Time::Span.new(time_span[0], time_span[1], time_span[2], time_span[3])
+          video_id = TEST_IDS[rand(TEST_IDS.size)]
+
+          video = get_video(video_id, PG_DB, proxies)
+          video.published = published
+          response = JSON.parse(video.to_json(locale, config, Kemal.config, decrypt_function))
+
+          if fields_text = env.params.query["fields"]?
+            begin
+              JSONFilter.filter(response, fields_text)
+            rescue ex
+              env.response.status_code = 400
+              response = {"error" => ex.message}
+            end
+          end
+
+          env.response.puts "id: #{id}"
+          env.response.puts "data: #{response.to_json}"
+          env.response.puts
+          env.response.flush
+
+          id += 1
+
+          sleep 1.minute
+        end
+      end
+    end
 
     spawn do
       if since
