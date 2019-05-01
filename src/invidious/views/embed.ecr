@@ -55,14 +55,14 @@ function get_playlist(timeouts = 0) {
                         location.assign("/embed/"
                             + xhr.response.nextVideo
                             + "?list=<%= plid %>"
-                            <% if params[:listen] != preferences.listen %>
-                            + "&listen=<%= params[:listen] %>"
+                            <% if params.listen != preferences.listen %>
+                            + "&listen=<%= params.listen %>"
                             <% end %>
-                            <% if params[:autoplay] || params[:continue_autoplay] %>
+                            <% if params.autoplay || params.continue_autoplay %>
                             + "&autoplay=1"
                             <% end %>
-                            <% if params[:speed] != preferences.speed %>
-                            + "&speed=<%= params[:speed] %>"
+                            <% if params.speed != preferences.speed %>
+                            + "&speed=<%= params.speed %>"
                             <% end %>
                         );
                     });
@@ -85,14 +85,14 @@ player.on('ended', function() {
     <% if !video_series.empty? %>
     + "?playlist=<%= video_series.join(",") %>"
     <% end %>
-    <% if params[:listen] != preferences.listen %>
-    + "&listen=<%= params[:listen] %>"
+    <% if params.listen != preferences.listen %>
+    + "&listen=<%= params.listen %>"
     <% end %>
-    <% if params[:autoplay] || params[:continue_autoplay] %>
+    <% if params.autoplay || params.continue_autoplay %>
     + "&autoplay=1"
     <% end %>
-    <% if params[:speed] != preferences.speed %>
-    + "&speed=<%= params[:speed] %>"
+    <% if params.speed != preferences.speed %>
+    + "&speed=<%= params.speed %>"
     <% end %>
   );
 });

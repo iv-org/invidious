@@ -94,6 +94,11 @@ function update_value(element) {
                 <input name="related_videos" id="related_videos" type="checkbox" <% if preferences.related_videos %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="annotations"><%= translate(locale, "Show annotations by default? ") %></label>
+                <input name="annotations" id="annotations" type="checkbox" <% if preferences.annotations %>checked<% end %>>
+            </div>
+
             <legend><%= translate(locale, "Visual preferences") %></legend>
 
             <div class="pure-control-group">
@@ -117,6 +122,11 @@ function update_value(element) {
 
             <% if env.get? "user" %>
             <legend><%= translate(locale, "Subscription preferences") %></legend>
+
+            <div class="pure-control-group">
+                <label for="annotations_subscribed"><%= translate(locale, "Show annotations by default for subscribed channels? ") %></label>
+                <input name="annotations_subscribed" id="annotations_subscribed" type="checkbox" <% if preferences.annotations_subscribed %>checked<% end %>>
+            </div>
 
             <div class="pure-control-group">
                 <label for="redirect_feed"><%= translate(locale, "Redirect homepage to feed: ") %></label>

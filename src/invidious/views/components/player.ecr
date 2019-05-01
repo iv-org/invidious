@@ -3,26 +3,26 @@
     onmouseenter='this["data-title"]=this["title"];this["title"]=""'
     onmouseleave='this["title"]=this["data-title"];this["data-title"]=""'
     oncontextmenu='this["title"]=this["data-title"]'
-    <% if params[:autoplay] %>autoplay<% end %>
-    <% if params[:video_loop] %>loop<% end %>
-    <% if params[:controls] %>controls<% end %>>
+    <% if params.autoplay %>autoplay<% end %>
+    <% if params.video_loop %>loop<% end %>
+    <% if params.controls %>controls<% end %>>
     <% if hlsvp %>
         <source src="<%= hlsvp %>?local=true" type="application/x-mpegURL" label="livestream">
     <% else %>
-        <% if params[:listen] %>
+        <% if params.listen %>
             <% audio_streams.each_with_index do |fmt, i| %>
-                <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params[:local] %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
+                <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
             <% end %>
           <% else %>
-            <% if params[:quality] == "dash" %>
+            <% if params.quality == "dash" %>
                 <source src="/api/manifest/dash/id/<%= video.id %>?local=true" type='application/dash+xml' label="dash">
             <% end %>
 
             <% fmt_stream.each_with_index do |fmt, i| %>
-                <% if params[:quality] %>
-                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params[:local] %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= params[:quality] == fmt["label"].split(" - ")[0] %>">
+                <% if params.quality %>
+                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= params.quality == fmt["label"].split(" - ")[0] %>">
                 <% else %>
-                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params[:local] %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
                 <% end %>
             <% end %>
         <% end %> 
@@ -161,7 +161,7 @@ player.on('error', function(event) {
   }
 });
 
-<% if params[:video_start] > 0 || params[:video_end] > 0 %>
+<% if params.video_start > 0 || params.video_end > 0 %>
 player.markers({
   onMarkerReached: function(marker) {
     if (marker.text === "End") {
@@ -173,22 +173,22 @@ player.markers({
     }
   },
   markers: [
-    { time: <%= params[:video_start] %>, text: "Start" },
-    <% if params[:video_end] < 0 %>
+    { time: <%= params.video_start %>, text: "Start" },
+    <% if params.video_end < 0 %>
     { time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: "End" }
     <% else %>
-    { time: <%= params[:video_end] %>, text: "End" }
+    { time: <%= params.video_end %>, text: "End" }
     <% end %>
   ]
 });
 
-player.currentTime(<%= params[:video_start] %>);
+player.currentTime(<%= params.video_start %>);
 <% end %>
 
-player.volume(<%= params[:volume].to_f / 100 %>);
-player.playbackRate(<%= params[:speed] %>);
+player.volume(<%= params.volume.to_f / 100 %>);
+player.playbackRate(<%= params.speed %>);
 
-<% if params[:autoplay] %>
+<% if params.autoplay %>
 var bpb = player.getChild('bigPlayButton');
 
 if (bpb) {
@@ -211,7 +211,52 @@ if (bpb) {
 }
 <% end %>
 
+<% if !params.listen && params.quality == "dash" %>
 player.httpSourceSelector();
+<% end %>
+
+<% if !params.listen && params.annotations %>
+var video_container = document.getElementById("player");
+let xhr = new XMLHttpRequest();
+xhr.responseType = "text";
+xhr.timeout = 60000;
+xhr.open("GET", "/api/v1/annotations/<%= video.id %>", true);
+xhr.send();
+
+xhr.onreadystatechange = function () {
+  if (xhr.readyState === 4) {
+    if (xhr.status === 200) {
+      videojs.registerPlugin("youtubeAnnotationsPlugin", youtubeAnnotationsPlugin);
+      if (!player.paused()) {
+        player.youtubeAnnotationsPlugin({annotationXml: xhr.response, videoContainer: video_container});
+      } else {
+        player.one('play', function(event) {
+          player.youtubeAnnotationsPlugin({annotationXml: xhr.response, videoContainer: video_container});
+        });
+      }
+    }
+  }
+};
+
+window.addEventListener("__ar_annotation_click", e => {
+    const { url, target, seconds } = e.detail;
+
+    var path = new URL(url);
+
+    if (path.href.startsWith("https://www.youtube.com/watch?") && seconds) {
+        path.search += "&t=" + seconds;
+    }
+
+    path  = path.pathname + path.search;
+
+    if (target === "current") {
+        window.location.href = path;
+    }
+    else if (target === "new") {
+        window.open(path, "_blank");
+    }
+});
+<% end %>
 
 // Since videojs-share can sometimes be blocked, we try to load it last
 player.share(shareOptions);
