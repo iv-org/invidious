@@ -188,7 +188,7 @@ before_all do |env|
   env.response.headers["Referrer-Policy"] = "same-origin"
 
   if Kemal.config.ssl || config.https_only
-    env.response.headers["Strict-Transport-Security"] = "max-age=604800; includeSubDomains"
+    env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
   end
 
   begin
@@ -5189,7 +5189,7 @@ if Kemal.config.ssl
         redirect_url += "?#{env.request.query}"
       end
 
-      env.response.headers["Strict-Transport-Security"] = "max-age=604800; includeSubDomains"
+      env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
       env.response.headers["Location"] = redirect_url
       env.response.status_code = 301
     end
