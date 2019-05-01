@@ -34,7 +34,7 @@
 <div class="h-box">
 <h1>
     <%= HTML.escape(video.title) %>
-    <% if params[:listen] %>
+    <% if params.listen %>
     <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
         <i class="icon ion-ios-videocam"></i>
     </a>
@@ -56,6 +56,17 @@
     <div class="pure-u-1 pure-u-lg-1-5">
         <div class="h-box">
             <p><a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch on YouTube") %></a></p>
+            <p>
+            <% if params.annotations %>
+            <a href="/watch?<%= env.params.query %>&iv_load_policy=3">
+                <%= translate(locale, "Hide annotations") %>
+            </a>
+            <% else %>
+            <a href="/watch?<%= env.params.query %>&iv_load_policy=1">
+                <%=translate(locale, "Show annotations")%>
+            </a>
+            <% end %>
+            </p>
 
             <% if CONFIG.dmca_content.includes? video.id %>
             <p>Download is disabled.</p>
@@ -122,7 +133,7 @@
         </div>
     </div>
 
-    <div class="pure-u-1 <% if params[:related_videos] || plid %>pure-u-lg-3-5<% else %>pure-u-md-4-5<% end %>">
+    <div class="pure-u-1 <% if params.related_videos || plid %>pure-u-lg-3-5<% else %>pure-u-md-4-5<% end %>">
         <div class="h-box">
             <p>
                 <a href="/channel/<%= video.ucid %>">
@@ -153,21 +164,21 @@
             </div>
         </div>
     </div>
-    <% if params[:related_videos] || plid %>
+    <% if params.related_videos || plid %>
     <div class="pure-u-1 pure-u-lg-1-5">
         <% if plid %>
         <div id="playlist" class="h-box">
         </div>
         <% end %>
 
-        <% if params[:related_videos] %>
+        <% if params.related_videos %>
         <div class="h-box">
 
         <% if !rvs.empty? %>
         <div <% if plid %>style="display:none"<% end %>>
             <div class="pure-control-group">
                 <label for="continue"><%= translate(locale, "Autoplay next video: ") %></label>
-                <input name="continue" onclick="continue_autoplay(this)" id="continue" type="checkbox" <% if params[:continue] %>checked<% end %>>
+                <input name="continue" onclick="continue_autoplay(this)" id="continue" type="checkbox" <% if params.continue %>checked<% end %>>
             </div>
             <hr>
         </div>
@@ -205,19 +216,19 @@
 </div>
 
 <script>
-<% if !rvs.empty? && !plid && params[:continue] %>
+<% if !rvs.empty? && !plid && params.continue %>
 player.on('ended', function() {
     location.assign("/watch?v="
         + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
         + "&continue=1"
-        <% if params[:listen] != preferences.listen %>
-        + "&listen=<%= params[:listen] %>"
+        <% if params.listen != preferences.listen %>
+        + "&listen=<%= params.listen %>"
         <% end %>
-        <% if params[:autoplay] || params[:continue_autoplay] %>
+        <% if params.autoplay || params.continue_autoplay %>
         + "&autoplay=1"
         <% end %>
-        <% if params[:speed] != preferences.speed %>
-        + "&speed=<%= params[:speed] %>"
+        <% if params.speed != preferences.speed %>
+        + "&speed=<%= params.speed %>"
         <% end %>
     );
 });
@@ -229,14 +240,14 @@ function continue_autoplay(target) {
             location.assign("/watch?v="
                 + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
                 + "&continue=1"
-                <% if params[:listen] != preferences.listen %>
-                + "&listen=<%= params[:listen] %>"
+                <% if params.listen != preferences.listen %>
+                + "&listen=<%= params.listen %>"
                 <% end %>
-                <% if params[:autoplay] || params[:continue_autoplay] %>
+                <% if params.autoplay || params.continue_autoplay %>
                 + "&autoplay=1"
                 <% end %>
-                <% if params[:speed] != preferences.speed %>
-                + "&speed=<%= params[:speed] %>"
+                <% if params.speed != preferences.speed %>
+                + "&speed=<%= params.speed %>"
                 <% end %>
             );
         });
@@ -295,14 +306,14 @@ function get_playlist(timeouts = 0) {
                         location.assign("/watch?v="
                             + xhr.response.nextVideo
                             + "&list=<%= plid %>"
-                            <% if params[:listen] != preferences.listen %>
-                            + "&listen=<%= params[:listen] %>"
+                            <% if params.listen != preferences.listen %>
+                            + "&listen=<%= params.listen %>"
                             <% end %>
-                            <% if params[:autoplay] || params[:continue_autoplay] %>
+                            <% if params.autoplay || params.continue_autoplay %>
                             + "&autoplay=1"
                             <% end %>
-                            <% if params[:speed] != preferences.speed %>
-                            + "&speed=<%= params[:speed] %>"
+                            <% if params.speed != preferences.speed %>
+                            + "&speed=<%= params.speed %>"
                             <% end %>
                         );
                     });

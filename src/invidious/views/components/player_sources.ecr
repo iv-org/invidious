@@ -10,7 +10,7 @@
 <script src="/js/videojs-markers.min.js"></script>
 <script src="/js/videojs-share.min.js"></script>
 <script src="/js/videojs-youtube-annotations.js"></script>
-<% if params[:quality] != "dash" %>
+<% if params.listen || params.quality != "dash" %>
 <link rel="stylesheet" href="/css/quality-selector.css">
 <script src="/js/silvermine-videojs-quality-selector.min.js"></script>
 <% end %>

@@ -338,8 +338,8 @@ get "/watch" do |env|
 
   preferences = env.get("preferences").as(Preferences)
 
-  if env.get? "user"
-    user = env.get("user").as(User)
+  user = env.get?("user").try &.as(User)
+  if user
     subscriptions = user.subscriptions
     watched = user.watched
   end
@@ -347,15 +347,20 @@ get "/watch" do |env|
 
   params = process_video_params(env.params.query, preferences)
   env.params.query.delete_all("listen")
+  env.params.query.delete_all("iv_load_policy")
 
   begin
-    video = get_video(id, PG_DB, proxies, region: params[:region])
+    video = get_video(id, PG_DB, proxies, region: params.region)
   rescue ex : VideoRedirect
     next env.redirect "/watch?v=#{ex.message}"
   rescue ex
     error_message = ex.message
     logger.write("#{id} : #{ex.message}\n")
     next templated "error"
+  end
+
+  if preferences.annotations_subscribed && subscriptions.includes? video.ucid
+    params.annotations = true
   end
 
   if watched && !watched.includes? id
@@ -404,7 +409,7 @@ get "/watch" do |env|
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
 
-  if params[:local]
+  if params.local
     fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
     adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
   end
@@ -415,12 +420,12 @@ get "/watch" do |env|
   captions = video.captions
 
   preferred_captions = captions.select { |caption|
-    params[:preferred_captions].includes?(caption.name.simpleText) ||
-      params[:preferred_captions].includes?(caption.languageCode.split("-")[0])
+    params.preferred_captions.includes?(caption.name.simpleText) ||
+      params.preferred_captions.includes?(caption.languageCode.split("-")[0])
   }
   preferred_captions.sort_by! { |caption|
-    (params[:preferred_captions].index(caption.name.simpleText) ||
-      params[:preferred_captions].index(caption.languageCode.split("-")[0])).not_nil!
+    (params.preferred_captions.index(caption.name.simpleText) ||
+      params.preferred_captions.index(caption.languageCode.split("-")[0])).not_nil!
   }
   captions = captions - preferred_captions
 
@@ -441,11 +446,11 @@ get "/watch" do |env|
 
   thumbnail = "/vi/#{video.id}/maxres.jpg"
 
-  if params[:raw]
+  if params.raw
     url = fmt_stream[0]["url"]
 
     fmt_stream.each do |fmt|
-      if fmt["label"].split(" - ")[0] == params[:quality]
+      if fmt["label"].split(" - ")[0] == params.quality
         url = fmt["url"]
       end
     end
@@ -533,8 +538,15 @@ get "/embed/:id" do |env|
 
   params = process_video_params(env.params.query, preferences)
 
+  user = env.get?("user").try &.as(User)
+  if user
+    subscriptions = user.subscriptions
+    watched = user.watched
+  end
+  subscriptions ||= [] of String
+
   begin
-    video = get_video(id, PG_DB, proxies, region: params[:region])
+    video = get_video(id, PG_DB, proxies, region: params.region)
   rescue ex : VideoRedirect
     next env.redirect "/embed/#{ex.message}"
   rescue ex
@@ -542,10 +554,18 @@ get "/embed/:id" do |env|
     next templated "error"
   end
 
+  if preferences.annotations_subscribed && subscriptions.includes? video.ucid
+    params.annotations = true
+  end
+
+  if watched && !watched.includes? id
+    PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.as(User).email)
+  end
+
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
 
-  if params[:local]
+  if params.local
     fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
     adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
   end
@@ -556,12 +576,12 @@ get "/embed/:id" do |env|
   captions = video.captions
 
   preferred_captions = captions.select { |caption|
-    params[:preferred_captions].includes?(caption.name.simpleText) ||
-      params[:preferred_captions].includes?(caption.languageCode.split("-")[0])
+    params.preferred_captions.includes?(caption.name.simpleText) ||
+      params.preferred_captions.includes?(caption.languageCode.split("-")[0])
   }
   preferred_captions.sort_by! { |caption|
-    (params[:preferred_captions].index(caption.name.simpleText) ||
-      params[:preferred_captions].index(caption.languageCode.split("-")[0])).not_nil!
+    (params.preferred_captions.index(caption.name.simpleText) ||
+      params.preferred_captions.index(caption.languageCode.split("-")[0])).not_nil!
   }
   captions = captions - preferred_captions
 
@@ -582,11 +602,11 @@ get "/embed/:id" do |env|
 
   thumbnail = "/vi/#{video.id}/maxres.jpg"
 
-  if params[:raw]
+  if params.raw
     url = fmt_stream[0]["url"]
 
     fmt_stream.each do |fmt|
-      if fmt["label"].split(" - ")[0] == params[:quality]
+      if fmt["label"].split(" - ")[0] == params.quality
         url = fmt["url"]
       end
     end
@@ -1236,6 +1256,14 @@ post "/preferences" do |env|
   video_loop ||= "off"
   video_loop = video_loop == "on"
 
+  annotations = env.params.body["annotations"]?.try &.as(String)
+  annotations ||= "off"
+  annotations = annotations == "on"
+
+  annotations_subscribed = env.params.body["annotations_subscribed"]?.try &.as(String)
+  annotations_subscribed ||= "off"
+  annotations_subscribed = annotations_subscribed == "on"
+
   autoplay = env.params.body["autoplay"]?.try &.as(String)
   autoplay ||= "off"
   autoplay = autoplay == "on"
@@ -1313,27 +1341,29 @@ post "/preferences" do |env|
   notifications_only = notifications_only == "on"
 
   preferences = {
-    "video_loop"         => video_loop,
-    "autoplay"           => autoplay,
-    "continue"           => continue,
-    "continue_autoplay"  => continue_autoplay,
-    "listen"             => listen,
-    "local"              => local,
-    "speed"              => speed,
-    "quality"            => quality,
-    "volume"             => volume,
-    "comments"           => comments,
-    "captions"           => captions,
-    "related_videos"     => related_videos,
-    "redirect_feed"      => redirect_feed,
-    "locale"             => locale,
-    "dark_mode"          => dark_mode,
-    "thin_mode"          => thin_mode,
-    "max_results"        => max_results,
-    "sort"               => sort,
-    "latest_only"        => latest_only,
-    "unseen_only"        => unseen_only,
-    "notifications_only" => notifications_only,
+    "video_loop"             => video_loop,
+    "annotations"            => annotations,
+    "annotations_subscribed" => annotations_subscribed,
+    "autoplay"               => autoplay,
+    "continue"               => continue,
+    "continue_autoplay"      => continue_autoplay,
+    "listen"                 => listen,
+    "local"                  => local,
+    "speed"                  => speed,
+    "quality"                => quality,
+    "volume"                 => volume,
+    "comments"               => comments,
+    "captions"               => captions,
+    "related_videos"         => related_videos,
+    "redirect_feed"          => redirect_feed,
+    "locale"                 => locale,
+    "dark_mode"              => dark_mode,
+    "thin_mode"              => thin_mode,
+    "max_results"            => max_results,
+    "sort"                   => sort,
+    "latest_only"            => latest_only,
+    "unseen_only"            => unseen_only,
+    "notifications_only"     => notifications_only,
   }.to_json
 
   if user = env.get? "user"
