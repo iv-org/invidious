@@ -347,7 +347,6 @@ get "/watch" do |env|
 
   params = process_video_params(env.params.query, preferences)
   env.params.query.delete_all("listen")
-  env.params.query.delete_all("iv_load_policy")
 
   begin
     video = get_video(id, PG_DB, proxies, region: params.region)
@@ -359,9 +358,12 @@ get "/watch" do |env|
     next templated "error"
   end
 
-  if preferences.annotations_subscribed && subscriptions.includes? video.ucid
+  if preferences.annotations_subscribed &&
+     subscriptions.includes?(video.ucid) &&
+     (env.params.query["iv_load_policy"]? || "1") == "1"
     params.annotations = true
   end
+  env.params.query.delete_all("iv_load_policy")
 
   if watched && !watched.includes? id
     PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.as(User).email)
@@ -554,7 +556,9 @@ get "/embed/:id" do |env|
     next templated "error"
   end
 
-  if preferences.annotations_subscribed && subscriptions.includes? video.ucid
+  if preferences.annotations_subscribed &&
+     subscriptions.includes?(video.ucid) &&
+     (env.params.query["iv_load_policy"]? || "1") == "1"
     params.annotations = true
   end
 

@@ -2,14 +2,16 @@
 <link rel="stylesheet" href="/css/videojs-http-source-selector.css">
 <link rel="stylesheet" href="/css/videojs.markers.min.css">
 <link rel="stylesheet" href="/css/videojs-share.css">
-<link rel="stylesheet" href="/css/videojs-youtube-annotations.css">
 <script src="/js/video.min.js"></script>
 <script src="/js/videojs-contrib-quality-levels.min.js"></script>
 <script src="/js/videojs-http-source-selector.min.js"></script>
 <script src="/js/videojs.hotkeys.min.js"></script>
 <script src="/js/videojs-markers.min.js"></script>
 <script src="/js/videojs-share.min.js"></script>
-<script src="/js/videojs-youtube-annotations.js"></script>
+<% if params.annotations %>
+<link rel="stylesheet" href="/css/videojs-youtube-annotations.min.css">
+<script src="/js/videojs-youtube-annotations.min.js"></script>
+<% end %>
 <% if params.listen || params.quality != "dash" %>
 <link rel="stylesheet" href="/css/quality-selector.css">
 <script src="/js/silvermine-videojs-quality-selector.min.js"></script>
