@@ -4388,15 +4388,26 @@ get "/api/v1/auth/notifications" do |env|
   end
 end
 
-# TODO
-# get "/api/v1/auth/preferences" do |env|
-# ...
-# end
+get "/api/v1/auth/preferences" do |env|
+  env.response.content_type = "application/json"
+  user = env.get("user").as(User)
+  user.preferences.to_json
+end
 
-# TODO
-# post "/api/v1/auth/preferences" do |env|
-# ...
-# end
+post "/api/v1/auth/preferences" do |env|
+  env.response.content_type = "application/json"
+  user = env.get("user").as(User)
+
+  begin
+    preferences = Preferences.from_json(env.request.body || "{}")
+  rescue
+    preferences = user.preferences
+  end
+
+  PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+
+  env.response.status_code = 204
+end
 
 get "/api/v1/auth/subscriptions" do |env|
   env.response.content_type = "application/json"
