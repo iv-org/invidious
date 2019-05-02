@@ -217,6 +217,10 @@ if (bpb) {
 player.httpSourceSelector();
 <% end %>
 
+player.vttThumbnails({
+    src: 'api/v1/storyboards/<%= video.id %>?height=90'
+});
+
 <% if !params.listen && params.annotations %>
 var video_container = document.getElementById('player');
 let xhr = new XMLHttpRequest();

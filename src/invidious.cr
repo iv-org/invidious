@@ -3053,6 +3053,86 @@ get "/api/v1/stats" do |env|
   statistics.to_json
 end
 
+# YouTube provides "storyboards", which are sprites containing of x * y
+# preview thumbnails for individual scenes in a video.
+# See https://support.jwplayer.com/articles/how-to-add-preview-thumbnails
+get "/api/v1/storyboards/:id" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  env.response.content_type = "application/json"
+
+  id = env.params.url["id"]
+  region = env.params.query["region"]?
+
+  client = make_client(YT_URL)
+  begin
+    video = get_video(id, PG_DB, proxies, region: region)
+  rescue ex : VideoRedirect
+    next env.redirect "/api/v1/storyboards/#{ex.message}"
+  rescue ex
+    env.response.status_code = 500
+    next
+  end
+
+  storyboards = video.storyboards
+
+  width = env.params.query["width"]?
+  height = env.params.query["height"]?
+
+  if !width && !height
+    response = JSON.build do |json|
+      json.object do
+        json.field "storyboards" do
+          generate_storyboards(json, id, storyboards, config, Kemal.config)
+        end
+      end
+    end
+
+    next response
+  end
+
+  env.response.content_type = "text/vtt"
+
+  storyboard = storyboards.select { |storyboard| width == "#{storyboard[:width]}" || height == "#{storyboard[:height]}" }
+
+  if storyboard.empty?
+    env.response.status_code = 404
+    next
+  else
+    storyboard = storyboard[0]
+  end
+
+  webvtt = <<-END_VTT
+  WEBVTT
+
+
+  END_VTT
+
+  start_time = 0.milliseconds
+  end_time = storyboard[:interval].milliseconds
+
+  storyboard[:storyboard_count].times do |i|
+    host_url = make_host_url(config, Kemal.config)
+    url = storyboard[:url].gsub("$M", i).gsub("https://i9.ytimg.com", host_url)
+
+    storyboard[:storyboard_height].times do |j|
+      storyboard[:storyboard_width].times do |k|
+        webvtt += <<-END_CUE
+        #{start_time}.000 --> #{end_time}.000
+        #{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width]},#{storyboard[:height]}
+
+
+        END_CUE
+
+        start_time += storyboard[:interval].milliseconds
+        end_time += storyboard[:interval].milliseconds
+      end
+    end
+  end
+
+  webvtt
+end
+
 get "/api/v1/captions/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -3145,7 +3225,7 @@ get "/api/v1/captions/:id" do |env|
       text = "<v #{md["name"]}>#{md["text"]}</v>"
     end
 
-    webvtt = webvtt + <<-END_CUE
+    webvtt += <<-END_CUE
     #{start_time} --> #{end_time}
     #{text}
 
@@ -5052,6 +5132,13 @@ get "/ggpht/*" do |env|
       end
     end
   end
+end
+
+options "/sb/:id/:storyboard/:index" do |env|
+  env.response.headers.delete("Content-Type")
+  env.response.headers["Access-Control-Allow-Origin"] = "*"
+  env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 get "/sb/:id/:storyboard/:index" do |env|

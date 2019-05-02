@@ -281,7 +281,7 @@ struct Video
           generate_thumbnails(json, self.id, config, kemal_config)
         end
         json.field "storyboards" do
-          generate_storyboards(json, self.storyboards, config, kemal_config)
+          generate_storyboards(json, self.id, self.storyboards, config, kemal_config)
         end
 
         description_html, description = html_to_content(self.description)
@@ -1348,11 +1348,12 @@ def generate_thumbnails(json, id, config, kemal_config)
   end
 end
 
-def generate_storyboards(json, storyboards, config, kemal_config)
+def generate_storyboards(json, id, storyboards, config, kemal_config)
   json.array do
     storyboards.each do |storyboard|
       json.object do
-        json.field "url", storyboard[:url]
+        json.field "url", "/api/v1/storyboards/#{id}?width=#{storyboard[:width]}&height=#{storyboard[:height]}"
+        json.field "templateUrl", storyboard[:url]
         json.field "width", storyboard[:width]
         json.field "height", storyboard[:height]
         json.field "count", storyboard[:count]
