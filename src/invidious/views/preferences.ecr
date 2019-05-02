@@ -46,18 +46,18 @@ function update_value(element) {
             <div class="pure-control-group">
                 <label for="speed"><%= translate(locale, "Default speed: ") %></label>
                 <select name="speed" id="speed">
-                <% {2.0, 1.5, 1.25, 1.0, 0.75, 0.5, 0.25}.each do |option| %>
-                    <option <% if preferences.speed == option %> selected <% end %>><%= option %></option>
-                <% end %>
+                    <% {2.0, 1.5, 1.25, 1.0, 0.75, 0.5, 0.25}.each do |option| %>
+                        <option <% if preferences.speed == option %> selected <% end %>><%= option %></option>
+                    <% end %>
                 </select>
             </div>
 
             <div class="pure-control-group">
                 <label for="quality"><%= translate(locale, "Preferred video quality: ") %></label>
                 <select name="quality" id="quality">
-                <% {"dash", "hd720", "medium", "small"}.each do |option| %>
-                    <option value="<%= option %>" <% if preferences.quality == option %> selected <% end %>><%= translate(locale, option) %></option>
-                <% end %>
+                    <% {"dash", "hd720", "medium", "small"}.each do |option| %>
+                        <option value="<%= option %>" <% if preferences.quality == option %> selected <% end %>><%= translate(locale, option) %></option>
+                    <% end %>
                 </select>
             </div>
 
@@ -70,22 +70,22 @@ function update_value(element) {
             <div class="pure-control-group">
                 <label for="comments[0]"><%= translate(locale, "Default comments: ") %></label>
                 <% preferences.comments.each_with_index do |comments, index| %>
-                <select name="comments[<%= index %>]" id="comments[<%= index %>]">
-                <% {"", "youtube", "reddit"}.each do |option| %>
-                    <option value="<%= option %>" <% if preferences.comments[index] == option %> selected <% end %>><%= translate(locale, option) %></option>
-                <% end %>
-                </select>
+                    <select name="comments[<%= index %>]" id="comments[<%= index %>]">
+                        <% {"", "youtube", "reddit"}.each do |option| %>
+                            <option value="<%= option %>" <% if preferences.comments[index] == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <% end %>
+                    </select>
                 <% end %>
             </div>
 
             <div class="pure-control-group">
                 <label for="captions[0]"><%= translate(locale, "Default captions: ") %></label>
                 <% preferences.captions.each_with_index do |caption, index| %>
-                <select class="pure-u-1-6" name="captions[<%= index %>]" id="captions[<%= index %>]">
-                <% CAPTION_LANGUAGES.each do |option| %>
-                    <option value="<%= option %>" <% if preferences.captions[index] == option %> selected <% end %>><%= translate(locale, option) %></option>
-                <% end %>
-                </select>
+                    <select class="pure-u-1-6" name="captions[<%= index %>]" id="captions[<%= index %>]">
+                        <% CAPTION_LANGUAGES.each do |option| %>
+                            <option value="<%= option %>" <% if preferences.captions[index] == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <% end %>
+                    </select>
                 <% end %>
             </div>
 
@@ -104,9 +104,9 @@ function update_value(element) {
             <div class="pure-control-group">
                 <label for="locale"><%= translate(locale, "Language: ") %></label>
                 <select name="locale" id="locale">
-                <% LOCALES.each_key do |option| %>
-                    <option value="<%= option %>" <% if preferences.locale == option %> selected <% end %>><%= option %></option>
-                <% end %>
+                    <% LOCALES.each_key do |option| %>
+                        <option value="<%= option %>" <% if preferences.locale == option %> selected <% end %>><%= option %></option>
+                    <% end %>
                 </select>
             </div>
 
@@ -121,131 +121,131 @@ function update_value(element) {
             </div>
 
             <% if env.get? "user" %>
-            <legend><%= translate(locale, "Subscription preferences") %></legend>
+                <legend><%= translate(locale, "Subscription preferences") %></legend>
 
-            <div class="pure-control-group">
-                <label for="annotations_subscribed"><%= translate(locale, "Show annotations by default for subscribed channels? ") %></label>
-                <input name="annotations_subscribed" id="annotations_subscribed" type="checkbox" <% if preferences.annotations_subscribed %>checked<% end %>>
-            </div>
+                <div class="pure-control-group">
+                    <label for="annotations_subscribed"><%= translate(locale, "Show annotations by default for subscribed channels? ") %></label>
+                    <input name="annotations_subscribed" id="annotations_subscribed" type="checkbox" <% if preferences.annotations_subscribed %>checked<% end %>>
+                </div>
 
-            <div class="pure-control-group">
-                <label for="redirect_feed"><%= translate(locale, "Redirect homepage to feed: ") %></label>
-                <input name="redirect_feed" id="redirect_feed" type="checkbox" <% if preferences.redirect_feed %>checked<% end %>>
-            </div>
+                <div class="pure-control-group">
+                    <label for="redirect_feed"><%= translate(locale, "Redirect homepage to feed: ") %></label>
+                    <input name="redirect_feed" id="redirect_feed" type="checkbox" <% if preferences.redirect_feed %>checked<% end %>>
+                </div>
 
-            <div class="pure-control-group">
-                <label for="max_results"><%= translate(locale, "Number of videos shown in feed: ") %></label>
-                <input name="max_results" id="max_results" type="number" value="<%= preferences.max_results %>">
-            </div>
+                <div class="pure-control-group">
+                    <label for="max_results"><%= translate(locale, "Number of videos shown in feed: ") %></label>
+                    <input name="max_results" id="max_results" type="number" value="<%= preferences.max_results %>">
+                </div>
 
-            <div class="pure-control-group">
-                <label for="sort"><%= translate(locale, "Sort videos by: ") %></label>
-                <select name="sort" id="sort">
-                <% {"published", "published - reverse", "alphabetically", "alphabetically - reverse", "channel name", "channel name - reverse"}.each do |option| %>
-                    <option value="<%= option %>" <% if preferences.sort == option %> selected <% end %>><%= translate(locale, option) %></option>
-                <% end %>
-                </select>
-            </div>
+                <div class="pure-control-group">
+                    <label for="sort"><%= translate(locale, "Sort videos by: ") %></label>
+                    <select name="sort" id="sort">
+                        <% {"published", "published - reverse", "alphabetically", "alphabetically - reverse", "channel name", "channel name - reverse"}.each do |option| %>
+                            <option value="<%= option %>" <% if preferences.sort == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <% end %>
+                    </select>
+                </div>
 
-            <div class="pure-control-group">
-                <% if preferences.unseen_only %>
-                <label for="latest_only"><%= translate(locale, "Only show latest unwatched video from channel: ") %></label>
-                <% else %>
-                <label for="latest_only"><%= translate(locale, "Only show latest video from channel: ") %></label>
-                <% end %>
-                <input name="latest_only" id="latest_only" type="checkbox" <% if preferences.latest_only %>checked<% end %>>
-            </div>
+                <div class="pure-control-group">
+                    <% if preferences.unseen_only %>
+                        <label for="latest_only"><%= translate(locale, "Only show latest unwatched video from channel: ") %></label>
+                    <% else %>
+                        <label for="latest_only"><%= translate(locale, "Only show latest video from channel: ") %></label>
+                    <% end %>
+                    <input name="latest_only" id="latest_only" type="checkbox" <% if preferences.latest_only %>checked<% end %>>
+                </div>
 
-            <div class="pure-control-group">
-                <label for="unseen_only"><%= translate(locale, "Only show unwatched: ") %></label>
-                <input name="unseen_only" id="unseen_only" type="checkbox" <% if preferences.unseen_only %>checked<% end %>>
-            </div>
+                <div class="pure-control-group">
+                    <label for="unseen_only"><%= translate(locale, "Only show unwatched: ") %></label>
+                    <input name="unseen_only" id="unseen_only" type="checkbox" <% if preferences.unseen_only %>checked<% end %>>
+                </div>
 
-            <div class="pure-control-group">
-                <label for="notifications_only"><%= translate(locale, "Only show notifications (if there are any): ") %></label>
-                <input name="notifications_only" id="notifications_only" type="checkbox" <% if preferences.notifications_only %>checked<% end %>>
-            </div>
+                <div class="pure-control-group">
+                    <label for="notifications_only"><%= translate(locale, "Only show notifications (if there are any): ") %></label>
+                    <input name="notifications_only" id="notifications_only" type="checkbox" <% if preferences.notifications_only %>checked<% end %>>
+                </div>
             <% end %>
 
             <% if env.get?("user") && config.admins.includes? env.get?("user").as(User).email %>
-            <legend><%= translate(locale, "Administrator preferences") %></legend>
+                <legend><%= translate(locale, "Administrator preferences") %></legend>
 
-            <div class="pure-control-group">
-                <label for="default_home"><%= translate(locale, "Default homepage: ") %></label>
-                <select name="default_home" id="default_home">
-                <% {"Popular", "Top", "Trending", "Subscriptions"}.each do |option| %>
-                    <option value="<%= option %>" <% if config.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
-                <% end %>
-                </select>
-            </div>
+                <div class="pure-control-group">
+                    <label for="default_home"><%= translate(locale, "Default homepage: ") %></label>
+                    <select name="default_home" id="default_home">
+                        <% {"Popular", "Top", "Trending", "Subscriptions"}.each do |option| %>
+                            <option value="<%= option %>" <% if config.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <% end %>
+                    </select>
+                </div>
 
-            <div class="pure-control-group">
-                <label for="feed_menu"><%= translate(locale, "Feed menu: ") %></label>
-                <% 4.times do |index| %>
-                <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
-                <% {"", "Popular", "Top", "Trending", "Subscriptions"}.each do |option| %>
-                    <option value="<%= option %>" <% if config.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option) %></option>
-                <% end %>
-                </select>
-                <% end %>
-            </div>
+                <div class="pure-control-group">
+                    <label for="feed_menu"><%= translate(locale, "Feed menu: ") %></label>
+                    <% 4.times do |index| %>
+                        <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
+                            <% {"", "Popular", "Top", "Trending", "Subscriptions"}.each do |option| %>
+                                <option value="<%= option %>" <% if config.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option) %></option>
+                            <% end %>
+                        </select>
+                    <% end %>
+                </div>
 
-            <div class="pure-control-group">
-                <label for="top_enabled"><%= translate(locale, "Top enabled? ") %></label>
-                <input name="top_enabled" id="top_enabled" type="checkbox" <% if config.top_enabled %>checked<% end %>>
-            </div>
+                <div class="pure-control-group">
+                    <label for="top_enabled"><%= translate(locale, "Top enabled? ") %></label>
+                    <input name="top_enabled" id="top_enabled" type="checkbox" <% if config.top_enabled %>checked<% end %>>
+                </div>
 
-            <div class="pure-control-group">
-                <label for="captcha_enabled"><%= translate(locale, "CAPTCHA enabled? ") %></label>
-                <input name="captcha_enabled" id="captcha_enabled" type="checkbox" <% if config.captcha_enabled %>checked<% end %>>
-            </div>
+                <div class="pure-control-group">
+                    <label for="captcha_enabled"><%= translate(locale, "CAPTCHA enabled? ") %></label>
+                    <input name="captcha_enabled" id="captcha_enabled" type="checkbox" <% if config.captcha_enabled %>checked<% end %>>
+                </div>
 
-            <div class="pure-control-group">
-                <label for="login_enabled"><%= translate(locale, "Login enabled? ") %></label>
-                <input name="login_enabled" id="login_enabled" type="checkbox" <% if config.login_enabled %>checked<% end %>>
-            </div>
+                <div class="pure-control-group">
+                    <label for="login_enabled"><%= translate(locale, "Login enabled? ") %></label>
+                    <input name="login_enabled" id="login_enabled" type="checkbox" <% if config.login_enabled %>checked<% end %>>
+                </div>
 
-            <div class="pure-control-group">
-                <label for="registration_enabled"><%= translate(locale, "Registration enabled? ") %></label>
-                <input name="registration_enabled" id="registration_enabled" type="checkbox" <% if config.registration_enabled %>checked<% end %>>
-            </div>
+                <div class="pure-control-group">
+                    <label for="registration_enabled"><%= translate(locale, "Registration enabled? ") %></label>
+                    <input name="registration_enabled" id="registration_enabled" type="checkbox" <% if config.registration_enabled %>checked<% end %>>
+                </div>
 
-            <div class="pure-control-group">
-                <label for="statistics_enabled"><%= translate(locale, "Report statistics? ") %></label>
-                <input name="statistics_enabled" id="statistics_enabled" type="checkbox" <% if config.statistics_enabled %>checked<% end %>>
-            </div>
+                <div class="pure-control-group">
+                    <label for="statistics_enabled"><%= translate(locale, "Report statistics? ") %></label>
+                    <input name="statistics_enabled" id="statistics_enabled" type="checkbox" <% if config.statistics_enabled %>checked<% end %>>
+                </div>
             <% end %>
 
             <% if env.get? "user" %>
-            <legend><%= translate(locale, "Data preferences") %></legend>
+                <legend><%= translate(locale, "Data preferences") %></legend>
 
-            <div class="pure-control-group">
-                <a href="/clear_watch_history?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Clear watch history") %></a>
-            </div>
+                <div class="pure-control-group">
+                    <a href="/clear_watch_history?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Clear watch history") %></a>
+                </div>
 
-            <div class="pure-control-group">
-                <a href="/change_password?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Change password") %></a>
-            </div>
+                <div class="pure-control-group">
+                    <a href="/change_password?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Change password") %></a>
+                </div>
 
-            <div class="pure-control-group">
-                <a href="/data_control?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Import/export data") %></a>
-            </div>
+                <div class="pure-control-group">
+                    <a href="/data_control?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Import/export data") %></a>
+                </div>
 
-            <div class="pure-control-group">
-                <a href="/subscription_manager"><%= translate(locale, "Manage subscriptions") %></a>
-            </div>
+                <div class="pure-control-group">
+                    <a href="/subscription_manager"><%= translate(locale, "Manage subscriptions") %></a>
+                </div>
 
-            <div class="pure-control-group">
-                <a href="/token_manager"><%= translate(locale, "Manage tokens") %></a>
-            </div>
+                <div class="pure-control-group">
+                    <a href="/token_manager"><%= translate(locale, "Manage tokens") %></a>
+                </div>
 
-            <div class="pure-control-group">
-                <a href="/feed/history"><%= translate(locale, "Watch history") %></a>
-            </div>
+                <div class="pure-control-group">
+                    <a href="/feed/history"><%= translate(locale, "Watch history") %></a>
+                </div>
 
-            <div class="pure-control-group">
-                <a href="/delete_account?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Delete account") %></a>
-            </div>
+                <div class="pure-control-group">
+                    <a href="/delete_account?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Delete account") %></a>
+                </div>
             <% end %>
 
             <div class="pure-controls">

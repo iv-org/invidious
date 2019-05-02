@@ -38,75 +38,78 @@
                 <div class="pure-u-1 pure-u-md-12-24 searchbar">
                     <form class="pure-form" action="/search" method="get">
                         <fieldset>
-                            <input type="search" style="width:100%;" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } || env.params.query["q"]?.try {|x| HTML.escape(x)} %>">
+                            <input type="search" style="width:100%" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } || env.params.query["q"]?.try {|x| HTML.escape(x)} %>">
                         </fieldset>
                     </form>
                 </div>
                 <div class="pure-u-1 pure-u-md-8-24 user-field">
-                <% if env.get? "user" %>
-                <div class="pure-u-1-4">
-                    <a href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                        <% if env.get("preferences").as(Preferences).dark_mode %>
-                        <i class="icon ion-ios-sunny"></i>
-                        <% else %>
-                        <i class="icon ion-ios-moon"></i>
+                    <% if env.get? "user" %>
+                        <div class="pure-u-1-4">
+                            <a href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                                <% if env.get("preferences").as(Preferences).dark_mode %>
+                                    <i class="icon ion-ios-sunny"></i>
+                                <% else %>
+                                    <i class="icon ion-ios-moon"></i>
+                                <% end %>
+                            </a>
+                        </div>
+                        <div class="pure-u-1-4">
+                            <a title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
+                                <% notification_count = env.get("user").as(User).notifications.size %>
+                                <% if notification_count > 0 %>
+                                    <%= notification_count %> <i class="icon ion-ios-notifications"></i>
+                                <% else %>
+                                    <i class="icon ion-ios-notifications-outline"></i>
+                                <% end %>
+                            </a>
+                        </div>
+                        <div class="pure-u-1-4">
+                            <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                                <i class="icon ion-ios-cog"></i>
+                            </a>
+                        </div>
+                        <div class="pure-u-1-4">
+                            <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
+                                <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                                <a class="pure-menu-heading" href="#">
+                                    <input style="all:unset" type="submit" value="<%= translate(locale, "Log out") %>">
+                                </a>
+                            </form>
+                        </div>
+                    <% else %>
+                        <div class="pure-u-1-3">
+                            <a href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                                <% if env.get("preferences").as(Preferences).dark_mode %>
+                                    <i class="icon ion-ios-sunny"></i>
+                                <% else %>
+                                    <i class="icon ion-ios-moon"></i>
+                                <% end %>
+                            </a>
+                        </div>
+                        <div class="pure-u-1-3">
+                            <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                                <i class="icon ion-ios-cog"></i>
+                            </a>
+                        </div>
+                        <% if config.login_enabled %>
+                            <div class="pure-u-1-3">
+                                <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                                    <%= translate(locale, "Log in") %>
+                                </a>
+                            </div>
                         <% end %>
-                    </a>
-                </div>
-                <div class="pure-u-1-4">
-                    <a title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
-                        <% notification_count = env.get("user").as(User).notifications.size %>
-                        <% if notification_count > 0 %>
-                        <%= notification_count %> <i class="icon ion-ios-notifications"></i>
-                        <% else %>
-                        <i class="icon ion-ios-notifications-outline"></i>
-                        <% end %>
-                    </a>
-                </div>
-                <div class="pure-u-1-4">
-                    <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                        <i class="icon ion-ios-cog"></i>
-                    </a>
-                </div>
-                <div class="pure-u-1-4">
-                    <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
-                        <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                        <a class="pure-menu-heading" href="#">
-                            <input style="all:unset" type="submit" value="<%= translate(locale, "Log out") %>">
-                        </a>
-                    </form>
-                </div>
-                <% else %>
-                <div class="pure-u-1-3">
-                    <a href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                        <% if env.get("preferences").as(Preferences).dark_mode %>
-                        <i class="icon ion-ios-sunny"></i>
-                        <% else %>
-                        <i class="icon ion-ios-moon"></i>
-                        <% end %>
-                    </a>
-                </div>
-                <div class="pure-u-1-3">
-                    <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                        <i class="icon ion-ios-cog"></i>
-                    </a>
-                </div>
-                <% if config.login_enabled %>
-                <div class="pure-u-1-3">
-                    <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                        <%= translate(locale, "Log in") %>
-                    </a>
-                </div>
-                <% end %>
-                <% end %>
+                    <% end %>
                 </div>
             </div>
+
             <% if CONFIG.banner %>
-            <div class="h-box">
-                <h3><%= CONFIG.banner %></h3>
-            </div>
+                <div class="h-box">
+                    <h3><%= CONFIG.banner %></h3>
+                </div>
             <% end %>
+
             <%= content %>
+
             <div class="footer">
                 <div class="pure-g">
                     <div class="pure-u-1 pure-u-md-1-3">
@@ -116,10 +119,12 @@
                     </div>
                     <div class="pure-u-1 pure-u-md-1-3">
                         <i class="icon ion-logo-bitcoin"></i>
-                        BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY</div>
+                        BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY
+                    </div>
                     <div class="pure-u-1 pure-u-md-1-3">
                         <i class="icon ion-logo-bitcoin"></i>
-                        BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk</div>
+                        BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
+                    </div>
                     <div class="pure-u-1 pure-u-md-1-3">
                         <i class="icon ion-logo-usd"></i>
                         <a href="https://liberapay.com/omarroth">Liberapay</a>
@@ -141,7 +146,8 @@
                         <i class="icon ion-logo-github"></i>
                         <%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %>
                         <i class="icon ion-logo-github"></i>
-                        <%= CURRENT_BRANCH %></div>
+                        <%= CURRENT_BRANCH %>
+                    </div>
                 </div>
             </div>
         </div>

@@ -25,161 +25,163 @@
                     <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
                 <% end %>
             <% end %>
-        <% end %> 
+        <% end %>
 
         <% preferred_captions.each_with_index do |caption, i| %>
-        <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>&hl=<%= env.get("preferences").as(Preferences).locale %>"
-            label="<%= caption.name.simpleText %>" <% if i == 0 %>default<% end %>>
+            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>&hl=<%= env.get("preferences").as(Preferences).locale %>"
+                label="<%= caption.name.simpleText %>" <% if i == 0 %>default<% end %>>
         <% end %>
 
         <% captions.each do |caption| %>
-        <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>&hl=<%= env.get("preferences").as(Preferences).locale %>"
-            label="<%= caption.name.simpleText %>">
+            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>&hl=<%= env.get("preferences").as(Preferences).locale %>"
+                label="<%= caption.name.simpleText %>">
         <% end %>
     <% end %>
 </video>
 
 <script>
 var options = {
-  <% if aspect_ratio %>
-  aspectRatio: "<%= aspect_ratio %>",
-  <% end %>
-  preload: "auto",
-  playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0],
-  controlBar: {
-    children: [
-      "playToggle",
-      "volumePanel",
-      "currentTimeDisplay",
-      "timeDivider",
-      "durationDisplay",
-      "progressControl",
-      "remainingTimeDisplay",
-      "captionsButton",
-      "qualitySelector",
-      "playbackRateMenuButton",
-      "fullscreenToggle"
-    ]
-  }
+    <% if aspect_ratio %>
+    aspectRatio: "<%= aspect_ratio %>",
+    <% end %>
+    preload: "auto",
+    playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0],
+    controlBar: {
+        children: [
+            "playToggle",
+            "volumePanel",
+            "currentTimeDisplay",
+            "timeDivider",
+            "durationDisplay",
+            "progressControl",
+            "remainingTimeDisplay",
+            "captionsButton",
+            "qualitySelector",
+            "playbackRateMenuButton",
+            "fullscreenToggle"
+        ]
+    }
 };
 
 var shareOptions = {
-  socials: ["fbFeed", "tw", "reddit", "email"],
+    socials: ["fbFeed", "tw", "reddit", "email"],
 
-  url: window.location.href,
-  title: "<%= video.title.dump_unquoted %>",
-  description: "<%= description %>",
-  image: "<%= thumbnail %>",
-  embedCode: "<iframe id='ivplayer' type='text/html' width='640' height='360' \
-      src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>"
+    url: window.location.href,
+    title: "<%= video.title.dump_unquoted %>",
+    description: "<%= description %>",
+    image: "<%= thumbnail %>",
+    embedCode: "<iframe id='ivplayer' type='text/html' width='640' height='360' \
+        src='<%= host_url %>/embed/<%= video.id %>?<%= host_params %>' frameborder='0'></iframe>"
 };
 
 var player = videojs("player", options, function() {
-  this.hotkeys({
-    volumeStep: 0.1,
-    seekStep: 5,
-    enableModifiersForNumbers: false,
-    enableHoverScroll: true,
-    customKeys: {
-      // Toggle play with K Key
-      play: {
-        key: function(e) {
-          return e.which === 75;
-        },
-        handler: function(player, options, e) {
-          if (player.paused()) {
-            player.play();
-          } else {
-            player.pause();
-          }
+    this.hotkeys({
+        volumeStep: 0.1,
+        seekStep: 5,
+        enableModifiersForNumbers: false,
+        enableHoverScroll: true,
+        customKeys: {
+            // Toggle play with K Key
+            play: {
+                key: function(e) {
+                    return e.which === 75;
+                },
+                handler: function(player, options, e) {
+                    if (player.paused()) {
+                        player.play();
+                    } else {
+                        player.pause();
+                    }
+                }
+            },
+            // Go backward 10 seconds
+            backward: {
+                key: function(e) {
+                    return e.which === 74;
+                },
+                handler: function(player, options, e) {
+                    player.currentTime(player.currentTime() - 10);
+                }
+            },
+            // Go forward 10 seconds
+            forward: {
+                key: function(e) {
+                    return e.which === 76;
+                },
+                handler: function(player, options, e) {
+                    player.currentTime(player.currentTime() + 10);
+                }
+            },
+            // Increase speed
+            increase_speed: {
+                key: function(e) {
+                    return (e.which === 190 && e.shiftKey);
+                },
+                handler: function(player, _, e) {
+                    size = options.playbackRates.length;
+                    index = options.playbackRates.indexOf(player.playbackRate());
+                    player.playbackRate(options.playbackRates[(index + 1) % size]);
+                }
+            },
+            // Decrease speed
+            decrease_speed: {
+                key: function(e) {
+                    return (e.which === 188 && e.shiftKey);
+                },
+                handler: function(player, _, e) {
+                    size = options.playbackRates.length;
+                    index = options.playbackRates.indexOf(player.playbackRate());
+                    player.playbackRate(options.playbackRates[(size + index - 1) % size]);
+                }
+            }
         }
-      },
-      // Go backward 5 seconds
-      backward: {
-        key: function(e) {
-          return e.which === 74;
-        },
-        handler: function(player, options, e) {
-          player.currentTime(player.currentTime() - 10);
-        }
-      },
-      // Go forward 5 seconds
-      forward: {
-        key: function(e) {
-          return e.which === 76;
-        },
-        handler: function(player, options, e) {
-          player.currentTime(player.currentTime() + 10);
-        }
-      },
-      // Increase speed
-      increase_speed: {
-        key: function(e) {
-          return (e.which === 190 && e.shiftKey);
-        },
-        handler: function(player, _, e) {
-          size = options.playbackRates.length;
-          index = options.playbackRates.indexOf(player.playbackRate());
-          player.playbackRate(options.playbackRates[(index + 1) % size]);
-        }
-      },
-      // Decrease speed
-      decrease_speed: {
-        key: function(e) {
-          return (e.which === 188 && e.shiftKey);
-        },
-        handler: function(player, _, e) {
-          size = options.playbackRates.length;
-          index = options.playbackRates.indexOf(player.playbackRate());
-          player.playbackRate(options.playbackRates[(size + index - 1) % size]);
-        }
-      }
-    }
-  });
+    });
 });
 
 player.on('error', function(event) {
-  if (player.error().code === 2 || player.error().code === 4) {
-    setInterval(setTimeout(function (event) {
-      console.log("An error occured in the player, reloading...");
+    if (player.error().code === 2 || player.error().code === 4) {
+        setInterval(setTimeout(function (event) {
+            console.log('An error occured in the player, reloading...');
 
-      var currentTime = player.currentTime();
-      var playbackRate = player.playbackRate();
-      var paused = player.paused();
+            var currentTime = player.currentTime();
+            var playbackRate = player.playbackRate();
+            var paused = player.paused();
 
-      player.load();
-      if (currentTime > 0.5) {
-        currentTime -= 0.5;
-      }
-      player.currentTime(currentTime);
-      player.playbackRate(playbackRate);
+            player.load();
 
-      if (!paused) {
-        player.play();
-      }
-    }, 5000), 5000);
-  }
+            if (currentTime > 0.5) {
+                currentTime -= 0.5;
+            }
+
+            player.currentTime(currentTime);
+            player.playbackRate(playbackRate);
+
+            if (!paused) {
+                player.play();
+            }
+        }, 5000), 5000);
+    }
 });
 
 <% if params.video_start > 0 || params.video_end > 0 %>
 player.markers({
-  onMarkerReached: function(marker) {
-    if (marker.text === "End") {
-      if (player.loop()) {
-        player.markers.prev("Start");
-      } else {
-        player.pause();
-      }
-    }
-  },
-  markers: [
-    { time: <%= params.video_start %>, text: "Start" },
-    <% if params.video_end < 0 %>
-    { time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: "End" }
-    <% else %>
-    { time: <%= params.video_end %>, text: "End" }
-    <% end %>
-  ]
+    onMarkerReached: function(marker) {
+        if (marker.text === 'End') {
+            if (player.loop()) {
+                player.markers.prev('Start');
+            } else {
+                player.pause();
+            }
+        }
+    },
+    markers: [
+        { time: <%= params.video_start %>, text: 'Start' },
+        <% if params.video_end < 0 %>
+            { time: <%= video.info["length_seconds"].to_f - 0.5 %>, text: 'End' }
+        <% else %>
+            { time: <%= params.video_end %>, text: 'End' }
+        <% end %>
+    ]
 });
 
 player.currentTime(<%= params.video_start %>);
@@ -192,20 +194,20 @@ player.playbackRate(<%= params.speed %>);
 var bpb = player.getChild('bigPlayButton');
 
 if (bpb) {
-  bpb.hide();
+    bpb.hide();
 
-  player.ready(function() {
-    new Promise(function(resolve, reject) {
-      setTimeout(() => resolve(1), 1);
-    }).then(function(result) {
-      var promise = player.play();
+    player.ready(function() {
+        new Promise(function(resolve, reject) {
+            setTimeout(() => resolve(1), 1);
+        }).then(function(result) {
+        var promise = player.play();
 
-      if (promise !== undefined) {
-          promise.then(_ => {
-          }).catch(error => {
-              bpb.show();
-          });
-      }
+        if (promise !== undefined) {
+            promise.then(_ => {
+            }).catch(error => {
+                bpb.show();
+            });
+        }
     });
   });
 }
@@ -216,44 +218,42 @@ player.httpSourceSelector();
 <% end %>
 
 <% if !params.listen && params.annotations %>
-var video_container = document.getElementById("player");
+var video_container = document.getElementById('player');
 let xhr = new XMLHttpRequest();
-xhr.responseType = "text";
+xhr.responseType = 'text';
 xhr.timeout = 60000;
-xhr.open("GET", "/api/v1/annotations/<%= video.id %>", true);
+xhr.open('GET', '/api/v1/annotations/<%= video.id %>', true);
 xhr.send();
 
 xhr.onreadystatechange = function () {
-  if (xhr.readyState === 4) {
-    if (xhr.status === 200) {
-      videojs.registerPlugin("youtubeAnnotationsPlugin", youtubeAnnotationsPlugin);
-      if (!player.paused()) {
-        player.youtubeAnnotationsPlugin({annotationXml: xhr.response, videoContainer: video_container});
-      } else {
-        player.one('play', function(event) {
-          player.youtubeAnnotationsPlugin({annotationXml: xhr.response, videoContainer: video_container});
-        });
-      }
+    if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+            videojs.registerPlugin('youtubeAnnotationsPlugin', youtubeAnnotationsPlugin);
+            if (!player.paused()) {
+                player.youtubeAnnotationsPlugin({annotationXml: xhr.response, videoContainer: video_container});
+            } else {
+                player.one('play', function(event) {
+                    player.youtubeAnnotationsPlugin({annotationXml: xhr.response, videoContainer: video_container});
+                });
+            }
+        }
     }
-  }
 };
 
-window.addEventListener("__ar_annotation_click", e => {
+window.addEventListener('__ar_annotation_click', e => {
     const { url, target, seconds } = e.detail;
-
     var path = new URL(url);
 
-    if (path.href.startsWith("https://www.youtube.com/watch?") && seconds) {
-        path.search += "&t=" + seconds;
+    if (path.href.startsWith('https://www.youtube.com/watch?') && seconds) {
+        path.search += '&t=' + seconds;
     }
 
     path  = path.pathname + path.search;
 
-    if (target === "current") {
+    if (target === 'current') {
         window.location.href = path;
-    }
-    else if (target === "new") {
-        window.open(path, "_blank");
+    } else if (target === 'new') {
+        window.open(path, '_blank');
     }
 });
 <% end %>

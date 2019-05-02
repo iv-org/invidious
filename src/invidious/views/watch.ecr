@@ -28,106 +28,114 @@
 <% end %>
 
 <div id="player-container" class="h-box">
-  <%= rendered "components/player" %>
+    <%= rendered "components/player" %>
 </div>
 
 <div class="h-box">
-<h1>
-    <%= HTML.escape(video.title) %>
-    <% if params.listen %>
-    <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
-        <i class="icon ion-ios-videocam"></i>
-    </a>
-    <% else %>
-    <a title="<%=translate(locale, "Audio mode")%>" href="/watch?<%= env.params.query %>&listen=1">
-        <i class="icon ion-md-headset"></i>
-    </a>
+    <h1>
+        <%= HTML.escape(video.title) %>
+        <% if params.listen %>
+            <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
+                <i class="icon ion-ios-videocam"></i>
+            </a>
+        <% else %>
+            <a title="<%=translate(locale, "Audio mode")%>" href="/watch?<%= env.params.query %>&listen=1">
+                <i class="icon ion-md-headset"></i>
+            </a>
+        <% end %>
+    </h1>
+
+    <% if !video.is_listed %>
+        <h3>
+            <i class="icon ion-ios-lock"></i> <%= translate(locale, "Unlisted") %>
+        </h3>
     <% end %>
-</h1>
-<% if !video.is_listed %>
-<h3><i class="icon ion-ios-lock"></i> <%= translate(locale, "Unlisted") %></h3>
-<% end %>
-<% if !reason.empty? %>
-<h3><%= reason %></h3>
-<% end %>
+
+    <% if !reason.empty? %>
+        <h3>
+            <%= reason %>
+        </h3>
+    <% end %>
 </div>
 
 <div class="pure-g">
     <div class="pure-u-1 pure-u-lg-1-5">
         <div class="h-box">
-            <p><a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch on YouTube") %></a></p>
             <p>
-            <% if params.annotations %>
-            <a href="/watch?<%= env.params.query %>&iv_load_policy=3">
-                <%= translate(locale, "Hide annotations") %>
-            </a>
-            <% else %>
-            <a href="/watch?<%= env.params.query %>&iv_load_policy=1">
-                <%=translate(locale, "Show annotations")%>
-            </a>
-            <% end %>
+                <a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch on YouTube") %></a>
+            </p>
+            <p>
+                <% if params.annotations %>
+                    <a href="/watch?<%= env.params.query %>&iv_load_policy=3">
+                        <%= translate(locale, "Hide annotations") %>
+                    </a>
+                <% else %>
+                    <a href="/watch?<%= env.params.query %>&iv_load_policy=1">
+                        <%=translate(locale, "Show annotations")%>
+                    </a>
+                <% end %>
             </p>
 
             <% if CONFIG.dmca_content.includes? video.id %>
-            <p>Download is disabled.</p>
+                <p><%= translate(locale, "Download is disabled.") %></p>
             <% else %>
-            <form class="pure-form pure-form-stacked" action="/latest_version" method="get" rel="noopener" target="_blank">
-                <div class="pure-control-group">
-                    <label for="download_widget"><%= translate(locale, "Download as: ") %></label>
-                    <select style="width:100%" name="download_widget" id="download_widget">
-                    <% fmt_stream.each do |option| %>
-                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
-                            <%= itag_to_metadata?(option["itag"]).try &.["height"]? || "~240" %>p - <%= option["type"].split(";")[0] %>
-                        </option>
-                    <% end %>
-                    <% video_streams.each do |option| %>
-                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
-                            <%= option["quality_label"] %> - <%= option["type"].split(";")[0] %> @ <%= option["fps"] %>fps - video only
-                        </option>
-                    <% end %>
-                    <% audio_streams.each do |option| %>
-                        <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
-                            <%= option["type"].split(";")[0] %> @ <%= option["bitrate"] %>k - audio only
-                        </option>
-                    <% end %>
-                    <% captions.each do |caption| %>
-                        <option value='{"id":"<%= video.id %>","label":"<%= caption.name.simpleText %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= caption.languageCode %>.vtt"}'>
-                            <%= translate(locale, "Subtitles - `x` (.vtt)", caption.name.simpleText) %>
-                        </option>
-                    <% end %>
-                    </select>
-                </div>
+                <form class="pure-form pure-form-stacked" action="/latest_version" method="get" rel="noopener" target="_blank">
+                    <div class="pure-control-group">
+                        <label for="download_widget"><%= translate(locale, "Download as: ") %></label>
+                        <select style="width:100%" name="download_widget" id="download_widget">
+                            <% fmt_stream.each do |option| %>
+                                <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
+                                    <%= itag_to_metadata?(option["itag"]).try &.["height"]? || "~240" %>p - <%= option["type"].split(";")[0] %>
+                                </option>
+                            <% end %>
+                            <% video_streams.each do |option| %>
+                                <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
+                                    <%= option["quality_label"] %> - <%= option["type"].split(";")[0] %> @ <%= option["fps"] %>fps - video only
+                                </option>
+                            <% end %>
+                            <% audio_streams.each do |option| %>
+                                <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
+                                    <%= option["type"].split(";")[0] %> @ <%= option["bitrate"] %>k - audio only
+                                </option>
+                            <% end %>
+                            <% captions.each do |caption| %>
+                                <option value='{"id":"<%= video.id %>","label":"<%= caption.name.simpleText %>","title":"<%= URI.escape(video.title) %>-<%= video.id %>.<%= caption.languageCode %>.vtt"}'>
+                                    <%= translate(locale, "Subtitles - `x` (.vtt)", caption.name.simpleText) %>
+                                </option>
+                            <% end %>
+                        </select>
+                    </div>
 
-                <button type="submit" class="pure-button pure-button-primary">
-                    <b><%= translate(locale, "Download") %></b>
-                </button>
-            </form>
+                    <button type="submit" class="pure-button pure-button-primary">
+                        <b><%= translate(locale, "Download") %></b>
+                    </button>
+                </form>
             <% end %>
 
             <p><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
             <p><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
             <p><i class="icon ion-ios-thumbs-down"></i> <%= number_with_separator(video.dislikes) %></p>
-            <p id="Genre"><%= translate(locale, "Genre: ") %>
-            <% if video.genre_url.empty? %>
-            <%= video.genre %>
-            <% else %>
-            <a href="<%= video.genre_url %>"><%= video.genre %></a>
-            <% end %>
+            <p id="genre"><%= translate(locale, "Genre: ") %>
+                <% if video.genre_url.empty? %>
+                    <%= video.genre %>
+                <% else %>
+                    <a href="<%= video.genre_url %>"><%= video.genre %></a>
+                <% end %>
             </p>
             <% if !video.license.empty? %>
-            <p id="License"><%= translate(locale, "License: ") %><%= video.license %></p>
+                <p id="license"><%= translate(locale, "License: ") %><%= video.license %></p>
             <% end %>
-            <p id="FamilyFriendly"><%= translate(locale, "Family friendly? ") %><%= translate_bool(locale, video.is_family_friendly) %></p>
-            <p id="Wilson"><%= translate(locale, "Wilson score: ") %><%= video.wilson_score.round(4) %></p>
-            <p id="Rating"><%= translate(locale, "Rating: ") %><%= rating.round(4) %> / 5</p>
-            <p id="Engagement"><%= translate(locale, "Engagement: ") %><%= engagement.round(2) %>%</p>
+            <p id="family_friendly"><%= translate(locale, "Family friendly? ") %><%= translate_bool(locale, video.is_family_friendly) %></p>
+            <p id="wilson"><%= translate(locale, "Wilson score: ") %><%= video.wilson_score.round(4) %></p>
+            <p id="rating"><%= translate(locale, "Rating: ") %><%= rating.round(4) %> / 5</p>
+            <p id="engagement"><%= translate(locale, "Engagement: ") %><%= engagement.round(2) %>%</p>
             <% if video.allowed_regions.size != REGIONS.size %>
-                <p id="AllowedRegions">
-                <% if video.allowed_regions.size < REGIONS.size / 2 %>
-                <%= translate(locale, "Whitelisted regions: ") %><%= video.allowed_regions.join(", ") %>
-                <% else %>
-                <%= translate(locale, "Blacklisted regions: ") %><%= (REGIONS.to_a - video.allowed_regions).join(", ") %>
-                <% end %>
+                <p id="allowed_regions">
+                    <% if video.allowed_regions.size < REGIONS.size / 2 %>
+                        <%= translate(locale, "Whitelisted regions: ") %><%= video.allowed_regions.join(", ") %>
+                    <% else %>
+                        <%= translate(locale, "Blacklisted regions: ") %><%= (REGIONS.to_a - video.allowed_regions).join(", ") %>
+                    <% end %>
                 </p>
             <% end %>
         </div>
@@ -140,96 +148,100 @@
                     <h3><%= video.author %></h3>
                 </a>
             </p>
+
             <% ucid = video.ucid %>
             <% author = video.author %>
             <% sub_count_text = video.sub_count_text %>
             <%= rendered "components/subscribe_widget" %>
+
             <p>
                 <b><%= translate(locale, "Shared `x`", video.published.to_s("%B %-d, %Y")) %></b>
             </p>
+
             <div>
                 <%= video.description %>
             </div>
+
             <hr>
+
             <div id="comments">
                 <% if nojs %>
                     <%= comment_html %>
                 <% else %>
-                <noscript>
-                    <a href="/watch?<%= env.params.query %>&nojs=1">
-                        <%= translate(locale, "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.") %>
-                    </a>
-                </noscript>
+                    <noscript>
+                        <a href="/watch?<%= env.params.query %>&nojs=1">
+                            <%= translate(locale, "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.") %>
+                        </a>
+                    </noscript>
                 <% end %>
             </div>
         </div>
     </div>
+
     <% if params.related_videos || plid %>
-    <div class="pure-u-1 pure-u-lg-1-5">
-        <% if plid %>
-        <div id="playlist" class="h-box">
-        </div>
-        <% end %>
-
-        <% if params.related_videos %>
-        <div class="h-box">
-
-        <% if !rvs.empty? %>
-        <div <% if plid %>style="display:none"<% end %>>
-            <div class="pure-control-group">
-                <label for="continue"><%= translate(locale, "Autoplay next video: ") %></label>
-                <input name="continue" onclick="continue_autoplay(this)" id="continue" type="checkbox" <% if params.continue %>checked<% end %>>
-            </div>
-            <hr>
-        </div>
-        <% end %>
-
-        <% rvs.each do |rv| %>
-            <% if rv["id"]? %>
-            <a href="/watch?v=<%= rv["id"] %>">
-                <% if env.get("preferences").as(Preferences).thin_mode %>
-                <% else %>
-                <div class="thumbnail">
-                    <img class="thumbnail" src="/vi/<%= rv["id"] %>/mqdefault.jpg">
-                    <p class="length"><%= recode_length_seconds(rv["length_seconds"]?.try &.to_i? || 0) %></p>
-                </div>
-                <% end %>
-                <p style="width:100%"><%= rv["title"] %></p>
-                <h5 class="pure-g">
-                    <div class="pure-u-14-24">
-                        <b style="width:100%"><%= rv["author"] %></b>
-                    </div>
-
-                    <div class="pure-u-10-24" style="text-align:right">
-                        <% if views = rv["short_view_count_text"]?.try &.delete(", views") %>
-                            <b class="width:100%"><%= translate(locale, "`x` views", views) %></b>
-                        <% end %>
-                    </div>
-                </h5>
-            </a>
+        <div class="pure-u-1 pure-u-lg-1-5">
+            <% if plid %>
+                <div id="playlist" class="h-box"></div>
             <% end %>
-        <% end %>
+
+            <% if params.related_videos %>
+                <div class="h-box">
+                    <% if !rvs.empty? %>
+                        <div <% if plid %>style="display:none"<% end %>>
+                            <div class="pure-control-group">
+                                <label for="continue"><%= translate(locale, "Autoplay next video: ") %></label>
+                                <input name="continue" onclick="continue_autoplay(this)" id="continue" type="checkbox" <% if params.continue %>checked<% end %>>
+                            </div>
+                            <hr>
+                        </div>
+                    <% end %>
+
+                    <% rvs.each do |rv| %>
+                        <% if rv["id"]? %>
+                            <a href="/watch?v=<%= rv["id"] %>">
+                                <% if !env.get("preferences").as(Preferences).thin_mode %>
+                                    <div class="thumbnail">
+                                        <img class="thumbnail" src="/vi/<%= rv["id"] %>/mqdefault.jpg">
+                                        <p class="length"><%= recode_length_seconds(rv["length_seconds"]?.try &.to_i? || 0) %></p>
+                                    </div>
+                                <% end %>
+                                <p style="width:100%"><%= rv["title"] %></p>
+                                <h5 class="pure-g">
+                                    <div class="pure-u-14-24">
+                                        <b style="width:100%"><%= rv["author"] %></b>
+                                    </div>
+
+                                    <div class="pure-u-10-24" style="text-align:right">
+                                        <% if views = rv["short_view_count_text"]?.try &.delete(", views") %>
+                                            <b class="width:100%"><%= translate(locale, "`x` views", views) %></b>
+                                        <% end %>
+                                    </div>
+                                </h5>
+                            </a>
+                        <% end %>
+                    <% end %>
+                </div>
+            <% end %>
         </div>
-        <% end %>
-    </div>
     <% end %>
 </div>
 
 <script>
 <% if !rvs.empty? && !plid && params.continue %>
 player.on('ended', function() {
-    location.assign("/watch?v="
-        + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
-        + "&continue=1"
+    location.assign('/watch?v=' +
+        '<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>' +
+        '&continue=1' +
         <% if params.listen != preferences.listen %>
-        + "&listen=<%= params.listen %>"
+            '&listen=<%= params.listen %>' +
         <% end %>
         <% if params.autoplay || params.continue_autoplay %>
-        + "&autoplay=1"
+            '&autoplay=1' +
         <% end %>
         <% if params.speed != preferences.speed %>
-        + "&speed=<%= params.speed %>"
+            '&speed=<%= params.speed %>' +
         <% end %>
+        ''
     );
 });
 <% end %>
@@ -237,18 +249,19 @@ player.on('ended', function() {
 function continue_autoplay(target) {
     if (target.checked) {
         player.on('ended', function() {
-            location.assign("/watch?v="
-                + "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>"
-                + "&continue=1"
+            location.assign('/watch?v=' +
+                '<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>' +
+                '&continue=1' +
                 <% if params.listen != preferences.listen %>
-                + "&listen=<%= params.listen %>"
+                    '&listen=<%= params.listen %>' +
                 <% end %>
                 <% if params.autoplay || params.continue_autoplay %>
-                + "&autoplay=1"
+                    '&autoplay=1' +
                 <% end %>
                 <% if params.speed != preferences.speed %>
-                + "&speed=<%= params.speed %>"
+                    '&speed=<%= params.speed %>' +
                 <% end %>
+                ''
             );
         });
     } else {
@@ -257,10 +270,10 @@ function continue_autoplay(target) {
 }
 
 function number_with_separator(val) {
-  while (/(\d+)(\d{3})/.test(val.toString())) {
-    val = val.toString().replace(/(\d+)(\d{3})/, "$1" + "," + "$2");
-  }
-  return val;
+    while (/(\d+)(\d{3})/.test(val.toString())) {
+        val = val.toString().replace(/(\d+)(\d{3})/, "$1" + "," + "$2");
+    }
+    return val;
 }
 
 <% ucid = video.ucid %>
@@ -269,31 +282,33 @@ function number_with_separator(val) {
 <%= rendered "components/subscribe_widget_script" %>
 
 <% if plid %>
-function get_playlist(timeouts = 0) {
-    playlist = document.getElementById("playlist");
+function get_playlist(plid, timeouts = 0) {
+    playlist = document.getElementById('playlist');
 
     if (timeouts > 10) {
-        console.log("Failed to pull playlist");
-        playlist.innerHTML = "";
+        console.log('Failed to pull playlist');
+        playlist.innerHTML = '';
         return;
     }
 
     playlist.innerHTML = ' \
-      <h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3> \
-      <hr>'
+        <h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3> \
+        <hr>'
 
-    var plid = "<%= plid %>"
-
-    if (plid.startsWith("RD")) {
-        var plid_url = "/api/v1/mixes/<%= plid %>?continuation=<%= video.id %>&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
+    if (plid.startsWith('RD')) {
+        var plid_url = '/api/v1/mixes/' + plid +
+            '?continuation=<%= video.id %>' +
+            '&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>';
     } else {
-        var plid_url = "/api/v1/playlists/<%= plid %>?continuation=<%= video.id %>&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
+        var plid_url = '/api/v1/playlists/' + plid +
+            '?continuation=<%= video.id %>' +
+            '&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>';
     }
 
     var xhr = new XMLHttpRequest();
-    xhr.responseType = "json";
+    xhr.responseType = 'json';
     xhr.timeout = 20000;
-    xhr.open("GET", plid_url, true);
+    xhr.open('GET', plid_url, true);
     xhr.send();
 
     xhr.onreadystatechange = function() {
@@ -303,228 +318,232 @@ function get_playlist(timeouts = 0) {
 
                 if (xhr.response.nextVideo) {
                     player.on('ended', function() {
-                        location.assign("/watch?v="
-                            + xhr.response.nextVideo
-                            + "&list=<%= plid %>"
+                        location.assign('/watch?v=' + xhr.response.nextVideo +
+                            '&list=' + plid +
                             <% if params.listen != preferences.listen %>
-                            + "&listen=<%= params.listen %>"
+                                '&listen=<%= params.listen %>' +
                             <% end %>
                             <% if params.autoplay || params.continue_autoplay %>
-                            + "&autoplay=1"
+                                '&autoplay=1' +
                             <% end %>
                             <% if params.speed != preferences.speed %>
-                            + "&speed=<%= params.speed %>"
+                                '&speed=<%= params.speed %>' +
                             <% end %>
+                            ''
                         );
                     });
                 }
             } else {
-                playlist.innerHTML = "";
-                document.getElementById('continue').style.display = "";
+                playlist.innerHTML = '';
+                document.getElementById('continue').style.display = '';
             }
         }
     };
 
     xhr.ontimeout = function() {
-        console.log("Pulling playlist timed out.");
-
-        playlist = document.getElementById("playlist");
+        console.log('Pulling playlist timed out.');
+        playlist = document.getElementById('playlist');
         playlist.innerHTML =
             '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3><hr>';
-        get_playlist(timeouts + 1);
+        get_playlist(plid, timeouts + 1);
     };
 }
 
-get_playlist();
+get_playlist('<%= plid %>');
 <% end %>
 
 function get_reddit_comments(timeouts = 0) {
-  comments = document.getElementById("comments");
+    comments = document.getElementById('comments');
 
-  if (timeouts > 10) {
-    console.log("Failed to pull comments");
-    comments.innerHTML = "";
-    return;
-  }
-
-  var fallback = comments.innerHTML;
-  comments.innerHTML =
-    '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
-
-  var url = "/api/v1/comments/<%= video.id %>?source=reddit&format=html&hl=<%= env.get("preferences").as(Preferences).locale %>";
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = "json";
-  xhr.timeout = 20000;
-  xhr.open("GET", url, true);
-  xhr.send();
-
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4) {
-      if (xhr.status == 200) {
-        comments.innerHTML = ' \
-            <div> \
-                <h3> \
-                    <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> \
-                    {title} \
-                </h3> \
-                <p> \
-                    <b> \
-                        <a href="javascript:void(0)" onclick="swap_comments(\'youtube\')"> \
-                            <%= translate(locale, "View YouTube comments") %> \
-                        </a> \
-                    </b> \
-                </p> \
-                <b> \
-                    <a rel="noopener" target="_blank" href="https://reddit.com{permalink}"><%= translate(locale, "View more comments on Reddit") %></a> \
-                </b> \
-            </div> \
-            <div>{contentHtml}</div> \
-            <hr>'.supplant({
-          title: xhr.response.title,
-          permalink: xhr.response.permalink,
-          contentHtml: xhr.response.contentHtml
-        });
-      } else {
-        <% if preferences && preferences.comments[1] == "youtube" %>
-        get_youtube_comments(timeouts + 1);
-        <% else %>
-        comments.innerHTML = fallback;
-        <% end %>
-      }
+    if (timeouts > 10) {
+        console.log('Failed to pull comments');
+        comments.innerHTML = '';
+        return;
     }
-  };
 
-  xhr.ontimeout = function() {
-    console.log("Pulling comments timed out.");
+    var fallback = comments.innerHTML;
+    comments.innerHTML =
+      '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
-    get_reddit_comments(timeouts + 1);
-  };
-}
+    var url = '/api/v1/comments/<%= video.id %>' +
+        '?source=reddit&format=html' +
+        '&hl=<%= env.get("preferences").as(Preferences).locale %>';
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+    xhr.timeout = 20000;
+    xhr.open('GET', url, true);
+    xhr.send();
 
-function get_youtube_comments(timeouts = 0) {
-  comments = document.getElementById("comments");
-
-  if (timeouts > 10) {
-    console.log("Failed to pull comments");
-    comments.innerHTML = "";
-    return;
-  }
-
-  var fallback = comments.innerHTML;
-  comments.innerHTML =
-    '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
-
-  var url = "/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>&thin_mode=<%= env.get("preferences").as(Preferences).thin_mode %>";
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = "json";
-  xhr.timeout = 20000;
-  xhr.open("GET", url, true);
-  xhr.send();
-
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4) {
-      if (xhr.status == 200) {
-        if (xhr.response.commentCount > 0)  {
-            comments.innerHTML = ' \
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                comments.innerHTML = ' \
                 <div> \
                     <h3> \
                         <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> \
-                        <%= translate(locale, "View `x` comments", "{commentCount}") %>  \
+                        {title} \
                     </h3> \
+                    <p> \
+                        <b> \
+                            <a href="javascript:void(0)" onclick="swap_comments(\'youtube\')"> \
+                                <%= translate(locale, "View YouTube comments") %> \
+                            </a> \
+                        </b> \
+                    </p> \
                     <b> \
-                        <a href="javascript:void(0)" onclick="swap_comments(\'reddit\')"> \
-                            <%= translate(locale, "View Reddit comments") %> \
-                        </a> \
+                        <a rel="noopener" target="_blank" href="https://reddit.com{permalink}"><%= translate(locale, "View more comments on Reddit") %></a> \
                     </b> \
                 </div> \
                 <div>{contentHtml}</div> \
                 <hr>'.supplant({
-            contentHtml: xhr.response.contentHtml,
-            commentCount: number_with_separator(xhr.response.commentCount)
-            });
-        } else {
-          comments.innerHTML = "";
+                    title: xhr.response.title,
+                    permalink: xhr.response.permalink,
+                    contentHtml: xhr.response.contentHtml
+                });
+            } else {
+                <% if preferences && preferences.comments[1] == "youtube" %>
+                    get_youtube_comments(timeouts + 1);
+                <% else %>
+                    comments.innerHTML = fallback;
+                <% end %>
+            }
         }
-      } else {
-        <% if preferences && preferences.comments[1] == "youtube" %>
-        get_youtube_comments(timeouts + 1);
-        <% else %>
-        comments.innerHTML = "";
-        <% end %>
-      }
+    };
+
+    xhr.ontimeout = function() {
+        console.log('Pulling comments timed out.');
+        get_reddit_comments(timeouts + 1);
+    };
+}
+
+function get_youtube_comments(timeouts = 0) {
+    comments = document.getElementById('comments');
+
+    if (timeouts > 10) {
+        console.log('Failed to pull comments');
+        comments.innerHTML = '';
+        return;
     }
-  };
 
-  xhr.ontimeout = function() {
-    console.log("Pulling comments timed out.");
-
+    var fallback = comments.innerHTML;
     comments.innerHTML =
-      '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
-    get_youtube_comments(timeouts + 1);
-  };
+        '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
+
+    var url = '/api/v1/comments/<%= video.id %>' +
+        '?format=html' +
+        '&hl=<%= env.get("preferences").as(Preferences).locale %>' +
+        '&thin_mode=<%= env.get("preferences").as(Preferences).thin_mode %>';
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+    xhr.timeout = 20000;
+    xhr.open('GET', url, true);
+    xhr.send();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                if (xhr.response.commentCount > 0)  {
+                    comments.innerHTML = ' \
+                        <div> \
+                            <h3> \
+                                <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> \
+                                <%= translate(locale, "View `x` comments", "{commentCount}") %>  \
+                            </h3> \
+                            <b> \
+                                <a href="javascript:void(0)" onclick="swap_comments(\'reddit\')"> \
+                                    <%= translate(locale, "View Reddit comments") %> \
+                                </a> \
+                            </b> \
+                        </div> \
+                        <div>{contentHtml}</div> \
+                        <hr>'.supplant({
+                            contentHtml: xhr.response.contentHtml,
+                            commentCount: number_with_separator(xhr.response.commentCount)
+                        });
+                } else {
+                    comments.innerHTML = "";
+                }
+            } else {
+                <% if preferences && preferences.comments[1] == "youtube" %>
+                    get_youtube_comments(timeouts + 1);
+                <% else %>
+                    comments.innerHTML = '';
+                <% end %>
+            }
+        }
+    };
+
+    xhr.ontimeout = function() {
+        console.log('Pulling comments timed out.');
+        comments.innerHTML =
+            '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
+        get_youtube_comments(timeouts + 1);
+    };
 }
 
 function get_youtube_replies(target, load_more) {
-  var continuation = target.getAttribute('data-continuation');
+    var continuation = target.getAttribute('data-continuation');
 
-  var body = target.parentNode.parentNode;
-  var fallback = body.innerHTML;
-  body.innerHTML =
-      '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
+    var body = target.parentNode.parentNode;
+    var fallback = body.innerHTML;
+    body.innerHTML =
+        '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
-  var url = '/api/v1/comments/<%= video.id %>?format=html&hl=<%= env.get("preferences").as(Preferences).locale %>&thin_mode=<%= env.get("preferences").as(Preferences).thin_mode %>&continuation=' +
-      continuation;
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = 'json';
-  xhr.timeout = 20000;
-  xhr.open('GET', url, true);
-  xhr.send();
+    var url = '/api/v1/comments/<%= video.id %>' +
+        '?format=html' +
+        '&hl=<%= env.get("preferences").as(Preferences).locale %>' +
+        '&thin_mode=<%= env.get("preferences").as(Preferences).thin_mode %>' +
+        '&continuation=' + continuation;
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'json';
+    xhr.timeout = 20000;
+    xhr.open('GET', url, true);
+    xhr.send();
 
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4) {
-      if (xhr.status == 200) {
-        if (load_more) {
-            body = body.parentNode.parentNode;
-            body.removeChild(body.lastElementChild);
-            body.innerHTML += xhr.response.contentHtml;
-        } else {
-            body.innerHTML = ' \
-                <p><a href="javascript:void(0)" \
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+                if (load_more) {
+                    body = body.parentNode.parentNode;
+                    body.removeChild(body.lastElementChild);
+                    body.innerHTML += xhr.response.contentHtml;
+                } else {
+                    body.innerHTML = ' \
+                    <p><a href="javascript:void(0)" \
                     onclick="hide_youtube_replies(this, \'<%= translate(locale, "Hide replies") %>\', \'<%= translate(locale, "Show replies") %>\')"><%= translate(locale, "Hide replies") %> \
-                </a></p> \
-                <div>{contentHtml}</div>'.supplant({
-                contentHtml: xhr.response.contentHtml,
-            });
+                    </a></p> \
+                    <div>{contentHtml}</div>'.supplant({
+                        contentHtml: xhr.response.contentHtml,
+                    });
+                }
+            } else {
+                body.innerHTML = fallback;
+            }
         }
-      } else {
+    };
+
+    xhr.ontimeout = function() {
+        console.log('Pulling comments timed out.');
         body.innerHTML = fallback;
-      }
-    }
-  };
-
-  xhr.ontimeout = function() {
-    console.log('Pulling comments timed out.');
-
-    body.innerHTML = fallback;
-  };
+    };
 }
 
 <% if preferences %>
     <% if preferences.comments[0] == "youtube" %>
-    get_youtube_comments();
+        get_youtube_comments();
     <% elsif preferences.comments[0] == "reddit" %>
-    get_reddit_comments();
+        get_reddit_comments();
     <% else %>
         <% if preferences.comments[1] == "youtube" %>
-        get_youtube_comments();
+            get_youtube_comments();
         <% elsif preferences.comments[1] == "reddit" %>
-        get_reddit_comments();
+            get_reddit_comments();
         <% else %>
-        comments = document.getElementById("comments");
-        comments.innerHTML = "";
+            comments = document.getElementById('comments');
+            comments.innerHTML = '';
         <% end %>
     <% end %>
 <% else %>
-get_youtube_comments();
+    get_youtube_comments();
 <% end %>
 </script>

@@ -1,14 +1,20 @@
 <% content_for "header" do %>
 <meta name="description" content="<%= translate(locale, "An alternative front-end to YouTube") %>">
-<title><% if config.default_home != "Popular" %><%= translate(locale, "Popular") %> - <% end %>Invidious</title>
+<title>
+    <% if config.default_home != "Popular" %>
+        <%= translate(locale, "Popular") %> - Invidious
+    <% else %>
+        Invidious
+    <% end %>
+</title>
 <% end %>
 
 <%= rendered "components/feed_menu" %>
 
 <div class="pure-g">
-<% popular_videos.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <%= rendered "components/item" %>
-        <% end %>
-<% end %>
+    <% popular_videos.each_slice(4) do |slice| %>
+            <% slice.each do |item| %>
+                <%= rendered "components/item" %>
+            <% end %>
+    <% end %>
 </div>

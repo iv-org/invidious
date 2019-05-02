@@ -1,22 +1,22 @@
 <% if user %>
     <% if subscriptions.includes? ucid %>
-    <p>
-        <form onsubmit="return false;" action="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
-          <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-          <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" href="#">
-              <b><input style="all:unset" type="submit" value="<%= translate(locale, "Unsubscribe") %> | <%= sub_count_text %>"></b>
-          </a>
-        </form>
-    </p>
+        <p>
+            <form onsubmit="return false" action="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
+                <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" href="#">
+                    <b><input style="all:unset" type="submit" value="<%= translate(locale, "Unsubscribe") %> | <%= sub_count_text %>"></b>
+                </a>
+            </form>
+        </p>
     <% else %>
-    <p>
-      <form onsubmit="return false;" action="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
-        <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-        <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" href="#">
-            <b><input style="all:unset" type="submit" value="<%= translate(locale, "Subscribe") %> | <%= sub_count_text %>"></b>
-        </a>
-      </form>
-    </p>
+        <p>
+            <form onsubmit="return false" action="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
+                <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" href="#">
+                    <b><input style="all:unset" type="submit" value="<%= translate(locale, "Subscribe") %> | <%= sub_count_text %>"></b>
+                </a>
+            </form>
+        </p>
     <% end %>
 <% else %>
     <p>

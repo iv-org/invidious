@@ -105,7 +105,7 @@ def template_mix(mix)
           </div>
           <p style="width:100%">#{video["title"]}</p>
           <p>
-              <b style="width: 100%">#{video["author"]}</b>
+              <b style="width:100%">#{video["author"]}</b>
           </p>
         </a>
       </li>

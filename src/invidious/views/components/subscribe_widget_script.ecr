@@ -1,27 +1,29 @@
-subscribe_button = document.getElementById("subscribe");
+subscribe_button = document.getElementById('subscribe');
+
 if (subscribe_button.getAttribute('onclick')) {
-    subscribe_button["href"] = "javascript:void(0)";
+    subscribe_button['href'] = 'javascript:void(0)';
 }
 
 function subscribe(timeouts = 0) {
-    subscribe_button = document.getElementById("subscribe");
+    subscribe_button = document.getElementById('subscribe');
 
     if (timeouts > 10) {
-        console.log("Failed to subscribe.");
+        console.log('Failed to subscribe.');
         return;
     }
 
-    var url = "/subscription_ajax?action_create_subscription_to_channel=1&redirect=false&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
+    var url = '/subscription_ajax?action_create_subscription_to_channel=1&redirect=false' +
+        '&c=<%= ucid %>&referer=<%= env.get("current_page") %>';
     var xhr = new XMLHttpRequest();
-    xhr.responseType = "json";
+    xhr.responseType = 'json';
     xhr.timeout = 20000;
-    xhr.open("POST", url, true);
+    xhr.open('POST', url, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>");
+    xhr.send('csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>');
 
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = unsubscribe;
-    subscribe_button.innerHTML = '<b><%= translate(locale, "Unsubscribe").gsub("'", "\\'") %> | <%= sub_count_text %></b>'
+    subscribe_button.innerHTML = '<b><%= translate(locale, "Unsubscribe").gsub("'", "\\'") %> | <%= sub_count_text %></b>';
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
@@ -33,31 +35,31 @@ function subscribe(timeouts = 0) {
     }
 
     xhr.ontimeout = function() {
-        console.log("Subscribing timed out.");
-
+        console.log('Subscribing timed out.');
         subscribe(timeouts + 1);
     };
 }
 
 function unsubscribe(timeouts = 0) {
-    subscribe_button = document.getElementById("subscribe");
+    subscribe_button = document.getElementById('subscribe');
 
     if (timeouts > 10) {
-        console.log("Failed to subscribe");
+        console.log('Failed to subscribe');
         return;
     }
 
-    var url = "/subscription_ajax?action_remove_subscriptions=1&redirect=false&c=<%= ucid %>&referer=<%= env.get("current_page") %>";
+    var url = '/subscription_ajax?action_remove_subscriptions=1&redirect=false' +
+        '&c=<%= ucid %>&referer=<%= env.get("current_page") %>';
     var xhr = new XMLHttpRequest();
-    xhr.responseType = "json";
+    xhr.responseType = 'json';
     xhr.timeout = 20000;
-    xhr.open("POST", url, true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>");
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send('csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>');
 
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = subscribe;
-    subscribe_button.innerHTML = '<b><%= translate(locale, "Subscribe").gsub("'", "\\'") %> | <%= sub_count_text %></b>'
+    subscribe_button.innerHTML = '<b><%= translate(locale, "Subscribe").gsub("'", "\\'") %> | <%= sub_count_text %></b>';
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
@@ -69,8 +71,7 @@ function unsubscribe(timeouts = 0) {
     }
 
     xhr.ontimeout = function() {
-        console.log("Unsubscribing timed out.");
-
+        console.log('Unsubscribing timed out.');
         unsubscribe(timeouts + 1);
     };
 }
