@@ -5256,7 +5256,7 @@ get "/vi/:id/:name" do |env|
   end
 end
 
-# Undocumented, creates anonymous playlist with specified `video_ids`
+# Undocumented, creates anonymous playlist with specified 'video_ids'
 get "/watch_videos" do |env|
   client = make_client(YT_URL)
 
