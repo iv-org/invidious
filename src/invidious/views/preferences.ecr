@@ -9,7 +9,7 @@ function update_value(element) {
 </script>
 
 <div class="h-box">
-    <form class="pure-form pure-form-aligned" action="/preferences?referer=<%= referer %>" method="post">
+    <form class="pure-form pure-form-aligned" action="/preferences?referer=<%= URI.escape(referer) %>" method="post">
         <fieldset>
             <legend><%= translate(locale, "Player preferences") %></legend>
 
