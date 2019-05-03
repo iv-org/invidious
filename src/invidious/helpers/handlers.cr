@@ -33,6 +33,11 @@ class Kemal::RouteHandler
       raise Kemal::Exceptions::CustomException.new(context)
     end
 
+    if context.request.method == "HEAD" &&
+       context.request.path.ends_with? ".jpg"
+      context.response.headers["Content-Type"] = "image/jpeg"
+    end
+
     context.response.print(content)
     context
   end

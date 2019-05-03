@@ -5168,7 +5168,7 @@ get "/sb/:id/:storyboard/:index" do |env|
       env.response.headers[key] = value
     end
 
-    if response.status_code == 304
+    if response.status_code >= 400
       break
     end
 
