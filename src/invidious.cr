@@ -5256,6 +5256,19 @@ get "/vi/:id/:name" do |env|
   end
 end
 
+# Undocumented, creates anonymous playlist with specified `video_ids`
+get "/watch_videos" do |env|
+  client = make_client(YT_URL)
+
+  response = client.get("#{env.request.path}?#{env.request.query}")
+  if url = response.headers["Location"]?
+    url = URI.parse(url).full_path
+    next env.redirect url
+  end
+
+  env.response.status_code = response.status_code
+end
+
 error 404 do |env|
   if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)
     item = md["id"]
