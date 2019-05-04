@@ -929,7 +929,7 @@ def extract_polymer_config(body, html)
       recommended_video["author_thumbnail"] = compact_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
 
       recommended_video["short_view_count_text"] = compact_renderer["shortViewCountText"]["simpleText"].as_s
-      recommended_video["view_count"] = compact_renderer["viewCountText"]?.try &.["simpleText"]?.try &.as_s.delete(", views").to_i64?.try &.to_s || "0"
+      recommended_video["view_count"] = compact_renderer["viewCountText"]?.try &.["simpleText"]?.try &.as_s.delete(", views watching").to_i64?.try &.to_s || "0"
       recommended_video["length_seconds"] = decode_length_seconds(compact_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
 
       rvs << recommended_video.to_s

@@ -212,7 +212,7 @@
                                     </div>
 
                                     <div class="pure-u-10-24" style="text-align:right">
-                                        <% if views = rv["short_view_count_text"]?.try &.delete(", views") %>
+                                        <% if views = rv["short_view_count_text"]?.try &.delete(", views watching") %>
                                             <b class="width:100%"><%= translate(locale, "`x` views", views) %></b>
                                         <% end %>
                                     </div>
