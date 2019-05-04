@@ -419,6 +419,12 @@ get "/watch" do |env|
   video_streams = video.video_streams(adaptive_fmts)
   audio_streams = video.audio_streams(adaptive_fmts)
 
+  # Older videos may not have audio sources available.
+  # We redirect here so they're not unplayable
+  if params.listen && audio_streams.empty?
+    next env.redirect "/watch?#{env.params.query}&listen=0"
+  end
+
   captions = video.captions
 
   preferred_captions = captions.select { |caption|
