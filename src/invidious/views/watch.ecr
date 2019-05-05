@@ -276,11 +276,6 @@ function number_with_separator(val) {
     return val;
 }
 
-<% ucid = video.ucid %>
-<% author = video.author %>
-<% sub_count_text = video.sub_count_text %>
-<%= rendered "components/subscribe_widget_script" %>
-
 <% if plid %>
 function get_playlist(plid, timeouts = 0) {
     playlist = document.getElementById('playlist');

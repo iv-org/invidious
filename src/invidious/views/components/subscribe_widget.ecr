@@ -1,23 +1,35 @@
 <% if user %>
     <% if subscriptions.includes? ucid %>
         <p>
-            <form onsubmit="return false" action="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
+            <form action="/subscription_ajax?action_remove_subscriptions=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
                 <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                <a id="subscribe" onclick="unsubscribe()" class="pure-button pure-button-primary" href="#">
+                <button data-type="unsubscribe" id="subscribe" class="pure-button pure-button-primary">
                     <b><input style="all:unset" type="submit" value="<%= translate(locale, "Unsubscribe") %> | <%= sub_count_text %>"></b>
-                </a>
+                </button>
             </form>
         </p>
     <% else %>
         <p>
-            <form onsubmit="return false" action="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
+            <form action="/subscription_ajax?action_create_subscription_to_channel=1&c=<%= ucid %>&referer=<%= env.get("current_page") %>" method="post">
                 <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                <a id="subscribe" onclick="subscribe()" class="pure-button pure-button-primary" href="#">
+                <button data-type="subscribe" id="subscribe" class="pure-button pure-button-primary">
                     <b><input style="all:unset" type="submit" value="<%= translate(locale, "Subscribe") %> | <%= sub_count_text %>"></b>
-                </a>
+                </button>
             </form>
         </p>
     <% end %>
+
+    <script>
+    var subscribe_data = {
+        ucid: '<%= ucid %>',
+        author: '<%= author %>',
+        sub_count_text: '<%= sub_count_text %>',
+        csrf_token: '<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>',
+        subscribe_text: '<%= translate(locale, "Subscribe").gsub("'", "\\'") %>',
+        unsubscribe_text: '<%= translate(locale, "Unsubscribe").gsub("'", "\\'") %>'
+    }
+    </script>
+    <script src="/js/subscribe_widget.js"></script>
 <% else %>
     <p>
         <a id="subscribe" class="pure-button pure-button-primary"

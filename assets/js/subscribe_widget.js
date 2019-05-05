@@ -1,31 +1,33 @@
-subscribe_button = document.getElementById('subscribe');
+var subscribe_button = document.getElementById('subscribe');
+subscribe_button.parentNode['action'] = 'javascript:void(0)';
 
-if (subscribe_button.getAttribute('onclick')) {
-    subscribe_button['href'] = 'javascript:void(0)';
+if (subscribe_button.getAttribute('data-type') === 'subscribe') {
+    subscribe_button.onclick = subscribe;
+} else {
+    subscribe_button.onclick = unsubscribe;
 }
 
 function subscribe(timeouts = 0) {
-    subscribe_button = document.getElementById('subscribe');
-
     if (timeouts > 10) {
         console.log('Failed to subscribe.');
         return;
     }
 
     var url = '/subscription_ajax?action_create_subscription_to_channel=1&redirect=false' +
-        '&c=<%= ucid %>&referer=<%= env.get("current_page") %>';
+        '&c=' + subscribe_data.ucid +
+        '&referer=' + location.pathname + location.search;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.timeout = 20000;
     xhr.open('POST', url, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send('csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>');
+    xhr.send('csrf_token=' + subscribe_data.csrf_token);
 
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = unsubscribe;
-    subscribe_button.innerHTML = '<b><%= translate(locale, "Unsubscribe").gsub("'", "\\'") %> | <%= sub_count_text %></b>';
+    subscribe_button.innerHTML = '<b>' + subscribe_data.unsubscribe_text + ' | ' + subscribe_data.sub_count_text + '</b>';
 
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
             if (xhr.status != 200) {
                 subscribe_button.onclick = subscribe;
@@ -34,34 +36,33 @@ function subscribe(timeouts = 0) {
         }
     }
 
-    xhr.ontimeout = function() {
+    xhr.ontimeout = function () {
         console.log('Subscribing timed out.');
         subscribe(timeouts + 1);
     };
 }
 
 function unsubscribe(timeouts = 0) {
-    subscribe_button = document.getElementById('subscribe');
-
     if (timeouts > 10) {
         console.log('Failed to subscribe');
         return;
     }
 
     var url = '/subscription_ajax?action_remove_subscriptions=1&redirect=false' +
-        '&c=<%= ucid %>&referer=<%= env.get("current_page") %>';
+        '&c=' + subscribe_data.ucid +
+        '&referer=' + location.pathname + location.search;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.timeout = 20000;
     xhr.open('POST', url, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send('csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>');
+    xhr.send('csrf_token=' + subscribe_data.csrf_token);
 
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = subscribe;
-    subscribe_button.innerHTML = '<b><%= translate(locale, "Subscribe").gsub("'", "\\'") %> | <%= sub_count_text %></b>';
+    subscribe_button.innerHTML = '<b>' + subscribe_data.subscribe_text + ' | ' + subscribe_data.sub_count_text + '</b>';
 
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
             if (xhr.status != 200) {
                 subscribe_button.onclick = unsubscribe;
@@ -70,7 +71,7 @@ function unsubscribe(timeouts = 0) {
         }
     }
 
-    xhr.ontimeout = function() {
+    xhr.ontimeout = function () {
         console.log('Unsubscribing timed out.');
         unsubscribe(timeouts + 1);
     };
