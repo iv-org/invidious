@@ -1437,6 +1437,10 @@ get "/toggle_theme" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   referer = get_referer(env)
 
+  redirect = env.params.query["redirect"]?
+  redirect ||= "true"
+  redirect = redirect == "true"
+
   if user = env.get? "user"
     user = user.as(User)
     preferences = user.preferences
@@ -1463,7 +1467,12 @@ get "/toggle_theme" do |env|
     end
   end
 
-  env.redirect referer
+  if redirect
+    env.redirect referer
+  else
+    env.response.content_type = "application/json"
+    "{}"
+  end
 end
 
 post "/watch_ajax" do |env|
