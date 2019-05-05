@@ -200,9 +200,12 @@ class DenyFrame < Kemal::Handler
 end
 
 # Temp fix for https://github.com/crystal-lang/crystal/issues/7383
-class HTTP::Client
-  private def handle_response(response)
-    # close unless response.keep_alive?
-    response
+class HTTP::UnknownLengthContent
+  def read_byte
+    ensure_send_continue
+    if @io.is_a?(OpenSSL::SSL::Socket::Client)
+      return if @io.as(OpenSSL::SSL::Socket::Client).@in_buffer_rem.empty?
+    end
+    @io.read_byte
   end
 end
