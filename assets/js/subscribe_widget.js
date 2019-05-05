@@ -7,8 +7,8 @@ if (subscribe_button.getAttribute('data-type') === 'subscribe') {
     subscribe_button.onclick = unsubscribe;
 }
 
-function subscribe(timeouts = 0) {
-    if (timeouts > 10) {
+function subscribe(timeouts) {
+    if (timeouts >= 10) {
         console.log('Failed to subscribe.');
         return;
     }
@@ -37,12 +37,12 @@ function subscribe(timeouts = 0) {
 
     xhr.ontimeout = function () {
         console.log('Subscribing timed out.');
-        subscribe(timeouts + 1);
+        subscribe(timeouts++);
     }
 }
 
-function unsubscribe(timeouts = 0) {
-    if (timeouts > 10) {
+function unsubscribe(timeouts) {
+    if (timeouts >= 10) {
         console.log('Failed to subscribe');
         return;
     }
@@ -71,6 +71,6 @@ function unsubscribe(timeouts = 0) {
 
     xhr.ontimeout = function () {
         console.log('Unsubscribing timed out.');
-        unsubscribe(timeouts + 1);
+        unsubscribe(timeouts++);
     }
 }

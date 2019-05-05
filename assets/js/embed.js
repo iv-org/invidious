@@ -1,4 +1,4 @@
-function get_playlist(plid, timeouts = 0) {
+function get_playlist(plid, timeouts) {
     if (timeouts > 10) {
         console.log('Failed to pull playlist');
         return;
@@ -53,7 +53,7 @@ function get_playlist(plid, timeouts = 0) {
 
     xhr.ontimeout = function () {
         console.log('Pulling playlist timed out.');
-        get_playlist(plid, timeouts + 1);
+        get_playlist(plid, timeouts++);
     }
 }
 

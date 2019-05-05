@@ -165,6 +165,13 @@ function update_value(element) {
                     <label for="notifications_only"><%= translate(locale, "Only show notifications (if there are any): ") %></label>
                     <input name="notifications_only" id="notifications_only" type="checkbox" <% if preferences.notifications_only %>checked<% end %>>
                 </div>
+
+                <% # Conditions for supporting web notifications %>
+                <% if CONFIG.use_pubsub_feeds && (Kemal.config.ssl || config.https_only) %>
+                    <div class="pure-control-group">
+                        <a href="#" onclick="Notification.requestPermission()"><%= translate(locale, "Enable web notifications") %></a>
+                    </div>
+                <% end %>
             <% end %>
 
             <% if env.get?("user") && config.admins.includes? env.get?("user").as(User).email %>
