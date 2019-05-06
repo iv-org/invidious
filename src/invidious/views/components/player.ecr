@@ -218,7 +218,7 @@ player.httpSourceSelector();
 <% end %>
 
 player.vttThumbnails({
-    src: 'api/v1/storyboards/<%= video.id %>?height=90'
+    src: location.origin + '/api/v1/storyboards/<%= video.id %>?height=90'
 });
 
 <% if !params.listen && params.annotations %>
