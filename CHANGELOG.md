@@ -1,3 +1,58 @@
+# 0.17.0 (2019-05-06)
+
+# Version 0.17.0: Player and Authentication API
+
+Hello everyone! This past month there have been [130 commits](https://github.com/omarroth/invidious/compare/0.16.0..0.17.0) from 11 contributors. Large focus has been on improving the player as well as adding API access for other projects to make use of Invidious.
+
+There have also been significant changes in preparation of native notifications (see [#195](https://github.com/omarroth/invidious/issues/195), [#469](https://github.com/omarroth/invidious/issues/469), [#473](https://github.com/omarroth/invidious/issues/473), and [#502](https://github.com/omarroth/invidious/issues/502)), and playlists. I expect to see both of these to be added in the next release.
+
+I'm quite happy to mention that new translations have been added for Esperanto (`eo`) and Ukranian (`uk`). Support for pluralization has also been added, so it should now be possible to make a more native experience for speakers in other languages. The system currently in place is a bit cumbersome, so for any help using this feature please get in touch!
+
+## For Administrators
+
+A `check_tables` option has been added to automatically migrate without the use of custom scripts. This method will likely prove to be much more robust, and is currently enabled for the official instance. To prevent any unintended changes to the DB, `check_tables` is disabled by default and will print commands before executing. Having this makes features that require schema changes much easier to implement, and also makes it easier to upgrade from older instances.
+
+As part of [#303](https://github.com/omarroth/invidious/issues/303), a `cache_annotations` option has been added to speed up access from `/api/v1/annotations/:id`. This vastly improves the experience for videos with annotations. Currently, only videos that contain legacy annotations will be cached, which should help keep down the size of the cache. `cache_annotations` is disabled by default.
+
+## For Developers
+
+An authorization API has been added which allows other applications to read and modify user subscriptions and preferences (see [#473](https://github.com/omarroth/invidious/issues/473)). Support for accessing user feeds and notifications is also planned. I believe this feature is a large step forward in supporting syncing subscriptions and preferences with other services, and I'm excited to see what other developers do with this functionality.
+
+Support for server-to-client push notifications is currently underway. This allows Invidious users, as well as applications using the Invidious API, to receive notifications about uploads in near real-time (see #469). An `/api/v1/auth/notifications` endpoint is currently available. I'm very excited for this to be integrated into the site, and to see how other developers use it in their own projects.
+
+An `/api/v1/storyboards/:id` endpoint has been added for accessing storyboard URLs, which allows developers to add video previews to their players (see below).
+
+## Player
+
+Support for annotations has been merged into master with [#303](https://github.com/omarroth/invidious/issues/303), thanks @glmdgrielson! Annotations can be enabled by default or only for subscribed channels, and can also be toggled per video. I'm extremely proud of the progress made here, and I'm so thankful to everyone that has made this possible. I expect this to be the last update with regards to supporting annotations, but I do plan on continuing to improve the experience as much as possible.
+
+The Invidious player now supports video previews and a corresponding API endpoint `/api/v1/storyboards/:id` has been added for developers looking to add similar functionality to their own players. Not much else to say here. Overall it's a very nice quality of life improvement and an attractive addition to the site.
+
+It is now possible to select specific sources for videos provided using DASH (see [#34](https://github.com/omarroth/invidious/issues/34)). I would consider support largely feature complete, although there are still several issues to be fixed before I would consider it ready for larger rollout. You can watch videos in 1080p by setting `Default quality` to `dash` in your preferences, or by adding `&quality=dash` to the end of video URLs.
+
+## Finances
+
+### Donations
+
+- [Patreon](https://www.patreon.com/omarroth) : \$49.73
+- [Liberapay](https://liberapay.com/omarroth) : \$63.03
+- Crypto : ~\$0.00 (converted from BCH, BTC)
+- Total : \$112.76
+
+### Expenses
+
+- invidious-load1 (nyc1) : \$10.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node5 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$80.00
+
+That's all for now. Thanks!
+
 # 0.16.0 (2019-04-06)
 
 # Version 0.16.0: API Improvements and Annotations
