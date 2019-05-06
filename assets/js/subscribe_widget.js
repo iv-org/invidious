@@ -39,7 +39,7 @@ function subscribe(timeouts = 0) {
     xhr.ontimeout = function () {
         console.log('Subscribing timed out.');
         subscribe(timeouts + 1);
-    };
+    }
 }
 
 function unsubscribe(timeouts = 0) {
@@ -74,5 +74,5 @@ function unsubscribe(timeouts = 0) {
     xhr.ontimeout = function () {
         console.log('Unsubscribing timed out.');
         unsubscribe(timeouts + 1);
-    };
+    }
 }
