@@ -51,21 +51,24 @@ function hide_youtube_replies(target, inner_text, sub_text) {
     target.setAttribute('onclick', "show_youtube_replies(this, \'" + inner_text + "\', \'" + sub_text + "\')");
 }
 
-function continue_autoplay(target) {
-    if (target.checked) {
-        player.on('ended', function () {
-            var url = new URL('https://example.com/watch?v=' + watch_data.next_video);
+var continue_button = document.getElementById('continue');
+continue_button.onclick = continue_autoplay;
 
-            if (watch_data.params.autoplay || watch_data.params.continue_autoplay) {
+function continue_autoplay(event) {
+    if (event.target.checked) {
+        player.on('ended', function () {
+            var url = new URL('https://example.com/watch?v=' + video_data.next_video);
+
+            if (video_data.params.autoplay || video_data.params.continue_autoplay) {
                 url.searchParams.set('autoplay', '1');
             }
 
-            if (watch_data.params.listen !== watch_data.preferences.listen) {
-                url.searchParams.set('listen', watch_data.params.listen);
+            if (video_data.params.listen !== video_data.preferences.listen) {
+                url.searchParams.set('listen', video_data.params.listen);
             }
 
-            if (watch_data.params.speed !== watch_data.preferences.speed) {
-                url.searchParams.set('speed', watch_data.params.speed);
+            if (video_data.params.speed !== video_data.preferences.speed) {
+                url.searchParams.set('speed', video_data.params.speed);
             }
 
             url.searchParams.set('continue', '1');
@@ -98,12 +101,12 @@ function get_playlist(plid, timeouts = 0) {
 
     if (plid.startsWith('RD')) {
         var plid_url = '/api/v1/mixes/' + plid +
-            '?continuation=' + watch_data.id +
-            '&format=html&hl=' + watch_data.preferences.locale;
+            '?continuation=' + video_data.id +
+            '&format=html&hl=' + video_data.preferences.locale;
     } else {
         var plid_url = '/api/v1/playlists/' + plid +
-            '?continuation=' + watch_data.id +
-            '&format=html&hl=' + watch_data.preferences.locale;
+            '?continuation=' + video_data.id +
+            '&format=html&hl=' + video_data.preferences.locale;
     }
 
     var xhr = new XMLHttpRequest();
@@ -119,18 +122,18 @@ function get_playlist(plid, timeouts = 0) {
 
                 if (xhr.response.nextVideo) {
                     player.on('ended', function () {
-                        var url = new URL('https://example.com/watch?v=' + watch_data.next_video);
+                        var url = new URL('https://example.com/watch?v=' + video_data.next_video);
 
-                        if (watch_data.params.autoplay || watch_data.params.continue_autoplay) {
+                        if (video_data.params.autoplay || video_data.params.continue_autoplay) {
                             url.searchParams.set('autoplay', '1');
                         }
 
-                        if (watch_data.params.listen !== watch_data.preferences.listen) {
-                            url.searchParams.set('listen', watch_data.params.listen);
+                        if (video_data.params.listen !== video_data.preferences.listen) {
+                            url.searchParams.set('listen', video_data.params.listen);
                         }
 
-                        if (watch_data.params.speed !== watch_data.preferences.speed) {
-                            url.searchParams.set('speed', watch_data.params.speed);
+                        if (video_data.params.speed !== video_data.preferences.speed) {
+                            url.searchParams.set('speed', video_data.params.speed);
                         }
 
                         url.searchParams.set('list', plid);
@@ -166,9 +169,9 @@ function get_reddit_comments(timeouts = 0) {
     comments.innerHTML =
         '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
-    var url = '/api/v1/comments/' + watch_data.id +
+    var url = '/api/v1/comments/' + video_data.id +
         '?source=reddit&format=html' +
-        '&hl=' + watch_data.preferences.locale;
+        '&hl=' + video_data.preferences.locale;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.timeout = 20000;
@@ -198,13 +201,13 @@ function get_reddit_comments(timeouts = 0) {
                 <div>{contentHtml}</div> \
                 <hr>'.supplant({
                     title: xhr.response.title,
-                    youtubeCommentsText: watch_data.youtube_comments_text,
-                    redditPermalinkText: watch_data.reddit_permalink_text,
+                    youtubeCommentsText: video_data.youtube_comments_text,
+                    redditPermalinkText: video_data.reddit_permalink_text,
                     permalink: xhr.response.permalink,
                     contentHtml: xhr.response.contentHtml
                 });
             } else {
-                if (watch_data.preferences.comments[1] === 'youtube') {
+                if (video_data.preferences.comments[1] === 'youtube') {
                     get_youtube_comments(timeouts + 1);
                 } else {
                     comments.innerHTML = fallback;
@@ -232,10 +235,10 @@ function get_youtube_comments(timeouts = 0) {
     comments.innerHTML =
         '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
-    var url = '/api/v1/comments/' + watch_data.id +
+    var url = '/api/v1/comments/' + video_data.id +
         '?format=html' +
-        '&hl=' + watch_data.preferences.locale +
-        '&thin_mode=' + watch_data.preferences.thin_mode;
+        '&hl=' + video_data.preferences.locale +
+        '&thin_mode=' + video_data.preferences.thin_mode;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.timeout = 20000;
@@ -261,8 +264,8 @@ function get_youtube_comments(timeouts = 0) {
                     <div>{contentHtml}</div> \
                     <hr>'.supplant({
                         contentHtml: xhr.response.contentHtml,
-                        redditComments: watch_data.reddit_comments_text,
-                        commentsText: watch_data.comments_text.supplant(
+                        redditComments: video_data.reddit_comments_text,
+                        commentsText: video_data.comments_text.supplant(
                             { commentCount: number_with_separator(xhr.response.commentCount) }
                         )
                     });
@@ -270,7 +273,7 @@ function get_youtube_comments(timeouts = 0) {
                     comments.innerHTML = '';
                 }
             } else {
-                if (watch_data.preferences[1] === 'youtube') {
+                if (video_data.preferences[1] === 'youtube') {
                     get_youtube_comments(timeouts + 1);
                 } else {
                     comments.innerHTML = '';
@@ -295,10 +298,10 @@ function get_youtube_replies(target, load_more) {
     body.innerHTML =
         '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
 
-    var url = '/api/v1/comments/' + watch_data.id +
+    var url = '/api/v1/comments/' + video_data.id +
         '?format=html' +
-        '&hl=' + watch_data.preferences.locale +
-        '&thin_mode=' + watch_data.preferences.thin_mode +
+        '&hl=' + video_data.preferences.locale +
+        '&thin_mode=' + video_data.preferences.thin_mode +
         '&continuation=' + continuation;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
@@ -319,8 +322,8 @@ function get_youtube_replies(target, load_more) {
                     onclick="hide_youtube_replies(this, \'{hideRepliesText}\', \'{showRepliesText}\')">{hideRepliesText} \
                     </a></p> \
                     <div>{contentHtml}</div>'.supplant({
-                        hideRepliesText: watch_data.hide_replies_text,
-                        showRepliesText: watch_data.show_replies_text,
+                        hideRepliesText: video_data.hide_replies_text,
+                        showRepliesText: video_data.show_replies_text,
                         contentHtml: xhr.response.contentHtml
                     });
                 }
@@ -336,20 +339,20 @@ function get_youtube_replies(target, load_more) {
     }
 }
 
-if (watch_data.play_next) {
+if (video_data.play_next) {
     player.on('ended', function () {
-        var url = new URL('https://example.com/watch?v=' + watch_data.next_video);
+        var url = new URL('https://example.com/watch?v=' + video_data.next_video);
 
-        if (watch_data.params.autoplay || watch_data.params.continue_autoplay) {
+        if (video_data.params.autoplay || video_data.params.continue_autoplay) {
             url.searchParams.set('autoplay', '1');
         }
 
-        if (watch_data.params.listen !== watch_data.preferences.listen) {
-            url.searchParams.set('listen', watch_data.params.listen);
+        if (video_data.params.listen !== video_data.preferences.listen) {
+            url.searchParams.set('listen', video_data.params.listen);
         }
 
-        if (watch_data.params.speed !== watch_data.preferences.speed) {
-            url.searchParams.set('speed', watch_data.params.speed);
+        if (video_data.params.speed !== video_data.preferences.speed) {
+            url.searchParams.set('speed', video_data.params.speed);
         }
 
         url.searchParams.set('continue', '1');
@@ -357,17 +360,17 @@ if (watch_data.play_next) {
     });
 }
 
-if (watch_data.plid) {
-    get_playlist(watch_data.plid);
+if (video_data.plid) {
+    get_playlist(video_data.plid);
 }
 
-if (watch_data.preferences.comments[0] === 'youtube') {
+if (video_data.preferences.comments[0] === 'youtube') {
     get_youtube_comments();
-} else if (watch_data.preferences.comments[0] === 'reddit') {
+} else if (video_data.preferences.comments[0] === 'reddit') {
     get_reddit_comments();
-} else if (watch_data.preferences.comments[1] === 'youtube') {
+} else if (video_data.preferences.comments[1] === 'youtube') {
     get_youtube_comments();
-} else if (watch_data.preferences.comments[1] === 'reddit') {
+} else if (video_data.preferences.comments[1] === 'reddit') {
     get_reddit_comments();
 } else {
     comments = document.getElementById('comments');

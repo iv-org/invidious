@@ -23,17 +23,18 @@
 </head>
 
 <body>
-<%= rendered "components/player" %>
-
 <script>
-var embed_data = {
+var video_data = {
     id: '<%= video.id %>',
     plid: '<%= plid %>',
+    length_seconds: '<%= video.info["length_seconds"].to_f %>',
     video_series: <%= video_series.to_json %>,
     params: <%= params.to_json %>,
     preferences: <%= preferences.to_json %>
 }
 </script>
+
+<%= rendered "components/player" %>
 <script src="/js/embed.js"></script>
 </body>
 </html>

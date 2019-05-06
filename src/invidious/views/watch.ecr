@@ -26,6 +26,24 @@
 <title><%= HTML.escape(video.title) %> - Invidious</title>
 <% end %>
 
+<script>
+var video_data = {
+    id: '<%= video.id %>',
+    plid: '<%= plid %>',
+    length_seconds: '<%= video.info["length_seconds"].to_f %>',
+    play_next: <%= !rvs.empty? && !plid && params.continue %>,
+    next_video: '<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>',
+    youtube_comments_text: '<%= translate(locale, "View YouTube comments") %>',
+    reddit_comments_text: '<%= translate(locale, "View Reddit comments") %>',
+    reddit_permalink_text: '<%= translate(locale, "View more comments on Reddit") %>',
+    comments_text: '<%= translate(locale, "View `x` comments", "{commentCount}") %>',
+    hide_replies_text: '<%= translate(locale, "Hide replies") %>',
+    show_replies_text: '<%= translate(locale, "Show replies") %>',
+    params: <%= params.to_json %>,
+    preferences: <%= preferences.to_json %>
+}
+</script>
+
 <div id="player-container" class="h-box">
     <%= rendered "components/player" %>
 </div>
@@ -224,21 +242,4 @@
         </div>
     <% end %>
 </div>
-
-<script>
-var watch_data = {
-    id: '<%= video.id %>',
-    plid: '<%= plid %>',
-    play_next: <%= !rvs.empty? && !plid && params.continue %>,
-    next_video: '<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>',
-    youtube_comments_text: '<%= translate(locale, "View YouTube comments") %>',
-    reddit_comments_text: '<%= translate(locale, "View Reddit comments") %>',
-    reddit_permalink_text: '<%= translate(locale, "View more comments on Reddit") %>',
-    comments_text: '<%= translate(locale, "View `x` comments", "{commentCount}") %>',
-    hide_replies_text: '<%= translate(locale, "Hide replies") %>',
-    show_replies_text: '<%= translate(locale, "Show replies") %>',
-    params: <%= params.to_json %>,
-    preferences: <%= preferences.to_json %>
-}
-</script>
 <script src="/js/watch.js"></script>

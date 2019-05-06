@@ -6,12 +6,12 @@ function get_playlist(plid, timeouts = 0) {
 
     if (plid.startsWith('RD')) {
         var plid_url = '/api/v1/mixes/' + plid +
-            '?continuation=' + embed_data.id +
-            '&format=html&hl=' + embed_data.preferences.locale;
+            '?continuation=' + video_data.id +
+            '&format=html&hl=' + video_data.preferences.locale;
     } else {
         var plid_url = '/api/v1/playlists/' + plid +
-            '?continuation=' + embed_data.id +
-            '&format=html&hl=' + embed_data.preferences.locale;
+            '?continuation=' + video_data.id +
+            '&format=html&hl=' + video_data.preferences.locale;
     }
 
     var xhr = new XMLHttpRequest();
@@ -21,22 +21,22 @@ function get_playlist(plid, timeouts = 0) {
     xhr.send();
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
                 if (xhr.response.nextVideo) {
                     player.on('ended', function () {
                         var url = new URL('https://example.com/embed/' + xhr.response.nextVideo);
 
-                        if (embed_data.params.autoplay || embed_data.params.continue_autoplay) {
+                        if (video_data.params.autoplay || video_data.params.continue_autoplay) {
                             url.searchParams.set('autoplay', '1');
                         }
 
-                        if (embed_data.params.listen !== embed_data.preferences.listen) {
-                            url.searchParams.set('listen', embed_data.params.listen);
+                        if (video_data.params.listen !== video_data.preferences.listen) {
+                            url.searchParams.set('listen', video_data.params.listen);
                         }
 
-                        if (embed_data.params.speed !== embed_data.preferences.speed) {
-                            url.searchParams.set('speed', embed_data.params.speed);
+                        if (video_data.params.speed !== video_data.preferences.speed) {
+                            url.searchParams.set('speed', video_data.params.speed);
                         }
 
                         url.searchParams.set('list', plid);
@@ -53,26 +53,26 @@ function get_playlist(plid, timeouts = 0) {
     }
 }
 
-if (embed_data.plid) {
-    get_playlist(embed_data.plid);
-} else if (embed_data.video_series) {
+if (video_data.plid) {
+    get_playlist(video_data.plid);
+} else if (video_data.video_series) {
     player.on('ended', function () {
-        var url = new URL('https://example.com/embed/' + embed_data.video_series.shift());
+        var url = new URL('https://example.com/embed/' + video_data.video_series.shift());
 
-        if (embed_data.params.autoplay || embed_data.params.continue_autoplay) {
+        if (video_data.params.autoplay || video_data.params.continue_autoplay) {
             url.searchParams.set('autoplay', '1');
         }
 
-        if (embed_data.params.listen !== embed_data.preferences.listen) {
-            url.searchParams.set('listen', embed_data.params.listen);
+        if (video_data.params.listen !== video_data.preferences.listen) {
+            url.searchParams.set('listen', video_data.params.listen);
         }
 
-        if (embed_data.params.speed !== embed_data.preferences.speed) {
-            url.searchParams.set('speed', embed_data.params.speed);
+        if (video_data.params.speed !== video_data.preferences.speed) {
+            url.searchParams.set('speed', video_data.params.speed);
         }
 
-        if (embed_data.video_series.length !== 0) {
-            url.searchParams.set('playlist', embed_data.video_series.join(','))
+        if (video_data.video_series.length !== 0) {
+            url.searchParams.set('playlist', video_data.video_series.join(','))
         }
 
         location.assign(url.pathname + url.search);
