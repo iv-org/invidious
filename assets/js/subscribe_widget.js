@@ -14,8 +14,7 @@ function subscribe(timeouts = 0) {
     }
 
     var url = '/subscription_ajax?action_create_subscription_to_channel=1&redirect=false' +
-        '&c=' + subscribe_data.ucid +
-        '&referer=' + location.pathname + location.search;
+        '&c=' + subscribe_data.ucid;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.timeout = 20000;
@@ -49,8 +48,7 @@ function unsubscribe(timeouts = 0) {
     }
 
     var url = '/subscription_ajax?action_remove_subscriptions=1&redirect=false' +
-        '&c=' + subscribe_data.ucid +
-        '&referer=' + location.pathname + location.search;
+        '&c=' + subscribe_data.ucid;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.timeout = 20000;
