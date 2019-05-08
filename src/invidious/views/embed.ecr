@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="thumbnail" content="<%= thumbnail %>">
   <%= rendered "components/player_sources" %>
-  <link rel="stylesheet" href="/css/default.css">
+  <link rel="stylesheet" href="/css/default.css?v=<%= CURRENT_COMMIT %>">
   <title><%= HTML.escape(video.title) %> - Invidious</title>
   <style>
   #player {
@@ -35,6 +35,6 @@ var video_data = {
 </script>
 
 <%= rendered "components/player" %>
-<script src="/js/embed.js"></script>
+<script src="/js/embed.js?v=<%= CURRENT_COMMIT %>"></script>
 </body>
 </html>

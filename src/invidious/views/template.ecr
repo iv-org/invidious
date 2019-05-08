@@ -14,14 +14,14 @@
     <meta name="msapplication-TileColor" content="#575757">
     <meta name="theme-color" content="#575757">
     <link title="Invidious" type="application/opensearchdescription+xml" rel="search" href="/opensearch.xml">
-    <link rel="stylesheet" href="/css/pure-min.css">
-    <link rel="stylesheet" href="/css/grids-responsive-min.css">
-    <link rel="stylesheet" href="/css/ionicons.min.css">
-    <link rel="stylesheet" href="/css/default.css">
+    <link rel="stylesheet" href="/css/pure-min.css?v=<%= CURRENT_COMMIT %>">
+    <link rel="stylesheet" href="/css/grids-responsive-min.css?v=<%= CURRENT_COMMIT %>">
+    <link rel="stylesheet" href="/css/ionicons.min.css?v=<%= CURRENT_COMMIT %>">
+    <link rel="stylesheet" href="/css/default.css?v=<%= CURRENT_COMMIT %>">
     <% if env.get("preferences").as(Preferences).dark_mode %>
-    <link rel="stylesheet" href="/css/darktheme.css">
+    <link rel="stylesheet" href="/css/darktheme.css?v=<%= CURRENT_COMMIT %>">
     <% else %>
-    <link rel="stylesheet" href="/css/lighttheme.css">
+    <link rel="stylesheet" href="/css/lighttheme.css?v=<%= CURRENT_COMMIT %>">
     <% end %>
 </head>
 

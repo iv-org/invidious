@@ -1845,12 +1845,12 @@ post "/data_control" do |env|
 
       sleep 20.seconds
       env.response.puts %(<meta http-equiv="refresh" content="0; url=#{referer}">)
-      env.response.puts %(<link rel="stylesheet" href="/css/ionicons.min.css">)
-      env.response.puts %(<link rel="stylesheet" href="/css/default.css">)
+      env.response.puts %(<link rel="stylesheet" href="/css/ionicons.min.css?v=<%= CURRENT_COMMIT %>">)
+      env.response.puts %(<link rel="stylesheet" href="/css/default.css?v=<%= CURRENT_COMMIT %>">)
       if env.get("preferences").as(Preferences).dark_mode
-        env.response.puts %(<link rel="stylesheet" href="/css/darktheme.css">)
+        env.response.puts %(<link rel="stylesheet" href="/css/darktheme.css?v=<%= CURRENT_COMMIT %>">)
       else
-        env.response.puts %(<link rel="stylesheet" href="/css/lighttheme.css">)
+        env.response.puts %(<link rel="stylesheet" href="/css/lighttheme.css?v=<%= CURRENT_COMMIT %>">)
       end
       env.response.puts %(<h3><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>)
       env.response.flush
@@ -5351,7 +5351,7 @@ if Kemal.config.ssl
 end
 
 static_headers do |response, filepath, filestat|
-  response.headers.add("Cache-Control", "max-age=86400")
+  response.headers.add("Cache-Control", "max-age=2629800")
 end
 
 public_folder "assets"
