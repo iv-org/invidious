@@ -186,7 +186,7 @@ player.vttThumbnails({
 });
 
 // Enable annotations
-if (video_data.params.listen && video_data.params.annotations) {
+if (!video_data.params.listen && video_data.params.annotations) {
     var video_container = document.getElementById('player');
     let xhr = new XMLHttpRequest();
     xhr.responseType = 'text';
