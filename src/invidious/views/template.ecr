@@ -6,20 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="no-referrer">
     <%= yield_content "header" %>
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#575757">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=<%= ASSET_COMMIT %>">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=<%= ASSET_COMMIT %>">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=<%= ASSET_COMMIT %>">
+    <link rel="manifest" href="/site.webmanifest?v=<%= ASSET_COMMIT %>">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg?v=<%= ASSET_COMMIT %>" color="#575757">
     <meta name="msapplication-TileColor" content="#575757">
     <meta name="theme-color" content="#575757">
     <link title="Invidious" type="application/opensearchdescription+xml" rel="search" href="/opensearch.xml">
-    <link rel="stylesheet" href="/css/pure-min.css?v=<%= CURRENT_COMMIT %>">
-    <link rel="stylesheet" href="/css/grids-responsive-min.css?v=<%= CURRENT_COMMIT %>">
-    <link rel="stylesheet" href="/css/ionicons.min.css?v=<%= CURRENT_COMMIT %>">
-    <link rel="stylesheet" href="/css/default.css?v=<%= CURRENT_COMMIT %>">
-    <link rel="stylesheet" href="/css/darktheme.css?v=<%= CURRENT_COMMIT %>"  id="dark_theme" <% if !env.get("preferences").as(Preferences).dark_mode %>media="none"<% end %>>
-    <link rel="stylesheet" href="/css/lighttheme.css?v=<%= CURRENT_COMMIT %>" id="light_theme" <% if env.get("preferences").as(Preferences).dark_mode %>media="none"<% end %>>
+    <link rel="stylesheet" href="/css/pure-min.css?v=<%= ASSET_COMMIT %>">
+    <link rel="stylesheet" href="/css/grids-responsive-min.css?v=<%= ASSET_COMMIT %>">
+    <link rel="stylesheet" href="/css/ionicons.min.css?v=<%= ASSET_COMMIT %>">
+    <link rel="stylesheet" href="/css/default.css?v=<%= ASSET_COMMIT %>">
+    <link rel="stylesheet" href="/css/darktheme.css?v=<%= ASSET_COMMIT %>"  id="dark_theme" <% if !env.get("preferences").as(Preferences).dark_mode %>media="none"<% end %>>
+    <link rel="stylesheet" href="/css/lighttheme.css?v=<%= ASSET_COMMIT %>" id="light_theme" <% if env.get("preferences").as(Preferences).dark_mode %>media="none"<% end %>>
 </head>
 
 <% locale = LOCALES[env.get("preferences").as(Preferences).locale]? %>
@@ -150,7 +150,7 @@
         </div>
         <div class="pure-u-1 pure-u-md-2-24"></div>
     </div>
-    <script src="/js/themes.js?v=<%= CURRENT_COMMIT %>"></script>
+    <script src="/js/themes.js?v=<%= ASSET_COMMIT %>"></script>
 </body>
 
 </html>

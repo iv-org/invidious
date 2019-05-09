@@ -53,6 +53,11 @@ CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
 CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
 CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
 
+# This is used to determine the `?v=` on the end of file URLs (for cache busting). We
+# only need to expire modified assets, so we can use this to find the last commit that changes
+# any assets
+ASSET_COMMIT = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit -- assets`.strip}" }}
+
 SOFTWARE = {
   "name"    => "invidious",
   "version" => "#{CURRENT_VERSION}-#{CURRENT_COMMIT}",
@@ -1854,12 +1859,12 @@ post "/data_control" do |env|
 
       sleep 20.seconds
       env.response.puts %(<meta http-equiv="refresh" content="0; url=#{referer}">)
-      env.response.puts %(<link rel="stylesheet" href="/css/ionicons.min.css?v=<%= CURRENT_COMMIT %>">)
-      env.response.puts %(<link rel="stylesheet" href="/css/default.css?v=<%= CURRENT_COMMIT %>">)
+      env.response.puts %(<link rel="stylesheet" href="/css/ionicons.min.css?v=#{ASSET_COMMIT}">)
+      env.response.puts %(<link rel="stylesheet" href="/css/default.css?v=#{ASSET_COMMIT}">)
       if env.get("preferences").as(Preferences).dark_mode
-        env.response.puts %(<link rel="stylesheet" href="/css/darktheme.css?v=<%= CURRENT_COMMIT %>">)
+        env.response.puts %(<link rel="stylesheet" href="/css/darktheme.css?v=#{ASSET_COMMIT}">)
       else
-        env.response.puts %(<link rel="stylesheet" href="/css/lighttheme.css?v=<%= CURRENT_COMMIT %>">)
+        env.response.puts %(<link rel="stylesheet" href="/css/lighttheme.css?v=#{ASSET_COMMIT}">)
       end
       env.response.puts %(<h3><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>)
       env.response.flush
