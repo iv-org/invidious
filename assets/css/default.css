@@ -327,6 +327,11 @@ input[type="search"]::-webkit-search-cancel-button {
   background-color: rgba(15, 15, 15, 0.5);
 }
 
+fieldset > select,
+span > select {
+  color: rgba(49, 49, 51, 1);
+}
+
 .video-js .vjs-load-progress,
 .video-js .vjs-load-progress div {
   background: rgba(87, 87, 88, 1);
