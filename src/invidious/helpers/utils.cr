@@ -64,8 +64,8 @@ def recode_length_seconds(time)
     time = time.seconds
     text = "#{time.minutes.to_s.rjust(2, '0')}:#{time.seconds.to_s.rjust(2, '0')}"
 
-    if time.hours > 0
-      text = "#{time.hours.to_s.rjust(2, '0')}:#{text}"
+    if time.total_hours.to_i > 0
+      text = "#{time.total_hours.to_i.to_s.rjust(2, '0')}:#{text}"
     end
 
     text = text.lchop('0')
