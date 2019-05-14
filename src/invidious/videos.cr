@@ -1174,8 +1174,10 @@ def fetch_video(id, proxies, region)
 
   genre_url = html.xpath_node(%(//ul[contains(@class, "watch-info-tag-list")]/li/a[text()="#{genre}"])).try &.["href"]
 
-  # Sometimes YouTube tries to link to invalid/missing channels, so we fix that here
+  # YouTube provides invalid URLs for some genres, so we fix that here
   case genre
+  when "Comedy"
+    genre_url = "/channel/UCQZ43c4dAA9eXCQuXWu9aTw"
   when "Education"
     genre_url = "/channel/UCdxpofrI-dO6oYfsqHDHphw"
   when "Gaming"
