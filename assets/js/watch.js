@@ -52,7 +52,9 @@ function hide_youtube_replies(target, inner_text, sub_text) {
 }
 
 var continue_button = document.getElementById('continue');
-continue_button.onclick = continue_autoplay;
+if (continue_button) {
+    continue_button.onclick = continue_autoplay;
+}
 
 function continue_autoplay(event) {
     if (event.target.checked) {
@@ -122,7 +124,7 @@ function get_playlist(plid, timeouts = 0) {
 
                 if (xhr.response.nextVideo) {
                     player.on('ended', function () {
-                        var url = new URL('https://example.com/watch?v=' + video_data.next_video);
+                        var url = new URL('https://example.com/watch?v=' + xhr.response.nextVideo);
 
                         if (video_data.params.autoplay || video_data.params.continue_autoplay) {
                             url.searchParams.set('autoplay', '1');
