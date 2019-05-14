@@ -193,7 +193,7 @@ before_all do |env|
   env.response.headers["Content-Security-Policy"] = "default-src blob: data: 'self' #{host_url} 'unsafe-inline' 'unsafe-eval'; media-src blob: 'self' #{host_url} https://*.googlevideo.com:443"
   env.response.headers["Referrer-Policy"] = "same-origin"
 
-  if Kemal.config.ssl || config.https_only
+  if (Kemal.config.ssl || config.https_only) && config.hsts
     env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
   end
 
@@ -5355,7 +5355,9 @@ if Kemal.config.ssl
         redirect_url += "?#{env.request.query}"
       end
 
-      env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+      if config.hsts
+        env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+      end
       env.response.headers["Location"] = redirect_url
       env.response.status_code = 301
     end
