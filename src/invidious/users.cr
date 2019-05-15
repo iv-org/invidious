@@ -269,3 +269,36 @@ def generate_text_captcha(key, db)
     tokens:   tokens,
   }
 end
+
+def subscribe_ajax(channel_id, action, env_headers)
+  headers = HTTP::Headers.new
+  headers["Cookie"] = env_headers["Cookie"]
+
+  client = make_client(YT_URL)
+  html = client.get("/subscription_manager?disable_polymer=1", headers)
+
+  cookies = HTTP::Cookies.from_headers(headers)
+  html.cookies.each do |cookie|
+    if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
+      if cookies[cookie.name]?
+        cookies[cookie.name] = cookie
+      else
+        cookies << cookie
+      end
+    end
+  end
+  headers = cookies.add_request_headers(headers)
+
+  if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+    session_token = match["session_token"]
+
+    headers["content-type"] = "application/x-www-form-urlencoded"
+
+    post_req = {
+      "session_token" => session_token,
+    }
+    post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
+
+    client.post(post_url, headers, form: post_req)
+  end
+end

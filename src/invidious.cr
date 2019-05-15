@@ -127,6 +127,7 @@ if CONFIG.check_tables
 end
 
 # Start jobs
+
 refresh_channels(PG_DB, logger, config.channel_threads, config.full_refresh)
 refresh_feeds(PG_DB, logger, config.feed_threads)
 subscribe_to_feeds(PG_DB, logger, HMAC_KEY, config)
@@ -1683,44 +1684,10 @@ post "/subscription_ajax" do |env|
   channel_id ||= ""
 
   if !user.password
-    headers = HTTP::Headers.new
-    headers["Cookie"] = env.request.headers["Cookie"]
-
-    client = make_client(YT_URL)
-    html = client.get("/subscription_manager?disable_polymer=1", headers)
-
-    cookies = HTTP::Cookies.from_headers(headers)
-    html.cookies.each do |cookie|
-      if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
-        if cookies[cookie.name]?
-          cookies[cookie.name] = cookie
-        else
-          cookies << cookie
-        end
-      end
-    end
-    headers = cookies.add_request_headers(headers)
-
-    match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
-    if match
-      session_token = match["session_token"]
-    else
-      next env.redirect referer
-    end
-
-    headers["content-type"] = "application/x-www-form-urlencoded"
-
-    post_req = {
-      "session_token" => session_token,
-    }
-    post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
-
     # Sync subscriptions with YouTube
-    client.post(post_url, headers, form: post_req)
-    email = user.email
-  else
-    email = user.email
+    subscribe_ajax(channel_id, action, env.request.headers)
   end
+  email = user.email
 
   case action
   when .starts_with? "action_create"
@@ -2158,10 +2125,33 @@ post "/clear_watch_history" do |env|
   env.redirect referer
 end
 
-# TODO?
-# get "/authorize_token" do |env|
-# ...
-# end
+get "/authorize_token" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  user = env.get? "user"
+  sid = env.get? "sid"
+  referer = get_referer(env)
+
+  if user
+    user = user.as(User)
+    sid = sid.as(String)
+    csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, PG_DB)
+
+    scopes = env.params.query["scopes"]?.try &.split(",")
+    scopes ||= [] of String
+
+    callback_url = env.params.query["callback_url"]?
+    if callback_url
+      callback_url = URI.parse(callback_url)
+    end
+
+    expire = env.params.query["expire"]?.try &.to_i?
+
+    templated "authorize_token"
+  else
+    env.redirect referer
+  end
+end
 
 post "/authorize_token" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -4579,6 +4569,10 @@ post "/api/v1/auth/subscriptions/:ucid" do |env|
     PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
   end
 
+  # For Google accounts, access tokens don't have enough information to
+  # make a request on the user's behalf, which is why we don't sync with
+  # YouTube.
+
   env.response.status_code = 204
 end
 
@@ -4599,11 +4593,6 @@ get "/api/v1/auth/tokens" do |env|
   scopes = env.get("scopes").as(Array(String))
 
   tokens = PG_DB.query_all("SELECT id, issued FROM session_ids WHERE email = $1", user.email, as: {session: String, issued: Time})
-
-  # Only allow user sessions to view other user sessions
-  # if !scopes.includes? [":*"]
-  #   tokens.select { |token| token[:session].starts_with? "v1:" }
-  # end
 
   JSON.build do |json|
     json.array do
