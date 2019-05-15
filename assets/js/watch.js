@@ -16,7 +16,8 @@ function toggle_parent(target) {
     }
 }
 
-function toggle_comments(target) {
+function toggle_comments(event) {
+    var target = event.target;
     body = target.parentNode.parentNode.parentNode.children[1];
     if (body.style.display === null || body.style.display === '') {
         target.innerHTML = '[ + ]';
@@ -27,28 +28,44 @@ function toggle_comments(target) {
     }
 }
 
-function swap_comments(source) {
-    if (source == 'youtube') {
+function swap_comments(event) {
+    var source = event.target.getAttribute('data-comments');
+
+    if (source === 'youtube') {
         get_youtube_comments();
-    } else if (source == 'reddit') {
+    } else if (source === 'reddit') {
         get_reddit_comments();
     }
 }
 
-function show_youtube_replies(target, inner_text, sub_text) {
-    body = target.parentNode.parentNode.children[1];
-    body.style.display = '';
+function hide_youtube_replies(event) {
+    var target = event.target;
 
-    target.innerHTML = inner_text;
-    target.setAttribute('onclick', "hide_youtube_replies(this, \'" + inner_text + "\', \'" + sub_text + "\')");
-}
+    sub_text = target.getAttribute('data-inner-text');
+    inner_text = target.getAttribute('data-sub-text');
 
-function hide_youtube_replies(target, inner_text, sub_text) {
     body = target.parentNode.parentNode.children[1];
     body.style.display = 'none';
 
     target.innerHTML = sub_text;
-    target.setAttribute('onclick', "show_youtube_replies(this, \'" + inner_text + "\', \'" + sub_text + "\')");
+    target.onclick = show_youtube_replies;
+    target.setAttribute('data-inner-text', inner_text);
+    target.setAttribute('data-sub-text', sub_text);
+}
+
+function show_youtube_replies(event) {
+    var target = event.target;
+
+    sub_text = target.getAttribute('data-inner-text');
+    inner_text = target.getAttribute('data-sub-text');
+
+    body = target.parentNode.parentNode.children[1];
+    body.style.display = '';
+
+    target.innerHTML = sub_text;
+    target.onclick = hide_youtube_replies;
+    target.setAttribute('data-inner-text', inner_text);
+    target.setAttribute('data-sub-text', sub_text);
 }
 
 var continue_button = document.getElementById('continue');
@@ -186,12 +203,12 @@ function get_reddit_comments(timeouts = 0) {
                 comments.innerHTML = ' \
                 <div> \
                     <h3> \
-                        <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> \
+                        <a href="javascript:void(0)">[ - ]</a> \
                         {title} \
                     </h3> \
                     <p> \
                         <b> \
-                            <a href="javascript:void(0)" onclick="swap_comments(\'youtube\')"> \
+                            <a href="javascript:void(0)" data-comments="youtube"> \
                                 {youtubeCommentsText} \
                             </a> \
                         </b> \
@@ -208,6 +225,9 @@ function get_reddit_comments(timeouts = 0) {
                     permalink: xhr.response.permalink,
                     contentHtml: xhr.response.contentHtml
                 });
+
+                comments.children[0].children[0].children[0].onclick = toggle_comments;
+                comments.children[0].children[1].children[0].onclick = swap_comments;
             } else {
                 if (video_data.preferences.comments[1] === 'youtube') {
                     get_youtube_comments(timeouts + 1);
@@ -254,11 +274,11 @@ function get_youtube_comments(timeouts = 0) {
                     comments.innerHTML = ' \
                     <div> \
                         <h3> \
-                            <a href="javascript:void(0)" onclick="toggle_comments(this)">[ - ]</a> \
+                            <a href="javascript:void(0)">[ - ]</a> \
                             {commentsText}  \
                         </h3> \
                         <b> \
-                            <a href="javascript:void(0)" onclick="swap_comments(\'reddit\')"> \
+                            <a href="javascript:void(0)" data-comments="reddit"> \
                                 {redditComments} \
                             </a> \
                         </b> \
@@ -271,6 +291,9 @@ function get_youtube_comments(timeouts = 0) {
                             { commentCount: number_with_separator(xhr.response.commentCount) }
                         )
                     });
+
+                    comments.children[0].children[0].children[0].onclick = toggle_comments;
+                    comments.children[0].children[1].children[0].onclick = swap_comments;
                 } else {
                     comments.innerHTML = '';
                 }
@@ -319,15 +342,23 @@ function get_youtube_replies(target, load_more) {
                     body.removeChild(body.lastElementChild);
                     body.innerHTML += xhr.response.contentHtml;
                 } else {
-                    body.innerHTML = ' \
-                    <p><a href="javascript:void(0)" \
-                    onclick="hide_youtube_replies(this, \'{hideRepliesText}\', \'{showRepliesText}\')">{hideRepliesText} \
-                    </a></p> \
-                    <div>{contentHtml}</div>'.supplant({
-                        hideRepliesText: video_data.hide_replies_text,
-                        showRepliesText: video_data.show_replies_text,
-                        contentHtml: xhr.response.contentHtml
-                    });
+                    body.removeChild(body.lastElementChild);
+
+                    var p = document.createElement('p');
+                    var a = document.createElement('a');
+                    p.appendChild(a);
+
+                    a.href = 'javascript:void(0)';
+                    a.onclick = hide_youtube_replies;
+                    a.setAttribute('data-sub-text', video_data.hide_replies_text);
+                    a.setAttribute('data-inner-text', video_data.show_replies_text);
+                    a.innerText = video_data.hide_replies_text;
+
+                    var div = document.createElement('div');
+                    div.innerHTML = xhr.response.contentHtml;
+
+                    body.appendChild(p);
+                    body.appendChild(div);
                 }
             } else {
                 body.innerHTML = fallback;

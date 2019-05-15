@@ -93,7 +93,7 @@
                             <form onsubmit="return false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
-                                    <a onclick="mark_watched(this)" data-id="<%= item.id %>" href="#">
+                                    <a onclick="mark_watched(this)" data-id="<%= item.id %>" href="javascript:void(0)">
                                         <button type="submit" style="all:unset">
                                             <i onmouseenter='this.setAttribute("class", "icon ion-ios-eye-off")'
                                                 onmouseleave='this.setAttribute("class", "icon ion-ios-eye")'

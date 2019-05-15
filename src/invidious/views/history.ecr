@@ -18,6 +18,13 @@
     </div>
 </div>
 
+<script>
+var watched_data = {
+    csrf_token: '<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>',
+}
+</script>
+<script src="/js/watched_widget.js"></script>
+
 <div class="pure-g">
 <% watched.each_slice(4) do |slice| %>
         <% slice.each do |item| %>
@@ -27,10 +34,10 @@
                         <% if !env.get("preferences").as(Preferences).thin_mode %>
                             <div class="thumbnail">
                                 <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg"/>
-                                <form onsubmit="return false;" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
+                                <form onsubmit="return false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
                                     <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                                     <p class="watched">
-                                        <a onclick="mark_unwatched(this)" data-id="<%= item %>" href="#">
+                                        <a onclick="mark_unwatched(this)" data-id="<%= item %>" href="javascript:void(0)">
                                             <button type="submit" style="all:unset">
                                                 <i class="icon ion-md-trash"></i>
                                             </button>
@@ -46,33 +53,6 @@
         <% end %>
 <% end %>
 </div>
-
-<script>
-function mark_unwatched(target) {
-    var tile = target.parentNode.parentNode.parentNode.parentNode.parentNode;
-    tile.style.display = "none";
-    var count = document.getElementById('count')
-    count.innerText = count.innerText - 1;
-
-    var url = '/watch_ajax?action_mark_unwatched=1&redirect=false' +
-        '&id=' + target.getAttribute('data-id');
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.timeout = 20000;
-    xhr.open('POST', url, true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send('csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>');
-
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
-                count.innerText = count.innerText - 1 + 2;
-                tile.style.display = '';
-            }
-        }
-    }
-}
-</script>
 
 <div class="pure-g h-box">
     <div class="pure-u-1 pure-u-lg-1-5">

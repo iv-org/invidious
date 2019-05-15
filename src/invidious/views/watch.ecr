@@ -207,7 +207,7 @@ var video_data = {
                         <div <% if plid %>style="display:none"<% end %>>
                             <div class="pure-control-group">
                                 <label for="continue"><%= translate(locale, "Autoplay next video: ") %></label>
-                                <input name="continue" onclick="continue_autoplay(this)" id="continue" type="checkbox" <% if params.continue %>checked<% end %>>
+                                <input name="continue" id="continue" type="checkbox" <% if params.continue %>checked<% end %>>
                             </div>
                             <hr>
                         </div>
