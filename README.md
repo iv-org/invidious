@@ -201,7 +201,7 @@ $ ./sentry
 ## Made with Invidious
 
 - [FreeTube](https://github.com/FreeTubeApp/FreeTube): An Open Source YouTube app for privacy.
-- [CloudTube](https://github.com/cloudrac3r/cadencegq): Website featuring pastebin, image host, and YouTube player
+- [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JS-rich alternate YouTube player
 - [PeerTubeify](https://gitlab.com/Ealhad/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A materialistic music player that streams music from YouTube.
 
