@@ -3203,45 +3203,54 @@ get "/api/v1/captions/:id" do |env|
     caption = caption[0]
   end
 
-  caption_xml = client.get(caption.baseUrl + "&tlang=#{tlang}").body
-  caption_xml = XML.parse(caption_xml)
+  url = caption.baseUrl + "&tlang=#{tlang}"
 
-  webvtt = <<-END_VTT
-  WEBVTT
-  Kind: captions
-  Language: #{tlang || caption.languageCode}
+  # Auto-generated captions often have cues that aren't aligned properly with the video,
+  # as well as some other markup that makes it cumbersome, so we try to fix that here
+  if caption.name.simpleText.includes? "auto-generated"
+    caption_xml = client.get(url).body
+    caption_xml = XML.parse(caption_xml)
+
+    webvtt = <<-END_VTT
+    WEBVTT
+    Kind: captions
+    Language: #{tlang || caption.languageCode}
 
 
-  END_VTT
+    END_VTT
 
-  caption_nodes = caption_xml.xpath_nodes("//transcript/text")
-  caption_nodes.each_with_index do |node, i|
-    start_time = node["start"].to_f.seconds
-    duration = node["dur"]?.try &.to_f.seconds
-    duration ||= start_time
+    caption_nodes = caption_xml.xpath_nodes("//transcript/text")
+    caption_nodes.each_with_index do |node, i|
+      start_time = node["start"].to_f.seconds
+      duration = node["dur"]?.try &.to_f.seconds
+      duration ||= start_time
 
-    if caption_nodes.size > i + 1
-      end_time = caption_nodes[i + 1]["start"].to_f.seconds
-    else
-      end_time = start_time + duration
-    end
+      if caption_nodes.size > i + 1
+        end_time = caption_nodes[i + 1]["start"].to_f.seconds
+      else
+        end_time = start_time + duration
+      end
 
-    start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
-    end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
+      start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
+      end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
 
-    text = HTML.unescape(node.content)
-    text = text.gsub(/<font color="#[a-fA-F0-9]{6}">/, "")
-    text = text.gsub(/<\/font>/, "")
-    if md = text.match(/(?<name>.*) : (?<text>.*)/)
-      text = "<v #{md["name"]}>#{md["text"]}</v>"
-    end
+      text = HTML.unescape(node.content)
+      text = text.gsub(/<font color="#[a-fA-F0-9]{6}">/, "")
+      text = text.gsub(/<\/font>/, "")
+      if md = text.match(/(?<name>.*) : (?<text>.*)/)
+        text = "<v #{md["name"]}>#{md["text"]}</v>"
+      end
 
-    webvtt += <<-END_CUE
+      webvtt += <<-END_CUE
     #{start_time} --> #{end_time}
     #{text}
 
 
     END_CUE
+    end
+  else
+    url += "&format=vtt"
+    webvtt = client.get(url).body
   end
 
   if title = env.params.query["title"]?
