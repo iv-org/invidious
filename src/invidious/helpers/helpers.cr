@@ -631,6 +631,10 @@ def cache_annotation(db, id, annotations)
 end
 
 def proxy_file(response, env)
+  if response.headers["Content-Length"]? && response.headers["Content-Length"] == "0"
+    return
+  end
+
   if response.headers.includes_word?("Content-Encoding", "gzip")
     Gzip::Writer.open(env.response) do |deflate|
       IO.copy(response.body_io, deflate)
