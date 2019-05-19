@@ -5063,13 +5063,16 @@ get "/videoplayback" do |env|
     env.response.status_code = response.status_code
 
     response.headers.each do |key, value|
-      env.response.headers[key] = value
+      if !{"Access-Control-Allow-Origin", "Alt-Svc"}.includes? key
+        env.response.headers[key] = value
+      end
     end
+
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     if response.headers["Location"]?
       url = URI.parse(response.headers["Location"])
       host = url.host
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       url = url.full_path
       url += "&host=#{host}"
@@ -5085,8 +5088,6 @@ get "/videoplayback" do |env|
       # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
       env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
     end
-
-    env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     proxy_file(response, env)
   end
@@ -5109,14 +5110,17 @@ get "/ggpht/*" do |env|
   end
 
   client.get(url, headers) do |response|
-    env.response.status_code = response.status_code
     response.headers.each do |key, value|
-      env.response.headers[key] = value
+      if !{"Access-Control-Allow-Origin", "Alt-Svc"}.includes? key
+        env.response.headers[key] = value
+      end
     end
 
     if response.status_code == 304
       break
     end
+
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     proxy_file(response, env)
   end
@@ -5153,12 +5157,16 @@ get "/sb/:id/:storyboard/:index" do |env|
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
     response.headers.each do |key, value|
-      env.response.headers[key] = value
+      if !{"Access-Control-Allow-Origin", "Alt-Svc"}.includes? key
+        env.response.headers[key] = value
+      end
     end
 
     if response.status_code >= 400
       break
     end
+
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     proxy_file(response, env)
   end
@@ -5191,12 +5199,16 @@ get "/vi/:id/:name" do |env|
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
     response.headers.each do |key, value|
-      env.response.headers[key] = value
+      if !{"Access-Control-Allow-Origin", "Alt-Svc"}.includes? key
+        env.response.headers[key] = value
+      end
     end
 
     if response.status_code == 304
       break
     end
+
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     proxy_file(response, env)
   end
