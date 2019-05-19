@@ -5079,17 +5079,7 @@ get "/videoplayback" do |env|
 
     env.response.headers["Access-Control-Allow-Origin"] = "*"
 
-    begin
-      chunk_size = 4096
-      size = 1
-      while size > 0
-        size = IO.copy(response.body_io, env.response.output, chunk_size)
-        env.response.flush
-        Fiber.yield
-      end
-    rescue ex
-      break
-    end
+    proxy_file(response, env)
   end
 end
 
@@ -5119,28 +5109,7 @@ get "/ggpht/*" do |env|
       break
     end
 
-    chunk_size = 4096
-    size = 1
-    if response.headers.includes_word?("Content-Encoding", "gzip")
-      Gzip::Writer.open(env.response) do |deflate|
-        until size == 0
-          size = IO.copy(response.body_io, deflate)
-          env.response.flush
-        end
-      end
-    elsif response.headers.includes_word?("Content-Encoding", "deflate")
-      Flate::Writer.open(env.response) do |deflate|
-        until size == 0
-          size = IO.copy(response.body_io, deflate)
-          env.response.flush
-        end
-      end
-    else
-      until size == 0
-        size = IO.copy(response.body_io, env.response, chunk_size)
-        env.response.flush
-      end
-    end
+    proxy_file(response, env)
   end
 end
 
@@ -5182,28 +5151,7 @@ get "/sb/:id/:storyboard/:index" do |env|
       break
     end
 
-    chunk_size = 4096
-    size = 1
-    if response.headers.includes_word?("Content-Encoding", "gzip")
-      Gzip::Writer.open(env.response) do |deflate|
-        until size == 0
-          size = IO.copy(response.body_io, deflate)
-          env.response.flush
-        end
-      end
-    elsif response.headers.includes_word?("Content-Encoding", "deflate")
-      Flate::Writer.open(env.response) do |deflate|
-        until size == 0
-          size = IO.copy(response.body_io, deflate)
-          env.response.flush
-        end
-      end
-    else
-      until size == 0
-        size = IO.copy(response.body_io, env.response, chunk_size)
-        env.response.flush
-      end
-    end
+    proxy_file(response, env)
   end
 end
 
@@ -5241,28 +5189,7 @@ get "/vi/:id/:name" do |env|
       break
     end
 
-    chunk_size = 4096
-    size = 1
-    if response.headers.includes_word?("Content-Encoding", "gzip")
-      Gzip::Writer.open(env.response) do |deflate|
-        until size == 0
-          size = IO.copy(response.body_io, deflate)
-          env.response.flush
-        end
-      end
-    elsif response.headers.includes_word?("Content-Encoding", "deflate")
-      Flate::Writer.open(env.response) do |deflate|
-        until size == 0
-          size = IO.copy(response.body_io, deflate)
-          env.response.flush
-        end
-      end
-    else
-      until size == 0
-        size = IO.copy(response.body_io, env.response, chunk_size)
-        env.response.flush
-      end
-    end
+    proxy_file(response, env)
   end
 end
 

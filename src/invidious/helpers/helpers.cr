@@ -629,3 +629,17 @@ def cache_annotation(db, id, annotations)
     db.exec("INSERT INTO annotations VALUES ($1, $2) ON CONFLICT DO NOTHING", id, annotations)
   end
 end
+
+def proxy_file(response, env)
+  if response.headers.includes_word?("Content-Encoding", "gzip")
+    Gzip::Writer.open(env.response) do |deflate|
+      IO.copy(response.body_io, deflate)
+    end
+  elsif response.headers.includes_word?("Content-Encoding", "deflate")
+    Flate::Writer.open(env.response) do |deflate|
+      IO.copy(response.body_io, deflate)
+    end
+  else
+    IO.copy(response.body_io, env.response)
+  end
+end
