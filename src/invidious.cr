@@ -67,6 +67,7 @@ SOFTWARE = {
 LOCALES = {
   "ar"    => load_locale("ar"),
   "de"    => load_locale("de"),
+  "el"    => load_locale("el"),
   "en-US" => load_locale("en-US"),
   "eo"    => load_locale("eo"),
   "es"    => load_locale("es"),
