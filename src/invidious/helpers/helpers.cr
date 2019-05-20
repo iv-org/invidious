@@ -631,19 +631,31 @@ def cache_annotation(db, id, annotations)
 end
 
 def proxy_file(response, env)
-  if response.headers["Content-Length"]? && response.headers["Content-Length"] == "0"
+  if !response.body_io?
     return
   end
 
-  if response.headers.includes_word?("Content-Encoding", "gzip")
-    Gzip::Writer.open(env.response) do |deflate|
-      IO.copy(response.body_io, deflate)
+  begin
+    if response.headers.includes_word?("Content-Encoding", "gzip")
+      Gzip::Writer.open(env.response) do |deflate|
+        copy_in_chunks(response.body_io, deflate)
+      end
+    elsif response.headers.includes_word?("Content-Encoding", "deflate")
+      Flate::Writer.open(env.response) do |deflate|
+        copy_in_chunks(response.body_io, deflate)
+      end
+    else
+      copy_in_chunks(response.body_io, env.response)
     end
-  elsif response.headers.includes_word?("Content-Encoding", "deflate")
-    Flate::Writer.open(env.response) do |deflate|
-      IO.copy(response.body_io, deflate)
-    end
-  else
-    IO.copy(response.body_io, env.response)
+  rescue ex
+  end
+end
+
+# https://stackoverflow.com/a/44802810 <3
+def copy_in_chunks(input, output, chunk_size = 4096)
+  size = 1
+  while size > 0
+    size = IO.copy(input, output, chunk_size)
+    Fiber.yield
   end
 end
