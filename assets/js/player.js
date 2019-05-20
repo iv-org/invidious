@@ -1,5 +1,6 @@
 var options = {
     preload: "auto",
+    liveui: true,
     playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0],
     controlBar: {
         children: [
@@ -153,6 +154,13 @@ if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
 
 player.volume(video_data.params.volume / 100);
 player.playbackRate(video_data.params.speed);
+
+player.on('waiting', function () {
+    if (player.playbackRate() > 1 && player.liveTracker.isLive() && player.liveTracker.atLiveEdge()) {
+        console.log('Player has caught up to source, resetting playbackRate.')
+        player.playbackRate(1);
+    }
+});
 
 if (video_data.params.autoplay) {
     var bpb = player.getChild('bigPlayButton');
