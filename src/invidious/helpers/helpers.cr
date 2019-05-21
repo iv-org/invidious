@@ -97,15 +97,9 @@ struct Config
   end
 
   YAML.mapping({
-    channel_threads: Int32,      # Number of threads to use for crawling videos from channels (for updating subscriptions)
-    feed_threads:    Int32,      # Number of threads to use for updating feeds
-    db:              NamedTuple( # Database configuration
-user: String,
-      password: String,
-      host: String,
-      port: Int32,
-      dbname: String,
-    ),
+    channel_threads:          Int32,                                # Number of threads to use for crawling videos from channels (for updating subscriptions)
+    feed_threads:             Int32,                                # Number of threads to use for updating feeds
+    db:                       DBConfig,                             # Database configuration
     full_refresh:             Bool,                                 # Used for crawling channels: threads should check all videos uploaded by a channel
     https_only:               Bool?,                                # Used to tell Invidious it is behind a proxy, so links to resources should be https://
     hmac_key:                 String?,                              # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
@@ -129,6 +123,16 @@ user: String,
     cache_annotations: {type: Bool, default: false},                 # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
     banner:            {type: String?, default: nil},                # Optional banner to be displayed along top of page for announcements, etc.
     hsts:              {type: Bool?, default: true},                 # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
+  })
+end
+
+struct DBConfig
+  yaml_mapping({
+    user:     String,
+    password: String,
+    host:     String,
+    port:     Int32,
+    dbname:   String,
   })
 end
 

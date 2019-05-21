@@ -33,11 +33,11 @@ HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
 PG_URL = URI.new(
   scheme: "postgres",
-  user: CONFIG.db[:user],
-  password: CONFIG.db[:password],
-  host: CONFIG.db[:host],
-  port: CONFIG.db[:port],
-  path: CONFIG.db[:dbname],
+  user: CONFIG.db.user,
+  password: CONFIG.db.password,
+  host: CONFIG.db.host,
+  port: CONFIG.db.port,
+  path: CONFIG.db.dbname,
 )
 
 PG_DB           = DB.open PG_URL
