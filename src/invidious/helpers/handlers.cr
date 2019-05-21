@@ -63,7 +63,7 @@ end
 
 class FilteredCompressHandler < Kemal::Handler
   exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/ggpht/*", "/api/v1/auth/notifications"]
-  exclude ["/data_control"], "POST"
+  exclude ["/api/v1/auth/notifications", "/data_control"], "POST"
 
   def call(env)
     return call_next env if exclude_match? env
@@ -139,7 +139,8 @@ class APIHandler < Kemal::Handler
   {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
   only ["/api/v1/*"], {{method}}
   {% end %}
-  exclude ["/api/v1/auth/notifications"]
+  exclude ["/api/v1/auth/notifications"], "GET"
+  exclude ["/api/v1/auth/notifications"], "POST"
 
   def call(env)
     return call_next env unless only_match? env
