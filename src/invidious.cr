@@ -3840,6 +3840,42 @@ get "/api/v1/search" do |env|
   end
 end
 
+get "/api/v1/search/suggestions" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  region = env.params.query["region"]?
+
+  env.response.content_type = "application/json"
+
+  query = env.params.query["q"]?
+  query ||= ""
+
+  begin
+    client = make_client(URI.parse("https://suggestqueries.google.com"))
+    response = client.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.escape(query)}&callback=suggestCallback").body
+
+    body = response[35..-2]
+    body = JSON.parse(body).as_a
+    suggestions = body[1].as_a[0..-2]
+
+    JSON.build do |json|
+      json.object do
+        json.field "query", body[0].as_s
+        json.field "suggestions" do
+          json.array do
+            suggestions.each do |suggestion|
+              json.string suggestion[0].as_s
+            end
+          end
+        end
+      end
+    end
+  rescue ex
+    env.response.status_code = 500
+    error_message = {"error" => ex.message}.to_json
+    next error_message
+  end
+end
+
 get "/api/v1/playlists/:plid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
