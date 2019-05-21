@@ -3065,7 +3065,7 @@ get "/api/v1/stats" do |env|
   statistics.to_json
 end
 
-# YouTube provides "storyboards", which are sprites containing of x * y
+# YouTube provides "storyboards", which are sprites containing x * y
 # preview thumbnails for individual scenes in a video.
 # See https://support.jwplayer.com/articles/how-to-add-preview-thumbnails
 get "/api/v1/storyboards/:id" do |env|
@@ -3153,6 +3153,14 @@ get "/api/v1/captions/:id" do |env|
   id = env.params.url["id"]
   region = env.params.query["region"]?
 
+  # See https://github.com/ytdl-org/youtube-dl/blob/6ab30ff50bf6bd0585927cb73c7421bef184f87a/youtube_dl/extractor/youtube.py#L1354
+  # It is possible to use `/api/timedtext?type=list&v=#{id}` and
+  # `/api/timedtext?type=track&v=#{id}&lang=#{lang_code}` directly,
+  # but this does not provide links for auto-generated captions.
+  #
+  # In future this should be investigated as an alternative, since it does not require
+  # getting video info.
+
   client = make_client(YT_URL)
   begin
     video = get_video(id, PG_DB, proxies, region: region)
@@ -3189,7 +3197,7 @@ get "/api/v1/captions/:id" do |env|
     next response
   end
 
-  env.response.content_type = "text/vtt"
+  env.response.content_type = "text/vtt; charset=UTF-8"
 
   caption = captions.select { |caption| caption.name.simpleText == label }
 

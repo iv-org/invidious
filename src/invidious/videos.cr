@@ -825,17 +825,17 @@ struct Video
 end
 
 struct Caption
-  JSON.mapping(
-    name: CaptionName,
-    baseUrl: String,
-    languageCode: String
-  )
+  json_mapping({
+    name:         CaptionName,
+    baseUrl:      String,
+    languageCode: String,
+  })
 end
 
 struct CaptionName
-  JSON.mapping(
+  json_mapping({
     simpleText: String,
-  )
+  })
 end
 
 class VideoRedirect < Exception
