@@ -4964,11 +4964,12 @@ get "/videoplayback" do |env|
   end
 
   client = make_client(URI.parse(host), proxies, region)
+  begin
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
 
     response.headers.each do |key, value|
-      if !{"Access-Control-Allow-Origin", "Alt-Svc"}.includes? key
+        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
         env.response.headers[key] = value
       end
     end
@@ -4996,6 +4997,8 @@ get "/videoplayback" do |env|
 
     proxy_file(response, env)
   end
+  rescue ex
+end
 end
 
 # We need this so the below route works as expected
@@ -5014,9 +5017,10 @@ get "/ggpht/*" do |env|
     end
   end
 
+  begin
   client.get(url, headers) do |response|
     response.headers.each do |key, value|
-      if !{"Access-Control-Allow-Origin", "Alt-Svc"}.includes? key
+        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
         env.response.headers[key] = value
       end
     end
@@ -5028,6 +5032,8 @@ get "/ggpht/*" do |env|
     env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     proxy_file(response, env)
+  end
+  rescue ex
   end
 end
 
@@ -5059,10 +5065,11 @@ get "/sb/:id/:storyboard/:index" do |env|
     end
   end
 
+  begin
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
     response.headers.each do |key, value|
-      if !{"Access-Control-Allow-Origin", "Alt-Svc"}.includes? key
+        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
         env.response.headers[key] = value
       end
     end
@@ -5074,6 +5081,8 @@ get "/sb/:id/:storyboard/:index" do |env|
     env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     proxy_file(response, env)
+  end
+  rescue ex
   end
 end
 
@@ -5101,10 +5110,11 @@ get "/vi/:id/:name" do |env|
     end
   end
 
+  begin
   client.get(url, headers) do |response|
     env.response.status_code = response.status_code
     response.headers.each do |key, value|
-      if !{"Access-Control-Allow-Origin", "Alt-Svc"}.includes? key
+        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
         env.response.headers[key] = value
       end
     end
@@ -5116,6 +5126,8 @@ get "/vi/:id/:name" do |env|
     env.response.headers["Access-Control-Allow-Origin"] = "*"
 
     proxy_file(response, env)
+  end
+  rescue ex
   end
 end
 

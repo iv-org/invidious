@@ -639,19 +639,16 @@ def proxy_file(response, env)
     return
   end
 
-  begin
-    if response.headers.includes_word?("Content-Encoding", "gzip")
-      Gzip::Writer.open(env.response) do |deflate|
-        copy_in_chunks(response.body_io, deflate)
-      end
-    elsif response.headers.includes_word?("Content-Encoding", "deflate")
-      Flate::Writer.open(env.response) do |deflate|
-        copy_in_chunks(response.body_io, deflate)
-      end
-    else
-      copy_in_chunks(response.body_io, env.response)
+  if response.headers.includes_word?("Content-Encoding", "gzip")
+    Gzip::Writer.open(env.response) do |deflate|
+      copy_in_chunks(response.body_io, deflate)
     end
-  rescue ex
+  elsif response.headers.includes_word?("Content-Encoding", "deflate")
+    Flate::Writer.open(env.response) do |deflate|
+      copy_in_chunks(response.body_io, deflate)
+    end
+  else
+    copy_in_chunks(response.body_io, env.response)
   end
 end
 
