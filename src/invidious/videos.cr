@@ -721,10 +721,13 @@ struct Video
       return items
     end
 
-    url = storyboards.shift
+    url = URI.parse(storyboards.shift)
+    params = HTTP::Params.parse(url.query || "")
 
     storyboards.each_with_index do |storyboard, i|
       width, height, count, storyboard_width, storyboard_height, interval, _, sigh = storyboard.split("#")
+      params["sigh"] = sigh
+      url.query = params.to_s
 
       width = width.to_i
       height = height.to_i
@@ -734,7 +737,7 @@ struct Video
       storyboard_height = storyboard_height.to_i
 
       items << {
-        url:               "#{url}&sigh=#{sigh}".sub("$L", i).sub("$N", "M$M"),
+        url:               url.to_s.sub("$L", i).sub("$N", "M$M"),
         width:             width,
         height:            height,
         count:             count,
