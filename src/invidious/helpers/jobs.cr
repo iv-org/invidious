@@ -45,6 +45,29 @@ end
 def refresh_feeds(db, logger, max_threads = 1)
   max_channel = Channel(Int32).new
 
+  # TODO: Make this config option, similar to use_pubsub
+  # Spawn thread to handle feed events
+  if max_threads > 0
+    spawn do
+      PG.connect_listen(PG_URL, "feeds") do |event|
+        spawn do
+          feed = JSON.parse(event.payload)
+          email = feed["email"].as_s
+          action = feed["action"].as_s
+
+          view_name = "subscriptions_#{sha256(email)}"
+
+          case action
+          when "refresh"
+            db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
+          end
+        end
+
+        Fiber.yield
+      end
+    end
+  end
+
   spawn do
     max_threads = max_channel.receive
     active_threads = 0

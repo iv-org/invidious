@@ -2845,16 +2845,25 @@ post "/feed/webhook/:token" do |env|
         premiere_timestamp: video.premiere_timestamp,
       )
 
-      PG_DB.exec("UPDATE users SET notifications = notifications || $1 \
-      WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)", video.id, video.published, video.ucid)
+      users = PG_DB.query_all("UPDATE users SET notifications = notifications || $1 \
+        WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
+        video.id, video.published, video.ucid, as: String)
 
       video_array = video.to_a
       args = arg_array(video_array)
 
       PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
-      ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
-      updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-      live_now = $8, premiere_timestamp = $9", video_array)
+        ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
+        updated = $4, ucid = $5, author = $6, length_seconds = $7, \
+        live_now = $8, premiere_timestamp = $9", video_array)
+
+      users.each do |user|
+        payload = {
+          "email"  => user,
+          "action" => "refresh",
+        }.to_json
+        PG_DB.exec("NOTIFY feeds, E'#{payload}'")
+      end
     end
   end
 
