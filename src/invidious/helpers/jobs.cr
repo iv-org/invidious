@@ -42,12 +42,12 @@ def refresh_channels(db, logger, max_threads = 1, full_refresh = false)
   max_channel.send(max_threads)
 end
 
-def refresh_feeds(db, logger, max_threads = 1)
+def refresh_feeds(db, logger, max_threads = 1, use_feed_events = false)
   max_channel = Channel(Int32).new
 
-  # TODO: Make this config option, similar to use_pubsub
+  # TODO: Instead of Fiber.yield, use proper queuing to prevent overloading DB
   # Spawn thread to handle feed events
-  if max_threads > 0
+  if use_feed_events
     spawn do
       PG.connect_listen(PG_URL, "feeds") do |event|
         spawn do
