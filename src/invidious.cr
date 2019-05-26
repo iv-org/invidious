@@ -1700,6 +1700,12 @@ post "/subscription_ajax" do |env|
     PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", channel_id, email)
   end
 
+  payload = {
+    "email"  => user.email,
+    "action" => "refresh",
+  }.to_json
+  PG_DB.exec("NOTIFY feeds, E'#{payload}'")
+
   if redirect
     env.redirect referer
   else
@@ -1945,6 +1951,12 @@ post "/data_control" do |env|
         end
       end
     end
+
+    payload = {
+      "email"  => user.email,
+      "action" => "refresh",
+    }.to_json
+    PG_DB.exec("NOTIFY feeds, E'#{payload}'")
   end
 
   env.redirect referer
@@ -4490,6 +4502,12 @@ post "/api/v1/auth/subscriptions/:ucid" do |env|
   if !user.subscriptions.includes? ucid
     get_channel(ucid, PG_DB, false, false)
     PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
+
+    payload = {
+      "email"  => user.email,
+      "action" => "refresh",
+    }.to_json
+    PG_DB.exec("NOTIFY feeds, E'#{payload}'")
   end
 
   # For Google accounts, access tokens don't have enough information to
@@ -4506,6 +4524,11 @@ delete "/api/v1/auth/subscriptions/:ucid" do |env|
   ucid = env.params.url["ucid"]
 
   PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", ucid, user.email)
+  payload = {
+    "email"  => user.email,
+    "action" => "refresh",
+  }.to_json
+  PG_DB.exec("NOTIFY feeds, E'#{payload}'")
 
   env.response.status_code = 204
 end
