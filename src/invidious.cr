@@ -2950,6 +2950,12 @@ get "/profile" do |env|
   end
 end
 
+# Page used by YouTube to provide captioning widget, since we
+# don't support it we redirect to '/'
+get "/timedtext_video" do |env|
+  env.redirect "/"
+end
+
 get "/user/:user" do |env|
   user = env.params.url["user"]
   env.redirect "/channel/#{user}"
