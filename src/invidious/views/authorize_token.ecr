@@ -39,7 +39,7 @@
                 <div class="pure-u-1">
                     <ul>
                         <% scopes.each do |scope| %>
-                            <li><%= scope %></li>
+                            <li><%= HTML.escape(scope) %></li>
                         <% end %>
                     </ul>
                 </div>

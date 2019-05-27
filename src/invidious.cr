@@ -4473,6 +4473,7 @@ post "/api/v1/auth/preferences" do |env|
   PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
 
   env.response.status_code = 204
+  ""
 end
 
 get "/api/v1/auth/subscriptions" do |env|
@@ -4521,6 +4522,7 @@ post "/api/v1/auth/subscriptions/:ucid" do |env|
   # YouTube.
 
   env.response.status_code = 204
+  ""
 end
 
 delete "/api/v1/auth/subscriptions/:ucid" do |env|
@@ -4537,6 +4539,7 @@ delete "/api/v1/auth/subscriptions/:ucid" do |env|
   PG_DB.exec("NOTIFY feeds, E'#{payload}'")
 
   env.response.status_code = 204
+  ""
 end
 
 get "/api/v1/auth/tokens" do |env|
@@ -4643,6 +4646,7 @@ post "/api/v1/auth/tokens/unregister" do |env|
   end
 
   env.response.status_code = 204
+  ""
 end
 
 get "/api/manifest/dash/id/videoplayback" do |env|
