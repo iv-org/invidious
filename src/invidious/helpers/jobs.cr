@@ -47,34 +47,36 @@ def refresh_feeds(db, logger, max_threads = 1, use_feed_events = false)
 
   # Spawn thread to handle feed events
   if use_feed_events
-    queue = Deque(String).new(30)
-
     spawn do
-      loop do
-        if event = queue.shift?
-          feed = JSON.parse(event)
-          email = feed["email"].as_s
-          action = feed["action"].as_s
+      queue = Deque(String).new(30)
 
-          view_name = "subscriptions_#{sha256(email)}"
+      spawn do
+        loop do
+          if event = queue.shift?
+            feed = JSON.parse(event)
+            email = feed["email"].as_s
+            action = feed["action"].as_s
 
-          case action
-          when "refresh"
-            db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
+            view_name = "subscriptions_#{sha256(email)}"
+
+            case action
+            when "refresh"
+              db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
+            end
+
+            # Delete any future events that we just processed
+            queue.delete(event)
+          else
+            sleep 1.second
           end
 
-          # Delete any future events that we just processed
-          queue.delete(event)
-        else
-          sleep 1.second
+          Fiber.yield
         end
-
-        Fiber.yield
       end
-    end
 
-    PG.connect_listen(PG_URL, "feeds") do |event|
-      queue << event.payload
+      PG.connect_listen(PG_URL, "feeds") do |event|
+        queue << event.payload
+      end
     end
   end
 
