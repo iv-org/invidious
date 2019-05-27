@@ -1073,7 +1073,7 @@ post "/login" do |env|
         next templated "error"
       end
 
-      if Crypto::Bcrypt::Password.new(user.password.not_nil!) == password
+      if Crypto::Bcrypt::Password.new(user.password.not_nil!) == password.byte_slice(0, 55)
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.now)
 
@@ -1106,6 +1106,19 @@ post "/login" do |env|
         error_message = "Registration has been disabled by administrator."
         next templated "error"
       end
+
+      if password.empty?
+        error_message = translate(locale, "Password cannot be empty")
+        next templated "error"
+      end
+
+      # See https://security.stackexchange.com/a/39851
+      if password.bytesize > 55
+        error_message = translate(locale, "Password should not be longer than 55 characters")
+        next templated "error"
+      end
+
+      password = password.byte_slice(0, 55)
 
       if config.captcha_enabled
         captcha_type = env.params.body["captcha_type"]?
@@ -1166,17 +1179,6 @@ post "/login" do |env|
             next templated "error"
           end
         end
-      end
-
-      if password.empty?
-        error_message = translate(locale, "Password cannot be empty")
-        next templated "error"
-      end
-
-      # See https://security.stackexchange.com/a/39851
-      if password.size > 55
-        error_message = translate(locale, "Password cannot be longer than 55 characters")
-        next templated "error"
       end
 
       sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
