@@ -39,6 +39,10 @@ function get_playlist(plid, timeouts = 0) {
                             url.searchParams.set('speed', video_data.params.speed);
                         }
 
+                        if (video_data.params.local !== video_data.preferences.local) {
+                            url.searchParams.set('local', video_data.params.local);
+                        }
+
                         url.searchParams.set('list', plid);
                         location.assign(url.pathname + url.search);
                     });
@@ -69,6 +73,10 @@ if (video_data.plid) {
 
         if (video_data.params.speed !== video_data.preferences.speed) {
             url.searchParams.set('speed', video_data.params.speed);
+        }
+
+        if (video_data.params.local !== video_data.preferences.local) {
+            url.searchParams.set('local', video_data.params.local);
         }
 
         if (video_data.video_series.length !== 0) {

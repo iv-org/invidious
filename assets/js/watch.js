@@ -90,6 +90,10 @@ function continue_autoplay(event) {
                 url.searchParams.set('speed', video_data.params.speed);
             }
 
+            if (video_data.params.local !== video_data.preferences.local) {
+                url.searchParams.set('local', video_data.params.local);
+            }
+
             url.searchParams.set('continue', '1');
             location.assign(url.pathname + url.search);
         });
@@ -153,6 +157,10 @@ function get_playlist(plid, timeouts = 0) {
 
                         if (video_data.params.speed !== video_data.preferences.speed) {
                             url.searchParams.set('speed', video_data.params.speed);
+                        }
+
+                        if (video_data.params.local !== video_data.preferences.local) {
+                            url.searchParams.set('local', video_data.params.local);
                         }
 
                         url.searchParams.set('list', plid);
@@ -386,6 +394,10 @@ if (video_data.play_next) {
 
         if (video_data.params.speed !== video_data.preferences.speed) {
             url.searchParams.set('speed', video_data.params.speed);
+        }
+
+        if (video_data.params.local !== video_data.preferences.local) {
+            url.searchParams.set('local', video_data.params.local);
         }
 
         url.searchParams.set('continue', '1');
