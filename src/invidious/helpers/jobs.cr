@@ -45,13 +45,14 @@ end
 def refresh_feeds(db, logger, max_threads = 1, use_feed_events = false)
   max_channel = Channel(Int32).new
 
-  # TODO: Instead of Fiber.yield, use proper queuing to prevent overloading DB
   # Spawn thread to handle feed events
   if use_feed_events
+    queue = Deque(String).new(30)
+
     spawn do
-      PG.connect_listen(PG_URL, "feeds") do |event|
-        spawn do
-          feed = JSON.parse(event.payload)
+      loop do
+        if event = queue.shift?
+          feed = JSON.parse(event)
           email = feed["email"].as_s
           action = feed["action"].as_s
 
@@ -61,10 +62,19 @@ def refresh_feeds(db, logger, max_threads = 1, use_feed_events = false)
           when "refresh"
             db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
           end
+
+          # Delete any future events that we just processed
+          queue.delete(event)
+        else
+          sleep 1.second
         end
 
         Fiber.yield
       end
+    end
+
+    PG.connect_listen(PG_URL, "feeds") do |event|
+      queue << event.payload
     end
   end
 
