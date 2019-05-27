@@ -129,8 +129,8 @@ end
 
 # Start jobs
 
-refresh_channels(PG_DB, logger, config.channel_threads, config.full_refresh)
-refresh_feeds(PG_DB, logger, config.feed_threads, config.use_feed_events)
+refresh_channels(PG_DB, logger, config)
+refresh_feeds(PG_DB, logger, config)
 subscribe_to_feeds(PG_DB, logger, HMAC_KEY, config)
 
 statistics = {
