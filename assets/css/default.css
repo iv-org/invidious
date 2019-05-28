@@ -222,6 +222,11 @@ input[type="search"]::-webkit-search-cancel-button {
   .navbar > .searchbar > form {
     width: 60%;
   }
+
+  h1 {
+    font-size: 1.25em;
+    margin: 0.42em 0;
+  }
 }
 
 @media screen and (max-width: 320px) {
