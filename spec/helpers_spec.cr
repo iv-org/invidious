@@ -10,7 +10,7 @@ require "../src/invidious/playlists"
 require "../src/invidious/search"
 require "../src/invidious/users"
 
-describe "Helpers" do
+describe "Helper" do
   describe "#produce_channel_videos_url" do
     it "correctly produces url for requesting page `x` of a channel's videos" do
       produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw").should eq("/browse_ajax?continuation=4qmFsgI8EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0V4&gl=US&hl=en")
@@ -93,7 +93,7 @@ describe "Helpers" do
           ":subscriptions/*",
           "GET:tokens*",
         ],
-        "signature" => "f//2hS20th8pALF305PJFK+D2aVtvefNnQheILHD2vU=",
+        "signature" => "f__2hS20th8pALF305PJFK-D2aVtvefNnQheILHD2vU=",
       }
       sign_token("SECRET_KEY", token).should eq(token["signature"])
 
