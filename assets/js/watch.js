@@ -237,7 +237,7 @@ function get_reddit_comments(timeouts = 0) {
                 comments.children[0].children[0].children[0].onclick = toggle_comments;
                 comments.children[0].children[1].children[0].onclick = swap_comments;
             } else {
-                if (video_data.preferences.comments[1] === 'youtube') {
+                if (video_data.params.comments[1] === 'youtube') {
                     get_youtube_comments(timeouts + 1);
                 } else {
                     comments.innerHTML = fallback;
@@ -278,35 +278,31 @@ function get_youtube_comments(timeouts = 0) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
-                if (xhr.response.commentCount > 0) {
-                    comments.innerHTML = ' \
-                    <div> \
-                        <h3> \
-                            <a href="javascript:void(0)">[ - ]</a> \
-                            {commentsText}  \
-                        </h3> \
-                        <b> \
-                            <a href="javascript:void(0)" data-comments="reddit"> \
-                                {redditComments} \
-                            </a> \
-                        </b> \
-                    </div> \
-                    <div>{contentHtml}</div> \
-                    <hr>'.supplant({
-                        contentHtml: xhr.response.contentHtml,
-                        redditComments: video_data.reddit_comments_text,
-                        commentsText: video_data.comments_text.supplant(
-                            { commentCount: number_with_separator(xhr.response.commentCount) }
-                        )
-                    });
+                comments.innerHTML = ' \
+                <div> \
+                    <h3> \
+                        <a href="javascript:void(0)">[ - ]</a> \
+                        {commentsText}  \
+                    </h3> \
+                    <b> \
+                        <a href="javascript:void(0)" data-comments="reddit"> \
+                            {redditComments} \
+                        </a> \
+                    </b> \
+                </div> \
+                <div>{contentHtml}</div> \
+                <hr>'.supplant({
+                    contentHtml: xhr.response.contentHtml,
+                    redditComments: video_data.reddit_comments_text,
+                    commentsText: video_data.comments_text.supplant(
+                        { commentCount: number_with_separator(xhr.response.commentCount) }
+                    )
+                });
 
-                    comments.children[0].children[0].children[0].onclick = toggle_comments;
-                    comments.children[0].children[1].children[0].onclick = swap_comments;
-                } else {
-                    comments.innerHTML = '';
-                }
+                comments.children[0].children[0].children[0].onclick = toggle_comments;
+                comments.children[0].children[1].children[0].onclick = swap_comments;
             } else {
-                if (video_data.preferences[1] === 'youtube') {
+                if (video_data.params.comments[1] === 'youtube') {
                     get_youtube_comments(timeouts + 1);
                 } else {
                     comments.innerHTML = '';
@@ -409,13 +405,13 @@ if (video_data.plid) {
     get_playlist(video_data.plid);
 }
 
-if (video_data.preferences.comments[0] === 'youtube') {
+if (video_data.params.comments[0] === 'youtube') {
     get_youtube_comments();
-} else if (video_data.preferences.comments[0] === 'reddit') {
+} else if (video_data.params.comments[0] === 'reddit') {
     get_reddit_comments();
-} else if (video_data.preferences.comments[1] === 'youtube') {
+} else if (video_data.params.comments[1] === 'youtube') {
     get_youtube_comments();
-} else if (video_data.preferences.comments[1] === 'reddit') {
+} else if (video_data.params.comments[1] === 'reddit') {
     get_reddit_comments();
 } else {
     comments = document.getElementById('comments');

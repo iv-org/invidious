@@ -245,6 +245,7 @@ struct VideoPreferences
   json_mapping({
     annotations:        Bool,
     autoplay:           Bool,
+    comments:           Array(String),
     continue:           Bool,
     continue_autoplay:  Bool,
     controls:           Bool,
@@ -1228,6 +1229,7 @@ end
 def process_video_params(query, preferences)
   annotations = query["iv_load_policy"]?.try &.to_i?
   autoplay = query["autoplay"]?.try &.to_i?
+  comments = query["comments"]?.try &.split(",").map { |a| a.downcase }
   continue = query["continue"]?.try &.to_i?
   continue_autoplay = query["continue_autoplay"]?.try &.to_i?
   listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
@@ -1244,6 +1246,7 @@ def process_video_params(query, preferences)
     # region ||= preferences.region
     annotations ||= preferences.annotations.to_unsafe
     autoplay ||= preferences.autoplay.to_unsafe
+    comments ||= preferences.comments
     continue ||= preferences.continue.to_unsafe
     continue_autoplay ||= preferences.continue_autoplay.to_unsafe
     listen ||= preferences.listen.to_unsafe
@@ -1258,6 +1261,7 @@ def process_video_params(query, preferences)
 
   annotations ||= CONFIG.default_user_preferences.annotations.to_unsafe
   autoplay ||= CONFIG.default_user_preferences.autoplay.to_unsafe
+  comments ||= CONFIG.default_user_preferences.comments
   continue ||= CONFIG.default_user_preferences.continue.to_unsafe
   continue_autoplay ||= CONFIG.default_user_preferences.continue_autoplay.to_unsafe
   listen ||= CONFIG.default_user_preferences.listen.to_unsafe
@@ -1306,6 +1310,7 @@ def process_video_params(query, preferences)
   params = VideoPreferences.new(
     annotations: annotations,
     autoplay: autoplay,
+    comments: comments,
     continue: continue,
     continue_autoplay: continue_autoplay,
     controls: controls,
