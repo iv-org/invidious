@@ -13,6 +13,7 @@ CREATE TABLE public.channel_videos
   length_seconds integer,
   live_now boolean,
   premiere_timestamp timestamp with time zone,
+  views bigint,
   CONSTRAINT channel_videos_id_key UNIQUE (id)
 );
 

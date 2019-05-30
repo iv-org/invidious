@@ -81,7 +81,7 @@
                 <% end %>
 
                 <div class="pure-u-1-3" style="text-align:right">
-                    <%= item.responds_to?(:views) ? translate(locale, "`x` views", number_to_short_text(item.views)) : "" %>
+                    <%= item.responds_to?(:views) && item.views ? translate(locale, "`x` views", number_to_short_text(item.views || 0)) : "" %>
                 </div>
             </h5>
         <% else %>
@@ -130,7 +130,7 @@
                 <% end %>
 
                 <div class="pure-u-1-3" style="text-align:right">
-                    <%= item.responds_to?(:views) ? translate(locale, "`x` views", number_to_short_text(item.views)) : "" %>
+                    <%= item.responds_to?(:views) && item.views ? translate(locale, "`x` views", number_to_short_text(item.views || 0)) : "" %>
                 </div>
             </h5>
         <% end %>

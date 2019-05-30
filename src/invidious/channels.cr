@@ -24,6 +24,8 @@ struct ChannelVideo
       json.field "authorUrl", "/channel/#{self.ucid}"
       json.field "published", self.published.to_unix
       json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
+
+      json.field "viewCount", self.views
     end
   end
 
@@ -47,6 +49,7 @@ struct ChannelVideo
     length_seconds:     {type: Int32, default: 0},
     live_now:           {type: Bool, default: false},
     premiere_timestamp: {type: Time?, default: nil},
+    views:              {type: Int64?, default: nil},
   })
 end
 
@@ -155,6 +158,8 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
     author = entry.xpath_node("author/name").not_nil!.content
     ucid = entry.xpath_node("channelid").not_nil!.content
+    views = entry.xpath_node("group/community/statistics").try &.["views"]?.try &.to_i64?
+    views ||= 0_i64
 
     channel_video = videos.select { |video| video.id == video_id }[0]?
 
@@ -175,7 +180,8 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       author: author,
       length_seconds: length_seconds,
       live_now: live_now,
-      premiere_timestamp: premiere_timestamp
+      premiere_timestamp: premiere_timestamp,
+      views: views,
     )
 
     users = db.query_all("UPDATE users SET notifications = notifications || $1 \
@@ -190,7 +196,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     db.exec("INSERT INTO channel_videos VALUES (#{args}) \
       ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
       updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-      live_now = $8", video_array)
+      live_now = $8, views = $10", video_array)
 
     users.each do |user|
       payload = {
@@ -236,7 +242,8 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
         author: video.author,
         length_seconds: video.length_seconds,
         live_now: video.live_now,
-        premiere_timestamp: video.premiere_timestamp
+        premiere_timestamp: video.premiere_timestamp,
+        views: video.views
       ) }
 
       videos.each do |video|
@@ -254,8 +261,9 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
           # We don't update the 'premire_timestamp' here because channel pages don't include them
           db.exec("INSERT INTO channel_videos VALUES (#{args}) \
-            ON CONFLICT (id) DO UPDATE SET title = $2, updated = $4, \
-            ucid = $5, author = $6, length_seconds = $7, live_now = $8", video_array)
+            ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
+            updated = $4, ucid = $5, author = $6, length_seconds = $7, \
+            live_now = $8, views = $10", video_array)
 
           # Update all users affected by insert
           users.each do |user|
