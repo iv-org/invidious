@@ -4751,7 +4751,10 @@ get "/api/manifest/dash/id/:id" do |env|
               bandwidth = fmt["bitrate"]
               itag = fmt["itag"]
               url = fmt["url"]
-              width, height = fmt["size"].split("x")
+              width, height = fmt["size"].split("x").map { |i| i.to_i }
+
+              # Resolutions reported by YouTube player (may not accurately reflect source)
+              height = [4320, 2160, 1440, 1080, 720, 480, 360, 240, 144].sort_by { |i| (height - i).abs }[0]
 
               xml.element("Representation", id: itag, codecs: codecs, width: width, height: height,
                 startWithSAP: "1", maxPlayoutRate: "1",
