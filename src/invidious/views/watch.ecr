@@ -30,7 +30,7 @@
 var video_data = {
     id: '<%= video.id %>',
     plid: '<%= plid %>',
-    length_seconds: '<%= video.info["length_seconds"].to_f %>',
+    length_seconds: <%= video.info["length_seconds"].to_f %>,
     play_next: <%= !rvs.empty? && !plid && params.continue %>,
     next_video: '<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>',
     youtube_comments_text: '<%= HTML.escape(translate(locale, "View YouTube comments")) %>',
