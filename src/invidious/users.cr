@@ -40,10 +40,10 @@ struct Preferences
       begin
         result = [] of String
         value.read_array do
-          result << value.read_string
+          result << HTML.escape(value.read_string)
         end
       rescue ex
-        result = [value.read_string, ""]
+        result = [HTML.escape(value.read_string), ""]
       end
 
       result
@@ -69,17 +69,35 @@ struct Preferences
             node.raise "Expected scalar, not #{item.class}"
           end
 
-          result << item.value
+          result << HTML.escape(item.value)
         end
       rescue ex
         if node.is_a?(YAML::Nodes::Scalar)
-          result = [node.value, ""]
+          result = [HTML.escape(node.value), ""]
         else
           result = ["", ""]
         end
       end
 
       result
+    end
+  end
+
+  module EscapeString
+    def self.to_json(value : String, json : JSON::Builder)
+      json.string value
+    end
+
+    def self.from_json(value : JSON::PullParser) : String
+      HTML.escape(value.read_string)
+    end
+
+    def self.to_yaml(value : String, yaml : YAML::Nodes::Builder)
+      yaml.scalar value
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : String
+      HTML.escape(node.value)
     end
   end
 
@@ -95,13 +113,13 @@ struct Preferences
     latest_only:            {type: Bool, default: CONFIG.default_user_preferences.latest_only},
     listen:                 {type: Bool, default: CONFIG.default_user_preferences.listen},
     local:                  {type: Bool, default: CONFIG.default_user_preferences.local},
-    locale:                 {type: String, default: CONFIG.default_user_preferences.locale},
+    locale:                 {type: String, default: CONFIG.default_user_preferences.locale, converter: EscapeString},
     max_results:            {type: Int32, default: CONFIG.default_user_preferences.max_results},
     notifications_only:     {type: Bool, default: CONFIG.default_user_preferences.notifications_only},
-    quality:                {type: String, default: CONFIG.default_user_preferences.quality},
+    quality:                {type: String, default: CONFIG.default_user_preferences.quality, converter: EscapeString},
     redirect_feed:          {type: Bool, default: CONFIG.default_user_preferences.redirect_feed},
     related_videos:         {type: Bool, default: CONFIG.default_user_preferences.related_videos},
-    sort:                   {type: String, default: CONFIG.default_user_preferences.sort},
+    sort:                   {type: String, default: CONFIG.default_user_preferences.sort, converter: EscapeString},
     speed:                  {type: Float32, default: CONFIG.default_user_preferences.speed},
     thin_mode:              {type: Bool, default: CONFIG.default_user_preferences.thin_mode},
     unseen_only:            {type: Bool, default: CONFIG.default_user_preferences.unseen_only},
