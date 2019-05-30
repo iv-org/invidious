@@ -1880,7 +1880,7 @@ post "/data_control" do |env|
         end
 
         if body["preferences"]?
-          user.preferences = Preferences.from_json(body["preferences"].to_json)
+          user.preferences = Preferences.from_json(body["preferences"].to_json, user.preferences)
           PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", user.preferences.to_json, user.email)
         end
       when "import_youtube"
@@ -4468,7 +4468,7 @@ post "/api/v1/auth/preferences" do |env|
   user = env.get("user").as(User)
 
   begin
-    preferences = Preferences.from_json(env.request.body || "{}")
+    preferences = Preferences.from_json(env.request.body || "{}", user.preferences)
   rescue
     preferences = user.preferences
   end
