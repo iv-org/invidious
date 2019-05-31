@@ -2867,7 +2867,7 @@ post "/feed/webhook/:token" do |env|
       video_array = video.to_a
       args = arg_array(video_array)
 
-      PG_DB.exec("INSERT INTO channel_videos (id, title, published, updated, ucid, author, length_seconds, live_now, premiere_timestamp) VALUES (#{args}) \
+      PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
         ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
         updated = $4, ucid = $5, author = $6, length_seconds = $7, \
         live_now = $8, premiere_timestamp = $9, views = $10", video_array)
