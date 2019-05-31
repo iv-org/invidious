@@ -20,7 +20,9 @@ module HTTP::Handler
 end
 
 class Kemal::RouteHandler
-  exclude ["/api/v1/*"]
+  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  exclude ["/api/v1/*"], {{method}}
+  {% end %}
 
   # Processes the route if it's a match. Otherwise renders 404.
   private def process_request(context)
@@ -31,13 +33,20 @@ class Kemal::RouteHandler
       raise Kemal::Exceptions::CustomException.new(context)
     end
 
+    if context.request.method == "HEAD" &&
+       context.request.path.ends_with? ".jpg"
+      context.response.headers["Content-Type"] = "image/jpeg"
+    end
+
     context.response.print(content)
     context
   end
 end
 
 class Kemal::ExceptionHandler
-  exclude ["/api/v1/*"]
+  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  exclude ["/api/v1/*"], {{method}}
+  {% end %}
 
   private def call_exception_with_status_code(context : HTTP::Server::Context, exception : Exception, status_code : Int32)
     return if context.response.closed?
@@ -53,7 +62,8 @@ class Kemal::ExceptionHandler
 end
 
 class FilteredCompressHandler < Kemal::Handler
-  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/ggpht/*"]
+  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/ggpht/*", "/api/v1/auth/notifications"]
+  exclude ["/api/v1/auth/notifications", "/data_control"], "POST"
 
   def call(env)
     return call_next env if exclude_match? env
@@ -77,12 +87,20 @@ class FilteredCompressHandler < Kemal::Handler
 end
 
 class APIHandler < Kemal::Handler
-  only ["/api/v1/*"]
+  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  only ["/api/v1/*"], {{method}}
+  {% end %}
+  exclude ["/api/v1/auth/notifications"], "GET"
+  exclude ["/api/v1/auth/notifications"], "POST"
 
   def call(env)
     return call_next env unless only_match? env
 
     env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+    # Since /api/v1/notifications is an event-stream, we don't want
+    # to wrap the response
+    return call_next env if exclude_match? env
 
     # Here we swap out the socket IO so we can modify the response as needed
     output = env.response.output
@@ -97,13 +115,22 @@ class APIHandler < Kemal::Handler
       if env.response.headers["Content-Type"]?.try &.== "application/json"
         response = JSON.parse(response)
 
+        if fields_text = env.params.query["fields"]?
+          begin
+            JSONFilter.filter(response, fields_text)
+          rescue ex
+            env.response.status_code = 400
+            response = {"error" => ex.message}
+          end
+        end
+
         if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
           response = response.to_pretty_json
         else
           response = response.to_json
         end
       end
-    rescue
+    rescue ex
     ensure
       env.response.output = output
       env.response.puts response
@@ -124,10 +151,28 @@ class DenyFrame < Kemal::Handler
   end
 end
 
-# Temp fix for https://github.com/crystal-lang/crystal/issues/7383
+# Temp fixes for https://github.com/crystal-lang/crystal/issues/7383
+class HTTP::UnknownLengthContent
+  def read_byte
+    ensure_send_continue
+    if @io.is_a?(OpenSSL::SSL::Socket::Client)
+      return if @io.as(OpenSSL::SSL::Socket::Client).@in_buffer_rem.empty?
+    end
+    @io.read_byte
+  end
+end
+
 class HTTP::Client
   private def handle_response(response)
-    # close unless response.keep_alive?
+    if @socket.is_a?(OpenSSL::SSL::Socket::Client)
+      close unless response.keep_alive? || @socket.as(OpenSSL::SSL::Socket::Client).@in_buffer_rem.empty?
+      if @socket.as(OpenSSL::SSL::Socket::Client).@in_buffer_rem.empty?
+        @socket = nil
+      end
+    else
+      close unless response.keep_alive?
+    end
+
     response
   end
 end

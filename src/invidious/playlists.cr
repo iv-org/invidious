@@ -1,5 +1,5 @@
 struct PlaylistVideo
-  add_mapping({
+  db_mapping({
     title:          String,
     id:             String,
     author:         String,
@@ -13,7 +13,7 @@ struct PlaylistVideo
 end
 
 struct Playlist
-  add_mapping({
+  db_mapping({
     title:            String,
     id:               String,
     author:           String,
@@ -49,7 +49,7 @@ def fetch_playlist_videos(plid, page, video_count, continuation = nil, locale = 
     response = client.get(url)
     response = JSON.parse(response.body)
     if !response["content_html"]? || response["content_html"].as_s.empty?
-      raise translate(locale, "Playlist is empty")
+      raise translate(locale, "Empty playlist")
     end
 
     document = XML.parse_html(response["content_html"].as_s)
@@ -174,7 +174,7 @@ def fetch_playlist(plid, locale)
 
   response = client.get("/playlist?list=#{plid}&hl=en&disable_polymer=1")
   if response.status_code != 200
-    raise translate(locale, "Invalid playlist.")
+    raise translate(locale, "Not a playlist.")
   end
 
   body = response.body.gsub(/<button[^>]+><span[^>]+>\s*less\s*<img[^>]+>\n<\/span><\/button>/, "")
@@ -190,22 +190,26 @@ def fetch_playlist(plid, locale)
   description_html ||= document.xpath_node(%q(//span[@class="pl-header-description-text"]))
   description_html, description = html_to_content(description_html)
 
-  anchor = document.xpath_node(%q(//ul[@class="pl-header-details"])).not_nil!
-  author = anchor.xpath_node(%q(.//li[1]/a)).not_nil!.content
+  # YouTube allows anonymous playlists, so most of this can be empty or optional
+  anchor = document.xpath_node(%q(//ul[@class="pl-header-details"]))
+  author = anchor.try &.xpath_node(%q(.//li[1]/a)).try &.content
+  author ||= ""
   author_thumbnail = document.xpath_node(%q(//img[@class="channel-header-profile-image"])).try &.["src"]
   author_thumbnail ||= ""
-  ucid = anchor.xpath_node(%q(.//li[1]/a)).not_nil!["href"].split("/")[-1]
+  ucid = anchor.try &.xpath_node(%q(.//li[1]/a)).try &.["href"].split("/")[-1]
+  ucid ||= ""
 
-  video_count = anchor.xpath_node(%q(.//li[2])).not_nil!.content.delete("videos, ").to_i
-  views = anchor.xpath_node(%q(.//li[3])).not_nil!.content.delete("No views, ")
-  if views.empty?
-    views = 0_i64
+  video_count = anchor.try &.xpath_node(%q(.//li[2])).try &.content.gsub(/\D/, "").to_i?
+  video_count ||= 0
+  views = anchor.try &.xpath_node(%q(.//li[3])).try &.content.delete("No views, ").to_i64?
+  views ||= 0_i64
+
+  updated = anchor.try &.xpath_node(%q(.//li[4])).try &.content.lchop("Last updated on ").lchop("Updated ")
+  if updated
+    updated = decode_date(updated)
   else
-    views = views.to_i64
+    updated = Time.now
   end
-
-  updated = anchor.xpath_node(%q(.//li[4])).not_nil!.content.lchop("Last updated on ").lchop("Updated ")
-  updated = decode_date(updated)
 
   playlist = Playlist.new(
     title: title,
@@ -244,7 +248,7 @@ def template_playlist(playlist)
           </div>
           <p style="width:100%">#{video["title"]}</p>
           <p>
-              <b style="width: 100%">#{video["author"]}</b>
+            <b style="width:100%">#{video["author"]}</b>
           </p>
         </a>
       </li>

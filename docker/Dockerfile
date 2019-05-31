@@ -1,7 +1,7 @@
 FROM archlinux/base
 
 RUN pacman -Sy --noconfirm shards crystal imagemagick librsvg \
-    which pkgconf gcc ttf-liberation
+    which pkgconf gcc ttf-liberation glibc
 # base-devel contains many other basic packages, that are normally assumed to already exist on a clean arch system
 
 ADD . /invidious

@@ -7,8 +7,24 @@ def translate(locale : Hash(String, JSON::Any) | Nil, translation : String, text
   #   puts "Could not find translation for #{translation.dump}"
   # end
 
-  if locale && locale[translation]? && !locale[translation].as_s.empty?
-    translation = locale[translation].as_s
+  if locale && locale[translation]?
+    case locale[translation]
+    when .as_h?
+      match_length = 0
+
+      locale[translation].as_h.each do |key, value|
+        if md = text.try &.match(/#{key}/)
+          if md[0].size >= match_length
+            translation = value.as_s
+            match_length = md[0].size
+          end
+        end
+      end
+    when .as_s?
+      if !locale[translation].as_s.empty?
+        translation = locale[translation].as_s
+      end
+    end
   end
 
   if text
@@ -16,4 +32,13 @@ def translate(locale : Hash(String, JSON::Any) | Nil, translation : String, text
   end
 
   return translation
+end
+
+def translate_bool(locale : Hash(String, JSON::Any) | Nil, translation : Bool)
+  case translation
+  when true
+    return translate(locale, "Yes")
+  when false
+    return translate(locale, "No")
+  end
 end

@@ -18,13 +18,18 @@ def elapsed_text(elapsed)
   "#{(millis * 1000).round(2)}µs"
 end
 
-def make_client(url, proxies = {} of String => Array({ip: String, port: Int32}), region = nil)
-  context = OpenSSL::SSL::Context::Client.new
-  context.add_options(
-    OpenSSL::SSL::Options::ALL |
-    OpenSSL::SSL::Options::NO_SSL_V2 |
-    OpenSSL::SSL::Options::NO_SSL_V3
-  )
+def make_client(url : URI, proxies = {} of String => Array({ip: String, port: Int32}), region = nil)
+  context = nil
+
+  if url.scheme == "https"
+    context = OpenSSL::SSL::Context::Client.new
+    context.add_options(
+      OpenSSL::SSL::Options::ALL |
+      OpenSSL::SSL::Options::NO_SSL_V2 |
+      OpenSSL::SSL::Options::NO_SSL_V3
+    )
+  end
+
   client = HTTPClient.new(url, context)
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
@@ -59,8 +64,8 @@ def recode_length_seconds(time)
     time = time.seconds
     text = "#{time.minutes.to_s.rjust(2, '0')}:#{time.seconds.to_s.rjust(2, '0')}"
 
-    if time.hours > 0
-      text = "#{time.hours.to_s.rjust(2, '0')}:#{text}"
+    if time.total_hours.to_i > 0
+      text = "#{time.total_hours.to_i.to_s.rjust(2, '0')}:#{text}"
     end
 
     text = text.lchop('0')
@@ -189,7 +194,9 @@ def number_to_short_text(number)
 
   text = text.rchop(".0")
 
-  if number / 1000000 != 0
+  if number / 1_000_000_000 != 0
+    text += "B"
+  elsif number / 1_000_000 != 0
     text += "M"
   elsif number / 1000 != 0
     text += "K"

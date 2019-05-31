@@ -12,12 +12,13 @@ if [ ! -f /var/lib/postgresql/data/setupFinished ]; then
     >&2 echo "### importing table schemas"
     su postgres -c 'createdb invidious'
     su postgres -c 'psql -c "CREATE USER kemal WITH PASSWORD '"'kemal'"'"'
-    su postgres -c 'psql invidious < config/sql/channels.sql'
-    su postgres -c 'psql invidious < config/sql/videos.sql'
-    su postgres -c 'psql invidious < config/sql/channel_videos.sql'
-    su postgres -c 'psql invidious < config/sql/users.sql'
-    su postgres -c 'psql invidious < config/sql/session_ids.sql'
-    su postgres -c 'psql invidious < config/sql/nonces.sql'
+    su postgres -c 'psql invidious kemal < config/sql/channels.sql'
+    su postgres -c 'psql invidious kemal < config/sql/videos.sql'
+    su postgres -c 'psql invidious kemal < config/sql/channel_videos.sql'
+    su postgres -c 'psql invidious kemal < config/sql/users.sql'
+    su postgres -c 'psql invidious kemal < config/sql/session_ids.sql'
+    su postgres -c 'psql invidious kemal < config/sql/nonces.sql'
+    su postgres -c 'psql invidious kemal < config/sql/annotations.sql'
     touch /var/lib/postgresql/data/setupFinished
     echo "### invidious database setup finished"
     exit

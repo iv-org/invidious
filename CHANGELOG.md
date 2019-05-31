@@ -1,3 +1,122 @@
+# 0.17.0 (2019-05-06)
+
+# Version 0.17.0: Player and Authentication API
+
+Hello everyone! This past month there have been [130 commits](https://github.com/omarroth/invidious/compare/0.16.0..0.17.0) from 11 contributors. Large focus has been on improving the player as well as adding API access for other projects to make use of Invidious.
+
+There have also been significant changes in preparation of native notifications (see [#195](https://github.com/omarroth/invidious/issues/195), [#469](https://github.com/omarroth/invidious/issues/469), [#473](https://github.com/omarroth/invidious/issues/473), and [#502](https://github.com/omarroth/invidious/issues/502)), and playlists. I expect to see both of these to be added in the next release.
+
+I'm quite happy to mention that new translations have been added for Esperanto (`eo`) and Ukranian (`uk`). Support for pluralization has also been added, so it should now be possible to make a more native experience for speakers in other languages. The system currently in place is a bit cumbersome, so for any help using this feature please get in touch!
+
+## For Administrators
+
+A `check_tables` option has been added to automatically migrate without the use of custom scripts. This method will likely prove to be much more robust, and is currently enabled for the official instance. To prevent any unintended changes to the DB, `check_tables` is disabled by default and will print commands before executing. Having this makes features that require schema changes much easier to implement, and also makes it easier to upgrade from older instances.
+
+As part of [#303](https://github.com/omarroth/invidious/issues/303), a `cache_annotations` option has been added to speed up access from `/api/v1/annotations/:id`. This vastly improves the experience for videos with annotations. Currently, only videos that contain legacy annotations will be cached, which should help keep down the size of the cache. `cache_annotations` is disabled by default.
+
+## For Developers
+
+An authorization API has been added which allows other applications to read and modify user subscriptions and preferences (see [#473](https://github.com/omarroth/invidious/issues/473)). Support for accessing user feeds and notifications is also planned. I believe this feature is a large step forward in supporting syncing subscriptions and preferences with other services, and I'm excited to see what other developers do with this functionality.
+
+Support for server-to-client push notifications is currently underway. This allows Invidious users, as well as applications using the Invidious API, to receive notifications about uploads in near real-time (see #469). An `/api/v1/auth/notifications` endpoint is currently available. I'm very excited for this to be integrated into the site, and to see how other developers use it in their own projects.
+
+An `/api/v1/storyboards/:id` endpoint has been added for accessing storyboard URLs, which allows developers to add video previews to their players (see below).
+
+## Player
+
+Support for annotations has been merged into master with [#303](https://github.com/omarroth/invidious/issues/303), thanks @glmdgrielson! Annotations can be enabled by default or only for subscribed channels, and can also be toggled per video. I'm extremely proud of the progress made here, and I'm so thankful to everyone that has made this possible. I expect this to be the last update with regards to supporting annotations, but I do plan on continuing to improve the experience as much as possible.
+
+The Invidious player now supports video previews and a corresponding API endpoint `/api/v1/storyboards/:id` has been added for developers looking to add similar functionality to their own players. Not much else to say here. Overall it's a very nice quality of life improvement and an attractive addition to the site.
+
+It is now possible to select specific sources for videos provided using DASH (see [#34](https://github.com/omarroth/invidious/issues/34)). I would consider support largely feature complete, although there are still several issues to be fixed before I would consider it ready for larger rollout. You can watch videos in 1080p by setting `Default quality` to `dash` in your preferences, or by adding `&quality=dash` to the end of video URLs.
+
+## Finances
+
+### Donations
+
+- [Patreon](https://www.patreon.com/omarroth) : \$49.73
+- [Liberapay](https://liberapay.com/omarroth) : \$63.03
+- Crypto : ~\$0.00 (converted from BCH, BTC)
+- Total : \$112.76
+
+### Expenses
+
+- invidious-load1 (nyc1) : \$10.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node5 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$80.00
+
+That's all for now. Thanks!
+
+# 0.16.0 (2019-04-06)
+
+# Version 0.16.0: API Improvements and Annotations
+
+Hello again! This past month has seen [116 commits](https://github.com/omarroth/invidious/compare/0.15.0..0.16.0) from 13 contributors and a couple important changes I'd like to announce.
+
+A privacy policy is now available [here](https://invidio.us/privacy). I've done my best to explain things as clearly as possible without oversimplifying, and would very much recommend reading it if you're concerned about your privacy and want to learn more about how Invidious uses your data. Please let me know if there is anything that needs clarification.
+
+I'm also very happy to announce that a Spanish translation has been added to the site. You can use it with `?hl=es` or by setting `es` as your default locale. As always I'm extremely grateful to translators for making the site accessible to more people.
+
+## For Administrators
+
+Invidious now supports server-to-server [push notifications](https://developers.google.com/youtube/v3/guides/push_notifications). This uses [PubSubHubbub](https://pubsubhubbub.github.io/PubSubHubbub/pubsubhubbub-core-0.4.html) to automatically handle new videos sent to an instance, which is less resource intensive and generally faster. Note that it will not pull all videos from a subscribed channel, so recommended usage is in addition to `channel_threads`. Using PubSub requires a valid `domain` that updates can be sent to, and a random string that can be used to sign updates sent to the instance. You can enable it by adding `use_pubsub_feeds: true` to your `config.yml`. See [Configuration](https://github.com/omarroth/invidious/wiki/Configuration) for more info.
+
+Unfortunately there are a couple necessary changes to the DB to support `liveNow` and `premiereTimestamp` in subscription feeds. Migration scripts have been provided that should be used automatically if following the instructions [here](https://github.com/omarroth/invidious/wiki/Updating).
+
+You can now configure default user preferences for your instance. This allows you to set default locale, player preferences, and more. See [#415](https://github.com/omarroth/invidious/issues/415) for more details and example usage.
+
+## For Developers
+
+The [fields](https://developers.google.com/youtube/v3/getting-started#fields) API has been added with [#429](https://github.com/omarroth/invidious/pull/429) and is now supported on all JSON endpoints, thanks [**@afrmtbl**](https://github.com/afrmtbl)! Synax is straight-forward and can be used to reduce data transfer and create a simpler response for debugging. You can see an example [here](https://invidio.us/api/v1/videos/CvFH_6DNRCY?pretty=1&fields=title,recommendedVideos/title). I've been quite happy using it and hope it is similarly useful for others.
+
+An `/api/v1/annotations/:id` endpoint has been added for pulling legacy annotation data from [this](https://archive.org/details/youtubeannotations) archive, see below for more details. You can also access annotation data available on YouTube using `?source=youtube`, although this will only return card data as legacy annotations were deleted on January 15th.
+
+A couple minor changes to existing endpoints:
+
+- A `premiereTimestamp` field has been added to `/api/v1/videos/:id`
+- A `sort_by` param has been added to `/api/v1/comments/:id`, supports `new`, `top`.
+
+More info is available in the [documentation](https://github.com/omarroth/invidious/wiki/API).
+
+## Annotations
+
+I'm pleased to announce that annotation data is finally available from the roughly 1.4 billion videos archived as part of [this](https://www.reddit.com/r/DataHoarder/comments/aa6czg/youtube_annotation_archive/) project. They are accessible from the Internet Archive [here](https://archive.org/details/youtubeannotations) or as a 355GB torrent, see [here](https://www.reddit.com/r/DataHoarder/comments/b7imx9/youtube_annotation_archive_annotation_data_from/) for more details. A corresponding `/api/v1/annotations/:id` endpoint has been added to Invidious which uses the collection from IA to provide legacy annotations.
+
+Support for them in the player is possible thanks to [this](https://github.com/afrmtbl/videojs-youtube-annotations) plugin developed by [**@afrmtbl**](https://github.com/afrmtbl). A PR for adding support to the site is available as [#303](https://github.com/omarroth/invidious/pull/303). There's also an [extension](https://github.com/afrmtbl/AnnotationsRestored) for overlaying them on top of the YouTube player (again thanks to [**@afrmtbl**](https://github.com/afrmtbl)), and an [extension](https://tech234a.bitbucket.io/AnnotationsReloaded?src=invidious) for hooking into code still present in the YouTube player itself, developed by [**@tech234a**](https://github.com/tech234a).
+
+I would recommend reading the [official announcement](https://www.reddit.com/r/DataHoarder/comments/b7imx9/youtube_annotation_archive_annotation_data_from/) for more details. I would like to again thank everyone that helped contribute to this project.
+
+## Finances
+
+### Donations
+
+- [Patreon](https://www.patreon.com/omarroth) : \$42.42
+- [Liberapay](https://liberapay.com/omarroth) : \$70.11
+- Crypto : ~\$1.76 (converted from BCH, BTC, BSV)
+- Total : \$114.29
+
+### Expenses
+
+- invidious-load1 (nyc1) : \$10.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node5 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$80.00
+
+This past month the site saw a couple abnormal peaks in traffic, so an additional webserver has been added to match the increased load. The goal on Patreon has been updated to match the above expenses.
+
+Thanks everyone!
+
 # 0.15.0 (2019-03-06)
 
 ## Version 0.15.0: Preferences and Channel Playlists
@@ -42,21 +161,21 @@ There's also more discussion on improving Invidious for streaming music in [#304
 
 ### Donations
 
-[Patreon](https://www.patreon.com/omarroth) : \$42.42  
-[Liberapay](https://liberapay.com/omarroth) : \$30.97  
-Crypto : ~\$0.00 (converted from BCH, BTC)  
-Total : \$73.39
+- [Patreon](https://www.patreon.com/omarroth) : \$42.42
+- [Liberapay](https://liberapay.com/omarroth) : \$30.97
+- Crypto : ~\$0.00 (converted from BCH, BTC)
+- Total : \$73.39
 
 ### Expenses
 
-invidious-load1 (nyc1) : \$10.00 (load balancer)  
-invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)  
-invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)  
-invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)  
-invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)  
-invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)  
-invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)  
-Total : \$75.00
+- invidious-load1 (nyc1) : \$10.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$75.00
 
 It's been very humbling to see how fast the project has grown, and I look forward to making the site even better. Thank you everyone.
 
@@ -121,14 +240,14 @@ Organizing this project has unfortunately taken up quite a bit of my time, and I
 
 ### Expenses
 
-invidious-load1 (nyc1) : $10.00 (load balancer)
-invidious-update1 (s-1vcpu-1gb) : $5.00 (updates feeds)
-invidious-node1 (s-1vcpu-1gb) : $5.00 (web server)
-invidious-node2 (s-1vcpu-1gb) : $5.00 (web server)
-invidious-node3 (s-1vcpu-1gb) : $5.00 (web server)
-invidious-node4 (s-1vcpu-1gb) : $5.00 (web server)
-invidious-db1 (s-4vcpu-8gb) : $40.00 (database)
-Total : $75.00
+- invidious-load1 (nyc1) : \$10.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$75.00
 
 As always I'm grateful for everyone's contributions and support. I'll see you all in March.
 

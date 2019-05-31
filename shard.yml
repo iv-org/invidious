@@ -1,5 +1,5 @@
 name: invidious
-version: 0.15.0
+version: 0.17.0
 
 authors:
   - Omar Roth <omarroth@protonmail.com>
@@ -16,6 +16,6 @@ dependencies:
   sqlite3:
     github: crystal-lang/crystal-sqlite3
 
-crystal: 0.27.2
+crystal: 0.28.0
 
 license: AGPLv3

@@ -56,15 +56,14 @@ class RedditListing
   })
 end
 
-def fetch_youtube_comments(id, continuation, proxies, format, locale, thin_mode, region)
+def fetch_youtube_comments(id, continuation, proxies, format, locale, thin_mode, region, sort_by = "top")
   video = fetch_video(id, proxies, region: region)
-
   session_token = video.info["session_token"]?
-  itct = video.info["itct"]?
-  ctoken = video.info["ctoken"]?
+
+  ctoken = produce_comment_continuation(id, cursor: "", sort_by: sort_by)
   continuation ||= ctoken
 
-  if !continuation || !itct || !session_token
+  if !continuation || !session_token
     if format == "json"
       return {"comments" => [] of String}.to_json
     else
@@ -73,7 +72,7 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale, thin_mode,
   end
 
   post_req = {
-    "session_token" => session_token.not_nil!,
+    "session_token" => session_token,
   }
   post_req = HTTP::Params.encode(post_req)
 
@@ -90,7 +89,7 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale, thin_mode,
   headers["x-youtube-client-name"] = "1"
   headers["x-youtube-client-version"] = "2.20180719"
 
-  response = client.post("/comment_service_ajax?action_get_comments=1&pbj=1&ctoken=#{continuation}&continuation=#{continuation}&itct=#{itct}&hl=en&gl=US", headers, post_req)
+  response = client.post("/comment_service_ajax?action_get_comments=1&ctoken=#{continuation}&continuation=#{continuation}&hl=en&gl=US", headers, post_req)
   response = JSON.parse(response.body)
 
   if !response["response"]["continuationContents"]?
@@ -250,7 +249,7 @@ def fetch_youtube_comments(id, continuation, proxies, format, locale, thin_mode,
   return comments
 end
 
-def fetch_reddit_comments(id)
+def fetch_reddit_comments(id, sort_by = "confidence")
   client = make_client(REDDIT_URL)
   headers = HTTP::Headers{"User-Agent" => "web:invidious:v#{CURRENT_VERSION} (by /u/omarroth)"}
 
@@ -260,12 +259,16 @@ def fetch_reddit_comments(id)
   if search_results.status_code == 200
     search_results = RedditThing.from_json(search_results.body)
 
+    # For videos that have more than one thread, choose the one with the highest score
     thread = search_results.data.as(RedditListing).children.sort_by { |child| child.data.as(RedditLink).score }[-1]
     thread = thread.data.as(RedditLink)
 
-    result = client.get("/r/#{thread.subreddit}/comments/#{thread.id}.json?limit=100&sort=top", headers).body
+    result = client.get("/r/#{thread.subreddit}/comments/#{thread.id}.json?limit=100&sort=#{sort_by}", headers).body
     result = Array(RedditThing).from_json(result)
   elsif search_results.status_code == 302
+    # Previously, if there was only one result then the API would redirect to that result.
+    # Now, it appears it will still return a listing so this section is likely unnecessary.
+
     result = client.get(search_results.headers["Location"], headers).body
     result = Array(RedditThing).from_json(result)
 
@@ -306,7 +309,7 @@ def template_youtube_comments(comments, locale, thin_mode)
     html += <<-END_HTML
     <div class="pure-g">
       <div class="pure-u-4-24 pure-u-md-2-24">
-        <img style="width:90%; padding-right:1em; padding-top:1em;" src="#{author_thumbnail}">
+        <img style="width:90%;padding-right:1em;padding-top:1em" src="#{author_thumbnail}">
       </div>
       <div class="pure-u-20-24 pure-u-md-22-24">
         <p>
@@ -316,7 +319,7 @@ def template_youtube_comments(comments, locale, thin_mode)
           <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
           <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
           |
-          <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "Youtube permalink of the comment")}">[YT]</a>
+          <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
           |
           <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
     END_HTML
@@ -442,8 +445,12 @@ def replace_links(html)
     end
   end
 
-  html = html.to_xml(options: XML::SaveOptions::NO_DECL)
-  return html
+  html = html.xpath_node(%q(//body)).not_nil!
+  if node = html.xpath_node(%q(./p))
+    html = node
+  end
+
+  return html.to_xml(options: XML::SaveOptions::NO_DECL)
 end
 
 def fill_links(html, scheme, host)
@@ -460,12 +467,10 @@ def fill_links(html, scheme, host)
   end
 
   if host == "www.youtube.com"
-    html = html.xpath_node(%q(//body)).not_nil!.to_xml
-  else
-    html = html.to_xml(options: XML::SaveOptions::NO_DECL)
+    html = html.xpath_node(%q(//body/p)).not_nil!
   end
 
-  return html
+  return html.to_xml(options: XML::SaveOptions::NO_DECL)
 end
 
 def content_to_comment_html(content)
@@ -515,4 +520,112 @@ def content_to_comment_html(content)
   end.join.rchop('\ufeff')
 
   return comment_html
+end
+
+def produce_comment_continuation(video_id, cursor = "", sort_by = "top")
+  continuation = IO::Memory.new
+
+  continuation.write(Bytes[0x12, 0x26])
+
+  continuation.write(Bytes[0x12, video_id.size])
+  continuation.print(video_id)
+
+  continuation.write(Bytes[0xc0, 0x01, 0x01])
+  continuation.write(Bytes[0xc8, 0x01, 0x01])
+  continuation.write(Bytes[0xe0, 0x01, 0x01])
+
+  continuation.write(Bytes[0xa2, 0x02, 0x0d])
+  continuation.write(Bytes[0x28, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01])
+
+  continuation.write(Bytes[0x40, 0x00])
+  continuation.write(Bytes[0x18, 0x06])
+
+  if cursor.empty?
+    continuation.write(Bytes[0x32])
+    continuation.write(write_var_int(video_id.size + 8))
+
+    continuation.write(Bytes[0x22, video_id.size + 4])
+    continuation.write(Bytes[0x22, video_id.size])
+    continuation.print(video_id)
+
+    case sort_by
+    when "top"
+      continuation.write(Bytes[0x30, 0x00])
+    when "new", "newest"
+      continuation.write(Bytes[0x30, 0x01])
+    end
+
+    continuation.write(Bytes[0x78, 0x02])
+  else
+    continuation.write(Bytes[0x32])
+    continuation.write(write_var_int(cursor.size + video_id.size + 11))
+
+    continuation.write(Bytes[0x0a])
+    continuation.write(write_var_int(cursor.size))
+    continuation.print(cursor)
+
+    continuation.write(Bytes[0x22, video_id.size + 4])
+    continuation.write(Bytes[0x22, video_id.size])
+    continuation.print(video_id)
+
+    case sort_by
+    when "top"
+      continuation.write(Bytes[0x30, 0x00])
+    when "new", "newest"
+      continuation.write(Bytes[0x30, 0x01])
+    end
+
+    continuation.write(Bytes[0x28, 0x14])
+  end
+
+  continuation.rewind
+  continuation = continuation.gets_to_end
+
+  continuation = Base64.urlsafe_encode(continuation.to_slice)
+  continuation = URI.escape(continuation)
+
+  return continuation
+end
+
+def produce_comment_reply_continuation(video_id, ucid, comment_id)
+  continuation = IO::Memory.new
+
+  continuation.write(Bytes[0x12, 0x26])
+
+  continuation.write(Bytes[0x12, video_id.size])
+  continuation.print(video_id)
+
+  continuation.write(Bytes[0xc0, 0x01, 0x01])
+  continuation.write(Bytes[0xc8, 0x01, 0x01])
+  continuation.write(Bytes[0xe0, 0x01, 0x01])
+
+  continuation.write(Bytes[0xa2, 0x02, 0x0d])
+  continuation.write(Bytes[0x28, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01])
+
+  continuation.write(Bytes[0x40, 0x00])
+  continuation.write(Bytes[0x18, 0x06])
+
+  continuation.write(Bytes[0x32, ucid.size + video_id.size + comment_id.size + 16])
+  continuation.write(Bytes[0x1a, ucid.size + video_id.size + comment_id.size + 14])
+
+  continuation.write(Bytes[0x12, comment_id.size])
+  continuation.print(comment_id)
+
+  continuation.write(Bytes[0x22, 0x02, 0x08, 0x00]) # ??
+
+  continuation.write(Bytes[ucid.size + video_id.size + 7])
+  continuation.write(Bytes[ucid.size])
+  continuation.print(ucid)
+  continuation.write(Bytes[0x32, video_id.size])
+  continuation.print(video_id)
+  continuation.write(Bytes[0x40, 0x01])
+  continuation.write(Bytes[0x48, 0x0a])
+
+  continuation.rewind
+  continuation = continuation.gets_to_end
+
+  continuation = Base64.urlsafe_encode(continuation.to_slice)
+  continuation = URI.escape(continuation)
+
+  return continuation
 end

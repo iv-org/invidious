@@ -101,14 +101,15 @@ $ exit
 $ sudo systemctl enable postgresql
 $ sudo systemctl start postgresql
 $ sudo -i -u postgres
-$ psql -c "CREATE USER kemal WITH PASSWORD 'kemal';"
+$ psql -c "CREATE USER kemal WITH PASSWORD 'kemal';" # Change 'kemal' here to a stronger password, and update `password` in config/config.yml
 $ createdb -O kemal invidious
-$ psql invidious < /home/invidious/invidious/config/sql/channels.sql
-$ psql invidious < /home/invidious/invidious/config/sql/videos.sql
-$ psql invidious < /home/invidious/invidious/config/sql/channel_videos.sql
-$ psql invidious < /home/invidious/invidious/config/sql/users.sql
-$ psql invidious < /home/invidious/invidious/config/sql/session_ids.sql
-$ psql invidious < /home/invidious/invidious/config/sql/nonces.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/channels.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/videos.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/channel_videos.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/users.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/session_ids.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/nonces.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/annotations.sql
 $ exit
 ```
 
@@ -143,14 +144,15 @@ $ brew install shards crystal-lang postgres imagemagick librsvg
 $ git clone https://github.com/omarroth/invidious
 $ cd invidious
 $ brew services start postgresql
-$ psql -c "CREATE ROLE kemal WITH LOGIN PASSWORD 'kemal';"
-$ createdb invidious -U kemal
-$ psql invidious < config/sql/channels.sql
-$ psql invidious < config/sql/videos.sql
-$ psql invidious < config/sql/channel_videos.sql
-$ psql invidious < config/sql/users.sql
-$ psql invidious < config/sql/session_ids.sql
-$ psql invidious < config/sql/nonces.sql
+$ psql -c "CREATE ROLE kemal WITH PASSWORD 'kemal';" # Change 'kemal' here to a stronger password, and update `password` in config/config.yml
+$ createdb -O kemal invidious
+$ psql invidious kemal < config/sql/channels.sql
+$ psql invidious kemal < config/sql/videos.sql
+$ psql invidious kemal < config/sql/channel_videos.sql
+$ psql invidious kemal < config/sql/users.sql
+$ psql invidious kemal < config/sql/session_ids.sql
+$ psql invidious kemal < config/sql/nonces.sql
+$ psql invidious kemal < config/sql/annotations.sql
 
 # Setup Invidious
 $ shards update && shards install
@@ -172,15 +174,12 @@ Usage: invidious [arguments]
     --ssl-key-file FILE              SSL key file
     --ssl-cert-file FILE             SSL certificate file
     -h, --help                       Shows this help
-    -t THREADS, --crawl-threads=THREADS
-                                     Number of threads for crawling YouTube (default: 0)
     -c THREADS, --channel-threads=THREADS
                                      Number of threads for refreshing channels (default: 1)
     -f THREADS, --feed-threads=THREADS
                                      Number of threads for refreshing feeds (default: 1)
-    -v THREADS, --video-threads=THREADS
-                                     Number of threads for refreshing videos (default: 0)
     -o OUTPUT, --output=OUTPUT       Redirect output (default: STDOUT)
+    -v, --version                    Print version
 ```
 
 Or for development:
@@ -188,6 +187,7 @@ Or for development:
 ```bash
 $ curl -fsSLo- https://raw.githubusercontent.com/samueleaton/sentry/master/install.cr | crystal eval
 $ ./sentry
+🤖  Your SentryBot is vigilant. beep-boop...
 ```
 
 ## Documentation
@@ -201,7 +201,7 @@ $ ./sentry
 ## Made with Invidious
 
 - [FreeTube](https://github.com/FreeTubeApp/FreeTube): An Open Source YouTube app for privacy.
-- [CloudTube](https://github.com/cloudrac3r/cadencegq): Website featuring pastebin, image host, and YouTube player
+- [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JS-rich alternate YouTube player
 - [PeerTubeify](https://gitlab.com/Ealhad/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A materialistic music player that streams music from YouTube.
 

@@ -1,5 +1,5 @@
 struct SearchVideo
-  add_mapping({
+  db_mapping({
     title:              String,
     id:                 String,
     author:             String,
@@ -17,7 +17,7 @@ struct SearchVideo
 end
 
 struct SearchPlaylistVideo
-  add_mapping({
+  db_mapping({
     title:          String,
     id:             String,
     length_seconds: Int32,
@@ -25,7 +25,7 @@ struct SearchPlaylistVideo
 end
 
 struct SearchPlaylist
-  add_mapping({
+  db_mapping({
     title:        String,
     id:           String,
     author:       String,
@@ -37,7 +37,7 @@ struct SearchPlaylist
 end
 
 struct SearchChannel
-  add_mapping({
+  db_mapping({
     author:           String,
     ucid:             String,
     author_thumbnail: String,
@@ -53,12 +53,18 @@ alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist
 def channel_search(query, page, channel)
   client = make_client(YT_URL)
 
-  response = client.get("/user/#{channel}?disable_polymer=1&hl=en&gl=US")
+  response = client.get("/channel/#{channel}?disable_polymer=1&hl=en&gl=US")
   document = XML.parse_html(response.body)
   canonical = document.xpath_node(%q(//link[@rel="canonical"]))
 
   if !canonical
-    response = client.get("/channel/#{channel}?disable_polymer=1&hl=en&gl=US")
+    response = client.get("/c/#{channel}?disable_polymer=1&hl=en&gl=US")
+    document = XML.parse_html(response.body)
+    canonical = document.xpath_node(%q(//link[@rel="canonical"]))
+  end
+
+  if !canonical
+    response = client.get("/user/#{channel}?disable_polymer=1&hl=en&gl=US")
     document = XML.parse_html(response.body)
     canonical = document.xpath_node(%q(//link[@rel="canonical"]))
   end

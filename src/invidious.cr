@@ -31,6 +31,46 @@ require "./invidious/*"
 CONFIG   = Config.from_yaml(File.read("config/config.yml"))
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
+ARCHIVE_URL     = URI.parse("https://archive.org")
+LOGIN_URL       = URI.parse("https://accounts.google.com")
+PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
+REDDIT_URL      = URI.parse("https://www.reddit.com")
+TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com")
+YT_URL          = URI.parse("https://www.youtube.com")
+CHARS_SAFE      = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+TEST_IDS        = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
+CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
+CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
+CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
+
+# This is used to determine the `?v=` on the end of file URLs (for cache busting). We
+# only need to expire modified assets, so we can use this to find the last commit that changes
+# any assets
+ASSET_COMMIT = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit -- assets`.strip}" }}
+
+SOFTWARE = {
+  "name"    => "invidious",
+  "version" => "#{CURRENT_VERSION}-#{CURRENT_COMMIT}",
+  "branch"  => "#{CURRENT_BRANCH}",
+}
+
+LOCALES = {
+  "ar"    => load_locale("ar"),
+  "de"    => load_locale("de"),
+  "el"    => load_locale("el"),
+  "en-US" => load_locale("en-US"),
+  "eo"    => load_locale("eo"),
+  "es"    => load_locale("es"),
+  "eu"    => load_locale("eu"),
+  "fr"    => load_locale("fr"),
+  "it"    => load_locale("it"),
+  "nb_NO" => load_locale("nb_NO"),
+  "nl"    => load_locale("nl"),
+  "pl"    => load_locale("pl"),
+  "ru"    => load_locale("ru"),
+  "uk"    => load_locale("uk"),
+}
+
 config = CONFIG
 logger = Invidious::LogHandler.new
 
@@ -56,31 +96,13 @@ Kemal.config.extra_options do |parser|
     FileUtils.mkdir_p(File.dirname(output))
     logger = Invidious::LogHandler.new(File.open(output, mode: "a"))
   end
+  parser.on("-v", "--version", "Print version") do |output|
+    puts SOFTWARE.to_pretty_json
+    exit
+  end
 end
 
 Kemal::CLI.new ARGV
-
-YT_URL          = URI.parse("https://www.youtube.com")
-REDDIT_URL      = URI.parse("https://www.reddit.com")
-LOGIN_URL       = URI.parse("https://accounts.google.com")
-PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
-TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com/omarroth@protonmail.com.json")
-CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
-CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
-CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
-
-LOCALES = {
-  "ar"    => load_locale("ar"),
-  "de"    => load_locale("de"),
-  "en-US" => load_locale("en-US"),
-  "eu"    => load_locale("eu"),
-  "fr"    => load_locale("fr"),
-  "it"    => load_locale("it"),
-  "nb_NO" => load_locale("nb_NO"),
-  "nl"    => load_locale("nl"),
-  "pl"    => load_locale("pl"),
-  "ru"    => load_locale("ru"),
-}
 
 statistics = {
   "error" => "Statistics are not availabile.",
@@ -99,7 +121,7 @@ before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block;"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
 
-  preferences = DEFAULT_USER_PREFERENCES.dup
+  preferences = CONFIG.default_user_preferences.dup
 
   locale = env.params.query["hl"]?
   locale ||= "en-US"
@@ -128,6 +150,86 @@ get "/api/v1/stats" do |env|
   statistics.to_json
 end
 
+# YouTube provides "storyboards", which are sprites containing x * y
+# preview thumbnails for individual scenes in a video.
+# See https://support.jwplayer.com/articles/how-to-add-preview-thumbnails
+get "/api/v1/storyboards/:id" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  env.response.content_type = "application/json"
+
+  id = env.params.url["id"]
+  region = env.params.query["region"]?
+
+  client = make_client(YT_URL)
+  begin
+    video = fetch_video(id, proxies, region: region)
+  rescue ex : VideoRedirect
+    next env.redirect "/api/v1/storyboards/#{ex.message}"
+  rescue ex
+    env.response.status_code = 500
+    next
+  end
+
+  storyboards = video.storyboards
+
+  width = env.params.query["width"]?
+  height = env.params.query["height"]?
+
+  if !width && !height
+    response = JSON.build do |json|
+      json.object do
+        json.field "storyboards" do
+          generate_storyboards(json, id, storyboards, config, Kemal.config)
+        end
+      end
+    end
+
+    next response
+  end
+
+  env.response.content_type = "text/vtt"
+
+  storyboard = storyboards.select { |storyboard| width == "#{storyboard[:width]}" || height == "#{storyboard[:height]}" }
+
+  if storyboard.empty?
+    env.response.status_code = 404
+    next
+  else
+    storyboard = storyboard[0]
+  end
+
+  webvtt = <<-END_VTT
+  WEBVTT
+
+
+  END_VTT
+
+  start_time = 0.milliseconds
+  end_time = storyboard[:interval].milliseconds
+
+  storyboard[:storyboard_count].times do |i|
+    host_url = make_host_url(config, Kemal.config)
+    url = storyboard[:url].gsub("$M", i).gsub("https://i9.ytimg.com", host_url)
+
+    storyboard[:storyboard_height].times do |j|
+      storyboard[:storyboard_width].times do |k|
+        webvtt += <<-END_CUE
+        #{start_time}.000 --> #{end_time}.000
+        #{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width]},#{storyboard[:height]}
+
+
+        END_CUE
+
+        start_time += storyboard[:interval].milliseconds
+        end_time += storyboard[:interval].milliseconds
+      end
+    end
+  end
+
+  webvtt
+end
+
 get "/api/v1/captions/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -135,6 +237,14 @@ get "/api/v1/captions/:id" do |env|
 
   id = env.params.url["id"]
   region = env.params.query["region"]?
+
+  # See https://github.com/ytdl-org/youtube-dl/blob/6ab30ff50bf6bd0585927cb73c7421bef184f87a/youtube_dl/extractor/youtube.py#L1354
+  # It is possible to use `/api/timedtext?type=list&v=#{id}` and
+  # `/api/timedtext?type=track&v=#{id}&lang=#{lang_code}` directly,
+  # but this does not provide links for auto-generated captions.
+  #
+  # In future this should be investigated as an alternative, since it does not require
+  # getting video info.
 
   client = make_client(YT_URL)
   begin
@@ -172,7 +282,7 @@ get "/api/v1/captions/:id" do |env|
     next response
   end
 
-  env.response.content_type = "text/vtt"
+  env.response.content_type = "text/vtt; charset=UTF-8"
 
   caption = captions.select { |caption| caption.name.simpleText == label }
 
@@ -187,45 +297,59 @@ get "/api/v1/captions/:id" do |env|
     caption = caption[0]
   end
 
-  caption_xml = client.get(caption.baseUrl + "&tlang=#{tlang}").body
-  caption_xml = XML.parse(caption_xml)
+  url = caption.baseUrl + "&tlang=#{tlang}"
 
-  webvtt = <<-END_VTT
-  WEBVTT
-  Kind: captions
-  Language: #{tlang || caption.languageCode}
+  # Auto-generated captions often have cues that aren't aligned properly with the video,
+  # as well as some other markup that makes it cumbersome, so we try to fix that here
+  if caption.name.simpleText.includes? "auto-generated"
+    caption_xml = client.get(url).body
+    caption_xml = XML.parse(caption_xml)
+
+    webvtt = <<-END_VTT
+    WEBVTT
+    Kind: captions
+    Language: #{tlang || caption.languageCode}
 
 
-  END_VTT
+    END_VTT
 
-  caption_nodes = caption_xml.xpath_nodes("//transcript/text")
-  caption_nodes.each_with_index do |node, i|
-    start_time = node["start"].to_f.seconds
-    duration = node["dur"]?.try &.to_f.seconds
-    duration ||= start_time
+    caption_nodes = caption_xml.xpath_nodes("//transcript/text")
+    caption_nodes.each_with_index do |node, i|
+      start_time = node["start"].to_f.seconds
+      duration = node["dur"]?.try &.to_f.seconds
+      duration ||= start_time
 
-    if caption_nodes.size > i + 1
-      end_time = caption_nodes[i + 1]["start"].to_f.seconds
-    else
-      end_time = start_time + duration
-    end
+      if caption_nodes.size > i + 1
+        end_time = caption_nodes[i + 1]["start"].to_f.seconds
+      else
+        end_time = start_time + duration
+      end
 
-    start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
-    end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
+      start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
+      end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
 
-    text = HTML.unescape(node.content)
-    text = text.gsub(/<font color="#[a-fA-F0-9]{6}">/, "")
-    text = text.gsub(/<\/font>/, "")
-    if md = text.match(/(?<name>.*) : (?<text>.*)/)
-      text = "<v #{md["name"]}>#{md["text"]}</v>"
-    end
+      text = HTML.unescape(node.content)
+      text = text.gsub(/<font color="#[a-fA-F0-9]{6}">/, "")
+      text = text.gsub(/<\/font>/, "")
+      if md = text.match(/(?<name>.*) : (?<text>.*)/)
+        text = "<v #{md["name"]}>#{md["text"]}</v>"
+      end
 
-    webvtt = webvtt + <<-END_CUE
+      webvtt += <<-END_CUE
     #{start_time} --> #{end_time}
     #{text}
 
 
     END_CUE
+    end
+  else
+    url += "&format=vtt"
+    webvtt = client.get(url).body
+  end
+
+  if title = env.params.query["title"]?
+    # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+    env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
   end
 
   webvtt
@@ -249,10 +373,13 @@ get "/api/v1/comments/:id" do |env|
   format ||= "json"
 
   continuation = env.params.query["continuation"]?
+  sort_by = env.params.query["sort_by"]?.try &.downcase
 
   if source == "youtube"
+    sort_by ||= "top"
+
     begin
-      comments = fetch_youtube_comments(id, continuation, proxies, format, locale, thin_mode, region)
+      comments = fetch_youtube_comments(id, continuation, proxies, format, locale, thin_mode, region, sort_by: sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -261,8 +388,10 @@ get "/api/v1/comments/:id" do |env|
 
     next comments
   elsif source == "reddit"
+    sort_by ||= "confidence"
+
     begin
-      comments, reddit_thread = fetch_reddit_comments(id)
+      comments, reddit_thread = fetch_reddit_comments(id, sort_by: sort_by)
       content_html = template_reddit_comments(comments, locale)
 
       content_html = fill_links(content_html, "https", "www.reddit.com")
@@ -383,6 +512,71 @@ get "/api/v1/insights/:id" do |env|
   next response.to_json
 end
 
+get "/api/v1/annotations/:id" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  env.response.content_type = "text/xml"
+
+  id = env.params.url["id"]
+  source = env.params.query["source"]?
+  source ||= "archive"
+
+  if !id.match(/[a-zA-Z0-9_-]{11}/)
+    env.response.status_code = 400
+    next
+  end
+
+  annotations = ""
+
+  case source
+  when "archive"
+    index = CHARS_SAFE.index(id[0]).not_nil!.to_s.rjust(2, '0')
+
+    # IA doesn't handle leading hyphens,
+    # so we use https://archive.org/details/youtubeannotations_64
+    if index == "62"
+      index = "64"
+      id = id.sub(/^-/, 'A')
+    end
+
+    file = URI.escape("#{id[0, 3]}/#{id}.xml")
+
+    client = make_client(ARCHIVE_URL)
+    location = client.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}")
+
+    if !location.headers["Location"]?
+      env.response.status_code = location.status_code
+    end
+
+    response = make_client(URI.parse(location.headers["Location"])).get(location.headers["Location"])
+
+    if response.body.empty?
+      env.response.status_code = 404
+      next
+    end
+
+    if response.status_code != 200
+      env.response.status_code = response.status_code
+      next
+    end
+
+    annotations = response.body
+  when "youtube"
+    client = make_client(YT_URL)
+
+    response = client.get("/annotations_invideo?video_id=#{id}")
+
+    if response.status_code != 200
+      env.response.status_code = response.status_code
+      next
+    end
+
+    annotations = response.body
+  end
+
+  annotations
+end
+
 get "/api/v1/videos/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -401,192 +595,7 @@ get "/api/v1/videos/:id" do |env|
     next error_message
   end
 
-  fmt_stream = video.fmt_stream(decrypt_function)
-  adaptive_fmts = video.adaptive_fmts(decrypt_function)
-
-  captions = video.captions
-
-  video_info = JSON.build do |json|
-    json.object do
-      json.field "title", video.title
-      json.field "videoId", video.id
-      json.field "videoThumbnails" do
-        generate_thumbnails(json, video.id, config, Kemal.config)
-      end
-
-      video.description, description = html_to_content(video.description)
-
-      json.field "description", description
-      json.field "descriptionHtml", video.description
-      json.field "published", video.published.to_unix
-      json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
-      json.field "keywords", video.keywords
-
-      json.field "viewCount", video.views
-      json.field "likeCount", video.likes
-      json.field "dislikeCount", video.dislikes
-
-      json.field "paid", video.paid
-      json.field "premium", video.premium
-      json.field "isFamilyFriendly", video.is_family_friendly
-      json.field "allowedRegions", video.allowed_regions
-      json.field "genre", video.genre
-      json.field "genreUrl", video.genre_url
-
-      json.field "author", video.author
-      json.field "authorId", video.ucid
-      json.field "authorUrl", "/channel/#{video.ucid}"
-
-      json.field "authorThumbnails" do
-        json.array do
-          qualities = {32, 48, 76, 100, 176, 512}
-
-          qualities.each do |quality|
-            json.object do
-              json.field "url", video.author_thumbnail.gsub("=s48-", "=s#{quality}-")
-              json.field "width", quality
-              json.field "height", quality
-            end
-          end
-        end
-      end
-
-      json.field "subCountText", video.sub_count_text
-
-      json.field "lengthSeconds", video.info["length_seconds"].to_i
-      json.field "allowRatings", video.allow_ratings
-      json.field "rating", video.info["avg_rating"].to_f32
-      json.field "isListed", video.is_listed
-      json.field "liveNow", video.live_now
-      json.field "isUpcoming", video.is_upcoming
-
-      if video.premiere_timestamp
-        json.field "premiereTimestamp", video.premiere_timestamp.not_nil!.to_unix
-      end
-
-      if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-        host_url = make_host_url(config, Kemal.config)
-
-        host_params = env.request.query_params
-        host_params.delete_all("v")
-
-        hlsvp = video.player_response["streamingData"]["hlsManifestUrl"].as_s
-        hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
-
-        json.field "hlsUrl", hlsvp
-      end
-
-      json.field "adaptiveFormats" do
-        json.array do
-          adaptive_fmts.each do |fmt|
-            json.object do
-              json.field "index", fmt["index"]
-              json.field "bitrate", fmt["bitrate"]
-              json.field "init", fmt["init"]
-              json.field "url", fmt["url"]
-              json.field "itag", fmt["itag"]
-              json.field "type", fmt["type"]
-              json.field "clen", fmt["clen"]
-              json.field "lmt", fmt["lmt"]
-              json.field "projectionType", fmt["projection_type"]
-
-              fmt_info = itag_to_metadata?(fmt["itag"])
-              if fmt_info
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
-                json.field "fps", fps
-                json.field "container", fmt_info["ext"]
-                json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
-
-                if fmt_info["height"]?
-                  json.field "resolution", "#{fmt_info["height"]}p"
-
-                  quality_label = "#{fmt_info["height"]}p"
-                  if fps > 30
-                    quality_label += "60"
-                  end
-                  json.field "qualityLabel", quality_label
-
-                  if fmt_info["width"]?
-                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-
-      json.field "formatStreams" do
-        json.array do
-          fmt_stream.each do |fmt|
-            json.object do
-              json.field "url", fmt["url"]
-              json.field "itag", fmt["itag"]
-              json.field "type", fmt["type"]
-              json.field "quality", fmt["quality"]
-
-              fmt_info = itag_to_metadata?(fmt["itag"])
-              if fmt_info
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
-                json.field "fps", fps
-                json.field "container", fmt_info["ext"]
-                json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
-
-                if fmt_info["height"]?
-                  json.field "resolution", "#{fmt_info["height"]}p"
-
-                  quality_label = "#{fmt_info["height"]}p"
-                  if fps > 30
-                    quality_label += "60"
-                  end
-                  json.field "qualityLabel", quality_label
-
-                  if fmt_info["width"]?
-                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-
-      json.field "captions" do
-        json.array do
-          captions.each do |caption|
-            json.object do
-              json.field "label", caption.name.simpleText
-              json.field "languageCode", caption.languageCode
-              json.field "url", "/api/v1/captions/#{id}?label=#{URI.escape(caption.name.simpleText)}"
-            end
-          end
-        end
-      end
-
-      json.field "recommendedVideos" do
-        json.array do
-          video.info["rvs"]?.try &.split(",").each do |rv|
-            rv = HTTP::Params.parse(rv)
-
-            if rv["id"]?
-              json.object do
-                json.field "videoId", rv["id"]
-                json.field "title", rv["title"]
-                json.field "videoThumbnails" do
-                  generate_thumbnails(json, rv["id"], config, Kemal.config)
-                end
-                json.field "author", rv["author"]
-                json.field "lengthSeconds", rv["length_seconds"].to_i
-                json.field "viewCountText", rv["short_view_count_text"]
-              end
-            end
-          end
-        end
-      end
-    end
-  end
-
-  video_info
+  video.to_json(locale, config, Kemal.config, decrypt_function)
 end
 
 get "/api/v1/trending" do |env|
@@ -598,7 +607,7 @@ get "/api/v1/trending" do |env|
   trending_type = env.params.query["type"]?
 
   begin
-    trending = fetch_trending(trending_type, proxies, region, locale)
+    trending, plid = fetch_trending(trending_type, proxies, region, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
     env.response.status_code = 500
@@ -714,9 +723,9 @@ get "/api/v1/channels/:ucid" do |env|
   metadata.each do |item|
     case item.content
     when .includes? "views"
-      total_views = item.content.delete("views •,").to_i64
+      total_views = item.content.gsub(/\D/, "").to_i64
     when .includes? "subscribers"
-      sub_count = item.content.delete("subscribers").delete(",").to_i64
+      sub_count = item.content.delete("subscribers").gsub(/\D/, "").to_i64
     when .includes? "Joined"
       joined = Time.parse(item.content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
     end
@@ -844,7 +853,7 @@ get "/api/v1/channels/:ucid" do |env|
   channel_info
 end
 
-["/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"].each do |route|
+{"/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"}.each do |route|
   get route do |env|
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -913,7 +922,7 @@ end
   end
 end
 
-["/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"].each do |route|
+{"/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"}.each do |route|
   get route do |env|
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -929,7 +938,7 @@ end
       next error_message
     end
 
-    response = JSON.build do |json|
+    JSON.build do |json|
       json.array do
         videos.each do |video|
           json.object do
@@ -957,12 +966,10 @@ end
         end
       end
     end
-
-    response
   end
 end
 
-["/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"].each do |route|
+{"/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"}.each do |route|
   get route do |env|
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -1429,11 +1436,13 @@ get "/api/v1/mixes/:rdid" do |env|
 end
 
 get "/api/manifest/dash/id/videoplayback" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.redirect "/videoplayback?#{env.params.query}"
 end
 
 get "/api/manifest/dash/id/videoplayback/*" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.redirect env.request.path.lchop("/api/manifest/dash/id")
 end
@@ -1486,58 +1495,66 @@ get "/api/manifest/dash/id/:id" do |env|
     end
   end
 
-  audio_streams = video.audio_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "audio/mp4" }
-  video_streams = video.video_streams(adaptive_fmts).select { |stream| stream["type"].starts_with? "video/mp4" }.uniq { |stream| stream["size"] }
+  audio_streams = video.audio_streams(adaptive_fmts)
+  video_streams = video.video_streams(adaptive_fmts)
 
-  manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
+  XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
       "profiles": "urn:mpeg:dash:profile:isoff-live:2011", minBufferTime: "PT1.5S", type: "static",
       mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
       xml.element("Period") do
-        xml.element("AdaptationSet", mimeType: "audio/mp4", startWithSAP: 1, subsegmentAlignment: true) do
-          audio_streams.each do |fmt|
-            codecs = fmt["type"].split("codecs=")[1].strip('"')
-            bandwidth = fmt["bitrate"]
-            itag = fmt["itag"]
-            url = fmt["url"]
+        i = 0
 
-            xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
-              xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
-                value: "2")
-              xml.element("BaseURL") { xml.text url }
-              xml.element("SegmentBase", indexRange: fmt["index"]) do
-                xml.element("Initialization", range: fmt["init"])
+        {"audio/mp4", "audio/webm"}.each do |mime_type|
+          xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true) do
+            audio_streams.select { |stream| stream["type"].starts_with? mime_type }.each do |fmt|
+              codecs = fmt["type"].split("codecs=")[1].strip('"')
+              bandwidth = fmt["bitrate"]
+              itag = fmt["itag"]
+              url = fmt["url"]
+
+              xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
+                xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
+                  value: "2")
+                xml.element("BaseURL") { xml.text url }
+                xml.element("SegmentBase", indexRange: fmt["index"]) do
+                  xml.element("Initialization", range: fmt["init"])
+                end
               end
             end
           end
+
+          i += 1
         end
 
-        xml.element("AdaptationSet", mimeType: "video/mp4", startWithSAP: 1, subsegmentAlignment: true,
-          scanType: "progressive") do
-          video_streams.each do |fmt|
-            codecs = fmt["type"].split("codecs=")[1].strip('"')
-            bandwidth = fmt["bitrate"]
-            itag = fmt["itag"]
-            url = fmt["url"]
-            height, width = fmt["size"].split("x")
+        {"video/mp4", "video/webm"}.each do |mime_type|
+          xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
+            video_streams.select { |stream| stream["type"].starts_with? mime_type }.each do |fmt|
+              codecs = fmt["type"].split("codecs=")[1].strip('"')
+              bandwidth = fmt["bitrate"]
+              itag = fmt["itag"]
+              url = fmt["url"]
+              width, height = fmt["size"].split("x").map { |i| i.to_i }
 
-            xml.element("Representation", id: itag, codecs: codecs, width: width, height: height,
-              startWithSAP: "1", maxPlayoutRate: "1",
-              bandwidth: bandwidth, frameRate: fmt["fps"]) do
-              xml.element("BaseURL") { xml.text url }
-              xml.element("SegmentBase", indexRange: fmt["index"]) do
-                xml.element("Initialization", range: fmt["init"])
+              # Resolutions reported by YouTube player (may not accurately reflect source)
+              height = [4320, 2160, 1440, 1080, 720, 480, 360, 240, 144].sort_by { |i| (height - i).abs }[0]
+
+              xml.element("Representation", id: itag, codecs: codecs, width: width, height: height,
+                startWithSAP: "1", maxPlayoutRate: "1",
+                bandwidth: bandwidth, frameRate: fmt["fps"]) do
+                xml.element("BaseURL") { xml.text url }
+                xml.element("SegmentBase", indexRange: fmt["index"]) do
+                  xml.element("Initialization", range: fmt["init"])
+                end
               end
             end
           end
+
+          i += 1
         end
       end
     end
   end
-
-  manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8U"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
-  manifest = manifest.gsub(%(<?xml version="1.0" encoding="UTF-8V"?>), %(<?xml version="1.0" encoding="UTF-8"?>))
-  manifest
 end
 
 get "/api/manifest/hls_variant/*" do |env|
@@ -1549,13 +1566,21 @@ get "/api/manifest/hls_variant/*" do |env|
     next
   end
 
+  local = env.params.query["local"]?.try &.== "true"
+
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
 
   host_url = make_host_url(config, Kemal.config)
 
   manifest = manifest.body
-  manifest.gsub("https://www.youtube.com", host_url)
+
+  if local
+    manifest = manifest.gsub("https://www.youtube.com", host_url)
+    manifest = manifest.gsub("index.m3u8", "index.m3u8?local=true")
+  end
+
+  manifest
 end
 
 get "/api/manifest/hls_playlist/*" do |env|
@@ -1567,15 +1592,24 @@ get "/api/manifest/hls_playlist/*" do |env|
     next
   end
 
-  host_url = make_host_url(config, Kemal.config)
-
-  manifest = manifest.body.gsub("https://www.youtube.com", host_url)
-  manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, host_url)
-  fvip = manifest.match(/hls_chunk_host\/r(?<fvip>\d)---/).not_nil!["fvip"]
-  manifest = manifest.gsub("seg.ts", "seg.ts/fvip/#{fvip}")
+  local = env.params.query["local"]?.try &.== "true"
 
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
+
+  host_url = make_host_url(config, Kemal.config)
+
+  manifest = manifest.body
+
+  if local
+    manifest = manifest.gsub("https://www.youtube.com", host_url)
+    manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, host_url)
+    manifest = manifest.gsub("seg.ts", "seg.ts?local=true")
+  end
+
+  fvip = manifest.match(/hls_chunk_host\/r(?<fvip>\d+)---/).not_nil!["fvip"]
+  manifest = manifest.gsub("seg.ts", "seg.ts/fvip/#{fvip}")
+
   manifest
 end
 
@@ -1584,10 +1618,17 @@ end
 get "/latest_version" do |env|
   if env.params.query["download_widget"]?
     download_widget = JSON.parse(env.params.query["download_widget"])
+
     id = download_widget["id"].as_s
-    itag = download_widget["itag"].as_s
     title = download_widget["title"].as_s
-    local = "true"
+
+    if label = download_widget["label"]?
+      env.redirect "/api/v1/captions/#{id}?label=#{label}&title=#{title}"
+      next
+    else
+      itag = download_widget["itag"].as_s
+      local = "true"
+    end
   end
 
   id ||= env.params.query["id"]?
@@ -1631,24 +1672,28 @@ get "/latest_version" do |env|
 end
 
 options "/videoplayback" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 options "/videoplayback/*" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 options "/api/manifest/dash/id/videoplayback" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
 options "/api/manifest/dash/id/videoplayback/*" do |env|
+  env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
@@ -1689,7 +1734,8 @@ get "/videoplayback" do |env|
   query_params = env.params.query
 
   fvip = query_params["fvip"]? || "3"
-  mns = query_params["mn"].split(",")
+  mns = query_params["mn"]?.try &.split(",")
+  mns ||= [] of String
 
   if query_params["region"]?
     region = query_params["region"]
@@ -1706,7 +1752,7 @@ get "/videoplayback" do |env|
   url = "/videoplayback?#{query_params.to_s}"
 
   headers = HTTP::Headers.new
-  {"Accept", "Accept-Encoding", "Connection", "Range"}.each do |header|
+  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end
@@ -1750,46 +1796,40 @@ get "/videoplayback" do |env|
   end
 
   client = make_client(URI.parse(host), proxies, region)
-  client.get(url, headers) do |response|
-    env.response.status_code = response.status_code
+  begin
+    client.get(url, headers) do |response|
+      env.response.status_code = response.status_code
 
-    response.headers.each do |key, value|
-      env.response.headers[key] = value
-    end
+      response.headers.each do |key, value|
+        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
+          env.response.headers[key] = value
+        end
+      end
 
-    if response.headers["Location"]?
-      url = URI.parse(response.headers["Location"])
-      host = url.host
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
-      url = url.full_path
-      url += "&host=#{host}"
+      if response.headers["Location"]?
+        url = URI.parse(response.headers["Location"])
+        host = url.host
 
-      if region
-        url += "&region=#{region}"
+        url = url.full_path
+        url += "&host=#{host}"
+
+        if region
+          url += "&region=#{region}"
+        end
+
+        next env.redirect url
       end
 
-      next env.redirect url
-    end
-
-    if title = query_params["title"]?
-      # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-      env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
-    end
-
-    env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-    begin
-      chunk_size = 4096
-      size = 1
-      while size > 0
-        size = IO.copy(response.body_io, env.response.output, chunk_size)
-        env.response.flush
-        Fiber.yield
+      if title = query_params["title"]?
+        # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+        env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
       end
-    rescue ex
-      break
+
+      proxy_file(response, env)
     end
+  rescue ex
   end
 end
 
@@ -1803,44 +1843,78 @@ get "/ggpht/*" do |env|
   url = env.request.path.lchop("/ggpht")
 
   headers = HTTP::Headers.new
-  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end
   end
 
-  client.get(url, headers) do |response|
-    env.response.status_code = response.status_code
-    response.headers.each do |key, value|
-      env.response.headers[key] = value
-    end
-
-    if response.status_code == 304
-      break
-    end
-
-    chunk_size = 4096
-    size = 1
-    if response.headers.includes_word?("Content-Encoding", "gzip")
-      Gzip::Writer.open(env.response) do |deflate|
-        until size == 0
-          size = IO.copy(response.body_io, deflate)
-          env.response.flush
+  begin
+    client.get(url, headers) do |response|
+      response.headers.each do |key, value|
+        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
+          env.response.headers[key] = value
         end
       end
-    elsif response.headers.includes_word?("Content-Encoding", "deflate")
-      Flate::Writer.open(env.response) do |deflate|
-        until size == 0
-          size = IO.copy(response.body_io, deflate)
-          env.response.flush
+
+      if response.status_code == 304
+        break
+      end
+
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      proxy_file(response, env)
+    end
+  rescue ex
+  end
+end
+
+options "/sb/:id/:storyboard/:index" do |env|
+  env.response.headers.delete("Content-Type")
+  env.response.headers["Access-Control-Allow-Origin"] = "*"
+  env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
+end
+
+get "/sb/:id/:storyboard/:index" do |env|
+  id = env.params.url["id"]
+  storyboard = env.params.url["storyboard"]
+  index = env.params.url["index"]
+
+  if storyboard.starts_with? "storyboard_live"
+    host = "https://i.ytimg.com"
+  else
+    host = "https://i9.ytimg.com"
+  end
+  client = make_client(URI.parse(host))
+
+  url = "/sb/#{id}/#{storyboard}/#{index}?#{env.params.query}"
+
+  headers = HTTP::Headers.new
+  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
+
+  begin
+    client.get(url, headers) do |response|
+      env.response.status_code = response.status_code
+      response.headers.each do |key, value|
+        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
+          env.response.headers[key] = value
         end
       end
-    else
-      until size == 0
-        size = IO.copy(response.body_io, env.response, chunk_size)
-        env.response.flush
+
+      if response.status_code >= 400
+        break
       end
+
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      proxy_file(response, env)
     end
+  rescue ex
   end
 end
 
@@ -1862,44 +1936,30 @@ get "/vi/:id/:name" do |env|
   url = "/vi/#{id}/#{name}"
 
   headers = HTTP::Headers.new
-  {"Range", "Accept", "Accept-Encoding"}.each do |header|
+  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end
   end
 
-  client.get(url, headers) do |response|
-    env.response.status_code = response.status_code
-    response.headers.each do |key, value|
-      env.response.headers[key] = value
-    end
-
-    if response.status_code == 304
-      break
-    end
-
-    chunk_size = 4096
-    size = 1
-    if response.headers.includes_word?("Content-Encoding", "gzip")
-      Gzip::Writer.open(env.response) do |deflate|
-        until size == 0
-          size = IO.copy(response.body_io, deflate)
-          env.response.flush
+  begin
+    client.get(url, headers) do |response|
+      env.response.status_code = response.status_code
+      response.headers.each do |key, value|
+        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
+          env.response.headers[key] = value
         end
       end
-    elsif response.headers.includes_word?("Content-Encoding", "deflate")
-      Flate::Writer.open(env.response) do |deflate|
-        until size == 0
-          size = IO.copy(response.body_io, deflate)
-          env.response.flush
-        end
+
+      if response.status_code == 304
+        break
       end
-    else
-      until size == 0
-        size = IO.copy(response.body_io, env.response, chunk_size)
-        env.response.flush
-      end
+
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      proxy_file(response, env)
     end
+  rescue ex
   end
 end
 
@@ -1920,13 +1980,17 @@ end
 # Add redirect if SSL is enabled
 if Kemal.config.ssl
   spawn do
-    server = HTTP::Server.new do |context|
-      redirect_url = "https://#{context.request.host}#{context.request.path}"
-      if context.request.query
-        redirect_url += "?#{context.request.query}"
+    server = HTTP::Server.new do |env|
+      redirect_url = "https://#{env.request.host}#{env.request.path}"
+      if env.request.query
+        redirect_url += "?#{env.request.query}"
       end
-      context.response.headers.add("Location", redirect_url)
-      context.response.status_code = 301
+
+      if config.hsts
+        env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+      end
+      env.response.headers["Location"] = redirect_url
+      env.response.status_code = 301
     end
 
     server.bind_tcp "0.0.0.0", 80
@@ -1938,8 +2002,9 @@ Kemal.config.powered_by_header = false
 add_handler FilteredCompressHandler.new
 add_handler APIHandler.new
 add_handler DenyFrame.new
-add_context_storage_type(User)
+add_context_storage_type(Array(String))
 add_context_storage_type(Preferences)
+add_context_storage_type(User)
 
 Kemal.config.logger = logger
 Kemal.run

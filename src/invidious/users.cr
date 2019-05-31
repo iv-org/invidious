@@ -11,7 +11,7 @@ struct User
     end
   end
 
-  add_mapping({
+  db_mapping({
     updated:       Time,
     notifications: Array(String),
     subscriptions: Array(String),
@@ -25,29 +25,6 @@ struct User
     watched:  Array(String),
   })
 end
-
-DEFAULT_USER_PREFERENCES = Preferences.new(
-  video_loop: false,
-  autoplay: false,
-  continue: false,
-  local: false,
-  listen: false,
-  speed: 1.0_f32,
-  quality: "hd720",
-  volume: 100,
-  comments: ["youtube", ""],
-  captions: ["", "", ""],
-  related_videos: true,
-  redirect_feed: false,
-  locale: "en-US",
-  dark_mode: false,
-  thin_mode: false,
-  max_results: 40,
-  sort: "published",
-  latest_only: false,
-  unseen_only: false,
-  notifications_only: false,
-)
 
 struct Preferences
   module StringToArray
@@ -63,37 +40,91 @@ struct Preferences
       begin
         result = [] of String
         value.read_array do
-          result << value.read_string
+          result << HTML.escape(value.read_string)
         end
       rescue ex
-        result = [value.read_string, ""]
+        result = [HTML.escape(value.read_string), ""]
+      end
+
+      result
+    end
+
+    def self.to_yaml(value : Array(String), yaml : YAML::Nodes::Builder)
+      yaml.sequence do
+        value.each do |element|
+          yaml.scalar element
+        end
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Array(String)
+      begin
+        unless node.is_a?(YAML::Nodes::Sequence)
+          node.raise "Expected sequence, not #{node.class}"
+        end
+
+        result = [] of String
+        node.nodes.each do |item|
+          unless item.is_a?(YAML::Nodes::Scalar)
+            node.raise "Expected scalar, not #{item.class}"
+          end
+
+          result << HTML.escape(item.value)
+        end
+      rescue ex
+        if node.is_a?(YAML::Nodes::Scalar)
+          result = [HTML.escape(node.value), ""]
+        else
+          result = ["", ""]
+        end
       end
 
       result
     end
   end
 
+  module EscapeString
+    def self.to_json(value : String, json : JSON::Builder)
+      json.string value
+    end
+
+    def self.from_json(value : JSON::PullParser) : String
+      HTML.escape(value.read_string)
+    end
+
+    def self.to_yaml(value : String, yaml : YAML::Nodes::Builder)
+      yaml.scalar value
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : String
+      HTML.escape(node.value)
+    end
+  end
+
   json_mapping({
-    video_loop:         {type: Bool, default: DEFAULT_USER_PREFERENCES.video_loop},
-    autoplay:           {type: Bool, default: DEFAULT_USER_PREFERENCES.autoplay},
-    continue:           {type: Bool, default: DEFAULT_USER_PREFERENCES.continue},
-    local:              {type: Bool, default: DEFAULT_USER_PREFERENCES.local},
-    listen:             {type: Bool, default: DEFAULT_USER_PREFERENCES.listen},
-    speed:              {type: Float32, default: DEFAULT_USER_PREFERENCES.speed},
-    quality:            {type: String, default: DEFAULT_USER_PREFERENCES.quality},
-    volume:             {type: Int32, default: DEFAULT_USER_PREFERENCES.volume},
-    comments:           {type: Array(String), default: DEFAULT_USER_PREFERENCES.comments, converter: StringToArray},
-    captions:           {type: Array(String), default: DEFAULT_USER_PREFERENCES.captions, converter: StringToArray},
-    redirect_feed:      {type: Bool, default: DEFAULT_USER_PREFERENCES.redirect_feed},
-    related_videos:     {type: Bool, default: DEFAULT_USER_PREFERENCES.related_videos},
-    dark_mode:          {type: Bool, default: DEFAULT_USER_PREFERENCES.dark_mode},
-    thin_mode:          {type: Bool, default: DEFAULT_USER_PREFERENCES.thin_mode},
-    max_results:        {type: Int32, default: DEFAULT_USER_PREFERENCES.max_results},
-    sort:               {type: String, default: DEFAULT_USER_PREFERENCES.sort},
-    latest_only:        {type: Bool, default: DEFAULT_USER_PREFERENCES.latest_only},
-    unseen_only:        {type: Bool, default: DEFAULT_USER_PREFERENCES.unseen_only},
-    notifications_only: {type: Bool, default: DEFAULT_USER_PREFERENCES.notifications_only},
-    locale:             {type: String, default: DEFAULT_USER_PREFERENCES.locale},
+    annotations:            {type: Bool, default: CONFIG.default_user_preferences.annotations},
+    annotations_subscribed: {type: Bool, default: CONFIG.default_user_preferences.annotations_subscribed},
+    autoplay:               {type: Bool, default: CONFIG.default_user_preferences.autoplay},
+    captions:               {type: Array(String), default: CONFIG.default_user_preferences.captions, converter: StringToArray},
+    comments:               {type: Array(String), default: CONFIG.default_user_preferences.comments, converter: StringToArray},
+    continue:               {type: Bool, default: CONFIG.default_user_preferences.continue},
+    continue_autoplay:      {type: Bool, default: CONFIG.default_user_preferences.continue_autoplay},
+    dark_mode:              {type: Bool, default: CONFIG.default_user_preferences.dark_mode},
+    latest_only:            {type: Bool, default: CONFIG.default_user_preferences.latest_only},
+    listen:                 {type: Bool, default: CONFIG.default_user_preferences.listen},
+    local:                  {type: Bool, default: CONFIG.default_user_preferences.local},
+    locale:                 {type: String, default: CONFIG.default_user_preferences.locale, converter: EscapeString},
+    max_results:            {type: Int32, default: CONFIG.default_user_preferences.max_results},
+    notifications_only:     {type: Bool, default: CONFIG.default_user_preferences.notifications_only},
+    quality:                {type: String, default: CONFIG.default_user_preferences.quality, converter: EscapeString},
+    redirect_feed:          {type: Bool, default: CONFIG.default_user_preferences.redirect_feed},
+    related_videos:         {type: Bool, default: CONFIG.default_user_preferences.related_videos},
+    sort:                   {type: String, default: CONFIG.default_user_preferences.sort, converter: EscapeString},
+    speed:                  {type: Float32, default: CONFIG.default_user_preferences.speed},
+    thin_mode:              {type: Bool, default: CONFIG.default_user_preferences.thin_mode},
+    unseen_only:            {type: Bool, default: CONFIG.default_user_preferences.unseen_only},
+    video_loop:             {type: Bool, default: CONFIG.default_user_preferences.video_loop},
+    volume:                 {type: Int32, default: CONFIG.default_user_preferences.volume},
   })
 end
 
@@ -115,7 +146,7 @@ def get_user(sid, headers, db, refresh = true)
       ON CONFLICT (id) DO NOTHING", sid, user.email, Time.now)
 
       begin
-        view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+        view_name = "subscriptions_#{sha256(user.email)}"
         db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
         SELECT * FROM channel_videos WHERE \
         ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
@@ -137,7 +168,7 @@ def get_user(sid, headers, db, refresh = true)
     ON CONFLICT (id) DO NOTHING", sid, user.email, Time.now)
 
     begin
-      view_name = "subscriptions_#{sha256(user.email)[0..7]}"
+      view_name = "subscriptions_#{sha256(user.email)}"
       db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
       SELECT * FROM channel_videos WHERE \
       ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
@@ -174,7 +205,7 @@ def fetch_user(sid, headers, db)
 
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(Time.now, [] of String, channels, email, DEFAULT_USER_PREFERENCES, nil, token, [] of String)
+  user = User.new(Time.now, [] of String, channels, email, CONFIG.default_user_preferences, nil, token, [] of String)
   return user, sid
 end
 
@@ -182,72 +213,9 @@ def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(Time.now, [] of String, [] of String, email, DEFAULT_USER_PREFERENCES, password.to_s, token, [] of String)
+  user = User.new(Time.now, [] of String, [] of String, email, CONFIG.default_user_preferences, password.to_s, token, [] of String)
 
   return user, sid
-end
-
-def create_response(user_id, operation, key, db, expire = 6.hours)
-  expire = Time.now + expire
-  nonce = Random::Secure.hex(16)
-  db.exec("INSERT INTO nonces VALUES ($1, $2) ON CONFLICT DO NOTHING", nonce, expire)
-
-  challenge = "#{expire.to_unix}-#{nonce}-#{user_id}-#{operation}"
-  token = OpenSSL::HMAC.digest(:sha256, key, challenge)
-
-  challenge = Base64.urlsafe_encode(challenge)
-  token = Base64.urlsafe_encode(token)
-
-  return challenge, token
-end
-
-def validate_response(challenge, token, user_id, operation, key, db, locale)
-  if !challenge
-    raise translate(locale, "Hidden field \"challenge\" is a required field")
-  end
-
-  if !token
-    raise translate(locale, "Hidden field \"token\" is a required field")
-  end
-
-  challenge = Base64.decode_string(challenge)
-  if challenge.split("-").size == 4
-    expire, nonce, challenge_user_id, challenge_operation = challenge.split("-")
-
-    expire = expire.to_i?
-    expire ||= 0
-  else
-    raise translate(locale, "Invalid challenge")
-  end
-
-  challenge = OpenSSL::HMAC.digest(:sha256, key, challenge)
-  challenge = Base64.urlsafe_encode(challenge)
-
-  if nonce = db.query_one?("SELECT * FROM nonces WHERE nonce = $1", nonce, as: {String, Time})
-    if nonce[1] > Time.now
-      db.exec("UPDATE nonces SET expire = $1 WHERE nonce = $2", Time.new(1990, 1, 1), nonce[0])
-    else
-      raise translate(locale, "Invalid token")
-    end
-  else
-    raise translate(locale, "Invalid token")
-  end
-
-  if challenge != token
-    raise translate(locale, "Invalid token")
-  end
-
-  if challenge_operation != operation
-    raise translate(locale, "Invalid token")
-  end
-
-  if challenge_user_id != user_id
-    raise translate(locale, "Invalid token")
-  end
-
-  if expire < Time.now.to_unix
-    raise translate(locale, "Token is expired, please try again")
-  end
 end
 
 def generate_captcha(key, db)
@@ -302,20 +270,53 @@ def generate_captcha(key, db)
 
   return {
     question: image,
-    tokens:   [create_response(answer, "sign_in", key, db)],
+    tokens:   {generate_response(answer, {":login"}, key, db, use_nonce: true)},
   }
 end
 
 def generate_text_captcha(key, db)
-  response = HTTP::Client.get(TEXTCAPTCHA_URL).body
+  response = make_client(TEXTCAPTCHA_URL).get("/omarroth@protonmail.com.json").body
   response = JSON.parse(response)
 
   tokens = response["a"].as_a.map do |answer|
-    create_response(answer.as_s, "sign_in", key, db)
+    generate_response(answer.as_s, {":login"}, key, db, use_nonce: true)
   end
 
   return {
     question: response["q"].as_s,
     tokens:   tokens,
   }
+end
+
+def subscribe_ajax(channel_id, action, env_headers)
+  headers = HTTP::Headers.new
+  headers["Cookie"] = env_headers["Cookie"]
+
+  client = make_client(YT_URL)
+  html = client.get("/subscription_manager?disable_polymer=1", headers)
+
+  cookies = HTTP::Cookies.from_headers(headers)
+  html.cookies.each do |cookie|
+    if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
+      if cookies[cookie.name]?
+        cookies[cookie.name] = cookie
+      else
+        cookies << cookie
+      end
+    end
+  end
+  headers = cookies.add_request_headers(headers)
+
+  if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+    session_token = match["session_token"]
+
+    headers["content-type"] = "application/x-www-form-urlencoded"
+
+    post_req = {
+      "session_token" => session_token,
+    }
+    post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
+
+    client.post(post_url, headers, form: post_req)
+  end
 end
