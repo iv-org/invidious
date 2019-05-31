@@ -4951,7 +4951,8 @@ get "/videoplayback" do |env|
   query_params = env.params.query
 
   fvip = query_params["fvip"]? || "3"
-  mns = query_params["mn"].split(",")
+  mns = query_params["mn"]?.try &.split(",")
+  mns ||= [] of String
 
   if query_params["region"]?
     region = query_params["region"]
