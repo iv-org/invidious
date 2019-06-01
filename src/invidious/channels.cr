@@ -184,7 +184,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       views: views,
     )
 
-    users = db.query_all("UPDATE users SET notifications = notifications || $1 \
+    emails = db.query_all("UPDATE users SET notifications = notifications || $1 \
       WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
       video.id, video.published, ucid, as: String)
 
@@ -198,13 +198,14 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       updated = $4, ucid = $5, author = $6, length_seconds = $7, \
       live_now = $8, views = $10", video_array)
 
-    users.each do |user|
-      payload = {
-        "email"  => user,
-        "action" => "refresh",
-      }.to_json
-      PG_DB.exec("NOTIFY feeds, E'#{payload}'")
+    # Update all users affected by insert
+    if emails.empty?
+      values = "'{}'"
+    else
+      values = "VALUES #{emails.map { |id| %(('#{id}')) }.join(",")}"
     end
+
+    db.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY($1)", emails)
   end
 
   if pull_all_videos
@@ -252,7 +253,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
         # We are notified of Red videos elsewhere (PubSub), which includes a correct published date,
         # so since they don't provide a published date here we can safely ignore them.
         if Time.now - video.published > 1.minute
-          users = db.query_all("UPDATE users SET notifications = notifications || $1 \
+          emails = db.query_all("UPDATE users SET notifications = notifications || $1 \
             WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
             video.id, video.published, video.ucid, as: String)
 
@@ -266,13 +267,13 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
             live_now = $8, views = $10", video_array)
 
           # Update all users affected by insert
-          users.each do |user|
-            payload = {
-              "email"  => user,
-              "action" => "refresh",
-            }.to_json
-            PG_DB.exec("NOTIFY feeds, E'#{payload}'")
+          if emails.empty?
+            values = "'{}'"
+          else
+            values = "VALUES #{emails.map { |id| %(('#{id}')) }.join(",")}"
           end
+
+          db.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY($1)", emails)
         end
       end
 

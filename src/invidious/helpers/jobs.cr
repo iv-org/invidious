@@ -43,66 +43,6 @@ def refresh_channels(db, logger, config)
 end
 
 def refresh_feeds(db, logger, config)
-  # Spawn thread to handle feed events
-  if config.use_feed_events
-    case config.use_feed_events
-    when Bool
-      max_feed_event_threads = config.use_feed_events.as(Bool).to_unsafe
-    when Int32
-      max_feed_event_threads = config.use_feed_events.as(Int32)
-    end
-    max_feed_event_channel = Channel(Int32).new
-
-    spawn do
-      queue = Deque(String).new(30)
-      PG.connect_listen(PG_URL, "feeds") do |event|
-        if !queue.includes? event.payload
-          queue << event.payload
-        end
-      end
-
-      max_threads = max_feed_event_channel.receive
-      active_threads = 0
-      active_channel = Channel(Bool).new
-
-      loop do
-        until queue.empty?
-          event = queue.shift
-
-          if active_threads >= max_threads
-            if active_channel.receive
-              active_threads -= 1
-            end
-          end
-
-          active_threads += 1
-
-          spawn do
-            begin
-              feed = JSON.parse(event)
-              email = feed["email"].as_s
-              action = feed["action"].as_s
-
-              view_name = "subscriptions_#{sha256(email)}"
-
-              case action
-              when "refresh"
-                db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
-              end
-            rescue ex
-            end
-
-            active_channel.send(true)
-          end
-        end
-
-        sleep 5.seconds
-      end
-    end
-
-    max_feed_event_channel.send(max_feed_event_threads.as(Int32))
-  end
-
   max_channel = Channel(Int32).new
   spawn do
     max_threads = max_channel.receive
@@ -110,7 +50,7 @@ def refresh_feeds(db, logger, config)
     active_channel = Channel(Bool).new
 
     loop do
-      db.query("SELECT email FROM users") do |rs|
+      db.query("SELECT email FROM users WHERE feed_needs_update = true OR feed_needs_update IS NULL") do |rs|
         rs.each do
           email = rs.read(String)
           view_name = "subscriptions_#{sha256(email)}"
@@ -135,6 +75,7 @@ def refresh_feeds(db, logger, config)
               end
 
               db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
+              db.exec("UPDATE users SET feed_needs_update = false WHERE email = $1", email)
             rescue ex
               # Rename old views
               begin
@@ -152,6 +93,7 @@ def refresh_feeds(db, logger, config)
                     SELECT * FROM channel_videos WHERE \
                     ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{email.gsub("'", "\\'")}')::text[]) \
                     ORDER BY published DESC;")
+                    db.exec("UPDATE users SET feed_needs_update = false WHERE email = $1", email)
                   end
                 rescue ex
                   logger.write("REFRESH #{email} : #{ex.message}\n")
@@ -164,7 +106,7 @@ def refresh_feeds(db, logger, config)
         end
       end
 
-      sleep 1.minute
+      sleep 5.seconds
     end
   end
 

@@ -20,9 +20,10 @@ struct User
       type:      Preferences,
       converter: PreferencesConverter,
     },
-    password: String?,
-    token:    String,
-    watched:  Array(String),
+    password:          String?,
+    token:             String,
+    watched:           Array(String),
+    feed_needs_update: Bool?,
   })
 end
 
@@ -205,7 +206,7 @@ def fetch_user(sid, headers, db)
 
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(Time.now, [] of String, channels, email, CONFIG.default_user_preferences, nil, token, [] of String)
+  user = User.new(Time.now, [] of String, channels, email, CONFIG.default_user_preferences, nil, token, [] of String, true)
   return user, sid
 end
 
@@ -213,7 +214,7 @@ def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(Time.now, [] of String, [] of String, email, CONFIG.default_user_preferences, password.to_s, token, [] of String)
+  user = User.new(Time.now, [] of String, [] of String, email, CONFIG.default_user_preferences, password.to_s, token, [] of String, true)
 
   return user, sid
 end

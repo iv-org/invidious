@@ -1710,17 +1710,11 @@ post "/subscription_ajax" do |env|
   when .starts_with? "action_create"
     if !user.subscriptions.includes? channel_id
       get_channel(channel_id, PG_DB, false, false)
-      PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions, $1) WHERE email = $2", channel_id, email)
+      PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_append(subscriptions, $1) WHERE email = $2", channel_id, email)
     end
   when .starts_with? "action_remove"
-    PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions, $1) WHERE email = $2", channel_id, email)
+    PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_remove(subscriptions, $1) WHERE email = $2", channel_id, email)
   end
-
-  payload = {
-    "email"  => user.email,
-    "action" => "refresh",
-  }.to_json
-  PG_DB.exec("NOTIFY feeds, E'#{payload}'")
 
   if redirect
     env.redirect referer
@@ -1884,7 +1878,7 @@ post "/data_control" do |env|
 
           user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
-          PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+          PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
         end
 
         if body["watch_history"]?
@@ -1906,7 +1900,7 @@ post "/data_control" do |env|
 
         user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
-        PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+        PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_freetube"
         user.subscriptions += body.scan(/"channelId":"(?<channel_id>[a-zA-Z0-9_-]{24})"/).map do |md|
           md["channel_id"]
@@ -1915,7 +1909,7 @@ post "/data_control" do |env|
 
         user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
-        PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+        PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe_subscriptions"
         body = JSON.parse(body)
         user.subscriptions += body["subscriptions"].as_a.compact_map do |channel|
@@ -1939,7 +1933,7 @@ post "/data_control" do |env|
 
         user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
-        PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+        PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe"
         Zip::Reader.open(IO::Memory.new(body)) do |file|
           file.each_entry do |entry|
@@ -1958,7 +1952,7 @@ post "/data_control" do |env|
 
               user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
-              PG_DB.exec("UPDATE users SET subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+              PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
 
               db.close
               tempfile.delete
@@ -1967,12 +1961,6 @@ post "/data_control" do |env|
         end
       end
     end
-
-    payload = {
-      "email"  => user.email,
-      "action" => "refresh",
-    }.to_json
-    PG_DB.exec("NOTIFY feeds, E'#{payload}'")
   end
 
   env.redirect referer
@@ -2874,7 +2862,7 @@ post "/feed/webhook/:token" do |env|
         views: video.views,
       )
 
-      users = PG_DB.query_all("UPDATE users SET notifications = notifications || $1 \
+      emails = PG_DB.query_all("UPDATE users SET notifications = notifications || $1 \
         WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
         video.id, video.published, video.ucid, as: String)
 
@@ -2886,13 +2874,14 @@ post "/feed/webhook/:token" do |env|
         updated = $4, ucid = $5, author = $6, length_seconds = $7, \
         live_now = $8, premiere_timestamp = $9, views = $10", video_array)
 
-      users.each do |user|
-        payload = {
-          "email"  => user,
-          "action" => "refresh",
-        }.to_json
-        PG_DB.exec("NOTIFY feeds, E'#{payload}'")
+      # Update all users affected by insert
+      if emails.empty?
+        values = "'{}'"
+      else
+        values = "VALUES #{emails.map { |id| %(('#{id}')) }.join(",")}"
       end
+
+      PG_DB.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY($1)", emails)
     end
   end
 
@@ -4490,7 +4479,6 @@ post "/api/v1/auth/preferences" do |env|
   PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
 
   env.response.status_code = 204
-  ""
 end
 
 get "/api/v1/auth/subscriptions" do |env|
@@ -4525,13 +4513,7 @@ post "/api/v1/auth/subscriptions/:ucid" do |env|
 
   if !user.subscriptions.includes? ucid
     get_channel(ucid, PG_DB, false, false)
-    PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
-
-    payload = {
-      "email"  => user.email,
-      "action" => "refresh",
-    }.to_json
-    PG_DB.exec("NOTIFY feeds, E'#{payload}'")
+    PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
   end
 
   # For Google accounts, access tokens don't have enough information to
@@ -4539,7 +4521,6 @@ post "/api/v1/auth/subscriptions/:ucid" do |env|
   # YouTube.
 
   env.response.status_code = 204
-  ""
 end
 
 delete "/api/v1/auth/subscriptions/:ucid" do |env|
@@ -4548,15 +4529,9 @@ delete "/api/v1/auth/subscriptions/:ucid" do |env|
 
   ucid = env.params.url["ucid"]
 
-  PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions, $1) WHERE email = $2", ucid, user.email)
-  payload = {
-    "email"  => user.email,
-    "action" => "refresh",
-  }.to_json
-  PG_DB.exec("NOTIFY feeds, E'#{payload}'")
+  PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_remove(subscriptions, $1) WHERE email = $2", ucid, user.email)
 
   env.response.status_code = 204
-  ""
 end
 
 get "/api/v1/auth/tokens" do |env|
@@ -4663,7 +4638,6 @@ post "/api/v1/auth/tokens/unregister" do |env|
   end
 
   env.response.status_code = 204
-  ""
 end
 
 get "/api/manifest/dash/id/videoplayback" do |env|

@@ -12,6 +12,7 @@ CREATE TABLE public.users
   password text,
   token text,
   watched text[],
+  feed_needs_update boolean,
   CONSTRAINT users_email_key UNIQUE (email)
 );
 
