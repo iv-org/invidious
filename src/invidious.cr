@@ -2881,7 +2881,7 @@ post "/feed/webhook/:token" do |env|
         values = "VALUES #{emails.map { |id| %(('#{id}')) }.join(",")}"
       end
 
-      PG_DB.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY($1)", emails)
+      PG_DB.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY(#{values})")
     end
   end
 

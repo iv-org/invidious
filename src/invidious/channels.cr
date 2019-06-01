@@ -205,7 +205,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       values = "VALUES #{emails.map { |id| %(('#{id}')) }.join(",")}"
     end
 
-    db.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY($1)", emails)
+    db.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY(#{values})")
   end
 
   if pull_all_videos
@@ -273,7 +273,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
             values = "VALUES #{emails.map { |id| %(('#{id}')) }.join(",")}"
           end
 
-          db.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY($1)", emails)
+          db.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY(#{values})")
         end
       end
 
