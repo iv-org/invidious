@@ -350,6 +350,7 @@ get "/watch" do |env|
   if user
     subscriptions = user.subscriptions
     watched = user.watched
+    notifications = user.notifications
   end
   subscriptions ||= [] of String
 
@@ -375,6 +376,12 @@ get "/watch" do |env|
 
   if watched && !watched.includes? id
     PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.as(User).email)
+  end
+
+  if notifications && notifications.includes? id
+    PG_DB.exec("UPDATE users SET notifications = array_remove(notifications, $1) WHERE email = $2", id, user.as(User).email)
+    env.get("user").as(User).notifications.delete(id)
+    notifications.delete(id)
   end
 
   if nojs
@@ -558,6 +565,7 @@ get "/embed/:id" do |env|
   if user
     subscriptions = user.subscriptions
     watched = user.watched
+    notifications = user.notifications
   end
   subscriptions ||= [] of String
 
@@ -578,6 +586,12 @@ get "/embed/:id" do |env|
 
   if watched && !watched.includes? id
     PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.as(User).email)
+  end
+
+  if notifications && notifications.includes? id
+    PG_DB.exec("UPDATE users SET notifications = array_remove(notifications, $1) WHERE email = $2", id, user.as(User).email)
+    env.get("user").as(User).notifications.delete(id)
+    notifications.delete(id)
   end
 
   fmt_stream = video.fmt_stream(decrypt_function)
@@ -1696,10 +1710,10 @@ post "/subscription_ajax" do |env|
   when .starts_with? "action_create"
     if !user.subscriptions.includes? channel_id
       get_channel(channel_id, PG_DB, false, false)
-      PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions,$1) WHERE email = $2", channel_id, email)
+      PG_DB.exec("UPDATE users SET subscriptions = array_append(subscriptions, $1) WHERE email = $2", channel_id, email)
     end
   when .starts_with? "action_remove"
-    PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", channel_id, email)
+    PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions, $1) WHERE email = $2", channel_id, email)
   end
 
   payload = {
@@ -4534,7 +4548,7 @@ delete "/api/v1/auth/subscriptions/:ucid" do |env|
 
   ucid = env.params.url["ucid"]
 
-  PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions,$1) WHERE email = $2", ucid, user.email)
+  PG_DB.exec("UPDATE users SET subscriptions = array_remove(subscriptions, $1) WHERE email = $2", ucid, user.email)
   payload = {
     "email"  => user.email,
     "action" => "refresh",
