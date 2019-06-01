@@ -470,11 +470,23 @@ get "/watch" do |env|
   thumbnail = "/vi/#{video.id}/maxres.jpg"
 
   if params.raw
-    url = fmt_stream[0]["url"]
+    if params.listen
+      url = audio_streams[0]["url"]
 
-    fmt_stream.each do |fmt|
-      if fmt["label"].split(" - ")[0] == params.quality
-        url = fmt["url"]
+      audio_streams.each do |fmt|
+        pp fmt["bitrate"]
+        pp params.quality.rchop("k")
+        if fmt["bitrate"] == params.quality.rchop("k")
+          url = fmt["url"]
+        end
+      end
+    else
+      url = fmt_stream[0]["url"]
+
+      fmt_stream.each do |fmt|
+        if fmt["label"].split(" - ")[0] == params.quality
+          url = fmt["url"]
+        end
       end
     end
 
