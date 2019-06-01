@@ -166,8 +166,8 @@ function update_value(element) {
                     <input name="notifications_only" id="notifications_only" type="checkbox" <% if preferences.notifications_only %>checked<% end %>>
                 </div>
 
-                <% # Conditions for supporting web notifications %>
-                <% if CONFIG.use_pubsub_feeds && (Kemal.config.ssl || config.https_only) %>
+                <% # Web notifications are only supported over HTTPS %>
+                <% if Kemal.config.ssl || config.https_only %>
                     <div class="pure-control-group">
                         <a href="#" onclick="Notification.requestPermission()"><%= translate(locale, "Enable web notifications") %></a>
                     </div>
