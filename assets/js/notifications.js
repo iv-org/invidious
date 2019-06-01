@@ -1,6 +1,6 @@
 var notifications, delivered;
 
-function get_subscriptions(callback, failures) {
+function get_subscriptions(callback, failures = 1) {
     if (failures >= 10) {
         return
     }
@@ -92,31 +92,6 @@ function create_notification_stream(subscriptions) {
     notifications.stream();
 }
 
-window.addEventListener('storage', function (e) {
-    if (e.key === 'stream' && !e.newValue) {
-        if (notifications) {
-            localStorage.setItem('stream', true);
-        } else {
-            setTimeout(function () {
-                if (!localStorage.getItem('stream')) {
-                    get_subscriptions(create_notification_stream);
-                    localStorage.setItem('stream', true);
-                }
-            }, Math.random() * 1000 + 10);
-        }
-    } else if (e.key === 'notification_count') {
-        var notification_ticker = document.getElementById('notification_ticker');
-
-        if (parseInt(e.newValue) > 0) {
-            notification_ticker.innerHTML =
-                '<span id="notification_count">' + e.newValue + '</span> <i class="icon ion-ios-notifications"></i>';
-        } else {
-            notification_ticker.innerHTML =
-                '<i class="icon ion-ios-notifications-outline"></i>';
-        }
-    }
-});
-
 window.addEventListener('load', function (e) {
     localStorage.setItem('notification_count', document.getElementById('notification_count') ? document.getElementById('notification_count').innerText : '0');
 
@@ -130,6 +105,31 @@ window.addEventListener('load', function (e) {
             }
         }, Math.random() * 1000 + 10);
     }
+
+    window.addEventListener('storage', function (e) {
+        if (e.key === 'stream' && !e.newValue) {
+            if (notifications) {
+                localStorage.setItem('stream', true);
+            } else {
+                setTimeout(function () {
+                    if (!localStorage.getItem('stream')) {
+                        get_subscriptions(create_notification_stream);
+                        localStorage.setItem('stream', true);
+                    }
+                }, Math.random() * 1000 + 10);
+            }
+        } else if (e.key === 'notification_count') {
+            var notification_ticker = document.getElementById('notification_ticker');
+
+            if (parseInt(e.newValue) > 0) {
+                notification_ticker.innerHTML =
+                    '<span id="notification_count">' + e.newValue + '</span> <i class="icon ion-ios-notifications"></i>';
+            } else {
+                notification_ticker.innerHTML =
+                    '<i class="icon ion-ios-notifications-outline"></i>';
+            }
+        }
+    });
 });
 
 window.addEventListener('unload', function (e) {

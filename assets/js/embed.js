@@ -1,4 +1,4 @@
-function get_playlist(plid, timeouts) {
+function get_playlist(plid, timeouts = 0) {
     if (timeouts > 10) {
         console.log('Failed to pull playlist');
         return;

@@ -7,7 +7,7 @@ if (subscribe_button.getAttribute('data-type') === 'subscribe') {
     subscribe_button.onclick = unsubscribe;
 }
 
-function subscribe(timeouts) {
+function subscribe(timeouts = 0) {
     if (timeouts >= 10) {
         console.log('Failed to subscribe.');
         return;
@@ -41,7 +41,7 @@ function subscribe(timeouts) {
     }
 }
 
-function unsubscribe(timeouts) {
+function unsubscribe(timeouts = 0) {
     if (timeouts >= 10) {
         console.log('Failed to subscribe');
         return;
