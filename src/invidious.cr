@@ -474,8 +474,6 @@ get "/watch" do |env|
       url = audio_streams[0]["url"]
 
       audio_streams.each do |fmt|
-        pp fmt["bitrate"]
-        pp params.quality.rchop("k")
         if fmt["bitrate"] == params.quality.rchop("k")
           url = fmt["url"]
         end
