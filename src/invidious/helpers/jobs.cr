@@ -74,6 +74,11 @@ def refresh_feeds(db, logger, config)
                 end
               end
 
+              if db.query_one("SELECT pg_get_viewdef('#{view_name}')", as: String).includes? "ucid = ANY"
+                logger.write("Materialized view #{view_name} is out-of-date, recreating...\n")
+                db.exec("DROP MATERIALIZED VIEW #{view_name}")
+              end
+
               db.exec("REFRESH MATERIALIZED VIEW #{view_name}")
               db.exec("UPDATE users SET feed_needs_update = false WHERE email = $1", email)
             rescue ex
@@ -90,9 +95,9 @@ def refresh_feeds(db, logger, config)
                   if db.query_one?("SELECT true FROM users WHERE email = $1", email, as: Bool)
                     logger.write("CREATE #{view_name}\n")
                     db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
-                    SELECT * FROM channel_videos WHERE \
-                    ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{email.gsub("'", "\\'")}')::text[]) \
-                    ORDER BY published DESC;")
+                      SELECT * FROM channel_videos WHERE
+                      ucid IN (SELECT unnest(subscriptions) FROM users WHERE email = E'#{email.gsub("'", "\\'")}')
+                      ORDER BY published DESC")
                     db.exec("UPDATE users SET feed_needs_update = false WHERE email = $1", email)
                   end
                 rescue ex

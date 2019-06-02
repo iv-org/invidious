@@ -149,9 +149,9 @@ def get_user(sid, headers, db, refresh = true)
       begin
         view_name = "subscriptions_#{sha256(user.email)}"
         db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
-        SELECT * FROM channel_videos WHERE \
-        ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
-        ORDER BY published DESC;")
+          SELECT * FROM channel_videos WHERE
+          ucid IN (SELECT unnest(subscriptions) FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')
+          ORDER BY published DESC")
       rescue ex
       end
     end
@@ -171,9 +171,9 @@ def get_user(sid, headers, db, refresh = true)
     begin
       view_name = "subscriptions_#{sha256(user.email)}"
       db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
-      SELECT * FROM channel_videos WHERE \
-      ucid = ANY ((SELECT subscriptions FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')::text[]) \
-      ORDER BY published DESC;")
+        SELECT * FROM channel_videos WHERE
+        ucid IN (SELECT unnest(subscriptions) FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')
+        ORDER BY published DESC")
     rescue ex
     end
   end
