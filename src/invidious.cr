@@ -186,10 +186,21 @@ spawn do
   end
 end
 
-notification_channels = [] of Channel(PQ::Notification)
-PG.connect_listen(PG_URL, "notifications") do |event|
-  notification_channels.each do |channel|
-    channel.send(event)
+connection_channel = Channel({Bool, Channel(PQ::Notification)}).new
+spawn do
+  connections = [] of Channel(PQ::Notification)
+
+  PG.connect_listen(PG_URL, "notifications") { |event| connections.each { |connection| connection.send(event) } }
+
+  loop do
+    action, connection = connection_channel.receive
+
+    case action
+    when true
+      connections << connection
+    when false
+      connections.delete(connection)
+    end
   end
 end
 
@@ -4469,15 +4480,7 @@ get "/api/v1/auth/notifications" do |env|
   topics = env.params.query["topics"]?.try &.split(",").uniq.first(1000)
   topics ||= [] of String
 
-  notification_channel = Channel(PQ::Notification).new
-  notification_channels << notification_channel
-
-  begin
-    create_notification_stream(env, proxies, config, Kemal.config, decrypt_function, topics, notification_channel)
-  rescue ex
-  ensure
-    notification_channels.delete(notification_channel)
-  end
+  create_notification_stream(env, proxies, config, Kemal.config, decrypt_function, topics, connection_channel)
 end
 
 post "/api/v1/auth/notifications" do |env|
@@ -4486,15 +4489,7 @@ post "/api/v1/auth/notifications" do |env|
   topics = env.params.body["topics"]?.try &.split(",").uniq.first(1000)
   topics ||= [] of String
 
-  notification_channel = Channel(PQ::Notification).new
-  notification_channels << notification_channel
-
-  begin
-    create_notification_stream(env, proxies, config, Kemal.config, decrypt_function, topics, notification_channel)
-  rescue ex
-  ensure
-    notification_channels.delete(notification_channel)
-  end
+  create_notification_stream(env, proxies, config, Kemal.config, decrypt_function, topics, connection_channel)
 end
 
 get "/api/v1/auth/preferences" do |env|
