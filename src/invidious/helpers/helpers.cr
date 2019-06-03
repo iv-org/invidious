@@ -662,7 +662,7 @@ def copy_in_chunks(input, output, chunk_size = 4096)
 end
 
 def create_notification_stream(env, proxies, config, kemal_config, decrypt_function, topics, connection_channel)
-  connection = Channel(PQ::Notification).new
+  connection = Channel(PQ::Notification).new(8)
   connection_channel.send({true, connection})
 
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -750,6 +750,10 @@ def create_notification_stream(env, proxies, config, kemal_config, decrypt_funct
         video_id = notification["videoId"].as_s
         published = notification["published"].as_i64
 
+        if !topics.try &.includes? topic
+          next
+        end
+
         video = get_video(video_id, PG_DB, proxies)
         video.published = Time.unix(published)
         response = JSON.parse(video.to_json(locale, config, Kemal.config, decrypt_function))
@@ -763,14 +767,12 @@ def create_notification_stream(env, proxies, config, kemal_config, decrypt_funct
           end
         end
 
-        if topics.try &.includes? topic
-          env.response.puts "id: #{id}"
-          env.response.puts "data: #{response.to_json}"
-          env.response.puts
-          env.response.flush
+        env.response.puts "id: #{id}"
+        env.response.puts "data: #{response.to_json}"
+        env.response.puts
+        env.response.flush
 
-          id += 1
-        end
+        id += 1
       end
     rescue ex
     ensure

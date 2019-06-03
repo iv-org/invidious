@@ -186,7 +186,7 @@ spawn do
   end
 end
 
-connection_channel = Channel({Bool, Channel(PQ::Notification)}).new
+connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
 spawn do
   connections = [] of Channel(PQ::Notification)
 
