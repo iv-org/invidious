@@ -11,6 +11,8 @@ end
 struct ChannelVideo
   def to_json(locale, config, kemal_config, json : JSON::Builder)
     json.object do
+      json.field "type", "shortVideo"
+
       json.field "title", self.title
       json.field "videoId", self.id
       json.field "videoThumbnails" do

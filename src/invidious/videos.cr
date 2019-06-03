@@ -276,6 +276,8 @@ struct Video
   def to_json(locale, config, kemal_config, decrypt_function)
     JSON.build do |json|
       json.object do
+        json.field "type", "video"
+
         json.field "title", self.title
         json.field "videoId", self.id
         json.field "videoThumbnails" do
