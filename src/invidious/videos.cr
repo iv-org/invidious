@@ -1240,7 +1240,7 @@ def process_video_params(query, preferences)
   quality = query["quality"]?
   region = query["region"]?
   related_videos = query["related_videos"]? && (query["related_videos"] == "true" || query["related_videos"] == "1").to_unsafe
-  speed = query["speed"]?.try &.to_f?
+  speed = query["speed"]?.try &.rchop("x").to_f?
   video_loop = query["loop"]?.try &.to_i?
   volume = query["volume"]?.try &.to_i?
 

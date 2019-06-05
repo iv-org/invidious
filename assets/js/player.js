@@ -25,12 +25,13 @@ if (player_data.aspect_ratio) {
 
 var embed_url = new URL(location);
 embed_url.searchParams.delete('v');
+short_url = location.origin + '/' + video_data.id + embed_url.search;
 embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
 var shareOptions = {
     socials: ["fbFeed", "tw", "reddit", "email"],
 
-    url: window.location.href,
+    url: short_url,
     title: player_data.title,
     description: player_data.description,
     image: player_data.thumbnail,
