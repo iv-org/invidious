@@ -1487,7 +1487,7 @@ end
 
 get "/toggle_theme" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-  referer = get_referer(env)
+  referer = get_referer(env, unroll: false)
 
   redirect = env.params.query["redirect"]?
   redirect ||= "true"

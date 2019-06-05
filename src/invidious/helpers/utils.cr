@@ -243,7 +243,7 @@ def make_host_url(config, kemal_config)
   return "#{scheme}#{host}#{port}"
 end
 
-def get_referer(env, fallback = "/")
+def get_referer(env, fallback = "/", unroll = true)
   referer = env.params.query["referer"]?
   referer ||= env.request.headers["referer"]?
   referer ||= fallback
@@ -251,16 +251,18 @@ def get_referer(env, fallback = "/")
   referer = URI.parse(referer)
 
   # "Unroll" nested referrers
-  loop do
-    if referer.query
-      params = HTTP::Params.parse(referer.query.not_nil!)
-      if params["referer"]?
-        referer = URI.parse(URI.unescape(params["referer"]))
+  if unroll
+    loop do
+      if referer.query
+        params = HTTP::Params.parse(referer.query.not_nil!)
+        if params["referer"]?
+          referer = URI.parse(URI.unescape(params["referer"]))
+        else
+          break
+        end
       else
         break
       end
-    else
-      break
     end
   end
 
