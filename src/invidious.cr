@@ -4767,8 +4767,8 @@ get "/api/manifest/dash/id/:id" do |env|
           i += 1
         end
 
+        heights = [] of Int32
         {"video/mp4", "video/webm"}.each do |mime_type|
-          heights = [] of Int32
           xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
             video_streams.select { |stream| stream["type"].starts_with? mime_type }.each do |fmt|
               codecs = fmt["type"].split("codecs=")[1].strip('"')
