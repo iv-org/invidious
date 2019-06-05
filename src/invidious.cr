@@ -4692,15 +4692,18 @@ get "/api/manifest/dash/id/:id" do |env|
   id = env.params.url["id"]
   region = env.params.query["region"]?
 
+  # Since some implementations create playlists based on resolution regardless of different codecs,
+  # we can opt to only add a source to a representation if it has a unique height
+  unique_res = env.params.query["unique_res"]? && (env.params.query["unique_res"] == "true" || env.params.query["unique_res"] == "1")
+
   client = make_client(YT_URL)
   begin
     video = get_video(id, PG_DB, proxies, region: region)
   rescue ex : VideoRedirect
     url = "/api/manifest/dash/id/#{ex.message}"
-    if local
-      url += "?local=true"
+    if env.params.query
+      url += "?#{env.params.query}"
     end
-
     next env.redirect url
   rescue ex
     env.response.status_code = 403
@@ -4737,7 +4740,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
-      "profiles": "urn:mpeg:dash:profile:isoff-live:2011", minBufferTime: "PT1.5S", type: "static",
+      "profiles": "urn:mpeg:dash:profile:full:2011", minBufferTime: "PT1.5S", type: "static",
       mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
       xml.element("Period") do
         i = 0
@@ -4746,7 +4749,7 @@ get "/api/manifest/dash/id/:id" do |env|
           xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true) do
             audio_streams.select { |stream| stream["type"].starts_with? mime_type }.each do |fmt|
               codecs = fmt["type"].split("codecs=")[1].strip('"')
-              bandwidth = fmt["bitrate"]
+              bandwidth = fmt["bitrate"].to_i * 1000
               itag = fmt["itag"]
               url = fmt["url"]
 
@@ -4765,6 +4768,7 @@ get "/api/manifest/dash/id/:id" do |env|
         end
 
         {"video/mp4", "video/webm"}.each do |mime_type|
+          heights = [] of Int32
           xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
             video_streams.select { |stream| stream["type"].starts_with? mime_type }.each do |fmt|
               codecs = fmt["type"].split("codecs=")[1].strip('"')
@@ -4775,6 +4779,8 @@ get "/api/manifest/dash/id/:id" do |env|
 
               # Resolutions reported by YouTube player (may not accurately reflect source)
               height = [4320, 2160, 1440, 1080, 720, 480, 360, 240, 144].sort_by { |i| (height - i).abs }[0]
+              next if unique_res && heights.includes? height
+              heights << height
 
               xml.element("Representation", id: itag, codecs: codecs, width: width, height: height,
                 startWithSAP: "1", maxPlayoutRate: "1",
