@@ -200,13 +200,10 @@ end
 
 def pull_popular_videos(db)
   loop do
-    subscriptions = db.query_all("SELECT channel FROM \
-      (SELECT UNNEST(subscriptions) AS channel FROM users) AS d \
-    GROUP BY channel ORDER BY COUNT(channel) DESC LIMIT 40", as: String)
-
-    videos = db.query_all("SELECT DISTINCT ON (ucid) * FROM \
-      channel_videos WHERE ucid IN (#{arg_array(subscriptions)}) \
-    ORDER BY ucid, published DESC", subscriptions, as: ChannelVideo).sort_by { |video| video.published }.reverse
+    videos = db.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE ucid IN \
+      (SELECT channel FROM (SELECT UNNEST(subscriptions) AS channel FROM users) AS d \
+      GROUP BY channel ORDER BY COUNT(channel) DESC LIMIT 40) \
+      ORDER BY ucid, published DESC", as: ChannelVideo).sort_by { |video| video.published }.reverse
 
     yield videos
     sleep 1.minute
