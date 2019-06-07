@@ -1235,7 +1235,7 @@ def process_video_params(query, preferences)
   continue = query["continue"]?.try &.to_i?
   continue_autoplay = query["continue_autoplay"]?.try &.to_i?
   listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
-  local = query["local"]? && (query["local"] == "true" || query["listen"] == "1").to_unsafe
+  local = query["local"]? && (query["local"] == "true" || query["local"] == "1").to_unsafe
   preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
   quality = query["quality"]?
   region = query["region"]?
