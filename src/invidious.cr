@@ -897,7 +897,8 @@ post "/login" do |env|
     next templated "error"
   end
 
-  email = env.params.body["email"]?.try &.downcase
+  # https://stackoverflow.com/a/574698
+  email = env.params.body["email"]?.try &.downcase.byte_slice(0, 254)
   password = env.params.body["password"]?
 
   account_type = env.params.query["type"]?
