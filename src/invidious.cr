@@ -40,18 +40,19 @@ PG_URL = URI.new(
   path: CONFIG.db.dbname,
 )
 
-PG_DB           = DB.open PG_URL
-ARCHIVE_URL     = URI.parse("https://archive.org")
-LOGIN_URL       = URI.parse("https://accounts.google.com")
-PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
-REDDIT_URL      = URI.parse("https://www.reddit.com")
-TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com")
-YT_URL          = URI.parse("https://www.youtube.com")
-CHARS_SAFE      = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-TEST_IDS        = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
-CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
-CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
-CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
+PG_DB              = DB.open PG_URL
+ARCHIVE_URL        = URI.parse("https://archive.org")
+LOGIN_URL          = URI.parse("https://accounts.google.com")
+PUBSUB_URL         = URI.parse("https://pubsubhubbub.appspot.com")
+REDDIT_URL         = URI.parse("https://www.reddit.com")
+TEXTCAPTCHA_URL    = URI.parse("http://textcaptcha.com")
+YT_URL             = URI.parse("https://www.youtube.com")
+CHARS_SAFE         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
+CURRENT_BRANCH     = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
+CURRENT_COMMIT     = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
+CURRENT_VERSION    = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
+MAX_ITEMS_PER_PAGE = 1000
 
 # This is used to determine the `?v=` on the end of file URLs (for cache busting). We
 # only need to expire modified assets, so we can use this to find the last commit that changes
@@ -2369,13 +2370,15 @@ get "/feed/subscriptions" do |env|
   sid = env.get? "sid"
   referer = get_referer(env)
 
-  if user
+  if !user
+    next env.redirect referer
+  end
+
     user = user.as(User)
     sid = sid.as(String)
-    preferences = user.preferences
     token = user.token
 
-    if preferences.unseen_only
+  if user.preferences.unseen_only
       env.set "show_watched", true
     end
 
@@ -2387,113 +2390,14 @@ get "/feed/subscriptions" do |env|
       user, sid = get_user(sid, headers, PG_DB)
     end
 
-    max_results = preferences.max_results
+  max_results = user.preferences.max_results
     max_results ||= env.params.query["max_results"]?.try &.to_i?
     max_results ||= 40
 
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
-    if max_results < 0
-      limit = nil
-      offset = (page - 1) * 1
-    else
-      limit = max_results
-      offset = (page - 1) * max_results
-    end
-
-    notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
-      as: Array(String))
-    view_name = "subscriptions_#{sha256(user.email)}"
-
-    if preferences.notifications_only && !notifications.empty?
-      # Only show notifications
-
-      args = arg_array(notifications)
-
-      notifications = PG_DB.query_all("SELECT * FROM channel_videos WHERE id IN (#{args})
-      ORDER BY published DESC", notifications, as: ChannelVideo)
-      videos = [] of ChannelVideo
-
-      notifications.sort_by! { |video| video.published }.reverse!
-
-      case preferences.sort
-      when "alphabetically"
-        notifications.sort_by! { |video| video.title }
-      when "alphabetically - reverse"
-        notifications.sort_by! { |video| video.title }.reverse!
-      when "channel name"
-        notifications.sort_by! { |video| video.author }
-      when "channel name - reverse"
-        notifications.sort_by! { |video| video.author }.reverse!
-      end
-    else
-      if preferences.latest_only
-        if preferences.unseen_only
-          # Show latest video from a channel that a user hasn't watched
-          # "unseen_only" isn't really correct here, more accurate would be "unwatched_only"
-
-          if user.watched.empty?
-            values = "'{}'"
-          else
-            values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
-          end
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE \
-          NOT id = ANY (#{values}) \
-          ORDER BY ucid, published DESC", as: ChannelVideo)
-        else
-          # Show latest video from each channel
-
-          videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
-          ORDER BY ucid, published DESC", as: ChannelVideo)
-        end
-
-        videos.sort_by! { |video| video.published }.reverse!
-      else
-        if preferences.unseen_only
-          # Only show unwatched
-
-          if user.watched.empty?
-            values = "'{}'"
-          else
-            values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
-          end
-          videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE \
-          NOT id = ANY (#{values}) \
-          ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
-        else
-          # Sort subscriptions as normal
-
-          videos = PG_DB.query_all("SELECT * FROM #{view_name} \
-          ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
-        end
-      end
-
-      case preferences.sort
-      when "published - reverse"
-        videos.sort_by! { |video| video.published }
-      when "alphabetically"
-        videos.sort_by! { |video| video.title }
-      when "alphabetically - reverse"
-        videos.sort_by! { |video| video.title }.reverse!
-      when "channel name"
-        videos.sort_by! { |video| video.author }
-      when "channel name - reverse"
-        videos.sort_by! { |video| video.author }.reverse!
-      end
-
-      notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
-        as: Array(String))
-
-      notifications = videos.select { |v| notifications.includes? v.id }
-      videos = videos - notifications
-    end
-
-    if !limit
-      videos = videos[0..max_results]
-    end
-
-    # Clear user's notifications and set updated to the current time.
+  videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
 
     # "updated" here is used for delivering new notifications, so if
     # we know a user has looked at their feed e.g. in the past 10 minutes,
@@ -2505,10 +2409,7 @@ get "/feed/subscriptions" do |env|
     env.set "user", user
 
     templated "subscriptions"
-  else
-    env.redirect referer
   end
-end
 
 get "/feed/history" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -2519,10 +2420,13 @@ get "/feed/history" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
-  if user
+  if !user
+    next env.redirect referer
+  end
+
     user = user.as(User)
 
-    limit = user.preferences.max_results
+  limit = user.preferences.max_results.clamp(0, MAX_ITEMS_PER_PAGE)
     if user.watched[(page - 1) * limit]?
       watched = user.watched.reverse[(page - 1) * limit, limit]
     else
@@ -2530,10 +2434,7 @@ get "/feed/history" do |env|
     end
 
     templated "history"
-  else
-    env.redirect referer
   end
-end
 
 get "/feed/channel/:ucid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -2586,13 +2487,12 @@ get "/feed/channel/:ucid" do |env|
   end
 
   host_url = make_host_url(config, Kemal.config)
-  path = env.request.path
 
-  feed = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
+  XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
       "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
       "xml:lang": "en-US") do
-      xml.element("link", rel: "self", href: "#{host_url}#{path}")
+      xml.element("link", rel: "self", href: "#{host_url}#{env.request.resource}")
       xml.element("id") { xml.text "yt:channel:#{ucid}" }
       xml.element("yt:channelId") { xml.text ucid }
       xml.element("title") { xml.text author }
@@ -2604,50 +2504,11 @@ get "/feed/channel/:ucid" do |env|
       end
 
       videos.each do |video|
-        xml.element("entry") do
-          xml.element("id") { xml.text "yt:video:#{video.id}" }
-          xml.element("yt:videoId") { xml.text video.id }
-          xml.element("yt:channelId") { xml.text video.ucid }
-          xml.element("title") { xml.text video.title }
-          xml.element("link", rel: "alternate", href: "#{host_url}/watch?v=#{video.id}")
-
-          xml.element("author") do
-            if auto_generated
-              xml.element("name") { xml.text video.author }
-              xml.element("uri") { xml.text "#{host_url}/channel/#{video.ucid}" }
-            else
-              xml.element("name") { xml.text author }
-              xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
+        video.to_xml(host_url, auto_generated, xml)
             end
           end
-
-          xml.element("content", type: "xhtml") do
-            xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-              xml.element("a", href: "#{host_url}/watch?v=#{video.id}") do
-                xml.element("img", src: "#{host_url}/vi/#{video.id}/mqdefault.jpg")
               end
             end
-          end
-
-          xml.element("published") { xml.text video.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
-
-          xml.element("media:group") do
-            xml.element("media:title") { xml.text video.title }
-            xml.element("media:thumbnail", url: "#{host_url}/vi/#{video.id}/mqdefault.jpg",
-              width: "320", height: "180")
-            xml.element("media:description") { xml.text video.description }
-          end
-
-          xml.element("media:community") do
-            xml.element("media:statistics", views: video.views)
-          end
-        end
-      end
-    end
-  end
-
-  feed
-end
 
 get "/feed/private" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -2667,103 +2528,30 @@ get "/feed/private" do |env|
     next
   end
 
+  max_results = user.preferences.max_results
   max_results = env.params.query["max_results"]?.try &.to_i?
   max_results ||= 40
 
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
-  if max_results < 0
-    limit = nil
-    offset = (page - 1) * 1
-  else
-    limit = max_results
-    offset = (page - 1) * max_results
-  end
-
-  latest_only = env.params.query["latest_only"]?.try &.to_i?
-  latest_only ||= 0
-  latest_only = latest_only == 1
-
-  sort = env.params.query["sort"]?
-  sort ||= "published"
-
-  view_name = "subscriptions_#{sha256(user.email)}"
-
-  if latest_only
-    videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
-    ORDER BY ucid, published DESC", as: ChannelVideo)
-
-    videos.sort_by! { |video| video.published }.reverse!
-  else
-    videos = PG_DB.query_all("SELECT * FROM #{view_name} \
-    ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
-  end
-
-  case sort
-  when "reverse_published"
-    videos.sort_by! { |video| video.published }
-  when "alphabetically"
-    videos.sort_by! { |video| video.title }
-  when "reverse_alphabetically"
-    videos.sort_by! { |video| video.title }.reverse!
-  when "channel_name"
-    videos.sort_by! { |video| video.author }
-  when "reverse_channel_name"
-    videos.sort_by! { |video| video.author }.reverse!
-  end
-
-  if !limit
-    videos = videos[0..max_results]
-  end
-
+  videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
   host_url = make_host_url(config, Kemal.config)
-  path = env.request.path
-  query = env.request.query.not_nil!
 
-  feed = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
+  XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
       "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
       "xml:lang": "en-US") do
       xml.element("link", "type": "text/html", rel: "alternate", href: "#{host_url}/feed/subscriptions")
-      xml.element("link", "type": "application/atom+xml", rel: "self", href: "#{host_url}#{path}?#{query}")
+      xml.element("link", "type": "application/atom+xml", rel: "self",
+        href: "#{host_url}#{env.request.resource}")
       xml.element("title") { xml.text translate(locale, "Invidious Private Feed for `x`", user.email) }
 
       videos.each do |video|
-        xml.element("entry") do
-          xml.element("id") { xml.text "yt:video:#{video.id}" }
-          xml.element("yt:videoId") { xml.text video.id }
-          xml.element("yt:channelId") { xml.text video.ucid }
-          xml.element("title") { xml.text video.title }
-          xml.element("link", rel: "alternate", href: "#{host_url}/watch?v=#{video.id}")
-
-          xml.element("author") do
-            xml.element("name") { xml.text video.author }
-            xml.element("uri") { xml.text "#{host_url}/channel/#{video.ucid}" }
-          end
-
-          xml.element("content", type: "xhtml") do
-            xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-              xml.element("a", href: "#{host_url}/watch?v=#{video.id}") do
-                xml.element("img", src: "#{host_url}/vi/#{video.id}/mqdefault.jpg")
-              end
-            end
-          end
-
-          xml.element("published") { xml.text video.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
-          xml.element("updated") { xml.text video.updated.to_s("%Y-%m-%dT%H:%M:%S%:z") }
-
-          xml.element("media:group") do
-            xml.element("media:title") { xml.text video.title }
-            xml.element("media:thumbnail", url: "#{host_url}/vi/#{video.id}/mqdefault.jpg",
-              width: "320", height: "180")
-          end
-        end
+        video.to_xml(locale, host_url, xml)
       end
     end
   end
-
-  feed
 end
 
 get "/feed/playlist/:plid" do |env|
@@ -4475,6 +4263,8 @@ get "/api/v1/mixes/:rdid" do |env|
   response
 end
 
+# Authenticated endpoints
+
 get "/api/v1/auth/notifications" do |env|
   env.response.content_type = "text/event-stream"
 
@@ -4512,6 +4302,42 @@ post "/api/v1/auth/preferences" do |env|
   PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
 
   env.response.status_code = 204
+end
+
+get "/api/v1/auth/feed" do |env|
+  env.response.content_type = "application/json"
+
+  user = env.get("user").as(User)
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  max_results = user.preferences.max_results
+  max_results ||= env.params.query["max_results"]?.try &.to_i?
+  max_results ||= 40
+
+  page = env.params.query["page"]?.try &.to_i?
+  page ||= 1
+
+  videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
+
+  JSON.build do |json|
+    json.object do
+      json.field "notifications" do
+        json.array do
+          notifications.each do |video|
+            video.to_json(locale, config, Kemal.config, json)
+          end
+        end
+      end
+
+      json.field "videos" do
+        json.array do
+          videos.each do |video|
+            video.to_json(locale, config, Kemal.config, json)
+          end
+        end
+      end
+    end
+  end
 end
 
 get "/api/v1/auth/subscriptions" do |env|

@@ -41,6 +41,48 @@ struct ChannelVideo
     end
   end
 
+  def to_xml(locale, host_url, xml : XML::Builder)
+    xml.element("entry") do
+      xml.element("id") { xml.text "yt:video:#{self.id}" }
+      xml.element("yt:videoId") { xml.text self.id }
+      xml.element("yt:channelId") { xml.text self.ucid }
+      xml.element("title") { xml.text self.title }
+      xml.element("link", rel: "alternate", href: "#{host_url}/watch?v=#{self.id}")
+
+      xml.element("author") do
+        xml.element("name") { xml.text self.author }
+        xml.element("uri") { xml.text "#{host_url}/channel/#{self.ucid}" }
+      end
+
+      xml.element("content", type: "xhtml") do
+        xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
+          xml.element("a", href: "#{host_url}/watch?v=#{self.id}") do
+            xml.element("img", src: "#{host_url}/vi/#{self.id}/mqdefault.jpg")
+          end
+        end
+      end
+
+      xml.element("published") { xml.text self.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
+      xml.element("updated") { xml.text self.updated.to_s("%Y-%m-%dT%H:%M:%S%:z") }
+
+      xml.element("media:group") do
+        xml.element("media:title") { xml.text self.title }
+        xml.element("media:thumbnail", url: "#{host_url}/vi/#{self.id}/mqdefault.jpg",
+          width: "320", height: "180")
+      end
+    end
+  end
+
+  def to_xml(locale, config, kemal_config, xml : XML::Builder | Nil = nil)
+    if xml
+      to_xml(locale, config, kemal_config, xml)
+    else
+      XML.build do |xml|
+        to_xml(locale, config, kemal_config, xml)
+      end
+    end
+  end
+
   db_mapping({
     id:                 String,
     title:              String,

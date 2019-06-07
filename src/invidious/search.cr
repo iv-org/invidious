@@ -1,4 +1,55 @@
 struct SearchVideo
+  def to_xml(host_url, auto_generated, xml : XML::Builder)
+    xml.element("entry") do
+      xml.element("id") { xml.text "yt:video:#{self.id}" }
+      xml.element("yt:videoId") { xml.text self.id }
+      xml.element("yt:channelId") { xml.text self.ucid }
+      xml.element("title") { xml.text self.title }
+      xml.element("link", rel: "alternate", href: "#{host_url}/watch?v=#{self.id}")
+
+      xml.element("author") do
+        if auto_generated
+          xml.element("name") { xml.text self.author }
+          xml.element("uri") { xml.text "#{host_url}/channel/#{self.ucid}" }
+        else
+          xml.element("name") { xml.text author }
+          xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
+        end
+      end
+
+      xml.element("content", type: "xhtml") do
+        xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
+          xml.element("a", href: "#{host_url}/watch?v=#{self.id}") do
+            xml.element("img", src: "#{host_url}/vi/#{self.id}/mqdefault.jpg")
+          end
+        end
+      end
+
+      xml.element("published") { xml.text self.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
+
+      xml.element("media:group") do
+        xml.element("media:title") { xml.text self.title }
+        xml.element("media:thumbnail", url: "#{host_url}/vi/#{self.id}/mqdefault.jpg",
+          width: "320", height: "180")
+        xml.element("media:description") { xml.text self.description }
+      end
+
+      xml.element("media:community") do
+        xml.element("media:statistics", views: self.views)
+      end
+    end
+  end
+
+  def to_xml(host_url, auto_generated, xml : XML::Builder | Nil = nil)
+    if xml
+      to_xml(host_url, auto_generated, xml)
+    else
+      XML.build do |json|
+        to_xml(host_url, auto_generated, xml)
+      end
+    end
+  end
+
   db_mapping({
     title:              String,
     id:                 String,
