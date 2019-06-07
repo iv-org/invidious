@@ -2374,42 +2374,42 @@ get "/feed/subscriptions" do |env|
     next env.redirect referer
   end
 
-    user = user.as(User)
-    sid = sid.as(String)
-    token = user.token
+  user = user.as(User)
+  sid = sid.as(String)
+  token = user.token
 
   if user.preferences.unseen_only
-      env.set "show_watched", true
-    end
+    env.set "show_watched", true
+  end
 
-    # Refresh account
-    headers = HTTP::Headers.new
-    headers["Cookie"] = env.request.headers["Cookie"]
+  # Refresh account
+  headers = HTTP::Headers.new
+  headers["Cookie"] = env.request.headers["Cookie"]
 
-    if !user.password
-      user, sid = get_user(sid, headers, PG_DB)
-    end
+  if !user.password
+    user, sid = get_user(sid, headers, PG_DB)
+  end
 
   max_results = user.preferences.max_results
-    max_results ||= env.params.query["max_results"]?.try &.to_i?
-    max_results ||= 40
+  max_results ||= env.params.query["max_results"]?.try &.to_i?
+  max_results ||= 40
 
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
+  page = env.params.query["page"]?.try &.to_i?
+  page ||= 1
 
   videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
 
-    # "updated" here is used for delivering new notifications, so if
-    # we know a user has looked at their feed e.g. in the past 10 minutes,
-    # they've already seen a video posted 20 minutes ago, and don't need
-    # to be notified.
-    PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE email = $3", [] of String, Time.now,
-      user.email)
-    user.notifications = [] of String
-    env.set "user", user
+  # "updated" here is used for delivering new notifications, so if
+  # we know a user has looked at their feed e.g. in the past 10 minutes,
+  # they've already seen a video posted 20 minutes ago, and don't need
+  # to be notified.
+  PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE email = $3", [] of String, Time.now,
+    user.email)
+  user.notifications = [] of String
+  env.set "user", user
 
-    templated "subscriptions"
-  end
+  templated "subscriptions"
+end
 
 get "/feed/history" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -2424,17 +2424,17 @@ get "/feed/history" do |env|
     next env.redirect referer
   end
 
-    user = user.as(User)
+  user = user.as(User)
 
   limit = user.preferences.max_results.clamp(0, MAX_ITEMS_PER_PAGE)
-    if user.watched[(page - 1) * limit]?
-      watched = user.watched.reverse[(page - 1) * limit, limit]
-    else
-      watched = [] of String
-    end
-
-    templated "history"
+  if user.watched[(page - 1) * limit]?
+    watched = user.watched.reverse[(page - 1) * limit, limit]
+  else
+    watched = [] of String
   end
+
+  templated "history"
+end
 
 get "/feed/channel/:ucid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -2505,10 +2505,10 @@ get "/feed/channel/:ucid" do |env|
 
       videos.each do |video|
         video.to_xml(host_url, auto_generated, xml)
-            end
-          end
-              end
-            end
+      end
+    end
+  end
+end
 
 get "/feed/private" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -5056,6 +5056,11 @@ error 404 do |env|
 
     if response.status_code == 301
       response = client.get(response.headers["Location"])
+    end
+
+    if response.body.empty?
+      env.response.headers["Location"] = "/"
+      halt env, status_code: 302
     end
 
     html = XML.parse_html(response.body)
