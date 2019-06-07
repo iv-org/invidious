@@ -4693,7 +4693,7 @@ get "/api/manifest/dash/id/:id" do |env|
   region = env.params.query["region"]?
 
   # Since some implementations create playlists based on resolution regardless of different codecs,
-  # we can opt to only add a source to a representation if it has a unique height
+  # we can opt to only add a source to a representation if it has a unique height within that representation
   unique_res = env.params.query["unique_res"]? && (env.params.query["unique_res"] == "true" || env.params.query["unique_res"] == "1")
 
   client = make_client(YT_URL)
@@ -4767,8 +4767,8 @@ get "/api/manifest/dash/id/:id" do |env|
           i += 1
         end
 
-        heights = [] of Int32
         {"video/mp4", "video/webm"}.each do |mime_type|
+          heights = [] of Int32
           xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
             video_streams.select { |stream| stream["type"].starts_with? mime_type }.each do |fmt|
               codecs = fmt["type"].split("codecs=")[1].strip('"')
