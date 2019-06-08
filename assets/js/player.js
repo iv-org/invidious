@@ -163,27 +163,28 @@ player.on('waiting', function () {
     }
 });
 
+if (video_data.premiere_timestamp && Math.round(new Date() / 1000) < video_data.premiere_timestamp) {
+    player.getChild('bigPlayButton').hide();
+}
+
 if (video_data.params.autoplay) {
     var bpb = player.getChild('bigPlayButton');
+    bpb.hide();
 
-    if (bpb) {
-        bpb.hide();
+    player.ready(function () {
+        new Promise(function (resolve, reject) {
+            setTimeout(() => resolve(1), 1);
+        }).then(function (result) {
+            var promise = player.play();
 
-        player.ready(function () {
-            new Promise(function (resolve, reject) {
-                setTimeout(() => resolve(1), 1);
-            }).then(function (result) {
-                var promise = player.play();
-
-                if (promise !== undefined) {
-                    promise.then(_ => {
-                    }).catch(error => {
-                        bpb.show();
-                    });
-                }
-            });
+            if (promise !== undefined) {
+                promise.then(_ => {
+                }).catch(error => {
+                    bpb.show();
+                });
+            }
         });
-    }
+    });
 }
 
 if (!video_data.params.listen && video_data.params.quality === 'dash') {

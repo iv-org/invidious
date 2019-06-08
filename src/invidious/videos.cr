@@ -851,8 +851,12 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
   if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool) && !region
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
-    # If record was last updated over 10 minutes ago, refresh (expire param in response lasts for 6 hours)
-    if (refresh && Time.utc - video.updated > 10.minutes) || force_refresh
+    # If record was last updated over 10 minutes ago, or video has since premiered,
+    # refresh (expire param in response lasts for 6 hours)
+    if (refresh &&
+       (Time.utc - video.updated > 10.minutes) ||
+       (video.premiere_timestamp && video.premiere_timestamp.as(Time) < Time.utc)) ||
+       force_refresh
       begin
         video = fetch_video(id, proxies, region)
         video_array = video.to_a

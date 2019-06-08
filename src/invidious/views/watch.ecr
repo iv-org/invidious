@@ -40,7 +40,8 @@ var video_data = {
     hide_replies_text: '<%= HTML.escape(translate(locale, "Hide replies")) %>',
     show_replies_text: '<%= HTML.escape(translate(locale, "Show replies")) %>',
     params: <%= params.to_json %>,
-    preferences: <%= preferences.to_json %>
+    preferences: <%= preferences.to_json %>,
+    premiere_timestamp: <%= video.premiere_timestamp.try &.to_unix || "null" %>
 }
 </script>
 
@@ -71,6 +72,10 @@ var video_data = {
     <% if !reason.empty? %>
         <h3>
             <%= reason %>
+        </h3>
+    <% elsif video.premiere_timestamp %>
+        <h3>
+            <%= translate(locale, "Premieres in `x`", recode_date((video.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %>
         </h3>
     <% end %>
 </div>
@@ -172,7 +177,11 @@ var video_data = {
             <%= rendered "components/subscribe_widget" %>
 
             <p>
-                <b><%= translate(locale, "Shared `x`", video.published.to_s("%B %-d, %Y")) %></b>
+                <% if video.premiere_timestamp %>
+                    <b><%= translate(locale, "Premieres `x`", video.premiere_timestamp.not_nil!.to_s("%B %-d, %R UTC")) %></b>
+                <% else %>
+                    <b><%= translate(locale, "Shared `x`", video.published.to_s("%B %-d, %Y")) %></b>
+                <% end %>
             </p>
 
             <div>
