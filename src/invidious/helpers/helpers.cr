@@ -177,23 +177,17 @@ def login_req(login_form, f_req)
   return HTTP::Params.encode(data)
 end
 
-def html_to_content(description_html)
-  if !description_html
-    description = ""
-    description_html = ""
-  else
-    description_html = description_html.to_s
-    description = description_html.gsub("<br>", "\n")
-    description = description.gsub("<br/>", "\n")
+def html_to_content(description_html : String)
+  description = description_html.gsub(/(<br>)|(<br\/>)/, {
+    "<br>":  "\n",
+    "<br/>": "\n",
+  })
 
-    if description.empty?
-      description = ""
-    else
-      description = XML.parse_html(description).content.strip("\n ")
-    end
+  if !description.empty?
+    description = XML.parse_html(description).content.strip("\n ")
   end
 
-  return description_html, description
+  return description
 end
 
 def extract_videos(nodeset, ucid = nil, author_name = nil)
@@ -230,8 +224,7 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
     author ||= ""
     author_id ||= ""
 
-    description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-    description_html, description = html_to_content(description_html)
+    description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).try &.to_s || ""
 
     tile = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-tile")]))
     if !tile
@@ -330,7 +323,6 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         author_thumbnail: author_thumbnail,
         subscriber_count: subscriber_count,
         video_count: video_count,
-        description: description,
         description_html: description_html
       )
     else
@@ -396,7 +388,6 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         ucid: author_id,
         published: published,
         views: view_count,
-        description: description,
         description_html: description_html,
         length_seconds: length_seconds,
         live_now: live_now,

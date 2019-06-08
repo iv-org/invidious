@@ -47,7 +47,6 @@ struct Playlist
     author:           String,
     author_thumbnail: String,
     ucid:             String,
-    description:      String,
     description_html: String,
     video_count:      Int32,
     views:            Int64,
@@ -214,9 +213,8 @@ def fetch_playlist(plid, locale)
   end
   title = title.content.strip(" \n")
 
-  description_html = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1]))
-  description_html ||= document.xpath_node(%q(//span[@class="pl-header-description-text"]))
-  description_html, description = html_to_content(description_html)
+  description_html = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1])).try &.to_s ||
+                     document.xpath_node(%q(//span[@class="pl-header-description-text"])).try &.to_s || ""
 
   # YouTube allows anonymous playlists, so most of this can be empty or optional
   anchor = document.xpath_node(%q(//ul[@class="pl-header-details"]))
@@ -245,7 +243,6 @@ def fetch_playlist(plid, locale)
     author: author,
     author_thumbnail: author_thumbnail,
     ucid: ucid,
-    description: description,
     description_html: description_html,
     video_count: video_count,
     views: views,

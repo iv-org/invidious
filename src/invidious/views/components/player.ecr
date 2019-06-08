@@ -43,7 +43,7 @@
 var player_data = {
     aspect_ratio: '<%= aspect_ratio %>',
     title: "<%= video.title.dump_unquoted %>",
-    description: "<%= HTML.escape(description) %>",
+    description: "<%= HTML.escape(video.short_description) %>",
     thumbnail: "<%= thumbnail %>"
 }
 </script>

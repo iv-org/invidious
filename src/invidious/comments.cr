@@ -138,13 +138,8 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
                 node_comment = node["commentRenderer"]
               end
 
-              content_html = node_comment["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff')
-              if content_html
-                content_html = HTML.escape(content_html)
-              end
-
-              content_html ||= content_to_comment_html(node_comment["contentText"]["runs"].as_a)
-              content_html, content = html_to_content(content_html)
+              content_html = node_comment["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff').try { |block| HTML.escape(block) }.to_s ||
+                             content_to_comment_html(node_comment["contentText"]["runs"].as_a).try &.to_s || ""
 
               author = node_comment["authorText"]?.try &.["simpleText"]
               author ||= ""
@@ -179,7 +174,7 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
                 json.field "isEdited", false
               end
 
-              json.field "content", content
+              json.field "content", html_to_content(content_html)
               json.field "contentHtml", content_html
               json.field "published", published.to_unix
               json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))

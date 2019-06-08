@@ -286,10 +286,8 @@ struct Video
         generate_storyboards(json, self.id, self.storyboards, config, kemal_config)
       end
 
-      description_html, description = html_to_content(self.description)
-
-      json.field "description", description
-      json.field "descriptionHtml", description_html
+      json.field "description", html_to_content(self.description_html)
+      json.field "descriptionHtml", self.description_html
       json.field "published", self.published.to_unix
       json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
       json.field "keywords", self.keywords
@@ -465,6 +463,17 @@ struct Video
         to_json(locale, config, kemal_config, decrypt_function, json)
       end
     end
+  end
+
+  # `description_html` is stored in DB as `description`, which can be
+  # quite confusing. Since it currently isn't very practical to rename
+  # it, we instead define a getter and setter here.
+  def description_html
+    self.description
+  end
+
+  def description_html=(other : String)
+    self.description = other
   end
 
   def allow_ratings
@@ -796,14 +805,19 @@ struct Video
   end
 
   def short_description
-    description = self.description.gsub("<br>", " ")
-    description = description.gsub("<br/>", " ")
-    description = XML.parse_html(description).content[0..200].gsub('"', "&quot;").gsub("\n", " ").strip(" ")
-    if description.empty?
-      description = " "
+    short_description = self.description_html.gsub(/(<br>)|(<br\/>|"|\n)/, {
+      "<br>"  => " ",
+      "<br/>" => " ",
+      "\""    => "&quot;",
+      "\n"    => " ",
+    })
+    short_description = XML.parse_html(short_description).content[0..200].strip(" ")
+
+    if short_description.empty?
+      short_description = " "
     end
 
-    return description
+    return short_description
   end
 
   def length_seconds
@@ -1151,28 +1165,23 @@ def fetch_video(id, proxies, region)
   end
 
   title = info["title"]
-  author = info["author"]
-  ucid = info["ucid"]
+  author = info["author"]? || ""
+  ucid = info["ucid"]? || ""
 
   views = html.xpath_node(%q(//meta[@itemprop="interactionCount"]))
-  views = views.try &.["content"].to_i64?
-  views ||= 0_i64
+    .try &.["content"].to_i64? || 0_i64
 
   likes = html.xpath_node(%q(//button[@title="I like this"]/span))
-  likes = likes.try &.content.delete(",").try &.to_i?
-  likes ||= 0
+    .try &.content.delete(",").try &.to_i? || 0
 
   dislikes = html.xpath_node(%q(//button[@title="I dislike this"]/span))
-  dislikes = dislikes.try &.content.delete(",").try &.to_i?
-  dislikes ||= 0
+    .try &.content.delete(",").try &.to_i? || 0
 
   avg_rating = (likes.to_f/(likes.to_f + dislikes.to_f) * 4 + 1)
   avg_rating = avg_rating.nan? ? 0.0 : avg_rating
   info["avg_rating"] = "#{avg_rating}"
 
-  description = html.xpath_node(%q(//p[@id="eow-description"]))
-  description = description ? description.to_xml(options: XML::SaveOptions::NO_DECL) : %q(<p id="eow-description"></p>)
-
+  description_html = html.xpath_node(%q(//p[@id="eow-description"])).try &.to_xml(options: XML::SaveOptions::NO_DECL) || ""
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
   published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).try &.["content"]
@@ -1188,7 +1197,8 @@ def fetch_video(id, proxies, region)
   genre = html.xpath_node(%q(//meta[@itemprop="genre"])).try &.["content"]
   genre ||= ""
 
-  genre_url = html.xpath_node(%(//ul[contains(@class, "watch-info-tag-list")]/li/a[text()="#{genre}"])).try &.["href"]
+  genre_url = html.xpath_node(%(//ul[contains(@class, "watch-info-tag-list")]/li/a[text()="#{genre}"])).try &.["href"]?
+  genre_url ||= ""
 
   # YouTube provides invalid URLs for some genres, so we fix that here
   case genre
@@ -1205,30 +1215,12 @@ def fetch_video(id, proxies, region)
   when "Trailers"
     genre_url = "/channel/UClgRkhTL3_hImCAmdLfDE4g"
   end
-  genre_url ||= ""
 
-  license = html.xpath_node(%q(//h4[contains(text(),"License")]/parent::*/ul/li))
-  if license
-    license = license.content
-  else
-    license = ""
-  end
+  license = html.xpath_node(%q(//h4[contains(text(),"License")]/parent::*/ul/li)).try &.content || ""
+  sub_count_text = html.xpath_node(%q(//span[contains(@class, "yt-subscriber-count")])).try &.["title"]? || "0"
+  author_thumbnail = html.xpath_node(%(//span[@class="yt-thumb-clip"]/img)).try &.["data-thumb"]? || ""
 
-  sub_count_text = html.xpath_node(%q(//span[contains(@class, "yt-subscriber-count")]))
-  if sub_count_text
-    sub_count_text = sub_count_text["title"]
-  else
-    sub_count_text = "0"
-  end
-
-  author_thumbnail = html.xpath_node(%(//span[@class="yt-thumb-clip"]/img))
-  if author_thumbnail
-    author_thumbnail = author_thumbnail["data-thumb"]
-  else
-    author_thumbnail = ""
-  end
-
-  video = Video.new(id, info, Time.utc, title, views, likes, dislikes, wilson_score, published, description,
+  video = Video.new(id, info, Time.utc, title, views, likes, dislikes, wilson_score, published, description_html,
     nil, author, ucid, allowed_regions, is_family_friendly, genre, genre_url, license, sub_count_text, author_thumbnail)
 
   return video

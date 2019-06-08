@@ -31,7 +31,7 @@ struct SearchVideo
         xml.element("media:title") { xml.text self.title }
         xml.element("media:thumbnail", url: "#{host_url}/vi/#{self.id}/mqdefault.jpg",
           width: "320", height: "180")
-        xml.element("media:description") { xml.text self.description }
+        xml.element("media:description") { xml.text html_to_content(self.description_html) }
       end
 
       xml.element("media:community") do
@@ -64,7 +64,7 @@ struct SearchVideo
         generate_thumbnails(json, self.id, config, kemal_config)
       end
 
-      json.field "description", self.description
+      json.field "description", html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
 
       json.field "viewCount", self.views
@@ -94,7 +94,6 @@ struct SearchVideo
     ucid:               String,
     published:          Time,
     views:              Int64,
-    description:        String,
     description_html:   String,
     length_seconds:     Int32,
     live_now:           Bool,
@@ -187,7 +186,7 @@ struct SearchChannel
 
       json.field "subCount", self.subscriber_count
       json.field "videoCount", self.video_count
-      json.field "description", self.description
+      json.field "description", html_to_content(self.description_html)
       json.field "descriptionHtml", self.description_html
     end
   end
@@ -208,7 +207,6 @@ struct SearchChannel
     author_thumbnail: String,
     subscriber_count: Int32,
     video_count:      Int32,
-    description:      String,
     description_html: String,
   })
 end
