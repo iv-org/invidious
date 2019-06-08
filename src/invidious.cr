@@ -2547,7 +2547,7 @@ get "/feed/private" do |env|
         href: "#{host_url}#{env.request.resource}")
       xml.element("title") { xml.text translate(locale, "Invidious Private Feed for `x`", user.email) }
 
-      videos.each do |video|
+      (notifications + videos).each do |video|
         video.to_xml(locale, host_url, xml)
       end
     end
