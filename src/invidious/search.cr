@@ -50,6 +50,43 @@ struct SearchVideo
     end
   end
 
+  def to_json(locale, config, kemal_config, json : JSON::Builder)
+    json.object do
+      json.field "type", "video"
+      json.field "title", self.title
+      json.field "videoId", self.id
+
+      json.field "author", self.author
+      json.field "authorId", self.ucid
+      json.field "authorUrl", "/channel/#{self.ucid}"
+
+      json.field "videoThumbnails" do
+        generate_thumbnails(json, self.id, config, kemal_config)
+      end
+
+      json.field "description", self.description
+      json.field "descriptionHtml", self.description_html
+
+      json.field "viewCount", self.views
+      json.field "published", self.published.to_unix
+      json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
+      json.field "lengthSeconds", self.length_seconds
+      json.field "liveNow", self.live_now
+      json.field "paid", self.paid
+      json.field "premium", self.premium
+    end
+  end
+
+  def to_json(locale, config, kemal_config, json : JSON::Builder | Nil = nil)
+    if json
+      to_json(locale, config, kemal_config, json)
+    else
+      JSON.build do |json|
+        to_json(locale, config, kemal_config, json)
+      end
+    end
+  end
+
   db_mapping({
     title:              String,
     id:                 String,
@@ -76,6 +113,45 @@ struct SearchPlaylistVideo
 end
 
 struct SearchPlaylist
+  def to_json(locale, config, kemal_config, json : JSON::Builder)
+    json.object do
+      json.field "type", "playlist"
+      json.field "title", self.title
+      json.field "playlistId", self.id
+
+      json.field "author", self.author
+      json.field "authorId", self.ucid
+      json.field "authorUrl", "/channel/#{self.ucid}"
+
+      json.field "videoCount", self.video_count
+      json.field "videos" do
+        json.array do
+          self.videos.each do |video|
+            json.object do
+              json.field "title", video.title
+              json.field "videoId", video.id
+              json.field "lengthSeconds", video.length_seconds
+
+              json.field "videoThumbnails" do
+                generate_thumbnails(json, video.id, config, Kemal.config)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def to_json(locale, config, kemal_config, json : JSON::Builder | Nil = nil)
+    if json
+      to_json(locale, config, kemal_config, json)
+    else
+      JSON.build do |json|
+        to_json(locale, config, kemal_config, json)
+      end
+    end
+  end
+
   db_mapping({
     title:        String,
     id:           String,
@@ -88,6 +164,44 @@ struct SearchPlaylist
 end
 
 struct SearchChannel
+  def to_json(locale, config, kemal_config, json : JSON::Builder)
+    json.object do
+      json.field "type", "channel"
+      json.field "author", self.author
+      json.field "authorId", self.ucid
+      json.field "authorUrl", "/channel/#{self.ucid}"
+
+      json.field "authorThumbnails" do
+        json.array do
+          qualities = {32, 48, 76, 100, 176, 512}
+
+          qualities.each do |quality|
+            json.object do
+              json.field "url", self.author_thumbnail.gsub("=s176-", "=s#{quality}-")
+              json.field "width", quality
+              json.field "height", quality
+            end
+          end
+        end
+      end
+
+      json.field "subCount", self.subscriber_count
+      json.field "videoCount", self.video_count
+      json.field "description", self.description
+      json.field "descriptionHtml", self.description_html
+    end
+  end
+
+  def to_json(locale, config, kemal_config, json : JSON::Builder | Nil = nil)
+    if json
+      to_json(locale, config, kemal_config, json)
+    else
+      JSON.build do |json|
+        to_json(locale, config, kemal_config, json)
+      end
+    end
+  end
+
   db_mapping({
     author:           String,
     ucid:             String,

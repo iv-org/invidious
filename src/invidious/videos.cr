@@ -273,188 +273,196 @@ struct Video
     end
   end
 
-  def to_json(locale, config, kemal_config, decrypt_function)
-    JSON.build do |json|
-      json.object do
-        json.field "type", "video"
+  def to_json(locale, config, kemal_config, decrypt_function, json : JSON::Builder)
+    json.object do
+      json.field "type", "video"
 
-        json.field "title", self.title
-        json.field "videoId", self.id
-        json.field "videoThumbnails" do
-          generate_thumbnails(json, self.id, config, kemal_config)
-        end
-        json.field "storyboards" do
-          generate_storyboards(json, self.id, self.storyboards, config, kemal_config)
-        end
+      json.field "title", self.title
+      json.field "videoId", self.id
+      json.field "videoThumbnails" do
+        generate_thumbnails(json, self.id, config, kemal_config)
+      end
+      json.field "storyboards" do
+        generate_storyboards(json, self.id, self.storyboards, config, kemal_config)
+      end
 
-        description_html, description = html_to_content(self.description)
+      description_html, description = html_to_content(self.description)
 
-        json.field "description", description
-        json.field "descriptionHtml", description_html
-        json.field "published", self.published.to_unix
-        json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
-        json.field "keywords", self.keywords
+      json.field "description", description
+      json.field "descriptionHtml", description_html
+      json.field "published", self.published.to_unix
+      json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
+      json.field "keywords", self.keywords
 
-        json.field "viewCount", self.views
-        json.field "likeCount", self.likes
-        json.field "dislikeCount", self.dislikes
+      json.field "viewCount", self.views
+      json.field "likeCount", self.likes
+      json.field "dislikeCount", self.dislikes
 
-        json.field "paid", self.paid
-        json.field "premium", self.premium
-        json.field "isFamilyFriendly", self.is_family_friendly
-        json.field "allowedRegions", self.allowed_regions
-        json.field "genre", self.genre
-        json.field "genreUrl", self.genre_url
+      json.field "paid", self.paid
+      json.field "premium", self.premium
+      json.field "isFamilyFriendly", self.is_family_friendly
+      json.field "allowedRegions", self.allowed_regions
+      json.field "genre", self.genre
+      json.field "genreUrl", self.genre_url
 
-        json.field "author", self.author
-        json.field "authorId", self.ucid
-        json.field "authorUrl", "/channel/#{self.ucid}"
+      json.field "author", self.author
+      json.field "authorId", self.ucid
+      json.field "authorUrl", "/channel/#{self.ucid}"
 
-        json.field "authorThumbnails" do
-          json.array do
-            qualities = {32, 48, 76, 100, 176, 512}
+      json.field "authorThumbnails" do
+        json.array do
+          qualities = {32, 48, 76, 100, 176, 512}
 
-            qualities.each do |quality|
-              json.object do
-                json.field "url", self.author_thumbnail.gsub("=s48-", "=s#{quality}-")
-                json.field "width", quality
-                json.field "height", quality
-              end
+          qualities.each do |quality|
+            json.object do
+              json.field "url", self.author_thumbnail.gsub("=s48-", "=s#{quality}-")
+              json.field "width", quality
+              json.field "height", quality
             end
           end
         end
+      end
 
-        json.field "subCountText", self.sub_count_text
+      json.field "subCountText", self.sub_count_text
 
-        json.field "lengthSeconds", self.info["length_seconds"].to_i
-        json.field "allowRatings", self.allow_ratings
-        json.field "rating", self.info["avg_rating"].to_f32
-        json.field "isListed", self.is_listed
-        json.field "liveNow", self.live_now
-        json.field "isUpcoming", self.is_upcoming
+      json.field "lengthSeconds", self.info["length_seconds"].to_i
+      json.field "allowRatings", self.allow_ratings
+      json.field "rating", self.info["avg_rating"].to_f32
+      json.field "isListed", self.is_listed
+      json.field "liveNow", self.live_now
+      json.field "isUpcoming", self.is_upcoming
 
-        if self.premiere_timestamp
-          json.field "premiereTimestamp", self.premiere_timestamp.not_nil!.to_unix
-        end
+      if self.premiere_timestamp
+        json.field "premiereTimestamp", self.premiere_timestamp.not_nil!.to_unix
+      end
 
-        if self.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-          host_url = make_host_url(config, kemal_config)
+      if self.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
+        host_url = make_host_url(config, kemal_config)
 
-          hlsvp = self.player_response["streamingData"]["hlsManifestUrl"].as_s
-          hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
+        hlsvp = self.player_response["streamingData"]["hlsManifestUrl"].as_s
+        hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
 
-          json.field "hlsUrl", hlsvp
-        end
+        json.field "hlsUrl", hlsvp
+      end
 
-        json.field "dashUrl", "#{make_host_url(config, kemal_config)}/api/manifest/dash/id/#{id}"
+      json.field "dashUrl", "#{make_host_url(config, kemal_config)}/api/manifest/dash/id/#{id}"
 
-        json.field "adaptiveFormats" do
-          json.array do
-            self.adaptive_fmts(decrypt_function).each do |fmt|
-              json.object do
-                json.field "index", fmt["index"]
-                json.field "bitrate", fmt["bitrate"]
-                json.field "init", fmt["init"]
-                json.field "url", fmt["url"]
-                json.field "itag", fmt["itag"]
-                json.field "type", fmt["type"]
-                json.field "clen", fmt["clen"]
-                json.field "lmt", fmt["lmt"]
-                json.field "projectionType", fmt["projection_type"]
+      json.field "adaptiveFormats" do
+        json.array do
+          self.adaptive_fmts(decrypt_function).each do |fmt|
+            json.object do
+              json.field "index", fmt["index"]
+              json.field "bitrate", fmt["bitrate"]
+              json.field "init", fmt["init"]
+              json.field "url", fmt["url"]
+              json.field "itag", fmt["itag"]
+              json.field "type", fmt["type"]
+              json.field "clen", fmt["clen"]
+              json.field "lmt", fmt["lmt"]
+              json.field "projectionType", fmt["projection_type"]
 
-                fmt_info = itag_to_metadata?(fmt["itag"])
-                if fmt_info
-                  fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
-                  json.field "fps", fps
-                  json.field "container", fmt_info["ext"]
-                  json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
+              fmt_info = itag_to_metadata?(fmt["itag"])
+              if fmt_info
+                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
+                json.field "fps", fps
+                json.field "container", fmt_info["ext"]
+                json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
 
-                  if fmt_info["height"]?
-                    json.field "resolution", "#{fmt_info["height"]}p"
+                if fmt_info["height"]?
+                  json.field "resolution", "#{fmt_info["height"]}p"
 
-                    quality_label = "#{fmt_info["height"]}p"
-                    if fps > 30
-                      quality_label += "60"
-                    end
-                    json.field "qualityLabel", quality_label
+                  quality_label = "#{fmt_info["height"]}p"
+                  if fps > 30
+                    quality_label += "60"
+                  end
+                  json.field "qualityLabel", quality_label
 
-                    if fmt_info["width"]?
-                      json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                    end
+                  if fmt_info["width"]?
+                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
                   end
                 end
               end
             end
           end
         end
+      end
 
-        json.field "formatStreams" do
-          json.array do
-            self.fmt_stream(decrypt_function).each do |fmt|
-              json.object do
-                json.field "url", fmt["url"]
-                json.field "itag", fmt["itag"]
-                json.field "type", fmt["type"]
-                json.field "quality", fmt["quality"]
+      json.field "formatStreams" do
+        json.array do
+          self.fmt_stream(decrypt_function).each do |fmt|
+            json.object do
+              json.field "url", fmt["url"]
+              json.field "itag", fmt["itag"]
+              json.field "type", fmt["type"]
+              json.field "quality", fmt["quality"]
 
-                fmt_info = itag_to_metadata?(fmt["itag"])
-                if fmt_info
-                  fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
-                  json.field "fps", fps
-                  json.field "container", fmt_info["ext"]
-                  json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
+              fmt_info = itag_to_metadata?(fmt["itag"])
+              if fmt_info
+                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
+                json.field "fps", fps
+                json.field "container", fmt_info["ext"]
+                json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
 
-                  if fmt_info["height"]?
-                    json.field "resolution", "#{fmt_info["height"]}p"
+                if fmt_info["height"]?
+                  json.field "resolution", "#{fmt_info["height"]}p"
 
-                    quality_label = "#{fmt_info["height"]}p"
-                    if fps > 30
-                      quality_label += "60"
-                    end
-                    json.field "qualityLabel", quality_label
+                  quality_label = "#{fmt_info["height"]}p"
+                  if fps > 30
+                    quality_label += "60"
+                  end
+                  json.field "qualityLabel", quality_label
 
-                    if fmt_info["width"]?
-                      json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                    end
+                  if fmt_info["width"]?
+                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
                   end
                 end
               end
             end
           end
         end
+      end
 
-        json.field "captions" do
-          json.array do
-            self.captions.each do |caption|
+      json.field "captions" do
+        json.array do
+          self.captions.each do |caption|
+            json.object do
+              json.field "label", caption.name.simpleText
+              json.field "languageCode", caption.languageCode
+              json.field "url", "/api/v1/captions/#{id}?label=#{URI.escape(caption.name.simpleText)}"
+            end
+          end
+        end
+      end
+
+      json.field "recommendedVideos" do
+        json.array do
+          self.info["rvs"]?.try &.split(",").each do |rv|
+            rv = HTTP::Params.parse(rv)
+
+            if rv["id"]?
               json.object do
-                json.field "label", caption.name.simpleText
-                json.field "languageCode", caption.languageCode
-                json.field "url", "/api/v1/captions/#{id}?label=#{URI.escape(caption.name.simpleText)}"
-              end
-            end
-          end
-        end
-
-        json.field "recommendedVideos" do
-          json.array do
-            self.info["rvs"]?.try &.split(",").each do |rv|
-              rv = HTTP::Params.parse(rv)
-
-              if rv["id"]?
-                json.object do
-                  json.field "videoId", rv["id"]
-                  json.field "title", rv["title"]
-                  json.field "videoThumbnails" do
-                    generate_thumbnails(json, rv["id"], config, kemal_config)
-                  end
-                  json.field "author", rv["author"]
-                  json.field "lengthSeconds", rv["length_seconds"].to_i
-                  json.field "viewCountText", rv["short_view_count_text"]
+                json.field "videoId", rv["id"]
+                json.field "title", rv["title"]
+                json.field "videoThumbnails" do
+                  generate_thumbnails(json, rv["id"], config, kemal_config)
                 end
+                json.field "author", rv["author"]
+                json.field "lengthSeconds", rv["length_seconds"].to_i
+                json.field "viewCountText", rv["short_view_count_text"]
               end
             end
           end
         end
+      end
+    end
+  end
+
+  def to_json(locale, config, kemal_config, decrypt_function, json : JSON::Builder | Nil = nil)
+    if json
+      to_json(locale, config, kemal_config, decrypt_function, json)
+    else
+      JSON.build do |json|
+        to_json(locale, config, kemal_config, decrypt_function, json)
       end
     end
   end
@@ -848,9 +856,7 @@ class VideoRedirect < Exception
 end
 
 def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32}), refresh = true, region = nil, force_refresh = false)
-  if db.query_one?("SELECT EXISTS (SELECT true FROM videos WHERE id = $1)", id, as: Bool) && !region
-    video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
-
+  if (video = db.query_one?("SELECT * FROM videos WHERE id = $1", id, as: Video)) && !region
     # If record was last updated over 10 minutes ago, or video has since premiered,
     # refresh (expire param in response lasts for 6 hours)
     if (refresh &&

@@ -3405,31 +3405,10 @@ get "/api/v1/trending" do |env|
   videos = JSON.build do |json|
     json.array do
       trending.each do |video|
-        json.object do
-          json.field "title", video.title
-          json.field "videoId", video.id
-          json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id, config, Kemal.config)
+        video.to_json(locale, config, Kemal.config, json)
           end
-
-          json.field "lengthSeconds", video.length_seconds
-          json.field "viewCount", video.views
-
-          json.field "author", video.author
-          json.field "authorId", video.ucid
-          json.field "authorUrl", "/channel/#{video.ucid}"
-
-          json.field "published", video.published.to_unix
-          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
-          json.field "description", video.description
-          json.field "descriptionHtml", video.description_html
-          json.field "liveNow", video.live_now
-          json.field "paid", video.paid
-          json.field "premium", video.premium
         end
       end
-    end
-  end
 
   videos
 end
@@ -3459,9 +3438,12 @@ get "/api/v1/top" do |env|
     next error_message
   end
 
-  videos = JSON.build do |json|
+  JSON.build do |json|
     json.array do
       top_videos.each do |video|
+        # Top videos have much more information than provided below (adaptiveFormats, etc)
+        # but can be very out of date, so we only provide a subset here
+
         json.object do
           json.field "title", video.title
           json.field "videoId", video.id
@@ -3487,8 +3469,6 @@ get "/api/v1/top" do |env|
       end
     end
   end
-
-  videos
 end
 
 get "/api/v1/channels/:ucid" do |env|
@@ -3577,6 +3557,7 @@ get "/api/v1/channels/:ucid" do |env|
   end
 
   channel_info = JSON.build do |json|
+    # TODO: Refactor into `to_json` for InvidiousChannel
     json.object do
       json.field "author", author
       json.field "authorId", ucid
@@ -3634,35 +3615,7 @@ get "/api/v1/channels/:ucid" do |env|
       json.field "latestVideos" do
         json.array do
           videos.each do |video|
-            json.object do
-              json.field "title", video.title
-              json.field "videoId", video.id
-
-              if auto_generated
-                json.field "author", video.author
-                json.field "authorId", video.ucid
-                json.field "authorUrl", "/channel/#{video.ucid}"
-              else
-                json.field "author", author
-                json.field "authorId", ucid
-                json.field "authorUrl", "/channel/#{ucid}"
-              end
-
-              json.field "videoThumbnails" do
-                generate_thumbnails(json, video.id, config, Kemal.config)
-              end
-
-              json.field "description", video.description
-              json.field "descriptionHtml", video.description_html
-
-              json.field "viewCount", video.views
-              json.field "published", video.published.to_unix
-              json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
-              json.field "lengthSeconds", video.length_seconds
-              json.field "liveNow", video.live_now
-              json.field "paid", video.paid
-              json.field "premium", video.premium
-            end
+            video.to_json(locale, config, Kemal.config, json)
           end
         end
       end
@@ -3727,45 +3680,15 @@ end
       next error_message
     end
 
-    result = JSON.build do |json|
+    JSON.build do |json|
       json.array do
         videos.each do |video|
-          json.object do
-            json.field "title", video.title
-            json.field "videoId", video.id
-
-            if auto_generated
-              json.field "author", video.author
-              json.field "authorId", video.ucid
-              json.field "authorUrl", "/channel/#{video.ucid}"
-            else
-              json.field "author", author
-              json.field "authorId", ucid
-              json.field "authorUrl", "/channel/#{ucid}"
+          video.to_json(locale, config, Kemal.config, json)
             end
-
-            json.field "videoThumbnails" do
-              generate_thumbnails(json, video.id, config, Kemal.config)
             end
-
-            json.field "description", video.description
-            json.field "descriptionHtml", video.description_html
-
-            json.field "viewCount", video.views
-            json.field "published", video.published.to_unix
-            json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
-            json.field "lengthSeconds", video.length_seconds
-            json.field "liveNow", video.live_now
-            json.field "paid", video.paid
-            json.field "premium", video.premium
           end
         end
       end
-    end
-
-    result
-  end
-end
 
 {"/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"}.each do |route|
   get route do |env|
@@ -3786,33 +3709,12 @@ end
     JSON.build do |json|
       json.array do
         videos.each do |video|
-          json.object do
-            json.field "title", video.title
-            json.field "videoId", video.id
-
-            json.field "authorId", ucid
-            json.field "authorUrl", "/channel/#{ucid}"
-
-            json.field "videoThumbnails" do
-              generate_thumbnails(json, video.id, config, Kemal.config)
+          video.to_json(locale, config, Kemal.config, json)
             end
-
-            json.field "description", video.description
-            json.field "descriptionHtml", video.description_html
-
-            json.field "viewCount", video.views
-            json.field "published", video.published.to_unix
-            json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
-            json.field "lengthSeconds", video.length_seconds
-            json.field "liveNow", video.live_now
-            json.field "paid", video.paid
-            json.field "premium", video.premium
           end
         end
       end
     end
-  end
-end
 
 {"/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"}.each do |route|
   get route do |env|
@@ -3841,32 +3743,8 @@ end
         json.field "playlists" do
           json.array do
             items.each do |item|
-              json.object do
-                if item.is_a?(SearchPlaylist)
-                  json.field "title", item.title
-                  json.field "playlistId", item.id
-
-                  json.field "author", item.author
-                  json.field "authorId", item.ucid
-                  json.field "authorUrl", "/channel/#{item.ucid}"
-
-                  json.field "videoCount", item.video_count
-                  json.field "videos" do
-                    json.array do
-                      item.videos.each do |video|
-                        json.object do
-                          json.field "title", video.title
-                          json.field "videoId", video.id
-                          json.field "lengthSeconds", video.length_seconds
-
-                          json.field "videoThumbnails" do
-                            generate_thumbnails(json, video.id, config, Kemal.config)
-                          end
-                        end
-                      end
-                    end
-                  end
-                end
+              if item.is_a?(SearchPlaylist)
+                item.to_json(locale, config, Kemal.config, json)
               end
             end
           end
@@ -3894,90 +3772,13 @@ get "/api/v1/channels/search/:ucid" do |env|
   page ||= 1
 
   count, search_results = channel_search(query, page, ucid)
-  response = JSON.build do |json|
+  JSON.build do |json|
     json.array do
       search_results.each do |item|
-        json.object do
-          case item
-          when SearchVideo
-            json.field "type", "video"
-            json.field "title", item.title
-            json.field "videoId", item.id
-
-            json.field "author", item.author
-            json.field "authorId", item.ucid
-            json.field "authorUrl", "/channel/#{item.ucid}"
-
-            json.field "videoThumbnails" do
-              generate_thumbnails(json, item.id, config, Kemal.config)
-            end
-
-            json.field "description", item.description
-            json.field "descriptionHtml", item.description_html
-
-            json.field "viewCount", item.views
-            json.field "published", item.published.to_unix
-            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published, locale))
-            json.field "lengthSeconds", item.length_seconds
-            json.field "liveNow", item.live_now
-            json.field "paid", item.paid
-            json.field "premium", item.premium
-          when SearchPlaylist
-            json.field "type", "playlist"
-            json.field "title", item.title
-            json.field "playlistId", item.id
-
-            json.field "author", item.author
-            json.field "authorId", item.ucid
-            json.field "authorUrl", "/channel/#{item.ucid}"
-
-            json.field "videoCount", item.video_count
-            json.field "videos" do
-              json.array do
-                item.videos.each do |video|
-                  json.object do
-                    json.field "title", video.title
-                    json.field "videoId", video.id
-                    json.field "lengthSeconds", video.length_seconds
-
-                    json.field "videoThumbnails" do
-                      generate_thumbnails(json, video.id, config, Kemal.config)
-                    end
-                  end
-                end
-              end
-            end
-          when SearchChannel
-            json.field "type", "channel"
-            json.field "author", item.author
-            json.field "authorId", item.ucid
-            json.field "authorUrl", "/channel/#{item.ucid}"
-
-            json.field "authorThumbnails" do
-              json.array do
-                qualities = {32, 48, 76, 100, 176, 512}
-
-                qualities.each do |quality|
-                  json.object do
-                    json.field "url", item.author_thumbnail.gsub("=s176-", "=s#{quality}-")
-                    json.field "width", quality
-                    json.field "height", quality
-                  end
-                end
-              end
-            end
-
-            json.field "subCount", item.subscriber_count
-            json.field "videoCount", item.video_count
-            json.field "description", item.description
-            json.field "descriptionHtml", item.description_html
-          end
-        end
+        item.to_json(locale, config, Kemal.config, json)
       end
     end
   end
-
-  response
 end
 
 get "/api/v1/search" do |env|
@@ -4019,90 +3820,13 @@ get "/api/v1/search" do |env|
   end
 
   count, search_results = search(query, page, search_params, proxies, region).as(Tuple)
-  response = JSON.build do |json|
+  JSON.build do |json|
     json.array do
       search_results.each do |item|
-        json.object do
-          case item
-          when SearchVideo
-            json.field "type", "video"
-            json.field "title", item.title
-            json.field "videoId", item.id
-
-            json.field "author", item.author
-            json.field "authorId", item.ucid
-            json.field "authorUrl", "/channel/#{item.ucid}"
-
-            json.field "videoThumbnails" do
-              generate_thumbnails(json, item.id, config, Kemal.config)
-            end
-
-            json.field "description", item.description
-            json.field "descriptionHtml", item.description_html
-
-            json.field "viewCount", item.views
-            json.field "published", item.published.to_unix
-            json.field "publishedText", translate(locale, "`x` ago", recode_date(item.published, locale))
-            json.field "lengthSeconds", item.length_seconds
-            json.field "liveNow", item.live_now
-            json.field "paid", item.paid
-            json.field "premium", item.premium
-          when SearchPlaylist
-            json.field "type", "playlist"
-            json.field "title", item.title
-            json.field "playlistId", item.id
-
-            json.field "author", item.author
-            json.field "authorId", item.ucid
-            json.field "authorUrl", "/channel/#{item.ucid}"
-
-            json.field "videoCount", item.video_count
-            json.field "videos" do
-              json.array do
-                item.videos.each do |video|
-                  json.object do
-                    json.field "title", video.title
-                    json.field "videoId", video.id
-                    json.field "lengthSeconds", video.length_seconds
-
-                    json.field "videoThumbnails" do
-                      generate_thumbnails(json, video.id, config, Kemal.config)
-                    end
-                  end
-                end
-              end
-            end
-          when SearchChannel
-            json.field "type", "channel"
-            json.field "author", item.author
-            json.field "authorId", item.ucid
-            json.field "authorUrl", "/channel/#{item.ucid}"
-
-            json.field "authorThumbnails" do
-              json.array do
-                qualities = {32, 48, 76, 100, 176, 512}
-
-                qualities.each do |quality|
-                  json.object do
-                    json.field "url", item.author_thumbnail.gsub("=s176-", "=s#{quality}-")
-                    json.field "width", quality
-                    json.field "height", quality
-                  end
-                end
-              end
-            end
-
-            json.field "subCount", item.subscriber_count
-            json.field "videoCount", item.video_count
-            json.field "description", item.description
-            json.field "descriptionHtml", item.description_html
-          end
-        end
+        item.to_json(locale, config, Kemal.config, json)
       end
     end
   end
-
-  response
 end
 
 get "/api/v1/playlists/:plid" do |env|
@@ -4170,26 +3894,12 @@ get "/api/v1/playlists/:plid" do |env|
       json.field "videos" do
         json.array do
           videos.each do |video|
-            json.object do
-              json.field "title", video.title
-              json.field "videoId", video.id
-
-              json.field "author", video.author
-              json.field "authorId", video.ucid
-              json.field "authorUrl", "/channel/#{video.ucid}"
-
-              json.field "videoThumbnails" do
-                generate_thumbnails(json, video.id, config, Kemal.config)
-              end
-
-              json.field "index", video.index
-              json.field "lengthSeconds", video.length_seconds
+            video.to_json(locale, config, Kemal.config, json)
             end
           end
         end
       end
     end
-  end
 
   if format == "html"
     response = JSON.parse(response)

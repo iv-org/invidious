@@ -6,7 +6,7 @@ struct MixVideo
     ucid:           String,
     length_seconds: Int32,
     index:          Int32,
-    mixes:          Array(String),
+    rdid:           String,
   })
 end
 
@@ -70,7 +70,7 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
       ucid,
       length_seconds,
       index,
-      [rdid]
+      rdid
     )
   end
 

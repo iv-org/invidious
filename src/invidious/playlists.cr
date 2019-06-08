@@ -1,4 +1,32 @@
 struct PlaylistVideo
+  def to_json(locale, config, kemal_config, json : JSON::Builder)
+    json.object do
+      json.field "title", self.title
+      json.field "videoId", self.id
+
+      json.field "author", self.author
+      json.field "authorId", self.ucid
+      json.field "authorUrl", "/channel/#{self.ucid}"
+
+      json.field "videoThumbnails" do
+        generate_thumbnails(json, self.id, config, kemal_config)
+      end
+
+      json.field "index", self.index
+      json.field "lengthSeconds", self.length_seconds
+    end
+  end
+
+  def to_json(locale, config, kemal_config, json : JSON::Builder | Nil = nil)
+    if json
+      to_json(locale, config, kemal_config, json)
+    else
+      JSON.build do |json|
+        to_json(locale, config, kemal_config, json)
+      end
+    end
+  end
+
   db_mapping({
     title:          String,
     id:             String,

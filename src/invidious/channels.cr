@@ -135,9 +135,7 @@ def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, ma
 end
 
 def get_channel(id, db, refresh = true, pull_all_videos = true)
-  if db.query_one?("SELECT EXISTS (SELECT true FROM channels WHERE id = $1)", id, as: Bool)
-    channel = db.query_one("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
-
+  if channel = db.query_one?("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
     if refresh && Time.utc - channel.updated > 10.minutes
       channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
       channel_array = channel.to_a
