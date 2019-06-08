@@ -382,7 +382,7 @@ get "/watch" do |env|
     next env.redirect "/watch?v=#{ex.message}"
   rescue ex
     error_message = ex.message
-    logger.write("#{id} : #{ex.message}\n")
+    logger.puts("#{id} : #{ex.message}")
     next templated "error"
   end
 
@@ -2653,7 +2653,7 @@ post "/feed/webhook/:token" do |env|
   signature = env.request.headers["X-Hub-Signature"].lchop("sha1=")
 
   if signature != OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, body)
-    logger.write("#{token} : Invalid signature\n")
+    logger.puts("#{token} : Invalid signature")
     env.response.status_code = 200
     next
   end

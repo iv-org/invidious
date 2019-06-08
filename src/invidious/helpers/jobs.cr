@@ -27,7 +27,7 @@ def refresh_channels(db, logger, config)
               if ex.message == "Deleted or invalid channel"
                 db.exec("UPDATE channels SET updated = $1, deleted = true WHERE id = $2", Time.utc, id)
               end
-              logger.write("#{id} : #{ex.message}\n")
+              logger.puts("#{id} : #{ex.message}")
             end
 
             active_channel.send(true)
@@ -68,14 +68,14 @@ def refresh_feeds(db, logger, config)
               column_array = get_column_array(db, view_name)
               ChannelVideo.to_type_tuple.each_with_index do |name, i|
                 if name != column_array[i]?
-                  logger.write("DROP MATERIALIZED VIEW #{view_name}\n")
+                  logger.puts("DROP MATERIALIZED VIEW #{view_name}")
                   db.exec("DROP MATERIALIZED VIEW #{view_name}")
                   raise "view does not exist"
                 end
               end
 
               if db.query_one("SELECT pg_get_viewdef('#{view_name}')", as: String).includes? "ucid = ANY"
-                logger.write("Materialized view #{view_name} is out-of-date, recreating...\n")
+                logger.puts("Materialized view #{view_name} is out-of-date, recreating...")
                 db.exec("DROP MATERIALIZED VIEW #{view_name}")
               end
 
@@ -87,13 +87,13 @@ def refresh_feeds(db, logger, config)
                 legacy_view_name = "subscriptions_#{sha256(email)[0..7]}"
 
                 db.exec("SELECT * FROM #{legacy_view_name} LIMIT 0")
-                logger.write("RENAME MATERIALIZED VIEW #{legacy_view_name}\n")
+                logger.puts("RENAME MATERIALIZED VIEW #{legacy_view_name}")
                 db.exec("ALTER MATERIALIZED VIEW #{legacy_view_name} RENAME TO #{view_name}")
               rescue ex
                 begin
                   # While iterating through, we may have an email stored from a deleted account
                   if db.query_one?("SELECT true FROM users WHERE email = $1", email, as: Bool)
-                    logger.write("CREATE #{view_name}\n")
+                    logger.puts("CREATE #{view_name}")
                     db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
                       SELECT * FROM channel_videos WHERE
                       ucid IN (SELECT unnest(subscriptions) FROM users WHERE email = E'#{email.gsub("'", "\\'")}')
@@ -101,7 +101,7 @@ def refresh_feeds(db, logger, config)
                     db.exec("UPDATE users SET feed_needs_update = false WHERE email = $1", email)
                   end
                 rescue ex
-                  logger.write("REFRESH #{email} : #{ex.message}\n")
+                  logger.puts("REFRESH #{email} : #{ex.message}")
                 end
               end
             end
@@ -151,7 +151,7 @@ def subscribe_to_feeds(db, logger, key, config)
                 response = subscribe_pubsub(ucid, key, config)
 
                 if response.status_code >= 400
-                  logger.write("#{ucid} : #{response.body}\n")
+                  logger.puts("#{ucid} : #{response.body}")
                 end
               rescue ex
               end

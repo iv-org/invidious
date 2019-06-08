@@ -522,7 +522,7 @@ def analyze_table(db, logger, table_name, struct_type = nil)
   begin
     db.exec("SELECT * FROM #{table_name} LIMIT 0")
   rescue ex
-    logger.write("CREATE TABLE #{table_name}\n")
+    logger.puts("CREATE TABLE #{table_name}")
 
     db.using_connection do |conn|
       conn.as(PG::Connection).exec_all(File.read("config/sql/#{table_name}.sql"))
@@ -546,7 +546,7 @@ def analyze_table(db, logger, table_name, struct_type = nil)
     if name != column_array[i]?
       if !column_array[i]?
         new_column = column_types.select { |line| line.starts_with? name }[0]
-        logger.write("ALTER TABLE #{table_name} ADD COLUMN #{new_column}\n")
+        logger.puts("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
         db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
         next
       end
@@ -564,26 +564,29 @@ def analyze_table(db, logger, table_name, struct_type = nil)
 
           # There's a column we didn't expect
           if !new_column
-            logger.write("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]}\n")
+            logger.puts("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]}")
             db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
 
             column_array = get_column_array(db, table_name)
             next
           end
 
-          logger.write("ALTER TABLE #{table_name} ADD COLUMN #{new_column}\n")
+          logger.puts("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
           db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
-          logger.write("UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}\n")
+
+          logger.puts("UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}")
           db.exec("UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}")
-          logger.write("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE\n")
+
+          logger.puts("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
           db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
-          logger.write("ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}\n")
+
+          logger.puts("ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}")
           db.exec("ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}")
 
           column_array = get_column_array(db, table_name)
         end
       else
-        logger.write("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE\n")
+        logger.puts("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
         db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
       end
     end
