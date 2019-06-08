@@ -90,7 +90,7 @@ def decode_time(string)
     millis = /(?<millis>\d+)ms/.match(string).try &.["millis"].try &.to_f
     millis ||= 0
 
-    time = hours * 3600 + minutes * 60 + seconds + millis / 1000
+    time = hours * 3600 + minutes * 60 + seconds + millis // 1000
   end
 
   return time
@@ -99,7 +99,7 @@ end
 def decode_date(string : String)
   # String matches 'YYYY'
   if string.match(/^\d{4}/)
-    return Time.new(string.to_i, 1, 1)
+    return Time.utc(string.to_i, 1, 1)
   end
 
   # Try to parse as format Jul 10, 2000
@@ -145,11 +145,11 @@ def recode_date(time : Time, locale)
   span = Time.utc - time
 
   if span.total_days > 365.0
-    span = translate(locale, "`x` years", (span.total_days.to_i / 365).to_s)
+    span = translate(locale, "`x` years", (span.total_days.to_i // 365).to_s)
   elsif span.total_days > 30.0
-    span = translate(locale, "`x` months", (span.total_days.to_i / 30).to_s)
+    span = translate(locale, "`x` months", (span.total_days.to_i // 30).to_s)
   elsif span.total_days > 7.0
-    span = translate(locale, "`x` weeks", (span.total_days.to_i / 7).to_s)
+    span = translate(locale, "`x` weeks", (span.total_days.to_i // 7).to_s)
   elsif span.total_hours > 24.0
     span = translate(locale, "`x` days", (span.total_days.to_i).to_s)
   elsif span.total_minutes > 60.0
@@ -194,11 +194,11 @@ def number_to_short_text(number)
 
   text = text.rchop(".0")
 
-  if number / 1_000_000_000 != 0
+  if number // 1_000_000_000 != 0
     text += "B"
-  elsif number / 1_000_000 != 0
+  elsif number // 1_000_000 != 0
     text += "M"
-  elsif number / 1000 != 0
+  elsif number // 1000 != 0
     text += "K"
   end
 

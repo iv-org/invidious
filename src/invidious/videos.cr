@@ -973,7 +973,7 @@ def extract_polymer_config(body, html)
   if published
     params["published"] = Time.parse(published, "%b %-d, %Y", Time::Location.local).to_unix.to_s
   else
-    params["published"] = Time.new(1990, 1, 1).to_unix.to_s
+    params["published"] = Time.utc(1990, 1, 1).to_unix.to_s
   end
 
   params["description_html"] = "<p></p>"

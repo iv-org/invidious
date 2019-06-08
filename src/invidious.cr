@@ -1089,7 +1089,7 @@ post "/login" do |env|
         PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
 
         cookie = env.request.cookies["PREFS"]
-        cookie.expires = Time.new(1990, 1, 1)
+        cookie.expires = Time.utc(1990, 1, 1)
         env.response.cookies << cookie
       end
 
@@ -1117,7 +1117,7 @@ post "/login" do |env|
         next templated "error"
       end
 
-      if Crypto::Bcrypt::Password.new(user.password.not_nil!) == password.byte_slice(0, 55)
+      if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
 
@@ -1142,7 +1142,7 @@ post "/login" do |env|
       # Since this user has already registered, we don't want to overwrite their preferences
       if env.request.cookies["PREFS"]?
         cookie = env.request.cookies["PREFS"]
-        cookie.expires = Time.new(1990, 1, 1)
+        cookie.expires = Time.utc(1990, 1, 1)
         env.response.cookies << cookie
       end
     else
@@ -1260,7 +1260,7 @@ post "/login" do |env|
         PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
 
         cookie = env.request.cookies["PREFS"]
-        cookie.expires = Time.new(1990, 1, 1)
+        cookie.expires = Time.utc(1990, 1, 1)
         env.response.cookies << cookie
       end
     end
@@ -1294,7 +1294,7 @@ post "/signout" do |env|
     PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", sid)
 
     env.request.cookies.each do |cookie|
-      cookie.expires = Time.new(1990, 1, 1)
+      cookie.expires = Time.utc(1990, 1, 1)
       env.response.cookies << cookie
     end
   end
@@ -2064,7 +2064,7 @@ post "/change_password" do |env|
       next templated "error"
     end
 
-    if Crypto::Bcrypt::Password.new(user.password.not_nil!) != password
+    if !Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password)
       error_message = translate(locale, "Incorrect password")
       next templated "error"
     end
@@ -2120,7 +2120,7 @@ post "/delete_account" do |env|
     PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
     env.request.cookies.each do |cookie|
-      cookie.expires = Time.new(1990, 1, 1)
+      cookie.expires = Time.utc(1990, 1, 1)
       env.response.cookies << cookie
     end
   end

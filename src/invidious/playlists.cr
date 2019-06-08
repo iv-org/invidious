@@ -6,7 +6,7 @@ struct PlaylistVideo
     ucid:           String,
     length_seconds: Int32,
     published:      Time,
-    playlists:      Array(String),
+    plid:           String,
     index:          Int32,
     live_now:       Bool,
   })
@@ -114,8 +114,8 @@ def extract_playlist(plid, nodeset, index)
       author: author,
       ucid: ucid,
       length_seconds: length_seconds,
-      published: Time.now,
-      playlists: [plid],
+      published: Time.utc,
+      plid: plid,
       index: index + offset,
       live_now: live_now
     )

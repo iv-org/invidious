@@ -13,9 +13,10 @@ dependencies:
     github: kemalcr/kemal
   pg:
     github: will/crystal-pg
+    branch: cafe69e
   sqlite3:
     github: crystal-lang/crystal-sqlite3
 
-crystal: 0.28.0
+crystal: 0.29.0
 
 license: AGPLv3

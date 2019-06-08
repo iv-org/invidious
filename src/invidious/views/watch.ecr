@@ -148,7 +148,7 @@ var video_data = {
             <p id="engagement"><%= translate(locale, "Engagement: ") %><%= engagement.round(2) %>%</p>
             <% if video.allowed_regions.size != REGIONS.size %>
                 <p id="allowed_regions">
-                    <% if video.allowed_regions.size < REGIONS.size / 2 %>
+                    <% if video.allowed_regions.size < REGIONS.size // 2 %>
                         <%= translate(locale, "Whitelisted regions: ") %><%= video.allowed_regions.join(", ") %>
                     <% else %>
                         <%= translate(locale, "Blacklisted regions: ") %><%= (REGIONS.to_a - video.allowed_regions).join(", ") %>
