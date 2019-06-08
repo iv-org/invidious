@@ -102,6 +102,22 @@ var player = videojs('player', options, function () {
     });
 });
 
+if (location.pathname.startsWith('/embed/')) {
+    player.overlay({
+        overlays: [{
+            start: 'loadstart',
+            content: '<h1>' + player_data.title + '</h1>',
+            end: 'playing',
+            align: 'top'
+        }, {
+            start: 'pause',
+            content: '<h1>' + player_data.title + '</h1>',
+            end: 'playing',
+            align: 'top'
+        }]
+    });
+}
+
 player.on('error', function (event) {
     if (player.error().code === 2 || player.error().code === 4) {
         setInterval(setTimeout(function (event) {

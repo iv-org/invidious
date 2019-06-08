@@ -351,6 +351,12 @@ span > select {
   background-color: rgba(0, 182, 240, 1);
 }
 
+/* Overlay */
+.video-js .vjs-overlay {
+  background-color: rgba(35, 35, 35, 0.5);
+  color: rgba(255, 255, 255, 1);
+}
+
 /* ProgressBar marker */
 .vjs-marker {
   background-color: rgba(255, 255, 255, 1);
