@@ -332,7 +332,7 @@ def subscribe_pubsub(topic, key, config)
   case topic
   when .match(/^UC[A-Za-z0-9_-]{22}$/)
     topic = "channel_id=#{topic}"
-  when .match(/^(?:PL|LL|EC|UU|FL|UL|OLAK5uy_)[0-9A-Za-z-_]{10,}$/)
+  when .match(/^(PL|LL|EC|UU|FL|UL|OLAK5uy_)[0-9A-Za-z-_]{10,}$/)
     # There's a couple missing from the above regex, namely TL and RD, which
     # don't have feeds
     topic = "playlist_id=#{topic}"

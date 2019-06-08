@@ -2439,7 +2439,7 @@ end
 get "/feed/channel/:ucid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  env.response.content_type = "text/xml; charset=UTF-8"
+  env.response.content_type = "application/atom+xml"
 
   ucid = env.params.url["ucid"]
 
@@ -2513,7 +2513,7 @@ end
 get "/feed/private" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  env.response.content_type = "text/xml; charset=UTF-8"
+  env.response.content_type = "application/atom+xml"
 
   token = env.params.query["token"]?
 
@@ -2557,7 +2557,7 @@ end
 get "/feed/playlist/:plid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  env.response.content_type = "text/xml; charset=UTF-8"
+  env.response.content_type = "application/atom+xml"
 
   plid = env.params.url["plid"]
 
