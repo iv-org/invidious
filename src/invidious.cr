@@ -2783,6 +2783,16 @@ get "/profile" do |env|
   end
 end
 
+get "/attribution_link" do |env|
+  if query = env.params.query["u"]?
+    url = URI.parse(query).full_path
+  else
+    url = "/"
+  end
+
+  env.redirect url
+end
+
 # Page used by YouTube to provide captioning widget, since we
 # don't support it we redirect to '/'
 get "/timedtext_video" do |env|
