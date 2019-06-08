@@ -41,10 +41,10 @@ struct Preferences
       begin
         result = [] of String
         value.read_array do
-          result << HTML.escape(value.read_string)
+          result << HTML.escape(value.read_string[0, 100])
         end
       rescue ex
-        result = [HTML.escape(value.read_string), ""]
+        result = [HTML.escape(value.read_string[0, 100]), ""]
       end
 
       result
@@ -70,11 +70,11 @@ struct Preferences
             node.raise "Expected scalar, not #{item.class}"
           end
 
-          result << HTML.escape(item.value)
+          result << HTML.escape(item.value[0, 100])
         end
       rescue ex
         if node.is_a?(YAML::Nodes::Scalar)
-          result = [HTML.escape(node.value), ""]
+          result = [HTML.escape(node.value[0, 100]), ""]
         else
           result = ["", ""]
         end
@@ -84,13 +84,13 @@ struct Preferences
     end
   end
 
-  module EscapeString
+  module ProcessString
     def self.to_json(value : String, json : JSON::Builder)
       json.string value
     end
 
     def self.from_json(value : JSON::PullParser) : String
-      HTML.escape(value.read_string)
+      HTML.escape(value.read_string[0, 100])
     end
 
     def self.to_yaml(value : String, yaml : YAML::Nodes::Builder)
@@ -98,7 +98,25 @@ struct Preferences
     end
 
     def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : String
-      HTML.escape(node.value)
+      HTML.escape(node.value[0, 100])
+    end
+  end
+
+  module ClampInt
+    def self.to_json(value : Int32, json : JSON::Builder)
+      json.number value
+    end
+
+    def self.from_json(value : JSON::PullParser) : Int32
+      value.read_int.clamp(0, MAX_ITEMS_PER_PAGE).to_i32
+    end
+
+    def self.to_yaml(value : Int32, yaml : YAML::Nodes::Builder)
+      yaml.scalar value
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Int32
+      node.value.clamp(0, MAX_ITEMS_PER_PAGE)
     end
   end
 
@@ -114,13 +132,13 @@ struct Preferences
     latest_only:            {type: Bool, default: CONFIG.default_user_preferences.latest_only},
     listen:                 {type: Bool, default: CONFIG.default_user_preferences.listen},
     local:                  {type: Bool, default: CONFIG.default_user_preferences.local},
-    locale:                 {type: String, default: CONFIG.default_user_preferences.locale, converter: EscapeString},
-    max_results:            {type: Int32, default: CONFIG.default_user_preferences.max_results},
+    locale:                 {type: String, default: CONFIG.default_user_preferences.locale, converter: ProcessString},
+    max_results:            {type: Int32, default: CONFIG.default_user_preferences.max_results, converter: ClampInt},
     notifications_only:     {type: Bool, default: CONFIG.default_user_preferences.notifications_only},
-    quality:                {type: String, default: CONFIG.default_user_preferences.quality, converter: EscapeString},
+    quality:                {type: String, default: CONFIG.default_user_preferences.quality, converter: ProcessString},
     redirect_feed:          {type: Bool, default: CONFIG.default_user_preferences.redirect_feed},
     related_videos:         {type: Bool, default: CONFIG.default_user_preferences.related_videos},
-    sort:                   {type: String, default: CONFIG.default_user_preferences.sort, converter: EscapeString},
+    sort:                   {type: String, default: CONFIG.default_user_preferences.sort, converter: ProcessString},
     speed:                  {type: Float32, default: CONFIG.default_user_preferences.speed},
     thin_mode:              {type: Bool, default: CONFIG.default_user_preferences.thin_mode},
     unseen_only:            {type: Bool, default: CONFIG.default_user_preferences.unseen_only},

@@ -52,7 +52,7 @@ TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk"
 CURRENT_BRANCH     = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
 CURRENT_COMMIT     = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
 CURRENT_VERSION    = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
-MAX_ITEMS_PER_PAGE = 1000
+MAX_ITEMS_PER_PAGE = 1500
 
 # This is used to determine the `?v=` on the end of file URLs (for cache busting). We
 # only need to expire modified assets, so we can use this to find the last commit that changes
@@ -1346,7 +1346,7 @@ post "/preferences" do |env|
   local ||= "off"
   local = local == "on"
 
-  speed = env.params.body["speed"]?.try &.as(String).to_f?
+  speed = env.params.body["speed"]?.try &.as(String).to_f32?
   speed ||= CONFIG.default_user_preferences.speed
 
   quality = env.params.body["quality"]?.try &.as(String)
@@ -1402,31 +1402,31 @@ post "/preferences" do |env|
   notifications_only ||= "off"
   notifications_only = notifications_only == "on"
 
-  preferences = {
-    "video_loop"             => video_loop,
-    "annotations"            => annotations,
-    "annotations_subscribed" => annotations_subscribed,
-    "autoplay"               => autoplay,
-    "continue"               => continue,
-    "continue_autoplay"      => continue_autoplay,
-    "listen"                 => listen,
-    "local"                  => local,
-    "speed"                  => speed,
-    "quality"                => quality,
-    "volume"                 => volume,
-    "comments"               => comments,
-    "captions"               => captions,
-    "related_videos"         => related_videos,
-    "redirect_feed"          => redirect_feed,
-    "locale"                 => locale,
-    "dark_mode"              => dark_mode,
-    "thin_mode"              => thin_mode,
-    "max_results"            => max_results,
-    "sort"                   => sort,
-    "latest_only"            => latest_only,
-    "unseen_only"            => unseen_only,
-    "notifications_only"     => notifications_only,
-  }.to_json
+  preferences = Preferences.from_json({
+    annotations:            annotations,
+    annotations_subscribed: annotations_subscribed,
+    autoplay:               autoplay,
+    captions:               captions,
+    comments:               comments,
+    continue:               continue,
+    continue_autoplay:      continue_autoplay,
+    dark_mode:              dark_mode,
+    latest_only:            latest_only,
+    listen:                 listen,
+    local:                  local,
+    locale:                 locale,
+    max_results:            max_results,
+    notifications_only:     notifications_only,
+    quality:                quality,
+    redirect_feed:          redirect_feed,
+    related_videos:         related_videos,
+    sort:                   sort,
+    speed:                  speed,
+    thin_mode:              thin_mode,
+    unseen_only:            unseen_only,
+    video_loop:             video_loop,
+    volume:                 volume,
+  }.to_json).to_json
 
   if user = env.get? "user"
     user = user.as(User)
@@ -2388,9 +2388,9 @@ get "/feed/subscriptions" do |env|
     user, sid = get_user(sid, headers, PG_DB)
   end
 
-  max_results = user.preferences.max_results
-  max_results ||= env.params.query["max_results"]?.try &.to_i?
-  max_results ||= 40
+  max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)
+  max_results ||= user.preferences.max_results
+  max_results ||= CONFIG.default_user_preferences.max_results
 
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
@@ -2424,12 +2424,14 @@ get "/feed/history" do |env|
 
   user = user.as(User)
 
-  limit = user.preferences.max_results.clamp(0, MAX_ITEMS_PER_PAGE)
-  if user.watched[(page - 1) * limit]?
-    watched = user.watched.reverse[(page - 1) * limit, limit]
-  else
-    watched = [] of String
+  max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)
+  max_results ||= user.preferences.max_results
+  max_results ||= CONFIG.default_user_preferences.max_results
+
+  if user.watched[(page - 1) * max_results]?
+    watched = user.watched.reverse[(page - 1) * max_results, max_results]
   end
+  watched ||= [] of String
 
   templated "history"
 end
@@ -2525,9 +2527,9 @@ get "/feed/private" do |env|
     next
   end
 
-  max_results = user.preferences.max_results
-  max_results = env.params.query["max_results"]?.try &.to_i?
-  max_results ||= 40
+  max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)
+  max_results ||= user.preferences.max_results
+  max_results ||= CONFIG.default_user_preferences.max_results
 
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
@@ -4030,9 +4032,9 @@ get "/api/v1/auth/feed" do |env|
   user = env.get("user").as(User)
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  max_results = user.preferences.max_results
-  max_results ||= env.params.query["max_results"]?.try &.to_i?
-  max_results ||= 40
+  max_results = env.params.query["max_results"]?.try &.to_i?
+  max_results ||= user.preferences.max_results
+  max_results ||= CONFIG.default_user_preferences.max_results
 
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
