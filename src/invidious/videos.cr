@@ -806,10 +806,10 @@ struct Video
 
   def short_description
     short_description = self.description_html.gsub(/(<br>)|(<br\/>|"|\n)/, {
-      "<br>"  => " ",
-      "<br/>" => " ",
-      "\""    => "&quot;",
-      "\n"    => " ",
+      "<br>":  " ",
+      "<br/>": " ",
+      "\"":    "&quot;",
+      "\n":    " ",
     })
     short_description = XML.parse_html(short_description).content[0..200].strip(" ")
 
