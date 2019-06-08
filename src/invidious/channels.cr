@@ -138,7 +138,7 @@ def get_channel(id, db, refresh = true, pull_all_videos = true)
   if db.query_one?("SELECT EXISTS (SELECT true FROM channels WHERE id = $1)", id, as: Bool)
     channel = db.query_one("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
 
-    if refresh && Time.now - channel.updated > 10.minutes
+    if refresh && Time.utc - channel.updated > 10.minutes
       channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
       channel_array = channel.to_a
       args = arg_array(channel_array)
@@ -219,7 +219,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       id: video_id,
       title: title,
       published: published,
-      updated: Time.now,
+      updated: Time.utc,
       ucid: ucid,
       author: author,
       length_seconds: length_seconds,
@@ -282,7 +282,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
         id: video.id,
         title: video.title,
         published: video.published,
-        updated: Time.now,
+        updated: Time.utc,
         ucid: video.ucid,
         author: video.author,
         length_seconds: video.length_seconds,
@@ -296,7 +296,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
         # We are notified of Red videos elsewhere (PubSub), which includes a correct published date,
         # so since they don't provide a published date here we can safely ignore them.
-        if Time.now - video.published > 1.minute
+        if Time.utc - video.published > 1.minute
           emails = db.query_all("UPDATE users SET notifications = notifications || $1 \
             WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
             video.id, video.published, video.ucid, as: String)
@@ -332,29 +332,9 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{ids.map { |id| %("#{id}") }.join(",")}}') AND ucid = $1", ucid)
   end
 
-  channel = InvidiousChannel.new(ucid, author, Time.now, false, nil)
+  channel = InvidiousChannel.new(ucid, author, Time.utc, false, nil)
 
   return channel
-end
-
-def subscribe_pubsub(ucid, key, config)
-  client = make_client(PUBSUB_URL)
-  time = Time.now.to_unix.to_s
-  nonce = Random::Secure.hex(4)
-  signature = "#{time}:#{nonce}"
-
-  host_url = make_host_url(config, Kemal.config)
-
-  body = {
-    "hub.callback"      => "#{host_url}/feed/webhook/v1:#{time}:#{nonce}:#{OpenSSL::HMAC.hexdigest(:sha1, key, signature)}",
-    "hub.topic"         => "https://www.youtube.com/xml/feeds/videos.xml?channel_id=#{ucid}",
-    "hub.verify"        => "async",
-    "hub.mode"          => "subscribe",
-    "hub.lease_seconds" => "432000",
-    "hub.secret"        => key.to_s,
-  }
-
-  return client.post("/subscribe", form: body)
 end
 
 def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
@@ -420,7 +400,7 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
   if auto_generated
     seed = Time.unix(1525757349)
 
-    until seed >= Time.now
+    until seed >= Time.utc
       seed += 1.month
     end
     timestamp = seed - (page - 1).months

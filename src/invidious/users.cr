@@ -133,7 +133,7 @@ def get_user(sid, headers, db, refresh = true)
   if email = db.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
     user = db.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
 
-    if refresh && Time.now - user.updated > 1.minute
+    if refresh && Time.utc - user.updated > 1.minute
       user, sid = fetch_user(sid, headers, db)
       user_array = user.to_a
 
@@ -144,7 +144,7 @@ def get_user(sid, headers, db, refresh = true)
       ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", user_array)
 
       db.exec("INSERT INTO session_ids VALUES ($1,$2,$3) \
-      ON CONFLICT (id) DO NOTHING", sid, user.email, Time.now)
+      ON CONFLICT (id) DO NOTHING", sid, user.email, Time.utc)
 
       begin
         view_name = "subscriptions_#{sha256(user.email)}"
@@ -166,7 +166,7 @@ def get_user(sid, headers, db, refresh = true)
     ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", user_array)
 
     db.exec("INSERT INTO session_ids VALUES ($1,$2,$3) \
-    ON CONFLICT (id) DO NOTHING", sid, user.email, Time.now)
+    ON CONFLICT (id) DO NOTHING", sid, user.email, Time.utc)
 
     begin
       view_name = "subscriptions_#{sha256(user.email)}"
@@ -206,7 +206,7 @@ def fetch_user(sid, headers, db)
 
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(Time.now, [] of String, channels, email, CONFIG.default_user_preferences, nil, token, [] of String, true)
+  user = User.new(Time.utc, [] of String, channels, email, CONFIG.default_user_preferences, nil, token, [] of String, true)
   return user, sid
 end
 
@@ -214,7 +214,7 @@ def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(Time.now, [] of String, [] of String, email, CONFIG.default_user_preferences, password.to_s, token, [] of String, true)
+  user = User.new(Time.utc, [] of String, [] of String, email, CONFIG.default_user_preferences, password.to_s, token, [] of String, true)
 
   return user, sid
 end
@@ -314,7 +314,7 @@ def subscribe_ajax(channel_id, action, env_headers)
     headers["content-type"] = "application/x-www-form-urlencoded"
 
     post_req = {
-      "session_token" => session_token,
+      session_token: session_token,
     }
     post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
 

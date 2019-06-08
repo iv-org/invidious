@@ -7,7 +7,7 @@ if (subscribe_button.getAttribute('data-type') === 'subscribe') {
     subscribe_button.onclick = unsubscribe;
 }
 
-function subscribe(timeouts = 0) {
+function subscribe(timeouts = 1) {
     if (timeouts >= 10) {
         console.log('Failed to subscribe.');
         return;
@@ -19,7 +19,7 @@ function subscribe(timeouts = 0) {
     xhr.responseType = 'json';
     xhr.timeout = 20000;
     xhr.open('POST', url, true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.send('csrf_token=' + subscribe_data.csrf_token);
 
     var fallback = subscribe_button.innerHTML;
@@ -36,12 +36,12 @@ function subscribe(timeouts = 0) {
     }
 
     xhr.ontimeout = function () {
-        console.log('Subscribing timed out.');
+        console.log('Subscribing timed out... ' + timeouts + '/10');
         subscribe(timeouts++);
     }
 }
 
-function unsubscribe(timeouts = 0) {
+function unsubscribe(timeouts = 1) {
     if (timeouts >= 10) {
         console.log('Failed to subscribe');
         return;
@@ -70,7 +70,7 @@ function unsubscribe(timeouts = 0) {
     }
 
     xhr.ontimeout = function () {
-        console.log('Unsubscribing timed out.');
+        console.log('Unsubscribing timed out... ' + timeouts + '/10');
         unsubscribe(timeouts++);
     }
 }

@@ -208,7 +208,7 @@ def fetch_playlist(plid, locale)
   if updated
     updated = decode_date(updated)
   else
-    updated = Time.now
+    updated = Time.utc
   end
 
   playlist = Playlist.new(

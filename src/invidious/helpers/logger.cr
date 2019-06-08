@@ -5,9 +5,9 @@ class Invidious::LogHandler < Kemal::BaseLogHandler
   end
 
   def call(context : HTTP::Server::Context)
-    time = Time.now
+    time = Time.utc
     call_next(context)
-    elapsed_text = elapsed_text(Time.now - time)
+    elapsed_text = elapsed_text(Time.utc - time)
 
     @io << time << ' ' << context.response.status_code << ' ' << context.request.method << ' ' << context.request.resource << ' ' << elapsed_text << '\n'
 

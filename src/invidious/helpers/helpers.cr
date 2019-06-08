@@ -146,7 +146,7 @@ def rank_videos(db, n)
       published = rs.read(Time)
 
       # Exponential decay, older videos tend to rank lower
-      temperature = wilson_score * Math.exp(-0.000005*((Time.now - published).total_minutes))
+      temperature = wilson_score * Math.exp(-0.000005*((Time.utc - published).total_minutes))
       top << {temperature, id}
     end
   end
@@ -346,7 +346,7 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         published ||= Time.unix(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
       rescue ex
       end
-      published ||= Time.now
+      published ||= Time.utc
 
       begin
         view_count = metadata[0].content.rchop(" watching").delete(",").try &.to_i64?
@@ -676,7 +676,7 @@ def create_notification_stream(env, proxies, config, kemal_config, decrypt_funct
         loop do
           time_span = [0, 0, 0, 0]
           time_span[rand(4)] = rand(30) + 5
-          published = Time.now - Time::Span.new(time_span[0], time_span[1], time_span[2], time_span[3])
+          published = Time.utc - Time::Span.new(time_span[0], time_span[1], time_span[2], time_span[3])
           video_id = TEST_IDS[rand(TEST_IDS.size)]
 
           video = get_video(video_id, PG_DB, proxies)
@@ -783,7 +783,7 @@ def create_notification_stream(env, proxies, config, kemal_config, decrypt_funct
   begin
     # Send heartbeat
     loop do
-      env.response.puts ":keepalive #{Time.now.to_unix}"
+      env.response.puts ":keepalive #{Time.utc.to_unix}"
       env.response.puts
       env.response.flush
       sleep (20 + rand(11)).seconds

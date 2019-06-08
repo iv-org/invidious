@@ -110,9 +110,9 @@ def decode_date(string : String)
 
   case string
   when "today"
-    return Time.now
+    return Time.utc
   when "yesterday"
-    return Time.now - 1.day
+    return Time.utc - 1.day
   end
 
   # String matches format "20 hours ago", "4 months ago"...
@@ -138,11 +138,11 @@ def decode_date(string : String)
     raise "Could not parse #{string}"
   end
 
-  return Time.now - delta
+  return Time.utc - delta
 end
 
 def recode_date(time : Time, locale)
-  span = Time.now - time
+  span = Time.utc - time
 
   if span.total_days > 365.0
     span = translate(locale, "`x` years", (span.total_days.to_i / 365).to_s)
@@ -326,4 +326,35 @@ def sha256(text)
   digest = OpenSSL::Digest.new("SHA256")
   digest << text
   return digest.hexdigest
+end
+
+def subscribe_pubsub(topic, key, config)
+  case topic
+  when .match(/^UC[A-Za-z0-9_-]{22}$/)
+    topic = "channel_id=#{topic}"
+  when .match(/^(?:PL|LL|EC|UU|FL|UL|OLAK5uy_)[0-9A-Za-z-_]{10,}$/)
+    # There's a couple missing from the above regex, namely TL and RD, which
+    # don't have feeds
+    topic = "playlist_id=#{topic}"
+  else
+    # TODO
+  end
+
+  client = make_client(PUBSUB_URL)
+  time = Time.utc.to_unix.to_s
+  nonce = Random::Secure.hex(4)
+  signature = "#{time}:#{nonce}"
+
+  host_url = make_host_url(config, Kemal.config)
+
+  body = {
+    "hub.callback"      => "#{host_url}/feed/webhook/v1:#{time}:#{nonce}:#{OpenSSL::HMAC.hexdigest(:sha1, key, signature)}",
+    "hub.topic"         => "https://www.youtube.com/xml/feeds/videos.xml?#{topic}",
+    "hub.verify"        => "async",
+    "hub.mode"          => "subscribe",
+    "hub.lease_seconds" => "432000",
+    "hub.secret"        => key.to_s,
+  }
+
+  return client.post("/subscribe", form: body)
 end

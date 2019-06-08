@@ -852,7 +852,7 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
     video = db.query_one("SELECT * FROM videos WHERE id = $1", id, as: Video)
 
     # If record was last updated over 10 minutes ago, refresh (expire param in response lasts for 6 hours)
-    if (refresh && Time.now - video.updated > 10.minutes) || force_refresh
+    if (refresh && Time.utc - video.updated > 10.minutes) || force_refresh
       begin
         video = fetch_video(id, proxies, region)
         video_array = video.to_a
@@ -1166,7 +1166,7 @@ def fetch_video(id, proxies, region)
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
   published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).try &.["content"]
-  published ||= Time.now.to_s("%Y-%m-%d")
+  published ||= Time.utc.to_s("%Y-%m-%d")
   published = Time.parse(published, "%Y-%m-%d", Time::Location.local)
 
   allowed_regions = html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).try &.["content"].split(",")
@@ -1218,7 +1218,7 @@ def fetch_video(id, proxies, region)
     author_thumbnail = ""
   end
 
-  video = Video.new(id, info, Time.now, title, views, likes, dislikes, wilson_score, published, description,
+  video = Video.new(id, info, Time.utc, title, views, likes, dislikes, wilson_score, published, description,
     nil, author, ucid, allowed_regions, is_family_friendly, genre, genre_url, license, sub_count_text, author_thumbnail)
 
   return video

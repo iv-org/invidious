@@ -1,7 +1,7 @@
 var notifications, delivered;
 
-function get_subscriptions(callback, failures = 1) {
-    if (failures >= 10) {
+function get_subscriptions(callback, timeouts = 1) {
+    if (timeouts >= 10) {
         return
     }
 
@@ -16,16 +16,13 @@ function get_subscriptions(callback, failures = 1) {
             if (xhr.status === 200) {
                 subscriptions = xhr.response;
                 callback(subscriptions);
-            } else {
-                console.log('Pulling subscriptions failed... ' + failures + '/10');
-                get_subscriptions(callback, failures++)
             }
         }
     }
 
     xhr.ontimeout = function () {
-        console.log('Pulling subscriptions failed... ' + failures + '/10');
-        get_subscriptions(callback, failures++);
+        console.log('Pulling subscriptions timed out... ' + timeouts + '/10');
+        get_subscriptions(callback, timeouts++);
     }
 }
 

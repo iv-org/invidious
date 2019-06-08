@@ -1,20 +1,20 @@
 var options = {
-    preload: "auto",
+    preload: 'auto',
     liveui: true,
     playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0],
     controlBar: {
         children: [
-            "playToggle",
-            "volumePanel",
-            "currentTimeDisplay",
-            "timeDivider",
-            "durationDisplay",
-            "progressControl",
-            "remainingTimeDisplay",
-            "captionsButton",
-            "qualitySelector",
-            "playbackRateMenuButton",
-            "fullscreenToggle"
+            'playToggle',
+            'volumePanel',
+            'currentTimeDisplay',
+            'timeDivider',
+            'durationDisplay',
+            'progressControl',
+            'remainingTimeDisplay',
+            'captionsButton',
+            'qualitySelector',
+            'playbackRateMenuButton',
+            'fullscreenToggle'
         ]
     }
 }
@@ -29,7 +29,7 @@ short_url = location.origin + '/' + video_data.id + embed_url.search;
 embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
 var shareOptions = {
-    socials: ["fbFeed", "tw", "reddit", "email"],
+    socials: ['fbFeed', 'tw', 'reddit', 'email'],
 
     url: short_url,
     title: player_data.title,
@@ -38,7 +38,7 @@ var shareOptions = {
     embedCode: "<iframe id='ivplayer' type='text/html' width='640' height='360' src='" + embed_url + "' frameborder='0'></iframe>"
 }
 
-var player = videojs("player", options, function () {
+var player = videojs('player', options, function () {
     this.hotkeys({
         volumeStep: 0.1,
         seekStep: 5,

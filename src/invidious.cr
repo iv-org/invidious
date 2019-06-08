@@ -152,7 +152,7 @@ if config.statistics_enabled
           },
         },
         "metadata" => {
-          "updatedAt"              => Time.now.to_unix,
+          "updatedAt"              => Time.utc.to_unix,
           "lastChannelRefreshedAt" => PG_DB.query_one?("SELECT updated FROM channels ORDER BY updated DESC LIMIT 1", as: Time).try &.to_unix || 0,
         },
       }
@@ -1119,7 +1119,7 @@ post "/login" do |env|
 
       if Crypto::Bcrypt::Password.new(user.password.not_nil!) == password.byte_slice(0, 55)
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-        PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.now)
+        PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
 
         if Kemal.config.ssl || config.https_only
           secure = true
@@ -1128,10 +1128,10 @@ post "/login" do |env|
         end
 
         if config.domain
-          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{config.domain}", value: sid, expires: Time.now + 2.years,
+          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{config.domain}", value: sid, expires: Time.utc + 2.years,
             secure: secure, http_only: true)
         else
-          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
+          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
             secure: secure, http_only: true)
         end
       else
@@ -1233,7 +1233,7 @@ post "/login" do |env|
       args = arg_array(user_array)
 
       PG_DB.exec("INSERT INTO users VALUES (#{args})", user_array)
-      PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.now)
+      PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
 
       view_name = "subscriptions_#{sha256(user.email)}"
       PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
@@ -1248,10 +1248,10 @@ post "/login" do |env|
       end
 
       if config.domain
-        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{config.domain}", value: sid, expires: Time.now + 2.years,
+        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{config.domain}", value: sid, expires: Time.utc + 2.years,
           secure: secure, http_only: true)
       else
-        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.now + 2.years,
+        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
           secure: secure, http_only: true)
       end
 
@@ -1476,10 +1476,10 @@ post "/preferences" do |env|
     end
 
     if config.domain
-      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.now + 2.years,
+      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.utc + 2.years,
         secure: secure, http_only: true)
     else
-      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.now + 2.years,
+      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
         secure: secure, http_only: true)
     end
   end
@@ -1513,10 +1513,10 @@ get "/toggle_theme" do |env|
     end
 
     if config.domain
-      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.now + 2.years,
+      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.utc + 2.years,
         secure: secure, http_only: true)
     else
-      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.now + 2.years,
+      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
         secure: secure, http_only: true)
     end
   end
@@ -1719,9 +1719,9 @@ post "/subscription_ajax" do |env|
     end
   end
 
-  if env.params.query["action_create_subscription_to_channel"]?
+  if env.params.query["action_create_subscription_to_channel"]?.try &.to_i?.try &.== 1
     action = "action_create_subscription_to_channel"
-  elsif env.params.query["action_remove_subscriptions"]?
+  elsif env.params.query["action_remove_subscriptions"]?.try &.to_i?.try &.== 1
     action = "action_remove_subscriptions"
   else
     next env.redirect referer
@@ -1737,12 +1737,12 @@ post "/subscription_ajax" do |env|
   email = user.email
 
   case action
-  when .starts_with? "action_create"
+  when "action_create_subscription_to_channel"
     if !user.subscriptions.includes? channel_id
       get_channel(channel_id, PG_DB, false, false)
       PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_append(subscriptions, $1) WHERE email = $2", channel_id, email)
     end
-  when .starts_with? "action_remove"
+  when "action_remove_subscriptions"
     PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_remove(subscriptions, $1) WHERE email = $2", channel_id, email)
   end
 
@@ -1885,7 +1885,7 @@ post "/data_control" do |env|
       env.response.flush
 
       loop do
-        env.response.puts %(<!-- keepalive #{Time.now.to_unix} -->)
+        env.response.puts %(<!-- keepalive #{Time.utc.to_unix} -->)
         env.response.flush
 
         sleep (20 + rand(11)).seconds
@@ -2403,7 +2403,7 @@ get "/feed/subscriptions" do |env|
   # we know a user has looked at their feed e.g. in the past 10 minutes,
   # they've already seen a video posted 20 minutes ago, and don't need
   # to be notified.
-  PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE email = $3", [] of String, Time.now,
+  PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE email = $3", [] of String, Time.utc,
     user.email)
   user.notifications = [] of String
   env.set "user", user
@@ -2439,7 +2439,7 @@ end
 get "/feed/channel/:ucid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  env.response.content_type = "application/atom+xml"
+  env.response.content_type = "text/xml; charset=UTF-8"
 
   ucid = env.params.url["ucid"]
 
@@ -2513,7 +2513,7 @@ end
 get "/feed/private" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  env.response.content_type = "application/atom+xml"
+  env.response.content_type = "text/xml; charset=UTF-8"
 
   token = env.params.query["token"]?
 
@@ -2557,7 +2557,7 @@ end
 get "/feed/playlist/:plid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  env.response.content_type = "application/atom+xml"
+  env.response.content_type = "text/xml; charset=UTF-8"
 
   plid = env.params.url["plid"]
 
@@ -2608,17 +2608,21 @@ get "/feed/webhook/:token" do |env|
   topic = env.params.query["hub.topic"]
   challenge = env.params.query["hub.challenge"]
 
-  if verify_token.starts_with? "v1"
+  case verify_token
+  when .starts_with? "v1"
     _, time, nonce, signature = verify_token.split(":")
     data = "#{time}:#{nonce}"
-  else
+  when .starts_with? "v2"
     time, signature = verify_token.split(":")
     data = "#{time}"
+  else
+    env.response.status_code = 400
+    next
   end
 
   # The hub will sometimes check if we're still subscribed after delivery errors,
   # so we reply with a 200 as long as the request hasn't expired
-  if Time.now.to_unix - time.to_i > 432000
+  if Time.utc.to_unix - time.to_i > 432000
     env.response.status_code = 400
     next
   end
@@ -2628,11 +2632,17 @@ get "/feed/webhook/:token" do |env|
     next
   end
 
-  ucid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["channel_id"]
-  PG_DB.exec("UPDATE channels SET subscribed = $1 WHERE id = $2", Time.now, ucid)
+  if ucid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["channel_id"]?
+    PG_DB.exec("UPDATE channels SET subscribed = $1 WHERE id = $2", Time.utc, ucid)
+  elsif plid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["playlist_id"]?
+    PG_DB.exec("UPDATE playlists SET subscribed = $1 WHERE id = $2", Time.utc, ucid)
+  else
+    env.response.status_code = 400
+    next
+  end
 
   env.response.status_code = 200
-  next challenge
+  challenge
 end
 
 post "/feed/webhook/:token" do |env|
@@ -3217,11 +3227,10 @@ get "/api/v1/insights/:id" do |env|
   session_token = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
 
   post_req = {
-    "session_token" => session_token,
+    session_token: session_token,
   }
-  post_req = HTTP::Params.encode(post_req)
 
-  response = client.post("/insight_ajax?action_get_statistics_and_data=1&v=#{id}", headers, post_req).body
+  response = client.post("/insight_ajax?action_get_statistics_and_data=1&v=#{id}", headers, form: post_req).body
   response = XML.parse(response)
 
   html_content = XML.parse_html(response.xpath_node(%q(//html_content)).not_nil!.content)
@@ -3265,16 +3274,14 @@ get "/api/v1/insights/:id" do |env|
   avg_view_duration_seconds = html_content.xpath_node(%q(//div[@id="stats-chart-tab-watch-time"]/span/span[2])).not_nil!.content
   avg_view_duration_seconds = decode_length_seconds(avg_view_duration_seconds)
 
-  response = {
+  {
     "viewCount"              => view_count,
     "timeWatchedText"        => time_watched,
     "subscriptionsDriven"    => subscriptions_driven,
     "shares"                 => shares,
     "avgViewDurationSeconds" => avg_view_duration_seconds,
     "graphData"              => graph_data,
-  }
-
-  next response.to_json
+  }.to_json
 end
 
 get "/api/v1/annotations/:id" do |env|

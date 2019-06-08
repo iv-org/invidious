@@ -22,10 +22,10 @@ def refresh_channels(db, logger, config)
             begin
               channel = fetch_channel(id, db, config.full_refresh)
 
-              db.exec("UPDATE channels SET updated = $1, author = $2, deleted = false WHERE id = $3", Time.now, channel.author, id)
+              db.exec("UPDATE channels SET updated = $1, author = $2, deleted = false WHERE id = $3", Time.utc, channel.author, id)
             rescue ex
               if ex.message == "Deleted or invalid channel"
-                db.exec("UPDATE channels SET updated = $1, deleted = true WHERE id = $2", Time.now, id)
+                db.exec("UPDATE channels SET updated = $1, deleted = true WHERE id = $2", Time.utc, id)
               end
               logger.write("#{id} : #{ex.message}\n")
             end
