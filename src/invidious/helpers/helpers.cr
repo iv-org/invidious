@@ -160,19 +160,28 @@ def rank_videos(db, n)
   return top[0..n - 1]
 end
 
-def login_req(login_form, f_req)
+def login_req(f_req)
   data = {
-    "pstMsg"          => "1",
-    "checkConnection" => "youtube",
-    "checkedDomains"  => "youtube",
-    "hl"              => "en",
-    "deviceinfo"      => %q([null,null,null,[],null,"US",null,null,[],"GlifWebSignIn",null,[null,null,[]]]),
-    "f.req"           => f_req,
+    # "azt"             => "",
+    # "bgHash"          => "",
+
+    # Unfortunately there's not much information available on `bgRequest`; part of Google's BotGuard
+    # Generally this is much longer (>1250 characters), similar to Amazon's `metaData1`
+    # (see https://github.com/omarroth/audible.cr/blob/master/src/audible/crypto.cr#L43).
+    # For now this can be empty.
+    "bgRequest"       => %|["identifier","!AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"]|,
     "flowName"        => "GlifWebSignIn",
     "flowEntry"       => "ServiceLogin",
-  }
+    "continue"        => "https://accounts.google.com/ManageAccount",
+    "f.req"           => f_req,
+    "cookiesDisabled" => "false",
+    "deviceinfo"      => %([null,null,null,[],null,"US",null,null,[],"GlifWebSignIn",null,[null,null,[],null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,[],null,null,null,[],[]]]),
+    "gmscoreversion"  => "undefined",
+    "checkConnection" => "youtube:303:1",
+    "checkedDomains"  => "youtube",
+    "pstMsg"          => "1",
 
-  data = login_form.merge(data)
+  }
 
   return HTTP::Params.encode(data)
 end

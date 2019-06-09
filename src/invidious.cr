@@ -906,6 +906,7 @@ post "/login" do |env|
   case account_type
   when "google"
     tfa_code = env.params.body["tfa"]?.try &.lchop("G-")
+    traceback = IO::Memory.new
 
     # See https://github.com/ytdl-org/youtube-dl/blob/2019.04.07/youtube_dl/extractor/youtube.py#L82
     begin
@@ -913,51 +914,30 @@ post "/login" do |env|
       headers = HTTP::Headers.new
       headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
       headers["Google-Accounts-XSRF"] = "1"
+      headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36"
+      headers["X-Same-Domain"] = "1"
 
-      login_page = client.get("/ServiceLogin")
+      login_page = client.get("/ServiceLogin?flowName=GlifWebSignIn&flowEntry=ServiceLogin&cid=1&navigationDirection=forward")
       headers = login_page.cookies.add_request_headers(headers)
-
-      login_page = XML.parse_html(login_page.body)
-
-      inputs = {} of String => String
-      login_page.xpath_nodes(%q(//input[@type="submit"])).each do |node|
-        name = node["id"]? || node["name"]?
-        name ||= ""
-        value = node["value"]?
-        value ||= ""
-
-        if name != "" && value != ""
-          inputs[name] = value
-        end
-      end
-
-      login_page.xpath_nodes(%q(//input[@type="hidden"])).each do |node|
-        name = node["id"]? || node["name"]?
-        name ||= ""
-        value = node["value"]?
-        value ||= ""
-
-        if name != "" && value != ""
-          inputs[name] = value
-        end
-      end
 
       lookup_req = {
         email, nil, [] of String, nil, "US", nil, nil, 2, false, true,
         {nil, nil,
-         {2, 1, nil, 1, "https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount", nil, [] of String, 4, [] of String},
+         {2, 1, nil, 1, "https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fnext%3D%252F%26action_handle_signin%3Dtrue%26hl%3Den%26app%3Ddesktop%26feature%3Dsign_in_button&hl=en&service=youtube&uilel=3&requestPath=%2FServiceLogin&Page=PasswordSeparationSignIn", nil, [] of String, 4, [] of String, "GlifWebSignIn"},
          1,
-         {nil, nil, [] of String},
+         {nil, nil, [] of String, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, [] of String, nil, nil, nil, [] of String, [] of String},
          nil, nil, nil, true,
-        }, email,
+        },
+        email,
       }.to_json
 
-      lookup_results = client.post("/_/signin/sl/lookup", headers, login_req(inputs, lookup_req))
-      headers = lookup_results.cookies.add_request_headers(headers)
+      traceback << "Getting lookup..."
 
-      lookup_results = lookup_results.body
-      lookup_results = lookup_results[5..-1]
-      lookup_results = JSON.parse(lookup_results)
+      response = client.post("/_/signin/sl/lookup", headers, login_req(lookup_req))
+      headers = response.cookies.add_request_headers(headers)
+      lookup_results = JSON.parse(response.body[5..-1])
+
+      traceback << "done, returned #{response.status_code}.<br/>"
 
       user_hash = lookup_results[0][2]
 
@@ -967,18 +947,20 @@ post "/login" do |env|
          {password, nil, true},
         },
         {nil, nil,
-         {2, 1, nil, 1, "https://accounts.google.com/ServiceLogin?passive=1209600&continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&followup=https%3A%2F%2Faccounts.google.com%2FManageAccount", nil, [] of String, 4, [] of String},
+         {2, 1, nil, 1, "https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fnext%3D%252F%26action_handle_signin%3Dtrue%26hl%3Den%26app%3Ddesktop%26feature%3Dsign_in_button&hl=en&service=youtube&uilel=3&requestPath=%2FServiceLogin&Page=PasswordSeparationSignIn", nil, [] of String, 4, [] of String, "GlifWebSignIn"},
          1,
-         {nil, nil, [] of String},
-         nil, nil, nil, true},
+         {nil, nil, [] of String, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, [] of String, nil, nil, nil, [] of String, [] of String},
+         nil, nil, nil, true,
+        },
       }.to_json
 
-      challenge_results = client.post("/_/signin/sl/challenge", headers, login_req(inputs, challenge_req))
-      headers = challenge_results.cookies.add_request_headers(headers)
+      traceback << "Getting challenge..."
 
-      challenge_results = challenge_results.body
-      challenge_results = challenge_results[5..-1]
-      challenge_results = JSON.parse(challenge_results)
+      response = client.post("/_/signin/sl/challenge", headers, login_req(challenge_req))
+      headers = response.cookies.add_request_headers(headers)
+      challenge_results = JSON.parse(response.body[5..-1])
+
+      traceback << "done, returned #{response.status_code}.<br/>"
 
       headers["Cookie"] = URI.unescape(headers["Cookie"])
 
@@ -987,18 +969,25 @@ post "/login" do |env|
         next templated "error"
       end
 
-      if challenge_results[0][-1][0].as_a?
+      if challenge_results[0][-1]?.try &.[0]?.try &.as_a?
+        traceback << "User has 2FA.<br/>"
+
         # Prefer Authenticator app and SMS over unsupported protocols
         if challenge_results[0][-1][0][0][8] != 6 && challenge_results[0][-1][0][0][8] != 9
           tfa = challenge_results[0][-1][0].as_a.select { |auth_type| auth_type[8] == 6 || auth_type[8] == 9 }[0]
+
+          traceback << "Selecting challenge #{tfa[8]}..."
           select_challenge = {2, nil, nil, nil, {tfa[8]}}.to_json
 
           tl = challenge_results[1][2]
 
-          tfa = client.post("/_/signin/selectchallenge?TL=#{tl}", headers, login_req(inputs, select_challenge)).body
+          tfa = client.post("/_/signin/selectchallenge?TL=#{tl}", headers, login_req(select_challenge)).body
           tfa = tfa[5..-1]
           tfa = JSON.parse(tfa)[0][-1]
+
+          traceback << "done.<br/>"
         else
+          traceback << "Using challenge #{challenge_results[0][-1][0][0][8]}.<br/>"
           tfa = challenge_results[0][-1][0][0]
         end
 
@@ -1022,43 +1011,71 @@ post "/login" do |env|
           case request_type
           when 6
             # Authenticator app
-            tfa_req = %(["#{user_hash}",null,2,null,[6,null,null,null,null,["#{tfa_code}",false]]])
+            tfa_req = {
+              user_hash, nil, 2, nil,
+              {6, nil, nil, nil, nil,
+               {tfa_code, false},
+              },
+            }.to_json
           when 9
             # Voice or text message
-            tfa_req = %(["#{user_hash}",null,2,null,[9,null,null,null,null,null,null,null,[null,"#{tfa_code}",false,2]]])
+            tfa_req = {
+              user_hash, nil, 2, nil,
+              {9, nil, nil, nil, nil, nil, nil, nil,
+               {nil, tfa_code, false, 2},
+              },
+            }.to_json
           else
             error_message = translate(locale, "Unable to log in, make sure two-factor authentication (Authenticator or SMS) is turned on.")
             next templated "error"
           end
 
-          challenge_results = client.post("/_/signin/challenge?hl=en&TL=#{tl}", headers, login_req(inputs, tfa_req))
-          headers = challenge_results.cookies.add_request_headers(headers)
+          traceback << "Submitting challenge..."
 
-          challenge_results = challenge_results.body
-          challenge_results = challenge_results[5..-1]
-          challenge_results = JSON.parse(challenge_results)
+          response = client.post("/_/signin/challenge?hl=en&TL=#{tl}", headers, login_req(tfa_req))
+          headers = response.cookies.add_request_headers(headers)
+          challenge_results = JSON.parse(response.body[5..-1])
 
-          if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
+          if (challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED") ||
+             (challenge_results[0][-1]?.try &.[5] == "INVALID_INPUT")
             error_message = translate(locale, "Invalid TFA code")
             next templated "error"
           end
+
+          traceback << "done.<br/>"
         end
       end
 
-      login_res = challenge_results[0][13][2].to_s
+      traceback << "Logging in..."
 
-      login = client.get(login_res, headers)
-      headers = login.cookies.add_request_headers(headers)
+      location = challenge_results[0][-1][2].to_s
+      cookies = HTTP::Cookies.new
 
-      login = client.get(login.headers["Location"], headers)
-      headers = login.cookies.add_request_headers(headers)
-      cookies = HTTP::Cookies.from_headers(headers)
+      loop do
+        if !location
+          break
+        end
 
-      sid = cookies["SID"].value
+        login = client.get(location, headers)
+        headers = login.cookies.add_request_headers(headers)
+        cookies = HTTP::Cookies.from_headers(headers)
+
+        if cookies["SID"]?
+          break
+        end
+
+        location = login.headers["Location"]?
+      end
+
+      sid = cookies["SID"]?.try &.value
+      if !sid
+        raise "Couldn't get SID."
+      end
 
       user, sid = get_user(sid, headers, PG_DB)
 
       # We are now logged in
+      traceback << "done.<br/>"
 
       host = URI.parse(env.request.headers["Host"]).host
 
@@ -1093,7 +1110,9 @@ post "/login" do |env|
 
       env.redirect referer
     rescue ex
-      error_message = translate(locale, "Login failed. This may be because two-factor authentication is not turned on for your account.")
+      traceback.rewind
+      # error_message = translate(locale, "Login failed. This may be because two-factor authentication is not turned on for your account.")
+      error_message = %(#{ex.message}<br/>Traceback:<br/><div style="padding-left:2em" id="traceback">#{traceback.gets_to_end}</div>)
       next templated "error"
     end
   when "invidious"
