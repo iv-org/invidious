@@ -32,6 +32,11 @@ Onion links:
 - kgg2m7yk5aybusll.onion
 - axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion
 
+Eepsite:
+
+- owxfohz4kjyv25fvlqilyxast7inivgiktls3th44jhk3ej3i7ya.b32.i2p
+
+
 [Alternative Invidious instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances)
 
 ## Screenshots
