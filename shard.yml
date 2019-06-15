@@ -9,13 +9,12 @@ targets:
     main: src/invidious.cr
 
 dependencies:
-  kemal:
-    github: kemalcr/kemal
   pg:
     github: will/crystal-pg
-    branch: cafe69e
   sqlite3:
     github: crystal-lang/crystal-sqlite3
+  kemal:
+    github: kemalcr/kemal
 
 crystal: 0.29.0
 
