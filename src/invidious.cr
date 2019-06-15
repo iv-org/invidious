@@ -964,6 +964,11 @@ post "/login" do |env|
 
       headers["Cookie"] = URI.unescape(headers["Cookie"])
 
+      if challenge_results[0][3]?.try &.== 7
+        error_message = translate(locale, "Account has temporarily been disabled")
+        next templated "error"
+      end
+
       if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
         error_message = translate(locale, "Incorrect password")
         next templated "error"
@@ -1049,21 +1054,21 @@ post "/login" do |env|
       traceback << "Logging in..."
 
       location = challenge_results[0][-1][2].to_s
-      cookies = HTTP::Cookies.new
+      cookies = HTTP::Cookies.from_headers(headers)
 
       loop do
-        if !location
+        if !location || location.includes? "/ManageAccount"
           break
         end
+
+        # TODO: Occasionally there will be a second page after login confirming
+        # the user's phone number, which we will likely choke on.
+        # if location.includes? "SmsAuthInterstitial"
 
         login = client.get(location, headers)
         headers = login.cookies.add_request_headers(headers)
+
         cookies = HTTP::Cookies.from_headers(headers)
-
-        if cookies["SID"]?
-          break
-        end
-
         location = login.headers["Location"]?
       end
 
