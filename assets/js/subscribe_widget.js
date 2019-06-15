@@ -7,8 +7,8 @@ if (subscribe_button.getAttribute('data-type') === 'subscribe') {
     subscribe_button.onclick = unsubscribe;
 }
 
-function subscribe(timeouts = 1) {
-    if (timeouts >= 10) {
+function subscribe(retries = 5) {
+    if (retries <= 0) {
         console.log('Failed to subscribe.');
         return;
     }
@@ -20,7 +20,6 @@ function subscribe(timeouts = 1) {
     xhr.timeout = 20000;
     xhr.open('POST', url, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send('csrf_token=' + subscribe_data.csrf_token);
 
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = unsubscribe;
@@ -35,14 +34,21 @@ function subscribe(timeouts = 1) {
         }
     }
 
-    xhr.ontimeout = function () {
-        console.log('Subscribing timed out... ' + timeouts + '/10');
-        subscribe(timeouts++);
+    xhr.onerror = function () {
+        console.log('Subscribing failed... ' + retries + '/5');
+        setTimeout(function () { subscribe(retries - 1) }, 1000);
     }
+
+    xhr.ontimeout = function () {
+        console.log('Subscribing failed... ' + retries + '/5');
+        subscribe(retries - 1);
+    }
+
+    xhr.send('csrf_token=' + subscribe_data.csrf_token);
 }
 
-function unsubscribe(timeouts = 1) {
-    if (timeouts >= 10) {
+function unsubscribe(retries = 5) {
+    if (retries <= 0) {
         console.log('Failed to subscribe');
         return;
     }
@@ -54,7 +60,6 @@ function unsubscribe(timeouts = 1) {
     xhr.timeout = 20000;
     xhr.open('POST', url, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send('csrf_token=' + subscribe_data.csrf_token);
 
     var fallback = subscribe_button.innerHTML;
     subscribe_button.onclick = subscribe;
@@ -69,8 +74,15 @@ function unsubscribe(timeouts = 1) {
         }
     }
 
-    xhr.ontimeout = function () {
-        console.log('Unsubscribing timed out... ' + timeouts + '/10');
-        unsubscribe(timeouts++);
+    xhr.onerror = function () {
+        console.log('Unsubscribing failed... ' + retries + '/5');
+        setTimeout(function () { unsubscribe(retries - 1) }, 1000);
     }
+
+    xhr.ontimeout = function () {
+        console.log('Unsubscribing failed... ' + retries + '/5');
+        unsubscribe(retries - 1);
+    }
+
+    xhr.send('csrf_token=' + subscribe_data.csrf_token);
 }

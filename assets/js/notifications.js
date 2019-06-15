@@ -1,15 +1,14 @@
 var notifications, delivered;
 
-function get_subscriptions(callback, timeouts = 1) {
-    if (timeouts >= 10) {
-        return
+function get_subscriptions(callback, retries = 5) {
+    if (retries <= 0) {
+        return;
     }
 
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.timeout = 20000;
     xhr.open('GET', '/api/v1/auth/subscriptions', true);
-    xhr.send(null);
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -20,10 +19,17 @@ function get_subscriptions(callback, timeouts = 1) {
         }
     }
 
-    xhr.ontimeout = function () {
-        console.log('Pulling subscriptions timed out... ' + timeouts + '/10');
-        get_subscriptions(callback, timeouts++);
+    xhr.onerror = function () {
+        console.log('Pulling subscriptions failed... ' + retries + '/5');
+        setTimeout(function () { get_subscriptions(callback, retries - 1) }, 1000);
     }
+
+    xhr.ontimeout = function () {
+        console.log('Pulling subscriptions failed... ' + retries + '/5');
+        get_subscriptions(callback, retries - 1);
+    }
+
+    xhr.send();
 }
 
 function create_notification_stream(subscriptions) {
@@ -77,7 +83,7 @@ function create_notification_stream(subscriptions) {
     notifications.onerror = function (event) {
         console.log('Something went wrong with notifications, trying to reconnect...');
         notifications.close();
-        get_subscriptions(create_notification_stream);
+        setTimeout(function () { get_subscriptions(create_notification_stream) }, 100);
     }
 
     notifications.ontimeout = function (event) {
@@ -97,6 +103,7 @@ window.addEventListener('load', function (e) {
     } else {
         setTimeout(function () {
             if (!localStorage.getItem('stream')) {
+                notifications = true;
                 get_subscriptions(create_notification_stream);
                 localStorage.setItem('stream', true);
             }
@@ -110,6 +117,7 @@ window.addEventListener('load', function (e) {
             } else {
                 setTimeout(function () {
                     if (!localStorage.getItem('stream')) {
+                        notifications = true;
                         get_subscriptions(create_notification_stream);
                         localStorage.setItem('stream', true);
                     }

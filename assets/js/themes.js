@@ -9,10 +9,11 @@ toggle_theme.addEventListener('click', function () {
     xhr.responseType = 'json';
     xhr.timeout = 20000;
     xhr.open('GET', url, true);
-    xhr.send();
 
     set_mode(dark_mode);
     localStorage.setItem('dark_mode', dark_mode);
+
+    xhr.send();
 });
 
 window.addEventListener('storage', function (e) {

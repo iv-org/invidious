@@ -1,5 +1,5 @@
-function get_playlist(plid, timeouts = 1) {
-    if (timeouts >= 10) {
+function get_playlist(plid, retries = 5) {
+    if (retries <= 0) {
         console.log('Failed to pull playlist');
         return;
     }
@@ -18,7 +18,6 @@ function get_playlist(plid, timeouts = 1) {
     xhr.responseType = 'json';
     xhr.timeout = 20000;
     xhr.open('GET', plid_url, true);
-    xhr.send();
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -51,10 +50,17 @@ function get_playlist(plid, timeouts = 1) {
         }
     }
 
-    xhr.ontimeout = function () {
-        console.log('Pulling playlist timed out... ' + timeouts + '/10');
-        get_playlist(plid, timeouts++);
+    xhr.onerror = function () {
+        console.log('Pulling playlist failed... ' + retries + '/5');
+        setTimeout(function () { get_playlist(plid, retries - 1) }, 1000);
     }
+
+    xhr.ontimeout = function () {
+        console.log('Pulling playlist failed... ' + retries + '/5');
+        get_playlist(plid, retries - 1);
+    }
+
+    xhr.send();
 }
 
 if (video_data.plid) {

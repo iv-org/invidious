@@ -109,10 +109,10 @@ function number_with_separator(val) {
     return val;
 }
 
-function get_playlist(plid, timeouts = 1) {
+function get_playlist(plid, retries = 5) {
     playlist = document.getElementById('playlist');
 
-    if (timeouts >= 10) {
+    if (retries <= 0) {
         console.log('Failed to pull playlist');
         playlist.innerHTML = '';
         return;
@@ -136,7 +136,6 @@ function get_playlist(plid, timeouts = 1) {
     xhr.responseType = 'json';
     xhr.timeout = 20000;
     xhr.open('GET', plid_url, true);
-    xhr.send();
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
@@ -174,20 +173,31 @@ function get_playlist(plid, timeouts = 1) {
         }
     }
 
+    xhr.onerror = function () {
+        playlist = document.getElementById('playlist');
+        playlist.innerHTML =
+            '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3><hr>';
+
+        console.log('Pulling playlist timed out... ' + retries + '/5');
+        setTimeout(function () { get_playlist(plid, retries - 1) }, 1000);
+    }
+
     xhr.ontimeout = function () {
         playlist = document.getElementById('playlist');
         playlist.innerHTML =
             '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3><hr>';
 
-        console.log('Pulling playlist timed out... ' + timeouts + '/10');
-        get_playlist(plid, timeouts++);
+        console.log('Pulling playlist timed out... ' + retries + '/5');
+        get_playlist(plid, retries - 1);
     }
+
+    xhr.send();
 }
 
-function get_reddit_comments(timeouts = 1) {
+function get_reddit_comments(retries = 5) {
     comments = document.getElementById('comments');
 
-    if (timeouts >= 10) {
+    if (retries <= 0) {
         console.log('Failed to pull comments');
         comments.innerHTML = '';
         return;
@@ -204,7 +214,6 @@ function get_reddit_comments(timeouts = 1) {
     xhr.responseType = 'json';
     xhr.timeout = 20000;
     xhr.open('GET', url, true);
-    xhr.send();
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
@@ -239,8 +248,8 @@ function get_reddit_comments(timeouts = 1) {
                 comments.children[0].children[1].children[0].onclick = swap_comments;
             } else {
                 if (video_data.params.comments[1] === 'youtube') {
-                    console.log('Pulling comments timed out... ' + timeouts + '/10');
-                    get_youtube_comments(timeouts++);
+                    console.log('Pulling comments failed... ' + retries + '/5');
+                    setTimeout(function () { get_youtube_comments(retries - 1) }, 1000);
                 } else {
                     comments.innerHTML = fallback;
                 }
@@ -248,16 +257,23 @@ function get_reddit_comments(timeouts = 1) {
         }
     }
 
-    xhr.ontimeout = function () {
-        console.log('Pulling comments timed out... ' + timeouts + '/10');
-        get_reddit_comments(timeouts++);
+    xhr.onerror = function () {
+        console.log('Pulling comments failed... ' + retries + '/5');
+        setInterval(function () { get_reddit_comments(retries - 1) }, 1000);
     }
+
+    xhr.ontimeout = function () {
+        console.log('Pulling comments failed... ' + retries + '/5');
+        get_reddit_comments(retries - 1);
+    }
+
+    xhr.send();
 }
 
-function get_youtube_comments(timeouts = 1) {
+function get_youtube_comments(retries = 5) {
     comments = document.getElementById('comments');
 
-    if (timeouts >= 10) {
+    if (retries <= 0) {
         console.log('Failed to pull comments');
         comments.innerHTML = '';
         return;
@@ -275,7 +291,6 @@ function get_youtube_comments(timeouts = 1) {
     xhr.responseType = 'json';
     xhr.timeout = 20000;
     xhr.open('GET', url, true);
-    xhr.send();
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
@@ -305,7 +320,7 @@ function get_youtube_comments(timeouts = 1) {
                 comments.children[0].children[1].children[0].onclick = swap_comments;
             } else {
                 if (video_data.params.comments[1] === 'youtube') {
-                    get_youtube_comments(timeouts++);
+                    setTimeout(function () { get_youtube_comments(retries - 1) }, 1000);
                 } else {
                     comments.innerHTML = '';
                 }
@@ -313,12 +328,21 @@ function get_youtube_comments(timeouts = 1) {
         }
     }
 
+    xhr.onerror = function () {
+        comments.innerHTML =
+            '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
+        console.log('Pulling comments failed... ' + retries + '/5');
+        setInterval(function () { get_youtube_comments(retries - 1) }, 1000);
+    }
+
     xhr.ontimeout = function () {
         comments.innerHTML =
             '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
-        console.log('Pulling comments timed out... ' + timeouts + '/10');
-        get_youtube_comments(timeouts++);
+        console.log('Pulling comments failed... ' + retries + '/5');
+        get_youtube_comments(retries - 1);
     }
+
+    xhr.send();
 }
 
 function get_youtube_replies(target, load_more) {
@@ -338,7 +362,6 @@ function get_youtube_replies(target, load_more) {
     xhr.responseType = 'json';
     xhr.timeout = 20000;
     xhr.open('GET', url, true);
-    xhr.send();
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4) {
@@ -373,9 +396,11 @@ function get_youtube_replies(target, load_more) {
     }
 
     xhr.ontimeout = function () {
-        console.log('Pulling comments timed out.');
+        console.log('Pulling comments failed.');
         body.innerHTML = fallback;
     }
+
+    xhr.send();
 }
 
 if (video_data.play_next) {

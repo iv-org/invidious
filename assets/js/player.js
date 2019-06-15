@@ -218,7 +218,6 @@ if (!video_data.params.listen && video_data.params.annotations) {
     xhr.responseType = 'text';
     xhr.timeout = 60000;
     xhr.open('GET', '/api/v1/annotations/' + video_data.id, true);
-    xhr.send();
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
@@ -251,6 +250,8 @@ if (!video_data.params.listen && video_data.params.annotations) {
             window.open(path, '_blank');
         }
     });
+
+    xhr.send();
 }
 
 // Since videojs-share can sometimes be blocked, we defer it until last

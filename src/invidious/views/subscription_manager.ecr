@@ -68,7 +68,6 @@ function remove_subscription(target) {
     xhr.timeout = 20000;
     xhr.open('POST', url, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send('csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>');
 
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
@@ -78,5 +77,7 @@ function remove_subscription(target) {
             }
         }
     }
+
+    xhr.send('csrf_token=<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>');
 }
 </script>
