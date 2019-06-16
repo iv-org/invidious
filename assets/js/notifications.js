@@ -8,7 +8,7 @@ function get_subscriptions(callback, retries = 5) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.timeout = 10000;
-    xhr.open('GET', '/api/v1/auth/subscriptions', true);
+    xhr.open('GET', '/api/v1/auth/subscriptions?fields=authorId', true);
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
