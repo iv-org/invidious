@@ -32,7 +32,7 @@
                         <% end %>
 
                         <% if password %>
-                            <input name="password" type="hidden" value="<%= password %>">
+                            <input name="password" type="hidden" value="<%= HTML.escape(password) %>">
                         <% else %>
                             <label for="password"><%= translate(locale, "Password") %> :</label>
                             <input required class="pure-input-1" name="password" type="password" placeholder="<%= translate(locale, "Password") %>">
@@ -95,7 +95,7 @@
                         <% end %>
 
                         <% if password %>
-                            <input name="password" type="hidden" value="<%= password %>">
+                            <input name="password" type="hidden" value="<%= HTML.escape(password) %>">
                         <% else %>
                             <label for="password"><%= translate(locale, "Password") %> :</label>
                             <input required class="pure-input-1" name="password" type="password" placeholder="<%= translate(locale, "Password") %>">
