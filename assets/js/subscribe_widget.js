@@ -17,7 +17,7 @@ function subscribe(retries = 5) {
         '&c=' + subscribe_data.ucid;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    xhr.timeout = 20000;
+    xhr.timeout = 10000;
     xhr.open('POST', url, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
@@ -57,7 +57,7 @@ function unsubscribe(retries = 5) {
         '&c=' + subscribe_data.ucid;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    xhr.timeout = 20000;
+    xhr.timeout = 10000;
     xhr.open('POST', url, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 

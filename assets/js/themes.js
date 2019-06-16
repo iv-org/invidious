@@ -7,7 +7,7 @@ toggle_theme.addEventListener('click', function () {
     var url = '/toggle_theme?redirect=false';
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    xhr.timeout = 20000;
+    xhr.timeout = 10000;
     xhr.open('GET', url, true);
 
     set_mode(dark_mode);

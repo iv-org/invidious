@@ -7,7 +7,7 @@ function get_subscriptions(callback, retries = 5) {
 
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    xhr.timeout = 20000;
+    xhr.timeout = 10000;
     xhr.open('GET', '/api/v1/auth/subscriptions', true);
 
     xhr.onreadystatechange = function () {
@@ -82,14 +82,8 @@ function create_notification_stream(subscriptions) {
 
     notifications.onerror = function (event) {
         console.log('Something went wrong with notifications, trying to reconnect...');
-        notifications.close();
-        setTimeout(function () { get_subscriptions(create_notification_stream) }, 100);
-    }
-
-    notifications.ontimeout = function (event) {
-        console.log('Something went wrong with notifications, trying to reconnect...');
-        notifications.close();
-        get_subscriptions(create_notification_stream);
+        notifications = { close: function () { } };
+        setTimeout(function () { get_subscriptions(create_notification_stream) }, 1000);
     }
 
     notifications.stream();
@@ -103,11 +97,11 @@ window.addEventListener('load', function (e) {
     } else {
         setTimeout(function () {
             if (!localStorage.getItem('stream')) {
-                notifications = true;
+                notifications = { close: function () { } };
                 get_subscriptions(create_notification_stream);
                 localStorage.setItem('stream', true);
             }
-        }, Math.random() * 1000 + 10);
+        }, Math.random() * 1000 + 50);
     }
 
     window.addEventListener('storage', function (e) {
@@ -117,11 +111,11 @@ window.addEventListener('load', function (e) {
             } else {
                 setTimeout(function () {
                     if (!localStorage.getItem('stream')) {
-                        notifications = true;
+                        notifications = { close: function () { } };
                         get_subscriptions(create_notification_stream);
                         localStorage.setItem('stream', true);
                     }
-                }, Math.random() * 1000 + 10);
+                }, Math.random() * 1000 + 50);
             }
         } else if (e.key === 'notification_count') {
             var notification_ticker = document.getElementById('notification_ticker');

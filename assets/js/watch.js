@@ -134,7 +134,7 @@ function get_playlist(plid, retries = 5) {
 
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    xhr.timeout = 20000;
+    xhr.timeout = 10000;
     xhr.open('GET', plid_url, true);
 
     xhr.onreadystatechange = function () {
@@ -212,7 +212,7 @@ function get_reddit_comments(retries = 5) {
         '&hl=' + video_data.preferences.locale;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    xhr.timeout = 20000;
+    xhr.timeout = 10000;
     xhr.open('GET', url, true);
 
     xhr.onreadystatechange = function () {
@@ -289,7 +289,7 @@ function get_youtube_comments(retries = 5) {
         '&thin_mode=' + video_data.preferences.thin_mode;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    xhr.timeout = 20000;
+    xhr.timeout = 10000;
     xhr.open('GET', url, true);
 
     xhr.onreadystatechange = function () {
@@ -360,7 +360,7 @@ function get_youtube_replies(target, load_more) {
         '&continuation=' + continuation;
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    xhr.timeout = 20000;
+    xhr.timeout = 10000;
     xhr.open('GET', url, true);
 
     xhr.onreadystatechange = function () {

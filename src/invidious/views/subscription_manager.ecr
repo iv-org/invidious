@@ -65,7 +65,7 @@ function remove_subscription(target) {
         '&c=' + target.getAttribute('data-ucid');
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
-    xhr.timeout = 20000;
+    xhr.timeout = 10000;
     xhr.open('POST', url, true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
