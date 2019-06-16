@@ -158,6 +158,7 @@ if config.statistics_enabled
       }
 
       sleep 1.minute
+      Fiber.yield
     end
   end
 end
@@ -167,7 +168,6 @@ if config.top_enabled
   spawn do
     pull_top_videos(config, PG_DB) do |videos|
       top_videos = videos
-      sleep 1.minute
     end
   end
 end
@@ -176,7 +176,6 @@ popular_videos = [] of ChannelVideo
 spawn do
   pull_popular_videos(PG_DB) do |videos|
     popular_videos = videos
-    sleep 1.minute
   end
 end
 

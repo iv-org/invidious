@@ -703,6 +703,7 @@ def create_notification_stream(env, proxies, config, kemal_config, decrypt_funct
           id += 1
 
           sleep 1.minute
+          Fiber.yield
         end
       rescue ex
       end

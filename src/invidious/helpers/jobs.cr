@@ -36,6 +36,7 @@ def refresh_channels(db, logger, config)
       end
 
       sleep 1.minute
+      Fiber.yield
     end
   end
 
@@ -112,6 +113,7 @@ def refresh_feeds(db, logger, config)
       end
 
       sleep 5.seconds
+      Fiber.yield
     end
   end
 
@@ -162,6 +164,7 @@ def subscribe_to_feeds(db, logger, key, config)
         end
 
         sleep 1.minute
+        Fiber.yield
       end
     end
 
@@ -174,12 +177,16 @@ def pull_top_videos(config, db)
     begin
       top = rank_videos(db, 40)
     rescue ex
+      sleep 1.minute
+      Fiber.yield
+
       next
     end
 
-    if top.size > 0
-      args = arg_array(top)
-    else
+    if top.size == 0
+      sleep 1.minute
+      Fiber.yield
+
       next
     end
 
@@ -194,7 +201,9 @@ def pull_top_videos(config, db)
     end
 
     yield videos
+
     sleep 1.minute
+    Fiber.yield
   end
 end
 
@@ -206,7 +215,9 @@ def pull_popular_videos(db)
       ORDER BY ucid, published DESC", as: ChannelVideo).sort_by { |video| video.published }.reverse
 
     yield videos
+
     sleep 1.minute
+    Fiber.yield
   end
 end
 
@@ -214,12 +225,13 @@ def update_decrypt_function
   loop do
     begin
       decrypt_function = fetch_decrypt_function
+      yield decrypt_function
     rescue ex
       next
     end
 
-    yield decrypt_function
     sleep 1.minute
+    Fiber.yield
   end
 end
 
@@ -234,5 +246,6 @@ def find_working_proxies(regions)
     end
 
     sleep 1.minute
+    Fiber.yield
   end
 end
