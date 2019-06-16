@@ -98,8 +98,8 @@ window.addEventListener('load', function (e) {
         setTimeout(function () {
             if (!localStorage.getItem('stream')) {
                 notifications = { close: function () { } };
-                get_subscriptions(create_notification_stream);
                 localStorage.setItem('stream', true);
+                get_subscriptions(create_notification_stream);
             }
         }, Math.random() * 1000 + 50);
     }
@@ -112,8 +112,8 @@ window.addEventListener('load', function (e) {
                 setTimeout(function () {
                     if (!localStorage.getItem('stream')) {
                         notifications = { close: function () { } };
-                        get_subscriptions(create_notification_stream);
                         localStorage.setItem('stream', true);
+                        get_subscriptions(create_notification_stream);
                     }
                 }, Math.random() * 1000 + 50);
             }
