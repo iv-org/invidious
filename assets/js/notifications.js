@@ -45,7 +45,7 @@ function create_notification_stream(subscriptions) {
 
     notifications.onmessage = function (event) {
         if (!event.id) {
-            return
+            return;
         }
 
         var notification = JSON.parse(event.data);
@@ -80,13 +80,14 @@ function create_notification_stream(subscriptions) {
         }
     }
 
-    notifications.onerror = function (event) {
-        console.log('Something went wrong with notifications, trying to reconnect...');
-        notifications = { close: function () { } };
-        setTimeout(function () { get_subscriptions(create_notification_stream) }, 1000);
-    }
-
+    notifications.addEventListener('error', handle_notification_error);
     notifications.stream();
+}
+
+function handle_notification_error(event) {
+    console.log('Something went wrong with notifications, trying to reconnect...');
+    notifications = { close: function () { } };
+    setTimeout(function () { get_subscriptions(create_notification_stream) }, 1000);
 }
 
 window.addEventListener('load', function (e) {
