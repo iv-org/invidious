@@ -353,7 +353,7 @@ span > select {
 
 /* Overlay */
 .video-js .vjs-overlay {
-  background-color: rgba(35, 35, 35, 0.5);
+  background-color: rgba(35, 35, 35, 0.75);
   color: rgba(255, 255, 255, 1);
 }
 

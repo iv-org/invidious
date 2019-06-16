@@ -106,12 +106,12 @@ if (location.pathname.startsWith('/embed/')) {
     player.overlay({
         overlays: [{
             start: 'loadstart',
-            content: '<h1>' + player_data.title + '</h1>',
+            content: '<h1><a href="' + location.href + '">' + player_data.title + '</a></h1>',
             end: 'playing',
             align: 'top'
         }, {
             start: 'pause',
-            content: '<h1>' + player_data.title + '</h1>',
+            content: '<h1><a href="' + location.href + '">' + player_data.title + '</a></h1>',
             end: 'playing',
             align: 'top'
         }]
