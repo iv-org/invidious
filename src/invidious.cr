@@ -340,6 +340,7 @@ get "/watch" do |env|
 
     if env.params.query["v"].empty?
       error_message = "Invalid parameters."
+      env.response.status_code = 400
       next templated "error"
     end
 
@@ -381,6 +382,7 @@ get "/watch" do |env|
     next env.redirect "/watch?v=#{ex.message}"
   rescue ex
     error_message = ex.message
+    env.response.status_code = 500
     logger.puts("#{id} : #{ex.message}")
     next templated "error"
   end
@@ -560,6 +562,7 @@ get "/embed/:id" do |env|
         videos = fetch_playlist_videos(plid, 1, 1, locale: locale)
       rescue ex
         error_message = ex.message
+        env.response.status_code = 500
         next templated "error"
       end
 
@@ -602,6 +605,7 @@ get "/embed/:id" do |env|
     next env.redirect "/embed/#{ex.message}"
   rescue ex
     error_message = ex.message
+    env.response.status_code = 500
     next templated "error"
   end
 
@@ -696,6 +700,7 @@ get "/playlist" do |env|
     playlist = fetch_playlist(plid, locale)
   rescue ex
     error_message = ex.message
+    env.response.status_code = 500
     next templated "error"
   end
 
@@ -723,6 +728,7 @@ get "/mix" do |env|
     mix = fetch_mix(rdid, continuation, locale: locale)
   rescue ex
     error_message = ex.message
+    env.response.status_code = 500
     next templated "error"
   end
 
@@ -843,6 +849,7 @@ get "/search" do |env|
         duration: duration, features: features)
     rescue ex
       error_message = ex.message
+      env.response.status_code = 500
       next templated "error"
     end
 
@@ -864,6 +871,7 @@ get "/login" do |env|
 
   if !config.login_enabled
     error_message = "Login has been disabled by administrator."
+    env.response.status_code = 400
     next templated "error"
   end
 
@@ -892,6 +900,7 @@ post "/login" do |env|
 
   if !config.login_enabled
     error_message = "Login has been disabled by administrator."
+    env.response.status_code = 403
     next templated "error"
   end
 
@@ -965,11 +974,13 @@ post "/login" do |env|
 
       if challenge_results[0][3]?.try &.== 7
         error_message = translate(locale, "Account has temporarily been disabled")
+        env.response.status_code = 423
         next templated "error"
       end
 
       if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
         error_message = translate(locale, "Incorrect password")
+        env.response.status_code = 401
         next templated "error"
       end
 
@@ -998,6 +1009,7 @@ post "/login" do |env|
         if tfa[2] == "TWO_STEP_VERIFICATION"
           if tfa[5] == "QUOTA_EXCEEDED"
             error_message = translate(locale, "Quota exceeded, try again in a few hours")
+            env.response.status_code = 423
             next templated "error"
           end
 
@@ -1031,6 +1043,7 @@ post "/login" do |env|
             }.to_json
           else
             error_message = translate(locale, "Unable to log in, make sure two-factor authentication (Authenticator or SMS) is turned on.")
+            env.response.status_code = 500
             next templated "error"
           end
 
@@ -1043,6 +1056,7 @@ post "/login" do |env|
           if (challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED") ||
              (challenge_results[0][-1]?.try &.[5] == "INVALID_INPUT")
             error_message = translate(locale, "Invalid TFA code")
+            env.response.status_code = 401
             next templated "error"
           end
 
@@ -1117,16 +1131,19 @@ post "/login" do |env|
       traceback.rewind
       # error_message = translate(locale, "Login failed. This may be because two-factor authentication is not turned on for your account.")
       error_message = %(#{ex.message}<br/>Traceback:<br/><div style="padding-left:2em" id="traceback">#{traceback.gets_to_end}</div>)
+      env.response.status_code = 500
       next templated "error"
     end
   when "invidious"
     if !email
       error_message = translate(locale, "User ID is a required field")
+      env.response.status_code = 401
       next templated "error"
     end
 
     if !password
       error_message = translate(locale, "Password is a required field")
+      env.response.status_code = 401
       next templated "error"
     end
 
@@ -1135,6 +1152,7 @@ post "/login" do |env|
     if user
       if !user.password
         error_message = translate(locale, "Please sign in using 'Log in with Google'")
+        env.response.status_code = 400
         next templated "error"
       end
 
@@ -1157,6 +1175,7 @@ post "/login" do |env|
         end
       else
         error_message = translate(locale, "Wrong username or password")
+        env.response.status_code = 401
         next templated "error"
       end
 
@@ -1169,17 +1188,20 @@ post "/login" do |env|
     else
       if !config.registration_enabled
         error_message = "Registration has been disabled by administrator."
+        env.response.status_code = 400
         next templated "error"
       end
 
       if password.empty?
         error_message = translate(locale, "Password cannot be empty")
+        env.response.status_code = 401
         next templated "error"
       end
 
       # See https://security.stackexchange.com/a/39851
       if password.bytesize > 55
         error_message = translate(locale, "Password should not be longer than 55 characters")
+        env.response.status_code = 400
         next templated "error"
       end
 
@@ -1241,6 +1263,7 @@ post "/login" do |env|
           end
 
           if !found_valid_captcha
+            env.response.status_code = 500
             next templated "error"
           end
         end
@@ -2050,6 +2073,7 @@ post "/change_password" do |env|
     # We don't store passwords for Google accounts
     if !user.password
       error_message = "Cannot change password for Google accounts"
+      env.response.status_code = 400
       next templated "error"
     end
 
@@ -2064,6 +2088,7 @@ post "/change_password" do |env|
     password = env.params.body["password"]?
     if !password
       error_message = translate(locale, "Password is a required field")
+      env.response.status_code = 401
       next templated "error"
     end
 
@@ -2071,22 +2096,26 @@ post "/change_password" do |env|
 
     if new_passwords.size <= 1 || new_passwords.uniq.size != 1
       error_message = translate(locale, "New passwords must match")
+      env.response.status_code = 400
       next templated "error"
     end
 
     new_password = new_passwords.uniq[0]
     if new_password.empty?
       error_message = translate(locale, "Password cannot be empty")
+      env.response.status_code = 401
       next templated "error"
     end
 
-    if new_password.size > 55
-      error_message = translate(locale, "Password cannot be longer than 55 characters")
+    if new_password.bytesize > 55
+      error_message = translate(locale, "Password should not be longer than 55 characters")
+      env.response.status_code = 400
       next templated "error"
     end
 
-    if !Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password)
+    if !Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
       error_message = translate(locale, "Incorrect password")
+      env.response.status_code = 401
       next templated "error"
     end
 
@@ -2317,6 +2346,7 @@ post "/token_ajax" do |env|
   rescue ex
     if redirect
       error_message = ex.message
+      env.response.status_code = 400
       next templated "error"
     else
       error_message = {"error" => ex.message}.to_json
@@ -2378,6 +2408,7 @@ get "/feed/trending" do |env|
     trending, plid = fetch_trending(trending_type, proxies, region, locale)
   rescue ex
     error_message = "#{ex.message}"
+    env.response.status_code = 500
     next templated "error"
   end
 
@@ -2854,6 +2885,7 @@ get "/channel/:ucid" do |env|
     author, ucid, auto_generated, sub_count = get_about_info(ucid, locale)
   rescue ex
     error_message = ex.message
+    env.response.status_code = 500
     next templated "error"
   end
 
@@ -2923,6 +2955,7 @@ get "/channel/:ucid/playlists" do |env|
     author, ucid, auto_generated, sub_count = get_about_info(ucid, locale)
   rescue ex
     error_message = ex.message
+    env.response.status_code = 500
     next templated "error"
   end
 
@@ -3869,7 +3902,7 @@ get "/api/v1/playlists/:plid" do |env|
     playlist = fetch_playlist(plid, locale)
   rescue ex
     error_message = {"error" => "Playlist is empty"}.to_json
-    env.response.status_code = 500
+    env.response.status_code = 410
     next error_message
   end
 
