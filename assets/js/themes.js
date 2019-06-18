@@ -11,19 +11,22 @@ toggle_theme.addEventListener('click', function () {
     xhr.open('GET', url, true);
 
     set_mode(dark_mode);
-    localStorage.setItem('dark_mode', dark_mode);
+    localStorage.setItem('dark_mode', dark_mode ? 'dark' : 'light');
 
     xhr.send();
 });
 
 window.addEventListener('storage', function (e) {
     if (e.key == 'dark_mode') {
-        var dark_mode = e.newValue === 'true';
-        set_mode(dark_mode);
+        update_mode(e.newValue);
     }
 });
 
-function set_mode(bool) {
+window.addEventListener('load', function () {
+    update_mode(window.localStorage.dark_mode);
+});
+
+function set_mode (bool) {
     document.getElementById('dark_theme').media = !bool ? 'none' : '';
     document.getElementById('light_theme').media = bool ? 'none' : '';
 
@@ -33,3 +36,14 @@ function set_mode(bool) {
         toggle_theme.children[0].setAttribute('class', 'icon ion-ios-moon');
     }
 }
+
+function update_mode (mode) {
+    set_mode(
+           mode == 'true' // for backwards compatibility
+        || mode == 'dark'
+        || (mode != 'light'
+            && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    );
+}
+
+
