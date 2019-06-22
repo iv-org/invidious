@@ -114,7 +114,8 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
   comments = JSON.build do |json|
     json.object do
       if body["header"]?
-        comment_count = body["header"]["commentsHeaderRenderer"]["countText"]["simpleText"].as_s.delete("Comments,").to_i
+        comment_count = body["header"]["commentsHeaderRenderer"]["countText"]["runs"][0]?
+          .try &.["text"].as_s.gsub(/\D/, "").to_i? || 0
         json.field "commentCount", comment_count
       end
 
@@ -140,9 +141,7 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
 
               content_html = node_comment["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff').try { |block| HTML.escape(block) }.to_s ||
                              content_to_comment_html(node_comment["contentText"]["runs"].as_a).try &.to_s || ""
-
-              author = node_comment["authorText"]?.try &.["simpleText"]
-              author ||= ""
+              author = node_comment["authorText"]?.try &.["simpleText"]? || ""
 
               json.field "author", author
               json.field "authorThumbnails" do
@@ -193,13 +192,7 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
               end
 
               if node_replies && !response["commentRepliesContinuation"]?
-                reply_count = node_replies["moreText"]["simpleText"].as_s.delete("View all reply replies,")
-                if reply_count.empty?
-                  reply_count = 1
-                else
-                  reply_count = reply_count.try &.to_i?
-                  reply_count ||= 1
-                end
+                reply_count = node_replies["moreText"]["runs"][0]?.try &.["text"].as_s.gsub(/\D/, "").to_i? || 1
 
                 continuation = node_replies["continuations"]?.try &.as_a[0]["nextContinuationData"]["continuation"].as_s
                 continuation ||= ""
