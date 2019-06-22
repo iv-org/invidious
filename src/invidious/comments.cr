@@ -114,8 +114,10 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
   comments = JSON.build do |json|
     json.object do
       if body["header"]?
-        comment_count = body["header"]["commentsHeaderRenderer"]["countText"]["runs"][0]?
-          .try &.["text"].as_s.gsub(/\D/, "").to_i? || 0
+        count_text = body["header"]["commentsHeaderRenderer"]["countText"]
+        comment_count = (count_text["simpleText"]? || count_text["runs"]?.try &.[0]?.try &.["text"]?)
+          .try &.as_s.gsub(/\D/, "").to_i? || 0
+
         json.field "commentCount", comment_count
       end
 
@@ -192,7 +194,8 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
               end
 
               if node_replies && !response["commentRepliesContinuation"]?
-                reply_count = node_replies["moreText"]["runs"][0]?.try &.["text"].as_s.gsub(/\D/, "").to_i? || 1
+                reply_count = (node_replies["moreText"]["simpleText"]? || node_replies["moreText"]["runs"]?.try &.[0]?.try &.["text"]?)
+                  .try &.as_s.gsub(/\D/, "").to_i? || 1
 
                 continuation = node_replies["continuations"]?.try &.as_a[0]["nextContinuationData"]["continuation"].as_s
                 continuation ||= ""
