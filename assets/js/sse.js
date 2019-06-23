@@ -94,7 +94,7 @@ var SSE = function (url, options) {
   }
 
   this._onStreamProgress = function(e) {
-    if (this.xhr.status !== 200) {
+    if (this.xhr.status !== 200 && this.readyState !== this.CLOSED) {
       this._onStreamFailure(e);
       return;
     }
