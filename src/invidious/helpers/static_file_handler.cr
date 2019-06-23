@@ -147,7 +147,6 @@ module Kemal
           return
         end
 
-        puts "Sending cached file, #{@cached_files.sum { |element| element[1][:data].bytesize }}"
         send_file(context, file_path, file[:data], file[:filestat])
       else
         is_dir = Dir.exists? file_path
