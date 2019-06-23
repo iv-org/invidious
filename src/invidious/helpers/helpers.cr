@@ -24,6 +24,27 @@ end
 
 struct ConfigPreferences
   module StringToArray
+    def self.to_json(value : Array(String), json : JSON::Builder)
+      json.array do
+        value.each do |element|
+          json.string element
+        end
+      end
+    end
+
+    def self.from_json(value : JSON::PullParser) : Array(String)
+      begin
+        result = [] of String
+        value.read_array do
+          result << HTML.escape(value.read_string[0, 100])
+        end
+      rescue ex
+        result = [HTML.escape(value.read_string[0, 100]), ""]
+      end
+
+      result
+    end
+
     def self.to_yaml(value : Array(String), yaml : YAML::Nodes::Builder)
       yaml.sequence do
         value.each do |element|
@@ -44,17 +65,64 @@ struct ConfigPreferences
             node.raise "Expected scalar, not #{item.class}"
           end
 
-          result << item.value
+          result << HTML.escape(item.value[0, 100])
         end
       rescue ex
         if node.is_a?(YAML::Nodes::Scalar)
-          result = [node.value, ""]
+          result = [HTML.escape(node.value[0, 100]), ""]
         else
           result = ["", ""]
         end
       end
 
       result
+    end
+  end
+
+  module BoolToString
+    def self.to_json(value : String, json : JSON::Builder)
+      json.string value
+    end
+
+    def self.from_json(value : JSON::PullParser) : String
+      begin
+        result = value.read_string
+
+        if result.empty?
+          CONFIG.default_user_preferences.dark_mode
+        else
+          result
+        end
+      rescue ex
+        result = value.read_bool
+
+        if result
+          "dark"
+        else
+          "light"
+        end
+      end
+    end
+
+    def self.to_yaml(value : String, yaml : YAML::Nodes::Builder)
+      yaml.scalar value
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : String
+      unless node.is_a?(YAML::Nodes::Scalar)
+        node.raise "Expected sequence, not #{node.class}"
+      end
+
+      case node.value
+      when "true"
+        "dark"
+      when "false"
+        "light"
+      when ""
+        CONFIG.default_user_preferences.dark_mode
+      else
+        node.value
+      end
     end
   end
 
@@ -66,7 +134,7 @@ struct ConfigPreferences
     comments:               {type: Array(String), default: ["youtube", ""], converter: StringToArray},
     continue:               {type: Bool, default: false},
     continue_autoplay:      {type: Bool, default: true},
-    dark_mode:              {type: Bool, default: false},
+    dark_mode:              {type: String, default: "light", converter: BoolToString},
     latest_only:            {type: Bool, default: false},
     listen:                 {type: Bool, default: false},
     local:                  {type: Bool, default: false},

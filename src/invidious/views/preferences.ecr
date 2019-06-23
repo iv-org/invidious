@@ -122,8 +122,12 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="dark_mode"><%= translate(locale, "Dark mode: ") %></label>
-                <input name="dark_mode" id="dark_mode" type="checkbox" <% if preferences.dark_mode %>checked<% end %>>
+                <label for="dark_mode"><%= translate(locale, "Theme: ") %></label>
+                <select name="dark_mode" id="dark_mode">
+                    <% {"", "light", "dark"}.each do |option| %>
+                        <option value="<%= option %>" <% if preferences.dark_mode == option %> selected <% end %>><%= translate(locale, option) %></option>
+                    <% end %>
+                </select>
             </div>
 
             <div class="pure-control-group">

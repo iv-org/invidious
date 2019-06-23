@@ -4,7 +4,7 @@ def Object.from_json(string_or_io, default) : self
   new parser, default
 end
 
-# Adds configurable 'default' to
+# Adds configurable 'default'
 macro patched_json_mapping(_properties_, strict = false)
   {% for key, value in _properties_ %}
     {% _properties_[key] = {type: value} unless value.is_a?(HashLiteral) || value.is_a?(NamedTupleLiteral) %}
