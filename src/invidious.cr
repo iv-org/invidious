@@ -40,19 +40,24 @@ PG_URL = URI.new(
   path: CONFIG.db.dbname,
 )
 
-PG_DB              = DB.open PG_URL
-ARCHIVE_URL        = URI.parse("https://archive.org")
-LOGIN_URL          = URI.parse("https://accounts.google.com")
-PUBSUB_URL         = URI.parse("https://pubsubhubbub.appspot.com")
-REDDIT_URL         = URI.parse("https://www.reddit.com")
-TEXTCAPTCHA_URL    = URI.parse("http://textcaptcha.com")
-YT_URL             = URI.parse("https://www.youtube.com")
+PG_DB           = DB.open PG_URL
+ARCHIVE_URL     = URI.parse("https://archive.org")
+LOGIN_URL       = URI.parse("https://accounts.google.com")
+PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
+REDDIT_URL      = URI.parse("https://www.reddit.com")
+TEXTCAPTCHA_URL = URI.parse("http://textcaptcha.com")
+YT_URL          = URI.parse("https://www.youtube.com")
+
 CHARS_SAFE         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
-CURRENT_BRANCH     = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
-CURRENT_COMMIT     = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
-CURRENT_VERSION    = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
 MAX_ITEMS_PER_PAGE = 1500
+
+REQUEST_HEADERS_WHITELIST  = {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "Content-Length", "If-None-Match", "Range"}
+RESPONSE_HEADERS_BLACKLIST = {"Access-Control-Allow-Origin", "Alt-Svc", "Server"}
+
+CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
+CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
+CURRENT_VERSION = {{ "#{`git describe --tags --abbrev=0`.strip}" }}
 
 # This is used to determine the `?v=` on the end of file URLs (for cache busting). We
 # only need to expire modified assets, so we can use this to find the last commit that changes
@@ -4600,7 +4605,7 @@ get "/videoplayback" do |env|
   url = "/videoplayback?#{query_params.to_s}"
 
   headers = HTTP::Headers.new
-  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
+  REQUEST_HEADERS_WHITELIST.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end
@@ -4649,7 +4654,7 @@ get "/videoplayback" do |env|
       env.response.status_code = response.status_code
 
       response.headers.each do |key, value|
-        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
+        if !RESPONSE_HEADERS_BLACKLIST.includes? key
           env.response.headers[key] = value
         end
       end
@@ -4691,7 +4696,7 @@ get "/ggpht/*" do |env|
   url = env.request.path.lchop("/ggpht")
 
   headers = HTTP::Headers.new
-  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
+  REQUEST_HEADERS_WHITELIST.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end
@@ -4700,7 +4705,7 @@ get "/ggpht/*" do |env|
   begin
     client.get(url, headers) do |response|
       response.headers.each do |key, value|
-        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
+        if !RESPONSE_HEADERS_BLACKLIST.includes? key
           env.response.headers[key] = value
         end
       end
@@ -4739,7 +4744,7 @@ get "/sb/:id/:storyboard/:index" do |env|
   url = "/sb/#{id}/#{storyboard}/#{index}?#{env.params.query}"
 
   headers = HTTP::Headers.new
-  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
+  REQUEST_HEADERS_WHITELIST.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end
@@ -4749,7 +4754,7 @@ get "/sb/:id/:storyboard/:index" do |env|
     client.get(url, headers) do |response|
       env.response.status_code = response.status_code
       response.headers.each do |key, value|
-        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
+        if !RESPONSE_HEADERS_BLACKLIST.includes? key
           env.response.headers[key] = value
         end
       end
@@ -4784,7 +4789,7 @@ get "/vi/:id/:name" do |env|
   url = "/vi/#{id}/#{name}"
 
   headers = HTTP::Headers.new
-  {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "If-None-Match", "Range"}.each do |header|
+  REQUEST_HEADERS_WHITELIST.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
     end
@@ -4794,7 +4799,7 @@ get "/vi/:id/:name" do |env|
     client.get(url, headers) do |response|
       env.response.status_code = response.status_code
       response.headers.each do |key, value|
-        if !{"Access-Control-Allow-Origin", "Alt-Svc", "Server"}.includes? key
+        if !RESPONSE_HEADERS_BLACKLIST.includes? key
           env.response.headers[key] = value
         end
       end
