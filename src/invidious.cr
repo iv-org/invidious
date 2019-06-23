@@ -3466,9 +3466,9 @@ get "/api/v1/trending" do |env|
     json.array do
       trending.each do |video|
         video.to_json(locale, config, Kemal.config, json)
-          end
-        end
       end
+    end
+  end
 
   videos
 end
@@ -3740,11 +3740,11 @@ end
       json.array do
         videos.each do |video|
           video.to_json(locale, config, Kemal.config, json)
-            end
-            end
-          end
         end
       end
+    end
+  end
+end
 
 {"/api/v1/channels/:ucid/latest", "/api/v1/channels/latest/:ucid"}.each do |route|
   get route do |env|
@@ -3766,11 +3766,11 @@ end
       json.array do
         videos.each do |video|
           video.to_json(locale, config, Kemal.config, json)
-            end
-          end
         end
       end
     end
+  end
+end
 
 {"/api/v1/channels/:ucid/playlists", "/api/v1/channels/playlists/:ucid"}.each do |route|
   get route do |env|
@@ -3951,11 +3951,11 @@ get "/api/v1/playlists/:plid" do |env|
         json.array do
           videos.each do |video|
             video.to_json(locale, config, Kemal.config, json)
-            end
           end
         end
       end
     end
+  end
 
   if format == "html"
     response = JSON.parse(response)
