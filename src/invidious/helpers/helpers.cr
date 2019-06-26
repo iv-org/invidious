@@ -656,7 +656,7 @@ def proxy_file(response, env)
 end
 
 # https://stackoverflow.com/a/44802810 <3
-def copy_in_chunks(input, output, chunk_size = 4096)
+def copy_in_chunks(input, output, chunk_size = 8192)
   size = 1
   while size > 0
     size = IO.copy(input, output, chunk_size)
