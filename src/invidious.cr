@@ -4651,11 +4651,10 @@ get "/videoplayback" do |env|
 
   begin
     range_begin, range_end = parse_range(env.request.headers["Range"]?)
-
-    client = make_client(URI.parse(host), proxies, region)
     (range_begin...range_end).each_slice(HTTP_CHUNK_SIZE) do |slice|
       headers["Range"] = "bytes=#{slice[0]}-#{slice[-1]}"
       begin
+        client = make_client(URI.parse(host), proxies, region)
         client.get(url, headers) do |response|
           content_range = response.headers["Content-Range"].lchop("bytes ")
           content_size = content_range.split("/")[-1].to_i
