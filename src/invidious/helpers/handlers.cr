@@ -224,28 +224,4 @@ class HTTP::Client
 
     response
   end
-
-  # See https://github.com/crystal-lang/crystal/issues/7843
-  private def socket
-    socket = @socket
-    return socket if socket
-
-    hostname = @host.starts_with?('[') && @host.ends_with?(']') ? @host[1..-2] : @host
-    socket = TCPSocket.new hostname, @port, @dns_timeout, @connect_timeout
-    socket.read_timeout = @read_timeout if @read_timeout
-    socket.sync = false
-
-    {% if !flag?(:without_openssl) %}
-      if tls = @tls
-        _socket = socket
-      	begin
-      	  socket = OpenSSL::SSL::Socket::Client.new(socket, context: tls, sync_close: true, hostname: @host)
-      	rescue
-      	  _socket.close
-      	end
-      end
-    {% end %}
-
-    @socket = socket
-  end
 end
