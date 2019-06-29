@@ -664,7 +664,7 @@ def copy_in_chunks(input, output, chunk_size = 8192)
   end
 end
 
-def create_notification_stream(env, proxies, config, kemal_config, decrypt_function, topics, connection_channel)
+def create_notification_stream(env, config, kemal_config, decrypt_function, topics, connection_channel)
   connection = Channel(PQ::Notification).new(8)
   connection_channel.send({true, connection})
 
@@ -682,7 +682,7 @@ def create_notification_stream(env, proxies, config, kemal_config, decrypt_funct
           published = Time.utc - Time::Span.new(time_span[0], time_span[1], time_span[2], time_span[3])
           video_id = TEST_IDS[rand(TEST_IDS.size)]
 
-          video = get_video(video_id, PG_DB, proxies)
+          video = get_video(video_id, PG_DB)
           video.published = published
           response = JSON.parse(video.to_json(locale, config, kemal_config, decrypt_function))
 
@@ -758,7 +758,7 @@ def create_notification_stream(env, proxies, config, kemal_config, decrypt_funct
           next
         end
 
-        video = get_video(video_id, PG_DB, proxies)
+        video = get_video(video_id, PG_DB)
         video.published = Time.unix(published)
         response = JSON.parse(video.to_json(locale, config, Kemal.config, decrypt_function))
 

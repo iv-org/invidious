@@ -869,7 +869,7 @@ end
 class VideoRedirect < Exception
 end
 
-def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32}), refresh = true, region = nil, force_refresh = false)
+def get_video(id, db, refresh = true, region = nil, force_refresh = false)
   if (video = db.query_one?("SELECT * FROM videos WHERE id = $1", id, as: Video)) && !region
     # If record was last updated over 10 minutes ago, or video has since premiered,
     # refresh (expire param in response lasts for 6 hours)
@@ -878,7 +878,7 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
        (video.premiere_timestamp && video.premiere_timestamp.as(Time) < Time.utc)) ||
        force_refresh
       begin
-        video = fetch_video(id, proxies, region)
+        video = fetch_video(id, region)
         video_array = video.to_a
 
         args = arg_array(video_array[1..-1], 2)
@@ -893,7 +893,7 @@ def get_video(id, db, proxies = {} of String => Array({ip: String, port: Int32})
       end
     end
   else
-    video = fetch_video(id, proxies, region)
+    video = fetch_video(id, region)
     video_array = video.to_a
 
     args = arg_array(video_array)
@@ -1097,8 +1097,8 @@ def extract_player_config(body, html)
   return params
 end
 
-def fetch_video(id, proxies, region)
-  client = make_client(YT_URL, proxies, region)
+def fetch_video(id, region)
+  client = make_client(YT_URL, region)
   response = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
 
   if md = response.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
@@ -1113,9 +1113,9 @@ def fetch_video(id, proxies, region)
   if info["reason"]? && info["reason"].includes? "your country"
     bypass_channel = Channel({XML::Node, HTTP::Params} | Nil).new
 
-    proxies.each do |proxy_region, list|
+    PROXY_LIST.each do |proxy_region, list|
       spawn do
-        client = make_client(YT_URL, proxies, proxy_region)
+        client = make_client(YT_URL, proxy_region)
         proxy_response = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
 
         proxy_html = XML.parse_html(proxy_response.body)
@@ -1131,7 +1131,7 @@ def fetch_video(id, proxies, region)
       end
     end
 
-    proxies.size.times do
+    PROXY_LIST.size.times do
       response = bypass_channel.receive
       if response
         html, info = response

@@ -56,8 +56,8 @@ class RedditListing
   })
 end
 
-def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_mode, region, sort_by = "top")
-  video = get_video(id, db, proxies, region: region)
+def fetch_youtube_comments(id, db, continuation, format, locale, thin_mode, region, sort_by = "top")
+  video = get_video(id, db, region: region)
   session_token = video.info["session_token"]?
 
   ctoken = produce_comment_continuation(id, cursor: "", sort_by: sort_by)
@@ -75,7 +75,7 @@ def fetch_youtube_comments(id, db, continuation, proxies, format, locale, thin_m
     session_token: session_token,
   }
 
-  client = make_client(YT_URL, proxies, video.info["region"]?)
+  client = make_client(YT_URL, video.info["region"]?)
   headers = HTTP::Headers.new
 
   headers["content-type"] = "application/x-www-form-urlencoded"

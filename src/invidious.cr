@@ -210,8 +210,6 @@ spawn do
   end
 end
 
-proxies = PROXY_LIST
-
 before_all do |env|
   host_url = make_host_url(config, Kemal.config)
   env.response.headers["X-XSS-Protection"] = "1; mode=block"
@@ -383,7 +381,7 @@ get "/watch" do |env|
   env.params.query.delete_all("listen")
 
   begin
-    video = get_video(id, PG_DB, proxies, region: params.region)
+    video = get_video(id, PG_DB, region: params.region)
   rescue ex : VideoRedirect
     next env.redirect "/watch?v=#{ex.message}"
   rescue ex
@@ -419,7 +417,7 @@ get "/watch" do |env|
 
       if source == "youtube"
         begin
-          comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, preferences.thin_mode, region))["contentHtml"]
+          comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
         rescue ex
           if preferences.comments[1] == "reddit"
             comments, reddit_thread = fetch_reddit_comments(id)
@@ -438,12 +436,12 @@ get "/watch" do |env|
           comment_html = replace_links(comment_html)
         rescue ex
           if preferences.comments[1] == "youtube"
-            comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, preferences.thin_mode, region))["contentHtml"]
+            comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
           end
         end
       end
     else
-      comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, proxies, "html", locale, preferences.thin_mode, region))["contentHtml"]
+      comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
     end
 
     comment_html ||= ""
@@ -606,7 +604,7 @@ get "/embed/:id" do |env|
   subscriptions ||= [] of String
 
   begin
-    video = get_video(id, PG_DB, proxies, region: params.region)
+    video = get_video(id, PG_DB, region: params.region)
   rescue ex : VideoRedirect
     next env.redirect "/embed/#{ex.message}"
   rescue ex
@@ -859,7 +857,7 @@ get "/search" do |env|
       next templated "error"
     end
 
-    count, videos = search(search_query, page, search_params, proxies, region).as(Tuple)
+    count, videos = search(search_query, page, search_params, region).as(Tuple)
   end
 
   templated "search"
@@ -2411,7 +2409,7 @@ get "/feed/trending" do |env|
   region ||= "US"
 
   begin
-    trending, plid = fetch_trending(trending_type, proxies, region, locale)
+    trending, plid = fetch_trending(trending_type, region, locale)
   rescue ex
     error_message = "#{ex.message}"
     env.response.status_code = 500
@@ -2725,7 +2723,7 @@ post "/feed/webhook/:token" do |env|
       published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
       updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
 
-      video = get_video(id, PG_DB, proxies, force_refresh: true)
+      video = get_video(id, PG_DB, force_refresh: true)
 
       # Deliver notifications to `/api/v1/auth/notifications`
       payload = {
@@ -3007,7 +3005,7 @@ get "/api/v1/storyboards/:id" do |env|
 
   client = make_client(YT_URL)
   begin
-    video = get_video(id, PG_DB, proxies, region: region)
+    video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/storyboards/#{ex.message}"
   rescue ex
@@ -3092,7 +3090,7 @@ get "/api/v1/captions/:id" do |env|
 
   client = make_client(YT_URL)
   begin
-    video = get_video(id, PG_DB, proxies, region: region)
+    video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/captions/#{ex.message}"
   rescue ex
@@ -3223,7 +3221,7 @@ get "/api/v1/comments/:id" do |env|
     sort_by ||= "top"
 
     begin
-      comments = fetch_youtube_comments(id, PG_DB, continuation, proxies, format, locale, thin_mode, region, sort_by: sort_by)
+      comments = fetch_youtube_comments(id, PG_DB, continuation, format, locale, thin_mode, region, sort_by: sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -3433,7 +3431,7 @@ get "/api/v1/videos/:id" do |env|
   region = env.params.query["region"]?
 
   begin
-    video = get_video(id, PG_DB, proxies, region: region)
+    video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
     next env.redirect "/api/v1/videos/#{ex.message}"
   rescue ex
@@ -3454,7 +3452,7 @@ get "/api/v1/trending" do |env|
   trending_type = env.params.query["type"]?
 
   begin
-    trending, plid = fetch_trending(trending_type, proxies, region, locale)
+    trending, plid = fetch_trending(trending_type, region, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
     env.response.status_code = 500
@@ -3817,7 +3815,7 @@ get "/api/v1/search" do |env|
     end
   end
 
-  count, search_results = search(query, page, search_params, proxies, region).as(Tuple)
+  count, search_results = search(query, page, search_params, region).as(Tuple)
   JSON.build do |json|
     json.array do
       search_results.each do |item|
@@ -3996,7 +3994,7 @@ get "/api/v1/auth/notifications" do |env|
   topics = env.params.query["topics"]?.try &.split(",").uniq.first(1000)
   topics ||= [] of String
 
-  create_notification_stream(env, proxies, config, Kemal.config, decrypt_function, topics, connection_channel)
+  create_notification_stream(env, config, Kemal.config, decrypt_function, topics, connection_channel)
 end
 
 post "/api/v1/auth/notifications" do |env|
@@ -4005,7 +4003,7 @@ post "/api/v1/auth/notifications" do |env|
   topics = env.params.body["topics"]?.try &.split(",").uniq.first(1000)
   topics ||= [] of String
 
-  create_notification_stream(env, proxies, config, Kemal.config, decrypt_function, topics, connection_channel)
+  create_notification_stream(env, config, Kemal.config, decrypt_function, topics, connection_channel)
 end
 
 get "/api/v1/auth/preferences" do |env|
@@ -4250,7 +4248,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   client = make_client(YT_URL)
   begin
-    video = get_video(id, PG_DB, proxies, region: region)
+    video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
     url = "/api/manifest/dash/id/#{ex.message}"
     if env.params.query
@@ -4440,7 +4438,7 @@ get "/latest_version" do |env|
     next
   end
 
-  video = get_video(id, PG_DB, proxies, region: region)
+  video = get_video(id, PG_DB, region: region)
 
   fmt_stream = video.fmt_stream(decrypt_function)
   adaptive_fmts = video.adaptive_fmts(decrypt_function)
@@ -4556,7 +4554,7 @@ get "/videoplayback" do |env|
   response = HTTP::Client::Response.new(403)
   5.times do
     begin
-      client = make_client(URI.parse(host), proxies, region)
+      client = make_client(URI.parse(host), region)
       response = client.head(url, headers)
       break
     rescue Socket::Addrinfo::Error
@@ -4595,7 +4593,7 @@ get "/videoplayback" do |env|
     (range_begin...range_end).each_slice(HTTP_CHUNK_SIZE) do |slice|
       headers["Range"] = "bytes=#{slice[0]}-#{slice[-1]}"
       begin
-        client = make_client(URI.parse(host), proxies, region)
+        client = make_client(URI.parse(host), region)
         client.get(url, headers) do |response|
           content_range = response.headers["Content-Range"].lchop("bytes ")
           content_size = content_range.split("/")[-1].to_i
