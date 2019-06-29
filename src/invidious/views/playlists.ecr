@@ -2,9 +2,20 @@
 <title><%= channel.author %> - Invidious</title>
 <% end %>
 
+<div class="h-box">
+    <img style="width:100%" src="/ggpht<%= URI.parse(channel.banner.gsub("=w1060", "=w1280")).full_path %>">
+</div>
+
+<div class="h-box">
+    <hr>
+</div>
+
 <div class="pure-g h-box">
     <div class="pure-u-2-3">
-        <h3><%= channel.author %></h3>
+        <div class="channel-profile">
+            <img src="/ggpht<%= URI.parse(channel.author_thumbnail.gsub("s48", "s64")).full_path %>">
+            <span><%= channel.author %></span>
+        </div>
     </div>
     <div class="pure-u-1-3" style="text-align:right">
         <h3>
