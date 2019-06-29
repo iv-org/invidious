@@ -97,6 +97,35 @@ struct ChannelVideo
   })
 end
 
+struct AboutRelatedChannel
+  db_mapping({
+    ucid:             String,
+    author:           String,
+    author_url:       String,
+    author_thumbnail: String,
+  })
+end
+
+# TODO: Refactor into either SearchChannel or InvidiousChannel
+struct AboutChannel
+  db_mapping({
+    ucid:               String,
+    author:             String,
+    auto_generated:     Bool,
+    author_url:         String,
+    author_thumbnail:   String,
+    banner:             String,
+    description_html:   String,
+    paid:               Bool,
+    total_views:        Int64,
+    sub_count:          Int64,
+    joined:             Time,
+    is_family_friendly: Bool,
+    allowed_regions:    Array(String),
+    related_channels:   Array(AboutRelatedChannel),
+  })
+end
+
 def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, max_threads = 10)
   finished_channel = Channel(String | Nil).new
 
@@ -617,7 +646,58 @@ def get_about_info(ucid, locale)
   sub_count ||= 0
 
   author = about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).not_nil!.content
+  author_url = about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).not_nil!["href"]
+  author_thumbnail = about.xpath_node(%q(//img[@class="channel-header-profile-image"])).not_nil!["src"]
+
   ucid = about.xpath_node(%q(//meta[@itemprop="channelId"])).not_nil!["content"]
+
+  banner = about.xpath_node(%q(//div[@id="gh-banner"]/style)).not_nil!.content
+  banner = "https:" + banner.match(/background-image: url\((?<url>[^)]+)\)/).not_nil!["url"]
+
+  description_html = about.xpath_node(%q(//div[contains(@class,"about-description")])).try &.to_s || ""
+
+  paid = about.xpath_node(%q(//meta[@itemprop="paid"])).not_nil!["content"] == "True"
+  is_family_friendly = about.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
+  allowed_regions = about.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
+
+  related_channels = about.xpath_nodes(%q(//div[contains(@class, "branded-page-related-channels")]/ul/li))
+  related_channels = related_channels.map do |node|
+    related_id = node["data-external-id"]?
+    related_id ||= ""
+
+    anchor = node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
+    related_title = anchor.try &.["title"]
+    related_title ||= ""
+
+    related_author_url = anchor.try &.["href"]
+    related_author_url ||= ""
+
+    related_author_thumbnail = node.xpath_node(%q(.//img)).try &.["data-thumb"]
+    related_author_thumbnail ||= ""
+
+    AboutRelatedChannel.new(
+      ucid: related_id,
+      author: related_title,
+      author_url: related_author_url,
+      author_thumbnail: related_author_thumbnail,
+    )
+  end
+
+  total_views = 0_i64
+  sub_count = 0_i64
+
+  joined = Time.unix(0)
+  metadata = about.xpath_nodes(%q(//span[@class="about-stat"]))
+  metadata.each do |item|
+    case item.content
+    when .includes? "views"
+      total_views = item.content.gsub(/\D/, "").to_i64
+    when .includes? "subscribers"
+      sub_count = item.content.delete("subscribers").gsub(/\D/, "").to_i64
+    when .includes? "Joined"
+      joined = Time.parse(item.content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
+    end
+  end
 
   # Auto-generated channels
   # https://support.google.com/youtube/answer/2579942
@@ -627,7 +707,22 @@ def get_about_info(ucid, locale)
     auto_generated = true
   end
 
-  return {author, ucid, auto_generated, sub_count}
+  return AboutChannel.new(
+    ucid: ucid,
+    author: author,
+    auto_generated: auto_generated,
+    author_url: author_url,
+    author_thumbnail: author_thumbnail,
+    banner: banner,
+    description_html: description_html,
+    paid: paid,
+    total_views: total_views,
+    sub_count: sub_count,
+    joined: joined,
+    is_family_friendly: is_family_friendly,
+    allowed_regions: allowed_regions,
+    related_channels: related_channels
+  )
 end
 
 def get_60_videos(ucid, page, auto_generated, sort_by = "newest")

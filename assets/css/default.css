@@ -2,6 +2,17 @@
   background-color: rgb(255, 0, 0, 0.5);
 }
 
+.channel-profile > * {
+  font-size: 1.17em;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+.channel-profile > img {
+  width: 64px;
+  height: 64px;
+}
+
 .channel-owner {
   background-color: #008bec;
   color: #fff;

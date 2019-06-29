@@ -83,9 +83,9 @@ var video_data = {
 <div class="pure-g">
     <div class="pure-u-1 pure-u-lg-1-5">
         <div class="h-box">
-            <p>
+            <span>
                 <a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch on YouTube") %></a>
-            </p>
+            </span>
             <p>
                 <% if params.annotations %>
                     <a href="/watch?<%= env.params.query %>&iv_load_policy=3">
@@ -165,11 +165,12 @@ var video_data = {
 
     <div class="pure-u-1 <% if params.related_videos || plid %>pure-u-lg-3-5<% else %>pure-u-md-4-5<% end %>">
         <div class="h-box">
-            <p>
-                <a href="/channel/<%= video.ucid %>">
-                    <h3><%= video.author %></h3>
-                </a>
-            </p>
+            <a href="/channel/<%= video.ucid %>">
+                <div class="channel-profile">
+                    <img src="/ggpht<%= URI.parse(video.author_thumbnail.gsub("s48", "s64")).full_path %>">
+                    <span><%= video.author %></span>
+                </div>
+            </a>
 
             <% ucid = video.ucid %>
             <% author = video.author %>

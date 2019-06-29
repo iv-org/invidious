@@ -2504,7 +2504,7 @@ get "/feed/channel/:ucid" do |env|
   ucid = env.params.url["ucid"]
 
   begin
-    author, ucid, auto_generated = get_about_info(ucid, locale)
+    channel = get_about_info(ucid, locale)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -2512,7 +2512,7 @@ get "/feed/channel/:ucid" do |env|
   end
 
   client = make_client(YT_URL)
-  rss = client.get("/feeds/videos.xml?channel_id=#{ucid}").body
+  rss = client.get("/feeds/videos.xml?channel_id=#{channel.ucid}").body
   rss = XML.parse_html(rss)
 
   videos = [] of SearchVideo
@@ -2552,18 +2552,18 @@ get "/feed/channel/:ucid" do |env|
       "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
       "xml:lang": "en-US") do
       xml.element("link", rel: "self", href: "#{host_url}#{env.request.resource}")
-      xml.element("id") { xml.text "yt:channel:#{ucid}" }
-      xml.element("yt:channelId") { xml.text ucid }
-      xml.element("title") { xml.text author }
-      xml.element("link", rel: "alternate", href: "#{host_url}/channel/#{ucid}")
+      xml.element("id") { xml.text "yt:channel:#{channel.ucid}" }
+      xml.element("yt:channelId") { xml.text channel.ucid }
+      xml.element("title") { xml.text channel.author }
+      xml.element("link", rel: "alternate", href: "#{host_url}/channel/#{channel.ucid}")
 
       xml.element("author") do
-        xml.element("name") { xml.text author }
-        xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
+        xml.element("name") { xml.text channel.author }
+        xml.element("uri") { xml.text "#{host_url}/channel/#{channel.ucid}" }
       end
 
       videos.each do |video|
-        video.to_xml(host_url, auto_generated, xml)
+        video.to_xml(host_url, channel.auto_generated, xml)
       end
     end
   end
@@ -2888,22 +2888,18 @@ get "/channel/:ucid" do |env|
   sort_by = env.params.query["sort_by"]?.try &.downcase
 
   begin
-    author, ucid, auto_generated, sub_count = get_about_info(ucid, locale)
+    channel = get_about_info(ucid, locale)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
     next templated "error"
   end
 
-  if !auto_generated
-    env.set "search", "channel:#{ucid} "
-  end
-
-  if auto_generated
+  if channel.auto_generated
     sort_options = {"last", "oldest", "newest"}
     sort_by ||= "last"
 
-    items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
+    items, continuation = fetch_channel_playlists(channel.ucid, channel.author, channel.auto_generated, continuation, sort_by)
     items.uniq! do |item|
       if item.responds_to?(:title)
         item.title
@@ -2918,8 +2914,10 @@ get "/channel/:ucid" do |env|
     sort_options = {"newest", "oldest", "popular"}
     sort_by ||= "newest"
 
-    items, count = get_60_videos(ucid, page, auto_generated, sort_by)
+    items, count = get_60_videos(channel.ucid, page, channel.auto_generated, sort_by)
     items.select! { |item| !item.paid }
+
+    env.set "search", "channel:#{channel.ucid} "
   end
 
   templated "channel"
@@ -2958,18 +2956,18 @@ get "/channel/:ucid/playlists" do |env|
   sort_by ||= "last"
 
   begin
-    author, ucid, auto_generated, sub_count = get_about_info(ucid, locale)
+    channel = get_about_info(ucid, locale)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
     next templated "error"
   end
 
-  if auto_generated
-    next env.redirect "/channel/#{ucid}"
+  if channel.auto_generated
+    next env.redirect "/channel/#{channel.ucid}"
   end
 
-  items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
+  items, continuation = fetch_channel_playlists(channel.ucid, channel.author, channel.auto_generated, continuation, sort_by)
   items.select! { |item| item.is_a?(SearchPlaylist) && !item.videos.empty? }
   items = items.map { |item| item.as(SearchPlaylist) }
   items.each { |item| item.author = "" }
@@ -3539,7 +3537,7 @@ get "/api/v1/channels/:ucid" do |env|
   sort_by ||= "newest"
 
   begin
-    author, ucid, auto_generated = get_about_info(ucid, locale)
+    channel = get_about_info(ucid, locale)
   rescue ex
     error_message = {"error" => ex.message}.to_json
     env.response.status_code = 500
@@ -3547,12 +3545,12 @@ get "/api/v1/channels/:ucid" do |env|
   end
 
   page = 1
-  if auto_generated
+  if channel.auto_generated
     videos = [] of SearchVideo
     count = 0
   else
     begin
-      videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
+      videos, count = get_60_videos(channel.ucid, page, channel.auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -3560,65 +3558,12 @@ get "/api/v1/channels/:ucid" do |env|
     end
   end
 
-  client = make_client(YT_URL)
-  channel_html = client.get("/channel/#{ucid}/about?disable_polymer=1").body
-  channel_html = XML.parse_html(channel_html)
-  banner = channel_html.xpath_node(%q(//div[@id="gh-banner"]/style)).not_nil!.content
-  banner = "https:" + banner.match(/background-image: url\((?<url>[^)]+)\)/).not_nil!["url"]
-
-  author = channel_html.xpath_node(%q(//a[contains(@class, "branded-page-header-title-link")])).not_nil!.content
-  author_url = channel_html.xpath_node(%q(//a[@class="channel-header-profile-image-container spf-link"])).not_nil!["href"]
-  author_thumbnail = channel_html.xpath_node(%q(//img[@class="channel-header-profile-image"])).not_nil!["src"]
-  description_html = channel_html.xpath_node(%q(//div[contains(@class,"about-description")])).try &.to_s || ""
-
-  paid = channel_html.xpath_node(%q(//meta[@itemprop="paid"])).not_nil!["content"] == "True"
-  is_family_friendly = channel_html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
-  allowed_regions = channel_html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
-
-  related_channels = channel_html.xpath_nodes(%q(//div[contains(@class, "branded-page-related-channels")]/ul/li))
-  related_channels = related_channels.map do |node|
-    related_id = node["data-external-id"]?
-    related_id ||= ""
-
-    anchor = node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
-    related_title = anchor.try &.["title"]
-    related_title ||= ""
-
-    related_author_url = anchor.try &.["href"]
-    related_author_url ||= ""
-
-    related_author_thumbnail = node.xpath_node(%q(.//img)).try &.["data-thumb"]
-    related_author_thumbnail ||= ""
-
-    {
-      id:               related_id,
-      author:           related_title,
-      author_url:       related_author_url,
-      author_thumbnail: related_author_thumbnail,
-    }
-  end
-
-  total_views = 0_i64
-  sub_count = 0_i64
-  joined = Time.unix(0)
-  metadata = channel_html.xpath_nodes(%q(//span[@class="about-stat"]))
-  metadata.each do |item|
-    case item.content
-    when .includes? "views"
-      total_views = item.content.gsub(/\D/, "").to_i64
-    when .includes? "subscribers"
-      sub_count = item.content.delete("subscribers").gsub(/\D/, "").to_i64
-    when .includes? "Joined"
-      joined = Time.parse(item.content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
-    end
-  end
-
-  channel_info = JSON.build do |json|
+  JSON.build do |json|
     # TODO: Refactor into `to_json` for InvidiousChannel
     json.object do
-      json.field "author", author
-      json.field "authorId", ucid
-      json.field "authorUrl", author_url
+      json.field "author", channel.author
+      json.field "authorId", channel.ucid
+      json.field "authorUrl", channel.author_url
 
       json.field "authorBanners" do
         json.array do
@@ -3629,14 +3574,14 @@ get "/api/v1/channels/:ucid" do |env|
           }
           qualities.each do |quality|
             json.object do
-              json.field "url", banner.gsub("=w1060", "=w#{quality[:width]}")
+              json.field "url", channel.banner.gsub("=w1060", "=w#{quality[:width]}")
               json.field "width", quality[:width]
               json.field "height", quality[:height]
             end
           end
 
           json.object do
-            json.field "url", banner.rchop("=w1060-fcrop64=1,00005a57ffffa5a8-nd-c0xffffffff-rj-k-no")
+            json.field "url", channel.banner.rchop("=w1060-fcrop64=1,00005a57ffffa5a8-nd-c0xffffffff-rj-k-no")
             json.field "width", 512
             json.field "height", 288
           end
@@ -3649,7 +3594,7 @@ get "/api/v1/channels/:ucid" do |env|
 
           qualities.each do |quality|
             json.object do
-              json.field "url", author_thumbnail.gsub("/s100-", "/s#{quality}-")
+              json.field "url", channel.author_thumbnail.gsub("/s100-", "/s#{quality}-")
               json.field "width", quality
               json.field "height", quality
             end
@@ -3657,17 +3602,17 @@ get "/api/v1/channels/:ucid" do |env|
         end
       end
 
-      json.field "subCount", sub_count
-      json.field "totalViews", total_views
-      json.field "joined", joined.to_unix
-      json.field "paid", paid
+      json.field "subCount", channel.sub_count
+      json.field "totalViews", channel.total_views
+      json.field "joined", channel.joined.to_unix
+      json.field "paid", channel.paid
 
-      json.field "autoGenerated", auto_generated
-      json.field "isFamilyFriendly", is_family_friendly
-      json.field "description", html_to_content(description_html)
-      json.field "descriptionHtml", description_html
+      json.field "autoGenerated", channel.auto_generated
+      json.field "isFamilyFriendly", channel.is_family_friendly
+      json.field "description", html_to_content(channel.description_html)
+      json.field "descriptionHtml", channel.description_html
 
-      json.field "allowedRegions", allowed_regions
+      json.field "allowedRegions", channel.allowed_regions
 
       json.field "latestVideos" do
         json.array do
@@ -3679,11 +3624,11 @@ get "/api/v1/channels/:ucid" do |env|
 
       json.field "relatedChannels" do
         json.array do
-          related_channels.each do |related_channel|
+          channel.related_channels.each do |related_channel|
             json.object do
-              json.field "author", related_channel[:author]
-              json.field "authorId", related_channel[:id]
-              json.field "authorUrl", related_channel[:author_url]
+              json.field "author", related_channel.author
+              json.field "authorId", related_channel.ucid
+              json.field "authorUrl", related_channel.author_url
 
               json.field "authorThumbnails" do
                 json.array do
@@ -3691,7 +3636,7 @@ get "/api/v1/channels/:ucid" do |env|
 
                   qualities.each do |quality|
                     json.object do
-                      json.field "url", related_channel[:author_thumbnail].gsub("=s48-", "=s#{quality}-")
+                      json.field "url", related_channel.author_thumbnail.gsub("=s48-", "=s#{quality}-")
                       json.field "width", quality
                       json.field "height", quality
                     end
@@ -3704,8 +3649,6 @@ get "/api/v1/channels/:ucid" do |env|
       end
     end
   end
-
-  channel_info
 end
 
 {"/api/v1/channels/:ucid/videos", "/api/v1/channels/videos/:ucid"}.each do |route|
@@ -3722,7 +3665,7 @@ end
     sort_by ||= "newest"
 
     begin
-      author, ucid, auto_generated = get_about_info(ucid, locale)
+      channel = get_about_info(ucid, locale)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -3730,7 +3673,7 @@ end
     end
 
     begin
-      videos, count = get_60_videos(ucid, page, auto_generated, sort_by)
+      videos, count = get_60_videos(channel.ucid, page, channel.auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -3786,16 +3729,16 @@ end
     sort_by ||= "last"
 
     begin
-      author, ucid, auto_generated = get_about_info(ucid, locale)
+      channel = get_about_info(ucid, locale)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
       next error_message
     end
 
-    items, continuation = fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
+    items, continuation = fetch_channel_playlists(channel.ucid, channel.author, channel.auto_generated, continuation, sort_by)
 
-    response = JSON.build do |json|
+    JSON.build do |json|
       json.object do
         json.field "playlists" do
           json.array do
@@ -3810,8 +3753,6 @@ end
         json.field "continuation", continuation
       end
     end
-
-    response
   end
 end
 
