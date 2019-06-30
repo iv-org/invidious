@@ -114,7 +114,7 @@ struct AboutChannel
     auto_generated:     Bool,
     author_url:         String,
     author_thumbnail:   String,
-    banner:             String,
+    banner:             String?,
     description_html:   String,
     paid:               Bool,
     total_views:        Int64,
@@ -653,6 +653,10 @@ def get_about_info(ucid, locale)
 
   banner = about.xpath_node(%q(//div[@id="gh-banner"]/style)).not_nil!.content
   banner = "https:" + banner.match(/background-image: url\((?<url>[^)]+)\)/).not_nil!["url"]
+
+  if banner.includes? "channels/c4/default_banner"
+    banner = nil
+  end
 
   description_html = about.xpath_node(%q(//div[contains(@class,"about-description")])).try &.to_s || ""
 

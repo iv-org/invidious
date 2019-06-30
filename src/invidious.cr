@@ -3565,23 +3565,25 @@ get "/api/v1/channels/:ucid" do |env|
 
       json.field "authorBanners" do
         json.array do
-          qualities = {
-            {width: 2560, height: 424},
-            {width: 2120, height: 351},
-            {width: 1060, height: 175},
-          }
-          qualities.each do |quality|
-            json.object do
-              json.field "url", channel.banner.gsub("=w1060", "=w#{quality[:width]}")
-              json.field "width", quality[:width]
-              json.field "height", quality[:height]
+          if channel.banner
+            qualities = {
+              {width: 2560, height: 424},
+              {width: 2120, height: 351},
+              {width: 1060, height: 175},
+            }
+            qualities.each do |quality|
+              json.object do
+                json.field "url", channel.banner.not_nil!.gsub("=w1060", "=w#{quality[:width]}")
+                json.field "width", quality[:width]
+                json.field "height", quality[:height]
+              end
             end
-          end
 
-          json.object do
-            json.field "url", channel.banner.rchop("=w1060-fcrop64=1,00005a57ffffa5a8-nd-c0xffffffff-rj-k-no")
-            json.field "width", 512
-            json.field "height", 288
+            json.object do
+              json.field "url", channel.banner.not_nil!.rchop("=w1060-fcrop64=1,00005a57ffffa5a8-nd-c0xffffffff-rj-k-no")
+              json.field "width", 512
+              json.field "height", 288
+            end
           end
         end
       end
@@ -3592,7 +3594,7 @@ get "/api/v1/channels/:ucid" do |env|
 
           qualities.each do |quality|
             json.object do
-              json.field "url", channel.author_thumbnail.gsub("/s100-", "/s#{quality}-")
+              json.field "url", channel.author_thumbnail.gsub("=s100-", "=s#{quality}-")
               json.field "width", quality
               json.field "height", quality
             end
