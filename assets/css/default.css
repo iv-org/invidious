@@ -285,6 +285,12 @@ input[type="search"]::-webkit-search-cancel-button {
   cursor: none;
 }
 
+.video-js .vjs-text-track-display > div > div > div {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+  border-radius: 9px !important;
+  padding: 5px !important;
+}
+
 .vjs-play-control,
 .vjs-volume-panel,
 .vjs-current-time,
