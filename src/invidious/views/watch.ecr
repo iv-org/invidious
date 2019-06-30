@@ -167,7 +167,7 @@ var video_data = {
         <div class="h-box">
             <a href="/channel/<%= video.ucid %>">
                 <div class="channel-profile">
-                    <img src="/ggpht<%= URI.parse(video.author_thumbnail.gsub("s48", "s64")).full_path %>">
+                    <img src="/ggpht<%= URI.parse(video.author_thumbnail).full_path %>">
                     <span><%= video.author %></span>
                 </div>
             </a>

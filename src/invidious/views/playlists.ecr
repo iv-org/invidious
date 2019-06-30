@@ -13,7 +13,7 @@
 <div class="pure-g h-box">
     <div class="pure-u-2-3">
         <div class="channel-profile">
-            <img src="/ggpht<%= URI.parse(channel.author_thumbnail.gsub("s48", "s64")).full_path %>">
+            <img src="/ggpht<%= URI.parse(channel.author_thumbnail).full_path %>">
             <span><%= channel.author %></span>
         </div>
     </div>
