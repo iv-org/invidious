@@ -38,12 +38,15 @@ function set_mode (bool) {
 }
 
 function update_mode (mode) {
-    set_mode(
-           mode == 'true' // for backwards compatibility
-        || mode == 'dark'
-        || (mode != 'light'
-            && window.matchMedia('(prefers-color-scheme: dark)').matches)
-    );
+    if (mode == 'true' /* for backwards compatibility */ || mode == 'dark') {
+        // If dark mode preference set
+        set_mode(true);
+    }
+    else if (mode != 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // If no preference set, but the browser tells us that the operating system has a dark theme
+        set_mode(true);
+    }
+    else set_mode(false);
 }
 
 
