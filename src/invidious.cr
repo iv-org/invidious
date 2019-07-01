@@ -123,6 +123,7 @@ Kemal::CLI.new ARGV
 
 # Check table integrity
 if CONFIG.check_tables
+  analyze_table(PG_DB, logger, "channels", InvidiousChannel)
   analyze_table(PG_DB, logger, "channel_videos", ChannelVideo)
   analyze_table(PG_DB, logger, "nonces", Nonce)
   analyze_table(PG_DB, logger, "session_ids", SessionId)
