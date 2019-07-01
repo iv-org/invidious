@@ -299,8 +299,8 @@ def template_youtube_comments(comments, locale, thin_mode)
 
     html += <<-END_HTML
     <div class="pure-g">
-      <div class="pure-u-4-24 pure-u-md-2-24">
-        <img style="width:90%;padding-right:1em;padding-top:1em" src="#{author_thumbnail}">
+      <div class="channel-profile pure-u-4-24 pure-u-md-2-24">
+        <img style="padding-right:1em;padding-top:1em" src="#{author_thumbnail}">
       </div>
       <div class="pure-u-20-24 pure-u-md-22-24">
         <p>
