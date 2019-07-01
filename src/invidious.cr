@@ -54,7 +54,6 @@ MAX_ITEMS_PER_PAGE = 1500
 
 REQUEST_HEADERS_WHITELIST  = {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "Content-Length", "If-None-Match", "Range"}
 RESPONSE_HEADERS_BLACKLIST = {"Access-Control-Allow-Origin", "Alt-Svc", "Server"}
-HTTP_CHUNK_SIZE            = 10485760 # ~10MB
 
 CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
 CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
@@ -4587,55 +4586,39 @@ get "/videoplayback" do |env|
     next
   end
 
+  client = make_client(URI.parse(host), region)
   begin
-    range_begin, range_end = parse_range(env.request.headers["Range"]?)
-    (range_begin...range_end).each_slice(HTTP_CHUNK_SIZE) do |slice|
-      headers["Range"] = "bytes=#{slice[0]}-#{slice[-1]}"
-      begin
-        client = make_client(URI.parse(host), region)
-        client.get(url, headers) do |response|
-          content_range = response.headers["Content-Range"].lchop("bytes ")
-          content_size = content_range.split("/")[-1].to_i
+    client.get(url, headers) do |response|
+      env.response.status_code = response.status_code
 
-          # Write headers for first chunk
-          if content_range.split("-")[0].to_i == range_begin
-            if !env.request.headers["Range"]? && response.status_code == 206
-              env.response.status_code = 200
-            else
-              env.response.status_code = response.status_code
-            end
-
-            response.headers.each do |key, value|
-              if !RESPONSE_HEADERS_BLACKLIST.includes?(key) && key != "Content-Range"
-                env.response.headers[key] = value
-              end
-            end
-
-            reported_end = range_end ? range_end : content_size
-            env.response.content_length = reported_end - range_begin
-
-            if env.request.headers["Range"]?
-              env.response.headers["Content-Range"] = "bytes #{range_begin}-#{reported_end - 1}/#{content_size}"
-            end
-
-            env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-            if title = query_params["title"]?
-              # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-              env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
-            end
-          end
-
-          proxy_file(response, env)
-        end
-      rescue ex
-        # FIXME: Potential bug in HTTP::Client
-        if ex.message == "Error reading socket: Connection reset by peer"
-          next
-        else
-          raise ex
+      response.headers.each do |key, value|
+        if !RESPONSE_HEADERS_BLACKLIST.includes? key
+          env.response.headers[key] = value
         end
       end
+
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.headers["Location"]?
+        url = URI.parse(response.headers["Location"])
+        host = url.host
+
+        url = url.full_path
+        url += "&host=#{host}"
+
+        if region
+          url += "&region=#{region}"
+        end
+
+        next env.redirect url
+      end
+
+      if title = query_params["title"]?
+        # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+        env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
+      end
+
+      proxy_file(response, env)
     end
   rescue ex
   end
