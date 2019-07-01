@@ -310,6 +310,7 @@
     "%A %B %-d, %Y": "%-d %B %Y, %A",
     "(edited)": "(изменено)",
     "YouTube comment permalink": "Прямая ссылка на YouTube",
+    "permalink": "",
     "`x` marked it with a ❤": "❤ от автора канала \"`x`\"",
     "Audio mode": "Аудио режим",
     "Video mode": "Видео режим",

@@ -22,6 +22,7 @@ class RedditComment
     replies:     RedditThing | String,
     score:       Int32,
     depth:       Int32,
+    permalink:   String,
     created_utc: {
       type:      Time,
       converter: RedditComment::TimeConverter,
@@ -363,8 +364,6 @@ def template_reddit_comments(root, locale)
   root.each do |child|
     if child.data.is_a?(RedditComment)
       child = child.data.as(RedditComment)
-      author = child.author
-      score = child.score
       body_html = HTML.unescape(child.body_html)
 
       replies_html = ""
@@ -376,13 +375,14 @@ def template_reddit_comments(root, locale)
       content = <<-END_HTML
       <p>
         <a href="javascript:void(0)" onclick="toggle_parent(this)">[ - ]</a>
-        <b><a href="https://www.reddit.com/user/#{author}">#{author}</a></b>
-        #{translate(locale, "`x` points", number_with_separator(score))}
-        #{translate(locale, "`x` ago", recode_date(child.created_utc, locale))}
-      </p>
-      <div>
-      #{body_html}
-      #{replies_html}
+        <b><a href="https://www.reddit.com/user/#{child.author}">#{child.author}</a></b>
+        #{translate(locale, "`x` points", number_with_separator(child.score))}
+        <span title="#{child.created_utc.to_s(translate(locale, "%a %B %-d %T %Y UTC"))}">#{translate(locale, "`x` ago", recode_date(child.created_utc, locale))}</span>
+        <a href="https://www.reddit.com#{child.permalink}" title="#{translate(locale, "permalink")}">#{translate(locale, "permalink")}</a>
+        </p>
+        <div>
+        #{body_html}
+        #{replies_html}
       </div>
       END_HTML
 

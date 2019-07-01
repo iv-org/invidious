@@ -310,6 +310,7 @@
     "%A %B %-d, %Y": "%A %B %-d, %Y",
     "(edited)": "(editado)",
     "YouTube comment permalink": "Enlace permanente de YouTube del comentario",
+    "permalink": "",
     "`x` marked it with a ❤": "`x` lo ha marcado con un ❤",
     "Audio mode": "Modo de audio",
     "Video mode": "Modo de vídeo",
