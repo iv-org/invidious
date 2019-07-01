@@ -483,8 +483,6 @@ get "/watch" do |env|
   video.description_html = replace_links(video.description_html)
 
   host_url = make_host_url(config, Kemal.config)
-  host_params = env.request.query_params
-  host_params.delete_all("v")
 
   if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
     hlsvp = video.player_response["streamingData"]["hlsManifestUrl"].as_s
@@ -659,8 +657,6 @@ get "/embed/:id" do |env|
   video.description_html = replace_links(video.description_html)
 
   host_url = make_host_url(config, Kemal.config)
-  host_params = env.request.query_params
-  host_params.delete_all("v")
 
   if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
     hlsvp = video.player_response["streamingData"]["hlsManifestUrl"].as_s
