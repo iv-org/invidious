@@ -729,7 +729,7 @@ def get_about_info(ucid, locale)
   )
 end
 
-def get_60_videos(ucid, page, auto_generated, sort_by = "newest")
+def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
   count = 0
   videos = [] of SearchVideo
 
@@ -751,7 +751,7 @@ def get_60_videos(ucid, page, auto_generated, sort_by = "newest")
       if auto_generated
         videos += extract_videos(nodeset)
       else
-        videos += extract_videos(nodeset, ucid)
+        videos += extract_videos(nodeset, ucid, author)
       end
     else
       break

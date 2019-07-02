@@ -2908,7 +2908,7 @@ get "/channel/:ucid" do |env|
     sort_options = {"newest", "oldest", "popular"}
     sort_by ||= "newest"
 
-    items, count = get_60_videos(channel.ucid, page, channel.auto_generated, sort_by)
+    items, count = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
     items.select! { |item| !item.paid }
 
     env.set "search", "channel:#{channel.ucid} "
@@ -3544,7 +3544,7 @@ get "/api/v1/channels/:ucid" do |env|
     count = 0
   else
     begin
-      videos, count = get_60_videos(channel.ucid, page, channel.auto_generated, sort_by)
+      videos, count = get_60_videos(channel.ucid, channel.author,page, channel.auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -3669,7 +3669,7 @@ end
     end
 
     begin
-      videos, count = get_60_videos(channel.ucid, page, channel.auto_generated, sort_by)
+      videos, count = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -3806,11 +3806,8 @@ get "/api/v1/search" do |env|
     search_params = produce_search_params(sort_by, date, content_type, duration, features)
   rescue ex
     env.response.status_code = 400
-    next JSON.build do |json|
-      json.object do
-        json.field "error", ex.message
-      end
-    end
+    error_message = {"error" => ex.message}.to_json
+    next error_message
   end
 
   count, search_results = search(query, page, search_params, region).as(Tuple)
