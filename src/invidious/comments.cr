@@ -64,7 +64,7 @@ def fetch_youtube_comments(id, db, continuation, format, locale, thin_mode, regi
   ctoken = produce_comment_continuation(id, cursor: "", sort_by: sort_by)
   continuation ||= ctoken
 
-  if !continuation || !session_token
+  if !continuation || continuation.empty? || !session_token
     if format == "json"
       return {"comments" => [] of String}.to_json
     else
@@ -178,8 +178,10 @@ def fetch_youtube_comments(id, db, continuation, format, locale, thin_mode, regi
 
               json.field "content", html_to_content(content_html)
               json.field "contentHtml", content_html
+
               json.field "published", published.to_unix
               json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
+
               json.field "likeCount", node_comment["likeCount"]
               json.field "commentId", node_comment["commentId"]
               json.field "authorIsChannelOwner", node_comment["authorIsChannelOwner"]
@@ -501,7 +503,7 @@ def content_to_comment_html(content)
     end
 
     text
-  end.join.rchop('\ufeff')
+  end.join("").delete('\ufeff')
 
   return comment_html
 end

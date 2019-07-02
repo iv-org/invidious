@@ -3274,9 +3274,9 @@ get "/api/v1/insights/:id" do |env|
 
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
-  html = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1")
+  response = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1")
 
-  headers["cookie"] = html.cookies.add_request_headers(headers)["cookie"]
+  headers["cookie"] = response.cookies.add_request_headers(headers)["cookie"]
   headers["content-type"] = "application/x-www-form-urlencoded"
 
   headers["x-client-data"] = "CIi2yQEIpbbJAQipncoBCNedygEIqKPKAQ=="
@@ -3286,9 +3286,7 @@ get "/api/v1/insights/:id" do |env|
   headers["x-youtube-client-name"] = "1"
   headers["x-youtube-client-version"] = "2.20180719"
 
-  body = html.body
-  session_token = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).not_nil!["session_token"]
-
+  session_token = response.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/).try &.["session_token"]? || ""
   post_req = {
     session_token: session_token,
   }
@@ -3544,7 +3542,7 @@ get "/api/v1/channels/:ucid" do |env|
     count = 0
   else
     begin
-      videos, count = get_60_videos(channel.ucid, channel.author,page, channel.auto_generated, sort_by)
+      videos, count = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -3569,14 +3567,14 @@ get "/api/v1/channels/:ucid" do |env|
             }
             qualities.each do |quality|
               json.object do
-                json.field "url", channel.banner.not_nil!.gsub("=w1060", "=w#{quality[:width]}")
+                json.field "url", channel.banner.not_nil!.gsub("=w1060-", "=w#{quality[:width]}-")
                 json.field "width", quality[:width]
                 json.field "height", quality[:height]
               end
             end
 
             json.object do
-              json.field "url", channel.banner.not_nil!.rchop("=w1060-fcrop64=1,00005a57ffffa5a8-nd-c0xffffffff-rj-k-no")
+              json.field "url", channel.banner.not_nil!.split("=w1060-")[0]
               json.field "width", 512
               json.field "height", 288
             end
@@ -3748,6 +3746,28 @@ end
 
         json.field "continuation", continuation
       end
+    end
+  end
+end
+
+{"/api/v1/channels/:ucid/comments", "/api/v1/channels/comments/:ucid"}.each do |route|
+  get route do |env|
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+    env.response.content_type = "application/json"
+
+    ucid = env.params.url["ucid"]
+
+    continuation = env.params.query["continuation"]?
+
+    # sort_by = env.params.query["sort_by"]?.try &.downcase
+
+    begin
+      fetch_channel_community(ucid, continuation, locale, config, Kemal.config)
+    rescue ex
+      env.response.status_code = 400
+      error_message = {"error" => ex.message}.to_json
+      next error_message
     end
   end
 end

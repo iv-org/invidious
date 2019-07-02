@@ -616,6 +616,244 @@ def extract_channel_playlists_cursor(url, auto_generated)
   return cursor
 end
 
+# TODO: Add "sort_by"
+def fetch_channel_community(ucid, continuation, locale, config, kemal_config)
+  client = make_client(YT_URL)
+  headers = HTTP::Headers.new
+  headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
+
+  response = client.get("/channel/#{ucid}/community?gl=US&hl=en", headers)
+  if response.status_code == 404
+    response = client.get("/user/#{ucid}/community?gl=US&hl=en", headers)
+  end
+
+  if response.status_code == 404
+    error_message = translate(locale, "This channel does not exist.")
+    raise error_message
+  end
+
+  if !continuation || continuation.empty?
+    response = JSON.parse(response.body.match(/window\["ytInitialData"\] = (?<info>.*?);\n/).try &.["info"] || "{}")
+    ucid = response["responseContext"]["serviceTrackingParams"]
+      .as_a.select { |service| service["service"] == "GFEEDBACK" }[0]?.try &.["params"]
+        .as_a.select { |param| param["key"] == "browse_id" }[0]?.try &.["value"].as_s
+    body = response["contents"]?.try &.["twoColumnBrowseResultsRenderer"]["tabs"].as_a.select { |tab| tab["tabRenderer"]?.try &.["selected"].as_bool.== true }[0]?
+
+    if !body
+      raise "Could not extract community tab."
+    end
+
+    body = body["tabRenderer"]["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]
+  else
+    headers["cookie"] = response.cookies.add_request_headers(headers)["cookie"]
+    headers["content-type"] = "application/x-www-form-urlencoded"
+
+    headers["x-client-data"] = "CIi2yQEIpbbJAQipncoBCNedygEIqKPKAQ=="
+    headers["x-spf-previous"] = ""
+    headers["x-spf-referer"] = ""
+
+    headers["x-youtube-client-name"] = "1"
+    headers["x-youtube-client-version"] = "2.20180719"
+
+    session_token = response.body.match(/"XSRF_TOKEN":"(?<session_token>[A-Za-z0-9\_\-\=]+)"/).try &.["session_token"]? || ""
+    post_req = {
+      session_token: session_token,
+    }
+
+    response = client.post("/comment_service_ajax?action_get_comments=1&ctoken=#{continuation}&continuation=#{continuation}&hl=en&gl=US", headers, form: post_req)
+    body = JSON.parse(response.body)
+
+    ucid = body["response"]["responseContext"]["serviceTrackingParams"]
+      .as_a.select { |service| service["service"] == "GFEEDBACK" }[0]?.try &.["params"]
+        .as_a.select { |param| param["key"] == "browse_id" }[0]?.try &.["value"].as_s
+
+    body = body["response"]["continuationContents"]["itemSectionContinuation"]? ||
+           body["response"]["continuationContents"]["backstageCommentsContinuation"]?
+
+    if !body
+      raise "Could not extract continuation."
+    end
+  end
+
+  continuation = body["continuations"]?.try &.[0]["nextContinuationData"]["continuation"].as_s
+  posts = body["contents"].as_a
+
+  if message = posts[0]["messageRenderer"]?
+    error_message = (message["text"]["simpleText"]? ||
+                     message["text"]["runs"]?.try &.[0]?.try &.["text"]?)
+      .try &.as_s || ""
+    raise error_message
+  end
+
+  JSON.build do |json|
+    json.object do
+      json.field "authorId", ucid
+      json.field "comments" do
+        json.array do
+          posts.each do |post|
+            comments = post["backstagePostThreadRenderer"]?.try &.["comments"]? ||
+                       post["backstageCommentsContinuation"]?
+
+            post = post["backstagePostThreadRenderer"]?.try &.["post"]["backstagePostRenderer"]? ||
+                   post["commentThreadRenderer"]?.try &.["comment"]["commentRenderer"]?
+
+            if !post
+              next
+            end
+
+            if !post["contentText"]?
+              content_html = ""
+            else
+              content_html = post["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff').try { |block| HTML.escape(block) }.to_s ||
+                             content_to_comment_html(post["contentText"]["runs"].as_a).try &.to_s || ""
+            end
+
+            author = post["authorText"]?.try &.["simpleText"]? || ""
+
+            json.object do
+              json.field "author", author
+              json.field "authorThumbnails" do
+                json.array do
+                  qualities = {32, 48, 76, 100, 176, 512}
+                  author_thumbnail = post["authorThumbnail"]["thumbnails"].as_a[0]["url"].as_s
+
+                  qualities.each do |quality|
+                    json.object do
+                      json.field "url", author_thumbnail.gsub("=s100-", "=s#{quality}-")
+                      json.field "width", quality
+                      json.field "height", quality
+                    end
+                  end
+                end
+              end
+
+              if post["authorEndpoint"]?
+                json.field "authorId", post["authorEndpoint"]["browseEndpoint"]["browseId"]
+                json.field "authorUrl", post["authorEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"].as_s
+              else
+                json.field "authorId", ""
+                json.field "authorUrl", ""
+              end
+
+              published_text = post["publishedTimeText"]["runs"][0]["text"].as_s
+              published = decode_date(published_text.rchop(" (edited)"))
+
+              if published_text.includes?(" (edited)")
+                json.field "isEdited", true
+              else
+                json.field "isEdited", false
+              end
+
+              like_count = post["actionButtons"]["commentActionButtonsRenderer"]["likeButton"]["toggleButtonRenderer"]["accessibilityData"]["accessibilityData"]["label"]
+                .try &.as_s.gsub(/\D/, "").to_i? || 0
+
+              json.field "content", html_to_content(content_html)
+              json.field "contentHtml", content_html
+
+              json.field "published", published.to_unix
+              json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
+
+              json.field "likeCount", like_count
+              json.field "commentId", post["postId"]? || post["commentId"]? || ""
+
+              if attachment = post["backstageAttachment"]?
+                json.field "attachment" do
+                  json.object do
+                    case attachment.as_h
+                    when .has_key?("videoRenderer")
+                      attachment = attachment["videoRenderer"]
+                      json.field "type", "video"
+
+                      if !attachment["videoId"]?
+                        error_message = (attachment["title"]["simpleText"]? ||
+                                         attachment["title"]["runs"]?.try &.[0]?.try &.["text"]?)
+
+                        json.field "error", error_message
+                      else
+                        video_id = attachment["videoId"].as_s
+
+                        json.field "title", attachment["title"]["simpleText"].as_s
+                        json.field "videoId", video_id
+                        json.field "videoThumbnails" do
+                          generate_thumbnails(json, video_id, config, kemal_config)
+                        end
+
+                        json.field "lengthSeconds", decode_length_seconds(attachment["lengthText"]["simpleText"].as_s)
+
+                        author_info = attachment["ownerText"]["runs"][0].as_h
+
+                        json.field "author", author_info["text"].as_s
+                        json.field "authorId", author_info["navigationEndpoint"]["browseEndpoint"]["browseId"]
+                        json.field "authorUrl", author_info["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
+
+                        # TODO: json.field "authorThumbnails", "channelThumbnailSupportedRenderers"
+                        # TODO: json.field "authorVerified", "ownerBadges"
+
+                        published = decode_date(attachment["publishedTimeText"]["simpleText"].as_s)
+
+                        json.field "published", published.to_unix
+                        json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
+
+                        view_count = attachment["viewCountText"]["simpleText"].as_s.gsub(/\D/, "").to_i64? || 0_i64
+
+                        json.field "viewCount", view_count
+                        json.field "viewCountText", translate(locale, "`x` views", number_to_short_text(view_count))
+                      end
+                    when .has_key?("backstageImageRenderer")
+                      attachment = attachment["backstageImageRenderer"]
+                      json.field "type", "image"
+
+                      json.field "imageThumbnails" do
+                        json.array do
+                          thumbnail = attachment["image"]["thumbnails"][0].as_h
+                          width = thumbnail["width"].as_i
+                          height = thumbnail["height"].as_i
+                          aspect_ratio = (width.to_f / height.to_f)
+
+                          qualities = {320, 560, 640, 1280, 2000}
+
+                          qualities.each do |quality|
+                            json.object do
+                              json.field "url", thumbnail["url"].as_s.gsub("=s640-", "=s#{quality}-")
+                              json.field "width", quality
+                              json.field "height", (quality / aspect_ratio).ceil.to_i
+                            end
+                          end
+                        end
+                      end
+                    else
+                      # TODO
+                    end
+                  end
+                end
+              end
+
+              if comments && (reply_count = (comments["backstageCommentsRenderer"]["moreText"]["simpleText"]? ||
+                                             comments["backstageCommentsRenderer"]["moreText"]["runs"]?.try &.[0]?.try &.["text"]?)
+                   .try &.as_s.gsub(/\D/, "").to_i?)
+                continuation = comments["backstageCommentsRenderer"]["continuations"]?.try &.as_a[0]["nextContinuationData"]["continuation"].as_s
+                continuation ||= ""
+
+                json.field "replies" do
+                  json.object do
+                    json.field "replyCount", reply_count
+                    json.field "continuation", continuation
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      if body["continuations"]?
+        continuation = body["continuations"][0]["nextContinuationData"]["continuation"]
+        json.field "continuation", continuation
+      end
+    end
+  end
+end
+
 def get_about_info(ucid, locale)
   client = make_client(YT_URL)
 
@@ -628,14 +866,12 @@ def get_about_info(ucid, locale)
 
   if about.xpath_node(%q(//div[contains(@class, "channel-empty-message")]))
     error_message = translate(locale, "This channel does not exist.")
-
     raise error_message
   end
 
   if about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).try &.content.empty?
     error_message = about.xpath_node(%q(//div[@class="yt-alert-content"])).try &.content.strip
     error_message ||= translate(locale, "Could not get channel info.")
-
     raise error_message
   end
 
