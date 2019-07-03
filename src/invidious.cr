@@ -4705,6 +4705,7 @@ get "/ggpht/*" do |env|
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       if response.status_code >= 300
+        env.response.headers.delete("Transfer-Encoding")
         break
       end
 
@@ -4754,6 +4755,7 @@ get "/sb/:id/:storyboard/:index" do |env|
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       if response.status_code >= 300
+        env.response.headers.delete("Transfer-Encoding")
         break
       end
 
@@ -4798,7 +4800,8 @@ get "/vi/:id/:name" do |env|
 
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
-      if response.status_code >= 300
+      if response.status_code >= 300 && response.status_code != 404
+        env.response.headers.delete("Transfer-Encoding")
         break
       end
 
