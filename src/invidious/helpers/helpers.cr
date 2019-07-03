@@ -638,29 +638,44 @@ def cache_annotation(db, id, annotations)
 end
 
 def proxy_file(response, env)
-  if !response.body_io?
-    return
-  end
-
   if response.headers.includes_word?("Content-Encoding", "gzip")
     Gzip::Writer.open(env.response) do |deflate|
-      copy_in_chunks(response.body_io, deflate)
+      response.pipe(deflate)
     end
   elsif response.headers.includes_word?("Content-Encoding", "deflate")
     Flate::Writer.open(env.response) do |deflate|
-      copy_in_chunks(response.body_io, deflate)
+      response.pipe(deflate)
     end
   else
-    copy_in_chunks(response.body_io, env.response)
+    response.pipe(env.response)
   end
 end
 
-# https://stackoverflow.com/a/44802810 <3
-def copy_in_chunks(input, output, chunk_size = 4096)
-  size = 1
-  while size > 0
-    size = IO.copy(input, output, chunk_size)
-    Fiber.yield
+class HTTP::Client::Response
+  def pipe(io)
+    HTTP.serialize_body(io, headers, @body, @body_io, @version)
+  end
+end
+
+# Supports serialize_body without first writing headers
+module HTTP
+  def self.serialize_body(io, headers, body, body_io, version)
+    if body
+      io << body
+    elsif body_io
+      content_length = content_length(headers)
+      if content_length
+        copied = IO.copy(body_io, io)
+        if copied != content_length
+          raise ArgumentError.new("Content-Length header is #{content_length} but body had #{copied} bytes")
+        end
+      elsif Client::Response.supports_chunked?(version)
+        headers["Transfer-Encoding"] = "chunked"
+        serialize_chunked_body(io, body_io)
+      else
+        io << body
+      end
+    end
   end
 end
 
