@@ -4695,17 +4695,18 @@ get "/ggpht/*" do |env|
 
   begin
     client.get(url, headers) do |response|
+      env.response.status_code = response.status_code
       response.headers.each do |key, value|
         if !RESPONSE_HEADERS_BLACKLIST.includes? key
           env.response.headers[key] = value
         end
       end
 
-      if response.status_code == 304
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.status_code >= 300
         break
       end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       proxy_file(response, env)
     end
@@ -4750,11 +4751,11 @@ get "/sb/:id/:storyboard/:index" do |env|
         end
       end
 
-      if response.status_code >= 400
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.status_code >= 300
         break
       end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       proxy_file(response, env)
     end
@@ -4795,11 +4796,11 @@ get "/vi/:id/:name" do |env|
         end
       end
 
-      if response.status_code == 304
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.status_code >= 300
         break
       end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       proxy_file(response, env)
     end
