@@ -165,7 +165,7 @@ var video_data = {
 
     <div class="pure-u-1 <% if params.related_videos || plid %>pure-u-lg-3-5<% else %>pure-u-md-4-5<% end %>">
         <div class="h-box">
-            <a href="/channel/<%= video.ucid %>" style="display:block;width:fit-content">
+            <a href="/channel/<%= video.ucid %>" style="display:block;width:fit-content;width:-moz-fit-content">
                 <div class="channel-profile">
                     <img src="/ggpht<%= URI.parse(video.author_thumbnail).full_path %>">
                     <span><%= video.author %></span>
