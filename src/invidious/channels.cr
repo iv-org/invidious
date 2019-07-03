@@ -719,7 +719,7 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config)
 
                   qualities.each do |quality|
                     json.object do
-                      json.field "url", author_thumbnail.gsub("=s100-", "=s#{quality}-")
+                      json.field "url", author_thumbnail.gsub(/s\d+-/, "s#{quality}-")
                       json.field "width", quality
                       json.field "height", quality
                     end
