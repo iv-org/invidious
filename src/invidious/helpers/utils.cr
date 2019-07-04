@@ -347,3 +347,21 @@ def subscribe_pubsub(topic, key, config)
 
   return client.post("/subscribe", form: body)
 end
+
+def parse_range(range)
+  if !range
+    return 0_i64, nil
+  end
+
+  ranges = range.lchop("bytes=").split(',')
+  ranges.each do |range|
+    start_range, end_range = range.split('-')
+
+    start_range = start_range.to_i64? || 0_i64
+    end_range = end_range.to_i64?
+
+    return start_range, end_range
+  end
+
+  return 0_i64, nil
+end

@@ -54,6 +54,7 @@ MAX_ITEMS_PER_PAGE = 1500
 
 REQUEST_HEADERS_WHITELIST  = {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "Content-Length", "If-None-Match", "Range"}
 RESPONSE_HEADERS_BLACKLIST = {"Access-Control-Allow-Origin", "Alt-Svc", "Server"}
+HTTP_CHUNK_SIZE            = 10485760 # ~10MB
 
 CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
 CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}
@@ -4640,41 +4641,85 @@ get "/videoplayback" do |env|
     next
   end
 
-  client = make_client(URI.parse(host), region)
-  begin
-    client.get(url, headers) do |response|
-      env.response.status_code = response.status_code
+  content_length = nil
+  first_chunk = true
+  range_start, range_end = parse_range(env.request.headers["Range"]?)
+  chunk_start = range_start
+  chunk_end = range_end
 
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes? key
-          env.response.headers[key] = value
-        end
-      end
+  if !chunk_end || chunk_end - chunk_start > HTTP_CHUNK_SIZE
+    chunk_end = chunk_start + HTTP_CHUNK_SIZE - 1
+  end
 
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      if response.headers["Location"]?
-        url = URI.parse(response.headers["Location"])
-        host = url.host
-
-        url = url.full_path
-        url += "&host=#{host}"
-
-        if region
-          url += "&region=#{region}"
-        end
-
-        next env.redirect url
-      end
-
-      if title = query_params["title"]?
-        # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-        env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
-      end
-
-      proxy_file(response, env)
+  while true
+    if !range_end && content_length
+      range_end = content_length
     end
-  rescue ex
+
+    if range_end && chunk_start > range_end
+      break
+    end
+
+    if range_end && chunk_end > range_end
+      chunk_end = range_end
+    end
+
+    headers["Range"] = "bytes=#{chunk_start}-#{chunk_end}"
+    client = make_client(URI.parse(host), region)
+    begin
+      client.get(url, headers) do |response|
+        if first_chunk
+          if !env.request.headers["Range"]? && response.status_code == 206
+            env.response.status_code = 200
+          else
+            env.response.status_code = response.status_code
+          end
+
+          response.headers.each do |key, value|
+            if !RESPONSE_HEADERS_BLACKLIST.includes?(key) && key != "Content-Range"
+              env.response.headers[key] = value
+            end
+          end
+
+          env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+          if location = response.headers["Location"]?
+            location = URI.parse(location)
+            location = "#{location.full_path}&host=#{location.host}"
+
+            if region
+              location += "&region=#{region}"
+            end
+
+            env.redirect location
+            break
+          end
+
+          if title = query_params["title"]?
+            # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+            env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
+          end
+
+          content_length = response.headers["Content-Range"].split("/")[-1].to_i64
+          if env.request.headers["Range"]?
+            env.response.headers["Content-Range"] = "bytes #{range_start}-#{range_end || (content_length - 1)}/#{content_length}"
+            env.response.content_length = ((range_end.try &.+ 1) || content_length) - range_start
+          else
+            env.response.content_length = content_length
+          end
+        end
+
+        proxy_file(response, env)
+      end
+    rescue ex
+      if ex.message != "Error reading socket: Connection reset by peer"
+        break
+      end
+    end
+
+    chunk_start = chunk_end + 1
+    chunk_end += HTTP_CHUNK_SIZE
+    first_chunk = false
   end
 end
 
