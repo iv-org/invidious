@@ -4429,7 +4429,6 @@ get "/api/manifest/hls_variant/*" do |env|
   manifest
 end
 
-# TODO: Fix redirect for local streams
 get "/api/manifest/hls_playlist/*" do |env|
   client = make_client(YT_URL)
   manifest = client.get(env.request.path)
@@ -4449,13 +4448,41 @@ get "/api/manifest/hls_playlist/*" do |env|
   manifest = manifest.body
 
   if local
-    manifest = manifest.gsub("https://www.youtube.com", host_url)
-    manifest = manifest.gsub(/https:\/\/r\d---.{11}\.c\.youtube\.com/, host_url)
-    manifest = manifest.gsub("seg.ts", "seg.ts?local=true")
-  end
+    manifest = manifest.gsub(/^https:\/\/r\d---.{11}\.c\.youtube\.com[^\n]*/m) do |match|
+      path = URI.parse(match).path
 
-  fvip = manifest.match(/hls_chunk_host\/r(?<fvip>\d+)---/).not_nil!["fvip"]
-  manifest = manifest.gsub("seg.ts", "seg.ts/fvip/#{fvip}")
+      path = path.lchop("/videoplayback/")
+      path = path.rchop("/")
+
+      path = path.gsub(/mime\/\w+\/\w+/) do |mimetype|
+        mimetype = mimetype.split("/")
+        mimetype[0] + "/" + mimetype[1] + "%2F" + mimetype[2]
+      end
+
+      path = path.split("/")
+
+      raw_params = {} of String => Array(String)
+      path.each_slice(2) do |pair|
+        key, value = pair
+        value = URI.unescape(value)
+
+        if raw_params[key]?
+          raw_params[key] << value
+        else
+          raw_params[key] = [value]
+        end
+      end
+
+      raw_params = HTTP::Params.new(raw_params)
+      if fvip = raw_params["hls_chunk_host"].match(/r(?<fvip>\d+)---/)
+        raw_params["fvip"] = fvip["fvip"]
+      end
+
+      raw_params["local"] = "true"
+
+      "#{host_url}/videoplayback?#{raw_params}"
+    end
+  end
 
   manifest
 end
