@@ -310,6 +310,7 @@
     "%A %B %-d, %Y": "%Y年%-m月%-d日 %a",
     "(edited)": "(已编辑)",
     "YouTube comment permalink": "YouTube 评论永久链接",
+    "permalink": "",
     "`x` marked it with a ❤": "`x` 为此加 ❤",
     "Audio mode": "音频模式",
     "Video mode": "视频模式",
