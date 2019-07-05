@@ -4651,6 +4651,7 @@ get "/videoplayback" do |env|
     chunk_end = chunk_start + HTTP_CHUNK_SIZE - 1
   end
 
+  # TODO: Record bytes written so we can restart after a chunk fails
   while true
     if !range_end && content_length
       range_end = content_length
@@ -4700,16 +4701,23 @@ get "/videoplayback" do |env|
             env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
           end
 
-          content_length = response.headers["Content-Range"].split("/")[-1].to_i64
-          if env.request.headers["Range"]?
-            env.response.headers["Content-Range"] = "bytes #{range_start}-#{range_end || (content_length - 1)}/#{content_length}"
-            env.response.content_length = ((range_end.try &.+ 1) || content_length) - range_start
-          else
-            env.response.content_length = content_length
+          if !response.headers.includes_word?("Transfer-Encoding", "chunked")
+            content_length = response.headers["Content-Range"].split("/")[-1].to_i64
+            if env.request.headers["Range"]?
+              env.response.headers["Content-Range"] = "bytes #{range_start}-#{range_end || (content_length - 1)}/#{content_length}"
+              env.response.content_length = ((range_end.try &.+ 1) || content_length) - range_start
+            else
+              env.response.content_length = content_length
+            end
           end
         end
 
         proxy_file(response, env)
+      end
+
+      # For livestream segments, break after first chunk
+      if url.includes? "&file=seg.ts"
+        break
       end
     rescue ex
       if ex.message != "Error reading socket: Connection reset by peer"
