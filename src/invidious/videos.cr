@@ -182,7 +182,7 @@ VIDEO_FORMATS = {
   "135" => {"ext" => "mp4", "height" => 480, "format" => "DASH video", "vcodec" => "h264"},
   "136" => {"ext" => "mp4", "height" => 720, "format" => "DASH video", "vcodec" => "h264"},
   "137" => {"ext" => "mp4", "height" => 1080, "format" => "DASH video", "vcodec" => "h264"},
-  "138" => {"ext" => "mp4", "format" => "DASH video", "vcodec" => "h264"}, # Height can vary (https=>//github.com/rg3/youtube-dl/issues/4559)
+  "138" => {"ext" => "mp4", "format" => "DASH video", "vcodec" => "h264"}, # Height can vary (https://github.com/ytdl-org/youtube-dl/issues/4559)
   "160" => {"ext" => "mp4", "height" => 144, "format" => "DASH video", "vcodec" => "h264"},
   "212" => {"ext" => "mp4", "height" => 480, "format" => "DASH video", "vcodec" => "h264"},
   "264" => {"ext" => "mp4", "height" => 1440, "format" => "DASH video", "vcodec" => "h264"},
@@ -239,6 +239,12 @@ VIDEO_FORMATS = {
   "249" => {"ext" => "webm", "format" => "DASH audio", "acodec" => "opus", "abr" => 50},
   "250" => {"ext" => "webm", "format" => "DASH audio", "acodec" => "opus", "abr" => 70},
   "251" => {"ext" => "webm", "format" => "DASH audio", "acodec" => "opus", "abr" => 160},
+
+  # av01 video only formats sometimes served with "unknown" codecs
+  "394" => {"ext" => "mp4", "height" => 144, "vcodec" => "av01.0.05M.08"},
+  "395" => {"ext" => "mp4", "height" => 240, "vcodec" => "av01.0.05M.08"},
+  "396" => {"ext" => "mp4", "height" => 360, "vcodec" => "av01.0.05M.08"},
+  "397" => {"ext" => "mp4", "height" => 480, "vcodec" => "av01.0.05M.08"},
 }
 
 struct VideoPreferences
