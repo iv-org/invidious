@@ -4321,7 +4321,7 @@ get "/api/manifest/dash/id/:id" do |env|
       url = url.rchop("</BaseURL>")
 
       if local
-        url = URI.parse(url).full_path.lchop("/")
+        url = URI.parse(url).full_path
       end
 
       "<BaseURL>#{url}</BaseURL>"
@@ -4334,7 +4334,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   if local
     adaptive_fmts.each do |fmt|
-      fmt["url"] = URI.parse(fmt["url"]).full_path.lchop("/")
+      fmt["url"] = URI.parse(fmt["url"]).full_path
     end
   end
 
