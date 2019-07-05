@@ -4429,6 +4429,7 @@ get "/api/manifest/hls_variant/*" do |env|
   manifest
 end
 
+# TODO: Fix redirect for local streams
 get "/api/manifest/hls_playlist/*" do |env|
   client = make_client(YT_URL)
   manifest = client.get(env.request.path)
@@ -4641,93 +4642,118 @@ get "/videoplayback" do |env|
     next
   end
 
-  content_length = nil
-  first_chunk = true
-  range_start, range_end = parse_range(env.request.headers["Range"]?)
-  chunk_start = range_start
-  chunk_end = range_end
-
-  if !chunk_end || chunk_end - chunk_start > HTTP_CHUNK_SIZE
-    chunk_end = chunk_start + HTTP_CHUNK_SIZE - 1
-  end
-
-  # TODO: Record bytes written so we can restart after a chunk fails
-  while true
-    if !range_end && content_length
-      range_end = content_length
-    end
-
-    if range_end && chunk_start > range_end
-      break
-    end
-
-    if range_end && chunk_end > range_end
-      chunk_end = range_end
-    end
-
-    headers["Range"] = "bytes=#{chunk_start}-#{chunk_end}"
-    client = make_client(URI.parse(host), region)
+  if url.includes? "&file=seg.ts"
     begin
+      client = make_client(URI.parse(host), region)
       client.get(url, headers) do |response|
-        if first_chunk
-          if !env.request.headers["Range"]? && response.status_code == 206
-            env.response.status_code = 200
-          else
-            env.response.status_code = response.status_code
-          end
-
-          response.headers.each do |key, value|
-            if !RESPONSE_HEADERS_BLACKLIST.includes?(key) && key != "Content-Range"
-              env.response.headers[key] = value
-            end
-          end
-
-          env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-          if location = response.headers["Location"]?
-            location = URI.parse(location)
-            location = "#{location.full_path}&host=#{location.host}"
-
-            if region
-              location += "&region=#{region}"
-            end
-
-            env.redirect location
-            break
-          end
-
-          if title = query_params["title"]?
-            # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-            env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
-          end
-
-          if !response.headers.includes_word?("Transfer-Encoding", "chunked")
-            content_length = response.headers["Content-Range"].split("/")[-1].to_i64
-            if env.request.headers["Range"]?
-              env.response.headers["Content-Range"] = "bytes #{range_start}-#{range_end || (content_length - 1)}/#{content_length}"
-              env.response.content_length = ((range_end.try &.+ 1) || content_length) - range_start
-            else
-              env.response.content_length = content_length
-            end
+        response.headers.each do |key, value|
+          if !RESPONSE_HEADERS_BLACKLIST.includes?(key)
+            env.response.headers[key] = value
           end
         end
 
-        proxy_file(response, env)
-      end
+        env.response.headers["Access-Control-Allow-Origin"] = "*"
 
-      # For livestream segments, break after first chunk
-      if url.includes? "&file=seg.ts"
-        break
+        if location = response.headers["Location"]?
+          location = URI.parse(location)
+          location = "#{location.full_path}&host=#{location.host}"
+
+          if region
+            location += "&region=#{region}"
+          end
+
+          next env.redirect location
+        end
+
+        IO.copy(response.body_io, env.response)
       end
     rescue ex
-      if ex.message != "Error reading socket: Connection reset by peer"
-        break
-      end
+    end
+  else
+    content_length = nil
+    first_chunk = true
+    range_start, range_end = parse_range(env.request.headers["Range"]?)
+    chunk_start = range_start
+    chunk_end = range_end
+
+    if !chunk_end || chunk_end - chunk_start > HTTP_CHUNK_SIZE
+      chunk_end = chunk_start + HTTP_CHUNK_SIZE - 1
     end
 
-    chunk_start = chunk_end + 1
-    chunk_end += HTTP_CHUNK_SIZE
-    first_chunk = false
+    # TODO: Record bytes written so we can restart after a chunk fails
+    while true
+      if !range_end && content_length
+        range_end = content_length
+      end
+
+      if range_end && chunk_start > range_end
+        break
+      end
+
+      if range_end && chunk_end > range_end
+        chunk_end = range_end
+      end
+
+      headers["Range"] = "bytes=#{chunk_start}-#{chunk_end}"
+
+      begin
+        client = make_client(URI.parse(host), region)
+        client.get(url, headers) do |response|
+          if first_chunk
+            if !env.request.headers["Range"]? && response.status_code == 206
+              env.response.status_code = 200
+            else
+              env.response.status_code = response.status_code
+            end
+
+            response.headers.each do |key, value|
+              if !RESPONSE_HEADERS_BLACKLIST.includes?(key) && key != "Content-Range"
+                env.response.headers[key] = value
+              end
+            end
+
+            env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+            if location = response.headers["Location"]?
+              location = URI.parse(location)
+              location = "#{location.full_path}&host=#{location.host}"
+
+              if region
+                location += "&region=#{region}"
+              end
+
+              env.redirect location
+              break
+            end
+
+            if title = query_params["title"]?
+              # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+              env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
+            end
+
+            if !response.headers.includes_word?("Transfer-Encoding", "chunked")
+              content_length = response.headers["Content-Range"].split("/")[-1].to_i64
+              if env.request.headers["Range"]?
+                env.response.headers["Content-Range"] = "bytes #{range_start}-#{range_end || (content_length - 1)}/#{content_length}"
+                env.response.content_length = ((range_end.try &.+ 1) || content_length) - range_start
+              else
+                env.response.content_length = content_length
+              end
+            end
+          end
+
+          proxy_file(response, env)
+        end
+      rescue ex
+        if ex.message != "Error reading socket: Connection reset by peer"
+          break
+        end
+      end
+
+      chunk_start = chunk_end + 1
+      chunk_end += HTTP_CHUNK_SIZE
+      first_chunk = false
+    end
   end
 end
 
