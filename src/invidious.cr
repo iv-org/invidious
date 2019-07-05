@@ -619,9 +619,9 @@ get "/embed/:id" do |env|
     params.annotations = true
   end
 
-  if watched && !watched.includes? id
-    PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.as(User).email)
-  end
+  # if watched && !watched.includes? id
+  #   PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.as(User).email)
+  # end
 
   if notifications && notifications.includes? id
     PG_DB.exec("UPDATE users SET notifications = array_remove(notifications, $1) WHERE email = $2", id, user.as(User).email)
