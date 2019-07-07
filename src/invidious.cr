@@ -4667,6 +4667,12 @@ get "/videoplayback" do |env|
   end
 
   if url.includes? "&file=seg.ts"
+    if CONFIG.disabled?("livestreams")
+      env.response.status_code = 403
+      error_message = "Administrator has disabled this endpoint."
+      next templated "error"
+    end
+
     begin
       client = make_client(URI.parse(host), region)
       client.get(url, headers) do |response|
@@ -4694,6 +4700,13 @@ get "/videoplayback" do |env|
     rescue ex
     end
   else
+    if query_params["title"]? && CONFIG.disabled?("downloads") ||
+       CONFIG.disabled?("dash")
+      env.response.status_code = 403
+      error_message = "Administrator has disabled this endpoint."
+      next templated "error"
+    end
+
     content_length = nil
     first_chunk = true
     range_start, range_end = parse_range(env.request.headers["Range"]?)

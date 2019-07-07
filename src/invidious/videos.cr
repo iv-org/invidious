@@ -1292,6 +1292,14 @@ def process_video_params(query, preferences)
   related_videos = related_videos == 1
   video_loop = video_loop == 1
 
+  if CONFIG.disabled?("dash") && quality == "dash"
+    quality = "high"
+  end
+
+  if CONFIG.disabled?("local") && local
+    local = false
+  end
+
   if query["t"]?
     video_start = decode_time(query["t"])
   end

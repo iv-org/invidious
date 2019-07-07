@@ -35,7 +35,7 @@ function update_value(element) {
 
             <div class="pure-control-group">
                 <label for="local"><%= translate(locale, "Proxy videos? ") %></label>
-                <input name="local" id="local" type="checkbox" <% if preferences.local %>checked<% end %>>
+                <input name="local" id="local" type="checkbox" <% if preferences.local && !CONFIG.disabled?("local") %>checked<% end %> <% if CONFIG.disabled?("local") %>disabled<% end %>>
             </div>
 
             <div class="pure-control-group">
@@ -56,7 +56,9 @@ function update_value(element) {
                 <label for="quality"><%= translate(locale, "Preferred video quality: ") %></label>
                 <select name="quality" id="quality">
                     <% {"dash", "hd720", "medium", "small"}.each do |option| %>
-                        <option value="<%= option %>" <% if preferences.quality == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <% if !(option == "dash" && CONFIG.disabled?("dash")) %>
+                            <option value="<%= option %>" <% if preferences.quality == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <% end %>
                     <% end %>
                 </select>
             </div>

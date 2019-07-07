@@ -96,6 +96,19 @@ struct Config
     end
   end
 
+  def disabled?(option)
+    case disabled = CONFIG.disable_proxy
+    when Bool
+      return disabled
+    when Array
+      if disabled.includes? option
+        return true
+      else
+        return false
+      end
+    end
+  end
+
   YAML.mapping({
     channel_threads:          Int32,                                # Number of threads to use for crawling videos from channels (for updating subscriptions)
     feed_threads:             Int32,                                # Number of threads to use for updating feeds
@@ -118,11 +131,12 @@ struct Config
                                default: Preferences.new(*ConfigPreferences.from_yaml("").to_tuple),
                                converter: ConfigPreferencesConverter,
     },
-    dmca_content:      {type: Array(String), default: [] of String}, # For compliance with DMCA, disables download widget using list of video IDs
-    check_tables:      {type: Bool, default: false},                 # Check table integrity, automatically try to add any missing columns, create tables, etc.
-    cache_annotations: {type: Bool, default: false},                 # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
-    banner:            {type: String?, default: nil},                # Optional banner to be displayed along top of page for announcements, etc.
-    hsts:              {type: Bool?, default: true},                 # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
+    dmca_content:      {type: Array(String), default: [] of String},   # For compliance with DMCA, disables download widget using list of video IDs
+    check_tables:      {type: Bool, default: false},                   # Check table integrity, automatically try to add any missing columns, create tables, etc.
+    cache_annotations: {type: Bool, default: false},                   # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
+    banner:            {type: String?, default: nil},                  # Optional banner to be displayed along top of page for announcements, etc.
+    hsts:              {type: Bool?, default: true},                   # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
+    disable_proxy:     {type: Bool? | Array(String)?, default: false}, # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
   })
 end
 

@@ -98,7 +98,7 @@ var video_data = {
                 <% end %>
             </p>
 
-            <% if CONFIG.dmca_content.includes? video.id %>
+            <% if CONFIG.dmca_content.includes?(video.id) || CONFIG.disabled?("downloads") %>
                 <p><%= translate(locale, "Download is disabled.") %></p>
             <% else %>
                 <form class="pure-form pure-form-stacked" action="/latest_version" method="get" rel="noopener" target="_blank">
