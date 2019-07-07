@@ -1,5 +1,8 @@
 require "crypto/bcrypt/password"
 
+# Materialized views may not be defined using bound parameters (`$1` as used elsewhere)
+MATERIALIZED_VIEW_SQL = ->(email : String) { "SELECT cv.* FROM channel_videos cv WHERE EXISTS (SELECT subscriptions FROM users u WHERE cv.ucid = ANY (u.subscriptions) AND u.email = E'#{email.gsub("'", "\\'")}') ORDER BY published DESC" }
+
 struct User
   module PreferencesConverter
     def self.from_rs(rs)
@@ -166,10 +169,7 @@ def get_user(sid, headers, db, refresh = true)
 
       begin
         view_name = "subscriptions_#{sha256(user.email)}"
-        db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
-          SELECT * FROM channel_videos WHERE
-          ucid IN (SELECT unnest(subscriptions) FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')
-          ORDER BY published DESC")
+        db.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
       rescue ex
       end
     end
@@ -188,10 +188,7 @@ def get_user(sid, headers, db, refresh = true)
 
     begin
       view_name = "subscriptions_#{sha256(user.email)}"
-      db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
-        SELECT * FROM channel_videos WHERE
-        ucid IN (SELECT unnest(subscriptions) FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')
-        ORDER BY published DESC")
+      db.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
     rescue ex
     end
   end

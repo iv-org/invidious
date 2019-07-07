@@ -75,7 +75,7 @@ def refresh_feeds(db, logger, config)
                 end
               end
 
-              if db.query_one("SELECT pg_get_viewdef('#{view_name}')", as: String).includes? "ucid = ANY"
+              if !db.query_one("SELECT pg_get_viewdef('#{view_name}')", as: String).includes? "WHERE ((cv.ucid = ANY (u.subscriptions))"
                 logger.puts("Materialized view #{view_name} is out-of-date, recreating...")
                 db.exec("DROP MATERIALIZED VIEW #{view_name}")
               end
@@ -95,10 +95,7 @@ def refresh_feeds(db, logger, config)
                   # While iterating through, we may have an email stored from a deleted account
                   if db.query_one?("SELECT true FROM users WHERE email = $1", email, as: Bool)
                     logger.puts("CREATE #{view_name}")
-                    db.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
-                      SELECT * FROM channel_videos WHERE
-                      ucid IN (SELECT unnest(subscriptions) FROM users WHERE email = E'#{email.gsub("'", "\\'")}')
-                      ORDER BY published DESC")
+                    db.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(email)}")
                     db.exec("UPDATE users SET feed_needs_update = false WHERE email = $1", email)
                   end
                 rescue ex

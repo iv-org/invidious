@@ -1282,10 +1282,7 @@ post "/login" do |env|
       PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
 
       view_name = "subscriptions_#{sha256(user.email)}"
-      PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS \
-        SELECT * FROM channel_videos WHERE
-        ucid IN (SELECT unnest(subscriptions) FROM users WHERE email = E'#{user.email.gsub("'", "\\'")}')
-        ORDER BY published DESC")
+      PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
 
       if Kemal.config.ssl || config.https_only
         secure = true
