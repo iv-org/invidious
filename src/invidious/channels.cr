@@ -123,6 +123,7 @@ struct AboutChannel
     is_family_friendly: Bool,
     allowed_regions:    Array(String),
     related_channels:   Array(AboutRelatedChannel),
+    tabs:               Array(String),
   })
 end
 
@@ -617,7 +618,7 @@ def extract_channel_playlists_cursor(url, auto_generated)
 end
 
 # TODO: Add "sort_by"
-def fetch_channel_community(ucid, continuation, locale, config, kemal_config)
+def fetch_channel_community(ucid, continuation, locale, config, kemal_config, format, thin_mode)
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
   headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
@@ -632,11 +633,10 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config)
     raise error_message
   end
 
+  ucid = response.body.match(/https:\/\/www.youtube.com\/channel\/(?<ucid>UC[a-zA-Z0-9_-]{22})/).not_nil!["ucid"]
+
   if !continuation || continuation.empty?
     response = JSON.parse(response.body.match(/window\["ytInitialData"\] = (?<info>.*?);\n/).try &.["info"] || "{}")
-    ucid = response["responseContext"]["serviceTrackingParams"]
-      .as_a.select { |service| service["service"] == "GFEEDBACK" }[0]?.try &.["params"]
-        .as_a.select { |param| param["key"] == "browse_id" }[0]?.try &.["value"].as_s
     body = response["contents"]?.try &.["twoColumnBrowseResultsRenderer"]["tabs"].as_a.select { |tab| tab["tabRenderer"]?.try &.["selected"].as_bool.== true }[0]?
 
     if !body
@@ -645,6 +645,8 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config)
 
     body = body["tabRenderer"]["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]
   else
+    continuation = produce_channel_community_continuation(ucid, continuation)
+
     headers["cookie"] = response.cookies.add_request_headers(headers)["cookie"]
     headers["content-type"] = "application/x-www-form-urlencoded"
 
@@ -662,10 +664,6 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config)
 
     response = client.post("/comment_service_ajax?action_get_comments=1&ctoken=#{continuation}&continuation=#{continuation}&hl=en&gl=US", headers, form: post_req)
     body = JSON.parse(response.body)
-
-    ucid = body["response"]["responseContext"]["serviceTrackingParams"]
-      .as_a.select { |service| service["service"] == "GFEEDBACK" }[0]?.try &.["params"]
-        .as_a.select { |param| param["key"] == "browse_id" }[0]?.try &.["value"].as_s
 
     body = body["response"]["continuationContents"]["itemSectionContinuation"]? ||
            body["response"]["continuationContents"]["backstageCommentsContinuation"]?
@@ -685,7 +683,7 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config)
     raise error_message
   end
 
-  JSON.build do |json|
+  response = JSON.build do |json|
     json.object do
       json.field "authorId", ucid
       json.field "comments" do
@@ -755,6 +753,7 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config)
 
               json.field "likeCount", like_count
               json.field "commentId", post["postId"]? || post["commentId"]? || ""
+              json.field "authorIsChannelOwner", post["authorEndpoint"]["browseEndpoint"]["browseId"] == ucid
 
               if attachment = post["backstageAttachment"]?
                 json.field "attachment" do
@@ -837,7 +836,7 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config)
                 json.field "replies" do
                   json.object do
                     json.field "replyCount", reply_count
-                    json.field "continuation", continuation
+                    json.field "continuation", extract_channel_community_cursor(continuation)
                   end
                 end
               end
@@ -847,11 +846,71 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config)
       end
 
       if body["continuations"]?
-        continuation = body["continuations"][0]["nextContinuationData"]["continuation"]
-        json.field "continuation", continuation
+        continuation = body["continuations"][0]["nextContinuationData"]["continuation"].as_s
+        json.field "continuation", extract_channel_community_cursor(continuation)
       end
     end
   end
+
+  if format == "html"
+    response = JSON.parse(response)
+    content_html = template_youtube_comments(response, locale, thin_mode)
+
+    response = JSON.build do |json|
+      json.object do
+        json.field "contentHtml", content_html
+      end
+    end
+  end
+
+  return response
+end
+
+def produce_channel_community_continuation(ucid, cursor)
+  cursor = URI.escape(cursor)
+  continuation = IO::Memory.new
+
+  continuation.write(Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02])
+  continuation.write(write_var_int(3 + ucid.size + write_var_int(cursor.size).size + cursor.size))
+
+  continuation.write(Bytes[0x12, ucid.size])
+  continuation.print(ucid)
+
+  continuation.write(Bytes[0x1a])
+  continuation.write(write_var_int(cursor.size))
+  continuation.print(cursor)
+  continuation.rewind
+
+  continuation = Base64.urlsafe_encode(continuation.to_slice)
+  continuation = URI.escape(continuation)
+
+  return continuation
+end
+
+def extract_channel_community_cursor(continuation)
+  continuation = URI.unescape(continuation)
+  continuation = Base64.decode(continuation)
+
+  # 0xe2 0xa9 0x85 0xb2 0x02
+  continuation += 5
+
+  total_size = read_var_int(continuation[0, 4])
+  continuation += write_var_int(total_size).size
+
+  # 0x12
+  continuation += 1
+  ucid_size = continuation[0]
+  continuation += 1
+  ucid = continuation[0, ucid_size]
+  continuation += ucid_size
+
+  # 0x1a
+  continuation += 1
+  until continuation[0] == 'E'.ord
+    continuation += 1
+  end
+
+  return String.new(continuation)
 end
 
 def get_about_info(ucid, locale)
@@ -947,6 +1006,8 @@ def get_about_info(ucid, locale)
     auto_generated = true
   end
 
+  tabs = about.xpath_nodes(%q(//ul[@id="channel-navigation-menu"]/li/a/span)).map { |node| node.content.downcase }
+
   return AboutChannel.new(
     ucid: ucid,
     author: author,
@@ -961,7 +1022,8 @@ def get_about_info(ucid, locale)
     joined: joined,
     is_family_friendly: is_family_friendly,
     allowed_regions: allowed_regions,
-    related_channels: related_channels
+    related_channels: related_channels,
+    tabs: tabs
   )
 end
 

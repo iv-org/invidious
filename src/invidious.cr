@@ -2861,6 +2861,16 @@ get "/user/:user/videos" do |env|
   env.redirect "/channel/#{user}/videos"
 end
 
+get "/user/:user/about" do |env|
+  user = env.params.url["user"]
+  env.redirect "/channel/#{user}"
+end
+
+get "/channel:ucid/about" do |env|
+  ucid = env.params.url["ucid"]
+  env.redirect "/channel/#{ucid}"
+end
+
 get "/channel/:ucid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -2966,6 +2976,46 @@ get "/channel/:ucid/playlists" do |env|
   items.each { |item| item.author = "" }
 
   templated "playlists"
+end
+
+get "/channel/:ucid/community" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  user = env.get? "user"
+  if user
+    user = user.as(User)
+    subscriptions = user.subscriptions
+  end
+  subscriptions ||= [] of String
+
+  ucid = env.params.url["ucid"]
+
+  thin_mode = env.params.query["thin_mode"]? || env.get("preferences").as(Preferences).thin_mode
+  thin_mode = thin_mode == "true"
+
+  continuation = env.params.query["continuation"]?
+  # sort_by = env.params.query["sort_by"]?.try &.downcase
+
+  begin
+    channel = get_about_info(ucid, locale)
+  rescue ex
+    error_message = ex.message
+    env.response.status_code = 500
+    next templated "error"
+  end
+
+  if !channel.tabs.includes? "community"
+    next env.redirect "/channel/#{channel.ucid}"
+  end
+
+  begin
+    items = JSON.parse(fetch_channel_community(ucid, continuation, locale, config, Kemal.config, "json", thin_mode))
+  rescue ex
+    env.response.status_code = 500
+    error_message = ex.message
+  end
+
+  templated "community"
 end
 
 # API Endpoints
@@ -3757,12 +3807,17 @@ end
 
     ucid = env.params.url["ucid"]
 
-    continuation = env.params.query["continuation"]?
+    thin_mode = env.params.query["thin_mode"]?
+    thin_mode = thin_mode == "true"
 
+    format = env.params.query["format"]?
+    format ||= "json"
+
+    continuation = env.params.query["continuation"]?
     # sort_by = env.params.query["sort_by"]?.try &.downcase
 
     begin
-      fetch_channel_community(ucid, continuation, locale, config, Kemal.config)
+      fetch_channel_community(ucid, continuation, locale, config, Kemal.config, format, thin_mode)
     rescue ex
       env.response.status_code = 400
       error_message = {"error" => ex.message}.to_json

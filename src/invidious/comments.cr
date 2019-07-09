@@ -112,7 +112,7 @@ def fetch_youtube_comments(id, db, continuation, format, locale, thin_mode, regi
     end
   end
 
-  comments = JSON.build do |json|
+  response = JSON.build do |json|
     json.object do
       if body["header"]?
         count_text = body["header"]["commentsHeaderRenderer"]["countText"]
@@ -223,15 +223,15 @@ def fetch_youtube_comments(id, db, continuation, format, locale, thin_mode, regi
   end
 
   if format == "html"
-    comments = JSON.parse(comments)
-    content_html = template_youtube_comments(comments, locale, thin_mode)
+    response = JSON.parse(response)
+    content_html = template_youtube_comments(response, locale, thin_mode)
 
-    comments = JSON.build do |json|
+    response = JSON.build do |json|
       json.object do
         json.field "contentHtml", content_html
 
-        if comments["commentCount"]?
-          json.field "commentCount", comments["commentCount"]
+        if response["commentCount"]?
+          json.field "commentCount", response["commentCount"]
         else
           json.field "commentCount", 0
         end
@@ -239,7 +239,7 @@ def fetch_youtube_comments(id, db, continuation, format, locale, thin_mode, regi
     end
   end
 
-  return comments
+  return response
 end
 
 def fetch_reddit_comments(id, sort_by = "confidence")
@@ -286,7 +286,7 @@ def template_youtube_comments(comments, locale, thin_mode)
           <div class="pure-u-23-24">
             <p>
               <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
-                onclick="get_youtube_replies(this)">#{translate(locale, "View `x` replies", child["replies"]["replyCount"].to_s)}</a>
+                onclick="get_youtube_replies(this)">#{translate(locale, "View `x` replies", number_with_separator(child["replies"]["replyCount"]))}</a>
             </p>
           </div>
         </div>
@@ -300,9 +300,9 @@ def template_youtube_comments(comments, locale, thin_mode)
       end
 
       html << <<-END_HTML
-      <div class="pure-g">
+      <div class="pure-g" style="width:100%">
         <div class="channel-profile pure-u-4-24 pure-u-md-2-24">
-          <img style="padding-right:1em;padding-top:1em" src="#{author_thumbnail}">
+          <img style="padding-right:1em;padding-top:1em;width:90%" src="#{author_thumbnail}">
         </div>
         <div class="pure-u-20-24 pure-u-md-22-24">
           <p>
@@ -310,11 +310,66 @@ def template_youtube_comments(comments, locale, thin_mode)
               <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{child["author"]}</a>
             </b>
             <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
-            <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
-            |
-            <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
-            |
-            <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
+      END_HTML
+
+      if child["attachment"]?
+        attachment = child["attachment"]
+
+        case attachment["type"]
+        when "image"
+          attachment = attachment["imageThumbnails"][1]
+
+          html << <<-END_HTML
+          <div class="pure-g">
+            <div class="pure-u-1 pure-u-md-1-2">
+              <img style="width:100%" src="/ggpht#{URI.parse(attachment["url"].as_s).full_path}">
+            </div>
+          </div>
+          END_HTML
+        when "video"
+          html << <<-END_HTML
+            <div class="pure-g">
+              <div class="pure-u-1 pure-u-md-1-2">
+                <div style="position:relative;width:100%;height:0;padding-bottom:56.25%;margin-bottom:5px">
+          END_HTML
+
+          if attachment["error"]?
+            html << <<-END_HTML
+              <p>#{attachment["error"]}</p>
+            END_HTML
+          else
+            html << <<-END_HTML
+              <iframe id='ivplayer' type='text/html' style='position:absolute;width:100%;height:100%;left:0;top:0' src='/embed/#{attachment["videoId"]?}' frameborder='0'></iframe>
+            END_HTML
+          end
+
+          html << <<-END_HTML
+                </div>
+              </div>
+            </div>
+          END_HTML
+        end
+      end
+
+      html << <<-END_HTML
+        <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
+        |
+      END_HTML
+
+      if comments["videoId"]?
+        html << <<-END_HTML
+          <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+          |
+        END_HTML
+      elsif comments["authorId"]?
+        html << <<-END_HTML
+          <a href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+          |
+        END_HTML
+      end
+
+      html << <<-END_HTML
+        <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
       END_HTML
 
       if child["creatorHeart"]?
