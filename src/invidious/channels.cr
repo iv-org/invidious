@@ -820,8 +820,13 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config, fo
                           end
                         end
                       end
-                    else
                       # TODO
+                      # when .has_key?("pollRenderer")
+                      #   attachment = attachment["pollRenderer"]
+                      #   json.field "type", "poll"
+                    else
+                      json.field "type", "unknown"
+                      json.field "error", "Unrecognized attachment type."
                     end
                   end
                 end
