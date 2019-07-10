@@ -1166,7 +1166,7 @@ def fetch_video(id, region)
     raise "Video unavailable."
   end
 
-  if !info["title"]?
+  if !info["title"]? || info["title"].empty?
     raise "Video unavailable."
   end
 
