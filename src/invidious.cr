@@ -2656,9 +2656,18 @@ end
 get "/feed/webhook/:token" do |env|
   verify_token = env.params.url["token"]
 
-  mode = env.params.query["hub.mode"]
-  topic = env.params.query["hub.topic"]
-  challenge = env.params.query["hub.challenge"]
+  mode = env.params.query["hub.mode"]?
+  topic = env.params.query["hub.topic"]?
+  challenge = env.params.query["hub.challenge"]?
+
+  if !mode || !topic || !challenge
+    env.response.status_code = 400
+    next
+  else
+    mode = mode.not_nil!
+    topic = topic.not_nil!
+    challenge = challenge.not_nil!
+  end
 
   case verify_token
   when .starts_with? "v1"
