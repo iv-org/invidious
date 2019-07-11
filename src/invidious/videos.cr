@@ -925,7 +925,7 @@ def extract_polymer_config(body, html)
     end
   end
 
-  initial_data = JSON.parse(body.match(/window\["ytInitialData"\] = (?<info>.*?);\n/).try &.["info"] || "{}")
+  initial_data = extract_initial_data(body)
 
   primary_results = initial_data["contents"]?
     .try &.["twoColumnWatchNextResults"]?

@@ -826,3 +826,12 @@ def create_notification_stream(env, config, kemal_config, decrypt_function, topi
     connection_channel.send({false, connection})
   end
 end
+
+def extract_initial_data(body)
+  initial_data = body.match(/window\["ytInitialData"\] = (?<info>.*?);\n/).try &.["info"] || "{}"
+  if initial_data.starts_with?("JSON.parse(\"")
+    return JSON.parse(JSON.parse(%({"initial_data":"#{initial_data[12..-3]}"}))["initial_data"].as_s)
+  else
+    return JSON.parse(initial_data)
+  end
+end

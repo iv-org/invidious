@@ -636,8 +636,8 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config, fo
   ucid = response.body.match(/https:\/\/www.youtube.com\/channel\/(?<ucid>UC[a-zA-Z0-9_-]{22})/).not_nil!["ucid"]
 
   if !continuation || continuation.empty?
-    response = JSON.parse(response.body.match(/window\["ytInitialData"\] = (?<info>.*?);\n/).try &.["info"] || "{}")
-    body = response["contents"]?.try &.["twoColumnBrowseResultsRenderer"]["tabs"].as_a.select { |tab| tab["tabRenderer"]?.try &.["selected"].as_bool.== true }[0]?
+    initial_data = extract_initial_data(response.body)
+    body = initial_data["contents"]?.try &.["twoColumnBrowseResultsRenderer"]["tabs"].as_a.select { |tab| tab["tabRenderer"]?.try &.["selected"].as_bool.== true }[0]?
 
     if !body
       raise "Could not extract community tab."

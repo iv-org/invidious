@@ -14,14 +14,9 @@ def fetch_trending(trending_type, region, locale)
 
     response = client.get("/feed/trending?gl=#{region}&hl=en", headers).body
 
-    yt_data = response.match(/window\["ytInitialData"\] = (?<data>.*);/)
-    if yt_data
-      yt_data = JSON.parse(yt_data["data"].rchop(";"))
-    else
-      raise translate(locale, "Could not pull trending pages.")
-    end
+    initial_data = extract_initial_data(response)
 
-    tabs = yt_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][0]["tabRenderer"]["content"]["sectionListRenderer"]["subMenu"]["channelListSubMenuRenderer"]["contents"].as_a
+    tabs = initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][0]["tabRenderer"]["content"]["sectionListRenderer"]["subMenu"]["channelListSubMenuRenderer"]["contents"].as_a
     url = tabs.select { |tab| tab["channelListSubMenuAvatarRenderer"]["title"]["simpleText"] == trending_type }[0]?
 
     if url

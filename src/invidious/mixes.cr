@@ -28,18 +28,13 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
   end
   response = client.get("/watch?v=#{video_id}&list=#{rdid}&gl=US&hl=en&has_verified=1&bpctr=9999999999", headers)
 
-  yt_data = response.body.match(/window\["ytInitialData"\] = (?<data>.*);/)
-  if yt_data
-    yt_data = JSON.parse(yt_data["data"].rchop(";"))
-  else
+  initial_data = extract_initial_data(response.body)
+
+  if !initial_data["contents"]["twoColumnWatchNextResults"]["playlist"]?
     raise translate(locale, "Could not create mix.")
   end
 
-  if !yt_data["contents"]["twoColumnWatchNextResults"]["playlist"]?
-    raise translate(locale, "Could not create mix.")
-  end
-
-  playlist = yt_data["contents"]["twoColumnWatchNextResults"]["playlist"]["playlist"]
+  playlist = initial_data["contents"]["twoColumnWatchNextResults"]["playlist"]["playlist"]
   mix_title = playlist["title"].as_s
 
   contents = playlist["contents"].as_a
