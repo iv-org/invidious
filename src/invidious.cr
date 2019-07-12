@@ -922,20 +922,18 @@ post "/login" do |env|
     begin
       client = make_client(LOGIN_URL)
       headers = HTTP::Headers.new
-      headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
-      headers["Google-Accounts-XSRF"] = "1"
-      headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36"
-      headers["X-Same-Domain"] = "1"
 
-      login_page = client.get("/ServiceLogin?flowName=GlifWebSignIn&flowEntry=ServiceLogin&cid=1&navigationDirection=forward")
+      login_page = client.get("/ServiceLogin")
       headers = login_page.cookies.add_request_headers(headers)
 
       lookup_req = {
         email, nil, [] of String, nil, "US", nil, nil, 2, false, true,
         {nil, nil,
-         {2, 1, nil, 1, "https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fnext%3D%252F%26action_handle_signin%3Dtrue%26hl%3Den%26app%3Ddesktop%26feature%3Dsign_in_button&hl=en&service=youtube&uilel=3&requestPath=%2FServiceLogin&Page=PasswordSeparationSignIn", nil, [] of String, 4, [] of String, "GlifWebSignIn"},
+         {2, 1, nil, 1,
+          "https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fnext%3D%252F%26action_handle_signin%3Dtrue%26hl%3Den%26app%3Ddesktop%26feature%3Dsign_in_button&hl=en&service=youtube&uilel=3&requestPath=%2FServiceLogin&Page=PasswordSeparationSignIn",
+          nil, [] of String, 4},
          1,
-         {nil, nil, [] of String, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, [] of String, nil, nil, nil, [] of String, [] of String},
+         {nil, nil, [] of String},
          nil, nil, nil, true,
         },
         email,
@@ -943,8 +941,10 @@ post "/login" do |env|
 
       traceback << "Getting lookup..."
 
+      headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
+      headers["Google-Accounts-XSRF"] = "1"
+
       response = client.post("/_/signin/sl/lookup", headers, login_req(lookup_req))
-      headers = response.cookies.add_request_headers(headers)
       lookup_results = JSON.parse(response.body[5..-1])
 
       traceback << "done, returned #{response.status_code}.<br/>"
@@ -957,9 +957,11 @@ post "/login" do |env|
          {password, nil, true},
         },
         {nil, nil,
-         {2, 1, nil, 1, "https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fnext%3D%252F%26action_handle_signin%3Dtrue%26hl%3Den%26app%3Ddesktop%26feature%3Dsign_in_button&hl=en&service=youtube&uilel=3&requestPath=%2FServiceLogin&Page=PasswordSeparationSignIn", nil, [] of String, 4, [] of String, "GlifWebSignIn"},
+         {2, 1, nil, 1,
+          "https://accounts.google.com/ServiceLogin?passive=true&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fnext%3D%252F%26action_handle_signin%3Dtrue%26hl%3Den%26app%3Ddesktop%26feature%3Dsign_in_button&hl=en&service=youtube&uilel=3&requestPath=%2FServiceLogin&Page=PasswordSeparationSignIn",
+          nil, [] of String, 4},
          1,
-         {nil, nil, [] of String, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, [] of String, nil, nil, nil, [] of String, [] of String},
+         {nil, nil, [] of String},
          nil, nil, nil, true,
         },
       }.to_json
