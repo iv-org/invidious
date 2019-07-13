@@ -1323,25 +1323,27 @@ post "/signout" do |env|
   sid = env.get? "sid"
   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
-    sid = sid.as(String)
-    token = env.params.body["csrf_token"]?
+  if !user
+    next env.redirect referer
+  end
 
-    begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
-    rescue ex
-      error_message = ex.message
-      env.response.status_code = 400
-      next templated "error"
-    end
+  user = user.as(User)
+  sid = sid.as(String)
+  token = env.params.body["csrf_token"]?
 
-    PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", sid)
+  begin
+    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+  rescue ex
+    error_message = ex.message
+    env.response.status_code = 400
+    next templated "error"
+  end
 
-    env.request.cookies.each do |cookie|
-      cookie.expires = Time.utc(1990, 1, 1)
-      env.response.cookies << cookie
-    end
+  PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", sid)
+
+  env.request.cookies.each do |cookie|
+    cookie.expires = Time.utc(1990, 1, 1)
+    env.response.cookies << cookie
   end
 
   env.redirect referer
@@ -1889,13 +1891,13 @@ get "/data_control" do |env|
   user = env.get? "user"
   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
-
-    templated "data_control"
-  else
-    env.redirect referer
+  if !user
+    next env.redirect referer
   end
+
+  user = user.as(User)
+
+  templated "data_control"
 end
 
 post "/data_control" do |env|
@@ -2048,15 +2050,15 @@ get "/change_password" do |env|
   sid = env.get? "sid"
   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
-    sid = sid.as(String)
-    csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY, PG_DB)
-
-    templated "change_password"
-  else
-    env.redirect referer
+  if !user
+    next env.redirect referer
   end
+
+  user = user.as(User)
+  sid = sid.as(String)
+  csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY, PG_DB)
+
+  templated "change_password"
 end
 
 post "/change_password" do |env|
@@ -2066,63 +2068,65 @@ post "/change_password" do |env|
   sid = env.get? "sid"
   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
-    sid = sid.as(String)
-    token = env.params.body["csrf_token"]?
-
-    # We don't store passwords for Google accounts
-    if !user.password
-      error_message = "Cannot change password for Google accounts"
-      env.response.status_code = 400
-      next templated "error"
-    end
-
-    begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
-    rescue ex
-      error_message = ex.message
-      env.response.status_code = 400
-      next templated "error"
-    end
-
-    password = env.params.body["password"]?
-    if !password
-      error_message = translate(locale, "Password is a required field")
-      env.response.status_code = 401
-      next templated "error"
-    end
-
-    new_passwords = env.params.body.select { |k, v| k.match(/^new_password\[\d+\]$/) }.map { |k, v| v }
-
-    if new_passwords.size <= 1 || new_passwords.uniq.size != 1
-      error_message = translate(locale, "New passwords must match")
-      env.response.status_code = 400
-      next templated "error"
-    end
-
-    new_password = new_passwords.uniq[0]
-    if new_password.empty?
-      error_message = translate(locale, "Password cannot be empty")
-      env.response.status_code = 401
-      next templated "error"
-    end
-
-    if new_password.bytesize > 55
-      error_message = translate(locale, "Password should not be longer than 55 characters")
-      env.response.status_code = 400
-      next templated "error"
-    end
-
-    if !Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
-      error_message = translate(locale, "Incorrect password")
-      env.response.status_code = 401
-      next templated "error"
-    end
-
-    new_password = Crypto::Bcrypt::Password.create(new_password, cost: 10)
-    PG_DB.exec("UPDATE users SET password = $1 WHERE email = $2", new_password.to_s, user.email)
+  if !user
+    next env.redirect referer
   end
+
+  user = user.as(User)
+  sid = sid.as(String)
+  token = env.params.body["csrf_token"]?
+
+  # We don't store passwords for Google accounts
+  if !user.password
+    error_message = "Cannot change password for Google accounts"
+    env.response.status_code = 400
+    next templated "error"
+  end
+
+  begin
+    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+  rescue ex
+    error_message = ex.message
+    env.response.status_code = 400
+    next templated "error"
+  end
+
+  password = env.params.body["password"]?
+  if !password
+    error_message = translate(locale, "Password is a required field")
+    env.response.status_code = 401
+    next templated "error"
+  end
+
+  new_passwords = env.params.body.select { |k, v| k.match(/^new_password\[\d+\]$/) }.map { |k, v| v }
+
+  if new_passwords.size <= 1 || new_passwords.uniq.size != 1
+    error_message = translate(locale, "New passwords must match")
+    env.response.status_code = 400
+    next templated "error"
+  end
+
+  new_password = new_passwords.uniq[0]
+  if new_password.empty?
+    error_message = translate(locale, "Password cannot be empty")
+    env.response.status_code = 401
+    next templated "error"
+  end
+
+  if new_password.bytesize > 55
+    error_message = translate(locale, "Password should not be longer than 55 characters")
+    env.response.status_code = 400
+    next templated "error"
+  end
+
+  if !Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
+    error_message = translate(locale, "Incorrect password")
+    env.response.status_code = 401
+    next templated "error"
+  end
+
+  new_password = Crypto::Bcrypt::Password.create(new_password, cost: 10)
+  PG_DB.exec("UPDATE users SET password = $1 WHERE email = $2", new_password.to_s, user.email)
 
   env.redirect referer
 end
@@ -2134,15 +2138,15 @@ get "/delete_account" do |env|
   sid = env.get? "sid"
   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
-    sid = sid.as(String)
-    csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY, PG_DB)
-
-    templated "delete_account"
-  else
-    env.redirect referer
+  if !user
+    next env.redirect referer
   end
+
+  user = user.as(User)
+  sid = sid.as(String)
+  csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY, PG_DB)
+
+  templated "delete_account"
 end
 
 post "/delete_account" do |env|
@@ -2152,28 +2156,30 @@ post "/delete_account" do |env|
   sid = env.get? "sid"
   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
-    sid = sid.as(String)
-    token = env.params.body["csrf_token"]?
+  if !user
+    next env.redirect referer
+  end
 
-    begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
-    rescue ex
-      error_message = ex.message
-      env.response.status_code = 400
-      next templated "error"
-    end
+  user = user.as(User)
+  sid = sid.as(String)
+  token = env.params.body["csrf_token"]?
 
-    view_name = "subscriptions_#{sha256(user.email)}"
-    PG_DB.exec("DELETE FROM users * WHERE email = $1", user.email)
-    PG_DB.exec("DELETE FROM session_ids * WHERE email = $1", user.email)
-    PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
+  begin
+    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+  rescue ex
+    error_message = ex.message
+    env.response.status_code = 400
+    next templated "error"
+  end
 
-    env.request.cookies.each do |cookie|
-      cookie.expires = Time.utc(1990, 1, 1)
-      env.response.cookies << cookie
-    end
+  view_name = "subscriptions_#{sha256(user.email)}"
+  PG_DB.exec("DELETE FROM users * WHERE email = $1", user.email)
+  PG_DB.exec("DELETE FROM session_ids * WHERE email = $1", user.email)
+  PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
+
+  env.request.cookies.each do |cookie|
+    cookie.expires = Time.utc(1990, 1, 1)
+    env.response.cookies << cookie
   end
 
   env.redirect referer
@@ -2186,15 +2192,15 @@ get "/clear_watch_history" do |env|
   sid = env.get? "sid"
   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
-    sid = sid.as(String)
-    csrf_token = generate_response(sid, {":clear_watch_history"}, HMAC_KEY, PG_DB)
-
-    templated "clear_watch_history"
-  else
-    env.redirect referer
+  if !user
+    next env.redirect referer
   end
+
+  user = user.as(User)
+  sid = sid.as(String)
+  csrf_token = generate_response(sid, {":clear_watch_history"}, HMAC_KEY, PG_DB)
+
+  templated "clear_watch_history"
 end
 
 post "/clear_watch_history" do |env|
@@ -2204,22 +2210,23 @@ post "/clear_watch_history" do |env|
   sid = env.get? "sid"
   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
-    sid = sid.as(String)
-    token = env.params.body["csrf_token"]?
-
-    begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
-    rescue ex
-      error_message = ex.message
-      env.response.status_code = 400
-      next templated "error"
-    end
-
-    PG_DB.exec("UPDATE users SET watched = '{}' WHERE email = $1", user.email)
+  if !user
+    next env.redirect referer
   end
 
+  user = user.as(User)
+  sid = sid.as(String)
+  token = env.params.body["csrf_token"]?
+
+  begin
+    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+  rescue ex
+    error_message = ex.message
+    env.response.status_code = 400
+    next templated "error"
+  end
+
+  PG_DB.exec("UPDATE users SET watched = '{}' WHERE email = $1", user.email)
   env.redirect referer
 end
 
@@ -2230,25 +2237,25 @@ get "/authorize_token" do |env|
   sid = env.get? "sid"
   referer = get_referer(env)
 
-  if user
-    user = user.as(User)
-    sid = sid.as(String)
-    csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, PG_DB)
-
-    scopes = env.params.query["scopes"]?.try &.split(",")
-    scopes ||= [] of String
-
-    callback_url = env.params.query["callback_url"]?
-    if callback_url
-      callback_url = URI.parse(callback_url)
-    end
-
-    expire = env.params.query["expire"]?.try &.to_i?
-
-    templated "authorize_token"
-  else
-    env.redirect referer
+  if !user
+    next env.redirect referer
   end
+
+  user = user.as(User)
+  sid = sid.as(String)
+  csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, PG_DB)
+
+  scopes = env.params.query["scopes"]?.try &.split(",")
+  scopes ||= [] of String
+
+  callback_url = env.params.query["callback_url"]?
+  if callback_url
+    callback_url = URI.parse(callback_url)
+  end
+
+  expire = env.params.query["expire"]?.try &.to_i?
+
+  templated "authorize_token"
 end
 
 post "/authorize_token" do |env|
@@ -2258,44 +2265,46 @@ post "/authorize_token" do |env|
   sid = env.get? "sid"
   referer = get_referer(env)
 
-  if user
-    user = env.get("user").as(User)
-    sid = sid.as(String)
-    token = env.params.body["csrf_token"]?
+  if !user
+    next env.redirect referer
+  end
 
-    begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
-    rescue ex
-      error_message = ex.message
-      env.response.status_code = 400
-      next templated "error"
-    end
+  user = env.get("user").as(User)
+  sid = sid.as(String)
+  token = env.params.body["csrf_token"]?
 
-    scopes = env.params.body.select { |k, v| k.match(/^scopes\[\d+\]$/) }.map { |k, v| v }
-    callback_url = env.params.body["callbackUrl"]?
-    expire = env.params.body["expire"]?.try &.to_i?
+  begin
+    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+  rescue ex
+    error_message = ex.message
+    env.response.status_code = 400
+    next templated "error"
+  end
 
-    access_token = generate_token(user.email, scopes, expire, HMAC_KEY, PG_DB)
+  scopes = env.params.body.select { |k, v| k.match(/^scopes\[\d+\]$/) }.map { |k, v| v }
+  callback_url = env.params.body["callbackUrl"]?
+  expire = env.params.body["expire"]?.try &.to_i?
 
-    if callback_url
-      access_token = URI.escape(access_token)
-      url = URI.parse(callback_url)
+  access_token = generate_token(user.email, scopes, expire, HMAC_KEY, PG_DB)
 
-      if url.query
-        query = HTTP::Params.parse(url.query.not_nil!)
-      else
-        query = HTTP::Params.new
-      end
+  if callback_url
+    access_token = URI.escape(access_token)
+    url = URI.parse(callback_url)
 
-      query["token"] = access_token
-      url.query = query.to_s
-
-      env.redirect url.to_s
+    if url.query
+      query = HTTP::Params.parse(url.query.not_nil!)
     else
-      csrf_token = ""
-      env.set "access_token", access_token
-      templated "authorize_token"
+      query = HTTP::Params.new
     end
+
+    query["token"] = access_token
+    url.query = query.to_s
+
+    env.redirect url.to_s
+  else
+    csrf_token = ""
+    env.set "access_token", access_token
+    templated "authorize_token"
   end
 end
 
