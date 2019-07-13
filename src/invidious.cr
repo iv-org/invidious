@@ -80,6 +80,7 @@ LOCALES = {
   "es"    => load_locale("es"),
   "eu"    => load_locale("eu"),
   "fr"    => load_locale("fr"),
+  "is"    => load_locale("is"),
   "it"    => load_locale("it"),
   "nb_NO" => load_locale("nb_NO"),
   "nl"    => load_locale("nl"),
