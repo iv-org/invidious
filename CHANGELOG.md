@@ -1,3 +1,65 @@
+# 0.19.0 (2019-07-13)
+
+# Version 0.19.0: Communities
+
+Hello again everyone! Focus this month has mainly been on improving playback performance, along with a couple new features I'd like to announce. There have been [109 commits](https://github.com/omarroth/invidious/compare/0.18.0...0.19.0) this past month from 10 contributors.
+
+This past month has seen the addition of Chinese (`zh-CN`) and Icelandic (`is`) translations. I would like to give a huge thanks to their respective translators, and again an enormous thanks to everyone who helps translate the site.
+
+I'm delighted to mention that [FreeTube 0.6.0](https://github.com/FreeTubeApp/FreeTube) now supports 1080p thanks to the Invidious API. I would very much recommend reading the [relevant post](https://freetube.writeas.com/freetube-release-0-6-0-beta-1080p-and-a-lot-of-qol) for some more information on how it works, along with several other major improvements. Folks that are interested in adding similar functionality for their own projects should feel free to get in touch.
+
+This past month there has been quite a bit of work on improving memory usage and improving download and playback speeds. As mentioned in the previous release, some extra hardware has been allocated which should also help with this. I'm still looking for ways to improve performance and feedback is always appreciated.
+
+Along with performance, a couple quality of life improvements have been added, including author thumbnails and banners, clickable titles for embedded videos, and better styling for captions, among some other enhancements.
+
+## Communities
+
+Support for YouTube's [communities tab](https://creatoracademy.youtube.com/page/lesson/community-tab) has been added. It's a very interesting but surprisingly unknown feature. Essentially, providing comments for a channel, rather than a video, where an author can post updates for their subscribers.
+
+It's commonly used to promote interesting links and foster discussion. I hope this feature helps people find more interesting content that otherwise would have been overlooked.
+
+## For Developers
+
+For accessing channel communities, an `/api/v1/channels/comments/:ucid` endpoint has been added, with similar behavior and schema to `/api/v1/comments/:id`, with an extra `attachment` field for top-level comments. More info on usage and available data can be found in the [wiki](https://github.com/omarroth/invidious/wiki/API#get-apiv1channelscommentsucid-apiv1channelsucidcomments).
+
+An `/api/v1/auth/feeds` endpoint has been added for programmatically accessing a user's subscription feed, with options for displaying notifications and filtering an existing feed.
+
+An `/api/v1/search/suggestions` endpoint has been added for retrieving suggestions for a given query.
+
+## For Administrators
+
+It is now possible to disable more resource intensive features, such as downloads and DASH functionality by adding `disable_proxy` to your config. See [#453](https://github.com/omarroth/invidious/issues/453) and the [Wiki](https://github.com/omarroth/invidious/wiki/Configuration) for more information and example usage. I expect this to be a big help for folks with limited bandwidth when hosting their own instances.
+
+## Finances
+
+### Donations
+
+- [Patreon](https://www.patreon.com/omarroth) : \$38.39
+- [Liberapay](https://liberapay.com/omarroth) : \$84.85
+- Crypto : ~\$0.00 (converted from BCH, BTC)
+- Total : \$123.24
+
+### Expenses
+
+- invidious-load1 (nyc1) : \$10.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node5 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node6 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node7 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node8 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node9 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node10 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$105.00
+
+The goal on Patreon has been updated to reflect the above expenses. As mentioned above, the main reason for more hardware is to improve playback and download speeds, although I'm still looking into improving performance without allocating more hardware.
+
+As always I'm grateful for everyone's support and feedback. I'll see you all next month.
+
 # 0.18.0 (2019-06-06)
 
 # Version 0.18.0: Native Notifications and Optimizations
