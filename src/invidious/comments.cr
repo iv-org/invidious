@@ -339,7 +339,7 @@ def template_youtube_comments(comments, locale, thin_mode)
             END_HTML
           else
             html << <<-END_HTML
-              <iframe id='ivplayer' type='text/html' style='position:absolute;width:100%;height:100%;left:0;top:0' src='/embed/#{attachment["videoId"]?}' frameborder='0'></iframe>
+              <iframe id='ivplayer' type='text/html' style='position:absolute;width:100%;height:100%;left:0;top:0' src='/embed/#{attachment["videoId"]?}?autoplay=0' frameborder='0'></iframe>
             END_HTML
           end
 
