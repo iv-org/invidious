@@ -20,6 +20,7 @@ end
 
 def make_client(url : URI, region = nil)
   client = HTTPClient.new(url)
+  client.family = CONFIG.force_resolve
   client.read_timeout = 15.seconds
   client.connect_timeout = 15.seconds
 
