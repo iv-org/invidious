@@ -989,7 +989,7 @@ post "/login" do |env|
         next templated "error"
       end
 
-      if challenge_results[0][-1]?.try &.[0]?.try &.as_a?
+      if challenge_results[0][-1]?.try &.[0].as_a?.try &.[0][2]?.try &.== "TWO_STEP_VERIFICATION"
         traceback << "User has 2FA.<br/>"
 
         # Prefer Authenticator app and SMS over unsupported protocols
