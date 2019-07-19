@@ -34,7 +34,7 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="local"><%= translate(locale, "Proxy videos? ") %></label>
+                <label for="local"><%= translate(locale, "Proxy videos: ") %></label>
                 <input name="local" id="local" type="checkbox" <% if preferences.local && !CONFIG.disabled?("local") %>checked<% end %> <% if CONFIG.disabled?("local") %>disabled<% end %>>
             </div>
 
@@ -92,12 +92,12 @@ function update_value(element) {
             </div>
 
             <div class="pure-control-group">
-                <label for="related_videos"><%= translate(locale, "Show related videos? ") %></label>
+                <label for="related_videos"><%= translate(locale, "Show related videos: ") %></label>
                 <input name="related_videos" id="related_videos" type="checkbox" <% if preferences.related_videos %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="annotations"><%= translate(locale, "Show annotations by default? ") %></label>
+                <label for="annotations"><%= translate(locale, "Show annotations by default: ") %></label>
                 <input name="annotations" id="annotations" type="checkbox" <% if preferences.annotations %>checked<% end %>>
             </div>
 
@@ -126,7 +126,7 @@ function update_value(element) {
                 <legend><%= translate(locale, "Subscription preferences") %></legend>
 
                 <div class="pure-control-group">
-                    <label for="annotations_subscribed"><%= translate(locale, "Show annotations by default for subscribed channels? ") %></label>
+                    <label for="annotations_subscribed"><%= translate(locale, "Show annotations by default for subscribed channels: ") %></label>
                     <input name="annotations_subscribed" id="annotations_subscribed" type="checkbox" <% if preferences.annotations_subscribed %>checked<% end %>>
                 </div>
 
@@ -200,27 +200,27 @@ function update_value(element) {
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="top_enabled"><%= translate(locale, "Top enabled? ") %></label>
+                    <label for="top_enabled"><%= translate(locale, "Top enabled: ") %></label>
                     <input name="top_enabled" id="top_enabled" type="checkbox" <% if config.top_enabled %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="captcha_enabled"><%= translate(locale, "CAPTCHA enabled? ") %></label>
+                    <label for="captcha_enabled"><%= translate(locale, "CAPTCHA enabled: ") %></label>
                     <input name="captcha_enabled" id="captcha_enabled" type="checkbox" <% if config.captcha_enabled %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="login_enabled"><%= translate(locale, "Login enabled? ") %></label>
+                    <label for="login_enabled"><%= translate(locale, "Login enabled: ") %></label>
                     <input name="login_enabled" id="login_enabled" type="checkbox" <% if config.login_enabled %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="registration_enabled"><%= translate(locale, "Registration enabled? ") %></label>
+                    <label for="registration_enabled"><%= translate(locale, "Registration enabled: ") %></label>
                     <input name="registration_enabled" id="registration_enabled" type="checkbox" <% if config.registration_enabled %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="statistics_enabled"><%= translate(locale, "Report statistics? ") %></label>
+                    <label for="statistics_enabled"><%= translate(locale, "Report statistics: ") %></label>
                     <input name="statistics_enabled" id="statistics_enabled" type="checkbox" <% if config.statistics_enabled %>checked<% end %>>
                 </div>
             <% end %>
