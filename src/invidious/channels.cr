@@ -375,13 +375,14 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
     json = JSON.parse(response.body)
 
     if json["load_more_widget_html"].as_s.empty?
-      return [] of SearchItem, nil
-    end
+      continuation = nil
+    else
+      continuation = XML.parse_html(json["load_more_widget_html"].as_s)
+      continuation = continuation.xpath_node(%q(//button[@data-uix-load-more-href]))
 
-    continuation = XML.parse_html(json["load_more_widget_html"].as_s)
-    continuation = continuation.xpath_node(%q(//button[@data-uix-load-more-href]))
-    if continuation
-      continuation = extract_channel_playlists_cursor(continuation["data-uix-load-more-href"], auto_generated)
+      if continuation
+        continuation = extract_channel_playlists_cursor(continuation["data-uix-load-more-href"], auto_generated)
+      end
     end
 
     html = XML.parse_html(json["content_html"].as_s)
