@@ -157,37 +157,44 @@ def produce_playlist_url(id, index)
   end
   ucid = "VL" + id
 
-  meta = IO::Memory.new
-  meta.write(Bytes[0x08])
-  meta.write(write_var_int(index))
+  data = IO::Memory.new
+  data.write_byte 0x08
+  VarInt.to_io(data, index)
 
-  meta.rewind
-  meta = Base64.urlsafe_encode(meta.to_slice, false)
-  meta = "PT:#{meta}"
-
-  continuation = IO::Memory.new
-  continuation.write(Bytes[0x7a, meta.size])
-  continuation.print(meta)
-
-  continuation.rewind
-  meta = Base64.urlsafe_encode(continuation.to_slice)
-  meta = URI.escape(meta)
+  data.rewind
+  data = Base64.urlsafe_encode(data, false)
+  data = "PT:#{data}"
 
   continuation = IO::Memory.new
-  continuation.write(Bytes[0x12, ucid.size])
-  continuation.print(ucid)
-  continuation.write(Bytes[0x1a, meta.size])
-  continuation.print(meta)
+  continuation.write_byte 0x7a
+  VarInt.to_io(continuation, data.bytesize)
+  continuation.print data
 
-  wrapper = IO::Memory.new
-  wrapper.write(Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02, continuation.size])
-  wrapper.print(continuation)
-  wrapper.rewind
+  data = Base64.urlsafe_encode(continuation)
+  cursor = URI.escape(data)
 
-  wrapper = Base64.urlsafe_encode(wrapper.to_slice)
-  wrapper = URI.escape(wrapper)
+  data = IO::Memory.new
 
-  url = "/browse_ajax?continuation=#{wrapper}&gl=US&hl=en"
+  data.write_byte 0x12
+  VarInt.to_io(data, ucid.bytesize)
+  data.print ucid
+
+  data.write_byte 0x1a
+  VarInt.to_io(data, cursor.bytesize)
+  data.print cursor
+
+  data.rewind
+
+  buffer = IO::Memory.new
+  buffer.write Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02]
+  VarInt.to_io(buffer, data.bytesize)
+
+  IO.copy data, buffer
+
+  continuation = Base64.urlsafe_encode(buffer)
+  continuation = URI.escape(continuation)
+
+  url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 
   return url
 end

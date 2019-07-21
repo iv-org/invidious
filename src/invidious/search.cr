@@ -374,45 +374,51 @@ end
 def produce_channel_search_url(ucid, query, page)
   page = "#{page}"
 
-  meta = IO::Memory.new
-  meta.write(Bytes[0x12, 0x06])
-  meta.print("search")
+  data = IO::Memory.new
+  data.write_byte 0x12
+  data.write_byte 0x06
+  data.print "search"
 
-  meta.write(Bytes[0x30, 0x02])
-  meta.write(Bytes[0x38, 0x01])
-  meta.write(Bytes[0x60, 0x01])
-  meta.write(Bytes[0x6a, 0x00])
-  meta.write(Bytes[0xb8, 0x01, 0x00])
+  data.write Bytes[0x30, 0x02]
+  data.write Bytes[0x38, 0x01]
+  data.write Bytes[0x60, 0x01]
+  data.write Bytes[0x6a, 0x00]
+  data.write Bytes[0xb8, 0x01, 0x00]
 
-  meta.write(Bytes[0x7a, page.size])
-  meta.print(page)
+  data.write_byte 0x7a
+  VarInt.to_io(data, page.bytesize)
+  data.print page
 
-  meta.rewind
-  meta = Base64.urlsafe_encode(meta.to_slice)
-  meta = URI.escape(meta)
+  data.rewind
+  data = Base64.urlsafe_encode(data)
+  continuation = URI.escape(data)
 
-  continuation = IO::Memory.new
-  continuation.write(Bytes[0x12, ucid.size])
-  continuation.print(ucid)
+  data = IO::Memory.new
 
-  continuation.write(Bytes[0x1a, meta.size])
-  continuation.print(meta)
+  data.write_byte 0x12
+  VarInt.to_io(data, ucid.bytesize)
+  data.print ucid
 
-  continuation.write(Bytes[0x5a, query.size])
-  continuation.print(query)
+  data.write_byte 0x1a
+  VarInt.to_io(data, continuation.bytesize)
+  data.print continuation
 
-  continuation.rewind
-  continuation = continuation.gets_to_end
+  data.write_byte 0x5a
+  VarInt.to_io(data, query.bytesize)
+  data.print query
 
-  wrapper = IO::Memory.new
-  wrapper.write(Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02, continuation.size])
-  wrapper.print(continuation)
-  wrapper.rewind
+  data.rewind
 
-  wrapper = Base64.urlsafe_encode(wrapper.to_slice)
-  wrapper = URI.escape(wrapper)
+  buffer = IO::Memory.new
+  buffer.write Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02]
+  VarInt.to_io(buffer, data.bytesize)
 
-  url = "/browse_ajax?continuation=#{wrapper}&gl=US&hl=en"
+  IO.copy data, buffer
+
+  continuation = Base64.urlsafe_encode(buffer)
+  continuation = URI.escape(continuation)
+
+  url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 
   return url
 end

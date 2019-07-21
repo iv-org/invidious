@@ -266,50 +266,40 @@ def get_referer(env, fallback = "/", unroll = true)
   return referer
 end
 
-def read_var_int(bytes)
-  num_read = 0
-  result = 0
+struct VarInt
+  def self.from_io(io : IO, format = IO::ByteFormat::BigEndian) : Int32
+    result = 0_i32
+    num_read = 0
 
-  read = bytes[num_read]
+    loop do
+      byte = io.read_byte
+      raise "Invalid VarInt" if !byte
+      value = byte & 0x7f
 
-  if bytes.size == 1
-    result = bytes[0].to_i32
-  else
-    while ((read & 0b10000000) != 0)
-      read = bytes[num_read].to_u64
-      value = (read & 0b01111111)
-      result |= (value << (7 * num_read))
-
+      result |= value.to_i32 << (7 * num_read)
       num_read += 1
-      if num_read > 5
-        raise "VarInt is too big"
-      end
+
+      break if byte & 0x80 == 0
+      raise "Invalid VarInt" if num_read > 5
     end
+
+    result
   end
 
-  return result
-end
+  def self.to_io(io : IO, value : Int32)
+    io.write_byte 0x00 if value == 0x00
 
-def write_var_int(value : Int)
-  bytes = [] of UInt8
-  value = value.to_u32
-
-  if value == 0
-    bytes = [0_u8]
-  else
     while value != 0
-      temp = (value & 0b01111111).to_u8
-      value = value >> 7
+      byte = (value & 0x7f).to_u8
+      value >>= 7
 
       if value != 0
-        temp |= 0b10000000
+        byte |= 0x80
       end
 
-      bytes << temp
+      io.write_byte byte
     end
   end
-
-  return Slice.new(bytes.to_unsafe, bytes.size)
 end
 
 def sha256(text)

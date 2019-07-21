@@ -564,108 +564,105 @@ def content_to_comment_html(content)
 end
 
 def produce_comment_continuation(video_id, cursor = "", sort_by = "top")
-  continuation = IO::Memory.new
+  data = IO::Memory.new
 
-  continuation.write(Bytes[0x12, 0x26])
+  data.write Bytes[0x12, 0x26]
 
-  continuation.write(Bytes[0x12, video_id.size])
-  continuation.print(video_id)
+  data.write_byte 0x12
+  VarInt.to_io(data, video_id.bytesize)
+  data.print video_id
 
-  continuation.write(Bytes[0xc0, 0x01, 0x01])
-  continuation.write(Bytes[0xc8, 0x01, 0x01])
-  continuation.write(Bytes[0xe0, 0x01, 0x01])
+  data.write Bytes[0xc0, 0x01, 0x01]
+  data.write Bytes[0xc8, 0x01, 0x01]
+  data.write Bytes[0xe0, 0x01, 0x01]
 
-  continuation.write(Bytes[0xa2, 0x02, 0x0d])
-  continuation.write(Bytes[0x28, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01])
+  data.write Bytes[0xa2, 0x02, 0x0d]
+  data.write Bytes[0x28, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01]
 
-  continuation.write(Bytes[0x40, 0x00])
-  continuation.write(Bytes[0x18, 0x06])
+  data.write Bytes[0x40, 0x00]
+  data.write Bytes[0x18, 0x06]
 
   if cursor.empty?
-    continuation.write(Bytes[0x32])
-    continuation.write(write_var_int(video_id.size + 8))
+    data.write Bytes[0x32]
+    VarInt.to_io(data, cursor.bytesize + video_id.bytesize + 8)
 
-    continuation.write(Bytes[0x22, video_id.size + 4])
-    continuation.write(Bytes[0x22, video_id.size])
-    continuation.print(video_id)
+    data.write Bytes[0x22, video_id.bytesize + 4]
+    data.write Bytes[0x22, video_id.bytesize]
+    data.print video_id
 
     case sort_by
     when "top"
-      continuation.write(Bytes[0x30, 0x00])
+      data.write Bytes[0x30, 0x00]
     when "new", "newest"
-      continuation.write(Bytes[0x30, 0x01])
+      data.write Bytes[0x30, 0x01]
     end
 
-    continuation.write(Bytes[0x78, 0x02])
+    data.write(Bytes[0x78, 0x02])
   else
-    continuation.write(Bytes[0x32])
-    continuation.write(write_var_int(cursor.size + video_id.size + 11))
+    data.write Bytes[0x32]
+    VarInt.to_io(data, cursor.bytesize + video_id.bytesize + 11)
 
-    continuation.write(Bytes[0x0a])
-    continuation.write(write_var_int(cursor.size))
-    continuation.print(cursor)
+    data.write_byte 0x0a
+    VarInt.to_io(data, cursor.bytesize)
+    data.print cursor
 
-    continuation.write(Bytes[0x22, video_id.size + 4])
-    continuation.write(Bytes[0x22, video_id.size])
-    continuation.print(video_id)
+    data.write Bytes[0x22, video_id.bytesize + 4]
+    data.write Bytes[0x22, video_id.bytesize]
+    data.print video_id
 
     case sort_by
     when "top"
-      continuation.write(Bytes[0x30, 0x00])
+      data.write Bytes[0x30, 0x00]
     when "new", "newest"
-      continuation.write(Bytes[0x30, 0x01])
+      data.write Bytes[0x30, 0x01]
     end
 
-    continuation.write(Bytes[0x28, 0x14])
+    data.write Bytes[0x28, 0x14]
   end
 
-  continuation.rewind
-  continuation = continuation.gets_to_end
-
-  continuation = Base64.urlsafe_encode(continuation.to_slice)
+  continuation = Base64.urlsafe_encode(data)
   continuation = URI.escape(continuation)
 
   return continuation
 end
 
 def produce_comment_reply_continuation(video_id, ucid, comment_id)
-  continuation = IO::Memory.new
+  data = IO::Memory.new
 
-  continuation.write(Bytes[0x12, 0x26])
+  data.write Bytes[0x12, 0x26]
 
-  continuation.write(Bytes[0x12, video_id.size])
-  continuation.print(video_id)
+  data.write_byte 0x12
+  VarInt.to_io(data, video_id.size)
+  data.print video_id
 
-  continuation.write(Bytes[0xc0, 0x01, 0x01])
-  continuation.write(Bytes[0xc8, 0x01, 0x01])
-  continuation.write(Bytes[0xe0, 0x01, 0x01])
+  data.write Bytes[0xc0, 0x01, 0x01]
+  data.write Bytes[0xc8, 0x01, 0x01]
+  data.write Bytes[0xe0, 0x01, 0x01]
 
-  continuation.write(Bytes[0xa2, 0x02, 0x0d])
-  continuation.write(Bytes[0x28, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01])
+  data.write Bytes[0xa2, 0x02, 0x0d]
+  data.write Bytes[0x28, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01]
 
-  continuation.write(Bytes[0x40, 0x00])
-  continuation.write(Bytes[0x18, 0x06])
+  data.write Bytes[0x40, 0x00]
+  data.write Bytes[0x18, 0x06]
 
-  continuation.write(Bytes[0x32, ucid.size + video_id.size + comment_id.size + 16])
-  continuation.write(Bytes[0x1a, ucid.size + video_id.size + comment_id.size + 14])
+  data.write(Bytes[0x32, ucid.size + video_id.size + comment_id.size + 16])
+  data.write(Bytes[0x1a, ucid.size + video_id.size + comment_id.size + 14])
 
-  continuation.write(Bytes[0x12, comment_id.size])
-  continuation.print(comment_id)
+  data.write_byte 0x12
+  VarInt.to_io(data, comment_id.size)
+  data.print comment_id
 
-  continuation.write(Bytes[0x22, 0x02, 0x08, 0x00]) # ??
+  data.write(Bytes[0x22, 0x02, 0x08, 0x00]) # ??
 
-  continuation.write(Bytes[ucid.size + video_id.size + 7])
-  continuation.write(Bytes[ucid.size])
-  continuation.print(ucid)
-  continuation.write(Bytes[0x32, video_id.size])
-  continuation.print(video_id)
-  continuation.write(Bytes[0x40, 0x01])
-  continuation.write(Bytes[0x48, 0x0a])
+  data.write(Bytes[ucid.size + video_id.size + 7])
+  data.write(Bytes[ucid.size])
+  data.print(ucid)
+  data.write(Bytes[0x32, video_id.size])
+  data.print(video_id)
+  data.write(Bytes[0x40, 0x01])
+  data.write(Bytes[0x48, 0x0a])
 
-  continuation.rewind
-  continuation = continuation.gets_to_end
-
-  continuation = Base64.urlsafe_encode(continuation.to_slice)
+  continuation = Base64.urlsafe_encode(data.to_slice)
   continuation = URI.escape(continuation)
 
   return continuation
