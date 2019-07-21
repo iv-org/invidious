@@ -1,6 +1,8 @@
 var notifications, delivered;
 
-function get_subscriptions(callback, retries = 5) {
+function get_subscriptions(callback, retries) {
+    if (retries == undefined) retries = 5;
+
     if (retries <= 0) {
         return;
     }

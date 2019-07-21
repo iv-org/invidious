@@ -1,4 +1,6 @@
-function get_playlist(plid, retries = 5) {
+function get_playlist(plid, retries) {
+    if (retries == undefined) retries = 5;
+
     if (retries <= 0) {
         console.log('Failed to pull playlist');
         return;

@@ -109,7 +109,8 @@ function number_with_separator(val) {
     return val;
 }
 
-function get_playlist(plid, retries = 5) {
+function get_playlist(plid, retries) {
+    if (retries == undefined) retries = 5;
     playlist = document.getElementById('playlist');
 
     if (retries <= 0) {
@@ -194,7 +195,8 @@ function get_playlist(plid, retries = 5) {
     xhr.send();
 }
 
-function get_reddit_comments(retries = 5) {
+function get_reddit_comments(retries) {
+    if (retries == undefined) retries = 5;
     comments = document.getElementById('comments');
 
     if (retries <= 0) {
@@ -270,7 +272,8 @@ function get_reddit_comments(retries = 5) {
     xhr.send();
 }
 
-function get_youtube_comments(retries = 5) {
+function get_youtube_comments(retries) {
+    if (retries == undefined) retries = 5;
     comments = document.getElementById('comments');
 
     if (retries <= 0) {
