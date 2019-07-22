@@ -892,6 +892,7 @@ get "/login" do |env|
 
   tfa = env.params.query["tfa"]?
   tfa ||= false
+  prompt = ""
 
   templated "login"
 end
@@ -989,15 +990,22 @@ post "/login" do |env|
         next templated "error"
       end
 
-      if challenge_results[0][-1]?.try &.[0].as_a?.try &.[0][2]?.try &.== "TWO_STEP_VERIFICATION"
-        traceback << "User has 2FA.<br/>"
+      prompt_type = challenge_results[0][-1]?.try &.[0].as_a?.try &.[0][2]?
+      if {"TWO_STEP_VERIFICATION", "LOGIN_CHALLENGE"}.includes? prompt_type
+        traceback << "Handling prompt #{prompt_type}.<br/>"
+        case prompt_type
+        when "TWO_STEP_VERIFICATION"
+          prompt_type = 2
+        when "LOGIN_CHALLENGE"
+          prompt_type = 4
+        end
 
         # Prefer Authenticator app and SMS over unsupported protocols
-        if challenge_results[0][-1][0][0][8] != 6 && challenge_results[0][-1][0][0][8] != 9
-          tfa = challenge_results[0][-1][0].as_a.select { |auth_type| auth_type[8] == 6 || auth_type[8] == 9 }[0]
+        if !{6, 9, 12, 15}.includes?(challenge_results[0][-1][0][0][8]) && prompt_type == 4
+          tfa = challenge_results[0][-1][0].as_a.select { |auth_type| {6, 9, 12, 15}.includes? auth_type[8] }[0]
 
           traceback << "Selecting challenge #{tfa[8]}..."
-          select_challenge = {2, nil, nil, nil, {tfa[8]}}.to_json
+          select_challenge = {prompt_type, nil, nil, nil, {tfa[8]}}.to_json
 
           tl = challenge_results[1][2]
 
@@ -1011,62 +1019,84 @@ post "/login" do |env|
           tfa = challenge_results[0][-1][0][0]
         end
 
-        if tfa[2] == "TWO_STEP_VERIFICATION"
-          if tfa[5] == "QUOTA_EXCEEDED"
-            error_message = translate(locale, "Quota exceeded, try again in a few hours")
-            env.response.status_code = 423
-            next templated "error"
-          end
-
-          if !tfa_code
-            account_type = "google"
-            captcha_type = "image"
-            tfa = true
-            captcha = nil
-            next templated "login"
-          end
-
-          tl = challenge_results[1][2]
-
-          request_type = tfa[8]
-          case request_type
-          when 6
-            # Authenticator app
-            tfa_req = {
-              user_hash, nil, 2, nil,
-              {6, nil, nil, nil, nil,
-               {tfa_code, false},
-              },
-            }.to_json
-          when 9
-            # Voice or text message
-            tfa_req = {
-              user_hash, nil, 2, nil,
-              {9, nil, nil, nil, nil, nil, nil, nil,
-               {nil, tfa_code, false, 2},
-              },
-            }.to_json
-          else
-            error_message = translate(locale, "Unable to log in, make sure two-factor authentication (Authenticator or SMS) is turned on.")
-            env.response.status_code = 500
-            next templated "error"
-          end
-
-          traceback << "Submitting challenge..."
-
-          response = client.post("/_/signin/challenge?hl=en&TL=#{tl}", headers, login_req(tfa_req))
-          headers = response.cookies.add_request_headers(headers)
-          challenge_results = JSON.parse(response.body[5..-1])
-
-          if (challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED") ||
-             (challenge_results[0][-1]?.try &.[5] == "INVALID_INPUT")
-            error_message = translate(locale, "Invalid TFA code")
-            env.response.status_code = 401
-            next templated "error"
-          end
-
-          traceback << "done.<br/>"
+        if tfa[5] == "QUOTA_EXCEEDED"
+          error_message = translate(locale, "Quota exceeded, try again in a few hours")
+          env.response.status_code = 423
+          next templated "error"
         end
+
+        if !tfa_code
+          account_type = "google"
+          captcha_type = "image"
+
+          case tfa[8]
+          when 6, 9
+            prompt = "Google verification code"
+          when 12
+            prompt = "Login verification, recovery email: #{tfa[-1][tfa[-1].as_h.keys[0]][0]}"
+          when 15
+            prompt = "Login verification, security question: #{tfa[-1][tfa[-1].as_h.keys[0]][0]}"
+          else
+            prompt = "Google verification code"
+          end
+
+          tfa = true
+          captcha = nil
+          next templated "login"
+        end
+
+        tl = challenge_results[1][2]
+
+        request_type = tfa[8]
+        case request_type
+        when 6 # Authenticator app
+          tfa_req = {
+            user_hash, nil, 2, nil,
+            {6, nil, nil, nil, nil,
+             {tfa_code, false},
+            },
+          }.to_json
+        when 9 # Voice or text message
+          tfa_req = {
+            user_hash, nil, 2, nil,
+            {9, nil, nil, nil, nil, nil, nil, nil,
+             {nil, tfa_code, false, 2},
+            },
+          }.to_json
+        when 12 # Recovery email
+          tfa_req = {
+            user_hash, nil, 4, nil,
+            {12, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+             {tfa_code},
+            },
+          }.to_json
+        when 15 # Security question
+          tfa_req = {
+            user_hash, nil, 5, nil,
+            {15, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil,
+             {tfa_code},
+            },
+          }.to_json
+        else
+          error_message = translate(locale, "Unable to log in, make sure two-factor authentication (Authenticator or SMS) is turned on.")
+          env.response.status_code = 500
+          next templated "error"
+        end
+
+        traceback << "Submitting challenge..."
+
+        response = client.post("/_/signin/challenge?hl=en&TL=#{tl}", headers, login_req(tfa_req))
+        headers = response.cookies.add_request_headers(headers)
+        challenge_results = JSON.parse(response.body[5..-1])
+
+        if (challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED") ||
+           (challenge_results[0][-1]?.try &.[5] == "INVALID_INPUT")
+          error_message = translate(locale, "Invalid TFA code")
+          env.response.status_code = 401
+          next templated "error"
+        end
+
+        traceback << "done.<br/>"
       end
 
       traceback << "Logging in..."
@@ -1080,8 +1110,7 @@ post "/login" do |env|
         end
 
         # TODO: Occasionally there will be a second page after login confirming
-        # the user's phone number, which we will likely choke on.
-        # if location.includes? "SmsAuthInterstitial"
+        # the user's phone number ("/b/0/SmsAuthInterstitial"), which we currently choke on.
 
         login = client.get(location, headers)
         headers = login.cookies.add_request_headers(headers)
@@ -1225,6 +1254,7 @@ post "/login" do |env|
 
           account_type = "invidious"
           tfa = false
+          prompt = ""
 
           if captcha_type == "image"
             captcha = generate_captcha(HMAC_KEY, PG_DB)

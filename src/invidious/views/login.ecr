@@ -102,8 +102,8 @@
                         <% end %>
 
                         <% if tfa %>
-                            <label for="tfa"><%= translate(locale, "Google verification code") %> :</label>
-                            <input required class="pure-input-1" name="tfa" type="text" placeholder="<%= translate(locale, "Google verification code") %>">
+                            <label for="tfa"><%= translate(locale, prompt) %> :</label>
+                            <input required class="pure-input-1" name="tfa" type="text" placeholder="<%= translate(locale, prompt) %>">
                         <% end %>
 
                         <button type="submit" class="pure-button pure-button-primary"><%= translate(locale, "Sign In") %></button>
