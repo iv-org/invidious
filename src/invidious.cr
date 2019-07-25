@@ -559,7 +559,8 @@ get "/embed/:id" do |env|
 
   # YouTube embed supports `videoseries` with either `list=PLID`
   # or `playlist=VIDEO_ID,VIDEO_ID`
-  if id == "videoseries"
+  case id
+  when "videoseries"
     url = ""
 
     if plid
@@ -584,7 +585,26 @@ get "/embed/:id" do |env|
     end
 
     next env.redirect url
-  elsif id.size > 11
+  when "live_stream"
+    client = make_client(YT_URL)
+    response = client.get("/embed/live_stream?channel=#{env.params.query["channel"]? || ""}")
+    video_id = response.body.match(/"video_id":"(?<video_id>[a-zA-Z0-9_-]{11})"/).try &.["video_id"]
+
+    env.params.query.delete_all("channel")
+
+    if !video_id || video_id == "live_stream"
+      error_message = "Video is unavailable."
+      next templated "error"
+    end
+
+    url = "/embed/#{video_id}"
+
+    if env.params.query.size > 0
+      url += "?#{env.params.query}"
+    end
+
+    next env.redirect url
+  when id.size > 11
     url = "/embed/#{id[0, 11]}"
 
     if env.params.query.size > 0
