@@ -532,6 +532,30 @@ get "/watch" do |env|
   templated "watch"
 end
 
+get "/embed/" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  if plid = env.params.query["list"]?
+    begin
+      videos = fetch_playlist_videos(plid, 1, 1, locale: locale)
+    rescue ex
+      error_message = ex.message
+      env.response.status_code = 500
+      next templated "error"
+    end
+
+    url = "/embed/#{videos[0].id}?#{env.params.query}"
+
+    if env.params.query.size > 0
+      url += "?#{env.params.query}"
+    end
+  else
+    url = "/"
+  end
+
+  env.redirect url
+end
+
 get "/embed/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   id = env.params.url["id"]
