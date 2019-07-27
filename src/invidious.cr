@@ -903,6 +903,7 @@ get "/search" do |env|
     count, videos = search(search_query, page, search_params, region).as(Tuple)
   end
 
+  env.set "search", query
   templated "search"
 end
 
@@ -3070,6 +3071,7 @@ get "/channel/:ucid/playlists" do |env|
   items = items.map { |item| item.as(SearchPlaylist) }
   items.each { |item| item.author = "" }
 
+  env.set "search", "channel:#{channel.ucid} "
   templated "playlists"
 end
 
@@ -3110,6 +3112,7 @@ get "/channel/:ucid/community" do |env|
     error_message = ex.message
   end
 
+  env.set "search", "channel:#{channel.ucid} "
   templated "community"
 end
 
