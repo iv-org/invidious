@@ -1187,7 +1187,7 @@ def fetch_video(id, region)
 
   title = player_json["videoDetails"]["title"].as_s
   author = player_json["videoDetails"]["author"]?.try &.as_s || ""
-  ucid = player_json["videoDetails"]["ucid"]?.try &.as_s || ""
+  ucid = player_json["videoDetails"]["channelId"]?.try &.as_s || ""
 
   views = html.xpath_node(%q(//meta[@itemprop="interactionCount"]))
     .try &.["content"].to_i64? || 0_i64
