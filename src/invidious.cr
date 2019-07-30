@@ -3649,7 +3649,7 @@ get "/api/v1/top" do |env|
             generate_thumbnails(json, video.id, config, Kemal.config)
           end
 
-          json.field "lengthSeconds", video.info["length_seconds"].to_i
+          json.field "lengthSeconds", video.length_seconds
           json.field "viewCount", video.views
 
           json.field "author", video.author
@@ -4494,7 +4494,7 @@ get "/api/manifest/dash/id/:id" do |env|
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
       "profiles": "urn:mpeg:dash:profile:full:2011", minBufferTime: "PT1.5S", type: "static",
-      mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
+      mediaPresentationDuration: "PT#{video.length_seconds}S") do
       xml.element("Period") do
         i = 0
 

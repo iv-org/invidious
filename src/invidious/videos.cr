@@ -329,7 +329,7 @@ struct Video
 
       json.field "subCountText", self.sub_count_text
 
-      json.field "lengthSeconds", self.info["length_seconds"].to_i
+      json.field "lengthSeconds", self.length_seconds
       json.field "allowRatings", self.allow_ratings
       json.field "rating", self.info["avg_rating"].to_f32
       json.field "isListed", self.is_listed
@@ -563,7 +563,14 @@ struct Video
         fmt["clen"] = fmt_stream["contentLength"]?.try &.as_s || "0"
         fmt["bitrate"] = fmt_stream["bitrate"]?.try &.as_i.to_s || "0"
         fmt["itag"] = fmt_stream["itag"].as_i.to_s
-        fmt["url"] = fmt_stream["url"].as_s
+        if fmt_stream["url"]?
+          fmt["url"] = fmt_stream["url"].as_s
+        end
+        if fmt_stream["cipher"]?
+          HTTP::Params.parse(fmt_stream["cipher"].as_s).each do |key, value|
+            fmt[key] = value
+          end
+        end
         fmt["quality"] = fmt_stream["quality"].as_s
 
         if fmt_stream["width"]?
@@ -635,8 +642,14 @@ struct Video
         fmt["clen"] = adaptive_fmt["contentLength"]?.try &.as_s || "0"
         fmt["bitrate"] = adaptive_fmt["bitrate"]?.try &.as_i.to_s || "0"
         fmt["itag"] = adaptive_fmt["itag"].as_i.to_s
-        fmt["url"] = adaptive_fmt["url"].as_s
-
+        if adaptive_fmt["url"]?
+          fmt["url"] = adaptive_fmt["url"].as_s
+        end
+        if adaptive_fmt["cipher"]?
+          HTTP::Params.parse(adaptive_fmt["cipher"].as_s).each do |key, value|
+            fmt[key] = value
+          end
+        end
         if index = adaptive_fmt["indexRange"]?
           fmt["index"] = "#{index["start"]}-#{index["end"]}"
         end
@@ -827,7 +840,7 @@ struct Video
   end
 
   def length_seconds
-    return self.info["length_seconds"].to_i
+    self.player_response["videoDetails"]["lengthSeconds"].as_s.to_i
   end
 
   db_mapping({
@@ -1162,17 +1175,19 @@ def fetch_video(id, region)
     end
   end
 
-  if info["errorcode"]?.try &.== "2"
+  if info["errorcode"]?.try &.== "2" || !info["player_response"]
     raise "Video unavailable."
   end
 
-  if !info["title"]? || info["title"].empty?
-    raise "Video unavailable."
+  if info["reason"]?
+    raise info["reason"]
   end
 
-  title = info["title"]
-  author = info["author"]? || ""
-  ucid = info["ucid"]? || ""
+  player_json = JSON.parse(info["player_response"])
+
+  title = player_json["videoDetails"]["title"].as_s
+  author = player_json["videoDetails"]["author"]?.try &.as_s || ""
+  ucid = player_json["videoDetails"]["ucid"]?.try &.as_s || ""
 
   views = html.xpath_node(%q(//meta[@itemprop="interactionCount"]))
     .try &.["content"].to_i64? || 0_i64
