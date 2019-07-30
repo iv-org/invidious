@@ -903,6 +903,7 @@ get "/search" do |env|
     count, videos = search(search_query, page, search_params, region).as(Tuple)
   end
 
+  env.set "search", query
   templated "search"
 end
 
@@ -3070,6 +3071,7 @@ get "/channel/:ucid/playlists" do |env|
   items = items.map { |item| item.as(SearchPlaylist) }
   items.each { |item| item.author = "" }
 
+  env.set "search", "channel:#{channel.ucid} "
   templated "playlists"
 end
 
@@ -3110,6 +3112,7 @@ get "/channel/:ucid/community" do |env|
     error_message = ex.message
   end
 
+  env.set "search", "channel:#{channel.ucid} "
   templated "community"
 end
 
@@ -3646,7 +3649,7 @@ get "/api/v1/top" do |env|
             generate_thumbnails(json, video.id, config, Kemal.config)
           end
 
-          json.field "lengthSeconds", video.info["length_seconds"].to_i
+          json.field "lengthSeconds", video.length_seconds
           json.field "viewCount", video.views
 
           json.field "author", video.author
@@ -4491,7 +4494,7 @@ get "/api/manifest/dash/id/:id" do |env|
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
       "profiles": "urn:mpeg:dash:profile:full:2011", minBufferTime: "PT1.5S", type: "static",
-      mediaPresentationDuration: "PT#{video.info["length_seconds"]}S") do
+      mediaPresentationDuration: "PT#{video.length_seconds}S") do
       xml.element("Period") do
         i = 0
 
