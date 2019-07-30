@@ -1179,7 +1179,7 @@ def fetch_video(id, region)
     raise "Video unavailable."
   end
 
-  if info["reason"]?
+  if info["reason"]? && !info["player_response"]["videoDetails"]?
     raise info["reason"]
   end
 
