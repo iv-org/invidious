@@ -87,12 +87,53 @@ end
 
 struct Config
   module ConfigPreferencesConverter
+    def self.to_yaml(value : Preferences, yaml : YAML::Nodes::Builder)
+      value.to_yaml(yaml)
+    end
+
     def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Preferences
       Preferences.new(*ConfigPreferences.new(ctx, node).to_tuple)
     end
+  end
 
-    def self.to_yaml(value : Preferences, yaml : YAML::Nodes::Builder)
-      value.to_yaml(yaml)
+  module FamilyConverter
+    def self.to_yaml(value : Socket::Family, yaml : YAML::Nodes::Builder)
+      case value
+      when Socket::Family::UNSPEC
+        yaml.scalar nil
+      when Socket::Family::INET
+        yaml.scalar "ipv4"
+      when Socket::Family::INET6
+        yaml.scalar "ipv6"
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Socket::Family
+      if node.is_a?(YAML::Nodes::Scalar)
+        case node.value.downcase
+        when "ipv4"
+          Socket::Family::INET
+        when "ipv6"
+          Socket::Family::INET6
+        else
+          Socket::Family::UNSPEC
+        end
+      else
+        node.raise "Expected scalar, not #{node.class}"
+      end
+    end
+  end
+
+  def disabled?(option)
+    case disabled = CONFIG.disable_proxy
+    when Bool
+      return disabled
+    when Array
+      if disabled.includes? option
+        return true
+      else
+        return false
+      end
     end
   end
 
@@ -105,7 +146,6 @@ struct Config
     hmac_key:                 String?,                              # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
     domain:                   String?,                              # Domain to be used for links to resources on the site where an absolute URL is required
     use_pubsub_feeds:         {type: Bool | Int32, default: false}, # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
-    use_feed_events:          {type: Bool | Int32, default: false}, # Update feeds on receiving notifications
     default_home:             {type: String, default: "Top"},
     feed_menu:                {type: Array(String), default: ["Popular", "Top", "Trending", "Subscriptions"]},
     top_enabled:              {type: Bool, default: true},
@@ -119,11 +159,13 @@ struct Config
                                default: Preferences.new(*ConfigPreferences.from_yaml("").to_tuple),
                                converter: ConfigPreferencesConverter,
     },
-    dmca_content:      {type: Array(String), default: [] of String}, # For compliance with DMCA, disables download widget using list of video IDs
-    check_tables:      {type: Bool, default: false},                 # Check table integrity, automatically try to add any missing columns, create tables, etc.
-    cache_annotations: {type: Bool, default: false},                 # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
-    banner:            {type: String?, default: nil},                # Optional banner to be displayed along top of page for announcements, etc.
-    hsts:              {type: Bool?, default: true},                 # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
+    dmca_content:      {type: Array(String), default: [] of String},                                        # For compliance with DMCA, disables download widget using list of video IDs
+    check_tables:      {type: Bool, default: false},                                                        # Check table integrity, automatically try to add any missing columns, create tables, etc.
+    cache_annotations: {type: Bool, default: false},                                                        # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
+    banner:            {type: String?, default: nil},                                                       # Optional banner to be displayed along top of page for announcements, etc.
+    hsts:              {type: Bool?, default: true},                                                        # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
+    disable_proxy:     {type: Bool? | Array(String)?, default: false},                                      # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
+    force_resolve:     {type: Socket::Family, default: Socket::Family::UNSPEC, converter: FamilyConverter}, # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
   })
 end
 
@@ -147,7 +189,7 @@ def rank_videos(db, n)
       published = rs.read(Time)
 
       # Exponential decay, older videos tend to rank lower
-      temperature = wilson_score * Math.exp(-0.000005*((Time.now - published).total_minutes))
+      temperature = wilson_score * Math.exp(-0.000005*((Time.utc - published).total_minutes))
       top << {temperature, id}
     end
   end
@@ -161,40 +203,42 @@ def rank_videos(db, n)
   return top[0..n - 1]
 end
 
-def login_req(login_form, f_req)
+def login_req(f_req)
   data = {
+    # Unfortunately there's not much information available on `bgRequest`; part of Google's BotGuard
+    # Generally this is much longer (>1250 characters), see also
+    # https://github.com/ytdl-org/youtube-dl/commit/baf67a604d912722b0fe03a40e9dc5349a2208cb .
+    # For now this can be empty.
+    "bgRequest"       => %|["identifier",""]|,
     "pstMsg"          => "1",
     "checkConnection" => "youtube",
     "checkedDomains"  => "youtube",
     "hl"              => "en",
-    "deviceinfo"      => %q([null,null,null,[],null,"US",null,null,[],"GlifWebSignIn",null,[null,null,[]]]),
+    "deviceinfo"      => %|[null,null,null,[],null,"US",null,null,[],"GlifWebSignIn",null,[null,null,[]]]|,
     "f.req"           => f_req,
     "flowName"        => "GlifWebSignIn",
     "flowEntry"       => "ServiceLogin",
+    # "cookiesDisabled" => "false",
+    # "gmscoreversion"  => "undefined",
+    # "continue"        => "https://accounts.google.com/ManageAccount",
+    # "azt"             => "",
+    # "bgHash"          => "",
   }
-
-  data = login_form.merge(data)
 
   return HTTP::Params.encode(data)
 end
 
-def html_to_content(description_html)
-  if !description_html
-    description = ""
-    description_html = ""
-  else
-    description_html = description_html.to_s
-    description = description_html.gsub("<br>", "\n")
-    description = description.gsub("<br/>", "\n")
+def html_to_content(description_html : String)
+  description = description_html.gsub(/(<br>)|(<br\/>)/, {
+    "<br>":  "\n",
+    "<br/>": "\n",
+  })
 
-    if description.empty?
-      description = ""
-    else
-      description = XML.parse_html(description).content.strip("\n ")
-    end
+  if !description.empty?
+    description = XML.parse_html(description).content.strip("\n ")
   end
 
-  return description_html, description
+  return description
 end
 
 def extract_videos(nodeset, ucid = nil, author_name = nil)
@@ -231,8 +275,7 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
     author ||= ""
     author_id ||= ""
 
-    description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")]))
-    description_html, description = html_to_content(description_html)
+    description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).try &.to_s || ""
 
     tile = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-tile")]))
     if !tile
@@ -331,7 +374,6 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         author_thumbnail: author_thumbnail,
         subscriber_count: subscriber_count,
         video_count: video_count,
-        description: description,
         description_html: description_html
       )
     else
@@ -347,7 +389,7 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         published ||= Time.unix(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
       rescue ex
       end
-      published ||= Time.now
+      published ||= Time.utc
 
       begin
         view_count = metadata[0].content.rchop(" watching").delete(",").try &.to_i64?
@@ -397,7 +439,6 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         ucid: author_id,
         published: published,
         views: view_count,
-        description: description,
         description_html: description_html,
         length_seconds: length_seconds,
         live_now: live_now,
@@ -523,7 +564,7 @@ def analyze_table(db, logger, table_name, struct_type = nil)
   begin
     db.exec("SELECT * FROM #{table_name} LIMIT 0")
   rescue ex
-    logger.write("CREATE TABLE #{table_name}\n")
+    logger.puts("CREATE TABLE #{table_name}")
 
     db.using_connection do |conn|
       conn.as(PG::Connection).exec_all(File.read("config/sql/#{table_name}.sql"))
@@ -547,7 +588,7 @@ def analyze_table(db, logger, table_name, struct_type = nil)
     if name != column_array[i]?
       if !column_array[i]?
         new_column = column_types.select { |line| line.starts_with? name }[0]
-        logger.write("ALTER TABLE #{table_name} ADD COLUMN #{new_column}\n")
+        logger.puts("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
         db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
         next
       end
@@ -565,26 +606,29 @@ def analyze_table(db, logger, table_name, struct_type = nil)
 
           # There's a column we didn't expect
           if !new_column
-            logger.write("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]}\n")
+            logger.puts("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]}")
             db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
 
             column_array = get_column_array(db, table_name)
             next
           end
 
-          logger.write("ALTER TABLE #{table_name} ADD COLUMN #{new_column}\n")
+          logger.puts("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
           db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
-          logger.write("UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}\n")
+
+          logger.puts("UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}")
           db.exec("UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}")
-          logger.write("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE\n")
+
+          logger.puts("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
           db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
-          logger.write("ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}\n")
+
+          logger.puts("ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}")
           db.exec("ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}")
 
           column_array = get_column_array(db, table_name)
         end
       else
-        logger.write("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE\n")
+        logger.puts("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
         db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
       end
     end
@@ -635,52 +679,25 @@ def cache_annotation(db, id, annotations)
   end
 end
 
-def proxy_file(response, env)
-  if !response.body_io?
-    return
-  end
+def create_notification_stream(env, config, kemal_config, decrypt_function, topics, connection_channel)
+  connection = Channel(PQ::Notification).new(8)
+  connection_channel.send({true, connection})
 
-  if response.headers.includes_word?("Content-Encoding", "gzip")
-    Gzip::Writer.open(env.response) do |deflate|
-      copy_in_chunks(response.body_io, deflate)
-    end
-  elsif response.headers.includes_word?("Content-Encoding", "deflate")
-    Flate::Writer.open(env.response) do |deflate|
-      copy_in_chunks(response.body_io, deflate)
-    end
-  else
-    copy_in_chunks(response.body_io, env.response)
-  end
-end
-
-# https://stackoverflow.com/a/44802810 <3
-def copy_in_chunks(input, output, chunk_size = 4096)
-  size = 1
-  while size > 0
-    size = IO.copy(input, output, chunk_size)
-    Fiber.yield
-  end
-end
-
-def create_notification_stream(env, proxies, config, kemal_config, decrypt_function, topics)
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  env.response.content_type = "text/event-stream"
-
   since = env.params.query["since"]?.try &.to_i?
+  id = 0
 
-  begin
-    id = 0
-
-    if topics.includes? "debug"
-      spawn do
+  if topics.includes? "debug"
+    spawn do
+      begin
         loop do
           time_span = [0, 0, 0, 0]
           time_span[rand(4)] = rand(30) + 5
-          published = Time.now - Time::Span.new(time_span[0], time_span[1], time_span[2], time_span[3])
+          published = Time.utc - Time::Span.new(time_span[0], time_span[1], time_span[2], time_span[3])
           video_id = TEST_IDS[rand(TEST_IDS.size)]
 
-          video = get_video(video_id, PG_DB, proxies)
+          video = get_video(video_id, PG_DB)
           video.published = published
           response = JSON.parse(video.to_json(locale, config, kemal_config, decrypt_function))
 
@@ -701,11 +718,15 @@ def create_notification_stream(env, proxies, config, kemal_config, decrypt_funct
           id += 1
 
           sleep 1.minute
+          Fiber.yield
         end
+      rescue ex
       end
     end
+  end
 
-    spawn do
+  spawn do
+    begin
       if since
         topics.try &.each do |topic|
           case topic
@@ -735,14 +756,24 @@ def create_notification_stream(env, proxies, config, kemal_config, decrypt_funct
           end
         end
       end
+    end
+  end
 
-      PG.connect_listen(PG_URL, "notifications") do |event|
+  spawn do
+    begin
+      loop do
+        event = connection.receive
+
         notification = JSON.parse(event.payload)
         topic = notification["topic"].as_s
         video_id = notification["videoId"].as_s
         published = notification["published"].as_i64
 
-        video = get_video(video_id, PG_DB, proxies)
+        if !topics.try &.includes? topic
+          next
+        end
+
+        video = get_video(video_id, PG_DB)
         video.published = Time.unix(published)
         response = JSON.parse(video.to_json(locale, config, Kemal.config, decrypt_function))
 
@@ -755,24 +786,114 @@ def create_notification_stream(env, proxies, config, kemal_config, decrypt_funct
           end
         end
 
-        if topics.try &.includes? topic
-          env.response.puts "id: #{id}"
-          env.response.puts "data: #{response.to_json}"
-          env.response.puts
-          env.response.flush
+        env.response.puts "id: #{id}"
+        env.response.puts "data: #{response.to_json}"
+        env.response.puts
+        env.response.flush
 
-          id += 1
-        end
+        id += 1
       end
+    rescue ex
+    ensure
+      connection_channel.send({false, connection})
     end
+  end
 
+  begin
     # Send heartbeat
     loop do
-      env.response.puts ":keepalive #{Time.now.to_unix}"
+      env.response.puts ":keepalive #{Time.utc.to_unix}"
       env.response.puts
       env.response.flush
       sleep (20 + rand(11)).seconds
     end
-  rescue
+  rescue ex
+  ensure
+    connection_channel.send({false, connection})
+  end
+end
+
+def extract_initial_data(body)
+  initial_data = body.match(/window\["ytInitialData"\] = (?<info>.*?);\n/).try &.["info"] || "{}"
+  if initial_data.starts_with?("JSON.parse(\"")
+    return JSON.parse(JSON.parse(%({"initial_data":"#{initial_data[12..-3]}"}))["initial_data"].as_s)
+  else
+    return JSON.parse(initial_data)
+  end
+end
+
+def proxy_file(response, env)
+  if response.headers.includes_word?("Content-Encoding", "gzip")
+    Gzip::Writer.open(env.response) do |deflate|
+      response.pipe(deflate)
+    end
+  elsif response.headers.includes_word?("Content-Encoding", "deflate")
+    Flate::Writer.open(env.response) do |deflate|
+      response.pipe(deflate)
+    end
+  else
+    response.pipe(env.response)
+  end
+end
+
+class HTTP::Client::Response
+  def pipe(io)
+    HTTP.serialize_body(io, headers, @body, @body_io, @version)
+  end
+end
+
+# Supports serialize_body without first writing headers
+module HTTP
+  def self.serialize_body(io, headers, body, body_io, version)
+    if body
+      io << body
+    elsif body_io
+      content_length = content_length(headers)
+      if content_length
+        copied = IO.copy(body_io, io)
+        if copied != content_length
+          raise ArgumentError.new("Content-Length header is #{content_length} but body had #{copied} bytes")
+        end
+      elsif Client::Response.supports_chunked?(version)
+        headers["Transfer-Encoding"] = "chunked"
+        serialize_chunked_body(io, body_io)
+      else
+        io << body
+      end
+    end
+  end
+end
+
+class HTTP::Client
+  property family : Socket::Family = Socket::Family::UNSPEC
+
+  private def socket
+    socket = @socket
+    return socket if socket
+
+    hostname = @host.starts_with?('[') && @host.ends_with?(']') ? @host[1..-2] : @host
+    socket = TCPSocket.new hostname, @port, @dns_timeout, @connect_timeout, @family
+    socket.read_timeout = @read_timeout if @read_timeout
+    socket.sync = false
+
+    {% if !flag?(:without_openssl) %}
+      if tls = @tls
+        socket = OpenSSL::SSL::Socket::Client.new(socket, context: tls, sync_close: true, hostname: @host)
+      end
+    {% end %}
+
+    @socket = socket
+  end
+end
+
+class TCPSocket
+  def initialize(host, port, dns_timeout = nil, connect_timeout = nil, family = Socket::Family::UNSPEC)
+    Addrinfo.tcp(host, port, timeout: dns_timeout, family: family) do |addrinfo|
+      super(addrinfo.family, addrinfo.type, addrinfo.protocol)
+      connect(addrinfo, timeout: connect_timeout) do |error|
+        close
+        error
+      end
+    end
   end
 end

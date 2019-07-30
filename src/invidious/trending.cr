@@ -1,4 +1,4 @@
-def fetch_trending(trending_type, proxies, region, locale)
+def fetch_trending(trending_type, region, locale)
   client = make_client(YT_URL)
   headers = HTTP::Headers.new
   headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
@@ -14,14 +14,9 @@ def fetch_trending(trending_type, proxies, region, locale)
 
     response = client.get("/feed/trending?gl=#{region}&hl=en", headers).body
 
-    yt_data = response.match(/window\["ytInitialData"\] = (?<data>.*);/)
-    if yt_data
-      yt_data = JSON.parse(yt_data["data"].rchop(";"))
-    else
-      raise translate(locale, "Could not pull trending pages.")
-    end
+    initial_data = extract_initial_data(response)
 
-    tabs = yt_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][0]["tabRenderer"]["content"]["sectionListRenderer"]["subMenu"]["channelListSubMenuRenderer"]["contents"].as_a
+    tabs = initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][0]["tabRenderer"]["content"]["sectionListRenderer"]["subMenu"]["channelListSubMenuRenderer"]["contents"].as_a
     url = tabs.select { |tab| tab["channelListSubMenuAvatarRenderer"]["title"]["simpleText"] == trending_type }[0]?
 
     if url

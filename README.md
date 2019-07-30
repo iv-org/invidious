@@ -27,12 +27,16 @@ Patreon: https://patreon.com/omarroth
 BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY  
 BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 
-Onion links:
+## Invidious Instances
 
-- kgg2m7yk5aybusll.onion
-- axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion
+See [Invidious Instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances) for a full list of publicly available instances.
 
-[Alternative Invidious instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances)
+### Official Instances
+
+- [invidio.us](https://invidio.us) 🇺🇸  
+  Issuer: Let's Encrypt, [SSLLabs Verification](https://www.ssllabs.com/ssltest/analyze.html?d=invidio.us)
+- [kgg2m7yk5aybusll.onion](http://kgg2m7yk5aybusll.onion)
+- [axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion](http://axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion)
 
 ## Screenshots
 

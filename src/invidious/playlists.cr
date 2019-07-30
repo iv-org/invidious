@@ -1,4 +1,32 @@
 struct PlaylistVideo
+  def to_json(locale, config, kemal_config, json : JSON::Builder)
+    json.object do
+      json.field "title", self.title
+      json.field "videoId", self.id
+
+      json.field "author", self.author
+      json.field "authorId", self.ucid
+      json.field "authorUrl", "/channel/#{self.ucid}"
+
+      json.field "videoThumbnails" do
+        generate_thumbnails(json, self.id, config, kemal_config)
+      end
+
+      json.field "index", self.index
+      json.field "lengthSeconds", self.length_seconds
+    end
+  end
+
+  def to_json(locale, config, kemal_config, json : JSON::Builder | Nil = nil)
+    if json
+      to_json(locale, config, kemal_config, json)
+    else
+      JSON.build do |json|
+        to_json(locale, config, kemal_config, json)
+      end
+    end
+  end
+
   db_mapping({
     title:          String,
     id:             String,
@@ -6,7 +34,7 @@ struct PlaylistVideo
     ucid:           String,
     length_seconds: Int32,
     published:      Time,
-    playlists:      Array(String),
+    plid:           String,
     index:          Int32,
     live_now:       Bool,
   })
@@ -19,7 +47,6 @@ struct Playlist
     author:           String,
     author_thumbnail: String,
     ucid:             String,
-    description:      String,
     description_html: String,
     video_count:      Int32,
     views:            Int64,
@@ -114,8 +141,8 @@ def extract_playlist(plid, nodeset, index)
       author: author,
       ucid: ucid,
       length_seconds: length_seconds,
-      published: Time.now,
-      playlists: [plid],
+      published: Time.utc,
+      plid: plid,
       index: index + offset,
       live_now: live_now
     )
@@ -130,37 +157,44 @@ def produce_playlist_url(id, index)
   end
   ucid = "VL" + id
 
-  meta = IO::Memory.new
-  meta.write(Bytes[0x08])
-  meta.write(write_var_int(index))
+  data = IO::Memory.new
+  data.write_byte 0x08
+  VarInt.to_io(data, index)
 
-  meta.rewind
-  meta = Base64.urlsafe_encode(meta.to_slice, false)
-  meta = "PT:#{meta}"
-
-  continuation = IO::Memory.new
-  continuation.write(Bytes[0x7a, meta.size])
-  continuation.print(meta)
-
-  continuation.rewind
-  meta = Base64.urlsafe_encode(continuation.to_slice)
-  meta = URI.escape(meta)
+  data.rewind
+  data = Base64.urlsafe_encode(data, false)
+  data = "PT:#{data}"
 
   continuation = IO::Memory.new
-  continuation.write(Bytes[0x12, ucid.size])
-  continuation.print(ucid)
-  continuation.write(Bytes[0x1a, meta.size])
-  continuation.print(meta)
+  continuation.write_byte 0x7a
+  VarInt.to_io(continuation, data.bytesize)
+  continuation.print data
 
-  wrapper = IO::Memory.new
-  wrapper.write(Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02, continuation.size])
-  wrapper.print(continuation)
-  wrapper.rewind
+  data = Base64.urlsafe_encode(continuation)
+  cursor = URI.escape(data)
 
-  wrapper = Base64.urlsafe_encode(wrapper.to_slice)
-  wrapper = URI.escape(wrapper)
+  data = IO::Memory.new
 
-  url = "/browse_ajax?continuation=#{wrapper}&gl=US&hl=en"
+  data.write_byte 0x12
+  VarInt.to_io(data, ucid.bytesize)
+  data.print ucid
+
+  data.write_byte 0x1a
+  VarInt.to_io(data, cursor.bytesize)
+  data.print cursor
+
+  data.rewind
+
+  buffer = IO::Memory.new
+  buffer.write Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02]
+  VarInt.to_io(buffer, data.bytesize)
+
+  IO.copy data, buffer
+
+  continuation = Base64.urlsafe_encode(buffer)
+  continuation = URI.escape(continuation)
+
+  url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 
   return url
 end
@@ -186,9 +220,8 @@ def fetch_playlist(plid, locale)
   end
   title = title.content.strip(" \n")
 
-  description_html = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1]))
-  description_html ||= document.xpath_node(%q(//span[@class="pl-header-description-text"]))
-  description_html, description = html_to_content(description_html)
+  description_html = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1])).try &.to_s ||
+                     document.xpath_node(%q(//span[@class="pl-header-description-text"])).try &.to_s || ""
 
   # YouTube allows anonymous playlists, so most of this can be empty or optional
   anchor = document.xpath_node(%q(//ul[@class="pl-header-details"]))
@@ -208,7 +241,7 @@ def fetch_playlist(plid, locale)
   if updated
     updated = decode_date(updated)
   else
-    updated = Time.now
+    updated = Time.utc
   end
 
   playlist = Playlist.new(
@@ -217,7 +250,6 @@ def fetch_playlist(plid, locale)
     author: author,
     author_thumbnail: author_thumbnail,
     ucid: ucid,
-    description: description,
     description_html: description_html,
     video_count: video_count,
     views: views,

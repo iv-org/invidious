@@ -1,6 +1,6 @@
 def generate_token(email, scopes, expire, key, db)
   session = "v1:#{Base64.urlsafe_encode(Random::Secure.random_bytes(32))}"
-  PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", session, email, Time.now)
+  PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", session, email, Time.utc)
 
   token = {
     "session" => session,
@@ -18,7 +18,7 @@ def generate_token(email, scopes, expire, key, db)
 end
 
 def generate_response(session, scopes, key, db, expire = 6.hours, use_nonce = false)
-  expire = Time.now + expire
+  expire = Time.utc + expire
 
   token = {
     "session" => session,
@@ -85,8 +85,8 @@ def validate_request(token, session, request, key, db, locale = nil)
   end
 
   if token["nonce"]? && (nonce = db.query_one?("SELECT * FROM nonces WHERE nonce = $1", token["nonce"], as: {String, Time}))
-    if nonce[1] > Time.now
-      db.exec("UPDATE nonces SET expire = $1 WHERE nonce = $2", Time.new(1990, 1, 1), nonce[0])
+    if nonce[1] > Time.utc
+      db.exec("UPDATE nonces SET expire = $1 WHERE nonce = $2", Time.utc(1990, 1, 1), nonce[0])
     else
       raise translate(locale, "Erroneous token")
     end
@@ -100,7 +100,7 @@ def validate_request(token, session, request, key, db, locale = nil)
   end
 
   expire = token["expire"]?.try &.as_i
-  if expire.try &.< Time.now.to_unix
+  if expire.try &.< Time.utc.to_unix
     raise translate(locale, "Token is expired, please try again")
   end
 
