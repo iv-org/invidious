@@ -521,7 +521,11 @@ get "/watch" do |env|
   end
 
   rating = video.info["avg_rating"].to_f64
-  engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
+  if video.views > 0
+    engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
+  else
+    engagement = 0
+  end
 
   playability_status = video.player_response["playabilityStatus"]?
   if playability_status && playability_status["status"] == "LIVE_STREAM_OFFLINE" && !video.premiere_timestamp
