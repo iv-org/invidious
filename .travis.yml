@@ -1,0 +1,17 @@
+language: crystal
+
+crystal:
+  - latest
+
+dist: bionic
+
+before_install:
+  - shards update
+  - shards install
+
+install:
+  - crystal build --error-on-warnings src/invidious.cr
+
+script:
+  - crystal tool format --check
+  - crystal spec

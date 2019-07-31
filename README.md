@@ -1,5 +1,7 @@
 # Invidious
 
+[![Build Status](https://travis-ci.org/omarroth/invidious.svg?branch=master)](https://travis-ci.org/omarroth/invidious)
+
 ## Invidious is an alternative front-end to YouTube
 
 - Audio-only mode (and no need to keep window open on mobile)
