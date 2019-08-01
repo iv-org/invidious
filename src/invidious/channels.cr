@@ -958,7 +958,8 @@ def get_about_info(ucid, locale)
     banner = nil
   end
 
-  description_html = about.xpath_node(%q(//div[contains(@class,"about-description")])).try &.to_s || ""
+  description_html = about.xpath_node(%q(//div[contains(@class,"about-description")])).try &.to_s ||
+                     %(<div class="about-description branded-page-box-padding"><pre></pre></div>)
 
   paid = about.xpath_node(%q(//meta[@itemprop="paid"])).not_nil!["content"] == "True"
   is_family_friendly = about.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
