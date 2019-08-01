@@ -3739,7 +3739,7 @@ get "/api/v1/channels/:ucid" do |env|
 
           qualities.each do |quality|
             json.object do
-              json.field "url", channel.author_thumbnail.gsub("=s100-", "=s#{quality}-")
+              json.field "url", channel.author_thumbnail.gsub(/=\d+/, "=s#{quality}")
               json.field "width", quality
               json.field "height", quality
             end
@@ -3781,7 +3781,7 @@ get "/api/v1/channels/:ucid" do |env|
 
                   qualities.each do |quality|
                     json.object do
-                      json.field "url", related_channel.author_thumbnail.gsub("=s48-", "=s#{quality}-")
+                      json.field "url", related_channel.author_thumbnail.gsub(/=\d+/, "=s#{quality}")
                       json.field "width", quality
                       json.field "height", quality
                     end
@@ -4079,7 +4079,7 @@ get "/api/v1/playlists/:plid" do |env|
 
           qualities.each do |quality|
             json.object do
-              json.field "url", playlist.author_thumbnail.gsub("=s100-", "=s#{quality}-")
+              json.field "url", playlist.author_thumbnail.gsub(/=\d+/, "=s#{quality}")
               json.field "width", quality
               json.field "height", quality
             end

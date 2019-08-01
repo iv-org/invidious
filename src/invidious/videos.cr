@@ -319,7 +319,7 @@ struct Video
 
           qualities.each do |quality|
             json.object do
-              json.field "url", self.author_thumbnail.gsub("=s48-", "=s#{quality}-")
+              json.field "url", self.author_thumbnail.gsub(/=s\d+/, "=s#{quality}")
               json.field "width", quality
               json.field "height", quality
             end

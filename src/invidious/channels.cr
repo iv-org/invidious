@@ -804,12 +804,13 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config, fo
                           width = thumbnail["width"].as_i
                           height = thumbnail["height"].as_i
                           aspect_ratio = (width.to_f / height.to_f)
+                          url = thumbnail["url"].as_s.gsub(/=w\d+-h\d+(-p)?(-nd)?(-df)?(-rwa)?/, "=s640")
 
                           qualities = {320, 560, 640, 1280, 2000}
 
                           qualities.each do |quality|
                             json.object do
-                              json.field "url", thumbnail["url"].as_s.gsub("=s640-", "=s#{quality}-")
+                              json.field "url", url.gsub(/=s\d+/, "=s#{quality}")
                               json.field "width", quality
                               json.field "height", (quality / aspect_ratio).ceil.to_i
                             end
