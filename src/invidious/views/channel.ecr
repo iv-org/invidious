@@ -28,6 +28,10 @@
 </div>
 
 <div class="h-box">
+    <p><span style="white-space:pre"><%= XML.parse_html(channel.description_html).xpath_node(%q(.//pre)).try &.content %></span></p>
+</div>
+
+<div class="h-box">
     <% ucid = channel.ucid %>
     <% author = channel.author %>
     <% sub_count_text = number_to_short_text(channel.sub_count) %>
