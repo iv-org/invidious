@@ -1,9 +1,9 @@
-a:hover,
-a:active {
+a:not(.pure-button):hover,
+a:not(.pure-button):active {
   color: #167ac6 !important;
 }
 
-a {
+a:not(.pure-button) {
   color: #61809b;
   text-decoration: none;
 }

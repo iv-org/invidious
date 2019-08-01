@@ -1,9 +1,9 @@
-a:hover,
-a:active {
-  color: rgb(0, 182, 240);
+a:not(.pure-button):hover,
+a:not(.pure-button):active {
+  color: rgb(0, 182, 240) !important;
 }
 
-a {
+a:not(.pure-button) {
   color: #a0a0a0;
   text-decoration: none;
 }
