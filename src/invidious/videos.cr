@@ -319,7 +319,7 @@ struct Video
 
           qualities.each do |quality|
             json.object do
-              json.field "url", self.author_thumbnail.gsub("=s48-", "=s#{quality}-")
+              json.field "url", self.author_thumbnail.gsub(/=s\d+/, "=s#{quality}")
               json.field "width", quality
               json.field "height", quality
             end
@@ -1179,7 +1179,7 @@ def fetch_video(id, region)
     raise "Video unavailable."
   end
 
-  if info["reason"]?
+  if info["reason"]? && !info["player_response"]["videoDetails"]?
     raise info["reason"]
   end
 
@@ -1187,7 +1187,7 @@ def fetch_video(id, region)
 
   title = player_json["videoDetails"]["title"].as_s
   author = player_json["videoDetails"]["author"]?.try &.as_s || ""
-  ucid = player_json["videoDetails"]["ucid"]?.try &.as_s || ""
+  ucid = player_json["videoDetails"]["channelId"]?.try &.as_s || ""
 
   views = html.xpath_node(%q(//meta[@itemprop="interactionCount"]))
     .try &.["content"].to_i64? || 0_i64

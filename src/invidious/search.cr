@@ -176,7 +176,7 @@ struct SearchChannel
 
           qualities.each do |quality|
             json.object do
-              json.field "url", self.author_thumbnail.gsub("=s176-", "=s#{quality}-")
+              json.field "url", self.author_thumbnail.gsub(/=\d+/, "=s#{quality}")
               json.field "width", quality
               json.field "height", quality
             end
