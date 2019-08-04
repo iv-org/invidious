@@ -1,5 +1,5 @@
 name: invidious
-version: 0.19.0
+version: 0.19.1
 
 authors:
   - Omar Roth <omarroth@protonmail.com>
@@ -19,6 +19,6 @@ dependencies:
     github: kemalcr/kemal
     version: ~> 0.25.2
 
-crystal: 0.29.0
+crystal: 0.30.0
 
 license: AGPLv3
