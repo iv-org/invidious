@@ -803,8 +803,11 @@ struct Video
   end
 
   def premium
-    premium = self.player_response.to_s.includes? "Get YouTube without the ads."
-    return premium
+    if info["premium"]?
+      self.info["premium"] == "true"
+    else
+      false
+    end
   end
 
   def captions
@@ -1188,6 +1191,8 @@ def fetch_video(id, region)
   title = player_json["videoDetails"]["title"].as_s
   author = player_json["videoDetails"]["author"]?.try &.as_s || ""
   ucid = player_json["videoDetails"]["channelId"]?.try &.as_s || ""
+
+  info["premium"] = html.xpath_node(%q(.//span[text()="Premium"])) ? "true" : "false"
 
   views = html.xpath_node(%q(//meta[@itemprop="interactionCount"]))
     .try &.["content"].to_i64? || 0_i64
