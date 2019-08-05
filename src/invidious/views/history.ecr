@@ -26,32 +26,32 @@ var watched_data = {
 <script src="/js/watched_widget.js"></script>
 
 <div class="pure-g">
-<% watched.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <div class="pure-u-1 pure-u-md-1-4">
-                <div class="h-box">
-                    <a style="width:100%" href="/watch?v=<%= item %>">
-                        <% if !env.get("preferences").as(Preferences).thin_mode %>
-                            <div class="thumbnail">
-                                <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg"/>
-                                <form onsubmit="return false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
-                                    <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                                    <p class="watched">
-                                        <a onclick="mark_unwatched(this)" data-id="<%= item %>" href="javascript:void(0)">
-                                            <button type="submit" style="all:unset">
-                                                <i class="icon ion-md-trash"></i>
-                                            </button>
-                                        </a>
-                                    </p>
-                                </form>
-                            </div>
-                            <p></p>
-                        <% end %>
-                    </a>
+    <% watched.each_slice(4) do |slice| %>
+            <% slice.each do |item| %>
+                <div class="pure-u-1 pure-u-md-1-4">
+                    <div class="h-box">
+                        <a style="width:100%" href="/watch?v=<%= item %>">
+                            <% if !env.get("preferences").as(Preferences).thin_mode %>
+                                <div class="thumbnail">
+                                    <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg"/>
+                                    <form onsubmit="return false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
+                                        <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                                        <p class="watched">
+                                            <a onclick="mark_unwatched(this)" data-id="<%= item %>" href="javascript:void(0)">
+                                                <button type="submit" style="all:unset">
+                                                    <i class="icon ion-md-trash"></i>
+                                                </button>
+                                            </a>
+                                        </p>
+                                    </form>
+                                </div>
+                                <p></p>
+                            <% end %>
+                        </a>
+                    </div>
                 </div>
-            </div>
-        <% end %>
-<% end %>
+            <% end %>
+    <% end %>
 </div>
 
 <div class="pure-g h-box">
