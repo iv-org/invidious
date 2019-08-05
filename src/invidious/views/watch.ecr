@@ -29,6 +29,7 @@
 <script>
 var video_data = {
     id: '<%= video.id %>',
+    index: '<%= continuation %>',
     plid: '<%= plid %>',
     length_seconds: <%= video.length_seconds.to_f %>,
     play_next: <%= !rvs.empty? && !plid && params.continue %>,

@@ -598,7 +598,17 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
   return items
 end
 
-def analyze_table(db, logger, table_name, struct_type = nil)
+def check_enum(db, logger, enum_name, struct_type = nil)
+  if !db.query_one?("SELECT true FROM pg_type WHERE typname = $1", enum_name, as: Bool)
+    logger.puts("CREATE TYPE #{enum_name}")
+
+    db.using_connection do |conn|
+      conn.as(PG::Connection).exec_all(File.read("config/sql/#{enum_name}.sql"))
+    end
+  end
+end
+
+def check_table(db, logger, table_name, struct_type = nil)
   # Create table if it doesn't exist
   begin
     db.exec("SELECT * FROM #{table_name} LIMIT 0")

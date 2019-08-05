@@ -133,7 +133,8 @@ function get_playlist(plid, retries) {
             '&format=html&hl=' + video_data.preferences.locale;
     } else {
         var plid_url = '/api/v1/playlists/' + plid +
-            '?continuation=' + video_data.id +
+            '?index=' + video_data.index +
+            '&continuation=' + video_data.id +
             '&format=html&hl=' + video_data.preferences.locale;
     }
 
@@ -168,6 +169,9 @@ function get_playlist(plid, retries) {
                         }
 
                         url.searchParams.set('list', plid);
+                        if (!plid.startsWith('RD')) {
+                            url.searchParams.set('index', xhr.response.index);
+                        }
                         location.assign(url.pathname + url.search);
                     });
                 }
