@@ -1178,7 +1178,7 @@ def fetch_video(id, region)
     end
   end
 
-  if info["errorcode"]?.try &.== "2" || !info["player_response"]
+  if !info["player_response"]? || info["errorcode"]?.try &.== "2"
     raise "Video unavailable."
   end
 
