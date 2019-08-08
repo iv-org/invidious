@@ -1,4 +1,4 @@
-var toggle_theme = document.getElementById('toggle_theme')
+var toggle_theme = document.getElementById('toggle_theme');
 toggle_theme.href = 'javascript:void(0);';
 
 toggle_theme.addEventListener('click', function () {

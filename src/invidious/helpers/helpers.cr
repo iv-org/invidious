@@ -134,7 +134,7 @@ struct ConfigPreferences
     comments:               {type: Array(String), default: ["youtube", ""], converter: StringToArray},
     continue:               {type: Bool, default: false},
     continue_autoplay:      {type: Bool, default: true},
-    dark_mode:              {type: String, default: "light", converter: BoolToString},
+    dark_mode:              {type: String, default: "", converter: BoolToString},
     latest_only:            {type: Bool, default: false},
     listen:                 {type: Bool, default: false},
     local:                  {type: Bool, default: false},
