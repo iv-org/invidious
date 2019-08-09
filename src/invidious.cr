@@ -1478,6 +1478,9 @@ post "/preferences" do |env|
   speed = env.params.body["speed"]?.try &.as(String).to_f32?
   speed ||= CONFIG.default_user_preferences.speed
 
+  player_style = env.params.body["player_style"]?.try &.as(String)
+  player_style ||= CONFIG.default_user_preferences.player_style
+
   quality = env.params.body["quality"]?.try &.as(String)
   quality ||= CONFIG.default_user_preferences.quality
 
@@ -1546,6 +1549,7 @@ post "/preferences" do |env|
     locale:                 locale,
     max_results:            max_results,
     notifications_only:     notifications_only,
+    player_style:           player_style,
     quality:                quality,
     redirect_feed:          redirect_feed,
     related_videos:         related_videos,

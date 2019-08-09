@@ -258,6 +258,7 @@ struct VideoPreferences
     listen:             Bool,
     local:              Bool,
     preferred_captions: Array(String),
+    player_style:       String,
     quality:            String,
     raw:                Bool,
     region:             String?,
@@ -1264,6 +1265,7 @@ def process_video_params(query, preferences)
   continue_autoplay = query["continue_autoplay"]?.try &.to_i?
   listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
   local = query["local"]? && (query["local"] == "true" || query["local"] == "1").to_unsafe
+  player_style = query["player_style"]?
   preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
   quality = query["quality"]?
   region = query["region"]?
@@ -1281,6 +1283,7 @@ def process_video_params(query, preferences)
     continue_autoplay ||= preferences.continue_autoplay.to_unsafe
     listen ||= preferences.listen.to_unsafe
     local ||= preferences.local.to_unsafe
+    player_style ||= preferences.player_style
     preferred_captions ||= preferences.captions
     quality ||= preferences.quality
     related_videos ||= preferences.related_videos.to_unsafe
@@ -1296,6 +1299,7 @@ def process_video_params(query, preferences)
   continue_autoplay ||= CONFIG.default_user_preferences.continue_autoplay.to_unsafe
   listen ||= CONFIG.default_user_preferences.listen.to_unsafe
   local ||= CONFIG.default_user_preferences.local.to_unsafe
+  player_style ||= CONFIG.default_user_preferences.player_style
   preferred_captions ||= CONFIG.default_user_preferences.captions
   quality ||= CONFIG.default_user_preferences.quality
   related_videos ||= CONFIG.default_user_preferences.related_videos.to_unsafe
@@ -1354,6 +1358,7 @@ def process_video_params(query, preferences)
     controls: controls,
     listen: listen,
     local: local,
+    player_style: player_style,
     preferred_captions: preferred_captions,
     quality: quality,
     raw: raw,

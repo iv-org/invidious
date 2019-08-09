@@ -73,6 +73,7 @@ struct ConfigPreferences
     locale:                 {type: String, default: "en-US"},
     max_results:            {type: Int32, default: 40},
     notifications_only:     {type: Bool, default: false},
+    video_player:           {type: String, default: "invidious"},
     quality:                {type: String, default: "hd720"},
     redirect_feed:          {type: Bool, default: false},
     related_videos:         {type: Bool, default: true},
