@@ -463,8 +463,16 @@ get "/watch" do |env|
 
   # Older videos may not have audio sources available.
   # We redirect here so they're not unplayable
-  if params.listen && audio_streams.empty?
-    next env.redirect "/watch?#{env.params.query}&listen=0"
+  if audio_streams.empty?
+    if params.quality == "dash"
+      env.params.query.delete_all("quality")
+      env.params.query["quality"] = "medium"
+      next env.redirect "/watch?#{env.params.query}"
+    elsif params.listen
+      env.params.query.delete_all("listen")
+      env.params.query["listen"] = "0"
+      next env.redirect "/watch?#{env.params.query}"
+    end
   end
 
   captions = video.captions
@@ -688,6 +696,17 @@ get "/embed/:id" do |env|
 
   video_streams = video.video_streams(adaptive_fmts)
   audio_streams = video.audio_streams(adaptive_fmts)
+
+  if audio_streams.empty?
+    if params.quality == "dash"
+      env.params.query.delete_all("quality")
+      next env.redirect "/embed/#{video_id}?#{env.params.query}"
+    elsif params.listen
+      env.params.query.delete_all("listen")
+      env.params.query["listen"] = "0"
+      next env.redirect "/embed/#{video_id}?#{env.params.query}"
+    end
+  end
 
   captions = video.captions
 
