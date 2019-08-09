@@ -433,3 +433,22 @@ video.video-js {
 .pure-control-group label {
   word-wrap: normal;
 }
+
+.video-js.player-style-invidious {
+  /* This is already the default */
+}
+
+.video-js.player-style-youtube .vjs-control-bar {
+   display: flex;
+   flex-direction: row;
+}
+.video-js.player-style-youtube .vjs-big-play-button {
+  /*
+    Styles copied from video-js.min.css, definition of
+    .vjs-big-play-centered .vjs-big-play-button
+  */
+  top: 50%;
+  left: 50%;
+  margin-top: -.81666em;
+  margin-left: -1.5em;
+}

@@ -138,6 +138,7 @@ struct Preferences
     locale:                 {type: String, default: CONFIG.default_user_preferences.locale, converter: ProcessString},
     max_results:            {type: Int32, default: CONFIG.default_user_preferences.max_results, converter: ClampInt},
     notifications_only:     {type: Bool, default: CONFIG.default_user_preferences.notifications_only},
+    player_style:           {type: String, default: CONFIG.default_user_preferences.player_style, converter: ProcessString},
     quality:                {type: String, default: CONFIG.default_user_preferences.quality, converter: ProcessString},
     redirect_feed:          {type: Bool, default: CONFIG.default_user_preferences.redirect_feed},
     related_videos:         {type: Bool, default: CONFIG.default_user_preferences.related_videos},
