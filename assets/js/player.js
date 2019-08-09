@@ -415,5 +415,50 @@ window.addEventListener('keydown', e => {
     }
 }, false);
 
+// Add support for controlling the player volume by scrolling over it. Adapted from
+// https://github.com/ctd1500/videojs-hotkeys/blob/bb4a158b2e214ccab87c2e7b95f42bc45c6bfd87/videojs.hotkeys.js#L292-L328
+(function() {
+    const volumeStep = 0.05;
+    const enableVolumeScroll = true;
+    const enableHoverScroll = true;
+    const doc = document;
+    const pEl = document.getElementById('player');
+
+    var volumeHover = false;
+    var volumeSelector = pEl.querySelector('.vjs-volume-menu-button') || pEl.querySelector('.vjs-volume-panel');
+    if (volumeSelector != null) {
+      volumeSelector.onmouseover = function() { volumeHover = true; };
+      volumeSelector.onmouseout = function() { volumeHover = false; };
+    }
+
+    var mouseScroll = function mouseScroll(event) {
+      var activeEl = doc.activeElement;
+      if (enableHoverScroll) {
+        // If we leave this undefined then it can match non-existent elements below
+        activeEl = 0;
+      }
+
+      // When controls are disabled, hotkeys will be disabled as well
+      if (player.controls()) {
+        if (volumeHover) {
+          if (enableVolumeScroll) {
+            event = window.event || event;
+            var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+            event.preventDefault();
+
+            if (delta == 1) {
+              increase_volume(volumeStep);
+            } else if (delta == -1) {
+              increase_volume(-volumeStep);
+            }
+          }
+        }
+      }
+    };
+
+    player.on('mousewheel', mouseScroll);
+    player.on("DOMMouseScroll", mouseScroll);
+}());
+
 // Since videojs-share can sometimes be blocked, we defer it until last
 player.share(shareOptions);
