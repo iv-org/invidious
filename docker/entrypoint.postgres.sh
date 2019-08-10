@@ -5,7 +5,7 @@ if [ ! -f /var/lib/postgresql/data/setupFinished ]; then
     echo "### first run - setting up invidious database"
     /usr/local/bin/docker-entrypoint.sh postgres &
     sleep 10
-    until runuser -l postgres -c 'pg_isready' 2>/dev/null; do
+    until su postgres -c 'pg_isready' 2>/dev/null; do
         >&2 echo "### Postgres is unavailable - waiting"
         sleep 5
     done

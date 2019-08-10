@@ -1,4 +1,4 @@
-FROM postgres:10
+FROM postgres:10-alpine
 
 ENV POSTGRES_USER postgres
 # Do not require a PostgreSQL superuser password.
