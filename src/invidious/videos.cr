@@ -1132,35 +1132,20 @@ def fetch_video(id, region)
   info = extract_player_config(response.body, html)
   info["cookie"] = response.cookies.to_h.map { |name, cookie| "#{name}=#{cookie.value}" }.join("; ")
 
-  # Try to use proxies for region-blocked videos
+  allowed_regions = html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).try &.["content"].split(",")
+  allowed_regions ||= [] of String
+
+  # Check for region-blocks
   if info["reason"]? && info["reason"].includes? "your country"
-    bypass_channel = Channel({XML::Node, HTTP::Params} | Nil).new
+    region = allowed_regions.sample(1)[0]?
+    client = make_client(YT_URL, region)
+    response = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
 
-    PROXY_LIST.each do |proxy_region, list|
-      spawn do
-        client = make_client(YT_URL, proxy_region)
-        proxy_response = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
+    html = XML.parse_html(response.body)
+    info = extract_player_config(response.body, html)
 
-        proxy_html = XML.parse_html(proxy_response.body)
-        proxy_info = extract_player_config(proxy_response.body, proxy_html)
-
-        if !proxy_info["reason"]?
-          proxy_info["region"] = proxy_region
-          proxy_info["cookie"] = proxy_response.cookies.to_h.map { |name, cookie| "#{name}=#{cookie.value}" }.join("; ")
-          bypass_channel.send({proxy_html, proxy_info})
-        else
-          bypass_channel.send(nil)
-        end
-      end
-    end
-
-    PROXY_LIST.size.times do
-      response = bypass_channel.receive
-      if response
-        html, info = response
-        break
-      end
-    end
+    info["region"] = region if region
+    info["cookie"] = response.cookies.to_h.map { |name, cookie| "#{name}=#{cookie.value}" }.join("; ")
   end
 
   # Try to pull streams from embed URL
@@ -1214,9 +1199,6 @@ def fetch_video(id, region)
   published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).try &.["content"]
   published ||= Time.utc.to_s("%Y-%m-%d")
   published = Time.parse(published, "%Y-%m-%d", Time::Location.local)
-
-  allowed_regions = html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).try &.["content"].split(",")
-  allowed_regions ||= [] of String
 
   is_family_friendly = html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).try &.["content"] == "True"
   is_family_friendly ||= true
