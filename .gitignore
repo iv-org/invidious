@@ -1,9 +1,7 @@
 /doc/
 /dev/
-/lib/
 /bin/
 /.shards/
 /.vscode/
 /invidious
 /sentry
-shard.lock

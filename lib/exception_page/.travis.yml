@@ -1,0 +1,13 @@
+language: crystal
+addons:
+  chrome: stable
+before_install:
+  # Setup chromedriver for LuckyFlow
+  - sudo apt-get install chromium-chromedriver
+  - sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+script:
+  - crystal spec
+  - crystal tool format spec src --check

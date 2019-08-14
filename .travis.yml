@@ -5,9 +5,6 @@ jobs:
     - stage: build
       language: crystal
       crystal: latest
-      before_install:
-        - shards update
-        - shards install
       install:
         - crystal build --error-on-warnings src/invidious.cr
       script:

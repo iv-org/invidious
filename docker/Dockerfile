@@ -3,7 +3,8 @@ RUN apk add -u crystal shards libc-dev \
     yaml-dev libxml2-dev sqlite-dev sqlite-static zlib-dev openssl-dev
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
-RUN shards update && shards install
+COPY ./shard.lock ./shard.lock
+COPY ./lib/ ./lib/
 COPY ./src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.

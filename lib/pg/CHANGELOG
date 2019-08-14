@@ -1,0 +1,188 @@
+v?.?.?     upcoming
+=====================
+
+v0.18.1    2018-08-09
+=====================
+* bugfix: Fix Time encoding for non-zero-offset times (thanks @straight-shoota)
+
+v0.18.0    2019-08-04
+=====================
+* Add SCRAM-SHA-256 support
+  * NOTE: SASLPrep is missing as of this realease, so not all passwords work
+* Fix reading large number of UUIDs (thanks @asterite)
+* Correctly encode timestamp values to consider microseconds (thanks @asterite)
+* Update crystal db support to 0.6.0 (thanks @bcardiff)
+
+v0.17.0    2019-07-19
+=====================
+* Add `Enumerable` channels overload for `PG.connect_listen` (thanks @vladfaust)
+* Fixes Time.new deprecation warning (thanks @bcardiff)
+* Ensure PQ::Connection#do_close does not raise (thanks @bcardiff)
+* Fix IOError on closed connection (thanks @omarroth)
+* Array fixes (thanks @asterite)
+  * properly handle exceptions during decoding array
+  * add Numeric#inspect
+  * prevent decoding array of numeric as floats
+  * internal: map each type to decoder
+
+v0.16.1    2019-04-15
+=====================
+* Support Crystal v0.28.0 (thanks @bcardiff)
+* Fix support for reading a NoticeResponse at row start (thanks @straight-shoota)
+
+v0.16.0    2019-04-02
+=====================
+* Support connection negotiation without BackendKeyData frame (thanks @rx14)
+* Make connection client encoding check case insesitive (thanks @yumoose)
+* Support client cert auth (thanks @sanderhahn)
+* Fix reading null when expecting array (thanks @straight-shoota)
+* Fix encoding string arrays with special characters (thanks @straight-shoota)
+* Fix version parser (thanks @straight-shoota)
+
+v0.15.0    2018-06-15
+=====================
+* Support Crystal v0.25 (thanks @greenbigfrog)
+* fix PG::Numeric#to_s on numbers with >= weight than ndigits, eg 800000 (#133)
+* fix PG::Numeric#to_s on numbers where the `digits` expected to be zero padded
+  and other cases (#134)
+* Set cause when raising DB::ConnectionRefused (thanks @rx14)
+
+v0.14.1    2017-12-26
+=====================
+* Update crystal db support to 0.5.0 (thanks @bcardiff)
+
+v0.14.0    2017-12-26
+=====================
+* Support Crystal v0.24, breaks support for older versions
+* Support Postgres v10.0+ new two digit version scheme in #version
+
+v0.13.4    2017-10-16
+=====================
+* fix CI (thanks @waghanza)
+* bugfix: make sure to read all nulls (thanks @ZeWebDev)
+* bugfix: no longer hangs on unhandeled exceptions (thanks @bigtunacan)
+
+v0.13.3    2017-03-21
+=====================
+* Increased precision when encoding times
+* Use DB.connect in ListenConnection to avoid creating a connection pool (thanks @bcardiff)
+* Updates to use db 0.4.0. (thanks again @bcardiff)
+
+v0.13.2    2017-02-21
+=====================
+* update to crystal 0.21.0 (thanks @felipeelias)
+
+v0.13.1    2016-12-25
+=====================
+* update to crystal 0.20.3 (thanks @bcardiff)
+
+v0.13.0    2016-12-21
+=====================
+* Update to support crystal-db's connection pooling (thanks @bcardiff)
+
+v0.12.0    2016-12-10
+=====================
+* Uses crystal-db api (thanks @asterite)
+
+v0.11.0    2016-09-04
+=====================
+* Adds dedicated LISTEN connection
+
+v0.10.0    2016-09-03
+=====================
+* Adds support for array types
+
+v0.9.1     2016-08-23
+=====================
+* Wrap query execution in a mutext to prevent protocol desynchronization
+
+v0.9.0     2016-07-26
+=====================
+* remove support for plaintext auth to prevent downgrade mitm attacks
+* fix for multibyte characters in query strings
+
+v0.8.0     2016-06-17
+=====================
+* (breaking) geo points now all have own types (thanks @asterite)
+* support crystal 0.18
+
+v0.7.1     2016-05-15
+=====================
+* (breaking) unknown oids decoded as byte slices instead of string
+* fix shard.yml
+* Adds optional BigRational extension to PG::Numeric
+* bugfixes in protocol
+* adds geo types
+
+v0.7.0     2016-05-05
+=====================
+new features
+  * 100% crystal, using crystal's native async io (no longer using libpq)
+  * each Connection#exec form can take a block, and stream the rows as they
+      come in. This does not store any rows in memory and is very fast.
+  * adds #on_notification for listen/notify support
+
+incompatable changes:
+  * Result.each now yields the entire row and an array of fields
+  * The notice callback now yields an entire
+  * Error classes have changed, some removed
+  * "db_name" changed to "dbname" in hash #initialize to match postgres
+  * on_notice callback gets an object instead of just a string
+
+v0.6.1    2016-05-15
+====================
+* fix shard.yml
+
+v0.6.0    2016-05-04
+====================
+* Adds Adds on_notice callback (thanks @radiospiel)
+* Adds PG::Numeric for numeric/decimal support
+* Note: this will be the last release that links LibPQ
+
+v0.5.0    2015-12-21
+====================
+* Adds Result#each which allows to map a PG result to a struct or class,
+  avoiding temporary memory structures (thanks @ysbaddaden)
+* Connection#exec is now async (thanks @ysbaddaden)
+
+v0.4.3    2015-10-21
+====================
+* Support for byta (thanks @jhass)
+* `Connection`s can be made with a hash of params (thanks @tebakane)
+* Support Crystal 0.9.0 and bytea encoding fix (thanks @technorama)
+
+v0.4.2    2015-09-29
+====================
+* fix UUIDs to have appropriate dashes
+
+v0.4.1    2015-09-29
+====================
+* Fix UUID type
+
+v0.4.0    2015-09-19
+====================
+* Fix and require Crystal 0.8.0
+* Allow #to_hash with typed querying interface (thanks @werner)
+
+v0.3.2    2015-08-28
+====================
+* Connection#exec_all (thanks @solisoft)
+* BUGFIX: bigint and smallint were broken since v0.3.0
+
+v0.3.1    2015-08-25
+====================
+* BUGFIX: previous release would give wrong reults under --release
+* 3x fater again on time parsing, total ~10x faster than text format
+
+v0.3.0    2015-08-24
+====================
+* switch to much faster binary result format (time parsing 3.4x faster than text)
+* decoders are now pluggable with PG::Decoder.register_decoder
+
+v0.2.0    2015-07-25
+====================
+* Add Connection#escape_literal and Connection#escape_identifier
+
+v0.1.0    2015-06-14
+====================
+* first named version using crystal shards

@@ -1,0 +1,30 @@
+version: 1.0
+shards:
+  db:
+    github: crystal-lang/crystal-db
+    version: 0.6.0
+
+  exception_page:
+    github: crystal-loot/exception_page
+    version: 0.1.2
+
+  kemal:
+    github: kemalcr/kemal
+    version: 0.26.0
+
+  kilt:
+    github: jeromegn/kilt
+    version: 0.4.0
+
+  pg:
+    github: will/crystal-pg
+    version: 0.18.1
+
+  radix:
+    github: luislavena/radix
+    version: 0.3.9
+
+  sqlite3:
+    github: crystal-lang/crystal-sqlite3
+    version: 0.13.0
+

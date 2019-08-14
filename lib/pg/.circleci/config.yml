@@ -1,0 +1,50 @@
+version: 2
+
+testdefault: &testdefault
+  docker:
+    - image: crystallang/crystal:latest
+  steps:
+    - checkout
+    - run:
+        name: postgres setup
+        command: |
+          bash .circleci/install.sh
+          bash .circleci/setup.sh
+          touch spec/.run_auth_specs
+    - run: crystal --version
+    - run: crystal tool format --check
+    - run: shards install
+    - run:
+        name: set DATABASE_URL
+        command: echo 'export DATABASE_URL=postgres://postgres@localhost/postgres' >> $BASH_ENV
+    - run: crystal spec --error-on-warnings
+
+noscram: &noscram
+  environment:
+    NOSCRAM: true
+
+jobs:
+  postgresql-11:
+    <<: *testdefault
+  postgresql-10:
+    <<: *testdefault
+  postgresql-9.6:
+    <<: *testdefault
+    <<: *noscram
+  postgresql-9.5:
+    <<: *testdefault
+    <<: *noscram
+  postgresql-9.4:
+    <<: *testdefault
+    <<: *noscram
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - postgresql-11
+      - postgresql-10
+      - postgresql-9.6
+      - postgresql-9.5
+      - postgresql-9.4
+

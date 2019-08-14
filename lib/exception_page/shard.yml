@@ -1,0 +1,15 @@
+name: exception_page
+version: 0.1.2
+
+authors:
+  - Paul Smith <paulcsmith0218@gmail.com>
+  - Faustino Aguilar
+
+development_dependencies:
+  lucky_flow:
+    github: luckyframework/lucky_flow
+    version: ~> 0.2.0
+
+crystal: 0.25.0
+
+license: MIT

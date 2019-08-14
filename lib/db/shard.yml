@@ -1,0 +1,9 @@
+name: db
+version: 0.6.0
+
+authors:
+  - Brian J. Cardiff <bcardiff@manas.tech>
+
+crystal: 0.24.0
+
+license: MIT

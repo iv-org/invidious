@@ -1,0 +1,6 @@
+#!/usr/bin/env crystal
+require "../src/pg"
+
+DB.open(ENV["DATABASE_URL"]) do |db|
+  p db.query_one(ARGV[0], &.read)
+end
