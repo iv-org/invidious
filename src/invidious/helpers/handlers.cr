@@ -69,20 +69,20 @@ class FilteredCompressHandler < Kemal::Handler
     return call_next env if exclude_match? env
 
     {% if flag?(:without_zlib) %}
-        call_next env
-      {% else %}
-        request_headers = env.request.headers
+      call_next env
+    {% else %}
+      request_headers = env.request.headers
 
-        if request_headers.includes_word?("Accept-Encoding", "gzip")
-          env.response.headers["Content-Encoding"] = "gzip"
-          env.response.output = Gzip::Writer.new(env.response.output, sync_close: true)
-        elsif request_headers.includes_word?("Accept-Encoding", "deflate")
-          env.response.headers["Content-Encoding"] = "deflate"
-          env.response.output = Flate::Writer.new(env.response.output, sync_close: true)
-        end
+      if request_headers.includes_word?("Accept-Encoding", "gzip")
+        env.response.headers["Content-Encoding"] = "gzip"
+        env.response.output = Gzip::Writer.new(env.response.output, sync_close: true)
+      elsif request_headers.includes_word?("Accept-Encoding", "deflate")
+        env.response.headers["Content-Encoding"] = "deflate"
+        env.response.output = Flate::Writer.new(env.response.output, sync_close: true)
+      end
 
-        call_next env
-      {% end %}
+      call_next env
+    {% end %}
   end
 end
 
