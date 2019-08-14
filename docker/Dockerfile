@@ -1,4 +1,4 @@
-FROM alpine:latest AS builder
+FROM alpine:edge AS builder
 RUN apk add -u crystal shards libc-dev \
     yaml-dev libxml2-dev sqlite-dev sqlite-static zlib-dev openssl-dev
 WORKDIR /invidious
