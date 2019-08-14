@@ -115,7 +115,7 @@ function update_value(element) {
             <div class="pure-control-group">
                 <label for="player_style"><%= translate(locale, "Player style: ") %></label>
                 <select name="player_style" id="player_style">
-                    <% {"invidous", "youtube"}.each do |option| %>
+                    <% {"invidious", "youtube"}.each do |option| %>
                         <option value="<%= option %>" <% if preferences.player_style == option %> selected <% end %>><%= translate(locale, option) %></option>
                     <% end %>
                 </select>
