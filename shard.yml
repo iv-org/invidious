@@ -19,6 +19,6 @@ dependencies:
     github: kemalcr/kemal
     version: ~> 0.26.0
 
-crystal: 0.30.0
+crystal: 0.30.1
 
 license: AGPLv3
