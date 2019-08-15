@@ -31,62 +31,6 @@ struct User
 end
 
 struct Preferences
-  module StringToArray
-    def self.to_json(value : Array(String), json : JSON::Builder)
-      json.array do
-        value.each do |element|
-          json.string element
-        end
-      end
-    end
-
-    def self.from_json(value : JSON::PullParser) : Array(String)
-      begin
-        result = [] of String
-        value.read_array do
-          result << HTML.escape(value.read_string[0, 100])
-        end
-      rescue ex
-        result = [HTML.escape(value.read_string[0, 100]), ""]
-      end
-
-      result
-    end
-
-    def self.to_yaml(value : Array(String), yaml : YAML::Nodes::Builder)
-      yaml.sequence do
-        value.each do |element|
-          yaml.scalar element
-        end
-      end
-    end
-
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Array(String)
-      begin
-        unless node.is_a?(YAML::Nodes::Sequence)
-          node.raise "Expected sequence, not #{node.class}"
-        end
-
-        result = [] of String
-        node.nodes.each do |item|
-          unless item.is_a?(YAML::Nodes::Scalar)
-            node.raise "Expected scalar, not #{item.class}"
-          end
-
-          result << HTML.escape(item.value[0, 100])
-        end
-      rescue ex
-        if node.is_a?(YAML::Nodes::Scalar)
-          result = [HTML.escape(node.value[0, 100]), ""]
-        else
-          result = ["", ""]
-        end
-      end
-
-      result
-    end
-  end
-
   module ProcessString
     def self.to_json(value : String, json : JSON::Builder)
       json.string value
@@ -127,11 +71,11 @@ struct Preferences
     annotations:            {type: Bool, default: CONFIG.default_user_preferences.annotations},
     annotations_subscribed: {type: Bool, default: CONFIG.default_user_preferences.annotations_subscribed},
     autoplay:               {type: Bool, default: CONFIG.default_user_preferences.autoplay},
-    captions:               {type: Array(String), default: CONFIG.default_user_preferences.captions, converter: StringToArray},
-    comments:               {type: Array(String), default: CONFIG.default_user_preferences.comments, converter: StringToArray},
+    captions:               {type: Array(String), default: CONFIG.default_user_preferences.captions, converter: ConfigPreferences::StringToArray},
+    comments:               {type: Array(String), default: CONFIG.default_user_preferences.comments, converter: ConfigPreferences::StringToArray},
     continue:               {type: Bool, default: CONFIG.default_user_preferences.continue},
     continue_autoplay:      {type: Bool, default: CONFIG.default_user_preferences.continue_autoplay},
-    dark_mode:              {type: Bool, default: CONFIG.default_user_preferences.dark_mode},
+    dark_mode:              {type: String, default: CONFIG.default_user_preferences.dark_mode, converter: ConfigPreferences::BoolToString},
     latest_only:            {type: Bool, default: CONFIG.default_user_preferences.latest_only},
     listen:                 {type: Bool, default: CONFIG.default_user_preferences.listen},
     local:                  {type: Bool, default: CONFIG.default_user_preferences.local},

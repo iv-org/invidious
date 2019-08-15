@@ -267,8 +267,7 @@ before_all do |env|
     end
   end
 
-  dark_mode = env.params.query["dark_mode"]? || preferences.dark_mode.to_s
-  dark_mode = dark_mode == "true"
+  dark_mode = convert_theme(env.params.query["dark_mode"]?) || preferences.dark_mode.to_s
 
   thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
   thin_mode = thin_mode == "true"
@@ -1528,8 +1527,7 @@ post "/preferences" do |env|
   locale ||= CONFIG.default_user_preferences.locale
 
   dark_mode = env.params.body["dark_mode"]?.try &.as(String)
-  dark_mode ||= "off"
-  dark_mode = dark_mode == "on"
+  dark_mode ||= CONFIG.default_user_preferences.dark_mode
 
   thin_mode = env.params.body["thin_mode"]?.try &.as(String)
   thin_mode ||= "off"
@@ -1553,6 +1551,7 @@ post "/preferences" do |env|
   notifications_only ||= "off"
   notifications_only = notifications_only == "on"
 
+  # Convert to JSON and back again to take advantage of converters used for compatability
   preferences = Preferences.from_json({
     annotations:            annotations,
     annotations_subscribed: annotations_subscribed,
@@ -1648,12 +1647,27 @@ get "/toggle_theme" do |env|
   if user = env.get? "user"
     user = user.as(User)
     preferences = user.preferences
-    preferences.dark_mode = !preferences.dark_mode
 
-    PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+    case preferences.dark_mode
+    when "dark"
+      preferences.dark_mode = "light"
+    else
+      preferences.dark_mode = "dark"
+    end
+
+    preferences = preferences.to_json
+
+    PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
   else
     preferences = env.get("preferences").as(Preferences)
-    preferences.dark_mode = !preferences.dark_mode
+
+    case preferences.dark_mode
+    when "dark"
+      preferences.dark_mode = "light"
+    else
+      preferences.dark_mode = "dark"
+    end
+
     preferences = preferences.to_json
 
     if Kemal.config.ssl || config.https_only
@@ -2026,7 +2040,7 @@ post "/data_control" do |env|
       env.response.puts %(<meta http-equiv="refresh" content="0; url=#{referer}">)
       env.response.puts %(<link rel="stylesheet" href="/css/ionicons.min.css?v=#{ASSET_COMMIT}">)
       env.response.puts %(<link rel="stylesheet" href="/css/default.css?v=#{ASSET_COMMIT}">)
-      if env.get("preferences").as(Preferences).dark_mode
+      if env.get("preferences").as(Preferences).dark_mode == "dark"
         env.response.puts %(<link rel="stylesheet" href="/css/darktheme.css?v=#{ASSET_COMMIT}">)
       else
         env.response.puts %(<link rel="stylesheet" href="/css/lighttheme.css?v=#{ASSET_COMMIT}">)
