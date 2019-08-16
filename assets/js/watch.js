@@ -73,29 +73,33 @@ if (continue_button) {
     continue_button.onclick = continue_autoplay;
 }
 
+function next_video() {
+    var url = new URL('https://example.com/watch?v=' + video_data.next_video);
+
+    if (video_data.params.autoplay || video_data.params.continue_autoplay) {
+        url.searchParams.set('autoplay', '1');
+    }
+
+    if (video_data.params.listen !== video_data.preferences.listen) {
+        url.searchParams.set('listen', video_data.params.listen);
+    }
+
+    if (video_data.params.speed !== video_data.preferences.speed) {
+        url.searchParams.set('speed', video_data.params.speed);
+    }
+
+    if (video_data.params.local !== video_data.preferences.local) {
+        url.searchParams.set('local', video_data.params.local);
+    }
+
+    url.searchParams.set('continue', '1');
+    location.assign(url.pathname + url.search);
+}
+
 function continue_autoplay(event) {
     if (event.target.checked) {
         player.on('ended', function () {
-            var url = new URL('https://example.com/watch?v=' + video_data.next_video);
-
-            if (video_data.params.autoplay || video_data.params.continue_autoplay) {
-                url.searchParams.set('autoplay', '1');
-            }
-
-            if (video_data.params.listen !== video_data.preferences.listen) {
-                url.searchParams.set('listen', video_data.params.listen);
-            }
-
-            if (video_data.params.speed !== video_data.preferences.speed) {
-                url.searchParams.set('speed', video_data.params.speed);
-            }
-
-            if (video_data.params.local !== video_data.preferences.local) {
-                url.searchParams.set('local', video_data.params.local);
-            }
-
-            url.searchParams.set('continue', '1');
-            location.assign(url.pathname + url.search);
+            next_video();
         });
     } else {
         player.off('ended');
