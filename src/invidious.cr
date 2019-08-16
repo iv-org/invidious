@@ -3047,8 +3047,7 @@ get "/channel/:ucid" do |env|
         item.author
       end
     end
-    items.select! { |item| item.responds_to?(:thumbnail_id) && item.thumbnail_id }
-    items = items.map { |item| item.as(SearchPlaylist) }
+    items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
     items.each { |item| item.author = "" }
   else
     sort_options = {"newest", "oldest", "popular"}
@@ -5076,6 +5075,43 @@ get "/sb/:id/:storyboard/:index" do |env|
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       if response.status_code >= 300
+        env.response.headers.delete("Transfer-Encoding")
+        break
+      end
+
+      proxy_file(response, env)
+    end
+  rescue ex
+  end
+end
+
+get "/s_p/:id/:name" do |env|
+  id = env.params.url["id"]
+  name = env.params.url["name"]
+
+  host = "https://i9.ytimg.com"
+  client = make_client(URI.parse(host))
+  url = env.request.resource
+
+  headers = HTTP::Headers.new
+  REQUEST_HEADERS_WHITELIST.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
+
+  begin
+    client.get(url, headers) do |response|
+      env.response.status_code = response.status_code
+      response.headers.each do |key, value|
+        if !RESPONSE_HEADERS_BLACKLIST.includes? key
+          env.response.headers[key] = value
+        end
+      end
+
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.status_code >= 300 && response.status_code != 404
         env.response.headers.delete("Transfer-Encoding")
         break
       end

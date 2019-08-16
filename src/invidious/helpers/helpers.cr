@@ -312,8 +312,7 @@ end
 
 def extract_videos(nodeset, ucid = nil, author_name = nil)
   videos = extract_items(nodeset, ucid, author_name)
-  videos.select! { |item| !item.is_a?(SearchChannel | SearchPlaylist) }
-  videos.map { |video| video.as(SearchVideo) }
+  videos.select { |item| item.is_a?(SearchVideo) }.map { |video| video.as(SearchVideo) }
 end
 
 def extract_items(nodeset, ucid = nil, author_name = nil)
@@ -361,14 +360,14 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         anchor = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/a))
       end
 
-      video_count = node.xpath_node(%q(.//span[@class="formatted-video-count-label"]/b))
+      video_count = node.xpath_node(%q(.//span[@class="formatted-video-count-label"]/b)) ||
+                    node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
       if video_count
         video_count = video_count.content
 
         if video_count == "50+"
           author = "YouTube"
           author_id = "UC-9-kyTW8ZkZNDHQJ6FgpwQ"
-          video_count = video_count.rchop("+")
         end
 
         video_count = video_count.gsub(/\D/, "").to_i?
@@ -400,11 +399,6 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
 
       playlist_thumbnail = node.xpath_node(%q(.//div/span/img)).try &.["data-thumb"]?
       playlist_thumbnail ||= node.xpath_node(%q(.//div/span/img)).try &.["src"]
-      if !playlist_thumbnail || playlist_thumbnail.empty?
-        thumbnail_id = videos[0]?.try &.id
-      else
-        thumbnail_id = playlist_thumbnail.match(/\/vi\/(?<video_id>[a-zA-Z0-9_-]{11})\/\w+\.jpg/).try &.["video_id"]
-      end
 
       items << SearchPlaylist.new(
         title,
@@ -413,7 +407,7 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         author_id,
         video_count,
         videos,
-        thumbnail_id
+        playlist_thumbnail
       )
     when .includes? "yt-lockup-channel"
       author = title.strip
@@ -586,15 +580,11 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
 
         playlist_thumbnail = child_node.xpath_node(%q(.//span/img)).try &.["data-thumb"]?
         playlist_thumbnail ||= child_node.xpath_node(%q(.//span/img)).try &.["src"]
-        if !playlist_thumbnail || playlist_thumbnail.empty?
-          thumbnail_id = videos[0]?.try &.id
-        else
-          thumbnail_id = playlist_thumbnail.match(/\/vi\/(?<video_id>[a-zA-Z0-9_-]{11})\/\w+\.jpg/).try &.["video_id"]
-        end
 
-        video_count_label = child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
-        if video_count_label
-          video_count = video_count_label.content.gsub(/\D/, "").to_i?
+        video_count = child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]/b)) ||
+                      child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
+        if video_count
+          video_count = video_count.content.gsub(/\D/, "").to_i?
         end
         video_count ||= 50
 
@@ -605,7 +595,7 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
           ucid,
           video_count,
           Array(SearchPlaylistVideo).new,
-          thumbnail_id
+          playlist_thumbnail
         )
       end
     end
@@ -620,7 +610,7 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
         ucid,
         videos.size,
         videos,
-        videos[0].try &.id
+        "/vi/#{videos[0].id}/mqdefault.jpg"
       )
     end
   end

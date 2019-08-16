@@ -152,13 +152,13 @@ struct SearchPlaylist
   end
 
   db_mapping({
-    title:        String,
-    id:           String,
-    author:       String,
-    ucid:         String,
-    video_count:  Int32,
-    videos:       Array(SearchPlaylistVideo),
-    thumbnail_id: String?,
+    title:       String,
+    id:          String,
+    author:      String,
+    ucid:        String,
+    video_count: Int32,
+    videos:      Array(SearchPlaylistVideo),
+    thumbnail:   String?,
   })
 end
 
