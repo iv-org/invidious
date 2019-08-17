@@ -1,6 +1,8 @@
 html,
 body {
-  font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica,
+    Arial, sans-serif;
 }
 
 .deleted {
@@ -108,6 +110,7 @@ img.thumbnail {
   height: 100%;
   left: 0;
   top: 0;
+  object-fit: cover;
 }
 
 .length {
@@ -442,8 +445,8 @@ video.video-js {
 }
 
 .video-js.player-style-youtube .vjs-control-bar {
-   display: flex;
-   flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 .video-js.player-style-youtube .vjs-big-play-button {
   /*
@@ -452,6 +455,6 @@ video.video-js {
   */
   top: 50%;
   left: 50%;
-  margin-top: -.81666em;
+  margin-top: -0.81666em;
   margin-left: -1.5em;
 }

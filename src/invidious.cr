@@ -3003,7 +3003,7 @@ get "/user/:user/about" do |env|
   env.redirect "/channel/#{user}"
 end
 
-get "/channel:ucid/about" do |env|
+get "/channel/:ucid/about" do |env|
   ucid = env.params.url["ucid"]
   env.redirect "/channel/#{ucid}"
 end
@@ -3107,8 +3107,7 @@ get "/channel/:ucid/playlists" do |env|
   end
 
   items, continuation = fetch_channel_playlists(channel.ucid, channel.author, channel.auto_generated, continuation, sort_by)
-  items.select! { |item| item.is_a?(SearchPlaylist) && !item.videos.empty? }
-  items = items.map { |item| item.as(SearchPlaylist) }
+  items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
   items.each { |item| item.author = "" }
 
   env.set "search", "channel:#{channel.ucid} "

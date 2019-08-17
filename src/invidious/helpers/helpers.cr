@@ -397,8 +397,8 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         )
       end
 
-      playlist_thumbnail = node.xpath_node(%q(.//div/span/img)).try &.["data-thumb"]?
-      playlist_thumbnail ||= node.xpath_node(%q(.//div/span/img)).try &.["src"]
+      playlist_thumbnail = node.xpath_node(%q(.//span/img)).try &.["data-thumb"]?
+      playlist_thumbnail ||= node.xpath_node(%q(.//span/img)).try &.["src"]
 
       items << SearchPlaylist.new(
         title,
