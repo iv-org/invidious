@@ -228,11 +228,24 @@ function set_time_percent(percent) {
     player.currentTime(newTime);
 }
 
+function play() {
+    player.play();
+}
+
+function pause() {
+    player.pause();
+}
+
+function stop() {
+    player.pause();
+    player.currentTime(0);
+}
+
 function toggle_play() {
     if (player.paused()) {
-        player.play();
+        play();
     } else {
-        player.pause();
+        pause();
     }
 }
 
@@ -338,7 +351,20 @@ window.addEventListener('keydown', e => {
     switch (decoratedKey) {
         case ' ':
         case 'k':
+        case 'MediaPlayPause':
             action = toggle_play;
+            break;
+
+        case 'MediaPlay':
+            action = play;
+            break;
+
+        case 'MediaPause':
+            action = pause;
+            break;
+
+        case 'MediaStop':
+            action = stop;
             break;
 
         case 'ArrowUp':
@@ -357,9 +383,11 @@ window.addEventListener('keydown', e => {
             break;
 
         case 'ArrowRight':
+        case 'MediaFastForward':
             action = skip_seconds.bind(this, 5);
             break;
         case 'ArrowLeft':
+        case 'MediaTrackPrevious':
             action = skip_seconds.bind(this, -5);
             break;
         case 'l':
@@ -391,9 +419,11 @@ window.addEventListener('keydown', e => {
             break;
 
         case 'N':
+        case 'MediaTrackNext':
             action = next_video;
             break;
         case 'P':
+        case 'MediaTrackPrevious':
             // TODO: Add support to play back previous video.
             break;
 
