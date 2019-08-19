@@ -327,8 +327,13 @@ window.addEventListener('keydown', e => {
     let action = null;
 
     const code = e.keyCode;
-    const key = e.key;
-    switch (key) {
+    const decoratedKey =
+        e.key
+        + (e.altKey  ? '+alt'  : '')
+        + (e.ctrlKey ? '+ctrl' : '')
+        + (e.metaKey ? '+meta' : '')
+    ;
+    switch (decoratedKey) {
     case ' ':
     case 'k':
         action = toggle_play;
@@ -405,7 +410,7 @@ window.addEventListener('keydown', e => {
         break;
 
     default:
-        console.info('Unhandled key down event: %s:', key, e);
+        console.info('Unhandled key down event: %s:', decoratedKey, e);
         break;
     }
 
