@@ -34,7 +34,7 @@
 <div class="h-box">
     <% ucid = channel.ucid %>
     <% author = channel.author %>
-    <% sub_count_text = number_to_short_text(channel.sub_count) %>
+    <% sub_count_text = channel.sub_count.format %>
     <%= rendered "components/subscribe_widget" %>
 </div>
 
