@@ -442,47 +442,20 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
     else
       id = id.lchop("/watch?v=")
 
-      metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
+      metadata = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul))
 
-      begin
-        published = decode_date(metadata[0].content.lchop("Streamed ").lchop("Starts "))
-      rescue ex
-      end
-      begin
-        published ||= Time.unix(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
-      rescue ex
-      end
+      published = metadata.try &.xpath_node(%q(.//li[contains(text(), " ago")])).try { |node| decode_date(node.content.sub(/^[a-zA-Z]+ /, "")) }
+      published ||= metadata.try &.xpath_node(%q(.//span[@data-timestamp])).try { |node| Time.unix(node["data-timestamp"].to_i64) }
       published ||= Time.utc
 
-      begin
-        view_count = metadata[0].content.rchop(" watching").delete(",").try &.to_i64?
-      rescue ex
-      end
-      begin
-        view_count ||= metadata.try &.[1].content.delete("No views,").try &.to_i64?
-      rescue ex
-      end
+      view_count = metadata.try &.xpath_node(%q(.//li[contains(text(), " views")])).try &.content.gsub(/\D/, "").to_i64?
       view_count ||= 0_i64
 
-      length_seconds = node.xpath_node(%q(.//span[@class="video-time"]))
-      if length_seconds
-        length_seconds = decode_length_seconds(length_seconds.content)
-      else
-        length_seconds = -1
-      end
+      length_seconds = node.xpath_node(%q(.//span[@class="video-time"])).try { |node| decode_length_seconds(node.content) }
+      length_seconds ||= -1
 
-      live_now = node.xpath_node(%q(.//span[contains(@class, "yt-badge-live")]))
-      if live_now
-        live_now = true
-      else
-        live_now = false
-      end
-
-      if node.xpath_node(%q(.//span[text()="Premium"]))
-        premium = true
-      else
-        premium = false
-      end
+      live_now = node.xpath_node(%q(.//span[contains(@class, "yt-badge-live")])) ? true : false
+      premium = node.xpath_node(%q(.//span[text()="Premium"])) ? true : false
 
       if !premium || node.xpath_node(%q(.//span[contains(text(), "Free episode")]))
         paid = false
@@ -520,26 +493,18 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
 
   nodeset.each do |shelf|
     shelf_anchor = shelf.xpath_node(%q(.//h2[contains(@class, "branded-page-module-title")]))
+    next if !shelf_anchor
 
-    if !shelf_anchor
-      next
-    end
-
-    title = shelf_anchor.xpath_node(%q(.//span[contains(@class, "branded-page-module-title-text")]))
-    if title
-      title = title.content.strip
-    end
+    title = shelf_anchor.xpath_node(%q(.//span[contains(@class, "branded-page-module-title-text")])).try &.content.strip
     title ||= ""
 
     id = shelf_anchor.xpath_node(%q(.//a)).try &.["href"]
-    if !id
-      next
-    end
+    next if !id
 
-    is_playlist = false
+    shelf_is_playlist = false
     videos = [] of SearchPlaylistVideo
 
-    shelf.xpath_nodes(%q(.//ul[contains(@class, "yt-uix-shelfslider-list")]/li)).each do |child_node|
+    shelf.xpath_nodes(%q(.//ul[contains(@class, "yt-uix-shelfslider-list") or contains(@class, "expanded-shelf-content-list")]/li)).each do |child_node|
       type = child_node.xpath_node(%q(./div))
       if !type
         next
@@ -547,7 +512,7 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
 
       case type["class"]
       when .includes? "yt-lockup-video"
-        is_playlist = true
+        shelf_is_playlist = true
 
         anchor = child_node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
         if anchor
@@ -588,19 +553,42 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
         end
         video_count ||= 50
 
+        videos = [] of SearchPlaylistVideo
+        child_node.xpath_nodes(%q(.//*[contains(@class, "yt-lockup-playlist-items")]/li)).each do |video|
+          anchor = video.xpath_node(%q(.//a))
+          if anchor
+            video_title = anchor.content.strip
+            id = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)["v"]
+          end
+          video_title ||= ""
+          id ||= ""
+
+          anchor = video.xpath_node(%q(.//span/span))
+          if anchor
+            length_seconds = decode_length_seconds(anchor.content)
+          end
+          length_seconds ||= 0
+
+          videos << SearchPlaylistVideo.new(
+            video_title,
+            id,
+            length_seconds
+          )
+        end
+
         items << SearchPlaylist.new(
           playlist_title,
           plid,
           author_name,
           ucid,
           video_count,
-          Array(SearchPlaylistVideo).new,
+          videos,
           playlist_thumbnail
         )
       end
     end
 
-    if is_playlist
+    if shelf_is_playlist
       plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
 
       items << SearchPlaylist.new(
