@@ -4101,8 +4101,10 @@ get "/api/v1/playlists/:plid" do |env|
 
   response = JSON.build do |json|
     json.object do
+      json.field "type", "playlist"
       json.field "title", playlist.title
       json.field "playlistId", playlist.id
+      json.field "playlistThumbnail", playlist.thumbnail
 
       json.field "author", playlist.author
       json.field "authorId", playlist.ucid

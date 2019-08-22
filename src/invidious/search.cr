@@ -117,6 +117,7 @@ struct SearchPlaylist
       json.field "type", "playlist"
       json.field "title", self.title
       json.field "playlistId", self.id
+      json.field "playlistThumbnail", self.thumbnail
 
       json.field "author", self.author
       json.field "authorId", self.ucid

@@ -331,18 +331,8 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
       next
     end
 
-    anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a))
-    if anchor
-      author = anchor.content.strip
-      author_id = anchor["href"].split("/")[-1]
-    end
-
-    author ||= author_name
-    author_id ||= ucid
-
-    author ||= ""
-    author_id ||= ""
-
+    author_id = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).try &.["href"].split("/")[-1] || ucid || ""
+    author = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).try &.content.strip || author_name || ""
     description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).try &.to_s || ""
 
     tile = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-tile")]))
@@ -401,13 +391,13 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
       playlist_thumbnail ||= node.xpath_node(%q(.//span/img)).try &.["src"]
 
       items << SearchPlaylist.new(
-        title,
-        plid,
-        author,
-        author_id,
-        video_count,
-        videos,
-        playlist_thumbnail
+        title: title,
+        id: plid,
+        author: author,
+        ucid: author_id,
+        video_count: video_count,
+        videos: videos,
+        thumbnail: playlist_thumbnail
       )
     when .includes? "yt-lockup-channel"
       author = title.strip
@@ -577,13 +567,13 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
         end
 
         items << SearchPlaylist.new(
-          playlist_title,
-          plid,
-          author_name,
-          ucid,
-          video_count,
-          videos,
-          playlist_thumbnail
+          title: playlist_title,
+          id: plid,
+          author: author_name,
+          ucid: ucid,
+          video_count: video_count,
+          videos: videos,
+          thumbnail: playlist_thumbnail
         )
       end
     end
@@ -592,13 +582,13 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
       plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
 
       items << SearchPlaylist.new(
-        title,
-        plid,
-        author_name,
-        ucid,
-        videos.size,
-        videos,
-        "/vi/#{videos[0].id}/mqdefault.jpg"
+        title: title,
+        id: plid,
+        author: author_name,
+        ucid: ucid,
+        video_count: videos.size,
+        videos: videos,
+        thumbnail: "https://i.ytimg.com/vi/#{videos[0].id}/mqdefault.jpg"
       )
     end
   end
