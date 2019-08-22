@@ -1,0 +1,28 @@
+dist: bionic
+
+jobs:
+  include:
+    - stage: build
+      language: crystal
+      crystal: latest
+      before_install:
+        - shards update
+        - shards install
+      install:
+        - crystal build --error-on-warnings src/invidious.cr
+      script:
+        - crystal tool format --check
+        - crystal spec
+
+    - stage: build_docker
+      language: minimal
+      services:
+        - docker
+      install:
+        - docker-compose build
+      script:
+        - docker-compose up -d
+        - sleep 15 # Wait for cluster to become ready, TODO: do not sleep
+        - HEADERS="$(curl -I -s http://localhost:3000/)"
+        - STATUS="$(echo $HEADERS | head -n1)"
+        - if [[ "$STATUS" != *"200 OK"* ]]; then echo "$HEADERS"; exit 1; fi

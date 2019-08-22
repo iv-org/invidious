@@ -1025,8 +1025,10 @@ get "/api/v1/playlists/:plid" do |env|
 
   response = JSON.build do |json|
     json.object do
+      json.field "type", "playlist"
       json.field "title", playlist.title
       json.field "playlistId", playlist.id
+      json.field "playlistThumbnail", playlist.thumbnail
 
       json.field "author", playlist.author
       json.field "authorId", playlist.ucid
@@ -1216,7 +1218,7 @@ get "/api/manifest/dash/id/:id" do |env|
   end
 
   audio_streams = video.audio_streams(adaptive_fmts)
-  video_streams = video.video_streams(adaptive_fmts)
+  video_streams = video.video_streams(adaptive_fmts).sort_by { |stream| stream["fps"].to_i }.reverse
 
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
@@ -1762,6 +1764,43 @@ get "/sb/:id/:storyboard/:index" do |env|
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       if response.status_code >= 300
+        env.response.headers.delete("Transfer-Encoding")
+        break
+      end
+
+      proxy_file(response, env)
+    end
+  rescue ex
+  end
+end
+
+get "/s_p/:id/:name" do |env|
+  id = env.params.url["id"]
+  name = env.params.url["name"]
+
+  host = "https://i9.ytimg.com"
+  client = make_client(URI.parse(host))
+  url = env.request.resource
+
+  headers = HTTP::Headers.new
+  REQUEST_HEADERS_WHITELIST.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
+
+  begin
+    client.get(url, headers) do |response|
+      env.response.status_code = response.status_code
+      response.headers.each do |key, value|
+        if !RESPONSE_HEADERS_BLACKLIST.includes? key
+          env.response.headers[key] = value
+        end
+      end
+
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.status_code >= 300 && response.status_code != 404
         env.response.headers.delete("Transfer-Encoding")
         break
       end

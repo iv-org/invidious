@@ -387,14 +387,15 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
 
     html = XML.parse_html(json["content_html"].as_s)
     nodeset = html.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-  else
-    url = "/channel/#{ucid}/playlists?disable_polymer=1&flow=list"
+  elsif auto_generated
+    url = "/channel/#{ucid}"
 
-    if auto_generated
-      url += "&view=50"
-    else
-      url += "&view=1"
-    end
+    response = client.get(url)
+    html = XML.parse_html(response.body)
+
+    nodeset = html.xpath_nodes(%q(//ul[@id="browse-items-primary"]/li[contains(@class, "feed-item-container")]))
+  else
+    url = "/channel/#{ucid}/playlists?disable_polymer=1&flow=list&view=1"
 
     case sort_by
     when "last", "last_added"

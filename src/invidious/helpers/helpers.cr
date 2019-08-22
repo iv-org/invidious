@@ -24,6 +24,27 @@ end
 
 struct ConfigPreferences
   module StringToArray
+    def self.to_json(value : Array(String), json : JSON::Builder)
+      json.array do
+        value.each do |element|
+          json.string element
+        end
+      end
+    end
+
+    def self.from_json(value : JSON::PullParser) : Array(String)
+      begin
+        result = [] of String
+        value.read_array do
+          result << HTML.escape(value.read_string[0, 100])
+        end
+      rescue ex
+        result = [HTML.escape(value.read_string[0, 100]), ""]
+      end
+
+      result
+    end
+
     def self.to_yaml(value : Array(String), yaml : YAML::Nodes::Builder)
       yaml.sequence do
         value.each do |element|
@@ -44,17 +65,64 @@ struct ConfigPreferences
             node.raise "Expected scalar, not #{item.class}"
           end
 
-          result << item.value
+          result << HTML.escape(item.value[0, 100])
         end
       rescue ex
         if node.is_a?(YAML::Nodes::Scalar)
-          result = [node.value, ""]
+          result = [HTML.escape(node.value[0, 100]), ""]
         else
           result = ["", ""]
         end
       end
 
       result
+    end
+  end
+
+  module BoolToString
+    def self.to_json(value : String, json : JSON::Builder)
+      json.string value
+    end
+
+    def self.from_json(value : JSON::PullParser) : String
+      begin
+        result = value.read_string
+
+        if result.empty?
+          CONFIG.default_user_preferences.dark_mode
+        else
+          result
+        end
+      rescue ex
+        result = value.read_bool
+
+        if result
+          "dark"
+        else
+          "light"
+        end
+      end
+    end
+
+    def self.to_yaml(value : String, yaml : YAML::Nodes::Builder)
+      yaml.scalar value
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : String
+      unless node.is_a?(YAML::Nodes::Scalar)
+        node.raise "Expected sequence, not #{node.class}"
+      end
+
+      case node.value
+      when "true"
+        "dark"
+      when "false"
+        "light"
+      when ""
+        CONFIG.default_user_preferences.dark_mode
+      else
+        node.value
+      end
     end
   end
 
@@ -66,13 +134,14 @@ struct ConfigPreferences
     comments:               {type: Array(String), default: ["youtube", ""], converter: StringToArray},
     continue:               {type: Bool, default: false},
     continue_autoplay:      {type: Bool, default: true},
-    dark_mode:              {type: Bool, default: false},
+    dark_mode:              {type: String, default: "", converter: BoolToString},
     latest_only:            {type: Bool, default: false},
     listen:                 {type: Bool, default: false},
     local:                  {type: Bool, default: false},
     locale:                 {type: String, default: "en-US"},
     max_results:            {type: Int32, default: 40},
     notifications_only:     {type: Bool, default: false},
+    player_style:           {type: String, default: "invidious"},
     quality:                {type: String, default: "hd720"},
     redirect_feed:          {type: Bool, default: false},
     related_videos:         {type: Bool, default: true},
@@ -243,8 +312,7 @@ end
 
 def extract_videos(nodeset, ucid = nil, author_name = nil)
   videos = extract_items(nodeset, ucid, author_name)
-  videos.select! { |item| !item.is_a?(SearchChannel | SearchPlaylist) }
-  videos.map { |video| video.as(SearchVideo) }
+  videos.select { |item| item.is_a?(SearchVideo) }.map { |video| video.as(SearchVideo) }
 end
 
 def extract_items(nodeset, ucid = nil, author_name = nil)
@@ -263,18 +331,8 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
       next
     end
 
-    anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a))
-    if anchor
-      author = anchor.content.strip
-      author_id = anchor["href"].split("/")[-1]
-    end
-
-    author ||= author_name
-    author_id ||= ucid
-
-    author ||= ""
-    author_id ||= ""
-
+    author_id = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).try &.["href"].split("/")[-1] || ucid || ""
+    author = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).try &.content.strip || author_name || ""
     description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).try &.to_s || ""
 
     tile = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-tile")]))
@@ -292,14 +350,14 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         anchor = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/a))
       end
 
-      video_count = node.xpath_node(%q(.//span[@class="formatted-video-count-label"]/b))
+      video_count = node.xpath_node(%q(.//span[@class="formatted-video-count-label"]/b)) ||
+                    node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
       if video_count
         video_count = video_count.content
 
         if video_count == "50+"
           author = "YouTube"
           author_id = "UC-9-kyTW8ZkZNDHQJ6FgpwQ"
-          video_count = video_count.rchop("+")
         end
 
         video_count = video_count.gsub(/\D/, "").to_i?
@@ -329,22 +387,17 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         )
       end
 
-      playlist_thumbnail = node.xpath_node(%q(.//div/span/img)).try &.["data-thumb"]?
-      playlist_thumbnail ||= node.xpath_node(%q(.//div/span/img)).try &.["src"]
-      if !playlist_thumbnail || playlist_thumbnail.empty?
-        thumbnail_id = videos[0]?.try &.id
-      else
-        thumbnail_id = playlist_thumbnail.match(/\/vi\/(?<video_id>[a-zA-Z0-9_-]{11})\/\w+\.jpg/).try &.["video_id"]
-      end
+      playlist_thumbnail = node.xpath_node(%q(.//span/img)).try &.["data-thumb"]?
+      playlist_thumbnail ||= node.xpath_node(%q(.//span/img)).try &.["src"]
 
       items << SearchPlaylist.new(
-        title,
-        plid,
-        author,
-        author_id,
-        video_count,
-        videos,
-        thumbnail_id
+        title: title,
+        id: plid,
+        author: author,
+        ucid: author_id,
+        video_count: video_count,
+        videos: videos,
+        thumbnail: playlist_thumbnail
       )
     when .includes? "yt-lockup-channel"
       author = title.strip
@@ -379,47 +432,20 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
     else
       id = id.lchop("/watch?v=")
 
-      metadata = node.xpath_nodes(%q(.//div[contains(@class,"yt-lockup-meta")]/ul/li))
+      metadata = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul))
 
-      begin
-        published = decode_date(metadata[0].content.lchop("Streamed ").lchop("Starts "))
-      rescue ex
-      end
-      begin
-        published ||= Time.unix(metadata[0].xpath_node(%q(.//span)).not_nil!["data-timestamp"].to_i64)
-      rescue ex
-      end
+      published = metadata.try &.xpath_node(%q(.//li[contains(text(), " ago")])).try { |node| decode_date(node.content.sub(/^[a-zA-Z]+ /, "")) }
+      published ||= metadata.try &.xpath_node(%q(.//span[@data-timestamp])).try { |node| Time.unix(node["data-timestamp"].to_i64) }
       published ||= Time.utc
 
-      begin
-        view_count = metadata[0].content.rchop(" watching").delete(",").try &.to_i64?
-      rescue ex
-      end
-      begin
-        view_count ||= metadata.try &.[1].content.delete("No views,").try &.to_i64?
-      rescue ex
-      end
+      view_count = metadata.try &.xpath_node(%q(.//li[contains(text(), " views")])).try &.content.gsub(/\D/, "").to_i64?
       view_count ||= 0_i64
 
-      length_seconds = node.xpath_node(%q(.//span[@class="video-time"]))
-      if length_seconds
-        length_seconds = decode_length_seconds(length_seconds.content)
-      else
-        length_seconds = -1
-      end
+      length_seconds = node.xpath_node(%q(.//span[@class="video-time"])).try { |node| decode_length_seconds(node.content) }
+      length_seconds ||= -1
 
-      live_now = node.xpath_node(%q(.//span[contains(@class, "yt-badge-live")]))
-      if live_now
-        live_now = true
-      else
-        live_now = false
-      end
-
-      if node.xpath_node(%q(.//span[text()="Premium"]))
-        premium = true
-      else
-        premium = false
-      end
+      live_now = node.xpath_node(%q(.//span[contains(@class, "yt-badge-live")])) ? true : false
+      premium = node.xpath_node(%q(.//span[text()="Premium"])) ? true : false
 
       if !premium || node.xpath_node(%q(.//span[contains(text(), "Free episode")]))
         paid = false
@@ -457,26 +483,18 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
 
   nodeset.each do |shelf|
     shelf_anchor = shelf.xpath_node(%q(.//h2[contains(@class, "branded-page-module-title")]))
+    next if !shelf_anchor
 
-    if !shelf_anchor
-      next
-    end
-
-    title = shelf_anchor.xpath_node(%q(.//span[contains(@class, "branded-page-module-title-text")]))
-    if title
-      title = title.content.strip
-    end
+    title = shelf_anchor.xpath_node(%q(.//span[contains(@class, "branded-page-module-title-text")])).try &.content.strip
     title ||= ""
 
     id = shelf_anchor.xpath_node(%q(.//a)).try &.["href"]
-    if !id
-      next
-    end
+    next if !id
 
-    is_playlist = false
+    shelf_is_playlist = false
     videos = [] of SearchPlaylistVideo
 
-    shelf.xpath_nodes(%q(.//ul[contains(@class, "yt-uix-shelfslider-list")]/li)).each do |child_node|
+    shelf.xpath_nodes(%q(.//ul[contains(@class, "yt-uix-shelfslider-list") or contains(@class, "expanded-shelf-content-list")]/li)).each do |child_node|
       type = child_node.xpath_node(%q(./div))
       if !type
         next
@@ -484,7 +502,7 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
 
       case type["class"]
       when .includes? "yt-lockup-video"
-        is_playlist = true
+        shelf_is_playlist = true
 
         anchor = child_node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
         if anchor
@@ -517,41 +535,60 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
 
         playlist_thumbnail = child_node.xpath_node(%q(.//span/img)).try &.["data-thumb"]?
         playlist_thumbnail ||= child_node.xpath_node(%q(.//span/img)).try &.["src"]
-        if !playlist_thumbnail || playlist_thumbnail.empty?
-          thumbnail_id = videos[0]?.try &.id
-        else
-          thumbnail_id = playlist_thumbnail.match(/\/vi\/(?<video_id>[a-zA-Z0-9_-]{11})\/\w+\.jpg/).try &.["video_id"]
-        end
 
-        video_count_label = child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
-        if video_count_label
-          video_count = video_count_label.content.gsub(/\D/, "").to_i?
+        video_count = child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]/b)) ||
+                      child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
+        if video_count
+          video_count = video_count.content.gsub(/\D/, "").to_i?
         end
         video_count ||= 50
 
+        videos = [] of SearchPlaylistVideo
+        child_node.xpath_nodes(%q(.//*[contains(@class, "yt-lockup-playlist-items")]/li)).each do |video|
+          anchor = video.xpath_node(%q(.//a))
+          if anchor
+            video_title = anchor.content.strip
+            id = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)["v"]
+          end
+          video_title ||= ""
+          id ||= ""
+
+          anchor = video.xpath_node(%q(.//span/span))
+          if anchor
+            length_seconds = decode_length_seconds(anchor.content)
+          end
+          length_seconds ||= 0
+
+          videos << SearchPlaylistVideo.new(
+            video_title,
+            id,
+            length_seconds
+          )
+        end
+
         items << SearchPlaylist.new(
-          playlist_title,
-          plid,
-          author_name,
-          ucid,
-          video_count,
-          Array(SearchPlaylistVideo).new,
-          thumbnail_id
+          title: playlist_title,
+          id: plid,
+          author: author_name,
+          ucid: ucid,
+          video_count: video_count,
+          videos: videos,
+          thumbnail: playlist_thumbnail
         )
       end
     end
 
-    if is_playlist
+    if shelf_is_playlist
       plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
 
       items << SearchPlaylist.new(
-        title,
-        plid,
-        author_name,
-        ucid,
-        videos.size,
-        videos,
-        videos[0].try &.id
+        title: title,
+        id: plid,
+        author: author_name,
+        ucid: ucid,
+        video_count: videos.size,
+        videos: videos,
+        thumbnail: "https://i.ytimg.com/vi/#{videos[0].id}/mqdefault.jpg"
       )
     end
   end

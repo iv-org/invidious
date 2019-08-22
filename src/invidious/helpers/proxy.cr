@@ -31,10 +31,10 @@ class HTTPProxy
 
     if resp[:code]? == 200
       {% if !flag?(:without_openssl) %}
-          if tls
-            tls_socket = OpenSSL::SSL::Socket::Client.new(socket, context: tls, sync_close: true, hostname: host)
-            socket = tls_socket
-          end
+        if tls
+          tls_socket = OpenSSL::SSL::Socket::Client.new(socket, context: tls, sync_close: true, hostname: host)
+          socket = tls_socket
+        end
       {% end %}
 
       return socket

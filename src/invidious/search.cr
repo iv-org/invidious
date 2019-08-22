@@ -117,6 +117,7 @@ struct SearchPlaylist
       json.field "type", "playlist"
       json.field "title", self.title
       json.field "playlistId", self.id
+      json.field "playlistThumbnail", self.thumbnail
 
       json.field "author", self.author
       json.field "authorId", self.ucid
@@ -152,13 +153,13 @@ struct SearchPlaylist
   end
 
   db_mapping({
-    title:        String,
-    id:           String,
-    author:       String,
-    ucid:         String,
-    video_count:  Int32,
-    videos:       Array(SearchPlaylistVideo),
-    thumbnail_id: String?,
+    title:       String,
+    id:          String,
+    author:      String,
+    ucid:        String,
+    video_count: Int32,
+    videos:      Array(SearchPlaylistVideo),
+    thumbnail:   String?,
   })
 end
 

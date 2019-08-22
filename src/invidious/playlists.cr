@@ -51,6 +51,7 @@ struct Playlist
     video_count:      Int32,
     views:            Int64,
     updated:          Time,
+    thumbnail:        String?,
   })
 end
 
@@ -223,6 +224,9 @@ def fetch_playlist(plid, locale)
   description_html = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1])).try &.to_s ||
                      document.xpath_node(%q(//span[@class="pl-header-description-text"])).try &.to_s || ""
 
+  playlist_thumbnail = document.xpath_node(%q(//div[@class="pl-header-thumb"]/img)).try &.["data-thumb"]? ||
+                       document.xpath_node(%q(//div[@class="pl-header-thumb"]/img)).try &.["src"]
+
   # YouTube allows anonymous playlists, so most of this can be empty or optional
   anchor = document.xpath_node(%q(//ul[@class="pl-header-details"]))
   author = anchor.try &.xpath_node(%q(.//li[1]/a)).try &.content
@@ -234,15 +238,12 @@ def fetch_playlist(plid, locale)
 
   video_count = anchor.try &.xpath_node(%q(.//li[2])).try &.content.gsub(/\D/, "").to_i?
   video_count ||= 0
-  views = anchor.try &.xpath_node(%q(.//li[3])).try &.content.delete("No views, ").to_i64?
+
+  views = anchor.try &.xpath_node(%q(.//li[3])).try &.content.gsub(/\D/, "").to_i64?
   views ||= 0_i64
 
-  updated = anchor.try &.xpath_node(%q(.//li[4])).try &.content.lchop("Last updated on ").lchop("Updated ")
-  if updated
-    updated = decode_date(updated)
-  else
-    updated = Time.utc
-  end
+  updated = anchor.try &.xpath_node(%q(.//li[4])).try &.content.lchop("Last updated on ").lchop("Updated ").try { |date| decode_date(date) }
+  updated ||= Time.utc
 
   playlist = Playlist.new(
     title: title,
@@ -253,7 +254,8 @@ def fetch_playlist(plid, locale)
     description_html: description_html,
     video_count: video_count,
     views: views,
-    updated: updated
+    updated: updated,
+    thumbnail: playlist_thumbnail,
   )
 
   return playlist
