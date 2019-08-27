@@ -159,10 +159,9 @@ class APIHandler < Kemal::Handler
       call_next env
 
       env.response.output.rewind
-      response = env.response.output.gets_to_end
 
-      if env.response.headers["Content-Type"]?.try &.== "application/json"
-        response = JSON.parse(response)
+      if env.response.headers.includes_word?("Content-Type", "application/json")
+        response = JSON.parse(env.response.output)
 
         if fields_text = env.params.query["fields"]?
           begin
@@ -178,6 +177,8 @@ class APIHandler < Kemal::Handler
         else
           response = response.to_json
         end
+      else
+        response = env.response.output.gets_to_end
       end
     rescue ex
     ensure
