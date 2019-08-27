@@ -968,19 +968,17 @@ def extract_polymer_config(body, html)
   recommended_videos.try &.each do |compact_renderer|
     if compact_renderer["compactRadioRenderer"]? || compact_renderer["compactPlaylistRenderer"]?
       # TODO
-    elsif compact_renderer["compactVideoRenderer"]?
-      compact_renderer = compact_renderer["compactVideoRenderer"]
-
+    elsif video_renderer = compact_renderer["compactVideoRenderer"]?
       recommended_video = HTTP::Params.new
-      recommended_video["id"] = compact_renderer["videoId"].as_s
-      recommended_video["title"] = compact_renderer["title"]["simpleText"].as_s
-      recommended_video["author"] = compact_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
-      recommended_video["ucid"] = compact_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
-      recommended_video["author_thumbnail"] = compact_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
+      recommended_video["id"] = video_renderer["videoId"].as_s
+      recommended_video["title"] = video_renderer["title"]["simpleText"].as_s
+      recommended_video["author"] = video_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
+      recommended_video["ucid"] = video_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
+      recommended_video["author_thumbnail"] = video_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
 
-      recommended_video["short_view_count_text"] = compact_renderer["shortViewCountText"]["simpleText"].as_s
-      recommended_video["view_count"] = compact_renderer["viewCountText"]?.try &.["simpleText"]?.try &.as_s.delete(", views watching").to_i64?.try &.to_s || "0"
-      recommended_video["length_seconds"] = decode_length_seconds(compact_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
+      recommended_video["short_view_count_text"] = video_renderer["shortViewCountText"]?.try { |field| field["simpleText"]?.try &.as_s || field["runs"].as_a.map { |text| text["text"].as_s }.join("") } || "0"
+      recommended_video["view_count"] = video_renderer["viewCountText"]?.try { |field| field["simpleText"]?.try &.as_s || field["runs"].as_a.map { |text| text["text"].as_s }.join("") }.try &.delete(", views watching").to_i64?.try &.to_s || "0"
+      recommended_video["length_seconds"] = decode_length_seconds(video_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
 
       rvs << recommended_video.to_s
     end
@@ -1110,19 +1108,17 @@ def extract_player_config(body, html)
       recommended_videos.try &.each do |compact_renderer|
         if compact_renderer["compactRadioRenderer"]? || compact_renderer["compactPlaylistRenderer"]?
           # TODO
-        elsif compact_renderer["compactVideoRenderer"]?
-          compact_renderer = compact_renderer["compactVideoRenderer"]
-
+        elsif video_renderer = compact_renderer["compactVideoRenderer"]?
           recommended_video = HTTP::Params.new
-          recommended_video["id"] = compact_renderer["videoId"].as_s
-          recommended_video["title"] = compact_renderer["title"]["simpleText"].as_s
-          recommended_video["author"] = compact_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
-          recommended_video["ucid"] = compact_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
-          recommended_video["author_thumbnail"] = compact_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
+          recommended_video["id"] = video_renderer["videoId"].as_s
+          recommended_video["title"] = video_renderer["title"]["simpleText"].as_s
+          recommended_video["author"] = video_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
+          recommended_video["ucid"] = video_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
+          recommended_video["author_thumbnail"] = video_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
 
-          recommended_video["short_view_count_text"] = compact_renderer["shortViewCountText"]["simpleText"].as_s
-          recommended_video["view_count"] = compact_renderer["viewCountText"]?.try &.["simpleText"]?.try &.as_s.delete(", views watching").to_i64?.try &.to_s || "0"
-          recommended_video["length_seconds"] = decode_length_seconds(compact_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
+          recommended_video["short_view_count_text"] = video_renderer["shortViewCountText"]?.try { |field| field["simpleText"]?.try &.as_s || field["runs"].as_a.map { |text| text["text"].as_s }.join("") } || "0"
+          recommended_video["view_count"] = video_renderer["viewCountText"]?.try { |field| field["simpleText"]?.try &.as_s || field["runs"].as_a.map { |text| text["text"].as_s }.join("") }.try &.delete(", views watching").to_i64?.try &.to_s || "0"
+          recommended_video["length_seconds"] = decode_length_seconds(video_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
 
           rvs << recommended_video.to_s
         end
