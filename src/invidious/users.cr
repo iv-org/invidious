@@ -295,8 +295,7 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
 
     args = arg_array(notifications)
 
-    notifications = db.query_all("SELECT * FROM channel_videos WHERE id IN (#{args})
-    ORDER BY published DESC", notifications, as: ChannelVideo)
+    notifications = db.query_all("SELECT * FROM channel_videos WHERE id IN (#{args}) ORDER BY published DESC", notifications, as: ChannelVideo)
     videos = [] of ChannelVideo
 
     notifications.sort_by! { |video| video.published }.reverse!
@@ -322,14 +321,11 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
         else
           values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
         end
-        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE \
-        NOT id = ANY (#{values}) \
-        ORDER BY ucid, published DESC", as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY (#{values}) ORDER BY ucid, published DESC", as: ChannelVideo)
       else
         # Show latest video from each channel
 
-        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} \
-        ORDER BY ucid, published DESC", as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} ORDER BY ucid, published DESC", as: ChannelVideo)
       end
 
       videos.sort_by! { |video| video.published }.reverse!
@@ -342,14 +338,11 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
         else
           values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
         end
-        videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE \
-        NOT id = ANY (#{values}) \
-        ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY (#{values}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
       else
         # Sort subscriptions as normal
 
-        videos = PG_DB.query_all("SELECT * FROM #{view_name} \
-        ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT * FROM #{view_name} ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
       end
     end
 
@@ -366,15 +359,10 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
       videos.sort_by! { |video| video.author }.reverse!
     end
 
-    notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
-      as: Array(String))
+    notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email, as: Array(String))
 
     notifications = videos.select { |v| notifications.includes? v.id }
     videos = videos - notifications
-  end
-
-  if !limit
-    videos = videos[0..max_results]
   end
 
   return videos, notifications
