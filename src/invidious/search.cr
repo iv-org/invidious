@@ -277,96 +277,97 @@ end
 
 def produce_search_params(sort : String = "relevance", date : String = "", content_type : String = "",
                           duration : String = "", features : Array(String) = [] of String)
-  head = "\x08"
-  head += case sort
-          when "relevance"
-            "\x00"
-          when "rating"
-            "\x01"
-          when "upload_date", "date"
-            "\x02"
-          when "view_count", "views"
-            "\x03"
-          else
-            raise "No sort #{sort}"
-          end
+  header = IO::Memory.new
+  header.write Bytes[0x08]
+  header.write case sort
+  when "relevance"
+    Bytes[0x00]
+  when "rating"
+    Bytes[0x01]
+  when "upload_date", "date"
+    Bytes[0x02]
+  when "view_count", "views"
+    Bytes[0x03]
+  else
+    raise "No sort #{sort}"
+  end
 
-  body = ""
-  body += case date
-          when "hour"
-            "\x08\x01"
-          when "today"
-            "\x08\x02"
-          when "week"
-            "\x08\x03"
-          when "month"
-            "\x08\x04"
-          when "year"
-            "\x08\x05"
-          else
-            ""
-          end
+  body = IO::Memory.new
+  body.write case date
+  when "hour"
+    Bytes[0x08, 0x01]
+  when "today"
+    Bytes[0x08, 0x02]
+  when "week"
+    Bytes[0x08, 0x03]
+  when "month"
+    Bytes[0x08, 0x04]
+  when "year"
+    Bytes[0x08, 0x05]
+  else
+    Bytes.new(0)
+  end
 
-  body += case content_type
-          when "video"
-            "\x10\x01"
-          when "channel"
-            "\x10\x02"
-          when "playlist"
-            "\x10\x03"
-          when "movie"
-            "\x10\x04"
-          when "show"
-            "\x10\x05"
-          when "all"
-            ""
-          else
-            "\x10\x01"
-          end
+  body.write case content_type
+  when "video"
+    Bytes[0x10, 0x01]
+  when "channel"
+    Bytes[0x10, 0x02]
+  when "playlist"
+    Bytes[0x10, 0x03]
+  when "movie"
+    Bytes[0x10, 0x04]
+  when "show"
+    Bytes[0x10, 0x05]
+  when "all"
+    Bytes.new(0)
+  else
+    Bytes[0x10, 0x01]
+  end
 
-  body += case duration
-          when "short"
-            "\x18\x01"
-          when "long"
-            "\x18\x02"
-          else
-            ""
-          end
+  body.write case duration
+  when "short"
+    Bytes[0x18, 0x01]
+  when "long"
+    Bytes[0x18, 0x12]
+  else
+    Bytes.new(0)
+  end
 
   features.each do |feature|
-    body += case feature
-            when "hd"
-              "\x20\x01"
-            when "subtitles"
-              "\x28\x01"
-            when "creative_commons", "cc"
-              "\x30\x01"
-            when "3d"
-              "\x38\x01"
-            when "live", "livestream"
-              "\x40\x01"
-            when "purchased"
-              "\x48\x01"
-            when "4k"
-              "\x70\x01"
-            when "360"
-              "\x78\x01"
-            when "location"
-              "\xb8\x01\x01"
-            when "hdr"
-              "\xc8\x01\x01"
-            else
-              raise "Unknown feature #{feature}"
-            end
+    body.write case feature
+    when "hd"
+      Bytes[0x20, 0x01]
+    when "subtitles"
+      Bytes[0x28, 0x01]
+    when "creative_commons", "cc"
+      Bytes[0x30, 0x01]
+    when "3d"
+      Bytes[0x38, 0x01]
+    when "live", "livestream"
+      Bytes[0x40, 0x01]
+    when "purchased"
+      Bytes[0x48, 0x01]
+    when "4k"
+      Bytes[0x70, 0x01]
+    when "360"
+      Bytes[0x78, 0x01]
+    when "location"
+      Bytes[0xb8, 0x01, 0x01]
+    when "hdr"
+      Bytes[0xc8, 0x01, 0x01]
+    else
+      Bytes.new(0)
+    end
   end
 
+  token = header
   if !body.empty?
-    token = head + "\x12" + body.size.unsafe_chr + body
-  else
-    token = head
+    token.write Bytes[0x12, body.bytesize]
+    token.write body.to_slice
   end
 
-  token = Base64.urlsafe_encode(token)
+  token = Base64.urlsafe_encode(token.to_slice)
   token = URI.escape(token)
 
   return token
