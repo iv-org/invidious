@@ -247,6 +247,7 @@ end
 
 struct Video
   property player_json : JSON::Any?
+  property recommended_json : JSON::Any?
 
   module HTTPParamConverter
     def self.from_rs(rs)
@@ -425,9 +426,29 @@ struct Video
                 json.field "videoThumbnails" do
                   generate_thumbnails(json, rv["id"], config, kemal_config)
                 end
+
                 json.field "author", rv["author"]
+                json.field "authorUrl", rv["author_url"] if rv["author_url"]?
+                json.field "authorId", rv["ucid"] if rv["ucid"]?
+                if rv["author_thumbnail"]?
+                  json.field "authorThumbnails" do
+                    json.array do
+                      qualities = {32, 48, 76, 100, 176, 512}
+
+                      qualities.each do |quality|
+                        json.object do
+                          json.field "url", rv["author_thumbnail"].gsub(/s\d+-/, "s#{quality}-")
+                          json.field "width", quality
+                          json.field "height", quality
+                        end
+                      end
+                    end
+                  end
+                end
+
                 json.field "lengthSeconds", rv["length_seconds"].to_i
                 json.field "viewCountText", rv["short_view_count_text"]
+                json.field "viewCount", rv["view_count"].to_i if rv["view_count"]?
               end
             end
           end
@@ -685,12 +706,14 @@ struct Video
     return audio_streams
   end
 
-  def player_response
-    if !@player_json
-      @player_json = JSON.parse(@info["player_response"])
-    end
+  def recommended_videos
+    @recommended_json = JSON.parse(@info["recommended_videos"]) if !@recommended_json
+    @recommended_json.not_nil!
+  end
 
-    return @player_json.not_nil!
+  def player_response
+    @player_json = JSON.parse(@info["player_response"]) if !@player_json
+    @player_json.not_nil!
   end
 
   def storyboards
@@ -1072,8 +1095,42 @@ def extract_player_config(body, html)
     params["session_token"] = md["session_token"]
   end
 
-  if md = body.match(/'RELATED_PLAYER_ARGS': (?<rvs>{"rvs":"[^"]+"})/)
-    params["rvs"] = JSON.parse(md["rvs"])["rvs"].as_s
+  if md = body.match(/'RELATED_PLAYER_ARGS': (?<json>.*?),\n/)
+    recommended_json = JSON.parse(md["json"])
+    if watch_next_response = recommended_json["watch_next_response"]?
+      rvs = [] of String
+      watch_next_json = JSON.parse(watch_next_response.as_s)
+      recommended_videos = watch_next_json["contents"]?
+        .try &.["twoColumnWatchNextResults"]?
+          .try &.["secondaryResults"]?
+            .try &.["secondaryResults"]?
+              .try &.["results"]?
+                .try &.as_a
+
+      recommended_videos.try &.each do |compact_renderer|
+        if compact_renderer["compactRadioRenderer"]? || compact_renderer["compactPlaylistRenderer"]?
+          # TODO
+        elsif compact_renderer["compactVideoRenderer"]?
+          compact_renderer = compact_renderer["compactVideoRenderer"]
+
+          recommended_video = HTTP::Params.new
+          recommended_video["id"] = compact_renderer["videoId"].as_s
+          recommended_video["title"] = compact_renderer["title"]["simpleText"].as_s
+          recommended_video["author"] = compact_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
+          recommended_video["ucid"] = compact_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
+          recommended_video["author_thumbnail"] = compact_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
+
+          recommended_video["short_view_count_text"] = compact_renderer["shortViewCountText"]["simpleText"].as_s
+          recommended_video["view_count"] = compact_renderer["viewCountText"]?.try &.["simpleText"]?.try &.as_s.delete(", views watching").to_i64?.try &.to_s || "0"
+          recommended_video["length_seconds"] = decode_length_seconds(compact_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
+
+          rvs << recommended_video.to_s
+        end
+      end
+      params["rvs"] = rvs.join(",")
+    elsif recommended_json["rvs"]?
+      params["rvs"] = recommended_json["rvs"].as_s
+    end
   end
 
   html_info = body.match(/ytplayer\.config = (?<info>.*?);ytplayer\.load/).try &.["info"]
