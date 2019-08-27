@@ -4840,6 +4840,42 @@ get "/videoplayback" do |env|
     end
   end
 
+  client = make_client(URI.parse(host), region)
+
+  response = HTTP::Client::Response.new(403)
+  5.times do
+    begin
+      response = client.head(url, headers)
+
+      if response.headers["Location"]?
+        location = URI.parse(response.headers["Location"])
+        env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+        host = "#{location.scheme}://#{location.host}"
+        client = make_client(URI.parse(host), region)
+
+        url = "#{location.full_path}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
+      else
+        break
+      end
+    rescue Socket::Addrinfo::Error
+      if !mns.empty?
+        mn = mns.pop
+      end
+      fvip = "3"
+
+      host = "https://r#{fvip}---#{mn}.googlevideo.com"
+      client = make_client(URI.parse(host), region)
+    rescue ex
+      pp ex
+    end
+  end
+
+  if response.status_code >= 400
+    env.response.status_code = response.status_code
+    next
+  end
+
   if url.includes? "&file=seg.ts"
     if CONFIG.disabled?("livestreams")
       env.response.status_code = 403
@@ -4891,6 +4927,8 @@ get "/videoplayback" do |env|
       chunk_end = chunk_start + HTTP_CHUNK_SIZE - 1
     end
 
+    client = make_client(URI.parse(host), region)
+
     # TODO: Record bytes written so we can restart after a chunk fails
     while true
       if !range_end && content_length
@@ -4908,7 +4946,6 @@ get "/videoplayback" do |env|
       headers["Range"] = "bytes=#{chunk_start}-#{chunk_end}"
 
       begin
-        client = make_client(URI.parse(host), region)
         client.get(url, headers) do |response|
           if first_chunk
             if !env.request.headers["Range"]? && response.status_code == 206
@@ -4954,6 +4991,8 @@ get "/videoplayback" do |env|
       rescue ex
         if ex.message != "Error reading socket: Connection reset by peer"
           break
+        else
+          client = make_client(URI.parse(host), region)
         end
       end
 
