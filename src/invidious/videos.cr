@@ -926,6 +926,33 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
   return video
 end
 
+def extract_recommended(recommended_videos)
+  rvs = [] of HTTP::Params
+
+  recommended_videos.try &.each do |compact_renderer|
+    if compact_renderer["compactRadioRenderer"]? || compact_renderer["compactPlaylistRenderer"]?
+      # TODO
+    elsif video_renderer = compact_renderer["compactVideoRenderer"]?
+      recommended_video = HTTP::Params.new
+      recommended_video["id"] = video_renderer["videoId"].as_s
+      recommended_video["title"] = video_renderer["title"]["simpleText"].as_s
+      recommended_video["author"] = video_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
+      recommended_video["ucid"] = video_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
+      recommended_video["author_thumbnail"] = video_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
+
+      if view_count = video_renderer["viewCountText"]?.try { |field| field["simpleText"]?.try &.as_s || field["runs"][0]?.try &.["text"].as_s }.try &.delete(", views watching").to_i64?.try &.to_s
+        recommended_video["view_count"] = view_count
+        recommended_video["short_view_count_text"] = "#{number_to_short_text(view_count.to_i64)} views"
+      end
+      recommended_video["length_seconds"] = decode_length_seconds(video_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
+
+      rvs << recommended_video
+    end
+  end
+
+  rvs
+end
+
 def extract_polymer_config(body, html)
   params = HTTP::Params.new
 
@@ -956,34 +983,14 @@ def extract_polymer_config(body, html)
   params["ctoken"] = comment_continuation.try &.["continuation"]?.try &.as_s || ""
   params["itct"] = comment_continuation.try &.["clickTrackingParams"]?.try &.as_s || ""
 
-  recommended_videos = initial_data["contents"]?
+  rvs = initial_data["contents"]?
     .try &.["twoColumnWatchNextResults"]?
       .try &.["secondaryResults"]?
         .try &.["secondaryResults"]?
           .try &.["results"]?
             .try &.as_a
 
-  rvs = [] of String
-
-  recommended_videos.try &.each do |compact_renderer|
-    if compact_renderer["compactRadioRenderer"]? || compact_renderer["compactPlaylistRenderer"]?
-      # TODO
-    elsif video_renderer = compact_renderer["compactVideoRenderer"]?
-      recommended_video = HTTP::Params.new
-      recommended_video["id"] = video_renderer["videoId"].as_s
-      recommended_video["title"] = video_renderer["title"]["simpleText"].as_s
-      recommended_video["author"] = video_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
-      recommended_video["ucid"] = video_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
-      recommended_video["author_thumbnail"] = video_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
-
-      recommended_video["short_view_count_text"] = video_renderer["shortViewCountText"]?.try { |field| field["simpleText"]?.try &.as_s || field["runs"].as_a.map { |text| text["text"].as_s }.join("") } || "0"
-      recommended_video["view_count"] = video_renderer["viewCountText"]?.try { |field| field["simpleText"]?.try &.as_s || field["runs"].as_a.map { |text| text["text"].as_s }.join("") }.try &.delete(", views watching").to_i64?.try &.to_s || "0"
-      recommended_video["length_seconds"] = decode_length_seconds(video_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
-
-      rvs << recommended_video.to_s
-    end
-  end
-  params["rvs"] = rvs.join(",")
+  params["rvs"] = extract_recommended(rvs).join(",")
 
   # TODO: Watching now
   params["views"] = primary_results.try &.as_a.select { |object| object["videoPrimaryInfoRenderer"]? }[0]?
@@ -1095,37 +1102,29 @@ def extract_player_config(body, html)
 
   if md = body.match(/'RELATED_PLAYER_ARGS': (?<json>.*?),\n/)
     recommended_json = JSON.parse(md["json"])
+    rvs_params = recommended_json["rvs"].as_s.split(",").map { |params| HTTP::Params.parse(params) }
+
     if watch_next_response = recommended_json["watch_next_response"]?
-      rvs = [] of String
       watch_next_json = JSON.parse(watch_next_response.as_s)
-      recommended_videos = watch_next_json["contents"]?
+      rvs = watch_next_json["contents"]?
         .try &.["twoColumnWatchNextResults"]?
           .try &.["secondaryResults"]?
             .try &.["secondaryResults"]?
               .try &.["results"]?
                 .try &.as_a
 
-      recommended_videos.try &.each do |compact_renderer|
-        if compact_renderer["compactRadioRenderer"]? || compact_renderer["compactPlaylistRenderer"]?
-          # TODO
-        elsif video_renderer = compact_renderer["compactVideoRenderer"]?
-          recommended_video = HTTP::Params.new
-          recommended_video["id"] = video_renderer["videoId"].as_s
-          recommended_video["title"] = video_renderer["title"]["simpleText"].as_s
-          recommended_video["author"] = video_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
-          recommended_video["ucid"] = video_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
-          recommended_video["author_thumbnail"] = video_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
-
-          recommended_video["short_view_count_text"] = video_renderer["shortViewCountText"]?.try { |field| field["simpleText"]?.try &.as_s || field["runs"].as_a.map { |text| text["text"].as_s }.join("") } || "0"
-          recommended_video["view_count"] = video_renderer["viewCountText"]?.try { |field| field["simpleText"]?.try &.as_s || field["runs"].as_a.map { |text| text["text"].as_s }.join("") }.try &.delete(", views watching").to_i64?.try &.to_s || "0"
-          recommended_video["length_seconds"] = decode_length_seconds(video_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
-
-          rvs << recommended_video.to_s
+      rvs = extract_recommended(rvs)
+      rvs.each_with_index do |rv, i|
+        if !rv["view_count"]?
+          rv_params = rvs_params.select { |rv_params| rv_params["id"] == rv["id"] }[0]?
+          if rv_params
+            rvs[i]["short_view_count_text"] = rv_params["short_view_count_text"]
+          else
+            rvs.delete_at(i)
+          end
         end
       end
-      params["rvs"] = rvs.join(",")
-    elsif recommended_json["rvs"]?
-      params["rvs"] = recommended_json["rvs"].as_s
+      params["rvs"] = (rvs.map &.to_s).join(",")
     end
   end
 

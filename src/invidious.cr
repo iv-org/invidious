@@ -4867,7 +4867,6 @@ get "/videoplayback" do |env|
       host = "https://r#{fvip}---#{mn}.googlevideo.com"
       client = make_client(URI.parse(host), region)
     rescue ex
-      pp ex
     end
   end
 
