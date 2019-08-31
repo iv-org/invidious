@@ -1116,7 +1116,7 @@ def extract_player_config(body, html)
       rvs = extract_recommended(rvs)
       rvs.each_with_index do |rv, i|
         if !rv["view_count"]?
-          rv_params = rvs_params.select { |rv_params| rv_params["id"] == rv["id"] }[0]?
+          rv_params = rvs_params.select { |rv_params| rv_params["id"]? == (rv["id"]? || "") }[0]?
           if rv_params
             rvs[i]["short_view_count_text"] = rv_params["short_view_count_text"]
           else
