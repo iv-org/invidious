@@ -428,8 +428,8 @@ struct Video
                 end
 
                 json.field "author", rv["author"]
-                json.field "authorUrl", rv["author_url"] if rv["author_url"]?
-                json.field "authorId", rv["ucid"] if rv["ucid"]?
+                json.field "authorUrl", rv["author_url"]?
+                json.field "authorId", rv["ucid"]?
                 if rv["author_thumbnail"]?
                   json.field "authorThumbnails" do
                     json.array do
@@ -448,7 +448,7 @@ struct Video
 
                 json.field "lengthSeconds", rv["length_seconds"].to_i
                 json.field "viewCountText", rv["short_view_count_text"]
-                json.field "viewCount", rv["view_count"].to_i if rv["view_count"]?
+                json.field "viewCount", rv["view_count"]?.try &.to_i64
               end
             end
           end
