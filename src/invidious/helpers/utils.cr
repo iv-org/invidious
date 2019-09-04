@@ -267,8 +267,8 @@ def get_referer(env, fallback = "/", unroll = true)
 end
 
 struct VarInt
-  def self.from_io(io : IO, format = IO::ByteFormat::BigEndian) : Int32
-    result = 0_i32
+  def self.from_io(io : IO, format = IO::ByteFormat::NetworkEndian) : Int32
+    result = 0_u32
     num_read = 0
 
     loop do
@@ -276,18 +276,19 @@ struct VarInt
       raise "Invalid VarInt" if !byte
       value = byte & 0x7f
 
-      result |= value.to_i32 << (7 * num_read)
+      result |= value.to_u32 << (7 * num_read)
       num_read += 1
 
       break if byte & 0x80 == 0
       raise "Invalid VarInt" if num_read > 5
     end
 
-    result
+    result.to_i32
   end
 
   def self.to_io(io : IO, value : Int32)
     io.write_byte 0x00 if value == 0x00
+    value = value.to_u32
 
     while value != 0
       byte = (value & 0x7f).to_u8

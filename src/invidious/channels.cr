@@ -461,7 +461,7 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
   case sort_by
   when "newest"
     # Empty tags can be omitted
-    # meta.write(Bytes[0x18,0x00])
+    # data.write(Bytes[0x18,0x00])
   when "popular"
     data.write Bytes[0x18, 0x01]
   when "oldest"

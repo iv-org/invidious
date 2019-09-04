@@ -57,14 +57,22 @@ class RedditListing
   })
 end
 
-def fetch_youtube_comments(id, db, continuation, format, locale, thin_mode, region, sort_by = "top")
+def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, sort_by = "top")
   video = get_video(id, db, region: region)
   session_token = video.info["session_token"]?
 
-  ctoken = produce_comment_continuation(id, cursor: "", sort_by: sort_by)
-  continuation ||= ctoken
+  case cursor
+  when nil, ""
+    ctoken = produce_comment_continuation(id, cursor: "", sort_by: sort_by)
+    # when .starts_with? "Ug"
+    #   ctoken = produce_comment_reply_continuation(id, video.ucid, cursor)
+  when .starts_with? "ADSJ"
+    ctoken = produce_comment_continuation(id, cursor: cursor, sort_by: sort_by)
+  else
+    ctoken = cursor
+  end
 
-  if !continuation || continuation.empty? || !session_token
+  if !session_token
     if format == "json"
       return {"comments" => [] of String}.to_json
     else
@@ -73,6 +81,7 @@ def fetch_youtube_comments(id, db, continuation, format, locale, thin_mode, regi
   end
 
   post_req = {
+    page_token:    ctoken,
     session_token: session_token,
   }
 
@@ -89,7 +98,7 @@ def fetch_youtube_comments(id, db, continuation, format, locale, thin_mode, regi
   headers["x-youtube-client-name"] = "1"
   headers["x-youtube-client-version"] = "2.20180719"
 
-  response = client.post("/comment_service_ajax?action_get_comments=1&ctoken=#{continuation}&continuation=#{continuation}&hl=en&gl=US", headers, form: post_req)
+  response = client.post("/comment_service_ajax?action_get_comments=1&hl=en&gl=US", headers, form: post_req)
   response = JSON.parse(response.body)
 
   if !response["response"]["continuationContents"]?
@@ -216,8 +225,8 @@ def fetch_youtube_comments(id, db, continuation, format, locale, thin_mode, regi
       end
 
       if body["continuations"]?
-        continuation = body["continuations"][0]["nextContinuationData"]["continuation"]
-        json.field "continuation", continuation
+        continuation = body["continuations"][0]["nextContinuationData"]["continuation"].as_s
+        json.field "continuation", cursor.try &.starts_with?("E") ? continuation : extract_comment_cursor(continuation)
       end
     end
   end
@@ -563,6 +572,29 @@ def content_to_comment_html(content)
   return comment_html
 end
 
+def extract_comment_cursor(continuation)
+  continuation = URI.unescape(continuation)
+  data = IO::Memory.new(Base64.decode(continuation))
+
+  # 0x12 0x26
+  data.pos += 2
+
+  data.read_byte # => 0x12
+  video_id = Bytes.new(data.read_bytes(VarInt))
+  data.read video_id
+
+  until data.peek[0] == 0x0a
+    data.read_byte
+  end
+  data.read_byte # 0x0a
+  data.read_byte if data.peek[0] == 0x0a
+
+  cursor = Bytes.new(data.read_bytes(VarInt))
+  data.read cursor
+
+  String.new(cursor)
+end
+
 def produce_comment_continuation(video_id, cursor = "", sort_by = "top")
   data = IO::Memory.new
 
@@ -652,7 +684,7 @@ def produce_comment_reply_continuation(video_id, ucid, comment_id)
   VarInt.to_io(data, comment_id.size)
   data.print comment_id
 
-  data.write(Bytes[0x22, 0x02, 0x08, 0x00]) # ??
+  data.write(Bytes[0x22, 0x02, 0x08, 0x00]) # ?
 
   data.write(Bytes[ucid.size + video_id.size + 7])
   data.write(Bytes[ucid.size])
