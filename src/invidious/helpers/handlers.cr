@@ -21,7 +21,7 @@ end
 
 class Kemal::RouteHandler
   {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
-  exclude ["/api/v1/*"], {{method}}
+    exclude ["/api/v1/*"], {{method}}
   {% end %}
 
   # Processes the route if it's a match. Otherwise renders 404.
@@ -33,8 +33,7 @@ class Kemal::RouteHandler
       raise Kemal::Exceptions::CustomException.new(context)
     end
 
-    if context.request.method == "HEAD" &&
-       context.request.path.ends_with? ".jpg"
+    if context.request.method == "HEAD" && context.request.path.ends_with? ".jpg"
       context.response.headers["Content-Type"] = "image/jpeg"
     end
 
@@ -45,7 +44,7 @@ end
 
 class Kemal::ExceptionHandler
   {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
-  exclude ["/api/v1/*"], {{method}}
+    exclude ["/api/v1/*"], {{method}}
   {% end %}
 
   private def call_exception_with_status_code(context : HTTP::Server::Context, exception : Exception, status_code : Int32)
@@ -172,7 +171,7 @@ class APIHandler < Kemal::Handler
           end
         end
 
-        if env.params.query["pretty"]? && env.params.query["pretty"] == "1"
+        if env.params.query["pretty"]?.try &.== "1"
           response = response.to_pretty_json
         else
           response = response.to_json
@@ -181,6 +180,18 @@ class APIHandler < Kemal::Handler
         response = env.response.output.gets_to_end
       end
     rescue ex
+      env.response.content_type = "application/json" if env.response.headers.includes_word?("Content-Type", "text/html")
+      env.response.status_code = 500
+
+      if env.response.headers.includes_word?("Content-Type", "application/json")
+        response = {"error" => ex.message || "Unspecified error"}
+
+        if env.params.query["pretty"]?.try &.== "1"
+          response = response.to_pretty_json
+        else
+          response = response.to_json
+        end
+      end
     ensure
       env.response.output = output
       env.response.puts response
