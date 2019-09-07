@@ -1,11 +1,13 @@
 struct SearchVideo
-  def to_xml(host_url, auto_generated, xml : XML::Builder)
+  def to_xml(host_url, auto_generated, query_params, xml : XML::Builder)
+    query_params["v"] = self.id
+
     xml.element("entry") do
       xml.element("id") { xml.text "yt:video:#{self.id}" }
       xml.element("yt:videoId") { xml.text self.id }
       xml.element("yt:channelId") { xml.text self.ucid }
       xml.element("title") { xml.text self.title }
-      xml.element("link", rel: "alternate", href: "#{host_url}/watch?v=#{self.id}")
+      xml.element("link", rel: "alternate", href: "#{host_url}/watch?#{query_params}")
 
       xml.element("author") do
         if auto_generated
@@ -19,7 +21,7 @@ struct SearchVideo
 
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-          xml.element("a", href: "#{host_url}/watch?v=#{self.id}") do
+          xml.element("a", href: "#{host_url}/watch?#{query_params}") do
             xml.element("img", src: "#{host_url}/vi/#{self.id}/mqdefault.jpg")
           end
         end
@@ -40,12 +42,12 @@ struct SearchVideo
     end
   end
 
-  def to_xml(host_url, auto_generated, xml : XML::Builder | Nil = nil)
+  def to_xml(host_url, auto_generated, query_params, xml : XML::Builder | Nil = nil)
     if xml
-      to_xml(host_url, auto_generated, xml)
+      to_xml(host_url, auto_generated, query_params, xml)
     else
       XML.build do |json|
-        to_xml(host_url, auto_generated, xml)
+        to_xml(host_url, auto_generated, query_params, xml)
       end
     end
   end

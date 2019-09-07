@@ -2630,6 +2630,8 @@ get "/feed/channel/:ucid" do |env|
 
   ucid = env.params.url["ucid"]
 
+  params = HTTP::Params.parse(env.params.query["params"]? || "")
+
   begin
     channel = get_about_info(ucid, locale)
   rescue ex
@@ -2690,7 +2692,7 @@ get "/feed/channel/:ucid" do |env|
       end
 
       videos.each do |video|
-        video.to_xml(host_url, channel.auto_generated, xml)
+        video.to_xml(host_url, channel.auto_generated, params, xml)
       end
     end
   end
@@ -2721,6 +2723,8 @@ get "/feed/private" do |env|
   page = env.params.query["page"]?.try &.to_i?
   page ||= 1
 
+  params = HTTP::Params.parse(env.params.query["params"]? || "")
+
   videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
   host_url = make_host_url(config, Kemal.config)
 
@@ -2734,7 +2738,7 @@ get "/feed/private" do |env|
       xml.element("title") { xml.text translate(locale, "Invidious Private Feed for `x`", user.email) }
 
       (notifications + videos).each do |video|
-        video.to_xml(locale, host_url, xml)
+        video.to_xml(locale, host_url, params, xml)
       end
     end
   end
@@ -2747,6 +2751,8 @@ get "/feed/playlist/:plid" do |env|
 
   plid = env.params.url["plid"]
 
+  params = HTTP::Params.parse(env.params.query["params"]? || "")
+
   host_url = make_host_url(config, Kemal.config)
   path = env.request.path
 
@@ -2757,10 +2763,10 @@ get "/feed/playlist/:plid" do |env|
   document.xpath_nodes(%q(//*[@href]|//*[@url])).each do |node|
     node.attributes.each do |attribute|
       case attribute.name
-      when "url"
-        node["url"] = "#{host_url}#{URI.parse(node["url"]).full_path}"
-      when "href"
-        node["href"] = "#{host_url}#{URI.parse(node["href"]).full_path}"
+      when "url", "href"
+        full_path = URI.parse(node[attribute.name]).full_path
+        query_string_opt = full_path.starts_with?("/watch?v=") ? "&#{params}" : ""
+        node[attribute.name] = "#{host_url}#{full_path}#{query_string_opt}"
       end
     end
   end
