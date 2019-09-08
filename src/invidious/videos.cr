@@ -1113,14 +1113,15 @@ def extract_player_config(body, html)
               .try &.["results"]?
                 .try &.as_a
 
-      rvs = extract_recommended(rvs)
-      rvs.each_with_index do |rv, i|
-        if !rv["view_count"]?
+      rvs = extract_recommended(rvs).compact_map do |rv|
+        if !rv["short_view_count_text"]?
           rv_params = rvs_params.select { |rv_params| rv_params["id"]? == (rv["id"]? || "") }[0]?
-          if rv_params
-            rvs[i]["short_view_count_text"] = rv_params["short_view_count_text"]
+
+          if rv_params.try &.["short_view_count_text"]?
+            rv["short_view_count_text"] = rv_params.not_nil!["short_view_count_text"]
+            rv
           else
-            rvs.delete_at(i)
+            nil
           end
         end
       end
