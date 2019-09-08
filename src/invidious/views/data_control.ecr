@@ -3,22 +3,26 @@
 <% end %>
 
 <div class="h-box">
+    <div class="infobox">
+        <%= translate(locale, "To import your subscriptions from YouTube,") %>
+        <a rel="noopener" target="_blank" href="https://www.youtube.com/subscription_manager?action_takeout=1">
+            <%= translate(locale, "click here to download your YouTube-Takeout") %>
+        </a>
+        <%= translate(locale, "and upload the file below.") %>
+    </div>
+
     <form class="pure-form pure-form-aligned" enctype="multipart/form-data" action="/data_control?referer=<%= URI.escape(referer) %>" method="post">
         <fieldset>
             <legend><%= translate(locale, "Import") %></legend>
 
             <div class="pure-control-group">
-                <label for="import_youtube"><%= translate(locale, "Import Invidious data") %></label>
-                <input type="file" id="import_invidious" name="import_invidious">
+                <label for="import_youtube"><%= translate(locale, "Import YouTube subscriptions") %></label>
+                <input type="file" id="import_youtube" name="import_youtube">
             </div>
 
             <div class="pure-control-group">
-                <label for="import_youtube">
-                    <a rel="noopener" target="_blank" href="https://support.google.com/youtube/answer/6224202?hl=en">
-                        <%= translate(locale, "Import YouTube subscriptions") %>
-                    </a>
-                </label>
-                <input type="file" id="import_youtube" name="import_youtube">
+                <label for="import_youtube"><%= translate(locale, "Import Invidious data") %></label>
+                <input type="file" id="import_invidious" name="import_invidious">
             </div>
 
             <div class="pure-control-group">
