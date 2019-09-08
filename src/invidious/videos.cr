@@ -706,11 +706,6 @@ struct Video
     return audio_streams
   end
 
-  def recommended_videos
-    @recommended_json = JSON.parse(@info["recommended_videos"]) if !@recommended_json
-    @recommended_json.not_nil!
-  end
-
   def player_response
     @player_json = JSON.parse(@info["player_response"]) if !@player_json
     @player_json.not_nil!
@@ -1123,6 +1118,8 @@ def extract_player_config(body, html)
           else
             nil
           end
+        else
+          rv
         end
       end
       params["rvs"] = (rvs.map &.to_s).join(",")
