@@ -882,6 +882,10 @@ struct CaptionName
 end
 
 class VideoRedirect < Exception
+  property video_id : String
+
+  def initialize(@video_id)
+  end
 end
 
 def get_video(id, db, refresh = true, region = nil, force_refresh = false)
@@ -1149,7 +1153,7 @@ def fetch_video(id, region)
   response = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
 
   if md = response.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
-    raise VideoRedirect.new(md["id"])
+    raise VideoRedirect.new(video_id: md["id"])
   end
 
   html = XML.parse_html(response.body)

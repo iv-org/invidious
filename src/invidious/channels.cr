@@ -127,6 +127,13 @@ struct AboutChannel
   })
 end
 
+class ChannelRedirect < Exception
+  property channel_id : String
+
+  def initialize(@channel_id)
+  end
+end
+
 def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, max_threads = 10)
   finished_channel = Channel(String | Nil).new
 
@@ -925,6 +932,10 @@ def get_about_info(ucid, locale)
   about = client.get("/channel/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
   if about.status_code == 404
     about = client.get("/user/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
+  end
+
+  if md = about.headers["location"]?.try &.match(/\/channel\/(?<ucid>UC[a-zA-Z0-9_-]{22})/)
+    raise ChannelRedirect.new(channel_id: md["ucid"])
   end
 
   about = XML.parse_html(about.body)

@@ -391,7 +391,7 @@ get "/watch" do |env|
   begin
     video = get_video(id, PG_DB, region: params.region)
   rescue ex : VideoRedirect
-    next env.redirect "/watch?v=#{ex.message}"
+    next env.redirect env.request.resource.gsub(id, ex.video_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -668,7 +668,7 @@ get "/embed/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: params.region)
   rescue ex : VideoRedirect
-    next env.redirect "/embed/#{ex.message}"
+    next env.redirect env.request.resource.gsub(id, ex.video_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -2632,6 +2632,8 @@ get "/feed/channel/:ucid" do |env|
 
   begin
     channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -3035,6 +3037,8 @@ get "/channel/:ucid" do |env|
 
   begin
     channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -3102,6 +3106,8 @@ get "/channel/:ucid/playlists" do |env|
 
   begin
     channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -3140,6 +3146,8 @@ get "/channel/:ucid/community" do |env|
 
   begin
     channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -3195,7 +3203,10 @@ get "/api/v1/storyboards/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    next env.redirect "/api/v1/storyboards/#{ex.message}"
+    error_message = {"error" => "Video is unavailable", "videoId" => ex.video_id}.to_json
+    env.response.status_code = 302
+    env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
+    next error_message
   rescue ex
     env.response.status_code = 500
     next
@@ -3280,7 +3291,10 @@ get "/api/v1/captions/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    next env.redirect "/api/v1/captions/#{ex.message}"
+    error_message = {"error" => "Video is unavailable", "videoId" => ex.video_id}.to_json
+    env.response.status_code = 302
+    env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
+    next error_message
   rescue ex
     env.response.status_code = 500
     next
@@ -3620,7 +3634,10 @@ get "/api/v1/videos/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    next env.redirect "/api/v1/videos/#{ex.message}"
+    error_message = {"error" => "Video is unavailable", "videoId" => ex.video_id}.to_json
+    env.response.status_code = 302
+    env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
+    next error_message
   rescue ex
     error_message = {"error" => ex.message}.to_json
     env.response.status_code = 500
@@ -3723,6 +3740,11 @@ get "/api/v1/channels/:ucid" do |env|
 
   begin
     channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    error_message = {"error" => "Channel is unavailable", "authorId" => ex.channel_id}.to_json
+    env.response.status_code = 302
+    env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
+    next error_message
   rescue ex
     error_message = {"error" => ex.message}.to_json
     env.response.status_code = 500
@@ -3853,6 +3875,11 @@ end
 
     begin
       channel = get_about_info(ucid, locale)
+    rescue ex : ChannelRedirect
+      error_message = {"error" => "Channel is unavailable", "authorId" => ex.channel_id}.to_json
+      env.response.status_code = 302
+      env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
+      next error_message
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -3917,6 +3944,11 @@ end
 
     begin
       channel = get_about_info(ucid, locale)
+    rescue ex : ChannelRedirect
+      error_message = {"error" => "Channel is unavailable", "authorId" => ex.channel_id}.to_json
+      env.response.status_code = 302
+      env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
+      next error_message
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -4501,11 +4533,7 @@ get "/api/manifest/dash/id/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    url = "/api/manifest/dash/id/#{ex.message}"
-    if env.params.query
-      url += "?#{env.params.query}"
-    end
-    next env.redirect url
+    next env.redirect env.request.resource.gsub(id, ex.video_id)
   rescue ex
     env.response.status_code = 403
     next
