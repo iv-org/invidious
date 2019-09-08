@@ -1699,6 +1699,42 @@ get "/toggle_theme" do |env|
   end
 end
 
+get "/dismiss_welcome" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  referer = get_referer(env, unroll: false)
+
+  redirect = env.params.query["redirect"]?
+  redirect ||= "true"
+  redirect = redirect == "true"
+
+  preferences = env.get("preferences").as(Preferences)
+
+  preferences.welcome_dismissed = true
+
+  preferences = preferences.to_json
+
+  if Kemal.config.ssl || config.https_only
+    secure = true
+  else
+    secure = false
+  end
+
+  if config.domain
+    env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.utc + 2.years,
+      secure: secure, http_only: true)
+  else
+    env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
+      secure: secure, http_only: true)
+  end
+
+  if redirect
+    env.redirect referer
+  else
+    env.response.content_type = "application/json"
+    "{}"
+  end
+end
+
 post "/watch_ajax" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 

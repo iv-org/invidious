@@ -36,3 +36,7 @@ body {
   background-color: inherit;
   color: inherit;
 }
+
+.welcome-box {
+  background-image: linear-gradient(45deg, #111, #666);
+}

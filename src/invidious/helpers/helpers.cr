@@ -151,6 +151,7 @@ struct ConfigPreferences
     unseen_only:            {type: Bool, default: false},
     video_loop:             {type: Bool, default: false},
     volume:                 {type: Int32, default: 100},
+    welcome_dismissed:      {type: Bool, default: false},
   })
 end
 
@@ -215,7 +216,7 @@ struct Config
     hmac_key:                 String?,                              # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
     domain:                   String?,                              # Domain to be used for links to resources on the site where an absolute URL is required
     use_pubsub_feeds:         {type: Bool | Int32, default: false}, # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
-    default_home:             {type: String, default: "Top"},
+    default_home:             {type: String, default: "Popular"},
     feed_menu:                {type: Array(String), default: ["Popular", "Top", "Trending", "Subscriptions"]},
     top_enabled:              {type: Bool, default: true},
     captcha_enabled:          {type: Bool, default: true},

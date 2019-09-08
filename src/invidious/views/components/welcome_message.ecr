@@ -1,0 +1,18 @@
+<div class="welcome-outer" id="welcome-outer">
+    <div class="infobox welcome-box">
+        <a id="dismiss_welcome" class="pure-button" href="/dismiss_welcome?referer=<%= env.get?("current_page") %>">dismiss</a>
+        <h1>Welcome to Invidious</h1>
+        <p>Invidious is a community developed Youtube-player, that respects your privacy. Features include:
+        <ul>
+            <li>Ad-free
+            <li>Audio-only mode
+            <li>Works without Javascript
+            <li>No Google account required
+            <li>Download video, audio and subtitles
+            <li><a href="https://github.com/omarroth/invidious/blob/master/README.md">and many more!</a>
+        </ul>
+        <p><a href="/login?referer=%2Fdata_control" class="pure-button pure-button-primary" id="call_to_action">create an account and import your subscriptions now</a>
+    </div>
+    <div class="pure-u-1 pure-u-md-1-4"></div>
+    <p>Here is a selection of videos that our community is interested in:
+</div>

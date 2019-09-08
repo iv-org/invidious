@@ -137,6 +137,12 @@ img.thumbnail {
   top: -0.7em;
 }
 
+.infobox {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1em ;
+}
+
 /*
  * Navbar
  */
@@ -253,6 +259,30 @@ input[type="search"]::-webkit-search-cancel-button {
     width: 100%;
     margin: 0 1em;
   }
+}
+
+/*
+ * Welcome Message
+ */
+
+.welcome-outer {
+  margin: 0 1em;
+}
+
+.welcome-box {
+  padding: 0 1em ;
+}
+
+#dismiss_welcome {
+  font-size: small;
+  float: right;
+  margin: 1em 0;
+}
+
+#call_to_action {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /*
