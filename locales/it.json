@@ -1,10 +1,10 @@
 {
     "`x` subscribers": {
-        "(\\D|^)1(\\D|$)": "`x` iscritto",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` iscritto",
         "": "`x` iscritti"
     },
     "`x` videos": {
-        "(\\D|^)1(\\D|$)": "`x` video",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` video",
         "": "`x` video"
     },
     "LIVE": "IN DIRETTA",
@@ -119,11 +119,11 @@
     "Token manager": "Gestione dei gettoni",
     "Token": "Gettone",
     "`x` subscriptions": {
-        "(\\D|^)1(\\D|$)": "`x` iscrizione",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` iscrizione",
         "": "`x` iscrizioni"
     },
     "`x` tokens": {
-        "(\\D|^)1(\\D|$)": "`x` gettone",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` gettone",
         "": "`x` gettoni"
     },
     "Import/export": "Importa/esporta",
@@ -131,7 +131,7 @@
     "revoke": "revoca",
     "Subscriptions": "Iscrizioni",
     "`x` unseen notifications": {
-        "(\\D|^)1(\\D|$)": "`x` notifica non visualizzata",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` notifica non visualizzata",
         "": "`x` notifiche non visualizzate"
     },
     "search": "Cerca",
@@ -154,7 +154,7 @@
     "Blacklisted regions: ": "Regioni in lista nera: ",
     "Shared `x`": "Condiviso `x`",
     "`x` views": {
-        "(\\D|^)1(\\D|$)": "`x` visualizzazione",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` visualizzazione",
         "": "`x` visualizzazioni"
     },
     "Premieres in `x`": "",
@@ -188,13 +188,13 @@
     "Could not get channel info.": "Impossibile ottenere le informazioni del canale.",
     "Could not fetch comments": "Impossibile recuperare i commenti",
     "View `x` replies": {
-        "(\\D|^)1(\\D|$)": "Visualizza `x` risposta",
+        "([^0-9]|^)1([^,0-9]|$)": "Visualizza `x` risposta",
         "": "Visualizza `x` risposte"
     },
     "`x` ago": "`x` fa",
     "Load more": "Carica altro",
     "`x` points": {
-        "(\\D|^)1(\\D|$)": "`x` punto",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` punto",
         "": "`x` punti"
     },
     "Could not create mix.": "Impossibile creare il mix.",
@@ -315,31 +315,31 @@
     "Yoruba": "Yoruba",
     "Zulu": "Zulu",
     "`x` years": {
-        "(\\D|^)1(\\D|$)": "`x` anno",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` anno",
         "": "`x` anni"
     },
     "`x` months": {
-        "(\\D|^)1(\\D|$)": "`x` mese",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` mese",
         "": "`x` mesi"
     },
     "`x` weeks": {
-        "(\\D|^)1(\\D|$)": "`x` settimana",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` settimana",
         "": "`x` settimane"
     },
     "`x` days": {
-        "(\\D|^)1(\\D|$)": "`x` giorno",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` giorno",
         "": "`x` giorni"
     },
     "`x` hours": {
-        "(\\D|^)1(\\D|$)": "`x` ora",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` ora",
         "": "`x` ore"
     },
     "`x` minutes": {
-        "(\\D|^)1(\\D|$)": "`x` minuto",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` minuto",
         "": "`x` minuti"
     },
     "`x` seconds": {
-        "(\\D|^)1(\\D|$)": "`x` secondo",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` secondo",
         "": "`x` secondi"
     },
     "Fallback comments: ": "Commenti alternativi: ",
