@@ -76,6 +76,7 @@ struct Preferences
     continue:               {type: Bool, default: CONFIG.default_user_preferences.continue},
     continue_autoplay:      {type: Bool, default: CONFIG.default_user_preferences.continue_autoplay},
     dark_mode:              {type: String, default: CONFIG.default_user_preferences.dark_mode, converter: ConfigPreferences::BoolToString},
+    dismissals:             {type: String, default: CONFIG.default_user_preferences.dismissals},
     latest_only:            {type: Bool, default: CONFIG.default_user_preferences.latest_only},
     listen:                 {type: Bool, default: CONFIG.default_user_preferences.listen},
     local:                  {type: Bool, default: CONFIG.default_user_preferences.local},
@@ -92,7 +93,6 @@ struct Preferences
     unseen_only:            {type: Bool, default: CONFIG.default_user_preferences.unseen_only},
     video_loop:             {type: Bool, default: CONFIG.default_user_preferences.video_loop},
     volume:                 {type: Int32, default: CONFIG.default_user_preferences.volume},
-    welcome_dismissed:      {type: Bool, default: CONFIG.default_user_preferences.welcome_dismissed},
   })
 end
 

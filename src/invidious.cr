@@ -90,6 +90,10 @@ LOCALES = {
   "zh-CN" => load_locale("zh-CN"),
 }
 
+DISMISSALS = [
+  "welcome",
+]
+
 config = CONFIG
 logger = Invidious::LogHandler.new
 
@@ -1224,10 +1228,11 @@ post "/login" do |env|
         env.response.cookies << cookie
       end
 
-      if env.request.cookies["PREFS"]?
-        preferences = env.get("preferences").as(Preferences)
-        PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+      preferences = env.get("preferences").as(Preferences)
+      preferences.dismissals = "#{preferences.dismissals},welcome" # registering automatically dismisses "sign up" message
+      PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
 
+      if env.request.cookies["PREFS"]?
         cookie = env.request.cookies["PREFS"]
         cookie.expires = Time.utc(1990, 1, 1)
         env.response.cookies << cookie
@@ -1404,10 +1409,11 @@ post "/login" do |env|
           secure: secure, http_only: true)
       end
 
-      if env.request.cookies["PREFS"]?
-        preferences = env.get("preferences").as(Preferences)
-        PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+      preferences = env.get("preferences").as(Preferences)
+      preferences.dismissals = "#{preferences.dismissals},welcome" # registering automatically dismisses "sign up" message
+      PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
 
+      if env.request.cookies["PREFS"]?
         cookie = env.request.cookies["PREFS"]
         cookie.expires = Time.utc(1990, 1, 1)
         env.response.cookies << cookie
@@ -1699,32 +1705,54 @@ get "/toggle_theme" do |env|
   end
 end
 
-get "/dismiss_welcome" do |env|
+get "/dismiss_info" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   referer = get_referer(env, unroll: false)
+
+  which = env.params.query["name"]?
+  if !which || !DISMISSALS.includes?(which)
+    error_message = {"error" => "cannot dismiss nonexisting info"}.to_json
+    env.response.status_code = 400
+    next error_message
+  end
 
   redirect = env.params.query["redirect"]?
   redirect ||= "true"
   redirect = redirect == "true"
 
-  preferences = env.get("preferences").as(Preferences)
+  if user = env.get? "user"
+    user = user.as(User)
+    preferences = user.preferences
 
-  preferences.welcome_dismissed = true
+    if !preferences.dismissals.split(',').includes?(which)
+      preferences.dismissals = "#{preferences.dismissals},#{which}"
+    end
 
-  preferences = preferences.to_json
+    preferences = preferences.to_json
 
-  if Kemal.config.ssl || config.https_only
-    secure = true
+    PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
   else
-    secure = false
-  end
+    preferences = env.get("preferences").as(Preferences)
 
-  if config.domain
-    env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.utc + 2.years,
-      secure: secure, http_only: true)
-  else
-    env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
-      secure: secure, http_only: true)
+    if !preferences.dismissals.split(',').includes?(which)
+      preferences.dismissals = "#{preferences.dismissals},#{which}"
+    end
+
+    preferences = preferences.to_json
+
+    if Kemal.config.ssl || config.https_only
+      secure = true
+    else
+      secure = false
+    end
+
+    if config.domain
+      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.utc + 2.years,
+        secure: secure, http_only: true)
+    else
+      env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
+        secure: secure, http_only: true)
+    end
   end
 
   if redirect

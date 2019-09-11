@@ -135,6 +135,7 @@ struct ConfigPreferences
     continue:               {type: Bool, default: false},
     continue_autoplay:      {type: Bool, default: true},
     dark_mode:              {type: String, default: "", converter: BoolToString},
+    dismissals:             {type: String, default: ""},
     latest_only:            {type: Bool, default: false},
     listen:                 {type: Bool, default: false},
     local:                  {type: Bool, default: false},
@@ -151,7 +152,6 @@ struct ConfigPreferences
     unseen_only:            {type: Bool, default: false},
     video_loop:             {type: Bool, default: false},
     volume:                 {type: Int32, default: 100},
-    welcome_dismissed:      {type: Bool, default: false},
   })
 end
 
