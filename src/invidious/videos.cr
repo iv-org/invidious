@@ -935,6 +935,9 @@ def extract_recommended(recommended_videos)
       recommended_video = HTTP::Params.new
       recommended_video["id"] = video_renderer["videoId"].as_s
       recommended_video["title"] = video_renderer["title"]["simpleText"].as_s
+
+      next if !video_renderer["shortBylineText"]?
+
       recommended_video["author"] = video_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
       recommended_video["ucid"] = video_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
       recommended_video["author_thumbnail"] = video_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
