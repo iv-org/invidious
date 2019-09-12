@@ -424,15 +424,15 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
       subscriber_count ||= 0
 
       video_count = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li)).try &.content.split(" ")[0].gsub(/\D/, "").to_i?
-      video_count ||= 0
 
       items << SearchChannel.new(
         author: author,
         ucid: ucid,
         author_thumbnail: author_thumbnail,
         subscriber_count: subscriber_count,
-        video_count: video_count,
-        description_html: description_html
+        video_count: video_count || 0,
+        description_html: description_html,
+        auto_generated: video_count ? false : true,
       )
     else
       id = id.lchop("/watch?v=")

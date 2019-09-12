@@ -11,7 +11,7 @@
                 <p><%= item.author %></p>
             </a>
             <p><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></p>
-            <p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p>
+            <% if !item.auto_generated %><p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p><% end %>
             <h5><%= item.description_html %></h5>
         <% when SearchPlaylist %>
             <% if item.id.starts_with? "RD" %>
