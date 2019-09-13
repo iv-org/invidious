@@ -157,7 +157,7 @@ def number_with_separator(number)
   number.to_s.reverse.gsub(/(\d{3})(?=\d)/, "\\1,").reverse
 end
 
-def short_text_to_number(short_text)
+def short_text_to_number(short_text : String) : Int32
   case short_text
   when .ends_with? "M"
     number = short_text.rstrip(" mM").to_f

@@ -1262,7 +1262,7 @@ def fetch_video(id, region)
   end
 
   license = html.xpath_node(%q(//h4[contains(text(),"License")]/parent::*/ul/li)).try &.content || ""
-  sub_count_text = html.xpath_node(%q(//span[contains(@class, "yt-subscriber-count")])).try &.["title"]? || "0"
+  sub_count_text = html.xpath_node(%q(//span[contains(@class, "subscriber-count")])).try &.["title"]? || "0"
   author_thumbnail = html.xpath_node(%(//span[@class="yt-thumb-clip"]/img)).try &.["data-thumb"]?.try &.gsub(/^\/\//, "https://") || ""
 
   video = Video.new(id, info, Time.utc, title, views, likes, dislikes, wilson_score, published, description_html,

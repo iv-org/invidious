@@ -118,7 +118,7 @@ struct AboutChannel
     description_html:   String,
     paid:               Bool,
     total_views:        Int64,
-    sub_count:          Int64,
+    sub_count:          Int32,
     joined:             Time,
     is_family_friendly: Bool,
     allowed_regions:    Array(String),
@@ -951,12 +951,6 @@ def get_about_info(ucid, locale)
     raise error_message
   end
 
-  sub_count = about.xpath_node(%q(//span[contains(text(), "subscribers")]))
-  if sub_count
-    sub_count = sub_count.content.delete(", subscribers").to_i?
-  end
-  sub_count ||= 0
-
   author = about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).not_nil!.content
   author_url = about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).not_nil!["href"]
   author_thumbnail = about.xpath_node(%q(//img[@class="channel-header-profile-image"])).not_nil!["src"]
@@ -1000,21 +994,14 @@ def get_about_info(ucid, locale)
     )
   end
 
-  total_views = 0_i64
-  sub_count = 0_i64
+  joined = about.xpath_node(%q(//span[contains(., "Joined")]))
+    .try &.content.try { |text| Time.parse(text, "Joined %b %-d, %Y", Time::Location.local) } || Time.unix(0)
 
-  joined = Time.unix(0)
-  metadata = about.xpath_nodes(%q(//span[@class="about-stat"]))
-  metadata.each do |item|
-    case item.content
-    when .includes? "views"
-      total_views = item.content.gsub(/\D/, "").to_i64
-    when .includes? "subscribers"
-      sub_count = item.content.delete("subscribers").gsub(/\D/, "").to_i64
-    when .includes? "Joined"
-      joined = Time.parse(item.content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
-    end
-  end
+  total_views = about.xpath_node(%q(//span[contains(., "views")]/b))
+    .try &.content.try &.gsub(/\D/, "").to_i64? || 0_i64
+
+  sub_count = about.xpath_node(%q(.//span[contains(@class, "subscriber-count")]))
+    .try &.["title"].try { |text| short_text_to_number(text) } || 0
 
   # Auto-generated channels
   # https://support.google.com/youtube/answer/2579942
@@ -1026,7 +1013,7 @@ def get_about_info(ucid, locale)
 
   tabs = about.xpath_nodes(%q(//ul[@id="channel-navigation-menu"]/li/a/span)).map { |node| node.content.downcase }
 
-  return AboutChannel.new(
+  AboutChannel.new(
     ucid: ucid,
     author: author,
     auto_generated: auto_generated,

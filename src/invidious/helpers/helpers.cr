@@ -415,13 +415,8 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
 
       author_thumbnail ||= ""
 
-      subscriber_count_text = node.xpath_node(%q(.//span[contains(@class, "yt-subscriber-count")])).try &.["title"]
-      begin
-        subscriber_count = subscriber_count_text.try { |text| short_text_to_number(text) }
-      rescue ex
-        subscriber_count = subscriber_count_text.try &.gsub(/\D/, "").to_i?
-      end
-      subscriber_count ||= 0
+      subscriber_count = node.xpath_node(%q(.//span[contains(@class, "subscriber-count")]))
+        .try &.["title"].try { |text| short_text_to_number(text) } || 0
 
       video_count = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li)).try &.content.split(" ")[0].gsub(/\D/, "").to_i?
 
