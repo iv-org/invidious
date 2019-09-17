@@ -1018,6 +1018,7 @@ post "/login" do |env|
 
       headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
       headers["Google-Accounts-XSRF"] = "1"
+      headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36"
 
       response = client.post("/_/signin/sl/lookup", headers, login_req(lookup_req))
       lookup_results = JSON.parse(response.body[5..-1])
@@ -1057,6 +1058,13 @@ post "/login" do |env|
         next templated "error"
       end
 
+      # TODO: Handle Google's CAPTCHA
+      if captcha = challenge_results[0][-1]?.try &.[-1]?.try &.["5001"]?.try &.[-1].as_a?
+        error_message = "Unhandled CAPTCHA. Please try again later."
+        env.response.status_code = 401
+        next templated "error"
+      end
+
       if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
         error_message = translate(locale, "Incorrect password")
         env.response.status_code = 401
@@ -1074,7 +1082,7 @@ post "/login" do |env|
         end
 
         # Prefer Authenticator app and SMS over unsupported protocols
-        if !{6, 9, 12, 15}.includes?(challenge_results[0][-1][0][0][8]) && prompt_type == 4
+        if !{6, 9, 12, 15}.includes?(challenge_results[0][-1][0][0][8].as_i) && prompt_type == 2
           tfa = challenge_results[0][-1][0].as_a.select { |auth_type| {6, 9, 12, 15}.includes? auth_type[8] }[0]
 
           traceback << "Selecting challenge #{tfa[8]}..."
@@ -1182,8 +1190,12 @@ post "/login" do |env|
           break
         end
 
-        # TODO: Occasionally there will be a second page after login confirming
-        # the user's phone number ("/b/0/SmsAuthInterstitial"), which we currently choke on.
+        # Occasionally there will be a second page after login confirming
+        # the user's phone number ("/b/0/SmsAuthInterstitial"), which we currently don't handle.
+
+        if location.includes? "/b/0/SmsAuthInterstitial"
+          traceback << "Unhandled dialog /b/0/SmsAuthInterstitial."
+        end
 
         login = client.get(location, headers)
         headers = login.cookies.add_request_headers(headers)
