@@ -1059,7 +1059,7 @@ post "/login" do |env|
       end
 
       # TODO: Handle Google's CAPTCHA
-      if captcha = challenge_results[0][-1]?.try &.[-1]?.try &.["5001"]?.try &.[-1].as_a?
+      if captcha = challenge_results[0][-1]?.try &.[-1]?.try &.as_h?.try &.["5001"]?.try &.[-1].as_a?
         error_message = "Unhandled CAPTCHA. Please try again later."
         env.response.status_code = 401
         next templated "error"
