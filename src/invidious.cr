@@ -5324,4 +5324,6 @@ add_context_storage_type(Preferences)
 add_context_storage_type(User)
 
 Kemal.config.logger = logger
+Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
+Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
 Kemal.run

@@ -235,6 +235,8 @@ struct Config
     hsts:              {type: Bool?, default: true},                                                        # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
     disable_proxy:     {type: Bool? | Array(String)?, default: false},                                      # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
     force_resolve:     {type: Socket::Family, default: Socket::Family::UNSPEC, converter: FamilyConverter}, # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
+    port:              {type: Int32, default: 3000},                                                        # Port to listen for connections (overrided by command line argument)
+    host_binding:      {type: String, default: "0.0.0.0"},                                                  # Host to bind (overrided by command line argument)
   })
 end
 
