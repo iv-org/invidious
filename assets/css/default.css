@@ -282,10 +282,10 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 /* Control Bar */
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 640px) {
   .video-js .vjs-control-bar,
   .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
-    overflow: -webkit-paged-x;
+    overflow-x: scroll;
   }
 }
 
