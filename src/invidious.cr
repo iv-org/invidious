@@ -85,6 +85,7 @@ LOCALES = {
   "nl"    => load_locale("nl"),
   "pl"    => load_locale("pl"),
   "ru"    => load_locale("ru"),
+  "tr"    => load_locale("tr"),
   "uk"    => load_locale("uk"),
   "zh-CN" => load_locale("zh-CN"),
 }
