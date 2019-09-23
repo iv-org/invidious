@@ -3,6 +3,9 @@ dist: bionic
 jobs:
   include:
     - stage: build
+      # TODO: Shallowly clone again once the .git folder is no longer required for building
+      git:
+        depth: false
       language: crystal
       crystal: latest
       before_install:
@@ -15,6 +18,9 @@ jobs:
         - crystal spec
 
     - stage: build_docker
+      # TODO: Shallowly clone again once the .git folder is no longer required for building
+      git:
+        depth: false
       language: minimal
       services:
         - docker
