@@ -3,7 +3,7 @@
 <% end %>
 
 <div class="h-box">
-    <form class="pure-form pure-form-aligned" enctype="multipart/form-data" action="/data_control?referer=<%= URI.escape(referer) %>" method="post">
+    <form class="pure-form pure-form-aligned" enctype="multipart/form-data" action="/data_control?referer=<%= URI.encode_www_form(referer) %>" method="post">
         <fieldset>
             <legend><%= translate(locale, "Import") %></legend>
 

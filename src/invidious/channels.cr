@@ -476,7 +476,7 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
   end
 
   data = Base64.urlsafe_encode(data)
-  cursor = URI.escape(data)
+  cursor = URI.encode_www_form(data)
 
   data = IO::Memory.new
 
@@ -497,7 +497,7 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
   IO.copy data, buffer
 
   continuation = Base64.urlsafe_encode(buffer)
-  continuation = URI.escape(continuation)
+  continuation = URI.encode_www_form(continuation)
 
   url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 
@@ -547,7 +547,7 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
 
   data.rewind
   data = Base64.urlsafe_encode(data)
-  continuation = URI.escape(data)
+  continuation = URI.encode_www_form(data)
 
   data = IO::Memory.new
 
@@ -568,7 +568,7 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
   IO.copy data, buffer
 
   continuation = Base64.urlsafe_encode(buffer)
-  continuation = URI.escape(continuation)
+  continuation = URI.encode_www_form(continuation)
 
   url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 
@@ -578,7 +578,7 @@ end
 def extract_channel_playlists_cursor(url, auto_generated)
   continuation = HTTP::Params.parse(URI.parse(url).query.not_nil!)["continuation"]
 
-  continuation = URI.unescape(continuation)
+  continuation = URI.decode_www_form(continuation)
   data = IO::Memory.new(Base64.decode(continuation))
 
   # 0xe2 0xa9 0x85 0xb2 0x02
@@ -597,7 +597,7 @@ def extract_channel_playlists_cursor(url, auto_generated)
   data.read inner_continuation
 
   continuation = String.new(inner_continuation)
-  continuation = URI.unescape(continuation)
+  continuation = URI.decode_www_form(continuation)
   data = IO::Memory.new(Base64.decode(continuation))
 
   # 0x12 0x09 playlists
@@ -614,7 +614,7 @@ def extract_channel_playlists_cursor(url, auto_generated)
   cursor = String.new(cursor)
 
   if !auto_generated
-    cursor = URI.unescape(cursor)
+    cursor = URI.decode_www_form(cursor)
     cursor = Base64.decode_string(cursor)
   end
 
@@ -877,7 +877,7 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config, fo
 end
 
 def produce_channel_community_continuation(ucid, cursor)
-  cursor = URI.escape(cursor)
+  cursor = URI.encode_www_form(cursor)
 
   data = IO::Memory.new
 
@@ -898,13 +898,13 @@ def produce_channel_community_continuation(ucid, cursor)
   IO.copy data, buffer
 
   continuation = Base64.urlsafe_encode(buffer)
-  continuation = URI.escape(continuation)
+  continuation = URI.encode_www_form(continuation)
 
   return continuation
 end
 
 def extract_channel_community_cursor(continuation)
-  continuation = URI.unescape(continuation)
+  continuation = URI.decode_www_form(continuation)
   data = IO::Memory.new(Base64.decode(continuation))
 
   # 0xe2 0xa9 0x85 0xb2 0x02
@@ -923,7 +923,7 @@ def extract_channel_community_cursor(continuation)
     data.read_byte
   end
 
-  return URI.unescape(data.gets_to_end)
+  return URI.decode_www_form(data.gets_to_end)
 end
 
 def get_about_info(ucid, locale)

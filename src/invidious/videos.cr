@@ -408,7 +408,7 @@ struct Video
             json.object do
               json.field "label", caption.name.simpleText
               json.field "languageCode", caption.languageCode
-              json.field "url", "/api/v1/captions/#{id}?label=#{URI.escape(caption.name.simpleText)}"
+              json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name.simpleText)}"
             end
           end
         end

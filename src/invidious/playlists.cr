@@ -172,7 +172,7 @@ def produce_playlist_url(id, index)
   continuation.print data
 
   data = Base64.urlsafe_encode(continuation)
-  cursor = URI.escape(data)
+  cursor = URI.encode_www_form(data)
 
   data = IO::Memory.new
 
@@ -193,7 +193,7 @@ def produce_playlist_url(id, index)
   IO.copy data, buffer
 
   continuation = Base64.urlsafe_encode(buffer)
-  continuation = URI.escape(continuation)
+  continuation = URI.encode_www_form(continuation)
 
   url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 
