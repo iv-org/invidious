@@ -179,14 +179,14 @@ def get_channel(id, db, refresh = true, pull_all_videos = true)
       args = arg_array(channel_array)
 
       db.exec("INSERT INTO channels VALUES (#{args}) \
-        ON CONFLICT (id) DO UPDATE SET author = $2, updated = $3", channel_array)
+        ON CONFLICT (id) DO UPDATE SET author = $2, updated = $3", args: channel_array)
     end
   else
     channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
     channel_array = channel.to_a
     args = arg_array(channel_array)
 
-    db.exec("INSERT INTO channels VALUES (#{args})", channel_array)
+    db.exec("INSERT INTO channels VALUES (#{args})", args: channel_array)
   end
 
   return channel
@@ -275,7 +275,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     db.exec("INSERT INTO channel_videos VALUES (#{args}) \
       ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
       updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-      live_now = $8, views = $10", video_array)
+      live_now = $8, views = $10", args: video_array)
 
     # Update all users affected by insert
     if emails.empty?
@@ -343,7 +343,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
           db.exec("INSERT INTO channel_videos VALUES (#{args}) \
             ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
             updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-            live_now = $8, views = $10", video_array)
+            live_now = $8, views = $10", args: video_array)
 
           # Update all users affected by insert
           if emails.empty?

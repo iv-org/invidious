@@ -1396,7 +1396,7 @@ post "/login" do |env|
       user_array[4] = user_array[4].to_json
       args = arg_array(user_array)
 
-      PG_DB.exec("INSERT INTO users VALUES (#{args})", user_array)
+      PG_DB.exec("INSERT INTO users VALUES (#{args})", args: user_array)
       PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
 
       view_name = "subscriptions_#{sha256(user.email)}"
@@ -2908,7 +2908,7 @@ post "/feed/webhook/:token" do |env|
       PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
         ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
         updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-        live_now = $8, premiere_timestamp = $9, views = $10", video_array)
+        live_now = $8, premiere_timestamp = $9, views = $10", args: video_array)
 
       # Update all users affected by insert
       if emails.empty?

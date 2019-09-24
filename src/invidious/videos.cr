@@ -900,7 +900,7 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
         db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
           published,description,language,author,ucid,allowed_regions,is_family_friendly,\
           genre,genre_url,license,sub_count_text,author_thumbnail)\
-          = (#{args}) WHERE id = $1", video_array)
+          = (#{args}) WHERE id = $1", args: video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
         raise ex
@@ -913,7 +913,7 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
     args = arg_array(video_array)
 
     if !region
-      db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
+      db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", args: video_array)
     end
   end
 
