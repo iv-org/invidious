@@ -108,7 +108,7 @@ def get_user(sid, headers, db, refresh = true)
       args = arg_array(user_array)
 
       db.exec("INSERT INTO users VALUES (#{args}) \
-      ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", user_array)
+      ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", args: user_array)
 
       db.exec("INSERT INTO session_ids VALUES ($1,$2,$3) \
       ON CONFLICT (id) DO NOTHING", sid, user.email, Time.utc)
@@ -127,7 +127,7 @@ def get_user(sid, headers, db, refresh = true)
     args = arg_array(user.to_a)
 
     db.exec("INSERT INTO users VALUES (#{args}) \
-    ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", user_array)
+    ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", args: user_array)
 
     db.exec("INSERT INTO session_ids VALUES ($1,$2,$3) \
     ON CONFLICT (id) DO NOTHING", sid, user.email, Time.utc)
@@ -296,7 +296,7 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
 
     args = arg_array(notifications)
 
-    notifications = db.query_all("SELECT * FROM channel_videos WHERE id IN (#{args}) ORDER BY published DESC", notifications, as: ChannelVideo)
+    notifications = db.query_all("SELECT * FROM channel_videos WHERE id IN (#{args}) ORDER BY published DESC", args: notifications, as: ChannelVideo)
     videos = [] of ChannelVideo
 
     notifications.sort_by! { |video| video.published }.reverse!

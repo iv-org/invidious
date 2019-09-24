@@ -17,7 +17,6 @@
 require "digest/md5"
 require "file_utils"
 require "kemal"
-require "markdown"
 require "openssl/hmac"
 require "option_parser"
 require "pg"
@@ -86,6 +85,7 @@ LOCALES = {
   "nl"    => load_locale("nl"),
   "pl"    => load_locale("pl"),
   "ru"    => load_locale("ru"),
+  "tr"    => load_locale("tr"),
   "uk"    => load_locale("uk"),
   "zh-CN" => load_locale("zh-CN"),
 }
@@ -300,7 +300,7 @@ before_all do |env|
     current_page += "?#{query}"
   end
 
-  env.set "current_page", URI.escape(current_page)
+  env.set "current_page", URI.encode_www_form(current_page)
 end
 
 get "/" do |env|
@@ -395,7 +395,7 @@ get "/watch" do |env|
   begin
     video = get_video(id, PG_DB, region: params.region)
   rescue ex : VideoRedirect
-    next env.redirect "/watch?v=#{ex.message}"
+    next env.redirect env.request.resource.gsub(id, ex.video_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -672,7 +672,7 @@ get "/embed/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: params.region)
   rescue ex : VideoRedirect
-    next env.redirect "/embed/#{ex.message}"
+    next env.redirect env.request.resource.gsub(id, ex.video_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -845,7 +845,7 @@ get "/results" do |env|
   page ||= 1
 
   if query
-    env.redirect "/search?q=#{URI.escape(query)}&page=#{page}"
+    env.redirect "/search?q=#{URI.encode_www_form(query)}&page=#{page}"
   else
     env.redirect "/"
   end
@@ -1022,6 +1022,7 @@ post "/login" do |env|
 
       headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
       headers["Google-Accounts-XSRF"] = "1"
+      headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36"
 
       response = client.post("/_/signin/sl/lookup", headers, login_req(lookup_req))
       lookup_results = JSON.parse(response.body[5..-1])
@@ -1053,11 +1054,18 @@ post "/login" do |env|
 
       traceback << "done, returned #{response.status_code}.<br/>"
 
-      headers["Cookie"] = URI.unescape(headers["Cookie"])
+      headers["Cookie"] = URI.decode_www_form(headers["Cookie"])
 
       if challenge_results[0][3]?.try &.== 7
         error_message = translate(locale, "Account has temporarily been disabled")
         env.response.status_code = 423
+        next templated "error"
+      end
+
+      # TODO: Handle Google's CAPTCHA
+      if captcha = challenge_results[0][-1]?.try &.[-1]?.try &.as_h?.try &.["5001"]?.try &.[-1].as_a?
+        error_message = "Unhandled CAPTCHA. Please try again later."
+        env.response.status_code = 401
         next templated "error"
       end
 
@@ -1078,7 +1086,7 @@ post "/login" do |env|
         end
 
         # Prefer Authenticator app and SMS over unsupported protocols
-        if !{6, 9, 12, 15}.includes?(challenge_results[0][-1][0][0][8]) && prompt_type == 4
+        if !{6, 9, 12, 15}.includes?(challenge_results[0][-1][0][0][8].as_i) && prompt_type == 2
           tfa = challenge_results[0][-1][0].as_a.select { |auth_type| {6, 9, 12, 15}.includes? auth_type[8] }[0]
 
           traceback << "Selecting challenge #{tfa[8]}..."
@@ -1186,8 +1194,12 @@ post "/login" do |env|
           break
         end
 
-        # TODO: Occasionally there will be a second page after login confirming
-        # the user's phone number ("/b/0/SmsAuthInterstitial"), which we currently choke on.
+        # Occasionally there will be a second page after login confirming
+        # the user's phone number ("/b/0/SmsAuthInterstitial"), which we currently don't handle.
+
+        if location.includes? "/b/0/SmsAuthInterstitial"
+          traceback << "Unhandled dialog /b/0/SmsAuthInterstitial."
+        end
 
         login = client.get(location, headers)
         headers = login.cookies.add_request_headers(headers)
@@ -1389,7 +1401,7 @@ post "/login" do |env|
       user_array[4] = user_array[4].to_json
       args = arg_array(user_array)
 
-      PG_DB.exec("INSERT INTO users VALUES (#{args})", user_array)
+      PG_DB.exec("INSERT INTO users VALUES (#{args})", args: user_array)
       PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
 
       view_name = "subscriptions_#{sha256(user.email)}"
@@ -2475,7 +2487,7 @@ post "/authorize_token" do |env|
   access_token = generate_token(user.email, scopes, expire, HMAC_KEY, PG_DB)
 
   if callback_url
-    access_token = URI.escape(access_token)
+    access_token = URI.encode_www_form(access_token)
     url = URI.parse(callback_url)
 
     if url.query
@@ -2696,6 +2708,8 @@ get "/feed/channel/:ucid" do |env|
 
   begin
     channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -2958,7 +2972,7 @@ post "/feed/webhook/:token" do |env|
       PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
         ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
         updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-        live_now = $8, premiere_timestamp = $9, views = $10", video_array)
+        live_now = $8, premiere_timestamp = $9, views = $10", args: video_array)
 
       # Update all users affected by insert
       if emails.empty?
@@ -3099,6 +3113,8 @@ get "/channel/:ucid" do |env|
 
   begin
     channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -3166,6 +3182,8 @@ get "/channel/:ucid/playlists" do |env|
 
   begin
     channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -3204,6 +3222,8 @@ get "/channel/:ucid/community" do |env|
 
   begin
     channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
     error_message = ex.message
     env.response.status_code = 500
@@ -3259,7 +3279,10 @@ get "/api/v1/storyboards/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    next env.redirect "/api/v1/storyboards/#{ex.message}"
+    error_message = {"error" => "Video is unavailable", "videoId" => ex.video_id}.to_json
+    env.response.status_code = 302
+    env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
+    next error_message
   rescue ex
     env.response.status_code = 500
     next
@@ -3344,7 +3367,10 @@ get "/api/v1/captions/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    next env.redirect "/api/v1/captions/#{ex.message}"
+    error_message = {"error" => "Video is unavailable", "videoId" => ex.video_id}.to_json
+    env.response.status_code = 302
+    env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
+    next error_message
   rescue ex
     env.response.status_code = 500
     next
@@ -3365,7 +3391,7 @@ get "/api/v1/captions/:id" do |env|
               json.object do
                 json.field "label", caption.name.simpleText
                 json.field "languageCode", caption.languageCode
-                json.field "url", "/api/v1/captions/#{id}?label=#{URI.escape(caption.name.simpleText)}"
+                json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name.simpleText)}"
               end
             end
           end
@@ -3444,7 +3470,7 @@ get "/api/v1/captions/:id" do |env|
 
   if title = env.params.query["title"]?
     # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-    env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
+    env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.encode_www_form(title)}\"; filename*=UTF-8''#{URI.encode_www_form(title)}"
   end
 
   webvtt
@@ -3632,7 +3658,7 @@ get "/api/v1/annotations/:id" do |env|
         id = id.sub(/^-/, 'A')
       end
 
-      file = URI.escape("#{id[0, 3]}/#{id}.xml")
+      file = URI.encode_www_form("#{id[0, 3]}/#{id}.xml")
 
       client = make_client(ARCHIVE_URL)
       location = client.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}")
@@ -3684,7 +3710,10 @@ get "/api/v1/videos/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    next env.redirect "/api/v1/videos/#{ex.message}"
+    error_message = {"error" => "Video is unavailable", "videoId" => ex.video_id}.to_json
+    env.response.status_code = 302
+    env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
+    next error_message
   rescue ex
     error_message = {"error" => ex.message}.to_json
     env.response.status_code = 500
@@ -3787,6 +3816,11 @@ get "/api/v1/channels/:ucid" do |env|
 
   begin
     channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    error_message = {"error" => "Channel is unavailable", "authorId" => ex.channel_id}.to_json
+    env.response.status_code = 302
+    env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
+    next error_message
   rescue ex
     error_message = {"error" => ex.message}.to_json
     env.response.status_code = 500
@@ -3917,6 +3951,11 @@ end
 
     begin
       channel = get_about_info(ucid, locale)
+    rescue ex : ChannelRedirect
+      error_message = {"error" => "Channel is unavailable", "authorId" => ex.channel_id}.to_json
+      env.response.status_code = 302
+      env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
+      next error_message
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -3981,6 +4020,11 @@ end
 
     begin
       channel = get_about_info(ucid, locale)
+    rescue ex : ChannelRedirect
+      error_message = {"error" => "Channel is unavailable", "authorId" => ex.channel_id}.to_json
+      env.response.status_code = 302
+      env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
+      next error_message
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -4113,7 +4157,7 @@ get "/api/v1/search/suggestions" do |env|
 
   begin
     client = make_client(URI.parse("https://suggestqueries.google.com"))
-    response = client.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.escape(query)}&callback=suggestCallback").body
+    response = client.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.encode_www_form(query)}&callback=suggestCallback").body
 
     body = response[35..-2]
     body = JSON.parse(body).as_a
@@ -4497,7 +4541,7 @@ post "/api/v1/auth/tokens/register" do |env|
     access_token = generate_token(user.email, authorized_scopes, expire, HMAC_KEY, PG_DB)
 
     if callback_url
-      access_token = URI.escape(access_token)
+      access_token = URI.encode_www_form(access_token)
 
       if query = callback_url.query
         query = HTTP::Params.parse(query.not_nil!)
@@ -4565,11 +4609,7 @@ get "/api/manifest/dash/id/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    url = "/api/manifest/dash/id/#{ex.message}"
-    if env.params.query
-      url += "?#{env.params.query}"
-    end
-    next env.redirect url
+    next env.redirect env.request.resource.gsub(id, ex.video_id)
   rescue ex
     env.response.status_code = 403
     next
@@ -4736,7 +4776,7 @@ get "/api/manifest/hls_playlist/*" do |env|
       raw_params = {} of String => Array(String)
       path.each_slice(2) do |pair|
         key, value = pair
-        value = URI.unescape(value)
+        value = URI.decode_www_form(value)
 
         if raw_params[key]?
           raw_params[key] << value
@@ -4861,7 +4901,7 @@ get "/videoplayback/*" do |env|
   raw_params = {} of String => Array(String)
   path.each_slice(2) do |pair|
     key, value = pair
-    value = URI.unescape(value)
+    value = URI.decode_www_form(value)
 
     if raw_params[key]?
       raw_params[key] << value
@@ -5035,7 +5075,7 @@ get "/videoplayback" do |env|
 
             if title = query_params["title"]?
               # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-              env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
+              env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.encode_www_form(title)}\"; filename*=UTF-8''#{URI.encode_www_form(title)}"
             end
 
             if !response.headers.includes_word?("Transfer-Encoding", "chunked")
@@ -5348,4 +5388,6 @@ add_context_storage_type(Preferences)
 add_context_storage_type(User)
 
 Kemal.config.logger = logger
+Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
+Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
 Kemal.run

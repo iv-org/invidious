@@ -69,7 +69,7 @@ end
 def validate_request(token, session, request, key, db, locale = nil)
   case token
   when String
-    token = JSON.parse(URI.unescape(token)).as_h
+    token = JSON.parse(URI.decode_www_form(token)).as_h
   when JSON::Any
     token = token.as_h
   when Nil

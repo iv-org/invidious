@@ -1,5 +1,5 @@
 FROM alpine:edge AS builder
-RUN apk add -u crystal shards libc-dev \
+RUN apk add --no-cache crystal shards libc-dev \
     yaml-dev libxml2-dev sqlite-dev zlib-dev openssl-dev \
     sqlite-static zlib-static openssl-libs-static
 WORKDIR /invidious
@@ -15,7 +15,7 @@ RUN crystal build --static --release \
     ./src/invidious.cr
 
 FROM alpine:latest
-RUN apk add -u imagemagick ttf-opensans
+RUN apk add --no-cache imagemagick ttf-opensans
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
     adduser -u 1000 -S invidious -G invidious

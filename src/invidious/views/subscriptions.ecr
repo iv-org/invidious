@@ -47,7 +47,7 @@
 
 <script>
 var watched_data = {
-    csrf_token: '<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>',
+    csrf_token: '<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>',
 }
 </script>
 <script src="/js/watched_widget.js"></script>

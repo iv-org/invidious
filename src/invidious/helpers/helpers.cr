@@ -236,6 +236,8 @@ struct Config
     hsts:              {type: Bool?, default: true},                                                        # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
     disable_proxy:     {type: Bool? | Array(String)?, default: false},                                      # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
     force_resolve:     {type: Socket::Family, default: Socket::Family::UNSPEC, converter: FamilyConverter}, # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
+    port:              {type: Int32, default: 3000},                                                        # Port to listen for connections (overrided by command line argument)
+    host_binding:      {type: String, default: "0.0.0.0"},                                                  # Host to bind (overrided by command line argument)
   })
 end
 
@@ -416,19 +418,19 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
 
       author_thumbnail ||= ""
 
-      subscriber_count = node.xpath_node(%q(.//span[contains(@class, "yt-subscriber-count")])).try &.["title"].gsub(/\D/, "").to_i?
-      subscriber_count ||= 0
+      subscriber_count = node.xpath_node(%q(.//span[contains(@class, "subscriber-count")]))
+        .try &.["title"].try { |text| short_text_to_number(text) } || 0
 
       video_count = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li)).try &.content.split(" ")[0].gsub(/\D/, "").to_i?
-      video_count ||= 0
 
       items << SearchChannel.new(
         author: author,
         ucid: ucid,
         author_thumbnail: author_thumbnail,
         subscriber_count: subscriber_count,
-        video_count: video_count,
-        description_html: description_html
+        video_count: video_count || 0,
+        description_html: description_html,
+        auto_generated: video_count ? false : true,
       )
     else
       id = id.lchop("/watch?v=")

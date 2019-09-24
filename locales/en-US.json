@@ -1,10 +1,10 @@
 {
     "`x` subscribers": {
-        "(\\D|^)1(\\D|$)": "`x` subscriber",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` subscriber",
         "": "`x` subscribers"
     },
     "`x` videos": {
-        "(\\D|^)1(\\D|$)": "`x` video",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` video",
         "": "`x` videos"
     },
     "LIVE": "LIVE",
@@ -122,11 +122,11 @@
     "Token manager": "Token manager",
     "Token": "Token",
     "`x` subscriptions": {
-        "(\\D|^)1(\\D|$)": "`x` subscription",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` subscription",
         "": "`x` subscriptions"
     },
     "`x` tokens": {
-        "(\\D|^)1(\\D|$)": "`x` token",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` token",
         "": "`x` tokens"
     },
     "Import/export": "Import/export",
@@ -134,7 +134,7 @@
     "revoke": "revoke",
     "Subscriptions": "Subscriptions",
     "`x` unseen notifications": {
-        "(\\D|^)1(\\D|$)": "`x` unseen notification",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` unseen notification",
         "": "`x` unseen notifications"
     },
     "search": "search",
@@ -157,7 +157,7 @@
     "Blacklisted regions: ": "Blacklisted regions: ",
     "Shared `x`": "Shared `x`",
     "`x` views": {
-        "(\\D|^)1(\\D|$)": "`x` views",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` views",
         "": "`x` views"
     },
     "Premieres in `x`": "Premieres in `x`",
@@ -191,13 +191,13 @@
     "Could not get channel info.": "Could not get channel info.",
     "Could not fetch comments": "Could not fetch comments",
     "View `x` replies": {
-        "(\\D|^)1(\\D|$)": "View `x` reply",
+        "([^0-9]|^)1([^,0-9]|$)": "View `x` reply",
         "": "View `x` replies"
     },
     "`x` ago": "`x` ago",
     "Load more": "Load more",
     "`x` points": {
-        "(\\D|^)1(\\D|$)": "`x` point",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` point",
         "": "`x` points"
     },
     "Could not create mix.": "Could not create mix.",
@@ -318,31 +318,31 @@
     "Yoruba": "Yoruba",
     "Zulu": "Zulu",
     "`x` years": {
-        "(\\D|^)1(\\D|$)": "`x` year",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` year",
         "": "`x` years"
     },
     "`x` months": {
-        "(\\D|^)1(\\D|$)": "`x` month",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` month",
         "": "`x` months"
     },
     "`x` weeks": {
-        "(\\D|^)1(\\D|$)": "`x` week",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` week",
         "": "`x` weeks"
     },
     "`x` days": {
-        "(\\D|^)1(\\D|$)": "`x` day",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` day",
         "": "`x` days"
     },
     "`x` hours": {
-        "(\\D|^)1(\\D|$)": "`x` hour",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` hour",
         "": "`x` hours"
     },
     "`x` minutes": {
-        "(\\D|^)1(\\D|$)": "`x` minute",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` minute",
         "": "`x` minutes"
     },
     "`x` seconds": {
-        "(\\D|^)1(\\D|$)": "`x` second",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` second",
         "": "`x` seconds"
     },
     "Fallback comments: ": "Fallback comments: ",

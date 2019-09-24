@@ -95,8 +95,8 @@ class AuthHandler < Kemal::Handler
 
     begin
       if token = env.request.headers["Authorization"]?
-        token = JSON.parse(URI.unescape(token.lchop("Bearer ")))
-        session = URI.unescape(token["session"].as_s)
+        token = JSON.parse(URI.decode_www_form(token.lchop("Bearer ")))
+        session = URI.decode_www_form(token["session"].as_s)
         scopes, expire, signature = validate_request(token, session, env.request, HMAC_KEY, PG_DB, nil)
 
         if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", session, as: String)
@@ -238,40 +238,15 @@ class HTTP::Client
   end
 end
 
-# https://github.com/will/crystal-pg/pull/171
-class PG::Statement < ::DB::Statement
-  protected def perform_query(args : Enumerable) : ResultSet
-    params = args.map { |arg| PQ::Param.encode(arg) }
-    conn = self.conn
-    conn.send_parse_message(@sql)
-    conn.send_bind_message params
-    conn.send_describe_portal_message
-    conn.send_execute_message
-    conn.send_sync_message
-    conn.expect_frame PQ::Frame::ParseComplete
-    conn.expect_frame PQ::Frame::BindComplete
-    frame = conn.read
-    case frame
-    when PQ::Frame::RowDescription
-      fields = frame.fields
-    when PQ::Frame::NoData
-      fields = nil
-    else
-      raise "expected RowDescription or NoData, got #{frame}"
-    end
-    ResultSet.new(self, fields)
-  rescue IO::Error
-    raise DB::ConnectionLost.new(connection)
-  end
+struct Crystal::ThreadLocalValue(T)
+  @values = Hash(Thread, T).new
 
-  protected def perform_exec(args : Enumerable) : ::DB::ExecResult
-    result = perform_query(args)
-    result.each { }
-    ::DB::ExecResult.new(
-      rows_affected: result.rows_affected,
-      last_insert_id: 0_i64 # postgres doesn't support this
-    )
-  rescue IO::Error
-    raise DB::ConnectionLost.new(connection)
+  def get(&block : -> T)
+    th = Thread.current
+    if !@values[th]?
+      @values[th] = yield
+    else
+      @values[th]
+    end
   end
 end

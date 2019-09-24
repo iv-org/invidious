@@ -118,13 +118,20 @@ struct AboutChannel
     description_html:   String,
     paid:               Bool,
     total_views:        Int64,
-    sub_count:          Int64,
+    sub_count:          Int32,
     joined:             Time,
     is_family_friendly: Bool,
     allowed_regions:    Array(String),
     related_channels:   Array(AboutRelatedChannel),
     tabs:               Array(String),
   })
+end
+
+class ChannelRedirect < Exception
+  property channel_id : String
+
+  def initialize(@channel_id)
+  end
 end
 
 def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, max_threads = 10)
@@ -172,14 +179,14 @@ def get_channel(id, db, refresh = true, pull_all_videos = true)
       args = arg_array(channel_array)
 
       db.exec("INSERT INTO channels VALUES (#{args}) \
-        ON CONFLICT (id) DO UPDATE SET author = $2, updated = $3", channel_array)
+        ON CONFLICT (id) DO UPDATE SET author = $2, updated = $3", args: channel_array)
     end
   else
     channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
     channel_array = channel.to_a
     args = arg_array(channel_array)
 
-    db.exec("INSERT INTO channels VALUES (#{args})", channel_array)
+    db.exec("INSERT INTO channels VALUES (#{args})", args: channel_array)
   end
 
   return channel
@@ -268,7 +275,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     db.exec("INSERT INTO channel_videos VALUES (#{args}) \
       ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
       updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-      live_now = $8, views = $10", video_array)
+      live_now = $8, views = $10", args: video_array)
 
     # Update all users affected by insert
     if emails.empty?
@@ -336,7 +343,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
           db.exec("INSERT INTO channel_videos VALUES (#{args}) \
             ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
             updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-            live_now = $8, views = $10", video_array)
+            live_now = $8, views = $10", args: video_array)
 
           # Update all users affected by insert
           if emails.empty?
@@ -469,7 +476,7 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
   end
 
   data = Base64.urlsafe_encode(data)
-  cursor = URI.escape(data)
+  cursor = URI.encode_www_form(data)
 
   data = IO::Memory.new
 
@@ -490,7 +497,7 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
   IO.copy data, buffer
 
   continuation = Base64.urlsafe_encode(buffer)
-  continuation = URI.escape(continuation)
+  continuation = URI.encode_www_form(continuation)
 
   url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 
@@ -540,7 +547,7 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
 
   data.rewind
   data = Base64.urlsafe_encode(data)
-  continuation = URI.escape(data)
+  continuation = URI.encode_www_form(data)
 
   data = IO::Memory.new
 
@@ -561,7 +568,7 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
   IO.copy data, buffer
 
   continuation = Base64.urlsafe_encode(buffer)
-  continuation = URI.escape(continuation)
+  continuation = URI.encode_www_form(continuation)
 
   url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 
@@ -571,7 +578,7 @@ end
 def extract_channel_playlists_cursor(url, auto_generated)
   continuation = HTTP::Params.parse(URI.parse(url).query.not_nil!)["continuation"]
 
-  continuation = URI.unescape(continuation)
+  continuation = URI.decode_www_form(continuation)
   data = IO::Memory.new(Base64.decode(continuation))
 
   # 0xe2 0xa9 0x85 0xb2 0x02
@@ -590,7 +597,7 @@ def extract_channel_playlists_cursor(url, auto_generated)
   data.read inner_continuation
 
   continuation = String.new(inner_continuation)
-  continuation = URI.unescape(continuation)
+  continuation = URI.decode_www_form(continuation)
   data = IO::Memory.new(Base64.decode(continuation))
 
   # 0x12 0x09 playlists
@@ -607,7 +614,7 @@ def extract_channel_playlists_cursor(url, auto_generated)
   cursor = String.new(cursor)
 
   if !auto_generated
-    cursor = URI.unescape(cursor)
+    cursor = URI.decode_www_form(cursor)
     cursor = Base64.decode_string(cursor)
   end
 
@@ -870,7 +877,7 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config, fo
 end
 
 def produce_channel_community_continuation(ucid, cursor)
-  cursor = URI.escape(cursor)
+  cursor = URI.encode_www_form(cursor)
 
   data = IO::Memory.new
 
@@ -891,13 +898,13 @@ def produce_channel_community_continuation(ucid, cursor)
   IO.copy data, buffer
 
   continuation = Base64.urlsafe_encode(buffer)
-  continuation = URI.escape(continuation)
+  continuation = URI.encode_www_form(continuation)
 
   return continuation
 end
 
 def extract_channel_community_cursor(continuation)
-  continuation = URI.unescape(continuation)
+  continuation = URI.decode_www_form(continuation)
   data = IO::Memory.new(Base64.decode(continuation))
 
   # 0xe2 0xa9 0x85 0xb2 0x02
@@ -916,7 +923,7 @@ def extract_channel_community_cursor(continuation)
     data.read_byte
   end
 
-  return URI.unescape(data.gets_to_end)
+  return URI.decode_www_form(data.gets_to_end)
 end
 
 def get_about_info(ucid, locale)
@@ -925,6 +932,10 @@ def get_about_info(ucid, locale)
   about = client.get("/channel/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
   if about.status_code == 404
     about = client.get("/user/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
+  end
+
+  if md = about.headers["location"]?.try &.match(/\/channel\/(?<ucid>UC[a-zA-Z0-9_-]{22})/)
+    raise ChannelRedirect.new(channel_id: md["ucid"])
   end
 
   about = XML.parse_html(about.body)
@@ -939,12 +950,6 @@ def get_about_info(ucid, locale)
     error_message ||= translate(locale, "Could not get channel info.")
     raise error_message
   end
-
-  sub_count = about.xpath_node(%q(//span[contains(text(), "subscribers")]))
-  if sub_count
-    sub_count = sub_count.content.delete(", subscribers").to_i?
-  end
-  sub_count ||= 0
 
   author = about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).not_nil!.content
   author_url = about.xpath_node(%q(//span[contains(@class,"qualified-channel-title-text")]/a)).not_nil!["href"]
@@ -989,21 +994,14 @@ def get_about_info(ucid, locale)
     )
   end
 
-  total_views = 0_i64
-  sub_count = 0_i64
+  joined = about.xpath_node(%q(//span[contains(., "Joined")]))
+    .try &.content.try { |text| Time.parse(text, "Joined %b %-d, %Y", Time::Location.local) } || Time.unix(0)
 
-  joined = Time.unix(0)
-  metadata = about.xpath_nodes(%q(//span[@class="about-stat"]))
-  metadata.each do |item|
-    case item.content
-    when .includes? "views"
-      total_views = item.content.gsub(/\D/, "").to_i64
-    when .includes? "subscribers"
-      sub_count = item.content.delete("subscribers").gsub(/\D/, "").to_i64
-    when .includes? "Joined"
-      joined = Time.parse(item.content.lchop("Joined "), "%b %-d, %Y", Time::Location.local)
-    end
-  end
+  total_views = about.xpath_node(%q(//span[contains(., "views")]/b))
+    .try &.content.try &.gsub(/\D/, "").to_i64? || 0_i64
+
+  sub_count = about.xpath_node(%q(.//span[contains(@class, "subscriber-count")]))
+    .try &.["title"].try { |text| short_text_to_number(text) } || 0
 
   # Auto-generated channels
   # https://support.google.com/youtube/answer/2579942
@@ -1015,7 +1013,7 @@ def get_about_info(ucid, locale)
 
   tabs = about.xpath_nodes(%q(//ul[@id="channel-navigation-menu"]/li/a/span)).map { |node| node.content.downcase }
 
-  return AboutChannel.new(
+  AboutChannel.new(
     ucid: ucid,
     author: author,
     auto_generated: auto_generated,

@@ -11,7 +11,7 @@
                 <p><%= item.author %></p>
             </a>
             <p><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></p>
-            <p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p>
+            <% if !item.auto_generated %><p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p><% end %>
             <h5><%= item.description_html %></h5>
         <% when SearchPlaylist %>
             <% if item.id.starts_with? "RD" %>
@@ -91,7 +91,7 @@
                         <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                         <% if env.get? "show_watched" %>
                             <form onsubmit="return false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= URI.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                                <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
                                     <a onclick="mark_watched(this)" data-id="<%= item.id %>" href="javascript:void(0)">
                                         <button type="submit" style="all:unset">

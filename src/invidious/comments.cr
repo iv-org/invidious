@@ -573,7 +573,7 @@ def content_to_comment_html(content)
 end
 
 def extract_comment_cursor(continuation)
-  continuation = URI.unescape(continuation)
+  continuation = URI.decode_www_form(continuation)
   data = IO::Memory.new(Base64.decode(continuation))
 
   # 0x12 0x26
@@ -653,7 +653,7 @@ def produce_comment_continuation(video_id, cursor = "", sort_by = "top")
   end
 
   continuation = Base64.urlsafe_encode(data)
-  continuation = URI.escape(continuation)
+  continuation = URI.encode_www_form(continuation)
 
   return continuation
 end
@@ -695,7 +695,7 @@ def produce_comment_reply_continuation(video_id, ucid, comment_id)
   data.write(Bytes[0x48, 0x0a])
 
   continuation = Base64.urlsafe_encode(data.to_slice)
-  continuation = URI.escape(continuation)
+  continuation = URI.encode_www_form(continuation)
 
   return continuation
 end

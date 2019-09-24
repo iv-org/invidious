@@ -316,10 +316,10 @@ struct Video
         json.field "premiereTimestamp", self.premiere_timestamp.not_nil!.to_unix
       end
 
-      if self.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
+      if player_response["streamingData"]?.try &.["hlsManifestUrl"]?
         host_url = make_host_url(config, kemal_config)
 
-        hlsvp = self.player_response["streamingData"]["hlsManifestUrl"].as_s
+        hlsvp = player_response["streamingData"]["hlsManifestUrl"].as_s
         hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
 
         json.field "hlsUrl", hlsvp
@@ -408,7 +408,7 @@ struct Video
             json.object do
               json.field "label", caption.name.simpleText
               json.field "languageCode", caption.languageCode
-              json.field "url", "/api/v1/captions/#{id}?label=#{URI.escape(caption.name.simpleText)}"
+              json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name.simpleText)}"
             end
           end
         end
@@ -489,7 +489,7 @@ struct Video
   end
 
   def live_now
-    live_now = self.player_response["videoDetails"]?.try &.["isLive"]?.try &.as_bool
+    live_now = player_response["videoDetails"]?.try &.["isLive"]?.try &.as_bool
 
     if live_now.nil?
       return false
@@ -536,7 +536,7 @@ struct Video
   end
 
   def keywords
-    keywords = self.player_response["videoDetails"]?.try &.["keywords"]?.try &.as_a
+    keywords = player_response["videoDetails"]?.try &.["keywords"]?.try &.as_a
     keywords ||= [] of String
 
     return keywords
@@ -545,7 +545,7 @@ struct Video
   def fmt_stream(decrypt_function)
     streams = [] of HTTP::Params
 
-    if fmt_streams = self.player_response["streamingData"]?.try &.["formats"]?
+    if fmt_streams = player_response["streamingData"]?.try &.["formats"]?
       fmt_streams.as_a.each do |fmt_stream|
         if !fmt_stream.as_h?
           next
@@ -619,7 +619,7 @@ struct Video
   def adaptive_fmts(decrypt_function)
     adaptive_fmts = [] of HTTP::Params
 
-    if fmts = self.player_response["streamingData"]?.try &.["adaptiveFormats"]?
+    if fmts = player_response["streamingData"]?.try &.["adaptiveFormats"]?
       fmts.as_a.each do |adaptive_fmt|
         if !adaptive_fmt.as_h?
           next
@@ -712,12 +712,12 @@ struct Video
   end
 
   def storyboards
-    storyboards = self.player_response["storyboards"]?
+    storyboards = player_response["storyboards"]?
       .try &.as_h
         .try &.["playerStoryboardSpecRenderer"]?
 
     if !storyboards
-      storyboards = self.player_response["storyboards"]?
+      storyboards = player_response["storyboards"]?
         .try &.as_h
           .try &.["playerLiveStoryboardSpecRenderer"]?
 
@@ -784,13 +784,8 @@ struct Video
   end
 
   def paid
-    reason = self.player_response["playabilityStatus"]?.try &.["reason"]?
-
-    if reason == "This video requires payment to watch."
-      paid = true
-    else
-      paid = false
-    end
+    reason = player_response["playabilityStatus"]?.try &.["reason"]?
+    paid = reason == "This video requires payment to watch." ? true : false
 
     return paid
   end
@@ -836,7 +831,7 @@ struct Video
   end
 
   def length_seconds
-    self.player_response["videoDetails"]["lengthSeconds"].as_s.to_i
+    player_response["videoDetails"]["lengthSeconds"].as_s.to_i
   end
 
   db_mapping({
@@ -882,6 +877,10 @@ struct CaptionName
 end
 
 class VideoRedirect < Exception
+  property video_id : String
+
+  def initialize(@video_id)
+  end
 end
 
 def get_video(id, db, refresh = true, region = nil, force_refresh = false)
@@ -901,7 +900,7 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
         db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
           published,description,language,author,ucid,allowed_regions,is_family_friendly,\
           genre,genre_url,license,sub_count_text,author_thumbnail)\
-          = (#{args}) WHERE id = $1", video_array)
+          = (#{args}) WHERE id = $1", args: video_array)
       rescue ex
         db.exec("DELETE FROM videos * WHERE id = $1", id)
         raise ex
@@ -914,7 +913,7 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
     args = arg_array(video_array)
 
     if !region
-      db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", video_array)
+      db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", args: video_array)
     end
   end
 
@@ -931,6 +930,9 @@ def extract_recommended(recommended_videos)
       recommended_video = HTTP::Params.new
       recommended_video["id"] = video_renderer["videoId"].as_s
       recommended_video["title"] = video_renderer["title"]["simpleText"].as_s
+
+      next if !video_renderer["shortBylineText"]?
+
       recommended_video["author"] = video_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
       recommended_video["ucid"] = video_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
       recommended_video["author_thumbnail"] = video_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
@@ -1149,7 +1151,7 @@ def fetch_video(id, region)
   response = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
 
   if md = response.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
-    raise VideoRedirect.new(md["id"])
+    raise VideoRedirect.new(video_id: md["id"])
   end
 
   html = XML.parse_html(response.body)
@@ -1203,6 +1205,11 @@ def fetch_video(id, region)
 
   player_json = JSON.parse(info["player_response"])
 
+  reason = player_json["playabilityStatus"]?.try &.["reason"]?.try &.as_s
+  if reason == "This video is not available."
+    raise "This video is not available."
+  end
+
   title = player_json["videoDetails"]["title"].as_s
   author = player_json["videoDetails"]["author"]?.try &.as_s || ""
   ucid = player_json["videoDetails"]["channelId"]?.try &.as_s || ""
@@ -1255,7 +1262,7 @@ def fetch_video(id, region)
   end
 
   license = html.xpath_node(%q(//h4[contains(text(),"License")]/parent::*/ul/li)).try &.content || ""
-  sub_count_text = html.xpath_node(%q(//span[contains(@class, "yt-subscriber-count")])).try &.["title"]? || "0"
+  sub_count_text = html.xpath_node(%q(//span[contains(@class, "subscriber-count")])).try &.["title"]? || "0"
   author_thumbnail = html.xpath_node(%(//span[@class="yt-thumb-clip"]/img)).try &.["data-thumb"]?.try &.gsub(/^\/\//, "https://") || ""
 
   video = Video.new(id, info, Time.utc, title, views, likes, dislikes, wilson_score, published, description_html,

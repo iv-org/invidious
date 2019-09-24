@@ -119,7 +119,7 @@ module Kemal
 
       config = Kemal.config.serve_static
       original_path = context.request.path.not_nil!
-      request_path = URI.unescape(original_path)
+      request_path = URI.decode_www_form(original_path)
 
       # File path cannot contains '\0' (NUL) because all filesystem I know
       # don't accept '\0' character as file name.
