@@ -17,7 +17,6 @@
 require "digest/md5"
 require "file_utils"
 require "kemal"
-require "markdown"
 require "openssl/hmac"
 require "option_parser"
 require "pg"
@@ -296,7 +295,7 @@ before_all do |env|
     current_page += "?#{query}"
   end
 
-  env.set "current_page", URI.escape(current_page)
+  env.set "current_page", URI.encode_www_form(current_page)
 end
 
 get "/" do |env|
@@ -841,7 +840,7 @@ get "/results" do |env|
   page ||= 1
 
   if query
-    env.redirect "/search?q=#{URI.escape(query)}&page=#{page}"
+    env.redirect "/search?q=#{URI.encode_www_form(query)}&page=#{page}"
   else
     env.redirect "/"
   end
@@ -1050,7 +1049,7 @@ post "/login" do |env|
 
       traceback << "done, returned #{response.status_code}.<br/>"
 
-      headers["Cookie"] = URI.unescape(headers["Cookie"])
+      headers["Cookie"] = URI.decode_www_form(headers["Cookie"])
 
       if challenge_results[0][3]?.try &.== 7
         error_message = translate(locale, "Account has temporarily been disabled")
@@ -2423,7 +2422,7 @@ post "/authorize_token" do |env|
   access_token = generate_token(user.email, scopes, expire, HMAC_KEY, PG_DB)
 
   if callback_url
-    access_token = URI.escape(access_token)
+    access_token = URI.encode_www_form(access_token)
     url = URI.parse(callback_url)
 
     if url.query
@@ -3327,7 +3326,7 @@ get "/api/v1/captions/:id" do |env|
               json.object do
                 json.field "label", caption.name.simpleText
                 json.field "languageCode", caption.languageCode
-                json.field "url", "/api/v1/captions/#{id}?label=#{URI.escape(caption.name.simpleText)}"
+                json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name.simpleText)}"
               end
             end
           end
@@ -3406,7 +3405,7 @@ get "/api/v1/captions/:id" do |env|
 
   if title = env.params.query["title"]?
     # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-    env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
+    env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.encode_www_form(title)}\"; filename*=UTF-8''#{URI.encode_www_form(title)}"
   end
 
   webvtt
@@ -3594,7 +3593,7 @@ get "/api/v1/annotations/:id" do |env|
         id = id.sub(/^-/, 'A')
       end
 
-      file = URI.escape("#{id[0, 3]}/#{id}.xml")
+      file = URI.encode_www_form("#{id[0, 3]}/#{id}.xml")
 
       client = make_client(ARCHIVE_URL)
       location = client.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}")
@@ -4093,7 +4092,7 @@ get "/api/v1/search/suggestions" do |env|
 
   begin
     client = make_client(URI.parse("https://suggestqueries.google.com"))
-    response = client.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.escape(query)}&callback=suggestCallback").body
+    response = client.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.encode_www_form(query)}&callback=suggestCallback").body
 
     body = response[35..-2]
     body = JSON.parse(body).as_a
@@ -4477,7 +4476,7 @@ post "/api/v1/auth/tokens/register" do |env|
     access_token = generate_token(user.email, authorized_scopes, expire, HMAC_KEY, PG_DB)
 
     if callback_url
-      access_token = URI.escape(access_token)
+      access_token = URI.encode_www_form(access_token)
 
       if query = callback_url.query
         query = HTTP::Params.parse(query.not_nil!)
@@ -4712,7 +4711,7 @@ get "/api/manifest/hls_playlist/*" do |env|
       raw_params = {} of String => Array(String)
       path.each_slice(2) do |pair|
         key, value = pair
-        value = URI.unescape(value)
+        value = URI.decode_www_form(value)
 
         if raw_params[key]?
           raw_params[key] << value
@@ -4837,7 +4836,7 @@ get "/videoplayback/*" do |env|
   raw_params = {} of String => Array(String)
   path.each_slice(2) do |pair|
     key, value = pair
-    value = URI.unescape(value)
+    value = URI.decode_www_form(value)
 
     if raw_params[key]?
       raw_params[key] << value
@@ -5011,7 +5010,7 @@ get "/videoplayback" do |env|
 
             if title = query_params["title"]?
               # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-              env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.escape(title)}\"; filename*=UTF-8''#{URI.escape(title)}"
+              env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.encode_www_form(title)}\"; filename*=UTF-8''#{URI.encode_www_form(title)}"
             end
 
             if !response.headers.includes_word?("Transfer-Encoding", "chunked")

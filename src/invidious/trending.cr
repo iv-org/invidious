@@ -42,7 +42,7 @@ end
 def extract_plid(url)
   wrapper = HTTP::Params.parse(URI.parse(url).query.not_nil!)["bp"]
 
-  wrapper = URI.unescape(wrapper)
+  wrapper = URI.decode_www_form(wrapper)
   wrapper = Base64.decode(wrapper)
 
   # 0xe2 0x02 0x2e

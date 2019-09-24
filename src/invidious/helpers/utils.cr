@@ -246,7 +246,7 @@ def get_referer(env, fallback = "/", unroll = true)
       if referer.query
         params = HTTP::Params.parse(referer.query.not_nil!)
         if params["referer"]?
-          referer = URI.parse(URI.unescape(params["referer"]))
+          referer = URI.parse(URI.decode_www_form(params["referer"]))
         else
           break
         end

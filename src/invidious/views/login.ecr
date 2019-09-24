@@ -22,7 +22,7 @@
             <hr>
 
             <% if account_type == "invidious" %>
-                <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.escape(referer) %>&type=invidious" method="post">
+                <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
                     <fieldset>
                         <% if email %>
                             <input name="email" type="hidden" value="<%= email %>">
@@ -44,7 +44,7 @@
                                 <% captcha = captcha.not_nil! %>
                                 <img style="width:100%" src='<%= captcha[:question] %>'/>
                                 <% captcha[:tokens].each_with_index do |token, i| %>
-                                    <input type="hidden" name="token[<%= i %>]" value="<%= URI.escape(token) %>">
+                                    <input type="hidden" name="token[<%= i %>]" value="<%= URI.encode_www_form(token) %>">
                                 <% end %>
                                 <input type="hidden" name="captcha_type" value="image">
                                 <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
@@ -52,7 +52,7 @@
                             <% when "text" %>
                                 <% captcha = captcha.not_nil! %>
                                 <% captcha[:tokens].each_with_index do |token, i| %>
-                                    <input type="hidden" name="token[<%= i %>]" value="<%= URI.escape(token) %>">
+                                    <input type="hidden" name="token[<%= i %>]" value="<%= URI.encode_www_form(token) %>">
                                 <% end %>
                                 <input type="hidden" name="captcha_type" value="text">
                                 <label for="answer"><%= captcha[:question] %></label>
@@ -85,7 +85,7 @@
                     </fieldset>
                 </form>
             <% elsif account_type == "google" %>
-                <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.escape(referer) %>&type=google" method="post">
+                <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=google" method="post">
                     <fieldset>
                         <% if email %>
                             <input name="email" type="hidden" value="<%= email %>">

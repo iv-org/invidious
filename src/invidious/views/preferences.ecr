@@ -9,7 +9,7 @@ function update_value(element) {
 </script>
 
 <div class="h-box">
-    <form class="pure-form pure-form-aligned" action="/preferences?referer=<%= URI.escape(referer) %>" method="post">
+    <form class="pure-form pure-form-aligned" action="/preferences?referer=<%= URI.encode_www_form(referer) %>" method="post">
         <fieldset>
             <legend><%= translate(locale, "Player preferences") %></legend>
 
@@ -242,15 +242,15 @@ function update_value(element) {
                 <legend><%= translate(locale, "Data preferences") %></legend>
 
                 <div class="pure-control-group">
-                    <a href="/clear_watch_history?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Clear watch history") %></a>
+                    <a href="/clear_watch_history?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Clear watch history") %></a>
                 </div>
 
                 <div class="pure-control-group">
-                    <a href="/change_password?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Change password") %></a>
+                    <a href="/change_password?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Change password") %></a>
                 </div>
 
                 <div class="pure-control-group">
-                    <a href="/data_control?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Import/export data") %></a>
+                    <a href="/data_control?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Import/export data") %></a>
                 </div>
 
                 <div class="pure-control-group">
@@ -266,7 +266,7 @@ function update_value(element) {
                 </div>
 
                 <div class="pure-control-group">
-                    <a href="/delete_account?referer=<%= URI.escape(referer) %>"><%= translate(locale, "Delete account") %></a>
+                    <a href="/delete_account?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Delete account") %></a>
                 </div>
             <% end %>
 

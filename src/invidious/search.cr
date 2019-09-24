@@ -266,7 +266,7 @@ def search(query, page = 1, search_params = produce_search_params(content_type: 
     return {0, [] of SearchItem}
   end
 
-  html = client.get("/results?q=#{URI.escape(query)}&page=#{page}&sp=#{search_params}&hl=en&disable_polymer=1").body
+  html = client.get("/results?q=#{URI.encode_www_form(query)}&page=#{page}&sp=#{search_params}&hl=en&disable_polymer=1").body
   if html.empty?
     return {0, [] of SearchItem}
   end
@@ -371,7 +371,7 @@ def produce_search_params(sort : String = "relevance", date : String = "", conte
   end
 
   token = Base64.urlsafe_encode(token.to_slice)
-  token = URI.escape(token)
+  token = URI.encode_www_form(token)
 
   return token
 end
@@ -396,7 +396,7 @@ def produce_channel_search_url(ucid, query, page)
 
   data.rewind
   data = Base64.urlsafe_encode(data)
-  continuation = URI.escape(data)
+  continuation = URI.encode_www_form(data)
 
   data = IO::Memory.new
 
@@ -421,7 +421,7 @@ def produce_channel_search_url(ucid, query, page)
   IO.copy data, buffer
 
   continuation = Base64.urlsafe_encode(buffer)
-  continuation = URI.escape(continuation)
+  continuation = URI.encode_www_form(continuation)
 
   url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 

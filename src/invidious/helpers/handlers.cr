@@ -95,8 +95,8 @@ class AuthHandler < Kemal::Handler
 
     begin
       if token = env.request.headers["Authorization"]?
-        token = JSON.parse(URI.unescape(token.lchop("Bearer ")))
-        session = URI.unescape(token["session"].as_s)
+        token = JSON.parse(URI.decode_www_form(token.lchop("Bearer ")))
+        session = URI.decode_www_form(token["session"].as_s)
         scopes, expire, signature = validate_request(token, session, env.request, HMAC_KEY, PG_DB, nil)
 
         if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", session, as: String)

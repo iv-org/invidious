@@ -3,7 +3,7 @@
 <% end %>
 
 <div class="h-box">
-    <form class="pure-form pure-form-aligned" action="/delete_account?referer=<%= URI.escape(referer) %>" method="post">
+    <form class="pure-form pure-form-aligned" action="/delete_account?referer=<%= URI.encode_www_form(referer) %>" method="post">
         <legend><%= translate(locale, "Delete account?") %></legend>
 
         <div class="pure-g">
@@ -13,12 +13,12 @@
                 </button>
             </div>
             <div class="pure-u-1-2">
-                <a class="pure-button" href="<%= URI.escape(referer) %>">
+                <a class="pure-button" href="<%= URI.encode_www_form(referer) %>">
                     <%= translate(locale, "No") %>
                 </a>
             </div>
         </div>
 
-        <input type="hidden" name="csrf_token" value="<%= URI.escape(csrf_token) %>">
+        <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(csrf_token) %>">
     </form>
 </div>
