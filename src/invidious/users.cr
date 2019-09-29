@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Omar Roth <omarroth@protonmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 require "crypto/bcrypt/password"
 
 # Materialized views may not be defined using bound parameters (`$1` as used elsewhere)

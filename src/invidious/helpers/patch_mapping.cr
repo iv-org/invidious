@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Omar Roth <omarroth@protonmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Overloads https://github.com/crystal-lang/crystal/blob/0.28.0/src/json/from_json.cr#L24
 def Object.from_json(string_or_io, default) : self
   parser = JSON::PullParser.new(string_or_io)

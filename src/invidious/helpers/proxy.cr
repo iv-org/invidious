@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Omar Roth <omarroth@protonmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # See https://github.com/crystal-lang/crystal/issues/2963
 class HTTPProxy
   getter proxy_host : String

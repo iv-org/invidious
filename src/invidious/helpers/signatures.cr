@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Omar Roth <omarroth@protonmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 def fetch_decrypt_function(id = "CvFH_6DNRCY")
   client = make_client(YT_URL)
   document = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1").body

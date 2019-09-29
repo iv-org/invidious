@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2019 Omar Roth <omarroth@protonmail.com>
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # 0.19.0 (2019-07-13)
 
 # Version 0.19.0: Communities

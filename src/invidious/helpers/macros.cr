@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Omar Roth <omarroth@protonmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 macro db_mapping(mapping)
   def initialize({{*mapping.keys.map { |id| "@#{id}".id }}})
   end

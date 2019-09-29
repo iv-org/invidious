@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Omar Roth <omarroth@protonmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 def generate_token(email, scopes, expire, key, db)
   session = "v1:#{Base64.urlsafe_encode(Random::Secure.random_bytes(32))}"
   PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", session, email, Time.utc)

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Omar Roth <omarroth@protonmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 FROM alpine:edge AS builder
 RUN apk add --no-cache crystal shards libc-dev \
     yaml-dev libxml2-dev sqlite-dev zlib-dev openssl-dev \

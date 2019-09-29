@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Omar Roth <omarroth@protonmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Since systems have a limit on number of open files (`ulimit -a`),
 # we serve them from memory to avoid 'Too many open files' without needing
 # to modify ulimit.

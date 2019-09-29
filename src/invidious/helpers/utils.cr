@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Omar Roth <omarroth@protonmail.com>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # See http://www.evanmiller.org/how-not-to-sort-by-average-rating.html
 def ci_lower_bound(pos, n)
   if n == 0
