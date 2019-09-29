@@ -29,6 +29,17 @@ Patreon: https://patreon.com/omarroth
 BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY  
 BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 
+## Why use Invidious?
+
+You cannot use YouTube without running non-free Javascript or being tracked by Google.
+Invidious is free software with which you can watch YouTube with zero requests to Google and play videos without Javascript.
+Also, you do not need to create a Google account to save subscriptions and your watch history, Invidious is able to provide you with a fully featured local account.
+You can import your current subscriptions YouTube, FreeTube and NewPipe.
+Invidious also blocks ads without you having to use an adblock that may not even completely block all ads.
+
+Reddit comments are an additional feature. You can display them instead of YouTube comments or next to them.
+Invidious does not use any official YouTube API, so it does not violate any terms of service. It also provides a developer API that can be used by others.
+
 ## Invidious Instances
 
 See [Invidious Instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances) for a full list of publicly available instances.
