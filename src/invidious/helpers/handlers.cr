@@ -237,16 +237,3 @@ class HTTP::Client
     response
   end
 end
-
-struct Crystal::ThreadLocalValue(T)
-  @values = Hash(Thread, T).new
-
-  def get(&block : -> T)
-    th = Thread.current
-    if !@values[th]?
-      @values[th] = yield
-    else
-      @values[th]
-    end
-  end
-end
