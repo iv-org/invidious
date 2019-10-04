@@ -715,14 +715,15 @@ struct Video
     storyboards = player_response["storyboards"]?
       .try &.as_h
         .try &.["playerStoryboardSpecRenderer"]?
+          .try &.["spec"]?
+            .try &.as_s.split("|")
 
     if !storyboards
-      storyboards = player_response["storyboards"]?
-        .try &.as_h
-          .try &.["playerLiveStoryboardSpecRenderer"]?
-
-      if storyboard = storyboards.try &.["spec"]?
-           .try &.as_s
+      if storyboard = player_response["storyboards"]?
+           .try &.as_h
+             .try &.["playerLiveStoryboardSpecRenderer"]?
+               .try &.["spec"]?
+                 .try &.as_s
         return [{
           url:               storyboard.split("#")[0],
           width:             106,
@@ -735,9 +736,6 @@ struct Video
         }]
       end
     end
-
-    storyboards = storyboards.try &.["spec"]?
-      .try &.as_s.split("|")
 
     items = [] of NamedTuple(
       url: String,
@@ -767,6 +765,7 @@ struct Video
       interval = interval.to_i
       storyboard_width = storyboard_width.to_i
       storyboard_height = storyboard_height.to_i
+      storyboard_count = (count / (storyboard_width * storyboard_height)).ceil.to_i
 
       items << {
         url:               url.to_s.sub("$L", i).sub("$N", "M$M"),
@@ -776,7 +775,7 @@ struct Video
         interval:          interval,
         storyboard_width:  storyboard_width,
         storyboard_height: storyboard_height,
-        storyboard_count:  (count.to_f / (storyboard_width.to_f * storyboard_height.to_f)).ceil.to_i,
+        storyboard_count:  storyboard_count,
       }
     end
 
