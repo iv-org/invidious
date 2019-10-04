@@ -1228,7 +1228,7 @@ def fetch_video(id, region)
   avg_rating = avg_rating.nan? ? 0.0 : avg_rating
   info["avg_rating"] = "#{avg_rating}"
 
-  description_html = html.xpath_node(%q(//p[@id="eow-description"])).try &.to_xml(options: XML::SaveOptions::NO_DECL) || ""
+  description_html = html.xpath_node(%q(//p[@id="eow-description"])).try &.to_xml(options: XML::SaveOptions::NO_DECL) || "<p></p>"
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
   published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).try &.["content"]
