@@ -162,6 +162,7 @@ img.thumbnail {
 
 .navbar .index-link {
   font-weight: bold;
+  display: inline;
 }
 
 .navbar > .searchbar .pure-form input[type="search"] {
