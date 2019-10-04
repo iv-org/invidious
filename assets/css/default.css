@@ -290,6 +290,10 @@ input[type="search"]::-webkit-search-cancel-button {
   }
 }
 
+ul.vjs-menu-content::-webkit-scrollbar {
+  display: none;
+}
+
 .vjs-user-inactive {
   cursor: none;
 }
@@ -394,6 +398,7 @@ span > select {
 /* ProgressBar marker */
 .vjs-marker {
   background-color: rgba(255, 255, 255, 1);
+  z-index: 0;
 }
 
 /* Big "Play" Button */
