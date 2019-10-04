@@ -24,6 +24,8 @@ struct SearchVideo
           xml.element("a", href: "#{host_url}/watch?#{query_params}") do
             xml.element("img", src: "#{host_url}/vi/#{self.id}/mqdefault.jpg")
           end
+
+          xml.element("p", style: "white-space:pre") { xml.text html_to_content(self.description_html) }
         end
       end
 
