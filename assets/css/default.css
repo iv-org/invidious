@@ -342,6 +342,11 @@ ul.vjs-menu-content::-webkit-scrollbar {
 .vjs-control-bar {
   display: flex;
   flex-direction: row;
+  scrollbar-width: none;
+}
+
+.vjs-control-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .video-js .vjs-icon-cog {
