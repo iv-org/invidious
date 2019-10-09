@@ -88,6 +88,7 @@ LOCALES = {
   "tr"    => load_locale("tr"),
   "uk"    => load_locale("uk"),
   "zh-CN" => load_locale("zh-CN"),
+  "zh-TW" => load_locale("zh-TW"),
 }
 
 config = CONFIG
