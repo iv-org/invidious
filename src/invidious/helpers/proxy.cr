@@ -89,9 +89,9 @@ class HTTPClient < HTTP::Client
 
   def exec(request)
     if self.host == "www.youtube.com"
-      request.headers["x-youtube-client-name"] = "1"
-      request.headers["x-youtube-client-version"] = "2.20180719"
-      request.headers["user-agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36"
+      request.headers["x-youtube-client-name"] ||= "1"
+      request.headers["x-youtube-client-version"] ||= "1.20180719"
+      request.headers["user-agent"] ||= "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36"
     end
 
     super
