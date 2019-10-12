@@ -25,7 +25,6 @@
 - Developer [API](https://github.com/omarroth/invidious/wiki/API)
 
 Liberapay: https://liberapay.com/omarroth  
-Patreon: https://patreon.com/omarroth  
 BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY  
 BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 
