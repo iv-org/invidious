@@ -34,7 +34,7 @@ BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 You cannot use YouTube without running non-free Javascript or being tracked by Google.
 Invidious is free software with which you can watch YouTube with zero requests to Google and play videos without Javascript.
 Also, you do not need to create a Google account to save subscriptions and your watch history, Invidious is able to provide you with a fully featured local account.
-You can import your current subscriptions YouTube, FreeTube and NewPipe.
+You can import your current subscriptions from YouTube, FreeTube and NewPipe.
 Invidious also blocks ads without you having to use an adblock that may not even completely block all ads.
 
 Reddit comments are an additional feature. You can display them instead of YouTube comments or next to them.
