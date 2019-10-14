@@ -5294,27 +5294,6 @@ error 500 do |env|
   templated "error"
 end
 
-# Add redirect if SSL is enabled
-if Kemal.config.ssl
-  spawn do
-    server = HTTP::Server.new do |env|
-      redirect_url = "https://#{env.request.host}#{env.request.path}"
-      if env.request.query
-        redirect_url += "?#{env.request.query}"
-      end
-
-      if config.hsts
-        env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
-      end
-      env.response.headers["Location"] = redirect_url
-      env.response.status_code = 301
-    end
-
-    server.bind_tcp "0.0.0.0", 80
-    server.listen
-  end
-end
-
 static_headers do |response, filepath, filestat|
   response.headers.add("Cache-Control", "max-age=2629800")
 end
