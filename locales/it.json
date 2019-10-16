@@ -7,6 +7,7 @@
         "([^0-9]|^)1([^,0-9]|$)": "`x` video",
         "": "`x` video"
     },
+    "`x` playlists": "",
     "LIVE": "IN DIRETTA",
     "Shared `x` ago": "Condiviso `x` fa",
     "Unsubscribe": "Disiscriviti",

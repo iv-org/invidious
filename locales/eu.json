@@ -1,6 +1,7 @@
 {
     "`x` subscribers": "`x` harpidedun",
     "`x` videos": "`x` bideo",
+    "`x` playlists": "",
     "LIVE": "ZUZENEAN",
     "Shared `x` ago": "Duela `x` partekatua",
     "Unsubscribe": "Harpidetza kendu",
@@ -150,6 +151,7 @@
     "Shared `x`": "",
     "`x` views": "",
     "Premieres in `x`": "",
+    "Premieres `x`": "",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "",
     "View YouTube comments": "",
     "View more comments on Reddit": "",
@@ -327,5 +329,8 @@
     "`x` marked it with a ❤": "",
     "Audio mode": "",
     "Video mode": "",
-    "Videos": ""
+    "Videos": "",
+    "Playlists": "",
+    "Community": "",
+    "Current version: ": ""
 }
