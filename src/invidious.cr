@@ -5003,7 +5003,7 @@ post "/api/v1/auth/playlists/:plid/videos" do |env|
 
   host_url = make_host_url(config, Kemal.config)
 
-  env.response.headers["Location"] = "#{host_url}/api/v1/auth/playlists/#{plid}/videos/#{playlist_video.index}"
+  env.response.headers["Location"] = "#{host_url}/api/v1/auth/playlists/#{plid}/videos/#{playlist_video.index.to_u64.to_s(16).upcase}"
   env.response.status_code = 201
   playlist_video.to_json(locale, config, Kemal.config, index: playlist.index.size)
 end
