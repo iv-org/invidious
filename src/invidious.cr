@@ -4596,7 +4596,7 @@ end
     end
 
     user = env.get?("user").try &.as(User)
-    if !playlist || !playlist.privacy.public? && playlist.author != user.try &.email
+    if !playlist || playlist.privacy.private? && playlist.author != user.try &.email
       env.response.status_code = 404
       error_message = {"error" => "Playlist does not exist."}.to_json
       next error_message
@@ -4888,7 +4888,7 @@ patch "/api/v1/auth/playlists/:plid" do |env|
   plid = env.params.url["plid"]
 
   playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
-  if !playlist || playlist.author != user.email && !playlist.privacy.public?
+  if !playlist || playlist.author != user.email && playlist.privacy.private?
     env.response.status_code = 404
     error_message = {"error" => "Playlist does not exist."}.to_json
     next error_message
@@ -4923,7 +4923,7 @@ delete "/api/v1/auth/playlists/:plid" do |env|
   plid = env.params.url["plid"]
 
   playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
-  if !playlist || playlist.author != user.email && !playlist.privacy.public?
+  if !playlist || playlist.author != user.email && playlist.privacy.private?
     env.response.status_code = 404
     error_message = {"error" => "Playlist does not exist."}.to_json
     next error_message
@@ -4950,7 +4950,7 @@ post "/api/v1/auth/playlists/:plid/videos" do |env|
   plid = env.params.url["plid"]
 
   playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
-  if !playlist || playlist.author != user.email && !playlist.privacy.public?
+  if !playlist || playlist.author != user.email && playlist.privacy.private?
     env.response.status_code = 404
     error_message = {"error" => "Playlist does not exist."}.to_json
     next error_message
@@ -5016,7 +5016,7 @@ delete "/api/v1/auth/playlists/:plid/videos/:index" do |env|
   index = env.params.url["index"].to_i64(16)
 
   playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
-  if !playlist || playlist.author != user.email && !playlist.privacy.public?
+  if !playlist || playlist.author != user.email && playlist.privacy.private?
     env.response.status_code = 404
     error_message = {"error" => "Playlist does not exist."}.to_json
     next error_message
