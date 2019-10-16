@@ -431,3 +431,69 @@ def produce_channel_search_url(ucid, query, page)
 
   return url
 end
+
+def process_search_query(query, page, user, region)
+  if user
+    user = user.as(User)
+    view_name = "subscriptions_#{sha256(user.email)}"
+  end
+
+  channel = nil
+  content_type = "all"
+  date = ""
+  duration = ""
+  features = [] of String
+  sort = "relevance"
+  subscriptions = nil
+
+  operators = query.split(" ").select { |a| a.match(/\w+:[\w,]+/) }
+  operators.each do |operator|
+    key, value = operator.downcase.split(":")
+
+    case key
+    when "channel", "user"
+      channel = operator.split(":")[-1]
+    when "content_type", "type"
+      content_type = value
+    when "date"
+      date = value
+    when "duration"
+      duration = value
+    when "feature", "features"
+      features = value.split(",")
+    when "sort"
+      sort = value
+    when "subscriptions"
+      subscriptions = value == "true"
+    else
+      operators.delete(operator)
+    end
+  end
+
+  search_query = (query.split(" ") - operators).join(" ")
+
+  if channel
+    count, items = channel_search(search_query, page, channel)
+  elsif subscriptions
+    if view_name
+      items = PG_DB.query_all("SELECT id,title,published,updated,ucid,author,length_seconds FROM (
+      SELECT *,
+      to_tsvector(#{view_name}.title) ||
+      to_tsvector(#{view_name}.author)
+      as document
+      FROM #{view_name}
+      ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", search_query, (page - 1) * 20, as: ChannelVideo)
+      count = items.size
+    else
+      items = [] of ChannelVideo
+      count = 0
+    end
+  else
+    search_params = produce_search_params(sort: sort, date: date, content_type: content_type,
+      duration: duration, features: features)
+
+    count, items = search(search_query, page, search_params, region).as(Tuple)
+  end
+
+  {search_query, count, items}
+end

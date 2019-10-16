@@ -282,6 +282,49 @@ def subscribe_ajax(channel_id, action, env_headers)
   end
 end
 
+# TODO: Playlist stub, sync with YouTube for Google accounts
+# def playlist_ajax(video_ids, source_playlist_id, name, privacy, action, env_headers)
+#   headers = HTTP::Headers.new
+#   headers["Cookie"] = env_headers["Cookie"]
+#
+#   client = make_client(YT_URL)
+#   html = client.get("/view_all_playlists?disable_polymer=1", headers)
+#
+#   cookies = HTTP::Cookies.from_headers(headers)
+#   html.cookies.each do |cookie|
+#     if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
+#       if cookies[cookie.name]?
+#         cookies[cookie.name] = cookie
+#       else
+#         cookies << cookie
+#       end
+#     end
+#   end
+#   headers = cookies.add_request_headers(headers)
+#
+#   if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+#     session_token = match["session_token"]
+#
+#     headers["content-type"] = "application/x-www-form-urlencoded"
+#
+#     post_req = {
+#       video_ids:          [] of String,
+#       source_playlist_id: "",
+#       n:                  name,
+#       p:                  privacy,
+#       session_token:      session_token,
+#     }
+#     post_url = "/playlist_ajax?#{action}=1"
+#
+#     response = client.post(post_url, headers, form: post_req)
+#     if response.status_code == 200
+#       return JSON.parse(response.body)["result"]["playlistId"].as_s
+#     else
+#       return nil
+#     end
+#   end
+# end
+
 def get_subscription_feed(db, user, max_results = 40, page = 1)
   limit = max_results.clamp(0, MAX_ITEMS_PER_PAGE)
   offset = (page - 1) * limit
