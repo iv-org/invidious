@@ -439,19 +439,21 @@ if (video_data.play_next) {
     });
 }
 
-if (video_data.plid) {
-    get_playlist(video_data.plid);
-}
+window.addEventListener('load', function (e) {
+    if (video_data.plid) {
+        get_playlist(video_data.plid);
+    }
 
-if (video_data.params.comments[0] === 'youtube') {
-    get_youtube_comments();
-} else if (video_data.params.comments[0] === 'reddit') {
-    get_reddit_comments();
-} else if (video_data.params.comments[1] === 'youtube') {
-    get_youtube_comments();
-} else if (video_data.params.comments[1] === 'reddit') {
-    get_reddit_comments();
-} else {
-    comments = document.getElementById('comments');
-    comments.innerHTML = '';
-}
+    if (video_data.params.comments[0] === 'youtube') {
+        get_youtube_comments();
+    } else if (video_data.params.comments[0] === 'reddit') {
+        get_reddit_comments();
+    } else if (video_data.params.comments[1] === 'youtube') {
+        get_youtube_comments();
+    } else if (video_data.params.comments[1] === 'reddit') {
+        get_reddit_comments();
+    } else {
+        comments = document.getElementById('comments');
+        comments.innerHTML = '';
+    }
+});
