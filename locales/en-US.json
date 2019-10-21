@@ -168,7 +168,7 @@
     "Blacklisted regions: ": "Blacklisted regions: ",
     "Shared `x`": "Shared `x`",
     "`x` views": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` views",
+        "([^0-9]|^)1([^,0-9]|$)": "`x` view",
         "": "`x` views"
     },
     "Premieres in `x`": "Premieres in `x`",

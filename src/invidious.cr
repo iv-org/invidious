@@ -2032,7 +2032,7 @@ post "/preferences" do |env|
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
 
     if config.admins.includes? user.email
-      config.default_user_preferences.default_home = env.params.body["admin_default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
+      config.default_user_preferences.default_home = env.params.body["admin_default_home"]?.try &.as(String) || config.default_user_preferences.default_home
 
       admin_feed_menu = [] of String
       5.times do |index|
