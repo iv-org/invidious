@@ -2032,7 +2032,7 @@ post "/preferences" do |env|
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
 
     if config.admins.includes? user.email
-      CONFIG.default_user_preferences.default_home = env.params.body["admin_default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
+      config.default_user_preferences.default_home = env.params.body["admin_default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
 
       admin_feed_menu = [] of String
       5.times do |index|
@@ -2041,7 +2041,7 @@ post "/preferences" do |env|
           admin_feed_menu << option
         end
       end
-      CONFIG.default_user_preferences.feed_menu = admin_feed_menu
+      config.default_user_preferences.feed_menu = admin_feed_menu
 
       top_enabled = env.params.body["top_enabled"]?.try &.as(String)
       top_enabled ||= "off"
@@ -2063,6 +2063,7 @@ post "/preferences" do |env|
       statistics_enabled ||= "off"
       config.statistics_enabled = statistics_enabled == "on"
 
+      CONFIG.default_user_preferences = config.default_user_preferences
       File.write("config/config.yml", config.to_yaml)
     end
   else
