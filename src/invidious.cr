@@ -4623,8 +4623,7 @@ end
     if format == "html"
       response = JSON.parse(response)
       playlist_html = template_playlist(response)
-      index = response["videos"].as_a[1]?.try &.["index"]
-      next_video = response["videos"].as_a[1]?.try &.["videoId"]
+      index, next_video = response["videos"].as_a.skip(1).select { |video| !video["author"].as_s.empty? }[0]?.try {|v| {v["index"], v["videoId"] } } || {nil, nil}
 
       response = {
         "playlistHtml" => playlist_html,
@@ -4657,7 +4656,6 @@ get "/api/v1/mixes/:rdid" do |env|
       mix = fetch_mix(rdid, mix.videos[1].id)
       index = mix.videos.index(mix.videos.select { |video| video.id == continuation }[0]?)
     end
-    index ||= 0
 
     mix.videos = mix.videos[index..-1]
   rescue ex
@@ -4700,8 +4698,7 @@ get "/api/v1/mixes/:rdid" do |env|
   if format == "html"
     response = JSON.parse(response)
     playlist_html = template_mix(response)
-    next_video = response["videos"].as_a[1]?.try &.["videoId"]
-    next_video ||= ""
+    next_video = response["videos"].as_a.select { |video| !video["author"].as_s.empty? }[0]?.try &.["videoId"]
 
     response = {
       "playlistHtml" => playlist_html,
