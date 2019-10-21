@@ -135,17 +135,38 @@ function update_value(element) {
                 <input name="thin_mode" id="thin_mode" type="checkbox" <% if preferences.thin_mode %>checked<% end %>>
             </div>
 
+            <% if env.get?("user") %>
+                <% feed_options = {"", "Popular", "Top", "Trending", "Subscriptions", "Playlists"} %>
+            <% else %>
+                <% feed_options = {"", "Popular", "Top", "Trending"} %>
+            <% end %>
+
+            <div class="pure-control-group">
+                <label for="default_home"><%= translate(locale, "Default homepage: ") %></label>
+                <select name="default_home" id="default_home">
+                    <% feed_options.each do |option| %>
+                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
+                    <% end %>
+                </select>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="feed_menu"><%= translate(locale, "Feed menu: ") %></label>
+                <% (feed_options.size - 1).times do |index| %>
+                    <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
+                        <% feed_options.each do |option| %>
+                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <% end %>
+                    </select>
+                <% end %>
+            </div>
+
             <% if env.get? "user" %>
                 <legend><%= translate(locale, "Subscription preferences") %></legend>
 
                 <div class="pure-control-group">
                     <label for="annotations_subscribed"><%= translate(locale, "Show annotations by default for subscribed channels: ") %></label>
                     <input name="annotations_subscribed" id="annotations_subscribed" type="checkbox" <% if preferences.annotations_subscribed %>checked<% end %>>
-                </div>
-
-                <div class="pure-control-group">
-                    <label for="redirect_feed"><%= translate(locale, "Redirect homepage to feed: ") %></label>
-                    <input name="redirect_feed" id="redirect_feed" type="checkbox" <% if preferences.redirect_feed %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
@@ -193,20 +214,20 @@ function update_value(element) {
                 <legend><%= translate(locale, "Administrator preferences") %></legend>
 
                 <div class="pure-control-group">
-                    <label for="default_home"><%= translate(locale, "Default homepage: ") %></label>
-                    <select name="default_home" id="default_home">
-                        <% {"Popular", "Top", "Trending", "Subscriptions"}.each do |option| %>
-                            <option value="<%= option %>" <% if config.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
+                    <label for="admin_default_home"><%= translate(locale, "Default homepage: ") %></label>
+                    <select name="admin_default_home" id="admin_default_home">
+                        <% feed_options.each do |option| %>
+                            <option value="<%= option %>" <% if CONFIG.default_user_preferences.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
                         <% end %>
                     </select>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="feed_menu"><%= translate(locale, "Feed menu: ") %></label>
-                    <% 4.times do |index| %>
-                        <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
-                            <% {"", "Popular", "Top", "Trending", "Subscriptions"}.each do |option| %>
-                                <option value="<%= option %>" <% if config.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option) %></option>
+                    <label for="admin_feed_menu"><%= translate(locale, "Feed menu: ") %></label>
+                    <% (feed_options.size - 1).times do |index| %>
+                        <select name="admin_feed_menu[<%= index %>]" id="admin_feed_menu[<%= index %>]">
+                            <% feed_options.each do |option| %>
+                                <option value="<%= option %>" <% if CONFIG.default_user_preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option) %></option>
                             <% end %>
                         </select>
                     <% end %>

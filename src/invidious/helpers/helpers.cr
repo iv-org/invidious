@@ -94,9 +94,7 @@ struct ConfigPreferences
           result
         end
       rescue ex
-        result = value.read_bool
-
-        if result
+        if value.read_bool
           "dark"
         else
           "light"
@@ -110,7 +108,7 @@ struct ConfigPreferences
 
     def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : String
       unless node.is_a?(YAML::Nodes::Scalar)
-        node.raise "Expected sequence, not #{node.class}"
+        node.raise "Expected scalar, not #{node.class}"
       end
 
       case node.value
@@ -134,7 +132,7 @@ struct ConfigPreferences
     comments:               {type: Array(String), default: ["youtube", ""], converter: StringToArray},
     continue:               {type: Bool, default: false},
     continue_autoplay:      {type: Bool, default: true},
-    dark_mode:              {type: String, default: "", converter: BoolToString},
+    dark_mode:              {type: String, default: "light", converter: BoolToString},
     latest_only:            {type: Bool, default: false},
     listen:                 {type: Bool, default: false},
     local:                  {type: Bool, default: false},
@@ -143,7 +141,8 @@ struct ConfigPreferences
     notifications_only:     {type: Bool, default: false},
     player_style:           {type: String, default: "invidious"},
     quality:                {type: String, default: "hd720"},
-    redirect_feed:          {type: Bool, default: false},
+    default_home:           {type: String, default: "Popular"},
+    feed_menu:              {type: Array(String), default: ["Popular", "Trending", "Subscriptions", "Playlists"]},
     related_videos:         {type: Bool, default: true},
     sort:                   {type: String, default: "published"},
     speed:                  {type: Float32, default: 1.0_f32},
@@ -215,8 +214,6 @@ struct Config
     hmac_key:                 String?,                              # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
     domain:                   String?,                              # Domain to be used for links to resources on the site where an absolute URL is required
     use_pubsub_feeds:         {type: Bool | Int32, default: false}, # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
-    default_home:             {type: String, default: "Top"},
-    feed_menu:                {type: Array(String), default: ["Popular", "Top", "Trending", "Subscriptions"]},
     top_enabled:              {type: Bool, default: true},
     captcha_enabled:          {type: Bool, default: true},
     login_enabled:            {type: Bool, default: true},

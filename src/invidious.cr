@@ -293,10 +293,8 @@ before_all do |env|
   end
 
   dark_mode = convert_theme(env.params.query["dark_mode"]?) || preferences.dark_mode.to_s
-
   thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
   thin_mode = thin_mode == "true"
-
   locale = env.params.query["hl"]? || preferences.locale
 
   preferences.dark_mode = dark_mode
@@ -319,26 +317,32 @@ before_all do |env|
 end
 
 get "/" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  preferences = env.get("preferences").as(Preferences)
+  locale = LOCALES[preferences.locale]?
   user = env.get? "user"
 
-  if user
-    user = user.as(User)
-    if user.preferences.redirect_feed
-      next env.redirect "/feed/subscriptions"
-    end
-  end
-
-  case config.default_home
+  case preferences.default_home
+  when ""
+    templated "empty"
   when "Popular"
     templated "popular"
   when "Top"
-    templated "top"
+    if config.top_enabled
+      templated "top"
+    else
+      templated "empty"
+    end
   when "Trending"
     env.redirect "/feed/trending"
   when "Subscriptions"
     if user
       env.redirect "/feed/subscriptions"
+    else
+      templated "popular"
+    end
+  when "Playlists"
+    if user
+      env.redirect "/view_all_playlists"
     else
       templated "popular"
     end
@@ -782,6 +786,10 @@ get "/embed/:id" do |env|
 end
 
 # Playlists
+
+get "/feed/playlists" do |env|
+  env.redirect "/view_all_playlists"
+end
 
 get "/view_all_playlists" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -1952,9 +1960,15 @@ post "/preferences" do |env|
   related_videos ||= "off"
   related_videos = related_videos == "on"
 
-  redirect_feed = env.params.body["redirect_feed"]?.try &.as(String)
-  redirect_feed ||= "off"
-  redirect_feed = redirect_feed == "on"
+  default_home = env.params.body["default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
+
+  feed_menu = [] of String
+  5.times do |index|
+    option = env.params.body["feed_menu[#{index}]"]?.try &.as(String) || ""
+    if !option.empty?
+      feed_menu << option
+    end
+  end
 
   locale = env.params.body["locale"]?.try &.as(String)
   locale ||= CONFIG.default_user_preferences.locale
@@ -2002,7 +2016,8 @@ post "/preferences" do |env|
     notifications_only:     notifications_only,
     player_style:           player_style,
     quality:                quality,
-    redirect_feed:          redirect_feed,
+    default_home:           default_home,
+    feed_menu:              feed_menu,
     related_videos:         related_videos,
     sort:                   sort,
     speed:                  speed,
@@ -2017,16 +2032,16 @@ post "/preferences" do |env|
     PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
 
     if config.admins.includes? user.email
-      config.default_home = env.params.body["default_home"]?.try &.as(String) || config.default_home
+      CONFIG.default_user_preferences.default_home = env.params.body["admin_default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
 
-      feed_menu = [] of String
-      4.times do |index|
-        option = env.params.body["feed_menu[#{index}]"]?.try &.as(String) || ""
+      admin_feed_menu = [] of String
+      5.times do |index|
+        option = env.params.body["admin_feed_menu[#{index}]"]?.try &.as(String) || ""
         if !option.empty?
-          feed_menu << option
+          admin_feed_menu << option
         end
       end
-      config.feed_menu = feed_menu
+      CONFIG.default_user_preferences.feed_menu = admin_feed_menu
 
       top_enabled = env.params.body["top_enabled"]?.try &.as(String)
       top_enabled ||= "off"
