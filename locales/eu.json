@@ -1,6 +1,7 @@
 {
     "`x` subscribers": "`x` harpidedun",
     "`x` videos": "`x` bideo",
+    "`x` playlists": "",
     "LIVE": "ZUZENEAN",
     "Shared `x` ago": "Duela `x` partekatua",
     "Unsubscribe": "Harpidetza kendu",
@@ -126,7 +127,17 @@
     "View JavaScript license information.": "",
     "View privacy policy.": "",
     "Trending": "",
+    "Public": "",
     "Unlisted": "",
+    "Private": "",
+    "View all playlists": "",
+    "Updated `x` ago": "",
+    "Delete playlist `x`?": "",
+    "Delete playlist": "",
+    "Create playlist": "",
+    "Title": "",
+    "Playlist privacy": "",
+    "Editing playlist `x`": "",
     "Watch on YouTube": "",
     "Hide annotations": "",
     "Show annotations": "",
@@ -140,6 +151,7 @@
     "Shared `x`": "",
     "`x` views": "",
     "Premieres in `x`": "",
+    "Premieres `x`": "",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "",
     "View YouTube comments": "",
     "View more comments on Reddit": "",
@@ -317,5 +329,8 @@
     "`x` marked it with a ❤": "",
     "Audio mode": "",
     "Video mode": "",
-    "Videos": ""
+    "Videos": "",
+    "Playlists": "",
+    "Community": "",
+    "Current version: ": ""
 }

@@ -9,7 +9,7 @@ COPY ./src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
 COPY ./.git/ ./.git/
-RUN crystal build --static --release \
+RUN crystal build --static --release --warnings all --error-on-warnings \
 # TODO: Remove next line, see https://github.com/crystal-lang/crystal/issues/7946
     -Dmusl \
     ./src/invidious.cr

@@ -41,13 +41,15 @@ struct ChannelVideo
     end
   end
 
-  def to_xml(locale, host_url, xml : XML::Builder)
+  def to_xml(locale, host_url, query_params, xml : XML::Builder)
+    query_params["v"] = self.id
+
     xml.element("entry") do
       xml.element("id") { xml.text "yt:video:#{self.id}" }
       xml.element("yt:videoId") { xml.text self.id }
       xml.element("yt:channelId") { xml.text self.ucid }
       xml.element("title") { xml.text self.title }
-      xml.element("link", rel: "alternate", href: "#{host_url}/watch?v=#{self.id}")
+      xml.element("link", rel: "alternate", href: "#{host_url}/watch?#{query_params}")
 
       xml.element("author") do
         xml.element("name") { xml.text self.author }
@@ -56,7 +58,7 @@ struct ChannelVideo
 
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-          xml.element("a", href: "#{host_url}/watch?v=#{self.id}") do
+          xml.element("a", href: "#{host_url}/watch?#{query_params}") do
             xml.element("img", src: "#{host_url}/vi/#{self.id}/mqdefault.jpg")
           end
         end

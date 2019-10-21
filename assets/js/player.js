@@ -151,45 +151,47 @@ player.vttThumbnails({
 
 // Enable annotations
 if (!video_data.params.listen && video_data.params.annotations) {
-    var video_container = document.getElementById('player');
-    let xhr = new XMLHttpRequest();
-    xhr.responseType = 'text';
-    xhr.timeout = 60000;
-    xhr.open('GET', '/api/v1/annotations/' + video_data.id, true);
+    window.addEventListener('load', function (e) {
+        var video_container = document.getElementById('player');
+        let xhr = new XMLHttpRequest();
+        xhr.responseType = 'text';
+        xhr.timeout = 60000;
+        xhr.open('GET', '/api/v1/annotations/' + video_data.id, true);
 
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                videojs.registerPlugin('youtubeAnnotationsPlugin', youtubeAnnotationsPlugin);
-                if (!player.paused()) {
-                    player.youtubeAnnotationsPlugin({ annotationXml: xhr.response, videoContainer: video_container });
-                } else {
-                    player.one('play', function (event) {
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    videojs.registerPlugin('youtubeAnnotationsPlugin', youtubeAnnotationsPlugin);
+                    if (!player.paused()) {
                         player.youtubeAnnotationsPlugin({ annotationXml: xhr.response, videoContainer: video_container });
-                    });
+                    } else {
+                        player.one('play', function (event) {
+                            player.youtubeAnnotationsPlugin({ annotationXml: xhr.response, videoContainer: video_container });
+                        });
+                    }
                 }
             }
         }
-    }
 
-    window.addEventListener('__ar_annotation_click', e => {
-        const { url, target, seconds } = e.detail;
-        var path = new URL(url);
+        window.addEventListener('__ar_annotation_click', e => {
+            const { url, target, seconds } = e.detail;
+            var path = new URL(url);
 
-        if (path.href.startsWith('https://www.youtube.com/watch?') && seconds) {
-            path.search += '&t=' + seconds;
-        }
+            if (path.href.startsWith('https://www.youtube.com/watch?') && seconds) {
+                path.search += '&t=' + seconds;
+            }
 
-        path = path.pathname + path.search;
+            path = path.pathname + path.search;
 
-        if (target === 'current') {
-            window.location.href = path;
-        } else if (target === 'new') {
-            window.open(path, '_blank');
-        }
+            if (target === 'current') {
+                window.location.href = path;
+            } else if (target === 'new') {
+                window.open(path, '_blank');
+            }
+        });
+
+        xhr.send();
     });
-
-    xhr.send();
 }
 
 function increase_volume(delta) {
@@ -234,25 +236,25 @@ function toggle_play() {
     }
 }
 
-const toggle_captions = (function() {
+const toggle_captions = (function () {
     let toggledTrack = null;
-    const onChange = function(e) {
+    const onChange = function (e) {
         toggledTrack = null;
     };
-    const bindChange = function(onOrOff) {
+    const bindChange = function (onOrOff) {
         player.textTracks()[onOrOff]('change', onChange);
     };
     // Wrapper function to ignore our own emitted events and only listen
     // to events emitted by Video.js on click on the captions menu items.
-    const setMode = function(track, mode) {
+    const setMode = function (track, mode) {
         bindChange('off');
         track.mode = mode;
-        window.setTimeout(function() {
+        window.setTimeout(function () {
             bindChange('on');
         }, 0);
     };
     bindChange('on');
-    return function() {
+    return function () {
         if (toggledTrack !== null) {
             if (toggledTrack.mode !== 'showing') {
                 setMode(toggledTrack, 'showing');
@@ -323,95 +325,95 @@ window.addEventListener('keydown', e => {
         || e.target === document.querySelector('.vjs-tech')
         || e.target === document.querySelector('.iframeblocker')
         || e.target === document.querySelector('.vjs-control-bar')
-    ;
+        ;
     let action = null;
 
     const code = e.keyCode;
     const decoratedKey =
         e.key
-        + (e.altKey  ? '+alt'  : '')
+        + (e.altKey ? '+alt' : '')
         + (e.ctrlKey ? '+ctrl' : '')
         + (e.metaKey ? '+meta' : '')
-    ;
+        ;
     switch (decoratedKey) {
-    case ' ':
-    case 'k':
-        action = toggle_play;
-        break;
+        case ' ':
+        case 'k':
+            action = toggle_play;
+            break;
 
-    case 'ArrowUp':
-        if (isPlayerFocused) {
-            action = increase_volume.bind(this, 0.1);
-        }
-        break;
-    case 'ArrowDown':
-        if (isPlayerFocused) {
-            action = increase_volume.bind(this, -0.1);
-        }
-        break;
+        case 'ArrowUp':
+            if (isPlayerFocused) {
+                action = increase_volume.bind(this, 0.1);
+            }
+            break;
+        case 'ArrowDown':
+            if (isPlayerFocused) {
+                action = increase_volume.bind(this, -0.1);
+            }
+            break;
 
-    case 'm':
-        action = toggle_muted;
-        break;
+        case 'm':
+            action = toggle_muted;
+            break;
 
-    case 'ArrowRight':
-        action = skip_seconds.bind(this, 5);
-        break;
-    case 'ArrowLeft':
-        action = skip_seconds.bind(this, -5);
-        break;
-    case 'l':
-        action = skip_seconds.bind(this, 10);
-        break;
-    case 'j':
-        action = skip_seconds.bind(this, -10);
-        break;
+        case 'ArrowRight':
+            action = skip_seconds.bind(this, 5);
+            break;
+        case 'ArrowLeft':
+            action = skip_seconds.bind(this, -5);
+            break;
+        case 'l':
+            action = skip_seconds.bind(this, 10);
+            break;
+        case 'j':
+            action = skip_seconds.bind(this, -10);
+            break;
 
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-        const percent = (code - 48) * 10;
-        action = set_time_percent.bind(this, percent);
-        break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            const percent = (code - 48) * 10;
+            action = set_time_percent.bind(this, percent);
+            break;
 
-    case 'c':
-        action = toggle_captions;
-        break;
-    case 'f':
-        action = toggle_fullscreen;
-        break;
+        case 'c':
+            action = toggle_captions;
+            break;
+        case 'f':
+            action = toggle_fullscreen;
+            break;
 
-    case 'N':
-        action = next_video;
-        break;
-    case 'P':
-        // TODO: Add support to play back previous video.
-        break;
+        case 'N':
+            action = next_video;
+            break;
+        case 'P':
+            // TODO: Add support to play back previous video.
+            break;
 
-    case '.':
-        // TODO: Add support for next-frame-stepping.
-        break;
-    case ',':
-        // TODO: Add support for previous-frame-stepping.
-        break;
+        case '.':
+            // TODO: Add support for next-frame-stepping.
+            break;
+        case ',':
+            // TODO: Add support for previous-frame-stepping.
+            break;
 
-    case '>':
-        action = increase_playback_rate.bind(this, 1);
-        break;
-    case '<':
-        action = increase_playback_rate.bind(this, -1);
-        break;
+        case '>':
+            action = increase_playback_rate.bind(this, 1);
+            break;
+        case '<':
+            action = increase_playback_rate.bind(this, -1);
+            break;
 
-    default:
-        console.info('Unhandled key down event: %s:', decoratedKey, e);
-        break;
+        default:
+            console.info('Unhandled key down event: %s:', decoratedKey, e);
+            break;
     }
 
     if (action) {
@@ -422,7 +424,7 @@ window.addEventListener('keydown', e => {
 
 // Add support for controlling the player volume by scrolling over it. Adapted from
 // https://github.com/ctd1500/videojs-hotkeys/blob/bb4a158b2e214ccab87c2e7b95f42bc45c6bfd87/videojs.hotkeys.js#L292-L328
-(function() {
+(function () {
     const volumeStep = 0.05;
     const enableVolumeScroll = true;
     const enableHoverScroll = true;
@@ -432,33 +434,33 @@ window.addEventListener('keydown', e => {
     var volumeHover = false;
     var volumeSelector = pEl.querySelector('.vjs-volume-menu-button') || pEl.querySelector('.vjs-volume-panel');
     if (volumeSelector != null) {
-      volumeSelector.onmouseover = function() { volumeHover = true; };
-      volumeSelector.onmouseout = function() { volumeHover = false; };
+        volumeSelector.onmouseover = function () { volumeHover = true; };
+        volumeSelector.onmouseout = function () { volumeHover = false; };
     }
 
     var mouseScroll = function mouseScroll(event) {
-      var activeEl = doc.activeElement;
-      if (enableHoverScroll) {
-        // If we leave this undefined then it can match non-existent elements below
-        activeEl = 0;
-      }
-
-      // When controls are disabled, hotkeys will be disabled as well
-      if (player.controls()) {
-        if (volumeHover) {
-          if (enableVolumeScroll) {
-            event = window.event || event;
-            var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
-            event.preventDefault();
-
-            if (delta == 1) {
-              increase_volume(volumeStep);
-            } else if (delta == -1) {
-              increase_volume(-volumeStep);
-            }
-          }
+        var activeEl = doc.activeElement;
+        if (enableHoverScroll) {
+            // If we leave this undefined then it can match non-existent elements below
+            activeEl = 0;
         }
-      }
+
+        // When controls are disabled, hotkeys will be disabled as well
+        if (player.controls()) {
+            if (volumeHover) {
+                if (enableVolumeScroll) {
+                    event = window.event || event;
+                    var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+                    event.preventDefault();
+
+                    if (delta == 1) {
+                        increase_volume(volumeStep);
+                    } else if (delta == -1) {
+                        increase_volume(-volumeStep);
+                    }
+                }
+            }
+        }
     };
 
     player.on('mousewheel', mouseScroll);

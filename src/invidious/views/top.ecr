@@ -1,7 +1,7 @@
 <% content_for "header" do %>
 <meta name="description" content="<%= translate(locale, "An alternative front-end to YouTube") %>">
 <title>
-    <% if config.default_home != "Top" %>
+    <% if env.get("preferences").as(Preferences).default_home != "Top" %>
         <%= translate(locale, "Top") %> - Invidious
     <% else %>
         Invidious

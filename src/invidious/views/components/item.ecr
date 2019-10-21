@@ -13,7 +13,7 @@
             <p><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></p>
             <% if !item.auto_generated %><p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p><% end %>
             <h5><%= item.description_html %></h5>
-        <% when SearchPlaylist %>
+        <% when SearchPlaylist, InvidiousPlaylist %>
             <% if item.id.starts_with? "RD" %>
                 <% url = "/mix?list=#{item.id}&continuation=#{URI.parse(item.thumbnail || "/vi/-----------").full_path.split("/")[2]}" %>
             <% else %>
@@ -56,6 +56,19 @@
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <div class="thumbnail">
                         <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
+                        <% if plid = env.get?("remove_playlist_items") %>
+                            <form onsubmit="return false" action="/playlist_ajax?action_remove_video=1&set_video_id=<%= item.index %>&playlist_id=<%= plid %>&referer=<%= env.get("current_page") %>" method="post">
+                                <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                                <p class="watched">
+                                    <a onclick="remove_playlist_item(this)" data-index="<%= item.index %>" data-plid="<%= plid %>" href="javascript:void(0)">
+                                        <button type="submit" style="all:unset">
+                                            <i class="icon ion-md-trash"></i>
+                                        </button>
+                                    </a>
+                                </p>
+                            </form>
+                        <% end %>
+
                         <% if item.responds_to?(:live_now) && item.live_now %>
                             <p class="length"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
                         <% elsif item.length_seconds != 0 %>
@@ -63,7 +76,7 @@
                         <% end %>
                     </div>
                 <% end %>
-                <p><%= item.title %></p>
+                <p><a href="/watch?v=<%= item.id %>"><%= item.title %></a></p>
             </a>
             <p>
                 <b>
@@ -99,6 +112,17 @@
                                                 onmouseleave='this.setAttribute("class", "icon ion-ios-eye")'
                                                 class="icon ion-ios-eye">
                                             </i>
+                                        </button>
+                                    </a>
+                                </p>
+                            </form>
+                        <% elsif plid = env.get? "add_playlist_items" %>
+                            <form onsubmit="return false" action="/playlist_ajax?action_add_video=1&video_id=<%= item.id %>&playlist_id=<%= plid %>&referer=<%= env.get("current_page") %>" method="post">
+                                <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                                <p class="watched">
+                                    <a onclick="add_playlist_item(this)" data-id="<%= item.id %>" data-plid="<%= plid %>" href="javascript:void(0)">
+                                        <button type="submit" style="all:unset">
+                                            <i class="icon ion-md-add"></i>
                                         </button>
                                     </a>
                                 </p>

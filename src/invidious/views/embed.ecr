@@ -29,6 +29,7 @@
 <script>
 var video_data = {
     id: '<%= video.id %>',
+    index: '<%= continuation %>',
     plid: '<%= plid %>',
     length_seconds: '<%= video.length_seconds.to_f %>',
     video_series: <%= video_series.to_json %>,

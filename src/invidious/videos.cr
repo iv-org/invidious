@@ -715,14 +715,15 @@ struct Video
     storyboards = player_response["storyboards"]?
       .try &.as_h
         .try &.["playerStoryboardSpecRenderer"]?
+          .try &.["spec"]?
+            .try &.as_s.split("|")
 
     if !storyboards
-      storyboards = player_response["storyboards"]?
-        .try &.as_h
-          .try &.["playerLiveStoryboardSpecRenderer"]?
-
-      if storyboard = storyboards.try &.["spec"]?
-           .try &.as_s
+      if storyboard = player_response["storyboards"]?
+           .try &.as_h
+             .try &.["playerLiveStoryboardSpecRenderer"]?
+               .try &.["spec"]?
+                 .try &.as_s
         return [{
           url:               storyboard.split("#")[0],
           width:             106,
@@ -735,9 +736,6 @@ struct Video
         }]
       end
     end
-
-    storyboards = storyboards.try &.["spec"]?
-      .try &.as_s.split("|")
 
     items = [] of NamedTuple(
       url: String,
@@ -767,6 +765,7 @@ struct Video
       interval = interval.to_i
       storyboard_width = storyboard_width.to_i
       storyboard_height = storyboard_height.to_i
+      storyboard_count = (count / (storyboard_width * storyboard_height)).ceil.to_i
 
       items << {
         url:               url.to_s.sub("$L", i).sub("$N", "M$M"),
@@ -776,7 +775,7 @@ struct Video
         interval:          interval,
         storyboard_width:  storyboard_width,
         storyboard_height: storyboard_height,
-        storyboard_count:  (count.to_f / (storyboard_width.to_f * storyboard_height.to_f)).ceil.to_i,
+        storyboard_count:  storyboard_count,
       }
     end
 
@@ -1229,7 +1228,7 @@ def fetch_video(id, region)
   avg_rating = avg_rating.nan? ? 0.0 : avg_rating
   info["avg_rating"] = "#{avg_rating}"
 
-  description_html = html.xpath_node(%q(//p[@id="eow-description"])).try &.to_xml(options: XML::SaveOptions::NO_DECL) || ""
+  description_html = html.xpath_node(%q(//p[@id="eow-description"])).try &.to_xml(options: XML::SaveOptions::NO_DECL) || "<p></p>"
   wilson_score = ci_lower_bound(likes, likes + dislikes)
 
   published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).try &.["content"]
@@ -1275,21 +1274,35 @@ def itag_to_metadata?(itag : String)
   return VIDEO_FORMATS[itag]?
 end
 
+def process_continuation(db, query, plid, id)
+  continuation = nil
+  if plid
+    if index = query["index"]?.try &.to_i?
+      continuation = index
+    else
+      continuation = id
+    end
+    continuation ||= 0
+  end
+
+  continuation
+end
+
 def process_video_params(query, preferences)
   annotations = query["iv_load_policy"]?.try &.to_i?
-  autoplay = query["autoplay"]?.try &.to_i?
+  autoplay = query["autoplay"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   comments = query["comments"]?.try &.split(",").map { |a| a.downcase }
-  continue = query["continue"]?.try &.to_i?
-  continue_autoplay = query["continue_autoplay"]?.try &.to_i?
-  listen = query["listen"]? && (query["listen"] == "true" || query["listen"] == "1").to_unsafe
-  local = query["local"]? && (query["local"] == "true" || query["local"] == "1").to_unsafe
+  continue = query["continue"]?.try { |q| (q == "true" || q == "1").to_unsafe }
+  continue_autoplay = query["continue_autoplay"]?.try { |q| (q == "true" || q == "1").to_unsafe }
+  listen = query["listen"]?.try { |q| (q == "true" || q == "1").to_unsafe }
+  local = query["local"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   player_style = query["player_style"]?
   preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
   quality = query["quality"]?
   region = query["region"]?
-  related_videos = query["related_videos"]? && (query["related_videos"] == "true" || query["related_videos"] == "1").to_unsafe
+  related_videos = query["related_videos"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   speed = query["speed"]?.try &.rchop("x").to_f?
-  video_loop = query["loop"]?.try &.to_i?
+  video_loop = query["loop"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   volume = query["volume"]?.try &.to_i?
 
   if preferences
@@ -1342,17 +1355,10 @@ def process_video_params(query, preferences)
     local = false
   end
 
-  if query["t"]?
-    video_start = decode_time(query["t"])
+  if start = query["t"]? || query["time_continue"]? || query["start"]?
+    video_start = decode_time(start)
   end
   video_start ||= 0
-  if query["time_continue"]?
-    video_start = decode_time(query["time_continue"])
-  end
-  video_start ||= 0
-  if query["start"]?
-    video_start = decode_time(query["start"])
-  end
 
   if query["end"]?
     video_end = decode_time(query["end"])

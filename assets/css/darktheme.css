@@ -21,10 +21,9 @@ body {
   color: #f0f0f0;
 }
 
-.pure-form > fieldset > input,
-.pure-control-group > input,
-.pure-form > fieldset > select,
-.pure-control-group > select {
+input,
+select,
+textarea {
   color: rgba(35, 35, 35, 1);
 }
 

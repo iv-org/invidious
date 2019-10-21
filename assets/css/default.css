@@ -168,6 +168,7 @@ img.thumbnail {
 
 .navbar .index-link {
   font-weight: bold;
+  display: inline;
 }
 
 .navbar > .searchbar .pure-form input[type="search"] {
@@ -319,6 +320,10 @@ input[type="search"]::-webkit-search-cancel-button {
   }
 }
 
+ul.vjs-menu-content::-webkit-scrollbar {
+  display: none;
+}
+
 .vjs-user-inactive {
   cursor: none;
 }
@@ -367,6 +372,11 @@ input[type="search"]::-webkit-search-cancel-button {
 .vjs-control-bar {
   display: flex;
   flex-direction: row;
+  scrollbar-width: none;
+}
+
+.vjs-control-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .video-js .vjs-icon-cog {
@@ -423,6 +433,7 @@ span > select {
 /* ProgressBar marker */
 .vjs-marker {
   background-color: rgba(255, 255, 255, 1);
+  z-index: 0;
 }
 
 /* Big "Play" Button */
