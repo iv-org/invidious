@@ -14,7 +14,3 @@ a:not([data-id]) > .icon,
 .playlist-restricted > ol > li > a {
   color: #303030;
 }
-
-.welcome-box {
-  background-image: linear-gradient(45deg, #fff, #ccc);
-}
