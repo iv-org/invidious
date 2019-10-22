@@ -4623,7 +4623,7 @@ end
     if format == "html"
       response = JSON.parse(response)
       playlist_html = template_playlist(response)
-      index, next_video = response["videos"].as_a.skip(1).select { |video| !video["author"].as_s.empty? }[0]?.try {|v| {v["index"], v["videoId"] } } || {nil, nil}
+      index, next_video = response["videos"].as_a.skip(1).select { |video| !video["author"].as_s.empty? }[0]?.try { |v| {v["index"], v["videoId"]} } || {nil, nil}
 
       response = {
         "playlistHtml" => playlist_html,
