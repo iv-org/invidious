@@ -270,19 +270,15 @@ input[type="search"]::-webkit-search-cancel-button {
   margin: 0 1em;
 }
 
-.welcome-box {
-  padding: 0 1em ;
-}
-
-.welcome-box h1 {
+.welcome-box h1,
+.welcome-box p {
   font-size: 1em;
-  margin-bottom: 0;
+  margin: 0.25em 0;
 }
 
 #dismiss_welcome {
   font-size: small;
   float: right;
-  margin: 1em 0;
 }
 
 /*
