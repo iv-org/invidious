@@ -1,10 +1,10 @@
 {
     "`x` subscribers": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` iscritto",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscritto",
         "": "`x` iscritti"
     },
     "`x` videos": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` video",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
         "": "`x` video"
     },
     "`x` playlists": "",
@@ -120,11 +120,11 @@
     "Token manager": "Gestione dei gettoni",
     "Token": "Gettone",
     "`x` subscriptions": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` iscrizione",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscrizione",
         "": "`x` iscrizioni"
     },
     "`x` tokens": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` gettone",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gettone",
         "": "`x` gettoni"
     },
     "Import/export": "Importa/esporta",
@@ -132,7 +132,7 @@
     "revoke": "revoca",
     "Subscriptions": "Iscrizioni",
     "`x` unseen notifications": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` notifica non visualizzata",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notifica non visualizzata",
         "": "`x` notifiche non visualizzate"
     },
     "search": "Cerca",
@@ -165,7 +165,7 @@
     "Blacklisted regions: ": "Regioni in lista nera: ",
     "Shared `x`": "Condiviso `x`",
     "`x` views": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` visualizzazione",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizzazione",
         "": "`x` visualizzazioni"
     },
     "Premieres in `x`": "",
@@ -199,13 +199,13 @@
     "Could not get channel info.": "Impossibile ottenere le informazioni del canale.",
     "Could not fetch comments": "Impossibile recuperare i commenti",
     "View `x` replies": {
-        "([^0-9]|^)1([^,0-9]|$)": "Visualizza `x` risposta",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Visualizza `x` risposta",
         "": "Visualizza `x` risposte"
     },
     "`x` ago": "`x` fa",
     "Load more": "Carica altro",
     "`x` points": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` punto",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` punto",
         "": "`x` punti"
     },
     "Could not create mix.": "Impossibile creare il mix.",
@@ -326,31 +326,31 @@
     "Yoruba": "Yoruba",
     "Zulu": "Zulu",
     "`x` years": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` anno",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` anno",
         "": "`x` anni"
     },
     "`x` months": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` mese",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mese",
         "": "`x` mesi"
     },
     "`x` weeks": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` settimana",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` settimana",
         "": "`x` settimane"
     },
     "`x` days": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` giorno",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` giorno",
         "": "`x` giorni"
     },
     "`x` hours": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` ora",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ora",
         "": "`x` ore"
     },
     "`x` minutes": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` minuto",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuto",
         "": "`x` minuti"
     },
     "`x` seconds": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` secondo",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` secondo",
         "": "`x` secondi"
     },
     "Fallback comments: ": "Commenti alternativi: ",

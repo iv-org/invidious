@@ -274,16 +274,15 @@ input[type="search"]::-webkit-search-cancel-button {
   padding: 0 1em ;
 }
 
+.welcome-box h1 {
+  font-size: 1em;
+  margin-bottom: 0;
+}
+
 #dismiss_welcome {
   font-size: small;
   float: right;
   margin: 1em 0;
-}
-
-#call_to_action {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
 }
 
 /*

@@ -14,6 +14,5 @@ dismiss_welcome.addEventListener('click', function () {
 });
 
 function hide_welcome (bool) {
-    document.getElementById('feed-menu').classList.remove('hidden');
     document.getElementById('welcome-outer').classList.add('hidden');
 }

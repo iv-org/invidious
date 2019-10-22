@@ -1,10 +1,10 @@
 {
     "`x` subscribers": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` subscriber",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscriber",
         "": "`x` subscribers"
     },
     "`x` videos": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` video",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
         "": "`x` videos"
     },
     "`x` playlists": {
@@ -126,11 +126,11 @@
     "Token manager": "Token manager",
     "Token": "Token",
     "`x` subscriptions": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` subscription",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscription",
         "": "`x` subscriptions"
     },
     "`x` tokens": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` token",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
         "": "`x` tokens"
     },
     "Import/export": "Import/export",
@@ -138,7 +138,7 @@
     "revoke": "revoke",
     "Subscriptions": "Subscriptions",
     "`x` unseen notifications": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` unseen notification",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` unseen notification",
         "": "`x` unseen notifications"
     },
     "search": "search",
@@ -171,7 +171,7 @@
     "Blacklisted regions: ": "Blacklisted regions: ",
     "Shared `x`": "Shared `x`",
     "`x` views": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` view",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` view",
         "": "`x` views"
     },
     "Premieres in `x`": "Premieres in `x`",
@@ -208,13 +208,13 @@
     "Could not get channel info.": "Could not get channel info.",
     "Could not fetch comments": "Could not fetch comments",
     "View `x` replies": {
-        "([^0-9]|^)1([^,0-9]|$)": "View `x` reply",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "View `x` reply",
         "": "View `x` replies"
     },
     "`x` ago": "`x` ago",
     "Load more": "Load more",
     "`x` points": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` point",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` point",
         "": "`x` points"
     },
     "Could not create mix.": "Could not create mix.",
@@ -335,31 +335,31 @@
     "Yoruba": "Yoruba",
     "Zulu": "Zulu",
     "`x` years": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` year",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` year",
         "": "`x` years"
     },
     "`x` months": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` month",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` month",
         "": "`x` months"
     },
     "`x` weeks": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` week",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` week",
         "": "`x` weeks"
     },
     "`x` days": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` day",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` day",
         "": "`x` days"
     },
     "`x` hours": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` hour",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hour",
         "": "`x` hours"
     },
     "`x` minutes": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` minute",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minute",
         "": "`x` minutes"
     },
     "`x` seconds": {
-        "([^0-9]|^)1([^,0-9]|$)": "`x` second",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` second",
         "": "`x` seconds"
     },
     "Fallback comments: ": "Fallback comments: ",
