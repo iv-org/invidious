@@ -9,6 +9,9 @@
 </title>
 <% end %>
 
+<% if !env.get("preferences").as(Preferences).dismissals.split(",").includes?("welcome") %>
+    <%= rendered "components/welcome_message" %>
+<% end %>
 <%= rendered "components/feed_menu" %>
 
 <div class="pure-g">
