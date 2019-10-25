@@ -1,13 +1,13 @@
 {
     "`x` subscribers": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱者",
-        "": "`x` 個訂閱者"
+        "": "`x` 個訂閱者。"
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 部影片",
-        "": "`x` 部影片"
+        "": "`x` 部影片。"
     },
-    "`x` playlists": "",
+    "`x` playlists": "`x` 播放清單",
     "LIVE": "直播",
     "Shared `x` ago": "`x` 前分享",
     "Unsubscribe": "取消訂閱",
@@ -58,44 +58,44 @@
     "Google verification code": "Google 驗證碼",
     "Preferences": "偏好設定",
     "Player preferences": "播放器偏好設定",
-    "Always loop: ": "總是循環播放：",
-    "Autoplay: ": "自動播放：",
-    "Play next by default: ": "預設播放下一部：",
-    "Autoplay next video: ": "自動播放下一部影片：",
-    "Listen by default: ": "預設聆聽：",
-    "Proxy videos: ": "代理影片：",
-    "Default speed: ": "預設速度：",
-    "Preferred video quality: ": "偏好的影片畫質：",
-    "Player volume: ": "播放器音量：",
-    "Default comments: ": "預設留言：",
+    "Always loop: ": "總是循環播放： ",
+    "Autoplay: ": "自動播放： ",
+    "Play next by default: ": "預設播放下一部： ",
+    "Autoplay next video: ": "自動播放下一部影片： ",
+    "Listen by default: ": "預設聆聽： ",
+    "Proxy videos: ": "代理影片： ",
+    "Default speed: ": "預設速度： ",
+    "Preferred video quality: ": "偏好的影片畫質： ",
+    "Player volume: ": "播放器音量： ",
+    "Default comments: ": "預設留言： ",
     "youtube": "youtube",
     "reddit": "reddit",
-    "Default captions: ": "預設字幕：",
-    "Fallback captions: ": "汰退字幕：",
-    "Show related videos: ": "顯示相關的影片：",
-    "Show annotations by default: ": "預設顯示註釋：",
+    "Default captions: ": "預設字幕： ",
+    "Fallback captions: ": "汰退字幕： ",
+    "Show related videos: ": "顯示相關的影片： ",
+    "Show annotations by default: ": "預設顯示註釋： ",
     "Visual preferences": "視覺偏好設定",
-    "Player style: ": "播放器樣式",
-    "Dark mode: ": "深色模式：",
-    "Theme: ": "佈景主題",
+    "Player style: ": "播放器樣式： ",
+    "Dark mode: ": "深色模式： ",
+    "Theme: ": "佈景主題： ",
     "dark": "深色",
     "light": "淺色",
-    "Thin mode: ": "精簡模式：",
+    "Thin mode: ": "精簡模式： ",
     "Subscription preferences": "訂閱偏好設定",
-    "Show annotations by default for subscribed channels: ": "預設為已訂閱的頻道顯示註釋？",
-    "Redirect homepage to feed: ": "重新導向首頁至 feed：",
-    "Number of videos shown in feed: ": "顯示在 feed 中的影片數量：",
-    "Sort videos by: ": "以此種方式排序影片：",
+    "Show annotations by default for subscribed channels: ": "預設為已訂閱的頻道顯示註釋： ",
+    "Redirect homepage to feed: ": "重新導向首頁至 feed： ",
+    "Number of videos shown in feed: ": "顯示在 feed 中的影片數量： ",
+    "Sort videos by: ": "以此種方式排序影片： ",
     "published": "已發佈",
     "published - reverse": "已發佈 - 反向",
     "alphabetically": "字母",
     "alphabetically - reverse": "字母 - 反向",
     "channel name": "頻道名稱",
     "channel name - reverse": "頻道名稱 - 反向",
-    "Only show latest video from channel: ": "僅顯示從頻道而來的最新影片：",
-    "Only show latest unwatched video from channel: ": "僅顯示從頻道而來的未觀看影片：",
-    "Only show unwatched: ": "僅顯示未觀看的：",
-    "Only show notifications (if there are any): ": "僅顯示通知（如果有的話）：",
+    "Only show latest video from channel: ": "僅顯示從頻道而來的最新影片： ",
+    "Only show latest unwatched video from channel: ": "僅顯示從頻道而來的未觀看影片： ",
+    "Only show unwatched: ": "僅顯示未觀看的： ",
+    "Only show notifications (if there are any): ": "僅顯示通知（如果有的話）： ",
     "Enable web notifications": "啟用網路通知",
     "`x` uploaded a video": "`x` 上傳了一部影片",
     "`x` is live": "`x` 正在直播",
@@ -108,24 +108,24 @@
     "Watch history": "觀看歷史",
     "Delete account": "刪除帳號",
     "Administrator preferences": "管理員偏好設定",
-    "Default homepage: ": "預設首頁：",
-    "Feed menu: ": "Feed 選單：",
-    "Top enabled: ": "頂部啟用：",
-    "CAPTCHA enabled: ": "CAPTCHA 啟用：",
-    "Login enabled: ": "啟用登入？",
-    "Registration enabled: ": "啟用註冊？",
-    "Report statistics: ": "回報統計？",
+    "Default homepage: ": "預設首頁： ",
+    "Feed menu: ": "Feed 選單： ",
+    "Top enabled: ": "頂部啟用： ",
+    "CAPTCHA enabled: ": "CAPTCHA 啟用： ",
+    "Login enabled: ": "啟用登入： ",
+    "Registration enabled: ": "啟用註冊： ",
+    "Report statistics: ": "回報統計： ",
     "Save preferences": "儲存偏好設定",
     "Subscription manager": "訂閱管理員",
     "Token manager": "Token 管理員",
     "Token": "Token",
     "`x` subscriptions": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱",
-        "": "`x` 個訂閱"
+        "": "`x` 個訂閱。"
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` tokens"
+        "": "`x` tokens。"
     },
     "Import/export": "匯入／匯出",
     "unsubscribe": "取消訂閱",
@@ -133,7 +133,7 @@
     "Subscriptions": "訂閱",
     "`x` unseen notifications": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個未讀的通知",
-        "": "`x` 個未讀的通知"
+        "": "`x` 個未讀的通知。"
     },
     "search": "搜尋",
     "Log out": "登出",
@@ -147,7 +147,7 @@
     "Private": "私人",
     "View all playlists": "檢視所有播放清單",
     "Updated `x` ago": "更新於 `x` 之前",
-    "Delete playlist `x`?": "刪除播放清單",
+    "Delete playlist `x`?": "刪除播放清單 `x`？",
     "Delete playlist": "刪除播放清單",
     "Create playlist": "建立播放清單",
     "Title": "標題",
@@ -156,17 +156,17 @@
     "Watch on YouTube": "在 YouTube 上觀看",
     "Hide annotations": "隱藏註釋",
     "Show annotations": "顯示註釋",
-    "Genre: ": "風格：",
-    "License: ": "授權條款：",
-    "Family friendly? ": "家庭友好？",
-    "Wilson score: ": "威爾遜分數：",
-    "Engagement: ": "參與度：",
-    "Whitelisted regions: ": "白名單區域：",
-    "Blacklisted regions: ": "黑名單區域：",
+    "Genre: ": "風格： ",
+    "License: ": "授權條款： ",
+    "Family friendly? ": "家庭友好？ ",
+    "Wilson score: ": "威爾遜分數： ",
+    "Engagement: ": "參與度： ",
+    "Whitelisted regions: ": "白名單區域： ",
+    "Blacklisted regions: ": "黑名單區域： ",
     "Shared `x`": "`x` 發佈",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 次檢視",
-        "": "`x` 次檢視"
+        "": "`x` 次檢視。"
     },
     "Premieres in `x`": "首映於 `x`",
     "Premieres `x`": "首映於 `x`",
@@ -200,13 +200,13 @@
     "Could not fetch comments": "無法擷取留言",
     "View `x` replies": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則回覆",
-        "": "檢視 `x` 則回覆"
+        "": "檢視 `x` 則回覆。"
     },
     "`x` ago": "`x` 以前",
     "Load more": "載入更多",
     "`x` points": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 點",
-        "": "`x` 點"
+        "": "`x` 點。"
     },
     "Could not create mix.": "無法建立混合。",
     "Empty playlist": "空的播放清單",
@@ -327,38 +327,38 @@
     "Zulu": "祖魯語",
     "`x` years": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 年",
-        "": "`x` 年"
+        "": "`x` 年。"
     },
     "`x` months": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 月",
-        "": "`x` 月"
+        "": "`x` 月。"
     },
     "`x` weeks": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 週",
-        "": "`x` 週"
+        "": "`x` 週。"
     },
     "`x` days": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
-        "": "`x` 天"
+        "": "`x` 天。"
     },
     "`x` hours": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 小時",
-        "": "`x` 小時"
+        "": "`x` 小時。"
     },
     "`x` minutes": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
-        "": "`x` 天"
+        "": "`x` 分鐘。"
     },
     "`x` seconds": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 秒",
-        "": "`x` 秒"
+        "": "`x` 秒。"
     },
-    "Fallback comments: ": "汰退留言：",
+    "Fallback comments: ": "汰退留言： ",
     "Popular": "熱門頻道",
     "Top": "熱門影片",
     "About": "關於",
-    "Rating: ": "評分：",
-    "Language: ": "語言：",
+    "Rating: ": "評分： ",
+    "Language: ": "語言： ",
     "View as playlist": "以播放清單檢視",
     "Default": "預設值",
     "Music": "音樂",
@@ -366,16 +366,16 @@
     "News": "新聞",
     "Movies": "電影",
     "Download": "下載",
-    "Download as: ": "下載為：",
+    "Download as: ": "下載為： ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
     "(edited)": "（已編輯）",
     "YouTube comment permalink": "YouTube 留言永久連結",
-    "permalink": "",
+    "permalink": "永久連結",
     "`x` marked it with a ❤": "`x` 為此標記 ❤",
     "Audio mode": "音訊模式",
     "Video mode": "視訊模式",
     "Videos": "影片",
     "Playlists": "播放清單",
     "Community": "社群",
-    "Current version: ": "目前版本："
+    "Current version: ": "目前版本： "
 }
