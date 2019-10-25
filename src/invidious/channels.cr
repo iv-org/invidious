@@ -195,9 +195,7 @@ def get_channel(id, db, refresh = true, pull_all_videos = true)
 end
 
 def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
-  client = make_client(YT_URL)
-
-  rss = client.get("/feeds/videos.xml?channel_id=#{ucid}").body
+  rss = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{ucid}").body
   rss = XML.parse_html(rss)
 
   author = rss.xpath_node(%q(//feed/title))
@@ -216,7 +214,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
   page = 1
 
   url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
-  response = client.get(url)
+  response = YT_POOL.client &.get(url)
   json = JSON.parse(response.body)
 
   if json["content_html"]? && !json["content_html"].as_s.empty?
@@ -296,7 +294,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
     loop do
       url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
-      response = client.get(url)
+      response = YT_POOL.client &.get(url)
       json = JSON.parse(response.body)
 
       if json["content_html"]? && !json["content_html"].as_s.empty?
@@ -375,12 +373,10 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 end
 
 def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
-  client = make_client(YT_URL)
-
   if continuation
     url = produce_channel_playlists_url(ucid, continuation, sort_by, auto_generated)
 
-    response = client.get(url)
+    response = YT_POOL.client &.get(url)
     json = JSON.parse(response.body)
 
     if json["load_more_widget_html"].as_s.empty?
@@ -399,7 +395,7 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
   elsif auto_generated
     url = "/channel/#{ucid}"
 
-    response = client.get(url)
+    response = YT_POOL.client &.get(url)
     html = XML.parse_html(response.body)
 
     nodeset = html.xpath_nodes(%q(//ul[@id="browse-items-primary"]/li[contains(@class, "feed-item-container")]))
@@ -415,7 +411,7 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
       url += "&sort=dd"
     end
 
-    response = client.get(url)
+    response = YT_POOL.client &.get(url)
     html = XML.parse_html(response.body)
 
     continuation = html.xpath_node(%q(//button[@data-uix-load-more-href]))
@@ -625,13 +621,12 @@ end
 
 # TODO: Add "sort_by"
 def fetch_channel_community(ucid, continuation, locale, config, kemal_config, format, thin_mode)
-  client = make_client(YT_URL)
   headers = HTTP::Headers.new
   headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
 
-  response = client.get("/channel/#{ucid}/community?gl=US&hl=en", headers)
+  response = YT_POOL.client &.get("/channel/#{ucid}/community?gl=US&hl=en", headers)
   if response.status_code == 404
-    response = client.get("/user/#{ucid}/community?gl=US&hl=en", headers)
+    response = YT_POOL.client &.get("/user/#{ucid}/community?gl=US&hl=en", headers)
   end
 
   if response.status_code == 404
@@ -668,7 +663,7 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config, fo
       session_token: session_token,
     }
 
-    response = client.post("/comment_service_ajax?action_get_comments=1&ctoken=#{continuation}&continuation=#{continuation}&hl=en&gl=US", headers, form: post_req)
+    response = YT_POOL.client &.post("/comment_service_ajax?action_get_comments=1&ctoken=#{continuation}&continuation=#{continuation}&hl=en&gl=US", headers, form: post_req)
     body = JSON.parse(response.body)
 
     body = body["response"]["continuationContents"]["itemSectionContinuation"]? ||
@@ -929,11 +924,9 @@ def extract_channel_community_cursor(continuation)
 end
 
 def get_about_info(ucid, locale)
-  client = make_client(YT_URL)
-
-  about = client.get("/channel/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
+  about = YT_POOL.client &.get("/channel/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
   if about.status_code == 404
-    about = client.get("/user/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
+    about = YT_POOL.client &.get("/user/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
   end
 
   if md = about.headers["location"]?.try &.match(/\/channel\/(?<ucid>UC[a-zA-Z0-9_-]{22})/)
@@ -1038,11 +1031,9 @@ def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
   count = 0
   videos = [] of SearchVideo
 
-  client = make_client(YT_URL)
-
   2.times do |i|
     url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
-    response = client.get(url)
+    response = YT_POOL.client &.get(url)
     json = JSON.parse(response.body)
 
     if json["content_html"]? && !json["content_html"].as_s.empty?
@@ -1067,11 +1058,10 @@ def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
 end
 
 def get_latest_videos(ucid)
-  client = make_client(YT_URL)
   videos = [] of SearchVideo
 
   url = produce_channel_videos_url(ucid, 0)
-  response = client.get(url)
+  response = YT_POOL.client &.get(url)
   json = JSON.parse(response.body)
 
   if json["content_html"]? && !json["content_html"].as_s.empty?

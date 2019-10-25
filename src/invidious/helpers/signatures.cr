@@ -1,8 +1,7 @@
 def fetch_decrypt_function(id = "CvFH_6DNRCY")
-  client = make_client(YT_URL)
-  document = client.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1").body
+  document = YT_POOL.client &.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1").body
   url = document.match(/src="(?<url>\/yts\/jsbin\/player_ias-.{9}\/en_US\/base.js)"/).not_nil!["url"]
-  player = client.get(url).body
+  player = YT_POOL.client &.get(url).body
 
   function_name = player.match(/^(?<name>[^=]+)=function\(a\){a=a\.split\(""\)/m).not_nil!["name"]
   function_body = player.match(/^#{Regex.escape(function_name)}=function\(a\){(?<body>[^}]+)}/m).not_nil!["body"]

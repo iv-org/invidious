@@ -85,7 +85,6 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
     session_token: session_token,
   }
 
-  client = make_client(YT_URL, video.info["region"]?)
   headers = HTTP::Headers.new
 
   headers["content-type"] = "application/x-www-form-urlencoded"
@@ -98,7 +97,7 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
   headers["x-youtube-client-name"] = "1"
   headers["x-youtube-client-version"] = "2.20180719"
 
-  response = client.post("/comment_service_ajax?action_get_comments=1&hl=en&gl=US", headers, form: post_req)
+  response = YT_POOL.client(region, &.post("/comment_service_ajax?action_get_comments=1&hl=en&gl=US", headers, form: post_req))
   response = JSON.parse(response.body)
 
   if !response["response"]["continuationContents"]?

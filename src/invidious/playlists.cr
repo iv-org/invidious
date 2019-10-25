@@ -384,13 +384,11 @@ def get_playlist(db, plid, locale, refresh = true, force_refresh = false)
 end
 
 def fetch_playlist(plid, locale)
-  client = make_client(YT_URL)
-
   if plid.starts_with? "UC"
     plid = "UU#{plid.lchop("UC")}"
   end
 
-  response = client.get("/playlist?list=#{plid}&hl=en&disable_polymer=1")
+  response = YT_POOL.client &.get("/playlist?list=#{plid}&hl=en&disable_polymer=1")
   if response.status_code != 200
     raise translate(locale, "Not a playlist.")
   end
@@ -458,10 +456,8 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
 end
 
 def fetch_playlist_videos(plid, video_count, offset = 0, locale = nil, continuation = nil)
-  client = make_client(YT_URL)
-
   if continuation
-    html = client.get("/watch?v=#{continuation}&list=#{plid}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
+    html = YT_POOL.client &.get("/watch?v=#{continuation}&list=#{plid}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
     html = XML.parse_html(html.body)
 
     index = html.xpath_node(%q(//span[@id="playlist-current-index"])).try &.content.to_i?.try &.- 1
@@ -471,7 +467,7 @@ def fetch_playlist_videos(plid, video_count, offset = 0, locale = nil, continuat
   if video_count > 100
     url = produce_playlist_url(plid, offset)
 
-    response = client.get(url)
+    response = YT_POOL.client &.get(url)
     response = JSON.parse(response.body)
     if !response["content_html"]? || response["content_html"].as_s.empty?
       raise translate(locale, "Empty playlist")
@@ -483,7 +479,7 @@ def fetch_playlist_videos(plid, video_count, offset = 0, locale = nil, continuat
   elsif offset > 100
     return [] of PlaylistVideo
   else # Extract first page of videos
-    response = client.get("/playlist?list=#{plid}&gl=US&hl=en&disable_polymer=1")
+    response = YT_POOL.client &.get("/playlist?list=#{plid}&gl=US&hl=en&disable_polymer=1")
     document = XML.parse_html(response.body)
     nodeset = document.xpath_nodes(%q(.//tr[contains(@class, "pl-video")]))
 

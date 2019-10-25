@@ -77,6 +77,10 @@ class HTTPClient < HTTP::Client
     end
   end
 
+  def unset_proxy
+    @socket = nil
+  end
+
   def proxy_connection_options
     opts = {} of Symbol => Float64 | Nil
 

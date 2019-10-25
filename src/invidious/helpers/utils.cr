@@ -1,3 +1,46 @@
+require "pool/connection"
+
+struct HTTPPool
+  property! url : URI
+  property! capacity : Int32
+  property! timeout : Float64
+  property pool : ConnectionPool(HTTPClient)
+
+  def initialize(url : URI, @capacity = 5, @timeout = 5.0)
+    @url = url
+    @pool = build_pool
+  end
+
+  def client(region = nil, &block)
+    pool.connection do |conn|
+      if region
+        PROXY_LIST[region]?.try &.sample(40).each do |proxy|
+          begin
+            proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
+            conn.set_proxy(proxy)
+            break
+          rescue ex
+          end
+        end
+      end
+
+      response = yield conn
+      conn.unset_proxy
+      response
+    end
+  end
+
+  private def build_pool
+    ConnectionPool(HTTPClient).new(capacity: capacity, timeout: timeout) do
+      client = HTTPClient.new(url)
+      client.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
+      client.read_timeout = 5.seconds
+      client.connect_timeout = 5.seconds
+      client
+    end
+  end
+end
+
 # See http://www.evanmiller.org/how-not-to-sort-by-average-rating.html
 def ci_lower_bound(pos, n)
   if n == 0
@@ -21,8 +64,8 @@ end
 def make_client(url : URI, region = nil)
   client = HTTPClient.new(url)
   client.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
-  client.read_timeout = 15.seconds
-  client.connect_timeout = 15.seconds
+  client.read_timeout = 5.seconds
+  client.connect_timeout = 5.seconds
 
   if region
     PROXY_LIST[region]?.try &.sample(40).each do |proxy|

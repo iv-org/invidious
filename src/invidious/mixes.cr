@@ -19,14 +19,13 @@ struct Mix
 end
 
 def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
-  client = make_client(YT_URL)
   headers = HTTP::Headers.new
   headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
 
   if cookies
     headers = cookies.add_request_headers(headers)
   end
-  response = client.get("/watch?v=#{video_id}&list=#{rdid}&gl=US&hl=en&has_verified=1&bpctr=9999999999", headers)
+  response = YT_POOL.client &.get("/watch?v=#{video_id}&list=#{rdid}&gl=US&hl=en&has_verified=1&bpctr=9999999999", headers)
 
   initial_data = extract_initial_data(response.body)
 

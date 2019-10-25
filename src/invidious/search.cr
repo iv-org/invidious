@@ -222,20 +222,18 @@ end
 alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist
 
 def channel_search(query, page, channel)
-  client = make_client(YT_URL)
-
-  response = client.get("/channel/#{channel}?disable_polymer=1&hl=en&gl=US")
+  response = YT_POOL.client &.get("/channel/#{channel}?disable_polymer=1&hl=en&gl=US")
   document = XML.parse_html(response.body)
   canonical = document.xpath_node(%q(//link[@rel="canonical"]))
 
   if !canonical
-    response = client.get("/c/#{channel}?disable_polymer=1&hl=en&gl=US")
+    response = YT_POOL.client &.get("/c/#{channel}?disable_polymer=1&hl=en&gl=US")
     document = XML.parse_html(response.body)
     canonical = document.xpath_node(%q(//link[@rel="canonical"]))
   end
 
   if !canonical
-    response = client.get("/user/#{channel}?disable_polymer=1&hl=en&gl=US")
+    response = YT_POOL.client &.get("/user/#{channel}?disable_polymer=1&hl=en&gl=US")
     document = XML.parse_html(response.body)
     canonical = document.xpath_node(%q(//link[@rel="canonical"]))
   end
@@ -247,7 +245,7 @@ def channel_search(query, page, channel)
   ucid = canonical["href"].split("/")[-1]
 
   url = produce_channel_search_url(ucid, query, page)
-  response = client.get(url)
+  response = YT_POOL.client &.get(url)
   json = JSON.parse(response.body)
 
   if json["content_html"]? && !json["content_html"].as_s.empty?
@@ -265,12 +263,11 @@ def channel_search(query, page, channel)
 end
 
 def search(query, page = 1, search_params = produce_search_params(content_type: "all"), region = nil)
-  client = make_client(YT_URL, region)
   if query.empty?
     return {0, [] of SearchItem}
   end
 
-  html = client.get("/results?q=#{URI.encode_www_form(query)}&page=#{page}&sp=#{search_params}&hl=en&disable_polymer=1").body
+  html = YT_POOL.client(region, &.get("/results?q=#{URI.encode_www_form(query)}&page=#{page}&sp=#{search_params}&hl=en&disable_polymer=1").body)
   if html.empty?
     return {0, [] of SearchItem}
   end

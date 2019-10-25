@@ -1,5 +1,4 @@
 def fetch_trending(trending_type, region, locale)
-  client = make_client(YT_URL)
   headers = HTTP::Headers.new
   headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
 
@@ -12,7 +11,7 @@ def fetch_trending(trending_type, region, locale)
   if trending_type && trending_type != "Default"
     trending_type = trending_type.downcase.capitalize
 
-    response = client.get("/feed/trending?gl=#{region}&hl=en", headers).body
+    response = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en", headers).body
 
     initial_data = extract_initial_data(response)
 
@@ -23,13 +22,13 @@ def fetch_trending(trending_type, region, locale)
       url["channelListSubMenuAvatarRenderer"]["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
       url = url["channelListSubMenuAvatarRenderer"]["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"].as_s
       url += "&disable_polymer=1&gl=#{region}&hl=en"
-      trending = client.get(url).body
+      trending = YT_POOL.client &.get(url).body
       plid = extract_plid(url)
     else
-      trending = client.get("/feed/trending?gl=#{region}&hl=en&disable_polymer=1").body
+      trending = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en&disable_polymer=1").body
     end
   else
-    trending = client.get("/feed/trending?gl=#{region}&hl=en&disable_polymer=1").body
+    trending = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en&disable_polymer=1").body
   end
 
   trending = XML.parse_html(trending)

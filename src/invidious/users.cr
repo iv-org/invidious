@@ -143,8 +143,7 @@ def get_user(sid, headers, db, refresh = true)
 end
 
 def fetch_user(sid, headers, db)
-  client = make_client(YT_URL)
-  feed = client.get("/subscription_manager?disable_polymer=1", headers)
+  feed = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
   feed = XML.parse_html(feed.body)
 
   channels = [] of String
@@ -254,8 +253,7 @@ def subscribe_ajax(channel_id, action, env_headers)
   headers = HTTP::Headers.new
   headers["Cookie"] = env_headers["Cookie"]
 
-  client = make_client(YT_URL)
-  html = client.get("/subscription_manager?disable_polymer=1", headers)
+  html = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
 
   cookies = HTTP::Cookies.from_headers(headers)
   html.cookies.each do |cookie|
@@ -279,7 +277,7 @@ def subscribe_ajax(channel_id, action, env_headers)
     }
     post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
 
-    client.post(post_url, headers, form: post_req)
+    YT_POOL.client &.post(post_url, headers, form: post_req)
   end
 end
 
@@ -288,8 +286,7 @@ end
 #   headers = HTTP::Headers.new
 #   headers["Cookie"] = env_headers["Cookie"]
 #
-#   client = make_client(YT_URL)
-#   html = client.get("/view_all_playlists?disable_polymer=1", headers)
+#   html = YT_POOL.client &.get("/view_all_playlists?disable_polymer=1", headers)
 #
 #   cookies = HTTP::Cookies.from_headers(headers)
 #   html.cookies.each do |cookie|
