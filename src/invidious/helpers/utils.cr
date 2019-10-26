@@ -1610,7 +1610,11 @@ struct HTTPPool
       end
 
       response = yield conn
-      conn.unset_proxy
+
+      if region
+        conn.unset_proxy
+      end
+
       response
     rescue ex
       conn = HTTPClient.new(url)

@@ -226,15 +226,15 @@ end
 
 class HTTP::Client
   private def handle_response(response)
-    if @socket.is_a?(OpenSSL::SSL::Socket::Client)
+    if @socket.is_a?(OpenSSL::SSL::Socket::Client) && @host.ends_with? "googlevideo.com"
       close unless response.keep_alive? || @socket.as(OpenSSL::SSL::Socket::Client).@in_buffer_rem.empty?
+
       if @socket.as(OpenSSL::SSL::Socket::Client).@in_buffer_rem.empty?
         @socket = nil
       end
     else
       close unless response.keep_alive?
     end
-
     response
   end
 end

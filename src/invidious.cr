@@ -5446,7 +5446,7 @@ get "/videoplayback" do |env|
 
   client = make_client(URI.parse(host), region)
 
-  response = HTTP::Client::Response.new(403)
+  response = HTTP::Client::Response.new(500)
   5.times do
     begin
       response = client.head(url, headers)
