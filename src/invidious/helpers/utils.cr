@@ -1607,9 +1607,17 @@ struct HTTPPool
         end
       end
 
-      response = yield conn
-      conn.unset_proxy
-      response
+      begin
+        response = yield conn
+        conn.unset_proxy
+        response
+      rescue ex
+        conn = HTTPClient.new(url)
+        conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
+        conn.read_timeout = 5.seconds
+        conn.connect_timeout = 5.seconds
+        yield conn
+      end
     end
   end
 
