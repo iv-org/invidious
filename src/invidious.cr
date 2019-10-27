@@ -83,6 +83,7 @@ LOCALES = {
   "fr"    => load_locale("fr"),
   "is"    => load_locale("is"),
   "it"    => load_locale("it"),
+  "ja"    => load_locale("ja"),
   "nb_NO" => load_locale("nb_NO"),
   "nl"    => load_locale("nl"),
   "pl"    => load_locale("pl"),
