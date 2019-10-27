@@ -1390,8 +1390,7 @@ get "/login" do |env|
   captcha_type ||= "image"
 
   tfa = env.params.query["tfa"]?
-  tfa ||= false
-  prompt = ""
+  prompt = nil
 
   templated "login"
 end
@@ -1444,7 +1443,7 @@ post "/login" do |env|
 
       headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
       headers["Google-Accounts-XSRF"] = "1"
-      headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36"
+      headers["User-Agent"] = random_user_agent
 
       response = client.post("/_/signin/sl/lookup", headers, login_req(lookup_req))
       lookup_results = JSON.parse(response.body[5..-1])
@@ -1453,10 +1452,17 @@ post "/login" do |env|
 
       user_hash = lookup_results[0][2]
 
+      if token = env.params.body["token"]?
+        answer = env.params.body["answer"]?
+        captcha = {token, answer}
+      else
+        captcha = nil
+      end
+
       challenge_req = {
         user_hash, nil, 1, nil,
         {1, nil, nil, nil,
-         {password, nil, true},
+         {password, captcha, true},
         },
         {nil, nil,
          {2, 1, nil, 1,
@@ -1484,11 +1490,14 @@ post "/login" do |env|
         next templated "error"
       end
 
-      # TODO: Handle Google's CAPTCHA
-      if captcha = challenge_results[0][-1]?.try &.[-1]?.try &.as_h?.try &.["5001"]?.try &.[-1].as_a?
-        error_message = "Unhandled CAPTCHA. Please try again later."
-        env.response.status_code = 401
-        next templated "error"
+      if token = challenge_results[0][-1]?.try &.[-1]?.try &.as_h?.try &.["5001"]?.try &.[-1].as_a?.try &.[-1].as_s
+        account_type = "google"
+        captcha_type = "image"
+        prompt = nil
+        tfa = tfa_code
+        captcha = {tokens: [token], question: ""}
+
+        next templated "login"
       end
 
       if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
@@ -1547,7 +1556,7 @@ post "/login" do |env|
             prompt = "Google verification code"
           end
 
-          tfa = true
+          tfa = nil
           captcha = nil
           next templated "login"
         end
@@ -5768,6 +5777,13 @@ get "/vi/:id/:name" do |env|
     end
   rescue ex
   end
+end
+
+get "/Captcha" do |env|
+  client = make_client(LOGIN_URL)
+  response = client.get(env.request.resource)
+  env.response.headers["Content-Type"] = response.headers["Content-Type"]
+  response.body
 end
 
 # Undocumented, creates anonymous playlist with specified 'video_ids', max 50 videos

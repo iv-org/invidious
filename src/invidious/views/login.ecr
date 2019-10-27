@@ -21,7 +21,8 @@
 
             <hr>
 
-            <% if account_type == "invidious" %>
+            <% case account_type when %>
+            <% when "invidious" %>
                 <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
                     <fieldset>
                         <% if email %>
@@ -84,7 +85,7 @@
                         <% end %>
                     </fieldset>
                 </form>
-            <% elsif account_type == "google" %>
+            <% when "google" %>
                 <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=google" method="post">
                     <fieldset>
                         <% if email %>
@@ -101,9 +102,20 @@
                             <input required class="pure-input-1" name="password" type="password" placeholder="<%= translate(locale, "Password") %>">
                         <% end %>
 
-                        <% if tfa %>
+                        <% if prompt %>
                             <label for="tfa"><%= translate(locale, prompt) %> :</label>
                             <input required class="pure-input-1" name="tfa" type="text" placeholder="<%= translate(locale, prompt) %>">
+                        <% end %>
+
+                        <% if tfa %>
+                            <input type="hidden" name="tfa" value="<%= tfa %>">
+                        <% end %>
+
+                        <% if captcha %>
+                            <img style="width:50%" src="/Captcha?v=2&ctoken=<%= captcha[:tokens][0] %>"/>
+                            <input type="hidden" name="token" value="<%= captcha[:tokens][0] %>">
+                            <label for="answer"><%= translate(locale, "Answer") %> :</label>
+                            <input type="text" name="answer" type="text" placeholder="<%= translate(locale, "Answer") %>">
                         <% end %>
 
                         <button type="submit" class="pure-button pure-button-primary"><%= translate(locale, "Sign In") %></button>
