@@ -21,6 +21,9 @@ dependencies:
   pool:
     github: ysbaddaden/pool
     version: ~> 0.2.3
+  protodec:
+    github: omarroth/protodec
+    version: ~> 0.1.2
 
 crystal: 0.31.1
 

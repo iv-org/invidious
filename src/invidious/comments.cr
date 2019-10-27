@@ -572,129 +572,84 @@ def content_to_comment_html(content)
 end
 
 def extract_comment_cursor(continuation)
-  continuation = URI.decode_www_form(continuation)
-  data = IO::Memory.new(Base64.decode(continuation))
+  cursor = URI.decode_www_form(continuation)
+    .try { |i| Base64.decode(i) }
+    .try { |i| IO::Memory.new(i) }
+    .try { |i| Protodec::Any.parse(i) }
+    .try { |i| i["6:2:embedded"]["1:0:string"].as_s }
 
-  # 0x12 0x26
-  data.pos += 2
-
-  data.read_byte # => 0x12
-  video_id = Bytes.new(data.read_bytes(VarInt))
-  data.read video_id
-
-  until data.peek[0] == 0x0a
-    data.read_byte
-  end
-  data.read_byte # 0x0a
-  data.read_byte if data.peek[0] == 0x0a
-
-  cursor = Bytes.new(data.read_bytes(VarInt))
-  data.read cursor
-
-  String.new(cursor)
+  return cursor
 end
 
 def produce_comment_continuation(video_id, cursor = "", sort_by = "top")
-  data = IO::Memory.new
+  object = {
+    "2:embedded" => {
+      "2:string"    => video_id,
+      "24:varint"   => 1_i64,
+      "25:varint"   => 1_i64,
+      "28:varint"   => 1_i64,
+      "36:embedded" => {
+        "5:varint" => -1_i64,
+        "8:varint" => 0_i64,
+      },
+    },
+    "3:varint"   => 6_i64,
+    "6:embedded" => {
+      "1:string"   => cursor,
+      "4:embedded" => {
+        "4:string" => video_id,
+        "6:varint" => 0_i64,
+      },
+      "5:varint" => 20_i64,
+    },
+  }
 
-  data.write Bytes[0x12, 0x26]
-
-  data.write_byte 0x12
-  VarInt.to_io(data, video_id.bytesize)
-  data.print video_id
-
-  data.write Bytes[0xc0, 0x01, 0x01]
-  data.write Bytes[0xc8, 0x01, 0x01]
-  data.write Bytes[0xe0, 0x01, 0x01]
-
-  data.write Bytes[0xa2, 0x02, 0x0d]
-  data.write Bytes[0x28, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01]
-
-  data.write Bytes[0x40, 0x00]
-  data.write Bytes[0x18, 0x06]
-
-  if cursor.empty?
-    data.write Bytes[0x32]
-    VarInt.to_io(data, cursor.bytesize + video_id.bytesize + 8)
-
-    data.write Bytes[0x22, video_id.bytesize + 4]
-    data.write Bytes[0x22, video_id.bytesize]
-    data.print video_id
-
-    case sort_by
-    when "top"
-      data.write Bytes[0x30, 0x00]
-    when "new", "newest"
-      data.write Bytes[0x30, 0x01]
-    end
-
-    data.write(Bytes[0x78, 0x02])
-  else
-    data.write Bytes[0x32]
-    VarInt.to_io(data, cursor.bytesize + video_id.bytesize + 11)
-
-    data.write_byte 0x0a
-    VarInt.to_io(data, cursor.bytesize)
-    data.print cursor
-
-    data.write Bytes[0x22, video_id.bytesize + 4]
-    data.write Bytes[0x22, video_id.bytesize]
-    data.print video_id
-
-    case sort_by
-    when "top"
-      data.write Bytes[0x30, 0x00]
-    when "new", "newest"
-      data.write Bytes[0x30, 0x01]
-    end
-
-    data.write Bytes[0x28, 0x14]
+  case sort_by
+  when "top"
+    object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
+  when "new", "newest"
+    object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 1_i64
   end
 
-  continuation = Base64.urlsafe_encode(data)
-  continuation = URI.encode_www_form(continuation)
+  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
 
   return continuation
 end
 
 def produce_comment_reply_continuation(video_id, ucid, comment_id)
-  data = IO::Memory.new
+  object = {
+    "2:embedded" => {
+      "2:string"    => video_id,
+      "24:varint"   => 1_i64,
+      "25:varint"   => 1_i64,
+      "28:varint"   => 1_i64,
+      "36:embedded" => {
+        "5:varint" => -1_i64,
+        "8:varint" => 0_i64,
+      },
+    },
+    "3:varint"   => 6_i64,
+    "6:embedded" => {
+      "3:embedded" => {
+        "2:string"   => comment_id,
+        "4:embedded" => {
+          "1:varint" => 0_i64,
+        },
+        "5:string" => ucid,
+        "6:string" => video_id,
+        "8:varint" => 1_i64,
+        "9:varint" => 10_i64,
+      },
+    },
+  }
 
-  data.write Bytes[0x12, 0x26]
-
-  data.write_byte 0x12
-  VarInt.to_io(data, video_id.size)
-  data.print video_id
-
-  data.write Bytes[0xc0, 0x01, 0x01]
-  data.write Bytes[0xc8, 0x01, 0x01]
-  data.write Bytes[0xe0, 0x01, 0x01]
-
-  data.write Bytes[0xa2, 0x02, 0x0d]
-  data.write Bytes[0x28, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01]
-
-  data.write Bytes[0x40, 0x00]
-  data.write Bytes[0x18, 0x06]
-
-  data.write(Bytes[0x32, ucid.size + video_id.size + comment_id.size + 16])
-  data.write(Bytes[0x1a, ucid.size + video_id.size + comment_id.size + 14])
-
-  data.write_byte 0x12
-  VarInt.to_io(data, comment_id.size)
-  data.print comment_id
-
-  data.write(Bytes[0x22, 0x02, 0x08, 0x00]) # ?
-
-  data.write(Bytes[ucid.size + video_id.size + 7])
-  data.write(Bytes[ucid.size])
-  data.print(ucid)
-  data.write(Bytes[0x32, video_id.size])
-  data.print(video_id)
-  data.write(Bytes[0x40, 0x01])
-  data.write(Bytes[0x48, 0x0a])
-
-  continuation = Base64.urlsafe_encode(data.to_slice)
-  continuation = URI.encode_www_form(continuation)
+  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
 
   return continuation
 end

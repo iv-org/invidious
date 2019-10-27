@@ -24,6 +24,7 @@ require "sqlite3"
 require "xml"
 require "yaml"
 require "zip"
+require "protodec/utils"
 require "./invidious/helpers/*"
 require "./invidious/*"
 

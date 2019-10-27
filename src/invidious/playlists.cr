@@ -327,48 +327,28 @@ def produce_playlist_url(id, index)
   if id.starts_with? "UC"
     id = "UU" + id.lchop("UC")
   end
-  ucid = "VL" + id
+  plid = "VL" + id
 
-  data = IO::Memory.new
-  data.write_byte 0x08
-  VarInt.to_io(data, index)
+  data = {"1:varint" => index.to_i64}
+    .try { |i| Protodec::Any.cast_json(i) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i, padding: false) }
 
-  data.rewind
-  data = Base64.urlsafe_encode(data, false)
-  data = "PT:#{data}"
+  object = {
+    "80226972:embedded" => {
+      "2:string" => plid,
+      "3:base64" => {
+        "15:string" => "PT:#{data}",
+      },
+    },
+  }
 
-  continuation = IO::Memory.new
-  continuation.write_byte 0x7a
-  VarInt.to_io(continuation, data.bytesize)
-  continuation.print data
+  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
 
-  data = Base64.urlsafe_encode(continuation)
-  cursor = URI.encode_www_form(data)
-
-  data = IO::Memory.new
-
-  data.write_byte 0x12
-  VarInt.to_io(data, ucid.bytesize)
-  data.print ucid
-
-  data.write_byte 0x1a
-  VarInt.to_io(data, cursor.bytesize)
-  data.print cursor
-
-  data.rewind
-
-  buffer = IO::Memory.new
-  buffer.write Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02]
-  VarInt.to_io(buffer, data.bytesize)
-
-  IO.copy data, buffer
-
-  continuation = Base64.urlsafe_encode(buffer)
-  continuation = URI.encode_www_form(continuation)
-
-  url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
-
-  return url
+  return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 end
 
 def get_playlist(db, plid, locale, refresh = true, force_refresh = false)

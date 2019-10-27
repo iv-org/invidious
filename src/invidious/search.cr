@@ -281,152 +281,116 @@ end
 
 def produce_search_params(sort : String = "relevance", date : String = "", content_type : String = "",
                           duration : String = "", features : Array(String) = [] of String)
-  header = IO::Memory.new
-  header.write Bytes[0x08]
-  header.write case sort
+  object = {
+    "1:varint"   => 0_i64,
+    "2:embedded" => {} of String => Int64,
+  }
+
+  case sort
   when "relevance"
-    Bytes[0x00]
+    object["1:varint"] = 0_i64
   when "rating"
-    Bytes[0x01]
+    object["1:varint"] = 1_i64
   when "upload_date", "date"
-    Bytes[0x02]
+    object["1:varint"] = 2_i64
   when "view_count", "views"
-    Bytes[0x03]
+    object["1:varint"] = 3_i64
   else
     raise "No sort #{sort}"
   end
 
-  body = IO::Memory.new
-  body.write case date
+  case date
   when "hour"
-    Bytes[0x08, 0x01]
+    object["2:embedded"].as(Hash)["1:varint"] = 1_i64
   when "today"
-    Bytes[0x08, 0x02]
+    object["2:embedded"].as(Hash)["1:varint"] = 2_i64
   when "week"
-    Bytes[0x08, 0x03]
+    object["2:embedded"].as(Hash)["1:varint"] = 3_i64
   when "month"
-    Bytes[0x08, 0x04]
+    object["2:embedded"].as(Hash)["1:varint"] = 4_i64
   when "year"
-    Bytes[0x08, 0x05]
-  else
-    Bytes.new(0)
+    object["2:embedded"].as(Hash)["1:varint"] = 5_i64
   end
 
-  body.write case content_type
+  case content_type
   when "video"
-    Bytes[0x10, 0x01]
+    object["2:embedded"].as(Hash)["2:varint"] = 1_i64
   when "channel"
-    Bytes[0x10, 0x02]
+    object["2:embedded"].as(Hash)["2:varint"] = 2_i64
   when "playlist"
-    Bytes[0x10, 0x03]
+    object["2:embedded"].as(Hash)["2:varint"] = 3_i64
   when "movie"
-    Bytes[0x10, 0x04]
+    object["2:embedded"].as(Hash)["2:varint"] = 4_i64
   when "show"
-    Bytes[0x10, 0x05]
+    object["2:embedded"].as(Hash)["2:varint"] = 5_i64
   when "all"
-    Bytes.new(0)
+    #
   else
-    Bytes[0x10, 0x01]
+    object["2:embedded"].as(Hash)["2:varint"] = 1_i64
   end
 
-  body.write case duration
+  case duration
   when "short"
-    Bytes[0x18, 0x01]
+    object["2:embedded"].as(Hash)["3:varint"] = 1_i64
   when "long"
-    Bytes[0x18, 0x12]
-  else
-    Bytes.new(0)
+    object["2:embedded"].as(Hash)["3:varint"] = 18_i64
   end
 
   features.each do |feature|
-    body.write case feature
+    case feature
     when "hd"
-      Bytes[0x20, 0x01]
+      object["2:embedded"].as(Hash)["4:varint"] = 1_i64
     when "subtitles"
-      Bytes[0x28, 0x01]
+      object["2:embedded"].as(Hash)["5:varint"] = 1_i64
     when "creative_commons", "cc"
-      Bytes[0x30, 0x01]
+      object["2:embedded"].as(Hash)["6:varint"] = 1_i64
     when "3d"
-      Bytes[0x38, 0x01]
+      object["2:embedded"].as(Hash)["7:varint"] = 1_i64
     when "live", "livestream"
-      Bytes[0x40, 0x01]
+      object["2:embedded"].as(Hash)["8:varint"] = 1_i64
     when "purchased"
-      Bytes[0x48, 0x01]
+      object["2:embedded"].as(Hash)["9:varint"] = 1_i64
     when "4k"
-      Bytes[0x70, 0x01]
+      object["2:embedded"].as(Hash)["14:varint"] = 1_i64
     when "360"
-      Bytes[0x78, 0x01]
+      object["2:embedded"].as(Hash)["15:varint"] = 1_i64
     when "location"
-      Bytes[0xb8, 0x01, 0x01]
+      object["2:embedded"].as(Hash)["23:varint"] = 1_i64
     when "hdr"
-      Bytes[0xc8, 0x01, 0x01]
-    else
-      Bytes.new(0)
+      object["2:embedded"].as(Hash)["25:varint"] = 1_i64
     end
   end
 
-  token = header
-  if !body.empty?
-    token.write Bytes[0x12, body.bytesize]
-    token.write body.to_slice
-  end
+  params = object.try { |i| Protodec::Any.cast_json(object) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i, padding: false) }
 
-  token = Base64.urlsafe_encode(token.to_slice)
-  token = URI.encode_www_form(token)
-
-  return token
+  return params
 end
 
 def produce_channel_search_url(ucid, query, page)
-  page = "#{page}"
+  object = {
+    "80226972:embedded" => {
+      "2:string" => ucid,
+      "3:base64" => {
+        "2:string"  => "search",
+        "6:varint"  => 2_i64,
+        "7:varint"  => 1_i64,
+        "12:varint" => 1_i64,
+        "13:string" => "",
+        "23:varint" => 0_i64,
+        "15:string" => "#{page}",
+      },
+      "11:string" => query,
+    },
+  }
 
-  data = IO::Memory.new
-  data.write_byte 0x12
-  data.write_byte 0x06
-  data.print "search"
+  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
 
-  data.write Bytes[0x30, 0x02]
-  data.write Bytes[0x38, 0x01]
-  data.write Bytes[0x60, 0x01]
-  data.write Bytes[0x6a, 0x00]
-  data.write Bytes[0xb8, 0x01, 0x00]
-
-  data.write_byte 0x7a
-  VarInt.to_io(data, page.bytesize)
-  data.print page
-
-  data.rewind
-  data = Base64.urlsafe_encode(data)
-  continuation = URI.encode_www_form(data)
-
-  data = IO::Memory.new
-
-  data.write_byte 0x12
-  VarInt.to_io(data, ucid.bytesize)
-  data.print ucid
-
-  data.write_byte 0x1a
-  VarInt.to_io(data, continuation.bytesize)
-  data.print continuation
-
-  data.write_byte 0x5a
-  VarInt.to_io(data, query.bytesize)
-  data.print query
-
-  data.rewind
-
-  buffer = IO::Memory.new
-  buffer.write Bytes[0xe2, 0xa9, 0x85, 0xb2, 0x02]
-  VarInt.to_io(buffer, data.bytesize)
-
-  IO.copy data, buffer
-
-  continuation = Base64.urlsafe_encode(buffer)
-  continuation = URI.encode_www_form(continuation)
-
-  url = "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
-
-  return url
+  return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 end
 
 def process_search_query(query, page, user, region)
