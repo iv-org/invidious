@@ -15,7 +15,7 @@ RUN crystal build --static --release --warnings all --error-on-warnings \
     ./src/invidious.cr
 
 FROM alpine:latest
-RUN apk add --no-cache imagemagick ttf-opensans
+RUN apk add --no-cache librsvg ttf-opensans
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
     adduser -u 1000 -S invidious -G invidious

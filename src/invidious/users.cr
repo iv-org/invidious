@@ -195,7 +195,7 @@ def generate_captcha(key, db)
   end
 
   clock_svg = <<-END_SVG
-  <svg viewBox="0 0 100 100" width="200px">
+  <svg viewBox="0 0 100 100" width="200px" height="200px">
   <circle cx="50" cy="50" r="45" fill="#eee" stroke="black" stroke-width="2"></circle>
 
   <text x="69"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 1</text>
@@ -219,7 +219,7 @@ def generate_captcha(key, db)
   END_SVG
 
   image = ""
-  convert = Process.run(%(convert -density 1200 -resize 400x400 -background none svg:- png:-), shell: true,
+  convert = Process.run(%(rsvg-convert -w 400 -h 400 -b none -f png), shell: true,
     input: IO::Memory.new(clock_svg), output: Process::Redirect::Pipe) do |proc|
     image = proc.output.gets_to_end
     image = Base64.strict_encode(image)

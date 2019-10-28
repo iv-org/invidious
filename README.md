@@ -79,7 +79,7 @@ $ docker-compose build
 
 ```bash
 # Arch Linux
-$ sudo pacman -S shards crystal imagemagick librsvg postgresql
+$ sudo pacman -S shards crystal librsvg postgresql
 
 # Ubuntu or Debian
 # First you have to add the repository to your APT configuration. For easy setup just run in your command line:
@@ -88,7 +88,7 @@ $ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
 $ curl -sL "https://keybase.io/crystal/pgp_keys.asc" | sudo apt-key add -
 $ echo "deb https://dist.crystal-lang.org/apt crystal main" | sudo tee /etc/apt/sources.list.d/crystal.list
 $ sudo apt-get update
-$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev librsvg2-dev postgresql imagemagick libsqlite3-dev
+$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev postgresql librsvg2-bin libsqlite3-dev
 ```
 
 #### Add invidious user and clone repository
@@ -143,7 +143,7 @@ $ sudo systemctl start invidious.service
 ```bash
 # Install dependencies
 $ brew update
-$ brew install shards crystal-lang postgres imagemagick librsvg
+$ brew install shards crystal postgres imagemagick librsvg
 
 # Clone repository and setup postgres database
 $ git clone https://github.com/omarroth/invidious
