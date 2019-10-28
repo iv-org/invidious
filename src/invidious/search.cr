@@ -361,9 +361,14 @@ def produce_search_params(sort : String = "relevance", date : String = "", conte
     end
   end
 
+  if object["2:embedded"].as(Hash).empty?
+    object.delete("2:embedded")
+  end
+
   params = object.try { |i| Protodec::Any.cast_json(object) }
     .try { |i| Protodec::Any.from_json(i) }
-    .try { |i| Base64.urlsafe_encode(i, padding: false) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
 
   return params
 end
