@@ -1619,8 +1619,8 @@ struct HTTPPool
     rescue ex
       conn = HTTPClient.new(url)
       conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
-      conn.read_timeout = 5.seconds
-      conn.connect_timeout = 5.seconds
+      conn.read_timeout = 10.seconds
+      conn.connect_timeout = 10.seconds
       yield conn
     ensure
       pool.checkin(conn)
@@ -1631,8 +1631,8 @@ struct HTTPPool
     ConnectionPool(HTTPClient).new(capacity: capacity, timeout: timeout) do
       client = HTTPClient.new(url)
       client.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
-      client.read_timeout = 5.seconds
-      client.connect_timeout = 5.seconds
+      client.read_timeout = 10.seconds
+      client.connect_timeout = 10.seconds
       client
     end
   end
@@ -1661,8 +1661,8 @@ end
 def make_client(url : URI, region = nil)
   client = HTTPClient.new(url)
   client.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
-  client.read_timeout = 5.seconds
-  client.connect_timeout = 5.seconds
+  client.read_timeout = 10.seconds
+  client.connect_timeout = 10.seconds
 
   if region
     PROXY_LIST[region]?.try &.sample(40).each do |proxy|
