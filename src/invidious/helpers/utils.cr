@@ -1949,7 +1949,7 @@ def sha256(text)
   return digest.hexdigest
 end
 
-def subscribe_pubsub(topic, key, config)
+def subscribe_pubsub(topic, key, config, client_pool)
   case topic
   when .match(/^UC[A-Za-z0-9_-]{22}$/)
     topic = "channel_id=#{topic}"
@@ -1961,7 +1961,6 @@ def subscribe_pubsub(topic, key, config)
     # TODO
   end
 
-  client = make_client(PUBSUB_URL)
   time = Time.utc.to_unix.to_s
   nonce = Random::Secure.hex(4)
   signature = "#{time}:#{nonce}"
@@ -1977,7 +1976,7 @@ def subscribe_pubsub(topic, key, config)
     "hub.secret"        => key.to_s,
   }
 
-  return client.post("/subscribe", form: body)
+  return client_pool.client &.post("/subscribe", form: body)
 end
 
 def parse_range(range)
