@@ -5738,6 +5738,36 @@ get "/s_p/:id/:name" do |env|
   end
 end
 
+get "/yts/img/:name" do |env|
+  headers = HTTP::Headers.new
+  REQUEST_HEADERS_WHITELIST.each do |header|
+    if env.request.headers[header]?
+      headers[header] = env.request.headers[header]
+    end
+  end
+
+  begin
+    YT_POOL.client &.get(env.request.resource, headers) do |response|
+      env.response.status_code = response.status_code
+      response.headers.each do |key, value|
+        if !RESPONSE_HEADERS_BLACKLIST.includes? key
+          env.response.headers[key] = value
+        end
+      end
+
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.status_code >= 300 && response.status_code != 404
+        env.response.headers.delete("Transfer-Encoding")
+        break
+      end
+
+      proxy_file(response, env)
+    end
+  rescue ex
+  end
+end
+
 get "/vi/:id/:name" do |env|
   id = env.params.url["id"]
   name = env.params.url["name"]
