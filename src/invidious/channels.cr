@@ -526,10 +526,12 @@ end
 
 def extract_channel_playlists_cursor(url, auto_generated)
   cursor = URI.parse(url).query_params
-    .try { |i| Base64.decode(i["continuation"]) }
+    .try { |i| URI.decode_www_form(i["continuation"]) }
+    .try { |i| Base64.decode(i) }
     .try { |i| IO::Memory.new(i) }
     .try { |i| Protodec::Any.parse(i) }
-    .try { |i| i["80226972:0:embedded"]["3:1:base64"]["15:7:string"].as_s }
+    .try { |i| i["80226972:0:embedded"]["3:1:base64"].as_h.find { |k, v| k.starts_with?("15:") } }
+    .try &.[1].as_s || ""
 
   if !auto_generated
     cursor = URI.decode_www_form(cursor)
