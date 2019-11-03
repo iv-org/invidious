@@ -25,7 +25,7 @@ struct SearchVideo
             xml.element("img", src: "#{host_url}/vi/#{self.id}/mqdefault.jpg")
           end
 
-          xml.element("p", style: "white-space:pre-wrap") { xml.text html_to_content(self.description_html) }
+          xml.element("p", style: "word-break:break-word;white-space:pre-wrap") { xml.text html_to_content(self.description_html) }
         end
       end
 
