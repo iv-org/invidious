@@ -3389,7 +3389,7 @@ post "/feed/webhook/:token" do |env|
       if emails.empty?
         values = "'{}'"
       else
-        values = "VALUES #{emails.map { |id| %(('#{id}')) }.join(",")}"
+        values = "VALUES #{emails.map { |email| %((E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}')) }.join(",")}"
       end
 
       PG_DB.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY(#{values})")

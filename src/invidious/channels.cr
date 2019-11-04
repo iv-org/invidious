@@ -281,7 +281,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     if emails.empty?
       values = "'{}'"
     else
-      values = "VALUES #{emails.map { |id| %(('#{id}')) }.join(",")}"
+      values = "VALUES #{emails.map { |email| %((E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}')) }.join(",")}"
     end
 
     db.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY(#{values})")
@@ -349,7 +349,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
           if emails.empty?
             values = "'{}'"
           else
-            values = "VALUES #{emails.map { |id| %(('#{id}')) }.join(",")}"
+            values = "VALUES #{emails.map { |email| %((E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}')) }.join(",")}"
           end
 
           db.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY(#{values})")
