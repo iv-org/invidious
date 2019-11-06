@@ -1,3 +1,138 @@
+# 0.20.0 (2019-011-06)
+
+# Version 0.20.0: Custom Playlists
+
+It's been quite a while since the last release! There've been [198 commits](https://github.com/omarroth/invidious/compare/0.19.0..0.20.0) from 27 contributors.
+
+A couple smaller features have since been added. Channel pages and playlists in particular have received a bit of a face-lift, with both now displaying their descriptions as expected, and playlists providing video count and published information. Channels will also now provide video descriptions in their RSS feed.
+
+Turkish (tr), Chinese (zh-TW, in addition to zh-CN), and Japanese (jp) are all now supported languages. Thank you as always to the hard work done by translators that makes this possible.
+
+The feed menu and default home page are both now configurable for registered and unregistered users, and is quite a bit of an improvement for users looking to reduce distractions for their daily use.
+
+## For Administrators
+
+`feed_menu` and `default_home` are now configurable by the user, and have therefore been moved into `default_user_preferences`:
+
+```yaml
+feed_menu: ["Popular", "Top"]
+default_home: Top
+
+# becomes:
+
+default_user_preferences:
+  feed_menu: ["Popular", "Top"]
+  default_home: Top
+```
+
+Several new options have also been added, including the ability to set a support email for the instance using `admin_email: EMAIL`, and forcing the use of a specific connection in the case of rate-limiting using `force_resolve` (see below).
+
+## For Developers
+
+Authenticated endpoints are now [properly documented](https://github.com/omarroth/invidious/wiki/Authenticated-Endpoints), as well how to generate and use API tokens. My hope is that this makes some of the more [interesting](https://github.com/omarroth/invidious/wiki/Authenticated-Endpoints#get-apiv1authnotifications) endpoints more accessible for developers to use in their own applications.
+
+API endpoints for interacting with custom playlists have also been added with documentation available [here](https://github.com/omarroth/invidious/wiki/Authenticated-Endpoints#get-apiv1authplaylists).
+
+## Custom playlists
+
+This is probably the feature that has been the longest in the pipe and that I'm quite pleased is now implemented. It is now possible to create custom playlists, which can be played and edited through Invidious. API endpoints have also been added (documentation [here](https://github.com/omarroth/invidious/wiki/Authenticated-Endpoints#get-apiv1authplaylists)).
+
+Overall I'm quite pleased with how smoothly it has been rolled out and with the experience so far, and I'm exctited for how it can be extended and improved in future.
+
+## [instances.invidio.us](https://instances.invidio.us)
+
+It is now possible to view a list of public instances (as provided in the [wiki](https://github.com/omarroth/invidious/wiki/Invidious-Instances)) through an API or a pretty new interface [here](https://instances.invidio.us). It combines uptime information, statistics from each instance and basic information already provided in the wiki. I expect it should be much more user-friendly than compiling the information yourself, and is already used by [Invidition](https://codeberg.org/Booteille/Invidition) to provide a list of instances for users to choose from.
+
+The site itself is licensed under the AGPLv3 and the source is available [here](https://github.com/omarroth/instances.invidio.us).
+
+## Video unavailable [#811](https://github.com/omarroth/invidious/issues/811)
+
+Many users have likely noticed this error message if using Invidious directly or through another service, such as FreeTube. This issue is caused by rate-limiting by Google, and is not a new issuee for projects like Invidious (notably [youtube-dl](https://github.com/ytdl-org/youtube-dl#http-error-429-too-many-requests-or-402-payment-required)) and appears to be affecting smaller, private instances as well.
+
+There is not a permanent fix for administrators currently, however there is some information available [here](https://github.com/omarroth/invidious/issues/811#issuecomment-540017772) that may provide a temporary solution. Unfortanately, in most cases the best option is to wait for the instance to be unbanned or to move the instance to a different IP. A more informative error message is also now provided, which should help an administrator more quickly diagnose the problem.
+
+For those interested, I would recommend following [#811](https://github.com/omarroth/invidious/issues/811) for any future progress on the issue.
+
+## BAT verified publisher
+
+I'm quite late to this announcement, however I'm pleased to mention that Invidious is now a BAT verified publisher! I would recommend looking [here](https://basicattentiontoken.org/about/) or [here](https://www.reddit.com/r/BATProject/comments/7cr7yc/new_to_bat_read_this_introduction_to_basic/) for learning more about what it is and how it works. Overall I think it makes an interesting substitute for services like Liberapay, and a (hopefully) much less-intrusive alternative to direct advertising.
+
+BAT is combined under other cryptocurrencies below. Currently there's a fairly significant delay in payout, which is the reason for the large fluctuation in crypto donations between September and October (and also the reason for the late announcement).
+
+## Release schedule
+
+Currently I'm quite pleased with the current state of the project. There's plenty of things I'd still like to add, however at this point I expect the rate of most new additions will slow down a bit, with more focus on stabililty and any long-standing bugs.
+
+Because of this, I'm planning on releasing a new version quarterly, with any necessary hotfixes being pushed as a new patch release as necessary. As always it will be possible to run Invidious directly from [master](https://github.com/omarroth/invidious/wiki/Updating) if you'd still like to have the lastest version.
+
+I'll plan on providing finances each release, with a similar monthly breakdown as below.
+
+## Finances for September 2019
+
+### Donations
+
+- [Patreon](https://www.patreon.com/omarroth) : \$64.37
+- [Liberapay](https://liberapay.com/omarroth) : \$76.04
+- Crypto : ~\$99.89 (converted from BAT, BCH, BTC)
+- Total : \$240.30
+
+### Expenses
+
+- invidious-lb1 (nyc1) : \$10.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node5 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node6 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node7 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node8 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node9 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node10 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node11 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node12 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node13 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node14 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node15 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node16 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$135.00
+
+## Finances for October 2019
+
+- [Liberapay](https://liberapay.com/omarroth) : \$134.40
+- Crypto : ~\$8.29 (converted from BAT, BCH, BTC)
+- Total : \$142.69
+
+### Expenses
+
+- invidious-lb1 (nyc1) : \$5.00 (load balancer)
+- invidious-lb2 (nyc1) : \$5.00 (load balancer)
+- invidious-lb3 (nyc1) : \$5.00 (load balancer)
+- invidious-lb4 (nyc1) : \$5.00 (load balancer)
+- invidious-update1 (s-1vcpu-1gb) : \$5.00 (updates feeds)
+- invidious-node1 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node2 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node3 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node4 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node5 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node6 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node7 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node8 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node9 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node10 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node11 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node12 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node13 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node14 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node15 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node16 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node17 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-node18 (s-1vcpu-1gb) : \$5.00 (web server)
+- invidious-db1 (s-4vcpu-8gb) : \$40.00 (database)
+- Total : \$155.00
+
 # 0.19.0 (2019-07-13)
 
 # Version 0.19.0: Communities
