@@ -1137,8 +1137,11 @@ def extract_player_config(body, html)
     error_message = html.xpath_node(%q(//h1[@id="unavailable-message"]))
     if error_message
       params["reason"] = error_message.content.strip
+    elsif body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
+          body.includes?("https://www.google.com/sorry/index")
+      params["reason"] = "Could not extract video info. Instance is likely blocked."
     else
-      params["reason"] = "Could not extract video info."
+      params["reason"] = "Video unavailable."
     end
   end
 
@@ -1192,19 +1195,13 @@ def fetch_video(id, region)
     end
   end
 
-  if !info["player_response"]? || info["errorcode"]?.try &.== "2"
-    raise "Video unavailable."
-  end
-
-  if info["reason"]? && !info["player_response"]["videoDetails"]?
+  if info["reason"]? && !info["player_response"]?
     raise info["reason"]
   end
 
   player_json = JSON.parse(info["player_response"])
-
-  reason = player_json["playabilityStatus"]?.try &.["reason"]?.try &.as_s
-  if reason == "This video is not available."
-    raise "This video is not available."
+  if reason = player_json["playabilityStatus"]?.try &.["reason"]?.try &.as_s
+    raise reason
   end
 
   title = player_json["videoDetails"]["title"].as_s
