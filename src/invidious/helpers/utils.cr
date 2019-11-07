@@ -1618,7 +1618,7 @@ struct HTTPPool
       response
     rescue ex
       conn = HTTPClient.new(url)
-      conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
+      conn.family = (url.host == "www.youtube.com" || url.host == "suggestqueries.google.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
       conn.read_timeout = 10.seconds
       conn.connect_timeout = 10.seconds
       yield conn
@@ -1630,7 +1630,7 @@ struct HTTPPool
   private def build_pool
     ConnectionPool(HTTPClient).new(capacity: capacity, timeout: timeout) do
       client = HTTPClient.new(url)
-      client.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
+      client.family = (url.host == "www.youtube.com" || url.host == "suggestqueries.google.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
       client.read_timeout = 10.seconds
       client.connect_timeout = 10.seconds
       client
