@@ -333,7 +333,7 @@ def produce_search_params(sort : String = "relevance", date : String = "", conte
   when "short"
     object["2:embedded"].as(Hash)["3:varint"] = 1_i64
   when "long"
-    object["2:embedded"].as(Hash)["3:varint"] = 18_i64
+    object["2:embedded"].as(Hash)["3:varint"] = 2_i64
   end
 
   features.each do |feature|
