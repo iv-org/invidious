@@ -99,6 +99,7 @@ class HTTPClient < HTTP::Client
       request.headers["accept-charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
       request.headers["accept"] ||= "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
       request.headers["accept-language"] ||= "en-us,en;q=0.5"
+      request.headers["cookie"] = "#{(CONFIG.cookies.map { |c| "#{c.name}=#{c.value}" }).join("; ")}; #{request.headers["cookie"]?}"
     end
 
     super

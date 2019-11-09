@@ -192,6 +192,27 @@ struct Config
     end
   end
 
+  module StringToCookies
+    def self.to_yaml(value : HTTP::Cookies, yaml : YAML::Nodes::Builder)
+      (value.map { |c| "#{c.name}=#{c.value}" }).join("; ").to_yaml(yaml)
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : HTTP::Cookies
+      unless node.is_a?(YAML::Nodes::Scalar)
+        node.raise "Expected scalar, not #{node.class}"
+      end
+
+      cookies = HTTP::Cookies.new
+      node.value.split(";").each do |cookie|
+        next if cookie.strip.empty?
+        name, value = cookie.split("=", 2)
+        cookies << HTTP::Cookie.new(name.strip, value.strip)
+      end
+
+      cookies
+    end
+  end
+
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool
@@ -236,6 +257,8 @@ struct Config
     host_binding:      {type: String, default: "0.0.0.0"},                                                  # Host to bind (overrided by command line argument)
     pool_size:         {type: Int32, default: 100},                                                         # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
     admin_email:       {type: String, default: "omarroth@protonmail.com"},                                  # Email for bug reports
+    cookies:           {type: HTTP::Cookies, default: HTTP::Cookies.new, converter: StringToCookies},       # Saved cookies in "name1=value1; name2=value2..." format
+    captcha_key:       {type: String?, default: nil},                                                       # Key for Anti-Captcha
   })
 end
 

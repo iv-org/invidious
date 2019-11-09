@@ -228,10 +228,77 @@ def update_decrypt_function
       yield decrypt_function
     rescue ex
       next
+    ensure
+      sleep 1.minute
+      Fiber.yield
     end
+  end
+end
 
-    sleep 1.minute
-    Fiber.yield
+def bypass_captcha(captcha_key, logger)
+  loop do
+    begin
+      response = YT_POOL.client &.get("/watch?v=CvFH_6DNRCY&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
+      if response.body.includes?("To continue with your YouTube experience, please fill out the form below.")
+        html = XML.parse_html(response.body)
+        form = html.xpath_node(%(//form[@action="/das_captcha"])).not_nil!
+        site_key = form.xpath_node(%(.//div[@class="g-recaptcha"])).try &.["data-sitekey"]
+
+        inputs = {} of String => String
+        form.xpath_nodes(%(.//input[@name])).map do |node|
+          inputs[node["name"]] = node["value"]
+        end
+
+        headers = response.cookies.add_request_headers(HTTP::Headers.new)
+
+        response = JSON.parse(HTTP::Client.post("https://api.anti-captcha.com/createTask", body: {
+          "clientKey" => CONFIG.captcha_key,
+          "task"      => {
+            "type" => "NoCaptchaTaskProxyless",
+            # "type"          => "NoCaptchaTask",
+            "websiteURL" => "https://www.youtube.com/watch?v=CvFH_6DNRCY&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999",
+            "websiteKey" => site_key,
+            # "proxyType"     => "http",
+            # "proxyAddress"  => CONFIG.proxy_address,
+            # "proxyPort"     => CONFIG.proxy_port,
+            # "proxyLogin"    => CONFIG.proxy_user,
+            # "proxyPassword" => CONFIG.proxy_pass,
+            # "userAgent"     => random_user_agent,
+          },
+        }.to_json).body)
+
+        if response["error"]?
+          raise response["error"].as_s
+        end
+
+        task_id = response["taskId"].as_i
+
+        loop do
+          sleep 10.seconds
+
+          response = JSON.parse(HTTP::Client.post("https://api.anti-captcha.com/getTaskResult", body: {
+            "clientKey" => CONFIG.captcha_key,
+            "taskId"    => task_id,
+          }.to_json).body)
+
+          if response["status"]?.try &.== "ready"
+            break
+          elsif response["errorId"]?.try &.as_i != 0
+            raise response["errorDescription"].as_s
+          end
+        end
+
+        inputs["g-recaptcha-response"] = response["solution"]["gRecaptchaResponse"].as_s
+        response = YT_POOL.client &.post("/das_captcha", headers, form: inputs)
+
+        yield response.cookies.select { |cookie| cookie.name != "PREF" }
+      end
+    rescue ex
+      logger.puts("Exception: #{ex.message}")
+    ensure
+      sleep 1.minute
+      Fiber.yield
+    end
   end
 end
 

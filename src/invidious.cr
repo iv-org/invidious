@@ -212,6 +212,19 @@ spawn do
   end
 end
 
+if CONFIG.captcha_key
+  spawn do
+    bypass_captcha(CONFIG.captcha_key, logger) do |cookies|
+      cookies.each do |cookie|
+        config.cookies << cookie
+      end
+
+      # Persist cookies between runs
+      File.write("config/config.yml", config.to_yaml)
+    end
+  end
+end
+
 connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
 spawn do
   connections = [] of Channel(PQ::Notification)
