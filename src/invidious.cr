@@ -4042,7 +4042,13 @@ get "/api/v1/annotations/:id" do |env|
     annotations = response.body
   end
 
-  annotations
+  etag = sha256(annotations)[0, 16]
+  if env.request.headers["If-None-Match"]?.try &.== etag
+    env.response.status_code = 304
+  else
+    env.response.headers["ETag"] = etag
+    annotations
+  end
 end
 
 get "/api/v1/videos/:id" do |env|
