@@ -187,7 +187,18 @@ var video_data = {
             </p>
 
             <div>
-                <%= video.description_html %>
+                <% if video.description.size < 200 %>
+                    <%= video.description_html %>
+                <% else %>
+                    <div style="overflow: hidden;height: 8.3em;" id="descriptionWrapper">
+                        <%= video.description_html %>
+                    </div>
+                    <div class="pure-u-23-24">
+                        <p>
+                            <a href="javascript:void(0)" onclick="read_more_description(this)"><%= translate(locale, "Read more") %></a>
+                        </p>
+                    </div>
+                <% end %>
             </div>
 
             <hr>

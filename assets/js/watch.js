@@ -356,6 +356,11 @@ function get_youtube_comments(retries) {
     xhr.send();
 }
 
+function read_more_description(srcButton) {
+    document.getElementById('descriptionWrapper').style.height = "unset";
+    srcButton.style.display = "none";
+}
+
 function get_youtube_replies(target, load_more) {
     var continuation = target.getAttribute('data-continuation');
 
