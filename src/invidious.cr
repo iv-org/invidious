@@ -220,6 +220,7 @@ if CONFIG.captcha_key
       end
 
       # Persist cookies between runs
+      CONFIG.cookies = config.cookies
       File.write("config/config.yml", config.to_yaml)
     end
   end
