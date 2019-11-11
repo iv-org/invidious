@@ -242,6 +242,7 @@ struct VideoPreferences
   property speed : Float32 | Float64
   property video_end : Float64 | Int32
   property video_loop : Bool
+  property extend_desc : Bool
   property video_start : Float64 | Int32
   property volume : Int32
 end
@@ -1050,6 +1051,7 @@ def process_video_params(query, preferences)
   related_videos = query["related_videos"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   speed = query["speed"]?.try &.rchop("x").to_f?
   video_loop = query["loop"]?.try { |q| (q == "true" || q == "1").to_unsafe }
+  extend_desc = query["extend_desc"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   volume = query["volume"]?.try &.to_i?
 
   if preferences
@@ -1068,6 +1070,7 @@ def process_video_params(query, preferences)
     related_videos ||= preferences.related_videos.to_unsafe
     speed ||= preferences.speed
     video_loop ||= preferences.video_loop.to_unsafe
+    extend_desc ||= preferences.extend_desc.to_unsafe
     volume ||= preferences.volume
   end
 
@@ -1085,6 +1088,7 @@ def process_video_params(query, preferences)
   related_videos ||= CONFIG.default_user_preferences.related_videos.to_unsafe
   speed ||= CONFIG.default_user_preferences.speed
   video_loop ||= CONFIG.default_user_preferences.video_loop.to_unsafe
+  extend_desc ||= CONFIG.default_user_preferences.extend_desc.to_unsafe
   volume ||= CONFIG.default_user_preferences.volume
 
   annotations = annotations == 1
@@ -1095,6 +1099,7 @@ def process_video_params(query, preferences)
   local = local == 1
   related_videos = related_videos == 1
   video_loop = video_loop == 1
+  extend_desc = extend_desc == 1
 
   if CONFIG.disabled?("dash") && quality == "dash"
     quality = "high"
@@ -1141,6 +1146,7 @@ def process_video_params(query, preferences)
     speed:              speed,
     video_end:          video_end,
     video_loop:         video_loop,
+    extend_desc:        extend_desc,
     video_start:        video_start,
     volume:             volume,
   })
