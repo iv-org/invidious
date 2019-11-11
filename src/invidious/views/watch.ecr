@@ -1,12 +1,12 @@
 <% content_for "header" do %>
 <meta name="thumbnail" content="<%= thumbnail %>">
-<meta name="description" content="<%= video.short_description %>">
+<meta name="description" content="<%= HTML.escape(video.short_description) %>">
 <meta name="keywords" content="<%= video.keywords.join(",") %>">
 <meta property="og:site_name" content="Invidious">
 <meta property="og:url" content="<%= host_url %>/watch?v=<%= video.id %>">
 <meta property="og:title" content="<%= HTML.escape(video.title) %>">
 <meta property="og:image" content="/vi/<%= video.id %>/maxres.jpg">
-<meta property="og:description" content="<%= video.short_description %>">
+<meta property="og:description" content="<%= HTML.escape(video.short_description) %>">
 <meta property="og:type" content="video.other">
 <meta property="og:video:url" content="<%= host_url %>/embed/<%= video.id %>">
 <meta property="og:video:secure_url" content="<%= host_url %>/embed/<%= video.id %>">
@@ -17,7 +17,7 @@
 <meta name="twitter:site" content="@omarroth1">
 <meta name="twitter:url" content="<%= host_url %>/watch?v=<%= video.id %>">
 <meta name="twitter:title" content="<%= HTML.escape(video.title) %>">
-<meta name="twitter:description" content="<%= video.short_description %>">
+<meta name="twitter:description" content="<%= HTML.escape(video.short_description) %>">
 <meta name="twitter:image" content="<%= host_url %>/vi/<%= video.id %>/maxres.jpg">
 <meta name="twitter:player" content="<%= host_url %>/embed/<%= video.id %>">
 <meta name="twitter:player:width" content="1280">
