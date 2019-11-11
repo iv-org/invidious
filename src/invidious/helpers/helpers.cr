@@ -149,6 +149,7 @@ struct ConfigPreferences
     thin_mode:              {type: Bool, default: false},
     unseen_only:            {type: Bool, default: false},
     video_loop:             {type: Bool, default: false},
+    extend_desc:            {type: Bool, default: false},
     volume:                 {type: Int32, default: 100},
   })
 end

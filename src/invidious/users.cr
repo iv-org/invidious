@@ -92,6 +92,7 @@ struct Preferences
     thin_mode:              {type: Bool, default: CONFIG.default_user_preferences.thin_mode},
     unseen_only:            {type: Bool, default: CONFIG.default_user_preferences.unseen_only},
     video_loop:             {type: Bool, default: CONFIG.default_user_preferences.video_loop},
+    extend_desc:            {type: Bool, default: CONFIG.default_user_preferences.extend_desc},
     volume:                 {type: Int32, default: CONFIG.default_user_preferences.volume},
   })
 end

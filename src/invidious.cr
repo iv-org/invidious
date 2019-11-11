@@ -1934,6 +1934,10 @@ post "/preferences" do |env|
   video_loop ||= "off"
   video_loop = video_loop == "on"
 
+  extend_desc = env.params.body["extend_desc"]?.try &.as(String)
+  extend_desc ||= "off"
+  extend_desc = extend_desc == "on"
+
   annotations = env.params.body["annotations"]?.try &.as(String)
   annotations ||= "off"
   annotations = annotations == "on"
@@ -2052,6 +2056,7 @@ post "/preferences" do |env|
     thin_mode:              thin_mode,
     unseen_only:            unseen_only,
     video_loop:             video_loop,
+    extend_desc:            extend_desc,
     volume:                 volume,
   }.to_json).to_json
 
