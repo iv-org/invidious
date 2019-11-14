@@ -484,7 +484,7 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
     "80226972:embedded" => {
       "2:string" => ucid,
       "3:base64" => {
-        "2:string" => "playlist",
+        "2:string" => "playlists",
         "6:varint":   2_i64,
         "7:varint":   1_i64,
         "12:varint":  1_i64,
