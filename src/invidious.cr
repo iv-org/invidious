@@ -94,7 +94,7 @@ LOCALES = {
   "zh-TW" => load_locale("zh-TW"),
 }
 
-YT_POOL     = HTTPPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 0.05)
+YT_POOL     = QUICPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 0.05)
 YT_IMG_POOL = HTTPPool.new(YT_IMG_URL, capacity: CONFIG.pool_size, timeout: 0.05)
 
 config = CONFIG
@@ -1435,6 +1435,7 @@ post "/login" do |env|
     traceback = IO::Memory.new
 
     # See https://github.com/ytdl-org/youtube-dl/blob/2019.04.07/youtube_dl/extractor/youtube.py#L82
+    # TODO: Convert to QUIC
     begin
       client = make_client(LOGIN_URL)
       headers = HTTP::Headers.new
@@ -1459,7 +1460,7 @@ post "/login" do |env|
 
       headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
       headers["Google-Accounts-XSRF"] = "1"
-      headers["User-Agent"] = random_user_agent
+      headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
 
       response = client.post("/_/signin/sl/lookup", headers, login_req(lookup_req))
       lookup_results = JSON.parse(response.body[5..-1])
@@ -4509,8 +4510,9 @@ get "/api/v1/search/suggestions" do |env|
   query ||= ""
 
   begin
-    client = make_client(URI.parse("https://suggestqueries.google.com"))
-    response = client.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.encode_www_form(query)}&callback=suggestCallback").body
+    response = QUIC::Client.get(
+      "https://suggestqueries.google.com/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.encode_www_form(query)}&callback=suggestCallback"
+    ).body
 
     body = response[35..-2]
     body = JSON.parse(body).as_a

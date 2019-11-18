@@ -90,20 +90,6 @@ class HTTPClient < HTTP::Client
 
     return opts
   end
-
-  def exec(request)
-    if self.host == "www.youtube.com"
-      request.headers["x-youtube-client-name"] ||= "1"
-      request.headers["x-youtube-client-version"] ||= "1.20180719"
-      request.headers["user-agent"] ||= random_user_agent
-      request.headers["accept-charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
-      request.headers["accept"] ||= "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-      request.headers["accept-language"] ||= "en-us,en;q=0.5"
-      request.headers["cookie"] = "#{(CONFIG.cookies.map { |c| "#{c.name}=#{c.value}" }).join("; ")}; #{request.headers["cookie"]?}"
-    end
-
-    super
-  end
 end
 
 def get_proxies(country_code = "US")
@@ -115,6 +101,7 @@ def filter_proxies(proxies)
   proxies.select! do |proxy|
     begin
       client = HTTPClient.new(YT_URL)
+      client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
       client.read_timeout = 10.seconds
       client.connect_timeout = 10.seconds
 

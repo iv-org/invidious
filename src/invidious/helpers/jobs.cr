@@ -263,7 +263,7 @@ def bypass_captcha(captcha_key, logger)
             # "proxyPort"     => CONFIG.proxy_port,
             # "proxyLogin"    => CONFIG.proxy_user,
             # "proxyPassword" => CONFIG.proxy_pass,
-            # "userAgent"     => random_user_agent,
+            # "userAgent"     => "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36",
           },
         }.to_json).body)
 
