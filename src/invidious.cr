@@ -255,6 +255,17 @@ before_all do |env|
     env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
   end
 
+  next if {
+            "/sb/",
+            "/vi/",
+            "/s_p/",
+            "/yts/",
+            "/ggpht/",
+            "/api/manifest/",
+            "/videoplayback",
+            "/latest_version",
+          }.any? { |r| env.request.resource.starts_with? r }
+
   begin
     preferences = Preferences.from_json(env.request.cookies["PREFS"]?.try &.value || "{}")
   rescue
