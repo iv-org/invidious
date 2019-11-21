@@ -28,6 +28,27 @@ window.addEventListener('load', function () {
     update_mode(window.localStorage.dark_mode);
 });
 
+
+var darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+var lightScheme = window.matchMedia('(prefers-color-scheme: light)');
+
+darkScheme.addListener(scheme_switch);
+lightScheme.addListener(scheme_switch);
+
+function scheme_switch (e) {
+  // ignore this method if we have a preference set
+  if (localStorage.getItem('dark_mode')) {
+    return;
+  }
+  if (e.matches) {
+    if (e.media.includes("dark")) {
+      set_mode(true);
+    } else if (e.media.includes("light")) {
+      set_mode(false);
+    }
+  }
+}
+
 function set_mode (bool) {
     document.getElementById('dark_theme').media = !bool ? 'none' : '';
     document.getElementById('light_theme').media = bool ? 'none' : '';
