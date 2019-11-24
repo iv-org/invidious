@@ -26,7 +26,8 @@ dependencies:
     version: ~> 0.1.2
   lsquic:
     github: omarroth/lsquic.cr
-    version: ~> 0.1.4
+    branch: 15a67d48a09023d7b6fabdc9df1aacf77e39f3ff
+    # version: ~> 0.1.4
 
 crystal: 0.31.1
 
