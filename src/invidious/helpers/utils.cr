@@ -11,11 +11,11 @@ def add_yt_headers(request)
   request.headers["cookie"] = "#{(CONFIG.cookies.map { |c| "#{c.name}=#{c.value}" }).join("; ")}; #{request.headers["cookie"]?}"
 end
 
-struct HTTPPool
+struct QUICPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : ConnectionPool(HTTPClient)
+  property pool : ConnectionPool(QUIC::Client)
 
   def initialize(url : URI, @capacity = 5, @timeout = 5.0)
     @url = url
@@ -23,87 +23,31 @@ struct HTTPPool
   end
 
   def client(region = nil, &block)
-    conn = pool.checkout
-
-    begin
-      if region
-        PROXY_LIST[region]?.try &.sample(40).each do |proxy|
-          begin
-            proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-            conn.set_proxy(proxy)
-            break
-          rescue ex
-          end
-        end
-      end
-
+    if region
+      conn = make_client(url, region)
       response = yield conn
-
-      if region
-        conn.unset_proxy
+    else
+      conn = pool.checkout
+      begin
+        response = yield conn
+      rescue ex
+        conn.destroy_engine
+        conn = QUIC::Client.new(url)
+        conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
+        response = yield conn
+      ensure
+        pool.checkin(conn)
       end
-
-      response
-    rescue ex
-      conn = HTTPClient.new(url)
-      conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
-      conn.family = (url.host == "www.youtube.com" || url.host == "suggestqueries.google.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
-      conn.read_timeout = 10.seconds
-      conn.connect_timeout = 10.seconds
-      yield conn
-    ensure
-      pool.checkin(conn)
     end
+
+    response
   end
 
   private def build_pool
-    ConnectionPool(HTTPClient).new(capacity: capacity, timeout: timeout) do
-      client = HTTPClient.new(url)
+    ConnectionPool(QUIC::Client).new(capacity: capacity, timeout: timeout) do
+      client = QUIC::Client.new(url)
       client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
-      client.family = (url.host == "www.youtube.com" || url.host == "suggestqueries.google.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
-      client.read_timeout = 10.seconds
-      client.connect_timeout = 10.seconds
       client
-    end
-  end
-end
-
-struct QUICPool
-  property! url : URI
-  property! capacity : Int32
-  property! timeout : Float64
-
-  def initialize(url : URI, @capacity = 5, @timeout = 5.0)
-    @url = url
-  end
-
-  def client(region = nil, &block)
-    begin
-      if region
-        client = HTTPClient.new(url)
-        client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
-        client.read_timeout = 10.seconds
-        client.connect_timeout = 10.seconds
-
-        PROXY_LIST[region]?.try &.sample(40).each do |proxy|
-          begin
-            proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-            client.set_proxy(proxy)
-            break
-          rescue ex
-          end
-        end
-
-        yield client
-      else
-        conn = QUIC::Client.new(url)
-        conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
-        yield conn
-      end
-    rescue ex
-      conn = QUIC::Client.new(url)
-      conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
-      yield conn
     end
   end
 end
@@ -419,7 +363,7 @@ def sha256(text)
   return digest.hexdigest
 end
 
-def subscribe_pubsub(topic, key, config, client_pool)
+def subscribe_pubsub(topic, key, config)
   case topic
   when .match(/^UC[A-Za-z0-9_-]{22}$/)
     topic = "channel_id=#{topic}"
@@ -446,7 +390,7 @@ def subscribe_pubsub(topic, key, config, client_pool)
     "hub.secret"        => key.to_s,
   }
 
-  return client_pool.client &.post("/subscribe", form: body)
+  return make_client(PUBSUB_URL).post("/subscribe", form: body)
 end
 
 def parse_range(range)

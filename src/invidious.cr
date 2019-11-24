@@ -53,8 +53,8 @@ CHARS_SAFE         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
 TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
 MAX_ITEMS_PER_PAGE = 1500
 
-REQUEST_HEADERS_WHITELIST  = {"Accept", "Accept-Encoding", "Cache-Control", "Connection", "Content-Length", "If-None-Match", "Range"}
-RESPONSE_HEADERS_BLACKLIST = {"Access-Control-Allow-Origin", "Alt-Svc", "Server"}
+REQUEST_HEADERS_WHITELIST  = {"accept", "accept-encoding", "cache-control", "content-length", "if-none-match", "range"}
+RESPONSE_HEADERS_BLACKLIST = {"access-control-allow-origin", "alt-svc", "server"}
 HTTP_CHUNK_SIZE            = 10485760 # ~10MB
 
 CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/\* /s///p'`.strip}" }}
@@ -95,7 +95,7 @@ LOCALES = {
 }
 
 YT_POOL     = QUICPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 0.05)
-YT_IMG_POOL = HTTPPool.new(YT_IMG_URL, capacity: CONFIG.pool_size, timeout: 0.05)
+YT_IMG_POOL = QUICPool.new(YT_IMG_URL, capacity: CONFIG.pool_size, timeout: 0.05)
 
 config = CONFIG
 logger = Invidious::LogHandler.new
@@ -1448,7 +1448,7 @@ post "/login" do |env|
     # See https://github.com/ytdl-org/youtube-dl/blob/2019.04.07/youtube_dl/extractor/youtube.py#L82
     # TODO: Convert to QUIC
     begin
-      client = make_client(LOGIN_URL)
+      client = QUIC::Client.new(LOGIN_URL)
       headers = HTTP::Headers.new
 
       login_page = client.get("/ServiceLogin")
@@ -1471,7 +1471,6 @@ post "/login" do |env|
 
       headers["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8"
       headers["Google-Accounts-XSRF"] = "1"
-      headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
 
       response = client.post("/_/signin/sl/lookup", headers, login_req(lookup_req))
       lookup_results = JSON.parse(response.body[5..-1])
@@ -1645,28 +1644,31 @@ post "/login" do |env|
 
       traceback << "Logging in..."
 
-      location = challenge_results[0][-1][2].to_s
+      location = URI.parse(challenge_results[0][-1][2].to_s)
       cookies = HTTP::Cookies.from_headers(headers)
 
+      headers.delete("Content-Type")
+      headers.delete("Google-Accounts-XSRF")
+
       loop do
-        if !location || location.includes? "/ManageAccount"
+        if !location || location.path == "/ManageAccount"
           break
         end
 
         # Occasionally there will be a second page after login confirming
         # the user's phone number ("/b/0/SmsAuthInterstitial"), which we currently don't handle.
 
-        if location.includes? "/b/0/SmsAuthInterstitial"
+        if location.path.starts_with? "/b/0/SmsAuthInterstitial"
           traceback << "Unhandled dialog /b/0/SmsAuthInterstitial."
         end
 
-        login = client.get(location, headers)
-        headers = login.cookies.add_request_headers(headers)
+        login = client.get(location.full_path, headers)
 
-        cookies = HTTP::Cookies.from_headers(headers)
-        location = login.headers["Location"]?
+        headers = login.cookies.add_request_headers(headers)
+        location = login.headers["Location"]?.try { |u| URI.parse(u) }
       end
 
+      cookies = HTTP::Cookies.from_headers(headers)
       sid = cookies["SID"]?.try &.value
       if !sid
         raise "Couldn't get SID."
@@ -5534,7 +5536,7 @@ get "/videoplayback" do |env|
       client = make_client(URI.parse(host), region)
       client.get(url, headers) do |response|
         response.headers.each do |key, value|
-          if !RESPONSE_HEADERS_BLACKLIST.includes?(key)
+          if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
             env.response.headers[key] = value
           end
         end
@@ -5602,7 +5604,7 @@ get "/videoplayback" do |env|
             end
 
             response.headers.each do |key, value|
-              if !RESPONSE_HEADERS_BLACKLIST.includes?(key) && key != "Content-Range"
+              if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase) && key.downcase != "content-range"
                 env.response.headers[key] = value
               end
             end
@@ -5666,7 +5668,7 @@ get "/ggpht/*" do |env|
     client.get(url, headers) do |response|
       env.response.status_code = response.status_code
       response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes? key
+        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
           env.response.headers[key] = value
         end
       end
@@ -5716,7 +5718,7 @@ get "/sb/:id/:storyboard/:index" do |env|
     client.get(url, headers) do |response|
       env.response.status_code = response.status_code
       response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes? key
+        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
           env.response.headers[key] = value
         end
       end
@@ -5753,7 +5755,7 @@ get "/s_p/:id/:name" do |env|
     client.get(url, headers) do |response|
       env.response.status_code = response.status_code
       response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes? key
+        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
           env.response.headers[key] = value
         end
       end
@@ -5783,7 +5785,7 @@ get "/yts/img/:name" do |env|
     YT_POOL.client &.get(env.request.resource, headers) do |response|
       env.response.status_code = response.status_code
       response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes? key
+        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
           env.response.headers[key] = value
         end
       end
@@ -5826,7 +5828,7 @@ get "/vi/:id/:name" do |env|
     YT_IMG_POOL.client &.get(url, headers) do |response|
       env.response.status_code = response.status_code
       response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes? key
+        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
           env.response.headers[key] = value
         end
       end

@@ -127,8 +127,6 @@ def subscribe_to_feeds(db, logger, key, config)
     end
     max_channel = Channel(Int32).new
 
-    client_pool = HTTPPool.new(PUBSUB_URL, capacity: max_threads, timeout: 0.05)
-
     spawn do
       max_threads = max_channel.receive
       active_threads = 0
@@ -149,7 +147,7 @@ def subscribe_to_feeds(db, logger, key, config)
 
             spawn do
               begin
-                response = subscribe_pubsub(ucid, key, config, client_pool)
+                response = subscribe_pubsub(ucid, key, config)
 
                 if response.status_code >= 400
                   logger.puts("#{ucid} : #{response.body}")
