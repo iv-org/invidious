@@ -4527,7 +4527,7 @@ get "/api/v1/search/suggestions" do |env|
     client.family = CONFIG.force_resolve || Socket::Family::INET
     client.family = Socket::Family::INET if client.family == Socket::Family::UNSPEC
     response = client.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.encode_www_form(query)}&callback=suggestCallback").body
-    
+
     body = response[35..-2]
     body = JSON.parse(body).as_a
     suggestions = body[1].as_a[0..-2]
