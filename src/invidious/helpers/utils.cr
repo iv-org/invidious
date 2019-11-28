@@ -31,8 +31,10 @@ struct QUICPool
       begin
         response = yield conn
       rescue ex
-        conn.destroy_engine
+        conn.close
         conn = QUIC::Client.new(url)
+        conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
+        conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
         conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
         response = yield conn
       ensure
@@ -45,9 +47,11 @@ struct QUICPool
 
   private def build_pool
     ConnectionPool(QUIC::Client).new(capacity: capacity, timeout: timeout) do
-      client = QUIC::Client.new(url)
-      client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
-      client
+      conn = QUIC::Client.new(url)
+      conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
+      conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
+      conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
+      conn
     end
   end
 end
