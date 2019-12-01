@@ -3852,7 +3852,7 @@ get "/api/v1/captions/:id" do |env|
     caption = caption[0]
   end
 
-  url = "#{caption.baseUrl}&tlang=#{tlang}"
+  url = URI.parse("#{caption.baseUrl}&tlang=#{tlang}").full_path
 
   # Auto-generated captions often have cues that aren't aligned properly with the video,
   # as well as some other markup that makes it cumbersome, so we try to fix that here
