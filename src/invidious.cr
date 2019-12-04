@@ -87,6 +87,7 @@ LOCALES = {
   "nb_NO" => load_locale("nb_NO"),
   "nl"    => load_locale("nl"),
   "pl"    => load_locale("pl"),
+  "ro"    => load_locale("ro"),
   "ru"    => load_locale("ru"),
   "tr"    => load_locale("tr"),
   "uk"    => load_locale("uk"),

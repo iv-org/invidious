@@ -1,5 +1,4 @@
 {
-
     "`x` subscribers": "`x` abonați",
     "`x` videos": "`x` videoclipuri",
     "`x` playlists": "`x` liste de redare",
@@ -58,7 +57,7 @@
     "Play next by default: ": "Vizionați următoarele videoclipuri în mod implicit: ",
     "Autoplay next video: ": "Porniți următorul videoclip automat: ",
     "Listen by default: ": "Numai audio: ",
-    "Proxy videos: " : "Redați videoclipurile printr-un proxy: ",
+    "Proxy videos: ": "Redați videoclipurile printr-un proxy: ",
     "Default speed: ": "Viteza de redare implicită: ",
     "Preferred video quality: ": "Calitatea videoclipurilor: ",
     "Player volume: ": "Volumul videoclipurilor: ",
