@@ -19,7 +19,7 @@ COPY ./src/ ./src/
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
 COPY ./.git/ ./.git/
 RUN crystal build ./src/invidious.cr \
-    --release --static --warnings all --error-on-warnings \
+    --static --warnings all --error-on-warnings \
 # TODO: Remove next line, see https://github.com/crystal-lang/crystal/issues/7946
     -Dmusl \
     --link-flags "-lxml2 -llzma"
