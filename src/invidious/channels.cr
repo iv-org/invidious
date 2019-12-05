@@ -383,7 +383,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 end
 
 def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
-  if continuation
+  if continuation || auto_generated
     url = produce_channel_playlists_url(ucid, continuation, sort_by, auto_generated)
 
     response = YT_POOL.client &.get(url)
@@ -402,13 +402,6 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
 
     html = XML.parse_html(json["content_html"].as_s)
     nodeset = html.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-  elsif auto_generated
-    url = "/channel/#{ucid}"
-
-    response = YT_POOL.client &.get(url)
-    html = XML.parse_html(response.body)
-
-    nodeset = html.xpath_nodes(%q(//ul[@id="browse-items-primary"]/li[contains(@class, "feed-item-container")]))
   else
     url = "/channel/#{ucid}/playlists?disable_polymer=1&flow=list&view=1"
 
@@ -504,10 +497,10 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
     },
   }
 
-  if !auto_generated
-    cursor = Base64.urlsafe_encode(cursor, false)
+  if cursor
+    cursor = Base64.urlsafe_encode(cursor, false) if !auto_generated
+    object["80226972:embedded"]["3:base64"].as(Hash)["15:string"] = cursor
   end
-  object["80226972:embedded"]["3:base64"].as(Hash)["15:string"] = cursor
 
   if auto_generated
     object["80226972:embedded"]["3:base64"].as(Hash)["4:varint"] = 0x32_i64
@@ -807,7 +800,7 @@ def produce_channel_community_continuation(ucid, cursor)
   object = {
     "80226972:embedded" => {
       "2:string" => ucid,
-      "3:string" => cursor,
+      "3:string" => cursor || "",
     },
   }
 
