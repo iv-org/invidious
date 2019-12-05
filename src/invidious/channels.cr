@@ -215,7 +215,17 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
   url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
   response = YT_POOL.client &.get(url)
-  json = JSON.parse(response.body)
+
+  begin
+    json = JSON.parse(response.body)
+  rescue ex
+    if response.body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
+       response.body.includes?("https://www.google.com/sorry/index")
+      raise "Could not extract channel info. Instance is likely blocked."
+    end
+
+    raise "Could not extract JSON"
+  end
 
   if json["content_html"]? && !json["content_html"].as_s.empty?
     document = XML.parse_html(json["content_html"].as_s)
