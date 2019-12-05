@@ -161,7 +161,6 @@
     "Show replies": "Mostrar respostas",
     "Incorrect password": "Senha incorreta",
     "Quota exceeded, try again in a few hours": "Cota excedida, tente novamente em algumas horas",
-    
     "Unable to log in, make sure two-factor authentication (Authenticator or SMS) is turned on.": "Não foi possível fazer login, sua autenticação por dois passos (app autenticador ou sms) deve estar ativada.",
     "Invalid TFA code": "Código TFA inválido",
     "Login failed. This may be because two-factor authentication is not turned on for your account.": "Falha no login. Isso pode acontecer pois a autenticação por dois passos está desativada para sua conta.",
