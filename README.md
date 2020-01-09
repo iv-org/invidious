@@ -79,7 +79,7 @@ $ docker-compose build
 
 ```bash
 # Arch Linux
-$ sudo pacman -S shards crystal librsvg postgresql
+$ sudo pacman -S base-devel shards crystal librsvg postgresql
 
 # Ubuntu or Debian
 # First you have to add the repository to your APT configuration. For easy setup just run in your command line:
