@@ -621,10 +621,7 @@ struct Video
 
     if fmts = player_response["streamingData"]?.try &.["adaptiveFormats"]?
       fmts.as_a.each do |adaptive_fmt|
-        if !adaptive_fmt.as_h?
-          next
-        end
-
+        next if !adaptive_fmt.as_h?
         fmt = {} of String => String
 
         if init = adaptive_fmt["initRange"]?

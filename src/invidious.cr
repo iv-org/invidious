@@ -3841,10 +3841,10 @@ get "/api/v1/captions/:id" do |env|
 
   env.response.content_type = "text/vtt; charset=UTF-8"
 
-  caption = captions.select { |caption| caption.name.simpleText == label }
-
   if lang
     caption = captions.select { |caption| caption.languageCode == lang }
+  else
+    caption = captions.select { |caption| caption.name.simpleText == label }
   end
 
   if caption.empty?
@@ -5155,7 +5155,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   # Since some implementations create playlists based on resolution regardless of different codecs,
   # we can opt to only add a source to a representation if it has a unique height within that representation
-  unique_res = env.params.query["unique_res"]? && (env.params.query["unique_res"] == "true" || env.params.query["unique_res"] == "1")
+  unique_res = env.params.query["unique_res"]?.try { |q| (q == "true" || q == "1").to_unsafe }
 
   begin
     video = get_video(id, PG_DB, region: region)
@@ -5167,7 +5167,7 @@ get "/api/manifest/dash/id/:id" do |env|
   end
 
   if dashmpd = video.player_response["streamingData"]?.try &.["dashManifestUrl"]?.try &.as_s
-    manifest = YT_POOL.client &.get(dashmpd).body
+    manifest = YT_POOL.client &.get(URI.parse(dashmpd).full_path).body
 
     manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
       url = baseurl.lchop("<BaseURL>")
@@ -5192,7 +5192,7 @@ get "/api/manifest/dash/id/:id" do |env|
   end
 
   audio_streams = video.audio_streams(adaptive_fmts)
-  video_streams = video.video_streams(adaptive_fmts).sort_by { |stream| stream["fps"].to_i }.reverse
+  video_streams = video.video_streams(adaptive_fmts).sort_by { |stream| {stream["size"].split("x")[0].to_i, stream["fps"].to_i} }.reverse
 
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
@@ -5230,9 +5230,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
         {"video/mp4", "video/webm"}.each do |mime_type|
           mime_streams = video_streams.select { |stream| stream["type"].starts_with? mime_type }
-          if mime_streams.empty?
-            next
-          end
+          next if mime_streams.empty?
 
           heights = [] of Int32
           xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
