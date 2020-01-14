@@ -2602,13 +2602,9 @@ post "/data_control" do |env|
             next match["channel"]
           elsif match = channel["url"].as_s.match(/\/user\/(?<user>.+)/)
             response = YT_POOL.client &.get("/user/#{match["user"]}?disable_polymer=1&hl=en&gl=US")
-            document = XML.parse_html(response.body)
-            canonical = document.xpath_node(%q(//link[@rel="canonical"]))
-
-            if canonical
-              ucid = canonical["href"].split("/")[-1]
-              next ucid
-            end
+            html = XML.parse_html(response.body)
+            ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
+            next ucid if ucid
           end
 
           nil
@@ -5873,7 +5869,7 @@ error 404 do |env|
     response = YT_POOL.client &.get("/#{item}")
 
     if response.status_code == 301
-      response = YT_POOL.client &.get(response.headers["Location"])
+      response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).full_path)
     end
 
     if response.body.empty?
@@ -5882,10 +5878,10 @@ error 404 do |env|
     end
 
     html = XML.parse_html(response.body)
-    ucid = html.xpath_node(%q(//meta[@itemprop="channelId"]))
+    ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
 
     if ucid
-      env.response.headers["Location"] = "/channel/#{ucid["content"]}"
+      env.response.headers["Location"] = "/channel/#{ucid}"
       halt env, status_code: 302
     end
 
