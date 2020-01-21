@@ -1,4 +1,4 @@
-FROM postgres:10
+FROM postgres:10.11-alpine
 
 ENV POSTGRES_USER postgres
 
