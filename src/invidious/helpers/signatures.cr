@@ -1,69 +1,53 @@
+alias SigProc = Proc(Array(String), Int32, Array(String))
+
 def fetch_decrypt_function(id = "CvFH_6DNRCY")
   document = YT_POOL.client &.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1").body
-  url = document.match(/src="(?<url>\/yts\/jsbin\/player_ias-.{9}\/en_US\/base.js)"/).not_nil!["url"]
+  url = document.match(/src="(?<url>\/yts\/jsbin\/player_ias-[^\/]+\/en_US\/base.js)"/).not_nil!["url"]
   player = YT_POOL.client &.get(url).body
 
-  function_name = player.match(/^(?<name>[^=]+)=function\(a\){a=a\.split\(""\)/m).not_nil!["name"]
-  function_body = player.match(/^#{Regex.escape(function_name)}=function\(a\){(?<body>[^}]+)}/m).not_nil!["body"]
+  function_name = player.match(/^(?<name>[^=]+)=function\(\w\){\w=\w\.split\(""\);[^\. ]+\.[^( ]+/m).not_nil!["name"]
+  function_body = player.match(/^#{Regex.escape(function_name)}=function\(\w\){(?<body>[^}]+)}/m).not_nil!["body"]
   function_body = function_body.split(";")[1..-2]
 
   var_name = function_body[0][0, 2]
   var_body = player.delete("\n").match(/var #{Regex.escape(var_name)}={(?<body>(.*?))};/).not_nil!["body"]
 
-  operations = {} of String => String
+  operations = {} of String => SigProc
   var_body.split("},").each do |operation|
     op_name = operation.match(/^[^:]+/).not_nil![0]
     op_body = operation.match(/\{[^}]+/).not_nil![0]
 
     case op_body
     when "{a.reverse()"
-      operations[op_name] = "a"
+      operations[op_name] = ->(a : Array(String), b : Int32) { a.reverse }
     when "{a.splice(0,b)"
-      operations[op_name] = "b"
+      operations[op_name] = ->(a : Array(String), b : Int32) { a.delete_at(0..(b - 1)); a }
     else
-      operations[op_name] = "c"
+      operations[op_name] = ->(a : Array(String), b : Int32) { c = a[0]; a[0] = a[b % a.size]; a[b % a.size] = c; a }
     end
   end
 
-  decrypt_function = [] of {name: String, value: Int32}
+  decrypt_function = [] of {SigProc, Int32}
   function_body.each do |function|
     function = function.lchop(var_name).delete("[].")
 
     op_name = function.match(/[^\(]+/).not_nil![0]
-    value = function.match(/\(a,(?<value>[\d]+)\)/).not_nil!["value"].to_i
+    value = function.match(/\(\w,(?<value>[\d]+)\)/).not_nil!["value"].to_i
 
-    decrypt_function << {name: operations[op_name], value: value}
+    decrypt_function << {operations[op_name], value}
   end
 
   return decrypt_function
 end
 
-def decrypt_signature(fmt, code)
-  if !fmt["s"]?
-    return ""
+def decrypt_signature(fmt, op)
+  return "" if !fmt["s"]? || !fmt["sp"]?
+
+  sp = fmt["sp"]
+  sig = fmt["s"].split("")
+  op.each do |proc, value|
+    sig = proc.call(sig, value)
   end
 
-  a = fmt["s"]
-  a = a.split("")
-
-  code.each do |item|
-    case item[:name]
-    when "a"
-      a.reverse!
-    when "b"
-      a.delete_at(0..(item[:value] - 1))
-    when "c"
-      a = splice(a, item[:value])
-    end
-  end
-
-  signature = a.join("")
-  return "&#{fmt["sp"]?}=#{signature}"
-end
-
-def splice(a, b)
-  c = a[0]
-  a[0] = a[b % a.size]
-  a[b % a.size] = c
-  return a
+  return "&#{sp}=#{sig.join("")}"
 end

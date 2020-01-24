@@ -207,7 +207,7 @@ spawn do
   end
 end
 
-decrypt_function = [] of {name: String, value: Int32}
+decrypt_function = [] of {SigProc, Int32}
 spawn do
   update_decrypt_function do |function|
     decrypt_function = function
