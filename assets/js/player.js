@@ -35,7 +35,7 @@ var shareOptions = {
     title: player_data.title,
     description: player_data.description,
     image: player_data.thumbnail,
-    embedCode: "<iframe id='ivplayer' type='text/html' width='640' height='360' src='" + embed_url + "' style='border:none;'></iframe>"
+    embedCode: "<iframe id='ivplayer' width='640' height='360' src='" + embed_url + "' style='border:none;'></iframe>"
 }
 
 var player = videojs('player', options);
