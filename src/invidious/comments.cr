@@ -150,8 +150,8 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
                 node_comment = node["commentRenderer"]
               end
 
-              content_html = node_comment["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff').try { |block| HTML.escape(block) }.to_s ||
-                             content_to_comment_html(node_comment["contentText"]["runs"].as_a).try &.to_s || ""
+              content_html = node_comment["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff').try { |b| HTML.escape(b) }.to_s ||
+                             node_comment["contentText"]["runs"]?.try &.as_a.try { |r| content_to_comment_html(r).try &.to_s } || ""
               author = node_comment["authorText"]?.try &.["simpleText"]? || ""
 
               json.field "author", author

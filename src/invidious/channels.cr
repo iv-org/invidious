@@ -628,15 +628,13 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config, fo
             post = post["backstagePostThreadRenderer"]?.try &.["post"]["backstagePostRenderer"]? ||
                    post["commentThreadRenderer"]?.try &.["comment"]["commentRenderer"]?
 
-            if !post
-              next
-            end
+            next if !post
 
             if !post["contentText"]?
               content_html = ""
             else
-              content_html = post["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff').try { |block| HTML.escape(block) }.to_s ||
-                             content_to_comment_html(post["contentText"]["runs"].as_a).try &.to_s || ""
+              content_html = post["contentText"]["simpleText"]?.try &.as_s.rchop('\ufeff').try { |b| HTML.escape(b) }.to_s ||
+                             post["contentText"]["runs"]?.try &.as_a.try { |r| content_to_comment_html(r).try &.to_s } || ""
             end
 
             author = post["authorText"]?.try &.["simpleText"]? || ""
