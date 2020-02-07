@@ -28,8 +28,11 @@ require "protodec/utils"
 require "./invidious/helpers/*"
 require "./invidious/*"
 
-CONFIG   = Config.from_yaml(File.read("config/config.yml"))
-HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
+ENV_CONFIG_NAME = "INVIDIOUS_CONFIG"
+
+CONFIG_STR = ENV.has_key?(ENV_CONFIG_NAME) ? ENV.fetch(ENV_CONFIG_NAME) : File.read("config/config.yml")
+CONFIG     = Config.from_yaml(CONFIG_STR)
+HMAC_KEY   = CONFIG.hmac_key || Random::Secure.hex(32)
 
 PG_URL = URI.new(
   scheme: "postgres",
