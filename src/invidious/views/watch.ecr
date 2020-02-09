@@ -26,23 +26,23 @@
 <title><%= HTML.escape(video.title) %> - Invidious</title>
 <% end %>
 
-<script>
-var video_data = {
-    id: '<%= video.id %>',
-    index: '<%= continuation %>',
-    plid: '<%= plid %>',
-    length_seconds: <%= video.length_seconds.to_f %>,
-    play_next: <%= !rvs.empty? && !plid && params.continue %>,
-    next_video: '<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>',
-    youtube_comments_text: '<%= HTML.escape(translate(locale, "View YouTube comments")) %>',
-    reddit_comments_text: '<%= HTML.escape(translate(locale, "View Reddit comments")) %>',
-    reddit_permalink_text: '<%= HTML.escape(translate(locale, "View more comments on Reddit")) %>',
-    comments_text: '<%= HTML.escape(translate(locale, "View `x` comments", "{commentCount}")) %>',
-    hide_replies_text: '<%= HTML.escape(translate(locale, "Hide replies")) %>',
-    show_replies_text: '<%= HTML.escape(translate(locale, "Show replies")) %>',
-    params: <%= params.to_json %>,
-    preferences: <%= preferences.to_json %>,
-    premiere_timestamp: <%= video.premiere_timestamp.try &.to_unix || "null" %>
+<script id="video_data" type="application/json">
+{
+    "id": "<%= video.id %>",
+    "index": "<%= continuation %>",
+    "plid": "<%= plid %>",
+    "length_seconds": <%= video.length_seconds.to_f %>,
+    "play_next": <%= !rvs.empty? && !plid && params.continue %>,
+    "next_video": "<%= rvs.select { |rv| rv["id"]? }[0]?.try &.["id"] %>",
+    "youtube_comments_text": "<%= HTML.escape(translate(locale, "View YouTube comments")) %>",
+    "reddit_comments_text": "<%= HTML.escape(translate(locale, "View Reddit comments")) %>",
+    "reddit_permalink_text": "<%= HTML.escape(translate(locale, "View more comments on Reddit")) %>",
+    "comments_text": "<%= HTML.escape(translate(locale, "View `x` comments", "{commentCount}")) %>",
+    "hide_replies_text": "<%= HTML.escape(translate(locale, "Hide replies")) %>",
+    "show_replies_text": "<%= HTML.escape(translate(locale, "Show replies")) %>",
+    "params": <%= params.to_json %>,
+    "preferences": <%= preferences.to_json %>,
+    "premiere_timestamp": <%= video.premiere_timestamp.try &.to_unix || "null" %>
 }
 </script>
 
