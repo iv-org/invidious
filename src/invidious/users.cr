@@ -93,6 +93,7 @@ struct Preferences
     unseen_only:            {type: Bool, default: CONFIG.default_user_preferences.unseen_only},
     video_loop:             {type: Bool, default: CONFIG.default_user_preferences.video_loop},
     volume:                 {type: Int32, default: CONFIG.default_user_preferences.volume},
+    show_nick:              {type: Bool, default: CONFIG.default_user_preferences.show_nick},
   })
 end
 

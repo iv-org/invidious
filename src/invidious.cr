@@ -2042,6 +2042,10 @@ post "/preferences" do |env|
   notifications_only ||= "off"
   notifications_only = notifications_only == "on"
 
+  show_nick = env.params.body["show_nick"]?.try &.as(String)
+  show_nick ||= "off"
+  show_nick = show_nick == "on"
+
   # Convert to JSON and back again to take advantage of converters used for compatability
   preferences = Preferences.from_json({
     annotations:            annotations,
@@ -2058,6 +2062,7 @@ post "/preferences" do |env|
     locale:                 locale,
     max_results:            max_results,
     notifications_only:     notifications_only,
+    show_nick:              show_nick,
     player_style:           player_style,
     quality:                quality,
     default_home:           default_home,

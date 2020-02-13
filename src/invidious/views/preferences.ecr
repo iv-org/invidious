@@ -161,6 +161,11 @@ function update_value(element) {
                 <% end %>
             </div>
 
+            <div class="pure-control-group">
+                <label for="show_nick"><%= translate(locale, "Show nickname on top: ") %></label>
+                <input name="show_nick" id="show_nick" type="checkbox" <% if preferences.show_nick %>checked<% end %>>
+            </div>
+
             <% if env.get? "user" %>
                 <legend><%= translate(locale, "Subscription preferences") %></legend>
 

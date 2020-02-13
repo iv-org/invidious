@@ -66,9 +66,11 @@
                                 <i class="icon ion-ios-cog"></i>
                             </a>
                         </div>
-                        <div class="pure-u-1-4">
-                            <span id="user_name">Welcome, <%= env.get("user").as(User).email %></span>
-                        </div>
+                        <% if env.get("preferences").as(Preferences).show_nick %>
+                          <div class="pure-u-1-4">
+                              <span id="user_name">Welcome, <%= env.get("user").as(User).email %></span>
+                          </div>
+                        <% end %>
                         <div class="pure-u-1-4">
                             <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
