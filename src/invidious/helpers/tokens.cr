@@ -1,3 +1,5 @@
+require "crypto/subtle"
+
 def generate_token(email, scopes, expire, key, db)
   session = "v1:#{Base64.urlsafe_encode(Random::Secure.random_bytes(32))}"
   PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", session, email, Time.utc)
@@ -76,7 +78,7 @@ def validate_request(token, session, request, key, db, locale = nil)
     raise translate(locale, "Hidden field \"token\" is a required field")
   end
 
-  if token["signature"] != sign_token(key, token)
+  if !Crypto::Subtle.constant_time_compare(token["signature"].to_s, sign_token(key, token))
     raise translate(locale, "Invalid signature")
   end
 
