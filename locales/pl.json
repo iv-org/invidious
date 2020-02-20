@@ -19,7 +19,7 @@
     "New passwords must match": "Nowe hasła muszą być identyczne",
     "Cannot change password for Google accounts": "Nie można zmienić hasła do konta Google",
     "Authorize token?": "Autoryzować token?",
-    "Authorize token for `x`?": "",
+    "Authorize token for `x`?": "Autoryzować token dla `x`?",
     "Yes": "Tak",
     "No": "Nie",
     "Import and Export Data": "Import i eksport danych",
