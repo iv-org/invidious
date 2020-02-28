@@ -3402,8 +3402,8 @@ post "/feed/webhook/:token" do |env|
         views: video.views,
       )
 
-      emails = PG_DB.query_all("UPDATE users SET notifications = array_append(notifications, $1) \
-        WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
+      PG_DB.query_all("UPDATE users SET feed_needs_update = true, notifications = array_append(notifications, $1) \
+        WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)",
         video.id, video.published, video.ucid, as: String)
 
       video_array = video.to_a
@@ -3413,15 +3413,6 @@ post "/feed/webhook/:token" do |env|
         ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
         updated = $4, ucid = $5, author = $6, length_seconds = $7, \
         live_now = $8, premiere_timestamp = $9, views = $10", args: video_array)
-
-      # Update all users affected by insert
-      if emails.empty?
-        values = "'{}'"
-      else
-        values = "VALUES #{emails.map { |email| %((E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}')) }.join(",")}"
-      end
-
-      PG_DB.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY(#{values})")
     end
   end
 
