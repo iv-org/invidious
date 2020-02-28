@@ -556,11 +556,11 @@ end
 # TODO: Add "sort_by"
 def fetch_channel_community(ucid, continuation, locale, config, kemal_config, format, thin_mode)
   response = YT_POOL.client &.get("/channel/#{ucid}/community?gl=US&hl=en")
-  if response.status_code == 404
+  if response.status_code != 200
     response = YT_POOL.client &.get("/user/#{ucid}/community?gl=US&hl=en")
   end
 
-  if response.status_code == 404
+  if response.status_code != 200
     error_message = translate(locale, "This channel does not exist.")
     raise error_message
   end
@@ -845,12 +845,17 @@ end
 
 def get_about_info(ucid, locale)
   about = YT_POOL.client &.get("/channel/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
-  if about.status_code == 404
+  if about.status_code != 200
     about = YT_POOL.client &.get("/user/#{ucid}/about?disable_polymer=1&gl=US&hl=en")
   end
 
   if md = about.headers["location"]?.try &.match(/\/channel\/(?<ucid>UC[a-zA-Z0-9_-]{22})/)
     raise ChannelRedirect.new(channel_id: md["ucid"])
+  end
+
+  if about.status_code != 200
+    error_message = translate(locale, "This channel does not exist.")
+    raise error_message
   end
 
   about = XML.parse_html(about.body)
