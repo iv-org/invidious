@@ -273,7 +273,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       views: views,
     )
 
-    emails = db.query_all("UPDATE users SET notifications = notifications || $1 \
+    emails = db.query_all("UPDATE users SET notifications = array_append(notifications, $1) \
       WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
       video.id, video.published, ucid, as: String)
 
@@ -342,7 +342,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
         # We are notified of Red videos elsewhere (PubSub), which includes a correct published date,
         # so since they don't provide a published date here we can safely ignore them.
         if Time.utc - video.published > 1.minute
-          emails = db.query_all("UPDATE users SET notifications = notifications || $1 \
+          emails = db.query_all("UPDATE users SET notifications = array_append(notifications, $1) \
             WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
             video.id, video.published, video.ucid, as: String)
 

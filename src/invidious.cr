@@ -468,7 +468,7 @@ get "/watch" do |env|
   env.params.query.delete_all("iv_load_policy")
 
   if watched && !watched.includes? id
-    PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.as(User).email)
+    PG_DB.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.as(User).email)
   end
 
   if notifications && notifications.includes? id
@@ -748,7 +748,7 @@ get "/embed/:id" do |env|
   end
 
   # if watched && !watched.includes? id
-  #   PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.as(User).email)
+  #   PG_DB.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.as(User).email)
   # end
 
   if notifications && notifications.includes? id
@@ -1243,11 +1243,11 @@ post "/playlist_ajax" do |env|
     args = arg_array(video_array)
 
     PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
-    PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = video_count + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist_id)
+    PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index), updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist_id)
   when "action_remove_video"
     index = env.params.query["set_video_id"]
     PG_DB.exec("DELETE FROM playlist_videos * WHERE index = $1", index)
-    PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = video_count - 1, updated = $2 WHERE id = $3", index, Time.utc, playlist_id)
+    PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = cardinality(index), updated = $2 WHERE id = $3", index, Time.utc, playlist_id)
   when "action_move_video_before"
     # TODO: Playlist stub
   end
@@ -2244,7 +2244,7 @@ post "/watch_ajax" do |env|
   case action
   when "action_mark_watched"
     if !user.watched.includes? id
-      PG_DB.exec("UPDATE users SET watched = watched || $1 WHERE email = $2", [id], user.email)
+      PG_DB.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.email)
     end
   when "action_mark_unwatched"
     PG_DB.exec("UPDATE users SET watched = array_remove(watched, $1) WHERE email = $2", id, user.email)
@@ -3402,7 +3402,7 @@ post "/feed/webhook/:token" do |env|
         views: video.views,
       )
 
-      emails = PG_DB.query_all("UPDATE users SET notifications = notifications || $1 \
+      emails = PG_DB.query_all("UPDATE users SET notifications = array_append(notifications, $1) \
         WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
         video.id, video.published, video.ucid, as: String)
 
