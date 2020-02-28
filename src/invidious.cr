@@ -428,7 +428,7 @@ get "/watch" do |env|
     next env.redirect "/"
   end
 
-  plid = env.params.query["list"]?
+  plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
   continuation = process_continuation(PG_DB, env.params.query, plid, id)
 
   nojs = env.params.query["nojs"]?
@@ -613,7 +613,7 @@ end
 get "/embed/" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  if plid = env.params.query["list"]?
+  if plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
     begin
       playlist = get_playlist(PG_DB, plid, locale: locale)
       offset = env.params.query["index"]?.try &.to_i? || 0
@@ -640,7 +640,7 @@ get "/embed/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   id = env.params.url["id"]
 
-  plid = env.params.query["list"]?
+  plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
   continuation = process_continuation(PG_DB, env.params.query, plid, id)
 
   if md = env.params.query["playlist"]?
@@ -1264,9 +1264,9 @@ get "/playlist" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   user = env.get?("user").try &.as(User)
-  plid = env.params.query["list"]?
   referer = get_referer(env)
 
+  plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
   if !plid
     next env.redirect "/"
   end
