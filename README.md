@@ -161,6 +161,9 @@ $ psql invidious kemal < config/sql/users.sql
 $ psql invidious kemal < config/sql/session_ids.sql
 $ psql invidious kemal < config/sql/nonces.sql
 $ psql invidious kemal < config/sql/annotations.sql
+$ psql invidious kemal < config/sql/privacy.sql
+$ psql invidious kemal < config/sql/playlists.sql
+$ psql invidious kemal < config/sql/playlist_videos.sql
 
 # Setup Invidious
 $ shards update && shards install
