@@ -7,6 +7,8 @@ services:
     restart: unless-stopped
     volumes:
       - postgresdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"] 
   invidious:
