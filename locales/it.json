@@ -1,13 +1,9 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscritto",
-        "": "`x` iscritti"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` video"
-    },
-    "`x` playlists": "",
+    "`x` subscribers.([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscritto",
+    "`x` subscribers.": "`x` iscritti.",
+    "`x` videos.([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
+    "`x` videos.": "`x` video.",
+    "`x` playlists": "`x` playlist",
     "LIVE": "IN DIRETTA",
     "Shared `x` ago": "Condiviso `x` fa",
     "Unsubscribe": "Disiscriviti",
@@ -75,9 +71,9 @@
     "Show related videos: ": "Mostra video correlati: ",
     "Show annotations by default: ": "Mostra le annotazioni in modo predefinito: ",
     "Visual preferences": "Preferenze grafiche",
-    "Player style: ": "Stile riproduttore",
+    "Player style: ": "Stile riproduttore: ",
     "Dark mode: ": "Tema scuro: ",
-    "Theme: ": "Tema",
+    "Theme: ": "Tema: ",
     "dark": "scuro",
     "light": "chiaro",
     "Thin mode: ": "Modalità per connessioni lente: ",
@@ -110,7 +106,7 @@
     "Administrator preferences": "Preferenze amministratore",
     "Default homepage: ": "Pagina principale predefinita: ",
     "Feed menu: ": "Menu iscrizioni: ",
-    "Top enabled: ": "",
+    "Top enabled: ": "Top abilitato: ",
     "CAPTCHA enabled: ": "CAPTCHA attivati: ",
     "Login enabled: ": "Accesso attivato: ",
     "Registration enabled: ": "Registrazione attivata: ",
@@ -119,40 +115,34 @@
     "Subscription manager": "Gestione delle iscrizioni",
     "Token manager": "Gestione dei gettoni",
     "Token": "Gettone",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscrizione",
-        "": "`x` iscrizioni"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gettone",
-        "": "`x` gettoni"
-    },
+    "`x` subscriptions.([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscrizione",
+    "`x` subscriptions.": "`x` iscrizioni.",
+    "`x` tokens.([^.,0-9]|^)1([^.,0-9]|$)": "`x` gettone",
+    "`x` tokens.": "`x` gettoni.",
     "Import/export": "Importa/esporta",
     "unsubscribe": "disiscriviti",
     "revoke": "revoca",
     "Subscriptions": "Iscrizioni",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notifica non visualizzata",
-        "": "`x` notifiche non visualizzate"
-    },
+    "`x` unseen notifications.([^.,0-9]|^)1([^.,0-9]|$)": "`x` notifica non visualizzata",
+    "`x` unseen notifications.": "`x` notifiche non visualizzate.",
     "search": "Cerca",
     "Log out": "Esci",
     "Released under the AGPLv3 by Omar Roth.": "Pubblicato con licenza AGPLv3 da Omar Roth.",
     "Source available here.": "Codice sorgente.",
     "View JavaScript license information.": "Guarda le informazioni di licenza del codice JavaScript.",
-    "View privacy policy.": "Vedi la politica sulla privacy",
+    "View privacy policy.": "Vedi la politica sulla privacy.",
     "Trending": "Tendenze",
-    "Public": "",
+    "Public": "Pubblico",
     "Unlisted": "Non elencati",
-    "Private": "",
-    "View all playlists": "",
-    "Updated `x` ago": "",
-    "Delete playlist `x`?": "",
-    "Delete playlist": "",
-    "Create playlist": "",
-    "Title": "",
-    "Playlist privacy": "",
-    "Editing playlist `x`": "",
+    "Private": "Privato",
+    "View all playlists": "Visualizza tutte le playlist",
+    "Updated `x` ago": "Aggiornato `x` fa",
+    "Delete playlist `x`?": "Eliminare la playlist `x`?",
+    "Delete playlist": "Elimina playlist",
+    "Create playlist": "Crea playlist",
+    "Title": "Titolo",
+    "Playlist privacy": "Privacy playlist",
+    "Editing playlist `x`": "Modificando la playlist `x`",
     "Watch on YouTube": "Guarda su YouTube",
     "Hide annotations": "Nascondi annotazioni",
     "Show annotations": "Mostra annotazioni",
@@ -164,12 +154,10 @@
     "Whitelisted regions: ": "Regioni in lista bianca: ",
     "Blacklisted regions: ": "Regioni in lista nera: ",
     "Shared `x`": "Condiviso `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizzazione",
-        "": "`x` visualizzazioni"
-    },
-    "Premieres in `x`": "",
-    "Premieres `x`": "",
+    "`x` views.([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizzazione",
+    "`x` views.": "`x` visualizzazioni.",
+    "Premieres in `x`": "In anteprima in `x`",
+    "Premieres `x`": "In anteprima `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Ciao! Sembra che tu abbia disattivato JavaScript. Clicca qui per visualizzare i commenti. Considera che potrebbe volerci più tempo.",
     "View YouTube comments": "Visualizza i commenti da YouTube",
     "View more comments on Reddit": "Visualizza più commenti su Reddit",
@@ -198,16 +186,12 @@
     "This channel does not exist.": "Questo canale non esiste.",
     "Could not get channel info.": "Impossibile ottenere le informazioni del canale.",
     "Could not fetch comments": "Impossibile recuperare i commenti",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Visualizza `x` risposta",
-        "": "Visualizza `x` risposte"
-    },
+    "View `x` replies.([^.,0-9]|^)1([^.,0-9]|$)": "Visualizza `x` risposta",
+    "View `x` replies.": "Visualizza `x` risposte.",
     "`x` ago": "`x` fa",
     "Load more": "Carica altro",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` punto",
-        "": "`x` punti"
-    },
+    "`x` points.([^.,0-9]|^)1([^.,0-9]|$)": "`x` punto",
+    "`x` points.": "`x` punti.",
     "Could not create mix.": "Impossibile creare il mix.",
     "Empty playlist": "Playlist vuota",
     "Not a playlist.": "Non è una playlist.",
@@ -325,34 +309,20 @@
     "Yiddish": "Yiddish",
     "Yoruba": "Yoruba",
     "Zulu": "Zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` anno",
-        "": "`x` anni"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mese",
-        "": "`x` mesi"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` settimana",
-        "": "`x` settimane"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` giorno",
-        "": "`x` giorni"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ora",
-        "": "`x` ore"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuto",
-        "": "`x` minuti"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` secondo",
-        "": "`x` secondi"
-    },
+    "`x` years.([^.,0-9]|^)1([^.,0-9]|$)": "`x` anno",
+    "`x` years.": "`x` anni.",
+    "`x` months.([^.,0-9]|^)1([^.,0-9]|$)": "`x` mese",
+    "`x` months.": "`x` mesi.",
+    "`x` weeks.([^.,0-9]|^)1([^.,0-9]|$)": "`x` settimana",
+    "`x` weeks.": "`x` settimane.",
+    "`x` days.([^.,0-9]|^)1([^.,0-9]|$)": "`x` giorno",
+    "`x` days.": "`x` giorni.",
+    "`x` hours.([^.,0-9]|^)1([^.,0-9]|$)": "`x` ora",
+    "`x` hours.": "`x` ore.",
+    "`x` minutes.([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuto",
+    "`x` minutes.": "`x` minuti.",
+    "`x` seconds.([^.,0-9]|^)1([^.,0-9]|$)": "`x` secondo",
+    "`x` seconds.": "`x` secondi.",
     "Fallback comments: ": "Commenti alternativi: ",
     "Popular": "Popolare",
     "Top": "Top",
@@ -370,7 +340,7 @@
     "%A %B %-d, %Y": "%A %-d %B %Y",
     "(edited)": "(modificato)",
     "YouTube comment permalink": "Link permanente al commento di YouTube",
-    "permalink": "",
+    "permalink": "permalink",
     "`x` marked it with a ❤": "`x` l'ha contrassegnato con un ❤",
     "Audio mode": "Modalità audio",
     "Video mode": "Modalità video",
