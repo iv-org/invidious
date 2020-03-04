@@ -5714,6 +5714,7 @@ get "/sb/:id/:storyboard/:index" do |env|
         end
       end
 
+      env.response.headers["Connection"] = "close"
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       if response.status_code >= 300
