@@ -77,7 +77,8 @@ def elapsed_text(elapsed)
 end
 
 def make_client(url : URI, region = nil)
-  client = HTTPClient.new(url)
+  # TODO: Migrate any applicable endpoints to QUIC
+  client = HTTPClient.new(url, OpenSSL::SSL::Context::Client.insecure)
   client.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
