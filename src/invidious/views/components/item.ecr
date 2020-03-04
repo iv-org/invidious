@@ -44,7 +44,7 @@
                         <% end %>
                     </div>
                 <% end %>
-                <p><%= item.title %></p>
+                <p><%= HTML.escape(item.title) %></p>
             </a>
             <p>
                 <b>
@@ -76,7 +76,7 @@
                         <% end %>
                     </div>
                 <% end %>
-                <p><a href="/watch?v=<%= item.id %>"><%= item.title %></a></p>
+                <p><a href="/watch?v=<%= item.id %>"><%= HTML.escape(item.title) %></a></p>
             </a>
             <p>
                 <b>
@@ -137,7 +137,7 @@
                     </div>
                 </a>
             <% end %>
-            <p><a href="/watch?v=<%= item.id %>"><%= item.title %></a></p>
+            <p><a href="/watch?v=<%= item.id %>"><%= HTML.escape(item.title) %></a></p>
             <p>
                 <b>
                     <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
