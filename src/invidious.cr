@@ -5482,8 +5482,8 @@ get "/videoplayback" do |env|
   end
 
   client = make_client(URI.parse(host), region)
-
   response = HTTP::Client::Response.new(500)
+  error = ""
   5.times do
     begin
       response = client.head(url, headers)
@@ -5508,12 +5508,14 @@ get "/videoplayback" do |env|
       host = "https://r#{fvip}---#{mn}.googlevideo.com"
       client = make_client(URI.parse(host), region)
     rescue ex
+      error = ex.message
     end
   end
 
   if response.status_code >= 400
     env.response.status_code = response.status_code
-    next
+    env.response.content_type = "text/plain"
+    next error
   end
 
   if url.includes? "&file=seg.ts"
