@@ -26,8 +26,8 @@ dependencies:
     version: ~> 0.1.2
   lsquic:
     github: omarroth/lsquic.cr
-    version: ~> 0.1.8
+    version: ~> 0.1.9
 
-crystal: 0.32.0
+crystal: 0.33.0
 
 license: AGPLv3
