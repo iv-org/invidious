@@ -294,7 +294,7 @@ def template_youtube_comments(comments, locale, thin_mode)
           <div class="pure-u-23-24">
             <p>
               <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
-                onclick="get_youtube_replies(this)">#{translate(locale, "View `x` replies", number_with_separator(child["replies"]["replyCount"]))}</a>
+                data-onclick="get_youtube_replies">#{translate(locale, "View `x` replies", number_with_separator(child["replies"]["replyCount"]))}</a>
             </p>
           </div>
         </div>
@@ -413,7 +413,7 @@ def template_youtube_comments(comments, locale, thin_mode)
         <div class="pure-u-1">
           <p>
             <a href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
-              onclick="get_youtube_replies(this, true)">#{translate(locale, "Load more")}</a>
+              data-onclick="get_youtube_replies" data-load-more>#{translate(locale, "Load more")}</a>
           </p>
         </div>
       </div>
@@ -451,7 +451,7 @@ def template_reddit_comments(root, locale)
 
         html << <<-END_HTML
         <p>
-          <a href="javascript:void(0)" onclick="toggle_parent(this)">[ - ]</a>
+          <a href="javascript:void(0)" data-onclick="toggle_parent">[ - ]</a>
           <b><a href="https://www.reddit.com/user/#{child.author}">#{child.author}</a></b>
           #{translate(locale, "`x` points", number_with_separator(child.score))}
           <span title="#{child.created_utc.to_s(translate(locale, "%a %B %-d %T %Y UTC"))}">#{translate(locale, "`x` ago", recode_date(child.created_utc, locale))}</span>
@@ -556,7 +556,7 @@ def content_to_comment_html(content)
         video_id = watch_endpoint["videoId"].as_s
 
         if length_seconds
-          text = %(<a href="javascript:void(0)" onclick="player.currentTime(#{length_seconds})">#{text}</a>)
+          text = %(<a href="javascript:void(0)" data-onclick="jump_to_time" data-jump-time="#{length_seconds}">#{text}</a>)
         else
           text = %(<a href="/watch?v=#{video_id}">#{text}</a>)
         end

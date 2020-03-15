@@ -1,3 +1,5 @@
+var playlist_data = JSON.parse(document.getElementById('playlist_data').innerHTML);
+
 function add_playlist_item(target) {
     var tile = target.parentNode.parentNode.parentNode.parentNode.parentNode;
     tile.style.display = 'none';

@@ -1,3 +1,5 @@
+var notification_data = JSON.parse(document.getElementById('notification_data').innerHTML);
+
 var notifications, delivered;
 
 function get_subscriptions(callback, retries) {

@@ -147,13 +147,14 @@
         </div>
         <div class="pure-u-1 pure-u-md-2-24"></div>
     </div>
+    <script src="/js/handlers.js?v=<%= ASSET_COMMIT %>"></script>
     <script src="/js/themes.js?v=<%= ASSET_COMMIT %>"></script>
     <% if env.get? "user" %>
         <script src="/js/sse.js?v=<%= ASSET_COMMIT %>"></script>
-        <script>
-            var notification_data = {
-                upload_text: '<%= HTML.escape(translate(locale, "`x` uploaded a video")) %>',
-                live_upload_text: '<%= HTML.escape(translate(locale, "`x` is live")) %>',
+        <script id="notification_data" type="application/json">
+            {
+                "upload_text": "<%= HTML.escape(translate(locale, "`x` uploaded a video")) %>",
+                "live_upload_text": "<%= HTML.escape(translate(locale, "`x` is live")) %>"
             }
         </script>
         <script src="/js/notifications.js?v=<%= ASSET_COMMIT %>"></script>

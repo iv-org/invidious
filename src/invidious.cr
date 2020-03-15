@@ -248,10 +248,20 @@ spawn do
 end
 
 before_all do |env|
-  host_url = make_host_url(config, Kemal.config)
+  begin
+    preferences = Preferences.from_json(env.request.cookies["PREFS"]?.try &.value || "{}")
+  rescue
+    preferences = Preferences.from_json("{}")
+  end
+
   env.response.headers["X-XSS-Protection"] = "1; mode=block"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
-  env.response.headers["Content-Security-Policy"] = "default-src blob: data: 'self' #{host_url} 'unsafe-inline' 'unsafe-eval'; media-src blob: 'self' #{host_url} https://*.googlevideo.com:443"
+  extra_media_csp = ""
+  if CONFIG.disabled?("local") || !preferences.local
+    extra_media_csp += " https://*.googlevideo.com:443"
+  end
+  # TODO: Remove style-src's 'unsafe-inline', requires to remove all inline styles (<style> [..] </style>, style=" [..] ")
+  env.response.headers["Content-Security-Policy"] = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:#{extra_media_csp}"
   env.response.headers["Referrer-Policy"] = "same-origin"
 
   if (Kemal.config.ssl || config.https_only) && config.hsts
@@ -268,12 +278,6 @@ before_all do |env|
             "/videoplayback",
             "/latest_version",
           }.any? { |r| env.request.resource.starts_with? r }
-
-  begin
-    preferences = Preferences.from_json(env.request.cookies["PREFS"]?.try &.value || "{}")
-  rescue
-    preferences = Preferences.from_json("{}")
-  end
 
   if env.request.cookies.has_key? "SID"
     sid = env.request.cookies["SID"].value

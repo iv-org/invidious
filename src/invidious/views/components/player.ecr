@@ -1,8 +1,5 @@
 <video style="outline:none;width:100%;background-color:#000" playsinline poster="<%= thumbnail %>" title="<%= HTML.escape(video.title) %>"
-    id="player" class="video-js player-style-<%= params.player_style %>"
-    onmouseenter='this["data-title"]=this["title"];this["title"]=""'
-    onmouseleave='this["title"]=this["data-title"];this["data-title"]=""'
-    oncontextmenu='this["title"]=this["data-title"]'
+    id="player" class="on-video_player video-js player-style-<%= params.player_style %>"
     <% if params.autoplay %>autoplay<% end %>
     <% if params.video_loop %>loop<% end %>
     <% if params.controls %>controls<% end %>>
@@ -39,12 +36,12 @@
     <% end %>
 </video>
 
-<script>
-var player_data = {
-    aspect_ratio: '<%= aspect_ratio %>',
-    title: "<%= video.title.dump_unquoted %>",
-    description: "<%= HTML.escape(video.short_description) %>",
-    thumbnail: "<%= thumbnail %>"
+<script id="player_data" type="application/json">
+{
+    "aspect_ratio": "<%= aspect_ratio %>",
+    "title": "<%= video.title.dump_unquoted %>",
+    "description": "<%= HTML.escape(video.short_description) %>",
+    "thumbnail": "<%= thumbnail %>"
 }
 </script>
 <script src="/js/player.js?v=<%= ASSET_COMMIT %>"></script>

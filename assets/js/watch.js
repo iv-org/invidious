@@ -1,3 +1,5 @@
+var video_data = JSON.parse(document.getElementById('video_data').innerHTML);
+
 String.prototype.supplant = function (o) {
     return this.replace(/{([^{}]*)}/g, function (a, b) {
         var r = o[b];
