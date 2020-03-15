@@ -1,78 +1,78 @@
 'use strict';
 
-(function() {
-    var n2a = function(n) { return Array.prototype.slice.call(n); };
+(function () {
+    var n2a = function (n) { return Array.prototype.slice.call(n); };
 
     var video_player = document.getElementById('player');
     if (video_player) {
-        video_player.onmouseenter = function() { video_player['data-title'] = video_player['title']; video_player['title'] = ''; };
-        video_player.onmouseleave = function() { video_player['title'] = video_player['data-title']; video_player['data-title'] = ''; };
-        video_player.oncontextmenu = function() { video_player['title'] = video_player['data-title']; };
+        video_player.onmouseenter = function () { video_player['data-title'] = video_player['title']; video_player['title'] = ''; };
+        video_player.onmouseleave = function () { video_player['title'] = video_player['data-title']; video_player['data-title'] = ''; };
+        video_player.oncontextmenu = function () { video_player['title'] = video_player['data-title']; };
     }
 
     // For dynamically inserted elements
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (!e || !e.target) { return; }
         e = e.target;
         var handler_name = e.getAttribute('data-onclick');
         switch (handler_name) {
-        case 'jump_to_time':
-            var time = e.getAttribute('data-jump-time');
-            player.currentTime(time);
-            break;
-        case 'get_youtube_replies':
-            var load_more = e.getAttribute('data-load-more') !== null;
-            get_youtube_replies(e, load_more);
-            break;
-        default:
-            break;
+            case 'jump_to_time':
+                var time = e.getAttribute('data-jump-time');
+                player.currentTime(time);
+                break;
+            case 'get_youtube_replies':
+                var load_more = e.getAttribute('data-load-more') !== null;
+                get_youtube_replies(e, load_more);
+                break;
+            case 'toggle_parent':
+                toggle_parent(e);
+                break;
+            default:
+                break;
         }
     });
 
-    n2a(document.querySelectorAll('[data-mouse="switch_classes"]')).forEach(function(e) {
+    n2a(document.querySelectorAll('[data-mouse="switch_classes"]')).forEach(function (e) {
         var classes = e.getAttribute('data-switch-classes').split(',');
         var ec = classes[0];
         var lc = classes[1];
-        var onoff = function(on, off) {
+        var onoff = function (on, off) {
             var cs = e.getAttribute('class');
             cs = cs.split(off).join(on);
             e.setAttribute('class', cs);
         };
-        e.onmouseenter = function() { onoff(ec, lc); };
-        e.onmouseleave = function() { onoff(lc, ec); };
+        e.onmouseenter = function () { onoff(ec, lc); };
+        e.onmouseleave = function () { onoff(lc, ec); };
     });
 
-    n2a(document.querySelectorAll('[data-onsubmit="return_false"]')).forEach(function(e) {
-        e.onsubmit = function() { return false; };
+    n2a(document.querySelectorAll('[data-onsubmit="return_false"]')).forEach(function (e) {
+        e.onsubmit = function () { return false; };
     });
 
-    n2a(document.querySelectorAll('[data-onclick="toggle_parent"]')).forEach(function(e) {
-        e.onclick = function() { toggle_parent(e); };
+    n2a(document.querySelectorAll('[data-onclick="mark_watched"]')).forEach(function (e) {
+        e.onclick = function () { mark_watched(e); };
     });
-    n2a(document.querySelectorAll('[data-onclick="mark_watched"]')).forEach(function(e) {
-        e.onclick = function() { mark_watched(e); };
+    n2a(document.querySelectorAll('[data-onclick="mark_unwatched"]')).forEach(function (e) {
+        e.onclick = function () { mark_unwatched(e); };
     });
-    n2a(document.querySelectorAll('[data-onclick="mark_unwatched"]')).forEach(function(e) {
-        e.onclick = function() { mark_unwatched(e); };
+    n2a(document.querySelectorAll('[data-onclick="add_playlist_item"]')).forEach(function (e) {
+        e.onclick = function () { add_playlist_item(e); };
     });
-    n2a(document.querySelectorAll('[data-onclick="add_playlist_item"]')).forEach(function(e) {
-        e.onclick = function() { add_playlist_item(e); };
+    n2a(document.querySelectorAll('[data-onclick="remove_playlist_item"]')).forEach(function (e) {
+        e.onclick = function () { remove_playlist_item(e); };
     });
-    n2a(document.querySelectorAll('[data-onclick="remove_playlist_item"]')).forEach(function(e) {
-        e.onclick = function() { remove_playlist_item(e); };
+    n2a(document.querySelectorAll('[data-onclick="revoke_token"]')).forEach(function (e) {
+        e.onclick = function () { revoke_token(e); };
     });
-    n2a(document.querySelectorAll('[data-onclick="revoke_token"]')).forEach(function(e) {
-        e.onclick = function() { revoke_token(e); };
+    n2a(document.querySelectorAll('[data-onclick="remove_subscription"]')).forEach(function (e) {
+        e.onclick = function () { remove_subscription(e); };
     });
-    n2a(document.querySelectorAll('[data-onclick="remove_subscription"]')).forEach(function(e) {
-        e.onclick = function() { remove_subscription(e); };
-    });
-    n2a(document.querySelectorAll('[data-onclick="notification_requestPermission"]')).forEach(function(e) {
-        e.onclick = function() { Notification.requestPermission(); };
+    n2a(document.querySelectorAll('[data-onclick="notification_requestPermission"]')).forEach(function (e) {
+        e.onclick = function () { Notification.requestPermission(); };
     });
 
-    n2a(document.querySelectorAll('[data-onrange="update_volume_value"]')).forEach(function(e) {
-        var cb = function() { update_volume_value(e); }
+    n2a(document.querySelectorAll('[data-onrange="update_volume_value"]')).forEach(function (e) {
+        var cb = function () { update_volume_value(e); }
         e.oninput = cb;
         e.onchange = cb;
     });
@@ -97,7 +97,7 @@
         xhr.open('POST', url, true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        xhr.onreadystatechange = function() {
+        xhr.onreadystatechange = function () {
             if (xhr.readyState == 4) {
                 if (xhr.status != 200) {
                     count.innerText = parseInt(count.innerText) + 1;
@@ -126,7 +126,7 @@
         xhr.open('POST', url, true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        xhr.onreadystatechange = function() {
+        xhr.onreadystatechange = function () {
             if (xhr.readyState == 4) {
                 if (xhr.status != 200) {
                     count.innerText = parseInt(count.innerText) + 1;
