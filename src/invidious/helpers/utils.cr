@@ -325,43 +325,6 @@ def get_referer(env, fallback = "/", unroll = true)
   return referer
 end
 
-struct VarInt
-  def self.from_io(io : IO, format = IO::ByteFormat::NetworkEndian) : Int32
-    result = 0_u32
-    num_read = 0
-
-    loop do
-      byte = io.read_byte
-      raise "Invalid VarInt" if !byte
-      value = byte & 0x7f
-
-      result |= value.to_u32 << (7 * num_read)
-      num_read += 1
-
-      break if byte & 0x80 == 0
-      raise "Invalid VarInt" if num_read > 5
-    end
-
-    result.to_i32
-  end
-
-  def self.to_io(io : IO, value : Int32)
-    io.write_byte 0x00 if value == 0x00
-    value = value.to_u32
-
-    while value != 0
-      byte = (value & 0x7f).to_u8
-      value >>= 7
-
-      if value != 0
-        byte |= 0x80
-      end
-
-      io.write_byte byte
-    end
-  end
-end
-
 def sha256(text)
   digest = OpenSSL::Digest.new("SHA256")
   digest << text
