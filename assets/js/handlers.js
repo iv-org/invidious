@@ -3,7 +3,7 @@
 (function () {
     var n2a = function (n) { return Array.prototype.slice.call(n); };
 
-    var video_player = document.getElementById('player');
+    var video_player = document.getElementById('player_html5_api');
     if (video_player) {
         video_player.onmouseenter = function () { video_player['data-title'] = video_player['title']; video_player['title'] = ''; };
         video_player.onmouseleave = function () { video_player['title'] = video_player['data-title']; video_player['data-title'] = ''; };
