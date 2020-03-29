@@ -72,13 +72,15 @@
 <% end %>
 
 <script id="community_data" type="application/json">
+<%=
 {
-    "ucid": "<%= channel.ucid %>",
-    "youtube_comments_text": "<%= HTML.escape(translate(locale, "View YouTube comments")) %>",
-    "comments_text": "<%= HTML.escape(translate(locale, "View `x` comments", "{commentCount}")) %>",
-    "hide_replies_text": "<%= HTML.escape(translate(locale, "Hide replies")) %>",
-    "show_replies_text": "<%= HTML.escape(translate(locale, "Show replies")) %>",
-    "preferences": <%= env.get("preferences").as(Preferences).to_json %>
-}
+    "ucid" => channel.ucid,
+    "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
+    "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
+    "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),
+    "show_replies_text" => HTML.escape(translate(locale, "Show replies")),
+    "preferences" => env.get("preferences").as(Preferences)
+}.to_pretty_json
+%>
 </script>
 <script src="/js/community.js?v=<%= ASSET_COMMIT %>"></script>

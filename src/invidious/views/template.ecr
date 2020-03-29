@@ -152,10 +152,12 @@
     <% if env.get? "user" %>
         <script src="/js/sse.js?v=<%= ASSET_COMMIT %>"></script>
         <script id="notification_data" type="application/json">
-            {
-                "upload_text": "<%= HTML.escape(translate(locale, "`x` uploaded a video")) %>",
-                "live_upload_text": "<%= HTML.escape(translate(locale, "`x` is live")) %>"
-            }
+        <%=
+        {
+            "upload_text" => HTML.escape(translate(locale, "`x` uploaded a video")),
+            "live_upload_text" => HTML.escape(translate(locale, "`x` is live"))
+        }.to_pretty_json
+        %>
         </script>
         <script src="/js/notifications.js?v=<%= ASSET_COMMIT %>"></script>
     <% end %>

@@ -21,9 +21,11 @@
 </div>
 
 <script id="playlist_data" type="application/json">
+<%=
 {
-    "csrf_token": "<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>"
-}
+    "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "")
+}.to_pretty_json
+%>
 </script>
 <script src="/js/playlist_widget.js"></script>
 

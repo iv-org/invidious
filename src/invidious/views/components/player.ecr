@@ -37,11 +37,13 @@
 </video>
 
 <script id="player_data" type="application/json">
+<%=
 {
-    "aspect_ratio": "<%= aspect_ratio %>",
-    "title": "<%= video.title.dump_unquoted %>",
-    "description": "<%= HTML.escape(video.short_description) %>",
-    "thumbnail": "<%= thumbnail %>"
-}
+    "aspect_ratio" => aspect_ratio,
+    "title" => video.title,
+    "description" => HTML.escape(video.short_description),
+    "thumbnail" => thumbnail
+}.to_pretty_json
+%>
 </script>
 <script src="/js/player.js?v=<%= ASSET_COMMIT %>"></script>
