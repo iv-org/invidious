@@ -39,33 +39,13 @@ def fetch_trending(trending_type, region, locale)
 end
 
 def extract_plid(url)
-  wrapper = HTTP::Params.parse(URI.parse(url).query.not_nil!)["bp"]
-
-  wrapper = URI.decode_www_form(wrapper)
-  wrapper = Base64.decode(wrapper)
-
-  # 0xe2 0x02 0x2e
-  wrapper += 3
-
-  # 0x0a
-  wrapper += 1
-
-  # Looks like "/m/[a-z0-9]{5}", not sure what it does here
-
-  item_size = wrapper[0]
-  wrapper += 1
-  item = wrapper[0, item_size]
-  wrapper += item.size
-
-  # 0x12
-  wrapper += 1
-
-  plid_size = wrapper[0]
-  wrapper += 1
-  plid = wrapper[0, plid_size]
-  wrapper += plid.size
-
-  plid = String.new(plid)
+  plid = URI.parse(url)
+    .try { |i| HTTP::Params.parse(i.query.not_nil!)["bp"] }
+    .try { |i| URI.decode_www_form(i) }
+    .try { |i| Base64.decode(i) }
+    .try { |i| IO::Memory.new(i) }
+    .try { |i| Protodec::Any.parse(i) }
+    .try { |i| i["44:0:embedded"]["2:1:string"].as_s }
 
   return plid
 end
