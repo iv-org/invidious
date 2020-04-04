@@ -3467,14 +3467,12 @@ get "/c/:user" do |env|
   user = env.params.url["user"]
 
   response = YT_POOL.client &.get("/c/#{user}")
-  document = XML.parse_html(response.body)
+  html = XML.parse_html(response.body)
 
-  anchor = document.xpath_node(%q(//a[contains(@class,"branded-page-header-title-link")]))
-  if !anchor
-    next env.redirect "/"
-  end
+  ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
+  next env.redirect "/" if !ucid
 
-  env.redirect anchor["href"]
+  env.redirect "/channel/#{ucid}"
 end
 
 # Legacy endpoint for /user/:username
