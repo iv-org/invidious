@@ -3170,6 +3170,7 @@ get "/feed/channel/:ucid" do |env|
       xml.element("link", rel: "self", href: "#{host_url}#{env.request.resource}")
       xml.element("id") { xml.text "yt:channel:#{channel.ucid}" }
       xml.element("yt:channelId") { xml.text channel.ucid }
+      xml.element("icon") { xml.text channel.author_thumbnail }
       xml.element("title") { xml.text channel.author }
       xml.element("link", rel: "alternate", href: "#{host_url}/channel/#{channel.ucid}")
 
