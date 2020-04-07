@@ -55,6 +55,9 @@
     n2a(document.querySelectorAll('[data-onclick="mark_unwatched"]')).forEach(function (e) {
         e.onclick = function () { mark_unwatched(e); };
     });
+    n2a(document.querySelectorAll('[data-onclick="add_playlist_video"]')).forEach(function (e) {
+        e.onclick = function () { add_playlist_video(e); };
+    });
     n2a(document.querySelectorAll('[data-onclick="add_playlist_item"]')).forEach(function (e) {
         e.onclick = function () { add_playlist_item(e); };
     });

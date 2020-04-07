@@ -3131,9 +3131,7 @@ get "/feed/channel/:ucid" do |env|
   rss = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{channel.ucid}").body
   rss = XML.parse_html(rss)
 
-  videos = [] of SearchVideo
-
-  rss.xpath_nodes("//feed/entry").each do |entry|
+  videos = rss.xpath_nodes("//feed/entry").map do |entry|
     video_id = entry.xpath_node("videoid").not_nil!.content
     title = entry.xpath_node("title").not_nil!.content
 
@@ -3145,7 +3143,7 @@ get "/feed/channel/:ucid" do |env|
     description_html = entry.xpath_node("group/description").not_nil!.to_s
     views = entry.xpath_node("group/community/statistics").not_nil!.["views"].to_i64
 
-    videos << SearchVideo.new(
+    SearchVideo.new(
       title: title,
       id: video_id,
       author: author,

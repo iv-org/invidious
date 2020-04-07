@@ -732,9 +732,7 @@ def cache_annotation(db, id, annotations)
   body = XML.parse(annotations)
   nodeset = body.xpath_nodes(%q(/document/annotations/annotation))
 
-  if nodeset == 0
-    return
-  end
+  return if nodeset == 0
 
   has_legacy_annotations = false
   nodeset.each do |node|

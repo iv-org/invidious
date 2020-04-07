@@ -27,7 +27,7 @@
 }.to_pretty_json
 %>
 </script>
-<script src="/js/playlist_widget.js"></script>
+<script src="/js/playlist_widget.js?v=<%= ASSET_COMMIT %>"></script>
 
 <div class="pure-g">
     <% videos.each_slice(4) do |slice| %>
