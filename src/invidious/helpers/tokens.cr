@@ -43,15 +43,10 @@ def sign_token(key, hash)
   string_to_sign = [] of String
 
   hash.each do |key, value|
-    if key == "signature"
-      next
-    end
+    next if key == "signature"
 
-    if value.is_a?(JSON::Any)
-      case value
-      when .as_a?
-        value = value.as_a.map { |item| item.as_s }
-      end
+    if value.is_a?(JSON::Any) && value.as_a?
+      value = value.as_a.map { |i| i.as_s }
     end
 
     case value

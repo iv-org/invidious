@@ -173,6 +173,8 @@ struct Config
         yaml.scalar "ipv4"
       when Socket::Family::INET6
         yaml.scalar "ipv6"
+      when Socket::Family::UNIX
+        raise "Invalid socket family #{value}"
       end
     end
 
@@ -223,6 +225,8 @@ struct Config
       else
         return false
       end
+    else
+      return false
     end
   end
 
@@ -520,9 +524,7 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
 
     shelf.xpath_nodes(%q(.//ul[contains(@class, "yt-uix-shelfslider-list") or contains(@class, "expanded-shelf-content-list")]/li)).each do |child_node|
       type = child_node.xpath_node(%q(./div))
-      if !type
-        next
-      end
+      next if !type
 
       case type["class"]
       when .includes? "yt-lockup-video"
@@ -599,6 +601,8 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
           videos: videos,
           thumbnail: playlist_thumbnail
         )
+      else
+        next # Skip
       end
     end
 
@@ -763,7 +767,7 @@ def create_notification_stream(env, config, kemal_config, decrypt_function, topi
         loop do
           time_span = [0, 0, 0, 0]
           time_span[rand(4)] = rand(30) + 5
-          published = Time.utc - Time::Span.new(time_span[0], time_span[1], time_span[2], time_span[3])
+          published = Time.utc - Time::Span.new(days: time_span[0], hours: time_span[1], minutes: time_span[2], seconds: time_span[3])
           video_id = TEST_IDS[rand(TEST_IDS.size)]
 
           video = get_video(video_id, PG_DB)

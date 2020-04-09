@@ -412,6 +412,7 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
       url += "&sort=da"
     when "newest", "newest_created"
       url += "&sort=dd"
+    else nil # Ignore
     end
 
     response = YT_POOL.client &.get(url)
@@ -469,6 +470,7 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
     object["80226972:embedded"]["3:base64"].as(Hash)["3:varint"] = 0x01_i64
   when "oldest"
     object["80226972:embedded"]["3:base64"].as(Hash)["3:varint"] = 0x02_i64
+  else nil # Ignore
   end
 
   object["80226972:embedded"]["3:string"] = Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json(object["80226972:embedded"]["3:base64"])))
@@ -513,6 +515,7 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
       object["80226972:embedded"]["3:base64"].as(Hash)["3:varint"] = 3_i64
     when "last", "last_added"
       object["80226972:embedded"]["3:base64"].as(Hash)["3:varint"] = 4_i64
+    else nil # Ignore
     end
   end
 

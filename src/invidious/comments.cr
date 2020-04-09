@@ -356,6 +356,7 @@ def template_youtube_comments(comments, locale, thin_mode)
               </div>
             </div>
           END_HTML
+        else nil # Ignore
         end
       end
 
@@ -609,6 +610,8 @@ def produce_comment_continuation(video_id, cursor = "", sort_by = "top")
     object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
   when "new", "newest"
     object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 1_i64
+  else # top
+    object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
   end
 
   continuation = object.try { |i| Protodec::Any.cast_json(object) }

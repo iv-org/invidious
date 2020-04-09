@@ -1250,6 +1250,7 @@ def fetch_video(id, region)
     genre_url = "/channel/UCfFyYRYslvuhwMDnx6KjUvw"
   when "Trailers"
     genre_url = "/channel/UClgRkhTL3_hImCAmdLfDE4g"
+  else nil # Ignore
   end
 
   license = html.xpath_node(%q(//h4[contains(text(),"License")]/parent::*/ul/li)).try &.content || ""

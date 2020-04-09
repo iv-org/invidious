@@ -350,6 +350,7 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
       notifications.sort_by! { |video| video.author }
     when "channel name - reverse"
       notifications.sort_by! { |video| video.author }.reverse!
+    else nil # Ignore
     end
   else
     if user.preferences.latest_only
@@ -398,6 +399,7 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
       videos.sort_by! { |video| video.author }
     when "channel name - reverse"
       videos.sort_by! { |video| video.author }.reverse!
+    else nil # Ignore
     end
 
     notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email, as: Array(String))

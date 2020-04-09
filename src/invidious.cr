@@ -385,6 +385,8 @@ get "/" do |env|
     else
       templated "popular"
     end
+  else
+    templated "empty"
   end
 end
 
@@ -722,6 +724,7 @@ get "/embed/:id" do |env|
     end
 
     next env.redirect url
+  else nil # Continue
   end
 
   params = process_video_params(env.params.query, preferences)
@@ -1213,6 +1216,10 @@ post "/playlist_ajax" do |env|
         error_message = {"error" => "Playlist cannot have more than 500 videos"}.to_json
         next error_message
       end
+    else
+      error_message = {"error" => "Unsupported action #{action}"}.to_json
+      env.response.status_code = 400
+      next error_message
     end
 
     video_id = env.params.query["video_id"]
@@ -1253,6 +1260,10 @@ post "/playlist_ajax" do |env|
     PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = cardinality(index), updated = $2 WHERE id = $3", index, Time.utc, playlist_id)
   when "action_move_video_before"
     # TODO: Playlist stub
+  else
+    error_message = {"error" => "Unsupported action #{action}"}.to_json
+    env.response.status_code = 400
+    next error_message
   end
 
   if redirect
@@ -1547,7 +1558,7 @@ post "/login" do |env|
         case prompt_type
         when "TWO_STEP_VERIFICATION"
           prompt_type = 2
-        when "LOGIN_CHALLENGE"
+        else # "LOGIN_CHALLENGE"
           prompt_type = 4
         end
 
@@ -1840,7 +1851,7 @@ post "/login" do |env|
             env.response.status_code = 400
             next templated "error"
           end
-        when "text"
+        else # "text"
           answer = Digest::MD5.hexdigest(answer.downcase.strip)
 
           found_valid_captcha = false
@@ -2251,6 +2262,10 @@ post "/watch_ajax" do |env|
     end
   when "action_mark_unwatched"
     PG_DB.exec("UPDATE users SET watched = array_remove(watched, $1) WHERE email = $2", id, user.email)
+  else
+    error_message = {"error" => "Unsupported action #{action}"}.to_json
+    env.response.status_code = 400
+    next error_message
   end
 
   if redirect
@@ -2405,6 +2420,10 @@ post "/subscription_ajax" do |env|
     end
   when "action_remove_subscriptions"
     PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_remove(subscriptions, $1) WHERE email = $2", channel_id, email)
+  else
+    error_message = {"error" => "Unsupported action #{action}"}.to_json
+    env.response.status_code = 400
+    next error_message
   end
 
   if redirect
@@ -2559,6 +2578,7 @@ post "/data_control" do |env|
         next
       end
 
+      # TODO: Unify into single import based on content-type
       case part.name
       when "import_invidious"
         body = JSON.parse(body)
@@ -2645,6 +2665,7 @@ post "/data_control" do |env|
             end
           end
         end
+      else nil # Ignore
       end
     end
   end
@@ -2986,6 +3007,10 @@ post "/token_ajax" do |env|
   case action
   when .starts_with? "action_revoke_token"
     PG_DB.exec("DELETE FROM session_ids * WHERE id = $1 AND email = $2", session, user.email)
+  else
+    error_message = {"error" => "Unsupported action #{action}"}.to_json
+    env.response.status_code = 400
+    next error_message
   end
 
   if redirect
@@ -3280,6 +3305,7 @@ get "/feed/playlist/:plid" do |env|
         full_path = URI.parse(node[attribute.name]).full_path
         query_string_opt = full_path.starts_with?("/watch?v=") ? "&#{params}" : ""
         node[attribute.name] = "#{host_url}#{full_path}#{query_string_opt}"
+      else nil # Skip
       end
     end
   end
@@ -4037,7 +4063,7 @@ get "/api/v1/annotations/:id" do |env|
 
       cache_annotation(PG_DB, id, annotations)
     end
-  when "youtube"
+  else # "youtube"
     response = YT_POOL.client &.get("/annotations_invideo?video_id=#{id}")
 
     if response.status_code != 200

@@ -100,7 +100,7 @@ end
 def decode_length_seconds(string)
   length_seconds = string.gsub(/[^0-9:]/, "").split(":").map &.to_i
   length_seconds = [0] * (3 - length_seconds.size) + length_seconds
-  length_seconds = Time::Span.new(length_seconds[0], length_seconds[1], length_seconds[2])
+  length_seconds = Time::Span.new hours: length_seconds[0], minutes: length_seconds[1], seconds: length_seconds[2]
   length_seconds = length_seconds.total_seconds.to_i
 
   return length_seconds
@@ -162,6 +162,7 @@ def decode_date(string : String)
     return Time.utc
   when "yesterday"
     return Time.utc - 1.day
+  else nil # Continue
   end
 
   # String matches format "20 hours ago", "4 months ago"...
