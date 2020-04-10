@@ -3149,8 +3149,8 @@ get "/feed/channel/:ucid" do |env|
     next error_message
   end
 
-  rss = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{channel.ucid}").body
-  rss = XML.parse_html(rss)
+  response = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{channel.ucid}")
+  rss = XML.parse_html(response.body)
 
   videos = rss.xpath_nodes("//feed/entry").map do |entry|
     video_id = entry.xpath_node("videoid").not_nil!.content
@@ -4259,7 +4259,7 @@ get "/api/v1/channels/:ucid" do |env|
 
           qualities.each do |quality|
             json.object do
-              json.field "url", channel.author_thumbnail.gsub(/=\d+/, "=s#{quality}")
+              json.field "url", channel.author_thumbnail.gsub(/=s\d+/, "=s#{quality}")
               json.field "width", quality
               json.field "height", quality
             end
