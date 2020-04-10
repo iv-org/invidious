@@ -1216,10 +1216,6 @@ post "/playlist_ajax" do |env|
         error_message = {"error" => "Playlist cannot have more than 500 videos"}.to_json
         next error_message
       end
-    else
-      error_message = {"error" => "Unsupported action #{action}"}.to_json
-      env.response.status_code = 400
-      next error_message
     end
 
     video_id = env.params.query["video_id"]
