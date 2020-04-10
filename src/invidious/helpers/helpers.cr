@@ -233,6 +233,7 @@ struct Config
   YAML.mapping({
     channel_threads:          Int32,                                # Number of threads to use for crawling videos from channels (for updating subscriptions)
     feed_threads:             Int32,                                # Number of threads to use for updating feeds
+    child_friendly:           Bool,                                 # Prevent 13- kids getting to YouTube
     db:                       DBConfig,                             # Database configuration
     full_refresh:             Bool,                                 # Used for crawling channels: threads should check all videos uploaded by a channel
     https_only:               Bool?,                                # Used to tell Invidious it is behind a proxy, so links to resources should be https://
