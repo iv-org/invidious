@@ -115,7 +115,6 @@ $ psql invidious kemal < /home/invidious/invidious/config/sql/users.sql
 $ psql invidious kemal < /home/invidious/invidious/config/sql/session_ids.sql
 $ psql invidious kemal < /home/invidious/invidious/config/sql/nonces.sql
 $ psql invidious kemal < /home/invidious/invidious/config/sql/annotations.sql
-$ psql invidious kemal < /home/invidious/invidious/config/sql/privacy.sql
 $ psql invidious kemal < /home/invidious/invidious/config/sql/playlists.sql
 $ psql invidious kemal < /home/invidious/invidious/config/sql/playlist_videos.sql
 $ exit
