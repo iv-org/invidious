@@ -102,28 +102,31 @@
             </p>
 
             <% if user %>
-                <form data-onsubmit="return_false" class="pure-form pure-form-stacked" action="/playlist_ajax" method="post">
-                    <div class="pure-control-group">
-                        <label for="playlist_id"><%= translate(locale, "Add to playlist: ") %></label>
-                        <select style="width:100%" name="playlist_id" id="playlist_id">
-                            <% PG_DB.query_all("SELECT id,title FROM playlists WHERE author = $1", user.email, as: {String, String}).each do |plid, title| %>
-                            <option data-plid="<%= plid %>" value="<%= plid %>"><%= title %></option>
-                            <% end %>
-                        </select>
-                    </div>
+                <% playlists = PG_DB.query_all("SELECT id,title FROM playlists WHERE author = $1", user.email, as: {String, String}) %>
+                <% if !playlists.empty? %>
+                    <form data-onsubmit="return_false" class="pure-form pure-form-stacked" action="/playlist_ajax" method="post">
+                        <div class="pure-control-group">
+                            <label for="playlist_id"><%= translate(locale, "Add to playlist: ") %></label>
+                            <select style="width:100%" name="playlist_id" id="playlist_id">
+                                <% playlists.each do |plid, title| %>
+                                    <option data-plid="<%= plid %>" value="<%= plid %>"><%= title %></option>
+                                <% end %>
+                            </select>
+                        </div>
 
-                    <button data-onclick="add_playlist_video" data-id="<%= video.id %>" type="submit" class="pure-button pure-button-primary">
-                        <b><%= translate(locale, "Add to playlist") %></b>
-                    </button>
-                </form>
-                <script id="playlist_data" type="application/json">
-                <%=
-                {
-                    "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "")
-                }.to_pretty_json
-                %>
-                </script>
-                <script src="/js/playlist_widget.js?v=<%= Time.utc.to_unix_ms %>"></script>
+                        <button data-onclick="add_playlist_video" data-id="<%= video.id %>" type="submit" class="pure-button pure-button-primary">
+                            <b><%= translate(locale, "Add to playlist") %></b>
+                        </button>
+                    </form>
+                    <script id="playlist_data" type="application/json">
+                    <%=
+                    {
+                        "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "")
+                    }.to_pretty_json
+                    %>
+                    </script>
+                    <script src="/js/playlist_widget.js?v=<%= Time.utc.to_unix_ms %>"></script>
+                <% end %>
             <% end %>
 
             <% if CONFIG.dmca_content.includes?(video.id) || CONFIG.disabled?("downloads") %>
