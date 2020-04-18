@@ -172,6 +172,11 @@
                 <% end %>
             </div>
 
+            <div class="pure-control-group">
+                <label for="feed_cols"><%= translate(locale, "Number of videos shown per row: ") %></label>
+                <input name="feed_cols" id="feed_cols" type="number" value="<%= preferences.feed_cols %>">
+            </div>
+
             <% if env.get? "user" %>
                 <legend><%= translate(locale, "Subscription preferences") %></legend>
 

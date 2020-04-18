@@ -50,6 +50,9 @@ struct Preferences
   @[JSON::Field(converter: Preferences::BoolToString)]
   @[YAML::Field(converter: Preferences::BoolToString)]
   property dark_mode : String = CONFIG.default_user_preferences.dark_mode
+
+  @[JSON::Field(converter: Preferences::ClampInt)]
+  property feed_cols : Int32 = CONFIG.default_user_preferences.feed_cols
   property latest_only : Bool = CONFIG.default_user_preferences.latest_only
   property listen : Bool = CONFIG.default_user_preferences.listen
   property local : Bool = CONFIG.default_user_preferences.local

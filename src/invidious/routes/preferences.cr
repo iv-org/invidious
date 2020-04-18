@@ -97,6 +97,9 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     max_results = env.params.body["max_results"]?.try &.as(String).to_i?
     max_results ||= CONFIG.default_user_preferences.max_results
 
+    feed_cols = env.params.body["feed_cols"]?.try &.as(String).to_i?
+    feed_cols ||= CONFIG.default_user_preferences.feed_cols
+
     sort = env.params.body["sort"]?.try &.as(String)
     sort ||= CONFIG.default_user_preferences.sort
 
@@ -122,6 +125,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       continue:               continue,
       continue_autoplay:      continue_autoplay,
       dark_mode:              dark_mode,
+      feed_cols:              feed_cols,
       latest_only:            latest_only,
       listen:                 listen,
       local:                  local,
