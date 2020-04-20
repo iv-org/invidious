@@ -1,7 +1,7 @@
 {
     "`x` subscribers": "`x` inscritos",
     "`x` videos": "`x` videos",
-    "`x` playlists": "",
+    "`x` playlists": "`x` lista de reprodução",
     "LIVE": "AO VIVO",
     "Shared `x` ago": "Compartilhado `x` atrás",
     "Unsubscribe": "Desinscrever-se",
@@ -325,11 +325,11 @@
     "%A %B %-d, %Y": "%A %-d %B %Y",
     "(edited)": "(editado)",
     "YouTube comment permalink": "Link permanente do comentário do YouTube",
-    "permalink": "",
+    "permalink": "Link permanente",
     "`x` marked it with a ❤": "`x` foi marcado como ❤",
     "Audio mode": "Modo de audio",
     "Video mode": "Modo de video",
-    "Videos": "Videos",
+    "Videos": "Vídeos",
     "Playlists": "Listas de reprodução",
     "Community": "Comunidade",
     "Current version: ": "Versão atual: "
