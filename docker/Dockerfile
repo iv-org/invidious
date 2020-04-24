@@ -1,8 +1,8 @@
 FROM alpine:edge AS builder
-WORKDIR /invidious
 RUN apk add --no-cache curl crystal shards libc-dev \
     yaml-dev libxml2-dev sqlite-dev zlib-dev openssl-dev \
     yaml-static sqlite-static zlib-static openssl-libs-static
+WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
 RUN shards update && shards install && \
     curl -Lo /etc/apk/keys/omarroth.rsa.pub https://github.com/omarroth/boringssl-alpine/releases/download/1.1.0-r0/omarroth.rsa.pub && \
@@ -19,8 +19,6 @@ COPY ./src/ ./src/
 COPY ./.git/ ./.git/
 RUN crystal build ./src/invidious.cr \
     --static --warnings all --error-on-warnings \
-# TODO: Remove next line, see https://github.com/crystal-lang/crystal/issues/7946
-    -Dmusl \
     --link-flags "-lxml2 -llzma"
 
 FROM alpine:latest
