@@ -165,9 +165,9 @@
                 </form>
             <% end %>
 
-            <p><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
-            <p><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
-            <p><i class="icon ion-ios-thumbs-down"></i> <%= number_with_separator(video.dislikes) %></p>
+            <p id="views"><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
+            <p id="likes"><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
+            <p id="dislikes"><i class="icon ion-ios-thumbs-down"></i> <%= number_with_separator(video.dislikes) %></p>
             <p id="genre"><%= translate(locale, "Genre: ") %>
                 <% if video.genre_url.empty? %>
                     <%= video.genre %>
