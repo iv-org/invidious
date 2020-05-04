@@ -208,7 +208,7 @@
             <% sub_count_text = video.sub_count_text %>
             <%= rendered "components/subscribe_widget" %>
 
-            <p>
+            <p id="published-date">
                 <% if video.premiere_timestamp %>
                     <b><%= translate(locale, "Premieres `x`", video.premiere_timestamp.not_nil!.to_s("%B %-d, %R UTC")) %></b>
                 <% else %>
