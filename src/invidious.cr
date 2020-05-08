@@ -4538,10 +4538,8 @@ get "/api/v1/search/suggestions" do |env|
   query ||= ""
 
   begin
-    client = QUIC::Client.new("suggestqueries.google.com")
-    client.family = CONFIG.force_resolve || Socket::Family::INET
-    client.family = Socket::Family::INET if client.family == Socket::Family::UNSPEC
-    response = client.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.encode_www_form(query)}&callback=suggestCallback").body
+    headers = HTTP::Headers{":authority" => "suggestqueries.google.com"}
+    response = YT_POOL.client &.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.encode_www_form(query)}&callback=suggestCallback", headers).body
 
     body = response[35..-2]
     body = JSON.parse(body).as_a
@@ -5671,8 +5669,7 @@ end
 get "/ggpht/*" do |env|
   url = env.request.path.lchop("/ggpht")
 
-  headers = HTTP::Headers.new
-  headers[":authority"] = "yt3.ggpht.com"
+  headers = HTTP::Headers{":authority" => "yt3.ggpht.com"}
   REQUEST_HEADERS_WHITELIST.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
@@ -5758,8 +5755,7 @@ get "/s_p/:id/:name" do |env|
 
   url = env.request.resource
 
-  headers = HTTP::Headers.new
-  headers[":authority"] = "i9.ytimg.com"
+  headers = HTTP::Headers{":authority" => "i9.ytimg.com"}
   REQUEST_HEADERS_WHITELIST.each do |header|
     if env.request.headers[header]?
       headers[header] = env.request.headers[header]
@@ -5822,8 +5818,7 @@ get "/vi/:id/:name" do |env|
   id = env.params.url["id"]
   name = env.params.url["name"]
 
-  headers = HTTP::Headers.new
-  headers[":authority"] = "i.ytimg.com"
+  headers = HTTP::Headers{":authority" => "i.ytimg.com"}
 
   if name == "maxres.jpg"
     build_thumbnails(id, config, Kemal.config).each do |thumb|
@@ -5864,8 +5859,8 @@ get "/vi/:id/:name" do |env|
 end
 
 get "/Captcha" do |env|
-  client = make_client(LOGIN_URL)
-  response = client.get(env.request.resource)
+  headers = HTTP::Headers{":authority" => "accounts.google.com"}
+  response = YT_POOL.client &.get(env.request.resource, headers)
   env.response.headers["Content-Type"] = response.headers["Content-Type"]
   response.body
 end
