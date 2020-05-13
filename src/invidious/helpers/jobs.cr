@@ -259,10 +259,7 @@ def bypass_captcha(captcha_key, logger)
             },
           }.to_json).body)
 
-          if response["error"]?
-            raise response["error"].as_s
-          end
-
+          raise response["error"].as_s if response["error"]?
           task_id = response["taskId"].as_i
 
           loop do
@@ -286,8 +283,8 @@ def bypass_captcha(captcha_key, logger)
           yield response.cookies.select { |cookie| cookie.name != "PREF" }
         elsif response.headers["Location"]?.try &.includes?("/sorry/index")
           location = response.headers["Location"].try { |u| URI.parse(u) }
-          client = QUIC::Client.new(location.host.not_nil!)
-          response = client.get(location.full_path)
+          headers = HTTP::Headers{":authority" => location.host.not_nil!}
+          response = YT_POOL.client &.get(location.full_path, headers)
 
           html = XML.parse_html(response.body)
           form = html.xpath_node(%(//form[@action="index"])).not_nil!
@@ -307,10 +304,7 @@ def bypass_captcha(captcha_key, logger)
             },
           }.to_json).body)
 
-          if response["error"]?
-            raise response["error"].as_s
-          end
-
+          raise response["error"].as_s if response["error"]?
           task_id = response["taskId"].as_i
 
           loop do
@@ -329,8 +323,8 @@ def bypass_captcha(captcha_key, logger)
           end
 
           inputs["g-recaptcha-response"] = response["solution"]["gRecaptchaResponse"].as_s
-          client.close
-          client = QUIC::Client.new("www.google.com")
+          client = HTTPClient.new(location)
+          client.family = CONFIG.force_resolve || Socket::Family::INET
           response = client.post(location.full_path, form: inputs)
           headers = HTTP::Headers{
             "Cookie" => URI.parse(response.headers["location"]).query_params["google_abuse"].split(";")[0],
