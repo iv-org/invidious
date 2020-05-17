@@ -45,6 +45,12 @@
                 <% if playlist.is_a?(InvidiousPlaylist) && playlist.author == user.try &.email %>
                     <div class="pure-u-1-3"><a href="/edit_playlist?list=<%= plid %>"><i class="icon ion-md-create"></i></a></div>
                     <div class="pure-u-1-3"><a href="/delete_playlist?list=<%= plid %>"><i class="icon ion-md-trash"></i></a></div>
+                <% else %>
+                    <% if PG_DB.query_one?("SELECT id FROM playlists WHERE id = $1", playlist.id, as: String).nil? %>
+                        <div class="pure-u-1-3"><a href="/subscribe_playlist?list=<%= plid %>"><i class="icon ion-md-add"></i></a></div>
+                    <% else %>
+                        <div class="pure-u-1-3"><a href="/delete_playlist?list=<%= plid %>"><i class="icon ion-md-trash"></i></a></div>
+                    <% end %>
                 <% end %>
                 <div class="pure-u-1-3"><a href="/feed/playlist/<%= plid %>"><i class="icon ion-logo-rss"></i></a></div>
             </div>

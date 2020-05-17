@@ -102,7 +102,7 @@
             </p>
 
             <% if user %>
-                <% playlists = PG_DB.query_all("SELECT id,title FROM playlists WHERE author = $1", user.email, as: {String, String}) %>
+                <% playlists = PG_DB.query_all("SELECT id,title FROM playlists WHERE author = $1 AND id LIKE 'IV%'", user.email, as: {String, String}) %>
                 <% if !playlists.empty? %>
                     <form data-onsubmit="return_false" class="pure-form pure-form-stacked" action="/playlist_ajax" method="post">
                         <div class="pure-control-group">

@@ -846,8 +846,14 @@ get "/view_all_playlists" do |env|
 
   user = user.as(User)
 
-  items = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 ORDER BY created", user.email, as: InvidiousPlaylist)
-  items.map! do |item|
+  items_created = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+  items_created.map! do |item|
+    item.author = ""
+    item
+  end
+
+  items_saved = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id NOT LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+  items_saved.map! do |item|
     item.author = ""
     item
   end
@@ -918,6 +924,25 @@ post "/create_playlist" do |env|
   env.redirect "/playlist?list=#{playlist.id}"
 end
 
+get "/subscribe_playlist" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  user = env.get? "user"
+  referer = get_referer(env)
+
+  if !user
+    next env.redirect "/"
+  end
+
+  user = user.as(User)
+
+  playlist_id = env.params.query["list"]
+  playlist = get_playlist(PG_DB, playlist_id, locale)
+  subscribe_playlist(PG_DB, user, playlist)
+
+  env.redirect "/playlist?list=#{playlist.id}"
+end
+
 get "/delete_playlist" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -933,10 +958,6 @@ get "/delete_playlist" do |env|
   sid = sid.as(String)
 
   plid = env.params.query["list"]?
-  if !plid || !plid.starts_with?("IV")
-    next env.redirect referer
-  end
-
   playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
   if !playlist || playlist.author != user.email
     next env.redirect referer

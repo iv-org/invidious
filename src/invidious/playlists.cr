@@ -277,6 +277,27 @@ def create_playlist(db, title, privacy, user)
   return playlist
 end
 
+def subscribe_playlist(db, user, playlist)
+  playlist = InvidiousPlaylist.new(
+    title: playlist.title.byte_slice(0, 150),
+    id: playlist.id,
+    author: user.email,
+    description: "", # Max 5000 characters
+    video_count: playlist.video_count,
+    created: Time.utc,
+    updated: playlist.updated,
+    privacy: PlaylistPrivacy::Private,
+    index: [] of Int64,
+  )
+
+  playlist_array = playlist.to_a
+  args = arg_array(playlist_array)
+
+  db.exec("INSERT INTO playlists VALUES (#{args})", args: playlist_array)
+
+  return playlist
+end
+
 def extract_playlist(plid, nodeset, index)
   videos = [] of PlaylistVideo
 
