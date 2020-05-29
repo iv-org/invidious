@@ -3,5 +3,9 @@
 <% end %>
 
 <div class="h-box">
-    <%= error_message %>
+    <p><%= error_message %></p>
+    <p><a href="https://www.youtube.com/watch?<%= env.params.query %>"><%=
+      locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+      translate(locale, "Watch on YouTube")
+    %></a></p>
 </div>
