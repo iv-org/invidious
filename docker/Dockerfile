@@ -3,17 +3,14 @@ RUN apk add --no-cache curl crystal shards libc-dev \
     yaml-dev libxml2-dev sqlite-dev zlib-dev openssl-dev \
     yaml-static sqlite-static zlib-static openssl-libs-static
 WORKDIR /invidious
-RUN curl -Lo /etc/apk/keys/omarroth.rsa.pub https://github.com/omarroth/boringssl-alpine/releases/download/1.1.0-r0/omarroth.rsa.pub && \
-    curl -Lo boringssl-dev.apk https://github.com/omarroth/boringssl-alpine/releases/download/1.1.0-r0/boringssl-dev-1.1.0-r0.apk && \
-    curl -Lo lsquic.apk https://github.com/omarroth/lsquic-alpine/releases/download/2.6.3-r0/lsquic-2.6.3-r0.apk && \
-    apk verify --no-cache boringssl-dev.apk lsquic.apk && \
-    tar -xf boringssl-dev.apk usr/lib/libcrypto.a usr/lib/libssl.a && \
-    tar -xf lsquic.apk usr/lib/liblsquic.a && \
-    rm /etc/apk/keys/omarroth.rsa.pub boringssl-dev.apk lsquic.apk
 COPY ./shard.yml ./shard.yml
 RUN shards update && shards install && \
-    mv ./usr/lib/* ./lib/lsquic/src/lsquic/ext && \
-    rm -r ./usr /root/.cache
+    # TODO: Document build instructions
+    # See https://github.com/omarroth/boringssl-alpine/blob/master/APKBUILD,
+    # https://github.com/omarroth/lsquic-alpine/blob/master/APKBUILD,
+    # https://github.com/omarroth/lsquic.cr/issues/1#issuecomment-631610081
+    # for details building static lib
+    curl -Lo ./lib/lsquic/src/lsquic/ext/liblsquic.a https://omar.yt/lsquic/liblsquic.a
 COPY ./src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
