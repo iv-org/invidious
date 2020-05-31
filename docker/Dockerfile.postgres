@@ -1,1 +1,0 @@
-FROM postgres:10

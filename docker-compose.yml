@@ -1,9 +1,7 @@
 version: '3'
 services:
   postgres:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.postgres
+    image: postgres:10
     restart: unless-stopped
     volumes:
       - postgresdata:/var/lib/postgresql/data
