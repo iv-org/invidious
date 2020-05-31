@@ -10,8 +10,6 @@ if [ ! -f /var/lib/postgresql/data/setupFinished ]; then
         sleep 5
     done
     >&2 echo "### importing table schemas"
-    su postgres -c 'createdb invidious'
-    su postgres -c 'psql -c "CREATE USER kemal WITH PASSWORD '"'kemal'"'"'
     su postgres -c 'psql invidious kemal < config/sql/channels.sql'
     su postgres -c 'psql invidious kemal < config/sql/videos.sql'
     su postgres -c 'psql invidious kemal < config/sql/channel_videos.sql'
