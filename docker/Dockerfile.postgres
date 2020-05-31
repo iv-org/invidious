@@ -1,5 +1,1 @@
 FROM postgres:10
-
-# Do not require a PostgreSQL superuser password.
-# See https://github.com/docker-library/postgres/issues/681.
-ENV POSTGRES_HOST_AUTH_METHOD trust

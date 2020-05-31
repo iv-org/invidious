@@ -14,7 +14,7 @@ services:
       POSTGRES_PASSWORD: kemal
       POSTGRES_USER: kemal
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"] 
+      test: ["CMD", "pg_isready", "-U", "postgres"]
   invidious:
     build:
       context: .
