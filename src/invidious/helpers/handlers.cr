@@ -74,10 +74,10 @@ class FilteredCompressHandler < Kemal::Handler
 
       if request_headers.includes_word?("Accept-Encoding", "gzip")
         env.response.headers["Content-Encoding"] = "gzip"
-        env.response.output = Gzip::Writer.new(env.response.output, sync_close: true)
+        env.response.output = Compress::Gzip::Writer.new(env.response.output, sync_close: true)
       elsif request_headers.includes_word?("Accept-Encoding", "deflate")
         env.response.headers["Content-Encoding"] = "deflate"
-        env.response.output = Flate::Writer.new(env.response.output, sync_close: true)
+        env.response.output = Compress::Deflate::Writer.new(env.response.output, sync_close: true)
       end
 
       call_next env

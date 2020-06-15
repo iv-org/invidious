@@ -625,6 +625,7 @@ def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
 end
 
 def check_enum(db, logger, enum_name, struct_type = nil)
+  return # TODO
   if !db.query_one?("SELECT true FROM pg_type WHERE typname = $1", enum_name, as: Bool)
     logger.puts("CREATE TYPE #{enum_name}")
 
@@ -646,18 +647,14 @@ def check_table(db, logger, table_name, struct_type = nil)
     end
   end
 
-  if !struct_type
-    return
-  end
+  return if !struct_type
 
   struct_array = struct_type.to_type_tuple
   column_array = get_column_array(db, table_name)
   column_types = File.read("config/sql/#{table_name}.sql").match(/CREATE TABLE public\.#{table_name}\n\((?<types>[\d\D]*?)\);/)
-    .try &.["types"].split(",").map { |line| line.strip }
+    .try &.["types"].split(",").map { |line| line.strip }.reject &.starts_with?("CONSTRAINT")
 
-  if !column_types
-    return
-  end
+  return if !column_types
 
   struct_array.each_with_index do |name, i|
     if name != column_array[i]?
@@ -708,6 +705,15 @@ def check_table(db, logger, table_name, struct_type = nil)
       end
     end
   end
+
+  return if column_array.size <= struct_array.size
+
+  # column_array.each do |column|
+  #   if !struct_array.includes? column
+  #     logger.puts("ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
+  #     db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
+  #   end
+  # end
 end
 
 class PG::ResultSet
@@ -897,15 +903,35 @@ end
 
 def proxy_file(response, env)
   if response.headers.includes_word?("Content-Encoding", "gzip")
-    Gzip::Writer.open(env.response) do |deflate|
-      response.pipe(deflate)
+    Compress::Gzip::Writer.open(env.response) do |deflate|
+      IO.copy response.body_io, deflate
     end
   elsif response.headers.includes_word?("Content-Encoding", "deflate")
-    Flate::Writer.open(env.response) do |deflate|
-      response.pipe(deflate)
+    Compress::Deflate::Writer.open(env.response) do |deflate|
+      IO.copy response.body_io, deflate
     end
   else
-    response.pipe(env.response)
+    IO.copy response.body_io, env.response
+  end
+end
+
+# See https://github.com/kemalcr/kemal/pull/576
+class HTTP::Server::Response::Output
+  def close
+    return if closed?
+
+    unless response.wrote_headers?
+      response.content_length = @out_count
+    end
+
+    ensure_headers_written
+
+    super
+
+    if @chunked
+      @io << "0\r\n\r\n"
+      @io.flush
+    end
   end
 end
 

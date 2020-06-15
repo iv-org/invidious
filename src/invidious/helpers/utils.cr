@@ -332,7 +332,7 @@ end
 def sha256(text)
   digest = OpenSSL::Digest.new("SHA256")
   digest << text
-  return digest.hexdigest
+  return digest.final.hexstring
 end
 
 def subscribe_pubsub(topic, key, config)

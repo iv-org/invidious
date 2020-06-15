@@ -81,12 +81,12 @@ def send_file(env : HTTP::Server::Context, file_path : String, data : Slice(UInt
   condition = config.is_a?(Hash) && config["gzip"]? == true && filesize > minsize && Kemal::Utils.zip_types(file_path)
   if condition && request_headers.includes_word?("Accept-Encoding", "gzip")
     env.response.headers["Content-Encoding"] = "gzip"
-    Gzip::Writer.open(env.response) do |deflate|
+    Compress::Gzip::Writer.open(env.response) do |deflate|
       IO.copy(file, deflate)
     end
   elsif condition && request_headers.includes_word?("Accept-Encoding", "deflate")
     env.response.headers["Content-Encoding"] = "deflate"
-    Flate::Writer.open(env.response) do |deflate|
+    Compress::Deflate::Writer.open(env.response) do |deflate|
       IO.copy(file, deflate)
     end
   else

@@ -23,7 +23,7 @@ require "pg"
 require "sqlite3"
 require "xml"
 require "yaml"
-require "zip"
+require "compress/zip"
 require "protodec/utils"
 require "./invidious/helpers/*"
 require "./invidious/*"
@@ -2660,7 +2660,7 @@ post "/data_control" do |env|
 
         PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe"
-        Zip::Reader.open(IO::Memory.new(body)) do |file|
+        Compress::Zip::Reader.open(IO::Memory.new(body)) do |file|
           file.each_entry do |entry|
             if entry.filename == "newpipe.db"
               tempfile = File.tempfile(".db")
