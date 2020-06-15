@@ -239,7 +239,6 @@ struct Config
     hmac_key:                 String?,                              # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
     domain:                   String?,                              # Domain to be used for links to resources on the site where an absolute URL is required
     use_pubsub_feeds:         {type: Bool | Int32, default: false}, # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
-    top_enabled:              {type: Bool, default: true},
     captcha_enabled:          {type: Bool, default: true},
     login_enabled:            {type: Bool, default: true},
     registration_enabled:     {type: Bool, default: true},
@@ -274,30 +273,6 @@ struct DBConfig
     port:     Int32,
     dbname:   String,
   })
-end
-
-def rank_videos(db, n)
-  top = [] of {Float64, String}
-
-  db.query("SELECT id, wilson_score, published FROM videos WHERE views > 5000 ORDER BY published DESC LIMIT 1000") do |rs|
-    rs.each do
-      id = rs.read(String)
-      wilson_score = rs.read(Float64)
-      published = rs.read(Time)
-
-      # Exponential decay, older videos tend to rank lower
-      temperature = wilson_score * Math.exp(-0.000005*((Time.utc - published).total_minutes))
-      top << {temperature, id}
-    end
-  end
-
-  top.sort!
-
-  # Make hottest come first
-  top.reverse!
-  top = top.map { |a, b| b }
-
-  return top[0..n - 1]
 end
 
 def login_req(f_req)

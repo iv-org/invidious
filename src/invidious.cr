@@ -195,15 +195,6 @@ if config.statistics_enabled
   end
 end
 
-top_videos = [] of Video
-if config.top_enabled
-  spawn do
-    pull_top_videos(config, PG_DB) do |videos|
-      top_videos = videos
-    end
-  end
-end
-
 popular_videos = [] of ChannelVideo
 spawn do
   pull_popular_videos(PG_DB) do |videos|
@@ -367,12 +358,6 @@ get "/" do |env|
     templated "empty"
   when "Popular"
     templated "popular"
-  when "Top"
-    if config.top_enabled
-      templated "top"
-    else
-      templated "empty"
-    end
   when "Trending"
     env.redirect "/feed/trending"
   when "Subscriptions"
@@ -2123,10 +2108,6 @@ post "/preferences" do |env|
       end
       config.default_user_preferences.feed_menu = admin_feed_menu
 
-      top_enabled = env.params.body["top_enabled"]?.try &.as(String)
-      top_enabled ||= "off"
-      config.top_enabled = top_enabled == "on"
-
       captcha_enabled = env.params.body["captcha_enabled"]?.try &.as(String)
       captcha_enabled ||= "off"
       config.captcha_enabled = captcha_enabled == "on"
@@ -3044,12 +3025,7 @@ end
 
 get "/feed/top" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  if config.top_enabled
-    templated "top"
-  else
-    env.redirect "/"
-  end
+  env.redirect "/"
 end
 
 get "/feed/popular" do |env|
@@ -4171,41 +4147,7 @@ get "/api/v1/top" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
-
-  if !config.top_enabled
-    error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
-    env.response.status_code = 400
-    next error_message
-  end
-
-  JSON.build do |json|
-    json.array do
-      top_videos.each do |video|
-        # Top videos have much more information than provided below (adaptiveFormats, etc)
-        # but can be very out of date, so we only provide a subset here
-
-        json.object do
-          json.field "title", video.title
-          json.field "videoId", video.id
-          json.field "videoThumbnails" do
-            generate_thumbnails(json, video.id, config, Kemal.config)
-          end
-
-          json.field "lengthSeconds", video.length_seconds
-          json.field "viewCount", video.views
-
-          json.field "author", video.author
-          json.field "authorId", video.ucid
-          json.field "authorUrl", "/channel/#{video.ucid}"
-          json.field "published", video.published.to_unix
-          json.field "publishedText", translate(locale, "`x` ago", recode_date(video.published, locale))
-
-          json.field "description", html_to_content(video.description_html)
-          json.field "descriptionHtml", video.description_html
-        end
-      end
-    end
-  end
+  "[]"
 end
 
 get "/api/v1/channels/:ucid" do |env|

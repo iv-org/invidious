@@ -170,41 +170,6 @@ def subscribe_to_feeds(db, logger, key, config)
   end
 end
 
-def pull_top_videos(config, db)
-  loop do
-    begin
-      top = rank_videos(db, 40)
-    rescue ex
-      sleep 1.minute
-      Fiber.yield
-
-      next
-    end
-
-    if top.size == 0
-      sleep 1.minute
-      Fiber.yield
-
-      next
-    end
-
-    videos = [] of Video
-
-    top.each do |id|
-      begin
-        videos << get_video(id, db)
-      rescue ex
-        next
-      end
-    end
-
-    yield videos
-
-    sleep 1.minute
-    Fiber.yield
-  end
-end
-
 def pull_popular_videos(db)
   loop do
     videos = db.query_all("SELECT DISTINCT ON (ucid) * FROM channel_videos WHERE ucid IN \
