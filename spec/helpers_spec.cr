@@ -27,9 +27,9 @@ describe "Helper" do
 
   describe "#produce_channel_search_url" do
     it "correctly produces token for searching a specific channel" do
-      produce_channel_search_url("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100).should eq("/browse_ajax?continuation=4qmFsgI-EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FqZ0JZQUZxQUxnQkFIb0RNVEF3WgA%3D&gl=US&hl=en")
+      produce_channel_search_url("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100).should eq("/browse_ajax?continuation=4qmFsgI2EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaGEVnWnpaV0Z5WTJnNEFYb0RNVEF3dUFFQVoA&gl=US&hl=en")
 
-      produce_channel_search_url("UCXuqSBlHAE6Xw-yeJA0Tunw", "По ожиशुपतिरपि子而時ஸ்றீனி", 0).should eq("/browse_ajax?continuation=4qmFsgJ8EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FqZ0JZQUZxQUxnQkFIb0JNQT09Wj7Qn9C-INC-0LbQuOCktuClgeCkquCkpOCkv-CksOCkquCkv-WtkOiAjOaZguCuuOCvjeCuseCvgOCuqeCuvw%3D%3D&gl=US&hl=en")
+      produce_channel_search_url("UCXuqSBlHAE6Xw-yeJA0Tunw", "По ожиशुपतिरपि子而時ஸ்றீனி", 0).should eq("/browse_ajax?continuation=4qmFsgJ0EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaGEVnWnpaV0Z5WTJnNEFYb0JNTGdCQUE9PVo-0J_QviDQvtC20LjgpLbgpYHgpKrgpKTgpL_gpLDgpKrgpL_lrZDogIzmmYLgrrjgr43grrHgr4Dgrqngrr8%3D&gl=US&hl=en")
     end
   end
 

@@ -8,7 +8,7 @@ def add_yt_headers(request)
   request.headers["accept-language"] ||= "en-us,en;q=0.5"
   return if request.resource.starts_with? "/sorry/index"
   request.headers["x-youtube-client-name"] ||= "1"
-  request.headers["x-youtube-client-version"] ||= "1.20180719"
+  request.headers["x-youtube-client-version"] ||= "2.20200609"
   if !CONFIG.cookies.empty?
     request.headers["cookie"] = "#{(CONFIG.cookies.map { |c| "#{c.name}=#{c.value}" }).join("; ")}; #{request.headers["cookie"]?}"
   end

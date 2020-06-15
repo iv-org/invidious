@@ -510,16 +510,16 @@ get "/watch" do |env|
     comment_html ||= ""
   end
 
-  fmt_stream = video.fmt_stream(decrypt_function)
-  adaptive_fmts = video.adaptive_fmts(decrypt_function)
+  fmt_stream = video.fmt_stream
+  adaptive_fmts = video.adaptive_fmts
 
   if params.local
-    fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
-    adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
+    fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).full_path) }
+    adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).full_path) }
   end
 
-  video_streams = video.video_streams(adaptive_fmts)
-  audio_streams = video.audio_streams(adaptive_fmts)
+  video_streams = video.video_streams
+  audio_streams = video.audio_streams
 
   # Older videos may not have audio sources available.
   # We redirect here so they're not unplayable
@@ -549,57 +549,29 @@ get "/watch" do |env|
 
   aspect_ratio = "16:9"
 
-  video.description_html = fill_links(video.description_html, "https", "www.youtube.com")
-  video.description_html = replace_links(video.description_html)
-
-  host_url = make_host_url(config, Kemal.config)
-
-  if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-    hlsvp = video.player_response["streamingData"]["hlsManifestUrl"].as_s
-    hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
-  end
-
   thumbnail = "/vi/#{video.id}/maxres.jpg"
 
   if params.raw
     if params.listen
-      url = audio_streams[0]["url"]
+      url = audio_streams[0]["url"].as_s
 
       audio_streams.each do |fmt|
-        if fmt["bitrate"] == params.quality.rchop("k")
-          url = fmt["url"]
+        if fmt["bitrate"].as_i == params.quality.rchop("k").to_i
+          url = fmt["url"].as_s
         end
       end
     else
-      url = fmt_stream[0]["url"]
+      url = fmt_stream[0]["url"].as_s
 
       fmt_stream.each do |fmt|
-        if fmt["label"].split(" - ")[0] == params.quality
-          url = fmt["url"]
+        if fmt["quality"].as_s == params.quality
+          url = fmt["url"].as_s
         end
       end
     end
 
     next env.redirect url
   end
-
-  rvs = [] of Hash(String, String)
-  video.info["rvs"]?.try &.split(",").each do |rv|
-    rvs << HTTP::Params.parse(rv).to_h
-  end
-
-  rating = video.info["avg_rating"].to_f64
-  if video.views > 0
-    engagement = ((video.dislikes.to_f + video.likes.to_f)/video.views * 100)
-  else
-    engagement = 0
-  end
-
-  playability_status = video.player_response["playabilityStatus"]?
-  if playability_status && playability_status["status"] == "LIVE_STREAM_OFFLINE" && !video.premiere_timestamp
-    reason = playability_status["reason"]?.try &.as_s
-  end
-  reason ||= ""
 
   templated "watch"
 end
@@ -752,16 +724,16 @@ get "/embed/:id" do |env|
     notifications.delete(id)
   end
 
-  fmt_stream = video.fmt_stream(decrypt_function)
-  adaptive_fmts = video.adaptive_fmts(decrypt_function)
+  fmt_stream = video.fmt_stream
+  adaptive_fmts = video.adaptive_fmts
 
   if params.local
-    fmt_stream.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
-    adaptive_fmts.each { |fmt| fmt["url"] = URI.parse(fmt["url"]).full_path }
+    fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).full_path) }
+    adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).full_path) }
   end
 
-  video_streams = video.video_streams(adaptive_fmts)
-  audio_streams = video.audio_streams(adaptive_fmts)
+  video_streams = video.video_streams
+  audio_streams = video.audio_streams
 
   if audio_streams.empty? && !video.live_now
     if params.quality == "dash"
@@ -788,25 +760,13 @@ get "/embed/:id" do |env|
 
   aspect_ratio = nil
 
-  video.description_html = fill_links(video.description_html, "https", "www.youtube.com")
-  video.description_html = replace_links(video.description_html)
-
-  host_url = make_host_url(config, Kemal.config)
-
-  if video.player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-    hlsvp = video.player_response["streamingData"]["hlsManifestUrl"].as_s
-    hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
-  end
-
   thumbnail = "/vi/#{video.id}/maxres.jpg"
 
   if params.raw
-    url = fmt_stream[0]["url"]
+    url = fmt_stream[0]["url"].as_s
 
     fmt_stream.each do |fmt|
-      if fmt["label"].split(" - ")[0] == params.quality
-        url = fmt["url"]
-      end
+      url = fmt["url"].as_s if fmt["quality"].as_s == params.quality
     end
 
     next env.redirect url
@@ -1469,7 +1429,6 @@ post "/login" do |env|
     traceback = IO::Memory.new
 
     # See https://github.com/ytdl-org/youtube-dl/blob/2019.04.07/youtube_dl/extractor/youtube.py#L82
-    # TODO: Convert to QUIC
     begin
       client = QUIC::Client.new(LOGIN_URL)
       headers = HTTP::Headers.new
@@ -2329,8 +2288,7 @@ get "/modify_notifications" do |env|
     end
     headers = cookies.add_request_headers(headers)
 
-    match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
-    if match
+    if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[^"]+)"/)
       session_token = match["session_token"]
     else
       next env.redirect referer
@@ -3575,14 +3533,14 @@ get "/channel/:ucid" do |env|
         item.author
       end
     end
-    items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
+    items = items.select(&.is_a?(SearchPlaylist)).map(&.as(SearchPlaylist))
     items.each { |item| item.author = "" }
   else
     sort_options = {"newest", "oldest", "popular"}
     sort_by ||= "newest"
 
-    items, count = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
-    items.select! { |item| !item.paid }
+    count, items = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
+    items.reject! &.paid
 
     env.set "search", "channel:#{channel.ucid} "
   end
@@ -5125,7 +5083,7 @@ get "/api/manifest/dash/id/:id" do |env|
     next
   end
 
-  if dashmpd = video.player_response["streamingData"]?.try &.["dashManifestUrl"]?.try &.as_s
+  if dashmpd = video.dash_manifest_url
     manifest = YT_POOL.client &.get(URI.parse(dashmpd).full_path).body
 
     manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
@@ -5142,16 +5100,16 @@ get "/api/manifest/dash/id/:id" do |env|
     next manifest
   end
 
-  adaptive_fmts = video.adaptive_fmts(decrypt_function)
+  adaptive_fmts = video.adaptive_fmts
 
   if local
     adaptive_fmts.each do |fmt|
-      fmt["url"] = URI.parse(fmt["url"]).full_path
+      fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).full_path)
     end
   end
 
-  audio_streams = video.audio_streams(adaptive_fmts)
-  video_streams = video.video_streams(adaptive_fmts).sort_by { |stream| {stream["size"].split("x")[0].to_i, stream["fps"].to_i} }.reverse
+  audio_streams = video.audio_streams
+  video_streams = video.video_streams.sort_by { |stream| {stream["width"].as_i, stream["fps"].as_i} }.reverse
 
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
@@ -5161,24 +5119,22 @@ get "/api/manifest/dash/id/:id" do |env|
         i = 0
 
         {"audio/mp4", "audio/webm"}.each do |mime_type|
-          mime_streams = audio_streams.select { |stream| stream["type"].starts_with? mime_type }
-          if mime_streams.empty?
-            next
-          end
+          mime_streams = audio_streams.select { |stream| stream["mimeType"].as_s.starts_with? mime_type }
+          next if mime_streams.empty?
 
           xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true) do
             mime_streams.each do |fmt|
-              codecs = fmt["type"].split("codecs=")[1].strip('"')
-              bandwidth = fmt["bitrate"].to_i * 1000
-              itag = fmt["itag"]
-              url = fmt["url"]
+              codecs = fmt["mimeType"].as_s.split("codecs=")[1].strip('"')
+              bandwidth = fmt["bitrate"].as_i
+              itag = fmt["itag"].as_i
+              url = fmt["url"].as_s
 
               xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
                 xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
                   value: "2")
                 xml.element("BaseURL") { xml.text url }
-                xml.element("SegmentBase", indexRange: fmt["index"]) do
-                  xml.element("Initialization", range: fmt["init"])
+                xml.element("SegmentBase", indexRange: "#{fmt["indexRange"]["start"]}-#{fmt["indexRange"]["end"]}") do
+                  xml.element("Initialization", range: "#{fmt["initRange"]["start"]}-#{fmt["initRange"]["end"]}")
                 end
               end
             end
@@ -5187,21 +5143,24 @@ get "/api/manifest/dash/id/:id" do |env|
           i += 1
         end
 
+        potential_heights = {4320, 2160, 1440, 1080, 720, 480, 360, 240, 144}
+
         {"video/mp4", "video/webm"}.each do |mime_type|
-          mime_streams = video_streams.select { |stream| stream["type"].starts_with? mime_type }
+          mime_streams = video_streams.select { |stream| stream["mimeType"].as_s.starts_with? mime_type }
           next if mime_streams.empty?
 
           heights = [] of Int32
           xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
             mime_streams.each do |fmt|
-              codecs = fmt["type"].split("codecs=")[1].strip('"')
-              bandwidth = fmt["bitrate"]
-              itag = fmt["itag"]
-              url = fmt["url"]
-              width, height = fmt["size"].split("x").map { |i| i.to_i }
+              codecs = fmt["mimeType"].as_s.split("codecs=")[1].strip('"')
+              bandwidth = fmt["bitrate"].as_i
+              itag = fmt["itag"].as_i
+              url = fmt["url"].as_s
+              width = fmt["width"].as_i
+              height = fmt["height"].as_i
 
               # Resolutions reported by YouTube player (may not accurately reflect source)
-              height = [4320, 2160, 1440, 1080, 720, 480, 360, 240, 144].sort_by { |i| (height - i).abs }[0]
+              height = potential_heights.min_by { |i| (height - i).abs }
               next if unique_res && heights.includes? height
               heights << height
 
@@ -5209,8 +5168,8 @@ get "/api/manifest/dash/id/:id" do |env|
                 startWithSAP: "1", maxPlayoutRate: "1",
                 bandwidth: bandwidth, frameRate: fmt["fps"]) do
                 xml.element("BaseURL") { xml.text url }
-                xml.element("SegmentBase", indexRange: fmt["index"]) do
-                  xml.element("Initialization", range: fmt["init"])
+                xml.element("SegmentBase", indexRange: "#{fmt["indexRange"]["start"]}-#{fmt["indexRange"]["end"]}") do
+                  xml.element("Initialization", range: "#{fmt["initRange"]["start"]}-#{fmt["initRange"]["end"]}")
                 end
               end
             end
@@ -5224,10 +5183,10 @@ get "/api/manifest/dash/id/:id" do |env|
 end
 
 get "/api/manifest/hls_variant/*" do |env|
-  manifest = YT_POOL.client &.get(env.request.path)
+  response = YT_POOL.client &.get(env.request.path)
 
-  if manifest.status_code != 200
-    env.response.status_code = manifest.status_code
+  if response.status_code != 200
+    env.response.status_code = response.status_code
     next
   end
 
@@ -5247,10 +5206,10 @@ get "/api/manifest/hls_variant/*" do |env|
 end
 
 get "/api/manifest/hls_playlist/*" do |env|
-  manifest = YT_POOL.client &.get(env.request.path)
+  response = YT_POOL.client &.get(env.request.path)
 
-  if manifest.status_code != 200
-    env.response.status_code = manifest.status_code
+  if response.status_code != 200
+    env.response.status_code = response.status_code
     next
   end
 
@@ -5320,7 +5279,7 @@ get "/latest_version" do |env|
   end
 
   id ||= env.params.query["id"]?
-  itag ||= env.params.query["itag"]?
+  itag ||= env.params.query["itag"]?.try &.to_i
 
   region = env.params.query["region"]?
 
@@ -5335,26 +5294,16 @@ get "/latest_version" do |env|
 
   video = get_video(id, PG_DB, region: region)
 
-  fmt_stream = video.fmt_stream(decrypt_function)
-  adaptive_fmts = video.adaptive_fmts(decrypt_function)
+  fmt = video.fmt_stream.find(nil) { |f| f["itag"].as_i == itag } || video.adaptive_fmts.find(nil) { |f| f["itag"].as_i == itag }
+  url = fmt.try &.["url"]?.try &.as_s
 
-  urls = (fmt_stream + adaptive_fmts).select { |fmt| fmt["itag"] == itag }
-  if urls.empty?
+  if !url
     env.response.status_code = 404
     next
-  elsif urls.size > 1
-    env.response.status_code = 409
-    next
   end
 
-  url = urls[0]["url"]
-  if local
-    url = URI.parse(url).full_path.not_nil!
-  end
-
-  if title
-    url += "&title=#{title}"
-  end
+  url = URI.parse(url).full_path.not_nil! if local
+  url = "#{url}&title=#{title}" if title
 
   env.redirect url
 end

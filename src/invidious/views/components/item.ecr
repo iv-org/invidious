@@ -85,7 +85,7 @@
             </p>
 
             <h5 class="pure-g">
-                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp && item.premiere_timestamp.not_nil! > Time.utc %>
+                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
                     <div class="pure-u-2-3"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></div>
                 <% elsif Time.utc - item.published > 1.minute %>
                     <div class="pure-u-2-3"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></div>
@@ -144,7 +144,7 @@
             </p>
 
             <h5 class="pure-g">
-                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp && item.premiere_timestamp.not_nil! > Time.utc %>
+                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
                     <div class="pure-u-2-3"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></div>
                 <% elsif Time.utc - item.published > 1.minute %>
                     <div class="pure-u-2-3"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></div>

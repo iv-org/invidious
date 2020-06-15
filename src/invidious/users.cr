@@ -267,7 +267,7 @@ def subscribe_ajax(channel_id, action, env_headers)
   end
   headers = cookies.add_request_headers(headers)
 
-  if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+  if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[^"]+)"/)
     session_token = match["session_token"]
 
     headers["content-type"] = "application/x-www-form-urlencoded"
@@ -300,7 +300,7 @@ end
 #   end
 #   headers = cookies.add_request_headers(headers)
 #
-#   if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
+#   if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[^"]+)"/)
 #     session_token = match["session_token"]
 #
 #     headers["content-type"] = "application/x-www-form-urlencoded"

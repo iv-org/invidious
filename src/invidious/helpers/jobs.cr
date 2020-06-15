@@ -201,7 +201,7 @@ end
 def bypass_captcha(captcha_key, logger)
   loop do
     begin
-      {"/watch?v=CvFH_6DNRCY&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999", produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw")}.each do |path|
+      {"/watch?v=CvFH_6DNRCY&gl=US&hl=en&has_verified=1&bpctr=9999999999", produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw")}.each do |path|
         response = YT_POOL.client &.get(path)
         if response.body.includes?("To continue with your YouTube experience, please fill out the form below.")
           html = XML.parse_html(response.body)

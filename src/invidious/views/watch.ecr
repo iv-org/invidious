@@ -33,8 +33,8 @@
     "index" => continuation,
     "plid" => plid,
     "length_seconds" => video.length_seconds.to_f,
-    "play_next" => !rvs.empty? && !plid && params.continue,
-    "next_video" => rvs.select { |rv| rv["id"]? }[0]?.try &.["id"],
+    "play_next" => !video.related_videos.empty? && !plid && params.continue,
+    "next_video" => video.related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"],
     "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
     "reddit_comments_text" => HTML.escape(translate(locale, "View Reddit comments")),
     "reddit_permalink_text" => HTML.escape(translate(locale, "View more comments on Reddit")),
@@ -72,13 +72,13 @@
         </h3>
     <% end %>
 
-    <% if !reason.empty? %>
+    <% if video.reason %>
         <h3>
-            <%= reason %>
+            <%= video.reason %>
         </h3>
-    <% elsif video.premiere_timestamp %>
+    <% elsif video.premiere_timestamp.try &.> Time.utc %>
         <h3>
-            <%= translate(locale, "Premieres in `x`", recode_date((video.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %>
+            <%= video.premiere_timestamp.try { |t| translate(locale, "Premieres in `x`", recode_date((t - Time.utc).ago, locale)) } %>
         </h3>
     <% end %>
 </div>
@@ -137,18 +137,18 @@
                         <label for="download_widget"><%= translate(locale, "Download as: ") %></label>
                         <select style="width:100%" name="download_widget" id="download_widget">
                             <% fmt_stream.each do |option| %>
-                                <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
-                                    <%= itag_to_metadata?(option["itag"]).try &.["height"]? || "~240" %>p - <%= option["type"].split(";")[0] %>
+                                <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= option["mimeType"].as_s.split(";")[0].split("/")[1] %>"}'>
+                                    <%= itag_to_metadata?(option["itag"]).try &.["height"]? || "~240" %>p - <%= option["mimeType"].as_s.split(";")[0] %>
                                 </option>
                             <% end %>
                             <% video_streams.each do |option| %>
-                                <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
-                                    <%= option["quality_label"] %> - <%= option["type"].split(";")[0] %> @ <%= option["fps"] %>fps - video only
+                                <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= option["mimeType"].as_s.split(";")[0].split("/")[1] %>"}'>
+                                    <%= option["qualityLabel"] %> - <%= option["mimeType"].as_s.split(";")[0] %> @ <%= option["fps"] %>fps - video only
                                 </option>
                             <% end %>
                             <% audio_streams.each do |option| %>
-                                <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= option["type"].split(";")[0].split("/")[1] %>"}'>
-                                    <%= option["type"].split(";")[0] %> @ <%= option["bitrate"] %>k - audio only
+                                <option value='{"id":"<%= video.id %>","itag":"<%= option["itag"] %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= option["mimeType"].as_s.split(";")[0].split("/")[1] %>"}'>
+                                    <%= option["mimeType"].as_s.split(";")[0] %> @ <%= option["bitrate"]?.try &.as_i./ 1000 %>k - audio only
                                 </option>
                             <% end %>
                             <% captions.each do |caption| %>
@@ -169,19 +169,19 @@
             <p id="likes"><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
             <p id="dislikes"><i class="icon ion-ios-thumbs-down"></i> <%= number_with_separator(video.dislikes) %></p>
             <p id="genre"><%= translate(locale, "Genre: ") %>
-                <% if video.genre_url.empty? %>
+                <% if !video.genre_url %>
                     <%= video.genre %>
                 <% else %>
                     <a href="<%= video.genre_url %>"><%= video.genre %></a>
                 <% end %>
             </p>
-            <% if !video.license.empty? %>
+            <% if video.license %>
                 <p id="license"><%= translate(locale, "License: ") %><%= video.license %></p>
             <% end %>
             <p id="family_friendly"><%= translate(locale, "Family friendly? ") %><%= translate_bool(locale, video.is_family_friendly) %></p>
-            <p id="wilson"><%= translate(locale, "Wilson score: ") %><%= video.wilson_score.round(4) %></p>
-            <p id="rating"><%= translate(locale, "Rating: ") %><%= rating.round(4) %> / 5</p>
-            <p id="engagement"><%= translate(locale, "Engagement: ") %><%= engagement.round(2) %>%</p>
+            <p id="wilson"><%= translate(locale, "Wilson score: ") %><%= video.wilson_score %></p>
+            <p id="rating"><%= translate(locale, "Rating: ") %><%= video.average_rating %> / 5</p>
+            <p id="engagement"><%= translate(locale, "Engagement: ") %><%= video.engagement %>%</p>
             <% if video.allowed_regions.size != REGIONS.size %>
                 <p id="allowed_regions">
                     <% if video.allowed_regions.size < REGIONS.size // 2 %>
@@ -198,7 +198,9 @@
         <div class="h-box">
             <a href="/channel/<%= video.ucid %>" style="display:block;width:fit-content;width:-moz-fit-content">
                 <div class="channel-profile">
-                    <img src="/ggpht<%= URI.parse(video.author_thumbnail).full_path %>">
+                    <% if !video.author_thumbnail.empty? %>
+                        <img src="/ggpht<%= URI.parse(video.author_thumbnail).full_path %>">
+                    <% end %>
                     <span id="channel-name"><%= video.author %></span>
                 </div>
             </a>
@@ -209,8 +211,8 @@
             <%= rendered "components/subscribe_widget" %>
 
             <p id="published-date">
-                <% if video.premiere_timestamp %>
-                    <b><%= translate(locale, "Premieres `x`", video.premiere_timestamp.not_nil!.to_s("%B %-d, %R UTC")) %></b>
+                <% if video.premiere_timestamp.try &.> Time.utc %>
+                    <b><%= video.premiere_timestamp.try { |t| translate(locale, "Premieres `x`", t.to_s("%B %-d, %R UTC")) } %></b>
                 <% else %>
                     <b><%= translate(locale, "Shared `x`", video.published.to_s("%B %-d, %Y")) %></b>
                 <% end %>
@@ -244,7 +246,7 @@
 
             <% if params.related_videos %>
                 <div class="h-box">
-                    <% if !rvs.empty? %>
+                    <% if !video.related_videos.empty? %>
                         <div <% if plid %>style="display:none"<% end %>>
                             <div class="pure-control-group">
                                 <label for="continue"><%= translate(locale, "Play next by default: ") %></label>
@@ -254,7 +256,7 @@
                         </div>
                     <% end %>
 
-                    <% rvs.each do |rv| %>
+                    <% video.related_videos.each do |rv| %>
                         <% if rv["id"]? %>
                             <a href="/watch?v=<%= rv["id"] %>">
                                 <% if !env.get("preferences").as(Preferences).thin_mode %>
@@ -267,15 +269,17 @@
                                 <h5 class="pure-g">
                                     <div class="pure-u-14-24">
                                         <% if rv["ucid"]? %>
-                                            <b style="width:100%"><a href="/channel/<%= rv["ucid"] %>"><%= rv["author"] %></a></b>
+                                            <b style="width:100%"><a href="/channel/<%= rv["ucid"] %>"><%= rv["author"]? %></a></b>
                                         <% else %>
-                                            <b style="width:100%"><%= rv["author"] %></b>
+                                            <b style="width:100%"><%= rv["author"]? %></b>
                                         <% end %>
                                     </div>
 
                                     <div class="pure-u-10-24" style="text-align:right">
                                         <% if views = rv["short_view_count_text"]?.try &.delete(", views watching") %>
-                                            <b class="width:100%"><%= translate(locale, "`x` views", views) %></b>
+                                            <% if !views.empty? %>
+                                                <b class="width:100%"><%= translate(locale, "`x` views", views) %></b>
+                                            <% end %>
                                         <% end %>
                                     </div>
                                 </h5>

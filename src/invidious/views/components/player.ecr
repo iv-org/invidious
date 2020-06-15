@@ -3,23 +3,23 @@
     <% if params.autoplay %>autoplay<% end %>
     <% if params.video_loop %>loop<% end %>
     <% if params.controls %>controls<% end %>>
-    <% if hlsvp && !CONFIG.disabled?("livestreams") %>
-        <source src="<%= hlsvp %>?local=true" type="application/x-mpegURL" label="livestream">
+    <% if (hlsvp = video.hls_manifest_url) && !CONFIG.disabled?("livestreams") %>
+        <source src="<%= URI.parse(hlsvp).full_path %>?local=true" type="application/x-mpegURL" label="livestream">
     <% else %>
         <% if params.listen %>
             <% audio_streams.each_with_index do |fmt, i| %>
-                <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
+                <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["mimeType"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
             <% end %>
           <% else %>
             <% if params.quality == "dash" %>
-                <source src="/api/manifest/dash/id/<%= video.id %>?local=true" type='application/dash+xml' label="dash">
+                <source src="/api/manifest/dash/id/<%= video.id %>?local=true&unique_res=1" type='application/dash+xml' label="dash">
             <% end %>
 
             <% fmt_stream.each_with_index do |fmt, i| %>
                 <% if params.quality %>
-                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= params.quality == fmt["label"].split(" - ")[0] %>">
+                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["mimeType"] %>' label="<%= fmt["quality"] %>" selected="<%= params.quality == fmt["quality"] %>">
                 <% else %>
-                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["type"] %>' label="<%= fmt["label"] %>" selected="<%= i == 0 ? true : false %>">
+                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["mimeType"] %>' label="<%= fmt["quality"] %>" selected="<%= i == 0 ? true : false %>">
                 <% end %>
             <% end %>
         <% end %>

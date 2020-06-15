@@ -20,7 +20,6 @@ end
 
 def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
   headers = HTTP::Headers.new
-  headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
 
   if cookies
     headers = cookies.add_request_headers(headers)

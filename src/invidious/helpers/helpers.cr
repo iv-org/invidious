@@ -313,13 +313,149 @@ def html_to_content(description_html : String)
   return description
 end
 
-def extract_videos(nodeset, ucid = nil, author_name = nil)
-  videos = extract_items(nodeset, ucid, author_name)
-  videos.select { |item| item.is_a?(SearchVideo) }.map { |video| video.as(SearchVideo) }
+def extract_videos(initial_data : Hash(String, JSON::Any))
+  extract_items(initial_data).select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
 end
 
-def extract_items(nodeset, ucid = nil, author_name = nil)
-  # TODO: Make this a 'common', so it makes more sense to be used here
+def extract_items(initial_data : Hash(String, JSON::Any))
+  items = [] of SearchItem
+
+  initial_data.try { |t|
+    t["contents"]? || t["response"]?
+  }.try { |t|
+    t["twoColumnBrowseResultsRenderer"]?.try &.["tabs"].as_a[0]?.try &.["tabRenderer"]["content"] ||
+      t["twoColumnSearchResultsRenderer"]?.try &.["primaryContents"] ||
+      t["continuationContents"]?
+  }.try { |t| t["sectionListRenderer"]? || t["sectionListContinuation"]? }
+    .try &.["contents"]
+      .as_a.each { |c|
+      c.try &.["itemSectionRenderer"]["contents"].as_a
+        .try { |t| t[0]?.try &.["shelfRenderer"]?.try &.["content"]["expandedShelfContentsRenderer"]?.try &.["items"].as_a || t }
+        .each { |item|
+          if i = item["videoRenderer"]?
+            video_id = i["videoId"].as_s
+            title = i["title"].try { |t| t["simpleText"]?.try &.as_s || t["runs"]?.try &.as_a.map(&.["text"].as_s).join("") } || ""
+
+            author_info = i["ownerText"]?.try &.["runs"].as_a[0]?
+            author = author_info.try &.["text"].as_s || ""
+            author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || ""
+
+            published = i["publishedTimeText"]?.try &.["simpleText"]?.try { |t| decode_date(t.as_s) } || Time.local
+            view_count = i["viewCountText"]?.try &.["simpleText"]?.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
+            description_html = i["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
+            length_seconds = i["lengthText"]?.try &.["simpleText"]?.try &.as_s.try { |t| decode_length_seconds(t) } || 0
+
+            live_now = false
+            paid = false
+            premium = false
+
+            premiere_timestamp = i["upcomingEventData"]?.try &.["startTime"]?.try { |t| Time.unix(t.as_s.to_i64) }
+
+            i["badges"]?.try &.as_a.each do |badge|
+              b = badge["metadataBadgeRenderer"]
+              case b["label"].as_s
+              when "LIVE NOW"
+                live_now = true
+              when "New", "4K", "CC"
+                # TODO
+              when "Premium"
+                paid = true
+
+                # TODO: Potentially available as i["topStandaloneBadge"]["metadataBadgeRenderer"]
+                premium = true
+              else nil # Ignore
+              end
+            end
+
+            items << SearchVideo.new(
+              title: title,
+              id: video_id,
+              author: author,
+              ucid: author_id,
+              published: published,
+              views: view_count,
+              description_html: description_html,
+              length_seconds: length_seconds,
+              live_now: live_now,
+              paid: paid,
+              premium: premium,
+              premiere_timestamp: premiere_timestamp
+            )
+          elsif i = item["channelRenderer"]?
+            author = i["title"]["simpleText"]?.try &.as_s || ""
+            author_id = i["channelId"]?.try &.as_s || ""
+
+            author_thumbnail = i["thumbnail"]["thumbnails"]?.try &.as_a[0]?.try { |u| "https:#{u["url"]}" } || ""
+            subscriber_count = i["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s.try { |s| short_text_to_number(s.split(" ")[0]) } || 0
+
+            auto_generated = false
+            auto_generated = true if !i["videoCountText"]?
+            video_count = i["videoCountText"]?.try &.["runs"].as_a[0]?.try &.["text"].as_s.gsub(/\D/, "").to_i || 0
+            description_html = i["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
+
+            items << SearchChannel.new(
+              author: author,
+              ucid: author_id,
+              author_thumbnail: author_thumbnail,
+              subscriber_count: subscriber_count,
+              video_count: video_count,
+              description_html: description_html,
+              auto_generated: auto_generated,
+            )
+          elsif i = item["playlistRenderer"]?
+            title = i["title"]["simpleText"]?.try &.as_s || ""
+            plid = i["playlistId"]?.try &.as_s || ""
+
+            video_count = i["videoCount"]?.try &.as_s.to_i || 0
+            playlist_thumbnail = i["thumbnails"].as_a[0]?.try &.["thumbnails"]?.try &.as_a[0]?.try &.["url"].as_s || ""
+
+            author_info = i["shortBylineText"]["runs"].as_a[0]?
+            author = author_info.try &.["text"].as_s || ""
+            author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || ""
+
+            videos = i["videos"]?.try &.as_a.map do |v|
+              v = v["childVideoRenderer"]
+              v_title = v["title"]["simpleText"]?.try &.as_s || ""
+              v_id = v["videoId"]?.try &.as_s || ""
+              v_length_seconds = v["lengthText"]?.try &.["simpleText"]?.try { |t| decode_length_seconds(t.as_s) } || 0
+              SearchPlaylistVideo.new(
+                title: v_title,
+                id: v_id,
+                length_seconds: v_length_seconds
+              )
+            end || [] of SearchPlaylistVideo
+
+            # TODO: i["publishedTimeText"]?
+
+            items << SearchPlaylist.new(
+              title: title,
+              id: plid,
+              author: author,
+              ucid: author_id,
+              video_count: video_count,
+              videos: videos,
+              thumbnail: playlist_thumbnail
+            )
+          elsif i = item["radioRenderer"]? # Mix
+            # TODO
+          elsif i = item["showRenderer"]? # Show
+            # TODO
+          elsif i = item["shelfRenderer"]?
+          elsif i = item["horizontalCardListRenderer"]?
+          elsif i = item["searchPyvRenderer"]? # Ad
+          end
+        }
+    }
+
+  items
+end
+
+def extract_videos_html(nodeset, ucid = nil, author_name = nil)
+  extract_items_html(nodeset, ucid, author_name).select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
+end
+
+def extract_items_html(nodeset, ucid = nil, author_name = nil)
+  # TODO: Make this a 'CommonItem', so it makes more sense to be used here
   items = [] of SearchItem
 
   nodeset.each do |node|
@@ -456,7 +592,7 @@ def extract_items(nodeset, ucid = nil, author_name = nil)
         paid = true
       end
 
-      premiere_timestamp = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/span[@class="localized-date"])).try &.["data-timestamp"]?.try &.to_i64
+      premiere_timestamp = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/span[@class="localized-date"])).try &.["data-timestamp"]?.try &.to_i64?
       if premiere_timestamp
         premiere_timestamp = Time.unix(premiere_timestamp)
       end
@@ -683,12 +819,12 @@ def check_table(db, logger, table_name, struct_type = nil)
 
   return if column_array.size <= struct_array.size
 
-  # column_array.each do |column|
-  #   if !struct_array.includes? column
-  #     logger.puts("ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
-  #     db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
-  #   end
-  # end
+  column_array.each do |column|
+    if !struct_array.includes? column
+      logger.puts("ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
+      db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
+    end
+  end
 end
 
 class PG::ResultSet
@@ -864,12 +1000,12 @@ def create_notification_stream(env, topics, connection_channel)
   end
 end
 
-def extract_initial_data(body)
-  initial_data = body.match(/window\["ytInitialData"\] = (?<info>.*?);\n/).try &.["info"] || "{}"
+def extract_initial_data(body) : Hash(String, JSON::Any)
+  initial_data = body.match(/window\["ytInitialData"\]\s*=\s*(?<info>.*?);+\n/).try &.["info"] || "{}"
   if initial_data.starts_with?("JSON.parse(\"")
-    return JSON.parse(JSON.parse(%({"initial_data":"#{initial_data[12..-3]}"}))["initial_data"].as_s)
+    return JSON.parse(JSON.parse(%({"initial_data":"#{initial_data[12..-3]}"}))["initial_data"].as_s).as_h
   else
-    return JSON.parse(initial_data)
+    return JSON.parse(initial_data).as_h
   end
 end
 
