@@ -75,7 +75,7 @@ $ docker-compose build
 
 ### Linux
 
-To manually compile invidious you need at least 2GB of RAM. If you have less please fall back to Docker.
+To manually compile invidious you need at least 2GB of RAM. If you have less you can setup SWAP to have a combined amount of 2 GB or fall back to Docker.
 
 #### Install dependencies
 
