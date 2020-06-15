@@ -3,23 +3,23 @@
 <meta name="description" content="<%= HTML.escape(video.short_description) %>">
 <meta name="keywords" content="<%= video.keywords.join(",") %>">
 <meta property="og:site_name" content="Invidious">
-<meta property="og:url" content="<%= host_url %>/watch?v=<%= video.id %>">
+<meta property="og:url" content="<%= HOST_URL %>/watch?v=<%= video.id %>">
 <meta property="og:title" content="<%= HTML.escape(video.title) %>">
 <meta property="og:image" content="/vi/<%= video.id %>/maxres.jpg">
-<meta property="og:description" content="<%= HTML.escape(video.short_description) %>">
+<meta property="og:description" content="<%= video.short_description %>">
 <meta property="og:type" content="video.other">
-<meta property="og:video:url" content="<%= host_url %>/embed/<%= video.id %>">
-<meta property="og:video:secure_url" content="<%= host_url %>/embed/<%= video.id %>">
+<meta property="og:video:url" content="<%= HOST_URL %>/embed/<%= video.id %>">
+<meta property="og:video:secure_url" content="<%= HOST_URL %>/embed/<%= video.id %>">
 <meta property="og:video:type" content="text/html">
 <meta property="og:video:width" content="1280">
 <meta property="og:video:height" content="720">
 <meta name="twitter:card" content="player">
 <meta name="twitter:site" content="@omarroth1">
-<meta name="twitter:url" content="<%= host_url %>/watch?v=<%= video.id %>">
+<meta name="twitter:url" content="<%= HOST_URL %>/watch?v=<%= video.id %>">
 <meta name="twitter:title" content="<%= HTML.escape(video.title) %>">
-<meta name="twitter:description" content="<%= HTML.escape(video.short_description) %>">
-<meta name="twitter:image" content="<%= host_url %>/vi/<%= video.id %>/maxres.jpg">
-<meta name="twitter:player" content="<%= host_url %>/embed/<%= video.id %>">
+<meta name="twitter:description" content="<%= video.short_description %>">
+<meta name="twitter:image" content="<%= HOST_URL %>/vi/<%= video.id %>/maxres.jpg">
+<meta name="twitter:player" content="<%= HOST_URL %>/embed/<%= video.id %>">
 <meta name="twitter:player:width" content="1280">
 <meta name="twitter:player:height" content="720">
 <%= rendered "components/player_sources" %>

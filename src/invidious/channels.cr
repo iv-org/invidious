@@ -9,14 +9,14 @@ struct InvidiousChannel
 end
 
 struct ChannelVideo
-  def to_json(locale, config, kemal_config, json : JSON::Builder)
+  def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "type", "shortVideo"
 
       json.field "title", self.title
       json.field "videoId", self.id
       json.field "videoThumbnails" do
-        generate_thumbnails(json, self.id, config, Kemal.config)
+        generate_thumbnails(json, self.id)
       end
 
       json.field "lengthSeconds", self.length_seconds
@@ -31,17 +31,17 @@ struct ChannelVideo
     end
   end
 
-  def to_json(locale, config, kemal_config, json : JSON::Builder | Nil = nil)
+  def to_json(locale, json : JSON::Builder | Nil = nil)
     if json
-      to_json(locale, config, kemal_config, json)
+      to_json(locale, json)
     else
       JSON.build do |json|
-        to_json(locale, config, kemal_config, json)
+        to_json(locale, json)
       end
     end
   end
 
-  def to_xml(locale, host_url, query_params, xml : XML::Builder)
+  def to_xml(locale, query_params, xml : XML::Builder)
     query_params["v"] = self.id
 
     xml.element("entry") do
@@ -49,17 +49,17 @@ struct ChannelVideo
       xml.element("yt:videoId") { xml.text self.id }
       xml.element("yt:channelId") { xml.text self.ucid }
       xml.element("title") { xml.text self.title }
-      xml.element("link", rel: "alternate", href: "#{host_url}/watch?#{query_params}")
+      xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?#{query_params}")
 
       xml.element("author") do
         xml.element("name") { xml.text self.author }
-        xml.element("uri") { xml.text "#{host_url}/channel/#{self.ucid}" }
+        xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
       end
 
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-          xml.element("a", href: "#{host_url}/watch?#{query_params}") do
-            xml.element("img", src: "#{host_url}/vi/#{self.id}/mqdefault.jpg")
+          xml.element("a", href: "#{HOST_URL}/watch?#{query_params}") do
+            xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
           end
         end
       end
@@ -69,18 +69,18 @@ struct ChannelVideo
 
       xml.element("media:group") do
         xml.element("media:title") { xml.text self.title }
-        xml.element("media:thumbnail", url: "#{host_url}/vi/#{self.id}/mqdefault.jpg",
+        xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg",
           width: "320", height: "180")
       end
     end
   end
 
-  def to_xml(locale, config, kemal_config, xml : XML::Builder | Nil = nil)
+  def to_xml(locale, xml : XML::Builder | Nil = nil)
     if xml
-      to_xml(locale, config, kemal_config, xml)
+      to_xml(locale, xml)
     else
       XML.build do |xml|
-        to_xml(locale, config, kemal_config, xml)
+        to_xml(locale, xml)
       end
     end
   end
@@ -557,7 +557,7 @@ def extract_channel_playlists_cursor(url, auto_generated)
 end
 
 # TODO: Add "sort_by"
-def fetch_channel_community(ucid, continuation, locale, config, kemal_config, format, thin_mode)
+def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
   response = YT_POOL.client &.get("/channel/#{ucid}/community?gl=US&hl=en")
   if response.status_code != 200
     response = YT_POOL.client &.get("/user/#{ucid}/community?gl=US&hl=en")
@@ -708,7 +708,7 @@ def fetch_channel_community(ucid, continuation, locale, config, kemal_config, fo
                         json.field "title", attachment["title"]["simpleText"].as_s
                         json.field "videoId", video_id
                         json.field "videoThumbnails" do
-                          generate_thumbnails(json, video_id, config, kemal_config)
+                          generate_thumbnails(json, video_id)
                         end
 
                         json.field "lengthSeconds", decode_length_seconds(attachment["lengthText"]["simpleText"].as_s)
@@ -956,33 +956,17 @@ def get_about_info(ucid, locale)
 end
 
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
-  count = 0
   videos = [] of SearchVideo
 
   2.times do |i|
     url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
-    response = YT_POOL.client &.get(url)
-    json = JSON.parse(response.body)
-
-    if json["content_html"]? && !json["content_html"].as_s.empty?
-      document = XML.parse_html(json["content_html"].as_s)
-      nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-
-      if !json["load_more_widget_html"]?.try &.as_s.empty?
-        count += 30
-      end
-
-      if auto_generated
-        videos += extract_videos(nodeset)
-      else
-        videos += extract_videos(nodeset, ucid, author)
-      end
-    else
-      break
-    end
+    response = YT_POOL.client &.get(url, headers)
+    initial_data = JSON.parse(response.body).as_a.find &.["response"]?
+    break if !initial_data
+    videos.concat extract_videos(initial_data.as_h)
   end
 
-  return videos, count
+  return videos.size, videos
 end
 
 def get_latest_videos(ucid)

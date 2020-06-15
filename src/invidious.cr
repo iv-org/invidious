@@ -50,6 +50,7 @@ PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
 REDDIT_URL      = URI.parse("https://www.reddit.com")
 TEXTCAPTCHA_URL = URI.parse("https://textcaptcha.com")
 YT_URL          = URI.parse("https://www.youtube.com")
+HOST_URL        = make_host_url(CONFIG, Kemal.config)
 
 CHARS_SAFE         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
@@ -202,10 +203,11 @@ spawn do
   end
 end
 
-decrypt_function = [] of {SigProc, Int32}
+DECRYPT_FUNCTION = [] of {SigProc, Int32}
 spawn do
   update_decrypt_function do |function|
-    decrypt_function = function
+    DECRYPT_FUNCTION.clear
+    function.each { |i| DECRYPT_FUNCTION << i }
   end
 end
 
@@ -1351,16 +1353,14 @@ get "/opensearch.xml" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   env.response.content_type = "application/opensearchdescription+xml"
 
-  host = make_host_url(config, Kemal.config)
-
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("OpenSearchDescription", xmlns: "http://a9.com/-/spec/opensearch/1.1/") do
       xml.element("ShortName") { xml.text "Invidious" }
       xml.element("LongName") { xml.text "Invidious Search" }
       xml.element("Description") { xml.text "Search for videos, channels, and playlists on Invidious" }
       xml.element("InputEncoding") { xml.text "UTF-8" }
-      xml.element("Image", width: 48, height: 48, type: "image/x-icon") { xml.text "#{host}/favicon.ico" }
-      xml.element("Url", type: "text/html", method: "get", template: "#{host}/search?q={searchTerms}")
+      xml.element("Image", width: 48, height: 48, type: "image/x-icon") { xml.text "#{HOST_URL}/favicon.ico" }
+      xml.element("Url", type: "text/html", method: "get", template: "#{HOST_URL}/search?q={searchTerms}")
     end
   end
 end
@@ -2473,8 +2473,6 @@ get "/subscription_manager" do |env|
   subscriptions.sort_by! { |channel| channel.author.downcase }
 
   if action_takeout
-    host_url = make_host_url(config, Kemal.config)
-
     if format == "json"
       env.response.content_type = "application/json"
       env.response.headers["content-disposition"] = "attachment"
@@ -2500,7 +2498,7 @@ get "/subscription_manager" do |env|
                 if format == "newpipe"
                   xmlUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=#{channel.id}"
                 else
-                  xmlUrl = "#{host_url}/feed/channel/#{channel.id}"
+                  xmlUrl = "#{HOST_URL}/feed/channel/#{channel.id}"
                 end
 
                 xml.element("outline", text: channel.author, title: channel.author,
@@ -3179,25 +3177,23 @@ get "/feed/channel/:ucid" do |env|
     )
   end
 
-  host_url = make_host_url(config, Kemal.config)
-
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
       "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
       "xml:lang": "en-US") do
-      xml.element("link", rel: "self", href: "#{host_url}#{env.request.resource}")
+      xml.element("link", rel: "self", href: "#{HOST_URL}#{env.request.resource}")
       xml.element("id") { xml.text "yt:channel:#{channel.ucid}" }
       xml.element("yt:channelId") { xml.text channel.ucid }
       xml.element("title") { xml.text channel.author }
-      xml.element("link", rel: "alternate", href: "#{host_url}/channel/#{channel.ucid}")
+      xml.element("link", rel: "alternate", href: "#{HOST_URL}/channel/#{channel.ucid}")
 
       xml.element("author") do
         xml.element("name") { xml.text channel.author }
-        xml.element("uri") { xml.text "#{host_url}/channel/#{channel.ucid}" }
+        xml.element("uri") { xml.text "#{HOST_URL}/channel/#{channel.ucid}" }
       end
 
       videos.each do |video|
-        video.to_xml(host_url, channel.auto_generated, params, xml)
+        video.to_xml(channel.auto_generated, params, xml)
       end
     end
   end
@@ -3231,19 +3227,18 @@ get "/feed/private" do |env|
   params = HTTP::Params.parse(env.params.query["params"]? || "")
 
   videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
-  host_url = make_host_url(config, Kemal.config)
 
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
     xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
       "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
       "xml:lang": "en-US") do
-      xml.element("link", "type": "text/html", rel: "alternate", href: "#{host_url}/feed/subscriptions")
+      xml.element("link", "type": "text/html", rel: "alternate", href: "#{HOST_URL}/feed/subscriptions")
       xml.element("link", "type": "application/atom+xml", rel: "self",
-        href: "#{host_url}#{env.request.resource}")
+        href: "#{HOST_URL}#{env.request.resource}")
       xml.element("title") { xml.text translate(locale, "Invidious Private Feed for `x`", user.email) }
 
       (notifications + videos).each do |video|
-        video.to_xml(locale, host_url, params, xml)
+        video.to_xml(locale, params, xml)
       end
     end
   end
@@ -3257,8 +3252,6 @@ get "/feed/playlist/:plid" do |env|
   plid = env.params.url["plid"]
 
   params = HTTP::Params.parse(env.params.query["params"]? || "")
-
-  host_url = make_host_url(config, Kemal.config)
   path = env.request.path
 
   if plid.starts_with? "IV"
@@ -3269,18 +3262,18 @@ get "/feed/playlist/:plid" do |env|
         xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
           "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
           "xml:lang": "en-US") do
-          xml.element("link", rel: "self", href: "#{host_url}#{env.request.resource}")
+          xml.element("link", rel: "self", href: "#{HOST_URL}#{env.request.resource}")
           xml.element("id") { xml.text "iv:playlist:#{plid}" }
           xml.element("iv:playlistId") { xml.text plid }
           xml.element("title") { xml.text playlist.title }
-          xml.element("link", rel: "alternate", href: "#{host_url}/playlist?list=#{plid}")
+          xml.element("link", rel: "alternate", href: "#{HOST_URL}/playlist?list=#{plid}")
 
           xml.element("author") do
             xml.element("name") { xml.text playlist.author }
           end
 
           videos.each do |video|
-            video.to_xml(host_url, false, xml)
+            video.to_xml(false, xml)
           end
         end
       end
@@ -3299,7 +3292,7 @@ get "/feed/playlist/:plid" do |env|
       when "url", "href"
         full_path = URI.parse(node[attribute.name]).full_path
         query_string_opt = full_path.starts_with?("/watch?v=") ? "&#{params}" : ""
-        node[attribute.name] = "#{host_url}#{full_path}#{query_string_opt}"
+        node[attribute.name] = "#{HOST_URL}#{full_path}#{query_string_opt}"
       else nil # Skip
       end
     end
@@ -3308,7 +3301,7 @@ get "/feed/playlist/:plid" do |env|
   document = document.to_xml(options: XML::SaveOptions::NO_DECL)
 
   document.scan(/<uri>(?<url>[^<]+)<\/uri>/).each do |match|
-    content = "#{host_url}#{URI.parse(match["url"]).full_path}"
+    content = "#{HOST_URL}#{URI.parse(match["url"]).full_path}"
     document = document.gsub(match[0], "<uri>#{content}</uri>")
   end
 
@@ -3684,7 +3677,7 @@ get "/channel/:ucid/community" do |env|
   end
 
   begin
-    items = JSON.parse(fetch_channel_community(ucid, continuation, locale, config, Kemal.config, "json", thin_mode))
+    items = JSON.parse(fetch_channel_community(ucid, continuation, locale, "json", thin_mode))
   rescue ex
     env.response.status_code = 500
     error_message = ex.message
@@ -3737,7 +3730,6 @@ get "/api/v1/storyboards/:id" do |env|
   end
 
   storyboards = video.storyboards
-
   width = env.params.query["width"]?
   height = env.params.query["height"]?
 
@@ -3745,7 +3737,7 @@ get "/api/v1/storyboards/:id" do |env|
     response = JSON.build do |json|
       json.object do
         json.field "storyboards" do
-          generate_storyboards(json, id, storyboards, config, Kemal.config)
+          generate_storyboards(json, id, storyboards)
         end
       end
     end
@@ -3775,8 +3767,7 @@ get "/api/v1/storyboards/:id" do |env|
     end_time = storyboard[:interval].milliseconds
 
     storyboard[:storyboard_count].times do |i|
-      host_url = make_host_url(config, Kemal.config)
-      url = storyboard[:url].gsub("$M", i).gsub("https://i9.ytimg.com", host_url)
+      url = storyboard[:url].gsub("$M", i).gsub("https://i9.ytimg.com", HOST_URL)
 
       storyboard[:storyboard_height].times do |j|
         storyboard[:storyboard_width].times do |k|
@@ -4099,7 +4090,7 @@ get "/api/v1/videos/:id" do |env|
     next error_message
   end
 
-  video.to_json(locale, config, Kemal.config, decrypt_function)
+  video.to_json(locale)
 end
 
 get "/api/v1/trending" do |env|
@@ -4121,7 +4112,7 @@ get "/api/v1/trending" do |env|
   videos = JSON.build do |json|
     json.array do
       trending.each do |video|
-        video.to_json(locale, config, Kemal.config, json)
+        video.to_json(locale, json)
       end
     end
   end
@@ -4137,7 +4128,7 @@ get "/api/v1/popular" do |env|
   JSON.build do |json|
     json.array do
       popular_videos.each do |video|
-        video.to_json(locale, config, Kemal.config, json)
+        video.to_json(locale, json)
       end
     end
   end
@@ -4178,7 +4169,7 @@ get "/api/v1/channels/:ucid" do |env|
     count = 0
   else
     begin
-      videos, count = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
+      count, videos = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -4247,7 +4238,7 @@ get "/api/v1/channels/:ucid" do |env|
       json.field "latestVideos" do
         json.array do
           videos.each do |video|
-            video.to_json(locale, config, Kemal.config, json)
+            video.to_json(locale, json)
           end
         end
       end
@@ -4308,7 +4299,7 @@ end
     end
 
     begin
-      videos, count = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
+      count, videos = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
     rescue ex
       error_message = {"error" => ex.message}.to_json
       env.response.status_code = 500
@@ -4318,7 +4309,7 @@ end
     JSON.build do |json|
       json.array do
         videos.each do |video|
-          video.to_json(locale, config, Kemal.config, json)
+          video.to_json(locale, json)
         end
       end
     end
@@ -4344,7 +4335,7 @@ end
     JSON.build do |json|
       json.array do
         videos.each do |video|
-          video.to_json(locale, config, Kemal.config, json)
+          video.to_json(locale, json)
         end
       end
     end
@@ -4359,9 +4350,9 @@ end
 
     ucid = env.params.url["ucid"]
     continuation = env.params.query["continuation"]?
-    sort_by = env.params.query["sort"]?.try &.downcase
-    sort_by ||= env.params.query["sort_by"]?.try &.downcase
-    sort_by ||= "last"
+    sort_by = env.params.query["sort"]?.try &.downcase ||
+              env.params.query["sort_by"]?.try &.downcase ||
+              "last"
 
     begin
       channel = get_about_info(ucid, locale)
@@ -4383,9 +4374,7 @@ end
         json.field "playlists" do
           json.array do
             items.each do |item|
-              if item.is_a?(SearchPlaylist)
-                item.to_json(locale, config, Kemal.config, json)
-              end
+              item.to_json(locale, json) if item.is_a?(SearchPlaylist)
             end
           end
         end
@@ -4414,7 +4403,7 @@ end
     # sort_by = env.params.query["sort_by"]?.try &.downcase
 
     begin
-      fetch_channel_community(ucid, continuation, locale, config, Kemal.config, format, thin_mode)
+      fetch_channel_community(ucid, continuation, locale, format, thin_mode)
     rescue ex
       env.response.status_code = 400
       error_message = {"error" => ex.message}.to_json
@@ -4440,7 +4429,7 @@ get "/api/v1/channels/search/:ucid" do |env|
   JSON.build do |json|
     json.array do
       search_results.each do |item|
-        item.to_json(locale, config, Kemal.config, json)
+        item.to_json(locale, json)
       end
     end
   end
@@ -4485,7 +4474,7 @@ get "/api/v1/search" do |env|
   JSON.build do |json|
     json.array do
       search_results.each do |item|
-        item.to_json(locale, config, Kemal.config, json)
+        item.to_json(locale, json)
       end
     end
   end
@@ -4562,7 +4551,7 @@ end
       next error_message
     end
 
-    response = playlist.to_json(offset, locale, config, Kemal.config, continuation: continuation)
+    response = playlist.to_json(offset, locale, continuation: continuation)
 
     if format == "html"
       response = JSON.parse(response)
@@ -4626,7 +4615,7 @@ get "/api/v1/mixes/:rdid" do |env|
 
               json.field "videoThumbnails" do
                 json.array do
-                  generate_thumbnails(json, video.id, config, Kemal.config)
+                  generate_thumbnails(json, video.id)
                 end
               end
 
@@ -4661,7 +4650,7 @@ get "/api/v1/auth/notifications" do |env|
   topics = env.params.query["topics"]?.try &.split(",").uniq.first(1000)
   topics ||= [] of String
 
-  create_notification_stream(env, config, Kemal.config, decrypt_function, topics, connection_channel)
+  create_notification_stream(env, topics, connection_channel)
 end
 
 post "/api/v1/auth/notifications" do |env|
@@ -4670,7 +4659,7 @@ post "/api/v1/auth/notifications" do |env|
   topics = env.params.body["topics"]?.try &.split(",").uniq.first(1000)
   topics ||= [] of String
 
-  create_notification_stream(env, config, Kemal.config, decrypt_function, topics, connection_channel)
+  create_notification_stream(env, topics, connection_channel)
 end
 
 get "/api/v1/auth/preferences" do |env|
@@ -4714,7 +4703,7 @@ get "/api/v1/auth/feed" do |env|
       json.field "notifications" do
         json.array do
           notifications.each do |video|
-            video.to_json(locale, config, Kemal.config, json)
+            video.to_json(locale, json)
           end
         end
       end
@@ -4722,7 +4711,7 @@ get "/api/v1/auth/feed" do |env|
       json.field "videos" do
         json.array do
           videos.each do |video|
-            video.to_json(locale, config, Kemal.config, json)
+            video.to_json(locale, json)
           end
         end
       end
@@ -4794,7 +4783,7 @@ get "/api/v1/auth/playlists" do |env|
   JSON.build do |json|
     json.array do
       playlists.each do |playlist|
-        playlist.to_json(0, locale, config, Kemal.config, json)
+        playlist.to_json(0, locale, json)
       end
     end
   end
@@ -4825,10 +4814,8 @@ post "/api/v1/auth/playlists" do |env|
     next error_message
   end
 
-  host_url = make_host_url(config, Kemal.config)
-
   playlist = create_playlist(PG_DB, title, privacy, user)
-  env.response.headers["Location"] = "#{host_url}/api/v1/auth/playlists/#{playlist.id}"
+  env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/playlists/#{playlist.id}"
   env.response.status_code = 201
   {
     "title"      => title,
@@ -4958,11 +4945,9 @@ post "/api/v1/auth/playlists/:plid/videos" do |env|
   PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
   PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = video_count + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, plid)
 
-  host_url = make_host_url(config, Kemal.config)
-
-  env.response.headers["Location"] = "#{host_url}/api/v1/auth/playlists/#{plid}/videos/#{playlist_video.index.to_u64.to_s(16).upcase}"
+  env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/playlists/#{plid}/videos/#{playlist_video.index.to_u64.to_s(16).upcase}"
   env.response.status_code = 201
-  playlist_video.to_json(locale, config, Kemal.config, index: playlist.index.size)
+  playlist_video.to_json(locale, index: playlist.index.size)
 end
 
 delete "/api/v1/auth/playlists/:plid/videos/:index" do |env|
@@ -5251,12 +5236,10 @@ get "/api/manifest/hls_variant/*" do |env|
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
 
-  host_url = make_host_url(config, Kemal.config)
-
-  manifest = manifest.body
+  manifest = response.body
 
   if local
-    manifest = manifest.gsub("https://www.youtube.com", host_url)
+    manifest = manifest.gsub("https://www.youtube.com", HOST_URL)
     manifest = manifest.gsub("index.m3u8", "index.m3u8?local=true")
   end
 
@@ -5276,9 +5259,7 @@ get "/api/manifest/hls_playlist/*" do |env|
   env.response.content_type = "application/x-mpegURL"
   env.response.headers.add("Access-Control-Allow-Origin", "*")
 
-  host_url = make_host_url(config, Kemal.config)
-
-  manifest = manifest.body
+  manifest = response.body
 
   if local
     manifest = manifest.gsub(/^https:\/\/r\d---.{11}\.c\.youtube\.com[^\n]*/m) do |match|
@@ -5313,7 +5294,7 @@ get "/api/manifest/hls_playlist/*" do |env|
 
       raw_params["local"] = "true"
 
-      "#{host_url}/videoplayback?#{raw_params}"
+      "#{HOST_URL}/videoplayback?#{raw_params}"
     end
   end
 
@@ -5784,7 +5765,7 @@ get "/vi/:id/:name" do |env|
   headers = HTTP::Headers{":authority" => "i.ytimg.com"}
 
   if name == "maxres.jpg"
-    build_thumbnails(id, config, Kemal.config).each do |thumb|
+    build_thumbnails(id).each do |thumb|
       if YT_POOL.client &.head("/vi/#{id}/#{thumb[:url]}.jpg", headers).status_code == 200
         name = thumb[:url] + ".jpg"
         break

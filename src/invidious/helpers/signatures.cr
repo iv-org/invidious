@@ -40,12 +40,12 @@ def fetch_decrypt_function(id = "CvFH_6DNRCY")
   return decrypt_function
 end
 
-def decrypt_signature(fmt, op)
+def decrypt_signature(fmt : Hash(String, JSON::Any))
   return "" if !fmt["s"]? || !fmt["sp"]?
 
-  sp = fmt["sp"]
-  sig = fmt["s"].split("")
-  op.each do |proc, value|
+  sp = fmt["sp"].as_s
+  sig = fmt["s"].as_s.split("")
+  DECRYPT_FUNCTION.each do |proc, value|
     sig = proc.call(sig, value)
   end
 

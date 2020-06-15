@@ -255,17 +255,20 @@ struct Video
     end
   end
 
-  def to_json(locale, config, kemal_config, decrypt_function, json : JSON::Builder)
+  def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "type", "video"
 
       json.field "title", self.title
       json.field "videoId", self.id
+
+      json.field "error", info["reason"] if info["reason"]?
+
       json.field "videoThumbnails" do
-        generate_thumbnails(json, self.id, config, kemal_config)
+        generate_thumbnails(json, self.id)
       end
       json.field "storyboards" do
-        generate_storyboards(json, self.id, self.storyboards, config, kemal_config)
+        generate_storyboards(json, self.id, self.storyboards)
       end
 
       json.field "description", html_to_content(self.description_html)
@@ -316,16 +319,12 @@ struct Video
         json.field "premiereTimestamp", self.premiere_timestamp.not_nil!.to_unix
       end
 
-      if player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-        host_url = make_host_url(config, kemal_config)
-
-        hlsvp = player_response["streamingData"]["hlsManifestUrl"].as_s
-        hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
-
+      if hlsvp = self.hls_manifest_url
+        hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", HOST_URL)
         json.field "hlsUrl", hlsvp
       end
 
-      json.field "dashUrl", "#{make_host_url(config, kemal_config)}/api/manifest/dash/id/#{id}"
+      json.field "dashUrl", "#{HOST_URL}/api/manifest/dash/id/#{id}"
 
       json.field "adaptiveFormats" do
         json.array do
@@ -424,7 +423,7 @@ struct Video
                 json.field "videoId", rv["id"]
                 json.field "title", rv["title"]
                 json.field "videoThumbnails" do
-                  generate_thumbnails(json, rv["id"], config, kemal_config)
+                  generate_thumbnails(json, rv["id"])
                 end
 
                 json.field "author", rv["author"]
@@ -457,12 +456,12 @@ struct Video
     end
   end
 
-  def to_json(locale, config, kemal_config, decrypt_function, json : JSON::Builder | Nil = nil)
+  def to_json(locale, json : JSON::Builder | Nil = nil)
     if json
-      to_json(locale, config, kemal_config, decrypt_function, json)
+      to_json(locale, json)
     else
       JSON.build do |json|
-        to_json(locale, config, kemal_config, decrypt_function, json)
+        to_json(locale, json)
       end
     end
   end
@@ -1391,9 +1390,9 @@ def process_video_params(query, preferences)
   return params
 end
 
-def build_thumbnails(id, config, kemal_config)
+def build_thumbnails(id)
   return {
-    {name: "maxres", host: "#{make_host_url(config, kemal_config)}", url: "maxres", height: 720, width: 1280},
+    {name: "maxres", host: "#{HOST_URL}", url: "maxres", height: 720, width: 1280},
     {name: "maxresdefault", host: "https://i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
     {name: "sddefault", host: "https://i.ytimg.com", url: "sddefault", height: 480, width: 640},
     {name: "high", host: "https://i.ytimg.com", url: "hqdefault", height: 360, width: 480},
@@ -1405,9 +1404,9 @@ def build_thumbnails(id, config, kemal_config)
   }
 end
 
-def generate_thumbnails(json, id, config, kemal_config)
+def generate_thumbnails(json, id)
   json.array do
-    build_thumbnails(id, config, kemal_config).each do |thumbnail|
+    build_thumbnails(id).each do |thumbnail|
       json.object do
         json.field "quality", thumbnail[:name]
         json.field "url", "#{thumbnail[:host]}/vi/#{id}/#{thumbnail["url"]}.jpg"
@@ -1418,7 +1417,7 @@ def generate_thumbnails(json, id, config, kemal_config)
   end
 end
 
-def generate_storyboards(json, id, storyboards, config, kemal_config)
+def generate_storyboards(json, id, storyboards)
   json.array do
     storyboards.each do |storyboard|
       json.object do

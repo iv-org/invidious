@@ -1,5 +1,5 @@
 struct SearchVideo
-  def to_xml(host_url, auto_generated, query_params, xml : XML::Builder)
+  def to_xml(auto_generated, query_params, xml : XML::Builder)
     query_params["v"] = self.id
 
     xml.element("entry") do
@@ -7,22 +7,22 @@ struct SearchVideo
       xml.element("yt:videoId") { xml.text self.id }
       xml.element("yt:channelId") { xml.text self.ucid }
       xml.element("title") { xml.text self.title }
-      xml.element("link", rel: "alternate", href: "#{host_url}/watch?#{query_params}")
+      xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?#{query_params}")
 
       xml.element("author") do
         if auto_generated
           xml.element("name") { xml.text self.author }
-          xml.element("uri") { xml.text "#{host_url}/channel/#{self.ucid}" }
+          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
         else
           xml.element("name") { xml.text author }
-          xml.element("uri") { xml.text "#{host_url}/channel/#{ucid}" }
+          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{ucid}" }
         end
       end
 
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-          xml.element("a", href: "#{host_url}/watch?#{query_params}") do
-            xml.element("img", src: "#{host_url}/vi/#{self.id}/mqdefault.jpg")
+          xml.element("a", href: "#{HOST_URL}/watch?#{query_params}") do
+            xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
           end
 
           xml.element("p", style: "word-break:break-word;white-space:pre-wrap") { xml.text html_to_content(self.description_html) }
@@ -33,7 +33,7 @@ struct SearchVideo
 
       xml.element("media:group") do
         xml.element("media:title") { xml.text self.title }
-        xml.element("media:thumbnail", url: "#{host_url}/vi/#{self.id}/mqdefault.jpg",
+        xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg",
           width: "320", height: "180")
         xml.element("media:description") { xml.text html_to_content(self.description_html) }
       end
@@ -44,17 +44,17 @@ struct SearchVideo
     end
   end
 
-  def to_xml(host_url, auto_generated, query_params, xml : XML::Builder | Nil = nil)
+  def to_xml(auto_generated, query_params, xml : XML::Builder | Nil = nil)
     if xml
-      to_xml(host_url, auto_generated, query_params, xml)
+      to_xml(HOST_URL, auto_generated, query_params, xml)
     else
       XML.build do |json|
-        to_xml(host_url, auto_generated, query_params, xml)
+        to_xml(HOST_URL, auto_generated, query_params, xml)
       end
     end
   end
 
-  def to_json(locale, config, kemal_config, json : JSON::Builder)
+  def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "type", "video"
       json.field "title", self.title
@@ -65,7 +65,7 @@ struct SearchVideo
       json.field "authorUrl", "/channel/#{self.ucid}"
 
       json.field "videoThumbnails" do
-        generate_thumbnails(json, self.id, config, kemal_config)
+        generate_thumbnails(json, self.id)
       end
 
       json.field "description", html_to_content(self.description_html)
@@ -78,15 +78,20 @@ struct SearchVideo
       json.field "liveNow", self.live_now
       json.field "paid", self.paid
       json.field "premium", self.premium
+      json.field "isUpcoming", self.is_upcoming
+
+      if self.premiere_timestamp
+        json.field "premiereTimestamp", self.premiere_timestamp.try &.to_unix
+      end
     end
   end
 
-  def to_json(locale, config, kemal_config, json : JSON::Builder | Nil = nil)
+  def to_json(locale, json : JSON::Builder | Nil = nil)
     if json
-      to_json(locale, config, kemal_config, json)
+      to_json(locale, json)
     else
       JSON.build do |json|
-        to_json(locale, config, kemal_config, json)
+        to_json(locale, json)
       end
     end
   end
@@ -116,7 +121,7 @@ struct SearchPlaylistVideo
 end
 
 struct SearchPlaylist
-  def to_json(locale, config, kemal_config, json : JSON::Builder)
+  def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "type", "playlist"
       json.field "title", self.title
@@ -137,7 +142,7 @@ struct SearchPlaylist
               json.field "lengthSeconds", video.length_seconds
 
               json.field "videoThumbnails" do
-                generate_thumbnails(json, video.id, config, Kemal.config)
+                generate_thumbnails(json, video.id)
               end
             end
           end
@@ -146,12 +151,12 @@ struct SearchPlaylist
     end
   end
 
-  def to_json(locale, config, kemal_config, json : JSON::Builder | Nil = nil)
+  def to_json(locale, json : JSON::Builder | Nil = nil)
     if json
-      to_json(locale, config, kemal_config, json)
+      to_json(locale, json)
     else
       JSON.build do |json|
-        to_json(locale, config, kemal_config, json)
+        to_json(locale, json)
       end
     end
   end
@@ -168,7 +173,7 @@ struct SearchPlaylist
 end
 
 struct SearchChannel
-  def to_json(locale, config, kemal_config, json : JSON::Builder)
+  def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "type", "channel"
       json.field "author", self.author
@@ -198,12 +203,12 @@ struct SearchChannel
     end
   end
 
-  def to_json(locale, config, kemal_config, json : JSON::Builder | Nil = nil)
+  def to_json(locale, json : JSON::Builder | Nil = nil)
     if json
-      to_json(locale, config, kemal_config, json)
+      to_json(locale, json)
     else
       JSON.build do |json|
-        to_json(locale, config, kemal_config, json)
+        to_json(locale, json)
       end
     end
   end

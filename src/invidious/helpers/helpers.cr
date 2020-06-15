@@ -727,13 +727,10 @@ def cache_annotation(db, id, annotations)
     end
   end
 
-  if has_legacy_annotations
-    # TODO: Update on conflict?
-    db.exec("INSERT INTO annotations VALUES ($1, $2) ON CONFLICT DO NOTHING", id, annotations)
-  end
+  db.exec("INSERT INTO annotations VALUES ($1, $2) ON CONFLICT DO NOTHING", id, annotations) if has_legacy_annotations
 end
 
-def create_notification_stream(env, config, kemal_config, decrypt_function, topics, connection_channel)
+def create_notification_stream(env, topics, connection_channel)
   connection = Channel(PQ::Notification).new(8)
   connection_channel.send({true, connection})
 
@@ -753,7 +750,7 @@ def create_notification_stream(env, config, kemal_config, decrypt_function, topi
 
           video = get_video(video_id, PG_DB)
           video.published = published
-          response = JSON.parse(video.to_json(locale, config, kemal_config, decrypt_function))
+          response = JSON.parse(video.to_json(locale))
 
           if fields_text = env.params.query["fields"]?
             begin
@@ -787,7 +784,7 @@ def create_notification_stream(env, config, kemal_config, decrypt_function, topi
           when .match(/UC[A-Za-z0-9_-]{22}/)
             PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid = $1 AND published > $2 ORDER BY published DESC LIMIT 15",
               topic, Time.unix(since.not_nil!), as: ChannelVideo).each do |video|
-              response = JSON.parse(video.to_json(locale, config, Kemal.config))
+              response = JSON.parse(video.to_json(locale))
 
               if fields_text = env.params.query["fields"]?
                 begin
@@ -829,7 +826,7 @@ def create_notification_stream(env, config, kemal_config, decrypt_function, topi
 
         video = get_video(video_id, PG_DB)
         video.published = Time.unix(published)
-        response = JSON.parse(video.to_json(locale, config, Kemal.config, decrypt_function))
+        response = JSON.parse(video.to_json(locale))
 
         if fields_text = env.params.query["fields"]?
           begin
