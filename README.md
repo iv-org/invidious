@@ -226,7 +226,7 @@ $ ./sentry
 
 - [FreeTube](https://github.com/FreeTubeApp/FreeTube): An Open Source YouTube app for privacy.
 - [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JS-rich alternate YouTube player
-- [PeerTubeify](https://gitlab.com/Ealhad/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
+- [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A materialistic music player that streams music from YouTube.
 - [LapisTube](https://github.com/blubbll/lapis-tube): A fancy and advanced (experimental) YouTube frontend. Combined streams & custom YT features.
 
