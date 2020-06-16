@@ -243,7 +243,8 @@ def channel_search(query, page, channel)
   response = YT_POOL.client &.get(url)
   initial_data = JSON.parse(response.body).as_a.find &.["response"]?
   return 0, [] of SearchItem if !initial_data
-  items = extract_items(initial_data.as_h)
+  author = initial_data["response"]?.try &.["metadata"]?.try &.["channelMetadataRenderer"]?.try &.["title"]?.try &.as_s
+  items = extract_items(initial_data.as_h, author, ucid)
 
   return items.size, items
 end

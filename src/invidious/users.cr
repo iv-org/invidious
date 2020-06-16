@@ -286,7 +286,7 @@ end
 #   headers = HTTP::Headers.new
 #   headers["Cookie"] = env_headers["Cookie"]
 #
-#   html = YT_POOL.client &.get("/view_all_playlists?disable_polymer=1", headers)
+#   html = YT_POOL.client &.get("/view_all_playlists", headers)
 #
 #   cookies = HTTP::Cookies.from_headers(headers)
 #   html.cookies.each do |cookie|

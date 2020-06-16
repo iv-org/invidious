@@ -216,29 +216,17 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
   url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
   response = YT_POOL.client &.get(url)
 
+  videos = [] of SearchVideo
   begin
-    json = JSON.parse(response.body)
+    initial_data = JSON.parse(response.body).as_a.find &.["response"]?
+    raise "Could not extract JSON" if !initial_data
+    videos = extract_videos(initial_data.as_h, author, ucid)
   rescue ex
     if response.body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
        response.body.includes?("https://www.google.com/sorry/index")
       raise "Could not extract channel info. Instance is likely blocked."
     end
-
-    raise "Could not extract JSON"
   end
-
-  if json["content_html"]? && !json["content_html"].as_s.empty?
-    document = XML.parse_html(json["content_html"].as_s)
-    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-
-    if auto_generated
-      videos = extract_videos_html(nodeset)
-    else
-      videos = extract_videos_html(nodeset, ucid, author)
-    end
-  end
-
-  videos ||= [] of ChannelVideo
 
   rss.xpath_nodes("//feed/entry").each do |entry|
     video_id = entry.xpath_node("videoid").not_nil!.content
@@ -305,24 +293,11 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     loop do
       url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
       response = YT_POOL.client &.get(url)
-      json = JSON.parse(response.body)
+      initial_data = JSON.parse(response.body).as_a.find &.["response"]?
+      raise "Could not extract JSON" if !initial_data
+      videos = extract_videos(initial_data.as_h, author, ucid)
 
-      if json["content_html"]? && !json["content_html"].as_s.empty?
-        document = XML.parse_html(json["content_html"].as_s)
-        nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-      else
-        break
-      end
-
-      nodeset = nodeset.not_nil!
-
-      if auto_generated
-        videos = extract_videos_html(nodeset)
-      else
-        videos = extract_videos_html(nodeset, ucid, author)
-      end
-
-      count = nodeset.size
+      count = videos.size
       videos = videos.map { |video| ChannelVideo.new(
         id: video.id,
         title: video.title,
@@ -387,23 +362,11 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
     url = produce_channel_playlists_url(ucid, continuation, sort_by, auto_generated)
 
     response = YT_POOL.client &.get(url)
-    json = JSON.parse(response.body)
 
-    if json["load_more_widget_html"].as_s.empty?
-      continuation = nil
-    else
-      continuation = XML.parse_html(json["load_more_widget_html"].as_s)
-      continuation = continuation.xpath_node(%q(//button[@data-uix-load-more-href]))
-
-      if continuation
-        continuation = extract_channel_playlists_cursor(continuation["data-uix-load-more-href"], auto_generated)
-      end
-    end
-
-    html = XML.parse_html(json["content_html"].as_s)
-    nodeset = html.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
+    continuation = response.body.match(/"continuation":"(?<continuation>[^"]+)"/).try &.["continuation"]?
+    initial_data = JSON.parse(response.body).as_a.find(&.["response"]?).try &.as_h
   else
-    url = "/channel/#{ucid}/playlists?disable_polymer=1&flow=list&view=1"
+    url = "/channel/#{ucid}/playlists?flow=list&view=1"
 
     case sort_by
     when "last", "last_added"
@@ -416,21 +379,13 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
     end
 
     response = YT_POOL.client &.get(url)
-    html = XML.parse_html(response.body)
-
-    continuation = html.xpath_node(%q(//button[@data-uix-load-more-href]))
-    if continuation
-      continuation = extract_channel_playlists_cursor(continuation["data-uix-load-more-href"], auto_generated)
-    end
-
-    nodeset = html.xpath_nodes(%q(//ul[@id="browse-items-primary"]/li[contains(@class, "feed-item-container")]))
+    continuation = response.body.match(/"continuation":"(?<continuation>[^"]+)"/).try &.["continuation"]?
+    initial_data = extract_initial_data(response.body)
   end
 
-  if auto_generated
-    items = extract_shelf_items(nodeset, ucid, author)
-  else
-    items = extract_items_html(nodeset, ucid, author)
-  end
+  return [] of SearchItem, nil if !initial_data
+  items = extract_items(initial_data)
+  continuation = extract_channel_playlists_cursor(continuation, auto_generated) if continuation
 
   return items, continuation
 end
@@ -530,9 +485,8 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
   return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 end
 
-def extract_channel_playlists_cursor(url, auto_generated)
-  cursor = URI.parse(url).query_params
-    .try { |i| URI.decode_www_form(i["continuation"]) }
+def extract_channel_playlists_cursor(cursor, auto_generated)
+  cursor = URI.decode_www_form(cursor)
     .try { |i| Base64.decode(i) }
     .try { |i| IO::Memory.new(i) }
     .try { |i| Protodec::Any.parse(i) }
@@ -949,25 +903,19 @@ def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
     response = YT_POOL.client &.get(url)
     initial_data = JSON.parse(response.body).as_a.find &.["response"]?
     break if !initial_data
-    videos.concat extract_videos(initial_data.as_h)
+    videos.concat extract_videos(initial_data.as_h, author, ucid)
   end
 
   return videos.size, videos
 end
 
 def get_latest_videos(ucid)
-  videos = [] of SearchVideo
-
   url = produce_channel_videos_url(ucid, 0)
   response = YT_POOL.client &.get(url)
-  json = JSON.parse(response.body)
+  initial_data = JSON.parse(response.body).as_a.find &.["response"]?
+  return [] of SearchVideo if !initial_data
+  author = initial_data["response"]?.try &.["metadata"]?.try &.["channelMetadataRenderer"]?.try &.["title"]?.try &.as_s
+  items = extract_videos(initial_data.as_h, author, ucid)
 
-  if json["content_html"]? && !json["content_html"].as_s.empty?
-    document = XML.parse_html(json["content_html"].as_s)
-    nodeset = document.xpath_nodes(%q(//li[contains(@class, "feed-item-container")]))
-
-    videos = extract_videos_html(nodeset, ucid)
-  end
-
-  return videos
+  return items
 end

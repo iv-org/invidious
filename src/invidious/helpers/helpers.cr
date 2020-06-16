@@ -313,32 +313,30 @@ def html_to_content(description_html : String)
   return description
 end
 
-def extract_videos(initial_data : Hash(String, JSON::Any))
-  extract_items(initial_data).select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
+def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
+  extract_items(initial_data, author_fallback, author_id_fallback).select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
 end
 
-def extract_items(initial_data : Hash(String, JSON::Any))
+def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
   items = [] of SearchItem
 
-  initial_data.try { |t|
-    t["contents"]? || t["response"]?
-  }.try { |t|
-    t["twoColumnBrowseResultsRenderer"]?.try &.["tabs"].as_a[0]?.try &.["tabRenderer"]["content"] ||
+  initial_data.try { |t| t["contents"]? || t["response"]? }
+    .try { |t| t["twoColumnBrowseResultsRenderer"]?.try &.["tabs"].as_a.select(&.["tabRenderer"]?.try &.["selected"].as_bool)[0]?.try &.["tabRenderer"]["content"] ||
       t["twoColumnSearchResultsRenderer"]?.try &.["primaryContents"] ||
-      t["continuationContents"]?
-  }.try { |t| t["sectionListRenderer"]? || t["sectionListContinuation"]? }
-    .try &.["contents"]
-      .as_a.each { |c|
-      c.try &.["itemSectionRenderer"]["contents"].as_a
-        .try { |t| t[0]?.try &.["shelfRenderer"]?.try &.["content"]["expandedShelfContentsRenderer"]?.try &.["items"].as_a || t }
+      t["continuationContents"]? }
+    .try { |t| t["sectionListRenderer"]? || t["sectionListContinuation"]? }
+    .try &.["contents"].as_a
+      .each { |c| c.try &.["itemSectionRenderer"]["contents"].as_a
+        .try { |t| t[0]?.try &.["shelfRenderer"]?.try &.["content"]["expandedShelfContentsRenderer"]?.try &.["items"].as_a ||
+          t[0]?.try &.["gridRenderer"]?.try &.["items"].as_a || t }
         .each { |item|
           if i = item["videoRenderer"]?
             video_id = i["videoId"].as_s
             title = i["title"].try { |t| t["simpleText"]?.try &.as_s || t["runs"]?.try &.as_a.map(&.["text"].as_s).join("") } || ""
 
             author_info = i["ownerText"]?.try &.["runs"].as_a[0]?
-            author = author_info.try &.["text"].as_s || ""
-            author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || ""
+            author = author_info.try &.["text"].as_s || author_fallback || ""
+            author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || author_id_fallback || ""
 
             published = i["publishedTimeText"]?.try &.["simpleText"]?.try { |t| decode_date(t.as_s) } || Time.local
             view_count = i["viewCountText"]?.try &.["simpleText"]?.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
@@ -382,8 +380,8 @@ def extract_items(initial_data : Hash(String, JSON::Any))
               premiere_timestamp: premiere_timestamp
             )
           elsif i = item["channelRenderer"]?
-            author = i["title"]["simpleText"]?.try &.as_s || ""
-            author_id = i["channelId"]?.try &.as_s || ""
+            author = i["title"]["simpleText"]?.try &.as_s || author_fallback || ""
+            author_id = i["channelId"]?.try &.as_s || author_id_fallback || ""
 
             author_thumbnail = i["thumbnail"]["thumbnails"]?.try &.as_a[0]?.try { |u| "https:#{u["url"]}" } || ""
             subscriber_count = i["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s.try { |s| short_text_to_number(s.split(" ")[0]) } || 0
@@ -409,9 +407,9 @@ def extract_items(initial_data : Hash(String, JSON::Any))
             video_count = i["videoCount"]?.try &.as_s.to_i || 0
             playlist_thumbnail = i["thumbnails"].as_a[0]?.try &.["thumbnails"]?.try &.as_a[0]?.try &.["url"].as_s || ""
 
-            author_info = i["shortBylineText"]["runs"].as_a[0]?
-            author = author_info.try &.["text"].as_s || ""
-            author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || ""
+            author_info = i["shortBylineText"]?.try &.["runs"].as_a[0]?
+            author = author_info.try &.["text"].as_s || author_fallback || ""
+            author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || author_id_fallback || ""
 
             videos = i["videos"]?.try &.as_a.map do |v|
               v = v["childVideoRenderer"]
@@ -444,295 +442,9 @@ def extract_items(initial_data : Hash(String, JSON::Any))
           elsif i = item["horizontalCardListRenderer"]?
           elsif i = item["searchPyvRenderer"]? # Ad
           end
-        }
-    }
+        } }
 
   items
-end
-
-def extract_videos_html(nodeset, ucid = nil, author_name = nil)
-  extract_items_html(nodeset, ucid, author_name).select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
-end
-
-def extract_items_html(nodeset, ucid = nil, author_name = nil)
-  # TODO: Make this a 'CommonItem', so it makes more sense to be used here
-  items = [] of SearchItem
-
-  nodeset.each do |node|
-    anchor = node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
-    if !anchor
-      next
-    end
-    title = anchor.content.strip
-    id = anchor["href"]
-
-    if anchor["href"].starts_with? "https://www.googleadservices.com"
-      next
-    end
-
-    author_id = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).try &.["href"].split("/")[-1] || ucid || ""
-    author = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-byline")]/a)).try &.content.strip || author_name || ""
-    description_html = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-description")])).try &.to_s || ""
-
-    tile = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-tile")]))
-    if !tile
-      next
-    end
-
-    case tile["class"]
-    when .includes? "yt-lockup-playlist"
-      plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
-
-      anchor = node.xpath_node(%q(.//div[contains(@class, "yt-lockup-meta")]/a))
-
-      if !anchor
-        anchor = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/a))
-      end
-
-      video_count = node.xpath_node(%q(.//span[@class="formatted-video-count-label"]/b)) ||
-                    node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
-      if video_count
-        video_count = video_count.content
-
-        if video_count == "50+"
-          author = "YouTube"
-          author_id = "UC-9-kyTW8ZkZNDHQJ6FgpwQ"
-        end
-
-        video_count = video_count.gsub(/\D/, "").to_i?
-      end
-      video_count ||= 0
-
-      videos = [] of SearchPlaylistVideo
-      node.xpath_nodes(%q(.//*[contains(@class, "yt-lockup-playlist-items")]/li)).each do |video|
-        anchor = video.xpath_node(%q(.//a))
-        if anchor
-          video_title = anchor.content.strip
-          id = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)["v"]
-        end
-        video_title ||= ""
-        id ||= ""
-
-        anchor = video.xpath_node(%q(.//span/span))
-        if anchor
-          length_seconds = decode_length_seconds(anchor.content)
-        end
-        length_seconds ||= 0
-
-        videos << SearchPlaylistVideo.new(
-          video_title,
-          id,
-          length_seconds
-        )
-      end
-
-      playlist_thumbnail = node.xpath_node(%q(.//span/img)).try &.["data-thumb"]?
-      playlist_thumbnail ||= node.xpath_node(%q(.//span/img)).try &.["src"]
-
-      items << SearchPlaylist.new(
-        title: title,
-        id: plid,
-        author: author,
-        ucid: author_id,
-        video_count: video_count,
-        videos: videos,
-        thumbnail: playlist_thumbnail
-      )
-    when .includes? "yt-lockup-channel"
-      author = title.strip
-
-      ucid = node.xpath_node(%q(.//button[contains(@class, "yt-uix-subscription-button")])).try &.["data-channel-external-id"]?
-      ucid ||= id.split("/")[-1]
-
-      author_thumbnail = node.xpath_node(%q(.//div/span/img)).try &.["data-thumb"]?
-      author_thumbnail ||= node.xpath_node(%q(.//div/span/img)).try &.["src"]
-      if author_thumbnail
-        author_thumbnail = URI.parse(author_thumbnail)
-        author_thumbnail.scheme = "https"
-        author_thumbnail = author_thumbnail.to_s
-      end
-
-      author_thumbnail ||= ""
-
-      subscriber_count = node.xpath_node(%q(.//span[contains(@class, "subscriber-count")]))
-        .try &.["title"].try { |text| short_text_to_number(text) } || 0
-
-      video_count = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li)).try &.content.split(" ")[0].gsub(/\D/, "").to_i?
-
-      items << SearchChannel.new(
-        author: author,
-        ucid: ucid,
-        author_thumbnail: author_thumbnail,
-        subscriber_count: subscriber_count,
-        video_count: video_count || 0,
-        description_html: description_html,
-        auto_generated: video_count ? false : true,
-      )
-    else
-      id = id.lchop("/watch?v=")
-
-      metadata = node.xpath_node(%q(.//div[contains(@class,"yt-lockup-meta")]/ul))
-
-      published = metadata.try &.xpath_node(%q(.//li[contains(text(), " ago")])).try { |node| decode_date(node.content.sub(/^[a-zA-Z]+ /, "")) }
-      published ||= metadata.try &.xpath_node(%q(.//span[@data-timestamp])).try { |node| Time.unix(node["data-timestamp"].to_i64) }
-      published ||= Time.utc
-
-      view_count = metadata.try &.xpath_node(%q(.//li[contains(text(), " views")])).try &.content.gsub(/\D/, "").to_i64?
-      view_count ||= 0_i64
-
-      length_seconds = node.xpath_node(%q(.//span[@class="video-time"])).try { |node| decode_length_seconds(node.content) }
-      length_seconds ||= -1
-
-      live_now = node.xpath_node(%q(.//span[contains(@class, "yt-badge-live")])) ? true : false
-      premium = node.xpath_node(%q(.//span[text()="Premium"])) ? true : false
-
-      if !premium || node.xpath_node(%q(.//span[contains(text(), "Free episode")]))
-        paid = false
-      else
-        paid = true
-      end
-
-      premiere_timestamp = node.xpath_node(%q(.//ul[@class="yt-lockup-meta-info"]/li/span[@class="localized-date"])).try &.["data-timestamp"]?.try &.to_i64?
-      if premiere_timestamp
-        premiere_timestamp = Time.unix(premiere_timestamp)
-      end
-
-      items << SearchVideo.new(
-        title: title,
-        id: id,
-        author: author,
-        ucid: author_id,
-        published: published,
-        views: view_count,
-        description_html: description_html,
-        length_seconds: length_seconds,
-        live_now: live_now,
-        paid: paid,
-        premium: premium,
-        premiere_timestamp: premiere_timestamp
-      )
-    end
-  end
-
-  return items
-end
-
-def extract_shelf_items(nodeset, ucid = nil, author_name = nil)
-  items = [] of SearchPlaylist
-
-  nodeset.each do |shelf|
-    shelf_anchor = shelf.xpath_node(%q(.//h2[contains(@class, "branded-page-module-title")]))
-    next if !shelf_anchor
-
-    title = shelf_anchor.xpath_node(%q(.//span[contains(@class, "branded-page-module-title-text")])).try &.content.strip
-    title ||= ""
-
-    id = shelf_anchor.xpath_node(%q(.//a)).try &.["href"]
-    next if !id
-
-    shelf_is_playlist = false
-    videos = [] of SearchPlaylistVideo
-
-    shelf.xpath_nodes(%q(.//ul[contains(@class, "yt-uix-shelfslider-list") or contains(@class, "expanded-shelf-content-list")]/li)).each do |child_node|
-      type = child_node.xpath_node(%q(./div))
-      next if !type
-
-      case type["class"]
-      when .includes? "yt-lockup-video"
-        shelf_is_playlist = true
-
-        anchor = child_node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
-        if anchor
-          video_title = anchor.content.strip
-          video_id = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)["v"]
-        end
-        video_title ||= ""
-        video_id ||= ""
-
-        anchor = child_node.xpath_node(%q(.//span[@class="video-time"]))
-        if anchor
-          length_seconds = decode_length_seconds(anchor.content)
-        end
-        length_seconds ||= 0
-
-        videos << SearchPlaylistVideo.new(
-          video_title,
-          video_id,
-          length_seconds
-        )
-      when .includes? "yt-lockup-playlist"
-        anchor = child_node.xpath_node(%q(.//h3[contains(@class, "yt-lockup-title")]/a))
-        if anchor
-          playlist_title = anchor.content.strip
-          params = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)
-          plid = params["list"]
-        end
-        playlist_title ||= ""
-        plid ||= ""
-
-        playlist_thumbnail = child_node.xpath_node(%q(.//span/img)).try &.["data-thumb"]?
-        playlist_thumbnail ||= child_node.xpath_node(%q(.//span/img)).try &.["src"]
-
-        video_count = child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]/b)) ||
-                      child_node.xpath_node(%q(.//span[@class="formatted-video-count-label"]))
-        if video_count
-          video_count = video_count.content.gsub(/\D/, "").to_i?
-        end
-        video_count ||= 50
-
-        videos = [] of SearchPlaylistVideo
-        child_node.xpath_nodes(%q(.//*[contains(@class, "yt-lockup-playlist-items")]/li)).each do |video|
-          anchor = video.xpath_node(%q(.//a))
-          if anchor
-            video_title = anchor.content.strip
-            id = HTTP::Params.parse(URI.parse(anchor["href"]).query.not_nil!)["v"]
-          end
-          video_title ||= ""
-          id ||= ""
-
-          anchor = video.xpath_node(%q(.//span/span))
-          if anchor
-            length_seconds = decode_length_seconds(anchor.content)
-          end
-          length_seconds ||= 0
-
-          videos << SearchPlaylistVideo.new(
-            video_title,
-            id,
-            length_seconds
-          )
-        end
-
-        items << SearchPlaylist.new(
-          title: playlist_title,
-          id: plid,
-          author: author_name,
-          ucid: ucid,
-          video_count: video_count,
-          videos: videos,
-          thumbnail: playlist_thumbnail
-        )
-      else
-        next # Skip
-      end
-    end
-
-    if shelf_is_playlist
-      plid = HTTP::Params.parse(URI.parse(id).query.not_nil!)["list"]
-
-      items << SearchPlaylist.new(
-        title: title,
-        id: plid,
-        author: author_name,
-        ucid: ucid,
-        video_count: videos.size,
-        videos: videos,
-        thumbnail: "https://i.ytimg.com/vi/#{videos[0].id}/mqdefault.jpg"
-      )
-    end
-  end
-
-  return items
 end
 
 def check_enum(db, logger, enum_name, struct_type = nil)
