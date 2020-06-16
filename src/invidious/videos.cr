@@ -721,8 +721,8 @@ struct Video
     info["genre"]?.try &.as_s || ""
   end
 
-  def genre_url : String
-    info["genreUcid"]? ? "/channel/#{info["genreUcid"]}" : ""
+  def genre_url : String?
+    info["genreUcid"]? ? "/channel/#{info["genreUcid"]}" : nil
   end
 
   def license : String?
@@ -860,6 +860,9 @@ def extract_polymer_config(body)
         .try &.["metadataRowContainerRenderer"]?
           .try &.["rows"]?
             .try &.as_a
+
+  params["genre"] = params["microformat"]?.try &.["playerMicroformatRenderer"]?.try &.["category"]? || JSON::Any.new("")
+  params["genreUrl"] = JSON::Any.new(nil)
 
   metadata.try &.each do |row|
     title = row["metadataRowRenderer"]?.try &.["title"]?.try &.["simpleText"]?.try &.as_s
