@@ -1,7 +1,5 @@
-FROM alpine:edge AS builder
-RUN apk add --no-cache curl crystal shards libc-dev \
-    yaml-dev libxml2-dev sqlite-dev zlib-dev openssl-dev \
-    yaml-static sqlite-static zlib-static openssl-libs-static
+FROM crystallang/crystal:0.35.0-alpine AS builder
+RUN apk add --no-cache curl sqlite-static
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
 RUN shards update && shards install && \
