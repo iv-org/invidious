@@ -190,6 +190,7 @@ def update_decrypt_function
       decrypt_function = fetch_decrypt_function
       yield decrypt_function
     rescue ex
+      # TODO: Log error
       next
     ensure
       sleep 1.minute

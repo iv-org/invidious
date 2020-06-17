@@ -2,7 +2,7 @@ alias SigProc = Proc(Array(String), Int32, Array(String))
 
 def fetch_decrypt_function(id = "CvFH_6DNRCY")
   document = YT_POOL.client &.get("/watch?v=#{id}&gl=US&hl=en").body
-  url = document.match(/src="(?<url>\/yts\/jsbin\/player_ias-[^\/]+\/en_US\/base.js)"/).not_nil!["url"]
+  url = document.match(/src="(?<url>\/s\/player\/[^\/]+\/player_ias[^\/]+\/en_US\/base.js)"/).not_nil!["url"]
   player = YT_POOL.client &.get(url).body
 
   function_name = player.match(/^(?<name>[^=]+)=function\(\w\){\w=\w\.split\(""\);[^\. ]+\.[^( ]+/m).not_nil!["name"]
