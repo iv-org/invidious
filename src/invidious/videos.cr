@@ -706,7 +706,7 @@ struct Video
   end
 
   def short_description
-    info["shortDescription"]?.try &.as_s || ""
+    info["shortDescription"]?.try &.as_s? || ""
   end
 
   def hls_manifest_url : String?
