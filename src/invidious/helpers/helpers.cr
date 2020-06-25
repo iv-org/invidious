@@ -400,6 +400,22 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
               description_html: description_html,
               auto_generated: auto_generated,
             )
+          elsif i = item["gridPlaylistRenderer"]?
+            title = i["title"]["runs"].as_a[0]?.try &.["text"].as_s || ""
+            plid = i["playlistId"]?.try &.as_s || ""
+
+            video_count = i["videoCountText"]["runs"].as_a[0]?.try &.["text"].as_s.gsub(/\D/, "").to_i || 0
+            playlist_thumbnail = i["thumbnail"]["thumbnails"][0]?.try &.["url"]?.try &.as_s || ""
+
+            items << SearchPlaylist.new(
+              title: title,
+              id: plid,
+              author: author_fallback || "",
+              ucid: author_id_fallback || "",
+              video_count: video_count,
+              videos: [] of SearchPlaylistVideo,
+              thumbnail: playlist_thumbnail
+            )
           elsif i = item["playlistRenderer"]?
             title = i["title"]["simpleText"]?.try &.as_s || ""
             plid = i["playlistId"]?.try &.as_s || ""

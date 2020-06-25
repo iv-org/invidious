@@ -118,7 +118,7 @@ struct Playlist
         end
       end
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", self.description
       json.field "descriptionHtml", self.description_html
       json.field "videoCount", self.video_count
 
@@ -153,7 +153,7 @@ struct Playlist
     author:           String,
     author_thumbnail: String,
     ucid:             String,
-    description_html: String,
+    description:      String,
     video_count:      Int32,
     views:            Int64,
     updated:          Time,
@@ -162,6 +162,10 @@ struct Playlist
 
   def privacy
     PlaylistPrivacy::Public
+  end
+
+  def description_html
+    HTML.escape(self.description).gsub("\n", "<br>")
   end
 end
 
@@ -298,52 +302,6 @@ def subscribe_playlist(db, user, playlist)
   return playlist
 end
 
-def extract_playlist(plid, nodeset, index)
-  videos = [] of PlaylistVideo
-
-  nodeset.each_with_index do |video, offset|
-    anchor = video.xpath_node(%q(.//td[@class="pl-video-title"]))
-    if !anchor
-      next
-    end
-
-    title = anchor.xpath_node(%q(.//a)).not_nil!.content.strip(" \n")
-    id = anchor.xpath_node(%q(.//a)).not_nil!["href"].lchop("/watch?v=")[0, 11]
-
-    anchor = anchor.xpath_node(%q(.//div[@class="pl-video-owner"]/a))
-    if anchor
-      author = anchor.content
-      ucid = anchor["href"].split("/")[2]
-    else
-      author = ""
-      ucid = ""
-    end
-
-    anchor = video.xpath_node(%q(.//td[@class="pl-video-time"]/div/div[1]))
-    if anchor && !anchor.content.empty?
-      length_seconds = decode_length_seconds(anchor.content)
-      live_now = false
-    else
-      length_seconds = 0
-      live_now = true
-    end
-
-    videos << PlaylistVideo.new(
-      title: title,
-      id: id,
-      author: author,
-      ucid: ucid,
-      length_seconds: length_seconds,
-      published: Time.utc,
-      plid: plid,
-      index: (index + offset).to_i64,
-      live_now: live_now
-    )
-  end
-
-  return videos
-end
-
 def produce_playlist_url(id, index)
   if id.starts_with? "UC"
     id = "UU" + id.lchop("UC")
@@ -389,58 +347,64 @@ def fetch_playlist(plid, locale)
     plid = "UU#{plid.lchop("UC")}"
   end
 
-  response = YT_POOL.client &.get("/playlist?list=#{plid}&hl=en&disable_polymer=1")
+  response = YT_POOL.client &.get("/playlist?list=#{plid}&hl=en")
   if response.status_code != 200
-    raise translate(locale, "Not a playlist.")
+    if response.headers["location"]?.try &.includes? "/sorry/index"
+      raise "Could not extract playlist info. Instance is likely blocked."
+    else
+      raise translate(locale, "Not a playlist.")
+    end
   end
 
-  body = response.body.gsub(/<button[^>]+><span[^>]+>\s*less\s*<img[^>]+>\n<\/span><\/button>/, "")
-  document = XML.parse_html(body)
+  initial_data = extract_initial_data(response.body)
+  playlist_info = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?.try &.[0]["playlistSidebarPrimaryInfoRenderer"]?
 
-  title = document.xpath_node(%q(//h1[@class="pl-header-title"]))
-  if !title
-    raise translate(locale, "Playlist does not exist.")
+  raise "Could not extract playlist info" if !playlist_info
+  title = playlist_info["title"]?.try &.["runs"][0]?.try &.["text"]?.try &.as_s || ""
+
+  desc_item = playlist_info["description"]?
+  description = desc_item.try &.["runs"]?.try &.as_a.map(&.["text"].as_s).join("") || desc_item.try &.["simpleText"]?.try &.as_s || ""
+
+  thumbnail = playlist_info["thumbnailRenderer"]?.try &.["playlistVideoThumbnailRenderer"]?
+    .try &.["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s
+
+  views = 0_i64
+  updated = Time.utc
+  video_count = 0
+  playlist_info["stats"]?.try &.as_a.each do |stat|
+    text = stat["runs"]?.try &.as_a.map(&.["text"].as_s).join("") || stat["simpleText"]?.try &.as_s
+    next if !text
+
+    if text.includes? "videos"
+      video_count = text.gsub(/\D/, "").to_i? || 0
+    elsif text.includes? "views"
+      views = text.gsub(/\D/, "").to_i64? || 0_i64
+    else
+      updated = decode_date(text.lchop("Last updated on ").lchop("Updated "))
+    end
   end
-  title = title.content.strip(" \n")
 
-  description_html = document.xpath_node(%q(//span[@class="pl-header-description-text"]/div/div[1])).try &.to_s ||
-                     document.xpath_node(%q(//span[@class="pl-header-description-text"])).try &.to_s || ""
+  author_info = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?.try &.[1]["playlistSidebarSecondaryInfoRenderer"]?
+    .try &.["videoOwner"]["videoOwnerRenderer"]?
 
-  playlist_thumbnail = document.xpath_node(%q(//div[@class="pl-header-thumb"]/img)).try &.["data-thumb"]? ||
-                       document.xpath_node(%q(//div[@class="pl-header-thumb"]/img)).try &.["src"]
+  raise "Could not extract author info" if !author_info
 
-  # YouTube allows anonymous playlists, so most of this can be empty or optional
-  anchor = document.xpath_node(%q(//ul[@class="pl-header-details"]))
-  author = anchor.try &.xpath_node(%q(.//li[1]/a)).try &.content
-  author ||= ""
-  author_thumbnail = document.xpath_node(%q(//img[@class="channel-header-profile-image"])).try &.["src"]
-  author_thumbnail ||= ""
-  ucid = anchor.try &.xpath_node(%q(.//li[1]/a)).try &.["href"].split("/")[-1]
-  ucid ||= ""
+  author_thumbnail = author_info["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s || ""
+  author = author_info["title"]["runs"][0]["text"]?.try &.as_s || ""
+  ucid = author_info["title"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"]?.try &.as_s || ""
 
-  video_count = anchor.try &.xpath_node(%q(.//li[2])).try &.content.gsub(/\D/, "").to_i?
-  video_count ||= 0
-
-  views = anchor.try &.xpath_node(%q(.//li[3])).try &.content.gsub(/\D/, "").to_i64?
-  views ||= 0_i64
-
-  updated = anchor.try &.xpath_node(%q(.//li[4])).try &.content.lchop("Last updated on ").lchop("Updated ").try { |date| decode_date(date) }
-  updated ||= Time.utc
-
-  playlist = Playlist.new(
+  return Playlist.new(
     title: title,
     id: plid,
     author: author,
     author_thumbnail: author_thumbnail,
     ucid: ucid,
-    description_html: description_html,
+    description: description,
     video_count: video_count,
     views: views,
     updated: updated,
-    thumbnail: playlist_thumbnail,
+    thumbnail: thumbnail
   )
-
-  return playlist
 end
 
 def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
@@ -458,37 +422,67 @@ end
 
 def fetch_playlist_videos(plid, video_count, offset = 0, locale = nil, continuation = nil)
   if continuation
-    html = YT_POOL.client &.get("/watch?v=#{continuation}&list=#{plid}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999")
-    html = XML.parse_html(html.body)
-
-    index = html.xpath_node(%q(//span[@id="playlist-current-index"])).try &.content.to_i?.try &.- 1
-    offset = index || offset
+    response = YT_POOL.client &.get("/watch?v=#{continuation}&list=#{plid}&gl=US&hl=en")
+    initial_data = extract_initial_data(response.body)
+    offset = initial_data["currentVideoEndpoint"]?.try &.["watchEndpoint"]?.try &.["index"]?.try &.as_i64 || offset
   end
 
   if video_count > 100
     url = produce_playlist_url(plid, offset)
 
     response = YT_POOL.client &.get(url)
-    response = JSON.parse(response.body)
-    if !response["content_html"]? || response["content_html"].as_s.empty?
-      raise translate(locale, "Empty playlist")
-    end
-
-    document = XML.parse_html(response["content_html"].as_s)
-    nodeset = document.xpath_nodes(%q(.//tr[contains(@class, "pl-video")]))
-    videos = extract_playlist(plid, nodeset, offset)
+    initial_data = JSON.parse(response.body).as_a.find(&.as_h.["response"]?).try &.as_h
   elsif offset > 100
     return [] of PlaylistVideo
   else # Extract first page of videos
-    response = YT_POOL.client &.get("/playlist?list=#{plid}&gl=US&hl=en&disable_polymer=1")
-    document = XML.parse_html(response.body)
-    nodeset = document.xpath_nodes(%q(.//tr[contains(@class, "pl-video")]))
-
-    videos = extract_playlist(plid, nodeset, 0)
+    response = YT_POOL.client &.get("/playlist?list=#{plid}&gl=US&hl=en")
+    initial_data = extract_initial_data(response.body)
   end
+
+  return [] of PlaylistVideo if !initial_data
+  videos = extract_playlist_videos(initial_data)
 
   until videos.empty? || videos[0].index == offset
     videos.shift
+  end
+
+  return videos
+end
+
+def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
+  videos = [] of PlaylistVideo
+
+  (initial_data["contents"]?.try &.["twoColumnBrowseResultsRenderer"]["tabs"].as_a.select(&.["tabRenderer"]["selected"]?.try &.as_bool)[0]["tabRenderer"]["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["playlistVideoListRenderer"]["contents"].as_a ||
+    initial_data["response"]?.try &.["continuationContents"]["playlistVideoListContinuation"]["contents"].as_a).try &.each do |item|
+    if i = item["playlistVideoRenderer"]?
+      video_id = i["navigationEndpoint"]["watchEndpoint"]["videoId"].as_s
+      plid = i["navigationEndpoint"]["watchEndpoint"]["playlistId"].as_s
+      index = i["navigationEndpoint"]["watchEndpoint"]["index"].as_i64
+
+      thumbnail = i["thumbnail"]["thumbnails"][0]["url"].as_s
+      title = i["title"].try { |t| t["simpleText"]? || t["runs"]?.try &.[0]["text"]? }.try &.as_s || ""
+      author = i["shortBylineText"]?.try &.["runs"][0]["text"].as_s || ""
+      ucid = i["shortBylineText"]?.try &.["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s || ""
+      length_seconds = i["lengthSeconds"]?.try &.as_s.to_i
+      live = false
+
+      if !length_seconds
+        live = true
+        length_seconds = 0
+      end
+
+      videos << PlaylistVideo.new(
+        title: title,
+        id: video_id,
+        author: author,
+        ucid: ucid,
+        length_seconds: length_seconds,
+        published: Time.utc,
+        plid: plid,
+        live_now: live,
+        index: index - 1
+      )
+    end
   end
 
   return videos
