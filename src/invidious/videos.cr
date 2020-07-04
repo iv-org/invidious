@@ -583,6 +583,9 @@ struct Video
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&region=#{self.info["region"]}") if self.info["region"]?
     end
+    # See https://github.com/TeamNewPipe/NewPipe/issues/2415
+    # Some streams are segmented by URL `sq/` rather than index, for now we just filter them out
+    fmt_stream.reject! { |f| !f["indexRange"]? }
     fmt_stream.sort_by! { |f| f["width"]?.try &.as_i || 0 }
     @adaptive_fmts = fmt_stream
     return @adaptive_fmts.as(Array(Hash(String, JSON::Any)))
