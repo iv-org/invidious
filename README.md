@@ -4,11 +4,9 @@
 
 ## Invidious is an alternative front-end to YouTube
 
+- [Copylefted libre software](https://github.com/omarroth/invidious) (AGPLv3+ licensed)
 - Audio-only mode (and no need to keep window open on mobile)
-- [Free software](https://github.com/omarroth/invidious) (AGPLv3 licensed)
-- No ads
-- No need to create a Google account to save subscriptions
-- Lightweight (homepage is ~4 KB compressed)
+- Lightweight (the homepage is ~4 KB compressed)
 - Tools for managing subscriptions:
   - Only show unseen videos
   - Only show latest (or latest unseen) video from each channel
@@ -18,11 +16,15 @@
 - Dark mode
 - Embed support
 - Set default player options (speed, quality, autoplay, loop)
-- Does not require JS to play videos
-- Support for Reddit comments in place of YT comments
+- Support for Reddit comments in place of YouTube comments
 - Import/Export subscriptions, watch history, preferences
-- Does not use any of the official YouTube APIs
 - Developer [API](https://github.com/omarroth/invidious/wiki/API)
+- Does not use any of the official YouTube APIs
+- Does not require JavaScript to play videos
+- No need to create a Google account to save subscriptions
+- No ads
+- No CoC
+- No CLA
 
 Liberapay: https://liberapay.com/omarroth  
 BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY  
@@ -30,7 +32,7 @@ BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 
 ## Invidious Instances
 
-See [Invidious Instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances) for a full list of publicly available instances.
+[Here](https://github.com/omarroth/invidious/wiki/Invidious-Instances) you will find a full list of publicly available instances.
 
 ### Official Instances
 
@@ -48,7 +50,7 @@ See [Invidious Instances](https://github.com/omarroth/invidious/wiki/Invidious-I
 
 ## Installation
 
-See [Invidious-Updater](https://github.com/tmiland/Invidious-Updater) for a self-contained script that can automatically install and update Invidious.
+[Invidious-Updater](https://github.com/tmiland/Invidious-Updater) is a self-contained script that can automatically install and update Invidious.
 
 ### Docker:
 
@@ -58,7 +60,7 @@ See [Invidious-Updater](https://github.com/tmiland/Invidious-Updater) for a self
 $ docker-compose up
 ```
 
-And visit `localhost:3000` in your browser.
+Then visit `localhost:3000` in your browser.
 
 #### Rebuild cluster:
 
@@ -75,14 +77,14 @@ $ docker-compose build
 
 ### Linux:
 
-#### Install dependencies
+#### Install the dependencies
 
 ```bash
 # Arch Linux
 $ sudo pacman -S base-devel shards crystal librsvg postgresql
 
 # Ubuntu or Debian
-# First you have to add the repository to your APT configuration. For easy setup just run in your command line:
+# First you have to add the repository to your APT configuration. For easy setup just run in your command-line:
 $ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
 # That will add the signing key and the repository configuration. If you prefer to do it manually, execute the following commands:
 $ curl -sL "https://keybase.io/crystal/pgp_keys.asc" | sudo apt-key add -
@@ -91,7 +93,7 @@ $ sudo apt-get update
 $ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev postgresql librsvg2-bin libsqlite3-dev
 ```
 
-#### Add invidious user and clone repository
+#### Add an Invidious user and clone the repository
 
 ```bash
 $ useradd -m invidious
@@ -100,7 +102,7 @@ $ git clone https://github.com/omarroth/invidious
 $ exit
 ```
 
-#### Setup PostgresSQL
+#### Set up PostgresSQL
 
 ```bash
 $ sudo systemctl enable postgresql
@@ -120,7 +122,7 @@ $ psql invidious kemal < /home/invidious/invidious/config/sql/playlist_videos.sq
 $ exit
 ```
 
-#### Setup Invidious
+#### Set up Invidious
 
 ```bash
 $ sudo -i -u invidious
@@ -154,14 +156,14 @@ minsize 1048576
 $ sudo chmod 0644 /etc/logrotate.d/invidious.logrotate
 ```
 
-### OSX:
+### macOS:
 
 ```bash
 # Install dependencies
 $ brew update
 $ brew install shards crystal postgres imagemagick librsvg
 
-# Clone repository and setup postgres database
+# Clone the repository and set up a PostgreSQL database
 $ git clone https://github.com/omarroth/invidious
 $ cd invidious
 $ brew services start postgresql
@@ -178,14 +180,14 @@ $ psql invidious kemal < config/sql/privacy.sql
 $ psql invidious kemal < config/sql/playlists.sql
 $ psql invidious kemal < config/sql/playlist_videos.sql
 
-# Setup Invidious
+# Set up Invidious
 $ shards update && shards install
 $ crystal build src/invidious.cr --release
 ```
 
 ## Update Invidious
 
-You can see how to update Invidious [here](https://github.com/omarroth/invidious/wiki/Updating).
+[Here](https://github.com/omarroth/invidious/wiki/Updating) is a guide on how to update Invidious.
 
 ## Usage:
 
@@ -224,11 +226,11 @@ $ ./sentry
 
 ## Made with Invidious
 
-- [FreeTube](https://github.com/FreeTubeApp/FreeTube): An Open Source YouTube app for privacy.
-- [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JS-rich alternate YouTube player
+- [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
+- [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JavaScript-rich alternate YouTube player
 - [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
-- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A materialistic music player that streams music from YouTube.
-- [LapisTube](https://github.com/blubbll/lapis-tube): A fancy and advanced (experimental) YouTube frontend. Combined streams & custom YT features.
+- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
+- [LapisTube](https://github.com/blubbll/lapis-tube): A fancy and advanced (experimental) YouTube front-end. Combined streams & custom YT features.
 
 ## Contributing
 
@@ -236,20 +238,14 @@ $ ./sentry
 2.  Create your feature branch (git checkout -b my-new-feature)
 3.  Commit your changes (git commit -am 'Add some feature')
 4.  Push to the branch (git push origin my-new-feature)
-5.  Create a new Pull Request
+5.  Create a new pull request
+
+#### Translation
+
+- Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/projects/invidious/).
 
 ## Contact
 
-Feel free to send an email to omarroth@protonmail.com or join our [Matrix Server](https://riot.im/app/#/room/#invidious:matrix.org), or #invidious on Freenode.
+Feel free to send an e-mail to omarroth@protonmail.com or join our [Matrix server](https://riot.im/app/#/room/#invidious:matrix.org), or #invidious on freenode.
 
-You can also view release notes on the [releases](https://github.com/omarroth/invidious/releases) page or in the CHANGELOG.md included in the repository.
-
-## License
-
-[![GNU AGPLv3 Image](https://www.gnu.org/graphics/agplv3-155x51.png)](http://www.gnu.org/licenses/agpl-3.0.en.html)
-
-Invidious is Free Software: You can use, study share and improve it at your
-will. Specifically you can redistribute and/or modify it under the terms of the
-[GNU Affero General Public License](https://www.gnu.org/licenses/agpl.html) as
-published by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+You can also read the release notes on the [releases](https://github.com/omarroth/invidious/releases) page or in the CHANGELOG.md included in the repository.
