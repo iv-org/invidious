@@ -18,7 +18,7 @@
 - Set default player options (speed, quality, autoplay, loop)
 - Support for Reddit comments in place of YouTube comments
 - Import/Export subscriptions, watch history, preferences
-- Developer [API](https://github.com/omarroth/invidious/wiki/API)
+- [Developer API](https://github.com/omarroth/invidious/wiki/API)
 - Does not use any of the official YouTube APIs
 - Does not require JavaScript to play videos
 - No need to create a Google account to save subscriptions
@@ -32,7 +32,7 @@ BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 
 ## Invidious Instances
 
-[Here](https://github.com/omarroth/invidious/wiki/Invidious-Instances) you will find a full list of publicly available instances.
+[Public instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances) are to be found in this list.
 
 ### Official Instances
 
@@ -84,7 +84,7 @@ $ docker-compose build
 $ sudo pacman -S base-devel shards crystal librsvg postgresql
 
 # Ubuntu or Debian
-# First you have to add the repository to your APT configuration. For easy setup just run in your command-line:
+# First you have to add the repository to your APT configuration. For easy setup just run in your command line:
 $ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
 # That will add the signing key and the repository configuration. If you prefer to do it manually, execute the following commands:
 $ curl -sL "https://keybase.io/crystal/pgp_keys.asc" | sudo apt-key add -
@@ -187,7 +187,7 @@ $ crystal build src/invidious.cr --release
 
 ## Update Invidious
 
-[Here](https://github.com/omarroth/invidious/wiki/Updating) is a guide on how to update Invidious.
+Instructions are available in the [updating guide](https://github.com/omarroth/invidious/wiki/Updating).
 
 ## Usage:
 
@@ -248,4 +248,4 @@ $ ./sentry
 
 Feel free to send an e-mail to omarroth@protonmail.com or join our [Matrix server](https://riot.im/app/#/room/#invidious:matrix.org), or #invidious on freenode.
 
-You can also read the release notes on the [releases](https://github.com/omarroth/invidious/releases) page or in the CHANGELOG.md included in the repository.
+You can also read the release notes on the [page of releases](https://github.com/omarroth/invidious/releases) [CHANGELOG.md](https://github.com/omarroth/invidious/changelog.md) included in the repository.
