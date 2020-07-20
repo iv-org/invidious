@@ -17,7 +17,7 @@ dependencies:
     version: ~> 0.16.0
   kemal:
     github: kemalcr/kemal
-    branch: master
+    commit: dfe7dca08f4c9a9456d6132af5f6b59fcd6865e4
   pool:
     github: ysbaddaden/pool
     version: ~> 0.2.3
