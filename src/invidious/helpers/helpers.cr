@@ -326,7 +326,7 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
       t["continuationContents"]? }
     .try { |t| t["sectionListRenderer"]? || t["sectionListContinuation"]? }
     .try &.["contents"].as_a
-      .each { |c| c.try &.["itemSectionRenderer"]["contents"].as_a
+      .each { |c| c.try &.["itemSectionRenderer"]?.try &.["contents"].as_a
         .try { |t| t[0]?.try &.["shelfRenderer"]?.try &.["content"]["expandedShelfContentsRenderer"]?.try &.["items"].as_a ||
           t[0]?.try &.["gridRenderer"]?.try &.["items"].as_a || t }
         .each { |item|
