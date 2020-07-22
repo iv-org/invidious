@@ -4,7 +4,7 @@
 
 ## Invidious is an alternative front-end to YouTube
 
-- [Copylefted libre software](https://github.com/omarroth/invidious) (AGPLv3+ licensed)
+- [Copylefted libre software](https://github.com/iv-org/invidious) (AGPLv3+ licensed)
 - Audio-only mode (and no need to keep window open on mobile)
 - Lightweight (the homepage is ~4 KB compressed)
 - Tools for managing subscriptions:
@@ -18,7 +18,7 @@
 - Set default player options (speed, quality, autoplay, loop)
 - Support for Reddit comments in place of YouTube comments
 - Import/Export subscriptions, watch history, preferences
-- [Developer API](https://github.com/omarroth/invidious/wiki/API)
+- [Developer API](https://github.com/iv-org/invidious/wiki/API)
 - Does not use any of the official YouTube APIs
 - Does not require JavaScript to play videos
 - No need to create a Google account to save subscriptions
@@ -32,7 +32,7 @@ BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 
 ## Invidious Instances
 
-[Public instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances) are to be found in this list.
+[Public instances](https://github.com/iv-org/invidious/wiki/Invidious-Instances) are to be found in this list.
 
 ### Official Instances
 
@@ -98,7 +98,7 @@ $ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libread
 ```bash
 $ useradd -m invidious
 $ sudo -i -u invidious
-$ git clone https://github.com/omarroth/invidious
+$ git clone https://github.com/iv-org/invidious
 $ exit
 ```
 
@@ -164,7 +164,7 @@ $ brew update
 $ brew install shards crystal postgres imagemagick librsvg
 
 # Clone the repository and set up a PostgreSQL database
-$ git clone https://github.com/omarroth/invidious
+$ git clone https://github.com/iv-org/invidious
 $ cd invidious
 $ brew services start postgresql
 $ psql -c "CREATE ROLE kemal WITH PASSWORD 'kemal';" # Change 'kemal' here to a stronger password, and update `password` in config/config.yml
@@ -187,7 +187,7 @@ $ crystal build src/invidious.cr --release
 
 ## Update Invidious
 
-Instructions are available in the [updating guide](https://github.com/omarroth/invidious/wiki/Updating).
+Instructions are available in the [updating guide](https://github.com/iv-org/invidious/wiki/Updating).
 
 ## Usage:
 
@@ -218,11 +218,11 @@ $ ./sentry
 
 ## Documentation
 
-[Documentation](https://github.com/omarroth/invidious/wiki) can be found in the wiki.
+[Documentation](https://github.com/iv-org/invidious/wiki) can be found in the wiki.
 
 ## Extensions
 
-[Extensions](https://github.com/omarroth/invidious/wiki/Extensions) can be found in the wiki, as well as documentation for integrating it into other projects.
+[Extensions](https://github.com/iv-org/invidious/wiki/Extensions) can be found in the wiki, as well as documentation for integrating it into other projects.
 
 ## Made with Invidious
 
@@ -234,7 +234,7 @@ $ ./sentry
 
 ## Contributing
 
-1.  Fork it ( https://github.com/omarroth/invidious/fork )
+1.  Fork it ( https://github.com/iv-org/invidious/fork )
 2.  Create your feature branch (git checkout -b my-new-feature)
 3.  Commit your changes (git commit -am 'Add some feature')
 4.  Push to the branch (git push origin my-new-feature)
@@ -248,4 +248,4 @@ $ ./sentry
 
 Feel free to send an e-mail to omarroth@protonmail.com or join our [Matrix server](https://riot.im/app/#/room/#invidious:matrix.org), or #invidious on freenode.
 
-You can also read the release notes on the [page of releases](https://github.com/omarroth/invidious/releases) [CHANGELOG.md](https://github.com/omarroth/invidious/changelog.md) included in the repository.
+You can also read the release notes on the [page of releases](https://github.com/iv-org/invidious/releases) [CHANGELOG.md](https://github.com/iv-org/invidious/blob/master/CHANGELOG.md) included in the repository.
