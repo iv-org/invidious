@@ -248,4 +248,4 @@ $ ./sentry
 
 Feel free to send an e-mail to omarroth@protonmail.com or join our [Matrix server](https://riot.im/app/#/room/#invidious:matrix.org), or #invidious on freenode.
 
-You can also read the release notes on the [page of releases](https://github.com/omarroth/invidious/releases) [CHANGELOG.md](https://github.com/omarroth/invidious/changelog.md) included in the repository.
+You can also read the release notes on the [page of releases](https://github.com/omarroth/invidious/releases) [CHANGELOG.md](https://github.com/omarroth/invidious/blob/master/CHANGELOG.md) included in the repository.
