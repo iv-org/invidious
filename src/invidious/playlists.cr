@@ -375,9 +375,9 @@ def fetch_playlist(plid, locale)
     text = stat["runs"]?.try &.as_a.map(&.["text"].as_s).join("") || stat["simpleText"]?.try &.as_s
     next if !text
 
-    if text.includes? "videos"
+    if text.includes? "video"
       video_count = text.gsub(/\D/, "").to_i? || 0
-    elsif text.includes? "views"
+    elsif text.includes? "view"
       views = text.gsub(/\D/, "").to_i64? || 0_i64
     else
       updated = decode_date(text.lchop("Last updated on ").lchop("Updated "))
