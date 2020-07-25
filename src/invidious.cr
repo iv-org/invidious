@@ -2427,18 +2427,39 @@ get "/subscription_manager" do |env|
   end
 
   subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousChannel)
-
   subscriptions.sort_by! { |channel| channel.author.downcase }
 
   if action_takeout
     if format == "json"
       env.response.content_type = "application/json"
       env.response.headers["content-disposition"] = "attachment"
-      next {
-        "subscriptions" => user.subscriptions,
-        "watch_history" => user.watched,
-        "preferences"   => user.preferences,
-      }.to_json
+      playlists = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+
+      next JSON.build do |json|
+        json.object do
+          json.field "subscriptions", user.subscriptions
+          json.field "watch_history", user.watched
+          json.field "preferences", user.preferences
+          json.field "playlists" do
+            json.array do
+              playlists.each do |playlist|
+                json.object do
+                  json.field "title", playlist.title
+                  json.field "description", html_to_content(playlist.description_html)
+                  json.field "privacy", playlist.privacy.to_s
+                  json.field "videos" do
+                    json.array do
+                      get_playlist_videos(PG_DB, playlist, offset: 0, locale: locale, continuation: nil).each_with_index do |video, index|
+                        json.string video.id
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
     else
       env.response.content_type = "application/xml"
       env.response.headers["content-disposition"] = "attachment"
@@ -2498,41 +2519,11 @@ post "/data_control" do |env|
   if user
     user = user.as(User)
 
-    spawn do
-      # Since import can take a while, if we're not done after 20 seconds
-      # push out content to prevent timeout.
-
-      # Interesting to note is that Chrome will try to render before the content has finished loading,
-      # which is why we include a loading icon. Firefox and its derivatives will not see this page,
-      # instead redirecting immediately once the connection has closed.
-
-      # https://stackoverflow.com/q/2091239 is helpful but not directly applicable here.
-
-      sleep 20.seconds
-      env.response.puts %(<meta http-equiv="refresh" content="0; url=#{referer}">)
-      env.response.puts %(<link rel="stylesheet" href="/css/ionicons.min.css?v=#{ASSET_COMMIT}">)
-      env.response.puts %(<link rel="stylesheet" href="/css/default.css?v=#{ASSET_COMMIT}">)
-      if env.get("preferences").as(Preferences).dark_mode == "dark"
-        env.response.puts %(<link rel="stylesheet" href="/css/darktheme.css?v=#{ASSET_COMMIT}">)
-      else
-        env.response.puts %(<link rel="stylesheet" href="/css/lighttheme.css?v=#{ASSET_COMMIT}">)
-      end
-      env.response.puts %(<h3><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>)
-      env.response.flush
-
-      loop do
-        env.response.puts %(<!-- keepalive #{Time.utc.to_unix} -->)
-        env.response.flush
-
-        sleep (20 + rand(11)).seconds
-      end
-    end
+    # TODO: Find better way to prevent timeout
 
     HTTP::FormData.parse(env.request) do |part|
       body = part.body.gets_to_end
-      if body.empty?
-        next
-      end
+      next if body.empty?
 
       # TODO: Unify into single import based on content-type
       case part.name
@@ -2557,6 +2548,50 @@ post "/data_control" do |env|
         if body["preferences"]?
           user.preferences = Preferences.from_json(body["preferences"].to_json, user.preferences)
           PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", user.preferences.to_json, user.email)
+        end
+
+        if playlists = body["playlists"]?.try &.as_a?
+          playlists.each do |item|
+            title = item["title"]?.try &.as_s?.try &.delete("<>")
+            description = item["description"]?.try &.as_s?.try &.delete("\r")
+            privacy = item["privacy"]?.try &.as_s?.try { |privacy| PlaylistPrivacy.parse? privacy }
+
+            next if !title
+            next if !description
+            next if !privacy
+
+            playlist = create_playlist(PG_DB, title, privacy, user)
+            PG_DB.exec("UPDATE playlists SET description = $1 WHERE id = $2", description, playlist.id)
+
+            videos = item["videos"]?.try &.as_a?.try &.each do |video_id|
+              video_id = video_id.try &.as_s?
+              next if !video_id
+
+              begin
+                video = get_video(video_id, PG_DB)
+              rescue ex
+                next
+              end
+
+              playlist_video = PlaylistVideo.new(
+                title: video.title,
+                id: video.id,
+                author: video.author,
+                ucid: video.ucid,
+                length_seconds: video.length_seconds,
+                published: video.published,
+                plid: playlist.id,
+                live_now: video.live_now,
+                index: Random::Secure.rand(0_i64..Int64::MAX)
+              )
+
+              video_array = playlist_video.to_a
+              args = arg_array(video_array)
+
+              PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
+              PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index), updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist.id)
+            end
+          end
         end
       when "import_youtube"
         subscriptions = XML.parse(body)
