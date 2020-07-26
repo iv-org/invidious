@@ -24,8 +24,9 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
   if cookies
     headers = cookies.add_request_headers(headers)
   end
-  response = YT_POOL.client &.get("/watch?v=#{video_id}&list=#{rdid}&gl=US&hl=en&has_verified=1&bpctr=9999999999", headers)
 
+  video_id = "CvFH_6DNRCY" if rdid.starts_with? "OLAK5uy_"
+  response = YT_POOL.client &.get("/watch?v=#{video_id}&list=#{rdid}&gl=US&hl=en", headers)
   initial_data = extract_initial_data(response.body)
 
   if !initial_data["contents"]["twoColumnWatchNextResults"]["playlist"]?
