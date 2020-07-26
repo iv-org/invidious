@@ -12,6 +12,8 @@ require "../src/invidious/search"
 require "../src/invidious/trending"
 require "../src/invidious/users"
 
+CONFIG = Config.from_yaml(File.open("config/config.yml"))
+
 describe "Helper" do
   describe "#produce_channel_videos_url" do
     it "correctly produces url for requesting page `x` of a channel's videos" do
