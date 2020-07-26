@@ -1,11 +1,23 @@
 class RedditThing
-  JSON.mapping({
-    kind: String,
-    data: RedditComment | RedditLink | RedditMore | RedditListing,
-  })
+  include JSON::Serializable
+
+  property kind : String
+  property data : RedditComment | RedditLink | RedditMore | RedditListing
 end
 
 class RedditComment
+  include JSON::Serializable
+
+  property author : String
+  property body_html : String
+  property replies : RedditThing | String
+  property score : Int32
+  property depth : Int32
+  property permalink : String
+
+  @[JSON::Field(converter: RedditComment::TimeConverter)]
+  property created_utc : Time
+
   module TimeConverter
     def self.from_json(value : JSON::PullParser) : Time
       Time.unix(value.read_float.to_i)
@@ -15,46 +27,33 @@ class RedditComment
       json.number(value.to_unix)
     end
   end
-
-  JSON.mapping({
-    author:      String,
-    body_html:   String,
-    replies:     RedditThing | String,
-    score:       Int32,
-    depth:       Int32,
-    permalink:   String,
-    created_utc: {
-      type:      Time,
-      converter: RedditComment::TimeConverter,
-    },
-  })
 end
 
 struct RedditLink
-  JSON.mapping({
-    author:       String,
-    score:        Int32,
-    subreddit:    String,
-    num_comments: Int32,
-    id:           String,
-    permalink:    String,
-    title:        String,
-  })
+  include JSON::Serializable
+
+  property author : String
+  property score : Int32
+  property subreddit : String
+  property num_comments : Int32
+  property id : String
+  property permalink : String
+  property title : String
 end
 
 struct RedditMore
-  JSON.mapping({
-    children: Array(String),
-    count:    Int32,
-    depth:    Int32,
-  })
+  include JSON::Serializable
+
+  property children : Array(String)
+  property count : Int32
+  property depth : Int32
 end
 
 class RedditListing
-  JSON.mapping({
-    children: Array(RedditThing),
-    modhash:  String,
-  })
+  include JSON::Serializable
+
+  property children : Array(RedditThing)
+  property modhash : String
 end
 
 def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, sort_by = "top")

@@ -1,4 +1,16 @@
 struct PlaylistVideo
+  include DB::Serializable
+
+  property title : String
+  property id : String
+  property author : String
+  property ucid : String
+  property length_seconds : Int32
+  property published : Time
+  property plid : String
+  property index : Int64
+  property live_now : Bool
+
   def to_xml(auto_generated, xml : XML::Builder)
     xml.element("entry") do
       xml.element("id") { xml.text "yt:video:#{self.id}" }
@@ -78,21 +90,22 @@ struct PlaylistVideo
       end
     end
   end
-
-  db_mapping({
-    title:          String,
-    id:             String,
-    author:         String,
-    ucid:           String,
-    length_seconds: Int32,
-    published:      Time,
-    plid:           String,
-    index:          Int64,
-    live_now:       Bool,
-  })
 end
 
 struct Playlist
+  include DB::Serializable
+
+  property title : String
+  property id : String
+  property author : String
+  property author_thumbnail : String
+  property ucid : String
+  property description : String
+  property video_count : Int32
+  property views : Int64
+  property updated : Time
+  property thumbnail : String?
+
   def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
     json.object do
       json.field "type", "playlist"
@@ -147,19 +160,6 @@ struct Playlist
     end
   end
 
-  db_mapping({
-    title:            String,
-    id:               String,
-    author:           String,
-    author_thumbnail: String,
-    ucid:             String,
-    description:      String,
-    video_count:      Int32,
-    views:            Int64,
-    updated:          Time,
-    thumbnail:        String?,
-  })
-
   def privacy
     PlaylistPrivacy::Public
   end
@@ -176,6 +176,29 @@ enum PlaylistPrivacy
 end
 
 struct InvidiousPlaylist
+  include DB::Serializable
+
+  property title : String
+  property id : String
+  property author : String
+  property description : String = ""
+  property video_count : Int32
+  property created : Time
+  property updated : Time
+
+  @[DB::Field(converter: InvidiousPlaylist::PlaylistPrivacyConverter)]
+  property privacy : PlaylistPrivacy = PlaylistPrivacy::Private
+  property index : Array(Int64)
+
+  @[DB::Field(ignore: true)]
+  property thumbnail_id : String?
+
+  module PlaylistPrivacyConverter
+    def self.from_rs(rs)
+      return PlaylistPrivacy.parse(String.new(rs.read(Slice(UInt8))))
+    end
+  end
+
   def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
     json.object do
       json.field "type", "invidiousPlaylist"
@@ -216,26 +239,6 @@ struct InvidiousPlaylist
     end
   end
 
-  property thumbnail_id
-
-  module PlaylistPrivacyConverter
-    def self.from_rs(rs)
-      return PlaylistPrivacy.parse(String.new(rs.read(Slice(UInt8))))
-    end
-  end
-
-  db_mapping({
-    title:       String,
-    id:          String,
-    author:      String,
-    description: {type: String, default: ""},
-    video_count: Int32,
-    created:     Time,
-    updated:     Time,
-    privacy:     {type: PlaylistPrivacy, default: PlaylistPrivacy::Private, converter: PlaylistPrivacyConverter},
-    index:       Array(Int64),
-  })
-
   def thumbnail
     @thumbnail_id ||= PG_DB.query_one?("SELECT id FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 1", self.id, self.index, as: String) || "-----------"
     "/vi/#{@thumbnail_id}/mqdefault.jpg"
@@ -261,17 +264,17 @@ end
 def create_playlist(db, title, privacy, user)
   plid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
 
-  playlist = InvidiousPlaylist.new(
-    title: title.byte_slice(0, 150),
-    id: plid,
-    author: user.email,
+  playlist = InvidiousPlaylist.new({
+    title:       title.byte_slice(0, 150),
+    id:          plid,
+    author:      user.email,
     description: "", # Max 5000 characters
     video_count: 0,
-    created: Time.utc,
-    updated: Time.utc,
-    privacy: privacy,
-    index: [] of Int64,
-  )
+    created:     Time.utc,
+    updated:     Time.utc,
+    privacy:     privacy,
+    index:       [] of Int64,
+  })
 
   playlist_array = playlist.to_a
   args = arg_array(playlist_array)
@@ -282,17 +285,17 @@ def create_playlist(db, title, privacy, user)
 end
 
 def subscribe_playlist(db, user, playlist)
-  playlist = InvidiousPlaylist.new(
-    title: playlist.title.byte_slice(0, 150),
-    id: playlist.id,
-    author: user.email,
+  playlist = InvidiousPlaylist.new({
+    title:       playlist.title.byte_slice(0, 150),
+    id:          playlist.id,
+    author:      user.email,
     description: "", # Max 5000 characters
     video_count: playlist.video_count,
-    created: Time.utc,
-    updated: playlist.updated,
-    privacy: PlaylistPrivacy::Private,
-    index: [] of Int64,
-  )
+    created:     Time.utc,
+    updated:     playlist.updated,
+    privacy:     PlaylistPrivacy::Private,
+    index:       [] of Int64,
+  })
 
   playlist_array = playlist.to_a
   args = arg_array(playlist_array)
@@ -393,18 +396,18 @@ def fetch_playlist(plid, locale)
   author = author_info["title"]["runs"][0]["text"]?.try &.as_s || ""
   ucid = author_info["title"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"]?.try &.as_s || ""
 
-  return Playlist.new(
-    title: title,
-    id: plid,
-    author: author,
+  return Playlist.new({
+    title:            title,
+    id:               plid,
+    author:           author,
     author_thumbnail: author_thumbnail,
-    ucid: ucid,
-    description: description,
-    video_count: video_count,
-    views: views,
-    updated: updated,
-    thumbnail: thumbnail
-  )
+    ucid:             ucid,
+    description:      description,
+    video_count:      video_count,
+    views:            views,
+    updated:          updated,
+    thumbnail:        thumbnail,
+  })
 end
 
 def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
@@ -471,17 +474,17 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
         length_seconds = 0
       end
 
-      videos << PlaylistVideo.new(
-        title: title,
-        id: video_id,
-        author: author,
-        ucid: ucid,
+      videos << PlaylistVideo.new({
+        title:          title,
+        id:             video_id,
+        author:         author,
+        ucid:           ucid,
         length_seconds: length_seconds,
-        published: Time.utc,
-        plid: plid,
-        live_now: live,
-        index: index - 1
-      )
+        published:      Time.utc,
+        plid:           plid,
+        live_now:       live,
+        index:          index - 1,
+      })
     end
   end
 

@@ -222,30 +222,50 @@ VIDEO_FORMATS = {
 }
 
 struct VideoPreferences
-  json_mapping({
-    annotations:        Bool,
-    autoplay:           Bool,
-    comments:           Array(String),
-    continue:           Bool,
-    continue_autoplay:  Bool,
-    controls:           Bool,
-    listen:             Bool,
-    local:              Bool,
-    preferred_captions: Array(String),
-    player_style:       String,
-    quality:            String,
-    raw:                Bool,
-    region:             String?,
-    related_videos:     Bool,
-    speed:              (Float32 | Float64),
-    video_end:          (Float64 | Int32),
-    video_loop:         Bool,
-    video_start:        (Float64 | Int32),
-    volume:             Int32,
-  })
+  include JSON::Serializable
+
+  property annotations : Bool
+  property autoplay : Bool
+  property comments : Array(String)
+  property continue : Bool
+  property continue_autoplay : Bool
+  property controls : Bool
+  property listen : Bool
+  property local : Bool
+  property preferred_captions : Array(String)
+  property player_style : String
+  property quality : String
+  property raw : Bool
+  property region : String?
+  property related_videos : Bool
+  property speed : Float32 | Float64
+  property video_end : Float64 | Int32
+  property video_loop : Bool
+  property video_start : Float64 | Int32
+  property volume : Int32
 end
 
 struct Video
+  include DB::Serializable
+
+  property id : String
+
+  @[DB::Field(converter: Video::JSONConverter)]
+  property info : Hash(String, JSON::Any)
+  property updated : Time
+
+  @[DB::Field(ignore: true)]
+  property captions : Array(Caption)?
+
+  @[DB::Field(ignore: true)]
+  property adaptive_fmts : Array(Hash(String, JSON::Any))?
+
+  @[DB::Field(ignore: true)]
+  property fmt_stream : Array(Hash(String, JSON::Any))?
+
+  @[DB::Field(ignore: true)]
+  property description : String?
+
   module JSONConverter
     def self.from_rs(rs)
       JSON.parse(rs.read(String)).as_h
@@ -552,6 +572,7 @@ struct Video
 
   def fmt_stream
     return @fmt_stream.as(Array(Hash(String, JSON::Any))) if @fmt_stream
+
     fmt_stream = info["streamingData"]?.try &.["formats"]?.try &.as_a.map &.as_h || [] of Hash(String, JSON::Any)
     fmt_stream.each do |fmt|
       if s = (fmt["cipher"]? || fmt["signatureCipher"]?).try { |h| HTTP::Params.parse(h.as_s) }
@@ -751,30 +772,20 @@ struct Video
   def session_token : String?
     info["sessionToken"]?.try &.as_s?
   end
-
-  db_mapping({
-    id:      String,
-    info:    {type: Hash(String, JSON::Any), converter: Video::JSONConverter},
-    updated: Time,
-  })
-
-  @captions : Array(Caption)?
-  @adaptive_fmts : Array(Hash(String, JSON::Any))?
-  @fmt_stream : Array(Hash(String, JSON::Any))?
-end
-
-struct Caption
-  json_mapping({
-    name:         CaptionName,
-    baseUrl:      String,
-    languageCode: String,
-  })
 end
 
 struct CaptionName
-  json_mapping({
-    simpleText: String,
-  })
+  include JSON::Serializable
+
+  property simpleText : String
+end
+
+struct Caption
+  include JSON::Serializable
+
+  property name : CaptionName
+  property baseUrl : String
+  property languageCode : String
 end
 
 class VideoRedirect < Exception
@@ -990,7 +1001,12 @@ def fetch_video(id, region)
 
   raise info["reason"]?.try &.as_s || "" if !info["videoDetails"]?
 
-  video = Video.new(id, info, Time.utc)
+  video = Video.new({
+    id:      id,
+    info:    info,
+    updated: Time.utc,
+  })
+
   return video
 end
 
@@ -1097,27 +1113,27 @@ def process_video_params(query, preferences)
   controls ||= 1
   controls = controls >= 1
 
-  params = VideoPreferences.new(
-    annotations: annotations,
-    autoplay: autoplay,
-    comments: comments,
-    continue: continue,
-    continue_autoplay: continue_autoplay,
-    controls: controls,
-    listen: listen,
-    local: local,
-    player_style: player_style,
+  params = VideoPreferences.new({
+    annotations:        annotations,
+    autoplay:           autoplay,
+    comments:           comments,
+    continue:           continue,
+    continue_autoplay:  continue_autoplay,
+    controls:           controls,
+    listen:             listen,
+    local:              local,
+    player_style:       player_style,
     preferred_captions: preferred_captions,
-    quality: quality,
-    raw: raw,
-    region: region,
-    related_videos: related_videos,
-    speed: speed,
-    video_end: video_end,
-    video_loop: video_loop,
-    video_start: video_start,
-    volume: volume,
-  )
+    quality:            quality,
+    raw:                raw,
+    region:             region,
+    related_videos:     related_videos,
+    speed:              speed,
+    video_end:          video_end,
+    video_loop:         video_loop,
+    video_start:        video_start,
+    volume:             volume,
+  })
 
   return params
 end

@@ -1,21 +1,21 @@
 struct MixVideo
-  db_mapping({
-    title:          String,
-    id:             String,
-    author:         String,
-    ucid:           String,
-    length_seconds: Int32,
-    index:          Int32,
-    rdid:           String,
-  })
+  include DB::Serializable
+
+  property title : String
+  property id : String
+  property author : String
+  property ucid : String
+  property length_seconds : Int32
+  property index : Int32
+  property rdid : String
 end
 
 struct Mix
-  db_mapping({
-    title:  String,
-    id:     String,
-    videos: Array(MixVideo),
-  })
+  include DB::Serializable
+
+  property title : String
+  property id : String
+  property videos : Array(MixVideo)
 end
 
 def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
@@ -48,23 +48,22 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
 
     id = item["videoId"].as_s
     title = item["title"]?.try &.["simpleText"].as_s
-    if !title
-      next
-    end
+    next if !title
+
     author = item["longBylineText"]["runs"][0]["text"].as_s
     ucid = item["longBylineText"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
     length_seconds = decode_length_seconds(item["lengthText"]["simpleText"].as_s)
     index = item["navigationEndpoint"]["watchEndpoint"]["index"].as_i
 
-    videos << MixVideo.new(
-      title,
-      id,
-      author,
-      ucid,
-      length_seconds,
-      index,
-      rdid
-    )
+    videos << MixVideo.new({
+      title:          title,
+      id:             id,
+      author:         author,
+      ucid:           ucid,
+      length_seconds: length_seconds,
+      index:          index,
+      rdid:           rdid,
+    })
   end
 
   if !cookies
@@ -74,7 +73,11 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
 
   videos.uniq! { |video| video.id }
   videos = videos.first(50)
-  return Mix.new(mix_title, rdid, videos)
+  return Mix.new({
+    title:  mix_title,
+    id:     rdid,
+    videos: videos,
+  })
 end
 
 def template_mix(mix)

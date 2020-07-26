@@ -1,4 +1,19 @@
 struct SearchVideo
+  include DB::Serializable
+
+  property title : String
+  property id : String
+  property author : String
+  property ucid : String
+  property published : Time
+  property views : Int64
+  property description_html : String
+  property length_seconds : Int32
+  property live_now : Bool
+  property paid : Bool
+  property premium : Bool
+  property premiere_timestamp : Time?
+
   def to_xml(auto_generated, query_params, xml : XML::Builder)
     query_params["v"] = self.id
 
@@ -99,32 +114,27 @@ struct SearchVideo
   def is_upcoming
     premiere_timestamp ? true : false
   end
-
-  db_mapping({
-    title:              String,
-    id:                 String,
-    author:             String,
-    ucid:               String,
-    published:          Time,
-    views:              Int64,
-    description_html:   String,
-    length_seconds:     Int32,
-    live_now:           Bool,
-    paid:               Bool,
-    premium:            Bool,
-    premiere_timestamp: Time?,
-  })
 end
 
 struct SearchPlaylistVideo
-  db_mapping({
-    title:          String,
-    id:             String,
-    length_seconds: Int32,
-  })
+  include DB::Serializable
+
+  property title : String
+  property id : String
+  property length_seconds : Int32
 end
 
 struct SearchPlaylist
+  include DB::Serializable
+
+  property title : String
+  property id : String
+  property author : String
+  property ucid : String
+  property video_count : Int32
+  property videos : Array(SearchPlaylistVideo)
+  property thumbnail : String?
+
   def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "type", "playlist"
@@ -164,19 +174,19 @@ struct SearchPlaylist
       end
     end
   end
-
-  db_mapping({
-    title:       String,
-    id:          String,
-    author:      String,
-    ucid:        String,
-    video_count: Int32,
-    videos:      Array(SearchPlaylistVideo),
-    thumbnail:   String?,
-  })
 end
 
 struct SearchChannel
+  include DB::Serializable
+
+  property author : String
+  property ucid : String
+  property author_thumbnail : String
+  property subscriber_count : Int32
+  property video_count : Int32
+  property description_html : String
+  property auto_generated : Bool
+
   def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "type", "channel"
@@ -216,16 +226,6 @@ struct SearchChannel
       end
     end
   end
-
-  db_mapping({
-    author:           String,
-    ucid:             String,
-    author_thumbnail: String,
-    subscriber_count: Int32,
-    video_count:      Int32,
-    description_html: String,
-    auto_generated:   Bool,
-  })
 end
 
 alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist

@@ -1,219 +1,100 @@
 require "./macros"
 
 struct Nonce
-  db_mapping({
-    nonce:  String,
-    expire: Time,
-  })
+  include DB::Serializable
+
+  property nonce : String
+  property expire : Time
 end
 
 struct SessionId
-  db_mapping({
-    id:     String,
-    email:  String,
-    issued: String,
-  })
+  include DB::Serializable
+
+  property id : String
+  property email : String
+  property issued : String
 end
 
 struct Annotation
-  db_mapping({
-    id:          String,
-    annotations: String,
-  })
+  include DB::Serializable
+
+  property id : String
+  property annotations : String
 end
 
 struct ConfigPreferences
-  module StringToArray
-    def self.to_json(value : Array(String), json : JSON::Builder)
-      json.array do
-        value.each do |element|
-          json.string element
-        end
-      end
-    end
+  include YAML::Serializable
 
-    def self.from_json(value : JSON::PullParser) : Array(String)
-      begin
-        result = [] of String
-        value.read_array do
-          result << HTML.escape(value.read_string[0, 100])
-        end
-      rescue ex
-        result = [HTML.escape(value.read_string[0, 100]), ""]
-      end
+  property annotations : Bool = false
+  property annotations_subscribed : Bool = false
+  property autoplay : Bool = false
+  property captions : Array(String) = ["", "", ""]
+  property comments : Array(String) = ["youtube", ""]
+  property continue : Bool = false
+  property continue_autoplay : Bool = true
+  property dark_mode : String = ""
+  property latest_only : Bool = false
+  property listen : Bool = false
+  property local : Bool = false
+  property locale : String = "en-US"
+  property max_results : Int32 = 40
+  property notifications_only : Bool = false
+  property player_style : String = "invidious"
+  property quality : String = "hd720"
+  property default_home : String = "Popular"
+  property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
+  property related_videos : Bool = true
+  property sort : String = "published"
+  property speed : Float32 = 1.0_f32
+  property thin_mode : Bool = false
+  property unseen_only : Bool = false
+  property video_loop : Bool = false
+  property volume : Int32 = 100
 
-      result
-    end
-
-    def self.to_yaml(value : Array(String), yaml : YAML::Nodes::Builder)
-      yaml.sequence do
-        value.each do |element|
-          yaml.scalar element
-        end
-      end
-    end
-
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Array(String)
-      begin
-        unless node.is_a?(YAML::Nodes::Sequence)
-          node.raise "Expected sequence, not #{node.class}"
-        end
-
-        result = [] of String
-        node.nodes.each do |item|
-          unless item.is_a?(YAML::Nodes::Scalar)
-            node.raise "Expected scalar, not #{item.class}"
-          end
-
-          result << HTML.escape(item.value[0, 100])
-        end
-      rescue ex
-        if node.is_a?(YAML::Nodes::Scalar)
-          result = [HTML.escape(node.value[0, 100]), ""]
-        else
-          result = ["", ""]
-        end
-      end
-
-      result
-    end
+  def to_tuple
+    {% begin %}
+      {
+        {{*@type.instance_vars.map { |var| "#{var.name}: #{var.name}".id }}}
+      }
+    {% end %}
   end
-
-  module BoolToString
-    def self.to_json(value : String, json : JSON::Builder)
-      json.string value
-    end
-
-    def self.from_json(value : JSON::PullParser) : String
-      begin
-        result = value.read_string
-
-        if result.empty?
-          CONFIG.default_user_preferences.dark_mode
-        else
-          result
-        end
-      rescue ex
-        if value.read_bool
-          "dark"
-        else
-          "light"
-        end
-      end
-    end
-
-    def self.to_yaml(value : String, yaml : YAML::Nodes::Builder)
-      yaml.scalar value
-    end
-
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : String
-      unless node.is_a?(YAML::Nodes::Scalar)
-        node.raise "Expected scalar, not #{node.class}"
-      end
-
-      case node.value
-      when "true"
-        "dark"
-      when "false"
-        "light"
-      when ""
-        CONFIG.default_user_preferences.dark_mode
-      else
-        node.value
-      end
-    end
-  end
-
-  yaml_mapping({
-    annotations:            {type: Bool, default: false},
-    annotations_subscribed: {type: Bool, default: false},
-    autoplay:               {type: Bool, default: false},
-    captions:               {type: Array(String), default: ["", "", ""], converter: StringToArray},
-    comments:               {type: Array(String), default: ["youtube", ""], converter: StringToArray},
-    continue:               {type: Bool, default: false},
-    continue_autoplay:      {type: Bool, default: true},
-    dark_mode:              {type: String, default: "", converter: BoolToString},
-    latest_only:            {type: Bool, default: false},
-    listen:                 {type: Bool, default: false},
-    local:                  {type: Bool, default: false},
-    locale:                 {type: String, default: "en-US"},
-    max_results:            {type: Int32, default: 40},
-    notifications_only:     {type: Bool, default: false},
-    player_style:           {type: String, default: "invidious"},
-    quality:                {type: String, default: "hd720"},
-    default_home:           {type: String, default: "Popular"},
-    feed_menu:              {type: Array(String), default: ["Popular", "Trending", "Subscriptions", "Playlists"]},
-    related_videos:         {type: Bool, default: true},
-    sort:                   {type: String, default: "published"},
-    speed:                  {type: Float32, default: 1.0_f32},
-    thin_mode:              {type: Bool, default: false},
-    unseen_only:            {type: Bool, default: false},
-    video_loop:             {type: Bool, default: false},
-    volume:                 {type: Int32, default: 100},
-  })
 end
 
 struct Config
-  module ConfigPreferencesConverter
-    def self.to_yaml(value : Preferences, yaml : YAML::Nodes::Builder)
-      value.to_yaml(yaml)
-    end
+  include YAML::Serializable
 
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Preferences
-      Preferences.new(*ConfigPreferences.new(ctx, node).to_tuple)
-    end
-  end
+  property channel_threads : Int32                 # Number of threads to use for crawling videos from channels (for updating subscriptions)
+  property feed_threads : Int32                    # Number of threads to use for updating feeds
+  property db : DBConfig                           # Database configuration
+  property full_refresh : Bool                     # Used for crawling channels: threads should check all videos uploaded by a channel
+  property https_only : Bool?                      # Used to tell Invidious it is behind a proxy, so links to resources should be https://
+  property hmac_key : String?                      # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
+  property domain : String?                        # Domain to be used for links to resources on the site where an absolute URL is required
+  property use_pubsub_feeds : Bool | Int32 = false # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
+  property captcha_enabled : Bool = true
+  property login_enabled : Bool = true
+  property registration_enabled : Bool = true
+  property statistics_enabled : Bool = false
+  property admins : Array(String) = [] of String
+  property external_port : Int32? = nil
+  property default_user_preferences : ConfigPreferences
+  property dmca_content : Array(String) = [] of String    # For compliance with DMCA, disables download widget using list of video IDs
+  property check_tables : Bool = false                    # Check table integrity, automatically try to add any missing columns, create tables, etc.
+  property cache_annotations : Bool = false               # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
+  property banner : String? = nil                         # Optional banner to be displayed along top of page for announcements, etc.
+  property hsts : Bool? = true                            # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
+  property disable_proxy : Bool? | Array(String)? = false # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
 
-  module FamilyConverter
-    def self.to_yaml(value : Socket::Family, yaml : YAML::Nodes::Builder)
-      case value
-      when Socket::Family::UNSPEC
-        yaml.scalar nil
-      when Socket::Family::INET
-        yaml.scalar "ipv4"
-      when Socket::Family::INET6
-        yaml.scalar "ipv6"
-      when Socket::Family::UNIX
-        raise "Invalid socket family #{value}"
-      end
-    end
+  @[YAML::Field(converter: Preferences::FamilyConverter)]
+  property force_resolve : Socket::Family = Socket::Family::UNSPEC # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
+  property port : Int32 = 3000                                     # Port to listen for connections (overrided by command line argument)
+  property host_binding : String = "0.0.0.0"                       # Host to bind (overrided by command line argument)
+  property pool_size : Int32 = 100                                 # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
+  property admin_email : String = "omarroth@protonmail.com"        # Email for bug reports
 
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Socket::Family
-      if node.is_a?(YAML::Nodes::Scalar)
-        case node.value.downcase
-        when "ipv4"
-          Socket::Family::INET
-        when "ipv6"
-          Socket::Family::INET6
-        else
-          Socket::Family::UNSPEC
-        end
-      else
-        node.raise "Expected scalar, not #{node.class}"
-      end
-    end
-  end
-
-  module StringToCookies
-    def self.to_yaml(value : HTTP::Cookies, yaml : YAML::Nodes::Builder)
-      (value.map { |c| "#{c.name}=#{c.value}" }).join("; ").to_yaml(yaml)
-    end
-
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : HTTP::Cookies
-      unless node.is_a?(YAML::Nodes::Scalar)
-        node.raise "Expected scalar, not #{node.class}"
-      end
-
-      cookies = HTTP::Cookies.new
-      node.value.split(";").each do |cookie|
-        next if cookie.strip.empty?
-        name, value = cookie.split("=", 2)
-        cookies << HTTP::Cookie.new(name.strip, value.strip)
-      end
-
-      cookies
-    end
-  end
+  @[YAML::Field(converter: Preferences::StringToCookies)]
+  property cookies : HTTP::Cookies = HTTP::Cookies.new # Saved cookies in "name1=value1; name2=value2..." format
+  property captcha_key : String? = nil                 # Key for Anti-Captcha
 
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
@@ -229,50 +110,16 @@ struct Config
       return false
     end
   end
-
-  YAML.mapping({
-    channel_threads:          Int32,                                # Number of threads to use for crawling videos from channels (for updating subscriptions)
-    feed_threads:             Int32,                                # Number of threads to use for updating feeds
-    db:                       DBConfig,                             # Database configuration
-    full_refresh:             Bool,                                 # Used for crawling channels: threads should check all videos uploaded by a channel
-    https_only:               Bool?,                                # Used to tell Invidious it is behind a proxy, so links to resources should be https://
-    hmac_key:                 String?,                              # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
-    domain:                   String?,                              # Domain to be used for links to resources on the site where an absolute URL is required
-    use_pubsub_feeds:         {type: Bool | Int32, default: false}, # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
-    captcha_enabled:          {type: Bool, default: true},
-    login_enabled:            {type: Bool, default: true},
-    registration_enabled:     {type: Bool, default: true},
-    statistics_enabled:       {type: Bool, default: false},
-    admins:                   {type: Array(String), default: [] of String},
-    external_port:            {type: Int32?, default: nil},
-    default_user_preferences: {type: Preferences,
-                               default: Preferences.new(*ConfigPreferences.from_yaml("").to_tuple),
-                               converter: ConfigPreferencesConverter,
-    },
-    dmca_content:      {type: Array(String), default: [] of String},                                        # For compliance with DMCA, disables download widget using list of video IDs
-    check_tables:      {type: Bool, default: false},                                                        # Check table integrity, automatically try to add any missing columns, create tables, etc.
-    cache_annotations: {type: Bool, default: false},                                                        # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
-    banner:            {type: String?, default: nil},                                                       # Optional banner to be displayed along top of page for announcements, etc.
-    hsts:              {type: Bool?, default: true},                                                        # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
-    disable_proxy:     {type: Bool? | Array(String)?, default: false},                                      # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
-    force_resolve:     {type: Socket::Family, default: Socket::Family::UNSPEC, converter: FamilyConverter}, # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
-    port:              {type: Int32, default: 3000},                                                        # Port to listen for connections (overrided by command line argument)
-    host_binding:      {type: String, default: "0.0.0.0"},                                                  # Host to bind (overrided by command line argument)
-    pool_size:         {type: Int32, default: 100},                                                         # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
-    admin_email:       {type: String, default: "omarroth@protonmail.com"},                                  # Email for bug reports
-    cookies:           {type: HTTP::Cookies, default: HTTP::Cookies.new, converter: StringToCookies},       # Saved cookies in "name1=value1; name2=value2..." format
-    captcha_key:       {type: String?, default: nil},                                                       # Key for Anti-Captcha
-  })
 end
 
 struct DBConfig
-  yaml_mapping({
-    user:     String,
-    password: String,
-    host:     String,
-    port:     Int32,
-    dbname:   String,
-  })
+  include YAML::Serializable
+
+  property user : String
+  property password : String
+  property host : String
+  property port : Int32
+  property dbname : String
 end
 
 def login_req(f_req)
@@ -365,20 +212,20 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
               end
             end
 
-            items << SearchVideo.new(
-              title: title,
-              id: video_id,
-              author: author,
-              ucid: author_id,
-              published: published,
-              views: view_count,
-              description_html: description_html,
-              length_seconds: length_seconds,
-              live_now: live_now,
-              paid: paid,
-              premium: premium,
-              premiere_timestamp: premiere_timestamp
-            )
+            items << SearchVideo.new({
+              title:              title,
+              id:                 video_id,
+              author:             author,
+              ucid:               author_id,
+              published:          published,
+              views:              view_count,
+              description_html:   description_html,
+              length_seconds:     length_seconds,
+              live_now:           live_now,
+              paid:               paid,
+              premium:            premium,
+              premiere_timestamp: premiere_timestamp,
+            })
           elsif i = item["channelRenderer"]?
             author = i["title"]["simpleText"]?.try &.as_s || author_fallback || ""
             author_id = i["channelId"]?.try &.as_s || author_id_fallback || ""
@@ -391,15 +238,15 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
             video_count = i["videoCountText"]?.try &.["runs"].as_a[0]?.try &.["text"].as_s.gsub(/\D/, "").to_i || 0
             description_html = i["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
 
-            items << SearchChannel.new(
-              author: author,
-              ucid: author_id,
+            items << SearchChannel.new({
+              author:           author,
+              ucid:             author_id,
               author_thumbnail: author_thumbnail,
               subscriber_count: subscriber_count,
-              video_count: video_count,
+              video_count:      video_count,
               description_html: description_html,
-              auto_generated: auto_generated,
-            )
+              auto_generated:   auto_generated,
+            })
           elsif i = item["gridPlaylistRenderer"]?
             title = i["title"]["runs"].as_a[0]?.try &.["text"].as_s || ""
             plid = i["playlistId"]?.try &.as_s || ""
@@ -407,15 +254,15 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
             video_count = i["videoCountText"]["runs"].as_a[0]?.try &.["text"].as_s.gsub(/\D/, "").to_i || 0
             playlist_thumbnail = i["thumbnail"]["thumbnails"][0]?.try &.["url"]?.try &.as_s || ""
 
-            items << SearchPlaylist.new(
-              title: title,
-              id: plid,
-              author: author_fallback || "",
-              ucid: author_id_fallback || "",
+            items << SearchPlaylist.new({
+              title:       title,
+              id:          plid,
+              author:      author_fallback || "",
+              ucid:        author_id_fallback || "",
               video_count: video_count,
-              videos: [] of SearchPlaylistVideo,
-              thumbnail: playlist_thumbnail
-            )
+              videos:      [] of SearchPlaylistVideo,
+              thumbnail:   playlist_thumbnail,
+            })
           elsif i = item["playlistRenderer"]?
             title = i["title"]["simpleText"]?.try &.as_s || ""
             plid = i["playlistId"]?.try &.as_s || ""
@@ -432,24 +279,24 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
               v_title = v["title"]["simpleText"]?.try &.as_s || ""
               v_id = v["videoId"]?.try &.as_s || ""
               v_length_seconds = v["lengthText"]?.try &.["simpleText"]?.try { |t| decode_length_seconds(t.as_s) } || 0
-              SearchPlaylistVideo.new(
-                title: v_title,
-                id: v_id,
-                length_seconds: v_length_seconds
-              )
+              SearchPlaylistVideo.new({
+                title:          v_title,
+                id:             v_id,
+                length_seconds: v_length_seconds,
+              })
             end || [] of SearchPlaylistVideo
 
             # TODO: i["publishedTimeText"]?
 
-            items << SearchPlaylist.new(
-              title: title,
-              id: plid,
-              author: author,
-              ucid: author_id,
+            items << SearchPlaylist.new({
+              title:       title,
+              id:          plid,
+              author:      author,
+              ucid:        author_id,
               video_count: video_count,
-              videos: videos,
-              thumbnail: playlist_thumbnail
-            )
+              videos:      videos,
+              thumbnail:   playlist_thumbnail,
+            })
           elsif i = item["radioRenderer"]? # Mix
             # TODO
           elsif i = item["showRenderer"]? # Show
@@ -465,6 +312,7 @@ end
 
 def check_enum(db, logger, enum_name, struct_type = nil)
   return # TODO
+
   if !db.query_one?("SELECT true FROM pg_type WHERE typname = $1", enum_name, as: Bool)
     logger.puts("CREATE TYPE #{enum_name}")
 
@@ -488,7 +336,7 @@ def check_table(db, logger, table_name, struct_type = nil)
 
   return if !struct_type
 
-  struct_array = struct_type.to_type_tuple
+  struct_array = struct_type.type_array
   column_array = get_column_array(db, table_name)
   column_types = File.read("config/sql/#{table_name}.sql").match(/CREATE TABLE public\.#{table_name}\n\((?<types>[\d\D]*?)\);/)
     .try &.["types"].split(",").map { |line| line.strip }.reject &.starts_with?("CONSTRAINT")

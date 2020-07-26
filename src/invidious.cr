@@ -1203,17 +1203,17 @@ post "/playlist_ajax" do |env|
       end
     end
 
-    playlist_video = PlaylistVideo.new(
-      title: video.title,
-      id: video.id,
-      author: video.author,
-      ucid: video.ucid,
+    playlist_video = PlaylistVideo.new({
+      title:          video.title,
+      id:             video.id,
+      author:         video.author,
+      ucid:           video.ucid,
       length_seconds: video.length_seconds,
-      published: video.published,
-      plid: playlist_id,
-      live_now: video.live_now,
-      index: Random::Secure.rand(0_i64..Int64::MAX)
-    )
+      published:      video.published,
+      plid:           playlist_id,
+      live_now:       video.live_now,
+      index:          Random::Secure.rand(0_i64..Int64::MAX),
+    })
 
     video_array = playlist_video.to_a
     args = arg_array(video_array)
@@ -1839,8 +1839,8 @@ post "/login" do |env|
       sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
       user, sid = create_user(sid, email, password)
       user_array = user.to_a
+      user_array[4] = user_array[4].to_json # User preferences
 
-      user_array[4] = user_array[4].to_json
       args = arg_array(user_array)
 
       PG_DB.exec("INSERT INTO users VALUES (#{args})", args: user_array)
@@ -2519,7 +2519,7 @@ post "/data_control" do |env|
   if user
     user = user.as(User)
 
-    # TODO: Find better way to prevent timeout
+    # TODO: Find a way to prevent browser timeout
 
     HTTP::FormData.parse(env.request) do |part|
       body = part.body.gets_to_end
@@ -2546,7 +2546,7 @@ post "/data_control" do |env|
         end
 
         if body["preferences"]?
-          user.preferences = Preferences.from_json(body["preferences"].to_json, user.preferences)
+          user.preferences = Preferences.from_json(body["preferences"].to_json)
           PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", user.preferences.to_json, user.email)
         end
 
@@ -2573,17 +2573,17 @@ post "/data_control" do |env|
                 next
               end
 
-              playlist_video = PlaylistVideo.new(
-                title: video.title,
-                id: video.id,
-                author: video.author,
-                ucid: video.ucid,
+              playlist_video = PlaylistVideo.new({
+                title:          video.title,
+                id:             video.id,
+                author:         video.author,
+                ucid:           video.ucid,
                 length_seconds: video.length_seconds,
-                published: video.published,
-                plid: playlist.id,
-                live_now: video.live_now,
-                index: Random::Secure.rand(0_i64..Int64::MAX)
-              )
+                published:      video.published,
+                plid:           playlist.id,
+                live_now:       video.live_now,
+                index:          Random::Secure.rand(0_i64..Int64::MAX),
+              })
 
               video_array = playlist_video.to_a
               args = arg_array(video_array)
@@ -3154,20 +3154,20 @@ get "/feed/channel/:ucid" do |env|
     description_html = entry.xpath_node("group/description").not_nil!.to_s
     views = entry.xpath_node("group/community/statistics").not_nil!.["views"].to_i64
 
-    SearchVideo.new(
-      title: title,
-      id: video_id,
-      author: author,
-      ucid: ucid,
-      published: published,
-      views: views,
-      description_html: description_html,
-      length_seconds: 0,
-      live_now: false,
-      paid: false,
-      premium: false,
-      premiere_timestamp: nil
-    )
+    SearchVideo.new({
+      title:              title,
+      id:                 video_id,
+      author:             author,
+      ucid:               ucid,
+      published:          published,
+      views:              views,
+      description_html:   description_html,
+      length_seconds:     0,
+      live_now:           false,
+      paid:               false,
+      premium:            false,
+      premiere_timestamp: nil,
+    })
   end
 
   XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -3397,18 +3397,18 @@ post "/feed/webhook/:token" do |env|
       }.to_json
       PG_DB.exec("NOTIFY notifications, E'#{payload}'")
 
-      video = ChannelVideo.new(
-        id: id,
-        title: video.title,
-        published: published,
-        updated: updated,
-        ucid: video.ucid,
-        author: author,
-        length_seconds: video.length_seconds,
-        live_now: video.live_now,
+      video = ChannelVideo.new({
+        id:                 id,
+        title:              video.title,
+        published:          published,
+        updated:            updated,
+        ucid:               video.ucid,
+        author:             author,
+        length_seconds:     video.length_seconds,
+        live_now:           video.live_now,
         premiere_timestamp: video.premiere_timestamp,
-        views: video.views,
-      )
+        views:              video.views,
+      })
 
       PG_DB.query_all("UPDATE users SET feed_needs_update = true, notifications = array_append(notifications, $1) \
         WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)",
@@ -4666,7 +4666,7 @@ post "/api/v1/auth/preferences" do |env|
   user = env.get("user").as(User)
 
   begin
-    preferences = Preferences.from_json(env.request.body || "{}", user.preferences)
+    preferences = Preferences.from_json(env.request.body || "{}")
   rescue
     preferences = user.preferences
   end
@@ -4920,17 +4920,17 @@ post "/api/v1/auth/playlists/:plid/videos" do |env|
     next error_message
   end
 
-  playlist_video = PlaylistVideo.new(
-    title: video.title,
-    id: video.id,
-    author: video.author,
-    ucid: video.ucid,
+  playlist_video = PlaylistVideo.new({
+    title:          video.title,
+    id:             video.id,
+    author:         video.author,
+    ucid:           video.ucid,
     length_seconds: video.length_seconds,
-    published: video.published,
-    plid: plid,
-    live_now: video.live_now,
-    index: Random::Secure.rand(0_i64..Int64::MAX)
-  )
+    published:      video.published,
+    plid:           plid,
+    live_now:       video.live_now,
+    index:          Random::Secure.rand(0_i64..Int64::MAX),
+  })
 
   video_array = playlist_video.to_a
   args = arg_array(video_array)

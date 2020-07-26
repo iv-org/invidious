@@ -67,7 +67,7 @@ def refresh_feeds(db, logger, config)
             begin
               # Drop outdated views
               column_array = get_column_array(db, view_name)
-              ChannelVideo.to_type_tuple.each_with_index do |name, i|
+              ChannelVideo.type_array.each_with_index do |name, i|
                 if name != column_array[i]?
                   logger.puts("DROP MATERIALIZED VIEW #{view_name}")
                   db.exec("DROP MATERIALIZED VIEW #{view_name}")

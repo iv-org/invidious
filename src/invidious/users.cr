@@ -4,6 +4,20 @@ require "crypto/bcrypt/password"
 MATERIALIZED_VIEW_SQL = ->(email : String) { "SELECT cv.* FROM channel_videos cv WHERE EXISTS (SELECT subscriptions FROM users u WHERE cv.ucid = ANY (u.subscriptions) AND u.email = E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}') ORDER BY published DESC" }
 
 struct User
+  include DB::Serializable
+
+  property updated : Time
+  property notifications : Array(String)
+  property subscriptions : Array(String)
+  property email : String
+
+  @[DB::Field(converter: User::PreferencesConverter)]
+  property preferences : Preferences
+  property password : String?
+  property token : String
+  property watched : Array(String)
+  property feed_needs_update : Bool?
+
   module PreferencesConverter
     def self.from_rs(rs)
       begin
@@ -13,31 +27,78 @@ struct User
       end
     end
   end
-
-  db_mapping({
-    updated:       Time,
-    notifications: Array(String),
-    subscriptions: Array(String),
-    email:         String,
-    preferences:   {
-      type:      Preferences,
-      converter: PreferencesConverter,
-    },
-    password:          String?,
-    token:             String,
-    watched:           Array(String),
-    feed_needs_update: Bool?,
-  })
 end
 
 struct Preferences
-  module ProcessString
+  include JSON::Serializable
+  include YAML::Serializable
+
+  property annotations : Bool = CONFIG.default_user_preferences.annotations
+  property annotations_subscribed : Bool = CONFIG.default_user_preferences.annotations_subscribed
+  property autoplay : Bool = CONFIG.default_user_preferences.autoplay
+
+  @[JSON::Field(converter: Preferences::StringToArray)]
+  @[YAML::Field(converter: Preferences::StringToArray)]
+  property captions : Array(String) = CONFIG.default_user_preferences.captions
+
+  @[JSON::Field(converter: Preferences::StringToArray)]
+  @[YAML::Field(converter: Preferences::StringToArray)]
+  property comments : Array(String) = CONFIG.default_user_preferences.comments
+  property continue : Bool = CONFIG.default_user_preferences.continue
+  property continue_autoplay : Bool = CONFIG.default_user_preferences.continue_autoplay
+
+  @[JSON::Field(converter: Preferences::BoolToString)]
+  @[YAML::Field(converter: Preferences::BoolToString)]
+  property dark_mode : String = CONFIG.default_user_preferences.dark_mode
+  property latest_only : Bool = CONFIG.default_user_preferences.latest_only
+  property listen : Bool = CONFIG.default_user_preferences.listen
+  property local : Bool = CONFIG.default_user_preferences.local
+
+  @[JSON::Field(converter: Preferences::ProcessString)]
+  property locale : String = CONFIG.default_user_preferences.locale
+
+  @[JSON::Field(converter: Preferences::ClampInt)]
+  property max_results : Int32 = CONFIG.default_user_preferences.max_results
+  property notifications_only : Bool = CONFIG.default_user_preferences.notifications_only
+
+  @[JSON::Field(converter: Preferences::ProcessString)]
+  property player_style : String = CONFIG.default_user_preferences.player_style
+
+  @[JSON::Field(converter: Preferences::ProcessString)]
+  property quality : String = CONFIG.default_user_preferences.quality
+  property default_home : String = CONFIG.default_user_preferences.default_home
+  property feed_menu : Array(String) = CONFIG.default_user_preferences.feed_menu
+  property related_videos : Bool = CONFIG.default_user_preferences.related_videos
+
+  @[JSON::Field(converter: Preferences::ProcessString)]
+  property sort : String = CONFIG.default_user_preferences.sort
+  property speed : Float32 = CONFIG.default_user_preferences.speed
+  property thin_mode : Bool = CONFIG.default_user_preferences.thin_mode
+  property unseen_only : Bool = CONFIG.default_user_preferences.unseen_only
+  property video_loop : Bool = CONFIG.default_user_preferences.video_loop
+  property volume : Int32 = CONFIG.default_user_preferences.volume
+
+  module BoolToString
     def self.to_json(value : String, json : JSON::Builder)
       json.string value
     end
 
     def self.from_json(value : JSON::PullParser) : String
-      HTML.escape(value.read_string[0, 100])
+      begin
+        result = value.read_string
+
+        if result.empty?
+          CONFIG.default_user_preferences.dark_mode
+        else
+          result
+        end
+      rescue ex
+        if value.read_bool
+          "dark"
+        else
+          "light"
+        end
+      end
     end
 
     def self.to_yaml(value : String, yaml : YAML::Nodes::Builder)
@@ -45,7 +106,20 @@ struct Preferences
     end
 
     def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : String
-      HTML.escape(node.value[0, 100])
+      unless node.is_a?(YAML::Nodes::Scalar)
+        node.raise "Expected scalar, not #{node.class}"
+      end
+
+      case node.value
+      when "true"
+        "dark"
+      when "false"
+        "light"
+      when ""
+        CONFIG.default_user_preferences.dark_mode
+      else
+        node.value
+      end
     end
   end
 
@@ -67,33 +141,130 @@ struct Preferences
     end
   end
 
-  json_mapping({
-    annotations:            {type: Bool, default: CONFIG.default_user_preferences.annotations},
-    annotations_subscribed: {type: Bool, default: CONFIG.default_user_preferences.annotations_subscribed},
-    autoplay:               {type: Bool, default: CONFIG.default_user_preferences.autoplay},
-    captions:               {type: Array(String), default: CONFIG.default_user_preferences.captions, converter: ConfigPreferences::StringToArray},
-    comments:               {type: Array(String), default: CONFIG.default_user_preferences.comments, converter: ConfigPreferences::StringToArray},
-    continue:               {type: Bool, default: CONFIG.default_user_preferences.continue},
-    continue_autoplay:      {type: Bool, default: CONFIG.default_user_preferences.continue_autoplay},
-    dark_mode:              {type: String, default: CONFIG.default_user_preferences.dark_mode, converter: ConfigPreferences::BoolToString},
-    latest_only:            {type: Bool, default: CONFIG.default_user_preferences.latest_only},
-    listen:                 {type: Bool, default: CONFIG.default_user_preferences.listen},
-    local:                  {type: Bool, default: CONFIG.default_user_preferences.local},
-    locale:                 {type: String, default: CONFIG.default_user_preferences.locale, converter: ProcessString},
-    max_results:            {type: Int32, default: CONFIG.default_user_preferences.max_results, converter: ClampInt},
-    notifications_only:     {type: Bool, default: CONFIG.default_user_preferences.notifications_only},
-    player_style:           {type: String, default: CONFIG.default_user_preferences.player_style, converter: ProcessString},
-    quality:                {type: String, default: CONFIG.default_user_preferences.quality, converter: ProcessString},
-    default_home:           {type: String, default: CONFIG.default_user_preferences.default_home},
-    feed_menu:              {type: Array(String), default: CONFIG.default_user_preferences.feed_menu},
-    related_videos:         {type: Bool, default: CONFIG.default_user_preferences.related_videos},
-    sort:                   {type: String, default: CONFIG.default_user_preferences.sort, converter: ProcessString},
-    speed:                  {type: Float32, default: CONFIG.default_user_preferences.speed},
-    thin_mode:              {type: Bool, default: CONFIG.default_user_preferences.thin_mode},
-    unseen_only:            {type: Bool, default: CONFIG.default_user_preferences.unseen_only},
-    video_loop:             {type: Bool, default: CONFIG.default_user_preferences.video_loop},
-    volume:                 {type: Int32, default: CONFIG.default_user_preferences.volume},
-  })
+  module FamilyConverter
+    def self.to_yaml(value : Socket::Family, yaml : YAML::Nodes::Builder)
+      case value
+      when Socket::Family::UNSPEC
+        yaml.scalar nil
+      when Socket::Family::INET
+        yaml.scalar "ipv4"
+      when Socket::Family::INET6
+        yaml.scalar "ipv6"
+      when Socket::Family::UNIX
+        raise "Invalid socket family #{value}"
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Socket::Family
+      if node.is_a?(YAML::Nodes::Scalar)
+        case node.value.downcase
+        when "ipv4"
+          Socket::Family::INET
+        when "ipv6"
+          Socket::Family::INET6
+        else
+          Socket::Family::UNSPEC
+        end
+      else
+        node.raise "Expected scalar, not #{node.class}"
+      end
+    end
+  end
+
+  module ProcessString
+    def self.to_json(value : String, json : JSON::Builder)
+      json.string value
+    end
+
+    def self.from_json(value : JSON::PullParser) : String
+      HTML.escape(value.read_string[0, 100])
+    end
+
+    def self.to_yaml(value : String, yaml : YAML::Nodes::Builder)
+      yaml.scalar value
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : String
+      HTML.escape(node.value[0, 100])
+    end
+  end
+
+  module StringToArray
+    def self.to_json(value : Array(String), json : JSON::Builder)
+      json.array do
+        value.each do |element|
+          json.string element
+        end
+      end
+    end
+
+    def self.from_json(value : JSON::PullParser) : Array(String)
+      begin
+        result = [] of String
+        value.read_array do
+          result << HTML.escape(value.read_string[0, 100])
+        end
+      rescue ex
+        result = [HTML.escape(value.read_string[0, 100]), ""]
+      end
+
+      result
+    end
+
+    def self.to_yaml(value : Array(String), yaml : YAML::Nodes::Builder)
+      yaml.sequence do
+        value.each do |element|
+          yaml.scalar element
+        end
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Array(String)
+      begin
+        unless node.is_a?(YAML::Nodes::Sequence)
+          node.raise "Expected sequence, not #{node.class}"
+        end
+
+        result = [] of String
+        node.nodes.each do |item|
+          unless item.is_a?(YAML::Nodes::Scalar)
+            node.raise "Expected scalar, not #{item.class}"
+          end
+
+          result << HTML.escape(item.value[0, 100])
+        end
+      rescue ex
+        if node.is_a?(YAML::Nodes::Scalar)
+          result = [HTML.escape(node.value[0, 100]), ""]
+        else
+          result = ["", ""]
+        end
+      end
+
+      result
+    end
+  end
+
+  module StringToCookies
+    def self.to_yaml(value : HTTP::Cookies, yaml : YAML::Nodes::Builder)
+      (value.map { |c| "#{c.name}=#{c.value}" }).join("; ").to_yaml(yaml)
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : HTTP::Cookies
+      unless node.is_a?(YAML::Nodes::Scalar)
+        node.raise "Expected scalar, not #{node.class}"
+      end
+
+      cookies = HTTP::Cookies.new
+      node.value.split(";").each do |cookie|
+        next if cookie.strip.empty?
+        name, value = cookie.split("=", 2)
+        cookies << HTTP::Cookie.new(name.strip, value.strip)
+      end
+
+      cookies
+    end
+  end
 end
 
 def get_user(sid, headers, db, refresh = true)
@@ -103,8 +274,7 @@ def get_user(sid, headers, db, refresh = true)
     if refresh && Time.utc - user.updated > 1.minute
       user, sid = fetch_user(sid, headers, db)
       user_array = user.to_a
-
-      user_array[4] = user_array[4].to_json
+      user_array[4] = user_array[4].to_json # User preferences
       args = arg_array(user_array)
 
       db.exec("INSERT INTO users VALUES (#{args}) \
@@ -122,8 +292,7 @@ def get_user(sid, headers, db, refresh = true)
   else
     user, sid = fetch_user(sid, headers, db)
     user_array = user.to_a
-
-    user_array[4] = user_array[4].to_json
+    user_array[4] = user_array[4].to_json # User preferences
     args = arg_array(user.to_a)
 
     db.exec("INSERT INTO users VALUES (#{args}) \
@@ -166,7 +335,17 @@ def fetch_user(sid, headers, db)
 
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(Time.utc, [] of String, channels, email, CONFIG.default_user_preferences, nil, token, [] of String, true)
+  user = User.new({
+    updated:           Time.utc,
+    notifications:     [] of String,
+    subscriptions:     channels,
+    email:             email,
+    preferences:       Preferences.new(CONFIG.default_user_preferences.to_tuple),
+    password:          nil,
+    token:             token,
+    watched:           [] of String,
+    feed_needs_update: true,
+  })
   return user, sid
 end
 
@@ -174,7 +353,17 @@ def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new(Time.utc, [] of String, [] of String, email, CONFIG.default_user_preferences, password.to_s, token, [] of String, true)
+  user = User.new({
+    updated:           Time.utc,
+    notifications:     [] of String,
+    subscriptions:     [] of String,
+    email:             email,
+    preferences:       Preferences.new(CONFIG.default_user_preferences.to_tuple),
+    password:          password.to_s,
+    token:             token,
+    watched:           [] of String,
+    feed_needs_update: true,
+  })
 
   return user, sid
 end
@@ -280,48 +469,6 @@ def subscribe_ajax(channel_id, action, env_headers)
     YT_POOL.client &.post(post_url, headers, form: post_req)
   end
 end
-
-# TODO: Playlist stub, sync with YouTube for Google accounts
-# def playlist_ajax(video_ids, source_playlist_id, name, privacy, action, env_headers)
-#   headers = HTTP::Headers.new
-#   headers["Cookie"] = env_headers["Cookie"]
-#
-#   html = YT_POOL.client &.get("/view_all_playlists", headers)
-#
-#   cookies = HTTP::Cookies.from_headers(headers)
-#   html.cookies.each do |cookie|
-#     if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
-#       if cookies[cookie.name]?
-#         cookies[cookie.name] = cookie
-#       else
-#         cookies << cookie
-#       end
-#     end
-#   end
-#   headers = cookies.add_request_headers(headers)
-#
-#   if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[^"]+)"/)
-#     session_token = match["session_token"]
-#
-#     headers["content-type"] = "application/x-www-form-urlencoded"
-#
-#     post_req = {
-#       video_ids:          [] of String,
-#       source_playlist_id: "",
-#       n:                  name,
-#       p:                  privacy,
-#       session_token:      session_token,
-#     }
-#     post_url = "/playlist_ajax?#{action}=1"
-#
-#     response = client.post(post_url, headers, form: post_req)
-#     if response.status_code == 200
-#       return JSON.parse(response.body)["result"]["playlistId"].as_s
-#     else
-#       return nil
-#     end
-#   end
-# end
 
 def get_subscription_feed(db, user, max_results = 40, page = 1)
   limit = max_results.clamp(0, MAX_ITEMS_PER_PAGE)

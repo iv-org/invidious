@@ -1,14 +1,27 @@
 struct InvidiousChannel
-  db_mapping({
-    id:         String,
-    author:     String,
-    updated:    Time,
-    deleted:    Bool,
-    subscribed: Time?,
-  })
+  include DB::Serializable
+
+  property id : String
+  property author : String
+  property updated : Time
+  property deleted : Bool
+  property subscribed : Time?
 end
 
 struct ChannelVideo
+  include DB::Serializable
+
+  property id : String
+  property title : String
+  property published : Time
+  property updated : Time
+  property ucid : String
+  property author : String
+  property length_seconds : Int32 = 0
+  property live_now : Bool = false
+  property premiere_timestamp : Time? = nil
+  property views : Int64? = nil
+
   def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "type", "shortVideo"
@@ -84,49 +97,36 @@ struct ChannelVideo
       end
     end
   end
-
-  db_mapping({
-    id:                 String,
-    title:              String,
-    published:          Time,
-    updated:            Time,
-    ucid:               String,
-    author:             String,
-    length_seconds:     {type: Int32, default: 0},
-    live_now:           {type: Bool, default: false},
-    premiere_timestamp: {type: Time?, default: nil},
-    views:              {type: Int64?, default: nil},
-  })
 end
 
 struct AboutRelatedChannel
-  db_mapping({
-    ucid:             String,
-    author:           String,
-    author_url:       String,
-    author_thumbnail: String,
-  })
+  include DB::Serializable
+
+  property ucid : String
+  property author : String
+  property author_url : String
+  property author_thumbnail : String
 end
 
 # TODO: Refactor into either SearchChannel or InvidiousChannel
 struct AboutChannel
-  db_mapping({
-    ucid:               String,
-    author:             String,
-    auto_generated:     Bool,
-    author_url:         String,
-    author_thumbnail:   String,
-    banner:             String?,
-    description_html:   String,
-    paid:               Bool,
-    total_views:        Int64,
-    sub_count:          Int32,
-    joined:             Time,
-    is_family_friendly: Bool,
-    allowed_regions:    Array(String),
-    related_channels:   Array(AboutRelatedChannel),
-    tabs:               Array(String),
-  })
+  include DB::Serializable
+
+  property ucid : String
+  property author : String
+  property auto_generated : Bool
+  property author_url : String
+  property author_thumbnail : String
+  property banner : String?
+  property description_html : String
+  property paid : Bool
+  property total_views : Int64
+  property sub_count : Int32
+  property joined : Time
+  property is_family_friendly : Bool
+  property allowed_regions : Array(String)
+  property related_channels : Array(AboutRelatedChannel)
+  property tabs : Array(String)
 end
 
 class ChannelRedirect < Exception
@@ -248,18 +248,18 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
     premiere_timestamp = channel_video.try &.premiere_timestamp
 
-    video = ChannelVideo.new(
-      id: video_id,
-      title: title,
-      published: published,
-      updated: Time.utc,
-      ucid: ucid,
-      author: author,
-      length_seconds: length_seconds,
-      live_now: live_now,
+    video = ChannelVideo.new({
+      id:                 video_id,
+      title:              title,
+      published:          published,
+      updated:            Time.utc,
+      ucid:               ucid,
+      author:             author,
+      length_seconds:     length_seconds,
+      live_now:           live_now,
       premiere_timestamp: premiere_timestamp,
-      views: views,
-    )
+      views:              views,
+    })
 
     emails = db.query_all("UPDATE users SET notifications = array_append(notifications, $1) \
       WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
@@ -298,18 +298,18 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       videos = extract_videos(initial_data.as_h, author, ucid)
 
       count = videos.size
-      videos = videos.map { |video| ChannelVideo.new(
-        id: video.id,
-        title: video.title,
-        published: video.published,
-        updated: Time.utc,
-        ucid: video.ucid,
-        author: video.author,
-        length_seconds: video.length_seconds,
-        live_now: video.live_now,
+      videos = videos.map { |video| ChannelVideo.new({
+        id:                 video.id,
+        title:              video.title,
+        published:          video.published,
+        updated:            Time.utc,
+        ucid:               video.ucid,
+        author:             video.author,
+        length_seconds:     video.length_seconds,
+        live_now:           video.live_now,
         premiere_timestamp: video.premiere_timestamp,
-        views: video.views
-      ) }
+        views:              video.views,
+      }) }
 
       videos.each do |video|
         ids << video.id
@@ -352,7 +352,13 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{ids.map { |id| %("#{id}") }.join(",")}}') AND ucid = $1", ucid)
   end
 
-  channel = InvidiousChannel.new(ucid, author, Time.utc, false, nil)
+  channel = InvidiousChannel.new({
+    id:         ucid,
+    author:     author,
+    updated:    Time.utc,
+    deleted:    false,
+    subscribed: nil,
+  })
 
   return channel
 end
@@ -395,12 +401,12 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
     "80226972:embedded" => {
       "2:string" => ucid,
       "3:base64" => {
-        "2:string" => "videos",
-        "6:varint":   2_i64,
-        "7:varint":   1_i64,
-        "12:varint":  1_i64,
-        "13:string":  "",
-        "23:varint":  0_i64,
+        "2:string"  => "videos",
+        "6:varint"  => 2_i64,
+        "7:varint"  => 1_i64,
+        "12:varint" => 1_i64,
+        "13:string" => "",
+        "23:varint" => 0_i64,
       },
     },
   }
@@ -444,12 +450,12 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
     "80226972:embedded" => {
       "2:string" => ucid,
       "3:base64" => {
-        "2:string" => "playlists",
-        "6:varint":   2_i64,
-        "7:varint":   1_i64,
-        "12:varint":  1_i64,
-        "13:string":  "",
-        "23:varint":  0_i64,
+        "2:string"  => "playlists",
+        "6:varint"  => 2_i64,
+        "7:varint"  => 1_i64,
+        "12:varint" => 1_i64,
+        "13:string" => "",
+        "23:varint" => 0_i64,
       },
     },
   }
@@ -849,12 +855,12 @@ def get_about_info(ucid, locale)
     related_author_thumbnail = node.xpath_node(%q(.//img)).try &.["data-thumb"]
     related_author_thumbnail ||= ""
 
-    AboutRelatedChannel.new(
-      ucid: related_id,
-      author: related_title,
-      author_url: related_author_url,
+    AboutRelatedChannel.new({
+      ucid:             related_id,
+      author:           related_title,
+      author_url:       related_author_url,
       author_thumbnail: related_author_thumbnail,
-    )
+    })
   end
 
   joined = about.xpath_node(%q(//span[contains(., "Joined")]))
@@ -876,23 +882,23 @@ def get_about_info(ucid, locale)
 
   tabs = about.xpath_nodes(%q(//ul[@id="channel-navigation-menu"]/li/a/span)).map { |node| node.content.downcase }
 
-  AboutChannel.new(
-    ucid: ucid,
-    author: author,
-    auto_generated: auto_generated,
-    author_url: author_url,
-    author_thumbnail: author_thumbnail,
-    banner: banner,
-    description_html: description_html,
-    paid: paid,
-    total_views: total_views,
-    sub_count: sub_count,
-    joined: joined,
+  AboutChannel.new({
+    ucid:               ucid,
+    author:             author,
+    auto_generated:     auto_generated,
+    author_url:         author_url,
+    author_thumbnail:   author_thumbnail,
+    banner:             banner,
+    description_html:   description_html,
+    paid:               paid,
+    total_views:        total_views,
+    sub_count:          sub_count,
+    joined:             joined,
     is_family_friendly: is_family_friendly,
-    allowed_regions: allowed_regions,
-    related_channels: related_channels,
-    tabs: tabs
-  )
+    allowed_regions:    allowed_regions,
+    related_channels:   related_channels,
+    tabs:               tabs,
+  })
 end
 
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
