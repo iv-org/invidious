@@ -1,10 +1,11 @@
 a:hover,
-a:active {
-  color: #167ac6 !important;
+a:focus {
+  color: #075A9E !important;
+  text-decoration: underline;
 }
 
 a {
-  color: #61809b;
+  color: #335d7a;
   text-decoration: none;
 }
 
