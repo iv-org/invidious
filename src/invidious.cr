@@ -2449,8 +2449,8 @@ get "/subscription_manager" do |env|
                   json.field "privacy", playlist.privacy.to_s
                   json.field "videos" do
                     json.array do
-                      get_playlist_videos(PG_DB, playlist, offset: 0, locale: locale, continuation: nil).each_with_index do |video, index|
-                        json.string video.id
+                      PG_DB.query_all("SELECT id FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 500", playlist.id, playlist.index, as: String).each do |video_id|
+                        json.string video_id
                       end
                     end
                   end
@@ -2563,7 +2563,9 @@ post "/data_control" do |env|
             playlist = create_playlist(PG_DB, title, privacy, user)
             PG_DB.exec("UPDATE playlists SET description = $1 WHERE id = $2", description, playlist.id)
 
-            videos = item["videos"]?.try &.as_a?.try &.each do |video_id|
+            videos = item["videos"]?.try &.as_a?.try &.each_with_index do |video_id, idx|
+              raise "Playlist cannot have more than 500 videos" if idx > 500
+
               video_id = video_id.try &.as_s?
               next if !video_id
 
