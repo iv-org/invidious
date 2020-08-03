@@ -1,14 +1,18 @@
 version: '3'
 services:
   postgres:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.postgres
+    image: postgres:10
     restart: unless-stopped
     volumes:
       - postgresdata:/var/lib/postgresql/data
+      - ./config/sql:/config/sql
+      - ./docker/init-invidious-db.sh:/docker-entrypoint-initdb.d/init-invidious-db.sh
+    environment:
+      POSTGRES_DB: invidious
+      POSTGRES_PASSWORD: kemal
+      POSTGRES_USER: kemal
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"] 
+      test: ["CMD", "pg_isready", "-U", "postgres"]
   invidious:
     build:
       context: .
