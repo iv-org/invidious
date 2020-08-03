@@ -24,6 +24,7 @@ services:
       # Adapted from ./config/config.yml
       INVIDIOUS_CONFIG: |
         channel_threads: 1
+        check_tables: true
         feed_threads: 1
         db:
           user: kemal
