@@ -75,7 +75,9 @@ $ docker volume rm invidious_postgresdata
 $ docker-compose build
 ```
 
-### Linux:
+### Linux
+
+To manually compile invidious you need at least 2GB of RAM. If you have less you can setup SWAP to have a combined amount of 2 GB or use Docker instead.
 
 #### Install the dependencies
 
