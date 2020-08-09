@@ -2,6 +2,7 @@
 Description=Invidious (An alternative YouTube front-end)
 After=syslog.target
 After=network.target
+LimitNOFILE=infinity
 
 [Service]
 RestartSec=2s
