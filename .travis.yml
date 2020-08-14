@@ -9,6 +9,8 @@ jobs:
       language: crystal
       crystal: latest
       before_install:
+        - sudo apt-get update
+        - sudo apt-get -y install gcc pkg-config git tzdata libpcre3-dev libevent-dev libyaml-dev libgmp-dev libssl-dev libxml2-dev
         - shards update
         - shards install
       install:
