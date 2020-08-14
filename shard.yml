@@ -25,7 +25,7 @@ dependencies:
     github: omarroth/protodec
     version: ~> 0.1.2
   lsquic:
-    github: omarroth/lsquic.cr
+    github: iv-org/lsquic.cr
     version: ~> 2.18.1
 
 crystal: 0.35.1
