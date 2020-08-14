@@ -1,6 +1,6 @@
 # Invidious
 
-[![Build Status](https://travis-ci.org/omarroth/invidious.svg?branch=master)](https://travis-ci.org/omarroth/invidious)
+[![Build Status](https://travis-ci.org/iv-org/invidious.svg?branch=master)](https://travis-ci.org/github/iv-org/invidious)
 
 ## Invidious is an alternative front-end to YouTube
 

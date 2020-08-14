@@ -1,5 +1,20 @@
 dist: bionic
 
+# Work around broken Travis Crystal image
+addons:
+  apt:
+    packages:
+      - gcc
+      - pkg-config
+      - git
+      - tzdata
+      - libpcre3-dev
+      - libevent-dev
+      - libyaml-dev
+      - libgmp-dev
+      - libssl-dev
+      - libxml2-dev
+
 jobs:
   include:
     - stage: build
@@ -9,6 +24,7 @@ jobs:
       language: crystal
       crystal: latest
       before_install:
+        - crystal --version
         - shards update
         - shards install
       install:
