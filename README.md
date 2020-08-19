@@ -233,6 +233,7 @@ $ ./sentry
 - [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
 - [LapisTube](https://github.com/blubbll/lapis-tube): A fancy and advanced (experimental) YouTube front-end. Combined streams & custom YT features.
+- [HoloPlay](https://github.com/stephane-r/HoloPlay): Funny Android application connecting on Invidious API's with search, playlists and favoris.
 
 ## Contributing
 
