@@ -5855,7 +5855,7 @@ end
 error 500 do |env|
   error_message = <<-END_HTML
   Looks like you've found a bug in Invidious. Feel free to open a new issue
-  <a href="https://github.com/omarroth/invidious/issues">here</a>
+  <a href="https://github.com/iv-org/invidious/issues">here</a>
   or send an email to
   <a href="mailto:#{CONFIG.admin_email}">#{CONFIG.admin_email}</a>.
   END_HTML
