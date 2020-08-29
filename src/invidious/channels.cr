@@ -396,7 +396,7 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
   return items, continuation
 end
 
-def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "newest")
+def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
   object = {
     "80226972:embedded" => {
       "2:string" => ucid,
@@ -411,18 +411,33 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
     },
   }
 
-  if auto_generated
-    seed = Time.unix(1525757349)
-    until seed >= Time.utc
-      seed += 1.month
-    end
-    timestamp = seed - (page - 1).months
+  if !v2
+    if auto_generated
+      seed = Time.unix(1525757349)
+      until seed >= Time.utc
+        seed += 1.month
+      end
+      timestamp = seed - (page - 1).months
 
-    object["80226972:embedded"]["3:base64"].as(Hash)["4:varint"] = 0x36_i64
-    object["80226972:embedded"]["3:base64"].as(Hash)["15:string"] = "#{timestamp.to_unix}"
+      object["80226972:embedded"]["3:base64"].as(Hash)["4:varint"] = 0x36_i64
+      object["80226972:embedded"]["3:base64"].as(Hash)["15:string"] = "#{timestamp.to_unix}"
+    else
+      object["80226972:embedded"]["3:base64"].as(Hash)["4:varint"] = 0_i64
+      object["80226972:embedded"]["3:base64"].as(Hash)["15:string"] = "#{page}"
+    end
   else
     object["80226972:embedded"]["3:base64"].as(Hash)["4:varint"] = 0_i64
-    object["80226972:embedded"]["3:base64"].as(Hash)["15:string"] = "#{page}"
+
+    object["80226972:embedded"]["3:base64"].as(Hash)["61:string"] = Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
+      "1:embedded" => {
+        "1:varint" => 6307666885028338688_i64,
+        "2:embedded" => {
+          "1:string" => Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
+            "1:varint" => 30_i64 * (page - 1),
+          }))),
+        },
+      },
+    })))
   end
 
   case sort_by
@@ -904,12 +919,25 @@ end
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
   videos = [] of SearchVideo
 
-  2.times do |i|
-    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
+  needs_v2 = false
+
+  i = 0
+  while i < 2
+    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by, v2: needs_v2)
     response = YT_POOL.client &.get(url)
     initial_data = JSON.parse(response.body).as_a.find &.["response"]?
     break if !initial_data
-    videos.concat extract_videos(initial_data.as_h, author, ucid)
+    v1_error = !needs_v2 && initial_data
+      .try &.["response"]?.try &.["alerts"]?
+      .try &.as_a.any? { |alert|
+        alert.try &.["alertRenderer"]?.try &.["type"]?.try { |t| t == "ERROR" }
+      }
+    if v1_error
+      needs_v2 = true
+    else
+      videos.concat extract_videos(initial_data.as_h, author, ucid)
+      i += 1
+    end
   end
 
   return videos.size, videos
