@@ -213,8 +213,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
   page = 1
 
-  url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
-  response = YT_POOL.client &.get(url)
+  response = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
 
   videos = [] of SearchVideo
   begin
@@ -291,8 +290,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     ids = [] of String
 
     loop do
-      url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated)
-      response = YT_POOL.client &.get(url)
+      response = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
       initial_data = JSON.parse(response.body).as_a.find &.["response"]?
       raise "Could not extract JSON" if !initial_data
       videos = extract_videos(initial_data.as_h, author, ucid)
@@ -916,36 +914,39 @@ def get_about_info(ucid, locale)
   })
 end
 
+def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = "newest")
+  url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: false)
+  response = YT_POOL.client &.get(url)
+  initial_data = JSON.parse(response.body).as_a.find &.["response"]?
+  return response if !initial_data
+  needs_v2 = initial_data
+    .try &.["response"]?.try &.["alerts"]?
+    .try &.as_a.any? { |alert|
+      alert.try &.["alertRenderer"]?.try &.["type"]?.try { |t| t == "ERROR" }
+    }
+  if needs_v2
+    url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
+    response = YT_POOL.client &.get(url)
+    initial_data = JSON.parse(response.body).as_a.find &.["response"]?
+  end
+  response
+end
+
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
   videos = [] of SearchVideo
 
-  needs_v2 = false
-
-  i = 0
-  while i < 2
-    url = produce_channel_videos_url(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by, v2: needs_v2)
-    response = YT_POOL.client &.get(url)
+  2.times do |i|
+    response = get_channel_videos_response(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
     initial_data = JSON.parse(response.body).as_a.find &.["response"]?
     break if !initial_data
-    v1_error = !needs_v2 && initial_data
-      .try &.["response"]?.try &.["alerts"]?
-      .try &.as_a.any? { |alert|
-        alert.try &.["alertRenderer"]?.try &.["type"]?.try { |t| t == "ERROR" }
-      }
-    if v1_error
-      needs_v2 = true
-    else
-      videos.concat extract_videos(initial_data.as_h, author, ucid)
-      i += 1
-    end
+    videos.concat extract_videos(initial_data.as_h, author, ucid)
   end
 
   return videos.size, videos
 end
 
 def get_latest_videos(ucid)
-  url = produce_channel_videos_url(ucid, 0)
-  response = YT_POOL.client &.get(url)
+  response = get_channel_videos_response(ucid, 1)
   initial_data = JSON.parse(response.body).as_a.find &.["response"]?
   return [] of SearchVideo if !initial_data
   author = initial_data["response"]?.try &.["metadata"]?.try &.["channelMetadataRenderer"]?.try &.["title"]?.try &.as_s
