@@ -927,7 +927,6 @@ def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = 
   if needs_v2
     url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
     response = YT_POOL.client &.get(url)
-    initial_data = JSON.parse(response.body).as_a.find &.["response"]?
   end
   response
 end
