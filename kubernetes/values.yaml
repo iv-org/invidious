@@ -16,7 +16,7 @@ autoscaling:
 service:
   type: clusterIP
   port: 3000
-  # loadBalancerIP:
+  #loadBalancerIP:
 
 resources: {}
   #requests:
