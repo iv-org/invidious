@@ -23,6 +23,13 @@ spec:
         runAsUser: {{ .Values.securityContext.runAsUser }}
         runAsGroup: {{ .Values.securityContext.runAsGroup }}
         fsGroup: {{ .Values.securityContext.fsGroup }}
+      initContainers:
+        - name: wait-for-postgresql
+          image: postgres
+          args:
+          - /bin/sh
+          - -c
+          - until pg_isready -h {{ .Values.config.db.host }} -p {{ .Values.config.db.port }} -U {{ .Values.config.db.port }}; do echo waiting for database; sleep 2; done;
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
