@@ -50,4 +50,5 @@ spec:
           httpGet:
             port: 3000
             path: /
+          initialDelaySeconds: 15
       restartPolicy: Always
