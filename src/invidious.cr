@@ -3412,17 +3412,13 @@ post "/feed/webhook/:token" do |env|
         views:              video.views,
       })
 
-      PG_DB.query_all("UPDATE users SET feed_needs_update = true, notifications = array_append(notifications, $1) \
-        WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications)",
-        video.id, video.published, video.ucid, as: String)
-
-      video_array = video.to_a
-      args = arg_array(video_array)
-
-      PG_DB.exec("INSERT INTO channel_videos VALUES (#{args}) \
+      was_insert = PG_DB.query_one("INSERT INTO channel_videos VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) \
         ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
         updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-        live_now = $8, premiere_timestamp = $9, views = $10", args: video_array)
+        live_now = $8, premiere_timestamp = $9, views = $10 returning (xmax=0) as was_insert", *video.to_tuple, as: Bool)
+
+      PG_DB.exec("UPDATE users SET notifications = array_append(notifications, $1), \
+        feed_needs_update = true WHERE $2 = ANY(subscriptions)", video.id, video.ucid) if was_insert
     end
   end
 
