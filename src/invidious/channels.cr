@@ -97,6 +97,14 @@ struct ChannelVideo
       end
     end
   end
+
+  def to_tuple
+    {% begin %}
+      {
+        {{*@type.instance_vars.map { |var| var.name }}}
+      }
+    {% end %}
+  end
 end
 
 struct AboutRelatedChannel
@@ -260,28 +268,15 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       views:              views,
     })
 
-    emails = db.query_all("UPDATE users SET notifications = array_append(notifications, $1) \
-      WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
-      video.id, video.published, ucid, as: String)
-
-    video_array = video.to_a
-    args = arg_array(video_array)
-
     # We don't include the 'premiere_timestamp' here because channel pages don't include them,
     # meaning the above timestamp is always null
-    db.exec("INSERT INTO channel_videos VALUES (#{args}) \
+    was_insert = db.query_one("INSERT INTO channel_videos VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) \
       ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
       updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-      live_now = $8, views = $10", args: video_array)
+      live_now = $8, views = $10 returning (xmax=0) as was_insert", *video.to_tuple, as: Bool)
 
-    # Update all users affected by insert
-    if emails.empty?
-      values = "'{}'"
-    else
-      values = "VALUES #{emails.map { |email| %((E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}')) }.join(",")}"
-    end
-
-    db.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY(#{values})")
+    db.exec("UPDATE users SET notifications = array_append(notifications, $1), \
+      feed_needs_update = true WHERE $2 = ANY(subscriptions)", video.id, video.ucid) if was_insert
   end
 
   if pull_all_videos
@@ -315,39 +310,19 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
         # We are notified of Red videos elsewhere (PubSub), which includes a correct published date,
         # so since they don't provide a published date here we can safely ignore them.
         if Time.utc - video.published > 1.minute
-          emails = db.query_all("UPDATE users SET notifications = array_append(notifications, $1) \
-            WHERE updated < $2 AND $3 = ANY(subscriptions) AND $1 <> ALL(notifications) RETURNING email",
-            video.id, video.published, video.ucid, as: String)
-
-          video_array = video.to_a
-          args = arg_array(video_array)
-
-          # We don't update the 'premire_timestamp' here because channel pages don't include them
-          db.exec("INSERT INTO channel_videos VALUES (#{args}) \
+          was_insert = db.query_one("INSERT INTO channel_videos VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) \
             ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
             updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-            live_now = $8, views = $10", args: video_array)
+            live_now = $8, views = $10 returning (xmax=0) as was_insert", *video.to_tuple, as: Bool)
 
-          # Update all users affected by insert
-          if emails.empty?
-            values = "'{}'"
-          else
-            values = "VALUES #{emails.map { |email| %((E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}')) }.join(",")}"
-          end
-
-          db.exec("UPDATE users SET feed_needs_update = true WHERE email = ANY(#{values})")
+          db.exec("UPDATE users SET notifications = array_append(notifications, $1), \
+            feed_needs_update = true WHERE $2 = ANY(subscriptions)", video.id, video.ucid) if was_insert
         end
       end
 
-      if count < 25
-        break
-      end
-
+      break if count < 25
       page += 1
     end
-
-    # When a video is deleted from a channel, we find and remove it here
-    db.exec("DELETE FROM channel_videos * WHERE NOT id = ANY ('{#{ids.map { |id| %("#{id}") }.join(",")}}') AND ucid = $1", ucid)
   end
 
   channel = InvidiousChannel.new({
