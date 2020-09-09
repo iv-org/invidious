@@ -246,7 +246,7 @@ def bypass_captcha(captcha_key, logger)
           end
 
           inputs["g-recaptcha-response"] = response["solution"]["gRecaptchaResponse"].as_s
-          headers["Cookies"] = response["solution"]["cookies"].as_h.map { |k, v| "#{k}=#{v}" }.join("; ")
+          headers["Cookies"] = response["solution"]["cookies"].as_h?.try &.map { |k, v| "#{k}=#{v}" }.join("; ") || ""
           response = YT_POOL.client &.post("/das_captcha", headers, form: inputs)
 
           yield response.cookies.select { |cookie| cookie.name != "PREF" }
@@ -296,7 +296,7 @@ def bypass_captcha(captcha_key, logger)
           end
 
           inputs["g-recaptcha-response"] = response["solution"]["gRecaptchaResponse"].as_s
-          headers["Cookies"] = response["solution"]["cookies"].as_h.map { |k, v| "#{k}=#{v}" }.join("; ")
+          headers["Cookies"] = response["solution"]["cookies"].as_h?.try &.map { |k, v| "#{k}=#{v}" }.join("; ") || ""
           response = YT_POOL.client &.post("/sorry/index", headers: headers, form: inputs)
           headers = HTTP::Headers{
             "Cookie" => URI.parse(response.headers["location"]).query_params["google_abuse"].split(";")[0],
