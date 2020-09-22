@@ -402,14 +402,9 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
     object["80226972:embedded"]["3:base64"].as(Hash)["4:varint"] = 0_i64
 
     object["80226972:embedded"]["3:base64"].as(Hash)["61:string"] = Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
-      "1:embedded" => {
-        "1:varint" => 6307666885028338688_i64,
-        "2:embedded" => {
-          "1:string" => Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
-            "1:varint" => 30_i64 * (page - 1),
-          }))),
-        },
-      },
+      "1:string" => Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
+        "1:varint" => 30_i64 * (page - 1),
+      }))),
     })))
   end
 
