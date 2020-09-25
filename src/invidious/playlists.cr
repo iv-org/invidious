@@ -483,7 +483,7 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
         published:      Time.utc,
         plid:           plid,
         live_now:       live,
-        index:          index - 1,
+        index:          index,
       })
     end
   end
