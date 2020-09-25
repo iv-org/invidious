@@ -13,6 +13,11 @@ autoscaling:
   maxReplicas: 16
   targetCPUUtilizationPercentage: 50
 
+service:
+  type: clusterIP
+  port: 3000
+  #loadBalancerIP:
+
 resources: {}
   #requests:
   #  cpu: 100m

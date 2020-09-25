@@ -7,10 +7,14 @@ metadata:
     chart: {{ .Chart.Name }}
     release: {{ .Release.Name }}
 spec:
+  type: {{ .Values.service.type }}
   ports:
   - name: http
-    port: 3000
+    port: {{ .Values.service.port }}
     targetPort: 3000
   selector:
     app: {{ template "invidious.name" . }}
     release: {{ .Release.Name }}
+{{- if .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
+{{- end }}
