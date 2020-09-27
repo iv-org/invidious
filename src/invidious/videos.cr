@@ -580,7 +580,7 @@ struct Video
         s.each do |k, v|
           fmt[k] = JSON::Any.new(v)
         end
-        fmt["url"] = JSON::Any.new("#{fmt["url"]}#{decrypt_signature(fmt)}")
+        fmt["url"] = JSON::Any.new("#{fmt["url"]}#{DECRYPT_FUNCTION.decrypt_signature(fmt)}")
       end
 
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")
@@ -599,7 +599,7 @@ struct Video
         s.each do |k, v|
           fmt[k] = JSON::Any.new(v)
         end
-        fmt["url"] = JSON::Any.new("#{fmt["url"]}#{decrypt_signature(fmt)}")
+        fmt["url"] = JSON::Any.new("#{fmt["url"]}#{DECRYPT_FUNCTION.decrypt_signature(fmt)}")
       end
 
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")

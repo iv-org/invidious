@@ -168,7 +168,11 @@ end
 Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB, logger, config)
 Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB, logger, config)
 Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, logger, config, HMAC_KEY)
-Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new
+
+DECRYPT_FUNCTION = DecryptFunction.new(CONFIG.decrypt_polling)
+if config.decrypt_polling
+  Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new(logger)
+end
 
 if config.statistics_enabled
   Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, config, SOFTWARE)
@@ -190,8 +194,6 @@ Invidious::Jobs.start_all
 def popular_videos
   Invidious::Jobs::PullPopularVideosJob::POPULAR_VIDEOS.get
 end
-
-DECRYPT_FUNCTION = Invidious::Jobs::UpdateDecryptFunctionJob::DECRYPT_FUNCTION
 
 before_all do |env|
   preferences = begin
