@@ -322,7 +322,7 @@
     "Movies": "Filmy",
     "Download": "Pobierz",
     "Download as: ": "Pobierz jako: ",
-    "%A %B %-d, %Y": "%A %B %-d, %Y",
+    "%A %B %-d, %Y": "%A, %-d %B %Y",
     "(edited)": "(edytowany)",
     "YouTube comment permalink": "Odnośnik bezpośredni do komentarza na YouTube",
     "permalink": "bezpośredni odnośnik",
