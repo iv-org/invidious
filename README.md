@@ -92,7 +92,7 @@ $ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
 $ curl -sL "https://keybase.io/crystal/pgp_keys.asc" | sudo apt-key add -
 $ echo "deb https://dist.crystal-lang.org/apt crystal main" | sudo tee /etc/apt/sources.list.d/crystal.list
 $ sudo apt-get update
-$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev postgresql librsvg2-bin libsqlite3-dev
+$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev postgresql librsvg2-bin libsqlite3-dev zlib1g-dev
 ```
 
 #### Add an Invidious user and clone the repository
