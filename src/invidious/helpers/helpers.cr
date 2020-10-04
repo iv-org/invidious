@@ -177,8 +177,8 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
     view_count = i["viewCountText"]?.try &.["simpleText"]?.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
     description_html = i["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
     length_seconds = i["lengthText"]?.try &.["simpleText"]?.try &.as_s.try { |t| decode_length_seconds(t) } ||
-      i["thumbnailOverlays"]?.try &.as_a.find(&.["thumbnailOverlayTimeStatusRenderer"]?).try &.["thumbnailOverlayTimeStatusRenderer"]?
-        .try &.["text"]?.try &.["simpleText"]?.try &.as_s.try { |t| decode_length_seconds(t) } || 0
+                     i["thumbnailOverlays"]?.try &.as_a.find(&.["thumbnailOverlayTimeStatusRenderer"]?).try &.["thumbnailOverlayTimeStatusRenderer"]?
+                       .try &.["text"]?.try &.["simpleText"]?.try &.as_s.try { |t| decode_length_seconds(t) } || 0
 
     live_now = false
     paid = false
@@ -302,14 +302,14 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
 
   channel_v2_response = initial_data
     .try &.["response"]?
-    .try &.["continuationContents"]?
-    .try &.["gridContinuation"]?
-    .try &.["items"]?
+      .try &.["continuationContents"]?
+        .try &.["gridContinuation"]?
+          .try &.["items"]?
 
   if channel_v2_response
     channel_v2_response.try &.as_a.each { |item|
-        extract_item(item, author_fallback, author_id_fallback)
-          .try { |t| items << t }
+      extract_item(item, author_fallback, author_id_fallback)
+        .try { |t| items << t }
     }
   else
     initial_data.try { |t| t["contents"]? || t["response"]? }
@@ -325,7 +325,7 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
             extract_item(item, author_fallback, author_id_fallback)
               .try { |t| items << t }
           } }
-    end
+  end
 
   items
 end

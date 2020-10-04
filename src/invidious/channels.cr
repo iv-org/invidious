@@ -403,7 +403,7 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
 
     object["80226972:embedded"]["3:base64"].as(Hash)["61:string"] = Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
       "1:embedded" => {
-        "1:varint" => 6307666885028338688_i64,
+        "1:varint"   => 6307666885028338688_i64,
         "2:embedded" => {
           "1:string" => Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
             "1:varint" => 30_i64 * (page - 1),
@@ -896,9 +896,9 @@ def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = 
   return response if !initial_data
   needs_v2 = initial_data
     .try &.["response"]?.try &.["alerts"]?
-    .try &.as_a.any? { |alert|
-      alert.try &.["alertRenderer"]?.try &.["type"]?.try { |t| t == "ERROR" }
-    }
+      .try &.as_a.any? { |alert|
+        alert.try &.["alertRenderer"]?.try &.["type"]?.try { |t| t == "ERROR" }
+      }
   if needs_v2
     url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
     response = YT_POOL.client &.get(url)
