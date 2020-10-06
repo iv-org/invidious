@@ -27,6 +27,8 @@ require "compress/zip"
 require "protodec/utils"
 require "./invidious/helpers/*"
 require "./invidious/*"
+require "./invidious/routes/**"
+require "./invidious/jobs/**"
 
 ENV_CONFIG_NAME = "INVIDIOUS_CONFIG"
 
@@ -196,11 +198,11 @@ if config.statistics_enabled
   end
 end
 
-popular_videos = [] of ChannelVideo
-spawn do
-  pull_popular_videos(PG_DB) do |videos|
-    popular_videos = videos
-  end
+Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
+Invidious::Jobs.start_all
+
+def popular_videos
+  Invidious::Jobs::PullPopularVideosJob::POPULAR_VIDEOS.get
 end
 
 DECRYPT_FUNCTION = [] of {SigProc, Int32}
@@ -350,44 +352,9 @@ before_all do |env|
   env.set "current_page", URI.encode_www_form(current_page)
 end
 
-get "/" do |env|
-  preferences = env.get("preferences").as(Preferences)
-  locale = LOCALES[preferences.locale]?
-  user = env.get? "user"
-
-  case preferences.default_home
-  when ""
-    templated "empty"
-  when "Popular"
-    templated "popular"
-  when "Trending"
-    env.redirect "/feed/trending"
-  when "Subscriptions"
-    if user
-      env.redirect "/feed/subscriptions"
-    else
-      templated "popular"
-    end
-  when "Playlists"
-    if user
-      env.redirect "/view_all_playlists"
-    else
-      templated "popular"
-    end
-  else
-    templated "empty"
-  end
-end
-
-get "/privacy" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-  templated "privacy"
-end
-
-get "/licenses" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-  rendered "licenses"
-end
+Invidious::Routing.get "/", Invidious::Routes::Home
+Invidious::Routing.get "/privacy", Invidious::Routes::Privacy
+Invidious::Routing.get "/licenses", Invidious::Routes::Licenses
 
 # Videos
 
