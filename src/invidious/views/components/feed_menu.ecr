@@ -1,19 +1,11 @@
-<div class="h-box pure-g">
-    <div class="pure-u-1 pure-u-md-1-4"></div>
-    <div class="pure-u-1 pure-u-md-1-2">
-        <div class="pure-g">
-            <% feed_menu = env.get("preferences").as(Preferences).feed_menu.dup %>
-            <% if !env.get?("user") %>
-                <% feed_menu.reject! {|item| {"Subscriptions", "Playlists"}.includes? item} %>
-            <% end %>
-            <% feed_menu.each do |feed| %>
-                <div class="pure-u-1-2 pure-u-md-1-<%= feed_menu.size %>">
-                    <a href="/feed/<%= feed.downcase %>" class="pure-menu-heading" style="text-align:center">
-                        <%= translate(locale, feed) %>
-                    </a>
-                </div>
-            <% end %>
-        </div>
-    </div>
-    <div class="pure-u-1 pure-u-md-1-4"></div>
+<div class="feed-menu">
+    <% feed_menu = env.get("preferences").as(Preferences).feed_menu.dup %>
+    <% if !env.get?("user") %>
+        <% feed_menu.reject! {|item| {"Subscriptions", "Playlists"}.includes? item} %>
+    <% end %>
+    <% feed_menu.each do |feed| %>
+        <a href="/feed/<%= feed.downcase %>" class="feed-menu-item pure-menu-heading">
+            <%= translate(locale, feed) %>
+        </a>
+    <% end %>
 </div>
