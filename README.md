@@ -4,11 +4,11 @@
 
 ## Invidious is an alternative front-end to YouTube
 
-## Invidious Instances
+## Invidious instances:
 
 [Public Invidious instances are listed here.](https://github.com/iv-org/invidious/wiki/Invidious-Instances)
 
-## Invidious Features
+## Invidious features:
 
 - [Copylefted libre software](https://github.com/iv-org/invidious) (AGPLv3+ licensed)
 - Audio-only mode (and no need to keep window open on mobile)
@@ -32,25 +32,20 @@
 - No CoC
 - No CLA
 
-Liberapay: https://liberapay.com/iv-org/
-
-
-
-
-## Screenshots
+## Screenshots:
 
 | Player                                                                                                                  | Preferences                                                                                                             | Subscriptions                                                                                                               |
 | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | [<img src="screenshots/01_player.png?raw=true" height="140" width="280">](screenshots/01_player.png?raw=true)           | [<img src="screenshots/02_preferences.png?raw=true" height="140" width="280">](screenshots/02_preferences.png?raw=true) | [<img src="screenshots/03_subscriptions.png?raw=true" height="140" width="280">](screenshots/03_subscriptions.png?raw=true) |
 | [<img src="screenshots/04_description.png?raw=true" height="140" width="280">](screenshots/04_description.png?raw=true) | [<img src="screenshots/05_preferences.png?raw=true" height="140" width="280">](screenshots/05_preferences.png?raw=true) | [<img src="screenshots/06_subscriptions.png?raw=true" height="140" width="280">](screenshots/06_subscriptions.png?raw=true) |
 
-## Installation
+## Installation:
 
 To manually compile invidious you need at least 2GB of RAM. If you have less you can setup SWAP to have a combined amount of 2 GB or use Docker instead.
 
-After installation take a look at the [Post-install steps](#post-install).
+After installation take a look at the [Post-install steps](#post-install-configuration).
 
-### Automated:
+### Automated installation:
 
 [Invidious-Updater](https://github.com/tmiland/Invidious-Updater) is a self-contained script that can automatically install and update Invidious.
 
@@ -77,7 +72,7 @@ $ docker volume rm invidious_postgresdata
 $ docker-compose build
 ```
 
-### Manually:
+### Manual installation:
 
 ### Linux:
 
@@ -138,7 +133,7 @@ $ ./invidious # stop with ctrl c
 $ exit
 ```
 
-#### systemd service
+#### Systemd service:
 
 ```bash
 $ sudo cp /home/invidious/invidious/invidious.service /etc/systemd/system/invidious.service
@@ -146,7 +141,7 @@ $ sudo systemctl enable invidious.service
 $ sudo systemctl start invidious.service
 ```
 
-#### Logrotate
+#### Logrotate:
 
 ```bash
 $ sudo echo "/home/invidious/invidious/invidious.log {
@@ -189,15 +184,15 @@ $ shards update && shards install
 $ crystal build src/invidious.cr --release
 ```
 
-## Post-install:
+## Post-install configuration:
 
-Detailled configuration available in the [configuration guide](https://github.com/iv-org/invidious/wiki/Configuration).
+Detailed configuration available in the [configuration guide](https://github.com/iv-org/invidious/wiki/Configuration).
 
-If you use a reverse proxy, you **must** to configure invidious to properly serve request through it:
+If you use a reverse proxy, you **must** configure invidious to properly serve request through it:
 
 `https_only: true` : if your are serving your instance via https, set it to true
 
-`domain: domain.ext`: if you have are serving your instance via a domain name, set it here
+`domain: domain.ext`: if you are serving your instance via a domain name, set it here
 
 `external_port: 443`: if your are serving your instance via https, set it to 443
 
@@ -261,8 +256,10 @@ $ ./sentry
 
 - Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/projects/invidious/).
 
+## Donate:
+
+Liberapay: https://liberapay.com/iv-org/
+
 ## Contact
 
-Feel free to send an e-mail to omarroth@protonmail.com or join our [Matrix server](https://riot.im/app/#/room/#invidious:matrix.org), or #invidious on freenode.
-
-You can also read the release notes on the [page of releases](https://github.com/iv-org/invidious/releases) [CHANGELOG.md](https://github.com/iv-org/invidious/blob/master/CHANGELOG.md) included in the repository.
+Feel free to join our [Matrix server](https://riot.im/app/#/room/#invidious:matrix.org), or #invidious on freenode. Both platform are bridged together.
