@@ -3,15 +3,17 @@ def refresh_channels(db, logger, config)
 
   spawn do
     max_threads = max_channel.receive
+    lim_threads = max_threads
     active_threads = 0
     active_channel = Channel(Bool).new
+    backoff = 1.seconds
 
     loop do
       db.query("SELECT id FROM channels ORDER BY updated") do |rs|
         rs.each do
           id = rs.read(String)
 
-          if active_threads >= max_threads
+          if active_threads >= lim_threads
             if active_channel.receive
               active_threads -= 1
             end
@@ -22,12 +24,22 @@ def refresh_channels(db, logger, config)
             begin
               channel = fetch_channel(id, db, config.full_refresh)
 
+              lim_threads = max_threads
               db.exec("UPDATE channels SET updated = $1, author = $2, deleted = false WHERE id = $3", Time.utc, channel.author, id)
             rescue ex
+              logger.puts("#{id} : #{ex.message}")
               if ex.message == "Deleted or invalid channel"
                 db.exec("UPDATE channels SET updated = $1, deleted = true WHERE id = $2", Time.utc, id)
+              else
+                lim_threads = 1
+	              logger.puts("#{id} : backing off for #{backoff}s")
+                sleep backoff
+                if backoff < 1.days
+                  backoff += backoff
+                else
+                  backoff = 1.days
+                end
               end
-              logger.puts("#{id} : #{ex.message}")
             end
 
             active_channel.send(true)
