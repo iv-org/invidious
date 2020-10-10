@@ -262,4 +262,4 @@ Liberapay: https://liberapay.com/iv-org/
 
 ## Contact
 
-Feel free to join our [Matrix server](https://riot.im/app/#/room/#invidious:matrix.org), or #invidious on freenode. Both platform are bridged together.
+Feel free to join our [Matrix room](https://matrix.to/#/#invidious:matrix.org), or #invidious on freenode. Both platforms are bridged together.
