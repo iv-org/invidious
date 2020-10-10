@@ -4,6 +4,12 @@
 
 ## Invidious is an alternative front-end to YouTube
 
+## Invidious Instances
+
+[Public Invidious instances are listed here.](https://github.com/iv-org/invidious/wiki/Invidious-Instances)
+
+## Invidious Features
+
 - [Copylefted libre software](https://github.com/iv-org/invidious) (AGPLv3+ licensed)
 - Audio-only mode (and no need to keep window open on mobile)
 - Lightweight (the homepage is ~4 KB compressed)
@@ -26,20 +32,10 @@
 - No CoC
 - No CLA
 
-Liberapay: https://liberapay.com/omarroth  
-BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY  
-BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
+Liberapay: https://liberapay.com/iv-org/
 
-## Invidious Instances
 
-[Public instances](https://github.com/iv-org/invidious/wiki/Invidious-Instances) are to be found in this list.
 
-### Official Instances
-
-- [invidio.us](https://invidio.us) 🇺🇸  
-  Issuer: Let's Encrypt, [SSLLabs Verification](https://www.ssllabs.com/ssltest/analyze.html?d=invidio.us)
-- [kgg2m7yk5aybusll.onion](http://kgg2m7yk5aybusll.onion)
-- [axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion](http://axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion)
 
 ## Screenshots
 
@@ -49,6 +45,12 @@ BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
 | [<img src="screenshots/04_description.png?raw=true" height="140" width="280">](screenshots/04_description.png?raw=true) | [<img src="screenshots/05_preferences.png?raw=true" height="140" width="280">](screenshots/05_preferences.png?raw=true) | [<img src="screenshots/06_subscriptions.png?raw=true" height="140" width="280">](screenshots/06_subscriptions.png?raw=true) |
 
 ## Installation
+
+To manually compile invidious you need at least 2GB of RAM. If you have less you can setup SWAP to have a combined amount of 2 GB or use Docker instead.
+
+After installation take a look at the [Post-install steps](#post-install).
+
+### Automated:
 
 [Invidious-Updater](https://github.com/tmiland/Invidious-Updater) is a self-contained script that can automatically install and update Invidious.
 
@@ -75,9 +77,9 @@ $ docker volume rm invidious_postgresdata
 $ docker-compose build
 ```
 
-### Linux
+### Manually:
 
-To manually compile invidious you need at least 2GB of RAM. If you have less you can setup SWAP to have a combined amount of 2 GB or use Docker instead.
+### Linux:
 
 #### Install the dependencies
 
@@ -158,7 +160,7 @@ minsize 1048576
 $ sudo chmod 0644 /etc/logrotate.d/invidious.logrotate
 ```
 
-### macOS:
+### MacOS:
 
 ```bash
 # Install dependencies
@@ -186,6 +188,18 @@ $ psql invidious kemal < config/sql/playlist_videos.sql
 $ shards update && shards install
 $ crystal build src/invidious.cr --release
 ```
+
+## Post-install:
+
+Detailled configuration available in the [configuration guide](https://github.com/iv-org/invidious/wiki/Configuration).
+
+If you use a reverse proxy, you **must** to configure invidious to properly serve request through it:
+
+`https_only: true` : if your are serving your instance via https, set it to true
+
+`domain: domain.ext`: if you have are serving your instance via a domain name, set it here
+
+`external_port: 443`: if your are serving your instance via https, set it to 443
 
 ## Update Invidious
 
