@@ -48,7 +48,7 @@ Liberapay: https://liberapay.com/iv-org/
 
 To manually compile invidious you need at least 2GB of RAM. If you have less you can setup SWAP to have a combined amount of 2 GB or use Docker instead.
 
-After installation take a look at the [Post-install steps](here).
+After installation take a look at the [Post-install steps](#post-install).
 
 ### Automated:
 
