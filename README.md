@@ -32,8 +32,6 @@
 - No CoC
 - No CLA
 
-Liberapay: https://liberapay.com/iv-org/
-
 ## Screenshots:
 
 | Player                                                                                                                  | Preferences                                                                                                             | Subscriptions                                                                                                               |
@@ -257,6 +255,10 @@ $ ./sentry
 #### Translation
 
 - Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/projects/invidious/).
+
+## Donate:
+
+Liberapay: https://liberapay.com/iv-org/
 
 ## Contact
 
