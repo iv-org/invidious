@@ -402,14 +402,9 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
     object["80226972:embedded"]["3:base64"].as(Hash)["4:varint"] = 0_i64
 
     object["80226972:embedded"]["3:base64"].as(Hash)["61:string"] = Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
-      "1:embedded" => {
-        "1:varint"   => 6307666885028338688_i64,
-        "2:embedded" => {
-          "1:string" => Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
-            "1:varint" => 30_i64 * (page - 1),
-          }))),
-        },
-      },
+      "1:string" => Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
+        "1:varint" => 30_i64 * (page - 1),
+      }))),
     })))
   end
 
@@ -890,20 +885,8 @@ def get_about_info(ucid, locale)
 end
 
 def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = "newest")
-  url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: false)
-  response = YT_POOL.client &.get(url)
-  initial_data = JSON.parse(response.body).as_a.find &.["response"]?
-  return response if !initial_data
-  needs_v2 = initial_data
-    .try &.["response"]?.try &.["alerts"]?
-      .try &.as_a.any? { |alert|
-        alert.try &.["alertRenderer"]?.try &.["type"]?.try { |t| t == "ERROR" }
-      }
-  if needs_v2
-    url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
-    response = YT_POOL.client &.get(url)
-  end
-  response
+  url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
+  return YT_POOL.client &.get(url)
 end
 
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
