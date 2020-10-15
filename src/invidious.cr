@@ -159,7 +159,7 @@ end
 
 # Start jobs
 
-refresh_channels(PG_DB, logger, config)
+Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB, logger, config)
 refresh_feeds(PG_DB, logger, config)
 subscribe_to_feeds(PG_DB, logger, HMAC_KEY, config)
 
