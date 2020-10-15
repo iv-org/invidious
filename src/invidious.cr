@@ -246,12 +246,13 @@ spawn do
 end
 
 before_all do |env|
-  begin
-    preferences = Preferences.from_json(env.request.cookies["PREFS"]?.try &.value || "{}")
+  preferences = begin
+    Preferences.from_json(env.request.cookies["PREFS"]?.try &.value || "{}")
   rescue
-    preferences = Preferences.from_json("{}")
+    Preferences.from_json("{}")
   end
 
+  env.set "preferences", preferences
   env.response.headers["X-XSS-Protection"] = "1; mode=block"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
   extra_media_csp = ""
@@ -298,6 +299,7 @@ before_all do |env|
         }, HMAC_KEY, PG_DB, 1.week)
 
         preferences = user.preferences
+        env.set "preferences", preferences
 
         env.set "sid", sid
         env.set "csrf_token", csrf_token
@@ -319,6 +321,7 @@ before_all do |env|
         }, HMAC_KEY, PG_DB, 1.week)
 
         preferences = user.preferences
+        env.set "preferences", preferences
 
         env.set "sid", sid
         env.set "csrf_token", csrf_token
@@ -336,7 +339,6 @@ before_all do |env|
   preferences.dark_mode = dark_mode
   preferences.thin_mode = thin_mode
   preferences.locale = locale
-  env.set "preferences", preferences
 
   current_page = env.request.path
   if env.request.query
