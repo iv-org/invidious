@@ -8,7 +8,7 @@ RUN shards update && shards install && \
     # https://github.com/omarroth/lsquic-alpine/blob/master/APKBUILD,
     # https://github.com/omarroth/lsquic.cr/issues/1#issuecomment-631610081
     # for details building static lib
-    curl -Lo ./lib/lsquic/src/lsquic/ext/liblsquic.a https://omar.yt/lsquic/liblsquic-v2.18.1.a
+    curl -Lo ./lib/lsquic/src/lsquic/ext/liblsquic.a https://github.com/iv-org/invidious/blob/master/docker/liblsquic-v2.18.1.a?raw=true
 COPY ./src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
