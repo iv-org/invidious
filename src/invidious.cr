@@ -160,8 +160,8 @@ end
 # Start jobs
 
 Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB, logger, config)
-refresh_feeds(PG_DB, logger, config)
-subscribe_to_feeds(PG_DB, logger, HMAC_KEY, config)
+Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB, logger, config)
+Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, logger, config, HMAC_KEY)
 
 statistics = {
   "error" => "Statistics are not availabile.",
