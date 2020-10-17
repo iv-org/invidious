@@ -168,19 +168,14 @@ if config.statistics_enabled
 end
 
 Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
+Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new
 Invidious::Jobs.start_all
 
 def popular_videos
   Invidious::Jobs::PullPopularVideosJob::POPULAR_VIDEOS.get
 end
 
-DECRYPT_FUNCTION = [] of {SigProc, Int32}
-spawn do
-  update_decrypt_function do |function|
-    DECRYPT_FUNCTION.clear
-    function.each { |i| DECRYPT_FUNCTION << i }
-  end
-end
+DECRYPT_FUNCTION = Invidious::Jobs::UpdateDecryptFunctionJob::DECRYPT_FUNCTION
 
 if CONFIG.captcha_key
   spawn do

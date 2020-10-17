@@ -65,21 +65,6 @@ def pull_popular_videos(db)
   end
 end
 
-def update_decrypt_function
-  loop do
-    begin
-      decrypt_function = fetch_decrypt_function
-      yield decrypt_function
-    rescue ex
-      # TODO: Log error
-      next
-    ensure
-      sleep 1.minute
-      Fiber.yield
-    end
-  end
-end
-
 def bypass_captcha(captcha_key, logger)
   loop do
     begin
