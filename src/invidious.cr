@@ -162,17 +162,20 @@ end
 Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB, logger, config)
 Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB, logger, config)
 Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, logger, config, HMAC_KEY)
+Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
+Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new
 
 if config.statistics_enabled
   Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, config, SOFTWARE)
 end
 
-if CONFIG.captcha_key
+if config.captcha_key
   Invidious::Jobs.register Invidious::Jobs::BypassCaptchaJob.new(logger, config)
 end
 
-Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
-Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new
+connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
+Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(connection_channel, PG_URL)
+
 Invidious::Jobs.start_all
 
 def popular_videos
@@ -180,24 +183,6 @@ def popular_videos
 end
 
 DECRYPT_FUNCTION = Invidious::Jobs::UpdateDecryptFunctionJob::DECRYPT_FUNCTION
-
-connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
-spawn do
-  connections = [] of Channel(PQ::Notification)
-
-  PG.connect_listen(PG_URL, "notifications") { |event| connections.each { |connection| connection.send(event) } }
-
-  loop do
-    action, connection = connection_channel.receive
-
-    case action
-    when true
-      connections << connection
-    when false
-      connections.delete(connection)
-    end
-  end
-end
 
 before_all do |env|
   preferences = begin
