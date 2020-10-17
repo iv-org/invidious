@@ -160,90 +160,29 @@ end
 # Start jobs
 
 Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB, logger, config)
-refresh_feeds(PG_DB, logger, config)
-subscribe_to_feeds(PG_DB, logger, HMAC_KEY, config)
+Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB, logger, config)
+Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, logger, config, HMAC_KEY)
+Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
+Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new
 
-statistics = {
-  "error" => "Statistics are not availabile.",
-}
 if config.statistics_enabled
-  spawn do
-    statistics = {
-      "version"           => "2.0",
-      "software"          => SOFTWARE,
-      "openRegistrations" => config.registration_enabled,
-      "usage"             => {
-        "users" => {
-          "total"          => PG_DB.query_one("SELECT count(*) FROM users", as: Int64),
-          "activeHalfyear" => PG_DB.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '6 months'", as: Int64),
-          "activeMonth"    => PG_DB.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '1 month'", as: Int64),
-        },
-      },
-      "metadata" => {
-        "updatedAt"              => Time.utc.to_unix,
-        "lastChannelRefreshedAt" => PG_DB.query_one?("SELECT updated FROM channels ORDER BY updated DESC LIMIT 1", as: Time).try &.to_unix || 0_i64,
-      },
-    }
-
-    loop do
-      sleep 1.minute
-      Fiber.yield
-
-      statistics["usage"].as(Hash)["users"].as(Hash)["total"] = PG_DB.query_one("SELECT count(*) FROM users", as: Int64)
-      statistics["usage"].as(Hash)["users"].as(Hash)["activeHalfyear"] = PG_DB.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '6 months'", as: Int64)
-      statistics["usage"].as(Hash)["users"].as(Hash)["activeMonth"] = PG_DB.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '1 month'", as: Int64)
-      statistics["metadata"].as(Hash(String, Int64))["updatedAt"] = Time.utc.to_unix
-      statistics["metadata"].as(Hash(String, Int64))["lastChannelRefreshedAt"] = PG_DB.query_one?("SELECT updated FROM channels ORDER BY updated DESC LIMIT 1", as: Time).try &.to_unix || 0_i64
-    end
-  end
+  Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, config, SOFTWARE)
 end
 
-Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
+if config.captcha_key
+  Invidious::Jobs.register Invidious::Jobs::BypassCaptchaJob.new(logger, config)
+end
+
+connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
+Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(connection_channel, PG_URL)
+
 Invidious::Jobs.start_all
 
 def popular_videos
   Invidious::Jobs::PullPopularVideosJob::POPULAR_VIDEOS.get
 end
 
-DECRYPT_FUNCTION = [] of {SigProc, Int32}
-spawn do
-  update_decrypt_function do |function|
-    DECRYPT_FUNCTION.clear
-    function.each { |i| DECRYPT_FUNCTION << i }
-  end
-end
-
-if CONFIG.captcha_key
-  spawn do
-    bypass_captcha(CONFIG.captcha_key, logger) do |cookies|
-      cookies.each do |cookie|
-        config.cookies << cookie
-      end
-
-      # Persist cookies between runs
-      CONFIG.cookies = config.cookies
-      File.write("config/config.yml", config.to_yaml)
-    end
-  end
-end
-
-connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
-spawn do
-  connections = [] of Channel(PQ::Notification)
-
-  PG.connect_listen(PG_URL, "notifications") { |event| connections.each { |connection| connection.send(event) } }
-
-  loop do
-    action, connection = connection_channel.receive
-
-    case action
-    when true
-      connections << connection
-    when false
-      connections.delete(connection)
-    end
-  end
-end
+DECRYPT_FUNCTION = Invidious::Jobs::UpdateDecryptFunctionJob::DECRYPT_FUNCTION
 
 before_all do |env|
   preferences = begin
@@ -3658,12 +3597,7 @@ get "/api/v1/stats" do |env|
     next error_message
   end
 
-  if statistics["error"]?
-    env.response.status_code = 500
-    next statistics.to_json
-  end
-
-  statistics.to_json
+  Invidious::Jobs::StatisticsRefreshJob::STATISTICS.to_json
 end
 
 # YouTube provides "storyboards", which are sprites containing x * y
