@@ -167,6 +167,10 @@ if config.statistics_enabled
   Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, config, SOFTWARE)
 end
 
+if CONFIG.captcha_key
+  Invidious::Jobs.register Invidious::Jobs::BypassCaptchaJob.new(logger, config)
+end
+
 Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new
 Invidious::Jobs.start_all
@@ -176,20 +180,6 @@ def popular_videos
 end
 
 DECRYPT_FUNCTION = Invidious::Jobs::UpdateDecryptFunctionJob::DECRYPT_FUNCTION
-
-if CONFIG.captcha_key
-  spawn do
-    bypass_captcha(CONFIG.captcha_key, logger) do |cookies|
-      cookies.each do |cookie|
-        config.cookies << cookie
-      end
-
-      # Persist cookies between runs
-      CONFIG.cookies = config.cookies
-      File.write("config/config.yml", config.to_yaml)
-    end
-  end
-end
 
 connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
 spawn do
