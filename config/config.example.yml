@@ -1,0 +1,11 @@
+channel_threads: 1
+feed_threads: 1
+db:
+  user: kemal
+  password: kemal
+  host: localhost
+  port: 5432
+  dbname: invidious
+full_refresh: false
+https_only: false
+domain:
