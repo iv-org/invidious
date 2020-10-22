@@ -1,11 +1,29 @@
+# Number of threads to use for crawling videos from channels (default 1)
 channel_threads: 1
+
+# Number of threads to use for refreshing subscription feeds (default 1)
 feed_threads: 1
+
 db:
+# # your database user (default kemal)
   user: kemal
+# your database password (default kemal)
   password: kemal
+# database host (default localhost)
   host: localhost
+# postgres port (default 5432)
   port: 5432
+# database name (default invidious)
   dbname: invidious
+  
+# When crawling channel videos, threads should refresh all videos uploaded by a channel (default false)
 full_refresh: false
+
+# If your are serving your instance via https, set it to true (default false)
 https_only: false
+
+# If you are serving your instance via a domain name, set it here (no default)
 domain:
+
+# If your are serving your instance via https, set it to 443 (default 3000)
+external_port: 3000
