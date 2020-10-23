@@ -1,6 +1,6 @@
 # Invidious
 
-[![Build Status](https://travis-ci.org/iv-org/invidious.svg?branch=master)](https://travis-ci.org/github/iv-org/invidious)
+[![Build Status](https://travis-ci.org/iv-org/invidious.svg?branch=master)](https://travis-ci.org/github/iv-org/invidious) [![Translation Status](https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg)](https://hosted.weblate.org/engage/invidious/)
 
 ## Invidious is an alternative front-end to YouTube
 
@@ -31,6 +31,7 @@
 - No ads
 - No CoC
 - No CLA
+- [Multilingual](https://hosted.weblate.org/projects/invidious/#languages) (translated into many languages)
 
 ## Screenshots:
 
@@ -254,7 +255,7 @@ $ ./sentry
 
 #### Translation
 
-- Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/projects/invidious/).
+- Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/engage/invidious/).
 
 ## Donate:
 
