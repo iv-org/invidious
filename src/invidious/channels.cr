@@ -776,6 +776,7 @@ def extract_channel_community_cursor(continuation)
 end
 
 INITDATA_PREQUERY = "window[\"ytInitialData\"] = {"
+
 def get_about_info(ucid, locale)
   about = YT_POOL.client &.get("/channel/#{ucid}/about?gl=US&hl=en")
   if about.status_code != 200
@@ -800,7 +801,7 @@ def get_about_info(ucid, locale)
     raise error_message
   end
   initdata_pre = initdata_pre.not_nil! + INITDATA_PREQUERY.size - 1
-  
+
   initdata = JSON.parse(about.body[initdata_pre, initdata_post - initdata_pre + 1])
   about = XML.parse_html(about.body)
 
@@ -815,14 +816,14 @@ def get_about_info(ucid, locale)
 
   ucid = about.xpath_node(%q(//meta[@itemprop="channelId"])).not_nil!["content"]
 
-  #Raises a KeyError on failure.
+  # Raises a KeyError on failure.
   banners = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
   banner = banners.try &.[-1]?.try &.["url"].as_s?
 
-  #if banner.includes? "channels/c4/default_banner"
+  # if banner.includes? "channels/c4/default_banner"
   #  banner = nil
-  #end  
-  
+  # end
+
   description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
   description_html = HTML.escape(description).gsub("\n", "<br>")
 
@@ -831,42 +832,42 @@ def get_about_info(ucid, locale)
   allowed_regions = about.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
 
   related_channels = initdata["contents"]["twoColumnBrowseResultsRenderer"]
-      .["secondaryContents"]?.try &.["browseSecondaryContentsRenderer"]["contents"][0]?
-      .try &.["verticalChannelSectionRenderer"]?.try &.["items"]?.try &.as_a.map do |node|
-    renderer = node["miniChannelRenderer"]?
-    related_id = renderer.try &.["channelId"]?.try &.as_s?
-    related_id ||= ""
+    .["secondaryContents"]?.try &.["browseSecondaryContentsRenderer"]["contents"][0]?
+    .try &.["verticalChannelSectionRenderer"]?.try &.["items"]?.try &.as_a.map do |node|
+      renderer = node["miniChannelRenderer"]?
+      related_id = renderer.try &.["channelId"]?.try &.as_s?
+      related_id ||= ""
 
-    related_title = renderer.try &.["title"]?.try &.["simpleText"]?.try &.as_s?
-    related_title ||= ""
+      related_title = renderer.try &.["title"]?.try &.["simpleText"]?.try &.as_s?
+      related_title ||= ""
 
-    related_author_url = renderer.try &.["navigationEndpoint"]?.try &.["commandMetadata"]?.try &.["webCommandMetadata"]?
-      .try &.["url"]?.try &.as_s?
-    related_author_url ||= ""
+      related_author_url = renderer.try &.["navigationEndpoint"]?.try &.["commandMetadata"]?.try &.["webCommandMetadata"]?
+        .try &.["url"]?.try &.as_s?
+      related_author_url ||= ""
 
-    related_author_thumbnails = renderer.try &.["thumbnail"]?.try &.["thumbnails"]?.try &.as_a?
-    related_author_thumbnails ||= [] of JSON::Any
+      related_author_thumbnails = renderer.try &.["thumbnail"]?.try &.["thumbnails"]?.try &.as_a?
+      related_author_thumbnails ||= [] of JSON::Any
 
-    related_author_thumbnail = ""
-    if related_author_thumbnails.size > 0
-      related_author_thumbnail = related_author_thumbnails[-1]["url"]?.try &.as_s?
-      related_author_thumbnail ||= ""
+      related_author_thumbnail = ""
+      if related_author_thumbnails.size > 0
+        related_author_thumbnail = related_author_thumbnails[-1]["url"]?.try &.as_s?
+        related_author_thumbnail ||= ""
+      end
+
+      AboutRelatedChannel.new({
+        ucid:             related_id,
+        author:           related_title,
+        author_url:       related_author_url,
+        author_thumbnail: related_author_thumbnail,
+      })
     end
-
-    AboutRelatedChannel.new({
-      ucid:             related_id,
-      author:           related_title,
-      author_url:       related_author_url,
-      author_thumbnail: related_author_thumbnail,
-    })
-  end
   related_channels ||= [] of AboutRelatedChannel
 
   total_views = 0_i64
   joined = Time.unix(0)
   tabs = [] of String
   auto_generated = false
-  
+
   tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
   if !tabs_json.nil?
     # Retrieve information from the tabs array. The index we are looking for varies between channels.
@@ -874,20 +875,20 @@ def get_about_info(ucid, locale)
       # Try to find the about section which is located in only one of the tabs.
       channel_about_meta = node["tabRenderer"]?.try &.["content"]?.try &.["sectionListRenderer"]?
         .try &.["contents"]?.try &.[0]?.try &.["itemSectionRenderer"]?.try &.["contents"]?
-        .try &.[0]?.try &.["channelAboutFullMetadataRenderer"]?
-      
+          .try &.[0]?.try &.["channelAboutFullMetadataRenderer"]?
+
       if !channel_about_meta.nil?
         total_views = channel_about_meta["viewCountText"]?.try &.["simpleText"]?.try &.as_s.gsub(/\D/, "").to_i64? || 0_i64
-        
+
         # The joined text is split to several sub strings. The reduce joins those strings before parsing the date.
         joined = channel_about_meta["joinedDateText"]?.try &.["runs"]?.try &.as_a.reduce("") { |acc, node| acc + node["text"].as_s }
           .try { |text| Time.parse(text, "Joined %b %-d, %Y", Time::Location.local) } || Time.unix(0)
-        
+
         # Auto-generated channels
         # https://support.google.com/youtube/answer/2579942
         # For auto-generated channels, channel_about_meta only has ["description"]["simpleText"] and ["primaryLinks"][0]["title"]["simpleText"]
         if (channel_about_meta["primaryLinks"]?.try &.size || 0) == 1 && (channel_about_meta["primaryLinks"][0]?)
-            (channel_about_meta["primaryLinks"][0]["title"]?.try &.["simpleText"]?.try &.as_s? || "") == "Auto-generated by YouTube"
+          (channel_about_meta["primaryLinks"][0]["title"]?.try &.["simpleText"]?.try &.as_s? || "") == "Auto-generated by YouTube"
           auto_generated = true
         end
       end
@@ -895,9 +896,8 @@ def get_about_info(ucid, locale)
     tabs = tabs_json.reject { |node| node["tabRenderer"]?.nil? }.map { |node| node["tabRenderer"]["title"].as_s.downcase }
   end
 
-
   sub_count = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s?
-    .try { |text| short_text_to_number(text.split(" ")[0])} || 0
+    .try { |text| short_text_to_number(text.split(" ")[0]) } || 0
 
   AboutChannel.new({
     ucid:               ucid,
