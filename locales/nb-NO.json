@@ -132,12 +132,12 @@
     "Private": "Privat",
     "View all playlists": "Vis alle spillelister",
     "Updated `x` ago": "Oppdatert `x` siden",
-    "Delete playlist `x`?": "Slett spillelisten `x`?",
+    "Delete playlist `x`?": "Slett spilleliste «x»?",
     "Delete playlist": "Slett spilleliste",
     "Create playlist": "Opprett spilleliste",
     "Title": "Tittel",
     "Playlist privacy": "Vern av spilleliste",
-    "Editing playlist `x`": "Redigerer spillelisten `x`",
+    "Editing playlist `x`": "Endre spilleliste «x»",
     "Watch on YouTube": "Vis video på YouTube",
     "Hide annotations": "Skjul merknader",
     "Show annotations": "Vis merknader",
@@ -174,7 +174,7 @@
     "Password cannot be empty": "Passordet kan ikke være tomt",
     "Password cannot be longer than 55 characters": "Passordet kan ikke være lengre enn 55 tegn",
     "Please log in": "Logg inn",
-    "Invidious Private Feed for `x`": "Ugyldig privat flyt for `x`",
+    "Invidious Private Feed for `x`": "Invidious personlige flyt for `x`",
     "channel:`x`": "kanal `x`",
     "Deleted or invalid channel": "Slettet eller ugyldig kanal",
     "This channel does not exist.": "Denne kanalen finnes ikke.",
@@ -332,5 +332,5 @@
     "Videos": "Videoer",
     "Playlists": "Spillelister",
     "Community": "Gemenskap",
-    "Current version: ": "Nåværende versjon: "
+    "Current version: ": "Gjeldende versjon: "
 }
