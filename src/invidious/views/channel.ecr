@@ -28,7 +28,7 @@
 </div>
 
 <div class="h-box">
-    <p><span style="white-space:pre-wrap"><%= XML.parse_html(channel.description_html).xpath_node(%q(.//pre)).try &.content %></span></p>
+    <p><span style="white-space:pre-wrap"><%= channel.description_html %></span></p>
 </div>
 
 <div class="h-box">
