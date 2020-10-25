@@ -3661,7 +3661,10 @@ get "/api/v1/storyboards/:id" do |env|
     end_time = storyboard[:interval].milliseconds
 
     storyboard[:storyboard_count].times do |i|
-      url = storyboard[:url].gsub("$M", i).gsub("https://i9.ytimg.com", HOST_URL)
+      url = storyboard[:url]
+      authority = /(i\d?).ytimg.com/.match(url).not_nil![1]?
+      url = storyboard[:url].gsub("$M", i).gsub(%r(https://i\d?.ytimg.com/sb/), "")
+      url = "#{HOST_URL}/sb/#{authority}/#{url}"
 
       storyboard[:storyboard_height].times do |j|
         storyboard[:storyboard_width].times do |k|
@@ -5527,14 +5530,14 @@ get "/ggpht/*" do |env|
   end
 end
 
-options "/sb/:id/:storyboard/:index" do |env|
-  env.response.headers.delete("Content-Type")
+options "/sb/:authority/:id/:storyboard/:index" do |env|
   env.response.headers["Access-Control-Allow-Origin"] = "*"
   env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
   env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
 end
 
-get "/sb/:id/:storyboard/:index" do |env|
+get "/sb/:authority/:id/:storyboard/:index" do |env|
+  authority = env.params.url["authority"]
   id = env.params.url["id"]
   storyboard = env.params.url["storyboard"]
   index = env.params.url["index"]
@@ -5543,11 +5546,7 @@ get "/sb/:id/:storyboard/:index" do |env|
 
   headers = HTTP::Headers.new
 
-  if storyboard.starts_with? "storyboard_live"
-    headers[":authority"] = "i.ytimg.com"
-  else
-    headers[":authority"] = "i9.ytimg.com"
-  end
+  headers[":authority"] = "#{authority}.ytimg.com"
 
   REQUEST_HEADERS_WHITELIST.each do |header|
     if env.request.headers[header]?

@@ -61,7 +61,7 @@ class Kemal::ExceptionHandler
 end
 
 class FilteredCompressHandler < Kemal::Handler
-  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/ggpht/*", "/api/v1/auth/notifications"]
+  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/sb/*", "/ggpht/*", "/api/v1/auth/notifications"]
   exclude ["/api/v1/auth/notifications", "/data_control"], "POST"
 
   def call(env)
