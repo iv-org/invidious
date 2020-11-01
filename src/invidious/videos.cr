@@ -1020,7 +1020,9 @@ def process_continuation(db, query, plid, id)
     if index = query["index"]?.try &.to_i?
       continuation = index
     else
-      continuation = id
+      index = PG_DB.query_one?("SELECT index FROM playlist_videos WHERE plid = $1 AND id = $2 LIMIT 1", plid, id, as: Int64)
+      i = PG_DB.query_one?("SELECT array_position(index, $2) - 1 FROM playlists WHERE id = $1 LIMIT 1", plid, index, as: Int32)
+      continuation = i || id
     end
     continuation ||= 0
   end
