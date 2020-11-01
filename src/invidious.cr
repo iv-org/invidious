@@ -1127,11 +1127,11 @@ post "/playlist_ajax" do |env|
     args = arg_array(video_array)
 
     PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
-    PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index), updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist_id)
+    PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index) + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist_id)
   when "action_remove_video"
     index = env.params.query["set_video_id"]
     PG_DB.exec("DELETE FROM playlist_videos * WHERE index = $1", index)
-    PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = cardinality(index), updated = $2 WHERE id = $3", index, Time.utc, playlist_id)
+    PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = cardinality(index) - 1, updated = $2 WHERE id = $3", index, Time.utc, playlist_id)
   when "action_move_video_before"
     # TODO: Playlist stub
   else
@@ -2499,7 +2499,7 @@ post "/data_control" do |env|
               args = arg_array(video_array)
 
               PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
-              PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index), updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist.id)
+              PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index) + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist.id)
             end
           end
         end
@@ -4840,7 +4840,7 @@ post "/api/v1/auth/playlists/:plid/videos" do |env|
   args = arg_array(video_array)
 
   PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
-  PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = video_count + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, plid)
+  PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index) + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, plid)
 
   env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/playlists/#{plid}/videos/#{playlist_video.index.to_u64.to_s(16).upcase}"
   env.response.status_code = 201
@@ -4874,7 +4874,7 @@ delete "/api/v1/auth/playlists/:plid/videos/:index" do |env|
   end
 
   PG_DB.exec("DELETE FROM playlist_videos * WHERE index = $1", index)
-  PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = video_count - 1, updated = $2 WHERE id = $3", index, Time.utc, plid)
+  PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = cardinality(index) - 1, updated = $2 WHERE id = $3", index, Time.utc, plid)
 
   env.response.status_code = 204
 end
