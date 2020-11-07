@@ -7,7 +7,7 @@ class Invidious::Routes::Embed::Show < Invidious::Routes::BaseRoute
     continuation = process_continuation(PG_DB, env.params.query, plid, id)
 
     if md = env.params.query["playlist"]?
-        .try &.match(/[a-zA-Z0-9_-]{11}(,[a-zA-Z0-9_-]{11})*/)
+         .try &.match(/[a-zA-Z0-9_-]{11}(,[a-zA-Z0-9_-]{11})*/)
       video_series = md[0].split(",")
       env.params.query.delete("playlist")
     end
@@ -106,8 +106,8 @@ class Invidious::Routes::Embed::Show < Invidious::Routes::BaseRoute
     end
 
     if preferences.annotations_subscribed &&
-      subscriptions.includes?(video.ucid) &&
-      (env.params.query["iv_load_policy"]? || "1") == "1"
+       subscriptions.includes?(video.ucid) &&
+       (env.params.query["iv_load_policy"]? || "1") == "1"
       params.annotations = true
     end
 
