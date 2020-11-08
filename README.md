@@ -105,8 +105,7 @@ $ exit
 #### Set up PostgresSQL
 
 ```bash
-$ sudo systemctl enable postgresql
-$ sudo systemctl start postgresql
+$ sudo systemctl enable --now postgresql
 $ sudo -i -u postgres
 $ psql -c "CREATE USER kemal WITH PASSWORD 'kemal';" # Change 'kemal' here to a stronger password, and update `password` in config/config.yml
 $ createdb -O kemal invidious
@@ -138,8 +137,7 @@ $ exit
 
 ```bash
 $ sudo cp /home/invidious/invidious/invidious.service /etc/systemd/system/invidious.service
-$ sudo systemctl enable invidious.service
-$ sudo systemctl start invidious.service
+$ sudo systemctl enable --now invidious.service
 ```
 
 #### Logrotate:
