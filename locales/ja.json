@@ -201,7 +201,7 @@
     "Invidious Private Feed for `x`": "`x` の Invidious プライベートフィード",
     "channel:`x`": "チャンネル:`x`",
     "Deleted or invalid channel": "削除済みまたは無効なチャンネルです",
-    "This channel does not exist.": "このチャンネルは存在していません",
+    "This channel does not exist.": "このチャンネルは存在しません。",
     "Could not get channel info.": "チャンネル情報を取得できませんでした。",
     "Could not fetch comments": "コメントを取得できませんでした",
     "View `x` replies": {
@@ -217,7 +217,7 @@
     "Could not create mix.": "ミックスを作成できませんでした。",
     "Empty playlist": "空の再生リスト",
     "Not a playlist.": "再生リストではありません。",
-    "Playlist does not exist.": "再生リストが存在していません・",
+    "Playlist does not exist.": "再生リストが存在しません。",
     "Could not pull trending pages.": "急上昇ページを取得できませんでした。",
     "Hidden field \"challenge\" is a required field": "非表示項目 \"challenge\" は必須項目です",
     "Hidden field \"token\" is a required field": "非表示項目 \"token\" は必須項目です",
