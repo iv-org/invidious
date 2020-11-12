@@ -20,12 +20,14 @@
     <div class="pure-u-1 pure-u-lg-1-5"></div>
 </div>
 
-<script>
-var playlist_data = {
-    csrf_token: '<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>',
-}
+<script id="playlist_data" type="application/json">
+<%=
+{
+    "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "")
+}.to_pretty_json
+%>
 </script>
-<script src="/js/playlist_widget.js"></script>
+<script src="/js/playlist_widget.js?v=<%= ASSET_COMMIT %>"></script>
 
 <div class="pure-g">
     <% videos.each_slice(4) do |slice| %>

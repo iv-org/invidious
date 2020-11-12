@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "invidious.fullname" . }}
+  labels:
+    app: {{ template "invidious.name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name }}
+data:
+  INVIDIOUS_CONFIG: |
+{{ toYaml .Values.config | indent 4 }}

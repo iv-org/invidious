@@ -8,7 +8,7 @@
         "": "`x` videos"
     },
     "`x` playlists": {
-        "(\\D|^)1(\\D|$)": "`x` playlist",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playlist",
         "": "`x` playlists"
     },
     "LIVE": "LIVE",
@@ -177,7 +177,7 @@
     "View YouTube comments": "View YouTube comments",
     "View more comments on Reddit": "View more comments on Reddit",
     "View `x` comments": {
-        "(\\D|^)1(\\D|$)": "View `x` comment",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "View `x` comment",
         "": "View `x` comments"
     },
     "View Reddit comments": "View Reddit comments",

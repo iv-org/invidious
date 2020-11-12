@@ -222,53 +222,73 @@ VIDEO_FORMATS = {
 }
 
 struct VideoPreferences
-  json_mapping({
-    annotations:        Bool,
-    autoplay:           Bool,
-    comments:           Array(String),
-    continue:           Bool,
-    continue_autoplay:  Bool,
-    controls:           Bool,
-    listen:             Bool,
-    local:              Bool,
-    preferred_captions: Array(String),
-    player_style:       String,
-    quality:            String,
-    raw:                Bool,
-    region:             String?,
-    related_videos:     Bool,
-    speed:              (Float32 | Float64),
-    video_end:          (Float64 | Int32),
-    video_loop:         Bool,
-    video_start:        (Float64 | Int32),
-    volume:             Int32,
-  })
+  include JSON::Serializable
+
+  property annotations : Bool
+  property autoplay : Bool
+  property comments : Array(String)
+  property continue : Bool
+  property continue_autoplay : Bool
+  property controls : Bool
+  property listen : Bool
+  property local : Bool
+  property preferred_captions : Array(String)
+  property player_style : String
+  property quality : String
+  property raw : Bool
+  property region : String?
+  property related_videos : Bool
+  property speed : Float32 | Float64
+  property video_end : Float64 | Int32
+  property video_loop : Bool
+  property video_start : Float64 | Int32
+  property volume : Int32
 end
 
 struct Video
-  property player_json : JSON::Any?
-  property recommended_json : JSON::Any?
+  include DB::Serializable
 
-  module HTTPParamConverter
+  property id : String
+
+  @[DB::Field(converter: Video::JSONConverter)]
+  property info : Hash(String, JSON::Any)
+  property updated : Time
+
+  @[DB::Field(ignore: true)]
+  property captions : Array(Caption)?
+
+  @[DB::Field(ignore: true)]
+  property adaptive_fmts : Array(Hash(String, JSON::Any))?
+
+  @[DB::Field(ignore: true)]
+  property fmt_stream : Array(Hash(String, JSON::Any))?
+
+  @[DB::Field(ignore: true)]
+  property description : String?
+
+  module JSONConverter
     def self.from_rs(rs)
-      HTTP::Params.parse(rs.read(String))
+      JSON.parse(rs.read(String)).as_h
     end
   end
 
-  def to_json(locale, config, kemal_config, decrypt_function, json : JSON::Builder)
+  def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "type", "video"
 
       json.field "title", self.title
       json.field "videoId", self.id
+
+      json.field "error", info["reason"] if info["reason"]?
+
       json.field "videoThumbnails" do
-        generate_thumbnails(json, self.id, config, kemal_config)
+        generate_thumbnails(json, self.id)
       end
       json.field "storyboards" do
-        generate_storyboards(json, self.id, self.storyboards, config, kemal_config)
+        generate_storyboards(json, self.id, self.storyboards)
       end
 
-      json.field "description", html_to_content(self.description_html)
+      json.field "description", self.description
       json.field "descriptionHtml", self.description_html
       json.field "published", self.published.to_unix
       json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
@@ -307,43 +327,39 @@ struct Video
 
       json.field "lengthSeconds", self.length_seconds
       json.field "allowRatings", self.allow_ratings
-      json.field "rating", self.info["avg_rating"].to_f32
+      json.field "rating", self.average_rating
       json.field "isListed", self.is_listed
       json.field "liveNow", self.live_now
       json.field "isUpcoming", self.is_upcoming
 
       if self.premiere_timestamp
-        json.field "premiereTimestamp", self.premiere_timestamp.not_nil!.to_unix
+        json.field "premiereTimestamp", self.premiere_timestamp.try &.to_unix
       end
 
-      if player_response["streamingData"]?.try &.["hlsManifestUrl"]?
-        host_url = make_host_url(config, kemal_config)
-
-        hlsvp = player_response["streamingData"]["hlsManifestUrl"].as_s
-        hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", host_url)
-
+      if hlsvp = self.hls_manifest_url
+        hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", HOST_URL)
         json.field "hlsUrl", hlsvp
       end
 
-      json.field "dashUrl", "#{make_host_url(config, kemal_config)}/api/manifest/dash/id/#{id}"
+      json.field "dashUrl", "#{HOST_URL}/api/manifest/dash/id/#{id}"
 
       json.field "adaptiveFormats" do
         json.array do
-          self.adaptive_fmts(decrypt_function).each do |fmt|
+          self.adaptive_fmts.each do |fmt|
             json.object do
-              json.field "index", fmt["index"]
-              json.field "bitrate", fmt["bitrate"]
-              json.field "init", fmt["init"]
+              json.field "index", "#{fmt["indexRange"]["start"]}-#{fmt["indexRange"]["end"]}"
+              json.field "bitrate", fmt["bitrate"].as_i.to_s
+              json.field "init", "#{fmt["initRange"]["start"]}-#{fmt["initRange"]["end"]}"
               json.field "url", fmt["url"]
-              json.field "itag", fmt["itag"]
-              json.field "type", fmt["type"]
-              json.field "clen", fmt["clen"]
-              json.field "lmt", fmt["lmt"]
-              json.field "projectionType", fmt["projection_type"]
+              json.field "itag", fmt["itag"].as_i.to_s
+              json.field "type", fmt["mimeType"]
+              json.field "clen", fmt["contentLength"]
+              json.field "lmt", fmt["lastModified"]
+              json.field "projectionType", fmt["projectionType"]
 
               fmt_info = itag_to_metadata?(fmt["itag"])
               if fmt_info
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
+                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
                 json.field "fps", fps
                 json.field "container", fmt_info["ext"]
                 json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
@@ -369,16 +385,16 @@ struct Video
 
       json.field "formatStreams" do
         json.array do
-          self.fmt_stream(decrypt_function).each do |fmt|
+          self.fmt_stream.each do |fmt|
             json.object do
               json.field "url", fmt["url"]
-              json.field "itag", fmt["itag"]
-              json.field "type", fmt["type"]
+              json.field "itag", fmt["itag"].as_i.to_s
+              json.field "type", fmt["mimeType"]
               json.field "quality", fmt["quality"]
 
               fmt_info = itag_to_metadata?(fmt["itag"])
               if fmt_info
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.to_i || 30
+                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
                 json.field "fps", fps
                 json.field "container", fmt_info["ext"]
                 json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
@@ -416,15 +432,13 @@ struct Video
 
       json.field "recommendedVideos" do
         json.array do
-          self.info["rvs"]?.try &.split(",").each do |rv|
-            rv = HTTP::Params.parse(rv)
-
+          self.related_videos.each do |rv|
             if rv["id"]?
               json.object do
                 json.field "videoId", rv["id"]
                 json.field "title", rv["title"]
                 json.field "videoThumbnails" do
-                  generate_thumbnails(json, rv["id"], config, kemal_config)
+                  generate_thumbnails(json, rv["id"])
                 end
 
                 json.field "author", rv["author"]
@@ -437,7 +451,7 @@ struct Video
 
                       qualities.each do |quality|
                         json.object do
-                          json.field "url", rv["author_thumbnail"].gsub(/s\d+-/, "s#{quality}-")
+                          json.field "url", rv["author_thumbnail"]?.try &.gsub(/s\d+-/, "s#{quality}-")
                           json.field "width", quality
                           json.field "height", quality
                         end
@@ -446,9 +460,9 @@ struct Video
                   end
                 end
 
-                json.field "lengthSeconds", rv["length_seconds"].to_i
-                json.field "viewCountText", rv["short_view_count_text"]
-                json.field "viewCount", rv["view_count"]?.try &.to_i64
+                json.field "lengthSeconds", rv["length_seconds"]?.try &.to_i
+                json.field "viewCountText", rv["short_view_count_text"]?
+                json.field "viewCount", rv["view_count"]?.try &.empty? ? nil : rv["view_count"].to_i64
               end
             end
           end
@@ -457,266 +471,164 @@ struct Video
     end
   end
 
-  def to_json(locale, config, kemal_config, decrypt_function, json : JSON::Builder | Nil = nil)
+  def to_json(locale, json : JSON::Builder | Nil = nil)
     if json
-      to_json(locale, config, kemal_config, decrypt_function, json)
+      to_json(locale, json)
     else
       JSON.build do |json|
-        to_json(locale, config, kemal_config, decrypt_function, json)
+        to_json(locale, json)
       end
     end
   end
 
-  # `description_html` is stored in DB as `description`, which can be
-  # quite confusing. Since it currently isn't very practical to rename
-  # it, we instead define a getter and setter here.
-  def description_html
-    self.description
+  def title
+    info["videoDetails"]["title"]?.try &.as_s || ""
   end
 
-  def description_html=(other : String)
-    self.description = other
+  def ucid
+    info["videoDetails"]["channelId"]?.try &.as_s || ""
+  end
+
+  def author
+    info["videoDetails"]["author"]?.try &.as_s || ""
+  end
+
+  def length_seconds : Int32
+    info["microformat"]?.try &.["playerMicroformatRenderer"]?.try &.["lengthSeconds"]?.try &.as_s.to_i ||
+      info["videoDetails"]["lengthSeconds"]?.try &.as_s.to_i || 0
+  end
+
+  def views : Int64
+    info["videoDetails"]["viewCount"]?.try &.as_s.to_i64 || 0_i64
+  end
+
+  def likes : Int64
+    info["likes"]?.try &.as_i64 || 0_i64
+  end
+
+  def dislikes : Int64
+    info["dislikes"]?.try &.as_i64 || 0_i64
+  end
+
+  def average_rating : Float64
+    # (likes / (likes + dislikes) * 4 + 1)
+    info["videoDetails"]["averageRating"]?.try { |t| t.as_f? || t.as_i64?.try &.to_f64 }.try &.round(4) || 0.0
+  end
+
+  def published : Time
+    info["microformat"]?.try &.["playerMicroformatRenderer"]?.try &.["publishDate"]?.try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location.local) } || Time.local
+  end
+
+  def published=(other : Time)
+    info["microformat"].as_h["playerMicroformatRenderer"].as_h["publishDate"] = JSON::Any.new(other.to_s("%Y-%m-%d"))
+  end
+
+  def cookie
+    info["cookie"]?.try &.as_h.map { |k, v| "#{k}=#{v}" }.join("; ") || ""
   end
 
   def allow_ratings
-    allow_ratings = player_response["videoDetails"]?.try &.["allowRatings"]?.try &.as_bool
-
-    if allow_ratings.nil?
-      return true
-    end
-
-    return allow_ratings
+    r = info["videoDetails"]["allowRatings"]?.try &.as_bool
+    r.nil? ? false : r
   end
 
   def live_now
-    live_now = player_response["videoDetails"]?.try &.["isLive"]?.try &.as_bool
-
-    if live_now.nil?
-      return false
-    end
-
-    return live_now
+    info["videoDetails"]["isLiveContent"]?.try &.as_bool || false
   end
 
   def is_listed
-    is_listed = player_response["videoDetails"]?.try &.["isCrawlable"]?.try &.as_bool
-
-    if is_listed.nil?
-      return true
-    end
-
-    return is_listed
+    info["videoDetails"]["isCrawlable"]?.try &.as_bool || false
   end
 
   def is_upcoming
-    is_upcoming = player_response["videoDetails"]?.try &.["isUpcoming"]?.try &.as_bool
-
-    if is_upcoming.nil?
-      return false
-    end
-
-    return is_upcoming
+    info["videoDetails"]["isUpcoming"]?.try &.as_bool || false
   end
 
-  def premiere_timestamp
-    if self.is_upcoming
-      premiere_timestamp = player_response["playabilityStatus"]?
-        .try &.["liveStreamability"]?
-          .try &.["liveStreamabilityRenderer"]?
-            .try &.["offlineSlate"]?
-              .try &.["liveStreamOfflineSlateRenderer"]?
-                .try &.["scheduledStartTime"]?.try &.as_s.to_i64
-    end
-
-    if premiere_timestamp
-      premiere_timestamp = Time.unix(premiere_timestamp)
-    end
-
-    return premiere_timestamp
+  def premiere_timestamp : Time?
+    info["microformat"]?.try &.["playerMicroformatRenderer"]?
+      .try &.["liveBroadcastDetails"]?.try &.["startTimestamp"]?.try { |t| Time.parse_rfc3339(t.as_s) }
   end
 
   def keywords
-    keywords = player_response["videoDetails"]?.try &.["keywords"]?.try &.as_a
-    keywords ||= [] of String
-
-    return keywords
+    info["videoDetails"]["keywords"]?.try &.as_a.map &.as_s || [] of String
   end
 
-  def fmt_stream(decrypt_function)
-    streams = [] of HTTP::Params
-
-    if fmt_streams = player_response["streamingData"]?.try &.["formats"]?
-      fmt_streams.as_a.each do |fmt_stream|
-        if !fmt_stream.as_h?
-          next
-        end
-
-        fmt = {} of String => String
-
-        fmt["lmt"] = fmt_stream["lastModified"]?.try &.as_s || "0"
-        fmt["projection_type"] = "1"
-        fmt["type"] = fmt_stream["mimeType"].as_s
-        fmt["clen"] = fmt_stream["contentLength"]?.try &.as_s || "0"
-        fmt["bitrate"] = fmt_stream["bitrate"]?.try &.as_i.to_s || "0"
-        fmt["itag"] = fmt_stream["itag"].as_i.to_s
-        if fmt_stream["url"]?
-          fmt["url"] = fmt_stream["url"].as_s
-        end
-        if fmt_stream["cipher"]?
-          HTTP::Params.parse(fmt_stream["cipher"].as_s).each do |key, value|
-            fmt[key] = value
-          end
-        end
-        fmt["quality"] = fmt_stream["quality"].as_s
-
-        if fmt_stream["width"]?
-          fmt["size"] = "#{fmt_stream["width"]}x#{fmt_stream["height"]}"
-          fmt["height"] = fmt_stream["height"].as_i.to_s
-        end
-
-        if fmt_stream["fps"]?
-          fmt["fps"] = fmt_stream["fps"].as_i.to_s
-        end
-
-        if fmt_stream["qualityLabel"]?
-          fmt["quality_label"] = fmt_stream["qualityLabel"].as_s
-        end
-
-        params = HTTP::Params.new
-        fmt.each do |key, value|
-          params[key] = value
-        end
-
-        streams << params
-      end
-
-      streams.sort_by! { |stream| stream["height"].to_i }.reverse!
-    elsif fmt_stream = self.info["url_encoded_fmt_stream_map"]?
-      fmt_stream.split(",").each do |string|
-        if !string.empty?
-          streams << HTTP::Params.parse(string)
-        end
-      end
-    end
-
-    streams.each { |s| s.add("label", "#{s["quality"]} - #{s["type"].split(";")[0].split("/")[1]}") }
-    streams = streams.uniq { |s| s["label"] }
-
-    if self.info["region"]?
-      streams.each do |fmt|
-        fmt["url"] += "&region=" + self.info["region"]
-      end
-    end
-
-    streams.each do |fmt|
-      fmt["url"] += "&host=" + (URI.parse(fmt["url"]).host || "")
-      fmt["url"] += decrypt_signature(fmt, decrypt_function)
-    end
-
-    return streams
+  def related_videos
+    info["relatedVideos"]?.try &.as_a.map { |h| h.as_h.transform_values &.as_s } || [] of Hash(String, String)
   end
 
-  def adaptive_fmts(decrypt_function)
-    adaptive_fmts = [] of HTTP::Params
-
-    if fmts = player_response["streamingData"]?.try &.["adaptiveFormats"]?
-      fmts.as_a.each do |adaptive_fmt|
-        next if !adaptive_fmt.as_h?
-        fmt = {} of String => String
-
-        if init = adaptive_fmt["initRange"]?
-          fmt["init"] = "#{init["start"]}-#{init["end"]}"
-        end
-        fmt["init"] ||= "0-0"
-
-        fmt["lmt"] = adaptive_fmt["lastModified"]?.try &.as_s || "0"
-        fmt["projection_type"] = "1"
-        fmt["type"] = adaptive_fmt["mimeType"].as_s
-        fmt["clen"] = adaptive_fmt["contentLength"]?.try &.as_s || "0"
-        fmt["bitrate"] = adaptive_fmt["bitrate"]?.try &.as_i.to_s || "0"
-        fmt["itag"] = adaptive_fmt["itag"].as_i.to_s
-        if adaptive_fmt["url"]?
-          fmt["url"] = adaptive_fmt["url"].as_s
-        end
-        if adaptive_fmt["cipher"]?
-          HTTP::Params.parse(adaptive_fmt["cipher"].as_s).each do |key, value|
-            fmt[key] = value
-          end
-        end
-        if index = adaptive_fmt["indexRange"]?
-          fmt["index"] = "#{index["start"]}-#{index["end"]}"
-        end
-        fmt["index"] ||= "0-0"
-
-        if adaptive_fmt["width"]?
-          fmt["size"] = "#{adaptive_fmt["width"]}x#{adaptive_fmt["height"]}"
-        end
-
-        if adaptive_fmt["fps"]?
-          fmt["fps"] = adaptive_fmt["fps"].as_i.to_s
-        end
-
-        if adaptive_fmt["qualityLabel"]?
-          fmt["quality_label"] = adaptive_fmt["qualityLabel"].as_s
-        end
-
-        params = HTTP::Params.new
-        fmt.each do |key, value|
-          params[key] = value
-        end
-
-        adaptive_fmts << params
-      end
-    elsif fmts = self.info["adaptive_fmts"]?
-      fmts.split(",") do |string|
-        adaptive_fmts << HTTP::Params.parse(string)
-      end
-    end
-
-    if self.info["region"]?
-      adaptive_fmts.each do |fmt|
-        fmt["url"] += "&region=" + self.info["region"]
-      end
-    end
-
-    adaptive_fmts.each do |fmt|
-      fmt["url"] += "&host=" + (URI.parse(fmt["url"]).host || "")
-      fmt["url"] += decrypt_signature(fmt, decrypt_function)
-    end
-
-    return adaptive_fmts
+  def allowed_regions
+    info["microformat"]?.try &.["playerMicroformatRenderer"]?
+      .try &.["availableCountries"]?.try &.as_a.map &.as_s || [] of String
   end
 
-  def video_streams(adaptive_fmts)
-    video_streams = adaptive_fmts.select { |s| s["type"].starts_with? "video" }
-
-    return video_streams
+  def author_thumbnail : String
+    info["authorThumbnail"]?.try &.as_s || ""
   end
 
-  def audio_streams(adaptive_fmts)
-    audio_streams = adaptive_fmts.select { |s| s["type"].starts_with? "audio" }
-    audio_streams.sort_by! { |s| s["bitrate"].to_i }.reverse!
-    audio_streams.each do |stream|
-      stream["bitrate"] = (stream["bitrate"].to_f64/1000).to_i.to_s
+  def sub_count_text : String
+    info["subCountText"]?.try &.as_s || "-"
+  end
+
+  def fmt_stream
+    return @fmt_stream.as(Array(Hash(String, JSON::Any))) if @fmt_stream
+
+    fmt_stream = info["streamingData"]?.try &.["formats"]?.try &.as_a.map &.as_h || [] of Hash(String, JSON::Any)
+    fmt_stream.each do |fmt|
+      if s = (fmt["cipher"]? || fmt["signatureCipher"]?).try { |h| HTTP::Params.parse(h.as_s) }
+        s.each do |k, v|
+          fmt[k] = JSON::Any.new(v)
+        end
+        fmt["url"] = JSON::Any.new("#{fmt["url"]}#{decrypt_signature(fmt)}")
+      end
+
+      fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")
+      fmt["url"] = JSON::Any.new("#{fmt["url"]}&region=#{self.info["region"]}") if self.info["region"]?
     end
-
-    return audio_streams
+    fmt_stream.sort_by! { |f| f["width"]?.try &.as_i || 0 }
+    @fmt_stream = fmt_stream
+    return @fmt_stream.as(Array(Hash(String, JSON::Any)))
   end
 
-  def player_response
-    @player_json = JSON.parse(@info["player_response"]) if !@player_json
-    @player_json.not_nil!
+  def adaptive_fmts
+    return @adaptive_fmts.as(Array(Hash(String, JSON::Any))) if @adaptive_fmts
+    fmt_stream = info["streamingData"]?.try &.["adaptiveFormats"]?.try &.as_a.map &.as_h || [] of Hash(String, JSON::Any)
+    fmt_stream.each do |fmt|
+      if s = (fmt["cipher"]? || fmt["signatureCipher"]?).try { |h| HTTP::Params.parse(h.as_s) }
+        s.each do |k, v|
+          fmt[k] = JSON::Any.new(v)
+        end
+        fmt["url"] = JSON::Any.new("#{fmt["url"]}#{decrypt_signature(fmt)}")
+      end
+
+      fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")
+      fmt["url"] = JSON::Any.new("#{fmt["url"]}&region=#{self.info["region"]}") if self.info["region"]?
+    end
+    # See https://github.com/TeamNewPipe/NewPipe/issues/2415
+    # Some streams are segmented by URL `sq/` rather than index, for now we just filter them out
+    fmt_stream.reject! { |f| !f["indexRange"]? }
+    fmt_stream.sort_by! { |f| f["width"]?.try &.as_i || 0 }
+    @adaptive_fmts = fmt_stream
+    return @adaptive_fmts.as(Array(Hash(String, JSON::Any)))
+  end
+
+  def video_streams
+    adaptive_fmts.select &.["mimeType"]?.try &.as_s.starts_with?("video")
+  end
+
+  def audio_streams
+    adaptive_fmts.select &.["mimeType"]?.try &.as_s.starts_with?("audio")
   end
 
   def storyboards
-    storyboards = player_response["storyboards"]?
+    storyboards = info["storyboards"]?
       .try &.as_h
         .try &.["playerStoryboardSpecRenderer"]?
           .try &.["spec"]?
             .try &.as_s.split("|")
 
     if !storyboards
-      if storyboard = player_response["storyboards"]?
+      if storyboard = info["storyboards"]?
            .try &.as_h
              .try &.["playerLiveStoryboardSpecRenderer"]?
                .try &.["spec"]?
@@ -744,9 +656,7 @@ struct Video
       storyboard_height: Int32,
       storyboard_count: Int32)
 
-    if !storyboards
-      return items
-    end
+    return items if !storyboards
 
     url = URI.parse(storyboards.shift)
     params = HTTP::Params.parse(url.query || "")
@@ -780,96 +690,102 @@ struct Video
   end
 
   def paid
-    reason = player_response["playabilityStatus"]?.try &.["reason"]?
+    reason = info["playabilityStatus"]?.try &.["reason"]?
     paid = reason == "This video requires payment to watch." ? true : false
-
-    return paid
+    paid
   end
 
   def premium
-    if info["premium"]?
-      self.info["premium"] == "true"
-    else
-      false
-    end
+    keywords.includes? "YouTube Red"
   end
 
-  def captions
-    captions = [] of Caption
-    if player_response["captions"]?
-      caption_list = player_response["captions"]["playerCaptionsTracklistRenderer"]["captionTracks"]?.try &.as_a
-      caption_list ||= [] of JSON::Any
-
-      caption_list.each do |caption|
-        caption = Caption.from_json(caption.to_json)
-        caption.name.simpleText = caption.name.simpleText.split(" - ")[0]
-        captions << caption
-      end
+  def captions : Array(Caption)
+    return @captions.as(Array(Caption)) if @captions
+    captions = info["captions"]?.try &.["playerCaptionsTracklistRenderer"]?.try &.["captionTracks"]?.try &.as_a.map do |caption|
+      caption = Caption.from_json(caption.to_json)
+      caption.name.simpleText = caption.name.simpleText.split(" - ")[0]
+      caption
     end
+    captions ||= [] of Caption
+    @captions = captions
+    return @captions.as(Array(Caption))
+  end
 
-    return captions
+  def description
+    description = info["microformat"]?.try &.["playerMicroformatRenderer"]?
+      .try &.["description"]?.try &.["simpleText"]?.try &.as_s || ""
+  end
+
+  # TODO
+  def description=(value : String)
+    @description = value
+  end
+
+  def description_html
+    info["descriptionHtml"]?.try &.as_s || "<p></p>"
+  end
+
+  def description_html=(value : String)
+    info["descriptionHtml"] = JSON::Any.new(value)
   end
 
   def short_description
-    short_description = self.description_html.gsub(/(<br>)|(<br\/>|"|\n)/, {
-      "<br>":  " ",
-      "<br/>": " ",
-      "\"":    "&quot;",
-      "\n":    " ",
-    })
-    short_description = XML.parse_html(short_description).content[0..200].strip(" ")
-
-    if short_description.empty?
-      short_description = " "
-    end
-
-    return short_description
+    info["shortDescription"]?.try &.as_s? || ""
   end
 
-  def length_seconds
-    player_response["videoDetails"]["lengthSeconds"].as_s.to_i
+  def hls_manifest_url : String?
+    info["streamingData"]?.try &.["hlsManifestUrl"]?.try &.as_s
   end
 
-  db_mapping({
-    id:   String,
-    info: {
-      type:      HTTP::Params,
-      default:   HTTP::Params.parse(""),
-      converter: Video::HTTPParamConverter,
-    },
-    updated:            Time,
-    title:              String,
-    views:              Int64,
-    likes:              Int32,
-    dislikes:           Int32,
-    wilson_score:       Float64,
-    published:          Time,
-    description:        String,
-    language:           String?,
-    author:             String,
-    ucid:               String,
-    allowed_regions:    Array(String),
-    is_family_friendly: Bool,
-    genre:              String,
-    genre_url:          String,
-    license:            String,
-    sub_count_text:     String,
-    author_thumbnail:   String,
-  })
-end
+  def dash_manifest_url
+    info["streamingData"]?.try &.["dashManifestUrl"]?.try &.as_s
+  end
 
-struct Caption
-  json_mapping({
-    name:         CaptionName,
-    baseUrl:      String,
-    languageCode: String,
-  })
+  def genre : String
+    info["genre"]?.try &.as_s || ""
+  end
+
+  def genre_url : String?
+    info["genreUcid"]? ? "/channel/#{info["genreUcid"]}" : nil
+  end
+
+  def license : String?
+    info["license"]?.try &.as_s
+  end
+
+  def is_family_friendly : Bool
+    info["microformat"]?.try &.["playerMicroformatRenderer"]["isFamilySafe"]?.try &.as_bool || false
+  end
+
+  def wilson_score : Float64
+    ci_lower_bound(likes, likes + dislikes).round(4)
+  end
+
+  def engagement : Float64
+    ((likes + dislikes) / views).round(4)
+  end
+
+  def reason : String?
+    info["reason"]?.try &.as_s
+  end
+
+  def session_token : String?
+    info["sessionToken"]?.try &.as_s?
+  end
 end
 
 struct CaptionName
-  json_mapping({
-    simpleText: String,
-  })
+  include JSON::Serializable
+
+  property simpleText : String
+end
+
+struct Caption
+  include JSON::Serializable
+
+  property name : CaptionName
+  property baseUrl : String
+  property languageCode : String
 end
 
 class VideoRedirect < Exception
@@ -879,121 +795,64 @@ class VideoRedirect < Exception
   end
 end
 
-def get_video(id, db, refresh = true, region = nil, force_refresh = false)
-  if (video = db.query_one?("SELECT * FROM videos WHERE id = $1", id, as: Video)) && !region
-    # If record was last updated over 10 minutes ago, or video has since premiered,
-    # refresh (expire param in response lasts for 6 hours)
-    if (refresh &&
-       (Time.utc - video.updated > 10.minutes) ||
-       (video.premiere_timestamp && video.premiere_timestamp.as(Time) < Time.utc)) ||
-       force_refresh
-      begin
-        video = fetch_video(id, region)
-        video_array = video.to_a
+def parse_related(r : JSON::Any) : JSON::Any?
+  # TODO: r["endScreenPlaylistRenderer"], etc.
+  return if !r["endScreenVideoRenderer"]?
+  r = r["endScreenVideoRenderer"].as_h
 
-        args = arg_array(video_array[1..-1], 2)
+  return if !r["lengthInSeconds"]?
 
-        db.exec("UPDATE videos SET (info,updated,title,views,likes,dislikes,wilson_score,\
-          published,description,language,author,ucid,allowed_regions,is_family_friendly,\
-          genre,genre_url,license,sub_count_text,author_thumbnail)\
-          = (#{args}) WHERE id = $1", args: video_array)
-      rescue ex
-        db.exec("DELETE FROM videos * WHERE id = $1", id)
-        raise ex
-      end
-    end
-  else
-    video = fetch_video(id, region)
-    video_array = video.to_a
-
-    args = arg_array(video_array)
-
-    if !region
-      db.exec("INSERT INTO videos VALUES (#{args}) ON CONFLICT (id) DO NOTHING", args: video_array)
-    end
-  end
-
-  return video
+  rv = {} of String => JSON::Any
+  rv["author"] = r["shortBylineText"]["runs"][0]?.try &.["text"] || JSON::Any.new("")
+  rv["ucid"] = r["shortBylineText"]["runs"][0]?.try &.["navigationEndpoint"]["browseEndpoint"]["browseId"] || JSON::Any.new("")
+  rv["author_url"] = JSON::Any.new("/channel/#{rv["ucid"]}")
+  rv["length_seconds"] = JSON::Any.new(r["lengthInSeconds"].as_i.to_s)
+  rv["title"] = r["title"]["simpleText"]
+  rv["short_view_count_text"] = JSON::Any.new(r["shortViewCountText"]?.try &.["simpleText"]?.try &.as_s || "")
+  rv["view_count"] = JSON::Any.new(r["title"]["accessibility"]?.try &.["accessibilityData"]["label"].as_s.match(/(?<views>[1-9](\d+,?)*) views/).try &.["views"].gsub(/\D/, "") || "")
+  rv["id"] = r["videoId"]
+  JSON::Any.new(rv)
 end
 
-def extract_recommended(recommended_videos)
-  rvs = [] of HTTP::Params
+def extract_polymer_config(body)
+  params = {} of String => JSON::Any
+  player_response = body.match(/window\["ytInitialPlayerResponse"\]\s*=\s*(?<info>.*?);\n/)
+    .try { |r| JSON.parse(r["info"]).as_h }
 
-  recommended_videos.try &.each do |compact_renderer|
-    if compact_renderer["compactRadioRenderer"]? || compact_renderer["compactPlaylistRenderer"]?
-      # TODO
-    elsif video_renderer = compact_renderer["compactVideoRenderer"]?
-      recommended_video = HTTP::Params.new
-      recommended_video["id"] = video_renderer["videoId"].as_s
-      recommended_video["title"] = video_renderer["title"]["simpleText"].as_s
-
-      next if !video_renderer["shortBylineText"]?
-
-      recommended_video["author"] = video_renderer["shortBylineText"]["runs"].as_a[0]["text"].as_s
-      recommended_video["ucid"] = video_renderer["shortBylineText"]["runs"].as_a[0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s
-      recommended_video["author_thumbnail"] = video_renderer["channelThumbnail"]["thumbnails"][0]["url"].as_s
-
-      if view_count = video_renderer["viewCountText"]?.try { |field| field["simpleText"]?.try &.as_s || field["runs"][0]?.try &.["text"].as_s }.try &.delete(", views watching").to_i64?.try &.to_s
-        recommended_video["view_count"] = view_count
-        recommended_video["short_view_count_text"] = "#{number_to_short_text(view_count.to_i64)} views"
-      end
-      recommended_video["length_seconds"] = decode_length_seconds(video_renderer["lengthText"]?.try &.["simpleText"]?.try &.as_s || "0:00").to_s
-
-      rvs << recommended_video
-    end
+  if body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
+     body.includes?("https://www.google.com/sorry/index")
+    params["reason"] = JSON::Any.new("Could not extract video info. Instance is likely blocked.")
+  elsif !player_response
+    params["reason"] = JSON::Any.new("Video unavailable.")
+  elsif player_response["playabilityStatus"]?.try &.["status"]?.try &.as_s != "OK"
+    reason = player_response["playabilityStatus"]["errorScreen"]?.try &.["playerErrorMessageRenderer"]?.try &.["subreason"]?.try { |s| s["simpleText"]?.try &.as_s || s["runs"].as_a.map { |r| r["text"] }.join("") } ||
+             player_response["playabilityStatus"]["reason"].as_s
+    params["reason"] = JSON::Any.new(reason)
   end
 
-  rvs
-end
+  params["sessionToken"] = JSON::Any.new(body.match(/"XSRF_TOKEN":"(?<session_token>[^"]+)"/).try &.["session_token"]?)
+  params["shortDescription"] = JSON::Any.new(body.match(/"og:description" content="(?<description>[^"]+)"/).try &.["description"]?)
 
-def extract_polymer_config(body, html)
-  params = HTTP::Params.new
+  return params if !player_response
 
-  params["session_token"] = body.match(/"XSRF_TOKEN":"(?<session_token>[A-Za-z0-9\_\-\=]+)"/).try &.["session_token"] || ""
-
-  html_info = JSON.parse(body.match(/ytplayer\.config = (?<info>.*?);ytplayer\.load/).try &.["info"] || "{}").try &.["args"]?.try &.as_h
-
-  if html_info
-    html_info.each do |key, value|
-      params[key] = value.to_s
-    end
+  {"captions", "microformat", "playabilityStatus", "storyboards", "videoDetails"}.each do |f|
+    params[f] = player_response[f] if player_response[f]?
   end
 
-  initial_data = extract_initial_data(body)
+  yt_initial_data = body.match(/(window\["ytInitialData"\]|var\s+ytInitialData)\s*=\s*(?<info>.*?);\s*\n/)
+    .try { |r| JSON.parse(r["info"]).as_h }
 
-  primary_results = initial_data["contents"]?
-    .try &.["twoColumnWatchNextResults"]?
-      .try &.["results"]?
-        .try &.["results"]?
-          .try &.["contents"]?
+  params["relatedVideos"] = yt_initial_data.try &.["playerOverlays"]?.try &.["playerOverlayRenderer"]?
+    .try &.["endScreen"]?.try &.["watchNextEndScreenRenderer"]?.try &.["results"]?.try &.as_a.compact_map { |r|
+      parse_related r
+    }.try { |a| JSON::Any.new(a) } || yt_initial_data.try &.["webWatchNextResponseExtensionData"]?.try &.["relatedVideoArgs"]?
+    .try &.as_s.split(",").map { |r|
+      r = HTTP::Params.parse(r).to_h
+      JSON::Any.new(Hash.zip(r.keys, r.values.map { |v| JSON::Any.new(v) }))
+    }.try { |a| JSON::Any.new(a) } || JSON::Any.new([] of JSON::Any)
 
-  comment_continuation = primary_results.try &.as_a.select { |object| object["itemSectionRenderer"]? }[0]?
-    .try &.["itemSectionRenderer"]?
-      .try &.["continuations"]?
-        .try &.[0]?
-          .try &.["nextContinuationData"]?
-
-  params["ctoken"] = comment_continuation.try &.["continuation"]?.try &.as_s || ""
-  params["itct"] = comment_continuation.try &.["clickTrackingParams"]?.try &.as_s || ""
-
-  rvs = initial_data["contents"]?
-    .try &.["twoColumnWatchNextResults"]?
-      .try &.["secondaryResults"]?
-        .try &.["secondaryResults"]?
-          .try &.["results"]?
-            .try &.as_a
-
-  params["rvs"] = extract_recommended(rvs).join(",")
-
-  # TODO: Watching now
-  params["views"] = primary_results.try &.as_a.select { |object| object["videoPrimaryInfoRenderer"]? }[0]?
-    .try &.["videoPrimaryInfoRenderer"]?
-      .try &.["viewCount"]?
-        .try &.["videoViewCountRenderer"]?
-          .try &.["viewCount"]?
-            .try &.["simpleText"]?
-              .try &.as_s.gsub(/\D/, "").to_i64.to_s || "0"
-
+  primary_results = yt_initial_data.try &.["contents"]?.try &.["twoColumnWatchNextResults"]?.try &.["results"]?
+    .try &.["results"]?.try &.["contents"]?
   sentiment_bar = primary_results.try &.as_a.select { |object| object["videoPrimaryInfoRenderer"]? }[0]?
     .try &.["videoPrimaryInfoRenderer"]?
       .try &.["sentimentBar"]?
@@ -1001,34 +860,13 @@ def extract_polymer_config(body, html)
           .try &.["tooltip"]?
             .try &.as_s
 
-  likes, dislikes = sentiment_bar.try &.split(" / ").map { |a| a.delete(", ").to_i32 }[0, 2] || {0, 0}
+  likes, dislikes = sentiment_bar.try &.split(" / ", 2).map &.gsub(/\D/, "").to_i64 || {0_i64, 0_i64}
+  params["likes"] = JSON::Any.new(likes)
+  params["dislikes"] = JSON::Any.new(dislikes)
 
-  params["likes"] = "#{likes}"
-  params["dislikes"] = "#{dislikes}"
-
-  published = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
-    .try &.["videoSecondaryInfoRenderer"]?
-      .try &.["dateText"]?
-        .try &.["simpleText"]?
-          .try &.as_s.split(" ")[-3..-1].join(" ")
-
-  if published
-    params["published"] = Time.parse(published, "%b %-d, %Y", Time::Location.local).to_unix.to_s
-  else
-    params["published"] = Time.utc(1990, 1, 1).to_unix.to_s
-  end
-
-  params["description_html"] = "<p></p>"
-
-  description_html = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
-    .try &.["videoSecondaryInfoRenderer"]?
-      .try &.["description"]?
-        .try &.["runs"]?
-          .try &.as_a
-
-  if description_html
-    params["description_html"] = content_to_comment_html(description_html)
-  end
+  params["descriptionHtml"] = JSON::Any.new(primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
+    .try &.["videoSecondaryInfoRenderer"]?.try &.["description"]?.try &.["runs"]?
+      .try &.as_a.try { |t| content_to_comment_html(t).gsub("\n", "<br/>") } || "<p></p>")
 
   metadata = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
     .try &.["videoSecondaryInfoRenderer"]?
@@ -1037,9 +875,8 @@ def extract_polymer_config(body, html)
           .try &.["rows"]?
             .try &.as_a
 
-  params["genre"] = ""
-  params["genre_ucid"] = ""
-  params["license"] = ""
+  params["genre"] = params["microformat"]?.try &.["playerMicroformatRenderer"]?.try &.["category"]? || JSON::Any.new("")
+  params["genreUrl"] = JSON::Any.new(nil)
 
   metadata.try &.each do |row|
     title = row["metadataRowRenderer"]?.try &.["title"]?.try &.["simpleText"]?.try &.as_s
@@ -1051,219 +888,130 @@ def extract_polymer_config(body, html)
       contents = contents.try &.["runs"]?
         .try &.as_a[0]?
 
-      params["genre"] = contents.try &.["text"]?
-        .try &.as_s || ""
-      params["genre_ucid"] = contents.try &.["navigationEndpoint"]?
-        .try &.["browseEndpoint"]?
-          .try &.["browseId"]?.try &.as_s || ""
+      params["genre"] = JSON::Any.new(contents.try &.["text"]?.try &.as_s || "")
+      params["genreUcid"] = JSON::Any.new(contents.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]?
+        .try &.["browseId"]?.try &.as_s || "")
     elsif title.try &.== "License"
       contents = contents.try &.["runs"]?
         .try &.as_a[0]?
 
-      params["license"] = contents.try &.["text"]?
-        .try &.as_s || ""
+      params["license"] = JSON::Any.new(contents.try &.["text"]?.try &.as_s || "")
     elsif title.try &.== "Licensed to YouTube by"
-      params["license"] = contents.try &.["simpleText"]?
-        .try &.as_s || ""
+      params["license"] = JSON::Any.new(contents.try &.["simpleText"]?.try &.as_s || "")
     end
   end
 
   author_info = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
-    .try &.["videoSecondaryInfoRenderer"]?
-      .try &.["owner"]?
-        .try &.["videoOwnerRenderer"]?
+    .try &.["videoSecondaryInfoRenderer"]?.try &.["owner"]?.try &.["videoOwnerRenderer"]?
 
-  params["author_thumbnail"] = author_info.try &.["thumbnail"]?
-    .try &.["thumbnails"]?
-      .try &.as_a[0]?
-        .try &.["url"]?
-          .try &.as_s || ""
+  params["authorThumbnail"] = JSON::Any.new(author_info.try &.["thumbnail"]?
+    .try &.["thumbnails"]?.try &.as_a[0]?.try &.["url"]?
+      .try &.as_s || "")
 
-  params["sub_count_text"] = author_info.try &.["subscriberCountText"]?
-    .try &.["simpleText"]?
-      .try &.as_s.gsub(/\D/, "") || "0"
+  params["subCountText"] = JSON::Any.new(author_info.try &.["subscriberCountText"]?
+    .try { |t| t["simpleText"]? || t["runs"]?.try &.[0]?.try &.["text"]? }.try &.as_s.split(" ", 2)[0] || "-")
 
-  return params
+  initial_data = body.match(/ytplayer\.config\s*=\s*(?<info>.*?);ytplayer\.web_player_context_config/)
+    .try { |r| JSON.parse(r["info"]) }.try &.["args"]["player_response"]?
+    .try &.as_s?.try &.try { |r| JSON.parse(r).as_h }
+
+  return params if !initial_data
+
+  {"playabilityStatus", "streamingData"}.each do |f|
+    params[f] = initial_data[f] if initial_data[f]?
+  end
+
+  params
 end
 
-def extract_player_config(body, html)
-  params = HTTP::Params.new
-
-  if md = body.match(/'XSRF_TOKEN': "(?<session_token>[A-Za-z0-9\_\-\=]+)"/)
-    params["session_token"] = md["session_token"]
-  end
-
-  if md = body.match(/'RELATED_PLAYER_ARGS': (?<json>.*?),\n/)
-    recommended_json = JSON.parse(md["json"])
-    rvs_params = recommended_json["rvs"].as_s.split(",").map { |params| HTTP::Params.parse(params) }
-
-    if watch_next_response = recommended_json["watch_next_response"]?
-      watch_next_json = JSON.parse(watch_next_response.as_s)
-      rvs = watch_next_json["contents"]?
-        .try &.["twoColumnWatchNextResults"]?
-          .try &.["secondaryResults"]?
-            .try &.["secondaryResults"]?
-              .try &.["results"]?
-                .try &.as_a
-
-      rvs = extract_recommended(rvs).compact_map do |rv|
-        if !rv["short_view_count_text"]?
-          rv_params = rvs_params.select { |rv_params| rv_params["id"]? == (rv["id"]? || "") }[0]?
-
-          if rv_params.try &.["short_view_count_text"]?
-            rv["short_view_count_text"] = rv_params.not_nil!["short_view_count_text"]
-            rv
-          else
-            nil
-          end
-        else
-          rv
-        end
+def get_video(id, db, refresh = true, region = nil, force_refresh = false)
+  if (video = db.query_one?("SELECT * FROM videos WHERE id = $1", id, as: Video)) && !region
+    # If record was last updated over 10 minutes ago, or video has since premiered,
+    # refresh (expire param in response lasts for 6 hours)
+    if (refresh &&
+       (Time.utc - video.updated > 10.minutes) ||
+       (video.premiere_timestamp.try &.< Time.utc)) ||
+       force_refresh
+      begin
+        video = fetch_video(id, region)
+        db.exec("UPDATE videos SET (id, info, updated) = ($1, $2, $3) WHERE id = $1", video.id, video.info.to_json, video.updated)
+      rescue ex
+        db.exec("DELETE FROM videos * WHERE id = $1", id)
+        raise ex
       end
-      params["rvs"] = (rvs.map &.to_s).join(",")
-    end
-  end
-
-  html_info = body.match(/ytplayer\.config = (?<info>.*?);ytplayer\.load/).try &.["info"]
-
-  if html_info
-    JSON.parse(html_info)["args"].as_h.each do |key, value|
-      params[key] = value.to_s
     end
   else
-    error_message = html.xpath_node(%q(//h1[@id="unavailable-message"]))
-    if error_message
-      params["reason"] = error_message.content.strip
-    elsif body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
-          body.includes?("https://www.google.com/sorry/index")
-      params["reason"] = "Could not extract video info. Instance is likely blocked."
-    else
-      params["reason"] = "Video unavailable."
+    video = fetch_video(id, region)
+    if !region
+      db.exec("INSERT INTO videos VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING", video.id, video.info.to_json, video.updated)
     end
   end
 
-  return params
+  return video
 end
 
 def fetch_video(id, region)
-  response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999"))
+  response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999"))
 
   if md = response.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
     raise VideoRedirect.new(video_id: md["id"])
   end
 
-  html = XML.parse_html(response.body)
-  info = extract_player_config(response.body, html)
-  info["cookie"] = response.cookies.to_h.map { |name, cookie| "#{name}=#{cookie.value}" }.join("; ")
-
-  allowed_regions = html.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).try &.["content"].split(",")
-  if !allowed_regions || allowed_regions == [""]
-    allowed_regions = [] of String
-  end
+  info = extract_polymer_config(response.body)
+  info["cookie"] = JSON::Any.new(response.cookies.to_h.transform_values { |v| JSON::Any.new(v.value) })
+  allowed_regions = info["microformat"]?.try &.["playerMicroformatRenderer"]["availableCountries"]?.try &.as_a.map &.as_s || [] of String
 
   # Check for region-blocks
-  if info["reason"]? && info["reason"].includes?("your country")
+  if info["reason"]?.try &.as_s.includes?("your country")
     bypass_regions = PROXY_LIST.keys & allowed_regions
     if !bypass_regions.empty?
       region = bypass_regions[rand(bypass_regions.size)]
-      response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&disable_polymer=1&has_verified=1&bpctr=9999999999"))
+      response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999"))
 
-      html = XML.parse_html(response.body)
-      info = extract_player_config(response.body, html)
-
-      info["region"] = region if region
-      info["cookie"] = response.cookies.to_h.map { |name, cookie| "#{name}=#{cookie.value}" }.join("; ")
+      region_info = extract_polymer_config(response.body)
+      region_info["region"] = JSON::Any.new(region) if region
+      region_info["cookie"] = JSON::Any.new(response.cookies.to_h.transform_values { |v| JSON::Any.new(v.value) })
+      info = region_info if !region_info["reason"]?
     end
   end
 
   # Try to pull streams from embed URL
   if info["reason"]?
     embed_page = YT_POOL.client &.get("/embed/#{id}").body
-    sts = embed_page.match(/"sts"\s*:\s*(?<sts>\d+)/).try &.["sts"]?
-    sts ||= ""
-    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?video_id=#{id}&eurl=https://youtube.googleapis.com/v/#{id}&gl=US&hl=en&disable_polymer=1&sts=#{sts}").body)
+    sts = embed_page.match(/"sts"\s*:\s*(?<sts>\d+)/).try &.["sts"]? || ""
+    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?html5=1&video_id=#{id}&eurl=https://youtube.googleapis.com/v/#{id}&gl=US&hl=en&sts=#{sts}").body)
 
-    if !embed_info["reason"]?
-      embed_info.each do |key, value|
-        info[key] = value.to_s
+    if embed_info["player_response"]?
+      player_response = JSON.parse(embed_info["player_response"])
+      {"captions", "microformat", "playabilityStatus", "streamingData", "videoDetails", "storyboards"}.each do |f|
+        info[f] = player_response[f] if player_response[f]?
       end
-    else
-      raise info["reason"]
     end
+
+    initial_data = JSON.parse(embed_info["watch_next_response"]) if embed_info["watch_next_response"]?
+
+    info["relatedVideos"] = initial_data.try &.["playerOverlays"]?.try &.["playerOverlayRenderer"]?
+      .try &.["endScreen"]?.try &.["watchNextEndScreenRenderer"]?.try &.["results"]?.try &.as_a.compact_map { |r|
+        parse_related r
+      }.try { |a| JSON::Any.new(a) } || embed_info["rvs"]?.try &.split(",").map { |r|
+      r = HTTP::Params.parse(r).to_h
+      JSON::Any.new(Hash.zip(r.keys, r.values.map { |v| JSON::Any.new(v) }))
+    }.try { |a| JSON::Any.new(a) } || JSON::Any.new([] of JSON::Any)
   end
 
-  if info["reason"]? && !info["player_response"]?
-    raise info["reason"]
-  end
+  raise info["reason"]?.try &.as_s || "" if !info["videoDetails"]?
 
-  player_json = JSON.parse(info["player_response"])
-  if reason = player_json["playabilityStatus"]?.try &.["reason"]?.try &.as_s
-    raise reason
-  end
-
-  title = player_json["videoDetails"]["title"].as_s
-  author = player_json["videoDetails"]["author"]?.try &.as_s || ""
-  ucid = player_json["videoDetails"]["channelId"]?.try &.as_s || ""
-
-  info["premium"] = html.xpath_node(%q(.//span[text()="Premium"])) ? "true" : "false"
-
-  views = html.xpath_node(%q(//meta[@itemprop="interactionCount"]))
-    .try &.["content"].to_i64? || 0_i64
-
-  likes = html.xpath_node(%q(//button[@title="I like this"]/span))
-    .try &.content.delete(",").try &.to_i? || 0
-
-  dislikes = html.xpath_node(%q(//button[@title="I dislike this"]/span))
-    .try &.content.delete(",").try &.to_i? || 0
-
-  avg_rating = (likes.to_f/(likes.to_f + dislikes.to_f) * 4 + 1)
-  avg_rating = avg_rating.nan? ? 0.0 : avg_rating
-  info["avg_rating"] = "#{avg_rating}"
-
-  description_html = html.xpath_node(%q(//p[@id="eow-description"])).try &.to_xml(options: XML::SaveOptions::NO_DECL) || "<p></p>"
-  wilson_score = ci_lower_bound(likes, likes + dislikes)
-
-  published = html.xpath_node(%q(//meta[@itemprop="datePublished"])).try &.["content"]
-  published ||= Time.utc.to_s("%Y-%m-%d")
-  published = Time.parse(published, "%Y-%m-%d", Time::Location.local)
-
-  is_family_friendly = html.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).try &.["content"] == "True"
-  is_family_friendly ||= true
-
-  genre = html.xpath_node(%q(//meta[@itemprop="genre"])).try &.["content"]
-  genre ||= ""
-
-  genre_url = html.xpath_node(%(//ul[contains(@class, "watch-info-tag-list")]/li/a[text()="#{genre}"])).try &.["href"]?
-  genre_url ||= ""
-
-  # YouTube provides invalid URLs for some genres, so we fix that here
-  case genre
-  when "Comedy"
-    genre_url = "/channel/UCQZ43c4dAA9eXCQuXWu9aTw"
-  when "Education"
-    genre_url = "/channel/UCdxpofrI-dO6oYfsqHDHphw"
-  when "Gaming"
-    genre_url = "/channel/UCOpNcN46UbXVtpKMrmU4Abg"
-  when "Movies"
-    genre_url = "/channel/UClgRkhTL3_hImCAmdLfDE4g"
-  when "Nonprofits & Activism"
-    genre_url = "/channel/UCfFyYRYslvuhwMDnx6KjUvw"
-  when "Trailers"
-    genre_url = "/channel/UClgRkhTL3_hImCAmdLfDE4g"
-  end
-
-  license = html.xpath_node(%q(//h4[contains(text(),"License")]/parent::*/ul/li)).try &.content || ""
-  sub_count_text = html.xpath_node(%q(//span[contains(@class, "subscriber-count")])).try &.["title"]? || "0"
-  author_thumbnail = html.xpath_node(%(//span[@class="yt-thumb-clip"]/img)).try &.["data-thumb"]?.try &.gsub(/^\/\//, "https://") || ""
-
-  video = Video.new(id, info, Time.utc, title, views, likes, dislikes, wilson_score, published, description_html,
-    nil, author, ucid, allowed_regions, is_family_friendly, genre, genre_url, license, sub_count_text, author_thumbnail)
+  video = Video.new({
+    id:      id,
+    info:    info,
+    updated: Time.utc,
+  })
 
   return video
 end
 
-def itag_to_metadata?(itag : String)
-  return VIDEO_FORMATS[itag]?
+def itag_to_metadata?(itag : JSON::Any)
+  return VIDEO_FORMATS[itag.to_s]?
 end
 
 def process_continuation(db, query, plid, id)
@@ -1365,34 +1113,34 @@ def process_video_params(query, preferences)
   controls ||= 1
   controls = controls >= 1
 
-  params = VideoPreferences.new(
-    annotations: annotations,
-    autoplay: autoplay,
-    comments: comments,
-    continue: continue,
-    continue_autoplay: continue_autoplay,
-    controls: controls,
-    listen: listen,
-    local: local,
-    player_style: player_style,
+  params = VideoPreferences.new({
+    annotations:        annotations,
+    autoplay:           autoplay,
+    comments:           comments,
+    continue:           continue,
+    continue_autoplay:  continue_autoplay,
+    controls:           controls,
+    listen:             listen,
+    local:              local,
+    player_style:       player_style,
     preferred_captions: preferred_captions,
-    quality: quality,
-    raw: raw,
-    region: region,
-    related_videos: related_videos,
-    speed: speed,
-    video_end: video_end,
-    video_loop: video_loop,
-    video_start: video_start,
-    volume: volume,
-  )
+    quality:            quality,
+    raw:                raw,
+    region:             region,
+    related_videos:     related_videos,
+    speed:              speed,
+    video_end:          video_end,
+    video_loop:         video_loop,
+    video_start:        video_start,
+    volume:             volume,
+  })
 
   return params
 end
 
-def build_thumbnails(id, config, kemal_config)
+def build_thumbnails(id)
   return {
-    {name: "maxres", host: "#{make_host_url(config, kemal_config)}", url: "maxres", height: 720, width: 1280},
+    {name: "maxres", host: "#{HOST_URL}", url: "maxres", height: 720, width: 1280},
     {name: "maxresdefault", host: "https://i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
     {name: "sddefault", host: "https://i.ytimg.com", url: "sddefault", height: 480, width: 640},
     {name: "high", host: "https://i.ytimg.com", url: "hqdefault", height: 360, width: 480},
@@ -1404,9 +1152,9 @@ def build_thumbnails(id, config, kemal_config)
   }
 end
 
-def generate_thumbnails(json, id, config, kemal_config)
+def generate_thumbnails(json, id)
   json.array do
-    build_thumbnails(id, config, kemal_config).each do |thumbnail|
+    build_thumbnails(id).each do |thumbnail|
       json.object do
         json.field "quality", thumbnail[:name]
         json.field "url", "#{thumbnail[:host]}/vi/#{id}/#{thumbnail["url"]}.jpg"
@@ -1417,7 +1165,7 @@ def generate_thumbnails(json, id, config, kemal_config)
   end
 end
 
-def generate_storyboards(json, id, storyboards, config, kemal_config)
+def generate_storyboards(json, id, storyboards)
   json.array do
     storyboards.each do |storyboard|
       json.object do

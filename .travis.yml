@@ -1,5 +1,20 @@
 dist: bionic
 
+# Work around broken Travis Crystal image
+addons:
+  apt:
+    packages:
+      - gcc
+      - pkg-config
+      - git
+      - tzdata
+      - libpcre3-dev
+      - libevent-dev
+      - libyaml-dev
+      - libgmp-dev
+      - libssl-dev
+      - libxml2-dev
+
 jobs:
   include:
     - stage: build
@@ -9,6 +24,7 @@ jobs:
       language: crystal
       crystal: latest
       before_install:
+        - crystal --version
         - shards update
         - shards install
       install:
@@ -28,7 +44,4 @@ jobs:
         - docker-compose build
       script:
         - docker-compose up -d
-        - sleep 15 # Wait for cluster to become ready, TODO: do not sleep
-        - HEADERS="$(curl -I -s http://localhost:3000/)"
-        - STATUS="$(echo $HEADERS | head -n1)"
-        - if [[ "$STATUS" != *"200 OK"* ]]; then echo "$HEADERS"; exit 1; fi
+        - while curl -Isf http://localhost:3000; do sleep 1; done

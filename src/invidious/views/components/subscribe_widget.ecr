@@ -19,15 +19,17 @@
         </p>
     <% end %>
 
-    <script>
-    var subscribe_data = {
-        ucid: '<%= ucid %>',
-        author: '<%= HTML.escape(author) %>',
-        sub_count_text: '<%= HTML.escape(sub_count_text) %>',
-        csrf_token: '<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>',
-        subscribe_text: '<%= HTML.escape(translate(locale, "Subscribe")) %>',
-        unsubscribe_text: '<%= HTML.escape(translate(locale, "Unsubscribe")) %>'
-    }
+    <script id="subscribe_data" type="application/json">
+    <%=
+    {
+        "ucid" => ucid,
+        "author" => HTML.escape(author),
+        "sub_count_text" => HTML.escape(sub_count_text),
+        "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || ""),
+        "subscribe_text" => HTML.escape(translate(locale, "Subscribe")),
+        "unsubscribe_text" => HTML.escape(translate(locale, "Unsubscribe"))
+    }.to_pretty_json
+    %>
     </script>
     <script src="/js/subscribe_widget.js?v=<%= ASSET_COMMIT %>"></script>
 <% else %>
