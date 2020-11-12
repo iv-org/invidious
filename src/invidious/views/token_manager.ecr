@@ -29,9 +29,9 @@
         </div>
         <div class="pure-u-1-5" style="text-align:right">
             <h3 style="padding-right:0.5em">
-                <form onsubmit="return false" action="/token_ajax?action_revoke_token=1&session=<%= token[:session] %>&referer=<%= env.get("current_page") %>" method="post">
+                <form data-onsubmit="return_false" action="/token_ajax?action_revoke_token=1&session=<%= token[:session] %>&referer=<%= env.get("current_page") %>" method="post">
                     <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
-                    <a onclick="revoke_token(this)" data-session="<%= token[:session] %>" href="#">
+                    <a data-onclick="revoke_token" data-session="<%= token[:session] %>" href="#">
                         <input style="all:unset" type="submit" value="<%= translate(locale, "revoke") %>">
                     </a>
                 </form>
@@ -44,32 +44,3 @@
     <% end %>
 </div>
 <% end %>
-
-<script>
-function revoke_token(target) {
-    var row = target.parentNode.parentNode.parentNode.parentNode.parentNode;
-    row.style.display = 'none';
-    var count = document.getElementById('count');
-    count.innerText = count.innerText - 1;
-
-    var url = '/token_ajax?action_revoke_token=1&redirect=false' +
-        '&referer=<%= env.get("current_page") %>' +
-        '&session=' + target.getAttribute('data-session');
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.timeout = 10000;
-    xhr.open('POST', url, true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
-                count.innerText = parseInt(count.innerText) + 1;
-                row.style.display = '';
-            }
-        }
-    }
-
-    xhr.send('csrf_token=<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>');
-}
-</script>

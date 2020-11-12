@@ -44,7 +44,7 @@
                         <% end %>
                     </div>
                 <% end %>
-                <p><%= item.title %></p>
+                <p><%= HTML.escape(item.title) %></p>
             </a>
             <p>
                 <b>
@@ -57,10 +57,10 @@
                     <div class="thumbnail">
                         <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                         <% if plid = env.get?("remove_playlist_items") %>
-                            <form onsubmit="return false" action="/playlist_ajax?action_remove_video=1&set_video_id=<%= item.index %>&playlist_id=<%= plid %>&referer=<%= env.get("current_page") %>" method="post">
+                            <form data-onsubmit="return_false" action="/playlist_ajax?action_remove_video=1&set_video_id=<%= item.index %>&playlist_id=<%= plid %>&referer=<%= env.get("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
-                                    <a onclick="remove_playlist_item(this)" data-index="<%= item.index %>" data-plid="<%= plid %>" href="javascript:void(0)">
+                                    <a data-onclick="remove_playlist_item" data-index="<%= item.index %>" data-plid="<%= plid %>" href="javascript:void(0)">
                                         <button type="submit" style="all:unset">
                                             <i class="icon ion-md-trash"></i>
                                         </button>
@@ -76,7 +76,7 @@
                         <% end %>
                     </div>
                 <% end %>
-                <p><a href="/watch?v=<%= item.id %>"><%= item.title %></a></p>
+                <p><a href="/watch?v=<%= item.id %>"><%= HTML.escape(item.title) %></a></p>
             </a>
             <p>
                 <b>
@@ -85,7 +85,7 @@
             </p>
 
             <h5 class="pure-g">
-                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp && item.premiere_timestamp.not_nil! > Time.utc %>
+                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
                     <div class="pure-u-2-3"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></div>
                 <% elsif Time.utc - item.published > 1.minute %>
                     <div class="pure-u-2-3"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></div>
@@ -103,13 +103,12 @@
                     <div class="thumbnail">
                         <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                         <% if env.get? "show_watched" %>
-                            <form onsubmit="return false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
+                            <form data-onsubmit="return_false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
-                                    <a onclick="mark_watched(this)" data-id="<%= item.id %>" href="javascript:void(0)">
+                                    <a data-onclick="mark_watched" data-id="<%= item.id %>" href="javascript:void(0)">
                                         <button type="submit" style="all:unset">
-                                            <i onmouseenter='this.setAttribute("class", "icon ion-ios-eye-off")'
-                                                onmouseleave='this.setAttribute("class", "icon ion-ios-eye")'
+                                            <i data-mouse="switch_classes" data-switch-classes="ion-ios-eye-off,ion-ios-eye"
                                                 class="icon ion-ios-eye">
                                             </i>
                                         </button>
@@ -117,10 +116,10 @@
                                 </p>
                             </form>
                         <% elsif plid = env.get? "add_playlist_items" %>
-                            <form onsubmit="return false" action="/playlist_ajax?action_add_video=1&video_id=<%= item.id %>&playlist_id=<%= plid %>&referer=<%= env.get("current_page") %>" method="post">
+                            <form data-onsubmit="return_false" action="/playlist_ajax?action_add_video=1&video_id=<%= item.id %>&playlist_id=<%= plid %>&referer=<%= env.get("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
-                                    <a onclick="add_playlist_item(this)" data-id="<%= item.id %>" data-plid="<%= plid %>" href="javascript:void(0)">
+                                    <a data-onclick="add_playlist_item" data-id="<%= item.id %>" data-plid="<%= plid %>" href="javascript:void(0)">
                                         <button type="submit" style="all:unset">
                                             <i class="icon ion-md-add"></i>
                                         </button>
@@ -137,7 +136,7 @@
                     </div>
                 </a>
             <% end %>
-            <p><a href="/watch?v=<%= item.id %>"><%= item.title %></a></p>
+            <p><a href="/watch?v=<%= item.id %>"><%= HTML.escape(item.title) %></a></p>
             <p>
                 <b>
                     <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
@@ -145,7 +144,7 @@
             </p>
 
             <h5 class="pure-g">
-                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp && item.premiere_timestamp.not_nil! > Time.utc %>
+                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
                     <div class="pure-u-2-3"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></div>
                 <% elsif Time.utc - item.published > 1.minute %>
                     <div class="pure-u-2-3"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></div>

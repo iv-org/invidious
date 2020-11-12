@@ -111,7 +111,7 @@
             <div class="footer">
                 <div class="pure-g">
                     <div class="pure-u-1 pure-u-md-1-3">
-                        <a href="https://github.com/omarroth/invidious">
+                        <a href="https://github.com/iv-org/invidious">
                             <%= translate(locale, "Released under the AGPLv3 by Omar Roth.") %>
                         </a>
                     </div>
@@ -140,23 +140,24 @@
                     </div>
                     <div class="pure-u-1 pure-u-md-1-3">
                         <i class="icon ion-logo-github"></i>
-                        <%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %>
-                        <i class="icon ion-logo-github"></i>
-                        <%= CURRENT_BRANCH %>
+                        <%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %>
                     </div>
                 </div>
             </div>
         </div>
         <div class="pure-u-1 pure-u-md-2-24"></div>
     </div>
+    <script src="/js/handlers.js?v=<%= ASSET_COMMIT %>"></script>
     <script src="/js/themes.js?v=<%= ASSET_COMMIT %>"></script>
     <% if env.get? "user" %>
         <script src="/js/sse.js?v=<%= ASSET_COMMIT %>"></script>
-        <script>
-            var notification_data = {
-                upload_text: '<%= HTML.escape(translate(locale, "`x` uploaded a video")) %>',
-                live_upload_text: '<%= HTML.escape(translate(locale, "`x` is live")) %>',
-            }
+        <script id="notification_data" type="application/json">
+        <%=
+        {
+            "upload_text" => HTML.escape(translate(locale, "`x` uploaded a video")),
+            "live_upload_text" => HTML.escape(translate(locale, "`x` is live"))
+        }.to_pretty_json
+        %>
         </script>
         <script src="/js/notifications.js?v=<%= ASSET_COMMIT %>"></script>
     <% end %>

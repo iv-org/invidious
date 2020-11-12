@@ -1,7 +1,4 @@
 def fetch_trending(trending_type, region, locale)
-  headers = HTTP::Headers.new
-  headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
-
   region ||= "US"
   region = region.upcase
 
@@ -11,7 +8,7 @@ def fetch_trending(trending_type, region, locale)
   if trending_type && trending_type != "Default"
     trending_type = trending_type.downcase.capitalize
 
-    response = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en", headers).body
+    response = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en").body
 
     initial_data = extract_initial_data(response)
 
@@ -21,51 +18,28 @@ def fetch_trending(trending_type, region, locale)
     if url
       url["channelListSubMenuAvatarRenderer"]["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
       url = url["channelListSubMenuAvatarRenderer"]["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"].as_s
-      url += "&disable_polymer=1&gl=#{region}&hl=en"
+      url = "#{url}&gl=#{region}&hl=en"
       trending = YT_POOL.client &.get(url).body
       plid = extract_plid(url)
     else
-      trending = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en&disable_polymer=1").body
+      trending = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en").body
     end
   else
-    trending = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en&disable_polymer=1").body
+    trending = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en").body
   end
 
-  trending = XML.parse_html(trending)
-  nodeset = trending.xpath_nodes(%q(//ul/li[@class="expanded-shelf-content-item-wrapper"]))
-  trending = extract_videos(nodeset)
+  initial_data = extract_initial_data(trending)
+  trending = extract_videos(initial_data)
 
   return {trending, plid}
 end
 
 def extract_plid(url)
-  wrapper = HTTP::Params.parse(URI.parse(url).query.not_nil!)["bp"]
-
-  wrapper = URI.decode_www_form(wrapper)
-  wrapper = Base64.decode(wrapper)
-
-  # 0xe2 0x02 0x2e
-  wrapper += 3
-
-  # 0x0a
-  wrapper += 1
-
-  # Looks like "/m/[a-z0-9]{5}", not sure what it does here
-
-  item_size = wrapper[0]
-  wrapper += 1
-  item = wrapper[0, item_size]
-  wrapper += item.size
-
-  # 0x12
-  wrapper += 1
-
-  plid_size = wrapper[0]
-  wrapper += 1
-  plid = wrapper[0, plid_size]
-  wrapper += plid.size
-
-  plid = String.new(plid)
-
-  return plid
+  return url.try { |i| URI.parse(i).query }
+    .try { |i| HTTP::Params.parse(i)["bp"] }
+    .try { |i| URI.decode_www_form(i) }
+    .try { |i| Base64.decode(i) }
+    .try { |i| IO::Memory.new(i) }
+    .try { |i| Protodec::Any.parse(i) }
+    .try &.["44:0:embedded"]?.try &.["2:1:string"]?.try &.as_s
 end

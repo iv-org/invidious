@@ -10,33 +10,24 @@
     <script src="/js/videojs-overlay.min.js?v=<%= ASSET_COMMIT %>"></script>
     <link rel="stylesheet" href="/css/default.css?v=<%= ASSET_COMMIT %>">
     <link rel="stylesheet" href="/css/darktheme.css?v=<%= ASSET_COMMIT %>">
+    <link rel="stylesheet" href="/css/embed.css?v=<%= ASSET_COMMIT %>">
     <title><%= HTML.escape(video.title) %> - Invidious</title>
-    <style>
-    #player {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        min-width: 100%;
-        min-height: 100%;
-        width: auto;
-        height: auto;
-        z-index: -100;
-    }
-    </style>
 </head>
 
 <body>
-<script>
-var video_data = {
-    id: '<%= video.id %>',
-    index: '<%= continuation %>',
-    plid: '<%= plid %>',
-    length_seconds: '<%= video.length_seconds.to_f %>',
-    video_series: <%= video_series.to_json %>,
-    params: <%= params.to_json %>,
-    preferences: <%= preferences.to_json %>,
-    premiere_timestamp: <%= video.premiere_timestamp.try &.to_unix || "null" %>
-}
+<script id="video_data" type="application/json">
+<%=
+{
+    "id" => video.id,
+    "index" => continuation,
+    "plid" => plid,
+    "length_seconds" => video.length_seconds.to_f,
+    "video_series" => video_series,
+    "params" => params,
+    "preferences" => preferences,
+    "premiere_timestamp" => video.premiere_timestamp.try &.to_unix
+}.to_pretty_json
+%>
 </script>
 
 <%= rendered "components/player" %>

@@ -18,10 +18,12 @@
     </div>
 </div>
 
-<script>
-var watched_data = {
-    csrf_token: '<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>',
-}
+<script id="watched_data" type="application/json">
+<%=
+{
+    "csrf_token" => URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "")
+}.to_pretty_json
+%>
 </script>
 <script src="/js/watched_widget.js"></script>
 
@@ -34,10 +36,10 @@ var watched_data = {
                             <% if !env.get("preferences").as(Preferences).thin_mode %>
                                 <div class="thumbnail">
                                     <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg"/>
-                                    <form onsubmit="return false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
+                                    <form data-onsubmit="return_false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
                                         <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
                                         <p class="watched">
-                                            <a onclick="mark_unwatched(this)" data-id="<%= item %>" href="javascript:void(0)">
+                                            <a data-onclick="mark_unwatched" data-id="<%= item %>" href="javascript:void(0)">
                                                 <button type="submit" style="all:unset">
                                                     <i class="icon ion-md-trash"></i>
                                                 </button>

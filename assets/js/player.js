@@ -1,3 +1,6 @@
+var player_data = JSON.parse(document.getElementById('player_data').innerHTML);
+var video_data = JSON.parse(document.getElementById('video_data').innerHTML);
+
 var options = {
     preload: 'auto',
     liveui: true,
@@ -35,7 +38,7 @@ var shareOptions = {
     title: player_data.title,
     description: player_data.description,
     image: player_data.thumbnail,
-    embedCode: "<iframe id='ivplayer' type='text/html' width='640' height='360' src='" + embed_url + "' frameborder='0'></iframe>"
+    embedCode: "<iframe id='ivplayer' width='640' height='360' src='" + embed_url + "' style='border:none;'></iframe>"
 }
 
 var player = videojs('player', options);
@@ -228,11 +231,24 @@ function set_time_percent(percent) {
     player.currentTime(newTime);
 }
 
+function play() {
+    player.play();
+}
+
+function pause() {
+    player.pause();
+}
+
+function stop() {
+    player.pause();
+    player.currentTime(0);
+}
+
 function toggle_play() {
     if (player.paused()) {
-        player.play();
+        play();
     } else {
-        player.pause();
+        pause();
     }
 }
 
@@ -338,7 +354,20 @@ window.addEventListener('keydown', e => {
     switch (decoratedKey) {
         case ' ':
         case 'k':
+        case 'MediaPlayPause':
             action = toggle_play;
+            break;
+
+        case 'MediaPlay':
+            action = play;
+            break;
+
+        case 'MediaPause':
+            action = pause;
+            break;
+
+        case 'MediaStop':
+            action = stop;
             break;
 
         case 'ArrowUp':
@@ -357,9 +386,11 @@ window.addEventListener('keydown', e => {
             break;
 
         case 'ArrowRight':
+        case 'MediaFastForward':
             action = skip_seconds.bind(this, 5);
             break;
         case 'ArrowLeft':
+        case 'MediaTrackPrevious':
             action = skip_seconds.bind(this, -5);
             break;
         case 'l':
@@ -391,9 +422,11 @@ window.addEventListener('keydown', e => {
             break;
 
         case 'N':
+        case 'MediaTrackNext':
             action = next_video;
             break;
         case 'P':
+        case 'MediaTrackPrevious':
             // TODO: Add support to play back previous video.
             break;
 

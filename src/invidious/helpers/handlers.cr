@@ -61,7 +61,7 @@ class Kemal::ExceptionHandler
 end
 
 class FilteredCompressHandler < Kemal::Handler
-  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/ggpht/*", "/api/v1/auth/notifications"]
+  exclude ["/videoplayback", "/videoplayback/*", "/vi/*", "/sb/*", "/ggpht/*", "/api/v1/auth/notifications"]
   exclude ["/api/v1/auth/notifications", "/data_control"], "POST"
 
   def call(env)
@@ -74,10 +74,10 @@ class FilteredCompressHandler < Kemal::Handler
 
       if request_headers.includes_word?("Accept-Encoding", "gzip")
         env.response.headers["Content-Encoding"] = "gzip"
-        env.response.output = Gzip::Writer.new(env.response.output, sync_close: true)
+        env.response.output = Compress::Gzip::Writer.new(env.response.output, sync_close: true)
       elsif request_headers.includes_word?("Accept-Encoding", "deflate")
         env.response.headers["Content-Encoding"] = "deflate"
-        env.response.output = Flate::Writer.new(env.response.output, sync_close: true)
+        env.response.output = Compress::Deflate::Writer.new(env.response.output, sync_close: true)
       end
 
       call_next env
@@ -210,31 +210,5 @@ class DenyFrame < Kemal::Handler
 
     env.response.headers["X-Frame-Options"] = "sameorigin"
     call_next env
-  end
-end
-
-# Temp fixes for https://github.com/crystal-lang/crystal/issues/7383
-class HTTP::UnknownLengthContent
-  def read_byte
-    ensure_send_continue
-    if @io.is_a?(OpenSSL::SSL::Socket::Client)
-      return if @io.as(OpenSSL::SSL::Socket::Client).@in_buffer_rem.empty?
-    end
-    @io.read_byte
-  end
-end
-
-class HTTP::Client
-  private def handle_response(response)
-    if @socket.is_a?(OpenSSL::SSL::Socket::Client) && @host.ends_with?("googlevideo.com")
-      close unless response.keep_alive? || @socket.as(OpenSSL::SSL::Socket::Client).@in_buffer_rem.empty?
-
-      if @socket.as(OpenSSL::SSL::Socket::Client).@in_buffer_rem.empty?
-        @socket = nil
-      end
-    else
-      close unless response.keep_alive?
-    end
-    response
   end
 end

@@ -60,6 +60,22 @@ body {
   color: rgb(255, 0, 0);
 }
 
+.feed-menu {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.feed-menu-item {
+  text-align: center;
+}
+
+@media screen and (max-width: 640px) {
+  .feed-menu-item {
+    flex: 0 0 40%;
+  }
+}
+
 .h-box {
   padding-left: 1em;
   padding-right: 1em;

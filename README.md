@@ -1,14 +1,18 @@
 # Invidious
 
-[![Build Status](https://travis-ci.org/omarroth/invidious.svg?branch=master)](https://travis-ci.org/omarroth/invidious)
+[![Build Status](https://travis-ci.org/iv-org/invidious.svg?branch=master)](https://travis-ci.org/github/iv-org/invidious) [![Translation Status](https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg)](https://hosted.weblate.org/engage/invidious/)
 
 ## Invidious is an alternative front-end to YouTube
 
+## Invidious instances:
+
+[Public Invidious instances are listed here.](https://github.com/iv-org/invidious/wiki/Invidious-Instances)
+
+## Invidious features:
+
+- [Copylefted libre software](https://github.com/iv-org/invidious) (AGPLv3+ licensed)
 - Audio-only mode (and no need to keep window open on mobile)
-- [Free software](https://github.com/omarroth/invidious) (AGPLv3 licensed)
-- No ads
-- No need to create a Google account to save subscriptions
-- Lightweight (homepage is ~4 KB compressed)
+- Lightweight (the homepage is ~4 KB compressed)
 - Tools for managing subscriptions:
   - Only show unseen videos
   - Only show latest (or latest unseen) video from each channel
@@ -18,37 +22,33 @@
 - Dark mode
 - Embed support
 - Set default player options (speed, quality, autoplay, loop)
-- Does not require JS to play videos
-- Support for Reddit comments in place of YT comments
+- Support for Reddit comments in place of YouTube comments
 - Import/Export subscriptions, watch history, preferences
+- [Developer API](https://github.com/iv-org/invidious/wiki/API)
 - Does not use any of the official YouTube APIs
-- Developer [API](https://github.com/omarroth/invidious/wiki/API)
+- Does not require JavaScript to play videos
+- No need to create a Google account to save subscriptions
+- No ads
+- No CoC
+- No CLA
+- [Multilingual](https://hosted.weblate.org/projects/invidious/#languages) (translated into many languages)
 
-Liberapay: https://liberapay.com/omarroth  
-BTC: 356DpZyMXu6rYd55Yqzjs29n79kGKWcYrY  
-BCH: qq4ptclkzej5eza6a50et5ggc58hxsq5aylqut2npk
-
-## Invidious Instances
-
-See [Invidious Instances](https://github.com/omarroth/invidious/wiki/Invidious-Instances) for a full list of publicly available instances.
-
-### Official Instances
-
-- [invidio.us](https://invidio.us) 🇺🇸  
-  Issuer: Let's Encrypt, [SSLLabs Verification](https://www.ssllabs.com/ssltest/analyze.html?d=invidio.us)
-- [kgg2m7yk5aybusll.onion](http://kgg2m7yk5aybusll.onion)
-- [axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion](http://axqzx4s6s54s32yentfqojs3x5i7faxza6xo3ehd4bzzsg2ii4fv2iid.onion)
-
-## Screenshots
+## Screenshots:
 
 | Player                                                                                                                  | Preferences                                                                                                             | Subscriptions                                                                                                               |
 | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | [<img src="screenshots/01_player.png?raw=true" height="140" width="280">](screenshots/01_player.png?raw=true)           | [<img src="screenshots/02_preferences.png?raw=true" height="140" width="280">](screenshots/02_preferences.png?raw=true) | [<img src="screenshots/03_subscriptions.png?raw=true" height="140" width="280">](screenshots/03_subscriptions.png?raw=true) |
 | [<img src="screenshots/04_description.png?raw=true" height="140" width="280">](screenshots/04_description.png?raw=true) | [<img src="screenshots/05_preferences.png?raw=true" height="140" width="280">](screenshots/05_preferences.png?raw=true) | [<img src="screenshots/06_subscriptions.png?raw=true" height="140" width="280">](screenshots/06_subscriptions.png?raw=true) |
 
-## Installation
+## Installation:
 
-See [Invidious-Updater](https://github.com/tmiland/Invidious-Updater) for a self-contained script that can automatically install and update Invidious.
+To manually compile invidious you need at least 2GB of RAM. If you have less you can setup SWAP to have a combined amount of 2 GB or use Docker instead.
+
+After installation take a look at the [Post-install steps](#post-install-configuration).
+
+### Automated installation:
+
+[Invidious-Updater](https://github.com/tmiland/Invidious-Updater) is a self-contained script that can automatically install and update Invidious.
 
 ### Docker:
 
@@ -58,7 +58,7 @@ See [Invidious-Updater](https://github.com/tmiland/Invidious-Updater) for a self
 $ docker-compose up
 ```
 
-And visit `localhost:3000` in your browser.
+Then visit `localhost:3000` in your browser.
 
 #### Rebuild cluster:
 
@@ -73,9 +73,11 @@ $ docker volume rm invidious_postgresdata
 $ docker-compose build
 ```
 
+### Manual installation:
+
 ### Linux:
 
-#### Install dependencies
+#### Install the dependencies
 
 ```bash
 # Arch Linux
@@ -88,23 +90,22 @@ $ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
 $ curl -sL "https://keybase.io/crystal/pgp_keys.asc" | sudo apt-key add -
 $ echo "deb https://dist.crystal-lang.org/apt crystal main" | sudo tee /etc/apt/sources.list.d/crystal.list
 $ sudo apt-get update
-$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev postgresql librsvg2-bin libsqlite3-dev
+$ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev postgresql librsvg2-bin libsqlite3-dev zlib1g-dev
 ```
 
-#### Add invidious user and clone repository
+#### Add an Invidious user and clone the repository
 
 ```bash
 $ useradd -m invidious
 $ sudo -i -u invidious
-$ git clone https://github.com/omarroth/invidious
+$ git clone https://github.com/iv-org/invidious
 $ exit
 ```
 
-#### Setup PostgresSQL
+#### Set up PostgresSQL
 
 ```bash
-$ sudo systemctl enable postgresql
-$ sudo systemctl start postgresql
+$ sudo systemctl enable --now postgresql
 $ sudo -i -u postgres
 $ psql -c "CREATE USER kemal WITH PASSWORD 'kemal';" # Change 'kemal' here to a stronger password, and update `password` in config/config.yml
 $ createdb -O kemal invidious
@@ -115,10 +116,12 @@ $ psql invidious kemal < /home/invidious/invidious/config/sql/users.sql
 $ psql invidious kemal < /home/invidious/invidious/config/sql/session_ids.sql
 $ psql invidious kemal < /home/invidious/invidious/config/sql/nonces.sql
 $ psql invidious kemal < /home/invidious/invidious/config/sql/annotations.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/playlists.sql
+$ psql invidious kemal < /home/invidious/invidious/config/sql/playlist_videos.sql
 $ exit
 ```
 
-#### Setup Invidious
+#### Set up Invidious
 
 ```bash
 $ sudo -i -u invidious
@@ -130,23 +133,36 @@ $ ./invidious # stop with ctrl c
 $ exit
 ```
 
-#### systemd service
+#### Systemd service:
 
 ```bash
 $ sudo cp /home/invidious/invidious/invidious.service /etc/systemd/system/invidious.service
-$ sudo systemctl enable invidious.service
-$ sudo systemctl start invidious.service
+$ sudo systemctl enable --now invidious.service
 ```
 
-### OSX:
+#### Logrotate:
+
+```bash
+$ sudo echo "/home/invidious/invidious/invidious.log {
+rotate 4
+weekly
+notifempty
+missingok
+compress
+minsize 1048576
+}" | tee /etc/logrotate.d/invidious.logrotate
+$ sudo chmod 0644 /etc/logrotate.d/invidious.logrotate
+```
+
+### MacOS:
 
 ```bash
 # Install dependencies
 $ brew update
 $ brew install shards crystal postgres imagemagick librsvg
 
-# Clone repository and setup postgres database
-$ git clone https://github.com/omarroth/invidious
+# Clone the repository and set up a PostgreSQL database
+$ git clone https://github.com/iv-org/invidious
 $ cd invidious
 $ brew services start postgresql
 $ psql -c "CREATE ROLE kemal WITH PASSWORD 'kemal';" # Change 'kemal' here to a stronger password, and update `password` in config/config.yml
@@ -158,15 +174,30 @@ $ psql invidious kemal < config/sql/users.sql
 $ psql invidious kemal < config/sql/session_ids.sql
 $ psql invidious kemal < config/sql/nonces.sql
 $ psql invidious kemal < config/sql/annotations.sql
+$ psql invidious kemal < config/sql/privacy.sql
+$ psql invidious kemal < config/sql/playlists.sql
+$ psql invidious kemal < config/sql/playlist_videos.sql
 
-# Setup Invidious
+# Set up Invidious
 $ shards update && shards install
 $ crystal build src/invidious.cr --release
 ```
 
+## Post-install configuration:
+
+Detailed configuration available in the [configuration guide](https://github.com/iv-org/invidious/wiki/Configuration).
+
+If you use a reverse proxy, you **must** configure invidious to properly serve request through it:
+
+`https_only: true` : if your are serving your instance via https, set it to true
+
+`domain: domain.ext`: if you are serving your instance via a domain name, set it here
+
+`external_port: 443`: if your are serving your instance via https, set it to 443
+
 ## Update Invidious
 
-You can see how to update Invidious [here](https://github.com/omarroth/invidious/wiki/Updating).
+Instructions are available in the [updating guide](https://github.com/iv-org/invidious/wiki/Updating).
 
 ## Usage:
 
@@ -197,39 +228,55 @@ $ ./sentry
 
 ## Documentation
 
-[Documentation](https://github.com/omarroth/invidious/wiki) can be found in the wiki.
+[Documentation](https://github.com/iv-org/invidious/wiki) can be found in the wiki.
 
 ## Extensions
 
-[Extensions](https://github.com/omarroth/invidious/wiki/Extensions) can be found in the wiki, as well as documentation for integrating it into other projects.
+[Extensions](https://github.com/iv-org/invidious/wiki/Extensions) can be found in the wiki, as well as documentation for integrating it into other projects.
 
 ## Made with Invidious
 
-- [FreeTube](https://github.com/FreeTubeApp/FreeTube): An Open Source YouTube app for privacy.
-- [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JS-rich alternate YouTube player
-- [PeerTubeify](https://gitlab.com/Ealhad/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
-- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A materialistic music player that streams music from YouTube.
+- [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
+- [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JavaScript-rich alternate YouTube player
+- [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
+- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
+- [LapisTube](https://github.com/blubbll/lapis-tube): A fancy and advanced (experimental) YouTube front-end. Combined streams & custom YT features.
+- [HoloPlay](https://github.com/stephane-r/HoloPlay): Funny Android application connecting on Invidious API's with search, playlists and favoris.
 
 ## Contributing
 
-1.  Fork it ( https://github.com/omarroth/invidious/fork )
+1.  Fork it ( https://github.com/iv-org/invidious/fork )
 2.  Create your feature branch (git checkout -b my-new-feature)
 3.  Commit your changes (git commit -am 'Add some feature')
 4.  Push to the branch (git push origin my-new-feature)
-5.  Create a new Pull Request
+5.  Create a new pull request
+
+#### Translation
+
+- Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/engage/invidious/).
+
+## Donate:
+
+Liberapay: https://liberapay.com/iv-org/
 
 ## Contact
 
-Feel free to send an email to omarroth@protonmail.com or join our [Matrix Server](https://riot.im/app/#/room/#invidious:matrix.org), or #invidious on Freenode.
+Feel free to join our [Matrix room](https://matrix.to/#/#invidious:matrix.org), or #invidious on freenode. Both platforms are bridged together.
 
-You can also view release notes on the [releases](https://github.com/omarroth/invidious/releases) page or in the CHANGELOG.md included in the repository.
+## Liability
 
-## License
+We take no responsibility for the use of our tool, or external instances provided by third parties. We strongly recommend you abide by the valid official regulations in your country. Furthermore, we refuse liability for any inappropriate use of Invidious, such as illegal downloading. This tool is provided to you in the spirit of free, open software.
 
-[![GNU AGPLv3 Image](https://www.gnu.org/graphics/agplv3-155x51.png)](http://www.gnu.org/licenses/agpl-3.0.en.html)
+You may view the LICENSE in which this software is provided to you [here](./LICENSE).
 
-Invidious is Free Software: You can use, study share and improve it at your
-will. Specifically you can redistribute and/or modify it under the terms of the
-[GNU Affero General Public License](https://www.gnu.org/licenses/agpl.html) as
-published by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+>   16. Limitation of Liability.
+>
+> IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
+THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
+GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
+USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
+DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
