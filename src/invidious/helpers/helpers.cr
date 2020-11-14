@@ -93,8 +93,9 @@ struct Config
   property admin_email : String = "omarroth@protonmail.com"        # Email for bug reports
 
   @[YAML::Field(converter: Preferences::StringToCookies)]
-  property cookies : HTTP::Cookies = HTTP::Cookies.new # Saved cookies in "name1=value1; name2=value2..." format
-  property captcha_key : String? = nil                 # Key for Anti-Captcha
+  property cookies : HTTP::Cookies = HTTP::Cookies.new               # Saved cookies in "name1=value1; name2=value2..." format
+  property captcha_key : String? = nil                               # Key for Anti-Captcha
+  property captcha_api_url : String = "https://api.anti-captcha.com" # API URL for Anti-Captcha
 
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
