@@ -22,7 +22,7 @@ window.addEventListener('storage', function (e) {
     }
 });
 
-window.addEventListener('load', function () {
+window.addEventListener('DOMContentLoaded', function () {
     window.localStorage.setItem('dark_mode', document.getElementById('dark_mode_pref').textContent);
     // Update localStorage if dark mode preference changed on preferences page
     update_mode(window.localStorage.dark_mode);
