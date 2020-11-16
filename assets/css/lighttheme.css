@@ -1,16 +1,22 @@
-a:hover,
-a:active {
+/*
+ * Light theme
+ * Same as (prefers-color-scheme: light) in default.css
+ */
+
+.light-theme a:hover,
+.light-theme a:active {
   color: #167ac6 !important;
 }
 
-a {
+.light-theme a {
   color: #61809b;
   text-decoration: none;
 }
 
 /* All links that do not fit with the default color goes here */
-a:not([data-id]) > .icon,
-.pure-u-lg-1-5 > .h-box > a[href^="/watch?"],
-.playlist-restricted > ol > li > a {
+.light-theme a:not([data-id]) > .icon,
+.light-theme .pure-u-lg-1-5 > .h-box > a[href^="/watch?"],
+.light-theme .playlist-restricted > ol > li > a {
   color: #303030;
 }
+
