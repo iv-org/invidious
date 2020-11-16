@@ -68,7 +68,7 @@
                 <% preferences.comments.each_with_index do |comments, index| %>
                     <select name="comments[<%= index %>]" id="comments[<%= index %>]">
                         <% {"", "youtube", "reddit"}.each do |option| %>
-                            <option value="<%= option %>" <% if preferences.comments[index] == option %> selected <% end %>><%= translate(locale, option) %></option>
+                            <option value="<%= option %>" <% if preferences.comments[index] == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
                         <% end %>
                     </select>
                 <% end %>
@@ -79,7 +79,7 @@
                 <% preferences.captions.each_with_index do |caption, index| %>
                     <select class="pure-u-1-6" name="captions[<%= index %>]" id="captions[<%= index %>]">
                         <% CAPTION_LANGUAGES.each do |option| %>
-                            <option value="<%= option %>" <% if preferences.captions[index] == option %> selected <% end %>><%= translate(locale, option) %></option>
+                            <option value="<%= option %>" <% if preferences.captions[index] == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
                         <% end %>
                     </select>
                 <% end %>
@@ -119,7 +119,7 @@
                 <label for="dark_mode"><%= translate(locale, "Theme: ") %></label>
                 <select name="dark_mode" id="dark_mode">
                     <% {"", "light", "dark"}.each do |option| %>
-                        <option value="<%= option %>" <% if preferences.dark_mode == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <option value="<%= option %>" <% if preferences.dark_mode == option %> selected <% end %>><%= translate(locale, option.blank? ? "auto" : option) %></option>
                     <% end %>
                 </select>
             </div>
@@ -139,7 +139,7 @@
                 <label for="default_home"><%= translate(locale, "Default homepage: ") %></label>
                 <select name="default_home" id="default_home">
                     <% feed_options.each do |option| %>
-                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
                     <% end %>
                 </select>
             </div>
@@ -149,7 +149,7 @@
                 <% (feed_options.size - 1).times do |index| %>
                     <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
                         <% feed_options.each do |option| %>
-                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option) %></option>
+                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
                         <% end %>
                     </select>
                 <% end %>
@@ -211,7 +211,7 @@
                     <label for="admin_default_home"><%= translate(locale, "Default homepage: ") %></label>
                     <select name="admin_default_home" id="admin_default_home">
                         <% feed_options.each do |option| %>
-                            <option value="<%= option %>" <% if CONFIG.default_user_preferences.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
+                            <option value="<%= option %>" <% if CONFIG.default_user_preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
                         <% end %>
                     </select>
                 </div>
@@ -221,7 +221,7 @@
                     <% (feed_options.size - 1).times do |index| %>
                         <select name="admin_feed_menu[<%= index %>]" id="admin_feed_menu[<%= index %>]">
                             <% feed_options.each do |option| %>
-                                <option value="<%= option %>" <% if CONFIG.default_user_preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option) %></option>
+                                <option value="<%= option %>" <% if CONFIG.default_user_preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
                             <% end %>
                         </select>
                     <% end %>
