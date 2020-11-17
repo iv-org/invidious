@@ -487,9 +487,25 @@ video.video-js {
 }
 
 /*
- * Automatic theme support
- * Same as lighttheme.css and darktheme.css
+ * Light theme
  */
+
+.light-theme a:hover,
+.light-theme a:active {
+  color: #167ac6 !important;
+}
+
+.light-theme a {
+  color: #61809b;
+  text-decoration: none;
+}
+
+/* All links that do not fit with the default color goes here */
+.light-theme a:not([data-id]) > .icon,
+.light-theme .pure-u-lg-1-5 > .h-box > a[href^="/watch?"],
+.light-theme .playlist-restricted > ol > li > a {
+  color: #303030;
+}
 
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
@@ -508,6 +524,48 @@ video.video-js {
   .no-theme .playlist-restricted > ol > li > a {
     color: #303030;
   }
+}
+
+/*
+ * Dark theme
+ */
+
+.dark-theme a:hover,
+.dark-theme a:active {
+  color: rgb(0, 182, 240);
+}
+
+.dark-theme a {
+  color: #a0a0a0;
+  text-decoration: none;
+}
+
+body.dark-theme {
+  background-color: rgba(35, 35, 35, 1);
+  color: #f0f0f0;
+}
+
+.dark-theme .pure-form legend {
+  color: #f0f0f0;
+}
+
+.dark-theme .pure-menu-heading {
+  color: #f0f0f0;
+}
+
+.dark-theme input,
+.dark-theme select,
+.dark-theme textarea {
+  color: rgba(35, 35, 35, 1);
+}
+
+.dark-theme .pure-form input[type="file"] {
+  color: #f0f0f0;
+}
+
+.dark-theme .navbar > .searchbar input {
+  background-color: inherit;
+  color: inherit;
 }
 
 @media (prefers-color-scheme: dark) {

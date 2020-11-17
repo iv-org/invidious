@@ -9,12 +9,11 @@
     <link rel="stylesheet" href="/css/videojs-overlay.css?v=<%= ASSET_COMMIT %>">
     <script src="/js/videojs-overlay.min.js?v=<%= ASSET_COMMIT %>"></script>
     <link rel="stylesheet" href="/css/default.css?v=<%= ASSET_COMMIT %>">
-    <link rel="stylesheet" href="/css/darktheme.css?v=<%= ASSET_COMMIT %>">
     <link rel="stylesheet" href="/css/embed.css?v=<%= ASSET_COMMIT %>">
     <title><%= HTML.escape(video.title) %> - Invidious</title>
 </head>
 
-<body>
+<body class="dark-theme">
 <script id="video_data" type="application/json">
 <%=
 {
