@@ -20,7 +20,7 @@ body {
   height: auto;
 }
 
-.channel-owner {
+body a.channel-owner {
   background-color: #008bec;
   color: #fff;
   border-radius: 9px;
@@ -101,15 +101,19 @@ div {
   padding-right: 10px;
 }
 
+body a.pure-button {
+  color: rgba(0,0,0,.8);
+}
+
 button.pure-button-primary,
-a.pure-button-primary,
+body a.pure-button-primary,
 .channel-owner:hover {
   background-color: #a0a0a0;
   color: rgba(35, 35, 35, 1);
 }
 
 button.pure-button-primary:hover,
-a.pure-button-primary:hover {
+body a.pure-button-primary:hover {
   background-color: rgba(0, 182, 240, 1);
   color: #fff;
 }
@@ -282,7 +286,7 @@ input[type="search"]::-webkit-search-cancel-button {
   text-align: center;
 }
 
-.footer a {
+body .footer a {
   color: inherit;
   text-decoration: underline;
 }
@@ -507,6 +511,10 @@ video.video-js {
   color: #303030;
 }
 
+.light-theme .pure-menu-heading {
+  color: #565d64;
+}
+
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
   .no-theme a:active {
@@ -523,6 +531,10 @@ video.video-js {
   .no-theme .pure-u-lg-1-5 > .h-box > a[href^="/watch?"],
   .no-theme .playlist-restricted > ol > li > a {
     color: #303030;
+  }
+
+  .light-theme .pure-menu-heading {
+    color: #565d64;
   }
 }
 
