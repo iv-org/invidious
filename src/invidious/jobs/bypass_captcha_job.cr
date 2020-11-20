@@ -23,7 +23,8 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
 
             headers = response.cookies.add_request_headers(HTTP::Headers.new)
 
-            response = JSON.parse(HTTP::Client.post("https://api.anti-captcha.com/createTask", body: {
+            response = JSON.parse(HTTP::Client.post(config.captcha_api_url + "/createTask",
+              headers: HTTP::Headers{"Content-Type" => "application/json"}, body: {
               "clientKey" => config.captcha_key,
               "task"      => {
                 "type"                => "NoCaptchaTaskProxyless",
@@ -39,7 +40,8 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
             loop do
               sleep 10.seconds
 
-              response = JSON.parse(HTTP::Client.post("https://api.anti-captcha.com/getTaskResult", body: {
+              response = JSON.parse(HTTP::Client.post(config.captcha_api_url + "/getTaskResult",
+                headers: HTTP::Headers{"Content-Type" => "application/json"}, body: {
                 "clientKey" => config.captcha_key,
                 "taskId"    => task_id,
               }.to_json).body)
@@ -76,9 +78,10 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
               inputs[node["name"]] = node["value"]
             end
 
-            captcha_client = HTTPClient.new(URI.parse("https://api.anti-captcha.com"))
+            captcha_client = HTTPClient.new(URI.parse(config.captcha_api_url))
             captcha_client.family = config.force_resolve || Socket::Family::INET
-            response = JSON.parse(captcha_client.post("/createTask", body: {
+            response = JSON.parse(captcha_client.post("/createTask",
+              headers: HTTP::Headers{"Content-Type" => "application/json"}, body: {
               "clientKey" => config.captcha_key,
               "task"      => {
                 "type"                => "NoCaptchaTaskProxyless",
@@ -94,7 +97,8 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
             loop do
               sleep 10.seconds
 
-              response = JSON.parse(captcha_client.post("/getTaskResult", body: {
+              response = JSON.parse(captcha_client.post("/getTaskResult",
+                headers: HTTP::Headers{"Content-Type" => "application/json"}, body: {
                 "clientKey" => config.captcha_key,
                 "taskId"    => task_id,
               }.to_json).body)
