@@ -4,6 +4,4 @@ abstract class Invidious::Routes::BaseRoute
 
   def initialize(@config, @logger)
   end
-
-  abstract def handle(env)
 end
