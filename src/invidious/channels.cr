@@ -775,8 +775,6 @@ def extract_channel_community_cursor(continuation)
   cursor
 end
 
-INITDATA_PREQUERY = "window[\"ytInitialData\"] = {"
-
 def get_about_info(ucid, locale)
   about = YT_POOL.client &.get("/channel/#{ucid}/about?gl=US&hl=en")
   if about.status_code != 200
@@ -792,18 +790,14 @@ def get_about_info(ucid, locale)
     raise error_message
   end
 
-  initdata_pre = about.body.index(INITDATA_PREQUERY)
-  initdata_post = initdata_pre.nil? ? nil : about.body.index("};", initdata_pre)
-  if initdata_post.nil?
-    about = XML.parse_html(about.body)
+  initdata = extract_initial_data(about.body)
+  about = XML.parse_html(about.body)
+
+  if initdata.empty?
     error_message = about.xpath_node(%q(//div[@class="yt-alert-content"])).try &.content.strip
     error_message ||= translate(locale, "Could not get channel info.")
     raise error_message
   end
-  initdata_pre = initdata_pre.not_nil! + INITDATA_PREQUERY.size - 1
-
-  initdata = JSON.parse(about.body[initdata_pre, initdata_post - initdata_pre + 1])
-  about = XML.parse_html(about.body)
 
   if about.xpath_node(%q(//div[contains(@class, "channel-empty-message")]))
     error_message = translate(locale, "This channel does not exist.")

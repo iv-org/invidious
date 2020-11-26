@@ -839,8 +839,7 @@ def extract_polymer_config(body)
     params[f] = player_response[f] if player_response[f]?
   end
 
-  yt_initial_data = body.match(/(window\["ytInitialData"\]|var\s+ytInitialData)\s*=\s*(?<info>.*?);\s*\n/)
-    .try { |r| JSON.parse(r["info"]).as_h }
+  yt_initial_data = extract_initial_data(body)
 
   params["relatedVideos"] = yt_initial_data.try &.["playerOverlays"]?.try &.["playerOverlayRenderer"]?
     .try &.["endScreen"]?.try &.["watchNextEndScreenRenderer"]?.try &.["results"]?.try &.as_a.compact_map { |r|
