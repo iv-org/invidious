@@ -598,7 +598,7 @@ def create_notification_stream(env, topics, connection_channel)
 end
 
 def extract_initial_data(body) : Hash(String, JSON::Any)
-  return JSON.parse(body.match(/(window\["ytInitialData"\]|var\s*ytInitialData)\s*=\s*(?<info>\{.*?\});/m).try &.["info"] || "{}").as_h
+  return JSON.parse(body.match(/(window\["ytInitialData"\]|var\s*ytInitialData)\s*=\s*(JSON\.parse\(")?(?<info>\{.*?\})("\))?;/m).try &.["info"] || "{}").as_h
 end
 
 def proxy_file(response, env)
