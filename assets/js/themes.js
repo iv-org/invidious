@@ -2,7 +2,7 @@ var toggle_theme = document.getElementById('toggle_theme');
 toggle_theme.href = 'javascript:void(0);';
 
 toggle_theme.addEventListener('click', function () {
-    var dark_mode = document.getElementById('dark_theme').media === 'none';
+    var dark_mode = document.body.classList.contains("light-theme");
 
     var url = '/toggle_theme?redirect=false';
     var xhr = new XMLHttpRequest();
@@ -22,7 +22,7 @@ window.addEventListener('storage', function (e) {
     }
 });
 
-window.addEventListener('load', function () {
+window.addEventListener('DOMContentLoaded', function () {
     window.localStorage.setItem('dark_mode', document.getElementById('dark_mode_pref').textContent);
     // Update localStorage if dark mode preference changed on preferences page
     update_mode(window.localStorage.dark_mode);
@@ -50,13 +50,18 @@ function scheme_switch (e) {
 }
 
 function set_mode (bool) {
-    document.getElementById('dark_theme').media = !bool ? 'none' : '';
-    document.getElementById('light_theme').media = bool ? 'none' : '';
-
     if (bool) {
+        // dark
         toggle_theme.children[0].setAttribute('class', 'icon ion-ios-sunny');
+        document.body.classList.remove('no-theme');
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
     } else {
+        // light
         toggle_theme.children[0].setAttribute('class', 'icon ion-ios-moon');
+        document.body.classList.remove('no-theme');
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
     }
 }
 
