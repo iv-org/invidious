@@ -8,9 +8,7 @@ class Invidious::Routes::Embed::Index < Invidious::Routes::BaseRoute
         offset = env.params.query["index"]?.try &.to_i? || 0
         videos = get_playlist_videos(PG_DB, playlist, offset: offset, locale: locale)
       rescue ex
-        error_message = ex.message
-        env.response.status_code = 500
-        return templated "error"
+        return error_template(500, ex)
       end
 
       url = "/embed/#{videos[0].id}?#{env.params.query}"

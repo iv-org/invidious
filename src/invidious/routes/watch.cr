@@ -12,9 +12,7 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
       id = env.params.query["v"]
 
       if env.params.query["v"].empty?
-        error_message = "Invalid parameters."
-        env.response.status_code = 400
-        return templated "error"
+        return error_template(400, "Invalid parameters.")
       end
 
       if id.size > 11
@@ -56,10 +54,8 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
     rescue ex : VideoRedirect
       return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex
-      error_message = ex.message
-      env.response.status_code = 500
       logger.puts("#{id} : #{ex.message}")
-      return templated "error"
+      return error_template(500, ex)
     end
 
     if preferences.annotations_subscribed &&

@@ -70,33 +70,33 @@ def validate_request(token, session, request, key, db, locale = nil)
   when JSON::Any
     token = token.as_h
   when Nil
-    raise translate(locale, "Hidden field \"token\" is a required field")
+    raise InfoException.new("Hidden field \"token\" is a required field")
   end
 
   expire = token["expire"]?.try &.as_i
   if expire.try &.< Time.utc.to_unix
-    raise translate(locale, "Token is expired, please try again")
+    raise InfoException.new("Token is expired, please try again")
   end
 
   if token["session"] != session
-    raise translate(locale, "Erroneous token")
+    raise InfoException.new("Erroneous token")
   end
 
   scopes = token["scopes"].as_a.map { |v| v.as_s }
   scope = "#{request.method}:#{request.path.lchop("/api/v1/auth/").lstrip("/")}"
   if !scopes_include_scope(scopes, scope)
-    raise translate(locale, "Invalid scope")
+    raise InfoException.new("Invalid scope")
   end
 
   if !Crypto::Subtle.constant_time_compare(token["signature"].to_s, sign_token(key, token))
-    raise translate(locale, "Invalid signature")
+    raise InfoException.new("Invalid signature")
   end
 
   if token["nonce"]? && (nonce = db.query_one?("SELECT * FROM nonces WHERE nonce = $1", token["nonce"], as: {String, Time}))
     if nonce[1] > Time.utc
       db.exec("UPDATE nonces SET expire = $1 WHERE nonce = $2", Time.utc(1990, 1, 1), nonce[0])
     else
-      raise translate(locale, "Erroneous token")
+      raise InfoException.new("Erroneous token")
     end
   end
 
