@@ -147,14 +147,14 @@ $ sudo systemctl start invidious.service
 #### Logrotate
 
 ```bash
-$ sudo echo "/home/invidious/invidious/invidious.log {
+$ echo "/home/invidious/invidious/invidious.log {
 rotate 4
 weekly
 notifempty
 missingok
 compress
 minsize 1048576
-}" | tee /etc/logrotate.d/invidious.logrotate
+}" | sudo tee /etc/logrotate.d/invidious.logrotate
 $ sudo chmod 0644 /etc/logrotate.d/invidious.logrotate
 ```
 
