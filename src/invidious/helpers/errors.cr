@@ -18,7 +18,7 @@ def error_template_helper(env : HTTP::Server::Context, config : Config, locale :
   issue_template = %(Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`)
   issue_template += %(\nRoute: `#{env.request.resource}`)
   issue_template += %(\nVersion: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`)
-  #issue_template += %(\nPreferences: ```#{env.get("preferences").as(Preferences).to_json}```)
+  # issue_template += %(\nPreferences: ```#{env.get("preferences").as(Preferences).to_json}```)
   issue_template += %(\nBacktrace: \n```\n#{exception.inspect_with_backtrace}```)
   error_message = <<-END_HTML
     Looks like you've found a bug in Invidious. Please open a new issue
