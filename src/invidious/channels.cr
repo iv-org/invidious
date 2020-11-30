@@ -801,11 +801,11 @@ def get_about_info(ucid, locale)
     raise InfoException.new(error_message)
   end
 
-  author = about.xpath_node(%q(//meta[@name="title"])).not_nil!["content"]
-  author_url = about.xpath_node(%q(//link[@rel="canonical"])).not_nil!["href"]
-  author_thumbnail = about.xpath_node(%q(//link[@rel="image_src"])).not_nil!["href"]
+  author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
+  author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
+  author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
 
-  ucid = about.xpath_node(%q(//meta[@itemprop="channelId"])).not_nil!["content"]
+  ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
 
   # Raises a KeyError on failure.
   banners = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
