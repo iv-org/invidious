@@ -38,9 +38,7 @@ class Invidious::Routes::Embed::Show < Invidious::Routes::BaseRoute
           offset = env.params.query["index"]?.try &.to_i? || 0
           videos = get_playlist_videos(PG_DB, playlist, offset: offset, locale: locale)
         rescue ex
-          error_message = ex.message
-          env.response.status_code = 500
-          return templated "error"
+          return error_template(500, ex)
         end
 
         url = "/embed/#{videos[0].id}"
@@ -63,8 +61,7 @@ class Invidious::Routes::Embed::Show < Invidious::Routes::BaseRoute
       env.params.query.delete_all("channel")
 
       if !video_id || video_id == "live_stream"
-        error_message = "Video is unavailable."
-        return templated "error"
+        return error_template(500, "Video is unavailable.")
       end
 
       url = "/embed/#{video_id}"
@@ -100,9 +97,7 @@ class Invidious::Routes::Embed::Show < Invidious::Routes::BaseRoute
     rescue ex : VideoRedirect
       return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex
-      error_message = ex.message
-      env.response.status_code = 500
-      return templated "error"
+      return error_template(500, ex)
     end
 
     if preferences.annotations_subscribed &&

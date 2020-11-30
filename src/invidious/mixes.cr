@@ -30,7 +30,7 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
   initial_data = extract_initial_data(response.body)
 
   if !initial_data["contents"]["twoColumnWatchNextResults"]["playlist"]?
-    raise translate(locale, "Could not create mix.")
+    raise InfoException.new("Could not create mix.")
   end
 
   playlist = initial_data["contents"]["twoColumnWatchNextResults"]["playlist"]["playlist"]

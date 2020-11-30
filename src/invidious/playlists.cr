@@ -338,7 +338,7 @@ def get_playlist(db, plid, locale, refresh = true, force_refresh = false)
     if playlist = db.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
       return playlist
     else
-      raise "Playlist does not exist."
+      raise InfoException.new("Playlist does not exist.")
     end
   else
     return fetch_playlist(plid, locale)
@@ -353,16 +353,16 @@ def fetch_playlist(plid, locale)
   response = YT_POOL.client &.get("/playlist?list=#{plid}&hl=en")
   if response.status_code != 200
     if response.headers["location"]?.try &.includes? "/sorry/index"
-      raise "Could not extract playlist info. Instance is likely blocked."
+      raise InfoException.new("Could not extract playlist info. Instance is likely blocked.")
     else
-      raise translate(locale, "Not a playlist.")
+      raise InfoException.new("Not a playlist.")
     end
   end
 
   initial_data = extract_initial_data(response.body)
   playlist_info = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?.try &.[0]["playlistSidebarPrimaryInfoRenderer"]?
 
-  raise "Could not extract playlist info" if !playlist_info
+  raise InfoException.new("Could not extract playlist info") if !playlist_info
   title = playlist_info["title"]?.try &.["runs"][0]?.try &.["text"]?.try &.as_s || ""
 
   desc_item = playlist_info["description"]?
@@ -390,7 +390,7 @@ def fetch_playlist(plid, locale)
   author_info = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?.try &.[1]["playlistSidebarSecondaryInfoRenderer"]?
     .try &.["videoOwner"]["videoOwnerRenderer"]?
 
-  raise "Could not extract author info" if !author_info
+  raise InfoException.new("Could not extract author info") if !author_info
 
   author_thumbnail = author_info["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s || ""
   author = author_info["title"]["runs"][0]["text"]?.try &.as_s || ""

@@ -92,7 +92,7 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
   response = JSON.parse(response.body)
 
   if !response["response"]["continuationContents"]?
-    raise translate(locale, "Could not fetch comments")
+    raise InfoException.new("Could not fetch comments")
   end
 
   response = response["response"]["continuationContents"]
@@ -266,7 +266,7 @@ def fetch_reddit_comments(id, sort_by = "confidence")
 
     thread = result[0].data.as(RedditListing).children[0].data.as(RedditLink)
   else
-    raise "Got error code #{search_results.status_code}"
+    raise InfoException.new("Could not fetch comments")
   end
 
   comments = result[1].data.as(RedditListing).children

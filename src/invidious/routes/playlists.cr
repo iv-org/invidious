@@ -56,26 +56,21 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     begin
       validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
     rescue ex
-      error_message = ex.message
-      env.response.status_code = 400
-      return templated "error"
+      return error_template(400, ex)
     end
 
     title = env.params.body["title"]?.try &.as(String)
     if !title || title.empty?
-      error_message = "Title cannot be empty."
-      return templated "error"
+      return error_template(400, "Title cannot be empty.")
     end
 
     privacy = PlaylistPrivacy.parse?(env.params.body["privacy"]?.try &.as(String) || "")
     if !privacy
-      error_message = "Invalid privacy setting."
-      return templated "error"
+      return error_template(400, "Invalid privacy setting.")
     end
 
     if PG_DB.query_one("SELECT count(*) FROM playlists WHERE author = $1", user.email, as: Int64) >= 100
-      error_message = "User cannot have more than 100 playlists."
-      return templated "error"
+      return error_template(400, "User cannot have more than 100 playlists.")
     end
 
     playlist = create_playlist(PG_DB, title, privacy, user)
@@ -142,9 +137,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     begin
       validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
     rescue ex
-      error_message = ex.message
-      env.response.status_code = 400
-      return templated "error"
+      return error_template(400, ex)
     end
 
     playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
@@ -217,9 +210,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     begin
       validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
     rescue ex
-      error_message = ex.message
-      env.response.status_code = 400
-      return templated "error"
+      return error_template(400, ex)
     end
 
     playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
@@ -306,9 +297,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
       if redirect
         return env.redirect referer
       else
-        error_message = {"error" => "No such user"}.to_json
-        env.response.status_code = 403
-        return error_message
+        return error_json(403, "No such user")
       end
     end
 
@@ -320,13 +309,9 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
       validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
     rescue ex
       if redirect
-        error_message = ex.message
-        env.response.status_code = 400
-        return templated "error"
+        return error_template(400, ex)
       else
-        error_message = {"error" => ex.message}.to_json
-        env.response.status_code = 400
-        return error_message
+        return error_json(400, ex)
       end
     end
 
@@ -353,13 +338,9 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
       raise "Invalid user" if playlist.author != user.email
     rescue ex
       if redirect
-        error_message = ex.message
-        env.response.status_code = 400
-        return templated "error"
+        return error_template(400, ex)
       else
-        error_message = {"error" => ex.message}.to_json
-        env.response.status_code = 400
-        return error_message
+        return error_json(400, ex)
       end
     end
 
@@ -374,13 +355,10 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
       # TODO: Playlist stub
     when "action_add_video"
       if playlist.index.size >= 500
-        env.response.status_code = 400
         if redirect
-          error_message = "Playlist cannot have more than 500 videos"
-          return templated "error"
+          return error_template(400, "Playlist cannot have more than 500 videos")
         else
-          error_message = {"error" => "Playlist cannot have more than 500 videos"}.to_json
-          return error_message
+          return error_json(400, "Playlist cannot have more than 500 videos")
         end
       end
 
@@ -389,13 +367,10 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
       begin
         video = get_video(video_id, PG_DB)
       rescue ex
-        env.response.status_code = 500
         if redirect
-          error_message = ex.message
-          return templated "error"
+          return error_template(500, ex)
         else
-          error_message = {"error" => ex.message}.to_json
-          return error_message
+          return error_json(500, ex)
         end
       end
 
@@ -423,9 +398,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     when "action_move_video_before"
       # TODO: Playlist stub
     else
-      error_message = {"error" => "Unsupported action #{action}"}.to_json
-      env.response.status_code = 400
-      return error_message
+      return error_json(400, "Unsupported action #{action}")
     end
 
     if redirect
@@ -457,15 +430,11 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     begin
       playlist = get_playlist(PG_DB, plid, locale)
     rescue ex
-      error_message = ex.message
-      env.response.status_code = 500
-      return templated "error"
+      return error_template(500, ex)
     end
 
     if playlist.privacy == PlaylistPrivacy::Private && playlist.author != user.try &.email
-      error_message = "This playlist is private."
-      env.response.status_code = 403
-      return templated "error"
+      return error_template(403, "This playlist is private.")
     end
 
     begin
@@ -495,9 +464,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     begin
       mix = fetch_mix(rdid, continuation, locale: locale)
     rescue ex
-      error_message = ex.message
-      env.response.status_code = 500
-      return templated "error"
+      return error_template(500, ex)
     end
 
     templated "mix"

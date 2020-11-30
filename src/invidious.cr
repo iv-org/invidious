@@ -367,9 +367,7 @@ get "/search" do |env|
   begin
     search_query, count, videos = process_search_query(query, page, user, region: nil)
   rescue ex
-    error_message = ex.message
-    env.response.status_code = 500
-    next templated "error"
+    next error_template(500, ex)
   end
 
   env.set "search", query
@@ -387,9 +385,7 @@ get "/login" do |env|
   end
 
   if !config.login_enabled
-    error_message = "Login has been disabled by administrator."
-    env.response.status_code = 400
-    next templated "error"
+    next error_template(400, "Login has been disabled by administrator.")
   end
 
   referer = get_referer(env, "/feed/subscriptions")
@@ -416,9 +412,7 @@ post "/login" do |env|
   referer = get_referer(env, "/feed/subscriptions")
 
   if !config.login_enabled
-    error_message = "Login has been disabled by administrator."
-    env.response.status_code = 403
-    next templated "error"
+    next error_template(403, "Login has been disabled by administrator.")
   end
 
   # https://stackoverflow.com/a/574698
@@ -499,9 +493,7 @@ post "/login" do |env|
       headers["Cookie"] = URI.decode_www_form(headers["Cookie"])
 
       if challenge_results[0][3]?.try &.== 7
-        error_message = translate(locale, "Account has temporarily been disabled")
-        env.response.status_code = 423
-        next templated "error"
+        next error_template(423, "Account has temporarily been disabled")
       end
 
       if token = challenge_results[0][-1]?.try &.[-1]?.try &.as_h?.try &.["5001"]?.try &.[-1].as_a?.try &.[-1].as_s
@@ -515,9 +507,7 @@ post "/login" do |env|
       end
 
       if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
-        error_message = translate(locale, "Incorrect password")
-        env.response.status_code = 401
-        next templated "error"
+        next error_template(401, "Incorrect password")
       end
 
       prompt_type = challenge_results[0][-1]?.try &.[0].as_a?.try &.[0][2]?
@@ -550,9 +540,7 @@ post "/login" do |env|
         end
 
         if tfa[5] == "QUOTA_EXCEEDED"
-          error_message = translate(locale, "Quota exceeded, try again in a few hours")
-          env.response.status_code = 423
-          next templated "error"
+          next error_template(423, "Quota exceeded, try again in a few hours")
         end
 
         if !tfa_code
@@ -608,9 +596,7 @@ post "/login" do |env|
             },
           }.to_json
         else
-          error_message = translate(locale, "Unable to log in, make sure two-factor authentication (Authenticator or SMS) is turned on.")
-          env.response.status_code = 500
-          next templated "error"
+          next error_template(500, "Unable to log in, make sure two-factor authentication (Authenticator or SMS) is turned on.")
         end
 
         traceback << "Submitting challenge..."
@@ -621,9 +607,7 @@ post "/login" do |env|
 
         if (challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED") ||
            (challenge_results[0][-1]?.try &.[5] == "INVALID_INPUT")
-          error_message = translate(locale, "Invalid TFA code")
-          env.response.status_code = 401
-          next templated "error"
+          next error_template(401, "Invalid TFA code")
         end
 
         traceback << "done.<br/>"
@@ -702,29 +686,22 @@ post "/login" do |env|
       traceback.rewind
       # error_message = translate(locale, "Login failed. This may be because two-factor authentication is not turned on for your account.")
       error_message = %(#{ex.message}<br/>Traceback:<br/><div style="padding-left:2em" id="traceback">#{traceback.gets_to_end}</div>)
-      env.response.status_code = 500
-      next templated "error"
+      next error_template(500, error_message)
     end
   when "invidious"
     if !email
-      error_message = translate(locale, "User ID is a required field")
-      env.response.status_code = 401
-      next templated "error"
+      next error_template(401, "User ID is a required field")
     end
 
     if !password
-      error_message = translate(locale, "Password is a required field")
-      env.response.status_code = 401
-      next templated "error"
+      next error_template(401, "Password is a required field")
     end
 
     user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1", email, as: User)
 
     if user
       if !user.password
-        error_message = translate(locale, "Please sign in using 'Log in with Google'")
-        env.response.status_code = 400
-        next templated "error"
+        next error_template(400, "Please sign in using 'Log in with Google'")
       end
 
       if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
@@ -745,9 +722,7 @@ post "/login" do |env|
             secure: secure, http_only: true)
         end
       else
-        error_message = translate(locale, "Wrong username or password")
-        env.response.status_code = 401
-        next templated "error"
+        next error_template(401, "Wrong username or password")
       end
 
       # Since this user has already registered, we don't want to overwrite their preferences
@@ -758,22 +733,16 @@ post "/login" do |env|
       end
     else
       if !config.registration_enabled
-        error_message = "Registration has been disabled by administrator."
-        env.response.status_code = 400
-        next templated "error"
+        next error_template(400, "Registration has been disabled by administrator.")
       end
 
       if password.empty?
-        error_message = translate(locale, "Password cannot be empty")
-        env.response.status_code = 401
-        next templated "error"
+        next error_template(401, "Password cannot be empty")
       end
 
       # See https://security.stackexchange.com/a/39851
       if password.bytesize > 55
-        error_message = translate(locale, "Password should not be longer than 55 characters")
-        env.response.status_code = 400
-        next templated "error"
+        next error_template(400, "Password cannot be longer than 55 characters")
       end
 
       password = password.byte_slice(0, 55)
@@ -815,28 +784,28 @@ post "/login" do |env|
           begin
             validate_request(tokens[0], answer, env.request, HMAC_KEY, PG_DB, locale)
           rescue ex
-            error_message = ex.message
-            env.response.status_code = 400
-            next templated "error"
+            next error_template(400, ex)
           end
         else # "text"
           answer = Digest::MD5.hexdigest(answer.downcase.strip)
 
-          found_valid_captcha = false
+          if tokens.empty?
+            next error_template(500, "Erroneous CAPTCHA")
+          end
 
-          error_message = translate(locale, "Erroneous CAPTCHA")
+          found_valid_captcha = false
+          error_exception = Exception.new
           tokens.each_with_index do |token, i|
             begin
               validate_request(token, answer, env.request, HMAC_KEY, PG_DB, locale)
               found_valid_captcha = true
             rescue ex
-              error_message = ex.message
+              error_exception = ex
             end
           end
 
           if !found_valid_captcha
-            env.response.status_code = 500
-            next templated "error"
+            next error_template(500, error_exception)
           end
         end
       end
@@ -902,9 +871,7 @@ post "/signout" do |env|
   begin
     validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
   rescue ex
-    error_message = ex.message
-    env.response.status_code = 400
-    next templated "error"
+    next error_template(400, ex)
   end
 
   PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", sid)
@@ -1182,9 +1149,7 @@ post "/watch_ajax" do |env|
     if redirect
       next env.redirect referer
     else
-      error_message = {"error" => "No such user"}.to_json
-      env.response.status_code = 403
-      next error_message
+      next error_json(403, "No such user")
     end
   end
 
@@ -1201,13 +1166,10 @@ post "/watch_ajax" do |env|
   begin
     validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
   rescue ex
-    env.response.status_code = 400
     if redirect
-      error_message = ex.message
-      next templated "error"
+      next error_template(400, ex)
     else
-      error_message = {"error" => ex.message}.to_json
-      next error_message
+      next error_json(400, ex)
     end
   end
 
@@ -1227,9 +1189,7 @@ post "/watch_ajax" do |env|
   when "action_mark_unwatched"
     PG_DB.exec("UPDATE users SET watched = array_remove(watched, $1) WHERE email = $2", id, user.email)
   else
-    error_message = {"error" => "Unsupported action #{action}"}.to_json
-    env.response.status_code = 400
-    next error_message
+    next error_json(400, "Unsupported action #{action}")
   end
 
   if redirect
@@ -1259,9 +1219,7 @@ get "/modify_notifications" do |env|
     if redirect
       next env.redirect referer
     else
-      error_message = {"error" => "No such user"}.to_json
-      env.response.status_code = 403
-      next error_message
+      next error_json(403, "No such user")
     end
   end
 
@@ -1334,9 +1292,7 @@ post "/subscription_ajax" do |env|
     if redirect
       next env.redirect referer
     else
-      error_message = {"error" => "No such user"}.to_json
-      env.response.status_code = 403
-      next error_message
+      next error_json(403, "No such user")
     end
   end
 
@@ -1348,13 +1304,9 @@ post "/subscription_ajax" do |env|
     validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
   rescue ex
     if redirect
-      error_message = ex.message
-      env.response.status_code = 400
-      next templated "error"
+      next error_template(400, ex)
     else
-      error_message = {"error" => ex.message}.to_json
-      env.response.status_code = 400
-      next error_message
+      next error_json(400, ex)
     end
   end
 
@@ -1384,9 +1336,7 @@ post "/subscription_ajax" do |env|
   when "action_remove_subscriptions"
     PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_remove(subscriptions, $1) WHERE email = $2", channel_id, email)
   else
-    error_message = {"error" => "Unsupported action #{action}"}.to_json
-    env.response.status_code = 400
-    next error_message
+    next error_json(400, "Unsupported action #{action}")
   end
 
   if redirect
@@ -1569,7 +1519,7 @@ post "/data_control" do |env|
             PG_DB.exec("UPDATE playlists SET description = $1 WHERE id = $2", description, playlist.id)
 
             videos = item["videos"]?.try &.as_a?.try &.each_with_index do |video_id, idx|
-              raise "Playlist cannot have more than 500 videos" if idx > 500
+              raise InfoException.new("Playlist cannot have more than 500 videos") if idx > 500
 
               video_id = video_id.try &.as_s?
               next if !video_id
@@ -1706,51 +1656,37 @@ post "/change_password" do |env|
 
   # We don't store passwords for Google accounts
   if !user.password
-    error_message = "Cannot change password for Google accounts"
-    env.response.status_code = 400
-    next templated "error"
+    next error_template(400, "Cannot change password for Google accounts")
   end
 
   begin
     validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
   rescue ex
-    error_message = ex.message
-    env.response.status_code = 400
-    next templated "error"
+    next error_template(400, ex)
   end
 
   password = env.params.body["password"]?
   if !password
-    error_message = translate(locale, "Password is a required field")
-    env.response.status_code = 401
-    next templated "error"
+    next error_template(401, "Password is a required field")
   end
 
   new_passwords = env.params.body.select { |k, v| k.match(/^new_password\[\d+\]$/) }.map { |k, v| v }
 
   if new_passwords.size <= 1 || new_passwords.uniq.size != 1
-    error_message = translate(locale, "New passwords must match")
-    env.response.status_code = 400
-    next templated "error"
+    next error_template(400, "New passwords must match")
   end
 
   new_password = new_passwords.uniq[0]
   if new_password.empty?
-    error_message = translate(locale, "Password cannot be empty")
-    env.response.status_code = 401
-    next templated "error"
+    next error_template(401, "Password cannot be empty")
   end
 
   if new_password.bytesize > 55
-    error_message = translate(locale, "Password should not be longer than 55 characters")
-    env.response.status_code = 400
-    next templated "error"
+    next error_template(400, "Password cannot be longer than 55 characters")
   end
 
   if !Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
-    error_message = translate(locale, "Incorrect password")
-    env.response.status_code = 401
-    next templated "error"
+    next error_template(401, "Incorrect password")
   end
 
   new_password = Crypto::Bcrypt::Password.create(new_password, cost: 10)
@@ -1795,9 +1731,7 @@ post "/delete_account" do |env|
   begin
     validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
   rescue ex
-    error_message = ex.message
-    env.response.status_code = 400
-    next templated "error"
+    next error_template(400, ex)
   end
 
   view_name = "subscriptions_#{sha256(user.email)}"
@@ -1849,9 +1783,7 @@ post "/clear_watch_history" do |env|
   begin
     validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
   rescue ex
-    error_message = ex.message
-    env.response.status_code = 400
-    next templated "error"
+    next error_template(400, ex)
   end
 
   PG_DB.exec("UPDATE users SET watched = '{}' WHERE email = $1", user.email)
@@ -1904,9 +1836,7 @@ post "/authorize_token" do |env|
   begin
     validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
   rescue ex
-    error_message = ex.message
-    env.response.status_code = 400
-    next templated "error"
+    next error_template(400, ex)
   end
 
   scopes = env.params.body.select { |k, v| k.match(/^scopes\[\d+\]$/) }.map { |k, v| v }
@@ -1969,9 +1899,7 @@ post "/token_ajax" do |env|
     if redirect
       next env.redirect referer
     else
-      error_message = {"error" => "No such user"}.to_json
-      env.response.status_code = 403
-      next error_message
+      next error_json(403, "No such user")
     end
   end
 
@@ -1983,13 +1911,9 @@ post "/token_ajax" do |env|
     validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
   rescue ex
     if redirect
-      error_message = ex.message
-      env.response.status_code = 400
-      next templated "error"
+      next error_template(400, ex)
     else
-      error_message = {"error" => ex.message}.to_json
-      env.response.status_code = 400
-      next error_message
+      next error_json(400, ex)
     end
   end
 
@@ -2006,9 +1930,7 @@ post "/token_ajax" do |env|
   when .starts_with? "action_revoke_token"
     PG_DB.exec("DELETE FROM session_ids * WHERE id = $1 AND email = $2", session, user.email)
   else
-    error_message = {"error" => "Unsupported action #{action}"}.to_json
-    env.response.status_code = 400
-    next error_message
+    next error_json(400, "Unsupported action #{action}")
   end
 
   if redirect
@@ -2048,9 +1970,7 @@ get "/feed/trending" do |env|
   begin
     trending, plid = fetch_trending(trending_type, region, locale)
   rescue ex
-    error_message = "#{ex.message}"
-    env.response.status_code = 500
-    next templated "error"
+    next error_template(500, ex)
   end
 
   templated "trending"
@@ -2145,9 +2065,7 @@ get "/feed/channel/:ucid" do |env|
   rescue ex : ChannelRedirect
     next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
-    error_message = ex.message
-    env.response.status_code = 500
-    next error_message
+    next error_atom(500, ex)
   end
 
   response = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{channel.ucid}")
@@ -2558,9 +2476,7 @@ get "/channel/:ucid" do |env|
   rescue ex : ChannelRedirect
     next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
-    error_message = ex.message
-    env.response.status_code = 500
-    next templated "error"
+    next error_template(500, ex)
   end
 
   if channel.auto_generated
@@ -2627,9 +2543,7 @@ get "/channel/:ucid/playlists" do |env|
   rescue ex : ChannelRedirect
     next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
-    error_message = ex.message
-    env.response.status_code = 500
-    next templated "error"
+    next error_template(500, ex)
   end
 
   if channel.auto_generated
@@ -2667,9 +2581,7 @@ get "/channel/:ucid/community" do |env|
   rescue ex : ChannelRedirect
     next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
   rescue ex
-    error_message = ex.message
-    env.response.status_code = 500
-    next templated "error"
+    next error_template(500, ex)
   end
 
   if !channel.tabs.includes? "community"
@@ -2678,9 +2590,11 @@ get "/channel/:ucid/community" do |env|
 
   begin
     items = JSON.parse(fetch_channel_community(ucid, continuation, locale, "json", thin_mode))
-  rescue ex
+  rescue ex : InfoException
     env.response.status_code = 500
     error_message = ex.message
+  rescue ex
+    next error_template(500, ex)
   end
 
   env.set "search", "channel:#{channel.ucid} "
@@ -2690,12 +2604,11 @@ end
 # API Endpoints
 
 get "/api/v1/stats" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   env.response.content_type = "application/json"
 
   if !config.statistics_enabled
-    error_message = {"error" => "Statistics are not enabled."}.to_json
-    env.response.status_code = 400
-    next error_message
+    next error_json(400, "Statistics are not enabled.")
   end
 
   Invidious::Jobs::StatisticsRefreshJob::STATISTICS.to_json
@@ -2715,10 +2628,8 @@ get "/api/v1/storyboards/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    error_message = {"error" => "Video is unavailable", "videoId" => ex.video_id}.to_json
-    env.response.status_code = 302
     env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
-    next error_message
+    next error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
   rescue ex
     env.response.status_code = 500
     next
@@ -2803,10 +2714,8 @@ get "/api/v1/captions/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    error_message = {"error" => "Video is unavailable", "videoId" => ex.video_id}.to_json
-    env.response.status_code = 302
     env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
-    next error_message
+    next error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
   rescue ex
     env.response.status_code = 500
     next
@@ -2938,9 +2847,7 @@ get "/api/v1/comments/:id" do |env|
     begin
       comments = fetch_youtube_comments(id, PG_DB, continuation, format, locale, thin_mode, region, sort_by: sort_by)
     rescue ex
-      error_message = {"error" => ex.message}.to_json
-      env.response.status_code = 500
-      next error_message
+      next error_json(500, ex)
     end
 
     next comments
@@ -2983,13 +2890,7 @@ end
 
 get "/api/v1/insights/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  id = env.params.url["id"]
-  env.response.content_type = "application/json"
-
-  error_message = {"error" => "YouTube has removed publicly available analytics."}.to_json
-  env.response.status_code = 410
-  error_message
+  next error_json(410, "YouTube has removed publicly available analytics.")
 end
 
 get "/api/v1/annotations/:id" do |env|
@@ -3078,14 +2979,10 @@ get "/api/v1/videos/:id" do |env|
   begin
     video = get_video(id, PG_DB, region: region)
   rescue ex : VideoRedirect
-    error_message = {"error" => "Video is unavailable", "videoId" => ex.video_id}.to_json
-    env.response.status_code = 302
     env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
-    next error_message
+    next error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
   rescue ex
-    error_message = {"error" => ex.message}.to_json
-    env.response.status_code = 500
-    next error_message
+    next error_json(500, ex)
   end
 
   video.to_json(locale)
@@ -3102,9 +2999,7 @@ get "/api/v1/trending" do |env|
   begin
     trending, plid = fetch_trending(trending_type, region, locale)
   rescue ex
-    error_message = {"error" => ex.message}.to_json
-    env.response.status_code = 500
-    next error_message
+    next error_json(500, ex)
   end
 
   videos = JSON.build do |json|
@@ -3151,14 +3046,10 @@ get "/api/v1/channels/:ucid" do |env|
   begin
     channel = get_about_info(ucid, locale)
   rescue ex : ChannelRedirect
-    error_message = {"error" => "Channel is unavailable", "authorId" => ex.channel_id}.to_json
-    env.response.status_code = 302
     env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
-    next error_message
+    next error_json(302, "Channel is unavailable", {"authorId" => ex.channel_id})
   rescue ex
-    error_message = {"error" => ex.message}.to_json
-    env.response.status_code = 500
-    next error_message
+    next error_json(500, ex)
   end
 
   page = 1
@@ -3169,9 +3060,7 @@ get "/api/v1/channels/:ucid" do |env|
     begin
       count, videos = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
     rescue ex
-      error_message = {"error" => ex.message}.to_json
-      env.response.status_code = 500
-      next error_message
+      next error_json(500, ex)
     end
   end
 
@@ -3286,22 +3175,16 @@ end
     begin
       channel = get_about_info(ucid, locale)
     rescue ex : ChannelRedirect
-      error_message = {"error" => "Channel is unavailable", "authorId" => ex.channel_id}.to_json
-      env.response.status_code = 302
       env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
-      next error_message
+      next error_json(302, "Channel is unavailable", {"authorId" => ex.channel_id})
     rescue ex
-      error_message = {"error" => ex.message}.to_json
-      env.response.status_code = 500
-      next error_message
+      next error_json(500, ex)
     end
 
     begin
       count, videos = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
     rescue ex
-      error_message = {"error" => ex.message}.to_json
-      env.response.status_code = 500
-      next error_message
+      next error_json(500, ex)
     end
 
     JSON.build do |json|
@@ -3325,9 +3208,7 @@ end
     begin
       videos = get_latest_videos(ucid)
     rescue ex
-      error_message = {"error" => ex.message}.to_json
-      env.response.status_code = 500
-      next error_message
+      next error_json(500, ex)
     end
 
     JSON.build do |json|
@@ -3355,14 +3236,10 @@ end
     begin
       channel = get_about_info(ucid, locale)
     rescue ex : ChannelRedirect
-      error_message = {"error" => "Channel is unavailable", "authorId" => ex.channel_id}.to_json
-      env.response.status_code = 302
       env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
-      next error_message
+      next error_json(302, "Channel is unavailable", {"authorId" => ex.channel_id})
     rescue ex
-      error_message = {"error" => ex.message}.to_json
-      env.response.status_code = 500
-      next error_message
+      next error_json(500, ex)
     end
 
     items, continuation = fetch_channel_playlists(channel.ucid, channel.author, channel.auto_generated, continuation, sort_by)
@@ -3403,9 +3280,7 @@ end
     begin
       fetch_channel_community(ucid, continuation, locale, format, thin_mode)
     rescue ex
-      env.response.status_code = 400
-      error_message = {"error" => ex.message}.to_json
-      next error_message
+      next error_json(500, ex)
     end
   end
 end
@@ -3463,9 +3338,7 @@ get "/api/v1/search" do |env|
   begin
     search_params = produce_search_params(sort_by, date, content_type, duration, features)
   rescue ex
-    env.response.status_code = 400
-    error_message = {"error" => ex.message}.to_json
-    next error_message
+    next error_json(400, ex)
   end
 
   count, search_results = search(query, page, search_params, region).as(Tuple)
@@ -3508,9 +3381,7 @@ get "/api/v1/search/suggestions" do |env|
       end
     end
   rescue ex
-    env.response.status_code = 500
-    error_message = {"error" => ex.message}.to_json
-    next error_message
+    next error_json(500, ex)
   end
 end
 
@@ -3537,16 +3408,12 @@ end
     begin
       playlist = get_playlist(PG_DB, plid, locale)
     rescue ex
-      env.response.status_code = 404
-      error_message = {"error" => "Playlist does not exist."}.to_json
-      next error_message
+      next error_json(404, "Playlist does not exist.")
     end
 
     user = env.get?("user").try &.as(User)
     if !playlist || playlist.privacy.private? && playlist.author != user.try &.email
-      env.response.status_code = 404
-      error_message = {"error" => "Playlist does not exist."}.to_json
-      next error_message
+      next error_json(404, "Playlist does not exist.")
     end
 
     response = playlist.to_json(offset, locale, continuation: continuation)
@@ -3590,9 +3457,7 @@ get "/api/v1/mixes/:rdid" do |env|
 
     mix.videos = mix.videos[index..-1]
   rescue ex
-    error_message = {"error" => ex.message}.to_json
-    env.response.status_code = 500
-    next error_message
+    next error_json(500, ex)
   end
 
   response = JSON.build do |json|
@@ -3794,22 +3659,16 @@ post "/api/v1/auth/playlists" do |env|
 
   title = env.params.json["title"]?.try &.as(String).delete("<>").byte_slice(0, 150)
   if !title
-    error_message = {"error" => "Invalid title."}.to_json
-    env.response.status_code = 400
-    next error_message
+    next error_json(400, "Invalid title.")
   end
 
   privacy = env.params.json["privacy"]?.try { |privacy| PlaylistPrivacy.parse(privacy.as(String).downcase) }
   if !privacy
-    error_message = {"error" => "Invalid privacy setting."}.to_json
-    env.response.status_code = 400
-    next error_message
+    next error_json(400, "Invalid privacy setting.")
   end
 
   if PG_DB.query_one("SELECT count(*) FROM playlists WHERE author = $1", user.email, as: Int64) >= 100
-    error_message = {"error" => "User cannot have more than 100 playlists."}.to_json
-    env.response.status_code = 400
-    next error_message
+    next error_json(400, "User cannot have more than 100 playlists.")
   end
 
   playlist = create_playlist(PG_DB, title, privacy, user)
@@ -3831,15 +3690,11 @@ patch "/api/v1/auth/playlists/:plid" do |env|
 
   playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
   if !playlist || playlist.author != user.email && playlist.privacy.private?
-    env.response.status_code = 404
-    error_message = {"error" => "Playlist does not exist."}.to_json
-    next error_message
+    next error_json(404, "Playlist does not exist.")
   end
 
   if playlist.author != user.email
-    env.response.status_code = 403
-    error_message = {"error" => "Invalid user"}.to_json
-    next error_message
+    next error_json(403, "Invalid user")
   end
 
   title = env.params.json["title"].try &.as(String).delete("<>").byte_slice(0, 150) || playlist.title
@@ -3859,6 +3714,8 @@ patch "/api/v1/auth/playlists/:plid" do |env|
 end
 
 delete "/api/v1/auth/playlists/:plid" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
   env.response.content_type = "application/json"
   user = env.get("user").as(User)
 
@@ -3866,15 +3723,11 @@ delete "/api/v1/auth/playlists/:plid" do |env|
 
   playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
   if !playlist || playlist.author != user.email && playlist.privacy.private?
-    env.response.status_code = 404
-    error_message = {"error" => "Playlist does not exist."}.to_json
-    next error_message
+    next error_json(404, "Playlist does not exist.")
   end
 
   if playlist.author != user.email
-    env.response.status_code = 403
-    error_message = {"error" => "Invalid user"}.to_json
-    next error_message
+    next error_json(403, "Invalid user")
   end
 
   PG_DB.exec("DELETE FROM playlist_videos * WHERE plid = $1", plid)
@@ -3893,36 +3746,26 @@ post "/api/v1/auth/playlists/:plid/videos" do |env|
 
   playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
   if !playlist || playlist.author != user.email && playlist.privacy.private?
-    env.response.status_code = 404
-    error_message = {"error" => "Playlist does not exist."}.to_json
-    next error_message
+    next error_json(404, "Playlist does not exist.")
   end
 
   if playlist.author != user.email
-    env.response.status_code = 403
-    error_message = {"error" => "Invalid user"}.to_json
-    next error_message
+    next error_json(403, "Invalid user")
   end
 
   if playlist.index.size >= 500
-    env.response.status_code = 400
-    error_message = {"error" => "Playlist cannot have more than 500 videos"}.to_json
-    next error_message
+    next error_json(400, "Playlist cannot have more than 500 videos")
   end
 
   video_id = env.params.json["videoId"].try &.as(String)
   if !video_id
-    env.response.status_code = 403
-    error_message = {"error" => "Invalid videoId"}.to_json
-    next error_message
+    next error_json(403, "Invalid videoId")
   end
 
   begin
     video = get_video(video_id, PG_DB)
   rescue ex
-    error_message = {"error" => ex.message}.to_json
-    env.response.status_code = 500
-    next error_message
+    next error_json(500, ex)
   end
 
   playlist_video = PlaylistVideo.new({
@@ -3949,6 +3792,8 @@ post "/api/v1/auth/playlists/:plid/videos" do |env|
 end
 
 delete "/api/v1/auth/playlists/:plid/videos/:index" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
   env.response.content_type = "application/json"
   user = env.get("user").as(User)
 
@@ -3957,21 +3802,15 @@ delete "/api/v1/auth/playlists/:plid/videos/:index" do |env|
 
   playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
   if !playlist || playlist.author != user.email && playlist.privacy.private?
-    env.response.status_code = 404
-    error_message = {"error" => "Playlist does not exist."}.to_json
-    next error_message
+    next error_json(404, "Playlist does not exist.")
   end
 
   if playlist.author != user.email
-    env.response.status_code = 403
-    error_message = {"error" => "Invalid user"}.to_json
-    next error_message
+    next error_json(403, "Invalid user")
   end
 
   if !playlist.index.includes? index
-    env.response.status_code = 404
-    error_message = {"error" => "Playlist does not contain index"}.to_json
-    next error_message
+    next error_json(404, "Playlist does not contain index")
   end
 
   PG_DB.exec("DELETE FROM playlist_videos * WHERE index = $1", index)
@@ -4017,9 +3856,7 @@ post "/api/v1/auth/tokens/register" do |env|
     callback_url = env.params.json["callbackUrl"]?.try &.as(String)
     expire = env.params.json["expire"]?.try &.as(Int64)
   else
-    error_message = {"error" => "Invalid or missing header 'Content-Type'"}.to_json
-    env.response.status_code = 400
-    next error_message
+    next error_json(400, "Invalid or missing header 'Content-Type'")
   end
 
   if callback_url && callback_url.empty?
@@ -4069,6 +3906,7 @@ post "/api/v1/auth/tokens/register" do |env|
 end
 
 post "/api/v1/auth/tokens/unregister" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   env.response.content_type = "application/json"
   user = env.get("user").as(User)
   scopes = env.get("scopes").as(Array(String))
@@ -4082,9 +3920,7 @@ post "/api/v1/auth/tokens/unregister" do |env|
   elsif scopes_include_scope(scopes, "GET:tokens")
     PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", session)
   else
-    error_message = {"error" => "Cannot revoke session #{session}"}.to_json
-    env.response.status_code = 400
-    next error_message
+    next error_json(400, "Cannot revoke session #{session}")
   end
 
   env.response.status_code = 204
@@ -4408,6 +4244,7 @@ get "/videoplayback/*" do |env|
 end
 
 get "/videoplayback" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   query_params = env.params.query
 
   fvip = query_params["fvip"]? || "3"
@@ -4474,9 +4311,7 @@ get "/videoplayback" do |env|
 
   if url.includes? "&file=seg.ts"
     if CONFIG.disabled?("livestreams")
-      env.response.status_code = 403
-      error_message = "Administrator has disabled this endpoint."
-      next templated "error"
+      next error_template(403, "Administrator has disabled this endpoint.")
     end
 
     begin
@@ -4508,9 +4343,7 @@ get "/videoplayback" do |env|
   else
     if query_params["title"]? && CONFIG.disabled?("downloads") ||
        CONFIG.disabled?("dash")
-      env.response.status_code = 403
-      error_message = "Administrator has disabled this endpoint."
-      next templated "error"
+      next error_template(403, "Administrator has disabled this endpoint.")
     end
 
     content_length = nil
@@ -4851,14 +4684,9 @@ error 404 do |env|
   halt env, status_code: 302
 end
 
-error 500 do |env|
-  error_message = <<-END_HTML
-  Looks like you've found a bug in Invidious. Feel free to open a new issue
-  <a href="https://github.com/iv-org/invidious/issues">here</a>
-  or send an email to
-  <a href="mailto:#{CONFIG.admin_email}">#{CONFIG.admin_email}</a>.
-  END_HTML
-  templated "error"
+error 500 do |env, ex|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  error_template(500, ex)
 end
 
 static_headers do |response, filepath, filestat|
