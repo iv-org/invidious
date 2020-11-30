@@ -6,7 +6,7 @@
 
 ## Invidious instances:
 
-[Public Invidious instances are listed here.](https://github.com/iv-org/invidious/wiki/Invidious-Instances)
+[Public Invidious instances are listed here.](https://github.com/iv-org/documentation/blob/master/Invidious-Instances.md)
 
 ## Invidious features:
 
@@ -24,7 +24,7 @@
 - Set default player options (speed, quality, autoplay, loop)
 - Support for Reddit comments in place of YouTube comments
 - Import/Export subscriptions, watch history, preferences
-- [Developer API](https://github.com/iv-org/invidious/wiki/API)
+- [Developer API](https://github.com/iv-org/documentation/blob/master/API.md)
 - Does not use any of the official YouTube APIs
 - Does not require JavaScript to play videos
 - No need to create a Google account to save subscriptions
@@ -185,7 +185,7 @@ $ crystal build src/invidious.cr --release
 
 ## Post-install configuration:
 
-Detailed configuration available in the [configuration guide](https://github.com/iv-org/invidious/wiki/Configuration).
+Detailed configuration available in the [configuration guide](https://github.com/iv-org/documentation/blob/master/Configuration.md).
 
 If you use a reverse proxy, you **must** configure invidious to properly serve request through it:
 
@@ -197,7 +197,7 @@ If you use a reverse proxy, you **must** configure invidious to properly serve r
 
 ## Update Invidious
 
-Instructions are available in the [updating guide](https://github.com/iv-org/invidious/wiki/Updating).
+Instructions are available in the [updating guide](https://github.com/iv-org/documentation/blob/master/Updating.md).
 
 ## Usage:
 
@@ -228,11 +228,11 @@ $ ./sentry
 
 ## Documentation
 
-[Documentation](https://github.com/iv-org/invidious/wiki) can be found in the wiki.
+The [documentation](https://github.com/iv-org/documentation) can be found in its own repository.
 
 ## Extensions
 
-[Extensions](https://github.com/iv-org/invidious/wiki/Extensions) can be found in the wiki, as well as documentation for integrating it into other projects.
+[Extensions](https://github.com/iv-org/documentation/blob/master/Extensions.md) can be found in the wiki, as well as documentation for integrating it into other projects.
 
 ## Made with Invidious
 
