@@ -255,10 +255,6 @@ $ ./sentry
 
 - Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/engage/invidious/).
 
-## Donate:
-
-Liberapay: https://liberapay.com/iv-org/
-
 ## Contact
 
 Feel free to join our [Matrix room](https://matrix.to/#/#invidious:matrix.org), or #invidious on freenode. Both platforms are bridged together.
