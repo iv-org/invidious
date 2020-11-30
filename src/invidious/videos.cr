@@ -998,7 +998,7 @@ def fetch_video(id, region)
     }.try { |a| JSON::Any.new(a) } || JSON::Any.new([] of JSON::Any)
   end
 
-  raise info["reason"]?.try &.as_s || "" if !info["videoDetails"]?
+  raise InfoException.new(info["reason"]?.try &.as_s || "") if !info["videoDetails"]?
 
   video = Video.new({
     id:      id,
