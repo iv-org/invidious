@@ -15,16 +15,16 @@ def error_template_helper(env : HTTP::Server::Context, config : Config, locale :
     return error_template_helper(env, config, locale, status_code, exception.message || "")
   end
   env.response.status_code = status_code
+  issue_template = %(Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`)
+  issue_template += %(\nRoute: `#{env.request.resource}`)
+  issue_template += %(\nVersion: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`)
+  #issue_template += %(\nPreferences: ```#{env.get("preferences").as(Preferences).to_json}```)
+  issue_template += %(\nBacktrace: \n```\n#{exception.inspect_with_backtrace}```)
   error_message = <<-END_HTML
-    Looks like you've found a bug in Invidious. Feel free to open a new issue
-    <a href="https://github.com/iv-org/invidious/issues">here</a>
-    or send an email to
-    <a href="mailto:#{CONFIG.admin_email}">#{CONFIG.admin_email}</a>.
-    <br>
-    <br>
-    <br>
-    Please include the following text in your message:
-    <pre style="padding: 20px; background: rgba(0, 0, 0, 0.12345);">#{exception.inspect_with_backtrace}</pre>
+    Looks like you've found a bug in Invidious. Please open a new issue
+    <a href="https://github.com/iv-org/invidious/issues">on GitHub</a>
+    and include the following text in your message:
+    <pre style="padding: 20px; background: rgba(0, 0, 0, 0.12345);">#{issue_template}</pre>
   END_HTML
   return templated "error"
 end
