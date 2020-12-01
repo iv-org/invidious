@@ -10,16 +10,29 @@ macro error_template(*args)
   error_template_helper(env, config, locale, {{*args}})
 end
 
+def github_details(summary : String, content : String)
+  details = %(\n<details>)
+  details += %(\n<summary>#{summary}</summary>)
+  details += %(\n<p>)
+  details += %(\n   \n```\n)
+  details += content.strip
+  details += %(\n```)
+  details += %(\n</p>)
+  details += %(\n</details>)
+  return HTML.escape(details)
+end
+
 def error_template_helper(env : HTTP::Server::Context, config : Config, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, exception : Exception)
   if exception.is_a?(InfoException)
     return error_template_helper(env, config, locale, status_code, exception.message || "")
   end
   env.response.status_code = status_code
-  issue_template = %(Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`)
+  issue_template = %(Title: `#{exception.message} (#{exception.class})`)
+  issue_template += %(\nDate: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`)
   issue_template += %(\nRoute: `#{env.request.resource}`)
   issue_template += %(\nVersion: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`)
-  # issue_template += %(\nPreferences: ```#{env.get("preferences").as(Preferences).to_json}```)
-  issue_template += %(\nBacktrace: \n```\n#{exception.inspect_with_backtrace}```)
+  # issue_template += github_details("Preferences", env.get("preferences").as(Preferences).to_pretty_json)
+  issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
   error_message = <<-END_HTML
     Looks like you've found a bug in Invidious. Please open a new issue
     <a href="https://github.com/iv-org/invidious/issues">on GitHub</a>
