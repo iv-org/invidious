@@ -1,0 +1,72 @@
+name: Invidious CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Install Crystal
+        uses: oprypin/install-crystal@v1.2.4
+      
+      # - name: Cache dependencies
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ./lib
+      #     key: shards-${{ hashFiles('shard.lock') }} # shard.lock isn't tracked atm
+      
+      # Docs at https://crystal-lang.org/reference/the_shards_command
+      #
+      # `shards install`
+      #
+      # Resolves and installs dependencies into the lib folder. If not already present, generates a shard.lock
+      # file from resolved dependencies, locking version numbers or Git commits.
+      # Reads and enforces locked versions and commits if a shard.lock file is present. The install command may
+      # fail if a locked version doesn't match a requirement, but may succeed if a new dependency was added, as
+      # long as it doesn't generate a conflict, thus generating a new shard.lock file.
+      #
+      # `shards update`
+      #
+      # Resolves and updates all dependencies into the lib folder again, whatever the locked versions and
+      # commits in the shard.lock file. Eventually generates a new shard.lock file.
+      #
+      # --------------------------------------------------------------------------------
+      #
+      # running either `shards install` or `shards update` without a `shard.lock` file does the same thing,
+      # downloading shards into the `lib` folder and writing a `shard.lock` file
+      #
+      # if there is a `shard.lock` file `shards install` installs the versions from the lock file while
+      # `shards update` does a `shards install` that pretends there isn't a lock file present
+      - name: Update and install shards
+        run: shards update
+      
+      - name: Run tests
+        run: crystal spec
+      
+      - name: Run lint
+        run: |
+          if ! crystal tool format --check; then
+            crystal tool format
+            exit 1
+          fi
+      
+      - name: Build
+        run: crystal build --warnings all --error-on-warnings --error-trace src/invidious.cr
+      
+  build-docker:
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Build Docker
+        run: docker-compose up -d
+      
+      - name: Test Docker
+        run: while curl -Isf http://localhost:3000; do sleep 1; done
+
