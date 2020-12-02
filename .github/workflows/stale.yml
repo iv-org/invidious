@@ -1,0 +1,22 @@
+# Documentation: https://github.com/marketplace/actions/close-stale-issues
+
+name: "Stale issue handler"
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: "0 */12 * * *"
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/stale@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        days-before-stale: 365
+        days-before-close: 30
+        stale-issue-message: 'This issue has been automatically marked as stale and will be closed in 30 days because it has not had recent activity and is much likely outdated. If you think this issue is still relevant and applicable, you just have to post a comment.'
+        stale-pr-message: 'This pull request has been automatically marked as stale and will be closed in 30 days because it has not had recent activity and is much likely outdated. If you think this pull request is still relevant and applicable, you just have to post a comment.'
+        stale-issue-label: "stale"
+        stale-pr-label: "stale"
+        ascending: true
