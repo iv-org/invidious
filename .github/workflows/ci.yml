@@ -1,6 +1,10 @@
 name: Invidious CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: "master"
+  pull_request:
+    branches: "*"
 
 jobs:
   build:
