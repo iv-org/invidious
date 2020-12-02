@@ -51,6 +51,7 @@ jobs:
         run: |
           if ! crystal tool format --check; then
             crystal tool format
+            git diff
             exit 1
           fi
       
