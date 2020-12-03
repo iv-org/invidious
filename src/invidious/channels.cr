@@ -801,6 +801,10 @@ def get_about_info(ucid, locale)
     raise InfoException.new(error_message)
   end
 
+  if browse_endpoint = initdata["onResponseReceivedActions"]?.try &.[0]?.try &.["navigateAction"]?.try &.["endpoint"]?.try &.["browseEndpoint"]?
+    raise ChannelRedirect.new(channel_id: browse_endpoint["browseId"].to_s)
+  end
+
   author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
   author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
   author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
