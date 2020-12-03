@@ -816,7 +816,7 @@ end
 
 def extract_polymer_config(body)
   params = {} of String => JSON::Any
-  player_response = body.match(/window\["ytInitialPlayerResponse"\]\s*=\s*(?<info>.*?);\n/)
+  player_response = body.match(/(window\["ytInitialPlayerResponse"\]|var\sytInitialPlayerResponse)\s*=\s*(?<info>{.*?});/m)
     .try { |r| JSON.parse(r["info"]).as_h }
 
   if body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
@@ -914,10 +914,14 @@ def extract_polymer_config(body)
     .try { |r| JSON.parse(r["info"]) }.try &.["args"]["player_response"]?
     .try &.as_s?.try &.try { |r| JSON.parse(r).as_h }
 
-  return params if !initial_data
-
-  {"playabilityStatus", "streamingData"}.each do |f|
-    params[f] = initial_data[f] if initial_data[f]?
+  if initial_data
+    {"playabilityStatus", "streamingData"}.each do |f|
+      params[f] = initial_data[f] if initial_data[f]?
+    end
+  else
+    {"playabilityStatus", "streamingData"}.each do |f|
+      params[f] = player_response[f] if player_response[f]?
+    end
   end
 
   params
