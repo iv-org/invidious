@@ -2,7 +2,9 @@ name: Invidious CI
 
 on:
   push:
-    branches: "master"
+    branches:
+      - "master"
+      - "api-only"
   pull_request:
     branches: "*"
 
