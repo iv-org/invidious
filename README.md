@@ -1,6 +1,6 @@
 # Invidious
 
-[![Build Status](https://travis-ci.org/iv-org/invidious.svg?branch=master)](https://travis-ci.org/github/iv-org/invidious) [![Translation Status](https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg)](https://hosted.weblate.org/engage/invidious/)
+[![Build Status](https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg)](https://github.com/iv-org/invidious/actions) [![Translation Status](https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg)](https://hosted.weblate.org/engage/invidious/)
 
 ## Invidious is an alternative front-end to YouTube
 
