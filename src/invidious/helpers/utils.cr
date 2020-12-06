@@ -83,6 +83,7 @@ def make_client(url : URI, region = nil)
   # TODO: Migrate any applicable endpoints to QUIC
   client = HTTPClient.new(url, OpenSSL::SSL::Context::Client.insecure)
   client.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
+  client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
 
