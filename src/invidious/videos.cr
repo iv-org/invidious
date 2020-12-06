@@ -830,7 +830,8 @@ def extract_polymer_config(body)
     params["reason"] = JSON::Any.new(reason)
   end
 
-  params["sessionToken"] = JSON::Any.new(body.match(/"XSRF_TOKEN":"(?<session_token>[^"]+)"/).try &.["session_token"]?)
+  session_token_json_encoded = body.match(/"XSRF_TOKEN":"(?<session_token>[^"]+)"/).try &.["session_token"]? || ""
+  params["sessionToken"] = JSON.parse(%({"key": "#{session_token_json_encoded}"}))["key"]
   params["shortDescription"] = JSON::Any.new(body.match(/"og:description" content="(?<description>[^"]+)"/).try &.["description"]?)
 
   return params if !player_response
