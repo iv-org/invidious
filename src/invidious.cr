@@ -104,7 +104,7 @@ LOCALES = {
   "zh-TW" => load_locale("zh-TW"),
 }
 
-YT_POOL = QUICPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 0.1)
+YT_POOL = QUICPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2)
 
 config = CONFIG
 logger = Invidious::LogHandler.new
