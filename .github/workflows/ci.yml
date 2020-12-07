@@ -16,37 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      # - name: Find out latest Crystal version
-      #   run: |
-      #     crystal_latest=$(curl -ILs -o /dev/null -w %{url_effective} https://github.com/crystal-lang/crystal/releases/latest | grep -o '[^/]*$')
-      #     echo "crystal_latest=$crystal_latest" >> $GITHUB_ENV
-      #     echo $crystal_latest
-      #
-      # - name: Cache Crystal
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: ./crystal-bin
-      #     key: crystal-${{ env.crystal_latest }}
-      #
-      # - name: Add custom Crystal dir to path
-      #   run: echo "./crystal-bin" >> $GITHUB_PATH
-      #
-      # - name: Find out installed Crystal version
-      #   run: |
-      #     if ! [ -x "$(command -v crystal)" ]; then
-      #       crystal_installed="none"
-      #     else
-      #       crystal_installed=$(crystal version | grep Crystal | awk '{print $2}')
-      #     fi
-      #     echo "crystal_installed=$crystal_installed" >> $GITHUB_ENV
-      #     echo $crystal_installed
-      
       - name: Install Crystal
         uses: oprypin/install-crystal@v1.2.4
-        # if: env.crystal_installed != env.crystal_latest
-        # with:
-        #   destination: ./crystal-bin
-
+      
       - name: Cache Shards
         uses: actions/cache@v2
         with:
