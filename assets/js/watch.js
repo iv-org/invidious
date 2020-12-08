@@ -154,6 +154,11 @@ function get_playlist(plid, retries) {
                     player.on('ended', function () {
                         var url = new URL('https://example.com/watch?v=' + xhr.response.nextVideo);
 
+                        url.searchParams.set('list', plid);
+                        if (!plid.startsWith('RD')) {
+                            url.searchParams.set('index', xhr.response.index);
+                        }
+
                         if (video_data.params.autoplay || video_data.params.continue_autoplay) {
                             url.searchParams.set('autoplay', '1');
                         }
@@ -170,10 +175,6 @@ function get_playlist(plid, retries) {
                             url.searchParams.set('local', video_data.params.local);
                         }
 
-                        url.searchParams.set('list', plid);
-                        if (!plid.startsWith('RD')) {
-                            url.searchParams.set('index', xhr.response.index);
-                        }
                         location.assign(url.pathname + url.search);
                     });
                 }
