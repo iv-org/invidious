@@ -88,6 +88,7 @@
         <div class="h-box">
             <span id="watch-on-youtube">
                 <a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch on YouTube") %></a>
+                (<a href="https://www.youtube.com/embed/<%= video.id %>"><%= translate(locale, "Embed") %></a>)
             </span>
             <p id="embed-link">
                 <a href="<%= embed_link %>"><%= translate(locale, "Embed Link") %></a>
