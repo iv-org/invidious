@@ -220,6 +220,11 @@ struct InvidiousPlaylist
 
       json.field "videos" do
         json.array do
+          if !offset || offset == 0
+            index = PG_DB.query_one?("SELECT index FROM playlist_videos WHERE plid = $1 AND id = $2 LIMIT 1", self.id, continuation, as: Int64)
+            offset = self.index.index(index) || 0
+          end
+
           videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, continuation: continuation)
           videos.each_with_index do |video, index|
             video.to_json(locale, json, offset + index)
@@ -412,11 +417,6 @@ end
 
 def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
   if playlist.is_a? InvidiousPlaylist
-    if !offset
-      index = PG_DB.query_one?("SELECT index FROM playlist_videos WHERE plid = $1 AND id = $2 LIMIT 1", playlist.id, continuation, as: Int64)
-      offset = playlist.index.index(index) || 0
-    end
-
     db.query_all("SELECT * FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 100 OFFSET $3", playlist.id, playlist.index, offset, as: PlaylistVideo)
   else
     fetch_playlist_videos(playlist.id, playlist.video_count, offset, locale, continuation)
