@@ -41,7 +41,15 @@ var shareOptions = {
     embedCode: "<iframe id='ivplayer' width='640' height='360' src='" + embed_url + "' style='border:none;'></iframe>"
 }
 
+videojs.Hls.xhr.beforeRequest = function(options) {
+    if (options.uri.indexOf('local=true') === -1) {
+        options.uri = options.uri + '?local=true';
+    }
+    return options;
+};
+
 var player = videojs('player', options);
+
 
 if (location.pathname.startsWith('/embed/')) {
     player.overlay({
