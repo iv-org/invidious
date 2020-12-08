@@ -89,6 +89,9 @@
             <span id="watch-on-youtube">
                 <a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch on YouTube") %></a>
             </span>
+            <p id="embed-link">
+                <a href="<%= embed_link %>"><%= translate(locale, "Embed Link") %></a>
+            </p>
             <p id="annotations">
                 <% if params.annotations %>
                     <a href="/watch?<%= env.params.query %>&iv_load_policy=3">
