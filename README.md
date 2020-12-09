@@ -33,6 +33,12 @@
 - No CLA
 - [Multilingual](https://hosted.weblate.org/projects/invidious/#languages) (translated into many languages)
 
+## Donate:
+
+Bitcoin (BTC): [bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr](bitcoin:bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr)
+
+Monero (XMR): [41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR](monero:41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR)
+
 ## Screenshots:
 
 | Player                                                                                                                  | Preferences                                                                                                             | Subscriptions                                                                                                               |
