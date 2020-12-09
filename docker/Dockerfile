@@ -2,7 +2,8 @@ FROM crystallang/crystal:0.35.1-alpine AS builder
 RUN apk add --no-cache curl sqlite-static
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
-RUN shards update && shards install && \
+COPY ./shard.lock ./shard.lock
+RUN shards install && \
     # TODO: Document build instructions
     # See https://github.com/omarroth/boringssl-alpine/blob/master/APKBUILD,
     # https://github.com/omarroth/lsquic-alpine/blob/master/APKBUILD,
