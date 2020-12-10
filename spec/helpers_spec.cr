@@ -12,7 +12,7 @@ require "../src/invidious/search"
 require "../src/invidious/trending"
 require "../src/invidious/users"
 
-CONFIG = Config.from_yaml(File.open("config/config.yml"))
+CONFIG = Config.from_yaml(File.open("config/config.example.yml"))
 
 describe "Helper" do
   describe "#produce_channel_videos_url" do
