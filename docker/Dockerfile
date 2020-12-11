@@ -1,10 +1,44 @@
+FROM alpine:edge AS liblsquic-builder
+WORKDIR /src
+
+RUN apk add --no-cache build-base git apk-tools abuild cmake go perl linux-headers
+
+RUN abuild-keygen -a -n && \
+    cp /root/.abuild/-*.rsa.pub /etc/apk/keys/
+
+COPY docker/APKBUILD-boringssl boringssl/APKBUILD
+RUN cd boringssl && abuild -F -r && cd ..
+
+RUN apk add --repository /root/packages/src boringssl boringssl-dev boringssl-static
+
+RUN apk add --no-cache zlib-dev zlib-static libevent-dev libevent-static
+
+COPY docker/APKBUILD-lsquic lsquic/APKBUILD
+RUN cd lsquic && abuild -F -r && cd ..
+
+RUN apk add --repository /root/packages/src lsquic-static
+
+RUN mkdir tmp && cd tmp && \
+    ar -x /usr/lib/libssl.a && \
+    ar -x /usr/lib/libcrypto.a && \
+    ar -x /usr/lib/liblsquic.a && \
+    ar rc liblsquic.a *.o && \
+    strip --strip-unneeded liblsquic.a && \
+    ranlib liblsquic.a && \
+    cp liblsquic.a /root/liblsquic.a && \
+    cd .. && rm -rf tmp
+
+
 FROM crystallang/crystal:1.0.0-alpine AS builder
-RUN apk add --no-cache curl sqlite-static yaml-static
+RUN apk add --no-cache sqlite-static yaml-static
+
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
 COPY ./shard.lock ./shard.lock
-RUN shards install && \
-    curl -Lo ./lib/lsquic/src/lsquic/ext/liblsquic.a https://github.com/iv-org/lsquic-static-alpine/releases/download/v2.18.1/liblsquic.a
+RUN shards install
+
+COPY --from=liblsquic-builder /root/liblsquic.a ./lib/lsquic/src/lsquic/ext/liblsquic.a
+
 COPY ./src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
