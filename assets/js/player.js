@@ -154,6 +154,18 @@ if (video_data.params.autoplay) {
 
 if (!video_data.params.listen && video_data.params.quality === 'dash') {
     player.httpSourceSelector();
+
+    if (video_data.params.quality_dash != "auto") {
+        player.ready(() => {
+            player.on("loadedmetadata", () => {
+                const qualityLevels = Array.from(player.qualityLevels()).sort((a, b) => a.height - b.height);
+                const targetQualityLevel = video_data.params.quality_dash == "best" ? qualityLevels.length - 1 : 0;
+                for (let i = 0; i < qualityLevels.length; i++) {
+                    qualityLevels[i].enabled = (i == targetQualityLevel)
+                }
+            });
+        });
+    }
 }
 
 player.vttThumbnails({
@@ -510,4 +522,6 @@ window.addEventListener('keydown', e => {
 }());
 
 // Since videojs-share can sometimes be blocked, we defer it until last
-player.share(shareOptions);
+if (player.share) {
+    player.share(shareOptions);
+}

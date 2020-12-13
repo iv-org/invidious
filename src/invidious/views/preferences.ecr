@@ -57,6 +57,17 @@
                 </select>
             </div>
 
+            <% if !CONFIG.disabled?("dash") %>
+                <div class="pure-control-group">
+                    <label for="quality_dash"><%= translate(locale, "Preferred dash video quality: ") %></label>
+                    <select name="quality_dash" id="quality_dash">
+                        <% {"auto", "best", "worst"}.each do |option| %>
+                            <option value="<%= option %>" <% if preferences.quality_dash == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <% end %>
+                    </select>
+                </div>
+            <% end %>
+
             <div class="pure-control-group">
                 <label for="volume"><%= translate(locale, "Player volume: ") %></label>
                 <input name="volume" id="volume" data-onrange="update_volume_value" type="range" min="0" max="100" step="5" value="<%= preferences.volume %>">
