@@ -31,5 +31,6 @@ COPY ./config/sql/ ./config/sql/
 COPY ./locales/ ./locales/
 COPY --from=builder /invidious/invidious .
 
+EXPOSE 3000
 USER invidious
 CMD [ "/invidious/invidious" ]
