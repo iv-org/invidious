@@ -496,7 +496,7 @@ video.video-js {
 
 .light-theme a:hover,
 .light-theme a:active {
-  color: #167ac6 !important;
+  color: #075A9E !important;
 }
 
 .light-theme a.pure-button-primary:hover {
@@ -504,7 +504,7 @@ video.video-js {
 }
 
 .light-theme a {
-  color: #61809b;
+  color: #335d7a;
   text-decoration: none;
 }
 
@@ -522,7 +522,7 @@ video.video-js {
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
   .no-theme a:active {
-    color: #167ac6 !important;
+    color: #075A9E !important;
   }
 
   .no-theme a.pure-button-primary:hover {
@@ -530,7 +530,7 @@ video.video-js {
   }
 
   .no-theme a {
-    color: #61809b;
+    color: #335d7a;
     text-decoration: none;
   }
 
