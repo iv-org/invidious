@@ -2,7 +2,7 @@ version: 2.0
 shards:
   db:
     git: https://github.com/crystal-lang/crystal-db.git
-    version: 0.9.0
+    version: 0.10.0
 
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
@@ -10,7 +10,7 @@ shards:
 
   kemal:
     git: https://github.com/kemalcr/kemal.git
-    version: 0.26.1+git.commit.dfe7dca08f4c9a9456d6132af5f6b59fcd6865e4
+    version: 0.27.0
 
   kilt:
     git: https://github.com/jeromegn/kilt.git
@@ -22,7 +22,7 @@ shards:
 
   pg:
     git: https://github.com/will/crystal-pg.git
-    version: 0.21.1
+    version: 0.22.1
 
   pool:
     git: https://github.com/ysbaddaden/pool.git
@@ -38,5 +38,5 @@ shards:
 
   sqlite3:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
-    version: 0.16.0
+    version: 0.17.0
 

@@ -11,19 +11,19 @@ targets:
 dependencies:
   pg:
     github: will/crystal-pg
-    version: ~> 0.21.1
+    version: ~> 0.22.1
   sqlite3:
     github: crystal-lang/crystal-sqlite3
-    version: ~> 0.16.0
+    version: ~> 0.17.0
   kemal:
     github: kemalcr/kemal
-    commit: dfe7dca08f4c9a9456d6132af5f6b59fcd6865e4
+    version: ~> 0.27.0
   pool:
     github: ysbaddaden/pool
     version: ~> 0.2.3
   protodec:
     github: omarroth/protodec
-    version: ~> 0.1.2
+    version: ~> 0.1.3
   lsquic:
     github: iv-org/lsquic.cr
     version: ~> 2.18.1-1
