@@ -499,6 +499,10 @@ video.video-js {
   color: #167ac6 !important;
 }
 
+.light-theme a.pure-button-primary:hover {
+  color: #fff !important;
+}
+
 .light-theme a {
   color: #61809b;
   text-decoration: none;
@@ -519,6 +523,10 @@ video.video-js {
   .no-theme a:hover,
   .no-theme a:active {
     color: #167ac6 !important;
+  }
+
+  .no-theme a.pure-button-primary:hover {
+    color: #fff !important;
   }
 
   .no-theme a {
