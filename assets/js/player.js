@@ -159,9 +159,26 @@ if (!video_data.params.listen && video_data.params.quality === 'dash') {
         player.ready(() => {
             player.on("loadedmetadata", () => {
                 const qualityLevels = Array.from(player.qualityLevels()).sort((a, b) => a.height - b.height);
-                const targetQualityLevel = video_data.params.quality_dash == "best" ? qualityLevels.length - 1 : 0;
+                let targetQualityLevel;
+                switch (video_data.params.quality_dash) {
+                    case "best":
+                        targetQualityLevel = qualityLevels.length - 1;
+                        break;
+                    case "worst":
+                        targetQualityLevel = 0;
+                        break;
+                    default:
+                        const targetHeight = Number.parseInt(video_data.params.quality_dash, 10);
+                        for (let i = 0; i < qualityLevels.length; i++) {
+                            if (qualityLevels[i].height <= targetHeight) {
+                                targetQualityLevel = i;
+                            } else {
+                                break;
+                            }
+                        }
+                }
                 for (let i = 0; i < qualityLevels.length; i++) {
-                    qualityLevels[i].enabled = (i == targetQualityLevel)
+                    qualityLevels[i].enabled = (i == targetQualityLevel);
                 }
             });
         });

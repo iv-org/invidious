@@ -61,7 +61,7 @@
                 <div class="pure-control-group">
                     <label for="quality_dash"><%= translate(locale, "Preferred dash video quality: ") %></label>
                     <select name="quality_dash" id="quality_dash">
-                        <% {"auto", "best", "worst"}.each do |option| %>
+                        <% {"auto", "best", "4320p", "2160p", "1440p", "1080p", "720p", "480p", "360p", "240p", "144p", "worst"}.each do |option| %>
                             <option value="<%= option %>" <% if preferences.quality_dash == option %> selected <% end %>><%= translate(locale, option) %></option>
                         <% end %>
                     </select>
