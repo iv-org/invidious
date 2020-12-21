@@ -14,6 +14,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
     backoff = 1.seconds
 
     loop do
+      logger.debug("RefreshChannelsJob: Refreshing all channels")
       db.query("SELECT id FROM channels ORDER BY updated") do |rs|
         rs.each do
           id = rs.read(String)
@@ -27,17 +28,18 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
           active_threads += 1
           spawn do
             begin
+              logger.trace("RefreshChannelsJob: Fetching channel #{id}")
               channel = fetch_channel(id, db, config.full_refresh)
 
               lim_threads = max_threads
               db.exec("UPDATE channels SET updated = $1, author = $2, deleted = false WHERE id = $3", Time.utc, channel.author, id)
             rescue ex
-              logger.puts("#{id} : #{ex.message}")
+              logger.error("RefreshChannelsJob: #{id} : #{ex.message}")
               if ex.message == "Deleted or invalid channel"
                 db.exec("UPDATE channels SET updated = $1, deleted = true WHERE id = $2", Time.utc, id)
               else
                 lim_threads = 1
-                logger.puts("#{id} : backing off for #{backoff}s")
+                logger.error("RefreshChannelsJob: #{id} : backing off for #{backoff}s")
                 sleep backoff
                 if backoff < 1.days
                   backoff += backoff

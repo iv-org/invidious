@@ -107,7 +107,8 @@ LOCALES = {
 YT_POOL = QUICPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2.0)
 
 config = CONFIG
-logger = Invidious::LogHandler.new
+output = STDOUT
+loglvl = LogLevel::Debug
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
@@ -127,17 +128,22 @@ Kemal.config.extra_options do |parser|
       exit
     end
   end
-  parser.on("-o OUTPUT", "--output=OUTPUT", "Redirect output (default: STDOUT)") do |output|
-    FileUtils.mkdir_p(File.dirname(output))
-    logger = Invidious::LogHandler.new(File.open(output, mode: "a"))
+  parser.on("-o OUTPUT", "--output=OUTPUT", "Redirect output (default: STDOUT)") do |output_arg|
+    FileUtils.mkdir_p(File.dirname(output_arg))
+    output = File.open(output_arg, mode: "a")
   end
-  parser.on("-v", "--version", "Print version") do |output|
+  parser.on("-l LEVEL", "--log-level=LEVEL", "Log level, one of #{LogLevel.values} (default: #{loglvl})") do |loglvl_arg|
+    loglvl = LogLevel.parse(loglvl_arg)
+  end
+  parser.on("-v", "--version", "Print version") do
     puts SOFTWARE.to_pretty_json
     exit
   end
 end
 
 Kemal::CLI.new ARGV
+
+logger = Invidious::LogHandler.new(output, loglvl)
 
 # Check table integrity
 if CONFIG.check_tables
@@ -1495,7 +1501,7 @@ post "/feed/webhook/:token" do |env|
   signature = env.request.headers["X-Hub-Signature"].lchop("sha1=")
 
   if signature != OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, body)
-    logger.puts("#{token} : Invalid signature")
+    logger.error("/feed/webhook/#{token} : Invalid signature")
     env.response.status_code = 200
     next
   end

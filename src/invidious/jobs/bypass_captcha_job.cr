@@ -125,7 +125,7 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
           end
         end
       rescue ex
-        logger.puts("Exception: #{ex.message}")
+        logger.error("BypassCaptchaJob: #{ex.message}")
       ensure
         sleep 1.minute
         Fiber.yield
