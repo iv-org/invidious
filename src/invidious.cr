@@ -1867,14 +1867,14 @@ get "/api/v1/storyboards/:id" do |env|
     storyboard[:storyboard_count].times do |i|
       url = storyboard[:url]
       authority = /(i\d?).ytimg.com/.match(url).not_nil![1]?
-      url = storyboard[:url].gsub("$M", i).gsub(%r(https://i\d?.ytimg.com/sb/), "")
+      url = url.gsub("$M", i).gsub(%r(https://i\d?.ytimg.com/sb/), "")
       url = "#{HOST_URL}/sb/#{authority}/#{url}"
 
       storyboard[:storyboard_height].times do |j|
         storyboard[:storyboard_width].times do |k|
           str << <<-END_CUE
           #{start_time}.000 --> #{end_time}.000
-          #{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width]},#{storyboard[:height]}
+          #{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width] - 2},#{storyboard[:height]}
 
 
           END_CUE
