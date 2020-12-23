@@ -54,6 +54,9 @@ class Invidious::Routes::UserPreferences < Invidious::Routes::BaseRoute
     quality = env.params.body["quality"]?.try &.as(String)
     quality ||= CONFIG.default_user_preferences.quality
 
+    quality_dash = env.params.body["quality_dash"]?.try &.as(String)
+    quality_dash ||= CONFIG.default_user_preferences.quality_dash
+
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= CONFIG.default_user_preferences.volume
 
@@ -127,6 +130,7 @@ class Invidious::Routes::UserPreferences < Invidious::Routes::BaseRoute
       notifications_only:     notifications_only,
       player_style:           player_style,
       quality:                quality,
+      quality_dash:           quality_dash,
       default_home:           default_home,
       feed_menu:              feed_menu,
       related_videos:         related_videos,
