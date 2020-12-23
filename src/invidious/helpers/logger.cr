@@ -1,66 +1,52 @@
 require "logger"
 
 enum LogLevel
+  All
+  Trace
   Debug
   Info
   Warn
   Error
+  Fatal
+  Off
 end
 
 class Invidious::LogHandler < Kemal::BaseLogHandler
-  def initialize(@io : IO = STDOUT, @level = LogLevel::Warn)
+  def initialize(@io : IO = STDOUT, @level = LogLevel::Debug)
   end
 
   def call(context : HTTP::Server::Context)
-    time = Time.utc
-    call_next(context)
-    elapsed_text = elapsed_text(Time.utc - time)
+    elapsed_time = Time.measure { call_next(context) }
+    elapsed_text = elapsed_text(elapsed_time)
 
-    @io << time << ' ' << context.response.status_code << ' ' << context.request.method << ' ' << context.request.resource << ' ' << elapsed_text << '\n'
-
-    if @io.is_a? File
-      @io.flush
-    end
+    info("#{context.response.status_code} #{context.request.method} #{context.request.resource} #{elapsed_text}")
 
     context
   end
 
   def puts(message : String)
     @io << message << '\n'
-
-    if @io.is_a? File
-      @io.flush
-    end
+    @io.flush
   end
 
-  def write(message : String, level = @level)
+  def write(message : String)
     @io << message
-
-    if @io.is_a? File
-      @io.flush
-    end
+    @io.flush
   end
 
   def set_log_level(level : String)
-    case level.downcase
-    when "debug"
-      set_log_level(LogLevel::Debug)
-    when "info"
-      set_log_level(LogLevel::Info)
-    when "warn"
-      set_log_level(LogLevel::Warn)
-    when "error"
-      set_log_level(LogLevel::Error)
-    end
+    @level = LogLevel.parse(level)
   end
 
   def set_log_level(level : LogLevel)
     @level = level
   end
 
-  {% for level in %w(debug info warn error) %}
+  {% for level in %w(trace debug info warn error fatal) %}
     def {{level.id}}(message : String)
-      puts(message, LogLevel::{{level.id.capitalize}})
+      if LogLevel::{{level.id.capitalize}} >= @level
+        puts("#{Time.utc} [{{level.id}}] #{message}")
+      end
     end
   {% end %}
 

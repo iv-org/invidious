@@ -34,10 +34,10 @@ class Invidious::Jobs::SubscribeToFeedsJob < Invidious::Jobs::BaseJob
               response = subscribe_pubsub(ucid, hmac_key, config)
 
               if response.status_code >= 400
-                logger.puts("#{ucid} : #{response.body}")
+                logger.error("SubscribeToFeedsJob: #{ucid} : #{response.body}")
               end
             rescue ex
-              logger.puts("#{ucid} : #{ex.message}")
+              logger.error("SubscribeToFeedsJob: #{ucid} : #{ex.message}")
             end
 
             active_channel.send(true)
