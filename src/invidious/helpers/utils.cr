@@ -101,6 +101,15 @@ def make_client(url : URI, region = nil)
   return client
 end
 
+def make_client(url : URI, region = nil, &block)
+  client = make_client(url, region)
+  begin
+    yield client
+  ensure
+    client.close
+  end
+end
+
 def decode_length_seconds(string)
   length_seconds = string.gsub(/[^0-9:]/, "").split(":").map &.to_i
   length_seconds = [0] * (3 - length_seconds.size) + length_seconds
@@ -361,7 +370,7 @@ def subscribe_pubsub(topic, key, config)
     "hub.secret"        => key.to_s,
   }
 
-  return make_client(PUBSUB_URL).post("/subscribe", form: body)
+  return make_client(PUBSUB_URL, &.post("/subscribe", form: body))
 end
 
 def parse_range(range)

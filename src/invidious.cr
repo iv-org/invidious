@@ -2123,14 +2123,13 @@ get "/api/v1/annotations/:id" do |env|
 
       file = URI.encode_www_form("#{id[0, 3]}/#{id}.xml")
 
-      client = make_client(ARCHIVE_URL)
-      location = client.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}")
+      location = make_client(ARCHIVE_URL, &.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}"))
 
       if !location.headers["Location"]?
         env.response.status_code = location.status_code
       end
 
-      response = make_client(URI.parse(location.headers["Location"])).get(location.headers["Location"])
+      response = make_client(URI.parse(location.headers["Location"]), &.get(location.headers["Location"]))
 
       if response.body.empty?
         env.response.status_code = 404
@@ -3481,8 +3480,12 @@ get "/videoplayback" do |env|
         location = URI.parse(response.headers["Location"])
         env.response.headers["Access-Control-Allow-Origin"] = "*"
 
-        host = "#{location.scheme}://#{location.host}"
-        client = make_client(URI.parse(host), region)
+        new_host = "#{location.scheme}://#{location.host}"
+        if new_host != host
+          host = new_host
+          client.close
+          client = make_client(URI.parse(new_host), region)
+        end
 
         url = "#{location.full_path}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
       else
@@ -3513,7 +3516,6 @@ get "/videoplayback" do |env|
     end
 
     begin
-      client = make_client(URI.parse(host), region)
       client.get(url, headers) do |response|
         response.headers.each do |key, value|
           if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
@@ -3553,8 +3555,6 @@ get "/videoplayback" do |env|
     if !chunk_end || chunk_end - chunk_start > HTTP_CHUNK_SIZE
       chunk_end = chunk_start + HTTP_CHUNK_SIZE - 1
     end
-
-    client = make_client(URI.parse(host), region)
 
     # TODO: Record bytes written so we can restart after a chunk fails
     while true
@@ -3619,6 +3619,7 @@ get "/videoplayback" do |env|
         if ex.message != "Error reading socket: Connection reset by peer"
           break
         else
+          client.close
           client = make_client(URI.parse(host), region)
         end
       end
@@ -3628,6 +3629,7 @@ get "/videoplayback" do |env|
       first_chunk = false
     end
   end
+  client.close
 end
 
 get "/ggpht/*" do |env|
