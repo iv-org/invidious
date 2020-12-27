@@ -7,8 +7,8 @@ class Invidious::Jobs::RefreshFeedsJob < Invidious::Jobs::BaseJob
   end
 
   def begin
-    max_threads = config.feed_threads
-    active_threads = 0
+    max_fibers = config.feed_threads
+    active_fibers = 0
     active_channel = Channel(Bool).new
 
     loop do
@@ -17,13 +17,13 @@ class Invidious::Jobs::RefreshFeedsJob < Invidious::Jobs::BaseJob
           email = rs.read(String)
           view_name = "subscriptions_#{sha256(email)}"
 
-          if active_threads >= max_threads
+          if active_fibers >= max_fibers
             if active_channel.receive
-              active_threads -= 1
+              active_fibers -= 1
             end
           end
 
-          active_threads += 1
+          active_fibers += 1
           spawn do
             begin
               # Drop outdated views
