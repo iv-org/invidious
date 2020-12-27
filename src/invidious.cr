@@ -256,7 +256,7 @@ before_all do |env|
       headers["Cookie"] = env.request.headers["Cookie"]
 
       begin
-        user, sid = get_user(sid, headers, PG_DB, false)
+        user, sid = get_user(sid, headers, PG_DB, logger, false)
         csrf_token = generate_response(sid, {
           ":authorize_token",
           ":playlist_ajax",
@@ -526,7 +526,7 @@ post "/subscription_ajax" do |env|
   case action
   when "action_create_subscription_to_channel"
     if !user.subscriptions.includes? channel_id
-      get_channel(channel_id, PG_DB, false, false)
+      get_channel(channel_id, PG_DB, logger, false, false)
       PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_append(subscriptions, $1) WHERE email = $2", channel_id, email)
     end
   when "action_remove_subscriptions"
@@ -561,7 +561,7 @@ get "/subscription_manager" do |env|
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    user, sid = get_user(sid, headers, PG_DB)
+    user, sid = get_user(sid, headers, PG_DB, logger)
   end
 
   action_takeout = env.params.query["action_takeout"]?.try &.to_i?
@@ -685,7 +685,7 @@ post "/data_control" do |env|
           user.subscriptions += body["subscriptions"].as_a.map { |a| a.as_s }
           user.subscriptions.uniq!
 
-          user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+          user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, logger, false, false)
 
           PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
         end
@@ -754,7 +754,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, logger, false, false)
 
         PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_freetube"
@@ -763,7 +763,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, logger, false, false)
 
         PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe_subscriptions"
@@ -782,7 +782,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, logger, false, false)
 
         PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe"
@@ -801,7 +801,7 @@ post "/data_control" do |env|
               user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map { |url| url.lchop("https://www.youtube.com/channel/") }
               user.subscriptions.uniq!
 
-              user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+              user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, logger, false, false)
 
               PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
 
@@ -1197,7 +1197,7 @@ get "/feed/subscriptions" do |env|
   headers["Cookie"] = env.request.headers["Cookie"]
 
   if !user.password
-    user, sid = get_user(sid, headers, PG_DB)
+    user, sid = get_user(sid, headers, PG_DB, logger)
   end
 
   max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)
@@ -2811,7 +2811,7 @@ post "/api/v1/auth/subscriptions/:ucid" do |env|
   ucid = env.params.url["ucid"]
 
   if !user.subscriptions.includes? ucid
-    get_channel(ucid, PG_DB, false, false)
+    get_channel(ucid, PG_DB, logger, false, false)
     PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
   end
 
