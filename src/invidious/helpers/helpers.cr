@@ -60,7 +60,7 @@ struct ConfigPreferences
   end
 end
 
-struct Config
+class Config
   include YAML::Serializable
 
   property channel_threads : Int32                 # Number of threads to use for crawling videos from channels (for updating subscriptions)
@@ -71,6 +71,7 @@ struct Config
   property hmac_key : String?                      # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
   property domain : String?                        # Domain to be used for links to resources on the site where an absolute URL is required
   property use_pubsub_feeds : Bool | Int32 = false # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
+  property popular_enabled : Bool = true
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
   property registration_enabled : Bool = true

@@ -162,11 +162,14 @@ end
 Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB, logger, config)
 Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB, logger, config)
 Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, logger, config, HMAC_KEY)
-Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new
 
 if config.statistics_enabled
   Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, config, SOFTWARE)
+end
+
+if config.popular_enabled
+  Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 end
 
 if config.captcha_key
@@ -1140,13 +1143,20 @@ end
 
 get "/feed/top" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-  env.redirect "/"
+
+  message = translate(locale, "The Top feed has been removed from Invidious.")
+  templated "message"
 end
 
 get "/feed/popular" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  templated "popular"
+  if config.popular_enabled
+    templated "popular"
+  else
+    message = translate(locale, "The Popular feed has been disabled by the administrator.")
+    templated "message"
+  end
 end
 
 get "/feed/trending" do |env|
@@ -2210,6 +2220,12 @@ get "/api/v1/popular" do |env|
 
   env.response.content_type = "application/json"
 
+  if !config.popular_enabled
+    error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
+    env.response.status_code = 400
+    next error_message
+  end
+
   JSON.build do |json|
     json.array do
       popular_videos.each do |video|
@@ -2223,7 +2239,8 @@ get "/api/v1/top" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
   env.response.content_type = "application/json"
-  "[]"
+  env.response.status_code = 400
+  {"error" => "The Top feed has been removed from Invidious."}.to_json
 end
 
 get "/api/v1/channels/:ucid" do |env|

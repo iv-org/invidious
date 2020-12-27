@@ -1,0 +1,12 @@
+<% content_for "header" do %>
+<meta name="description" content="<%= translate(locale, "An alternative front-end to YouTube") %>">
+<title>
+    Invidious
+</title>
+<% end %>
+
+<%= rendered "components/feed_menu" %>
+
+<p>
+    <%= message %>
+</p>

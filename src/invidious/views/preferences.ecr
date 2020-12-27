@@ -228,6 +228,12 @@
                 </div>
 
                 <div class="pure-control-group">
+                    <label for="popular_enabled"><%= translate(locale, "Popular enabled: ") %></label>
+                    <input name="popular_enabled" id="popular_enabled" type="checkbox" <% if config.popular_enabled %>checked<% end %>>
+                </div>
+
+
+                <div class="pure-control-group">
                     <label for="captcha_enabled"><%= translate(locale, "CAPTCHA enabled: ") %></label>
                     <input name="captcha_enabled" id="captcha_enabled" type="checkbox" <% if config.captcha_enabled %>checked<% end %>>
                 </div>
