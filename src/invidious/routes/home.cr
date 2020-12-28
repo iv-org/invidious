@@ -5,30 +5,24 @@ class Invidious::Routes::Home < Invidious::Routes::BaseRoute
     user = env.get? "user"
 
     case preferences.default_home
-    when ""
-      templated "empty"
     when "Popular"
-      templated "popular"
+      env.redirect "/feed/popular"
     when "Trending"
       env.redirect "/feed/trending"
     when "Subscriptions"
       if user
         env.redirect "/feed/subscriptions"
       else
-        templated "popular"
+        env.redirect "/feed/popular"
       end
     when "Playlists"
       if user
         env.redirect "/view_all_playlists"
       else
-        templated "popular"
+        env.redirect "/feed/popular"
       end
     else
       templated "empty"
     end
-  end
-
-  private def popular_videos
-    Jobs::PullPopularVideosJob::POPULAR_VIDEOS.get
   end
 end

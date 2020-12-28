@@ -158,6 +158,10 @@ class Invidious::Routes::UserPreferences < Invidious::Routes::BaseRoute
         end
         config.default_user_preferences.feed_menu = admin_feed_menu
 
+        popular_enabled = env.params.body["popular_enabled"]?.try &.as(String)
+        popular_enabled ||= "off"
+        config.popular_enabled = popular_enabled == "on"
+
         captcha_enabled = env.params.body["captcha_enabled"]?.try &.as(String)
         captcha_enabled ||= "off"
         config.captcha_enabled = captcha_enabled == "on"
