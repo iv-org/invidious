@@ -42,7 +42,7 @@ var shareOptions = {
 }
 
 videojs.Hls.xhr.beforeRequest = function(options) {
-    if (options.uri.indexOf('local=true') === -1) {
+    if (options.uri.indexOf('videoplayback') === -1 && options.uri.indexOf('local=true') === -1) {
         options.uri = options.uri + '?local=true';
     }
     return options;
