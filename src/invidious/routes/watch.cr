@@ -30,7 +30,7 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
 
     embed_link = "/embed/#{id}"
     if env.params.query.size > 1
-      embed_params = env.params.query.dup
+      embed_params = HTTP::Params.parse(env.params.query.to_s)
       embed_params.delete_all("v")
       embed_link += "?"
       embed_link += embed_params.to_s
