@@ -634,7 +634,8 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                       else
                         video_id = attachment["videoId"].as_s
 
-                        json.field "title", attachment["title"]["simpleText"].as_s
+                        video_title = attachment["title"]["simpleText"]? || attachment["title"]["runs"]?.try &.[0]?.try &.["text"]?
+                        json.field "title", video_title
                         json.field "videoId", video_id
                         json.field "videoThumbnails" do
                           generate_thumbnails(json, video_id)
@@ -656,7 +657,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                         json.field "published", published.to_unix
                         json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
 
-                        view_count = attachment["viewCountText"]["simpleText"].as_s.gsub(/\D/, "").to_i64? || 0_i64
+                        view_count = attachment["viewCountText"]?.try &.["simpleText"].as_s.gsub(/\D/, "").to_i64? || 0_i64
 
                         json.field "viewCount", view_count
                         json.field "viewCountText", translate(locale, "`x` views", number_to_short_text(view_count))
