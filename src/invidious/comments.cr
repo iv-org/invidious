@@ -269,6 +269,8 @@ def fetch_reddit_comments(id, sort_by = "confidence")
     raise InfoException.new("Could not fetch comments")
   end
 
+  client.close
+
   comments = result[1].data.as(RedditListing).children
   return comments, thread
 end

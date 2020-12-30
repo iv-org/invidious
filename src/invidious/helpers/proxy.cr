@@ -108,7 +108,9 @@ def filter_proxies(proxies)
       proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
       client.set_proxy(proxy)
 
-      client.head("/").status_code == 200
+      status_ok = client.head("/").status_code == 200
+      client.close
+      status_ok
     rescue ex
       false
     end
@@ -132,6 +134,7 @@ def get_nova_proxies(country_code = "US")
   headers["Referer"] = "https://www.proxynova.com/proxy-server-list/country-#{country_code}/"
 
   response = client.get("/proxy-server-list/country-#{country_code}/", headers)
+  client.close
   document = XML.parse_html(response.body)
 
   proxies = [] of {ip: String, port: Int32, score: Float64}
@@ -177,6 +180,7 @@ def get_spys_proxies(country_code = "US")
   }
 
   response = client.post("/free-proxy-list/#{country_code}/", headers, form: body)
+  client.close
   20.times do
     if response.status_code == 200
       break
