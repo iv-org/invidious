@@ -7,9 +7,9 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
   end
 
   def begin
-    max_threads = config.channel_threads
-    lim_threads = max_threads
-    active_threads = 0
+    max_fibers = config.channel_threads
+    lim_fibers = max_fibers
+    active_fibers = 0
     active_channel = Channel(Bool).new
     backoff = 1.seconds
 
@@ -19,27 +19,32 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
         rs.each do
           id = rs.read(String)
 
-          if active_threads >= lim_threads
+          if active_fibers >= lim_fibers
+            logger.trace("RefreshChannelsJob: Fiber limit reached, waiting...")
             if active_channel.receive
-              active_threads -= 1
+              logger.trace("RefreshChannelsJob: Fiber limit ok, continuing")
+              active_fibers -= 1
             end
           end
 
-          active_threads += 1
+          logger.trace("RefreshChannelsJob: #{id} : Spawning fiber")
+          active_fibers += 1
           spawn do
             begin
-              logger.trace("RefreshChannelsJob: Fetching channel #{id}")
-              channel = fetch_channel(id, db, config.full_refresh)
+              logger.trace("RefreshChannelsJob: #{id} fiber : Fetching channel")
+              channel = fetch_channel(id, db, logger, config.full_refresh)
 
-              lim_threads = max_threads
+              lim_fibers = max_fibers
+
+              logger.trace("RefreshChannelsJob: #{id} fiber : Updating DB")
               db.exec("UPDATE channels SET updated = $1, author = $2, deleted = false WHERE id = $3", Time.utc, channel.author, id)
             rescue ex
               logger.error("RefreshChannelsJob: #{id} : #{ex.message}")
               if ex.message == "Deleted or invalid channel"
                 db.exec("UPDATE channels SET updated = $1, deleted = true WHERE id = $2", Time.utc, id)
               else
-                lim_threads = 1
-                logger.error("RefreshChannelsJob: #{id} : backing off for #{backoff}s")
+                lim_fibers = 1
+                logger.error("RefreshChannelsJob: #{id} fiber : backing off for #{backoff}s")
                 sleep backoff
                 if backoff < 1.days
                   backoff += backoff
@@ -47,13 +52,15 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
                   backoff = 1.days
                 end
               end
+            ensure
+              logger.trace("RefreshChannelsJob: #{id} fiber : Done")
+              active_channel.send(true)
             end
-
-            active_channel.send(true)
           end
         end
       end
 
+      logger.debug("RefreshChannelsJob: Done, sleeping for one minute")
       sleep 1.minute
       Fiber.yield
     end

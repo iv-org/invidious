@@ -267,7 +267,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
           raise "Couldn't get SID."
         end
 
-        user, sid = get_user(sid, headers, PG_DB)
+        user, sid = get_user(sid, headers, PG_DB, logger)
 
         # We are now logged in
         traceback << "done.<br/>"
