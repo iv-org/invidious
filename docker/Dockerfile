@@ -4,12 +4,7 @@ WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
 COPY ./shard.lock ./shard.lock
 RUN shards install && \
-    # TODO: Document build instructions
-    # See https://github.com/omarroth/boringssl-alpine/blob/master/APKBUILD,
-    # https://github.com/omarroth/lsquic-alpine/blob/master/APKBUILD,
-    # https://github.com/omarroth/lsquic.cr/issues/1#issuecomment-631610081
-    # for details building static lib
-    curl -Lo ./lib/lsquic/src/lsquic/ext/liblsquic.a https://omar.yt/lsquic/liblsquic-v2.18.1.a
+    curl -Lo ./lib/lsquic/src/lsquic/ext/liblsquic.a https://github.com/iv-org/lsquic-static-alpine/releases/download/v2.18.1/liblsquic.a
 COPY ./src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
