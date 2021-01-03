@@ -628,3 +628,6 @@ body.dark-theme {
   }
 }
 
+#filters {
+  display: none;
+}
