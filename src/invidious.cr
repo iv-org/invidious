@@ -106,31 +106,30 @@ LOCALES = {
 
 YT_POOL = QUICPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2.0)
 
-config = CONFIG
-
+# CLI
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
-  parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{config.channel_threads})") do |number|
+  parser.on("-c THREADS", "--channel-threads=THREADS", "Number of threads for refreshing channels (default: #{CONFIG.channel_threads})") do |number|
     begin
-      config.channel_threads = number.to_i
+      CONFIG.channel_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
     end
   end
-  parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{config.feed_threads})") do |number|
+  parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{CONFIG.feed_threads})") do |number|
     begin
-      config.feed_threads = number.to_i
+      CONFIG.feed_threads = number.to_i
     rescue ex
       puts "THREADS must be integer"
       exit
     end
   end
-  parser.on("-o OUTPUT", "--output=OUTPUT", "Redirect output (default: #{config.output})") do |output|
-    config.output = output
+  parser.on("-o OUTPUT", "--output=OUTPUT", "Redirect output (default: #{CONFIG.output})") do |output|
+    CONFIG.output = output
   end
-  parser.on("-l LEVEL", "--log-level=LEVEL", "Log level, one of #{LogLevel.values} (default: #{config.log_level})") do |log_level|
-    config.log_level = LogLevel.parse(log_level)
+  parser.on("-l LEVEL", "--log-level=LEVEL", "Log level, one of #{LogLevel.values} (default: #{CONFIG.log_level})") do |log_level|
+    CONFIG.log_level = LogLevel.parse(log_level)
   end
   parser.on("-v", "--version", "Print version") do
     puts SOFTWARE.to_pretty_json
@@ -140,42 +139,41 @@ end
 
 Kemal::CLI.new ARGV
 
-if config.output.upcase == "STDOUT"
-  output = STDOUT
-else
-  FileUtils.mkdir_p(File.dirname(config.output))
-  output = File.open(config.output, mode: "a")
+if CONFIG.output.upcase != "STDOUT"
+  FileUtils.mkdir_p(File.dirname(CONFIG.output))
 end
+OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mode: "a")
+LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
-logger = Invidious::LogHandler.new(output, config.log_level)
+config = CONFIG
 
 # Check table integrity
 if CONFIG.check_tables
-  check_enum(PG_DB, logger, "privacy", PlaylistPrivacy)
+  check_enum(PG_DB, "privacy", PlaylistPrivacy)
 
-  check_table(PG_DB, logger, "channels", InvidiousChannel)
-  check_table(PG_DB, logger, "channel_videos", ChannelVideo)
-  check_table(PG_DB, logger, "playlists", InvidiousPlaylist)
-  check_table(PG_DB, logger, "playlist_videos", PlaylistVideo)
-  check_table(PG_DB, logger, "nonces", Nonce)
-  check_table(PG_DB, logger, "session_ids", SessionId)
-  check_table(PG_DB, logger, "users", User)
-  check_table(PG_DB, logger, "videos", Video)
+  check_table(PG_DB, "channels", InvidiousChannel)
+  check_table(PG_DB, "channel_videos", ChannelVideo)
+  check_table(PG_DB, "playlists", InvidiousPlaylist)
+  check_table(PG_DB, "playlist_videos", PlaylistVideo)
+  check_table(PG_DB, "nonces", Nonce)
+  check_table(PG_DB, "session_ids", SessionId)
+  check_table(PG_DB, "users", User)
+  check_table(PG_DB, "videos", Video)
 
   if CONFIG.cache_annotations
-    check_table(PG_DB, logger, "annotations", Annotation)
+    check_table(PG_DB, "annotations", Annotation)
   end
 end
 
 # Start jobs
 
-Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB, logger, config)
-Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB, logger, config)
-Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, logger, config, HMAC_KEY)
+Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB, config)
+Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB, config)
+Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, config, HMAC_KEY)
 
 DECRYPT_FUNCTION = DecryptFunction.new(CONFIG.decrypt_polling)
 if config.decrypt_polling
-  Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new(logger)
+  Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new
 end
 
 if config.statistics_enabled
@@ -187,7 +185,7 @@ if config.popular_enabled
 end
 
 if config.captcha_key
-  Invidious::Jobs.register Invidious::Jobs::BypassCaptchaJob.new(logger, config)
+  Invidious::Jobs.register Invidious::Jobs::BypassCaptchaJob.new(config)
 end
 
 connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
@@ -265,7 +263,7 @@ before_all do |env|
       headers["Cookie"] = env.request.headers["Cookie"]
 
       begin
-        user, sid = get_user(sid, headers, PG_DB, logger, false)
+        user, sid = get_user(sid, headers, PG_DB, false)
         csrf_token = generate_response(sid, {
           ":authorize_token",
           ":playlist_ajax",
@@ -535,7 +533,7 @@ post "/subscription_ajax" do |env|
   case action
   when "action_create_subscription_to_channel"
     if !user.subscriptions.includes? channel_id
-      get_channel(channel_id, PG_DB, logger, false, false)
+      get_channel(channel_id, PG_DB, false, false)
       PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_append(subscriptions, $1) WHERE email = $2", channel_id, email)
     end
   when "action_remove_subscriptions"
@@ -570,7 +568,7 @@ get "/subscription_manager" do |env|
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    user, sid = get_user(sid, headers, PG_DB, logger)
+    user, sid = get_user(sid, headers, PG_DB)
   end
 
   action_takeout = env.params.query["action_takeout"]?.try &.to_i?
@@ -694,7 +692,7 @@ post "/data_control" do |env|
           user.subscriptions += body["subscriptions"].as_a.map { |a| a.as_s }
           user.subscriptions.uniq!
 
-          user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, logger, false, false)
+          user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
           PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
         end
@@ -763,7 +761,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, logger, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
         PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_freetube"
@@ -772,7 +770,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, logger, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
         PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe_subscriptions"
@@ -791,7 +789,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, logger, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
         PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
       when "import_newpipe"
@@ -810,7 +808,7 @@ post "/data_control" do |env|
               user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map { |url| url.lchop("https://www.youtube.com/channel/") }
               user.subscriptions.uniq!
 
-              user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, logger, false, false)
+              user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
               PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
 
@@ -1213,7 +1211,7 @@ get "/feed/subscriptions" do |env|
   headers["Cookie"] = env.request.headers["Cookie"]
 
   if !user.password
-    user, sid = get_user(sid, headers, PG_DB, logger)
+    user, sid = get_user(sid, headers, PG_DB)
   end
 
   max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)
@@ -1517,7 +1515,7 @@ post "/feed/webhook/:token" do |env|
   signature = env.request.headers["X-Hub-Signature"].lchop("sha1=")
 
   if signature != OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, body)
-    logger.error("/feed/webhook/#{token} : Invalid signature")
+    LOGGER.error("/feed/webhook/#{token} : Invalid signature")
     env.response.status_code = 200
     next
   end
@@ -2835,7 +2833,7 @@ post "/api/v1/auth/subscriptions/:ucid" do |env|
   ucid = env.params.url["ucid"]
 
   if !user.subscriptions.includes? ucid
-    get_channel(ucid, PG_DB, logger, false, false)
+    get_channel(ucid, PG_DB, false, false)
     PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
   end
 
@@ -3929,7 +3927,7 @@ add_context_storage_type(Array(String))
 add_context_storage_type(Preferences)
 add_context_storage_type(User)
 
-Kemal.config.logger = logger
+Kemal.config.logger = LOGGER
 Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
 Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
 Kemal.run

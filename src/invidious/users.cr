@@ -269,12 +269,12 @@ struct Preferences
   end
 end
 
-def get_user(sid, headers, db, logger, refresh = true)
+def get_user(sid, headers, db, refresh = true)
   if email = db.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
     user = db.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
 
     if refresh && Time.utc - user.updated > 1.minute
-      user, sid = fetch_user(sid, headers, db, logger)
+      user, sid = fetch_user(sid, headers, db)
       user_array = user.to_a
       user_array[4] = user_array[4].to_json # User preferences
       args = arg_array(user_array)
@@ -292,7 +292,7 @@ def get_user(sid, headers, db, logger, refresh = true)
       end
     end
   else
-    user, sid = fetch_user(sid, headers, db, logger)
+    user, sid = fetch_user(sid, headers, db)
     user_array = user.to_a
     user_array[4] = user_array[4].to_json # User preferences
     args = arg_array(user.to_a)
@@ -313,7 +313,7 @@ def get_user(sid, headers, db, logger, refresh = true)
   return user, sid
 end
 
-def fetch_user(sid, headers, db, logger)
+def fetch_user(sid, headers, db)
   feed = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
   feed = XML.parse_html(feed.body)
 
@@ -326,7 +326,7 @@ def fetch_user(sid, headers, db, logger)
     end
   end
 
-  channels = get_batch_channels(channels, db, logger, false, false)
+  channels = get_batch_channels(channels, db, false, false)
 
   email = feed.xpath_node(%q(//a[@class="yt-masthead-picker-header yt-masthead-picker-active-account"]))
   if email
