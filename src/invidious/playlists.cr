@@ -365,9 +365,13 @@ def fetch_playlist(plid, locale)
   end
 
   initial_data = extract_initial_data(response.body)
-  playlist_info = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?.try &.[0]["playlistSidebarPrimaryInfoRenderer"]?
 
+  playlist_sidebar_renderer = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?
+  raise InfoException.new("Could not extract playlistSidebarRenderer.") if !playlist_sidebar_renderer
+
+  playlist_info = playlist_sidebar_renderer[0]["playlistSidebarPrimaryInfoRenderer"]?
   raise InfoException.new("Could not extract playlist info") if !playlist_info
+
   title = playlist_info["title"]?.try &.["runs"][0]?.try &.["text"]?.try &.as_s || ""
 
   desc_item = playlist_info["description"]?
@@ -392,14 +396,18 @@ def fetch_playlist(plid, locale)
     end
   end
 
-  author_info = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?.try &.[1]["playlistSidebarSecondaryInfoRenderer"]?
-    .try &.["videoOwner"]["videoOwnerRenderer"]?
+  if playlist_sidebar_renderer.size < 2
+    author = ""
+    author_thumbnail = ""
+    ucid = ""
+  else
+    author_info = playlist_sidebar_renderer[1]["playlistSidebarSecondaryInfoRenderer"]?.try &.["videoOwner"]["videoOwnerRenderer"]?
+    raise InfoException.new("Could not extract author info") if !author_info
 
-  raise InfoException.new("Could not extract author info") if !author_info
-
-  author_thumbnail = author_info["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s || ""
-  author = author_info["title"]["runs"][0]["text"]?.try &.as_s || ""
-  ucid = author_info["title"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"]?.try &.as_s || ""
+    author = author_info["title"]["runs"][0]["text"]?.try &.as_s || ""
+    author_thumbnail = author_info["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s || ""
+    ucid = author_info["title"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"]?.try &.as_s || ""
+  end
 
   return Playlist.new({
     title:            title,

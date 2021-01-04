@@ -26,6 +26,7 @@ def error_template_helper(env : HTTP::Server::Context, config : Config, locale :
   if exception.is_a?(InfoException)
     return error_template_helper(env, config, locale, status_code, exception.message || "")
   end
+  env.response.content_type = "text/html"
   env.response.status_code = status_code
   issue_template = %(Title: `#{exception.message} (#{exception.class})`)
   issue_template += %(\nDate: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`)
@@ -43,6 +44,7 @@ def error_template_helper(env : HTTP::Server::Context, config : Config, locale :
 end
 
 def error_template_helper(env : HTTP::Server::Context, config : Config, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, message : String)
+  env.response.content_type = "text/html"
   env.response.status_code = status_code
   error_message = translate(locale, message)
   return templated "error"

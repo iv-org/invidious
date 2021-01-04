@@ -2621,6 +2621,8 @@ end
 
     begin
       playlist = get_playlist(PG_DB, plid, locale)
+    rescue ex : InfoException
+      next error_json(404, ex)
     rescue ex
       next error_json(404, "Playlist does not exist.")
     end
