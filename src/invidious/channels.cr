@@ -203,6 +203,7 @@ def get_channel(id, db, refresh = true, pull_all_videos = true)
 end
 
 def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
+  LOGGER.debug("fetch_channel: #{ucid}")
   LOGGER.trace("fetch_channel: #{ucid} : pull_all_videos = #{pull_all_videos}, locale = #{locale}")
 
   LOGGER.trace("fetch_channel: #{ucid} : Downloading RSS feed")

@@ -26,7 +26,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
             end
           end
 
-          LOGGER.trace("RefreshChannelsJob: #{id} : Spawning fiber")
+          LOGGER.debug("RefreshChannelsJob: #{id} : Spawning fiber")
           active_fibers += 1
           spawn do
             begin
@@ -52,7 +52,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
                 end
               end
             ensure
-              LOGGER.trace("RefreshChannelsJob: #{id} fiber : Done")
+              LOGGER.debug("RefreshChannelsJob: #{id} fiber : Done")
               active_channel.send(true)
             end
           end
