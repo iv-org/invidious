@@ -107,8 +107,6 @@ LOCALES = {
 YT_POOL = QUICPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2.0)
 
 config = CONFIG
-output = STDOUT
-loglvl = LogLevel::Debug
 
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
@@ -128,12 +126,11 @@ Kemal.config.extra_options do |parser|
       exit
     end
   end
-  parser.on("-o OUTPUT", "--output=OUTPUT", "Redirect output (default: STDOUT)") do |output_arg|
-    FileUtils.mkdir_p(File.dirname(output_arg))
-    output = File.open(output_arg, mode: "a")
+  parser.on("-o OUTPUT", "--output=OUTPUT", "Redirect output (default: #{config.output})") do |output|
+    config.output = output
   end
-  parser.on("-l LEVEL", "--log-level=LEVEL", "Log level, one of #{LogLevel.values} (default: #{loglvl})") do |loglvl_arg|
-    loglvl = LogLevel.parse(loglvl_arg)
+  parser.on("-l LEVEL", "--log-level=LEVEL", "Log level, one of #{LogLevel.values} (default: #{config.log_level})") do |log_level|
+    config.log_level = LogLevel.parse(log_level)
   end
   parser.on("-v", "--version", "Print version") do
     puts SOFTWARE.to_pretty_json
@@ -143,7 +140,14 @@ end
 
 Kemal::CLI.new ARGV
 
-logger = Invidious::LogHandler.new(output, loglvl)
+if config.output.upcase == "STDOUT"
+  output = STDOUT
+else
+  FileUtils.mkdir_p(File.dirname(config.output))
+  output = File.open(config.output, mode: "a")
+end
+
+logger = Invidious::LogHandler.new(output, config.log_level)
 
 # Check table integrity
 if CONFIG.check_tables

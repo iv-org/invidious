@@ -64,11 +64,13 @@ end
 class Config
   include YAML::Serializable
 
-  property channel_threads : Int32                 # Number of threads to use for crawling videos from channels (for updating subscriptions)
-  property feed_threads : Int32                    # Number of threads to use for updating feeds
+  property channel_threads : Int32 = 1             # Number of threads to use for crawling videos from channels (for updating subscriptions)
+  property feed_threads : Int32 = 1                # Number of threads to use for updating feeds
+  property output : String = "STDOUT"              # Log file path or STDOUT
+  property log_level : LogLevel = LogLevel::Debug  # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
   property db : DBConfig                           # Database configuration
   property decrypt_polling : Bool = true           # Use polling to keep decryption function up to date
-  property full_refresh : Bool                     # Used for crawling channels: threads should check all videos uploaded by a channel
+  property full_refresh : Bool = false             # Used for crawling channels: threads should check all videos uploaded by a channel
   property https_only : Bool?                      # Used to tell Invidious it is behind a proxy, so links to resources should be https://
   property hmac_key : String?                      # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
   property domain : String?                        # Domain to be used for links to resources on the site where an absolute URL is required
