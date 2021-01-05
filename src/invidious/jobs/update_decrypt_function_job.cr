@@ -1,15 +1,15 @@
 class Invidious::Jobs::UpdateDecryptFunctionJob < Invidious::Jobs::BaseJob
-  DECRYPT_FUNCTION = [] of {SigProc, Int32}
+  private getter logger : Invidious::LogHandler
+
+  def initialize(@logger)
+  end
 
   def begin
     loop do
       begin
-        decrypt_function = fetch_decrypt_function
-        DECRYPT_FUNCTION.clear
-        decrypt_function.each { |df| DECRYPT_FUNCTION << df }
+        DECRYPT_FUNCTION.update_decrypt_function
       rescue ex
-        # TODO: Log error
-        next
+        logger.error("UpdateDecryptFunctionJob : #{ex.message}")
       ensure
         sleep 1.minute
         Fiber.yield
