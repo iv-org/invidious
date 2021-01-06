@@ -144,7 +144,7 @@ class ChannelRedirect < Exception
   end
 end
 
-def get_batch_channels(channels, db, logger, refresh = false, pull_all_videos = true, max_threads = 10)
+def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, max_threads = 10)
   finished_channel = Channel(String | Nil).new
 
   spawn do
@@ -160,7 +160,7 @@ def get_batch_channels(channels, db, logger, refresh = false, pull_all_videos = 
       active_threads += 1
       spawn do
         begin
-          get_channel(ucid, db, logger, refresh, pull_all_videos)
+          get_channel(ucid, db, refresh, pull_all_videos)
           finished_channel.send(ucid)
         rescue ex
           finished_channel.send(nil)
@@ -181,10 +181,10 @@ def get_batch_channels(channels, db, logger, refresh = false, pull_all_videos = 
   return final
 end
 
-def get_channel(id, db, logger, refresh = true, pull_all_videos = true)
+def get_channel(id, db, refresh = true, pull_all_videos = true)
   if channel = db.query_one?("SELECT * FROM channels WHERE id = $1", id, as: InvidiousChannel)
     if refresh && Time.utc - channel.updated > 10.minutes
-      channel = fetch_channel(id, db, logger, pull_all_videos: pull_all_videos)
+      channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
       channel_array = channel.to_a
       args = arg_array(channel_array)
 
@@ -192,7 +192,7 @@ def get_channel(id, db, logger, refresh = true, pull_all_videos = true)
         ON CONFLICT (id) DO UPDATE SET author = $2, updated = $3", args: channel_array)
     end
   else
-    channel = fetch_channel(id, db, logger, pull_all_videos: pull_all_videos)
+    channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
     channel_array = channel.to_a
     args = arg_array(channel_array)
 
@@ -202,12 +202,13 @@ def get_channel(id, db, logger, refresh = true, pull_all_videos = true)
   return channel
 end
 
-def fetch_channel(ucid, db, logger, pull_all_videos = true, locale = nil)
-  logger.trace("fetch_channel: #{ucid} : pull_all_videos = #{pull_all_videos}, locale = #{locale}")
+def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
+  LOGGER.debug("fetch_channel: #{ucid}")
+  LOGGER.trace("fetch_channel: #{ucid} : pull_all_videos = #{pull_all_videos}, locale = #{locale}")
 
-  logger.trace("fetch_channel: #{ucid} : Downloading RSS feed")
+  LOGGER.trace("fetch_channel: #{ucid} : Downloading RSS feed")
   rss = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{ucid}").body
-  logger.trace("fetch_channel: #{ucid} : Parsing RSS feed")
+  LOGGER.trace("fetch_channel: #{ucid} : Parsing RSS feed")
   rss = XML.parse_html(rss)
 
   author = rss.xpath_node(%q(//feed/title))
@@ -223,11 +224,11 @@ def fetch_channel(ucid, db, logger, pull_all_videos = true, locale = nil)
     auto_generated = true
   end
 
-  logger.trace("fetch_channel: #{ucid} : author = #{author}, auto_generated = #{auto_generated}")
+  LOGGER.trace("fetch_channel: #{ucid} : author = #{author}, auto_generated = #{auto_generated}")
 
   page = 1
 
-  logger.trace("fetch_channel: #{ucid} : Downloading channel videos page")
+  LOGGER.trace("fetch_channel: #{ucid} : Downloading channel videos page")
   response = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
 
   videos = [] of SearchVideo
@@ -235,7 +236,7 @@ def fetch_channel(ucid, db, logger, pull_all_videos = true, locale = nil)
     initial_data = JSON.parse(response.body).as_a.find &.["response"]?
     raise InfoException.new("Could not extract channel JSON") if !initial_data
 
-    logger.trace("fetch_channel: #{ucid} : Extracting videos from channel videos page initial_data")
+    LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel videos page initial_data")
     videos = extract_videos(initial_data.as_h, author, ucid)
   rescue ex
     if response.body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
@@ -245,7 +246,7 @@ def fetch_channel(ucid, db, logger, pull_all_videos = true, locale = nil)
     raise ex
   end
 
-  logger.trace("fetch_channel: #{ucid} : Extracting videos from channel RSS feed")
+  LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel RSS feed")
   rss.xpath_nodes("//feed/entry").each do |entry|
     video_id = entry.xpath_node("videoid").not_nil!.content
     title = entry.xpath_node("title").not_nil!.content
@@ -279,7 +280,7 @@ def fetch_channel(ucid, db, logger, pull_all_videos = true, locale = nil)
       views:              views,
     })
 
-    logger.trace("fetch_channel: #{ucid} : video #{video_id} : Updating or inserting video")
+    LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Updating or inserting video")
 
     # We don't include the 'premiere_timestamp' here because channel pages don't include them,
     # meaning the above timestamp is always null
@@ -289,11 +290,11 @@ def fetch_channel(ucid, db, logger, pull_all_videos = true, locale = nil)
       live_now = $8, views = $10 returning (xmax=0) as was_insert", *video.to_tuple, as: Bool)
 
     if was_insert
-      logger.trace("fetch_channel: #{ucid} : video #{video_id} : Inserted, updating subscriptions")
+      LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Inserted, updating subscriptions")
       db.exec("UPDATE users SET notifications = array_append(notifications, $1), \
         feed_needs_update = true WHERE $2 = ANY(subscriptions)", video.id, video.ucid)
     else
-      logger.trace("fetch_channel: #{ucid} : video #{video_id} : Updated")
+      LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Updated")
     end
   end
 

@@ -64,11 +64,13 @@ end
 class Config
   include YAML::Serializable
 
-  property channel_threads : Int32                 # Number of threads to use for crawling videos from channels (for updating subscriptions)
-  property feed_threads : Int32                    # Number of threads to use for updating feeds
+  property channel_threads : Int32 = 1             # Number of threads to use for crawling videos from channels (for updating subscriptions)
+  property feed_threads : Int32 = 1                # Number of threads to use for updating feeds
+  property output : String = "STDOUT"              # Log file path or STDOUT
+  property log_level : LogLevel = LogLevel::Info   # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
   property db : DBConfig                           # Database configuration
   property decrypt_polling : Bool = true           # Use polling to keep decryption function up to date
-  property full_refresh : Bool                     # Used for crawling channels: threads should check all videos uploaded by a channel
+  property full_refresh : Bool = false             # Used for crawling channels: threads should check all videos uploaded by a channel
   property https_only : Bool?                      # Used to tell Invidious it is behind a proxy, so links to resources should be https://
   property hmac_key : String?                      # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
   property domain : String?                        # Domain to be used for links to resources on the site where an absolute URL is required
@@ -334,11 +336,11 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
   items
 end
 
-def check_enum(db, logger, enum_name, struct_type = nil)
+def check_enum(db, enum_name, struct_type = nil)
   return # TODO
 
   if !db.query_one?("SELECT true FROM pg_type WHERE typname = $1", enum_name, as: Bool)
-    logger.info("check_enum: CREATE TYPE #{enum_name}")
+    LOGGER.info("check_enum: CREATE TYPE #{enum_name}")
 
     db.using_connection do |conn|
       conn.as(PG::Connection).exec_all(File.read("config/sql/#{enum_name}.sql"))
@@ -346,12 +348,12 @@ def check_enum(db, logger, enum_name, struct_type = nil)
   end
 end
 
-def check_table(db, logger, table_name, struct_type = nil)
+def check_table(db, table_name, struct_type = nil)
   # Create table if it doesn't exist
   begin
     db.exec("SELECT * FROM #{table_name} LIMIT 0")
   rescue ex
-    logger.info("check_table: check_table: CREATE TABLE #{table_name}")
+    LOGGER.info("check_table: check_table: CREATE TABLE #{table_name}")
 
     db.using_connection do |conn|
       conn.as(PG::Connection).exec_all(File.read("config/sql/#{table_name}.sql"))
@@ -371,7 +373,7 @@ def check_table(db, logger, table_name, struct_type = nil)
     if name != column_array[i]?
       if !column_array[i]?
         new_column = column_types.select { |line| line.starts_with? name }[0]
-        logger.info("check_table: ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
+        LOGGER.info("check_table: ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
         db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
         next
       end
@@ -389,29 +391,29 @@ def check_table(db, logger, table_name, struct_type = nil)
 
           # There's a column we didn't expect
           if !new_column
-            logger.info("check_table: ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]}")
+            LOGGER.info("check_table: ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]}")
             db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
 
             column_array = get_column_array(db, table_name)
             next
           end
 
-          logger.info("check_table: ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
+          LOGGER.info("check_table: ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
           db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
 
-          logger.info("check_table: UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}")
+          LOGGER.info("check_table: UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}")
           db.exec("UPDATE #{table_name} SET #{column_array[i]}_new=#{column_array[i]}")
 
-          logger.info("check_table: ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
+          LOGGER.info("check_table: ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
           db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
 
-          logger.info("check_table: ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}")
+          LOGGER.info("check_table: ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}")
           db.exec("ALTER TABLE #{table_name} RENAME COLUMN #{column_array[i]}_new TO #{column_array[i]}")
 
           column_array = get_column_array(db, table_name)
         end
       else
-        logger.info("check_table: ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
+        LOGGER.info("check_table: ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
         db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column_array[i]} CASCADE")
       end
     end
@@ -421,7 +423,7 @@ def check_table(db, logger, table_name, struct_type = nil)
 
   column_array.each do |column|
     if !struct_array.includes? column
-      logger.info("check_table: ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
+      LOGGER.info("check_table: ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
       db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
     end
   end

@@ -1,8 +1,7 @@
 class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
-  private getter logger : Invidious::LogHandler
   private getter config : Config
 
-  def initialize(@logger, @config)
+  def initialize(@config)
   end
 
   def begin
@@ -127,7 +126,7 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
           end
         end
       rescue ex
-        logger.error("BypassCaptchaJob: #{ex.message}")
+        LOGGER.error("BypassCaptchaJob: #{ex.message}")
       ensure
         sleep 1.minute
         Fiber.yield

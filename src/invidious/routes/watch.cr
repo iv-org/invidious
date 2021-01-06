@@ -62,7 +62,7 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
     rescue ex : VideoRedirect
       return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex
-      logger.error("get_video: #{id} : #{ex.message}")
+      LOGGER.error("get_video: #{id} : #{ex.message}")
       return error_template(500, ex)
     end
 
