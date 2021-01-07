@@ -95,7 +95,6 @@ class Config
   property port : Int32 = 3000                                     # Port to listen for connections (overrided by command line argument)
   property host_binding : String = "0.0.0.0"                       # Host to bind (overrided by command line argument)
   property pool_size : Int32 = 100                                 # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
-  property admin_email : String = "FIXME"        # Email for bug reports
 
   @[YAML::Field(converter: Preferences::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new               # Saved cookies in "name1=value1; name2=value2..." format

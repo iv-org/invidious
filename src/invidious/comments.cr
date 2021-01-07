@@ -242,7 +242,7 @@ end
 
 def fetch_reddit_comments(id, sort_by = "confidence")
   client = make_client(REDDIT_URL)
-  headers = HTTP::Headers{"User-Agent" => "web:invidious:v#{CURRENT_VERSION} (by /u/omarroth)"}
+  headers = HTTP::Headers{"User-Agent" => "web:invidious:v#{CURRENT_VERSION} (by github.com/iv-org/invidious)"}
 
   # TODO: Use something like #479 for a static list of instances to use here
   query = "(url:3D#{id}%20OR%20url:#{id})%20(site:invidio.us%20OR%20site:youtube.com%20OR%20site:youtu.be)"
