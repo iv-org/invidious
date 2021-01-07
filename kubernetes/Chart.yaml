@@ -9,9 +9,9 @@ keywords:
 - video
 - privacy
 home: https://invidio.us/
-icon: https://raw.githubusercontent.com/omarroth/invidious/05988c1c49851b7d0094fca16aeaf6382a7f64ab/assets/favicon-32x32.png
+icon: https://raw.githubusercontent.com/iv-org/invidious/05988c1c49851b7d0094fca16aeaf6382a7f64ab/assets/favicon-32x32.png
 sources:
-- https://github.com/omarroth/invidious
+- https://github.com/iv-org/invidious
 maintainers:
 - name: Leon Klingele
   email: mail@leonklingele.de

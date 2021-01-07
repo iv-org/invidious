@@ -1,7 +1,7 @@
 name: invidious
 
 image:
-  repository: omarroth/invidious
+  repository: iv-org/invidious
   tag: latest
   pullPolicy: Always
 
