@@ -169,7 +169,6 @@ end
 
 Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB, config)
 Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB, config)
-Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, config, HMAC_KEY)
 
 DECRYPT_FUNCTION = DecryptFunction.new(CONFIG.decrypt_polling)
 if config.decrypt_polling
@@ -178,6 +177,10 @@ end
 
 if config.statistics_enabled
   Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, config, SOFTWARE)
+end
+
+if (config.use_pubsub_feeds.is_a?(Bool) && config.use_pubsub_feeds.as(Bool)) || (config.use_pubsub_feeds.is_a?(Int32) && config.use_pubsub_feeds.as(Int32) > 0)
+  Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, config, HMAC_KEY)
 end
 
 if config.popular_enabled
