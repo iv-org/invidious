@@ -1,6 +1,6 @@
 # Invidious
 
-[![Build Status](https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg)](https://github.com/iv-org/invidious/actions) [![Translation Status](https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg)](https://hosted.weblate.org/engage/invidious/)
+[![Build Status](https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg)](https://github.com/iv-org/invidious/actions) [![Translation Status](https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg)](https://hosted.weblate.org/engage/invidious/) [![Awesome Humane Tech](https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true)](https://github.com/humanetech-community/awesome-humane-tech)
 
 ## Invidious is an alternative front-end to YouTube
 
