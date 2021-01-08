@@ -1,3 +1,5 @@
+# Note: This is no longer updated and links to omarroths repo, which doesn't exist anymore.
+
 # 0.20.0 (2019-011-06)
 
 # Version 0.20.0: Custom Playlists

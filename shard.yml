@@ -3,6 +3,7 @@ version: 0.20.1
 
 authors:
   - Omar Roth <omarroth@protonmail.com>
+  - Invidous team
 
 targets:
   invidious:

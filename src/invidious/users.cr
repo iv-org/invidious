@@ -427,7 +427,7 @@ def generate_captcha(key, db)
 end
 
 def generate_text_captcha(key, db)
-  response = make_client(TEXTCAPTCHA_URL, &.get("/omarroth@protonmail.com.json").body)
+  response = make_client(TEXTCAPTCHA_URL, &.get("/github.com/iv.org/invidious.json").body)
   response = JSON.parse(response)
 
   tokens = response["a"].as_a.map do |answer|
