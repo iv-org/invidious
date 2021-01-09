@@ -3372,7 +3372,7 @@ get "/latest_version" do |env|
       env.redirect "/api/v1/captions/#{id}?label=#{label}&title=#{title}"
       next
     else
-      itag = download_widget["itag"].as_s
+      itag = download_widget["itag"].as_s.to_i
       local = "true"
     end
   end
