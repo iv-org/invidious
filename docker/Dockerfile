@@ -10,7 +10,7 @@ COPY ./src/ ./src/
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
 COPY ./.git/ ./.git/
 RUN crystal build ./src/invidious.cr \
-    --static --warnings all \
+    --release --static --warnings all \
     --link-flags "-lxml2 -llzma"
 
 FROM alpine:latest
