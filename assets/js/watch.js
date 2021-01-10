@@ -272,7 +272,7 @@ function get_reddit_comments(retries) {
 
     xhr.onerror = function () {
         console.log('Pulling comments failed... ' + retries + '/5');
-        setInterval(function () { get_reddit_comments(retries - 1) }, 1000);
+        setTimeout(function () { get_reddit_comments(retries - 1) }, 1000);
     }
 
     xhr.ontimeout = function () {
@@ -346,7 +346,7 @@ function get_youtube_comments(retries) {
         comments.innerHTML =
             '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
         console.log('Pulling comments failed... ' + retries + '/5');
-        setInterval(function () { get_youtube_comments(retries - 1) }, 1000);
+        setTimeout(function () { get_youtube_comments(retries - 1) }, 1000);
     }
 
     xhr.ontimeout = function () {
