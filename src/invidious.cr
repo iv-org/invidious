@@ -3190,7 +3190,8 @@ get "/api/manifest/dash/id/:id" do |env|
       url = url.rchop("</BaseURL>")
 
       if local
-        url = URI.parse(url).full_path
+        uri = URI.parse(url)
+        url = "#{uri.full_path}host/#{uri.host}/"
       end
 
       "<BaseURL>#{url}</BaseURL>"
