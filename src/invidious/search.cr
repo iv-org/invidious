@@ -445,5 +445,5 @@ def process_search_query(query, page, user, region)
     count, items = search(search_query, page, search_params, region).as(Tuple)
   end
 
-  {search_query, count, items}
+  {search_query, count, items, operators}
 end

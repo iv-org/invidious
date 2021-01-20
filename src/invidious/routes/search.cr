@@ -48,9 +48,15 @@ class Invidious::Routes::Search < Invidious::Routes::BaseRoute
     user = env.get? "user"
 
     begin
-      search_query, count, videos = process_search_query(query, page, user, region: nil)
+      search_query, count, videos, operators = process_search_query(query, page, user, region: nil)
     rescue ex
       return error_template(500, ex)
+    end
+
+    operator_hash = {} of String => String
+    operators.each do |operator|
+      key, value = operator.downcase.split(":")
+      operator_hash[key] = value
     end
 
     env.set "search", query
