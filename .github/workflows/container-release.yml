@@ -45,6 +45,3 @@ jobs:
           file: docker/Dockerfile
           push: true
           tags: quay.io/invidious/invidious:${{ github.sha }}
-
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
