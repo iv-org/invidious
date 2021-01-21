@@ -43,5 +43,6 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile
+          labels: quay.expires-after=6w
           push: true
           tags: quay.io/invidious/invidious:${{ github.sha }}
