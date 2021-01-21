@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - "master"
+  pull_request:
+    branches: "*"
 
 jobs:
   release:
@@ -27,13 +29,22 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
 
-      - name: Build and push
+      - name: Build and push latest tag
+        if: github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v2
         with:
           context: .
           file: docker/Dockerfile
           push: true
           tags: quay.io/invidious/invidious:latest
+
+      - name: Build and push commit sha tag
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: true
+          tags: quay.io/invidious/invidious:${{ github.sha }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
