@@ -4,10 +4,13 @@ on:
   push:
     branches:
       - "master"
+  pull_request:
+    branches: "*"
+  schedule:
+    - cron: 0 0 * * *
 
 jobs:
   release:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -27,13 +30,22 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
 
-      - name: Build and push
+      - name: Build and push for Push Event
+        if: github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v2
         with:
           context: .
           file: docker/Dockerfile
+          labels: quay.expires-after=12w
           push: true
-          tags: quay.io/invidious/invidious:latest
+          tags: quay.io/invidious/invidious:${{ github.sha }},quay.io/invidious/invidious:latest
 
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+      - name: Build and push for Pull Request
+        if: github.ref != 'refs/heads/master'
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker/Dockerfile
+          labels: quay.expires-after=6w
+          push: true
+          tags: quay.io/invidious/invidious:${{ github.sha }}
