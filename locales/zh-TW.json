@@ -1,12 +1,8 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱者",
-        "": "`x` 個訂閱者。"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 部影片",
-        "": "`x` 部影片。"
-    },
+    "`x` subscribers.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱者",
+    "`x` subscribers.": "`x` 個訂閱者",
+    "`x` videos.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 部影片",
+    "`x` videos.": "`x` 部影片",
     "`x` playlists": "`x` 播放清單",
     "LIVE": "直播",
     "Shared `x` ago": "`x` 前分享",
@@ -119,22 +115,16 @@
     "Subscription manager": "訂閱管理員",
     "Token manager": "Token 管理員",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱",
-        "": "`x` 個訂閱。"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` tokens。"
-    },
+    "`x` subscriptions.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱",
+    "`x` subscriptions.": "`x` 個訂閱",
+    "`x` tokens.([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
+    "`x` tokens.": "`x` 個存取金鑰",
     "Import/export": "匯入／匯出",
     "unsubscribe": "取消訂閱",
     "revoke": "撤銷",
     "Subscriptions": "訂閱",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個未讀的通知",
-        "": "`x` 個未讀的通知。"
-    },
+    "`x` unseen notifications.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個未讀的通知",
+    "`x` unseen notifications.": "`x` 個未讀的通知",
     "search": "搜尋",
     "Log out": "登出",
     "Released under the AGPLv3 by Omar Roth.": "Omar Roth 以 AGPLv3 釋出。",
@@ -164,10 +154,8 @@
     "Whitelisted regions: ": "白名單區域： ",
     "Blacklisted regions: ": "黑名單區域： ",
     "Shared `x`": "`x` 發佈",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 次檢視",
-        "": "`x` 次檢視。"
-    },
+    "`x` views.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 次檢視",
+    "`x` views.": "`x` 次檢視",
     "Premieres in `x`": "首映於 `x`",
     "Premieres `x`": "首映於 `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "嗨！看來您將 JavaScript 關閉了。點擊這裡以檢視留言，請注意，它們可能需要比較長的時間載入。",
@@ -198,16 +186,12 @@
     "This channel does not exist.": "此頻道不存在。",
     "Could not get channel info.": "無法取得頻道資訊。",
     "Could not fetch comments": "無法擷取留言",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則回覆",
-        "": "檢視 `x` 則回覆。"
-    },
+    "View `x` replies.([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則回覆",
+    "View `x` replies.": "檢視 `x` 則回覆",
     "`x` ago": "`x` 以前",
     "Load more": "載入更多",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 點",
-        "": "`x` 點。"
-    },
+    "`x` points.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 點",
+    "`x` points.": "`x` 點",
     "Could not create mix.": "無法建立混合。",
     "Empty playlist": "空的播放清單",
     "Not a playlist.": "不是播放清單。",
@@ -325,34 +309,20 @@
     "Yiddish": "意第緒語",
     "Yoruba": "約魯巴語",
     "Zulu": "祖魯語",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 年",
-        "": "`x` 年。"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 月",
-        "": "`x` 月。"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 週",
-        "": "`x` 週。"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
-        "": "`x` 天。"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 小時",
-        "": "`x` 小時。"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
-        "": "`x` 分鐘。"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 秒",
-        "": "`x` 秒。"
-    },
+    "`x` years.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 年",
+    "`x` years.": "`x` 年",
+    "`x` months.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 月",
+    "`x` months.": "`x` 月",
+    "`x` weeks.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 週",
+    "`x` weeks.": "`x` 週",
+    "`x` days.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
+    "`x` days.": "`x` 天",
+    "`x` hours.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 小時",
+    "`x` hours.": "`x` 小時",
+    "`x` minutes.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
+    "`x` minutes.": "`x` 分鐘",
+    "`x` seconds.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 秒",
+    "`x` seconds.": "`x` 秒",
     "Fallback comments: ": "汰退留言： ",
     "Popular": "熱門頻道",
     "Top": "熱門影片",

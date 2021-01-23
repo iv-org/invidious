@@ -1,12 +1,8 @@
 {
-    "`x` subscribers.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscritto",
-        "": "`x` iscritti."
-    },
-    "`x` videos.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` video."
-    },
+    "`x` subscribers..([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscritto",
+    "`x` subscribers..": "`x` iscritti.",
+    "`x` videos..([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
+    "`x` videos..": "`x` video.",
     "`x` playlists": "`x` playlist",
     "LIVE": "IN DIRETTA",
     "Shared `x` ago": "Condiviso `x` fa",
@@ -54,7 +50,7 @@
     "Image CAPTCHA": "Immagine CAPTCHA",
     "Sign In": "Accedi",
     "Register": "Registrati",
-    "E-mail": "Email",
+    "E-mail": "E-mail",
     "Google verification code": "Codice di verifica Google",
     "Preferences": "Preferenze",
     "Player preferences": "Preferenze del riproduttore",
@@ -119,22 +115,16 @@
     "Subscription manager": "Gestione delle iscrizioni",
     "Token manager": "Gestione dei gettoni",
     "Token": "Gettone",
-    "`x` subscriptions.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscrizione",
-        "": "`x` iscrizioni."
-    },
-    "`x` tokens.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gettone",
-        "": "`x` gettoni."
-    },
+    "`x` subscriptions..([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscrizione",
+    "`x` subscriptions..": "`x` iscrizioni.",
+    "`x` tokens..([^.,0-9]|^)1([^.,0-9]|$)": "`x` gettone",
+    "`x` tokens..": "`x` gettoni.",
     "Import/export": "Importa/esporta",
     "unsubscribe": "disiscriviti",
     "revoke": "revoca",
     "Subscriptions": "Iscrizioni",
-    "`x` unseen notifications.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notifica non visualizzata",
-        "": "`x` notifiche non visualizzate."
-    },
+    "`x` unseen notifications..([^.,0-9]|^)1([^.,0-9]|$)": "`x` notifica non visualizzata",
+    "`x` unseen notifications..": "`x` notifiche non visualizzate.",
     "search": "Cerca",
     "Log out": "Esci",
     "Released under the AGPLv3 by Omar Roth.": "Pubblicato con licenza AGPLv3 da Omar Roth.",
@@ -164,10 +154,8 @@
     "Whitelisted regions: ": "Regioni in lista bianca: ",
     "Blacklisted regions: ": "Regioni in lista nera: ",
     "Shared `x`": "Condiviso `x`",
-    "`x` views.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizzazione",
-        "": "`x` visualizzazioni."
-    },
+    "`x` views..([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizzazione",
+    "`x` views..": "`x` visualizzazioni.",
     "Premieres in `x`": "In anteprima in `x`",
     "Premieres `x`": "In anteprima `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Ciao! Sembra che tu abbia disattivato JavaScript. Clicca qui per visualizzare i commenti. Considera che potrebbe volerci più tempo.",
@@ -188,7 +176,7 @@
     "User ID is a required field": "L'ID utente è obbligatorio",
     "Password is a required field": "La password è un campo obbligatorio",
     "Wrong username or password": "Nome utente o password errati",
-    "Please sign in using 'Log in with Google'": "Per favore accedi con \"Entra con Google\"",
+    "Please sign in using 'Log in with Google'": "Per favore accedi con «Entra con Google»",
     "Password cannot be empty": "La password non può essere vuota",
     "Password cannot be longer than 55 characters": "La password non può contenere più di 55 caratteri",
     "Please log in": "Per favore, accedi",
@@ -198,24 +186,20 @@
     "This channel does not exist.": "Questo canale non esiste.",
     "Could not get channel info.": "Impossibile ottenere le informazioni del canale.",
     "Could not fetch comments": "Impossibile recuperare i commenti",
-    "View `x` replies.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Visualizza `x` risposta",
-        "": "Visualizza `x` risposte."
-    },
+    "View `x` replies..([^.,0-9]|^)1([^.,0-9]|$)": "Visualizza `x` risposta",
+    "View `x` replies..": "Visualizza `x` risposte.",
     "`x` ago": "`x` fa",
     "Load more": "Carica altro",
-    "`x` points.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` punto",
-        "": "`x` punti."
-    },
+    "`x` points..([^.,0-9]|^)1([^.,0-9]|$)": "`x` punto",
+    "`x` points..": "`x` punti.",
     "Could not create mix.": "Impossibile creare il mix.",
     "Empty playlist": "Playlist vuota",
     "Not a playlist.": "Non è una playlist.",
     "Playlist does not exist.": "La playlist non esiste.",
     "Could not pull trending pages.": "Impossibile recuperare le tendenze.",
     "Hidden field \"challenge\" is a required field": "Il campo nascosto \"challenge\" è obbligatorio",
-    "Hidden field \"token\" is a required field": "Il campo nascosto \"token\" è obbligatorio",
-    "Erroneous challenge": "Campo \"challenge\" non valido",
+    "Hidden field \"token\" is a required field": "Il campo nascosto «token» è obbligatorio",
+    "Erroneous challenge": "Campo «challenge» non valido",
     "Erroneous token": "Campo \"token\" non valido",
     "No such user": "Utente non valido",
     "Token is expired, please try again": "Gettone scaduto, riprova",
@@ -288,7 +272,7 @@
     "Nepali": "Nepalese",
     "Norwegian Bokmål": "Norvegese",
     "Nyanja": "Nyanja",
-    "Pashto": "Lingua pashtu",
+    "Pashto": "Pashtu",
     "Persian": "Persiano",
     "Polish": "Polacco",
     "Portuguese": "Portoghese",
@@ -325,34 +309,20 @@
     "Yiddish": "Yiddish",
     "Yoruba": "Yoruba",
     "Zulu": "Zulu",
-    "`x` years.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` anno",
-        "": "`x` anni."
-    },
-    "`x` months.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mese",
-        "": "`x` mesi."
-    },
-    "`x` weeks.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` settimana",
-        "": "`x` settimane."
-    },
-    "`x` days.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` giorno",
-        "": "`x` giorni."
-    },
-    "`x` hours.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ora",
-        "": "`x` ore."
-    },
-    "`x` minutes.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuto",
-        "": "`x` minuti."
-    },
-    "`x` seconds.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` secondo",
-        "": "`x` secondi."
-    },
+    "`x` years..([^.,0-9]|^)1([^.,0-9]|$)": "`x` anno",
+    "`x` years..": "`x` anni.",
+    "`x` months..([^.,0-9]|^)1([^.,0-9]|$)": "`x` mese",
+    "`x` months..": "`x` mesi.",
+    "`x` weeks..([^.,0-9]|^)1([^.,0-9]|$)": "`x` settimana",
+    "`x` weeks..": "`x` settimane.",
+    "`x` days..([^.,0-9]|^)1([^.,0-9]|$)": "`x` giorno",
+    "`x` days..": "`x` giorni.",
+    "`x` hours..([^.,0-9]|^)1([^.,0-9]|$)": "`x` ora",
+    "`x` hours..": "`x` ore.",
+    "`x` minutes..([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuto",
+    "`x` minutes..": "`x` minuti.",
+    "`x` seconds..([^.,0-9]|^)1([^.,0-9]|$)": "`x` secondo",
+    "`x` seconds..": "`x` secondi.",
     "Fallback comments: ": "Commenti alternativi: ",
     "Popular": "Popolare",
     "Top": "Top",
