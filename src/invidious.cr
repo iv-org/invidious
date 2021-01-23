@@ -30,11 +30,8 @@ require "./invidious/*"
 require "./invidious/routes/**"
 require "./invidious/jobs/**"
 
-ENV_CONFIG_NAME = "INVIDIOUS_CONFIG"
-
-CONFIG_STR = ENV.has_key?(ENV_CONFIG_NAME) ? ENV.fetch(ENV_CONFIG_NAME) : File.read("config/config.yml")
-CONFIG     = Config.from_yaml(CONFIG_STR)
-HMAC_KEY   = CONFIG.hmac_key || Random::Secure.hex(32)
+CONFIG   = Config.load
+HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
 PG_URL = URI.new(
   scheme: "postgres",
