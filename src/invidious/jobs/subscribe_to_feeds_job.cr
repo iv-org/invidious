@@ -1,15 +1,14 @@
 class Invidious::Jobs::SubscribeToFeedsJob < Invidious::Jobs::BaseJob
   private getter db : DB::Database
   private getter hmac_key : String
-  private getter config : Config
 
-  def initialize(@db, @config, @hmac_key)
+  def initialize(@db, @hmac_key)
   end
 
   def begin
     max_fibers = 1
-    if config.use_pubsub_feeds.is_a?(Int32)
-      max_fibers = config.use_pubsub_feeds.as(Int32)
+    if CONFIG.use_pubsub_feeds.is_a?(Int32)
+      max_fibers = CONFIG.use_pubsub_feeds.as(Int32)
     end
 
     active_fibers = 0
@@ -30,7 +29,7 @@ class Invidious::Jobs::SubscribeToFeedsJob < Invidious::Jobs::BaseJob
 
           spawn do
             begin
-              response = subscribe_pubsub(ucid, hmac_key, config)
+              response = subscribe_pubsub(ucid, hmac_key)
 
               if response.status_code >= 400
                 LOGGER.error("SubscribeToFeedsJob: #{ucid} : #{response.body}")

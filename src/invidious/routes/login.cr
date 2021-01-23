@@ -6,7 +6,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
 
     return env.redirect "/feed/subscriptions" if user
 
-    if !config.login_enabled
+    if !CONFIG.login_enabled
       return error_template(400, "Login has been disabled by administrator.")
     end
 
@@ -33,7 +33,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
 
     referer = get_referer(env, "/feed/subscriptions")
 
-    if !config.login_enabled
+    if !CONFIG.login_enabled
       return error_template(403, "Login has been disabled by administrator.")
     end
 
@@ -274,14 +274,14 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
 
         host = URI.parse(env.request.headers["Host"]).host
 
-        if Kemal.config.ssl || config.https_only
+        if Kemal.config.ssl || CONFIG.https_only
           secure = true
         else
           secure = false
         end
 
         cookies.each do |cookie|
-          if Kemal.config.ssl || config.https_only
+          if Kemal.config.ssl || CONFIG.https_only
             cookie.secure = secure
           else
             cookie.secure = secure
@@ -330,14 +330,14 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
 
-          if Kemal.config.ssl || config.https_only
+          if Kemal.config.ssl || CONFIG.https_only
             secure = true
           else
             secure = false
           end
 
-          if config.domain
-            env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{config.domain}", value: sid, expires: Time.utc + 2.years,
+          if CONFIG.domain
+            env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{CONFIG.domain}", value: sid, expires: Time.utc + 2.years,
               secure: secure, http_only: true)
           else
             env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
@@ -354,7 +354,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
           env.response.cookies << cookie
         end
       else
-        if !config.registration_enabled
+        if !CONFIG.registration_enabled
           return error_template(400, "Registration has been disabled by administrator.")
         end
 
@@ -369,7 +369,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
 
         password = password.byte_slice(0, 55)
 
-        if config.captcha_enabled
+        if CONFIG.captcha_enabled
           captcha_type = env.params.body["captcha_type"]?
           answer = env.params.body["answer"]?
           change_type = env.params.body["change_type"]?
@@ -445,14 +445,14 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
         view_name = "subscriptions_#{sha256(user.email)}"
         PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
 
-        if Kemal.config.ssl || config.https_only
+        if Kemal.config.ssl || CONFIG.https_only
           secure = true
         else
           secure = false
         end
 
-        if config.domain
-          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{config.domain}", value: sid, expires: Time.utc + 2.years,
+        if CONFIG.domain
+          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{CONFIG.domain}", value: sid, expires: Time.utc + 2.years,
             secure: secure, http_only: true)
         else
           env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
