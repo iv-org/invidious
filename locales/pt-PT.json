@@ -1,16 +1,10 @@
 {
-    "`x` subscribers.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscritores.",
-        "": "`x` subscritores."
-    },
-    "`x` videos.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vídeos.",
-        "": "`x` vídeos."
-    },
-    "`x` playlists.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` listas de reprodução.",
-        "": "`x` listas de reprodução."
-    },
+    "`x` subscribers..([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscritores..([^.,0-9]|^)1([^.,0-9]|$)",
+    "`x` subscribers..": "`x` subscritores.",
+    "`x` videos..([^.,0-9]|^)1([^.,0-9]|$)": "`x` videos..([^.,0-9]|^)1([^.,0-9]|$)",
+    "`x` videos..": "`x` vídeos.",
+    "`x` playlists..([^.,0-9]|^)1([^.,0-9]|$)": "`x` listas de reprodução.",
+    "`x` playlists..": "`x` listas de reprodução.",
     "LIVE": "Em direto",
     "Shared `x` ago": "Partilhado `x` atrás",
     "Unsubscribe": "Anular subscrição",
@@ -26,7 +20,7 @@
     "Clear watch history?": "Limpar histórico de reprodução?",
     "New password": "Nova palavra-chave",
     "New passwords must match": "As novas palavra-chaves devem corresponder",
-    "Cannot change password for Google accounts": "Não é possível alterar palavra-chave para contas do Google",
+    "Cannot change password for Google accounts": "Não é possível alterar a palavra-passe para contas do Google",
     "Authorize token?": "Autorizar token?",
     "Authorize token for `x`?": "Autorizar token para `x`?",
     "Yes": "Sim",
@@ -42,9 +36,9 @@
     "Export subscriptions as OPML": "Exportar subscrições como OPML",
     "Export subscriptions as OPML (for NewPipe & FreeTube)": "Exportar subscrições como OPML (para NewPipe e FreeTube)",
     "Export data as JSON": "Exportar dados como JSON",
-    "Delete account?": "Eliminar conta?",
+    "Delete account?": "Apagar conta?",
     "History": "Histórico",
-    "An alternative front-end to YouTube": "Uma interface alternativa para o YouTube",
+    "An alternative front-end to YouTube": "Uma interface alternativa ao YouTube",
     "JavaScript license information": "Informação de licença do JavaScript",
     "source": "código-fonte",
     "Log in": "Iniciar sessão",
@@ -85,9 +79,9 @@
     "light": "claro",
     "Thin mode: ": "Modo compacto: ",
     "Subscription preferences": "Preferências de subscrições",
-    "Show annotations by default for subscribed channels: ": "Mostrar sempre anotações para os canais subscritos: ",
+    "Show annotations by default for subscribed channels: ": "Mostrar sempre anotações aos canais subscritos: ",
     "Redirect homepage to feed: ": "Redirecionar página inicial para subscrições: ",
-    "Number of videos shown in feed: ": "Número de vídeos nas subscrições: ",
+    "Number of videos shown in feed: ": "Quantidade de vídeos nas subscrições: ",
     "Sort videos by: ": "Ordenar vídeos por: ",
     "published": "publicado",
     "published - reverse": "publicado - inverso",
@@ -109,9 +103,9 @@
     "Manage subscriptions": "Gerir as subscrições",
     "Manage tokens": "Gerir tokens",
     "Watch history": "Histórico de reprodução",
-    "Delete account": "Eliminar conta",
+    "Delete account": "Apagar conta",
     "Administrator preferences": "Preferências de administrador",
-    "Default homepage: ": "Página inicial padrão: ",
+    "Default homepage: ": "Página inicial predefinida: ",
     "Feed menu: ": "Menu de subscrições: ",
     "Top enabled: ": "Top ativado: ",
     "CAPTCHA enabled: ": "CAPTCHA ativado: ",
@@ -122,22 +116,16 @@
     "Subscription manager": "Gerir subscrições",
     "Token manager": "Gerir tokens",
     "Token": "Token",
-    "`x` subscriptions.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscrições.",
-        "": "`x` subscrições."
-    },
-    "`x` tokens.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens.",
-        "": "`x` tokens."
-    },
+    "`x` subscriptions..([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscrições.",
+    "`x` subscriptions..": "`x` subscrições.",
+    "`x` tokens..([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens.",
+    "`x` tokens..": "`x` tokens.",
     "Import/export": "Importar/Exportar",
     "unsubscribe": "Anular subscrição",
     "revoke": "revogar",
     "Subscriptions": "Subscrições",
-    "`x` unseen notifications.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notificações não vistas.",
-        "": "`x` notificações não vistas."
-    },
+    "`x` unseen notifications..([^.,0-9]|^)1([^.,0-9]|$)": "`x` notificações não vistas.",
+    "`x` unseen notifications..": "`x` notificações não vistas.",
     "search": "Pesquisar",
     "Log out": "Terminar sessão",
     "Released under the AGPLv3 by Omar Roth.": "Publicado sob a licença AGPLv3, por Omar Roth.",
@@ -150,8 +138,8 @@
     "Private": "Privado",
     "View all playlists": "Ver todas as listas de reprodução",
     "Updated `x` ago": "Atualizado `x` atrás",
-    "Delete playlist `x`?": "Eliminar a lista de reprodução 'x'?",
-    "Delete playlist": "Eliminar lista de reprodução",
+    "Delete playlist `x`?": "Apagar a lista de reprodução 'x'?",
+    "Delete playlist": "Apagar lista de reprodução",
     "Create playlist": "Criar lista de reprodução",
     "Title": "Título",
     "Playlist privacy": "Privacidade da lista de reprodução",
@@ -167,19 +155,15 @@
     "Whitelisted regions: ": "Regiões permitidas: ",
     "Blacklisted regions: ": "Regiões bloqueadas: ",
     "Shared `x`": "Partilhado `x`",
-    "`x` views.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizações.",
-        "": "`x` visualizações."
-    },
+    "`x` views..([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizações.",
+    "`x` views..": "`x` visualizações.",
     "Premieres in `x`": "Estreias em 'x'",
     "Premieres `x`": "Estreias 'x'",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Oi! Parece que JavaScript está desativado. Clique aqui para ver os comentários, entretanto eles podem levar mais tempo para carregar.",
     "View YouTube comments": "Ver comentários do YouTube",
     "View more comments on Reddit": "Ver mais comentários no Reddit",
-    "View `x` comments.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` comentários.",
-        "": "Ver `x` comentários."
-    },
+    "View `x` comments..([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` comentários.",
+    "View `x` comments..": "Ver `x` comentários.",
     "View Reddit comments": "Ver comentários do Reddit",
     "Hide replies": "Ocultar respostas",
     "Show replies": "Mostrar respostas",
@@ -204,16 +188,12 @@
     "This channel does not exist.": "Este canal não existe.",
     "Could not get channel info.": "Não foi possível obter as informações do canal.",
     "Could not fetch comments": "Não foi possível obter os comentários",
-    "View `x` replies.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` respostas.",
-        "": "Ver `x` respostas."
-    },
+    "View `x` replies..([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` respostas.",
+    "View `x` replies..": "Ver `x` respostas.",
     "`x` ago": "`x` atrás",
     "Load more": "Carregar mais",
-    "`x` points.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "'x' pontos.",
-        "": "'x' pontos."
-    },
+    "`x` points..([^.,0-9]|^)1([^.,0-9]|$)": "'x' pontos.",
+    "`x` points..": "'x' pontos.",
     "Could not create mix.": "Não foi possível criar mistura.",
     "Empty playlist": "Lista de reprodução vazia",
     "Not a playlist.": "Não é uma lista de reprodução.",
@@ -331,34 +311,20 @@
     "Yiddish": "Iídiche",
     "Yoruba": "Ioruba",
     "Zulu": "Zulu",
-    "`x` years.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` anos.",
-        "": "`x` anos."
-    },
-    "`x` months.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` meses.",
-        "": "`x` meses."
-    },
-    "`x` weeks.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` semanas.",
-        "": "`x` semanas."
-    },
-    "`x` days.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dias.",
-        "": "`x` dias."
-    },
-    "`x` hours.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` horas.",
-        "": "`x` horas."
-    },
-    "`x` minutes.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutos.",
-        "": "`x` minutos."
-    },
-    "`x` seconds.": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` segundos.",
-        "": "`x` segundos."
-    },
+    "`x` years..([^.,0-9]|^)1([^.,0-9]|$)": "`x` anos.",
+    "`x` years..": "`x` anos.",
+    "`x` months..([^.,0-9]|^)1([^.,0-9]|$)": "`x` meses.",
+    "`x` months..": "`x` meses.",
+    "`x` weeks..([^.,0-9]|^)1([^.,0-9]|$)": "`x` semanas.",
+    "`x` weeks..": "`x` semanas.",
+    "`x` days..([^.,0-9]|^)1([^.,0-9]|$)": "`x` dias.",
+    "`x` days..": "`x` dias.",
+    "`x` hours..([^.,0-9]|^)1([^.,0-9]|$)": "`x` horas.",
+    "`x` hours..": "`x` horas.",
+    "`x` minutes..([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutos.",
+    "`x` minutes..": "`x` minutos.",
+    "`x` seconds..([^.,0-9]|^)1([^.,0-9]|$)": "`x` segundos.",
+    "`x` seconds..": "`x` segundos.",
     "Fallback comments: ": "Comentários alternativos: ",
     "Popular": "Popular",
     "Top": "Top",
@@ -375,7 +341,7 @@
     "Download as: ": "Transferir como: ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
     "(edited)": "(editado)",
-    "YouTube comment permalink": "Link permanente do comentário do YouTube",
+    "YouTube comment permalink": "Hiperligação permanente ao comentário do YouTube",
     "permalink": "ligação permanente",
     "`x` marked it with a ❤": "`x` foi marcado como ❤",
     "Audio mode": "Modo de áudio",
