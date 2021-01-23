@@ -280,9 +280,9 @@ def arg_array(array, start = 1)
   return args
 end
 
-def make_host_url(config, kemal_config)
-  ssl = config.https_only || kemal_config.ssl
-  port = config.external_port || kemal_config.port
+def make_host_url(kemal_config)
+  ssl = CONFIG.https_only || kemal_config.ssl
+  port = CONFIG.external_port || kemal_config.port
 
   if ssl
     scheme = "https://"
@@ -297,11 +297,11 @@ def make_host_url(config, kemal_config)
     port = ""
   end
 
-  if !config.domain
+  if !CONFIG.domain
     return ""
   end
 
-  host = config.domain.not_nil!.lchop(".")
+  host = CONFIG.domain.not_nil!.lchop(".")
 
   return "#{scheme}#{host}#{port}"
 end
@@ -345,7 +345,7 @@ def sha256(text)
   return digest.final.hexstring
 end
 
-def subscribe_pubsub(topic, key, config)
+def subscribe_pubsub(topic, key)
   case topic
   when .match(/^UC[A-Za-z0-9_-]{22}$/)
     topic = "channel_id=#{topic}"
