@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - "master"
-  pull_request:
-    branches: "*"
   schedule:
     - cron: 0 0 * * *
 
@@ -39,13 +37,3 @@ jobs:
           labels: quay.expires-after=12w
           push: true
           tags: quay.io/invidious/invidious:${{ github.sha }},quay.io/invidious/invidious:latest
-
-      - name: Build and push for Pull Request
-        if: github.ref != 'refs/heads/master'
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: docker/Dockerfile
-          labels: quay.expires-after=6w
-          push: true
-          tags: quay.io/invidious/invidious:${{ github.sha }}
