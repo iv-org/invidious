@@ -18,6 +18,8 @@ jobs:
       
       - name: Install Crystal
         uses: oprypin/install-crystal@v1.2.4
+        with:
+          crystal: 0.35.1
       
       - name: Cache Shards
         uses: actions/cache@v2
