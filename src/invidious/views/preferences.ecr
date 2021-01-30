@@ -208,14 +208,14 @@
                 </div>
 
                 <% # Web notifications are only supported over HTTPS %>
-                <% if Kemal.config.ssl || config.https_only %>
+                <% if Kemal.config.ssl || CONFIG.https_only %>
                     <div class="pure-control-group">
                         <a href="#" data-onclick="notification_requestPermission"><%= translate(locale, "Enable web notifications") %></a>
                     </div>
                 <% end %>
             <% end %>
 
-            <% if env.get?("user") && config.admins.includes? env.get?("user").as(User).email %>
+            <% if env.get?("user") && CONFIG.admins.includes? env.get?("user").as(User).email %>
                 <legend><%= translate(locale, "Administrator preferences") %></legend>
 
                 <div class="pure-control-group">
@@ -240,28 +240,28 @@
 
                 <div class="pure-control-group">
                     <label for="popular_enabled"><%= translate(locale, "Popular enabled: ") %></label>
-                    <input name="popular_enabled" id="popular_enabled" type="checkbox" <% if config.popular_enabled %>checked<% end %>>
+                    <input name="popular_enabled" id="popular_enabled" type="checkbox" <% if CONFIG.popular_enabled %>checked<% end %>>
                 </div>
 
 
                 <div class="pure-control-group">
                     <label for="captcha_enabled"><%= translate(locale, "CAPTCHA enabled: ") %></label>
-                    <input name="captcha_enabled" id="captcha_enabled" type="checkbox" <% if config.captcha_enabled %>checked<% end %>>
+                    <input name="captcha_enabled" id="captcha_enabled" type="checkbox" <% if CONFIG.captcha_enabled %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
                     <label for="login_enabled"><%= translate(locale, "Login enabled: ") %></label>
-                    <input name="login_enabled" id="login_enabled" type="checkbox" <% if config.login_enabled %>checked<% end %>>
+                    <input name="login_enabled" id="login_enabled" type="checkbox" <% if CONFIG.login_enabled %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
                     <label for="registration_enabled"><%= translate(locale, "Registration enabled: ") %></label>
-                    <input name="registration_enabled" id="registration_enabled" type="checkbox" <% if config.registration_enabled %>checked<% end %>>
+                    <input name="registration_enabled" id="registration_enabled" type="checkbox" <% if CONFIG.registration_enabled %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
                     <label for="statistics_enabled"><%= translate(locale, "Report statistics: ") %></label>
-                    <input name="statistics_enabled" id="statistics_enabled" type="checkbox" <% if config.statistics_enabled %>checked<% end %>>
+                    <input name="statistics_enabled" id="statistics_enabled" type="checkbox" <% if CONFIG.statistics_enabled %>checked<% end %>>
                 </div>
             <% end %>
 

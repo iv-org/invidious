@@ -1,12 +1,11 @@
 class Invidious::Jobs::RefreshFeedsJob < Invidious::Jobs::BaseJob
   private getter db : DB::Database
-  private getter config : Config
 
-  def initialize(@db, @config)
+  def initialize(@db)
   end
 
   def begin
-    max_fibers = config.feed_threads
+    max_fibers = CONFIG.feed_threads
     active_fibers = 0
     active_channel = Channel(Bool).new
 

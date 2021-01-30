@@ -1,9 +1,4 @@
 class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
-  private getter config : Config
-
-  def initialize(@config)
-  end
-
   def begin
     loop do
       begin
@@ -22,9 +17,9 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
 
             headers = response.cookies.add_request_headers(HTTP::Headers.new)
 
-            response = JSON.parse(HTTP::Client.post(config.captcha_api_url + "/createTask",
+            response = JSON.parse(HTTP::Client.post(CONFIG.captcha_api_url + "/createTask",
               headers: HTTP::Headers{"Content-Type" => "application/json"}, body: {
-              "clientKey" => config.captcha_key,
+              "clientKey" => CONFIG.captcha_key,
               "task"      => {
                 "type"                => "NoCaptchaTaskProxyless",
                 "websiteURL"          => "https://www.youtube.com#{path}",
@@ -39,9 +34,9 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
             loop do
               sleep 10.seconds
 
-              response = JSON.parse(HTTP::Client.post(config.captcha_api_url + "/getTaskResult",
+              response = JSON.parse(HTTP::Client.post(CONFIG.captcha_api_url + "/getTaskResult",
                 headers: HTTP::Headers{"Content-Type" => "application/json"}, body: {
-                "clientKey" => config.captcha_key,
+                "clientKey" => CONFIG.captcha_key,
                 "taskId"    => task_id,
               }.to_json).body)
 
@@ -58,10 +53,10 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
 
             response.cookies
               .select { |cookie| cookie.name != "PREF" }
-              .each { |cookie| config.cookies << cookie }
+              .each { |cookie| CONFIG.cookies << cookie }
 
             # Persist cookies between runs
-            File.write("config/config.yml", config.to_yaml)
+            File.write("config/config.yml", CONFIG.to_yaml)
           elsif response.headers["Location"]?.try &.includes?("/sorry/index")
             location = response.headers["Location"].try { |u| URI.parse(u) }
             headers = HTTP::Headers{":authority" => location.host.not_nil!}
@@ -77,11 +72,11 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
               inputs[node["name"]] = node["value"]
             end
 
-            captcha_client = HTTPClient.new(URI.parse(config.captcha_api_url))
-            captcha_client.family = config.force_resolve || Socket::Family::INET
+            captcha_client = HTTPClient.new(URI.parse(CONFIG.captcha_api_url))
+            captcha_client.family = CONFIG.force_resolve || Socket::Family::INET
             response = JSON.parse(captcha_client.post("/createTask",
               headers: HTTP::Headers{"Content-Type" => "application/json"}, body: {
-              "clientKey" => config.captcha_key,
+              "clientKey" => CONFIG.captcha_key,
               "task"      => {
                 "type"                => "NoCaptchaTaskProxyless",
                 "websiteURL"          => location.to_s,
@@ -100,7 +95,7 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
 
               response = JSON.parse(captcha_client.post("/getTaskResult",
                 headers: HTTP::Headers{"Content-Type" => "application/json"}, body: {
-                "clientKey" => config.captcha_key,
+                "clientKey" => CONFIG.captcha_key,
                 "taskId"    => task_id,
               }.to_json).body)
 
@@ -119,10 +114,10 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
             }
             cookies = HTTP::Cookies.from_headers(headers)
 
-            cookies.each { |cookie| config.cookies << cookie }
+            cookies.each { |cookie| CONFIG.cookies << cookie }
 
             # Persist cookies between runs
-            File.write("config/config.yml", config.to_yaml)
+            File.write("config/config.yml", CONFIG.to_yaml)
           end
         end
       rescue ex

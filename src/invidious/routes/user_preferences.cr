@@ -146,8 +146,8 @@ class Invidious::Routes::UserPreferences < Invidious::Routes::BaseRoute
       user = user.as(User)
       PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
 
-      if config.admins.includes? user.email
-        config.default_user_preferences.default_home = env.params.body["admin_default_home"]?.try &.as(String) || config.default_user_preferences.default_home
+      if CONFIG.admins.includes? user.email
+        CONFIG.default_user_preferences.default_home = env.params.body["admin_default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
 
         admin_feed_menu = [] of String
         4.times do |index|
@@ -156,40 +156,39 @@ class Invidious::Routes::UserPreferences < Invidious::Routes::BaseRoute
             admin_feed_menu << option
           end
         end
-        config.default_user_preferences.feed_menu = admin_feed_menu
+        CONFIG.default_user_preferences.feed_menu = admin_feed_menu
 
         popular_enabled = env.params.body["popular_enabled"]?.try &.as(String)
         popular_enabled ||= "off"
-        config.popular_enabled = popular_enabled == "on"
+        CONFIG.popular_enabled = popular_enabled == "on"
 
         captcha_enabled = env.params.body["captcha_enabled"]?.try &.as(String)
         captcha_enabled ||= "off"
-        config.captcha_enabled = captcha_enabled == "on"
+        CONFIG.captcha_enabled = captcha_enabled == "on"
 
         login_enabled = env.params.body["login_enabled"]?.try &.as(String)
         login_enabled ||= "off"
-        config.login_enabled = login_enabled == "on"
+        CONFIG.login_enabled = login_enabled == "on"
 
         registration_enabled = env.params.body["registration_enabled"]?.try &.as(String)
         registration_enabled ||= "off"
-        config.registration_enabled = registration_enabled == "on"
+        CONFIG.registration_enabled = registration_enabled == "on"
 
         statistics_enabled = env.params.body["statistics_enabled"]?.try &.as(String)
         statistics_enabled ||= "off"
-        config.statistics_enabled = statistics_enabled == "on"
+        CONFIG.statistics_enabled = statistics_enabled == "on"
 
-        CONFIG.default_user_preferences = config.default_user_preferences
-        File.write("config/config.yml", config.to_yaml)
+        File.write("config/config.yml", CONFIG.to_yaml)
       end
     else
-      if Kemal.config.ssl || config.https_only
+      if Kemal.config.ssl || CONFIG.https_only
         secure = true
       else
         secure = false
       end
 
-      if config.domain
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.utc + 2.years,
+      if CONFIG.domain
+        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: preferences, expires: Time.utc + 2.years,
           secure: secure, http_only: true)
       else
         env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
@@ -234,14 +233,14 @@ class Invidious::Routes::UserPreferences < Invidious::Routes::BaseRoute
 
       preferences = preferences.to_json
 
-      if Kemal.config.ssl || config.https_only
+      if Kemal.config.ssl || CONFIG.https_only
         secure = true
       else
         secure = false
       end
 
-      if config.domain
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{config.domain}", value: preferences, expires: Time.utc + 2.years,
+      if CONFIG.domain
+        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: preferences, expires: Time.utc + 2.years,
           secure: secure, http_only: true)
       else
         env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
