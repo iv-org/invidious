@@ -82,6 +82,7 @@ LOCALES = {
   "eo"    => load_locale("eo"),
   "es"    => load_locale("es"),
   "fa"    => load_locale("fa"),
+  "fi"    => load_locale("fi"),
   "fr"    => load_locale("fr"),
   "hr"    => load_locale("hr"),
   "is"    => load_locale("is"),
