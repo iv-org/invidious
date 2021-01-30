@@ -64,11 +64,14 @@ end
 class Config
   include YAML::Serializable
 
-  property channel_threads : Int32 = 1             # Number of threads to use for crawling videos from channels (for updating subscriptions)
-  property feed_threads : Int32 = 1                # Number of threads to use for updating feeds
-  property output : String = "STDOUT"              # Log file path or STDOUT
-  property log_level : LogLevel = LogLevel::Info   # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
-  property db : DBConfig                           # Database configuration
+  property channel_threads : Int32 = 1           # Number of threads to use for crawling videos from channels (for updating subscriptions)
+  property feed_threads : Int32 = 1              # Number of threads to use for updating feeds
+  property output : String = "STDOUT"            # Log file path or STDOUT
+  property log_level : LogLevel = LogLevel::Info # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
+  property db : DBConfig? = nil                  # Database configuration with separate parameters (username, hostname, etc)
+
+  @[YAML::Field(converter: Preferences::URIConverter)]
+  property database_url : URI = URI.parse("")      # Database configuration using 12-Factor "Database URL" syntax
   property decrypt_polling : Bool = true           # Use polling to keep decryption function up to date
   property full_refresh : Bool = false             # Used for crawling channels: threads should check all videos uploaded by a channel
   property https_only : Bool?                      # Used to tell Invidious it is behind a proxy, so links to resources should be https://
@@ -169,6 +172,23 @@ class Config
             end
         end
     {% end %}
+
+    # Build database_url from db.* if it's not set directly
+    if config.database_url.to_s.empty?
+      if db = config.db
+        config.database_url = URI.new(
+          scheme: "postgres",
+          user: db.user,
+          password: db.password,
+          host: db.host,
+          port: db.port,
+          path: db.dbname,
+        )
+      else
+        puts "Config : Either database_url or db.* is required"
+        exit(1)
+      end
+    end
 
     return config
   end

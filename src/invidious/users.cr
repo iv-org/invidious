@@ -173,6 +173,20 @@ struct Preferences
     end
   end
 
+  module URIConverter
+    def self.to_yaml(value : URI, yaml : YAML::Nodes::Builder)
+      yaml.scalar value.normalize!
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : URI
+      if node.is_a?(YAML::Nodes::Scalar)
+        URI.parse node.value
+      else
+        node.raise "Expected scalar, not #{node.class}"
+      end
+    end
+  end
+
   module ProcessString
     def self.to_json(value : String, json : JSON::Builder)
       json.string value

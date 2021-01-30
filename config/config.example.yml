@@ -6,6 +6,8 @@ db:
   host: localhost
   port: 5432
   dbname: invidious
+# alternatively, you can also set the URL directly - if both are provided then the latter takes precedence
+# database_url: postgres://kemal:kemal@localhost:5432/invidious
 full_refresh: false
 https_only: false
 domain:
