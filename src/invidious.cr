@@ -217,7 +217,7 @@ before_all do |env|
     extra_media_csp += " https://*.youtube.com:443"
   end
   # TODO: Remove style-src's 'unsafe-inline', requires to remove all inline styles (<style> [..] </style>, style=" [..] ")
-  env.response.headers["Content-Security-Policy"] = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; media-src 'self' blob:#{extra_media_csp}"
+  env.response.headers["Content-Security-Policy"] = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; media-src 'self' blob:#{extra_media_csp}; child-src blob:"
   env.response.headers["Referrer-Policy"] = "same-origin"
 
   if (Kemal.config.ssl || CONFIG.https_only) && CONFIG.hsts
