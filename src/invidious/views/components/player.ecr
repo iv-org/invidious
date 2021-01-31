@@ -4,7 +4,7 @@
     <% if params.video_loop %>loop<% end %>
     <% if params.controls %>controls<% end %>>
     <% if (hlsvp = video.hls_manifest_url) && !CONFIG.disabled?("livestreams") %>
-        <source src="<%= URI.parse(hlsvp).full_path %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="livestream">
+        <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="livestream">
     <% else %>
         <% if params.listen %>
             <% audio_streams.each_with_index do |fmt, i| %>

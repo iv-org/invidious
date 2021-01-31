@@ -294,7 +294,7 @@ def template_youtube_comments(comments, locale, thin_mode)
       end
 
       if !thin_mode
-        author_thumbnail = "/ggpht#{URI.parse(child["authorThumbnails"][-1]["url"].as_s).full_path}"
+        author_thumbnail = "/ggpht#{URI.parse(child["authorThumbnails"][-1]["url"].as_s).request_target}"
       else
         author_thumbnail = ""
       end
@@ -322,7 +322,7 @@ def template_youtube_comments(comments, locale, thin_mode)
           html << <<-END_HTML
           <div class="pure-g">
             <div class="pure-u-1 pure-u-md-1-2">
-              <img style="width:100%" src="/ggpht#{URI.parse(attachment["url"].as_s).full_path}">
+              <img style="width:100%" src="/ggpht#{URI.parse(attachment["url"].as_s).request_target}">
             </div>
           </div>
           END_HTML
@@ -375,7 +375,7 @@ def template_youtube_comments(comments, locale, thin_mode)
 
       if child["creatorHeart"]?
         if !thin_mode
-          creator_thumbnail = "/ggpht#{URI.parse(child["creatorHeart"]["creatorThumbnail"].as_s).full_path}"
+          creator_thumbnail = "/ggpht#{URI.parse(child["creatorHeart"]["creatorThumbnail"].as_s).request_target}"
         else
           creator_thumbnail = ""
         end
@@ -473,7 +473,7 @@ def replace_links(html)
         params = HTTP::Params.parse(url.query.not_nil!)
         anchor["href"] = params["q"]?
       else
-        anchor["href"] = url.full_path
+        anchor["href"] = url.request_target
       end
     elsif url.to_s == "#"
       begin
@@ -544,7 +544,7 @@ def content_to_comment_html(content)
           if url.path == "/redirect"
             url = HTTP::Params.parse(url.query.not_nil!)["q"]
           else
-            url = url.full_path
+            url = url.request_target
           end
         end
 
