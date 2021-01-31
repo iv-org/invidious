@@ -1,4 +1,4 @@
-FROM crystallang/crystal:0.35.1-alpine AS builder
+FROM crystallang/crystal:0.36.0-alpine AS builder
 RUN apk add --no-cache curl sqlite-static
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
