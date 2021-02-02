@@ -255,7 +255,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
             traceback << "Unhandled dialog /b/0/SmsAuthInterstitial."
           end
 
-          login = client.get(location.full_path, headers)
+          login = client.get(location.request_target, headers)
 
           headers = login.cookies.add_request_headers(headers)
           location = login.headers["Location"]?.try { |u| URI.parse(u) }
