@@ -548,9 +548,9 @@ if (player.share) {
     player.share(shareOptions);
 }
 
-//iOS audio double duration fix
+// Safari audio double duration fix
 player.on('loadedmetadata', function () {
-    if (iOS() && video_data.params.listen) {
+    if (navigator.vendor == "Apple Computer, Inc." && video_data.params.listen) {
         player.on('timeupdate', function () {
             if (player.remainingTime() < player.duration() / 2) {
                 player.currentTime(player.duration() + 1);
@@ -558,16 +558,3 @@ player.on('loadedmetadata', function () {
         })
     }
 });
-		
-function iOS() {
-  return [
-    'iPad Simulator',
-    'iPhone Simulator',
-    'iPod Simulator',
-    'iPad',
-    'iPhone',
-    'iPod'
-  ].includes(navigator.platform)
-  // iPad on iOS 13 detection
-  || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
-}
