@@ -1,5 +1,5 @@
-class Invidious::Routes::Home < Invidious::Routes::BaseRoute
-  def handle(env)
+class Invidious::Routes::Misc < Invidious::Routes::BaseRoute
+  def home(env)
     preferences = env.get("preferences").as(Preferences)
     locale = LOCALES[preferences.locale]?
     user = env.get? "user"
@@ -24,5 +24,15 @@ class Invidious::Routes::Home < Invidious::Routes::BaseRoute
     else
       templated "empty"
     end
+  end
+
+  def privacy(env)
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    templated "privacy"
+  end
+
+  def licenses(env)
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    rendered "licenses"
   end
 end

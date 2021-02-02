@@ -1,4 +1,4 @@
-class Invidious::Routes::UserPreferences < Invidious::Routes::BaseRoute
+class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
   def show(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 

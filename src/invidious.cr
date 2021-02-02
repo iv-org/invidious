@@ -311,12 +311,12 @@ before_all do |env|
   env.set "current_page", URI.encode_www_form(current_page)
 end
 
-Invidious::Routing.get "/", Invidious::Routes::Home
-Invidious::Routing.get "/privacy", Invidious::Routes::Privacy
-Invidious::Routing.get "/licenses", Invidious::Routes::Licenses
+Invidious::Routing.get "/", Invidious::Routes::Misc, :home
+Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
+Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
 Invidious::Routing.get "/watch", Invidious::Routes::Watch
-Invidious::Routing.get "/embed/", Invidious::Routes::Embed::Index
-Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed::Show
+Invidious::Routing.get "/embed/", Invidious::Routes::Embed, :redirect
+Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed, :show
 Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Playlists, :index
 Invidious::Routing.get "/create_playlist", Invidious::Routes::Playlists, :new
 Invidious::Routing.post "/create_playlist", Invidious::Routes::Playlists, :create
@@ -335,9 +335,9 @@ Invidious::Routing.get "/search", Invidious::Routes::Search, :search
 Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
 Invidious::Routing.post "/login", Invidious::Routes::Login, :login
 Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
-Invidious::Routing.get "/preferences", Invidious::Routes::UserPreferences, :show
-Invidious::Routing.post "/preferences", Invidious::Routes::UserPreferences, :update
-Invidious::Routing.get "/toggle_theme", Invidious::Routes::UserPreferences, :toggle_theme
+Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show
+Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
+Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
 
 # Users
 
