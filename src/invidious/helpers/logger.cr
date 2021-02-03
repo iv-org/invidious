@@ -1,5 +1,3 @@
-require "logger"
-
 enum LogLevel
   All   = 0
   Trace = 1

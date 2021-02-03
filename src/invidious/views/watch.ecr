@@ -203,7 +203,7 @@
             <a href="/channel/<%= video.ucid %>" style="display:block;width:fit-content;width:-moz-fit-content">
                 <div class="channel-profile">
                     <% if !video.author_thumbnail.empty? %>
-                        <img src="/ggpht<%= URI.parse(video.author_thumbnail).full_path %>">
+                        <img src="/ggpht<%= URI.parse(video.author_thumbnail).request_target %>">
                     <% end %>
                     <span id="channel-name"><%= video.author %></span>
                 </div>

@@ -5,7 +5,7 @@
             <a style="width:100%" href="/channel/<%= item.ucid %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <center>
-                        <img style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).full_path %>"/>
+                        <img style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target %>"/>
                     </center>
                 <% end %>
                 <p><%= item.author %></p>
@@ -15,7 +15,7 @@
             <h5><%= item.description_html %></h5>
         <% when SearchPlaylist, InvidiousPlaylist %>
             <% if item.id.starts_with? "RD" %>
-                <% url = "/mix?list=#{item.id}&continuation=#{URI.parse(item.thumbnail || "/vi/-----------").full_path.split("/")[2]}" %>
+                <% url = "/mix?list=#{item.id}&continuation=#{URI.parse(item.thumbnail || "/vi/-----------").request_target.split("/")[2]}" %>
             <% else %>
                 <% url = "/playlist?list=#{item.id}" %>
             <% end %>
@@ -23,7 +23,7 @@
             <a style="width:100%" href="<%= url %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <div class="thumbnail">
-                        <img class="thumbnail" src="<%= URI.parse(item.thumbnail || "/").full_path %>"/>
+                        <img class="thumbnail" src="<%= URI.parse(item.thumbnail || "/").request_target %>"/>
                         <p class="length"><%= number_with_separator(item.video_count) %> videos</p>
                     </div>
                 <% end %>

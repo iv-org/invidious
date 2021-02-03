@@ -21,9 +21,8 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
   }
 
   private getter db : DB::Database
-  private getter config : Config
 
-  def initialize(@db, @config, @software_config : Hash(String, String))
+  def initialize(@db, @software_config : Hash(String, String))
   end
 
   def begin
@@ -43,7 +42,7 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
       "version" => @software_config["version"],
       "branch"  => @software_config["branch"],
     }
-    STATISTICS["openRegistration"] = config.registration_enabled
+    STATISTICS["openRegistration"] = CONFIG.registration_enabled
   end
 
   private def refresh_stats

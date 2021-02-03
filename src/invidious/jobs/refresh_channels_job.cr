@@ -1,12 +1,11 @@
 class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
   private getter db : DB::Database
-  private getter config : Config
 
-  def initialize(@db, @config)
+  def initialize(@db)
   end
 
   def begin
-    max_fibers = config.channel_threads
+    max_fibers = CONFIG.channel_threads
     lim_fibers = max_fibers
     active_fibers = 0
     active_channel = Channel(Bool).new
@@ -31,7 +30,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
           spawn do
             begin
               LOGGER.trace("RefreshChannelsJob: #{id} fiber : Fetching channel")
-              channel = fetch_channel(id, db, config.full_refresh)
+              channel = fetch_channel(id, db, CONFIG.full_refresh)
 
               lim_fibers = max_fibers
 

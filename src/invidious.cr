@@ -30,11 +30,8 @@ require "./invidious/*"
 require "./invidious/routes/**"
 require "./invidious/jobs/**"
 
-ENV_CONFIG_NAME = "INVIDIOUS_CONFIG"
-
-CONFIG_STR = ENV.has_key?(ENV_CONFIG_NAME) ? ENV.fetch(ENV_CONFIG_NAME) : File.read("config/config.yml")
-CONFIG     = Config.from_yaml(CONFIG_STR)
-HMAC_KEY   = CONFIG.hmac_key || Random::Secure.hex(32)
+CONFIG   = Config.load
+HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
 PG_URL = URI.new(
   scheme: "postgres",
@@ -52,7 +49,7 @@ PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
 REDDIT_URL      = URI.parse("https://www.reddit.com")
 TEXTCAPTCHA_URL = URI.parse("https://textcaptcha.com")
 YT_URL          = URI.parse("https://www.youtube.com")
-HOST_URL        = make_host_url(CONFIG, Kemal.config)
+HOST_URL        = make_host_url(Kemal.config)
 
 CHARS_SAFE         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
@@ -85,6 +82,7 @@ LOCALES = {
   "eo"    => load_locale("eo"),
   "es"    => load_locale("es"),
   "fa"    => load_locale("fa"),
+  "fi"    => load_locale("fi"),
   "fr"    => load_locale("fr"),
   "hr"    => load_locale("hr"),
   "is"    => load_locale("is"),
@@ -145,8 +143,6 @@ end
 OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mode: "a")
 LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
-config = CONFIG
-
 # Check table integrity
 if CONFIG.check_tables
   check_enum(PG_DB, "privacy", PlaylistPrivacy)
@@ -167,28 +163,33 @@ end
 
 # Start jobs
 
-Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB, config)
-Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB, config)
+if CONFIG.channel_threads > 0
+  Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB)
+end
+
+if CONFIG.feed_threads > 0
+  Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB)
+end
 
 DECRYPT_FUNCTION = DecryptFunction.new(CONFIG.decrypt_polling)
-if config.decrypt_polling
+if CONFIG.decrypt_polling
   Invidious::Jobs.register Invidious::Jobs::UpdateDecryptFunctionJob.new
 end
 
-if config.statistics_enabled
-  Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, config, SOFTWARE)
+if CONFIG.statistics_enabled
+  Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, SOFTWARE)
 end
 
-if (config.use_pubsub_feeds.is_a?(Bool) && config.use_pubsub_feeds.as(Bool)) || (config.use_pubsub_feeds.is_a?(Int32) && config.use_pubsub_feeds.as(Int32) > 0)
-  Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, config, HMAC_KEY)
+if (CONFIG.use_pubsub_feeds.is_a?(Bool) && CONFIG.use_pubsub_feeds.as(Bool)) || (CONFIG.use_pubsub_feeds.is_a?(Int32) && CONFIG.use_pubsub_feeds.as(Int32) > 0)
+  Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, HMAC_KEY)
 end
 
-if config.popular_enabled
+if CONFIG.popular_enabled
   Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 end
 
-if config.captcha_key
-  Invidious::Jobs.register Invidious::Jobs::BypassCaptchaJob.new(config)
+if CONFIG.captcha_key
+  Invidious::Jobs.register Invidious::Jobs::BypassCaptchaJob.new
 end
 
 connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
@@ -216,10 +217,10 @@ before_all do |env|
     extra_media_csp += " https://*.youtube.com:443"
   end
   # TODO: Remove style-src's 'unsafe-inline', requires to remove all inline styles (<style> [..] </style>, style=" [..] ")
-  env.response.headers["Content-Security-Policy"] = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; media-src 'self' blob:#{extra_media_csp}"
+  env.response.headers["Content-Security-Policy"] = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; media-src 'self' blob:#{extra_media_csp}; child-src blob:"
   env.response.headers["Referrer-Policy"] = "same-origin"
 
-  if (Kemal.config.ssl || config.https_only) && config.hsts
+  if (Kemal.config.ssl || CONFIG.https_only) && CONFIG.hsts
     env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
   end
 
@@ -310,12 +311,12 @@ before_all do |env|
   env.set "current_page", URI.encode_www_form(current_page)
 end
 
-Invidious::Routing.get "/", Invidious::Routes::Home
-Invidious::Routing.get "/privacy", Invidious::Routes::Privacy
-Invidious::Routing.get "/licenses", Invidious::Routes::Licenses
+Invidious::Routing.get "/", Invidious::Routes::Misc, :home
+Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
+Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
 Invidious::Routing.get "/watch", Invidious::Routes::Watch
-Invidious::Routing.get "/embed/", Invidious::Routes::Embed::Index
-Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed::Show
+Invidious::Routing.get "/embed/", Invidious::Routes::Embed, :redirect
+Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed, :show
 Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Playlists, :index
 Invidious::Routing.get "/create_playlist", Invidious::Routes::Playlists, :new
 Invidious::Routing.post "/create_playlist", Invidious::Routes::Playlists, :create
@@ -334,9 +335,9 @@ Invidious::Routing.get "/search", Invidious::Routes::Search, :search
 Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
 Invidious::Routing.post "/login", Invidious::Routes::Login, :login
 Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
-Invidious::Routing.get "/preferences", Invidious::Routes::UserPreferences, :show
-Invidious::Routing.post "/preferences", Invidious::Routes::UserPreferences, :update
-Invidious::Routing.get "/toggle_theme", Invidious::Routes::UserPreferences, :toggle_theme
+Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show
+Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
+Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
 
 # Users
 
@@ -1164,7 +1165,7 @@ end
 get "/feed/popular" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-  if config.popular_enabled
+  if CONFIG.popular_enabled
     templated "popular"
   else
     message = translate(locale, "The Popular feed has been disabled by the administrator.")
@@ -1427,9 +1428,9 @@ get "/feed/playlist/:plid" do |env|
     node.attributes.each do |attribute|
       case attribute.name
       when "url", "href"
-        full_path = URI.parse(node[attribute.name]).full_path
-        query_string_opt = full_path.starts_with?("/watch?v=") ? "&#{params}" : ""
-        node[attribute.name] = "#{HOST_URL}#{full_path}#{query_string_opt}"
+        request_target = URI.parse(node[attribute.name]).request_target
+        query_string_opt = request_target.starts_with?("/watch?v=") ? "&#{params}" : ""
+        node[attribute.name] = "#{HOST_URL}#{request_target}#{query_string_opt}"
       else nil # Skip
       end
     end
@@ -1438,7 +1439,7 @@ get "/feed/playlist/:plid" do |env|
   document = document.to_xml(options: XML::SaveOptions::NO_DECL)
 
   document.scan(/<uri>(?<url>[^<]+)<\/uri>/).each do |match|
-    content = "#{HOST_URL}#{URI.parse(match["url"]).full_path}"
+    content = "#{HOST_URL}#{URI.parse(match["url"]).request_target}"
     document = document.gsub(match[0], "<uri>#{content}</uri>")
   end
 
@@ -1633,7 +1634,7 @@ end
 
 get "/attribution_link" do |env|
   if query = env.params.query["u"]?
-    url = URI.parse(query).full_path
+    url = URI.parse(query).request_target
   else
     url = "/"
   end
@@ -1822,7 +1823,7 @@ get "/api/v1/stats" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
   env.response.content_type = "application/json"
 
-  if !config.statistics_enabled
+  if !CONFIG.statistics_enabled
     next error_json(400, "Statistics are not enabled.")
   end
 
@@ -1977,7 +1978,7 @@ get "/api/v1/captions/:id" do |env|
     caption = caption[0]
   end
 
-  url = URI.parse("#{caption.baseUrl}&tlang=#{tlang}").full_path
+  url = URI.parse("#{caption.baseUrl}&tlang=#{tlang}").request_target
 
   # Auto-generated captions often have cues that aren't aligned properly with the video,
   # as well as some other markup that makes it cumbersome, so we try to fix that here
@@ -2232,7 +2233,7 @@ get "/api/v1/popular" do |env|
 
   env.response.content_type = "application/json"
 
-  if !config.popular_enabled
+  if !CONFIG.popular_enabled
     error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
     env.response.status_code = 400
     next error_message
@@ -3183,7 +3184,7 @@ get "/api/manifest/dash/id/:id" do |env|
   end
 
   if dashmpd = video.dash_manifest_url
-    manifest = YT_POOL.client &.get(URI.parse(dashmpd).full_path).body
+    manifest = YT_POOL.client &.get(URI.parse(dashmpd).request_target).body
 
     manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
       url = baseurl.lchop("<BaseURL>")
@@ -3191,7 +3192,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
       if local
         uri = URI.parse(url)
-        url = "#{uri.full_path}host/#{uri.host}/"
+        url = "#{uri.request_target}host/#{uri.host}/"
       end
 
       "<BaseURL>#{url}</BaseURL>"
@@ -3204,7 +3205,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   if local
     adaptive_fmts.each do |fmt|
-      fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).full_path)
+      fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target)
     end
   end
 
@@ -3402,7 +3403,7 @@ get "/latest_version" do |env|
     next
   end
 
-  url = URI.parse(url).full_path.not_nil! if local
+  url = URI.parse(url).request_target.not_nil! if local
   url = "#{url}&title=#{title}" if title
 
   env.redirect url
@@ -3514,7 +3515,7 @@ get "/videoplayback" do |env|
           client = make_client(URI.parse(new_host), region)
         end
 
-        url = "#{location.full_path}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
+        url = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
       else
         break
       end
@@ -3554,7 +3555,7 @@ get "/videoplayback" do |env|
 
         if location = response.headers["Location"]?
           location = URI.parse(location)
-          location = "#{location.full_path}&host=#{location.host}"
+          location = "#{location.request_target}&host=#{location.host}"
 
           if region
             location += "&region=#{region}"
@@ -3618,7 +3619,7 @@ get "/videoplayback" do |env|
 
             if location = response.headers["Location"]?
               location = URI.parse(location)
-              location = "#{location.full_path}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
+              location = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
 
               env.redirect location
               break
@@ -3858,7 +3859,7 @@ end
 get "/watch_videos" do |env|
   response = YT_POOL.client &.get(env.request.resource)
   if url = response.headers["Location"]?
-    url = URI.parse(url).full_path
+    url = URI.parse(url).request_target
     next env.redirect url
   end
 
@@ -3873,7 +3874,7 @@ error 404 do |env|
     response = YT_POOL.client &.get("/#{item}")
 
     if response.status_code == 301
-      response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).full_path)
+      response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).request_target)
     end
 
     if response.body.empty?

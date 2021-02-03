@@ -71,14 +71,14 @@ end
 class HTTPClient < HTTP::Client
   def set_proxy(proxy : HTTPProxy)
     begin
-      @socket = proxy.open(host: @host, port: @port, tls: @tls, connection_options: proxy_connection_options)
+      @io = proxy.open(host: @host, port: @port, tls: @tls, connection_options: proxy_connection_options)
     rescue IO::Error
-      @socket = nil
+      @io = nil
     end
   end
 
   def unset_proxy
-    @socket = nil
+    @io = nil
   end
 
   def proxy_connection_options
