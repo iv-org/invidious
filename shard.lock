@@ -22,7 +22,7 @@ shards:
 
   pg:
     git: https://github.com/will/crystal-pg.git
-    version: 0.22.1
+    version: 0.23.1
 
   pool:
     git: https://github.com/ysbaddaden/pool.git
@@ -38,5 +38,5 @@ shards:
 
   sqlite3:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
-    version: 0.17.0
+    version: 0.18.0
 
