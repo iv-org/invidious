@@ -5,7 +5,7 @@
             <a style="width:100%" href="/channel/<%= item.ucid %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <center>
-                        <img style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target %>"/>
+                        <img style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target.gsub(/=s\d+/, "=s176") %>"/>
                     </center>
                 <% end %>
                 <p><%= item.author %></p>
