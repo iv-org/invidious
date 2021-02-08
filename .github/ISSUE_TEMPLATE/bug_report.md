@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve Invidious
+about: Create a bug report to help us improve Invidious
 title: '[Bug] '
 labels: bug
 assignees: ''
@@ -9,7 +9,7 @@ assignees: ''
 
 <!-- Please use the search function to check if the bug you found has already been reported by someone else -->
 <!-- If you want to suggest a new feature please use "Feature request" instead -->
-<!-- If you want to suggest an enhancement to a new feature please use "Enhancement" instead -->
+<!-- If you want to suggest an enhancement to an existing feature please use "Enhancement" instead -->
 
 **Describe the bug**
 <!-- A clear and concise description of what the bug is. -->
