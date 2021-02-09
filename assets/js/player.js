@@ -555,6 +555,6 @@ if (navigator.vendor == "Apple Computer, Inc." && video_data.params.listen) {
             if (player.remainingTime() < player.duration() / 2) {
                 player.currentTime(player.duration() + 1);
             }
-        })
-    }
-});
+        });
+    });
+}
