@@ -1,10 +1,10 @@
 {
     "`x` subscribers.([^.,0-9]|^)1([^.,0-9]|$)": "`x` tilaaja",
-    "`x` subscribers.": "`x` tilaajaa",
+    "`x` subscribers.": "`x` tilaajaa.",
     "`x` videos.([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-    "`x` videos.": "`x` videota",
+    "`x` videos.": "`x` videota.",
     "`x` playlists.([^.,0-9]|^)1([^.,0-9]|$)": "`x` soittolista.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` playlists.": "`x` soittolistaa",
+    "`x` playlists.": "`x` soittolistaa.",
     "LIVE": "SUORA",
     "Shared `x` ago": "Jaettu `x` sitten",
     "Unsubscribe": "Peruuta tilaus",
