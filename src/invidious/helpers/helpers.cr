@@ -231,7 +231,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
     video_id = i["videoId"].as_s
     title = i["title"].try { |t| t["simpleText"]?.try &.as_s || t["runs"]?.try &.as_a.map(&.["text"].as_s).join("") } || ""
 
-    author_info = i["ownerText"]?.try &.["runs"].as_a[0]?
+    author_info = i["ownerText"]?.try &.["runs"]?.try &.as_a?.try &.[0]?
     author = author_info.try &.["text"].as_s || author_fallback || ""
     author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || author_id_fallback || ""
 
@@ -322,7 +322,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
     video_count = i["videoCount"]?.try &.as_s.to_i || 0
     playlist_thumbnail = i["thumbnails"].as_a[0]?.try &.["thumbnails"]?.try &.as_a[0]?.try &.["url"].as_s || ""
 
-    author_info = i["shortBylineText"]?.try &.["runs"].as_a[0]?
+    author_info = i["shortBylineText"]?.try &.["runs"]?.try &.as_a?.try &.[0]?
     author = author_info.try &.["text"].as_s || author_fallback || ""
     author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || author_id_fallback || ""
 
