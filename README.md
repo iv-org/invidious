@@ -91,10 +91,8 @@ $ sudo pacman -S base-devel shards crystal librsvg postgresql
 
 # Ubuntu or Debian
 # First you have to add the repository to your APT configuration. For easy setup just run in your command line:
-$ curl -sSL https://dist.crystal-lang.org/apt/setup.sh | sudo bash
-# That will add the signing key and the repository configuration. If you prefer to do it manually, execute the following commands:
-$ curl -sL "https://keybase.io/crystal/pgp_keys.asc" | sudo apt-key add -
-$ echo "deb https://dist.crystal-lang.org/apt crystal main" | sudo tee /etc/apt/sources.list.d/crystal.list
+$ curl -fsSL https://crystal-lang.org/install.sh | sudo bash
+# That will add the signing key and the repository configuration. If you prefer to do it manually, Follow the instructions here https://crystal-lang.org/install
 $ sudo apt-get update
 $ sudo apt install crystal libssl-dev libxml2-dev libyaml-dev libgmp-dev libreadline-dev postgresql librsvg2-bin libsqlite3-dev zlib1g-dev
 ```
