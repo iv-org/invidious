@@ -84,6 +84,7 @@ LOCALES = {
   "fa"    => load_locale("fa"),
   "fi"    => load_locale("fi"),
   "fr"    => load_locale("fr"),
+  "he"    => load_locale("he"),
   "hr"    => load_locale("hr"),
   "id"    => load_locale("id"),
   "is"    => load_locale("is"),
