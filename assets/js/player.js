@@ -430,17 +430,17 @@ window.addEventListener('keydown', e => {
 
         case 'ArrowRight':
         case 'MediaFastForward':
-            action = skip_seconds.bind(this, 5);
+            action = skip_seconds.bind(this, 5 * player.playbackRate());
             break;
         case 'ArrowLeft':
         case 'MediaTrackPrevious':
-            action = skip_seconds.bind(this, -5);
+            action = skip_seconds.bind(this, -5 * player.playbackRate());
             break;
         case 'l':
-            action = skip_seconds.bind(this, 10);
+            action = skip_seconds.bind(this, 10 * player.playbackRate());
             break;
         case 'j':
-            action = skip_seconds.bind(this, -10);
+            action = skip_seconds.bind(this, -10 * player.playbackRate());
             break;
 
         case '0':
