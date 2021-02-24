@@ -29,7 +29,7 @@ Public Invidious instances are listed on the documentation website: https://docs
 - Set default player options (speed, quality, autoplay, loop)
 - Support for Reddit comments in place of YouTube comments
 - Import/Export subscriptions, watch history, preferences
-- [Developer API](https://github.com/iv-org/documentation/blob/master/API.md)
+- [Developer API](https://docs.invidious.io/API.md)
 - Does not use any of the official YouTube APIs
 - No need to create a Google account to save subscriptions
 - No Code of Conduct
@@ -63,7 +63,7 @@ The complete documentation is available on https://docs.invidious.io/
 
 ## Extensions:
 
-[Extensions](https://github.com/iv-org/documentation/blob/master/Extensions.md) can be found in the wiki, as well as documentation for integrating it into other projects.
+[Extensions](https://docs.invidious.io/Extensions.md) can be found in the wiki, as well as documentation for integrating it into other projects.
 
 ---
 
