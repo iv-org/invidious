@@ -57,7 +57,7 @@ Monero (XMR): [41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3
 
 ## Documentation:
 
-The complete documentation is available on https://docs.invidious.io/
+The complete documentation is available on https://docs.invidious.io/ (or alternatively on its own [Github repository](https://github.com/iv-org/documentation)).
 
 ---
 
@@ -70,7 +70,7 @@ The complete documentation is available on https://docs.invidious.io/
 ## Made with Invidious:
 
 - [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
-- [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JavaScript-rich alternate YouTube player
+- [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JavaScript-rich alternate YouTube player.
 - [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
 - [LapisTube](https://github.com/blubbll/lapis-tube): A fancy and advanced (experimental) YouTube front-end. Combined streams & custom YT features.
@@ -82,11 +82,11 @@ The complete documentation is available on https://docs.invidious.io/
 
 [![Build Status](https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg)](https://github.com/iv-org/invidious/actions) [![Translation Status](https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg)](https://hosted.weblate.org/engage/invidious/)
 
-1.  Fork it ( https://github.com/iv-org/invidious/fork )
-2.  Create your feature branch (git checkout -b my-new-feature)
-3.  Commit your changes (git commit -am 'Add some feature')
-4.  Push to the branch (git push origin my-new-feature)
-5.  Create a new pull request
+1.  Fork it ( https://github.com/iv-org/invidious/fork ).
+2.  Create your feature branch (git checkout -b my-new-feature).
+3.  Commit your changes (git commit -am 'Add some feature').
+4.  Push to the branch (git push origin my-new-feature).
+5.  Create a new pull request.
 
 ### Translation:
 
