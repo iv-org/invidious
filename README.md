@@ -1,12 +1,6 @@
-# Invidious
+<h1 align="center">Invidious</h1>
 
----
-
-## Invidious is an alternative front-end to YouTube
-
----
-
-[![Build Status](https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg)](https://github.com/iv-org/invidious/actions) [![Translation Status](https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg)](https://hosted.weblate.org/engage/invidious/)
+<h2 align="center">Invidious is an alternative front-end to YouTube.</h2>
 
 ---
 
@@ -20,6 +14,8 @@ Public Invidious instances are listed on the documentation website: https://docs
 
 - [Copylefted libre software](https://github.com/iv-org/invidious) (AGPLv3+ licensed)
 - Lightweight (the homepage is ~4 KB compressed)
+- No ads
+- No tracking
 - Javascript is 100% optional
 - Tools for managing subscriptions:
   - Only show unseen videos
@@ -36,10 +32,9 @@ Public Invidious instances are listed on the documentation website: https://docs
 - [Developer API](https://github.com/iv-org/documentation/blob/master/API.md)
 - Does not use any of the official YouTube APIs
 - No need to create a Google account to save subscriptions
-- No ads
 - No Code of Conduct
 - No Contributor license Agreement
-- Available in many language thanks to [Weblate](https://hosted.weblate.org/projects/)invidious/
+- Available in many language, thanks to [Weblate](https://hosted.weblate.org/projects/invidious/)
 
 ---
 
@@ -60,19 +55,19 @@ Monero (XMR): [41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3
 
 ---
 
-## Documentation
+## Documentation:
 
 The complete documentation is available on https://docs.invidious.io/
 
 ---
 
-## Extensions
+## Extensions:
 
 [Extensions](https://github.com/iv-org/documentation/blob/master/Extensions.md) can be found in the wiki, as well as documentation for integrating it into other projects.
 
 ---
 
-## Made with Invidious
+## Made with Invidious:
 
 - [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
 - [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JavaScript-rich alternate YouTube player
@@ -83,7 +78,9 @@ The complete documentation is available on https://docs.invidious.io/
 
 ---
 
-## Contributing
+## Contributing:
+
+[![Build Status](https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg)](https://github.com/iv-org/invidious/actions) [![Translation Status](https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg)](https://hosted.weblate.org/engage/invidious/)
 
 1.  Fork it ( https://github.com/iv-org/invidious/fork )
 2.  Create your feature branch (git checkout -b my-new-feature)
@@ -91,20 +88,19 @@ The complete documentation is available on https://docs.invidious.io/
 4.  Push to the branch (git push origin my-new-feature)
 5.  Create a new pull request
 
-### Translation
+### Translation:
 
 - Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/engage/invidious/).
 
-
 ---
 
-## Contact
+## Contact:
 
 Feel free to join our [Matrix room](https://matrix.to/#/#invidious:matrix.org), or #invidious on freenode. Both platforms are bridged together.
 
 ---
 
-## Liability
+## Liability:
 
 We take no responsibility for the use of our tool, or external instances provided by third parties. We strongly recommend you abide by the valid official regulations in your country. Furthermore, we refuse liability for any inappropriate use of Invidious, such as illegal downloading. This tool is provided to you in the spirit of free, open software.
 
