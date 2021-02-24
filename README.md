@@ -70,10 +70,9 @@ The complete documentation is available on https://docs.invidious.io/ (or altern
 ## Made with Invidious:
 
 - [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
-- [CloudTube](https://cadence.moe/cloudtube/subscriptions): A JavaScript-rich alternate YouTube player.
+- [CloudTube](https://sr.ht/~cadence/tube/): A JavaScript-rich alternate YouTube player.
 - [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
-- [LapisTube](https://github.com/blubbll/lapis-tube): A fancy and advanced (experimental) YouTube front-end. Combined streams & custom YT features.
 - [HoloPlay](https://github.com/stephane-r/HoloPlay): Funny Android application connecting on Invidious API's with search, playlists and favoris.
 
 ---
