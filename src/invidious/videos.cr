@@ -534,7 +534,8 @@ struct Video
   end
 
   def live_now
-    info["videoDetails"]["isLiveContent"]?.try &.as_bool || false
+    info["microformat"]?.try &.["playerMicroformatRenderer"]?
+      .try &.["liveBroadcastDetails"]?.try &.["isLiveNow"]?.try &.as_bool || false
   end
 
   def is_listed
