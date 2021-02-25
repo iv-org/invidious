@@ -81,6 +81,10 @@
         <h3>
             <%= video.premiere_timestamp.try { |t| translate(locale, "Premieres in `x`", recode_date((t - Time.utc).ago, locale)) } %>
         </h3>
+    <% elsif video.live_now %>
+        <h3>
+            <%= video.premiere_timestamp.try { |t| translate(locale, "Started streaming `x` ago", recode_date((Time.utc - t).ago, locale)) } %>
+        </h3>
     <% end %>
 </div>
 
