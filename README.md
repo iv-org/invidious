@@ -34,7 +34,7 @@ Public Invidious instances are listed on the documentation website: https://docs
 - No need to create a Google account to save subscriptions
 - No Code of Conduct
 - No Contributor license Agreement
-- Available in many language, thanks to [Weblate](https://hosted.weblate.org/projects/invidious/)
+- Available in many languages, thanks to [Weblate](https://hosted.weblate.org/projects/invidious/)
 
 ---
 
