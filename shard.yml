@@ -12,10 +12,10 @@ targets:
 dependencies:
   pg:
     github: will/crystal-pg
-    version: ~> 0.22.1
+    version: ~> 0.23.1
   sqlite3:
     github: crystal-lang/crystal-sqlite3
-    version: ~> 0.17.0
+    version: ~> 0.18.0
   kemal:
     github: kemalcr/kemal
     version: ~> 0.27.0
@@ -29,6 +29,6 @@ dependencies:
     github: iv-org/lsquic.cr
     version: ~> 2.18.1-1
 
-crystal: 0.35.1
+crystal: 0.36.1
 
 license: AGPLv3

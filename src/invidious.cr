@@ -84,7 +84,9 @@ LOCALES = {
   "fa"    => load_locale("fa"),
   "fi"    => load_locale("fi"),
   "fr"    => load_locale("fr"),
+  "he"    => load_locale("he"),
   "hr"    => load_locale("hr"),
+  "id"    => load_locale("id"),
   "is"    => load_locale("is"),
   "it"    => load_locale("it"),
   "ja"    => load_locale("ja"),
@@ -311,12 +313,12 @@ before_all do |env|
   env.set "current_page", URI.encode_www_form(current_page)
 end
 
-Invidious::Routing.get "/", Invidious::Routes::Home
-Invidious::Routing.get "/privacy", Invidious::Routes::Privacy
-Invidious::Routing.get "/licenses", Invidious::Routes::Licenses
+Invidious::Routing.get "/", Invidious::Routes::Misc, :home
+Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
+Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
 Invidious::Routing.get "/watch", Invidious::Routes::Watch
-Invidious::Routing.get "/embed/", Invidious::Routes::Embed::Index
-Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed::Show
+Invidious::Routing.get "/embed/", Invidious::Routes::Embed, :redirect
+Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed, :show
 Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Playlists, :index
 Invidious::Routing.get "/create_playlist", Invidious::Routes::Playlists, :new
 Invidious::Routing.post "/create_playlist", Invidious::Routes::Playlists, :create
@@ -335,9 +337,9 @@ Invidious::Routing.get "/search", Invidious::Routes::Search, :search
 Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
 Invidious::Routing.post "/login", Invidious::Routes::Login, :login
 Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
-Invidious::Routing.get "/preferences", Invidious::Routes::UserPreferences, :show
-Invidious::Routing.post "/preferences", Invidious::Routes::UserPreferences, :update
-Invidious::Routing.get "/toggle_theme", Invidious::Routes::UserPreferences, :toggle_theme
+Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show
+Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
+Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
 
 # Users
 
@@ -1428,9 +1430,9 @@ get "/feed/playlist/:plid" do |env|
     node.attributes.each do |attribute|
       case attribute.name
       when "url", "href"
-        full_path = URI.parse(node[attribute.name]).full_path
-        query_string_opt = full_path.starts_with?("/watch?v=") ? "&#{params}" : ""
-        node[attribute.name] = "#{HOST_URL}#{full_path}#{query_string_opt}"
+        request_target = URI.parse(node[attribute.name]).request_target
+        query_string_opt = request_target.starts_with?("/watch?v=") ? "&#{params}" : ""
+        node[attribute.name] = "#{HOST_URL}#{request_target}#{query_string_opt}"
       else nil # Skip
       end
     end
@@ -1439,7 +1441,7 @@ get "/feed/playlist/:plid" do |env|
   document = document.to_xml(options: XML::SaveOptions::NO_DECL)
 
   document.scan(/<uri>(?<url>[^<]+)<\/uri>/).each do |match|
-    content = "#{HOST_URL}#{URI.parse(match["url"]).full_path}"
+    content = "#{HOST_URL}#{URI.parse(match["url"]).request_target}"
     document = document.gsub(match[0], "<uri>#{content}</uri>")
   end
 
@@ -1634,7 +1636,7 @@ end
 
 get "/attribution_link" do |env|
   if query = env.params.query["u"]?
-    url = URI.parse(query).full_path
+    url = URI.parse(query).request_target
   else
     url = "/"
   end
@@ -1978,7 +1980,7 @@ get "/api/v1/captions/:id" do |env|
     caption = caption[0]
   end
 
-  url = URI.parse("#{caption.baseUrl}&tlang=#{tlang}").full_path
+  url = URI.parse("#{caption.baseUrl}&tlang=#{tlang}").request_target
 
   # Auto-generated captions often have cues that aren't aligned properly with the video,
   # as well as some other markup that makes it cumbersome, so we try to fix that here
@@ -3184,7 +3186,7 @@ get "/api/manifest/dash/id/:id" do |env|
   end
 
   if dashmpd = video.dash_manifest_url
-    manifest = YT_POOL.client &.get(URI.parse(dashmpd).full_path).body
+    manifest = YT_POOL.client &.get(URI.parse(dashmpd).request_target).body
 
     manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
       url = baseurl.lchop("<BaseURL>")
@@ -3192,7 +3194,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
       if local
         uri = URI.parse(url)
-        url = "#{uri.full_path}host/#{uri.host}/"
+        url = "#{uri.request_target}host/#{uri.host}/"
       end
 
       "<BaseURL>#{url}</BaseURL>"
@@ -3205,7 +3207,7 @@ get "/api/manifest/dash/id/:id" do |env|
 
   if local
     adaptive_fmts.each do |fmt|
-      fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).full_path)
+      fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target)
     end
   end
 
@@ -3403,7 +3405,7 @@ get "/latest_version" do |env|
     next
   end
 
-  url = URI.parse(url).full_path.not_nil! if local
+  url = URI.parse(url).request_target.not_nil! if local
   url = "#{url}&title=#{title}" if title
 
   env.redirect url
@@ -3515,7 +3517,7 @@ get "/videoplayback" do |env|
           client = make_client(URI.parse(new_host), region)
         end
 
-        url = "#{location.full_path}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
+        url = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
       else
         break
       end
@@ -3555,7 +3557,7 @@ get "/videoplayback" do |env|
 
         if location = response.headers["Location"]?
           location = URI.parse(location)
-          location = "#{location.full_path}&host=#{location.host}"
+          location = "#{location.request_target}&host=#{location.host}"
 
           if region
             location += "&region=#{region}"
@@ -3619,7 +3621,7 @@ get "/videoplayback" do |env|
 
             if location = response.headers["Location"]?
               location = URI.parse(location)
-              location = "#{location.full_path}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
+              location = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
 
               env.redirect location
               break
@@ -3859,7 +3861,7 @@ end
 get "/watch_videos" do |env|
   response = YT_POOL.client &.get(env.request.resource)
   if url = response.headers["Location"]?
-    url = URI.parse(url).full_path
+    url = URI.parse(url).request_target
     next env.redirect url
   end
 
@@ -3874,7 +3876,7 @@ error 404 do |env|
     response = YT_POOL.client &.get("/#{item}")
 
     if response.status_code == 301
-      response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).full_path)
+      response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).request_target)
     end
 
     if response.body.empty?

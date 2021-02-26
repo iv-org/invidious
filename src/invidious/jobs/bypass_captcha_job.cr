@@ -60,7 +60,7 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
           elsif response.headers["Location"]?.try &.includes?("/sorry/index")
             location = response.headers["Location"].try { |u| URI.parse(u) }
             headers = HTTP::Headers{":authority" => location.host.not_nil!}
-            response = YT_POOL.client &.get(location.full_path, headers)
+            response = YT_POOL.client &.get(location.request_target, headers)
 
             html = XML.parse_html(response.body)
             form = html.xpath_node(%(//form[@action="index"])).not_nil!

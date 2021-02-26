@@ -4,7 +4,7 @@
     <% if params.video_loop %>loop<% end %>
     <% if params.controls %>controls<% end %>>
     <% if (hlsvp = video.hls_manifest_url) && !CONFIG.disabled?("livestreams") %>
-        <source src="<%= URI.parse(hlsvp).full_path %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="livestream">
+        <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="livestream">
     <% else %>
         <% if params.listen %>
             <% audio_streams.each_with_index do |fmt, i| %>
@@ -24,9 +24,9 @@
             <% end %>
         <% end %>
 
-        <% preferred_captions.each_with_index do |caption, i| %>
+        <% preferred_captions.each do |caption| %>
             <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>&hl=<%= env.get("preferences").as(Preferences).locale %>"
-                label="<%= caption.name.simpleText %>" <% if i == 0 %>default<% end %>>
+                label="<%= caption.name.simpleText %>">
         <% end %>
 
         <% captions.each do |caption| %>
@@ -42,7 +42,8 @@
     "aspect_ratio" => aspect_ratio,
     "title" => video.title,
     "description" => HTML.escape(video.short_description),
-    "thumbnail" => thumbnail
+    "thumbnail" => thumbnail,
+    "preferred_caption_found" => !preferred_captions.empty?
 }.to_pretty_json
 %>
 </script>

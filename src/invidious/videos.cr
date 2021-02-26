@@ -517,7 +517,7 @@ struct Video
   end
 
   def published : Time
-    info["microformat"]?.try &.["playerMicroformatRenderer"]?.try &.["publishDate"]?.try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location.local) } || Time.local
+    info["microformat"]?.try &.["playerMicroformatRenderer"]?.try &.["publishDate"]?.try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) } || Time.utc
   end
 
   def published=(other : Time)
@@ -534,7 +534,8 @@ struct Video
   end
 
   def live_now
-    info["videoDetails"]["isLiveContent"]?.try &.as_bool || false
+    info["microformat"]?.try &.["playerMicroformatRenderer"]?
+      .try &.["liveBroadcastDetails"]?.try &.["isLiveNow"]?.try &.as_bool || false
   end
 
   def is_listed
