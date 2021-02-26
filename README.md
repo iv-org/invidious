@@ -6,7 +6,7 @@
 
 ## Invidious instances:
 
-Public Invidious instances are listed on the documentation website: https://docs.invidious.io/Invidious-Instances.md
+Public Invidious instances are listed on the documentation website: https://instances.invidious.io/
 
 ---
 
