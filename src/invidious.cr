@@ -2560,12 +2560,12 @@ get "/api/v1/search" do |env|
   content_type ||= "video"
 
   begin
-    search_params = produce_search_params(sort_by, date, content_type, duration, features)
+    search_params = produce_search_params(page, sort_by, date, content_type, duration, features)
   rescue ex
     next error_json(400, ex)
   end
 
-  count, search_results = search(query, page, search_params, region).as(Tuple)
+  count, search_results = search(query, search_params, region).as(Tuple)
   JSON.build do |json|
     json.array do
       search_results.each do |item|
