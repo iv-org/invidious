@@ -760,10 +760,16 @@ post "/data_control" do |env|
           end
         end
       when "import_youtube"
-        subscriptions = JSON.parse(body)
-
-        user.subscriptions += subscriptions.as_a.compact_map do |entry|
-          entry["snippet"]["resourceId"]["channelId"].as_s
+        if body[0..4] == "<opml" 
+          subscriptions = XML.parse(body)
+          user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
+            channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
+          end
+        else
+          subscriptions = JSON.parse(body)
+          user.subscriptions += subscriptions.as_a.compact_map do |entry|
+            entry["snippet"]["resourceId"]["channelId"].as_s
+        end
         end
         user.subscriptions.uniq!
 
