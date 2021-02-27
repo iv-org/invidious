@@ -11,7 +11,7 @@
         "([^.,0-9]|^)1([^.,0-9]|$)": "",
         "": ""
     },
-    "LIVE": "",
+    "LIVE": "සජීව",
     "Shared `x` ago": "",
     "Unsubscribe": "",
     "Subscribe": "",
@@ -19,7 +19,7 @@
     "View playlist on YouTube": "",
     "newest": "",
     "oldest": "",
-    "popular": "",
+    "popular": "ජනප්‍රිය",
     "last": "",
     "Next page": "",
     "Previous page": "",
