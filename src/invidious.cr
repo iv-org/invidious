@@ -769,7 +769,7 @@ post "/data_control" do |env|
           subscriptions = JSON.parse(body)
           user.subscriptions += subscriptions.as_a.compact_map do |entry|
             entry["snippet"]["resourceId"]["channelId"].as_s
-        end
+          end
         end
         user.subscriptions.uniq!
 
