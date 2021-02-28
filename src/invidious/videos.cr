@@ -764,7 +764,7 @@ struct Video
   end
 
   def engagement : Float64
-    ((likes + dislikes) / views).round(4)
+    (((likes + dislikes) / views) * 100).round(4)
   end
 
   def reason : String?
