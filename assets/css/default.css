@@ -628,6 +628,31 @@ body.dark-theme {
   }
 }
 
-#filters {
-  display: none;
+#filters
+  display: inline;
+  margin-top: 15px;
+}
+
+#filters > div {
+  display: inline-block;
+}
+
+#filters > summary {
+  display: inline-block;
+  margin-bottom:15px;
+}
+
+#filters > summary {
+  display: inline-block;
+  margin-bottom:15px;
+}
+
+#filters > summary::before {
+  content: "[ + ]";
+  font-size: 1.5em;
+}
+
+#filters[open] > summary::before {
+  content: "[ - ]";
+  font-size: 1.5em;
 }
