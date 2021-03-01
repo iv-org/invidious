@@ -249,10 +249,10 @@ def channel_search(query, page, channel)
   return items.size, items
 end
 
-def search(query, page = 1, search_params = produce_search_params(content_type: "all"), region = nil)
+def search(query, search_params = produce_search_params(content_type: "all"), region = nil)
   return 0, [] of SearchItem if query.empty?
 
-  body = YT_POOL.client(region, &.get("/results?q=#{URI.encode_www_form(query)}&page=#{page}&sp=#{search_params}&hl=en").body)
+  body = YT_POOL.client(region, &.get("/results?search_query=#{URI.encode_www_form(query)}&sp=#{search_params}&hl=en").body)
   return 0, [] of SearchItem if body.empty?
 
   initial_data = extract_initial_data(body)
@@ -263,11 +263,12 @@ def search(query, page = 1, search_params = produce_search_params(content_type: 
   return items.size, items
 end
 
-def produce_search_params(sort : String = "relevance", date : String = "", content_type : String = "",
+def produce_search_params(page = 1, sort : String = "relevance", date : String = "", content_type : String = "",
                           duration : String = "", features : Array(String) = [] of String)
   object = {
     "1:varint"   => 0_i64,
     "2:embedded" => {} of String => Int64,
+    "9:varint"   => ((page - 1) * 20).to_i64,
   }
 
   case sort
@@ -439,10 +440,10 @@ def process_search_query(query, page, user, region)
       count = 0
     end
   else
-    search_params = produce_search_params(sort: sort, date: date, content_type: content_type,
+    search_params = produce_search_params(page: page, sort: sort, date: date, content_type: content_type,
       duration: duration, features: features)
 
-    count, items = search(search_query, page, search_params, region).as(Tuple)
+    count, items = search(search_query, search_params, region).as(Tuple)
   end
 
   {search_query, count, items, operators}

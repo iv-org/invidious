@@ -65,15 +65,15 @@ describe "Helper" do
 
   describe "#produce_search_params" do
     it "correctly produces token for searching with specified filters" do
-      produce_search_params.should eq("CAASAhAB")
+      produce_search_params.should eq("CAASAhABSAA%3D")
 
-      produce_search_params(sort: "upload_date", content_type: "video").should eq("CAISAhAB")
+      produce_search_params(sort: "upload_date", content_type: "video").should eq("CAISAhABSAA%3D")
 
-      produce_search_params(content_type: "playlist").should eq("CAASAhAD")
+      produce_search_params(content_type: "playlist").should eq("CAASAhADSAA%3D")
 
-      produce_search_params(sort: "date", content_type: "video", features: ["hd", "cc", "purchased", "hdr"]).should eq("CAISCxABIAEwAUgByAEB")
+      produce_search_params(sort: "date", content_type: "video", features: ["hd", "cc", "purchased", "hdr"]).should eq("CAISCxABIAEwAUgByAEBSAA%3D")
 
-      produce_search_params(content_type: "channel").should eq("CAASAhAC")
+      produce_search_params(content_type: "channel").should eq("CAASAhACSAA%3D")
     end
   end
 
