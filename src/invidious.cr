@@ -33,16 +33,7 @@ require "./invidious/jobs/**"
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
-PG_URL = URI.new(
-  scheme: "postgres",
-  user: CONFIG.db.user,
-  password: CONFIG.db.password,
-  host: CONFIG.db.host,
-  port: CONFIG.db.port,
-  path: CONFIG.db.dbname,
-)
-
-PG_DB           = DB.open PG_URL
+PG_DB           = DB.open CONFIG.database_url
 ARCHIVE_URL     = URI.parse("https://archive.org")
 LOGIN_URL       = URI.parse("https://accounts.google.com")
 PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
@@ -195,7 +186,7 @@ if CONFIG.captcha_key
 end
 
 connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
-Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(connection_channel, PG_URL)
+Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(connection_channel, CONFIG.database_url)
 
 Invidious::Jobs.start_all
 
