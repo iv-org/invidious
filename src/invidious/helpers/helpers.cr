@@ -383,10 +383,9 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
   items = [] of SearchItem
 
   channel_v2_response = initial_data
-    .try &.["response"]?
-      .try &.["continuationContents"]?
-        .try &.["gridContinuation"]?
-          .try &.["items"]?
+    .try &.["continuationContents"]?
+      .try &.["gridContinuation"]?
+        .try &.["items"]?
 
   if channel_v2_response
     channel_v2_response.try &.as_a.each { |item|
