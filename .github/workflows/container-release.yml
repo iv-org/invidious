@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - "master"
+  pull_request:
+    branches: "master"
   schedule:
     - cron: 0 0 * * *
 
@@ -37,3 +39,16 @@ jobs:
           labels: quay.expires-after=12w
           push: true
           tags: quay.io/invidious/invidious:${{ github.sha }},quay.io/invidious/invidious:latest
+
+      - uses: jwalton/gh-find-current-pr@v1
+        id: findPr
+
+      - name: Build and push PR build
+        if: success() && steps.findPr.outputs.number
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker/Dockerfile
+          labels: quay.expires-after=2w
+          push: true
+          tags: quay.io/invidious/invidious:${{ github.sha }},quay.io/invidious/invidious:${{ steps.findPr.outputs.number }}
