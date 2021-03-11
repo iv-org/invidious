@@ -371,7 +371,6 @@ def fetch_playlist(plid, locale)
 
   title = playlist_info["title"]?.try &.["runs"][0]?.try &.["text"]?.try &.as_s || ""
 
-
   desc_item = playlist_info["description"]?
 
   description_txt = desc_item.try &.["runs"]?.try &.as_a
@@ -379,7 +378,6 @@ def fetch_playlist(plid, locale)
 
   description_html = desc_item.try &.["runs"]?.try &.as_a
     .try { |run| content_to_comment_html(run).try &.to_s } || "<p></p>"
-
 
   thumbnail = playlist_info["thumbnailRenderer"]?.try &.["playlistVideoThumbnailRenderer"]?
     .try &.["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s
