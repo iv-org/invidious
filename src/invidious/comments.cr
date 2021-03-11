@@ -488,8 +488,12 @@ def replace_links(html)
         length_seconds = decode_time(anchor.content)
       end
 
-      anchor["href"] = "javascript:void(0)"
-      anchor["onclick"] = "player.currentTime(#{length_seconds})"
+      if length_seconds > 0
+        anchor["href"] = "javascript:void(0)"
+        anchor["onclick"] = "player.currentTime(#{length_seconds})"
+      else
+        anchor["href"] = url.request_target
+      end
     end
   end
 
@@ -528,11 +532,7 @@ end
 
 def content_to_comment_html(content)
   comment_html = content.map do |run|
-    text = HTML.escape(run["text"].as_s)
-
-    if run["text"] == "\n"
-      text = "<br>"
-    end
+    text = HTML.escape(run["text"].as_s).gsub("\n", "<br>")
 
     if run["bold"]?
       text = "<b>#{text}</b>"
@@ -559,7 +559,7 @@ def content_to_comment_html(content)
         length_seconds = watch_endpoint["startTimeSeconds"]?
         video_id = watch_endpoint["videoId"].as_s
 
-        if length_seconds
+        if length_seconds && length_seconds.as_i > 0
           text = %(<a href="javascript:void(0)" data-onclick="jump_to_time" data-jump-time="#{length_seconds}">#{text}</a>)
         else
           text = %(<a href="/watch?v=#{video_id}">#{text}</a>)
