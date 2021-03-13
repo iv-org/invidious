@@ -495,7 +495,8 @@ video.video-js {
  */
 
 .light-theme a:hover,
-.light-theme a:active {
+.light-theme a:active,
+.light-theme summary:hover {
   color: #075A9E !important;
 }
 
@@ -521,7 +522,8 @@ video.video-js {
 
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
-  .no-theme a:active {
+  .no-theme a:active,
+  .no-theme summary:hover  {
     color: #075A9E !important;
   }
 
@@ -551,7 +553,8 @@ video.video-js {
  */
 
 .dark-theme a:hover,
-.dark-theme a:active {
+.dark-theme a:active,
+.dark-theme summary:hover {
   color: rgb(0, 182, 240);
 }
 
