@@ -628,7 +628,7 @@ body.dark-theme {
   }
 }
 
-#filters
+#filters {
   display: inline;
   margin-top: 15px;
 }
@@ -639,12 +639,7 @@ body.dark-theme {
 
 #filters > summary {
   display: inline-block;
-  margin-bottom:15px;
-}
-
-#filters > summary {
-  display: inline-block;
-  margin-bottom:15px;
+  margin-bottom: 15px;
 }
 
 #filters > summary::before {
