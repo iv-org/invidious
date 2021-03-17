@@ -1,5 +1,5 @@
 FROM crystallang/crystal:0.36.1-alpine AS builder
-RUN apk add --no-cache curl sqlite-static
+RUN apk add --no-cache curl sqlite-static yaml-static
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
 COPY ./shard.lock ./shard.lock
