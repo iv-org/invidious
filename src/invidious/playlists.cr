@@ -101,6 +101,7 @@ struct Playlist
   property author_thumbnail : String
   property ucid : String
   property description : String
+  property description_html : String
   property video_count : Int32
   property views : Int64
   property updated : Time
@@ -162,10 +163,6 @@ struct Playlist
 
   def privacy
     PlaylistPrivacy::Public
-  end
-
-  def description_html
-    HTML.escape(self.description).gsub("\n", "<br>")
   end
 end
 
@@ -375,7 +372,12 @@ def fetch_playlist(plid, locale)
   title = playlist_info["title"]?.try &.["runs"][0]?.try &.["text"]?.try &.as_s || ""
 
   desc_item = playlist_info["description"]?
-  description = desc_item.try &.["runs"]?.try &.as_a.map(&.["text"].as_s).join("") || desc_item.try &.["simpleText"]?.try &.as_s || ""
+
+  description_txt = desc_item.try &.["runs"]?.try &.as_a
+    .map(&.["text"].as_s).join("") || desc_item.try &.["simpleText"]?.try &.as_s || ""
+
+  description_html = desc_item.try &.["runs"]?.try &.as_a
+    .try { |run| content_to_comment_html(run).try &.to_s } || "<p></p>"
 
   thumbnail = playlist_info["thumbnailRenderer"]?.try &.["playlistVideoThumbnailRenderer"]?
     .try &.["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s
@@ -415,7 +417,8 @@ def fetch_playlist(plid, locale)
     author:           author,
     author_thumbnail: author_thumbnail,
     ucid:             ucid,
-    description:      description,
+    description:      description_txt,
+    description_html: description_html,
     video_count:      video_count,
     views:            views,
     updated:          updated,
