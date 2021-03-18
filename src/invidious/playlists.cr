@@ -441,17 +441,8 @@ def fetch_playlist_videos(plid, video_count, offset = 0, locale = nil, continuat
     offset = initial_data["currentVideoEndpoint"]?.try &.["watchEndpoint"]?.try &.["index"]?.try &.as_i64 || offset
   end
 
-  if video_count > 100
-    url = produce_playlist_url(plid, offset)
-
-    response = YT_POOL.client &.get(url)
-    initial_data = JSON.parse(response.body).as_a.find(&.as_h.["response"]?).try &.as_h
-  elsif offset > 100
-    return [] of PlaylistVideo
-  else # Extract first page of videos
-    response = YT_POOL.client &.get("/playlist?list=#{plid}&gl=US&hl=en")
-    initial_data = extract_initial_data(response.body)
-  end
+  response = YT_POOL.client &.get("/playlist?list=#{plid}&gl=US&hl=en")
+  initial_data = extract_initial_data(response.body)
 
   return [] of PlaylistVideo if !initial_data
   videos = extract_playlist_videos(initial_data)
