@@ -2054,6 +2054,9 @@ get "/api/v1/comments/:id" do |env|
   format = env.params.query["format"]?
   format ||= "json"
 
+  action = env.params.query["action"]?
+  action ||= "action_get_comments"
+
   continuation = env.params.query["continuation"]?
   sort_by = env.params.query["sort_by"]?.try &.downcase
 
@@ -2061,7 +2064,7 @@ get "/api/v1/comments/:id" do |env|
     sort_by ||= "top"
 
     begin
-      comments = fetch_youtube_comments(id, PG_DB, continuation, format, locale, thin_mode, region, sort_by: sort_by)
+      comments = fetch_youtube_comments(id, PG_DB, continuation, format, locale, thin_mode, region, sort_by: sort_by, action: action)
     rescue ex
       next error_json(500, ex)
     end

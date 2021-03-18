@@ -56,7 +56,7 @@ class RedditListing
   property modhash : String
 end
 
-def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, sort_by = "top")
+def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, sort_by = "top", action = "action_get_comments")
   video = get_video(id, db, region: region)
   session_token = video.session_token
 
@@ -88,8 +88,13 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
     "cookie" => video.cookie,
   }
 
-  response = YT_POOL.client(region, &.post("/comment_service_ajax?action_get_comments=1&hl=en&gl=US&pbj=1", headers, form: post_req))
+  response = YT_POOL.client(region, &.post("/comment_service_ajax?#{action}=1&hl=en&gl=US&pbj=1", headers, form: post_req))
   response = JSON.parse(response.body)
+
+  # For some reason youtube puts it in an array for comment_replies but otherwise it's the same
+  if action == "action_get_comment_replies"
+    response = response[1]
+  end
 
   if !response["response"]["continuationContents"]?
     raise InfoException.new("Could not fetch comments")
@@ -228,7 +233,7 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
 
   if format == "html"
     response = JSON.parse(response)
-    content_html = template_youtube_comments(response, locale, thin_mode)
+    content_html = template_youtube_comments(response, locale, thin_mode, action == "action_get_comment_replies")
 
     response = JSON.build do |json|
       json.object do
@@ -281,7 +286,7 @@ def fetch_reddit_comments(id, sort_by = "confidence")
   return comments, thread
 end
 
-def template_youtube_comments(comments, locale, thin_mode)
+def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
   String.build do |html|
     root = comments["comments"].as_a
     root.each do |child|
@@ -292,7 +297,7 @@ def template_youtube_comments(comments, locale, thin_mode)
           <div class="pure-u-23-24">
             <p>
               <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
-                data-onclick="get_youtube_replies">#{translate(locale, "View `x` replies", number_with_separator(child["replies"]["replyCount"]))}</a>
+                data-onclick="get_youtube_replies" data-load-replies>#{translate(locale, "View `x` replies", number_with_separator(child["replies"]["replyCount"]))}</a>
             </p>
           </div>
         </div>
@@ -412,7 +417,7 @@ def template_youtube_comments(comments, locale, thin_mode)
         <div class="pure-u-1">
           <p>
             <a href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
-              data-onclick="get_youtube_replies" data-load-more>#{translate(locale, "Load more")}</a>
+              data-onclick="get_youtube_replies" data-load-more #{"data-load-replies" if is_replies}>#{translate(locale, "Load more")}</a>
           </p>
         </div>
       </div>

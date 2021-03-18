@@ -359,7 +359,7 @@ function get_youtube_comments(retries) {
     xhr.send();
 }
 
-function get_youtube_replies(target, load_more) {
+function get_youtube_replies(target, load_more, load_replies) {
     var continuation = target.getAttribute('data-continuation');
 
     var body = target.parentNode.parentNode;
@@ -371,7 +371,10 @@ function get_youtube_replies(target, load_more) {
         '?format=html' +
         '&hl=' + video_data.preferences.locale +
         '&thin_mode=' + video_data.preferences.thin_mode +
-        '&continuation=' + continuation;
+        '&continuation=' + continuation
+    if (load_replies) {
+        url += '&action=action_get_comment_replies';
+    }
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
     xhr.timeout = 10000;
