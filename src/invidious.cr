@@ -289,6 +289,7 @@ before_all do |env|
   preferences.dark_mode = dark_mode
   preferences.thin_mode = thin_mode
   preferences.locale = locale
+  env.set "preferences", preferences
 
   current_page = env.request.path
   if env.request.query
