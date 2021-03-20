@@ -440,7 +440,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     begin
       videos = get_playlist_videos(PG_DB, playlist, offset: (page - 1) * 100, locale: locale)
     rescue ex
-      videos = [] of PlaylistVideo
+      return error_template(500, "Error encountered while retrieving playlist videos.<br>#{ex.message}")
     end
 
     if playlist.author == user.try &.email
