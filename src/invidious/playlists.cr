@@ -471,9 +471,12 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
     tabs = initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]
     tabs_renderer = tabs.as_a.select(&.["tabRenderer"]["selected"]?.try &.as_bool)[0]["tabRenderer"]
 
-    if tabs_renderer["contents"]?
+    # Watch out the two versions, with and without "s"
+    if tabs_renderer["contents"]? || tabs_renderer["content"]?
       # Initial playlist data
-      list_renderer = tabs_renderer.["contents"]["sectionListRenderer"]["contents"][0]
+      tabs_contents = tabs_renderer.["contents"]? || tabs_renderer.["content"]
+
+      list_renderer = tabs_contents.["sectionListRenderer"]["contents"][0]
       item_renderer = list_renderer.["itemSectionRenderer"]["contents"][0]
       contents = item_renderer.["playlistVideoListRenderer"]["contents"].as_a
     else
