@@ -307,23 +307,32 @@ def subscribe_playlist(db, user, playlist)
   return playlist
 end
 
-def produce_playlist_url(id, index)
+def produce_playlist_continuation(id, index)
   if id.starts_with? "UC"
     id = "UU" + id.lchop("UC")
   end
   plid = "VL" + id
+
+  # Emulate a "request counter" increment, to make perfectly valid
+  # ctokens, even if at the time of writing, it's ignored by youtube.
+  request_count = (index / 100).to_i64  || 1_i64
 
   data = {"1:varint" => index.to_i64}
     .try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i, padding: false) }
 
+  data_wrapper = { "1:varint" => request_count, "15:string" => "PT:#{data}" }
+    .try { |i| Protodec::Any.cast_json(i) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
+
   object = {
     "80226972:embedded" => {
       "2:string" => plid,
-      "3:base64" => {
-        "15:string" => "PT:#{data}",
-      },
+      "3:string" => data_wrapper,
+      "35:string" => id,
     },
   }
 
@@ -332,7 +341,7 @@ def produce_playlist_url(id, index)
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
-  return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
+  return continuation
 end
 
 def get_playlist(db, plid, locale, refresh = true, force_refresh = false)
