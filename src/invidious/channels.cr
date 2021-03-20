@@ -937,23 +937,27 @@ def get_about_info(ucid, locale)
   })
 end
 
+def fetch_youtubei(continuation)
+  data = {
+    "context": {
+      "client": {
+        "clientName":    "WEB",
+        "clientVersion": "2.20201021.03.00",
+      },
+    },
+    "continuation": continuation,
+  }.to_json
+  return YT_POOL.client &.post(
+    "/youtubei/v1/browse?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+    headers: HTTP::Headers{"content-type" => "application/json"},
+    body: data
+  )
+end
+
 def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = "newest", youtubei_browse = true)
   if youtubei_browse
     continuation = produce_channel_videos_continuation(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
-    data = {
-      "context": {
-        "client": {
-          "clientName":    "WEB",
-          "clientVersion": "2.20201021.03.00",
-        },
-      },
-      "continuation": continuation,
-    }.to_json
-    return YT_POOL.client &.post(
-      "/youtubei/v1/browse?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-      headers: HTTP::Headers{"content-type" => "application/json"},
-      body: data
-    )
+    return fetch_youtubei(continuation)
   else
     url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
     return YT_POOL.client &.get(url)

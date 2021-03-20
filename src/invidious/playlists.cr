@@ -307,7 +307,7 @@ def subscribe_playlist(db, user, playlist)
   return playlist
 end
 
-def produce_playlist_url(id, index)
+def produce_playlist_continuation(id, index)
   if id.starts_with? "UC"
     id = "UU" + id.lchop("UC")
   end
@@ -332,7 +332,7 @@ def produce_playlist_url(id, index)
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
-  return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
+  return continuation
 end
 
 def get_playlist(db, plid, locale, refresh = true, force_refresh = false)
@@ -435,17 +435,12 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
 end
 
 def fetch_playlist_videos(plid, video_count, offset = 0, locale = nil, continuation = nil)
-  if continuation
-    response = YT_POOL.client &.get("/watch?v=#{continuation}&list=#{plid}&gl=US&hl=en")
-    initial_data = extract_initial_data(response.body)
-    offset = initial_data["currentVideoEndpoint"]?.try &.["watchEndpoint"]?.try &.["index"]?.try &.as_i64 || offset
+  if !continuation && video_count > 100
+    continuation = produce_playlist_continuation(plid, offset)
   end
-
-  if video_count > 100
-    url = produce_playlist_url(plid, offset)
-
-    response = YT_POOL.client &.get(url)
-    initial_data = JSON.parse(response.body).as_a.find(&.as_h.["response"]?).try &.as_h
+  if continuation
+    response = fetch_youtubei(continuation)
+    initial_data = JSON.parse(response.body).as_h
   elsif offset > 100
     return [] of PlaylistVideo
   else # Extract first page of videos
@@ -465,9 +460,9 @@ end
 
 def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
   videos = [] of PlaylistVideo
-
-  (initial_data["contents"]?.try &.["twoColumnBrowseResultsRenderer"]["tabs"].as_a.select(&.["tabRenderer"]["selected"]?.try &.as_bool)[0]["tabRenderer"]["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["playlistVideoListRenderer"]["contents"].as_a ||
-    initial_data["response"]?.try &.["continuationContents"]["playlistVideoListContinuation"]["contents"].as_a).try &.each do |item|
+  (initial_data["contents"]?.try &.["twoColumnBrowseResultsRenderer"]["tabs"].as_a.select(&.["tabRenderer"]["selected"]?.try &.as_bool)[0]["tabRenderer"]["content"]?.try &.["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["playlistVideoListRenderer"]["contents"].as_a ||
+    initial_data["response"]?.try &.["continuationContents"]["playlistVideoListContinuation"]["contents"].as_a ||
+    initial_data["continuationContents"]["playlistVideoListContinuation"]["contents"].as_a).try &.each do |item|
     if i = item["playlistVideoRenderer"]?
       video_id = i["navigationEndpoint"]["watchEndpoint"]["videoId"].as_s
       plid = i["navigationEndpoint"]["watchEndpoint"]["playlistId"].as_s
