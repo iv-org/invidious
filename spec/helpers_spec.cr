@@ -47,19 +47,13 @@ describe "Helper" do
     end
   end
 
-  describe "#produce_playlist_url" do
-    it "correctly produces url for requesting index `x` of a playlist" do
-      produce_playlist_url("UUCla9fZca4I7KagBtgRGnOw", 0).should eq("/browse_ajax?continuation=4qmFsgIqEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoMZWdaUVZEcERRVUU9&gl=US&hl=en")
+  describe "#produce_playlist_continuation" do
+    it "correctly produces ctoken for requesting index `x` of a playlist" do
+      produce_playlist_continuation("UUCla9fZca4I7KagBtgRGnOw", 100).should eq("4qmFsgJNEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoUQ0FGNkJsQlVPa05IVVElM0QlM0SaAhhVVUNsYTlmWmNhNEk3S2FnQnRnUkduT3c%3D")
 
-      produce_playlist_url("UCCla9fZca4I7KagBtgRGnOw", 0).should eq("/browse_ajax?continuation=4qmFsgIqEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoMZWdaUVZEcERRVUU9&gl=US&hl=en")
+      produce_playlist_continuation("UCCla9fZca4I7KagBtgRGnOw", 200).should eq("4qmFsgJLEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoSQ0FKNkIxQlVPa05OWjBJJTNEmgIYVVVDbGE5ZlpjYTRJN0thZ0J0Z1JHbk93")
 
-      produce_playlist_url("PLt5AfwLFPxWLNVixpe1w3fi6lE2OTq0ET", 0).should eq("/browse_ajax?continuation=4qmFsgI0EiRWTFBMdDVBZndMRlB4V0xOVml4cGUxdzNmaTZsRTJPVHEwRVQaDGVnWlFWRHBEUVVFPQ%3D%3D&gl=US&hl=en")
-
-      produce_playlist_url("PLt5AfwLFPxWLNVixpe1w3fi6lE2OTq0ET", 10000).should eq("/browse_ajax?continuation=4qmFsgI0EiRWTFBMdDVBZndMRlB4V0xOVml4cGUxdzNmaTZsRTJPVHEwRVQaDGVnZFFWRHBEU2tKUA%3D%3D&gl=US&hl=en")
-
-      produce_playlist_url("PL55713C70BA91BD6E", 0).should eq("/browse_ajax?continuation=4qmFsgIkEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoMZWdaUVZEcERRVUU9&gl=US&hl=en")
-
-      produce_playlist_url("PL55713C70BA91BD6E", 10000).should eq("/browse_ajax?continuation=4qmFsgIkEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoMZWdkUVZEcERTa0pQ&gl=US&hl=en")
+      produce_playlist_continuation("PL55713C70BA91BD6E", 100).should eq("4qmFsgJBEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoUQ0FGNkJsQlVPa05IVVElM0QlM0SaAhJQTDU1NzEzQzcwQkE5MUJENkU%3D")
     end
   end
 
