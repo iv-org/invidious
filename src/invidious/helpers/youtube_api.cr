@@ -11,9 +11,9 @@ def request_youtube_api_browse(continuation)
   data = {
     "context": {
       "client": {
-        "hl": "en",
-        "gl": "US",
-        "clientName": "WEB",
+        "hl":            "en",
+        "gl":            "US",
+        "clientName":    "WEB",
         "clientVersion": HARDCODED_CLIENT_VERS,
       },
     },

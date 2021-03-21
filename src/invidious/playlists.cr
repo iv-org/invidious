@@ -315,14 +315,14 @@ def produce_playlist_continuation(id, index)
 
   # Emulate a "request counter" increment, to make perfectly valid
   # ctokens, even if at the time of writing, it's ignored by youtube.
-  request_count = (index / 100).to_i64  || 1_i64
+  request_count = (index / 100).to_i64 || 1_i64
 
   data = {"1:varint" => index.to_i64}
     .try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i, padding: false) }
 
-  data_wrapper = { "1:varint" => request_count, "15:string" => "PT:#{data}" }
+  data_wrapper = {"1:varint" => request_count, "15:string" => "PT:#{data}"}
     .try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
@@ -330,8 +330,8 @@ def produce_playlist_continuation(id, index)
 
   object = {
     "80226972:embedded" => {
-      "2:string" => plid,
-      "3:string" => data_wrapper,
+      "2:string"  => plid,
+      "3:string"  => data_wrapper,
       "35:string" => id,
     },
   }
