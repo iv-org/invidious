@@ -401,6 +401,8 @@
     "playlist": "Playlist",
     "movie": "Movie",
     "show": "Show",
+    "short": "short",
+    "long": "long",
     "hd": "HD",
     "subtitles": "Subtitles/CC",
     "creative_commons": "Creative Commons",
