@@ -938,7 +938,7 @@ def get_about_info(ucid, locale)
   })
 end
 
-def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = "newest", youtubei_browse = true)
+def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = "newest")
   continuation = produce_channel_videos_continuation(ucid, page,
     auto_generated: auto_generated, sort_by: sort_by, v2: true)
 
