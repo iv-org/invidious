@@ -229,18 +229,18 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
   page = 1
 
   LOGGER.trace("fetch_channel: #{ucid} : Downloading channel videos page")
-  response = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
+  response_body = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
 
   videos = [] of SearchVideo
   begin
-    initial_data = JSON.parse(response.body)
+    initial_data = JSON.parse(response_body)
     raise InfoException.new("Could not extract channel JSON") if !initial_data
 
     LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel videos page initial_data")
     videos = extract_videos(initial_data.as_h, author, ucid)
   rescue ex
-    if response.body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
-       response.body.includes?("https://www.google.com/sorry/index")
+    if response_body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
+       response_body.includes?("https://www.google.com/sorry/index")
       raise InfoException.new("Could not extract channel info. Instance is likely blocked.")
     end
     raise ex
@@ -304,8 +304,8 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     ids = [] of String
 
     loop do
-      response = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
-      initial_data = JSON.parse(response.body)
+      response_body = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
+      initial_data = JSON.parse(response_body)
       raise InfoException.new("Could not extract channel JSON") if !initial_data
       videos = extract_videos(initial_data.as_h, author, ucid)
 
@@ -447,6 +447,7 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
   return continuation
 end
 
+# Used in bypass_captcha_job.cr
 def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
   continuation = produce_channel_videos_continuation(ucid, page, auto_generated, sort_by, v2)
   return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
@@ -937,35 +938,19 @@ def get_about_info(ucid, locale)
   })
 end
 
-def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = "newest", youtubei_browse = true)
-  if youtubei_browse
-    continuation = produce_channel_videos_continuation(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
-    data = {
-      "context": {
-        "client": {
-          "clientName":    "WEB",
-          "clientVersion": "2.20201021.03.00",
-        },
-      },
-      "continuation": continuation,
-    }.to_json
-    return YT_POOL.client &.post(
-      "/youtubei/v1/browse?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-      headers: HTTP::Headers{"content-type" => "application/json"},
-      body: data
-    )
-  else
-    url = produce_channel_videos_url(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
-    return YT_POOL.client &.get(url)
-  end
+def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = "newest")
+  continuation = produce_channel_videos_continuation(ucid, page,
+    auto_generated: auto_generated, sort_by: sort_by, v2: true)
+
+  return request_youtube_api_browse(continuation)
 end
 
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
   videos = [] of SearchVideo
 
   2.times do |i|
-    response = get_channel_videos_response(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
-    initial_data = JSON.parse(response.body)
+    response_json = get_channel_videos_response(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
+    initial_data = JSON.parse(response_json)
     break if !initial_data
     videos.concat extract_videos(initial_data.as_h, author, ucid)
   end
@@ -974,8 +959,8 @@ def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
 end
 
 def get_latest_videos(ucid)
-  response = get_channel_videos_response(ucid)
-  initial_data = JSON.parse(response.body)
+  response_json = get_channel_videos_response(ucid)
+  initial_data = JSON.parse(response_json)
   return [] of SearchVideo if !initial_data
   author = initial_data["metadata"]?.try &.["channelMetadataRenderer"]?.try &.["title"]?.try &.as_s
   items = extract_videos(initial_data.as_h, author, ucid)

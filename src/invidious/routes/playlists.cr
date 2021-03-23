@@ -433,6 +433,13 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
       return error_template(500, ex)
     end
 
+    page_count = (playlist.video_count / 100).to_i
+    page_count = 1 if page_count == 0
+
+    if page > page_count
+      return env.redirect "/playlist?list=#{plid}&page=#{page_count}"
+    end
+
     if playlist.privacy == PlaylistPrivacy::Private && playlist.author != user.try &.email
       return error_template(403, "This playlist is private.")
     end
@@ -440,7 +447,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     begin
       videos = get_playlist_videos(PG_DB, playlist, offset: (page - 1) * 100, locale: locale)
     rescue ex
-      videos = [] of PlaylistVideo
+      return error_template(500, "Error encountered while retrieving playlist videos.<br>#{ex.message}")
     end
 
     if playlist.author == user.try &.email

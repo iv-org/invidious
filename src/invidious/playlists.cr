@@ -307,23 +307,32 @@ def subscribe_playlist(db, user, playlist)
   return playlist
 end
 
-def produce_playlist_url(id, index)
+def produce_playlist_continuation(id, index)
   if id.starts_with? "UC"
     id = "UU" + id.lchop("UC")
   end
   plid = "VL" + id
+
+  # Emulate a "request counter" increment, to make perfectly valid
+  # ctokens, even if at the time of writing, it's ignored by youtube.
+  request_count = (index / 100).to_i64 || 1_i64
 
   data = {"1:varint" => index.to_i64}
     .try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i, padding: false) }
 
+  data_wrapper = {"1:varint" => request_count, "15:string" => "PT:#{data}"}
+    .try { |i| Protodec::Any.cast_json(i) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
+
   object = {
     "80226972:embedded" => {
-      "2:string" => plid,
-      "3:base64" => {
-        "15:string" => "PT:#{data}",
-      },
+      "2:string"  => plid,
+      "3:string"  => data_wrapper,
+      "35:string" => id,
     },
   }
 
@@ -332,7 +341,7 @@ def produce_playlist_url(id, index)
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
-  return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
+  return continuation
 end
 
 def get_playlist(db, plid, locale, refresh = true, force_refresh = false)
@@ -427,47 +436,59 @@ def fetch_playlist(plid, locale)
 end
 
 def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
-  if playlist.is_a? InvidiousPlaylist
-    db.query_all("SELECT * FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 100 OFFSET $3", playlist.id, playlist.index, offset, as: PlaylistVideo)
-  else
-    fetch_playlist_videos(playlist.id, playlist.video_count, offset, locale, continuation)
-  end
-end
-
-def fetch_playlist_videos(plid, video_count, offset = 0, locale = nil, continuation = nil)
-  if continuation
-    response = YT_POOL.client &.get("/watch?v=#{continuation}&list=#{plid}&gl=US&hl=en")
-    initial_data = extract_initial_data(response.body)
-    offset = initial_data["currentVideoEndpoint"]?.try &.["watchEndpoint"]?.try &.["index"]?.try &.as_i64 || offset
-  end
-
-  if video_count > 100
-    url = produce_playlist_url(plid, offset)
-
-    response = YT_POOL.client &.get(url)
-    initial_data = JSON.parse(response.body).as_a.find(&.as_h.["response"]?).try &.as_h
-  elsif offset > 100
+  # Show empy playlist if requested page is out of range
+  if offset >= playlist.video_count
     return [] of PlaylistVideo
-  else # Extract first page of videos
-    response = YT_POOL.client &.get("/playlist?list=#{plid}&gl=US&hl=en")
-    initial_data = extract_initial_data(response.body)
   end
 
-  return [] of PlaylistVideo if !initial_data
-  videos = extract_playlist_videos(initial_data)
+  if playlist.is_a? InvidiousPlaylist
+    db.query_all("SELECT * FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 100 OFFSET $3",
+      playlist.id, playlist.index, offset, as: PlaylistVideo)
+  else
+    if offset >= 100
+      # Normalize offset to match youtube's behavior (100 videos chunck per request)
+      offset = (offset / 100).to_i64 * 100_i64
 
-  until videos.empty? || videos[0].index == offset
-    videos.shift
+      ctoken = produce_playlist_continuation(playlist.id, offset)
+      initial_data = JSON.parse(request_youtube_api_browse(ctoken)).as_h
+    else
+      response = YT_POOL.client &.get("/playlist?list=#{playlist.id}&gl=US&hl=en")
+      initial_data = extract_initial_data(response.body)
+    end
+
+    if initial_data
+      return extract_playlist_videos(initial_data)
+    else
+      return [] of PlaylistVideo
+    end
   end
-
-  return videos
 end
 
 def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
   videos = [] of PlaylistVideo
 
-  (initial_data["contents"]?.try &.["twoColumnBrowseResultsRenderer"]["tabs"].as_a.select(&.["tabRenderer"]["selected"]?.try &.as_bool)[0]["tabRenderer"]["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["playlistVideoListRenderer"]["contents"].as_a ||
-    initial_data["response"]?.try &.["continuationContents"]["playlistVideoListContinuation"]["contents"].as_a).try &.each do |item|
+  if initial_data["contents"]?
+    tabs = initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]
+    tabs_renderer = tabs.as_a.select(&.["tabRenderer"]["selected"]?.try &.as_bool)[0]["tabRenderer"]
+
+    # Watch out the two versions, with and without "s"
+    if tabs_renderer["contents"]? || tabs_renderer["content"]?
+      # Initial playlist data
+      tabs_contents = tabs_renderer.["contents"]? || tabs_renderer.["content"]
+
+      list_renderer = tabs_contents.["sectionListRenderer"]["contents"][0]
+      item_renderer = list_renderer.["itemSectionRenderer"]["contents"][0]
+      contents = item_renderer.["playlistVideoListRenderer"]["contents"].as_a
+    else
+      # Continuation data
+      contents = initial_data["onResponseReceivedActions"][0]?
+        .try &.["appendContinuationItemsAction"]["continuationItems"].as_a
+    end
+  else
+    contents = initial_data["response"]?.try &.["continuationContents"]["playlistVideoListContinuation"]["contents"].as_a
+  end
+
+  contents.try &.each do |item|
     if i = item["playlistVideoRenderer"]?
       video_id = i["navigationEndpoint"]["watchEndpoint"]["videoId"].as_s
       plid = i["navigationEndpoint"]["watchEndpoint"]["playlistId"].as_s
