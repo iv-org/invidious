@@ -1,10 +1,16 @@
 {
-    "`x` subscribers.([^.,0-9]|^)1([^.,0-9]|$)": "`x` tilaaja",
-    "`x` subscribers.": "`x` tilaajaa.",
-    "`x` videos.([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-    "`x` videos.": "`x` videota.",
-    "`x` playlists.([^.,0-9]|^)1([^.,0-9]|$)": "`x` soittolista.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` playlists.": "`x` soittolistaa.",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tilaaja",
+        "": "`x` tilaajaa"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
+        "": "`x` videota"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` soittolista",
+        "": "`x` soittolistaa"
+    },
     "LIVE": "SUORA",
     "Shared `x` ago": "Jaettu `x` sitten",
     "Unsubscribe": "Peruuta tilaus",
@@ -116,16 +122,22 @@
     "Subscription manager": "Tilausten hallinnoija",
     "Token manager": "Tunnusten hallinnoija",
     "Token": "Tunnus",
-    "`x` subscriptions.([^.,0-9]|^)1([^.,0-9]|$)": "`x` tilausta.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` subscriptions.": "`x` tilausta.",
-    "`x` tokens.([^.,0-9]|^)1([^.,0-9]|$)": "`x` tunnistetta.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` tokens.": "`x` tunnistetta.",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tilausta",
+        "": "`x` tilausta"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tunnistetta",
+        "": "`x` tunnistetta"
+    },
     "Import/export": "Tuo/vie",
     "unsubscribe": "peru tilaus",
     "revoke": "kumoa",
     "Subscriptions": "Tilaukset",
-    "`x` unseen notifications.([^.,0-9]|^)1([^.,0-9]|$)": "`x` näkemätöntä ilmoitusta.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` unseen notifications.": "`x` näkemätöntä ilmoitusta.",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` näkemätöntä ilmoitusta",
+        "": "`x` näkemätöntä ilmoitusta"
+    },
     "search": "haku",
     "Log out": "Kirjaudu ulos",
     "Released under the AGPLv3 by Omar Roth.": "Julkaissut AGPLv3-lisenssillä: Omar Roth.",
@@ -155,15 +167,19 @@
     "Whitelisted regions: ": "valkolistatut alueet: ",
     "Blacklisted regions: ": "mustalla listalla olevat alueet: ",
     "Shared `x`": "Jaettu `x`",
-    "`x` views.([^.,0-9]|^)1([^.,0-9]|$)": "`x` katselukertaa.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` views.": "`x` katselukertaa.",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` katselukertaa",
+        "": "`x` katselukertaa"
+    },
     "Premieres in `x`": "Ensiesitykseen aikaa `x`",
     "Premieres `x`": "Ensiesitykseen `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hei! Vaikuttaa siltä, että sinulla on JavaScript pois käytöstä. Klikkaa tästä nähdäksesi kommentit, huomioi että lataamisessa voi kestää melko kauan.",
     "View YouTube comments": "Näytä YouTube-kommentit",
     "View more comments on Reddit": "Katso lisää kommentteja Redditissä",
-    "View `x` comments.([^.,0-9]|^)1([^.,0-9]|$)": "Näytä `x` komenttia.([^.,0-9]|^)1([^.,0-9]|$)",
-    "View `x` comments.": "Näytä `x` kommenttia.",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Näytä `x` komenttia",
+        "": "Näytä `x` kommenttia"
+    },
     "View Reddit comments": "Näytä Reddit-kommentit",
     "Hide replies": "Piilota vastaukset",
     "Show replies": "Näytä vastaukset",
@@ -188,12 +204,16 @@
     "This channel does not exist.": "Tätä kanavaa ei ole olemassa.",
     "Could not get channel info.": "Kanavatietoa ei saatu ladattua.",
     "Could not fetch comments": "Kommenttien nouto epäonnistui",
-    "View `x` replies.([^.,0-9]|^)1([^.,0-9]|$)": "Näytä `x` vastausta.([^.,0-9]|^)1([^.,0-9]|$)",
-    "View `x` replies.": "Näytä `x` vastausta.",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Näytä `x` vastausta",
+        "": "Näytä `x` vastausta"
+    },
     "`x` ago": "`x` sitten",
     "Load more": "Lataa lisää",
-    "`x` points.([^.,0-9]|^)1([^.,0-9]|$)": "`x` pistettä.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` points.": "`x` pistettä.",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pistettä",
+        "": "`x` pistettä"
+    },
     "Could not create mix.": "Sekoituksen luominen epäonnistui.",
     "Empty playlist": "Tyhjennä soittolista",
     "Not a playlist.": "Ei ole soittolista.",
@@ -311,20 +331,34 @@
     "Yiddish": "jiddiš",
     "Yoruba": "joruba",
     "Zulu": "zulu",
-    "`x` years.([^.,0-9]|^)1([^.,0-9]|$)": "`x` vuotta.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` years.": "`x` vuotta.",
-    "`x` months.([^.,0-9]|^)1([^.,0-9]|$)": "`x` kuukautta.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` months.": "`x` kuukautta.",
-    "`x` weeks.([^.,0-9]|^)1([^.,0-9]|$)": "`x` viikkoa.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` weeks.": "`x` viikkoa.",
-    "`x` days.([^.,0-9]|^)1([^.,0-9]|$)": "`x` päivää.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` days.": "`x` päivää.",
-    "`x` hours.([^.,0-9]|^)1([^.,0-9]|$)": "`x` tuntia.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` hours.": "`x` tuntia.",
-    "`x` minutes.([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuuttia.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` minutes.": "`x` minuuttia.",
-    "`x` seconds.([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekuntia.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` seconds.": "`x` sekuntia.",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vuotta",
+        "": "`x` vuotta"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` kuukautta",
+        "": "`x` kuukautta"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` viikkoa",
+        "": "`x` viikkoa"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` päivää",
+        "": "`x` päivää"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tuntia",
+        "": "`x` tuntia"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuuttia",
+        "": "`x` minuuttia"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekuntia",
+        "": "`x` sekuntia"
+    },
     "Fallback comments: ": "varakommentit: ",
     "Popular": "Suosittu",
     "Search": "",
