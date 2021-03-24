@@ -369,6 +369,12 @@ def produce_search_params(page = 1, sort : String = "relevance", date : String =
 end
 
 def produce_channel_search_continuation(ucid, query, page)
+  if page <= 1
+    idx = 0_i64
+  else
+    idx = 30_i64 * (page - 1)
+  end
+
   object = {
     "80226972:embedded" => {
       "2:string" => ucid,
@@ -378,7 +384,7 @@ def produce_channel_search_continuation(ucid, query, page)
         "7:varint" => 1_i64,
         "12:varint" => 1_i64,
         "15:base64" => {
-          "3:varint" => 30_i64 * (page - 1),
+          "3:varint" => idx,
         },
         "23:varint" => 0_i64
       },
