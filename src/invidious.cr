@@ -2521,7 +2521,7 @@ get "/api/v1/channels/search/:ucid" do |env|
   query ||= ""
 
   page = env.params.query["page"]?.try &.to_i?
-  page ||= 1
+  page = 1 if !page || page <= 0
 
   count, search_results = channel_search(query, page, ucid)
   JSON.build do |json|
