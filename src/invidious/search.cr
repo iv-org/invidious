@@ -379,18 +379,18 @@ def produce_channel_search_continuation(ucid, query, page)
     "80226972:embedded" => {
       "2:string" => ucid,
       "3:base64" => {
-        "2:string" => "search",
-        "6:varint" => 1_i64,
-        "7:varint" => 1_i64,
+        "2:string"  => "search",
+        "6:varint"  => 1_i64,
+        "7:varint"  => 1_i64,
         "12:varint" => 1_i64,
         "15:base64" => {
           "3:varint" => idx,
         },
-        "23:varint" => 0_i64
+        "23:varint" => 0_i64,
       },
       "11:string" => query,
-      "35:string" => "browse-feed#{ucid}search"
-    }
+      "35:string" => "browse-feed#{ucid}search",
+    },
   }
 
   continuation = object.try { |i| Protodec::Any.cast_json(object) }
