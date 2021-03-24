@@ -41,12 +41,6 @@ describe "Helper" do
     end
   end
 
-  describe "#extract_channel_playlists_cursor" do
-    it "correctly extracts a playlists cursor from the given URL" do
-      extract_channel_playlists_cursor("4qmFsgLRARIYVUNDajk1NklGNjJGYlQ3R291c3phajl3GrQBRWdsd2JHRjViR2x6ZEhNWUF5QUJNQUk0QVdBQmFnQjZabEZWYkZCaE1XczFVbFpHZDJGV09XNWxWelI0V0RGR2VWSnVWbUZOV0Vwc1ZHcG5lRmd3TVU1aVZXdDRWMWN4YzFGdFNuTmtlbWh4VGpCd1NWTllVa1pTYTJNeFlVUmtlRmt3Y0ZWVWJWRXdWbnBzTkU1V1JqRmhNVGxFVm14dmQwMXFhRzVXZDdnQkFBJTNEJTNE", false).should eq("AIOkY9EQpi_gyn1_QrFuZ1reN81_MMmI1YmlBblw8j7JHItEFG5h7qcJTNd4W9x5Quk_CVZ028gW")
-    end
-  end
-
   describe "#produce_playlist_continuation" do
     it "correctly produces ctoken for requesting index `x` of a playlist" do
       produce_playlist_continuation("UUCla9fZca4I7KagBtgRGnOw", 100).should eq("4qmFsgJNEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoUQ0FGNkJsQlVPa05IVVElM0QlM0SaAhhVVUNsYTlmWmNhNEk3S2FnQnRnUkduT3c%3D")
