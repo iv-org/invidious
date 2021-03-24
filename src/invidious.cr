@@ -1699,7 +1699,7 @@ get "/channel/:ucid" do |env|
     sort_options = {"last", "oldest", "newest"}
     sort_by ||= "last"
 
-    items, continuation = fetch_channel_playlists(channel.ucid, channel.author, channel.auto_generated, continuation, sort_by)
+    items, continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
     items.uniq! do |item|
       if item.responds_to?(:title)
         item.title
@@ -1766,7 +1766,7 @@ get "/channel/:ucid/playlists" do |env|
     next env.redirect "/channel/#{channel.ucid}"
   end
 
-  items, continuation = fetch_channel_playlists(channel.ucid, channel.author, channel.auto_generated, continuation, sort_by)
+  items, continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
   items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
   items.each { |item| item.author = "" }
 
@@ -2467,7 +2467,7 @@ end
       next error_json(500, ex)
     end
 
-    items, continuation = fetch_channel_playlists(channel.ucid, channel.author, channel.auto_generated, continuation, sort_by)
+    items, continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
 
     JSON.build do |json|
       json.object do

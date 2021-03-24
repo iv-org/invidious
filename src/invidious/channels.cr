@@ -355,14 +355,19 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
   return channel
 end
 
-def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
-  if continuation || auto_generated
-    url = produce_channel_playlists_url(ucid, continuation, sort_by, auto_generated)
+def fetch_channel_playlists(ucid, author, continuation, sort_by)
+  if continuation
+    response_json = request_youtube_api_browse(continuation)
+    result = JSON.parse(response_json.match(/"continuationItems": (?<items>\[.*\]),/m).try &.["items"] || "{}")
 
-    response = YT_POOL.client &.get(url)
+    return [] of SearchItem, nil if result.size == 0
 
-    continuation = response.body.match(/"continuation":"(?<continuation>[^"]+)"/).try &.["continuation"]?
-    initial_data = JSON.parse(response.body).as_a.find(&.["response"]?).try &.as_h
+    items = [] of SearchItem
+    result.as_a.select(&.as_h.has_key?("gridPlaylistRenderer")).each { |item|
+      extract_item(item, author, ucid).try { |t| items << t }
+    }
+
+    continuation = result.as_a.last["continuationItemRenderer"]?.try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
   else
     url = "/channel/#{ucid}/playlists?flow=list&view=1"
 
@@ -377,13 +382,12 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
     end
 
     response = YT_POOL.client &.get(url)
-    continuation = response.body.match(/"continuation":"(?<continuation>[^"]+)"/).try &.["continuation"]?
     initial_data = extract_initial_data(response.body)
-  end
+    return [] of SearchItem, nil if !initial_data
 
-  return [] of SearchItem, nil if !initial_data
-  items = extract_items(initial_data)
-  continuation = extract_channel_playlists_cursor(continuation, auto_generated) if continuation
+    items = extract_items(initial_data, author, ucid)
+    continuation = response.body.match(/"token":"(?<continuation>[^"]+)"/).try &.["continuation"]?
+  end
 
   return items, continuation
 end
