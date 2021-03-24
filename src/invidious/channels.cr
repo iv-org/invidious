@@ -457,6 +457,15 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
   return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 end
 
+# ## NOTE: DEPRECATED
+# Reason -> Unstable
+# The Protobuf object must be provided with an id of the last playlist from the current "page"
+# in order to fetch the next one accurately
+# (if the id isn't included, entries shift around erratically between pages,
+# leading to repetitions and skip overs)
+#
+# Since it's impossible to produce the appropriate Protobuf without an id being provided by the user,
+# it's better to stick to continuation tokens provided by the first request and onward
 def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated = false)
   object = {
     "80226972:embedded" => {
