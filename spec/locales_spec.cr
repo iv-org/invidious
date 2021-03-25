@@ -3,7 +3,6 @@ require "json"
 require "../src/invidious/helpers/i18n.cr"
 
 describe "Locales" do
-
   describe "#consistency" do
     locales_list = LOCALES.keys.select! { |key| key != "en-US" }
 
@@ -27,5 +26,4 @@ describe "Locales" do
       failed.should be_false
     end
   end
-
 end
