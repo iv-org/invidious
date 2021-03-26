@@ -236,7 +236,9 @@ def channel_search(query, page, channel)
   if response.status_code == 404
     response = YT_POOL.client &.get("/user/#{channel}")
     response = YT_POOL.client &.get("/c/#{channel}") if response.status_code == 404
-    ucid = response.body.match(/HeaderRenderer":\{"channelId":"(?<ucid>[^\\"]+)"/).try &.["ucid"]?
+    initial_data = extract_initial_data(response.body)
+    ucid = initial_data["header"]["c4TabbedHeaderRenderer"]?.try &.["channelId"].as_s?
+    raise InfoException.new("Impossible to extract channel ID from page") if !ucid
   else
     ucid = channel
   end
@@ -244,11 +246,14 @@ def channel_search(query, page, channel)
   continuation = produce_channel_search_continuation(ucid, query, page)
   response_json = request_youtube_api_browse(continuation)
 
-  result = JSON.parse(response_json.match(/"continuationItems": (?<items>\[.*\]),/m).try &.["items"] || "{}")
-  return 0, [] of SearchItem if result.size == 0
+  result = JSON.parse(response_json)
+  continuationItems = result["onResponseReceivedActions"]?
+    .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
+
+  return 0, [] of SearchItem if !continuationItems
 
   items = [] of SearchItem
-  result.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each { |item|
+  continuationItems.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each { |item|
     extract_item(item["itemSectionRenderer"]["contents"].as_a[0])
       .try { |t| items << t }
   }
