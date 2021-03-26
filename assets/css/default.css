@@ -641,7 +641,7 @@ body.dark-theme {
 }
 
 #filters > summary {
-  display: inline-block;
+  display: block;
   margin-bottom: 15px;
 }
 
