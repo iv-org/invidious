@@ -358,7 +358,6 @@ end
 def fetch_channel_playlists(ucid, author, continuation, sort_by)
   if continuation
     response_json = request_youtube_api_browse(continuation)
-    # result = JSON.parse(response_json.match(/"continuationItems": (?<items>\[.*\]),/m).try &.["items"] || "{}")
     result = JSON.parse(response_json)
     continuationItems = result["onResponseReceivedActions"]?
       .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
