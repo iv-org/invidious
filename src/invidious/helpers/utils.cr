@@ -409,3 +409,19 @@ def convert_theme(theme)
     theme
   end
 end
+
+def fetch_random_instance()
+    instance_list = HTTP::Client.get "https://api.invidious.io/instances.json"
+    instance_list = JSON.parse(instance_list.body)
+
+    filtered_instance_list = [] of String
+    instance_list.as_a.each do |data|
+        if data[1]["type"] == "https"
+            if data[1]["monitor"]
+                health = data[1]["monitor"].as_h["dailyRatios"][0].as_h["ratio"]
+                filtered_instance_list << data[0].as_s if health.to_s.to_f > 90
+            end
+        end
+    end
+    return filtered_instance_list.sample(1)[0]
+end
