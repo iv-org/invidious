@@ -35,4 +35,10 @@ class Invidious::Routes::Misc < Invidious::Routes::BaseRoute
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     rendered "licenses"
   end
+
+  def cross_instance_redirect(env)
+      id = env.params.query["id"]
+      instance_url = fetch_random_instance
+      env.redirect "https://#{instance_url}/watch?v=#{id}"
+  end
 end
