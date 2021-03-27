@@ -137,20 +137,22 @@
                 </a>
             <% end %>
             <p><a href="/watch?v=<%= item.id %>"><%= HTML.escape(item.title) %></a></p>
-            <p style="display: flex;">
+            <div style="display: flex">
                 <b style="flex: 1;">
                     <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
                 </b>
-                <a title="<%=translate(locale, "Watch on YouTube")%>" href="https://www.youtube.com/watch?v=<%= item.id %>" style="margin-right: 5px;">
-                    <i class="icon ion-logo-youtube"></i>
-                </a>
-                <a title="<%=translate(locale, "Audio mode")%>" href="/watch?v=<%= item.id %>&amp;listen=1">
-                    <i class="icon ion-md-headset"></i>
-                </a>
-                <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?id=<%= item.id %>&amp;listen=1">
-                    <i class="icon ion-md-headset"></i>
-                </a>
-            </p>
+                <div class="icon-buttons">
+                    <a title="<%=translate(locale, "Watch on YouTube")%>" href="https://www.youtube.com/watch?v=<%= item.id %>">
+                        <i class="icon ion-logo-youtube"></i>
+                    </a>
+                    <a title="<%=translate(locale, "Audio mode")%>" href="/watch?v=<%= item.id %>&amp;listen=1">
+                        <i class="icon ion-md-headset"></i>
+                    </a>
+                    <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?id=<%= item.id %>&amp;listen=1">
+                        <i class="icon ion-md-jet"></i>
+                    </a>
+                </div>
+            </div>
 
             <h5 class="pure-g">
                 <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
