@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` abonnees",
-    "`x` videos": "`x` video's",
-    "`x` playlists": "`x` afspeellijsten",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnees",
+        "": "`x` abonnees"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video's",
+        "": "`x` video's"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` afspeellijsten",
+        "": "`x` afspeellijsten"
+    },
     "LIVE": "LIVE",
     "Shared `x` ago": "Gedeeld: `x` geleden",
     "Unsubscribe": "Deabonneren",
@@ -113,13 +122,22 @@
     "Subscription manager": "Abonnementen beheren",
     "Token manager": "Toegangssleutels beheren",
     "Token": "Toegangssleutel",
-    "`x` subscriptions": "`x` abonnementen",
-    "`x` tokens": "`x` toegangssleutels",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnementen",
+        "": "`x` abonnementen"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` toegangssleutels",
+        "": "`x` toegangssleutels"
+    },
     "Import/export": "Importeren/Exporteren",
     "unsubscribe": "Deabonneren",
     "revoke": "Intrekken",
     "Subscriptions": "Abonnementen",
-    "`x` unseen notifications": "`x` ongelezen meldingen",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ongelezen meldingen",
+        "": "`x` ongelezen meldingen"
+    },
     "search": "zoeken",
     "Log out": "Uitloggen",
     "Released under the AGPLv3 by Omar Roth.": "Uitgebracht onder de AGPLv3-licentie, door Omar Roth.",
@@ -149,13 +167,19 @@
     "Whitelisted regions: ": "Toegestane regio's: ",
     "Blacklisted regions: ": "Geblokkeerde regio's: ",
     "Shared `x`": "`x` gedeeld",
-    "`x` views": "`x` weergaven",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` weergaven",
+        "": "`x` weergaven"
+    },
     "Premieres in `x`": "Verschijnt over `x`",
     "Premieres `x`": "Verschijnt op `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hoi! Het lijkt erop dat je JavaScript hebt uitgeschakeld. Klik hier om de reacties te bekijken. Let op: het laden duurt wat langer.",
     "View YouTube comments": "YouTube-reacties tonen",
     "View more comments on Reddit": "Meer reacties bekijken op Reddit",
-    "View `x` comments": "`x` reacties tonen",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` reacties tonen",
+        "": "`x` reacties tonen"
+    },
     "View Reddit comments": "Reddit-reacties tonen",
     "Hide replies": "Antwoorden verbergen",
     "Show replies": "Antwoorden tonen",
@@ -180,10 +204,16 @@
     "This channel does not exist.": "Dit kanaal bestaat niet.",
     "Could not get channel info.": "Kan geen kanaalinformatie ophalen.",
     "Could not fetch comments": "Kan reacties niet ophalen",
-    "View `x` replies": "`x` antwoorden tonen",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` antwoorden tonen",
+        "": "`x` antwoorden tonen"
+    },
     "`x` ago": "`x` geleden",
     "Load more": "Meer laden",
-    "`x` points": "`x` punten",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` punten",
+        "": "`x` punten"
+    },
     "Could not create mix.": "Kan geen mix maken.",
     "Empty playlist": "Lege afspeellijst",
     "Not a playlist.": "Ongeldige afspeellijst.",
@@ -301,13 +331,34 @@
     "Yiddish": "Joods",
     "Yoruba": "Yoruba",
     "Zulu": "Zulu",
-    "`x` years": "`x` jaar",
-    "`x` months": "`x` maanden",
-    "`x` weeks": "`x` weken",
-    "`x` days": "`x` dagen",
-    "`x` hours": "`x` uur",
-    "`x` minutes": "`x` minuten",
-    "`x` seconds": "`x` seconden",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jaar",
+        "": "`x` jaar"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` maanden",
+        "": "`x` maanden"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` weken",
+        "": "`x` weken"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dagen",
+        "": "`x` dagen"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` uur",
+        "": "`x` uur"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuten",
+        "": "`x` minuten"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` seconden",
+        "": "`x` seconden"
+    },
     "Fallback comments: ": "Terugvallen op ",
     "Popular": "Populair",
     "Search": "",

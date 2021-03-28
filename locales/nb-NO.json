@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` abonnenter",
-    "`x` videos": "`x` videoer",
-    "`x` playlists": "`x` spillelister",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnenter",
+        "": "`x` abonnenter"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videoer",
+        "": "`x` videoer"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` spillelister",
+        "": "`x` spillelister"
+    },
     "LIVE": "SANNTIDSVISNING",
     "Shared `x` ago": "Delt for `x` siden",
     "Unsubscribe": "Opphev abonnement",
@@ -113,13 +122,22 @@
     "Subscription manager": "Abonnementsbehandler",
     "Token manager": "Symbolbehandler",
     "Token": "Symbol",
-    "`x` subscriptions": "`x` abonnementer",
-    "`x` tokens": "`x` symboler",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnementer",
+        "": "`x` abonnementer"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` symboler",
+        "": "`x` symboler"
+    },
     "Import/export": "Importer/eksporter",
     "unsubscribe": "opphev abonnement",
     "revoke": "tilbakekall",
     "Subscriptions": "Abonnement",
-    "`x` unseen notifications": "`x` usette merknader",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` usette merknader",
+        "": "`x` usette merknader"
+    },
     "search": "søk",
     "Log out": "Logg ut",
     "Released under the AGPLv3 by Omar Roth.": "Utgitt med AGPLv3+lisens av Omar Roth.",
@@ -149,13 +167,19 @@
     "Whitelisted regions: ": "Hvitlistede regioner: ",
     "Blacklisted regions: ": "Svartelistede regioner: ",
     "Shared `x`": "Delt `x`",
-    "`x` views": "`x` visninger",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visninger",
+        "": "`x` visninger"
+    },
     "Premieres in `x`": "Premiere om `x`",
     "Premieres `x`": "Première `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hei. Det ser ut til at du har JavaScript avslått. Klikk her for å vise kommentarer, ha i minnet at innlasting tar lengre tid.",
     "View YouTube comments": "Vis YouTube-kommentarer",
     "View more comments on Reddit": "Vis flere kommenterer på Reddit",
-    "View `x` comments": "Vis `x` kommentarer",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` kommentarer",
+        "": "Vis `x` kommentarer"
+    },
     "View Reddit comments": "Vis Reddit-kommentarer",
     "Hide replies": "Skjul svar",
     "Show replies": "Vis svar",
@@ -180,10 +204,16 @@
     "This channel does not exist.": "Denne kanalen finnes ikke.",
     "Could not get channel info.": "Kunne ikke innhente kanalinfo.",
     "Could not fetch comments": "Kunne ikke hente kommentarer",
-    "View `x` replies": "Vis `x` svar",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` svar",
+        "": "Vis `x` svar"
+    },
     "`x` ago": "`x` siden",
     "Load more": "Last inn flere",
-    "`x` points": "`x` poeng",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` poeng",
+        "": "`x` poeng"
+    },
     "Could not create mix.": "Kunne ikke opprette miks.",
     "Empty playlist": "Spillelisten er tom",
     "Not a playlist.": "Ugyldig spilleliste.",
@@ -301,13 +331,34 @@
     "Yiddish": "Jiddisk",
     "Yoruba": "Joruba",
     "Zulu": "Zulu",
-    "`x` years": "`x` år",
-    "`x` months": "`x` måneder",
-    "`x` weeks": "`x` uker",
-    "`x` days": "`x` dager",
-    "`x` hours": "`x` timer",
-    "`x` minutes": "`x` minutter",
-    "`x` seconds": "`x` sekunder",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` år",
+        "": "`x` år"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` måneder",
+        "": "`x` måneder"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` uker",
+        "": "`x` uker"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dager",
+        "": "`x` dager"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` timer",
+        "": "`x` timer"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutter",
+        "": "`x` minutter"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekunder",
+        "": "`x` sekunder"
+    },
     "Fallback comments: ": "Tilbakefallskommentarer: ",
     "Popular": "Populært",
     "Search": "",

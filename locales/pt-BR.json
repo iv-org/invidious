@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` inscritos",
-    "`x` videos": "`x` vídeos",
-    "`x` playlists": "`x` listas de reprodução",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` inscritos",
+        "": "`x` inscritos"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vídeos",
+        "": "`x` vídeos"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` listas de reprodução",
+        "": "`x` listas de reprodução"
+    },
     "LIVE": "AO VIVO",
     "Shared `x` ago": "Compartilhado `x` atrás",
     "Unsubscribe": "Cancelar inscrição",
@@ -113,13 +122,22 @@
     "Subscription manager": "Gerenciador de inscrições",
     "Token manager": "Gerenciador de tokens",
     "Token": "Token",
-    "`x` subscriptions": "`x` inscrições",
-    "`x` tokens": "`x` tokens",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` inscrições",
+        "": "`x` inscrições"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens",
+        "": "`x` tokens"
+    },
     "Import/export": "Importar/Exportar",
     "unsubscribe": "cancelar inscrição",
     "revoke": "revogar",
     "Subscriptions": "Inscrições",
-    "`x` unseen notifications": "`x` notificações não visualizadas",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notificações não visualizadas",
+        "": "`x` notificações não visualizadas"
+    },
     "search": "Pesquisar",
     "Log out": "Sair",
     "Released under the AGPLv3 by Omar Roth.": "Publicado sob a licença AGPLv3, por Omar Roth.",
@@ -149,13 +167,19 @@
     "Whitelisted regions: ": "Regiões permitidas: ",
     "Blacklisted regions: ": "Regiões bloqueadas: ",
     "Shared `x`": "Compartilhado `x`",
-    "`x` views": "`x` visualizações",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizações",
+        "": "`x` visualizações"
+    },
     "Premieres in `x`": "Estreia em `x`",
     "Premieres `x`": "Estreia `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Oi! Parece que seu JavaScript está desativado. Clique aqui para ver os comentários, entretanto eles podem levar um pouco mais de tempo para carregar.",
     "View YouTube comments": "Ver comentários no YouTube",
     "View more comments on Reddit": "Ver mais comentários no Reddit",
-    "View `x` comments": "Ver `x` comentários",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` comentários",
+        "": "Ver `x` comentários"
+    },
     "View Reddit comments": "Ver comentários no Reddit",
     "Hide replies": "Ocultar respostas",
     "Show replies": "Mostrar respostas",
@@ -180,10 +204,16 @@
     "This channel does not exist.": "Este canal não existe.",
     "Could not get channel info.": "Não foi possível obter as informações do canal.",
     "Could not fetch comments": "Não foi possível obter os comentários",
-    "View `x` replies": "Ver `x` respostas",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` respostas",
+        "": "Ver `x` respostas"
+    },
     "`x` ago": "`x` atrás",
     "Load more": "Carregar mais",
-    "`x` points": "`x` pontos",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pontos",
+        "": "`x` pontos"
+    },
     "Could not create mix.": "Não foi possível criar o mix.",
     "Empty playlist": "Lista de reprodução vazia",
     "Not a playlist.": "Não é uma lista de reprodução.",
@@ -301,13 +331,34 @@
     "Yiddish": "Iídiche",
     "Yoruba": "Iorubá",
     "Zulu": "Zulu",
-    "`x` years": "`x` anos",
-    "`x` months": "`x` meses",
-    "`x` weeks": "`x` semanas",
-    "`x` days": "`x` dias",
-    "`x` hours": "`x` horas",
-    "`x` minutes": "`x` minutos",
-    "`x` seconds": "`x` segundos",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` anos",
+        "": "`x` anos"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` meses",
+        "": "`x` meses"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` semanas",
+        "": "`x` semanas"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dias",
+        "": "`x` dias"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` horas",
+        "": "`x` horas"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutos",
+        "": "`x` minutos"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` segundos",
+        "": "`x` segundos"
+    },
     "Fallback comments: ": "Comentários alternativos: ",
     "Popular": "Populares",
     "Search": "",

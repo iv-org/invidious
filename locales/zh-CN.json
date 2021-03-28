@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` 位订阅者",
-    "`x` videos": "`x` 个视频",
-    "`x` playlists": "`x` 个播放列表",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 位订阅者",
+        "": "`x` 位订阅者"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 个视频",
+        "": "`x` 个视频"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 个播放列表",
+        "": "`x` 个播放列表"
+    },
     "LIVE": "直播",
     "Shared `x` ago": "`x` 前分享",
     "Unsubscribe": "取消订阅",
@@ -113,13 +122,22 @@
     "Subscription manager": "订阅管理器",
     "Token manager": "令牌管理器",
     "Token": "令牌",
-    "`x` subscriptions": "`x` 个订阅",
-    "`x` tokens": "`x` 个令牌",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 个订阅",
+        "": "`x` 个订阅"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 个令牌",
+        "": "`x` 个令牌"
+    },
     "Import/export": "导入/导出",
     "unsubscribe": "取消订阅",
     "revoke": "吊销",
     "Subscriptions": "订阅",
-    "`x` unseen notifications": "`x` 条未读通知",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 条未读通知",
+        "": "`x` 条未读通知"
+    },
     "search": "搜索",
     "Log out": "登出",
     "Released under the AGPLv3 by Omar Roth.": "由 Omar Roth 开发，以 AGPLv3 授权。",
@@ -149,13 +167,19 @@
     "Whitelisted regions: ": "白名单地区: ",
     "Blacklisted regions: ": "黑名单地区: ",
     "Shared `x`": "`x`发布",
-    "`x` views": "`x` 播放",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 播放",
+        "": "`x` 播放"
+    },
     "Premieres in `x`": "首映于 `x` 后",
     "Premieres `x`": "首映于 `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "你好！看起来你关闭了 JavaScript。点击这里阅读评论。注意它们加载的时间可能会稍长。",
     "View YouTube comments": "查看 YouTube 评论",
     "View more comments on Reddit": "在 Reddit 查看更多评论",
-    "View `x` comments": "查看 `x` 条评论",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "查看 `x` 条评论",
+        "": "查看 `x` 条评论"
+    },
     "View Reddit comments": "查看 Reddit 评论",
     "Hide replies": "隐藏回复",
     "Show replies": "显示回复",
@@ -180,10 +204,16 @@
     "This channel does not exist.": "频道不存在。",
     "Could not get channel info.": "无法获取频道信息。",
     "Could not fetch comments": "无法获取评论",
-    "View `x` replies": "查看 `x` 条回复",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "查看 `x` 条回复",
+        "": "查看 `x` 条回复"
+    },
     "`x` ago": "`x` 前",
     "Load more": "加载更多",
-    "`x` points": "`x` 分",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 分",
+        "": "`x` 分"
+    },
     "Could not create mix.": "无法创建合集。",
     "Empty playlist": "空播放列表",
     "Not a playlist.": "非播放列表。",
@@ -301,13 +331,34 @@
     "Yiddish": "意第绪语",
     "Yoruba": "约鲁巴语",
     "Zulu": "祖鲁语",
-    "`x` years": "`x` 年",
-    "`x` months": "`x` 月",
-    "`x` weeks": "`x` 周",
-    "`x` days": "`x` 天",
-    "`x` hours": "`x` 小时",
-    "`x` minutes": "`x` 分钟",
-    "`x` seconds": "`x` 秒",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 年",
+        "": "`x` 年"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 月",
+        "": "`x` 月"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 周",
+        "": "`x` 周"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
+        "": "`x` 天"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 小时",
+        "": "`x` 小时"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 分钟",
+        "": "`x` 分钟"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 秒",
+        "": "`x` 秒"
+    },
     "Fallback comments: ": "后备评论: ",
     "Popular": "热门频道",
     "Search": "",
