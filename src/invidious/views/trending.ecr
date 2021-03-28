@@ -11,28 +11,31 @@
 
 <%= rendered "components/feed_menu" %>
 
-<div class="pure-g h-box">
-    <div style="align-self:flex-end" class="pure-u-2-3">
+<div class="" style="text-align: center">
+    <!-- <div style="align-self:flex-end" class="pure-u-2-3">
         <% if plid %>
             <a href="/playlist?list=<%= plid %>">
                 <%= translate(locale, "View as playlist") %>
             </a>
         <% end %>
-    </div>
-    <div class="pure-u-1-3">
-        <div class="pure-g" style="text-align:right">
+    </div> -->
+    <div class="pure-menu pure-menu-horizontal">
+        <ui class="pure-menu-list">
             <% {"Default", "Music", "Gaming", "Movies"}.each do |option| %>
-                <div class="pure-u-1 pure-md-1-3">
-                    <% if trending_type == option %>
-                        <b><%= translate(locale, option) %></b>
-                    <% else %>
-                        <a href="/feed/trending?type=<%= option %>&region=<%= region %>">
+                <% if trending_type == option %>
+                    <li class="pure-menu-item pure-menu-selected">
+                        <b><a href="/feed/trending?type=<%= option %>&region=<%= region %>" class="pure-menu-link">
+                          <%= translate(locale, option) %>
+                        </a></b>
+                <% else %>
+                    <li class="pure-menu-item">
+                        <a href="/feed/trending?type=<%= option %>&region=<%= region %>" class="pure-menu-link">
                             <%= translate(locale, option) %>
                         </a>
-                    <% end %>
-                </div>
+                    </li>
+                <% end %>
             <% end %>
-        </div>
+        </ui>
     </div>
 </div>
 
