@@ -21,7 +21,7 @@
     </div>
     <div class="pure-u-1-3">
         <div class="pure-g" style="text-align:right">
-            <% {"Default", "Music", "Gaming", "News", "Movies"}.each do |option| %>
+            <% {"Default", "Music", "Gaming", "Movies"}.each do |option| %>
                 <div class="pure-u-1 pure-md-1-3">
                     <% if trending_type == option %>
                         <b><%= translate(locale, option) %></b>
