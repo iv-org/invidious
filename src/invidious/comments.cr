@@ -226,7 +226,7 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
 
       if body["continuations"]?
         continuation = body["continuations"][0]["nextContinuationData"]["continuation"].as_s
-        json.field "continuation", cursor.try &.starts_with?("E") ? continuation : extract_comment_cursor(continuation)
+        json.field "continuation", continuation
       end
     end
   end
@@ -578,16 +578,6 @@ def content_to_comment_html(content)
   end.join("").delete('\ufeff')
 
   return comment_html
-end
-
-def extract_comment_cursor(continuation)
-  cursor = URI.decode_www_form(continuation)
-    .try { |i| Base64.decode(i) }
-    .try { |i| IO::Memory.new(i) }
-    .try { |i| Protodec::Any.parse(i) }
-    .try { |i| i["6:2:embedded"]["1:0:string"].as_s }
-
-  return cursor
 end
 
 def produce_comment_continuation(video_id, cursor = "", sort_by = "top")
