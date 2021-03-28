@@ -211,8 +211,8 @@
     "`x` ago": "`x` atrás",
     "Load more": "Carregar mais",
     "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "'x' pontos",
-        "": "'x' pontos"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pontos",
+        "": "`x` pontos"
     },
     "Could not create mix.": "Não foi possível criar mistura.",
     "Empty playlist": "Lista de reprodução vazia",

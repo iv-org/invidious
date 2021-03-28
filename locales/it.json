@@ -8,7 +8,7 @@
         "": "`x` video"
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playlist",
         "": "`x` playlist"
     },
     "LIVE": "IN DIRETTA",
