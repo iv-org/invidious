@@ -176,7 +176,10 @@
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "嗨！看來您將 JavaScript 關閉了。點擊這裡以檢視留言，請注意，它們可能需要比較長的時間載入。",
     "View YouTube comments": "檢視 YouTube 留言",
     "View more comments on Reddit": "在 Reddit 上檢視更多留言",
-    "View `x` comments": "檢視 `x` 則留言",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則留言",
+        "": "檢視 `x` 則留言"
+    },
     "View Reddit comments": "檢視 Reddit 留言",
     "Hide replies": "隱藏回覆",
     "Show replies": "顯示回覆",

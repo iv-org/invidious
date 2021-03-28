@@ -176,7 +176,10 @@
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Ciao! Sembra che tu abbia disattivato JavaScript. Clicca qui per visualizzare i commenti. Considera che potrebbe volerci più tempo.",
     "View YouTube comments": "Visualizza i commenti da YouTube",
     "View more comments on Reddit": "Visualizza più commenti su Reddit",
-    "View `x` comments": "Visualizza `x` commenti",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Visualizza `x` commento",
+        "": "Visualizza `x` commenti"
+    },
     "View Reddit comments": "Visualizza i commenti da Reddit",
     "Hide replies": "Nascondi le risposte",
     "Show replies": "Mostra le risposte",
