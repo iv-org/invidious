@@ -197,7 +197,7 @@ img.thumbnail {
   border-top: 0;
   border-left: 0;
   border-right: 0;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #3E4446;
   border-radius: 0;
 
   padding: initial 0;
@@ -223,7 +223,7 @@ input[type="search"]::-webkit-search-cancel-button {
 /* attract focus to the searchbar by adding a subtle transition */
 .searchbar .pure-form input[type="search"]:focus {
   margin-bottom: 0px;
-  border-bottom: 2px solid #aaa;
+  border-bottom: 2px solid #3E4446;
 }
 
 .user-field {
@@ -387,13 +387,14 @@ span > select {
   color: rgb(0, 182, 240);
 }
 
-.dark-theme a {
-  color: #a0a0a0;
+.dark-theme a,
+.dark-theme .footer {
+  color: #A8A095;
   text-decoration: none;
 }
 
 body.dark-theme {
-  background-color: rgba(35, 35, 35, 1);
+  background-color: rgba(26, 29, 30, 1);
   color: #f0f0f0;
 }
 
@@ -418,6 +419,18 @@ body.dark-theme {
 .dark-theme .searchbar input {
   background-color: inherit;
   color: inherit;
+}
+
+.dark-theme .pure-menu-link:hover, .dark-theme .pure-menu-link:active {
+  background-color: rgb(34, 36, 38)
+}
+
+.dark-theme .pure-menu-selected > .pure-menu-link {
+  color: #EAE7E1;
+}
+
+.dark-theme .pure-menu-link:visited {
+  background-color: transparent;
 }
 
 @media (prefers-color-scheme: dark) {
