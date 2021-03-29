@@ -40,26 +40,34 @@
 
 <div class="pure-g h-box">
     <div class="pure-u-1-3">
-        <a href="https://www.youtube.com/channel/<%= channel.ucid %>"><%= translate(locale, "View channel on YouTube") %></a>
-        <div class="pure-u-1 pure-md-1-3">
-            <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
-        </div>
-        <% if !channel.auto_generated %>
-            <div class="pure-u-1 pure-md-1-3">
-                <b><%= translate(locale, "Videos") %></b>
-            </div>
-        <% end %>
-        <div class="pure-u-1 pure-md-1-3">
-            <% if channel.auto_generated %>
-                <b><%= translate(locale, "Playlists") %></b>
-            <% else %>
-                <a href="/channel/<%= channel.ucid %>/playlists"><%= translate(locale, "Playlists") %></a>
-            <% end %>
-        </div>
-        <div class="pure-u-1 pure-md-1-3">
-            <% if channel.tabs.includes? "community" %>
-                <a href="/channel/<%= channel.ucid %>/community"><%= translate(locale, "Community") %></a>
-            <% end %>
+        <!-- <a href="https://www.youtube.com/channel/<%= channel.ucid %>"><%= translate(locale, "View channel on YouTube") %></a> -->
+        <!--             <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a> -->
+        <div class="pure-menu pure-menu-horizontal">
+          <ui class="pure-menu-list">
+              <% if !channel.auto_generated %>
+                  <li class="pure-menu-item pure-menu-selected">
+                    <a href="/channel/<%= channel.ucid %>" class="pure-menu-link">
+                      <b><%= translate(locale, "Videos") %></b>
+                    </a>
+                  </li>
+              <% end %>
+              <li class="pure-menu-item">
+                  <% if channel.auto_generated %>
+                      <b><%= translate(locale, "Playlists") %></b>
+                  <% else %>
+                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/playlists">
+                        <%= translate(locale, "Playlists") %>
+                      </a>
+                  <% end %>
+              </li>
+              <li class="pure-menu-item">
+                  <% if channel.tabs.includes? "community" %>
+                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/community">
+                        <%= translate(locale, "Community") %>
+                      </a>
+                  <% end %>
+              </li>
+          </ui>
         </div>
     </div>
     <div class="pure-u-1-3"></div>
