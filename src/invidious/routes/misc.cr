@@ -38,12 +38,7 @@ class Invidious::Routes::Misc < Invidious::Routes::BaseRoute
 
   def cross_instance_redirect(env)
     instance_url = fetch_random_instance
-    if env.params.query["id"]?
-      id = env.params.query["id"]
-      env.redirect "https://#{instance_url}/watch?v=#{id}"
-    elsif env.params.query["q"]?
-      query, page = env.params.query["q"], env.params.query["page"]
-      env.redirect "https://#{instance_url}/search?q=#{query}&page=#{page}"
-    end
+    referer = get_referer(env)
+    env.redirect "https://#{instance_url}#{referer}"
   end
 end

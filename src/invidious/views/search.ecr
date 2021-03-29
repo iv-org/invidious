@@ -5,7 +5,7 @@
 <!-- Search redirection and filtering UI -->
 <% if count == 0 %>
     <h3 style="text-align: center">
-        <%= translate(locale, "Broken?") %> <a href="/redirect?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page + 1 %>"><%= translate(locale, "Switch Invidious Instance") %></a>
+        <%= translate(locale, "Broken?") %> <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
     </h3>
 <% else %>
     <details id="filters">
