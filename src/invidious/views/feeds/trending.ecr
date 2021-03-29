@@ -24,9 +24,9 @@
             <% {"Default", "Music", "Gaming", "Movies"}.each do |option| %>
                 <% if trending_type == option %>
                     <li class="pure-menu-item pure-menu-selected">
-                        <b><a href="/feed/trending?type=<%= option %>&region=<%= region %>" class="pure-menu-link">
-                          <%= translate(locale, option) %>
-                        </a></b>
+                        <a href="/feed/trending?type=<%= option %>&region=<%= region %>" class="pure-menu-link">
+                          <b><%= translate(locale, option) %></b>
+                        </a>
                 <% else %>
                     <li class="pure-menu-item">
                         <a href="/feed/trending?type=<%= option %>&region=<%= region %>" class="pure-menu-link">
