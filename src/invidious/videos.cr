@@ -818,7 +818,7 @@ end
 
 def extract_polymer_config(body)
   params = {} of String => JSON::Any
-  player_response = body.match(/(window\["ytInitialPlayerResponse"\]|var\sytInitialPlayerResponse)\s*=\s*(?<info>{.*?});/m)
+  player_response = body.match(/(window\["ytInitialPlayerResponse"\]|var\sytInitialPlayerResponse)\s*=\s*(?<info>{.*?});\s*var\s*meta/m)
     .try { |r| JSON.parse(r["info"]).as_h }
 
   if body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
