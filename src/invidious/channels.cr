@@ -229,22 +229,8 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
   page = 1
 
   LOGGER.trace("fetch_channel: #{ucid} : Downloading channel videos page")
-  response_body = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
-
-  videos = [] of SearchVideo
-  begin
-    initial_data = JSON.parse(response_body)
-    raise InfoException.new("Could not extract channel JSON") if !initial_data
-
-    LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel videos page initial_data")
-    videos = extract_videos(initial_data.as_h, author, ucid)
-  rescue ex
-    if response_body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
-       response_body.includes?("https://www.google.com/sorry/index")
-      raise InfoException.new("Could not extract channel info. Instance is likely blocked.")
-    end
-    raise ex
-  end
+  initial_data = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
+  videos = extract_videos(initial_data, author, ucid)
 
   LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel RSS feed")
   rss.xpath_nodes("//feed/entry").each do |entry|
@@ -304,10 +290,8 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     ids = [] of String
 
     loop do
-      response_body = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
-      initial_data = JSON.parse(response_body)
-      raise InfoException.new("Could not extract channel JSON") if !initial_data
-      videos = extract_videos(initial_data.as_h, author, ucid)
+      initial_data = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
+      videos = extract_videos(initial_data, author, ucid)
 
       count = videos.size
       videos = videos.map { |video| ChannelVideo.new({
@@ -358,8 +342,7 @@ end
 def fetch_channel_playlists(ucid, author, continuation, sort_by)
   if continuation
     response_json = request_youtube_api_browse(continuation)
-    result = JSON.parse(response_json)
-    continuationItems = result["onResponseReceivedActions"]?
+    continuationItems = response_json["onResponseReceivedActions"]?
       .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
 
     return [] of SearchItem, nil if !continuationItems
@@ -964,21 +947,16 @@ def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
   videos = [] of SearchVideo
 
   2.times do |i|
-    response_json = get_channel_videos_response(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
-    initial_data = JSON.parse(response_json)
-    break if !initial_data
-    videos.concat extract_videos(initial_data.as_h, author, ucid)
+    initial_data = get_channel_videos_response(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
+    videos.concat extract_videos(initial_data, author, ucid)
   end
 
   return videos.size, videos
 end
 
 def get_latest_videos(ucid)
-  response_json = get_channel_videos_response(ucid)
-  initial_data = JSON.parse(response_json)
-  return [] of SearchVideo if !initial_data
+  initial_data = get_channel_videos_response(ucid)
   author = initial_data["metadata"]?.try &.["channelMetadataRenderer"]?.try &.["title"]?.try &.as_s
-  items = extract_videos(initial_data.as_h, author, ucid)
 
-  return items
+  return extract_videos(initial_data, author, ucid)
 end

@@ -246,8 +246,7 @@ def channel_search(query, page, channel)
   continuation = produce_channel_search_continuation(ucid, query, page)
   response_json = request_youtube_api_browse(continuation)
 
-  result = JSON.parse(response_json)
-  continuationItems = result["onResponseReceivedActions"]?
+  continuationItems = response_json["onResponseReceivedActions"]?
     .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
 
   return 0, [] of SearchItem if !continuationItems
