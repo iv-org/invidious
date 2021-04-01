@@ -77,26 +77,21 @@
     <div class="pure-u-1-3"> <!-- Sort by -->
         <div class="pure-menu pure-menu-horizontal" style="">
             <ul class="pure-menu-list", style="float: right">
-                <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
-                    <a class="pure-menu-link">Sort By</a> <!-- Translate! -->
-                    <ul class="pure-menu-children">
-                        <% sort_options.each do |sort| %>
-                              <% if sort_by == sort %>
-                                  <li class="pure-menu-item pure-menu-selected">
-                                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>?page=<%= page %>&sort_by=<%= sort %>">
-                                          <b><%= translate(locale, sort) %></b>
-                                      </a>
-                                  </li>
-                              <% else %>
-                                  <li class="pure-menu-item">
-                                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>?page=<%= page %>&sort_by=<%= sort %>">
-                                          <%= translate(locale, sort) %>
-                                      </a>
-                                  </li>
-                              <% end %>
-                        <% end %>
-                    </ul>
-                </li>
+                <% sort_options.each do |sort| %>
+                    <% if sort_by == sort %>
+                        <li class="pure-menu-item pure-menu-selected">
+                            <a class="pure-menu-link" href="/channel/<%= channel.ucid %>?page=<%= page %>&sort_by=<%= sort %>">
+                                <b><%= translate(locale, sort) %></b>
+                            </a>
+                        </li>
+                    <% else %>
+                        <li class="pure-menu-item">
+                            <a class="pure-menu-link" href="/channel/<%= channel.ucid %>?page=<%= page %>&sort_by=<%= sort %>">
+                                <%= translate(locale, sort) %>
+                            </a>
+                        </li>
+                    <% end %>
+                <% end %>
             </ul>
         </div>
     </div>
