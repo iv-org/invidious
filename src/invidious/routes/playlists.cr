@@ -434,7 +434,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     end
 
     page_count = (playlist.video_count / 100).to_i
-    page_count = 1 if page_count == 0
+    page_count += 1 if (playlist.video_count % 100) > 0
 
     if page > page_count
       return env.redirect "/playlist?list=#{plid}&page=#{page_count}"
