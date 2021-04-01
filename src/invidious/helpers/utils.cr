@@ -9,7 +9,7 @@ def add_yt_headers(request)
   return if request.resource.starts_with? "/sorry/index"
   request.headers["x-youtube-client-name"] ||= "1"
   request.headers["x-youtube-client-version"] ||= "2.20200609"
-  request.headers["cookie"] = "CONSENT=YES+cb.20210328-17-p0.en; " # New YT consent cookie for EU servers
+  request.headers["cookie"] = "CONSENT=YES+" # New YT consent cookie for EU servers
   if !CONFIG.cookies.empty?
     request.headers["cookie"] = "#{(CONFIG.cookies.map { |c| "#{c.name}=#{c.value}" }).join("; ")}; #{request.headers["cookie"]?}"
   end
