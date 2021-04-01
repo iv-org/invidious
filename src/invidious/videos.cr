@@ -1150,15 +1150,15 @@ end
 
 def build_thumbnails(id)
   return {
-    {name: "maxres", host: "#{HOST_URL}", url: "maxres", height: 720, width: 1280},
-    {name: "maxresdefault", host: "https://i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
-    {name: "sddefault", host: "https://i.ytimg.com", url: "sddefault", height: 480, width: 640},
-    {name: "high", host: "https://i.ytimg.com", url: "hqdefault", height: 360, width: 480},
-    {name: "medium", host: "https://i.ytimg.com", url: "mqdefault", height: 180, width: 320},
-    {name: "default", host: "https://i.ytimg.com", url: "default", height: 90, width: 120},
-    {name: "start", host: "https://i.ytimg.com", url: "1", height: 90, width: 120},
-    {name: "middle", host: "https://i.ytimg.com", url: "2", height: 90, width: 120},
-    {name: "end", host: "https://i.ytimg.com", url: "3", height: 90, width: 120},
+    {host: HOST_URL, height: 720, width: 1280, name: "maxres", url: "maxres"},
+    {host: HOST_URL, height: 720, width: 1280, name: "maxresdefault", url: "maxresdefault"},
+    {host: HOST_URL, height: 480, width: 640, name: "sddefault", url: "sddefault"},
+    {host: HOST_URL, height: 360, width: 480, name: "high", url: "hqdefault"},
+    {host: HOST_URL, height: 180, width: 320, name: "medium", url: "mqdefault"},
+    {host: HOST_URL, height: 90, width: 120, name: "default", url: "default"},
+    {host: HOST_URL, height: 90, width: 120, name: "start", url: "1"},
+    {host: HOST_URL, height: 90, width: 120, name: "middle", url: "2"},
+    {host: HOST_URL, height: 90, width: 120, name: "end", url: "3"},
   }
 end
 
