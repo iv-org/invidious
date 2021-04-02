@@ -231,20 +231,32 @@ end
 alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist
 
 def channel_search(query, page, channel)
-  response = YT_POOL.client &.get("/channel/#{channel}?hl=en&gl=US")
-  response = YT_POOL.client &.get("/user/#{channel}?hl=en&gl=US") if response.headers["location"]?
-  response = YT_POOL.client &.get("/c/#{channel}?hl=en&gl=US") if response.headers["location"]?
+  response = YT_POOL.client &.get("/channel/#{channel}")
 
-  ucid = response.body.match(/\\"channelId\\":\\"(?<ucid>[^\\]+)\\"/).try &.["ucid"]?
+  if response.status_code == 404
+    response = YT_POOL.client &.get("/user/#{channel}")
+    response = YT_POOL.client &.get("/c/#{channel}") if response.status_code == 404
+    initial_data = extract_initial_data(response.body)
+    ucid = initial_data["header"]["c4TabbedHeaderRenderer"]?.try &.["channelId"].as_s?
+    raise InfoException.new("Impossible to extract channel ID from page") if !ucid
+  else
+    ucid = channel
+  end
 
-  return 0, [] of SearchItem if !ucid
+  continuation = produce_channel_search_continuation(ucid, query, page)
+  response_json = request_youtube_api_browse(continuation)
 
-  url = produce_channel_search_url(ucid, query, page)
-  response = YT_POOL.client &.get(url)
-  initial_data = JSON.parse(response.body).as_a.find &.["response"]?
-  return 0, [] of SearchItem if !initial_data
-  author = initial_data["response"]?.try &.["metadata"]?.try &.["channelMetadataRenderer"]?.try &.["title"]?.try &.as_s
-  items = extract_items(initial_data.as_h, author, ucid)
+  result = JSON.parse(response_json)
+  continuationItems = result["onResponseReceivedActions"]?
+    .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
+
+  return 0, [] of SearchItem if !continuationItems
+
+  items = [] of SearchItem
+  continuationItems.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each { |item|
+    extract_item(item["itemSectionRenderer"]["contents"].as_a[0])
+      .try { |t| items << t }
+  }
 
   return items.size, items
 end
@@ -361,17 +373,28 @@ def produce_search_params(page = 1, sort : String = "relevance", date : String =
   return params
 end
 
-def produce_channel_search_url(ucid, query, page)
+def produce_channel_search_continuation(ucid, query, page)
+  if page <= 1
+    idx = 0_i64
+  else
+    idx = 30_i64 * (page - 1)
+  end
+
   object = {
     "80226972:embedded" => {
       "2:string" => ucid,
       "3:base64" => {
         "2:string"  => "search",
+        "6:varint"  => 1_i64,
         "7:varint"  => 1_i64,
-        "15:string" => "#{page}",
+        "12:varint" => 1_i64,
+        "15:base64" => {
+          "3:varint" => idx,
+        },
         "23:varint" => 0_i64,
       },
       "11:string" => query,
+      "35:string" => "browse-feed#{ucid}search",
     },
   }
 
@@ -380,7 +403,7 @@ def produce_channel_search_url(ucid, query, page)
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
-  return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
+  return continuation
 end
 
 def process_search_query(query, page, user, region)
