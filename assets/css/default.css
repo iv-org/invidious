@@ -669,3 +669,28 @@ See https://stackoverflow.com/a/34372979 for more info */
 hr {
   margin: auto 0 auto 0;
 }
+
+/* Description Expandsion Styling*/
+#description-box {
+  display: flex;
+  flex-direction: column;
+}
+
+#readmorebutton {
+  display: none
+}
+
+#readmorebutton ~ div {
+  overflow: hidden;
+  height: 8.3em;
+}
+
+#readmorebutton:checked ~ div {
+  overflow: unset;
+  height: 100%;
+}
+
+#readmorebutton + label {
+  order: 1;
+  margin-top: 20px;
+}

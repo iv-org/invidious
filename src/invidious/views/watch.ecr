@@ -25,6 +25,19 @@
 <link rel="alternate" href="https://www.youtube.com/watch?v=<%= video.id %>">
 <%= rendered "components/player_sources" %>
 <title><%= HTML.escape(video.title) %> - Invidious</title>
+
+<!-- Description expandsion also updates the Read More button to Read Less so
+we're going to need to do it here in order to allow for translations.
+ -->
+<style>
+#readmorebutton + label > a::after {
+    content: "<%= translate(locale, "Read more") %>"
+}
+
+#readmorebutton:checked + label > a::after {
+    content: "<%= translate(locale, "Read less") %>"
+}
+</style>
 <% end %>
 
 <script id="video_data" type="application/json">
@@ -227,17 +240,16 @@
                 <% end %>
             </p>
 
-            <div>
+            <div id="description-box"> <!-- Description -->
                 <% if video.description.size < 200 || params.extend_desc %>
                     <%= video.description_html %>
                 <% else %>
-                    <div style="overflow: hidden;height: 8.3em;" id="descriptionWrapper">
+                    <input id="readmorebutton" type="checkbox"/>
+                    <label for="readmorebutton" style="order: 1;" class="simulated_a">
+                        <a></a>
+                    </label>
+                    <div id="descriptionWrapper">
                         <%= video.description_html %>
-                    </div>
-                    <div class="pure-u-23-24">
-                        <p>
-                            <a href="javascript:void(0)" onclick="read_more_description(this)"><%= translate(locale, "Read more") %></a>
-                        </p>
                     </div>
                 <% end %>
             </div>
