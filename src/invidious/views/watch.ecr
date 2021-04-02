@@ -31,11 +31,11 @@ we're going to need to do it here in order to allow for translations.
  -->
 <style>
 #readmorebutton + label > a::after {
-    content: "<%= translate(locale, "Read more") %>"
+    content: "<%= translate(locale, "Show more") %>"
 }
 
 #readmorebutton:checked + label > a::after {
-    content: "<%= translate(locale, "Read less") %>"
+    content: "<%= translate(locale, "Show less") %>"
 }
 </style>
 <% end %>
