@@ -26,15 +26,15 @@
 <%= rendered "components/player_sources" %>
 <title><%= HTML.escape(video.title) %> - Invidious</title>
 
-<!-- Description expandsion also updates the Read More button to Read Less so
+<!-- Description expansion also updates the 'Show more' button to 'Show less' so
 we're going to need to do it here in order to allow for translations.
  -->
 <style>
-#readmorebutton + label > a::after {
+#descexpansionbutton + label > a::after {
     content: "<%= translate(locale, "Show more") %>"
 }
 
-#readmorebutton:checked + label > a::after {
+#descexpansionbutton:checked + label > a::after {
     content: "<%= translate(locale, "Show less") %>"
 }
 </style>
@@ -244,8 +244,8 @@ we're going to need to do it here in order to allow for translations.
                 <% if video.description.size < 200 || params.extend_desc %>
                     <%= video.description_html %>
                 <% else %>
-                    <input id="readmorebutton" type="checkbox"/>
-                    <label for="readmorebutton" style="order: 1;" class="simulated_a">
+                    <input id="descexpansionbutton" type="checkbox"/>
+                    <label for="descexpansionbutton" style="order: 1;" class="simulated_a">
                         <a></a>
                     </label>
                     <div id="descriptionWrapper">

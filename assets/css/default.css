@@ -670,27 +670,27 @@ hr {
   margin: auto 0 auto 0;
 }
 
-/* Description Expandsion Styling*/
+/* Description Expansion Styling*/
 #description-box {
   display: flex;
   flex-direction: column;
 }
 
-#readmorebutton {
+#descexpansionbutton {
   display: none
 }
 
-#readmorebutton ~ div {
+#descexpansionbutton ~ div {
   overflow: hidden;
   height: 8.3em;
 }
 
-#readmorebutton:checked ~ div {
+#descexpansionbutton:checked ~ div {
   overflow: unset;
   height: 100%;
 }
 
-#readmorebutton + label {
+#descexpansionbutton + label {
   order: 1;
   margin-top: 20px;
 }
