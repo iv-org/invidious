@@ -16,15 +16,15 @@ def add_yt_headers(request)
   end
 end
 
-struct QUICPool
+struct YoutubeConnectionPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : ConnectionPool(QUIC::Client)
+  property pool : ConnectionPool(QUIC::Client | HTTP::Client)
 
-  def initialize(url : URI, @capacity = 5, @timeout = 5.0)
+  def initialize(url : URI, @capacity = 5, @timeout = 5.0, use_quic = true)
     @url = url
-    @pool = build_pool
+    @pool = build_pool(use_quic)
   end
 
   def client(region = nil, &block)
@@ -50,9 +50,13 @@ struct QUICPool
     response
   end
 
-  private def build_pool
-    ConnectionPool(QUIC::Client).new(capacity: capacity, timeout: timeout) do
-      conn = QUIC::Client.new(url)
+  private def build_pool(use_quic)
+    ConnectionPool(QUIC::Client | HTTP::Client).new(capacity: capacity, timeout: timeout) do
+      if use_quic
+        conn = QUIC::Client.new(url)
+      else
+        conn = HTTP::Client.new(url)
+      end
       conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
