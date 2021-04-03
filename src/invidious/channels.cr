@@ -355,14 +355,22 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
   return channel
 end
 
-def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
-  if continuation || auto_generated
-    url = produce_channel_playlists_url(ucid, continuation, sort_by, auto_generated)
+def fetch_channel_playlists(ucid, author, continuation, sort_by)
+  if continuation
+    response_json = request_youtube_api_browse(continuation)
+    result = JSON.parse(response_json)
+    continuationItems = result["onResponseReceivedActions"]?
+      .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
 
-    response = YT_POOL.client &.get(url)
+    return [] of SearchItem, nil if !continuationItems
 
-    continuation = response.body.match(/"continuation":"(?<continuation>[^"]+)"/).try &.["continuation"]?
-    initial_data = JSON.parse(response.body).as_a.find(&.["response"]?).try &.as_h
+    items = [] of SearchItem
+    continuationItems.as_a.select(&.as_h.has_key?("gridPlaylistRenderer")).each { |item|
+      extract_item(item, author, ucid).try { |t| items << t }
+    }
+
+    continuation = continuationItems.as_a.last["continuationItemRenderer"]?
+      .try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
   else
     url = "/channel/#{ucid}/playlists?flow=list&view=1"
 
@@ -377,13 +385,12 @@ def fetch_channel_playlists(ucid, author, auto_generated, continuation, sort_by)
     end
 
     response = YT_POOL.client &.get(url)
-    continuation = response.body.match(/"continuation":"(?<continuation>[^"]+)"/).try &.["continuation"]?
     initial_data = extract_initial_data(response.body)
-  end
+    return [] of SearchItem, nil if !initial_data
 
-  return [] of SearchItem, nil if !initial_data
-  items = extract_items(initial_data)
-  continuation = extract_channel_playlists_cursor(continuation, auto_generated) if continuation
+    items = extract_items(initial_data, author, ucid)
+    continuation = response.body.match(/"token":"(?<continuation>[^"]+)"/).try &.["continuation"]?
+  end
 
   return items, continuation
 end
@@ -453,6 +460,15 @@ def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "
   return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 end
 
+# ## NOTE: DEPRECATED
+# Reason -> Unstable
+# The Protobuf object must be provided with an id of the last playlist from the current "page"
+# in order to fetch the next one accurately
+# (if the id isn't included, entries shift around erratically between pages,
+# leading to repetitions and skip overs)
+#
+# Since it's impossible to produce the appropriate Protobuf without an id being provided by the user,
+# it's better to stick to continuation tokens provided by the first request and onward
 def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated = false)
   object = {
     "80226972:embedded" => {
@@ -497,31 +513,6 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
     .try { |i| URI.encode_www_form(i) }
 
   return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
-end
-
-def extract_channel_playlists_cursor(cursor, auto_generated)
-  cursor = URI.decode_www_form(cursor)
-    .try { |i| Base64.decode(i) }
-    .try { |i| IO::Memory.new(i) }
-    .try { |i| Protodec::Any.parse(i) }
-    .try { |i| i["80226972:0:embedded"]["3:1:base64"].as_h.find { |k, v| k.starts_with? "15:" } }
-    .try &.[1]
-
-  if cursor.try &.as_h?
-    cursor = cursor.try { |i| Protodec::Any.cast_json(i.as_h) }
-      .try { |i| Protodec::Any.from_json(i) }
-      .try { |i| Base64.urlsafe_encode(i) }
-      .try { |i| URI.encode_www_form(i) } || ""
-  else
-    cursor = cursor.try &.as_s || ""
-  end
-
-  if !auto_generated
-    cursor = URI.decode_www_form(cursor)
-      .try { |i| Base64.decode_string(i) }
-  end
-
-  return cursor
 end
 
 # TODO: Add "sort_by"
