@@ -822,75 +822,86 @@ def get_about_info(ucid, locale)
   end
 
   auto_generated = false
+  # Check for special auto generated gaming channels
   if !initdata.has_key?("metadata")
     auto_generated = true
   end
 
   if auto_generated
-    return get_auto_generated_channel_info(initdata, about, ucid)
+    author = initdata["header"]["interactiveTabbedHeaderRenderer"]["title"]["simpleText"].as_s
+    author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
+    author_thumbnail = initdata["header"]["interactiveTabbedHeaderRenderer"]["boxArt"]["thumbnails"][0]["url"].as_s
+
+    # Raises a KeyError on failure.
+    banners = initdata["header"]["interactiveTabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
+    banner = banners.try &.[-1]?.try &.["url"].as_s?
+
+    description = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]["simpleText"].as_s
+    description_html = HTML.escape(description).gsub("\n", "<br>")
+
+    paid = false
+    is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
+    allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map { |a| a.as_s }
+
+    related_channels = [] of AboutRelatedChannel
   else
-    return get_normal_channel_info(initdata, about)
-  end
-end
+    author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
+    author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
+    author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
 
-def get_normal_channel_info(initdata, about)
-  author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
-  author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
-  author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
+    ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
 
-  ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
+    # Raises a KeyError on failure.
+    banners = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
+    banner = banners.try &.[-1]?.try &.["url"].as_s?
 
-  # Raises a KeyError on failure.
-  banners = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
-  banner = banners.try &.[-1]?.try &.["url"].as_s?
+    # if banner.includes? "channels/c4/default_banner"
+    #  banner = nil
+    # end
 
-  # if banner.includes? "channels/c4/default_banner"
-  #  banner = nil
-  # end
+    description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
+    description_html = HTML.escape(description).gsub("\n", "<br>")
 
-  description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
-  description_html = HTML.escape(description).gsub("\n", "<br>")
+    paid = about.xpath_node(%q(//meta[@itemprop="paid"])).not_nil!["content"] == "True"
+    is_family_friendly = about.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
+    allowed_regions = about.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
 
-  paid = about.xpath_node(%q(//meta[@itemprop="paid"])).not_nil!["content"] == "True"
-  is_family_friendly = about.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
-  allowed_regions = about.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
+    related_channels = initdata["contents"]["twoColumnBrowseResultsRenderer"]
+      .["secondaryContents"]?.try &.["browseSecondaryContentsRenderer"]["contents"][0]?
+      .try &.["verticalChannelSectionRenderer"]?.try &.["items"]?.try &.as_a.map do |node|
+        renderer = node["miniChannelRenderer"]?
+        related_id = renderer.try &.["channelId"]?.try &.as_s?
+        related_id ||= ""
 
-  related_channels = initdata["contents"]["twoColumnBrowseResultsRenderer"]
-    .["secondaryContents"]?.try &.["browseSecondaryContentsRenderer"]["contents"][0]?
-    .try &.["verticalChannelSectionRenderer"]?.try &.["items"]?.try &.as_a.map do |node|
-      renderer = node["miniChannelRenderer"]?
-      related_id = renderer.try &.["channelId"]?.try &.as_s?
-      related_id ||= ""
+        related_title = renderer.try &.["title"]?.try &.["simpleText"]?.try &.as_s?
+        related_title ||= ""
 
-      related_title = renderer.try &.["title"]?.try &.["simpleText"]?.try &.as_s?
-      related_title ||= ""
+        related_author_url = renderer.try &.["navigationEndpoint"]?.try &.["commandMetadata"]?.try &.["webCommandMetadata"]?
+          .try &.["url"]?.try &.as_s?
+        related_author_url ||= ""
 
-      related_author_url = renderer.try &.["navigationEndpoint"]?.try &.["commandMetadata"]?.try &.["webCommandMetadata"]?
-        .try &.["url"]?.try &.as_s?
-      related_author_url ||= ""
+        related_author_thumbnails = renderer.try &.["thumbnail"]?.try &.["thumbnails"]?.try &.as_a?
+        related_author_thumbnails ||= [] of JSON::Any
 
-      related_author_thumbnails = renderer.try &.["thumbnail"]?.try &.["thumbnails"]?.try &.as_a?
-      related_author_thumbnails ||= [] of JSON::Any
+        related_author_thumbnail = ""
+        if related_author_thumbnails.size > 0
+          related_author_thumbnail = related_author_thumbnails[-1]["url"]?.try &.as_s?
+          related_author_thumbnail ||= ""
+        end
 
-      related_author_thumbnail = ""
-      if related_author_thumbnails.size > 0
-        related_author_thumbnail = related_author_thumbnails[-1]["url"]?.try &.as_s?
-        related_author_thumbnail ||= ""
+        AboutRelatedChannel.new({
+          ucid:             related_id,
+          author:           related_title,
+          author_url:       related_author_url,
+          author_thumbnail: related_author_thumbnail,
+        })
       end
-
-      AboutRelatedChannel.new({
-        ucid:             related_id,
-        author:           related_title,
-        author_url:       related_author_url,
-        author_thumbnail: related_author_thumbnail,
-      })
-    end
-  related_channels ||= [] of AboutRelatedChannel
+    related_channels ||= [] of AboutRelatedChannel
+  end
 
   total_views = 0_i64
   joined = Time.unix(0)
   tabs = [] of String
-  auto_generated = false
 
   tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
   if !tabs_json.nil?
@@ -908,76 +919,13 @@ def get_normal_channel_info(initdata, about)
         joined = channel_about_meta["joinedDateText"]?.try &.["runs"]?.try &.as_a.reduce("") { |acc, node| acc + node["text"].as_s }
           .try { |text| Time.parse(text, "Joined %b %-d, %Y", Time::Location.local) } || Time.unix(0)
 
-        # Auto-generated channels
+        # Normal Auto-generated channels
         # https://support.google.com/youtube/answer/2579942
         # For auto-generated channels, channel_about_meta only has ["description"]["simpleText"] and ["primaryLinks"][0]["title"]["simpleText"]
         if (channel_about_meta["primaryLinks"]?.try &.size || 0) == 1 && (channel_about_meta["primaryLinks"][0]?) &&
            (channel_about_meta["primaryLinks"][0]["title"]?.try &.["simpleText"]?.try &.as_s? || "") == "Auto-generated by YouTube"
           auto_generated = true
         end
-      end
-    end
-    tabs = tabs_json.reject { |node| node["tabRenderer"]?.nil? }.map { |node| node["tabRenderer"]["title"].as_s.downcase }
-  end
-
-  sub_count = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s?
-    .try { |text| short_text_to_number(text.split(" ")[0]) } || 0
-
-  AboutChannel.new({
-    ucid:               ucid,
-    author:             author,
-    auto_generated:     auto_generated,
-    author_url:         author_url,
-    author_thumbnail:   author_thumbnail,
-    banner:             banner,
-    description_html:   description_html,
-    paid:               paid,
-    total_views:        total_views,
-    sub_count:          sub_count,
-    joined:             joined,
-    is_family_friendly: is_family_friendly,
-    allowed_regions:    allowed_regions,
-    related_channels:   related_channels,
-    tabs:               tabs,
-  })
-end
-
-def get_auto_generated_channel_info(initdata, about, ucid)
-  author = initdata["header"]["interactiveTabbedHeaderRenderer"]["title"]["simpleText"].as_s
-  author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
-  author_thumbnail = initdata["header"]["interactiveTabbedHeaderRenderer"]["boxArt"]["thumbnails"][0]["url"].as_s
-
-  # Raises a KeyError on failure.
-  banners = initdata["header"]["interactiveTabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
-  banner = banners.try &.[-1]?.try &.["url"].as_s?
-
-  description = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]["simpleText"].as_s
-  description_html = HTML.escape(description).gsub("\n", "<br>")
-
-  paid = false
-  is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
-  allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map { |a| a.as_s }
-
-  related_channels = [] of AboutRelatedChannel
-
-  total_views = 0_i64
-  joined = Time.unix(0)
-  tabs = [] of String
-  auto_generated = true
-
-  tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
-  if !tabs_json.nil?
-    # Retrieve information from the tabs array. The index we are looking for varies between channels.
-    tabs_json.each do |node|
-      # Try to find the about section which is located in only one of the tabs.
-      channel_about_meta = node["tabRenderer"]?.try &.["content"]?.try &.["sectionListRenderer"]?
-        .try &.["contents"]?.try &.[0]?.try &.["itemSectionRenderer"]?.try &.["contents"]?
-          .try &.[0]?.try &.["channelAboutFullMetadataRenderer"]?
-
-      if !channel_about_meta.nil?
-        # The joined text is split to several sub strings. The reduce joins those strings before parsing the date.
-        joined = channel_about_meta["joinedDateText"]?.try &.["runs"]?.try &.as_a.reduce("") { |acc, node| acc + node["text"].as_s }
-          .try { |text| Time.parse(text, "Joined %b %-d, %Y", Time::Location.local) } || Time.unix(0)
       end
     end
     tabs = tabs_json.reject { |node| node["tabRenderer"]?.nil? }.map { |node| node["tabRenderer"]["title"].as_s.downcase }
