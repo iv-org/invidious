@@ -6,3 +6,18 @@
 <% end %>
 
 <%= rendered "components/feed_menu" %>
+
+<div class="pure-g h-box">
+    <div class="pure-u-1">
+        <h1 href="/" class="pure-menu-heading">Invidious</h1>
+    </div>
+    <div class="pure-u-1-4"></div>
+    <div class="pure-u-1-2 searchbar">
+        <form class="pure-form" action="/search" method="get">
+            <fieldset>
+                <input type="search" style="width:100%" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
+            </fieldset>
+        </form>
+    </div>
+    <div class="pure-u-1-4"></div>
+</div>
