@@ -172,7 +172,7 @@ img.thumbnail {
   flex: 1;
 }
 
-.navbar > .searchbar {
+.searchbar {
   flex-grow: 2; /* take double the space of the other items */
 }
 
@@ -185,7 +185,7 @@ img.thumbnail {
   display: inline;
 }
 
-.navbar > .searchbar .pure-form input[type="search"] {
+.searchbar .pure-form input[type="search"] {
   margin-bottom: 1px;
 
   border-top: 0;
@@ -210,12 +210,12 @@ input[type="search"]::-webkit-search-cancel-button {
   background-size: 14px;
 }
 
-.navbar > .searchbar .pure-form fieldset {
+.searchbar .pure-form fieldset {
   padding: 0;
 }
 
 /* attract focus to the searchbar by adding a subtle transition */
-.navbar > .searchbar .pure-form input[type="search"]:focus {
+.searchbar .pure-form input[type="search"]:focus {
   margin-bottom: 0px;
   border-bottom: 2px solid #aaa;
 }
@@ -586,7 +586,7 @@ body.dark-theme {
   color: #f0f0f0;
 }
 
-.dark-theme .navbar > .searchbar input {
+.dark-theme .searchbar input {
   background-color: inherit;
   color: inherit;
 }
@@ -625,7 +625,7 @@ body.dark-theme {
     color: #f0f0f0;
   }
 
-  .no-theme .navbar > .searchbar input {
+  .no-theme .searchbar input {
     background-color: inherit;
     color: inherit;
   }

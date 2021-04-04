@@ -1,0 +1,10 @@
+#search-widget {
+    text-align: center;
+    margin: 50px auto;
+}
+
+#logo > h1 {
+    font-size: 3.5em;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
