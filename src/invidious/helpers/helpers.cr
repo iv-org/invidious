@@ -42,7 +42,7 @@ struct ConfigPreferences
   property player_style : String = "invidious"
   property quality : String = "hd720"
   property quality_dash : String = "auto"
-  property default_home : String = "Popular"
+  property default_home : String? = "Popular"
   property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
   property related_videos : Bool = true
   property sort : String = "published"
