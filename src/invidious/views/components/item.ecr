@@ -8,7 +8,12 @@
                         <img style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target.gsub(/=s\d+/, "=s176") %>"/>
                     </center>
                 <% end %>
-                <p><%= item.author %></p>
+                <p>
+                  <%= item.author %>
+                  <% if item.author_verified %>
+                      <a class="channel_badge"><i class="icon ion-md-checkmark-circle"></i></a>
+                  <% end %>
+                </p>
             </a>
             <p><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></p>
             <% if !item.auto_generated %><p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p><% end %>

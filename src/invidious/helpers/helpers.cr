@@ -314,6 +314,8 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
     author = i["title"]["simpleText"]?.try &.as_s || author_fallback || ""
     author_id = i["channelId"]?.try &.as_s || author_id_fallback || ""
 
+    author_verified = i["ownerBadges"]?.try &.as_a[0]["metadataBadgeRenderer"]?.try &.["style"]?.try &.to_s == "BADGE_STYLE_TYPE_VERIFIED" ? true : false || false
+
     author_thumbnail = i["thumbnail"]["thumbnails"]?.try &.as_a[0]?.try &.["url"]?.try &.as_s || ""
     subscriber_count = i["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s.try { |s| short_text_to_number(s.split(" ")[0]) } || 0
 
@@ -324,6 +326,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
 
     SearchChannel.new({
       author:           author,
+      author_verified:   author_verified,
       ucid:             author_id,
       author_thumbnail: author_thumbnail,
       subscriber_count: subscriber_count,

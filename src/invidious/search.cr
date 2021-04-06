@@ -181,6 +181,7 @@ struct SearchChannel
   include DB::Serializable
 
   property author : String
+  property author_verified : Bool
   property ucid : String
   property author_thumbnail : String
   property subscriber_count : Int32
