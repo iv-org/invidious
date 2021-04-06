@@ -20,6 +20,11 @@ body {
   height: auto;
 }
 
+.channel_badge {
+  margin-left: 3px;
+  font-size: 1em;
+}
+
 body a.channel-owner {
   background-color: #008bec;
   color: #fff;

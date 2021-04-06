@@ -17,6 +17,9 @@
         <div class="channel-profile">
             <img src="/ggpht<%= URI.parse(channel.author_thumbnail).request_target %>">
             <span><%= channel.author %></span>
+            <% if channel.author_verified %>
+                <a class="channel_badge"><i class="icon ion-md-checkmark-circle"></i></a>
+            <% end %>
         </div>
     </div>
     <div class="pure-u-1-3" style="text-align:right">
