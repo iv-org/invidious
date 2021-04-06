@@ -821,63 +821,87 @@ def get_about_info(ucid, locale)
     raise ChannelRedirect.new(channel_id: browse_endpoint["browseId"].to_s)
   end
 
-  author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
-  author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
-  author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
+  auto_generated = false
+  # Check for special auto generated gaming channels
+  if !initdata.has_key?("metadata")
+    auto_generated = true
+  end
 
-  ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
+  if auto_generated
+    author = initdata["header"]["interactiveTabbedHeaderRenderer"]["title"]["simpleText"].as_s
+    author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
+    author_thumbnail = initdata["header"]["interactiveTabbedHeaderRenderer"]["boxArt"]["thumbnails"][0]["url"].as_s
 
-  # Raises a KeyError on failure.
-  banners = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
-  banner = banners.try &.[-1]?.try &.["url"].as_s?
+    # Raises a KeyError on failure.
+    banners = initdata["header"]["interactiveTabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
+    banner = banners.try &.[-1]?.try &.["url"].as_s?
 
-  # if banner.includes? "channels/c4/default_banner"
-  #  banner = nil
-  # end
+    description = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]["simpleText"].as_s
+    description_html = HTML.escape(description).gsub("\n", "<br>")
 
-  description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
-  description_html = HTML.escape(description).gsub("\n", "<br>")
+    paid = false
+    is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
+    allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map { |a| a.as_s }
 
-  paid = about.xpath_node(%q(//meta[@itemprop="paid"])).not_nil!["content"] == "True"
-  is_family_friendly = about.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
-  allowed_regions = about.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
+    related_channels = [] of AboutRelatedChannel
+  else
+    author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
+    author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
+    author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
 
-  related_channels = initdata["contents"]["twoColumnBrowseResultsRenderer"]
-    .["secondaryContents"]?.try &.["browseSecondaryContentsRenderer"]["contents"][0]?
-    .try &.["verticalChannelSectionRenderer"]?.try &.["items"]?.try &.as_a.map do |node|
-      renderer = node["miniChannelRenderer"]?
-      related_id = renderer.try &.["channelId"]?.try &.as_s?
-      related_id ||= ""
+    ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
 
-      related_title = renderer.try &.["title"]?.try &.["simpleText"]?.try &.as_s?
-      related_title ||= ""
+    # Raises a KeyError on failure.
+    banners = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
+    banner = banners.try &.[-1]?.try &.["url"].as_s?
 
-      related_author_url = renderer.try &.["navigationEndpoint"]?.try &.["commandMetadata"]?.try &.["webCommandMetadata"]?
-        .try &.["url"]?.try &.as_s?
-      related_author_url ||= ""
+    # if banner.includes? "channels/c4/default_banner"
+    #  banner = nil
+    # end
 
-      related_author_thumbnails = renderer.try &.["thumbnail"]?.try &.["thumbnails"]?.try &.as_a?
-      related_author_thumbnails ||= [] of JSON::Any
+    description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
+    description_html = HTML.escape(description).gsub("\n", "<br>")
 
-      related_author_thumbnail = ""
-      if related_author_thumbnails.size > 0
-        related_author_thumbnail = related_author_thumbnails[-1]["url"]?.try &.as_s?
-        related_author_thumbnail ||= ""
+    paid = about.xpath_node(%q(//meta[@itemprop="paid"])).not_nil!["content"] == "True"
+    is_family_friendly = about.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
+    allowed_regions = about.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
+
+    related_channels = initdata["contents"]["twoColumnBrowseResultsRenderer"]
+      .["secondaryContents"]?.try &.["browseSecondaryContentsRenderer"]["contents"][0]?
+      .try &.["verticalChannelSectionRenderer"]?.try &.["items"]?.try &.as_a.map do |node|
+        renderer = node["miniChannelRenderer"]?
+        related_id = renderer.try &.["channelId"]?.try &.as_s?
+        related_id ||= ""
+
+        related_title = renderer.try &.["title"]?.try &.["simpleText"]?.try &.as_s?
+        related_title ||= ""
+
+        related_author_url = renderer.try &.["navigationEndpoint"]?.try &.["commandMetadata"]?.try &.["webCommandMetadata"]?
+          .try &.["url"]?.try &.as_s?
+        related_author_url ||= ""
+
+        related_author_thumbnails = renderer.try &.["thumbnail"]?.try &.["thumbnails"]?.try &.as_a?
+        related_author_thumbnails ||= [] of JSON::Any
+
+        related_author_thumbnail = ""
+        if related_author_thumbnails.size > 0
+          related_author_thumbnail = related_author_thumbnails[-1]["url"]?.try &.as_s?
+          related_author_thumbnail ||= ""
+        end
+
+        AboutRelatedChannel.new({
+          ucid:             related_id,
+          author:           related_title,
+          author_url:       related_author_url,
+          author_thumbnail: related_author_thumbnail,
+        })
       end
-
-      AboutRelatedChannel.new({
-        ucid:             related_id,
-        author:           related_title,
-        author_url:       related_author_url,
-        author_thumbnail: related_author_thumbnail,
-      })
-    end
-  related_channels ||= [] of AboutRelatedChannel
+    related_channels ||= [] of AboutRelatedChannel
+  end
 
   total_views = 0_i64
   joined = Time.unix(0)
   tabs = [] of String
-  auto_generated = false
 
   tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
   if !tabs_json.nil?
@@ -895,7 +919,7 @@ def get_about_info(ucid, locale)
         joined = channel_about_meta["joinedDateText"]?.try &.["runs"]?.try &.as_a.reduce("") { |acc, node| acc + node["text"].as_s }
           .try { |text| Time.parse(text, "Joined %b %-d, %Y", Time::Location.local) } || Time.unix(0)
 
-        # Auto-generated channels
+        # Normal Auto-generated channels
         # https://support.google.com/youtube/answer/2579942
         # For auto-generated channels, channel_about_meta only has ["description"]["simpleText"] and ["primaryLinks"][0]["title"]["simpleText"]
         if (channel_about_meta["primaryLinks"]?.try &.size || 0) == 1 && (channel_about_meta["primaryLinks"][0]?) &&
