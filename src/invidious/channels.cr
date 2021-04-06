@@ -125,6 +125,7 @@ struct AboutChannel
   property auto_generated : Bool
   property author_url : String
   property author_thumbnail : String
+  property author_verified   : Bool
   property banner : String?
   property description_html : String
   property paid : Bool
@@ -824,6 +825,7 @@ def get_about_info(ucid, locale)
   author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
   author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
   author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
+  author_verified = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["badges"]?.try &.[0]["metadataBadgeRenderer"]["tooltip"]?.try &.to_s == "Verified" ? true : false || false
 
   ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
 
@@ -916,6 +918,7 @@ def get_about_info(ucid, locale)
     auto_generated:     auto_generated,
     author_url:         author_url,
     author_thumbnail:   author_thumbnail,
+    author_verified:     author_verified,
     banner:             banner,
     description_html:   description_html,
     paid:               paid,
