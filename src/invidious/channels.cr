@@ -283,6 +283,10 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       views:              views,
     })
 
+    # I don't understand enough about the database to do anything. Thus:
+    reduced_video_list = {video_id, title, published, Time.utc, ucid, author,
+      length_seconds, live_now, premiere_timestamp, views}
+
     LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Updating or inserting video")
 
     # We don't include the 'premiere_timestamp' here because channel pages don't include them,
@@ -290,7 +294,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     was_insert = db.query_one("INSERT INTO channel_videos VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) \
       ON CONFLICT (id) DO UPDATE SET title = $2, published = $3, \
       updated = $4, ucid = $5, author = $6, length_seconds = $7, \
-      live_now = $8, views = $10 returning (xmax=0) as was_insert", *video.to_tuple, as: Bool)
+      live_now = $8, views = $10 returning (xmax=0) as was_insert", *reduced_video_list, as: Bool)
 
     if was_insert
       LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Inserted, updating subscriptions")
