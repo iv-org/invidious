@@ -282,8 +282,8 @@ input[type="search"]::-webkit-search-cancel-button {
  * Footer
  */
 
-.footer {
-  color: #666666;
+footer {
+  color: #919191;
   margin: 1.5em 0;
   text-align: center;
   position: absolute;
@@ -293,8 +293,8 @@ input[type="search"]::-webkit-search-cancel-button {
   max-height: 30vh;
 }
 
-body .footer a {
-  color: inherit;
+footer a {
+  color: #919191 !important;
   text-decoration: underline;
 }
 
