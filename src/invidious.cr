@@ -1550,6 +1550,7 @@ post "/feed/webhook/:token" do |env|
         updated:            updated,
         ucid:               video.ucid,
         author:             author,
+        author_verified:     false,
         length_seconds:     video.length_seconds,
         live_now:           video.live_now,
         premiere_timestamp: video.premiere_timestamp,

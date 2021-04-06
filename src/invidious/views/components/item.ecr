@@ -140,6 +140,9 @@
             <p style="display: flex;">
                 <b style="flex: 1;">
                     <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
+                    <% if item.author_verified %>
+                        <a class="channel_badge"><i class="icon ion-md-checkmark-circle"></i></a>
+                    <% end %>
                 </b>
                 <a title="<%=translate(locale, "Watch on YouTube")%>" href="https://www.youtube.com/watch?v=<%= item.id %>" style="margin-right: 5px;">
                     <i class="icon ion-logo-youtube"></i>

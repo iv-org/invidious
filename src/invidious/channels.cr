@@ -17,6 +17,7 @@ struct ChannelVideo
   property updated : Time
   property ucid : String
   property author : String
+  property author_verified : Bool = false
   property length_seconds : Int32 = 0
   property live_now : Bool = false
   property premiere_timestamp : Time? = nil
@@ -275,6 +276,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       updated:            Time.utc,
       ucid:               ucid,
       author:             author,
+      author_verified:     false,
       length_seconds:     length_seconds,
       live_now:           live_now,
       premiere_timestamp: premiere_timestamp,
@@ -318,6 +320,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
         updated:            Time.utc,
         ucid:               video.ucid,
         author:             video.author,
+        author_verified:     video.author_verified,
         length_seconds:     video.length_seconds,
         live_now:           video.live_now,
         premiere_timestamp: video.premiere_timestamp,
