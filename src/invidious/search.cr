@@ -131,6 +131,7 @@ struct SearchPlaylist
   property title : String
   property id : String
   property author : String
+  property author_verified : Bool
   property ucid : String
   property video_count : Int32
   property videos : Array(SearchPlaylistVideo)

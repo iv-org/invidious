@@ -345,6 +345,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
       title:       title,
       id:          plid,
       author:      author_fallback || "",
+      author_verified: false,
       ucid:        author_id_fallback || "",
       video_count: video_count,
       videos:      [] of SearchPlaylistVideo,
@@ -360,6 +361,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
     author_info = i["shortBylineText"]?.try &.["runs"]?.try &.as_a?.try &.[0]?
     author = author_info.try &.["text"].as_s || author_fallback || ""
     author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || author_id_fallback || ""
+    author_verified = i["ownerBadges"]?.try &.as_a[0]["metadataBadgeRenderer"]?.try &.["style"]?.try &.to_s == "BADGE_STYLE_TYPE_VERIFIED" ? true : false || false
 
     videos = i["videos"]?.try &.as_a.map do |v|
       v = v["childVideoRenderer"]
@@ -376,13 +378,14 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
     # TODO: i["publishedTimeText"]?
 
     SearchPlaylist.new({
-      title:       title,
-      id:          plid,
-      author:      author,
-      ucid:        author_id,
-      video_count: video_count,
-      videos:      videos,
-      thumbnail:   playlist_thumbnail,
+      title:          title,
+      id:             plid,
+      author:         author,
+      author_verified: author_verified,
+      ucid:           author_id,
+      video_count:    video_count,
+      videos:         videos,
+      thumbnail:      playlist_thumbnail,
     })
   elsif i = item["radioRenderer"]? # Mix
     # TODO

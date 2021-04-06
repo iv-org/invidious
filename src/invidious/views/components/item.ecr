@@ -37,6 +37,9 @@
             <p>
                 <b>
                     <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
+                    <% if item.is_a?(SearchPlaylist) && item.author_verified %>
+                        <a class="channel_badge"><i class="icon ion-md-checkmark-circle"></i></a>
+                    <% end %>
                 </b>
             </p>
         <% when MixVideo %>
