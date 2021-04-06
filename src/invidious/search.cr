@@ -4,6 +4,7 @@ struct SearchVideo
   property title : String
   property id : String
   property author : String
+  property author_verified : Bool
   property ucid : String
   property published : Time
   property views : Int64

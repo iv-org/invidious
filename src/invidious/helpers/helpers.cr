@@ -265,6 +265,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
     live_now = false
     paid = false
     premium = false
+    author_verified = false
 
     premiere_timestamp = i["upcomingEventData"]?.try &.["startTime"]?.try { |t| Time.unix(t.as_s.to_i64) }
 
@@ -284,10 +285,21 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
       end
     end
 
+    #  Author Badges
+    i["ownerBadges"]?.try &.as_a.each do |badge|
+      b = badge["metadataBadgeRenderer"]
+      case b["style"].as_s
+      when "BADGE_STYLE_TYPE_VERIFIED"
+        author_verified = true
+      else nil
+      end
+    end
+
     SearchVideo.new({
       title:              title,
       id:                 video_id,
       author:             author,
+      author_verified:     author_verified,
       ucid:               author_id,
       published:          published,
       views:              view_count,

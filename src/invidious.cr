@@ -1302,6 +1302,7 @@ get "/feed/channel/:ucid" do |env|
       title:              title,
       id:                 video_id,
       author:             author,
+      author_verified:     false,
       ucid:               ucid,
       published:          published,
       views:              views,
