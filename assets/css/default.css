@@ -290,7 +290,7 @@ input[type="search"]::-webkit-search-cancel-button {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 30px;
+  max-height: 30vh;
 }
 
 body .footer a {
