@@ -3,8 +3,12 @@ body {
   font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica,
     Arial, sans-serif;
-  position: relative;
-  min-height: 100vh;
+}
+
+#contents {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .deleted {
@@ -284,12 +288,9 @@ input[type="search"]::-webkit-search-cancel-button {
 
 footer {
   color: #919191;
-  margin: 1.5em 0;
+  margin-top: auto;
+  padding: 1.5em 0;
   text-align: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
   max-height: 30vh;
 }
 
