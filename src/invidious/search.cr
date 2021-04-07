@@ -263,13 +263,8 @@ end
 def search(query, search_params = produce_search_params(content_type: "all"), region = nil)
   return 0, [] of SearchItem if query.empty?
 
-  body = YT_POOL.client(region, &.get("/results?search_query=#{URI.encode_www_form(query)}&sp=#{search_params}&hl=en").body)
-  return 0, [] of SearchItem if body.empty?
-
-  initial_data = extract_initial_data(body)
+  initial_data = request_youtube_api_search(query, search_params, region)
   items = extract_items(initial_data)
-
-  # initial_data["estimatedResults"]?.try &.as_s.to_i64
 
   return items.size, items
 end

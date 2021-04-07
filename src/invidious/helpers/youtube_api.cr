@@ -30,9 +30,49 @@ def request_youtube_api_browse(continuation)
     "continuation": continuation,
   }
 
+  return _youtube_api_post_json("/youtubei/v1/browse", data)
+end
+
+####################################################################
+# request_youtube_api_search(search_query, params, region)
+#
+# Requests the youtubei/vi/search endpoint with the required headers
+# to get JSON in en-US (english US).
+#
+# The requested data is a search string, with some additional
+# paramters, formatted as a base64 string.
+#
+def request_youtube_api_search(search_query : String, params : String, region = nil)
+  # JSON Request data, required by the API
+  data = {
+    "query":   URI.encode_www_form(search_query),
+    "context": {
+      "client": {
+        "hl":            "en",
+        "gl":            region || "US", # Can't be empty!
+        "clientName":    "WEB",
+        "clientVersion": HARDCODED_CLIENT_VERS,
+      },
+    },
+    "params": params,
+  }
+
+  return _youtube_api_post_json("/youtubei/v1/search", data)
+end
+
+####################################################################
+# _youtube_api_post_json(endpoint, data)
+#
+# Internal function that does the actual request to youtube servers
+# and handles errors.
+#
+# The requested data is an endpoint (URL without the domain part)
+# and the data as a Hash object.
+#
+def _youtube_api_post_json(endpoint, data)
   # Send the POST request and parse result
   response = YT_POOL.client &.post(
-    "/youtubei/v1/browse?key=#{HARDCODED_API_KEY}",
+    "#{endpoint}?key=#{HARDCODED_API_KEY}",
     headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"},
     body: data.to_json
   )
