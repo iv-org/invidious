@@ -1,6 +1,7 @@
 #search-widget {
     text-align: center;
     margin: 20vh auto 50px auto;
+    width: 100%;
 }
 
 #logo > h1 {
