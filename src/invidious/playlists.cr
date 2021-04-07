@@ -437,7 +437,8 @@ end
 
 def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
   # Show empy playlist if requested page is out of range
-  if offset >= playlist.video_count
+  # (e.g, when a new playlist has been created, offset will be negative)
+  if offset >= playlist.video_count || offset < 0
     return [] of PlaylistVideo
   end
 
