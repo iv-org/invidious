@@ -494,6 +494,10 @@ struct Video
     info["videoDetails"]["author"]?.try &.as_s || ""
   end
 
+  def author_verified
+    return info["authorVerified"]
+  end
+
   def length_seconds : Int32
     info["microformat"]?.try &.["playerMicroformatRenderer"]?.try &.["lengthSeconds"]?.try &.as_s.to_i ||
       info["videoDetails"]["lengthSeconds"]?.try &.as_s.to_i || 0
@@ -905,6 +909,10 @@ def extract_polymer_config(body)
 
   author_info = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
     .try &.["videoSecondaryInfoRenderer"]?.try &.["owner"]?.try &.["videoOwnerRenderer"]?
+
+  params["authorVerified"] = JSON::Any.new(author_info.try &.["badges"]?
+    .try &.[0]["metadataBadgeRenderer"]?.try &.["style"]?
+    .try &.to_s == "BADGE_STYLE_TYPE_VERIFIED" ? true : false || false)
 
   params["authorThumbnail"] = JSON::Any.new(author_info.try &.["thumbnail"]?
     .try &.["thumbnails"]?.try &.as_a[0]?.try &.["url"]?

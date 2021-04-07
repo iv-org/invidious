@@ -324,7 +324,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
         updated:            Time.utc,
         ucid:               video.ucid,
         author:             video.author,
-        author_verified:    video.author_verified,
+        author_verified:     video.author_verified,
         length_seconds:     video.length_seconds,
         live_now:           video.live_now,
         premiere_timestamp: video.premiere_timestamp,
