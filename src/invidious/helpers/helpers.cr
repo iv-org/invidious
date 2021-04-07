@@ -299,7 +299,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
       title:              title,
       id:                 video_id,
       author:             author,
-      author_verified:     author_verified,
+      author_verified:    author_verified,
       ucid:               author_id,
       published:          published,
       views:              view_count,
@@ -326,7 +326,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
 
     SearchChannel.new({
       author:           author,
-      author_verified:   author_verified,
+      author_verified:  author_verified,
       ucid:             author_id,
       author_thumbnail: author_thumbnail,
       subscriber_count: subscriber_count,
@@ -342,14 +342,14 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
     playlist_thumbnail = i["thumbnail"]["thumbnails"][0]?.try &.["url"]?.try &.as_s || ""
 
     SearchPlaylist.new({
-      title:       title,
-      id:          plid,
-      author:      author_fallback || "",
+      title:           title,
+      id:              plid,
+      author:          author_fallback || "",
       author_verified: false,
-      ucid:        author_id_fallback || "",
-      video_count: video_count,
-      videos:      [] of SearchPlaylistVideo,
-      thumbnail:   playlist_thumbnail,
+      ucid:            author_id_fallback || "",
+      video_count:     video_count,
+      videos:          [] of SearchPlaylistVideo,
+      thumbnail:       playlist_thumbnail,
     })
   elsif i = item["playlistRenderer"]?
     title = i["title"]["simpleText"]?.try &.as_s || ""
@@ -378,14 +378,14 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
     # TODO: i["publishedTimeText"]?
 
     SearchPlaylist.new({
-      title:          title,
-      id:             plid,
-      author:         author,
+      title:           title,
+      id:              plid,
+      author:          author,
       author_verified: author_verified,
-      ucid:           author_id,
-      video_count:    video_count,
-      videos:         videos,
-      thumbnail:      playlist_thumbnail,
+      ucid:            author_id,
+      video_count:     video_count,
+      videos:          videos,
+      thumbnail:       playlist_thumbnail,
     })
   elsif i = item["radioRenderer"]? # Mix
     # TODO

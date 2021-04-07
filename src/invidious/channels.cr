@@ -126,7 +126,7 @@ struct AboutChannel
   property auto_generated : Bool
   property author_url : String
   property author_thumbnail : String
-  property author_verified   : Bool
+  property author_verified : Bool
   property banner : String?
   property description_html : String
   property paid : Bool
@@ -276,7 +276,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
       updated:            Time.utc,
       ucid:               ucid,
       author:             author,
-      author_verified:     false,
+      author_verified:    false,
       length_seconds:     length_seconds,
       live_now:           live_now,
       premiere_timestamp: premiere_timestamp,
@@ -285,7 +285,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
     # I don't understand enough about the database to do anything. Thus:
     reduced_video_list = {video_id, title, published, Time.utc, ucid, author,
-      length_seconds, live_now, premiere_timestamp, views}
+                          length_seconds, live_now, premiere_timestamp, views}
 
     LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Updating or inserting video")
 
@@ -324,7 +324,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
         updated:            Time.utc,
         ucid:               video.ucid,
         author:             video.author,
-        author_verified:     video.author_verified,
+        author_verified:    video.author_verified,
         length_seconds:     video.length_seconds,
         live_now:           video.live_now,
         premiere_timestamp: video.premiere_timestamp,
@@ -925,7 +925,7 @@ def get_about_info(ucid, locale)
     auto_generated:     auto_generated,
     author_url:         author_url,
     author_thumbnail:   author_thumbnail,
-    author_verified:     author_verified,
+    author_verified:    author_verified,
     banner:             banner,
     description_html:   description_html,
     paid:               paid,

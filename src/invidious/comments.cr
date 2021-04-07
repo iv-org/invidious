@@ -148,8 +148,10 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
 
               content_html = node_comment["contentText"]?.try { |t| parse_content(t) } || ""
               author = node_comment["authorText"]?.try &.["simpleText"]? || ""
+              author_verified = node_comment["authorCommentBadge"]?.try &.["authorCommentBadgeRenderer"]["iconTooltip"].to_s == "Verified" ? true : false || false
 
               json.field "author", author
+              json.field "author_verified", author_verified
               json.field "authorThumbnails" do
                 json.array do
                   node_comment["authorThumbnail"]["thumbnails"].as_a.each do |thumbnail|
@@ -319,7 +321,9 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
           <p>
             <b>
               <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{child["author"]}</a>
+              #{child["author_verified"]? == true ? "<a class=\"channel_badge\"><i class=\"icon ion-md-checkmark-circle\"></i></a>" : ""}
             </b>
+          </p>
             <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
       END_HTML
 
