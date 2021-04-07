@@ -187,4 +187,8 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
 
     templated "watch"
   end
+
+  def redirect(env)
+    return env.redirect "/watch?v=#{env.params.url["id"]}"
+  end
 end
