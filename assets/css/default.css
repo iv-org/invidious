@@ -662,3 +662,10 @@ body.dark-theme {
   content: "[ - ]";
   font-size: 1.5em;
 }
+
+/*With commit d9528f5 all contents of the page is now within a flexbox. However,
+the hr element is rendered improperly within one.
+See https://stackoverflow.com/a/34372979 for more info */
+hr {
+  margin: auto 0 auto 0;
+}
