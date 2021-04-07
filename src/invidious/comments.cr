@@ -321,7 +321,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
           <p>
             <b>
               <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{child["author"]}</a>
-              #{child["author_verified"]? == true ? "<a class=\"channel_badge\"><i class=\"icon ion-md-checkmark-circle\"></i></a>" : ""}
+              #{child["author_verified"]? == true ? "<a class=\"channel_badge\" style=\"font-size: 0.9em;\"><i class=\"icon ion-md-checkmark-circle\"></i></a>" : ""}
             </b>
           </p>
             <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
