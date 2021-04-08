@@ -5,6 +5,12 @@ body {
     Arial, sans-serif;
 }
 
+#contents {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
 .deleted {
   background-color: rgb(255, 0, 0, 0.5);
 }
@@ -280,14 +286,16 @@ input[type="search"]::-webkit-search-cancel-button {
  * Footer
  */
 
-.footer {
-  color: #666666;
-  margin: 2em 0;
+footer {
+  color: #919191;
+  margin-top: auto;
+  padding: 1.5em 0;
   text-align: center;
+  max-height: 30vh;
 }
 
-body .footer a {
-  color: inherit;
+footer a {
+  color: #919191 !important;
   text-decoration: underline;
 }
 
@@ -653,4 +661,11 @@ body.dark-theme {
 #filters[open] > summary::before {
   content: "[ - ]";
   font-size: 1.5em;
+}
+
+/*With commit d9528f5 all contents of the page is now within a flexbox. However,
+the hr element is rendered improperly within one.
+See https://stackoverflow.com/a/34372979 for more info */
+hr {
+  margin: auto 0 auto 0;
 }
