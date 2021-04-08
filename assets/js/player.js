@@ -566,3 +566,20 @@ if (navigator.vendor == "Apple Computer, Inc." && video_data.params.listen) {
         });
     });
 }
+
+// Watch on Invidious link
+if (window.location.pathname.startsWith("/embed/")) {
+    const Button = videojs.getComponent('Button');
+    let watch_on_invidious_button = new Button(player);
+
+    // Create hyperlink for current instance
+    redirect_element = document.createElement("a");
+    redirect_element.setAttribute("href", `http://${window.location.host}/watch?v=${window.location.pathname.replace("/embed/","")}`)
+    redirect_element.appendChild(document.createTextNode("Invidious"))
+
+    watch_on_invidious_button.el().appendChild(redirect_element)
+    watch_on_invidious_button.addClass("watch-on-invidious")
+
+    cb = player.getChild('ControlBar')
+    cb.addChild(watch_on_invidious_button)
+};
