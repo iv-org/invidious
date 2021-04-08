@@ -308,9 +308,17 @@ end
 Invidious::Routing.get "/", Invidious::Routes::Misc, :home
 Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
 Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
-Invidious::Routing.get "/watch", Invidious::Routes::Watch
+
+Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
+Invidious::Routing.get "/watch/:id", Invidious::Routes::Watch, :redirect
+Invidious::Routing.get "/shorts/:id", Invidious::Routes::Watch, :redirect
+Invidious::Routing.get "/w/:id", Invidious::Routes::Watch, :redirect
+Invidious::Routing.get "/v/:id", Invidious::Routes::Watch, :redirect
+Invidious::Routing.get "/e/:id", Invidious::Routes::Watch, :redirect
+
 Invidious::Routing.get "/embed/", Invidious::Routes::Embed, :redirect
 Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed, :show
+
 Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Playlists, :index
 Invidious::Routing.get "/create_playlist", Invidious::Routes::Playlists, :new
 Invidious::Routing.post "/create_playlist", Invidious::Routes::Playlists, :create
@@ -323,12 +331,15 @@ Invidious::Routing.get "/add_playlist_items", Invidious::Routes::Playlists, :add
 Invidious::Routing.post "/playlist_ajax", Invidious::Routes::Playlists, :playlist_ajax
 Invidious::Routing.get "/playlist", Invidious::Routes::Playlists, :show
 Invidious::Routing.get "/mix", Invidious::Routes::Playlists, :mix
+
 Invidious::Routing.get "/opensearch.xml", Invidious::Routes::Search, :opensearch
 Invidious::Routing.get "/results", Invidious::Routes::Search, :results
 Invidious::Routing.get "/search", Invidious::Routes::Search, :search
+
 Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
 Invidious::Routing.post "/login", Invidious::Routes::Login, :login
 Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
+
 Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show
 Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
 Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
