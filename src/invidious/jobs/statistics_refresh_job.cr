@@ -42,7 +42,7 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
       "version" => @software_config["version"],
       "branch"  => @software_config["branch"],
     }
-    STATISTICS["openRegistration"] = CONFIG.registration_enabled
+    STATISTICS["openRegistrations"] = CONFIG.registration_enabled
   end
 
   private def refresh_stats
