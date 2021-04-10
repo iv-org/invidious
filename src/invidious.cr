@@ -1726,8 +1726,6 @@ get "/channel/:ucid" do |env|
 
     count, items = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
     items.reject! &.paid
-
-    env.set "search", "channel:#{channel.ucid} "
   end
 
   templated "channel"
@@ -1781,7 +1779,6 @@ get "/channel/:ucid/playlists" do |env|
   items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
   items.each { |item| item.author = "" }
 
-  env.set "search", "channel:#{channel.ucid} "
   templated "playlists"
 end
 
@@ -1824,7 +1821,6 @@ get "/channel/:ucid/community" do |env|
     next error_template(500, ex)
   end
 
-  env.set "search", "channel:#{channel.ucid} "
   templated "community"
 end
 

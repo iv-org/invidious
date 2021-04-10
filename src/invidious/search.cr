@@ -400,7 +400,7 @@ def produce_channel_search_continuation(ucid, query, page)
   return continuation
 end
 
-def process_search_query(query, page, user, region)
+def process_search_query(url_params, query, page, user, region)
   if user
     user = user.as(User)
     view_name = "subscriptions_#{sha256(user.email)}"
@@ -414,13 +414,13 @@ def process_search_query(query, page, user, region)
   sort = "relevance"
   subscriptions = nil
 
-  operators = query.split(" ").select { |a| a.match(/\w+:[\w,]+/) }
-  operators.each do |operator|
-    key, value = operator.downcase.split(":")
+  # operators = url_params.split(" ").select { |a| a.match(/\w+:[\,]+/) }
+  url_params.each do |operator|
+    key, value = operator
 
     case key
     when "channel", "user"
-      channel = operator.split(":")[-1]
+      channel = value
     when "content_type", "type"
       content_type = value
     when "date"
@@ -434,11 +434,11 @@ def process_search_query(query, page, user, region)
     when "subscriptions"
       subscriptions = value == "true"
     else
-      operators.delete(operator)
+      url_params.delete(key)
     end
   end
 
-  search_query = (query.split(" ") - operators).join(" ")
+  search_query = query
 
   if channel
     count, items = channel_search(search_query, page, channel)
@@ -463,5 +463,5 @@ def process_search_query(query, page, user, region)
     count, items = search(search_query, search_params, region).as(Tuple)
   end
 
-  {search_query, count, items, operators}
+  {search_query, count, items, url_params}
 end

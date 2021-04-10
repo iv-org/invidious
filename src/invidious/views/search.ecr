@@ -2,7 +2,6 @@
 <title><%= search_query.not_nil!.size > 30 ? HTML.escape(query.not_nil![0,30].rstrip(".") + "...") : HTML.escape(query.not_nil!) %> - Invidious</title>
 <% end %>
 
-<!-- Search redirection and filtering UI -->
 <% if count == 0 %>
     <h3 style="text-align: center">
         <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Broken? Try another Invidious Instance!") %></a>
@@ -21,7 +20,7 @@
                         <% if operator_hash.fetch("date", "all") == date %>
                             <b><%= translate(locale, date) %></b>
                         <% else %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!.gsub(/ ?date:[a-z]+/, "") + " date:" + date) %>&page=<%= page %>">
+                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&date=<%= date %>">
                                 <%= translate(locale, date) %>
                             </a>
                         <% end %>
@@ -36,7 +35,7 @@
                         <% if operator_hash.fetch("content_type", "all") == content_type %>
                             <b><%= translate(locale, content_type) %></b>
                         <% else %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!.gsub(/ ?content_type:[a-z]+/, "") + " content_type:" + content_type) %>&page=<%= page %>">
+                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&content_type=<%= content_type %>">
                                 <%= translate(locale, content_type) %>
                             </a>
                         <% end %>
@@ -51,7 +50,7 @@
                         <% if operator_hash.fetch("duration", "all") == duration %>
                             <b><%= translate(locale, duration) %></b>
                         <% else %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!.gsub(/ ?duration:[a-z]+/, "") + " duration:" + duration) %>&page=<%= page %>">
+                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&duration=<%= duration %>">
                                 <%= translate(locale, duration) %>
                             </a>
                         <% end %>
@@ -66,11 +65,11 @@
                         <% if operator_hash.fetch("features", "all").includes?(feature) %>
                             <b><%= translate(locale, feature) %></b>
                         <% elsif operator_hash.has_key?("features") %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!.gsub(/features:/, "features:" + feature + ",")) %>&page=<%= page %>">
+                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&features=<%= HTML.escape(operator_hash["features"] + ",#{feature}") %>">
                                 <%= translate(locale, feature) %>
                             </a>
                         <% else %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil! + " features:" + feature) %>&page=<%= page %>">
+                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&features=<%= feature %>">
                                 <%= translate(locale, feature) %>
                             </a>
                         <% end %>
@@ -85,7 +84,7 @@
                         <% if operator_hash.fetch("sort", "relevance") == sort %>
                             <b><%= translate(locale, sort) %></b>
                         <% else %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!.gsub(/ ?sort:[a-z]+/, "") + " sort:" + sort) %>&page=<%= page %>">
+                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&sort=<%= sort %>">
                                 <%= translate(locale, sort) %>
                             </a>
                         <% end %>
