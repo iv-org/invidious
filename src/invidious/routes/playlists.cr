@@ -244,7 +244,7 @@ module Invidious::Routes::Playlists
     query = env.params.query["q"]?
     if query
       begin
-        search_query, count, items, operators = process_search_query(query, page, user, region: nil)
+        search_query, count, items, operators = process_search_query(env.params.query, query, page, user, region: nil)
         videos = items.select { |item| item.is_a? SearchVideo }.map { |item| item.as(SearchVideo) }
       rescue ex
         videos = [] of SearchVideo
