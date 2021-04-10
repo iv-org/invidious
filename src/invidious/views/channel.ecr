@@ -41,7 +41,7 @@
     <%= rendered "components/subscribe_widget" %>
 </div>
 
-<div class="pure-g h-box">
+<div class="pure-g h-box" id="content-navigation">
     <div class="pure-u-1-3">
         <!-- <a href="https://www.youtube.com/channel/<%= channel.ucid %>"><%= translate(locale, "View channel on YouTube") %></a> -->
         <!--             <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a> -->
@@ -69,6 +69,17 @@
                         <%= translate(locale, "Community") %>
                       </a>
                   <% end %>
+              </li>
+              <li class="pure-menu-item navbar" style="margin: 0 0 0 0.5em">
+                  <div class="searchbar">
+                      <form class="pure-form" action="/search" method="get">
+                          <fieldset>
+                              <button class="search-button"><i class="icon ion-md-search"></i></button>
+                              <input type="search" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
+                              <input type="hidden" name="channel" value="<%= channel.ucid %>">
+                          </fieldset>
+                      </form>
+                  </div>
               </li>
           </ui>
         </div>
