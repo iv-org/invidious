@@ -1,4 +1,5 @@
 <% content_for "header" do %>
+<link rel="stylesheet" href="/css/search.css?v=<%= ASSET_COMMIT %>">
 <title><%= search_query.not_nil!.size > 30 ? HTML.escape(query.not_nil![0,30].rstrip(".") + "...") : HTML.escape(query.not_nil!) %> - Invidious</title>
 <% end %>
 
