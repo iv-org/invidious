@@ -163,6 +163,13 @@ img.thumbnail {
   top: -0.7em;
 }
 
+.search-button {
+    border: none;
+    color: #3E4446;
+    background: transparent;
+    font-size: 1.1em;
+}
+
 /*
  * Navbar
  */
@@ -421,6 +428,13 @@ body.dark-theme {
   color: inherit;
 }
 
+.dark-theme .search-button {
+    border: none;
+    color: #B0ADA4;
+    background: transparent;
+    font-size: 1.1em;
+}
+
 .dark-theme .pure-menu-link:hover, .dark-theme .pure-menu-link:active {
   background-color: rgb(34, 36, 38)
 }
@@ -503,4 +517,8 @@ hr {
 #descexpansionbutton + label {
   order: 1;
   margin-top: 20px;
+}
+
+#content-navigation {
+    margin-bottom: 0.5em;
 }
