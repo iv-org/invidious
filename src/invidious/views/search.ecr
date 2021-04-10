@@ -13,7 +13,13 @@
             <h3 style="display:inline"> <%= translate(locale, "filter") %> </h3>
         </summary>
         <div id="filters" class="pure-g h-box">
-            <div class="pure-u-1-3 pure-u-md-1-5">
+        <!-- Grabs all search filters. This is to make sure we don't accidently overwrite something within the
+            search query later on-->
+
+        <% filter_params = env.request.query_params.to_s.gsub(/q=.+?(?=&)/, "") %>
+        <% base_url = "/search?q=#{HTML.escape(query.not_nil!)}" %>
+
+            <div class="pure-u-1-3 pure-u-md-1-5" id="filter-date">
                 <b><%= translate(locale, "date") %></b>
                 <hr/>
                 <% ["hour", "today", "week", "month", "year"].each do |date| %>
@@ -21,14 +27,15 @@
                         <% if operator_hash.fetch("date", "all") == date %>
                             <b><%= translate(locale, date) %></b>
                         <% else %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&date=<%= date %>">
+                            <a href="<%= base_url + "#{filter_params.gsub(/&date=[a-z]+/, "")}&date=#{date}"%>">
                                 <%= translate(locale, date) %>
                             </a>
                         <% end %>
                     </div>
                 <% end %>
             </div>
-            <div class="pure-u-1-3 pure-u-md-1-5">
+
+            <div class="pure-u-1-3 pure-u-md-1-5" id="filter-content_type">
                 <b><%= translate(locale, "content_type") %></b>
                 <hr/>
                 <% ["video", "channel", "playlist", "movie", "show"].each do |content_type| %>
@@ -36,14 +43,15 @@
                         <% if operator_hash.fetch("content_type", "all") == content_type %>
                             <b><%= translate(locale, content_type) %></b>
                         <% else %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&content_type=<%= content_type %>">
+                            <a href="<%= base_url + "#{filter_params.gsub(/&content_type=[a-z]+/, "")}&content_type=#{content_type}"%>">
                                 <%= translate(locale, content_type) %>
                             </a>
                         <% end %>
                     </div>
                 <% end %>
             </div>
-            <div class="pure-u-1-3 pure-u-md-1-5">
+
+            <div class="pure-u-1-3 pure-u-md-1-5" id="filter-duration">
                 <b><%= translate(locale, "duration") %></b>
                 <hr/>
                 <% ["short", "long"].each do |duration| %>
@@ -51,14 +59,15 @@
                         <% if operator_hash.fetch("duration", "all") == duration %>
                             <b><%= translate(locale, duration) %></b>
                         <% else %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&duration=<%= duration %>">
+                            <a href="<%= base_url + "#{filter_params.gsub(/&duration=[a-z]+/, "")}&duration=#{duration}"%>">
                                 <%= translate(locale, duration) %>
                             </a>
                         <% end %>
                     </div>
                 <% end %>
             </div>
-            <div class="pure-u-1-3 pure-u-md-1-5">
+
+            <div class="pure-u-1-3 pure-u-md-1-5" id="filter-features">
                 <b><%= translate(locale, "features") %></b>
                 <hr/>
                 <% ["hd", "subtitles", "creative_commons", "3d", "live", "purchased", "4k", "360", "location", "hdr"].each do |feature| %>
@@ -66,18 +75,19 @@
                         <% if operator_hash.fetch("features", "all").includes?(feature) %>
                             <b><%= translate(locale, feature) %></b>
                         <% elsif operator_hash.has_key?("features") %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&features=<%= HTML.escape(operator_hash["features"] + ",#{feature}") %>">
+                            <a href="<%= base_url + filter_params.gsub(/features=/, "features=#{feature},")%>">
                                 <%= translate(locale, feature) %>
                             </a>
                         <% else %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&features=<%= feature %>">
+                            <a href="<%= "#{base_url}#{filter_params}&features=#{feature}"%>">
                                 <%= translate(locale, feature) %>
                             </a>
                         <% end %>
                     </div>
                 <% end %>
             </div>
-            <div class="pure-u-1-3 pure-u-md-1-5">
+
+            <div class="pure-u-1-3 pure-u-md-1-5" id="filter-sort">
                 <b><%= translate(locale, "sort") %></b>
                 <hr/>
                 <% ["relevance", "rating", "date", "views"].each do |sort| %>
@@ -85,7 +95,7 @@
                         <% if operator_hash.fetch("sort", "relevance") == sort %>
                             <b><%= translate(locale, sort) %></b>
                         <% else %>
-                            <a href="/search?q=<%= HTML.escape(query.not_nil!) %>&page=<%= page %>&sort=<%= sort %>">
+                            <a href="<%= base_url + "#{filter_params.gsub(/&sort=[a-z]+/, "")}&sort=#{sort}"%>">
                                 <%= translate(locale, sort) %>
                             </a>
                         <% end %>
