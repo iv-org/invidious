@@ -21,3 +21,29 @@
   content: "[ - ]";
   font-size: 1.5em;
 }
+
+.remove-filter {
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* No theme */
+
+.no-theme .remove-filter {
+  color: #ffffff
+}
+
+
+/* Light theme */
+@media (prefers-color-scheme: light) {
+  .light-theme .remove-filter {
+    color: #ffffff
+  }
+}
+
+
+/* Dark theme */
+
+.no-theme .remove-filter {
+  color: #030303
+}
