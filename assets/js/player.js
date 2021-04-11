@@ -73,6 +73,12 @@ if (location.pathname.startsWith('/embed/')) {
     });
 }
 
+// Detect mobile users and initalize mobileUi for better UX
+// Detection code taken from https://stackoverflow.com/a/24600597
+if (/Mobi|Android/i.test(navigator.userAgent)) {
+    player.mobileUi();
+}
+
 player.on('error', function (event) {
     if (player.error().code === 2 || player.error().code === 4) {
         setTimeout(function (event) {
