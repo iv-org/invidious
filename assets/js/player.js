@@ -148,6 +148,11 @@ player.on('error', function (event) {
     }
 });
 
+// Enable VR video support
+if (video_data.vr) {
+    player.vr();
+}
+
 // Add markers
 if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
     var markers = [{ time: video_data.params.video_start, text: 'Start' }];
