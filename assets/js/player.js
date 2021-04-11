@@ -74,9 +74,52 @@ if (location.pathname.startsWith('/embed/')) {
 }
 
 // Detect mobile users and initalize mobileUi for better UX
-// Detection code taken from https://stackoverflow.com/a/24600597
-if (/Mobi|Android/i.test(navigator.userAgent)) {
+// Detection code taken from https://stackoverflow.com/a/20293441
+
+function isMobile() {
+  try{ document.createEvent("TouchEvent"); return true; }
+  catch(e){ return false; }
+}
+
+if (isMobile()) {
     player.mobileUi();
+
+    buttons = ["playToggle", "volumePanel", "captionsButton"];
+
+    if (video_data.params.quality !== 'dash') {
+        buttons.push("qualitySelector")
+    }
+
+    // Create new control bar object for operation buttons
+    const ControlBar = videojs.getComponent("controlBar");
+    let operations_bar = new ControlBar(player, {
+      children: [],
+      playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+    });
+    buttons.slice(1).forEach(child => operations_bar.addChild(child))
+
+    // Remove operation buttons from primary control bar
+    primary_control_bar = player.getChild("controlBar");
+    buttons.forEach(child => primary_control_bar.removeChild(child));
+
+    operations_bar_element = operations_bar.el();
+    operations_bar_element.className += " mobile-operations-bar"
+    player.addChild(operations_bar)
+
+    // Playback menu doesn't work when its initalized outside of the primary control bar
+    playback_element = document.getElementsByClassName("vjs-playback-rate")[0]
+    operations_bar_element.append(playback_element)
+
+    // The share and http source selector element can't be fetched till the players ready.
+    player.one("playing", () => {
+  	    share_element = document.getElementsByClassName("vjs-share-control")[0]
+  	    operations_bar_element.append(share_element)
+
+  	    if (video_data.params.quality === 'dash') {
+        		http_source_selector = document.getElementsByClassName("vjs-http-source-selector vjs-menu-button")[0]
+        		operations_bar_element.append(http_source_selector)
+  	    }
+  	})
 }
 
 player.on('error', function (event) {

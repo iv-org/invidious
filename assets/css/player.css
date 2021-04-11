@@ -1,11 +1,3 @@
-/* Control Bar */
-@media screen and (max-width: 640px) {
-  .video-js .vjs-control-bar,
-  .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
-    overflow-x: scroll;
-  }
-}
-
 ul.vjs-menu-content::-webkit-scrollbar {
   display: none;
 }
@@ -104,7 +96,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 .video-js .vjs-play-progress {
   background-color: rgba(0, 182, 240, 1);
 }
-
+vjs-menu-content
 /* Overlay */
 .video-js .vjs-overlay {
   background-color: rgba(35, 35, 35, 0.75);
@@ -175,4 +167,31 @@ video.video-js {
   left: 50%;
   margin-top: -0.81666em;
   margin-left: -1.5em;
+}
+
+.mobile-operations-bar {
+  display: flex;
+  position: absolute;
+  top: 0;
+  right: 1px !important;
+  left: initial !important;
+  width: initial !important;
+}
+
+.mobile-operations-bar ul {
+  position: absolute !important;
+  bottom: unset !important;
+  top: 1.5em;
+}
+
+@media screen and (max-width: 700px) {
+  .video-js .vjs-share {
+    justify-content: unset;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .vjs-modal-dialog-content {
+    overflow-x: hidden;
+  }
 }
