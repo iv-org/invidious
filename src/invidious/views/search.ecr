@@ -116,10 +116,7 @@
             <% ["relevance", "rating", "date", "views"].each do |sort| %>
                 <div class="pure-u-1 pure-md-1-5">
                     <% if operator_hash.fetch("sort", "relevance") == sort %>
-                        <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&sort=[a-z]+/, "")}"%>">
-                            <b><%= translate(locale, sort) %></b>
-                            <i class="remove-filter icon ion-md-close"></i>
-                        </a>
+                          <b><%= translate(locale, sort) %></b>
                     <% else %>
                         <a href="<%= base_url + "#{filter_params.gsub(/&sort=[a-z]+/, "")}&sort=#{sort}"%>">
                             <%= translate(locale, sort) %>
