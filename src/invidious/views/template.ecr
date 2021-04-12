@@ -36,6 +36,7 @@
                         <form class="pure-form" action="/search" method="get">
                             <fieldset>
                                 <input type="search" style="width:100%" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
+                                <button class="search-button" id="right-overlap-search-button"><i class="icon ion-md-search"></i></button>
                             </fieldset>
                         </form>
                     </div>

@@ -169,6 +169,18 @@ img.thumbnail {
     color: #3E4446;
     background: transparent;
     font-size: 1.1em;
+
+
+}
+
+.search-button:hover {
+    color: #090909;
+}
+
+#right-overlap-search-button {
+    float: right;
+    position: relative;
+    bottom: 1.8em;
 }
 
 /*
@@ -450,11 +462,13 @@ body.dark-theme {
 }
 
 .dark-theme .search-button {
-    border: none;
     color: #B0ADA4;
-    background: transparent;
-    font-size: 1.1em;
 }
+
+.dark-theme .search-button:hover {
+    color: #CFCBC1;
+}
+
 
 .dark-theme .pure-menu-link:hover, .dark-theme .pure-menu-link:active {
   background-color: rgb(34, 36, 38)
