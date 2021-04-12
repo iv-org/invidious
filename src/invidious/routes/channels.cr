@@ -48,7 +48,6 @@ module Invidious::Routes::Channels
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
-    sort_options = {"last", "oldest", "newest"}
     sort_by = env.params.query["sort_by"]?.try &.downcase
     sort_by ||= "last"
 
