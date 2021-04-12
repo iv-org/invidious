@@ -1760,6 +1760,7 @@ get "/channel/:ucid/playlists" do |env|
 
   continuation = env.params.query["continuation"]?
 
+  sort_options = {"last", "oldest", "newest"}
   sort_by = env.params.query["sort_by"]?.try &.downcase
   sort_by ||= "last"
 
