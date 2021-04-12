@@ -149,7 +149,7 @@ player.on('error', function (event) {
 });
 
 // Enable VR video support
-if (video_data.vr) {
+if (video_data.vr && video_data.params.vr_mode) {
     player.crossOrigin("anonymous")
     player.vr({projection: "EAC"});
 }

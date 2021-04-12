@@ -52,6 +52,7 @@ struct ConfigPreferences
   property video_loop : Bool = false
   property extend_desc : Bool = false
   property volume : Int32 = 100
+  property vr_mode : Bool = true
 
   def to_tuple
     {% begin %}

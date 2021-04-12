@@ -111,6 +111,10 @@
                 <input name="extend_desc" id="extend_desc" type="checkbox" <% if preferences.extend_desc %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="vr_mode"><%= translate(locale, "Interactive 360 degree videos") %></label>
+                <input name="vr_mode" id="vr_mode" type="checkbox" <% if preferences.vr_mode %>checked<% end %>>
+            </div>
 
             <legend><%= translate(locale, "Visual preferences") %></legend>
 
