@@ -11,14 +11,7 @@
 
 <%= rendered "components/feed_menu" %>
 
-<div class="" style="text-align: center">
-    <!-- <div style="align-self:flex-end" class="pure-u-2-3">
-        <% if plid %>
-            <a href="/playlist?list=<%= plid %>">
-                <%= translate(locale, "View as playlist") %>
-            </a>
-        <% end %>
-    </div> -->
+<div class="h-box" id="channel-navigation">
     <div class="pure-menu pure-menu-horizontal">
         <ui class="pure-menu-list">
             <% {"Default", "Music", "Gaming", "Movies"}.each do |option| %>
