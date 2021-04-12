@@ -150,7 +150,8 @@ player.on('error', function (event) {
 
 // Enable VR video support
 if (video_data.vr) {
-    player.vr();
+    player.crossOrigin("anonymous")
+    player.vr({projection: "EAC"});
 }
 
 // Add markers
