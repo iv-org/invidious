@@ -144,7 +144,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       unseen_only:            unseen_only,
       video_loop:             video_loop,
       volume:                 volume,
-      vr_mode:                vr_mode
+      vr_mode:                vr_mode,
     }.to_json).to_json
 
     if user = env.get? "user"

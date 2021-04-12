@@ -1158,7 +1158,7 @@ def process_video_params(query, preferences)
     extend_desc:        extend_desc,
     video_start:        video_start,
     volume:             volume,
-    vr_mode:            vr_mode
+    vr_mode:            vr_mode,
   })
 
   return params
