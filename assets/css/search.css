@@ -1,10 +1,5 @@
 #filters {
-  display: inline;
   margin-top: 15px;
-}
-
-#filters > div {
-  display: inline-block;
 }
 
 #filters > summary {
@@ -20,6 +15,20 @@
 #filters[open] > summary::before {
   content: "[ - ]";
   font-size: 1.5em;
+}
+
+#filters .pure-menu-item {
+  margin-top: 10px;
+}
+
+#filters hr {
+  width: 80%;
+  margin: 10px 0 15px 0 !important
+}
+
+.filter-catagory {
+  display: inline-block;
+  margin-bottom: 20px;
 }
 
 .remove-filter {
@@ -46,4 +55,10 @@
 
 .no-theme .remove-filter {
   color: #030303
+}
+
+@media (prefers-color-scheme: dark) {
+  .no-theme .remove-filter {
+    color: #CAC5BE
+  }
 }
