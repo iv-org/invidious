@@ -1,10 +1,5 @@
 #filters {
-  display: inline;
   margin-top: 15px;
-}
-
-#filters > div {
-  display: inline-block;
 }
 
 #filters > summary {
@@ -22,6 +17,20 @@
   font-size: 1.5em;
 }
 
+#filters .pure-menu-item {
+  margin-top: 10px;
+}
+
+#filters hr {
+  width: 80%;
+  margin: 10px 0 15px 0 !important
+}
+
+.filter-catagory {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
 .remove-filter {
   margin-left: 6px;
   vertical-align: middle;
@@ -29,4 +38,10 @@
 
 .dark-theme .remove-filter {
   color: #CAC5BE
+}
+
+@media (prefers-color-scheme: dark) {
+  .no-theme .remove-filter {
+    color: #CAC5BE
+  }
 }
