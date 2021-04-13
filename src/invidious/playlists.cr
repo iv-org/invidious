@@ -361,16 +361,7 @@ def fetch_playlist(plid, locale)
     plid = "UU#{plid.lchop("UC")}"
   end
 
-  response = YT_POOL.client &.get("/playlist?list=#{plid}&hl=en")
-  if response.status_code != 200
-    if response.headers["location"]?.try &.includes? "/sorry/index"
-      raise InfoException.new("Could not extract playlist info. Instance is likely blocked.")
-    else
-      raise InfoException.new("Not a playlist.")
-    end
-  end
-
-  initial_data = extract_initial_data(response.body)
+  initial_data = request_youtube_api_browse("VL" + plid, params: "")
 
   playlist_sidebar_renderer = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?
   raise InfoException.new("Could not extract playlistSidebarRenderer.") if !playlist_sidebar_renderer
@@ -453,15 +444,10 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
       ctoken = produce_playlist_continuation(playlist.id, offset)
       initial_data = request_youtube_api_browse(ctoken)
     else
-      response = YT_POOL.client &.get("/playlist?list=#{playlist.id}&gl=US&hl=en")
-      initial_data = extract_initial_data(response.body)
+      initial_data = request_youtube_api_browse("VL" + playlist.id, params: "")
     end
 
-    if initial_data
-      return extract_playlist_videos(initial_data)
-    else
-      return [] of PlaylistVideo
-    end
+    return extract_playlist_videos(initial_data)
   end
 end
 

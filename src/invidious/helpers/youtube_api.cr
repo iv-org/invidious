@@ -8,15 +8,20 @@ HARDCODED_CLIENT_VERS = "2.20210330.08.00"
 
 ####################################################################
 # request_youtube_api_browse(continuation)
+# request_youtube_api_browse(browse_id, params)
 #
 # Requests the youtubei/vi/browse endpoint with the required headers
 # to get JSON in en-US (english US).
 #
-# The requested data is a continuation token (ctoken). Depending on
-# this token's contents, the returned data can be comments, playlist
-# videos, search results, channel community tab, ...
+# The requested data can either be:
 #
-def request_youtube_api_browse(continuation)
+#  - A continuation token (ctoken). Depending on this token's
+#    contents, the returned data can be comments, playlist videos,
+#    search results, channel community tab, ...
+#
+#  - A playlist ID (parameters MUST be an empty string)
+#
+def request_youtube_api_browse(continuation : String)
   # JSON Request data, required by the API
   data = {
     "context": {
@@ -29,6 +34,29 @@ def request_youtube_api_browse(continuation)
     },
     "continuation": continuation,
   }
+
+  return _youtube_api_post_json("/youtubei/v1/browse", data)
+end
+
+def request_youtube_api_browse(browse_id : String, params : String)
+  # JSON Request data, required by the API
+  data = {
+    "browseId" => browse_id,
+    "context"  => {
+      "client" => {
+        "hl"            => "en",
+        "gl"            => "US",
+        "clientName"    => "WEB",
+        "clientVersion" => HARDCODED_CLIENT_VERS,
+      },
+    },
+  }
+
+  # Append the additionnal parameters if those were provided
+  # (this is required for channel info, playlist and community, e.g)
+  if params != ""
+    data["params"] = params
+  end
 
   return _youtube_api_post_json("/youtubei/v1/browse", data)
 end
