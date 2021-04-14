@@ -1,0 +1,35 @@
+<% content_type =  4 %>
+<% sort_options = Tuple.new %>
+<%= rendered "components/channel-information" %>
+
+<div class="pure-g">
+    <div class="pure-u-3-4">
+        <div class="h-box">
+            <h3> <%= translate(locale, "Details") %> </h3>
+            <p>Country: <%=channel.country%></p> <!-- Translate Country Names -->
+        </div>
+    </div>
+
+    <div class="pure-u-1-4">
+        <div class="h-box">
+            <h3> <%= translate(locale, "Stats") %> </h3>
+            <p> <%= translate(locale, "Joined") %>
+                <time datetime="<%=channel.joined.to_s("%Y-%m-%d")%>">
+                    <%= channel.joined.to_s(translate(locale, "%B %-d, %Y")) %>
+                </time>
+            </p>
+            <p><%= channel.total_views ? translate(locale, "`x` views", number_with_separator(channel.total_views || 0)) : "" %></p>
+        </div>
+    </div>
+
+    <div class="pure-u-2-3" id="external-links">
+        <div class="h-box">
+            <h3> <%= translate(locale, "Links") %> </h3>
+            <% channel.links.each do |link_tuple| %>
+                <p class="pure-u-11-24">
+                    <a href="<%=link_tuple[1]%>"><%=link_tuple[0]%></a>
+                </p>
+            <% end %>
+        </div>
+    </div>
+</div>
