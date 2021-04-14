@@ -128,6 +128,7 @@ struct AboutChannel
   property banner : String?
   property description_html : String
   property paid : Bool
+  property country : String
   property total_views : Int64
   property sub_count : Int32
   property joined : Time
@@ -135,6 +136,7 @@ struct AboutChannel
   property allowed_regions : Array(String)
   property related_channels : Array(AboutRelatedChannel)
   property tabs : Array(String)
+  property links : Array(Tuple(String, String))
 end
 
 class ChannelRedirect < Exception
@@ -882,9 +884,11 @@ def get_about_info(ucid, locale)
     related_channels ||= [] of AboutRelatedChannel
   end
 
+  country = ""
   total_views = 0_i64
   joined = Time.unix(0)
   tabs = [] of String
+  links = [] of {String, String}
 
   tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
   if !tabs_json.nil?
@@ -901,6 +905,26 @@ def get_about_info(ucid, locale)
         # The joined text is split to several sub strings. The reduce joins those strings before parsing the date.
         joined = channel_about_meta["joinedDateText"]?.try &.["runs"]?.try &.as_a.reduce("") { |acc, node| acc + node["text"].as_s }
           .try { |text| Time.parse(text, "Joined %b %-d, %Y", Time::Location.local) } || Time.unix(0)
+
+        # External link parsing
+        channel_about_meta["primaryLinks"]?.try &.as_a.each do |link|
+          link_title = link["title"]["simpleText"].as_s
+          link_url = URI.parse(link["navigationEndpoint"]["urlEndpoint"]["url"].to_s)
+
+          if {"m.youtube.com", "www.youtube.com", "youtu.be"}.includes? link_url.host
+            if link_url.path == "/redirect"
+              link_url = HTTP::Params.parse(link_url.query.not_nil!)["q"]
+            else
+              link_url = link_url.request_target.to_s
+            end
+          else
+            link_url = link_url.to_s
+          end
+
+          links << {link_title, link_url}
+        end
+
+        country = channel_about_meta["country"]?.try &.["simpleText"].as_s || ""
 
         # Normal Auto-generated channels
         # https://support.google.com/youtube/answer/2579942
@@ -926,6 +950,7 @@ def get_about_info(ucid, locale)
     banner:             banner,
     description_html:   description_html,
     paid:               paid,
+    country:            country,
     total_views:        total_views,
     sub_count:          sub_count,
     joined:             joined,
@@ -933,6 +958,7 @@ def get_about_info(ucid, locale)
     allowed_regions:    allowed_regions,
     related_channels:   related_channels,
     tabs:               tabs,
+    links:              links
   })
 end
 
