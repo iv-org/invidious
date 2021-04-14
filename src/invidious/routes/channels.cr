@@ -98,7 +98,18 @@ module Invidious::Routes::Channels
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
-    env.redirect "/channel/#{ucid}"
+    ucid = env.params.url["ucid"]
+    continuation = env.params.query["continuation"]?
+
+    begin
+      channel = get_about_info(ucid, locale)
+    rescue ex : ChannelRedirect
+      next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
+    rescue ex
+      next error_template(500, ex)
+    end
+
+    templated "channel_about"
   end
 
   # Redirects brand url channels to a normal /channel/:ucid route

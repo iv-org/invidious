@@ -385,6 +385,7 @@
     "Download": "Download",
     "Download as: ": "Download as: ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
+    "%B %-d, %Y": "%B %-d, %Y",
     "(edited)": "(edited)",
     "YouTube comment permalink": "YouTube comment permalink",
     "permalink": "permalink",
@@ -433,5 +434,9 @@
     "footer_source_code": "Source code",
     "footer_original_source_code": "Original source code",
     "footer_modfied_source_code": "Modified Source code",
-    "adminprefs_modified_source_code_url_label": "URL to modified source code repository"
+    "adminprefs_modified_source_code_url_label": "URL to modified source code repository",
+    "channel_about_page_details_section_header": "Details",
+    "channel_about_page_stats_section_header": "Stats",
+    "channel_about_page_stats_joined_label": "Joined",
+    "channel_about_page_links_section_header": "Links"
 }
