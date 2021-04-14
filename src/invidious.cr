@@ -1674,11 +1674,6 @@ get "/user/:user/about" do |env|
   env.redirect "/channel/#{user}"
 end
 
-get "/channel/:ucid/about" do |env|
-  ucid = env.params.url["ucid"]
-  env.redirect "/channel/#{ucid}"
-end
-
 get "/channel/:ucid" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -1823,6 +1818,31 @@ get "/channel/:ucid/community" do |env|
   end
 
   templated "community"
+end
+
+get "/channel/:ucid/about" do |env|
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  user = env.get? "user"
+  if user
+    user = user.as(User)
+    subscriptions = user.subscriptions
+  end
+  subscriptions ||= [] of String
+
+  ucid = env.params.url["ucid"]
+
+  continuation = env.params.query["continuation"]?
+
+  begin
+    channel = get_about_info(ucid, locale)
+  rescue ex : ChannelRedirect
+    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
+  rescue ex
+    next error_template(500, ex)
+  end
+
+  templated "channel_about"
 end
 
 # API Endpoints
