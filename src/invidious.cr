@@ -3906,7 +3906,6 @@ get "/fetch_link_favicon" do |env|
         env.response.headers["Access-Control-Allow-Origin"] = "*"
         proxy_file(favicon_response, env)
       end
-
     rescue ex
     end
   end
