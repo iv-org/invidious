@@ -384,6 +384,7 @@
     "Download": "ダウンロード",
     "Download as: ": "ダウンロード: ",
     "%A %B %-d, %Y": "%Y %B %-d %A",
+    "%B %-d, %Y": "",
     "(edited)": "(編集済み)",
     "YouTube comment permalink": "YouTube コメントのパーマリンク",
     "permalink": "パーマリンク",
@@ -423,5 +424,10 @@
     "Current version: ": "現在のバージョン: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

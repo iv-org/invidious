@@ -384,6 +384,7 @@
     "Download": "下载",
     "Download as: ": "下载为: ",
     "%A %B %-d, %Y": "%Y年%-m月%-d日 %a",
+    "%B %-d, %Y": "",
     "(edited)": "(已编辑)",
     "YouTube comment permalink": "YouTube 评论永久链接",
     "permalink": "永久链接",
@@ -421,7 +422,12 @@
     "hdr": "hdr",
     "filter": "过滤器",
     "Current version: ": "当前版本: ",
-    "next_steps_error_message": "next_steps_error_message",
-    "next_steps_error_message_refresh": "next_steps_error_message_refresh",
-    "next_steps_error_message_go_to_youtube": "next_steps_error_message_go_to_youtube"
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": "",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

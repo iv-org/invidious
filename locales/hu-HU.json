@@ -331,6 +331,7 @@
     "Download": "Letöltés",
     "Download as: ": "Letöltés mint: ",
     "%A %B %-d, %Y": "",
+    "%B %-d, %Y": "",
     "(edited)": "(szerkesztve)",
     "YouTube comment permalink": "YouTube komment permalink",
     "permalink": "permalink",
@@ -343,5 +344,10 @@
     "Current version: ": "Jelenlegi verzió: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

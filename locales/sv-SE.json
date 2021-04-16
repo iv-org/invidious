@@ -384,6 +384,7 @@
     "Download": "Ladda ned",
     "Download as: ": "Ladda ned som: ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
+    "%B %-d, %Y": "",
     "(edited)": "(redigerad)",
     "YouTube comment permalink": "Permanent YouTube-länk till innehållet",
     "permalink": "permalänk",
@@ -423,5 +424,10 @@
     "Current version: ": "Nuvarande version: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

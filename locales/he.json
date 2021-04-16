@@ -385,6 +385,7 @@
     "Download as: ": "הורדה בתור: ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
     "(edited)": "(לאחר עריכה)",
+    "%B %-d, %Y": "",
     "YouTube comment permalink": "",
     "permalink": "",
     "`x` marked it with a ❤": "סומנה ב־❤ על ידי `x`",
@@ -423,5 +424,10 @@
     "Current version: ": "הגרסה הנוכחית: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

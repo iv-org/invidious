@@ -383,6 +383,7 @@
     "Download": "Stáhnout",
     "Download as: ": "Stáhnout jako: ",
     "%A %B %-d, %Y": "",
+    "%B %-d, %Y": "",
     "(edited)": "(upraveno)",
     "YouTube comment permalink": "",
     "permalink": "",
@@ -422,5 +423,10 @@
     "Current version: ": "",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

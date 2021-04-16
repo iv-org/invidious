@@ -384,6 +384,7 @@
     "Download": "Завантажити",
     "Download as: ": "Завантажити як: ",
     "%A %B %-d, %Y": "%-d %B %Y, %A",
+    "%B %-d, %Y": "",
     "(edited)": "(змінено)",
     "YouTube comment permalink": "Пряме посилання на коментар в YouTube",
     "permalink": "постійне посилання",
@@ -423,5 +424,10 @@
     "Current version: ": "Поточна версія: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

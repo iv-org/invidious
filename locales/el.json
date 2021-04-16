@@ -384,6 +384,7 @@
     "Download": "Λήψη",
     "Download as: ": "Λήψη ως: ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
+    "%B %-d, %Y": "",
     "(edited)": "(τροποποιημένο)",
     "YouTube comment permalink": "Σύνδεσμος YouTube σχολίου",
     "permalink": "μόνιμος σύνδεσμος",
@@ -423,5 +424,10 @@
     "Current version: ": "Τρέχουσα έκδοση: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

@@ -384,6 +384,7 @@
     "Download": "Tallenna",
     "Download as: ": "Tallennusmuoto: ",
     "%A %B %-d, %Y": "%A %-d. %Bta, %Y",
+    "%B %-d, %Y": "",
     "(edited)": "(muokattu)",
     "YouTube comment permalink": "Pysyvä linkki YouTube-kommenttiin",
     "permalink": "pysyvä linkki",
@@ -423,5 +424,10 @@
     "Current version: ": "Tämänhetkinen versio: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

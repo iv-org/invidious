@@ -384,6 +384,7 @@
     "Download": "Last ned",
     "Download as: ": "Last ned som: ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
+    "%B %-d, %Y": "",
     "(edited)": "(redigert)",
     "YouTube comment permalink": "Permanent YouTube-lenke til innholdet",
     "permalink": "permanent lenke",
@@ -423,5 +424,10 @@
     "Current version: ": "Gjeldende versjon: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }
