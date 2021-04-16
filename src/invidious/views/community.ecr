@@ -1,3 +1,8 @@
+<% content_for "header" do %>
+<title><%= channel.author %> - Invidious</title>
+<link rel="stylesheet" href="/css/channel.css?v=<%= ASSET_COMMIT %>">
+<% end %>
+
 <% content_type =  2 %>
 <% sort_options = Tuple.new %>
 <%= rendered "components/channel-information" %>

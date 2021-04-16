@@ -11,3 +11,42 @@
   background-repeat: no-repeat !important;
 }
 
+#link-holder {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  align-self: flex-end;
+  margin: 15px;
+  padding: 12px;
+}
+
+@media screen and (max-width: 640px) {
+  #link-holder {
+    display: none;
+  }
+}
+
+#link-widget-primary {
+  margin-right: 1.5em;
+}
+
+.link-widget-link {
+  margin-right: 10px;
+}
+
+.link-widget-link:last-child {
+  margin-right: 0;
+}
+
+.link-widget-link img, #external-links img {
+  vertical-align: sub;
+  width: 20px;
+  height: 20px;
+}
+
+#link-widget-primary a {
+  color: white !important;
+}
+
+#link-widget-primary a:hover {
+  color: #e1e1e1 !important;
+}
