@@ -15,16 +15,6 @@ body {
   background-color: rgb(255, 0, 0, 0.5);
 }
 
-#channel-banner-container {
-  margin-bottom: 1em;
-}
-
-#banner {
-  height: calc(100vw / 6.2 - 1px);
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-}
-
 .channel-profile > * {
   font-size: 1.17em;
   font-weight: bold;
