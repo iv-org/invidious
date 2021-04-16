@@ -1,12 +1,24 @@
-<% content_for "header" do %>
-<title><%= channel.author %> - Invidious</title>
-<link rel="stylesheet" href="/css/channel.css?v=<%= ASSET_COMMIT %>"/>
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/channel/<%= channel.ucid %>" />
-<% end %>
-
 <% if channel.banner %>
     <div class="pure-g" id="channel-banner-container">
         <div class="pure-u-1" id="banner" style='background: url(/ggpht<%= URI.parse(channel.banner.not_nil!.gsub("=w1060-", "=w1280-")).request_target %>)'>
+            <% if channel.links %>
+                <div id="link-holder">
+                    <div id="link-widget-primary" class="link-widget-link">
+                        <a href="<%=channel.links[0][1]%>" title=<%=channel.links[0][0]%>>
+                            <img src="/fetch_link_favicon?url=<%=channel.links[0][2]%>">
+                            <b> <%=channel.links[0][0]%> </b>
+                        </a>
+                    </div>
+
+                    <% channel.links[1..4].each do |link_tuple| %>
+                        <div class="link-widget-link">
+                            <a href="<%=link_tuple[1]%>" title=<%=link_tuple[0]%>>
+                                <img src="/fetch_link_favicon?url=<%=link_tuple[2]%>">
+                            </a>
+                        </div>
+                    <% end %>
+                </div>
+            <% end %>
         </div>
     </div>
 
