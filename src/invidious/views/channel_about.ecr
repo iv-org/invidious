@@ -8,14 +8,19 @@
 <%= rendered "components/channel-information" %>
 
 <div class="pure-g">
-    <div class="pure-u-3-4">
-        <div class="h-box">
-            <h3> <%= translate(locale, "channel_about_page_details_section_header") %> </h3>
-            <p>Country: <%=channel.country%></p> <!-- Translate Country Names -->
+    <% stats_style_append = ""%>
+    <% if !channel.country.empty? %>
+        <div class="pure-u-3-4">
+            <div class="h-box">
+                <h3> <%= translate(locale, "channel_about_page_details_section_header") %> </h3>
+                <p>Country: <%=channel.country%></p> <!-- Translate Country Names -->
+            </div>
         </div>
-    </div>
+    <% else %>
+        <% stats_style_append = "style=\"order: 1;\"" %>
+    <% end %>
 
-    <div class="pure-u-1-4">
+    <div class="pure-u-1-4" <%= stats_style_append %>>
         <div class="h-box">
             <h3> <%= translate(locale, "channel_about_page_stats_section_header") %> </h3>
             <p> <%= translate(locale, "channel_about_page_stats_joined_label") %>
