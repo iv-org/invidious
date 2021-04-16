@@ -3879,6 +3879,39 @@ get "/vi/:id/:name" do |env|
   end
 end
 
+get "/fetch_link_favicon" do |env|
+  url = env.params.query["url"]
+  url = URI.parse(url)
+
+  if url.host.to_s.ends_with?("gstatic.com")
+    # headers = HTTP::Headers{"Content-Encoding" => "gzip"}
+    headers = HTTP::Headers{} of String => String
+
+    REQUEST_HEADERS_WHITELIST.each do |header|
+      if env.request.headers[header]?
+        headers[header] = env.request.headers[header]
+      end
+    end
+
+    begin
+      HTTP::Client.get(url.to_s, headers) do |favicon_response|
+        env.response.status_code = favicon_response.status_code
+        favicon_response.headers.each do |key, value|
+          if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
+            env.response.headers[key] = value
+            break
+          end
+        end
+
+        env.response.headers["Access-Control-Allow-Origin"] = "*"
+        proxy_file(favicon_response, env)
+      end
+
+    rescue ex
+    end
+  end
+end
+
 get "/Captcha" do |env|
   headers = HTTP::Headers{":authority" => "accounts.google.com"}
   response = YT_POOL.client &.get(env.request.resource, headers)

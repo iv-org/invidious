@@ -136,7 +136,7 @@ struct AboutChannel
   property allowed_regions : Array(String)
   property related_channels : Array(AboutRelatedChannel)
   property tabs : Array(String)
-  property links : Array(Tuple(String, String))
+  property links : Array(Tuple(String, String, String))
 end
 
 class ChannelRedirect < Exception
@@ -888,7 +888,7 @@ def get_about_info(ucid, locale)
   total_views = 0_i64
   joined = Time.unix(0)
   tabs = [] of String
-  links = [] of {String, String}
+  links = [] of {String, String, String}
 
   tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
   if !tabs_json.nil?
@@ -910,6 +910,7 @@ def get_about_info(ucid, locale)
         channel_about_meta["primaryLinks"]?.try &.as_a.each do |link|
           link_title = link["title"]["simpleText"].as_s
           link_url = URI.parse(link["navigationEndpoint"]["urlEndpoint"]["url"].to_s)
+          link_icon_url = link["icon"]?.try &.["thumbnails"][0]["url"].to_s || ""
 
           if {"m.youtube.com", "www.youtube.com", "youtu.be"}.includes? link_url.host
             if link_url.path == "/redirect"
@@ -921,7 +922,7 @@ def get_about_info(ucid, locale)
             link_url = link_url.to_s
           end
 
-          links << {link_title, link_url}
+          links << {link_title, link_url, link_icon_url}
         end
 
         country = channel_about_meta["country"]?.try &.["simpleText"].as_s || ""
