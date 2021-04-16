@@ -1,5 +1,10 @@
-<% content_type =  0 %>
+<% content_for "header" do %>
+<title><%= channel.author %> - Invidious</title>
+<link rel="stylesheet" href="/css/channel.css?v=<%= ASSET_COMMIT %>">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/channel/<%= channel.ucid %>" >
+<% end %>
 
+<% content_type =  0 %>
 <%= rendered "components/channel-information" %>
 
 <div class="pure-g">
