@@ -195,6 +195,6 @@ def get_about_info(ucid, locale)
     allowed_regions:    allowed_regions,
     related_channels:   related_channels,
     tabs:               tabs,
-    links:              links
+    links:              links,
   })
 end
