@@ -36,10 +36,10 @@
         <div class="h-box">
             <h3> <%= translate(locale, "channel_about_page_links_section_header") %> </h3>
             <% channel.links.each do |link_tuple| %>
-                <p class="pure-u-11-24">
+                <div class="pure-u-11-24" style="margin-bottom: 2em;">
                     <img src="/fetch_link_favicon?url=<%=link_tuple[2]%>">
                     <a href="<%=link_tuple[1]%>"><%=link_tuple[0]%></a>
-                </p>
+                </div>
             <% end %>
         </div>
     </div>
