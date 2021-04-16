@@ -1,0 +1,13 @@
+#channel-banner-container {
+  margin-bottom: 1em;
+}
+
+#banner {
+  display: flex;
+  flex-direction: column-reverse;
+
+  height: calc(100vw / 6.2 - 1px);
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
