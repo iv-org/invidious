@@ -384,6 +384,7 @@
     "Download": "نزّل",
     "Download as: ": "نزله كـ:. ",
     "%A %B %-d, %Y": "%A %-d %B %Y",
+    "%B %-d, %Y": "",
     "(edited)": "(تم تعديلة)",
     "YouTube comment permalink": "رابط التعليق على اليوتيوب",
     "permalink": "الرابط",
@@ -423,5 +424,10 @@
     "Current version: ": "الإصدار الحالي: ",
     "next_steps_error_message": "بعد ذلك يجب أن تحاول: ",
     "next_steps_error_message_refresh": "تحديث",
-    "next_steps_error_message_go_to_youtube": "انتقل إلى يوتيوب"
+    "next_steps_error_message_go_to_youtube": "انتقل إلى يوتيوب",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

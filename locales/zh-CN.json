@@ -384,6 +384,7 @@
     "Download": "下载",
     "Download as: ": "下载为: ",
     "%A %B %-d, %Y": "%Y年%-m月%-d日 %a",
+    "%B %-d, %Y": "",
     "(edited)": "(已编辑)",
     "YouTube comment permalink": "YouTube 评论永久链接",
     "permalink": "永久链接",
@@ -423,5 +424,10 @@
     "Current version: ": "当前版本: ",
     "next_steps_error_message": "在此之后你应尝试： ",
     "next_steps_error_message_refresh": "刷新",
-    "next_steps_error_message_go_to_youtube": "转到 YouTube"
+    "next_steps_error_message_go_to_youtube": "转到 YouTube",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

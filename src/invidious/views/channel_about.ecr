@@ -13,7 +13,7 @@
         <div class="pure-u-3-4">
             <div class="h-box">
                 <h3> <%= translate(locale, "Details") %> </h3>
-                <p>Country: <%=channel.country%></p> <!-- Translate Country Names -->
+                <p><%= translate(locale, "Country: ") %><%=channel.country%></p> <!-- Translate Country Names -->
             </div>
         </div>
     <% else %>

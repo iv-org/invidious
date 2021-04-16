@@ -384,6 +384,7 @@
     "Download": "Preuzmi",
     "Download as: ": "Preuzmi kao: ",
     "%A %B %-d, %Y": "%A, %-d. %B %Y.",
+    "%B %-d, %Y": "",
     "(edited)": "(uređeno)",
     "YouTube comment permalink": "Stalna poveznica YouTube komentara",
     "permalink": "stalna poveznica",
@@ -423,5 +424,10 @@
     "Current version: ": "Trenutačna verzija: ",
     "next_steps_error_message": "Nakon toga pokušaj sljedeće: ",
     "next_steps_error_message_refresh": "Aktualiziraj stranicu",
-    "next_steps_error_message_go_to_youtube": "Idi na YouTube"
+    "next_steps_error_message_go_to_youtube": "Idi na YouTube",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

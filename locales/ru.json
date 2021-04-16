@@ -384,6 +384,7 @@
     "Download": "Скачать",
     "Download as: ": "Скачать как: ",
     "%A %B %-d, %Y": "%-d %B %Y, %A",
+    "%B %-d, %Y": "",
     "(edited)": "(изменено)",
     "YouTube comment permalink": "Прямая ссылка на YouTube",
     "permalink": "постоянная ссылка",
@@ -423,5 +424,10 @@
     "Current version: ": "Текущая версия: ",
     "next_steps_error_message": "После чего следует попробовать: ",
     "next_steps_error_message_refresh": "Обновить",
-    "next_steps_error_message_go_to_youtube": "Перейти на YouTube"
+    "next_steps_error_message_go_to_youtube": "Перейти на YouTube",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

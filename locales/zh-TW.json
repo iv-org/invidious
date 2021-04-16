@@ -384,6 +384,7 @@
     "Download": "下載",
     "Download as: ": "下載為： ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
+    "%B %-d, %Y": "",
     "(edited)": "（已編輯）",
     "YouTube comment permalink": "YouTube 留言永久連結",
     "permalink": "永久連結",
@@ -423,5 +424,10 @@
     "Current version: ": "目前版本： ",
     "next_steps_error_message": "之後您應該嘗試： ",
     "next_steps_error_message_refresh": "重新整理",
-    "next_steps_error_message_go_to_youtube": "到 YouTube"
+    "next_steps_error_message_go_to_youtube": "到 YouTube",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

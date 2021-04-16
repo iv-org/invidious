@@ -384,6 +384,7 @@
     "Download": "Descarregar",
     "Download as: ": "Descarregar como: ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
+    "%B %-d, %Y": "",
     "(edited)": "(editado)",
     "YouTube comment permalink": "Hiperligação permanente do comentário no YouTube",
     "permalink": "hiperligação permanente",
@@ -423,5 +424,10 @@
     "Current version: ": "Versão atual: ",
     "next_steps_error_message": "Pode tentar as seguintes opções: ",
     "next_steps_error_message_refresh": "Atualizar",
-    "next_steps_error_message_go_to_youtube": "Ir ao YouTube"
+    "next_steps_error_message_go_to_youtube": "Ir ao YouTube",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

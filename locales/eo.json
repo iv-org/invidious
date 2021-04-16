@@ -384,6 +384,7 @@
     "Download": "Elŝuti",
     "Download as: ": "Elŝuti kiel: ",
     "%A %B %-d, %Y": "%A %-d de %B %Y",
+    "%B %-d, %Y": "",
     "(edited)": "(redaktita)",
     "YouTube comment permalink": "Fiksligilo de la komento en JuTubo",
     "permalink": "konstanta ligilo",
@@ -423,5 +424,10 @@
     "Current version: ": "Nuna versio: ",
     "next_steps_error_message": "Poste, vi provu: ",
     "next_steps_error_message_refresh": "Reŝargi",
-    "next_steps_error_message_go_to_youtube": "Iri al JuTubo"
+    "next_steps_error_message_go_to_youtube": "Iri al JuTubo",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }

@@ -384,6 +384,7 @@
     "Download": "Unduh",
     "Download as: ": "Unduh sebagai: ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
+    "%B %-d, %Y": "",
     "(edited)": "(disunting)",
     "YouTube comment permalink": "Komentar YouTube permalink",
     "permalink": "permalink",
@@ -423,5 +424,10 @@
     "Current version: ": "Versi saat ini: ",
     "next_steps_error_message": "Setelah itu Anda harus mencoba: ",
     "next_steps_error_message_refresh": "Segarkan",
-    "next_steps_error_message_go_to_youtube": "Buka YouTube"
+    "next_steps_error_message_go_to_youtube": "Buka YouTube",
+    "Details": "",
+    "Country: ": "",
+    "Stats": "",
+    "Joined": "",
+    "Links": ""
 }
