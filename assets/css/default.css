@@ -449,16 +449,12 @@ body.dark-theme {
 }
 
 
-.dark-theme .pure-menu-link:hover, .dark-theme .pure-menu-link:active {
+.dark-theme .pure-menu-link:hover, .dark-theme .pure-menu-link:active, .dark-theme .pure-menu-link:focus {
   background-color: rgb(34, 36, 38)
 }
 
 .dark-theme .pure-menu-selected > .pure-menu-link {
   color: #EAE7E1;
-}
-
-.dark-theme .pure-menu-link:visited {
-  background-color: transparent;
 }
 
 @media (prefers-color-scheme: dark) {
