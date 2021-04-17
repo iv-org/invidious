@@ -1,6 +1,6 @@
 <% if channel.banner %>
     <div class="pure-g" id="channel-banner-container">
-        <div class="pure-u-1" id="banner" style='background: url(/ggpht<%= URI.parse(channel.banner.not_nil!.gsub("=w1060-", "=w1280-")).request_target %>)'>
+        <div class="pure-u-1" id="banner" style='background-image: url(/ggpht<%= URI.parse(channel.banner.not_nil!.gsub("=w1060-", "=w1280-")).request_target %>)'>
             <% if channel.links %>
                 <div id="link-holder">
                     <div id="link-widget-primary" class="link-widget-link">
