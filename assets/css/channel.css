@@ -7,8 +7,8 @@
   flex-direction: column-reverse;
 
   height: calc(100vw / 6.2 - 1px);
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
+  background-size: cover;
+  background-position: center;
 }
 
 #link-holder {
