@@ -414,5 +414,6 @@
     "location": "lokacija",
     "hdr": "hdr",
     "filter": "filtar",
-    "Current version: ": "Trenutačna verzija: "
+    "Current version: ": "Trenutačna verzija: ",
+    "Number of videos shown per row: ": ""
 }

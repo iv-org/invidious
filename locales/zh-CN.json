@@ -414,5 +414,6 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "当前版本: "
+    "Current version: ": "当前版本: ",
+    "Number of videos shown per row: ": ""
 }

@@ -414,5 +414,6 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "Versiunea actuală: "
+    "Current version: ": "Versiunea actuală: ",
+    "Number of videos shown per row: ": ""
 }

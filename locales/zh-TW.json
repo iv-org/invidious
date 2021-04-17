@@ -414,5 +414,6 @@
     "location": "位置",
     "hdr": "HDR",
     "filter": "篩選條件",
-    "Current version: ": "目前版本： "
+    "Current version: ": "目前版本： ",
+    "Number of videos shown per row: ": ""
 }

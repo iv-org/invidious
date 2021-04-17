@@ -414,5 +414,6 @@
     "location": "Location",
     "hdr": "HDR",
     "filter": "Filter",
-    "Current version: ": "Current version: "
+    "Current version: ": "Current version: ",
+    "Number of videos shown per row: ": "Number of videos shown per row: "
 }

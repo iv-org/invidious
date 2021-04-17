@@ -414,5 +414,6 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "現在のバージョン: "
+    "Current version: ": "現在のバージョン: ",
+    "Number of videos shown per row: ": ""
 }

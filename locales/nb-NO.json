@@ -414,5 +414,6 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "Gjeldende versjon: "
+    "Current version: ": "Gjeldende versjon: ",
+    "Number of videos shown per row: ": ""
 }

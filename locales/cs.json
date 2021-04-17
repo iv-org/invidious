@@ -414,5 +414,6 @@
     "location": "umístění",
     "hdr": "HDR",
     "filter": "filtr",
-    "Current version: ": ""
+    "Current version: ": "",
+    "Number of videos shown per row: ": ""
 }
