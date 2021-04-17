@@ -150,7 +150,7 @@
                 <label for="default_home"><%= translate(locale, "Default homepage: ") %></label>
                 <select name="default_home" id="default_home">
                     <% feed_options.each do |option| %>
-                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
+                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "Search" : option) %></option>
                     <% end %>
                 </select>
             </div>
@@ -160,7 +160,7 @@
                 <% (feed_options.size - 1).times do |index| %>
                     <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
                         <% feed_options.each do |option| %>
-                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
+                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option.blank? ? "Search" : option) %></option>
                         <% end %>
                     </select>
                 <% end %>
