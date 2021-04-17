@@ -16,7 +16,7 @@ struct AboutChannel
   property is_family_friendly : Bool
   property allowed_regions : Array(String)
   property related_channels : Array(AboutRelatedChannel)
-  property tabs : Array(String)
+  property tabs : Hash(String, String)
   property links : Array(Tuple(String, String, String))
 end
 
@@ -124,7 +124,7 @@ def get_about_info(ucid, locale)
   country = ""
   total_views = 0_i64
   joined = Time.unix(0)
-  tabs = [] of String
+  tabs = {} of String => String # TabName => browseEndpoint params
   links = [] of {String, String, String}
 
   tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
@@ -173,7 +173,9 @@ def get_about_info(ucid, locale)
         end
       end
     end
-    tabs = tabs_json.reject { |node| node["tabRenderer"]?.nil? }.map { |node| node["tabRenderer"]["title"].as_s.downcase }
+    tab_names = tabs_json.reject { |node| node["tabRenderer"]?.nil? }.map { |node| node["tabRenderer"]["title"].as_s.downcase }
+    browse_endpoint_param = tabs_json.reject { |node| node["tabRenderer"]?.nil? }.map { |node| node["tabRenderer"]["endpoint"]["browseEndpoint"]["params"].as_s }
+    tabs = Hash.zip(tab_names, browse_endpoint_param)
   end
 
   sub_count = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s?

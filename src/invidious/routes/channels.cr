@@ -75,7 +75,7 @@ module Invidious::Routes::Channels
     continuation = env.params.query["continuation"]?
     # sort_by = env.params.query["sort_by"]?.try &.downcase
 
-    if !channel.tabs.includes? "community"
+    if !channel.tabs.has_key?("community")
       return env.redirect "/channel/#{channel.ucid}"
     end
 

@@ -90,7 +90,7 @@
                   </li>
               <% end %>
 
-              <% if channel.tabs.includes? "community" %>
+              <% if channel.tabs.has_key?("community") %>
                   <% if content_type == 2 %>
                       <li class="pure-menu-item pure-menu-selected">
                           <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/community">
