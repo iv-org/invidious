@@ -95,7 +95,7 @@ LOCALES = {
   "zh-TW" => load_locale("zh-TW"),
 }
 
-YT_POOL = QUICPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2.0)
+YT_POOL = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2.0, use_quic: CONFIG.use_quic)
 
 # CLI
 Kemal.config.extra_options do |parser|
