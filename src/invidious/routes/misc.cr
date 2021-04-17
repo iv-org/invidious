@@ -22,7 +22,7 @@ class Invidious::Routes::Misc < Invidious::Routes::BaseRoute
         env.redirect "/feed/popular"
       end
     else
-      templated "empty"
+      templated "search_homepage"
     end
   end
 
