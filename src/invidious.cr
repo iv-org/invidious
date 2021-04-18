@@ -312,6 +312,8 @@ Invidious::Routing.get "/channel/:ucid", Invidious::Routes::Channels, :home
 Invidious::Routing.get "/channel/:ucid/videos", Invidious::Routes::Channels, :videos
 Invidious::Routing.get "/channel/:ucid/playlists", Invidious::Routes::Channels, :playlists
 Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, :community
+Invidious::Routing.get "/channel/:ucid/channels", Invidious::Routes::Channels, :channels
+Invidious::Routing.get "/channel/:ucid/channels/:param", Invidious::Routes::Channels, :featured_channel_category
 Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
 
 Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
