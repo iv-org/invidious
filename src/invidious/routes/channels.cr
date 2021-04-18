@@ -91,6 +91,69 @@ module Invidious::Routes::Channels
     templated "community"
   end
 
+  def self.channels(env)
+    data = self.fetch_basic_information(env)
+    if !data.is_a?(Tuple)
+      return data
+    end
+    locale, user, subscriptions, continuation, ucid, channel = data
+
+    if !channel.tabs.has_key?("channels")
+      return env.redirect "/channel/#{channel.ucid}"
+    end
+
+    # When a channel only has a single category it lacks the category param option so we'll handle it here.
+    if continuation
+      offset = env.params.query["offset"]?
+      if offset
+        offset = offset.to_i
+      else
+        offset = 0
+      end
+
+      # Previous continuation
+      previous_continuation = env.params.query["previous"]?
+      # Category title is not returned when using a continuation token.
+      title = env.params.query["title"]?
+
+      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, continuation, title).not_nil!
+    else
+      previous_continuation = nil
+      category_param = nil
+      offset = 0
+      title = nil
+
+      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil).not_nil!
+    end
+
+    templated "channels"
+  end
+
+  def self.featured_channel_category(env)
+    # Used to check when the initial page is reached and redirect to /channel/:ucid/channels/:param when zero
+    offset = env.params.query["offset"]?
+    category_param = env.params.url["param"]
+    if offset
+      offset = offset.to_i
+    else
+      offset = 0
+    end
+
+    data = self.fetch_basic_information(env)
+    if !data.is_a?(Tuple)
+      return data
+    end
+    locale, user, subscriptions, continuation, ucid, channel = data
+
+    # Previous continuation
+    previous_continuation = env.params.query["previous"]?
+    # Category title is not returned when using a continuation token.
+    title = env.params.query["title"]?
+
+    featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], category_param, continuation, title).not_nil!
+    templated "channels"
+  end
+
   def self.about(env)
     data = self.fetch_basic_information(env)
     if !data.is_a?(Tuple)
@@ -112,6 +175,7 @@ module Invidious::Routes::Channels
     templated "channel_about"  end
 
   # Redirects brand url channels to a normal /channel/:ucid route
+
   def self.brand_redirect(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 

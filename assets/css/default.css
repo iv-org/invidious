@@ -359,7 +359,7 @@ span > select {
 
 .light-theme a:hover,
 .light-theme a:active,
-.light-theme summary:hover {
+.light-theme .simulated_a:hover {
   color: #075A9E !important;
 }
 
@@ -386,7 +386,7 @@ span > select {
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
   .no-theme a:active,
-  .no-theme summary:hover  {
+  .no-theme .simulated_a:hover  {
     color: #075A9E !important;
   }
 
@@ -417,7 +417,7 @@ span > select {
 
 .dark-theme a:hover,
 .dark-theme a:active,
-.dark-theme summary:hover {
+.dark-theme .simulated_a:hover {
   color: rgb(0, 182, 240);
 }
 

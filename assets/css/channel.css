@@ -50,3 +50,70 @@
 #link-widget-primary a:hover {
   color: #e1e1e1 !important;
 }
+
+/* Featured channels page */
+
+.channel-section details {
+  margin: 20px;
+}
+
+.channel-section details summary {
+  margin-bottom: 20px;
+}
+
+.channel-section details summary::marker {
+  font-size: 1.3em;
+}
+
+.category-heading {
+  font-size: 1.2em;
+  user-select: none;
+  display: inline;
+}
+
+.section-contents .channel-profile {
+  text-align: center;
+}
+
+/* Due to space constraints we'll make the special large featured channel display
+only show up when the screen is wide enough */
+
+@media screen and (min-width: 600px) {
+  .large-featured-channel.channel-profile {
+    /* We don't want the following attribute for large featured channels*/
+    text-align: initial;
+    margin: initial;
+
+    display: flex;
+  }
+
+  .large-featured-channel.channel-profile img {
+    margin: 20% 0;
+  }
+
+  .large-featured-channel .featured-channel-about {
+    margin-left: 2em;
+  }
+
+  .large-featured-channel .featured-channel-title {
+    font-size: 1.2em;
+    margin-bottom: 10px
+  }
+
+  .large-featured-channel .featured-channel-description {
+    margin-top: 10px;
+    font-weight: normal;
+  }
+}
+
+/* Replicate the look for a normal featured channel */
+@media screen and (max-width: 600px) {
+  .large-featured-channel .seperator, .large-featured-channel .featured-channel-description {
+    display: none
+  }
+
+  .large-featured-channel .featured-channel-metadata:last-child {
+    display: block;
+    margin-top: 1em;
+  }
+}
