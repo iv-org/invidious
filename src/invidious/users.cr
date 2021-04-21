@@ -51,7 +51,7 @@ struct Preferences
   @[YAML::Field(converter: Preferences::BoolToString)]
   property dark_mode : String = CONFIG.default_user_preferences.dark_mode
 
-  @[JSON::Field(converter: Preferences::ClampInt)]
+  @[JSON::Field(converter: Preferences::ClampFeedCols)]
   property feed_cols : Int32 = CONFIG.default_user_preferences.feed_cols
   property latest_only : Bool = CONFIG.default_user_preferences.latest_only
   property listen : Bool = CONFIG.default_user_preferences.listen
@@ -144,6 +144,36 @@ struct Preferences
 
     def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Int32
       node.value.clamp(0, MAX_ITEMS_PER_PAGE)
+    end
+  end
+
+  module ClampFeedCols
+    def self.to_json(value : Int32, json : JSON::Builder)
+      case value.clamp(2, 8)
+      when 7
+        # Pure CSS does not have pure-g-*-1-7
+        json.number 8
+      else
+        json.number value.clamp(2, 8)
+      end
+    end
+
+    def self.from_json(value : JSON::PullParser) : Int32
+      value.read_int.clamp(2, 8).to_i32
+    end
+
+    def self.to_yaml(value : Int32, yaml : YAML::Nodes::Builder)
+      case value.clamp(2, 8)
+      when 7
+        # Pure CSS does not have pure-g-*-1-7
+        yaml.scalar 8
+      else
+        yaml.scalar value.clamp(2, 8)
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Int32
+      node.value.clamp(2, 9)
     end
   end
 

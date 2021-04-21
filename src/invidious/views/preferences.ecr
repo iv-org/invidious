@@ -174,7 +174,7 @@
 
             <div class="pure-control-group">
                 <label for="feed_cols"><%= translate(locale, "Number of videos shown per row: ") %></label>
-                <input name="feed_cols" id="feed_cols" type="number" value="<%= preferences.feed_cols %>">
+                <input name="feed_cols" id="feed_cols" type="number" value="<%= preferences.feed_cols %>" min="2" max="8">
             </div>
 
             <% if env.get? "user" %>
