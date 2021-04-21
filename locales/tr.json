@@ -1,34 +1,34 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abone",
-        "": "`x` abone"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abone.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` abone."
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` video"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` video."
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` çalma listesi",
-        "": "`x` çalma listesi"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` oynatma listesi.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` oynatma listesi."
     },
     "LIVE": "CANLI",
     "Shared `x` ago": "`x` önce paylaşıldı",
     "Unsubscribe": "Abonelikten çık",
     "Subscribe": "Abone ol",
     "View channel on YouTube": "Kanalı YouTube'da görüntüle",
-    "View playlist on YouTube": "Çalma listesini YouTube'da görüntüle",
+    "View playlist on YouTube": "Oynatma listesini YouTube'da görüntüle",
     "newest": "en yeni",
     "oldest": "en eski",
     "popular": "popüler",
     "last": "son",
     "Next page": "Sonraki sayfa",
     "Previous page": "Önceki sayfa",
-    "Clear watch history?": "İzleme geçmisini temizle?",
+    "Clear watch history?": "İzleme geçmişi temizlensin mi?",
     "New password": "Yeni parola",
     "New passwords must match": "Yeni parolalar eşleşmek zorunda",
     "Cannot change password for Google accounts": "Google hesapları için parola değiştirilemez",
-    "Authorize token?": "Jetonu yetkilendir?",
-    "Authorize token for `x`?": "`x` için jetonu yetkilendir?",
+    "Authorize token?": "Belirteç yetkilendirilsin mi?",
+    "Authorize token for `x`?": "`x` için belirteç yetkilendirilsin mi?",
     "Yes": "Evet",
     "No": "Hayır",
     "Import and Export Data": "Verileri İçe ve Dışa Aktar",
@@ -42,7 +42,7 @@
     "Export subscriptions as OPML": "Abonelikleri OPML olarak dışa aktar",
     "Export subscriptions as OPML (for NewPipe & FreeTube)": "Abonelikleri OPML olarak dışa aktar (NewPipe ve FreeTube için)",
     "Export data as JSON": "Verileri JSON olarak dışa aktar",
-    "Delete account?": "Hesabı sil?",
+    "Delete account?": "Hesap silinsin mi?",
     "History": "Geçmiş",
     "An alternative front-end to YouTube": "YouTube için alternatif bir ön-yüz",
     "JavaScript license information": "JavaScript lisans bilgileri",
@@ -107,7 +107,7 @@
     "Import/export data": "Verileri içe/dışa aktar",
     "Change password": "Parolayı değiştir",
     "Manage subscriptions": "Abonelikleri yönet",
-    "Manage tokens": "Jetonları yönet",
+    "Manage tokens": "Belirteçleri yönet",
     "Watch history": "İzleme geçmişi",
     "Delete account": "Hesap silme",
     "Administrator preferences": "Yönetici tercihleri",
@@ -120,23 +120,23 @@
     "Report statistics: ": "Rapor istatistikleri: ",
     "Save preferences": "Tercihleri kaydet",
     "Subscription manager": "Abonelik yöneticisi",
-    "Token manager": "Jeton yöneticisi",
-    "Token": "Jeton",
+    "Token manager": "Belirteç yöneticisi",
+    "Token": "Belirteç",
     "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonelik",
-        "": "`x` abonelik"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonelik.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` abonelik."
     },
     "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` belirteç",
-        "": "`x` belirteç"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` belirteç.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` belirteç."
     },
     "Import/export": "İçe/dışa aktar",
     "unsubscribe": "abonelikten çık",
     "revoke": "geri al",
     "Subscriptions": "Abonelikler",
     "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` okunmamış bildirim",
-        "": "`x` okunmamış bildirim"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` okunmamış bildirim.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` okunmamış bildirim."
     },
     "search": "ara",
     "Log out": "Çıkış yap",
@@ -148,28 +148,28 @@
     "Public": "Genel",
     "Unlisted": "Listelenmemiş",
     "Private": "Özel",
-    "View all playlists": "Tüm çalma listelerini görüntüle",
+    "View all playlists": "Tüm oynatma listelerini görüntüle",
     "Updated `x` ago": "`x` önce güncellendi",
-    "Delete playlist `x`?": "`x` çalma listesini sil?",
-    "Delete playlist": "Çalma listesini sil",
-    "Create playlist": "Çalma listesi oluştur",
+    "Delete playlist `x`?": "`x` oynatma listesi silinsin mi?",
+    "Delete playlist": "Oynatma listesini sil",
+    "Create playlist": "Oynatma listesi oluştur",
     "Title": "Başlık",
-    "Playlist privacy": "Çalma listesi gizliliği",
-    "Editing playlist `x`": "`x` çalma listesi düzenleniyor",
+    "Playlist privacy": "Oynatma listesi gizliliği",
+    "Editing playlist `x`": "`x` oynatma listesi düzenleniyor",
     "Watch on YouTube": "YouTube'da izle",
     "Hide annotations": "Ek açıklamaları gizle",
     "Show annotations": "Ek açıklamaları göster",
     "Genre: ": "Tür: ",
     "License: ": "Lisans: ",
-    "Family friendly? ": "Aile için uygun? ",
+    "Family friendly? ": "Aile için uygun mu? ",
     "Wilson score: ": "Wilson puanı: ",
     "Engagement: ": "İzleyenlerin oy verme oranı: ",
     "Whitelisted regions: ": "Beyaz listeye alınan bölgeler: ",
     "Blacklisted regions: ": "Kara listeye alınan bölgeler: ",
     "Shared `x`": "`x` paylaşıldı",
     "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` görüntüleme",
-        "": "`x` görüntüleme"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` görüntüleme.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` görüntüleme."
     },
     "Premieres in `x`": "`x`içinde ilk gösterim",
     "Premieres `x`": "`x` ilk gösterim",
@@ -177,8 +177,8 @@
     "View YouTube comments": "YouTube yorumlarını görüntüle",
     "View more comments on Reddit": "Reddit'te daha fazla yorum görüntüle",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yorum görüntüle",
-        "": "`x` yorum görüntüle"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yorumu görüntüle.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` yorumu görüntüle."
     },
     "View Reddit comments": "Reddit yorumlarını görüntüle",
     "Hide replies": "Cevapları gizle",
@@ -205,14 +205,14 @@
     "Could not get channel info.": "Kanal bilgisi alınamadı.",
     "Could not fetch comments": "Yorumlar alınamadı",
     "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yanıtı görüntüle",
-        "": "`x` yanıtı görüntüle"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yanıtı görüntüle.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` yanıtı görüntüle."
     },
     "`x` ago": "`x` önce",
     "Load more": "Daha fazla yükle",
     "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` puan",
-        "": "`x` puan"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` puan.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` puan."
     },
     "Could not create mix.": "Mix oluşturulamadı.",
     "Empty playlist": "Boş oynatma listesi",
@@ -220,11 +220,11 @@
     "Playlist does not exist.": "Oynatma listesi mevcut değil.",
     "Could not pull trending pages.": "Trend sayfaları alınamıyor.",
     "Hidden field \"challenge\" is a required field": "Gizli alan \"challenge\" zorunlu bir alandır",
-    "Hidden field \"token\" is a required field": "Gizli alan \"jeton\" zorunlu bir alandır",
+    "Hidden field \"token\" is a required field": "\"belirteç\" gizli alanı zorunlu bir alandır",
     "Erroneous challenge": "Hatalı challenge",
-    "Erroneous token": "Hatalı jeton",
+    "Erroneous token": "Hatalı belirteç",
     "No such user": "Böyle bir kullanıcı yok",
-    "Token is expired, please try again": "Jetonun süresi doldu, lütfen tekrar deneyin",
+    "Token is expired, please try again": "Belirtecin süresi doldu, lütfen tekrar deneyin",
     "English": "İngilizce",
     "English (auto-generated)": "İngilizce (otomatik oluşturuldu)",
     "Afrikaans": "Afrikanca",
@@ -332,36 +332,36 @@
     "Yoruba": "Yoruba dili",
     "Zulu": "Zuluca",
     "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yıl",
-        "": "`x` yıl"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yıl.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` yıl."
     },
     "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ay",
-        "": "`x` ay"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ay.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` ay."
     },
     "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hafta",
-        "": "`x` hafta"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hafta.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` hafta."
     },
     "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gün",
-        "": "`x` gün"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gün.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` gün."
     },
     "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saat",
-        "": "`x` saat"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saat.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` saat."
     },
     "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dakika",
-        "": "`x` dakika"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dakika.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` dakika."
     },
     "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saniye",
-        "": "`x` saniye"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saniye.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "`x` saniye."
     },
     "Fallback comments: ": "Yedek yorumlar: ",
     "Popular": "Popüler",
-    "Search": "",
+    "Search": "Ara",
     "Top": "Enler",
     "About": "Hakkında",
     "Rating: ": "Değerlendirme: ",
@@ -384,32 +384,32 @@
     "Videos": "Videolar",
     "Playlists": "Oynatma listeleri",
     "Community": "Topluluk",
-    "relevance": "",
-    "rating": "",
-    "date": "",
-    "views": "",
-    "content_type": "",
-    "duration": "",
-    "features": "",
-    "sort": "",
-    "hour": "",
-    "today": "",
-    "week": "",
-    "month": "",
-    "year": "",
-    "video": "",
-    "channel": "",
-    "playlist": "",
-    "movie": "",
-    "show": "",
-    "hd": "",
-    "subtitles": "",
-    "creative_commons": "",
-    "3d": "",
-    "live": "",
-    "4k": "",
-    "location": "",
-    "hdr": "",
-    "filter": "",
+    "relevance": "ilgi",
+    "rating": "değerlendirme",
+    "date": "tarih",
+    "views": "görüntüleme",
+    "content_type": "içerik_türü",
+    "duration": "süre",
+    "features": "özellikler",
+    "sort": "sırala",
+    "hour": "saat",
+    "today": "bugün",
+    "week": "hafta",
+    "month": "ay",
+    "year": "yıl",
+    "video": "video",
+    "channel": "kanal",
+    "playlist": "oynatma listesi",
+    "movie": "film",
+    "show": "gösteri",
+    "hd": "HD",
+    "subtitles": "alt yazılar",
+    "creative_commons": "Creative Commons",
+    "3d": "3B",
+    "live": "canlı",
+    "4k": "4K",
+    "location": "konum",
+    "hdr": "HDR",
+    "filter": "filtrele",
     "Current version: ": "Şu anki sürüm: "
 }
