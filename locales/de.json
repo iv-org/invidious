@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` Abonnenten",
-    "`x` videos": "`x` Videos",
-    "`x` playlists": "`x` Wiedergabelisten",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Abonnenten",
+        "": "`x` Abonnenten"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Videos",
+        "": "`x` Videos"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Wiedergabelisten",
+        "": "`x` Wiedergabelisten"
+    },
     "LIVE": "LIVE",
     "Shared `x` ago": "Vor `x` geteilt",
     "Unsubscribe": "Abbestellen",
@@ -113,13 +122,22 @@
     "Subscription manager": "Abonnementverwaltung",
     "Token manager": "Tokenverwalter",
     "Token": "Token",
-    "`x` subscriptions": "`x` Abonnements",
-    "`x` tokens": "`x` Tokens",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Abonnements",
+        "": "`x` Abonnements"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Tokens",
+        "": "`x` Tokens"
+    },
     "Import/export": "Importieren/Exportieren",
     "unsubscribe": "abbestellen",
     "revoke": "widerrufen",
     "Subscriptions": "Abonnements",
-    "`x` unseen notifications": "`x` ungesehene Benachrichtigungen",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ungesehene Benachrichtigungen",
+        "": "`x` ungesehene Benachrichtigungen"
+    },
     "search": "Suchen",
     "Log out": "Abmelden",
     "Released under the AGPLv3 by Omar Roth.": "Veröffentlicht unter AGPLv3 von Omar Roth.",
@@ -149,13 +167,19 @@
     "Whitelisted regions: ": "Erlaubte Regionen: ",
     "Blacklisted regions: ": "Unerlaubte Regionen: ",
     "Shared `x`": "Geteilt `x`",
-    "`x` views": "`x` Aufrufe",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Aufrufe",
+        "": "`x` Aufrufe"
+    },
     "Premieres in `x`": "Zuerst gesehen in `x`",
     "Premieres `x`": "Erster Start `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hallo! Anscheinend haben Sie JavaScript deaktiviert. Klicken Sie hier um Kommentare anzuzeigen, beachten sie dass es etwas länger dauern kann um sie zu laden.",
     "View YouTube comments": "YouTube Kommentare anzeigen",
     "View more comments on Reddit": "Mehr Kommentare auf Reddit anzeigen",
-    "View `x` comments": "`x` Kommentare anzeigen",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Kommentare anzeigen",
+        "": "`x` Kommentare anzeigen"
+    },
     "View Reddit comments": "Reddit Kommentare anzeigen",
     "Hide replies": "Antworten verstecken",
     "Show replies": "Antworten anzeigen",
@@ -180,10 +204,16 @@
     "This channel does not exist.": "Dieser Kanal existiert nicht.",
     "Could not get channel info.": "Kanalinformationen konnten nicht geladen werden.",
     "Could not fetch comments": "Kommentare konnten nicht geladen werden",
-    "View `x` replies": "Zeige `x` Antworten",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Zeige `x` Antworten",
+        "": "Zeige `x` Antworten"
+    },
     "`x` ago": "vor `x`",
     "Load more": "Mehr laden",
-    "`x` points": "`x` Punkte",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Punkte",
+        "": "`x` Punkte"
+    },
     "Could not create mix.": "Mix konnte nicht erstellt werden.",
     "Empty playlist": "Playlist ist leer",
     "Not a playlist.": "Ungültige Playlist.",
@@ -301,13 +331,34 @@
     "Yiddish": "Jiddisch",
     "Yoruba": "Joruba",
     "Zulu": "Zulu",
-    "`x` years": "`x` Jahre",
-    "`x` months": "`x` Monate",
-    "`x` weeks": "`x` Wochen",
-    "`x` days": "`x` Tage",
-    "`x` hours": "`x` Stunden",
-    "`x` minutes": "`x` Minuten",
-    "`x` seconds": "`x` Sekunden",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Jahre",
+        "": "`x` Jahre"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Monate",
+        "": "`x` Monate"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Wochen",
+        "": "`x` Wochen"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Tage",
+        "": "`x` Tage"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Stunden",
+        "": "`x` Stunden"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Minuten",
+        "": "`x` Minuten"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Sekunden",
+        "": "`x` Sekunden"
+    },
     "Fallback comments: ": "Alternative Kommentare: ",
     "Popular": "Populär",
     "Search": "",
@@ -333,5 +384,32 @@
     "Videos": "Videos",
     "Playlists": "Wiedergabelisten",
     "Community": "Gemeinschaft",
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
     "Current version: ": "Aktuelle Version: "
 }

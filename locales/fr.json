@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` abonnés",
-    "`x` videos": "`x` vidéos",
-    "`x` playlists": "`x` listes de lecture",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonné",
+        "": "`x` abonnés"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vidéo",
+        "": "`x` vidéos"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` liste de lecture",
+        "": "`x` listes de lecture"
+    },
     "LIVE": "EN DIRECT",
     "Shared `x` ago": "Ajoutée il y a `x`",
     "Unsubscribe": "Se désabonner",
@@ -91,7 +100,7 @@
     "Only show unwatched: ": "Afficher uniquement les vidéos qui n'ont pas été regardées : ",
     "Only show notifications (if there are any): ": "Afficher uniquement les notifications (s'il y en a) : ",
     "Enable web notifications": "Activer les notifications web",
-    "`x` uploaded a video": "`x` a partagé(e) une vidéo",
+    "`x` uploaded a video": "`x` a partagé une vidéo",
     "`x` is live": "`x` est en direct",
     "Data preferences": "Préférences liées aux données",
     "Clear watch history": "Supprimer l'historique des vidéos regardées",
@@ -113,13 +122,22 @@
     "Subscription manager": "Gestionnaire d'abonnement",
     "Token manager": "Gestionnaire de tokens",
     "Token": "Token",
-    "`x` subscriptions": "`x` abonnements",
-    "`x` tokens": "`x` tokens",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnements",
+        "": "`x` abonnements"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
+        "": "`x` tokens"
+    },
     "Import/export": "Importer/Exporter",
     "unsubscribe": "se désabonner",
     "revoke": "révoquer",
     "Subscriptions": "Abonnements",
-    "`x` unseen notifications": "`x` notifications non vues",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notification non vue",
+        "": "`x` notifications non vues"
+    },
     "search": "rechercher",
     "Log out": "Déconnexion",
     "Released under the AGPLv3 by Omar Roth.": "Publié sous licence AGPLv3 par Omar Roth.",
@@ -149,13 +167,19 @@
     "Whitelisted regions: ": "Régions sur liste blanche : ",
     "Blacklisted regions: ": "Régions sur liste noire : ",
     "Shared `x`": "Ajoutée le `x`",
-    "`x` views": "`x` vues",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vues",
+        "": "`x` vues"
+    },
     "Premieres in `x`": "Première dans `x`",
     "Premieres `x`": "Première le `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Il semblerait que JavaScript soit désactivé. Cliquez ici pour voir les commentaires, mais gardez à l'esprit que le chargement peut prendre plus de temps.",
     "View YouTube comments": "Voir les commentaires YouTube",
     "View more comments on Reddit": "Voir plus de commentaires sur Reddit",
-    "View `x` comments": "Voir `x` commentaires",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Voir `x` commentaire",
+        "": "Voir `x` commentaires"
+    },
     "View Reddit comments": "Voir les commentaires Reddit",
     "Hide replies": "Masquer les réponses",
     "Show replies": "Afficher les réponses",
@@ -180,10 +204,16 @@
     "This channel does not exist.": "Cette chaine n'existe pas.",
     "Could not get channel info.": "Impossible de charger les informations de cette chaîne.",
     "Could not fetch comments": "Impossible de charger les commentaires",
-    "View `x` replies": "Voir `x` réponses",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Voir `x` réponse",
+        "": "Voir `x` réponses"
+    },
     "`x` ago": "il y a `x`",
     "Load more": "Voir plus",
-    "`x` points": "`x` points",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` point",
+        "": "`x` points"
+    },
     "Could not create mix.": "Impossible de charger cette liste de lecture.",
     "Empty playlist": "La liste de lecture est vide",
     "Not a playlist.": "La liste de lecture est invalide.",
@@ -301,13 +331,34 @@
     "Yiddish": "Yiddish",
     "Yoruba": "Yoruba",
     "Zulu": "Zoulou",
-    "`x` years": "`x` ans",
-    "`x` months": "`x` mois",
-    "`x` weeks": "`x` semaines",
-    "`x` days": "`x` jours",
-    "`x` hours": "`x` heures",
-    "`x` minutes": "`x` minutes",
-    "`x` seconds": "`x` secondes",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` an",
+        "": "`x` ans"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mois",
+        "": "`x` mois"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` semaine",
+        "": "`x` semaines"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jour",
+        "": "`x` jours"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` heure",
+        "": "`x` heures"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minute",
+        "": "`x` minutes"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` seconde",
+        "": "`x` secondes"
+    },
     "Fallback comments: ": "Commentaires alternatifs : ",
     "Popular": "Populaire",
     "Search": "",
@@ -333,5 +384,32 @@
     "Videos": "Vidéos",
     "Playlists": "Listes de lecture",
     "Community": "Communauté",
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
     "Current version: ": "Version actuelle : "
 }

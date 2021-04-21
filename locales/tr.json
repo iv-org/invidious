@@ -1,9 +1,16 @@
 {
-    "`x` subscribers": "`x` abone",
-    "`x` videos": "`x` video",
-    "`x` playlists": "`x` çalma listesi",
-    "`x` subscribers.": "`x` abone.",
-    "`x` videos.": "`x` video.",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abone",
+        "": "`x` abone"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
+        "": "`x` video"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` çalma listesi",
+        "": "`x` çalma listesi"
+    },
     "LIVE": "CANLI",
     "Shared `x` ago": "`x` önce paylaşıldı",
     "Unsubscribe": "Abonelikten çık",
@@ -113,22 +120,33 @@
     "Report statistics: ": "Rapor istatistikleri: ",
     "Save preferences": "Tercihleri kaydet",
     "Subscription manager": "Abonelik yöneticisi",
-    "`x` subscriptions": "`x` abonelik",
-    "`x` tokens": "`x` belirteç",
     "Token manager": "Jeton yöneticisi",
     "Token": "Jeton",
-    "`x` subscriptions.": "`x` abonelik.",
-    "`x` tokens.": "`x` jeton.",
-    "`x` unseen notifications": "`x` okunmamış bildirim",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonelik",
+        "": "`x` abonelik"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` belirteç",
+        "": "`x` belirteç"
+    },
     "Import/export": "İçe/dışa aktar",
     "unsubscribe": "abonelikten çık",
     "revoke": "geri al",
     "Subscriptions": "Abonelikler",
-    "`x` unseen notifications.": "`x` okunmamış bildirim.",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` okunmamış bildirim",
+        "": "`x` okunmamış bildirim"
+    },
     "search": "ara",
     "Log out": "Çıkış yap",
-    "Public": "Genel",
     "Released under the AGPLv3 by Omar Roth.": "Omar Roth tarafından AGPLv3 altında yayımlandı.",
+    "Source available here.": "Kaynak kodları burada bulunabilir.",
+    "View JavaScript license information.": "JavaScript lisans bilgilerini görüntüle.",
+    "View privacy policy.": "Gizlilik politikasını görüntüle.",
+    "Trending": "Trendler",
+    "Public": "Genel",
+    "Unlisted": "Listelenmemiş",
     "Private": "Özel",
     "View all playlists": "Tüm çalma listelerini görüntüle",
     "Updated `x` ago": "`x` önce güncellendi",
@@ -138,30 +156,30 @@
     "Title": "Başlık",
     "Playlist privacy": "Çalma listesi gizliliği",
     "Editing playlist `x`": "`x` çalma listesi düzenleniyor",
-    "Source available here.": "Kaynak kodları burada bulunabilir.",
-    "View JavaScript license information.": "JavaScript lisans bilgilerini görüntüle.",
-    "View privacy policy.": "Gizlilik politikasını görüntüle.",
-    "Trending": "Trendler",
-    "Unlisted": "Listelenmemiş",
     "Watch on YouTube": "YouTube'da izle",
     "Hide annotations": "Ek açıklamaları gizle",
     "Show annotations": "Ek açıklamaları göster",
     "Genre: ": "Tür: ",
     "License: ": "Lisans: ",
     "Family friendly? ": "Aile için uygun? ",
-    "`x` views": "`x` görüntüleme",
     "Wilson score: ": "Wilson puanı: ",
     "Engagement: ": "İzleyenlerin oy verme oranı: ",
     "Whitelisted regions: ": "Beyaz listeye alınan bölgeler: ",
     "Blacklisted regions: ": "Kara listeye alınan bölgeler: ",
     "Shared `x`": "`x` paylaşıldı",
-    "`x` views.": "`x` izlenme.",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` görüntüleme",
+        "": "`x` görüntüleme"
+    },
     "Premieres in `x`": "`x`içinde ilk gösterim",
     "Premieres `x`": "`x` ilk gösterim",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Merhaba! JavaScript'i kapatmış gibi görünüyorsun. Yorumları görüntülemek için buraya tıkla, yüklenmelerinin biraz uzun sürebileceğini unutma.",
     "View YouTube comments": "YouTube yorumlarını görüntüle",
     "View more comments on Reddit": "Reddit'te daha fazla yorum görüntüle",
-    "View `x` comments": "`x` yorum görüntüle",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yorum görüntüle",
+        "": "`x` yorum görüntüle"
+    },
     "View Reddit comments": "Reddit yorumlarını görüntüle",
     "Hide replies": "Cevapları gizle",
     "Show replies": "Cevapları göster",
@@ -180,18 +198,22 @@
     "Password cannot be empty": "Parola boş olamaz",
     "Password cannot be longer than 55 characters": "Parola 55 karakterden uzun olamaz",
     "Please log in": "Lütfen oturum açın",
-    "View `x` replies": "`x` yanıtı görüntüle",
     "Invidious Private Feed for `x`": "`x` için İnvidious Özel Akışı",
     "channel:`x`": "kanal:`x`",
-    "`x` points": "`x` puan",
     "Deleted or invalid channel": "Silinmiş ya da geçersiz kanal",
     "This channel does not exist.": "Bu kanal mevcut değil.",
     "Could not get channel info.": "Kanal bilgisi alınamadı.",
     "Could not fetch comments": "Yorumlar alınamadı",
-    "View `x` replies.": "`x` yanıtı görüntüle.",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yanıtı görüntüle",
+        "": "`x` yanıtı görüntüle"
+    },
     "`x` ago": "`x` önce",
     "Load more": "Daha fazla yükle",
-    "`x` points.": "`x` puan.",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` puan",
+        "": "`x` puan"
+    },
     "Could not create mix.": "Mix oluşturulamadı.",
     "Empty playlist": "Boş oynatma listesi",
     "Not a playlist.": "Oynatma listesi değil.",
@@ -309,13 +331,34 @@
     "Yiddish": "Yiddiş",
     "Yoruba": "Yoruba dili",
     "Zulu": "Zuluca",
-    "`x` years": "`x` yıl",
-    "`x` months": "`x` ay",
-    "`x` weeks": "`x` hafta",
-    "`x` days": "`x` gün",
-    "`x` hours": "`x` saat",
-    "`x` minutes": "`x` dakika",
-    "`x` seconds": "`x` saniye",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yıl",
+        "": "`x` yıl"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ay",
+        "": "`x` ay"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hafta",
+        "": "`x` hafta"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gün",
+        "": "`x` gün"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saat",
+        "": "`x` saat"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dakika",
+        "": "`x` dakika"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saniye",
+        "": "`x` saniye"
+    },
     "Fallback comments: ": "Yedek yorumlar: ",
     "Popular": "Popüler",
     "Search": "",
@@ -341,5 +384,32 @@
     "Videos": "Videolar",
     "Playlists": "Oynatma listeleri",
     "Community": "Topluluk",
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
     "Current version: ": "Şu anki sürüm: "
 }

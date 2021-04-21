@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` abonați",
-    "`x` videos": "`x` videoclipuri",
-    "`x` playlists": "`x` liste de redare",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonați",
+        "": "`x` abonați"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videoclipuri",
+        "": "`x` videoclipuri"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` liste de redare",
+        "": "`x` liste de redare"
+    },
     "LIVE": "ÎN DIRECT",
     "Shared `x` ago": "Adăugat acum `x`",
     "Unsubscribe": "Dezabonați-vă",
@@ -113,13 +122,22 @@
     "Subscription manager": "Gestionați abonamentele",
     "Token manager": "Manager de Tokene",
     "Token": "Token",
-    "`x` subscriptions": "`x` abonamente",
-    "`x` tokens": "`x` tokens",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonamente",
+        "": "`x` abonamente"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens",
+        "": "`x` tokens"
+    },
     "Import/export": "Importați/Exportați",
     "unsubscribe": "dezabonați-vă",
     "revoke": "revocați",
     "Subscriptions": "Abonamente",
-    "`x` unseen notifications": "`x` notificări nevăzute",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notificări nevăzute",
+        "": "`x` notificări nevăzute"
+    },
     "search": "căutați",
     "Log out": "Deconectați-vă",
     "Released under the AGPLv3 by Omar Roth.": "Publicat sub licența AGPLv3 de Omar Roth.",
@@ -149,13 +167,19 @@
     "Whitelisted regions: ": "Regiunile de pe lista albă: ",
     "Blacklisted regions: ": "Regiunile de pe lista neagră: ",
     "Shared `x`": "Publicat pe `x`",
-    "`x` views": "`x` vizionări",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vizionări",
+        "": "`x` vizionări"
+    },
     "Premieres in `x`": "Premiera în `x`",
     "Premieres `x`": "Premiera pe `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Se pare că ați dezactivat JavaScript. Apăsați aici pentru a vizualiza comentariile. Țineți minte faptul că încărcarea lor ar putea să dureze puțin mai mult.",
     "View YouTube comments": "Vedeți comentariile de pe YouTube",
     "View more comments on Reddit": "Vedeți mai multe comentarii pe Reddit",
-    "View `x` comments": "Afișați `x` comentarii",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Afișați `x` comentarii",
+        "": "Afișați `x` comentarii"
+    },
     "View Reddit comments": "Afișați comentariile de pe Reddit",
     "Hide replies": "Ascundeți replicile",
     "Show replies": "Afișați replicile",
@@ -180,10 +204,16 @@
     "This channel does not exist.": "Acest canal nu există.",
     "Could not get channel info.": "Nu am putut primi informații despre acest canal.",
     "Could not fetch comments": "Încărcarea comentariilor a eșuat.",
-    "View `x` replies": "Afișați `x` replici",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Afișați `x` replici",
+        "": "Afișați `x` replici"
+    },
     "`x` ago": "acum `x`",
     "Load more": "Vedeți mai mult",
-    "`x` points": "`x` puncte",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` puncte",
+        "": "`x` puncte"
+    },
     "Could not create mix.": "Nu am putut crea această listă de redare.",
     "Empty playlist": "Lista de redare este goală",
     "Not a playlist.": "Lista de redare este invalidă.",
@@ -301,13 +331,34 @@
     "Yiddish": "Yiddish",
     "Yoruba": "Yoruba",
     "Zulu": "Zoulou",
-    "`x` years": "`x` ani",
-    "`x` months": "`x` luni",
-    "`x` weeks": "`x` săptămâni",
-    "`x` days": "`x` zile",
-    "`x` hours": "`x` ore",
-    "`x` minutes": "`x` minute",
-    "`x` seconds": "`x` secunde",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ani",
+        "": "`x` ani"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` luni",
+        "": "`x` luni"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` săptămâni",
+        "": "`x` săptămâni"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` zile",
+        "": "`x` zile"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ore",
+        "": "`x` ore"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minute",
+        "": "`x` minute"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` secunde",
+        "": "`x` secunde"
+    },
     "Fallback comments: ": "Comentarii alternative: ",
     "Popular": "Popular",
     "Search": "",
@@ -333,5 +384,32 @@
     "Videos": "Videoclipuri",
     "Playlists": "Liste de redare",
     "Community": "Comunitate",
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
     "Current version: ": "Versiunea actuală: "
 }

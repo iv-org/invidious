@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` المشتركين",
-    "`x` videos": "`x` الفيديوهات",
-    "`x` playlists": "`x` قوائم التشغيل",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` المشتركين",
+        "": "`x` المشتركين"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` الفيديوهات",
+        "": "`x` الفيديوهات"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` قوائم التشغيل",
+        "": "`x` قوائم التشغيل"
+    },
     "LIVE": "مباشر",
     "Shared `x` ago": "تم رفع الفيديو منذ `x`",
     "Unsubscribe": "إلغاء الإشتراك",
@@ -113,13 +122,22 @@
     "Subscription manager": "مدير الإشتراكات",
     "Token manager": "إداره الرمز",
     "Token": "الرمز",
-    "`x` subscriptions": "`x` مشتركين",
-    "`x` tokens": "`x` رموز",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` مشتركين",
+        "": "`x` مشتركين"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` رموز",
+        "": "`x` رموز"
+    },
     "Import/export": "إضافة\\إستخراج",
     "unsubscribe": "إلغاء الإشتراك",
     "revoke": "مسح",
     "Subscriptions": "الإشتراكات",
-    "`x` unseen notifications": "`x` إشعارات لم تشاهدها بعد",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` إشعارات لم تشاهدها بعد",
+        "": "`x` إشعارات لم تشاهدها بعد"
+    },
     "search": "بحث",
     "Log out": "تسجيل الخروج",
     "Released under the AGPLv3 by Omar Roth.": "تم الإنشاء تحت AGPLv3 بواسطة عمر روث.",
@@ -149,13 +167,19 @@
     "Whitelisted regions: ": "الدول المسموح فيها هذا الفيديو: ",
     "Blacklisted regions: ": "الدول الحظور فيها هذا الفيديو: ",
     "Shared `x`": "شارك منذ `x`",
-    "`x` views": "`x` مشاهدات",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` مشاهدات",
+        "": "`x` مشاهدات"
+    },
     "Premieres in `x`": "يعرض فى `x`",
     "Premieres `x`": "يعرض `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "اهلا! يبدو ان الجافاسكريبت معطلة. اضغط هنا لعرض التعليقات, ضع فى إعتبارك انها ستأخذ وقت اطول للعرض.",
     "View YouTube comments": "عرض تعليقات اليوتيوب",
     "View more comments on Reddit": "عرض المزيد من التعليقات على\\من موقع Reddit",
-    "View `x` comments": "عرض `x` تعليقات",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "عرض `x` تعليقات",
+        "": "عرض `x` تعليقات"
+    },
     "View Reddit comments": "عرض تعليقات ريدإت Reddit",
     "Hide replies": "إخفاء الردود",
     "Show replies": "عرض الردود",
@@ -180,10 +204,16 @@
     "This channel does not exist.": "القناة غير موجودة.",
     "Could not get channel info.": "لم يستطع الحصول على معلومات القناة.",
     "Could not fetch comments": "لم يتمكن من إحضار التعليقات",
-    "View `x` replies": "عرض `x` ردود",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "عرض `x` ردود",
+        "": "عرض `x` ردود"
+    },
     "`x` ago": "`x` منذ",
     "Load more": "عرض المزيد",
-    "`x` points": "`x` نقاط",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` نقاط",
+        "": "`x` نقاط"
+    },
     "Could not create mix.": "لم يستطع عمل خلط.",
     "Empty playlist": "قائمة التشغيل فارغة",
     "Not a playlist.": "قائمة التشغيل غير صالحة.",
@@ -301,13 +331,34 @@
     "Yiddish": "اليديشية",
     "Yoruba": "اليوروبا",
     "Zulu": "الزولو",
-    "`x` years": "`x` سنوات",
-    "`x` months": "`x` شهور",
-    "`x` weeks": "`x` اسابيع",
-    "`x` days": "`x` ايام",
-    "`x` hours": "`x` ساعات",
-    "`x` minutes": "`x` دقائق",
-    "`x` seconds": "`x` ثوانى",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` سنوات",
+        "": "`x` سنوات"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` شهور",
+        "": "`x` شهور"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` اسابيع",
+        "": "`x` اسابيع"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ايام",
+        "": "`x` ايام"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ساعات",
+        "": "`x` ساعات"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` دقائق",
+        "": "`x` دقائق"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ثوانى",
+        "": "`x` ثوانى"
+    },
     "Fallback comments: ": "التعليقات البديلة: ",
     "Popular": "الأكثر شعبية",
     "Search": "",
@@ -333,5 +384,32 @@
     "Videos": "الفيديوهات",
     "Playlists": "قوائم التشغيل",
     "Community": "المجتمع",
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
     "Current version: ": "الإصدار الحالي: "
 }

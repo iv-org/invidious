@@ -65,36 +65,6 @@ SOFTWARE = {
   "branch"  => "#{CURRENT_BRANCH}",
 }
 
-LOCALES = {
-  "ar"    => load_locale("ar"),
-  "de"    => load_locale("de"),
-  "el"    => load_locale("el"),
-  "en-US" => load_locale("en-US"),
-  "eo"    => load_locale("eo"),
-  "es"    => load_locale("es"),
-  "fa"    => load_locale("fa"),
-  "fi"    => load_locale("fi"),
-  "fr"    => load_locale("fr"),
-  "he"    => load_locale("he"),
-  "hr"    => load_locale("hr"),
-  "id"    => load_locale("id"),
-  "is"    => load_locale("is"),
-  "it"    => load_locale("it"),
-  "ja"    => load_locale("ja"),
-  "nb-NO" => load_locale("nb-NO"),
-  "nl"    => load_locale("nl"),
-  "pl"    => load_locale("pl"),
-  "pt-BR" => load_locale("pt-BR"),
-  "pt-PT" => load_locale("pt-PT"),
-  "ro"    => load_locale("ro"),
-  "ru"    => load_locale("ru"),
-  "sv"    => load_locale("sv-SE"),
-  "tr"    => load_locale("tr"),
-  "uk"    => load_locale("uk"),
-  "zh-CN" => load_locale("zh-CN"),
-  "zh-TW" => load_locale("zh-TW"),
-}
-
 YT_POOL = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2.0, use_quic: CONFIG.use_quic)
 
 # CLI

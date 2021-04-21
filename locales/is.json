@@ -1,9 +1,16 @@
 {
-    "`x` subscribers": "`x`áskrifendur",
-    "`x` videos": "`x` myndbönd",
-    "`x` playlists": "`x` spilunarlistar",
-    "`x` subscribers.": "`x` áskrifandar.",
-    "`x` videos.": "`x` myndbönd.",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` áskrifandar",
+        "": "`x` áskrifendur"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` myndband",
+        "": "`x` myndbönd"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` spilunarlist",
+        "": "`x` spilunarlistar"
+    },
     "LIVE": "BEINT",
     "Shared `x` ago": "Deilt `x` síðan",
     "Unsubscribe": "Afskrá",
@@ -113,18 +120,24 @@
     "Report statistics: ": "Skrá talnagögn? ",
     "Save preferences": "Vista stillingar",
     "Subscription manager": "Áskriftarstjóri",
-    "`x` subscriptions": "`x` áskrifendur",
-    "`x` tokens": "`x` tákn",
     "Token manager": "Táknstjóri",
     "Token": "Tákn",
-    "`x` subscriptions.": "`x` áskriftir.",
-    "`x` tokens.": "`x` tákn.",
-    "`x` unseen notifications": "`x` óséðar tilkynningar",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` áskriftur",
+        "": "`x` áskriftir"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tákn",
+        "": "`x` tákn"
+    },
     "Import/export": "Flytja inn/út",
     "unsubscribe": "afskrá",
     "revoke": "afturkalla",
     "Subscriptions": "Áskriftir",
-    "`x` unseen notifications.": "`x` óséðar tilkynningar.",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` óséðar tilkynning",
+        "": "`x` óséðar tilkynningar"
+    },
     "search": "leita",
     "Log out": "Útskrá",
     "Released under the AGPLv3 by Omar Roth.": "Útgefið undir AGPLv3 eftir Omar Roth.",
@@ -149,19 +162,24 @@
     "Genre: ": "Tegund: ",
     "License: ": "Notkunarleyfi: ",
     "Family friendly? ": "Fjölskylduvænt? ",
-    "`x` views": "`x` áhorf",
     "Wilson score: ": "Wilson stig: ",
     "Engagement: ": "Þátttöku: ",
     "Whitelisted regions: ": "Svæði á hvítum lista: ",
     "Blacklisted regions: ": "Svæði á svörtum lista: ",
     "Shared `x`": "Deilt `x`",
-    "`x` views.": "`x` áhorf.",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` áhorf",
+        "": "`x` áhorf"
+    },
     "Premieres in `x`": "Frumflutt eftir `x`",
     "Premieres `x`": "Frumflutt `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hæ! Lítur út eins og þú hafir slökkt á JavaScript. Smelltu hér til að skoða ummæli, hafðu í huga að þær geta tekið aðeins lengri tíma að hlaða.",
     "View YouTube comments": "Skoða YouTube ummæli",
     "View more comments on Reddit": "Skoða fleiri ummæli á Reddit",
-    "View `x` comments": "Skoða `x` ummæli",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Skoða `x` ummæli",
+        "": "Skoða `x` ummæli"
+    },
     "View Reddit comments": "Skoða Reddit ummæli",
     "Hide replies": "Fela svör",
     "Show replies": "Sýna svör",
@@ -180,18 +198,22 @@
     "Password cannot be empty": "Lykilorð má ekki vera autt",
     "Password cannot be longer than 55 characters": "Lykilorð má ekki vera lengra en 55 stafir",
     "Please log in": "Vinsamlegast skráðu þig inn",
-    "View `x` replies": "Skoða `x` svör",
     "Invidious Private Feed for `x`": "Invidious Persónulegur Straumur fyrir `x`",
     "channel:`x`": "rás:`x`",
-    "`x` points": "`x` stig",
     "Deleted or invalid channel": "Eytt eða ógild rás",
     "This channel does not exist.": "Þessi rás er ekki til.",
     "Could not get channel info.": "Ekki tókst að fá rásarupplýsingar.",
     "Could not fetch comments": "Ekki tókst að sækja ummæli",
-    "View `x` replies.": "Skoða `x` svör.",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Skoða `x` svar",
+        "": "Skoða `x` svör"
+    },
     "`x` ago": "`x` síðan",
     "Load more": "Hlaða meira",
-    "`x` points.": "`x` stig.",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` stig",
+        "": "`x` stig"
+    },
     "Could not create mix.": "Ekki tókst að búa til blöndu.",
     "Empty playlist": "Tómur spilunarlisti",
     "Not a playlist.": "Ekki spilunarlisti.",
@@ -301,13 +323,6 @@
     "Turkish": "Tyrkneska",
     "Ukrainian": "Úkraníska",
     "Urdu": "Úrdú",
-    "`x` years": "`x` ár",
-    "`x` months": "`x` mánuði",
-    "`x` weeks": "`x` vikur",
-    "`x` days": "`x` daga",
-    "`x` hours": "`x` klukkustundir",
-    "`x` minutes": "`x` mínútur",
-    "`x` seconds": "`x` sekúndur",
     "Uzbek": "Úsbekíska",
     "Vietnamese": "Víetnamska",
     "Welsh": "Velska",
@@ -316,13 +331,34 @@
     "Yiddish": "Jiddíska",
     "Yoruba": "Jórúba",
     "Zulu": "Zúlú",
-    "`x` years.": "`x` ár.",
-    "`x` months.": "`x` mánuði.",
-    "`x` weeks.": "`x` vikur.",
-    "`x` days.": "`x` dagar.",
-    "`x` hours.": "`x` klukkustundir.",
-    "`x` minutes.": "`x` mínútur.",
-    "`x` seconds.": "`x` sekúndur.",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ár",
+        "": "`x` ár"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mánuð",
+        "": "`x` mánuði"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vika",
+        "": "`x` vikur"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dagur",
+        "": "`x` dagar"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` klukkustund",
+        "": "`x` klukkustundir"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mínúta",
+        "": "`x` mínútur"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekúnda",
+        "": "`x` sekúndur"
+    },
     "Fallback comments: ": "Vara ummæli: ",
     "Popular": "Vinsælt",
     "Search": "",
@@ -331,7 +367,6 @@
     "Rating: ": "Einkunn: ",
     "Language: ": "Tungumál: ",
     "View as playlist": "Skoða sem spilunarlista",
-    "Community": "Samfélag",
     "Default": "Sjálfgefið",
     "Music": "Tónlist",
     "Gaming": "Tólvuleikja",
@@ -348,5 +383,33 @@
     "Video mode": "Myndband ham",
     "Videos": "Myndbönd",
     "Playlists": "Spilunarlistar",
+    "Community": "Samfélag",
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
     "Current version: ": "Núverandi útgáfa: "
 }
