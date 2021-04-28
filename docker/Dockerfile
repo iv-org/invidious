@@ -26,6 +26,26 @@ COPY ./config/sql/ ./config/sql/
 COPY ./locales/ ./locales/
 COPY --from=builder /invidious/invidious .
 
+ENV POSTGRES_USER kemal
+ENV POSTGRES_PASS kemal
+ENV POSTGRES_HOST postgres
+ENV POSTGRES_DB invidious
+ENV POSTGRES_PORT 5432
+
+ENV INVIDIOUS_DOMAIN localhost
+ENV INVIDIOUS_REGISTRATION_ENABLED true
+ENV INVIDIOUS_DISABLE_PROXY false
+ENV INVIDIOUS_HTTPS_ONLY false
+ENV INVIDIOUS_FULL_REFRESH false
+ENV INVIDIOUS_CHECK_TABLES true
+ENV INVIDIOUS_CHANNEL_THREADS 1
+ENV INVIDIOUS_FEED_THREADS 1
+
+COPY docker/startup /startup
+RUN chown invidious:invidious /startup
+RUN chmod 700 /startup
+RUN chown -R invidious:invidious /invidious/config/sql
+
 EXPOSE 3000
 USER invidious
-CMD [ "/invidious/invidious" ]
+CMD [ "/startup" ]
