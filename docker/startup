@@ -1,23 +1,29 @@
 #!/bin/sh
 
-echo "Configuring Invidious"
+CONF_FILE="/invidious/config/config.yml"
 
-cat <<EOF > /invidious/config/config.yml
-channel_threads: $INVIDIOUS_CHANNEL_THREADS
-check_tables: $INVIDIOUS_CHECK_TABLES
-feed_threads: $INVIDIOUS_FEED_THREADS
-db:
-  user: $POSTGRES_USER
-  password: $POSTGRES_PASS
-  host: $POSTGRES_HOST
-  port: $POSTGRES_PORT
-  dbname: $POSTGRES_DB
-full_refresh: $INVIDIOUS_FULL_REFRESH
-https_only: $INVIDIOUS_HTTPS_ONLY
-domain:  $INVIDIOUS_DOMAIN
-registration_enabled: $INVIDIOUS_REGISTRATION_ENABLED
-disable_proxy: $INVIDIOUS_DISABLE_PROXY
+if [ -f "$CONF_FILE" ]; then
+  echo "Existing configuration found. Skipping environment variable based conifg..."
+else
+  echo "Configuring Invidious"
+
+  cat <<EOF > /invidious/config/config.yml
+  channel_threads: $INVIDIOUS_CHANNEL_THREADS
+  check_tables: $INVIDIOUS_CHECK_TABLES
+  feed_threads: $INVIDIOUS_FEED_THREADS
+  db:
+    user: $POSTGRES_USER
+    password: $POSTGRES_PASS
+    host: $POSTGRES_HOST
+    port: $POSTGRES_PORT
+    dbname: $POSTGRES_DB
+  full_refresh: $INVIDIOUS_FULL_REFRESH
+  https_only: $INVIDIOUS_HTTPS_ONLY
+  domain:  $INVIDIOUS_DOMAIN
+  registration_enabled: $INVIDIOUS_REGISTRATION_ENABLED
+  disable_proxy: $INVIDIOUS_DISABLE_PROXY
 EOF
+fi
 
 # kemal is the hardcoded postgres username
 for i in /invidious/config/sql/*.sql; do sed -i s/kemal/$POSTGRES_USER/g $i; done
