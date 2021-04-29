@@ -37,7 +37,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
       items.reject! &.paid
     end
 
-    templated "channel"
+    templated "channel/channel"
   end
 
   def playlists(env)
@@ -59,7 +59,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
     items.each { |item| item.author = "" }
 
-    templated "playlists"
+    templated "channel/playlists"
   end
 
   def community(env)
@@ -88,7 +88,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
       return error_template(500, ex)
     end
 
-    templated "community"
+    templated "channel/community"
   end
 
   def channels(env)
@@ -126,7 +126,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
       featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil).not_nil!
     end
 
-    templated "channels"
+    templated "channel/featured_channels"
   end
 
   def featured_channel_category(env)
@@ -151,7 +151,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     title = env.params.query["title"]?
 
     featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], category_param, continuation, title).not_nil!
-    templated "channels"
+    templated "channel/featured_channels"
   end
 
   def about(env)
@@ -161,7 +161,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
-    templated "channel_about"
+    templated "channel/about"
   end
 
   private def fetch_basic_information(env)
