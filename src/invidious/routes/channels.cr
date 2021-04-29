@@ -38,7 +38,7 @@ module Invidious::Routes::Channels
       count, items = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
     end
 
-    templated "channel"
+    templated "channel/channel"
   end
 
   def self.playlists(env)
@@ -59,7 +59,7 @@ module Invidious::Routes::Channels
     items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
     items.each { |item| item.author = "" }
 
-    templated "playlists"
+    templated "channel/playlists"
   end
 
   def self.community(env)
@@ -88,7 +88,7 @@ module Invidious::Routes::Channels
       return error_template(500, ex)
     end
 
-    templated "community"
+    templated "channel/community"
   end
 
   def self.channels(env)
@@ -126,7 +126,7 @@ module Invidious::Routes::Channels
       featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil).not_nil!
     end
 
-    templated "channels"
+    templated "channel/featured_channels"
   end
 
   def self.featured_channel_category(env)
@@ -151,7 +151,7 @@ module Invidious::Routes::Channels
     title = env.params.query["title"]?
 
     featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], category_param, continuation, title).not_nil!
-    templated "channels"
+    templated "channel/featured_channels"
   end
 
   def self.about(env)
@@ -172,7 +172,7 @@ module Invidious::Routes::Channels
       next error_template(500, ex)
     end
 
-    templated "channel_about"  end
+    templated "channel/about"  end
 
   # Redirects brand url channels to a normal /channel/:ucid route
 
