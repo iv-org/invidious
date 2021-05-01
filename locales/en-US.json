@@ -430,5 +430,20 @@
     "Stats": "Stats",
     "Joined": "Joined",
     "Links": "Links",
-    "This channel doesn't feature any other channels.": "This channel doesn't feature any other channels."
+    "This channel doesn't feature any other channels.": "This channel doesn't feature any other channels.",
+    "Navigation": "Navigation",
+    "Home": "Home",
+    "Project Homepage": "Project Homepage",
+    "Source Code": "Source Code",
+    "Issue tracker": "Issue tracker",
+    "Public instances": "Public instances",
+    "Donate": "Donate",
+    "Matrix": "Matrix",
+    "Support": "Support",
+    "Contact instance maintainer": "Contact instance maintainer",
+    "Report a bug": "Report a bug",
+    "FAQs": "FAQs",
+    "Legal": "Legal",
+    "Licences": "Licences",
+    "Privacy": "Privacy"
 }

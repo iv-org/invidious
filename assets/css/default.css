@@ -324,13 +324,47 @@ footer {
   color: #919191;
   margin-top: auto;
   padding: 1.5em 0;
-  text-align: center;
-  max-height: 30vh;
 }
 
 footer a {
   color: #919191 !important;
   text-decoration: underline;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.footer-content #about-invidious-description > b {
+  font-size: 30px;
+}
+
+.footer-section {
+  margin-right: 20px;
+  margin-top: 20px;
+}
+
+.footer-section-list {
+  margin-top: 8px;
+}
+
+.footer-section-item {
+  margin-bottom: 4px;
+}
+
+@media screen and (max-width: 929px) {
+  #about-invidious-description {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 916px) {
+  #about-invidious-description {
+    display: none;
+  }
 }
 
 /* keyframes */
@@ -383,6 +417,10 @@ span > select {
   color: #565d64;
 }
 
+.light-theme footer {
+  background: #f2f2f2;
+}
+
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
   .no-theme a:active,
@@ -406,8 +444,12 @@ span > select {
     color: #303030;
   }
 
-  .light-theme .pure-menu-heading {
+  .no-theme .pure-menu-heading {
     color: #565d64;
+  }
+  
+  .no-theme footer {
+    background: #f2f2f2;
   }
 }
 
@@ -421,10 +463,17 @@ span > select {
   color: rgb(0, 182, 240);
 }
 
-.dark-theme a,
-.dark-theme .footer {
+.dark-theme a {
   color: #A8A095;
   text-decoration: none;
+}
+
+.dark-theme footer {
+  background: #16191a;
+}
+
+.dark-theme .footer-content #about-invidious-description > b {
+  color: #e5e5e5;
 }
 
 body.dark-theme {
@@ -462,7 +511,6 @@ body.dark-theme {
 .dark-theme .search-button:hover {
     color: #CFCBC1;
 }
-
 
 .dark-theme .pure-menu-link:hover, .dark-theme .pure-menu-link:active, .dark-theme .pure-menu-link:focus {
   background-color: rgb(34, 36, 38)
@@ -509,6 +557,14 @@ body.dark-theme {
   .no-theme .searchbar input {
     background-color: inherit;
     color: inherit;
+  }
+  
+  .no-theme footer {
+    background: #16191a;
+  }
+
+  .no-theme footer #about-invidious-description > b {
+    color: #e5e5e5;
   }
 }
 
