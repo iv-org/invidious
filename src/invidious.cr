@@ -78,14 +78,6 @@ Kemal.config.extra_options do |parser|
       exit
     end
   end
-  parser.on("-f THREADS", "--feed-threads=THREADS", "Number of threads for refreshing feeds (default: #{CONFIG.feed_threads})") do |number|
-    begin
-      CONFIG.feed_threads = number.to_i
-    rescue ex
-      puts "THREADS must be integer"
-      exit
-    end
-  end
   parser.on("-o OUTPUT", "--output=OUTPUT", "Redirect output (default: #{CONFIG.output})") do |output|
     CONFIG.output = output
   end
@@ -128,10 +120,6 @@ end
 
 if CONFIG.channel_threads > 0
   Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB)
-end
-
-if CONFIG.feed_threads > 0
-  Invidious::Jobs.register Invidious::Jobs::RefreshFeedsJob.new(PG_DB)
 end
 
 DECRYPT_FUNCTION = DecryptFunction.new(CONFIG.decrypt_polling)
@@ -953,10 +941,8 @@ post "/delete_account" do |env|
     next error_template(400, ex)
   end
 
-  view_name = "subscriptions_#{sha256(user.email)}"
   PG_DB.exec("DELETE FROM users * WHERE email = $1", user.email)
   PG_DB.exec("DELETE FROM session_ids * WHERE email = $1", user.email)
-  PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
   env.request.cookies.each do |cookie|
     cookie.expires = Time.utc(1990, 1, 1)

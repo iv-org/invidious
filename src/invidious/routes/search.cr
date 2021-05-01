@@ -51,6 +51,8 @@ class Invidious::Routes::Search < Invidious::Routes::BaseRoute
 
       user = env.get? "user"
 
+      user = user ? user.as(User) : nil
+
       begin
         search_query, count, videos, operators = process_search_query(query, page, user, region: region)
       rescue ex

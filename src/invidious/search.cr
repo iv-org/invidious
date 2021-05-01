@@ -401,11 +401,6 @@ def produce_channel_search_continuation(ucid, query, page)
 end
 
 def process_search_query(query, page, user, region)
-  if user
-    user = user.as(User)
-    view_name = "subscriptions_#{sha256(user.email)}"
-  end
-
   channel = nil
   content_type = "all"
   date = ""
@@ -443,14 +438,14 @@ def process_search_query(query, page, user, region)
   if channel
     count, items = channel_search(search_query, page, channel)
   elsif subscriptions
-    if view_name
+    if user
       items = PG_DB.query_all("SELECT id,title,published,updated,ucid,author,length_seconds FROM (
-      SELECT *,
-      to_tsvector(#{view_name}.title) ||
-      to_tsvector(#{view_name}.author)
-      as document
-      FROM #{view_name}
-      ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", search_query, (page - 1) * 20, as: ChannelVideo)
+        SELECT cv.*, to_tsvector(cv.title) || to_tsvector(cv.author) AS document
+        FROM channel_videos cv
+        JOIN users ON cv.ucid = any(users.subscriptions)
+        WHERE users.email = $1 AND published > now() - interval '1 month'
+        ORDER BY published
+      ) v_search WHERE v_search.document @@ plainto_tsquery($2) LIMIT 20 OFFSET $3;", user.email, search_query, (page - 1) * 20, as: ChannelVideo)
       count = items.size
     else
       items = [] of ChannelVideo
