@@ -114,42 +114,6 @@
             <% end %>
 
             <%= content %>
-
-            <footer>
-                <div class="pure-g">
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <a href="https://github.com/iv-org/invidious">
-                            <%= translate(locale, "Released under the AGPLv3 by Omar Roth.") %>
-                        </a>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <i class="icon ion-ios-wallet"></i>
-                        BTC: <a href="bitcoin:bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr">bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr</a>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <i class="icon ion-ios-wallet"></i>
-                        XMR: <a href="monero:41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR">Click here</a>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <a href="https://github.com/iv-org/documentation">Documentation</a>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <i class="icon ion-logo-javascript"></i>
-                        <a rel="jslicense" href="/licenses">
-                            <%= translate(locale, "View JavaScript license information.") %>
-                        </a>
-                        /
-                        <i class="icon ion-ios-paper"></i>
-                        <a href="/privacy">
-                            <%= translate(locale, "View privacy policy.") %>
-                        </a>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <i class="icon ion-logo-github"></i>
-                        <%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %>
-                    </div>
-                </div>
-            </footer>
         </div>
         <div class="pure-u-1 pure-u-md-2-24"></div>
     </div>
@@ -167,6 +131,142 @@
         </script>
         <script src="/js/notifications.js?v=<%= ASSET_COMMIT %>"></script>
     <% end %>
+    
+    <footer class="pure-g">
+        <div class="pure-u-1 pure-u-md-2-24"></div>
+        <div class="h-box pure-u-1 pure-u-md-20-24">
+            <div class="pure-u-1 footer-content">
+                <div class="footer-section pure-u-1-4" id="about-invidious-description">
+                    <b>Invidious</b>
+                    <p>A free and open source frontend for Youtube that that respects your privacy! Now you can watch videos (ad-free), subscribe to channels, create playlist and much more all without the prying eyes of Google!</p>
+                </div>
+                <div class="footer-section">
+                    <b class="footer-section-header"><%= translate(locale, "Navigation")%></b>
+                    <ul class="pure-menu-list footer-section-list">
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/" title="<%= translate(locale, "Home")%>">
+                                <%= translate(locale, "Home") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/feed/popular" title="<%= translate(locale, "Popular")%>">
+                                <%= translate(locale, "Popular") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/feed/trending" title="<%= translate(locale, "Trending")%>" style="">
+                                <%= translate(locale, "Trending") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/search" title="<%= translate(locale, "Search")%>">
+                                <%= translate(locale, "Search") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <br>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/preferences?referer=<%= env.get?("current_page") %>" title="<%= translate(locale, "Preferences")%>">
+                                <%= translate(locale, "Preferences") %>
+                            </a>
+                        </li>
+                        <% if CONFIG.login_enabled %>
+                            <li class="pure-menu-item footer-section-item">
+                                <% if env.get? "user" %>
+                                    <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
+                                        <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                                        <a href="#" title="<%= translate(locale, "Log out") %>">
+                                            <input style="all:unset" type="submit" value="<%= translate(locale, "Log out") %>">
+                                        </a>
+                                    </form>
+                                <% else %>
+                                    <a href="/login?referer=<%= env.get?("current_page") %>" title="<%= translate(locale, "Log in") %>">
+                                        <%= translate(locale, "Log in") %>
+                                    </a>
+                                <% end %>
+                            </li>
+                        <% end %>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                  <b class="footer-section-header">Invidious</b>
+                  <ul class="pure-menu-list footer-section-list">
+                      <li class="pure-menu-item footer-section-item">
+                          <a href="https://invidious.io" title="<%= translate(locale, "Project Homepage")%>">
+                              <%= translate(locale, "Project Homepage") %>
+                          </a>
+                      </li>
+                      <li class="pure-menu-item footer-section-item">
+                          <a href="https://github.com/iv-org/invidious" title="<%= translate(locale, "Source Code")%>">
+                              <%= translate(locale, "Source Code") %>
+                          </a>
+                      </li>
+                      <li class="pure-menu-item footer-section-item">
+                          <a href="https://github.com/iv-org/invidious/issues" title="<%= translate(locale, "Issue tracker")%>" style="">
+                              <%= translate(locale, "Issue tracker") %>
+                          </a>
+                      </li>
+                      <li class="pure-menu-item footer-section-item">
+                          <a href="https://redirect.invidious.io" title="<%= translate(locale, "Public instances")%>">
+                              <%= translate(locale, "Public instances") %>
+                          </a>
+                      </li>
+                      <li class="pure-menu-item footer-section-item">
+                          <a href="https://invidious.io/donate" title="<%= translate(locale, "Donate")%>">
+                              <%= translate(locale, "Donate") %>
+                          </a>
+                      </li>
+                      <li class="pure-menu-item footer-section-item">
+                          <a href="https://matrix.to/#/#invidious:matrix.org" title="<%= translate(locale, "Matrix")%>">
+                              <%= translate(locale, "Matrix") %>
+                          </a>
+                      </li>
+
+                  </ul>                </div>
+                <div class="footer-section">
+                  <b class="footer-section-header"><%= translate(locale, "Support")%></b>
+                  <ul class="pure-menu-list footer-section-list">
+                      <li class="pure-menu-item footer-section-item">
+                        <!-- TODO -->
+                          <a href="#" title="<%= translate(locale, "Contact instance maintainer")%>">
+                              <%= translate(locale, "Contact instance maintainer") %>
+                          </a>
+                      </li>
+                      <li class="pure-menu-item footer-section-item">
+                          <a href="https://github.com/iv-org/invidious/issues/new" title="<%= translate(locale, "Report a bug")%>">
+                              <%= translate(locale, "Report a bug") %>
+                          </a>
+                      </li>
+                      <li class="pure-menu-item footer-section-item">
+                          <a href="#" title="<%= translate(locale, "FAQs")%>" style="">
+                              <%= translate(locale, "FAQs") %>
+                          </a>
+                      </li>
+                  </ul>                
+                </div>
+                <div class="footer-section">
+                  <b class="footer-section-header"><%= translate(locale, "Legal")%></b>
+                  <ul class="pure-menu-list footer-section-list">
+                      <li class="pure-menu-item footer-section-item">
+                          <a href="/licences" title="<%= translate(locale, "Licences")%>">
+                              <%= translate(locale, "Licences") %>
+                          </a>
+                      </li>
+                      <!-- TODO -->
+                      <li class="pure-menu-item footer-section-item">
+                          <a href="/privacy" title="<%= translate(locale, "Privacy")%>">
+                              <%= translate(locale, "Privacy") %>
+                          </a>
+                      </li>
+                  </ul>                
+                </div>
+            </div>
+        </div>
+        <!-- <%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %> -->
+        </div>
+        <div class="pure-u-1 pure-u-md-2-24"></div>
+    </footer>
 </body>
 
 </html>
