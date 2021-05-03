@@ -14,6 +14,7 @@ var options = {
             'durationDisplay',
             'progressControl',
             'remainingTimeDisplay',
+            'Spacer',
             'captionsButton',
             'qualitySelector',
             'playbackRateMenuButton',
