@@ -621,3 +621,13 @@ p,
 #content-navigation {
     margin-bottom: 0.5em;
 }
+
+#footer_buffer {
+  margin-top: 50vh;
+}
+
+@media screen and (max-width: 450px) {
+  #footer_buffer {
+    display: none;
+  }
+}

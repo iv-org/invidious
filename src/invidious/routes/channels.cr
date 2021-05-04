@@ -59,7 +59,7 @@ module Invidious::Routes::Channels
     items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
     items.each { |item| item.author = "" }
 
-    templated "channel/playlists"
+    templated "channel/playlists", buffer_footer: true
   end
 
   def self.community(env)
@@ -126,7 +126,7 @@ module Invidious::Routes::Channels
       featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil).not_nil!
     end
 
-    templated "channel/featured_channels"
+    templated "channel/featured_channels", buffer_footer: true
   end
 
   def self.featured_channel_category(env)
@@ -172,7 +172,8 @@ module Invidious::Routes::Channels
       next error_template(500, ex)
     end
 
-    templated "channel/about"  end
+    templated "channel/about", buffer_footer: true
+  end
 
   # Redirects brand url channels to a normal /channel/:ucid route
 

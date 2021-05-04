@@ -48,8 +48,10 @@ module JSON::Serializable
   end
 end
 
-macro templated(filename, template = "template", navbar_search = true)
+macro templated(filename, template = "template", navbar_search = true, buffer_footer=false)
   navbar_search = {{navbar_search}}
+  buffer_footer = {{buffer_footer}}
+
   render "src/invidious/views/#{{{filename}}}.ecr", "src/invidious/views/#{{{template}}}.ecr"
 end
 
