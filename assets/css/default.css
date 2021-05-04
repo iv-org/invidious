@@ -322,20 +322,19 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 
 footer {
   color: #919191;
-  margin-top: auto;
+  margin-top: 2.5em;
   padding: 1.5em 0;
-}
-
-footer a {
-  color: #919191 !important;
-  text-decoration: underline;
 }
 
 .footer-content {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-  margin-top: 20px;
+  margin-top: -10px;
+}
+
+footer .footer-content a {
+  color: #919191;
 }
 
 .footer-content #about-invidious-description > b {
@@ -356,12 +355,6 @@ footer a {
 }
 
 @media screen and (max-width: 929px) {
-  #about-invidious-description {
-    display: none;
-  }
-}
-
-@media screen and (max-width: 916px) {
   #about-invidious-description {
     display: none;
   }
@@ -421,6 +414,10 @@ span > select {
   background: #f2f2f2;
 }
 
+.light-theme footer #about-invidious-description > b {
+  color: #7a7a7a;
+}
+
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
   .no-theme a:active,
@@ -451,6 +448,10 @@ span > select {
   .no-theme footer {
     background: #f2f2f2;
   }
+  
+  .no-theme footer #about-invidious-description > b {
+    color: #7a7a7a;
+  }
 }
 
 /*
@@ -460,7 +461,7 @@ span > select {
 .dark-theme a:hover,
 .dark-theme a:active,
 .dark-theme .simulated_a:hover {
-  color: rgb(0, 182, 240);
+  color: rgb(0, 182, 240) !important;
 }
 
 .dark-theme a {
@@ -522,8 +523,9 @@ body.dark-theme {
 
 @media (prefers-color-scheme: dark) {
   .no-theme a:hover,
-  .no-theme a:active {
-    color: rgb(0, 182, 240);
+  .no-theme a:active,
+  .no-theme .simulated_a:hover {
+    color: rgb(0, 182, 240) !important;
   }
 
   .no-theme a {
