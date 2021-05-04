@@ -380,12 +380,12 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
   return items, continuation
 end
 
-def fetch_channel_featured_channels(ucid, tab_data, params = nil, continuation = nil, title = nil )
+def fetch_channel_featured_channels(ucid, tab_data, params = nil, continuation = nil, title = nil)
   if continuation.is_a?(String)
-     initial_data = request_youtube_api_browse(continuation)
-     channels_tab_content = initial_data["onResponseReceivedActions"][0]["appendContinuationItemsAction"]["continuationItems"]
+    initial_data = request_youtube_api_browse(continuation)
+    channels_tab_content = initial_data["onResponseReceivedActions"][0]["appendContinuationItemsAction"]["continuationItems"]
 
-     return process_featured_channels([channels_tab_content,], nil, title, continuation_items=true)
+    return process_featured_channels([channels_tab_content], nil, title, continuation_items = true)
   else
     if params.is_a?(String)
       initial_data = request_youtube_api_browse(ucid, params)
@@ -908,7 +908,7 @@ def get_about_info(ucid, locale)
   country = ""
   total_views = 0_i64
   joined = Time.unix(0)
-  tabs = {} of String => Tuple(Int32, String)  # TabName => {TabiZZndex, browseEndpoint params}
+  tabs = {} of String => Tuple(Int32, String) # TabName => {TabiZZndex, browseEndpoint params}
   links = [] of {String, String, String}
 
   tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
@@ -964,7 +964,6 @@ def get_about_info(ucid, locale)
         tab_names << node["tabRenderer"]["title"].as_s.downcase
         tab_data << {i, node["tabRenderer"]["endpoint"]["browseEndpoint"]["params"].as_s}
       end
-
     end
     tabs = Hash.zip(tab_names, tab_data)
   end

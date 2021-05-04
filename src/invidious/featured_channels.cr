@@ -89,16 +89,16 @@ def _extract_channel_data(channel)
   end
 
   FeaturedChannel.new({
-    author: author,
-    ucid: ucid,
+    author:           author,
+    ucid:             ucid,
     author_thumbnail: author_thumbnail,
     subscriber_count: subscriber_count,
-    video_count: video_count,
-    description_html: description_html
+    video_count:      video_count,
+    description_html: description_html,
   })
 end
 
-def process_featured_channels(data, submenu_data, title=nil, continuation_items=false)
+def process_featured_channels(data, submenu_data, title = nil, continuation_items = false)
   all_categories = [] of Category
 
   if submenu_data.is_a?(Bool)
@@ -119,17 +119,17 @@ def process_featured_channels(data, submenu_data, title=nil, continuation_items=
         raw_category["content"]["horizontalListRenderer"]["items"].as_a.each do |channel|
           contents << _extract_channel_data(channel["gridChannelRenderer"])
         end
-      # Single channel
+        # Single channel
       else
         channel = raw_category["content"]["expandedShelfContentsRenderer"]["items"][0]["channelRenderer"]
         contents = _extract_channel_data(channel)
       end
 
       all_categories << Category.new({
-        title: category_title,
-        contents: contents,
+        title:                 category_title,
+        contents:              contents,
         browse_endpoint_param: browse_endpoint_param,
-        continuation_token: nil
+        continuation_token:    nil,
       })
     end
   else
@@ -159,10 +159,10 @@ def process_featured_channels(data, submenu_data, title=nil, continuation_items=
     end
 
     all_categories << Category.new({
-      title: category_title,
-      contents: contents,
+      title:                 category_title,
+      contents:              contents,
       browse_endpoint_param: browse_endpoint_param,
-      continuation_token: continuation_token
+      continuation_token:    continuation_token,
     })
   end
 
