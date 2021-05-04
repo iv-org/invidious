@@ -10,7 +10,7 @@
 <div class="pure-g">
     <% stats_style_append = ""%>
     <% if !channel.country.empty? %>
-        <div class="pure-u-3-4">
+        <div class="pure-u-1 pure-u-md-3-4">
             <div class="h-box">
                 <h3> <%= translate(locale, "Details") %> </h3>
                 <p><%= translate(locale, "Country: ") %><%=channel.country%></p> <!-- Translate Country Names -->
@@ -20,7 +20,7 @@
         <% stats_style_append = "style=\"order: 1;\"" %>
     <% end %>
 
-    <div class="pure-u-1-4" <%= stats_style_append %>>
+    <div class="pure-u-1 pure-u-md-1-4" <%= stats_style_append %>>
         <div class="h-box">
             <h3> <%= translate(locale, "Stats") %> </h3>
             <p> <%= translate(locale, "Joined") %>
@@ -32,7 +32,7 @@
         </div>
     </div>
 
-    <div class="pure-u-2-3" id="external-links">
+    <div class="pure-u-1 pure-u-md-2-3" id="external-links">
         <div class="h-box">
             <h3> <%= translate(locale, "Links") %> </h3>
             <% channel.links.each do |link_tuple| %>
