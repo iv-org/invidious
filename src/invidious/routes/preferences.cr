@@ -6,7 +6,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
 
     preferences = env.get("preferences").as(Preferences)
 
-    templated "preferences"
+    templated "preferences", buffer_footer: true
   end
 
   def update(env)

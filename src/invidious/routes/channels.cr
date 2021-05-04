@@ -59,7 +59,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
     items.each { |item| item.author = "" }
 
-    templated "channel/playlists"
+    templated "channel/playlists", buffer_footer: true
   end
 
   def community(env)
@@ -126,7 +126,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
       featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil).not_nil!
     end
 
-    templated "channel/featured_channels"
+    templated "channel/featured_channels", buffer_footer: true
   end
 
   def featured_channel_category(env)
@@ -161,7 +161,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
-    templated "channel/about"
+    templated "channel/about", buffer_footer: true
   end
 
   private def fetch_basic_information(env)
