@@ -13,6 +13,7 @@ private ITEM_PARSERS = {
   ChannelParser.new,
   GridPlaylistParser.new,
   PlaylistParser.new,
+  CategoryParser.new,
 }
 
 private struct AuthorFallback
@@ -95,7 +96,7 @@ end
 
 private class ChannelParser < ItemParser
   def process(item, author_fallback)
-    if item_contents = item["channelRenderer"]?
+    if item_contents = (item["channelRenderer"]? || item["gridChannelRenderer"]?)
       return self.parse(item_contents, author_fallback)
     end
   end
@@ -194,6 +195,88 @@ private class PlaylistParser < ItemParser
   end
 end
 
+private class CategoryParser < ItemParser
+  def process(item, author_fallback)
+    if item_contents = item["shelfRenderer"]?
+      return self.parse(item_contents, author_fallback)
+    end
+  end
+
+  def parse(item_contents, author_fallback)
+    # Title extraction is a bit complicated. There are two possible routes for it
+    # as well as times when the title attribute just isn't sent by YT.
+
+    title_container = item_contents["title"]? || ""
+    if !title_container.is_a? String
+      if title = title_container["simpleText"]?
+        title = title.as_s
+      else
+        title = title_container["runs"][0]["text"].as_s
+      end
+    else
+      title = ""
+    end
+
+    browse_endpoint = item_contents["endpoint"]?.try &.["browseEndpoint"] || nil
+    browse_endpoint_data = ""
+    category_type = 0 # 0: Video, 1: Channels, 2: Playlist/feed, 3: trending
+
+    # There's no endpoint data for video and trending category
+    if !item_contents["endpoint"]?
+      if !item_contents["videoId"]?
+        category_type = 3
+      end
+    end
+
+    if !browse_endpoint.nil?
+      # Playlist/feed categories doesn't need the params value (nor is it even included in yt response)
+      # instead it uses the browseId parameter. So if there isn't a params value we can assume the
+      # category is a playlist/feed
+      if browse_endpoint["params"]?
+        browse_endpoint_data = browse_endpoint["params"].as_s
+        category_type = 1
+      else
+        browse_endpoint_data = browse_endpoint["browseId"].as_s
+        category_type = 2
+      end
+    end
+
+    # Sometimes a category can have badges.
+    badges = [] of Tuple(String, String) # (Badge style, label)
+    item_contents["badges"]?.try &.as_a.each do |badge|
+      badge = badge["metadataBadgeRenderer"]
+      badges << {badge["style"].as_s, badge["label"].as_s}
+    end
+
+    # Content parsing
+    contents = [] of SearchItem
+
+    # Content could be in three locations.
+    if content_container = item_contents["content"]["horizontalListRenderer"]?
+    elsif content_container = item_contents["content"]["expandedShelfContentsRenderer"]
+    elsif content_container = item_contents["content"]["verticalListRenderer"]
+    else
+      content_container = item_contents["contents"]
+    end
+
+    raw_contents = content_container["items"].as_a
+    raw_contents.each do |item|
+      result = extract_item(item)
+      if !result.nil?
+        contents << result
+      end
+    end
+
+    Category.new({
+      title:                title,
+      contents:             contents,
+      browse_endpoint_data: browse_endpoint_data,
+      continuation_token:   nil,
+      badges:               badges,
+    })
+  end
+end
+
 # The following are the extractors for extracting an array of items from
 # the internal Youtube API's JSON response. The result is then packaged into
 # a structure we can more easily use via the parsers above. Their internals are
@@ -217,19 +300,16 @@ private class YoutubeTabsExtractor < ItemsContainerExtractor
   private def extract(target)
     raw_items = [] of JSON::Any
     selected_tab = extract_selected_tab(target["tabs"])
-    content = selected_tab["tabRenderer"]["content"]
+    content = selected_tab["content"]
 
     content["sectionListRenderer"]["contents"].as_a.each do |renderer_container|
       renderer_container = renderer_container["itemSectionRenderer"]
       renderer_container_contents = renderer_container["contents"].as_a[0]
 
-      # Shelf renderer usually refer to a category and would need special handling once
-      # An extractor for categories are added. But for now it is just used to
-      # extract items for the trending page
+      # Category extraction
       if items_container = renderer_container_contents["shelfRenderer"]?
-        if items_container["content"]["expandedShelfContentsRenderer"]?
-          items_container = items_container["content"]["expandedShelfContentsRenderer"]
-        end
+        raw_items << renderer_container_contents
+        next
       elsif items_container = renderer_container_contents["gridRenderer"]?
       else
         items_container = renderer_container_contents
@@ -265,6 +345,8 @@ private class ContinuationExtractor < ItemsContainerExtractor
   def process(initial_data)
     if target = initial_data["continuationContents"]?
       self.extract(target)
+    elsif target = initial_data["appendContinuationItemsAction"]?
+      self.extract(target)
     end
   end
 
@@ -272,13 +354,16 @@ private class ContinuationExtractor < ItemsContainerExtractor
     raw_items = [] of JSON::Any
     if content = target["gridContinuation"]?
       raw_items = content["items"].as_a
+    elsif content = target["continuationItems"]?
+      raw_items = content.as_a
     end
 
     return raw_items
   end
 end
 
-def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fallback : String? = nil)
+def extract_item(item : JSON::Any, author_fallback : String? = nil,
+                 author_id_fallback : String? = nil)
   # Parses an item from Youtube's JSON response into a more usable structure.
   # The end result can either be a SearchVideo, SearchPlaylist or SearchChannel.
   author_fallback = AuthorFallback.new(author_fallback, author_id_fallback)
@@ -295,13 +380,20 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
   # TODO radioRenderer, showRenderer, shelfRenderer, horizontalCardListRenderer, searchPyvRenderer
 end
 
-def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
+def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil,
+                  author_id_fallback : String? = nil)
   items = [] of SearchItem
-  initial_data = initial_data["contents"]?.try &.as_h || initial_data["response"]?.try &.as_h || initial_data
+
+  if unpackaged_data = initial_data["contents"]?.try &.as_h
+  elsif unpackaged_data = initial_data["response"]?.try &.as_h
+  elsif unpackaged_data = initial_data["onResponseReceivedActions"]?.try &.as_a.[0].as_h
+  else
+    unpackaged_data = initial_data
+  end
 
   # This is identicial to the parser cyling of extract_item().
   ITEM_CONTAINER_EXTRACTOR.each do |extractor|
-    results = extractor.process(initial_data)
+    results = extractor.process(unpackaged_data)
     if !results.nil?
       results.each do |item|
         parsed_result = extract_item(item, author_fallback, author_id_fallback)
@@ -310,6 +402,7 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
           items << parsed_result
         end
       end
+      return items
     end
   end
 
