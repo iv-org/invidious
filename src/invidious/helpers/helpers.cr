@@ -248,12 +248,37 @@ def html_to_content(description_html : String)
 end
 
 def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
-  extract_items(initial_data, author_fallback, author_id_fallback).select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
+  extracted = extract_items(initial_data, author_fallback, author_id_fallback)
+
+  if extracted.is_a?(Category)
+    target = extracted.contents
+  else
+    target = extracted
+  end
+  return target.select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
 end
 
 def extract_selected_tab(tabs)
   # Extract the selected tab from the array of tabs Youtube returns
-  return selected_target = tabs.as_a.select(&.["tabRenderer"]?.try &.["selected"].as_bool)[0]
+  return selected_target = tabs.as_a.select(&.["tabRenderer"]?.try &.["selected"].as_bool)[0]["tabRenderer"]
+end
+
+def fetch_continuation_token(items : Array(JSON::Any))
+  # Fetches the continuation token from an array of items
+  return items.last["continuationItemRenderer"]?
+    .try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
+end
+
+def fetch_continuation_token(initial_data : Hash(String, JSON::Any))
+  # Fetches the continuation token from initial data
+  if initial_data["onResponseReceivedActions"]?
+    continuation_items = initial_data["onResponseReceivedActions"][0]["appendContinuationItemsAction"]["continuationItems"]
+  else
+    tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
+    continuation_items = tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["gridRenderer"]["items"]
+  end
+
+  return fetch_continuation_token(continuation_items.as_a)
 end
 
 def check_enum(db, enum_name, struct_type = nil)
