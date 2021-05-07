@@ -14,7 +14,7 @@
                 <details open="">
                     <summary style="display: revert;">
                         <h3 class="category-heading">
-                            <% if (category_request_param = category.browse_endpoint_param).is_a?(String) %>
+                            <% if (category_request_param = category.browse_endpoint_data).is_a?(String) %>
                                 <a href="/channel/<%=channel.ucid%>/channels/<%=HTML.escape(category_request_param)%>">
                                     <%= category.title %>
                                 </a>
@@ -25,8 +25,12 @@
                     </summary>
                     <% contents = category.contents%>
                     <div class="pure-g section-contents">
-                        <% if contents.is_a?(Array(FeaturedChannel)) %>
+                        <% if contents.is_a?(Array) %>
                             <% contents.each do |item|%>
+                                <% if !item.is_a?(SearchChannel)%>
+                                    <% next %>
+                                <% end %>
+
                                 <div class="channel-profile pure-u-1 pure-u-sm-1-2 pure-u-md-1-3 pure-u-lg-1-4 pure-u-xl-1-5">
                                     <a class="featured-channel-icon" href="/channel/<%= item.ucid %>">
                                         <% if !env.get("preferences").as(Preferences).thin_mode %>
@@ -47,7 +51,11 @@
                                     </div>
                                 </div>
                             <%end%>
-                        <% elsif contents.is_a?(FeaturedChannel) %>
+                        <% elsif contents.is_a?(SearchItem) %>
+                            <% if !contents.is_a?(SearchChannel)%>
+                                <% next %>
+                            <% end %>
+
                             <%item = contents %>
                             <div class="channel-profile large-featured-channel pure-u-1">
                                 <a class="featured-channel-icon" href="/channel/<%= item.ucid %>">
@@ -69,10 +77,9 @@
                                     <% sub_count_text = number_to_short_text(contents.subscriber_count) %>
                                     <%= rendered "components/subscribe_widget" %>
                             </div>
-                        <%end%>
+                        <% end %>
                     </div>
                 </details>
-            </div>
             </div>
         <% end %>
     <% else %>

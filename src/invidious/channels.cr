@@ -380,24 +380,73 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
   return items, continuation
 end
 
-def fetch_channel_featured_channels(ucid, tab_data, params = nil, continuation = nil, title = nil)
+def fetch_channel_featured_channels(ucid, tab_data, params = nil, continuation = nil, query_title = nil)
   if continuation.is_a?(String)
     initial_data = request_youtube_api_browse(continuation)
-    channels_tab_content = initial_data["onResponseReceivedActions"][0]["appendContinuationItemsAction"]["continuationItems"]
+    items = extract_items(initial_data)
+    continuation_token = fetch_continuation_token(initial_data)
 
-    return process_featured_channels([channels_tab_content], nil, title, continuation_items = true)
+    return [Category.new({
+      title:                query_title.not_nil!, # If continuation contents is requested then the query_title has to be passed along.
+      contents:             items,
+      browse_endpoint_data: nil,
+      continuation_token:   continuation_token,
+      badges:               nil,
+    })]
   else
     if params.is_a?(String)
       initial_data = request_youtube_api_browse(ucid, params)
+      continuation_token = fetch_continuation_token(initial_data)
     else
       initial_data = request_youtube_api_browse(ucid, tab_data[1])
+      continuation_token = nil
     end
 
-    channels_tab = initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][tab_data[0]]["tabRenderer"]
-    channels_tab_content = channels_tab["content"]["sectionListRenderer"]["contents"].as_a
-    submenu_data = channels_tab["content"]["sectionListRenderer"]["subMenu"]?.try &.["channelSubMenuRenderer"]["contentTypeSubMenuItems"] || false
+    channels_tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
+    submenu = channels_tab["content"]["sectionListRenderer"]["subMenu"]?
 
-    return process_featured_channels(channels_tab_content, submenu_data)
+    # There's no submenu data if the channel doesn't feature any channels.
+    if !submenu
+      return [] of Category
+    end
+
+    submenu_data = submenu["channelSubMenuRenderer"]["contentTypeSubMenuItems"]
+      
+    items = extract_items(initial_data)
+    fallback_title = submenu_data.as_a.select(&.["selected"].as_bool)[0]["title"].as_s
+
+    # Although extract_items parsed everything into the right structs, we still have
+    # to fill in the title (if missing) attribute since Youtube doesn't return it when requesting
+    # a full category
+
+    category_array = [] of Category
+    items.each do |category|
+      # Tell compiler that the result from extract_items has to be an array of Categories
+      if !category.is_a?(Category)
+        next
+      end
+
+      category_array << Category.new({
+        title:                category.title.empty? ? fallback_title : category.title,
+        contents:             category.contents,
+        browse_endpoint_data: category.browse_endpoint_data,
+        continuation_token:   continuation_token,
+        badges:               nil,
+      })
+    end
+
+    # If we don't have any categories we'll create one.
+    if category_array.empty?
+      return [Category.new({
+        title:                fallback_title, # If continuation contents is requested then the query_title has to be passed along.
+        contents:             items,
+        browse_endpoint_data: nil,
+        continuation_token:   continuation_token,
+        badges:               nil,
+      })]
+    end
+
+    return category_array
   end
 end
 

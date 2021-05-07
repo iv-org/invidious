@@ -97,6 +97,7 @@
                     <%= item.responds_to?(:views) && item.views ? translate(locale, "`x` views", number_to_short_text(item.views || 0)) : "" %>
                 </div>
             </h5>
+        <% when Category %>
         <% else %>
             <% if !env.get("preferences").as(Preferences).thin_mode %>
                 <a style="width:100%" href="/watch?v=<%= item.id %>">

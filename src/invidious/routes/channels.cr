@@ -102,7 +102,6 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
       return env.redirect "/channel/#{channel.ucid}"
     end
 
-    # When a channel only has a single category it lacks the category param option so we'll handle it here.
     if continuation
       offset = env.params.query["offset"]?
       if offset
