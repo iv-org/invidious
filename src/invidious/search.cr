@@ -232,5 +232,20 @@ def process_search_query(query, page, user, region)
     count, items = search(search_query, search_params, region).as(Tuple)
   end
 
-  {search_query, count, items, operators}
+  # Light processing to flatten search results out of Categories.
+  # They should ideally be supported in the future.
+  items_without_cate_items = [] of SearchItem | ChannelVideo
+  items.each do |i|
+    if i.is_a? Category
+      i.contents.each do |nest_i|
+        if !nest_i.is_a? Video
+          items_without_cate_items << nest_i
+        end
+      end
+    else
+      items_without_cate_items << i
+    end
+  end
+
+  {search_query, items_without_cate_items.size, items_without_cate_items, url_params}
 end
