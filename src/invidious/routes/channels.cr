@@ -113,17 +113,22 @@ module Invidious::Routes::Channels
 
       # Previous continuation
       previous_continuation = env.params.query["previous"]?
-      # Category title is not returned when using a continuation token.
-      title = env.params.query["title"]?
 
-      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, continuation, title).not_nil!
+      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil, continuation, current_category_title).not_nil!
+    elsif view && shelf_id
+      offset = env.params.query["offset"]?
+      if offset
+        offset = offset.to_i
+      else
+        offset = 0
+      end
+
+      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], view, shelf_id, continuation, current_category_title).not_nil!
     else
       previous_continuation = nil
-      category_param = nil
       offset = 0
-      title = nil
 
-      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil).not_nil!
+      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil, current_category_title).not_nil!
     end
 
     templated "channel/featured_channels", buffer_footer: true
