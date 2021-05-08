@@ -208,7 +208,6 @@ private class CategoryParser < ItemParser
   def parse(item_contents, author_fallback)
     # Title extraction is a bit complicated. There are two possible routes for it
     # as well as times when the title attribute just isn't sent by YT.
-
     title_container = item_contents["title"]? || ""
     if !title_container.is_a? String
       if title = title_container["simpleText"]?
@@ -220,6 +219,7 @@ private class CategoryParser < ItemParser
       title = ""
     end
 
+    auxiliary_data = {} of String => String 
     browse_endpoint = item_contents["endpoint"]?.try &.["browseEndpoint"] || nil
     browse_endpoint_data = ""
     category_type = 0 # 0: Video, 1: Channels, 2: Playlist/feed, 3: trending
@@ -236,7 +236,14 @@ private class CategoryParser < ItemParser
       # instead it uses the browseId parameter. So if there isn't a params value we can assume the
       # category is a playlist/feed
       if browse_endpoint["params"]?
-        browse_endpoint_data = browse_endpoint["params"].as_s
+        # However, even though the channel category type returns the browse endpoint param
+        # we're not going to be using it in order to preserve compatablity with Youtube.
+        # and for an URL that looks cleaner
+        url = item_contents["endpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
+        url = URI.parse(url.as_s)
+        auxiliary_data["view"] = url.query_params["view"]
+        auxiliary_data["shelf_id"] = url.query_params["shelf_id"]
+        
         category_type = 1
       else
         browse_endpoint_data = browse_endpoint["browseId"].as_s
@@ -276,6 +283,7 @@ private class CategoryParser < ItemParser
       browse_endpoint_data: browse_endpoint_data,
       continuation_token:   nil,
       badges:               badges,
+      auxiliary_data:       auxiliary_data,
     })
   end
 end

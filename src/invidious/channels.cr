@@ -380,7 +380,9 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
   return items, continuation
 end
 
-def fetch_channel_featured_channels(ucid, tab_data, params = nil, continuation = nil, query_title = nil)
+def fetch_channel_featured_channels(ucid, tab_data, view=nil, shelf_id=nil, continuation = nil, query_title = nil)
+  auxiliary_data = {} of String => String 
+
   if continuation.is_a?(String)
     initial_data = request_youtube_api_browse(continuation)
     items = extract_items(initial_data)
@@ -392,9 +394,14 @@ def fetch_channel_featured_channels(ucid, tab_data, params = nil, continuation =
       browse_endpoint_data: nil,
       continuation_token:   continuation_token,
       badges:               nil,
+      auxiliary_data:       auxiliary_data,
     })]
   else
-    if params.is_a?(String)
+    if view && shelf_id
+      auxiliary_data["view"] = view
+      auxiliary_data["shelf_id"] = shelf_id
+
+      params = produce_featured_channel_browse_param(view.to_i64, shelf_id.to_i64)
       initial_data = request_youtube_api_browse(ucid, params)
       continuation_token = fetch_continuation_token(initial_data)
     else
@@ -432,22 +439,39 @@ def fetch_channel_featured_channels(ucid, tab_data, params = nil, continuation =
         browse_endpoint_data: category.browse_endpoint_data,
         continuation_token:   continuation_token,
         badges:               nil,
+        auxiliary_data:       category.auxiliary_data,
       })
     end
 
     # If we don't have any categories we'll create one.
     if category_array.empty?
       return [Category.new({
-        title:                fallback_title, # If continuation contents is requested then the query_title has to be passed along.
+        title:                fallback_title,
         contents:             items,
         browse_endpoint_data: nil,
         continuation_token:   continuation_token,
         badges:               nil,
+        auxiliary_data:       auxiliary_data,
       })]
     end
 
     return category_array
   end
+end
+
+def produce_featured_channel_browse_param(view : Int64, shelf_id : Int64)
+  object = {
+    "2:string" => "channels",
+    "4:varint" => view,
+    "14:varint" => shelf_id
+  }
+
+  browse_params = object.try { |i| Protodec::Any.cast_json(object) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
+
+  return browse_params
 end
 
 def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)

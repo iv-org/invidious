@@ -102,6 +102,12 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
       return env.redirect "/channel/#{channel.ucid}"
     end
 
+    view = env.params.query["view"]?
+    shelf_id = env.params.query["shelf_id"]?
+    # Category title isn't returned when requesting a specific category or continuation data
+    # so we have it in through a url param
+    current_category_title = env.params.query["title"]?
+
     if continuation
       offset = env.params.query["offset"]?
       if offset
@@ -112,45 +118,25 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
 
       # Previous continuation
       previous_continuation = env.params.query["previous"]?
-      # Category title is not returned when using a continuation token.
-      title = env.params.query["title"]?
 
-      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, continuation, title).not_nil!
+      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil, continuation, current_category_title).not_nil!
+    elsif view && shelf_id
+      offset = env.params.query["offset"]?
+      if offset
+        offset = offset.to_i
+      else
+        offset = 0
+      end
+
+      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], view, shelf_id, continuation, current_category_title).not_nil!
     else
       previous_continuation = nil
-      category_param = nil
       offset = 0
-      title = nil
 
-      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil).not_nil!
+      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil, current_category_title).not_nil!
     end
 
     templated "channel/featured_channels", buffer_footer: true
-  end
-
-  def featured_channel_category(env)
-    # Used to check when the initial page is reached and redirect to /channel/:ucid/channels/:param when zero
-    offset = env.params.query["offset"]?
-    category_param = env.params.url["param"]
-    if offset
-      offset = offset.to_i
-    else
-      offset = 0
-    end
-
-    data = self.fetch_basic_information(env)
-    if !data.is_a?(Tuple)
-      return data
-    end
-    locale, user, subscriptions, continuation, ucid, channel = data
-
-    # Previous continuation
-    previous_continuation = env.params.query["previous"]?
-    # Category title is not returned when using a continuation token.
-    title = env.params.query["title"]?
-
-    featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], category_param, continuation, title).not_nil!
-    templated "channel/featured_channels"
   end
 
   def about(env)

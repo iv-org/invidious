@@ -237,6 +237,9 @@ class Category
   property continuation_token : String?
   property badges : Array(Tuple(String, String))?
 
+  # Data unique to only specific types of categories.
+  property auxiliary_data : Hash(String, String)
+
   def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "title", self.title
