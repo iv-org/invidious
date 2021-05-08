@@ -266,8 +266,7 @@ end
 def fetch_continuation_token(items : Array(JSON::Any))
   # Fetches the continuation token from an array of items
   return items.last["continuationItemRenderer"]?
-  .try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
-
+    .try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
 end
 
 def fetch_continuation_token(initial_data : Hash(String, JSON::Any))

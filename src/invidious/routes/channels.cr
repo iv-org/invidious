@@ -119,7 +119,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
       # Previous continuation
       previous_continuation = env.params.query["previous"]?
 
-      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil, continuation, current_category_title).not_nil!
+      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil, continuation, current_category_title).not_nil!
     elsif view && shelf_id
       offset = env.params.query["offset"]?
       if offset
@@ -128,12 +128,12 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
         offset = 0
       end
 
-      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], view, shelf_id, continuation, current_category_title).not_nil!
+      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, channel.tabs["channels"], view, shelf_id, continuation, current_category_title).not_nil!
     else
       previous_continuation = nil
       offset = 0
 
-      featured_channel_categories = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil, current_category_title).not_nil!
+      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil, current_category_title).not_nil!
     end
 
     templated "channel/featured_channels", buffer_footer: true

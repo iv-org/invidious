@@ -380,8 +380,8 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
   return items, continuation
 end
 
-def fetch_channel_featured_channels(ucid, tab_data, view=nil, shelf_id=nil, continuation = nil, query_title = nil)
-  auxiliary_data = {} of String => String 
+def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, continuation = nil, query_title = nil) : {Array(Category), (String|Nil)}
+  auxiliary_data = {} of String => String
 
   if continuation.is_a?(String)
     initial_data = request_youtube_api_browse(continuation)
@@ -392,10 +392,9 @@ def fetch_channel_featured_channels(ucid, tab_data, view=nil, shelf_id=nil, cont
       title:                query_title.not_nil!, # If continuation contents is requested then the query_title has to be passed along.
       contents:             items,
       browse_endpoint_data: nil,
-      continuation_token:   continuation_token,
       badges:               nil,
       auxiliary_data:       auxiliary_data,
-    })]
+    })], continuation_token
   else
     if view && shelf_id
       auxiliary_data["view"] = view
@@ -414,11 +413,11 @@ def fetch_channel_featured_channels(ucid, tab_data, view=nil, shelf_id=nil, cont
 
     # There's no submenu data if the channel doesn't feature any channels.
     if !submenu
-      return [] of Category
+      return {[] of Category, continuation_token}
     end
 
     submenu_data = submenu["channelSubMenuRenderer"]["contentTypeSubMenuItems"]
-      
+
     items = extract_items(initial_data)
     fallback_title = submenu_data.as_a.select(&.["selected"].as_bool)[0]["title"].as_s
 
@@ -436,8 +435,7 @@ def fetch_channel_featured_channels(ucid, tab_data, view=nil, shelf_id=nil, cont
       category_array << Category.new({
         title:                category.title.empty? ? fallback_title : category.title,
         contents:             category.contents,
-        browse_endpoint_data: category.browse_endpoint_data,
-        continuation_token:   continuation_token,
+        browse_endpoint_data: nil,
         badges:               nil,
         auxiliary_data:       category.auxiliary_data,
       })
@@ -445,25 +443,24 @@ def fetch_channel_featured_channels(ucid, tab_data, view=nil, shelf_id=nil, cont
 
     # If we don't have any categories we'll create one.
     if category_array.empty?
-      return [Category.new({
+      category_array << Category.new({
         title:                fallback_title,
         contents:             items,
         browse_endpoint_data: nil,
-        continuation_token:   continuation_token,
         badges:               nil,
         auxiliary_data:       auxiliary_data,
-      })]
+      })
     end
 
-    return category_array
+    return category_array, continuation_token
   end
 end
 
 def produce_featured_channel_browse_param(view : Int64, shelf_id : Int64)
   object = {
-    "2:string" => "channels",
-    "4:varint" => view,
-    "14:varint" => shelf_id
+    "2:string"  => "channels",
+    "4:varint"  => view,
+    "14:varint" => shelf_id,
   }
 
   browse_params = object.try { |i| Protodec::Any.cast_json(object) }

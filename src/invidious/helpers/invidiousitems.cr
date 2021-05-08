@@ -234,7 +234,6 @@ class Category
   property title : String
   property contents : Array(SearchItem) | SearchItem
   property browse_endpoint_data : String?
-  property continuation_token : String?
   property badges : Array(Tuple(String, String))?
 
   # Data unique to only specific types of categories.

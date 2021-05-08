@@ -106,7 +106,7 @@
         </div>
         <div class="pure-u-1 pure-u-lg-3-5"></div>
         <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
-            <% if (next_cont_token = featured_channel_categories[0].continuation_token) %>
+            <% if (next_cont_token = continuation_token) %>
                 <% previous = ""%>
                 <% if continuation %>
                     <% previous = "&previous=#{HTML.escape(continuation)}"%>
