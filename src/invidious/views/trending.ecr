@@ -37,9 +37,36 @@
 </div>
 
 <div class="pure-g">
-    <% trending.each_slice(4) do |slice| %>
-            <% slice.each do |item| %>
-                <%= rendered "components/item" %>
+    <% trending.each do |category| %>
+        <% if category.is_a? Category %>
+            <%# We don't need to differinate between a category that only
+            # contains videos and no metadata %>
+            <% if category.title.empty? %>
+                <% category.contents.each do |item| %>
+                    <%= rendered "components/item" %>
+                <% end %>
+            <% else %>
+                <div class="category pure-u-1">
+                    <div class="category-heading h-box">
+                        <p> <%= category.title %> </p>
+                        <% if (badges = category.badges).is_a? Array %>
+                            <% badges.each do | badge |%>
+                                <% if badge[0] == "BADGE_STYLE_TYPE_FEATURED" %>
+                                    <div class="badge featured">
+                                        <span> <%=badge[1] %><span>
+                                    </div>
+                                <% end %>
+                            <% end %>
+                        <% end %>
+                    </div>
+
+                    <div class="pure-g">
+                        <% category.contents.each do |item| %>
+                            <%= rendered "components/item" %>
+                        <% end %>
+                    </div> 
+                </div>
             <% end %>
+        <% end %>
     <% end %>
 </div>

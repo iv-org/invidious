@@ -600,3 +600,20 @@ hr {
     display: none;
   }
 }
+
+.category {
+  margin: 3em 0px 4em 0px;
+}
+
+.category .heading > p {
+  display: inline-block;
+}
+
+.category .badge.featured {
+  background: #005aa7;
+  color: white;
+  padding: 3px 4px 1px 4px;
+  border-radius: 5px;
+  font-size: 14px;
+  margin-left: 10px;
+}

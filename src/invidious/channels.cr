@@ -380,7 +380,7 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
   return items, continuation
 end
 
-def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, continuation = nil, query_title = nil) : {Array(Category), (String|Nil)}
+def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, continuation = nil, query_title = nil) : {Array(Category), (String | Nil)}
   auxiliary_data = {} of String => String
 
   if continuation.is_a?(String)
