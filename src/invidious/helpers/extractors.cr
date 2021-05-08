@@ -263,8 +263,8 @@ private class CategoryParser < ItemParser
 
     # Content could be in three locations.
     if content_container = item_contents["content"]["horizontalListRenderer"]?
-    elsif content_container = item_contents["content"]["expandedShelfContentsRenderer"]
-    elsif content_container = item_contents["content"]["verticalListRenderer"]
+    elsif content_container = item_contents["content"]["expandedShelfContentsRenderer"]?
+    elsif content_container = item_contents["content"]["verticalListRenderer"]?
     else
       content_container = item_contents["contents"]
     end
