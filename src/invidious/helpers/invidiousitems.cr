@@ -230,7 +230,7 @@ class Category
   include DB::Serializable
 
   property title : String
-  property contents : Array(SearchItem) | SearchItem
+  property contents : Array(SearchItem)
   property browse_endpoint_data : String?
   property badges : Array(Tuple(String, String))?
 
