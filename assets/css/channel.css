@@ -66,7 +66,6 @@
 }
 
 .category-heading {
-  font-size: 1.2em;
   user-select: none;
   display: inline;
 }
@@ -116,4 +115,24 @@ only show up when the screen is wide enough */
     display: block;
     margin-top: 1em;
   }
+}
+
+.trailer-metadata {
+  margin-left: 15px;
+  font-size: 12px;
+  color: rgb(232, 230, 227);
+}
+
+.trailer-metadata .read-more {
+  line-height: 20px;
+  text-transform: uppercase;
+  color: gray;
+  font-size: 13px;
+}
+
+.trailer-description {
+  overflow: hidden;
+  max-height: 150px;
+  line-height: 20px;
+  margin-top: 20px;
 }

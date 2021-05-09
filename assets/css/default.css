@@ -633,7 +633,8 @@ p,
 }
 
 .category {
-  margin: 3em 0px 4em 0px;
+  margin-bottom: 2em;
+  margin-top: 1em;
 }
 
 .category .heading > p {
@@ -647,4 +648,9 @@ p,
   border-radius: 5px;
   font-size: 14px;
   margin-left: 10px;
+}
+
+ /* Temp */ 
+.category-description {
+  color: #A8A095;
 }

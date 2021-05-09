@@ -2,7 +2,19 @@
 
 module Invidious::Routes::Channels
   def self.home(env)
-    self.videos(env)
+    data = self.fetch_basic_information(env)
+    if !data.is_a?(Tuple)
+      return data
+    end
+    locale, user, subscriptions, continuation, ucid, channel = data
+    items = fetch_channel_home(ucid, channel)
+
+    has_trailer = false
+    if items[0].is_a? Video
+      has_trailer = true
+    end
+
+    templated "channel/home"
   end
 
   def self.videos(env)
