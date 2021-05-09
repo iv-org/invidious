@@ -391,6 +391,7 @@ def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, 
     return [Category.new({
       title:                query_title.not_nil!, # If continuation contents is requested then the query_title has to be passed along.
       contents:             items,
+      description_html:     "",
       browse_endpoint_data: nil,
       badges:               nil,
       auxiliary_data:       auxiliary_data,
@@ -435,6 +436,7 @@ def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, 
       category_array << Category.new({
         title:                category.title.empty? ? fallback_title : category.title,
         contents:             category.contents,
+        description_html:     category.description_html,
         browse_endpoint_data: nil,
         badges:               nil,
         auxiliary_data:       category.auxiliary_data,
@@ -446,6 +448,7 @@ def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, 
       category_array << Category.new({
         title:                fallback_title,
         contents:             items,
+        description_html:     "",
         browse_endpoint_data: nil,
         badges:               nil,
         auxiliary_data:       auxiliary_data,

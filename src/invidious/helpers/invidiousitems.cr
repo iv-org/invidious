@@ -234,6 +234,7 @@ class Category
   property title : String
   property contents : Array(SearchItem)
   property browse_endpoint_data : String?
+  property description_html : String
   property badges : Array(Tuple(String, String))?
 
   # Data unique to only specific types of categories.

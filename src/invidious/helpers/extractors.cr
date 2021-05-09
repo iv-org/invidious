@@ -258,6 +258,9 @@ private class CategoryParser < ItemParser
       badges << {badge["style"].as_s, badge["label"].as_s}
     end
 
+    # Category description
+    description_html = item_contents["subtitle"]?.try { |desc| parse_content(desc) } || ""
+
     # Content parsing
     contents = [] of SearchItem
 
@@ -280,6 +283,7 @@ private class CategoryParser < ItemParser
     Category.new({
       title:                title,
       contents:             contents,
+      description_html:     description_html,
       browse_endpoint_data: browse_endpoint_data,
       badges:               badges,
       auxiliary_data:       auxiliary_data,
