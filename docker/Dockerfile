@@ -18,12 +18,12 @@ RUN apk add --no-cache librsvg ttf-opensans
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
     adduser -u 1000 -S invidious -G invidious
-COPY ./assets/ ./assets/
+COPY --chown=invidious ./assets/ ./assets/
 COPY --chown=invidious ./config/config.* ./config/
 RUN mv -n config/config.example.yml config/config.yml
 RUN sed -i 's/host: \(127.0.0.1\|localhost\)/host: postgres/' config/config.yml
-COPY ./config/sql/ ./config/sql/
-COPY ./locales/ ./locales/
+COPY --chown=invidious ./config/sql/ ./config/sql/
+COPY --chown=invidious ./locales/ ./locales/
 COPY --from=builder /invidious/invidious .
 
 EXPOSE 3000
