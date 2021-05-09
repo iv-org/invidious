@@ -315,6 +315,10 @@ Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, 
 Invidious::Routing.get "/channel/:ucid/channels", Invidious::Routes::Channels, :channels
 Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
 
+["", "/home", "/videos", "/playlists", "/community", "/channels", "/about"].each do |path|
+  Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+end
+
 Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
 Invidious::Routing.get "/watch/:id", Invidious::Routes::Watch, :redirect
 Invidious::Routing.get "/shorts/:id", Invidious::Routes::Watch, :redirect
@@ -1622,22 +1626,6 @@ end
       env.redirect "/channel/#{value}"
     end
   end
-end
-
-# YouTube appears to let users set a "brand" URL that
-# is different from their username, so we convert that here
-get "/c/:user" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  user = env.params.url["user"]
-
-  response = YT_POOL.client &.get("/c/#{user}")
-  html = XML.parse_html(response.body)
-
-  ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
-  next env.redirect "/" if !ucid
-
-  env.redirect "/channel/#{ucid}"
 end
 
 # Legacy endpoint for /user/:username

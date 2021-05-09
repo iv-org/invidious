@@ -275,7 +275,7 @@ struct Video
     end
   end
 
-  def to_json(locale, json : JSON::Builder)
+  def to_json(locale : Hash(String, JSON::Any), json : JSON::Builder)
     json.object do
       json.field "type", "video"
 

@@ -13,10 +13,9 @@
             <div class="channel-section pure-u-1">
                 <details open="">
                     <summary style="display: revert;">
-                        <h3 class="category-heading">
-                            <% if category.auxiliary_data.has_key?("view") %>
-                                <% category_url_param = "?view=#{category.auxiliary_data["view"]}&shelf_id=#{category.auxiliary_data["shelf_id"]}" %>
-                                <a href="/channel/<%=channel.ucid%>/channels<%=HTML.escape(category_url_param)%>">
+                        <span style="font-weight: bold;">
+                            <% if category.url %>
+                                <a href="<%=category.url%>">
                                     <%= category.title %>
                                 </a>
                             <%else%>

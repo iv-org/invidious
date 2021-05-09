@@ -341,6 +341,30 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
   return channel
 end
 
+def fetch_channel_home(ucid, channel)
+  initial_data = request_youtube_api_browse(ucid, channel.tabs["home"][1])
+  items = extract_items(initial_data, channel.author, channel.ucid)
+
+  # Channel trailer needs some slight special handling
+  home_tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
+  trailer = home_tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["channelVideoPlayerRenderer"]? || nil
+
+  home_sections = [] of (Category | Video)
+  if trailer
+    trailer = get_video(trailer["videoId"].as_s, PG_DB)
+    home_sections << trailer
+  end
+
+  items.each do |category|
+    if category.is_a? Category
+      home_sections << category
+    end
+  end
+
+  return home_sections
+
+end
+
 def fetch_channel_playlists(ucid, author, continuation, sort_by)
   if continuation
     response_json = request_youtube_api_browse(continuation)
@@ -381,8 +405,6 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
 end
 
 def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, continuation = nil, query_title = nil) : {Array(Category), (String | Nil)}
-  auxiliary_data = {} of String => String
-
   if continuation.is_a?(String)
     initial_data = request_youtube_api_browse(continuation)
     items = extract_items(initial_data)
@@ -392,14 +414,13 @@ def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, 
       title:                query_title.not_nil!, # If continuation contents is requested then the query_title has to be passed along.
       contents:             items,
       description_html:     "",
-      browse_endpoint_data: nil,
+      url:                  nil,
       badges:               nil,
-      auxiliary_data:       auxiliary_data,
     })], continuation_token
   else
+    url = nil
     if view && shelf_id
-      auxiliary_data["view"] = view
-      auxiliary_data["shelf_id"] = shelf_id
+      url = "/channel/#{ucid}/channels?view=#{view}&shelf_id=#{shelf_id}"
 
       params = produce_featured_channel_browse_param(view.to_i64, shelf_id.to_i64)
       initial_data = request_youtube_api_browse(ucid, params)
@@ -437,21 +458,20 @@ def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, 
         title:                category.title.empty? ? fallback_title : category.title,
         contents:             category.contents,
         description_html:     category.description_html,
-        browse_endpoint_data: nil,
+        url:                  category.url,
         badges:               nil,
-        auxiliary_data:       category.auxiliary_data,
       })
     end
 
-    # If we don't have any categories we'll create one.
+    # If no categories has been parsed then it means that we're currently requesting a single one and not in
+    # the initial preview anymore. The frontend still needs a Category however, so we'll create one.
     if category_array.empty?
       category_array << Category.new({
         title:                fallback_title,
         contents:             items,
         description_html:     "",
-        browse_endpoint_data: nil,
+        url:                  url,
         badges:               nil,
-        auxiliary_data:       auxiliary_data,
       })
     end
 

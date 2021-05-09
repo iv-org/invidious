@@ -1,6 +1,18 @@
 class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
   def home(env)
-    self.videos(env)
+    data = self.fetch_basic_information(env)
+    if !data.is_a?(Tuple)
+      return data
+    end
+    locale, user, subscriptions, continuation, ucid, channel = data
+    items = fetch_channel_home(ucid, channel)
+
+    has_trailer = false
+    if items[0].is_a? Video
+      has_trailer = true
+    end
+
+    templated "channel/home"
   end
 
   def videos(env)
@@ -147,6 +159,34 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     locale, user, subscriptions, continuation, ucid, channel = data
 
     templated "channel/about", buffer_footer: true
+  end
+
+  def brand_redirect(env)
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+    user = env.params.url["user"]
+
+    response = YT_POOL.client &.get("/c/#{user}")
+    html = XML.parse_html(response.body)
+
+    ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
+    if !ucid
+      env.response.status_code = 404 
+      return
+    end
+
+    url = "/channel/#{ucid}"
+
+    location = env.request.path.lchop?("/c/#{user}/")
+    if location
+      url += "/#{location}"
+    end
+
+    if env.params.query.size > 0
+      url += "?#{env.params.query}"
+    end
+
+    env.redirect url
   end
 
   private def fetch_basic_information(env)

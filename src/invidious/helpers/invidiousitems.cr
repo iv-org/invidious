@@ -232,13 +232,10 @@ class Category
   include DB::Serializable
 
   property title : String
-  property contents : Array(SearchItem)
-  property browse_endpoint_data : String?
+  property contents : Array(SearchItem) | Array(Video)
+  property url : String?
   property description_html : String
   property badges : Array(Tuple(String, String))?
-
-  # Data unique to only specific types of categories.
-  property auxiliary_data : Hash(String, String)
 
   def to_json(locale, json : JSON::Builder)
     json.object do

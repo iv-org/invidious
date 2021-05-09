@@ -1,0 +1,60 @@
+<% content_for "header" do %>
+    <title><%= channel.author %> - Invidious</title>
+    <link rel="stylesheet" href="/css/channel.css?v=<%= ASSET_COMMIT %>">
+<% end %>
+
+<% content_type =  0 %>
+<% sort_options = Tuple.new %>
+<%= rendered "components/channel-information" %>
+
+ <div class="pure-g">
+    <% items.each do | section | %>
+        <% # Channel trailer %>
+        <% if section.is_a? Video %>
+            <div class="pure-u-1 h-box trailer-container category">
+                <% # Placeholder solution. A mini player should be placed here
+                %>
+                <div class="player-container pure-u-1 pure-u-md-1-3">
+                    <a style="width:100%" href="/watch?v=<%= section.id %>">
+                        <div class="thumbnail">
+                            <img class="thumbnail" src="/vi/<%=section.id%>/maxres.jpg"/>
+                            <% if section.length_seconds != 0 %>
+                                <p class="length"><%= recode_length_seconds(section.length_seconds) %></p>
+                            <% end %>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="trailer-metadata pure-u-1 pure-u-md-1-3">
+                    <a style="color:rgb(209, 209, 209)"><%= HTML.escape(section.title) %></a>
+                    <p style="color: gray;">
+                        <%= translate(locale, "`x` views", number_to_short_text(section.views || 0)) %>
+                        <%= translate(locale, "Shared `x` ago", recode_date(section.published, locale)) %>
+                    </p>
+                    <div class="trailer-description">
+                        <%= section.description_html %>
+                    </div>
+                    <a class="read-more" href="/watch?v=<%= section.id %>">READ MORE</a>
+                </div>
+            </div>
+        <% else %>
+            <div class="category pure-u-1">
+                <details open = ""> 
+                    <summary style="display: revert;">
+                        <a class="category-heading" href="<%=section.url%>"> <%= section.title %> </a>
+                    </summary>
+
+                    <div class="category-description h-box">
+                        <p> <%= section.description_html %></p>
+                    </div>
+
+                    <div class="pure-g">
+                        <% section.contents.each do |item| %>
+                            <%= rendered "components/item" %>
+                        <% end %>
+                    </div>
+                </details>
+            </div>
+        <% end %>
+    <% end %>
+ </div>

@@ -60,23 +60,37 @@
         <!-- TODO Refactor this! -->
         <div class="pure-menu pure-menu-horizontal">
           <ui class="pure-menu-list">
+              <% if content_type == 0 %>
+                  <li class="pure-menu-item pure-menu-selected">
+                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>">
+                        <b> <%= translate(locale, "Home") %> </b>
+                      </a>
+                  </li>
+              <% else %>
+                  <li class="pure-menu-item">
+                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>">
+                        <%= translate(locale, "Home") %>
+                      </a>
+                  </li>
+              <% end %>
+          
               <% if !channel.auto_generated %>
-                  <% if content_type == 0 %>
+                  <% if content_type == 1 %>
                       <li class="pure-menu-item pure-menu-selected">
-                        <a href="/channel/<%= channel.ucid %>" class="pure-menu-link">
+                        <a href="/channel/<%= channel.ucid %>/videos" class="pure-menu-link">
                           <b><%= translate(locale, "Videos") %></b>
                         </a>
                       </li>
                   <% else %>
                       <li class="pure-menu-item pure-menu">
-                        <a href="/channel/<%= channel.ucid %>" class="pure-menu-link">
+                        <a href="/channel/<%= channel.ucid %>/videos" class="pure-menu-link">
                           <%= translate(locale, "Videos") %>
                         </a>
                       </li>
                   <% end %>
               <% end %>
 
-              <% if content_type == 1 || channel.auto_generated %>
+              <% if content_type == 2 %>
                   <li class="pure-menu-item pure-menu-selected">
                       <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/playlists">
                         <b> <%= translate(locale, "Playlists") %> </b>
@@ -91,7 +105,7 @@
               <% end %>
 
               <% if channel.tabs.has_key?("community") %>
-                  <% if content_type == 2 %>
+                  <% if content_type == 3 %>
                       <li class="pure-menu-item pure-menu-selected">
                           <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/community">
                             <b> <%= translate(locale, "Community") %> </b>
@@ -152,7 +166,7 @@
     </div>
     <div class="pure-u-1-3"></div>
 
-    <% if content_type == 0 || content_type == 1 %>
+    <% if content_type == 1 || content_type == 2 %>
         <% route = content_type == 1 ? "/playlists" : "" %>
         <% url = "/channel/#{channel.ucid + route}" %>
 
