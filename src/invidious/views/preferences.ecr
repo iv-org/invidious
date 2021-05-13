@@ -106,6 +106,12 @@
                 <input name="annotations" id="annotations" type="checkbox" <% if preferences.annotations %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="extend_desc"><%= translate(locale, "Automatically extend video description: ") %></label>
+                <input name="extend_desc" id="extend_desc" type="checkbox" <% if preferences.extend_desc %>checked<% end %>>
+            </div>
+
+
             <legend><%= translate(locale, "Visual preferences") %></legend>
 
             <div class="pure-control-group">
