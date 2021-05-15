@@ -414,5 +414,6 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "Текущая версия: "
+    "Current version: ": "Текущая версия: ",
+    "Number of videos shown per row: ": ""
 }

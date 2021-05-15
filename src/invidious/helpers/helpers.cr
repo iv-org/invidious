@@ -33,6 +33,7 @@ struct ConfigPreferences
   property continue : Bool = false
   property continue_autoplay : Bool = true
   property dark_mode : String = ""
+  property feed_cols : Int32 = 4
   property latest_only : Bool = false
   property listen : Bool = false
   property local : Bool = false

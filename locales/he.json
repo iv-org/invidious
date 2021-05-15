@@ -414,5 +414,6 @@
     "location": "מיקום",
     "hdr": "HDR",
     "filter": "סינון",
-    "Current version: ": "הגרסה הנוכחית: "
+    "Current version: ": "הגרסה הנוכחית: ",
+    "Number of videos shown per row: ": ""
 }

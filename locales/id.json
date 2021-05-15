@@ -414,5 +414,6 @@
     "location": "lokasi",
     "hdr": "hdr",
     "filter": "saring",
-    "Current version: ": "Versi saat ini: "
+    "Current version: ": "Versi saat ini: ",
+    "Number of videos shown per row: ": ""
 }

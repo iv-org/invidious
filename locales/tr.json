@@ -414,5 +414,6 @@
     "location": "konum",
     "hdr": "HDR",
     "filter": "filtrele",
-    "Current version: ": "Şu anki sürüm: "
+    "Current version: ": "Şu anki sürüm: ",
+    "Number of videos shown per row: ": ""
 }
