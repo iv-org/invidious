@@ -86,6 +86,8 @@
     "dark": "Mørk",
     "light": "Lys",
     "Thin mode: ": "Tynt modus: ",
+    "Miscellaneous preferences": "",
+    "Automatically redirect to another Instance: ": "",
     "Subscription preferences": "Abonnementsinnstillinger",
     "Show annotations by default for subscribed channels: ": "Vis merknader som forvalg for kanaler det abonneres på? ",
     "Redirect homepage to feed: ": "Videresend hjemmeside til kilde: ",

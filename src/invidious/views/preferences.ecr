@@ -176,6 +176,13 @@
                 <% end %>
             </div>
 
+            <legend><%= translate(locale, "Miscellaneous preferences") %></legend>
+
+            <div class="pure-control-group">
+                <label for="automatic_instance_redirect"><%= translate(locale, "Automatically redirect to another Instance: ") %></label>
+                <input name="automatic_instance_redirect" id="automatic_instance_redirect" type="checkbox" <% if preferences.automatic_instance_redirect %>checked<% end %>>
+            </div>
+
             <% if env.get? "user" %>
                 <legend><%= translate(locale, "Subscription preferences") %></legend>
 

@@ -92,6 +92,10 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       end
     end
 
+    automatic_instance_redirect = env.params.body["automatic_instance_redirect"]?.try &.as(String)
+    automatic_instance_redirect ||= "off"
+    automatic_instance_redirect = automatic_instance_redirect == "on"
+
     locale = env.params.body["locale"]?.try &.as(String)
     locale ||= CONFIG.default_user_preferences.locale
 
@@ -141,6 +145,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       quality_dash:           quality_dash,
       default_home:           default_home,
       feed_menu:              feed_menu,
+      automatic_instance_redirect: automatic_instance_redirect,
       related_videos:         related_videos,
       sort:                   sort,
       speed:                  speed,

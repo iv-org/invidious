@@ -77,6 +77,8 @@
     "dark": "sötét",
     "light": "világos",
     "Thin mode: ": "Vékony mód: ",
+    "Miscellaneous preferences": "",
+    "Automatically redirect to another Instance: ": "",
     "Subscription preferences": "Feliratkozási beállítások",
     "Show annotations by default for subscribed channels: ": "Szövegmagyarázatok mutatása alapértelmezésben feliratkozott csatornák esetében: ",
     "Redirect homepage to feed: ": "Kezdő oldal átirányitása a feed-re: ",

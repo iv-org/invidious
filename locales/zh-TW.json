@@ -86,6 +86,8 @@
     "dark": "深色",
     "light": "淺色",
     "Thin mode: ": "精簡模式： ",
+    "Miscellaneous preferences": "",
+    "Automatically redirect to another Instance: ": "",
     "Subscription preferences": "訂閱偏好設定",
     "Show annotations by default for subscribed channels: ": "預設為已訂閱的頻道顯示註釋： ",
     "Redirect homepage to feed: ": "重新導向首頁至 feed： ",

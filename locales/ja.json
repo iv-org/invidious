@@ -86,6 +86,8 @@
     "dark": "ダーク",
     "light": "ライト",
     "Thin mode: ": "最小モード: ",
+    "Miscellaneous preferences": "",
+    "Automatically redirect to another Instance: ": "",
     "Subscription preferences": "登録チャンネル設定",
     "Show annotations by default for subscribed channels: ": "デフォルトで登録チャンネルのアノテーションを表示しますか？ ",
     "Redirect homepage to feed: ": "ホームからフィードにリダイレクト: ",

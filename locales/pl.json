@@ -86,6 +86,8 @@
     "dark": "ciemny",
     "light": "jasny",
     "Thin mode: ": "Tryb minimalny: ",
+    "Miscellaneous preferences": "",
+    "Automatically redirect to another Instance: ": "",
     "Subscription preferences": "Preferencje subskrybcji",
     "Show annotations by default for subscribed channels: ": "Domyślnie wyświetlaj adnotacje dla subskrybowanych kanałów: ",
     "Redirect homepage to feed: ": "Przekieruj stronę główną do subskrybcji: ",

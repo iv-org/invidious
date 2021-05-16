@@ -37,8 +37,13 @@ class Invidious::Routes::Misc < Invidious::Routes::BaseRoute
   end
 
   def cross_instance_redirect(env)
-    instance_url = fetch_random_instance
     referer = get_referer(env)
+
+    if !env.get("preferences").as(Preferences).automatic_instance_redirect
+      return env.redirect("https://redirect.invidious.io#{referer}")
+    end
+
+    instance_url = fetch_random_instance
     env.redirect "https://#{instance_url}#{referer}"
   end
 end

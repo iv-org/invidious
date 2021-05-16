@@ -86,6 +86,8 @@
     "dark": "dimmt",
     "light": "ljóst",
     "Thin mode: ": "Þunnt ham: ",
+    "Miscellaneous preferences": "",
+    "Automatically redirect to another Instance: ": "",
     "Subscription preferences": "Áskriftarstillingar",
     "Show annotations by default for subscribed channels: ": "Á að sýna glósur sjálfgefið fyrir áskriftarrásir? ",
     "Redirect homepage to feed: ": "Endurbeina heimasíðu að straumi: ",
