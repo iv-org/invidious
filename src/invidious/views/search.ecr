@@ -96,7 +96,11 @@
     </details>
 <% end %>
 
-<hr/>
+<% if count == 0 %>
+    <hr style="margin: 0;"/>
+<% else %>
+    <hr/>
+<% end %>
 
 <div class="pure-g h-box v-box">
     <div class="pure-u-1 pure-u-lg-1-5">
