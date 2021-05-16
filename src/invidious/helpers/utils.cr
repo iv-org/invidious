@@ -435,7 +435,7 @@ def fetch_random_instance
         end
 
         if !broken_health_monitoring
-          health = data[1]["monitor"].as_h["dailyRatios"][0].as_h["ratio"]  
+          health = data[1]["monitor"].as_h["dailyRatios"][0].as_h["ratio"]
           filtered_instance_list << data[0].as_s if health.to_s.to_f > 90
         else
           # We can't check the health if the monitoring is broken. Thus we'll just add it to the list

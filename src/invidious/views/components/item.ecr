@@ -148,7 +148,7 @@
                     <a title="<%=translate(locale, "Audio mode")%>" href="/watch?v=<%= item.id %>&amp;listen=1">
                         <i class="icon ion-md-headset"></i>
                     </a>
-                    <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=<%= env.get?("current_page") %>">
+                    <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=<%=HTML.escape("watch?v=#{item.id}")%>">
                         <i class="icon ion-md-jet"></i>
                     </a>
                 </div>
