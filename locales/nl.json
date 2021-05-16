@@ -419,5 +419,8 @@
     "location": "locatie",
     "hdr": "HDR",
     "filter": "verfijnen",
-    "Current version: ": "Huidige versie: "
+    "Current version: ": "Huidige versie: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

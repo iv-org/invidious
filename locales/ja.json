@@ -419,5 +419,8 @@
     "location": "",
     "hdr": "HDR",
     "filter": "フィルタ",
-    "Current version: ": "現在のバージョン: "
+    "Current version: ": "現在のバージョン: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

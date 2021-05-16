@@ -108,34 +108,32 @@ def error_json_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::A
   error_json_helper(env, locale, status_code, message, nil)
 end
 
-def error_redirect_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any)  | Nil)
+def error_redirect_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil)
   request_path = env.request.path
 
-  if request_path.starts_with?("/search") || request_path.starts_with?("/watch") || 
-    request_path.starts_with?("/channel") || request_path.starts_with?("/playlist?list=PL")
+  if request_path.starts_with?("/search") || request_path.starts_with?("/watch") ||
+     request_path.starts_with?("/channel") || request_path.starts_with?("/playlist?list=PL")
+    next_steps_text = translate(locale, "next_steps_error_message")
+    refresh = translate(locale, "next_steps_error_message_refresh")
+    go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
+    switch_instance = translate(locale, "Switch Invidious Instance")
 
-     next_steps_text = translate(locale, "next_steps_error_message")
-     refresh = translate(locale, "next_steps_error_message_refresh")
-     go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
-     switch_instance = translate(locale, "Switch Invidious Instance")
-   
-   
-     return <<-END_HTML
-       <p style="margin-bottom: 4px;">#{next_steps_text}</p>
-       <ul>
-         <li>
-           <a href="#{env.request.resource}">#{refresh}</a>
-         </li>
-         <li>
-           <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
-         </li>
-         <li>
-           <a href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
-         </li>
-       </ul>
-     END_HTML
-   
-     return next_step_html
+    return <<-END_HTML
+      <p style="margin-bottom: 4px;">#{next_steps_text}</p>
+      <ul>
+        <li>
+          <a href="#{env.request.resource}">#{refresh}</a>
+        </li>
+        <li>
+          <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
+        </li>
+        <li>
+          <a href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
+        </li>
+      </ul>
+    END_HTML
+
+    return next_step_html
   else
     return ""
   end

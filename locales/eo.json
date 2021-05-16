@@ -419,5 +419,8 @@
     "location": "loko",
     "hdr": "granddinamikgama",
     "filter": "filtri",
-    "Current version: ": "Nuna versio: "
+    "Current version: ": "Nuna versio: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

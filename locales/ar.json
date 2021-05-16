@@ -419,5 +419,8 @@
     "location": "الاماكن",
     "hdr": "وضع التباين العالي",
     "filter": "معامل الفرز",
-    "Current version: ": "الإصدار الحالي: "
+    "Current version: ": "الإصدار الحالي: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

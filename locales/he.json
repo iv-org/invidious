@@ -419,5 +419,8 @@
     "location": "מיקום",
     "hdr": "HDR",
     "filter": "סינון",
-    "Current version: ": "הגרסה הנוכחית: "
+    "Current version: ": "הגרסה הנוכחית: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

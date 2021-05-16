@@ -419,5 +419,8 @@
     "location": "konum",
     "hdr": "HDR",
     "filter": "filtrele",
-    "Current version: ": "Şu anki sürüm: "
+    "Current version: ": "Şu anki sürüm: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

@@ -419,5 +419,8 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "Tämänhetkinen versio: "
+    "Current version: ": "Tämänhetkinen versio: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

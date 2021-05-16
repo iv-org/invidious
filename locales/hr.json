@@ -419,5 +419,8 @@
     "location": "lokacija",
     "hdr": "hdr",
     "filter": "filtar",
-    "Current version: ": "Trenutačna verzija: "
+    "Current version: ": "Trenutačna verzija: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

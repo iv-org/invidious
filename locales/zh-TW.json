@@ -419,5 +419,8 @@
     "location": "位置",
     "hdr": "HDR",
     "filter": "篩選條件",
-    "Current version: ": "目前版本： "
+    "Current version: ": "目前版本： ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

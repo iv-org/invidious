@@ -419,5 +419,8 @@
     "location": "sted",
     "hdr": "HDR",
     "filter": "filtrer",
-    "Current version: ": "Gjeldende versjon: "
+    "Current version: ": "Gjeldende versjon: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

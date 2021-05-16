@@ -341,5 +341,8 @@
     "Videos": "",
     "Playlists": "",
     "Community": "",
-    "Current version: ": "Тренутна верзија: "
+    "Current version: ": "Тренутна верзија: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

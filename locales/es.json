@@ -419,5 +419,8 @@
     "location": "ubicación",
     "hdr": "hdr",
     "filter": "filtro",
-    "Current version: ": "Versión actual: "
+    "Current version: ": "Versión actual: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }
