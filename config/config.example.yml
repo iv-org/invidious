@@ -203,7 +203,19 @@ https_only: false
 #popular_enabled: true
 
 ##
-## Enable/Disable statstics.
+## Enable/Disable statstics (available at /api/v1/stats).
+## The following data is available:
+##   - Software name ("invidious") and version+branch (same data as
+##     displayed in the footer, e.g: "2021.05.13-75e5b49" / "master")
+##   - The value of the 'registration_enabled' config (true/false)
+##   - Number of currently connected users
+##   - Average Number of connected users (last month & last 6 months)
+##   - Timestamp of the last server restart
+##   - Timestamp of the last "Channel Refresh" job execution
+##
+## Warning: This setting MUST be set to true if you plan to run
+## a public instance. It is used by api.invidious.io to refresh
+## your instance's status.
 ##
 ## Accepted values: true, false
 ## Default: false
