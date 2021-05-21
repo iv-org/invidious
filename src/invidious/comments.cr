@@ -185,7 +185,7 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
               json.field "published", published.to_unix
               json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
 
-              json.field "likeCount", node_comment["likeCount"]
+              json.field "likeCount", 0
               json.field "commentId", node_comment["commentId"]
               json.field "authorIsChannelOwner", node_comment["authorIsChannelOwner"]
 
