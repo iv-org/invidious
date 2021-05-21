@@ -185,12 +185,14 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
               json.field "published", published.to_unix
               json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
 
-              json.field "likeCount", node_comment["likeCount"]
+              comment_action_buttons_renderer = node_comment["actionButtons"]["commentActionButtonsRenderer"]
+
+              json.field "likeCount", comment_action_buttons_renderer["likeButton"]["toggleButtonRenderer"]["accessibilityData"]["accessibilityData"]["label"].as_s.scan(/\d/).map(&.[0]).join.to_i
               json.field "commentId", node_comment["commentId"]
               json.field "authorIsChannelOwner", node_comment["authorIsChannelOwner"]
 
-              if node_comment["actionButtons"]["commentActionButtonsRenderer"]["creatorHeart"]?
-                hearth_data = node_comment["actionButtons"]["commentActionButtonsRenderer"]["creatorHeart"]["creatorHeartRenderer"]["creatorThumbnail"]
+              if comment_action_buttons_renderer["creatorHeart"]?
+                hearth_data = comment_action_buttons_renderer["creatorHeart"]["creatorHeartRenderer"]["creatorThumbnail"]
                 json.field "creatorHeart" do
                   json.object do
                     json.field "creatorThumbnail", hearth_data["thumbnails"][-1]["url"]
