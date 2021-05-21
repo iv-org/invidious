@@ -20,7 +20,7 @@ struct YoutubeConnectionPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : ConnectionPool(QUIC::Client | HTTP::Client)
+  property pool : ConnectionPool(QuicProxyWrapper | HTTP::Client | QUIC::Client)
 
   def initialize(url : URI, @capacity = 5, @timeout = 5.0, use_quic = true)
     @url = url
@@ -36,11 +36,7 @@ struct YoutubeConnectionPool
       begin
         response = yield conn
       rescue ex
-        conn.close
-        conn = QUIC::Client.new(url)
-        conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
-        conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
-        conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
+        conn = QuicProxyWrapper.new(url)
         response = yield conn
       ensure
         pool.checkin(conn)
@@ -51,17 +47,142 @@ struct YoutubeConnectionPool
   end
 
   private def build_pool(use_quic)
-    ConnectionPool(QUIC::Client | HTTP::Client).new(capacity: capacity, timeout: timeout) do
+    ConnectionPool(QuicProxyWrapper | HTTP::Client | QUIC::Client).new(capacity: capacity, timeout: timeout) do
       if use_quic
-        conn = QUIC::Client.new(url)
+        conn = QuicProxyWrapper.new(URI.parse("http://#{CONFIG.quic_proxy_address}:#{CONFIG.quic_proxy_port}"))
       else
         conn = HTTP::Client.new(url)
+        conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
       end
       conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
-      conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
       conn
     end
+  end
+end
+
+class QuicProxyWrapper
+  property yt_headers : Hash(String, String) 
+  def initialize(url : URI, family : Socket::Family = Socket::Family::UNSPEC)
+    @conn = HTTP::Client.new(url)
+    @family = family
+    header_retreival = HackyHeaderRetrevialClass.new
+    add_yt_headers(header_retreival)
+
+    @yt_headers = header_retreival.headers
+    # Scans through yt_headers and makes sure that all values are strings.
+    @yt_headers.each do |k,v|
+      if v.is_a? Array
+        @yt_headers[k] = v[0]
+      end
+    end
+  end
+    
+
+  def family=(value)0
+  end
+
+  def family
+    return @family
+  end
+
+  def close
+    @conn.close
+  end
+
+  {% for method in %w(get post head) %}
+    def {{method.id}}(url, headers, body : String)
+      headers = convert_headers(headers)
+      headers.merge!(@yt_headers)
+      data = {"method" => {{method.upcase}}, "url" => "#{YT_URL.to_s}#{url}",
+      "headers"=>headers.to_h, "data" => body}.to_json
+
+      return @conn.post("/", body: data)
+    end
+
+    def {{method.id}}(url, headers, body : String)
+      headers = convert_headers(headers)
+      headers.merge!(@yt_headers)
+      data = {"method" => {{method.upcase}}, "url" => "#{YT_URL.to_s}#{url}",
+             "headers"=>headers.to_h, "data" => body}.to_json
+      
+      @conn.post("/", body: data) do |response|
+        yield response 
+      end
+    end
+
+    def {{method.id}}(url, headers)
+      headers = convert_headers(headers)
+      headers.merge!(@yt_headers)
+      data = {"method" => {{method.upcase}}, "url" => "#{YT_URL.to_s}#{url}",
+              "headers"=>headers.to_h}.to_json
+      
+      return @conn.post("/", body: data)
+    end
+
+    def {{method.id}}(url, headers)
+      headers = convert_headers(headers)
+      headers.merge!(@yt_headers)
+      data = {"method" => {{method.upcase}}, "url" => "#{YT_URL.to_s}#{url}",
+              "headers"=>headers.to_h}.to_json
+
+      results = @conn.post("/", body: data)
+      @conn.post("/", body: data) do |response|
+        yield response 
+      end
+    end
+
+    def {{method.id}}(url)
+      data = {"method" => {{method.upcase}}, 
+              "url" => "#{YT_URL.to_s}#{url}", 
+              "headers" => @yt_headers}.to_json
+      return @conn.post("/", body: data)
+    end
+
+    def {{method.id}}(url)
+      data = {"method" => {{method.upcase}}, 
+              "url" => "#{YT_URL.to_s}#{url}", "headers" => @yt_headers}.to_json
+      @conn.post("/", body: data) do |response|
+        yield response 
+      end
+    end
+  
+  {% end %}
+  
+  def post(url, headers, form)
+    headers = convert_headers(headers)
+    headers.merge!(@yt_headers)
+    data = {"method" => "POST", "url" => "#{YT_URL.to_s}#{url}",
+    "headers"=>headers.to_h, "data" => form}.to_json
+
+    return @conn.post("/", body: data)
+  end
+
+  def convert_headers(headers)
+    new_headers_dict = {} of String => String
+    headers.each do |k, v|
+      if v.is_a? Array
+        new_headers_dict[k] = v[0]
+      else
+        new_headers_dict[k] = v
+      end
+    end
+    return new_headers_dict
+  end
+end
+
+# We're just using this to retreive the headers from add_yt_headers
+class HackyHeaderRetrevialClass
+  def initialize()
+    @headers_dict = {} of String => String
+  end
+
+  def headers()
+    return @headers_dict
+  end
+
+  def resource()
+    return ""
   end
 end
 
