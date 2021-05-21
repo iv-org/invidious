@@ -19,7 +19,7 @@ db:
 ## Database configuration using a single URI. This is an
 ## alternative to the 'db' parameter above. If both forms
 ## are used, then only database_url is used.
-## This setting is MANDATORY if 'db' is not set.
+## This setting is MANDATORY, unless 'db' is used.
 ##
 ## Note: The 'database_url' setting allows the use of UNIX
 ## sockets. To do so, remove the IP address (or FQDN) and port
@@ -66,6 +66,9 @@ db:
 ## invidious know about it. This is used to craft absolute URLs
 ## to the instance (e.g in the API).
 ##
+## Note: This setting is MANDATORY if invidious is behind a
+## reverse proxy.
+##
 ## Accepted values: 1-65535
 ## Default: <none>
 ##
@@ -90,7 +93,9 @@ domain:
 
 ##
 ## Tell Invidious that it is behind a proxy that provides only
-## HTTPS, so all links must use the https:// scheme.
+## HTTPS, so all links must use the https:// scheme. This
+## setting MUST be set to true if invidious is behind a
+## reverse proxy.
 ##
 ## Accepted values: true, false
 ## Default: false
@@ -176,18 +181,10 @@ https_only: false
 ## Logging Verbosity. This is overriden if "-l LEVEL" or
 ## "--log-level=LEVEL" are passed on the command line.
 ##
-## Accepted values:
-##   LogLevel::All    (Log everything)
-##   LogLevel::Trace
-##   LogLevel::Debug
-##   LogLevel::Info
-##   LogLevel::Warn
-##   LogLevel::Error
-##   LogLevel::Fatal
-##   LogLevel::Off    (Disable log output)
-## Default: LogLevel::Info
+## Accepted values: All, Trace, Debug, Info, Warn, Error, Fatal, Off
+## Default: Info
 ##
-#log_level: LogLevel::Info
+#log_level: Info
 
 
 # -----------------------------
@@ -208,8 +205,8 @@ https_only: false
 ##   - Software name ("invidious") and version+branch (same data as
 ##     displayed in the footer, e.g: "2021.05.13-75e5b49" / "master")
 ##   - The value of the 'registration_enabled' config (true/false)
-##   - Number of currently connected users
-##   - Average Number of connected users (last month & last 6 months)
+##   - Number of currently registered users
+##   - Number of users who registered in the last month / last 6 months
 ##   - Timestamp of the last server restart
 ##   - Timestamp of the last "Channel Refresh" job execution
 ##
