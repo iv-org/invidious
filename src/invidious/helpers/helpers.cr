@@ -50,6 +50,7 @@ struct ConfigPreferences
   property thin_mode : Bool = false
   property unseen_only : Bool = false
   property video_loop : Bool = false
+  property extend_desc : Bool = false
   property volume : Int32 = 100
 
   def to_tuple
@@ -679,7 +680,7 @@ def create_notification_stream(env, topics, connection_channel)
 end
 
 def extract_initial_data(body) : Hash(String, JSON::Any)
-  return JSON.parse(body.match(/(window\["ytInitialData"\]|var\s*ytInitialData)\s*=\s*(?<info>\{.*?\});/mx).try &.["info"] || "{}").as_h
+  return JSON.parse(body.match(/(window\["ytInitialData"\]|var\s*ytInitialData)\s*=\s*(?<info>{.*?});<\/script>/mx).try &.["info"] || "{}").as_h
 end
 
 def proxy_file(response, env)

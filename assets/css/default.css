@@ -310,192 +310,13 @@ footer a {
   }
 }
 
-/* Control Bar */
-@media screen and (max-width: 640px) {
-  .video-js .vjs-control-bar,
-  .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
-    overflow-x: scroll;
-  }
-}
-
-ul.vjs-menu-content::-webkit-scrollbar {
-  display: none;
-}
-
-.vjs-user-inactive {
-  cursor: none;
-}
-
-.video-js .vjs-text-track-display > div > div > div {
-  background-color: rgba(0, 0, 0, 0.75) !important;
-  border-radius: 9px !important;
-  padding: 5px !important;
-}
-
-.vjs-play-control,
-.vjs-volume-panel,
-.vjs-current-time,
-.vjs-time-control,
-.vjs-duration,
-.vjs-progress-control,
-.vjs-remaining-time {
-  order: 1;
-}
-
-.vjs-captions-button {
-  order: 2;
-}
-
-.vjs-quality-selector,
-.video-js .vjs-http-source-selector {
-  order: 3;
-}
-
-.vjs-playback-rate {
-  order: 4;
-}
-
-.vjs-share-control {
-  order: 5;
-}
-
-.vjs-fullscreen-control {
-  order: 6;
-}
-
-.vjs-playback-rate > .vjs-menu {
-  width: 50px;
-}
-
-.vjs-control-bar {
-  display: flex;
-  flex-direction: row;
-  scrollbar-width: none;
-}
-
-.vjs-control-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.video-js .vjs-icon-cog {
-  font-size: 18px;
-}
-
-.video-js .vjs-control-bar,
-.vjs-menu-button-popup .vjs-menu .vjs-menu-content {
-  background-color: rgba(35, 35, 35, 0.75);
-}
-
-.vjs-menu li.vjs-menu-item:focus,
-.vjs-menu li.vjs-menu-item:hover {
-  background-color: rgba(255, 255, 255, 0.75);
-  color: rgba(49, 49, 51, 0.75);
-}
-
-.vjs-menu li.vjs-selected,
-.vjs-menu li.vjs-selected:focus,
-.vjs-menu li.vjs-selected:hover {
-  background-color: rgba(0, 182, 240, 0.75);
-}
-
-/* Progress Bar */
-.video-js .vjs-slider {
-  background-color: rgba(15, 15, 15, 0.5);
-}
-
 fieldset > select,
 span > select {
   color: rgba(49, 49, 51, 1);
 }
 
-.video-js .vjs-load-progress,
-.video-js .vjs-load-progress div {
-  background: rgba(87, 87, 88, 1);
-}
-
-.video-js .vjs-slider:hover,
-.video-js button:hover {
-  color: rgba(0, 182, 240, 1);
-}
-
-.video-js .vjs-play-progress {
-  background-color: rgba(0, 182, 240, 1);
-}
-
-/* Overlay */
-.video-js .vjs-overlay {
-  background-color: rgba(35, 35, 35, 0.75);
-  color: rgba(255, 255, 255, 1);
-}
-
-/* ProgressBar marker */
-.vjs-marker {
-  background-color: rgba(255, 255, 255, 1);
-  z-index: 0;
-}
-
-/* Big "Play" Button */
-.video-js .vjs-big-play-button {
-  background-color: rgba(35, 35, 35, 0.5);
-}
-
-.video-js:hover .vjs-big-play-button {
-  background-color: rgba(35, 35, 35, 0.75);
-}
-
-.video-js .vjs-current-time,
-.video-js .vjs-time-divider,
-.video-js .vjs-duration {
-  display: block;
-}
-
-.video-js .vjs-time-divider {
-  min-width: 0px;
-  padding-left: 0px;
-  padding-right: 0px;
-}
-
-.video-js .vjs-poster {
-  background-size: cover;
-  object-fit: cover;
-}
-
-.player-dimensions.vjs-fluid {
-  padding-top: 82vh;
-}
-
-video.video-js {
-  position: absolute;
-  height: 100%;
-}
-
-#player-container {
-  position: relative;
-  padding-bottom: 82vh;
-  height: 0;
-}
-
 .pure-control-group label {
   word-wrap: normal;
-}
-
-.video-js.player-style-invidious {
-  /* This is already the default */
-}
-
-.video-js.player-style-youtube .vjs-control-bar {
-  display: flex;
-  flex-direction: row;
-}
-.video-js.player-style-youtube .vjs-big-play-button {
-  /*
-    Styles copied from video-js.min.css, definition of
-    .vjs-big-play-centered .vjs-big-play-button
-  */
-  top: 50%;
-  left: 50%;
-  margin-top: -0.81666em;
-  margin-left: -1.5em;
 }
 
 /*
@@ -668,4 +489,29 @@ the hr element is rendered improperly within one.
 See https://stackoverflow.com/a/34372979 for more info */
 hr {
   margin: auto 0 auto 0;
+}
+
+/* Description Expansion Styling*/
+#description-box {
+  display: flex;
+  flex-direction: column;
+}
+
+#descexpansionbutton {
+  display: none
+}
+
+#descexpansionbutton ~ div {
+  overflow: hidden;
+  height: 8.3em;
+}
+
+#descexpansionbutton:checked ~ div {
+  overflow: unset;
+  height: 100%;
+}
+
+#descexpansionbutton + label {
+  order: 1;
+  margin-top: 20px;
 }

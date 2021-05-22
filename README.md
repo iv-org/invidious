@@ -95,7 +95,7 @@ The complete documentation is available on https://docs.invidious.io/ (or altern
 
 ## Contact:
 
-Feel free to join our [Matrix room](https://matrix.to/#/#invidious:matrix.org), or #invidious on freenode. Both platforms are bridged together.
+Feel free to join our [Matrix room](https://matrix.to/#/#invidious:matrix.org).
 
 ---
 

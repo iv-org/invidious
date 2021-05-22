@@ -25,6 +25,19 @@
 <link rel="alternate" href="https://www.youtube.com/watch?v=<%= video.id %>">
 <%= rendered "components/player_sources" %>
 <title><%= HTML.escape(video.title) %> - Invidious</title>
+
+<!-- Description expansion also updates the 'Show more' button to 'Show less' so
+we're going to need to do it here in order to allow for translations.
+ -->
+<style>
+#descexpansionbutton + label > a::after {
+    content: "<%= translate(locale, "Show more") %>"
+}
+
+#descexpansionbutton:checked + label > a::after {
+    content: "<%= translate(locale, "Show less") %>"
+}
+</style>
 <% end %>
 
 <script id="video_data" type="application/json">
@@ -227,8 +240,18 @@
                 <% end %>
             </p>
 
-            <div>
-                <%= video.description_html %>
+            <div id="description-box"> <!-- Description -->
+                <% if video.description.size < 200 || params.extend_desc %>
+                    <%= video.description_html %>
+                <% else %>
+                    <input id="descexpansionbutton" type="checkbox"/>
+                    <label for="descexpansionbutton" style="order: 1;">
+                        <a></a>
+                    </label>
+                    <div id="descriptionWrapper">
+                        <%= video.description_html %>
+                    </div>
+                <% end %>
             </div>
 
             <hr>
