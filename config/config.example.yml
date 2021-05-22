@@ -95,7 +95,7 @@ domain:
 ## Tell Invidious that it is behind a proxy that provides only
 ## HTTPS, so all links must use the https:// scheme. This
 ## setting MUST be set to true if invidious is behind a
-## reverse proxy.
+## reverse proxy serving HTTPs.
 ##
 ## Accepted values: true, false
 ## Default: false
@@ -206,7 +206,8 @@ https_only: false
 ##     displayed in the footer, e.g: "2021.05.13-75e5b49" / "master")
 ##   - The value of the 'registration_enabled' config (true/false)
 ##   - Number of currently registered users
-##   - Number of users who registered in the last month / last 6 months
+##   - Number of registered users who connected in the last month
+##   - Number of registered users who connected in the last 6 months
 ##   - Timestamp of the last server restart
 ##   - Timestamp of the last "Channel Refresh" job execution
 ##
@@ -256,6 +257,19 @@ https_only: false
 
 ##
 ## List of usernames that will be granted administrator rights.
+## A user with administrator rights will be able to change the
+## server configuration options listed below in /preferences,
+## in addition to the usual user preferences.
+##
+## Server-wide settings:
+##   - popular_enabled
+##   - captcha_enabled
+##   - login_enabled
+##   - registration_enabled
+##   - statistics_enabled
+## Default user preferences:
+##   - default_home
+##   - feed_menu
 ##
 ## Accepted values: an array of strings
 ## Default: [""]
