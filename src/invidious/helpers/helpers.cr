@@ -98,6 +98,7 @@ class Config
   property force_resolve : Socket::Family = Socket::Family::UNSPEC # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
   property port : Int32 = 3000                                     # Port to listen for connections (overrided by command line argument)
   property host_binding : String = "0.0.0.0"                       # Host to bind (overrided by command line argument)
+  property bind_unix : String? = nil                               # Make Invidious listening on UNIX sockets - Example: /tmp/invidious.sock
   property pool_size : Int32 = 100                                 # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property use_quic : Bool = true                                  # Use quic transport for youtube api
 
