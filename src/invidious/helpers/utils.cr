@@ -62,9 +62,11 @@ end
 
 class QuicProxyWrapper
   property yt_headers : Hash(String, String) 
-  def initialize(url : URI, family : Socket::Family = Socket::Family::UNSPEC)
+  property family : Socket::Family
+
+  def initialize(url : URI)
     @conn = HTTP::Client.new(url)
-    @family = family
+    @family = Socket::Family::INET
     header_retreival = HackyHeaderRetrevialClass.new
     add_yt_headers(header_retreival)
 
@@ -78,11 +80,12 @@ class QuicProxyWrapper
   end
     
 
-  def family=(value)0
+  def family=(value)
+    @conn.family = value
   end
 
   def family
-    return @family
+    return @conn.family
   end
 
   def close
