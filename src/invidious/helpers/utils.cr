@@ -61,7 +61,7 @@ struct YoutubeConnectionPool
 end
 
 class QuicProxyWrapper
-  property yt_headers : Hash(String, String) 
+  property yt_headers : Hash(String, String)
   property family : Socket::Family
 
   def initialize(url : URI)
@@ -72,13 +72,12 @@ class QuicProxyWrapper
 
     @yt_headers = header_retreival.headers
     # Scans through yt_headers and makes sure that all values are strings.
-    @yt_headers.each do |k,v|
+    @yt_headers.each do |k, v|
       if v.is_a? Array
         @yt_headers[k] = v[0]
       end
     end
   end
-    
 
   def family=(value)
     @conn.family = value
@@ -150,12 +149,12 @@ class QuicProxyWrapper
     end
   
   {% end %}
-  
+
   def post(url, headers, form)
     headers = convert_headers(headers)
     headers.merge!(@yt_headers)
     data = {"method" => "POST", "url" => "#{YT_URL.to_s}#{url}",
-    "headers"=>headers.to_h, "data" => form}.to_json
+            "headers" => headers.to_h, "data" => form}.to_json
 
     return @conn.post("/", body: data)
   end
@@ -175,15 +174,15 @@ end
 
 # We're just using this to retreive the headers from add_yt_headers
 class HackyHeaderRetrevialClass
-  def initialize()
+  def initialize
     @headers_dict = {} of String => String
   end
 
-  def headers()
+  def headers
     return @headers_dict
   end
 
-  def resource()
+  def resource
     return ""
   end
 end

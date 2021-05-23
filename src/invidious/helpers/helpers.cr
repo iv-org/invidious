@@ -101,8 +101,8 @@ class Config
   property host_binding : String = "0.0.0.0"                       # Host to bind (overrided by command line argument)
   property pool_size : Int32 = 100                                 # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property use_quic : Bool = true                                  # Use quic transport for youtube api
-  property quic_proxy_address : String = "0.0.0.0"                      # Address for the QUIC proxy
-  property quic_proxy_port : Int32 = 7192                       # Port for the Quic Proxy
+  property quic_proxy_address : String = "0.0.0.0"                 # Address for the QUIC proxy
+  property quic_proxy_port : Int32 = 7192                          # Port for the Quic Proxy
 
   @[YAML::Field(converter: Preferences::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new               # Saved cookies in "name1=value1; name2=value2..." format
