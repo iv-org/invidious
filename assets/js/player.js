@@ -148,6 +148,12 @@ player.on('error', function (event) {
     }
 });
 
+// Enable VR video support
+if (video_data.vr && video_data.params.vr_mode) {
+    player.crossOrigin("anonymous")
+    player.vr({projection: "EAC"});
+}
+
 // Add markers
 if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
     var markers = [{ time: video_data.params.video_start, text: 'Start' }];

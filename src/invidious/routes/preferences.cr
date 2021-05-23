@@ -60,6 +60,10 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= CONFIG.default_user_preferences.volume
 
+    vr_mode = env.params.body["vr_mode"]?.try &.as(String)
+    vr_mode ||= "off"
+    vr_mode = vr_mode == "on"
+
     comments = [] of String
     2.times do |i|
       comments << (env.params.body["comments[#{i}]"]?.try &.as(String) || CONFIG.default_user_preferences.comments[i])
@@ -140,6 +144,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       unseen_only:            unseen_only,
       video_loop:             video_loop,
       volume:                 volume,
+      vr_mode:                vr_mode,
     }.to_json).to_json
 
     if user = env.get? "user"
