@@ -1,4 +1,3 @@
-require "lsquic"
 require "pool/connection"
 
 def add_yt_headers(request)
@@ -20,7 +19,7 @@ struct YoutubeConnectionPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : ConnectionPool(QuicProxyWrapper | HTTP::Client | QUIC::Client)
+  property pool : ConnectionPool(QuicProxyWrapper | HTTP::Client)
 
   def initialize(url : URI, @capacity = 5, @timeout = 5.0, use_quic = true)
     @url = url
@@ -47,7 +46,7 @@ struct YoutubeConnectionPool
   end
 
   private def build_pool(use_quic)
-    ConnectionPool(QuicProxyWrapper | HTTP::Client | QUIC::Client).new(capacity: capacity, timeout: timeout) do
+    ConnectionPool(QuicProxyWrapper | HTTP::Client).new(capacity: capacity, timeout: timeout) do
       if use_quic
         conn = QuicProxyWrapper.new(URI.parse("http://#{CONFIG.quic_proxy_address}:#{CONFIG.quic_proxy_port}"))
       else
