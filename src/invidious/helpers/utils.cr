@@ -1,5 +1,5 @@
 require "lsquic"
-require "pool/connection"
+require "db"
 
 def add_yt_headers(request)
   request.headers["user-agent"] ||= "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
@@ -20,7 +20,7 @@ struct YoutubeConnectionPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : ConnectionPool(QUIC::Client | HTTP::Client)
+  property pool : DB::Pool(QUIC::Client | HTTP::Client)
 
   def initialize(url : URI, @capacity = 5, @timeout = 5.0, use_quic = true)
     @url = url
@@ -43,7 +43,7 @@ struct YoutubeConnectionPool
         conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
         response = yield conn
       ensure
-        pool.checkin(conn)
+        pool.release(conn)
       end
     end
 
@@ -51,7 +51,7 @@ struct YoutubeConnectionPool
   end
 
   private def build_pool(use_quic)
-    ConnectionPool(QUIC::Client | HTTP::Client).new(capacity: capacity, timeout: timeout) do
+    DB::Pool(QUIC::Client | HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
       if use_quic
         conn = QUIC::Client.new(url)
       else

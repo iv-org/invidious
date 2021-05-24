@@ -238,7 +238,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
         traceback << "Logging in..."
 
         location = URI.parse(challenge_results[0][-1][2].to_s)
-        cookies = HTTP::Cookies.from_headers(headers)
+        cookies = HTTP::Cookies.from_client_headers(headers)
 
         headers.delete("Content-Type")
         headers.delete("Google-Accounts-XSRF")
@@ -261,7 +261,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
           location = login.headers["Location"]?.try { |u| URI.parse(u) }
         end
 
-        cookies = HTTP::Cookies.from_headers(headers)
+        cookies = HTTP::Cookies.from_client_headers(headers)
         sid = cookies["SID"]?.try &.value
         if !sid
           raise "Couldn't get SID."
