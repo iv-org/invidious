@@ -26,8 +26,8 @@
                 </div>
 
                 <div class="trailer-metadata pure-u-1 pure-u-md-1-3">
-                    <a style="color:rgb(209, 209, 209)"><%= HTML.escape(section.title) %></a>
-                    <p style="color: gray;">
+                    <a class="trailer-title"><%= HTML.escape(section.title) %></a>
+                    <p class="trailer-timestamp">
                         <%= translate(locale, "`x` views", number_to_short_text(section.views || 0)) %>
                         <%= translate(locale, "Shared `x` ago", recode_date(section.published, locale)) %>
                     </p>
@@ -40,8 +40,8 @@
         <% else %>
             <div class="category pure-u-1">
                 <details open = ""> 
-                    <summary style="display: revert;">
-                        <a class="category-heading" href="<%=section.url%>"> <%= section.title %> </a>
+                    <summary style="display: revert;" class="category-heading">
+                        <a href="<%=section.url%>"> <%= section.title %> </a>
                     </summary>
 
                     <div class="category-description h-box">

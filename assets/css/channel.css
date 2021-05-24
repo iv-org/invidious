@@ -70,7 +70,7 @@
   display: inline;
 }
 
-.section-contents .channel-profile {
+.category-contents .channel-profile {
   text-align: center;
 }
 
@@ -120,13 +120,16 @@ only show up when the screen is wide enough */
 .trailer-metadata {
   margin-left: 15px;
   font-size: 12px;
-  color: rgb(232, 230, 227);
+}
+
+
+.trailer-title {
+  font-size: 15px;
 }
 
 .trailer-metadata .read-more {
   line-height: 20px;
   text-transform: uppercase;
-  color: gray;
   font-size: 13px;
 }
 
@@ -135,4 +138,52 @@ only show up when the screen is wide enough */
   max-height: 150px;
   line-height: 20px;
   margin-top: 20px;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  .no-theme .trailer-metadata {
+    color: rgb(232, 230, 227);
+  }
+
+  .no-theme .trailer-title {
+    color:rgb(209, 209, 209)
+  }
+
+  .no-theme .trailer-metadata .read-more,  .no-theme .trailer-timestamp {
+    color: gray;
+  }
+}
+
+.no-theme .trailer-metadata {
+  color: rgb(232, 230, 227);
+}
+
+.dark-theme .trailer-title {
+  color:rgb(209, 209, 209)
+}
+
+.dark-theme .trailer-metadata .read-more,  .no-theme .trailer-timestamp {
+  color: gray;
+}
+
+
+
+@media (prefers-color-scheme: light) {
+  .no-theme .trailer-metadata, .no-theme .trailer-title {
+    color: black;
+  }
+
+  .no-theme .trailer-metadata .read-more,  .no-theme .trailer-timestamp {
+    color: rgb(127, 127, 127);
+  }
+}
+
+.light-theme .trailer-metadata, .light-theme .trailer-title { 
+  color: black;
+}
+
+
+.light-theme .trailer-metadata .read-more,  .no-theme .trailer-timestamp {
+  color: rgb(127, 127, 127);
 }
