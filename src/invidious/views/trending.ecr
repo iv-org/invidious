@@ -48,7 +48,7 @@
             <% else %>
                 <div class="category pure-u-1">
                     <div class="category-heading h-box">
-                        <p> <%= category.title %> </p>
+                        <span class="category-title"> <%= category.title %> </span>
                         <% if (badges = category.badges).is_a? Array %>
                             <% badges.each do | badge |%>
                                 <% if badge[0] == "BADGE_STYLE_TYPE_FEATURED" %>
