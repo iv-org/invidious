@@ -637,8 +637,8 @@ p,
   margin-top: 1em;
 }
 
-.category .heading > p {
-  display: inline-block;
+.category-heading {
+  margin-bottom: 7px;
 }
 
 /* Split into .badge and #.featured */
@@ -652,7 +652,23 @@ p,
   display: inline;
 }
 
- /* Temp */ 
-.category-description {
+@media (prefers-color-scheme: dark) {
+  .no-theme .category-description {
+    color: #A8A095;
+  }
+}
+
+.dark-theme .category-description {
   color: #A8A095;
 }
+
+@media (prefers-color-scheme: light) {
+  .no-theme .category-description {
+    color: #000000;
+  }
+}
+
+.light-theme .category-description {
+  color: #000000;
+}
+

@@ -11,8 +11,8 @@
     <% if !featured_channel_categories.empty? %>
         <% featured_channel_categories.each do | category | %>
             <div class="channel-section pure-u-1">
-                <details open="">
-                    <summary style="display: revert;">
+                <details open="" class="category">
+                    <summary style="display: revert;" class="category-heading">
                         <span style="font-weight: bold;">
                             <% if category.url %>
                                 <a href="<%=category.url%>">
@@ -24,7 +24,7 @@
                         </h3>
                     </summary>
                     <% contents = category.contents%>
-                    <div class="pure-g section-contents">
+                    <div class="pure-g category-contents">
                         <% if contents.is_a?(Array) %>
                             <% contents.each do |item|%>
                                 <% if !item.is_a?(SearchChannel)%>
