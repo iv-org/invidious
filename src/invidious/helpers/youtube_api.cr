@@ -7,6 +7,23 @@ HARDCODED_API_KEY     = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 HARDCODED_CLIENT_VERS = "2.20210330.08.00"
 
 ####################################################################
+# make_youtube_api_context(region)
+#
+# Return, as a Hash, the "context" data required to request the
+# youtube API endpoints.
+#
+def make_youtube_api_context(region : String | Nil) : Hash
+  return {
+    "client" => {
+      "hl"            => "en",
+      "gl"            => region || "US", # Can't be empty!
+      "clientName"    => "WEB",
+      "clientVersion" => HARDCODED_CLIENT_VERS,
+    }
+  }
+end
+
+####################################################################
 # request_youtube_api_browse(continuation)
 # request_youtube_api_browse(browse_id, params)
 #
@@ -24,15 +41,8 @@ HARDCODED_CLIENT_VERS = "2.20210330.08.00"
 def request_youtube_api_browse(continuation : String)
   # JSON Request data, required by the API
   data = {
-    "context": {
-      "client": {
-        "hl":            "en",
-        "gl":            "US",
-        "clientName":    "WEB",
-        "clientVersion": HARDCODED_CLIENT_VERS,
-      },
-    },
-    "continuation": continuation,
+    "context"      => make_youtube_api_context("US"),
+    "continuation" => continuation,
   }
 
   return _youtube_api_post_json("/youtubei/v1/browse", data)
@@ -42,14 +52,7 @@ def request_youtube_api_browse(browse_id : String, params : String)
   # JSON Request data, required by the API
   data = {
     "browseId" => browse_id,
-    "context"  => {
-      "client" => {
-        "hl"            => "en",
-        "gl"            => "US",
-        "clientName"    => "WEB",
-        "clientVersion" => HARDCODED_CLIENT_VERS,
-      },
-    },
+    "context"  => make_youtube_api_context("US"),
   }
 
   # Append the additionnal parameters if those were provided
@@ -73,16 +76,9 @@ end
 def request_youtube_api_search(search_query : String, params : String, region = nil)
   # JSON Request data, required by the API
   data = {
-    "query":   URI.encode_www_form(search_query),
-    "context": {
-      "client": {
-        "hl":            "en",
-        "gl":            region || "US", # Can't be empty!
-        "clientName":    "WEB",
-        "clientVersion": HARDCODED_CLIENT_VERS,
-      },
-    },
-    "params": params,
+    "query"   => URI.encode_www_form(search_query),
+    "context" => make_youtube_api_context(region),
+    "params"  => params,
   }
 
   return _youtube_api_post_json("/youtubei/v1/search", data)
