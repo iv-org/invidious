@@ -166,7 +166,7 @@ end
 
 before_all do |env|
   preferences = begin
-    Preferences.from_json(env.request.cookies["PREFS"]?.try &.value || "{}")
+    Preferences.from_json(URI.decode_www_form(env.request.cookies["PREFS"]?.try &.value || "{}"))
   rescue
     Preferences.from_json("{}")
   end
