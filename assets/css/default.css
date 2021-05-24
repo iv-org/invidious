@@ -641,6 +641,7 @@ p,
   display: inline-block;
 }
 
+/* Split into .badge and #.featured */
 .category .badge.featured {
   background: #005aa7;
   color: white;
@@ -648,6 +649,7 @@ p,
   border-radius: 5px;
   font-size: 14px;
   margin-left: 10px;
+  display: inline;
 }
 
  /* Temp */ 
