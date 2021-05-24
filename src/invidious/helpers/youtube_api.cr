@@ -19,7 +19,7 @@ def make_youtube_api_context(region : String | Nil) : Hash
       "gl"            => region || "US", # Can't be empty!
       "clientName"    => "WEB",
       "clientVersion" => HARDCODED_CLIENT_VERS,
-    }
+    },
   }
 end
 
@@ -27,8 +27,9 @@ end
 # request_youtube_api_browse(continuation)
 # request_youtube_api_browse(browse_id, params)
 #
-# Requests the youtubei/vi/browse endpoint with the required headers
-# to get JSON in en-US (english US).
+# Requests the youtubei/v1/browse endpoint with the required headers
+# and POST data in order to get a JSON reply in english US that can
+# be easily parsed.
 #
 # The requested data can either be:
 #
@@ -67,8 +68,10 @@ end
 ####################################################################
 # request_youtube_api_search(search_query, params, region)
 #
-# Requests the youtubei/vi/search endpoint with the required headers
-# to get JSON in en-US (english US).
+# Requests the youtubei/v1/search endpoint with the required headers
+# and POST data in order to get a JSON reply. As the search results
+# vary depending on the region, a region code can be specified in
+# order to get non-US results.
 #
 # The requested data is a search string, with some additional
 # paramters, formatted as a base64 string.
