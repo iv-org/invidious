@@ -23,7 +23,7 @@ dependencies:
     github: ysbaddaden/pool
     version: ~> 0.2.3
   protodec:
-    github: omarroth/protodec
+    github: iv-org/protodec
     version: ~> 0.1.3
   lsquic:
     github: iv-org/lsquic.cr

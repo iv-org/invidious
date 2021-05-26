@@ -29,7 +29,7 @@ shards:
     version: 0.2.3
 
   protodec:
-    git: https://github.com/omarroth/protodec.git
+    git: https://github.com/iv-org/protodec.git
     version: 0.1.3
 
   radix:
