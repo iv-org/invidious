@@ -85,6 +85,8 @@ db:
 ##
 ## Domain name under which this instance is hosted. This is
 ## used to craft absolute URLs to the instance (e.g in the API).
+## The domain MUST be defined if your instance is accessed from
+## a domain name (like 'example.com').
 ##
 ## Accepted values: a fully qualified domain name (FQDN)
 ## Default: <none>
@@ -137,6 +139,16 @@ https_only: false
 ##
 ## Enable/Disable the use of QUIC (HTTP/3) when connecting
 ## to the youtube API and websites ('youtube.com', 'ytimg.com').
+## QUIC's main advantages are its lower latency and lower bandwidth
+## use, compared to its predecessors. However, the current version
+## of QUIC used in invidious is still based on the IETF draft 31,
+## meaning that the underlying library may still not be fully
+## optimized. You can read more about QUIC at the link below:
+## https://datatracker.ietf.org/doc/html/draft-ietf-quic-transport-31
+##
+## Note: you should try both options and see what is the best for
+## your instance. Also, some maintainers reported that using QUIC
+## may reduce the occurence of captcha challenges from youtube.
 ##
 ## Accepted values: true, false
 ## Default: true
