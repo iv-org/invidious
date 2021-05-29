@@ -298,7 +298,7 @@ def make_host_url(kemal_config)
 
   # Add if non-standard port
   if port != 80 && port != 443
-    port = ":#{kemal_config.port}"
+    port = ":#{port}"
   else
     port = ""
   end
