@@ -1,7 +1,7 @@
 {
     "`x` subscribers": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnenter",
-        "": "`x` abonnenter."
+        "": "`x` abonnenter"
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videoer",
@@ -126,11 +126,11 @@
     "Token": "Symbol",
     "`x` subscriptions": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnementer",
-        "": "`x` abonnementer."
+        "": "`x` abonnementer"
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` symboler",
-        "": "`x` symboler."
+        "": "`x` symboler"
     },
     "Import/export": "Importer/eksporter",
     "unsubscribe": "opphev abonnement",
@@ -138,7 +138,7 @@
     "Subscriptions": "Abonnement",
     "`x` unseen notifications": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` usette merknader",
-        "": "`x` usette merknader."
+        "": "`x` usette merknader"
     },
     "search": "søk",
     "Log out": "Logg ut",
