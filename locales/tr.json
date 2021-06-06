@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abone.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` abone."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abone",
+        "": "`x` abone"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` video."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
+        "": "`x` video"
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` oynatma listesi.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` oynatma listesi."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` oynatma listesi",
+        "": "`x` oynatma listesi"
     },
     "LIVE": "CANLI",
     "Shared `x` ago": "`x` önce paylaşıldı",
@@ -125,20 +125,20 @@
     "Token manager": "Belirteç yöneticisi",
     "Token": "Belirteç",
     "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonelik.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` abonelik."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonelik",
+        "": "`x` abonelik"
     },
     "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` belirteç.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` belirteç."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` belirteç",
+        "": "`x` belirteç"
     },
     "Import/export": "İçe/dışa aktar",
     "unsubscribe": "abonelikten çık",
     "revoke": "geri al",
     "Subscriptions": "Abonelikler",
     "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` okunmamış bildirim.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` okunmamış bildirim."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` okunmamış bildirim",
+        "": "`x` okunmamış bildirim"
     },
     "search": "ara",
     "Log out": "Çıkış yap",
