@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnenter.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` abonnenter."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnenter",
+        "": "`x` abonnenter"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videoer.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` videoer."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videoer",
+        "": "`x` videoer"
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` afspilningslister.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` afspilningslister."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` afspilningslister",
+        "": "`x` afspilningslister"
     },
     "LIVE": "DIREKTE",
     "Shared `x` ago": "Delt for `x` siden",
@@ -125,20 +125,20 @@
     "Token manager": "Tokenmanager",
     "Token": "Token",
     "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnementer.([^.,0-9]|^)1([^.,0-9]|$)",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnementer",
         "": "`x`"
     },
     "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` tokens."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens",
+        "": "`x` tokens"
     },
     "Import/export": "Importer/eksporter",
     "unsubscribe": "opsig abonnement",
     "revoke": "tilbagekald",
     "Subscriptions": "Abonnementer",
     "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` usete notifikationer.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` usete notifikationer."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` usete notifikationer",
+        "": "`x` usete notifikationer"
     },
     "search": "søg",
     "Log out": "Log ud",
