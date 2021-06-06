@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pelanggan.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` pelanggan."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pelanggan",
+        "": "`x` pelanggan"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` video."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
+        "": "`x` video"
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` daftar putar.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` daftar putar."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` daftar putar",
+        "": "`x` daftar putar"
     },
     "LIVE": "SIARAN LANGSUNG",
     "Shared `x` ago": "Dibagikan`x` lalu",
@@ -125,20 +125,20 @@
     "Token manager": "Pengatur token",
     "Token": "Token",
     "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` langganan.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` langganan."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` langganan",
+        "": "`x` langganan"
     },
     "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` token."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
+        "": "`x` token"
     },
     "Import/export": "Impor/ekspor",
     "unsubscribe": "batal langganan",
     "revoke": "cabut",
     "Subscriptions": "Langganan",
     "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pemberitahuan belum dilihat.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` pemberitahuan belum dilihat."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pemberitahuan belum dilihat",
+        "": "`x` pemberitahuan belum dilihat"
     },
     "search": "cari",
     "Log out": "Keluar",
