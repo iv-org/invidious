@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonantoj.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` abonantoj."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonantoj",
+        "": "`x` abonantoj"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` filmetoj.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` filmetoj."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` filmetoj",
+        "": "`x` filmetoj"
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ludlistoj.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` ludlistoj."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ludlistoj",
+        "": "`x` ludlistoj"
     },
     "LIVE": "NUNA",
     "Shared `x` ago": "Konigita antaŭ `x`",
@@ -126,11 +126,11 @@
     "Token": "Ĵetono",
     "`x` subscriptions": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonoj",
-        "": "`x` abonoj."
+        "": "`x` abonoj"
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ĵetonoj",
-        "": "`x` ĵetonoj."
+        "": "`x` ĵetonoj"
     },
     "Import/export": "Importi/Eksporti",
     "unsubscribe": "malabonu",
@@ -138,7 +138,7 @@
     "Subscriptions": "Abonoj",
     "`x` unseen notifications": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` neviditaj sciigoj",
-        "": "`x` neviditaj sciigoj."
+        "": "`x` neviditaj sciigoj"
     },
     "search": "serĉi",
     "Log out": "Elsaluti",
