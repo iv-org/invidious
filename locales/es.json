@@ -1,7 +1,7 @@
 {
     "`x` subscribers": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` suscriptores",
-        "": "`x` suscriptores."
+        "": "`x` suscriptores"
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vídeos",
@@ -9,7 +9,7 @@
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` listas de reproducción",
-        "": "`x` listas de reproducción."
+        "": "`x` listas de reproducción"
     },
     "LIVE": "DIRECTO",
     "Shared `x` ago": "Compartido hace `x`",
@@ -126,11 +126,11 @@
     "Token": "Token",
     "`x` subscriptions": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` suscripciones",
-        "": "`x` suscripciones."
+        "": "`x` suscripciones"
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens",
-        "": "`x` tokens."
+        "": "`x` tokens"
     },
     "Import/export": "Importar/Exportar",
     "unsubscribe": "Desuscribirse",
@@ -138,7 +138,7 @@
     "Subscriptions": "Suscripciones",
     "`x` unseen notifications": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notificaciones sin ver",
-        "": "`x` notificaciones sin ver."
+        "": "`x` notificaciones sin ver"
     },
     "search": "buscar",
     "Log out": "Cerrar la sesión",
