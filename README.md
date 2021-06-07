@@ -1,18 +1,45 @@
-<h1 align="center">Invidious</h1>
+<div align="center">
+  <img src="assets/android-chrome-192x192.png">
+  <h1>Invidious</h1>
 
-<h2 align="center">Invidious is an alternative front-end to YouTube.</h2>
+  <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
+    <img alt="License: AGPLv3+" src="https://shields.io/badge/License-AGPL%20v3+-blue.svg">
+  </a>
+  <a href="https://github.com/iv-org/invidious/actions">
+    <img alt="Build Status" src="https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg">
+  </a>
+  <a href="https://github.com/iv-org/invidious/issues">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/iv-org/invidious?color=important">
+  </a>
+  <a href="https://github.com/iv-org/invidious/issues">
+    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/iv-org/invidious?color=blueviolet">
+  </a>
+  <a href="https://hosted.weblate.org/engage/invidious/">
+    <img alt="Translation Status" src="https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg">
+  </a>
 
----
+  <h3>An open source alternative front-end to YouTube</h3>
 
-## Invidious instances:
+  <a href="https://instances.invidious.io/">Instances list</a>
+  &nbsp;•&nbsp; 
+  <a href="#documentation">Documentation</a>
+  &nbsp;•&nbsp;
+  <a href="#contribute">Contribute</a>
+  &nbsp;•&nbsp;
+  <a href="#donate">Donate</a>
 
-Public Invidious instances are listed on the documentation website: https://instances.invidious.io/
+  <p>Chat with us on:</p>
+  <a href="https://matrix.to/#/#invidious:matrix.org">
+    <img alt="Matrix" src="https://img.shields.io/matrix/invidious:matrix.org?label=Matrix">
+  </a>
+  <a href="https://web.libera.chat/?channel=#invidious">
+    <img alt="Libera.chat (IRC)" src="https://img.shields.io/badge/IRC%20%28Libera.chat%29-%23invidious-green">
+  </a>
+</div>
 
----
 
-## Invidious features:
+## Features
 
-- [Copylefted libre software](https://github.com/iv-org/invidious) (AGPLv3+ licensed)
 - Lightweight (the homepage is ~4 KB compressed)
 - No ads
 - No tracking
@@ -36,38 +63,33 @@ Public Invidious instances are listed on the documentation website: https://inst
 - No Contributor license Agreement
 - Available in many languages, thanks to [Weblate](https://hosted.weblate.org/projects/invidious/)
 
----
 
-## Screenshots:
+## Screenshots
 
-| Player                                                                                                                  | Preferences                                                                                                             | Subscriptions                                                                                                               |
-| ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| [<img src="screenshots/01_player.png?raw=true" height="140" width="280">](screenshots/01_player.png?raw=true)           | [<img src="screenshots/02_preferences.png?raw=true" height="140" width="280">](screenshots/02_preferences.png?raw=true) | [<img src="screenshots/03_subscriptions.png?raw=true" height="140" width="280">](screenshots/03_subscriptions.png?raw=true) |
-| [<img src="screenshots/04_description.png?raw=true" height="140" width="280">](screenshots/04_description.png?raw=true) | [<img src="screenshots/05_preferences.png?raw=true" height="140" width="280">](screenshots/05_preferences.png?raw=true) | [<img src="screenshots/06_subscriptions.png?raw=true" height="140" width="280">](screenshots/06_subscriptions.png?raw=true) |
+| Player                              | Preferences                         | Subscriptions                         |
+|-------------------------------------|-------------------------------------|---------------------------------------|
+| ![](screenshots/01_player.png)      | ![](screenshots/02_preferences.png) | ![](screenshots/03_subscriptions.png) |
+| ![](screenshots/04_description.png) | ![](screenshots/05_preferences.png) | ![](screenshots/06_subscriptions.png) |
 
----
 
-## Donate:
+## Donate
 
 Bitcoin (BTC): [bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr](bitcoin:bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr)
 
 Monero (XMR): [41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR](monero:41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR)
 
----
 
-## Documentation:
+## Documentation
 
 The complete documentation is available on https://docs.invidious.io/ (or alternatively on its own [Github repository](https://github.com/iv-org/documentation)).
 
----
 
-## Extensions:
+## Extensions
 
 [Extensions](https://docs.invidious.io/Extensions.md) can be found in the wiki, as well as documentation for integrating it into other projects.
 
----
 
-## Made with Invidious:
+## Made with Invidious
 
 - [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
 - [CloudTube](https://sr.ht/~cadence/tube/): A JavaScript-rich alternate YouTube player.
@@ -75,11 +97,10 @@ The complete documentation is available on https://docs.invidious.io/ (or altern
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
 - [HoloPlay](https://github.com/stephane-r/HoloPlay): Funny Android application connecting on Invidious API's with search, playlists and favoris.
 
----
 
-## Contributing:
+## Contribute
 
-[![Build Status](https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg)](https://github.com/iv-org/invidious/actions) [![Translation Status](https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg)](https://hosted.weblate.org/engage/invidious/)
+### Code
 
 1.  Fork it ( https://github.com/iv-org/invidious/fork ).
 2.  Create your feature branch (git checkout -b my-new-feature).
@@ -87,19 +108,12 @@ The complete documentation is available on https://docs.invidious.io/ (or altern
 4.  Push to the branch (git push origin my-new-feature).
 5.  Create a new pull request.
 
-### Translation:
+### Translations
 
 - Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/engage/invidious/).
 
----
 
-## Contact:
-
-Feel free to join our [Matrix room](https://matrix.to/#/#invidious:matrix.org).
-
----
-
-## Liability:
+## Liability
 
 We take no responsibility for the use of our tool, or external instances provided by third parties. We strongly recommend you abide by the valid official regulations in your country. Furthermore, we refuse liability for any inappropriate use of Invidious, such as illegal downloading. This tool is provided to you in the spirit of free, open software.
 
