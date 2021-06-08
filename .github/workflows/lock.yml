@@ -1,6 +1,8 @@
-name: 'Lock Threads'
+# Documentation: https://github.com/marketplace/actions/lock-threads
 
+name: 'Lock Threads'
 on:
+  workflow_dispatch:
   schedule:
     - cron: "0 */12 * * *"
 
