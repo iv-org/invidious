@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnenter.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` abonnenter."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnenter",
+        "": "`x` abonnenter"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videoer.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` videoer."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videoer",
+        "": "`x` videoer"
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` afspilningslister.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` afspilningslister."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` afspilningslister",
+        "": "`x` afspilningslister"
     },
     "LIVE": "DIREKTE",
     "Shared `x` ago": "Delt for `x` siden",
@@ -77,8 +77,8 @@
     "Fallback captions: ": "Alternative undertekster: ",
     "Show related videos: ": "Vis relaterede videoer: ",
     "Show annotations by default: ": "Vis annotationer som standard: ",
-    "Automatically extend video description: ": "",
-    "Interactive 360 degree videos: ": "",
+    "Automatically extend video description: ": "Automatisk udvid videoens beskrivelse: ",
+    "Interactive 360 degree videos: ": "Interaktiv 360 graders videoer: ",
     "Visual preferences": "Visuelle præferencer",
     "Player style: ": "Afspiller stil: ",
     "Dark mode: ": "Mørk tilstand: ",
@@ -125,20 +125,20 @@
     "Token manager": "Tokenmanager",
     "Token": "Token",
     "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnementer.([^.,0-9]|^)1([^.,0-9]|$)",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnementer",
         "": "`x`"
     },
     "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` tokens."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens",
+        "": "`x` tokens"
     },
     "Import/export": "Importer/eksporter",
     "unsubscribe": "opsig abonnement",
     "revoke": "tilbagekald",
     "Subscriptions": "Abonnementer",
     "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` usete notifikationer.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` usete notifikationer."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` usete notifikationer",
+        "": "`x` usete notifikationer"
     },
     "search": "søg",
     "Log out": "Log ud",
@@ -151,15 +151,15 @@
     "Unlisted": "Skjult",
     "Private": "Privat",
     "View all playlists": "Vis alle afspilningslister",
-    "Updated `x` ago": "",
+    "Updated `x` ago": "Opdateret for 'x' siden",
     "Delete playlist `x`?": "Opdateret `x` siden",
     "Delete playlist": "Slet afspilningsliste",
     "Create playlist": "Opret afspilningsliste",
     "Title": "Titel",
     "Playlist privacy": "Privatlivsindstillinger for afspilningsliste",
     "Editing playlist `x`": "Redigerer afspilningsliste `x`",
-    "Show more": "",
-    "Show less": "",
+    "Show more": "Vis mere",
+    "Show less": "Vis mindre",
     "Watch on YouTube": "Se på YouTube",
     "Hide annotations": "Skjul annotationer",
     "Show annotations": "Vis annotationer",
@@ -190,38 +190,38 @@
     "Incorrect password": "Forkert adgangskode",
     "Quota exceeded, try again in a few hours": "Kvota overskredet, prøv igen om et par timer",
     "Unable to log in, make sure two-factor authentication (Authenticator or SMS) is turned on.": "Login fejlet, tjek at totrinsbekræftelse (Authenticator eller SMS) er slået til.",
-    "Invalid TFA code": "",
-    "Login failed. This may be because two-factor authentication is not turned on for your account.": "",
+    "Invalid TFA code": "Ugyldig TFA kode",
+    "Login failed. This may be because two-factor authentication is not turned on for your account.": "Login fejlede. Det er måske på grund af to-faktor-autentisering ikk er slået til for din konto.",
     "Wrong answer": "Forkert svar",
     "Erroneous CAPTCHA": "Fejlagtig CAPTCHA",
-    "CAPTCHA is a required field": "",
-    "User ID is a required field": "",
-    "Password is a required field": "",
+    "CAPTCHA is a required field": "CAPTCHA er et krævet felt",
+    "User ID is a required field": "Bruger ID er et krævet felt",
+    "Password is a required field": "Adgangskode er et krævet felt",
     "Wrong username or password": "Forkert brugernavn eller adgangskode",
-    "Please sign in using 'Log in with Google'": "",
-    "Password cannot be empty": "",
+    "Please sign in using 'Log in with Google'": "Venligst tjek in via 'Log in med Google'",
+    "Password cannot be empty": "Adgangskode kan ikke være tom",
     "Password cannot be longer than 55 characters": "Adgangskoden må ikke være længere end 55 tegn",
-    "Please log in": "",
+    "Please log in": "Venligst log in",
     "Invidious Private Feed for `x`": "",
-    "channel:`x`": "",
-    "Deleted or invalid channel": "",
-    "This channel does not exist.": "",
-    "Could not get channel info.": "",
-    "Could not fetch comments": "",
+    "channel:`x`": "kanal: 'x'",
+    "Deleted or invalid channel": "Slettet eller invalid kanal",
+    "This channel does not exist.": "Denne kanal eksisterer ikke.",
+    "Could not get channel info.": "Kunne ikke hente kanal info.",
+    "Could not fetch comments": "Kunne ikke hente kommentarer",
     "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` besvarelser.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "Vis 'x' besvarelser."
     },
-    "`x` ago": "",
-    "Load more": "",
+    "`x` ago": "'x' siden",
+    "Load more": "Hent flere",
     "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` point.([^.,0-9]|^)1([^.,0-9]|$)",
+        "": "'x' point."
     },
-    "Could not create mix.": "",
-    "Empty playlist": "",
-    "Not a playlist.": "",
-    "Playlist does not exist.": "",
+    "Could not create mix.": "Kunne ikke skabe blanding.",
+    "Empty playlist": "Tom playliste",
+    "Not a playlist.": "Ikke en playliste.",
+    "Playlist does not exist.": "Playlist eksisterer ikke.",
     "Could not pull trending pages.": "",
     "Hidden field \"challenge\" is a required field": "",
     "Hidden field \"token\" is a required field": "",

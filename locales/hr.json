@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pretplatnika.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` pretplatnika."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pretplatnika",
+        "": "`x` pretplatnika"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videa.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` videa."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videa",
+        "": "`x` videa"
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playliste.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` playliste."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playliste",
+        "": "`x` playliste"
     },
     "LIVE": "UŽIVO",
     "Shared `x` ago": "Dijeljeno prije `x`",
@@ -125,20 +125,20 @@
     "Token manager": "Upravljanje tokenima",
     "Token": "Token",
     "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pretplate.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` pretplate."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pretplate",
+        "": "`x` pretplate"
     },
     "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokena.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` tokena."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokena",
+        "": "`x` tokena"
     },
     "Import/export": "Uvezi/izvezi",
     "unsubscribe": "odjavi pretplatu",
     "revoke": "opozovi",
     "Subscriptions": "Pretplate",
     "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` neviđene obavijesti.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` neviđene obavijesti."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` neviđene obavijesti",
+        "": "`x` neviđene obavijesti"
     },
     "search": "traži",
     "Log out": "Odjavi se",

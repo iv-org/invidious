@@ -1,6 +1,6 @@
 {
     "`x` subscribers.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` subscribers.": "`x` odberateľov.",
+    "`x` subscribers.": "`x` odberateľov",
     "`x` videos.([^.,0-9]|^)1([^.,0-9]|$)": "",
     "`x` videos.": "",
     "`x` playlists.([^.,0-9]|^)1([^.,0-9]|$)": "",
