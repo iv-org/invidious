@@ -16,5 +16,5 @@ jobs:
           issue-lock-reason: 'resolved'
           pr-lock-reason: 'resolved'
 
-          issue-lock-comment: 'This issue has been automatically locked since there has not been any recent activity after it was closed. Please open a new issue for related bugs.'
-          pr-lock-comment: 'This pull request has been automatically locked since there has not been any recent activity after it was closed. Please open a new pull request for related changes.'
+          issue-lock-comment: 'This issue has been automatically locked since there has not been any activity in it in the last 30 days. If this is still applicable to the current version of Invidious feel free to open a new issue.'
+          pr-lock-comment: 'This pull request has been automatically locked since there has not been any activity in it in the last 30 days. If you want to tell us about needed or wanted changes or if problems related to this code are discovered, feel free to open an issue or a new pull request.'
