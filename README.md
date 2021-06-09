@@ -28,7 +28,7 @@
   &nbsp;•&nbsp;
   <a href="#donate">Donate</a>
 
-  <p>Chat with us on:</p>
+  <h5>Chat with us:</h5>
   <a href="https://matrix.to/#/#invidious:matrix.org">
     <img alt="Matrix" src="https://img.shields.io/matrix/invidious:matrix.org?label=Matrix">
   </a>
