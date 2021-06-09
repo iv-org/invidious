@@ -38,6 +38,14 @@
 </div>
 
 
+## Screenshots
+
+| Player                              | Preferences                         | Subscriptions                         |
+|-------------------------------------|-------------------------------------|---------------------------------------|
+| ![](screenshots/01_player.png)      | ![](screenshots/02_preferences.png) | ![](screenshots/03_subscriptions.png) |
+| ![](screenshots/04_description.png) | ![](screenshots/05_preferences.png) | ![](screenshots/06_subscriptions.png) |
+
+
 ## Features
 
 - Lightweight (the homepage is ~4 KB compressed)
@@ -64,21 +72,6 @@
 - Available in many languages, thanks to [Weblate](https://hosted.weblate.org/projects/invidious/)
 
 
-## Screenshots
-
-| Player                              | Preferences                         | Subscriptions                         |
-|-------------------------------------|-------------------------------------|---------------------------------------|
-| ![](screenshots/01_player.png)      | ![](screenshots/02_preferences.png) | ![](screenshots/03_subscriptions.png) |
-| ![](screenshots/04_description.png) | ![](screenshots/05_preferences.png) | ![](screenshots/06_subscriptions.png) |
-
-
-## Donate
-
-Bitcoin (BTC): [bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr](bitcoin:bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr)
-
-Monero (XMR): [41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR](monero:41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR)
-
-
 ## Documentation
 
 The complete documentation is available on https://docs.invidious.io/ (or alternatively on its own [Github repository](https://github.com/iv-org/documentation)).
@@ -87,15 +80,6 @@ The complete documentation is available on https://docs.invidious.io/ (or altern
 ## Extensions
 
 [Extensions](https://docs.invidious.io/Extensions.md) can be found in the wiki, as well as documentation for integrating it into other projects.
-
-
-## Made with Invidious
-
-- [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
-- [CloudTube](https://sr.ht/~cadence/tube/): A JavaScript-rich alternate YouTube player.
-- [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
-- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
-- [HoloPlay](https://github.com/stephane-r/HoloPlay): Funny Android application connecting on Invidious API's with search, playlists and favoris.
 
 
 ## Contribute
@@ -111,6 +95,22 @@ The complete documentation is available on https://docs.invidious.io/ (or altern
 ### Translations
 
 - Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/engage/invidious/).
+
+
+## Made with Invidious
+
+- [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
+- [CloudTube](https://sr.ht/~cadence/tube/): A JavaScript-rich alternate YouTube player.
+- [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
+- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
+- [HoloPlay](https://github.com/stephane-r/HoloPlay): Funny Android application connecting on Invidious API's with search, playlists and favoris.
+
+
+## Donate
+
+Bitcoin (BTC): [bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr](bitcoin:bc1qfhe7rq3lqzuayzjxzyt9waz9ytrs09kla3tsgr)
+
+Monero (XMR): [41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR](monero:41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3LXqkEJBrCZBgPTwJrDp1FrZJfycGPR)
 
 
 ## Liability
