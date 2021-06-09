@@ -51,7 +51,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
 
       # See https://github.com/ytdl-org/youtube-dl/blob/2019.04.07/youtube_dl/extractor/youtube.py#L82
       begin
-        client = QUIC::Client.new(LOGIN_URL)
+        client = QuicProxyWrapper.new(LOGIN_URL)
         headers = HTTP::Headers.new
 
         login_page = client.get("/ServiceLogin")
