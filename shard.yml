@@ -24,7 +24,7 @@ dependencies:
     version: ~> 0.1.4
   lsquic:
     github: iv-org/lsquic.cr
-    version: ~> 2.18.1-1
+    version: ~> 2.18.1-2
 
 crystal: 1.0.0
 
