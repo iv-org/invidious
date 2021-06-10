@@ -462,7 +462,7 @@ def subscribe_ajax(channel_id, action, env_headers)
 
   html = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
 
-  cookies = HTTP::Cookies.from_headers(headers)
+  cookies = HTTP::Cookies.from_client_headers(headers)
   html.cookies.each do |cookie|
     if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
       if cookies[cookie.name]?
