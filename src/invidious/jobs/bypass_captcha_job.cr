@@ -112,7 +112,7 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
             headers = HTTP::Headers{
               "Cookie" => URI.parse(response.headers["location"]).query_params["google_abuse"].split(";")[0],
             }
-            cookies = HTTP::Cookies.from_headers(headers)
+            cookies = HTTP::Cookies.from_client_headers(headers)
 
             cookies.each { |cookie| CONFIG.cookies << cookie }
 

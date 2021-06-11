@@ -166,7 +166,7 @@ end
 
 before_all do |env|
   preferences = begin
-    Preferences.from_json(env.request.cookies["PREFS"]?.try &.value || "{}")
+    Preferences.from_json(URI.decode_www_form(env.request.cookies["PREFS"]?.try &.value || "{}"))
   rescue
     Preferences.from_json("{}")
   end
@@ -421,7 +421,7 @@ get "/modify_notifications" do |env|
 
     html = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
 
-    cookies = HTTP::Cookies.from_headers(headers)
+    cookies = HTTP::Cookies.from_client_headers(headers)
     html.cookies.each do |cookie|
       if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
         if cookies[cookie.name]?
