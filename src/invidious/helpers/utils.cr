@@ -415,35 +415,52 @@ def fetch_random_instance
   instance_list = JSON.parse(instance_list.body)
 
   filtered_instance_list = [] of String
-  instance_list.as_a.each do |data|
-    if data[1]["type"] == "https"
-      # Makes sure the instance isn't too outdated.
-      remote_version = data[1]["stats"]["software"]["version"]
-      remote_commit_date = remote_version.as_s.match(/\d{4}\.\d{2}\.\d{2}/)
-      next if !remote_commit_date
-      remote_commit_date = Time.parse(remote_commit_date[0], "%Y.%m.%d", Time::Location::UTC)
-      local_commit_date = Time.parse(CURRENT_VERSION, "%Y.%m.%d", Time::Location::UTC)
 
-      if (remote_commit_date - local_commit_date).abs.days <= 30
+  instance_list.as_a.each do |data|
+    # TODO Check if current URL is onion instance and use .onion types if so.
+    if data[1]["type"] == "https"
+      # Instances can have statisitics disabled, which is an requirement of version validation.
+      begin
+        data[1]["stats"].as_nil
+        statistics_disabled = true
+        next
+      rescue TypeCastError
+        statistics_disabled = false
+      end
+
+      # stats endpoint could also lack the software dict.
+      next if statistics_disabled || data[1]["stats"]["software"]?.nil?
+
+      # Makes sure the instance isn't too outdated.
+      if remote_version = data[1]["stats"]?.try &.["software"]?.try &.["version"]
+        remote_commit_date = remote_version.as_s.match(/\d{4}\.\d{2}\.\d{2}/)
+        next if !remote_commit_date
+
+        remote_commit_date = Time.parse(remote_commit_date[0], "%Y.%m.%d", Time::Location::UTC)
+        local_commit_date = Time.parse(CURRENT_VERSION, "%Y.%m.%d", Time::Location::UTC)
+
+        next if (remote_commit_date - local_commit_date).abs.days > 30
+
         # as_nil? doesn't exist. Thus we'll have to handle the error rasied if
         # as_nil fails.
         begin
           broken_health_monitoring = data[1]["monitor"].as_nil
-          broken_health_monitoring = true if broken_health_monitoring.nil?
-        rescue TypeCastError
-          broken_health_monitoring = false
-        end
-
-        if !broken_health_monitoring
           health = data[1]["monitor"].as_h["dailyRatios"][0].as_h["ratio"]
           filtered_instance_list << data[0].as_s if health.to_s.to_f > 90
-        else
+        rescue TypeCastError
           # We can't check the health if the monitoring is broken. Thus we'll just add it to the list
-          # and move on
+          # and move on. Ideally we'll ignore any instance that has broken health monitoring but due to the fact that
+          # it's an error that often occurs with all the instances at the same time, we have to just skip the check.
           filtered_instance_list << data[0].as_s
         end
       end
     end
   end
+
+  # If for some reason no instances managed to get fetched successfully then we'll just redirect to redirect.invidious.io
+  if filtered_instance_list.size == 0
+    return "redirect.invidious.io"
+  end
+
   return filtered_instance_list.sample(1)[0]
 end
