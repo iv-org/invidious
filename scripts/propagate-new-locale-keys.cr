@@ -20,7 +20,7 @@ end
 # Invidious currently has some unloaded localization files. We shouldn't need to propagate new keys onto those.
 # We'll also remove the reference locale (english) from the list to process.
 loaded_locales = LOCALES.keys.select! { |key| key != "en-US" }
-english_locale = locale_to_array("en-US")[0]
+english_locale, english_locale_keys = locale_to_array("en-US")
 
 # In order to automatically propagate locale keys we're going to be needing two arrays.
 # One is an array containing each locale data encoded as tuples. The other would contain
@@ -39,7 +39,8 @@ loaded_locales.each do |name|
   locale_list_with_only_keys << keys_only_locale
 end
 
-locale_list_with_only_keys.each_with_index do |keys_of_locale_in_processing, index_of_locale_in_processing|
+# Propagate additions
+locale_list_with_only_keys.dup.each_with_index do |keys_of_locale_in_processing, index_of_locale_in_processing|
   insert_at = {} of Int32 => Tuple(String, JSON::Any | String)
 
   LOCALES["en-US"].each_with_index do |ref_locale_data, ref_locale_key_index|
@@ -57,7 +58,24 @@ locale_list_with_only_keys.each_with_index do |keys_of_locale_in_processing, ind
   end
 
   insert_at.each do |location_to_insert, data|
+    locale_list_with_only_keys[index_of_locale_in_processing].insert(location_to_insert, data[0])
     locale_list[index_of_locale_in_processing].insert(location_to_insert, data)
+  end
+end
+
+# Propagate removals
+locale_list_with_only_keys.dup.each_with_index do |keys_of_locale_in_processing, index_of_locale_in_processing|
+  remove_at = [] of Int32
+
+  keys_of_locale_in_processing.each_with_index do |current_key, current_key_index|
+    if !english_locale_keys.includes? current_key
+      remove_at << current_key_index
+    end
+  end
+
+  remove_at.each do |index_to_remove_at|
+    locale_list_with_only_keys[index_of_locale_in_processing].delete_at(index_to_remove_at)
+    locale_list[index_of_locale_in_processing].delete_at(index_to_remove_at)
   end
 end
 
