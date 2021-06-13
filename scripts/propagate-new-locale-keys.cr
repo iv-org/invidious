@@ -17,7 +17,7 @@ def locale_to_array(locale_name)
   return arrayifed_locale_data, keys_only_array
 end
 
-# Invidious currently had some unloaded localization files. We shouldn't need to propagate new keys onto those.
+# Invidious currently has some unloaded localization files. We shouldn't need to propagate new keys onto those.
 # We'll also remove the reference locale (english) from the list to process.
 loaded_locales = LOCALES.keys.select! { |key| key != "en-US" }
 english_locale = locale_to_array("en-US")[0]
@@ -26,7 +26,7 @@ english_locale = locale_to_array("en-US")[0]
 # One is an array containing each locale data encoded as tuples. The other would contain
 # sets of only the keys of each locale files.
 #
-# The second file is to make sure that an key from the english reference file is present
+# The second array is to make sure that an key from the english reference file is present
 # in whatever the current locale we're scanning is.
 locale_list = [] of Array(Tuple(String, JSON::Any | String))
 locale_list_with_only_keys = [] of Array(String)
@@ -45,7 +45,7 @@ locale_list_with_only_keys.each_with_index do |keys_of_locale_in_processing, ind
   LOCALES["en-US"].each_with_index do |ref_locale_data, ref_locale_key_index|
     ref_locale_key, ref_locale_value = ref_locale_data
 
-    # Found an new key that isn't present in the current locale being processed.
+    # Found an new key that isn't present in the current locale..
     if !keys_of_locale_in_processing.includes? ref_locale_key
       # In terms of structure there's currently only two types; one for plural and the other for singular translations.
       if ref_locale_value.as_h?
@@ -61,17 +61,17 @@ locale_list_with_only_keys.each_with_index do |keys_of_locale_in_processing, ind
   end
 end
 
+# Now we convert back to our original format.
 final_locale_list = [] of String
-# Now we convert back to how original formats
 locale_list.each do |locale|
   intermediate_hash = {} of String => (JSON::Any | String)
   locale.each { |k, v| intermediate_hash[k] = v }
   final_locale_list << intermediate_hash.to_pretty_json(indent = "    ")
 end
 
-# Map locale name to locale contents
 locale_map = Hash.zip(loaded_locales, final_locale_list)
 
+# Export
 locale_map.each do |locale_name, locale_contents|
   File.write("locales/#{locale_name}.json", "#{locale_contents}\n")
 end
