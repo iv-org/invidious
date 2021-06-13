@@ -20,15 +20,17 @@ class Invidious::Routes::Search < Invidious::Routes::BaseRoute
 
     query = env.params.query["search_query"]?
     query ||= env.params.query["q"]?
-    query ||= ""
 
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
+    page = env.params.query["page"]?
 
-    if query
-      env.redirect "/search?q=#{URI.encode_www_form(query)}&page=#{page}"
+    if query && !query.empty?
+      if page && !page.empty?
+        env.redirect "/search?q=" + URI.encode_www_form(query) + "&page=" + page
+      else
+        env.redirect "/search?q=" + URI.encode_www_form(query)
+      end
     else
-      env.redirect "/"
+      env.redirect "/search"
     end
   end
 
@@ -38,9 +40,13 @@ class Invidious::Routes::Search < Invidious::Routes::BaseRoute
 
     query = env.params.query["search_query"]?
     query ||= env.params.query["q"]?
-    query ||= ""
 
-    return env.redirect "/" if query.empty?
+    if !query || query.empty?
+      # Display the full page search box implemented in #1977
+      env.set "search", ""
+      templated "search_homepage", navbar_search: false
+      return
+    end
 
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
@@ -48,7 +54,7 @@ class Invidious::Routes::Search < Invidious::Routes::BaseRoute
     user = env.get? "user"
 
     begin
-      search_query, count, videos, operators = process_search_query(query, page, user, region: nil)
+      search_query, count, videos, operators = process_search_query(query, page, user, region: region)
     rescue ex
       return error_template(500, ex)
     end

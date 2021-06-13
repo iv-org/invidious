@@ -79,7 +79,7 @@ end
 def request_youtube_api_search(search_query : String, params : String, region = nil)
   # JSON Request data, required by the API
   data = {
-    "query"   => URI.encode_www_form(search_query),
+    "query"   => search_query,
     "context" => make_youtube_api_context(region),
     "params"  => params,
   }
