@@ -411,12 +411,22 @@ def convert_theme(theme)
 end
 
 def fetch_random_instance
-  instance_list = HTTP::Client.get "https://api.invidious.io/instances.json"
-  instance_list = JSON.parse(instance_list.body)
+  begin
+    instance_api_client = HTTP::Client.new("api.invidious.io")
+
+    # Timeouts
+    instance_api_client.connect_timeout = 10.seconds
+    instance_api_client.dns_timeout = 10.seconds
+
+    instance_list = JSON.parse(instance_api_client.get("/instances.json").body).as_a
+    instance_api_client.close
+  rescue Socket::ConnectError | IO::TimeoutError | JSON::ParseException
+    instance_list = [] of JSON::Any
+  end
 
   filtered_instance_list = [] of String
 
-  instance_list.as_a.each do |data|
+  instance_list.each do |data|
     # TODO Check if current URL is onion instance and use .onion types if so.
     if data[1]["type"] == "https"
       # Instances can have statisitics disabled, which is an requirement of version validation.
