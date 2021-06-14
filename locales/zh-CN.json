@@ -87,7 +87,7 @@
     "light": "亮色",
     "Thin mode: ": "窄页模式: ",
     "Miscellaneous preferences": "",
-    "Automatically redirect to another Instance: ": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "订阅设置",
     "Show annotations by default for subscribed channels: ": "默认情况下显示已订阅频道的注释: ",
     "Redirect homepage to feed: ": "跳转主页到 feed: ",

@@ -87,7 +87,7 @@
     "light": "Світла",
     "Thin mode: ": "Полегшене оформлення: ",
     "Miscellaneous preferences": "",
-    "Automatically redirect to another Instance: ": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Налаштування підписок",
     "Show annotations by default for subscribed channels: ": "Завжди показувати анотації у відео каналів, на які ви підписані? ",
     "Redirect homepage to feed: ": "Показувати відео з каналів, на які підписані, як головну сторінку: ",

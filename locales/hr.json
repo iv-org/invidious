@@ -87,7 +87,7 @@
     "light": "svijetlo",
     "Thin mode: ": "Pojednostavljen prikaz: ",
     "Miscellaneous preferences": "",
-    "Automatically redirect to another Instance: ": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Postavke pretplata",
     "Show annotations by default for subscribed channels: ": "Standardno prikaži napomene za pretplaćene kanale: ",
     "Redirect homepage to feed: ": "Preusmjeri početnu stranicu na feed: ",

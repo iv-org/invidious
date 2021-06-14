@@ -87,7 +87,7 @@
     "light": "روشن",
     "Thin mode: ": "حالت نازک: ",
     "Miscellaneous preferences": "",
-    "Automatically redirect to another Instance: ": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "ترجیحات اشتراک",
     "Show annotations by default for subscribed channels: ": "نمایش حاشیه نویسی ها به طور پیشفرض برای کانال های مشترک شده: ",
     "Redirect homepage to feed: ": "تغییر مسیر صفحه خانه به خوراک: ",
