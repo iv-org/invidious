@@ -430,16 +430,15 @@ def fetch_random_instance
     # TODO Check if current URL is onion instance and use .onion types if so.
     if data[1]["type"] == "https"
       # Instances can have statisitics disabled, which is an requirement of version validation.
+      # as_nil? doesn't exist. Thus we'll have to handle the error rasied if as_nil fails.
       begin
         data[1]["stats"].as_nil
-        statistics_disabled = true
         next
       rescue TypeCastError
-        statistics_disabled = false
       end
 
       # stats endpoint could also lack the software dict.
-      next if statistics_disabled || data[1]["stats"]["software"]?.nil?
+      next if data[1]["stats"]["software"]?.nil?
 
       # Makes sure the instance isn't too outdated.
       if remote_version = data[1]["stats"]?.try &.["software"]?.try &.["version"]
@@ -451,10 +450,8 @@ def fetch_random_instance
 
         next if (remote_commit_date - local_commit_date).abs.days > 30
 
-        # as_nil? doesn't exist. Thus we'll have to handle the error rasied if
-        # as_nil fails.
         begin
-          broken_health_monitoring = data[1]["monitor"].as_nil
+          data[1]["monitor"].as_nil
           health = data[1]["monitor"].as_h["dailyRatios"][0].as_h["ratio"]
           filtered_instance_list << data[0].as_s if health.to_s.to_f > 90
         rescue TypeCastError
