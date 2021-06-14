@@ -45,27 +45,26 @@ class Invidious::Routes::Search < Invidious::Routes::BaseRoute
       # Display the full page search box implemented in #1977
       env.set "search", ""
       templated "search_homepage", navbar_search: false
-      return
+    else
+      page = env.params.query["page"]?.try &.to_i?
+      page ||= 1
+
+      user = env.get? "user"
+
+      begin
+        search_query, count, videos, operators = process_search_query(query, page, user, region: region)
+      rescue ex
+        return error_template(500, ex)
+      end
+
+      operator_hash = {} of String => String
+      operators.each do |operator|
+        key, value = operator.downcase.split(":")
+        operator_hash[key] = value
+      end
+
+      env.set "search", query
+      templated "search"
     end
-
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
-
-    user = env.get? "user"
-
-    begin
-      search_query, count, videos, operators = process_search_query(query, page, user, region: region)
-    rescue ex
-      return error_template(500, ex)
-    end
-
-    operator_hash = {} of String => String
-    operators.each do |operator|
-      key, value = operator.downcase.split(":")
-      operator_hash[key] = value
-    end
-
-    env.set "search", query
-    templated "search"
   end
 end
