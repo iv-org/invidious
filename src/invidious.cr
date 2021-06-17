@@ -174,14 +174,43 @@ before_all do |env|
   env.set "preferences", preferences
   env.response.headers["X-XSS-Protection"] = "1; mode=block"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
-  extra_media_csp = ""
+
+  # Allow media ressources to be loaded from google servers
+  # TODO: check if *.youtube.com can be removed
   if CONFIG.disabled?("local") || !preferences.local
-    extra_media_csp += " https://*.googlevideo.com:443"
-    extra_media_csp += " https://*.youtube.com:443"
+    extra_media_csp = " https://*.googlevideo.com:443 https://*.youtube.com:443"
+  else
+    extra_media_csp = ""
   end
-  # TODO: Remove style-src's 'unsafe-inline', requires to remove all inline styles (<style> [..] </style>, style=" [..] ")
-  env.response.headers["Content-Security-Policy"] = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; media-src 'self' blob:#{extra_media_csp}; child-src blob:"
+
+  # Only allow the pages at /embed/* to be embedded
+  if env.request.resource.starts_with?("/embed")
+    frame_ancestors = "'self' http: https:"
+  else
+    frame_ancestors = "none"
+  end
+
+  # TODO: Remove style-src's 'unsafe-inline', requires to remove all
+  # inline styles (<style> [..] </style>, style=" [..] ")
+  env.response.headers["Content-Security-Policy"] = {
+    "default-src 'none'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "font-src 'self' data:",
+    "connect-src 'self'",
+    "manifest-src 'self'",
+    "media-src 'self' blob:" + extra_media_csp,
+    "child-src 'self' blob:",
+    "frame-src 'self'",
+    "frame-ancestors " + frame_ancestors,
+  }.join("; ")
+
   env.response.headers["Referrer-Policy"] = "same-origin"
+
+  # Ask the chrom*-based browsers to disable FLoC
+  # See: https://blog.runcloud.io/google-floc/
+  env.response.headers["Permissions-Policy"] = "interest-cohort=()"
 
   if (Kemal.config.ssl || CONFIG.https_only) && CONFIG.hsts
     env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
