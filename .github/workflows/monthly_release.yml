@@ -1,0 +1,30 @@
+name: Monthly release
+on:
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  create_ff_branch:
+    name: Create Monthly release tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - id: date
+        run: echo "::set-output name=date::$(date -d 'next month' +'%Y.%m.01')"
+
+      - uses: actions/checkout@v2
+        with:
+        ref: ${{ steps.date.outputs.date }}
+        fetch-depth: 0
+
+      - run: git --no-pager log --no-decorate --oneline $(git describe --tags --abbrev=0)..HEAD > output.log
+      
+      - uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.date.outputs.date }}
+          release_name: ${{ steps.date.outputs.date }}
+          draft: false
+          prerelease: false
+          body_path: output.log
