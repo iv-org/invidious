@@ -488,7 +488,7 @@ body.dark-theme {
 the hr element is rendered improperly within one.
 See https://stackoverflow.com/a/34372979 for more info */
 hr {
-  margin: auto 0 auto 0;
+  margin: 10px 0 10px 0;
 }
 
 /* Description Expansion Styling*/
