@@ -11,7 +11,7 @@
   <a href="https://github.com/iv-org/invidious/issues">
     <img alt="GitHub issues" src="https://img.shields.io/github/issues/iv-org/invidious?color=important">
   </a>
-  <a href="https://github.com/iv-org/invidious/issues">
+  <a href="https://github.com/iv-org/invidious/pulls">
     <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/iv-org/invidious?color=blueviolet">
   </a>
   <a href="https://hosted.weblate.org/engage/invidious/">
@@ -74,12 +74,22 @@
 
 ## Documentation
 
-The complete documentation is available on https://docs.invidious.io/ (or alternatively on its own [Github repository](https://github.com/iv-org/documentation)).
+The full documentation can be accessed online at https://docs.invidious.io/
 
+The documentation's source code is available in this repository:
+https://github.com/iv-org/documentation
 
-## Extensions
+### Quick start
 
-[Extensions](https://docs.invidious.io/Extensions.md) can be found in the wiki, as well as documentation for integrating it into other projects.
+**Using invidious:** [Select an instance from the list](https://instances.invidious.io) and start watching videos right now!
+
+**Hosting invidious:** Just [Follow the installation instructions](https://docs.invidious.io/Installation.md)!
+
+### Extensions
+
+The documentation contains a list of browser extensions that are recommended to use in addtition to Invidious.
+
+You can read more here: https://docs.invidious.io/Extensions.md
 
 
 ## Contribute
@@ -87,17 +97,23 @@ The complete documentation is available on https://docs.invidious.io/ (or altern
 ### Code
 
 1.  Fork it ( https://github.com/iv-org/invidious/fork ).
-2.  Create your feature branch (git checkout -b my-new-feature).
-3.  Commit your changes (git commit -am 'Add some feature').
-4.  Push to the branch (git push origin my-new-feature).
-5.  Create a new pull request.
+1.  Create your feature branch (`git checkout -b my-new-feature`).
+1.  Stage your files (`git add .`).
+1.  Commit your changes (`git commit -am 'Add some feature'`).
+1.  Push to the branch (`git push origin my-new-feature`).
+1.  Create a new pull request ( https://github.com/iv-org/invidious/compare ).
 
 ### Translations
 
-- Log in with an account you have elsewhere, or register an account and start translating at [Hosted Weblate](https://hosted.weblate.org/engage/invidious/).
+We use [Weblate](https://weblate.org/en/) to manage Invidious translations.
+
+You can propose new translations and/or correction here: https://hosted.weblate.org/engage/invidious/.
+
+Creating an account is not required, but recommended, especially if you want to contribute regularly.
+Weblate also allows you to log-in with major SSO providers like Github, Gitlab, BitBucket, Google, ...
 
 
-## Made with Invidious
+## Projects using Invidious
 
 - [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
 - [CloudTube](https://sr.ht/~cadence/tube/): A JavaScript-rich alternate YouTube player.
@@ -115,7 +131,11 @@ Monero (XMR): [41nMCtek197boJtiUvGnTFYMatrLEpnpkQDmUECqx5Es2uX3sTKKWVhSL76suXsG3
 
 ## Liability
 
-We take no responsibility for the use of our tool, or external instances provided by third parties. We strongly recommend you abide by the valid official regulations in your country. Furthermore, we refuse liability for any inappropriate use of Invidious, such as illegal downloading. This tool is provided to you in the spirit of free, open software.
+We take no responsibility for the use of our tool, or external instances
+provided by third parties. We strongly recommend you abide by the valid
+official regulations in your country. Furthermore, we refuse liability
+for any inappropriate use of Invidious, such as illegal downloading.
+This tool is provided to you in the spirit of free, open software.
 
 You may view the LICENSE in which this software is provided to you [here](./LICENSE).
 
