@@ -7,6 +7,19 @@ on:
       - "api-only"
   pull_request:
     branches: "*"
+    paths-ignore:
+      - "*.md"
+      - LICENCE
+      - TRANSLATION
+      - invidious.service
+      - .git*
+      - .editorconfig
+
+      - screenshots/*
+      - assets/**
+      - config/**
+      - .github/ISSUE_TEMPLATE/*
+      - kubernetes/**
 
 jobs:
   build:
