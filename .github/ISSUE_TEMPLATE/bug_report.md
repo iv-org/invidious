@@ -7,9 +7,14 @@ assignees: ''
 
 ---
 
-<!-- Please use the search function to check if the bug you found has already been reported by someone else -->
+<!-- The comments between these brackets won't show up in the issue. -->
 <!-- If you want to suggest a new feature please use "Feature request" instead -->
 <!-- If you want to suggest an enhancement to an existing feature please use "Enhancement" instead -->
+
+### Checklist 
+<!-- This checklist is COMPULSORY. The first box has been checked so you you can see how it is done. -->
+- [x] This is a bug report, not enhancment or feature request.
+- [ ] I checked, but didn't find any duplicates of this issue in the repo. <!-- Please use the search function to check if the bug you found has already been reported by someone else. Seriously, check. -->
 
 **Describe the bug**
 <!-- A clear and concise description of what the bug is. -->
