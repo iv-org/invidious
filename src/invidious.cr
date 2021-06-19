@@ -175,7 +175,7 @@ before_all do |env|
   env.response.headers["X-XSS-Protection"] = "1; mode=block"
   env.response.headers["X-Content-Type-Options"] = "nosniff"
 
-  # Allow media ressources to be loaded from google servers
+  # Allow media resources to be loaded from google servers
   # TODO: check if *.youtube.com can be removed
   if CONFIG.disabled?("local") || !preferences.local
     extra_media_csp = " https://*.googlevideo.com:443 https://*.youtube.com:443"
