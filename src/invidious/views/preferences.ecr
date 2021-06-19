@@ -175,6 +175,12 @@
                     </select>
                 <% end %>
             </div>
+            <% if env.get? "user" %>
+                <div class="pure-control-group">
+                    <label for="show_nick"><%= translate(locale, "Show nickname on top: ") %></label>
+                    <input name="show_nick" id="show_nick" type="checkbox" <% if preferences.show_nick %>checked<% end %>>
+                </div>
+            <% end %>
 
             <legend><%= translate(locale, "Miscellaneous preferences") %></legend>
 

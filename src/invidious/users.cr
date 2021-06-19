@@ -55,6 +55,7 @@ struct Preferences
   property listen : Bool = CONFIG.default_user_preferences.listen
   property local : Bool = CONFIG.default_user_preferences.local
   property vr_mode : Bool = CONFIG.default_user_preferences.vr_mode
+  property show_nick : Bool = CONFIG.default_user_preferences.show_nick
 
   @[JSON::Field(converter: Preferences::ProcessString)]
   property locale : String = CONFIG.default_user_preferences.locale

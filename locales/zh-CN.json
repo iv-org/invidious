@@ -117,6 +117,8 @@
     "Administrator preferences": "管理员选项",
     "Default homepage: ": "默认主页: ",
     "Feed menu: ": "Feed 菜单: ",
+    "Show nickname on top: ": "",
+    "Welcome, `x`": "",
     "Top enabled: ": "是否启用“热门视频”页: ",
     "CAPTCHA enabled: ": "是否启用验证码: ",
     "Login enabled: ": "是否启用登录: ",

@@ -54,6 +54,7 @@ struct ConfigPreferences
   property extend_desc : Bool = false
   property volume : Int32 = 100
   property vr_mode : Bool = true
+  property show_nick : Bool = true
 
   def to_tuple
     {% begin %}
