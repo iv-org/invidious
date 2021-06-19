@@ -86,6 +86,8 @@
     "dark": "tumma",
     "light": "vaalea",
     "Thin mode: ": "Kapea tila ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Tilausten asetukset",
     "Show annotations by default for subscribed channels: ": "Näytä oletuksena tilattujen kanavien huomautukset: ",
     "Redirect homepage to feed: ": "Uudelleenohjaa kotisivu syötteeseen: ",
@@ -161,6 +163,8 @@
     "Show more": "",
     "Show less": "",
     "Watch on YouTube": "Katso YouTubessa",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Piilota merkkaukset",
     "Show annotations": "Näytä merkkaukset",
     "Genre: ": "Genre: ",
@@ -415,5 +419,8 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "Tämänhetkinen versio: "
+    "Current version: ": "Tämänhetkinen versio: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

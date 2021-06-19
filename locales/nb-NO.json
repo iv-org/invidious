@@ -86,6 +86,8 @@
     "dark": "Mørk",
     "light": "Lys",
     "Thin mode: ": "Tynt modus: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Abonnementsinnstillinger",
     "Show annotations by default for subscribed channels: ": "Vis merknader som forvalg for kanaler det abonneres på? ",
     "Redirect homepage to feed: ": "Videresend hjemmeside til kilde: ",
@@ -161,6 +163,8 @@
     "Show more": "Vis mer",
     "Show less": "Vis mindre",
     "Watch on YouTube": "Vis video på YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Skjul merknader",
     "Show annotations": "Vis merknader",
     "Genre: ": "Sjanger: ",
@@ -415,5 +419,8 @@
     "location": "sted",
     "hdr": "HDR",
     "filter": "filtrer",
-    "Current version: ": "Gjeldende versjon: "
+    "Current version: ": "Gjeldende versjon: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

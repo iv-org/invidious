@@ -86,6 +86,8 @@
     "dark": "深色",
     "light": "淺色",
     "Thin mode: ": "精簡模式： ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "訂閱偏好設定",
     "Show annotations by default for subscribed channels: ": "預設為已訂閱的頻道顯示註釋： ",
     "Redirect homepage to feed: ": "重新導向首頁至 feed： ",
@@ -161,6 +163,8 @@
     "Show more": "顯示更多",
     "Show less": "顯示較少",
     "Watch on YouTube": "在 YouTube 上觀看",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "隱藏註釋",
     "Show annotations": "顯示註釋",
     "Genre: ": "風格： ",
@@ -415,5 +419,8 @@
     "location": "位置",
     "hdr": "HDR",
     "filter": "篩選條件",
-    "Current version: ": "目前版本： "
+    "Current version: ": "目前版本： ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

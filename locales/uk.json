@@ -86,6 +86,8 @@
     "dark": "темна",
     "light": "Світла",
     "Thin mode: ": "Полегшене оформлення: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Налаштування підписок",
     "Show annotations by default for subscribed channels: ": "Завжди показувати анотації у відео каналів, на які ви підписані? ",
     "Redirect homepage to feed: ": "Показувати відео з каналів, на які підписані, як головну сторінку: ",
@@ -161,6 +163,8 @@
     "Show more": "",
     "Show less": "",
     "Watch on YouTube": "Дивитися на YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Приховати анотації",
     "Show annotations": "Показати анотації",
     "Genre: ": "Жанр: ",
@@ -415,5 +419,8 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "Поточна версія: "
+    "Current version: ": "Поточна версія: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

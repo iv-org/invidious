@@ -86,6 +86,8 @@
     "dark": "karanlık",
     "light": "aydınlık",
     "Thin mode: ": "İnce mod: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Abonelik tercihleri",
     "Show annotations by default for subscribed channels: ": "Abone olunan kanallar için ek açıklamaları öntanımlı olarak göster: ",
     "Redirect homepage to feed: ": "Ana sayfayı akışa yönlendir: ",
@@ -161,6 +163,8 @@
     "Show more": "Daha fazla göster",
     "Show less": "Daha az göster",
     "Watch on YouTube": "YouTube'da izle",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Ek açıklamaları gizle",
     "Show annotations": "Ek açıklamaları göster",
     "Genre: ": "Tür: ",
@@ -415,5 +419,8 @@
     "location": "konum",
     "hdr": "HDR",
     "filter": "filtrele",
-    "Current version: ": "Şu anki sürüm: "
+    "Current version: ": "Şu anki sürüm: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

@@ -77,6 +77,8 @@
     "dark": "sötét",
     "light": "világos",
     "Thin mode: ": "Vékony mód: ",
+    "Miscellaneous preferences": "",
+    "Automatically redirect to another Instance: ": "",
     "Subscription preferences": "Feliratkozási beállítások",
     "Show annotations by default for subscribed channels: ": "Szövegmagyarázatok mutatása alapértelmezésben feliratkozott csatornák esetében: ",
     "Redirect homepage to feed: ": "Kezdő oldal átirányitása a feed-re: ",
@@ -145,6 +147,8 @@
     "Watch on YouTube": "Megtekintés a YouTube-on",
     "Hide annotations": "Szövegmagyarázat elrejtése",
     "Show annotations": "Szövegmagyarázat mutatása",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Genre: ": "Műfaj: ",
     "License: ": "Licensz: ",
     "Family friendly? ": "Családbarát? ",
@@ -336,5 +340,8 @@
     "Videos": "Videók",
     "Playlists": "Lejátszási listák",
     "Community": "Közösség",
-    "Current version: ": "Jelenlegi verzió: "
+    "Current version: ": "Jelenlegi verzió: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

@@ -36,6 +36,11 @@
                     <a href="https://www.youtube.com/playlist?list=<%= playlist.id %>">
                         <%= translate(locale, "View playlist on YouTube") %>
                     </a>
+                    <span> | </span>
+                    <a href="/redirect?referer=<%= env.get?("current_page") %>">
+                      <%= translate(locale, "Switch Invidious Instance") %>
+                    </a>
+
             </div>
         <% end %>
     </div>

@@ -86,6 +86,8 @@
     "dark": "donker",
     "light": "licht",
     "Thin mode: ": "Smalle modus: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Abonnementsinstellingen",
     "Show annotations by default for subscribed channels: ": "Standaard annotaties tonen voor geabonneerde kanalen? ",
     "Redirect homepage to feed: ": "Startpagina omleiden naar feed: ",
@@ -161,6 +163,8 @@
     "Show more": "Toon meer",
     "Show less": "Toon minder",
     "Watch on YouTube": "Video bekijken op YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Annotaties verbergen",
     "Show annotations": "Annotaties tonen",
     "Genre: ": "Genre: ",
@@ -415,5 +419,8 @@
     "location": "locatie",
     "hdr": "HDR",
     "filter": "verfijnen",
-    "Current version: ": "Huidige versie: "
+    "Current version: ": "Huidige versie: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

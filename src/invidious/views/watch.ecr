@@ -109,6 +109,9 @@ we're going to need to do it here in order to allow for translations.
                 <a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch on YouTube") %></a>
                 (<a href="https://www.youtube.com/embed/<%= video.id %>"><%= translate(locale, "Embed") %></a>)
             </span>
+            <p id="watch-on-another-invidious-instance">
+                <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
+            </p>
             <p id="embed-link">
                 <a href="<%= embed_link %>"><%= translate(locale, "Embed Link") %></a>
             </p>

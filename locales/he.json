@@ -86,6 +86,8 @@
     "dark": "כהה",
     "light": "בהיר",
     "Thin mode: ": "",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "העדפות מינויים",
     "Show annotations by default for subscribed channels: ": "Show annotations by default for subscribed channels? ",
     "Redirect homepage to feed: ": "",
@@ -161,6 +163,8 @@
     "Show more": "",
     "Show less": "",
     "Watch on YouTube": "צפייה ב־YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "",
     "Show annotations": "",
     "Genre: ": "Genre: ",
@@ -415,5 +419,8 @@
     "location": "מיקום",
     "hdr": "HDR",
     "filter": "סינון",
-    "Current version: ": "הגרסה הנוכחית: "
+    "Current version: ": "הגרסה הנוכחית: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

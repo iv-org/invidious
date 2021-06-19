@@ -86,6 +86,8 @@
     "dark": "dark",
     "light": "light",
     "Thin mode: ": "Thin mode: ",
+    "Miscellaneous preferences": "Miscellaneous preferences",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "Automaticatic instance redirection (fallback to redirect.invidious.io): ",
     "Subscription preferences": "Subscription preferences",
     "Show annotations by default for subscribed channels: ": "Show annotations by default for subscribed channels? ",
     "Redirect homepage to feed: ": "Redirect homepage to feed: ",
@@ -161,6 +163,8 @@
     "Show more": "Show more",
     "Show less": "Show less",
     "Watch on YouTube": "Watch on YouTube",
+    "Switch Invidious Instance": "Switch Invidious Instance",
+    "Broken? Try another Invidious Instance": "Broken? Try another Invidious Instance",
     "Hide annotations": "Hide annotations",
     "Show annotations": "Show annotations",
     "Genre: ": "Genre: ",
@@ -415,5 +419,8 @@
     "location": "Location",
     "hdr": "HDR",
     "filter": "Filter",
-    "Current version: ": "Current version: "
+    "Current version: ": "Current version: ",
+    "next_steps_error_message": "After which you should try to: ",
+    "next_steps_error_message_refresh": "Refresh",
+    "next_steps_error_message_go_to_youtube": "Go to Youtube"
 }

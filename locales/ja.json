@@ -86,6 +86,8 @@
     "dark": "ダーク",
     "light": "ライト",
     "Thin mode: ": "最小モード: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "登録チャンネル設定",
     "Show annotations by default for subscribed channels: ": "デフォルトで登録チャンネルのアノテーションを表示しますか？ ",
     "Redirect homepage to feed: ": "ホームからフィードにリダイレクト: ",
@@ -161,6 +163,8 @@
     "Show more": "表示を増やす",
     "Show less": "表示を減らす",
     "Watch on YouTube": "YouTube で視聴",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "アノテーションを隠す",
     "Show annotations": "アノテーションを表示",
     "Genre: ": "ジャンル: ",
@@ -415,5 +419,8 @@
     "location": "",
     "hdr": "HDR",
     "filter": "フィルタ",
-    "Current version: ": "現在のバージョン: "
+    "Current version: ": "現在のバージョン: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

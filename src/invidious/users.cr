@@ -36,6 +36,7 @@ struct Preferences
   property annotations : Bool = CONFIG.default_user_preferences.annotations
   property annotations_subscribed : Bool = CONFIG.default_user_preferences.annotations_subscribed
   property autoplay : Bool = CONFIG.default_user_preferences.autoplay
+  property automatic_instance_redirect : Bool = CONFIG.default_user_preferences.automatic_instance_redirect
 
   @[JSON::Field(converter: Preferences::StringToArray)]
   @[YAML::Field(converter: Preferences::StringToArray)]

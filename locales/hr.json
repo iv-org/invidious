@@ -86,6 +86,8 @@
     "dark": "tamno",
     "light": "svijetlo",
     "Thin mode: ": "Pojednostavljen prikaz: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Postavke pretplata",
     "Show annotations by default for subscribed channels: ": "Standardno prikaži napomene za pretplaćene kanale: ",
     "Redirect homepage to feed: ": "Preusmjeri početnu stranicu na feed: ",
@@ -161,6 +163,8 @@
     "Show more": "Pokaži više",
     "Show less": "Pokaži manje",
     "Watch on YouTube": "Gledaj na YouTubeu",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Sakrij napomene",
     "Show annotations": "Prikaži napomene",
     "Genre: ": "Žanr: ",
@@ -415,5 +419,8 @@
     "location": "lokacija",
     "hdr": "hdr",
     "filter": "filtar",
-    "Current version: ": "Trenutačna verzija: "
+    "Current version: ": "Trenutačna verzija: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

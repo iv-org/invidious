@@ -92,6 +92,10 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       end
     end
 
+    automatic_instance_redirect = env.params.body["automatic_instance_redirect"]?.try &.as(String)
+    automatic_instance_redirect ||= "off"
+    automatic_instance_redirect = automatic_instance_redirect == "on"
+
     locale = env.params.body["locale"]?.try &.as(String)
     locale ||= CONFIG.default_user_preferences.locale
 
@@ -122,34 +126,35 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
 
     # Convert to JSON and back again to take advantage of converters used for compatability
     preferences = Preferences.from_json({
-      annotations:            annotations,
-      annotations_subscribed: annotations_subscribed,
-      autoplay:               autoplay,
-      captions:               captions,
-      comments:               comments,
-      continue:               continue,
-      continue_autoplay:      continue_autoplay,
-      dark_mode:              dark_mode,
-      latest_only:            latest_only,
-      listen:                 listen,
-      local:                  local,
-      locale:                 locale,
-      max_results:            max_results,
-      notifications_only:     notifications_only,
-      player_style:           player_style,
-      quality:                quality,
-      quality_dash:           quality_dash,
-      default_home:           default_home,
-      feed_menu:              feed_menu,
-      related_videos:         related_videos,
-      sort:                   sort,
-      speed:                  speed,
-      thin_mode:              thin_mode,
-      unseen_only:            unseen_only,
-      video_loop:             video_loop,
-      volume:                 volume,
-      extend_desc:            extend_desc,
-      vr_mode:                vr_mode,
+      annotations:                 annotations,
+      annotations_subscribed:      annotations_subscribed,
+      autoplay:                    autoplay,
+      captions:                    captions,
+      comments:                    comments,
+      continue:                    continue,
+      continue_autoplay:           continue_autoplay,
+      dark_mode:                   dark_mode,
+      latest_only:                 latest_only,
+      listen:                      listen,
+      local:                       local,
+      locale:                      locale,
+      max_results:                 max_results,
+      notifications_only:          notifications_only,
+      player_style:                player_style,
+      quality:                     quality,
+      quality_dash:                quality_dash,
+      default_home:                default_home,
+      feed_menu:                   feed_menu,
+      automatic_instance_redirect: automatic_instance_redirect,
+      related_videos:              related_videos,
+      sort:                        sort,
+      speed:                       speed,
+      thin_mode:                   thin_mode,
+      unseen_only:                 unseen_only,
+      video_loop:                  video_loop,
+      volume:                      volume,
+      extend_desc:                 extend_desc,
+      vr_mode:                     vr_mode,
     }.to_json).to_json
 
     if user = env.get? "user"

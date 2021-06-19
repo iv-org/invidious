@@ -86,6 +86,8 @@
     "dark": "malhela",
     "light": "hela",
     "Thin mode: ": "Maldika reĝimo: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Abonaj agordoj",
     "Show annotations by default for subscribed channels: ": "Ĉu montri prinotojn defaŭlte por abonitaj kanaloj? ",
     "Redirect homepage to feed: ": "Alidirekti hejmpâgon al fluo: ",
@@ -161,6 +163,8 @@
     "Show more": "Montri pli",
     "Show less": "Montri malpli",
     "Watch on YouTube": "Vidi filmeton en JuTubo",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Kaŝi prinotojn",
     "Show annotations": "Montri prinotojn",
     "Genre: ": "Ĝenro: ",
@@ -415,5 +419,8 @@
     "location": "loko",
     "hdr": "granddinamikgama",
     "filter": "filtri",
-    "Current version: ": "Nuna versio: "
+    "Current version: ": "Nuna versio: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

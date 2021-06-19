@@ -86,6 +86,8 @@
     "dark": "dimmt",
     "light": "ljóst",
     "Thin mode: ": "Þunnt ham: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Áskriftarstillingar",
     "Show annotations by default for subscribed channels: ": "Á að sýna glósur sjálfgefið fyrir áskriftarrásir? ",
     "Redirect homepage to feed: ": "Endurbeina heimasíðu að straumi: ",
@@ -161,6 +163,8 @@
     "Show more": "",
     "Show less": "",
     "Watch on YouTube": "Horfa á YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Fela glósur",
     "Show annotations": "Sýna glósur",
     "Genre: ": "Tegund: ",
@@ -415,5 +419,8 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "Núverandi útgáfa: "
+    "Current version: ": "Núverandi útgáfa: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

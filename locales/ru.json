@@ -86,6 +86,8 @@
     "dark": "темная",
     "light": "светлая",
     "Thin mode: ": "Облегчённое оформление: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Настройки подписок",
     "Show annotations by default for subscribed channels: ": "Всегда показывать аннотации в видео каналов, на которые вы подписаны? ",
     "Redirect homepage to feed: ": "Отображать видео с каналов, на которые вы подписаны, как главную страницу: ",
@@ -161,6 +163,8 @@
     "Show more": "",
     "Show less": "",
     "Watch on YouTube": "Смотреть на YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Скрыть аннотации",
     "Show annotations": "Показать аннотации",
     "Genre: ": "Жанр: ",
@@ -415,5 +419,8 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "Текущая версия: "
+    "Current version: ": "Текущая версия: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

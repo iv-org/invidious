@@ -86,6 +86,8 @@
     "dark": "escuro",
     "light": "claro",
     "Thin mode: ": "Modo compacto: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Preferências de subscrições",
     "Show annotations by default for subscribed channels: ": "Mostrar sempre anotações aos canais subscritos: ",
     "Redirect homepage to feed: ": "Redirecionar página inicial para subscrições: ",
@@ -161,6 +163,8 @@
     "Show more": "",
     "Show less": "",
     "Watch on YouTube": "Ver no YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Ocultar anotações",
     "Show annotations": "Mostrar anotações",
     "Genre: ": "Género: ",
@@ -415,5 +419,8 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "Versão atual: "
+    "Current version: ": "Versão atual: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

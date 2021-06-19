@@ -409,3 +409,65 @@ def convert_theme(theme)
     theme
   end
 end
+
+def fetch_random_instance
+  begin
+    instance_api_client = HTTP::Client.new(URI.parse("https://api.invidious.io"))
+
+    # Timeouts
+    instance_api_client.connect_timeout = 10.seconds
+    instance_api_client.dns_timeout = 10.seconds
+
+    instance_list = JSON.parse(instance_api_client.get("/instances.json").body).as_a
+    instance_api_client.close
+  rescue Socket::ConnectError | IO::TimeoutError | JSON::ParseException
+    instance_list = [] of JSON::Any
+  end
+
+  filtered_instance_list = [] of String
+
+  instance_list.each do |data|
+    # TODO Check if current URL is onion instance and use .onion types if so.
+    if data[1]["type"] == "https"
+      # Instances can have statisitics disabled, which is an requirement of version validation.
+      # as_nil? doesn't exist. Thus we'll have to handle the error rasied if as_nil fails.
+      begin
+        data[1]["stats"].as_nil
+        next
+      rescue TypeCastError
+      end
+
+      # stats endpoint could also lack the software dict.
+      next if data[1]["stats"]["software"]?.nil?
+
+      # Makes sure the instance isn't too outdated.
+      if remote_version = data[1]["stats"]?.try &.["software"]?.try &.["version"]
+        remote_commit_date = remote_version.as_s.match(/\d{4}\.\d{2}\.\d{2}/)
+        next if !remote_commit_date
+
+        remote_commit_date = Time.parse(remote_commit_date[0], "%Y.%m.%d", Time::Location::UTC)
+        local_commit_date = Time.parse(CURRENT_VERSION, "%Y.%m.%d", Time::Location::UTC)
+
+        next if (remote_commit_date - local_commit_date).abs.days > 30
+
+        begin
+          data[1]["monitor"].as_nil
+          health = data[1]["monitor"].as_h["dailyRatios"][0].as_h["ratio"]
+          filtered_instance_list << data[0].as_s if health.to_s.to_f > 90
+        rescue TypeCastError
+          # We can't check the health if the monitoring is broken. Thus we'll just add it to the list
+          # and move on. Ideally we'll ignore any instance that has broken health monitoring but due to the fact that
+          # it's an error that often occurs with all the instances at the same time, we have to just skip the check.
+          filtered_instance_list << data[0].as_s
+        end
+      end
+    end
+  end
+
+  # If for some reason no instances managed to get fetched successfully then we'll just redirect to redirect.invidious.io
+  if filtered_instance_list.size == 0
+    return "redirect.invidious.io"
+  end
+
+  return filtered_instance_list.sample(1)[0]
+end

@@ -77,6 +77,8 @@
     "dark": "iluna",
     "light": "argia",
     "Thin mode: ": "",
+    "Miscellaneous preferences": "",
+    "Automatically redirect to another Instance: ": "",
     "Subscription preferences": "Harpidetzen hobespenak",
     "Show annotations by default for subscribed channels: ": "",
     "Redirect homepage to feed: ": "",
@@ -143,6 +145,8 @@
     "Show more": "",
     "Show less": "",
     "Watch on YouTube": "",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "",
     "Show annotations": "",
     "Genre: ": "",
@@ -337,5 +341,8 @@
     "Videos": "",
     "Playlists": "",
     "Community": "",
-    "Current version: ": ""
+    "Current version: ": "",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

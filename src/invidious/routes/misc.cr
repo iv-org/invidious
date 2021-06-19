@@ -35,4 +35,15 @@ class Invidious::Routes::Misc < Invidious::Routes::BaseRoute
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     rendered "licenses"
   end
+
+  def cross_instance_redirect(env)
+    referer = get_referer(env)
+
+    if !env.get("preferences").as(Preferences).automatic_instance_redirect
+      return env.redirect("https://redirect.invidious.io#{referer}")
+    end
+
+    instance_url = fetch_random_instance
+    env.redirect "https://#{instance_url}#{referer}"
+  end
 end

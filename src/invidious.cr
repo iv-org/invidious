@@ -314,6 +314,7 @@ Invidious::Routing.get "/shorts/:id", Invidious::Routes::Watch, :redirect
 Invidious::Routing.get "/w/:id", Invidious::Routes::Watch, :redirect
 Invidious::Routing.get "/v/:id", Invidious::Routes::Watch, :redirect
 Invidious::Routing.get "/e/:id", Invidious::Routes::Watch, :redirect
+Invidious::Routing.get "/redirect", Invidious::Routes::Misc, :cross_instance_redirect
 
 Invidious::Routing.get "/embed/", Invidious::Routes::Embed, :redirect
 Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed, :show

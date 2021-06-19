@@ -86,6 +86,8 @@
     "dark": "",
     "light": "",
     "Thin mode: ": "",
+    "Miscellaneous preferences": "",
+    "Automatically redirect to another Instance: ": "",
     "Subscription preferences": "",
     "Show annotations by default for subscribed channels: ": "",
     "Redirect homepage to feed: ": "",
@@ -415,5 +417,8 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": ""
+    "Current version: ": "",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

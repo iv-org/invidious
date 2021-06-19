@@ -86,6 +86,8 @@
     "dark": "تاریک",
     "light": "روشن",
     "Thin mode: ": "حالت نازک: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "ترجیحات اشتراک",
     "Show annotations by default for subscribed channels: ": "نمایش حاشیه نویسی ها به طور پیشفرض برای کانال های مشترک شده: ",
     "Redirect homepage to feed: ": "تغییر مسیر صفحه خانه به خوراک: ",
@@ -161,6 +163,8 @@
     "Show more": "",
     "Show less": "",
     "Watch on YouTube": "تماشا در یوتیوب",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "مخفی کردن حاشیه نویسی ها",
     "Show annotations": "نمایش حاشیه نویسی ها",
     "Genre: ": "ژانر: ",
@@ -415,5 +419,8 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "نسخه فعلی: "
+    "Current version: ": "نسخه فعلی: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

@@ -77,6 +77,8 @@
     "dark": "тамна",
     "light": "светла",
     "Thin mode: ": "Узани режим: ",
+    "Miscellaneous preferences": "",
+    "Automatically redirect to another Instance: ": "",
     "Subscription preferences": "Подешавања о праћењима",
     "Show annotations by default for subscribed channels: ": "Увек приказуј анотације за канале које пратим: ",
     "Redirect homepage to feed: ": "Прикажи праћења као почетну страницу: ",
@@ -143,6 +145,8 @@
     "Show more": "",
     "Show less": "",
     "Watch on YouTube": "Гледајте на YouTube-у",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Сакриј анотације",
     "Show annotations": "Прикажи анотације",
     "Genre: ": "Жанр: ",
@@ -337,5 +341,8 @@
     "Videos": "",
     "Playlists": "",
     "Community": "",
-    "Current version: ": "Тренутна верзија: "
+    "Current version: ": "Тренутна верзија: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

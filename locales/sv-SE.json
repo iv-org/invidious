@@ -86,6 +86,8 @@
     "dark": "Mörkt",
     "light": "Ljust",
     "Thin mode: ": "Lättviktigt läge: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Prenumerationsinställningar",
     "Show annotations by default for subscribed channels: ": "Visa länkar-i-videor som förval för kanaler som prenumereras på? ",
     "Redirect homepage to feed: ": "Omdirigera hemsida till flöde: ",
@@ -161,6 +163,8 @@
     "Show more": "Visa mer",
     "Show less": "Visa mindre",
     "Watch on YouTube": "Titta på YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Dölj länkar-i-video",
     "Show annotations": "Visa länkar-i-video",
     "Genre: ": "Genre: ",
@@ -415,5 +419,8 @@
     "location": "plats",
     "hdr": "hdr",
     "filter": "",
-    "Current version: ": "Nuvarande version: "
+    "Current version: ": "Nuvarande version: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

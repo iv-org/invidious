@@ -86,6 +86,8 @@
     "dark": "întunecat",
     "light": "luminos",
     "Thin mode: ": "Mod lejer: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Preferințele paginii de abonamente",
     "Show annotations by default for subscribed channels: ": "Afișați adnotările în mod implicit pentru canalele la care v-ați abonat: ",
     "Redirect homepage to feed: ": "Redirecționați pagina principală la pagina de abonamente: ",
@@ -161,6 +163,8 @@
     "Show more": "",
     "Show less": "",
     "Watch on YouTube": "Urmăriți videoclipul pe YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Ascundeți adnotările",
     "Show annotations": "Afișați adnotările",
     "Genre: ": "Categorie: ",
@@ -415,5 +419,8 @@
     "location": "",
     "hdr": "",
     "filter": "",
-    "Current version: ": "Versiunea actuală: "
+    "Current version: ": "Versiunea actuală: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

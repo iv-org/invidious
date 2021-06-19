@@ -86,6 +86,8 @@
     "dark": "暗色",
     "light": "亮色",
     "Thin mode: ": "窄页模式: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "订阅设置",
     "Show annotations by default for subscribed channels: ": "默认情况下显示已订阅频道的注释: ",
     "Redirect homepage to feed: ": "跳转主页到 feed: ",
@@ -161,6 +163,8 @@
     "Show more": "显示更多",
     "Show less": "显示较少",
     "Watch on YouTube": "在 YouTube 观看",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "隐藏注释",
     "Show annotations": "显示注释",
     "Genre: ": "风格: ",
@@ -415,5 +419,8 @@
     "location": "位置",
     "hdr": "hdr",
     "filter": "过滤器",
-    "Current version: ": "当前版本: "
+    "Current version: ": "当前版本: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }
