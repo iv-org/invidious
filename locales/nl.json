@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnees",
-        "": "`x` abonnees"
+        "": "`x` abonnees."
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video's",
-        "": "`x` video's"
+        "": "`x` video's."
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` afspeellijsten",
-        "": "`x` afspeellijsten"
+        "": "`x` afspeellijsten."
     },
     "LIVE": "LIVE",
     "Shared `x` ago": "Gedeeld: `x` geleden",
@@ -77,8 +77,8 @@
     "Fallback captions: ": "Alternatieve ondertiteling: ",
     "Show related videos: ": "Gerelateerde video's tonen? ",
     "Show annotations by default: ": "Standaard annotaties tonen? ",
-    "Automatically extend video description: ": "",
-    "Interactive 360 degree videos: ": "",
+    "Automatically extend video description: ": "Breid videobeschrijving automatisch uit: ",
+    "Interactive 360 degree videos: ": "Interactieve 360-graden-video's ",
     "Visual preferences": "Visuele instellingen",
     "Player style: ": "Speler vormgeving ",
     "Dark mode: ": "Donkere modus: ",
@@ -126,11 +126,11 @@
     "Token": "Toegangssleutel",
     "`x` subscriptions": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnementen",
-        "": "`x` abonnementen"
+        "": "`x` abonnementen."
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` toegangssleutels",
-        "": "`x` toegangssleutels"
+        "": "`x` toegangssleutels."
     },
     "Import/export": "Importeren/Exporteren",
     "unsubscribe": "Deabonneren",
@@ -158,8 +158,8 @@
     "Title": "Titel",
     "Playlist privacy": "Afspeellijst privacy",
     "Editing playlist `x`": "Afspeellijst `x` wijzigen",
-    "Show more": "",
-    "Show less": "",
+    "Show more": "Toon meer",
+    "Show less": "Toon minder",
     "Watch on YouTube": "Video bekijken op YouTube",
     "Hide annotations": "Annotaties verbergen",
     "Show annotations": "Annotaties tonen",
@@ -173,7 +173,7 @@
     "Shared `x`": "`x` gedeeld",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` weergaven",
-        "": "`x` weergaven"
+        "": "`x` weergaven."
     },
     "Premieres in `x`": "Verschijnt over `x`",
     "Premieres `x`": "Verschijnt op `x`",
@@ -182,7 +182,7 @@
     "View more comments on Reddit": "Meer reacties bekijken op Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` reacties tonen",
-        "": "`x` reacties tonen"
+        "": "`x` reacties tonen."
     },
     "View Reddit comments": "Reddit-reacties tonen",
     "Hide replies": "Antwoorden verbergen",
@@ -210,13 +210,13 @@
     "Could not fetch comments": "Kan reacties niet ophalen",
     "View `x` replies": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` antwoorden tonen",
-        "": "`x` antwoorden tonen"
+        "": "`x` antwoorden tonen."
     },
     "`x` ago": "`x` geleden",
     "Load more": "Meer laden",
     "`x` points": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` punten",
-        "": "`x` punten"
+        "": "`x` punten."
     },
     "Could not create mix.": "Kan geen mix maken.",
     "Empty playlist": "Lege afspeellijst",
@@ -337,35 +337,35 @@
     "Zulu": "Zulu",
     "`x` years": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jaar",
-        "": "`x` jaar"
+        "": "`x` jaren."
     },
     "`x` months": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` maanden",
-        "": "`x` maanden"
+        "": "`x` maanden."
     },
     "`x` weeks": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` weken",
-        "": "`x` weken"
+        "": "`x` weken."
     },
     "`x` days": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dagen",
-        "": "`x` dagen"
+        "": "`x` dagen."
     },
     "`x` hours": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` uur",
-        "": "`x` uur"
+        "": "`x` uren."
     },
     "`x` minutes": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuten",
-        "": "`x` minuten"
+        "": "`x` minuten."
     },
     "`x` seconds": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` seconden",
-        "": "`x` seconden"
+        "": "`x` seconden."
     },
     "Fallback comments: ": "Terugvallen op ",
     "Popular": "Populair",
-    "Search": "",
+    "Search": "Zoeken",
     "Top": "Top",
     "About": "Over",
     "Rating: ": "Waardering: ",
@@ -388,32 +388,32 @@
     "Videos": "Video's",
     "Playlists": "Afspeellijsten",
     "Community": "Gemeenschap",
-    "relevance": "",
-    "rating": "",
-    "date": "",
-    "views": "",
-    "content_type": "",
-    "duration": "",
-    "features": "",
-    "sort": "",
-    "hour": "",
-    "today": "",
-    "week": "",
-    "month": "",
-    "year": "",
-    "video": "",
-    "channel": "",
-    "playlist": "",
-    "movie": "",
-    "show": "",
-    "hd": "",
-    "subtitles": "",
-    "creative_commons": "",
-    "3d": "",
-    "live": "",
-    "4k": "",
-    "location": "",
-    "hdr": "",
-    "filter": "",
+    "relevance": "relevantie",
+    "rating": "beoordeling",
+    "date": "datum",
+    "views": "keren bekeken",
+    "content_type": "Type inhoud",
+    "duration": "duur",
+    "features": "eigenschappen",
+    "sort": "sorteren",
+    "hour": "uur",
+    "today": "vandaag",
+    "week": "week",
+    "month": "maand",
+    "year": "jaar",
+    "video": "video",
+    "channel": "kanaal",
+    "playlist": "afspeellijst",
+    "movie": "film",
+    "show": "show",
+    "hd": "HD",
+    "subtitles": "ondertitels",
+    "creative_commons": "Creative Commons",
+    "3d": "3D",
+    "live": "Live",
+    "4k": "4K",
+    "location": "locatie",
+    "hdr": "HDR",
+    "filter": "verfijnen",
     "Current version: ": "Huidige versie: "
 }
