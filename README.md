@@ -17,6 +17,9 @@
   <a href="https://hosted.weblate.org/engage/invidious/">
     <img alt="Translation Status" src="https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg">
   </a>
+  <a href="https://github.com/humanetech-community/awesome-humane-tech">
+    <img alt="Awesome Humane Tech" src="https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true">
+  </a>
 
   <h3>An open source alternative front-end to YouTube</h3>
 
@@ -27,13 +30,13 @@
   <a href="#contribute">Contribute</a>
   &nbsp;•&nbsp;
   <a href="#donate">Donate</a>
-
+  
   <h5>Chat with us:</h5>
   <a href="https://matrix.to/#/#invidious:matrix.org">
-    <img alt="Matrix" src="https://img.shields.io/matrix/invidious:matrix.org?label=Matrix">
+    <img alt="Matrix" src="https://img.shields.io/matrix/invidious:matrix.org?label=Matrix&color=darkgreen">
   </a>
   <a href="https://web.libera.chat/?channel=#invidious">
-    <img alt="Libera.chat (IRC)" src="https://img.shields.io/badge/IRC%20%28Libera.chat%29-%23invidious-green">
+    <img alt="Libera.chat (IRC)" src="https://img.shields.io/badge/IRC%20%28Libera.chat%29-%23invidious-darkgreen">
   </a>
 </div>
 
@@ -52,7 +55,7 @@
 - Lightweight
 - No ads
 - No tracking
-- No javascript required
+- No JavaScript required
 - Light/Dark themes
 - Customizable homepage
 - Subscriptions independant from Google
@@ -74,6 +77,17 @@
 - No Contributor License Agreement (CLA)
 
 
+## Quick start
+
+***Using invidious:***
+
+- [Select an instance from the list](https://instances.invidious.io) and start watching videos right now!
+
+***Hosting invidious:***
+
+- Just [Follow the installation instructions](https://docs.invidious.io/Installation.md)!
+
+
 ## Documentation
 
 The full documentation can be accessed online at https://docs.invidious.io/
@@ -81,13 +95,10 @@ The full documentation can be accessed online at https://docs.invidious.io/
 The documentation's source code is available in this repository:
 https://github.com/iv-org/documentation
 
-### Quick start
-
-**Using invidious:** [Select an instance from the list](https://instances.invidious.io) and start watching videos right now!
-
-**Hosting invidious:** Just [Follow the installation instructions](https://docs.invidious.io/Installation.md)!
-
 ### Extensions
+
+We highly recommend the use of [Privacy Redirect](https://github.com/SimonBrazell/privacy-redirect), a
+browser extension that automatically redirects Youtube URLs to any Invidious instance.
 
 The documentation contains a list of browser extensions that are recommended to use in addtition to Invidious.
 
