@@ -2,7 +2,7 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
   def begin
     loop do
       begin
-        {"/watch?v=jNQXAC9IVRw&gl=US&hl=en&has_verified=1&bpctr=9999999999", produce_channel_videos_url(ucid: "UC4QobU6STFB0P71PMvOGN5A")}.each do |path|
+        {"/watch?v=zj82_v2R6ts&gl=US&hl=en&has_verified=1&bpctr=9999999999", produce_channel_videos_url(ucid: "UCK87Lox575O_HCHBWaBSyGA")}.each do |path|
           response = YT_POOL.client &.get(path)
           if response.body.includes?("To continue with your YouTube experience, please fill out the form below.")
             html = XML.parse_html(response.body)
