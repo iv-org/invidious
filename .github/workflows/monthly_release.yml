@@ -14,7 +14,6 @@ jobs:
 
       - uses: actions/checkout@v2
         with:
-        ref: ${{ steps.date.outputs.date }}
         fetch-depth: 0
 
       - run: git --no-pager log --no-decorate --oneline $(git describe --tags --abbrev=0)..HEAD > output.log
