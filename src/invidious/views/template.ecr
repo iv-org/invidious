@@ -69,7 +69,7 @@
                         </div>
                         <% if env.get("preferences").as(Preferences).show_nick %>
                             <div class="pure-u-1-4">
-                                <span id="user_name"><%= translate(locale, "Welcome, `x`", env.get("user").as(User).email) %></span>
+                                <span id="user_name"><%= env.get("user").as(User).email %></span>
                             </div>
                         <% end %>
                         <div class="pure-u-1-4">
