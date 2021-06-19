@@ -20,15 +20,17 @@ class Invidious::Routes::Search < Invidious::Routes::BaseRoute
 
     query = env.params.query["search_query"]?
     query ||= env.params.query["q"]?
-    query ||= ""
 
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
+    page = env.params.query["page"]?
 
-    if query
-      env.redirect "/search?q=#{URI.encode_www_form(query)}&page=#{page}"
+    if query && !query.empty?
+      if page && !page.empty?
+        env.redirect "/search?q=" + URI.encode_www_form(query) + "&page=" + page
+      else
+        env.redirect "/search?q=" + URI.encode_www_form(query)
+      end
     else
-      env.redirect "/"
+      env.redirect "/search"
     end
   end
 
@@ -38,28 +40,31 @@ class Invidious::Routes::Search < Invidious::Routes::BaseRoute
 
     query = env.params.query["search_query"]?
     query ||= env.params.query["q"]?
-    query ||= ""
 
-    return env.redirect "/" if query.empty?
+    if !query || query.empty?
+      # Display the full page search box implemented in #1977
+      env.set "search", ""
+      templated "search_homepage", navbar_search: false
+    else
+      page = env.params.query["page"]?.try &.to_i?
+      page ||= 1
 
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
+      user = env.get? "user"
 
-    user = env.get? "user"
+      begin
+        search_query, count, videos, operators = process_search_query(query, page, user, region: region)
+      rescue ex
+        return error_template(500, ex)
+      end
 
-    begin
-      search_query, count, videos, operators = process_search_query(query, page, user, region: nil)
-    rescue ex
-      return error_template(500, ex)
+      operator_hash = {} of String => String
+      operators.each do |operator|
+        key, value = operator.downcase.split(":")
+        operator_hash[key] = value
+      end
+
+      env.set "search", query
+      templated "search"
     end
-
-    operator_hash = {} of String => String
-    operators.each do |operator|
-      key, value = operator.downcase.split(":")
-      operator_hash[key] = value
-    end
-
-    env.set "search", query
-    templated "search"
   end
 end
