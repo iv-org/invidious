@@ -48,28 +48,30 @@
 
 ## Features
 
-- Lightweight (the homepage is ~4 KB compressed)
+**User features**
+- Lightweight
 - No ads
 - No tracking
-- Javascript is 100% optional
-- Tools for managing subscriptions:
-  - Only show unseen videos
-  - Only show latest (or latest unseen) video from each channel
-  - Delivers notifications from all subscribed channels
-  - Automatically redirect homepage to feed
-  - Import subscriptions from YouTube
-- Audio-only mode (and no need to keep window open on mobile)
-- Dark mode
-- Embed support
-- Set default player options (speed, quality, autoplay, loop)
-- Support for Reddit comments in place of YouTube comments
-- Import/Export subscriptions, watch history, preferences
+- No javascript required
+- Light/Dark themes
+- Customizable homepage
+- Subscriptions independant from Google
+- Notifications for all subscribed channels
+- Audio-only mode (with background play on mobile)
+- Support for Reddit comments
+- [Available in many languages](locales/), thanks to [our translators](#contribute)
+
+**Data import/export**
+- Import subscriptions from YouTube, NewPipe and Freetube
+- Import watch history from NewPipe
+- Export subscriptions to NewPipe and Freetube
+- Import/Export Invidious user data
+
+**Technical features**
+- Embedded video support
 - [Developer API](https://docs.invidious.io/API.md)
-- Does not use any of the official YouTube APIs
-- No need to create a Google account to save subscriptions
-- No Code of Conduct
-- No Contributor license Agreement
-- Available in many languages, thanks to [Weblate](https://hosted.weblate.org/projects/invidious/)
+- Does not use official YouTube APIs
+- No Contributor License Agreement (CLA)
 
 
 ## Documentation
@@ -105,7 +107,7 @@ You can read more here: https://docs.invidious.io/Extensions.md
 
 ### Translations
 
-We use [Weblate](https://weblate.org/en/) to manage Invidious translations.
+We use [Weblate](https://weblate.org) to manage Invidious translations.
 
 You can propose new translations and/or correction here: https://hosted.weblate.org/engage/invidious/.
 
