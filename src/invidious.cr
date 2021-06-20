@@ -187,7 +187,7 @@ before_all do |env|
   if env.request.resource.starts_with?("/embed")
     frame_ancestors = "'self' http: https:"
   else
-    frame_ancestors = "none"
+    frame_ancestors = "'none'"
   end
 
   # TODO: Remove style-src's 'unsafe-inline', requires to remove all
