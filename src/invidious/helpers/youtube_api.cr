@@ -25,11 +25,13 @@ end
 
 ####################################################################
 # request_youtube_api_browse(continuation)
-# request_youtube_api_browse(browse_id, params)
+# request_youtube_api_browse(browse_id, params, region)
 #
 # Requests the youtubei/v1/browse endpoint with the required headers
-# and POST data in order to get a JSON reply in english US that can
+# and POST data in order to get a JSON reply in english that can
 # be easily parsed.
+#
+# The region can be provided, default is US.
 #
 # The requested data can either be:
 #
@@ -49,11 +51,11 @@ def request_youtube_api_browse(continuation : String)
   return _youtube_api_post_json("/youtubei/v1/browse", data)
 end
 
-def request_youtube_api_browse(browse_id : String, params : String)
+def request_youtube_api_browse(browse_id : String, params : String, region : String = "US")
   # JSON Request data, required by the API
   data = {
     "browseId" => browse_id,
-    "context"  => make_youtube_api_context("US"),
+    "context"  => make_youtube_api_context(region),
   }
 
   # Append the additionnal parameters if those were provided
