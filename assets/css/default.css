@@ -523,3 +523,7 @@ p,
 	unicode-bidi: plaintext;
 	text-align: start;
 }
+
+#descriptionWrapper {
+       max-width: 600px;
+}
