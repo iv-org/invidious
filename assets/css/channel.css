@@ -179,3 +179,8 @@ only show up when the screen is wide enough */
 .light-theme .trailer-timestamp {
   color: rgb(127, 127, 127);
 }
+
+
+#content-navigation {
+  display: flex;
+}
