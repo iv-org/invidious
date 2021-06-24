@@ -493,7 +493,8 @@ hr {
 
 /* Description Expansion Styling*/
 #description-box {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 #descexpansionbutton {
