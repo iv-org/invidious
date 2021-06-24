@@ -141,7 +141,7 @@
 <div class="h-box">
     <hr>
     <% if content_type == 1 || content_type == 2 %>
-        <% route = content_type == 1 ? "/playlists" : "" %>
+        <% route = content_type == 1 ? "/videos" : "/playlists" %>
         <% url = "/channel/#{channel.ucid + route}" %>
 
         <div class="pure-menu pure-menu-horizontal" style="display: flex;">
