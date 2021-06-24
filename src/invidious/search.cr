@@ -231,20 +231,15 @@ def process_search_query(url_params, query, page, user, region)
     count, items = search(search_query, search_params, region).as(Tuple)
   end
 
-  # Light processing to extract items from categories.
-  # Categories should ideally be supported in the frontend in the future
-  extracted_items = [] of SearchItem | ChannelVideo
+  # Light processing to ignore extracted items from categories for now.
+  # They should ideally be supported in the frontend in the future
+  items_without_cate_items = [] of SearchItem | ChannelVideo
   items.each do |i|
     if i.is_a? Category
-      i.contents.each do |cate_items|
-        if cate_items.is_a?(SearchVideo | SearchPlaylist | SearchChannel)
-          extracted_items << cate_items
-        end
-      end
     else
-      extracted_items << i
+      items_without_cate_items << i
     end
   end
 
-  {search_query, count, extracted_items, url_params}
+  {search_query, count, items_without_cate_items, url_params}
 end
