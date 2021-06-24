@@ -247,5 +247,5 @@ def process_search_query(url_params, query, page, user, region)
     end
   end
 
-  {search_query, count, items, url_params}
+  {search_query, count, extracted_items, url_params}
 end
