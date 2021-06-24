@@ -52,8 +52,8 @@
     <%= rendered "components/subscribe_widget" %>
 </div>
 
-<div class="pure-g h-box" id="content-navigation">
-    <div class="pure-u-1-3">
+<div class="h-box" id="content-navigation">
+    <div class="">
         <!-- TODO Add these!
         <a href="https://www.youtube.com/channel/<%= channel.ucid %>"><%= translate(locale, "View channel on YouTube") %></a> -->
         <!-- <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a> -->
@@ -136,36 +136,33 @@
           </ui>
         </div>
     </div>
-    <div class="pure-u-1-3"></div>
-
-    <% if content_type == 0 || content_type == 1 %>
-        <% route = content_type == 1 ? "/playlists" : "" %>
-        <% url = "/channel/#{channel.ucid + route}" %>
-
-        <div class="pure-u-1-3"> <!-- Sort by -->
-            <div class="pure-menu pure-menu-horizontal" style="">
-                <ul class="pure-menu-list" style="float: right">
-                    <% sort_options.each do |sort| %>
-                        <% if sort_by == sort %>
-                            <li class="pure-menu-item pure-menu-selected">
-                                <a class="pure-menu-link" href="<%= url %>?sort_by=<%= sort %>">
-                                    <b><%= translate(locale, sort) %></b>
-                                </a>
-                            </li>
-                        <% else %>
-                            <li class="pure-menu-item">
-                                <a class="pure-menu-link" href="<%= url %>?sort_by=<%= sort %>">
-                                    <%= translate(locale, sort) %>
-                                </a>
-                            </li>
-                        <% end %>
-                    <% end %>
-                </ul>
-            </div>
-        </div>
-    <% end %>
 </div>
 
 <div class="h-box">
+    <hr>
+    <% if content_type == 1 || content_type == 2 %>
+        <% route = content_type == 1 ? "/playlists" : "" %>
+        <% url = "/channel/#{channel.ucid + route}" %>
+
+        <div class="pure-menu pure-menu-horizontal" style="display: flex;">
+            <ul class="pure-menu-list" style="margin-left: auto;">
+                <% sort_options.each do |sort| %>
+                    <% if sort_by == sort %>
+                        <li class="pure-menu-item pure-menu-selected">
+                            <a class="pure-menu-link" href="<%= url %>?sort_by=<%= sort %>">
+                                <b><%= translate(locale, sort) %></b>
+                            </a>
+                        </li>
+                    <% else %>
+                        <li class="pure-menu-item">
+                            <a class="pure-menu-link" href="<%= url %>?sort_by=<%= sort %>">
+                                <%= translate(locale, sort) %>
+                            </a>
+                        </li>
+                    <% end %>
+                <% end %>
+            </ul>
+        </div>
+    <% end %>
     <hr>
 </div>
