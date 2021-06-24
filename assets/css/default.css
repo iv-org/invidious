@@ -492,11 +492,6 @@ hr {
 }
 
 /* Description Expansion Styling*/
-#description-box {
-  display: flex;
-  flex-direction: column;
-}
-
 #descexpansionbutton {
   display: none
 }
@@ -511,7 +506,7 @@ hr {
   height: 100%;
 }
 
-#descexpansionbutton + label {
+#descexpansionbutton ~ label {
   order: 1;
   margin-top: 20px;
 }

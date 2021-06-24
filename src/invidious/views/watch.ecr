@@ -30,11 +30,11 @@
 we're going to need to do it here in order to allow for translations.
  -->
 <style>
-#descexpansionbutton + label > a::after {
+#descexpansionbutton ~ label > a::after {
     content: "<%= translate(locale, "Show more") %>"
 }
 
-#descexpansionbutton:checked + label > a::after {
+#descexpansionbutton:checked ~ label > a::after {
     content: "<%= translate(locale, "Show less") %>"
 }
 </style>
@@ -249,12 +249,12 @@ we're going to need to do it here in order to allow for translations.
                     <%= video.description_html %>
                 <% else %>
                     <input id="descexpansionbutton" type="checkbox"/>
-                    <label for="descexpansionbutton" style="order: 1;">
-                        <a></a>
-                    </label>
                     <div id="descriptionWrapper">
                         <%= video.description_html %>
                     </div>
+                    <label for="descexpansionbutton">
+                        <a></a>
+                    </label>
                 <% end %>
             </div>
 
