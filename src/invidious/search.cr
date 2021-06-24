@@ -183,7 +183,7 @@ def process_search_query(url_params, query, page, user, region)
   sort = "relevance"
   subscriptions = nil
 
-  # operators = url_params.split(" ").select { |a| a.match(/\w+:[\,]+/) }
+  # operators = query.split(" ").select { |a| a.match(/\w+:[\w,]+/) }
   url_params.each do |operator|
     key, value = operator
 
@@ -238,14 +238,14 @@ def process_search_query(url_params, query, page, user, region)
   items.each do |i|
     if i.is_a? Category
       i.contents.each do |cate_items|
-        if cate_items.is_a? (SearchVideo | SearchPlaylist | SearchChannel)
+        if cate_items.is_a?(SearchVideo | SearchPlaylist | SearchChannel)
           extracted_items << cate_items
         end
       end
     else
       extracted_items << i
     end
-  end 
+  end
 
-  {search_query, count, extracted_items, url_params}
+  {search_query, count, items, url_params}
 end
