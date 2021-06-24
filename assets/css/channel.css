@@ -146,11 +146,7 @@ only show up when the screen is wide enough */
     color: rgb(232, 230, 227);
   }
 
-  .no-theme .trailer-title {
-    color:rgb(209, 209, 209)
-  }
-
-  .no-theme .trailer-metadata .read-more,  .no-theme .trailer-timestamp {
+  .no-theme .trailer-timestamp {
     color: gray;
   }
 }
@@ -159,31 +155,27 @@ only show up when the screen is wide enough */
   color: rgb(232, 230, 227);
 }
 
-.dark-theme .trailer-title {
-  color:rgb(209, 209, 209)
-}
-
-.dark-theme .trailer-metadata .read-more,  .no-theme .trailer-timestamp {
+.no-theme .trailer-timestamp {
   color: gray;
 }
 
 
 
 @media (prefers-color-scheme: light) {
-  .no-theme .trailer-metadata, .no-theme .trailer-title {
+  .no-theme .trailer-metadata {
     color: black;
   }
 
-  .no-theme .trailer-metadata .read-more,  .no-theme .trailer-timestamp {
+  .no-theme .trailer-timestamp {
     color: rgb(127, 127, 127);
   }
 }
 
-.light-theme .trailer-metadata, .light-theme .trailer-title { 
+.light-theme .trailer-metadata { 
   color: black;
 }
 
 
-.light-theme .trailer-metadata .read-more,  .no-theme .trailer-timestamp {
+.light-theme .trailer-timestamp {
   color: rgb(127, 127, 127);
 }
