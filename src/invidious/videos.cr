@@ -989,15 +989,22 @@ def fetch_video(id, region)
 
   # Try to pull streams from embed URL
   if info["reason"]?
-    required_parameters = URI::Params.new({
-      "video_id" => [id],
-      "eurl"     => ["https://youtube.googleapis.com/v/#{id}"],
-      "html5"    => ["1"],
-      "c"        => ["TVHTML5"],
-      "cver"     => ["6.20180913"],
+    # The html5, c and cver parameters are required in order to extract age-restricted videos
+    # See https://github.com/yt-dlp/yt-dlp/commit/4e6767b5f2e2523ebd3dd1240584ead53e8c8905
+    required_parameters = URI::Params.encode({
+      "video_id" => id,
+      "eurl"     => "https://youtube.googleapis.com/v/#{id}",
+      "html5"    => "1",
+      "c"        => "TVHTML5",
+      "cver"     => "6.20180913",
     })
 
-    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?#{required_parameters}", headers: HTTP::Headers{"x-youtube-client-version" => "6.20180913"}).body)
+    # In order to actually extract video info without error, the `x-youtube-client-version` has to be set to the same version as `cver` above.
+    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?#{required_parameters}",
+      headers: HTTP::Headers{
+        "x-youtube-client-version" => "6.20180913",
+      }).body
+    )
 
     if embed_info["player_response"]?
       player_response = JSON.parse(embed_info["player_response"])
