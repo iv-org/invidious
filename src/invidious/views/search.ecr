@@ -1,11 +1,19 @@
-<%
- # Satify compiler  
-%>
 <% filter_params = nil %>
+<% is_channel_search = operators.fetch("channel", false) && channel.is_a? AboutChannel && !subscriptions.nil?%>
 
 <% content_for "header" do %>
 <link rel="stylesheet" href="/css/search.css?v=<%= ASSET_COMMIT %>">
 <title><%= search_query.not_nil!.size > 30 ? HTML.escape(query.not_nil![0,30].rstrip(".") + "...") : HTML.escape(query.not_nil!) %> - Invidious</title>
+<% if is_channel_search %>
+<link rel="stylesheet" href="/css/channel.css?v=<%= ASSET_COMMIT %>">
+<% end %>
+<% end %>
+
+<% # To satisfy the compiler we're going to need to repeat these two arguments %>
+<% if is_channel_search && channel.is_a? AboutChannel && !subscriptions.nil? %>
+    <% content_type =  7 %>
+    <% sort_options = Tuple.new %>
+    <%= rendered "components/channel-information" %>
 <% end %>
 
 <% search_query_encoded = env.get?("search").try { |x| URI.encode_www_form(x.as(String), space_to_plus: true) } %>
@@ -25,6 +33,7 @@
 
 <% if count == 0 %>
     <hr style="margin: 0;"/>
+<% elsif is_channel_search %>
 <% else %>
     <hr/>
 <% end %>

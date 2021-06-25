@@ -27,6 +27,11 @@
     </div>
 <% end %>
 
+<% if content_type != 7 %>
+    <% query = nil %>
+    <% operators = {} of String => String %>
+<% end %>
+
 <div class="pure-g h-box">
     <div class="pure-u-2-3">
         <div class="channel-profile">
@@ -142,8 +147,9 @@
 </div>
 
 <div class="h-box">
-    <hr>
     <% if content_type == 1 || content_type == 2 %>
+        <% # We really only need a single <hr> (handled below) outside of content_type 1 or 2 %>
+        <hr>
         <% route = content_type == 1 ? "/videos" : "/playlists" %>
         <% url = "/channel/#{channel.ucid + route}" %>
 
