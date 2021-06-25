@@ -418,6 +418,8 @@ def fetch_channel_featured_channels(ucid, params, view = nil, shelf_id = nil, co
     })], continuation_token
   else
     url = nil
+    # The presence of a view and shelf ID indicates that we are currently viewing an category like subscriptions or another customly defined one
+    # However, we're going to have to generate the param value used to fetch from InnerTube.
     if view && shelf_id
       url = "/channel/#{ucid}/channels?view=#{view}&shelf_id=#{shelf_id}"
 
@@ -430,6 +432,8 @@ def fetch_channel_featured_channels(ucid, params, view = nil, shelf_id = nil, co
     end
 
     channels_tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
+
+    # We're going to be using the submenu content here to find the title of the currently selected category. If any.
     submenu = channels_tab["content"]["sectionListRenderer"]["subMenu"]?
 
     # There's no submenu data if the channel doesn't feature any channels.
@@ -444,7 +448,7 @@ def fetch_channel_featured_channels(ucid, params, view = nil, shelf_id = nil, co
 
     # Although extract_items parsed everything into the right structs, we still have
     # to fill in the title (if missing) attribute since Youtube doesn't return it when requesting
-    # a full category
+    # a full category.
 
     category_array = [] of Category
     items.each do |category|
@@ -458,18 +462,6 @@ def fetch_channel_featured_channels(ucid, params, view = nil, shelf_id = nil, co
         contents:         category.contents,
         description_html: category.description_html,
         url:              category.url,
-        badges:           nil,
-      })
-    end
-
-    # If no categories has been parsed then it means that we're currently requesting a single one and not in
-    # the initial preview anymore. The frontend still needs a Category however, so we'll create one.
-    if category_array.empty?
-      category_array << Category.new({
-        title:            fallback_title,
-        contents:         items,
-        description_html: "",
-        url:              url,
         badges:           nil,
       })
     end
