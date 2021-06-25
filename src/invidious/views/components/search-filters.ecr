@@ -1,0 +1,130 @@
+<% operators = operators.not_nil! %>
+
+<details id="filters">
+    <summary class="simulated_a">
+        <h3 style="display:inline"> <%= translate(locale, "filter") %> </h3>
+    </summary>
+    <div id="filters" class="pure-g h-box">
+    <!-- Grabs all search filters. This is to make sure we don't accidently overwrite something within the
+        search query later on-->
+    <% filter_params = env.request.query_params.to_s.gsub(/q=.+?(?=&|$)/, "") %>
+    <% base_url = "/search?q=#{HTML.escape(query.not_nil!)}" %>
+
+    <div class="pure-u-1-3 pure-u-md-1-5 filter-catagory" id="filter-date">
+        <b><%= translate(locale, "date") %></b>
+        <hr/>
+        <ul class="pure-menu-list">
+            <% ["hour", "today", "week", "month", "year"].each do |date| %>
+                <li class="pure-menu-item">
+                    <% if operators.fetch("date", "all") == date %>
+                        <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&date=[a-z]+/, "")}"%>">
+                            <b><%= translate(locale, date) %></b>
+                            <i class="remove-filter icon ion-md-close"></i>
+                        </a>
+                    <% else %>
+                        <a href="<%= base_url + "#{filter_params.gsub(/&date=[a-z]+/, "")}&date=#{date}"%>">
+                            <%= translate(locale, date) %>
+                        </a>
+                    <% end %>
+                </li>
+            <% end %>
+        </ul>
+    </div>
+
+    <div class="pure-u-1-3 pure-u-md-1-5 filter-catagory" id="filter-content_type">
+        <b><%= translate(locale, "content_type") %></b>
+        <hr/>
+        <ul class="pure-menu-list">
+            <% ["video", "channel", "playlist", "movie", "show"].each do |content_type| %>
+                <li class="pure-menu-item">
+                    <% if operators.fetch("content_type", "all") == content_type %>
+                        <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&content_type=[a-z]+/, "")}"%>">
+                            <b><%= translate(locale, content_type) %></b>
+                            <i class="remove-filter icon ion-md-close"></i>
+                        </a>
+                    <% else %>
+                        <a href="<%= base_url + "#{filter_params.gsub(/&content_type=[a-z]+/, "")}&content_type=#{content_type}"%>">
+                            <%= translate(locale, content_type) %>
+                        </a>
+                    <% end %>
+                </li>
+            <% end %>
+        </ul>
+    </div>
+
+    <div class="pure-u-1-3 pure-u-md-1-5 filter-catagory" id="filter-duration">
+        <b><%= translate(locale, "duration") %></b>
+        <hr/>
+        <ul class="pure-menu-list">
+            <% ["short", "long"].each do |duration| %>
+                <li class="pure-menu-item">
+                    <% if operators.fetch("duration", "all") == duration %>
+                        <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&duration=[a-z]+/, "")}"%>">
+                            <b><%= translate(locale, duration) %></b>
+                            <i class="remove-filter icon ion-md-close"></i>
+                        </a>
+                    <% else %>
+                        <a href="<%= base_url + "#{filter_params.gsub(/&duration=[a-z]+/, "")}&duration=#{duration}"%>">
+                            <%= translate(locale, duration) %>
+                        </a>
+                    <% end %>
+                </li>
+            <% end %>
+        </ul>
+    </div>
+
+    <div class="pure-u-1-3 pure-u-md-1-5 filter-catagory" id="filter-features">
+        <b><%= translate(locale, "features") %></b>
+        <hr/>
+        <ul class="pure-menu-list">
+            <% ["hd", "subtitles", "creative_commons", "3d", "live", "purchased", "4k", "360", "location", "hdr"].each do |feature| %>
+                <li class="pure-menu-item">
+                    <% if operators.fetch("features", "all").includes?(feature) %>
+                        <% if operators["features"].split(",").size == 1 %>
+                            <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&features=[a-z]+/, "")}"%>">
+                                <b><%= translate(locale, feature) %></b>
+                                <i class="remove-filter icon ion-md-close"></i>
+                            </a>
+                        <% else %>
+                            <% data = filter_params.match(/.*features=.*(#{feature}(%2C|&|$)).*/).not_nil! %>
+                            <% start = data.begin(1) %>
+                            <% last =  data.end(1) %>
+
+                            <a style="color: inherit;" href="<%= base_url + "#{filter_params[0...start] + filter_params[last..-1]}"%>">
+                                <b><%= translate(locale, feature) %></b>
+                                <i class="remove-filter icon ion-md-close"></i>
+                            </a>
+                        <% end %>
+                    <% elsif operators.has_key?("features") %>
+                        <a href="<%= base_url + filter_params.gsub(/features=/, "features=#{feature},")%>">
+                            <%= translate(locale, feature) %>
+                        </a>
+                    <% else %>
+                        <a href="<%= "#{base_url}#{filter_params}&features=#{feature}"%>">
+                            <%= translate(locale, feature) %>
+                        </a>
+                    <% end %>
+                </li>
+            <% end %>
+        </ul>
+    </div>
+
+    <div class="pure-u-1-3 pure-u-md-1-5 filter-catagory" id="filter-sort">
+        <b><%= translate(locale, "sort") %></b>
+        <hr/>
+        <ul class="pure-menu-list">
+            <% ["relevance", "rating", "date", "views"].each do |sort| %>
+                <li class="pure-menu-item">
+                    <% if operators.fetch("sort", "relevance") == sort %>
+                            <b><%= translate(locale, sort) %></b>
+                    <% else %>
+                        <a href="<%= base_url + "#{filter_params.gsub(/&sort=[a-z]+/, "")}&sort=#{sort}"%>">
+                            <%= translate(locale, sort) %>
+                        </a>
+                    <% end %>
+                </li>
+            <% end %>
+        </ul>
+    </div>
+    </div>
+</details>
