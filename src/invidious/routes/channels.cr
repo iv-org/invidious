@@ -116,36 +116,33 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
 
     view = env.params.query["view"]?
     shelf_id = env.params.query["shelf_id"]?
+
+    # The offset is mainly to check if we're at the first page or not and in turn whether we should have a "previous page" button or not.
+    offset = env.params.query["offset"]?
+    if offset
+      offset = offset.to_i
+    else
+      offset = 0
+    end
+
     # Category title isn't returned when requesting a specific category or continuation data
     # so we have it in through a url param
     current_category_title = env.params.query["title"]?
 
+    previous_continuation = env.params.query["previous"]?
+
     if continuation
-      offset = env.params.query["offset"]?
-      if offset
-        offset = offset.to_i
-      else
-        offset = 0
-      end
-
-      # Previous continuation
-      previous_continuation = env.params.query["previous"]?
-
-      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, "EghjaGFubmVscw%3D%3D", nil, nil, continuation, current_category_title).not_nil!
+      featured_channel_categories, continuation_token = fetch_channel_featured_channels_category_continuation(continuation, current_category_title)
     elsif view && shelf_id
-      offset = env.params.query["offset"]?
-      if offset
-        offset = offset.to_i
-      else
-        offset = 0
-      end
-
-      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, "EghjaGFubmVscw%3D%3D", view, shelf_id, continuation, current_category_title).not_nil!
+      featured_channel_categories, continuation_token = fetch_selected_channel_featuring_category(ucid, view, shelf_id)
     else
-      previous_continuation = nil
-      offset = 0
+      continuation_token = nil
+      featured_channel_categories = fetch_channel_featured_channels(ucid)
+    end
 
-      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, "EghjaGFubmVscw%3D%3D", nil, nil, current_category_title).not_nil!
+    # If we only got a single category we'll go ahead and wrap it within an array for easier processing in the template.
+    if featured_channel_categories.is_a? Category
+      featured_channel_categories = [featured_channel_categories]
     end
 
     templated "channel/featured_channels", buffer_footer: true
