@@ -74,23 +74,28 @@
                 <% end %>
                 <p dir="auto"><%= HTML.escape(item.title) %></p>
             </a>
-            <a href="/channel/<%= item.ucid %>">
-                <p dir=auto"><b><%= HTML.escape(item.author) %></b></p>
-            </a>
 
-            <h5 class="pure-g">
-                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
-                    <div class="pure-u-2-3"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></div>
-                <% elsif Time.utc - item.published > 1.minute %>
-                    <div class="pure-u-2-3"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></div>
-                <% else %>
-                    <div class="pure-u-2-3"></div>
-                <% end %>
+            <div class="video-card-row flexible">
+                <div class="flex-left"><a href="/channel/<%= item.ucid %>">
+                    <p class="channel-name" dir=auto"><%= HTML.escape(item.author) %></p>
+                </a></div>
+            </div>
 
-                <div class="pure-u-1-3" style="text-align:right">
-                    <%= item.responds_to?(:views) && item.views ? translate(locale, "`x` views", number_to_short_text(item.views || 0)) : "" %>
+            <div class="video-card-row flexible">
+                <div class="flex-left">
+                    <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
+                        <p dir="auto"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
+                    <% elsif Time.utc - item.published > 1.minute %>
+                        <p dir="auto"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
+                    <% end %>
                 </div>
-            </h5>
+
+                <% if item.responds_to?(:views) && item.views %>
+                <div class="flex-right">
+                    <p dir="auto"><%= translate(locale, "`x` views", number_to_short_text(item.views || 0)) %></p>
+                </div>
+                <% end %>
+            </div>
         <% else %>
             <a style="width:100%" href="/watch?v=<%= item.id %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
@@ -123,7 +128,7 @@
                         <% end %>
 
                         <% if item.responds_to?(:live_now) && item.live_now %>
-                            <p class="length"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
+                            <p class="length" dir="auto"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
                         <% elsif item.length_seconds != 0 %>
                             <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
                         <% end %>
@@ -132,36 +137,40 @@
                 <p dir="auto"><%= HTML.escape(item.title) %></p>
             </a>
 
-            <div style="display: flex">
-                <b style="flex: 1;">
-                    <a dir="auto" href="/channel/<%= item.ucid %>"><p dir="auto"><%= HTML.escape(item.author) %></p></a>
-                </b>
-                <div class="icon-buttons">
-                    <a title="<%=translate(locale, "Watch on YouTube")%>" href="https://www.youtube.com/watch?v=<%= item.id %>">
-                        <i class="icon ion-logo-youtube"></i>
-                    </a>
-                    <a title="<%=translate(locale, "Audio mode")%>" href="/watch?v=<%= item.id %>&amp;listen=1">
-                        <i class="icon ion-md-headset"></i>
-                    </a>
-                    <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=<%=HTML.escape("watch?v=#{item.id}")%>">
-                        <i class="icon ion-md-jet"></i>
-                    </a>
+            <div class="video-card-row flexible">
+                <div class="flex-left"><a href="/channel/<%= item.ucid %>">
+                    <p class="channel-name" dir=auto"><%= HTML.escape(item.author) %></p>
+                </a></div>
+                <div class="flex-right">
+                    <div class="icon-buttons">
+                        <a title="<%=translate(locale, "Watch on YouTube")%>" href="https://www.youtube.com/watch?v=<%= item.id %>">
+                            <i class="icon ion-logo-youtube"></i>
+                        </a>
+                        <a title="<%=translate(locale, "Audio mode")%>" href="/watch?v=<%= item.id %>&amp;listen=1">
+                            <i class="icon ion-md-headset"></i>
+                        </a>
+                        <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=<%=HTML.escape("watch?v=#{item.id}")%>">
+                            <i class="icon ion-md-jet"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <h5 class="pure-g">
-                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
-                    <div class="pure-u-2-3"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></div>
-                <% elsif Time.utc - item.published > 1.minute %>
-                    <div class="pure-u-2-3"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></div>
-                <% else %>
-                    <div class="pure-u-2-3"></div>
-                <% end %>
-
-                <div class="pure-u-1-3" style="text-align:right">
-                    <%= item.responds_to?(:views) && item.views ? translate(locale, "`x` views", number_to_short_text(item.views || 0)) : "" %>
+            <div class="video-card-row flexible">
+                <div class="flex-left">
+                    <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
+                        <p class="video-data" dir="auto"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
+                    <% elsif Time.utc - item.published > 1.minute %>
+                        <p class="video-data" dir="auto"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
+                    <% end %>
                 </div>
-            </h5>
+
+                <% if item.responds_to?(:views) && item.views %>
+                <div class="flex-right">
+                    <p class="video-data" dir="auto"><%= translate(locale, "`x` views", number_to_short_text(item.views || 0)) %></p>
+                </div>
+                <% end %>
+            </div>
         <% end %>
     </div>
 </div>
