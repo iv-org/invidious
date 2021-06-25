@@ -135,7 +135,7 @@ struct AboutChannel
   property is_family_friendly : Bool
   property allowed_regions : Array(String)
   property related_channels : Array(AboutRelatedChannel)
-  property tabs : Hash(String, Tuple(Int32, String)) # TabName => {TabiZZndex, browseEndpoint params}
+  property tabs : Array(String)
   property links : Array(Tuple(String, String, String))
 end
 
@@ -342,7 +342,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 end
 
 def fetch_channel_home(ucid, channel)
-  initial_data = request_youtube_api_browse(ucid, channel.tabs["home"][1])
+  initial_data = request_youtube_api_browse(ucid, "EghmZWF0dXJlZA%3D%3D")
   items = extract_items(initial_data, channel.author, channel.ucid)
 
   # Channel trailer needs some slight special handling
@@ -403,7 +403,7 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
   return items, continuation
 end
 
-def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, continuation = nil, query_title = nil) : {Array(Category), (String | Nil)}
+def fetch_channel_featured_channels(ucid, params, view = nil, shelf_id = nil, continuation = nil, query_title = nil) : {Array(Category), (String | Nil)}
   if continuation.is_a?(String)
     initial_data = request_youtube_api_browse(continuation)
     items = extract_items(initial_data)
@@ -425,7 +425,7 @@ def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, 
       initial_data = request_youtube_api_browse(ucid, params)
       continuation_token = fetch_continuation_token(initial_data)
     else
-      initial_data = request_youtube_api_browse(ucid, tab_data[1])
+      initial_data = request_youtube_api_browse(ucid, params)
       continuation_token = nil
     end
 
@@ -1000,16 +1000,14 @@ def get_about_info(ucid, locale)
   country = ""
   total_views = 0_i64
   joined = Time.unix(0)
-  tabs = {} of String => Tuple(Int32, String) # TabName => {TabiZZndex, browseEndpoint params}
   links = [] of {String, String, String}
 
-  tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
-  tab_names = [] of String
-  tab_data = [] of Tuple(Int32, String)
+  tabs = [] of String
 
+  tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
   if !tabs_json.nil?
     # Retrieve information from the tabs array. The index we are looking for varies between channels.
-    tabs_json.each_with_index do |node, i|
+    tabs_json.each do |node|
       # Try to find the about section which is located in only one of the tabs.
       channel_about_meta = node["tabRenderer"]?.try &.["content"]?.try &.["sectionListRenderer"]?
         .try &.["contents"]?.try &.[0]?.try &.["itemSectionRenderer"]?.try &.["contents"]?
@@ -1022,27 +1020,6 @@ def get_about_info(ucid, locale)
         joined = channel_about_meta["joinedDateText"]?.try &.["runs"]?.try &.as_a.reduce("") { |acc, node| acc + node["text"].as_s }
           .try { |text| Time.parse(text, "Joined %b %-d, %Y", Time::Location.local) } || Time.unix(0)
 
-        # External link parsing
-        channel_about_meta["primaryLinks"]?.try &.as_a.each do |link|
-          link_title = link["title"]["simpleText"].as_s
-          link_url = URI.parse(link["navigationEndpoint"]["urlEndpoint"]["url"].to_s)
-          link_icon_url = link["icon"]?.try &.["thumbnails"][0]["url"].to_s || ""
-
-          if {"m.youtube.com", "www.youtube.com", "youtu.be"}.includes? link_url.host
-            if link_url.path == "/redirect"
-              link_url = HTTP::Params.parse(link_url.query.not_nil!)["q"]
-            else
-              link_url = link_url.request_target.to_s
-            end
-          else
-            link_url = link_url.to_s
-          end
-
-          links << {link_title, link_url, link_icon_url}
-        end
-
-        country = channel_about_meta["country"]?.try &.["simpleText"].as_s || ""
-
         # Normal Auto-generated channels
         # https://support.google.com/youtube/answer/2579942
         # For auto-generated channels, channel_about_meta only has ["description"]["simpleText"] and ["primaryLinks"][0]["title"]["simpleText"]
@@ -1051,13 +1028,8 @@ def get_about_info(ucid, locale)
           auto_generated = true
         end
       end
-
-      if node["tabRenderer"]?
-        tab_names << node["tabRenderer"]["title"].as_s.downcase
-        tab_data << {i, node["tabRenderer"]["endpoint"]["browseEndpoint"]["params"].as_s}
-      end
     end
-    tabs = Hash.zip(tab_names, tab_data)
+    tabs = tabs_json.reject { |node| node["tabRenderer"]?.nil? }.map { |node| node["tabRenderer"]["title"].as_s.downcase }
   end
 
   sub_count = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s?
