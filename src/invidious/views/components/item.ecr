@@ -2,13 +2,13 @@
     <div class="h-box">
         <% case item when %>
         <% when SearchChannel %>
-            <a style="width:100%" href="/channel/<%= item.ucid %>">
+            <a href="/channel/<%= item.ucid %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <center>
                         <img style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target.gsub(/=s\d+/, "=s176") %>"/>
                     </center>
                 <% end %>
-                <p><%= item.author %></p>
+                <p dir="auto"><%= HTML.escape(item.author) %></p>
             </a>
             <p><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></p>
             <% if !item.auto_generated %><p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p><% end %>
@@ -27,15 +27,13 @@
                         <p class="length"><%= number_with_separator(item.video_count) %> videos</p>
                     </div>
                 <% end %>
-                <p><%= item.title %></p>
+                <p dir="auto"><%= HTML.escape(item.title) %></p>
             </a>
-            <p>
-                <b>
-                    <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
-                </b>
-            </p>
+            <a href="/channel/<%= item.ucid %>">
+                <p dir=auto"><b><%= HTML.escape(item.author) %></b></p>
+            </a>
         <% when MixVideo %>
-            <a style="width:100%" href="/watch?v=<%= item.id %>&list=<%= item.rdid %>">
+            <a href="/watch?v=<%= item.id %>&list=<%= item.rdid %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <div class="thumbnail">
                         <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
@@ -44,13 +42,11 @@
                         <% end %>
                     </div>
                 <% end %>
-                <p><%= HTML.escape(item.title) %></p>
+                <p dir="auto"><%= HTML.escape(item.title) %></p>
             </a>
-            <p>
-                <b>
-                    <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
-                </b>
-            </p>
+            <a href="/channel/<%= item.ucid %>">
+                <p dir=auto"><b><%= HTML.escape(item.author) %></b></p>
+            </a>
         <% when PlaylistVideo %>
             <a style="width:100%" href="/watch?v=<%= item.id %>&list=<%= item.plid %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
@@ -76,13 +72,11 @@
                         <% end %>
                     </div>
                 <% end %>
-                <p><a href="/watch?v=<%= item.id %>"><%= HTML.escape(item.title) %></a></p>
+                <p dir="auto"><%= HTML.escape(item.title) %></p>
             </a>
-            <p>
-                <b>
-                    <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
-                </b>
-            </p>
+            <a href="/channel/<%= item.ucid %>">
+                <p dir=auto"><b><%= HTML.escape(item.author) %></b></p>
+            </a>
 
             <h5 class="pure-g">
                 <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
@@ -98,8 +92,8 @@
                 </div>
             </h5>
         <% else %>
-            <% if !env.get("preferences").as(Preferences).thin_mode %>
-                <a style="width:100%" href="/watch?v=<%= item.id %>">
+            <a style="width:100%" href="/watch?v=<%= item.id %>">
+                <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <div class="thumbnail">
                         <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                         <% if env.get? "show_watched" %>
@@ -134,12 +128,13 @@
                             <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
                         <% end %>
                     </div>
-                </a>
-            <% end %>
-            <p><a href="/watch?v=<%= item.id %>"><%= HTML.escape(item.title) %></a></p>
+                <% end %>
+                <p dir="auto"><%= HTML.escape(item.title) %></p>
+            </a>
+
             <div style="display: flex">
                 <b style="flex: 1;">
-                    <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
+                    <a dir="auto" href="/channel/<%= item.ucid %>"><p dir="auto"><%= HTML.escape(item.author) %></p></a>
                 </b>
                 <div class="icon-buttons">
                     <a title="<%=translate(locale, "Watch on YouTube")%>" href="https://www.youtube.com/watch?v=<%= item.id %>">
