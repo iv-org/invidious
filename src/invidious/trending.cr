@@ -27,7 +27,7 @@ def fetch_trending(trending_type, region, locale)
   end
 
   initial_data = extract_initial_data(trending)
-  trending = extract_videos(initial_data)
+  trending = extract_items(initial_data)
 
   return {trending, plid}
 end

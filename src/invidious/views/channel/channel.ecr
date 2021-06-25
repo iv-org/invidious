@@ -1,0 +1,34 @@
+<% content_for "header" do %>
+<title><%= channel.author %> - Invidious</title>
+<link rel="stylesheet" href="/css/channel.css?v=<%= ASSET_COMMIT %>">
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/channel/<%= channel.ucid %>" >
+<% end %>
+
+<% content_type =  1 %>
+<%= rendered "components/channel-information" %>
+
+<div class="pure-g">
+    <% items.each_slice(4) do |slice| %>
+        <% slice.each do |item| %>
+            <%= rendered "components/item" %>
+        <% end %>
+    <% end %>
+</div>
+
+<div class="pure-g h-box">
+    <div class="pure-u-1 pure-u-lg-1-5">
+        <% if page > 1 %>
+            <a href="/channel/<%= channel.ucid %>?page=<%= page - 1 %><% if sort_by != "newest" %>&sort_by=<%= HTML.escape(sort_by) %><% end %>">
+                <%= translate(locale, "Previous page") %>
+            </a>
+        <% end %>
+    </div>
+    <div class="pure-u-1 pure-u-lg-3-5"></div>
+    <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
+        <% if count == 60 %>
+            <a href="/channel/<%= channel.ucid %>?page=<%= page + 1 %><% if sort_by != "newest" %>&sort_by=<%= HTML.escape(sort_by) %><% end %>">
+                <%= translate(locale, "Next page") %>
+            </a>
+        <% end %>
+    </div>
+</div>

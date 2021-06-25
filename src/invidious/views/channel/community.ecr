@@ -1,0 +1,32 @@
+<% content_for "header" do %>
+<title><%= channel.author %> - Invidious</title>
+<link rel="stylesheet" href="/css/channel.css?v=<%= ASSET_COMMIT %>">
+<% end %>
+
+<% content_type =  3 %>
+<% sort_options = Tuple.new %>
+<%= rendered "components/channel-information" %>
+
+<% if error_message %>
+    <div class="h-box">
+        <p><%= error_message %></p>
+    </div>
+<% else %>
+    <div class="h-box pure-g" id="comments">
+        <%= template_youtube_comments(items.not_nil!, locale, thin_mode) %>
+    </div>
+<% end %>
+
+<script id="community_data" type="application/json">
+<%=
+{
+    "ucid" => channel.ucid,
+    "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
+    "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
+    "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),
+    "show_replies_text" => HTML.escape(translate(locale, "Show replies")),
+    "preferences" => env.get("preferences").as(Preferences)
+}.to_pretty_json
+%>
+</script>
+<script src="/js/community.js?v=<%= ASSET_COMMIT %>"></script>

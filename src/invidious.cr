@@ -308,6 +308,17 @@ Invidious::Routing.get "/", Invidious::Routes::Misc, :home
 Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
 Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
 
+Invidious::Routing.get "/channel/:ucid", Invidious::Routes::Channels, :home
+Invidious::Routing.get "/channel/:ucid/videos", Invidious::Routes::Channels, :videos
+Invidious::Routing.get "/channel/:ucid/playlists", Invidious::Routes::Channels, :playlists
+Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, :community
+Invidious::Routing.get "/channel/:ucid/channels", Invidious::Routes::Channels, :channels
+Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
+
+["", "/home", "/videos", "/playlists", "/community", "/channels", "/about"].each do |path|
+  Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+end
+
 Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
 Invidious::Routing.get "/watch/:id", Invidious::Routes::Watch, :redirect
 Invidious::Routing.get "/shorts/:id", Invidious::Routes::Watch, :redirect
@@ -1617,22 +1628,6 @@ end
   end
 end
 
-# YouTube appears to let users set a "brand" URL that
-# is different from their username, so we convert that here
-get "/c/:user" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  user = env.params.url["user"]
-
-  response = YT_POOL.client &.get("/c/#{user}")
-  html = XML.parse_html(response.body)
-
-  ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
-  next env.redirect "/" if !ucid
-
-  env.redirect "/channel/#{ucid}"
-end
-
 # Legacy endpoint for /user/:username
 get "/profile" do |env|
   user = env.params.query["user"]?
@@ -1653,12 +1648,6 @@ get "/attribution_link" do |env|
   env.redirect url
 end
 
-# Page used by YouTube to provide captioning widget, since we
-# don't support it we redirect to '/'
-get "/timedtext_video" do |env|
-  env.redirect "/"
-end
-
 get "/user/:user" do |env|
   user = env.params.url["user"]
   env.redirect "/channel/#{user}"
@@ -1672,160 +1661,6 @@ end
 get "/user/:user/about" do |env|
   user = env.params.url["user"]
   env.redirect "/channel/#{user}"
-end
-
-get "/channel/:ucid/about" do |env|
-  ucid = env.params.url["ucid"]
-  env.redirect "/channel/#{ucid}"
-end
-
-get "/channel/:ucid" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  user = env.get? "user"
-  if user
-    user = user.as(User)
-    subscriptions = user.subscriptions
-  end
-  subscriptions ||= [] of String
-
-  ucid = env.params.url["ucid"]
-
-  page = env.params.query["page"]?.try &.to_i?
-  page ||= 1
-
-  continuation = env.params.query["continuation"]?
-
-  sort_by = env.params.query["sort_by"]?.try &.downcase
-
-  begin
-    channel = get_about_info(ucid, locale)
-  rescue ex : ChannelRedirect
-    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
-  rescue ex
-    next error_template(500, ex)
-  end
-
-  if channel.auto_generated
-    sort_options = {"last", "oldest", "newest"}
-    sort_by ||= "last"
-
-    items, continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
-    items.uniq! do |item|
-      if item.responds_to?(:title)
-        item.title
-      elsif item.responds_to?(:author)
-        item.author
-      end
-    end
-    items = items.select(&.is_a?(SearchPlaylist)).map(&.as(SearchPlaylist))
-    items.each { |item| item.author = "" }
-  else
-    sort_options = {"newest", "oldest", "popular"}
-    sort_by ||= "newest"
-
-    count, items = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
-    items.reject! &.paid
-
-    env.set "search", "channel:#{channel.ucid} "
-  end
-
-  templated "channel"
-end
-
-get "/channel/:ucid/videos" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  ucid = env.params.url["ucid"]
-  params = env.request.query
-
-  if !params || params.empty?
-    params = ""
-  else
-    params = "?#{params}"
-  end
-
-  env.redirect "/channel/#{ucid}#{params}"
-end
-
-get "/channel/:ucid/playlists" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  user = env.get? "user"
-  if user
-    user = user.as(User)
-    subscriptions = user.subscriptions
-  end
-  subscriptions ||= [] of String
-
-  ucid = env.params.url["ucid"]
-
-  continuation = env.params.query["continuation"]?
-
-  sort_by = env.params.query["sort_by"]?.try &.downcase
-  sort_by ||= "last"
-
-  begin
-    channel = get_about_info(ucid, locale)
-  rescue ex : ChannelRedirect
-    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
-  rescue ex
-    next error_template(500, ex)
-  end
-
-  if channel.auto_generated
-    next env.redirect "/channel/#{channel.ucid}"
-  end
-
-  items, continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
-  items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
-  items.each { |item| item.author = "" }
-
-  env.set "search", "channel:#{channel.ucid} "
-  templated "playlists"
-end
-
-get "/channel/:ucid/community" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  user = env.get? "user"
-  if user
-    user = user.as(User)
-    subscriptions = user.subscriptions
-  end
-  subscriptions ||= [] of String
-
-  ucid = env.params.url["ucid"]
-
-  thin_mode = env.params.query["thin_mode"]? || env.get("preferences").as(Preferences).thin_mode
-  thin_mode = thin_mode == "true"
-
-  continuation = env.params.query["continuation"]?
-  # sort_by = env.params.query["sort_by"]?.try &.downcase
-
-  begin
-    channel = get_about_info(ucid, locale)
-  rescue ex : ChannelRedirect
-    next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
-  rescue ex
-    next error_template(500, ex)
-  end
-
-  if !channel.tabs.includes? "community"
-    next env.redirect "/channel/#{channel.ucid}"
-  end
-
-  begin
-    items = JSON.parse(fetch_channel_community(ucid, continuation, locale, "json", thin_mode))
-  rescue ex : InfoException
-    env.response.status_code = 500
-    error_message = ex.message
-  rescue ex
-    next error_template(500, ex)
-  end
-
-  env.set "search", "channel:#{channel.ucid} "
-  templated "community"
 end
 
 # API Endpoints
@@ -2357,6 +2192,8 @@ get "/api/v1/channels/:ucid" do |env|
       json.field "descriptionHtml", channel.description_html
 
       json.field "allowedRegions", channel.allowed_regions
+      json.field "external_links", channel.links
+      json.field "country", channel.country
 
       json.field "latestVideos" do
         json.array do
@@ -3859,6 +3696,38 @@ get "/vi/:id/:name" do |env|
       proxy_file(response, env)
     end
   rescue ex
+  end
+end
+
+get "/fetch_link_favicon" do |env|
+  url = env.params.query["url"]
+  url = URI.parse(url)
+
+  if url.host.to_s.ends_with?("gstatic.com")
+    # headers = HTTP::Headers{"Content-Encoding" => "gzip"}
+    headers = HTTP::Headers{} of String => String
+
+    REQUEST_HEADERS_WHITELIST.each do |header|
+      if env.request.headers[header]?
+        headers[header] = env.request.headers[header]
+      end
+    end
+
+    begin
+      HTTP::Client.get(url.to_s, headers) do |favicon_response|
+        env.response.status_code = favicon_response.status_code
+        favicon_response.headers.each do |key, value|
+          if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
+            env.response.headers[key] = value
+            break
+          end
+        end
+
+        env.response.headers["Access-Control-Allow-Origin"] = "*"
+        proxy_file(favicon_response, env)
+      end
+    rescue ex
+    end
   end
 end
 

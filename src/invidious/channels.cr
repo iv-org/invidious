@@ -128,6 +128,7 @@ struct AboutChannel
   property banner : String?
   property description_html : String
   property paid : Bool
+  property country : String
   property total_views : Int64
   property sub_count : Int32
   property joined : Time
@@ -135,6 +136,7 @@ struct AboutChannel
   property allowed_regions : Array(String)
   property related_channels : Array(AboutRelatedChannel)
   property tabs : Array(String)
+  property links : Array(Tuple(String, String, String))
 end
 
 class ChannelRedirect < Exception
@@ -339,6 +341,29 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
   return channel
 end
 
+def fetch_channel_home(ucid, channel)
+  initial_data = request_youtube_api_browse(ucid, "EghmZWF0dXJlZA%3D%3D")
+  items = extract_items(initial_data, channel.author, channel.ucid)
+
+  # Channel trailer needs some slight special handling
+  home_tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
+  trailer = home_tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["channelVideoPlayerRenderer"]? || nil
+
+  home_sections = [] of (Category | Video)
+  if trailer
+    trailer = get_video(trailer["videoId"].as_s, PG_DB)
+    home_sections << trailer
+  end
+
+  items.each do |category|
+    if category.is_a? Category
+      home_sections << category
+    end
+  end
+
+  return home_sections
+end
+
 def fetch_channel_playlists(ucid, author, continuation, sort_by)
   if continuation
     response_json = request_youtube_api_browse(continuation)
@@ -376,6 +401,88 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
   end
 
   return items, continuation
+end
+
+def fetch_channel_featured_channels(ucid, params, view = nil, shelf_id = nil, continuation = nil, query_title = nil) : {Array(Category), (String | Nil)}
+  if continuation.is_a?(String)
+    initial_data = request_youtube_api_browse(continuation)
+    items = extract_items(initial_data)
+    continuation_token = fetch_continuation_token(initial_data)
+
+    return [Category.new({
+      title:            query_title.not_nil!, # If continuation contents is requested then the query_title has to be passed along.
+      contents:         items,
+      description_html: "",
+      url:              nil,
+      badges:           nil,
+    })], continuation_token
+  else
+    url = nil
+    # The presence of a view and shelf ID indicates that we are currently viewing an category like subscriptions or another customly defined one
+    # However, we're going to have to generate the param value used to fetch from InnerTube.
+    if view && shelf_id
+      url = "/channel/#{ucid}/channels?view=#{view}&shelf_id=#{shelf_id}"
+
+      params = produce_featured_channel_browse_param(view.to_i64, shelf_id.to_i64)
+      initial_data = request_youtube_api_browse(ucid, params)
+      continuation_token = fetch_continuation_token(initial_data)
+    else
+      initial_data = request_youtube_api_browse(ucid, params)
+      continuation_token = nil
+    end
+
+    channels_tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
+
+    # We're going to be using the submenu content here to find the title of the currently selected category. If any.
+    submenu = channels_tab["content"]["sectionListRenderer"]["subMenu"]?
+
+    # There's no submenu data if the channel doesn't feature any channels.
+    if !submenu
+      return {[] of Category, continuation_token}
+    end
+
+    submenu_data = submenu["channelSubMenuRenderer"]["contentTypeSubMenuItems"]
+
+    items = extract_items(initial_data)
+    fallback_title = submenu_data.as_a.select(&.["selected"].as_bool)[0]["title"].as_s
+
+    # Although extract_items parsed everything into the right structs, we still have
+    # to fill in the title (if missing) attribute since Youtube doesn't return it when requesting
+    # a full category.
+
+    category_array = [] of Category
+    items.each do |category|
+      # Tell compiler that the result from extract_items has to be an array of Categories
+      if !category.is_a?(Category)
+        next
+      end
+
+      category_array << Category.new({
+        title:            category.title.empty? ? fallback_title : category.title,
+        contents:         category.contents,
+        description_html: category.description_html,
+        url:              category.url,
+        badges:           nil,
+      })
+    end
+
+    return category_array, continuation_token
+  end
+end
+
+def produce_featured_channel_browse_param(view : Int64, shelf_id : Int64)
+  object = {
+    "2:string"  => "channels",
+    "4:varint"  => view,
+    "14:varint" => shelf_id,
+  }
+
+  browse_params = object.try { |i| Protodec::Any.cast_json(object) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
+
+  return browse_params
 end
 
 def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
@@ -882,8 +989,11 @@ def get_about_info(ucid, locale)
     related_channels ||= [] of AboutRelatedChannel
   end
 
+  country = ""
   total_views = 0_i64
   joined = Time.unix(0)
+  links = [] of {String, String, String}
+
   tabs = [] of String
 
   tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?.try &.as_a?
@@ -926,6 +1036,7 @@ def get_about_info(ucid, locale)
     banner:             banner,
     description_html:   description_html,
     paid:               paid,
+    country:            country,
     total_views:        total_views,
     sub_count:          sub_count,
     joined:             joined,
@@ -933,6 +1044,7 @@ def get_about_info(ucid, locale)
     allowed_regions:    allowed_regions,
     related_channels:   related_channels,
     tabs:               tabs,
+    links:              links,
   })
 end
 

@@ -11,28 +11,24 @@
 
 <%= rendered "components/feed_menu" %>
 
-<div class="pure-g h-box">
-    <div style="align-self:flex-end" class="pure-u-2-3">
-        <% if plid %>
-            <a href="/playlist?list=<%= plid %>">
-                <%= translate(locale, "View as playlist") %>
-            </a>
-        <% end %>
-    </div>
-    <div class="pure-u-1-3">
-        <div class="pure-g" style="text-align:right">
+<div class="h-box" id="content-navigation">
+    <div class="pure-menu pure-menu-horizontal">
+        <ui class="pure-menu-list">
             <% {"Default", "Music", "Gaming", "Movies"}.each do |option| %>
-                <div class="pure-u-1 pure-md-1-3">
-                    <% if trending_type == option %>
-                        <b><%= translate(locale, option) %></b>
-                    <% else %>
-                        <a href="/feed/trending?type=<%= option %>&region=<%= region %>">
+                <% if trending_type == option %>
+                    <li class="pure-menu-item pure-menu-selected">
+                        <a href="/feed/trending?type=<%= option %>&region=<%= region %>" class="pure-menu-link">
+                          <b><%= translate(locale, option) %></b>
+                        </a>
+                <% else %>
+                    <li class="pure-menu-item">
+                        <a href="/feed/trending?type=<%= option %>&region=<%= region %>" class="pure-menu-link">
                             <%= translate(locale, option) %>
                         </a>
-                    <% end %>
-                </div>
+                    </li>
+                <% end %>
             <% end %>
-        </div>
+        </ui>
     </div>
 </div>
 
@@ -41,9 +37,36 @@
 </div>
 
 <div class="pure-g">
-    <% trending.each_slice(4) do |slice| %>
-            <% slice.each do |item| %>
-                <%= rendered "components/item" %>
+    <% trending.each do |category| %>
+        <% if category.is_a? Category %>
+            <%# We don't need to differinate between a category that only
+            # contains videos and no metadata %>
+            <% if category.title.empty? %>
+                <% category.contents.each do |item| %>
+                    <%= rendered "components/item" %>
+                <% end %>
+            <% else %>
+                <div class="category pure-u-1">
+                    <div class="category-heading h-box">
+                        <span class="category-title"> <%= category.title %> </span>
+                        <% if (badges = category.badges).is_a? Array %>
+                            <% badges.each do | badge |%>
+                                <% if badge[0] == "BADGE_STYLE_TYPE_FEATURED" %>
+                                    <div class="badge featured">
+                                        <span> <%=badge[1] %><span>
+                                    </div>
+                                <% end %>
+                            <% end %>
+                        <% end %>
+                    </div>
+
+                    <div class="pure-g">
+                        <% category.contents.each do |item| %>
+                            <%= rendered "components/item" %>
+                        <% end %>
+                    </div> 
+                </div>
             <% end %>
+        <% end %>
     <% end %>
 </div>

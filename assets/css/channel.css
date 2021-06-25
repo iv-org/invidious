@@ -1,0 +1,186 @@
+#channel-banner-container {
+  margin-bottom: 1em;
+}
+
+#banner {
+  display: flex;
+  flex-direction: column-reverse;
+
+  height: calc(100vw / 6.2 - 1px);
+  background-size: cover;
+  background-position: center;
+}
+
+#link-holder {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  align-self: flex-end;
+  margin: 15px;
+  padding: 12px;
+}
+
+@media screen and (max-width: 640px) {
+  #link-holder {
+    display: none;
+  }
+}
+
+#link-widget-primary {
+  margin-right: 1.5em;
+}
+
+.link-widget-link {
+  margin-right: 10px;
+}
+
+.link-widget-link:last-child {
+  margin-right: 0;
+}
+
+.link-widget-link img, #external-links img {
+  vertical-align: sub;
+  width: 20px;
+  height: 20px;
+}
+
+#link-widget-primary a {
+  color: white !important;
+}
+
+#link-widget-primary a:hover {
+  color: #e1e1e1 !important;
+}
+
+/* Featured channels page */
+
+.channel-section details {
+  margin: 20px;
+}
+
+.channel-section details summary {
+  margin-bottom: 20px;
+}
+
+.channel-section details summary::marker {
+  font-size: 1.3em;
+}
+
+.category-heading {
+  user-select: none;
+  display: inline;
+}
+
+.category-contents .channel-profile {
+  text-align: center;
+}
+
+/* Due to space constraints we'll make the special large featured channel display
+only show up when the screen is wide enough */
+
+@media screen and (min-width: 600px) {
+  .large-featured-channel.channel-profile {
+    /* We don't want the following attribute for large featured channels*/
+    text-align: initial;
+    margin: initial;
+
+    display: flex;
+  }
+
+  .large-featured-channel.channel-profile img {
+    margin: 20% 0;
+  }
+
+  .large-featured-channel .featured-channel-about {
+    margin-left: 2em;
+  }
+
+  .large-featured-channel .featured-channel-title {
+    font-size: 1.2em;
+    margin-bottom: 10px
+  }
+
+  .large-featured-channel .featured-channel-description {
+    margin-top: 10px;
+    font-weight: normal;
+  }
+}
+
+/* Replicate the look for a normal featured channel */
+@media screen and (max-width: 600px) {
+  .large-featured-channel .seperator, .large-featured-channel .featured-channel-description {
+    display: none
+  }
+
+  .large-featured-channel .featured-channel-metadata:last-child {
+    display: block;
+    margin-top: 1em;
+  }
+}
+
+.trailer-metadata {
+  margin-left: 15px;
+  font-size: 12px;
+}
+
+
+.trailer-title {
+  font-size: 15px;
+}
+
+.trailer-metadata .read-more {
+  line-height: 20px;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.trailer-description {
+  overflow: hidden;
+  max-height: 150px;
+  line-height: 20px;
+  margin-top: 20px;
+}
+
+
+@media (prefers-color-scheme: dark) {
+  .no-theme .trailer-metadata {
+    color: rgb(232, 230, 227);
+  }
+
+  .no-theme .trailer-timestamp {
+    color: gray;
+  }
+}
+
+.no-theme .trailer-metadata {
+  color: rgb(232, 230, 227);
+}
+
+.no-theme .trailer-timestamp {
+  color: gray;
+}
+
+
+
+@media (prefers-color-scheme: light) {
+  .no-theme .trailer-metadata {
+    color: black;
+  }
+
+  .no-theme .trailer-timestamp {
+    color: rgb(127, 127, 127);
+  }
+}
+
+.light-theme .trailer-metadata { 
+  color: black;
+}
+
+
+.light-theme .trailer-timestamp {
+  color: rgb(127, 127, 127);
+}
+
+
+#content-navigation {
+  display: flex;
+}
