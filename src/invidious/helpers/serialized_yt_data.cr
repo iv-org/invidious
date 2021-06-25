@@ -228,6 +228,7 @@ struct SearchChannel
   end
 end
 
+# Object representing a category of items from Youtube. Such as "artists on the rise", different sections on a channel homepage, etc.
 class Category
   include DB::Serializable
 
@@ -255,4 +256,29 @@ class Category
   end
 end
 
+# Item containers.
+
+# Object representing a YoutubeTab
+struct YoutubeTab
+  include DB::Serializable
+
+  property contents : Array(JSON::Any)
+
+  # Useful in channel video and playlist tabs.
+  property content_filters : Array(Tuple(String, String)) # Name, browse param
+end
+
+struct SearchResults
+  include DB::Serializable
+
+  property contents : Array(JSON::Any)
+end
+
+struct ContinuationItems
+  include DB::Serializable
+
+  property contents : Array(JSON::Any)
+end
+
 alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist | Category
+alias Containers = YoutubeTab | SearchResults | ContinuationItems

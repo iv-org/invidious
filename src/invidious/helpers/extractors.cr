@@ -32,6 +32,10 @@ private class ItemParser
   def process(item : JSON::Any, author_fallback : AuthorFallback)
   end
 
+  def process(item : Containers, author_fallback)
+    return self.process(item.contents)
+  end
+
   private def parse(item_contents : JSON::Any, author_fallback : AuthorFallback)
   end
 end
@@ -251,11 +255,11 @@ private class CategoryParser < ItemParser
     end
 
     Category.new({
-      title:                title,
-      contents:             contents,
-      description_html:     description_html,
-      url:                  url,
-      badges:               badges,
+      title:            title,
+      contents:         contents,
+      description_html: description_html,
+      url:              url,
+      badges:           badges,
     })
   end
 end
@@ -282,12 +286,22 @@ private class YoutubeTabsExtractor < ItemsContainerExtractor
 
   private def extract(target)
     raw_items = [] of JSON::Any
+    content_filters = [] of Tuple(String, String)
+
     selected_tab = extract_selected_tab(target["tabs"])
     content = selected_tab["content"]
 
     content["sectionListRenderer"]["contents"].as_a.each do |renderer_container|
       renderer_container = renderer_container["itemSectionRenderer"]
       renderer_container_contents = renderer_container["contents"].as_a[0]
+
+      submenu = renderer_container["subMenu"]?.try &.["channelSubMenuRenderer"]["contentTypeSubMenuItems"].as_a || nil
+
+      if submenu
+        submenu.each do |option|
+          content_filters << {option["title"].as_s, option["endpoint"]["browseEndpoint"]["params"].as_s}
+        end
+      end
 
       # Category extraction
       if items_container = renderer_container_contents["shelfRenderer"]?
@@ -306,7 +320,7 @@ private class YoutubeTabsExtractor < ItemsContainerExtractor
       end
     end
 
-    return raw_items
+    return YoutubeTab.new({contents: raw_items, content_filters: content_filters})
   end
 end
 
@@ -323,7 +337,7 @@ private class SearchResultsExtractor < ItemsContainerExtractor
     renderer = content["sectionListRenderer"]["contents"].as_a[0]["itemSectionRenderer"]
     raw_items = renderer["contents"].as_a
 
-    return raw_items
+    return SearchResults.new({contents: raw_items})
   end
 end
 
@@ -344,7 +358,7 @@ private class ContinuationExtractor < ItemsContainerExtractor
       raw_items = content.as_a
     end
 
-    return raw_items
+    return ContinuationItems.new({contents: raw_items})
   end
 end
 
@@ -366,6 +380,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil,
   # TODO radioRenderer, showRenderer, shelfRenderer, horizontalCardListRenderer, searchPyvRenderer
 end
 
+# Extract items from the youtube initial data response
 def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil,
                   author_id_fallback : String? = nil)
   items = [] of SearchItem
@@ -381,7 +396,7 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
   ITEM_CONTAINER_EXTRACTOR.each do |extractor|
     results = extractor.process(unpackaged_data)
     if !results.nil?
-      results.each do |item|
+      results.contents.each do |item|
         parsed_result = extract_item(item, author_fallback, author_id_fallback)
 
         if !parsed_result.nil?
@@ -393,4 +408,37 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
   end
 
   return items
+end
+
+# Extract items from a container object
+def extract_items(item_container : Containers, author_fallback : String? = nil,
+                  author_id_fallback : String? = nil)
+  items = [] of SearchItem
+  # This is identicial to the parser cyling of extract_item().
+  item_container.contents.each do |item|
+    parsed_result = extract_item(item, author_fallback, author_id_fallback)
+
+    if !parsed_result.nil?
+      items << parsed_result
+    end
+  end
+
+  return items
+end
+
+def extract_item_container(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil,
+                           author_id_fallback : String? = nil)
+  if unpackaged_data = initial_data["contents"]?.try &.as_h
+  elsif unpackaged_data = initial_data["response"]?.try &.as_h
+  elsif unpackaged_data = initial_data["onResponseReceivedActions"]?.try &.as_a.[0].as_h
+  else
+    unpackaged_data = initial_data
+  end
+
+  ITEM_CONTAINER_EXTRACTOR.each do |extractor|
+    results = extractor.process(unpackaged_data)
+    if !results.nil?
+      return results
+    end
+  end
 end
