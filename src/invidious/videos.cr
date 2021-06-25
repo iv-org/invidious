@@ -999,7 +999,8 @@ def fetch_video(id, region)
       "cver"     => "6.20180913",
     })
 
-    # In order to actually extract video info without error, the `x-youtube-client-version` has to be set to the same version as `cver` above.
+    # In order to actually extract video info without error, the `x-youtube-client-version`
+    # has to be set to the same version as `cver` above.
     embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?#{required_parameters}",
       headers: HTTP::Headers{
         "x-youtube-client-version" => "6.20180913",
