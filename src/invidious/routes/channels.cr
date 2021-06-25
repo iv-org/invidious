@@ -87,7 +87,7 @@ module Invidious::Routes::Channels
     continuation = env.params.query["continuation"]?
     # sort_by = env.params.query["sort_by"]?.try &.downcase
 
-    if !channel.tabs.has_key?("community")
+    if !channel.tabs.includes?("community")
       return env.redirect "/channel/#{channel.ucid}"
     end
 
@@ -110,7 +110,7 @@ module Invidious::Routes::Channels
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
-    if !channel.tabs.has_key?("channels")
+    if !channel.tabs.includes?("channels")
       return env.redirect "/channel/#{channel.ucid}"
     end
 
@@ -126,7 +126,7 @@ module Invidious::Routes::Channels
       # Previous continuation
       previous_continuation = env.params.query["previous"]?
 
-      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil, continuation, current_category_title).not_nil!
+      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, "EghjaGFubmVscw%3D%3D", nil, nil, continuation, current_category_title).not_nil!
     elsif view && shelf_id
       offset = env.params.query["offset"]?
       if offset
@@ -135,12 +135,12 @@ module Invidious::Routes::Channels
         offset = 0
       end
 
-      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, channel.tabs["channels"], view, shelf_id, continuation, current_category_title).not_nil!
+      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, "EghjaGFubmVscw%3D%3D", view, shelf_id, continuation, current_category_title).not_nil!
     else
       previous_continuation = nil
       offset = 0
 
-      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, channel.tabs["channels"], nil, nil, current_category_title).not_nil!
+      featured_channel_categories, continuation_token = fetch_channel_featured_channels(ucid, "EghjaGFubmVscw%3D%3D", nil, nil, current_category_title).not_nil!
     end
 
     templated "channel/featured_channels", buffer_footer: true
