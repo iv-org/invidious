@@ -79,7 +79,7 @@ class Invidious::Routes::Embed < Invidious::Routes::BaseRoute
 
       return env.redirect url
     when "live_stream"
-      response = YT_POOL.client &.get("/embed/live_stream?channel=#{env.params.query["channel"]? || ""}")
+      response = YT_POOL.client &.get("/embed/live_stream?channel=#{env.params.query["channel"]? || ""}&ucbcb=1")
       video_id = response.body.match(/"video_id":"(?<video_id>[a-zA-Z0-9_-]{11})"/).try &.["video_id"]
 
       env.params.query.delete_all("channel")

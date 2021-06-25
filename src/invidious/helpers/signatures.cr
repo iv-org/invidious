@@ -12,7 +12,7 @@ struct DecryptFunction
   end
 
   private def fetch_decrypt_function(id = "CvFH_6DNRCY")
-    document = YT_POOL.client &.get("/watch?v=#{id}&gl=US&hl=en").body
+    document = YT_POOL.client &.get("/watch?v=#{id}&gl=US&hl=en&ucbcb=1").body
     url = document.match(/src="(?<url>\/s\/player\/[^\/]+\/player_ias[^\/]+\/en_US\/base.js)"/).not_nil!["url"]
     player = YT_POOL.client &.get(url).body
 

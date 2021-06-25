@@ -449,7 +449,7 @@ get "/modify_notifications" do |env|
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    html = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
+    html = YT_POOL.client &.get("/subscription_manager?disable_polymer=1&ucbcb=1", headers)
 
     cookies = HTTP::Cookies.from_client_headers(headers)
     html.cookies.each do |cookie|
@@ -794,7 +794,7 @@ post "/data_control" do |env|
           if match = channel["url"].as_s.match(/\/channel\/(?<channel>UC[a-zA-Z0-9_-]{22})/)
             next match["channel"]
           elsif match = channel["url"].as_s.match(/\/user\/(?<user>.+)/)
-            response = YT_POOL.client &.get("/user/#{match["user"]}?disable_polymer=1&hl=en&gl=US")
+            response = YT_POOL.client &.get("/user/#{match["user"]}?disable_polymer=1&hl=en&gl=US&ucbcb=1")
             html = XML.parse_html(response.body)
             ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
             next ucid if ucid
@@ -1591,7 +1591,7 @@ end
     value = env.request.resource.split("/")[2]
     body = ""
     {"channel", "user", "c"}.each do |type|
-      response = YT_POOL.client &.get("/#{type}/#{value}/live?disable_polymer=1")
+      response = YT_POOL.client &.get("/#{type}/#{value}/live?disable_polymer=1&ucbcb=1")
       if response.status_code == 200
         body = response.body
       end
@@ -1624,7 +1624,7 @@ get "/c/:user" do |env|
 
   user = env.params.url["user"]
 
-  response = YT_POOL.client &.get("/c/#{user}")
+  response = YT_POOL.client &.get("/c/#{user}?ucbcb=1")
   html = XML.parse_html(response.body)
 
   ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
@@ -3885,7 +3885,7 @@ error 404 do |env|
     item = md["id"]
 
     # Check if item is branding URL e.g. https://youtube.com/gaming
-    response = YT_POOL.client &.get("/#{item}")
+    response = YT_POOL.client &.get("/#{item}?ucbcb=1")
 
     if response.status_code == 301
       response = YT_POOL.client &.get(URI.parse(response.headers["Location"]).request_target)
@@ -3916,7 +3916,7 @@ error 404 do |env|
     end
 
     # Check if item is video ID
-    if item.match(/^[a-zA-Z0-9_-]{11}$/) && YT_POOL.client &.head("/watch?v=#{item}").status_code != 404
+    if item.match(/^[a-zA-Z0-9_-]{11}$/) && YT_POOL.client &.head("/watch?v=#{item}?ucbcb=1").status_code != 404
       env.response.headers["Location"] = url
       halt env, status_code: 302
     end
