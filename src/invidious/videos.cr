@@ -989,9 +989,15 @@ def fetch_video(id, region)
 
   # Try to pull streams from embed URL
   if info["reason"]?
-    embed_page = YT_POOL.client &.get("/embed/#{id}").body
-    sts = embed_page.match(/"sts"\s*:\s*(?<sts>\d+)/).try &.["sts"]? || ""
-    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?html5=1&video_id=#{id}&eurl=https://youtube.googleapis.com/v/#{id}&gl=US&hl=en&sts=#{sts}").body)
+    required_parameters = URI::Params.new({
+      "video_id" => [id],
+      "eurl"     => ["https://youtube.googleapis.com/v/#{id}"],
+      "html5"    => ["1"],
+      "c"        => ["TVHTML5"],
+      "cver"     => ["6.20180913"],
+    })
+
+    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?#{required_parameters}", headers: HTTP::Headers{"x-youtube-client-version" => "6.20180913"}).body)
 
     if embed_info["player_response"]?
       player_response = JSON.parse(embed_info["player_response"])
