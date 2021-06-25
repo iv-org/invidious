@@ -1,4 +1,5 @@
 def fetch_channel_featured_channels(ucid, params, view = nil, shelf_id = nil, continuation = nil, query_title = nil) : {Array(Category), (String | Nil)}
+  # Continuation to load more channel catagories
   if continuation.is_a?(String)
     initial_data = request_youtube_api_browse(continuation)
     items = extract_items(initial_data)
@@ -39,8 +40,7 @@ def fetch_channel_featured_channels(ucid, params, view = nil, shelf_id = nil, co
 
     # Although extract_items parsed everything into the right structs, we still have
     # to fill in the title (if missing) attribute since Youtube doesn't return it when requesting
-    # a full category
-
+    # a full category (initial)
     category_array = [] of Category
     items.each do |category|
       # Tell compiler that the result from extract_items has to be an array of Categories
@@ -57,8 +57,11 @@ def fetch_channel_featured_channels(ucid, params, view = nil, shelf_id = nil, co
       })
     end
 
-    # If no categories has been parsed then it means that we're currently requesting a single one and not in
-    # the initial preview anymore. The frontend still needs a Category however, so we'll create one.
+    # If no categories has been parsed then it means two things.
+    #   - We're currently viewing a specific channel category
+    #   - We're currently requesting the continuation contents for that specific category.
+    # And since Youtube dyanmically loads more channels onto the page via JS, the data returned from InnerTube will only contains
+    # channels. Thus, we'll just go ahead and create one for the template to use.
     if category_array.empty?
       category_array << Category.new({
         title:            fallback_title,
