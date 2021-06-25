@@ -5,7 +5,7 @@ require "protodec/utils"
 require "spec"
 require "yaml"
 require "../src/invidious/helpers/*"
-require "../src/invidious/channels"
+require "../src/invidious/channels/*"
 require "../src/invidious/comments"
 require "../src/invidious/playlists"
 require "../src/invidious/search"
@@ -32,12 +32,6 @@ describe "Helper" do
       produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100).should eq("4qmFsgJqEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FUZ0JZQUY2QkVkS2IxaTRBUUE9WgCaAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")
 
       produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "По ожиशुपतिरपि子而時ஸ்றீனி", 0).should eq("4qmFsgKoARIYVUNYdXFTQmxIQUU2WHcteWVKQTBUdW53GiBFZ1p6WldGeVkyZ3dBVGdCWUFGNkJFZEJRVDI0QVFBPVo-0J_QviDQvtC20LjgpLbgpYHgpKrgpKTgpL_gpLDgpKrgpL_lrZDogIzmmYLgrrjgr43grrHgr4Dgrqngrr-aAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")
-    end
-  end
-
-  describe "#produce_channel_playlists_url" do
-    it "correctly produces a /browse_ajax URL with the given UCID and cursor" do
-      produce_channel_playlists_url("UCCj956IF62FbT7Gouszaj9w", "AIOkY9EQpi_gyn1_QrFuZ1reN81_MMmI1YmlBblw8j7JHItEFG5h7qcJTNd4W9x5Quk_CVZ028gW").should eq("/browse_ajax?continuation=4qmFsgLNARIYVUNDajk1NklGNjJGYlQ3R291c3phajl3GrABRWdsd2JHRjViR2x6ZEhNd0FqZ0JZQUZxQUxnQkFIcG1VVlZzVUdFeGF6VlNWa1ozWVZZNWJtVlhOSGhZTVVaNVVtNVdZVTFZU214VWFtZDRXREF4VG1KVmEzaFhWekZ6VVcxS2MyUjZhSEZPTUhCSlUxaFNSbEpyWXpGaFJHUjRXVEJ3VlZSdFVUQldlbXcwVGxaR01XRXhPVVJXYkc5M1RXcG9ibFozSUFFWUF3PT0%3D&gl=US&hl=en")
     end
   end
 
