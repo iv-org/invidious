@@ -59,6 +59,15 @@ module Invidious::Routes::Search
         return error_template(500, ex)
       end
 
+      if operators.fetch("channel", false) && count > 0
+        channel = get_about_info(operators.fetch("channel", "Placeholder. This will never get reached!"), locale).not_nil!
+        if user
+          user = user.as(User)
+          subscriptions = user.subscriptions
+        end
+        subscriptions ||= [] of String
+      end
+
       env.set "search", query
       templated "search"
     end
