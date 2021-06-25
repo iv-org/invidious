@@ -362,7 +362,6 @@ def fetch_channel_home(ucid, channel)
   end
 
   return home_sections
-
 end
 
 def fetch_channel_playlists(ucid, author, continuation, sort_by)
@@ -411,11 +410,11 @@ def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, 
     continuation_token = fetch_continuation_token(initial_data)
 
     return [Category.new({
-      title:                query_title.not_nil!, # If continuation contents is requested then the query_title has to be passed along.
-      contents:             items,
-      description_html:     "",
-      url:                  nil,
-      badges:               nil,
+      title:            query_title.not_nil!, # If continuation contents is requested then the query_title has to be passed along.
+      contents:         items,
+      description_html: "",
+      url:              nil,
+      badges:           nil,
     })], continuation_token
   else
     url = nil
@@ -455,11 +454,11 @@ def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, 
       end
 
       category_array << Category.new({
-        title:                category.title.empty? ? fallback_title : category.title,
-        contents:             category.contents,
-        description_html:     category.description_html,
-        url:                  category.url,
-        badges:               nil,
+        title:            category.title.empty? ? fallback_title : category.title,
+        contents:         category.contents,
+        description_html: category.description_html,
+        url:              category.url,
+        badges:           nil,
       })
     end
 
@@ -467,11 +466,11 @@ def fetch_channel_featured_channels(ucid, tab_data, view = nil, shelf_id = nil, 
     # the initial preview anymore. The frontend still needs a Category however, so we'll create one.
     if category_array.empty?
       category_array << Category.new({
-        title:                fallback_title,
-        contents:             items,
-        description_html:     "",
-        url:                  url,
-        badges:               nil,
+        title:            fallback_title,
+        contents:         items,
+        description_html: "",
+        url:              url,
+        badges:           nil,
       })
     end
 

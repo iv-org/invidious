@@ -171,7 +171,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
 
     ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
     if !ucid
-      env.response.status_code = 404 
+      env.response.status_code = 404
       return
     end
 
