@@ -78,7 +78,7 @@
     "Show related videos: ": "Vis relaterte videoer? ",
     "Show annotations by default: ": "Vis merknader som forvalg? ",
     "Automatically extend video description: ": "Utvid videobeskrivelse automatisk: ",
-    "Interactive 360 degree videos: ": "",
+    "Interactive 360 degree videos: ": "Interaktive 360-gradersfilmer: ",
     "Visual preferences": "Visuelle innstillinger",
     "Player style: ": "Avspillerstil: ",
     "Dark mode: ": "Mørk drakt: ",
@@ -86,8 +86,8 @@
     "dark": "Mørk",
     "light": "Lys",
     "Thin mode: ": "Tynt modus: ",
-    "Miscellaneous preferences": "",
-    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
+    "Miscellaneous preferences": "Ulike innstillinger",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "Automatisk instansomdirigering (faller tilbake til redirect.invidious.io): ",
     "Subscription preferences": "Abonnementsinnstillinger",
     "Show annotations by default for subscribed channels: ": "Vis merknader som forvalg for kanaler det abonneres på? ",
     "Redirect homepage to feed: ": "Videresend hjemmeside til kilde: ",
@@ -117,7 +117,7 @@
     "Administrator preferences": "Administratorinnstillinger",
     "Default homepage: ": "Forvalgt hjemmeside: ",
     "Feed menu: ": "Kilde-meny: ",
-    "Show nickname on top: ": "",
+    "Show nickname on top: ": "Vis kallenavn på toppen: ",
     "Top enabled: ": "Topp påskrudd? ",
     "CAPTCHA enabled: ": "CAPTCHA påskrudd? ",
     "Login enabled: ": "Innlogging påskrudd? ",
@@ -133,7 +133,7 @@
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` symboler",
-        "": "`x` symboler"
+        "": "`x` symboler."
     },
     "Import/export": "Importer/eksporter",
     "unsubscribe": "opphev abonnement",
@@ -164,8 +164,8 @@
     "Show more": "Vis mer",
     "Show less": "Vis mindre",
     "Watch on YouTube": "Vis video på YouTube",
-    "Switch Invidious Instance": "",
-    "Broken? Try another Invidious Instance": "",
+    "Switch Invidious Instance": "Bytt Invidious-instans",
+    "Broken? Try another Invidious Instance": "Knekt? Forsøk en annen Invidious-instans",
     "Hide annotations": "Skjul merknader",
     "Show annotations": "Vis merknader",
     "Genre: ": "Sjanger: ",
@@ -421,7 +421,7 @@
     "hdr": "HDR",
     "filter": "filtrer",
     "Current version: ": "Gjeldende versjon: ",
-    "next_steps_error_message": "",
-    "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message": "next_steps_error_message",
+    "next_steps_error_message_refresh": "next_steps_error_message_refresh",
+    "next_steps_error_message_go_to_youtube": "next_steps_error_message_go_to_youtube"
 }
