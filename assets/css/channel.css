@@ -185,9 +185,14 @@ only show up when the screen is wide enough */
   display: flex;
 }
 
-/* Center sorting options when screen is less than 640px*/
 @media screen and (max-width: 640px) {
+  /* Center sorting options when screen is less than 640px*/
   #sort-options {
     margin-right: auto;
+  }
+
+  /* Hide channel description on mobile */
+  #channel-description-container {
+    display: none
   }
 }
