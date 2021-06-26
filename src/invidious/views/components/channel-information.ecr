@@ -157,12 +157,12 @@
               <% end %>
 
               <% if !channel.auto_generated %>
-                  <li class="pure-menu-item navbar" style="margin: 0 0 0 0.5em">
+                  <li class="pure-menu-item" style="margin: 0 0 0 0.5em">
                       <div class="searchbar">
                           <form class="pure-form" action="/search" method="get">
                               <fieldset>
-                                  <button class="search-button"><i class="icon ion-md-search"></i></button>
-                                  <input type="search" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
+                                  <button class="search-button" style="display: inline;"><i class="icon ion-md-search"></i></button>
+                                  <input type="search" name="q" placeholder="<%= translate(locale, "search") %>" style="display: inline;" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
                                   <input type="hidden" name="channel" value="<%= channel.ucid %>">
                               </fieldset>
                           </form>

@@ -672,3 +672,15 @@ p,
   color: #000000;
 }
 
+#content-navigation {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap; 
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#content-navigation::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
