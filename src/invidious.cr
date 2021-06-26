@@ -1649,21 +1649,6 @@ get "/attribution_link" do |env|
   env.redirect url
 end
 
-get "/user/:user" do |env|
-  user = env.params.url["user"]
-  env.redirect "/channel/#{user}"
-end
-
-get "/user/:user/videos" do |env|
-  user = env.params.url["user"]
-  env.redirect "/channel/#{user}/videos"
-end
-
-get "/user/:user/about" do |env|
-  user = env.params.url["user"]
-  env.redirect "/channel/#{user}"
-end
-
 # API Endpoints
 
 get "/api/v1/stats" do |env|
