@@ -189,6 +189,13 @@
                 <input name="automatic_instance_redirect" id="automatic_instance_redirect" type="checkbox" <% if preferences.automatic_instance_redirect %>checked<% end %>>
             </div>
 
+             <div class="pure-control-group">
+                    <label for="view_channel_homepage_by_default"><%= translate(locale, "View channel homepage by default: ") %></label>
+                    <input name="view_channel_homepage_by_default" id="view_channel_homepage_by_default" type="checkbox" <% if preferences.view_channel_homepage_by_default %>checked<% end %>>
+            </div>
+
+            
+
             <% if env.get? "user" %>
                 <legend><%= translate(locale, "Subscription preferences") %></legend>
 
