@@ -68,11 +68,12 @@ end
 class Config
   include YAML::Serializable
 
-  property channel_threads : Int32 = 1           # Number of threads to use for crawling videos from channels (for updating subscriptions)
-  property feed_threads : Int32 = 1              # Number of threads to use for updating feeds
-  property output : String = "STDOUT"            # Log file path or STDOUT
-  property log_level : LogLevel = LogLevel::Info # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
-  property db : DBConfig? = nil                  # Database configuration with separate parameters (username, hostname, etc)
+  property channel_threads : Int32 = 1               # Number of threads to use for crawling videos from channels (for updating subscriptions)
+  property feed_threads : Int32 = 1                  # Number of threads to use for updating feeds
+  property output : String = "STDOUT"                # Log file path or STDOUT
+  property log_level : LogLevel = LogLevel::Info     # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
+  property db : DBConfig? = nil                      # Database configuration with separate parameters (username, hostname, etc)
+  property instance_maintainer_email : String? = nil # Email to contact the instance maintainer. This is used within the footer as an mailto link.
 
   @[YAML::Field(converter: Preferences::URIConverter)]
   property database_url : URI = URI.parse("")      # Database configuration using 12-Factor "Database URL" syntax
