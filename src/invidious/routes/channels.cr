@@ -49,7 +49,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
       items.reject! &.paid
     end
 
-    templated "channel/channel"
+    templated "channel/videos"
   end
 
   def playlists(env)
