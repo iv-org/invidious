@@ -64,113 +64,111 @@
 </div>
 
 <div class="h-box" id="content-navigation">
-    <div class="">
-        <!-- TODO Refactor this! -->
-        <div class="pure-menu pure-menu-horizontal">
-          <ul class="pure-menu-list">
-              <% if content_type == 0 %>
-                  <li class="pure-menu-item pure-menu-selected">
-                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>">
-                        <b> <%= translate(locale, "Home") %> </b>
-                      </a>
-                  </li>
-              <% else %>
-                  <li class="pure-menu-item">
-                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>">
-                        <%= translate(locale, "Home") %>
-                      </a>
-                  </li>
-              <% end %>
-          
-              <% if !channel.auto_generated %>
-                  <% if content_type == 1 %>
-                      <li class="pure-menu-item pure-menu-selected">
-                        <a href="/channel/<%= channel.ucid %>/videos" class="pure-menu-link">
-                          <b><%= translate(locale, "Videos") %></b>
+    <!-- TODO Refactor this! -->
+    <div class="pure-menu pure-menu-horizontal">
+        <ul class="pure-menu-list">
+            <% if content_type == 0 %>
+                <li class="pure-menu-item pure-menu-selected">
+                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>">
+                    <b> <%= translate(locale, "Home") %> </b>
+                    </a>
+                </li>
+            <% else %>
+                <li class="pure-menu-item">
+                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>">
+                    <%= translate(locale, "Home") %>
+                    </a>
+                </li>
+            <% end -%>
+        
+            <% if !channel.auto_generated %>
+                <% if content_type == 1 %>
+                    <li class="pure-menu-item pure-menu-selected">
+                    <a href="/channel/<%= channel.ucid %>/videos" class="pure-menu-link">
+                        <b><%= translate(locale, "Videos") %></b>
+                    </a>
+                    </li>
+                <% else %>
+                    <li class="pure-menu-item pure-menu">
+                    <a href="/channel/<%= channel.ucid %>/videos" class="pure-menu-link">
+                        <%= translate(locale, "Videos") %>
+                    </a>
+                    </li>
+                <% end %>
+            <% end -%>
+
+            <% if content_type == 2 %>
+                <li class="pure-menu-item pure-menu-selected">
+                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/playlists">
+                    <b> <%= translate(locale, "Playlists") %> </b>
+                    </a>
+                </li>
+            <% else %>
+                <li class="pure-menu-item">
+                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/playlists">
+                    <%= translate(locale, "Playlists") %>
+                    </a>
+                </li>
+            <% end -%>
+
+            <% if channel.tabs.includes?("community") %>
+                <% if content_type == 3 %>
+                    <li class="pure-menu-item pure-menu-selected">
+                        <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/community">
+                        <b> <%= translate(locale, "Community") %> </b>
                         </a>
-                      </li>
-                  <% else %>
-                      <li class="pure-menu-item pure-menu">
-                        <a href="/channel/<%= channel.ucid %>/videos" class="pure-menu-link">
-                          <%= translate(locale, "Videos") %>
+                    </li>
+                <% else %>
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/community">
+                        <%= translate(locale, "Community") %>
                         </a>
-                      </li>
-                  <% end %>
-              <% end %>
+                    </li>
+                <% end %>
+            <% end -%>
 
-              <% if content_type == 2 %>
-                  <li class="pure-menu-item pure-menu-selected">
-                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/playlists">
-                        <b> <%= translate(locale, "Playlists") %> </b>
-                      </a>
-                  </li>
-              <% else %>
-                  <li class="pure-menu-item">
-                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/playlists">
-                        <%= translate(locale, "Playlists") %>
-                      </a>
-                  </li>
-              <% end %>
+            <% if content_type == 4 %>
+                <li class="pure-menu-item pure-menu-selected">
+                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/channels">
+                    <b> <%= translate(locale, "Channels") %> </b>
+                    </a>
+                </li>
+            <% else %>
+                <li class="pure-menu-item">
+                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/channels">
+                    <%= translate(locale, "Channels") %>
+                    </a>
+                </li>
+            <% end -%>
 
-              <% if channel.tabs.includes?("community") %>
-                  <% if content_type == 3 %>
-                      <li class="pure-menu-item pure-menu-selected">
-                          <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/community">
-                            <b> <%= translate(locale, "Community") %> </b>
-                          </a>
-                      </li>
-                  <% else %>
-                      <li class="pure-menu-item">
-                          <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/community">
-                            <%= translate(locale, "Community") %>
-                          </a>
-                      </li>
-                  <% end %>
-              <% end %>
+            <% if content_type == 5 %>
+                <li class="pure-menu-item pure-menu-selected">
+                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/about">
+                    <b> <%= translate(locale, "About") %> </b>
+                    </a>
+                </li>
+            <% else %>
+                <li class="pure-menu-item">
+                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/about">
+                    <%= translate(locale, "About") %>
+                    </a>
+                </li>
+            <% end -%>
 
-              <% if content_type == 4 %>
-                  <li class="pure-menu-item pure-menu-selected">
-                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/channels">
-                        <b> <%= translate(locale, "Channels") %> </b>
-                      </a>
-                  </li>
-              <% else %>
-                  <li class="pure-menu-item">
-                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/channels">
-                        <%= translate(locale, "Channels") %>
-                      </a>
-                  </li>
-              <% end %>
-
-              <% if content_type == 5 %>
-                  <li class="pure-menu-item pure-menu-selected">
-                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/about">
-                        <b> <%= translate(locale, "About") %> </b>
-                      </a>
-                  </li>
-              <% else %>
-                  <li class="pure-menu-item">
-                      <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/about">
-                        <%= translate(locale, "About") %>
-                      </a>
-                  </li>
-              <% end %>
-
-              <% if !channel.auto_generated %>
-                  <li class="pure-menu-item" style="margin: 0 0 0 0.5em">
-                      <div class="searchbar">
-                          <form class="pure-form" action="/search" method="get">
-                              <fieldset>
-                                  <button class="search-button" style="display: inline;"><i class="icon ion-md-search"></i></button>
-                                  <input type="search" name="q" placeholder="<%= translate(locale, "search") %>" style="display: inline;" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
-                                  <input type="hidden" name="channel" value="<%= channel.ucid %>">
-                              </fieldset>
-                          </form>
-                      </div>
-                  </li>
-              <% end %>
-          </ul>
-        </div>
+            <% if !channel.auto_generated %>
+                <li class="pure-menu-item" style="margin: 0 0 0 0.5em">
+                    <div class="searchbar">
+                        <form class="pure-form" action="/search" method="get">
+                            <fieldset>
+                                <button class="search-button" style="display: inline;"><i class="icon ion-md-search"></i></button>
+                                <input type="search" name="q" placeholder="<%= translate(locale, "search") %>" style="display: inline;" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
+                                <input type="hidden" name="channel" value="<%= channel.ucid %>">
+                            </fieldset>
+                        </form>
+                    </div>
+                </li>
+            <% end %>
+        </ul>
     </div>
 </div>
 
