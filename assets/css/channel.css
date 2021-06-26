@@ -23,7 +23,18 @@
   #link-holder {
     display: none;
   }
+
+  #about-content-container > *  {
+    margin-bottom: 25px;
+  }
 }
+
+@media screen and (min-width: 640px) {
+  #about-content-container > *  {
+    margin-bottom: 50px;
+  }
+}
+
 
 #link-widget-primary {
   margin-right: 1.5em;
@@ -50,6 +61,8 @@
 #link-widget-primary a:hover {
   color: #e1e1e1 !important;
 }
+
+
 
 /* Featured channels page */
 
