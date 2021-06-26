@@ -247,5 +247,5 @@ def process_search_query(url_params, query, page, user, region)
     end
   end
 
-  {search_query, count, items_without_cate_items, url_params}
+  {search_query, items_without_cate_items.size, items_without_cate_items, url_params}
 end
