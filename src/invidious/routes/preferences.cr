@@ -72,6 +72,10 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     show_nick ||= "off"
     show_nick = show_nick == "on"
 
+    view_channel_homepage_by_default = env.params.body["view_channel_homepage_by_default"]?.try &.as(String)
+    view_channel_homepage_by_default ||= "off"
+    view_channel_homepage_by_default = view_channel_homepage_by_default == "on"
+
     comments = [] of String
     2.times do |i|
       comments << (env.params.body["comments[#{i}]"]?.try &.as(String) || CONFIG.default_user_preferences.comments[i])
@@ -130,36 +134,37 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
 
     # Convert to JSON and back again to take advantage of converters used for compatability
     preferences = Preferences.from_json({
-      annotations:                 annotations,
-      annotations_subscribed:      annotations_subscribed,
-      autoplay:                    autoplay,
-      captions:                    captions,
-      comments:                    comments,
-      continue:                    continue,
-      continue_autoplay:           continue_autoplay,
-      dark_mode:                   dark_mode,
-      latest_only:                 latest_only,
-      listen:                      listen,
-      local:                       local,
-      locale:                      locale,
-      max_results:                 max_results,
-      notifications_only:          notifications_only,
-      player_style:                player_style,
-      quality:                     quality,
-      quality_dash:                quality_dash,
-      default_home:                default_home,
-      feed_menu:                   feed_menu,
-      automatic_instance_redirect: automatic_instance_redirect,
-      related_videos:              related_videos,
-      sort:                        sort,
-      speed:                       speed,
-      thin_mode:                   thin_mode,
-      unseen_only:                 unseen_only,
-      video_loop:                  video_loop,
-      volume:                      volume,
-      extend_desc:                 extend_desc,
-      vr_mode:                     vr_mode,
-      show_nick:                   show_nick,
+      annotations:                      annotations,
+      annotations_subscribed:           annotations_subscribed,
+      autoplay:                         autoplay,
+      captions:                         captions,
+      comments:                         comments,
+      continue:                         continue,
+      continue_autoplay:                continue_autoplay,
+      dark_mode:                        dark_mode,
+      latest_only:                      latest_only,
+      listen:                           listen,
+      local:                            local,
+      locale:                           locale,
+      max_results:                      max_results,
+      notifications_only:               notifications_only,
+      player_style:                     player_style,
+      quality:                          quality,
+      quality_dash:                     quality_dash,
+      default_home:                     default_home,
+      feed_menu:                        feed_menu,
+      automatic_instance_redirect:      automatic_instance_redirect,
+      related_videos:                   related_videos,
+      sort:                             sort,
+      speed:                            speed,
+      thin_mode:                        thin_mode,
+      unseen_only:                      unseen_only,
+      video_loop:                       video_loop,
+      volume:                           volume,
+      extend_desc:                      extend_desc,
+      vr_mode:                          vr_mode,
+      show_nick:                        show_nick,
+      view_channel_homepage_by_default: view_channel_homepage_by_default,
     }.to_json).to_json
 
     if user = env.get? "user"

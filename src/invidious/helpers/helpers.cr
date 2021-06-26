@@ -55,6 +55,7 @@ struct ConfigPreferences
   property volume : Int32 = 100
   property vr_mode : Bool = true
   property show_nick : Bool = true
+  property view_channel_homepage_by_default : Bool = true
 
   def to_tuple
     {% begin %}

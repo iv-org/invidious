@@ -69,13 +69,13 @@
         <ul class="pure-menu-list">
             <% if content_type == 0 %>
                 <li class="pure-menu-item pure-menu-selected">
-                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>">
+                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/home">
                     <b> <%= translate(locale, "Home") %> </b>
                     </a>
                 </li>
             <% else %>
                 <li class="pure-menu-item">
-                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>">
+                    <a class="pure-menu-link" href="/channel/<%= channel.ucid %>/home">
                     <%= translate(locale, "Home") %>
                     </a>
                 </li>

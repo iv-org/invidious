@@ -1,4 +1,12 @@
 class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
+  def channel(env)
+    if !env.get("preferences").as(Preferences).view_channel_homepage_by_default
+      env.redirect "/channel/#{env.params.url["ucid"]}/videos"
+    else
+      env.redirect "/channel/#{env.params.url["ucid"]}/home"
+    end
+  end
+
   def home(env)
     data = self.fetch_basic_information(env)
     if !data.is_a?(Tuple)

@@ -309,7 +309,8 @@ Invidious::Routing.get "/", Invidious::Routes::Misc, :home
 Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
 Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
 
-Invidious::Routing.get "/channel/:ucid", Invidious::Routes::Channels, :home
+Invidious::Routing.get "/channel/:ucid", Invidious::Routes::Channels, :channel
+Invidious::Routing.get "/channel/:ucid/home", Invidious::Routes::Channels, :home
 Invidious::Routing.get "/channel/:ucid/videos", Invidious::Routes::Channels, :videos
 Invidious::Routing.get "/channel/:ucid/playlists", Invidious::Routes::Channels, :playlists
 Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, :community
