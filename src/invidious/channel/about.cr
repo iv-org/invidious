@@ -152,6 +152,27 @@ def get_about_info(ucid, locale)
         joined = channel_about_meta["joinedDateText"]?.try &.["runs"]?.try &.as_a.reduce("") { |acc, node| acc + node["text"].as_s }
           .try { |text| Time.parse(text, "Joined %b %-d, %Y", Time::Location.local) } || Time.unix(0)
 
+        # External link parsing
+        channel_about_meta["primaryLinks"]?.try &.as_a.each do |link|
+          link_title = link["title"]["simpleText"].as_s
+          link_url = URI.parse(link["navigationEndpoint"]["urlEndpoint"]["url"].to_s)
+          link_icon_url = link["icon"]?.try &.["thumbnails"][0]["url"].to_s || ""
+
+          if {"m.youtube.com", "www.youtube.com", "youtu.be"}.includes? link_url.host
+            if link_url.path == "/redirect"
+              link_url = HTTP::Params.parse(link_url.query.not_nil!)["q"]
+            else
+              link_url = link_url.request_target.to_s
+            end
+          else
+            link_url = link_url.to_s
+          end
+
+          links << {link_title, link_url, link_icon_url}
+        end
+
+        country = channel_about_meta["country"]?.try &.["simpleText"].as_s || ""
+
         # Normal Auto-generated channels
         # https://support.google.com/youtube/answer/2579942
         # For auto-generated channels, channel_about_meta only has ["description"]["simpleText"] and ["primaryLinks"][0]["title"]["simpleText"]
