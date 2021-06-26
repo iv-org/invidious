@@ -184,3 +184,10 @@ only show up when the screen is wide enough */
 #content-navigation {
   display: flex;
 }
+
+/* Center sorting options when screen is less than 640px*/
+@media screen and (max-width: 640px) {
+  #sort-options {
+    margin-right: auto;
+  }
+}

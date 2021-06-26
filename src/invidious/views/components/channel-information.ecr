@@ -181,7 +181,7 @@
         <% route = content_type == 1 ? "/videos" : "/playlists" %>
         <% url = "/channel/#{channel.ucid + route}" %>
 
-        <div class="pure-menu pure-menu-horizontal" style="display: flex;">
+        <div class="pure-menu pure-menu-horizontal" id="sort-options" style="display: flex;">
             <ul class="pure-menu-list" style="margin-left: auto;">
                 <% sort_options.each do |sort| %>
                     <% if sort_by == sort %>
