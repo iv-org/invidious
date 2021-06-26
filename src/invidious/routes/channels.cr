@@ -50,7 +50,7 @@ module Invidious::Routes::Channels
       count, items = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
     end
 
-    templated "channel/channel"
+    templated "channel/videos"
   end
 
   def self.playlists(env)
