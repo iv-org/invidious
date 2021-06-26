@@ -232,8 +232,8 @@
                   <b class="footer-section-header"><%= translate(locale, "Support")%></b>
                   <ul class="pure-menu-list footer-section-list">
                       <li class="pure-menu-item footer-section-item">
-                        <!-- TODO -->
-                          <a href="#" title="<%= translate(locale, "Contact instance maintainer")%>">
+                          <% link = CONFIG.instance_maintainer_email ? "mailto:#{CONFIG.instance_maintainer_email}" : "#"%>
+                          <a href=<%=link%> title="<%= translate(locale, "Contact instance maintainer")%>">
                               <%= translate(locale, "Contact instance maintainer") %>
                           </a>
                       </li>
