@@ -7,9 +7,10 @@
 
     <div id="filters" class="pure-g h-box">
         <% # Grabs all search filters. This is to make sure we don't accidently overwrite something within the
-        # search query later on.
+        # search query later on. We're also going to remove the page attribute here as we'll want to start on page 1 
+        #when applying a filter 
         -%>
-        <% filter_params = env.request.query_params.to_s.gsub(/q=.+?(?=&|$)/, "") %>
+        <% filter_params = env.request.query_params.to_s.gsub(/q=.+?(?=&|$)/, "").gsub(/&page=\d+/, "") %>
         <% base_url = "/search?q=#{URI.encode_www_form(query.not_nil!)}" -%>
 
         <% filters = ["hour", "today", "week", "month", "year"] %>
