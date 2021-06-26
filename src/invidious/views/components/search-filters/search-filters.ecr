@@ -1,0 +1,76 @@
+<% operators = operators.not_nil! %>
+
+<details id="filters">
+    <summary class="simulated_a">
+        <h3 style="display:inline"> <%= translate(locale, "filter") %> </h3>
+    </summary>
+
+    <div id="filters" class="pure-g h-box">
+        <% # Grabs all search filters. This is to make sure we don't accidently overwrite something within the
+        # search query later on.
+        -%>
+        <% filter_params = env.request.query_params.to_s.gsub(/q=.+?(?=&|$)/, "") %>
+        <% base_url = "/search?q=#{HTML.escape(query.not_nil!)}" -%>
+
+        <% filters = ["hour", "today", "week", "month", "year"] %>
+        <% filter_name = "date" %>
+        <% selected_default = "NotNeeded" %>
+        <%= rendered "components/search-filters/filter-column" -%>
+
+        <% filters = ["video", "channel", "playlist", "movie", "show"] %>
+        <% filter_name = "content_type" %>
+        <% selected_default = "NotNeeded" %>
+        <%= rendered "components/search-filters/filter-column" -%>
+
+        <% filters = ["short", "long"] %>
+        <% filter_name = "duration" %>
+        <%= rendered "components/search-filters/filter-column" -%>
+        
+        <%
+            # Since the feature filter column is unqiue (multiple filters can be applied),
+            # we'll have to define it manually.
+        %>
+        <div class="pure-u-1-3 pure-u-md-1-5 filter-catagory" id="filter-features">
+            <b><%= translate(locale, "features") %></b>
+            <hr/>
+
+            <ul class="pure-menu-list">
+                <% ["hd", "subtitles", "creative_commons", "3d", "live", "purchased", "4k", "360", "location", "hdr"].each do |feature| %>
+                    <li class="pure-menu-item">
+                        <% if operators.fetch("features", "all").includes?(feature) %>
+                            <% if operators["features"].split(",").size == 1 %>
+                                <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&features=[a-z]+/, "")}"%>">
+                                    <b><%= translate(locale, feature) %></b>
+                                    <i class="remove-filter icon ion-md-close"></i>
+                                </a>
+                            <% else %>
+                                <% data = filter_params.match(/.*features=.*(#{feature}(%2C|&|$)).*/).not_nil! %>
+                                <% start = data.begin(1) %>
+                                <% last =  data.end(1) -%>
+
+                                <a style="color: inherit;" href="<%= base_url + "#{filter_params[0...start] + filter_params[last..-1]}"%>">
+                                    <b><%= translate(locale, feature) %></b>
+                                    <i class="remove-filter icon ion-md-close"></i>
+                                </a>
+                            <% end %>
+                        <% elsif operators.has_key?("features") %>
+                            <a href="<%= base_url + filter_params.gsub(/features=/, "features=#{feature},")%>">
+                                <%= translate(locale, feature) %>
+                            </a>
+                        <% else %>
+                            <a href="<%= "#{base_url}#{filter_params}&features=#{feature}"%>">
+                                <%= translate(locale, feature) %>
+                            </a>
+                        <% end %>
+                    </li>
+                <% end %>
+            </ul>
+        </div>
+
+        <% filters = ["relevance", "rating", "date", "views"] %>
+        <% filter_name = "sort" %>
+        <% selected_default = "relevance" %>
+        <%= rendered "components/search-filters/filter-column" -%>
+
+    </div>
+</details>
