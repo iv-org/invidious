@@ -332,10 +332,15 @@ private class SearchResultsExtractor < ItemsContainerExtractor
   end
 
   private def extract(target)
-    raw_items = [] of JSON::Any
+    raw_items = [] of Array(JSON::Any)
     content = target["primaryContents"]
-    renderer = content["sectionListRenderer"]["contents"].as_a[0]["itemSectionRenderer"]
-    raw_items = renderer["contents"].as_a
+    renderer = content["sectionListRenderer"]["contents"].as_a.each do |node|
+      if node = node["itemSectionRenderer"]?
+        raw_items << node["contents"].as_a
+      end
+    end
+
+    raw_items = raw_items.flatten
 
     return SearchResults.new({contents: raw_items})
   end
