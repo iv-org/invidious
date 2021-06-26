@@ -446,5 +446,7 @@
     "FAQs": "FAQs",
     "Legal": "Legal",
     "Licenses": "Licences",
-    "Privacy": "Privacy"
+    "Privacy": "Privacy",
+    "short": "Short (< 4 minutes)",
+    "long": "Long (> 20 minutes)"
 }
