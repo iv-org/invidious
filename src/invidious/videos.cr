@@ -526,10 +526,6 @@ struct Video
     info["microformat"].as_h["playerMicroformatRenderer"].as_h["publishDate"] = JSON::Any.new(other.to_s("%Y-%m-%d"))
   end
 
-  def cookie
-    info["cookie"]?.try &.as_h.map { |k, v| "#{k}=#{v}" }.join("; ") || ""
-  end
-
   def allow_ratings
     r = info["videoDetails"]["allowRatings"]?.try &.as_bool
     r.nil? ? false : r
@@ -776,10 +772,6 @@ struct Video
   def reason : String?
     info["reason"]?.try &.as_s
   end
-
-  def session_token : String?
-    info["sessionToken"]?.try &.as_s?
-  end
 end
 
 struct CaptionName
@@ -822,44 +814,62 @@ def parse_related(r : JSON::Any) : JSON::Any?
   JSON::Any.new(rv)
 end
 
-def extract_polymer_config(body)
-  params = {} of String => JSON::Any
-  player_response = body.match(/(window\["ytInitialPlayerResponse"\]|var\sytInitialPlayerResponse)\s*=\s*(?<info>{.*?});\s*var\s*meta/m)
-    .try { |r| JSON.parse(r["info"]).as_h }
+# def extract_polymer_config(body : String)
+#   player_response = {} of String => JSON::Any
+#   player_response = body.match(/(window\["ytInitialPlayerResponse"\]|var\sytInitialPlayerResponse)\s*=\s*(?<info>{.*?});\s*var\s*meta/m)
+#     .try { |r| JSON.parse(r["info"]).as_h }
+#   if !player_response
+#     player_response = {} of String => JSON::Any
+#     player_response["reason"] = JSON::Any.new("Video unavailable.")
+#     return player_response
+#   end
+#   if !player_response["videoDetails"]
+#     player_response["videoDetails"] = {} of String => JSON::Any
+#   end
+#   player_response["videoDetails"]["shortDescription"] = JSON::Any.new(body.match(/"og:description" content="(?<description>[^"]+)"/).try &.["description"]?)
+#   initial_data = body.match(/ytplayer\.config\s*=\s*(?<info>.*?);ytplayer\.web_player_context_config/)
+#     .try { |r| JSON.parse(r["info"]) }.try &.["args"]["player_response"]?
+#     .try &.as_s?.try &.try { |r| JSON.parse(r).as_h }
+#   if initial_data
+#     player_response = player_response.merge(initial_data)
+#   end
+#   player_response = player_response.merge(extract_initial_data(body))
+#   return extract_polymer_config(player_response: player_response)
+# end
 
-  if body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
-     body.includes?("https://www.google.com/sorry/index")
+def extract_polymer_config(player_response : Hash(String, JSON::Any), video_id : String)
+  params = {} of String => JSON::Any
+
+  if player_response.includes?("To continue with your YouTube experience, please fill out the form below.") ||
+     player_response.includes?("https://www.google.com/sorry/index")
     params["reason"] = JSON::Any.new("Could not extract video info. Instance is likely blocked.")
-  elsif !player_response
-    params["reason"] = JSON::Any.new("Video unavailable.")
   elsif player_response["playabilityStatus"]?.try &.["status"]?.try &.as_s != "OK"
     reason = player_response["playabilityStatus"]["errorScreen"]?.try &.["playerErrorMessageRenderer"]?.try &.["subreason"]?.try { |s| s["simpleText"]?.try &.as_s || s["runs"].as_a.map { |r| r["text"] }.join("") } ||
              player_response["playabilityStatus"]["reason"].as_s
     params["reason"] = JSON::Any.new(reason)
   end
 
-  session_token_json_encoded = body.match(/"XSRF_TOKEN":"(?<session_token>[^"]+)"/).try &.["session_token"]? || ""
-  params["sessionToken"] = JSON.parse(%({"key": "#{session_token_json_encoded}"}))["key"]
-  params["shortDescription"] = JSON::Any.new(body.match(/"og:description" content="(?<description>[^"]+)"/).try &.["description"]?)
+  params["shortDescription"] = player_response["videoDetails"]?.try &.["shortDescription"]? || JSON::Any.new(nil)
 
-  return params if !player_response
+  if !params["reason"]?
+    next_response = request_youtube_api_next(video_id: video_id, params: "")
+    player_response = player_response.merge(next_response)
+  end
 
   {"captions", "microformat", "playabilityStatus", "storyboards", "videoDetails"}.each do |f|
     params[f] = player_response[f] if player_response[f]?
   end
 
-  yt_initial_data = extract_initial_data(body)
-
-  params["relatedVideos"] = yt_initial_data.try &.["playerOverlays"]?.try &.["playerOverlayRenderer"]?
+  params["relatedVideos"] = player_response.try &.["playerOverlays"]?.try &.["playerOverlayRenderer"]?
     .try &.["endScreen"]?.try &.["watchNextEndScreenRenderer"]?.try &.["results"]?.try &.as_a.compact_map { |r|
       parse_related r
-    }.try { |a| JSON::Any.new(a) } || yt_initial_data.try &.["webWatchNextResponseExtensionData"]?.try &.["relatedVideoArgs"]?
+    }.try { |a| JSON::Any.new(a) } || player_response.try &.["webWatchNextResponseExtensionData"]?.try &.["relatedVideoArgs"]?
     .try &.as_s.split(",").map { |r|
       r = HTTP::Params.parse(r).to_h
       JSON::Any.new(Hash.zip(r.keys, r.values.map { |v| JSON::Any.new(v) }))
     }.try { |a| JSON::Any.new(a) } || JSON::Any.new([] of JSON::Any)
 
-  primary_results = yt_initial_data.try &.["contents"]?.try &.["twoColumnWatchNextResults"]?.try &.["results"]?
+  primary_results = player_response.try &.["contents"]?.try &.["twoColumnWatchNextResults"]?.try &.["results"]?
     .try &.["results"]?.try &.["contents"]?
   sentiment_bar = primary_results.try &.as_a.select { |object| object["videoPrimaryInfoRenderer"]? }[0]?
     .try &.["videoPrimaryInfoRenderer"]?
@@ -919,19 +929,11 @@ def extract_polymer_config(body)
   params["subCountText"] = JSON::Any.new(author_info.try &.["subscriberCountText"]?
     .try { |t| t["simpleText"]? || t["runs"]?.try &.[0]?.try &.["text"]? }.try &.as_s.split(" ", 2)[0] || "-")
 
-  initial_data = body.match(/ytplayer\.config\s*=\s*(?<info>.*?);ytplayer\.web_player_context_config/)
-    .try { |r| JSON.parse(r["info"]) }.try &.["args"]["player_response"]?
-    .try &.as_s?.try &.try { |r| JSON.parse(r).as_h }
-
-  if initial_data
-    {"playabilityStatus", "streamingData"}.each do |f|
-      params[f] = initial_data[f] if initial_data[f]?
-    end
-  else
-    {"playabilityStatus", "streamingData"}.each do |f|
-      params[f] = player_response[f] if player_response[f]?
-    end
+  if !params["reason"]?
+    params["streamingData"] = request_youtube_api_player(video_id: video_id, params: "", client_name: "ANDROID")["streamingData"]? || JSON::Any.new("")
   end
+
+  params["playabilityStatus"] = player_response["playabilityStatus"]? || JSON::Any.new("")
 
   params
 end
@@ -963,29 +965,22 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
 end
 
 def fetch_video(id, region)
-  response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999"))
-
-  if md = response.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
-    raise VideoRedirect.new(video_id: md["id"])
-  end
-
-  info = extract_polymer_config(response.body)
-  info["cookie"] = JSON::Any.new(response.cookies.to_h.transform_values { |v| JSON::Any.new(v.value) })
+  info = extract_polymer_config(player_response: request_youtube_api_player(video_id: id, params: ""), video_id: id)
   allowed_regions = info["microformat"]?.try &.["playerMicroformatRenderer"]["availableCountries"]?.try &.as_a.map &.as_s || [] of String
 
   # Check for region-blocks
-  if info["reason"]?.try &.as_s.includes?("your country")
-    bypass_regions = PROXY_LIST.keys & allowed_regions
-    if !bypass_regions.empty?
-      region = bypass_regions[rand(bypass_regions.size)]
-      response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999"))
+  # if info["reason"]?.try &.as_s.includes?("your country")
+  #   bypass_regions = PROXY_LIST.keys & allowed_regions
+  #   if !bypass_regions.empty?
+  #     region = bypass_regions[rand(bypass_regions.size)]
+  #     response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999"))
 
-      region_info = extract_polymer_config(response.body)
-      region_info["region"] = JSON::Any.new(region) if region
-      region_info["cookie"] = JSON::Any.new(response.cookies.to_h.transform_values { |v| JSON::Any.new(v.value) })
-      info = region_info if !region_info["reason"]?
-    end
-  end
+  #     region_info = extract_polymer_config(body: response.body)
+  #     region_info["region"] = JSON::Any.new(region) if region
+  #     region_info["cookie"] = JSON::Any.new(response.cookies.to_h.transform_values { |v| JSON::Any.new(v.value) })
+  #     info = region_info if !region_info["reason"]?
+  #   end
+  # end
 
   # Try to pull streams from embed URL
   if info["reason"]?
