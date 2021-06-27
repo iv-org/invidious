@@ -57,4 +57,10 @@
             </div>
         <% end %>
     <% end %>
+
+    <% if items.size == 0 %>
+        <h3 class="pure-u-1 h-box">
+            <%= translate(locale, "This channel doesn't have any content.")%>
+        </h3>
+    <% end %>
  </div>
