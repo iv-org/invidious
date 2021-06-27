@@ -282,6 +282,21 @@ input[type="search"]::-webkit-search-cancel-button {
   }
 }
 
+
+/*
+ * Video "cards" (results/playlist/channel videos)
+ */
+
+.video-card-row { margin: 15px 0; }
+
+.flexible { display: flex; }
+.flex-left  { flex: 1 1 100%; flex-wrap: wrap;   }
+.flex-right { flex: 1 0 max-content; flex-wrap: nowrap; }
+
+p.channel-name { margin: 0; }
+p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
+
+
 /*
  * Footer
  */
@@ -492,11 +507,6 @@ hr {
 }
 
 /* Description Expansion Styling*/
-#description-box {
-  display: flex;
-  flex-direction: column;
-}
-
 #descexpansionbutton {
   display: none
 }
@@ -511,7 +521,24 @@ hr {
   height: 100%;
 }
 
-#descexpansionbutton + label {
+#descexpansionbutton ~ label {
   order: 1;
   margin-top: 20px;
+}
+
+/* Bidi (bidirectional text) support */
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+#descriptionWrapper,
+#description-box {
+	unicode-bidi: plaintext;
+	text-align: start;
+}
+
+#descriptionWrapper {
+       max-width: 600px;
 }
