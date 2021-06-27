@@ -320,6 +320,9 @@ Invidious::Routing.get "/channel/:ucid/search", Invidious::Routes::Channels, :se
 
 ["", "/home", "/videos", "/playlists", "/community", "/channels", "/about", "/search"].each do |path|
   Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+  Invidious::Routing.get "/user/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+  Invidious::Routing.get "/attribution_link#{path}", Invidious::Routes::Channels, :brand_redirect
+  Invidious::Routing.get "/profile/:user#{path}", Invidious::Routes::Channels, :brand_redirect
 end
 
 Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
@@ -1629,26 +1632,6 @@ end
       env.redirect "/channel/#{value}"
     end
   end
-end
-
-# Legacy endpoint for /user/:username
-get "/profile" do |env|
-  user = env.params.query["user"]?
-  if !user
-    env.redirect "/"
-  else
-    env.redirect "/user/#{user}"
-  end
-end
-
-get "/attribution_link" do |env|
-  if query = env.params.query["u"]?
-    url = URI.parse(query).request_target
-  else
-    url = "/"
-  end
-
-  env.redirect url
 end
 
 # API Endpoints
