@@ -42,6 +42,7 @@ module Invidious::Routes::Search
 
     query = env.params.query["search_query"]?
     query ||= env.params.query["q"]?
+    query ||= env.params.query["query"]?
 
     if !query || query.empty?
       # Display the full page search box implemented in #1977
