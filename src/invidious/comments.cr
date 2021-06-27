@@ -320,7 +320,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
         <div class="pure-u-20-24 pure-u-md-22-24">
           <p>
             <b>
-              <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{child["author"]}</a>
+              <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{HTML.escape(child["author"].to_s)}</a>
             </b>
             <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
       END_HTML
@@ -458,7 +458,7 @@ def template_reddit_comments(root, locale)
         html << <<-END_HTML
         <p>
           <a href="javascript:void(0)" data-onclick="toggle_parent">[ - ]</a>
-          <b><a href="https://www.reddit.com/user/#{child.author}">#{child.author}</a></b>
+          <b><a href="https://www.reddit.com/user/#{child.author}">#{HTML.escape(child.author)}</a></b>
           #{translate(locale, "`x` points", number_with_separator(child.score))}
           <span title="#{child.created_utc.to_s(translate(locale, "%a %B %-d %T %Y UTC"))}">#{translate(locale, "`x` ago", recode_date(child.created_utc, locale))}</span>
           <a href="https://www.reddit.com#{child.permalink}" title="#{translate(locale, "permalink")}">#{translate(locale, "permalink")}</a>

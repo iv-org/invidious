@@ -8,7 +8,7 @@
         <div class="pure-u-2-3">
             <h3><input class="pure-input-1" maxlength="150" name="title" type="text" value="<%= playlist.title %>"></h3>
             <b>
-                <%= playlist.author %> |
+                <%= HTML.escape(playlist.author) %> |
                 <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %> |
                 <i class="icon <%= {"ion-md-globe", "ion-ios-unlock", "ion-ios-lock"}[playlist.privacy.value] %>"></i>

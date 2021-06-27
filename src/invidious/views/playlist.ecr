@@ -11,7 +11,7 @@
                 <% if playlist.author == user.try &.email %>
                 <a href="/view_all_playlists"><%= playlist.author %></a> |
                 <% else %>
-                <%= playlist.author %> |
+                <%= HTML.escape(playlist.author) %> |
                 <% end %>
                 <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %> |
@@ -26,7 +26,7 @@
             </b>
         <% else %>
             <b>
-                <a href="/channel/<%= playlist.ucid %>"><%= playlist.author %></a> |
+                <a href="/channel/<%= playlist.ucid %>"><%= HTML.escape(playlist.author) %></a> |
                 <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
                 <%= translate(locale, "`x` videos", "#{playlist.views}") %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %>
