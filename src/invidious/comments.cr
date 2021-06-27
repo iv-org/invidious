@@ -58,7 +58,6 @@ end
 
 def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, sort_by = "top", action = "action_get_comments")
   video = get_video(id, db, region: region)
-  session_token = video.session_token
 
   case cursor
   when nil, ""
@@ -71,36 +70,13 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
     ctoken = cursor
   end
 
-  if !session_token
-    if format == "json"
-      return {"comments" => [] of String}.to_json
-    else
-      return {"contentHtml" => "", "commentCount" => 0}.to_json
-    end
-  end
+  response = YoutubeAPI.next(continuation: ctoken)
 
-  post_req = {
-    page_token:    ctoken,
-    session_token: session_token,
-  }
-
-  headers = HTTP::Headers{
-    "cookie" => video.cookie,
-  }
-
-  response = YT_POOL.client(region, &.post("/comment_service_ajax?#{action}=1&hl=en&gl=US&pbj=1", headers, form: post_req))
-  response = JSON.parse(response.body)
-
-  # For some reason youtube puts it in an array for comment_replies but otherwise it's the same
-  if action == "action_get_comment_replies"
-    response = response[1]
-  end
-
-  if !response["response"]["continuationContents"]?
+  if !response["continuationContents"]?
     raise InfoException.new("Could not fetch comments")
   end
 
-  response = response["response"]["continuationContents"]
+  response = response["continuationContents"]
   if response["commentRepliesContinuation"]?
     body = response["commentRepliesContinuation"]
   else
