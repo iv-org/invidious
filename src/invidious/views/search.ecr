@@ -12,7 +12,7 @@
 <% if is_channel_search && channel.is_a? AboutChannel && !subscriptions.nil? %>
     <% content_type =  7 %>
     <% sort_options = Tuple.new %>
-    <%= rendered "components/channel-information" %>
+    <%= rendered "components/channels/channel-information" %>
 <% end %>
 
 <% search_query_encoded = env.get?("search").try { |x| URI.encode(x.as(String), space_to_plus: true) } %>
