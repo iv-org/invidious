@@ -40,7 +40,7 @@
                     <li class="pure-menu-item">
                         <% if operators.fetch("features", "all").includes?(feature) %>
                             <% if operators["features"].split(",").size == 1 %>
-                                <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&features=[a-z]+/, "")}"%>">
+                                <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&features=[a-z_]+/, "")}"%>">
                                     <b><%= translate(locale, feature) %></b>
                                     <i class="remove-filter icon ion-md-close"></i>
                                 </a>
