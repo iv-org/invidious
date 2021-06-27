@@ -19,12 +19,12 @@
     <h3 style="text-align: center">
         <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Broken? Try another Invidious Instance!") %></a>
     </h3>
+<% end  %>
+
+<% if is_channel_search %>
 <% else %>
-    <% if is_channel_search %>
-    <% else %>
-        <%= rendered "components/search-filters/search-filters" %>
-    <% end  %>
-<% end %>
+    <%= rendered "components/search-filters/search-filters" %>
+<% end  %>
 
 <% if count == 0 %>
     <hr style="margin: 0;"/>
