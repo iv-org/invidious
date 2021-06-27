@@ -16,7 +16,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     items = fetch_channel_home(ucid, channel)
 
     has_trailer = false
-    if items[0].is_a? Video
+    if !items.empty? && items[0].is_a? Video
       has_trailer = true
     end
 

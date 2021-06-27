@@ -311,6 +311,9 @@ private class YoutubeTabsExtractor < ItemsContainerExtractor
       elsif items_container = renderer_container_contents["channelVideoPlayerRenderer"]?
         # Parsing for channel trailer is already taken elsewhere
         next
+      elsif items_container = renderer_container_contents["messageRenderer"]?
+        # Likely an error message regarding content being empty
+        next
       else
         items_container = renderer_container_contents
       end
