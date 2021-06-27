@@ -87,16 +87,31 @@ def request_youtube_api_search(search_query : String, params : String, region = 
   return _youtube_api_post_json("/youtubei/v1/search", data)
 end
 
+# Requests the youtube/v1/navigation/resolve_url endpoint with the required headers
+#
+# The resulting response is a JSON reply with the resolved url embeded within.
+# ```
+# request_youtube_api_resolve_url("https://youtube.com/c/google") # => {"endpoint": {"browseEndpoint": {"params": "EgC4AQA%3D", "browseId":"UCK8sQmJBp8GCxrOtXWBpyEA"}, ...}}
+# request_youtube_api_resolve_url("https://youtube.com/c/aaaaaaaaaaaaaaaaaaaaaa") # => InfoException
+# ```
+def request_youtube_api_resolve_url(url)
+  data = {
+    "context" => make_youtube_api_context("US"),
+    "url"     => url,
+  }
+
+  return _youtube_api_post_json("/youtubei/v1/navigation/resolve_url", data)
+end
+
 ####################################################################
 # _youtube_api_post_json(endpoint, data)
 #
 # Internal function that does the actual request to youtube servers
-# and handles errors.
 #
 # The requested data is an endpoint (URL without the domain part)
 # and the data as a Hash object.
 #
-def _youtube_api_post_json(endpoint, data)
+private def _youtube_api_post_json(endpoint, data)
   # Send the POST request and parse result
   response = YT_POOL.client &.post(
     "#{endpoint}?key=#{HARDCODED_API_KEY}",
