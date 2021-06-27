@@ -37,7 +37,7 @@
                                         <% end %>
                                     </a>
                                     <div class="featured-channel-about">
-                                        <p class="featured-channel-title"><a href="/channel/<%= item.ucid %>"><%= item.author %></a></p>
+                                        <p class="featured-channel-title"><a href="/channel/<%= item.ucid %>"><%= HTML.escape(item.author) %></a></p>
                                         <div class="featured-channel-metadata">
                                             <p><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></p>
                                             <p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p>
@@ -63,7 +63,7 @@
                                     <% end %>
                                 </a>
                                 <div class="featured-channel-about">
-                                    <p class="featured-channel-title"><a href="/channel/<%= item.ucid %>"><%= item.author %></a></p>
+                                    <p class="featured-channel-title"><a href="/channel/<%= item.ucid %>"><%= HTML.escape(item.author) %></a></p>
                                     <div class="featured-channel-metadata">
                                         <span><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></span>
                                         <span class="seperator"> | </span>

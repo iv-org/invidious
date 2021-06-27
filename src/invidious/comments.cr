@@ -472,7 +472,7 @@ def template_reddit_comments(root, locale)
         html << <<-END_HTML
         <p>
           <a href="javascript:void(0)" data-onclick="toggle_parent">[ - ]</a>
-          <b><a href="https://www.reddit.com/user/#{child.author}">#{child.author}</a></b>
+          <b><a href="https://www.reddit.com/user/#{child.author}">#{HTML.escape(child.author)}</a></b>
           #{translate(locale, "`x` points", number_with_separator(child.score))}
           <span title="#{child.created_utc.to_s(translate(locale, "%a %B %-d %T %Y UTC"))}">#{translate(locale, "`x` ago", recode_date(child.created_utc, locale))}</span>
           <a href="https://www.reddit.com#{child.permalink}" title="#{translate(locale, "permalink")}">#{translate(locale, "permalink")}</a>
