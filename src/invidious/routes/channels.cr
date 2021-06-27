@@ -166,25 +166,23 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     templated "channel/about", buffer_footer: true
   end
 
+  # Redirects brand url channels to a normal /channel/:ucid route
   def brand_redirect(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-    user = env.params.url["user"]
-
-    response = YT_POOL.client &.get("/c/#{user}")
-    html = XML.parse_html(response.body)
-
-    ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
-    if !ucid
-      env.response.status_code = 404
-      return
+    begin
+      resolved_url = request_youtube_api_resolve_url("https://youtube.com#{env.request.path}")
+    rescue ex : InfoException
+      raise InfoException.new("This channel does not exist.")
     end
 
-    url = "/channel/#{ucid}"
+    ucid = resolved_url["endpoint"]["browseEndpoint"]["browseId"]
 
-    location = env.request.path.lchop?("/c/#{user}/")
-    if location
-      url += "/#{location}"
+    selected_tab = env.request.path.split("/")[-1]
+    if ["home", "videos", "playlists", "community", "channels", "about"].includes? selected_tab
+      url = "/channel/#{ucid}/#{selected_tab}"
+    else
+      url = "/channel/#{ucid}"
     end
 
     if env.params.query.size > 0
