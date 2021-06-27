@@ -1,8 +1,13 @@
+require "duktape/runtime"
+
 alias SigProc = Proc(Array(String), Int32, Array(String))
 
 struct DecryptFunction
   @decrypt_function = [] of {SigProc, Int32}
   @decrypt_time = Time.monotonic
+
+  @playerjs_decrypt_n_function = {} of String => String
+  @last_decrypted_n = {id: "", n: "", dec_n: ""}
 
   def initialize(@use_polling = true)
   end
@@ -69,5 +74,37 @@ struct DecryptFunction
     end
 
     return "&#{sp}=#{sig.join("")}"
+  end
+
+  def overwrite_n(id : String, fmt : Hash(String, JSON::Any))
+    uri = URI.parse(fmt["url"].as_s)
+    params = HTTP::Params.parse(uri.query.not_nil!)
+    return fmt["url"].as_s unless params["n"]?
+    n = params["n"]
+
+    function_name = "(cache #1)"
+    if (@last_decrypted_n[:id] == id && @last_decrypted_n[:n] == n)
+      dec_n = @last_decrypted_n[:dec_n]
+    else
+      document = YT_POOL.client &.get("/watch?v=#{id}&gl=US&hl=en").body
+      playerjs = document.match(/src="(?<url>\/s\/player\/[^\/]+\/player_ias[^\/]+\/en_US\/base.js)"/).not_nil!["url"]
+      function_name = "(cache #2)"
+      function_body = @playerjs_decrypt_n_function[playerjs]?
+      if (!function_body)
+        player = YT_POOL.client &.get(playerjs).body
+        function_name = player.match(/a\.get\("n"\)\)&&\(b=(?<nfunc>[a-zA-Z0-9]+)\(b\)/m).not_nil!["nfunc"]
+        function_body = player.match(/^#{Regex.escape(function_name)}=(?<body>function\(\w\)\{.*?"enhanced_except_[^\}]+\}[^\}]+\})/m).not_nil!["body"]
+        @playerjs_decrypt_n_function[playerjs] = function_body
+      end
+      rt = Duktape::Runtime.new do |sbx|
+        sbx.eval! "var dec=#{function_body}"
+      end
+      dec_n = rt.call("dec", n).to_s
+      @last_decrypted_n = {id: id, n: n, dec_n: dec_n}
+    end
+
+    LOGGER.debug("decrypt_n: #{id} fn = #{function_name} n = #{n} -> #{dec_n}")
+    params["n"] = dec_n
+    return URI.new(uri.scheme, uri.host, uri.port, uri.path, params).to_s
   end
 end

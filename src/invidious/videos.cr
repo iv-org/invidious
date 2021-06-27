@@ -586,6 +586,7 @@ struct Video
         fmt["url"] = JSON::Any.new("#{fmt["url"]}#{DECRYPT_FUNCTION.decrypt_signature(fmt)}")
       end
 
+      fmt["url"] = JSON::Any.new(DECRYPT_FUNCTION.overwrite_n(self.id, fmt))
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&region=#{self.info["region"]}") if self.info["region"]?
     end
@@ -605,6 +606,7 @@ struct Video
         fmt["url"] = JSON::Any.new("#{fmt["url"]}#{DECRYPT_FUNCTION.decrypt_signature(fmt)}")
       end
 
+      fmt["url"] = JSON::Any.new(DECRYPT_FUNCTION.overwrite_n(self.id, fmt))
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&region=#{self.info["region"]}") if self.info["region"]?
     end
