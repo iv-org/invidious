@@ -436,7 +436,12 @@
     "footer_modfied_source_code": "Modified Source code",
     "adminprefs_modified_source_code_url_label": "URL to modified source code repository",
     "channel_about_page_details_section_header": "Details",
+    "channel_about_page_details_country_label: ": "Country: ",
     "channel_about_page_stats_section_header": "Stats",
     "channel_about_page_stats_joined_label": "Joined",
-    "channel_about_page_links_section_header": "Links"
+    "channel_about_page_links_section_header": "Links",
+    "This channel doesn't feature any other channels.": "This channel doesn't feature any other channels.",
+    "This channel doesn't have any content.": "This channel doesn't have any content.",
+    "This channel has no videos.": "This channel has no videos.",
+    "This channel has no playlists.": "This channel has no playlists."
 }
