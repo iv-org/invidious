@@ -11,3 +11,4 @@ db:
 full_refresh: false
 https_only: false
 domain:
+instance_maintainer_email: example@example.com
