@@ -823,3 +823,12 @@ default_user_preferences:
   ## Default: false
   ##
   #automatic_instance_redirect: false
+
+  ##
+  ## Email to contact the instance maintainer; used in a mailto: link within the footer. 
+  ## 
+  ## Accepted values: Email
+  ## Default: <none>
+  ##
+
+  instance_maintainer_email: 
