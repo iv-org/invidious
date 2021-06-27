@@ -194,6 +194,10 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     env.redirect url
   end
 
+  def search(env)
+    return env.redirect "/search?#{env.params.query}&channel=#{env.params.url["ucid"]}"
+  end
+
   private def fetch_basic_information(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
