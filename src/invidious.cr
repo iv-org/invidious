@@ -325,8 +325,9 @@ end
   Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, :community
   Invidious::Routing.get "/channel/:ucid/channels", Invidious::Routes::Channels, :channels
   Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
+  Invidious::Routing.get "/channel/:ucid/search", Invidious::Routes::Channels, :search
 
-  ["", "/videos", "/playlists", "/community", "/about"].each do |path|
+  ["", "/home", "/videos", "/playlists", "/community", "/channels", "/about", "/search"].each do |path|
     # /c/LinusTechTips
     Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
     # /user/linustechtips | Not always the same as /c/
