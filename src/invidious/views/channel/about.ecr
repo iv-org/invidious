@@ -3,9 +3,8 @@
 <link rel="stylesheet" href="/css/channel.css?v=<%= ASSET_COMMIT %>">
 <% end %>
 
-<% content_type =  4 %>
-<% sort_options = Tuple.new %>
-<%= rendered "components/channel-information" %>
+<% content_type =  5 %>
+<%= rendered "components/channels/channel-information" %>
 
 <div class="pure-g">
     <% stats_style_append = ""%>

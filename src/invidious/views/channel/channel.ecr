@@ -4,8 +4,9 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/channel/<%= channel.ucid %>" >
 <% end %>
 
-<% content_type =  0 %>
-<%= rendered "components/channel-information" %>
+<% content_type =  1 %>
+<%= rendered "components/channels/channel-information" %>
+<%= rendered "components/channels/content-sorting-bar" %>
 
 <div class="pure-g">
 <% items.each do |item| %>

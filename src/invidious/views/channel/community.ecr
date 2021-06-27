@@ -3,9 +3,8 @@
 <link rel="stylesheet" href="/css/channel.css?v=<%= ASSET_COMMIT %>">
 <% end %>
 
-<% content_type =  2 %>
-<% sort_options = Tuple.new %>
-<%= rendered "components/channel-information" %>
+<% content_type =  3 %>
+<%= rendered "components/channels/channel-information" %>
 
 <% if error_message %>
     <div class="h-box">
