@@ -6,7 +6,14 @@
 
 <% content_type =  1 %>
 <%= rendered "components/channels/channel-information" %>
-<%= rendered "components/channels/content-sorting-bar" %>
+
+<% if count.not_nil! > 0 %>
+    <%= rendered "components/channels/content-sorting-bar" %>
+<% else %>
+    <h3 class="pure-u-1 h-box">
+        <%= translate(locale, "This channel has no videos.")%>
+    </h3>
+<% end %>
 
 <div class="pure-g">
     <% items.each_slice(4) do |slice| %>

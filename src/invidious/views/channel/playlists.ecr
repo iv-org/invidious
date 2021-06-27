@@ -5,7 +5,14 @@
 
 <% content_type =  2 %>
 <%= rendered "components/channels/channel-information" %>
-<%= rendered "components/channels/content-sorting-bar" %>
+
+<% if items.size > 0 %>
+    <%= rendered "components/channels/content-sorting-bar" %>
+<% else %>
+    <h3 class="pure-u-1 h-box">
+        <%= translate(locale, "This channel has no playlists.")%>
+    </h3>
+<% end %>
 
 <div class="pure-g">
     <% items.each_slice(4) do |slice| %>

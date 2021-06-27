@@ -450,5 +450,7 @@
     "Privacy": "Privacy",
     "short": "Short (< 4 minutes)",
     "long": "Long (> 20 minutes)",
-    "This channel doesn't have any content.": "This channel doesn't have any content."
+    "This channel doesn't have any content.": "This channel doesn't have any content.",
+    "This channel has no videos.": "This channel has no videos.",
+    "This channel has no playlists.": "This channel has no playlists."
 }
