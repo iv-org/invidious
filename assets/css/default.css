@@ -379,7 +379,7 @@ span > select {
   color: #fff !important;
 }
 
-.light-theme a {
+.light-theme a, .light-theme .simulated_a {
   color: #335d7a;
   text-decoration: none;
 }
@@ -414,7 +414,7 @@ span > select {
     color: #fff !important;
   }
 
-  .no-theme a {
+  .no-theme a, .no-theme .simulated_a {
     color: #335d7a;
     text-decoration: none;
   }
@@ -449,7 +449,7 @@ span > select {
   color: rgb(0, 182, 240) !important;
 }
 
-.dark-theme a {
+.dark-theme a, .dark-theme .simulated_a {
   color: #A8A095;
   text-decoration: none;
 }
@@ -513,7 +513,7 @@ body.dark-theme {
     color: rgb(0, 182, 240) !important;
   }
 
-  .no-theme a {
+  .no-theme a, .no-theme .simulated_a {
     color: #a0a0a0;
     text-decoration: none;
   }
