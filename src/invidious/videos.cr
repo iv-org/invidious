@@ -425,9 +425,9 @@ struct Video
         json.array do
           self.captions.each do |caption|
             json.object do
-              json.field "label", caption.name.simpleText
+              json.field "label", caption.name
               json.field "languageCode", caption.languageCode
-              json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name.simpleText)}"
+              json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name)}"
             end
           end
         end
@@ -706,8 +706,12 @@ struct Video
   def captions : Array(Caption)
     return @captions.as(Array(Caption)) if @captions
     captions = info["captions"]?.try &.["playerCaptionsTracklistRenderer"]?.try &.["captionTracks"]?.try &.as_a.map do |caption|
-      caption = Caption.from_json(caption.to_json)
-      caption.name.simpleText = caption.name.simpleText.split(" - ")[0]
+      name = caption["name"]["simpleText"]? || caption["name"]["runs"][0]["text"]
+      languageCode = caption["languageCode"].to_s
+      baseUrl = caption["baseUrl"].to_s
+
+      caption = Caption.new(name.to_s, languageCode, baseUrl)
+      caption.name = caption.name.split(" - ")[0]
       caption
     end
     captions ||= [] of Caption
@@ -782,18 +786,19 @@ struct Video
   end
 end
 
-struct CaptionName
-  include JSON::Serializable
+class Caption
+  property name
+  property languageCode
+  property baseUrl
 
-  property simpleText : String
-end
+  getter name : String
+  getter languageCode : String
+  getter baseUrl : String
 
-struct Caption
-  include JSON::Serializable
+  setter name
 
-  property name : CaptionName
-  property baseUrl : String
-  property languageCode : String
+  def initialize(@name, @languageCode, @baseUrl)
+  end
 end
 
 class VideoRedirect < Exception

@@ -165,11 +165,11 @@ class Invidious::Routes::Embed < Invidious::Routes::BaseRoute
     captions = video.captions
 
     preferred_captions = captions.select { |caption|
-      params.preferred_captions.includes?(caption.name.simpleText) ||
+      params.preferred_captions.includes?(caption.name) ||
         params.preferred_captions.includes?(caption.languageCode.split("-")[0])
     }
     preferred_captions.sort_by! { |caption|
-      (params.preferred_captions.index(caption.name.simpleText) ||
+      (params.preferred_captions.index(caption.name) ||
         params.preferred_captions.index(caption.languageCode.split("-")[0])).not_nil!
     }
     captions = captions - preferred_captions
