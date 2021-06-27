@@ -92,7 +92,6 @@ class Config
   property admins : Array(String) = [] of String
   property external_port : Int32? = nil
   property default_user_preferences : ConfigPreferences = ConfigPreferences.from_yaml("")
-  property dmca_content : Array(String) = [] of String    # For compliance with DMCA, disables download widget using list of video IDs
   property check_tables : Bool = false                    # Check table integrity, automatically try to add any missing columns, create tables, etc.
   property cache_annotations : Bool = false               # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
   property banner : String? = nil                         # Optional banner to be displayed along top of page for announcements, etc.
