@@ -1,0 +1,27 @@
+
+<div class="h-box">
+    <% route = content_type == 1 ? "/videos" : "/playlists" %>
+    <% url = "/channel/#{channel.ucid + route}" %>
+
+    <div class="pure-menu pure-menu-horizontal" id="sort-options" style="display: flex;">
+        <ul class="pure-menu-list" style="margin-left: auto;">
+            <% sort_options.each do |sort| %>
+                <% if sort_by == sort %>
+                    <li class="pure-menu-item pure-menu-selected">
+                        <a class="pure-menu-link" href="<%= url %>?sort_by=<%= sort %>">
+                            <b><%= translate(locale, sort) %></b>
+                        </a>
+                    </li>
+                <% else %>
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link" href="<%= url %>?sort_by=<%= sort %>">
+                            <%= translate(locale, sort) %>
+                        </a>
+                    </li>
+                <% end %>
+            <% end %>
+        </ul>
+    </div>
+
+    <hr>
+</div>

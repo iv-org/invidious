@@ -4,7 +4,8 @@
 <% end %>
 
 <% content_type =  2 %>
-<%= rendered "components/channel-information" %>
+<%= rendered "components/channels/channel-information" %>
+<%= rendered "components/channels/content-sorting-bar" %>
 
 <div class="pure-g">
     <% items.each_slice(4) do |slice| %>
