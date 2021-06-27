@@ -317,6 +317,9 @@ Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :abo
 
 ["", "/videos", "/playlists", "/community", "/about"].each do |path|
   Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+  Invidious::Routing.get "/user/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+  Invidious::Routing.get "/attribution_link#{path}", Invidious::Routes::Channels, :brand_redirect
+  Invidious::Routing.get "/profile/:user#{path}", Invidious::Routes::Channels, :brand_redirect
 end
 
 Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
@@ -1626,57 +1629,6 @@ end
       env.redirect "/channel/#{value}"
     end
   end
-end
-
-# YouTube appears to let users set a "brand" URL that
-# is different from their username, so we convert that here
-get "/c/:user" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  user = env.params.url["user"]
-
-  response = YT_POOL.client &.get("/c/#{user}")
-  html = XML.parse_html(response.body)
-
-  ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
-  next env.redirect "/" if !ucid
-
-  env.redirect "/channel/#{ucid}"
-end
-
-# Legacy endpoint for /user/:username
-get "/profile" do |env|
-  user = env.params.query["user"]?
-  if !user
-    env.redirect "/"
-  else
-    env.redirect "/user/#{user}"
-  end
-end
-
-get "/attribution_link" do |env|
-  if query = env.params.query["u"]?
-    url = URI.parse(query).request_target
-  else
-    url = "/"
-  end
-
-  env.redirect url
-end
-
-get "/user/:user" do |env|
-  user = env.params.url["user"]
-  env.redirect "/channel/#{user}"
-end
-
-get "/user/:user/videos" do |env|
-  user = env.params.url["user"]
-  env.redirect "/channel/#{user}/videos"
-end
-
-get "/user/:user/about" do |env|
-  user = env.params.url["user"]
-  env.redirect "/channel/#{user}"
 end
 
 # API Endpoints
