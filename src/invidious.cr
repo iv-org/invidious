@@ -66,6 +66,7 @@ SOFTWARE = {
   "branch"  => "#{CURRENT_BRANCH}",
 }
 
+UA_LIST = prepare_random_user_agents()
 YT_POOL = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2.0, use_quic: CONFIG.use_quic)
 
 # CLI
