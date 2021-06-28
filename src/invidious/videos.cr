@@ -819,23 +819,34 @@ def parse_related(r : JSON::Any) : JSON::Any?
   JSON::Any.new(rv)
 end
 
-def extract_polymer_config(player_response : Hash(String, JSON::Any), video_id : String)
+def extract_video_info(video_id : String, proxy_region : String? = nil)
   params = {} of String => JSON::Any
 
-  if player_response.includes?("To continue with your YouTube experience, please fill out the form below.") ||
-     player_response.includes?("https://www.google.com/sorry/index")
-    params["reason"] = JSON::Any.new("Could not extract video info. Instance is likely blocked.")
-  elsif player_response["playabilityStatus"]?.try &.["status"]?.try &.as_s != "OK"
-    reason = player_response["playabilityStatus"]["errorScreen"]?.try &.["playerErrorMessageRenderer"]?.try &.["subreason"]?.try { |s| s["simpleText"]?.try &.as_s || s["runs"].as_a.map { |r| r["text"] }.join("") } ||
-             player_response["playabilityStatus"]["reason"].as_s
+  client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
+  player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
+
+  if player_response["playabilityStatus"]?.try &.["status"]?.try &.as_s != "OK"
+    reason = player_response["playabilityStatus"]["errorScreen"]?.try &.["playerErrorMessageRenderer"]?.try &.["subreason"]?.try { |s|
+      s["simpleText"]?.try &.as_s || s["runs"].as_a.map { |r| r["text"] }.join("")
+    } || player_response["playabilityStatus"]["reason"].as_s
     params["reason"] = JSON::Any.new(reason)
   end
 
   params["shortDescription"] = player_response.dig?("videoDetails", "shortDescription") || JSON::Any.new(nil)
 
+  # Don't fetch the next endpoint if the video is unavailable.
   if !params["reason"]?
     next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
     player_response = player_response.merge(next_response)
+  end
+
+  # Fetch the video streams using an Android client in order to get the decrypted URLs and
+  # maybe fix throttling issues (#2194).See for the explanation about the decrypted URLs:
+  # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
+  if !params["reason"]?
+    client_config.client_type = YoutubeAPI::ClientType::Android
+    stream_data = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
+    params["streamingData"] = stream_data["streamingData"]? || JSON::Any.new("")
   end
 
   {"captions", "microformat", "playabilityStatus", "storyboards", "videoDetails"}.each do |f|
@@ -914,14 +925,6 @@ def extract_polymer_config(player_response : Hash(String, JSON::Any), video_id :
   params["subCountText"] = JSON::Any.new(author_info.try &.["subscriberCountText"]?
     .try { |t| t["simpleText"]? || t["runs"]?.try &.[0]?.try &.["text"]? }.try &.as_s.split(" ", 2)[0] || "-")
 
-  if !params["reason"]?
-    client_config = YoutubeAPI::ClientConfig.new(client_type: YoutubeAPI::ClientType::Android)
-    stream_data = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
-    params["streamingData"] = stream_data["streamingData"]? || JSON::Any.new("")
-  end
-
-  params["playabilityStatus"] = player_response["playabilityStatus"]? || JSON::Any.new("")
-
   params
 end
 
@@ -952,24 +955,22 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
 end
 
 def fetch_video(id, region)
-  player_response = YoutubeAPI.player(video_id: id, params: "")
-  info = extract_polymer_config(player_response, id)
+  info = extract_video_info(video_id: id)
 
-  allowed_regions = info["microformat"]?.try &.["playerMicroformatRenderer"]["availableCountries"]?.try &.as_a.map &.as_s || [] of String
+  allowed_regions = info
+    .dig?("microformat", "playerMicroformatRenderer", "availableCountries")
+    .try &.as_a.map &.as_s || [] of String
 
   # Check for region-blocks
-  # if info["reason"]?.try &.as_s.includes?("your country")
-  #   bypass_regions = PROXY_LIST.keys & allowed_regions
-  #   if !bypass_regions.empty?
-  #     region = bypass_regions[rand(bypass_regions.size)]
-  #     response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999"))
-
-  #     region_info = extract_polymer_config(body: response.body)
-  #     region_info["region"] = JSON::Any.new(region) if region
-  #     region_info["cookie"] = JSON::Any.new(response.cookies.to_h.transform_values { |v| JSON::Any.new(v.value) })
-  #     info = region_info if !region_info["reason"]?
-  #   end
-  # end
+  if info["reason"]?.try &.as_s.includes?("your country")
+    bypass_regions = PROXY_LIST.keys & allowed_regions
+    if !bypass_regions.empty?
+      region = bypass_regions[rand(bypass_regions.size)]
+      region_info = extract_video_info(video_id: id, proxy_region: region)
+      region_info["region"] = JSON::Any.new(region) if region
+      info = region_info if !region_info["reason"]?
+    end
+  end
 
   # Try to pull streams from embed URL
   if info["reason"]?
