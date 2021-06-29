@@ -105,8 +105,17 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
   def brand_redirect(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
+    # /profile endpoint uses the `user` parameter
+    # /attribution_link endpoint needs both the `a` and `u` parameter
+    # and in order to avoid detection from YouTube we should only send the required ones
+    # without any of the additional url parameters that only Invidious uses.
+    yt_url_params = URI::Params.encode(env.params.query.to_h.select(["a", "u", "user"]))
+
+    # Retrieves URL params that only Invidious uses
+    invidious_url_params = URI::Params.encode(env.params.query.to_h.select!(["a", "u", "user"]))
+
     begin
-      resolved_url = YoutubeAPI.resolve_url("https://youtube.com#{env.request.path}#{env.params.query.size > 0 ? "?#{env.params.query}" : ""}")
+      resolved_url = YoutubeAPI.resolve_url("https://youtube.com#{env.request.path}#{yt_url_params.size > 0 ? "?#{yt_url_params}" : ""}")
     rescue ex : InfoException
       raise InfoException.new("This channel does not exist.")
     end
