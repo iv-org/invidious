@@ -250,10 +250,13 @@ end
 def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
   extracted = extract_items(initial_data, author_fallback, author_id_fallback)
 
-  if extracted.is_a?(Category)
-    target = extracted.contents
-  else
-    target = extracted
+  target = [] of SearchItem
+  extracted.each do |i|
+    if i.is_a?(Category)
+      i.contents.each { |cate_i| target << cate_i if !cate_i.is_a? Video }
+    else
+      target << i
+    end
   end
   return target.select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
 end
