@@ -315,6 +315,10 @@ Invidious::Routing.get "/channel/:ucid/playlists", Invidious::Routes::Channels, 
 Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, :community
 Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
 
+["", "/videos", "/playlists", "/community", "/about"].each do |path|
+  Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+end
+
 Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
 Invidious::Routing.get "/watch/:id", Invidious::Routes::Watch, :redirect
 Invidious::Routing.get "/shorts/:id", Invidious::Routes::Watch, :redirect
