@@ -232,8 +232,8 @@ class Category
   include DB::Serializable
 
   property title : String
-  property contents : Array(SearchItem)
-  property browse_endpoint_data : String?
+  property contents : Array(SearchItem) | Array(Video)
+  property url : String?
   property description_html : String
   property badges : Array(Tuple(String, String))?
 
