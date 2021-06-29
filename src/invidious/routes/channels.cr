@@ -106,7 +106,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     begin
-      resolved_url = YoutubeAPI.resolve_url("https://youtube.com#{env.request.path}")
+      resolved_url = YoutubeAPI.resolve_url("https://youtube.com#{env.request.path}#{env.params.query.size > 0 ? "?#{env.params.query}" : ""}")
     rescue ex : InfoException
       raise InfoException.new("This channel does not exist.")
     end
@@ -118,10 +118,6 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
       url = "/channel/#{ucid}/#{selected_tab}"
     else
       url = "/channel/#{ucid}"
-    end
-
-    if env.params.query.size > 0
-      url += "?#{env.params.query}"
     end
 
     env.redirect url
