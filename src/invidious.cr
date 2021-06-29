@@ -319,7 +319,7 @@ Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :abo
   Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
   Invidious::Routing.get "/user/:user#{path}", Invidious::Routes::Channels, :brand_redirect
   Invidious::Routing.get "/attribution_link#{path}", Invidious::Routes::Channels, :brand_redirect
-  Invidious::Routing.get "/profile/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+  Invidious::Routing.get "/profile/#{path}", Invidious::Routes::Channels, :profile
 end
 
 Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
