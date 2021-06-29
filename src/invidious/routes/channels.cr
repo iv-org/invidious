@@ -101,6 +101,34 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     env.redirect "/channel/#{ucid}"
   end
 
+  def brand_redirect(env)
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+    user = env.params.url["user"]
+
+    response = YT_POOL.client &.get("/c/#{user}")
+    html = XML.parse_html(response.body)
+
+    ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
+    if !ucid
+      env.response.status_code = 404
+      return
+    end
+
+    url = "/channel/#{ucid}"
+
+    location = env.request.path.lchop?("/c/#{user}/")
+    if location
+      url += "/#{location}"
+    end
+
+    if env.params.query.size > 0
+      url += "?#{env.params.query}"
+    end
+
+    env.redirect url
+  end
+
   private def fetch_basic_information(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
