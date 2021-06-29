@@ -93,7 +93,7 @@ end
 #
 # The resulting response is a JSON reply with the resolved url embeded within.
 # ```
-# request_youtube_api_resolve_url("https://youtube.com/c/google") # => {"endpoint": {"browseEndpoint": {"params": "EgC4AQA%3D", "browseId":"UCK8sQmJBp8GCxrOtXWBpyEA"}, ...}}
+# request_youtube_api_resolve_url("https://youtube.com/c/google")                 # => {"endpoint": {"browseEndpoint": {"params": "EgC4AQA%3D", "browseId":"UCK8sQmJBp8GCxrOtXWBpyEA"}, ...}}
 # request_youtube_api_resolve_url("https://youtube.com/c/aaaaaaaaaaaaaaaaaaaaaa") # => InfoException
 # ```
 def request_youtube_api_resolve_url(url)
