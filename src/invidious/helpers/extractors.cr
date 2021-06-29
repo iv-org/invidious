@@ -347,10 +347,10 @@ private class ContinuationExtractor < ItemsContainerExtractor
   end
 end
 
+# Parses an item from Youtube's JSON response into a more usable structure.
+# The end result can either be a SearchVideo, SearchPlaylist or SearchChannel.
 def extract_item(item : JSON::Any, author_fallback : String? = nil,
                  author_id_fallback : String? = nil)
-  # Parses an item from Youtube's JSON response into a more usable structure.
-  # The end result can either be a SearchVideo, SearchPlaylist or SearchChannel.
   author_fallback = AuthorFallback.new(author_fallback, author_id_fallback)
 
   # Cycles through all of the item parsers and attempt to parse the raw YT JSON data.
@@ -365,8 +365,10 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil,
   # TODO radioRenderer, showRenderer, shelfRenderer, horizontalCardListRenderer, searchPyvRenderer
 end
 
+# Parses multiple items from Youtube's initial JSON response into a more usable structure.
+# The end result is an array of SearchItem.
 def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil,
-                  author_id_fallback : String? = nil)
+                  author_id_fallback : String? = nil) : Array(SearchItem)
   items = [] of SearchItem
 
   if unpackaged_data = initial_data["contents"]?.try &.as_h
