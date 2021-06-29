@@ -89,12 +89,15 @@ def request_youtube_api_search(search_query : String, params : String, region = 
   return _youtube_api_post_json("/youtubei/v1/search", data)
 end
 
+####################################################################
 # Requests the youtube/v1/navigation/resolve_url endpoint with the required headers
 #
 # The resulting response is a JSON reply with the resolved url embeded within.
 # ```
-# request_youtube_api_resolve_url("https://youtube.com/c/google")                 # => {"endpoint": {"browseEndpoint": {"params": "EgC4AQA%3D", "browseId":"UCK8sQmJBp8GCxrOtXWBpyEA"}, ...}}
-# request_youtube_api_resolve_url("https://youtube.com/c/aaaaaaaaaaaaaaaaaaaaaa") # => InfoException
+# channel_a = request_youtube_api_resolve_url("https://youtube.com/c/google")
+# channel_a # => {"endpoint": {"browseEndpoint": {"params": "EgC4AQA%3D", "browseId":"UCK8sQmJBp8GCxrOtXWBpyEA"}, ...}}
+#
+# channel_b = request_youtube_api_resolve_url("https://youtube.com/c/aaaaaaaaaaaaaaaaaaaaaa") # => InfoException
 # ```
 def request_youtube_api_resolve_url(url)
   data = {
