@@ -105,14 +105,13 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
   def brand_redirect(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
-    # /profile endpoint uses the `user` parameter
     # /attribution_link endpoint needs both the `a` and `u` parameter
     # and in order to avoid detction from YouTube we should only send the required ones
     # without any of the additioal url parameters that only Invidious uses.
-    yt_url_params = URI::Params.encode(env.params.query.to_h.select(["a", "u", "user"]))
+    yt_url_params = URI::Params.encode(env.params.query.to_h.select(["a", "u"]))
 
     # Retreives URL params that only Invidious uses
-    invidious_url_params = URI::Params.encode(env.params.query.to_h.select!(["a", "u", "user"]))
+    invidious_url_params = URI::Params.encode(env.params.query.to_h.select!(["a", "u"]))
 
     begin
       resolved_url = request_youtube_api_resolve_url("https://youtube.com#{env.request.path}#{yt_url_params.size > 0 ? "?#{yt_url_params}" : ""}")
@@ -130,6 +129,22 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     end
 
     env.redirect url
+  end
+
+  # Handles redirects for the /profile endpoint
+  def profile(env)
+    # The /profile endpoint is special. If passed into the resolve_url
+    # endpoint YouTube would return a sign in page instead of an /channel/:ucid
+    # thus we'll add an edge case and handle it here.
+
+    uri_params = env.params.query.size > 0 ? "?#{env.params.query}" : ""
+
+    user = env.params.query["user"]?
+    if !user
+      raise InfoException.new("This channel does not exist.")
+    else
+      env.redirect "/user/#{user}#{uri_params}"
+    end
   end
 
   private def fetch_basic_information(env)
