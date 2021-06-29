@@ -542,3 +542,6 @@ p,
 #descriptionWrapper {
        max-width: 600px;
 }
+
+/* Center the "invidious" logo on the search page */
+#logo > h1 { text-align: center; }
