@@ -205,7 +205,6 @@ private class CategoryParser < ItemParser
   def parse(item_contents, author_fallback)
     # Title extraction is a bit complicated. There are two possible routes for it
     # as well as times when the title attribute just isn't sent by YT.
-
     title_container = item_contents["title"]? || ""
     if !title_container.is_a? String
       if title = title_container["simpleText"]?
@@ -217,37 +216,7 @@ private class CategoryParser < ItemParser
       title = ""
     end
 
-    auxiliary_data = {} of String => String
-    browse_endpoint = item_contents["endpoint"]?.try &.["browseEndpoint"] || nil
-    browse_endpoint_data = ""
-    category_type = 0 # 0: Video, 1: Channels, 2: Playlist/feed, 3: trending
-
-    # There's no endpoint data for video and trending category
-    if !item_contents["endpoint"]?
-      if !item_contents["videoId"]?
-        category_type = 3
-      end
-    end
-
-    if !browse_endpoint.nil?
-      # Playlist/feed categories doesn't need the params value (nor is it even included in yt response)
-      # instead it uses the browseId parameter. So if there isn't a params value we can assume the
-      # category is a playlist/feed
-      if browse_endpoint["params"]?
-        # However, even though the channel category type returns the browse endpoint param
-        # we're not going to be using it in order to preserve compatablity with Youtube.
-        # and for an URL that looks cleaner
-        url = item_contents["endpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
-        url = URI.parse(url.as_s)
-        auxiliary_data["view"] = url.query_params["view"]
-        auxiliary_data["shelf_id"] = url.query_params["shelf_id"]
-
-        category_type = 1
-      else
-        browse_endpoint_data = browse_endpoint["browseId"].as_s
-        category_type = 2
-      end
-    end
+    url = item_contents["endpoint"]?.try &.["commandMetadata"]["webCommandMetadata"]["url"].as_s
 
     # Sometimes a category can have badges.
     badges = [] of Tuple(String, String) # (Badge style, label)
@@ -279,11 +248,11 @@ private class CategoryParser < ItemParser
     end
 
     Category.new({
-      title:                title,
-      contents:             contents,
-      description_html:     description_html,
-      browse_endpoint_data: browse_endpoint_data,
-      badges:               badges,
+      title:            title,
+      contents:         contents,
+      description_html: description_html,
+      url:              url,
+      badges:           badges,
     })
   end
 end
