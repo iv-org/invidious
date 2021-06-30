@@ -852,7 +852,7 @@ def extract_video_info(video_id : String, proxy_region : String | Nil = nil)
 
   # Don't fetch the next endpoint if the video is unavailable.
   if !params["reason"]?
-    next_response = request_youtube_api_next(video_id: video_id, params: "")
+    next_response = request_youtube_api_next(video_id: video_id, region: nil, params: "")
     player_response = player_response.merge(next_response)
   end
 
@@ -965,6 +965,7 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
 end
 
 def fetch_video(id, region)
+  LOGGER.debug("fetching video")
   info = extract_video_info(video_id: id)
   allowed_regions = info["microformat"]?.try &.["playerMicroformatRenderer"]["availableCountries"]?.try &.as_a.map &.as_s || [] of String
 

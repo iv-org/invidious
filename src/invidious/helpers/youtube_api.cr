@@ -94,22 +94,23 @@ end
 #  - A video ID (parameters MUST be an empty string)
 #
 
-def request_youtube_api_next(continuation : String, client_name : String | Nil = "WEB") : Hash(String, JSON::Any)
+def request_youtube_api_next(continuation : String, region : String | Nil,
+                             client_name : String | Nil = "WEB") : Hash(String, JSON::Any)
   # JSON Request data, required by the API
   data = {
-    "context"      => make_youtube_api_context("US", client_name),
+    "context"      => make_youtube_api_context(region, client_name),
     "continuation" => continuation,
   }
 
   return _youtube_api_post_json("/youtubei/v1/next", data, client_name)
 end
 
-def request_youtube_api_next(video_id : String, params : String,
+def request_youtube_api_next(video_id : String, params : String, region : String | Nil,
                              client_name : String | Nil = "WEB") : Hash(String, JSON::Any)
   # JSON Request data, required by the API
   data = {
     "videoId" => video_id,
-    "context" => make_youtube_api_context("US", client_name),
+    "context" => make_youtube_api_context(region, client_name),
   }
 
   # Append the additionnal parameters if those were provided
@@ -194,7 +195,10 @@ def _youtube_api_post_json(endpoint, data, client_name : String | Nil = "WEB",
     LOGGER.debug("Sending this data without proxy\n: #{data.to_s}")
     response = YT_POOL.client &.post(
       "#{endpoint}?key=#{hardcoded_api_key}",
-      headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"},
+      headers: HTTP::Headers{
+        "content-type"  => "application/json; charset=UTF-8",
+        "Accept-Encoding": "gzip",
+      },
       body: data.to_json
     )
   end
