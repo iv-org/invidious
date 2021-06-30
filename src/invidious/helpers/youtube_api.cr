@@ -84,21 +84,21 @@ end
 #  - A video ID (parameters MUST be an empty string)
 #
 
-def request_youtube_api_next(continuation : String)
+def request_youtube_api_next(continuation : String, region : String | Nil)
   # JSON Request data, required by the API
   data = {
-    "context"      => make_youtube_api_context("US"),
+    "context"      => make_youtube_api_context(region),
     "continuation" => continuation,
   }
 
   return _youtube_api_post_json("/youtubei/v1/next", data)
 end
 
-def request_youtube_api_next(video_id : String, params : String)
+def request_youtube_api_next(video_id : String, region : String | Nil, params : String)
   # JSON Request data, required by the API
   data = {
     "videoId" => video_id,
-    "context" => make_youtube_api_context("US"),
+    "context" => make_youtube_api_context(region),
   }
 
   # Append the additionnal parameters if those were provided
