@@ -56,7 +56,7 @@ class RedditListing
   property modhash : String
 end
 
-def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, sort_by = "top", action = "action_get_comments")
+def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_by = "top")
   case cursor
   when nil, ""
     ctoken = produce_comment_continuation(id, cursor: "", sort_by: sort_by)
@@ -68,7 +68,8 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
     ctoken = cursor
   end
 
-  response = YoutubeAPI.next(continuation: ctoken)
+  client_config = YoutubeAPI::ClientConfig.new(region: region)
+  response = YoutubeAPI.next(continuation: ctoken, client_config: client_config)
 
   if !response["continuationContents"]?
     raise InfoException.new("Could not fetch comments")
@@ -209,7 +210,7 @@ def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, so
 
   if format == "html"
     response = JSON.parse(response)
-    content_html = template_youtube_comments(response, locale, thin_mode, action == "action_get_comment_replies")
+    content_html = template_youtube_comments(response, locale, thin_mode)
 
     response = JSON.build do |json|
       json.object do
