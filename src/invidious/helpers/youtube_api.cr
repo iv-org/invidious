@@ -3,10 +3,17 @@
 #
 
 # Hard-coded constants required by the API
-HARDCODED_ANDROID_API_KEY     = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
-HARDCODED_ANDROID_CLIENT_VERS = "16.20.35"
-HARDCODED_WEB_API_KEY         = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-HARDCODED_WEB_CLIENT_VERS     = "2.20210623.03.00"
+enum ApiClients
+  Web     = 0
+  Android = 1
+end
+
+HARDCODED_CLIENTS = {
+  ApiClients::Web => {name: "WEB", version: "2.20210623.03.00",
+                      key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"},
+  ApiClients::Android => {name: "ANDROID", version: "16.20.35",
+                          key: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"},
+}
 
 ####################################################################
 # make_youtube_api_context(region)
@@ -14,21 +21,19 @@ HARDCODED_WEB_CLIENT_VERS     = "2.20210623.03.00"
 # Return, as a Hash, the "context" data required to request the
 # youtube API endpoints.
 #
-def make_youtube_api_context(region : String | Nil, client_name : String = "WEB") : Hash
-  case client_name
-  when "ANDROID"
-    hardcoded_client_vers = HARDCODED_ANDROID_CLIENT_VERS
-  when "WEB"
-    hardcoded_client_vers = HARDCODED_WEB_CLIENT_VERS
-  else
-    hardcoded_client_vers = HARDCODED_WEB_CLIENT_VERS
-  end
+def make_youtube_api_context(region : String | Nil, client_type = ApiClients::Web) : Hash
+  client_infos = HARDCODED_CLIENTS[client_type]
+  client_version = client_infos["version"]
+  client_name = client_infos["name"]
+  default_client_infos = HARDCODED_CLIENTS[ApiClients::Web]
+  default_client_version = default_client_infos["version"]
+  default_client_name = default_client_infos["version"]
   return {
     "client" => {
       "hl"            => "en",
-      "gl"            => region || "US",       # Can't be empty!
-      "clientName"    => client_name || "WEB", # Can't be empty!
-      "clientVersion" => hardcoded_client_vers,
+      "gl"            => region || "US",                           # Can't be empty!
+      "clientName"    => client_name || default_client_name,       # Can't be empty!
+      "clientVersion" => client_version || default_client_version, # Can't be empty!
     },
   }
 end
@@ -51,21 +56,21 @@ end
 #
 #  - A playlist ID (parameters MUST be an empty string)
 #
-def request_youtube_api_browse(continuation : String, client_name : String | Nil = "WEB") : Hash(String, JSON::Any)
+def request_youtube_api_browse(continuation : String, client_type = ApiClients::Web) : Hash(String, JSON::Any)
   # JSON Request data, required by the API
   data = {
-    "context"      => make_youtube_api_context("US", client_name),
+    "context"      => make_youtube_api_context("US", client_type),
     "continuation" => continuation,
   }
 
-  return _youtube_api_post_json("/youtubei/v1/browse", data, client_name)
+  return _youtube_api_post_json("/youtubei/v1/browse", data, client_type)
 end
 
-def request_youtube_api_browse(browse_id : String, params : String, region : String = "US", client_name : String | Nil = "WEB") : Hash(String, JSON::Any)
+def request_youtube_api_browse(browse_id : String, params : String, region : String = "US", client_type = ApiClients::Web) : Hash(String, JSON::Any)
   # JSON Request data, required by the API
   data = {
     "browseId" => browse_id,
-    "context"  => make_youtube_api_context(region, client_name),
+    "context"  => make_youtube_api_context(region, client_type),
   }
 
   # Append the additionnal parameters if those were provided
@@ -74,7 +79,7 @@ def request_youtube_api_browse(browse_id : String, params : String, region : Str
     data["params"] = params
   end
 
-  return _youtube_api_post_json("/youtubei/v1/browse", data, client_name)
+  return _youtube_api_post_json("/youtubei/v1/browse", data, client_type)
 end
 
 ####################################################################
@@ -95,22 +100,22 @@ end
 #
 
 def request_youtube_api_next(continuation : String, region : String | Nil,
-                             client_name : String | Nil = "WEB") : Hash(String, JSON::Any)
+                             client_type = ApiClients::Web) : Hash(String, JSON::Any)
   # JSON Request data, required by the API
   data = {
-    "context"      => make_youtube_api_context(region, client_name),
+    "context"      => make_youtube_api_context(region, client_type),
     "continuation" => continuation,
   }
 
-  return _youtube_api_post_json("/youtubei/v1/next", data, client_name)
+  return _youtube_api_post_json("/youtubei/v1/next", data, client_type)
 end
 
 def request_youtube_api_next(video_id : String, params : String, region : String | Nil,
-                             client_name : String | Nil = "WEB") : Hash(String, JSON::Any)
+                             client_type = ApiClients::Web) : Hash(String, JSON::Any)
   # JSON Request data, required by the API
   data = {
     "videoId" => video_id,
-    "context" => make_youtube_api_context(region, client_name),
+    "context" => make_youtube_api_context(region, client_type),
   }
 
   # Append the additionnal parameters if those were provided
@@ -118,18 +123,18 @@ def request_youtube_api_next(video_id : String, params : String, region : String
     data["params"] = params
   end
 
-  return _youtube_api_post_json("/youtubei/v1/next", data, client_name)
+  return _youtube_api_post_json("/youtubei/v1/next", data, client_type)
 end
 
 ####################################################################
 # request_youtube_api_player(video_id, params)
 
-def request_youtube_api_player(video_id : String, params : String, client_name : String | Nil = "WEB",
+def request_youtube_api_player(video_id : String, params : String, client_type = ApiClients::Web,
                                proxy_region : String | Nil = nil) : Hash(String, JSON::Any)
   # JSON Request data, required by the API
   data = {
     "videoId" => video_id,
-    "context" => make_youtube_api_context(proxy_region || "US", client_name),
+    "context" => make_youtube_api_context(proxy_region || "US", client_type),
   }
 
   # Append the additionnal parameters if those were provided
@@ -137,7 +142,7 @@ def request_youtube_api_player(video_id : String, params : String, client_name :
     data["params"] = params
   end
 
-  return _youtube_api_post_json("/youtubei/v1/player", data, client_name, proxy_region)
+  return _youtube_api_post_json("/youtubei/v1/player", data, client_type, proxy_region)
 end
 
 ####################################################################
@@ -152,15 +157,15 @@ end
 # paramters, formatted as a base64 string.
 #
 def request_youtube_api_search(search_query : String, params : String, region = nil,
-                               client_name : String | Nil = "WEB") : Hash(String, JSON::Any)
+                               client_type = ApiClients::Web) : Hash(String, JSON::Any)
   # JSON Request data, required by the API
   data = {
     "query"   => search_query,
-    "context" => make_youtube_api_context(region, client_name),
+    "context" => make_youtube_api_context(region, client_type),
     "params"  => params,
   }
 
-  return _youtube_api_post_json("/youtubei/v1/search", data, client_name)
+  return _youtube_api_post_json("/youtubei/v1/search", data, client_type)
 end
 
 ####################################################################
@@ -172,29 +177,26 @@ end
 # The requested data is an endpoint (URL without the domain part)
 # and the data as a Hash object.
 #
-def _youtube_api_post_json(endpoint, data, client_name : String | Nil = "WEB",
+def _youtube_api_post_json(endpoint, data, client_type = ApiClients::Web,
                            proxy_region : String | Nil = nil) : Hash(String, JSON::Any)
-  case client_name
-  when "ANDROID"
-    hardcoded_api_key = HARDCODED_ANDROID_API_KEY
-  when "WEB"
-    hardcoded_api_key = HARDCODED_WEB_API_KEY
-  else
-    hardcoded_api_key = HARDCODED_WEB_API_KEY
-  end
+  client_key = HARDCODED_CLIENTS[client_type]["key"]
+  default_client_key = HARDCODED_CLIENTS[ApiClients::Web]["key"]
 
   # Send the POST request and parse result
   if proxy_region
     response = YT_POOL.client(proxy_region, &.post(
-      "#{endpoint}?key=#{hardcoded_api_key}",
-      headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"},
+      "#{endpoint}?key=#{client_key || default_client_key}",
+      headers: HTTP::Headers{
+        "content-type"  => "application/json; charset=UTF-8",
+        "Accept-Encoding": "gzip",
+      },
       body: data.to_json
     ))
   else
     LOGGER.debug("Using this endpoint for innertube: #{endpoint}")
     LOGGER.debug("Sending this data without proxy\n: #{data.to_s}")
     response = YT_POOL.client &.post(
-      "#{endpoint}?key=#{hardcoded_api_key}",
+      "#{endpoint}?key=#{client_key || default_client_key}",
       headers: HTTP::Headers{
         "content-type"  => "application/json; charset=UTF-8",
         "Accept-Encoding": "gzip",

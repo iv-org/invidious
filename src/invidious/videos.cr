@@ -859,7 +859,7 @@ def extract_video_info(video_id : String, proxy_region : String | Nil = nil)
   # Fetch the video streams using an Android client in order to get the decrypted URLs and maybe fix throttling issues (#2194)
   # See for the explanation about the decrypted URLs: https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
   if !params["reason"]?
-    params["streamingData"] = request_youtube_api_player(video_id: video_id, params: "", client_name: "ANDROID")["streamingData"]? || JSON::Any.new("")
+    params["streamingData"] = request_youtube_api_player(video_id: video_id, params: "", client_type: ApiClients::Android)["streamingData"]? || JSON::Any.new("")
   end
 
   {"captions", "microformat", "playabilityStatus", "storyboards", "videoDetails"}.each do |f|
