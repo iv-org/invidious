@@ -57,8 +57,6 @@ class RedditListing
 end
 
 def fetch_youtube_comments(id, db, cursor, format, locale, thin_mode, region, sort_by = "top", action = "action_get_comments")
-  video = get_video(id, db, region: region)
-
   case cursor
   when nil, ""
     ctoken = produce_comment_continuation(id, cursor: "", sort_by: sort_by)
