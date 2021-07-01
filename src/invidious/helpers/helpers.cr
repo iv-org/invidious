@@ -700,26 +700,6 @@ def proxy_file(response, env)
   end
 end
 
-# See https://github.com/kemalcr/kemal/pull/576
-class HTTP::Server::Response::Output
-  def close
-    return if closed?
-
-    unless response.wrote_headers?
-      response.content_length = @out_count
-    end
-
-    ensure_headers_written
-
-    super
-
-    if @chunked
-      @io << "0\r\n\r\n"
-      @io.flush
-    end
-  end
-end
-
 class HTTP::Client::Response
   def pipe(io)
     HTTP.serialize_body(io, headers, @body, @body_io, @version)
