@@ -994,23 +994,33 @@ def fetch_video(id, region)
 
   # Try to pull streams from embed URL
   if info["reason"]?
-    # The html5, c and cver parameters are required in order to extract age-restricted videos
-    # See https://github.com/yt-dlp/yt-dlp/commit/4e6767b5f2e2523ebd3dd1240584ead53e8c8905
-    required_parameters = URI::Params.encode({
+    required_parameters = {
       "video_id" => id,
       "eurl"     => "https://youtube.googleapis.com/v/#{id}",
       "html5"    => "1",
-      "c"        => "TVHTML5",
-      "cver"     => "6.20180913",
-    })
+      "gl"       => "US",
+      "hl"       => "en",
+    }
+    if info["reason"].as_s.includes?("inappropriate")
+      # The html5, c and cver parameters are required in order to extract age-restricted videos
+      # See https://github.com/yt-dlp/yt-dlp/commit/4e6767b5f2e2523ebd3dd1240584ead53e8c8905
+      required_parameters.merge!({
+        "c"    => "TVHTML5",
+        "cver" => "6.20180913",
+      })
 
-    # In order to actually extract video info without error, the `x-youtube-client-version`
-    # has to be set to the same version as `cver` above.
-    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?#{required_parameters}",
-      headers: HTTP::Headers{
-        "x-youtube-client-version" => "6.20180913",
-      }).body
-    )
+      # In order to actually extract video info without error, the `x-youtube-client-version`
+      # has to be set to the same version as `cver` above.
+      additional_headers = HTTP::Headers{"x-youtube-client-version" => "6.20180913"}
+    else
+      embed_page = YT_POOL.client &.get("/embed/#{id}").body
+      sts = embed_page.match(/"sts"\s*:\s*(?<sts>\d+)/).try &.["sts"]? || ""
+      required_parameters["sts"] = sts
+      additional_headers = HTTP::Headers{} of String => String
+    end
+
+    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?#{URI::Params.encode(required_parameters)}",
+      headers: additional_headers).body)
 
     if embed_info["player_response"]?
       player_response = JSON.parse(embed_info["player_response"])
