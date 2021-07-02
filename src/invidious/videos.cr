@@ -963,7 +963,7 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
 end
 
 def fetch_video(id, region)
-  response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999"))
+  response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999&ucbcb=1"))
 
   if md = response.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
     raise VideoRedirect.new(video_id: md["id"])
@@ -978,7 +978,7 @@ def fetch_video(id, region)
     bypass_regions = PROXY_LIST.keys & allowed_regions
     if !bypass_regions.empty?
       region = bypass_regions[rand(bypass_regions.size)]
-      response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999"))
+      response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999&ucbcb=1"))
 
       region_info = extract_polymer_config(response.body)
       region_info["region"] = JSON::Any.new(region) if region
@@ -989,9 +989,9 @@ def fetch_video(id, region)
 
   # Try to pull streams from embed URL
   if info["reason"]?
-    embed_page = YT_POOL.client &.get("/embed/#{id}").body
+    embed_page = YT_POOL.client &.get("/embed/#{id}?ucbcb=1").body
     sts = embed_page.match(/"sts"\s*:\s*(?<sts>\d+)/).try &.["sts"]? || ""
-    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?html5=1&video_id=#{id}&eurl=https://youtube.googleapis.com/v/#{id}&gl=US&hl=en&sts=#{sts}").body)
+    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?html5=1&video_id=#{id}&eurl=https://youtube.googleapis.com/v/#{id}&gl=US&hl=en&sts=#{sts}&ucbcb=1").body)
 
     if embed_info["player_response"]?
       player_response = JSON.parse(embed_info["player_response"])

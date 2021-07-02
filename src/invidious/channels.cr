@@ -355,7 +355,7 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
     continuation = continuationItems.as_a.last["continuationItemRenderer"]?
       .try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
   else
-    url = "/channel/#{ucid}/playlists?flow=list&view=1"
+    url = "/channel/#{ucid}/playlists?flow=list&view=1&ucbcb=1"
 
     case sort_by
     when "last", "last_added"
@@ -500,9 +500,9 @@ end
 
 # TODO: Add "sort_by"
 def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
-  response = YT_POOL.client &.get("/channel/#{ucid}/community?gl=US&hl=en")
+  response = YT_POOL.client &.get("/channel/#{ucid}/community?gl=US&hl=en&ucbcb=1")
   if response.status_code != 200
-    response = YT_POOL.client &.get("/user/#{ucid}/community?gl=US&hl=en")
+    response = YT_POOL.client &.get("/user/#{ucid}/community?gl=US&hl=en&ucbcb=1")
   end
 
   if response.status_code != 200
@@ -775,9 +775,9 @@ def extract_channel_community_cursor(continuation)
 end
 
 def get_about_info(ucid, locale)
-  result = YT_POOL.client &.get("/channel/#{ucid}/about?gl=US&hl=en")
+  result = YT_POOL.client &.get("/channel/#{ucid}/about?gl=US&hl=en&ucbcb=1")
   if result.status_code != 200
-    result = YT_POOL.client &.get("/user/#{ucid}/about?gl=US&hl=en")
+    result = YT_POOL.client &.get("/user/#{ucid}/about?gl=US&hl=en&ucbcb=1")
   end
 
   if md = result.headers["location"]?.try &.match(/\/channel\/(?<ucid>UC[a-zA-Z0-9_-]{22})/)

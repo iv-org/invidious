@@ -332,7 +332,7 @@ def get_user(sid, headers, db, refresh = true)
 end
 
 def fetch_user(sid, headers, db)
-  feed = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
+  feed = YT_POOL.client &.get("/subscription_manager?disable_polymer=1&ucbcb=1", headers)
   feed = XML.parse_html(feed.body)
 
   channels = [] of String
@@ -462,7 +462,7 @@ def subscribe_ajax(channel_id, action, env_headers)
   headers = HTTP::Headers.new
   headers["Cookie"] = env_headers["Cookie"]
 
-  html = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
+  html = YT_POOL.client &.get("/subscription_manager?disable_polymer=1&ucbcb=1", headers)
 
   cookies = HTTP::Cookies.from_client_headers(headers)
   html.cookies.each do |cookie|

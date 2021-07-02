@@ -231,11 +231,11 @@ end
 alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist
 
 def channel_search(query, page, channel)
-  response = YT_POOL.client &.get("/channel/#{channel}")
+  response = YT_POOL.client &.get("/channel/#{channel}?ucbcb=1")
 
   if response.status_code == 404
-    response = YT_POOL.client &.get("/user/#{channel}")
-    response = YT_POOL.client &.get("/c/#{channel}") if response.status_code == 404
+    response = YT_POOL.client &.get("/user/#{channel}?ucbcb=1")
+    response = YT_POOL.client &.get("/c/#{channel}?ucbcb=1") if response.status_code == 404
     initial_data = extract_initial_data(response.body)
     ucid = initial_data["header"]["c4TabbedHeaderRenderer"]?.try &.["channelId"].as_s?
     raise InfoException.new("Impossible to extract channel ID from page") if !ucid

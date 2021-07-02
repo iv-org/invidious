@@ -6,7 +6,7 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
         if !random_video
           random_video = {id: "zj82_v2R6ts", ucid: "UCK87Lox575O_HCHBWaBSyGA"}
         end
-        {"/watch?v=#{random_video["id"]}&gl=US&hl=en&has_verified=1&bpctr=9999999999", produce_channel_videos_url(ucid: random_video["ucid"])}.each do |path|
+        {"/watch?v=#{random_video["id"]}&gl=US&hl=en&has_verified=1&bpctr=9999999999&ucbcb=1", produce_channel_videos_url(ucid: random_video["ucid"])}.each do |path|
           response = YT_POOL.client &.get(path)
           if response.body.includes?("To continue with your YouTube experience, please fill out the form below.")
             html = XML.parse_html(response.body)
