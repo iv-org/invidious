@@ -700,6 +700,16 @@ def proxy_file(response, env)
   end
 end
 
+class HTTP::Server::Response
+  class Output
+    private def unbuffered_flush
+      @io.flush
+    rescue ex : IO::Error
+      unbuffered_close
+    end
+  end
+end
+
 class HTTP::Client::Response
   def pipe(io)
     HTTP.serialize_body(io, headers, @body, @body_io, @version)
