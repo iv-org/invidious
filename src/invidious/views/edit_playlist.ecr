@@ -1,14 +1,16 @@
+<% title = HTML.escape(playlist.title) %>
+
 <% content_for "header" do %>
-<title><%= playlist.title %> - Invidious</title>
+<title><%= title %> - Invidious</title>
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/playlist/<%= plid %>" />
 <% end %>
 
 <form class="pure-form" action="/edit_playlist?list=<%= plid %>" method="post">
     <div class="pure-g h-box">
         <div class="pure-u-2-3">
-            <h3><input class="pure-input-1" maxlength="150" name="title" type="text" value="<%= playlist.title %>"></h3>
+            <h3><input class="pure-input-1" maxlength="150" name="title" type="text" value="<%= title %>"></h3>
             <b>
-                <%= playlist.author %> |
+                <%= HTML.escape(playlist.author) %> |
                 <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %> |
                 <i class="icon <%= {"ion-md-globe", "ion-ios-unlock", "ion-ios-lock"}[playlist.privacy.value] %>"></i>

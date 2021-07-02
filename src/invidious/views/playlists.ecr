@@ -1,5 +1,8 @@
+<% ucid = channel.ucid %>
+<% author = HTML.escape(channel.author) %>
+
 <% content_for "header" do %>
-<title><%= channel.author %> - Invidious</title>
+<title><%= author %> - Invidious</title>
 <% end %>
 
 <% if channel.banner %>
@@ -16,12 +19,12 @@
     <div class="pure-u-2-3">
         <div class="channel-profile">
             <img src="/ggpht<%= URI.parse(channel.author_thumbnail).request_target %>">
-            <span><%= channel.author %></span>
+            <span><%= author %></span>
         </div>
     </div>
     <div class="pure-u-1-3" style="text-align:right">
         <h3 style="text-align:right">
-            <a href="/feed/channel/<%= channel.ucid %>"><i class="icon ion-logo-rss"></i></a>
+            <a href="/feed/channel/<%= ucid %>"><i class="icon ion-logo-rss"></i></a>
         </h3>
     </div>
 </div>
@@ -33,8 +36,6 @@
 </div>
 
 <div class="h-box">
-    <% ucid = channel.ucid %>
-    <% author = channel.author %>
     <% sub_count_text = number_to_short_text(channel.sub_count) %>
     <%= rendered "components/subscribe_widget" %>
 </div>
@@ -42,7 +43,7 @@
 <div class="pure-g h-box">
     <div class="pure-g pure-u-1-3">
         <div class="pure-u-1 pure-md-1-3">
-            <a href="https://www.youtube.com/channel/<%= channel.ucid %>/playlists"><%= translate(locale, "View channel on YouTube") %></a>
+            <a href="https://www.youtube.com/channel/<%= ucid %>/playlists"><%= translate(locale, "View channel on YouTube") %></a>
         </div>
 
         <div class="pure-u-1 pure-md-1-3">
@@ -50,7 +51,7 @@
         </div>
 
         <div class="pure-u-1 pure-md-1-3">
-            <a href="/channel/<%= channel.ucid %>"><%= translate(locale, "Videos") %></a>
+            <a href="/channel/<%= ucid %>"><%= translate(locale, "Videos") %></a>
         </div>
         <div class="pure-u-1 pure-md-1-3">
             <% if !channel.auto_generated %>
@@ -59,7 +60,7 @@
         </div>
         <div class="pure-u-1 pure-md-1-3">
             <% if channel.tabs.includes? "community" %>
-                <a href="/channel/<%= channel.ucid %>/community"><%= translate(locale, "Community") %></a>
+                <a href="/channel/<%= ucid %>/community"><%= translate(locale, "Community") %></a>
             <% end %>
         </div>
     </div>
@@ -71,7 +72,7 @@
                     <% if sort_by == sort %>
                         <b><%= translate(locale, sort) %></b>
                     <% else %>
-                        <a href="/channel/<%= channel.ucid %>/playlists?sort_by=<%= sort %>">
+                        <a href="/channel/<%= ucid %>/playlists?sort_by=<%= sort %>">
                             <%= translate(locale, sort) %>
                         </a>
                     <% end %>
@@ -97,7 +98,7 @@
     <div class="pure-u-1 pure-u-md-4-5"></div>
     <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
         <% if continuation %>
-            <a href="/channel/<%= channel.ucid %>/playlists?continuation=<%= continuation %><% if sort_by != "last" %>&sort_by=<%= HTML.escape(sort_by) %><% end %>">
+            <a href="/channel/<%= ucid %>/playlists?continuation=<%= continuation %><% if sort_by != "last" %>&sort_by=<%= HTML.escape(sort_by) %><% end %>">
                 <%= translate(locale, "Next page") %>
             </a>
         <% end %>

@@ -1,5 +1,8 @@
+<% ucid = channel.ucid %>
+<% author = HTML.escape(channel.author) %>
+
 <% content_for "header" do %>
-<title><%= channel.author %> - Invidious</title>
+<title><%= author %> - Invidious</title>
 <% end %>
 
 <% if channel.banner %>
@@ -16,7 +19,7 @@
     <div class="pure-u-2-3">
         <div class="channel-profile">
             <img src="/ggpht<%= URI.parse(channel.author_thumbnail).request_target %>">
-            <span><%= channel.author %></span>
+            <span><%= author %></span>
         </div>
     </div>
     <div class="pure-u-1-3" style="text-align:right">
@@ -33,8 +36,6 @@
 </div>
 
 <div class="h-box">
-    <% ucid = channel.ucid %>
-    <% author = channel.author %>
     <% sub_count_text = number_to_short_text(channel.sub_count) %>
     <%= rendered "components/subscribe_widget" %>
 </div>
@@ -79,7 +80,7 @@
 <script id="community_data" type="application/json">
 <%=
 {
-    "ucid" => channel.ucid,
+    "ucid" => ucid,
     "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
     "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
     "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),

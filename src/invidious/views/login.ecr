@@ -26,7 +26,7 @@
                 <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=google" method="post">
                     <fieldset>
                         <% if email %>
-                            <input name="email" type="hidden" value="<%= email %>">
+                            <input name="email" type="hidden" value="<%= HTML.escape(email) %>">
                         <% else %>
                             <label for="email"><%= translate(locale, "E-mail") %> :</label>
                             <input required class="pure-input-1" name="email" type="email" placeholder="<%= translate(locale, "E-mail") %>">
@@ -62,7 +62,7 @@
                 <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
                     <fieldset>
                         <% if email %>
-                            <input name="email" type="hidden" value="<%= email %>">
+                            <input name="email" type="hidden" value="<%= HTML.escape(email) %>">
                         <% else %>
                             <label for="email"><%= translate(locale, "User ID") %> :</label>
                             <input required class="pure-input-1" name="email" type="text" placeholder="<%= translate(locale, "User ID") %>">
