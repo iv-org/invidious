@@ -1,7 +1,7 @@
 {
     "`x` subscribers": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abone",
-        "": "`x` abone"
+        "": "`x`abone."
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
@@ -9,7 +9,7 @@
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` oynatma listesi",
-        "": "`x` oynatma listesi"
+        "": "`x`oynatma listesi."
     },
     "LIVE": "CANLI",
     "Shared `x` ago": "`x` önce paylaşıldı",
@@ -129,11 +129,11 @@
     "Token": "Belirteç",
     "`x` subscriptions": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonelik",
-        "": "`x` abonelik"
+        "": "`x`abonelik."
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` belirteç",
-        "": "`x` belirteç"
+        "": "`x` jeton."
     },
     "Import/export": "İçe/dışa aktar",
     "unsubscribe": "abonelikten çık",
@@ -141,7 +141,7 @@
     "Subscriptions": "Abonelikler",
     "`x` unseen notifications": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` okunmamış bildirim",
-        "": "`x` okunmamış bildirim"
+        "": "`x` görülmemiş bildirim."
     },
     "search": "ara",
     "Log out": "Çıkış yap",
