@@ -30,7 +30,7 @@
                 <p dir="auto"><%= HTML.escape(item.title) %></p>
             </a>
             <a href="/channel/<%= item.ucid %>">
-                <p dir=auto"><b><%= HTML.escape(item.author) %></b></p>
+                <p dir="auto"><b><%= HTML.escape(item.author) %></b></p>
             </a>
         <% when MixVideo %>
             <a href="/watch?v=<%= item.id %>&list=<%= item.rdid %>">
@@ -45,7 +45,7 @@
                 <p dir="auto"><%= HTML.escape(item.title) %></p>
             </a>
             <a href="/channel/<%= item.ucid %>">
-                <p dir=auto"><b><%= HTML.escape(item.author) %></b></p>
+                <p dir="auto"><b><%= HTML.escape(item.author) %></b></p>
             </a>
         <% when PlaylistVideo %>
             <a style="width:100%" href="/watch?v=<%= item.id %>&list=<%= item.plid %>">
@@ -77,7 +77,7 @@
 
             <div class="video-card-row flexible">
                 <div class="flex-left"><a href="/channel/<%= item.ucid %>">
-                    <p class="channel-name" dir=auto"><%= HTML.escape(item.author) %></p>
+                    <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %></p>
                 </a></div>
             </div>
 
@@ -139,7 +139,7 @@
 
             <div class="video-card-row flexible">
                 <div class="flex-left"><a href="/channel/<%= item.ucid %>">
-                    <p class="channel-name" dir=auto"><%= HTML.escape(item.author) %></p>
+                    <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %></p>
                 </a></div>
                 <div class="flex-right">
                     <div class="icon-buttons">
