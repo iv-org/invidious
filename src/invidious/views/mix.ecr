@@ -14,9 +14,7 @@
 </div>
 
 <div class="pure-g">
-    <% mix.videos.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <%= rendered "components/item" %>
-        <% end %>
-    <% end %>
+<% mix.videos.each do |item| %>
+    <%= rendered "components/item" %>
+<% end %>
 </div>

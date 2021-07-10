@@ -34,11 +34,9 @@
 <% end %>
 
 <div class="pure-g">
-    <% notifications.each_slice(4) do |slice| %>
-            <% slice.each do |item| %>
-                <%= rendered "components/item" %>
-            <% end %>
-    <% end %>
+<% notifications.each do |item| %>
+    <%= rendered "components/item" %>
+<% end %>
 </div>
 
 <div class="h-box">
@@ -55,11 +53,9 @@
 <script src="/js/watched_widget.js"></script>
 
 <div class="pure-g">
-    <% videos.each_slice(4) do |slice| %>
-            <% slice.each do |item| %>
-                <%= rendered "components/item" %>
-            <% end %>
-    <% end %>
+<% videos.each do |item| %>
+    <%= rendered "components/item" %>
+<% end %>
 </div>
 
 <div class="pure-g h-box">

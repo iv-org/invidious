@@ -87,11 +87,9 @@
 </div>
 
 <div class="pure-g">
-    <% items.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <%= rendered "components/item" %>
-        <% end %>
-    <% end %>
+<% items.each do |item| %>
+    <%= rendered "components/item" %>
+<% end %>
 </div>
 
 <div class="pure-g h-box">

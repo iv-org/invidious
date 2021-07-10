@@ -57,11 +57,9 @@
 </div>
 
 <div class="pure-g">
-    <% videos.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <%= rendered "components/item" %>
-        <% end %>
-    <% end %>
+<% videos.each do |item| %>
+    <%= rendered "components/item" %>
+<% end %>
 </div>
 
 <div class="pure-g h-box">
