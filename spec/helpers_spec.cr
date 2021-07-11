@@ -35,6 +35,12 @@ describe "Helper" do
     end
   end
 
+  describe "#produce_channel_playlists_url" do
+    it "correctly produces a /browse_ajax URL with the given UCID and cursor" do
+      produce_channel_playlists_url("UCCj956IF62FbT7Gouszaj9w", "AIOkY9EQpi_gyn1_QrFuZ1reN81_MMmI1YmlBblw8j7JHItEFG5h7qcJTNd4W9x5Quk_CVZ028gW").should eq("/browse_ajax?continuation=4qmFsgLNARIYVUNDajk1NklGNjJGYlQ3R291c3phajl3GrABRWdsd2JHRjViR2x6ZEhNd0FqZ0JZQUZxQUxnQkFIcG1VVlZzVUdFeGF6VlNWa1ozWVZZNWJtVlhOSGhZTVVaNVVtNVdZVTFZU214VWFtZDRXREF4VG1KVmEzaFhWekZ6VVcxS2MyUjZhSEZPTUhCSlUxaFNSbEpyWXpGaFJHUjRXVEJ3VlZSdFVUQldlbXcwVGxaR01XRXhPVVJXYkc5M1RXcG9ibFozSUFFWUF3PT0%3D&gl=US&hl=en")
+    end
+  end
+
   describe "#produce_playlist_continuation" do
     it "correctly produces ctoken for requesting index `x` of a playlist" do
       produce_playlist_continuation("UUCla9fZca4I7KagBtgRGnOw", 100).should eq("4qmFsgJNEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoUQ0FGNkJsQlVPa05IVVElM0QlM0SaAhhVVUNsYTlmWmNhNEk3S2FnQnRnUkduT3c%3D")
