@@ -207,7 +207,7 @@
     "Password cannot be empty": "الرقم السرى لايمكن ان يكون فارغ",
     "Password cannot be longer than 55 characters": "الرقم السرى لا يتعدى 55 حرف",
     "Please log in": "الرجاء تسجيل الدخول",
-    "Invidious Private Feed for `x`": "صفحة Invidious للمشتركين الخاصة\\مخفية لـ `x`",
+    "Invidious Private Feed for `x`": "تغذية Invidious خاصة ل 'x'",
     "channel:`x`": "قناة:`x`",
     "Deleted or invalid channel": "قناة ممسوحة او غير صالحة",
     "This channel does not exist.": "القناة غير موجودة.",
