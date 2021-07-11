@@ -786,7 +786,7 @@ struct Video
   end
 end
 
-class Caption
+struct Caption
   property name
   property languageCode
   property baseUrl
