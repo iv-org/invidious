@@ -27,7 +27,7 @@ require "compress/zip"
 require "protodec/utils"
 require "./invidious/helpers/*"
 require "./invidious/*"
-require "./invidious/channels/**"
+require "./invidious/channels/*"
 require "./invidious/routes/**"
 require "./invidious/jobs/**"
 
