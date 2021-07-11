@@ -107,15 +107,6 @@ struct ChannelVideo
   end
 end
 
-struct AboutRelatedChannel
-  include DB::Serializable
-
-  property ucid : String
-  property author : String
-  property author_url : String
-  property author_thumbnail : String
-end
-
 class ChannelRedirect < Exception
   property channel_id : String
 

@@ -21,6 +21,15 @@ struct AboutChannel
   property links : Array(Tuple(String, String, String))
 end
 
+struct AboutRelatedChannel
+  include DB::Serializable
+
+  property ucid : String
+  property author : String
+  property author_url : String
+  property author_thumbnail : String
+end
+
 def get_about_info(ucid, locale)
   result = YT_POOL.client &.get("/channel/#{ucid}/about?gl=US&hl=en")
   if result.status_code != 200
