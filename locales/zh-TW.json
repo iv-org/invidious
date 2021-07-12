@@ -187,7 +187,7 @@
     "View more comments on Reddit": "在 Reddit 上檢視更多留言",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則留言",
-        "": "檢視 `x` 則留言。"
+        "": "檢視 `x` 則留言"
     },
     "View Reddit comments": "檢視 Reddit 留言",
     "Hide replies": "隱藏回覆",
@@ -421,7 +421,7 @@
     "hdr": "HDR",
     "filter": "篩選條件",
     "Current version: ": "目前版本： ",
-    "next_steps_error_message": "next_steps_error_message",
-    "next_steps_error_message_refresh": "next_steps_error_message_refresh",
-    "next_steps_error_message_go_to_youtube": "next_steps_error_message_go_to_youtube"
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }
