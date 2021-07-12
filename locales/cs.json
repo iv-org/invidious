@@ -9,7 +9,7 @@
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playlist",
-        "": "`x` playlisty."
+        "": "`x` playlisty"
     },
     "LIVE": "ŽIVĚ",
     "Shared `x` ago": "Sdíleno před `x`",
