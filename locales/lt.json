@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` prenumeratoriai.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` prenumeratoriai."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` prenumeratoriai",
+        "": "`x` prenumeratoriai"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vaizdo įrašai.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` vaizdo įrašai."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vaizdo įrašai",
+        "": "`x` vaizdo įrašai"
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` grojaraščiai.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` grojaraščiai."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` grojaraščiai",
+        "": "`x` grojaraščiai"
     },
     "LIVE": "LIVE",
     "Shared `x` ago": "Pasidalino `x` prieš",
@@ -128,20 +128,20 @@
     "Token manager": "Žetonų valdytojas",
     "Token": "Žetonas",
     "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` prenumeratos.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` prenumeratos."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` prenumeratos",
+        "": "`x` prenumeratos"
     },
     "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` žetonai.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` žetonai."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` žetonai",
+        "": "`x` žetonai"
     },
     "Import/export": "Importuoti/eksportuoti",
     "unsubscribe": "atšaukti prenumeratą",
     "revoke": "atšaukti",
     "Subscriptions": "Prenumeratos",
     "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` nematyti pranešimai.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` nematyti pranešimai."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` nematyti pranešimai",
+        "": "`x` nematyti pranešimai"
     },
     "search": "paieška",
     "Log out": "Atsijungti",
@@ -177,8 +177,8 @@
     "Blacklisted regions: ": "Blokuojami regionai: ",
     "Shared `x`": "Pasidalino `x`",
     "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` peržiūrų.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` peržiūrų."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` peržiūrų",
+        "": "`x` peržiūrų"
     },
     "Premieres in `x`": "Premjera už `x`",
     "Premieres `x`": "Premjera`x`",
@@ -186,8 +186,8 @@
     "View YouTube comments": "Žiūrėti YouTube komentarus",
     "View more comments on Reddit": "Žiūrėti daugiau komentarų Reddit",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Žiūrėti `x` komentarus.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "Žiūrėti `x` komentarus."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Žiūrėti `x` komentarus",
+        "": "Žiūrėti `x` komentarus"
     },
     "View Reddit comments": "Žiūrėti Reddit komentarus",
     "Hide replies": "Slėpti atsakymus",
@@ -214,14 +214,14 @@
     "Could not get channel info.": "Nepavyko gauti kanalo informacijos.",
     "Could not fetch comments": "Nepavyko atsiųsti komentarų",
     "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Žiūrėti `x` atsakymus.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "Žiūrėti `x` atsakymus."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Žiūrėti `x` atsakymus",
+        "": "Žiūrėti `x` atsakymus"
     },
     "`x` ago": "`x` prieš",
     "Load more": "Pakrauti daugiau",
     "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` taškai.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` taškai."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` taškai",
+        "": "`x` taškai"
     },
     "Could not create mix.": "Nepavyko sukurti derinio.",
     "Empty playlist": "Tuščias grojaraštis",
@@ -341,32 +341,32 @@
     "Yoruba": "Yorubiečių",
     "Zulu": "Zulu",
     "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` metai.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` metų."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` metai",
+        "": "`x` metų"
     },
     "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mėnesiai.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` mėnesiai."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mėnesiai",
+        "": "`x` mėnesiai"
     },
     "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` savaitės.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` savaitės."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` savaitės",
+        "": "`x` savaitės"
     },
     "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dienos.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` dienos."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dienos",
+        "": "`x` dienos"
     },
     "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`valandos.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` valandos."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`valandos",
+        "": "`x` valandos"
     },
     "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutės.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` minutės."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutės",
+        "": "`x` minutės"
     },
     "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekundės.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` sekundės."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekundės",
+        "": "`x` sekundės"
     },
     "Fallback comments: ": "Atsarginiai komentarai: ",
     "Popular": "Populiaru",
@@ -421,7 +421,7 @@
     "hdr": "hdr",
     "filter": "filtras",
     "Current version: ": "Dabartinė versija: ",
-    "next_steps_error_message": "next_steps_error_message",
-    "next_steps_error_message_refresh": "next_steps_error_message_refresh",
-    "next_steps_error_message_go_to_youtube": "next_steps_error_message_go_to_youtube"
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }
