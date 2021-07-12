@@ -81,11 +81,11 @@
 
 ***Using invidious:***
 
-- [Select an instance from the list](https://instances.invidious.io) and start watching videos right now!
+- [Select a public instance from the list](https://instances.invidious.io) and start watching videos right now!
 
 ***Hosting invidious:***
 
-- Just [Follow the installation instructions](https://docs.invidious.io/Installation.md)!
+- [Follow the installation instructions](https://docs.invidious.io/Installation.md)
 
 
 ## Documentation
@@ -97,10 +97,11 @@ https://github.com/iv-org/documentation
 
 ### Extensions
 
-We highly recommend the use of [Privacy Redirect](https://github.com/SimonBrazell/privacy-redirect), a
-browser extension that automatically redirects Youtube URLs to any Invidious instance.
+We highly recommend the use of [Privacy Redirect](https://github.com/SimonBrazell/privacy-redirect#get),
+a browser extension that automatically redirects Youtube URLs to any Invidious instance and replaces
+embedded youtube videos on other websites with invidious.
 
-The documentation contains a list of browser extensions that are recommended to use in addtition to Invidious.
+The documentation contains a list of browser extensions that we recommended to use along with Invidious.
 
 You can read more here: https://docs.invidious.io/Extensions.md
 
@@ -120,7 +121,7 @@ You can read more here: https://docs.invidious.io/Extensions.md
 
 We use [Weblate](https://weblate.org) to manage Invidious translations.
 
-You can propose new translations and/or correction here: https://hosted.weblate.org/engage/invidious/.
+You can suggest new translations and/or correction here: https://hosted.weblate.org/engage/invidious/.
 
 Creating an account is not required, but recommended, especially if you want to contribute regularly.
 Weblate also allows you to log-in with major SSO providers like Github, Gitlab, BitBucket, Google, ...
