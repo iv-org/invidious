@@ -1,7 +1,16 @@
 {
-    "`x` subscribers.": "`x` пратилац",
-    "`x` videos.": "`x` видеа",
-    "`x` playlists.": "`x` плејлиста/е",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": "`x` пратилац"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": "`x` видеа"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": "`x` плејлиста/е"
+    },
     "LIVE": "УЖИВО",
     "Shared `x` ago": "Објављено пре `x`",
     "Unsubscribe": "Прекините праћење",
@@ -78,7 +87,7 @@
     "light": "светла",
     "Thin mode: ": "Узани режим: ",
     "Miscellaneous preferences": "",
-    "Automatically redirect to another Instance: ": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Подешавања о праћењима",
     "Show annotations by default for subscribed channels: ": "Увек приказуј анотације за канале које пратим: ",
     "Redirect homepage to feed: ": "Прикажи праћења као почетну страницу: ",
@@ -108,6 +117,7 @@
     "Administrator preferences": "Подешавања администратора",
     "Default homepage: ": "Подразумевана главна страница: ",
     "Feed menu: ": "Мени довода: ",
+    "Show nickname on top: ": "",
     "Top enabled: ": "",
     "CAPTCHA enabled: ": "CAPTCHA укључена?: ",
     "Login enabled: ": "Пријава укључена?: ",
@@ -117,13 +127,22 @@
     "Subscription manager": "Управљање праћењима",
     "Token manager": "Управљање токенима",
     "Token": "Токен",
-    "`x` subscriptions.": "`x`праћења",
-    "`x` tokens.": "`x`токена",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": "`x`праћења"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": "`x`токена"
+    },
     "Import/export": "Увези/извези",
     "unsubscribe": "укини праћење",
     "revoke": "опозови",
     "Subscriptions": "Праћења",
-    "`x` unseen notifications.": "`x` непрочитаних обавештења",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": "`x` непрочитаних обавештења"
+    },
     "search": "претрага",
     "Log out": "Одјавите се",
     "Released under the AGPLv3 by Omar Roth.": "Издао Омар Рот (Omar Roth) под условима AGPLv3 лиценце.",
@@ -157,13 +176,19 @@
     "Whitelisted regions: ": "Дозвољене области: ",
     "Blacklisted regions: ": "Забрањене области: ",
     "Shared `x`": "",
-    "`x` views.": "`x` прегледа.",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": "`x` прегледа."
+    },
     "Premieres in `x`": "Емитује се уживо за `x`",
     "Premieres `x`": "",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Здраво! Изгледа да је искључен JavaScript. Кликните овде да бисте приказали коментаре. Требаће мало дуже да се учитају.",
     "View YouTube comments": "Прикажи коментаре са YouTube-а",
     "View more comments on Reddit": "Прикажи још коментара на Reddit-у",
-    "View `x` comments.": "",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "View Reddit comments": "Прикажи коментаре са Reddit-а",
     "Hide replies": "Сакриј одговоре",
     "Show replies": "Прикажи одговоре",
@@ -188,10 +213,16 @@
     "This channel does not exist.": "",
     "Could not get channel info.": "",
     "Could not fetch comments": "",
-    "View `x` replies.": "",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "`x` ago": "",
     "Load more": "",
-    "`x` points.": "",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "Could not create mix.": "",
     "Empty playlist": "",
     "Not a playlist.": "",
@@ -309,13 +340,34 @@
     "Yiddish": "",
     "Yoruba": "",
     "Zulu": "",
-    "`x` years.": "",
-    "`x` months.": "",
-    "`x` weeks.": "",
-    "`x` days.": "",
-    "`x` hours.": "",
-    "`x` minutes.": "",
-    "`x` seconds.": "",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "Fallback comments: ": "",
     "Popular": "",
     "Search": "",
@@ -341,6 +393,33 @@
     "Videos": "",
     "Playlists": "",
     "Community": "",
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
     "Current version: ": "Тренутна верзија: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
