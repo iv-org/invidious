@@ -117,7 +117,7 @@
     "Administrator preferences": "Preferensi administrator",
     "Default homepage: ": "Laman beranda default: ",
     "Feed menu: ": "Menu umpan: ",
-    "Show nickname on top: ": "",
+    "Show nickname on top: ": "Tampilkan nama panggilan di atas: ",
     "Top enabled: ": "Teratas diaktifkan: ",
     "CAPTCHA enabled: ": "CAPTCHA diaktifkan: ",
     "Login enabled: ": "Masuk diaktifkan: ",
@@ -422,6 +422,6 @@
     "filter": "saring",
     "Current version: ": "Versi saat ini: ",
     "next_steps_error_message": "next_steps_error_message",
-    "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_refresh": "next_steps_error_message_refresh",
+    "next_steps_error_message_go_to_youtube": "next_steps_error_message_go_to_youtube"
 }

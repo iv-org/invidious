@@ -1,7 +1,7 @@
 {
     "`x` subscribers": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abone",
-        "": "`x` abone"
+        "": "`x` abone."
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
@@ -9,7 +9,7 @@
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` oynatma listesi",
-        "": "`x` oynatma listesi"
+        "": "`x` oynatma listesi."
     },
     "LIVE": "CANLI",
     "Shared `x` ago": "`x` önce paylaşıldı",
@@ -86,8 +86,8 @@
     "dark": "karanlık",
     "light": "aydınlık",
     "Thin mode: ": "İnce mod: ",
-    "Miscellaneous preferences": "",
-    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
+    "Miscellaneous preferences": "Çeşitli tercihler",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "Otomatik örnek yeniden yönlendirmesi (yedek: redirect.invidious.io): ",
     "Subscription preferences": "Abonelik tercihleri",
     "Show annotations by default for subscribed channels: ": "Abone olunan kanallar için ek açıklamaları öntanımlı olarak göster: ",
     "Redirect homepage to feed: ": "Ana sayfayı akışa yönlendir: ",
@@ -117,7 +117,7 @@
     "Administrator preferences": "Yönetici tercihleri",
     "Default homepage: ": "Öntanımlı ana sayfa: ",
     "Feed menu: ": "Akış menüsü: ",
-    "Show nickname on top: ": "",
+    "Show nickname on top: ": "Takma adı üstte göster: ",
     "Top enabled: ": "Top etkin: ",
     "CAPTCHA enabled: ": "CAPTCHA etkin: ",
     "Login enabled: ": "Oturum açma etkin: ",
@@ -129,11 +129,11 @@
     "Token": "Belirteç",
     "`x` subscriptions": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonelik",
-        "": "`x` abonelik"
+        "": "`x` abonelik."
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` belirteç",
-        "": "`x` belirteç"
+        "": "`x` belirteç."
     },
     "Import/export": "İçe/dışa aktar",
     "unsubscribe": "abonelikten çık",
@@ -141,7 +141,7 @@
     "Subscriptions": "Abonelikler",
     "`x` unseen notifications": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` okunmamış bildirim",
-        "": "`x` okunmamış bildirim"
+        "": "`x` okunmamış bildirim."
     },
     "search": "ara",
     "Log out": "Çıkış yap",
@@ -164,8 +164,8 @@
     "Show more": "Daha fazla göster",
     "Show less": "Daha az göster",
     "Watch on YouTube": "YouTube'da izle",
-    "Switch Invidious Instance": "",
-    "Broken? Try another Invidious Instance": "",
+    "Switch Invidious Instance": "Invidious Örneğini Değiştir",
+    "Broken? Try another Invidious Instance": "Bozuk mu? Başka bir Invidious örneğini deneyin",
     "Hide annotations": "Ek açıklamaları gizle",
     "Show annotations": "Ek açıklamaları göster",
     "Genre: ": "Tür: ",
@@ -186,7 +186,7 @@
     "View YouTube comments": "YouTube yorumlarını görüntüle",
     "View more comments on Reddit": "Reddit'te daha fazla yorum görüntüle",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yorumu görüntüle.([^.,0-9]|^)1([^.,0-9]|$)",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yorumu görüntüle",
         "": "`x` yorumu görüntüle."
     },
     "View Reddit comments": "Reddit yorumlarını görüntüle",
@@ -393,35 +393,35 @@
     "Videos": "Videolar",
     "Playlists": "Oynatma listeleri",
     "Community": "Topluluk",
-    "relevance": "ilgi",
-    "rating": "değerlendirme",
-    "date": "tarih",
-    "views": "görüntüleme",
-    "content_type": "içerik_türü",
-    "duration": "süre",
-    "features": "özellikler",
-    "sort": "sırala",
-    "hour": "saat",
-    "today": "bugün",
-    "week": "hafta",
-    "month": "ay",
-    "year": "yıl",
-    "video": "video",
-    "channel": "kanal",
-    "playlist": "oynatma listesi",
-    "movie": "film",
-    "show": "gösteri",
+    "relevance": "İlgi",
+    "rating": "Değerlendirme",
+    "date": "Yükleme tarihi",
+    "views": "Görüntüleme sayısı",
+    "content_type": "Tür",
+    "duration": "Süre",
+    "features": "Özellikler",
+    "sort": "Sıralama Ölçütü",
+    "hour": "Son Saat",
+    "today": "Bugün",
+    "week": "Bu hafta",
+    "month": "Bu ay",
+    "year": "Bu yıl",
+    "video": "Video",
+    "channel": "Kanal",
+    "playlist": "Oynatma listesi",
+    "movie": "Film",
+    "show": "Gösteri",
     "hd": "HD",
-    "subtitles": "alt yazılar",
+    "subtitles": "Alt yazılar",
     "creative_commons": "Creative Commons",
     "3d": "3B",
-    "live": "canlı",
+    "live": "Canlı",
     "4k": "4K",
-    "location": "konum",
+    "location": "Konum",
     "hdr": "HDR",
-    "filter": "filtrele",
+    "filter": "Filtrele",
     "Current version: ": "Şu anki sürüm: ",
-    "next_steps_error_message": "",
-    "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message": "Bundan sonra şunları denemelisiniz: ",
+    "next_steps_error_message_refresh": "Yenile",
+    "next_steps_error_message_go_to_youtube": "Youtube'a git"
 }
