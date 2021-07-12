@@ -5,11 +5,11 @@
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videoer",
-        "": "`x` videoer."
+        "": "`x` videoer"
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` spillelister",
-        "": "`x` spillelister."
+        "": "`x` spillelister"
     },
     "LIVE": "SANNTIDSVISNING",
     "Shared `x` ago": "Delt for `x` siden",
@@ -133,7 +133,7 @@
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` symboler",
-        "": "`x` symboler."
+        "": "`x` symboler"
     },
     "Import/export": "Importer/eksporter",
     "unsubscribe": "opphev abonnement",
@@ -178,7 +178,7 @@
     "Shared `x`": "Delt `x`",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visninger",
-        "": "`x` visninger."
+        "": "`x` visninger"
     },
     "Premieres in `x`": "Premiere om `x`",
     "Premieres `x`": "Première `x`",
@@ -187,7 +187,7 @@
     "View more comments on Reddit": "Vis flere kommenterer på Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` kommentarer",
-        "": "Vis `x` kommentarer."
+        "": "Vis `x` kommentarer"
     },
     "View Reddit comments": "Vis Reddit-kommentarer",
     "Hide replies": "Skjul svar",
@@ -215,13 +215,13 @@
     "Could not fetch comments": "Kunne ikke hente kommentarer",
     "View `x` replies": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` svar",
-        "": "Vis `x` svar."
+        "": "Vis `x` svar"
     },
     "`x` ago": "`x` siden",
     "Load more": "Last inn flere",
     "`x` points": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` poeng",
-        "": "`x` poeng."
+        "": "`x` poeng"
     },
     "Could not create mix.": "Kunne ikke opprette miks.",
     "Empty playlist": "Spillelisten er tom",
@@ -342,31 +342,31 @@
     "Zulu": "Zulu",
     "`x` years": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` år",
-        "": "`x` år."
+        "": "`x` år"
     },
     "`x` months": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` måneder",
-        "": "`x` måneder."
+        "": "`x` måneder"
     },
     "`x` weeks": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` uker",
-        "": "`x` uker."
+        "": "`x` uker"
     },
     "`x` days": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dager",
-        "": "`x` dager."
+        "": "`x` dager"
     },
     "`x` hours": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` timer",
-        "": "`x` timer."
+        "": "`x` timer"
     },
     "`x` minutes": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutter",
-        "": "`x` minutter."
+        "": "`x` minutter"
     },
     "`x` seconds": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekunder",
-        "": "`x` sekunder."
+        "": "`x` sekunder"
     },
     "Fallback comments: ": "Tilbakefallskommentarer: ",
     "Popular": "Populært",
@@ -421,7 +421,7 @@
     "hdr": "HDR",
     "filter": "filtrer",
     "Current version: ": "Gjeldende versjon: ",
-    "next_steps_error_message": "next_steps_error_message",
-    "next_steps_error_message_refresh": "next_steps_error_message_refresh",
-    "next_steps_error_message_go_to_youtube": "next_steps_error_message_go_to_youtube"
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }
