@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pelanggan",
-        "": "`x` pelanggan."
+        "": "`x` pelanggan"
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` video."
+        "": "`x` video"
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` daftar putar",
-        "": "`x` daftar putar."
+        "": "`x` daftar putar"
     },
     "LIVE": "SIARAN LANGSUNG",
     "Shared `x` ago": "Dibagikan`x` lalu",
@@ -129,11 +129,11 @@
     "Token": "Token",
     "`x` subscriptions": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` langganan",
-        "": "`x` langganan."
+        "": "`x` langganan"
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` token."
+        "": "`x` token"
     },
     "Import/export": "Impor/ekspor",
     "unsubscribe": "batal langganan",
@@ -141,7 +141,7 @@
     "Subscriptions": "Langganan",
     "`x` unseen notifications": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pemberitahuan belum dilihat",
-        "": "`x` pemberitahuan belum dilihat."
+        "": "`x` pemberitahuan belum dilihat"
     },
     "search": "cari",
     "Log out": "Keluar",
@@ -178,7 +178,7 @@
     "Shared `x`": "Berbagi`x`",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tampilan.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` tampilan."
+        "": "`x` tampilan"
     },
     "Premieres in `x`": "Tayang dalam `x`",
     "Premieres `x`": "Tayang `x`",
@@ -187,7 +187,7 @@
     "View more comments on Reddit": "Lihat lebih banyak komentar di Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Lihat`x` komentar.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "Lihat`x` komentar."
+        "": "Lihat`x` komentar"
     },
     "View Reddit comments": "Lihat komentar Reddit",
     "Hide replies": "Sembunyikan balasan",
@@ -214,14 +214,14 @@
     "Could not get channel info.": "Tidak bisa mendapatkan info kanal.",
     "Could not fetch comments": "Tidak dapat memuat komentar",
     "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Lihat`x` balasan.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "Lihat `x` balasan."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Lihat`x` balasan",
+        "": "Lihat `x` balasan"
     },
     "`x` ago": "`x` lalu",
     "Load more": "Muat lebih banyak",
     "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` titik.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` titik."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` titik",
+        "": "`x` titik"
     },
     "Could not create mix.": "Tidak dapat membuat mix.",
     "Empty playlist": "Daftar putar kosong",
@@ -341,32 +341,32 @@
     "Yoruba": "Bahasa Yoruba",
     "Zulu": "Bahasa Zulu",
     "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tahun.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` tahun."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tahun",
+        "": "`x` tahun"
     },
     "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bulan.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` bulan."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bulan",
+        "": "`x` bulan"
     },
     "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pekan.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` pekan."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pekan",
+        "": "`x` pekan"
     },
     "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hari.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` hari."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hari",
+        "": "`x` hari"
     },
     "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jam.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` jam."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jam",
+        "": "`x` jam"
     },
     "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` menit.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` menit."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` menit",
+        "": "`x` menit"
     },
     "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` detik.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` detik."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` detik",
+        "": "`x` detik"
     },
     "Fallback comments: ": "Komentar mundur: ",
     "Popular": "Populer",
@@ -421,7 +421,7 @@
     "hdr": "hdr",
     "filter": "saring",
     "Current version: ": "Versi saat ini: ",
-    "next_steps_error_message": "next_steps_error_message",
-    "next_steps_error_message_refresh": "next_steps_error_message_refresh",
-    "next_steps_error_message_go_to_youtube": "next_steps_error_message_go_to_youtube"
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }
