@@ -10,7 +10,6 @@ struct AboutChannel
   property banner : String?
   property description_html : String
   property paid : Bool
-  property country : String
   property total_views : Int64
   property sub_count : Int32
   property joined : Time
@@ -18,7 +17,6 @@ struct AboutChannel
   property allowed_regions : Array(String)
   property related_channels : Array(AboutRelatedChannel)
   property tabs : Array(String)
-  property links : Array(Tuple(String, String, String))
 end
 
 struct AboutRelatedChannel
@@ -138,10 +136,8 @@ def get_about_info(ucid, locale)
     related_channels ||= [] of AboutRelatedChannel
   end
 
-  country = ""
   total_views = 0_i64
   joined = Time.unix(0)
-  links = [] of {String, String, String}
 
   tabs = [] of String
 
@@ -185,7 +181,6 @@ def get_about_info(ucid, locale)
     banner:             banner,
     description_html:   description_html,
     paid:               paid,
-    country:            country,
     total_views:        total_views,
     sub_count:          sub_count,
     joined:             joined,
@@ -193,6 +188,5 @@ def get_about_info(ucid, locale)
     allowed_regions:    allowed_regions,
     related_channels:   related_channels,
     tabs:               tabs,
-    links:              links,
   })
 end
