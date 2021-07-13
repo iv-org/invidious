@@ -177,7 +177,7 @@
     "Blacklisted regions: ": "Kara listeye alınan bölgeler: ",
     "Shared `x`": "`x` paylaşıldı",
     "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` görüntüleme.([^.,0-9]|^)1([^.,0-9]|$)",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` görüntüleme",
         "": "`x` görüntüleme"
     },
     "Premieres in `x`": "`x`içinde ilk gösterim",
