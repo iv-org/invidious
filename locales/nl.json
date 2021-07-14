@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnees",
-        "": "`x` abonnees."
+        "": "`x` abonnees"
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video's",
-        "": "`x` video's."
+        "": "`x` video's"
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` afspeellijsten",
-        "": "`x` afspeellijsten."
+        "": "`x` afspeellijsten"
     },
     "LIVE": "LIVE",
     "Shared `x` ago": "Gedeeld: `x` geleden",
@@ -129,11 +129,11 @@
     "Token": "Toegangssleutel",
     "`x` subscriptions": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnementen",
-        "": "`x` abonnementen."
+        "": "`x` abonnementen"
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` toegangssleutels",
-        "": "`x` toegangssleutels."
+        "": "`x` toegangssleutels"
     },
     "Import/export": "Importeren/Exporteren",
     "unsubscribe": "Deabonneren",
@@ -178,7 +178,7 @@
     "Shared `x`": "`x` gedeeld",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` weergaven",
-        "": "`x` weergaven."
+        "": "`x` weergaven"
     },
     "Premieres in `x`": "Verschijnt over `x`",
     "Premieres `x`": "Verschijnt op `x`",
@@ -187,7 +187,7 @@
     "View more comments on Reddit": "Meer reacties bekijken op Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` reacties tonen",
-        "": "`x` reacties tonen."
+        "": "`x` reacties tonen"
     },
     "View Reddit comments": "Reddit-reacties tonen",
     "Hide replies": "Antwoorden verbergen",
@@ -215,13 +215,13 @@
     "Could not fetch comments": "Kan reacties niet ophalen",
     "View `x` replies": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` antwoorden tonen",
-        "": "`x` antwoorden tonen."
+        "": "`x` antwoorden tonen"
     },
     "`x` ago": "`x` geleden",
     "Load more": "Meer laden",
     "`x` points": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` punten",
-        "": "`x` punten."
+        "": "`x` punten"
     },
     "Could not create mix.": "Kan geen mix maken.",
     "Empty playlist": "Lege afspeellijst",
@@ -342,31 +342,31 @@
     "Zulu": "Zulu",
     "`x` years": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jaar",
-        "": "`x` jaren."
+        "": "`x` jaren"
     },
     "`x` months": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` maanden",
-        "": "`x` maanden."
+        "": "`x` maanden"
     },
     "`x` weeks": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` weken",
-        "": "`x` weken."
+        "": "`x` weken"
     },
     "`x` days": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dagen",
-        "": "`x` dagen."
+        "": "`x` dagen"
     },
     "`x` hours": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` uur",
-        "": "`x` uren."
+        "": "`x` uren"
     },
     "`x` minutes": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuten",
-        "": "`x` minuten."
+        "": "`x` minuten"
     },
     "`x` seconds": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` seconden",
-        "": "`x` seconden."
+        "": "`x` seconden"
     },
     "Fallback comments: ": "Terugvallen op ",
     "Popular": "Populair",

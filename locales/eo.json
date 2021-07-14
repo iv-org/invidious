@@ -178,7 +178,7 @@
     "Shared `x`": "Konigita `x`",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` spektaĵoj",
-        "": "`x` spektaĵoj."
+        "": "`x` spektaĵoj"
     },
     "Premieres in `x`": "Premieras en `x`",
     "Premieres `x`": "Premieras `x`",
@@ -187,7 +187,7 @@
     "View more comments on Reddit": "Vidi pli komentoj en Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Vidi `x` komentojn",
-        "": "Vidi `x` komentojn."
+        "": "Vidi `x` komentojn"
     },
     "View Reddit comments": "Vidi komentojn de Reddit",
     "Hide replies": "Kaŝi respondojn",
@@ -215,13 +215,13 @@
     "Could not fetch comments": "Ne povis venigi komentojn",
     "View `x` replies": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Vidi `x` respondojn",
-        "": "Vidi `x` respondojn."
+        "": "Vidi `x` respondojn"
     },
     "`x` ago": "antaŭ `x`",
     "Load more": "Ŝarĝi pli",
     "`x` points": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` poentoj",
-        "": "`x` poentoj."
+        "": "`x` poentoj"
     },
     "Could not create mix.": "Ne povis krei mikson.",
     "Empty playlist": "Ludlisto estas malplena",
@@ -342,31 +342,31 @@
     "Zulu": "Zulua",
     "`x` years": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jaroj",
-        "": "`x` jaroj."
+        "": "`x` jaroj"
     },
     "`x` months": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` monatoj",
-        "": "`x` monatoj."
+        "": "`x` monatoj"
     },
     "`x` weeks": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` semajnoj",
-        "": "`x` semajnoj."
+        "": "`x` semajnoj"
     },
     "`x` days": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tagoj",
-        "": "`x` tagoj."
+        "": "`x` tagoj"
     },
     "`x` hours": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` horoj",
-        "": "`x` horoj."
+        "": "`x` horoj"
     },
     "`x` minutes": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutoj",
-        "": "`x` minutoj."
+        "": "`x` minutoj"
     },
     "`x` seconds": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekundoj",
-        "": "`x` sekundoj."
+        "": "`x` sekundoj"
     },
     "Fallback comments: ": "Retrodefaŭltaj komentoj: ",
     "Popular": "Popularaj",
@@ -421,7 +421,7 @@
     "hdr": "granddinamikgama",
     "filter": "filtri",
     "Current version: ": "Nuna versio: ",
-    "next_steps_error_message": "next_steps_error_message",
-    "next_steps_error_message_refresh": "next_steps_error_message_refresh",
-    "next_steps_error_message_go_to_youtube": "next_steps_error_message_go_to_youtube"
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

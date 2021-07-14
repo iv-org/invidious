@@ -187,7 +187,7 @@
     "View more comments on Reddit": "Se flere kommentarer på Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` kommentarer.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "Vis `x` kommentarer."
+        "": "Vis `x` kommentarer"
     },
     "View Reddit comments": "Vis Reddit kommentarer",
     "Hide replies": "Skjul svar",
@@ -214,14 +214,14 @@
     "Could not get channel info.": "Kunne ikke hente kanal info.",
     "Could not fetch comments": "Kunne ikke hente kommentarer",
     "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` besvarelser.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "Vis 'x' besvarelser."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` besvarelser",
+        "": "Vis 'x' besvarelser"
     },
     "`x` ago": "'x' siden",
     "Load more": "Hent flere",
     "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` point.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "'x' point."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` point",
+        "": "'x' point"
     },
     "Could not create mix.": "Kunne ikke skabe blanding.",
     "Empty playlist": "Tom playliste",

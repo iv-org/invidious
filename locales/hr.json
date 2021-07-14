@@ -178,7 +178,7 @@
     "Shared `x`": "Dijeljeno `x`",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gledanja.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` gledanja."
+        "": "`x` gledanja"
     },
     "Premieres in `x`": "Premijera za `x`",
     "Premieres `x`": "Premijera `x`",
@@ -187,7 +187,7 @@
     "View more comments on Reddit": "Prikaži još komentara na Redditu",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Prikaži `x` komentara.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "Prikaži `x` komentara."
+        "": "Prikaži `x` komentara"
     },
     "View Reddit comments": "Prikaži Reddit komentare",
     "Hide replies": "Sakrij odgovore",
@@ -214,14 +214,14 @@
     "Could not get channel info.": "Neuspjelo dobivanje podataka kanala.",
     "Could not fetch comments": "Neuspjelo dohvaćanje komentara",
     "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Prikaži `x` odgovora.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "Prikaži `x` odgovora."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Prikaži `x` odgovora",
+        "": "Prikaži `x` odgovora"
     },
     "`x` ago": "prije `x`",
     "Load more": "Učitaj više",
     "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bodova.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` bodova."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bodova",
+        "": "`x` bodova"
     },
     "Could not create mix.": "Neuspjelo stvaranje miksa.",
     "Empty playlist": "Prazna playlista",
@@ -341,32 +341,32 @@
     "Yoruba": "Jorubški",
     "Zulu": "Zulu",
     "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` g.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` g."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` g",
+        "": "`x` g"
     },
     "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mj.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` mj."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mj",
+        "": "`x` mj"
     },
     "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tj.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` tj."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tj",
+        "": "`x` tj"
     },
     "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dana.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` dana."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dana",
+        "": "`x` dana"
     },
     "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` h.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` h."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` h",
+        "": "`x` h"
     },
     "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` min.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` min."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` min",
+        "": "`x` min"
     },
     "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` s.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` s."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` s",
+        "": "`x` s"
     },
     "Fallback comments: ": "Alternativni komentari: ",
     "Popular": "Popularni",

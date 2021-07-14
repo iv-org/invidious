@@ -1,11 +1,11 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscribers.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` subscribers."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscribers",
+        "": "`x` subscribers"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video. ([^., 0-9] | ^) 1 ([^., 0-9] | $)",
-        "": "\t"
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
+        "": ""
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "",
@@ -421,7 +421,7 @@
     "hdr": "hdr",
     "filter": "bộ lọc",
     "Current version: ": "Phiên bản hiện tại: ",
-    "next_steps_error_message": "next_steps_error_message",
-    "next_steps_error_message_refresh": "next_steps_error_message_refresh",
-    "next_steps_error_message_go_to_youtube": "next_steps_error_message_go_to_youtube"
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }
