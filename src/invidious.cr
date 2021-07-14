@@ -1962,9 +1962,9 @@ get "/api/v1/captions/:id" do |env|
           json.array do
             captions.each do |caption|
               json.object do
-                json.field "label", caption.name.simpleText
+                json.field "label", caption.name
                 json.field "languageCode", caption.languageCode
-                json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name.simpleText)}"
+                json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name)}"
               end
             end
           end
@@ -1980,7 +1980,7 @@ get "/api/v1/captions/:id" do |env|
   if lang
     caption = captions.select { |caption| caption.languageCode == lang }
   else
-    caption = captions.select { |caption| caption.name.simpleText == label }
+    caption = captions.select { |caption| caption.name == label }
   end
 
   if caption.empty?
@@ -1994,7 +1994,7 @@ get "/api/v1/captions/:id" do |env|
 
   # Auto-generated captions often have cues that aren't aligned properly with the video,
   # as well as some other markup that makes it cumbersome, so we try to fix that here
-  if caption.name.simpleText.includes? "auto-generated"
+  if caption.name.includes? "auto-generated"
     caption_xml = YT_POOL.client &.get(url).body
     caption_xml = XML.parse(caption_xml)
 
