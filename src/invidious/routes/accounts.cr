@@ -27,7 +27,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
 
     user = env.get? "user"
     sid = env.get? "sid"
-    referer = get_referer(env)
+    referer = get_referer(env, unroll: false)
 
     if !user
       return env.redirect referer
