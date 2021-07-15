@@ -8,7 +8,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
 
     user = env.get? "user"
     sid = env.get? "sid"
-    referer = get_referer(env)
+    referer = get_referer(env, unroll: false)
 
     user = user.as(User)
     sid = sid.as(String)
@@ -92,6 +92,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     end
 
     PG_DB.exec("UPDATE users SET totp_secret = $1 WHERE email = $2", db_secret.to_s, user.email)
+    env.redirect referer
   end
 
   # Validate 2fa code endpoint
