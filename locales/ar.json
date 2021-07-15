@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` المشتركين",
-        "": "`x` المشتركين."
+        "": "`x` المشتركين"
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` المقاطع المرئيَّة",
-        "": "`x` المقاطع المرئيَّة."
+        "": "`x` المقاطع المرئيَّة"
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` قوائم التشغيل",
-        "": "`x` قوائم التشغيل."
+        "": "`x` قوائم التشغيل"
     },
     "LIVE": "مُباشِر",
     "Shared `x` ago": "تمَّ رفع المقطع المرئيّ مُنذ `x`",
@@ -86,8 +86,8 @@
     "dark": "غامق (اسود)",
     "light": "فاتح (ابيض)",
     "Thin mode: ": "الوضع الخفيف: ",
-    "Miscellaneous preferences": "",
-    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
+    "Miscellaneous preferences": "تفضيلات متنوعة",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "إعادة توجيه المثيل التلقائي (إعادة التوجيه إلى redirect.invidious.io): ",
     "Subscription preferences": "تفضيلات الإشتراك",
     "Show annotations by default for subscribed channels: ": "عرض الملاحظات في الفيديوهات تلقائيا في القنوات المشترك بها فقط: ",
     "Redirect homepage to feed: ": "إعادة التوجية من الصفحة الرئيسية لصفحة المشتركين (لرؤية اخر فيديوهات المشتركين): ",
@@ -117,7 +117,7 @@
     "Administrator preferences": "إعدادات المدير",
     "Default homepage: ": "الصفحة الرئيسية الافتراضية ",
     "Feed menu: ": "قائمة التدفقات: ",
-    "Show nickname on top: ": "",
+    "Show nickname on top: ": "إظهار اللقب في الأعلى: ",
     "Top enabled: ": "تفعيل 'الأفضل' ؟ ",
     "CAPTCHA enabled: ": "تفعيل الكابتشا: ",
     "Login enabled: ": "تفعيل الولوج: ",
@@ -129,11 +129,11 @@
     "Token": "الرمز",
     "`x` subscriptions": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` مشتركين",
-        "": "`x` مشتركين."
+        "": "`x` مشتركين"
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` رموز",
-        "": "`x` رموز."
+        "": "`x` رموز"
     },
     "Import/export": "إضافة\\إستخراج",
     "unsubscribe": "إلغاء الإشتراك",
@@ -164,8 +164,8 @@
     "Show more": "أظهر المزيد",
     "Show less": "عرض اقل",
     "Watch on YouTube": "مشاهدة الفيديو على اليوتيوب",
-    "Switch Invidious Instance": "",
-    "Broken? Try another Invidious Instance": "",
+    "Switch Invidious Instance": "تبديل المثيل Invidious",
+    "Broken? Try another Invidious Instance": "معطل؟ جرب مثيل Invidious آخر",
     "Hide annotations": "إخفاء الملاحظات فى الفيديو",
     "Show annotations": "عرض الملاحظات فى الفيديو",
     "Genre: ": "النوع: ",
@@ -178,7 +178,7 @@
     "Shared `x`": "شارك منذ `x`",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` مشاهدات",
-        "": "`x` مشاهدات."
+        "": "`x` مشاهدات"
     },
     "Premieres in `x`": "يعرض فى `x`",
     "Premieres `x`": "يعرض `x`",
@@ -187,7 +187,7 @@
     "View more comments on Reddit": "عرض المزيد من التعليقات على\\من موقع Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "عرض `x` تعليقات",
-        "": "عرض `x` تعليقات."
+        "": "عرض `x` تعليقات"
     },
     "View Reddit comments": "عرض تعليقات ريدإت Reddit",
     "Hide replies": "إخفاء الردود",
@@ -207,7 +207,7 @@
     "Password cannot be empty": "الرقم السرى لايمكن ان يكون فارغ",
     "Password cannot be longer than 55 characters": "الرقم السرى لا يتعدى 55 حرف",
     "Please log in": "الرجاء تسجيل الدخول",
-    "Invidious Private Feed for `x`": "صفحة Invidious للمشتركين الخاصة\\مخفية لـ `x`",
+    "Invidious Private Feed for `x`": "تغذية Invidious خاصة ل 'x'",
     "channel:`x`": "قناة:`x`",
     "Deleted or invalid channel": "قناة ممسوحة او غير صالحة",
     "This channel does not exist.": "القناة غير موجودة.",
@@ -215,13 +215,13 @@
     "Could not fetch comments": "لم يتمكن من إحضار التعليقات",
     "View `x` replies": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "عرض `x` ردود",
-        "": "عرض `x` ردود."
+        "": "عرض `x` ردود"
     },
     "`x` ago": "`x` منذ",
     "Load more": "عرض المزيد",
     "`x` points": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` نقاط",
-        "": "`x` نقاط."
+        "": "`x` نقاط"
     },
     "Could not create mix.": "لم يستطع عمل خلط.",
     "Empty playlist": "قائمة التشغيل فارغة",
@@ -342,31 +342,31 @@
     "Zulu": "الزولو",
     "`x` years": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` سنوات",
-        "": "`x` سنوات."
+        "": "`x` سنوات"
     },
     "`x` months": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` شهور",
-        "": "`x` شهور."
+        "": "`x` شهور"
     },
     "`x` weeks": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` اسابيع",
-        "": "`x` اسابيع."
+        "": "`x` اسابيع"
     },
     "`x` days": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ايام",
-        "": "`x` ايام."
+        "": "`x` ايام"
     },
     "`x` hours": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ساعات",
-        "": "`x` ساعات."
+        "": "`x` ساعات"
     },
     "`x` minutes": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` دقائق",
-        "": "`x` دقائق."
+        "": "`x` دقائق"
     },
     "`x` seconds": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ثوانى",
-        "": "`x` ثوانى."
+        "": "`x` ثوانى"
     },
     "Fallback comments: ": "التعليقات البديلة: ",
     "Popular": "الأكثر شعبية",

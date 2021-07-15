@@ -86,8 +86,8 @@
     "dark": "karanlık",
     "light": "aydınlık",
     "Thin mode: ": "İnce mod: ",
-    "Miscellaneous preferences": "",
-    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
+    "Miscellaneous preferences": "Çeşitli tercihler",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "Otomatik örnek yeniden yönlendirmesi (yedek: redirect.invidious.io): ",
     "Subscription preferences": "Abonelik tercihleri",
     "Show annotations by default for subscribed channels: ": "Abone olunan kanallar için ek açıklamaları öntanımlı olarak göster: ",
     "Redirect homepage to feed: ": "Ana sayfayı akışa yönlendir: ",
@@ -117,7 +117,7 @@
     "Administrator preferences": "Yönetici tercihleri",
     "Default homepage: ": "Öntanımlı ana sayfa: ",
     "Feed menu: ": "Akış menüsü: ",
-    "Show nickname on top: ": "",
+    "Show nickname on top: ": "Takma adı üstte göster: ",
     "Top enabled: ": "Top etkin: ",
     "CAPTCHA enabled: ": "CAPTCHA etkin: ",
     "Login enabled: ": "Oturum açma etkin: ",
@@ -164,8 +164,8 @@
     "Show more": "Daha fazla göster",
     "Show less": "Daha az göster",
     "Watch on YouTube": "YouTube'da izle",
-    "Switch Invidious Instance": "",
-    "Broken? Try another Invidious Instance": "",
+    "Switch Invidious Instance": "Invidious Örneğini Değiştir",
+    "Broken? Try another Invidious Instance": "Bozuk mu? Başka bir Invidious örneğini deneyin",
     "Hide annotations": "Ek açıklamaları gizle",
     "Show annotations": "Ek açıklamaları göster",
     "Genre: ": "Tür: ",
@@ -177,8 +177,8 @@
     "Blacklisted regions: ": "Kara listeye alınan bölgeler: ",
     "Shared `x`": "`x` paylaşıldı",
     "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` görüntüleme.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` görüntüleme."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` görüntüleme",
+        "": "`x` görüntüleme"
     },
     "Premieres in `x`": "`x`içinde ilk gösterim",
     "Premieres `x`": "`x` ilk gösterim",
@@ -186,8 +186,8 @@
     "View YouTube comments": "YouTube yorumlarını görüntüle",
     "View more comments on Reddit": "Reddit'te daha fazla yorum görüntüle",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yorumu görüntüle.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` yorumu görüntüle."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yorumu görüntüle",
+        "": "`x` yorumu görüntüle"
     },
     "View Reddit comments": "Reddit yorumlarını görüntüle",
     "Hide replies": "Cevapları gizle",
@@ -214,14 +214,14 @@
     "Could not get channel info.": "Kanal bilgisi alınamadı.",
     "Could not fetch comments": "Yorumlar alınamadı",
     "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yanıtı görüntüle.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` yanıtı görüntüle."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yanıtı görüntüle",
+        "": "`x` yanıtı görüntüle"
     },
     "`x` ago": "`x` önce",
     "Load more": "Daha fazla yükle",
     "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` puan.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` puan."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` puan",
+        "": "`x` puan"
     },
     "Could not create mix.": "Mix oluşturulamadı.",
     "Empty playlist": "Boş oynatma listesi",
@@ -341,32 +341,32 @@
     "Yoruba": "Yoruba dili",
     "Zulu": "Zuluca",
     "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yıl.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` yıl."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yıl",
+        "": "`x` yıl"
     },
     "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ay.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` ay."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ay",
+        "": "`x` ay"
     },
     "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hafta.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` hafta."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hafta",
+        "": "`x` hafta"
     },
     "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gün.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` gün."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gün",
+        "": "`x` gün"
     },
     "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saat.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` saat."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saat",
+        "": "`x` saat"
     },
     "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dakika.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` dakika."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dakika",
+        "": "`x` dakika"
     },
     "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saniye.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` saniye."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saniye",
+        "": "`x` saniye"
     },
     "Fallback comments: ": "Yedek yorumlar: ",
     "Popular": "Popüler",
@@ -393,35 +393,35 @@
     "Videos": "Videolar",
     "Playlists": "Oynatma listeleri",
     "Community": "Topluluk",
-    "relevance": "ilgi",
-    "rating": "değerlendirme",
-    "date": "tarih",
-    "views": "görüntüleme",
-    "content_type": "içerik_türü",
-    "duration": "süre",
-    "features": "özellikler",
-    "sort": "sırala",
-    "hour": "saat",
-    "today": "bugün",
-    "week": "hafta",
-    "month": "ay",
-    "year": "yıl",
-    "video": "video",
-    "channel": "kanal",
-    "playlist": "oynatma listesi",
-    "movie": "film",
-    "show": "gösteri",
+    "relevance": "İlgi",
+    "rating": "Değerlendirme",
+    "date": "Yükleme tarihi",
+    "views": "Görüntüleme sayısı",
+    "content_type": "Tür",
+    "duration": "Süre",
+    "features": "Özellikler",
+    "sort": "Sıralama Ölçütü",
+    "hour": "Son Saat",
+    "today": "Bugün",
+    "week": "Bu hafta",
+    "month": "Bu ay",
+    "year": "Bu yıl",
+    "video": "Video",
+    "channel": "Kanal",
+    "playlist": "Oynatma listesi",
+    "movie": "Film",
+    "show": "Gösteri",
     "hd": "HD",
-    "subtitles": "alt yazılar",
+    "subtitles": "Alt yazılar",
     "creative_commons": "Creative Commons",
     "3d": "3B",
-    "live": "canlı",
+    "live": "Canlı",
     "4k": "4K",
-    "location": "konum",
+    "location": "Konum",
     "hdr": "HDR",
-    "filter": "filtrele",
+    "filter": "Filtrele",
     "Current version: ": "Şu anki sürüm: ",
-    "next_steps_error_message": "",
-    "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message": "Bundan sonra şunları denemelisiniz: ",
+    "next_steps_error_message_refresh": "Yenile",
+    "next_steps_error_message_go_to_youtube": "Youtube'a git"
 }

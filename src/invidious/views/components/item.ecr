@@ -2,13 +2,13 @@
     <div class="h-box">
         <% case item when %>
         <% when SearchChannel %>
-            <a style="width:100%" href="/channel/<%= item.ucid %>">
+            <a href="/channel/<%= item.ucid %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <center>
                         <img style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target.gsub(/=s\d+/, "=s176") %>"/>
                     </center>
                 <% end %>
-                <p><%= item.author %></p>
+                <p dir="auto"><%= HTML.escape(item.author) %></p>
             </a>
             <p><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></p>
             <% if !item.auto_generated %><p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p><% end %>
@@ -27,15 +27,13 @@
                         <p class="length"><%= number_with_separator(item.video_count) %> videos</p>
                     </div>
                 <% end %>
-                <p><%= item.title %></p>
+                <p dir="auto"><%= HTML.escape(item.title) %></p>
             </a>
-            <p>
-                <b>
-                    <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
-                </b>
-            </p>
+            <a href="/channel/<%= item.ucid %>">
+                <p dir=auto"><b><%= HTML.escape(item.author) %></b></p>
+            </a>
         <% when MixVideo %>
-            <a style="width:100%" href="/watch?v=<%= item.id %>&list=<%= item.rdid %>">
+            <a href="/watch?v=<%= item.id %>&list=<%= item.rdid %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <div class="thumbnail">
                         <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
@@ -44,13 +42,11 @@
                         <% end %>
                     </div>
                 <% end %>
-                <p><%= HTML.escape(item.title) %></p>
+                <p dir="auto"><%= HTML.escape(item.title) %></p>
             </a>
-            <p>
-                <b>
-                    <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
-                </b>
-            </p>
+            <a href="/channel/<%= item.ucid %>">
+                <p dir=auto"><b><%= HTML.escape(item.author) %></b></p>
+            </a>
         <% when PlaylistVideo %>
             <a style="width:100%" href="/watch?v=<%= item.id %>&list=<%= item.plid %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
@@ -76,30 +72,33 @@
                         <% end %>
                     </div>
                 <% end %>
-                <p><a href="/watch?v=<%= item.id %>"><%= HTML.escape(item.title) %></a></p>
+                <p dir="auto"><%= HTML.escape(item.title) %></p>
             </a>
-            <p>
-                <b>
-                    <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
-                </b>
-            </p>
 
-            <h5 class="pure-g">
-                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
-                    <div class="pure-u-2-3"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></div>
-                <% elsif Time.utc - item.published > 1.minute %>
-                    <div class="pure-u-2-3"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></div>
-                <% else %>
-                    <div class="pure-u-2-3"></div>
-                <% end %>
+            <div class="video-card-row flexible">
+                <div class="flex-left"><a href="/channel/<%= item.ucid %>">
+                    <p class="channel-name" dir=auto"><%= HTML.escape(item.author) %></p>
+                </a></div>
+            </div>
 
-                <div class="pure-u-1-3" style="text-align:right">
-                    <%= item.responds_to?(:views) && item.views ? translate(locale, "`x` views", number_to_short_text(item.views || 0)) : "" %>
+            <div class="video-card-row flexible">
+                <div class="flex-left">
+                    <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
+                        <p dir="auto"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
+                    <% elsif Time.utc - item.published > 1.minute %>
+                        <p dir="auto"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
+                    <% end %>
                 </div>
-            </h5>
+
+                <% if item.responds_to?(:views) && item.views %>
+                <div class="flex-right">
+                    <p dir="auto"><%= translate(locale, "`x` views", number_to_short_text(item.views || 0)) %></p>
+                </div>
+                <% end %>
+            </div>
         <% else %>
-            <% if !env.get("preferences").as(Preferences).thin_mode %>
-                <a style="width:100%" href="/watch?v=<%= item.id %>">
+            <a style="width:100%" href="/watch?v=<%= item.id %>">
+                <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <div class="thumbnail">
                         <img class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                         <% if env.get? "show_watched" %>
@@ -129,44 +128,49 @@
                         <% end %>
 
                         <% if item.responds_to?(:live_now) && item.live_now %>
-                            <p class="length"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
+                            <p class="length" dir="auto"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
                         <% elsif item.length_seconds != 0 %>
                             <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
                         <% end %>
                     </div>
-                </a>
-            <% end %>
-            <p><a href="/watch?v=<%= item.id %>"><%= HTML.escape(item.title) %></a></p>
-            <div style="display: flex">
-                <b style="flex: 1;">
-                    <a style="width:100%" href="/channel/<%= item.ucid %>"><%= item.author %></a>
-                </b>
-                <div class="icon-buttons">
-                    <a title="<%=translate(locale, "Watch on YouTube")%>" href="https://www.youtube.com/watch?v=<%= item.id %>">
-                        <i class="icon ion-logo-youtube"></i>
-                    </a>
-                    <a title="<%=translate(locale, "Audio mode")%>" href="/watch?v=<%= item.id %>&amp;listen=1">
-                        <i class="icon ion-md-headset"></i>
-                    </a>
-                    <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=<%=HTML.escape("watch?v=#{item.id}")%>">
-                        <i class="icon ion-md-jet"></i>
-                    </a>
+                <% end %>
+                <p dir="auto"><%= HTML.escape(item.title) %></p>
+            </a>
+
+            <div class="video-card-row flexible">
+                <div class="flex-left"><a href="/channel/<%= item.ucid %>">
+                    <p class="channel-name" dir=auto"><%= HTML.escape(item.author) %></p>
+                </a></div>
+                <div class="flex-right">
+                    <div class="icon-buttons">
+                        <a title="<%=translate(locale, "Watch on YouTube")%>" href="https://www.youtube.com/watch?v=<%= item.id %>">
+                            <i class="icon ion-logo-youtube"></i>
+                        </a>
+                        <a title="<%=translate(locale, "Audio mode")%>" href="/watch?v=<%= item.id %>&amp;listen=1">
+                            <i class="icon ion-md-headset"></i>
+                        </a>
+                        <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=<%=HTML.escape("watch?v=#{item.id}")%>">
+                            <i class="icon ion-md-jet"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <h5 class="pure-g">
-                <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
-                    <div class="pure-u-2-3"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></div>
-                <% elsif Time.utc - item.published > 1.minute %>
-                    <div class="pure-u-2-3"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></div>
-                <% else %>
-                    <div class="pure-u-2-3"></div>
-                <% end %>
-
-                <div class="pure-u-1-3" style="text-align:right">
-                    <%= item.responds_to?(:views) && item.views ? translate(locale, "`x` views", number_to_short_text(item.views || 0)) : "" %>
+            <div class="video-card-row flexible">
+                <div class="flex-left">
+                    <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
+                        <p class="video-data" dir="auto"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
+                    <% elsif Time.utc - item.published > 1.minute %>
+                        <p class="video-data" dir="auto"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
+                    <% end %>
                 </div>
-            </h5>
+
+                <% if item.responds_to?(:views) && item.views %>
+                <div class="flex-right">
+                    <p class="video-data" dir="auto"><%= translate(locale, "`x` views", number_to_short_text(item.views || 0)) %></p>
+                </div>
+                <% end %>
+            </div>
         <% end %>
     </div>
 </div>

@@ -5,7 +5,7 @@
     },
     "`x` videos": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vídeos",
-        "": "`x` vídeos."
+        "": "`x` vídeos"
     },
     "`x` playlists": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` listas de reproducción",
@@ -178,7 +178,7 @@
     "Shared `x`": "Compartido `x`",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizaciones",
-        "": "`x` visualizaciones."
+        "": "`x` visualizaciones"
     },
     "Premieres in `x`": "Se estrena en `x`",
     "Premieres `x`": "Estrenos `x`",
@@ -187,7 +187,7 @@
     "View more comments on Reddit": "Ver más comentarios en Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` comentarios",
-        "": "Ver `x` comentarios."
+        "": "Ver `x` comentarios"
     },
     "View Reddit comments": "Ver los comentarios de Reddit",
     "Hide replies": "Ocultar las respuestas",
@@ -215,13 +215,13 @@
     "Could not fetch comments": "No se han podido recuperar los comentarios",
     "View `x` replies": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` respuestas",
-        "": "Ver `x` respuestas."
+        "": "Ver `x` respuestas"
     },
     "`x` ago": "hace `x`",
     "Load more": "Cargar más",
     "`x` points": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` puntos",
-        "": "`x` puntos."
+        "": "`x` puntos"
     },
     "Could not create mix.": "No se ha podido crear la mezcla.",
     "Empty playlist": "La lista de reproducción está vacía",
@@ -342,31 +342,31 @@
     "Zulu": "Zulú",
     "`x` years": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` años",
-        "": "`x` años."
+        "": "`x` años"
     },
     "`x` months": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` meses",
-        "": "`x` meses."
+        "": "`x` meses"
     },
     "`x` weeks": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` semanas",
-        "": "`x` semanas."
+        "": "`x` semanas"
     },
     "`x` days": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` días",
-        "": "`x` días."
+        "": "`x` días"
     },
     "`x` hours": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` horas",
-        "": "`x` horas."
+        "": "`x` horas"
     },
     "`x` minutes": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutos",
-        "": "`x` minutos."
+        "": "`x` minutos"
     },
     "`x` seconds": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` segundos",
-        "": "`x` segundos."
+        "": "`x` segundos"
     },
     "Fallback comments: ": "Comentarios alternativos: ",
     "Popular": "Populares",

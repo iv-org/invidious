@@ -21,14 +21,16 @@
         </div>
     </div>
     <div class="pure-u-1-3" style="text-align:right">
-        <h3>
+        <h3 style="text-align:right">
             <a href="/feed/channel/<%= channel.ucid %>"><i class="icon ion-logo-rss"></i></a>
         </h3>
     </div>
 </div>
 
 <div class="h-box">
-    <p><span style="white-space:pre-wrap"><%= channel.description_html %></span></p>
+    <div id="descriptionWrapper">
+        <p><span style="white-space:pre-wrap"><%= channel.description_html %></span></p>
+    </div>
 </div>
 
 <div class="h-box">
