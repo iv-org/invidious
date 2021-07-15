@@ -25,8 +25,7 @@ module Invidious::Routes::Account
     sid = sid.as(String)
 
     if user.totp_secret && env.response.cookies["2faVerified"]?.try &.value != "1" || nil
-      csrf_token = generate_response(sid, {":validate_2fa"}, HMAC_KEY)
-      next templated "account/validate_2fa?referer=#{env.get?("current_page")}"
+      return call_totp_validator(env, user, sid, locale)
     end
 
     csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY)
@@ -104,6 +103,11 @@ module Invidious::Routes::Account
 
     user = user.as(User)
     sid = sid.as(String)
+
+    if user.totp_secret && env.request.cookies["2faVerified"]?.try &.value != "1" || nil
+      return call_totp_validator(env, user, sid, locale)
+    end
+
     csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY)
 
     templated "user/delete_account"
@@ -420,7 +424,7 @@ module Invidious::Routes::Account
   # Validate 2fa code endpoint
   def validate_2fa(env)
     locale = env.get("preferences").as(Preferences).locale
-    referer = get_referer(env)
+    referer = get_referer(env, unroll: false)
 
     email = env.params.body["email"]?.try &.downcase.byte_slice(0, 254)
     password = env.params.body["password"]?
@@ -491,5 +495,7 @@ module Invidious::Routes::Account
         env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true)
       end
     end
+
+    env.redirect referer
   end
 end
