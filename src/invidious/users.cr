@@ -10,7 +10,6 @@ struct User
   property notifications : Array(String)
   property subscriptions : Array(String)
   property email : String
-  property totp_secret : String?
 
   @[DB::Field(converter: User::PreferencesConverter)]
   property preferences : Preferences
@@ -18,6 +17,8 @@ struct User
   property token : String
   property watched : Array(String)
   property feed_needs_update : Bool?
+
+  property totp_secret : String?
 
   module PreferencesConverter
     def self.from_rs(rs)
