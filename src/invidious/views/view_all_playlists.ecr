@@ -16,11 +16,9 @@
 </div>
 
 <div class="pure-g">
-    <% items_created.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <%= rendered "components/item" %>
-        <% end %>
-    <% end %>
+<% items_created.each do |item| %>
+    <%= rendered "components/item" %>
+<% end %>
 </div>
 
 <div class="pure-g h-box">
@@ -30,9 +28,7 @@
 </div>
 
 <div class="pure-g">
-    <% items_saved.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <%= rendered "components/item" %>
-        <% end %>
-    <% end %>
+<% items_saved.each do |item| %>
+    <%= rendered "components/item" %>
+<% end %>
 </div>

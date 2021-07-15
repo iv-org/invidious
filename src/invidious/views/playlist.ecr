@@ -1,17 +1,20 @@
+<% title = HTML.escape(playlist.title) %>
+<% author = HTML.escape(playlist.author) %>
+
 <% content_for "header" do %>
-<title><%= playlist.title %> - Invidious</title>
+<title><%= title %> - Invidious</title>
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/playlist/<%= plid %>" />
 <% end %>
 
 <div class="pure-g h-box">
     <div class="pure-u-2-3">
-        <h3><%= playlist.title %></h3>
+        <h3><%= title %></h3>
         <% if playlist.is_a? InvidiousPlaylist %>
             <b>
                 <% if playlist.author == user.try &.email %>
-                <a href="/view_all_playlists"><%= playlist.author %></a> |
+                <a href="/view_all_playlists"><%= author %></a> |
                 <% else %>
-                <%= playlist.author %> |
+                <%= author %> |
                 <% end %>
                 <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %> |
@@ -26,11 +29,12 @@
             </b>
         <% else %>
             <b>
-                <a href="/channel/<%= playlist.ucid %>"><%= playlist.author %></a> |
+                <a href="/channel/<%= playlist.ucid %>"><%= author %></a> |
                 <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %>
             </b>
         <% end %>
+
         <% if !playlist.is_a? InvidiousPlaylist %>
             <div class="pure-u-2-3">
                     <a href="https://www.youtube.com/playlist?list=<%= playlist.id %>">
@@ -40,7 +44,6 @@
                     <a href="/redirect?referer=<%= env.get?("current_page") %>">
                       <%= translate(locale, "Switch Invidious Instance") %>
                     </a>
-
             </div>
         <% end %>
     </div>
@@ -93,11 +96,9 @@
 <% end %>
 
 <div class="pure-g">
-    <% videos.each_slice(4) do |slice| %>
-        <% slice.each do |item| %>
-            <%= rendered "components/item" %>
-        <% end %>
-    <% end %>
+<% videos.each do |item| %>
+    <%= rendered "components/item" %>
+<% end %>
 </div>
 
 <div class="pure-g h-box">

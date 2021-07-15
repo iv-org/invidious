@@ -41,9 +41,7 @@
 </div>
 
 <div class="pure-g">
-    <% trending.each_slice(4) do |slice| %>
-            <% slice.each do |item| %>
-                <%= rendered "components/item" %>
-            <% end %>
-    <% end %>
+<% trending.each do |item| %>
+    <%= rendered "components/item" %>
+<% end %>
 </div>
