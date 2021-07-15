@@ -3,6 +3,7 @@ require "./base_route"
 
 # Different routes relating to existing accounts and the control of their data.
 class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
+  # Setup 2fa page
   def setup_2fa_page(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -21,7 +22,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     return templated "account/setup_2fa"
   end
 
-  # Endpoint to remove 2fa
+  # Remove 2fa page
   def remove_2fa_page(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     referer = get_referer(env)
@@ -58,7 +59,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     PG_DB.exec("UPDATE users SET totp_secret = $1 WHERE email = $2", nil, user.email)
   end
 
-  # Setup TOTP (post) request.
+  # Setup 2fa post request.
   def setup_2fa(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -131,7 +132,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
 
     # https://stackoverflow.com/a/574698
     if email && password
-      # The rest of the login code.
+      # Verify the password again for extra security
       if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
