@@ -10,7 +10,6 @@ struct SearchVideo
   property description_html : String
   property length_seconds : Int32
   property live_now : Bool
-  property paid : Bool
   property premium : Bool
   property premiere_timestamp : Time?
 
@@ -91,7 +90,6 @@ struct SearchVideo
       json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
       json.field "lengthSeconds", self.length_seconds
       json.field "liveNow", self.live_now
-      json.field "paid", self.paid
       json.field "premium", self.premium
       json.field "isUpcoming", self.is_upcoming
 

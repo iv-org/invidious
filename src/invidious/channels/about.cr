@@ -9,7 +9,6 @@ struct AboutChannel
   property author_thumbnail : String
   property banner : String?
   property description_html : String
-  property paid : Bool
   property total_views : Int64
   property sub_count : Int32
   property joined : Time
@@ -29,29 +28,15 @@ struct AboutRelatedChannel
 end
 
 def get_about_info(ucid, locale)
-  result = YT_POOL.client &.get("/channel/#{ucid}/about?gl=US&hl=en")
-  if result.status_code != 200
-    result = YT_POOL.client &.get("/user/#{ucid}/about?gl=US&hl=en")
+  begin
+    # "EgVhYm91dA==" is the base64-encoded protobuf object {"2:string":"about"}
+    initdata = YoutubeAPI.browse(browse_id: ucid, params: "EgVhYm91dA==")
+  rescue
+    raise InfoException.new("Could not get channel info.")
   end
 
-  if md = result.headers["location"]?.try &.match(/\/channel\/(?<ucid>UC[a-zA-Z0-9_-]{22})/)
-    raise ChannelRedirect.new(channel_id: md["ucid"])
-  end
-
-  if result.status_code != 200
-    raise InfoException.new("This channel does not exist.")
-  end
-
-  about = XML.parse_html(result.body)
-  if about.xpath_node(%q(//div[contains(@class, "channel-empty-message")]))
-    raise InfoException.new("This channel does not exist.")
-  end
-
-  initdata = extract_initial_data(result.body)
-  if initdata.empty?
-    error_message = about.xpath_node(%q(//div[@class="yt-alert-content"])).try &.content.strip
-    error_message ||= translate(locale, "Could not get channel info.")
-    raise InfoException.new(error_message)
+  if initdata.dig?("alerts", 0, "alertRenderer", "type") == "ERROR"
+    raise InfoException.new(initdata["alerts"][0]["alertRenderer"]["text"]["simpleText"].as_s)
   end
 
   if browse_endpoint = initdata["onResponseReceivedActions"]?.try &.[0]?.try &.["navigateAction"]?.try &.["endpoint"]?.try &.["browseEndpoint"]?
@@ -76,7 +61,6 @@ def get_about_info(ucid, locale)
     description = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]["simpleText"].as_s
     description_html = HTML.escape(description).gsub("\n", "<br>")
 
-    paid = false
     is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map { |a| a.as_s }
 
@@ -99,9 +83,8 @@ def get_about_info(ucid, locale)
     description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
     description_html = HTML.escape(description).gsub("\n", "<br>")
 
-    paid = about.xpath_node(%q(//meta[@itemprop="paid"])).not_nil!["content"] == "True"
-    is_family_friendly = about.xpath_node(%q(//meta[@itemprop="isFamilyFriendly"])).not_nil!["content"] == "True"
-    allowed_regions = about.xpath_node(%q(//meta[@itemprop="regionsAllowed"])).not_nil!["content"].split(",")
+    is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
+    allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map { |a| a.as_s }
 
     related_channels = initdata["contents"]["twoColumnBrowseResultsRenderer"]
       .["secondaryContents"]?.try &.["browseSecondaryContentsRenderer"]["contents"][0]?
@@ -180,7 +163,6 @@ def get_about_info(ucid, locale)
     author_thumbnail:   author_thumbnail,
     banner:             banner,
     description_html:   description_html,
-    paid:               paid,
     total_views:        total_views,
     sub_count:          sub_count,
     joined:             joined,
