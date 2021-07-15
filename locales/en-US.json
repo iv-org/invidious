@@ -494,5 +494,7 @@
     "general-totp-invalid-code": "The TOTP code entered is invalid",
     "general-totp-enter-code-field": "6 digit number",
     "general-totp-enter-code-header": "Two-factor authentication",
-    "general-totp-verify-button": "Verifiy"
+    "general-totp-verify-button": "Verify",
+    "remove-totp-header": "Remove two-factor authentication",
+    "remove-totp-confirm-message": "Are you sure you would like to remove two-factor-authentication?"
 }

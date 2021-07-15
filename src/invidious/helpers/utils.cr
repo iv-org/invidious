@@ -462,7 +462,7 @@ def totp_validator(env)
   # Verify if possible
   if token = env.params.body["csrf_token"]?
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end

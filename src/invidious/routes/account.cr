@@ -208,6 +208,9 @@ module Invidious::Routes::Account
     user = env.get? "user"
     sid = env.get? "sid"
 
+    user = user.as(User)
+    sid = sid.as(String)
+
     if user.totp_secret && env.request.cookies["2faVerified"]?.try &.value != "1" || nil
       return call_totp_validator(env, user, sid, locale)
     end
@@ -218,8 +221,6 @@ module Invidious::Routes::Account
       return env.redirect "/login?referer=#{URI.encode_path_segment(env.request.resource)}"
     end
 
-    user = user.as(User)
-    sid = sid.as(String)
     csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY)
 
     scopes = env.params.query["scopes"]?.try &.split(",")
@@ -502,5 +503,42 @@ module Invidious::Routes::Account
     end
 
     env.redirect referer
+  end
+
+  # Endpoint to remove 2fa
+  def remove_2fa_page(env)
+    locale = env.get("preferences").as(Preferences).locale
+    referer = get_referer(env)
+
+    user = env.get("user").as(User)
+    sid = env.get("sid").as(String)
+    csrf_token = generate_response(sid, {":remove_2fa"}, HMAC_KEY)
+
+    return templated "user/remove_2fa"
+  end
+
+  # Remove 2fa post request.
+  def remove_2fa(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    sid = env.get? "sid"
+    referer = get_referer(env, unroll: false)
+
+    if !user
+      return env.redirect referer
+    end
+
+    user = user.as(User)
+    sid = sid.as(String)
+    token = env.params.body["csrf_token"]?
+
+    begin
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
+    rescue ex
+      return error_template(400, ex)
+    end
+
+    PG_DB.exec("UPDATE users SET totp_secret = $1 WHERE email = $2", nil, user.email)
   end
 end
