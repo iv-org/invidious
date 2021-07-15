@@ -1036,6 +1036,11 @@ get "/authorize_token" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
+
+  if user.totp_secret && env.request.cookies["2faVerified"]?.try &.value != "1" || nil
+    next call_totp_validator(env, user, sid, locale)
+  end
+
   csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, PG_DB)
 
   scopes = env.params.query["scopes"]?.try &.split(",")
