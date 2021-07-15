@@ -207,6 +207,11 @@ module Invidious::Routes::Account
 
     user = env.get? "user"
     sid = env.get? "sid"
+
+    if user.totp_secret && env.request.cookies["2faVerified"]?.try &.value != "1" || nil
+      return call_totp_validator(env, user, sid, locale)
+    end
+
     referer = get_referer(env)
 
     if !user
