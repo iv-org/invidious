@@ -471,3 +471,10 @@ def fetch_random_instance
 
   return filtered_instance_list.sample(1)[0]
 end
+
+def call_totp_validator(env, user, sid, locale)
+  referer = URI.decode_www_form(env.get?("current_page").to_s)
+  csrf_token = generate_response(sid, {":validate_2fa"}, HMAC_KEY, PG_DB)
+  email, password = {user.email, nil}
+  return templated "account/validate_2fa"
+end

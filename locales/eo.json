@@ -423,5 +423,17 @@
     "Current version: ": "Nuna versio: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "setup-totp-form-header": "",
+    "setup-totp-instructions-download-auth": "",
+    "setup-totp-instructions-enter-code": "",
+    "setup-totp-instructions-validate-code": "",
+    "setup-totp-submit-button": "",
+    "general-totp-empty-field": "",
+    "general-totp-invalid-code": "",
+    "general-totp-enter-code-field": "",
+    "general-totp-enter-code-header": "",
+    "general-totp-verify-button": "",
+    "remove-totp-header": "",
+    "remove-totp-confirm-message": ""
 }

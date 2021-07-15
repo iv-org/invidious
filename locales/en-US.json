@@ -423,5 +423,17 @@
     "Current version: ": "Current version: ",
     "next_steps_error_message": "After which you should try to: ",
     "next_steps_error_message_refresh": "Refresh",
-    "next_steps_error_message_go_to_youtube": "Go to Youtube"
+    "next_steps_error_message_go_to_youtube": "Go to Youtube",
+    "setup-totp-form-header": "Setup two factor authenticiation (TOTP)",
+    "setup-totp-instructions-download-auth": "Install an authenticator app (or anything that supports totp) on your device",
+    "setup-totp-instructions-enter-code": "Enter the following <strong>secret</strong> code:",
+    "setup-totp-instructions-validate-code": "Enter the 6 digit number on your screen. Be sure to do it under thirty seconds!",
+    "setup-totp-submit-button": "Setup TOTP",
+    "general-totp-empty-field": "The TOTP code is a required field",
+    "general-totp-invalid-code": "The TOTP code entered is invalid",
+    "general-totp-enter-code-field": "6 digit number",
+    "general-totp-enter-code-header": "Two-factor authentication",
+    "general-totp-verify-button": "Verify",
+    "remove-totp-header": "Remove two-factor authentication",
+    "remove-totp-confirm-message": "Are you sure you would like to remove two-factor-authentication?"
 }

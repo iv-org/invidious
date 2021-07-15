@@ -326,7 +326,13 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
           return error_template(400, "Please sign in using 'Log in with Google'")
         end
 
-        if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
+        if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55)) \
+                      # If the password is correct then we'll go ahead and begin 2fa if applicable
+          if user.totp_secret
+            csrf_token = nil # setting this to false for compatibility reasons.
+            return templated "account/validate_2fa"
+          end
+
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
 

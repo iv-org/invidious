@@ -1,5 +1,13 @@
 version: 2.0
 shards:
+  base32:
+    git: https://github.com/philnash/base32.git
+    version: 0.1.1+git.commit.0a21c1d90731fdefcb3f0db4913f49d3d25350ac
+
+  crotp:
+    git: https://github.com/philnash/crotp.git
+    version: 1.0.0
+
   db:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.10.1

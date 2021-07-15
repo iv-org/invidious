@@ -18,6 +18,8 @@ struct User
   property watched : Array(String)
   property feed_needs_update : Bool?
 
+  property totp_secret : String?
+
   module PreferencesConverter
     def self.from_rs(rs)
       begin
@@ -365,6 +367,7 @@ def fetch_user(sid, headers, db)
     token:             token,
     watched:           [] of String,
     feed_needs_update: true,
+    totp_secret:       nil,
   })
   return user, sid
 end
@@ -383,6 +386,7 @@ def create_user(sid, email, password)
     token:             token,
     watched:           [] of String,
     feed_needs_update: true,
+    totp_secret:       nil,
   })
 
   return user, sid

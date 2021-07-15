@@ -1,0 +1,24 @@
+<% content_for "header" do %>
+<title><%= translate(locale, "remove-totp-header") %> - Invidious</title>
+<% end %>
+
+<div class="h-box">
+    <form class="pure-form pure-form-aligned" action="/remove_2fa?referer=<%= URI.encode_www_form(referer) %>" method="post">
+        <legend><%= translate(locale, "remove-totp-confirm-message") %></legend>
+
+        <div class="pure-g">
+            <div class="pure-u-1-2">
+                <button type="submit" name="submit" value="remove_2fa" class="pure-button pure-button-primary">
+                    <%= translate(locale, "Yes") %>
+                </button>
+            </div>
+            <div class="pure-u-1-2">
+                <a class="pure-button" href="<%= URI.encode_www_form(referer) %>">
+                    <%= translate(locale, "No") %>
+                </a>
+            </div>
+        </div>
+
+        <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(csrf_token) %>">
+    </form>
+</div>

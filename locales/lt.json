@@ -423,5 +423,17 @@
     "Current version: ": "Dabartinė versija: ",
     "next_steps_error_message": "Po to turėtumėte pabandyti: ",
     "next_steps_error_message_refresh": "Atnaujinti",
-    "next_steps_error_message_go_to_youtube": "Eiti į Youtube"
+    "next_steps_error_message_go_to_youtube": "Eiti į Youtube",
+    "setup-totp-form-header": "",
+    "setup-totp-instructions-download-auth": "",
+    "setup-totp-instructions-enter-code": "",
+    "setup-totp-instructions-validate-code": "",
+    "setup-totp-submit-button": "",
+    "general-totp-empty-field": "",
+    "general-totp-invalid-code": "",
+    "general-totp-enter-code-field": "",
+    "general-totp-enter-code-header": "",
+    "general-totp-verify-button": "",
+    "remove-totp-header": "",
+    "remove-totp-confirm-message": ""
 }

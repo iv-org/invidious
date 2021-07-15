@@ -345,6 +345,12 @@ Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :sho
 Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
 Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
 
+Invidious::Routing.get "/setup_2fa", Invidious::Routes::Accounts, :setup_2fa_page
+Invidious::Routing.post "/setup_2fa", Invidious::Routes::Accounts, :setup_2fa
+Invidious::Routing.get "/remove_2fa", Invidious::Routes::Accounts, :remove_2fa_page
+Invidious::Routing.post "/remove_2fa", Invidious::Routes::Accounts, :remove_2fa
+Invidious::Routing.post "/validate_2fa", Invidious::Routes::Accounts, :validate_2fa
+
 # Users
 
 post "/watch_ajax" do |env|
@@ -675,7 +681,7 @@ get "/data_control" do |env|
 
   user = user.as(User)
 
-  templated "data_control"
+  templated "account/data_control"
 end
 
 post "/data_control" do |env|
@@ -854,9 +860,13 @@ get "/change_password" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
+  if user.totp_secret && env.request.cookies["2faVerified"]?.try &.value != "1" || nil
+    next call_totp_validator(env, user, sid, locale)
+  end
+
   csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY, PG_DB)
 
-  templated "change_password"
+  templated "account/change_password"
 end
 
 post "/change_password" do |env|
@@ -928,9 +938,14 @@ get "/delete_account" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
+
+  if user.totp_secret && env.request.cookies["2faVerified"]?.try &.value != "1" || nil
+    next call_totp_validator(env, user, sid, locale)
+  end
+
   csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY, PG_DB)
 
-  templated "delete_account"
+  templated "account/delete_account"
 end
 
 post "/delete_account" do |env|
@@ -1023,6 +1038,11 @@ get "/authorize_token" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
+
+  if user.totp_secret && env.request.cookies["2faVerified"]?.try &.value != "1" || nil
+    next call_totp_validator(env, user, sid, locale)
+  end
+
   csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, PG_DB)
 
   scopes = env.params.query["scopes"]?.try &.split(",")
@@ -1035,7 +1055,7 @@ get "/authorize_token" do |env|
 
   expire = env.params.query["expire"]?.try &.to_i?
 
-  templated "authorize_token"
+  templated "account/authorize_token"
 end
 
 post "/authorize_token" do |env|
@@ -1082,7 +1102,7 @@ post "/authorize_token" do |env|
   else
     csrf_token = ""
     env.set "access_token", access_token
-    templated "authorize_token"
+    templated "account/authorize_token"
   end
 end
 
@@ -1101,7 +1121,7 @@ get "/token_manager" do |env|
 
   tokens = PG_DB.query_all("SELECT id, issued FROM session_ids WHERE email = $1 ORDER BY issued DESC", user.email, as: {session: String, issued: Time})
 
-  templated "token_manager"
+  templated "account/token_manager"
 end
 
 post "/token_ajax" do |env|
@@ -3110,7 +3130,7 @@ post "/api/v1/auth/tokens/register" do |env|
     env.response.content_type = "text/html"
 
     csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, PG_DB, use_nonce: true)
-    next templated "authorize_token"
+    next templated "account/authorize_token"
   else
     env.response.content_type = "application/json"
 

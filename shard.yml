@@ -25,6 +25,8 @@ dependencies:
   lsquic:
     github: iv-org/lsquic.cr
     version: ~> 2.18.1-2
+  crotp:
+    github: philnash/crotp
 
 crystal: 1.0.0
 
