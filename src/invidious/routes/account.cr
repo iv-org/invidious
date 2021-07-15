@@ -23,6 +23,12 @@ module Invidious::Routes::Account
 
     user = user.as(User)
     sid = sid.as(String)
+
+    if user.totp_secret && env.response.cookies["2faVerified"]?.try &.value != "1" || nil
+      csrf_token = generate_response(sid, {":validate_2fa"}, HMAC_KEY)
+      next templated "account/validate_2fa?referer=#{env.get?("current_page")}"
+    end
+
     csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY)
 
     templated "user/change_password"
@@ -362,7 +368,7 @@ module Invidious::Routes::Account
 
     user = env.get? "user"
     sid = env.get? "sid"
-    referer = get_referer(env)
+    referer = get_referer(env, unroll: false)
 
     user = user.as(User)
     sid = sid.as(String)
