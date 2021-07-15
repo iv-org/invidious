@@ -70,18 +70,38 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
 
   response = request_youtube_api_next(continuation: ctoken, region: region)
 
-  if !response["continuationContents"]?
+  if response["continuationContents"]?
+    response = response["continuationContents"]
+    if response["commentRepliesContinuation"]?
+      body = response["commentRepliesContinuation"]
+    else
+      body = response["itemSectionContinuation"]
+    end
+    contents = body["contents"]?
+    header = body["header"]?
+    if body["continuations"]?
+      moreRepliesContinuation = body["continuations"][0]["nextContinuationData"]["continuation"].as_s
+    end
+  elsif response["onResponseReceivedEndpoints"]?
+    onResponseReceivedEndpoints = response["onResponseReceivedEndpoints"]
+    onResponseReceivedEndpoints.as_a.each do |item|
+      case item["reloadContinuationItemsCommand"]["slot"]
+      when "RELOAD_CONTINUATION_SLOT_HEADER"
+        header = item["reloadContinuationItemsCommand"]["continuationItems"][0]
+      when "RELOAD_CONTINUATION_SLOT_BODY"
+        contents = item["reloadContinuationItemsCommand"]["continuationItems"]
+        contents.as_a.reject! do |item|
+          if item["continuationItemRenderer"]?
+            moreRepliesContinuation = item["continuationItemRenderer"]["continuationEndpoint"]["continuationCommand"]["token"].as_s
+            true
+          end
+        end
+      end
+    end
+  else
     raise InfoException.new("Could not fetch comments")
   end
 
-  response = response["continuationContents"]
-  if response["commentRepliesContinuation"]?
-    body = response["commentRepliesContinuation"]
-  else
-    body = response["itemSectionContinuation"]
-  end
-
-  contents = body["contents"]?
   if !contents
     if format == "json"
       return {"comments" => [] of String}.to_json
@@ -92,11 +112,10 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
 
   response = JSON.build do |json|
     json.object do
-      if body["header"]?
-        count_text = body["header"]["commentsHeaderRenderer"]["countText"]
+      if header
+        count_text = header["commentsHeaderRenderer"]["countText"]
         comment_count = (count_text["simpleText"]? || count_text["runs"]?.try &.[0]?.try &.["text"]?)
           .try &.as_s.gsub(/\D/, "").to_i? || 0
-
         json.field "commentCount", comment_count
       end
 
@@ -185,7 +204,11 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
                   reply_count = 1
                 end
 
-                continuation = node_replies["continuations"]?.try &.as_a[0]["nextContinuationData"]["continuation"].as_s
+                if node_replies["continuations"]?
+                  continuation = node_replies["continuations"]?.try &.as_a[0]["nextContinuationData"]["continuation"].as_s
+                elsif node_replies["contents"]?
+                  continuation = node_replies["contents"]?.try &.as_a[0]["continuationItemRenderer"]["continuationEndpoint"]["continuationCommand"]["token"].as_s
+                end
                 continuation ||= ""
 
                 json.field "replies" do
@@ -200,9 +223,8 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
         end
       end
 
-      if body["continuations"]?
-        continuation = body["continuations"][0]["nextContinuationData"]["continuation"].as_s
-        json.field "continuation", continuation
+      if moreRepliesContinuation
+        json.field "continuation", moreRepliesContinuation
       end
     end
   end
