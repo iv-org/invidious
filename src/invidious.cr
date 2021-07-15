@@ -345,6 +345,10 @@ Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :sho
 Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
 Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
 
+Invidious::Routing.get "/setup_2fa", Invidious::Routes::Accounts, :setup_2fa_page
+Invidious::Routing.post "/setup_2fa", Invidious::Routes::Accounts, :setup_2fa
+Invidious::Routing.post "/validate_2fa", Invidious::Routes::Accounts, :validate_2fa
+
 # Users
 
 post "/watch_ajax" do |env|
