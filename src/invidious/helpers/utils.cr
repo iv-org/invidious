@@ -445,3 +445,78 @@ def parse_link_endpoint(endpoint : JSON::Any, text : String, video_id : String)
   end
   return text
 end
+
+def totp_validator(env)
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  referer = get_referer(env)
+
+  email = env.params.body["email"]?.try &.downcase.byte_slice(0, 254)
+  password = env.params.body["password"]?
+  totp_code = env.params.body["totp_code"]?
+  user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1", email, as: User)
+
+  if !totp_code
+    return error_template(401, translate(locale, "general-totp-empty-field"))
+  end
+
+  # Verify if possible
+  if token = env.params.body["csrf_token"]?
+    begin
+      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    rescue ex
+      return error_template(400, ex)
+    end
+  end
+
+  totp_instance = CrOTP::TOTP.new(user.totp_secret)
+  if !totp_instance.verify(totp_code)
+    return error_template(401, translate(locale, "general-totp-invalid-code"))
+  end
+
+  if Kemal.config.ssl || CONFIG.https_only
+    secure = true
+  else
+    secure = false
+  end
+
+  # There are two routes we can go here.
+  # 1. Where the user is already logged in and is
+  # confirming an dangerous task.
+  # 2. The user is logging in.
+  #
+  # This can be detected by the hidden email and password parameter
+
+  # https://stackoverflow.com/a/574698
+  if email && password
+    # The rest of the login code.
+    if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
+      sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
+      PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
+
+      if CONFIG.domain
+        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{CONFIG.domain}", value: sid, expires: Time.utc + 2.years,
+          secure: secure, http_only: true)
+      else
+        env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
+          secure: secure, http_only: true)
+      end
+    else
+      return error_template(401, "Wrong username or password")
+    end
+
+    # Since this user has already registered, we don't want to overwrite their preferences
+    if env.request.cookies["PREFS"]?
+      cookie = env.request.cookies["PREFS"]
+      cookie.expires = Time.utc(1990, 1, 1)
+      env.response.cookies << cookie
+    end
+
+    env.redirect referer
+  else
+    if CONFIG.domain
+      env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", domain: "#{CONFIG.domain}", value: true, expires: Time.utc + 1.hours, secure: secure, http_only: true)
+    else
+      env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", value: true, expires: Time.utc + 1.hours, secure: secure, http_only: true)
+    end
+  end
+end

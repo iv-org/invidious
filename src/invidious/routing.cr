@@ -78,6 +78,11 @@ module Invidious::Routing
     post "/token_ajax", Routes::Account, :token_ajax
     post "/subscription_ajax", Routes::Subscriptions, :toggle_subscription
     get "/subscription_manager", Routes::Subscriptions, :subscription_manager
+
+    # 2fa routes
+    Invidious::Routing.get "/setup_2fa", Routes::Account, :setup_2fa_page
+    Invidious::Routing.post "/setup_2fa", Routes::Account, :setup_2fa
+    Invidious::Routing.post "/validate_2fa", Routes::Account, :validate_2fa
   end
 
   def register_iv_playlist_routes

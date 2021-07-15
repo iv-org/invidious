@@ -31,6 +31,8 @@ dependencies:
   athena-negotiation:
     github: athena-framework/negotiation
     version: ~> 0.1.1
+  crotp:
+    github: philnash/crotp
 
 development_dependencies:
   spectator:

@@ -346,6 +346,10 @@
                 </div>
 
                 <div class="pure-control-group">
+                    <a href="/setup_2fa?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "setup-totp-form-header") %></a>
+                </div>
+
+                <div class="pure-control-group">
                     <a href="/delete_account?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Delete account") %></a>
                 </div>
             <% end %>
