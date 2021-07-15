@@ -347,6 +347,8 @@ Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :to
 
 Invidious::Routing.get "/setup_2fa", Invidious::Routes::Accounts, :setup_2fa_page
 Invidious::Routing.post "/setup_2fa", Invidious::Routes::Accounts, :setup_2fa
+Invidious::Routing.get "/remove_2fa", Invidious::Routes::Accounts, :remove_2fa_page
+Invidious::Routing.post "/remove_2fa", Invidious::Routes::Accounts, :remove_2fa
 Invidious::Routing.post "/validate_2fa", Invidious::Routes::Accounts, :validate_2fa
 
 # Users

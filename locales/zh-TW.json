@@ -433,5 +433,7 @@
     "general-totp-invalid-code": "",
     "general-totp-enter-code-field": "",
     "general-totp-enter-code-header": "",
-    "general-totp-verify-button": ""
+    "general-totp-verify-button": "",
+    "remove-totp-header": "",
+    "remove-totp-confirm-message": ""
 }

@@ -21,6 +21,43 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     return templated "account/setup_2fa"
   end
 
+  # Endpoint to remove 2fa
+  def remove_2fa_page(env)
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    referer = get_referer(env)
+
+    user = env.get("user").as(User)
+    sid = env.get("sid").as(String)
+    csrf_token = generate_response(sid, {":remove_2fa"}, HMAC_KEY, PG_DB)
+
+    return templated "account/remove_2fa"
+  end
+
+  # Remove 2fa post request.
+  def remove_2fa(env)
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+    user = env.get? "user"
+    sid = env.get? "sid"
+    referer = get_referer(env, unroll: false)
+
+    if !user
+      return env.redirect referer
+    end
+
+    user = user.as(User)
+    sid = sid.as(String)
+    token = env.params.body["csrf_token"]?
+
+    begin
+      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    rescue ex
+      return error_template(400, ex)
+    end
+
+    PG_DB.exec("UPDATE users SET totp_secret = $1 WHERE email = $2", nil, user.email)
+  end
+
   # Setup TOTP (post) request.
   def setup_2fa(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
@@ -28,8 +65,6 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     user = env.get? "user"
     sid = env.get? "sid"
     referer = get_referer(env, unroll: false)
-
-    puts referer
 
     if !user
       return env.redirect referer
