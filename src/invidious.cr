@@ -858,9 +858,8 @@ get "/change_password" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
-  if user.totp_secret && env.response.cookies["2faVerified"]?.try &.value != "1" || nil
-    csrf_token = generate_response(sid, {":validate_2fa"}, HMAC_KEY, PG_DB)
-    next templated "account/validate_2fa?referer=#{env.get?("current_page")}"
+  if user.totp_secret && env.request.cookies["2faVerified"]?.try &.value != "1" || nil
+    next call_totp_validator(env, user, sid, locale)
   end
 
   csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY, PG_DB)
@@ -937,6 +936,11 @@ get "/delete_account" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
+
+  if user.totp_secret && env.request.cookies["2faVerified"]?.try &.value != "1" || nil
+    next call_totp_validator(env, user, sid, locale)
+  end
+
   csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY, PG_DB)
 
   templated "account/delete_account"

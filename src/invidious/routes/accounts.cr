@@ -29,6 +29,8 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     sid = env.get? "sid"
     referer = get_referer(env, unroll: false)
 
+    puts referer
+
     if !user
       return env.redirect referer
     end
@@ -60,11 +62,12 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
   # Validate 2fa code endpoint
   def validate_2fa(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-    referer = get_referer(env)
+    referer = get_referer(env, unroll: false)
 
     email = env.params.body["email"]?.try &.downcase.byte_slice(0, 254)
     password = env.params.body["password"]?
     totp_code = env.params.body["totp_code"]?
+
     # This endpoint is only called when the user has a totp_secret.
     user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1", email, as: User).not_nil!
 
@@ -131,5 +134,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
         env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true)
       end
     end
+
+    env.redirect referer
   end
 end
