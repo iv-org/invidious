@@ -10,6 +10,7 @@ struct User
   property notifications : Array(String)
   property subscriptions : Array(String)
   property email : String
+  property totp_secret : String?
 
   @[DB::Field(converter: User::PreferencesConverter)]
   property preferences : Preferences
@@ -365,6 +366,7 @@ def fetch_user(sid, headers, db)
     token:             token,
     watched:           [] of String,
     feed_needs_update: true,
+    totp_secret:       nil,
   })
   return user, sid
 end
@@ -383,6 +385,7 @@ def create_user(sid, email, password)
     token:             token,
     watched:           [] of String,
     feed_needs_update: true,
+    totp_secret:       nil,
   })
 
   return user, sid
