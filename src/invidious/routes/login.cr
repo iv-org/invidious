@@ -56,13 +56,13 @@ module Invidious::Routes::Login
       user = Invidious::Database::Users.select(email: email)
 
       if user
-        # If user has setup TOTP
-        if user.totp_secret
-          csrf_token = nil # setting this to false for compatibility reasons.
-          return templated "user/validate_2fa"
-        end
+        if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55)) \
+                      # If the password is correct then we'll go ahead and begin 2fa if applicable
+          if user.totp_secret
+            csrf_token = nil # setting this to false for compatibility reasons.
+            return templated "user/validate_2fa"
+          end
 
-        if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           Invidious::Database::SessionIDs.insert(sid, email)
 

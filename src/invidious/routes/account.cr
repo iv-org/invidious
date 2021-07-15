@@ -373,6 +373,8 @@ module Invidious::Routes::Account
   # -------------------
   # 2fa through OTP handling
   # -------------------
+
+  # Setup 2fa page
   def setup_2fa_page(env)
     locale = env.get("preferences").as(Preferences).locale
 
@@ -391,7 +393,7 @@ module Invidious::Routes::Account
     return templated "user/setup_2fa"
   end
 
-  # Setup TOTP (post) request.
+  # Setup 2fa post request.
   def setup_2fa(env)
     locale = env.get("preferences").as(Preferences).locale
 
@@ -463,7 +465,7 @@ module Invidious::Routes::Account
 
     # https://stackoverflow.com/a/574698
     if email && password
-      # The rest of the login code.
+      # Verify the password again for extra security
       if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
@@ -506,7 +508,7 @@ module Invidious::Routes::Account
     env.redirect referer
   end
 
-  # Endpoint to remove 2fa
+  # Remove 2fa page
   def remove_2fa_page(env)
     locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env)
