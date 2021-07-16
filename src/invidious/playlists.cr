@@ -437,17 +437,38 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
     db.query_all("SELECT * FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 100 OFFSET $3",
       playlist.id, playlist.index, offset, as: PlaylistVideo)
   else
-    if offset >= 100
-      # Normalize offset to match youtube's behavior (100 videos chunck per request)
-      offset = (offset / 100).to_i64 * 100_i64
+    videos = [] of PlaylistVideo
 
-      ctoken = produce_playlist_continuation(playlist.id, offset)
-      initial_data = YoutubeAPI.browse(ctoken)
-    else
-      initial_data = YoutubeAPI.browse("VL" + playlist.id, params: "")
+    until videos.size >= 50 || videos.size == playlist.video_count 
+      if offset >= 100
+        # Normalize offset to match youtube's behavior (100 videos chunck per request)
+        normalized_offset = (offset / 100).to_i64 * 100_i64
+        ctoken = produce_playlist_continuation(playlist.id, normalized_offset)
+        initial_data = request_youtube_api_browse(ctoken)
+      else
+        initial_data = request_youtube_api_browse("VL" + playlist.id, params: "")
+      end
+
+      videos += extract_playlist_videos(initial_data)
+
+      if continuation
+        until videos[0].id == continuation
+          videos.shift
+        end
+      elsif
+        until videos[0].index == offset
+          videos.shift
+        end
+      end
+
+      if offset == 0
+        offset = videos[0].index
+      end
+
+      offset += 50
     end
 
-    return extract_playlist_videos(initial_data)
+    return videos
   end
 end
 
