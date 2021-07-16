@@ -55,7 +55,11 @@ db:
 ##
 ## Port to listen on for incoming connections.
 ##
-## Accepted values: 1024-65535
+## Note: Ports lower than 1024 requires either root privileges
+## (not recommended) or the "CAP_NET_BIND_SERVICE" capability
+## (See https://stackoverflow.com/a/414258 and `man capabilities`)
+##
+## Accepted values: 1-65535
 ## Default: 3000
 ##
 #port: 3000
@@ -147,8 +151,8 @@ https_only: false
 ## https://datatracker.ietf.org/doc/html/draft-ietf-quic-transport-31
 ##
 ## Note: you should try both options and see what is the best for your
-## instance. In general QUIC is recommended for public instances, and
-## not recommended for private one. Your mileage may vary.
+## instance. In general QUIC is recommended for public instances. Your
+## mileage may vary.
 ##
 ## Note 2: Using QUIC prevents some captcha challenges from appearing.
 ## See: https://github.com/iv-org/invidious/issues/957#issuecomment-576424042
@@ -380,13 +384,19 @@ feed_threads: 1
 #banner:
 
 ##
-## Subscribe to channels using PubSubHub.
+## Subscribe to channels using PubSubHub (Google PubSubHubbub service).
+## PubSubHub allows Invidious to be instantly notified when a new video
+## is published on any subscribed channels. When PubSubHub is not used,
+## Invidious will check for new videos every minute.
 ##
-## Notes:
+## Note: This setting is recommended for public instances.
+##
+## Note 2:
+##  - Requires a public instance (it uses /feed/webhook/v1)
 ##  - Requires 'domain' and 'hmac_key' to be set.
-##  - Setting this parameter to any number greater than zer will
-##    enable channel subscriptions via PubSubHub, but will limit
-##    the amount of concurrent subscriptions.
+##  - Setting this parameter to any number greater than zero will
+##    enable channel subscriptions via PubSubHub, but will limit the
+##    amount of concurrent subscriptions.
 ##
 ## Accepted values: true, false, a positive integer
 ## Default: false
