@@ -69,6 +69,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     end
 
     PG_DB.exec("UPDATE users SET totp_secret = $1 WHERE email = $2", nil, user.email)
+    env.redirect referer
   end
 
   # Handles requests to setup 2fa on an user account
