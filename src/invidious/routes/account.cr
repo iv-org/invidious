@@ -524,7 +524,7 @@ module Invidious::Routes::Account
     return templated "user/remove_2fa"
   end
 
-  # Remove 2fa post request.
+  # Handles requests to remove 2fa on an user account
   def remove_2fa(env)
     locale = env.get("preferences").as(Preferences).locale
 
@@ -547,5 +547,6 @@ module Invidious::Routes::Account
     end
 
     PG_DB.exec("UPDATE users SET totp_secret = $1 WHERE email = $2", nil, user.email)
+    env.redirect referer
   end
 end
