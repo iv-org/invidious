@@ -3,7 +3,7 @@
 <% end %>
 
 <div class="h-box">
-    <form class="pure-form pure-form-aligned" action="/remove_2fa?referer=<%= URI.encode_www_form(referer) %>" method="post">
+    <form class="pure-form pure-form-aligned" action="/2fa/remove?referer=<%= URI.encode_www_form(referer) %>" method="post">
         <legend><%= translate(locale, "remove_totp_confirm_message") %></legend>
 
         <div class="pure-g">

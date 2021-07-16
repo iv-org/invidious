@@ -326,8 +326,8 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
           return error_template(400, "Please sign in using 'Log in with Google'")
         end
 
-        if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55)) \
-                      # If the password is correct then we'll go ahead and begin 2fa if applicable
+        if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
+          # If the password is correct then we'll go ahead and begin 2fa if applicable
           if user.totp_secret
             csrf_token = nil # setting this to false for compatibility reasons.
             return templated "account/validate_2fa"

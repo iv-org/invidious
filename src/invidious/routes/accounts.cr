@@ -13,7 +13,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
 
     user = user.as(User)
     sid = sid.as(String)
-    csrf_token = generate_response(sid, {":setup_2fa"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":2fa/setup"}, HMAC_KEY, PG_DB)
 
     db_secret = Random::Secure.random_bytes(16).hexstring
     totp = CrOTP::TOTP.new(db_secret)
@@ -29,7 +29,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
 
     user = env.get("user").as(User)
     sid = env.get("sid").as(String)
-    csrf_token = generate_response(sid, {":remove_2fa"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":2fa/remove"}, HMAC_KEY, PG_DB)
 
     return templated "account/remove_2fa"
   end
@@ -139,10 +139,10 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
 
         if CONFIG.domain
           env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{CONFIG.domain}", value: sid, expires: Time.utc + 2.years,
-            secure: secure, http_only: true)
+            secure: secure, http_only: true, path: "/")
         else
           env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
-            secure: secure, http_only: true)
+            secure: secure, http_only: true, path: "/")
         end
       else
         return error_template(401, "Wrong username or password")
@@ -154,7 +154,6 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
         cookie.expires = Time.utc(1990, 1, 1)
         env.response.cookies << cookie
       end
-
       env.redirect referer
     else
       token = env.params.body["csrf_token"]
@@ -166,9 +165,9 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
       end
 
       if CONFIG.domain
-        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", domain: "#{CONFIG.domain}", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true)
+        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", domain: "#{CONFIG.domain}", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true, path: "/")
       else
-        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true)
+        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true, path: "/")
       end
     end
 
