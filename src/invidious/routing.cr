@@ -80,11 +80,11 @@ module Invidious::Routing
     get "/subscription_manager", Routes::Subscriptions, :subscription_manager
 
     # 2fa routes
-    Invidious::Routing.get "/setup_2fa", Routes::Account, :setup_2fa_page
-    Invidious::Routing.post "/setup_2fa", Routes::Account, :setup_2fa
-    Invidious::Routing.post "/validate_2fa", Routes::Account, :validate_2fa
-    Invidious::Routing.get "/remove_2fa", Routes::Account, :remove_2fa_page
-    Invidious::Routing.post "/remove_2fa", Routes::Account, :remove_2fa
+    Invidious::Routing.get "/2fa/setup", Routes::Account, :setup_2fa_page
+    Invidious::Routing.post "/2fa/setup", Routes::Account, :setup_2fa
+    Invidious::Routing.get "/2fa/remove", Routes::Account, :remove_2fa_page
+    Invidious::Routing.post "/2fa/remove", Routes::Account, :remove_2fa
+    Invidious::Routing.post "/2fa/validate", Routes::Account, :validate_2fa
   end
 
   def register_iv_playlist_routes

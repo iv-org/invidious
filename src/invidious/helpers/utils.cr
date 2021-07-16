@@ -449,7 +449,7 @@ end
 
 def call_totp_validator(env, user, sid, locale)
   referer = URI.decode_www_form(env.get?("current_page").to_s)
-  csrf_token = generate_response(sid, {":validate_2fa"}, HMAC_KEY)
+  csrf_token = generate_response(sid, {":2fa/validate"}, HMAC_KEY)
   email, password = {user.email, nil}
   return templated "user/validate_2fa"
 end

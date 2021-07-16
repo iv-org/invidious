@@ -384,7 +384,7 @@ module Invidious::Routes::Account
 
     user = user.as(User)
     sid = sid.as(String)
-    csrf_token = generate_response(sid, {":setup_2fa"}, HMAC_KEY)
+    csrf_token = generate_response(sid, {":2fa/setup"}, HMAC_KEY)
 
     db_secret = Random::Secure.random_bytes(16).hexstring
     totp = CrOTP::TOTP.new(db_secret)
@@ -472,10 +472,10 @@ module Invidious::Routes::Account
 
         if CONFIG.domain
           env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{CONFIG.domain}", value: sid, expires: Time.utc + 2.years,
-            secure: secure, http_only: true)
+            secure: secure, http_only: true, path: "/")
         else
           env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
-            secure: secure, http_only: true)
+            secure: secure, http_only: true, path: "/")
         end
       else
         return error_template(401, "Wrong username or password")
@@ -499,9 +499,9 @@ module Invidious::Routes::Account
       end
 
       if CONFIG.domain
-        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", domain: "#{CONFIG.domain}", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true)
+        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", domain: "#{CONFIG.domain}", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true, path: "/")
       else
-        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true)
+        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true, path: "/")
       end
     end
 
@@ -515,7 +515,7 @@ module Invidious::Routes::Account
 
     user = env.get("user").as(User)
     sid = env.get("sid").as(String)
-    csrf_token = generate_response(sid, {":remove_2fa"}, HMAC_KEY)
+    csrf_token = generate_response(sid, {":2fa/remove"}, HMAC_KEY)
 
     return templated "user/remove_2fa"
   end
