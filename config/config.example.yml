@@ -333,6 +333,9 @@ feed_threads: 1
 ## Enable/Disable the polling job that keeps the decryption
 ## function (for "secured" videos) up to date.
 ##
+## Note: This part of the code is currently broken, so changing
+## this setting has no impact.
+##
 ## Accepted values: true, false
 ## Default: true
 ##
