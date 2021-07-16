@@ -35,7 +35,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     sid = env.get? "sid"
     referer = get_referer(env, unroll: false)
 
-    if !user
+    if !user || user.is_a? User && !user.totp_secret
       return env.redirect referer
     end
 
@@ -54,7 +54,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     sid = env.get? "sid"
     referer = get_referer(env, unroll: false)
 
-    if !user
+    if !user || user.is_a? User && !user.totp_secret
       return env.redirect referer
     end
 
