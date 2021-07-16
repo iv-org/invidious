@@ -374,13 +374,17 @@ module Invidious::Routes::Account
   # 2fa through OTP handling
   # -------------------
 
-  # Setup 2fa page
+  # Templates the page to setup 2fa on an user account
   def setup_2fa_page(env)
     locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
     referer = get_referer(env, unroll: false)
+
+    if !user
+      return env.redirect referer
+    end
 
     user = user.as(User)
     sid = sid.as(String)
@@ -393,7 +397,7 @@ module Invidious::Routes::Account
     return templated "user/setup_2fa"
   end
 
-  # Setup 2fa post request.
+  # Handles requests to setup 2fa on an user account
   def setup_2fa(env)
     locale = env.get("preferences").as(Preferences).locale
 
@@ -430,7 +434,7 @@ module Invidious::Routes::Account
     env.redirect referer
   end
 
-  # Validate 2fa code endpoint
+  # Handles requests to validate a TOTP code on an user account
   def validate_2fa(env)
     locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env, unroll: false)
@@ -508,7 +512,7 @@ module Invidious::Routes::Account
     env.redirect referer
   end
 
-  # Remove 2fa page
+  # Templates the page to remove 2fa on an user account
   def remove_2fa_page(env)
     locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env)

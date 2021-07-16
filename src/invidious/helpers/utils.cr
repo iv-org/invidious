@@ -447,6 +447,10 @@ def parse_link_endpoint(endpoint : JSON::Any, text : String, video_id : String)
 end
 
 
+# Templates the 2fa validator page.
+#
+# Requires the env, user, sid and locale variables for
+# generating a csrf_token and the required variables for the view.
 def call_totp_validator(env, user, sid, locale)
   referer = URI.decode_www_form(env.get?("current_page").to_s)
   csrf_token = generate_response(sid, {":2fa/validate"}, HMAC_KEY)
