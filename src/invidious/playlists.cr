@@ -545,7 +545,7 @@ def template_playlist(playlist)
   playlist["videos"].as_a.each do |video|
     html += <<-END_HTML
       <li class="pure-menu-item">
-        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}">
+        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}">
           <div class="thumbnail">
               <img class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg">
               <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>
