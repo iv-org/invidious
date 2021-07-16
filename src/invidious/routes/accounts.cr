@@ -3,13 +3,17 @@ require "./base_route"
 
 # Different routes relating to existing accounts and the control of their data.
 class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
-  # Setup 2fa page
+  # Templates the page to setup 2fa on an user account
   def setup_2fa_page(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
     sid = env.get? "sid"
     referer = get_referer(env, unroll: false)
+
+    if !user
+      return env.redirect referer
+    end
 
     user = user.as(User)
     sid = sid.as(String)
@@ -22,19 +26,27 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     return templated "account/setup_2fa"
   end
 
-  # Remove 2fa page
+  # Templates the page to remove 2fa on an user account
   def remove_2fa_page(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     referer = get_referer(env)
 
-    user = env.get("user").as(User)
-    sid = env.get("sid").as(String)
+    user = env.get? "user"
+    sid = env.get? "sid"
+    referer = get_referer(env, unroll: false)
+
+    if !user
+      return env.redirect referer
+    end
+
+    user = user.as(User)
+    sid = sid.as(String)
     csrf_token = generate_response(sid, {":2fa/remove"}, HMAC_KEY, PG_DB)
 
     return templated "account/remove_2fa"
   end
 
-  # Remove 2fa post request.
+  # Handles requests to remove 2fa on an user account
   def remove_2fa(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -59,7 +71,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     PG_DB.exec("UPDATE users SET totp_secret = $1 WHERE email = $2", nil, user.email)
   end
 
-  # Setup 2fa post request.
+  # Handles requests to setup 2fa on an user account
   def setup_2fa(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -96,7 +108,7 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     env.redirect referer
   end
 
-  # Validate 2fa code endpoint
+  # Handles requests to validate a TOTP code on an user account
   def validate_2fa(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     referer = get_referer(env, unroll: false)
