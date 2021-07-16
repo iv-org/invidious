@@ -1,10 +1,10 @@
 <% content_for "header" do %>
-<title><%= translate(locale, "remove-totp-header") %> - Invidious</title>
+<title><%= translate(locale, "remove_totp_header") %> - Invidious</title>
 <% end %>
 
 <div class="h-box">
     <form class="pure-form pure-form-aligned" action="/remove_2fa?referer=<%= URI.encode_www_form(referer) %>" method="post">
-        <legend><%= translate(locale, "remove-totp-confirm-message") %></legend>
+        <legend><%= translate(locale, "remove_totp_confirm_message") %></legend>
 
         <div class="pure-g">
             <div class="pure-u-1-2">
