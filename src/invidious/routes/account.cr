@@ -515,10 +515,17 @@ module Invidious::Routes::Account
   # Templates the page to remove 2fa on an user account
   def remove_2fa_page(env)
     locale = env.get("preferences").as(Preferences).locale
-    referer = get_referer(env)
 
-    user = env.get("user").as(User)
-    sid = env.get("sid").as(String)
+    user = env.get? "user"
+    sid = env.get? "sid"
+    referer = get_referer(env, unroll: false)
+
+    if !user || user.is_a? User && !user.totp_secret
+      return env.redirect referer
+    end
+
+    user = user.as(User)
+    sid = sid.as(String)
     csrf_token = generate_response(sid, {":2fa/remove"}, HMAC_KEY)
 
     return templated "user/remove_2fa"
@@ -532,7 +539,7 @@ module Invidious::Routes::Account
     sid = env.get? "sid"
     referer = get_referer(env, unroll: false)
 
-    if !user
+    if !user || user.is_a? User && !user.totp_secret
       return env.redirect referer
     end
 
