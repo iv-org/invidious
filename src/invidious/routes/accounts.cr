@@ -84,12 +84,12 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     totp_code = env.params.body["totp_code"]?
     db_secret = env.params.body["db_secret"] # Must exist
     if !totp_code
-      return error_template(401, translate(locale, "general-totp-empty-field"))
+      return error_template(401, translate(locale, "general_totp_empty_field"))
     end
 
     totp_instance = CrOTP::TOTP.new(db_secret)
     if !totp_instance.verify(totp_code)
-      return error_template(401, translate(locale, "general-totp-invalid-code"))
+      return error_template(401, translate(locale, "general_totp_invalid_code"))
     end
 
     PG_DB.exec("UPDATE users SET totp_secret = $1 WHERE email = $2", db_secret.to_s, user.email)
@@ -109,12 +109,12 @@ class Invidious::Routes::Accounts < Invidious::Routes::BaseRoute
     user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1", email, as: User).not_nil!
 
     if !totp_code
-      return error_template(401, translate(locale, "general-totp-empty-field"))
+      return error_template(401, translate(locale, "general_totp_empty_field"))
     end
 
     totp_instance = CrOTP::TOTP.new(user.totp_secret.not_nil!)
     if !totp_instance.verify(totp_code)
-      return error_template(401, translate(locale, "general-totp-invalid-code"))
+      return error_template(401, translate(locale, "general_totp_invalid_code"))
     end
 
     if Kemal.config.ssl || CONFIG.https_only
