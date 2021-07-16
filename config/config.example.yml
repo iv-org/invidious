@@ -713,6 +713,15 @@ default_user_preferences:
   ##
   #volume: 100
 
+  ##
+  ## Allow 360° videos to be played.
+  ##
+  ## Note: This feature requires a WebGL-enabled browser.
+  ##
+  ## Accepted values: true, false
+  ## Default: true
+  ##
+  #vr_mode: true
 
   # -----------------------------
   #  Subscription feed
@@ -781,3 +790,23 @@ default_user_preferences:
   ## Default: false
   ##
   #local: false
+
+  ##
+  ## Show the connected user's nick at the top right.
+  ##
+  ## Accepted values: true, false
+  ## Default: true
+  ##
+  #show_nick: true
+
+  ##
+  ## Automatically redirect to a random instance when the user uses
+  ## any "switch invidious instance" link (For videos, it's the plane
+  ## icon, next to "watch on youtube" and "listen"). When set to false,
+  ## the user is sent to https://redirect.invidious.io instead, where
+  ## they can manually select an instance.
+  ##
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #automatic_instance_redirect: false
