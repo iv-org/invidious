@@ -146,9 +146,12 @@ https_only: false
 ## optimized. You can read more about QUIC at the link below:
 ## https://datatracker.ietf.org/doc/html/draft-ietf-quic-transport-31
 ##
-## Note: you should try both options and see what is the best for
-## your instance. Also, some maintainers reported that using QUIC
-## may reduce the occurence of captcha challenges from youtube.
+## Note: you should try both options and see what is the best for your
+## instance. In general QUIC is recommended for public instances, and
+## not recommended for private one. Your mileage may vary.
+##
+## Note 2: Using QUIC prevents some captcha challenges from appearing.
+## See: https://github.com/iv-org/invidious/issues/957#issuecomment-576424042
 ##
 ## Accepted values: true, false
 ## Default: true
