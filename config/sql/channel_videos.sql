@@ -19,12 +19,12 @@ CREATE TABLE public.channel_videos
 
 GRANT ALL ON TABLE public.channel_videos TO kemal;
 
--- Index: public.channel_videos_ucid_idx
+-- Index: public.channel_videos_ucid_published_idx
 
--- DROP INDEX public.channel_videos_ucid_idx;
+-- DROP INDEX public.channel_videos_ucid_published_idx;
 
-CREATE INDEX channel_videos_ucid_idx
+CREATE INDEX channel_videos_ucid_published_idx
   ON public.channel_videos
   USING btree
-  (ucid COLLATE pg_catalog."default");
+  (ucid COLLATE pg_catalog."default", published);
 
