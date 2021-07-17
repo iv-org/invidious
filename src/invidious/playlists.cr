@@ -439,7 +439,8 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
   else
     videos = [] of PlaylistVideo
 
-    until videos.size >= 50 || videos.size == playlist.video_count || offset >= playlist.video_count
+    original_offset = offset
+    until videos.size >= 100 || videos.size == playlist.video_count || offset >= playlist.video_count
       if offset >= 100
         # Normalize offset to match youtube's behavior (100 videos chunck per request)
         normalized_offset = (offset / 100).to_i64 * 100_i64
@@ -459,7 +460,7 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
           end
         end
       else
-        until videos[0].index == offset
+        until videos[0].index == original_offset
           videos.shift
           if videos.size == 0
             break
@@ -550,7 +551,7 @@ def template_playlist(playlist)
 
   playlist["videos"].as_a.each do |video|
     html += <<-END_HTML
-      <li class="pure-menu-item">
+      <li class="pure-menu-item" id="#{video["videoId"]}">
         <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}">
           <div class="thumbnail">
               <img class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg">
