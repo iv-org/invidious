@@ -2,7 +2,7 @@ require "lsquic"
 require "db"
 
 def add_yt_headers(request)
-  request.headers["user-agent"] ||= "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
+  request.headers["user-agent"] ||= UA_LIST.sample(1)[0]
   request.headers["accept-charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
   request.headers["accept"] ||= "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
   request.headers["accept-language"] ||= "en-us,en;q=0.5"

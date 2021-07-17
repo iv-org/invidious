@@ -1,0 +1,14 @@
+{
+"safari": {
+    "os": ["Macintosh; Intel Mac OS X 10_15_7", "Macintosh; Intel Mac OS X 10_15_6", 
+           "Macintosh; Intel Mac OS X 11_3", ""],
+    "versions": ["14.1.1", "14.1", "14.0.3"]
+    },
+
+"firefox": {
+    "os": ["Macintosh; Intel Mac OS X 10.15'", "Macintosh; Intel Mac OS X 10.14",
+            "Windows NT 10.0; Win64; x64", "X11; Ubuntu; Linux x86_64",
+            "X11; Linux x86_64", "Windows NT 10.0", "Macintosh; Intel Mac OS X 11.3"],
+    "versions": ["88.0 ", "89.0", "90.0", "78.0"]
+    }   
+}
