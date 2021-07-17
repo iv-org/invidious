@@ -66,7 +66,8 @@ SOFTWARE = {
   "branch"  => "#{CURRENT_BRANCH}",
 }
 
-YT_POOL = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2.0, use_quic: CONFIG.use_quic)
+YT_POOL      = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2.0, use_quic: CONFIG.use_quic)
+MAX_LOOKBACK = 20
 
 # CLI
 Kemal.config.extra_options do |parser|
@@ -2463,9 +2464,8 @@ end
     end
 
     # includes into the playlist a maximum of 20 videos, before the offset
-    lookback = 20
     if offset > 0
-      lookback = offset < lookback ? offset : lookback
+      lookback = offset < MAX_LOOKBACK ? offset : MAX_LOOKBACK
       response = playlist.to_json(offset - lookback, locale)
       json_response = JSON.parse(response)
     else
@@ -2474,12 +2474,13 @@ end
       #  First we find the actual offset, and then we lookback
       #  it shouldn't happen often though
 
+      lookback = 0
       response = playlist.to_json(offset, locale, continuation: continuation)
       json_response = JSON.parse(response)
 
       if json_response["videos"].as_a[0]["index"] != offset
         offset = json_response["videos"].as_a[0]["index"].as_i
-        lookback = offset < 50 ? offset : 50
+        lookback = offset < MAX_LOOKBACK ? offset : MAX_LOOKBACK
         response = playlist.to_json(offset - lookback, locale)
         json_response = JSON.parse(response)
       end
