@@ -149,6 +149,8 @@ function get_playlist(plid, retries) {
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
                 playlist.innerHTML = xhr.response.playlistHtml;
+                var nextVideo = document.getElementById(xhr.response.nextVideo);
+                nextVideo.parentNode.parentNode.scrollTop = nextVideo.offsetTop;
 
                 if (xhr.response.nextVideo) {
                     player.on('ended', function () {
