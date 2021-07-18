@@ -2462,9 +2462,9 @@ end
       next error_json(404, "Playlist does not exist.")
     end
 
-    # includes into the playlist a maximum of CONFIG.max_loopback videos, before the offset
+    # includes into the playlist a maximum of CONFIG.max_lookback videos, before the offset
     if offset > 0
-      lookback = offset < CONFIG.max_loopback ? offset : CONFIG.max_loopback
+      lookback = offset < CONFIG.max_lookback ? offset : CONFIG.max_lookback
       response = playlist.to_json(offset - lookback, locale)
       json_response = JSON.parse(response)
     else
@@ -2479,7 +2479,7 @@ end
 
       if json_response["videos"].as_a[0]["index"] != offset
         offset = json_response["videos"].as_a[0]["index"].as_i
-        lookback = offset < CONFIG.max_loopback ? offset : CONFIG.max_loopback
+        lookback = offset < CONFIG.max_lookback ? offset : CONFIG.max_lookback
         response = playlist.to_json(offset - lookback, locale)
         json_response = JSON.parse(response)
       end

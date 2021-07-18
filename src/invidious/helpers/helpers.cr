@@ -73,7 +73,6 @@ class Config
   property output : String = "STDOUT"            # Log file path or STDOUT
   property log_level : LogLevel = LogLevel::Info # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
   property db : DBConfig? = nil                  # Database configuration with separate parameters (username, hostname, etc)
-  property max_loopback : Int32 = 100            # Maximum videos to be loaded into the playlist before the video playing
 
   @[YAML::Field(converter: Preferences::URIConverter)]
   property database_url : URI = URI.parse("")      # Database configuration using 12-Factor "Database URL" syntax
@@ -97,6 +96,7 @@ class Config
   property banner : String? = nil                         # Optional banner to be displayed along top of page for announcements, etc.
   property hsts : Bool? = true                            # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
   property disable_proxy : Bool? | Array(String)? = false # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
+  property max_lookback : Int32 = 50                      # Maximum videos to be loaded into the playlist before the video playing
 
   @[YAML::Field(converter: Preferences::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
