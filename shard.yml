@@ -25,6 +25,9 @@ dependencies:
   lsquic:
     github: iv-org/lsquic.cr
     version: ~> 2.18.1-2
+  duktape:
+    github: jessedoyle/duktape.cr
+    version: ~> 1.0.0
 
 crystal: 1.0.0
 

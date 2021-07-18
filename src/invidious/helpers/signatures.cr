@@ -1,14 +1,19 @@
+require "duktape/runtime"
+
 alias SigProc = Proc(Array(String), Int32, Array(String))
 
 struct DecryptFunction
   @decrypt_function = [] of {SigProc, Int32}
   @decrypt_time = Time.monotonic
 
+  @decrypt_n_function = ""
+  @last_decrypted_n = {id: "", n: "", dec_n: ""}
+
   def initialize(@use_polling = true)
   end
 
   def update_decrypt_function
-    @decrypt_function = fetch_decrypt_function
+    fetch_decrypt_function
   end
 
   private def fetch_decrypt_function(id = "CvFH_6DNRCY")
@@ -48,7 +53,21 @@ struct DecryptFunction
       decrypt_function << {operations[op_name], value}
     end
 
-    return decrypt_function
+    @decrypt_function = decrypt_function
+
+    function_name = player.match(/a\.get\("n"\)\)&&[\(]b=(?<nfunc>[a-zA-Z0-9]+)\(b\)/m).not_nil!["nfunc"]
+    function_body = player.match(/^#{Regex.escape(function_name)}=(?<body>function\(\w\)\{.*?"enhanced_except_[^\}]+\}[^\}]+\})/m).not_nil!["body"]
+    @decrypt_n_function = function_body
+  end
+
+  private def try_fetch_decrypt_function
+    if !@use_polling
+      now = Time.monotonic
+      if now - @decrypt_time > 60.seconds || @decrypt_function.size == 0 || !@decrypt_n_function
+        fetch_decrypt_function
+        @decrypt_time = Time.monotonic
+      end
+    end
   end
 
   def decrypt_signature(fmt : Hash(String, JSON::Any))
@@ -56,18 +75,35 @@ struct DecryptFunction
 
     sp = fmt["sp"].as_s
     sig = fmt["s"].as_s.split("")
-    if !@use_polling
-      now = Time.monotonic
-      if now - @decrypt_time > 60.seconds || @decrypt_function.size == 0
-        @decrypt_function = fetch_decrypt_function
-        @decrypt_time = Time.monotonic
-      end
-    end
+
+    try_fetch_decrypt_function
 
     @decrypt_function.each do |proc, value|
       sig = proc.call(sig, value)
     end
 
     return "&#{sp}=#{sig.join("")}"
+  end
+
+  def overwrite_n(id : String, fmt : Hash(String, JSON::Any))
+    uri = URI.parse(fmt["url"].as_s)
+    params = HTTP::Params.parse(uri.query.not_nil!)
+    return fmt["url"].as_s unless params["n"]?
+    n = params["n"]
+
+    try_fetch_decrypt_function
+
+    begin
+      rt = Duktape::Runtime.new do |sbx|
+        sbx.eval! "var dec=#{@decrypt_n_function}"
+      end
+      dec_n = rt.call("dec", n).to_s
+    rescue ex
+      dec_n = n
+    end
+
+    LOGGER.debug("decrypt_n: #{id} n = #{n} -> #{dec_n}")
+    params["n"] = dec_n
+    return URI.new(uri.scheme, uri.host, uri.port, uri.path, params).to_s
   end
 end

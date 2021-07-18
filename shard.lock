@@ -4,6 +4,10 @@ shards:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.10.1
 
+  duktape:
+    git: https://github.com/jessedoyle/duktape.cr.git
+    version: 1.0.0
+
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
     version: 0.1.5
