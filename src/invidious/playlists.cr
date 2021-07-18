@@ -439,28 +439,15 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
   else
     videos = [] of PlaylistVideo
 
-    original_offset = offset
     until videos.size >= 100 || videos.size == playlist.video_count || offset >= playlist.video_count
-      if offset >= 100
-        # Normalize offset to match youtube's behavior (100 videos chunck per request)
-        normalized_offset = (offset / 100).to_i64 * 100_i64
-        ctoken = produce_playlist_continuation(playlist.id, normalized_offset)
-        initial_data = request_youtube_api_browse(ctoken)
-      else
-        initial_data = request_youtube_api_browse("VL" + playlist.id, params: "")
-      end
 
+      # 100 videos per request
+      ctoken = produce_playlist_continuation(playlist.id, offset)
+      initial_data = request_youtube_api_browse(ctoken)
       videos += extract_playlist_videos(initial_data)
 
       if continuation
         until videos[0].id == continuation
-          videos.shift
-          if videos.size == 0
-            break
-          end
-        end
-      else
-        until videos[0].index == original_offset
           videos.shift
           if videos.size == 0
             break
