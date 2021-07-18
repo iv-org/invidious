@@ -67,7 +67,6 @@ SOFTWARE = {
 }
 
 YT_POOL      = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size, timeout: 2.0, use_quic: CONFIG.use_quic)
-MAX_LOOKBACK = 20
 
 # CLI
 Kemal.config.extra_options do |parser|
@@ -2463,9 +2462,9 @@ end
       next error_json(404, "Playlist does not exist.")
     end
 
-    # includes into the playlist a maximum of 20 videos, before the offset
+    # includes into the playlist a maximum of CONFIG.max_loopback videos, before the offset
     if offset > 0
-      lookback = offset < MAX_LOOKBACK ? offset : MAX_LOOKBACK
+      lookback = offset < CONFIG.max_loopback ? offset : CONFIG.max_loopback
       response = playlist.to_json(offset - lookback, locale)
       json_response = JSON.parse(response)
     else
@@ -2480,7 +2479,7 @@ end
 
       if json_response["videos"].as_a[0]["index"] != offset
         offset = json_response["videos"].as_a[0]["index"].as_i
-        lookback = offset < MAX_LOOKBACK ? offset : MAX_LOOKBACK
+        lookback = offset < CONFIG.max_loopback ? offset : CONFIG.max_loopback
         response = playlist.to_json(offset - lookback, locale)
         json_response = JSON.parse(response)
       end

@@ -73,6 +73,7 @@ class Config
   property output : String = "STDOUT"            # Log file path or STDOUT
   property log_level : LogLevel = LogLevel::Info # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
   property db : DBConfig? = nil                  # Database configuration with separate parameters (username, hostname, etc)
+  property max_loopback : Int32 = 100            # Maximum videos to be loaded into the playlist before the video playing
 
   @[YAML::Field(converter: Preferences::URIConverter)]
   property database_url : URI = URI.parse("")      # Database configuration using 12-Factor "Database URL" syntax
