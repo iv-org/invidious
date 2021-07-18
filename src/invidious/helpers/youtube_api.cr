@@ -4,7 +4,7 @@
 
 # Hard-coded constants required by the API
 HARDCODED_API_KEY     = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-HARDCODED_CLIENT_VERS = "2.20210330.08.00"
+HARDCODED_CLIENT_VERS = "2.20210623.03.00"
 
 ####################################################################
 # make_youtube_api_context(region)
@@ -36,7 +36,7 @@ end
 # The requested data can either be:
 #
 #  - A continuation token (ctoken). Depending on this token's
-#    contents, the returned data can be comments, playlist videos,
+#    contents, the returned data can be playlist videos,
 #    search results, channel community tab, ...
 #
 #  - A playlist ID (parameters MUST be an empty string)
@@ -65,6 +65,48 @@ def request_youtube_api_browse(browse_id : String, params : String, region : Str
   end
 
   return _youtube_api_post_json("/youtubei/v1/browse", data)
+end
+
+####################################################################
+# request_youtube_api_next(continuation)
+# request_youtube_api_next(video_id, params)
+#
+# Requests the youtubei/v1/next endpoint with the required headers
+# and POST data in order to get a JSON reply in english that can
+# be easily parsed.
+#
+# The requested data can either be:
+#
+#  - A continuation token (ctoken). Depending on this token's
+#    contents, the returned data can be videos comments,
+#    their replies, ...
+#
+#  - A video ID (parameters MUST be an empty string)
+#
+
+def request_youtube_api_next(continuation : String, region : String | Nil)
+  # JSON Request data, required by the API
+  data = {
+    "context"      => make_youtube_api_context(region),
+    "continuation" => continuation,
+  }
+
+  return _youtube_api_post_json("/youtubei/v1/next", data)
+end
+
+def request_youtube_api_next(video_id : String, region : String | Nil, params : String)
+  # JSON Request data, required by the API
+  data = {
+    "videoId" => video_id,
+    "context" => make_youtube_api_context(region),
+  }
+
+  # Append the additionnal parameters if those were provided
+  if params != ""
+    data["params"] = params
+  end
+
+  return _youtube_api_post_json("/youtubei/v1/next", data)
 end
 
 ####################################################################
