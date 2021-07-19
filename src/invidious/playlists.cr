@@ -439,7 +439,7 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
   else
     if continuation
       initial_data = request_youtube_api_next(continuation, playlist.id)
-      offset = initial_data["contents"]["twoColumnWatchNextResults"]["playlist"]["playlist"]["currentIndex"].as_i
+      offset = initial_data.dig?("contents", "twoColumnWatchNextResults", "playlist", "playlist", "currentIndex").try &.as_i || offset
     end
 
     videos = [] of PlaylistVideo
