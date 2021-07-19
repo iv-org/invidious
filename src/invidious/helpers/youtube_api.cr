@@ -89,7 +89,6 @@ def request_youtube_api_search(search_query : String, params : String, region = 
   return _youtube_api_post_json("/youtubei/v1/search", data)
 end
 
-
 ####################################################################
 # request_youtube_api_next(continuation)
 #
@@ -109,9 +108,9 @@ end
 def request_youtube_api_next(continuation : String, playlistId : String)
   # JSON Request data, required by the API
   data = {
-    "context"      => make_youtube_api_context("US"),
-    "videoId" => continuation,
-    "playlistId"   => playlistId,
+    "context"    => make_youtube_api_context("US"),
+    "videoId"    => continuation,
+    "playlistId" => playlistId,
   }
 
   return _youtube_api_post_json("/youtubei/v1/next", data)
