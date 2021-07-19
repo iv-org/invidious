@@ -1,5 +1,5 @@
 module JSONFilter
-  alias BracketIndex = Hash(Int64, Int64)
+  alias BracketIndex = Hash(Int32, Int32)
 
   alias GroupedFieldsValue = String | Array(GroupedFieldsValue)
   alias GroupedFieldsList = Array(GroupedFieldsValue)
@@ -61,7 +61,7 @@ module JSONFilter
     end
 
     def self.parse_nest_groups(fields_text : String) : Nil
-      nest_stack = [] of NamedTuple(group_name: String, closing_bracket_index: Int64)
+      nest_stack = [] of NamedTuple(group_name: String, closing_bracket_index: Int32)
       bracket_pairs = get_bracket_pairs(fields_text, true)
 
       text_index = 0
@@ -141,19 +141,19 @@ module JSONFilter
     end
 
     def self.get_bracket_pairs(text : String, recursive = true) : BracketIndex
-      istart = [] of Int64
+      istart = [] of Int32
       bracket_index = BracketIndex.new
 
       text.each_char_with_index do |char, index|
         if char == '('
-          istart.push(index.to_i64)
+          istart.push(index.to_i32)
         end
 
         if char == ')'
           begin
             opening = istart.pop
             if recursive || (!recursive && istart.size == 0)
-              bracket_index[opening] = index.to_i64
+              bracket_index[opening] = index.to_i32
             end
           rescue
             raise FieldsParser::ParseError.new "No matching opening parenthesis at: #{index}"
