@@ -437,17 +437,23 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
     db.query_all("SELECT * FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 100 OFFSET $3",
       playlist.id, playlist.index, offset, as: PlaylistVideo)
   else
-    if offset >= 100
-      # Normalize offset to match youtube's behavior (100 videos chunck per request)
-      offset = (offset / 100).to_i64 * 100_i64
-
-      ctoken = produce_playlist_continuation(playlist.id, offset)
-      initial_data = request_youtube_api_browse(ctoken)
-    else
-      initial_data = request_youtube_api_browse("VL" + playlist.id, params: "")
+    if continuation
+      initial_data = request_youtube_api_next(continuation, playlist.id)
+      offset = initial_data.dig?("contents", "twoColumnWatchNextResults", "playlist", "playlist", "currentIndex").try &.as_i || offset
     end
 
-    return extract_playlist_videos(initial_data)
+    videos = [] of PlaylistVideo
+
+    until videos.size >= 200 || videos.size == playlist.video_count || offset >= playlist.video_count
+      # 100 videos per request
+      ctoken = produce_playlist_continuation(playlist.id, offset)
+      initial_data = request_youtube_api_browse(ctoken)
+      videos += extract_playlist_videos(initial_data)
+
+      offset += 100
+    end
+
+    return videos
   end
 end
 
@@ -523,8 +529,8 @@ def template_playlist(playlist)
 
   playlist["videos"].as_a.each do |video|
     html += <<-END_HTML
-      <li class="pure-menu-item">
-        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}">
+      <li class="pure-menu-item" id="#{video["videoId"]}">
+        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}">
           <div class="thumbnail">
               <img class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg">
               <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>

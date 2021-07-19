@@ -90,6 +90,31 @@ def request_youtube_api_search(search_query : String, params : String, region = 
 end
 
 ####################################################################
+# request_youtube_api_next(video_id, playlist_id)
+#
+# Requests the youtubei/v1/next endpoint with the required headers
+# and POST data in order to get a JSON reply in english that can
+# be easily parsed.
+#
+#
+# The requested data has to be:
+#
+#  - A video ID
+#
+#  - A playlist ID
+#
+def request_youtube_api_next(video_id : String, playlist_id : String)
+  # JSON Request data, required by the API
+  data = {
+    "context"    => make_youtube_api_context("US"),
+    "videoId"    => video_id,
+    "playlistId" => playlist_id,
+  }
+
+  return _youtube_api_post_json("/youtubei/v1/next", data)
+end
+
+####################################################################
 # _youtube_api_post_json(endpoint, data)
 #
 # Internal function that does the actual request to youtube servers
