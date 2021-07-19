@@ -96,7 +96,7 @@ class Config
   property banner : String? = nil                         # Optional banner to be displayed along top of page for announcements, etc.
   property hsts : Bool? = true                            # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
   property disable_proxy : Bool? | Array(String)? = false # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
-  property max_lookback : Int32 = 50                      # Maximum videos to be loaded into the playlist before the video playing
+  property max_lookback : Int32 = 100                     # Maximum videos to be loaded into the playlist before the video playing
 
   @[YAML::Field(converter: Preferences::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)

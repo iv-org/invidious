@@ -243,9 +243,9 @@ https_only: false
 ## Maximum videos to be loaded into the playlist before the video playing
 ##
 ## Accepted values: a positive integer
-## Default: 50
+## Default: 100
 ##
-max_lookback: 50
+max_lookback: 100
 
 # -----------------------------
 #  Users and accounts
