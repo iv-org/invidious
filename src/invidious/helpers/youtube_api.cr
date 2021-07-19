@@ -89,6 +89,34 @@ def request_youtube_api_search(search_query : String, params : String, region = 
   return _youtube_api_post_json("/youtubei/v1/search", data)
 end
 
+
+####################################################################
+# request_youtube_api_next(continuation)
+#
+# Requests the youtubei/v1/next endpoint with the required headers
+# and POST data in order to get a JSON reply in english that can
+# be easily parsed.
+#
+#
+# The requested data can either be:
+#
+#  - A continuation token (ctoken). Depending on this token's
+#    contents, the returned data can be comments, playlist videos,
+#    search results, channel community tab, ...
+#
+#  - A playlist ID (parameters MUST be an empty string)
+#
+def request_youtube_api_next(continuation : String, playlistId : String)
+  # JSON Request data, required by the API
+  data = {
+    "context"      => make_youtube_api_context("US"),
+    "videoId" => continuation,
+    "playlistId"   => playlistId,
+  }
+
+  return _youtube_api_post_json("/youtubei/v1/next", data)
+end
+
 ####################################################################
 # _youtube_api_post_json(endpoint, data)
 #
