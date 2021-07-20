@@ -27,7 +27,7 @@ end
 # They're accessed through the process() method which validates the given data as applicable
 # to their specific struct and then use the internal parse() method to assemble the struct
 # specific to their category.
-private class ItemParser
+private abstract struct ItemParser
   # Base type for all item parsers.
   def process(item : JSON::Any, author_fallback : AuthorFallback)
   end
@@ -36,7 +36,7 @@ private class ItemParser
   end
 end
 
-private class VideoParser < ItemParser
+private struct VideoParser < ItemParser
   def process(item, author_fallback)
     if item_contents = (item["videoRenderer"]? || item["gridVideoRenderer"]?)
       return self.parse(item_contents, author_fallback)
@@ -94,7 +94,7 @@ private class VideoParser < ItemParser
   end
 end
 
-private class ChannelParser < ItemParser
+private struct ChannelParser < ItemParser
   def process(item, author_fallback)
     if item_contents = (item["channelRenderer"]? || item["gridChannelRenderer"]?)
       return self.parse(item_contents, author_fallback)
@@ -125,7 +125,7 @@ private class ChannelParser < ItemParser
   end
 end
 
-private class GridPlaylistParser < ItemParser
+private struct GridPlaylistParser < ItemParser
   def process(item, author_fallback)
     if item_contents = item["gridPlaylistRenderer"]?
       return self.parse(item_contents, author_fallback)
@@ -151,7 +151,7 @@ private class GridPlaylistParser < ItemParser
   end
 end
 
-private class PlaylistParser < ItemParser
+private struct PlaylistParser < ItemParser
   def process(item, author_fallback)
     if item_contents = item["playlistRenderer"]?
       return self.parse(item_contents, author_fallback)
@@ -195,7 +195,7 @@ private class PlaylistParser < ItemParser
   end
 end
 
-private class CategoryParser < ItemParser
+private struct CategoryParser < ItemParser
   def process(item, author_fallback)
     if item_contents = item["shelfRenderer"]?
       return self.parse(item_contents, author_fallback)
@@ -262,7 +262,7 @@ end
 # a structure we can more easily use via the parsers above. Their internals are
 # identical to the item parsers.
 
-private class ItemsContainerExtractor
+private abstract struct ItemsContainerExtractor
   def process(item : Hash(String, JSON::Any))
   end
 
@@ -270,7 +270,7 @@ private class ItemsContainerExtractor
   end
 end
 
-private class YoutubeTabsExtractor < ItemsContainerExtractor
+private struct YoutubeTabsExtractor < ItemsContainerExtractor
   def process(initial_data)
     if target = initial_data["twoColumnBrowseResultsRenderer"]?
       self.extract(target)
@@ -304,7 +304,7 @@ private class YoutubeTabsExtractor < ItemsContainerExtractor
   end
 end
 
-private class SearchResultsExtractor < ItemsContainerExtractor
+private struct SearchResultsExtractor < ItemsContainerExtractor
   def process(initial_data)
     if target = initial_data["twoColumnSearchResultsRenderer"]?
       self.extract(target)
@@ -326,7 +326,7 @@ private class SearchResultsExtractor < ItemsContainerExtractor
   end
 end
 
-private class ContinuationExtractor < ItemsContainerExtractor
+private struct ContinuationExtractor < ItemsContainerExtractor
   def process(initial_data)
     if target = initial_data["continuationContents"]?
       self.extract(target)
