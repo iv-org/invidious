@@ -14,7 +14,7 @@ def fetch_trending(trending_type, region, locale)
     params = ""
   end
 
-  initial_data = request_youtube_api_browse("FEtrending", params: params, region: region)
+  initial_data = YoutubeAPI.browse("FEtrending", params: params, region: region)
   trending = extract_videos(initial_data)
 
   return {trending, plid}

@@ -1,6 +1,6 @@
 def fetch_channel_playlists(ucid, author, continuation, sort_by)
   if continuation
-    response_json = request_youtube_api_browse(continuation)
+    response_json = YoutubeAPI.browse(continuation)
     continuationItems = response_json["onResponseReceivedActions"]?
       .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
 

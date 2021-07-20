@@ -361,7 +361,7 @@ def fetch_playlist(plid, locale)
     plid = "UU#{plid.lchop("UC")}"
   end
 
-  initial_data = request_youtube_api_browse("VL" + plid, params: "")
+  initial_data = YoutubeAPI.browse("VL" + plid, params: "")
 
   playlist_sidebar_renderer = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?
   raise InfoException.new("Could not extract playlistSidebarRenderer.") if !playlist_sidebar_renderer
@@ -442,9 +442,9 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
       offset = (offset / 100).to_i64 * 100_i64
 
       ctoken = produce_playlist_continuation(playlist.id, offset)
-      initial_data = request_youtube_api_browse(ctoken)
+      initial_data = YoutubeAPI.browse(ctoken)
     else
-      initial_data = request_youtube_api_browse("VL" + playlist.id, params: "")
+      initial_data = YoutubeAPI.browse("VL" + playlist.id, params: "")
     end
 
     return extract_playlist_videos(initial_data)
