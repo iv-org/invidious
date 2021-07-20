@@ -23,32 +23,47 @@ on:
 
 jobs:
   build:
-    
+
     runs-on: ubuntu-latest
-    
+
+    name: "build - crystal: ${{ matrix.crystal }}, stable: ${{ matrix.stable }}"
+
+    continue-on-error: ${{ !matrix.stable }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        stable: [true]
+        crystal:
+          - 1.1.0
+          - 1.0.0
+        include:
+          - crystal: nightly
+            stable: false
+
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Install Crystal
         uses: oprypin/install-crystal@v1.2.4
         with:
-          crystal: 1.0.0
-      
+          crystal: ${{ matrix.crystal }}
+
       - name: Cache Shards
         uses: actions/cache@v2
         with:
           path: ./lib
           key: shards-${{ hashFiles('shard.lock') }}
-      
+
       - name: Install Shards
         run: |
           if ! shards check; then
             shards install
           fi
-      
+
       - name: Run tests
         run: crystal spec
-      
+
       - name: Run lint
         run: |
           if ! crystal tool format --check; then
@@ -56,20 +71,20 @@ jobs:
             git diff
             exit 1
           fi
-      
+
       - name: Build
         run: crystal build --warnings all --error-on-warnings --error-trace src/invidious.cr
-      
+
   build-docker:
-    
+
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Build Docker
         run: docker-compose up -d
-      
+
       - name: Test Docker
         run: while curl -Isf http://localhost:3000; do sleep 1; done
 
