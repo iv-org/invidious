@@ -21,14 +21,14 @@ class Invidious::Routes::Feeds < Invidious::Routes::BaseRoute
       item
     end
 
-    templated "view_all_playlists"
+    templated "feeds/playlists"
   end
 
   def popular(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     if CONFIG.popular_enabled
-      templated "popular"
+      templated "feeds/popular"
     else
       message = translate(locale, "The Popular feed has been disabled by the administrator.")
       templated "message"
@@ -50,7 +50,7 @@ class Invidious::Routes::Feeds < Invidious::Routes::BaseRoute
       return error_template(500, ex)
     end
 
-    templated "trending"
+    templated "feeds/trending"
   end
 
   def subscriptions(env)
@@ -98,7 +98,7 @@ class Invidious::Routes::Feeds < Invidious::Routes::BaseRoute
     user.notifications = [] of String
     env.set "user", user
 
-    templated "subscriptions"
+    templated "feeds/subscriptions"
   end
 
   def history(env)
@@ -125,7 +125,7 @@ class Invidious::Routes::Feeds < Invidious::Routes::BaseRoute
     end
     watched ||= [] of String
 
-    templated "history"
+    templated "feeds/history"
   end
 
   # RSS feeds
