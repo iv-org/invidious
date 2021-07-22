@@ -2119,11 +2119,6 @@ get "/api/v1/comments/:id" do |env|
   end
 end
 
-get "/api/v1/insights/:id" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-  next error_json(410, "YouTube has removed publicly available analytics.")
-end
-
 get "/api/v1/annotations/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
