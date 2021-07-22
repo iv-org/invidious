@@ -1922,11 +1922,6 @@ get "/api/v1/comments/:id" do |env|
   end
 end
 
-get "/api/v1/insights/:id" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-  next error_json(410, "YouTube has removed publicly available analytics.")
-end
-
 get "/api/v1/annotations/:id" do |env|
   locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -2064,14 +2059,6 @@ get "/api/v1/popular" do |env|
       end
     end
   end
-end
-
-get "/api/v1/top" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-  env.response.content_type = "application/json"
-  env.response.status_code = 400
-  {"error" => "The Top feed has been removed from Invidious."}.to_json
 end
 
 get "/api/v1/channels/:ucid" do |env|
