@@ -338,7 +338,6 @@ Invidious::Routing.get "/redirect", Invidious::Routes::Misc, :cross_instance_red
 Invidious::Routing.get "/embed/", Invidious::Routes::Embed, :redirect
 Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed, :show
 
-Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Playlists, :index
 Invidious::Routing.get "/create_playlist", Invidious::Routes::Playlists, :new
 Invidious::Routing.post "/create_playlist", Invidious::Routes::Playlists, :create
 Invidious::Routing.get "/subscribe_playlist", Invidious::Routes::Playlists, :subscribe

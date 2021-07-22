@@ -3,6 +3,31 @@ module Invidious::Routes::Feeds
     env.redirect "/view_all_playlists"
   end
 
+  def self.playlists(env)
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+    user = env.get? "user"
+    referer = get_referer(env)
+
+    return env.redirect "/" if user.nil?
+
+    user = user.as(User)
+
+    items_created = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+    items_created.map! do |item|
+      item.author = ""
+      item
+    end
+
+    items_saved = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id NOT LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+    items_saved.map! do |item|
+      item.author = ""
+      item
+    end
+
+    templated "view_all_playlists"
+  end
+
   def self.popular(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -285,7 +310,6 @@ module Invidious::Routes::Feeds
       content = "#{HOST_URL}#{URI.parse(match["url"]).request_target}"
       document = document.gsub(match[0], "<uri>#{content}</uri>")
     end
-
     document
   end
 

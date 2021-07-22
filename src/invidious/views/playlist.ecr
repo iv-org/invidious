@@ -12,7 +12,7 @@
         <% if playlist.is_a? InvidiousPlaylist %>
             <b>
                 <% if playlist.author == user.try &.email %>
-                <a href="/view_all_playlists"><%= author %></a> |
+                <a href="/feed/playlists"><%= author %></a> |
                 <% else %>
                 <%= author %> |
                 <% end %>
