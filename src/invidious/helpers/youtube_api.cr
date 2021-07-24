@@ -40,8 +40,8 @@ module YoutubeAPI
   # The requested data can either be:
   #
   #  - A continuation token (ctoken). Depending on this token's
-  #    contents, the returned data can be comments, playlist videos,
-  #    search results, channel community tab, ...
+  #    contents, the returned data can be playlist videos, channel
+  #    community tab content, channel info, ...
   #
   #  - A playlist ID (parameters MUST be an empty string)
   #
