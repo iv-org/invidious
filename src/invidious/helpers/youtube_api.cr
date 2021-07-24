@@ -73,6 +73,75 @@ module YoutubeAPI
   end
 
   ####################################################################
+  # next(continuation)
+  # next(continuation, region)
+  # next(data)
+  # next(data, region)
+  #
+  # Requests the youtubei/v1/next endpoint with the required headers
+  # and POST data in order to get a JSON reply in english that can
+  # be easily parsed.
+  #
+  # The requested data can be:
+  #
+  #  - A continuation token (ctoken). Depending on this token's
+  #    contents, the returned data can be videos comments,
+  #    their replies, ... In this case, the string must be passed
+  #    directly to the function. E.g:
+  #
+  #    ```
+  #    YoutubeAPI::next("ABCDEFGH_abcdefgh==")
+  #    ```
+  #
+  #  - Arbitrary parameters, in Hash form. See examples below for
+  #    known examples of arbitrary data that can be passed to YouTube:
+  #
+  #    ```
+  #    # Get the videos related to a specific video ID
+  #    YoutubeAPI::next({"videoId" => "dQw4w9WgXcQ"})
+  #
+  #    # Get a playlist video's details
+  #    YoutubeAPI::next({
+  #      "videoId"    => "9bZkp7q19f0",
+  #      "playlistId" => "PL_oFlvgqkrjUVQwiiE3F3k3voF4tjXeP0",
+  #    })
+  #    ```
+  #
+  # Both forms can take an optional region parameter, that ay
+  # impact the data returned by youtube (e.g translation of some
+  # video titles). E.g:
+  #
+  # ```
+  # YoutubeAPI::next("ABCDEFGH_abcdefgh==", region: "FR")
+  # YoutubeAPI::next({"videoId": "dQw4w9WgXcQ"}, region: "DE")
+  # ```
+  #
+  def next(continuation : String, *, region : String | Nil = nil)
+    # JSON Request data, required by the API
+    data = {
+      "context"      => self.make_context(region),
+      "continuation" => continuation,
+    }
+
+    return self._post_json("/youtubei/v1/next", data)
+  end
+
+  # :ditto:
+  def next(data : Hash, *, region : String | Nil = nil)
+    # JSON Request data, required by the API
+    data.merge!({
+      "context" => self.make_context(region),
+    })
+
+    return self._post_json("/youtubei/v1/next", data)
+  end
+
+  # Allow a NamedTuple to be passed, too.
+  def next(data : NamedTuple, *, region : String | Nil = nil)
+    return self.next(data.to_h, region: region)
+  end
+
+  ####################################################################
   # search(search_query, params, region)
   #
   # Requests the youtubei/v1/search endpoint with the required headers
