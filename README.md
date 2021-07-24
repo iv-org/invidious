@@ -79,11 +79,11 @@
 
 ## Quick start
 
-***Using invidious:***
+**Using invidious:**
 
 - [Select a public instance from the list](https://instances.invidious.io) and start watching videos right now!
 
-***Hosting invidious:***
+**Hosting invidious:**
 
 - [Follow the installation instructions](https://docs.invidious.io/Installation.md)
 
