@@ -336,9 +336,7 @@ private module Parsers
       author_id = item_contents.dig("authorEndpoint", "browseEndpoint", "browseId").as_s
       author_thumbnail = item_contents.dig("authorThumbnail", "thumbnails", -1, "url").as_s # last item is highest quality
 
-      contents = String.build do |content_text|
-        item_contents["contentText"]["runs"].as_a.each { |t| content_text << t["text"] }
-      end
+      contents = item_contents["contentText"].try { |t| parse_content(t) }
 
       attachment_container = item_contents["backstageAttachment"]?
 
@@ -365,14 +363,13 @@ private module Parsers
         author:           author_name,
         author_id:        author_id,
         author_thumbnail: author_thumbnail,
-
-        post_id:    post_id,
-        contents:   contents,
-        attachment: attachment,
-        likes:      likes,
-        published:  published,
-      })
-    end
+        post_id:      post_id,
+        content_html: contents,
+        attachment:   attachment,
+        likes:        likes,
+        published:    published,
+    })
+  end
   end
 end
 

@@ -70,25 +70,19 @@ module Invidious::Routes::Channels
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
-    thin_mode = env.params.query["thin_mode"]? || env.get("preferences").as(Preferences).thin_mode
-    thin_mode = thin_mode == "true"
-
-    continuation = env.params.query["continuation"]?
-    # sort_by = env.params.query["sort_by"]?.try &.downcase
-
     if !channel.tabs.includes? "community"
       return env.redirect "/channel/#{channel.ucid}"
     end
 
-    begin
-      items = JSON.parse(fetch_channel_community(ucid, continuation, locale, "json", thin_mode))
-    rescue ex : InfoException
-      env.response.status_code = 500
-      error_message = ex.message
-    rescue ex
-      return error_template(500, ex)
+    if continuation
+      items = fetch_channel_community(ucid, continuation)
+    else
+      items = fetch_channel_community(ucid)
     end
 
+    pp items
+
+    return env.redirect "/channel/#{channel.ucid}" if !items || items.empty?
     templated "community"
   end
 

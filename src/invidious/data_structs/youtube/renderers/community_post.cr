@@ -34,7 +34,7 @@ module YouTubeStructs
 
     # Community post data
     property post_id : String
-    property contents : String
+    property content_html : String
     property attachment : (VideoRenderer | PlaylistRenderer | CommunityPoll | String)? # string is image/gif
     property likes : Int32
     property published : Time
@@ -48,7 +48,7 @@ module YouTubeStructs
         json.field "author_thumbnail", self.author_thumbnail
         json.field "authorUrl", "/channel/#{self.author_id}"
 
-        json.field "contents", self.contents
+        json.field "contents", html_to_content(self.content_html)
         json.field "attachment", self.attachment.to_json
         json.field "likes", self.likes
         json.field "published", self.published.to_unix

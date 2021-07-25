@@ -235,7 +235,7 @@ module Invidious::Routes::API::V1::Channels
     # sort_by = env.params.query["sort_by"]?.try &.downcase
 
     begin
-      fetch_channel_community(ucid, continuation, locale, format, thin_mode)
+      # fetch_channel_community(ucid, continuation, locale, format, thin_mode)
     rescue ex
       return error_json(500, ex)
     end
