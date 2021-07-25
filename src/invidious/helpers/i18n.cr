@@ -19,6 +19,7 @@ LOCALES = {
   "is"      => load_locale("is"),      # Icelandic
   "it"      => load_locale("it"),      # Italian
   "ja"      => load_locale("ja"),      # Japanese
+  "ko"      => load_locale("ko"),      # Korean
   "lt"      => load_locale("lt"),      # Lithuanian
   "nb-NO"   => load_locale("nb-NO"),   # Norwegian Bokmål
   "nl"      => load_locale("nl"),      # Dutch
