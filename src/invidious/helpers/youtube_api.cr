@@ -5,9 +5,25 @@
 module YoutubeAPI
   extend self
 
-  # Hard-coded constants required by the API
-  HARDCODED_API_KEY     = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-  HARDCODED_CLIENT_VERS = "2.20210330.08.00"
+  # Enumerate used to select one of the clients supported by the API
+  enum ClientType
+    Web     = 0
+    Android = 1
+  end
+
+  # List of hard-coded values used by the different clients
+  HARDCODED_CLIENTS = {
+    ClientType::Web => {
+      name:    "WEB",
+      version: "2.20210721.00.00",
+      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+    },
+    ClientType::Android => {
+      name:    "ANDROID",
+      version: "16.20.35",
+      api_key: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
+    },
+  }
 
   ####################################################################
   # make_context(region)
@@ -20,8 +36,8 @@ module YoutubeAPI
       "client" => {
         "hl"            => "en",
         "gl"            => region || "US", # Can't be empty!
-        "clientName"    => "WEB",
-        "clientVersion" => HARDCODED_CLIENT_VERS,
+        "clientName"    => HARDCODED_CLIENTS[0][:name],
+        "clientVersion" => HARDCODED_CLIENTS[0][:version],
       },
     }
   end
@@ -175,7 +191,7 @@ module YoutubeAPI
   def _post_json(endpoint, data) : Hash(String, JSON::Any)
     # Send the POST request and parse result
     response = YT_POOL.client &.post(
-      "#{endpoint}?key=#{HARDCODED_API_KEY}",
+      "#{endpoint}?key=#{HARDCODED_CLIENTS[0][:api_key]}",
       headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"},
       body: data.to_json
     )
