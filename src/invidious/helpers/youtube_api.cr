@@ -26,32 +26,96 @@ module YoutubeAPI
   }
 
   ####################################################################
-  # make_context(region)
+  # struct ClientConfig
+  #
+  # Data structure used to pass a client configuration to the different
+  # API endpoints handlers.
+  #
+  # Use case examples:
+  #
+  # ```
+  # # Get Norwegian search results
+  # conf_1 = ClientConfig.new(region: "NO")
+  # YoutubeAPI::search("Kollektivet", params: "", client_config: conf_1)
+  #
+  # # Use the Android client to request video streams URLs
+  # conf_2 = ClientConfig.new(client_type: ClientType::Android)
+  # YoutubeAPI::player(video_id: "dQw4w9WgXcQ", client_config: conf_2)
+  #
+  # # Proxy request through russian proxies
+  # conf_3 = ClientConfig.new(proxy_region: "RU")
+  # YoutubeAPI::next({video_id: "dQw4w9WgXcQ"}, client_config: conf_3)
+  # ```
+  #
+  struct ClientConfig
+    # Type of client to emulate (Web or Android).
+    # See `enum ClientType` and `HARDCODED_CLIENTS`.
+    property client_type : ClientType
+
+    # Region to provide to youtube, e.g to alter search results
+    # (this is passed as the `gl` parmeter).
+    property region : String | Nil
+
+    # ISO code of country where the proxy is located.
+    # Used in case of geo-restricted videos.
+    property proxy_region : String | Nil
+
+    # Initialization function
+    def initialize(
+      *,
+      @client_type = ClientType::Web,
+      @region = "US",
+      @proxy_region = nil
+    )
+    end
+
+    # Getter functions that provides easy access to hardcoded clients
+    # parameters (name/version strings and related API key)
+    def name : String
+      HARDCODED_CLIENTS[@client_type][:name]
+    end
+
+    # :ditto:
+    def version : String
+      HARDCODED_CLIENTS[@client_type][:version]
+    end
+
+    # :ditto:
+    def api_key : String
+      HARDCODED_CLIENTS[@client_type][:api_key]
+    end
+  end
+
+  # Default client config, used if nothing is passed
+  DEFAULT_CLIENT_CONFIG = ClientConfig.new
+
+  ####################################################################
+  # make_context(client_config)
   #
   # Return, as a Hash, the "context" data required to request the
   # youtube API endpoints.
   #
-  private def make_context(region : String | Nil) : Hash
+  private def make_context(client_config : ClientConfig) : Hash
     return {
       "client" => {
         "hl"            => "en",
-        "gl"            => region || "US", # Can't be empty!
-        "clientName"    => HARDCODED_CLIENTS[0][:name],
-        "clientVersion" => HARDCODED_CLIENTS[0][:version],
+        "gl"            => client_config.region || "US", # Can't be empty!
+        "clientName"    => client_config.name,
+        "clientVersion" => client_config.version,
       },
     }
   end
 
   ####################################################################
-  # browse(continuation)
-  # browse(browse_id, params)
-  # browse(browse_id, params, region)
+  # browse(continuation, client_config?)
+  # browse(browse_id, params, client_config?)
   #
   # Requests the youtubei/v1/browse endpoint with the required headers
   # and POST data in order to get a JSON reply in english that can
   # be easily parsed.
   #
-  # A region can be provided, default is US.
+  # Both forms can take an optional ClientConfig parameter (see
+  # `struct ClientConfig` above for more details).
   #
   # The requested data can either be:
   #
@@ -61,22 +125,27 @@ module YoutubeAPI
   #
   #  - A playlist ID (parameters MUST be an empty string)
   #
-  def browse(continuation : String)
+  def browse(continuation : String, client_config : ClientConfig | Nil = nil)
     # JSON Request data, required by the API
     data = {
-      "context"      => self.make_context("US"),
+      "context"      => self.make_context(client_config),
       "continuation" => continuation,
     }
 
-    return self._post_json("/youtubei/v1/browse", data)
+    return self._post_json("/youtubei/v1/browse", data, client_config)
   end
 
   # :ditto:
-  def browse(browse_id : String, *, params : String, region : String = "US")
+  def browse(
+    browse_id : String,
+    *, # Force the following paramters to be passed by name
+    params : String,
+    client_config : ClientConfig | Nil = nil
+  )
     # JSON Request data, required by the API
     data = {
       "browseId" => browse_id,
-      "context"  => self.make_context(region),
+      "context"  => self.make_context(client_config),
     }
 
     # Append the additionnal parameters if those were provided
@@ -85,18 +154,19 @@ module YoutubeAPI
       data["params"] = params
     end
 
-    return self._post_json("/youtubei/v1/browse", data)
+    return self._post_json("/youtubei/v1/browse", data, client_config)
   end
 
   ####################################################################
-  # next(continuation)
-  # next(continuation, region)
-  # next(data)
-  # next(data, region)
+  # next(continuation, client_config?)
+  # next(data, client_config?)
   #
   # Requests the youtubei/v1/next endpoint with the required headers
   # and POST data in order to get a JSON reply in english that can
   # be easily parsed.
+  #
+  # Both forms can take an optional ClientConfig parameter (see
+  # `struct ClientConfig` above for more details).
   #
   # The requested data can be:
   #
@@ -123,42 +193,33 @@ module YoutubeAPI
   #    })
   #    ```
   #
-  # Both forms can take an optional region parameter, that ay
-  # impact the data returned by youtube (e.g translation of some
-  # video titles). E.g:
-  #
-  # ```
-  # YoutubeAPI::next("ABCDEFGH_abcdefgh==", region: "FR")
-  # YoutubeAPI::next({"videoId": "dQw4w9WgXcQ"}, region: "DE")
-  # ```
-  #
-  def next(continuation : String, *, region : String | Nil = nil)
+  def next(continuation : String, *, client_config : ClientConfig | Nil = nil)
     # JSON Request data, required by the API
     data = {
-      "context"      => self.make_context(region),
+      "context"      => self.make_context(client_config),
       "continuation" => continuation,
     }
 
-    return self._post_json("/youtubei/v1/next", data)
+    return self._post_json("/youtubei/v1/next", data, client_config)
   end
 
   # :ditto:
-  def next(data : Hash, *, region : String | Nil = nil)
+  def next(data : Hash, *, client_config : ClientConfig | Nil = nil)
     # JSON Request data, required by the API
     data.merge!({
-      "context" => self.make_context(region),
+      "context" => self.make_context(client_config),
     })
 
-    return self._post_json("/youtubei/v1/next", data)
+    return self._post_json("/youtubei/v1/next", data, client_config)
   end
 
   # Allow a NamedTuple to be passed, too.
-  def next(data : NamedTuple, *, region : String | Nil = nil)
-    return self.next(data.to_h, region: region)
+  def next(data : NamedTuple, *, client_config : ClientConfig | Nil = nil)
+    return self.next(data.to_h, client_config: client_config)
   end
 
   ####################################################################
-  # search(search_query, params, region)
+  # search(search_query, params, client_config?)
   #
   # Requests the youtubei/v1/search endpoint with the required headers
   # and POST data in order to get a JSON reply. As the search results
@@ -168,19 +229,26 @@ module YoutubeAPI
   # The requested data is a search string, with some additional
   # paramters, formatted as a base64 string.
   #
-  def search(search_query : String, params : String, region = nil)
+  # An optional ClientConfig parameter can be passed, too (see
+  # `struct ClientConfig` above for more details).
+  #
+  def search(
+    search_query : String,
+    params : String,
+    client_config : ClientConfig | Nil = nil
+  )
     # JSON Request data, required by the API
     data = {
       "query"   => search_query,
-      "context" => self.make_context(region),
+      "context" => self.make_context(client_config),
       "params"  => params,
     }
 
-    return self._post_json("/youtubei/v1/search", data)
+    return self._post_json("/youtubei/v1/search", data, client_config)
   end
 
   ####################################################################
-  # _post_json(endpoint, data)
+  # _post_json(endpoint, data, client_config?)
   #
   # Internal function that does the actual request to youtube servers
   # and handles errors.
@@ -188,10 +256,17 @@ module YoutubeAPI
   # The requested data is an endpoint (URL without the domain part)
   # and the data as a Hash object.
   #
-  def _post_json(endpoint, data) : Hash(String, JSON::Any)
+  def _post_json(
+    endpoint : String,
+    data : Hash,
+    client_config : ClientConfig | Nil
+  ) : Hash(String, JSON::Any)
+    # Use the default client config if nil is passed
+    client_config ||= DEFAULT_CLIENT_CONFIG
+
     # Send the POST request and parse result
     response = YT_POOL.client &.post(
-      "#{endpoint}?key=#{HARDCODED_CLIENTS[0][:api_key]}",
+      "#{endpoint}?key=#{client_config.api_key}",
       headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"},
       body: data.to_json
     )

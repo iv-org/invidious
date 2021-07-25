@@ -263,7 +263,8 @@ end
 def search(query, search_params = produce_search_params(content_type: "all"), region = nil)
   return 0, [] of SearchItem if query.empty?
 
-  initial_data = YoutubeAPI.search(query, search_params, region)
+  client_config = YoutubeAPI::ClientConfig.new(region: region)
+  initial_data = YoutubeAPI.search(query, search_params, client_config: client_config)
   items = extract_items(initial_data)
 
   return items.size, items
