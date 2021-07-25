@@ -14,6 +14,7 @@ private ITEM_PARSERS = {
   Parsers::GridPlaylistRendererParser,
   Parsers::PlaylistRendererParser,
   Parsers::CategoryRendererParser,
+  Parsers::BackstagePostThreadRendererParser,
 }
 
 record AuthorFallback, name : String, id : String
@@ -311,6 +312,68 @@ private module Parsers
       })
     end
   end
+
+  # Parses a InnerTube backstagePostThreadRenderer into a CommunityPost.
+  # Returns nil when the given object isn't a backstagePostThreadRenderer
+  #
+  # A backstagePostThreadRenderer represents a community post, including all of it's attachments, metadata, contents,
+  # etc.
+  #
+  # See spec for example
+  #
+  # `backstagePostThreadRenderer` can only be found in a channel's community or discussion tab.
+  module BackstagePostThreadRendererParser
+    def self.process(item, author_fallback)
+      if item_contents = item["backstagePostThreadRenderer"]?
+        return self.parse(item_contents["post"]["backstagePostRenderer"])
+      end
+    end
+
+    def self.parse(item_contents)
+      post_id = item_contents["postId"].as_s
+
+      author_name = item_contents.dig("authorText", "runs", 0, "text").as_s
+      author_id = item_contents.dig("authorEndpoint", "browseEndpoint", "browseId").as_s
+      author_thumbnail = item_contents.dig("authorThumbnail", "thumbnails", -1, "url").as_s # last item is highest quality
+
+      contents = String.build do |content_text|
+        item_contents["contentText"]["runs"].as_a.each { |t| content_text << t["text"] }
+      end
+
+      attachment_container = item_contents["backstageAttachment"]?
+
+      case attachment_container
+      when nil
+        attachment = nil
+      when .[]?("backstageImageRenderer")
+        attachment = attachment_container.dig("backstageImageRenderer", "image", "thumbnails", -1, "url").as_s
+      when .[]?("pollRenderer")
+        container = attachment_container.dig("pollRenderer")
+
+        choices = container["choices"].as_a.map { |i| i["text"]["runs"][0]["text"].as_s }
+        votes = short_text_to_number(container["totalVotes"]["simpleText"].as_s.split(" ")[0])
+        attachment = YouTubeStructs::CommunityPoll.new({choices: choices, total_votes: votes})
+      else
+        attachment = extract_item(attachment_container)
+        raise "Unreachable" if !attachment.is_a?(YouTubeStructs::VideoRenderer | YouTubeStructs::PlaylistRenderer)
+      end
+
+      likes = short_text_to_number(item_contents["voteCount"]["simpleText"].as_s.split(" ")[0]) # Youtube doesn't provide dislikes...
+      published = item_contents["publishedTimeText"]?.try &.["simpleText"]?.try { |t| decode_date(t.as_s) } || Time.local
+
+      YouTubeStructs::CommunityPost.new({
+        author:           author_name,
+        author_id:        author_id,
+        author_thumbnail: author_thumbnail,
+
+        post_id:    post_id,
+        contents:   contents,
+        attachment: attachment,
+        likes:      likes,
+        published:  published,
+      })
+    end
+  end
 end
 
 # The following are the extractors for extracting an array of items from
@@ -354,11 +417,21 @@ private module Extractors
 
     private def self.extract(target)
       raw_items = [] of JSON::Any
-      content = extract_selected_tab(target["tabs"])["content"]
+      selected_tab = extract_selected_tab(target["tabs"])
+      content = selected_tab["content"]
 
       content["sectionListRenderer"]["contents"].as_a.each do |renderer_container|
-        renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"][0]
+        renderer_container = renderer_container["itemSectionRenderer"]
 
+        # For some odd reason every YT tab request *except* community tabs
+        # has only one item (the renderer contents array) in the contents array of
+        # `renderer_container`. For community tabs, this `renderer_container` is the
+        #  just the array of contents. Strange.
+        if selected_tab["title"] == "Community"
+          return renderer_container["contents"].as_a
+        end
+
+        renderer_container_contents = renderer_container["contents"].as_a[0]
         # Category extraction
         if items_container = renderer_container_contents["shelfRenderer"]?
           raw_items << renderer_container_contents
