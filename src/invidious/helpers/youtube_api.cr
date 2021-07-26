@@ -254,6 +254,40 @@ module YoutubeAPI
   end
 
   ####################################################################
+  # resolve_url(url)
+  #
+  # Requests the youtubei/v1/navigation/resolve_url endpoint with the
+  # required headers and POST data in order to get a JSON reply.
+  #
+  # Output:
+  #
+  # ```
+  # # Valid channel "brand URL" gives the related UCID and browse ID
+  # channel_a = YoutubeAPI.resolve_url("https://youtube.com/c/google")
+  # channel_a # => {
+  #   "endpoint": {
+  #     "browseEndpoint": {
+  #       "params": "EgC4AQA%3D",
+  #       "browseId":"UCK8sQmJBp8GCxrOtXWBpyEA"
+  #     },
+  #     ...
+  #   }
+  # }
+  #
+  # # Invalid URL returns throws an InfoException
+  # channel_b = YoutubeAPI.resolve_url("https://youtube.com/c/invalid")
+  # ```
+  #
+  def resolve_url(url : String)
+    data = {
+      "context" => self.make_context(nil),
+      "url"     => url,
+    }
+
+    return self._post_json("/youtubei/v1/navigation/resolve_url", data)
+  end
+
+  ####################################################################
   # search(search_query, params, client_config?)
   #
   # Requests the youtubei/v1/search endpoint with the required headers
