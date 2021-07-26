@@ -84,6 +84,15 @@ module YoutubeAPI
     def api_key : String
       HARDCODED_CLIENTS[@client_type][:api_key]
     end
+
+    # Convert to string, for logging purposes
+    def to_s
+      return {
+        client_type:  self.name,
+        region:       @region,
+        proxy_region: @proxy_region,
+      }.to_s
+    end
   end
 
   # Default client config, used if nothing is passed
@@ -340,6 +349,11 @@ module YoutubeAPI
       "Content-Type"    => "application/json; charset=UTF-8",
       "Accept-Encoding" => "gzip",
     }
+
+    # Logging
+    LOGGER.debug("YoutubeAPI: Using endpoint: \"#{endpoint}\"")
+    LOGGER.trace("YoutubeAPI: ClientConfig: #{client_config.to_s}")
+    LOGGER.trace("YoutubeAPI: POST data: #{data.to_s}")
 
     # Send the POST request
     if client_config.proxy_region
