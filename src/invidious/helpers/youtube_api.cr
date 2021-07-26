@@ -95,7 +95,10 @@ module YoutubeAPI
   # Return, as a Hash, the "context" data required to request the
   # youtube API endpoints.
   #
-  private def make_context(client_config : ClientConfig) : Hash
+  private def make_context(client_config : ClientConfig | Nil) : Hash
+    # Use the default client config if nil is passed
+    client_config ||= DEFAULT_CLIENT_CONFIG
+
     return {
       "client" => {
         "hl"            => "en",
