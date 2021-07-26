@@ -333,13 +333,27 @@ module YoutubeAPI
     # Use the default client config if nil is passed
     client_config ||= DEFAULT_CLIENT_CONFIG
 
-    # Send the POST request and parse result
-    response = YT_POOL.client &.post(
-      "#{endpoint}?key=#{client_config.api_key}",
-      headers: HTTP::Headers{"content-type" => "application/json; charset=UTF-8"},
-      body: data.to_json
-    )
+    # Query parameters
+    url = "#{endpoint}?key=#{client_config.api_key}"
 
+    headers = HTTP::Headers{
+      "Content-Type"    => "application/json; charset=UTF-8",
+      "Accept-Encoding" => "gzip",
+    }
+
+    # Send the POST request
+    if client_config.proxy_region
+      response = YT_POOL.client(
+        client_config.proxy_region,
+        &.post(url, headers: headers, body: data.to_json)
+      )
+    else
+      response = YT_POOL.client &.post(
+        url, headers: headers, body: data.to_json
+      )
+    end
+
+    # Convert result to Hash
     initial_data = JSON.parse(response.body).as_h
 
     # Error handling
