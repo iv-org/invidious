@@ -222,6 +222,38 @@ module YoutubeAPI
   end
 
   ####################################################################
+  # player(video_id, params, client_config?)
+  #
+  # Requests the youtubei/v1/player endpoint with the required headers
+  # and POST data in order to get a JSON reply.
+  #
+  # The requested data is a video ID (`v=` parameter), with some
+  # additional paramters, formatted as a base64 string.
+  #
+  # An optional ClientConfig parameter can be passed, too (see
+  # `struct ClientConfig` above for more details).
+  #
+  def player(
+    video_id : String,
+    *, # Force the following paramters to be passed by name
+    params : String,
+    client_config : ClientConfig | Nil = nil
+  )
+    # JSON Request data, required by the API
+    data = {
+      "videoId" => video_id,
+      "context" => self.make_context(client_config),
+    }
+
+    # Append the additionnal parameters if those were provided
+    if params != ""
+      data["params"] = params
+    end
+
+    return self._post_json("/youtubei/v1/player", data, client_config)
+  end
+
+  ####################################################################
   # search(search_query, params, client_config?)
   #
   # Requests the youtubei/v1/search endpoint with the required headers
