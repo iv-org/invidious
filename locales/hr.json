@@ -423,5 +423,9 @@
     "Current version: ": "Trenutačna verzija: ",
     "next_steps_error_message": "Nakon toga pokušaj sljedeće: ",
     "next_steps_error_message_refresh": "Aktualiziraj stranicu",
-    "next_steps_error_message_go_to_youtube": "Idi na YouTube"
+    "next_steps_error_message_go_to_youtube": "Idi na YouTube",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

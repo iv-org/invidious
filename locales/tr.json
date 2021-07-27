@@ -423,5 +423,9 @@
     "Current version: ": "Şu anki sürüm: ",
     "next_steps_error_message": "Bundan sonra şunları denemelisiniz: ",
     "next_steps_error_message_refresh": "Yenile",
-    "next_steps_error_message_go_to_youtube": "YouTube'a git"
+    "next_steps_error_message_go_to_youtube": "YouTube'a git",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

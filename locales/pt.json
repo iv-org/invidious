@@ -423,5 +423,9 @@
     "`x` subscribers": {
         "": "`x` subscritores",
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscritores"
+    },
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
     }
 }

@@ -423,5 +423,9 @@
     "Current version: ": "Gjeldende versjon: ",
     "next_steps_error_message": "Etterpå bør du prøve dette: ",
     "next_steps_error_message_refresh": "Gjenoppfrisk",
-    "next_steps_error_message_go_to_youtube": "Gå til YouTube"
+    "next_steps_error_message_go_to_youtube": "Gå til YouTube",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

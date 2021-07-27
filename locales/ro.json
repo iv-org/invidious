@@ -423,5 +423,9 @@
     "Current version: ": "Versiunea actuală: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message_go_to_youtube": "",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

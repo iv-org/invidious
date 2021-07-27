@@ -1,0 +1,47 @@
+.community-poll {
+    padding: 0px 10px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+.community-poll-item {
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.dark-theme .community-poll {
+    background-color: #363636;
+}
+
+.dark-theme .community-poll-item {
+    background-color: #3d3d3d;
+}
+
+@media (prefers-color-scheme: dark) {
+    .no-theme .community-poll {
+        background-color: #363636;
+    }
+    
+    .no-theme .community-poll-item {
+        background-color: #3d3d3d;
+    }
+}
+
+.light-theme .community-poll {
+    background-color: #f2f2f2;
+}
+
+.light-theme .community-poll-item {
+    background-color: #e6e6e6;
+}
+
+@media (prefers-color-scheme: light) {
+    .no-theme .community-poll {
+        background-color: #f2f2f2;
+    }
+    
+    .no-theme .community-poll-item {
+        background-color: #e6e6e6;
+    }
+}

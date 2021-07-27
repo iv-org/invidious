@@ -423,5 +423,9 @@
     "Current version: ": "الإصدار الحالي: ",
     "next_steps_error_message": "بعد ذلك يجب أن تحاول: ",
     "next_steps_error_message_refresh": "تحديث",
-    "next_steps_error_message_go_to_youtube": "انتقل إلى يوتيوب"
+    "next_steps_error_message_go_to_youtube": "انتقل إلى يوتيوب",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

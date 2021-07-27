@@ -423,5 +423,9 @@
     "Current version: ": "Tämänhetkinen versio: ",
     "next_steps_error_message": "Sinun tulisi kokeilla seuraavia: ",
     "next_steps_error_message_refresh": "Päivitä",
-    "next_steps_error_message_go_to_youtube": "Siirry YouTubeen"
+    "next_steps_error_message_go_to_youtube": "Siirry YouTubeen",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

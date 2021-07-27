@@ -421,7 +421,11 @@
     "hdr": "hdr",
     "filter": "filtro",
     "Current version: ": "Versión actual: ",
-    "next_steps_error_message": "Después de lo cual deberías intentar: ",
+    "next_steps_error_message": "",
     "next_steps_error_message_refresh": "Recargar",
-    "next_steps_error_message_go_to_youtube": "Ir a YouTube"
+    "next_steps_error_message_go_to_youtube": "Ir a YouTube",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

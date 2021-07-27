@@ -423,5 +423,9 @@
     "Current version: ": "Nuvarande version: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "Uppdatera",
-    "next_steps_error_message_go_to_youtube": "Gå till Youtube"
+    "next_steps_error_message_go_to_youtube": "Gå till Youtube",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

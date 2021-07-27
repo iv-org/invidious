@@ -3,6 +3,7 @@
 
 <% content_for "header" do %>
 <title><%= author %> - Invidious</title>
+<link rel="stylesheet" href="/css/community.css?v=<%= ASSET_COMMIT %>">
 <% end %>
 
 <% if channel.banner %>
@@ -86,11 +87,19 @@
                     </div>
                 <% elsif attachment.is_a?  YouTubeStructs::PlaylistRenderer %>
                 <% elsif attachment.is_a?  YouTubeStructs::CommunityPoll %>
+                   <span class="community-poll-metadata"><%-= translate(locale, "community-poll-votes", number_to_short_text(attachment.total_votes)) %></span>
+                    <div class="community-poll">
+                        <%- attachment.choices.each do |choice| %>
+                            <p class="community-poll-item"><%-= choice%></p>
+                        <%- end %>
+                    </div>
                 <% elsif attachment.nil? %>
                 <% else %>
-                    <img style="width: 90%" src="/ggpht<%= URI.parse(attachment).request_target%>"/>
+                    <img style="width: 90%" src="/ggpht<%= URI.parse(attachment).request_target %>"/>
                 <% end %>
             </div>
+            <% -%>
+
             <div class="pure-menu pure-menu-horizontal">
                 <ul class="pure-menu-list">
                     <li class="pure-menu-item" id="likes" style="margin-right: 15px;"><i class="icon ion-ios-thumbs-up" style="margin-right: 5px;"></i><%-= thread.likes %></li>

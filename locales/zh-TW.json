@@ -423,5 +423,9 @@
     "Current version: ": "目前版本： ",
     "next_steps_error_message": "之後您應該嘗試： ",
     "next_steps_error_message_refresh": "重新整理",
-    "next_steps_error_message_go_to_youtube": "到 YouTube"
+    "next_steps_error_message_go_to_youtube": "到 YouTube",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

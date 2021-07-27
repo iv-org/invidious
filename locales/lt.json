@@ -423,5 +423,9 @@
     "Current version: ": "Dabartinė versija: ",
     "next_steps_error_message": "Po to turėtumėte pabandyti: ",
     "next_steps_error_message_refresh": "Atnaujinti",
-    "next_steps_error_message_go_to_youtube": "Eiti į YouTube"
+    "next_steps_error_message_go_to_youtube": "Eiti į YouTube",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

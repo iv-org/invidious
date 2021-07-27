@@ -423,5 +423,9 @@
     "Current version: ": "Versi saat ini: ",
     "next_steps_error_message": "Setelah itu Anda harus mencoba: ",
     "next_steps_error_message_refresh": "Segarkan",
-    "next_steps_error_message_go_to_youtube": "Buka YouTube"
+    "next_steps_error_message_go_to_youtube": "Buka YouTube",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }

@@ -423,5 +423,9 @@
     "Current version: ": "Aktuelle Version: ",
     "next_steps_error_message": "Danach folgendes versuchen: ",
     "next_steps_error_message_refresh": "Neuladen",
-    "next_steps_error_message_go_to_youtube": "Zu YouTube gehen"
+    "next_steps_error_message_go_to_youtube": "Zu YouTube gehen",
+    "community-poll-votes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    }
 }
