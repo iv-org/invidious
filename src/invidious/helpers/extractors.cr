@@ -358,21 +358,27 @@ private module Parsers
         end
       end
 
-      likes = short_text_to_number(item_contents["voteCount"]["simpleText"].as_s.split(" ")[0]) # Youtube doesn't provide dislikes...
-      published = item_contents["publishedTimeText"]?.try &.["simpleText"]?.try { |t| decode_date(t.as_s) } || Time.local
+    # YouTube doesn't provide dislikes.
+    likes = short_text_to_number(item_contents["voteCount"]["simpleText"].as_s.split(" ")[0])
 
-      YouTubeStructs::CommunityPost.new({
-        author:           author_name,
-        author_id:        author_id,
-        author_thumbnail: author_thumbnail,
-        post_id:      post_id,
-        content_html: contents,
-        attachment:   attachment,
-        likes:        likes,
-        published:    published,
+    comments = item_contents.dig?("actionButtons", "commentActionButtonsRenderer",
+      "replyButton", "buttonRenderer", "text", "simpleText").try { |t| short_text_to_number(t.as_s) } || 0
+
+    published = item_contents["publishedTimeText"]?.try &.["simpleText"]?.try { |t| decode_date(t.as_s) } || Time.local
+
+    YouTubeStructs::CommunityPost.new({
+      author:           author_name,
+      author_id:        author_id,
+      author_thumbnail: author_thumbnail,
+      post_id:      post_id,
+      content_html: contents,
+      attachment:   attachment,
+      likes:        likes,
+      comments:     comments,
+      published:    published,
     })
   end
-  end
+end
 end
 
 # The following are the extractors for extracting an array of items from

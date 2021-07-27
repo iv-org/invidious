@@ -38,6 +38,7 @@ module YouTubeStructs
     property content_html : String
     property attachment : AttachmentType
     property likes : Int32
+    property comments : Int32
     property published : Time
 
     def to_json(locale, json : JSON::Builder)
@@ -52,6 +53,7 @@ module YouTubeStructs
         json.field "contents", html_to_content(self.content_html)
         json.field "attachment", self.attachment.to_json
         json.field "likes", self.likes
+        json.field "comments", self.comments
         json.field "published", self.published.to_unix
       end
     end

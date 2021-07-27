@@ -74,24 +74,30 @@
             <img style="margin-right:1em;margin-top:1em;width:90%" src="/ggpht<%= URI.parse(thread.author_thumbnail).request_target %>">
         </div>
 
-
         <div class="pure-u-20-24 pure-u-md-22-24">
             <p><b><a href=<%="/channel/#{thread.author_id}"%>><%= thread.author %></a></p></b>
             <p> <%= thread.content_html -%> </p>
             <% # Handles attachments: %>
             <% attachment = thread.attachment %>
-            <% if attachment.is_a? YouTubeStructs::VideoRenderer %>
-                <div style="position:relative;width:100%;height:0;padding-bottom:56.25%;margin-bottom:5px">
-                    <iframe id='ivplayer' style='position:absolute;width:100%;height:100%;left:0;top:0' src='/embed/<%=attachment.id%>?autoplay=0' style='border:none;'></iframe>
-                </div>
-            <% elsif attachment.is_a?  YouTubeStructs::PlaylistRenderer %>
-            <% elsif attachment.is_a?  YouTubeStructs::CommunityPoll %>
-            <% elsif attachment.nil? %>
-            <% else %>
-                <img style="width: 90%" src="/ggpht<%= URI.parse(attachment).request_target%>"/>
-            <% end %>
-
-            <p id="likes"><i class="icon ion-ios-thumbs-up" style="margin-right: 5px;"></i><%= thread.likes %></p>
+            <div class="pure-u-1 pure-u-md-1-2">
+                <% if attachment.is_a? YouTubeStructs::VideoRenderer %>
+                    <div style="position:relative;width:100%;height:0;padding-bottom:56.25%;margin-bottom:5px">
+                        <iframe id='ivplayer' style='position:absolute;width:100%;height:100%;left:0;top:0' src='/embed/<%=attachment.id%>?autoplay=0' style='border:none;'></iframe>
+                    </div>
+                <% elsif attachment.is_a?  YouTubeStructs::PlaylistRenderer %>
+                <% elsif attachment.is_a?  YouTubeStructs::CommunityPoll %>
+                <% elsif attachment.nil? %>
+                <% else %>
+                    <img style="width: 90%" src="/ggpht<%= URI.parse(attachment).request_target%>"/>
+                <% end %>
+            </div>
+            <div class="pure-g pure-u-1"></div>
+            <div class="pure-menu pure-menu-horizontal">
+                <ul class="pure-menu-list">
+                    <li class="pure-menu-item" id="likes" style="margin-right: 15px;"><i class="icon ion-ios-thumbs-up" style="margin-right: 5px;"></i><%= thread.likes %></li>
+                    <li class="pure-menu-item" id="comments"><i class="icon ion-ios-chatbubbles" style="margin-right: 5px;"></i><%= thread.comments %></li>
+                </ul>
+            </div>
         </div>
     </div>
 <%- end%>
