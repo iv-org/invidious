@@ -7,8 +7,11 @@ module YoutubeAPI
 
   # Enumerate used to select one of the clients supported by the API
   enum ClientType
-    Web     = 0
-    Android = 1
+    Web
+    WebEmbed
+    WebMobile
+    WebAgeBypass
+    Android
   end
 
   # List of hard-coded values used by the different clients
@@ -17,11 +20,31 @@ module YoutubeAPI
       name:    "WEB",
       version: "2.20210721.00.00",
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      screen:  "WATCH_FULL_SCREEN",
+    },
+    ClientType::WebEmbed => {
+      name:    "WEB_EMBEDDED_PLAYER", # 56
+      version: "1.20210721.1.0",
+      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      screen:  "EMBED",
+    },
+    ClientType::WebMobile => {
+      name:    "MWEB",
+      version: "2.20210726.08.00",
+      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      screen:  "", # None
+    },
+    ClientType::WebAgeBypass => {
+      name:    "WEB",
+      version: "2.20210721.00.00",
+      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      screen:  "EMBED",
     },
     ClientType::Android => {
       name:    "ANDROID",
       version: "16.20.35",
       api_key: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
+      screen:  "", # ??
     },
   }
 
@@ -48,7 +71,7 @@ module YoutubeAPI
   # ```
   #
   struct ClientConfig
-    # Type of client to emulate (Web or Android).
+    # Type of client to emulate.
     # See `enum ClientType` and `HARDCODED_CLIENTS`.
     property client_type : ClientType
 
@@ -85,6 +108,11 @@ module YoutubeAPI
       HARDCODED_CLIENTS[@client_type][:api_key]
     end
 
+    # :ditto:
+    def screen : String
+      HARDCODED_CLIENTS[@client_type][:screen]
+    end
+
     # Convert to string, for logging purposes
     def to_s
       return {
@@ -108,7 +136,7 @@ module YoutubeAPI
     # Use the default client config if nil is passed
     client_config ||= DEFAULT_CLIENT_CONFIG
 
-    return {
+    client_context = {
       "client" => {
         "hl"            => "en",
         "gl"            => client_config.region || "US", # Can't be empty!
@@ -116,6 +144,13 @@ module YoutubeAPI
         "clientVersion" => client_config.version,
       },
     }
+
+    # Add some more context if it exists in the client definitions
+    if client_config.screen != ""
+      client_context["client"]["clientScreen"] = client_config.screen
+    end
+
+    return client_context
   end
 
   ####################################################################
