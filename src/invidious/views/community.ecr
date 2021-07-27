@@ -93,9 +93,9 @@
             </div>
             <div class="pure-menu pure-menu-horizontal">
                 <ul class="pure-menu-list">
-                    <li class="pure-menu-item" id="likes" style="margin-right: 15px;"><i class="icon ion-ios-thumbs-up" style="margin-right: 5px;"></i><%= thread.likes %></li>
-                    <li class="pure-menu-item" id="comments" style="margin-right: 15px;"><i class="icon ion-ios-chatbubbles" style="margin-right: 5px;"></i><%= thread.comments %></li>
-                    <li class="pure-menu-item" id="date" dir="auto"><p style="vertical-align: sub;"><b><%= translate(locale, "Shared `x` ago", recode_date(thread.published, locale)) %></b></p></li>
+                    <li class="pure-menu-item" id="likes" style="margin-right: 15px;"><i class="icon ion-ios-thumbs-up" style="margin-right: 5px;"></i><%-= thread.likes %></li>
+                    <li class="pure-menu-item" id="comments" style="margin-right: 15px;"><i class="icon ion-ios-chatbubbles" style="margin-right: 5px;"></i><%-= thread.comments %></li>
+                    <li class="pure-menu-item" id="date" dir="auto"><b style="vertical-align: sub;"><%-= translate(locale, "Shared `x` ago", recode_date(thread.published, locale)) %></b></li>
                 </ul>
             </div>
         </div>
