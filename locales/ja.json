@@ -421,7 +421,7 @@
     "hdr": "HDR",
     "filter": "フィルタ",
     "Current version: ": "現在のバージョン: ",
-    "next_steps_error_message": "",
+    "next_steps_error_message": "下記のものを試して下さい： ",
     "next_steps_error_message_refresh": "再読込",
     "next_steps_error_message_go_to_youtube": "YouTubeへ"
 }
