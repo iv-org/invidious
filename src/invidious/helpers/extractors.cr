@@ -364,7 +364,7 @@ private module Parsers
     comments = item_contents.dig?("actionButtons", "commentActionButtonsRenderer",
       "replyButton", "buttonRenderer", "text", "simpleText").try { |t| short_text_to_number(t.as_s) } || 0
 
-    published = item_contents["publishedTimeText"]["runs"][0]["text"].try { |t| decode_date(t.as_s) } || Time.local
+    published = item_contents["publishedTimeText"]["runs"][0]["text"].try { |t| decode_date(t.as_s.rstrip(" (edited)")) } || Time.local
 
     YouTubeStructs::CommunityPost.new({
       author:           author_name,
