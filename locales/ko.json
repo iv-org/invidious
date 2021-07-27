@@ -5,7 +5,7 @@
     "Show annotations by default for subscribed channels: ": "구독한 채널에 기본적으로 특수효과를 표시하시겠습니까? ",
     "Subscription preferences": "구독 설정",
     "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "자동 인스턴스 리디렉션 (redirect.invidious.io로 대체): ",
-    "Thin mode: ": "씬 모드: ",
+    "Thin mode: ": "단순 모드: ",
     "light": "라이트",
     "dark": "다크",
     "Theme: ": "테마: ",
@@ -139,7 +139,7 @@
     "View all playlists": "모든 재생목록 보기",
     "Private": "비공개",
     "Unlisted": "목록에 없음",
-    "Public": "공공",
+    "Public": "공개",
     "View privacy policy.": "개인정보 처리방침 보기.",
     "View JavaScript license information.": "JavaScript 라이센스 정보 보기.",
     "Source available here.": "소스는 여기에서 사용할 수 있습니다.",
@@ -211,7 +211,7 @@
     "Marathi": "마라티어",
     "Maori": "마오리어",
     "Maltese": "몰타어",
-    "Wrong answer": "오답입니다",
+    "Wrong answer": "잘못된 답변",
     "live": "실시간",
     "3d": "3D",
     "location": "지역",
@@ -223,7 +223,7 @@
     "next_steps_error_message_go_to_youtube": "YouTube로 가기",
     "subtitles": "자막/CC",
     "`x` marked it with a ❤": "`x`님의 ❤",
-    "Download as: ": "다운로드 설정 ",
+    "Download as: ": "다음으로 다운로드: ",
     "Download": "다운로드",
     "Search": "검색",
     "Language: ": "언어: ",
@@ -341,5 +341,53 @@
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 초"
     },
     "Swahili": "스와힐리어",
-    "Sundanese": "순다어"
+    "Sundanese": "순다어",
+    "`x` hours": {
+        "": "`x` 시",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 시"
+    },
+    "`x` minutes": {
+        "": "`x` 분",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 분"
+    },
+    "`x` days": {
+        "": "`x` 일",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 일"
+    },
+    "`x` weeks": {
+        "": "`x` 주",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 주"
+    },
+    "`x` months": {
+        "": "`x` 월",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 월"
+    },
+    "`x` years": {
+        "": "`x` 년",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 년"
+    },
+    "Zulu": "줄루어",
+    "Yoruba": "요루바어",
+    "Yiddish": "이디시어",
+    "Xhosa": "코사어",
+    "Western Frisian": "서부 프리지아어",
+    "Welsh": "웨일스어",
+    "Vietnamese": "베트남어",
+    "Uzbek": "우즈베크어",
+    "Urdu": "우르두어",
+    "Ukrainian": "우크라이나어",
+    "Turkish": "터키어",
+    "Thai": "태국어",
+    "Telugu": "텔루구어",
+    "Tamil": "타밀어",
+    "Tajik": "타지크어",
+    "Swedish": "스웨덴어",
+    "Spanish (Latin America)": "스페인어 (라틴 아메리카)",
+    "`x` points": {
+        "": "`x` 포인트",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 포인트"
+    },
+    "Invidious Private Feed for `x`": "`x` 에 대한 Invidious 비공개 피드",
+    "Premieres `x`": "최초 공개 `x`",
+    "Premieres in `x`": "`x` 에 최초 공개"
 }
