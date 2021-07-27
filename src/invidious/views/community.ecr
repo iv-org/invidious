@@ -75,8 +75,8 @@
         </div>
 
         <div class="pure-u-20-24 pure-u-md-22-24">
-            <p><b><a href=<%="/channel/#{thread.author_id}"%>><%= thread.author %></a></p></b>
-            <p> <%= thread.content_html -%> </p>
+            <p dir="auto"><b><a href=<%="/channel/#{thread.author_id}"%>><%= thread.author %></a></p></b>
+            <p dir="auto"> <%= thread.content_html -%> </p>
             <% # Handles attachments: %>
             <% attachment = thread.attachment %>
             <div class="pure-u-1 pure-u-md-1-2">
@@ -91,11 +91,11 @@
                     <img style="width: 90%" src="/ggpht<%= URI.parse(attachment).request_target%>"/>
                 <% end %>
             </div>
-            <div class="pure-g pure-u-1"></div>
             <div class="pure-menu pure-menu-horizontal">
                 <ul class="pure-menu-list">
                     <li class="pure-menu-item" id="likes" style="margin-right: 15px;"><i class="icon ion-ios-thumbs-up" style="margin-right: 5px;"></i><%= thread.likes %></li>
-                    <li class="pure-menu-item" id="comments"><i class="icon ion-ios-chatbubbles" style="margin-right: 5px;"></i><%= thread.comments %></li>
+                    <li class="pure-menu-item" id="comments" style="margin-right: 15px;"><i class="icon ion-ios-chatbubbles" style="margin-right: 5px;"></i><%= thread.comments %></li>
+                    <li class="pure-menu-item" id="date" dir="auto"><p style="vertical-align: sub;"><b><%= translate(locale, "Shared `x` ago", recode_date(thread.published, locale)) %></b></p></li>
                 </ul>
             </div>
         </div>
