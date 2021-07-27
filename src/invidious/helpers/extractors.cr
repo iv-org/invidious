@@ -353,7 +353,9 @@ private module Parsers
         attachment = YouTubeStructs::CommunityPoll.new({choices: choices, total_votes: votes})
       else
         attachment = extract_item(attachment_container)
-        raise "Unreachable" if !attachment.is_a?(YouTubeStructs::VideoRenderer | YouTubeStructs::PlaylistRenderer)
+        if !attachment.is_a?(YouTubeStructs::CommunityPost::AttachmentType)
+          raise "Unexpected type found for attachment. Expected : '#{YouTubeStructs::CommunityPost::AttachmentType}' got #{typeof(attachment)}"
+        end
       end
 
       likes = short_text_to_number(item_contents["voteCount"]["simpleText"].as_s.split(" ")[0]) # Youtube doesn't provide dislikes...

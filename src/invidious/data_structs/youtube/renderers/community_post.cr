@@ -26,6 +26,7 @@ module YouTubeStructs
 
   struct CommunityPost
     include DB::Serializable
+    alias AttachmentType = (VideoRenderer | PlaylistRenderer | CommunityPoll | String)? # string is image/gif
 
     # Author information
     property author : String
@@ -35,7 +36,7 @@ module YouTubeStructs
     # Community post data
     property post_id : String
     property content_html : String
-    property attachment : (VideoRenderer | PlaylistRenderer | CommunityPoll | String)? # string is image/gif
+    property attachment : AttachmentType
     property likes : Int32
     property published : Time
 
