@@ -71,7 +71,7 @@
     "Preferred video quality: ": "優先する画質: ",
     "Player volume: ": "プレイヤーの音量: ",
     "Default comments: ": "デフォルトのコメント: ",
-    "youtube": "youtube",
+    "youtube": "YouTube",
     "reddit": "reddit",
     "Default captions: ": "デフォルトの字幕: ",
     "Fallback captions: ": "フォールバック時の字幕: ",
@@ -423,5 +423,5 @@
     "Current version: ": "現在のバージョン: ",
     "next_steps_error_message": "",
     "next_steps_error_message_refresh": "再読込",
-    "next_steps_error_message_go_to_youtube": "Youtubeへ"
+    "next_steps_error_message_go_to_youtube": "YouTubeへ"
 }
