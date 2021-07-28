@@ -71,7 +71,7 @@
     "Preferred video quality: ": "Primarna kvaliteta videa: ",
     "Player volume: ": "Glasnoća playera: ",
     "Default comments: ": "Standardni komentari: ",
-    "youtube": "youtube",
+    "youtube": "YouTube",
     "reddit": "reddit",
     "Default captions: ": "Standardni titlovi: ",
     "Fallback captions: ": "Alternativni titlovi: ",
@@ -423,5 +423,5 @@
     "Current version: ": "Trenutačna verzija: ",
     "next_steps_error_message": "Nakon toga pokušaj sljedeće: ",
     "next_steps_error_message_refresh": "Aktualiziraj stranicu",
-    "next_steps_error_message_go_to_youtube": "Idi na Youtube"
+    "next_steps_error_message_go_to_youtube": "Idi na YouTube"
 }
