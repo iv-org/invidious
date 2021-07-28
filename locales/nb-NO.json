@@ -421,7 +421,7 @@
     "hdr": "HDR",
     "filter": "filtrer",
     "Current version: ": "Gjeldende versjon: ",
-    "next_steps_error_message": "",
-    "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message": "Etterpå bør du prøve dette: ",
+    "next_steps_error_message_refresh": "Gjenoppfrisk",
+    "next_steps_error_message_go_to_youtube": "Gå til YouTube"
 }
