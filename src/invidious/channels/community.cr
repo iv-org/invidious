@@ -52,16 +52,6 @@ def extract_channel_community_cursor(continuation)
     .try { |i| Protodec::Any.parse(i) }
     .try { |i| i["80226972:0:embedded"]["3:1:base64"].as_h }
 
-  if object["53:2:embedded"]?.try &.["3:0:embedded"]?
-    object["53:2:embedded"]["3:0:embedded"]["2:0:string"] = object["53:2:embedded"]["3:0:embedded"]
-      .try { |i| i["2:0:base64"].as_h }
-      .try { |i| Protodec::Any.cast_json(i) }
-      .try { |i| Protodec::Any.from_json(i) }
-      .try { |i| Base64.urlsafe_encode(i, padding: false) }
-
-    object["53:2:embedded"]["3:0:embedded"].as_h.delete("2:0:base64")
-  end
-
   cursor = Protodec::Any.cast_json(object)
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
