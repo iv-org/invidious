@@ -75,14 +75,13 @@ module Invidious::Routes::Channels
     end
 
     if continuation
-      items = fetch_channel_community(ucid, continuation)
+      items, cursor = fetch_channel_community(ucid, continuation)
     else
-      items = fetch_channel_community(ucid)
+      items, cursor = fetch_channel_community(ucid)
     end
 
-    pp items
-
     return env.redirect "/channel/#{channel.ucid}" if !items || items.empty?
+
     templated "community"
   end
 

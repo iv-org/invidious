@@ -242,17 +242,22 @@ end
 
 def fetch_continuation_token(items : Array(JSON::Any))
   # Fetches the continuation token from an array of items
-  return items.last["continuationItemRenderer"]?
-    .try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
+  return items.last["continuationItemRenderer"]?.try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
 end
 
 def fetch_continuation_token(initial_data : Hash(String, JSON::Any))
   # Fetches the continuation token from initial data
-  if initial_data["onResponseReceivedActions"]?
-    continuation_items = initial_data["onResponseReceivedActions"][0]["appendContinuationItemsAction"]["continuationItems"]
+  if target = initial_data["onResponseReceivedActions"]? || initial_data["onResponseReceivedEndpoints"]?
+    continuation_items = target.dig(0, "appendContinuationItemsAction", "continuationItems")
   else
     tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
-    continuation_items = tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["gridRenderer"]["items"]
+    target = tab.dig("content", "sectionListRenderer", "contents", 0, "itemSectionRenderer", "contents")
+
+    if continuation_items = target[0]["gridRenderer"]?
+      continuation_items = continuation_items["items"]
+    else
+      continuation_items = target
+    end
   end
 
   return fetch_continuation_token(continuation_items.as_a)

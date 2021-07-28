@@ -111,3 +111,13 @@
     </div>
 <%- end%>
 
+<% if cursor %>
+<div class="pure-g h-box v-box">
+    <div class="pure-u-1 pure-u-md-4-5"></div>
+    <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
+        <a href="/channel/<%= channel.ucid %>/community?continuation=<%=cursor%>">
+            <%= translate(locale, "Next page") %>
+        </a>
+    </div>
+</div>
+<% end %>

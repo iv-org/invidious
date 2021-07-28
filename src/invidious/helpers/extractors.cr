@@ -517,6 +517,8 @@ private module Extractors
         raw_items = content["items"].as_a
       elsif content = target["continuationItems"]?
         raw_items = content.as_a
+      elsif content = target["itemSectionContinuation"]?
+        raw_items = content["contents"].as_a
       end
 
       return raw_items
@@ -625,6 +627,7 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
   if unpackaged_data = initial_data["contents"]?.try &.as_h
   elsif unpackaged_data = initial_data["response"]?.try &.as_h
   elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 0).try &.as_h
+  elsif unpackaged_data = initial_data.dig?("onResponseReceivedEndpoints", 0).try &.as_h
   else
     unpackaged_data = initial_data
   end
