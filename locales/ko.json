@@ -333,5 +333,13 @@
     "Sindhi": "신드어",
     "Shona": "쇼나어",
     "Serbian": "세르비아어",
-    "Scottish Gaelic": "스코틀랜드 게일어"
+    "Scottish Gaelic": "스코틀랜드 게일어",
+    "Popular": "인기",
+    "Fallback comments: ": "대체 댓글: ",
+    "`x` seconds": {
+        "": "`x` 초",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 초"
+    },
+    "Swahili": "스와힐리어",
+    "Sundanese": "순다어"
 }
