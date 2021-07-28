@@ -1,0 +1,37 @@
+msgid ""
+msgstr ""
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+msgid "enumeration_subscribers"
+msgid_plural "enumeration_subscribers_plural"
+msgstr[0] "%d subscriber"
+msgstr[1] "%d subscribers"
+
+msgid "enumeration_videos"
+msgid_plural "enumeration_videos_plural"
+msgstr[0] "%d video"
+msgstr[1] "%d videos"
+
+msgid "enumeration_playlists"
+msgid_plural "enumeration_playlists_plural"
+msgstr[0] "%d playlist"
+msgstr[1] "%d playlists"
+
+msgid "enumeration_subscriptions"
+msgid_plural "enumeration_subscriptions_plural"
+msgstr[0] "%d subscription"
+msgstr[1] "%d subscriptions"
+
+msgid "enumeration_views"
+msgid_plural "enumeration_views_plural"
+msgstr[0] "%d view"
+msgstr[1] "%d views"
+
+msgid "enumeration_points"
+msgid_plural "enumeration_points_plural"
+msgstr[0] "%d point"
+msgstr[1] "%d points"

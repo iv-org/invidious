@@ -1,0 +1,206 @@
+msgid ""
+msgstr ""
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+# Player settings
+msgid "settings_player_heading"
+msgstr "Player preferences"
+
+msgid "settings_player_autoplay"
+msgstr "Autoplay: "
+
+msgid "settings_player_always_loop"
+msgstr "Always loop: "
+
+msgid "settings_player_automatically_goto_next_video"
+msgstr "Automatically go to next video: "
+
+msgid "settings_player_automatically_play_next_video"
+msgstr "Autoplay next video: "
+
+msgid "settings_player_listen_only_mode"
+msgstr "Listen by default: "
+
+msgid "settings_player_proxy_mode"
+msgstr "Proxy videos: "
+
+msgid "settings_player_default_speed"
+msgstr "Default speed: "
+
+msgid "settings_player_preferred_no_dash_video_quality"
+msgstr "Preferred video quality: "
+
+msgid "settings_player_preferred_dash_video_quality"
+msgstr "Preferred dash video quality: "
+
+msgid "settings_player_player_volume"
+msgstr "Player volume: "
+
+# Comments shouldn't be apart of the player options imo
+msgid "settings_player_default_comments"
+msgstr "Default comments: "
+
+msgid "settings_player_default_comments_options_youtube"
+msgstr "YouTube"
+
+msgid "settings_player_default_comments_options_reddit"
+msgstr "Reddit"
+
+msgid "settings_player_default_captions"
+msgstr "Default captions: "
+
+msgid "settings_player_fallback_captions"
+msgstr "Fallback captions: "
+
+msgid "settings_player_show_related_videos"
+msgstr "Show related videos: "
+
+msgid "settings_player_show_annotations_by_default"
+msgstr "Show annotations by default: "
+
+msgid "settings_player_automatically_extend_video_description"
+msgstr "Automatically extend video description: "
+
+msgid "settings_player_interactive_360"
+msgstr "Interactive 360 degree videos: "
+
+# Visual settings
+msgid "settings_visual_heading"
+msgstr "Visual preferences"
+
+msgid "settings_visual_player_styles"
+msgstr "Player style: "
+
+msgid "settings_visual_player_styles_youtube"
+msgstr "YouTube"
+
+msgid "settings_visual_player_styles_invidious"
+msgstr "Invidious"
+
+msgid "settings_visual_theme_dropdown"
+msgstr "Theme: "
+
+msgid "settings_visual_theme_dropdown_item_dark"
+msgstr "Dark"
+
+msgid "settings_visual_theme_dropdown_item_light"
+msgstr "Light"
+
+msgid "settings_visual_thin_mode"
+msgstr "Thin mode: "
+
+msgid "settings_visual_show_nickname"
+msgstr "Show nickname on top: "
+
+
+# Misc settings
+msgid "settings_misc_heading"
+msgstr "Miscellaneous preferences"
+
+msgid "settings_misc_redirect"
+msgstr "Automaticatic instance redirection (fallback to redirect.invidious.io): "
+
+
+# Authenticated settings
+msgid "settings_auth_subscriptions_heading"
+msgstr "Subscription preferences: "
+
+msgid "settings_auth_subscriptions_annotations"
+msgstr "Show annotations by default for subscribed channels: "
+
+msgid "settings_auth_subscriptions_feed_size"
+msgstr "Number of videos shown in feed: "
+
+msgid "settings_auth_subscriptions_sort"
+msgstr "Sort videos by: "
+
+msgid "settings_auth_subscriptions_sort_options_published"
+msgstr "Published"
+
+msgid "settings_auth_subscriptions_sort_options_published_reverse"
+msgstr "Published - reverse"
+
+msgid "settings_auth_subscriptions_sort_options_alphabetically"
+msgstr "Alphabetically"
+
+msgid "settings_auth_subscriptions_sort_options_alphabetically_reverse"
+msgstr "Alphabetically - reverse"
+
+msgid "settings_auth_subscriptions_sort_options_channel_name"
+msgstr "Channel name"
+
+msgid "settings_auth_subscriptions_sort_options_channel_name_reverse"
+msgstr "Channel name - reverse"
+
+msgid "settings_auth_subscriptions_show_latest"
+msgstr "Only show latest video from channel: "
+
+msgid "settings_auth_subscriptions_show_unwatched"
+msgstr "Only show unwatched: "
+
+msgid "settings_auth_subscriptions_show_notifications"
+msgstr "Only show notifications (if there are any): "
+
+msgid "settings_auth_enable_web_notifications"
+msgstr "Enable web notifications"
+
+
+# Data control
+msgid "settings_auth_data_heading"
+msgstr "Data preferences"
+
+msgid "settings_auth_data_clear_watch_history"
+msgstr "Clear watch history"
+
+msgid "settings_auth_data_import_export"
+msgstr "Import/export data"
+
+msgid "settings_auth_data_change_password"
+msgstr "Change password"
+
+msgid "settings_auth_data_manage_subscriptions"
+msgstr "Manage subscriptions"
+
+msgid "settings_auth_data_manage_tokens"
+msgstr "Manage tokens"
+
+msgid "settings_auth_data_watch_history"
+msgstr "Watch history"
+
+msgid "settings_auth_data_delete_account"
+msgstr "Delete account"
+
+
+# Admin settings
+msgid "settings_admin_heading"
+msgstr "Administrator preferences"
+
+msgid "settings_admin_default_homepage"
+msgstr "Default homepage: "
+
+msgid "settings_admin_feed_menu: "
+msgstr "Feed menu: "
+
+msgid "settings_admin_captcha_enabled: "
+msgstr "CAPTCHA enabled: "
+
+msgid "settings_admin_login_enabled: "
+msgstr "Login enabled: "
+
+msgid "settings_admin_registration_enabled: "
+msgstr "Registration enabled: "
+
+msgid "settings_admin_enable_stats: "
+msgstr "Report statistics: : "
+
+msgid "settings_save"
+msgstr "Save preferences"
+
+
+
+
+

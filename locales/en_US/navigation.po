@@ -1,0 +1,45 @@
+msgid ""
+msgstr ""
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+msgid "channel_feed_videos"
+msgstr "Videos"
+
+msgid "channel_feed_playlists"
+msgstr "Playlists"
+
+msgid "channel_feed_community"
+msgstr "Community"
+
+
+msgid "trending_tabs_default"
+msgstr "Default"
+
+msgid "trending_tabs_music"
+msgstr "Music"
+
+msgid "trending_tabs_gaming"
+msgstr "Gaming"
+
+msgid "trending_tabs_movies"
+msgstr "Movies"
+
+
+msgid "general_feed_popular"
+msgstr "Popular"
+
+msgid "general_feed_search"
+msgstr "Search"
+
+msgid "general_feed_trending"
+msgstr "Trending"
+
+msgid "general_next_page"
+msgstr "Next page"
+
+msgid "general_previous_page"
+msgstr "Previous page"
