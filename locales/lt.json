@@ -71,7 +71,7 @@
     "Preferred video quality: ": "Pageidaujama vaizdo kokybė: ",
     "Player volume: ": "Grotuvo garsas: ",
     "Default comments: ": "Numatytieji komentarai: ",
-    "youtube": "youtube",
+    "youtube": "YouTube",
     "reddit": "reddit",
     "Default captions: ": "Numatytieji subtitrai: ",
     "Fallback captions: ": "Atsarginiai subtitrai: ",
@@ -423,5 +423,5 @@
     "Current version: ": "Dabartinė versija: ",
     "next_steps_error_message": "Po to turėtumėte pabandyti: ",
     "next_steps_error_message_refresh": "Atnaujinti",
-    "next_steps_error_message_go_to_youtube": "Eiti į Youtube"
+    "next_steps_error_message_go_to_youtube": "Eiti į YouTube"
 }
