@@ -253,11 +253,11 @@ module YoutubeAPI
   # :ditto:
   def next(data : Hash, *, client_config : ClientConfig | Nil = nil)
     # JSON Request data, required by the API
-    data.merge!({
+    data2 = data.merge({
       "context" => self.make_context(client_config),
     })
 
-    return self._post_json("/youtubei/v1/next", data, client_config)
+    return self._post_json("/youtubei/v1/next", data2, client_config)
   end
 
   # Allow a NamedTuple to be passed, too.
