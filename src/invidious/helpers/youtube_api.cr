@@ -410,6 +410,11 @@ module YoutubeAPI
       code = initial_data["error"]["code"]
       message = initial_data["error"]["message"].to_s.sub(/(\\n)+\^$/, "")
 
+      # Logging
+      LOGGER.error("YoutubeAPI: Got error #{code} when requesting #{endpoint}")
+      LOGGER.error("YoutubeAPI: #{message}")
+      LOGGER.info("YoutubeAPI: POST data was: #{data.to_s}")
+
       raise InfoException.new("Could not extract JSON. Youtube API returned \
       error #{code} with message:<br>\"#{message}\"")
     end
