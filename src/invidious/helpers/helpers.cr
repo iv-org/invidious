@@ -710,34 +710,6 @@ class HTTP::Server::Response
   end
 end
 
-class HTTP::Client::Response
-  def pipe(io)
-    HTTP.serialize_body(io, headers, @body, @body_io, @version)
-  end
-end
-
-# Supports serialize_body without first writing headers
-module HTTP
-  def self.serialize_body(io, headers, body, body_io, version)
-    if body
-      io << body
-    elsif body_io
-      content_length = content_length(headers)
-      if content_length
-        copied = IO.copy(body_io, io)
-        if copied != content_length
-          raise ArgumentError.new("Content-Length header is #{content_length} but body had #{copied} bytes")
-        end
-      elsif Client::Response.supports_chunked?(version)
-        headers["Transfer-Encoding"] = "chunked"
-        serialize_chunked_body(io, body_io)
-      else
-        io << body
-      end
-    end
-  end
-end
-
 class HTTP::Client
   property family : Socket::Family = Socket::Family::UNSPEC
 
