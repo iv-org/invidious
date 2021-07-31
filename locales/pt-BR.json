@@ -133,7 +133,7 @@
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens",
-        "": "`x` tokens"
+        "": "Símbolos `x`"
     },
     "Import/export": "Importar/Exportar",
     "unsubscribe": "cancelar inscrição",
