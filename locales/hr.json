@@ -71,7 +71,7 @@
     "Preferred video quality: ": "Primarna kvaliteta videa: ",
     "Player volume: ": "Glasnoća playera: ",
     "Default comments: ": "Standardni komentari: ",
-    "youtube": "youtube",
+    "youtube": "YouTube",
     "reddit": "reddit",
     "Default captions: ": "Standardni titlovi: ",
     "Fallback captions: ": "Alternativni titlovi: ",
@@ -385,8 +385,8 @@
     "Download as: ": "Preuzmi kao: ",
     "%A %B %-d, %Y": "%A, %-d. %B %Y.",
     "(edited)": "(uređeno)",
-    "YouTube comment permalink": "Permalink YouTube komentara",
-    "permalink": "permalink",
+    "YouTube comment permalink": "Stalna poveznica YouTube komentara",
+    "permalink": "stalna poveznica",
     "`x` marked it with a ❤": "Označeno sa ❤ od `x`",
     "Audio mode": "Audio modus",
     "Video mode": "Videomodus",
@@ -421,7 +421,7 @@
     "hdr": "hdr",
     "filter": "filtar",
     "Current version: ": "Trenutačna verzija: ",
-    "next_steps_error_message": "",
-    "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message": "Nakon toga pokušaj sljedeće: ",
+    "next_steps_error_message_refresh": "Aktualiziraj stranicu",
+    "next_steps_error_message_go_to_youtube": "Idi na YouTube"
 }

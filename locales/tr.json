@@ -71,7 +71,7 @@
     "Preferred video quality: ": "Tercih edilen video kalitesi: ",
     "Player volume: ": "Oynatıcı ses seviyesi: ",
     "Default comments: ": "Öntanımlı yorumlar: ",
-    "youtube": "youtube",
+    "youtube": "YouTube",
     "reddit": "reddit",
     "Default captions: ": "Öntanımlı altyazılar: ",
     "Fallback captions: ": "Yedek altyazılar: ",
@@ -423,5 +423,5 @@
     "Current version: ": "Şu anki sürüm: ",
     "next_steps_error_message": "Bundan sonra şunları denemelisiniz: ",
     "next_steps_error_message_refresh": "Yenile",
-    "next_steps_error_message_go_to_youtube": "Youtube'a git"
+    "next_steps_error_message_go_to_youtube": "YouTube'a git"
 }

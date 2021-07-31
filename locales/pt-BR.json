@@ -71,7 +71,7 @@
     "Preferred video quality: ": "Qualidade de vídeo preferida: ",
     "Player volume: ": "Volume de reprodução: ",
     "Default comments: ": "Preferência de comentários: ",
-    "youtube": "youtube",
+    "youtube": "YouTube",
     "reddit": "reddit",
     "Default captions: ": "Preferência de legendas: ",
     "Fallback captions: ": "Legendas alternativas: ",
@@ -423,5 +423,5 @@
     "Current version: ": "Versão atual: ",
     "next_steps_error_message": "Depois disso, você deve tentar: ",
     "next_steps_error_message_refresh": "Atualizar",
-    "next_steps_error_message_go_to_youtube": "Ir para o Youtube"
+    "next_steps_error_message_go_to_youtube": "Ir para o YouTube"
 }
