@@ -471,3 +471,81 @@ def fetch_random_instance
 
   return filtered_instance_list.sample(1)[0]
 end
+
+struct LanguageEntry
+  class InvalidLanguageEntry < Exception
+  end
+
+  property tag, subtags, quality : Float64
+
+  def initialize(@tag : String, @subtags : Array(String), @quality : Float64)
+    @quality = @quality.clamp(0.0, 1.0)
+  end
+
+  def to_s(io)
+    io << tag
+    unless subtags.empty?
+      io << '-' << @subtags.join '-'
+    end
+  end
+
+  def self.from_string(language_str : String) : self
+    range_and_quality = language_str.split ';'
+
+    raise LanguageEntry::InvalidLanguageEntry.new if range_and_quality.empty?
+
+    if range_and_quality[1]?
+      quality = parse_quality(range_and_quality[1])
+    else
+      quality = 1.00
+    end
+
+    language_range = range_and_quality[0]
+    tags = language_range.split '-'
+
+    language_tag = tags[0]
+    subtags = tags[1..]
+
+    return LanguageEntry.new(language_tag, subtags, quality)
+  end
+
+  private def self.parse_quality(quality_str : String) : Float64
+    parts = quality_str.split "="
+
+    begin
+      return parts[1].to_f64.clamp(0.00, 1.00)
+    rescue
+      raise LanguageEntry::InvalidLanguageEntry.new("'" + quality_str + "'" + " is not a valid quality")
+    end
+  end
+end
+
+alias LanguageEntries = Array(LanguageEntry)
+
+def parse_accept_language_header(header : String) : LanguageEntries
+  return [] of LanguageEntry if header.empty?
+
+  results = [] of LanguageEntry
+
+  header.split ',' do |lang|
+    begin
+      results.push LanguageEntry.from_string(lang)
+    rescue LanguageEntry::InvalidLanguageEntry
+      # Skip invalid language entry strings
+    end
+  end
+
+  results.sort_by! { |lang| -lang.quality }
+
+  return results
+end
+
+# Alternate matching schemes at https://datatracker.ietf.org/doc/html/rfc4647#section-3
+# Performs a simple exact match search for now
+def first_language_match(available_languages : Set(String), preferred_languages : LanguageEntries) : String?
+  first_lang = preferred_languages.find do |lang|
+    available_languages.includes? lang.to_s
+  end
+
+  first_lang.try &.to_s
+end
