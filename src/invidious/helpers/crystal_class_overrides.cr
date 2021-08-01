@@ -18,22 +18,33 @@ end
 class HTTP::Client
   property family : Socket::Family = Socket::Family::UNSPEC
 
-  private def socket
-    socket = @socket
-    return socket if socket
+  private def io
+    io = @io
+    return io if io
+    unless @reconnect
+      raise "This HTTP::Client cannot be reconnected"
+    end
 
     hostname = @host.starts_with?('[') && @host.ends_with?(']') ? @host[1..-2] : @host
-    socket = TCPSocket.new hostname, @port, @dns_timeout, @connect_timeout, @family
-    socket.read_timeout = @read_timeout if @read_timeout
-    socket.sync = false
+    io = TCPSocket.new hostname, @port, @dns_timeout, @connect_timeout, @family
+    io.read_timeout = @read_timeout if @read_timeout
+    io.write_timeout = @write_timeout if @write_timeout
+    io.sync = false
 
     {% if !flag?(:without_openssl) %}
       if tls = @tls
-        socket = OpenSSL::SSL::Socket::Client.new(socket, context: tls, sync_close: true, hostname: @host)
+        tcp_socket = io
+        begin
+          io = OpenSSL::SSL::Socket::Client.new(tcp_socket, context: tls, sync_close: true, hostname: @host)
+        rescue exc
+          # don't leak the TCP socket when the SSL connection failed
+          tcp_socket.close
+          raise exc
+        end
       end
     {% end %}
 
-    @socket = socket
+    @io = io
   end
 end
 
