@@ -3,7 +3,7 @@
 # IPv6 addresses.
 #
 class TCPSocket
-  def initialize(host, port, dns_timeout = nil, connect_timeout = nil, family = Socket::Family::UNSPEC)
+  def initialize(host : String, port, dns_timeout = nil, connect_timeout = nil, family = Socket::Family::UNSPEC)
     Addrinfo.tcp(host, port, timeout: dns_timeout, family: family) do |addrinfo|
       super(addrinfo.family, addrinfo.type, addrinfo.protocol)
       connect(addrinfo, timeout: connect_timeout) do |error|
