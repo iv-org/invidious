@@ -12,6 +12,8 @@ module YoutubeAPI
     WebMobile
     WebAgeBypass
     Android
+    AndroidEmbed
+    AndroidAgeBypass
   end
 
   # List of hard-coded values used by the different clients
@@ -45,6 +47,18 @@ module YoutubeAPI
       version: "16.20.35",
       api_key: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
       screen:  "", # ??
+    },
+    ClientType::AndroidEmbed => {
+      name:    "ANDROID_EMBEDDED_PLAYER", # 55
+      version: "16.20",
+      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      screen:  "", # None?
+    },
+    ClientType::AndroidAgeBypass => {
+      name:    "ANDROID", # 3
+      version: "16.20",
+      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      screen:  "EMBED",
     },
   }
 
