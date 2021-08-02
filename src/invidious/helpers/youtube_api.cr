@@ -44,7 +44,7 @@ module YoutubeAPI
     },
     ClientType::Android => {
       name:    "ANDROID",
-      version: "16.20.35",
+      version: "16.20",
       api_key: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
       screen:  "", # ??
     },
