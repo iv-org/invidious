@@ -434,6 +434,16 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
 
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         user, sid = create_user(sid, email, password)
+
+        # Set the locale preference to the best matching one in the "Accept-Language" header
+        # Will be overwritten by the PREFS cookie further down if present
+        if language_header = env.request.headers["Accept-Language"]?
+          preferred_langs = parse_accept_language_header(language_header)
+          if first_match = first_language_match(LOCALES.keys.to_set, preferred_langs)
+            user.preferences.locale = first_match
+          end
+        end
+
         user_array = user.to_a
         user_array[4] = user_array[4].to_json # User preferences
 
