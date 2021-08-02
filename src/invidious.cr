@@ -166,10 +166,17 @@ def popular_videos
 end
 
 before_all do |env|
-  preferences = begin
-    Preferences.from_json(URI.decode_www_form(env.request.cookies["PREFS"]?.try &.value || "{}"))
+  preferences = Preferences.from_json("{}")
+  begin
+    if prefs_cookie = env.request.cookies["PREFS"]?
+      preferences = Preferences.from_json(URI.decode_www_form(prefs_cookie.value))
+    elsif language_header = env.request.headers["Accept-Language"]?
+      preferred_langs = parse_accept_language_header(language_header)
+      if first_match = first_language_match(LOCALES.keys.to_set, preferred_langs)
+        preferences.locale = first_match
+      end
+    end
   rescue
-    Preferences.from_json("{}")
   end
 
   env.set "preferences", preferences
