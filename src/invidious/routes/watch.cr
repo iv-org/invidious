@@ -1,5 +1,5 @@
-class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
-  def handle(env)
+module Invidious::Routes::Watch
+  def self.handle(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     region = env.params.query["region"]?
 
@@ -190,7 +190,7 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
     templated "watch"
   end
 
-  def redirect(env)
+  def self.redirect(env)
     url = "/watch?v=#{env.params.url["id"]}"
     if env.params.query.size > 0
       url += "&#{env.params.query}"

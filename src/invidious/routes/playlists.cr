@@ -1,5 +1,5 @@
-class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
-  def index(env)
+module Invidious::Routes::Playlists
+  def self.index(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -24,7 +24,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     templated "view_all_playlists"
   end
 
-  def new(env)
+  def self.new(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -40,7 +40,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     templated "create_playlist"
   end
 
-  def create(env)
+  def self.create(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -78,7 +78,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     env.redirect "/playlist?list=#{playlist.id}"
   end
 
-  def subscribe(env)
+  def self.subscribe(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -95,7 +95,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     env.redirect "/playlist?list=#{playlist.id}"
   end
 
-  def delete_page(env)
+  def self.delete_page(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -118,7 +118,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     templated "delete_playlist"
   end
 
-  def delete(env)
+  def self.delete(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -151,7 +151,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     env.redirect "/view_all_playlists"
   end
 
-  def edit(env)
+  def self.edit(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -191,7 +191,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     templated "edit_playlist"
   end
 
-  def update(env)
+  def self.update(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -235,7 +235,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     env.redirect "/playlist?list=#{plid}"
   end
 
-  def add_playlist_items_page(env)
+  def self.add_playlist_items_page(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -282,7 +282,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     templated "add_playlist_items"
   end
 
-  def playlist_ajax(env)
+  def self.playlist_ajax(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -409,7 +409,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     end
   end
 
-  def show(env)
+  def self.show(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get?("user").try &.as(User)
@@ -457,7 +457,7 @@ class Invidious::Routes::Playlists < Invidious::Routes::BaseRoute
     templated "playlist"
   end
 
-  def mix(env)
+  def self.mix(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     rdid = env.params.query["list"]?

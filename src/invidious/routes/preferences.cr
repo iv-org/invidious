@@ -1,5 +1,5 @@
-class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
-  def show(env)
+module Invidious::Routes::PreferencesRoute
+  def self.show(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     referer = get_referer(env)
@@ -9,7 +9,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     templated "preferences"
   end
 
-  def update(env)
+  def self.update(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     referer = get_referer(env)
 
@@ -219,7 +219,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     env.redirect referer
   end
 
-  def toggle_theme(env)
+  def self.toggle_theme(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     referer = get_referer(env, unroll: false)
 
