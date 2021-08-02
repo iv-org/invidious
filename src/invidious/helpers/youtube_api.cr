@@ -156,12 +156,25 @@ module YoutubeAPI
         "gl"            => client_config.region || "US", # Can't be empty!
         "clientName"    => client_config.name,
         "clientVersion" => client_config.version,
+        "thirdParty"    => {
+          "embedUrl" => "", # Placeholder
+        },
       },
     }
 
     # Add some more context if it exists in the client definitions
-    if client_config.screen != ""
+    if !client_config.screen.empty?
       client_context["client"]["clientScreen"] = client_config.screen
+    end
+
+    # Replacing/removing the placeholder is easier than trying to
+    # merge two different Hash structures.
+    if client_config.screen == "EMBED"
+      client_context["client"]["thirdParty"] = {
+        "embedUrl" => "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      }
+    else
+      client_context["client"].delete("thirdParty")
     end
 
     return client_context
