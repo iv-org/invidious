@@ -1,4 +1,4 @@
-# Override of the TCPSocket and HTTP::Client classes in oder to allow an
+# Override of the TCPSocket and HTTP::Client classes in order to allow an
 # IP family to be selected for domains that resolve to both IPv4 and
 # IPv6 addresses.
 #
