@@ -26,6 +26,6 @@ dependencies:
     github: iv-org/lsquic.cr
     version: ~> 2.18.1-2
 
-crystal: 1.0.0
+crystal: ">= 1.0.0, < 2.0.0"
 
 license: AGPLv3
