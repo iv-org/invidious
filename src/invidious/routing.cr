@@ -1,13 +1,11 @@
 module Invidious::Routing
-  macro get(path, controller, method = :handle)
-    get {{ path }} do |env|
-      {{ controller }}.{{ method.id }}(env)
-    end
-  end
+  {% for http_method in {"get", "post", "delete", "options", "patch", "put", "head"} %}
 
-  macro post(path, controller, method = :handle)
-    post {{ path }} do |env|
-      {{ controller }}.{{ method.id }}(env)
+    macro {{http_method.id}}(path, controller, method = :handle)
+      {{http_method.id}} \{{ path }} do |env|
+        \{{ controller }}.\{{ method.id }}(env)
+      end
     end
-  end
+
+  {% end %}
 end
