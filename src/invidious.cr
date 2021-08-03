@@ -317,9 +317,13 @@ Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, 
 Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
 
 ["", "/videos", "/playlists", "/community", "/about"].each do |path|
+  # /c/LinusTechTips
   Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+  # /user/linustechtips | Not always the same as /c/
   Invidious::Routing.get "/user/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+  # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
   Invidious::Routing.get "/attribution_link#{path}", Invidious::Routes::Channels, :brand_redirect
+  # /profile?user=linustechtips
   Invidious::Routing.get "/profile/#{path}", Invidious::Routes::Channels, :profile
 end
 
