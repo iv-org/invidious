@@ -542,7 +542,7 @@ end
 
 # Alternate matching schemes at https://datatracker.ietf.org/doc/html/rfc4647#section-3
 # Performs a simple exact match search for now
-def first_language_match(available_languages : Set(String), preferred_languages : LanguageEntries) : String?
+def first_language_match(available_languages : Enumerable(String), preferred_languages : LanguageEntries) : String?
   first_lang = preferred_languages.find do |lang|
     available_languages.includes? lang.to_s
   end

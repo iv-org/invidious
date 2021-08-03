@@ -439,7 +439,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
         # Will be overwritten by the PREFS cookie further down if present
         if language_header = env.request.headers["Accept-Language"]?
           preferred_langs = parse_accept_language_header(language_header)
-          if first_match = first_language_match(LOCALES.keys.to_set, preferred_langs)
+          if first_match = first_language_match(LOCALES.keys, preferred_langs)
             user.preferences.locale = first_match
           end
         end
