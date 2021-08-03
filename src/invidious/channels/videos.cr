@@ -61,7 +61,7 @@ def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = 
   continuation = produce_channel_videos_continuation(ucid, page,
     auto_generated: auto_generated, sort_by: sort_by, v2: true)
 
-  return request_youtube_api_browse(continuation)
+  return YoutubeAPI.browse(continuation)
 end
 
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")

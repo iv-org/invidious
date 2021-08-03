@@ -244,7 +244,7 @@ def channel_search(query, page, channel)
   end
 
   continuation = produce_channel_search_continuation(ucid, query, page)
-  response_json = request_youtube_api_browse(continuation)
+  response_json = YoutubeAPI.browse(continuation)
 
   continuationItems = response_json["onResponseReceivedActions"]?
     .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
@@ -263,7 +263,8 @@ end
 def search(query, search_params = produce_search_params(content_type: "all"), region = nil)
   return 0, [] of SearchItem if query.empty?
 
-  initial_data = request_youtube_api_search(query, search_params, region)
+  client_config = YoutubeAPI::ClientConfig.new(region: region)
+  initial_data = YoutubeAPI.search(query, search_params, client_config: client_config)
   items = extract_items(initial_data)
 
   return items.size, items
