@@ -115,11 +115,10 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
 
     begin
       resolved_url = YoutubeAPI.resolve_url("https://youtube.com#{env.request.path}#{yt_url_params.size > 0 ? "?#{yt_url_params}" : ""}")
-    rescue ex : InfoException
-      raise InfoException.new("This channel does not exist.")
+      ucid = resolved_url["endpoint"]["browseEndpoint"]["browseId"]
+    rescue ex : InfoException | KeyError
+      raise InfoException.new(translate(locale, "This channel does not exist."))
     end
-
-    ucid = resolved_url["endpoint"]["browseEndpoint"]["browseId"]
 
     selected_tab = env.request.path.split("/")[-1]
     if ["home", "videos", "playlists", "community", "channels", "about"].includes? selected_tab
