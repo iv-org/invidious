@@ -325,10 +325,13 @@ module YoutubeAPI
   end
 
   ####################################################################
-  # resolve_url(url)
+  # resolve_url(url, client_config?)
   #
   # Requests the youtubei/v1/navigation/resolve_url endpoint with the
   # required headers and POST data in order to get a JSON reply.
+  #
+  # An optional ClientConfig parameter can be passed, too (see
+  # `struct ClientConfig` above for more details).
   #
   # Output:
   #
@@ -349,13 +352,13 @@ module YoutubeAPI
   # channel_b = YoutubeAPI.resolve_url("https://youtube.com/c/invalid")
   # ```
   #
-  def resolve_url(url : String)
+  def resolve_url(url : String, client_config : ClientConfig | Nil = nil)
     data = {
       "context" => self.make_context(nil),
       "url"     => url,
     }
 
-    return self._post_json("/youtubei/v1/navigation/resolve_url", data)
+    return self._post_json("/youtubei/v1/navigation/resolve_url", data, client_config)
   end
 
   ####################################################################
