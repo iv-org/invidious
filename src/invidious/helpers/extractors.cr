@@ -32,24 +32,49 @@ private module Parsers
 
     private def self.parse(item_contents, author_fallback)
       video_id = item_contents["videoId"].as_s
-      title = item_contents["title"].try { |t| t["simpleText"]?.try &.as_s || t["runs"]?.try &.as_a.map(&.["text"].as_s).join("") } || ""
+      title = extract_text(item_contents["title"]) || ""
 
+      # Extract author information
       author_info = item_contents["ownerText"]?.try &.["runs"]?.try &.as_a?.try &.[0]?
-      author = author_info.try &.["text"].as_s || author_fallback.name || ""
-      author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || author_fallback.id || ""
+      if author_info = item_contents.dig?("ownerText", "runs")
+        author_info = author_info[0]
+        author = author_info["text"].as_s
+        author_id = HelperExtractors.get_browse_endpoint(author_info)
+      else
+        author = author_fallback.name || ""
+        author_id = author_fallback.id || ""
+      end
 
-      published = item_contents["publishedTimeText"]?.try &.["simpleText"]?.try { |t| decode_date(t.as_s) } || Time.local
-      view_count = item_contents["viewCountText"]?.try &.["simpleText"]?.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
+      # For live videos (and possibly recently premiered videos) there is no published information.
+      # Instead, in its place is the amount of people currently watching. This behavior should be replicated
+      # on Invidious once all features of livestreams are supported. On an unrelated note, defaulting to the current
+      # time for publishing isn't a good idea.
+      published = item_contents["publishedTimeText"]?.try &.["simpleText"].try { |t| decode_date(t.as_s) } || Time.local
+
+      # Typically views are stored under a "simpleText" in the "viewCountText". However, for
+      # livestreams and premiered it is stored under a "runs" array: [{"text":123}, {"text": "watching"}]
+      # When view count is disabled the "viewCountText" is not present on InnerTube data.
+      # TODO change default value to nil and typical encoding type to tuple storing type (watchers, views, etc)
+      # and count
+      view_count = item_contents.dig?("viewCountText", "simpleText").try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
       description_html = item_contents["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
-      length_seconds = item_contents["lengthText"]?.try &.["simpleText"]?.try &.as_s.try { |t| decode_length_seconds(t) } ||
-                       item_contents["thumbnailOverlays"]?.try &.as_a.find(&.["thumbnailOverlayTimeStatusRenderer"]?).try &.["thumbnailOverlayTimeStatusRenderer"]?
-                         .try &.["text"]?.try &.["simpleText"]?.try &.as_s.try { |t| decode_length_seconds(t) } || 0
+
+      # The length information *should* only always exist in "lengthText". However, the legacy Invidious code
+      # extracts from "thumbnailOverlays" when it doesn't. More testing is needed to see if this is
+      # actually needed
+      if length_container = item_contents["lengthText"]?
+        length_seconds = decode_length_seconds(length_container["simpleText"].as_s)
+      elsif length_container = item_contents["thumbnailOverlays"]?.try &.as_a.find(&.["thumbnailOverlayTimeStatusRenderer"]?)
+        length_seconds = extract_text(length_container["thumbnailOverlayTimeStatusRenderer"]["text"]).try { |t| decode_length_seconds(t) } || 0
+      else
+        length_seconds = 0
+      end
 
       live_now = false
       paid = false
       premium = false
 
-      premiere_timestamp = item_contents["upcomingEventData"]?.try &.["startTime"]?.try { |t| Time.unix(t.as_s.to_i64) }
+      premiere_timestamp = item_contents.dig?("upcomingEventData", "startTime").try { |t| Time.unix(t.as_s.to_i64) }
 
       item_contents["badges"]?.try &.as_a.each do |badge|
         b = badge["metadataBadgeRenderer"]
@@ -89,15 +114,17 @@ private module Parsers
     end
 
     private def self.parse(item_contents, author_fallback)
-      author = item_contents["title"]["simpleText"]?.try &.as_s || author_fallback.name || ""
+      author = extract_text(item_contents["title"]) || author_fallback.name || ""
       author_id = item_contents["channelId"]?.try &.as_s || author_fallback.id || ""
 
-      author_thumbnail = item_contents["thumbnail"]["thumbnails"]?.try &.as_a[0]?.try &.["url"]?.try &.as_s || ""
-      subscriber_count = item_contents["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s.try { |s| short_text_to_number(s.split(" ")[0]) } || 0
+      author_thumbnail = HelperExtractors.get_thumbnails(item_contents)
+      # When public subscriber count is disabled, the subscriberCountText isn't sent by InnerTube.
+      # TODO change default value to nil
+      subscriber_count = item_contents.dig?("subscriberCountText").try &.["simpleText"].try { |s| short_text_to_number(s.as_s.split(" ")[0]) } || 0
 
-      auto_generated = false
-      auto_generated = true if !item_contents["videoCountText"]?
-      video_count = item_contents["videoCountText"]?.try &.["runs"].as_a[0]?.try &.["text"].as_s.gsub(/\D/, "").to_i || 0
+      auto_generated = !item_contents["videoCountText"]? ? true : false
+
+      video_count = HelperExtractors.get_video_count(item_contents)
       description_html = item_contents["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
 
       SearchChannel.new({
@@ -120,11 +147,11 @@ private module Parsers
     end
 
     private def self.parse(item_contents, author_fallback)
-      title = item_contents["title"]["runs"].as_a[0]?.try &.["text"].as_s || ""
+      title = extract_text(item_contents["title"]) || ""
       plid = item_contents["playlistId"]?.try &.as_s || ""
 
-      video_count = item_contents["videoCountText"]["runs"].as_a[0]?.try &.["text"].as_s.gsub(/\D/, "").to_i || 0
-      playlist_thumbnail = item_contents["thumbnail"]["thumbnails"][0]?.try &.["url"]?.try &.as_s || ""
+      video_count = HelperExtractors.get_video_count(item_contents)
+      playlist_thumbnail = HelperExtractors.get_thumbnails(item_contents)
 
       SearchPlaylist.new({
         title:       title,
@@ -141,26 +168,26 @@ private module Parsers
   module PlaylistRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["playlistRenderer"]?
-        return self.parse(item_contents, author_fallback)
+        return self.parse(item_contents)
       end
     end
 
-    private def self.parse(item_contents, author_fallback)
+    private def self.parse(item_contents)
       title = item_contents["title"]["simpleText"]?.try &.as_s || ""
       plid = item_contents["playlistId"]?.try &.as_s || ""
 
-      video_count = item_contents["videoCount"]?.try &.as_s.to_i || 0
-      playlist_thumbnail = item_contents["thumbnails"].as_a[0]?.try &.["thumbnails"]?.try &.as_a[0]?.try &.["url"].as_s || ""
+      video_count = HelperExtractors.get_video_count(item_contents)
+      playlist_thumbnail = HelperExtractors.get_thumbnails_plural(item_contents)
 
-      author_info = item_contents["shortBylineText"]?.try &.["runs"]?.try &.as_a?.try &.[0]?
-      author = author_info.try &.["text"].as_s || author_fallback.name || ""
-      author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || author_fallback.id || ""
+      author_info = item_contents.dig("shortBylineText", "runs", 0)
+      author = author_info["text"].as_s
+      author_id = HelperExtractors.get_browse_endpoint(author_info)
 
       videos = item_contents["videos"]?.try &.as_a.map do |v|
         v = v["childVideoRenderer"]
-        v_title = v["title"]["simpleText"]?.try &.as_s || ""
+        v_title = v.dig?("title", "simpleText").try &.as_s || ""
         v_id = v["videoId"]?.try &.as_s || ""
-        v_length_seconds = v["lengthText"]?.try &.["simpleText"]?.try { |t| decode_length_seconds(t.as_s) } || 0
+        v_length_seconds = v.dig?("lengthText", "simpleText").try { |t| decode_length_seconds(t.as_s) } || 0
         SearchPlaylistVideo.new({
           title:          v_title,
           id:             v_id,
@@ -190,20 +217,8 @@ private module Parsers
     end
 
     private def self.parse(item_contents, author_fallback)
-      # Title extraction is a bit complicated. There are two possible routes for it
-      # as well as times when the title attribute just isn't sent by YT.
-      title_container = item_contents["title"]? || ""
-      if !title_container.is_a? String
-        if title = title_container["simpleText"]?
-          title = title.as_s
-        else
-          title = title_container["runs"][0]["text"].as_s
-        end
-      else
-        title = ""
-      end
-
-      url = item_contents["endpoint"]?.try &.["commandMetadata"]["webCommandMetadata"]["url"].as_s
+      title = extract_text(item_contents["title"]?) || ""
+      url = item_contents["endpoint"]?.try &.dig("commandMetadata", "webCommandMetadata", "url").as_s
 
       # Sometimes a category can have badges.
       badges = [] of Tuple(String, String) # (Badge style, label)
@@ -249,7 +264,6 @@ end
 # the internal Youtube API's JSON response. The result is then packaged into
 # a structure we can more easily use via the parsers above. Their internals are
 # identical to the item parsers.
-
 private module Extractors
   module YouTubeTabs
     def self.process(initial_data : Hash(String, JSON::Any))
@@ -260,12 +274,10 @@ private module Extractors
 
     private def self.extract(target)
       raw_items = [] of JSON::Any
-      selected_tab = extract_selected_tab(target["tabs"])
-      content = selected_tab["content"]
+      content = extract_selected_tab(target["tabs"])["content"]
 
       content["sectionListRenderer"]["contents"].as_a.each do |renderer_container|
-        renderer_container = renderer_container["itemSectionRenderer"]
-        renderer_container_contents = renderer_container["contents"].as_a[0]
+        renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"].as_a[0]
 
         # Category extraction
         if items_container = renderer_container_contents["shelfRenderer"]?
@@ -294,16 +306,14 @@ private module Extractors
 
     private def self.extract(target)
       raw_items = [] of Array(JSON::Any)
-      content = target["primaryContents"]
-      renderer = content["sectionListRenderer"]["contents"].as_a.each do |node|
+
+      target.dig("primaryContents", "sectionListRenderer", "contents").as_a.each do |node|
         if node = node["itemSectionRenderer"]?
           raw_items << node["contents"].as_a
         end
       end
 
-      raw_items = raw_items.flatten
-
-      return raw_items
+      return raw_items.flatten
     end
   end
 
@@ -326,6 +336,72 @@ private module Extractors
 
       return raw_items
     end
+  end
+end
+
+# Helper methods to extract out certain stuff from InnerTube
+private module HelperExtractors
+  # Retrieves the amount of videos present within the given InnerTube data.
+  #
+  # Returns a 0 when it's unable to do so
+  def self.get_video_count(container : JSON::Any) : Int32
+    if box = container["videoCountText"]?
+      return extract_text(container["videoCountText"]?).try &.gsub(/\D/, "").to_i || 0
+    elsif box = container["videoCount"]?
+      return box.as_s.to_i
+    else
+      return 0
+    end
+  end
+
+  # Retrieve lowest quality thumbnail from InnerTube data
+  #
+  # TODO allow configuration of image quality (-1 is highest)
+  #
+  # Raises when it's unable to parse from the given JSON data.
+  def self.get_thumbnails(container : JSON::Any) : String
+    return container.dig("thumbnail", "thumbnails", 0, "url").as_s
+  end
+
+  # ditto
+  # YouTube sometimes sends the thumbnail as:
+  # {"thumbnails": [{"thumbnails": [{"url": "example.com"}, ...]}]}
+  def self.get_thumbnails_plural(container : JSON::Any) : String
+    return container.dig("thumbnails", 0, "thumbnails", 0, "url").as_s
+  end
+
+  # Retrieves the ID required for querying the InnerTube browse endpoint
+  #
+  # Raises when it's unable to do so
+  def self.get_browse_endpoint(container)
+    return container.dig("navigationEndpoint", "browseEndpoint", "browseId").as_s
+  end
+end
+
+# Extracts text from InnerTube response
+#
+# InnerTube can package text in three different formats
+# "runs": [
+# {"text": "something"},
+# {"text": "cont"},
+# ...
+# ]
+#
+# "SimpleText": "something"
+#
+# Or sometimes just none at all as with the data returned from
+# category continuations.
+def extract_text(item : JSON::Any?) : String?
+  if item.nil?
+    return nil
+  end
+
+  if text_container = item["simpleText"]?
+    return text_container.as_s
+  elsif text_container = item["runs"]?
+    return text_container.as_a.map(&.["text"].as_s).join("")
+  else
+    nil
   end
 end
 
