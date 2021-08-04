@@ -476,37 +476,39 @@ struct LanguageEntry
   class InvalidLanguageEntry < Exception
   end
 
-  property tag, subtags, quality : Float64
+  property tag : String
+  property region : String?
+  property quality : Float64
 
-  def initialize(@tag : String, @subtags : Array(String), @quality : Float64)
+  def initialize(@tag : String, @region : String?, @quality : Float64)
     @quality = @quality.clamp(0.0, 1.0)
   end
 
   def to_s(io)
-    io << tag
-    unless subtags.empty?
-      io << '-' << @subtags.join '-'
+    io << @tag
+    if @region
+      io << '-' << @region
     end
   end
 
   def self.from_string(language_str : String) : self
-    range_and_quality = language_str.split ';'
+    locale_and_quality = language_str.split ';'
 
-    raise LanguageEntry::InvalidLanguageEntry.new if range_and_quality.empty?
+    raise LanguageEntry::InvalidLanguageEntry.new if locale_and_quality.empty?
 
-    if range_and_quality[1]?
-      quality = parse_quality(range_and_quality[1])
+    if quality_str = locale_and_quality[1]?
+      quality = parse_quality(quality_str)
     else
       quality = 1.00
     end
 
-    language_range = range_and_quality[0]
-    tags = language_range.split '-'
+    locale = locale_and_quality[0]
+    parts = locale.split '-'
 
-    language_tag = tags[0]
-    subtags = tags[1..]
+    tag = parts[0]
+    region = parts[1]?
 
-    return LanguageEntry.new(language_tag, subtags, quality)
+    return LanguageEntry.new(tag, region, quality)
   end
 
   private def self.parse_quality(quality_str : String) : Float64
