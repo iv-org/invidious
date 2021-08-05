@@ -35,9 +35,7 @@ private module Parsers
       title = extract_text(item_contents["title"]) || ""
 
       # Extract author information
-      author_info = item_contents["ownerText"]?.try &.["runs"]?.try &.as_a?.try &.[0]?
-      if author_info = item_contents.dig?("ownerText", "runs")
-        author_info = author_info[0]
+      if author_info = item_contents.dig?("ownerText", "runs", 0)
         author = author_info["text"].as_s
         author_id = HelperExtractors.get_browse_endpoint(author_info)
       else
@@ -49,7 +47,7 @@ private module Parsers
       # Instead, in its place is the amount of people currently watching. This behavior should be replicated
       # on Invidious once all features of livestreams are supported. On an unrelated note, defaulting to the current
       # time for publishing isn't a good idea.
-      published = item_contents["publishedTimeText"]?.try &.["simpleText"].try { |t| decode_date(t.as_s) } || Time.local
+      published = item_contents.dig?("publishedTimeText", "simpleText").try { |t| decode_date(t.as_s) } || Time.local
 
       # Typically views are stored under a "simpleText" in the "viewCountText". However, for
       # livestreams and premiered it is stored under a "runs" array: [{"text":123}, {"text": "watching"}]
@@ -119,8 +117,10 @@ private module Parsers
 
       author_thumbnail = HelperExtractors.get_thumbnails(item_contents)
       # When public subscriber count is disabled, the subscriberCountText isn't sent by InnerTube.
+      # Always simpleText
       # TODO change default value to nil
-      subscriber_count = item_contents.dig?("subscriberCountText").try &.["simpleText"].try { |s| short_text_to_number(s.as_s.split(" ")[0]) } || 0
+      subscriber_count = item_contents.dig?("subscriberCountText").try &.["simpleText"].try { \
+         |s| short_text_to_number(s.as_s.split(" ")[0]) } || 0
 
       auto_generated = !item_contents["videoCountText"]? ? true : false
 
@@ -420,10 +420,9 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil,
       return result
     end
   end
-  # TODO radioRenderer, showRenderer, shelfRenderer, horizontalCardListRenderer, searchPyvRenderer
 end
 
-# Parses multiple items from Youtube's initial JSON response into a more usable structure.
+# Parses multiple items from YouTube's initial JSON response into a more usable structure.
 # The end result is an array of SearchItem.
 def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil,
                   author_id_fallback : String? = nil) : Array(SearchItem)
@@ -436,7 +435,7 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
     unpackaged_data = initial_data
   end
 
-  # This is identicial to the parser cyling of extract_item().
+  # This is identical to the parser cyling of extract_item().
   ITEM_CONTAINER_EXTRACTOR.each do |extractor|
     results = extractor.process(unpackaged_data)
     if !results.nil?
