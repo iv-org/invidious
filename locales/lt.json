@@ -149,7 +149,7 @@
     "Source available here.": "Kodas prieinamas čia.",
     "View JavaScript license information.": "Žiūrėti JavaScript licencijos informaciją.",
     "View privacy policy.": "Žiūrėti privatumo politiką.",
-    "Trending": "Populiarūs",
+    "Trending": "Tendencijos",
     "Public": "Viešas",
     "Unlisted": "Neįtrauktas į sąrašą",
     "Private": "Neviešas",
@@ -227,7 +227,7 @@
     "Empty playlist": "Tuščias grojaraštis",
     "Not a playlist.": "Ne grojaraštis.",
     "Playlist does not exist.": "Grojaraštis neegzistuoja.",
-    "Could not pull trending pages.": "Nepavyko pritraukti 'dabar populiaru' puslapių.",
+    "Could not pull trending pages.": "Nepavyko ištraukti tendencijų puslapių.",
     "Hidden field \"challenge\" is a required field": "Paslėptas laukas „iššūkis“ yra privalomas laukas",
     "Hidden field \"token\" is a required field": "Paslėptas laukas „žetonas“ yra privalomas laukas",
     "Erroneous challenge": "Klaidingas iššūkis",
@@ -357,7 +357,7 @@
         "": "`x` dienas"
     },
     "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`valandą",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` valandą",
         "": "`x` valandas"
     },
     "`x` minutes": {
@@ -369,7 +369,7 @@
         "": "`x` sekundes"
     },
     "Fallback comments: ": "Atsarginiai komentarai: ",
-    "Popular": "Šiuo metu populiaru",
+    "Popular": "Populiaru",
     "Search": "Paieška",
     "Top": "Top",
     "About": "Apie",
