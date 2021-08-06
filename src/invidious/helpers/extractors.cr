@@ -18,11 +18,22 @@ private ITEM_PARSERS = {
 
 record AuthorFallback, name : String? = nil, id : String? = nil
 
-# The following are the parsers for parsing raw item data into neatly packaged structs.
-# They're accessed through the process() method which validates the given data as applicable
-# to their specific struct and then use the internal parse() method to assemble the struct
-# specific to their category.
+# Namespace for logic relating to parsing InnerTube data into various datastructs.
+#
+# Each of the parsers in this namespace are accessed through the #process() method
+# which validates the given data as applicable to itself. If it is applicable the given
+# data is passed to the private `#parse()` method which returns a datastruct of the given
+# type. Otherwise, nil is returned.
 private module Parsers
+  # Parses a InnerTube videoRenderer into a SearchVideo. Returns nil when the given object isn't a videoRenderer
+  #
+  # A videoRenderer renders a video to click on within the YouTube and Invidious UI. It is **not**
+  # the watchable video itself.
+  #
+  # See specs for example.
+  #
+  # `videoRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
+  #
   module VideoRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = (item["videoRenderer"]? || item["gridVideoRenderer"]?)
@@ -104,6 +115,15 @@ private module Parsers
     end
   end
 
+  # Parses a InnerTube channelRenderer into a SearchChannel. Returns nil when the given object isn't a channelRenderer
+  #
+  # A channelRenderer renders a channel to click on within the YouTube and Invidious UI. It is **not**
+  # the channel page itself.
+  #
+  # See specs for example.
+  #
+  # `channelRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
+  #
   module ChannelRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = (item["channelRenderer"]? || item["gridChannelRenderer"]?)
@@ -139,6 +159,15 @@ private module Parsers
     end
   end
 
+  # Parses a InnerTube gridPlaylistRenderer into a SearchPlaylist. Returns nil when the given object isn't a gridPlaylistRenderer
+  #
+  # A gridPlaylistRenderer renders a playlist, that is located in a grid, to click on within the YouTube and Invidious UI.
+  # It is **not** the playlist itself.
+  #
+  # See specs for example.
+  #
+  # `gridPlaylistRenderer`s can be found on the playlist-tabs of channels and expanded categories.
+  #
   module GridPlaylistRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["gridPlaylistRenderer"]?
@@ -165,6 +194,14 @@ private module Parsers
     end
   end
 
+  # Parses a InnerTube playlistRenderer into a SearchPlaylist. Returns nil when the given object isn't a playlistRenderer
+  #
+  # A playlistRenderer renders a playlist to click on within the YouTube and Invidious UI. It is **not** the playlist itself.
+  #
+  # See specs for example.
+  #
+  # `playlistRenderer`s can be found almost everywhere on YouTube. In categories, search results, recommended, etc.
+  #
   module PlaylistRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["playlistRenderer"]?
@@ -209,6 +246,16 @@ private module Parsers
     end
   end
 
+  # Parses a InnerTube shelfRenderer into a Category. Returns nil when the given object isn't a shelfRenderer
+  #
+  # A shelfRenderer renders divided sections on YouTube. IE "People also watched" in search results and
+  # the various organizational sections in the channel home page. A separate one (richShelfRenderer) is used
+  # for YouTube home. A shelfRenderer can also sometimes be expanded to show more content within it.
+  #
+  # See specs for example.
+  #
+  # `shelfRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
+  #
   module CategoryRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["shelfRenderer"]?
@@ -264,7 +311,34 @@ end
 # the internal Youtube API's JSON response. The result is then packaged into
 # a structure we can more easily use via the parsers above. Their internals are
 # identical to the item parsers.
+
+# Namespace for logic relating to extracting InnerTube's initial response to items we can parse.
+#
+# Each of the extractors in this namespace are accessed through the #process() method
+# which validates the given data as applicable to itself. If it is applicable the given
+# data is passed to the private `#extract()` method which returns an array of
+# parsable items. Otherwise, nil is returned.
+#
+# NOTE perhaps the result from here should be abstracted into a struct in order to
+# get additional metadata regarding the container of the item(s).
 private module Extractors
+  # Extracts items from the selected YouTube tab.
+  #
+  # YouTube tabs are typically stored under "twoColumnBrowseResultsRenderer"
+  # and is structured like this:
+  #
+  # "twoColumnBrowseResultsRenderer": {
+  #   {"tabs": [
+  #     {"tabRenderer":  {
+  #       "endpoint": {...}
+  #       "title": "Playlists",
+  #       "selected": true,
+  #       "content": {...},
+  #       ...
+  #     }}
+  #   ]}
+  # }]
+  #
   module YouTubeTabs
     def self.process(initial_data : Hash(String, JSON::Any))
       if target = initial_data["twoColumnBrowseResultsRenderer"]?
@@ -297,6 +371,23 @@ private module Extractors
     end
   end
 
+  # Extracts items from the InnerTube response for search results
+  #
+  # Search results are typically stored under "twoColumnSearchResultsRenderer"
+  # and is structured like this:
+  #
+  # "twoColumnSearchResultsRenderer": {
+  #   {"primaryContents": {
+  #     {"sectionListRenderer": {
+  #       "contents": [...],
+  #       ...,
+  #       "subMenu": {...},
+  #       "hideBottomSeparator": true,
+  #       "targetId": "search-feed"
+  #     }}
+  #   }}
+  # }
+  #
   module SearchResults
     def self.process(initial_data : Hash(String, JSON::Any))
       if target = initial_data["twoColumnSearchResultsRenderer"]?
@@ -317,6 +408,16 @@ private module Extractors
     end
   end
 
+  # Extracts continuation items from a InnerTube response
+  #
+  # Continuation items (on YouTube) are items which are appended to the
+  # end of the page for continuous scrolling. As such, in many cases,
+  # the items are lacking information such as author or category title,
+  # since the original results has already rendered them on the top of the page.
+  #
+  # The way they are structured is too varied to be accurately written down here.
+  # However, they all eventually lead to an array of parsable items after traversing
+  # through the JSON structure.
   module Continuation
     def self.process(initial_data : Hash(String, JSON::Any))
       if target = initial_data["continuationContents"]?
@@ -339,7 +440,10 @@ private module Extractors
   end
 end
 
-# Helper methods to extract out certain stuff from InnerTube
+# Helper methods to aid in the parsing of InnerTube to data structs.
+#
+# Mostly used to extract out repeated structures to deal with code
+# repetition.
 private module HelperExtractors
   # Retrieves the amount of videos present within the given InnerTube data.
   #
@@ -364,14 +468,14 @@ private module HelperExtractors
   end
 
   # ditto
+  #
   # YouTube sometimes sends the thumbnail as:
   # {"thumbnails": [{"thumbnails": [{"url": "example.com"}, ...]}]}
   def self.get_thumbnails_plural(container : JSON::Any) : String
     return container.dig("thumbnails", 0, "thumbnails", 0, "url").as_s
   end
 
-  # Retrieves the ID required for querying the InnerTube browse endpoint
-  #
+  # Retrieves the ID required for querying the InnerTube browse endpoint.
   # Raises when it's unable to do so
   def self.get_browse_endpoint(container)
     return container.dig("navigationEndpoint", "browseEndpoint", "browseId").as_s
@@ -391,6 +495,10 @@ end
 #
 # Or sometimes just none at all as with the data returned from
 # category continuations.
+#
+# In order to facilitate calling this function with `#[]?`:
+# A nil will be accepted. Of course, since nil cannot be parsed,
+# another nil will be returned.
 def extract_text(item : JSON::Any?) : String?
   if item.nil?
     return nil
