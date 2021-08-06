@@ -19,6 +19,7 @@ on:
 
       - screenshots/*
       - assets/**
+      - locales/*
       - config/**
       - .github/ISSUE_TEMPLATE/*
       - kubernetes/**
