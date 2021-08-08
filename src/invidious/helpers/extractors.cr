@@ -99,7 +99,7 @@ private module Parsers
         end
       end
 
-      SearchVideo.new({
+      YouTubeStructs::VideoRenderer.new({
         title:              title,
         id:                 video_id,
         author:             author,
@@ -149,7 +149,7 @@ private module Parsers
       video_count = HelperExtractors.get_video_count(item_contents)
       description_html = item_contents["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
 
-      SearchChannel.new({
+      YouTubeStructs::ChannelRenderer.new({
         author:           author,
         ucid:             author_id,
         author_thumbnail: author_thumbnail,
@@ -184,13 +184,13 @@ private module Parsers
       video_count = HelperExtractors.get_video_count(item_contents)
       playlist_thumbnail = HelperExtractors.get_thumbnails(item_contents)
 
-      SearchPlaylist.new({
+      YouTubeStructs::PlaylistRenderer.new({
         title:       title,
         id:          plid,
         author:      author_fallback.name,
         ucid:        author_fallback.id,
         video_count: video_count,
-        videos:      [] of SearchPlaylistVideo,
+        videos:      [] of YouTubeStructs::PlaylistVideoRenderer,
         thumbnail:   playlist_thumbnail,
       })
     end
@@ -227,16 +227,16 @@ private module Parsers
         v_title = v.dig?("title", "simpleText").try &.as_s || ""
         v_id = v["videoId"]?.try &.as_s || ""
         v_length_seconds = v.dig?("lengthText", "simpleText").try { |t| decode_length_seconds(t.as_s) } || 0
-        SearchPlaylistVideo.new({
-          title:          v_title,
-          id:             v_id,
+        YouTubeStructs::PlaylistVideoRenderer.new(
+          title: v_title,
+          id: v_id,
           length_seconds: v_length_seconds,
-        })
-      end || [] of SearchPlaylistVideo
+        )
+      end || [] of YouTubeStructs::PlaylistVideoRenderer
 
       # TODO: item_contents["publishedTimeText"]?
 
-      SearchPlaylist.new({
+      YouTubeStructs::PlaylistRenderer.new({
         title:       title,
         id:          plid,
         author:      author,
@@ -281,7 +281,7 @@ private module Parsers
       description_html = item_contents["subtitle"]?.try { |desc| parse_content(desc) } || ""
 
       # Content parsing
-      contents = [] of SearchItem
+      contents = [] of YouTubeStructs::Renderer
 
       # Content could be in three locations.
       if content_container = item_contents["content"]["horizontalListRenderer"]?
@@ -299,7 +299,7 @@ private module Parsers
         end
       end
 
-      Category.new({
+      YouTubeStructs::Category.new({
         title:            title,
         contents:         contents,
         description_html: description_html,
@@ -538,8 +538,8 @@ end
 # Parses multiple items from YouTube's initial JSON response into a more usable structure.
 # The end result is an array of SearchItem.
 def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil,
-                  author_id_fallback : String? = nil) : Array(SearchItem)
-  items = [] of SearchItem
+                  author_id_fallback : String? = nil) : Array(YouTubeStructs::Renderer)
+  items = [] of YouTubeStructs::Renderer
 
   if unpackaged_data = initial_data["contents"]?.try &.as_h
   elsif unpackaged_data = initial_data["response"]?.try &.as_h
@@ -563,4 +563,33 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
   end
 
   return items
+end
+
+# Flattens all items from extracted items into a one dimensional array
+def flatten_items(items, target = nil)
+  if target.nil?
+    target = [] of YouTubeStructs::Renderer
+  end
+
+  items.each do |i|
+    if i.is_a?(YouTubeStructs::Category)
+      target = target += i.extract_renderers
+    else
+      target << i
+    end
+  end
+
+  return target
+end
+
+# Extracts videos (videoRenderer) from initial InnerTube response.
+def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
+  extracted = extract_items(initial_data, author_fallback, author_id_fallback)
+  target = flatten_items(extracted)
+  return target.select(&.is_a?(YouTubeStructs::VideoRenderer)).map(&.as(YouTubeStructs::VideoRenderer))
+end
+
+# Extract the selected tab from the array of tabs YouTube returns
+def extract_selected_tab(tabs)
+  return selected_target = tabs.as_a.select(&.["tabRenderer"]?.try &.["selected"].as_bool)[0]["tabRenderer"]
 end

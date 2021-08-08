@@ -1,5 +1,5 @@
-module YTStructs
-  alias PlaylistRendererVideo = NamedTuple(title: String, id: String, length_seconds: Int32)
+module YouTubeStructs
+  alias PlaylistVideoRenderer = NamedTuple(title: String, id: String, length_seconds: Int32)
 
   # Struct to represent an InnerTube `"PlaylistRenderer"`
   #
@@ -18,7 +18,7 @@ module YTStructs
     property author : String
     property ucid : String
     property video_count : Int32
-    property videos : Array(PlaylistRendererVideo)
+    property videos : Array(PlaylistVideoRenderer)
     property thumbnail : String?
 
     def to_json(locale, json : JSON::Builder)

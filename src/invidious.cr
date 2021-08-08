@@ -30,6 +30,7 @@ require "./invidious/helpers/*"
 require "./invidious/*"
 require "./invidious/channels/*"
 require "./invidious/routes/**"
+require "./invidious/data_structs/**"
 require "./invidious/jobs/**"
 
 CONFIG   = Config.load
