@@ -7,56 +7,61 @@ struct Preferences
   include JSON::Serializable
   include YAML::Serializable
 
-  property annotations : Bool = CONFIG.default_user_preferences.annotations
-  property annotations_subscribed : Bool = CONFIG.default_user_preferences.annotations_subscribed
-  property autoplay : Bool = CONFIG.default_user_preferences.autoplay
-  property automatic_instance_redirect : Bool = CONFIG.default_user_preferences.automatic_instance_redirect
+  property annotations : Bool = false
+  property annotations_subscribed : Bool = false
+  property autoplay : Bool = false
+  property automatic_instance_redirect : Bool = false
 
   @[JSON::Field(converter: Preferences::StringToArray)]
   @[YAML::Field(converter: Preferences::StringToArray)]
-  property captions : Array(String) = CONFIG.default_user_preferences.captions
+  property captions : Array(String) = ["", "", ""]
 
   @[JSON::Field(converter: Preferences::StringToArray)]
   @[YAML::Field(converter: Preferences::StringToArray)]
-  property comments : Array(String) = CONFIG.default_user_preferences.comments
-  property continue : Bool = CONFIG.default_user_preferences.continue
-  property continue_autoplay : Bool = CONFIG.default_user_preferences.continue_autoplay
+  property comments : Array(String) = ["youtube", ""]
+  property continue : Bool = false
+  property continue_autoplay : Bool = true
 
   @[JSON::Field(converter: Preferences::BoolToString)]
   @[YAML::Field(converter: Preferences::BoolToString)]
-  property dark_mode : String = CONFIG.default_user_preferences.dark_mode
-  property latest_only : Bool = CONFIG.default_user_preferences.latest_only
-  property listen : Bool = CONFIG.default_user_preferences.listen
-  property local : Bool = CONFIG.default_user_preferences.local
-  property vr_mode : Bool = CONFIG.default_user_preferences.vr_mode
-  property show_nick : Bool = CONFIG.default_user_preferences.show_nick
+  property dark_mode : String = ""
+
+  property latest_only : Bool = false
+
+  property listen : Bool = false
+  property local : Bool = false
+  property vr_mode : Bool = true
+  property show_nick : Bool = true
 
   @[JSON::Field(converter: Preferences::ProcessString)]
-  property locale : String = CONFIG.default_user_preferences.locale
+  property locale : String = "en-US"
 
   @[JSON::Field(converter: Preferences::ClampInt)]
-  property max_results : Int32 = CONFIG.default_user_preferences.max_results
-  property notifications_only : Bool = CONFIG.default_user_preferences.notifications_only
+  property max_results : Int32 = 40
+  property notifications_only : Bool = false
 
   @[JSON::Field(converter: Preferences::ProcessString)]
-  property player_style : String = CONFIG.default_user_preferences.player_style
+  property player_style : String = "invidious"
 
   @[JSON::Field(converter: Preferences::ProcessString)]
-  property quality : String = CONFIG.default_user_preferences.quality
+  property quality : String = "hd720"
   @[JSON::Field(converter: Preferences::ProcessString)]
-  property quality_dash : String = CONFIG.default_user_preferences.quality_dash
-  property default_home : String? = CONFIG.default_user_preferences.default_home
-  property feed_menu : Array(String) = CONFIG.default_user_preferences.feed_menu
-  property related_videos : Bool = CONFIG.default_user_preferences.related_videos
+  property quality_dash : String = "auto"
+
+  property default_home : String? = "Popular"
+  property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
+  property related_videos : Bool = true
 
   @[JSON::Field(converter: Preferences::ProcessString)]
-  property sort : String = CONFIG.default_user_preferences.sort
-  property speed : Float32 = CONFIG.default_user_preferences.speed
-  property thin_mode : Bool = CONFIG.default_user_preferences.thin_mode
-  property unseen_only : Bool = CONFIG.default_user_preferences.unseen_only
-  property video_loop : Bool = CONFIG.default_user_preferences.video_loop
-  property extend_desc : Bool = CONFIG.default_user_preferences.extend_desc
-  property volume : Int32 = CONFIG.default_user_preferences.volume
+  property sort : String = "published"
+  property speed : Float32 = 1.0_f32
+
+  property thin_mode : Bool = false
+  property unseen_only : Bool = false
+  property video_loop : Bool = false
+  property extend_desc : Bool = false
+
+  property volume : Int32 = 100
 
   module BoolToString
     def self.to_json(value : String, json : JSON::Builder)
@@ -259,41 +264,6 @@ struct Preferences
       cookies
     end
   end
-end
-
-struct ConfigPreferences
-  include YAML::Serializable
-
-  property annotations : Bool = false
-  property annotations_subscribed : Bool = false
-  property autoplay : Bool = false
-  property captions : Array(String) = ["", "", ""]
-  property comments : Array(String) = ["youtube", ""]
-  property continue : Bool = false
-  property continue_autoplay : Bool = true
-  property dark_mode : String = ""
-  property latest_only : Bool = false
-  property listen : Bool = false
-  property local : Bool = false
-  property locale : String = "en-US"
-  property max_results : Int32 = 40
-  property notifications_only : Bool = false
-  property player_style : String = "invidious"
-  property quality : String = "hd720"
-  property quality_dash : String = "auto"
-  property default_home : String? = "Popular"
-  property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
-  property automatic_instance_redirect : Bool = false
-  property related_videos : Bool = true
-  property sort : String = "published"
-  property speed : Float32 = 1.0_f32
-  property thin_mode : Bool = false
-  property unseen_only : Bool = false
-  property video_loop : Bool = false
-  property extend_desc : Bool = false
-  property volume : Int32 = 100
-  property vr_mode : Bool = true
-  property show_nick : Bool = true
 
   def to_tuple
     {% begin %}
