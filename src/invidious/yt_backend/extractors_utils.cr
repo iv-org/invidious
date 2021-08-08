@@ -29,18 +29,20 @@ def extract_text(item : JSON::Any?) : String?
   end
 end
 
+# Extracts videos (videoRenderer) from initial InnerTube response.
 def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
   extracted = extract_items(initial_data, author_fallback, author_id_fallback)
 
-  target = [] of SearchItem
+  target = [] of YouTubeStructs::Renderer
   extracted.each do |i|
-    if i.is_a?(Category)
-      i.contents.each { |cate_i| target << cate_i if !cate_i.is_a? Video }
+    if i.is_a?(YouTubeStructs::Category)
+      target += i.extract_renderers
     else
       target << i
     end
   end
-  return target.select(SearchVideo).map(&.as(SearchVideo))
+
+  return target.select(&.is_a?(YouTubeStructs::VideoRenderer)).map(&.as(YouTubeStructs::VideoRenderer))
 end
 
 def extract_selected_tab(tabs)

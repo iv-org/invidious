@@ -14,7 +14,7 @@ module YouTubeStructs
     property updated : Time
     property thumbnail : String?
 
-    def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
+    def to_json(offset, locale, json : JSON::Builder, video_id : String? = nil)
       json.object do
         json.field "type", "playlist"
         json.field "title", self.title
@@ -49,8 +49,8 @@ module YouTubeStructs
 
         json.field "videos" do
           json.array do
-            videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, continuation: continuation)
-            videos.each_with_index do |video, index|
+            videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, video_id: video_id)
+            videos.each do |video|
               video.to_json(locale, json)
             end
           end
@@ -58,12 +58,12 @@ module YouTubeStructs
       end
     end
 
-    def to_json(offset, locale, json : JSON::Builder? = nil, continuation : String? = nil)
+    def to_json(offset, locale, json : JSON::Builder? = nil, video_id : String? = nil)
       if json
-        to_json(offset, locale, json, continuation: continuation)
+        to_json(offset, locale, json, video_id: video_id)
       else
         JSON.build do |json|
-          to_json(offset, locale, json, continuation: continuation)
+          to_json(offset, locale, json, video_id: video_id)
         end
       end
     end

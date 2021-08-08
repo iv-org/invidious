@@ -1,10 +1,31 @@
 module YouTubeStructs
+  # Converter to serialize first level JSON data as methods for the videos struct
+  module VideoJSONConverter
+    def self.from_rs(rs)
+      JSON.parse(rs.read(String)).as_h
+    end
+  end
+
+  # Represents an watchable video in Invidious
+  #
+  # The video struct only takes three parameters:
+  # - ID: The video ID
+  #
+  # - Info:
+  #  YT Video information (streams, captions, tiles, etc). This is then serialized
+  #  into individual properties that either stores top level stuff or accesses
+  #  further nested data.
+  #
+  # - Updated:
+  #   A record of when the specific struct was created and inserted
+  #  into the DB. This is then used to measure when to cache (or update)
+  #  videos within the database.
   struct Video
     include DB::Serializable
 
     property id : String
 
-    @[DB::Field(converter: Video::JSONConverter)]
+    @[DB::Field(converter: YouTubeStructs::VideoJSONConverter)]
     property info : Hash(String, JSON::Any)
     property updated : Time
 
@@ -19,12 +40,6 @@ module YouTubeStructs
 
     @[DB::Field(ignore: true)]
     property description : String?
-
-    module JSONConverter
-      def self.from_rs(rs)
-        JSON.parse(rs.read(String)).as_h
-      end
-    end
 
     def to_json(locale : Hash(String, JSON::Any), json : JSON::Builder)
       json.object do
@@ -177,7 +192,7 @@ module YouTubeStructs
             self.captions.each do |caption|
               json.object do
                 json.field "label", caption.name
-                json.field "languageCode", caption.languageCode
+                json.field "language_code", caption.language_code
                 json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name)}"
               end
             end
@@ -275,10 +290,6 @@ module YouTubeStructs
 
     def published=(other : Time)
       info["microformat"].as_h["playerMicroformatRenderer"].as_h["publishDate"] = JSON::Any.new(other.to_s("%Y-%m-%d"))
-    end
-
-    def cookie
-      info["cookie"]?.try &.as_h.map { |k, v| "#{k}=#{v}" }.join("; ") || ""
     end
 
     def allow_ratings
@@ -458,10 +469,10 @@ module YouTubeStructs
       return @captions.as(Array(Caption)) if @captions
       captions = info["captions"]?.try &.["playerCaptionsTracklistRenderer"]?.try &.["captionTracks"]?.try &.as_a.map do |caption|
         name = caption["name"]["simpleText"]? || caption["name"]["runs"][0]["text"]
-        languageCode = caption["languageCode"].to_s
-        baseUrl = caption["baseUrl"].to_s
+        language_code = caption["languageCode"].to_s
+        base_url = caption["baseUrl"].to_s
 
-        caption = Caption.new(name.to_s, languageCode, baseUrl)
+        caption = Caption.new(name.to_s, language_code, base_url)
         caption.name = caption.name.split(" - ")[0]
         caption
       end
@@ -516,8 +527,13 @@ module YouTubeStructs
       info["microformat"]?.try &.["playerMicroformatRenderer"]["isFamilySafe"]?.try &.as_bool || false
     end
 
-    def is_vr : Bool
-      info["streamingData"]?.try &.["adaptiveFormats"].as_a[0]?.try &.["projectionType"].as_s == "MESH" ? true : false || false
+    def is_vr : Bool?
+      projection_type = info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
+      return {"EQUIRECTANGULAR", "MESH"}.includes? projection_type
+    end
+
+    def projection_type : String?
+      return info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
     end
 
     def wilson_score : Float64
@@ -530,10 +546,6 @@ module YouTubeStructs
 
     def reason : String?
       info["reason"]?.try &.as_s
-    end
-
-    def session_token : String?
-      info["sessionToken"]?.try &.as_s?
     end
   end
 end

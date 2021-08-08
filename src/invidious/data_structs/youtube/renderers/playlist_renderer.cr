@@ -37,12 +37,12 @@ module YouTubeStructs
           json.array do
             self.videos.each do |video|
               json.object do
-                json.field "title", video.title
-                json.field "videoId", video.id
-                json.field "lengthSeconds", video.length_seconds
+                json.field "title", video[:title]
+                json.field "videoId", video[:id]
+                json.field "lengthSeconds", video[:length_seconds]
 
                 json.field "videoThumbnails" do
-                  generate_thumbnails(json, video.id)
+                  generate_thumbnails(json, video[:id])
                 end
               end
             end

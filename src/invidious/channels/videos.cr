@@ -65,7 +65,7 @@ def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = 
 end
 
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
-  videos = [] of SearchVideo
+  videos = [] of YouTubeStructs::VideoRenderer
 
   2.times do |i|
     initial_data = get_channel_videos_response(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)

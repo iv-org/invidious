@@ -1,5 +1,6 @@
 module InvidiousStructs
-  private module PlaylistPrivacyConverter
+  # Converter to parse a Invidious privacy type string to enum
+  module PlaylistPrivacyConverter
     def self.from_rs(rs)
       return PlaylistPrivacy.parse(String.new(rs.read(Slice(UInt8))))
     end
@@ -16,14 +17,14 @@ module InvidiousStructs
     property created : Time
     property updated : Time
 
-    @[DB::Field(converter: PlaylistPrivacyConverter)]
+    @[DB::Field(converter: InvidiousStructs::PlaylistPrivacyConverter)]
     property privacy : PlaylistPrivacy = PlaylistPrivacy::Private
     property index : Array(Int64)
 
     @[DB::Field(ignore: true)]
     property thumbnail_id : String?
 
-    def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
+    def to_json(offset, locale, json : JSON::Builder, video_id : String? = nil)
       json.object do
         json.field "type", "invidiousPlaylist"
         json.field "title", self.title
@@ -45,11 +46,11 @@ module InvidiousStructs
         json.field "videos" do
           json.array do
             if !offset || offset == 0
-              index = PG_DB.query_one?("SELECT index FROM playlist_videos WHERE plid = $1 AND id = $2 LIMIT 1", self.id, continuation, as: Int64)
+              index = PG_DB.query_one?("SELECT index FROM playlist_videos WHERE plid = $1 AND id = $2 LIMIT 1", self.id, video_id, as: Int64)
               offset = self.index.index(index) || 0
             end
 
-            videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, continuation: continuation)
+            videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, video_id: video_id)
             videos.each_with_index do |video, index|
               video.to_json(locale, json, offset + index)
             end
@@ -58,12 +59,12 @@ module InvidiousStructs
       end
     end
 
-    def to_json(offset, locale, json : JSON::Builder? = nil, continuation : String? = nil)
+    def to_json(offset, locale, json : JSON::Builder? = nil, video_id : String? = nil)
       if json
-        to_json(offset, locale, json, continuation: continuation)
+        to_json(offset, locale, json, video_id: video_id)
       else
         JSON.build do |json|
-          to_json(offset, locale, json, continuation: continuation)
+          to_json(offset, locale, json, video_id: video_id)
         end
       end
     end

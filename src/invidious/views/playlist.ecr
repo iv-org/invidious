@@ -9,7 +9,7 @@
 <div class="pure-g h-box">
     <div class="pure-u-2-3">
         <h3><%= title %></h3>
-        <% if playlist.is_a? InvidiousPlaylist %>
+        <% if playlist.is_a? InvidiousStructs::Playlist %>
             <b>
                 <% if playlist.author == user.try &.email %>
                 <a href="/feed/playlists"><%= author %></a> |
@@ -18,7 +18,7 @@
                 <% end %>
                 <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %> |
-                <% case playlist.as(InvidiousPlaylist).privacy when %>
+                <% case playlist.as(InvidiousStructs::Playlist).privacy when %>
                 <% when PlaylistPrivacy::Public %>
                     <i class="icon ion-md-globe"></i> <%= translate(locale, "Public") %>
                 <% when PlaylistPrivacy::Unlisted %>
@@ -35,7 +35,7 @@
             </b>
         <% end %>
 
-        <% if !playlist.is_a? InvidiousPlaylist %>
+        <% if !playlist.is_a? InvidiousStructs::Playlist %>
             <div class="pure-u-2-3">
                     <a href="https://www.youtube.com/playlist?list=<%= playlist.id %>">
                         <%= translate(locale, "View playlist on YouTube") %>
@@ -50,7 +50,7 @@
     <div class="pure-u-1-3" style="text-align:right">
         <h3>
             <div class="pure-g user-field">
-                <% if playlist.is_a?(InvidiousPlaylist) && playlist.author == user.try &.email %>
+                <% if playlist.is_a?(InvidiousStructs::Playlist) && playlist.author == user.try &.email %>
                     <div class="pure-u-1-3"><a href="/edit_playlist?list=<%= plid %>"><i class="icon ion-md-create"></i></a></div>
                     <div class="pure-u-1-3"><a href="/delete_playlist?list=<%= plid %>"><i class="icon ion-md-trash"></i></a></div>
                 <% else %>
@@ -72,7 +72,7 @@
     </div>
 </div>
 
-<% if playlist.is_a?(InvidiousPlaylist) && playlist.author == user.try &.email %>
+<% if playlist.is_a?(InvidiousStructs::Playlist) && playlist.author == user.try &.email %>
 <div class="h-box" style="text-align:right">
     <h3>
         <a href="/add_playlist_items?list=<%= plid %>"><i class="icon ion-md-add"></i></a>
@@ -84,7 +84,7 @@
     <hr>
 </div>
 
-<% if playlist.is_a?(InvidiousPlaylist) && playlist.author == user.try &.email %>
+<% if playlist.is_a?(InvidiousStructs::Playlist) && playlist.author == user.try &.email %>
 <script id="playlist_data" type="application/json">
 <%=
 {

@@ -1,32 +1,3 @@
-# TODO: Refactor into either SearchChannel or InvidiousChannel
-struct AboutChannel
-  include DB::Serializable
-
-  property ucid : String
-  property author : String
-  property auto_generated : Bool
-  property author_url : String
-  property author_thumbnail : String
-  property banner : String?
-  property description_html : String
-  property total_views : Int64
-  property sub_count : Int32
-  property joined : Time
-  property is_family_friendly : Bool
-  property allowed_regions : Array(String)
-  property related_channels : Array(AboutRelatedChannel)
-  property tabs : Array(String)
-end
-
-struct AboutRelatedChannel
-  include DB::Serializable
-
-  property ucid : String
-  property author : String
-  property author_url : String
-  property author_thumbnail : String
-end
-
 def get_about_info(ucid, locale)
   begin
     # "EgVhYm91dA==" is the base64-encoded protobuf object {"2:string":"about"}
@@ -64,7 +35,7 @@ def get_about_info(ucid, locale)
     is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map(&.as_s)
 
-    related_channels = [] of AboutRelatedChannel
+    related_channels = [] of YouTubeStructs::AboutRelatedChannel
   else
     author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
     author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
@@ -109,14 +80,14 @@ def get_about_info(ucid, locale)
           related_author_thumbnail ||= ""
         end
 
-        AboutRelatedChannel.new({
+        YouTubeStructs::AboutRelatedChannel.new({
           ucid:             related_id,
           author:           related_title,
           author_url:       related_author_url,
           author_thumbnail: related_author_thumbnail,
         })
       end
-    related_channels ||= [] of AboutRelatedChannel
+    related_channels ||= [] of YouTubeStructs::AboutRelatedChannel
   end
 
   total_views = 0_i64
@@ -155,7 +126,7 @@ def get_about_info(ucid, locale)
   sub_count = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s?
     .try { |text| short_text_to_number(text.split(" ")[0]) } || 0
 
-  AboutChannel.new({
+  YouTubeStructs::AboutChannel.new({
     ucid:               ucid,
     author:             author,
     auto_generated:     auto_generated,

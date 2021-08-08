@@ -1,7 +1,7 @@
 <div class="pure-u-1 pure-u-md-1-4">
     <div class="h-box">
         <% case item when %>
-        <% when SearchChannel %>
+        <% when YouTubeStructs::ChannelRenderer %>
             <a href="/channel/<%= item.ucid %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <center>
@@ -13,7 +13,7 @@
             <p><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></p>
             <% if !item.auto_generated %><p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p><% end %>
             <h5><%= item.description_html %></h5>
-        <% when SearchPlaylist, InvidiousPlaylist %>
+        <% when YouTubeStructs::PlaylistRenderer, InvidiousStructs::Playlist %>
             <% if item.id.starts_with? "RD" %>
                 <% url = "/mix?list=#{item.id}&continuation=#{URI.parse(item.thumbnail || "/vi/-----------").request_target.split("/")[2]}" %>
             <% else %>
@@ -47,7 +47,7 @@
             <a href="/channel/<%= item.ucid %>">
                 <p dir="auto"><b><%= HTML.escape(item.author) %></b></p>
             </a>
-        <% when PlaylistVideo %>
+        <% when YouTubeStructs::PlaylistVideo %>
             <a style="width:100%" href="/watch?v=<%= item.id %>&list=<%= item.plid %>&index=<%= item.index %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <div class="thumbnail">
@@ -109,7 +109,7 @@
                 </div>
                 <% end %>
             </div>
-        <% when Category %>
+        <% when YouTubeStructs::Category %>
         <% else %>
             <a style="width:100%" href="/watch?v=<%= item.id %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>

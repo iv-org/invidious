@@ -115,17 +115,17 @@ LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 if CONFIG.check_tables
   check_enum(PG_DB, "privacy", PlaylistPrivacy)
 
-  check_table(PG_DB, "channels", InvidiousChannel)
-  check_table(PG_DB, "channel_videos", ChannelVideo)
-  check_table(PG_DB, "playlists", InvidiousPlaylist)
-  check_table(PG_DB, "playlist_videos", PlaylistVideo)
+  check_table(PG_DB, "channels", InvidiousStructs::Channel)
+  check_table(PG_DB, "channel_videos", InvidiousStructs::ChannelVideo)
+  check_table(PG_DB, "playlists", InvidiousStructs::Playlist)
+  check_table(PG_DB, "playlist_videos", YouTubeStructs::PlaylistVideo)
   check_table(PG_DB, "nonces", Nonce)
   check_table(PG_DB, "session_ids", SessionId)
   check_table(PG_DB, "users", User)
-  check_table(PG_DB, "videos", Video)
+  check_table(PG_DB, "videos", YouTubeStructs::Video)
 
   if CONFIG.cache_annotations
-    check_table(PG_DB, "annotations", Annotation)
+    check_table(PG_DB, "annotations", YouTubeStructs::Annotation)
   end
 end
 
@@ -655,14 +655,14 @@ get "/subscription_manager" do |env|
     values = "VALUES #{user.subscriptions.map { |id| %(('#{id}')) }.join(",")}"
   end
 
-  subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousChannel)
-  subscriptions.sort_by!(&.author.downcase)
+  subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousStructs::Channel)
+  subscriptions.sort_by! { |channel| channel.author.downcase }
 
   if action_takeout
     if format == "json"
       env.response.content_type = "application/json"
       env.response.headers["content-disposition"] = "attachment"
-      playlists = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+      playlists = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousStructs::Playlist)
 
       next JSON.build do |json|
         json.object do
@@ -804,7 +804,7 @@ post "/data_control" do |env|
                 next
               end
 
-              playlist_video = PlaylistVideo.new({
+              playlist_video = YouTubeStructs::PlaylistVideo.new({
                 title:          video.title,
                 id:             video.id,
                 author:         video.author,

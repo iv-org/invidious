@@ -15,13 +15,6 @@ struct SessionId
   property issued : String
 end
 
-struct Annotation
-  include DB::Serializable
-
-  property id : String
-  property annotations : String
-end
-
 def login_req(f_req)
   data = {
     # Unfortunately there's not much information available on `bgRequest`; part of Google's BotGuard
@@ -239,7 +232,7 @@ def create_notification_stream(env, topics, connection_channel)
           case topic
           when .match(/UC[A-Za-z0-9_-]{22}/)
             PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid = $1 AND published > $2 ORDER BY published DESC LIMIT 15",
-              topic, Time.unix(since.not_nil!), as: ChannelVideo).each do |video|
+              topic, Time.unix(since.not_nil!), as: InvidiousStructs::ChannelVideo).each do |video|
               response = JSON.parse(video.to_json(locale))
 
               if fields_text = env.params.query["fields"]?

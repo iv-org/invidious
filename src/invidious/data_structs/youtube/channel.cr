@@ -14,7 +14,6 @@ module YouTubeStructs
     property author_thumbnail : String
     property banner : String?
     property description_html : String
-    property paid : Bool
     property total_views : Int64
     property sub_count : Int32
     property joined : Time

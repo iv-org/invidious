@@ -55,7 +55,7 @@ module YouTubeStructs
       if xml
         to_xml(auto_generated, xml)
       else
-        XML.build do |json|
+        XML.build do |xml|
           to_xml(auto_generated, xml)
         end
       end

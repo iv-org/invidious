@@ -17,9 +17,9 @@ def channel_search(query, page, channel)
   continuation_items = response_json["onResponseReceivedActions"]?
     .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
 
-  return 0, [] of SearchItem if !continuation_items
+  return 0, [] of YouTubeStructs::Renderer if !continuation_items
 
-  items = [] of SearchItem
+  items = [] of YouTubeStructs::Renderer
   continuation_items.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each { |item|
     extract_item(item["itemSectionRenderer"]["contents"].as_a[0])
       .try { |t| items << t }
@@ -29,7 +29,7 @@ def channel_search(query, page, channel)
 end
 
 def search(query, search_params = produce_search_params(content_type: "all"), region = nil)
-  return 0, [] of SearchItem if query.empty?
+  return 0, [] of YouTubeStructs::Renderer if query.empty?
 
   client_config = YoutubeAPI::ClientConfig.new(region: region)
   initial_data = YoutubeAPI.search(query, search_params, client_config: client_config)
@@ -219,10 +219,10 @@ def process_search_query(query, page, user, region)
       to_tsvector(#{view_name}.author)
       as document
       FROM #{view_name}
-      ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", search_query, (page - 1) * 20, as: ChannelVideo)
+      ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", search_query, (page - 1) * 20, as: InvidiousStructs::ChannelVideo)
       count = items.size
     else
-      items = [] of ChannelVideo
+      items = [] of InvidiousStructs::ChannelVideo
       count = 0
     end
   else
@@ -234,14 +234,10 @@ def process_search_query(query, page, user, region)
 
   # Light processing to flatten search results out of Categories.
   # They should ideally be supported in the future.
-  items_without_category = [] of SearchItem | ChannelVideo
+  items_without_category = [] of YouTubeStructs::Renderer | InvidiousStructs::ChannelVideo
   items.each do |i|
-    if i.is_a? Category
-      i.contents.each do |nest_i|
-        if !nest_i.is_a? Video
-          items_without_category << nest_i
-        end
-      end
+    if i.is_a? YouTubeStructs::Category
+      items_without_category += i.extract_renderers
     else
       items_without_category << i
     end

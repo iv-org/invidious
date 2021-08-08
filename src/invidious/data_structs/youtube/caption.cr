@@ -1,16 +1,16 @@
 module YouTubeStructs
   struct Caption
     property name
-    property languageCode
-    property baseUrl
+    property language_code
+    property base_url
 
     getter name : String
-    getter languageCode : String
-    getter baseUrl : String
+    getter language_code : String
+    getter base_url : String
 
     setter name
 
-    def initialize(@name, @languageCode, @baseUrl)
+    def initialize(@name, @language_code, @base_url)
     end
   end
 end
