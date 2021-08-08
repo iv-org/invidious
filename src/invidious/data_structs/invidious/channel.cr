@@ -1,7 +1,10 @@
+
+# Data structs used by Invidious to provide certain features.
 module InvidiousStructs
-  # Struct for representing a cached Invidious channel.
+  # Struct for representing a cached YouTube channel.
   #
-  # Currently used for storing subscriptions.
+  # This is constructed from YouTube's RSS feeds for channels and is
+  # currently only used for storing subscriptions in a user.
   struct InvidiousChannel
     include DB::Serializable
 
@@ -9,11 +12,20 @@ module InvidiousStructs
     property author : String
     property updated : Time
     property deleted : Bool
+    # TODO I don't believe the subscripted attribute is actually used.
+    # so this can likely be removed.
     property subscribed : Time?
   end
-end
 
-module YTStructs
+  # Struct for representing a video from a YouTube channel
+  #
+  # This is constructed from YouTube's RSS feeds for channels and is
+  # used for referencing videos used by Invidious exclusive features. IE popular feeds,
+  # notifications, subscriptions, etc.
+  #
+  # TODO ideally this should be expanded to include all channel videos. That way
+  # we can implement optional caching of YT requests in a DB such as redis.
+  #
   struct ChannelVideo
     include DB::Serializable
 

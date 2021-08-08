@@ -1,4 +1,4 @@
-module YTStructs
+module YouTubeStructs
   # Struct to represent channel heading information.
   #
   # As of master this is mostly taken from the about tab.

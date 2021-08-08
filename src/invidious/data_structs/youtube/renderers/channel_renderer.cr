@@ -1,4 +1,4 @@
-module YTStructs
+module YouTubeStructs
   # Struct to represent an InnerTube `"channelRenderer"`
   #
   # A channelRenderer renders a channel to click on within the YouTube and Invidious UI. It is **not**

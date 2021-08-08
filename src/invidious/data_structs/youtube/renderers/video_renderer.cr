@@ -1,4 +1,4 @@
-module YTStructs
+module YouTubeStructs
   # Struct to represent an InnerTube `"videoRenderer"`
   #
   # A videoRenderer renders a video to click on within the YouTube and Invidious UI. It is **not**
