@@ -6,7 +6,7 @@ class Invidious::Jobs::PullPopularVideosJob < Invidious::Jobs::BaseJob
     GROUP BY channel ORDER BY COUNT(channel) DESC LIMIT 40)
     ORDER BY ucid, published DESC
   SQL
-  POPULAR_VIDEOS = Atomic.new([] of ChannelVideo)
+  POPULAR_VIDEOS = Atomic.new([] of InvidiousStructs::ChannelVideo)
   private getter db : DB::Database
 
   def initialize(@db)
@@ -14,7 +14,7 @@ class Invidious::Jobs::PullPopularVideosJob < Invidious::Jobs::BaseJob
 
   def begin
     loop do
-      videos = db.query_all(QUERY, as: ChannelVideo)
+      videos = db.query_all(QUERY, as: InvidiousStructs::ChannelVideo)
         .sort_by(&.published)
         .reverse
 

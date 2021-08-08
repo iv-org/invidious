@@ -1,5 +1,6 @@
 module InvidiousStructs
-  private module PlaylistPrivacyConverter
+  # Converter to parse a Invidious privacy type string to enum
+  module PlaylistPrivacyConverter
     def self.from_rs(rs)
       return PlaylistPrivacy.parse(String.new(rs.read(Slice(UInt8))))
     end
@@ -16,7 +17,7 @@ module InvidiousStructs
     property created : Time
     property updated : Time
 
-    @[DB::Field(converter: PlaylistPrivacyConverter)]
+    @[DB::Field(converter: InvidiousStructs::PlaylistPrivacyConverter)]
     property privacy : PlaylistPrivacy = PlaylistPrivacy::Private
     property index : Array(Int64)
 
@@ -25,7 +26,7 @@ module InvidiousStructs
 
     def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
       json.object do
-        json.field "type", "invidiousPlaylist"
+        json.field "type", "InvidiousStructs::Playlist"
         json.field "title", self.title
         json.field "playlistId", self.id
 

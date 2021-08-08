@@ -44,7 +44,7 @@
     <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(csrf_token) %>">
 </form>
 
-<% if playlist.is_a?(InvidiousPlaylist) && playlist.author == user.try &.email %>
+<% if playlist.is_a?(InvidiousStructs::Playlist) && playlist.author == user.try &.email %>
 <div class="h-box" style="text-align:right">
     <h3>
         <a href="/add_playlist_items?list=<%= plid %>"><i class="icon ion-md-add"></i></a>

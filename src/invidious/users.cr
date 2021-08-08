@@ -503,8 +503,8 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
 
     args = arg_array(notifications)
 
-    notifications = db.query_all("SELECT * FROM channel_videos WHERE id IN (#{args}) ORDER BY published DESC", args: notifications, as: ChannelVideo)
-    videos = [] of ChannelVideo
+    notifications = db.query_all("SELECT * FROM channel_videos WHERE id IN (#{args}) ORDER BY published DESC", args: notifications, as: InvidiousStructs::ChannelVideo)
+    videos = [] of InvidiousStructs::ChannelVideo
 
     notifications.sort_by! { |video| video.published }.reverse!
 
@@ -530,11 +530,11 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
         else
           values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
         end
-        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY (#{values}) ORDER BY ucid, published DESC", as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} WHERE NOT id = ANY (#{values}) ORDER BY ucid, published DESC", as: InvidiousStructs::ChannelVideo)
       else
         # Show latest video from each channel
 
-        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} ORDER BY ucid, published DESC", as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} ORDER BY ucid, published DESC", as: InvidiousStructs::ChannelVideo)
       end
 
       videos.sort_by! { |video| video.published }.reverse!
@@ -547,11 +547,11 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
         else
           values = "VALUES #{user.watched.map { |id| %(('#{id}')) }.join(",")}"
         end
-        videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY (#{values}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT * FROM #{view_name} WHERE NOT id = ANY (#{values}) ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: InvidiousStructs::ChannelVideo)
       else
         # Sort subscriptions as normal
 
-        videos = PG_DB.query_all("SELECT * FROM #{view_name} ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: ChannelVideo)
+        videos = PG_DB.query_all("SELECT * FROM #{view_name} ORDER BY published DESC LIMIT $1 OFFSET $2", limit, offset, as: InvidiousStructs::ChannelVideo)
       end
     end
 

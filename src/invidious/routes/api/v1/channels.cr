@@ -19,7 +19,7 @@ module Invidious::Routes::API::V1::Channels
 
     page = 1
     if channel.auto_generated
-      videos = [] of SearchVideo
+      videos = [] of YouTubeStructs::VideoRenderer
       count = 0
     else
       begin
@@ -208,7 +208,7 @@ module Invidious::Routes::API::V1::Channels
         json.field "playlists" do
           json.array do
             items.each do |item|
-              item.to_json(locale, json) if item.is_a?(SearchPlaylist)
+              item.to_json(locale, json) if item.is_a?(YouTubeStructs::PlaylistRenderer)
             end
           end
         end

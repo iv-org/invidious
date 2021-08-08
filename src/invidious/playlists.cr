@@ -1,4 +1,4 @@
-struct PlaylistVideo
+struct YouTubeStructs::PlaylistVideo
   include DB::Serializable
 
   property title : String
@@ -92,181 +92,16 @@ struct PlaylistVideo
   end
 end
 
-struct Playlist
-  include DB::Serializable
-
-  property title : String
-  property id : String
-  property author : String
-  property author_thumbnail : String
-  property ucid : String
-  property description : String
-  property description_html : String
-  property video_count : Int32
-  property views : Int64
-  property updated : Time
-  property thumbnail : String?
-
-  def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
-    json.object do
-      json.field "type", "playlist"
-      json.field "title", self.title
-      json.field "playlistId", self.id
-      json.field "playlistThumbnail", self.thumbnail
-
-      json.field "author", self.author
-      json.field "authorId", self.ucid
-      json.field "authorUrl", "/channel/#{self.ucid}"
-
-      json.field "authorThumbnails" do
-        json.array do
-          qualities = {32, 48, 76, 100, 176, 512}
-
-          qualities.each do |quality|
-            json.object do
-              json.field "url", self.author_thumbnail.not_nil!.gsub(/=\d+/, "=s#{quality}")
-              json.field "width", quality
-              json.field "height", quality
-            end
-          end
-        end
-      end
-
-      json.field "description", self.description
-      json.field "descriptionHtml", self.description_html
-      json.field "videoCount", self.video_count
-
-      json.field "viewCount", self.views
-      json.field "updated", self.updated.to_unix
-      json.field "isListed", self.privacy.public?
-
-      json.field "videos" do
-        json.array do
-          videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, continuation: continuation)
-          videos.each_with_index do |video, index|
-            video.to_json(locale, json)
-          end
-        end
-      end
-    end
-  end
-
-  def to_json(offset, locale, json : JSON::Builder? = nil, continuation : String? = nil)
-    if json
-      to_json(offset, locale, json, continuation: continuation)
-    else
-      JSON.build do |json|
-        to_json(offset, locale, json, continuation: continuation)
-      end
-    end
-  end
-
-  def privacy
-    PlaylistPrivacy::Public
-  end
-end
-
 enum PlaylistPrivacy
   Public   = 0
   Unlisted = 1
   Private  = 2
 end
 
-struct InvidiousPlaylist
-  include DB::Serializable
-
-  property title : String
-  property id : String
-  property author : String
-  property description : String = ""
-  property video_count : Int32
-  property created : Time
-  property updated : Time
-
-  @[DB::Field(converter: InvidiousPlaylist::PlaylistPrivacyConverter)]
-  property privacy : PlaylistPrivacy = PlaylistPrivacy::Private
-  property index : Array(Int64)
-
-  @[DB::Field(ignore: true)]
-  property thumbnail_id : String?
-
-  module PlaylistPrivacyConverter
-    def self.from_rs(rs)
-      return PlaylistPrivacy.parse(String.new(rs.read(Slice(UInt8))))
-    end
-  end
-
-  def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
-    json.object do
-      json.field "type", "invidiousPlaylist"
-      json.field "title", self.title
-      json.field "playlistId", self.id
-
-      json.field "author", self.author
-      json.field "authorId", self.ucid
-      json.field "authorUrl", nil
-      json.field "authorThumbnails", [] of String
-
-      json.field "description", html_to_content(self.description_html)
-      json.field "descriptionHtml", self.description_html
-      json.field "videoCount", self.video_count
-
-      json.field "viewCount", self.views
-      json.field "updated", self.updated.to_unix
-      json.field "isListed", self.privacy.public?
-
-      json.field "videos" do
-        json.array do
-          if !offset || offset == 0
-            index = PG_DB.query_one?("SELECT index FROM playlist_videos WHERE plid = $1 AND id = $2 LIMIT 1", self.id, continuation, as: Int64)
-            offset = self.index.index(index) || 0
-          end
-
-          videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, continuation: continuation)
-          videos.each_with_index do |video, index|
-            video.to_json(locale, json, offset + index)
-          end
-        end
-      end
-    end
-  end
-
-  def to_json(offset, locale, json : JSON::Builder? = nil, continuation : String? = nil)
-    if json
-      to_json(offset, locale, json, continuation: continuation)
-    else
-      JSON.build do |json|
-        to_json(offset, locale, json, continuation: continuation)
-      end
-    end
-  end
-
-  def thumbnail
-    @thumbnail_id ||= PG_DB.query_one?("SELECT id FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 1", self.id, self.index, as: String) || "-----------"
-    "/vi/#{@thumbnail_id}/mqdefault.jpg"
-  end
-
-  def author_thumbnail
-    nil
-  end
-
-  def ucid
-    nil
-  end
-
-  def views
-    0_i64
-  end
-
-  def description_html
-    HTML.escape(self.description).gsub("\n", "<br>")
-  end
-end
-
 def create_playlist(db, title, privacy, user)
   plid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
 
-  playlist = InvidiousPlaylist.new({
+  playlist = InvidiousStructs::Playlist.new({
     title:       title.byte_slice(0, 150),
     id:          plid,
     author:      user.email,
@@ -287,7 +122,7 @@ def create_playlist(db, title, privacy, user)
 end
 
 def subscribe_playlist(db, user, playlist)
-  playlist = InvidiousPlaylist.new({
+  playlist = InvidiousStructs::Playlist.new({
     title:       playlist.title.byte_slice(0, 150),
     id:          playlist.id,
     author:      user.email,
@@ -346,7 +181,7 @@ end
 
 def get_playlist(db, plid, locale, refresh = true, force_refresh = false)
   if plid.starts_with? "IV"
-    if playlist = db.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    if playlist = db.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
       return playlist
     else
       raise InfoException.new("Playlist does not exist.")
@@ -411,7 +246,7 @@ def fetch_playlist(plid, locale)
     ucid = author_info["title"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"]?.try &.as_s || ""
   end
 
-  return Playlist.new({
+  return YouTubeStructs::Playlist.new({
     title:            title,
     id:               plid,
     author:           author,
@@ -430,12 +265,12 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
   # Show empy playlist if requested page is out of range
   # (e.g, when a new playlist has been created, offset will be negative)
   if offset >= playlist.video_count || offset < 0
-    return [] of PlaylistVideo
+    return [] of YouTubeStructs::PlaylistVideo
   end
 
-  if playlist.is_a? InvidiousPlaylist
+  if playlist.is_a? InvidiousStructs::Playlist
     db.query_all("SELECT * FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 100 OFFSET $3",
-      playlist.id, playlist.index, offset, as: PlaylistVideo)
+      playlist.id, playlist.index, offset, as: YouTubeStructs::PlaylistVideo)
   else
     if offset >= 100
       # Normalize offset to match youtube's behavior (100 videos chunck per request)
@@ -452,7 +287,7 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
 end
 
 def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
-  videos = [] of PlaylistVideo
+  videos = [] of YouTubeStructs::PlaylistVideo
 
   if initial_data["contents"]?
     tabs = initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]
@@ -493,7 +328,7 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
         length_seconds = 0
       end
 
-      videos << PlaylistVideo.new({
+      videos << YouTubeStructs::PlaylistVideo.new({
         title:          title,
         id:             video_id,
         author:         author,

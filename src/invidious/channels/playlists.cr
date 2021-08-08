@@ -4,9 +4,9 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
     continuationItems = response_json["onResponseReceivedActions"]?
       .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
 
-    return [] of SearchItem, nil if !continuationItems
+    return [] of YouTubeStructs::Renderer, nil if !continuationItems
 
-    items = [] of SearchItem
+    items = [] of YouTubeStructs::Renderer
     continuationItems.as_a.select(&.as_h.has_key?("gridPlaylistRenderer")).each { |item|
       extract_item(item, author, ucid).try { |t| items << t }
     }
@@ -28,7 +28,7 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
 
     response = YT_POOL.client &.get(url)
     initial_data = extract_initial_data(response.body)
-    return [] of SearchItem, nil if !initial_data
+    return [] of YouTubeStructs::Renderer, nil if !initial_data
 
     items = extract_items(initial_data, author, ucid)
     continuation = response.body.match(/"token":"(?<continuation>[^"]+)"/).try &.["continuation"]?

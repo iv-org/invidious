@@ -1,11 +1,10 @@
-
 # Data structs used by Invidious to provide certain features.
 module InvidiousStructs
   # Struct for representing a cached YouTube channel.
   #
   # This is constructed from YouTube's RSS feeds for channels and is
   # currently only used for storing subscriptions in a user.
-  struct InvidiousChannel
+  struct Channel
     include DB::Serializable
 
     property id : String

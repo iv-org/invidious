@@ -78,7 +78,7 @@ module Invidious::Routes::API::V1::Authenticated
       values = "VALUES #{user.subscriptions.map { |id| %(('#{id}')) }.join(",")}"
     end
 
-    subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousChannel)
+    subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousStructs::Channel)
 
     JSON.build do |json|
       json.array do
@@ -127,7 +127,7 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
 
-    playlists = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1", user.email, as: InvidiousPlaylist)
+    playlists = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1", user.email, as: InvidiousStructs::Playlist)
 
     JSON.build do |json|
       json.array do
@@ -174,7 +174,7 @@ module Invidious::Routes::API::V1::Authenticated
 
     plid = env.params.url["plid"]
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
     if !playlist || playlist.author != user.email && playlist.privacy.private?
       return error_json(404, "Playlist does not exist.")
     end
@@ -207,7 +207,7 @@ module Invidious::Routes::API::V1::Authenticated
 
     plid = env.params.url["plid"]
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
     if !playlist || playlist.author != user.email && playlist.privacy.private?
       return error_json(404, "Playlist does not exist.")
     end
@@ -230,7 +230,7 @@ module Invidious::Routes::API::V1::Authenticated
 
     plid = env.params.url["plid"]
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
     if !playlist || playlist.author != user.email && playlist.privacy.private?
       return error_json(404, "Playlist does not exist.")
     end
@@ -254,7 +254,7 @@ module Invidious::Routes::API::V1::Authenticated
       return error_json(500, ex)
     end
 
-    playlist_video = PlaylistVideo.new({
+    playlist_video = YouTubeStructs::PlaylistVideo.new({
       title:          video.title,
       id:             video.id,
       author:         video.author,
@@ -286,7 +286,7 @@ module Invidious::Routes::API::V1::Authenticated
     plid = env.params.url["plid"]
     index = env.params.url["index"].to_i64(16)
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
     if !playlist || playlist.author != user.email && playlist.privacy.private?
       return error_json(404, "Playlist does not exist.")
     end

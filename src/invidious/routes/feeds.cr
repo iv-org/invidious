@@ -15,13 +15,13 @@ module Invidious::Routes::Feeds
 
     user = user.as(User)
 
-    items_created = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+    items_created = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousStructs::Playlist)
     items_created.map! do |item|
       item.author = ""
       item
     end
 
-    items_saved = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id NOT LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+    items_saved = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id NOT LIKE 'IV%' ORDER BY created", user.email, as: InvidiousStructs::Playlist)
     items_saved.map! do |item|
       item.author = ""
       item
@@ -169,7 +169,7 @@ module Invidious::Routes::Feeds
       description_html = entry.xpath_node("group/description").not_nil!.to_s
       views = entry.xpath_node("group/community/statistics").not_nil!.["views"].to_i64
 
-      SearchVideo.new({
+      YouTubeStructs::VideoRenderer.new({
         title:              title,
         id:                 video_id,
         author:             author,
@@ -264,7 +264,7 @@ module Invidious::Routes::Feeds
     path = env.request.path
 
     if plid.starts_with? "IV"
-      if playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+      if playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
         videos = get_playlist_videos(PG_DB, playlist, offset: 0, locale: locale)
 
         return XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -405,7 +405,7 @@ module Invidious::Routes::Feeds
         }.to_json
         PG_DB.exec("NOTIFY notifications, E'#{payload}'")
 
-        video = ChannelVideo.new({
+        video = InvidiousStructs::ChannelVideo.new({
           id:                 id,
           title:              video.title,
           published:          published,

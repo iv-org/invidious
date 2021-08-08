@@ -85,7 +85,7 @@ module Invidious::Routes::Playlists
     sid = sid.as(String)
 
     plid = env.params.query["list"]?
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
@@ -117,7 +117,7 @@ module Invidious::Routes::Playlists
       return error_template(400, ex)
     end
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
@@ -149,7 +149,7 @@ module Invidious::Routes::Playlists
     page ||= 1
 
     begin
-      playlist = PG_DB.query_one("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+      playlist = PG_DB.query_one("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
       if !playlist || playlist.author != user.email
         return env.redirect referer
       end
@@ -160,7 +160,7 @@ module Invidious::Routes::Playlists
     begin
       videos = get_playlist_videos(PG_DB, playlist, offset: (page - 1) * 100, locale: locale)
     rescue ex
-      videos = [] of PlaylistVideo
+      videos = [] of YouTubeStructs::PlaylistVideo
     end
 
     csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY, PG_DB)
@@ -190,7 +190,7 @@ module Invidious::Routes::Playlists
       return error_template(400, ex)
     end
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
@@ -233,7 +233,7 @@ module Invidious::Routes::Playlists
     page ||= 1
 
     begin
-      playlist = PG_DB.query_one("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+      playlist = PG_DB.query_one("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousStructs::Playlist)
       if !playlist || playlist.author != user.email
         return env.redirect referer
       end
@@ -245,13 +245,13 @@ module Invidious::Routes::Playlists
     if query
       begin
         search_query, count, items, operators = process_search_query(query, page, user, region: nil)
-        videos = items.select { |item| item.is_a? SearchVideo }.map { |item| item.as(SearchVideo) }
+        videos = items.select { |item| item.is_a? YouTubeStructs::VideoRenderer }.map { |item| item.as(YouTubeStructs::VideoRenderer) }
       rescue ex
-        videos = [] of SearchVideo
+        videos = [] of YouTubeStructs::VideoRenderer
         count = 0
       end
     else
-      videos = [] of SearchVideo
+      videos = [] of YouTubeStructs::VideoRenderer
       count = 0
     end
 
@@ -311,7 +311,7 @@ module Invidious::Routes::Playlists
 
     begin
       playlist_id = env.params.query["playlist_id"]
-      playlist = get_playlist(PG_DB, playlist_id, locale).as(InvidiousPlaylist)
+      playlist = get_playlist(PG_DB, playlist_id, locale).as(InvidiousStructs::Playlist)
       raise "Invalid user" if playlist.author != user.email
     rescue ex
       if redirect
@@ -351,7 +351,7 @@ module Invidious::Routes::Playlists
         end
       end
 
-      playlist_video = PlaylistVideo.new({
+      playlist_video = YouTubeStructs::PlaylistVideo.new({
         title:          video.title,
         id:             video.id,
         author:         video.author,

@@ -25,7 +25,7 @@ record AuthorFallback, name : String, id : String
 # data is passed to the private `#parse()` method which returns a datastruct of the given
 # type. Otherwise, nil is returned.
 private module Parsers
-  # Parses a InnerTube videoRenderer into a SearchVideo. Returns nil when the given object isn't a videoRenderer
+  # Parses a InnerTube videoRenderer into a YouTubeStructs::VideoRenderer. Returns nil when the given object isn't a videoRenderer
   #
   # A videoRenderer renders a video to click on within the YouTube and Invidious UI. It is **not**
   # the watchable video itself.
@@ -115,7 +115,7 @@ private module Parsers
     end
   end
 
-  # Parses a InnerTube channelRenderer into a SearchChannel. Returns nil when the given object isn't a channelRenderer
+  # Parses a InnerTube channelRenderer into a YouTubeStructs::ChannelRenderer. Returns nil when the given object isn't a channelRenderer
   #
   # A channelRenderer renders a channel to click on within the YouTube and Invidious UI. It is **not**
   # the channel page itself.
@@ -161,7 +161,7 @@ private module Parsers
     end
   end
 
-  # Parses a InnerTube gridPlaylistRenderer into a SearchPlaylist. Returns nil when the given object isn't a gridPlaylistRenderer
+  # Parses a InnerTube gridPlaylistRenderer into a YouTubeStructs::PlaylistRenderer. Returns nil when the given object isn't a gridPlaylistRenderer
   #
   # A gridPlaylistRenderer renders a playlist, that is located in a grid, to click on within the YouTube and Invidious UI.
   # It is **not** the playlist itself.
@@ -196,7 +196,7 @@ private module Parsers
     end
   end
 
-  # Parses a InnerTube playlistRenderer into a SearchPlaylist. Returns nil when the given object isn't a playlistRenderer
+  # Parses a InnerTube playlistRenderer into a YouTubeStructs::PlaylistRenderer. Returns nil when the given object isn't a playlistRenderer
   #
   # A playlistRenderer renders a playlist to click on within the YouTube and Invidious UI. It is **not** the playlist itself.
   #
@@ -536,7 +536,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = "",
 end
 
 # Parses multiple items from YouTube's initial JSON response into a more usable structure.
-# The end result is an array of SearchItem.
+# The end result is an array of YouTubeStructs::Renderer.
 def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil,
                   author_id_fallback : String? = nil) : Array(YouTubeStructs::Renderer)
   items = [] of YouTubeStructs::Renderer
@@ -565,27 +565,19 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
   return items
 end
 
-# Flattens all items from extracted items into a one dimensional array
-def flatten_items(items, target = nil)
-  if target.nil?
-    target = [] of YouTubeStructs::Renderer
-  end
+# Extracts videos (videoRenderer) from initial InnerTube response.
+def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
+  extracted = extract_items(initial_data, author_fallback, author_id_fallback)
 
-  items.each do |i|
+  target = [] of YouTubeStructs::Renderer
+  extracted.each do |i|
     if i.is_a?(YouTubeStructs::Category)
-      target = target += i.extract_renderers
+      target += i.extract_renderers
     else
       target << i
     end
   end
 
-  return target
-end
-
-# Extracts videos (videoRenderer) from initial InnerTube response.
-def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
-  extracted = extract_items(initial_data, author_fallback, author_id_fallback)
-  target = flatten_items(extracted)
   return target.select(&.is_a?(YouTubeStructs::VideoRenderer)).map(&.as(YouTubeStructs::VideoRenderer))
 end
 
