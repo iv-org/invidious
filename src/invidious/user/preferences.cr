@@ -3,7 +3,7 @@
 # all the associated validation/parsing routines.
 #
 
-struct Preferences
+class Preferences
   include JSON::Serializable
   include YAML::Serializable
 
