@@ -438,7 +438,10 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
       playlist.id, playlist.index, offset, as: PlaylistVideo)
   else
     if continuation
-      initial_data = request_youtube_api_next(continuation, playlist.id)
+      initial_data = YoutubeAPI.next({
+        "videoId"    => continuation,
+        "playlistId" => playlist.id,
+      })
       offset = initial_data.dig?("contents", "twoColumnWatchNextResults", "playlist", "playlist", "currentIndex").try &.as_i || offset
     end
 
@@ -447,7 +450,7 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
     until videos.size >= 200 || videos.size == playlist.video_count || offset >= playlist.video_count
       # 100 videos per request
       ctoken = produce_playlist_continuation(playlist.id, offset)
-      initial_data = request_youtube_api_browse(ctoken)
+      initial_data = YoutubeAPI.browse(ctoken)
       videos += extract_playlist_videos(initial_data)
 
       offset += 100
