@@ -109,10 +109,10 @@ def error_json_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::A
 end
 
 def error_redirect_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil)
-  request_path = env.request.path
+  request_resource = env.request.resource
 
-  if request_path.starts_with?("/search") || request_path.starts_with?("/watch") ||
-     request_path.starts_with?("/channel") || request_path.starts_with?("/playlist?list=PL")
+  if request_resource.starts_with?("/search") || request_resource.starts_with?("/watch") ||
+    request_resource.starts_with?("/channel") || request_resource.starts_with?("/playlist?list=PL")
     next_steps_text = translate(locale, "next_steps_error_message")
     refresh = translate(locale, "next_steps_error_message_refresh")
     go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
