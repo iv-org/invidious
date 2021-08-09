@@ -2440,7 +2440,7 @@ end
     offset ||= env.params.query["page"]?.try &.to_i?.try { |page| (page - 1) * 100 }
     offset ||= 0
 
-    continuation = env.params.query["continuation"]?
+    video_id = env.params.query["continuation"]?
 
     format = env.params.query["format"]?
     format ||= "json"
@@ -2474,7 +2474,7 @@ end
       #  it shouldn't happen often though
 
       lookback = 0
-      response = playlist.to_json(offset, locale, continuation: continuation)
+      response = playlist.to_json(offset, locale, video_id: video_id)
       json_response = JSON.parse(response)
 
       if json_response["videos"].as_a[0]["index"] != offset
