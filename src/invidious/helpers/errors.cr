@@ -111,30 +111,38 @@ end
 def error_redirect_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil)
   request_resource = env.request.resource
 
+  # Basic translations needed on all errors
+  next_steps_text = translate(locale, "next_steps_error_message")
+  refresh = translate(locale, "next_steps_error_message_refresh")
+  switch_instance = translate(locale, "Switch Invidious Instance")
+
+  next_step_html = <<-END_HTML
+  <p style="margin-bottom: 4px;">#{next_steps_text}</p>
+  <ul>
+    <li>
+      <a href="#{env.request.resource}">#{refresh}</a>
+    </li>
+    <li>
+      <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
+    </li>
+  END_HTML
+
+  # Validate if the endpoint is one validate on YouTube. If so, we add a redirect to
+  # visit the page on YouTube.
   if request_resource.starts_with?("/search") || request_resource.starts_with?("/watch") ||
-    request_resource.starts_with?("/channel") || request_resource.starts_with?("/playlist?list=PL")
-    next_steps_text = translate(locale, "next_steps_error_message")
-    refresh = translate(locale, "next_steps_error_message_refresh")
+     request_resource.starts_with?("/channel") || request_resource.starts_with?("/playlist?list=PL")
     go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
-    switch_instance = translate(locale, "Switch Invidious Instance")
-
-    return <<-END_HTML
-      <p style="margin-bottom: 4px;">#{next_steps_text}</p>
-      <ul>
-        <li>
-          <a href="#{env.request.resource}">#{refresh}</a>
-        </li>
-        <li>
-          <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
-        </li>
-        <li>
-          <a href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
-        </li>
-      </ul>
+    next_step_html += <<-END_HTML
+      <li>
+        <a href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
+      </li>
     END_HTML
-
-    return next_step_html
-  else
-    return ""
   end
+
+  # End steps list.
+  next_step_html += <<-END_HTML
+  </ul>
+  END_HTML
+
+  return next_step_html
 end
