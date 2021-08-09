@@ -426,7 +426,7 @@ def fetch_playlist(plid, locale)
   })
 end
 
-def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
+def get_playlist_videos(db, playlist, offset, locale = nil, video_id = nil)
   # Show empy playlist if requested page is out of range
   # (e.g, when a new playlist has been created, offset will be negative)
   if offset >= playlist.video_count || offset < 0
@@ -437,9 +437,9 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
     db.query_all("SELECT * FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 100 OFFSET $3",
       playlist.id, playlist.index, offset, as: PlaylistVideo)
   else
-    if continuation
+    if video_id
       initial_data = YoutubeAPI.next({
-        "videoId"    => continuation,
+        "videoId"    => video_id,
         "playlistId" => playlist.id,
       })
       offset = initial_data.dig?("contents", "twoColumnWatchNextResults", "playlist", "playlist", "currentIndex").try &.as_i || offset
