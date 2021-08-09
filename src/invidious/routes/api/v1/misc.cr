@@ -58,7 +58,7 @@ module Invidious::Routes::API::V1::Misc
       #  First we find the actual offset, and then we lookback
       #  it shouldn't happen often though
 
-      response = playlist.to_json(offset, locale, continuation: continuation)
+      response = playlist.to_json(offset, locale, video_id: video_id)
       json_response = JSON.parse(response)
 
       if json_response["videos"].as_a[0]["index"] != offset
