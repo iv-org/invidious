@@ -766,7 +766,7 @@ struct Video
   end
 
   def is_vr : Bool
-    info["streamingData"]?.try &.["adaptiveFormats"].as_a[0]?.try &.["projectionType"].as_s == "MESH" ? true : false || false
+    info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s == "MESH" ? true : false || false
   end
 
   def wilson_score : Float64
