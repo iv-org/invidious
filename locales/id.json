@@ -421,7 +421,7 @@
     "hdr": "hdr",
     "filter": "saring",
     "Current version: ": "Versi saat ini: ",
-    "next_steps_error_message": "",
-    "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "next_steps_error_message": "Setelah itu Anda harus mencoba: ",
+    "next_steps_error_message_refresh": "Segarkan",
+    "next_steps_error_message_go_to_youtube": "Buka YouTube"
 }
