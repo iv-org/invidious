@@ -5,24 +5,22 @@ class Invidious::Routes::Misc < Invidious::Routes::BaseRoute
     user = env.get? "user"
 
     case preferences.default_home
-    when "Popular"
-      env.redirect "/feed/popular"
-    when "Trending"
-      env.redirect "/feed/trending"
-    when "Subscriptions"
+    when Settings::HomePages::Popular ; env.redirect "/feed/popular"
+    when Settings::HomePages::Trending; env.redirect "/feed/trending"
+    when Settings::UserHomePages::Subscriptions
       if user
         env.redirect "/feed/subscriptions"
       else
         env.redirect "/feed/popular"
       end
-    when "Playlists"
+    when Settings::UserHomePages::Playlists
       if user
         env.redirect "/view_all_playlists"
       else
         env.redirect "/feed/popular"
       end
-    else
-      templated "search_homepage", navbar_search: false
+    else # Settings::HomePages::Search
+      env.redirect "/search"
     end
   end
 

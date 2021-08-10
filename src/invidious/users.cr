@@ -251,15 +251,12 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
     notifications.sort_by! { |video| video.published }.reverse!
 
     case user.preferences.sort
-    when "alphabetically"
-      notifications.sort_by! { |video| video.title }
-    when "alphabetically - reverse"
-      notifications.sort_by! { |video| video.title }.reverse!
-    when "channel name"
-      notifications.sort_by! { |video| video.author }
-    when "channel name - reverse"
-      notifications.sort_by! { |video| video.author }.reverse!
-    else nil # Ignore
+    when .alphabetically?        ; notifications.sort_by! { |video| video.title }
+    when .alphabetically_reverse?; notifications.sort_by! { |video| video.title }.reverse!
+    when .channel_name?          ; notifications.sort_by! { |video| video.author }
+    when .channel_name_reverse?  ; notifications.sort_by! { |video| video.author }.reverse!
+    else
+      nil # Ignore
     end
   else
     if user.preferences.latest_only
@@ -298,16 +295,13 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
     end
 
     case user.preferences.sort
-    when "published - reverse"
-      videos.sort_by! { |video| video.published }
-    when "alphabetically"
-      videos.sort_by! { |video| video.title }
-    when "alphabetically - reverse"
-      videos.sort_by! { |video| video.title }.reverse!
-    when "channel name"
-      videos.sort_by! { |video| video.author }
-    when "channel name - reverse"
-      videos.sort_by! { |video| video.author }.reverse!
+    when .alphabetically?        ; videos.sort_by! { |video| video.title }
+    when .alphabetically_reverse?; videos.sort_by! { |video| video.title }.reverse!
+    when .channel_name?          ; videos.sort_by! { |video| video.author }
+    when .channel_name_reverse?  ; videos.sort_by! { |video| video.author }.reverse!
+    when .publication_date?      ; videos.sort_by! { |video| video.published }
+      # when .publication_date_reverse?; videos.sort_by! { |video| video.published }.reverse!
+      # "Date reverse" wasn't here originally (why????)
     else nil # Ignore
     end
 

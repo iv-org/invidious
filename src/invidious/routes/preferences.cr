@@ -48,8 +48,8 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     speed = env.params.body["speed"]?.try &.as(String).to_f32?
     speed ||= CONFIG.default_user_preferences.speed
 
-    player_style = env.params.body["player_style"]?.try &.as(String)
-    player_style ||= CONFIG.default_user_preferences.player_style
+    player_style = env.params.body["player_style"]?.try { |x| Settings::PlayerStyles.parse?(x) }
+    player_style = CONFIG.default_user_preferences.player_style if !player_style
 
     quality = env.params.body["quality"]?.try &.as(String)
     quality ||= CONFIG.default_user_preferences.quality
@@ -86,7 +86,8 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     related_videos ||= "off"
     related_videos = related_videos == "on"
 
-    default_home = env.params.body["default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
+    default_home = env.params.body["default_home"]?.try { |x| Settings::HomePages.parse?(x) || Settings::UserHomePages.parse?(x) }
+    default_home = CONFIG.default_user_preferences.default_home.to_s if !default_home
 
     feed_menu = [] of String
     4.times do |index|
@@ -103,8 +104,8 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     locale = env.params.body["locale"]?.try &.as(String)
     locale ||= CONFIG.default_user_preferences.locale
 
-    dark_mode = env.params.body["dark_mode"]?.try &.as(String)
-    dark_mode ||= CONFIG.default_user_preferences.dark_mode
+    theme = env.params.body["dark_mode"]?.try { |x| Settings::Themes.parse?(x) }
+    theme = CONFIG.default_user_preferences.dark_mode if !theme
 
     thin_mode = env.params.body["thin_mode"]?.try &.as(String)
     thin_mode ||= "off"
@@ -113,8 +114,8 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     max_results = env.params.body["max_results"]?.try &.as(String).to_i?
     max_results ||= CONFIG.default_user_preferences.max_results
 
-    sort = env.params.body["sort"]?.try &.as(String)
-    sort ||= CONFIG.default_user_preferences.sort
+    sort = env.params.body["sort"]?.try { |x| Settings::SortOptions.parse?(x) }
+    sort = CONFIG.default_user_preferences.sort if !sort
 
     latest_only = env.params.body["latest_only"]?.try &.as(String)
     latest_only ||= "off"
@@ -137,7 +138,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       comments:                    comments,
       continue:                    continue,
       continue_autoplay:           continue_autoplay,
-      dark_mode:                   dark_mode,
+      dark_mode:                   theme,
       latest_only:                 latest_only,
       listen:                      listen,
       local:                       local,
@@ -167,14 +168,13 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
 
       if CONFIG.admins.includes? user.email
-        CONFIG.default_user_preferences.default_home = env.params.body["admin_default_home"]?.try &.as(String) || CONFIG.default_user_preferences.default_home
+        default_home = env.params.body["admin_default_home"]?.try { |x| Settings::HomePages.parse?(x) || Settings::UserHomePages.parse?(x) }
+        CONFIG.default_user_preferences.default_home = default_home if default_home
 
-        admin_feed_menu = [] of String
+        admin_feed_menu = [] of Settings::AnyHomePages
         4.times do |index|
-          option = env.params.body["admin_feed_menu[#{index}]"]?.try &.as(String) || ""
-          if !option.empty?
-            admin_feed_menu << option
-          end
+          option = env.params.body["admin_feed_menu[#{index}]"]?.try { |x| Settings::HomePages.parse?(x) || Settings::UserHomePages.parse?(x) }
+          admin_feed_menu << option if option
         end
         CONFIG.default_user_preferences.feed_menu = admin_feed_menu
 
@@ -229,28 +229,15 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
 
     if user = env.get? "user"
       user = user.as(User)
+
       preferences = user.preferences
-
-      case preferences.dark_mode
-      when "dark"
-        preferences.dark_mode = "light"
-      else
-        preferences.dark_mode = "dark"
-      end
-
+      preferences.toggle_theme
       preferences = preferences.to_json
 
       PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences, user.email)
     else
       preferences = env.get("preferences").as(Preferences)
-
-      case preferences.dark_mode
-      when "dark"
-        preferences.dark_mode = "light"
-      else
-        preferences.dark_mode = "dark"
-      end
-
+      preferences.toggle_theme
       preferences = preferences.to_json
 
       if Kemal.config.ssl || CONFIG.https_only

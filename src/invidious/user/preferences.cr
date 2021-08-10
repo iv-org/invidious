@@ -5,6 +5,84 @@
 
 require "json"
 require "yaml"
+require "html"
+
+#
+# Enumerates types and constants
+#
+
+module Settings
+  ALLOWED_SPEED_VALUES = {
+    2.00_f32, # Double speed
+    1.75_f32,
+    1.50_f32,
+    1.25_f32,
+    1.00_f32, # Normal
+    0.75_f32,
+    0.50_f32, # Half speed
+    0.25_f32,
+  }
+
+  enum Themes
+    Auto # I.e use the system's settings with media queries
+    Light
+    Dark
+  end
+
+  enum PlayerStyles
+    Invidious
+    Youtube
+  end
+
+  # General
+  enum HomePages
+    Search
+    Popular
+    Trending
+  end
+
+  # Authenticated
+  enum UserHomePages
+    Subscriptions
+    Playlists
+  end
+
+  alias AnyHomePages = HomePages | UserHomePages
+
+  enum SortOptions
+    Alphabetically
+    Alphabetically_Reverse
+    Channel_Name
+    Channel_Name_Reverse
+    Publication_Date
+    Publication_Date_Reverse
+  end
+
+  # Unused for now, reuires merging
+  enum VideoQualities
+    # Normal
+    HD720
+    Medium
+    Small
+    # Dash
+    DASH_Auto
+    DASH_Best
+    DASH_4320p
+    DASH_2160p
+    DASH_1440p
+    DASH_1080p
+    DASH_720p
+    DASH_480p
+    DASH_360p
+    DASH_240p
+    DASH_144p
+    DASH_Worst
+  end
+end
+
+#
+# Data structure that stores a user's preferences.
+#
 
 class Preferences
   include JSON::Serializable
@@ -12,6 +90,7 @@ class Preferences
 
   property annotations : Bool = false
   property annotations_subscribed : Bool = false
+
   property autoplay : Bool = false
   property automatic_instance_redirect : Bool = false
 
@@ -22,12 +101,13 @@ class Preferences
   @[JSON::Field(converter: Preferences::StringToArray)]
   @[YAML::Field(converter: Preferences::StringToArray)]
   property comments : Array(String) = ["youtube", ""]
+
   property continue : Bool = false
   property continue_autoplay : Bool = true
 
-  @[JSON::Field(converter: Preferences::BoolToString)]
-  @[YAML::Field(converter: Preferences::BoolToString)]
-  property dark_mode : String = ""
+  @[JSON::Field(converter: Settings::Converters::Generic(Settings::Themes))]
+  @[YAML::Field(converter: Settings::Converters::Generic(Settings::Themes))]
+  property dark_mode : Settings::Themes = Settings::Themes::Dark
 
   property latest_only : Bool = false
 
@@ -43,20 +123,34 @@ class Preferences
   property max_results : Int32 = 40
   property notifications_only : Bool = false
 
-  @[JSON::Field(converter: Preferences::ProcessString)]
-  property player_style : String = "invidious"
+  @[JSON::Field(converter: Settings::Converters::Generic(Settings::PlayerStyles))]
+  @[YAML::Field(converter: Settings::Converters::Generic(Settings::PlayerStyles))]
+  property player_style : Settings::PlayerStyles = Settings::PlayerStyles::Invidious
 
   @[JSON::Field(converter: Preferences::ProcessString)]
   property quality : String = "hd720"
   @[JSON::Field(converter: Preferences::ProcessString)]
   property quality_dash : String = "auto"
 
-  property default_home : String? = "Popular"
-  property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
+  @[JSON::Field(converter: Settings::Converters::Generic(Settings::AnyHomePages))]
+  @[YAML::Field(converter: Settings::Converters::Generic(Settings::AnyHomePages))]
+  property default_home : Settings::AnyHomePages = Settings::HomePages::Popular
+
+  @[JSON::Field(converter: Settings::Converters::Generic(Array(Settings::AnyHomePages)))]
+  @[YAML::Field(converter: Settings::Converters::Generic(Array(Settings::AnyHomePages)))]
+  property feed_menu : Array(Settings::AnyHomePages) = [
+    Settings::HomePages::Popular,
+    Settings::HomePages::Trending,
+    Settings::UserHomePages::Subscriptions,
+    Settings::UserHomePages::Playlists,
+  ]
+
   property related_videos : Bool = true
 
-  @[JSON::Field(converter: Preferences::ProcessString)]
-  property sort : String = "published"
+  @[JSON::Field(converter: Settings::Converters::Generic(Settings::SortOptions))]
+  @[YAML::Field(converter: Settings::Converters::Generic(Settings::SortOptions))]
+  property sort : Settings::SortOptions = Settings::SortOptions::Publication_Date
+
   property speed : Float32 = 1.0_f32
 
   property thin_mode : Bool = false
@@ -103,49 +197,9 @@ class Preferences
     {% end %}
   end
 
-  module BoolToString
-    def self.to_json(value : String, json : JSON::Builder)
-      json.string value
-    end
-
-    def self.from_json(value : JSON::PullParser) : String
-      begin
-        result = value.read_string
-
-        if result.empty?
-          CONFIG.default_user_preferences.dark_mode
-        else
-          result
-        end
-      rescue ex
-        if value.read_bool
-          "dark"
-        else
-          "light"
-        end
-      end
-    end
-
-    def self.to_yaml(value : String, yaml : YAML::Nodes::Builder)
-      yaml.scalar value
-    end
-
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : String
-      unless node.is_a?(YAML::Nodes::Scalar)
-        node.raise "Expected scalar, not #{node.class}"
-      end
-
-      case node.value
-      when "true"
-        "dark"
-      when "false"
-        "light"
-      when ""
-        CONFIG.default_user_preferences.dark_mode
-      else
-        node.value
-      end
-    end
+  def toggle_theme
+    old = @dark_mode
+    @dark_mode = (old.dark?) ? Settings::Themes::Light : Settings::Themes::Dark
   end
 
   module ClampInt
@@ -247,7 +301,99 @@ class Preferences
       }
     {% end %}
   end
-end
+end # class Data
+
+#
+# Datatype converters (also act as data validators)
+#
+
+module Settings::Converters
+  #
+  # Generic enum conversion
+  #
+  module Generic(T)
+    extend self
+
+    # From/To JSON
+
+    def to_json(value : T, json : JSON::Builder)
+      value.to_json json
+    end
+
+    def from_json(value : JSON::PullParser) : T?
+      begin
+        T.new value
+      rescue e : JSON::ParseException
+        # Be silent on invalid data and return nil
+        # This will fallback to the default value
+      end
+    end
+
+    # From/To YAML
+
+    def to_yaml(value : T, yaml : YAML::Nodes::Builder)
+      value.to_yaml yaml
+    end
+
+    def from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : T?
+      begin
+        T.new ctx, node
+      rescue e : YAML::ParseException
+        # Be silent on invalid data and return nil
+        # This will fallback to the default value
+      end
+    end
+  end # module Generic
+
+  #
+  # Themes enum conversion
+  #
+  module Theme
+    extend self
+
+    # From String (.to_s is native of Enum type)
+
+    def from_s(input : String?) : Themes?
+      return if !input
+
+      case input.downcase
+      when "auto" ; Themes::Auto
+      when "light"; Themes::Light
+      when "dark" ; Themes::Dark
+        # Compatibility with old 'dark_mode' values
+      when "false"; Themes::Light
+      when "true" ; Themes::Dark
+      else
+        # Nothing, use default from initialization
+      end
+    end
+
+    # From/To JSON
+
+    def to_json(value : Themes, json : JSON::Builder)
+      json.string value.to_s
+    end
+
+    def from_json(value : JSON::PullParser) : Themes?
+      return self.from_s(value.read_string)
+    end
+
+    # From/To YAML
+
+    def to_yaml(value : Themes, yaml : YAML::Nodes::Builder)
+      yaml.scalar value.to_s
+    end
+
+    def from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Themes?
+      unless node.is_a?(YAML::Nodes::Scalar)
+        node.raise "Expected scalar, not #{node.class}"
+      end
+
+      return self.from_s(node.value)
+    end
+  end # module theme
+
+end # module Settings::Converters
 
 struct VideoPreferences
   include JSON::Serializable
@@ -305,7 +451,7 @@ def process_video_params(query, preferences)
     continue_autoplay ||= preferences.continue_autoplay.to_unsafe
     listen ||= preferences.listen.to_unsafe
     local ||= preferences.local.to_unsafe
-    player_style ||= preferences.player_style
+    player_style ||= preferences.player_style.to_s
     preferred_captions ||= preferences.captions
     quality ||= preferences.quality
     quality_dash ||= preferences.quality_dash
@@ -324,7 +470,7 @@ def process_video_params(query, preferences)
   continue_autoplay ||= CONFIG.default_user_preferences.continue_autoplay.to_unsafe
   listen ||= CONFIG.default_user_preferences.listen.to_unsafe
   local ||= CONFIG.default_user_preferences.local.to_unsafe
-  player_style ||= CONFIG.default_user_preferences.player_style
+  player_style ||= CONFIG.default_user_preferences.player_style.to_s
   preferred_captions ||= CONFIG.default_user_preferences.captions
   quality ||= CONFIG.default_user_preferences.quality
   quality_dash ||= CONFIG.default_user_preferences.quality_dash
