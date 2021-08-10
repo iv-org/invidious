@@ -66,6 +66,43 @@ class Preferences
 
   property volume : Int32 = 100
 
+  def initialize
+  end
+
+  # Duplicate (make a perfect copy of) the current object
+  def dup
+    other = Preferences.new
+
+    {% for ivar in @type.instance_vars %}
+      other.{{ ivar.id }} = {{ ivar.id }}
+    {% end %}
+
+    return other
+  end
+
+  # :nodoc:
+  def text_dump(include_defaults = false)
+    {% for ivar in @type.instance_vars %}
+      name    = {{ ivar.id.stringify }}
+      value   = {{ ivar.id }}
+      default = {{ ivar.default_value }}
+
+      puts "#{name} = #{value}" if (include_defaults || value != default)
+    {% end %}
+  end
+
+  # :nodoc:
+  def text_dump(other : Preferences)
+    # Macro that dumps, as text, all the contents of that struct
+    {% for ivar in @type.instance_vars %}
+      name = {{ ivar.id.stringify }}
+      val1 = self.{{ ivar.id }}
+      val2 = other.{{ ivar.id }}
+
+      puts "#{name} = #{val1}" if val1 != val2
+    {% end %}
+  end
+
   module BoolToString
     def self.to_json(value : String, json : JSON::Builder)
       json.string value
