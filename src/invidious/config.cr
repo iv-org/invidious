@@ -24,7 +24,7 @@ class Config
   property log_level : LogLevel = LogLevel::Info # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
   property db : DBConfig? = nil                  # Database configuration with separate parameters (username, hostname, etc)
 
-  @[YAML::Field(converter: Preferences::URIConverter)]
+  @[YAML::Field(converter: Config::URIConverter)]
   property database_url : URI = URI.parse("")      # Database configuration using 12-Factor "Database URL" syntax
   property decrypt_polling : Bool = true           # Use polling to keep decryption function up to date
   property full_refresh : Bool = false             # Used for crawling channels: threads should check all videos uploaded by a channel
@@ -49,14 +49,14 @@ class Config
   property hsts : Bool? = true                            # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
   property disable_proxy : Bool? | Array(String)? = false # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
 
-  @[YAML::Field(converter: Preferences::FamilyConverter)]
+  @[YAML::Field(converter: Config::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
   property port : Int32 = 3000                                     # Port to listen for connections (overrided by command line argument)
   property host_binding : String = "0.0.0.0"                       # Host to bind (overrided by command line argument)
   property pool_size : Int32 = 100                                 # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property use_quic : Bool = true                                  # Use quic transport for youtube api
 
-  @[YAML::Field(converter: Preferences::StringToCookies)]
+  @[YAML::Field(converter: Config::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new               # Saved cookies in "name1=value1; name2=value2..." format
   property captcha_key : String? = nil                               # Key for Anti-Captcha
   property captcha_api_url : String = "https://api.anti-captcha.com" # API URL for Anti-Captcha
@@ -148,5 +148,70 @@ class Config
     end
 
     return config
+  end
+
+  module URIConverter
+    def self.to_yaml(value : URI, yaml : YAML::Nodes::Builder)
+      yaml.scalar value.normalize!
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : URI
+      if node.is_a?(YAML::Nodes::Scalar)
+        URI.parse node.value
+      else
+        node.raise "Expected scalar, not #{node.class}"
+      end
+    end
+  end
+
+  module FamilyConverter
+    def self.to_yaml(value : Socket::Family, yaml : YAML::Nodes::Builder)
+      case value
+      when Socket::Family::UNSPEC
+        yaml.scalar nil
+      when Socket::Family::INET
+        yaml.scalar "ipv4"
+      when Socket::Family::INET6
+        yaml.scalar "ipv6"
+      when Socket::Family::UNIX
+        raise "Invalid socket family #{value}"
+      end
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Socket::Family
+      if node.is_a?(YAML::Nodes::Scalar)
+        case node.value.downcase
+        when "ipv4"
+          Socket::Family::INET
+        when "ipv6"
+          Socket::Family::INET6
+        else
+          Socket::Family::UNSPEC
+        end
+      else
+        node.raise "Expected scalar, not #{node.class}"
+      end
+    end
+  end
+
+  module StringToCookies
+    def self.to_yaml(value : HTTP::Cookies, yaml : YAML::Nodes::Builder)
+      (value.map { |c| "#{c.name}=#{c.value}" }).join("; ").to_yaml(yaml)
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : HTTP::Cookies
+      unless node.is_a?(YAML::Nodes::Scalar)
+        node.raise "Expected scalar, not #{node.class}"
+      end
+
+      cookies = HTTP::Cookies.new
+      node.value.split(";").each do |cookie|
+        next if cookie.strip.empty?
+        name, value = cookie.split("=", 2)
+        cookies << HTTP::Cookie.new(name.strip, value.strip)
+      end
+
+      cookies
+    end
   end
 end

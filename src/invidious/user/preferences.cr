@@ -166,50 +166,6 @@ class Preferences
     end
   end
 
-  module FamilyConverter
-    def self.to_yaml(value : Socket::Family, yaml : YAML::Nodes::Builder)
-      case value
-      when Socket::Family::UNSPEC
-        yaml.scalar nil
-      when Socket::Family::INET
-        yaml.scalar "ipv4"
-      when Socket::Family::INET6
-        yaml.scalar "ipv6"
-      when Socket::Family::UNIX
-        raise "Invalid socket family #{value}"
-      end
-    end
-
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Socket::Family
-      if node.is_a?(YAML::Nodes::Scalar)
-        case node.value.downcase
-        when "ipv4"
-          Socket::Family::INET
-        when "ipv6"
-          Socket::Family::INET6
-        else
-          Socket::Family::UNSPEC
-        end
-      else
-        node.raise "Expected scalar, not #{node.class}"
-      end
-    end
-  end
-
-  module URIConverter
-    def self.to_yaml(value : URI, yaml : YAML::Nodes::Builder)
-      yaml.scalar value.normalize!
-    end
-
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : URI
-      if node.is_a?(YAML::Nodes::Scalar)
-        URI.parse node.value
-      else
-        node.raise "Expected scalar, not #{node.class}"
-      end
-    end
-  end
-
   module ProcessString
     def self.to_json(value : String, json : JSON::Builder)
       json.string value
@@ -281,27 +237,6 @@ class Preferences
       end
 
       result
-    end
-  end
-
-  module StringToCookies
-    def self.to_yaml(value : HTTP::Cookies, yaml : YAML::Nodes::Builder)
-      (value.map { |c| "#{c.name}=#{c.value}" }).join("; ").to_yaml(yaml)
-    end
-
-    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : HTTP::Cookies
-      unless node.is_a?(YAML::Nodes::Scalar)
-        node.raise "Expected scalar, not #{node.class}"
-      end
-
-      cookies = HTTP::Cookies.new
-      node.value.split(";").each do |cookie|
-        next if cookie.strip.empty?
-        name, value = cookie.split("=", 2)
-        cookies << HTTP::Cookie.new(name.strip, value.strip)
-      end
-
-      cookies
     end
   end
 
