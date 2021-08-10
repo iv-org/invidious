@@ -3,6 +3,9 @@
 # all the associated validation/parsing routines.
 #
 
+require "json"
+require "yaml"
+
 class Preferences
   include JSON::Serializable
   include YAML::Serializable
