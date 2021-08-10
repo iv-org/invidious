@@ -43,6 +43,10 @@ COPY ./src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
 COPY ./.git/ ./.git/
+
+RUN crystal spec --warnings all \
+    --link-flags "-lxml2 -llzma"
+
 RUN crystal build ./src/invidious.cr \
     --static --warnings all \
     --link-flags "-lxml2 -llzma"
