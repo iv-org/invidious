@@ -1,9 +1,9 @@
-class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
-  def home(env)
+module Invidious::Routes::Channels
+  def self.home(env)
     self.videos(env)
   end
 
-  def videos(env)
+  def self.videos(env)
     data = self.fetch_basic_information(env)
     if !data.is_a?(Tuple)
       return data
@@ -40,7 +40,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     templated "channel"
   end
 
-  def playlists(env)
+  def self.playlists(env)
     data = self.fetch_basic_information(env)
     if !data.is_a?(Tuple)
       return data
@@ -62,7 +62,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     templated "playlists"
   end
 
-  def community(env)
+  def self.community(env)
     data = self.fetch_basic_information(env)
     if !data.is_a?(Tuple)
       return data
@@ -91,7 +91,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     templated "community"
   end
 
-  def about(env)
+  def self.about(env)
     data = self.fetch_basic_information(env)
     if !data.is_a?(Tuple)
       return data
@@ -102,7 +102,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
   end
 
   # Redirects brand url channels to a normal /channel/:ucid route
-  def brand_redirect(env)
+  def self.brand_redirect(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     # /attribution_link endpoint needs both the `a` and `u` parameter
@@ -131,7 +131,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
   end
 
   # Handles redirects for the /profile endpoint
-  def profile(env)
+  def self.profile(env)
     # The /profile endpoint is special. If passed into the resolve_url
     # endpoint YouTube would return a sign in page instead of an /channel/:ucid
     # thus we'll add an edge case and handle it here.
@@ -146,7 +146,7 @@ class Invidious::Routes::Channels < Invidious::Routes::BaseRoute
     end
   end
 
-  private def fetch_basic_information(env)
+  private def self.fetch_basic_information(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
