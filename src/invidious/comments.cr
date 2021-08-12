@@ -570,7 +570,7 @@ def content_to_comment_html(content)
         else
           text = %(<a href="/watch?v=#{video_id}">#{text}</a>)
         end
-      elsif url = run["navigationEndpoint"]["commandMetadata"]?.try &.["webCommandMetadata"]["url"].as_s
+      elsif url = run.dig?("navigationEndpoint", "commandMetadata", "webCommandMetadata", "url").try &.as_s
         text = %(<a href="#{url}">#{text}</a>)
       end
     end
