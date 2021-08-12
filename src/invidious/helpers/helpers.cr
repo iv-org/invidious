@@ -268,7 +268,6 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
                        .try &.["text"]?.try &.["simpleText"]?.try &.as_s.try { |t| decode_length_seconds(t) } || 0
 
     live_now = false
-    paid = false
     premium = false
 
     premiere_timestamp = i["upcomingEventData"]?.try &.["startTime"]?.try { |t| Time.unix(t.as_s.to_i64) }
@@ -281,8 +280,6 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
       when "New", "4K", "CC"
         # TODO
       when "Premium"
-        paid = true
-
         # TODO: Potentially available as i["topStandaloneBadge"]["metadataBadgeRenderer"]
         premium = true
       else nil # Ignore
@@ -299,7 +296,6 @@ def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fa
       description_html:   description_html,
       length_seconds:     length_seconds,
       live_now:           live_now,
-      paid:               paid,
       premium:            premium,
       premiere_timestamp: premiere_timestamp,
     })

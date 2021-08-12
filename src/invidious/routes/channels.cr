@@ -34,7 +34,6 @@ module Invidious::Routes::Channels
       sort_by ||= "newest"
 
       count, items = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
-      items.reject! &.paid
     end
 
     templated "channel"

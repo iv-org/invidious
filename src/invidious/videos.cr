@@ -301,7 +301,6 @@ struct Video
       json.field "likeCount", self.likes
       json.field "dislikeCount", self.dislikes
 
-      json.field "paid", self.paid
       json.field "premium", self.premium
       json.field "isFamilyFriendly", self.is_family_friendly
       json.field "allowedRegions", self.allowed_regions
@@ -691,12 +690,6 @@ struct Video
     end
 
     items
-  end
-
-  def paid
-    reason = info["playabilityStatus"]?.try &.["reason"]?
-    paid = reason == "This video requires payment to watch." ? true : false
-    paid
   end
 
   def premium
