@@ -1,3 +1,5 @@
+require "./caption"
+
 module YouTubeStructs
   # Converter to serialize first level JSON data as methods for the videos struct
   module VideoJSONConverter

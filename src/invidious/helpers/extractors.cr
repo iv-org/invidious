@@ -66,6 +66,9 @@ private module Parsers
       # TODO change default value to nil and typical encoding type to tuple storing type (watchers, views, etc)
       # and count
       view_count = item_contents.dig?("viewCountText", "simpleText").try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
+
+      # TODO YouTube seems to have removed the description_html snippet and replaced it with "snippetText"
+      # inside the detailedMetadataSnippets attribute
       description_html = item_contents["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
 
       # The length information *should* only always exist in "lengthText". However, the legacy Invidious code

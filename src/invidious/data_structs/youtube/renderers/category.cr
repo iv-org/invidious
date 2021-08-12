@@ -18,14 +18,14 @@ module YouTubeStructs
     property description_html : String
     property badges : Array(Tuple(String, String))?
 
-  # Extracts all renderers out of the category's contents.
-  def extract_renderers()
-    target = [] of Renderer
+    # Extracts all renderers out of the category's contents.
+    def extract_renderers
+      target = [] of Renderer
 
-    @contents.each { |cate_i| target << cate_i if !cate_i.is_a? Video }
+      @contents.each { |cate_i| target << cate_i if !cate_i.is_a? Video }
 
-    return target
-  end
+      return target
+    end
 
     def to_json(locale, json : JSON::Builder)
       json.object do
