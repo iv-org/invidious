@@ -1,10 +1,10 @@
-class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
+module Invidious::Routes::APIv1
   # Fetches YouTube storyboards
   #
   # Which are sprites containing x * y preview
   # thumbnails for individual scenes in a video.
   # See https://support.jwplayer.com/articles/how-to-add-preview-thumbnails
-  def storyboards(env)
+  def self.storyboards(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
@@ -80,7 +80,7 @@ class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
     end
   end
 
-  def captions(env)
+  def self.captions(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
@@ -206,7 +206,7 @@ class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
     webvtt
   end
 
-  def annotations(env)
+  def self.annotations(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "text/xml"
@@ -280,7 +280,7 @@ class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
     end
   end
 
-  def search_suggestions(env)
+  def self.search_suggestions(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     region = env.params.query["region"]?
 
@@ -311,6 +311,76 @@ class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
       end
     rescue ex
       return error_json(500, ex)
+    end
+  end
+
+  def self.comments(env)
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    region = env.params.query["region"]?
+
+    env.response.content_type = "application/json"
+
+    id = env.params.url["id"]
+
+    source = env.params.query["source"]?
+    source ||= "youtube"
+
+    thin_mode = env.params.query["thin_mode"]?
+    thin_mode = thin_mode == "true"
+
+    format = env.params.query["format"]?
+    format ||= "json"
+
+    action = env.params.query["action"]?
+    action ||= "action_get_comments"
+
+    continuation = env.params.query["continuation"]?
+    sort_by = env.params.query["sort_by"]?.try &.downcase
+
+    if source == "youtube"
+      sort_by ||= "top"
+
+      begin
+        comments = fetch_youtube_comments(id, continuation, format, locale, thin_mode, region, sort_by: sort_by)
+      rescue ex
+        return error_json(500, ex)
+      end
+
+      return comments
+    elsif source == "reddit"
+      sort_by ||= "confidence"
+
+      begin
+        comments, reddit_thread = fetch_reddit_comments(id, sort_by: sort_by)
+        content_html = template_reddit_comments(comments, locale)
+
+        content_html = fill_links(content_html, "https", "www.reddit.com")
+        content_html = replace_links(content_html)
+      rescue ex
+        comments = nil
+        reddit_thread = nil
+        content_html = ""
+      end
+
+      if !reddit_thread || !comments
+        env.response.status_code = 404
+        return
+      end
+
+      if format == "json"
+        reddit_thread = JSON.parse(reddit_thread.to_json).as_h
+        reddit_thread["comments"] = JSON.parse(comments.to_json)
+
+        return reddit_thread.to_json
+      else
+        response = {
+          "title"       => reddit_thread.title,
+          "permalink"   => reddit_thread.permalink,
+          "contentHtml" => content_html,
+        }
+
+        return response.to_json
+      end
     end
   end
 end

@@ -1,6 +1,6 @@
-class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
+module Invidious::Routes::APIv1
   # Stats API endpoint for Invidious
-  def stats(env)
+  def self.stats(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     env.response.content_type = "application/json"
 

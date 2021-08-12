@@ -1,5 +1,5 @@
-class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
-  def home(env)
+module Invidious::Routes::APIv1
+  def self.home(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
@@ -124,7 +124,7 @@ class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
     end
   end
 
-  def latest(env)
+  def self.latest(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
@@ -146,7 +146,7 @@ class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
     end
   end
 
-  def videos(env)
+  def self.videos(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
@@ -182,7 +182,7 @@ class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
     end
   end
 
-  def playlists(env)
+  def self.playlists(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
@@ -219,7 +219,7 @@ class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
     end
   end
 
-  def community(env)
+  def self.community(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
@@ -239,29 +239,6 @@ class Invidious::Routes::V1Api < Invidious::Routes::BaseRoute
       fetch_channel_community(ucid, continuation, locale, format, thin_mode)
     rescue ex
       return error_json(500, ex)
-    end
-  end
-
-  def channel_search(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-
-    env.response.content_type = "application/json"
-
-    ucid = env.params.url["ucid"]
-
-    query = env.params.query["q"]?
-    query ||= ""
-
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
-
-    count, search_results = channel_search(query, page, ucid)
-    JSON.build do |json|
-      json.array do
-        search_results.each do |item|
-          item.to_json(locale, json)
-        end
-      end
     end
   end
 end
