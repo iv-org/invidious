@@ -1,4 +1,4 @@
-FROM alpine:edge AS liblsquic-builder
+FROM alpine:3.14 AS liblsquic-builder
 WORKDIR /src
 
 RUN apk add --no-cache build-base git apk-tools abuild cmake go perl linux-headers
@@ -29,7 +29,7 @@ RUN mkdir tmp && cd tmp && \
     cd .. && rm -rf tmp
 
 
-FROM alpine:edge AS builder
+FROM alpine:3.14 AS builder
 RUN apk add --no-cache 'crystal<2' shards sqlite-static yaml-static yaml-dev libxml2-dev zlib-static openssl-libs-static openssl-dev musl-dev
 
 WORKDIR /invidious
