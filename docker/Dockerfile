@@ -29,7 +29,7 @@ RUN mkdir tmp && cd tmp && \
     cd .. && rm -rf tmp
 
 
-FROM crystallang/crystal:1.0.0-alpine AS builder
+FROM crystallang/crystal:1.1.1-alpine AS builder
 RUN apk add --no-cache sqlite-static yaml-static
 
 WORKDIR /invidious
