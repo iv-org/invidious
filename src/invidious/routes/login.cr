@@ -434,6 +434,7 @@ module Invidious::Routes::Login
 
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         user, sid = create_user(sid, email, password)
+
         user_array = user.to_a
         user_array[4] = user_array[4].to_json # User preferences
 

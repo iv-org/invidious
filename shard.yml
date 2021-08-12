@@ -25,6 +25,9 @@ dependencies:
   lsquic:
     github: iv-org/lsquic.cr
     version: ~> 2.18.1-2
+  athena-negotiation:
+    github: athena-framework/negotiation
+    version: ~> 0.1.1
 
 crystal: ">= 1.0.0, < 2.0.0"
 
