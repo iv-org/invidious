@@ -1,10 +1,5 @@
 module Invidious::Routes::APIv1
-  # Fetches YouTube storyboards
-  #
-  # Which are sprites containing x * y preview
-  # thumbnails for individual scenes in a video.
-  # See https://support.jwplayer.com/articles/how-to-add-preview-thumbnails
-  def self.storyboards(env)
+  def self.videos(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
@@ -18,66 +13,10 @@ module Invidious::Routes::APIv1
       env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
       return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
     rescue ex
-      env.response.status_code = 500
-      return
+      return error_json(500, ex)
     end
 
-    storyboards = video.storyboards
-    width = env.params.query["width"]?
-    height = env.params.query["height"]?
-
-    if !width && !height
-      response = JSON.build do |json|
-        json.object do
-          json.field "storyboards" do
-            generate_storyboards(json, id, storyboards)
-          end
-        end
-      end
-
-      return response
-    end
-
-    env.response.content_type = "text/vtt"
-
-    storyboard = storyboards.select { |storyboard| width == "#{storyboard[:width]}" || height == "#{storyboard[:height]}" }
-
-    if storyboard.empty?
-      env.response.status_code = 404
-      return
-    else
-      storyboard = storyboard[0]
-    end
-
-    String.build do |str|
-      str << <<-END_VTT
-      WEBVTT
-      END_VTT
-
-      start_time = 0.milliseconds
-      end_time = storyboard[:interval].milliseconds
-
-      storyboard[:storyboard_count].times do |i|
-        url = storyboard[:url]
-        authority = /(i\d?).ytimg.com/.match(url).not_nil![1]?
-        url = url.gsub("$M", i).gsub(%r(https://i\d?.ytimg.com/sb/), "")
-        url = "#{HOST_URL}/sb/#{authority}/#{url}"
-
-        storyboard[:storyboard_height].times do |j|
-          storyboard[:storyboard_width].times do |k|
-            str << <<-END_CUE
-            #{start_time}.000 --> #{end_time}.000
-            #{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width] - 2},#{storyboard[:height]}
-
-
-            END_CUE
-
-            start_time += storyboard[:interval].milliseconds
-            end_time += storyboard[:interval].milliseconds
-          end
-        end
-      end
-    end
+    video.to_json(locale)
   end
 
   def self.captions(env)
@@ -206,6 +145,87 @@ module Invidious::Routes::APIv1
     webvtt
   end
 
+  # Fetches YouTube storyboards
+  #
+  # Which are sprites containing x * y preview
+  # thumbnails for individual scenes in a video.
+  # See https://support.jwplayer.com/articles/how-to-add-preview-thumbnails
+  def self.storyboards(env)
+    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+    env.response.content_type = "application/json"
+
+    id = env.params.url["id"]
+    region = env.params.query["region"]?
+
+    begin
+      video = get_video(id, PG_DB, region: region)
+    rescue ex : VideoRedirect
+      env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
+      return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
+    rescue ex
+      env.response.status_code = 500
+      return
+    end
+
+    storyboards = video.storyboards
+    width = env.params.query["width"]?
+    height = env.params.query["height"]?
+
+    if !width && !height
+      response = JSON.build do |json|
+        json.object do
+          json.field "storyboards" do
+            generate_storyboards(json, id, storyboards)
+          end
+        end
+      end
+
+      return response
+    end
+
+    env.response.content_type = "text/vtt"
+
+    storyboard = storyboards.select { |storyboard| width == "#{storyboard[:width]}" || height == "#{storyboard[:height]}" }
+
+    if storyboard.empty?
+      env.response.status_code = 404
+      return
+    else
+      storyboard = storyboard[0]
+    end
+
+    String.build do |str|
+      str << <<-END_VTT
+      WEBVTT
+      END_VTT
+
+      start_time = 0.milliseconds
+      end_time = storyboard[:interval].milliseconds
+
+      storyboard[:storyboard_count].times do |i|
+        url = storyboard[:url]
+        authority = /(i\d?).ytimg.com/.match(url).not_nil![1]?
+        url = url.gsub("$M", i).gsub(%r(https://i\d?.ytimg.com/sb/), "")
+        url = "#{HOST_URL}/sb/#{authority}/#{url}"
+
+        storyboard[:storyboard_height].times do |j|
+          storyboard[:storyboard_width].times do |k|
+            str << <<-END_CUE
+            #{start_time}.000 --> #{end_time}.000
+            #{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width] - 2},#{storyboard[:height]}
+
+
+            END_CUE
+
+            start_time += storyboard[:interval].milliseconds
+            end_time += storyboard[:interval].milliseconds
+          end
+        end
+      end
+    end
+  end
+
   def self.annotations(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -277,40 +297,6 @@ module Invidious::Routes::APIv1
     else
       env.response.headers["ETag"] = etag
       annotations
-    end
-  end
-
-  def self.search_suggestions(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
-    region = env.params.query["region"]?
-
-    env.response.content_type = "application/json"
-
-    query = env.params.query["q"]?
-    query ||= ""
-
-    begin
-      headers = HTTP::Headers{":authority" => "suggestqueries.google.com"}
-      response = YT_POOL.client &.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.encode_www_form(query)}&callback=suggestCallback", headers).body
-
-      body = response[35..-2]
-      body = JSON.parse(body).as_a
-      suggestions = body[1].as_a[0..-2]
-
-      JSON.build do |json|
-        json.object do
-          json.field "query", body[0].as_s
-          json.field "suggestions" do
-            json.array do
-              suggestions.each do |suggestion|
-                json.string suggestion[0].as_s
-              end
-            end
-          end
-        end
-      end
-    rescue ex
-      return error_json(500, ex)
     end
   end
 
