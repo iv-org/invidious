@@ -8,12 +8,12 @@ module YoutubeAPI
   # Enumerate used to select one of the clients supported by the API
   enum ClientType
     Web
-    WebEmbed
+    WebEmbeddedPlayer
     WebMobile
-    WebAgeBypass
+    WebScreenEmbed
     Android
-    AndroidEmbed
-    AndroidAgeBypass
+    AndroidEmbeddedPlayer
+    AndroidScreenEmbed
   end
 
   # List of hard-coded values used by the different clients
@@ -24,7 +24,7 @@ module YoutubeAPI
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
       screen:  "WATCH_FULL_SCREEN",
     },
-    ClientType::WebEmbed => {
+    ClientType::WebEmbeddedPlayer => {
       name:    "WEB_EMBEDDED_PLAYER", # 56
       version: "1.20210721.1.0",
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
@@ -36,7 +36,7 @@ module YoutubeAPI
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
       screen:  "", # None
     },
-    ClientType::WebAgeBypass => {
+    ClientType::WebScreenEmbed => {
       name:    "WEB",
       version: "2.20210721.00.00",
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
@@ -48,13 +48,13 @@ module YoutubeAPI
       api_key: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
       screen:  "", # ??
     },
-    ClientType::AndroidEmbed => {
+    ClientType::AndroidEmbeddedPlayer => {
       name:    "ANDROID_EMBEDDED_PLAYER", # 55
       version: "16.20",
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
       screen:  "", # None?
     },
-    ClientType::AndroidAgeBypass => {
+    ClientType::AndroidScreenEmbed => {
       name:    "ANDROID", # 3
       version: "16.20",
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
@@ -156,9 +156,6 @@ module YoutubeAPI
         "gl"            => client_config.region || "US", # Can't be empty!
         "clientName"    => client_config.name,
         "clientVersion" => client_config.version,
-        "thirdParty"    => {
-          "embedUrl" => "", # Placeholder
-        },
       },
     }
 
@@ -167,14 +164,10 @@ module YoutubeAPI
       client_context["client"]["clientScreen"] = client_config.screen
     end
 
-    # Replacing/removing the placeholder is easier than trying to
-    # merge two different Hash structures.
     if client_config.screen == "EMBED"
-      client_context["client"]["thirdParty"] = {
+      client_context["thirdParty"] = {
         "embedUrl" => "https://www.youtube.com/embed/dQw4w9WgXcQ",
       }
-    else
-      client_context["client"].delete("thirdParty")
     end
 
     return client_context
