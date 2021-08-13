@@ -435,6 +435,12 @@ module Invidious::Routes::Login
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         user, sid = create_user(sid, email, password)
 
+        if language_header = env.request.headers["Accept-Language"]?
+          if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
+            user.preferences.locale = language.header
+          end
+        end
+
         user_array = user.to_a
         user_array[4] = user_array[4].to_json # User preferences
 
