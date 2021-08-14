@@ -363,6 +363,7 @@ Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :up
 Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
 
 # Feeds
+Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Feeds, :view_all_playlists_redirect
 Invidious::Routing.get "/feed/playlists", Invidious::Routes::Feeds, :playlists
 Invidious::Routing.get "/feed/popular", Invidious::Routes::Feeds, :popular
 Invidious::Routing.get "/feed/trending", Invidious::Routes::Feeds, :trending

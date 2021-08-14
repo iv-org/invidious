@@ -1,6 +1,6 @@
 module Invidious::Routes::Feeds
-  def self.playlists(env)
-    env.redirect "/view_all_playlists"
+  def self.view_all_playlists_redirect(env)
+    env.redirect "/feed/playlists"
   end
 
   def self.playlists(env)
