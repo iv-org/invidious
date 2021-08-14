@@ -1,4 +1,4 @@
-module Invidious::Routes::APIv1
+module Invidious::Routes::APIv1::Feeds
   def self.trending(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 

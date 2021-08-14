@@ -1,4 +1,4 @@
-module Invidious::Routes::APIv1
+module Invidious::Routes::APIv1::Videos
   def self.videos(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 

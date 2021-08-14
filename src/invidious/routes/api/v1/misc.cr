@@ -1,4 +1,4 @@
-module Invidious::Routes::APIv1
+module Invidious::Routes::APIv1::Misc
   # Stats API endpoint for Invidious
   def self.stats(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
