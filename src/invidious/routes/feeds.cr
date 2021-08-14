@@ -137,6 +137,7 @@ module Invidious::Routes::Feeds
   def self.rss_channel(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
+    env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
 
     ucid = env.params.url["ucid"]
@@ -208,6 +209,7 @@ module Invidious::Routes::Feeds
   def self.rss_private(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
+    env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
 
     token = env.params.query["token"]?
@@ -251,6 +253,7 @@ module Invidious::Routes::Feeds
   def self.rss_playlist(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
+    env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
 
     plid = env.params.url["plid"]
