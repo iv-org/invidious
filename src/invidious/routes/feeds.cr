@@ -213,14 +213,12 @@ module Invidious::Routes::Feeds
     token = env.params.query["token"]?
 
     if !token
-      env.response.status_code = 403
-      return
+      haltf env, status_code: 403
     end
 
     user = PG_DB.query_one?("SELECT * FROM users WHERE token = $1", token.strip, as: User)
     if !user
-      env.response.status_code = 403
-      return
+      haltf env, status_code: 403
     end
 
     max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)
@@ -284,8 +282,7 @@ module Invidious::Routes::Feeds
           end
         end
       else
-        env.response.status_code = 404
-        return
+        haltf env, status_code: 404
       end
     end
 
@@ -333,8 +330,7 @@ module Invidious::Routes::Feeds
     challenge = env.params.query["hub.challenge"]?
 
     if !mode || !topic || !challenge
-      env.response.status_code = 400
-      return
+      haltf env, status_code: 400
     else
       mode = mode.not_nil!
       topic = topic.not_nil!
@@ -349,20 +345,17 @@ module Invidious::Routes::Feeds
       time, signature = verify_token.split(":")
       data = "#{time}"
     else
-      env.response.status_code = 400
-      return
+      haltf env, status_code: 400
     end
 
     # The hub will sometimes check if we're still subscribed after delivery errors,
     # so we reply with a 200 as long as the request hasn't expired
     if Time.utc.to_unix - time.to_i > 432000
-      env.response.status_code = 400
-      return
+      haltf env, status_code: 400
     end
 
     if OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, data) != signature
-      env.response.status_code = 400
-      return
+      haltf env, status_code: 400
     end
 
     if ucid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["channel_id"]?
@@ -370,8 +363,7 @@ module Invidious::Routes::Feeds
     elsif plid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["playlist_id"]?
       PG_DB.exec("UPDATE playlists SET subscribed = $1 WHERE id = $2", Time.utc, ucid)
     else
-      env.response.status_code = 400
-      return
+      haltf env, status_code: 400
     end
 
     env.response.status_code = 200
@@ -387,8 +379,7 @@ module Invidious::Routes::Feeds
 
     if signature != OpenSSL::HMAC.hexdigest(:sha1, HMAC_KEY, body)
       LOGGER.error("/feed/webhook/#{token} : Invalid signature")
-      env.response.status_code = 200
-      return
+      haltf env, status_code: 200
     end
 
     spawn do
@@ -433,6 +424,5 @@ module Invidious::Routes::Feeds
     end
 
     env.response.status_code = 200
-    return
   end
 end
