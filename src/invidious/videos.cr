@@ -221,6 +221,60 @@ VIDEO_FORMATS = {
   "397" => {"ext" => "mp4", "height" => 480, "vcodec" => "av01.0.05M.08"},
 }
 
+struct VideoPreferences
+  include JSON::Serializable
+
+  property annotations : Bool
+  property autoplay : Bool
+  property comments : Array(String)
+  property continue : Bool
+  property continue_autoplay : Bool
+  property controls : Bool
+  property listen : Bool
+  property local : Bool
+  property preferred_captions : Array(String)
+  property player_style : String
+  property quality : String
+  property quality_dash : String
+  property raw : Bool
+  property region : String?
+  property related_videos : Bool
+  property speed : Float32 | Float64
+  property video_end : Float64 | Int32
+  property video_loop : Bool
+  property extend_desc : Bool
+  property video_start : Float64 | Int32
+  property volume : Int32
+  property vr_mode : Bool
+end
+
+struct VideoPreferences
+  include JSON::Serializable
+
+  property annotations : Bool
+  property autoplay : Bool
+  property comments : Array(String)
+  property continue : Bool
+  property continue_autoplay : Bool
+  property controls : Bool
+  property listen : Bool
+  property local : Bool
+  property preferred_captions : Array(String)
+  property player_style : String
+  property quality : String
+  property quality_dash : String
+  property raw : Bool
+  property region : String?
+  property related_videos : Bool
+  property speed : Float32 | Float64
+  property video_end : Float64 | Int32
+  property video_loop : Bool
+  property extend_desc : Bool
+  property video_start : Float64 | Int32
+  property volume : Int32
+  property vr_mode : Bool
+end
+
 class VideoRedirect < Exception
   property video_id : String
 
@@ -541,7 +595,7 @@ def process_video_params(query, preferences)
   controls ||= 1
   controls = controls >= 1
 
-  params = InvidiousStructs::VideoPreferences.new({
+  params = VideoPreferences.new({
     annotations:        annotations,
     autoplay:           autoplay,
     comments:           comments,
