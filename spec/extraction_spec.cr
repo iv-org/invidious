@@ -21,7 +21,6 @@ describe YouTubeStructs::VideoRenderer do
     video.id.should(eq("E1KkQrFEl2I"))
     video.length_seconds.should(eq(665))
     video.live_now.should(eq(false))
-    video.paid.should(eq(false))
     video.premiere_timestamp.should(eq(nil))
     video.premium.should(eq(false))
 
