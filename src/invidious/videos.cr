@@ -819,10 +819,14 @@ def parse_related(r : JSON::Any) : JSON::Any?
   JSON::Any.new(rv)
 end
 
-def extract_video_info(video_id : String, proxy_region : String? = nil)
+def extract_video_info(video_id : String, proxy_region : String? = nil, context_screen : String? = nil)
   params = {} of String => JSON::Any
 
   client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
+  if context_screen == "embed"
+    client_config.client_type = YoutubeAPI::ClientType::WebScreenEmbed
+  end
+
   player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
 
   if player_response["playabilityStatus"]?.try &.["status"]?.try &.as_s != "OK"
@@ -844,7 +848,11 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
   # maybe fix throttling issues (#2194).See for the explanation about the decrypted URLs:
   # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
   if !params["reason"]?
-    client_config.client_type = YoutubeAPI::ClientType::Android
+    if context_screen == "embed"
+      client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
+    else
+      client_config.client_type = YoutubeAPI::ClientType::Android
+    end
     stream_data = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
     params["streamingData"] = stream_data["streamingData"]? || JSON::Any.new("")
   end
@@ -972,52 +980,10 @@ def fetch_video(id, region)
     end
   end
 
-  # Try to pull streams from embed URL
+  # Try to fetch video info using an embedded client
   if info["reason"]?
-    required_parameters = {
-      "video_id" => id,
-      "eurl"     => "https://youtube.googleapis.com/v/#{id}",
-      "html5"    => "1",
-      "gl"       => "US",
-      "hl"       => "en",
-    }
-    if info["reason"].as_s.includes?("inappropriate")
-      # The html5, c and cver parameters are required in order to extract age-restricted videos
-      # See https://github.com/yt-dlp/yt-dlp/commit/4e6767b5f2e2523ebd3dd1240584ead53e8c8905
-      required_parameters.merge!({
-        "c"    => "TVHTML5",
-        "cver" => "6.20180913",
-      })
-
-      # In order to actually extract video info without error, the `x-youtube-client-version`
-      # has to be set to the same version as `cver` above.
-      additional_headers = HTTP::Headers{"x-youtube-client-version" => "6.20180913"}
-    else
-      embed_page = YT_POOL.client &.get("/embed/#{id}").body
-      sts = embed_page.match(/"sts"\s*:\s*(?<sts>\d+)/).try &.["sts"]? || ""
-      required_parameters["sts"] = sts
-      additional_headers = HTTP::Headers{} of String => String
-    end
-
-    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?#{URI::Params.encode(required_parameters)}",
-      headers: additional_headers).body)
-
-    if embed_info["player_response"]?
-      player_response = JSON.parse(embed_info["player_response"])
-      {"captions", "microformat", "playabilityStatus", "streamingData", "videoDetails", "storyboards"}.each do |f|
-        info[f] = player_response[f] if player_response[f]?
-      end
-    end
-
-    initial_data = JSON.parse(embed_info["watch_next_response"]) if embed_info["watch_next_response"]?
-
-    info["relatedVideos"] = initial_data.try &.["playerOverlays"]?.try &.["playerOverlayRenderer"]?
-      .try &.["endScreen"]?.try &.["watchNextEndScreenRenderer"]?.try &.["results"]?.try &.as_a.compact_map { |r|
-        parse_related r
-      }.try { |a| JSON::Any.new(a) } || embed_info["rvs"]?.try &.split(",").map { |r|
-      r = HTTP::Params.parse(r).to_h
-      JSON::Any.new(Hash.zip(r.keys, r.values.map { |v| JSON::Any.new(v) }))
-    }.try { |a| JSON::Any.new(a) } || JSON::Any.new([] of JSON::Any)
+    embed_info = extract_video_info(video_id: id, context_screen: "embed")
+    info = embed_info if !embed_info["reason"]?
   end
 
   raise InfoException.new(info["reason"]?.try &.as_s || "") if !info["videoDetails"]?
