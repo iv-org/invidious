@@ -106,7 +106,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-    - name: Cache Docker layers
+      - name: Cache Docker layers
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
@@ -127,7 +127,6 @@ jobs:
         run: while curl -Isf http://localhost:3000; do sleep 1; done
 
       - name: Override old Docker cache
-        if: github.ref == 'refs/heads/master'
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
