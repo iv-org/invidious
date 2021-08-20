@@ -106,14 +106,30 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+    - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-multi-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-multi-buildx
+
       - name: Build Docker ARM64 image
         uses: docker/build-push-action@v2
         with:
           context: .
           file: docker/Dockerfile.arm64
           platforms: linux/arm64/v8
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
 
       - name: Test Docker
         run: while curl -Isf http://localhost:3000; do sleep 1; done
+
+      - name: Override old Docker cache
+        if: github.ref == 'refs/heads/master'
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
 
