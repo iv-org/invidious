@@ -2967,6 +2967,39 @@ post "/api/v1/auth/tokens/unregister" do |env|
   env.response.status_code = 204
 end
 
+# Endpoint to resolve a YouTube (Channel) URL. Basically a proxy of
+# InnerTube's resolve_url endpoint.
+#
+# NOTE: Even though InnerTube's resolve_url endpint does support
+# other URLs, it's main usage is resolving brand ones. Thus, that
+# is also the purpose this endpoint would serve. Although, it
+# may be a good idea to provide a more general proxy of InnerTube's
+# resolve_url endpoint in the future.
+post "/api/v1/channels/resolve_url" do |env|
+  # error_json calls require locale
+  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+
+  env.response.content_type = "application/json"
+  url = env.params.json["url"]?
+  if url.nil?
+    next error_json(400, "Missing URL to resolve")
+  end
+
+  begin
+    resolved_url = YoutubeAPI.resolve_url(url.as(String))
+
+    ucid = resolved_url.dig("endpoint", "browseEndpoint", "browseId")
+  rescue ex : InfoException | KeyError
+    next error_json(404, ex)
+  end
+
+  JSON.build do |json|
+    json.object do
+      json.field "ucid", ucid.as_s
+    end
+  end
+end
+
 get "/api/manifest/dash/id/videoplayback" do |env|
   env.response.headers.delete("Content-Type")
   env.response.headers["Access-Control-Allow-Origin"] = "*"
