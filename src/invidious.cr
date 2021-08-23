@@ -375,6 +375,8 @@ Invidious::Routing.get "/feed/channel/:ucid", Invidious::Routes::Feeds, :rss_cha
 Invidious::Routing.get "/feed/private", Invidious::Routes::Feeds, :rss_private
 Invidious::Routing.get "/feed/playlist/:plid", Invidious::Routes::Feeds, :rss_playlist
 Invidious::Routing.get "/feeds/videos.xml", Invidious::Routes::Feeds, :rss_videos
+
+# Support push notifications via PubSubHubbub
 Invidious::Routing.get "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_get
 Invidious::Routing.post "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_post
 
