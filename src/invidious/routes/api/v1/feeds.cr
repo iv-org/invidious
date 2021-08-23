@@ -1,4 +1,4 @@
-module Invidious::Routes::APIv1::Feeds
+module Invidious::Routes::API::V1::Feeds
   def self.trending(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -31,8 +31,7 @@ module Invidious::Routes::APIv1::Feeds
 
     if !CONFIG.popular_enabled
       error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
-      env.response.status_code = 400
-      return error_message
+      haltf env, 400, error_message
     end
 
     JSON.build do |json|

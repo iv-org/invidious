@@ -1,4 +1,7 @@
-module Invidious::Routes::APIv1::Authenticated
+module Invidious::Routes::API::V1::Authenticated
+  # The notification APIs cannot be extracted yet!
+  # They require the *local* notifications constant defined in invidious.cr
+  #
   # def self.notifications(env)
   #   env.response.content_type = "text/event-stream"
 

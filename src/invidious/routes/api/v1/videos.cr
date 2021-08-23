@@ -1,4 +1,4 @@
-module Invidious::Routes::APIv1::Videos
+module Invidious::Routes::API::V1::Videos
   def self.videos(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -41,8 +41,7 @@ module Invidious::Routes::APIv1::Videos
       env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
       return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
     rescue ex
-      env.response.status_code = 500
-      return
+      haltf env, 500
     end
 
     captions = video.captions
@@ -80,8 +79,7 @@ module Invidious::Routes::APIv1::Videos
     end
 
     if caption.empty?
-      env.response.status_code = 404
-      return
+      haltf env, 404
     else
       caption = caption[0]
     end
@@ -164,8 +162,7 @@ module Invidious::Routes::APIv1::Videos
       env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
       return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
     rescue ex
-      env.response.status_code = 500
-      return
+      haltf env, 500
     end
 
     storyboards = video.storyboards
@@ -189,8 +186,7 @@ module Invidious::Routes::APIv1::Videos
     storyboard = storyboards.select { |storyboard| width == "#{storyboard[:width]}" || height == "#{storyboard[:height]}" }
 
     if storyboard.empty?
-      env.response.status_code = 404
-      return
+      haltf env, 404
     else
       storyboard = storyboard[0]
     end
@@ -236,8 +232,7 @@ module Invidious::Routes::APIv1::Videos
     source ||= "archive"
 
     if !id.match(/[a-zA-Z0-9_-]{11}/)
-      env.response.status_code = 400
-      return
+      haltf env, 400
     end
 
     annotations = ""
@@ -267,13 +262,11 @@ module Invidious::Routes::APIv1::Videos
         response = make_client(URI.parse(location.headers["Location"]), &.get(location.headers["Location"]))
 
         if response.body.empty?
-          env.response.status_code = 404
-          return
+          haltf env, 404
         end
 
         if response.status_code != 200
-          env.response.status_code = response.status_code
-          return
+          haltf env, response.status_code
         end
 
         annotations = response.body
@@ -284,8 +277,7 @@ module Invidious::Routes::APIv1::Videos
       response = YT_POOL.client &.get("/annotations_invideo?video_id=#{id}")
 
       if response.status_code != 200
-        env.response.status_code = response.status_code
-        return
+        haltf env, response.status_code
       end
 
       annotations = response.body
@@ -293,7 +285,7 @@ module Invidious::Routes::APIv1::Videos
 
     etag = sha256(annotations)[0, 16]
     if env.request.headers["If-None-Match"]?.try &.== etag
-      env.response.status_code = 304
+      haltf env, 304
     else
       env.response.headers["ETag"] = etag
       annotations
@@ -349,8 +341,7 @@ module Invidious::Routes::APIv1::Videos
       end
 
       if !reddit_thread || !comments
-        env.response.status_code = 404
-        return
+        haltf env, 404
       end
 
       if format == "json"

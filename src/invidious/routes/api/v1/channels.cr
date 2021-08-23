@@ -1,4 +1,4 @@
-module Invidious::Routes::APIv1::Channels
+module Invidious::Routes::API::V1::Channels
   def self.home(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
@@ -241,7 +241,7 @@ module Invidious::Routes::APIv1::Channels
     end
   end
 
-  def self.channel_search(env)
+  def self.search(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     env.response.content_type = "application/json"
@@ -262,5 +262,16 @@ module Invidious::Routes::APIv1::Channels
         end
       end
     end
+  end
+
+  # 301 redirect from /api/v1/channels/comments/:ucid
+  # and /api/v1/channels/:ucid/comments to new /api/v1/channels/:ucid/community and
+  # corresponding equivalent URL structure of the other one.
+  def self.channel_comments_redirect(env)
+    env.response.content_type = "application/json"
+    ucid = env.params.url["ucid"]
+
+    env.response.headers["Location"] = "/api/v1/channels/#{ucid}/community?#{env.params.query}"
+    haltf env, status_code: 301
   end
 end

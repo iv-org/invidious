@@ -278,13 +278,3 @@ module Invidious::Routes::VideoPlayback
     return env.redirect url
   end
 end
-
-macro define_video_playback_routes
-  Invidious::Routing.get "/videoplayback", Invidious::Routes::VideoPlayback, :get_video_playback
-  Invidious::Routing.get "/videoplayback/*", Invidious::Routes::VideoPlayback, :get_video_playback_greedy
-
-  Invidious::Routing.options "/videoplayback", Invidious::Routes::VideoPlayback, :options_video_playback
-  Invidious::Routing.options "/videoplayback/*", Invidious::Routes::VideoPlayback, :options_video_playback
-
-  Invidious::Routing.get "/latest_version", Invidious::Routes::VideoPlayback, :latest_version
-end

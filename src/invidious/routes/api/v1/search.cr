@@ -1,4 +1,4 @@
-module Invidious::Routes::APIv1::Search
+module Invidious::Routes::API::V1::Search
   def self.search(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     region = env.params.query["region"]?

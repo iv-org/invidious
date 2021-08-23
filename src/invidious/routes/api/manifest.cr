@@ -1,4 +1,4 @@
-module Invidious::Routes::APIManifest
+module Invidious::Routes::API::Manifest
   # /api/manifest/dash/id/:id
   def self.get_dash_video_id(env)
     env.response.headers.add("Access-Control-Allow-Origin", "*")
@@ -221,17 +221,4 @@ module Invidious::Routes::APIManifest
 
     manifest
   end
-end
-
-macro define_api_manifest_routes
-  Invidious::Routing.get "/api/manifest/dash/id/:id", Invidious::Routes::APIManifest, :get_dash_video_id
-
-  Invidious::Routing.get "/api/manifest/dash/id/videoplayback", Invidious::Routes::APIManifest, :get_dash_video_playback
-  Invidious::Routing.get "/api/manifest/dash/id/videoplayback/*", Invidious::Routes::APIManifest, :get_dash_video_playback_greedy
-
-  Invidious::Routing.options "/api/manifest/dash/id/videoplayback", Invidious::Routes::APIManifest, :options_dash_video_playback
-  Invidious::Routing.options "/api/manifest/dash/id/videoplayback/*", Invidious::Routes::APIManifest, :options_dash_video_playback
-
-  Invidious::Routing.get "/api/manifest/hls_playlist/*", Invidious::Routes::APIManifest, :get_hls_playlist
-  Invidious::Routing.get "/api/manifest/hls_variant/*", Invidious::Routes::APIManifest, :get_hls_variant
 end
