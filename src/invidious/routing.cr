@@ -37,7 +37,7 @@ macro define_v1_api_routes
 
   # Search
   Invidious::Routing.get "/api/v1/search", {{namespace}}::Search, :search
-  Invidious::Routing.get "/api/v1/search/suggestions/:id", {{namespace}}::Search, :search_suggestions
+  Invidious::Routing.get "/api/v1/search/suggestions", {{namespace}}::Search, :search_suggestions
 
   # Authenticated
 
