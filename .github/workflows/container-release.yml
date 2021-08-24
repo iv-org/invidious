@@ -30,15 +30,6 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
 
-      - name: Cache Docker layers
-        if: github.ref == 'refs/heads/master'
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-multi-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-multi-buildx
-
       - name: Build and push Docker AMD64 image for Push Event
         if: github.ref == 'refs/heads/master'
         uses: docker/build-push-action@v2
@@ -49,8 +40,6 @@ jobs:
           labels: quay.expires-after=12w
           push: true
           tags: quay.io/invidious/invidious:${{ github.sha }},quay.io/invidious/invidious:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
 
       - name: Build and push Docker ARM64 image for Push Event
         if: github.ref == 'refs/heads/master'
@@ -62,11 +51,3 @@ jobs:
           labels: quay.expires-after=12w
           push: true
           tags: quay.io/invidious/invidious:${{ github.sha }}-arm64,quay.io/invidious/invidious:latest-arm64
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-
-      - name: Override old Docker cache
-        if: github.ref == 'refs/heads/master'
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
