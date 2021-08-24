@@ -272,6 +272,7 @@ module Invidious::Routes::API::V1::Channels
     ucid = env.params.url["ucid"]
 
     env.response.headers["Location"] = "/api/v1/channels/#{ucid}/community?#{env.params.query}"
-    haltf env, status_code: 301
+    env.response.status_code = 301
+    return
   end
 end
