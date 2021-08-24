@@ -17,6 +17,7 @@
 require "digest/md5"
 require "file_utils"
 require "kemal"
+require "athena-negotiation"
 require "openssl/hmac"
 require "option_parser"
 require "pg"
@@ -166,10 +167,20 @@ def popular_videos
 end
 
 before_all do |env|
-  preferences = begin
-    Preferences.from_json(URI.decode_www_form(env.request.cookies["PREFS"]?.try &.value || "{}"))
+  preferences = Preferences.from_json("{}")
+
+  begin
+    if prefs_cookie = env.request.cookies["PREFS"]?
+      preferences = Preferences.from_json(URI.decode_www_form(prefs_cookie.value))
+    else
+      if language_header = env.request.headers["Accept-Language"]?
+        if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
+          preferences.locale = language.header
+        end
+      end
+    end
   rescue
-    Preferences.from_json("{}")
+    preferences = Preferences.from_json("{}")
   end
 
   env.set "preferences", preferences

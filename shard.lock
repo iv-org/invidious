@@ -1,5 +1,9 @@
 version: 2.0
 shards:
+  athena-negotiation:
+    git: https://github.com/athena-framework/negotiation.git
+    version: 0.1.1
+
   db:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.10.1
