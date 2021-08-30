@@ -185,6 +185,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
   if !author
     raise InfoException.new("Deleted or invalid channel")
   end
+
   author = author.content
 
   # Auto-generated channels
