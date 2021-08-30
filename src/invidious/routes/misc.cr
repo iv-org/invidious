@@ -1,3 +1,5 @@
+{% skip_file if flag?(:api_only) %}
+
 module Invidious::Routes::Misc
   def self.home(env)
     preferences = env.get("preferences").as(Preferences)

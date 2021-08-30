@@ -1,3 +1,5 @@
+{% skip_file if flag?(:api_only) %}
+
 module Invidious::Routes::Feeds
   def self.view_all_playlists_redirect(env)
     env.redirect "/feed/playlists"

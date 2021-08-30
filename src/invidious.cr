@@ -316,80 +316,82 @@ before_all do |env|
   env.set "current_page", URI.encode_www_form(current_page)
 end
 
-Invidious::Routing.get "/", Invidious::Routes::Misc, :home
-Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
-Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
+{% unless flag?(:api_only) %}
+  Invidious::Routing.get "/", Invidious::Routes::Misc, :home
+  Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
+  Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
 
-Invidious::Routing.get "/channel/:ucid", Invidious::Routes::Channels, :home
-Invidious::Routing.get "/channel/:ucid/home", Invidious::Routes::Channels, :home
-Invidious::Routing.get "/channel/:ucid/videos", Invidious::Routes::Channels, :videos
-Invidious::Routing.get "/channel/:ucid/playlists", Invidious::Routes::Channels, :playlists
-Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, :community
-Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
+  Invidious::Routing.get "/channel/:ucid", Invidious::Routes::Channels, :home
+  Invidious::Routing.get "/channel/:ucid/home", Invidious::Routes::Channels, :home
+  Invidious::Routing.get "/channel/:ucid/videos", Invidious::Routes::Channels, :videos
+  Invidious::Routing.get "/channel/:ucid/playlists", Invidious::Routes::Channels, :playlists
+  Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, :community
+  Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
 
-["", "/videos", "/playlists", "/community", "/about"].each do |path|
-  # /c/LinusTechTips
-  Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
-  # /user/linustechtips | Not always the same as /c/
-  Invidious::Routing.get "/user/:user#{path}", Invidious::Routes::Channels, :brand_redirect
-  # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
-  Invidious::Routing.get "/attribution_link#{path}", Invidious::Routes::Channels, :brand_redirect
-  # /profile?user=linustechtips
-  Invidious::Routing.get "/profile/#{path}", Invidious::Routes::Channels, :profile
-end
+  ["", "/videos", "/playlists", "/community", "/about"].each do |path|
+    # /c/LinusTechTips
+    Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+    # /user/linustechtips | Not always the same as /c/
+    Invidious::Routing.get "/user/:user#{path}", Invidious::Routes::Channels, :brand_redirect
+    # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
+    Invidious::Routing.get "/attribution_link#{path}", Invidious::Routes::Channels, :brand_redirect
+    # /profile?user=linustechtips
+    Invidious::Routing.get "/profile/#{path}", Invidious::Routes::Channels, :profile
+  end
 
-Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
-Invidious::Routing.get "/watch/:id", Invidious::Routes::Watch, :redirect
-Invidious::Routing.get "/shorts/:id", Invidious::Routes::Watch, :redirect
-Invidious::Routing.get "/w/:id", Invidious::Routes::Watch, :redirect
-Invidious::Routing.get "/v/:id", Invidious::Routes::Watch, :redirect
-Invidious::Routing.get "/e/:id", Invidious::Routes::Watch, :redirect
-Invidious::Routing.get "/redirect", Invidious::Routes::Misc, :cross_instance_redirect
+  Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
+  Invidious::Routing.get "/watch/:id", Invidious::Routes::Watch, :redirect
+  Invidious::Routing.get "/shorts/:id", Invidious::Routes::Watch, :redirect
+  Invidious::Routing.get "/w/:id", Invidious::Routes::Watch, :redirect
+  Invidious::Routing.get "/v/:id", Invidious::Routes::Watch, :redirect
+  Invidious::Routing.get "/e/:id", Invidious::Routes::Watch, :redirect
+  Invidious::Routing.get "/redirect", Invidious::Routes::Misc, :cross_instance_redirect
 
-Invidious::Routing.get "/embed/", Invidious::Routes::Embed, :redirect
-Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed, :show
+  Invidious::Routing.get "/embed/", Invidious::Routes::Embed, :redirect
+  Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed, :show
 
-Invidious::Routing.get "/create_playlist", Invidious::Routes::Playlists, :new
-Invidious::Routing.post "/create_playlist", Invidious::Routes::Playlists, :create
-Invidious::Routing.get "/subscribe_playlist", Invidious::Routes::Playlists, :subscribe
-Invidious::Routing.get "/delete_playlist", Invidious::Routes::Playlists, :delete_page
-Invidious::Routing.post "/delete_playlist", Invidious::Routes::Playlists, :delete
-Invidious::Routing.get "/edit_playlist", Invidious::Routes::Playlists, :edit
-Invidious::Routing.post "/edit_playlist", Invidious::Routes::Playlists, :update
-Invidious::Routing.get "/add_playlist_items", Invidious::Routes::Playlists, :add_playlist_items_page
-Invidious::Routing.post "/playlist_ajax", Invidious::Routes::Playlists, :playlist_ajax
-Invidious::Routing.get "/playlist", Invidious::Routes::Playlists, :show
-Invidious::Routing.get "/mix", Invidious::Routes::Playlists, :mix
+  Invidious::Routing.get "/create_playlist", Invidious::Routes::Playlists, :new
+  Invidious::Routing.post "/create_playlist", Invidious::Routes::Playlists, :create
+  Invidious::Routing.get "/subscribe_playlist", Invidious::Routes::Playlists, :subscribe
+  Invidious::Routing.get "/delete_playlist", Invidious::Routes::Playlists, :delete_page
+  Invidious::Routing.post "/delete_playlist", Invidious::Routes::Playlists, :delete
+  Invidious::Routing.get "/edit_playlist", Invidious::Routes::Playlists, :edit
+  Invidious::Routing.post "/edit_playlist", Invidious::Routes::Playlists, :update
+  Invidious::Routing.get "/add_playlist_items", Invidious::Routes::Playlists, :add_playlist_items_page
+  Invidious::Routing.post "/playlist_ajax", Invidious::Routes::Playlists, :playlist_ajax
+  Invidious::Routing.get "/playlist", Invidious::Routes::Playlists, :show
+  Invidious::Routing.get "/mix", Invidious::Routes::Playlists, :mix
 
-Invidious::Routing.get "/opensearch.xml", Invidious::Routes::Search, :opensearch
-Invidious::Routing.get "/results", Invidious::Routes::Search, :results
-Invidious::Routing.get "/search", Invidious::Routes::Search, :search
+  Invidious::Routing.get "/opensearch.xml", Invidious::Routes::Search, :opensearch
+  Invidious::Routing.get "/results", Invidious::Routes::Search, :results
+  Invidious::Routing.get "/search", Invidious::Routes::Search, :search
 
-Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
-Invidious::Routing.post "/login", Invidious::Routes::Login, :login
-Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
+  Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
+  Invidious::Routing.post "/login", Invidious::Routes::Login, :login
+  Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
 
-Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show
-Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
-Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
+  Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show
+  Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
+  Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
 
-# Feeds
-Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Feeds, :view_all_playlists_redirect
-Invidious::Routing.get "/feed/playlists", Invidious::Routes::Feeds, :playlists
-Invidious::Routing.get "/feed/popular", Invidious::Routes::Feeds, :popular
-Invidious::Routing.get "/feed/trending", Invidious::Routes::Feeds, :trending
-Invidious::Routing.get "/feed/subscriptions", Invidious::Routes::Feeds, :subscriptions
-Invidious::Routing.get "/feed/history", Invidious::Routes::Feeds, :history
+  # Feeds
+  Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Feeds, :view_all_playlists_redirect
+  Invidious::Routing.get "/feed/playlists", Invidious::Routes::Feeds, :playlists
+  Invidious::Routing.get "/feed/popular", Invidious::Routes::Feeds, :popular
+  Invidious::Routing.get "/feed/trending", Invidious::Routes::Feeds, :trending
+  Invidious::Routing.get "/feed/subscriptions", Invidious::Routes::Feeds, :subscriptions
+  Invidious::Routing.get "/feed/history", Invidious::Routes::Feeds, :history
 
-# RSS Feeds
-Invidious::Routing.get "/feed/channel/:ucid", Invidious::Routes::Feeds, :rss_channel
-Invidious::Routing.get "/feed/private", Invidious::Routes::Feeds, :rss_private
-Invidious::Routing.get "/feed/playlist/:plid", Invidious::Routes::Feeds, :rss_playlist
-Invidious::Routing.get "/feeds/videos.xml", Invidious::Routes::Feeds, :rss_videos
+  # RSS Feeds
+  Invidious::Routing.get "/feed/channel/:ucid", Invidious::Routes::Feeds, :rss_channel
+  Invidious::Routing.get "/feed/private", Invidious::Routes::Feeds, :rss_private
+  Invidious::Routing.get "/feed/playlist/:plid", Invidious::Routes::Feeds, :rss_playlist
+  Invidious::Routing.get "/feeds/videos.xml", Invidious::Routes::Feeds, :rss_videos
 
-# Support push notifications via PubSubHubbub
-Invidious::Routing.get "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_get
-Invidious::Routing.post "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_post
+  # Support push notifications via PubSubHubbub
+  Invidious::Routing.get "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_get
+  Invidious::Routing.post "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_post
+{% end %}
 
 # API routes (macro)
 define_v1_api_routes()
