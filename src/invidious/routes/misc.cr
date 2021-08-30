@@ -17,7 +17,7 @@ module Invidious::Routes::Misc
       end
     when "Playlists"
       if user
-        env.redirect "/view_all_playlists"
+        env.redirect "/feed/playlists"
       else
         env.redirect "/feed/popular"
       end
