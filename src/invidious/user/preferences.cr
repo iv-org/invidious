@@ -6,6 +6,7 @@
 require "json"
 require "yaml"
 require "html"
+require "uri/params"
 
 #
 # Enumerates types and constants
@@ -85,21 +86,34 @@ end
 #
 
 class Preferences
+  # Annotation for URL parameters metadata storage
+  # All the properties below can have one, or more associated URL parameter(s):
+  #  - If no "short" nor "long" parameter are specified, the URL parameter
+  #    will be the property name stringified.
+  #  - Otherwise, a short and a long parameter must be specified
+  #  - An optional "compat" parameter can be provided.
+  annotation AssociatedURLParams; end
+
   include JSON::Serializable
   include YAML::Serializable
 
   property annotations : Bool = false
   property annotations_subscribed : Bool = false
 
+  @[AssociatedURLParams(short: "ap", long: "autoplay")]
   property autoplay : Bool = false
+
+  @[AssociatedURLParams(short: "autoredir", long: "auto_redirect")]
   property automatic_instance_redirect : Bool = false
 
   @[JSON::Field(converter: Preferences::StringToArray)]
   @[YAML::Field(converter: Preferences::StringToArray)]
+  @[AssociatedURLParams(short: "cap", long: "captions")]
   property captions : Array(String) = ["", "", ""]
 
   @[JSON::Field(converter: Preferences::StringToArray)]
   @[YAML::Field(converter: Preferences::StringToArray)]
+  @[AssociatedURLParams(short: "coms", long: "comments")]
   property comments : Array(String) = ["youtube", ""]
 
   property continue : Bool = false
@@ -107,24 +121,32 @@ class Preferences
 
   @[JSON::Field(converter: Settings::Converters::Generic(Settings::Themes))]
   @[YAML::Field(converter: Settings::Converters::Generic(Settings::Themes))]
+  @[AssociatedURLParams(long: "theme", compat: "dark_mode")]
   property dark_mode : Settings::Themes = Settings::Themes::Dark
 
   property latest_only : Bool = false
-
   property listen : Bool = false
   property local : Bool = false
+
+  @[AssociatedURLParams(short: "vr", long: "vr_mode")]
   property vr_mode : Bool = true
+
+  @[AssociatedURLParams(short: "nick", long: "show_nick")]
   property show_nick : Bool = true
 
   @[JSON::Field(converter: Preferences::ProcessString)]
+  @[AssociatedURLParams(short: "hl", long: "locale")]
   property locale : String = "en-US"
 
   @[JSON::Field(converter: Preferences::ClampInt)]
   property max_results : Int32 = 40
+
+  @[AssociatedURLParams(short: "notifs_only", long: "notifications_only")]
   property notifications_only : Bool = false
 
   @[JSON::Field(converter: Settings::Converters::Generic(Settings::PlayerStyles))]
   @[YAML::Field(converter: Settings::Converters::Generic(Settings::PlayerStyles))]
+  @[AssociatedURLParams(short: "ps", long: "player_style")]
   property player_style : Settings::PlayerStyles = Settings::PlayerStyles::Invidious
 
   @[JSON::Field(converter: Preferences::ProcessString)]
@@ -134,10 +156,12 @@ class Preferences
 
   @[JSON::Field(converter: Settings::Converters::Generic(Settings::AnyHomePages))]
   @[YAML::Field(converter: Settings::Converters::Generic(Settings::AnyHomePages))]
+  @[AssociatedURLParams(short: "home", long: "default_home")]
   property default_home : Settings::AnyHomePages = Settings::HomePages::Popular
 
   @[JSON::Field(converter: Settings::Converters::Generic(Array(Settings::AnyHomePages)))]
   @[YAML::Field(converter: Settings::Converters::Generic(Array(Settings::AnyHomePages)))]
+  @[AssociatedURLParams(short: "menu", long: "feed_menu")]
   property feed_menu : Array(Settings::AnyHomePages) = [
     Settings::HomePages::Popular,
     Settings::HomePages::Trending,
@@ -155,9 +179,14 @@ class Preferences
 
   property thin_mode : Bool = false
   property unseen_only : Bool = false
+
+  @[AssociatedURLParams(short: "loop", long: "video_loop")]
   property video_loop : Bool = false
+
+  @[AssociatedURLParams(short: "xd", long: "extend_desc")]
   property extend_desc : Bool = false
 
+  @[AssociatedURLParams(short: "vol", long: "volume")]
   property volume : Int32 = 100
 
   def initialize
@@ -201,6 +230,162 @@ class Preferences
     old = @dark_mode
     @dark_mode = (old.dark?) ? Settings::Themes::Light : Settings::Themes::Dark
   end
+
+  # From/To URI parameters
+
+  def self.from_uri(uri : String) : Preferences
+    return from_uri(URI::Params.parse(uri))
+  end
+
+  def self.from_uri(uri : URI::Params) : Preferences
+    prefs = Preferences.new
+
+    {% begin %}
+
+      {% for ivar in @type.instance_vars %}
+        {%
+          uri_ann = ivar.annotation(::Preferences::AssociatedURLParams)
+          default = ivar.default_value
+          max_idx = (ivar.type < Array) ? default.size - 1 : nil
+
+          has_long = (uri_ann && uri_ann[:long])
+          has_short = (uri_ann && uri_ann[:short])
+          has_compat = (uri_ann && uri_ann[:compat])
+
+          param_long = has_long ? uri_ann[:long] : ivar.id.stringify
+          param_short = has_short ? uri_ann[:short] : ivar.id.stringify
+        %}
+
+        # Arrays in HTTP forms are not standardized, so we have to
+        # support those manually here
+        {% if max_idx %}
+          temp = [] of String | Nil
+
+          (0..{{max_idx}}).each do |i|
+            temp_val = uri[{{param_long}}+"[#{i}]"]? || uri[{{param_short}}+"[#{i}]"]?
+
+            # If "compat" is available and nothing was found above, also check that
+            {% if has_compat %}
+              temp_val = uri[{{uri_ann[:compat]}}+"[#{i}]"]? if !temp_val
+            {% end %}
+
+            temp << temp_val
+          end
+        {% else %}
+          temp = uri[{{param_long}}]? || uri[{{param_short}}]?
+
+          # If "compat" is available and nothing was found above, also check that
+          {% if has_compat %}
+            temp = uri[{{uri_ann[:compat]}}]? if !temp
+          {% end %}
+        {% end %}
+
+        # Then, use the right converter and assign the variable
+        # We use a bunch of if/elsif/else statements because case/when can't
+        # be used in macros.
+        {% if ivar.type == Settings::Themes %}
+          val = Settings::Converters::Theme.from_s(temp)
+        {% elsif ivar.type == Enum %}
+          val = {{ivar.type}}.parse?(temp)
+        {% elsif ivar.type == Array(Enum) %}
+          val = [] of {{ivar.type}}
+          temp.compact.each { |item| val << {{ivar.type}}.parse?(item) }
+        {% elsif ivar.type == Bool %}
+          val = Settings::Converters::Boolean.from_s(temp)
+        {% elsif ivar.type == String || ivar.type == Array(String) %}
+          val = temp
+        {% elsif ivar.type == Float32 %}
+          val = temp.try &.as(String).to_f32?
+        {% else %}
+          val = nil
+        {% end %}
+
+        {% if max_idx %}
+          prefs.{{ivar.id}} = val.compact if val
+        {% else %}
+          prefs.{{ivar.id}} = val if val
+        {% end %}
+      {% end %}
+
+    {% end %}
+
+    return prefs
+  end
+
+  def to_uri(*, use_short = false, include_defaults = false) : URI::Params
+    params_raw = {} of String => Array(String)
+    # Hash(String, Array(String)))
+
+    {% for ivar in @type.instance_vars %}
+      {%
+        uri_ann = ivar.annotation(::Preferences::AssociatedURLParams)
+
+        has_long = (uri_ann && uri_ann[:long])
+        has_short = (uri_ann && uri_ann[:short])
+
+        param_long = has_long ? uri_ann[:long] : ivar.id.stringify
+        param_short = has_short ? uri_ann[:short] : param_long
+      %}
+
+      # If 'include_defaults' is false, check that the current
+      # value differs from the default
+      if include_defaults || @{{ivar.id}} != {{ivar.default_value}}
+        param_name = use_short ? {{param_short}} : {{param_long}}
+
+        {% if ivar.type == Bool %}
+          # Boolean is kinda special. We want to use 'true/false' for the
+          # long form and '0/1' for the short form
+          temp = Settings::Converters::Boolean.to_s(@{{ivar.id}}, numeric: use_short)
+          params_raw[param_name] = [temp]
+        {% elsif ivar.type < Array %}
+          # Arrays. Use `#to_s` if not already a string.
+          @{{ivar.id}}.each_with_index do |value, idx|
+            {% if ivar.type == Array(String) %}
+              params_raw[param_name + "[#{idx}]"] = [value]
+            {% else %}
+              params_raw[param_name + "[#{idx}]"] = [value.to_s]
+            {% end %}
+          end
+        {% else %}
+          # Same as aboce, but with scalars
+          {% if ivar.type == String %}
+            params_raw[param_name] = [@{{ivar.id}}]
+          {% else %}
+            params_raw[param_name] = [@{{ivar.id}}.to_s]
+          {% end %}
+        {% end %}
+      end
+
+    {% end %}
+
+    return URI::Params.new(params_raw)
+  end
+
+  # volume = env.params.body["volume"]?.try &.as(String).to_i?
+  # volume ||= CONFIG.default_user_preferences.volume
+
+  # comments = [] of String
+  # 2.times do |i|
+  #   comments << (env.params.body["comments[#{i}]"]?.try &.as(String) || CONFIG.default_user_preferences.comments[i])
+  # end
+
+  # captions = [] of String
+  # 3.times do |i|
+  #   captions << (env.params.body["captions[#{i}]"]?.try &.as(String) || CONFIG.default_user_preferences.captions[i])
+  # end
+
+  # default_home = env.params.body["default_home"]?.try { |x| Settings::HomePages.parse?(x) || Settings::UserHomePages.parse?(x) }
+  # default_home = CONFIG.default_user_preferences.default_home.to_s if !default_home
+
+  # feed_menu = [] of String
+  # 4.times do |index|
+  #   option = env.params.body["feed_menu[#{index}]"]?.try &.as(String) || ""
+  #   if !option.empty?
+  #     feed_menu << option
+  #   end
+  # end
+
+  # Old converters (TODO: remove or refactor them)
 
   module ClampInt
     def self.to_json(value : Int32, json : JSON::Builder)
@@ -393,6 +578,31 @@ module Settings::Converters
     end
   end # module theme
 
+  #
+  # String to Boolean conversion
+  #
+  module Boolean
+    extend self
+
+    def from_s(input : String?) : Bool?
+      return if !input
+
+      case input.downcase
+      when "0", "off", "false"; false
+      when "1", "on", "true"  ; true
+      else
+        nil # invalid input, do nothing.
+      end
+    end
+
+    def to_s(input : Bool, numeric = false) : String
+      if numeric
+        return input ? "1" : "0"
+      else
+        return input ? "true" : "false"
+      end
+    end
+  end
 end # module Settings::Converters
 
 struct VideoPreferences
