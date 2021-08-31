@@ -17,6 +17,7 @@ RUN crystal spec --warnings all \
     --link-flags "-lxml2 -llzma"
 
 RUN crystal build ./src/invidious.cr \
+    --release \
     --static --warnings all \
     --link-flags "-lxml2 -llzma"
 
