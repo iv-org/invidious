@@ -40,6 +40,7 @@ jobs:
           labels: quay.expires-after=12w
           push: true
           tags: quay.io/invidious/invidious:${{ github.sha }},quay.io/invidious/invidious:latest
+          build-args: release=1
 
       - name: Build and push Docker ARM64 image for Push Event
         if: github.ref == 'refs/heads/master'
@@ -51,3 +52,4 @@ jobs:
           labels: quay.expires-after=12w
           push: true
           tags: quay.io/invidious/invidious:${{ github.sha }}-arm64,quay.io/invidious/invidious:latest-arm64
+          build-args: release=1
