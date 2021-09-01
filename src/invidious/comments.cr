@@ -552,7 +552,9 @@ def content_to_comment_html(content)
       if url = run["navigationEndpoint"]["urlEndpoint"]?.try &.["url"].as_s
         url = URI.parse(url)
 
-        if !url.host || {"m.youtube.com", "www.youtube.com", "youtu.be"}.includes? url.host
+        if url.host == "youtu.be"
+          url = "/watch?v=#{url.request_target.lstrip('/')}"
+        elsif !url.host || {"m.youtube.com", "www.youtube.com"}.includes? url
           if url.path == "/redirect"
             url = HTTP::Params.parse(url.query.not_nil!)["q"]
           else
