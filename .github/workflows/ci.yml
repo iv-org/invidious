@@ -86,6 +86,9 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build Docker
+        run: docker-compose build --build-arg release=0
+
+      - name: Run Docker
         run: docker-compose up -d
 
       - name: Test Docker
@@ -112,6 +115,7 @@ jobs:
           context: .
           file: docker/Dockerfile.arm64
           platforms: linux/arm64/v8
+          build-args: release=0
 
       - name: Test Docker
         run: while curl -Isf http://localhost:3000; do sleep 1; done
