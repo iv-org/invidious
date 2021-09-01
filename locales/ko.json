@@ -136,6 +136,7 @@
     "Delete playlist": "재생목록 삭제",
     "Delete playlist `x`?": "재생목록 `x` 를 삭제 하시겠습니까?",
     "Updated `x` ago": "`x` 전에 업데이트됨",
+    "Released under the AGPLv3 on Github.": "",
     "View all playlists": "모든 재생목록 보기",
     "Private": "비공개",
     "Unlisted": "목록에 없음",
@@ -143,7 +144,6 @@
     "View privacy policy.": "개인정보 처리방침 보기.",
     "View JavaScript license information.": "JavaScript 라이센스 정보 보기.",
     "Source available here.": "소스는 여기에서 사용할 수 있습니다.",
-    "Released under the AGPLv3 by Omar Roth.": "Omar Roth에 의해 AGPLv3에 따라 공개되었습니다.",
     "Log out": "로그아웃",
     "search": "검색",
     "`x` unseen notifications": {
