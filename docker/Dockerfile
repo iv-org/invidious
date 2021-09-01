@@ -1,6 +1,8 @@
 FROM crystallang/crystal:1.1.1-alpine AS builder
 RUN apk add --no-cache sqlite-static yaml-static
 
+ARG release
+
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
 COPY ./shard.lock ./shard.lock
@@ -16,10 +18,17 @@ COPY ./.git/ ./.git/
 RUN crystal spec --warnings all \
     --link-flags "-lxml2 -llzma"
 
-RUN crystal build ./src/invidious.cr \
-    --release \
-    --static --warnings all \
-    --link-flags "-lxml2 -llzma"
+RUN if [ ${release} == 1 ] ; then \
+        crystal build ./src/invidious.cr \
+        --release \
+        --static --warnings all \
+        --link-flags "-lxml2 -llzma"; \
+    else \
+        crystal build ./src/invidious.cr \
+        --static --warnings all \
+        --link-flags "-lxml2 -llzma"; \
+    fi
+
 
 FROM alpine:latest
 RUN apk add --no-cache librsvg ttf-opensans
