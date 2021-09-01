@@ -16,6 +16,8 @@
             <% end %>
 
             <%
+            fmt_stream.reject! { |f| f["itag"] == 17 }
+            fmt_stream.sort_by! {|f| params.quality == f["quality"] ? 0 : 1 }
             fmt_stream.each_with_index do |fmt, i|
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
