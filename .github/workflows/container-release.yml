@@ -4,9 +4,18 @@ on:
   push:
     branches:
       - "master"
-  schedule:
-    - cron: 0 0 * * *
+    paths-ignore:
+      - "*.md"
+      - LICENCE
+      - TRANSLATION
+      - invidious.service
+      - .git*
+      - .editorconfig
 
+      - screenshots/*
+      - .github/ISSUE_TEMPLATE/*
+      - kubernetes/**
+  
 jobs:
   release:
     runs-on: ubuntu-latest
