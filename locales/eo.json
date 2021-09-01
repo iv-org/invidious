@@ -87,7 +87,7 @@
     "light": "hela",
     "Thin mode: ": "Maldika reĝimo: ",
     "Miscellaneous preferences": "Aliaj agordoj",
-    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "Aŭtomata alidirektado de instalaĵo (retropaŝo al redirect.invidious.io): ",
+    "Automatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Abonaj agordoj",
     "Show annotations by default for subscribed channels: ": "Ĉu montri prinotojn defaŭlte por abonitaj kanaloj? ",
     "Redirect homepage to feed: ": "Alidirekti hejmpâgon al fluo: ",

@@ -87,7 +87,7 @@
     "light": "terang",
     "Thin mode: ": "Mode tipis: ",
     "Miscellaneous preferences": "Preferensi lainnya",
-    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "Pengalihan instans otomatis (fallback ke redirect.invidious.io): ",
+    "Automatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Preferensi langganan",
     "Show annotations by default for subscribed channels: ": "Tampilkan anotasi secara default untuk kanal langganan: ",
     "Redirect homepage to feed: ": "Arahkan kembali laman beranda ke umpan: ",

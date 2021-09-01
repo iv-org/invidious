@@ -87,7 +87,7 @@
     "light": "jasny",
     "Thin mode: ": "Tryb minimalny: ",
     "Miscellaneous preferences": "Różne preferencje",
-    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "Automatyczne przekierowanie instancji (powrót do redirect.invidious.io): ",
+    "Automatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Preferencje subskrybcji",
     "Show annotations by default for subscribed channels: ": "Domyślnie wyświetlaj adnotacje dla subskrybowanych kanałów: ",
     "Redirect homepage to feed: ": "Przekieruj stronę główną do subskrybcji: ",
