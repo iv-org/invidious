@@ -30,7 +30,7 @@ shards:
 
   pg:
     git: https://github.com/will/crystal-pg.git
-    version: 0.23.2
+    version: 0.24.0
 
   protodec:
     git: https://github.com/iv-org/protodec.git

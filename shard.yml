@@ -12,7 +12,7 @@ targets:
 dependencies:
   pg:
     github: will/crystal-pg
-    version: ~> 0.23.2
+    version: ~> 0.24.0
   sqlite3:
     github: crystal-lang/crystal-sqlite3
     version: ~> 0.18.0
