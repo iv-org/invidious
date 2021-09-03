@@ -554,7 +554,7 @@ def content_to_comment_html(content)
 
         if url.host == "youtu.be"
           url = "/watch?v=#{url.request_target.lstrip('/')}"
-        elsif !url.host || {"m.youtube.com", "www.youtube.com"}.includes? url
+        elsif !url.host || {"m.youtube.com", "www.youtube.com"}.includes? url.host
           if url.path == "/redirect"
             url = HTTP::Params.parse(url.query.not_nil!)["q"]
           else
