@@ -481,11 +481,15 @@ def replace_links(html)
     url = URI.parse(anchor["href"])
 
     if {"www.youtube.com", "m.youtube.com", "youtu.be"}.includes?(url.host)
-      if url.path == "/redirect"
-        params = HTTP::Params.parse(url.query.not_nil!)
-        anchor["href"] = params["q"]?
+      if url.host == "youtu.be"
+        url = "/watch?v=#{url.request_target.lstrip('/')}"
       else
-        anchor["href"] = url.request_target
+        if url.path == "/redirect"
+          params = HTTP::Params.parse(url.query.not_nil!)
+          anchor["href"] = params["q"]?
+        else
+          anchor["href"] = url.request_target
+        end
       end
     elsif url.to_s == "#"
       begin
