@@ -495,12 +495,16 @@ def replace_links(html)
   html.xpath_nodes(%q(//a)).each do |anchor|
     url = URI.parse(anchor["href"])
 
-    if {"www.youtube.com", "m.youtube.com", "youtu.be"}.includes?(url.host)
-      if url.path == "/redirect"
-        params = HTTP::Params.parse(url.query.not_nil!)
-        anchor["href"] = params["q"]?
+    if url.host.nil? || url.host.not_nil!.ends_with?("youtube.com") || url.host.not_nil!.ends_with?("youtu.be")
+      if url.host.try &.ends_with? "youtu.be"
+        url = "/watch?v=#{url.path.lstrip('/')}#{url.query_params}"
       else
-        anchor["href"] = url.request_target
+        if url.path == "/redirect"
+          params = HTTP::Params.parse(url.query.not_nil!)
+          anchor["href"] = params["q"]?
+        else
+          anchor["href"] = url.request_target
+        end
       end
     elsif url.to_s == "#"
       begin
@@ -569,7 +573,7 @@ def content_to_comment_html(content)
 
         if url.host == "youtu.be"
           url = "/watch?v=#{url.request_target.lstrip('/')}"
-        elsif !url.host || {"m.youtube.com", "www.youtube.com"}.includes? url
+        elsif url.host.nil? || url.host.not_nil!.ends_with?("youtube.com")
           if url.path == "/redirect"
             url = HTTP::Params.parse(url.query.not_nil!)["q"]
           else
