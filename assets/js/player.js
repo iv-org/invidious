@@ -154,7 +154,7 @@ if (video_data.vr && video_data.params.vr_mode) {
     switch (video_data.projection_type) {
         case "EQUIRECTANGULAR":
             player.vr({projection: "equirectangular"});
-        default: // Should only be "MESH". But We'll use this as a fallback.
+        default: // Should only be "MESH" but we'll use this as a fallback.
             player.vr({projection: "EAC"});
     }
 }
