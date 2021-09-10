@@ -1550,4 +1550,5 @@ add_context_storage_type(User)
 Kemal.config.logger = LOGGER
 Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
 Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
+Kemal.config.app_name = "Invidious"
 Kemal.run
