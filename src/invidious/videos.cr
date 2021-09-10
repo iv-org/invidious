@@ -762,7 +762,12 @@ struct Video
   end
 
   def is_vr : Bool?
-    info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s == "MESH"
+    projection_type = info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
+    return {"EQUIRECTANGULAR", "MESH"}.includes? projection_type
+  end
+
+  def projection_type : String?
+    return info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
   end
 
   def wilson_score : Float64
