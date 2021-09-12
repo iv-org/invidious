@@ -1,18 +1,19 @@
-<link rel="stylesheet" href="/css/video-js.min.css?v=<%= ASSET_COMMIT %>">
-<link rel="stylesheet" href="/css/videojs-http-source-selector.css?v=<%= ASSET_COMMIT %>">
-<link rel="stylesheet" href="/css/videojs.markers.min.css?v=<%= ASSET_COMMIT %>">
-<link rel="stylesheet" href="/css/videojs-share.css?v=<%= ASSET_COMMIT %>">
-<link rel="stylesheet" href="/css/videojs-vtt-thumbnails.css?v=<%= ASSET_COMMIT %>">
-<link rel="stylesheet" href="/css/videojs-mobile-ui.css?v=<%= ASSET_COMMIT %>">
+<link rel="stylesheet" href="/videojs/video.js/video-js.css?v=<%= ASSET_COMMIT %>">
+<link rel="stylesheet" href="/videojs/videojs-http-source-selector/videojs-http-source-selector.css?v=<%= ASSET_COMMIT %>">
+<link rel="stylesheet" href="/videojs/videojs-markers/videojs.markers.css?v=<%= ASSET_COMMIT %>">
+<link rel="stylesheet" href="/videojs/videojs-share/videojs-share.css?v=<%= ASSET_COMMIT %>">
+<link rel="stylesheet" href="/videojs/videojs-vtt-thumbnails/videojs-vtt-thumbnails.css?v=<%= ASSET_COMMIT %>">
+<link rel="stylesheet" href="/videojs/videojs-mobile-ui/videojs-mobile-ui.css?v=<%= ASSET_COMMIT -%>">
+
 <link rel="stylesheet" href="/css/player.css?v=<%= ASSET_COMMIT %>">
 
-<script src="/js/video.min.js?v=<%= ASSET_COMMIT %>"></script>
-<script src="/js/videojs-mobile-ui.min.js?v=<%= ASSET_COMMIT %>"></script>
-<script src="/js/videojs-contrib-quality-levels.min.js?v=<%= ASSET_COMMIT %>"></script>
-<script src="/js/videojs-http-source-selector.min.js?v=<%= ASSET_COMMIT %>"></script>
-<script src="/js/videojs-markers.min.js?v=<%= ASSET_COMMIT %>"></script>
-<script src="/js/videojs-share.min.js?v=<%= ASSET_COMMIT %>"></script>
-<script src="/js/videojs-vtt-thumbnails.min.js?v=<%= ASSET_COMMIT %>"></script>
+<script src="/videojs/video.js/video.js?v=<%= ASSET_COMMIT %>"></script>
+<script src="/videojs/videojs-mobile-ui/videojs-mobile-ui.js?v=<%= ASSET_COMMIT %>"></script>
+<script src="/videojs/videojs-contrib-quality-levels/videojs-contrib-quality-levels.js?v=<%= ASSET_COMMIT %>"></script>
+<script src="/videojs/videojs-http-source-selector/videojs-http-source-selector.js?v=<%= ASSET_COMMIT %>"></script>
+<script src="/videojs/videojs-markers/videojs-markers.js?v=<%= ASSET_COMMIT %>"></script>
+<script src="/videojs/videojs-share/videojs-share.js?v=<%= ASSET_COMMIT %>"></script>
+<script src="/videojs/videojs-vtt-thumbnails/videojs-vtt-thumbnails.js?v=<%= ASSET_COMMIT %>"></script>
 
 
 <% if params.annotations %>
@@ -21,11 +22,11 @@
 <% end %>
 
 <% if params.listen || params.quality != "dash" %>
-    <link rel="stylesheet" href="/css/quality-selector.css?v=<%= ASSET_COMMIT %>">
-    <script src="/js/silvermine-videojs-quality-selector.min.js?v=<%= ASSET_COMMIT %>"></script>
+    <link rel="stylesheet" href="/videojs/silvermine-videojs-quality-selector/quality-selector.css?v=<%= ASSET_COMMIT %>">
+    <script src="/videojs/silvermine-videojs-quality-selector/silvermine-videojs-quality-selector.min.js?v=<%= ASSET_COMMIT %>"></script>
 <% end %>
 
 <% if !params.listen && params.vr_mode %>
-    <link rel="stylesheet" href="/css/videojs-vr.css?v=<%= ASSET_COMMIT %>">
-    <script src="/js/videojs-vr.js?v=<%= ASSET_COMMIT %>"></script>
+    <link rel="stylesheet" href="/videojs/videojs-vr/videojs-vr.css?v=<%= ASSET_COMMIT %>">
+    <script src="/videojs/videojs-vr/videojs-vr.js?v=<%= ASSET_COMMIT %>"></script>
 <% end %>
