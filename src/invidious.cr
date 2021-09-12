@@ -126,6 +126,19 @@ if CONFIG.check_tables
   end
 end
 
+# Resolve player dependencies. This is done at compile time.
+#
+# Running the script by itself would show some colorful feedback while this doesn't.
+# Perhaps we should just move the script to runtime in order to get that feedback?
+
+{% puts "\nChecking player dependencies...\n" %}
+{% if flag?(:minified_player_dependencies) %}
+  {% run("../scripts/fetch-player-dependencies.cr", "--minified") %}
+{% else %}
+  {% run("../scripts/fetch-player-dependencies.cr") %}
+{% end %}
+{% puts "Done!\n" %}
+
 # Start jobs
 
 if CONFIG.channel_threads > 0
