@@ -144,9 +144,9 @@ dependencies_to_install.each do |dep|
 end
 
 if dependencies_to_install.empty?
-  puts "#{"VideoJS".colorize(:blue)} #{"dependencies".colorize(:green)} are satisfied"
+  puts "#{"Player".colorize(:blue)} #{"dependencies".colorize(:green)} are satisfied"
 else
-  puts "#{"Resolving".colorize(:green)} #{"VideoJS".colorize(:blue)} dependencies"
+  puts "#{"Resolving".colorize(:green)} #{"player".colorize(:blue)} dependencies"
   dependencies_to_install.size.times do
     result = channel.receive
     puts "#{"Fetched".colorize(:green)} #{result.colorize(:blue)}"
