@@ -21,8 +21,8 @@
 <% end %>
 
 <% if params.listen || params.quality != "dash" %>
-    <link rel="stylesheet" href="/videojs/silvermine-videojs-quality-selector/quality-selector.css?v=<%= ASSET_COMMIT %>">
-    <script src="/videojs/silvermine-videojs-quality-selector/silvermine-videojs-quality-selector.js?v=<%= ASSET_COMMIT %>"></script>
+    <link rel="stylesheet" href="/css/quality-selector.css?v=<%= ASSET_COMMIT %>">
+    <script src="/js/silvermine-videojs-quality-selector.min.js?v=<%= ASSET_COMMIT %>"></script>
 <% end %>
 
 <% if !params.listen && params.vr_mode %>

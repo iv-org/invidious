@@ -34,9 +34,18 @@ videojs-vtt-thumbnails:
   version: 0.0.13
   shasum: d1e7d47f4ed80bb52f5fc4f4bad4bfc871f5970f
 
-silvermine-videojs-quality-selector:
-  version: 1.1.2
-  shasum: 94033ff9ee52ba6da1263b97c9a74d5b3dfdf711
+# We're using iv-org's fork of videojs-quality-selector,
+# which isn't published on NPM, and doesn't have any
+# easy way of fetching the compiled variant.
+#
+
+# silvermine-videojs-quality-selector:
+#   version: 1.1.2
+#   shasum: 94033ff9ee52ba6da1263b97c9a74d5b3dfdf711
+
+
+# Ditto. Although, this one does allow us to use git to fetch the compiled version.
+# However, it lacks versioning.
 
 # videojs-youtube-annotations:
 #   github: https://github.com/afrmtbl/videojs-youtube-annotations
