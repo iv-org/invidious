@@ -38,15 +38,14 @@ videojs-vtt-thumbnails:
 # which isn't published on NPM, and doesn't have any
 # easy way of fetching the compiled variant.
 #
-
 # silvermine-videojs-quality-selector:
 #   version: 1.1.2
 #   shasum: 94033ff9ee52ba6da1263b97c9a74d5b3dfdf711
 
 
-# Ditto. Although, this one does allow us to use git to fetch the compiled version.
-# However, it lacks versioning.
-
+# Ditto. Although this extension contains the complied variant in its git repo, 
+# it lacks any sort of versioning. As such, the script will ignore it.
+#
 # videojs-youtube-annotations:
 #   github: https://github.com/afrmtbl/videojs-youtube-annotations
 
