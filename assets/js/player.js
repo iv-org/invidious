@@ -149,7 +149,7 @@ player.on('error', function (event) {
 });
 
 // Enable VR video support
-if (video_data.vr && video_data.params.vr_mode) {
+if (!video_data.params.listen && video_data.vr && video_data.params.vr_mode) {
     player.crossOrigin("anonymous")
     switch (video_data.projection_type) {
         case "EQUIRECTANGULAR":
