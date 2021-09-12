@@ -15,6 +15,11 @@ COPY ./src/ ./src/
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
 COPY ./.git/ ./.git/
 
+# Required for fetching player dependencies
+COPY ./scripts/ ./scripts/
+COPY ./assets/ ./assets/
+COPY ./videojs-dependencies.yml ./videojs-dependencies.yml
+
 RUN crystal spec --warnings all \
     --link-flags "-lxml2 -llzma"
 
@@ -35,12 +40,12 @@ RUN apk add --no-cache librsvg ttf-opensans
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
     adduser -u 1000 -S invidious -G invidious
-COPY ./assets/ ./assets/
 COPY --chown=invidious ./config/config.* ./config/
 RUN mv -n config/config.example.yml config/config.yml
 RUN sed -i 's/host: \(127.0.0.1\|localhost\)/host: postgres/' config/config.yml
 COPY ./config/sql/ ./config/sql/
 COPY ./locales/ ./locales/
+COPY --from=builder /invidious/assets ./assets/
 COPY --from=builder /invidious/invidious .
 RUN chmod o+rX -R ./assets ./config ./locales
 
