@@ -117,7 +117,7 @@ dependencies_to_install.each do |dep|
     end
 
     # Would use File.rename but for some reason it just doesn't work here.
-    if minified && File.exists?("#{download_path}/package/dist/#{dep}.min.js")
+    if minified && File.exists?("#{download_path}/package/dist/#{js_path}#{dep}.min.js")
       `mv #{download_path}/package/dist/#{js_path}#{dep}.min.js #{dest_path}/#{dep}.js`
     else
       `mv #{download_path}/package/dist/#{js_path}#{dep}.js #{dest_path}/#{dep}.js`
