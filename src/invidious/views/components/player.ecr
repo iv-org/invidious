@@ -23,7 +23,7 @@
                 src_url += "&local=true" if params.local
 
                 quality = fmt["quality"]
-                mimetype = fmt["mimeType"]
+                mimetype = HTML.escape(fmt["mimeType"].as_s)
 
                 selected = params.quality ? (params.quality == quality) : (i == 0)
             %>
