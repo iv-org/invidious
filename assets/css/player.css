@@ -218,6 +218,10 @@ video.video-js {
 
 #player-container {
   position: relative;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 1em;
+  margin-right: 1em;
   padding-bottom: 82vh;
   height: 0;
 }
