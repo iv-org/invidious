@@ -23,8 +23,8 @@ class Invidious::LogHandler < Kemal::BaseLogHandler
     # Try not to log search queries passed as GET parameters during normal use
     # (They will still be logged if log level is 'Debug' or 'Trace')
     if @level > LogLevel::Debug && (
-      requested_url.downcase.includes?("search") || requested_url.downcase.includes?("q=")
-    )
+         requested_url.downcase.includes?("search") || requested_url.downcase.includes?("q=")
+       )
       # Log only the path
       requested_url = context.request.path
     end
