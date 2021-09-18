@@ -91,7 +91,8 @@ dependencies_to_install.each do |dep|
       data = response.body_io.gets_to_end
       File.write("#{download_path}/package.tgz", data)
 
-      if Digest::SHA1.hexdigest(data) != required_dependencies[dep]["shasum"]
+      # https://github.com/iv-org/invidious/pull/2397#issuecomment-922375908
+      if `sha1sum #{download_path}/package.tgz`.split(" ")[0] != required_dependencies[dep]["shasum"]
         raise Exception.new("Checksum for '#{dep}' failed")
       end
     end
