@@ -133,11 +133,10 @@ end
 
 {% puts "\nChecking player dependencies...\n" %}
 {% if flag?(:minified_player_dependencies) %}
-  {% run("../scripts/fetch-player-dependencies.cr", "--minified") %}
+  {% puts run("../scripts/fetch-player-dependencies.cr", "--minified").stringify %}
 {% else %}
-  {% run("../scripts/fetch-player-dependencies.cr") %}
+  {% puts run("../scripts/fetch-player-dependencies.cr").stringify %}
 {% end %}
-{% puts "Done!\n" %}
 
 # Start jobs
 
