@@ -4,8 +4,8 @@
 # Note: FreeTube currently uses a later version of video.js and videojs-http-source-selector
 # so maybe it's something wrong with how Invidious constructs dash manifests?
 video.js:
-  version: 7.10.2
-  shasum: 5156aabad7820e726d72ea6c32324059c68885a4
+  version: 7.11.0
+  shasum: e20747d890716085e7255a90d73c00f32324a224
 
 videojs-contrib-quality-levels:
   version: 2.1.0
