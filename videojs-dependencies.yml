@@ -1,6 +1,11 @@
+# Until one of the dependencies gets fixed we're stuck on 7.10.2
+# since dash qualities levels's can't be changed.
+#
+# Note: FreeTube currently uses a later version of video.js and videojs-http-source-selector
+# so maybe it's something wrong with how Invidious constructs dash manifests?
 video.js:
-  version: 7.14.3
-  shasum: 0b612c09a0a81ef9bce65c710e73291cb06dc32c
+  version: 7.10.2
+  shasum: 5156aabad7820e726d72ea6c32324059c68885a4
 
 videojs-contrib-quality-levels:
   version: 2.1.0
