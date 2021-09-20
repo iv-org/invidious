@@ -1,0 +1,8 @@
+# Default and lowest precedence. If none of the below matches, @iv-org/developers would be requested for review.
+* @iv-org/developers
+
+docker-compose.yml @unixfox
+docker/ @unixfox
+
+README.md @thefrenchghosty
+scripts/ @syeopite
