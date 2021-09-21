@@ -73,7 +73,7 @@ macro define_v1_api_routes
   Invidious::Routing.get "/api/v1/stats", {{namespace}}::Misc, :stats
   Invidious::Routing.get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist
   Invidious::Routing.get "/api/v1/auth/playlists/:plid", {{namespace}}::Misc, :get_playlist
-  Invidious::Routing.get "/api/v1//mixes/:rdid", {{namespace}}::Misc, :mixes
+  Invidious::Routing.get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes
 end
 
 macro define_api_manifest_routes
