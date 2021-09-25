@@ -33,7 +33,7 @@ db:
   #checkout_timeout: 5 
 
   ## Amount of retries when a connection is either lost or can't be established.
-  #retry_attempts: 1
+  #retry_attempts: 3
 
   ## Amount of seconds between each retry
   #retry_delay: 1

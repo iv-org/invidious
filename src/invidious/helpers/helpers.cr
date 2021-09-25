@@ -223,7 +223,7 @@ struct DBConfig
   property max_pool_size : Int32 = 0
   property max_idle_pool_size : Int32 = 1
   property checkout_timeout : Int32 = 5
-  property retry_attempts : Int32 = 1
+  property retry_attempts : Int32 = 3
   property retry_delay : Int32 = 1
 end
 
