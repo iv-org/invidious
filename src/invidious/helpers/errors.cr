@@ -132,8 +132,6 @@ def error_redirect_helper(env : HTTP::Server::Context, locale : Hash(String, JSO
         </li>
       </ul>
     END_HTML
-
-    return next_step_html
   else
     return ""
   end

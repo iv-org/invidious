@@ -29,7 +29,7 @@ module Invidious::Routes::Channels
           item.author
         end
       end
-      items = items.select(&.is_a?(SearchPlaylist)).map(&.as(SearchPlaylist))
+      items = items.select(SearchPlaylist).map(&.as(SearchPlaylist))
       items.each(&.author=(""))
     else
       sort_options = {"newest", "oldest", "popular"}
@@ -57,7 +57,7 @@ module Invidious::Routes::Channels
     end
 
     items, continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
-    items = items.select { |item| item.is_a?(SearchPlaylist) }.map { |item| item.as(SearchPlaylist) }
+    items = items.select(SearchPlaylist).map { |item| item.as(SearchPlaylist) }
     items.each(&.author=(""))
 
     templated "playlists"

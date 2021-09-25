@@ -40,7 +40,7 @@ def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : Str
       target << i
     end
   end
-  return target.select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
+  return target.select(SearchVideo).map(&.as(SearchVideo))
 end
 
 def extract_selected_tab(tabs)
