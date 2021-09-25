@@ -15,6 +15,29 @@ db:
   port: 5432
   dbname: invidious
 
+  ##
+  ## Granular pooling behavior controls
+  ## The following is entirely optional.
+  ##
+
+  ## Initial amount of connections in the pool 
+  #initial_pool_size:
+
+  ## Maximum amount of connections in the pool. 0 is unlimited.
+  #max_pool_size: 0
+
+  ## Amount of connections when idle
+  #max_idle_pool_size: 1 
+
+  ## Amount of seconds to wait if the connection pool is full, and a connection is unavailable. 
+  #checkout_timeout: 5 
+
+  ## Amount of retries when a connection is either lost or can't be established.
+  #retry_attempts: 1
+
+  ## Amount of seconds between each retry
+  #retry_delay: 1
+
 ##
 ## Database configuration using a single URI. This is an
 ## alternative to the 'db' parameter above. If both forms

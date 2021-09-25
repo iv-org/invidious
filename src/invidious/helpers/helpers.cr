@@ -188,6 +188,16 @@ class Config
           host: db.host,
           port: db.port,
           path: db.dbname,
+
+          # Pooling config
+          query: URI::Params.build do |pool_controls|
+            pool_controls.add "initial_pool_size", db.initial_pool_size.to_s
+            pool_controls.add "max_pool_size", db.max_pool_size.to_s
+            pool_controls.add "max_idle_pool_size", db.max_idle_pool_size.to_s
+            pool_controls.add "checkout_timeout", db.checkout_timeout.to_s
+            pool_controls.add "retry_attempts", db.retry_attempts.to_s
+            pool_controls.add "retry_delay", db.retry_delay.to_s
+          end
         )
       else
         puts "Config : Either database_url or db.* is required"
@@ -207,6 +217,14 @@ struct DBConfig
   property host : String
   property port : Int32
   property dbname : String
+
+  # https://crystal-lang.org/reference/database/connection_pool.html#configuration
+  property initial_pool_size : Int32 = 1
+  property max_pool_size : Int32 = 0
+  property max_idle_pool_size : Int32 = 1
+  property checkout_timeout : Int32 = 5
+  property retry_attempts : Int32 = 1
+  property retry_delay : Int32 = 1
 end
 
 def login_req(f_req)
