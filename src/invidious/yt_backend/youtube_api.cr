@@ -410,8 +410,8 @@ module YoutubeAPI
 
     # Logging
     LOGGER.debug("YoutubeAPI: Using endpoint: \"#{endpoint}\"")
-    LOGGER.trace("YoutubeAPI: ClientConfig: #{client_config.to_s}")
-    LOGGER.trace("YoutubeAPI: POST data: #{data.to_s}")
+    LOGGER.trace("YoutubeAPI: ClientConfig: #{client_config}")
+    LOGGER.trace("YoutubeAPI: POST data: #{data}")
 
     # Send the POST request
     if client_config.proxy_region
@@ -436,7 +436,7 @@ module YoutubeAPI
       # Logging
       LOGGER.error("YoutubeAPI: Got error #{code} when requesting #{endpoint}")
       LOGGER.error("YoutubeAPI: #{message}")
-      LOGGER.info("YoutubeAPI: POST data was: #{data.to_s}")
+      LOGGER.info("YoutubeAPI: POST data was: #{data}")
 
       raise InfoException.new("Could not extract JSON. Youtube API returned \
       error #{code} with message:<br>\"#{message}\"")
