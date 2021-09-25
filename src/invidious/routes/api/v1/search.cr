@@ -20,7 +20,7 @@ module Invidious::Routes::API::V1::Search
     duration = env.params.query["duration"]?.try &.downcase
     duration ||= ""
 
-    features = env.params.query["features"]?.try &.split(",").map { |feature| feature.downcase }
+    features = env.params.query["features"]?.try &.split(",").map(&.downcase)
     features ||= [] of String
 
     content_type = env.params.query["type"]?.try &.downcase

@@ -655,7 +655,7 @@ get "/subscription_manager" do |env|
   end
 
   subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousChannel)
-  subscriptions.sort_by! { |channel| channel.author.downcase }
+  subscriptions.sort_by!(&.author.downcase)
 
   if action_takeout
     if format == "json"
@@ -759,7 +759,7 @@ post "/data_control" do |env|
         body = JSON.parse(body)
 
         if body["subscriptions"]?
-          user.subscriptions += body["subscriptions"].as_a.map { |a| a.as_s }
+          user.subscriptions += body["subscriptions"].as_a.map(&.as_s)
           user.subscriptions.uniq!
 
           user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
@@ -768,7 +768,7 @@ post "/data_control" do |env|
         end
 
         if body["watch_history"]?
-          user.watched += body["watch_history"].as_a.map { |a| a.as_s }
+          user.watched += body["watch_history"].as_a.map(&.as_s)
           user.watched.uniq!
           PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", user.watched, user.email)
         end
@@ -876,12 +876,12 @@ post "/data_control" do |env|
               File.write(tempfile.path, entry.io.gets_to_end)
               db = DB.open("sqlite3://" + tempfile.path)
 
-              user.watched += db.query_all("SELECT url FROM streams", as: String).map { |url| url.lchop("https://www.youtube.com/watch?v=") }
+              user.watched += db.query_all("SELECT url FROM streams", as: String).map(&.lchop("https://www.youtube.com/watch?v="))
               user.watched.uniq!
 
               PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", user.watched, user.email)
 
-              user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map { |url| url.lchop("https://www.youtube.com/channel/") }
+              user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map(&.lchop("https://www.youtube.com/channel/"))
               user.subscriptions.uniq!
 
               user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)

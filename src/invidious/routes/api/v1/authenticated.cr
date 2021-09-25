@@ -339,7 +339,7 @@ module Invidious::Routes::API::V1::Authenticated
       callback_url = env.params.body["callbackUrl"]?
       expire = env.params.body["expire"]?.try &.to_i?
     when "application/json"
-      scopes = env.params.json["scopes"].as(Array).map { |v| v.as_s }
+      scopes = env.params.json["scopes"].as(Array).map(&.as_s)
       callback_url = env.params.json["callbackUrl"]?.try &.as(String)
       expire = env.params.json["expire"]?.try &.as(Int64)
     else

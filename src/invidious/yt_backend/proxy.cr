@@ -256,7 +256,7 @@ def decrypt_port(p, x)
   p = p.gsub(/\b\w+\b/, x)
 
   p = p.split(";")
-  p = p.map { |item| item.split("=") }
+  p = p.map(&.split("="))
 
   mapping = {} of String => Int32
   p.each do |item|

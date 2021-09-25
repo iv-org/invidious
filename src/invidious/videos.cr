@@ -880,7 +880,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 
   primary_results = player_response.try &.["contents"]?.try &.["twoColumnWatchNextResults"]?.try &.["results"]?
     .try &.["results"]?.try &.["contents"]?
-  sentiment_bar = primary_results.try &.as_a.select { |object| object["videoPrimaryInfoRenderer"]? }[0]?
+  sentiment_bar = primary_results.try &.as_a.select(&.["videoPrimaryInfoRenderer"]?)[0]?
     .try &.["videoPrimaryInfoRenderer"]?
       .try &.["sentimentBar"]?
         .try &.["sentimentBarRenderer"]?
@@ -891,11 +891,11 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   params["likes"] = JSON::Any.new(likes)
   params["dislikes"] = JSON::Any.new(dislikes)
 
-  params["descriptionHtml"] = JSON::Any.new(primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
+  params["descriptionHtml"] = JSON::Any.new(primary_results.try &.as_a.select(&.["videoSecondaryInfoRenderer"]?)[0]?
     .try &.["videoSecondaryInfoRenderer"]?.try &.["description"]?.try &.["runs"]?
       .try &.as_a.try { |t| content_to_comment_html(t).gsub("\n", "<br/>") } || "<p></p>")
 
-  metadata = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
+  metadata = primary_results.try &.as_a.select(&.["videoSecondaryInfoRenderer"]?)[0]?
     .try &.["videoSecondaryInfoRenderer"]?
       .try &.["metadataRowContainer"]?
         .try &.["metadataRowContainerRenderer"]?
@@ -928,7 +928,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     end
   end
 
-  author_info = primary_results.try &.as_a.select { |object| object["videoSecondaryInfoRenderer"]? }[0]?
+  author_info = primary_results.try &.as_a.select(&.["videoSecondaryInfoRenderer"]?)[0]?
     .try &.["videoSecondaryInfoRenderer"]?.try &.["owner"]?.try &.["videoOwnerRenderer"]?
 
   params["authorThumbnail"] = JSON::Any.new(author_info.try &.["thumbnail"]?
@@ -1023,13 +1023,13 @@ end
 def process_video_params(query, preferences)
   annotations = query["iv_load_policy"]?.try &.to_i?
   autoplay = query["autoplay"]?.try { |q| (q == "true" || q == "1").to_unsafe }
-  comments = query["comments"]?.try &.split(",").map { |a| a.downcase }
+  comments = query["comments"]?.try &.split(",").map(&.downcase)
   continue = query["continue"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   continue_autoplay = query["continue_autoplay"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   listen = query["listen"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   local = query["local"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   player_style = query["player_style"]?
-  preferred_captions = query["subtitles"]?.try &.split(",").map { |a| a.downcase }
+  preferred_captions = query["subtitles"]?.try &.split(",").map(&.downcase)
   quality = query["quality"]?
   quality_dash = query["quality_dash"]?
   region = query["region"]?

@@ -183,7 +183,7 @@ def process_search_query(query, page, user, region)
   sort = "relevance"
   subscriptions = nil
 
-  operators = query.split(" ").select { |a| a.match(/\w+:[\w,]+/) }
+  operators = query.split(" ").select(&.match(/\w+:[\w,]+/))
   operators.each do |operator|
     key, value = operator.downcase.split(":")
 

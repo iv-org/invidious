@@ -248,17 +248,17 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
     notifications = db.query_all("SELECT * FROM channel_videos WHERE id IN (#{args}) ORDER BY published DESC", args: notifications, as: ChannelVideo)
     videos = [] of ChannelVideo
 
-    notifications.sort_by! { |video| video.published }.reverse!
+    notifications.sort_by!(&.published).reverse!
 
     case user.preferences.sort
     when "alphabetically"
-      notifications.sort_by! { |video| video.title }
+      notifications.sort_by!(&.title)
     when "alphabetically - reverse"
-      notifications.sort_by! { |video| video.title }.reverse!
+      notifications.sort_by!(&.title).reverse!
     when "channel name"
-      notifications.sort_by! { |video| video.author }
+      notifications.sort_by!(&.author)
     when "channel name - reverse"
-      notifications.sort_by! { |video| video.author }.reverse!
+      notifications.sort_by!(&.author).reverse!
     else nil # Ignore
     end
   else
@@ -279,7 +279,7 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
         videos = PG_DB.query_all("SELECT DISTINCT ON (ucid) * FROM #{view_name} ORDER BY ucid, published DESC", as: ChannelVideo)
       end
 
-      videos.sort_by! { |video| video.published }.reverse!
+      videos.sort_by!(&.published).reverse!
     else
       if user.preferences.unseen_only
         # Only show unwatched
@@ -299,15 +299,15 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
 
     case user.preferences.sort
     when "published - reverse"
-      videos.sort_by! { |video| video.published }
+      videos.sort_by!(&.published)
     when "alphabetically"
-      videos.sort_by! { |video| video.title }
+      videos.sort_by!(&.title)
     when "alphabetically - reverse"
-      videos.sort_by! { |video| video.title }.reverse!
+      videos.sort_by!(&.title).reverse!
     when "channel name"
-      videos.sort_by! { |video| video.author }
+      videos.sort_by!(&.author)
     when "channel name - reverse"
-      videos.sort_by! { |video| video.author }.reverse!
+      videos.sort_by!(&.author).reverse!
     else nil # Ignore
     end
 

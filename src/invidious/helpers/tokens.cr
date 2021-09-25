@@ -46,7 +46,7 @@ def sign_token(key, hash)
     next if key == "signature"
 
     if value.is_a?(JSON::Any) && value.as_a?
-      value = value.as_a.map { |i| i.as_s }
+      value = value.as_a.map(&.as_s)
     end
 
     case value
@@ -82,7 +82,7 @@ def validate_request(token, session, request, key, db, locale = nil)
     raise InfoException.new("Erroneous token")
   end
 
-  scopes = token["scopes"].as_a.map { |v| v.as_s }
+  scopes = token["scopes"].as_a.map(&.as_s)
   scope = "#{request.method}:#{request.path.lchop("/api/v1/auth/").lstrip("/")}"
   if !scopes_include_scope(scopes, scope)
     raise InfoException.new("Invalid scope")
@@ -105,11 +105,11 @@ end
 
 def scope_includes_scope(scope, subset)
   methods, endpoint = scope.split(":")
-  methods = methods.split(";").map { |method| method.upcase }.reject { |method| method.empty? }.sort
+  methods = methods.split(";").map(&.upcase).reject(&.empty?).sort
   endpoint = endpoint.downcase
 
   subset_methods, subset_endpoint = subset.split(":")
-  subset_methods = subset_methods.split(";").map { |method| method.upcase }.sort
+  subset_methods = subset_methods.split(";").map(&.upcase).sort
   subset_endpoint = subset_endpoint.downcase
 
   if methods.empty?
