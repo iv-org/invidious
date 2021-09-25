@@ -105,11 +105,11 @@ end
 
 def scope_includes_scope(scope, subset)
   methods, endpoint = scope.split(":")
-  methods = methods.split(";").map(&.upcase).reject(&.empty?).sort
+  methods = methods.split(";").map(&.upcase).reject(&.empty?).sort!
   endpoint = endpoint.downcase
 
   subset_methods, subset_endpoint = subset.split(":")
-  subset_methods = subset_methods.split(";").map(&.upcase).sort
+  subset_methods = subset_methods.split(";").map(&.upcase).sort!
   subset_endpoint = subset_endpoint.downcase
 
   if methods.empty?
