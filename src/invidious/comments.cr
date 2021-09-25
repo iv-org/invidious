@@ -73,9 +73,9 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
   contents = nil
 
   if response["onResponseReceivedEndpoints"]?
-    onResponseReceivedEndpoints = response["onResponseReceivedEndpoints"]
+    on_response_received_endpoints = response["onResponseReceivedEndpoints"]
     header = nil
-    onResponseReceivedEndpoints.as_a.each do |item|
+    on_response_received_endpoints.as_a.each do |item|
       if item["reloadContinuationItemsCommand"]?
         case item["reloadContinuationItemsCommand"]["slot"]
         when "RELOAD_CONTINUATION_SLOT_HEADER"
@@ -97,7 +97,8 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
     contents = body["contents"]?
     header = body["header"]?
     if body["continuations"]?
-      moreRepliesContinuation = body["continuations"][0]["nextContinuationData"]["continuation"].as_s
+      # Removable? Doesn't seem like this is used.
+      more_replies_continuation = body["continuations"][0]["nextContinuationData"]["continuation"].as_s
     end
   else
     raise InfoException.new("Could not fetch comments")
@@ -111,10 +112,10 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
     end
   end
 
-  continuationItemRenderer = nil
+  continuation_item_renderer = nil
   contents.as_a.reject! do |item|
     if item["continuationItemRenderer"]?
-      continuationItemRenderer = item["continuationItemRenderer"]
+      continuation_item_renderer = item["continuationItemRenderer"]
       true
     end
   end
@@ -232,14 +233,14 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
         end
       end
 
-      if continuationItemRenderer
-        if continuationItemRenderer["continuationEndpoint"]?
-          continuationEndpoint = continuationItemRenderer["continuationEndpoint"]
-        elsif continuationItemRenderer["button"]?
-          continuationEndpoint = continuationItemRenderer["button"]["buttonRenderer"]["command"]
+      if continuation_item_renderer
+        if continuation_item_renderer["continuationEndpoint"]?
+          continuation_endpoint = continuation_item_renderer["continuationEndpoint"]
+        elsif continuation_item_renderer["button"]?
+          continuation_endpoint = continuation_item_renderer["button"]["buttonRenderer"]["command"]
         end
-        if continuationEndpoint
-          json.field "continuation", continuationEndpoint["continuationCommand"]["token"].as_s
+        if continuation_endpoint
+          json.field "continuation", continuation_endpoint["continuationCommand"]["token"].as_s
         end
       end
     end

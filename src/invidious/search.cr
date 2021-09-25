@@ -14,13 +14,13 @@ def channel_search(query, page, channel)
   continuation = produce_channel_search_continuation(ucid, query, page)
   response_json = YoutubeAPI.browse(continuation)
 
-  continuationItems = response_json["onResponseReceivedActions"]?
+  continuation_items = response_json["onResponseReceivedActions"]?
     .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
 
-  return 0, [] of SearchItem if !continuationItems
+  return 0, [] of SearchItem if !continuation_items
 
   items = [] of SearchItem
-  continuationItems.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each { |item|
+  continuation_items.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each { |item|
     extract_item(item["itemSectionRenderer"]["contents"].as_a[0])
       .try { |t| items << t }
   }

@@ -703,13 +703,13 @@ get "/subscription_manager" do |env|
             xml.element("outline", text: title, title: title) do
               subscriptions.each do |channel|
                 if format == "newpipe"
-                  xmlUrl = "https://www.youtube.com/feeds/videos.xml?channel_id=#{channel.id}"
+                  xml_url = "https://www.youtube.com/feeds/videos.xml?channel_id=#{channel.id}"
                 else
-                  xmlUrl = "#{HOST_URL}/feed/channel/#{channel.id}"
+                  xml_url = "#{HOST_URL}/feed/channel/#{channel.id}"
                 end
 
                 xml.element("outline", text: channel.author, title: channel.author,
-                  "type": "rss", xmlUrl: xmlUrl)
+                  "type": "rss", xmlUrl: xml_url)
               end
             end
           end
@@ -1351,7 +1351,7 @@ error 500 do |env, ex|
   error_template(500, ex)
 end
 
-static_headers do | response |
+static_headers do |response|
   response.headers.add("Cache-Control", "max-age=2629800")
 end
 

@@ -426,7 +426,7 @@ struct Video
           self.captions.each do |caption|
             json.object do
               json.field "label", caption.name
-              json.field "languageCode", caption.languageCode
+              json.field "language_code", caption.language_code
               json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name)}"
             end
           end
@@ -703,10 +703,10 @@ struct Video
     return @captions.as(Array(Caption)) if @captions
     captions = info["captions"]?.try &.["playerCaptionsTracklistRenderer"]?.try &.["captionTracks"]?.try &.as_a.map do |caption|
       name = caption["name"]["simpleText"]? || caption["name"]["runs"][0]["text"]
-      languageCode = caption["languageCode"].to_s
-      baseUrl = caption["baseUrl"].to_s
+      language_code = caption["languageCode"].to_s
+      base_url = caption["baseUrl"].to_s
 
-      caption = Caption.new(name.to_s, languageCode, baseUrl)
+      caption = Caption.new(name.to_s, language_code, base_url)
       caption.name = caption.name.split(" - ")[0]
       caption
     end
@@ -785,16 +785,16 @@ end
 
 struct Caption
   property name
-  property languageCode
-  property baseUrl
+  property language_code
+  property base_url
 
   getter name : String
-  getter languageCode : String
-  getter baseUrl : String
+  getter language_code : String
+  getter base_url : String
 
   setter name
 
-  def initialize(@name, @languageCode, @baseUrl)
+  def initialize(@name, @language_code, @base_url)
   end
 end
 

@@ -58,7 +58,7 @@ module Invidious::Routes::API::V1::Videos
               captions.each do |caption|
                 json.object do
                   json.field "label", caption.name
-                  json.field "languageCode", caption.languageCode
+                  json.field "languageCode", caption.language_code
                   json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name)}"
                 end
               end
@@ -73,7 +73,7 @@ module Invidious::Routes::API::V1::Videos
     env.response.content_type = "text/vtt; charset=UTF-8"
 
     if lang
-      caption = captions.select { |caption| caption.languageCode == lang }
+      caption = captions.select { |caption| caption.language_code == lang }
     else
       caption = captions.select { |caption| caption.name == label }
     end
@@ -84,7 +84,7 @@ module Invidious::Routes::API::V1::Videos
       caption = caption[0]
     end
 
-    url = URI.parse("#{caption.baseUrl}&tlang=#{tlang}").request_target
+    url = URI.parse("#{caption.base_url}&tlang=#{tlang}").request_target
 
     # Auto-generated captions often have cues that aren't aligned properly with the video,
     # as well as some other markup that makes it cumbersome, so we try to fix that here
@@ -96,7 +96,7 @@ module Invidious::Routes::API::V1::Videos
         str << <<-END_VTT
         WEBVTT
         Kind: captions
-        Language: #{tlang || caption.languageCode}
+        Language: #{tlang || caption.language_code}
 
 
         END_VTT
