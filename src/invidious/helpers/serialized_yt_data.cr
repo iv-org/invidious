@@ -62,7 +62,7 @@ struct SearchVideo
     if xml
       to_xml(HOST_URL, auto_generated, query_params, xml)
     else
-      XML.build do |json|
+      XML.build do |xml|
         to_xml(HOST_URL, auto_generated, query_params, xml)
       end
     end

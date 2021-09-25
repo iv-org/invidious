@@ -128,7 +128,7 @@ def produce_search_params(page = 1, sort : String = "relevance", date : String =
     object.delete("2:embedded")
   end
 
-  params = object.try { |i| Protodec::Any.cast_json(object) }
+  params = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
@@ -161,7 +161,7 @@ def produce_channel_search_continuation(ucid, query, page)
     },
   }
 
-  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+  continuation = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }

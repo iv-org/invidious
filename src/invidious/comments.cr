@@ -638,7 +638,7 @@ def produce_comment_continuation(video_id, cursor = "", sort_by = "top")
     object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
   end
 
-  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+  continuation = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
@@ -673,7 +673,7 @@ def produce_comment_reply_continuation(video_id, ucid, comment_id)
     },
   }
 
-  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+  continuation = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
