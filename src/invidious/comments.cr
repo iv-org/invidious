@@ -72,8 +72,7 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
   response = YoutubeAPI.next(continuation: ctoken, client_config: client_config)
   contents = nil
 
-  if response["onResponseReceivedEndpoints"]?
-    on_response_received_endpoints = response["onResponseReceivedEndpoints"]
+  if on_response_received_endpoints = response["onResponseReceivedEndpoints"]?
     header = nil
     on_response_received_endpoints.as_a.each do |item|
       if item["reloadContinuationItemsCommand"]?
