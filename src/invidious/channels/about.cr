@@ -149,7 +149,7 @@ def get_about_info(ucid, locale)
         end
       end
     end
-    tabs = tabs_json.reject { |node| node["tabRenderer"]?.nil? }.map(&.["tabRenderer"].["title"].as_s.downcase)
+    tabs = tabs_json.reject { |node| node["tabRenderer"]?.nil? }.map(&.["tabRenderer"]["title"].as_s.downcase)
   end
 
   sub_count = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s?
