@@ -236,7 +236,7 @@ def get_spys_proxies(country_code = "US")
     proxies << {ip: ip, port: port, score: score}
   end
 
-  proxies = proxies.sort_by { |proxy| proxy[:score] }.reverse!
+  proxies = proxies.sort_by!(&.[:score]).reverse!
   return proxies
 end
 

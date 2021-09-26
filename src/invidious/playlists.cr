@@ -51,7 +51,7 @@ struct PlaylistVideo
     if xml
       to_xml(auto_generated, xml)
     else
-      XML.build do |xml| # Why was this `json`?
+      XML.build do |xml|
         to_xml(auto_generated, xml)
       end
     end
