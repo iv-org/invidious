@@ -3,7 +3,13 @@
 
 docker-compose.yml @unixfox
 docker/ @unixfox
+kubernetes/ @unixfox
 
 README.md @thefrenchghosty
 config/config.example.yml @thefrenchghosty @SamantazFox @unixfox
+
 scripts/ @syeopite
+shards.lock @syeopite
+shards.yml @syeopite
+
+src/invidious/helpers/youtube_api.cr @SamantazFox
