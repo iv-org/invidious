@@ -1,9 +1,11 @@
 require "lsquic"
 require "db"
 
-# Alias of DB::Pool for easier debugging
-class YTPool(T) < DB::Pool(T)
-end
+{% unless Crystal::VERSION == "1.0.0" %}
+  # Alias of DB::Pool for easier debugging
+  class YTPool(T) < DB::Pool(T)
+  end
+{% end %}
 
 def add_yt_headers(request)
   request.headers["user-agent"] ||= "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
@@ -24,7 +26,12 @@ struct YoutubeConnectionPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : YTPool(QUIC::Client | HTTP::Client)
+
+  {% unless Crystal::VERSION == "1.0.0" %}
+    property pool : YTPool(QUIC::Client | HTTP::Client)
+  {% else %}
+    property pool : DB::Pool(QUIC::Client | HTTP::Client)
+  {% end %}
 
   def initialize(url : URI,
                  @initial_pool_size = 1,
