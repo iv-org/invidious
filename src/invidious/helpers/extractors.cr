@@ -139,8 +139,8 @@ private module Parsers
       # When public subscriber count is disabled, the subscriberCountText isn't sent by InnerTube.
       # Always simpleText
       # TODO change default value to nil
-      subscriber_count = item_contents.dig?("subscriberCountText").try &.["simpleText"].try { \
-         |s| short_text_to_number(s.as_s.split(" ")[0]) } || 0
+      subscriber_count = item_contents.dig?("subscriberCountText", "simpleText")
+        .try { |s| short_text_to_number(s.as_s.split(" ")[0]) } || 0
 
       auto_generated = !item_contents["videoCountText"]? ? true : false
 
@@ -265,7 +265,8 @@ private module Parsers
 
     private def self.parse(item_contents, author_fallback)
       title = extract_text(item_contents["title"]?) || ""
-      url = item_contents["endpoint"]?.try &.dig("commandMetadata", "webCommandMetadata", "url").as_s
+      url = item_contents.dig?("endpoint", "commandMetadata", "webCommandMetadata", "url")
+        .try &.as_s
 
       # Sometimes a category can have badges.
       badges = [] of Tuple(String, String) # (Badge style, label)
@@ -450,7 +451,7 @@ private module HelperExtractors
   # Returns a 0 when it's unable to do so
   def self.get_video_count(container : JSON::Any) : Int32
     if box = container["videoCountText"]?
-      return extract_text(container["videoCountText"]?).try &.gsub(/\D/, "").to_i || 0
+      return extract_text(box).try &.gsub(/\D/, "").to_i || 0
     elsif box = container["videoCount"]?
       return box.as_s.to_i
     else
