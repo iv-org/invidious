@@ -26,11 +26,13 @@ require "xml"
 require "yaml"
 require "compress/zip"
 require "protodec/utils"
+
 require "./invidious/helpers/*"
 require "./invidious/*"
 require "./invidious/channels/*"
 require "./invidious/routes/**"
 require "./invidious/jobs/**"
+require "./invidious/user/*"
 
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
@@ -288,12 +290,14 @@ before_all do |env|
     end
   end
 
-  dark_mode = convert_theme(env.params.query["dark_mode"]?) || preferences.dark_mode.to_s
+  theme = env.params.query["dark_mode"]?
+  theme = Settings::Converters::Theme.from_s(theme) if theme
+  preferences.dark_mode = theme if theme
+
   thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
   thin_mode = thin_mode == "true"
   locale = env.params.query["hl"]? || preferences.locale
 
-  preferences.dark_mode = dark_mode
   preferences.thin_mode = thin_mode
   preferences.locale = locale
   env.set "preferences", preferences

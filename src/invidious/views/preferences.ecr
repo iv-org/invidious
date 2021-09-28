@@ -40,7 +40,7 @@
             <div class="pure-control-group">
                 <label for="speed"><%= translate(locale, "Default speed: ") %></label>
                 <select name="speed" id="speed">
-                    <% {2.0, 1.75, 1.5, 1.25, 1.0, 0.75, 0.5, 0.25}.each do |option| %>
+                    <% Settings::ALLOWED_SPEED_VALUES.each do |option| %>
                         <option <% if preferences.speed == option %> selected <% end %>><%= option %></option>
                     <% end %>
                 </select>
@@ -130,8 +130,8 @@
             <div class="pure-control-group">
                 <label for="player_style"><%= translate(locale, "Player style: ") %></label>
                 <select name="player_style" id="player_style">
-                    <% {"invidious", "youtube"}.each do |option| %>
-                        <option value="<%= option %>" <% if preferences.player_style == option %> selected <% end %>><%= translate(locale, option) %></option>
+                    <% Settings::PlayerStyles.each do |option| %>
+                        <option value="<%= option %>" <% if preferences.player_style == option %> selected <% end %>><%= translate(locale, option.to_s.underscore) %></option>
                     <% end %>
                 </select>
             </div>
@@ -139,8 +139,8 @@
             <div class="pure-control-group">
                 <label for="dark_mode"><%= translate(locale, "Theme: ") %></label>
                 <select name="dark_mode" id="dark_mode">
-                    <% {"", "light", "dark"}.each do |option| %>
-                        <option value="<%= option %>" <% if preferences.dark_mode == option %> selected <% end %>><%= translate(locale, option.blank? ? "auto" : option) %></option>
+                    <% Settings::Themes.each do |option| %>
+                        <option value="<%= option %>" <% if preferences.dark_mode == option %> selected <% end %>><%= translate(locale, option.to_s.underscore) %></option>
                     <% end %>
                 </select>
             </div>
@@ -150,17 +150,16 @@
                 <input name="thin_mode" id="thin_mode" type="checkbox" <% if preferences.thin_mode %>checked<% end %>>
             </div>
 
-            <% if env.get?("user") %>
-                <% feed_options = {"", "Popular", "Trending", "Subscriptions", "Playlists"} %>
-            <% else %>
-                <% feed_options = {"", "Popular", "Trending"} %>
-            <% end %>
+            <%
+              feed_options = Settings::HomePages.names
+              feed_options.concat(Settings::UserHomePages.names) if env.get?("user")
+            %>
 
             <div class="pure-control-group">
                 <label for="default_home"><%= translate(locale, "Default homepage: ") %></label>
                 <select name="default_home" id="default_home">
                     <% feed_options.each do |option| %>
-                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "Search" : option) %></option>
+                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
                     <% end %>
                 </select>
             </div>
@@ -170,11 +169,12 @@
                 <% (feed_options.size - 1).times do |index| %>
                     <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
                         <% feed_options.each do |option| %>
-                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option.blank? ? "Search" : option) %></option>
+                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option.to_s) %></option>
                         <% end %>
                     </select>
                 <% end %>
             </div>
+
             <% if env.get? "user" %>
                 <div class="pure-control-group">
                     <label for="show_nick"><%= translate(locale, "Show nickname on top: ") %></label>
