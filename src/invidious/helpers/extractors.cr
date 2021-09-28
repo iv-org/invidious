@@ -16,7 +16,7 @@ private ITEM_PARSERS = {
   Parsers::CategoryRendererParser,
 }
 
-record AuthorFallback, name : String? = nil, id : String? = nil
+record AuthorFallback, name : String, id : String
 
 # Namespace for logic relating to parsing InnerTube data into various datastructs.
 #
@@ -50,8 +50,8 @@ private module Parsers
         author = author_info["text"].as_s
         author_id = HelperExtractors.get_browse_endpoint(author_info)
       else
-        author = author_fallback.name || ""
-        author_id = author_fallback.id || ""
+        author = author_fallback.name
+        author_id = author_fallback.id
       end
 
       # For live videos (and possibly recently premiered videos) there is no published information.
@@ -132,8 +132,8 @@ private module Parsers
     end
 
     private def self.parse(item_contents, author_fallback)
-      author = extract_text(item_contents["title"]) || author_fallback.name || ""
-      author_id = item_contents["channelId"]?.try &.as_s || author_fallback.id || ""
+      author = extract_text(item_contents["title"]) || author_fallback.name
+      author_id = item_contents["channelId"]?.try &.as_s || author_fallback.id
 
       author_thumbnail = HelperExtractors.get_thumbnails(item_contents)
       # When public subscriber count is disabled, the subscriberCountText isn't sent by InnerTube.
@@ -185,8 +185,8 @@ private module Parsers
       SearchPlaylist.new({
         title:       title,
         id:          plid,
-        author:      author_fallback.name || "",
-        ucid:        author_fallback.id || "",
+        author:      author_fallback.name,
+        ucid:        author_fallback.id,
         video_count: video_count,
         videos:      [] of SearchPlaylistVideo,
         thumbnail:   playlist_thumbnail,
@@ -516,9 +516,12 @@ end
 
 # Parses an item from Youtube's JSON response into a more usable structure.
 # The end result can either be a SearchVideo, SearchPlaylist or SearchChannel.
-def extract_item(item : JSON::Any, author_fallback : String? = nil,
-                 author_id_fallback : String? = nil)
-  author_fallback = AuthorFallback.new(author_fallback, author_id_fallback)
+def extract_item(item : JSON::Any, author_fallback : String? = "",
+                 author_id_fallback : String? = "")
+  # We "allow" nil values but secretly use empty strings instead. This is to save us the
+  # hassle of modifying every author_fallback and author_id_fallback arg usage
+  # which is more often than not nil.
+  author_fallback = AuthorFallback.new(author_fallback || "", author_id_fallback || "")
 
   # Cycles through all of the item parsers and attempt to parse the raw YT JSON data.
   # Each parser automatically validates the data given to see if the data is
