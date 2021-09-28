@@ -48,7 +48,7 @@ private module Parsers
       # Extract author information
       if author_info = item_contents.dig?("ownerText", "runs", 0)
         author = author_info["text"].as_s
-        author_id = HelperExtractors.get_browse_endpoint(author_info)
+        author_id = HelperExtractors.get_browse_id(author_info)
       else
         author = author_fallback.name
         author_id = author_fallback.id
@@ -218,7 +218,7 @@ private module Parsers
 
       author_info = item_contents.dig("shortBylineText", "runs", 0)
       author = author_info["text"].as_s
-      author_id = HelperExtractors.get_browse_endpoint(author_info)
+      author_id = HelperExtractors.get_browse_id(author_info)
 
       videos = item_contents["videos"]?.try &.as_a.map do |v|
         v = v["childVideoRenderer"]
@@ -478,7 +478,7 @@ private module HelperExtractors
 
   # Retrieves the ID required for querying the InnerTube browse endpoint.
   # Raises when it's unable to do so
-  def self.get_browse_endpoint(container)
+  def self.get_browse_id(container)
     return container.dig("navigationEndpoint", "browseEndpoint", "browseId").as_s
   end
 end
