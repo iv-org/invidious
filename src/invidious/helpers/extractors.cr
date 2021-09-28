@@ -352,7 +352,7 @@ private module Extractors
       content = extract_selected_tab(target["tabs"])["content"]
 
       content["sectionListRenderer"]["contents"].as_a.each do |renderer_container|
-        renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"].as_a[0]
+        renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"][0]
 
         # Category extraction
         if items_container = renderer_container_contents["shelfRenderer"]?
@@ -527,8 +527,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = "",
   # Each parser automatically validates the data given to see if the data is
   # applicable to itself. If not nil is returned and the next parser is attemped.
   ITEM_PARSERS.each do |parser|
-    result = parser.process(item, author_fallback)
-    if !result.nil?
+    if result = parser.process(item, author_fallback)
       return result
     end
   end
@@ -542,22 +541,21 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
 
   if unpackaged_data = initial_data["contents"]?.try &.as_h
   elsif unpackaged_data = initial_data["response"]?.try &.as_h
-  elsif unpackaged_data = initial_data["onResponseReceivedActions"]?.try &.as_a.[0].as_h
+  elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 0).try &.as_h
   else
     unpackaged_data = initial_data
   end
 
-  # This is identical to the parser cyling of extract_item().
+  # This is identical to the parser cycling of extract_item().
   ITEM_CONTAINER_EXTRACTOR.each do |extractor|
-    results = extractor.process(unpackaged_data)
-    if !results.nil?
-      results.each do |item|
-        parsed_result = extract_item(item, author_fallback, author_id_fallback)
-
-        if !parsed_result.nil?
+    if container = extractor.process(unpackaged_data)
+      # Extract items in container
+      container.each do |item|
+        if parsed_result = extract_item(item, author_fallback, author_id_fallback)
           items << parsed_result
         end
       end
+
       return items
     end
   end
