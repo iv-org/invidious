@@ -142,7 +142,9 @@ private module Parsers
       subscriber_count = item_contents.dig?("subscriberCountText", "simpleText")
         .try { |s| short_text_to_number(s.as_s.split(" ")[0]) } || 0
 
-      auto_generated = !item_contents["videoCountText"]? ? true : false
+      # Auto-generated channels doesn't have videoCountText
+      # Taken from: https://github.com/iv-org/invidious/pull/2228#discussion_r717620922
+      auto_generated = item_contents["videoCountText"]?.nil?
 
       video_count = HelperExtractors.get_video_count(item_contents)
       description_html = item_contents["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
