@@ -1,6 +1,10 @@
 require "lsquic"
 require "db"
 
+# Alias of DB::Pool for easier debugging
+class YTPool(T) < DB::Pool(T)
+end
+
 def add_yt_headers(request)
   request.headers["user-agent"] ||= "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
   request.headers["accept-charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
@@ -20,9 +24,16 @@ struct YoutubeConnectionPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : DB::Pool(QUIC::Client | HTTP::Client)
+  property pool : YTPool(QUIC::Client | HTTP::Client)
 
-  def initialize(url : URI, @capacity = 5, @timeout = 5.0, use_quic = true)
+  def initialize(url : URI,
+                 @initial_pool_size = 1,
+                 @max_pool_size = 0,
+                 @max_idle_pool_size = 1,
+                 @checkout_timeout : Float64 = 5.0,
+                 @retry_attempts = 1,
+                 @retry_delay : Float64 = 0.2,
+                 use_quic = true)
     @url = url
     @pool = build_pool(use_quic)
   end
@@ -51,12 +62,20 @@ struct YoutubeConnectionPool
   end
 
   private def build_pool(use_quic)
-    DB::Pool(QUIC::Client | HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
+    YTPool(QUIC::Client | HTTP::Client).new(
+      initial_pool_size: @initial_pool_size,
+      max_pool_size: @max_pool_size,
+      max_idle_pool_size: @max_idle_pool_size,
+      checkout_timeout: @checkout_timeout,
+      retry_attempts: @retry_attempts,
+      retry_delay: @retry_delay
+    ) do
       if use_quic
         conn = QUIC::Client.new(url)
       else
         conn = HTTP::Client.new(url)
       end
+
       conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"

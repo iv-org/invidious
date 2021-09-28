@@ -102,7 +102,14 @@ class Config
   property port : Int32 = 3000                                     # Port to listen for connections (overrided by command line argument)
   property host_binding : String = "0.0.0.0"                       # Host to bind (overrided by command line argument)
   property pool_size : Int32 = 100                                 # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
-  property use_quic : Bool = true                                  # Use quic transport for youtube api
+
+  property initial_http_pool_size : Int32 = 0       # Initial amount of connections in the http pool
+  property max_idle_http_pool_size : Int32 = 1      # Amount of connections when idle
+  property http_pool_checkout_timeout : Float64 = 5 # Amount of seconds to wait if the connection pool is full, and a connection is unavailable.
+  property http_pool_retry_attempts : Int32 = 1     # Amount of retries when a connection is either lost or can't be established
+  property http_pool_retry_delay : Float64 = 0.2    # Amount of seconds between each retry
+
+  property use_quic : Bool = true # Use quic transport for youtube api
 
   @[YAML::Field(converter: Preferences::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new               # Saved cookies in "name1=value1; name2=value2..." format

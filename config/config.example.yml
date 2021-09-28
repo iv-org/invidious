@@ -164,6 +164,29 @@ https_only: false
 #pool_size: 100
 
 ##
+## Granular pooling behavior controls for HTTP connections.
+## The following is entirely optional.
+##
+## Warning: This is NOT used to adjust the behavior of the database pool. Please look
+## Inside the DB YAML map for those controls.
+##
+
+## Initial amount of connections in the pool 
+#initial_http_pool_size: 0
+
+## Amount of connections when idle
+#max_idle_http_pool_size: 1
+
+## Amount of seconds to wait if the connection pool is full, and a connection is unavailable. 
+#http_pool_checkout_timeout: 5 
+
+## Amount of retries when a connection is either lost or can't be established.
+#http_pool_retry_attempts: 1
+
+## Amount of seconds between each retry
+#http_pool_retry_delay: 0.2
+
+##
 ## Enable/Disable the use of QUIC (HTTP/3) when connecting
 ## to the youtube API and websites ('youtube.com', 'ytimg.com').
 ## QUIC's main advantages are its lower latency and lower bandwidth

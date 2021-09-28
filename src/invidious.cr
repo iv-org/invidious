@@ -67,7 +67,17 @@ SOFTWARE = {
   "branch"  => "#{CURRENT_BRANCH}",
 }
 
-YT_POOL = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size, use_quic: CONFIG.use_quic)
+YT_POOL = YoutubeConnectionPool.new(YT_URL,
+
+  initial_pool_size: CONFIG.initial_http_pool_size,
+  max_pool_size: CONFIG.pool_size,
+  max_idle_pool_size: CONFIG.max_idle_http_pool_size,
+  checkout_timeout: CONFIG.http_pool_checkout_timeout,
+  retry_attempts: CONFIG.http_pool_retry_attempts,
+  retry_delay: CONFIG.http_pool_retry_delay,
+
+  use_quic: CONFIG.use_quic
+)
 
 # CLI
 Kemal.config.extra_options do |parser|
