@@ -55,7 +55,7 @@ module Invidious::Routes::Login
       begin
         client = nil # Declare variable
         {% unless flag?(:disable_quic) %}
-          client = QUIC::Client.new(LOGIN_URL)
+          client = CONFIG.use_quic ? QUIC::Client.new(LOGIN_URL) : HTTP::Client.new(LOGIN_URL)
         {% else %}
           client = HTTP::Client.new(LOGIN_URL)
         {% end %}

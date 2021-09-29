@@ -3,9 +3,9 @@ require "lsquic"
 {% unless flag?(:disable_quic) %}
   require "lsquic"
 
-  alias ConnectonClientType = QUIC::Client | HTTP::Client
+  alias HTTPClientType = QUIC::Client | HTTP::Client
 {% else %}
-  alias ConnectonClientType = HTTP::Client
+  alias HTTPClientType = HTTP::Client
 {% end %}
 
 def add_yt_headers(request)
@@ -27,7 +27,7 @@ struct YoutubeConnectionPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : DB::Pool(ConnectonClientType)
+  property pool : DB::Pool(HTTPClientType)
 
   def initialize(url : URI, @capacity = 5, @timeout = 5.0, use_quic = true)
     @url = url
@@ -45,7 +45,7 @@ struct YoutubeConnectionPool
       rescue ex
         conn.close
         {% unless flag?(:disable_quic) %}
-          conn = QUIC::Client.new(url)
+          conn = CONFIG.use_quic ? QUIC::Client.new(url) : HTTP::Client.new(url)
         {% else %}
           conn = HTTP::Client.new(url)
         {% end %}
@@ -63,7 +63,7 @@ struct YoutubeConnectionPool
   end
 
   private def build_pool(use_quic)
-    DB::Pool(ConnectonClientType).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
+    DB::Pool(HTTPClientType).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
       conn = nil # Declare
       {% unless flag?(:disable_quic) %}
         if use_quic
