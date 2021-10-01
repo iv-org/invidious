@@ -558,7 +558,7 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
         end
       end
 
-      return items
+      break
     end
   end
 
