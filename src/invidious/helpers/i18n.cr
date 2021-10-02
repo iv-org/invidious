@@ -24,6 +24,7 @@ LOCALES = {
   "nb-NO"   => load_locale("nb-NO"),   # Norwegian Bokmål
   "nl"      => load_locale("nl"),      # Dutch
   "pl"      => load_locale("pl"),      # Polish
+  "pt"      => load_locale("pt"),      # Portuguese
   "pt-BR"   => load_locale("pt-BR"),   # Portuguese (Brazil)
   "pt-PT"   => load_locale("pt-PT"),   # Portuguese (Portugal)
   "ro"      => load_locale("ro"),      # Romanian
