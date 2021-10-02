@@ -41,9 +41,16 @@
                         <%= translate(locale, "View playlist on YouTube") %>
                     </a>
                     <span> | </span>
-                    <a href="/redirect?referer=<%= env.get?("current_page") %>">
-                      <%= translate(locale, "Switch Invidious Instance") %>
-                    </a>
+
+                    <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
+                        <a href="/redirect?referer=<%= env.get?("current_page") %>">
+                            <%= translate(locale, "Switch Invidious Instance") %>
+                        </a>
+                    <% else %>
+                        <a href="https://redirect.invidious.io/<%= env.get?("current_page") %>">
+                            <%= translate(locale, "Switch Invidious Instance") %>
+                        </a>
+                    <% end %>
             </div>
         <% end %>
     </div>

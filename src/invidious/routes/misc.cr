@@ -42,7 +42,7 @@ module Invidious::Routes::Misc
     referer = get_referer(env)
 
     if !env.get("preferences").as(Preferences).automatic_instance_redirect
-      return env.redirect("https://redirect.invidious.io#{referer}")
+      return env.redirect("https://redirect.invidious.io/#{referer}")
     end
 
     instance_url = fetch_random_instance
