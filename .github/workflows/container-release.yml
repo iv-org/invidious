@@ -27,7 +27,7 @@ jobs:
       - name: Install Crystal
         uses: oprypin/install-crystal@v1.2.4
         with:
-          crystal: ${{ matrix.crystal }}
+          crystal: 1.1.1
         
       - name: Run lint
         run: |
