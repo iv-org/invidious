@@ -99,9 +99,8 @@ dependencies_to_install.each do |dep|
 
     # Unless we install an external dependency, crystal provides no way of extracting a tarball.
     # Thus we'll go ahead and call a system command.
-    args = Process.parse_arguments("-zxvf '#{download_path}/package.tgz'  -C '#{download_path}'")
-    process = Process.new("tar", args: args)
-    process.wait.success? # => true
+    `tar -zxf '#{download_path}/package.tgz' -C '#{download_path}'"`
+    raise "Extraction for #{dep} failed" if !$?.success?
 
     # Would use File.rename in the following steps but for some reason it just doesn't work here.
     # Video.js itself is structured slightly differently
