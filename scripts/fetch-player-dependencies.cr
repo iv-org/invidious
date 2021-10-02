@@ -78,7 +78,7 @@ end
 tmp_dir_path = "#{Dir.tempdir}/invidious-videojs-dep-install"
 Dir.mkdir(tmp_dir_path) if !Dir.exists? tmp_dir_path
 
-channel = Channel(String).new
+channel = Channel(String | Exception).new
 
 dependencies_to_install.each do |dep|
   spawn do
@@ -99,7 +99,7 @@ dependencies_to_install.each do |dep|
 
     # Unless we install an external dependency, crystal provides no way of extracting a tarball.
     # Thus we'll go ahead and call a system command.
-    `tar -zxf '#{download_path}/package.tgz' -C '#{download_path}'"`
+    `tar -vzxf '#{download_path}/package.tgz' -C '#{download_path}'`
     raise "Extraction for #{dep} failed" if !$?.success?
 
     # Would use File.rename in the following steps but for some reason it just doesn't work here.
@@ -140,6 +140,8 @@ dependencies_to_install.each do |dep|
     end
 
     channel.send(dep_name)
+  rescue ex
+    channel.send(ex)
   end
 end
 
@@ -149,6 +151,11 @@ else
   puts "#{"Resolving".colorize(:green)} #{"player".colorize(:blue)} dependencies"
   dependencies_to_install.size.times do
     result = channel.receive
+
+    if result.is_a? Exception
+      raise result
+    end
+
     puts "#{"Fetched".colorize(:green)} #{result.colorize(:blue)}"
   end
 end
