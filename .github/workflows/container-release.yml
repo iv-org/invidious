@@ -24,6 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         
+      - name: Install Crystal
+        uses: oprypin/install-crystal@v1.2.4
+        with:
+          crystal: ${{ matrix.crystal }}
+        
       - name: Run lint
         run: |
           if ! crystal tool format --check; then
