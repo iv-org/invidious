@@ -109,6 +109,7 @@
                 </div>
                 <% end %>
             </div>
+        <% when Category %>
         <% else %>
             <a style="width:100%" href="/watch?v=<%= item.id %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
