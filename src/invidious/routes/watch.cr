@@ -1,3 +1,5 @@
+{% skip_file if flag?(:api_only) %}
+
 module Invidious::Routes::Watch
   def self.handle(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?

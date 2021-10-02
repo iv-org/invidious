@@ -1,3 +1,5 @@
+{% skip_file if flag?(:api_only) %}
+
 module Invidious::Routes::Embed
   def self.redirect(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
