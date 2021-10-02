@@ -57,8 +57,6 @@ required_dependencies.keys.each do |dep|
   # Check for missing dependencies
   if !Dir.exists?(path)
     Dir.mkdir(path)
-
-    update_versions_yaml(required_dependencies, minified, dep)
     dependencies_to_install << dep
   else
     config = File.open("#{path}/versions.yml") do |file|
@@ -66,9 +64,8 @@ required_dependencies.keys.each do |dep|
     end
 
     if config["version"].as_s != required_dependencies[dep]["version"].as_s || config["minified"].as_bool != minified
-      `rm -rf #{path}/*`
+      `rm -rf #{path}/*.js #{path}/*.css`
       dependencies_to_install << dep
-      update_versions_yaml(required_dependencies, minified, dep)
     end
   end
 end
@@ -138,6 +135,9 @@ dependencies_to_install.each do |dep|
         `mv #{download_path}/package/dist/#{dep}.css #{dest_path}/#{dep}.css`
       end
     end
+
+    # Update/create versions file for the dependency
+    update_versions_yaml(required_dependencies, minified, dep_name)
 
     channel.send(dep_name)
   rescue ex
