@@ -1,5 +1,5 @@
 def fetch_channel_home(ucid, channel)
-  initial_data = request_youtube_api_browse(ucid, "EghmZWF0dXJlZA%3D%3D")
+  initial_data = YoutubeAPI.browse(ucid, params: "EghmZWF0dXJlZA%3D%3D")
   items = extract_items(initial_data, channel.author, channel.ucid)
 
   # Channel trailer needs some slight special handling

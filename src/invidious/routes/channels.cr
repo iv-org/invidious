@@ -1,6 +1,14 @@
 {% skip_file if flag?(:api_only) %}
 
 module Invidious::Routes::Channels
+  def self.channel(env)
+    if !env.get("preferences").as(Preferences).view_channel_homepage_by_default
+      env.redirect "/channel/#{env.params.url["ucid"]}/videos"
+    else
+      env.redirect "/channel/#{env.params.url["ucid"]}/home"
+    end
+  end
+
   def self.home(env)
     data = self.fetch_basic_information(env)
     if !data.is_a?(Tuple)
@@ -60,6 +68,7 @@ module Invidious::Routes::Channels
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
+    sort_options = {"last", "oldest", "newest"}
     sort_by = env.params.query["sort_by"]?.try &.downcase
     sort_by ||= "last"
 
@@ -180,17 +189,6 @@ module Invidious::Routes::Channels
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
-    ucid = env.params.url["ucid"]
-    continuation = env.params.query["continuation"]?
-
-    begin
-      channel = get_about_info(ucid, locale)
-    rescue ex : ChannelRedirect
-      next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
-    rescue ex
-      next error_template(500, ex)
-    end
-
     templated "channel/about", buffer_footer: true
   end
 
@@ -240,11 +238,11 @@ module Invidious::Routes::Channels
     end
   end
 
-  private def search(env)
+  def self.search(env)
     return env.redirect "/search?#{env.params.query}&channel=#{env.params.url["ucid"]}"
   end
 
-  private def fetch_basic_information(env)
+  private def self.fetch_basic_information(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"

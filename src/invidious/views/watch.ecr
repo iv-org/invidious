@@ -190,8 +190,8 @@ we're going to need to do it here in order to allow for translations.
                                     </option>
                                 <% end %>
                                 <% captions.each do |caption| %>
-                                    <option value='{"id":"<%= video.id %>","label":"<%= caption.name.simpleText %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= caption.languageCode %>.vtt"}'>
-                                        <%= translate(locale, "Subtitles - `x` (.vtt)", caption.name.simpleText) %>
+                                    <option value='{"id":"<%= video.id %>","label":"<%= caption.name %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= caption.languageCode %>.vtt"}'>
+                                        <%= translate(locale, "Subtitles - `x` (.vtt)", caption.name) %>
                                     </option>
                                 <% end %>
                             </select>

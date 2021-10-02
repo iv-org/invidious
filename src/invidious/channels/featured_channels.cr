@@ -2,7 +2,7 @@
 #
 # Returned as an array of Category objects containing different channels.
 def fetch_channel_featured_channels(ucid) : Array(Category)
-  initial_data = request_youtube_api_browse(ucid, "EghjaGFubmVscw%3D%3D")
+  initial_data = YoutubeAPI.browse(ucid, params: "EghjaGFubmVscw%3D%3D")
 
   channels_tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
 
@@ -72,7 +72,7 @@ def fetch_selected_channel_featuring_category(ucid, view, shelf_id) : Tuple(Cate
   category_url = "/channel/#{ucid}/channels?view=#{view}&shelf_id=#{shelf_id}"
 
   params = produce_featured_channel_browse_param(view.to_i64, shelf_id.to_i64)
-  initial_data = request_youtube_api_browse(ucid, params)
+  initial_data = YoutubeAPI.browse(ucid, params: params)
   channels_tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
   continuation_token = fetch_continuation_token(initial_data)
 
@@ -101,7 +101,7 @@ end
 # TODO: The query_title here is really only used for frontend rendering.
 #  And since it's a URL parameter we should be able to just request it directly within the template files.
 def fetch_channel_featured_channels_category_continuation(continuation, query_title) : Tuple(Category, String | Nil)
-  initial_data = request_youtube_api_browse(continuation)
+  initial_data = YoutubeAPI.browse(continuation)
   items = extract_items(initial_data)
   continuation_token = fetch_continuation_token(initial_data)
 
