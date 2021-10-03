@@ -2,7 +2,11 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
   def begin
     loop do
       begin
-        {"/watch?v=jNQXAC9IVRw&gl=US&hl=en&has_verified=1&bpctr=9999999999", produce_channel_videos_url(ucid: "UC4QobU6STFB0P71PMvOGN5A")}.each do |path|
+        random_video = PG_DB.query_one?("select id, ucid from (select id, ucid from channel_videos limit 1000) as s ORDER BY RANDOM() LIMIT 1", as: {id: String, ucid: String})
+        if !random_video
+          random_video = {id: "zj82_v2R6ts", ucid: "UCK87Lox575O_HCHBWaBSyGA"}
+        end
+        {"/watch?v=#{random_video["id"]}&gl=US&hl=en&has_verified=1&bpctr=9999999999", produce_channel_videos_url(ucid: random_video["ucid"])}.each do |path|
           response = YT_POOL.client &.get(path)
           if response.body.includes?("To continue with your YouTube experience, please fill out the form below.")
             html = XML.parse_html(response.body)
@@ -112,7 +116,7 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
             headers = HTTP::Headers{
               "Cookie" => URI.parse(response.headers["location"]).query_params["google_abuse"].split(";")[0],
             }
-            cookies = HTTP::Cookies.from_headers(headers)
+            cookies = HTTP::Cookies.from_client_headers(headers)
 
             cookies.each { |cookie| CONFIG.cookies << cookie }
 

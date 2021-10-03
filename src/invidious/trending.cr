@@ -2,33 +2,20 @@ def fetch_trending(trending_type, region, locale)
   region ||= "US"
   region = region.upcase
 
-  trending = ""
   plid = nil
 
-  if trending_type && trending_type != "Default"
-    trending_type = trending_type.downcase.capitalize
-
-    response = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en").body
-
-    initial_data = extract_initial_data(response)
-
-    tabs = initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][0]["tabRenderer"]["content"]["sectionListRenderer"]["subMenu"]["channelListSubMenuRenderer"]["contents"].as_a
-    url = tabs.select { |tab| tab["channelListSubMenuAvatarRenderer"]["title"]["simpleText"] == trending_type }[0]?
-
-    if url
-      url["channelListSubMenuAvatarRenderer"]["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
-      url = url["channelListSubMenuAvatarRenderer"]["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"].as_s
-      url = "#{url}&gl=#{region}&hl=en"
-      trending = YT_POOL.client &.get(url).body
-      plid = extract_plid(url)
-    else
-      trending = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en").body
-    end
-  else
-    trending = YT_POOL.client &.get("/feed/trending?gl=#{region}&hl=en").body
+  if trending_type == "Music"
+    params = "4gINGgt5dG1hX2NoYXJ0cw%3D%3D"
+  elsif trending_type == "Gaming"
+    params = "4gIcGhpnYW1pbmdfY29ycHVzX21vc3RfcG9wdWxhcg%3D%3D"
+  elsif trending_type == "Movies"
+    params = "4gIKGgh0cmFpbGVycw%3D%3D"
+  else # Default
+    params = ""
   end
 
-  initial_data = extract_initial_data(trending)
+  client_config = YoutubeAPI::ClientConfig.new(region: region)
+  initial_data = YoutubeAPI.browse("FEtrending", params: params, client_config: client_config)
   trending = extract_videos(initial_data)
 
   return {trending, plid}

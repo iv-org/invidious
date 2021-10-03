@@ -1,9 +1,16 @@
 {
-    "`x` subscribers.([^.,0-9]|^)1([^.,0-9]|$)": "`x` συνδρομητές.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` subscribers.": "`x` συνδρομητές.",
-    "`x` videos.([^.,0-9]|^)1([^.,0-9]|$)": "`x` βίντεο.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` videos.": "`x` βίντεο.",
-    "`x` playlists": "`x` λίστες αναπαραγωγής",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` συνδρομητές",
+        "": "`x` συνδρομητές"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` βίντεο",
+        "": "`x` βίντεο"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` λίστες αναπαραγωγής",
+        "": "`x` λίστες αναπαραγωγής"
+    },
     "LIVE": "ΖΩΝΤΑΝΑ",
     "Shared `x` ago": "Μοιράστηκε πριν από `x`",
     "Unsubscribe": "Απεγγραφή",
@@ -70,6 +77,8 @@
     "Fallback captions: ": "Εναλλακτικοί υπότιτλοι: ",
     "Show related videos: ": "Προβολή σχετικών βίντεο; ",
     "Show annotations by default: ": "Αυτόματη προβολή σημειώσεων: ",
+    "Automatically extend video description: ": "",
+    "Interactive 360 degree videos: ": "",
     "Visual preferences": "Προτιμήσεις εμφάνισης",
     "Player style: ": "Τεχνοτροπία της συσκευής αναπαραγωγης: ",
     "Dark mode: ": "Σκοτεινή λειτουργία: ",
@@ -77,6 +86,8 @@
     "dark": "σκοτεινό",
     "light": "φωτεινό",
     "Thin mode: ": "Ελαφριά λειτουργία: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Προτιμήσεις συνδρομών",
     "Show annotations by default for subscribed channels: ": "Προβολή σημειώσεων μόνο για κανάλια στα οποία είστε συνδρομητής; ",
     "Redirect homepage to feed: ": "Ανακατεύθυνση αρχικής στη ροή συνδρομών: ",
@@ -106,6 +117,7 @@
     "Administrator preferences": "Προτιμήσεις διαχειριστή",
     "Default homepage: ": "Προεπιλεγμένη αρχική: ",
     "Feed menu: ": "Μενού ροής συνδρομών: ",
+    "Show nickname on top: ": "",
     "Top enabled: ": "Ενεργοποίηση κορυφαίων; ",
     "CAPTCHA enabled: ": "Ενεργοποίηση CAPTCHA; ",
     "Login enabled: ": "Ενεργοποίηση σύνδεσης; ",
@@ -115,19 +127,25 @@
     "Subscription manager": "Διαχειριστής συνδρομών",
     "Token manager": "Διαχειριστής διασυνδέσεων",
     "Token": "Διασύνδεση",
-    "`x` subscriptions.([^.,0-9]|^)1([^.,0-9]|$)": "`x` συνδρομή",
-    "`x` subscriptions.": "`x` συνδρομές.",
-    "`x` tokens.([^.,0-9]|^)1([^.,0-9]|$)": "`x` διασύνδεση",
-    "`x` tokens.": "`x` διασυνδέσεις.",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` συνδρομή",
+        "": "`x` συνδρομές"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` διασύνδεση",
+        "": "`x` διασυνδέσεις"
+    },
     "Import/export": "Εισαγωγή/εξαγωγή",
     "unsubscribe": "κατάργηση συνδρομής",
     "revoke": "ανάκληση",
     "Subscriptions": "Συνδρομές",
-    "`x` unseen notifications.([^.,0-9]|^)1([^.,0-9]|$)": "`x` καινούρια ειδοποίηση",
-    "`x` unseen notifications.": "`x` καινούριες ειδοποιήσεις.",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` καινούρια ειδοποίηση",
+        "": "`x` καινούριες ειδοποιήσεις"
+    },
     "search": "αναζήτηση",
     "Log out": "Αποσύνδεση",
-    "Released under the AGPLv3 by Omar Roth.": "Κυκλοφορεί υπό την άδεια AGPLv3 από τον Omar Roth.",
+    "Released under the AGPLv3 on Github.": "",
     "Source available here.": "Προβολή πηγαίου κώδικα εδώ.",
     "View JavaScript license information.": "Προβολή πληροφοριών άδειας JavaScript.",
     "View privacy policy.": "Προβολή πολιτικής απορρήτου.",
@@ -143,7 +161,11 @@
     "Title": "Τίτλος",
     "Playlist privacy": "Ιδιωτικότητα καταλόγων αναπαραγωγής",
     "Editing playlist `x`": "Επεξεργασία `x` καταλόγου αναπαραγωγής",
+    "Show more": "",
+    "Show less": "",
     "Watch on YouTube": "Προβολή στο YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "Απόκρυψη σημειώσεων",
     "Show annotations": "Προβολή σημειώσεων",
     "Genre: ": "Είδος: ",
@@ -154,14 +176,19 @@
     "Whitelisted regions: ": "Επιτρεπτές περιοχές: ",
     "Blacklisted regions: ": "Μη-επιτρεπτές περιοχές: ",
     "Shared `x`": "Μοιράστηκε το `x`",
-    "`x` views.([^.,0-9]|^)1([^.,0-9]|$)": "`x` προβολή",
-    "`x` views.": "`x` προβολές.",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` προβολή",
+        "": "`x` προβολές"
+    },
     "Premieres in `x`": "Πρώτη προβολή σε `x`",
     "Premieres `x`": "Επίσημη πρώτη παράσταση του `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Γεια! Φαίνεται πως έχετε απενεργοποιήσει το JavaScript. Πατήστε εδώ για προβολή σχολίων, αλλά έχετε υπ'όψιν σας πως ίσως φορτώσουν πιο αργά.",
     "View YouTube comments": "Προβολή σχολίων από το YouTube",
     "View more comments on Reddit": "Προβολή περισσότερων σχολίων στο Reddit",
-    "View `x` comments": "Προβολή `x` σχολίων",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Προβολή `x` σχολίων",
+        "": "Προβολή `x` σχολίων"
+    },
     "View Reddit comments": "Προβολή σχολίων από το Reddit",
     "Hide replies": "Απόκρυψη απαντήσεων",
     "Show replies": "Προβολή απαντήσεων",
@@ -186,12 +213,16 @@
     "This channel does not exist.": "Αυτό το κανάλι δεν υπάρχει.",
     "Could not get channel info.": "Αδύναμια εύρεσης πληροφοριών καναλιού.",
     "Could not fetch comments": "Αδυναμία λήψης σχολίων",
-    "View `x` replies.([^.,0-9]|^)1([^.,0-9]|$)": "Προβολή `x` απάντησης",
-    "View `x` replies.": "Προβολή `x` απαντήσεων.",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Προβολή `x` απάντησης",
+        "": "Προβολή `x` απαντήσεων"
+    },
     "`x` ago": "Πριν `x`",
     "Load more": "Φόρτωση περισσότερων",
-    "`x` points.([^.,0-9]|^)1([^.,0-9]|$)": "`x` βαθμός",
-    "`x` points.": "`x` βαθμοί.",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` βαθμός",
+        "": "`x` βαθμοί"
+    },
     "Could not create mix.": "Αδυναμία δημιουργίας μίξης.",
     "Empty playlist": "Κενή λίστα αναπαραγωγής",
     "Not a playlist.": "Μη έγκυρη λίστα αναπαραγωγής.",
@@ -309,22 +340,37 @@
     "Yiddish": "Γίντις",
     "Yoruba": "Γιορούμπα",
     "Zulu": "Ζουλού",
-    "`x` years.([^.,0-9]|^)1([^.,0-9]|$)": "`x` χρόνο",
-    "`x` years.": "`x` χρόνια.",
-    "`x` months.([^.,0-9]|^)1([^.,0-9]|$)": "`x` μήνα",
-    "`x` months.": "`x` μήνες.",
-    "`x` weeks.([^.,0-9]|^)1([^.,0-9]|$)": "`x` εβδομάδα",
-    "`x` weeks.": "`x` εβδομάδες.",
-    "`x` days.([^.,0-9]|^)1([^.,0-9]|$)": "`x` ημέρα",
-    "`x` days.": "`x` ημέρες.",
-    "`x` hours.([^.,0-9]|^)1([^.,0-9]|$)": "`x` ώρα",
-    "`x` hours.": "`x` ώρες.",
-    "`x` minutes.([^.,0-9]|^)1([^.,0-9]|$)": "`x` λεπτό",
-    "`x` minutes.": "`x` λεπτά.",
-    "`x` seconds.([^.,0-9]|^)1([^.,0-9]|$)": "`x` δευτερόλεπτο",
-    "`x` seconds.": "`x` δευτερόλεπτα.",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` χρόνο",
+        "": "`x` χρόνια"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` μήνα",
+        "": "`x` μήνες"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` εβδομάδα",
+        "": "`x` εβδομάδες"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ημέρα",
+        "": "`x` ημέρες"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ώρα",
+        "": "`x` ώρες"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` λεπτό",
+        "": "`x` λεπτά"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` δευτερόλεπτο",
+        "": "`x` δευτερόλεπτα"
+    },
     "Fallback comments: ": "Εναλλακτικά σχόλια: ",
     "Popular": "Δημοφιλή",
+    "Search": "",
     "Top": "Κορυφαία",
     "About": "Σχετικά",
     "Rating: ": "Aξιολόγηση: ",
@@ -347,5 +393,35 @@
     "Videos": "Βίντεο",
     "Playlists": "Λίστες Αναπαραγωγής",
     "Community": "Κοινότητα",
-    "Current version: ": "Τρέχουσα έκδοση: "
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
+    "Current version: ": "Τρέχουσα έκδοση: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

@@ -1,5 +1,8 @@
+<% ucid = channel.ucid %>
+<% author = HTML.escape(channel.author) %>
+
 <% content_for "header" do %>
-<title><%= channel.author %> - Invidious</title>
+<title><%= author %> - Invidious</title>
 <% end %>
 
 <% if channel.banner %>
@@ -16,23 +19,23 @@
     <div class="pure-u-2-3">
         <div class="channel-profile">
             <img src="/ggpht<%= URI.parse(channel.author_thumbnail).request_target %>">
-            <span><%= channel.author %></span>
+            <span><%= author %></span>
         </div>
     </div>
     <div class="pure-u-1-3" style="text-align:right">
-        <h3>
+        <h3 style="text-align:right">
             <a href="/feed/channel/<%= channel.ucid %>"><i class="icon ion-logo-rss"></i></a>
         </h3>
     </div>
 </div>
 
 <div class="h-box">
-    <p><span style="white-space:pre-wrap"><%= XML.parse_html(channel.description_html).xpath_node(%q(.//pre)).try &.content %></span></p>
+    <div id="descriptionWrapper">
+        <p><span style="white-space:pre-wrap"><%= XML.parse_html(channel.description_html).xpath_node(%q(.//pre)).try &.content %></span></p>
+    </div>
 </div>
 
 <div class="h-box">
-    <% ucid = channel.ucid %>
-    <% author = channel.author %>
     <% sub_count_text = number_to_short_text(channel.sub_count) %>
     <%= rendered "components/subscribe_widget" %>
 </div>
@@ -40,6 +43,9 @@
 <div class="pure-g h-box">
     <div class="pure-u-1-3">
         <a href="https://www.youtube.com/channel/<%= channel.ucid %>/community"><%= translate(locale, "View channel on YouTube") %></a>
+        <div class="pure-u-1 pure-md-1-3">
+            <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
+        </div>
         <% if !channel.auto_generated %>
             <div class="pure-u-1 pure-md-1-3">
                 <a href="/channel/<%= channel.ucid %>"><%= translate(locale, "Videos") %></a>
@@ -74,7 +80,7 @@
 <script id="community_data" type="application/json">
 <%=
 {
-    "ucid" => channel.ucid,
+    "ucid" => ucid,
     "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
     "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
     "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),

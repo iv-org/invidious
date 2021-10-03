@@ -1,10 +1,16 @@
 {
-    "`x` subscribers.([^.,0-9]|^)1([^.,0-9]|$)": "`x` সাবস্ক্রাইবার।([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` subscribers.": "`x` সাবস্ক্রাইবার।",
-    "`x` videos.([^.,0-9]|^)1([^.,0-9]|$)": "`x` ভিডিও।([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` videos.": "`x` ভিডিও।",
-    "`x` playlists.([^.,0-9]|^)1([^.,0-9]|$)": "`x` প্লেলিস্ট।[^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` playlists.": "`x` প্লেলিস্ট।",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` সাবস্ক্রাইবার",
+        "": "`x` সাবস্ক্রাইবার"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ভিডিও",
+        "": "`x` ভিডিও"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` প্লেলিস্ট",
+        "": "`x` প্লেলিস্ট"
+    },
     "LIVE": "লাইভ",
     "Shared `x` ago": "`x` আগে শেয়ার করা হয়েছে",
     "Unsubscribe": "আনসাবস্ক্রাইব",
@@ -59,11 +65,11 @@
     "Autoplay: ": "স্বয়ংক্রিয় চালু: ",
     "Play next by default: ": "ডিফল্টভাবে পরবর্তী চালাও: ",
     "Autoplay next video: ": "পরবর্তী ভিডিও স্বয়ংক্রিয়ভাবে চালাও: ",
-    "Listen by default: ": "",
-    "Proxy videos: ": "",
-    "Default speed: ": "",
-    "Preferred video quality: ": "",
-    "Player volume: ": "",
+    "Listen by default: ": "সহজাতভাবে শোনো: ",
+    "Proxy videos: ": "ভিডিও প্রক্সি করো: ",
+    "Default speed: ": "সহজাত গতি: ",
+    "Preferred video quality: ": "পছন্দের ভিডিও মান: ",
+    "Player volume: ": "প্লেয়ার শব্দের মাত্রা: ",
     "Default comments: ": "",
     "youtube": "",
     "reddit": "",
@@ -71,6 +77,8 @@
     "Fallback captions: ": "",
     "Show related videos: ": "",
     "Show annotations by default: ": "",
+    "Automatically extend video description: ": "",
+    "Interactive 360 degree videos: ": "",
     "Visual preferences": "",
     "Player style: ": "",
     "Dark mode: ": "",
@@ -78,6 +86,8 @@
     "dark": "",
     "light": "",
     "Thin mode: ": "",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "",
     "Show annotations by default for subscribed channels: ": "",
     "Redirect homepage to feed: ": "",
@@ -107,6 +117,7 @@
     "Administrator preferences": "",
     "Default homepage: ": "",
     "Feed menu: ": "",
+    "Show nickname on top: ": "",
     "Top enabled: ": "",
     "CAPTCHA enabled: ": "",
     "Login enabled: ": "",
@@ -116,19 +127,25 @@
     "Subscription manager": "",
     "Token manager": "",
     "Token": "",
-    "`x` subscriptions.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` subscriptions.": "",
-    "`x` tokens.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` tokens.": "",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "Import/export": "",
     "unsubscribe": "",
     "revoke": "",
     "Subscriptions": "",
-    "`x` unseen notifications.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` unseen notifications.": "",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "search": "",
     "Log out": "",
-    "Released under the AGPLv3 by Omar Roth.": "",
+    "Released under the AGPLv3 on Github.": "",
     "Source available here.": "",
     "View JavaScript license information.": "",
     "View privacy policy.": "",
@@ -144,7 +161,11 @@
     "Title": "",
     "Playlist privacy": "",
     "Editing playlist `x`": "",
+    "Show more": "",
+    "Show less": "",
     "Watch on YouTube": "",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "",
     "Show annotations": "",
     "Genre: ": "",
@@ -155,15 +176,19 @@
     "Whitelisted regions: ": "",
     "Blacklisted regions: ": "",
     "Shared `x`": "",
-    "`x` views.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` views.": "",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "Premieres in `x`": "",
     "Premieres `x`": "",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "",
     "View YouTube comments": "",
     "View more comments on Reddit": "",
-    "View `x` comments.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "View `x` comments.": "",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "View Reddit comments": "",
     "Hide replies": "",
     "Show replies": "",
@@ -188,12 +213,16 @@
     "This channel does not exist.": "",
     "Could not get channel info.": "",
     "Could not fetch comments": "",
-    "View `x` replies.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "View `x` replies.": "",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "`x` ago": "",
     "Load more": "",
-    "`x` points.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` points.": "",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "Could not create mix.": "",
     "Empty playlist": "",
     "Not a playlist.": "",
@@ -311,22 +340,37 @@
     "Yiddish": "",
     "Yoruba": "",
     "Zulu": "",
-    "`x` years.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` years.": "",
-    "`x` months.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` months.": "",
-    "`x` weeks.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` weeks.": "",
-    "`x` days.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` days.": "",
-    "`x` hours.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` hours.": "",
-    "`x` minutes.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` minutes.": "",
-    "`x` seconds.([^.,0-9]|^)1([^.,0-9]|$)": "",
-    "`x` seconds.": "",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "Fallback comments: ": "",
     "Popular": "",
+    "Search": "",
     "Top": "",
     "About": "",
     "Rating: ": "",
@@ -349,5 +393,35 @@
     "Videos": "",
     "Playlists": "",
     "Community": "",
-    "Current version: ": ""
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
+    "Current version: ": "",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

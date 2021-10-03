@@ -42,15 +42,19 @@ struct ConfigPreferences
   property player_style : String = "invidious"
   property quality : String = "hd720"
   property quality_dash : String = "auto"
-  property default_home : String = "Popular"
+  property default_home : String? = "Popular"
   property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
+  property automatic_instance_redirect : Bool = false
   property related_videos : Bool = true
   property sort : String = "published"
   property speed : Float32 = 1.0_f32
   property thin_mode : Bool = false
   property unseen_only : Bool = false
   property video_loop : Bool = false
+  property extend_desc : Bool = false
   property volume : Int32 = 100
+  property vr_mode : Bool = true
+  property show_nick : Bool = true
 
   def to_tuple
     {% begin %}
@@ -98,6 +102,7 @@ class Config
   property port : Int32 = 3000                                     # Port to listen for connections (overrided by command line argument)
   property host_binding : String = "0.0.0.0"                       # Host to bind (overrided by command line argument)
   property pool_size : Int32 = 100                                 # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
+  property use_quic : Bool = true                                  # Use quic transport for youtube api
 
   @[YAML::Field(converter: Preferences::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new               # Saved cookies in "name1=value1; name2=value2..." format
@@ -243,172 +248,40 @@ def html_to_content(description_html : String)
 end
 
 def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
-  extract_items(initial_data, author_fallback, author_id_fallback).select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
-end
+  extracted = extract_items(initial_data, author_fallback, author_id_fallback)
 
-def extract_item(item : JSON::Any, author_fallback : String? = nil, author_id_fallback : String? = nil)
-  if i = (item["videoRenderer"]? || item["gridVideoRenderer"]?)
-    video_id = i["videoId"].as_s
-    title = i["title"].try { |t| t["simpleText"]?.try &.as_s || t["runs"]?.try &.as_a.map(&.["text"].as_s).join("") } || ""
-
-    author_info = i["ownerText"]?.try &.["runs"]?.try &.as_a?.try &.[0]?
-    author = author_info.try &.["text"].as_s || author_fallback || ""
-    author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || author_id_fallback || ""
-
-    published = i["publishedTimeText"]?.try &.["simpleText"]?.try { |t| decode_date(t.as_s) } || Time.local
-    view_count = i["viewCountText"]?.try &.["simpleText"]?.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
-    description_html = i["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
-    length_seconds = i["lengthText"]?.try &.["simpleText"]?.try &.as_s.try { |t| decode_length_seconds(t) } ||
-                     i["thumbnailOverlays"]?.try &.as_a.find(&.["thumbnailOverlayTimeStatusRenderer"]?).try &.["thumbnailOverlayTimeStatusRenderer"]?
-                       .try &.["text"]?.try &.["simpleText"]?.try &.as_s.try { |t| decode_length_seconds(t) } || 0
-
-    live_now = false
-    paid = false
-    premium = false
-
-    premiere_timestamp = i["upcomingEventData"]?.try &.["startTime"]?.try { |t| Time.unix(t.as_s.to_i64) }
-
-    i["badges"]?.try &.as_a.each do |badge|
-      b = badge["metadataBadgeRenderer"]
-      case b["label"].as_s
-      when "LIVE NOW"
-        live_now = true
-      when "New", "4K", "CC"
-        # TODO
-      when "Premium"
-        paid = true
-
-        # TODO: Potentially available as i["topStandaloneBadge"]["metadataBadgeRenderer"]
-        premium = true
-      else nil # Ignore
-      end
+  target = [] of SearchItem
+  extracted.each do |i|
+    if i.is_a?(Category)
+      i.contents.each { |cate_i| target << cate_i if !cate_i.is_a? Video }
+    else
+      target << i
     end
-
-    SearchVideo.new({
-      title:              title,
-      id:                 video_id,
-      author:             author,
-      ucid:               author_id,
-      published:          published,
-      views:              view_count,
-      description_html:   description_html,
-      length_seconds:     length_seconds,
-      live_now:           live_now,
-      paid:               paid,
-      premium:            premium,
-      premiere_timestamp: premiere_timestamp,
-    })
-  elsif i = item["channelRenderer"]?
-    author = i["title"]["simpleText"]?.try &.as_s || author_fallback || ""
-    author_id = i["channelId"]?.try &.as_s || author_id_fallback || ""
-
-    author_thumbnail = i["thumbnail"]["thumbnails"]?.try &.as_a[0]?.try &.["url"]?.try &.as_s || ""
-    subscriber_count = i["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s.try { |s| short_text_to_number(s.split(" ")[0]) } || 0
-
-    auto_generated = false
-    auto_generated = true if !i["videoCountText"]?
-    video_count = i["videoCountText"]?.try &.["runs"].as_a[0]?.try &.["text"].as_s.gsub(/\D/, "").to_i || 0
-    description_html = i["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
-
-    SearchChannel.new({
-      author:           author,
-      ucid:             author_id,
-      author_thumbnail: author_thumbnail,
-      subscriber_count: subscriber_count,
-      video_count:      video_count,
-      description_html: description_html,
-      auto_generated:   auto_generated,
-    })
-  elsif i = item["gridPlaylistRenderer"]?
-    title = i["title"]["runs"].as_a[0]?.try &.["text"].as_s || ""
-    plid = i["playlistId"]?.try &.as_s || ""
-
-    video_count = i["videoCountText"]["runs"].as_a[0]?.try &.["text"].as_s.gsub(/\D/, "").to_i || 0
-    playlist_thumbnail = i["thumbnail"]["thumbnails"][0]?.try &.["url"]?.try &.as_s || ""
-
-    SearchPlaylist.new({
-      title:       title,
-      id:          plid,
-      author:      author_fallback || "",
-      ucid:        author_id_fallback || "",
-      video_count: video_count,
-      videos:      [] of SearchPlaylistVideo,
-      thumbnail:   playlist_thumbnail,
-    })
-  elsif i = item["playlistRenderer"]?
-    title = i["title"]["simpleText"]?.try &.as_s || ""
-    plid = i["playlistId"]?.try &.as_s || ""
-
-    video_count = i["videoCount"]?.try &.as_s.to_i || 0
-    playlist_thumbnail = i["thumbnails"].as_a[0]?.try &.["thumbnails"]?.try &.as_a[0]?.try &.["url"].as_s || ""
-
-    author_info = i["shortBylineText"]?.try &.["runs"]?.try &.as_a?.try &.[0]?
-    author = author_info.try &.["text"].as_s || author_fallback || ""
-    author_id = author_info.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]["browseId"].as_s || author_id_fallback || ""
-
-    videos = i["videos"]?.try &.as_a.map do |v|
-      v = v["childVideoRenderer"]
-      v_title = v["title"]["simpleText"]?.try &.as_s || ""
-      v_id = v["videoId"]?.try &.as_s || ""
-      v_length_seconds = v["lengthText"]?.try &.["simpleText"]?.try { |t| decode_length_seconds(t.as_s) } || 0
-      SearchPlaylistVideo.new({
-        title:          v_title,
-        id:             v_id,
-        length_seconds: v_length_seconds,
-      })
-    end || [] of SearchPlaylistVideo
-
-    # TODO: i["publishedTimeText"]?
-
-    SearchPlaylist.new({
-      title:       title,
-      id:          plid,
-      author:      author,
-      ucid:        author_id,
-      video_count: video_count,
-      videos:      videos,
-      thumbnail:   playlist_thumbnail,
-    })
-  elsif i = item["radioRenderer"]? # Mix
-    # TODO
-  elsif i = item["showRenderer"]? # Show
-    # TODO
-  elsif i = item["shelfRenderer"]?
-  elsif i = item["horizontalCardListRenderer"]?
-  elsif i = item["searchPyvRenderer"]? # Ad
   end
+  return target.select(&.is_a?(SearchVideo)).map(&.as(SearchVideo))
 end
 
-def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
-  items = [] of SearchItem
+def extract_selected_tab(tabs)
+  # Extract the selected tab from the array of tabs Youtube returns
+  return selected_target = tabs.as_a.select(&.["tabRenderer"]?.try &.["selected"].as_bool)[0]["tabRenderer"]
+end
 
-  channel_v2_response = initial_data
-    .try &.["continuationContents"]?
-      .try &.["gridContinuation"]?
-        .try &.["items"]?
+def fetch_continuation_token(items : Array(JSON::Any))
+  # Fetches the continuation token from an array of items
+  return items.last["continuationItemRenderer"]?
+    .try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
+end
 
-  if channel_v2_response
-    channel_v2_response.try &.as_a.each { |item|
-      extract_item(item, author_fallback, author_id_fallback)
-        .try { |t| items << t }
-    }
+def fetch_continuation_token(initial_data : Hash(String, JSON::Any))
+  # Fetches the continuation token from initial data
+  if initial_data["onResponseReceivedActions"]?
+    continuation_items = initial_data["onResponseReceivedActions"][0]["appendContinuationItemsAction"]["continuationItems"]
   else
-    initial_data.try { |t| t["contents"]? || t["response"]? }
-      .try { |t| t["twoColumnBrowseResultsRenderer"]?.try &.["tabs"].as_a.select(&.["tabRenderer"]?.try &.["selected"].as_bool)[0]?.try &.["tabRenderer"]["content"] ||
-        t["twoColumnSearchResultsRenderer"]?.try &.["primaryContents"] ||
-        t["continuationContents"]? }
-      .try { |t| t["sectionListRenderer"]? || t["sectionListContinuation"]? }
-      .try &.["contents"].as_a
-        .each { |c| c.try &.["itemSectionRenderer"]?.try &.["contents"].as_a
-          .try { |t| t[0]?.try &.["shelfRenderer"]?.try &.["content"]["expandedShelfContentsRenderer"]?.try &.["items"].as_a ||
-            t[0]?.try &.["gridRenderer"]?.try &.["items"].as_a || t }
-          .each { |item|
-            extract_item(item, author_fallback, author_id_fallback)
-              .try { |t| items << t }
-          } }
+    tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
+    continuation_items = tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["gridRenderer"]["items"]
   end
 
-  items
+  return fetch_continuation_token(continuation_items.as_a)
 end
 
 def check_enum(db, enum_name, struct_type = nil)
@@ -501,12 +374,6 @@ def check_table(db, table_name, struct_type = nil)
       LOGGER.info("check_table: ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
       db.exec("ALTER TABLE #{table_name} DROP COLUMN #{column} CASCADE")
     end
-  end
-end
-
-class PG::ResultSet
-  def field(index = @column_index)
-    @fields.not_nil![index]
   end
 end
 
@@ -678,7 +545,7 @@ def create_notification_stream(env, topics, connection_channel)
 end
 
 def extract_initial_data(body) : Hash(String, JSON::Any)
-  return JSON.parse(body.match(/(window\["ytInitialData"\]|var\s*ytInitialData)\s*=\s*(?<info>\{.*?\});/mx).try &.["info"] || "{}").as_h
+  return JSON.parse(body.match(/(window\["ytInitialData"\]|var\s*ytInitialData)\s*=\s*(?<info>{.*?});<\/script>/mx).try &.["info"] || "{}").as_h
 end
 
 def proxy_file(response, env)
@@ -692,87 +559,5 @@ def proxy_file(response, env)
     end
   else
     IO.copy response.body_io, env.response
-  end
-end
-
-# See https://github.com/kemalcr/kemal/pull/576
-class HTTP::Server::Response::Output
-  def close
-    return if closed?
-
-    unless response.wrote_headers?
-      response.content_length = @out_count
-    end
-
-    ensure_headers_written
-
-    super
-
-    if @chunked
-      @io << "0\r\n\r\n"
-      @io.flush
-    end
-  end
-end
-
-class HTTP::Client::Response
-  def pipe(io)
-    HTTP.serialize_body(io, headers, @body, @body_io, @version)
-  end
-end
-
-# Supports serialize_body without first writing headers
-module HTTP
-  def self.serialize_body(io, headers, body, body_io, version)
-    if body
-      io << body
-    elsif body_io
-      content_length = content_length(headers)
-      if content_length
-        copied = IO.copy(body_io, io)
-        if copied != content_length
-          raise ArgumentError.new("Content-Length header is #{content_length} but body had #{copied} bytes")
-        end
-      elsif Client::Response.supports_chunked?(version)
-        headers["Transfer-Encoding"] = "chunked"
-        serialize_chunked_body(io, body_io)
-      else
-        io << body
-      end
-    end
-  end
-end
-
-class HTTP::Client
-  property family : Socket::Family = Socket::Family::UNSPEC
-
-  private def socket
-    socket = @socket
-    return socket if socket
-
-    hostname = @host.starts_with?('[') && @host.ends_with?(']') ? @host[1..-2] : @host
-    socket = TCPSocket.new hostname, @port, @dns_timeout, @connect_timeout, @family
-    socket.read_timeout = @read_timeout if @read_timeout
-    socket.sync = false
-
-    {% if !flag?(:without_openssl) %}
-      if tls = @tls
-        socket = OpenSSL::SSL::Socket::Client.new(socket, context: tls, sync_close: true, hostname: @host)
-      end
-    {% end %}
-
-    @socket = socket
-  end
-end
-
-class TCPSocket
-  def initialize(host, port, dns_timeout = nil, connect_timeout = nil, family = Socket::Family::UNSPEC)
-    Addrinfo.tcp(host, port, timeout: dns_timeout, family: family) do |addrinfo|
-      super(addrinfo.family, addrinfo.type, addrinfo.protocol)
-      connect(addrinfo, timeout: connect_timeout) do |error|
-        close
-        error
-      end
-    end
   end
 end

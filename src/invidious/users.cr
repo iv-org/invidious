@@ -36,6 +36,7 @@ struct Preferences
   property annotations : Bool = CONFIG.default_user_preferences.annotations
   property annotations_subscribed : Bool = CONFIG.default_user_preferences.annotations_subscribed
   property autoplay : Bool = CONFIG.default_user_preferences.autoplay
+  property automatic_instance_redirect : Bool = CONFIG.default_user_preferences.automatic_instance_redirect
 
   @[JSON::Field(converter: Preferences::StringToArray)]
   @[YAML::Field(converter: Preferences::StringToArray)]
@@ -53,6 +54,8 @@ struct Preferences
   property latest_only : Bool = CONFIG.default_user_preferences.latest_only
   property listen : Bool = CONFIG.default_user_preferences.listen
   property local : Bool = CONFIG.default_user_preferences.local
+  property vr_mode : Bool = CONFIG.default_user_preferences.vr_mode
+  property show_nick : Bool = CONFIG.default_user_preferences.show_nick
 
   @[JSON::Field(converter: Preferences::ProcessString)]
   property locale : String = CONFIG.default_user_preferences.locale
@@ -68,7 +71,7 @@ struct Preferences
   property quality : String = CONFIG.default_user_preferences.quality
   @[JSON::Field(converter: Preferences::ProcessString)]
   property quality_dash : String = CONFIG.default_user_preferences.quality_dash
-  property default_home : String = CONFIG.default_user_preferences.default_home
+  property default_home : String? = CONFIG.default_user_preferences.default_home
   property feed_menu : Array(String) = CONFIG.default_user_preferences.feed_menu
   property related_videos : Bool = CONFIG.default_user_preferences.related_videos
 
@@ -78,6 +81,7 @@ struct Preferences
   property thin_mode : Bool = CONFIG.default_user_preferences.thin_mode
   property unseen_only : Bool = CONFIG.default_user_preferences.unseen_only
   property video_loop : Bool = CONFIG.default_user_preferences.video_loop
+  property extend_desc : Bool = CONFIG.default_user_preferences.extend_desc
   property volume : Int32 = CONFIG.default_user_preferences.volume
 
   module BoolToString
@@ -460,7 +464,7 @@ def subscribe_ajax(channel_id, action, env_headers)
 
   html = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
 
-  cookies = HTTP::Cookies.from_headers(headers)
+  cookies = HTTP::Cookies.from_client_headers(headers)
   html.cookies.each do |cookie|
     if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
       if cookies[cookie.name]?

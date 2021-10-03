@@ -1,9 +1,16 @@
 {
-    "`x` subscribers.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱者",
-    "`x` subscribers.": "`x` 個訂閱者",
-    "`x` videos.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 部影片",
-    "`x` videos.": "`x` 部影片",
-    "`x` playlists": "`x` 播放清單",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱者",
+        "": "`x` 個訂閱者"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 部影片",
+        "": "`x` 部影片"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 播放清單",
+        "": "`x` 播放清單"
+    },
     "LIVE": "直播",
     "Shared `x` ago": "`x` 前分享",
     "Unsubscribe": "取消訂閱",
@@ -64,12 +71,14 @@
     "Preferred video quality: ": "偏好的影片畫質： ",
     "Player volume: ": "播放器音量： ",
     "Default comments: ": "預設留言： ",
-    "youtube": "youtube",
+    "youtube": "YouTube",
     "reddit": "reddit",
     "Default captions: ": "預設字幕： ",
     "Fallback captions: ": "汰退字幕： ",
     "Show related videos: ": "顯示相關的影片： ",
     "Show annotations by default: ": "預設顯示註釋： ",
+    "Automatically extend video description: ": "自動展開影片描述： ",
+    "Interactive 360 degree videos: ": "互動式 360 度影片： ",
     "Visual preferences": "視覺偏好設定",
     "Player style: ": "播放器樣式： ",
     "Dark mode: ": "深色模式： ",
@@ -77,6 +86,8 @@
     "dark": "深色",
     "light": "淺色",
     "Thin mode: ": "精簡模式： ",
+    "Miscellaneous preferences": "其他偏好設定",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "自動站台重新導向（汰退至 redirect.invidious.io）： ",
     "Subscription preferences": "訂閱偏好設定",
     "Show annotations by default for subscribed channels: ": "預設為已訂閱的頻道顯示註釋： ",
     "Redirect homepage to feed: ": "重新導向首頁至 feed： ",
@@ -106,6 +117,7 @@
     "Administrator preferences": "管理員偏好設定",
     "Default homepage: ": "預設首頁： ",
     "Feed menu: ": "Feed 選單： ",
+    "Show nickname on top: ": "在頂部顯示暱稱： ",
     "Top enabled: ": "頂部啟用： ",
     "CAPTCHA enabled: ": "CAPTCHA 啟用： ",
     "Login enabled: ": "啟用登入： ",
@@ -115,19 +127,25 @@
     "Subscription manager": "訂閱管理員",
     "Token manager": "Token 管理員",
     "Token": "Token",
-    "`x` subscriptions.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱",
-    "`x` subscriptions.": "`x` 個訂閱",
-    "`x` tokens.([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-    "`x` tokens.": "`x` 個存取金鑰",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱",
+        "": "`x` 個訂閱"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
+        "": "`x` 個存取金鑰"
+    },
     "Import/export": "匯入／匯出",
     "unsubscribe": "取消訂閱",
     "revoke": "撤銷",
     "Subscriptions": "訂閱",
-    "`x` unseen notifications.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個未讀的通知",
-    "`x` unseen notifications.": "`x` 個未讀的通知",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個未讀的通知",
+        "": "`x` 個未讀的通知"
+    },
     "search": "搜尋",
     "Log out": "登出",
-    "Released under the AGPLv3 by Omar Roth.": "Omar Roth 以 AGPLv3 釋出。",
+    "Released under the AGPLv3 on Github.": "在 GitHub 上以 AGPLv3 釋出。",
     "Source available here.": "原始碼在此提供。",
     "View JavaScript license information.": "檢視 JavaScript 授權條款資訊。",
     "View privacy policy.": "檢視隱私權政策。",
@@ -143,7 +161,11 @@
     "Title": "標題",
     "Playlist privacy": "播放清單隱私",
     "Editing playlist `x`": "已編輯播放清單 `x`",
+    "Show more": "顯示更多",
+    "Show less": "顯示較少",
     "Watch on YouTube": "在 YouTube 上觀看",
+    "Switch Invidious Instance": "切換 Invidious 站台",
+    "Broken? Try another Invidious Instance": "故障了嗎？試試看其他 Invidious 站台吧",
     "Hide annotations": "隱藏註釋",
     "Show annotations": "顯示註釋",
     "Genre: ": "風格： ",
@@ -154,14 +176,19 @@
     "Whitelisted regions: ": "白名單區域： ",
     "Blacklisted regions: ": "黑名單區域： ",
     "Shared `x`": "`x` 發佈",
-    "`x` views.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 次檢視",
-    "`x` views.": "`x` 次檢視",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 次檢視",
+        "": "`x` 次檢視"
+    },
     "Premieres in `x`": "首映於 `x`",
     "Premieres `x`": "首映於 `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "嗨！看來您將 JavaScript 關閉了。點擊這裡以檢視留言，請注意，它們可能需要比較長的時間載入。",
     "View YouTube comments": "檢視 YouTube 留言",
     "View more comments on Reddit": "在 Reddit 上檢視更多留言",
-    "View `x` comments": "檢視 `x` 則留言",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則留言",
+        "": "檢視 `x` 則留言"
+    },
     "View Reddit comments": "檢視 Reddit 留言",
     "Hide replies": "隱藏回覆",
     "Show replies": "顯示回覆",
@@ -186,12 +213,16 @@
     "This channel does not exist.": "此頻道不存在。",
     "Could not get channel info.": "無法取得頻道資訊。",
     "Could not fetch comments": "無法擷取留言",
-    "View `x` replies.([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則回覆",
-    "View `x` replies.": "檢視 `x` 則回覆",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則回覆",
+        "": "檢視 `x` 則回覆"
+    },
     "`x` ago": "`x` 以前",
     "Load more": "載入更多",
-    "`x` points.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 點",
-    "`x` points.": "`x` 點",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 點",
+        "": "`x` 點"
+    },
     "Could not create mix.": "無法建立混合。",
     "Empty playlist": "空的播放清單",
     "Not a playlist.": "不是播放清單。",
@@ -309,22 +340,37 @@
     "Yiddish": "意第緒語",
     "Yoruba": "約魯巴語",
     "Zulu": "祖魯語",
-    "`x` years.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 年",
-    "`x` years.": "`x` 年",
-    "`x` months.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 月",
-    "`x` months.": "`x` 月",
-    "`x` weeks.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 週",
-    "`x` weeks.": "`x` 週",
-    "`x` days.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
-    "`x` days.": "`x` 天",
-    "`x` hours.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 小時",
-    "`x` hours.": "`x` 小時",
-    "`x` minutes.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
-    "`x` minutes.": "`x` 分鐘",
-    "`x` seconds.([^.,0-9]|^)1([^.,0-9]|$)": "`x` 秒",
-    "`x` seconds.": "`x` 秒",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 年",
+        "": "`x` 年"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 月",
+        "": "`x` 月"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 週",
+        "": "`x` 週"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
+        "": "`x` 天"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 小時",
+        "": "`x` 小時"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
+        "": "`x` 分鐘"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 秒",
+        "": "`x` 秒"
+    },
     "Fallback comments: ": "汰退留言： ",
     "Popular": "熱門頻道",
+    "Search": "搜尋",
     "Top": "熱門影片",
     "About": "關於",
     "Rating: ": "評分： ",
@@ -347,5 +393,35 @@
     "Videos": "影片",
     "Playlists": "播放清單",
     "Community": "社群",
-    "Current version: ": "目前版本： "
+    "relevance": "關聯",
+    "rating": "評分",
+    "date": "日期",
+    "views": "檢視",
+    "content_type": "內容類型",
+    "duration": "時長",
+    "features": "特色",
+    "sort": "排序",
+    "hour": "小時",
+    "today": "今天",
+    "week": "週",
+    "month": "月",
+    "year": "年",
+    "video": "影片",
+    "channel": "頻道",
+    "playlist": "播放清單",
+    "movie": "電影",
+    "show": "秀",
+    "hd": "HD",
+    "subtitles": "字幕",
+    "creative_commons": "創用 CC",
+    "3d": "3D",
+    "live": "直播",
+    "4k": "4K",
+    "location": "位置",
+    "hdr": "HDR",
+    "filter": "篩選條件",
+    "Current version: ": "目前版本： ",
+    "next_steps_error_message": "之後您應該嘗試： ",
+    "next_steps_error_message_refresh": "重新整理",
+    "next_steps_error_message_go_to_youtube": "到 YouTube"
 }

@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` harpidedun",
-    "`x` videos": "`x` bideo",
-    "`x` playlists": "`x` erreprodukzio-zerrenda",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` harpidedunak",
+        "": "`x` harpidedun"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bideoak",
+        "": "`x` bideo"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": "`x` erreprodukzio-zerrenda"
+    },
     "LIVE": "ZUZENEAN",
     "Shared `x` ago": "Duela `x` partekatua",
     "Unsubscribe": "Harpidetza kendu",
@@ -62,12 +71,14 @@
     "Preferred video quality: ": "Hobetsitako bideoaren kalitatea: ",
     "Player volume: ": "Erreproduzigailuaren bolumena: ",
     "Default comments: ": "Lehenetsitako iruzkinak: ",
-    "youtube": "youtube",
+    "youtube": "YouTube",
     "reddit": "reddit",
     "Default captions: ": "Lehenetsitako azpitituluak: ",
     "Fallback captions: ": "",
     "Show related videos: ": "Erakutsi erlazionatutako bideoak: ",
     "Show annotations by default: ": "Erakutsi oharrak modu lehenetsian: ",
+    "Automatically extend video description: ": "",
+    "Interactive 360 degree videos: ": "",
     "Visual preferences": "Hobespen bisualak",
     "Player style: ": "Erreproduzigailu mota: ",
     "Dark mode: ": "Gai iluna: ",
@@ -75,6 +86,8 @@
     "dark": "iluna",
     "light": "argia",
     "Thin mode: ": "",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Harpidetzen hobespenak",
     "Show annotations by default for subscribed channels: ": "",
     "Redirect homepage to feed: ": "",
@@ -104,6 +117,7 @@
     "Administrator preferences": "",
     "Default homepage: ": "",
     "Feed menu: ": "",
+    "Show nickname on top: ": "",
     "Top enabled: ": "",
     "CAPTCHA enabled: ": "",
     "Login enabled: ": "",
@@ -113,16 +127,25 @@
     "Subscription manager": "",
     "Token manager": "",
     "Token": "",
-    "`x` subscriptions": "",
-    "`x` tokens": "",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "Import/export": "",
     "unsubscribe": "",
     "revoke": "",
     "Subscriptions": "",
-    "`x` unseen notifications": "",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "search": "",
     "Log out": "",
-    "Released under the AGPLv3 by Omar Roth.": "",
+    "Released under the AGPLv3 on Github.": "",
     "Source available here.": "",
     "View JavaScript license information.": "",
     "View privacy policy.": "",
@@ -138,7 +161,11 @@
     "Title": "",
     "Playlist privacy": "",
     "Editing playlist `x`": "",
+    "Show more": "",
+    "Show less": "",
     "Watch on YouTube": "",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "",
     "Show annotations": "",
     "Genre: ": "",
@@ -149,13 +176,19 @@
     "Whitelisted regions: ": "",
     "Blacklisted regions: ": "",
     "Shared `x`": "",
-    "`x` views": "",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "Premieres in `x`": "",
     "Premieres `x`": "",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "",
     "View YouTube comments": "",
     "View more comments on Reddit": "",
-    "View `x` comments": "",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "View Reddit comments": "",
     "Hide replies": "",
     "Show replies": "",
@@ -180,10 +213,16 @@
     "This channel does not exist.": "",
     "Could not get channel info.": "",
     "Could not fetch comments": "",
-    "View `x` replies": "",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "`x` ago": "",
     "Load more": "",
-    "`x` points": "",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "Could not create mix.": "",
     "Empty playlist": "",
     "Not a playlist.": "",
@@ -301,15 +340,37 @@
     "Yiddish": "",
     "Yoruba": "",
     "Zulu": "",
-    "`x` years": "",
-    "`x` months": "",
-    "`x` weeks": "",
-    "`x` days": "",
-    "`x` hours": "",
-    "`x` minutes": "",
-    "`x` seconds": "",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "",
+        "": ""
+    },
     "Fallback comments: ": "",
     "Popular": "",
+    "Search": "",
     "Top": "",
     "About": "",
     "Rating: ": "",
@@ -332,5 +393,35 @@
     "Videos": "",
     "Playlists": "",
     "Community": "",
-    "Current version: ": ""
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
+    "Current version: ": "",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

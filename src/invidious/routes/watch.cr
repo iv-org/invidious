@@ -1,5 +1,7 @@
-class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
-  def handle(env)
+{% skip_file if flag?(:api_only) %}
+
+module Invidious::Routes::Watch
+  def self.handle(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     region = env.params.query["region"]?
 
@@ -92,7 +94,7 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
 
         if source == "youtube"
           begin
-            comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+            comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
           rescue ex
             if preferences.comments[1] == "reddit"
               comments, reddit_thread = fetch_reddit_comments(id)
@@ -111,12 +113,12 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
             comment_html = replace_links(comment_html)
           rescue ex
             if preferences.comments[1] == "youtube"
-              comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+              comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
             end
           end
         end
       else
-        comment_html = JSON.parse(fetch_youtube_comments(id, PG_DB, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+        comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
       end
 
       comment_html ||= ""
@@ -150,11 +152,11 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
     captions = video.captions
 
     preferred_captions = captions.select { |caption|
-      params.preferred_captions.includes?(caption.name.simpleText) ||
+      params.preferred_captions.includes?(caption.name) ||
         params.preferred_captions.includes?(caption.languageCode.split("-")[0])
     }
     preferred_captions.sort_by! { |caption|
-      (params.preferred_captions.index(caption.name.simpleText) ||
+      (params.preferred_captions.index(caption.name) ||
         params.preferred_captions.index(caption.languageCode.split("-")[0])).not_nil!
     }
     captions = captions - preferred_captions
@@ -167,9 +169,11 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
       if params.listen
         url = audio_streams[0]["url"].as_s
 
-        audio_streams.each do |fmt|
-          if fmt["bitrate"].as_i == params.quality.rchop("k").to_i
-            url = fmt["url"].as_s
+        if params.quality.ends_with? "k"
+          audio_streams.each do |fmt|
+            if fmt["bitrate"].as_i == params.quality.rchop("k").to_i
+              url = fmt["url"].as_s
+            end
           end
         end
       else
@@ -186,5 +190,14 @@ class Invidious::Routes::Watch < Invidious::Routes::BaseRoute
     end
 
     templated "watch"
+  end
+
+  def self.redirect(env)
+    url = "/watch?v=#{env.params.url["id"]}"
+    if env.params.query.size > 0
+      url += "&#{env.params.query}"
+    end
+
+    return env.redirect url
   end
 end

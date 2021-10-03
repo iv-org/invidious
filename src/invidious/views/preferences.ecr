@@ -106,6 +106,16 @@
                 <input name="annotations" id="annotations" type="checkbox" <% if preferences.annotations %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="extend_desc"><%= translate(locale, "Automatically extend video description: ") %></label>
+                <input name="extend_desc" id="extend_desc" type="checkbox" <% if preferences.extend_desc %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="vr_mode"><%= translate(locale, "Interactive 360 degree videos") %></label>
+                <input name="vr_mode" id="vr_mode" type="checkbox" <% if preferences.vr_mode %>checked<% end %>>
+            </div>
+
             <legend><%= translate(locale, "Visual preferences") %></legend>
 
             <div class="pure-control-group">
@@ -150,7 +160,7 @@
                 <label for="default_home"><%= translate(locale, "Default homepage: ") %></label>
                 <select name="default_home" id="default_home">
                     <% feed_options.each do |option| %>
-                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
+                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "Search" : option) %></option>
                     <% end %>
                 </select>
             </div>
@@ -160,10 +170,23 @@
                 <% (feed_options.size - 1).times do |index| %>
                     <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
                         <% feed_options.each do |option| %>
-                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
+                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option.blank? ? "Search" : option) %></option>
                         <% end %>
                     </select>
                 <% end %>
+            </div>
+            <% if env.get? "user" %>
+                <div class="pure-control-group">
+                    <label for="show_nick"><%= translate(locale, "Show nickname on top: ") %></label>
+                    <input name="show_nick" id="show_nick" type="checkbox" <% if preferences.show_nick %>checked<% end %>>
+                </div>
+            <% end %>
+
+            <legend><%= translate(locale, "Miscellaneous preferences") %></legend>
+
+            <div class="pure-control-group">
+                <label for="automatic_instance_redirect"><%= translate(locale, "Automaticatic instance redirection (fallback to redirect.invidious.io): ") %></label>
+                <input name="automatic_instance_redirect" id="automatic_instance_redirect" type="checkbox" <% if preferences.automatic_instance_redirect %>checked<% end %>>
             </div>
 
             <% if env.get? "user" %>
@@ -289,7 +312,7 @@
                 </div>
 
                 <div class="pure-control-group">
-                    <a href="/view_all_playlists"><%= translate(locale, "View all playlists") %></a>
+                    <a href="/feed/playlists"><%= translate(locale, "View all playlists") %></a>
                 </div>
 
                 <div class="pure-control-group">

@@ -1,10 +1,15 @@
+<% ucid = video.ucid %>
+<% title = HTML.escape(video.title) %>
+<% author = HTML.escape(video.author) %>
+
+
 <% content_for "header" do %>
 <meta name="thumbnail" content="<%= thumbnail %>">
 <meta name="description" content="<%= HTML.escape(video.short_description) %>">
 <meta name="keywords" content="<%= video.keywords.join(",") %>">
 <meta property="og:site_name" content="Invidious">
 <meta property="og:url" content="<%= HOST_URL %>/watch?v=<%= video.id %>">
-<meta property="og:title" content="<%= HTML.escape(video.title) %>">
+<meta property="og:title" content="<%= title %>">
 <meta property="og:image" content="/vi/<%= video.id %>/maxres.jpg">
 <meta property="og:description" content="<%= video.short_description %>">
 <meta property="og:type" content="video.other">
@@ -16,7 +21,7 @@
 <meta name="twitter:card" content="player">
 <meta name="twitter:site" content="@omarroth1">
 <meta name="twitter:url" content="<%= HOST_URL %>/watch?v=<%= video.id %>">
-<meta name="twitter:title" content="<%= HTML.escape(video.title) %>">
+<meta name="twitter:title" content="<%= title %>">
 <meta name="twitter:description" content="<%= video.short_description %>">
 <meta name="twitter:image" content="<%= HOST_URL %>/vi/<%= video.id %>/maxres.jpg">
 <meta name="twitter:player" content="<%= HOST_URL %>/embed/<%= video.id %>">
@@ -24,7 +29,20 @@
 <meta name="twitter:player:height" content="720">
 <link rel="alternate" href="https://www.youtube.com/watch?v=<%= video.id %>">
 <%= rendered "components/player_sources" %>
-<title><%= HTML.escape(video.title) %> - Invidious</title>
+<title><%= title %> - Invidious</title>
+
+<!-- Description expansion also updates the 'Show more' button to 'Show less' so
+we're going to need to do it here in order to allow for translations.
+ -->
+<style>
+#descexpansionbutton ~ label > a::after {
+    content: "<%= translate(locale, "Show more") %>"
+}
+
+#descexpansionbutton:checked ~ label > a::after {
+    content: "<%= translate(locale, "Show less") %>"
+}
+</style>
 <% end %>
 
 <script id="video_data" type="application/json">
@@ -44,7 +62,9 @@
     "show_replies_text" => HTML.escape(translate(locale, "Show replies")),
     "params" => params,
     "preferences" => preferences,
-    "premiere_timestamp" => video.premiere_timestamp.try &.to_unix
+    "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
+    "vr" => video.is_vr,
+    "projection_type" => video.projection_type
 }.to_pretty_json
 %>
 </script>
@@ -55,7 +75,7 @@
 
 <div class="h-box">
     <h1>
-        <%= HTML.escape(video.title) %>
+        <%= title %>
         <% if params.listen %>
             <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
                 <i class="icon ion-ios-videocam"></i>
@@ -95,6 +115,9 @@
                 <a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch on YouTube") %></a>
                 (<a href="https://www.youtube.com/embed/<%= video.id %>"><%= translate(locale, "Embed") %></a>)
             </span>
+            <p id="watch-on-another-invidious-instance">
+                <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
+            </p>
             <p id="embed-link">
                 <a href="<%= embed_link %>"><%= translate(locale, "Embed Link") %></a>
             </p>
@@ -117,8 +140,8 @@
                         <div class="pure-control-group">
                             <label for="playlist_id"><%= translate(locale, "Add to playlist: ") %></label>
                             <select style="width:100%" name="playlist_id" id="playlist_id">
-                                <% playlists.each do |plid, title| %>
-                                    <option data-plid="<%= plid %>" value="<%= plid %>"><%= title %></option>
+                                <% playlists.each do |plid, playlist_title| %>
+                                    <option data-plid="<%= plid %>" value="<%= plid %>"><%= HTML.escape(playlist_title) %></option>
                                 <% end %>
                             </select>
                         </div>
@@ -161,8 +184,8 @@
                                 </option>
                             <% end %>
                             <% captions.each do |caption| %>
-                                <option value='{"id":"<%= video.id %>","label":"<%= caption.name.simpleText %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= caption.languageCode %>.vtt"}'>
-                                    <%= translate(locale, "Subtitles - `x` (.vtt)", caption.name.simpleText) %>
+                                <option value='{"id":"<%= video.id %>","label":"<%= caption.name %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= caption.languageCode %>.vtt"}'>
+                                    <%= translate(locale, "Subtitles - `x` (.vtt)", caption.name) %>
                                 </option>
                             <% end %>
                         </select>
@@ -210,12 +233,10 @@
                     <% if !video.author_thumbnail.empty? %>
                         <img src="/ggpht<%= URI.parse(video.author_thumbnail).request_target %>">
                     <% end %>
-                    <span id="channel-name"><%= video.author %></span>
+                    <span id="channel-name"><%= author %></span>
                 </div>
             </a>
 
-            <% ucid = video.ucid %>
-            <% author = video.author %>
             <% sub_count_text = video.sub_count_text %>
             <%= rendered "components/subscribe_widget" %>
 
@@ -227,8 +248,20 @@
                 <% end %>
             </p>
 
-            <div>
-                <%= video.description_html %>
+            <div id="description-box"> <!-- Description -->
+                <% if video.description.size < 200 || params.extend_desc %>
+                    <div id="descriptionWrapper">
+                        <%= video.description_html %>
+                    </div>
+                <% else %>
+                    <input id="descexpansionbutton" type="checkbox"/>
+                    <div id="descriptionWrapper">
+                        <%= video.description_html %>
+                    </div>
+                    <label for="descexpansionbutton">
+                        <a></a>
+                    </label>
+                <% end %>
             </div>
 
             <hr>

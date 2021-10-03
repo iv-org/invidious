@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` subskrybcji",
-    "`x` videos": "`x` filmów",
-    "`x` playlists": "`x` playlist",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subskrybcji",
+        "": "`x` subskrybcji"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` filmów",
+        "": "`x` filmów"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playlist",
+        "": "`x` playlist"
+    },
     "LIVE": "NA ŻYWO",
     "Shared `x` ago": "Udostępniono `x` temu",
     "Unsubscribe": "Odsubskrybuj",
@@ -62,12 +71,14 @@
     "Preferred video quality: ": "Preferowana jakość filmów: ",
     "Player volume: ": "Głośność odtwarzacza: ",
     "Default comments: ": "Domyślne komentarze: ",
-    "youtube": "youtube",
+    "youtube": "YouTube",
     "reddit": "reddit",
     "Default captions: ": "Domyślne napisy: ",
     "Fallback captions: ": "Zastępcze napisy: ",
     "Show related videos: ": "Pokaż powiązane filmy? ",
     "Show annotations by default: ": "Domyślnie pokazuj adnotacje: ",
+    "Automatically extend video description: ": "Automatycznie rozwijaj opisy filmów: ",
+    "Interactive 360 degree videos: ": "Interaktywne filmy 360 stopni: ",
     "Visual preferences": "Preferencje Wizualne",
     "Player style: ": "Styl odtwarzacza: ",
     "Dark mode: ": "Ciemny motyw: ",
@@ -75,6 +86,8 @@
     "dark": "ciemny",
     "light": "jasny",
     "Thin mode: ": "Tryb minimalny: ",
+    "Miscellaneous preferences": "Różne preferencje",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "Automatyczne przekierowanie instancji (powrót do redirect.invidious.io): ",
     "Subscription preferences": "Preferencje subskrybcji",
     "Show annotations by default for subscribed channels: ": "Domyślnie wyświetlaj adnotacje dla subskrybowanych kanałów: ",
     "Redirect homepage to feed: ": "Przekieruj stronę główną do subskrybcji: ",
@@ -103,7 +116,8 @@
     "Delete account": "Usuń konto",
     "Administrator preferences": "Preferencje administratora",
     "Default homepage: ": "Domyślna strona główna: ",
-    "Feed menu: ": "",
+    "Feed menu: ": "Menu aktualności ",
+    "Show nickname on top: ": "Pokaż pseudonim na górze: ",
     "Top enabled: ": "\"Top\" aktywne: ",
     "CAPTCHA enabled: ": "CAPTCHA aktywna? ",
     "Login enabled: ": "Logowanie włączone? ",
@@ -113,16 +127,25 @@
     "Subscription manager": "Manager subskrybcji",
     "Token manager": "Menedżer tokenów",
     "Token": "Token",
-    "`x` subscriptions": "`x` subskrybcji",
-    "`x` tokens": "",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subskrybcji",
+        "": "`x` subskrybcji"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
+        "": "`x` tokenów"
+    },
     "Import/export": "Import/Eksport",
     "unsubscribe": "odsubskrybuj",
     "revoke": "cofnij",
     "Subscriptions": "Subskrybcje",
-    "`x` unseen notifications": "`x` nowych powiadomień",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` nowych powiadomień",
+        "": "`x` nowych powiadomień"
+    },
     "search": "szukaj",
     "Log out": "Wyloguj",
-    "Released under the AGPLv3 by Omar Roth.": "Wydano na licencji AGPLv3 przez Omar Roth.",
+    "Released under the AGPLv3 on Github.": "",
     "Source available here.": "Kod źródłowy dostępny tutaj.",
     "View JavaScript license information.": "Wyświetl informację o licencji JavaScript.",
     "View privacy policy.": "Polityka prywatności.",
@@ -138,7 +161,11 @@
     "Title": "Tytuł",
     "Playlist privacy": "Widoczność playlisty",
     "Editing playlist `x`": "Edycja playlisty `x`",
+    "Show more": "Pokaż więcej",
+    "Show less": "Pokaż mniej",
     "Watch on YouTube": "Zobacz film na YouTube",
+    "Switch Invidious Instance": "Przełącz instancję Invidious",
+    "Broken? Try another Invidious Instance": "Nie działa? Spróbuj innej instancji Invidious",
     "Hide annotations": "Ukryj adnotacje",
     "Show annotations": "Pokaż adnotacje",
     "Genre: ": "Gatunek: ",
@@ -149,13 +176,19 @@
     "Whitelisted regions: ": "Dostępny na obszarach: ",
     "Blacklisted regions: ": "Niedostępny na obszarach: ",
     "Shared `x`": "Udostępniono `x`",
-    "`x` views": "`x` wyświetleń",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` wyświetleń",
+        "": "`x` wyświetleń"
+    },
     "Premieres in `x`": "Publikacja za `x`",
     "Premieres `x`": "Publikacja za `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Cześć! Wygląda na to, że masz wyłączoną obsługę JavaScriptu. Kliknij tutaj, żeby zobaczyć komentarze. Pamiętaj, że wczytywanie może potrwać dłużej.",
     "View YouTube comments": "Wyświetl komentarze z YouTube",
     "View more comments on Reddit": "Wyświetl więcej komentarzy na Reddicie",
-    "View `x` comments": "Wyświetl `x` komentarzy",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Wyświetl `x` komentarzy",
+        "": "Wyświetl `x` komentarzy"
+    },
     "View Reddit comments": "Wyświetl komentarze z Redditta",
     "Hide replies": "Ukryj odpowiedzi",
     "Show replies": "Pokaż odpowiedzi",
@@ -174,16 +207,22 @@
     "Password cannot be empty": "Hasło nie może być puste",
     "Password cannot be longer than 55 characters": "Hasło nie może być dłuższe niż 55 znaków",
     "Please log in": "Proszę się zalogować",
-    "Invidious Private Feed for `x`": "",
+    "Invidious Private Feed for `x`": "Prywatne aktualności dla `x`",
     "channel:`x`": "kanał:`x",
     "Deleted or invalid channel": "Usunięty lub niepoprawny kanał",
     "This channel does not exist.": "Ten kanał nie istnieje.",
     "Could not get channel info.": "Nie udało się uzyskać informacji o kanale.",
     "Could not fetch comments": "Nie udało się pobrać komentarzy",
-    "View `x` replies": "Wyświetl `x` odpowiedzi",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Wyświetl `x` odpowiedzi",
+        "": "Wyświetl `x` odpowiedzi"
+    },
     "`x` ago": "`x` temu",
     "Load more": "Wczytaj więcej",
-    "`x` points": "`x` punktów",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` punktów",
+        "": "`x` punktów"
+    },
     "Could not create mix.": "Nie udało się utworzyć miksu.",
     "Empty playlist": "Lista odtwarzania jest pusta",
     "Not a playlist.": "Niepoprawna lista.",
@@ -301,15 +340,37 @@
     "Yiddish": "jidysz",
     "Yoruba": "joruba",
     "Zulu": "zuluski",
-    "`x` years": "`x` lat",
-    "`x` months": "`x` miesięcy",
-    "`x` weeks": "`x` tygodni",
-    "`x` days": "`x` dni",
-    "`x` hours": "`x` godzin",
-    "`x` minutes": "`x` minut",
-    "`x` seconds": "`x` sekund",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` lat",
+        "": "`x` lat"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` miesięcy",
+        "": "`x` miesięcy"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tygodni",
+        "": "`x` tygodni"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dni",
+        "": "`x` dni"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` godzin",
+        "": "`x` godzin"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minut",
+        "": "`x` minut"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekund",
+        "": "`x` sekund"
+    },
     "Fallback comments: ": "Zastępcze komentarze: ",
     "Popular": "Popularne",
+    "Search": "Szukaj",
     "Top": "Top",
     "About": "Informacje",
     "Rating: ": "Ocena: ",
@@ -332,5 +393,35 @@
     "Videos": "Filmy",
     "Playlists": "Playlisty",
     "Community": "Społeczność",
-    "Current version: ": "Aktualna wersja: "
+    "relevance": "Trafność",
+    "rating": "Ocena",
+    "date": "data",
+    "views": "Liczba wyświetleń",
+    "content_type": "Typ",
+    "duration": "Długość",
+    "features": "Funkcje",
+    "sort": "sortuj",
+    "hour": "godzina",
+    "today": "dzisiaj",
+    "week": "tydzień",
+    "month": "miesiąc",
+    "year": "rok",
+    "video": "Film",
+    "channel": "kanał",
+    "playlist": "playlista",
+    "movie": "film",
+    "show": "pokaż",
+    "hd": "hd",
+    "subtitles": "napisy",
+    "creative_commons": "creative_commons",
+    "3d": "3d",
+    "live": "Na żywo",
+    "4k": "4k",
+    "location": "Lokalizacja",
+    "hdr": "hdr",
+    "filter": "filtr",
+    "Current version: ": "Aktualna wersja: ",
+    "next_steps_error_message": "Po czym powinien*ś spróbować: ",
+    "next_steps_error_message_refresh": "Odśwież",
+    "next_steps_error_message_go_to_youtube": "Przejdź do YouTube"
 }

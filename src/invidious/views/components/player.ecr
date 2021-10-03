@@ -10,28 +10,35 @@
             <% audio_streams.each_with_index do |fmt, i| %>
                 <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["mimeType"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
             <% end %>
-          <% else %>
+        <% else %>
             <% if params.quality == "dash" %>
                 <source src="/api/manifest/dash/id/<%= video.id %>?local=true&unique_res=1" type='application/dash+xml' label="dash">
             <% end %>
 
-            <% fmt_stream.each_with_index do |fmt, i| %>
-                <% if params.quality %>
-                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["mimeType"] %>' label="<%= fmt["quality"] %>" selected="<%= params.quality == fmt["quality"] %>">
-                <% else %>
-                    <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["mimeType"] %>' label="<%= fmt["quality"] %>" selected="<%= i == 0 ? true : false %>">
-                <% end %>
+            <%
+            fmt_stream.reject! { |f| f["itag"] == 17 }
+            fmt_stream.sort_by! {|f| params.quality == f["quality"] ? 0 : 1 }
+            fmt_stream.each_with_index do |fmt, i|
+                src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
+                src_url += "&local=true" if params.local
+
+                quality = fmt["quality"]
+                mimetype = HTML.escape(fmt["mimeType"].as_s)
+
+                selected = params.quality ? (params.quality == quality) : (i == 0)
+            %>
+                <source src="<%= src_url %>" type="<%= mimetype %>" label="<%= quality %>" selected="<%= selected %>">
             <% end %>
         <% end %>
 
         <% preferred_captions.each do |caption| %>
-            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>&hl=<%= env.get("preferences").as(Preferences).locale %>"
-                label="<%= caption.name.simpleText %>">
+            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name %>&hl=<%= env.get("preferences").as(Preferences).locale %>"
+                label="<%= caption.name %>">
         <% end %>
 
         <% captions.each do |caption| %>
-            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name.simpleText %>&hl=<%= env.get("preferences").as(Preferences).locale %>"
-                label="<%= caption.name.simpleText %>">
+            <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name %>&hl=<%= env.get("preferences").as(Preferences).locale %>"
+                label="<%= caption.name %>">
         <% end %>
     <% end %>
 </video>

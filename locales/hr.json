@@ -1,15 +1,15 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pretplatnika.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` pretplatnika."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pretplatnika",
+        "": "`x` pretplatnika"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videa.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` videa."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videa",
+        "": "`x` videa"
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playliste.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` playliste."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playliste",
+        "": "`x` playliste"
     },
     "LIVE": "UŽIVO",
     "Shared `x` ago": "Dijeljeno prije `x`",
@@ -71,12 +71,14 @@
     "Preferred video quality: ": "Primarna kvaliteta videa: ",
     "Player volume: ": "Glasnoća playera: ",
     "Default comments: ": "Standardni komentari: ",
-    "youtube": "youtube",
+    "youtube": "YouTube",
     "reddit": "reddit",
     "Default captions: ": "Standardni titlovi: ",
     "Fallback captions: ": "Alternativni titlovi: ",
     "Show related videos: ": "Prikaži povezana videa: ",
     "Show annotations by default: ": "Standardno prikaži napomene: ",
+    "Automatically extend video description: ": "Automatski proširi opis videa: ",
+    "Interactive 360 degree videos: ": "Interaktivna videa od 360 stupnjeva: ",
     "Visual preferences": "Postavke prikaza",
     "Player style: ": "Stil playera: ",
     "Dark mode: ": "Tamni modus: ",
@@ -84,6 +86,8 @@
     "dark": "tamno",
     "light": "svijetlo",
     "Thin mode: ": "Pojednostavljen prikaz: ",
+    "Miscellaneous preferences": "Razne postavke",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "Automatsko preusmjeravanje instance (u krajnjem slučaju koristi redirect.invidious.io): ",
     "Subscription preferences": "Postavke pretplata",
     "Show annotations by default for subscribed channels: ": "Standardno prikaži napomene za pretplaćene kanale: ",
     "Redirect homepage to feed: ": "Preusmjeri početnu stranicu na feed: ",
@@ -113,6 +117,7 @@
     "Administrator preferences": "Postavke administratora",
     "Default homepage: ": "Standardna početna stranica: ",
     "Feed menu: ": "Izbornik za feedove: ",
+    "Show nickname on top: ": "Prikaži nadimak na vrhu: ",
     "Top enabled: ": "Najbolji aktivirani: ",
     "CAPTCHA enabled: ": "Aktivirani CAPTCHA: ",
     "Login enabled: ": "Prijava aktivirana: ",
@@ -123,24 +128,24 @@
     "Token manager": "Upravljanje tokenima",
     "Token": "Token",
     "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pretplate.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` pretplate."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pretplate",
+        "": "`x` pretplate"
     },
     "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokena.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` tokena."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokena",
+        "": "`x` tokena"
     },
     "Import/export": "Uvezi/izvezi",
     "unsubscribe": "odjavi pretplatu",
     "revoke": "opozovi",
     "Subscriptions": "Pretplate",
     "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` neviđene obavijesti.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` neviđene obavijesti."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` neviđene obavijesti",
+        "": "`x` neviđene obavijesti"
     },
     "search": "traži",
     "Log out": "Odjavi se",
-    "Released under the AGPLv3 by Omar Roth.": "Izdano pod licencom AGPLv3, Omar Roth.",
+    "Released under the AGPLv3 on Github.": "Izdano pod licencom AGPLv3 na Github-u.",
     "Source available here.": "Izvor je ovdje dostupan.",
     "View JavaScript license information.": "Prikaži informacije o JavaScript licenci.",
     "View privacy policy.": "Prikaži politiku privatnosti.",
@@ -156,7 +161,11 @@
     "Title": "Naslov",
     "Playlist privacy": "Privatnost playliste",
     "Editing playlist `x`": "Uređivanje playliste `x`",
+    "Show more": "Pokaži više",
+    "Show less": "Pokaži manje",
     "Watch on YouTube": "Gledaj na YouTubeu",
+    "Switch Invidious Instance": "Promijeni Invidious instancu",
+    "Broken? Try another Invidious Instance": "Pokvarena? Probaj jednu drugu Invidious instancu",
     "Hide annotations": "Sakrij napomene",
     "Show annotations": "Prikaži napomene",
     "Genre: ": "Žanr: ",
@@ -169,7 +178,7 @@
     "Shared `x`": "Dijeljeno `x`",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gledanja.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` gledanja."
+        "": "`x` gledanja"
     },
     "Premieres in `x`": "Premijera za `x`",
     "Premieres `x`": "Premijera `x`",
@@ -178,7 +187,7 @@
     "View more comments on Reddit": "Prikaži još komentara na Redditu",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Prikaži `x` komentara.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "Prikaži `x` komentara."
+        "": "Prikaži `x` komentara"
     },
     "View Reddit comments": "Prikaži Reddit komentare",
     "Hide replies": "Sakrij odgovore",
@@ -205,14 +214,14 @@
     "Could not get channel info.": "Neuspjelo dobivanje podataka kanala.",
     "Could not fetch comments": "Neuspjelo dohvaćanje komentara",
     "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Prikaži `x` odgovora.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "Prikaži `x` odgovora."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Prikaži `x` odgovora",
+        "": "Prikaži `x` odgovora"
     },
     "`x` ago": "prije `x`",
     "Load more": "Učitaj više",
     "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bodova.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` bodova."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bodova",
+        "": "`x` bodova"
     },
     "Could not create mix.": "Neuspjelo stvaranje miksa.",
     "Empty playlist": "Prazna playlista",
@@ -332,35 +341,36 @@
     "Yoruba": "Jorubški",
     "Zulu": "Zulu",
     "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` g.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` g."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` g",
+        "": "`x` g"
     },
     "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mj.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` mj."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mj",
+        "": "`x` mj"
     },
     "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tj.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` tj."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tj",
+        "": "`x` tj"
     },
     "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dana.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` dana."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dana",
+        "": "`x` dana"
     },
     "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` h.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` h."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` h",
+        "": "`x` h"
     },
     "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` min.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` min."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` min",
+        "": "`x` min"
     },
     "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` s.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` s."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` s",
+        "": "`x` s"
     },
     "Fallback comments: ": "Alternativni komentari: ",
     "Popular": "Popularni",
+    "Search": "Traži",
     "Top": "Najbolji",
     "About": "Informacije",
     "Rating: ": "Ocjena: ",
@@ -375,13 +385,43 @@
     "Download as: ": "Preuzmi kao: ",
     "%A %B %-d, %Y": "%A, %-d. %B %Y.",
     "(edited)": "(uređeno)",
-    "YouTube comment permalink": "Permalink YouTube komentara",
-    "permalink": "permalink",
+    "YouTube comment permalink": "Stalna poveznica YouTube komentara",
+    "permalink": "stalna poveznica",
     "`x` marked it with a ❤": "Označeno sa ❤ od `x`",
     "Audio mode": "Audio modus",
     "Video mode": "Videomodus",
     "Videos": "Videa",
     "Playlists": "Playliste",
     "Community": "Zajednica",
-    "Current version: ": "Trenutačna verzija: "
+    "relevance": "značaj",
+    "rating": "ocjena",
+    "date": "datum",
+    "views": "prikazi",
+    "content_type": "vrsta_sadržaja",
+    "duration": "trajanje",
+    "features": "funkcije",
+    "sort": "redoslijed",
+    "hour": "sat",
+    "today": "danas",
+    "week": "tjedan",
+    "month": "mjesec",
+    "year": "godina",
+    "video": "video",
+    "channel": "kanal",
+    "playlist": "playlista",
+    "movie": "film",
+    "show": "emisija",
+    "hd": "hd",
+    "subtitles": "titlovi",
+    "creative_commons": "creative_commons",
+    "3d": "3d",
+    "live": "uživo",
+    "4k": "4k",
+    "location": "lokacija",
+    "hdr": "hdr",
+    "filter": "filtar",
+    "Current version: ": "Trenutačna verzija: ",
+    "next_steps_error_message": "Nakon toga pokušaj sljedeće: ",
+    "next_steps_error_message_refresh": "Aktualiziraj stranicu",
+    "next_steps_error_message_go_to_youtube": "Idi na YouTube"
 }

@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` prenumeranter",
-    "`x` videos": "`x` videor",
-    "`x` playlists": "`x` spellistor",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` prenumeranter",
+        "": "`x` prenumeranter"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videor",
+        "": "`x` videor"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` spellistor",
+        "": "`x` spellistor"
+    },
     "LIVE": "LIVE",
     "Shared `x` ago": "Delad `x` sedan",
     "Unsubscribe": "Avprenumerera",
@@ -68,6 +77,8 @@
     "Fallback captions: ": "Ersättningsundertexter: ",
     "Show related videos: ": "Visa relaterade videor? ",
     "Show annotations by default: ": "Visa länkar-i-videon som förval? ",
+    "Automatically extend video description: ": "Förläng videobeskrivning automatiskt: ",
+    "Interactive 360 degree videos: ": "Interaktiva 360-gradervideos: ",
     "Visual preferences": "Visuella inställningar",
     "Player style: ": "Spelarstil: ",
     "Dark mode: ": "Mörkt läge: ",
@@ -75,6 +86,8 @@
     "dark": "Mörkt",
     "light": "Ljust",
     "Thin mode: ": "Lättviktigt läge: ",
+    "Miscellaneous preferences": "Övriga inställningar",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Prenumerationsinställningar",
     "Show annotations by default for subscribed channels: ": "Visa länkar-i-videor som förval för kanaler som prenumereras på? ",
     "Redirect homepage to feed: ": "Omdirigera hemsida till flöde: ",
@@ -104,6 +117,7 @@
     "Administrator preferences": "Administratörsinställningar",
     "Default homepage: ": "Förvald hemsida: ",
     "Feed menu: ": "Flödesmeny: ",
+    "Show nickname on top: ": "Visa smeknamn överst: ",
     "Top enabled: ": "Topp påslaget? ",
     "CAPTCHA enabled: ": "CAPTCHA påslaget? ",
     "Login enabled: ": "Inloggning påslaget? ",
@@ -113,16 +127,25 @@
     "Subscription manager": "Prenumerationshanterare",
     "Token manager": "Åtkomst-token-hanterare",
     "Token": "Åtkomst-token",
-    "`x` subscriptions": "`x` prenumerationer",
-    "`x` tokens": "`x` åtkomst-token",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` prenumerationer",
+        "": "`x` prenumerationer"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` åtkomst-token",
+        "": "`x` åtkomst-token"
+    },
     "Import/export": "Importera/exportera",
     "unsubscribe": "avprenumerera",
     "revoke": "återkalla",
     "Subscriptions": "Prenumerationer",
-    "`x` unseen notifications": "`x` osedda aviseringar",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` osedda aviseringar",
+        "": "`x` osedda aviseringar"
+    },
     "search": "sök",
     "Log out": "Logga ut",
-    "Released under the AGPLv3 by Omar Roth.": "Utgiven under AGPLv3-licens av Omar Roth.",
+    "Released under the AGPLv3 on Github.": "",
     "Source available here.": "Källkod tillgänglig här.",
     "View JavaScript license information.": "Visa JavaScript-licensinformation.",
     "View privacy policy.": "Visa privatlivspolicy.",
@@ -138,7 +161,11 @@
     "Title": "Titel",
     "Playlist privacy": "Privatläge på spellista",
     "Editing playlist `x`": "Redigerer spellistan `x`",
+    "Show more": "Visa mer",
+    "Show less": "Visa mindre",
     "Watch on YouTube": "Titta på YouTube",
+    "Switch Invidious Instance": "Byt Invidious Instans",
+    "Broken? Try another Invidious Instance": "Trasig? Prova en annan Invidious Instance",
     "Hide annotations": "Dölj länkar-i-video",
     "Show annotations": "Visa länkar-i-video",
     "Genre: ": "Genre: ",
@@ -149,13 +176,19 @@
     "Whitelisted regions: ": "Vitlistade regioner: ",
     "Blacklisted regions: ": "Svartlistade regioner: ",
     "Shared `x`": "Delade `x`",
-    "`x` views": "`x` visningar",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visningar",
+        "": "`x` visningar"
+    },
     "Premieres in `x`": "Premiär om `x`",
     "Premieres `x`": "Premiär av `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hej. Det ser ut som att du har JavaScript avstängt. Klicka här för att visa kommentarer, ha i åtanke att nedladdning tar längre tid.",
     "View YouTube comments": "Visa YouTube-kommentarer",
     "View more comments on Reddit": "Visa flera kommentarer på Reddit",
-    "View `x` comments": "Visa `x` kommentarer",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Visa `x` kommentarer",
+        "": "Visa `x` kommentarer"
+    },
     "View Reddit comments": "Visa Reddit-kommentarer",
     "Hide replies": "Dölj svar",
     "Show replies": "Visa svar",
@@ -180,10 +213,16 @@
     "This channel does not exist.": "Denna kanal finns inte.",
     "Could not get channel info.": "Kunde inte hämta kanalinfo.",
     "Could not fetch comments": "Kunde inte hämta kommentarer",
-    "View `x` replies": "Visa `x` svar",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Visa `x` svar",
+        "": "Visa `x` svar"
+    },
     "`x` ago": "`x` sedan",
     "Load more": "Ladda fler",
-    "`x` points": "`x` poäng",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` poäng",
+        "": "`x` poäng"
+    },
     "Could not create mix.": "Kunde inte skapa mix.",
     "Empty playlist": "Spellistan är tom",
     "Not a playlist.": "Ogiltig spellista.",
@@ -301,15 +340,37 @@
     "Yiddish": "Jiddisch",
     "Yoruba": "Yoruba",
     "Zulu": "Zulu",
-    "`x` years": "`x` år",
-    "`x` months": "`x` månader",
-    "`x` weeks": "`x` veckor",
-    "`x` days": "`x` dagar",
-    "`x` hours": "`x` timmar",
-    "`x` minutes": "`x` minuter",
-    "`x` seconds": "`x` sekunder",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` år",
+        "": "`x` år"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` månader",
+        "": "`x` månader"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` veckor",
+        "": "`x` veckor"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dagar",
+        "": "`x` dagar"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` timmar",
+        "": "`x` timmar"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuter",
+        "": "`x` minuter"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekunder",
+        "": "`x` sekunder"
+    },
     "Fallback comments: ": "Fallback-kommentarer: ",
     "Popular": "Populärt",
+    "Search": "Sök",
     "Top": "Topp",
     "About": "Om",
     "Rating: ": "Betyg: ",
@@ -332,5 +393,35 @@
     "Videos": "Videor",
     "Playlists": "Spellistor",
     "Community": "Gemenskap",
-    "Current version: ": "Nuvarande version: "
+    "relevance": "relevans",
+    "rating": "rankning",
+    "date": "datum",
+    "views": "visningar",
+    "content_type": "Typ",
+    "duration": "Varaktighet",
+    "features": "Funktioner",
+    "sort": "Sortera efter",
+    "hour": "timme",
+    "today": "idag",
+    "week": "vecka",
+    "month": "månad",
+    "year": "år",
+    "video": "video",
+    "channel": "kanal",
+    "playlist": "spellista",
+    "movie": "film",
+    "show": "tv-serie",
+    "hd": "hd",
+    "subtitles": "undertexter",
+    "creative_commons": "creative_commons",
+    "3d": "3d",
+    "live": "live",
+    "4k": "4k",
+    "location": "plats",
+    "hdr": "hdr",
+    "filter": "Filter",
+    "Current version: ": "Nuvarande version: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "Uppdatera",
+    "next_steps_error_message_go_to_youtube": "Gå till Youtube"
 }

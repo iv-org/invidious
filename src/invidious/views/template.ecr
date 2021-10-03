@@ -26,18 +26,21 @@
     <span style="display:none" id="dark_mode_pref"><%= env.get("preferences").as(Preferences).dark_mode %></span>
     <div class="pure-g">
         <div class="pure-u-1 pure-u-md-2-24"></div>
-        <div class="pure-u-1 pure-u-md-20-24">
+        <div class="pure-u-1 pure-u-md-20-24" id="contents">
             <div class="pure-g navbar h-box">
-                <div class="pure-u-1 pure-u-md-4-24">
-                    <a href="/" class="index-link pure-menu-heading">Invidious</a>
-                </div>
-                <div class="pure-u-1 pure-u-md-12-24 searchbar">
-                    <form class="pure-form" action="/search" method="get">
-                        <fieldset>
-                            <input type="search" style="width:100%" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
-                        </fieldset>
-                    </form>
-                </div>
+                <% if navbar_search %>
+                    <div class="pure-u-1 pure-u-md-4-24">
+                        <a href="/" class="index-link pure-menu-heading">Invidious</a>
+                    </div>
+                    <div class="pure-u-1 pure-u-md-12-24 searchbar">
+                        <form class="pure-form" action="/search" method="get">
+                            <fieldset>
+                                <input type="search" style="width:100%" name="q" placeholder="<%= translate(locale, "search") %>" value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
+                            </fieldset>
+                        </form>
+                    </div>
+                <% end %>
+
                 <div class="pure-u-1 pure-u-md-8-24 user-field">
                     <% if env.get? "user" %>
                         <div class="pure-u-1-4">
@@ -64,6 +67,11 @@
                                 <i class="icon ion-ios-cog"></i>
                             </a>
                         </div>
+                        <% if env.get("preferences").as(Preferences).show_nick %>
+                            <div class="pure-u-1-4">
+                                <span id="user_name"><%= env.get("user").as(User).email %></span>
+                            </div>
+                        <% end %>
                         <div class="pure-u-1-4">
                             <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
@@ -106,11 +114,11 @@
 
             <%= content %>
 
-            <div class="footer">
+            <footer>
                 <div class="pure-g">
                     <div class="pure-u-1 pure-u-md-1-3">
                         <a href="https://github.com/iv-org/invidious">
-                            <%= translate(locale, "Released under the AGPLv3 by Omar Roth.") %>
+                            <%= translate(locale, "Released under the AGPLv3 on Github.") %>
                         </a>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-3">
@@ -140,7 +148,7 @@
                         <%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %>
                     </div>
                 </div>
-            </div>
+            </footer>
         </div>
         <div class="pure-u-1 pure-u-md-2-24"></div>
     </div>

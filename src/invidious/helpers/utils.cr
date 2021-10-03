@@ -1,5 +1,5 @@
 require "lsquic"
-require "pool/connection"
+require "db"
 
 def add_yt_headers(request)
   request.headers["user-agent"] ||= "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
@@ -9,20 +9,22 @@ def add_yt_headers(request)
   return if request.resource.starts_with? "/sorry/index"
   request.headers["x-youtube-client-name"] ||= "1"
   request.headers["x-youtube-client-version"] ||= "2.20200609"
+  # Preserve original cookies and add new YT consent cookie for EU servers
+  request.headers["cookie"] = "#{request.headers["cookie"]?}; CONSENT=YES+"
   if !CONFIG.cookies.empty?
     request.headers["cookie"] = "#{(CONFIG.cookies.map { |c| "#{c.name}=#{c.value}" }).join("; ")}; #{request.headers["cookie"]?}"
   end
 end
 
-struct QUICPool
+struct YoutubeConnectionPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : ConnectionPool(QUIC::Client)
+  property pool : DB::Pool(QUIC::Client | HTTP::Client)
 
-  def initialize(url : URI, @capacity = 5, @timeout = 5.0)
+  def initialize(url : URI, @capacity = 5, @timeout = 5.0, use_quic = true)
     @url = url
-    @pool = build_pool
+    @pool = build_pool(use_quic)
   end
 
   def client(region = nil, &block)
@@ -41,16 +43,20 @@ struct QUICPool
         conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
         response = yield conn
       ensure
-        pool.checkin(conn)
+        pool.release(conn)
       end
     end
 
     response
   end
 
-  private def build_pool
-    ConnectionPool(QUIC::Client).new(capacity: capacity, timeout: timeout) do
-      conn = QUIC::Client.new(url)
+  private def build_pool(use_quic)
+    DB::Pool(QUIC::Client | HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
+      if use_quic
+        conn = QUIC::Client.new(url)
+      else
+        conn = HTTP::Client.new(url)
+      end
       conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
@@ -292,7 +298,7 @@ def make_host_url(kemal_config)
 
   # Add if non-standard port
   if port != 80 && port != 443
-    port = ":#{kemal_config.port}"
+    port = ":#{port}"
   else
     port = ""
   end
@@ -402,4 +408,66 @@ def convert_theme(theme)
   else
     theme
   end
+end
+
+def fetch_random_instance
+  begin
+    instance_api_client = make_client(URI.parse("https://api.invidious.io"))
+
+    # Timeouts
+    instance_api_client.connect_timeout = 10.seconds
+    instance_api_client.dns_timeout = 10.seconds
+
+    instance_list = JSON.parse(instance_api_client.get("/instances.json").body).as_a
+    instance_api_client.close
+  rescue Socket::ConnectError | IO::TimeoutError | JSON::ParseException
+    instance_list = [] of JSON::Any
+  end
+
+  filtered_instance_list = [] of String
+
+  instance_list.each do |data|
+    # TODO Check if current URL is onion instance and use .onion types if so.
+    if data[1]["type"] == "https"
+      # Instances can have statisitics disabled, which is an requirement of version validation.
+      # as_nil? doesn't exist. Thus we'll have to handle the error rasied if as_nil fails.
+      begin
+        data[1]["stats"].as_nil
+        next
+      rescue TypeCastError
+      end
+
+      # stats endpoint could also lack the software dict.
+      next if data[1]["stats"]["software"]?.nil?
+
+      # Makes sure the instance isn't too outdated.
+      if remote_version = data[1]["stats"]?.try &.["software"]?.try &.["version"]
+        remote_commit_date = remote_version.as_s.match(/\d{4}\.\d{2}\.\d{2}/)
+        next if !remote_commit_date
+
+        remote_commit_date = Time.parse(remote_commit_date[0], "%Y.%m.%d", Time::Location::UTC)
+        local_commit_date = Time.parse(CURRENT_VERSION, "%Y.%m.%d", Time::Location::UTC)
+
+        next if (remote_commit_date - local_commit_date).abs.days > 30
+
+        begin
+          data[1]["monitor"].as_nil
+          health = data[1]["monitor"].as_h["dailyRatios"][0].as_h["ratio"]
+          filtered_instance_list << data[0].as_s if health.to_s.to_f > 90
+        rescue TypeCastError
+          # We can't check the health if the monitoring is broken. Thus we'll just add it to the list
+          # and move on. Ideally we'll ignore any instance that has broken health monitoring but due to the fact that
+          # it's an error that often occurs with all the instances at the same time, we have to just skip the check.
+          filtered_instance_list << data[0].as_s
+        end
+      end
+    end
+  end
+
+  # If for some reason no instances managed to get fetched successfully then we'll just redirect to redirect.invidious.io
+  if filtered_instance_list.size == 0
+    return "redirect.invidious.io"
+  end
+
+  return filtered_instance_list.sample(1)[0]
 end

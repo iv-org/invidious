@@ -1,5 +1,7 @@
-class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
-  def show(env)
+{% skip_file if flag?(:api_only) %}
+
+module Invidious::Routes::PreferencesRoute
+  def self.show(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     referer = get_referer(env)
@@ -9,7 +11,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     templated "preferences"
   end
 
-  def update(env)
+  def self.update(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     referer = get_referer(env)
 
@@ -60,6 +62,18 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     volume = env.params.body["volume"]?.try &.as(String).to_i?
     volume ||= CONFIG.default_user_preferences.volume
 
+    extend_desc = env.params.body["extend_desc"]?.try &.as(String)
+    extend_desc ||= "off"
+    extend_desc = extend_desc == "on"
+
+    vr_mode = env.params.body["vr_mode"]?.try &.as(String)
+    vr_mode ||= "off"
+    vr_mode = vr_mode == "on"
+
+    show_nick = env.params.body["show_nick"]?.try &.as(String)
+    show_nick ||= "off"
+    show_nick = show_nick == "on"
+
     comments = [] of String
     2.times do |i|
       comments << (env.params.body["comments[#{i}]"]?.try &.as(String) || CONFIG.default_user_preferences.comments[i])
@@ -83,6 +97,10 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
         feed_menu << option
       end
     end
+
+    automatic_instance_redirect = env.params.body["automatic_instance_redirect"]?.try &.as(String)
+    automatic_instance_redirect ||= "off"
+    automatic_instance_redirect = automatic_instance_redirect == "on"
 
     locale = env.params.body["locale"]?.try &.as(String)
     locale ||= CONFIG.default_user_preferences.locale
@@ -114,32 +132,36 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
 
     # Convert to JSON and back again to take advantage of converters used for compatability
     preferences = Preferences.from_json({
-      annotations:            annotations,
-      annotations_subscribed: annotations_subscribed,
-      autoplay:               autoplay,
-      captions:               captions,
-      comments:               comments,
-      continue:               continue,
-      continue_autoplay:      continue_autoplay,
-      dark_mode:              dark_mode,
-      latest_only:            latest_only,
-      listen:                 listen,
-      local:                  local,
-      locale:                 locale,
-      max_results:            max_results,
-      notifications_only:     notifications_only,
-      player_style:           player_style,
-      quality:                quality,
-      quality_dash:           quality_dash,
-      default_home:           default_home,
-      feed_menu:              feed_menu,
-      related_videos:         related_videos,
-      sort:                   sort,
-      speed:                  speed,
-      thin_mode:              thin_mode,
-      unseen_only:            unseen_only,
-      video_loop:             video_loop,
-      volume:                 volume,
+      annotations:                 annotations,
+      annotations_subscribed:      annotations_subscribed,
+      autoplay:                    autoplay,
+      captions:                    captions,
+      comments:                    comments,
+      continue:                    continue,
+      continue_autoplay:           continue_autoplay,
+      dark_mode:                   dark_mode,
+      latest_only:                 latest_only,
+      listen:                      listen,
+      local:                       local,
+      locale:                      locale,
+      max_results:                 max_results,
+      notifications_only:          notifications_only,
+      player_style:                player_style,
+      quality:                     quality,
+      quality_dash:                quality_dash,
+      default_home:                default_home,
+      feed_menu:                   feed_menu,
+      automatic_instance_redirect: automatic_instance_redirect,
+      related_videos:              related_videos,
+      sort:                        sort,
+      speed:                       speed,
+      thin_mode:                   thin_mode,
+      unseen_only:                 unseen_only,
+      video_loop:                  video_loop,
+      volume:                      volume,
+      extend_desc:                 extend_desc,
+      vr_mode:                     vr_mode,
+      show_nick:                   show_nick,
     }.to_json).to_json
 
     if user = env.get? "user"
@@ -188,10 +210,10 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       end
 
       if CONFIG.domain
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: preferences, expires: Time.utc + 2.years,
+        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: URI.encode_www_form(preferences), expires: Time.utc + 2.years,
           secure: secure, http_only: true)
       else
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
+        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: URI.encode_www_form(preferences), expires: Time.utc + 2.years,
           secure: secure, http_only: true)
       end
     end
@@ -199,7 +221,7 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
     env.redirect referer
   end
 
-  def toggle_theme(env)
+  def self.toggle_theme(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
     referer = get_referer(env, unroll: false)
 
@@ -240,10 +262,10 @@ class Invidious::Routes::PreferencesRoute < Invidious::Routes::BaseRoute
       end
 
       if CONFIG.domain
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: preferences, expires: Time.utc + 2.years,
+        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: URI.encode_www_form(preferences), expires: Time.utc + 2.years,
           secure: secure, http_only: true)
       else
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: preferences, expires: Time.utc + 2.years,
+        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: URI.encode_www_form(preferences), expires: Time.utc + 2.years,
           secure: secure, http_only: true)
       end
     end

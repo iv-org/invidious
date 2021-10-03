@@ -1,25 +1,25 @@
 {
     "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` רשומים.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` רשומים."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` רשומים",
+        "": "`x` רשומים"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` סרטונים.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` סרטונים."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` סרטונים",
+        "": "`x` סרטונים"
     },
     "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` פלייליסטים.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` פלייליסטים."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` פלייליסטים",
+        "": "`x` פלייליסטים"
     },
     "LIVE": "שידור חי",
-    "Shared `x` ago": "",
+    "Shared `x` ago": "שותף לפני `x`",
     "Unsubscribe": "ביטול מינוי",
     "Subscribe": "הרשמה למינוי",
     "View channel on YouTube": "צפייה בערוץ ב־YouTube",
     "View playlist on YouTube": "צפייה בפלייליסט ב־YouTube",
     "newest": "החדש ביותר",
     "oldest": "הישן ביותר",
-    "popular": "פופולארי",
+    "popular": "סרטונים פופולריים",
     "last": "אחרון",
     "Next page": "העמוד הבא",
     "Previous page": "העמוד הקודם",
@@ -27,8 +27,8 @@
     "New password": "סיסמה חדשה",
     "New passwords must match": "על הסיסמאות החדשות להתאים",
     "Cannot change password for Google accounts": "לא ניתן לשנות את הסיסמה לחשבונות Google",
-    "Authorize token?": "",
-    "Authorize token for `x`?": "",
+    "Authorize token?": "לאשר את האסימון?",
+    "Authorize token for `x`?": "האם לאשר את האסימון עבור `x`?",
     "Yes": "כן",
     "No": "לא",
     "Import and Export Data": "ייבוא וייצוא נתונים",
@@ -45,7 +45,7 @@
     "Delete account?": "למחוק את החשבון?",
     "History": "היסטוריה",
     "An alternative front-end to YouTube": "ממשק משתמש חלופי ל־YouTube",
-    "JavaScript license information": "",
+    "JavaScript license information": "מידע על רישיון JavaScript",
     "source": "source",
     "Log in": "כניסה",
     "Log in/register": "כניסה/הרשמה",
@@ -63,20 +63,22 @@
     "Player preferences": "העדפות הנגן",
     "Always loop: ": "",
     "Autoplay: ": "ניגון אוטומטי: ",
-    "Play next by default: ": "",
-    "Autoplay next video: ": "נגן אוטומטית את הסרטון הבא ",
-    "Listen by default: ": "האזן כברירת מחדל: ",
+    "Play next by default: ": "ניגון הסרטון הבא כברירת מחדל: ",
+    "Autoplay next video: ": "ניגון הסרטון הבא באופן אוטומטי: ",
+    "Listen by default: ": "שמע כברירת מחדל: ",
     "Proxy videos: ": "",
     "Default speed: ": "מהירות ברירת המחדל: ",
     "Preferred video quality: ": "איכות הווידאו המועדפת: ",
-    "Player volume: ": "עוצמת שמע בנגן: ",
+    "Player volume: ": "עצמת השמע של הנגן: ",
     "Default comments: ": "תגובות ברירת מחדל ",
     "youtube": "יוטיוב",
     "reddit": "reddit",
     "Default captions: ": "כתוביות ברירת מחדל ",
     "Fallback captions: ": "כתוביות גיבוי ",
-    "Show related videos: ": "הראה סרטונים קשורים: ",
-    "Show annotations by default: ": "הראה הסברים כברירת מחדל: ",
+    "Show related videos: ": "הצגת סרטונים קשורים: ",
+    "Show annotations by default: ": "הצגת הערות כברירת מחדל: ",
+    "Automatically extend video description: ": "",
+    "Interactive 360 degree videos: ": "",
     "Visual preferences": "העדפות חזותיות",
     "Player style: ": "סגנון הנגן: ",
     "Dark mode: ": "מצב כהה: ",
@@ -84,6 +86,8 @@
     "dark": "כהה",
     "light": "בהיר",
     "Thin mode: ": "",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "העדפות מינויים",
     "Show annotations by default for subscribed channels: ": "Show annotations by default for subscribed channels? ",
     "Redirect homepage to feed: ": "",
@@ -95,10 +99,10 @@
     "alphabetically - reverse": "בסדר אלפביתי - הפוך",
     "channel name": "שם הערוץ",
     "channel name - reverse": "שם הערוץ - הפוך",
-    "Only show latest video from channel: ": "הראה רק את הסרטון האחרון מהערוץ: ",
-    "Only show latest unwatched video from channel: ": "הראה רק את הסרטון האחרון שלא נצפה מהערוץ: ",
-    "Only show unwatched: ": "הראה רק סרטונים שלא נצפו ",
-    "Only show notifications (if there are any): ": "הראה רק התראות (אם יש) ",
+    "Only show latest video from channel: ": "הצגת הסרטון האחרון מהערוץ בלבד: ",
+    "Only show latest unwatched video from channel: ": "הצגת הסרטון האחרון שלא נצפה מהערוץ בלבד: ",
+    "Only show unwatched: ": "הצגת סרטונים שלא נצפו בלבד: ",
+    "Only show notifications (if there are any): ": "הצגת התראות בלבד (אם ישנן): ",
     "Enable web notifications": "",
     "`x` uploaded a video": "סרטון הועלה על ידי `x`",
     "`x` is live": "`x` בשידור חי",
@@ -107,12 +111,13 @@
     "Import/export data": "ייבוא/ייצוא נתונים",
     "Change password": "שינוי הסיסמה",
     "Manage subscriptions": "ניהול מינויים",
-    "Manage tokens": "",
+    "Manage tokens": "ניהול אסימונים",
     "Watch history": "היסטוריית צפייה",
     "Delete account": "מחיקת החשבון",
-    "Administrator preferences": "",
+    "Administrator preferences": "הגדרות ניהול מערכת",
     "Default homepage: ": "Default homepage: ",
     "Feed menu: ": "תפריט ההזנה: ",
+    "Show nickname on top: ": "",
     "Top enabled: ": "",
     "CAPTCHA enabled: ": "",
     "Login enabled: ": "",
@@ -123,8 +128,8 @@
     "Token manager": "Token manager",
     "Token": "Token",
     "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` מינויים.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` מינויים."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` מינויים",
+        "": "`x` מינויים"
     },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "",
@@ -135,12 +140,12 @@
     "revoke": "",
     "Subscriptions": "מינויים",
     "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` הודעות שלא נראו.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` הודעות שלא נראו."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` הודעות שלא נראו",
+        "": "`x` הודעות שלא נראו"
     },
     "search": "חיפוש",
     "Log out": "יציאה",
-    "Released under the AGPLv3 by Omar Roth.": "מופץ תחת רישיון AGPLv3 על ידי עמר רות׳ (Omar Roth).",
+    "Released under the AGPLv3 on Github.": "",
     "Source available here.": "קוד המקור זמין כאן.",
     "View JavaScript license information.": "",
     "View privacy policy.": "להצגת מדיניות הפרטיות.",
@@ -156,31 +161,35 @@
     "Title": "",
     "Playlist privacy": "Playlist privacy",
     "Editing playlist `x`": "",
+    "Show more": "",
+    "Show less": "",
     "Watch on YouTube": "צפייה ב־YouTube",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "",
     "Show annotations": "",
     "Genre: ": "Genre: ",
     "License: ": "רישיון: ",
     "Family friendly? ": "לכל המשפחה? ",
-    "Wilson score: ": "",
+    "Wilson score: ": "ציון וילסון: ",
     "Engagement: ": "",
     "Whitelisted regions: ": "",
     "Blacklisted regions: ": "",
     "Shared `x`": "",
     "`x` views": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` צפיות.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` צפיות."
+        "": "`x` צפיות"
     },
     "Premieres in `x`": "",
     "Premieres `x`": "",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "שלום! נראה ש־JavaScript כבוי. יש ללחוץ כאן להצגת התגובות, נא לקחת בחשבון שהטעינה תיקח קצת יותר זמן.",
-    "View YouTube comments": "",
-    "View more comments on Reddit": "",
+    "View YouTube comments": "הצגת התגובות מ־YouTube",
+    "View more comments on Reddit": "להצגת תגובות נוספות ב־Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "הצגת `x` תגובות.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "הצגת `x` תגובות."
+        "": "הצגת `x` תגובות"
     },
-    "View Reddit comments": "",
+    "View Reddit comments": "להצגת התגובות ב־Reddit",
     "Hide replies": "הסתרת תגובות",
     "Show replies": "הצגת תגובות",
     "Incorrect password": "סיסמה שגויה",
@@ -190,23 +199,23 @@
     "Login failed. This may be because two-factor authentication is not turned on for your account.": "",
     "Wrong answer": "תשובה שגויה",
     "Erroneous CAPTCHA": "",
-    "CAPTCHA is a required field": "",
+    "CAPTCHA is a required field": "שדה CAPTCHA הוא שדה חובה",
     "User ID is a required field": "חובה למלא את שדה שם המשתמש",
     "Password is a required field": "חובה למלא את שדה הסיסמה",
     "Wrong username or password": "שם משתמש שגוי או סיסמה שגויה",
-    "Please sign in using 'Log in with Google'": "",
+    "Please sign in using 'Log in with Google'": "נא להתחבר בעזרת \"התחברות עם Google\"",
     "Password cannot be empty": "",
-    "Password cannot be longer than 55 characters": "",
+    "Password cannot be longer than 55 characters": "על אורך הסיסמה להיות 55 תווים לכל היותר",
     "Please log in": "נא להתחבר",
     "Invidious Private Feed for `x`": "",
     "channel:`x`": "ערוץ:`x`",
-    "Deleted or invalid channel": "",
+    "Deleted or invalid channel": "הערוץ נמחק או שאינו תקין",
     "This channel does not exist.": "הערוץ הזה אינו קיים.",
     "Could not get channel info.": "לא היה ניתן לקבל מידע על הערוץ.",
     "Could not fetch comments": "לא היה ניתן למשוך את התגובות",
     "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "הצגת `x` תגובות.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "הצגת `x` תגובות."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "הצגת `x` תגובות",
+        "": "הצגת `x` תגובות"
     },
     "`x` ago": "לפני `x`",
     "Load more": "לטעון עוד",
@@ -224,7 +233,7 @@
     "Erroneous challenge": "",
     "Erroneous token": "",
     "No such user": "אין משתמש כזה",
-    "Token is expired, please try again": "",
+    "Token is expired, please try again": "תוקף האסימון פג, נא לנסות שוב",
     "English": "אנגלית",
     "English (auto-generated)": "אנגלית (נוצר באופן אוטומטי)",
     "Afrikaans": "Afrikaans",
@@ -263,10 +272,10 @@
     "Hawaiian": "הוואית",
     "Hebrew": "עברית",
     "Hindi": "הינדית",
-    "Hmong": "",
+    "Hmong": "המונג",
     "Hungarian": "הונגרית",
     "Icelandic": "איסלנדית",
-    "Igbo": "",
+    "Igbo": "איגבו",
     "Indonesian": "אינדונזית",
     "Irish": "Irish",
     "Italian": "איטלקית",
@@ -286,7 +295,7 @@
     "Macedonian": "מקדונית",
     "Malagasy": "מלגשית",
     "Malay": "מלאית",
-    "Malayalam": "",
+    "Malayalam": "מלאיאלאם",
     "Maltese": "מלטזית",
     "Maori": "מאורית",
     "Marathi": "מראטהית",
@@ -301,7 +310,7 @@
     "Punjabi": "פנג'אבי",
     "Romanian": "רומנית",
     "Russian": "רוסית",
-    "Samoan": "",
+    "Samoan": "סמואית",
     "Scottish Gaelic": "גאלית סקוטית",
     "Serbian": "Serbian",
     "Shona": "",
@@ -329,38 +338,39 @@
     "Western Frisian": "",
     "Xhosa": "קוסה",
     "Yiddish": "יידיש",
-    "Yoruba": "",
+    "Yoruba": "יורובה",
     "Zulu": "זולו",
     "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` שנים.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` שנים."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` שנים",
+        "": "`x` שנים"
     },
     "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` חודשים.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` חודשים."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` חודשים",
+        "": "`x` חודשים"
     },
     "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` שבועות.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` שבועות."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` שבועות",
+        "": "`x` שבועות"
     },
     "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ימים.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` ימים."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ימים",
+        "": "`x` ימים"
     },
     "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` שעות.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` שעות."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` שעות",
+        "": "`x` שעות"
     },
     "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` דקות.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` דקות."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` דקות",
+        "": "`x` דקות"
     },
     "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` שניות.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` שניות."
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` שניות",
+        "": "`x` שניות"
     },
     "Fallback comments: ": "",
-    "Popular": "",
+    "Popular": "סרטונים פופולריים",
+    "Search": "",
     "Top": "Top",
     "About": "על אודות",
     "Rating: ": "דירוג: ",
@@ -374,7 +384,7 @@
     "Download": "הורדה",
     "Download as: ": "הורדה בתור: ",
     "%A %B %-d, %Y": "%A %B %-d, %Y",
-    "(edited)": "",
+    "(edited)": "(לאחר עריכה)",
     "YouTube comment permalink": "",
     "permalink": "",
     "`x` marked it with a ❤": "סומנה ב־❤ על ידי `x`",
@@ -410,5 +420,8 @@
     "location": "מיקום",
     "hdr": "HDR",
     "filter": "סינון",
-    "Current version: ": "הגרסה הנוכחית: "
+    "Current version: ": "הגרסה הנוכחית: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

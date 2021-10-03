@@ -1,7 +1,7 @@
 name: invidious
 
 image:
-  repository: iv-org/invidious
+  repository: quay.io/invidious/invidious
   tag: latest
   pullPolicy: Always
 

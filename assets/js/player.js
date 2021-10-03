@@ -14,6 +14,7 @@ var options = {
             'durationDisplay',
             'progressControl',
             'remainingTimeDisplay',
+            'Spacer',
             'captionsButton',
             'qualitySelector',
             'playbackRateMenuButton',
@@ -73,6 +74,55 @@ if (location.pathname.startsWith('/embed/')) {
     });
 }
 
+// Detect mobile users and initalize mobileUi for better UX
+// Detection code taken from https://stackoverflow.com/a/20293441
+
+function isMobile() {
+  try{ document.createEvent("TouchEvent"); return true; }
+  catch(e){ return false; }
+}
+
+if (isMobile()) {
+    player.mobileUi();
+
+    buttons = ["playToggle", "volumePanel", "captionsButton"];
+
+    if (video_data.params.quality !== 'dash') {
+        buttons.push("qualitySelector")
+    }
+
+    // Create new control bar object for operation buttons
+    const ControlBar = videojs.getComponent("controlBar");
+    let operations_bar = new ControlBar(player, {
+      children: [],
+      playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+    });
+    buttons.slice(1).forEach(child => operations_bar.addChild(child))
+
+    // Remove operation buttons from primary control bar
+    primary_control_bar = player.getChild("controlBar");
+    buttons.forEach(child => primary_control_bar.removeChild(child));
+
+    operations_bar_element = operations_bar.el();
+    operations_bar_element.className += " mobile-operations-bar"
+    player.addChild(operations_bar)
+
+    // Playback menu doesn't work when its initalized outside of the primary control bar
+    playback_element = document.getElementsByClassName("vjs-playback-rate")[0]
+    operations_bar_element.append(playback_element)
+
+    // The share and http source selector element can't be fetched till the players ready.
+    player.one("playing", () => {
+  	    share_element = document.getElementsByClassName("vjs-share-control")[0]
+  	    operations_bar_element.append(share_element)
+
+  	    if (video_data.params.quality === 'dash') {
+        		http_source_selector = document.getElementsByClassName("vjs-http-source-selector vjs-menu-button")[0]
+        		operations_bar_element.append(http_source_selector)
+  	    }
+  	})
+}
+
 player.on('error', function (event) {
     if (player.error().code === 2 || player.error().code === 4) {
         setTimeout(function (event) {
@@ -97,6 +147,17 @@ player.on('error', function (event) {
         }, 5000);
     }
 });
+
+// Enable VR video support
+if (!video_data.params.listen && video_data.vr && video_data.params.vr_mode) {
+    player.crossOrigin("anonymous")
+    switch (video_data.projection_type) {
+        case "EQUIRECTANGULAR":
+            player.vr({projection: "equirectangular"});
+        default: // Should only be "MESH" but we'll use this as a fallback.
+            player.vr({projection: "EAC"});
+    }
+}
 
 // Add markers
 if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
@@ -566,3 +627,20 @@ if (navigator.vendor == "Apple Computer, Inc." && video_data.params.listen) {
         });
     });
 }
+
+// Watch on Invidious link
+if (window.location.pathname.startsWith("/embed/")) {
+    const Button = videojs.getComponent('Button');
+    let watch_on_invidious_button = new Button(player);
+
+    // Create hyperlink for current instance
+    redirect_element = document.createElement("a");
+    redirect_element.setAttribute("href", `http://${window.location.host}/watch?v=${window.location.pathname.replace("/embed/","")}`)
+    redirect_element.appendChild(document.createTextNode("Invidious"))
+
+    watch_on_invidious_button.el().appendChild(redirect_element)
+    watch_on_invidious_button.addClass("watch-on-invidious")
+
+    cb = player.getChild('ControlBar')
+    cb.addChild(watch_on_invidious_button)
+};

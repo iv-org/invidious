@@ -13,7 +13,7 @@ CREATE TYPE public.privacy AS ENUM
 
 -- DROP TABLE public.playlists;
 
-CREATE TABLE public.playlists
+CREATE TABLE IF NOT EXISTS public.playlists
 (
     title text,
     id text primary key,
@@ -26,4 +26,4 @@ CREATE TABLE public.playlists
     index int8[]
 );
 
-GRANT ALL ON public.playlists TO kemal;
+GRANT ALL ON public.playlists TO current_user;

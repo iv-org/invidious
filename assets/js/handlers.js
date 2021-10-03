@@ -22,7 +22,8 @@
                 break;
             case 'get_youtube_replies':
                 var load_more = e.getAttribute('data-load-more') !== null;
-                get_youtube_replies(e, load_more);
+                var load_replies = e.getAttribute('data-load-replies') !== null;
+                get_youtube_replies(e, load_more, load_replies);
                 break;
             case 'toggle_parent':
                 toggle_parent(e);

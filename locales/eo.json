@@ -1,7 +1,16 @@
 {
-    "`x` subscribers": "`x` abonantoj",
-    "`x` videos": "`x` filmetoj",
-    "`x` playlists": "`x` ludlistoj",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonantoj",
+        "": "`x` abonantoj"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` filmetoj",
+        "": "`x` filmetoj"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ludlistoj",
+        "": "`x` ludlistoj"
+    },
     "LIVE": "NUNA",
     "Shared `x` ago": "Konigita antaŭ `x`",
     "Unsubscribe": "Malabonu",
@@ -68,6 +77,8 @@
     "Fallback captions: ": "Retrodefaŭltaj subtekstoj: ",
     "Show related videos: ": "Ĉu montri rilatajn filmetojn? ",
     "Show annotations by default: ": "Ĉu montri prinotojn defaŭlte? ",
+    "Automatically extend video description: ": "Aŭtomate etendi priskribon de filmeto: ",
+    "Interactive 360 degree videos: ": "Interagaj 360-gradaj filmetoj: ",
     "Visual preferences": "Vidaj preferoj",
     "Player style: ": "Ludila stilo: ",
     "Dark mode: ": "Malhela reĝimo: ",
@@ -75,6 +86,8 @@
     "dark": "malhela",
     "light": "hela",
     "Thin mode: ": "Maldika reĝimo: ",
+    "Miscellaneous preferences": "Aliaj agordoj",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "Aŭtomata alidirektado de instalaĵo (retropaŝo al redirect.invidious.io): ",
     "Subscription preferences": "Abonaj agordoj",
     "Show annotations by default for subscribed channels: ": "Ĉu montri prinotojn defaŭlte por abonitaj kanaloj? ",
     "Redirect homepage to feed: ": "Alidirekti hejmpâgon al fluo: ",
@@ -104,6 +117,7 @@
     "Administrator preferences": "Agordoj de administranto",
     "Default homepage: ": "Defaŭlta hejmpaĝo: ",
     "Feed menu: ": "Flua menuo: ",
+    "Show nickname on top: ": "Montri kromnomon supre: ",
     "Top enabled: ": "Ĉu pli bonaj ŝaltitaj? ",
     "CAPTCHA enabled: ": "Ĉu CAPTCHA ŝaltita? ",
     "Login enabled: ": "Ĉu ensaluto aktivita? ",
@@ -113,16 +127,25 @@
     "Subscription manager": "Administrilo de abonoj",
     "Token manager": "Ĵetona administrilo",
     "Token": "Ĵetono",
-    "`x` subscriptions": "`x` abonoj",
-    "`x` tokens": "`x` ĵetonoj",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonoj",
+        "": "`x` abonoj"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ĵetonoj",
+        "": "`x` ĵetonoj"
+    },
     "Import/export": "Importi/Eksporti",
     "unsubscribe": "malabonu",
     "revoke": "senvalidigi",
     "Subscriptions": "Abonoj",
-    "`x` unseen notifications": "`x` neviditaj sciigoj",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` neviditaj sciigoj",
+        "": "`x` neviditaj sciigoj"
+    },
     "search": "serĉi",
     "Log out": "Elsaluti",
-    "Released under the AGPLv3 by Omar Roth.": "Eldonita sub la AGPLv3 de Omar Roth.",
+    "Released under the AGPLv3 on Github.": "Eldonita sub la AGPLv3 en Github.",
     "Source available here.": "Fonto havebla ĉi tie.",
     "View JavaScript license information.": "Vidi Ĝavoskriptan licencan informon.",
     "View privacy policy.": "Vidi regularon pri privateco.",
@@ -138,7 +161,11 @@
     "Title": "Titolo",
     "Playlist privacy": "Privateco de ludlisto",
     "Editing playlist `x`": "Redaktante ludlisto `x`",
+    "Show more": "Montri pli",
+    "Show less": "Montri malpli",
     "Watch on YouTube": "Vidi filmeton en JuTubo",
+    "Switch Invidious Instance": "Ŝanĝi instalaĵon de Indivious",
+    "Broken? Try another Invidious Instance": "Ĉu misfunkcio? Provu alian instalaĵon de Indivious",
     "Hide annotations": "Kaŝi prinotojn",
     "Show annotations": "Montri prinotojn",
     "Genre: ": "Ĝenro: ",
@@ -149,13 +176,19 @@
     "Whitelisted regions: ": "Regionoj listigitaj en blanka listo: ",
     "Blacklisted regions: ": "Regionoj listigitaj en nigra listo: ",
     "Shared `x`": "Konigita `x`",
-    "`x` views": "`x` spektaĵoj",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` spektaĵoj",
+        "": "`x` spektaĵoj"
+    },
     "Premieres in `x`": "Premieras en `x`",
     "Premieres `x`": "Premieras `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Saluton! Ŝajnas, ke vi havas Ĝavoskripton malebligitan. Klaku ĉi tie por vidi komentojn, memoru, ke la ŝargado povus daŭri iom pli.",
     "View YouTube comments": "Vidi komentojn de JuTubo",
     "View more comments on Reddit": "Vidi pli komentoj en Reddit",
-    "View `x` comments": "Vidi `x` komentojn",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Vidi `x` komentojn",
+        "": "Vidi `x` komentojn"
+    },
     "View Reddit comments": "Vidi komentojn de Reddit",
     "Hide replies": "Kaŝi respondojn",
     "Show replies": "Montri respondojn",
@@ -180,10 +213,16 @@
     "This channel does not exist.": "Ĉi tiu kanalo ne ekzistas.",
     "Could not get channel info.": "Ne povis havigi kanalan informon.",
     "Could not fetch comments": "Ne povis venigi komentojn",
-    "View `x` replies": "Vidi `x` respondojn",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Vidi `x` respondojn",
+        "": "Vidi `x` respondojn"
+    },
     "`x` ago": "antaŭ `x`",
     "Load more": "Ŝarĝi pli",
-    "`x` points": "`x` poentoj",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` poentoj",
+        "": "`x` poentoj"
+    },
     "Could not create mix.": "Ne povis krei mikson.",
     "Empty playlist": "Ludlisto estas malplena",
     "Not a playlist.": "Nevalida ludlisto.",
@@ -301,15 +340,37 @@
     "Yiddish": "Jida",
     "Yoruba": "Joruba",
     "Zulu": "Zulua",
-    "`x` years": "`x` jaroj",
-    "`x` months": "`x` monatoj",
-    "`x` weeks": "`x` semajnoj",
-    "`x` days": "`x` tagoj",
-    "`x` hours": "`x` horoj",
-    "`x` minutes": "`x` minutoj",
-    "`x` seconds": "`x` sekundoj",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jaroj",
+        "": "`x` jaroj"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` monatoj",
+        "": "`x` monatoj"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` semajnoj",
+        "": "`x` semajnoj"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tagoj",
+        "": "`x` tagoj"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` horoj",
+        "": "`x` horoj"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutoj",
+        "": "`x` minutoj"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekundoj",
+        "": "`x` sekundoj"
+    },
     "Fallback comments: ": "Retrodefaŭltaj komentoj: ",
     "Popular": "Popularaj",
+    "Search": "Serĉi",
     "Top": "Supraj",
     "About": "Pri",
     "Rating: ": "Takso: ",
@@ -332,5 +393,35 @@
     "Videos": "Filmetoj",
     "Playlists": "Ludlistoj",
     "Community": "Komunumo",
-    "Current version: ": "Nuna versio: "
+    "relevance": "rilateco",
+    "rating": "takso",
+    "date": "dato",
+    "views": "vidoj",
+    "content_type": "enhavtipo",
+    "duration": "daŭro",
+    "features": "trajtoj",
+    "sort": "ordigi",
+    "hour": "horo",
+    "today": "hodiaŭ",
+    "week": "semajno",
+    "month": "monato",
+    "year": "jaro",
+    "video": "filmeto",
+    "channel": "kanalo",
+    "playlist": "ludlisto",
+    "movie": "filmo",
+    "show": "spektaĵo",
+    "hd": "altdistingiva",
+    "subtitles": "subtekstoj",
+    "creative_commons": "Krea Komunaĵo",
+    "3d": "3D",
+    "live": "nuna",
+    "4k": "4k",
+    "location": "loko",
+    "hdr": "granddinamikgama",
+    "filter": "filtri",
+    "Current version: ": "Nuna versio: ",
+    "next_steps_error_message": "Poste, vi provu: ",
+    "next_steps_error_message_refresh": "Reŝargi",
+    "next_steps_error_message_go_to_youtube": "Iri al JuTubo"
 }

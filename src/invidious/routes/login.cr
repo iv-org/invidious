@@ -1,5 +1,7 @@
-class Invidious::Routes::Login < Invidious::Routes::BaseRoute
-  def login_page(env)
+{% skip_file if flag?(:api_only) %}
+
+module Invidious::Routes::Login
+  def self.login_page(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"
@@ -28,7 +30,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
     templated "login"
   end
 
-  def login(env)
+  def self.login(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     referer = get_referer(env, "/feed/subscriptions")
@@ -238,7 +240,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
         traceback << "Logging in..."
 
         location = URI.parse(challenge_results[0][-1][2].to_s)
-        cookies = HTTP::Cookies.from_headers(headers)
+        cookies = HTTP::Cookies.from_client_headers(headers)
 
         headers.delete("Content-Type")
         headers.delete("Google-Accounts-XSRF")
@@ -261,7 +263,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
           location = login.headers["Location"]?.try { |u| URI.parse(u) }
         end
 
-        cookies = HTTP::Cookies.from_headers(headers)
+        cookies = HTTP::Cookies.from_client_headers(headers)
         sid = cookies["SID"]?.try &.value
         if !sid
           raise "Couldn't get SID."
@@ -434,6 +436,13 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
 
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         user, sid = create_user(sid, email, password)
+
+        if language_header = env.request.headers["Accept-Language"]?
+          if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
+            user.preferences.locale = language.header
+          end
+        end
+
         user_array = user.to_a
         user_array[4] = user_array[4].to_json # User preferences
 
@@ -475,7 +484,7 @@ class Invidious::Routes::Login < Invidious::Routes::BaseRoute
     end
   end
 
-  def signout(env)
+  def self.signout(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"

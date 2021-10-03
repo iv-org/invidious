@@ -1,10 +1,16 @@
 {
-    "`x` subscribers.([^.,0-9]|^)1([^.,0-9]|$)": "`x` مشترکان.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` subscribers.": "`x` مشترکان.",
-    "`x` videos.([^.,0-9]|^)1([^.,0-9]|$)": "`x` ویدیو ها.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` videos.": "`x` ویدیو ها.",
-    "`x` playlists.([^.,0-9]|^)1([^.,0-9]|$)": "`x` لیست های پخش.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` playlists.": "`x` لیست های پخش.",
+    "`x` subscribers": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` مشترکان",
+        "": "`x` مشترکان"
+    },
+    "`x` videos": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ویدیو ها",
+        "": "`x` ویدیو ها"
+    },
+    "`x` playlists": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` لیست های پخش",
+        "": "`x` لیست های پخش"
+    },
     "LIVE": "زنده",
     "Shared `x` ago": "به اشتراک گذاشته شده `x` پیش",
     "Unsubscribe": "لغو اشتراک",
@@ -71,6 +77,8 @@
     "Fallback captions: ": "عقب گرد زیرنویس ها: ",
     "Show related videos: ": "نمایش ویدیو های مرتبط: ",
     "Show annotations by default: ": "نمایش حاشیه نویسی ها به طور پیشفرض: ",
+    "Automatically extend video description: ": "",
+    "Interactive 360 degree videos: ": "",
     "Visual preferences": "ترجیحات بصری",
     "Player style: ": "حالت پخش کننده: ",
     "Dark mode: ": "حالت تاریک: ",
@@ -78,6 +86,8 @@
     "dark": "تاریک",
     "light": "روشن",
     "Thin mode: ": "حالت نازک: ",
+    "Miscellaneous preferences": "",
+    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "ترجیحات اشتراک",
     "Show annotations by default for subscribed channels: ": "نمایش حاشیه نویسی ها به طور پیشفرض برای کانال های مشترک شده: ",
     "Redirect homepage to feed: ": "تغییر مسیر صفحه خانه به خوراک: ",
@@ -107,6 +117,7 @@
     "Administrator preferences": "ترجیحات مدیریت",
     "Default homepage: ": "صفحه خانه پیشفرض ",
     "Feed menu: ": "منو خوراک: ",
+    "Show nickname on top: ": "",
     "Top enabled: ": "بالا فعال شده: ",
     "CAPTCHA enabled: ": "CAPTCHA فعال شده: ",
     "Login enabled: ": "ورود فعال شده: ",
@@ -116,19 +127,25 @@
     "Subscription manager": "مدیریت اشتراک",
     "Token manager": "مدیر توکن",
     "Token": "توکن",
-    "`x` subscriptions.([^.,0-9]|^)1([^.,0-9]|$)": "`x` اشتراک ها.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` subscriptions.": "`x` اشتراک ها.",
-    "`x` tokens.([^.,0-9]|^)1([^.,0-9]|$)": "`x` توکن ها.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` tokens.": "`x` توکن ها.",
+    "`x` subscriptions": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` اشتراک ها",
+        "": "`x` اشتراک ها"
+    },
+    "`x` tokens": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` توکن ها",
+        "": "`x` توکن ها"
+    },
     "Import/export": "وارد کردن/خارج کردن",
     "unsubscribe": "لغو اشتراک",
     "revoke": "ابطال",
     "Subscriptions": "اشتراک ها",
-    "`x` unseen notifications.([^.,0-9]|^)1([^.,0-9]|$)": "`x` اعلان نادیده.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` unseen notifications.": "`x` اعلان نادیده.",
+    "`x` unseen notifications": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` اعلان نادیده",
+        "": "`x` اعلان نادیده"
+    },
     "search": "جستجو",
     "Log out": "خروج",
-    "Released under the AGPLv3 by Omar Roth.": "منتشر شده تحت مجوز AGPLv3 توسط Omar Roth.",
+    "Released under the AGPLv3 on Github.": "",
     "Source available here.": "منبع اینجا دردسترس است.",
     "View JavaScript license information.": "نمایش اطلاعات مجوز جاوا اسکریپت.",
     "View privacy policy.": "نمایش سیاست حفظ حریم خصوصی.",
@@ -144,7 +161,11 @@
     "Title": "عنوان",
     "Playlist privacy": "حریم خصوصی لیست پخش",
     "Editing playlist `x`": "تغییر لیست پخش `x`",
+    "Show more": "",
+    "Show less": "",
     "Watch on YouTube": "تماشا در یوتیوب",
+    "Switch Invidious Instance": "",
+    "Broken? Try another Invidious Instance": "",
     "Hide annotations": "مخفی کردن حاشیه نویسی ها",
     "Show annotations": "نمایش حاشیه نویسی ها",
     "Genre: ": "ژانر: ",
@@ -155,15 +176,19 @@
     "Whitelisted regions: ": "مناطق لیست سفید: ",
     "Blacklisted regions: ": "مناطق لیست سیاه: ",
     "Shared `x`": "به اشتراک گذاشته شده `x`",
-    "`x` views.([^.,0-9]|^)1([^.,0-9]|$)": "`x` بازدید.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` views.": "`x` بازدید.",
+    "`x` views": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` بازدید",
+        "": "`x` بازدید"
+    },
     "Premieres in `x`": "برای اولین بار در `x`",
     "Premieres `x`": "برای اولین بار `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "سلام! مثل اینکه تو جاوا اسکریپت رو خاموش کرده ای. اینجا کلیک کن تا نظرات را ببینی، این رو یادت باشه که ممکنه بارگذاری اونها کمی طول بکشه.",
     "View YouTube comments": "نمایش نظرات یوتیوب",
     "View more comments on Reddit": "نمایش نظرات بیشتر در ردیت",
-    "View `x` comments.([^.,0-9]|^)1([^.,0-9]|$)": "نمایش `x` نظرات.([^.,0-9]|^)1([^.,0-9]|$)",
-    "View `x` comments.": "نمایش `x` نظرات.",
+    "View `x` comments": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "نمایش `x` نظرات",
+        "": "نمایش `x` نظرات"
+    },
     "View Reddit comments": "نمایش نظرات ردیت",
     "Hide replies": "مخفی کردن پاسخ ها",
     "Show replies": "نمایش پاسخ ها",
@@ -188,12 +213,16 @@
     "This channel does not exist.": "این کانال وجود ندارد.",
     "Could not get channel info.": "نمیتوان اطلاعات کانال را دریافت کرد.",
     "Could not fetch comments": "نمیتوان نظرات را دریافت کرد",
-    "View `x` replies.([^.,0-9]|^)1([^.,0-9]|$)": "نمایش `x` پاسخ ها.([^.,0-9]|^)1([^.,0-9]|$)",
-    "View `x` replies.": "نمایش `x` پاسخ ها.",
+    "View `x` replies": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "نمایش `x` پاسخ ها",
+        "": "نمایش `x` پاسخ ها"
+    },
     "`x` ago": "`x` پیش",
     "Load more": "بارگذاری بیشتر",
-    "`x` points.([^.,0-9]|^)1([^.,0-9]|$)": "`x` نقطه ها.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` points.": "`x` نقطه ها.",
+    "`x` points": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` نقطه ها",
+        "": "`x` نقطه ها"
+    },
     "Could not create mix.": "نمیتوان میکس ساخت.",
     "Empty playlist": "لیست پخش خالی",
     "Not a playlist.": "یک لیست پخش نیست.",
@@ -311,22 +340,37 @@
     "Yiddish": "ییدیش",
     "Yoruba": "یوروبایی",
     "Zulu": "زولو",
-    "`x` years.([^.,0-9]|^)1([^.,0-9]|$)": "`x` سال.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` years.": "`x` سال.",
-    "`x` months.([^.,0-9]|^)1([^.,0-9]|$)": "`x` ماه.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` months.": "`x` ماه.",
-    "`x` weeks.([^.,0-9]|^)1([^.,0-9]|$)": "`x` هفته.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` weeks.": "`x` هفته.",
-    "`x` days.([^.,0-9]|^)1([^.,0-9]|$)": "`x` روز.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` days.": "`x` روز.",
-    "`x` hours.([^.,0-9]|^)1([^.,0-9]|$)": "`x` ساعت.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` hours.": "`x` ساعت.",
-    "`x` minutes.([^.,0-9]|^)1([^.,0-9]|$)": "`x` دقیقه.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` minutes.": "`x` دقیقه.",
-    "`x` seconds.([^.,0-9]|^)1([^.,0-9]|$)": "`x` ثانیه.([^.,0-9]|^)1([^.,0-9]|$)",
-    "`x` seconds.": "`x` ثانیه.",
+    "`x` years": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` سال",
+        "": "`x` سال"
+    },
+    "`x` months": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ماه",
+        "": "`x` ماه"
+    },
+    "`x` weeks": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` هفته",
+        "": "`x` هفته"
+    },
+    "`x` days": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` روز",
+        "": "`x` روز"
+    },
+    "`x` hours": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ساعت",
+        "": "`x` ساعت"
+    },
+    "`x` minutes": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` دقیقه",
+        "": "`x` دقیقه"
+    },
+    "`x` seconds": {
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ثانیه",
+        "": "`x` ثانیه"
+    },
     "Fallback comments: ": "نظرات عقب گرد: ",
     "Popular": "محبوب",
+    "Search": "",
     "Top": "بالا",
     "About": "درباره",
     "Rating: ": "رتبه دهی: ",
@@ -349,5 +393,35 @@
     "Videos": "ویدیو ها",
     "Playlists": "لیست های پخش",
     "Community": "اجتماع",
-    "Current version: ": "نسخه فعلی: "
+    "relevance": "",
+    "rating": "",
+    "date": "",
+    "views": "",
+    "content_type": "",
+    "duration": "",
+    "features": "",
+    "sort": "",
+    "hour": "",
+    "today": "",
+    "week": "",
+    "month": "",
+    "year": "",
+    "video": "",
+    "channel": "",
+    "playlist": "",
+    "movie": "",
+    "show": "",
+    "hd": "",
+    "subtitles": "",
+    "creative_commons": "",
+    "3d": "",
+    "live": "",
+    "4k": "",
+    "location": "",
+    "hdr": "",
+    "filter": "",
+    "Current version: ": "نسخه فعلی: ",
+    "next_steps_error_message": "",
+    "next_steps_error_message_refresh": "",
+    "next_steps_error_message_go_to_youtube": ""
 }

@@ -5,7 +5,8 @@ require "protodec/utils"
 require "spec"
 require "yaml"
 require "../src/invidious/helpers/*"
-require "../src/invidious/channels"
+require "../src/invidious/channels/*"
+require "../src/invidious/videos"
 require "../src/invidious/comments"
 require "../src/invidious/playlists"
 require "../src/invidious/search"
@@ -27,11 +28,11 @@ describe "Helper" do
     end
   end
 
-  describe "#produce_channel_search_url" do
+  describe "#produce_channel_search_continuation" do
     it "correctly produces token for searching a specific channel" do
-      produce_channel_search_url("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100).should eq("/browse_ajax?continuation=4qmFsgI2EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaGEVnWnpaV0Z5WTJnNEFYb0RNVEF3dUFFQVoA&gl=US&hl=en")
+      produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100).should eq("4qmFsgJqEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FUZ0JZQUY2QkVkS2IxaTRBUUE9WgCaAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")
 
-      produce_channel_search_url("UCXuqSBlHAE6Xw-yeJA0Tunw", "По ожиशुपतिरपि子而時ஸ்றீனி", 0).should eq("/browse_ajax?continuation=4qmFsgJ0EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaGEVnWnpaV0Z5WTJnNEFYb0JNTGdCQUE9PVo-0J_QviDQvtC20LjgpLbgpYHgpKrgpKTgpL_gpLDgpKrgpL_lrZDogIzmmYLgrrjgr43grrHgr4Dgrqngrr8%3D&gl=US&hl=en")
+      produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "По ожиशुपतिरपि子而時ஸ்றீனி", 0).should eq("4qmFsgKoARIYVUNYdXFTQmxIQUU2WHcteWVKQTBUdW53GiBFZ1p6WldGeVkyZ3dBVGdCWUFGNkJFZEJRVDI0QVFBPVo-0J_QviDQvtC20LjgpLbgpYHgpKrgpKTgpL_gpLDgpKrgpL_lrZDogIzmmYLgrrjgr43grrHgr4Dgrqngrr-aAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")
     end
   end
 
@@ -41,25 +42,13 @@ describe "Helper" do
     end
   end
 
-  describe "#extract_channel_playlists_cursor" do
-    it "correctly extracts a playlists cursor from the given URL" do
-      extract_channel_playlists_cursor("4qmFsgLRARIYVUNDajk1NklGNjJGYlQ3R291c3phajl3GrQBRWdsd2JHRjViR2x6ZEhNWUF5QUJNQUk0QVdBQmFnQjZabEZWYkZCaE1XczFVbFpHZDJGV09XNWxWelI0V0RGR2VWSnVWbUZOV0Vwc1ZHcG5lRmd3TVU1aVZXdDRWMWN4YzFGdFNuTmtlbWh4VGpCd1NWTllVa1pTYTJNeFlVUmtlRmt3Y0ZWVWJWRXdWbnBzTkU1V1JqRmhNVGxFVm14dmQwMXFhRzVXZDdnQkFBJTNEJTNE", false).should eq("AIOkY9EQpi_gyn1_QrFuZ1reN81_MMmI1YmlBblw8j7JHItEFG5h7qcJTNd4W9x5Quk_CVZ028gW")
-    end
-  end
+  describe "#produce_playlist_continuation" do
+    it "correctly produces ctoken for requesting index `x` of a playlist" do
+      produce_playlist_continuation("UUCla9fZca4I7KagBtgRGnOw", 100).should eq("4qmFsgJNEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoUQ0FGNkJsQlVPa05IVVElM0QlM0SaAhhVVUNsYTlmWmNhNEk3S2FnQnRnUkduT3c%3D")
 
-  describe "#produce_playlist_url" do
-    it "correctly produces url for requesting index `x` of a playlist" do
-      produce_playlist_url("UUCla9fZca4I7KagBtgRGnOw", 0).should eq("/browse_ajax?continuation=4qmFsgIqEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoMZWdaUVZEcERRVUU9&gl=US&hl=en")
+      produce_playlist_continuation("UCCla9fZca4I7KagBtgRGnOw", 200).should eq("4qmFsgJLEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoSQ0FKNkIxQlVPa05OWjBJJTNEmgIYVVVDbGE5ZlpjYTRJN0thZ0J0Z1JHbk93")
 
-      produce_playlist_url("UCCla9fZca4I7KagBtgRGnOw", 0).should eq("/browse_ajax?continuation=4qmFsgIqEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoMZWdaUVZEcERRVUU9&gl=US&hl=en")
-
-      produce_playlist_url("PLt5AfwLFPxWLNVixpe1w3fi6lE2OTq0ET", 0).should eq("/browse_ajax?continuation=4qmFsgI0EiRWTFBMdDVBZndMRlB4V0xOVml4cGUxdzNmaTZsRTJPVHEwRVQaDGVnWlFWRHBEUVVFPQ%3D%3D&gl=US&hl=en")
-
-      produce_playlist_url("PLt5AfwLFPxWLNVixpe1w3fi6lE2OTq0ET", 10000).should eq("/browse_ajax?continuation=4qmFsgI0EiRWTFBMdDVBZndMRlB4V0xOVml4cGUxdzNmaTZsRTJPVHEwRVQaDGVnZFFWRHBEU2tKUA%3D%3D&gl=US&hl=en")
-
-      produce_playlist_url("PL55713C70BA91BD6E", 0).should eq("/browse_ajax?continuation=4qmFsgIkEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoMZWdaUVZEcERRVUU9&gl=US&hl=en")
-
-      produce_playlist_url("PL55713C70BA91BD6E", 10000).should eq("/browse_ajax?continuation=4qmFsgIkEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoMZWdkUVZEcERTa0pQ&gl=US&hl=en")
+      produce_playlist_continuation("PL55713C70BA91BD6E", 100).should eq("4qmFsgJBEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoUQ0FGNkJsQlVPa05IVVElM0QlM0SaAhJQTDU1NzEzQzcwQkE5MUJENkU%3D")
     end
   end
 
@@ -74,14 +63,6 @@ describe "Helper" do
       produce_search_params(sort: "date", content_type: "video", features: ["hd", "cc", "purchased", "hdr"]).should eq("CAISCxABIAEwAUgByAEBSAA%3D")
 
       produce_search_params(content_type: "channel").should eq("CAASAhACSAA%3D")
-    end
-  end
-
-  describe "#extract_comment_cursor" do
-    it "correctly extracts a comment cursor from a given continuation" do
-      extract_comment_cursor("EiYSC2tKUVA3a2l3NUZrwAEByAEB4AEBogINKP___________wFAABgGMpwFCoYFQURTSl9pM1RqN1VlZ3dBd1daZkk4TmNiZ0djLVp0NFZEaW1BUGZwWHlPNDhuYUFxa3BsOXZYTk41OWpGXzNGRkVZeVpJOHRGWWpla0w1Z2ktcjhLdGFhcmduMDFxTUpsQ19QN2NaLWU5VGxxbTgzeUN6QVFHSUVtMGlMbUs5ZmVNOUVmNVo2S24xclpPRmlOdkxJS3JIUlJhWS10dkFNdzBDb0R3UWxiSXdpNDAzNkNCQ0ZXY2syemh1VHBsdEVUa2RmRHVrYVdkNnR1X1F4dkdnMGRkeEMydnNuVnlsQ1lJSUliWjAwMk1UTmpsbWJ5ejNKeGVybHJoa1drNW9kODZhOS16RVBPMjRHVzRKZnJlZEFvdGtzRmtCUUx5RWNRbkxRdHVyMHNwbGNmLUswZUttTlZkbk1DY1JVUF9LaU8tdVk4Qmg4RmtCa2RwMTFhVW10R0tzMWM0VjZXVkwwc29TallQc0VGLUF0LWlEVENJVXRNT1RLZklMblJ2V2NJclJvWndUNHA2MXFFMnhuN01CSFVJMzJJRjhJN2pKanh4a2o3ekMtUXBuT0xFdUNGOGJlN29kekFDa2VfTzVZNnpHM1FzN0lDM3NvV0NFbVJiLXlPNzB0ZDlXS3lXc25UNTJqM0FVT3hiQW16NU1EeU9qUVN3SERLNlFmaVh6N3ZjbGZnWEgxSUlqVmFCVUc3bkhlZkFOMlNoZ1BnN1hwaHBrV0FUdUtnRjNtRnBNRmViTFp2bHVPQ1k1WkgxVTh5LWV1ZnN5UUhxQkZJVlh0Mkg1NEFVa0xZeGdORmJTY0dfaEE4dEswV0JwdkdGUmE0V2dmT3NsNjlRSmRISTBKbWlOeS1rdyIPIgtrSlFQN2tpdzVGazAAKCg%3D").should eq("ADSJ_i3Tj7UegwAwWZfI8NcbgGc-Zt4VDimAPfpXyO48naAqkpl9vXNN59jF_3FFEYyZI8tFYjekL5gi-r8Ktaargn01qMJlC_P7cZ-e9Tlqm83yCzAQGIEm0iLmK9feM9Ef5Z6Kn1rZOFiNvLIKrHRRaY-tvAMw0CoDwQlbIwi4036CBCFWck2zhuTpltETkdfDukaWd6tu_QxvGg0ddxC2vsnVylCYIIIbZ002MTNjlmbyz3JxerlrhkWk5od86a9-zEPO24GW4JfredAotksFkBQLyEcQnLQtur0splcf-K0eKmNVdnMCcRUP_KiO-uY8Bh8FkBkdp11aUmtGKs1c4V6WVL0soSjYPsEF-At-iDTCIUtMOTKfILnRvWcIrRoZwT4p61qE2xn7MBHUI32IF8I7jJjxxkj7zC-QpnOLEuCF8be7odzACke_O5Y6zG3Qs7IC3soWCEmRb-yO70td9WKyWsnT52j3AUOxbAmz5MDyOjQSwHDK6QfiXz7vclfgXH1IIjVaBUG7nHefAN2ShgPg7XphpkWATuKgF3mFpMFebLZvluOCY5ZH1U8y-eufsyQHqBFIVXt2H54AUkLYxgNFbScG_hA8tK0WBpvGFRa4WgfOsl69QJdHI0JmiNy-kw")
-
-      extract_comment_cursor("EiYSC2tKUVA3a2l3NUZrwAEByAEB4AEBogINKP___________wFAABgGMo4DCvgCQURTSl9pMEhLLWg2SGRybURYZV93VXA3b1VuVmhFZlJtcUNndUxPaEtTNnlONURSdTAxZ2RQUVBEQkw3ZFVJci1fNDRPc3dVUDF0WjE1YVczMUJjN1JNb2ZCdzc0cDhyVnFLcWVzUDFPZnhOXzhDRlV2ZHo0aDlvalM1UzFJbjEzVGVXQkx5TmxlcHhRSy00Ymhwd1I0Q3FIN2I1YlBvMkw2ZE8xdklXc3VsRmJQQXpQb29XTkhPdGlHdlRsbmFybEl2VFBPb3BzcTFsd3RUanhSZ25yU0d2SlhscHFPeUpZb0tyR01Cam5nREk2ZFMxcTU2UEt1ajlvbTc4WTFvckhiZzhaOEZrNG54NUFDd2lCSjYtLTBoOXhpNnpSMi1oeTRnTTlGWnFIeHU1QlgwQzBCczJ0WEJ4V1BoTWVPVUtPVjh6UVFaOTNXdTlhc284THdPMVVJZmtkdWgxSTVMY0NaWUlPLXd1c1UxcnN5MWV5ekQtZ0NBTiIPIgtrSlFQN2tpdzVGazAAKCg%3D").should eq("ADSJ_i0HK-h6HdrmDXe_wUp7oUnVhEfRmqCguLOhKS6yN5DRu01gdPQPDBL7dUIr-_44OswUP1tZ15aW31Bc7RMofBw74p8rVqKqesP1OfxN_8CFUvdz4h9ojS5S1In13TeWBLyNlepxQK-4bhpwR4CqH7b5bPo2L6dO1vIWsulFbPAzPooWNHOtiGvTlnarlIvTPOopsq1lwtTjxRgnrSGvJXlpqOyJYoKrGMBjngDI6dS1q56PKuj9om78Y1orHbg8Z8Fk4nx5ACwiBJ6--0h9xi6zR2-hy4gM9FZqHxu5BX0C0Bs2tXBxWPhMeOUKOV8zQQZ93Wu9aso8LwO1UIfkduh1I5LcCZYIO-wusU1rsy1eyzD-gCAN")
     end
   end
 

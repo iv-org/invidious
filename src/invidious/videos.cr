@@ -242,8 +242,10 @@ struct VideoPreferences
   property speed : Float32 | Float64
   property video_end : Float64 | Int32
   property video_loop : Bool
+  property extend_desc : Bool
   property video_start : Float64 | Int32
   property volume : Int32
+  property vr_mode : Bool
 end
 
 struct Video
@@ -273,7 +275,7 @@ struct Video
     end
   end
 
-  def to_json(locale, json : JSON::Builder)
+  def to_json(locale : Hash(String, JSON::Any), json : JSON::Builder)
     json.object do
       json.field "type", "video"
 
@@ -423,9 +425,9 @@ struct Video
         json.array do
           self.captions.each do |caption|
             json.object do
-              json.field "label", caption.name.simpleText
+              json.field "label", caption.name
               json.field "languageCode", caption.languageCode
-              json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name.simpleText)}"
+              json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name)}"
             end
           end
         end
@@ -522,10 +524,6 @@ struct Video
 
   def published=(other : Time)
     info["microformat"].as_h["playerMicroformatRenderer"].as_h["publishDate"] = JSON::Any.new(other.to_s("%Y-%m-%d"))
-  end
-
-  def cookie
-    info["cookie"]?.try &.as_h.map { |k, v| "#{k}=#{v}" }.join("; ") || ""
   end
 
   def allow_ratings
@@ -704,8 +702,12 @@ struct Video
   def captions : Array(Caption)
     return @captions.as(Array(Caption)) if @captions
     captions = info["captions"]?.try &.["playerCaptionsTracklistRenderer"]?.try &.["captionTracks"]?.try &.as_a.map do |caption|
-      caption = Caption.from_json(caption.to_json)
-      caption.name.simpleText = caption.name.simpleText.split(" - ")[0]
+      name = caption["name"]["simpleText"]? || caption["name"]["runs"][0]["text"]
+      languageCode = caption["languageCode"].to_s
+      baseUrl = caption["baseUrl"].to_s
+
+      caption = Caption.new(name.to_s, languageCode, baseUrl)
+      caption.name = caption.name.split(" - ")[0]
       caption
     end
     captions ||= [] of Caption
@@ -759,6 +761,15 @@ struct Video
     info["microformat"]?.try &.["playerMicroformatRenderer"]["isFamilySafe"]?.try &.as_bool || false
   end
 
+  def is_vr : Bool?
+    projection_type = info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
+    return {"EQUIRECTANGULAR", "MESH"}.includes? projection_type
+  end
+
+  def projection_type : String?
+    return info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
+  end
+
   def wilson_score : Float64
     ci_lower_bound(likes, likes + dislikes).round(4)
   end
@@ -770,24 +781,21 @@ struct Video
   def reason : String?
     info["reason"]?.try &.as_s
   end
-
-  def session_token : String?
-    info["sessionToken"]?.try &.as_s?
-  end
-end
-
-struct CaptionName
-  include JSON::Serializable
-
-  property simpleText : String
 end
 
 struct Caption
-  include JSON::Serializable
+  property name
+  property languageCode
+  property baseUrl
 
-  property name : CaptionName
-  property baseUrl : String
-  property languageCode : String
+  getter name : String
+  getter languageCode : String
+  getter baseUrl : String
+
+  setter name
+
+  def initialize(@name, @languageCode, @baseUrl)
+  end
 end
 
 class VideoRedirect < Exception
@@ -816,44 +824,61 @@ def parse_related(r : JSON::Any) : JSON::Any?
   JSON::Any.new(rv)
 end
 
-def extract_polymer_config(body)
+def extract_video_info(video_id : String, proxy_region : String? = nil, context_screen : String? = nil)
   params = {} of String => JSON::Any
-  player_response = body.match(/(window\["ytInitialPlayerResponse"\]|var\sytInitialPlayerResponse)\s*=\s*(?<info>{.*?});/m)
-    .try { |r| JSON.parse(r["info"]).as_h }
 
-  if body.includes?("To continue with your YouTube experience, please fill out the form below.") ||
-     body.includes?("https://www.google.com/sorry/index")
-    params["reason"] = JSON::Any.new("Could not extract video info. Instance is likely blocked.")
-  elsif !player_response
-    params["reason"] = JSON::Any.new("Video unavailable.")
-  elsif player_response["playabilityStatus"]?.try &.["status"]?.try &.as_s != "OK"
-    reason = player_response["playabilityStatus"]["errorScreen"]?.try &.["playerErrorMessageRenderer"]?.try &.["subreason"]?.try { |s| s["simpleText"]?.try &.as_s || s["runs"].as_a.map { |r| r["text"] }.join("") } ||
-             player_response["playabilityStatus"]["reason"].as_s
+  client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
+  if context_screen == "embed"
+    client_config.client_type = YoutubeAPI::ClientType::WebScreenEmbed
+  end
+
+  player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
+
+  if player_response["playabilityStatus"]?.try &.["status"]?.try &.as_s != "OK"
+    reason = player_response["playabilityStatus"]["errorScreen"]?.try &.["playerErrorMessageRenderer"]?.try &.["subreason"]?.try { |s|
+      s["simpleText"]?.try &.as_s || s["runs"].as_a.map { |r| r["text"] }.join("")
+    } || player_response["playabilityStatus"]["reason"].as_s
     params["reason"] = JSON::Any.new(reason)
   end
 
-  session_token_json_encoded = body.match(/"XSRF_TOKEN":"(?<session_token>[^"]+)"/).try &.["session_token"]? || ""
-  params["sessionToken"] = JSON.parse(%({"key": "#{session_token_json_encoded}"}))["key"]
-  params["shortDescription"] = JSON::Any.new(body.match(/"og:description" content="(?<description>[^"]+)"/).try &.["description"]?)
+  params["shortDescription"] = player_response.dig?("videoDetails", "shortDescription") || JSON::Any.new(nil)
 
-  return params if !player_response
+  # Don't fetch the next endpoint if the video is unavailable.
+  if !params["reason"]?
+    next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
+    player_response = player_response.merge(next_response)
+  end
+
+  # Fetch the video streams using an Android client in order to get the decrypted URLs and
+  # maybe fix throttling issues (#2194).See for the explanation about the decrypted URLs:
+  # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
+  if !params["reason"]?
+    if context_screen == "embed"
+      client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
+    else
+      client_config.client_type = YoutubeAPI::ClientType::Android
+    end
+    stream_data = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
+    params["streamingData"] = stream_data["streamingData"]? || JSON::Any.new("")
+  end
 
   {"captions", "microformat", "playabilityStatus", "storyboards", "videoDetails"}.each do |f|
     params[f] = player_response[f] if player_response[f]?
   end
 
-  yt_initial_data = extract_initial_data(body)
+  params["relatedVideos"] = (
+    player_response
+      .dig?("playerOverlays", "playerOverlayRenderer", "endScreen", "watchNextEndScreenRenderer", "results")
+      .try &.as_a.compact_map { |r| parse_related r } || \
+       player_response
+        .dig?("webWatchNextResponseExtensionData", "relatedVideoArgs")
+        .try &.as_s.split(",").map { |r|
+          r = HTTP::Params.parse(r).to_h
+          JSON::Any.new(Hash.zip(r.keys, r.values.map { |v| JSON::Any.new(v) }))
+        }
+  ).try { |a| JSON::Any.new(a) } || JSON::Any.new([] of JSON::Any)
 
-  params["relatedVideos"] = yt_initial_data.try &.["playerOverlays"]?.try &.["playerOverlayRenderer"]?
-    .try &.["endScreen"]?.try &.["watchNextEndScreenRenderer"]?.try &.["results"]?.try &.as_a.compact_map { |r|
-      parse_related r
-    }.try { |a| JSON::Any.new(a) } || yt_initial_data.try &.["webWatchNextResponseExtensionData"]?.try &.["relatedVideoArgs"]?
-    .try &.as_s.split(",").map { |r|
-      r = HTTP::Params.parse(r).to_h
-      JSON::Any.new(Hash.zip(r.keys, r.values.map { |v| JSON::Any.new(v) }))
-    }.try { |a| JSON::Any.new(a) } || JSON::Any.new([] of JSON::Any)
-
-  primary_results = yt_initial_data.try &.["contents"]?.try &.["twoColumnWatchNextResults"]?.try &.["results"]?
+  primary_results = player_response.try &.["contents"]?.try &.["twoColumnWatchNextResults"]?.try &.["results"]?
     .try &.["results"]?.try &.["contents"]?
   sentiment_bar = primary_results.try &.as_a.select { |object| object["videoPrimaryInfoRenderer"]? }[0]?
     .try &.["videoPrimaryInfoRenderer"]?
@@ -913,20 +938,6 @@ def extract_polymer_config(body)
   params["subCountText"] = JSON::Any.new(author_info.try &.["subscriberCountText"]?
     .try { |t| t["simpleText"]? || t["runs"]?.try &.[0]?.try &.["text"]? }.try &.as_s.split(" ", 2)[0] || "-")
 
-  initial_data = body.match(/ytplayer\.config\s*=\s*(?<info>.*?);ytplayer\.web_player_context_config/)
-    .try { |r| JSON.parse(r["info"]) }.try &.["args"]["player_response"]?
-    .try &.as_s?.try &.try { |r| JSON.parse(r).as_h }
-
-  if initial_data
-    {"playabilityStatus", "streamingData"}.each do |f|
-      params[f] = initial_data[f] if initial_data[f]?
-    end
-  else
-    {"playabilityStatus", "streamingData"}.each do |f|
-      params[f] = player_response[f] if player_response[f]?
-    end
-  end
-
   params
 end
 
@@ -957,52 +968,27 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
 end
 
 def fetch_video(id, region)
-  response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999"))
+  info = extract_video_info(video_id: id)
 
-  if md = response.headers["location"]?.try &.match(/v=(?<id>[a-zA-Z0-9_-]{11})/)
-    raise VideoRedirect.new(video_id: md["id"])
-  end
-
-  info = extract_polymer_config(response.body)
-  info["cookie"] = JSON::Any.new(response.cookies.to_h.transform_values { |v| JSON::Any.new(v.value) })
-  allowed_regions = info["microformat"]?.try &.["playerMicroformatRenderer"]["availableCountries"]?.try &.as_a.map &.as_s || [] of String
+  allowed_regions = info
+    .dig?("microformat", "playerMicroformatRenderer", "availableCountries")
+    .try &.as_a.map &.as_s || [] of String
 
   # Check for region-blocks
   if info["reason"]?.try &.as_s.includes?("your country")
     bypass_regions = PROXY_LIST.keys & allowed_regions
     if !bypass_regions.empty?
       region = bypass_regions[rand(bypass_regions.size)]
-      response = YT_POOL.client(region, &.get("/watch?v=#{id}&gl=US&hl=en&has_verified=1&bpctr=9999999999"))
-
-      region_info = extract_polymer_config(response.body)
+      region_info = extract_video_info(video_id: id, proxy_region: region)
       region_info["region"] = JSON::Any.new(region) if region
-      region_info["cookie"] = JSON::Any.new(response.cookies.to_h.transform_values { |v| JSON::Any.new(v.value) })
       info = region_info if !region_info["reason"]?
     end
   end
 
-  # Try to pull streams from embed URL
+  # Try to fetch video info using an embedded client
   if info["reason"]?
-    embed_page = YT_POOL.client &.get("/embed/#{id}").body
-    sts = embed_page.match(/"sts"\s*:\s*(?<sts>\d+)/).try &.["sts"]? || ""
-    embed_info = HTTP::Params.parse(YT_POOL.client &.get("/get_video_info?html5=1&video_id=#{id}&eurl=https://youtube.googleapis.com/v/#{id}&gl=US&hl=en&sts=#{sts}").body)
-
-    if embed_info["player_response"]?
-      player_response = JSON.parse(embed_info["player_response"])
-      {"captions", "microformat", "playabilityStatus", "streamingData", "videoDetails", "storyboards"}.each do |f|
-        info[f] = player_response[f] if player_response[f]?
-      end
-    end
-
-    initial_data = JSON.parse(embed_info["watch_next_response"]) if embed_info["watch_next_response"]?
-
-    info["relatedVideos"] = initial_data.try &.["playerOverlays"]?.try &.["playerOverlayRenderer"]?
-      .try &.["endScreen"]?.try &.["watchNextEndScreenRenderer"]?.try &.["results"]?.try &.as_a.compact_map { |r|
-        parse_related r
-      }.try { |a| JSON::Any.new(a) } || embed_info["rvs"]?.try &.split(",").map { |r|
-      r = HTTP::Params.parse(r).to_h
-      JSON::Any.new(Hash.zip(r.keys, r.values.map { |v| JSON::Any.new(v) }))
-    }.try { |a| JSON::Any.new(a) } || JSON::Any.new([] of JSON::Any)
+    embed_info = extract_video_info(video_id: id, context_screen: "embed")
+    info = embed_info if !embed_info["reason"]?
   end
 
   raise InfoException.new(info["reason"]?.try &.as_s || "") if !info["videoDetails"]?
@@ -1050,7 +1036,9 @@ def process_video_params(query, preferences)
   related_videos = query["related_videos"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   speed = query["speed"]?.try &.rchop("x").to_f?
   video_loop = query["loop"]?.try { |q| (q == "true" || q == "1").to_unsafe }
+  extend_desc = query["extend_desc"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   volume = query["volume"]?.try &.to_i?
+  vr_mode = query["vr_mode"]?.try { |q| (q == "true" || q == "1").to_unsafe }
 
   if preferences
     # region ||= preferences.region
@@ -1068,7 +1056,9 @@ def process_video_params(query, preferences)
     related_videos ||= preferences.related_videos.to_unsafe
     speed ||= preferences.speed
     video_loop ||= preferences.video_loop.to_unsafe
+    extend_desc ||= preferences.extend_desc.to_unsafe
     volume ||= preferences.volume
+    vr_mode ||= preferences.vr_mode.to_unsafe
   end
 
   annotations ||= CONFIG.default_user_preferences.annotations.to_unsafe
@@ -1085,7 +1075,9 @@ def process_video_params(query, preferences)
   related_videos ||= CONFIG.default_user_preferences.related_videos.to_unsafe
   speed ||= CONFIG.default_user_preferences.speed
   video_loop ||= CONFIG.default_user_preferences.video_loop.to_unsafe
+  extend_desc ||= CONFIG.default_user_preferences.extend_desc.to_unsafe
   volume ||= CONFIG.default_user_preferences.volume
+  vr_mode ||= CONFIG.default_user_preferences.vr_mode.to_unsafe
 
   annotations = annotations == 1
   autoplay = autoplay == 1
@@ -1095,6 +1087,8 @@ def process_video_params(query, preferences)
   local = local == 1
   related_videos = related_videos == 1
   video_loop = video_loop == 1
+  extend_desc = extend_desc == 1
+  vr_mode = vr_mode == 1
 
   if CONFIG.disabled?("dash") && quality == "dash"
     quality = "high"
@@ -1141,8 +1135,10 @@ def process_video_params(query, preferences)
     speed:              speed,
     video_end:          video_end,
     video_loop:         video_loop,
+    extend_desc:        extend_desc,
     video_start:        video_start,
     volume:             volume,
+    vr_mode:            vr_mode,
   })
 
   return params
@@ -1150,15 +1146,15 @@ end
 
 def build_thumbnails(id)
   return {
-    {name: "maxres", host: "#{HOST_URL}", url: "maxres", height: 720, width: 1280},
-    {name: "maxresdefault", host: "https://i.ytimg.com", url: "maxresdefault", height: 720, width: 1280},
-    {name: "sddefault", host: "https://i.ytimg.com", url: "sddefault", height: 480, width: 640},
-    {name: "high", host: "https://i.ytimg.com", url: "hqdefault", height: 360, width: 480},
-    {name: "medium", host: "https://i.ytimg.com", url: "mqdefault", height: 180, width: 320},
-    {name: "default", host: "https://i.ytimg.com", url: "default", height: 90, width: 120},
-    {name: "start", host: "https://i.ytimg.com", url: "1", height: 90, width: 120},
-    {name: "middle", host: "https://i.ytimg.com", url: "2", height: 90, width: 120},
-    {name: "end", host: "https://i.ytimg.com", url: "3", height: 90, width: 120},
+    {host: HOST_URL, height: 720, width: 1280, name: "maxres", url: "maxres"},
+    {host: HOST_URL, height: 720, width: 1280, name: "maxresdefault", url: "maxresdefault"},
+    {host: HOST_URL, height: 480, width: 640, name: "sddefault", url: "sddefault"},
+    {host: HOST_URL, height: 360, width: 480, name: "high", url: "hqdefault"},
+    {host: HOST_URL, height: 180, width: 320, name: "medium", url: "mqdefault"},
+    {host: HOST_URL, height: 90, width: 120, name: "default", url: "default"},
+    {host: HOST_URL, height: 90, width: 120, name: "start", url: "1"},
+    {host: HOST_URL, height: 90, width: 120, name: "middle", url: "2"},
+    {host: HOST_URL, height: 90, width: 120, name: "end", url: "3"},
   }
 end
 

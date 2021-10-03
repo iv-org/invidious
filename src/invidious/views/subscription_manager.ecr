@@ -10,15 +10,15 @@
             </a>
         </h3>
     </div>
-    <div class="pure-u-1-3" style="text-align:center">
-        <h3>
+    <div class="pure-u-1-3">
+        <h3 style="text-align:center">
             <a href="/feed/history">
                 <%= translate(locale, "Watch history") %>
             </a>
         </h3>
     </div>
-    <div class="pure-u-1-3" style="text-align:right">
-        <h3>
+    <div class="pure-u-1-3">
+        <h3 style="text-align:right">
             <a href="/data_control?referer=<%= URI.encode_www_form(referer) %>">
                 <%= translate(locale, "Import/export") %>
             </a>
@@ -31,7 +31,7 @@
         <div class="pure-g<% if channel.deleted %> deleted <% end %>">
             <div class="pure-u-2-5">
                 <h3 style="padding-left:0.5em">
-                    <a href="/channel/<%= channel.id %>"><%= channel.author %></a>
+                    <a href="/channel/<%= channel.id %>"><%= HTML.escape(channel.author) %></a>
                 </h3>
             </div>
             <div class="pure-u-2-5"></div>
