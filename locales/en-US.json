@@ -428,5 +428,6 @@
     "footer_documentation": "Documentation",
     "footer_source_code": "Source code",
     "footer_original_source_code": "Original source code",
-    "footer_modfied_source_code": "Modified Source code"
+    "footer_modfied_source_code": "Modified Source code",
+    "adminprefs_modified_source_code_url_label": "URL to modified source code repository"
 }

@@ -198,6 +198,8 @@ module Invidious::Routes::PreferencesRoute
         statistics_enabled ||= "off"
         CONFIG.statistics_enabled = statistics_enabled == "on"
 
+        CONFIG.modified_source_code_url = env.params.body["modified_source_code_url"]?.try &.as(String)
+
         File.write("config/config.yml", CONFIG.to_yaml)
       end
     else
