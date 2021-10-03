@@ -423,5 +423,10 @@
     "Current version: ": "Current version: ",
     "next_steps_error_message": "After which you should try to: ",
     "next_steps_error_message_refresh": "Refresh",
-    "next_steps_error_message_go_to_youtube": "Go to YouTube"
+    "next_steps_error_message_go_to_youtube": "Go to YouTube",
+    "footer_donate": "Donate: ",
+    "footer_documentation": "Documentation",
+    "footer_source_code": "Source code",
+    "footer_original_source_code": "Original source code",
+    "footer_modfied_source_code": "Modified Source code"
 }

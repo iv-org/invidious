@@ -97,6 +97,10 @@ class Config
   property hsts : Bool? = true                            # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
   property disable_proxy : Bool? | Array(String)? = false # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
 
+  # URL to the modified source code to be easily AGPL compliant
+  # Will display in the footer, next to the main source code link
+  property source_code_url : String? = nil
+
   @[YAML::Field(converter: Preferences::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
   property port : Int32 = 3000                                     # Port to listen for connections (overrided by command line argument)
