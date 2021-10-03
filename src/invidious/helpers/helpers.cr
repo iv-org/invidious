@@ -99,7 +99,7 @@ class Config
 
   # URL to the modified source code to be easily AGPL compliant
   # Will display in the footer, next to the main source code link
-  property source_code_url : String? = nil
+  property modified_source_code_url : String? = nil
 
   @[YAML::Field(converter: Preferences::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)

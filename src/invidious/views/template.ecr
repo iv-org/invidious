@@ -119,9 +119,9 @@
                     <div class="pure-u-1 pure-u-md-1-3">
                         <span>
                             <i class="icon ion-logo-github"></i>
-                        <% if CONFIG.source_code_url %>
+                        <% if CONFIG.modified_source_code_url %>
                             <a href="https://github.com/iv-org/invidious"><%= translate(locale, "footer_original_source_code") %></a>&nbsp;/
-                            <a href="<%= CONFIG.source_code_url %>"><%= translate(locale, "footer_modfied_source_code") %></a>
+                            <a href="<%= CONFIG.modified_source_code_url %>"><%= translate(locale, "footer_modfied_source_code") %></a>
                         <% else %>
                             <a href="https://github.com/iv-org/invidious"><%= translate(locale, "footer_source_code") %></a>
                         <% end %>
