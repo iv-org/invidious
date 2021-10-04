@@ -240,7 +240,7 @@ private module Parsers
 
       author_info = item_contents.dig?("shortBylineText", "runs", 0)
       author = author_info.try &.["text"].as_s || author_fallback.name
-      author_id = author_info.try {|x| HelperExtractors.get_browse_id(x)} || author_fallback.id
+      author_id = author_info.try { |x| HelperExtractors.get_browse_id(x) } || author_fallback.id
 
       videos = item_contents["videos"]?.try &.as_a.map do |v|
         v = v["childVideoRenderer"]
