@@ -113,6 +113,10 @@ private module Parsers
         premiere_timestamp: premiere_timestamp,
       })
     end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
   end
 
   # Parses a InnerTube channelRenderer into a SearchChannel. Returns nil when the given object isn't a channelRenderer
@@ -159,6 +163,10 @@ private module Parsers
         auto_generated:   auto_generated,
       })
     end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
   end
 
   # Parses a InnerTube gridPlaylistRenderer into a SearchPlaylist. Returns nil when the given object isn't a gridPlaylistRenderer
@@ -193,6 +201,10 @@ private module Parsers
         videos:      [] of SearchPlaylistVideo,
         thumbnail:   playlist_thumbnail,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
     end
   end
 
@@ -245,6 +257,10 @@ private module Parsers
         videos:      videos,
         thumbnail:   playlist_thumbnail,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
     end
   end
 
@@ -306,6 +322,10 @@ private module Parsers
         url:              url,
         badges:           badges,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
     end
   end
 end
@@ -372,6 +392,10 @@ private module Extractors
 
       return raw_items
     end
+
+    def self.extractor_name
+      return {{@type.name}}
+    end
   end
 
   # Extracts items from the InnerTube response for search results
@@ -409,6 +433,10 @@ private module Extractors
 
       return raw_items.flatten
     end
+
+    def self.extractor_name
+      return {{@type.name}}
+    end
   end
 
   # Extracts continuation items from a InnerTube response
@@ -439,6 +467,10 @@ private module Extractors
       end
 
       return raw_items
+    end
+
+    def self.extractor_name
+      return {{@type.name}}
     end
   end
 end
@@ -529,8 +561,14 @@ def extract_item(item : JSON::Any, author_fallback : String? = "",
   # Each parser automatically validates the data given to see if the data is
   # applicable to itself. If not nil is returned and the next parser is attemped.
   ITEM_PARSERS.each do |parser|
+    LOGGER.trace("extract_item: Attempting to parse item using \"#{parser.parser_name}\" (cycling...)")
+
     if result = parser.process(item, author_fallback)
+      LOGGER.debug("extract_item: Successfully parsed via #{parser.parser_name}")
+
       return result
+    else
+      LOGGER.trace("extract_item: Parser: \"#{parser.parser_name}\" does not apply. Cycling to the next one...")
     end
   end
 end
@@ -550,7 +588,10 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
 
   # This is identical to the parser cycling of extract_item().
   ITEM_CONTAINER_EXTRACTOR.each do |extractor|
+    LOGGER.trace("extract_items: Attempting to extract item container using \"#{extractor.extractor_name}\" (cycling...)")
+
     if container = extractor.process(unpackaged_data)
+      LOGGER.debug("extract_items: Successfully unpacked container with \"#{extractor.extractor_name}\"")
       # Extract items in container
       container.each do |item|
         if parsed_result = extract_item(item, author_fallback, author_id_fallback)
@@ -559,6 +600,8 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
       end
 
       break
+    else
+      LOGGER.trace("extract_items: Extractor: \"#{extractor.extractor_name}\" does not apply. Cycling to the next one...")
     end
   end
 
