@@ -1549,4 +1549,11 @@ Kemal.config.logger = LOGGER
 Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
 Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
 Kemal.config.app_name = "Invidious"
+
+# Use in kemal's production mode.
+# Users can also set the KEMAL_ENV environmental variable for this to be set automatically.
+{% if flag?(:release) || flag?(:production) %}
+  Kemal.config.env = "production" if !ENV.has_key?("KEMAL_ENV")
+{% end %}
+
 Kemal.run
