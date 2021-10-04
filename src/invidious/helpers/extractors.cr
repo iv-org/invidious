@@ -227,20 +227,20 @@ private module Parsers
   module PlaylistRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["playlistRenderer"]?
-        return self.parse(item_contents)
+        return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents)
+    private def self.parse(item_contents, author_fallback)
       title = item_contents["title"]["simpleText"]?.try &.as_s || ""
       plid = item_contents["playlistId"]?.try &.as_s || ""
 
       video_count = HelperExtractors.get_video_count(item_contents)
       playlist_thumbnail = HelperExtractors.get_thumbnails_plural(item_contents)
 
-      author_info = item_contents.dig("shortBylineText", "runs", 0)
-      author = author_info["text"].as_s
-      author_id = HelperExtractors.get_browse_id(author_info)
+      author_info = item_contents.dig?("shortBylineText", "runs", 0)
+      author = author_info.try &.["text"].as_s || author_fallback.name
+      author_id = author_info.try {|x| HelperExtractors.get_browse_id(x)} || author_fallback.id
 
       videos = item_contents["videos"]?.try &.as_a.map do |v|
         v = v["childVideoRenderer"]
