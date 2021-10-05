@@ -423,5 +423,7 @@
     "Current version: ": "Şu anki sürüm: ",
     "next_steps_error_message": "Bundan sonra şunları denemelisiniz: ",
     "next_steps_error_message_refresh": "Yenile",
-    "next_steps_error_message_go_to_youtube": "YouTube'a git"
+    "next_steps_error_message_go_to_youtube": "YouTube'a git",
+    "short": "Kısa (4 dakikadan az)",
+    "long": "Uzun (20 dakikadan fazla)"
 }
