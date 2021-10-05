@@ -96,7 +96,7 @@
     <div class="pure-u-1 pure-u-md-4-5"></div>
     <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
         <% if continuation %>
-            <a href="/channel/<%= ucid %>/playlists?continuation=<%= continuation %><% if sort_by != "last" %>&sort_by=<%= HTML.escape(sort_by) %><% end %>">
+            <a href="/channel/<%= ucid %>/playlists?continuation=<%= continuation %><% if sort_by != "last" %>&sort_by=<%= URI.encode_www_form(sort_by) %><% end %>">
                 <%= translate(locale, "Next page") %>
             </a>
         <% end %>
