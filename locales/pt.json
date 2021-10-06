@@ -423,5 +423,7 @@
     "`x` subscribers": {
         "": "`x` subscritores",
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscritores"
-    }
+    },
+    "short": "Curto (< 4 minutos)",
+    "long": "Longo (> 20 minutos)"
 }
