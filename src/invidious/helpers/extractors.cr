@@ -582,7 +582,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = "",
 
       return result
     else
-      LOGGER.trace("extract_item: Parser: \"#{parser.parser_name}\" does not apply. Cycling to the next one...")
+      LOGGER.trace("extract_item: Parser \"#{parser.parser_name}\" does not apply. Cycling to the next one...")
     end
   end
 end
@@ -615,7 +615,7 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
 
       break
     else
-      LOGGER.trace("extract_items: Extractor: \"#{extractor.extractor_name}\" does not apply. Cycling to the next one...")
+      LOGGER.trace("extract_items: Extractor \"#{extractor.extractor_name}\" does not apply. Cycling to the next one...")
     end
   end
 
