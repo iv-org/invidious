@@ -76,10 +76,10 @@ private module Parsers
       elsif length_container = item_contents["thumbnailOverlays"]?.try &.as_a.find(&.["thumbnailOverlayTimeStatusRenderer"]?)
         # This needs to only go down the `simpleText` path (if possible). If more situations came up that requires
         # a specific pathway then we should add an argument to extract_text that'll make this possible
-        length_seconds = extract_text(length_container["thumbnailOverlayTimeStatusRenderer"]["text"])
+        length_seconds = length_container.dig?("thumbnailOverlayTimeStatusRenderer", "text", "simpleText")
 
-        if length_seconds && length_seconds != "LIVE"
-          length_seconds = decode_length_seconds(length_seconds)
+        if length_seconds
+          length_seconds = decode_length_seconds(length_seconds.as_s)
         else
           length_seconds = 0
         end
