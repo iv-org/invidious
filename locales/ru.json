@@ -423,5 +423,7 @@
     "Current version: ": "Текущая версия: ",
     "next_steps_error_message": "После чего следует попробовать: ",
     "next_steps_error_message_refresh": "Обновить",
-    "next_steps_error_message_go_to_youtube": "Перейти на YouTube"
+    "next_steps_error_message_go_to_youtube": "Перейти на YouTube",
+    "short": "Короткие (< 4 минут)",
+    "long": "Длинные (> 20 минут)"
 }

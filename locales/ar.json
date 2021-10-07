@@ -28,7 +28,7 @@
     "New passwords must match": "يَجبُ أن تكون كلمتي المرور متطابقتان",
     "Cannot change password for Google accounts": "لا يُمكن تغيير كلمة المرور لِحسابات جوجل",
     "Authorize token?": "رمز التفويض؟",
-    "Authorize token for `x`?": "رمز التفويض لـ `x` ؟",
+    "Authorize token for `x`?": "السماح بالرمز المميز ل 'x'؟",
     "Yes": "نعم",
     "No": "لا",
     "Import and Export Data": "اِستيراد البيانات وتصديرها",
@@ -423,5 +423,7 @@
     "Current version: ": "الإصدار الحالي: ",
     "next_steps_error_message": "بعد ذلك يجب أن تحاول: ",
     "next_steps_error_message_refresh": "تحديث",
-    "next_steps_error_message_go_to_youtube": "انتقل إلى يوتيوب"
+    "next_steps_error_message_go_to_youtube": "انتقل إلى يوتيوب",
+    "short": "قصير (< 4 دقائق)",
+    "long": "طويل (> 20 دقيقة)"
 }

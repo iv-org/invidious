@@ -423,5 +423,7 @@
     "Current version: ": "Versión actual: ",
     "next_steps_error_message": "Después de lo cual deberías intentar: ",
     "next_steps_error_message_refresh": "Recargar",
-    "next_steps_error_message_go_to_youtube": "Ir a YouTube"
+    "next_steps_error_message_go_to_youtube": "Ir a YouTube",
+    "short": "Corto (< minutos)",
+    "long": "Largo (> minutos)"
 }
