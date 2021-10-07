@@ -425,5 +425,11 @@
     "next_steps_error_message_refresh": "Atnaujinti",
     "next_steps_error_message_go_to_youtube": "Eiti į YouTube",
     "short": "Trumpas (< 4 minučių)",
-    "long": "Ilgas (> 20 minučių)"
+    "long": "Ilgas (> 20 minučių)",
+    "footer_documentation": "Dokumentacija",
+    "footer_source_code": "Pirminis kodas",
+    "footer_donate": "Paaukoti: ",
+    "footer_original_source_code": "Pradinis pirminis kodas",
+    "adminprefs_modified_source_code_url_label": "URL į pakeisto pirminio kodo repozitoriją",
+    "footer_modfied_source_code": "Pakeistas pirminis kodas"
 }
