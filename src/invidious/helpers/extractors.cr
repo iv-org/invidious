@@ -74,7 +74,15 @@ private module Parsers
       if length_container = item_contents["lengthText"]?
         length_seconds = decode_length_seconds(length_container["simpleText"].as_s)
       elsif length_container = item_contents["thumbnailOverlays"]?.try &.as_a.find(&.["thumbnailOverlayTimeStatusRenderer"]?)
-        length_seconds = extract_text(length_container["thumbnailOverlayTimeStatusRenderer"]["text"]).try { |t| decode_length_seconds(t) } || 0
+        # This needs to only go down the `simpleText` path (if possible). If more situations came up that requires
+        # a specific pathway then we should add an argument to extract_text that'll make this possible
+        length_seconds = length_container.dig?("thumbnailOverlayTimeStatusRenderer", "text", "simpleText")
+
+        if length_seconds
+          length_seconds = decode_length_seconds(length_seconds.as_s)
+        else
+          length_seconds = 0
+        end
       else
         length_seconds = 0
       end
@@ -112,6 +120,10 @@ private module Parsers
         premium:            premium,
         premiere_timestamp: premiere_timestamp,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
     end
   end
 
@@ -159,6 +171,10 @@ private module Parsers
         auto_generated:   auto_generated,
       })
     end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
   end
 
   # Parses a InnerTube gridPlaylistRenderer into a SearchPlaylist. Returns nil when the given object isn't a gridPlaylistRenderer
@@ -194,6 +210,10 @@ private module Parsers
         thumbnail:   playlist_thumbnail,
       })
     end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
   end
 
   # Parses a InnerTube playlistRenderer into a SearchPlaylist. Returns nil when the given object isn't a playlistRenderer
@@ -207,20 +227,20 @@ private module Parsers
   module PlaylistRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
       if item_contents = item["playlistRenderer"]?
-        return self.parse(item_contents)
+        return self.parse(item_contents, author_fallback)
       end
     end
 
-    private def self.parse(item_contents)
+    private def self.parse(item_contents, author_fallback)
       title = item_contents["title"]["simpleText"]?.try &.as_s || ""
       plid = item_contents["playlistId"]?.try &.as_s || ""
 
       video_count = HelperExtractors.get_video_count(item_contents)
       playlist_thumbnail = HelperExtractors.get_thumbnails_plural(item_contents)
 
-      author_info = item_contents.dig("shortBylineText", "runs", 0)
-      author = author_info["text"].as_s
-      author_id = HelperExtractors.get_browse_id(author_info)
+      author_info = item_contents.dig?("shortBylineText", "runs", 0)
+      author = author_info.try &.["text"].as_s || author_fallback.name
+      author_id = author_info.try { |x| HelperExtractors.get_browse_id(x) } || author_fallback.id
 
       videos = item_contents["videos"]?.try &.as_a.map do |v|
         v = v["childVideoRenderer"]
@@ -245,6 +265,10 @@ private module Parsers
         videos:      videos,
         thumbnail:   playlist_thumbnail,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
     end
   end
 
@@ -283,11 +307,17 @@ private module Parsers
       # Content parsing
       contents = [] of SearchItem
 
-      # Content could be in three locations.
-      if content_container = item_contents["content"]["horizontalListRenderer"]?
-      elsif content_container = item_contents["content"]["expandedShelfContentsRenderer"]?
-      elsif content_container = item_contents["content"]["verticalListRenderer"]?
+      # InnerTube recognizes some "special" categories, which are organized differently.
+      if special_category_container = item_contents["content"]?
+        if content_container = special_category_container["horizontalListRenderer"]?
+        elsif content_container = special_category_container["expandedShelfContentsRenderer"]?
+        elsif content_container = special_category_container["verticalListRenderer"]?
+        else
+          # Anything else, such as `horizontalMovieListRenderer` is currently unsupported.
+          return
+        end
       else
+        # "Normal" category.
         content_container = item_contents["contents"]
       end
 
@@ -306,6 +336,10 @@ private module Parsers
         url:              url,
         badges:           badges,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
     end
   end
 end
@@ -372,6 +406,10 @@ private module Extractors
 
       return raw_items
     end
+
+    def self.extractor_name
+      return {{@type.name}}
+    end
   end
 
   # Extracts items from the InnerTube response for search results
@@ -409,6 +447,10 @@ private module Extractors
 
       return raw_items.flatten
     end
+
+    def self.extractor_name
+      return {{@type.name}}
+    end
   end
 
   # Extracts continuation items from a InnerTube response
@@ -439,6 +481,10 @@ private module Extractors
       end
 
       return raw_items
+    end
+
+    def self.extractor_name
+      return {{@type.name}}
     end
   end
 end
@@ -529,8 +575,14 @@ def extract_item(item : JSON::Any, author_fallback : String? = "",
   # Each parser automatically validates the data given to see if the data is
   # applicable to itself. If not nil is returned and the next parser is attemped.
   ITEM_PARSERS.each do |parser|
+    LOGGER.trace("extract_item: Attempting to parse item using \"#{parser.parser_name}\" (cycling...)")
+
     if result = parser.process(item, author_fallback)
+      LOGGER.debug("extract_item: Successfully parsed via #{parser.parser_name}")
+
       return result
+    else
+      LOGGER.trace("extract_item: Parser \"#{parser.parser_name}\" does not apply. Cycling to the next one...")
     end
   end
 end
@@ -550,7 +602,10 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
 
   # This is identical to the parser cycling of extract_item().
   ITEM_CONTAINER_EXTRACTOR.each do |extractor|
+    LOGGER.trace("extract_items: Attempting to extract item container using \"#{extractor.extractor_name}\" (cycling...)")
+
     if container = extractor.process(unpackaged_data)
+      LOGGER.debug("extract_items: Successfully unpacked container with \"#{extractor.extractor_name}\"")
       # Extract items in container
       container.each do |item|
         if parsed_result = extract_item(item, author_fallback, author_id_fallback)
@@ -559,6 +614,8 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
       end
 
       break
+    else
+      LOGGER.trace("extract_items: Extractor \"#{extractor.extractor_name}\" does not apply. Cycling to the next one...")
     end
   end
 
