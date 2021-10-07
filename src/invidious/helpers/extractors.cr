@@ -307,11 +307,17 @@ private module Parsers
       # Content parsing
       contents = [] of SearchItem
 
-      # Content could be in three locations.
-      if content_container = item_contents["content"]["horizontalListRenderer"]?
-      elsif content_container = item_contents["content"]["expandedShelfContentsRenderer"]?
-      elsif content_container = item_contents["content"]["verticalListRenderer"]?
+      # InnerTube recognizes some "special" categories, which are organized differently.
+      if special_category_container = item_contents["content"]?
+        if content_container = special_category_container["horizontalListRenderer"]?
+        elsif content_container = special_category_container["expandedShelfContentsRenderer"]?
+        elsif content_container = special_category_container["verticalListRenderer"]?
+        else
+          # Anything else, such as `horizontalMovieListRenderer` is currently unsupported.
+          return
+        end
       else
+        # "Normal" category.
         content_container = item_contents["contents"]
       end
 
