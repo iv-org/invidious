@@ -58,17 +58,13 @@ struct SearchVideo
     end
   end
 
-  def to_xml(auto_generated, query_params, xml : XML::Builder | Nil = nil)
-    if xml
-      to_xml(HOST_URL, auto_generated, query_params, xml)
-    else
-      XML.build do |xml|
-        to_xml(HOST_URL, auto_generated, query_params, xml)
-      end
+  def to_xml(auto_generated, query_params, _xml : Nil)
+    XML.build do |xml|
+      to_xml(auto_generated, query_params, xml)
     end
   end
 
-  def to_json(locale : Hash(String, JSON::Any), json : JSON::Builder)
+  def to_json(locale : Hash(String, JSON::Any) | Nil, json : JSON::Builder)
     json.object do
       json.field "type", "video"
       json.field "title", self.title
@@ -99,14 +95,14 @@ struct SearchVideo
     end
   end
 
-  def to_json(locale, json : JSON::Builder | Nil = nil)
-    if json
+  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil = nil)
+    JSON.build do |json|
       to_json(locale, json)
-    else
-      JSON.build do |json|
-        to_json(locale, json)
-      end
     end
+  end
+
+  def to_json(json : JSON::Builder)
+    to_json(nil, json)
   end
 
   def is_upcoming
@@ -133,7 +129,7 @@ struct SearchPlaylist
   property videos : Array(SearchPlaylistVideo)
   property thumbnail : String?
 
-  def to_json(locale, json : JSON::Builder)
+  def to_json(locale : Hash(String, JSON::Any) | Nil, json : JSON::Builder)
     json.object do
       json.field "type", "playlist"
       json.field "title", self.title
@@ -163,14 +159,14 @@ struct SearchPlaylist
     end
   end
 
-  def to_json(locale, json : JSON::Builder | Nil = nil)
-    if json
+  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil = nil)
+    JSON.build do |json|
       to_json(locale, json)
-    else
-      JSON.build do |json|
-        to_json(locale, json)
-      end
     end
+  end
+
+  def to_json(json : JSON::Builder)
+    to_json(nil, json)
   end
 end
 
@@ -185,7 +181,7 @@ struct SearchChannel
   property description_html : String
   property auto_generated : Bool
 
-  def to_json(locale, json : JSON::Builder)
+  def to_json(locale : Hash(String, JSON::Any) | Nil, json : JSON::Builder)
     json.object do
       json.field "type", "channel"
       json.field "author", self.author
@@ -215,14 +211,14 @@ struct SearchChannel
     end
   end
 
-  def to_json(locale, json : JSON::Builder | Nil = nil)
-    if json
+  def to_json(locale, _json : Nil = nil)
+    JSON.build do |json|
       to_json(locale, json)
-    else
-      JSON.build do |json|
-        to_json(locale, json)
-      end
     end
+  end
+
+  def to_json(json : JSON::Builder)
+    to_json(nil, json)
   end
 end
 
@@ -235,7 +231,7 @@ class Category
   property description_html : String
   property badges : Array(Tuple(String, String))?
 
-  def to_json(locale, json : JSON::Builder)
+  def to_json(locale : Hash(String, JSON::Any) | Nil, json : JSON::Builder)
     json.object do
       json.field "type", "category"
       json.field "title", self.title
@@ -249,14 +245,14 @@ class Category
     end
   end
 
-  def to_json(locale, json : JSON::Builder | Nil = nil)
-    if json
+  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil = nil)
+    JSON.build do |json|
       to_json(locale, json)
-    else
-      JSON.build do |json|
-        to_json(locale, json)
-      end
     end
+  end
+
+  def to_json(json : JSON::Builder)
+    to_json(nil, json)
   end
 end
 
