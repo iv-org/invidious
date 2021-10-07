@@ -211,7 +211,7 @@ struct SearchChannel
     end
   end
 
-  def to_json(locale, _json : Nil)
+  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
     end
