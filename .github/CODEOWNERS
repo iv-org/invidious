@@ -12,4 +12,7 @@ scripts/ @syeopite
 shards.lock @syeopite
 shards.yml @syeopite
 
+locales/ @SamantazFox
+src/invidious/helpers/i18n.cr @SamantazFox
+
 src/invidious/helpers/youtube_api.cr @SamantazFox
