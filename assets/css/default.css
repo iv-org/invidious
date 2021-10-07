@@ -314,6 +314,11 @@ footer a {
   text-decoration: underline;
 }
 
+footer span {
+  margin: 4px 0;
+  display: block;
+}
+
 /* keyframes */
 
 @keyframes spin {

@@ -432,6 +432,15 @@ feed_threads: 1
 ##
 #cache_annotations: false
 
+##
+## Source code URL. If your instance is running a modfied source
+## code, you MUST publish it somewhere and set this option.
+##
+## Accepted values: a string
+## Default: <none>
+##
+#modified_source_code_url: ""
+
 
 
 #########################################

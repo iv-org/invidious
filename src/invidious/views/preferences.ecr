@@ -286,6 +286,11 @@
                     <label for="statistics_enabled"><%= translate(locale, "Report statistics: ") %></label>
                     <input name="statistics_enabled" id="statistics_enabled" type="checkbox" <% if CONFIG.statistics_enabled %>checked<% end %>>
                 </div>
+
+                <div class="pure-control-group">
+                    <label for="modified_source_code_url"><%= translate(locale, "adminprefs_modified_source_code_url_label") %></label>
+                    <input name="modified_source_code_url" id="modified_source_code_url" type="input" <% if CONFIG.modified_source_code_url %>checked<% end %>>
+                </div>
             <% end %>
 
             <% if env.get? "user" %>
