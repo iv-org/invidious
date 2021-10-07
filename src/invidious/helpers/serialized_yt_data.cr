@@ -95,7 +95,7 @@ struct SearchVideo
     end
   end
 
-  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil = nil)
+  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
     end
@@ -159,7 +159,7 @@ struct SearchPlaylist
     end
   end
 
-  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil = nil)
+  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
     end
@@ -211,7 +211,7 @@ struct SearchChannel
     end
   end
 
-  def to_json(locale, _json : Nil = nil)
+  def to_json(locale, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
     end
@@ -245,7 +245,7 @@ class Category
     end
   end
 
-  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil = nil)
+  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
     end
