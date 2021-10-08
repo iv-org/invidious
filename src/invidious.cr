@@ -142,7 +142,7 @@ if CONFIG.decrypt_polling
 end
 
 if CONFIG.statistics_enabled
-  Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB, SOFTWARE)
+  Invidious::Jobs.register Invidious::Jobs::StatisticsRefreshJob.new(PG_DB)
 end
 
 if (CONFIG.use_pubsub_feeds.is_a?(Bool) && CONFIG.use_pubsub_feeds.as(Bool)) || (CONFIG.use_pubsub_feeds.is_a?(Int32) && CONFIG.use_pubsub_feeds.as(Int32) > 0)

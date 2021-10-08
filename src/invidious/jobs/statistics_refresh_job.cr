@@ -1,11 +1,8 @@
 class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
   STATISTICS = {
-    "version"  => "2.0",
-    "software" => {
-      "name"    => "invidious",
-      "version" => "",
-      "branch"  => "",
-    },
+    "version"           => "3.0",
+    "software"          => SOFTWARE,
+    "statisticsEnabled" => true,
     "openRegistrations" => true,
     "usage"             => {
       "users" => {
@@ -22,12 +19,10 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
 
   private getter db : DB::Database
 
-  def initialize(@db, @software_config : Hash(String, String))
+  def initialize(@db)
   end
 
   def begin
-    load_initial_stats
-
     loop do
       refresh_stats
       sleep 1.minute
@@ -35,17 +30,8 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
     end
   end
 
-  # should only be called once at the very beginning
-  private def load_initial_stats
-    STATISTICS["software"] = {
-      "name"    => @software_config["name"],
-      "version" => @software_config["version"],
-      "branch"  => @software_config["branch"],
-    }
-    STATISTICS["openRegistrations"] = CONFIG.registration_enabled
-  end
-
   private def refresh_stats
+    STATISTICS["openRegistrations"] = CONFIG.registration_enabled
     users = STATISTICS.dig("usage", "users").as(Hash(String, Int64))
     users["total"] = db.query_one("SELECT count(*) FROM users", as: Int64)
     users["activeHalfyear"] = db.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '6 months'", as: Int64)
