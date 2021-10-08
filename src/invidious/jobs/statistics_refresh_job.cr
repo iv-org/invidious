@@ -1,4 +1,22 @@
 class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
+  STATISTICS_DISABLED = {
+    "version"           => "3.0",
+    "software"          => SOFTWARE,
+    "statisticsEnabled" => false,
+    "openRegistrations" => nil,
+    "usage"             => {
+      "users" => {
+        "total"          => nil,
+        "activeHalfyear" => nil,
+        "activeMonth"    => nil,
+      },
+    },
+    "metadata" => {
+      "updatedAt"              => nil,
+      "lastChannelRefreshedAt" => nil,
+    },
+  }
+
   STATISTICS = {
     "version"           => "3.0",
     "software"          => SOFTWARE,

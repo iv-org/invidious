@@ -5,23 +5,7 @@ module Invidious::Routes::API::V1::Misc
     env.response.content_type = "application/json"
 
     if !CONFIG.statistics_enabled
-      return {
-        "version"           => "3.0",
-        "software"          => SOFTWARE,
-        "statisticsEnabled" => false,
-        "openRegistrations" => nil,
-        "usage"             => {
-          "users" => {
-            "total"          => nil,
-            "activeHalfyear" => nil,
-            "activeMonth"    => nil,
-          },
-        },
-        "metadata" => {
-          "updatedAt"              => nil,
-          "lastChannelRefreshedAt" => nil,
-        },
-      }.to_json
+      return Invidious::Jobs::StatisticsRefreshJob::STATISTICS_DISABLED.to_json
     end
 
     Invidious::Jobs::StatisticsRefreshJob::STATISTICS.to_json
