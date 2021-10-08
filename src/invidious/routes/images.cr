@@ -263,8 +263,7 @@ module Invidious::Routes::Images
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       if response.status_code >= 300 && response.status_code != 404
-        env.response.headers.delete("Transfer-Encoding")
-        return
+        return env.response.headers.delete("Transfer-Encoding")
       end
 
       proxy_file(response, env)
