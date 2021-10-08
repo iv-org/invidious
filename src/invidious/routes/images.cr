@@ -237,10 +237,27 @@ module Invidious::Routes::Images
 
     if name == "maxres.jpg"
       build_thumbnails(id).each do |thumb|
-        if YT_POOL.client &.head("/vi/#{id}/#{thumb[:url]}.jpg", headers).status_code == 200
-          name = thumb[:url] + ".jpg"
-          break
-        end
+        thumbnail_resource_path = "/vi/#{id}/#{thumb[:url]}.jpg"
+        # Logic here is short enough that manually typing them out should be fine.
+        {% unless flag?(:disable_quic) %}
+          if CONFIG.use_quic
+            if YT_POOL.client &.head(thumbnail_resource_path, headers).status_code == 200
+              name = thumb[:url] + ".jpg"
+              break
+            end
+          else
+            if HTTP::Client.head("https://i.ytimg.com#{thumbnail_resource_path}").status_code == 200
+              name = thumb[:url] + ".jpg"
+              break
+            end
+          end
+        {% else %}
+          # This can likely be optimized into a (small) pool sometime in the future.
+          if HTTP::Client.head("https://i.ytimg.com#{thumbnail_resource_path}").status_code == 200
+            name = thumb[:url] + ".jpg"
+            break
+          end
+        {% end %}
       end
     end
 
@@ -277,7 +294,7 @@ module Invidious::Routes::Images
           end
         else
           HTTP::Client.get("https://i.ytimg.com#{url}") do |resp|
-          return request_proc.call(resp)
+            return request_proc.call(resp)
           end
         end
       {% else %}
@@ -288,6 +305,5 @@ module Invidious::Routes::Images
       {% end %}
     rescue ex
     end
-
   end
 end
