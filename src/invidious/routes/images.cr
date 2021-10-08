@@ -113,13 +113,13 @@ module Invidious::Routes::Images
             return request_proc.call(resp)
           end
         else
-          HTTP::Client.get("#{authority}.ytimg.com#{url}") do |resp|
+          HTTP::Client.get("https://#{authority}.ytimg.com#{url}") do |resp|
             return request_proc.call(resp)
           end
         end
       {% else %}
         # This can likely be optimized into a (small) pool sometime in the future.
-        HTTP::Client.get("#{authority}.ytimg.com#{url}") do |resp|
+        HTTP::Client.get("https://#{authority}.ytimg.com#{url}") do |resp|
           return request_proc.call(resp)
         end
       {% end %}
@@ -175,13 +175,13 @@ module Invidious::Routes::Images
             return request_proc.call(resp)
           end
         else
-          HTTP::Client.get("i9.ytimg.com#{url}") do |resp|
+          HTTP::Client.get("https://i9.ytimg.com#{url}") do |resp|
             return request_proc.call(resp)
           end
         end
       {% else %}
         # This can likely be optimized into a (small) pool sometime in the future.
-        HTTP::Client.get("i9.ytimg.com#{url}") do |resp|
+        HTTP::Client.get("https://i9.ytimg.com#{url}") do |resp|
           return request_proc.call(resp)
         end
       {% end %}
