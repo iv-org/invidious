@@ -439,15 +439,21 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
   else
     if offset >= 100
       # Normalize offset to match youtube's behavior (100 videos chunck per request)
-      offset = (offset / 100).to_i64 * 100_i64
+      normalized_offset = (offset / 100).to_i64 * 100_i64
 
-      ctoken = produce_playlist_continuation(playlist.id, offset)
+      ctoken = produce_playlist_continuation(playlist.id, normalized_offset)
       initial_data = YoutubeAPI.browse(ctoken)
     else
       initial_data = YoutubeAPI.browse("VL" + playlist.id, params: "")
     end
 
-    return extract_playlist_videos(initial_data)
+    videos = extract_playlist_videos(initial_data)
+
+    until videos.empty? || videos[0].index == offset
+      videos.shift
+    end
+
+    return videos
   end
 end
 
@@ -524,7 +530,7 @@ def template_playlist(playlist)
   playlist["videos"].as_a.each do |video|
     html += <<-END_HTML
       <li class="pure-menu-item">
-        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}">
+        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video.["index"]}">
           <div class="thumbnail">
               <img class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg">
               <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>
