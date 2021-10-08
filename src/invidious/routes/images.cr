@@ -48,13 +48,13 @@ module Invidious::Routes::Images
             return request_proc.call(resp)
           end
         else
-          HTTP::Client.get("yt3.ggpht.com#{url}") do |resp|
+          HTTP::Client.get("https://yt3.ggpht.com#{url}") do |resp|
             return request_proc.call(resp)
           end
         end
       {% else %}
         # This can likely be optimized into a (small) pool sometime in the future.
-        HTTP::Client.get("yt3.ggpht.com#{url}") do |resp|
+        HTTP::Client.get("https://yt3.ggpht.com#{url}") do |resp|
           return request_proc.call(resp)
         end
       {% end %}
