@@ -425,5 +425,11 @@
     "next_steps_error_message_refresh": "重新整理",
     "next_steps_error_message_go_to_youtube": "到 YouTube",
     "short": "短（小於4分鐘）",
-    "long": "長（多於20分鐘）"
+    "long": "長（多於20分鐘）",
+    "footer_donate": "抖內： ",
+    "footer_documentation": "文件",
+    "footer_source_code": "原始碼",
+    "footer_original_source_code": "原本的原始碼",
+    "footer_modfied_source_code": "修改後的原始碼",
+    "adminprefs_modified_source_code_url_label": "修改後的原始碼倉庫 URL"
 }
