@@ -7,3 +7,5 @@
 /invidious
 /sentry
 /config/config.yml
+
+shard.lock
