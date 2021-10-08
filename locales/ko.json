@@ -423,5 +423,13 @@
     "today": "오늘",
     "hour": "지난 1시간",
     "sort": "정렬기준",
-    "features": "기능별"
+    "features": "기능별",
+    "short": "4분 미만",
+    "long": "20분 초과",
+    "footer_donate": "후원: ",
+    "footer_documentation": "문서",
+    "footer_source_code": "소스 코드",
+    "footer_original_source_code": "원본 소스 코드",
+    "footer_modfied_source_code": "수정된 소스 코드",
+    "adminprefs_modified_source_code_url_label": "수정된 소스 코드 저장소의 URL"
 }
