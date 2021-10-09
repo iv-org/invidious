@@ -19,6 +19,7 @@ body {
   font-size: 1.17em;
   font-weight: bold;
   vertical-align: middle;
+  border-radius: 50%;
 }
 
 .channel-profile > img {
