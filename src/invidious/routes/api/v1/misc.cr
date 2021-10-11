@@ -24,7 +24,7 @@ module Invidious::Routes::API::V1::Misc
     offset ||= env.params.query["page"]?.try &.to_i?.try { |page| (page - 1) * 100 }
     offset ||= 0
 
-    continuation = env.params.query["continuation"]?
+    video_id = env.params.query["continuation"]?
 
     format = env.params.query["format"]?
     format ||= "json"
@@ -46,12 +46,32 @@ module Invidious::Routes::API::V1::Misc
       return error_json(404, "Playlist does not exist.")
     end
 
-    response = playlist.to_json(offset, locale, continuation: continuation)
+    # includes into the playlist a maximum of 20 videos, before the offset
+    if offset > 0
+      lookback = offset < 50 ? offset : 50
+      response = playlist.to_json(offset - lookback, locale)
+      json_response = JSON.parse(response)
+    else
+      #  Unless the continuation is really the offset 0, it becomes expensive.
+      #  It happens when the offset is not set.
+      #  First we find the actual offset, and then we lookback
+      #  it shouldn't happen often though
+
+      lookback = 0
+      response = playlist.to_json(offset, locale, video_id: video_id)
+      json_response = JSON.parse(response)
+
+      if json_response["videos"].as_a[0]["index"] != offset
+        offset = json_response["videos"].as_a[0]["index"].as_i
+        lookback = offset < 50 ? offset : 50
+        response = playlist.to_json(offset - lookback, locale)
+        json_response = JSON.parse(response)
+      end
+    end
 
     if format == "html"
-      response = JSON.parse(response)
-      playlist_html = template_playlist(response)
-      index, next_video = response["videos"].as_a.skip(1).select { |video| !video["author"].as_s.empty? }[0]?.try { |v| {v["index"], v["videoId"]} } || {nil, nil}
+      playlist_html = template_playlist(json_response)
+      index, next_video = json_response["videos"].as_a.skip(1 + lookback).select { |video| !video["author"].as_s.empty? }[0]?.try { |v| {v["index"], v["videoId"]} } || {nil, nil}
 
       response = {
         "playlistHtml" => playlist_html,

@@ -107,7 +107,7 @@ struct Playlist
   property updated : Time
   property thumbnail : String?
 
-  def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
+  def to_json(offset, locale, json : JSON::Builder, video_id : String? = nil)
     json.object do
       json.field "type", "playlist"
       json.field "title", self.title
@@ -142,7 +142,7 @@ struct Playlist
 
       json.field "videos" do
         json.array do
-          videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, continuation: continuation)
+          videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, video_id: video_id)
           videos.each_with_index do |video, index|
             video.to_json(locale, json)
           end
@@ -151,12 +151,12 @@ struct Playlist
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder? = nil, continuation : String? = nil)
+  def to_json(offset, locale, json : JSON::Builder? = nil, video_id : String? = nil)
     if json
-      to_json(offset, locale, json, continuation: continuation)
+      to_json(offset, locale, json, video_id: video_id)
     else
       JSON.build do |json|
-        to_json(offset, locale, json, continuation: continuation)
+        to_json(offset, locale, json, video_id: video_id)
       end
     end
   end
@@ -196,7 +196,7 @@ struct InvidiousPlaylist
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder, continuation : String? = nil)
+  def to_json(offset, locale, json : JSON::Builder, video_id : String? = nil)
     json.object do
       json.field "type", "invidiousPlaylist"
       json.field "title", self.title
@@ -218,11 +218,11 @@ struct InvidiousPlaylist
       json.field "videos" do
         json.array do
           if !offset || offset == 0
-            index = PG_DB.query_one?("SELECT index FROM playlist_videos WHERE plid = $1 AND id = $2 LIMIT 1", self.id, continuation, as: Int64)
+            index = PG_DB.query_one?("SELECT index FROM playlist_videos WHERE plid = $1 AND id = $2 LIMIT 1", self.id, video_id, as: Int64)
             offset = self.index.index(index) || 0
           end
 
-          videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, continuation: continuation)
+          videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, video_id: video_id)
           videos.each_with_index do |video, index|
             video.to_json(locale, json, offset + index)
           end
@@ -231,12 +231,12 @@ struct InvidiousPlaylist
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder? = nil, continuation : String? = nil)
+  def to_json(offset, locale, json : JSON::Builder? = nil, video_id : String? = nil)
     if json
-      to_json(offset, locale, json, continuation: continuation)
+      to_json(offset, locale, json, video_id: video_id)
     else
       JSON.build do |json|
-        to_json(offset, locale, json, continuation: continuation)
+        to_json(offset, locale, json, video_id: video_id)
       end
     end
   end
@@ -426,7 +426,7 @@ def fetch_playlist(plid, locale)
   })
 end
 
-def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
+def get_playlist_videos(db, playlist, offset, locale = nil, video_id = nil)
   # Show empy playlist if requested page is out of range
   # (e.g, when a new playlist has been created, offset will be negative)
   if offset >= playlist.video_count || offset < 0
@@ -437,17 +437,26 @@ def get_playlist_videos(db, playlist, offset, locale = nil, continuation = nil)
     db.query_all("SELECT * FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 100 OFFSET $3",
       playlist.id, playlist.index, offset, as: PlaylistVideo)
   else
-    if offset >= 100
-      # Normalize offset to match youtube's behavior (100 videos chunck per request)
-      offset = (offset / 100).to_i64 * 100_i64
-
-      ctoken = produce_playlist_continuation(playlist.id, offset)
-      initial_data = YoutubeAPI.browse(ctoken)
-    else
-      initial_data = YoutubeAPI.browse("VL" + playlist.id, params: "")
+    if video_id
+      initial_data = YoutubeAPI.next({
+        "videoId"    => video_id,
+        "playlistId" => playlist.id,
+      })
+      offset = initial_data.dig?("contents", "twoColumnWatchNextResults", "playlist", "playlist", "currentIndex").try &.as_i || offset
     end
 
-    return extract_playlist_videos(initial_data)
+    videos = [] of PlaylistVideo
+
+    until videos.size >= 200 || videos.size == playlist.video_count || offset >= playlist.video_count
+      # 100 videos per request
+      ctoken = produce_playlist_continuation(playlist.id, offset)
+      initial_data = YoutubeAPI.browse(ctoken)
+      videos += extract_playlist_videos(initial_data)
+
+      offset += 100
+    end
+
+    return videos
   end
 end
 
@@ -523,8 +532,8 @@ def template_playlist(playlist)
 
   playlist["videos"].as_a.each do |video|
     html += <<-END_HTML
-      <li class="pure-menu-item">
-        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}">
+      <li class="pure-menu-item" id="#{video["videoId"]}">
+        <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}">
           <div class="thumbnail">
               <img class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg">
               <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>
