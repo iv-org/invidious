@@ -47,9 +47,8 @@ module Invidious::Routes::API::V1::Misc
     end
 
     # includes into the playlist a maximum of 20 videos, before the offset
-    lookback = 20
     if offset > 0
-      lookback = offset < lookback ? offset : lookback
+      lookback = offset < 50 ? offset : 50
       response = playlist.to_json(offset - lookback, locale)
       json_response = JSON.parse(response)
     else
@@ -58,6 +57,7 @@ module Invidious::Routes::API::V1::Misc
       #  First we find the actual offset, and then we lookback
       #  it shouldn't happen often though
 
+      lookback = 0
       response = playlist.to_json(offset, locale, video_id: video_id)
       json_response = JSON.parse(response)
 
