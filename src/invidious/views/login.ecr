@@ -66,7 +66,7 @@
                                 <% captcha = captcha.not_nil! %>
                                 <img style="width:50%" src='<%= captcha[:question] %>'/>
                                 <% captcha[:tokens].each_with_index do |token, i| %>
-                                    <input type="hidden" name="token[<%= i %>]" value="<%= URI.encode_www_form(token) %>">
+                                    <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">
                                 <% end %>
                                 <input type="hidden" name="captcha_type" value="image">
                                 <label for="answer"><%= translate(locale, "Time (h:mm:ss):") %></label>
@@ -74,7 +74,7 @@
                             <% else # "text" %>
                                 <% captcha = captcha.not_nil! %>
                                 <% captcha[:tokens].each_with_index do |token, i| %>
-                                    <input type="hidden" name="token[<%= i %>]" value="<%= URI.encode_www_form(token) %>">
+                                    <input type="hidden" name="token[<%= i %>]" value="<%= HTML.escape(token) %>">
                                 <% end %>
                                 <input type="hidden" name="captcha_type" value="text">
                                 <label for="answer"><%= captcha[:question] %></label>
