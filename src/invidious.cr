@@ -389,6 +389,13 @@ end
   Invidious::Routing.post "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_post
 {% end %}
 
+Invidious::Routing.get "/ggpht/*", Invidious::Routes::Images, :ggpht
+Invidious::Routing.options "/sb/:authority/:id/:storyboard/:index", Invidious::Routes::Images, :options_storyboard
+Invidious::Routing.get "/sb/:authority/:id/:storyboard/:index", Invidious::Routes::Images, :get_storyboard
+Invidious::Routing.get "/s_p/:id/:name", Invidious::Routes::Images, :s_p_image
+Invidious::Routing.get "/yts/img/:name", Invidious::Routes::Images, :yts_image
+Invidious::Routing.get "/vi/:id/:name", Invidious::Routes::Images, :thumbnails
+
 # API routes (macro)
 define_v1_api_routes()
 
@@ -1271,194 +1278,6 @@ post "/api/v1/auth/notifications" do |env|
   topics ||= [] of String
 
   create_notification_stream(env, topics, connection_channel)
-end
-
-get "/ggpht/*" do |env|
-  url = env.request.path.lchop("/ggpht")
-
-  headers = HTTP::Headers{":authority" => "yt3.ggpht.com"}
-  REQUEST_HEADERS_WHITELIST.each do |header|
-    if env.request.headers[header]?
-      headers[header] = env.request.headers[header]
-    end
-  end
-
-  begin
-    YT_POOL.client &.get(url, headers) do |response|
-      env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      if response.status_code >= 300
-        env.response.headers.delete("Transfer-Encoding")
-        break
-      end
-
-      proxy_file(response, env)
-    end
-  rescue ex
-  end
-end
-
-options "/sb/:authority/:id/:storyboard/:index" do |env|
-  env.response.headers["Access-Control-Allow-Origin"] = "*"
-  env.response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-  env.response.headers["Access-Control-Allow-Headers"] = "Content-Type, Range"
-end
-
-get "/sb/:authority/:id/:storyboard/:index" do |env|
-  authority = env.params.url["authority"]
-  id = env.params.url["id"]
-  storyboard = env.params.url["storyboard"]
-  index = env.params.url["index"]
-
-  url = "/sb/#{id}/#{storyboard}/#{index}?#{env.params.query}"
-
-  headers = HTTP::Headers.new
-
-  headers[":authority"] = "#{authority}.ytimg.com"
-
-  REQUEST_HEADERS_WHITELIST.each do |header|
-    if env.request.headers[header]?
-      headers[header] = env.request.headers[header]
-    end
-  end
-
-  begin
-    YT_POOL.client &.get(url, headers) do |response|
-      env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
-
-      env.response.headers["Connection"] = "close"
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      if response.status_code >= 300
-        env.response.headers.delete("Transfer-Encoding")
-        break
-      end
-
-      proxy_file(response, env)
-    end
-  rescue ex
-  end
-end
-
-get "/s_p/:id/:name" do |env|
-  id = env.params.url["id"]
-  name = env.params.url["name"]
-
-  url = env.request.resource
-
-  headers = HTTP::Headers{":authority" => "i9.ytimg.com"}
-  REQUEST_HEADERS_WHITELIST.each do |header|
-    if env.request.headers[header]?
-      headers[header] = env.request.headers[header]
-    end
-  end
-
-  begin
-    YT_POOL.client &.get(url, headers) do |response|
-      env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      if response.status_code >= 300 && response.status_code != 404
-        env.response.headers.delete("Transfer-Encoding")
-        break
-      end
-
-      proxy_file(response, env)
-    end
-  rescue ex
-  end
-end
-
-get "/yts/img/:name" do |env|
-  headers = HTTP::Headers.new
-  REQUEST_HEADERS_WHITELIST.each do |header|
-    if env.request.headers[header]?
-      headers[header] = env.request.headers[header]
-    end
-  end
-
-  begin
-    YT_POOL.client &.get(env.request.resource, headers) do |response|
-      env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      if response.status_code >= 300 && response.status_code != 404
-        env.response.headers.delete("Transfer-Encoding")
-        break
-      end
-
-      proxy_file(response, env)
-    end
-  rescue ex
-  end
-end
-
-get "/vi/:id/:name" do |env|
-  id = env.params.url["id"]
-  name = env.params.url["name"]
-
-  headers = HTTP::Headers{":authority" => "i.ytimg.com"}
-
-  if name == "maxres.jpg"
-    build_thumbnails(id).each do |thumb|
-      if YT_POOL.client &.head("/vi/#{id}/#{thumb[:url]}.jpg", headers).status_code == 200
-        name = thumb[:url] + ".jpg"
-        break
-      end
-    end
-  end
-  url = "/vi/#{id}/#{name}"
-
-  REQUEST_HEADERS_WHITELIST.each do |header|
-    if env.request.headers[header]?
-      headers[header] = env.request.headers[header]
-    end
-  end
-
-  begin
-    YT_POOL.client &.get(url, headers) do |response|
-      env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      if response.status_code >= 300 && response.status_code != 404
-        env.response.headers.delete("Transfer-Encoding")
-        break
-      end
-
-      proxy_file(response, env)
-    end
-  rescue ex
-  end
 end
 
 get "/Captcha" do |env|
