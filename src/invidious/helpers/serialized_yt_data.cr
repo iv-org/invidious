@@ -238,7 +238,13 @@ class Category
   def to_json(locale, json : JSON::Builder)
     json.object do
       json.field "title", self.title
-      json.field "contents", self.contents
+      json.field "contents" do
+        json.array do
+          self.contents.each do |item|
+            item.to_json(locale, json)
+          end
+        end
+      end
     end
   end
 
