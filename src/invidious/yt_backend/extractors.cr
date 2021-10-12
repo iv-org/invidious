@@ -30,8 +30,6 @@ private module Parsers
   # A videoRenderer renders a video to click on within the YouTube and Invidious UI. It is **not**
   # the watchable video itself.
   #
-  # See specs for example.
-  #
   # `videoRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
   #
   module VideoRendererParser
@@ -132,8 +130,6 @@ private module Parsers
   # A channelRenderer renders a channel to click on within the YouTube and Invidious UI. It is **not**
   # the channel page itself.
   #
-  # See specs for example.
-  #
   # `channelRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
   #
   module ChannelRendererParser
@@ -182,8 +178,6 @@ private module Parsers
   # A gridPlaylistRenderer renders a playlist, that is located in a grid, to click on within the YouTube and Invidious UI.
   # It is **not** the playlist itself.
   #
-  # See specs for example.
-  #
   # `gridPlaylistRenderer`s can be found on the playlist-tabs of channels and expanded categories.
   #
   module GridPlaylistRendererParser
@@ -219,8 +213,6 @@ private module Parsers
   # Parses a InnerTube playlistRenderer into a YouTubeStructs::PlaylistRenderer. Returns nil when the given object isn't a playlistRenderer
   #
   # A playlistRenderer renders a playlist to click on within the YouTube and Invidious UI. It is **not** the playlist itself.
-  #
-  # See specs for example.
   #
   # `playlistRenderer`s can be found almost everywhere on YouTube. In categories, search results, recommended, etc.
   #
@@ -277,8 +269,6 @@ private module Parsers
   # A shelfRenderer renders divided sections on YouTube. IE "People also watched" in search results and
   # the various organizational sections in the channel home page. A separate one (richShelfRenderer) is used
   # for YouTube home. A shelfRenderer can also sometimes be expanded to show more content within it.
-  #
-  # See specs for example.
   #
   # `shelfRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
   #

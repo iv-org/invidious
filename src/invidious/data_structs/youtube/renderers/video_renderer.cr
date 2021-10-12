@@ -3,9 +3,7 @@ module YouTubeStructs
   #
   # A videoRenderer renders a video to click on within the YouTube and Invidious UI. It is **not**
   # the watchable video itself.
-  #
-  # See specs for example JSON response
-  #
+  #  #
   # `videoRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
   #
   struct VideoRenderer
