@@ -43,7 +43,7 @@ private module Parsers
 
     private def self.parse(item_contents, author_fallback)
       video_id = item_contents["videoId"].as_s
-      title = extract_text(item_contents["title"]) || ""
+      title = extract_text(item_contents["title"]?) || ""
 
       # Extract author information
       if author_info = item_contents.dig?("ownerText", "runs", 0)
