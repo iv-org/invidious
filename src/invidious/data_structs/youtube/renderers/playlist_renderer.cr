@@ -5,7 +5,7 @@ module YouTubeStructs
   #
   # A gridPlaylistRenderer renders a playlist, that is located in a grid, to click on within the YouTube and Invidious UI.
   # It is **not** the playlist itself.
-  #  #
+  #
   # `PlaylistRenderer`s can be found almost everywhere on YouTube. In categories, search results, channels, etc.
   #
   struct PlaylistRenderer
