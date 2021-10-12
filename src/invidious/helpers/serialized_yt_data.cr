@@ -237,6 +237,7 @@ class Category
 
   def to_json(locale, json : JSON::Builder)
     json.object do
+      json.field "type", "category"
       json.field "title", self.title
       json.field "contents" do
         json.array do
