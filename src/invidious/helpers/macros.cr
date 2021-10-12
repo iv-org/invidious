@@ -9,6 +9,7 @@ module DB::Serializable
           }}
         end
 
+        # Initialize DB::Serializable descendants via NamedTuples
         def initialize(tuple)
           \{% for var in @type.instance_vars %}
             \{% ann = var.annotation(::DB::Field) %}
