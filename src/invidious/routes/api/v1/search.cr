@@ -36,7 +36,13 @@ module Invidious::Routes::API::V1::Search
     JSON.build do |json|
       json.array do
         search_results.each do |item|
-          item.to_json(locale, json)
+          if item.is_a?(Category)
+            item.contents.each do |cat_item|
+              cat_item.to_json(locale, json) 
+            end
+          else
+            item.to_json(locale, json)
+          end
         end
       end
     end
