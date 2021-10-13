@@ -78,7 +78,7 @@
     "Show related videos: ": "関連動画を表示: ",
     "Show annotations by default: ": "デフォルトでアノテーションを表示: ",
     "Automatically extend video description: ": "動画の説明文を自動的に拡張: ",
-    "Interactive 360 degree videos: ": "インタラクティブ360°動画: ",
+    "Interactive 360 degree videos: ": "対話的な360°動画: ",
     "Visual preferences": "外観設定",
     "Player style: ": "プレイヤースタイル: ",
     "Dark mode: ": "ダークモード: ",
@@ -137,7 +137,7 @@
     },
     "Import/export": "インポート/エクスポート",
     "unsubscribe": "登録解除",
-    "revoke": "revoke",
+    "revoke": "取り消す",
     "Subscriptions": "登録チャンネル",
     "`x` unseen notifications": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個の未読通知",
@@ -145,7 +145,7 @@
     },
     "search": "検索",
     "Log out": "ログアウト",
-    "Released under the AGPLv3 on Github.": "Github 上で AGPLv3 の下で公開されています",
+    "Released under the AGPLv3 on Github.": "Github 上で AGPLv3 の元で公開されています",
     "Source available here.": "ソースはここで閲覧可能です。",
     "View JavaScript license information.": "JavaScript ライセンス情報",
     "View privacy policy.": "プライバシーポリシー",
@@ -423,5 +423,13 @@
     "Current version: ": "現在のバージョン: ",
     "next_steps_error_message": "下記のものを試して下さい： ",
     "next_steps_error_message_refresh": "再読込",
-    "next_steps_error_message_go_to_youtube": "YouTubeへ"
+    "next_steps_error_message_go_to_youtube": "YouTubeへ",
+    "short": "4 分未満",
+    "footer_donate": "寄金： ",
+    "footer_documentation": "文書",
+    "footer_source_code": "ソースコード",
+    "footer_original_source_code": "ソースコード（元）",
+    "footer_modfied_source_code": "ソースコード（編集）",
+    "adminprefs_modified_source_code_url_label": "編集したソースコードのレポジトリーURL",
+    "long": "20 分以上"
 }
