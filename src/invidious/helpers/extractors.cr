@@ -321,11 +321,13 @@ private module Parsers
         content_container = item_contents["contents"]
       end
 
-      raw_contents = content_container["items"].as_a
-      raw_contents.each do |item|
-        result = extract_item(item)
-        if !result.nil?
-          contents << result
+      raw_contents = content_container["items"]?.try &.as_a
+      if !raw_contents.nil?
+        raw_contents.each do |item|
+          result = extract_item(item)
+          if !result.nil?
+            contents << result
+          end
         end
       end
 
