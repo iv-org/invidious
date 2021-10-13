@@ -401,7 +401,7 @@ private module Extractors
           items_container = renderer_container_contents
         end
 
-        items_container["items"].as_a.each do |item|
+        items_container["items"]?.try &.as_a.each do |item|
           raw_items << item
         end
       end
