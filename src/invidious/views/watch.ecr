@@ -303,7 +303,7 @@ we're going to need to do it here in order to allow for translations.
                             <a href="/watch?v=<%= rv["id"] %>">
                                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                                     <div class="thumbnail">
-                                        <img class="thumbnail" src="/vi/<%= rv["id"] %>/mqdefault.jpg">
+                                        <img loading="lazy" class="thumbnail" src="/vi/<%= rv["id"] %>/mqdefault.jpg">
                                         <p class="length"><%= recode_length_seconds(rv["length_seconds"]?.try &.to_i? || 0) %></p>
                                     </div>
                                 <% end %>
