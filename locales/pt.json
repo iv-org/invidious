@@ -425,5 +425,11 @@
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscritores"
     },
     "short": "Curto (< 4 minutos)",
-    "long": "Longo (> 20 minutos)"
+    "long": "Longo (> 20 minutos)",
+    "footer_source_code": "Código-fonte",
+    "footer_original_source_code": "Código-fonte original",
+    "adminprefs_modified_source_code_url_label": "URL do repositório do código-fonte alterado",
+    "footer_donate": "Fazer um donativo: ",
+    "footer_documentation": "Documentação",
+    "footer_modfied_source_code": "Código-fonte alterado"
 }
