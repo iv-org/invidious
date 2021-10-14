@@ -58,7 +58,7 @@
 - No JavaScript required
 - Light/Dark themes
 - Customizable homepage
-- Subscriptions independant from Google
+- Subscriptions independent from Google
 - Notifications for all subscribed channels
 - Audio-only mode (with background play on mobile)
 - Support for Reddit comments
