@@ -8,7 +8,7 @@
         </a>
         
         <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
-            <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=%2Fwatch<%=endpoint_params%>">
+            <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=%2Fwatch<%=URI.encode_www_form(endpoint_params)%>">
                 <i class="icon ion-md-jet"></i>
             </a>
         <% else %>
