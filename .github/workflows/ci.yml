@@ -40,6 +40,7 @@ jobs:
         crystal:
           - 1.0.0
           - 1.1.1
+          - 1.2.0
         include:
           - crystal: nightly
             stable: false
@@ -48,7 +49,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install Crystal
-        uses: oprypin/install-crystal@v1.2.4
+        uses: crystal-lang/install-crystal@v1.5.3
         with:
           crystal: ${{ matrix.crystal }}
 
