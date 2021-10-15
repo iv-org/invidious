@@ -47,7 +47,7 @@
                             <%= translate(locale, "Switch Invidious Instance") %>
                         </a>
                     <% else %>
-                        <a href="https://redirect.invidious.io/<%= env.get?("current_page") %>">
+                        <a href="https://redirect.invidious.io<%= env.request.resource %>">
                             <%= translate(locale, "Switch Invidious Instance") %>
                         </a>
                     <% end %>

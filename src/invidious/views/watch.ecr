@@ -119,7 +119,7 @@ we're going to need to do it here in order to allow for translations.
             <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
                 <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
             <% else %>
-                <a href="https://redirect.invidious.io/<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
+                <a href="https://redirect.invidious.io<%= env.request.resource %>"><%= translate(locale, "Switch Invidious Instance") %></a>
             <% end %>
             </p>
             <p id="embed-link">

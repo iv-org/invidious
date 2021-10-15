@@ -48,7 +48,7 @@
             <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
                 <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
             <% else %>
-                <a href="https://redirect.invidious.io/<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
+                <a href="https://redirect.invidious.io<%= env.request.path %>"><%= translate(locale, "Switch Invidious Instance") %></a>
             <% end %>
         </div>
         <% if !channel.auto_generated %>
