@@ -145,7 +145,7 @@
     },
     "search": "ara",
     "Log out": "Çıkış yap",
-    "Released under the AGPLv3 on Github.": "Github'da AGPLv3 altında yayınlandı.",
+    "Released under the AGPLv3 on Github.": "GitHub'da AGPLv3+ altında yayınlandı.",
     "Source available here.": "Kaynak kodları burada bulunabilir.",
     "View JavaScript license information.": "JavaScript lisans bilgilerini görüntüle.",
     "View privacy policy.": "Gizlilik politikasını görüntüle.",
@@ -431,5 +431,6 @@
     "footer_source_code": "Kaynak kodları",
     "footer_original_source_code": "Orijinal kaynak kodları",
     "footer_modfied_source_code": "Değiştirilmiş kaynak kodları",
-    "adminprefs_modified_source_code_url_label": "Değiştirilmiş kaynak kodları deposunun URL'si"
+    "adminprefs_modified_source_code_url_label": "Değiştirilmiş kaynak kodları deposunun URL'si",
+    "footer_donate_page": "Bağış yap"
 }
