@@ -145,7 +145,7 @@
     },
     "search": "søk",
     "Log out": "Logg ut",
-    "Released under the AGPLv3 on Github.": "",
+    "Released under the AGPLv3 on Github.": "Tilgjengelig med AGPL3+-lisens på GitHub.",
     "Source available here.": "Kildekode tilgjengelig her.",
     "View JavaScript license information.": "Vis JavaScript-lisensinfo.",
     "View privacy policy.": "Vis personvernspraksis.",
@@ -423,5 +423,13 @@
     "Current version: ": "Gjeldende versjon: ",
     "next_steps_error_message": "Etterpå bør du prøve dette: ",
     "next_steps_error_message_refresh": "Gjenoppfrisk",
-    "next_steps_error_message_go_to_youtube": "Gå til YouTube"
+    "next_steps_error_message_go_to_youtube": "Gå til YouTube",
+    "long": "Lang (> 20 minutter)",
+    "footer_donate_page": "Doner",
+    "short": "Kort (< 4 minutter)",
+    "footer_documentation": "Dokumentasjon",
+    "footer_source_code": "Kildekode",
+    "footer_original_source_code": "Opprinnelig kildekode",
+    "footer_modfied_source_code": "Endret kildekode",
+    "adminprefs_modified_source_code_url_label": "Nettadresse til kodelager inneholdende endret kildekode"
 }
