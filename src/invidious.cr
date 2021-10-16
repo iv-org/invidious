@@ -155,6 +155,10 @@ if CONFIG.popular_enabled
   Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 end
 
+if CONFIG.captcha_key
+  Invidious::Jobs.register Invidious::Jobs::BypassCaptchaJob.new
+end
+
 connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
 Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(connection_channel, CONFIG.database_url)
 
