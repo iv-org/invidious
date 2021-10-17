@@ -329,7 +329,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
       html << <<-END_HTML
       <div class="pure-g" style="width:100%">
         <div class="channel-profile pure-u-4-24 pure-u-md-2-24">
-          <img style="margin-right:1em;margin-top:1em;width:90%" src="#{author_thumbnail}">
+          <img loading="lazy" style="margin-right:1em;margin-top:1em;width:90%" src="#{author_thumbnail}">
         </div>
         <div class="pure-u-20-24 pure-u-md-22-24">
           <p>
@@ -349,7 +349,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
           html << <<-END_HTML
           <div class="pure-g">
             <div class="pure-u-1 pure-u-md-1-2">
-              <img style="width:100%" src="/ggpht#{URI.parse(attachment["url"].as_s).request_target}">
+              <img loading="lazy" style="width:100%" src="/ggpht#{URI.parse(attachment["url"].as_s).request_target}">
             </div>
           </div>
           END_HTML
@@ -410,7 +410,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
         html << <<-END_HTML
           <span class="creator-heart-container" title="#{translate(locale, "`x` marked it with a ❤", child["creatorHeart"]["creatorName"].as_s)}">
               <div class="creator-heart">
-                  <img class="creator-heart-background-hearted" src="#{creator_thumbnail}"></img>
+                  <img loading="lazy" class="creator-heart-background-hearted" src="#{creator_thumbnail}"></img>
                   <div class="creator-heart-small-hearted">
                       <div class="icon ion-ios-heart creator-heart-small-container"></div>
                   </div>

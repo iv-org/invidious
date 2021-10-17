@@ -535,7 +535,7 @@ def template_playlist(playlist)
       <li class="pure-menu-item" id="#{video["videoId"]}">
         <a href="/watch?v=#{video["videoId"]}&list=#{playlist["playlistId"]}&index=#{video["index"]}">
           <div class="thumbnail">
-              <img class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg">
+              <img loading="lazy" class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg">
               <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>
           </div>
           <p style="width:100%">#{video["title"]}</p>
