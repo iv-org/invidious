@@ -3,7 +3,7 @@
   <h1>Invidious</h1>
 
   <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
-    <img alt="License: AGPLv3+" src="https://shields.io/badge/License-AGPL%20v3+-blue.svg">
+    <img alt="License: AGPLv3" src="https://shields.io/badge/License-AGPL%20v3-blue.svg">
   </a>
   <a href="https://github.com/iv-org/invidious/actions">
     <img alt="Build Status" src="https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg">
