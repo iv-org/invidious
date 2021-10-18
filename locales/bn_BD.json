@@ -60,7 +60,7 @@
     "E-mail": "ই-মেইল",
     "Google verification code": "গুগল যাচাইকরণ কোড",
     "Preferences": "পছন্দসমূহ",
-    "Player preferences": "প্লেয়ারের পছন্দসমূহ",
+    "preferences_category_player": "প্লেয়ারের পছন্দসমূহ",
     "preferences_video_loop_label": "সর্বদা লুপ: ",
     "preferences_autoplay_label": "স্বয়ংক্রিয় চালু: ",
     "preferences_continue_label": "ডিফল্টভাবে পরবর্তী চালাও: ",

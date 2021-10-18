@@ -5,7 +5,7 @@
 <div class="h-box">
     <form class="pure-form pure-form-aligned" action="/preferences?referer=<%= URI.encode_www_form(referer) %>" method="post">
         <fieldset>
-            <legend><%= translate(locale, "Player preferences") %></legend>
+            <legend><%= translate(locale, "preferences_category_player") %></legend>
 
             <div class="pure-control-group">
                 <label for="video_loop"><%= translate(locale, "preferences_video_loop_label") %></label>
@@ -116,7 +116,7 @@
                 <input name="vr_mode" id="vr_mode" type="checkbox" <% if preferences.vr_mode %>checked<% end %>>
             </div>
 
-            <legend><%= translate(locale, "Visual preferences") %></legend>
+            <legend><%= translate(locale, "preferences_category_visual") %></legend>
 
             <div class="pure-control-group">
                 <label for="locale"><%= translate(locale, "preferences_locale_label") %></label>
@@ -182,7 +182,7 @@
                 </div>
             <% end %>
 
-            <legend><%= translate(locale, "Miscellaneous preferences") %></legend>
+            <legend><%= translate(locale, "preferences_category_misc") %></legend>
 
             <div class="pure-control-group">
                 <label for="automatic_instance_redirect"><%= translate(locale, "preferences_automatic_instance_redirect_label") %></label>
@@ -190,7 +190,7 @@
             </div>
 
             <% if env.get? "user" %>
-                <legend><%= translate(locale, "Subscription preferences") %></legend>
+                <legend><%= translate(locale, "preferences_category_subscription") %></legend>
 
                 <div class="pure-control-group">
                     <label for="annotations_subscribed"><%= translate(locale, "preferences_annotations_subscribed_label") %></label>
@@ -239,7 +239,7 @@
             <% end %>
 
             <% if env.get?("user") && CONFIG.admins.includes? env.get?("user").as(User).email %>
-                <legend><%= translate(locale, "Administrator preferences") %></legend>
+                <legend><%= translate(locale, "preferences_category_admin") %></legend>
 
                 <div class="pure-control-group">
                     <label for="admin_default_home"><%= translate(locale, "preferences_default_home_label") %></label>
@@ -294,7 +294,7 @@
             <% end %>
 
             <% if env.get? "user" %>
-                <legend><%= translate(locale, "Data preferences") %></legend>
+                <legend><%= translate(locale, "preferences_category_data") %></legend>
 
                 <div class="pure-control-group">
                     <a href="/clear_watch_history?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Clear watch history") %></a>

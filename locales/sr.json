@@ -60,7 +60,7 @@
     "E-mail": "Е-пошта",
     "Google verification code": "Google-ов оверни кôд",
     "Preferences": "Подешавања",
-    "Player preferences": "Подешавања репродуктора",
+    "preferences_category_player": "Подешавања репродуктора",
     "preferences_video_loop_label": "Увек понављај: ",
     "preferences_autoplay_label": "Самопуштање: ",
     "preferences_continue_label": "Увек подразумевано пуштај следеће: ",
