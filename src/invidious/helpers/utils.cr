@@ -301,19 +301,6 @@ def parse_range(range)
   return 0_i64, nil
 end
 
-def convert_theme(theme)
-  case theme
-  when "true"
-    "dark"
-  when "false"
-    "light"
-  when "", nil
-    nil
-  else
-    theme
-  end
-end
-
 def fetch_random_instance
   begin
     instance_api_client = make_client(URI.parse("https://api.invidious.io"))

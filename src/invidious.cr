@@ -30,6 +30,7 @@ require "./invidious/helpers/*"
 require "./invidious/yt_backend/*"
 require "./invidious/*"
 require "./invidious/channels/*"
+require "./invidious/user/*"
 require "./invidious/routes/**"
 require "./invidious/jobs/**"
 
