@@ -72,7 +72,7 @@
     "Player volume: ": "Oynatıcı ses seviyesi: ",
     "Default comments: ": "Öntanımlı yorumlar: ",
     "youtube": "YouTube",
-    "reddit": "reddit",
+    "reddit": "Reddit",
     "Default captions: ": "Öntanımlı altyazılar: ",
     "Fallback captions: ": "Yedek altyazılar: ",
     "Show related videos: ": "İlgili videoları göster: ",
@@ -431,5 +431,6 @@
     "footer_source_code": "Kaynak kodları",
     "footer_original_source_code": "Orijinal kaynak kodları",
     "footer_modfied_source_code": "Değiştirilmiş kaynak kodları",
-    "adminprefs_modified_source_code_url_label": "Değiştirilmiş kaynak kodları deposunun URL'si"
+    "adminprefs_modified_source_code_url_label": "Değiştirilmiş kaynak kodları deposunun URL'si",
+    "footer_donate_page": "Bağış yap"
 }
