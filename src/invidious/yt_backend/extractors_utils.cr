@@ -1,3 +1,34 @@
+# Extracts text from InnerTube response
+#
+# InnerTube can package text in three different formats
+# "runs": [
+# {"text": "something"},
+# {"text": "cont"},
+# ...
+# ]
+#
+# "SimpleText": "something"
+#
+# Or sometimes just none at all as with the data returned from
+# category continuations.
+#
+# In order to facilitate calling this function with `#[]?`:
+# A nil will be accepted. Of course, since nil cannot be parsed,
+# another nil will be returned.
+def extract_text(item : JSON::Any?) : String?
+  if item.nil?
+    return nil
+  end
+
+  if text_container = item["simpleText"]?
+    return text_container.as_s
+  elsif text_container = item["runs"]?
+    return text_container.as_a.map(&.["text"].as_s).join("")
+  else
+    nil
+  end
+end
+
 def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
   extracted = extract_items(initial_data, author_fallback, author_id_fallback)
 

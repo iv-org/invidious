@@ -533,37 +533,6 @@ private module HelperExtractors
   end
 end
 
-# Extracts text from InnerTube response
-#
-# InnerTube can package text in three different formats
-# "runs": [
-# {"text": "something"},
-# {"text": "cont"},
-# ...
-# ]
-#
-# "SimpleText": "something"
-#
-# Or sometimes just none at all as with the data returned from
-# category continuations.
-#
-# In order to facilitate calling this function with `#[]?`:
-# A nil will be accepted. Of course, since nil cannot be parsed,
-# another nil will be returned.
-def extract_text(item : JSON::Any?) : String?
-  if item.nil?
-    return nil
-  end
-
-  if text_container = item["simpleText"]?
-    return text_container.as_s
-  elsif text_container = item["runs"]?
-    return text_container.as_a.map(&.["text"].as_s).join("")
-  else
-    nil
-  end
-end
-
 # Parses an item from Youtube's JSON response into a more usable structure.
 # The end result can either be a SearchVideo, SearchPlaylist or SearchChannel.
 def extract_item(item : JSON::Any, author_fallback : String? = "",
