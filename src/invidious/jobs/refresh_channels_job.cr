@@ -9,7 +9,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
     lim_fibers = max_fibers
     active_fibers = 0
     active_channel = Channel(Bool).new
-    backoff = 1.seconds
+    backoff = 2.minutes
 
     loop do
       LOGGER.debug("RefreshChannelsJob: Refreshing all channels")
@@ -58,8 +58,9 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
         end
       end
 
-      LOGGER.debug("RefreshChannelsJob: Done, sleeping for one minute")
-      sleep 1.minute
+      # TODO: make this configurable
+      LOGGER.debug("RefreshChannelsJob: Done, sleeping for thirty minutes")
+      sleep 30.minutes
       Fiber.yield
     end
   end
