@@ -50,7 +50,7 @@ CONTENT_REGIONS = {
   "MY", "NG", "NI", "NL", "NO", "NP", "NZ", "OM", "PA", "PE", "PG", "PH", "PK",
   "PL", "PR", "PT", "PY", "QA", "RO", "RS", "RU", "SA", "SE", "SG", "SI", "SK",
   "SN", "SV", "TH", "TN", "TR", "TW", "TZ", "UA", "UG", "US", "UY", "VE", "VN",
-  "YE", "ZA", "ZW"
+  "YE", "ZA", "ZW",
 }
 
 def load_locale(name)
