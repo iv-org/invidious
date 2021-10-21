@@ -130,7 +130,7 @@
             <div class="pure-control-group">
                 <label for="region"><%= translate(locale, "Content country: ") %></label>
                 <select name="region" id="region">
-                    <% TRENDING_REGIONS.each do |option| %>
+                    <% CONTENT_REGIONS.each do |option| %>
                         <option value="<%= option %>" <% if preferences.region == option %> selected <% end %>><%= option %></option>
                     <% end %>
                 </select>
