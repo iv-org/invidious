@@ -505,7 +505,7 @@ default_user_preferences:
   #locale: en-US
 
   ##
-  ## Default language for content.
+  ## Default geographical location for content.
   ##
   ## Accepted values:
   ##   AE, AR, AT, AU, AZ, BA, BD, BE, BG, BH, BO, BR, BY, CA, CH, CL, CO, CR,
