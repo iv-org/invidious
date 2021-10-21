@@ -28,6 +28,7 @@ struct Preferences
 
   @[JSON::Field(converter: Preferences::ProcessString)]
   property locale : String = CONFIG.default_user_preferences.locale
+  property region : String? = CONFIG.region != nil ? CONFIG.region : CONFIG.default_user_preferences.region
 
   @[JSON::Field(converter: Preferences::ClampInt)]
   property max_results : Int32 = CONFIG.default_user_preferences.max_results

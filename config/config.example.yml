@@ -505,6 +505,21 @@ default_user_preferences:
   #locale: en-US
 
   ##
+  ## Default language for content.
+  ##
+  ## Accepted values:
+  ##   AE, AR, AT, AU, AZ, BA, BD, BE, BG, BH, BO, BR, BY, CA, CH, CL, CO, CR,
+  ##   CY, CZ, DE, DK, DO, DZ, EC, EE, EG, ES, FI, FR, GB, GE, GH, GR, GT, HK,
+  ##   HN, HR, HU, ID, IE, IL, IN, IQ, IS, IT, JM, JO, JP, KE, KR, KW, KZ, LB,
+  ##   LI, LK, LT, LU, LV, LY, MA, ME, MK, MT, MX, MY, NG, NI, NL, NO, NP, NZ,
+  ##   OM, PA, PE, PG, PH, PK, PL, PR, PT, PY, QA, RO, RS, RU, SA, SE, SG, SI,
+  ##   SK, SN, SV, TH, TN, TR, TW, TZ, UA, UG, US, UY, VE, VN, YE, ZA, ZW
+  ##
+  ## Default: US
+  ##
+  #region: US
+
+  ##
   ## Top 3 prefered languages for video captions.
   ##
   ## Note: overridin the default (no preferred

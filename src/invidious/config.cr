@@ -31,6 +31,7 @@ struct ConfigPreferences
   property default_home : String? = "Popular"
   property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
   property automatic_instance_redirect : Bool = false
+  property region : String = "US"
   property related_videos : Bool = true
   property sort : String = "published"
   property speed : Float32 = 1.0_f32
@@ -72,6 +73,7 @@ class Config
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
   property registration_enabled : Bool = true
+  property region : String?
   property statistics_enabled : Bool = false
   property admins : Array(String) = [] of String
   property external_port : Int32? = nil
