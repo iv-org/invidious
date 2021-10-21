@@ -1,5 +1,5 @@
 FROM alpine:edge AS builder
-RUN apk add --no-cache 'crystal=1.1.1-r1' shards sqlite-static yaml-static yaml-dev libxml2-dev zlib-static openssl-libs-static openssl-dev musl-dev
+RUN apk add --no-cache 'crystal=1.2.0-r0' shards sqlite-static yaml-static yaml-dev libxml2-dev zlib-static openssl-libs-static openssl-dev musl-dev
 
 ARG release
 
