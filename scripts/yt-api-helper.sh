@@ -22,6 +22,10 @@ print_clients()
 {
 	echo "Available clients:"
 	echo "web"
+	echo "web-embed"
+	echo "web-mobile"
+	echo "android"
+	echo "android-embed"
 }
 
 print_endpoints()
@@ -197,7 +201,31 @@ case $client_option in
 	web)
 		apikey="AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 		client_name="WEB"
-		client_vers="2.20210330.08.00"
+		client_vers="2.20210721.00.00"
+	;;
+
+	web-embed)
+		apikey="AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+		client_name="WEB_EMBEDDED_PLAYER"
+		client_vers="1.20210721.1.0"
+	;;
+
+	web-mobile)
+		apikey="AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+		client_name="MWEB"
+		client_vers="2.20210726.08.00"
+	;;
+
+	android)
+		apikey= "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
+		client_name="ANDROID"
+		client_vers="16.20"
+	;;
+
+	android-embed)
+		apikey="AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+		client_name="ANDROID_EMBEDDED_PLAYER"
+		client_vers="16.20"
 	;;
 
 	*)
