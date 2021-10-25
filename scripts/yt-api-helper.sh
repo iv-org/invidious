@@ -271,7 +271,7 @@ case $endpoint_option in
 			printf "Enter continuation token []: "
 			read token
 
-			if [ -z $toekn ]; then echo "Error: token required"; return 1; fi
+			if [ -z $token ]; then echo "Error: token required"; return 1; fi
 			partial_data="\"continuation\":\"${token}\""
 		fi
 	;;
@@ -295,7 +295,7 @@ case $endpoint_option in
 			printf "Enter continuation token []: "
 			read token
 
-			if [ -z $toekn ]; then echo "Error: token required"; return 1; fi
+			if [ -z $token ]; then echo "Error: token required"; return 1; fi
 			partial_data="\"continuation\":\"${token}\""
 		fi
 	;;
