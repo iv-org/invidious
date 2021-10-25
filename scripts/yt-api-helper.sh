@@ -36,6 +36,7 @@ print_endpoints()
 	echo "next"
 	echo "next-continuation"
 	echo "player"
+	echo "search"
 	echo "resolve"
 }
 
@@ -318,6 +319,19 @@ case $endpoint_option in
 		fi
 	;;
 
+	search)
+		endpoint="youtubei/v1/search"
+
+		if [ $interactive = true ]; then
+			# Get search query, and escape backslashes and double quotes
+			query=$(
+				query_with_error "Enter your search query" "search term required" |
+				sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'
+			)
+			partial_data="\"query\":\"${query}\""
+		fi
+	;;
+
 	resolve)
 		endpoint="navigation/resolve_url"
 
@@ -344,7 +358,7 @@ if [ $interactive = true ]
 then
 	case $endpoint_option in
 
-	browse|player)
+	browse|player|search)
 		params=$(query_with_default "Enter optional parameters (base64-encoded protobuf)" "")
 
 		if [ ! -z $params ]; then
