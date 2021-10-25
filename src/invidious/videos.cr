@@ -246,6 +246,7 @@ struct VideoPreferences
   property video_start : Float64 | Int32
   property volume : Int32
   property vr_mode : Bool
+  property remember_position : Bool
 end
 
 struct Video
@@ -1090,6 +1091,7 @@ def process_video_params(query, preferences)
   extend_desc = query["extend_desc"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   volume = query["volume"]?.try &.to_i?
   vr_mode = query["vr_mode"]?.try { |q| (q == "true" || q == "1").to_unsafe }
+  remember_position = query["remember_position"]?.try { |q| (q == "true" || q == "1").to_unsafe }
 
   if preferences
     # region ||= preferences.region
@@ -1110,6 +1112,7 @@ def process_video_params(query, preferences)
     extend_desc ||= preferences.extend_desc.to_unsafe
     volume ||= preferences.volume
     vr_mode ||= preferences.vr_mode.to_unsafe
+    remember_position ||= preferences.remember_position.to_unsafe
   end
 
   annotations ||= CONFIG.default_user_preferences.annotations.to_unsafe
@@ -1129,6 +1132,7 @@ def process_video_params(query, preferences)
   extend_desc ||= CONFIG.default_user_preferences.extend_desc.to_unsafe
   volume ||= CONFIG.default_user_preferences.volume
   vr_mode ||= CONFIG.default_user_preferences.vr_mode.to_unsafe
+  remember_position ||= CONFIG.default_user_preferences.remember_position.to_unsafe
 
   annotations = annotations == 1
   autoplay = autoplay == 1
@@ -1140,6 +1144,7 @@ def process_video_params(query, preferences)
   video_loop = video_loop == 1
   extend_desc = extend_desc == 1
   vr_mode = vr_mode == 1
+  remember_position = remember_position == 1
 
   if CONFIG.disabled?("dash") && quality == "dash"
     quality = "high"
@@ -1190,6 +1195,7 @@ def process_video_params(query, preferences)
     video_start:        video_start,
     volume:             volume,
     vr_mode:            vr_mode,
+    remember_position:  remember_position,
   })
 
   return params

@@ -116,6 +116,11 @@
                 <input name="vr_mode" id="vr_mode" type="checkbox" <% if preferences.vr_mode %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="remember_position">Remember the current video time:</label>
+                <input name="remember_position" id="remember_position" type="checkbox" <% if preferences.remember_position %>checked<% end %>>
+            </div>
+
             <legend><%= translate(locale, "preferences_category_visual") %></legend>
 
             <div class="pure-control-group">
