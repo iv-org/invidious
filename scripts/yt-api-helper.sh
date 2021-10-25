@@ -40,6 +40,38 @@ print_endpoints()
 }
 
 
+query_with_default()
+{
+	prompt="$1"
+	default="$2"
+
+	printf "\n%s [%s]: " "$prompt" "$default" >&2
+	read data
+
+	if [ -z "$data" ]; then
+		echo "$default"
+	else
+		echo "$data"
+	fi
+}
+
+query_with_error()
+{
+	prompt="$1"
+	error_message="$2"
+
+	printf "\n%s []: " "$prompt" >&2
+	read data
+
+	if [ -z "$data" ]; then
+		echo "Error: $error_message"
+		return 1
+	else
+		echo "$data"
+	fi
+}
+
+
 is_arg()
 {
 	case $1 in
@@ -186,10 +218,7 @@ fi
 #
 
 if [ -z $client_option ]; then
-	printf "Enter a client to use [web]: "
-	read client_option
-
-	if [ -z $client_option ]; then client_option="web"; fi
+	client_option=$(query_with_default "Enter a client to use" "web")
 fi
 
 case $client_option in
@@ -256,12 +285,8 @@ case $endpoint_option in
 		endpoint="youtubei/v1/browse"
 
 		if [ $interactive = true ]; then
-			printf "Enter browse ID [UCXuqSBlHAE6Xw-yeJA0Tunw]: "
-			read browse_id
-
-			if [ -z $browse_id ]; then browse_id="UCXuqSBlHAE6Xw-yeJA0Tunw"; fi
+			browse_id=$(query_with_default "Enter browse ID" "UCXuqSBlHAE6Xw-yeJA0Tunw")
 			partial_data="\"browseId\":\"${browse_id}\""
-
 		fi
 	;;
 
@@ -269,10 +294,7 @@ case $endpoint_option in
 		endpoint="youtubei/v1/browse"
 
 		if [ $interactive = true ]; then
-			printf "Enter continuation token []: "
-			read token
-
-			if [ -z $token ]; then echo "Error: token required"; return 1; fi
+			token=$(query_with_error "Enter continuation token" "token required")
 			partial_data="\"continuation\":\"${token}\""
 		fi
 	;;
@@ -281,11 +303,9 @@ case $endpoint_option in
 		endpoint="youtubei/v1/$endpoint_option"
 
 		if [ $interactive = true ]; then
-			printf "Enter video ID [dQw4w9WgXcQ]: "
-			read vid
-
-			if [ -z $vid ]; then vid="dQw4w9WgXcQ"; fi
+			vid=$(query_with_default "Enter video ID" "dQw4w9WgXcQ")
 			partial_data="\"videoId\":\"${vid}\""
+
 		fi
 	;;
 
@@ -293,10 +313,7 @@ case $endpoint_option in
 		endpoint="youtubei/v1/next"
 
 		if [ $interactive = true ]; then
-			printf "Enter continuation token []: "
-			read token
-
-			if [ -z $token ]; then echo "Error: token required"; return 1; fi
+			token=$(query_with_error "Enter continuation token" "token required")
 			partial_data="\"continuation\":\"${token}\""
 		fi
 	;;
@@ -305,10 +322,7 @@ case $endpoint_option in
 		endpoint="navigation/resolve_url"
 
 		if [ $interactive = true ]; then
-			printf "Enter URL []: "
-			read url
-
-			if [ -z $url ]; then echo "Error: URL required"; return 1; fi
+			url=$(query_with_error "Enter URL" "URL required")
 			partial_data="\"url\":\"${url}\""
 		fi
 	;;
@@ -349,14 +363,8 @@ echo
 #
 
 if [ $interactive = true ]; then
-	printf "Enter content language (hl) [en]: "
-	read hl
-
-	printf "Enter content region (gl) [US]: "
-	read gl
-
-	if [ -z $hl ]; then hl="en"; fi
-	if [ -z $gl ]; then gl="US"; fi
+	hl=$(query_with_default "Enter content language (hl)" "en")
+	gl=$(query_with_default "Enter content region (gl)"   "US")
 
 	client="\"clientName\":\"${client_name}\",\"clientVersion\":\"${client_vers}\",\"hl\":\"${hl}\",\"gl\":\"${gl}\""
 fi
