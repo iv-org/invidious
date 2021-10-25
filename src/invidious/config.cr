@@ -73,7 +73,6 @@ class Config
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
   property registration_enabled : Bool = true
-  property region : String?
   property statistics_enabled : Bool = false
   property admins : Array(String) = [] of String
   property external_port : Int32? = nil
