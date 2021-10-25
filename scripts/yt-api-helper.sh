@@ -261,6 +261,13 @@ case $endpoint_option in
 
 			if [ -z $browse_id ]; then browse_id="UCXuqSBlHAE6Xw-yeJA0Tunw"; fi
 			partial_data="\"browseId\":\"${browse_id}\""
+
+			printf "Enter optional parameters (base64-encoded protobuf) []: "
+			read params
+
+			if [ ! -z $params ]; then
+				partial_data="${partial_data},\"params\":\"${params}\""
+			fi
 		fi
 	;;
 
@@ -285,6 +292,16 @@ case $endpoint_option in
 
 			if [ -z $vid ]; then vid="dQw4w9WgXcQ"; fi
 			partial_data="\"videoId\":\"${vid}\""
+
+
+			if [ "$endpoint_option" = "player" ]; then
+				printf "Enter optional parameters (base64-encoded protobuf) []: "
+				read params
+
+				if [ ! -z $params ]; then
+					partial_data="${partial_data},\"params\":\"${params}\""
+				fi
+			fi
 		fi
 	;;
 
