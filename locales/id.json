@@ -72,7 +72,7 @@
     "Player volume: ": "Volume pemutar: ",
     "Default comments: ": "Komentar default: ",
     "youtube": "YouTube",
-    "reddit": "reddit",
+    "reddit": "Reddit",
     "Default captions: ": "Subtitel default: ",
     "Fallback captions: ": "Subtitel fallback: ",
     "Show related videos: ": "Tampilkan video terkait: ",
@@ -423,5 +423,13 @@
     "Current version: ": "Versi saat ini: ",
     "next_steps_error_message": "Setelah itu Anda harus mencoba: ",
     "next_steps_error_message_refresh": "Segarkan",
-    "next_steps_error_message_go_to_youtube": "Buka YouTube"
+    "next_steps_error_message_go_to_youtube": "Buka YouTube",
+    "footer_donate_page": "Donasi",
+    "adminprefs_modified_source_code_url_label": "URL ke repositori kode sumber yang dimodifikasi",
+    "footer_source_code": "Kode sumber",
+    "footer_original_source_code": "Kode sumber yang asli",
+    "short": "Pendek (< 4 menit)",
+    "long": "Panjang (> 20 menit)",
+    "footer_modfied_source_code": "Kode sumber yang dimodifikasi",
+    "footer_documentation": "Dokumentasi"
 }

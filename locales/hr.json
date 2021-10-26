@@ -72,7 +72,7 @@
     "Player volume: ": "Glasnoća playera: ",
     "Default comments: ": "Standardni komentari: ",
     "youtube": "YouTube",
-    "reddit": "reddit",
+    "reddit": "Reddit",
     "Default captions: ": "Standardni titlovi: ",
     "Fallback captions: ": "Alternativni titlovi: ",
     "Show related videos: ": "Prikaži povezana videa: ",
@@ -423,5 +423,13 @@
     "Current version: ": "Trenutačna verzija: ",
     "next_steps_error_message": "Nakon toga pokušaj sljedeće: ",
     "next_steps_error_message_refresh": "Aktualiziraj stranicu",
-    "next_steps_error_message_go_to_youtube": "Idi na YouTube"
+    "next_steps_error_message_go_to_youtube": "Idi na YouTube",
+    "footer_donate_page": "Doniraj",
+    "adminprefs_modified_source_code_url_label": "URL do repozitorija izmijenjenog izvornog koda",
+    "short": "Kratki (< 4 minute)",
+    "long": "Dugi (> 20 minute)",
+    "footer_source_code": "Izvorni kod",
+    "footer_modfied_source_code": "Izmijenjeni izvorni kod",
+    "footer_documentation": "Dokumentacija",
+    "footer_original_source_code": "Izvoran izvorni kod"
 }

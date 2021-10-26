@@ -72,7 +72,7 @@
     "Player volume: ": "Volume de reprodução: ",
     "Default comments: ": "Preferência de comentários: ",
     "youtube": "YouTube",
-    "reddit": "reddit",
+    "reddit": "Reddit",
     "Default captions: ": "Preferência de legendas: ",
     "Fallback captions: ": "Legendas alternativas: ",
     "Show related videos: ": "Mostrar vídeos relacionados: ",
@@ -423,5 +423,13 @@
     "Current version: ": "Versão atual: ",
     "next_steps_error_message": "Depois disso, você deve tentar: ",
     "next_steps_error_message_refresh": "Atualizar",
-    "next_steps_error_message_go_to_youtube": "Ir para o YouTube"
+    "next_steps_error_message_go_to_youtube": "Ir para o YouTube",
+    "footer_donate_page": "Doe",
+    "adminprefs_modified_source_code_url_label": "URL para repositório de código fonte modificado",
+    "long": "Longo (> 20 minutos)",
+    "short": "Curto (< 4 minutos)",
+    "footer_documentation": "Documentação",
+    "footer_source_code": "Código fonte",
+    "footer_original_source_code": "Código fonte original",
+    "footer_modfied_source_code": "Código Fonte Modificado"
 }

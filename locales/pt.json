@@ -257,7 +257,7 @@
     "Show related videos: ": "Mostrar vídeos relacionados: ",
     "Fallback captions: ": "Legendas alternativas: ",
     "Default captions: ": "Legendas predefinidas: ",
-    "reddit": "reddit",
+    "reddit": "Reddit",
     "youtube": "YouTube",
     "Default comments: ": "Preferência dos comentários: ",
     "Player volume: ": "Volume da reprodução: ",
@@ -429,7 +429,7 @@
     "footer_source_code": "Código-fonte",
     "footer_original_source_code": "Código-fonte original",
     "adminprefs_modified_source_code_url_label": "URL do repositório do código-fonte alterado",
-    "footer_donate": "Fazer um donativo: ",
     "footer_documentation": "Documentação",
-    "footer_modfied_source_code": "Código-fonte alterado"
+    "footer_modfied_source_code": "Código-fonte alterado",
+    "footer_donate_page": "Doar"
 }
