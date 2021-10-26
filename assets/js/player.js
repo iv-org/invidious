@@ -218,7 +218,6 @@ if (video_data.params.remember_position) {
     });
 }
 else {
-    console.log("Removing data for remebered positions");
     remove_all_video_times();
 }
 
