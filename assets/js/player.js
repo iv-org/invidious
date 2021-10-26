@@ -38,6 +38,8 @@ embed_url.searchParams.delete('v');
 short_url = location.origin + '/' + video_data.id + embed_url.search;
 embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
+var remember_position_key = "remember_position";
+
 var shareOptions = {
     socials: ['fbFeed', 'tw', 'reddit', 'email'],
 
@@ -199,6 +201,27 @@ if (video_data.premiere_timestamp && Math.round(new Date() / 1000) < video_data.
     player.getChild('bigPlayButton').hide();
 }
 
+if (video_data.params.remember_position) {
+    const remeberedTime = get_video_time();
+    let lastUpdated = 0;
+
+    set_seconds_after_start(remeberedTime);
+
+    player.on("timeupdate", e => {
+        const raw = player.currentTime();
+        const time = Math.floor(raw);
+
+        if(lastUpdated !== time) {
+            save_video_time(time);
+            lastUpdated = time;
+        }
+    });
+}
+else {
+    console.log("Removing data for remebered positions");
+    remove_all_video_times();
+}
+
 if (video_data.params.autoplay) {
     var bpb = player.getChild('bigPlayButton');
     bpb.hide();
@@ -328,6 +351,55 @@ function skip_seconds(delta) {
         newTime = 0;
     }
     player.currentTime(newTime);
+}
+
+function set_seconds_after_start(delta) {
+    const start = video_data.params.video_start;
+    player.currentTime(start + delta);
+}
+
+function save_video_time(seconds) {
+    const videoId = video_data.id;
+    const all_video_times = get_all_video_times();
+
+    all_video_times[videoId] = seconds;
+
+    set_all_video_times(all_video_times);
+}
+
+function get_video_time() {
+    try {
+        const videoId = video_data.id;
+        const all_video_times = get_all_video_times();
+        const timestamp = all_video_times[videoId];
+
+        return timestamp;
+    }
+    catch {
+        return 0;
+    }
+}
+
+function set_all_video_times(times) {
+    const json = JSON.stringify(times);
+
+    localStorage.setItem(remember_position_key, json);
+}
+
+function get_all_video_times() {
+    try {
+        const raw = localStorage.getItem(remember_position_key);
+        const times = JSON.parse(raw);
+
+        return times || {};
+    }
+    catch {
+        return {};
+    }
+}
+
+function remove_all_video_times() {
+    localStorage.removeItem(remember_position_key);
 }
 
 function set_time_percent(percent) {
