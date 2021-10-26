@@ -5,40 +5,40 @@
 <div class="h-box">
     <form class="pure-form pure-form-aligned" action="/preferences?referer=<%= URI.encode_www_form(referer) %>" method="post">
         <fieldset>
-            <legend><%= translate(locale, "Player preferences") %></legend>
+            <legend><%= translate(locale, "preferences_category_player") %></legend>
 
             <div class="pure-control-group">
-                <label for="video_loop"><%= translate(locale, "Always loop: ") %></label>
+                <label for="video_loop"><%= translate(locale, "preferences_video_loop_label") %></label>
                 <input name="video_loop" id="video_loop" type="checkbox" <% if preferences.video_loop %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="autoplay"><%= translate(locale, "Autoplay: ") %></label>
+                <label for="autoplay"><%= translate(locale, "preferences_autoplay_label") %></label>
                 <input name="autoplay" id="autoplay" type="checkbox" <% if preferences.autoplay %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="continue"><%= translate(locale, "Play next by default: ") %></label>
+                <label for="continue"><%= translate(locale, "preferences_continue_label") %></label>
                 <input name="continue" id="continue" type="checkbox" <% if preferences.continue %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="continue_autoplay"><%= translate(locale, "Autoplay next video: ") %></label>
+                <label for="continue_autoplay"><%= translate(locale, "preferences_continue_autoplay_label") %></label>
                 <input name="continue_autoplay" id="continue_autoplay" type="checkbox" <% if preferences.continue_autoplay %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="local"><%= translate(locale, "Proxy videos: ") %></label>
+                <label for="local"><%= translate(locale, "preferences_local_label") %></label>
                 <input name="local" id="local" type="checkbox" <% if preferences.local && !CONFIG.disabled?("local") %>checked<% end %> <% if CONFIG.disabled?("local") %>disabled<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="listen"><%= translate(locale, "Listen by default: ") %></label>
+                <label for="listen"><%= translate(locale, "preferences_listen_label") %></label>
                 <input name="listen" id="listen" type="checkbox" <% if preferences.listen %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="speed"><%= translate(locale, "Default speed: ") %></label>
+                <label for="speed"><%= translate(locale, "preferences_speed_label") %></label>
                 <select name="speed" id="speed">
                     <% {2.0, 1.75, 1.5, 1.25, 1.0, 0.75, 0.5, 0.25}.each do |option| %>
                         <option <% if preferences.speed == option %> selected <% end %>><%= option %></option>
@@ -47,7 +47,7 @@
             </div>
 
             <div class="pure-control-group">
-                <label for="quality"><%= translate(locale, "Preferred video quality: ") %></label>
+                <label for="quality"><%= translate(locale, "preferences_quality_label") %></label>
                 <select name="quality" id="quality">
                     <% {"dash", "hd720", "medium", "small"}.each do |option| %>
                         <% if !(option == "dash" && CONFIG.disabled?("dash")) %>
@@ -59,7 +59,7 @@
 
             <% if !CONFIG.disabled?("dash") %>
                 <div class="pure-control-group">
-                    <label for="quality_dash"><%= translate(locale, "Preferred dash video quality: ") %></label>
+                    <label for="quality_dash"><%= translate(locale, "preferences_quality_dash_label") %></label>
                     <select name="quality_dash" id="quality_dash">
                         <% {"auto", "best", "4320p", "2160p", "1440p", "1080p", "720p", "480p", "360p", "240p", "144p", "worst"}.each do |option| %>
                             <option value="<%= option %>" <% if preferences.quality_dash == option %> selected <% end %>><%= translate(locale, option) %></option>
@@ -69,13 +69,13 @@
             <% end %>
 
             <div class="pure-control-group">
-                <label for="volume"><%= translate(locale, "Player volume: ") %></label>
+                <label for="volume"><%= translate(locale, "preferences_volume_label") %></label>
                 <input name="volume" id="volume" data-onrange="update_volume_value" type="range" min="0" max="100" step="5" value="<%= preferences.volume %>">
                 <span class="pure-form-message-inline" id="volume-value"><%= preferences.volume %></span>
             </div>
 
             <div class="pure-control-group">
-                <label for="comments[0]"><%= translate(locale, "Default comments: ") %></label>
+                <label for="comments[0]"><%= translate(locale, "preferences_comments_label") %></label>
                 <% preferences.comments.each_with_index do |comments, index| %>
                     <select name="comments[<%= index %>]" id="comments[<%= index %>]">
                         <% {"", "youtube", "reddit"}.each do |option| %>
@@ -86,7 +86,7 @@
             </div>
 
             <div class="pure-control-group">
-                <label for="captions[0]"><%= translate(locale, "Default captions: ") %></label>
+                <label for="captions[0]"><%= translate(locale, "preferences_captions_label") %></label>
                 <% preferences.captions.each_with_index do |caption, index| %>
                     <select class="pure-u-1-6" name="captions[<%= index %>]" id="captions[<%= index %>]">
                         <% CAPTION_LANGUAGES.each do |option| %>
@@ -97,29 +97,29 @@
             </div>
 
             <div class="pure-control-group">
-                <label for="related_videos"><%= translate(locale, "Show related videos: ") %></label>
+                <label for="related_videos"><%= translate(locale, "preferences_related_videos_label") %></label>
                 <input name="related_videos" id="related_videos" type="checkbox" <% if preferences.related_videos %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="annotations"><%= translate(locale, "Show annotations by default: ") %></label>
+                <label for="annotations"><%= translate(locale, "preferences_annotations_label") %></label>
                 <input name="annotations" id="annotations" type="checkbox" <% if preferences.annotations %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="extend_desc"><%= translate(locale, "Automatically extend video description: ") %></label>
+                <label for="extend_desc"><%= translate(locale, "preferences_extend_desc_label") %></label>
                 <input name="extend_desc" id="extend_desc" type="checkbox" <% if preferences.extend_desc %>checked<% end %>>
             </div>
 
             <div class="pure-control-group">
-                <label for="vr_mode"><%= translate(locale, "Interactive 360 degree videos") %></label>
+                <label for="vr_mode"><%= translate(locale, "preferences_vr_mode_label") %></label>
                 <input name="vr_mode" id="vr_mode" type="checkbox" <% if preferences.vr_mode %>checked<% end %>>
             </div>
 
-            <legend><%= translate(locale, "Visual preferences") %></legend>
+            <legend><%= translate(locale, "preferences_category_visual") %></legend>
 
             <div class="pure-control-group">
-                <label for="locale"><%= translate(locale, "Language: ") %></label>
+                <label for="locale"><%= translate(locale, "preferences_locale_label") %></label>
                 <select name="locale" id="locale">
                     <% LOCALES.each_key do |option| %>
                         <option value="<%= option %>" <% if preferences.locale == option %> selected <% end %>><%= option %></option>
@@ -128,7 +128,7 @@
             </div>
 
             <div class="pure-control-group">
-                <label for="player_style"><%= translate(locale, "Player style: ") %></label>
+                <label for="player_style"><%= translate(locale, "preferences_player_style_label") %></label>
                 <select name="player_style" id="player_style">
                     <% {"invidious", "youtube"}.each do |option| %>
                         <option value="<%= option %>" <% if preferences.player_style == option %> selected <% end %>><%= translate(locale, option) %></option>
@@ -137,7 +137,7 @@
             </div>
 
             <div class="pure-control-group">
-                <label for="dark_mode"><%= translate(locale, "Theme: ") %></label>
+                <label for="dark_mode"><%= translate(locale, "preferences_dark_mode_label") %></label>
                 <select name="dark_mode" id="dark_mode">
                     <% {"", "light", "dark"}.each do |option| %>
                         <option value="<%= option %>" <% if preferences.dark_mode == option %> selected <% end %>><%= translate(locale, option.blank? ? "auto" : option) %></option>
@@ -146,7 +146,7 @@
             </div>
 
             <div class="pure-control-group">
-                <label for="thin_mode"><%= translate(locale, "Thin mode: ") %></label>
+                <label for="thin_mode"><%= translate(locale, "preferences_thin_mode_label") %></label>
                 <input name="thin_mode" id="thin_mode" type="checkbox" <% if preferences.thin_mode %>checked<% end %>>
             </div>
 
@@ -157,7 +157,7 @@
             <% end %>
 
             <div class="pure-control-group">
-                <label for="default_home"><%= translate(locale, "Default homepage: ") %></label>
+                <label for="default_home"><%= translate(locale, "preferences_default_home_label") %></label>
                 <select name="default_home" id="default_home">
                     <% feed_options.each do |option| %>
                         <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "Search" : option) %></option>
@@ -166,7 +166,7 @@
             </div>
 
             <div class="pure-control-group">
-                <label for="feed_menu"><%= translate(locale, "Feed menu: ") %></label>
+                <label for="feed_menu"><%= translate(locale, "preferences_feed_menu_label") %></label>
                 <% (feed_options.size - 1).times do |index| %>
                     <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
                         <% feed_options.each do |option| %>
@@ -177,33 +177,33 @@
             </div>
             <% if env.get? "user" %>
                 <div class="pure-control-group">
-                    <label for="show_nick"><%= translate(locale, "Show nickname on top: ") %></label>
+                    <label for="show_nick"><%= translate(locale, "preferences_show_nick_label") %></label>
                     <input name="show_nick" id="show_nick" type="checkbox" <% if preferences.show_nick %>checked<% end %>>
                 </div>
             <% end %>
 
-            <legend><%= translate(locale, "Miscellaneous preferences") %></legend>
+            <legend><%= translate(locale, "preferences_category_misc") %></legend>
 
             <div class="pure-control-group">
-                <label for="automatic_instance_redirect"><%= translate(locale, "Automaticatic instance redirection (fallback to redirect.invidious.io): ") %></label>
+                <label for="automatic_instance_redirect"><%= translate(locale, "preferences_automatic_instance_redirect_label") %></label>
                 <input name="automatic_instance_redirect" id="automatic_instance_redirect" type="checkbox" <% if preferences.automatic_instance_redirect %>checked<% end %>>
             </div>
 
             <% if env.get? "user" %>
-                <legend><%= translate(locale, "Subscription preferences") %></legend>
+                <legend><%= translate(locale, "preferences_category_subscription") %></legend>
 
                 <div class="pure-control-group">
-                    <label for="annotations_subscribed"><%= translate(locale, "Show annotations by default for subscribed channels: ") %></label>
+                    <label for="annotations_subscribed"><%= translate(locale, "preferences_annotations_subscribed_label") %></label>
                     <input name="annotations_subscribed" id="annotations_subscribed" type="checkbox" <% if preferences.annotations_subscribed %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="max_results"><%= translate(locale, "Number of videos shown in feed: ") %></label>
+                    <label for="max_results"><%= translate(locale, "preferences_max_results_label") %></label>
                     <input name="max_results" id="max_results" type="number" value="<%= preferences.max_results %>">
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="sort"><%= translate(locale, "Sort videos by: ") %></label>
+                    <label for="sort"><%= translate(locale, "preferences_sort_label") %></label>
                     <select name="sort" id="sort">
                         <% {"published", "published - reverse", "alphabetically", "alphabetically - reverse", "channel name", "channel name - reverse"}.each do |option| %>
                             <option value="<%= option %>" <% if preferences.sort == option %> selected <% end %>><%= translate(locale, option) %></option>
@@ -221,12 +221,12 @@
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="unseen_only"><%= translate(locale, "Only show unwatched: ") %></label>
+                    <label for="unseen_only"><%= translate(locale, "preferences_unseen_only_label") %></label>
                     <input name="unseen_only" id="unseen_only" type="checkbox" <% if preferences.unseen_only %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="notifications_only"><%= translate(locale, "Only show notifications (if there are any): ") %></label>
+                    <label for="notifications_only"><%= translate(locale, "preferences_notifications_only_label") %></label>
                     <input name="notifications_only" id="notifications_only" type="checkbox" <% if preferences.notifications_only %>checked<% end %>>
                 </div>
 
@@ -239,10 +239,10 @@
             <% end %>
 
             <% if env.get?("user") && CONFIG.admins.includes? env.get?("user").as(User).email %>
-                <legend><%= translate(locale, "Administrator preferences") %></legend>
+                <legend><%= translate(locale, "preferences_category_admin") %></legend>
 
                 <div class="pure-control-group">
-                    <label for="admin_default_home"><%= translate(locale, "Default homepage: ") %></label>
+                    <label for="admin_default_home"><%= translate(locale, "preferences_default_home_label") %></label>
                     <select name="admin_default_home" id="admin_default_home">
                         <% feed_options.each do |option| %>
                             <option value="<%= option %>" <% if CONFIG.default_user_preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
@@ -251,7 +251,7 @@
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="admin_feed_menu"><%= translate(locale, "Feed menu: ") %></label>
+                    <label for="admin_feed_menu"><%= translate(locale, "preferences_feed_menu_label") %></label>
                     <% (feed_options.size - 1).times do |index| %>
                         <select name="admin_feed_menu[<%= index %>]" id="admin_feed_menu[<%= index %>]">
                             <% feed_options.each do |option| %>
@@ -294,7 +294,7 @@
             <% end %>
 
             <% if env.get? "user" %>
-                <legend><%= translate(locale, "Data preferences") %></legend>
+                <legend><%= translate(locale, "preferences_category_data") %></legend>
 
                 <div class="pure-control-group">
                     <a href="/clear_watch_history?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Clear watch history") %></a>
