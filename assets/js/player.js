@@ -38,7 +38,7 @@ embed_url.searchParams.delete('v');
 short_url = location.origin + '/' + video_data.id + embed_url.search;
 embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
-var remember_position_key = "remember_position";
+var save_player_pos_key = "save_player_pos";
 
 var shareOptions = {
     socials: ['fbFeed', 'tw', 'reddit', 'email'],
@@ -201,7 +201,7 @@ if (video_data.premiere_timestamp && Math.round(new Date() / 1000) < video_data.
     player.getChild('bigPlayButton').hide();
 }
 
-if (video_data.params.remember_position) {
+if (video_data.params.save_player_pos) {
     const remeberedTime = get_video_time();
     let lastUpdated = 0;
 
@@ -384,12 +384,12 @@ function get_video_time() {
 function set_all_video_times(times) {
     const json = JSON.stringify(times);
 
-    localStorage.setItem(remember_position_key, json);
+    localStorage.setItem(save_player_pos_key, json);
 }
 
 function get_all_video_times() {
     try {
-        const raw = localStorage.getItem(remember_position_key);
+        const raw = localStorage.getItem(save_player_pos_key);
         const times = JSON.parse(raw);
 
         return times || {};
@@ -400,7 +400,7 @@ function get_all_video_times() {
 }
 
 function remove_all_video_times() {
-    localStorage.removeItem(remember_position_key);
+    localStorage.removeItem(save_player_pos_key);
 }
 
 function set_time_percent(percent) {
