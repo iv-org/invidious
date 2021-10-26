@@ -102,6 +102,8 @@ module Invidious::Routes::PreferencesRoute
     automatic_instance_redirect ||= "off"
     automatic_instance_redirect = automatic_instance_redirect == "on"
 
+    region = env.params.body["region"]?.try &.as(String)
+
     locale = env.params.body["locale"]?.try &.as(String)
     locale ||= CONFIG.default_user_preferences.locale
 
@@ -152,6 +154,7 @@ module Invidious::Routes::PreferencesRoute
       default_home:                default_home,
       feed_menu:                   feed_menu,
       automatic_instance_redirect: automatic_instance_redirect,
+      region:                      region,
       related_videos:              related_videos,
       sort:                        sort,
       speed:                       speed,

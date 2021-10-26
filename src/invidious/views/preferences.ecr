@@ -128,6 +128,15 @@
             </div>
 
             <div class="pure-control-group">
+                <label for="region"><%= translate(locale, "preferences_region_label") %></label>
+                <select name="region" id="region">
+                    <% CONTENT_REGIONS.each do |option| %>
+                        <option value="<%= option %>" <% if preferences.region == option %> selected <% end %>><%= option %></option>
+                    <% end %>
+                </select>
+            </div>
+
+            <div class="pure-control-group">
                 <label for="player_style"><%= translate(locale, "preferences_player_style_label") %></label>
                 <select name="player_style" id="player_style">
                     <% {"invidious", "youtube"}.each do |option| %>
