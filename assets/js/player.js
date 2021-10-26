@@ -207,7 +207,7 @@ if (video_data.params.remember_position) {
 
     set_seconds_after_start(remeberedTime);
 
-    player.on("timeupdate", e => {
+    const updateTime = () => {
         const raw = player.currentTime();
         const time = Math.floor(raw);
 
@@ -215,7 +215,9 @@ if (video_data.params.remember_position) {
             save_video_time(time);
             lastUpdated = time;
         }
-    });
+    };
+
+    player.on("timeupdate", updateTime);
 }
 else {
     remove_all_video_times();
@@ -372,7 +374,7 @@ function get_video_time() {
         const all_video_times = get_all_video_times();
         const timestamp = all_video_times[videoId];
 
-        return timestamp;
+        return timestamp || 0;
     }
     catch {
         return 0;
