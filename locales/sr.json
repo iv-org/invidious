@@ -61,10 +61,10 @@
     "Google verification code": "Google-ов оверни кôд",
     "Preferences": "Подешавања",
     "Player preferences": "Подешавања репродуктора",
-    "Always loop: ": "Увек понављај: ",
-    "Autoplay: ": "Самопуштање: ",
-    "Play next by default: ": "Увек подразумевано пуштај следеће: ",
-    "Autoplay next video: ": "Самопуштање следећег видео записа: ",
-    "Listen by default: ": "Увек подразумевано укључен само звук: ",
-    "Proxy videos: ": "Приказ видео записа преко посредника: "
+    "preferences_video_loop_label": "Увек понављај: ",
+    "preferences_autoplay_label": "Самопуштање: ",
+    "preferences_continue_label": "Увек подразумевано пуштај следеће: ",
+    "preferences_continue_autoplay_label": "Самопуштање следећег видео записа: ",
+    "preferences_listen_label": "Увек подразумевано укључен само звук: ",
+    "preferences_local_label": "Приказ видео записа преко посредника: "
 }

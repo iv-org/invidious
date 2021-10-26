@@ -291,7 +291,7 @@ we're going to need to do it here in order to allow for translations.
                     <% if !video.related_videos.empty? %>
                         <div <% if plid %>style="display:none"<% end %>>
                             <div class="pure-control-group">
-                                <label for="continue"><%= translate(locale, "Play next by default: ") %></label>
+                                <label for="continue"><%= translate(locale, "preferences_continue_label") %></label>
                                 <input name="continue" id="continue" type="checkbox" <% if params.continue %>checked<% end %>>
                             </div>
                             <hr>

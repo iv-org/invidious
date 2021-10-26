@@ -61,13 +61,13 @@
     "Google verification code": "গুগল যাচাইকরণ কোড",
     "Preferences": "পছন্দসমূহ",
     "Player preferences": "প্লেয়ারের পছন্দসমূহ",
-    "Always loop: ": "সর্বদা লুপ: ",
-    "Autoplay: ": "স্বয়ংক্রিয় চালু: ",
-    "Play next by default: ": "ডিফল্টভাবে পরবর্তী চালাও: ",
-    "Autoplay next video: ": "পরবর্তী ভিডিও স্বয়ংক্রিয়ভাবে চালাও: ",
-    "Listen by default: ": "সহজাতভাবে শোনো: ",
-    "Proxy videos: ": "ভিডিও প্রক্সি করো: ",
-    "Default speed: ": "সহজাত গতি: ",
-    "Preferred video quality: ": "পছন্দের ভিডিও মান: ",
-    "Player volume: ": "প্লেয়ার শব্দের মাত্রা: "
+    "preferences_video_loop_label": "সর্বদা লুপ: ",
+    "preferences_autoplay_label": "স্বয়ংক্রিয় চালু: ",
+    "preferences_continue_label": "ডিফল্টভাবে পরবর্তী চালাও: ",
+    "preferences_continue_autoplay_label": "পরবর্তী ভিডিও স্বয়ংক্রিয়ভাবে চালাও: ",
+    "preferences_listen_label": "সহজাতভাবে শোনো: ",
+    "preferences_local_label": "ভিডিও প্রক্সি করো: ",
+    "preferences_speed_label": "সহজাত গতি: ",
+    "preferences_quality_label": "পছন্দের ভিডিও মান: ",
+    "preferences_volume_label": "প্লেয়ার শব্দের মাত্রা: "
 }
