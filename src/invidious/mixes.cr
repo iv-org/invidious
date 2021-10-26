@@ -72,7 +72,7 @@ def fetch_mix(rdid, video_id, cookies = nil, locale = nil)
     videos += next_page.videos
   end
 
-  videos.uniq! { |video| video.id }
+  videos.uniq!(&.id)
   videos = videos.first(50)
   return Mix.new({
     title:  mix_title,

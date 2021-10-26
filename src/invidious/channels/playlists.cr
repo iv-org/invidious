@@ -1,17 +1,17 @@
 def fetch_channel_playlists(ucid, author, continuation, sort_by)
   if continuation
     response_json = YoutubeAPI.browse(continuation)
-    continuationItems = response_json["onResponseReceivedActions"]?
+    continuation_items = response_json["onResponseReceivedActions"]?
       .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
 
-    return [] of SearchItem, nil if !continuationItems
+    return [] of SearchItem, nil if !continuation_items
 
     items = [] of SearchItem
-    continuationItems.as_a.select(&.as_h.has_key?("gridPlaylistRenderer")).each { |item|
+    continuation_items.as_a.select(&.as_h.has_key?("gridPlaylistRenderer")).each { |item|
       extract_item(item, author, ucid).try { |t| items << t }
     }
 
-    continuation = continuationItems.as_a.last["continuationItemRenderer"]?
+    continuation = continuation_items.as_a.last["continuationItemRenderer"]?
       .try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
   else
     url = "/channel/#{ucid}/playlists?flow=list&view=1"
@@ -84,7 +84,7 @@ def produce_channel_playlists_url(ucid, cursor, sort = "newest", auto_generated 
   object["80226972:embedded"]["3:string"] = Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json(object["80226972:embedded"]["3:base64"])))
   object["80226972:embedded"].delete("3:base64")
 
-  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+  continuation = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }

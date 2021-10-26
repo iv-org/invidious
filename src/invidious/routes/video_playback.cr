@@ -20,7 +20,7 @@ module Invidious::Routes::VideoPlayback
       host = "https://r#{fvip}---#{mns.pop}.googlevideo.com"
     end
 
-    url = "/videoplayback?#{query_params.to_s}"
+    url = "/videoplayback?#{query_params}"
 
     headers = HTTP::Headers.new
     REQUEST_HEADERS_WHITELIST.each do |header|

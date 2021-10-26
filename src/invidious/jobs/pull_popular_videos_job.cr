@@ -15,8 +15,8 @@ class Invidious::Jobs::PullPopularVideosJob < Invidious::Jobs::BaseJob
   def begin
     loop do
       videos = db.query_all(QUERY, as: ChannelVideo)
-        .sort_by(&.published)
-        .reverse
+        .sort_by!(&.published)
+        .reverse!
 
       POPULAR_VIDEOS.set(videos)
 

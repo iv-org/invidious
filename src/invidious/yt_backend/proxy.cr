@@ -236,7 +236,7 @@ def get_spys_proxies(country_code = "US")
     proxies << {ip: ip, port: port, score: score}
   end
 
-  proxies = proxies.sort_by { |proxy| proxy[:score] }.reverse
+  proxies = proxies.sort_by!(&.[:score]).reverse!
   return proxies
 end
 
@@ -256,7 +256,7 @@ def decrypt_port(p, x)
   p = p.gsub(/\b\w+\b/, x)
 
   p = p.split(";")
-  p = p.map { |item| item.split("=") }
+  p = p.map(&.split("="))
 
   mapping = {} of String => Int32
   p.each do |item|

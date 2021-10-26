@@ -49,7 +49,7 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
   object["80226972:embedded"]["3:string"] = Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json(object["80226972:embedded"]["3:base64"])))
   object["80226972:embedded"].delete("3:base64")
 
-  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+  continuation = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }

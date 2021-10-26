@@ -335,11 +335,11 @@ module Invidious::Routes::API::V1::Authenticated
 
     case env.request.headers["Content-Type"]?
     when "application/x-www-form-urlencoded"
-      scopes = env.params.body.select { |k, v| k.match(/^scopes\[\d+\]$/) }.map { |k, v| v }
+      scopes = env.params.body.select { |k, _| k.match(/^scopes\[\d+\]$/) }.map { |_, v| v }
       callback_url = env.params.body["callbackUrl"]?
       expire = env.params.body["expire"]?.try &.to_i?
     when "application/json"
-      scopes = env.params.json["scopes"].as(Array).map { |v| v.as_s }
+      scopes = env.params.json["scopes"].as(Array).map(&.as_s)
       callback_url = env.params.json["callbackUrl"]?.try &.as(String)
       expire = env.params.json["expire"]?.try &.as(Int64)
     else

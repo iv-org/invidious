@@ -47,7 +47,7 @@ module Invidious::Routes::API::Manifest
     end
 
     audio_streams = video.audio_streams
-    video_streams = video.video_streams.sort_by { |stream| {stream["width"].as_i, stream["fps"].as_i} }.reverse
+    video_streams = video.video_streams.sort_by { |stream| {stream["width"].as_i, stream["fps"].as_i} }.reverse!
 
     manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
       xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",

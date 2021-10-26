@@ -51,7 +51,7 @@ struct PlaylistVideo
     if xml
       to_xml(auto_generated, xml)
     else
-      XML.build do |json|
+      XML.build do |xml|
         to_xml(auto_generated, xml)
       end
     end
@@ -143,7 +143,7 @@ struct Playlist
       json.field "videos" do
         json.array do
           videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, video_id: video_id)
-          videos.each_with_index do |video, index|
+          videos.each do |video|
             video.to_json(locale, json)
           end
         end
@@ -336,7 +336,7 @@ def produce_playlist_continuation(id, index)
     },
   }
 
-  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+  continuation = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }

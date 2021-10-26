@@ -30,7 +30,7 @@ struct DecryptFunction
 
       case op_body
       when "{a.reverse()"
-        operations[op_name] = ->(a : Array(String), b : Int32) { a.reverse }
+        operations[op_name] = ->(a : Array(String), _b : Int32) { a.reverse }
       when "{a.splice(0,b)"
         operations[op_name] = ->(a : Array(String), b : Int32) { a.delete_at(0..(b - 1)); a }
       else

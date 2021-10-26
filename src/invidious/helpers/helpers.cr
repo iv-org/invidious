@@ -89,14 +89,14 @@ def check_table(db, table_name, struct_type = nil)
   struct_array = struct_type.type_array
   column_array = get_column_array(db, table_name)
   column_types = File.read("config/sql/#{table_name}.sql").match(/CREATE TABLE public\.#{table_name}\n\((?<types>[\d\D]*?)\);/)
-    .try &.["types"].split(",").map { |line| line.strip }.reject &.starts_with?("CONSTRAINT")
+    .try &.["types"].split(",").map(&.strip).reject &.starts_with?("CONSTRAINT")
 
   return if !column_types
 
   struct_array.each_with_index do |name, i|
     if name != column_array[i]?
       if !column_array[i]?
-        new_column = column_types.select { |line| line.starts_with? name }[0]
+        new_column = column_types.select(&.starts_with?(name))[0]
         LOGGER.info("check_table: ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
         db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
         next
@@ -104,14 +104,14 @@ def check_table(db, table_name, struct_type = nil)
 
       # Column doesn't exist
       if !column_array.includes? name
-        new_column = column_types.select { |line| line.starts_with? name }[0]
+        new_column = column_types.select(&.starts_with?(name))[0]
         db.exec("ALTER TABLE #{table_name} ADD COLUMN #{new_column}")
       end
 
       # Column exists but in the wrong position, rotate
       if struct_array.includes? column_array[i]
         until name == column_array[i]
-          new_column = column_types.select { |line| line.starts_with? column_array[i] }[0]?.try &.gsub("#{column_array[i]}", "#{column_array[i]}_new")
+          new_column = column_types.select(&.starts_with?(column_array[i]))[0]?.try &.gsub("#{column_array[i]}", "#{column_array[i]}_new")
 
           # There's a column we didn't expect
           if !new_column

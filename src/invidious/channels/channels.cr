@@ -101,7 +101,7 @@ struct ChannelVideo
   def to_tuple
     {% begin %}
       {
-        {{*@type.instance_vars.map { |var| var.name }}}
+        {{*@type.instance_vars.map(&.name)}}
       }
     {% end %}
   end

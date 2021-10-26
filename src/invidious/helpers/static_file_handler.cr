@@ -173,7 +173,7 @@ module Kemal
             return
           end
 
-          if @cached_files.sum { |element| element[1][:data].bytesize } + (size = File.size(file_path)) < CACHE_LIMIT
+          if @cached_files.sum(&.[1][:data].bytesize) + (size = File.size(file_path)) < CACHE_LIMIT
             data = Bytes.new(size)
             File.open(file_path) do |file|
               file.read(data)

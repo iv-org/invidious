@@ -14,13 +14,13 @@ def channel_search(query, page, channel)
   continuation = produce_channel_search_continuation(ucid, query, page)
   response_json = YoutubeAPI.browse(continuation)
 
-  continuationItems = response_json["onResponseReceivedActions"]?
+  continuation_items = response_json["onResponseReceivedActions"]?
     .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
 
-  return 0, [] of SearchItem if !continuationItems
+  return 0, [] of SearchItem if !continuation_items
 
   items = [] of SearchItem
-  continuationItems.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each { |item|
+  continuation_items.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each { |item|
     extract_item(item["itemSectionRenderer"]["contents"].as_a[0])
       .try { |t| items << t }
   }
@@ -128,7 +128,7 @@ def produce_search_params(page = 1, sort : String = "relevance", date : String =
     object.delete("2:embedded")
   end
 
-  params = object.try { |i| Protodec::Any.cast_json(object) }
+  params = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
@@ -161,7 +161,7 @@ def produce_channel_search_continuation(ucid, query, page)
     },
   }
 
-  continuation = object.try { |i| Protodec::Any.cast_json(object) }
+  continuation = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
@@ -183,7 +183,7 @@ def process_search_query(query, page, user, region)
   sort = "relevance"
   subscriptions = nil
 
-  operators = query.split(" ").select { |a| a.match(/\w+:[\w,]+/) }
+  operators = query.split(" ").select(&.match(/\w+:[\w,]+/))
   operators.each do |operator|
     key, value = operator.downcase.split(":")
 
