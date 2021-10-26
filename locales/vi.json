@@ -4,12 +4,7 @@
         "": "`x` subscribers"
     },
     "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": ""
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
+        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video"
     },
     "LIVE": "TRỰC TIẾP",
     "Shared `x` ago": "Đã chia sẻ` x` trước",
@@ -127,25 +122,8 @@
     "Subscription manager": "Người quản lý đăng ký",
     "Token manager": "Trình quản lý mã thông báo",
     "Token": "Mã thông báo",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
-    "Import/export": "",
-    "unsubscribe": "",
-    "revoke": "",
-    "Subscriptions": "",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
     "search": "Tìm kiếm",
     "Log out": "Đăng xuất",
-    "Released under the AGPLv3 on Github.": "",
     "Source available here.": "Nguồn có sẵn ở đây.",
     "View JavaScript license information.": "Xem thông tin giấy phép JavaScript.",
     "View privacy policy.": "Xem chính sách bảo mật.",
@@ -176,19 +154,6 @@
     "Whitelisted regions: ": "Các vùng nằm trong danh sách trắng: ",
     "Blacklisted regions: ": "Khu vực nằm trong danh sách đen: ",
     "Shared `x`": "Chia sẻ` x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
-    "Premieres in `x`": "",
-    "Premieres `x`": "",
-    "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "",
-    "View YouTube comments": "",
-    "View more comments on Reddit": "",
-    "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
     "View Reddit comments": "Xem nhận xét trên Reddit",
     "Hide replies": "Ẩn câu trả lời",
     "Show replies": "Hiển thị câu trả lời",
@@ -213,16 +178,6 @@
     "This channel does not exist.": "Kênh này không tồn tại.",
     "Could not get channel info.": "Không thể tải thông tin kênh.",
     "Could not fetch comments": "Không thể tìm nạp nhận xét",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
-    "`x` ago": "",
-    "Load more": "",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
     "Could not create mix.": "Không thể tạo kết hợp.",
     "Empty playlist": "Danh sách phát trống",
     "Not a playlist.": "Không phải danh sách phát.",
@@ -340,34 +295,6 @@
     "Yiddish": "Yiddish",
     "Yoruba": "Yoruba",
     "Zulu": "Tiếng Zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "",
-        "": ""
-    },
     "Fallback comments: ": "Nhận xét dự phòng: ",
     "Popular": "Phổ biến",
     "Search": "Tìm kiếm",
@@ -420,8 +347,5 @@
     "location": "vị trí",
     "hdr": "hdr",
     "filter": "bộ lọc",
-    "Current version: ": "Phiên bản hiện tại: ",
-    "next_steps_error_message": "",
-    "next_steps_error_message_refresh": "",
-    "next_steps_error_message_go_to_youtube": ""
+    "Current version: ": "Phiên bản hiện tại: "
 }

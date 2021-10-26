@@ -87,7 +87,6 @@
     "light": "Ljust",
     "Thin mode: ": "Lättviktigt läge: ",
     "Miscellaneous preferences": "Övriga inställningar",
-    "Automaticatic instance redirection (fallback to redirect.invidious.io): ": "",
     "Subscription preferences": "Prenumerationsinställningar",
     "Show annotations by default for subscribed channels: ": "Visa länkar-i-videor som förval för kanaler som prenumereras på? ",
     "Redirect homepage to feed: ": "Omdirigera hemsida till flöde: ",
@@ -145,7 +144,6 @@
     },
     "search": "sök",
     "Log out": "Logga ut",
-    "Released under the AGPLv3 on Github.": "",
     "Source available here.": "Källkod tillgänglig här.",
     "View JavaScript license information.": "Visa JavaScript-licensinformation.",
     "View privacy policy.": "Visa privatlivspolicy.",
@@ -421,7 +419,6 @@
     "hdr": "hdr",
     "filter": "Filter",
     "Current version: ": "Nuvarande version: ",
-    "next_steps_error_message": "",
     "next_steps_error_message_refresh": "Uppdatera",
     "next_steps_error_message_go_to_youtube": "Gå till Youtube"
 }
