@@ -821,11 +821,14 @@ post "/data_control" do |env|
           user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
             channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
           end
-        else
+        elsif body[0] == '['
           subscriptions = JSON.parse(body)
           user.subscriptions += subscriptions.as_a.compact_map do |entry|
             entry["snippet"]["resourceId"]["channelId"].as_s
           end
+        else
+          subscriptions = parse_subscription_export_csv(body)
+          user.subscriptions += subscriptions
         end
         user.subscriptions.uniq!
 
