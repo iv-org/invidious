@@ -431,5 +431,6 @@
     "footer_original_source_code": "Pradinis pirminis kodas",
     "adminprefs_modified_source_code_url_label": "URL į pakeisto pirminio kodo repozitoriją",
     "footer_modfied_source_code": "Pakeistas pirminis kodas",
-    "footer_donate_page": "Paaukoti"
+    "footer_donate_page": "Paaukoti",
+    "preferences_region_label": "Turinio šalis: "
 }
