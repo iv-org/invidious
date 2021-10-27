@@ -7,6 +7,7 @@
     # - filters: the array of filters within the column we're creating
     # - filter_name: name of the filter
     # - selected_default: default selected filter
+    # - allow_removal: allows selected filter to be removed?
 -%>
 
 <div class="pure-u-1-3 pure-u-md-1-5 filter-catagory" id="filter-<%= filter_name %>">
@@ -18,11 +19,14 @@
             <li class="pure-menu-item">
 
                 <% if operators.fetch(filter_name, selected_default) == filter %>
-                    <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&#{filter_name}=[a-z]+/, "")}"%>">
+                    <% if allow_removal %>
+                        <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&#{filter_name}=[a-z]+/, "")}"%>">
+                            <b><%= translate(locale, filter) %></b>
+                            <i class="remove-filter icon ion-md-close"></i>
+                        </a>
+                    <% else %>
                         <b><%= translate(locale, filter) %></b>
-                        <i class="remove-filter icon ion-md-close"></i>
-                    </a>
-
+                    <% end %>
                 <% else %>
                     <a href="<%= base_url + "#{filter_params.gsub(/&#{filter_name}=[a-z]+/, "")}&#{filter_name}=#{filter}"%>">
                         <%= translate(locale, filter) %>

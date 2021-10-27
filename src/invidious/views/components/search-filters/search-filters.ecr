@@ -13,14 +13,18 @@
         <% filter_params = env.request.query_params.to_s.gsub(/q=.+?(?=&|$)/, "").gsub(/&page=\d+/, "") %>
         <% base_url = "/search?q=#{URI.encode_www_form(query.not_nil!)}" -%>
 
+        <% 
+            # Literally only needed for the sort_by column. So for the rest we'd just use these values:
+            selected_default = "NotNeeded"
+            allow_removal = true
+        %>
+
         <% filters = ["hour", "today", "week", "month", "year"] %>
         <% filter_name = "date" %>
-        <% selected_default = "NotNeeded" %>
         <%= rendered "components/search-filters/filter-column" -%>
 
         <% filters = ["video", "channel", "playlist", "movie", "show"] %>
         <% filter_name = "content_type" %>
-        <% selected_default = "NotNeeded" %>
         <%= rendered "components/search-filters/filter-column" -%>
 
         <% filters = ["short", "long"] %>
@@ -70,7 +74,12 @@
 
         <% filters = ["relevance", "rating", "date", "views"] %>
         <% filter_name = "sort" %>
-        <% selected_default = "relevance" %>
+        <% 
+            # Literally only needed for the sort_by column. So for the rest we'd just use these values:
+            selected_default = "relevance"
+            allow_removal = false
+        %>
+
         <%= rendered "components/search-filters/filter-column" -%>
 
     </div>
