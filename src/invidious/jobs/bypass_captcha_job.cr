@@ -6,7 +6,11 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
         if !random_video
           random_video = {id: "zj82_v2R6ts", ucid: "UCK87Lox575O_HCHBWaBSyGA"}
         end
-        {"/watch?v=#{random_video["id"]}&gl=US&hl=en&has_verified=1&bpctr=9999999999", produce_channel_videos_url(ucid: random_video["ucid"])}.each do |path|
+
+        # As of commit 2b81a82, only the RSS and captions endpoint are susceptible to blocking.
+        video_information = get_video(random_video["id"], PG_DB)
+
+        {video_information.captions.sample(1)[0].base_url, "/feeds/videos.xml?channel_id=#{random_video["ucid"]}"}.each do |path|
           response = YT_POOL.client &.get(path)
           if response.body.includes?("To continue with your YouTube experience, please fill out the form below.")
             html = XML.parse_html(response.body)
