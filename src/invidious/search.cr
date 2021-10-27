@@ -91,10 +91,12 @@ def produce_search_params(page = 1, sort : String = "relevance", date : String =
   end
 
   case duration
-  when "short"
+  when "search_filters_duration_short"
     object["2:embedded"].as(Hash)["3:varint"] = 1_i64
-  when "long"
+  when "search_filters_duration_long"
     object["2:embedded"].as(Hash)["3:varint"] = 2_i64
+  when "search_filters_duration_between"
+    object["2:embedded"].as(Hash)["3:varint"] = 3_i64
   else nil # Ignore
   end
 

@@ -20,7 +20,7 @@
 
                 <% if operators.fetch(filter_name, selected_default) == filter %>
                     <% if allow_removal %>
-                        <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&#{filter_name}=[a-z]+/, "")}"%>">
+                        <a style="color: inherit;" href="<%= base_url + "#{filter_params.gsub(/&#{filter_name}=[a-z_]+/, "")}"%>">
                             <b><%= translate(locale, filter) %></b>
                             <i class="remove-filter icon ion-md-close"></i>
                         </a>
@@ -28,7 +28,7 @@
                         <b><%= translate(locale, filter) %></b>
                     <% end %>
                 <% else %>
-                    <a href="<%= base_url + "#{filter_params.gsub(/&#{filter_name}=[a-z]+/, "")}&#{filter_name}=#{filter}"%>">
+                    <a href="<%= base_url + "#{filter_params.gsub(/&#{filter_name}=[a-z_]+/, "")}&#{filter_name}=#{filter}"%>">
                         <%= translate(locale, filter) %>
                     </a>
                 <% end %>
