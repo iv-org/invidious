@@ -431,5 +431,6 @@
     "adminprefs_modified_source_code_url_label": "URL al repositorio de código fuente modificado",
     "footer_source_code": "Código fuente",
     "footer_modfied_source_code": "Código fuente modificado",
-    "footer_donate_page": "Donar"
+    "footer_donate_page": "Donar",
+    "preferences_region_label": "País del contenido: "
 }
