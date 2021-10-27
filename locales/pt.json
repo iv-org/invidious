@@ -431,5 +431,6 @@
     "adminprefs_modified_source_code_url_label": "URL do repositório do código-fonte alterado",
     "footer_documentation": "Documentação",
     "footer_modfied_source_code": "Código-fonte alterado",
-    "footer_donate_page": "Doar"
+    "footer_donate_page": "Doar",
+    "preferences_region_label": "País do conteúdo: "
 }
