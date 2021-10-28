@@ -17,7 +17,11 @@
     </h3>
 <% end  %>
 
-<%= rendered "components/search-filters/search-filters" %>
+<% if is_channel_search %>
+    <% filter_params = "&channel=#{operators.fetch("channel", "")}" %>
+<% else %>
+    <%= rendered "components/search-filters/search-filters" %>
+<% end  %>
 
 <% if count == 0 %>
     <hr style="margin: 0;"/>
