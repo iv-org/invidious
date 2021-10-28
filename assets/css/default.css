@@ -567,5 +567,16 @@ p,
 
 
 #content-navigation {
-    margin-bottom: 0.5em;
+  margin-bottom: 0.5em;
+  display: flex;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  white-space: nowrap; 
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
+
+#content-navigation::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+} 

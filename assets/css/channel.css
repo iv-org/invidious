@@ -50,3 +50,10 @@
 #link-widget-primary a:hover {
   color: #e1e1e1 !important;
 }
+
+/* Center sorting options when screen is less than 640px*/
+@media screen and (max-width: 640px) {
+  #sort-options {
+    margin-right: auto;
+  }
+}

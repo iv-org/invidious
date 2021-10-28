@@ -7,6 +7,7 @@ module Invidious::Routes::Channels
 
   def self.videos(env)
     data = self.fetch_basic_information(env)
+
     if !data.is_a?(Tuple)
       return data
     end
@@ -48,6 +49,7 @@ module Invidious::Routes::Channels
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
+    sort_options = {"last", "oldest", "newest"}
     sort_by = env.params.query["sort_by"]?.try &.downcase
     sort_by ||= "last"
 
@@ -104,9 +106,9 @@ module Invidious::Routes::Channels
     begin
       channel = get_about_info(ucid, locale)
     rescue ex : ChannelRedirect
-      next env.redirect env.request.resource.gsub(ucid, ex.channel_id)
+      return env.redirect env.request.resource.gsub(ucid, ex.channel_id)
     rescue ex
-      next error_template(500, ex)
+      return error_template(500, ex)
     end
 
     templated "channel/about"
@@ -157,11 +159,11 @@ module Invidious::Routes::Channels
     end
   end
 
-  private def search(env)
+  def self.search(env)
     return env.redirect "/search?#{env.params.query}&channel=#{env.params.url["ucid"]}"
   end
 
-  private def fetch_basic_information(env)
+  private def self.fetch_basic_information(env)
     locale = LOCALES[env.get("preferences").as(Preferences).locale]?
 
     user = env.get? "user"

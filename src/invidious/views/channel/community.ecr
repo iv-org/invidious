@@ -1,5 +1,5 @@
 <% content_for "header" do %>
-<title><%= channel.author %> - Invidious</title>
+<title><%= HTML.escape(channel.author) %> - Invidious</title>
 <link rel="stylesheet" href="/css/channel.css?v=<%= ASSET_COMMIT %>">
 <% end %>
 
