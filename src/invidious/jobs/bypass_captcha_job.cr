@@ -7,7 +7,7 @@ class Invidious::Jobs::BypassCaptchaJob < Invidious::Jobs::BaseJob
           random_video = {id: "zj82_v2R6ts", ucid: "UCK87Lox575O_HCHBWaBSyGA"}
         end
 
-        # As of commit 2b81a82, only the RSS and captions endpoint are susceptible to blocking.
+        # As of commit 2b81a82 (2021-10-26), only the RSS and captions endpoint are susceptible to blocking.
         video_information = get_video(random_video["id"], PG_DB)
 
         {video_information.captions.sample(1)[0].base_url, "/feeds/videos.xml?channel_id=#{random_video["ucid"]}"}.each do |path|
