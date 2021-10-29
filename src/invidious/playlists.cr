@@ -57,7 +57,7 @@ struct PlaylistVideo
     end
   end
 
-  def to_json(locale, json : JSON::Builder, index : Int32?)
+  def to_json(json : JSON::Builder, index : Int32? = nil)
     json.object do
       json.field "title", self.title
       json.field "videoId", self.id
@@ -81,14 +81,8 @@ struct PlaylistVideo
     end
   end
 
-  def to_json(locale, json : JSON::Builder? = nil, index : Int32? = nil)
-    if json
-      to_json(locale, json, index: index)
-    else
-      JSON.build do |json|
-        to_json(locale, json, index: index)
-      end
-    end
+  def to_json(_json : Nil, index : Int32? = nil)
+    JSON.build { |json| to_json(json, index: index) }
   end
 end
 
@@ -144,7 +138,7 @@ struct Playlist
         json.array do
           videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, video_id: video_id)
           videos.each do |video|
-            video.to_json(locale, json)
+            video.to_json(json)
           end
         end
       end
@@ -224,7 +218,7 @@ struct InvidiousPlaylist
 
           videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, video_id: video_id)
           videos.each_with_index do |video, index|
-            video.to_json(locale, json, offset + index)
+            video.to_json(json, offset + index)
           end
         end
       end
