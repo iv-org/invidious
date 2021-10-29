@@ -16,7 +16,7 @@ module Invidious::Routes::API::V1::Videos
       return error_json(500, ex)
     end
 
-    video.to_json(locale)
+    video.to_json(locale, nil)
   end
 
   def self.captions(env)

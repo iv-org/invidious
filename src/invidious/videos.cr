@@ -275,7 +275,7 @@ struct Video
     end
   end
 
-  def to_json(locale : Hash(String, JSON::Any), json : JSON::Builder)
+  def to_json(locale : Hash(String, JSON::Any) | Nil, json : JSON::Builder)
     json.object do
       json.field "type", "video"
 
@@ -474,14 +474,13 @@ struct Video
     end
   end
 
-  def to_json(locale, json : JSON::Builder | Nil = nil)
-    if json
-      to_json(locale, json)
-    else
-      JSON.build do |json|
-        to_json(locale, json)
-      end
-    end
+  # TODO: remove the locale and follow the crystal convention
+  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
+    JSON.build { |json| to_json(locale, json) }
+  end
+
+  def to_json(json : JSON::Builder | Nil = nil)
+    to_json(nil, json)
   end
 
   def title
