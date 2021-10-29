@@ -11,7 +11,7 @@ struct PlaylistVideo
   property index : Int64
   property live_now : Bool
 
-  def to_xml(auto_generated, xml : XML::Builder)
+  def to_xml(xml : XML::Builder)
     xml.element("entry") do
       xml.element("id") { xml.text "yt:video:#{self.id}" }
       xml.element("yt:videoId") { xml.text self.id }
@@ -20,13 +20,8 @@ struct PlaylistVideo
       xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?v=#{self.id}")
 
       xml.element("author") do
-        if auto_generated
-          xml.element("name") { xml.text self.author }
-          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
-        else
-          xml.element("name") { xml.text author }
-          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{ucid}" }
-        end
+        xml.element("name") { xml.text self.author }
+        xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
       end
 
       xml.element("content", type: "xhtml") do
@@ -47,14 +42,8 @@ struct PlaylistVideo
     end
   end
 
-  def to_xml(auto_generated, xml : XML::Builder? = nil)
-    if xml
-      to_xml(auto_generated, xml)
-    else
-      XML.build do |xml|
-        to_xml(auto_generated, xml)
-      end
-    end
+  def to_xml(_xml : Nil = nil)
+    XML.build { |xml| to_xml(xml) }
   end
 
   def to_json(json : JSON::Builder, index : Int32? = nil)
