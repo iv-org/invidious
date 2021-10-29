@@ -95,6 +95,7 @@ struct SearchVideo
     end
   end
 
+  # TODO: remove the locale and follow the crystal convention
   def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
@@ -159,6 +160,7 @@ struct SearchPlaylist
     end
   end
 
+  # TODO: remove the locale and follow the crystal convention
   def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
@@ -211,6 +213,7 @@ struct SearchChannel
     end
   end
 
+  # TODO: remove the locale and follow the crystal convention
   def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
@@ -245,6 +248,7 @@ class Category
     end
   end
 
+  # TODO: remove the locale and follow the crystal convention
   def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
