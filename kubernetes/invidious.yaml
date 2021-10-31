@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invidious
+  labels:
+    app: invidious
+  annotations:
+    keel.sh/policy: major
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@midnight"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: invidious
+  template:
+    metadata:
+      labels:
+        app: invidious
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      initContainers:
+      - name: wait-for-postgresql
+        image: docker.io/library/postgres
+        args:
+        - /bin/sh
+        - -c
+        - until pg_isready -d "$INVIDIOUS_DATABASE_URL"; do echo waiting for database; sleep 2; done;
+        env:
+        - name: INVIDIOUS_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: invidious
+              key: INVIDIOUS_DATABASE_URL
+      containers:
+      - name: invidious
+        image: quay.io/invidious/invidious
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        env:
+        - name: INVIDIOUS_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: invidious
+              key: INVIDIOUS_CONFIG
+        - name: INVIDIOUS_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: invidious
+              key: INVIDIOUS_DATABASE_URL
+        # Let Invidious itself take care of initializing the database
+        - name: INVIDIOUS_CHECK_TABLES
+          value: "true"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        resources: {}
+          #requests:
+          #  cpu: 100m
+          #  memory: 64Mi
+          #limits:
+          #  cpu: 800m
+          #  memory: 512Mi
+        readinessProbe:
+          httpGet:
+            port: 3000
+            path: /
+        livenessProbe:
+          httpGet:
+            port: 3000
+            path: /
+          initialDelaySeconds: 15
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: invidious-http
+spec:
+  selector:
+    app: invidious
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3000
