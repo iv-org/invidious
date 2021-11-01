@@ -69,6 +69,7 @@
     "preferences_local_label": "Proxy videos: ",
     "preferences_speed_label": "Default speed: ",
     "preferences_quality_label": "Preferred video quality: ",
+    "preferences_quality_dash_label": "Preferred dash video quality: ",
     "preferences_volume_label": "Player volume: ",
     "preferences_comments_label": "Default comments: ",
     "youtube": "YouTube",
