@@ -746,6 +746,8 @@ post "/data_control" do |env|
 
     HTTP::FormData.parse(env.request) do |part|
       body = part.body.gets_to_end
+      type = part.headers["Content-Type"]
+
       next if body.empty?
 
       # TODO: Unify into single import based on content-type
@@ -816,12 +818,12 @@ post "/data_control" do |env|
           end
         end
       when "import_youtube"
-        if body[0..4] == "<opml"
+        if type == "application/xml"
           subscriptions = XML.parse(body)
           user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
             channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
           end
-        elsif body[0] == '['
+        elsif type == "application/json"
           subscriptions = JSON.parse(body)
           user.subscriptions += subscriptions.as_a.compact_map do |entry|
             entry["snippet"]["resourceId"]["channelId"].as_s
