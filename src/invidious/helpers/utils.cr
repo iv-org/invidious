@@ -369,23 +369,3 @@ def fetch_random_instance
 
   return filtered_instance_list.sample(1)[0]
 end
-
-def parse_subscription_export_csv(csv_content : String)
-  rows = CSV.new(csv_content, headers: true)
-  subscriptions = Array(String).new
-
-  rows.each do |row|
-    # Channel ID is the first column in the csv export we can't use the header
-    # name, because I believe the header name is localized depending on the
-    # language the user has set on their account
-    channel_id = row[0].strip
-
-    if channel_id.empty?
-      next
-    end
-
-    subscriptions << channel_id
-  end
-
-  subscriptions
-end
