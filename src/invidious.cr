@@ -818,7 +818,7 @@ post "/data_control" do |env|
           end
         end
       when "import_youtube"
-        if type == "application/xml"
+        if type == "application/xml" || type == "text/xml"
           subscriptions = XML.parse(body)
           user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
             channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
