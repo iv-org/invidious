@@ -169,7 +169,7 @@ module Invidious::Routes::PreferencesRoute
       extend_desc:                 extend_desc,
       vr_mode:                     vr_mode,
       show_nick:                   show_nick,
-      save_player_pos:           save_player_pos,
+      save_player_pos:             save_player_pos,
     }.to_json).to_json
 
     if user = env.get? "user"

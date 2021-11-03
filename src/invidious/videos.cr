@@ -1195,7 +1195,7 @@ def process_video_params(query, preferences)
     video_start:        video_start,
     volume:             volume,
     vr_mode:            vr_mode,
-    save_player_pos:  save_player_pos,
+    save_player_pos:    save_player_pos,
   })
 
   return params
