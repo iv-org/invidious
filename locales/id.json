@@ -87,7 +87,7 @@
     "light": "terang",
     "preferences_thin_mode_label": "Mode tipis: ",
     "preferences_category_misc": "Preferensi lainnya",
-    "preferences_automatic_instance_redirect_label": "Pengalihan instans otomatis (fallback ke redirect.invidious.io): ",
+    "preferences_automatic_instance_redirect_label": "Pengalihan peladen otomatis (balik kembali ke redirect.invidious.io): ",
     "preferences_category_subscription": "Preferensi langganan",
     "preferences_annotations_subscribed_label": "Tampilkan anotasi secara default untuk kanal langganan: ",
     "Redirect homepage to feed: ": "Arahkan kembali laman beranda ke umpan: ",
@@ -164,8 +164,8 @@
     "Show more": "Tampilkan lainnya",
     "Show less": "Tampilkan lebih sedikit",
     "Watch on YouTube": "Tonton di YouTube",
-    "Switch Invidious Instance": "Beralih Instance Invidious",
-    "Broken? Try another Invidious Instance": "Rusak? Coba Instance Invidious lain",
+    "Switch Invidious Instance": "Ganti peladen Invidious",
+    "Broken? Try another Invidious Instance": "Rusak? Coba peladen Invidious yang lain",
     "Hide annotations": "Sembunyikan anotasi",
     "Show annotations": "Tampilkan anotasi",
     "Genre: ": "Genre: ",
@@ -386,7 +386,7 @@
     "%A %B %-d, %Y": "%A %B %-d, %Y",
     "(edited)": "(disunting)",
     "YouTube comment permalink": "Komentar YouTube permalink",
-    "permalink": "permalink",
+    "permalink": "tautan permanen",
     "`x` marked it with a ❤": "`x` telah ditandai dengan ❤",
     "Audio mode": "Mode audio",
     "Video mode": "Mode video",
@@ -431,5 +431,7 @@
     "short": "Pendek (< 4 menit)",
     "long": "Panjang (> 20 menit)",
     "footer_modfied_source_code": "Kode sumber yang dimodifikasi",
-    "footer_documentation": "Dokumentasi"
+    "footer_documentation": "Dokumentasi",
+    "preferences_region_label": "Konten dari negara: ",
+    "preferences_quality_dash_label": "Kualitas video dash yang disukai: "
 }
