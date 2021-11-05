@@ -420,5 +420,10 @@
     "filter": "Filter",
     "Current version: ": "Nuvarande version: ",
     "next_steps_error_message_refresh": "Uppdatera",
-    "next_steps_error_message_go_to_youtube": "Gå till Youtube"
+    "next_steps_error_message_go_to_youtube": "Gå till Youtube",
+    "Released under the AGPLv3 on Github.": "Publicerad under AGPLv3 på Github.",
+    "footer_source_code": "Källkod",
+    "long": "Lång (> 20 minuter)",
+    "footer_documentation": "Dokumentation",
+    "short": "Kort (< 4 minuter)"
 }
