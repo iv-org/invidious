@@ -431,5 +431,6 @@
     "footer_source_code": "Izvorni kod",
     "footer_modfied_source_code": "Izmijenjeni izvorni kod",
     "footer_documentation": "Dokumentacija",
-    "footer_original_source_code": "Izvoran izvorni kod"
+    "footer_original_source_code": "Izvoran izvorni kod",
+    "preferences_region_label": "Zemlja sadržaja: "
 }
