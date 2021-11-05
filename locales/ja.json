@@ -72,7 +72,7 @@
     "preferences_volume_label": "プレイヤーの音量: ",
     "preferences_comments_label": "デフォルトのコメント: ",
     "youtube": "YouTube",
-    "reddit": "reddit",
+    "reddit": "Reddit",
     "preferences_captions_label": "デフォルトの字幕: ",
     "Fallback captions: ": "フォールバック時の字幕: ",
     "preferences_related_videos_label": "関連動画を表示: ",
@@ -145,7 +145,7 @@
     },
     "search": "検索",
     "Log out": "ログアウト",
-    "Released under the AGPLv3 on Github.": "Github 上で AGPLv3 の元で公開されています",
+    "Released under the AGPLv3 on Github.": "GitHub 上で AGPLv3 の元で公開されています。",
     "Source available here.": "ソースはここで閲覧可能です。",
     "View JavaScript license information.": "JavaScript ライセンス情報",
     "View privacy policy.": "プライバシーポリシー",
@@ -430,5 +430,7 @@
     "footer_original_source_code": "ソースコード（元）",
     "footer_modfied_source_code": "ソースコード（編集）",
     "adminprefs_modified_source_code_url_label": "編集したソースコードのレポジトリーURL",
-    "long": "20 分以上"
+    "long": "20 分以上",
+    "preferences_region_label": "地域: ",
+    "footer_donate_page": "寄付する"
 }

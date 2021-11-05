@@ -386,7 +386,7 @@
     "%A %B %-d, %Y": "%A %B %-d, %Y",
     "(edited)": "(editado)",
     "YouTube comment permalink": "Enlace permanente de YouTube del comentario",
-    "permalink": "permalink",
+    "permalink": "enlace permanente",
     "`x` marked it with a ❤": "`x` lo ha marcado con un ❤",
     "Audio mode": "Modo de audio",
     "Video mode": "Modo de vídeo",
@@ -432,5 +432,6 @@
     "footer_source_code": "Código fuente",
     "footer_modfied_source_code": "Código fuente modificado",
     "footer_donate_page": "Donar",
-    "preferences_region_label": "País del contenido: "
+    "preferences_region_label": "País del contenido: ",
+    "preferences_quality_dash_label": "Calidad de vídeo DASH preferida: "
 }
