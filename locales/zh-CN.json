@@ -432,5 +432,6 @@
     "adminprefs_modified_source_code_url_label": "更改的源代码仓库网址",
     "footer_original_source_code": "原始源代码",
     "footer_donate_page": "捐赠",
-    "preferences_region_label": "内容国家： "
+    "preferences_region_label": "内容国家： ",
+    "preferences_quality_dash_label": "首选 dash 视频分辨率： "
 }
