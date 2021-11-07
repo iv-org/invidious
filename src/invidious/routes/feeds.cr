@@ -281,9 +281,7 @@ module Invidious::Routes::Feeds
               xml.element("name") { xml.text playlist.author }
             end
 
-            videos.each do |video|
-              video.to_xml(false, xml)
-            end
+            videos.each &.to_xml(xml)
           end
         end
       else

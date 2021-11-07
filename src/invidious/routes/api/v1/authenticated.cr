@@ -274,7 +274,10 @@ module Invidious::Routes::API::V1::Authenticated
 
     env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/playlists/#{plid}/videos/#{playlist_video.index.to_u64.to_s(16).upcase}"
     env.response.status_code = 201
-    playlist_video.to_json(locale, index: playlist.index.size)
+
+    JSON.build do |json|
+      playlist_video.to_json(json, index: playlist.index.size)
+    end
   end
 
   def self.delete_video_in_playlist(env)

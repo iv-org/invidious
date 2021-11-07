@@ -206,7 +206,7 @@ def create_notification_stream(env, topics, connection_channel)
 
           video = get_video(video_id, PG_DB)
           video.published = published
-          response = JSON.parse(video.to_json(locale))
+          response = JSON.parse(video.to_json(locale, nil))
 
           if fields_text = env.params.query["fields"]?
             begin
@@ -282,7 +282,7 @@ def create_notification_stream(env, topics, connection_channel)
 
         video = get_video(video_id, PG_DB)
         video.published = Time.unix(published)
-        response = JSON.parse(video.to_json(locale))
+        response = JSON.parse(video.to_json(locale, nil))
 
         if fields_text = env.params.query["fields"]?
           begin
