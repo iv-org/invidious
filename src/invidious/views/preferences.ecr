@@ -121,8 +121,8 @@
             <div class="pure-control-group">
                 <label for="locale"><%= translate(locale, "preferences_locale_label") %></label>
                 <select name="locale" id="locale">
-                    <% LOCALES.each_key do |option| %>
-                        <option value="<%= option %>" <% if preferences.locale == option %> selected <% end %>><%= option %></option>
+                    <% LOCALES_LIST.each do |iso_name, full_name| %>
+                        <option value="<%= iso_name %>" <% if preferences.locale == iso_name %> selected <% end %>><%= HTML.escape(full_name) %></option>
                     <% end %>
                 </select>
             </div>
