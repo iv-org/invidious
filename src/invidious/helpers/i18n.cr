@@ -64,31 +64,36 @@ def load_all_locales
   return locales
 end
 
-def translate(locale : Hash(String, JSON::Any) | Nil, translation : String, text : String | Nil = nil)
-  # if locale && !locale[translation]?
-  #   puts "Could not find translation for #{translation.dump}"
-  # end
+def translate(locale : String?, key : String, text : String | Nil = nil) : String
+  # Raise an eception if "key" doesn't exist in en-US locale
+  raise "Invalid translation key \"#{key}\"" unless LOCALES["en-US"].has_key?(key)
 
-  if locale && locale[translation]?
-    case locale[translation]
-    when .as_h?
-      match_length = 0
+  # Default to english, whenever the locale doesn't exist,
+  # or the key requested has not been translated
+  if locale && LOCALES.has_key?(locale) && LOCALES[locale].has_key?(key)
+    raw_data = LOCALES[locale][key]
+  else
+    raw_data = LOCALES["en-US"][key]
+  end
 
-      locale[translation].as_h.each do |key, value|
-        if md = text.try &.match(/#{key}/)
-          if md[0].size >= match_length
-            translation = value.as_s
-            match_length = md[0].size
-          end
+  case raw_data
+  when .as_h?
+    # Init
+    translation = ""
+    match_length = 0
+
+    raw_data.as_h.each do |key, value|
+      if md = text.try &.match(/#{key}/)
+        if md[0].size >= match_length
+          translation = value.as_s
+          match_length = md[0].size
         end
       end
-    when .as_s?
-      if !locale[translation].as_s.empty?
-        translation = locale[translation].as_s
-      end
-    else
-      raise "Invalid translation #{translation}"
     end
+  when .as_s?
+    translation = raw_data.as_s
+  else
+    raise "Invalid translation \"#{raw_data}\""
   end
 
   if text
@@ -98,7 +103,7 @@ def translate(locale : Hash(String, JSON::Any) | Nil, translation : String, text
   return translation
 end
 
-def translate_bool(locale : Hash(String, JSON::Any) | Nil, translation : Bool)
+def translate_bool(locale : String?, translation : Bool)
   case translation
   when true
     return translate(locale, "Yes")

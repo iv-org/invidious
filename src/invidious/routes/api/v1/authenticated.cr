@@ -36,7 +36,7 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.content_type = "application/json"
 
     user = env.get("user").as(User)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     max_results = env.params.query["max_results"]?.try &.to_i?
     max_results ||= user.preferences.max_results
@@ -122,7 +122,7 @@ module Invidious::Routes::API::V1::Authenticated
   end
 
   def self.list_playlists(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
@@ -141,7 +141,7 @@ module Invidious::Routes::API::V1::Authenticated
   def self.create_playlist(env)
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     title = env.params.json["title"]?.try &.as(String).delete("<>").byte_slice(0, 150)
     if !title
@@ -167,7 +167,7 @@ module Invidious::Routes::API::V1::Authenticated
   end
 
   def self.update_playlist_attribute(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
@@ -200,7 +200,7 @@ module Invidious::Routes::API::V1::Authenticated
   end
 
   def self.delete_playlist(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
@@ -223,7 +223,7 @@ module Invidious::Routes::API::V1::Authenticated
   end
 
   def self.insert_video_into_playlist(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
@@ -281,7 +281,7 @@ module Invidious::Routes::API::V1::Authenticated
   end
 
   def self.delete_video_in_playlist(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
@@ -334,7 +334,7 @@ module Invidious::Routes::API::V1::Authenticated
 
   def self.register_token(env)
     user = env.get("user").as(User)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     case env.request.headers["Content-Type"]?
     when "application/x-www-form-urlencoded"
@@ -396,7 +396,7 @@ module Invidious::Routes::API::V1::Authenticated
   end
 
   def self.unregister_token(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
     scopes = env.get("scopes").as(Array(String))

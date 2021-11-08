@@ -2,7 +2,7 @@
 
 module Invidious::Routes::Playlists
   def self.new(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -18,7 +18,7 @@ module Invidious::Routes::Playlists
   end
 
   def self.create(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -56,7 +56,7 @@ module Invidious::Routes::Playlists
   end
 
   def self.subscribe(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     referer = get_referer(env)
@@ -73,7 +73,7 @@ module Invidious::Routes::Playlists
   end
 
   def self.delete_page(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -96,7 +96,7 @@ module Invidious::Routes::Playlists
   end
 
   def self.delete(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -129,7 +129,7 @@ module Invidious::Routes::Playlists
   end
 
   def self.edit(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -169,7 +169,7 @@ module Invidious::Routes::Playlists
   end
 
   def self.update(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -213,7 +213,7 @@ module Invidious::Routes::Playlists
   end
 
   def self.add_playlist_items_page(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -260,7 +260,7 @@ module Invidious::Routes::Playlists
   end
 
   def self.playlist_ajax(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -387,7 +387,7 @@ module Invidious::Routes::Playlists
   end
 
   def self.show(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get?("user").try &.as(User)
     referer = get_referer(env)
@@ -435,7 +435,7 @@ module Invidious::Routes::Playlists
   end
 
   def self.mix(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     rdid = env.params.query["list"]?
     if !rdid

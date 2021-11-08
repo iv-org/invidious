@@ -2,7 +2,7 @@
 
 module Invidious::Routes::Embed
   def self.redirect(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     if plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
       begin
@@ -26,7 +26,7 @@ module Invidious::Routes::Embed
   end
 
   def self.show(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     id = env.params.url["id"]
 
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")

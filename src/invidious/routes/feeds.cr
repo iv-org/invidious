@@ -6,7 +6,7 @@ module Invidious::Routes::Feeds
   end
 
   def self.playlists(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     referer = get_referer(env)
@@ -31,7 +31,7 @@ module Invidious::Routes::Feeds
   end
 
   def self.popular(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     if CONFIG.popular_enabled
       templated "feeds/popular"
@@ -42,7 +42,7 @@ module Invidious::Routes::Feeds
   end
 
   def self.trending(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     trending_type = env.params.query["type"]?
     trending_type ||= "Default"
@@ -60,7 +60,7 @@ module Invidious::Routes::Feeds
   end
 
   def self.subscriptions(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -108,7 +108,7 @@ module Invidious::Routes::Feeds
   end
 
   def self.history(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     referer = get_referer(env)
@@ -137,7 +137,7 @@ module Invidious::Routes::Feeds
   # RSS feeds
 
   def self.rss_channel(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
@@ -209,7 +209,7 @@ module Invidious::Routes::Feeds
   end
 
   def self.rss_private(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
@@ -253,7 +253,7 @@ module Invidious::Routes::Feeds
   end
 
   def self.rss_playlist(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
@@ -374,7 +374,7 @@ module Invidious::Routes::Feeds
   end
 
   def self.push_notifications_post(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     token = env.params.url["token"]
     body = env.request.body.not_nil!.gets_to_end

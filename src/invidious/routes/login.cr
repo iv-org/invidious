@@ -2,7 +2,7 @@
 
 module Invidious::Routes::Login
   def self.login_page(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
 
@@ -31,7 +31,7 @@ module Invidious::Routes::Login
   end
 
   def self.login(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     referer = get_referer(env, "/feed/subscriptions")
 
@@ -491,7 +491,7 @@ module Invidious::Routes::Login
   end
 
   def self.signout(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     sid = env.get? "sid"

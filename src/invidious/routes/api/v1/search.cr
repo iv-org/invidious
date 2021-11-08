@@ -1,6 +1,6 @@
 module Invidious::Routes::API::V1::Search
   def self.search(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     region = env.params.query["region"]?
 
     env.response.content_type = "application/json"
@@ -43,7 +43,7 @@ module Invidious::Routes::API::V1::Search
   end
 
   def self.search_suggestions(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     region = env.params.query["region"]?
 
     env.response.content_type = "application/json"

@@ -1,6 +1,6 @@
 module Invidious::Routes::API::V1::Channels
   def self.home(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
 
@@ -124,7 +124,7 @@ module Invidious::Routes::API::V1::Channels
   end
 
   def self.latest(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
 
@@ -146,7 +146,7 @@ module Invidious::Routes::API::V1::Channels
   end
 
   def self.videos(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
 
@@ -182,7 +182,7 @@ module Invidious::Routes::API::V1::Channels
   end
 
   def self.playlists(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
 
@@ -219,7 +219,7 @@ module Invidious::Routes::API::V1::Channels
   end
 
   def self.community(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
 
@@ -242,7 +242,7 @@ module Invidious::Routes::API::V1::Channels
   end
 
   def self.search(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
 

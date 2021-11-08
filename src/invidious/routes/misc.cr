@@ -3,7 +3,7 @@
 module Invidious::Routes::Misc
   def self.home(env)
     preferences = env.get("preferences").as(Preferences)
-    locale = LOCALES[preferences.locale]?
+    locale = preferences.locale
     user = env.get? "user"
 
     case preferences.default_home
@@ -29,12 +29,12 @@ module Invidious::Routes::Misc
   end
 
   def self.privacy(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     templated "privacy"
   end
 
   def self.licenses(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     rendered "licenses"
   end
 

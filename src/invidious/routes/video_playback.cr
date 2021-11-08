@@ -1,7 +1,7 @@
 module Invidious::Routes::VideoPlayback
   # /videoplayback
   def self.get_video_playback(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     query_params = env.params.query
 
     fvip = query_params["fvip"]? || "3"

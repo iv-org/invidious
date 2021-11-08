@@ -19,8 +19,10 @@
     <link rel="stylesheet" href="/css/default.css?v=<%= ASSET_COMMIT %>">
 </head>
 
-<% locale = LOCALES[env.get("preferences").as(Preferences).locale]? %>
-<% dark_mode = env.get("preferences").as(Preferences).dark_mode %>
+<%
+  locale = env.get("preferences").as(Preferences).locale
+  dark_mode = env.get("preferences").as(Preferences).dark_mode
+%>
 
 <body class="<%= dark_mode.blank? ? "no" : dark_mode %>-theme">
     <span style="display:none" id="dark_mode_pref"><%= env.get("preferences").as(Preferences).dark_mode %></span>

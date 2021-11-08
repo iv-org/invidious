@@ -22,7 +22,7 @@ def github_details(summary : String, content : String)
   return HTML.escape(details)
 end
 
-def error_template_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, exception : Exception)
+def error_template_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, exception : Exception)
   if exception.is_a?(InfoException)
     return error_template_helper(env, locale, status_code, exception.message || "")
   end
@@ -46,7 +46,7 @@ def error_template_helper(env : HTTP::Server::Context, locale : Hash(String, JSO
   return templated "error"
 end
 
-def error_template_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, message : String)
+def error_template_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, message : String)
   env.response.content_type = "text/html"
   env.response.status_code = status_code
   error_message = translate(locale, message)
@@ -58,7 +58,7 @@ macro error_atom(*args)
   error_atom_helper(env, locale, {{*args}})
 end
 
-def error_atom_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, exception : Exception)
+def error_atom_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, exception : Exception)
   if exception.is_a?(InfoException)
     return error_atom_helper(env, locale, status_code, exception.message || "")
   end
@@ -67,7 +67,7 @@ def error_atom_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::A
   return "<error>#{exception.inspect_with_backtrace}</error>"
 end
 
-def error_atom_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, message : String)
+def error_atom_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, message : String)
   env.response.content_type = "application/atom+xml"
   env.response.status_code = status_code
   return "<error>#{message}</error>"
@@ -77,7 +77,7 @@ macro error_json(*args)
   error_json_helper(env, locale, {{*args}})
 end
 
-def error_json_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, exception : Exception, additional_fields : Hash(String, Object) | Nil)
+def error_json_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, exception : Exception, additional_fields : Hash(String, Object) | Nil)
   if exception.is_a?(InfoException)
     return error_json_helper(env, locale, status_code, exception.message || "", additional_fields)
   end
@@ -90,11 +90,11 @@ def error_json_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::A
   return error_message.to_json
 end
 
-def error_json_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, exception : Exception)
+def error_json_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, exception : Exception)
   return error_json_helper(env, locale, status_code, exception, nil)
 end
 
-def error_json_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, message : String, additional_fields : Hash(String, Object) | Nil)
+def error_json_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, message : String, additional_fields : Hash(String, Object) | Nil)
   env.response.content_type = "application/json"
   env.response.status_code = status_code
   error_message = {"error" => message}
@@ -104,11 +104,11 @@ def error_json_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::A
   return error_message.to_json
 end
 
-def error_json_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, message : String)
+def error_json_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, message : String)
   error_json_helper(env, locale, status_code, message, nil)
 end
 
-def error_redirect_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil)
+def error_redirect_helper(env : HTTP::Server::Context, locale : String?)
   request_path = env.request.path
 
   if request_path.starts_with?("/search") || request_path.starts_with?("/watch") ||
