@@ -27,7 +27,7 @@ jobs:
       - name: Install Crystal
         uses: oprypin/install-crystal@v1.2.4
         with:
-          crystal: 1.1.1
+          crystal: 1.2.2
         
       - name: Run lint
         run: |
