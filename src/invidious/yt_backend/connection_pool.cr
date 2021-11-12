@@ -1,5 +1,3 @@
-require "lsquic"
-
 {% unless flag?(:disable_quic) %}
   require "lsquic"
 
