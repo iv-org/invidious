@@ -466,9 +466,9 @@ default_user_preferences:
   ##
   ## Default user interface language (locale).
   ##
-  ## Note: overridin the default (no preferred caption language)
-  ## is not recommended, in order to not penalize people using
-  ## other languages.
+  ## Note: When hosting a public instance, overriding the
+  ## default (english) is not recommended, as it may
+  ## people using other languages.
   ##
   ## Accepted values:
   ##   ar      (Arabic)
