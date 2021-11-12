@@ -412,7 +412,9 @@ module YoutubeAPI
     #
     # https://github.com/crystal-lang/crystal/issues/11252#issuecomment-929594741
     {% unless flag?(:disable_quic) %}
-      headers["Accept-Encoding"] = "gzip"
+      if CONFIG.use_quic
+        headers["Accept-Encoding"] = "gzip"
+      end
     {% end %}
 
     # Logging
