@@ -404,9 +404,18 @@ module YoutubeAPI
     url = "#{endpoint}?key=#{client_config.api_key}"
 
     headers = HTTP::Headers{
-      "Content-Type"    => "application/json; charset=UTF-8",
-      "Accept-Encoding" => "gzip",
+      "Content-Type" => "application/json; charset=UTF-8",
     }
+
+    # The normal HTTP client automatically applies accept-encoding: gzip,
+    # and decompresses. However, explicitly applying it will remove this functionality.
+    #
+    # https://github.com/crystal-lang/crystal/issues/11252#issuecomment-929594741
+    {% unless flag?(:disable_quic) %}
+      if CONFIG.use_quic
+        headers["Accept-Encoding"] = "gzip"
+      end
+    {% end %}
 
     # Logging
     LOGGER.debug("YoutubeAPI: Using endpoint: \"#{endpoint}\"")

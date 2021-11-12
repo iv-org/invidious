@@ -1,5 +1,13 @@
 require "lsquic"
 
+{% unless flag?(:disable_quic) %}
+  require "lsquic"
+
+  alias HTTPClientType = QUIC::Client | HTTP::Client
+{% else %}
+  alias HTTPClientType = HTTP::Client
+{% end %}
+
 def add_yt_headers(request)
   request.headers["user-agent"] ||= "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
   request.headers["accept-charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
@@ -19,7 +27,7 @@ struct YoutubeConnectionPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : DB::Pool(QUIC::Client | HTTP::Client)
+  property pool : DB::Pool(HTTPClientType)
 
   def initialize(url : URI, @capacity = 5, @timeout = 5.0, use_quic = true)
     @url = url
@@ -36,7 +44,12 @@ struct YoutubeConnectionPool
         response = yield conn
       rescue ex
         conn.close
-        conn = QUIC::Client.new(url)
+        {% unless flag?(:disable_quic) %}
+          conn = CONFIG.use_quic ? QUIC::Client.new(url) : HTTP::Client.new(url)
+        {% else %}
+          conn = HTTP::Client.new(url)
+        {% end %}
+
         conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
         conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
         conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
@@ -50,12 +63,18 @@ struct YoutubeConnectionPool
   end
 
   private def build_pool(use_quic)
-    DB::Pool(QUIC::Client | HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
-      if use_quic
-        conn = QUIC::Client.new(url)
-      else
+    DB::Pool(HTTPClientType).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
+      conn = nil # Declare
+      {% unless flag?(:disable_quic) %}
+        if use_quic
+          conn = QUIC::Client.new(url)
+        else
+          conn = HTTP::Client.new(url)
+        end
+      {% else %}
         conn = HTTP::Client.new(url)
-      end
+      {% end %}
+
       conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"

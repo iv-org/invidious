@@ -3,31 +3,61 @@ module Invidious::Routes::Images
   def self.ggpht(env)
     url = env.request.path.lchop("/ggpht")
 
-    headers = HTTP::Headers{":authority" => "yt3.ggpht.com"}
+    headers = (
+      {% unless flag?(:disable_quic) %}
+        if CONFIG.use_quic
+          HTTP::Headers{":authority" => "yt3.ggpht.com"}
+        else
+          HTTP::Headers.new
+        end
+      {% else %}
+        HTTP::Headers.new
+      {% end %}
+    )
+
     REQUEST_HEADERS_WHITELIST.each do |header|
       if env.request.headers[header]?
         headers[header] = env.request.headers[header]
       end
     end
 
+    # We're encapsulating this into a proc in order to easily reuse this
+    # portion of the code for each request block below.
+    request_proc = ->(response : HTTP::Client::Response) {
+      env.response.status_code = response.status_code
+      response.headers.each do |key, value|
+        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
+          env.response.headers[key] = value
+        end
+      end
+
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.status_code >= 300
+        env.response.headers.delete("Transfer-Encoding")
+        return
+      end
+
+      proxy_file(response, env)
+    }
+
     begin
-      YT_POOL.client &.get(url, headers) do |response|
-        env.response.status_code = response.status_code
-        response.headers.each do |key, value|
-          if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-            env.response.headers[key] = value
+      {% unless flag?(:disable_quic) %}
+        if CONFIG.use_quic
+          YT_POOL.client &.get(url, headers) do |resp|
+            return request_proc.call(resp)
+          end
+        else
+          HTTP::Client.get("https://yt3.ggpht.com#{url}") do |resp|
+            return request_proc.call(resp)
           end
         end
-
-        env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-        if response.status_code >= 300
-          env.response.headers.delete("Transfer-Encoding")
-          break
+      {% else %}
+        # This can likely be optimized into a (small) pool sometime in the future.
+        HTTP::Client.get("https://yt3.ggpht.com#{url}") do |resp|
+          return request_proc.call(resp)
         end
-
-        proxy_file(response, env)
-      end
+      {% end %}
     rescue ex
     end
   end
@@ -48,7 +78,9 @@ module Invidious::Routes::Images
 
     headers = HTTP::Headers.new
 
-    headers[":authority"] = "#{authority}.ytimg.com"
+    {% unless flag?(:disable_quic) %}
+      headers[":authority"] = "#{authority}.ytimg.com"
+    {% end %}
 
     REQUEST_HEADERS_WHITELIST.each do |header|
       if env.request.headers[header]?
@@ -56,25 +88,41 @@ module Invidious::Routes::Images
       end
     end
 
+    request_proc = ->(response : HTTP::Client::Response) {
+      env.response.status_code = response.status_code
+      response.headers.each do |key, value|
+        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
+          env.response.headers[key] = value
+        end
+      end
+
+      env.response.headers["Connection"] = "close"
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.status_code >= 300
+        return env.response.headers.delete("Transfer-Encoding")
+      end
+
+      proxy_file(response, env)
+    }
+
     begin
-      YT_POOL.client &.get(url, headers) do |response|
-        env.response.status_code = response.status_code
-        response.headers.each do |key, value|
-          if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-            env.response.headers[key] = value
+      {% unless flag?(:disable_quic) %}
+        if CONFIG.use_quic
+          YT_POOL.client &.get(url, headers) do |resp|
+            return request_proc.call(resp)
+          end
+        else
+          HTTP::Client.get("https://#{authority}.ytimg.com#{url}") do |resp|
+            return request_proc.call(resp)
           end
         end
-
-        env.response.headers["Connection"] = "close"
-        env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-        if response.status_code >= 300
-          env.response.headers.delete("Transfer-Encoding")
-          break
+      {% else %}
+        # This can likely be optimized into a (small) pool sometime in the future.
+        HTTP::Client.get("https://#{authority}.ytimg.com#{url}") do |resp|
+          return request_proc.call(resp)
         end
-
-        proxy_file(response, env)
-      end
+      {% end %}
     rescue ex
     end
   end
@@ -83,34 +131,60 @@ module Invidious::Routes::Images
   def self.s_p_image(env)
     id = env.params.url["id"]
     name = env.params.url["name"]
-
     url = env.request.resource
 
-    headers = HTTP::Headers{":authority" => "i9.ytimg.com"}
+    headers = (
+      {% unless flag?(:disable_quic) %}
+        if CONFIG.use_quic
+          HTTP::Headers{":authority" => "i9.ytimg.com"}
+        else
+          HTTP::Headers.new
+        end
+      {% else %}
+        HTTP::Headers.new
+      {% end %}
+    )
+
     REQUEST_HEADERS_WHITELIST.each do |header|
       if env.request.headers[header]?
         headers[header] = env.request.headers[header]
       end
     end
 
+    request_proc = ->(response : HTTP::Client::Response) {
+      env.response.status_code = response.status_code
+      response.headers.each do |key, value|
+        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
+          env.response.headers[key] = value
+        end
+      end
+
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.status_code >= 300 && response.status_code != 404
+        return env.response.headers.delete("Transfer-Encoding")
+      end
+
+      proxy_file(response, env)
+    }
+
     begin
-      YT_POOL.client &.get(url, headers) do |response|
-        env.response.status_code = response.status_code
-        response.headers.each do |key, value|
-          if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-            env.response.headers[key] = value
+      {% unless flag?(:disable_quic) %}
+        if CONFIG.use_quic
+          YT_POOL.client &.get(url, headers) do |resp|
+            return request_proc.call(resp)
+          end
+        else
+          HTTP::Client.get("https://i9.ytimg.com#{url}") do |resp|
+            return request_proc.call(resp)
           end
         end
-
-        env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-        if response.status_code >= 300 && response.status_code != 404
-          env.response.headers.delete("Transfer-Encoding")
-          break
+      {% else %}
+        # This can likely be optimized into a (small) pool sometime in the future.
+        HTTP::Client.get("https://i9.ytimg.com#{url}") do |resp|
+          return request_proc.call(resp)
         end
-
-        proxy_file(response, env)
-      end
+      {% end %}
     rescue ex
     end
   end
@@ -149,16 +223,44 @@ module Invidious::Routes::Images
     id = env.params.url["id"]
     name = env.params.url["name"]
 
-    headers = HTTP::Headers{":authority" => "i.ytimg.com"}
+    headers = (
+      {% unless flag?(:disable_quic) %}
+        if CONFIG.use_quic
+          HTTP::Headers{":authority" => "i.ytimg.com"}
+        else
+          HTTP::Headers.new
+        end
+      {% else %}
+        HTTP::Headers.new
+      {% end %}
+    )
 
     if name == "maxres.jpg"
       build_thumbnails(id).each do |thumb|
-        if YT_POOL.client &.head("/vi/#{id}/#{thumb[:url]}.jpg", headers).status_code == 200
-          name = thumb[:url] + ".jpg"
-          break
-        end
+        thumbnail_resource_path = "/vi/#{id}/#{thumb[:url]}.jpg"
+        # Logic here is short enough that manually typing them out should be fine.
+        {% unless flag?(:disable_quic) %}
+          if CONFIG.use_quic
+            if YT_POOL.client &.head(thumbnail_resource_path, headers).status_code == 200
+              name = thumb[:url] + ".jpg"
+              break
+            end
+          else
+            if HTTP::Client.head("https://i.ytimg.com#{thumbnail_resource_path}").status_code == 200
+              name = thumb[:url] + ".jpg"
+              break
+            end
+          end
+        {% else %}
+          # This can likely be optimized into a (small) pool sometime in the future.
+          if HTTP::Client.head("https://i.ytimg.com#{thumbnail_resource_path}").status_code == 200
+            name = thumb[:url] + ".jpg"
+            break
+          end
+        {% end %}
       end
     end
+
     url = "/vi/#{id}/#{name}"
 
     REQUEST_HEADERS_WHITELIST.each do |header|
@@ -167,24 +269,40 @@ module Invidious::Routes::Images
       end
     end
 
+    request_proc = ->(response : HTTP::Client::Response) {
+      env.response.status_code = response.status_code
+      response.headers.each do |key, value|
+        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
+          env.response.headers[key] = value
+        end
+      end
+
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if response.status_code >= 300 && response.status_code != 404
+        return env.response.headers.delete("Transfer-Encoding")
+      end
+
+      proxy_file(response, env)
+    }
+
     begin
-      YT_POOL.client &.get(url, headers) do |response|
-        env.response.status_code = response.status_code
-        response.headers.each do |key, value|
-          if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-            env.response.headers[key] = value
+      {% unless flag?(:disable_quic) %}
+        if CONFIG.use_quic
+          YT_POOL.client &.get(url, headers) do |resp|
+            return request_proc.call(resp)
+          end
+        else
+          HTTP::Client.get("https://i.ytimg.com#{url}") do |resp|
+            return request_proc.call(resp)
           end
         end
-
-        env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-        if response.status_code >= 300 && response.status_code != 404
-          env.response.headers.delete("Transfer-Encoding")
-          break
+      {% else %}
+        # This can likely be optimized into a (small) pool sometime in the future.
+        HTTP::Client.get("https://i.ytimg.com#{url}") do |resp|
+          return request_proc.call(resp)
         end
-
-        proxy_file(response, env)
-      end
+      {% end %}
     rescue ex
     end
   end
