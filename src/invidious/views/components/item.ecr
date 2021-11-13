@@ -79,19 +79,8 @@
                 <div class="flex-left"><a href="/channel/<%= item.ucid %>">
                     <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %></p>
                 </a></div>
-                <div class="flex-right">
-                    <div class="icon-buttons">
-                        <a title="<%=translate(locale, "Watch on YouTube")%>" href="https://www.youtube.com/watch?v=<%= item.id %>&list=<%= item.plid %>">
-                            <i class="icon ion-logo-youtube"></i>
-                        </a>
-                        <a title="<%=translate(locale, "Audio mode")%>" href="/watch?v=<%= item.id %>&list=<%= item.plid %>&amp;listen=1">
-                            <i class="icon ion-md-headset"></i>
-                        </a>
-                        <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=<%=URI.encode_www_form("watch?v=#{item.id}&list=#{item.plid}")%>">
-                            <i class="icon ion-md-jet"></i>
-                        </a>
-                    </div>
-                </div>
+                <% endpoint_params = "?v=#{item.id}&list=#{item.plid}" %>
+                <%= rendered "components/video-context-buttons" %>
             </div>
 
             <div class="video-card-row flexible">
@@ -155,19 +144,9 @@
                 <div class="flex-left"><a href="/channel/<%= item.ucid %>">
                     <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %></p>
                 </a></div>
-                <div class="flex-right">
-                    <div class="icon-buttons">
-                        <a title="<%=translate(locale, "Watch on YouTube")%>" href="https://www.youtube.com/watch?v=<%= item.id %>">
-                            <i class="icon ion-logo-youtube"></i>
-                        </a>
-                        <a title="<%=translate(locale, "Audio mode")%>" href="/watch?v=<%= item.id %>&amp;listen=1">
-                            <i class="icon ion-md-headset"></i>
-                        </a>
-                        <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=<%=URI.encode_www_form("watch?v=#{item.id}")%>">
-                            <i class="icon ion-md-jet"></i>
-                        </a>
-                    </div>
-                </div>
+
+                <% endpoint_params = "?v=#{item.id}" %>
+                <%= rendered "components/video-context-buttons" %>
             </div>
 
             <div class="video-card-row flexible">
