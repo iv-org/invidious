@@ -32,15 +32,12 @@ class InitialInnerTubeParseException < Exception
     contents = %(\n\n<details>)
     contents += %(\n<summary>InnerTube request metadata</summary>)
     contents += %(\n<p>\n)
-    contents += %(\n   \n```\n)
-
     contents += %(Endpoint: `#{@endpoint}`\n)
-    contents += %(\nClient config: ```json\n#{@client_config}\n```\n)
-    contents += %(\nData: ```json\n#{@data}\n```\n)
+    contents += %(\nClient config:\n\n```json\n#{@client_config}\n```\n)
+    contents += %(\nData:\n\n```json\n#{@data}\n```\n)
     contents += %(\nStatus code: `#{@status_code}`\n)
     contents += %(MIME type: `#{@mime_type}`)
 
-    contents += %(\n```)
     contents += %(\n</p>)
     contents += %(\n</details>)
 
