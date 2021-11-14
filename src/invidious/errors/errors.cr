@@ -15,8 +15,11 @@ def github_details_backtrace(summary : String, content : String)
 end
 
 def generic_error_template_helper(env : HTTP::Server::Context, locale : Hash(String, JSON::Any) | Nil, status_code : Int32, exception : Exception)
+  # Custom error routing
   if exception.is_a?(InfoException)
     return generic_error_template_helper(env, locale, status_code, exception.message || "")
+  elsif exception.is_a? InitialInnerTubeParseException
+    return exception.error_template_helper(env, locale)
   end
 
   env.response.content_type = "text/html"

@@ -135,6 +135,15 @@ module YoutubeAPI
         proxy_region: @proxy_region,
       }.to_s
     end
+
+    # Converts to hash for displaying on error pages
+    def to_h
+      return {
+        client_type:  self.name,
+        region:       @region,
+        proxy_region: @proxy_region,
+      }
+    end
   end
 
   # Default client config, used if nothing is passed
@@ -435,7 +444,17 @@ module YoutubeAPI
     end
 
     # Convert result to Hash
-    initial_data = JSON.parse(response.body).as_h
+    begin
+      initial_data = JSON.parse(response.body).as_h
+    rescue ex
+      raise InitialInnerTubeParseException.new(ex,
+        endpoint: endpoint.to_s,
+        client_config: client_config.to_h.to_pretty_json,
+        data: data.to_pretty_json,
+        status_code: response.status_code,
+        mime_type: "#{response.mime_type.try &.media_type}"
+      )
+    end
 
     # Error handling
     if initial_data.has_key?("error")
