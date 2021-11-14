@@ -1,0 +1,11 @@
+
+<p> Looks like you've found a bug in Invidious. Please open a new issue <a href="https://github.com/iv-org/invidious/issues">on GitHub</a> and include the following text in your message: </p>
+
+<pre style="padding: 20px; background: rgba(0, 0, 0, 0.12345);">
+Title: `<%=exception.message%> (<%=exception.class%>)`
+Date: `<%=Time::Format::ISO_8601_DATE_TIME.format(Time.utc)%>`
+Route: `<%=env.request.resource%>`
+Version: `<%=env.request.resource%>`
+<%=backtrace%>
+</details>
+</pre>

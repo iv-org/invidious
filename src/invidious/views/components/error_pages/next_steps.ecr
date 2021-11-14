@@ -1,0 +1,25 @@
+<% if env.request.path.starts_with?("/search") || env.request.path.starts_with?("/watch") ||
+     env.request.path.starts_with?("/channel") || env.request.path.starts_with?("/playlist?list=PL")
+%>
+
+<%-
+next_steps_text = translate(locale, "next_steps_error_message")
+refresh = translate(locale, "next_steps_error_message_refresh")
+go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
+switch_instance = translate(locale, "Switch Invidious Instance")
+%>
+
+<p style="margin-bottom: 4px;"><%=next_steps_text%></p>
+<ul>
+    <li>
+        <a href="<%=env.request.resource%>"><%=refresh%></a>
+    </li>
+    <li>
+        <a href="/redirect?referer=<%=env.get("current_page")%>"><%=switch_instance%></a>
+    </li>
+    <li>
+        <a href="https://youtube.com<%=env.request.resource%>"><%=go_to_youtube%></a>
+    </li>
+</ul>
+
+<% end %>
