@@ -33,6 +33,7 @@ require "./invidious/channels/*"
 require "./invidious/user/*"
 require "./invidious/routes/**"
 require "./invidious/jobs/**"
+require "./invidious/errors/*"
 
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
