@@ -1,11 +1,3 @@
-# InfoExceptions are for displaying information to the user.
-#
-# An InfoException might or might not indicate that something went wrong.
-# Historically Invidious didn't differentiate between these two options, so to
-# maintain previous functionality InfoExceptions do not print backtraces.
-class InfoException < Exception
-end
-
 macro error_template(*args)
   error_template_helper(env, locale, {{*args}})
 end
