@@ -103,7 +103,7 @@ we're going to need to do it here in order to allow for translations.
         </h3>
     <% elsif video.live_now %>
         <h3>
-            <%= video.premiere_timestamp.try { |t| translate(locale, "Started streaming `x` ago", recode_date((Time.utc - t).ago, locale)) } %>
+            <%= video.premiere_timestamp.try { |t| translate(locale, "videoinfo_started_streaming_x_ago", recode_date((Time.utc - t).ago, locale)) } %>
         </h3>
     <% end %>
 </div>
@@ -112,8 +112,8 @@ we're going to need to do it here in order to allow for translations.
     <div class="pure-u-1 pure-u-lg-1-5">
         <div class="h-box">
             <span id="watch-on-youtube">
-                <a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "Watch on YouTube") %></a>
-                (<a href="https://www.youtube.com/embed/<%= video.id %>"><%= translate(locale, "Embed") %></a>)
+                <a href="https://www.youtube.com/watch?v=<%= video.id %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
+                (<a href="https://www.youtube.com/embed/<%= video.id %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
             </span>
             <p id="watch-on-another-invidious-instance">
             <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
@@ -123,7 +123,7 @@ we're going to need to do it here in order to allow for translations.
             <% end %>
             </p>
             <p id="embed-link">
-                <a href="<%= embed_link %>"><%= translate(locale, "Embed Link") %></a>
+                <a href="<%= embed_link %>"><%= translate(locale, "videoinfo_invidious_embed_link") %></a>
             </p>
             <p id="annotations">
                 <% if params.annotations %>
@@ -189,7 +189,7 @@ we're going to need to do it here in order to allow for translations.
                             <% end %>
                             <% captions.each do |caption| %>
                                 <option value='{"id":"<%= video.id %>","label":"<%= caption.name %>","title":"<%= URI.encode_www_form(video.title) %>-<%= video.id %>.<%= caption.language_code %>.vtt"}'>
-                                    <%= translate(locale, "Subtitles - `x` (.vtt)", caption.name) %>
+                                    <%= translate(locale, "download_subtitles", translate(locale, caption.name)) %>
                                 </option>
                             <% end %>
                         </select>
