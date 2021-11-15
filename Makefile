@@ -114,5 +114,5 @@ help:
 
 
 # No targets generates an output named after themselves
-.PHONY all get-libs build amd64 run
-.PHONY format test verify clean distclean help
+.PHONY: all get-libs build amd64 run
+.PHONY: format test verify clean distclean help
