@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+require "csv"
 require "digest/md5"
 require "file_utils"
 require "kemal"
@@ -829,11 +830,14 @@ post "/data_control" do |env|
           user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
             channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
           end
-        else
+        elsif body[0] == "{"
           subscriptions = JSON.parse(body)
           user.subscriptions += subscriptions.as_a.compact_map do |entry|
             entry["snippet"]["resourceId"]["channelId"].as_s
           end
+        else
+          subscriptions = CSV.parse(body)
+          user.subscriptions += subscriptions.compact_map { |entry| entry[0] if entry.size > 0 }
         end
         user.subscriptions.uniq!
 
