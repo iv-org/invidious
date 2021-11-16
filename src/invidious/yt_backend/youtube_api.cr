@@ -425,19 +425,23 @@ module YoutubeAPI
       )
     end
 
-    # Decompress the body ourselves, given that auto-decompress is
-    # broken in the Crystal stdlib.
-    # Read more:
-    #  - https://github.com/iv-org/invidious/issues/2612
-    #  - https://github.com/crystal-lang/crystal/issues/11354
-    #
-    case response.headers["Content-Encoding"]?
-    when "gzip"
-      body = Compress::Gzip::Reader.new(response.body_io, sync_close: true)
-    when "deflate"
-      body = Compress::Deflate::Reader.new(response.body_io, sync_close: true)
-    else
+    if {{ !flag?(:disable_quic) }} && CONFIG.use_quic
       body = response.body
+    else
+      # Decompress the body ourselves, when using HTTP::Client given that
+      # auto-decompress is broken in the Crystal stdlib.
+      # Read more:
+      #  - https://github.com/iv-org/invidious/issues/2612
+      #  - https://github.com/crystal-lang/crystal/issues/11354
+      #
+      case response.headers["Content-Encoding"]?
+      when "gzip"
+        body = Compress::Gzip::Reader.new(response.body_io, sync_close: true)
+      when "deflate"
+        body = Compress::Deflate::Reader.new(response.body_io, sync_close: true)
+      else
+        body = response.body
+      end
     end
 
     # Convert result to Hash
