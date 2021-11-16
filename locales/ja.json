@@ -432,5 +432,6 @@
     "adminprefs_modified_source_code_url_label": "編集したソースコードのレポジトリーURL",
     "long": "20 分以上",
     "preferences_region_label": "地域: ",
-    "footer_donate_page": "寄付する"
+    "footer_donate_page": "寄付する",
+    "preferences_quality_dash_label": "優先するDash画質 : "
 }
