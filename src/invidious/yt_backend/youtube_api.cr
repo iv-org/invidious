@@ -404,18 +404,9 @@ module YoutubeAPI
     url = "#{endpoint}?key=#{client_config.api_key}"
 
     headers = HTTP::Headers{
-      "Content-Type" => "application/json; charset=UTF-8",
+      "Content-Type"    => "application/json; charset=UTF-8",
+      "Accept-Encoding" => "gzip, deflate",
     }
-
-    # The normal HTTP client automatically applies accept-encoding: gzip,
-    # and decompresses. However, explicitly applying it will remove this functionality.
-    #
-    # https://github.com/crystal-lang/crystal/issues/11252#issuecomment-929594741
-    {% unless flag?(:disable_quic) %}
-      if CONFIG.use_quic
-        headers["Accept-Encoding"] = "gzip"
-      end
-    {% end %}
 
     # Logging
     LOGGER.debug("YoutubeAPI: Using endpoint: \"#{endpoint}\"")
@@ -434,8 +425,23 @@ module YoutubeAPI
       )
     end
 
+    # Decompress the body ourselves, given that auto-decompress is
+    # broken in the Crystal stdlib.
+    # Read more:
+    #  - https://github.com/iv-org/invidious/issues/2612
+    #  - https://github.com/crystal-lang/crystal/issues/11354
+    #
+    case headers["Content-Encoding"]?
+    when "gzip"
+      body = Compress::Gzip::Reader.new(response.body_io, sync_close: true)
+    when "deflate"
+      body = Compress::Deflate::Reader.new(response.body_io, sync_close: true)
+    else
+      body = response.body
+    end
+
     # Convert result to Hash
-    initial_data = JSON.parse(response.body).as_h
+    initial_data = JSON.parse(body).as_h
 
     # Error handling
     if initial_data.has_key?("error")
