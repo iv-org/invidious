@@ -68,7 +68,7 @@
     "preferences_listen_label": "Standardno slušaj: ",
     "preferences_local_label": "Koristi posrednika videa: ",
     "preferences_speed_label": "Standardna brzina: ",
-    "preferences_quality_label": "Primarna kvaliteta videa: ",
+    "preferences_quality_label": "Preferirana kvaliteta videa: ",
     "preferences_volume_label": "Glasnoća playera: ",
     "preferences_comments_label": "Standardni komentari: ",
     "youtube": "YouTube",
@@ -432,5 +432,6 @@
     "footer_modfied_source_code": "Izmijenjeni izvorni kod",
     "footer_documentation": "Dokumentacija",
     "footer_original_source_code": "Izvoran izvorni kod",
-    "preferences_region_label": "Zemlja sadržaja: "
+    "preferences_region_label": "Zemlja sadržaja: ",
+    "preferences_quality_dash_label": "Preferirana kvaliteta dash-videa: "
 }
