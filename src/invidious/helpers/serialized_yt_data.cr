@@ -18,20 +18,13 @@ struct SearchVideo
     query_params["v"] = self.id
 
     xml.element("entry") do
-      xml.element("id") { xml.text "yt:video:#{self.id}" }
-      xml.element("yt:videoId") { xml.text self.id }
-      xml.element("yt:channelId") { xml.text self.ucid }
+      xml.element("id") { xml.text self.id }
       xml.element("title") { xml.text self.title }
       xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?#{query_params}")
 
       xml.element("author") do
-        if auto_generated
-          xml.element("name") { xml.text self.author }
-          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
-        else
-          xml.element("name") { xml.text author }
-          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{ucid}" }
-        end
+        xml.element("name") { xml.text self.author }
+        xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
       end
 
       xml.element("content", type: "xhtml") do
@@ -40,7 +33,9 @@ struct SearchVideo
             xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
           end
 
-          xml.element("p", style: "word-break:break-word;white-space:pre-wrap") { xml.text html_to_content(self.description_html) }
+          xml.element("p", style: "white-space:pre-wrap") do
+            xml.text html_to_content(self.description_html)
+          end
         end
       end
 

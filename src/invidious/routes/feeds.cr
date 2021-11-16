@@ -144,8 +144,6 @@ module Invidious::Routes::Feeds
 
     ucid = env.params.url["ucid"]
 
-    params = HTTP::Params.parse(env.params.query["params"]? || "")
-
     begin
       channel = get_about_info(ucid, locale)
     rescue ex : ChannelRedirect
@@ -159,12 +157,13 @@ module Invidious::Routes::Feeds
     response = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{channel.ucid}")
     rss = XML.parse_html(response.body)
 
+    updated = [] of String
     videos = rss.xpath_nodes("//feed/entry").map do |entry|
       video_id = entry.xpath_node("videoid").not_nil!.content
       title = entry.xpath_node("title").not_nil!.content
 
       published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
-      updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
+      updated << entry.xpath_node("updated").not_nil!.content
 
       author = entry.xpath_node("author/name").not_nil!.content
       ucid = entry.xpath_node("channelid").not_nil!.content
@@ -188,33 +187,27 @@ module Invidious::Routes::Feeds
       })
     end
 
-    XML.build(indent: "  ", encoding: "UTF-8") do |xml|
-      xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
-        "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
-        "xml:lang": "en-US") do
-        xml.element("link", rel: "self", href: "#{HOST_URL}#{env.request.resource}")
-        xml.element("id") { xml.text "yt:channel:#{channel.ucid}" }
-        xml.element("yt:channelId") { xml.text channel.ucid }
-        xml.element("icon") { xml.text channel.author_thumbnail }
-        xml.element("title") { xml.text channel.author }
-        xml.element("link", rel: "alternate", href: "#{HOST_URL}/channel/#{channel.ucid}")
+    feed_created = rss.xpath_node("//feed/published").not_nil!.content
+    feed_updated = updated.size > 0 ? updated[0] : feed_created
 
-        xml.element("author") do
-          xml.element("name") { xml.text channel.author }
-          xml.element("uri") { xml.text "#{HOST_URL}/channel/#{channel.ucid}" }
-        end
+    # Generate Atom feed
 
-        xml.element("image") do
-          xml.element("url") { xml.text channel.author_thumbnail }
-          xml.element("title") { xml.text channel.author }
-          xml.element("link", rel: "self", href: "#{HOST_URL}#{env.request.resource}")
-        end
+    properties = Invidious::RssAtom::AtomProperties.new(
+      title: "", # Use channel author name
+      icon_url: channel.author_thumbnail,
+      author: channel.author,
+      author_url: "#{HOST_URL}/channel/#{channel.ucid}",
+      date_updated: feed_updated,
+      date_published: feed_created,
+      alt_links: [{
+        type: "text/html",
+        url:  "#{HOST_URL}/channel/#{channel.ucid}",
+      }]
+    )
 
-        videos.each do |video|
-          video.to_xml(channel.auto_generated, params, xml)
-        end
-      end
-    end
+    return Invidious::RssAtom.atom_feed_builder(
+      env, videos, "channel/#{channel.ucid}", properties
+    )
   end
 
   def self.rss_private(env)
@@ -245,20 +238,20 @@ module Invidious::Routes::Feeds
 
     videos, notifications = get_subscription_feed(user, max_results, page)
 
-    XML.build(indent: "  ", encoding: "UTF-8") do |xml|
-      xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
-        "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
-        "xml:lang": "en-US") do
-        xml.element("link", "type": "text/html", rel: "alternate", href: "#{HOST_URL}/feed/subscriptions")
-        xml.element("link", "type": "application/atom+xml", rel: "self",
-          href: "#{HOST_URL}#{env.request.resource}")
-        xml.element("title") { xml.text translate(locale, "Invidious Private Feed for `x`", user.email) }
+    # Generate Atom feed
 
-        (notifications + videos).each do |video|
-          video.to_xml(locale, params, xml)
-        end
-      end
-    end
+    properties = Invidious::RssAtom::AtomProperties.new(
+      title: translate(locale, "Invidious Private Feed for `x`", user.email),
+      author: user.email,
+      alt_links: [{
+        type: "text/html",
+        url:  "#{HOST_URL}/feed/subscriptions",
+      }]
+    )
+
+    return Invidious::RssAtom.atom_feed_builder(
+      env, (notifications + videos), "subscriptions/#{user.email}", properties
+    )
   end
 
   def self.rss_playlist(env)
@@ -276,23 +269,20 @@ module Invidious::Routes::Feeds
       if playlist = Invidious::Database::Playlists.select(id: plid)
         videos = get_playlist_videos(playlist, offset: 0)
 
-        return XML.build(indent: "  ", encoding: "UTF-8") do |xml|
-          xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
-            "xmlns:media": "http://search.yahoo.com/mrss/", xmlns: "http://www.w3.org/2005/Atom",
-            "xml:lang": "en-US") do
-            xml.element("link", rel: "self", href: "#{HOST_URL}#{env.request.resource}")
-            xml.element("id") { xml.text "iv:playlist:#{plid}" }
-            xml.element("iv:playlistId") { xml.text plid }
-            xml.element("title") { xml.text playlist.title }
-            xml.element("link", rel: "alternate", href: "#{HOST_URL}/playlist?list=#{plid}")
+        # Generate Atom feed
 
-            xml.element("author") do
-              xml.element("name") { xml.text playlist.author }
-            end
+        properties = Invidious::RssAtom::AtomProperties.new(
+          title: playlist.title,
+          author: playlist.author,
+          alt_links: [{
+            type: "text/html",
+            url:  "#{HOST_URL}/playlist?list=#{plid}",
+          }]
+        )
 
-            videos.each &.to_xml(xml)
-          end
-        end
+        return Invidious::RssAtom.atom_feed_builder(
+          env, videos, "playlist/#{plid}", properties
+        )
       else
         haltf env, status_code: 404
       end
