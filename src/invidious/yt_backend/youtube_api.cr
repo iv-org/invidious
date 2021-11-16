@@ -431,7 +431,7 @@ module YoutubeAPI
     #  - https://github.com/iv-org/invidious/issues/2612
     #  - https://github.com/crystal-lang/crystal/issues/11354
     #
-    case headers["Content-Encoding"]?
+    case response.headers["Content-Encoding"]?
     when "gzip"
       body = Compress::Gzip::Reader.new(response.body_io, sync_close: true)
     when "deflate"
