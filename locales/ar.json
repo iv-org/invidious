@@ -432,5 +432,6 @@
     "adminprefs_modified_source_code_url_label": "URL إلى مستودع التعليمات البرمجية المصدرية المعدلة",
     "footer_documentation": "التوثيق",
     "footer_donate_page": "تبرّع",
-    "preferences_region_label": "بلد المحتوى:. "
+    "preferences_region_label": "بلد المحتوى:. ",
+    "preferences_quality_dash_label": "جودة الفيديو المفضلة dash: "
 }
