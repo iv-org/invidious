@@ -1,4 +1,4 @@
-FROM crystallang/crystal:1.2.1-alpine AS builder
+FROM docker.io/crystallang/crystal:1.2.1-alpine AS builder
 RUN apk add --no-cache sqlite-static yaml-static
 
 ARG release
@@ -30,7 +30,7 @@ RUN if [ ${release} == 1 ] ; then \
     fi
 
 
-FROM alpine:latest
+FROM docker.io/alpine:latest
 RUN apk add --no-cache librsvg ttf-opensans
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
