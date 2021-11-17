@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgres:
-    image: postgres:10
+    image: docker.io/postgres:10
     restart: unless-stopped
     volumes:
       - postgresdata:/var/lib/postgresql/data
