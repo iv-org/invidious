@@ -1,3 +1,5 @@
+require "csv"
+
 def parse_subscription_export_csv(csv_content : String)
   rows = CSV.new(csv_content, headers: true)
   subscriptions = Array(String).new
