@@ -15,5 +15,5 @@ def parse_subscription_export_csv(csv_content : String)
     subscriptions << channel_id
   end
 
-  subscriptions
+  return subscriptions
 end
