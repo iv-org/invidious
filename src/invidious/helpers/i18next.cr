@@ -5,7 +5,7 @@ module I18next::Plurals
   #  I18next plural forms definition
   # -----------------------------------
 
-  private enum PluralForms
+  enum PluralForms
     # One singular, one plural forms
     Single_gt_one  = 1 # E.g: French
     Single_not_one = 2 # E.g: English
@@ -34,6 +34,7 @@ module I18next::Plurals
     Special_Romanian         = 20
     Special_Slovenian        = 21
     Special_Hebrew           = 22
+    Special_Odia             = 23
   end
 
   private PLURAL_SETS = {
@@ -75,13 +76,15 @@ module I18next::Plurals
     "mk"  => PluralForms::Special_Macedonian,
     "mnk" => PluralForms::Special_Mandinka,
     "mt"  => PluralForms::Special_Maltese,
+    "or"  => PluralForms::Special_Odia,
     "pl"  => PluralForms::Special_Polish_Kashubian,
     "ro"  => PluralForms::Special_Romanian,
     "sk"  => PluralForms::Special_Czech_Slovak,
     "sl"  => PluralForms::Special_Slovenian,
   }
 
-  # The array indices matches the PluralForms enum above
+  # These are the v1 and v2 compatible suffixes.
+  # The array indices matches the PluralForms enum above.
   private NUMBERS = [
     [1, 2],                # 1
     [1, 2],                # 2
@@ -105,67 +108,58 @@ module I18next::Plurals
     [1, 2, 20],            # 20
     [5, 1, 2, 3],          # 21
     [1, 2, 20, 21],        # 22
+    [2, 1],                # 23 (Odia)
   ]
-
-  # "or" ()
-  private NUMBERS_OR = [2, 1]
 
   # -----------------------------------
   #  I18next plural resolver class
   # -----------------------------------
 
+  RESOLVER = Resolver.new
+
   class Resolver
-    @@forms : Hash(String, PluralForms) = init_rules()
-    @@version : UInt8 = 3
+    private property forms = {} of String => PluralForms
+    property version : UInt8 = 3
 
     # Options
     property simplify_plural_suffix : Bool = true
 
-    # Suffixes
-    SUFFIXES_V1 = {
-      "",
-      "_plural_1",
-      "_plural_2",
-      "_plural_3",
-      "_plural_11",
-      "_plural_100",
-    }
-    SUFFIXES_V2 = {"_0", "_1", "_2", "_3", "_11", "_100"}
-    SUFFIXES_V3 = {"_0", "_1", "_2", "_3", "_4", "_5"}
-
-    def initialize(version : UInt8 = 3)
+    def initialize(version : Int = 3)
       # Sanity checks
       # V4 isn't supported, as it requires a full CLDR database.
       if version > 4 || version == 0
         raise "Invalid i18next version: v#{version}."
       elsif version == 4
         # Logger.error("Unsupported i18next version: v4. Falling back to v3")
-        @@version = 3
+        @version = 3_u8
       else
-        @@version = version
+        @version = version.to_u8
       end
+
+      self.init_rules
     end
 
-    def self.init_rules
+    def init_rules # : Hash(String, PluralForms)
+      # Init
+      # forms = {} of String => PluralForms
+
       # Look into sets
       PLURAL_SETS.each do |form, langs|
-        langs.each { |lang| @@forms[lang] = form }
+        langs.each { |lang| self.forms[lang] = form }
       end
 
       # Add plurals from the "singles" set
-      @@forms.merge!(PLURAL_SINGLES)
+      self.forms.merge!(PLURAL_SINGLES)
     end
 
     def get_plural_form(locale : String) : PluralForms
-      # Extract the ISO 639-1 or 639-2 code from an RFC 5646
-      # language code, except for pt-BR which needs to be kept as-is.
-      if locale.starts_with?("pt-BR")
-        locale = "pt-BR"
-      else
+      # Extract the ISO 639-1 or 639-2 code from an RFC 5646 language code,
+      # except for pt-BR and pt-PT which needs to be kept as-is.
+      if !locale.matches?(/^pt-(BR|PT)$/)
         locale = locale.split('-')[0]
       end
 
-      return @@forms[locale] if @@forms[locale]?
+      return self.forms[locale] if self.forms[locale]?
 
       # If nothing was found, then use the most common form, i.e
       # one singular and one plural, as in english. Not perfect,
@@ -181,32 +175,48 @@ module I18next::Plurals
       return get_suffix_retrocompat(locale, count.abs)
     end
 
-    def get_suffix_retrocompat(locale : String, count : Int) : String
+    # Emulate the `rule.numbers.size == 2 && rule.numbers[0] == 1` check
+    # from original i18next code
+    private def is_simple_plural(form : PluralForms) : Bool
+      case form
+      when .single_gt_one?      then return true
+      when .single_not_one?     then return true
+      when .special_icelandic?  then return true
+      when .special_macedonian? then return true
+      else
+        return false
+      end
+    end
+
+    private def get_suffix_retrocompat(locale : String, count : Int) : String
       # Get plural form
       plural_form = get_plural_form(locale)
-      rule_numbers = (locale == "or") ? NUMBERS_OR : NUMBERS[plural_form.to_i]
 
-      # Languages with no plural have no suffix
-      return "" if plural_form.none?
+      # Languages with no plural have the "_0" suffix
+      return "_0" if plural_form.none?
 
       # Get the index and suffix for this number
       idx = SuffixIndex.get_index(plural_form, count)
-      suffix = rule_numbers[idx]
 
       # Simple plurals are handled differently in all versions (but v4)
-      if @simplify_plural_suffix && rule_numbers.size == 2 && rule_numbers[0] == 1
-        return "_plural" if (suffix == 2)
-        return "" if (suffix == 1)
+      if @simplify_plural_suffix && is_simple_plural(plural_form)
+        return (idx == 1) ? "_plural" : ""
       end
 
       # More complex plurals
-      # TODO: support `options.prepend` for v2 and v3
+      # TODO: support v1 and v2
+      # TODO: support `options.prepend` (v2 and v3)
       # this.options.prepend && suffix.toString() ? this.options.prepend + suffix.toString() : suffix.toString()
-      case @version
-      when 1 then return SUFFIXES_V1[idx]
-      when 2 then return SUFFIXES_V2[idx]
-      else        return SUFFIXES_V3[idx]
-      end
+      #
+      # case @version
+      # when 1
+      #   suffix = SUFFIXES_V1_V2[plural_form.to_i][idx]
+      #   return (suffix == 1) ? "" : return "_plural_#{suffix}"
+      # when 2
+      #   return "_#{suffix}"
+      # else # v3
+      return "_#{idx}"
+      # end
     end
   end
 
@@ -238,6 +248,7 @@ module I18next::Plurals
       when .special_romanian?         then return special_romanian(count)
       when .special_slovenian?        then return special_slovenian(count)
       when .special_hebrew?           then return special_hebrew(count)
+      when .special_odia?             then return special_odia(count)
       else
         # default, if nothing matched above
         return 0_u8
@@ -324,7 +335,8 @@ module I18next::Plurals
     # Rule: (n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4)
     #
     def self.special_irish(count : Int) : UInt8
-      return count.to_u8 if (count == 1 || count == 2)
+      return 0_u8 if (count == 1)
+      return 1_u8 if (count == 2)
       return 2_u8 if (count < 7)
       return 3_u8 if (count < 11)
       return 4_u8
@@ -487,6 +499,16 @@ module I18next::Plurals
       else
         return 3_u8
       end
+    end
+
+    # Plural form for Odia ("or") language
+    #
+    # This one is a bit special. It should use rule #2 (like english)
+    # but the "numbers" (suffixes?) it has are inverted, so we'll make a
+    # special rule for it.
+    #
+    def self.special_odia(count : Int) : UInt8
+      return (count == 1) ? 0_u8 : 1_u8
     end
   end
 end
