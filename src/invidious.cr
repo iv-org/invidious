@@ -115,6 +115,7 @@ if CONFIG.check_tables
   check_enum(PG_DB, "privacy", PlaylistPrivacy)
 
   check_table(PG_DB, "channels", InvidiousChannel)
+  check_table(PG_DB, "channel_continuations", ChannelContinuation)
   check_table(PG_DB, "channel_videos", ChannelVideo)
   check_table(PG_DB, "playlists", InvidiousPlaylist)
   check_table(PG_DB, "playlist_videos", PlaylistVideo)

@@ -58,10 +58,16 @@ def fetch_continuation_token(initial_data : Hash(String, JSON::Any))
   # Fetches the continuation token from initial data
   if initial_data["onResponseReceivedActions"]?
     continuation_items = initial_data["onResponseReceivedActions"][0]["appendContinuationItemsAction"]["continuationItems"]
-  else
+  elsif initial_data["contents"]?
     tab = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])
     continuation_items = tab["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"][0]["gridRenderer"]["items"]
+  else
+    continuation = initial_data["continuationContents"]["gridContinuation"]["continuations"][0]["nextContinuationData"]["continuation"].as_s
   end
 
-  return fetch_continuation_token(continuation_items.as_a)
+  if continuation_items.nil?
+    return continuation
+  else
+    return fetch_continuation_token(continuation_items.as_a)
+  end
 end

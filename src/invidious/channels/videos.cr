@@ -58,10 +58,35 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
 end
 
 def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = "newest")
-  continuation = produce_channel_videos_continuation(ucid, page,
-    auto_generated: auto_generated, sort_by: sort_by, v2: true)
+  if channel_continuation = PG_DB.query_one?("SELECT * FROM channel_continuations WHERE id = $1 AND page = $2 AND sort_by = $3", ucid, page, sort_by, as: ChannelContinuation)
+    continuation = channel_continuation.continuation
+  else
+    # Manually create the continuation, and insert it into the table, if one does not already exist.
+    # This should only the case the first time the first page of each 'sort_by' mode is loaded for each channel,
+    # as all calls to this function with 'page = 1' will get the continuation for the next page (page 2) from the returned data below.
+    continuation = produce_channel_videos_continuation(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
+    channel_continuation = ChannelContinuation.new({
+      id: ucid,
+      page: page,
+      sort_by: sort_by,
+      continuation: continuation
+    })
+    PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
+     ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
+  end
 
-  return YoutubeAPI.browse(continuation)
+  initial_data = YoutubeAPI.browse(continuation)
+  # Store the returned continuation in the table so that it can be used the next time this function is called requesting that page.
+  channel_continuation = ChannelContinuation.new({
+    id: ucid,
+    page: page + 1,
+    sort_by: sort_by,
+    continuation: fetch_continuation_token(initial_data) || ""
+  })
+  PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
+   ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
+
+  return initial_data
 end
 
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
