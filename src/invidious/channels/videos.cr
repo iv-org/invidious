@@ -61,8 +61,9 @@ def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = 
   continuation = ""
   initial_data = Hash(String, JSON::Any).new
 
-  if page == 1
-    # Always manually create the continuation for page 1 as this is likely faster than a db lookup.
+  # Manually generating the continuation works correctly for both 'newest' and 'popular' sort modes,
+  # and for page 1 when sorting by 'oldest'. So only fallback to using the db if not in either of these states.
+  if sort_by != "oldest" || page == 1
     continuation = produce_channel_videos_continuation(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
   elsif channel_continuation = PG_DB.query_one?("SELECT * FROM channel_continuations WHERE id = $1 AND page = $2 AND sort_by = $3", ucid, page, sort_by, as: ChannelContinuation)
     continuation = channel_continuation.continuation
@@ -111,18 +112,22 @@ def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = 
     # Get the wanted page and store the returned continuation for the next page,
     # if there is one, so that it can be used the next time this function is called requesting that page.
     initial_data = YoutubeAPI.browse(continuation)
-    continuation = fetch_continuation_token(initial_data)
 
-    if !continuation.nil? && !continuation.empty?
-      channel_continuation = ChannelContinuation.new({
-        id: ucid,
-        page: page + 1,
-        sort_by: sort_by,
-        continuation: continuation
-      })
-      PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
-       ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
-     end
+    # Only get the continuation and store it if the sort mode is 'oldest'.
+    if sort_by == "oldest"
+      continuation = fetch_continuation_token(initial_data)
+
+      if !continuation.nil? && !continuation.empty?
+        channel_continuation = ChannelContinuation.new({
+          id: ucid,
+          page: page + 1,
+          sort_by: sort_by,
+          continuation: continuation
+        })
+        PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
+         ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
+      end
+    end
   end
 
   return initial_data
