@@ -216,18 +216,6 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
   page = 1
 
-  channel_continuation = ChannelContinuation.new({
-    id: ucid,
-    page: page,
-    sort_by: "newest",
-    continuation: produce_channel_videos_continuation(ucid, auto_generated: auto_generated, v2: true)
-  })
-  
-  LOGGER.trace("fetch_channel: #{ucid} : page #{page} : Updating or inserting continuation")
-
-  db.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
-   ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
-
   LOGGER.trace("fetch_channel: #{ucid} : Downloading channel videos page")
   initial_data = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
   videos = extract_videos(initial_data, author, ucid)
@@ -292,15 +280,6 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
     loop do
       initial_data = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
       videos = extract_videos(initial_data, author, ucid)
-
-      channel_continuation = ChannelContinuation.new({
-        id: ucid,
-        page: page,
-        sort_by: "newest",
-        continuation: fetch_continuation_token(initial_data) || ""
-      })
-      db.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
-       ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
 
       count = videos.size
       videos = videos.map { |video| ChannelVideo.new({
