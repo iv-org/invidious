@@ -95,10 +95,10 @@ def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = 
       break if continuation.nil? || continuation.empty?
 
       channel_continuation = ChannelContinuation.new({
-        id: ucid,
-        page: i,
-        sort_by: sort_by,
-        continuation: continuation
+        id:           ucid,
+        page:         i,
+        sort_by:      sort_by,
+        continuation: continuation,
       })
       PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
         ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
@@ -119,10 +119,10 @@ def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = 
 
       if !continuation.nil? && !continuation.empty?
         channel_continuation = ChannelContinuation.new({
-          id: ucid,
-          page: page + 1,
-          sort_by: sort_by,
-          continuation: continuation
+          id:           ucid,
+          page:         page + 1,
+          sort_by:      sort_by,
+          continuation: continuation,
         })
         PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
          ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
