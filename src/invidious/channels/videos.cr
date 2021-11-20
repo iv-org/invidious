@@ -58,33 +58,72 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
 end
 
 def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = "newest")
-  if channel_continuation = PG_DB.query_one?("SELECT * FROM channel_continuations WHERE id = $1 AND page = $2 AND sort_by = $3", ucid, page, sort_by, as: ChannelContinuation)
+  continuation = ""
+  initial_data = Hash(String, JSON::Any).new
+
+  if page == 1
+    # Always manually create the continuation for page 1 as this is likely faster than a db lookup.
+    continuation = produce_channel_videos_continuation(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
+  elsif channel_continuation = PG_DB.query_one?("SELECT * FROM channel_continuations WHERE id = $1 AND page = $2 AND sort_by = $3", ucid, page, sort_by, as: ChannelContinuation)
     continuation = channel_continuation.continuation
   else
-    # Manually create the continuation, and insert it into the table, if one does not already exist.
-    # This should only the case the first time the first page of each 'sort_by' mode is loaded for each channel,
-    # as all calls to this function with 'page = 1' will get the continuation for the next page (page 2) from the returned data below.
-    continuation = produce_channel_videos_continuation(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
-    channel_continuation = ChannelContinuation.new({
-      id: ucid,
-      page: page,
-      sort_by: sort_by,
-      continuation: continuation
-    })
-    PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
-     ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
+    # This branch should not be needed in normal operation (navigating via the previous/next page buttons).
+    # This is just here as a fallback in case someone requests, for example, page 3 without previously requesting page 2.
+
+    # Iterate backwards from the wanted page to page 2 to find a stored continuation.
+    start = 1
+    ((page - 1)..2).each do |i|
+      if channel_continuation = PG_DB.query_one?("SELECT * FROM channel_continuations WHERE id = $1 AND page = $2 AND sort_by = $3", ucid, i, sort_by, as: ChannelContinuation)
+        start = i
+        continuation = channel_continuation.continuation
+        break
+      end
+    end
+
+    # If a continuation hasn't been found after getting to page 2, manually create the continuation for page 1.
+    if start == 1
+      continuation = produce_channel_videos_continuation(ucid, 1, auto_generated: auto_generated, sort_by: sort_by, v2: true)
+    end
+
+    # Iterate from the found/created continuation until we have the continuation for the wanted page or there are no more pages.
+    # Store the returned continuation each time so that it can be found in the db next time the current page is wanted.
+    (start..(page - 1)).each do |i|
+      initial_data = YoutubeAPI.browse(continuation)
+      continuation = fetch_continuation_token(initial_data)
+
+      break if continuation.nil? || continuation.empty?
+
+      channel_continuation = ChannelContinuation.new({
+        id: ucid,
+        page: i,
+        sort_by: sort_by,
+        continuation: continuation
+      })
+      PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
+        ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
+    end
   end
 
-  initial_data = YoutubeAPI.browse(continuation)
-  # Store the returned continuation in the table so that it can be used the next time this function is called requesting that page.
-  channel_continuation = ChannelContinuation.new({
-    id: ucid,
-    page: page + 1,
-    sort_by: sort_by,
-    continuation: fetch_continuation_token(initial_data) || ""
-  })
-  PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
-   ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
+  # If we reached the channel's last page in the else loop above return an empty hash.
+  if continuation.nil? || continuation.empty?
+    initial_data.clear
+  else
+    # Get the wanted page and store the returned continuation for the next page,
+    # if there is one, so that it can be used the next time this function is called requesting that page.
+    initial_data = YoutubeAPI.browse(continuation)
+    continuation = fetch_continuation_token(initial_data)
+
+    if !continuation.nil? && !continuation.empty?
+      channel_continuation = ChannelContinuation.new({
+        id: ucid,
+        page: page + 1,
+        sort_by: sort_by,
+        continuation: continuation
+      })
+      PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
+       ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
+     end
+  end
 
   return initial_data
 end
