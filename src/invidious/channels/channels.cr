@@ -12,8 +12,8 @@ struct ChannelContinuation
   include DB::Serializable
 
   property id : String
-  property page : Int32 = 0
-  property sort_by : String = "newest"
+  property page : Int32
+  property sort_by : String
   property continuation : String
 
   def to_tuple

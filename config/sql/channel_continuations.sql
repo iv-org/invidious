@@ -5,8 +5,8 @@
 CREATE TABLE IF NOT EXISTS public.channel_continuations
 (
   id text NOT NULL,
-  page integer,
-  sort_by text,
+  page integer NOT NULL,
+  sort_by text NOT NULL,
   continuation text,
   CONSTRAINT channel_continuations_id_page_sort_by_key UNIQUE (id, page, sort_by)
 );
