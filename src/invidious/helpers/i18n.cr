@@ -65,8 +65,10 @@ def load_all_locales
 end
 
 def translate(locale : String?, key : String, text : String | Nil = nil) : String
-  # Raise an eception if "key" doesn't exist in en-US locale
-  raise "Invalid translation key \"#{key}\"" unless LOCALES["en-US"].has_key?(key)
+  # Log a warning if "key" doesn't exist in en-US locale
+  if !LOCALES["en-US"].has_key?(key)
+    LOGGER.warn("i18n: Missing translation key \"#{key}\"")
+  end
 
   # Default to english, whenever the locale doesn't exist,
   # or the key requested has not been translated
