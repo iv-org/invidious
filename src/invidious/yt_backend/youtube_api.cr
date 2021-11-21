@@ -434,11 +434,22 @@ module YoutubeAPI
       #  - https://github.com/iv-org/invidious/issues/2612
       #  - https://github.com/crystal-lang/crystal/issues/11354
       #
-      case response.headers["Content-Encoding"]?
-      when "gzip"
-        body = Compress::Gzip::Reader.new(response.body_io, sync_close: true)
-      when "deflate"
-        body = Compress::Deflate::Reader.new(response.body_io, sync_close: true)
+      if encodings = response.headers["Content-Encoding"]?
+        io = response.body_io
+
+        # Multiple encodings can be combined, and are listed in the order
+        # in which they were applied. E.g: "deflate, gzip" means that the
+        # content must be first "gunzipped", then "defated".
+        encodings.split(',').reverse.each do |enc|
+          case enc.strip(' ')
+          when "gzip"
+            io = Compress::Gzip::Reader.new(io, sync_close: true)
+          when "deflate"
+            io = Compress::Deflate::Reader.new(io, sync_close: true)
+          end
+        end
+
+        body = io.gets_to_end
       else
         body = response.body
       end
