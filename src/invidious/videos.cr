@@ -903,7 +903,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     if likes_button
       likes_txt = (likes_button["defaultText"]? || likes_button["toggledText"]?)
         .try &.dig?("accessibility", "accessibilityData", "label")
-      likes = likes_txt.as_s.gsub(/\D/, "").to_i64 if likes_txt
+      likes = likes_txt.as_s.gsub(/\D/, "").to_i64? if likes_txt
 
       LOGGER.trace("extract_video_info: Found \"likes\" button. Button text is \"#{likes_txt}\"")
       LOGGER.debug("extract_video_info: Likes count is #{likes}") if likes
@@ -916,7 +916,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     if dislikes_button
       dislikes_txt = (dislikes_button["defaultText"] || dislikes_button["toggledText"]?)
         .try &.dig?("accessibility", "accessibilityData", "label")
-      dislikes = dislikes_txt.as_s.gsub(/\D/, "").to_i64 if dislikes_txt
+      dislikes = dislikes_txt.as_s.gsub(/\D/, "").to_i64? if dislikes_txt
 
       LOGGER.trace("extract_video_info: Found \"dislikes\" button. Button text is \"#{dislikes_txt}\"")
       LOGGER.debug("extract_video_info: Dislikes count is #{dislikes}") if dislikes
@@ -924,7 +924,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   end
 
   if likes && likes != 0_i64 && (!dislikes || dislikes == 0_i64)
-    if rating = player_response.dig?("videoDetails", "averageRating").try &.as_f
+    if rating = player_response.dig?("videoDetails", "averageRating").try { |x| x.as_i64? || x.as_f? }
       dislikes = (likes * ((5 - rating)/(rating - 1))).round.to_i64
       LOGGER.debug("extract_video_info: Dislikes count (using fallback method) is #{dislikes}")
     end
