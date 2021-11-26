@@ -994,7 +994,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 end
 
 def get_video(id, db, refresh = true, region = nil, force_refresh = false)
-  if (video = db.query_one?("SELECT * FROM videos WHERE id = $1", id, as: Video)) && !region
+  if (video = Invidious::Database::Videos.select(id)) && !region
     # If record was last updated over 10 minutes ago, or video has since premiered,
     # refresh (expire param in response lasts for 6 hours)
     if (refresh &&
@@ -1003,17 +1003,15 @@ def get_video(id, db, refresh = true, region = nil, force_refresh = false)
        force_refresh
       begin
         video = fetch_video(id, region)
-        db.exec("UPDATE videos SET (id, info, updated) = ($1, $2, $3) WHERE id = $1", video.id, video.info.to_json, video.updated)
+        Invidious::Database::Videos.update(video)
       rescue ex
-        db.exec("DELETE FROM videos * WHERE id = $1", id)
+        Invidious::Database::Videos.delete(id)
         raise ex
       end
     end
   else
     video = fetch_video(id, region)
-    if !region
-      db.exec("INSERT INTO videos VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING", video.id, video.info.to_json, video.updated)
-    end
+    Invidious::Database::Videos.insert(video) if !region
   end
 
   return video
