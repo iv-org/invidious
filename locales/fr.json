@@ -423,5 +423,15 @@
     "Current version: ": "Version actuelle : ",
     "next_steps_error_message": "Vous pouvez essayer de : ",
     "next_steps_error_message_refresh": "Rafraîchir la page",
-    "next_steps_error_message_go_to_youtube": "Aller sur YouTube"
+    "next_steps_error_message_go_to_youtube": "Aller sur YouTube",
+    "preferences_quality_dash_label": "Qualité préférée de la vidéo du tableau de bord : ",
+    "footer_source_code": "Code source",
+    "preferences_region_label": "Pays du contenu : ",
+    "footer_donate_page": "Faire un don",
+    "footer_modfied_source_code": "Code source modifié",
+    "short": "Courte (< 4 minutes)",
+    "long": "Longue (> 20 minutes)",
+    "adminprefs_modified_source_code_url_label": "URL du dépôt du code source modifié",
+    "footer_documentation": "Documentation",
+    "footer_original_source_code": "Code source original"
 }
