@@ -431,5 +431,7 @@
     "footer_documentation": "Documentação",
     "footer_source_code": "Código fonte",
     "footer_original_source_code": "Código fonte original",
-    "footer_modfied_source_code": "Código Fonte Modificado"
+    "footer_modfied_source_code": "Código Fonte Modificado",
+    "preferences_quality_dash_label": "Qualidade de vídeo do painel preferida: ",
+    "preferences_region_label": "País do conteúdo: "
 }
