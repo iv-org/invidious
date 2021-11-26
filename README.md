@@ -1,6 +1,6 @@
 <div align="center">
   <img src="assets/invidious-colored-vector.svg" width="192" height="192" alt="Invidious logo">
-  <h1><a href="https://invidious.io/">Invidious</a></h1>
+  <h1>Invidious</h1>
 
   <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
     <img alt="License: AGPLv3" src="https://shields.io/badge/License-AGPL%20v3-blue.svg">
@@ -16,9 +16,6 @@
   </a>
   <a href="https://github.com/iv-org/invidious/pulls">
     <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/iv-org/invidious?color=blueviolet">
-  </a>
-  <a href="https://github.com/iv-org/invidious/stargazers">
-    <img alt="GitHub stars" src="https://img.shields.io/github/stars/iv-org/invidious?color=gold">
   </a>
   <a href="https://hosted.weblate.org/engage/invidious/">
     <img alt="Translation Status" src="https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg">
