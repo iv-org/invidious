@@ -8,7 +8,7 @@
   <a href="https://github.com/iv-org/invidious/actions">
     <img alt="Build Status" src="https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg">
   </a>
-    <a href="https://github.com/iv-org/invidious/commits/master">
+  <a href="https://github.com/iv-org/invidious/commits/master">
     <img alt="GitHub commits" src="https://img.shields.io/github/commit-activity/y/iv-org/invidious?color=red&label=commits">
   </a>
   <a href="https://github.com/iv-org/invidious/issues">
