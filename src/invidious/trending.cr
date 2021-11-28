@@ -20,13 +20,3 @@ def fetch_trending(trending_type, region, locale)
 
   return {trending, plid}
 end
-
-def extract_plid(url)
-  return url.try { |i| URI.parse(i).query }
-    .try { |i| HTTP::Params.parse(i)["bp"] }
-    .try { |i| URI.decode_www_form(i) }
-    .try { |i| Base64.decode(i) }
-    .try { |i| IO::Memory.new(i) }
-    .try { |i| Protodec::Any.parse(i) }
-    .try &.["44:0:embedded"]?.try &.["2:1:string"]?.try &.as_s
-end
