@@ -954,7 +954,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     contents = row.dig?("metadataRowRenderer", "contents", 0)
 
     if title.try &.== "Category"
-      contents = contents.try &.["runs"]?.try &.as_a[0]?
+      contents = contents.try &.dig?("runs", 0)
 
       params["genre"] = JSON::Any.new(contents.try &.["text"]?.try &.as_s || "")
       params["genreUcid"] = JSON::Any.new(contents.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]?
