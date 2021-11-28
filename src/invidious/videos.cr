@@ -857,8 +857,16 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     else
       client_config.client_type = YoutubeAPI::ClientType::Android
     end
-    stream_data = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
-    params["streamingData"] = stream_data["streamingData"]? || JSON::Any.new("")
+    android_player = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
+
+    # Sometime, the video is available from the web client, but not on Android, so check
+    # that here, and fallback to the streaming data from the web client if needed.
+    # See: https://github.com/iv-org/invidious/issues/2549
+    if android_player["playabilityStatus"]["status"] == "OK"
+      params["streamingData"] = android_player["streamingData"]? || JSON::Any.new("")
+    else
+      params["streamingData"] = player_response["streamingData"]? || JSON::Any.new("")
+    end
   end
 
   {"captions", "microformat", "playabilityStatus", "storyboards", "videoDetails"}.each do |f|
