@@ -914,7 +914,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
       .try &.["toggleButtonRenderer"]
 
     if dislikes_button
-      dislikes_txt = (dislikes_button["defaultText"] || dislikes_button["toggledText"]?)
+      dislikes_txt = (dislikes_button["defaultText"]? || dislikes_button["toggledText"]?)
         .try &.dig?("accessibility", "accessibilityData", "label")
       dislikes = dislikes_txt.as_s.gsub(/\D/, "").to_i64? if dislikes_txt
 
