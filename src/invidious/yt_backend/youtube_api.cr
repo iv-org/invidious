@@ -404,9 +404,18 @@ module YoutubeAPI
     url = "#{endpoint}?key=#{client_config.api_key}"
 
     headers = HTTP::Headers{
-      "Content-Type"    => "application/json; charset=UTF-8",
-      "Accept-Encoding" => "gzip, deflate",
+      "Content-Type" => "application/json; charset=UTF-8",
     }
+
+    # The normal HTTP client automatically applies accept-encoding: gzip,
+    # and decompresses. However, explicitly applying it will remove this functionality.
+    #
+    # https://github.com/crystal-lang/crystal/issues/11252#issuecomment-929594741
+    {% unless flag?(:disable_quic) %}
+      if CONFIG.use_quic
+        headers["Accept-Encoding"] = "gzip"
+      end
+    {% end %}
 
     # Logging
     LOGGER.debug("YoutubeAPI: Using endpoint: \"#{endpoint}\"")
@@ -425,38 +434,8 @@ module YoutubeAPI
       )
     end
 
-    if {{ !flag?(:disable_quic) }} && CONFIG.use_quic
-      body = response.body
-    else
-      # Decompress the body ourselves, when using HTTP::Client given that
-      # auto-decompress is broken in the Crystal stdlib.
-      # Read more:
-      #  - https://github.com/iv-org/invidious/issues/2612
-      #  - https://github.com/crystal-lang/crystal/issues/11354
-      #
-      if encodings = response.headers["Content-Encoding"]?
-        io = response.body_io
-
-        # Multiple encodings can be combined, and are listed in the order
-        # in which they were applied. E.g: "deflate, gzip" means that the
-        # content must be first "gunzipped", then "defated".
-        encodings.split(',').reverse.each do |enc|
-          case enc.strip(' ')
-          when "gzip"
-            io = Compress::Gzip::Reader.new(io, sync_close: true)
-          when "deflate"
-            io = Compress::Deflate::Reader.new(io, sync_close: true)
-          end
-        end
-
-        body = io.gets_to_end
-      else
-        body = response.body
-      end
-    end
-
     # Convert result to Hash
-    initial_data = JSON.parse(body).as_h
+    initial_data = JSON.parse(response.body).as_h
 
     # Error handling
     if initial_data.has_key?("error")
