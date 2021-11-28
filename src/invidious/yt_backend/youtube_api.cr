@@ -404,18 +404,9 @@ module YoutubeAPI
     url = "#{endpoint}?key=#{client_config.api_key}"
 
     headers = HTTP::Headers{
-      "Content-Type" => "application/json; charset=UTF-8",
+      "Content-Type"    => "application/json; charset=UTF-8",
+      "Accept-Encoding" => "gzip, deflate",
     }
-
-    # The normal HTTP client automatically applies accept-encoding: gzip,
-    # and decompresses. However, explicitly applying it will remove this functionality.
-    #
-    # https://github.com/crystal-lang/crystal/issues/11252#issuecomment-929594741
-    {% unless flag?(:disable_quic) %}
-      if CONFIG.use_quic
-        headers["Accept-Encoding"] = "gzip"
-      end
-    {% end %}
 
     # Logging
     LOGGER.debug("YoutubeAPI: Using endpoint: \"#{endpoint}\"")
@@ -423,19 +414,23 @@ module YoutubeAPI
     LOGGER.trace("YoutubeAPI: POST data: #{data}")
 
     # Send the POST request
-    if client_config.proxy_region
-      response = YT_POOL.client(
-        client_config.proxy_region,
+    if {{ !flag?(:disable_quic) }} && CONFIG.use_quic
+      # Using QUIC client
+      response = YT_POOL.client(client_config.proxy_region,
         &.post(url, headers: headers, body: data.to_json)
       )
+      body = response.body
     else
-      response = YT_POOL.client &.post(
-        url, headers: headers, body: data.to_json
-      )
+      # Using HTTP client
+      body = YT_POOL.client(client_config.proxy_region) do |client|
+        client.post(url, headers: headers, body: data.to_json) do |response|
+          self._decompress(response.body_io, response.headers["Content-Encoding"]?)
+        end
+      end
     end
 
     # Convert result to Hash
-    initial_data = JSON.parse(response.body).as_h
+    initial_data = JSON.parse(body).as_h
 
     # Error handling
     if initial_data.has_key?("error")
@@ -452,5 +447,36 @@ module YoutubeAPI
     end
 
     return initial_data
+  end
+
+  ####################################################################
+  # _decompress(body_io, headers)
+  #
+  # Internal function that reads the Content-Encoding headers and
+  # decompresses the content accordingly.
+  #
+  # We decompress the body ourselves (when using HTTP::Client) because
+  # the auto-decompress feature is broken in the Crystal stdlib.
+  #
+  # Read more:
+  #  - https://github.com/iv-org/invidious/issues/2612
+  #  - https://github.com/crystal-lang/crystal/issues/11354
+  #
+  def _decompress(body_io : IO, encodings : String?) : String
+    if encodings
+      # Multiple encodings can be combined, and are listed in the order
+      # in which they were applied. E.g: "deflate, gzip" means that the
+      # content must be first "gunzipped", then "defated".
+      encodings.split(',').reverse.each do |enc|
+        case enc.strip(' ')
+        when "gzip"
+          body_io = Compress::Gzip::Reader.new(body_io, sync_close: true)
+        when "deflate"
+          body_io = Compress::Deflate::Reader.new(body_io, sync_close: true)
+        end
+      end
+    end
+
+    return body_io.gets_to_end
   end
 end # End of module
