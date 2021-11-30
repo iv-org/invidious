@@ -46,7 +46,7 @@ module Invidious::Routes::Playlists
       return error_template(400, "Invalid privacy setting.")
     end
 
-    if PG_DB.query_one("SELECT count(*) FROM playlists WHERE author = $1", user.email, as: Int64) >= 100
+    if Invidious::Database::Playlists.count_owned_by(user.email) >= 100
       return error_template(400, "User cannot have more than 100 playlists.")
     end
 
@@ -85,7 +85,11 @@ module Invidious::Routes::Playlists
     sid = sid.as(String)
 
     plid = env.params.query["list"]?
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    if !plid || plid.empty?
+      return error_template(400, "A playlist ID is required")
+    end
+
+    playlist = Invidious::Database::Playlists.select(id: plid)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
@@ -117,7 +121,7 @@ module Invidious::Routes::Playlists
       return error_template(400, ex)
     end
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = Invidious::Database::Playlists.select(id: plid)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
@@ -148,7 +152,7 @@ module Invidious::Routes::Playlists
     page ||= 1
 
     begin
-      playlist = PG_DB.query_one("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+      playlist = Invidious::Database::Playlists.select(id: plid, raise_on_fail: true)
       if !playlist || playlist.author != user.email
         return env.redirect referer
       end
@@ -189,7 +193,7 @@ module Invidious::Routes::Playlists
       return error_template(400, ex)
     end
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = Invidious::Database::Playlists.select(id: plid)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
@@ -206,7 +210,7 @@ module Invidious::Routes::Playlists
       updated = playlist.updated
     end
 
-    PG_DB.exec("UPDATE playlists SET title = $1, privacy = $2, description = $3, updated = $4 WHERE id = $5", title, privacy, description, updated, plid)
+    Invidious::Database::Playlists.update(plid, title, privacy, description, updated)
 
     env.redirect "/playlist?list=#{plid}"
   end
@@ -232,7 +236,7 @@ module Invidious::Routes::Playlists
     page ||= 1
 
     begin
-      playlist = PG_DB.query_one("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+      playlist = Invidious::Database::Playlists.select(id: plid, raise_on_fail: true)
       if !playlist || playlist.author != user.email
         return env.redirect referer
       end

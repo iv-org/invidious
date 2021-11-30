@@ -323,7 +323,7 @@ end
 
 def get_playlist(db, plid, locale, refresh = true, force_refresh = false)
   if plid.starts_with? "IV"
-    if playlist = db.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    if playlist = Invidious::Database::Playlists.select(id: plid)
       return playlist
     else
       raise InfoException.new("Playlist does not exist.")

@@ -264,7 +264,7 @@ module Invidious::Routes::Feeds
     path = env.request.path
 
     if plid.starts_with? "IV"
-      if playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+      if playlist = Invidious::Database::Playlists.select(id: plid)
         videos = get_playlist_videos(PG_DB, playlist, offset: 0, locale: locale)
 
         return XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -364,7 +364,7 @@ module Invidious::Routes::Feeds
     if ucid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["channel_id"]?
       PG_DB.exec("UPDATE channels SET subscribed = $1 WHERE id = $2", Time.utc, ucid)
     elsif plid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["playlist_id"]?
-      PG_DB.exec("UPDATE playlists SET subscribed = $1 WHERE id = $2", Time.utc, ucid)
+      Invidious::Database::Playlists.update_subscription_time(plid)
     else
       haltf env, status_code: 400
     end

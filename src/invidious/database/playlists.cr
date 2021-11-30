@@ -37,6 +37,36 @@ module Invidious::Database::Playlists
   #  Update
   # -------------------
 
+  def update(id : String, title : String, privacy, description, updated)
+    request = <<-SQL
+      UPDATE playlists
+      SET title = $1, privacy = $2, description = $3, updated = $4
+      WHERE id = $5
+    SQL
+
+    PG_DB.exec(request, title, privacy, description, updated, id)
+  end
+
+  def update_description(id : String, description)
+    request = <<-SQL
+      UPDATE playlists
+      SET description = $1
+      WHERE id = $2
+    SQL
+
+    PG_DB.exec(request, description, id)
+  end
+
+  def update_subscription_time(id : String)
+    request = <<-SQL
+      UPDATE playlists
+      SET subscribed = $1
+      WHERE id = $2
+    SQL
+
+    PG_DB.exec(request, Time.utc, id)
+  end
+
   def update_video_added(id : String, index : String | Int64)
     request = <<-SQL
       UPDATE playlists
@@ -59,6 +89,56 @@ module Invidious::Database::Playlists
     SQL
 
     PG_DB.exec(request, index, Time.utc, id)
+  end
+
+  # -------------------
+  #  Salect
+  # -------------------
+
+  def select(*, id : String, raise_on_fail : Bool = false) : InvidiousPlaylist?
+    request = <<-SQL
+      SELECT * FROM playlists
+      WHERE id = $1
+    SQL
+
+    if raise_on_fail
+      return PG_DB.query_one(request, id, as: InvidiousPlaylist)
+    else
+      return PG_DB.query_one?(request, id, as: InvidiousPlaylist)
+    end
+  end
+
+  def select_all(*, author : String) : Array(InvidiousPlaylist)
+    request = <<-SQL
+      SELECT * FROM playlists
+      WHERE author = $1
+    SQL
+
+    return PG_DB.query_all(request, author, as: InvidiousPlaylist)
+  end
+
+  # -------------------
+  #  Misc checks
+  # -------------------
+
+  # Check if given playlist ID exists
+  def exists?(id : String) : Bool
+    request = <<-SQL
+      SELECT id FROM playlists
+      WHERE id = $1
+    SQL
+
+    return PG_DB.query_one?(request, id, as: String).nil?
+  end
+
+  # Count how many playlist a user has created.
+  def count_owned_by(author : String) : Int64
+    request = <<-SQL
+      SELECT count(*) FROM playlists
+      WHERE author = $1
+    SQL
+
+    return PG_DB.query_one?(request, author, as: Int64) || 0_i64
   end
 end
 

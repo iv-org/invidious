@@ -790,7 +790,7 @@ post "/data_control" do |env|
             next if !privacy
 
             playlist = create_playlist(PG_DB, title, privacy, user)
-            PG_DB.exec("UPDATE playlists SET description = $1 WHERE id = $2", description, playlist.id)
+            Invidious::Database::Playlists.update_description(playlist.id, description)
 
             videos = item["videos"]?.try &.as_a?.try &.each_with_index do |video_id, idx|
               raise InfoException.new("Playlist cannot have more than 500 videos") if idx > 500
