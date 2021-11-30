@@ -261,10 +261,7 @@ def create_playlist(db, title, privacy, user)
     index:       [] of Int64,
   })
 
-  playlist_array = playlist.to_a
-  args = arg_array(playlist_array)
-
-  db.exec("INSERT INTO playlists VALUES (#{args})", args: playlist_array)
+  Invidious::Database::Playlists.insert(playlist)
 
   return playlist
 end
@@ -282,10 +279,7 @@ def subscribe_playlist(db, user, playlist)
     index:       [] of Int64,
   })
 
-  playlist_array = playlist.to_a
-  args = arg_array(playlist_array)
-
-  db.exec("INSERT INTO playlists VALUES (#{args})", args: playlist_array)
+  Invidious::Database::Playlists.insert(playlist)
 
   return playlist
 end

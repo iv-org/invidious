@@ -122,8 +122,7 @@ module Invidious::Routes::Playlists
       return env.redirect referer
     end
 
-    PG_DB.exec("DELETE FROM playlist_videos * WHERE plid = $1", plid)
-    PG_DB.exec("DELETE FROM playlists * WHERE id = $1", plid)
+    Invidious::Database::Playlists.delete(plid)
 
     env.redirect "/feed/playlists"
   end
@@ -363,15 +362,12 @@ module Invidious::Routes::Playlists
         index:          Random::Secure.rand(0_i64..Int64::MAX),
       })
 
-      video_array = playlist_video.to_a
-      args = arg_array(video_array)
-
-      PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
-      PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index) + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist_id)
+      Invidious::Database::PlaylistVideos.insert(playlist_video)
+      Invidious::Database::Playlists.update_video_added(playlist_id, playlist_video.index)
     when "action_remove_video"
       index = env.params.query["set_video_id"]
-      PG_DB.exec("DELETE FROM playlist_videos * WHERE index = $1", index)
-      PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = cardinality(index) - 1, updated = $2 WHERE id = $3", index, Time.utc, playlist_id)
+      Invidious::Database::PlaylistVideos.delete(index)
+      Invidious::Database::Playlists.update_video_removed(playlist_id, index)
     when "action_move_video_before"
       # TODO: Playlist stub
     else

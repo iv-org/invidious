@@ -816,11 +816,8 @@ post "/data_control" do |env|
                 index:          Random::Secure.rand(0_i64..Int64::MAX),
               })
 
-              video_array = playlist_video.to_a
-              args = arg_array(video_array)
-
-              PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
-              PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index) + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist.id)
+              Invidious::Database::PlaylistVideos.insert(playlist_video)
+              Invidious::Database::Playlists.update_video_added(playlist.id, playlist_video.index)
             end
           end
         end

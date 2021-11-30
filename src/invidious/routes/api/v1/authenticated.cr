@@ -216,8 +216,7 @@ module Invidious::Routes::API::V1::Authenticated
       return error_json(403, "Invalid user")
     end
 
-    PG_DB.exec("DELETE FROM playlist_videos * WHERE plid = $1", plid)
-    PG_DB.exec("DELETE FROM playlists * WHERE id = $1", plid)
+    Invidious::Database::Playlists.delete(plid)
 
     env.response.status_code = 204
   end
@@ -266,11 +265,8 @@ module Invidious::Routes::API::V1::Authenticated
       index:          Random::Secure.rand(0_i64..Int64::MAX),
     })
 
-    video_array = playlist_video.to_a
-    args = arg_array(video_array)
-
-    PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
-    PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index) + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, plid)
+    Invidious::Database::PlaylistVideos.insert(playlist_video)
+    Invidious::Database::Playlists.update_video_added(plid, playlist_video.index)
 
     env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/playlists/#{plid}/videos/#{playlist_video.index.to_u64.to_s(16).upcase}"
     env.response.status_code = 201
@@ -302,8 +298,8 @@ module Invidious::Routes::API::V1::Authenticated
       return error_json(404, "Playlist does not contain index")
     end
 
-    PG_DB.exec("DELETE FROM playlist_videos * WHERE index = $1", index)
-    PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = cardinality(index) - 1, updated = $2 WHERE id = $3", index, Time.utc, plid)
+    Invidious::Database::PlaylistVideos.delete(index)
+    Invidious::Database::Playlists.update_video_removed(plid, index)
 
     env.response.status_code = 204
   end
