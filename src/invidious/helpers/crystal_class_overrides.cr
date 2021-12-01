@@ -48,11 +48,39 @@ class HTTP::Client
   end
 end
 
-# Mute the ClientError exception raised when a connection is flushed.
-# This happends when the connection is unexpectedly closed by the client.
+# Mute the ClientError exception raised when a
+# connection is unexpectedly closed by the client.
 #
 class HTTP::Server::Response
   class Output
+    # Copy-paste of https://github.com/crystal-lang/crystal/blob/1.2.2/src/http/server/response.cr#L205-L228
+    # but without the "raise" statement in `rescue ex`
+    private def unbuffered_write(slice : Bytes)
+      return if slice.empty?
+
+      unless response.wrote_headers?
+        if response.version != "HTTP/1.0" && !response.headers.has_key?("Content-Length")
+          response.headers["Transfer-Encoding"] = "chunked"
+          @chunked = true
+        end
+      end
+
+      ensure_headers_written
+
+      if @chunked
+        slice.size.to_s(@io, 16)
+        @io << "\r\n"
+        @io.write(slice)
+        @io << "\r\n"
+      else
+        @io.write(slice)
+      end
+    rescue ex : IO::Error
+      unbuffered_close
+    end
+
+    # Copy-paste of https://github.com/crystal-lang/crystal/blob/1.2.2/src/http/server/response.cr#L274-L280
+    # but without the "raise" statement in `rescue ex`
     private def unbuffered_flush
       @io.flush
     rescue ex : IO::Error
