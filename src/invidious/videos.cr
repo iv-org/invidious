@@ -897,7 +897,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 
   if toplevel_buttons
     likes_button = toplevel_buttons.as_a
-      .find(&.["toggleButtonRenderer"]["defaultIcon"]["iconType"].as_s.== "LIKE")
+      .find(&.dig("toggleButtonRenderer", "defaultIcon", "iconType").as_s.== "LIKE")
       .try &.["toggleButtonRenderer"]
 
     if likes_button
@@ -910,7 +910,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     end
 
     dislikes_button = toplevel_buttons.as_a
-      .find(&.["toggleButtonRenderer"]["defaultIcon"]["iconType"].as_s.== "DISLIKE")
+      .find(&.dig("toggleButtonRenderer", "defaultIcon", "iconType").as_s.== "DISLIKE")
       .try &.["toggleButtonRenderer"]
 
     if dislikes_button
