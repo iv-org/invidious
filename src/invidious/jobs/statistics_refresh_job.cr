@@ -47,12 +47,14 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
 
   private def refresh_stats
     users = STATISTICS.dig("usage", "users").as(Hash(String, Int64))
-    users["total"] = db.query_one("SELECT count(*) FROM users", as: Int64)
-    users["activeHalfyear"] = db.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '6 months'", as: Int64)
-    users["activeMonth"] = db.query_one("SELECT count(*) FROM users WHERE CURRENT_TIMESTAMP - updated < '1 month'", as: Int64)
+
+    users["total"] = Invidious::Database::Statistics.count_users_total
+    users["activeHalfyear"] = Invidious::Database::Statistics.count_users_active_1m
+    users["activeMonth"] = Invidious::Database::Statistics.count_users_active_6m
+
     STATISTICS["metadata"] = {
       "updatedAt"              => Time.utc.to_unix,
-      "lastChannelRefreshedAt" => db.query_one?("SELECT updated FROM channels ORDER BY updated DESC LIMIT 1", as: Time).try &.to_unix || 0_i64,
+      "lastChannelRefreshedAt" => Invidious::Database::Statistics.channel_last_update.try &.to_unix || 0_i64,
     }
   end
 end
