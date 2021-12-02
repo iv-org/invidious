@@ -573,7 +573,9 @@ def content_to_comment_html(content)
           url = "/watch?v=#{url.request_target.lstrip('/')}"
         elsif url.host.nil? || url.host.not_nil!.ends_with?("youtube.com")
           if url.path == "/redirect"
-            url = HTTP::Params.parse(url.query.not_nil!)["q"]
+            # Sometimes, links can be corrupted (why?) so make sure to fallback
+            # nicely. See https://github.com/iv-org/invidious/issues/2682
+            url = HTTP::Params.parse(url.query.not_nil!)["q"]? || ""
           else
             url = url.request_target
           end
