@@ -2,7 +2,7 @@ require "crypto/subtle"
 
 def generate_token(email, scopes, expire, key, db)
   session = "v1:#{Base64.urlsafe_encode(Random::Secure.random_bytes(32))}"
-  PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", session, email, Time.utc)
+  Invidious::Database::SessionIDs.insert(session, email)
 
   token = {
     "session" => session,
@@ -30,7 +30,7 @@ def generate_response(session, scopes, key, db, expire = 6.hours, use_nonce = fa
 
   if use_nonce
     nonce = Random::Secure.hex(16)
-    db.exec("INSERT INTO nonces VALUES ($1, $2) ON CONFLICT DO NOTHING", nonce, expire)
+    Invidious::Database::Nonces.insert(nonce, expire)
     token["nonce"] = nonce
   end
 
@@ -92,9 +92,9 @@ def validate_request(token, session, request, key, db, locale = nil)
     raise InfoException.new("Invalid signature")
   end
 
-  if token["nonce"]? && (nonce = db.query_one?("SELECT * FROM nonces WHERE nonce = $1", token["nonce"], as: {String, Time}))
+  if token["nonce"]? && (nonce = Invidious::Database::Nonces.select(token["nonce"].as_s))
     if nonce[1] > Time.utc
-      db.exec("UPDATE nonces SET expire = $1 WHERE nonce = $2", Time.utc(1990, 1, 1), nonce[0])
+      Invidious::Database::Nonces.update_set_expired(nonce[0])
     else
       raise InfoException.new("Erroneous token")
     end

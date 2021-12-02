@@ -247,7 +247,7 @@ before_all do |env|
 
     # Invidious users only have SID
     if !env.request.cookies.has_key? "SSID"
-      if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
+      if email = Invidious::Database::SessionIDs.select_email(sid)
         user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
         csrf_token = generate_response(sid, {
           ":authorize_token",
@@ -633,6 +633,7 @@ get "/subscription_manager" do |env|
   end
 
   user = user.as(User)
+  sid = sid.as(String)
 
   if !user.password
     # Refresh account
@@ -1008,7 +1009,7 @@ post "/delete_account" do |env|
 
   view_name = "subscriptions_#{sha256(user.email)}"
   PG_DB.exec("DELETE FROM users * WHERE email = $1", user.email)
-  PG_DB.exec("DELETE FROM session_ids * WHERE email = $1", user.email)
+  Invidious::Database::SessionIDs.delete(email: user.email)
   PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
   env.request.cookies.each do |cookie|
@@ -1150,8 +1151,7 @@ get "/token_manager" do |env|
   end
 
   user = user.as(User)
-
-  tokens = PG_DB.query_all("SELECT id, issued FROM session_ids WHERE email = $1 ORDER BY issued DESC", user.email, as: {session: String, issued: Time})
+  tokens = Invidious::Database::SessionIDs.select_all(user.email)
 
   templated "token_manager"
 end
@@ -1200,7 +1200,7 @@ post "/token_ajax" do |env|
 
   case action
   when .starts_with? "action_revoke_token"
-    PG_DB.exec("DELETE FROM session_ids * WHERE id = $1 AND email = $2", session, user.email)
+    Invidious::Database::SessionIDs.delete(sid: session, email: user.email)
   else
     next error_json(400, "Unsupported action #{action}")
   end

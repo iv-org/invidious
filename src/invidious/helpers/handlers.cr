@@ -99,7 +99,7 @@ class AuthHandler < Kemal::Handler
         session = URI.decode_www_form(token["session"].as_s)
         scopes, expire, signature = validate_request(token, session, env.request, HMAC_KEY, PG_DB, nil)
 
-        if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", session, as: String)
+        if email = Invidious::Database::SessionIDs.select_email(session)
           user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
         end
       elsif sid = env.request.cookies["SID"]?.try &.value
@@ -107,7 +107,7 @@ class AuthHandler < Kemal::Handler
           raise "Cannot use token as SID"
         end
 
-        if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
+        if email = Invidious::Database::SessionIDs.select_email(sid)
           user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
         end
 

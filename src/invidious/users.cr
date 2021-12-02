@@ -30,7 +30,7 @@ struct User
 end
 
 def get_user(sid, headers, db, refresh = true)
-  if email = db.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
+  if email = Invidious::Database::SessionIDs.select_email(sid)
     user = db.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
 
     if refresh && Time.utc - user.updated > 1.minute
@@ -42,8 +42,7 @@ def get_user(sid, headers, db, refresh = true)
       db.exec("INSERT INTO users VALUES (#{args}) \
       ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", args: user_array)
 
-      db.exec("INSERT INTO session_ids VALUES ($1,$2,$3) \
-      ON CONFLICT (id) DO NOTHING", sid, user.email, Time.utc)
+      Invidious::Database::SessionIDs.insert(sid, user.email, handle_conflicts: true)
 
       begin
         view_name = "subscriptions_#{sha256(user.email)}"
@@ -60,8 +59,7 @@ def get_user(sid, headers, db, refresh = true)
     db.exec("INSERT INTO users VALUES (#{args}) \
     ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", args: user_array)
 
-    db.exec("INSERT INTO session_ids VALUES ($1,$2,$3) \
-    ON CONFLICT (id) DO NOTHING", sid, user.email, Time.utc)
+    Invidious::Database::SessionIDs.insert(sid, user.email, handle_conflicts: true)
 
     begin
       view_name = "subscriptions_#{sha256(user.email)}"

@@ -336,7 +336,7 @@ module Invidious::Routes::Login
 
         if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-          PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
+          Invidious::Database::SessionIDs.insert(sid, email)
 
           if Kemal.config.ssl || CONFIG.https_only
             secure = true
@@ -455,7 +455,7 @@ module Invidious::Routes::Login
         args = arg_array(user_array)
 
         PG_DB.exec("INSERT INTO users VALUES (#{args})", args: user_array)
-        PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
+        Invidious::Database::SessionIDs.insert(sid, email)
 
         view_name = "subscriptions_#{sha256(user.email)}"
         PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
@@ -511,7 +511,7 @@ module Invidious::Routes::Login
       return error_template(400, ex)
     end
 
-    PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", sid)
+    Invidious::Database::SessionIDs.delete(sid: sid)
 
     env.request.cookies.each do |cookie|
       cookie.expires = Time.utc(1990, 1, 1)

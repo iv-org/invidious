@@ -312,7 +312,7 @@ module Invidious::Routes::API::V1::Authenticated
     user = env.get("user").as(User)
     scopes = env.get("scopes").as(Array(String))
 
-    tokens = PG_DB.query_all("SELECT id, issued FROM session_ids WHERE email = $1", user.email, as: {session: String, issued: Time})
+    tokens = Invidious::Database::SessionIDs.select_all(user.email)
 
     JSON.build do |json|
       json.array do
@@ -400,9 +400,9 @@ module Invidious::Routes::API::V1::Authenticated
 
     # Allow tokens to revoke other tokens with correct scope
     if session == env.get("session").as(String)
-      PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", session)
+      Invidious::Database::SessionIDs.delete(sid: session)
     elsif scopes_include_scope(scopes, "GET:tokens")
-      PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", session)
+      Invidious::Database::SessionIDs.delete(sid: session)
     else
       return error_json(400, "Cannot revoke session #{session}")
     end
