@@ -35,11 +35,11 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
               lim_fibers = max_fibers
 
               LOGGER.trace("RefreshChannelsJob: #{id} fiber : Updating DB")
-              db.exec("UPDATE channels SET updated = $1, author = $2, deleted = false WHERE id = $3", Time.utc, channel.author, id)
+              Invidious::Database::Channels.update_author(id, channel.author)
             rescue ex
               LOGGER.error("RefreshChannelsJob: #{id} : #{ex.message}")
               if ex.message == "Deleted or invalid channel"
-                db.exec("UPDATE channels SET updated = $1, deleted = true WHERE id = $2", Time.utc, id)
+                Invidious::Database::Channels.update_mark_deleted(id)
               else
                 lim_fibers = 1
                 LOGGER.error("RefreshChannelsJob: #{id} fiber : backing off for #{backoff}s")

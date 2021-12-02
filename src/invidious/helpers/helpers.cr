@@ -235,11 +235,12 @@ def create_notification_stream(env, topics, connection_channel)
   spawn do
     begin
       if since
+        since_unix = Time.unix(since.not_nil!)
+
         topics.try &.each do |topic|
           case topic
           when .match(/UC[A-Za-z0-9_-]{22}/)
-            PG_DB.query_all("SELECT * FROM channel_videos WHERE ucid = $1 AND published > $2 ORDER BY published DESC LIMIT 15",
-              topic, Time.unix(since.not_nil!), as: ChannelVideo).each do |video|
+            Invidious::Database::ChannelVideos.select_notfications(topic, since_unix).each do |video|
               response = JSON.parse(video.to_json(locale))
 
               if fields_text = env.params.query["fields"]?

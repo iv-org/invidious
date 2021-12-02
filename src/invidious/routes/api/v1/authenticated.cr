@@ -72,13 +72,7 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
 
-    if user.subscriptions.empty?
-      values = "'{}'"
-    else
-      values = "VALUES #{user.subscriptions.map { |id| %(('#{id}')) }.join(",")}"
-    end
-
-    subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousChannel)
+    subscriptions = Invidious::Database::Channels.select(user.subscriptions)
 
     JSON.build do |json|
       json.array do

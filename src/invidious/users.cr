@@ -242,10 +242,7 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
 
   if user.preferences.notifications_only && !notifications.empty?
     # Only show notifications
-
-    args = arg_array(notifications)
-
-    notifications = db.query_all("SELECT * FROM channel_videos WHERE id IN (#{args}) ORDER BY published DESC", args: notifications, as: ChannelVideo)
+    notifications = Invidious::Database::ChannelVideos.select(notifications)
     videos = [] of ChannelVideo
 
     notifications.sort_by!(&.published).reverse!

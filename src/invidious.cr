@@ -649,13 +649,7 @@ get "/subscription_manager" do |env|
   format = env.params.query["format"]?
   format ||= "rss"
 
-  if user.subscriptions.empty?
-    values = "'{}'"
-  else
-    values = "VALUES #{user.subscriptions.map { |id| %(('#{id}')) }.join(",")}"
-  end
-
-  subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousChannel)
+  subscriptions = Invidious::Database::Channels.select(user.subscriptions)
   subscriptions.sort_by!(&.author.downcase)
 
   if action_takeout

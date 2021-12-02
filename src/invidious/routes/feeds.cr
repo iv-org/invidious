@@ -416,10 +416,7 @@ module Invidious::Routes::Feeds
           views:              video.views,
         })
 
-        was_insert = PG_DB.query_one("INSERT INTO channel_videos VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-          ON CONFLICT (id) DO UPDATE SET title = $2, published = $3,
-          updated = $4, ucid = $5, author = $6, length_seconds = $7,
-          live_now = $8, premiere_timestamp = $9, views = $10 returning (xmax=0) as was_insert", *video.to_tuple, as: Bool)
+        was_insert = Invidious::Database::ChannelVideos.insert(video, with_premiere_timestamp: true)
 
         PG_DB.exec("UPDATE users SET notifications = array_append(notifications, $1),
           feed_needs_update = true WHERE $2 = ANY(subscriptions)", video.id, video.ucid) if was_insert
