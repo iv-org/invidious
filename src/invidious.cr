@@ -759,18 +759,18 @@ post "/data_control" do |env|
 
           user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
-          PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+          Invidious::Database::Users.update_subscriptions(user)
         end
 
         if body["watch_history"]?
           user.watched += body["watch_history"].as_a.map(&.as_s)
           user.watched.uniq!
-          PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", user.watched, user.email)
+          Invidious::Database::Users.update_watch_history(user)
         end
 
         if body["preferences"]?
           user.preferences = Preferences.from_json(body["preferences"].to_json)
-          PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", user.preferences.to_json, user.email)
+          Invidious::Database::Users.update_preferences(user)
         end
 
         if playlists = body["playlists"]?.try &.as_a?
@@ -831,7 +831,7 @@ post "/data_control" do |env|
 
         user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
-        PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+        Invidious::Database::Users.update_subscriptions(user)
       when "import_freetube"
         user.subscriptions += body.scan(/"channelId":"(?<channel_id>[a-zA-Z0-9_-]{24})"/).map do |md|
           md["channel_id"]
@@ -840,7 +840,7 @@ post "/data_control" do |env|
 
         user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
-        PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+        Invidious::Database::Users.update_subscriptions(user)
       when "import_newpipe_subscriptions"
         body = JSON.parse(body)
         user.subscriptions += body["subscriptions"].as_a.compact_map do |channel|
@@ -859,7 +859,7 @@ post "/data_control" do |env|
 
         user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
-        PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+        Invidious::Database::Users.update_subscriptions(user)
       when "import_newpipe"
         Compress::Zip::Reader.open(IO::Memory.new(body)) do |file|
           file.each_entry do |entry|
@@ -871,14 +871,14 @@ post "/data_control" do |env|
               user.watched += db.query_all("SELECT url FROM streams", as: String).map(&.lchop("https://www.youtube.com/watch?v="))
               user.watched.uniq!
 
-              PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", user.watched, user.email)
+              Invidious::Database::Users.update_watch_history(user)
 
               user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map(&.lchop("https://www.youtube.com/channel/"))
               user.subscriptions.uniq!
 
               user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
 
-              PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+              Invidious::Database::Users.update_subscriptions(user)
 
               db.close
               tempfile.delete
@@ -962,7 +962,7 @@ post "/change_password" do |env|
   end
 
   new_password = Crypto::Bcrypt::Password.create(new_password, cost: 10)
-  PG_DB.exec("UPDATE users SET password = $1 WHERE email = $2", new_password.to_s, user.email)
+  Invidious::Database::Users.update_password(user, new_password.to_s)
 
   env.redirect referer
 end

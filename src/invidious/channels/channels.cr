@@ -238,8 +238,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
 
     if was_insert
       LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Inserted, updating subscriptions")
-      db.exec("UPDATE users SET notifications = array_append(notifications, $1), \
-        feed_needs_update = true WHERE $2 = ANY(subscriptions)", video.id, video.ucid)
+      Invidious::Database::Users.add_notification(video)
     else
       LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Updated")
     end
@@ -275,9 +274,7 @@ def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
         # so since they don't provide a published date here we can safely ignore them.
         if Time.utc - video.published > 1.minute
           was_insert = Invidious::Database::ChannelVideos.insert(video)
-
-          db.exec("UPDATE users SET notifications = array_append(notifications, $1), \
-            feed_needs_update = true WHERE $2 = ANY(subscriptions)", video.id, video.ucid) if was_insert
+          Invidious::Database::Users.add_notification(video) if was_insert
         end
       end
 

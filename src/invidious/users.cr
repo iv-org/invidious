@@ -224,8 +224,7 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
   limit = max_results.clamp(0, MAX_ITEMS_PER_PAGE)
   offset = (page - 1) * limit
 
-  notifications = db.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
-    as: Array(String))
+  notifications = Invidious::Database::Users.select_notifications(user)
   view_name = "subscriptions_#{sha256(user.email)}"
 
   if user.preferences.notifications_only && !notifications.empty?
@@ -296,8 +295,7 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
     else nil # Ignore
     end
 
-    notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email, as: Array(String))
-
+    notifications = Invidious::Database::Users.select_notifications(user)
     notifications = videos.select { |v| notifications.includes? v.id }
     videos = videos - notifications
   end

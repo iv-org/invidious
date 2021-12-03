@@ -80,7 +80,7 @@ module Invidious::Routes::Watch
     end
 
     if notifications && notifications.includes? id
-      PG_DB.exec("UPDATE users SET notifications = array_remove(notifications, $1) WHERE email = $2", id, user.as(User).email)
+      Invidious::Database::Users.remove_notification(user.as(User), id)
       env.get("user").as(User).notifications.delete(id)
       notifications.delete(id)
     end

@@ -303,8 +303,8 @@ module Invidious::Routes::Login
         end
 
         if env.request.cookies["PREFS"]?
-          preferences = env.get("preferences").as(Preferences)
-          PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+          user.preferences = env.get("preferences").as(Preferences)
+          Invidious::Database::Users.update_preferences(user)
 
           cookie = env.request.cookies["PREFS"]
           cookie.expires = Time.utc(1990, 1, 1)
@@ -470,8 +470,8 @@ module Invidious::Routes::Login
         end
 
         if env.request.cookies["PREFS"]?
-          preferences = env.get("preferences").as(Preferences)
-          PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+          user.preferences = env.get("preferences").as(Preferences)
+          Invidious::Database::Users.update_preferences(user)
 
           cookie = env.request.cookies["PREFS"]
           cookie.expires = Time.utc(1990, 1, 1)

@@ -99,8 +99,7 @@ module Invidious::Routes::Feeds
     # we know a user has looked at their feed e.g. in the past 10 minutes,
     # they've already seen a video posted 20 minutes ago, and don't need
     # to be notified.
-    PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE email = $3", [] of String, Time.utc,
-      user.email)
+    Invidious::Database::Users.clear_notifications(user)
     user.notifications = [] of String
     env.set "user", user
 
@@ -417,9 +416,7 @@ module Invidious::Routes::Feeds
         })
 
         was_insert = Invidious::Database::ChannelVideos.insert(video, with_premiere_timestamp: true)
-
-        PG_DB.exec("UPDATE users SET notifications = array_append(notifications, $1),
-          feed_needs_update = true WHERE $2 = ANY(subscriptions)", video.id, video.ucid) if was_insert
+        Invidious::Database::Users.add_notification(video) if was_insert
       end
     end
 

@@ -22,12 +22,11 @@ module Invidious::Routes::API::V1::Authenticated
     user = env.get("user").as(User)
 
     begin
-      preferences = Preferences.from_json(env.request.body || "{}")
+      user.preferences = Preferences.from_json(env.request.body || "{}")
     rescue
-      preferences = user.preferences
     end
 
-    PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+    Invidious::Database::Users.update_preferences(user)
 
     env.response.status_code = 204
   end
