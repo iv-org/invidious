@@ -327,7 +327,7 @@ module Invidious::Routes::Login
         return error_template(401, "Password is a required field")
       end
 
-      user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1", email, as: User)
+      user = Invidious::Database::Users.select(email: email)
 
       if user
         if !user.password
@@ -449,12 +449,7 @@ module Invidious::Routes::Login
           end
         end
 
-        user_array = user.to_a
-        user_array[4] = user_array[4].to_json # User preferences
-
-        args = arg_array(user_array)
-
-        PG_DB.exec("INSERT INTO users VALUES (#{args})", args: user_array)
+        Invidious::Database::Users.insert(user)
         Invidious::Database::SessionIDs.insert(sid, email)
 
         view_name = "subscriptions_#{sha256(user.email)}"

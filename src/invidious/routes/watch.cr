@@ -76,7 +76,7 @@ module Invidious::Routes::Watch
     env.params.query.delete_all("iv_load_policy")
 
     if watched && !watched.includes? id
-      PG_DB.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.as(User).email)
+      Invidious::Database::Users.mark_watched(user.as(User), id)
     end
 
     if notifications && notifications.includes? id

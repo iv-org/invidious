@@ -248,7 +248,7 @@ before_all do |env|
     # Invidious users only have SID
     if !env.request.cookies.has_key? "SSID"
       if email = Invidious::Database::SessionIDs.select_email(sid)
-        user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+        user = Invidious::Database::Users.select!(email: email)
         csrf_token = generate_response(sid, {
           ":authorize_token",
           ":playlist_ajax",
@@ -458,10 +458,10 @@ post "/watch_ajax" do |env|
   case action
   when "action_mark_watched"
     if !user.watched.includes? id
-      PG_DB.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.email)
+      Invidious::Database::Users.mark_watched(user, id)
     end
   when "action_mark_unwatched"
-    PG_DB.exec("UPDATE users SET watched = array_remove(watched, $1) WHERE email = $2", id, user.email)
+    Invidious::Database::Users.mark_unwatched(user, id)
   else
     next error_json(400, "Unsupported action #{action}")
   end
@@ -599,16 +599,15 @@ post "/subscription_ajax" do |env|
     # Sync subscriptions with YouTube
     subscribe_ajax(channel_id, action, env.request.headers)
   end
-  email = user.email
 
   case action
   when "action_create_subscription_to_channel"
     if !user.subscriptions.includes? channel_id
       get_channel(channel_id, PG_DB, false, false)
-      PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_append(subscriptions, $1) WHERE email = $2", channel_id, email)
+      Invidious::Database::Users.subscribe_channel(user, channel_id)
     end
   when "action_remove_subscriptions"
-    PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_remove(subscriptions, $1) WHERE email = $2", channel_id, email)
+    Invidious::Database::Users.unsubscribe_channel(user, channel_id)
   else
     next error_json(400, "Unsupported action #{action}")
   end
@@ -1008,7 +1007,7 @@ post "/delete_account" do |env|
   end
 
   view_name = "subscriptions_#{sha256(user.email)}"
-  PG_DB.exec("DELETE FROM users * WHERE email = $1", user.email)
+  Invidious::Database::Users.delete(user)
   Invidious::Database::SessionIDs.delete(email: user.email)
   PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
@@ -1059,7 +1058,7 @@ post "/clear_watch_history" do |env|
     next error_template(400, ex)
   end
 
-  PG_DB.exec("UPDATE users SET watched = '{}' WHERE email = $1", user.email)
+  Invidious::Database::Users.clear_watch_history(user)
   env.redirect referer
 end
 

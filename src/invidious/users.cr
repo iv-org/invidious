@@ -31,17 +31,12 @@ end
 
 def get_user(sid, headers, db, refresh = true)
   if email = Invidious::Database::SessionIDs.select_email(sid)
-    user = db.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+    user = Invidious::Database::Users.select!(email: email)
 
     if refresh && Time.utc - user.updated > 1.minute
       user, sid = fetch_user(sid, headers, db)
-      user_array = user.to_a
-      user_array[4] = user_array[4].to_json # User preferences
-      args = arg_array(user_array)
 
-      db.exec("INSERT INTO users VALUES (#{args}) \
-      ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", args: user_array)
-
+      Invidious::Database::Users.insert(user, update_on_conflict: true)
       Invidious::Database::SessionIDs.insert(sid, user.email, handle_conflicts: true)
 
       begin
@@ -52,13 +47,8 @@ def get_user(sid, headers, db, refresh = true)
     end
   else
     user, sid = fetch_user(sid, headers, db)
-    user_array = user.to_a
-    user_array[4] = user_array[4].to_json # User preferences
-    args = arg_array(user.to_a)
 
-    db.exec("INSERT INTO users VALUES (#{args}) \
-    ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", args: user_array)
-
+    Invidious::Database::Users.insert(user, update_on_conflict: true)
     Invidious::Database::SessionIDs.insert(sid, user.email, handle_conflicts: true)
 
     begin

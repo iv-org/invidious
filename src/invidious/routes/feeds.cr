@@ -220,7 +220,7 @@ module Invidious::Routes::Feeds
       haltf env, status_code: 403
     end
 
-    user = PG_DB.query_one?("SELECT * FROM users WHERE token = $1", token.strip, as: User)
+    user = Invidious::Database::Users.select(token: token.strip)
     if !user
       haltf env, status_code: 403
     end

@@ -100,7 +100,7 @@ class AuthHandler < Kemal::Handler
         scopes, expire, signature = validate_request(token, session, env.request, HMAC_KEY, PG_DB, nil)
 
         if email = Invidious::Database::SessionIDs.select_email(session)
-          user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+          user = Invidious::Database::Users.select!(email: email)
         end
       elsif sid = env.request.cookies["SID"]?.try &.value
         if sid.starts_with? "v1:"
@@ -108,7 +108,7 @@ class AuthHandler < Kemal::Handler
         end
 
         if email = Invidious::Database::SessionIDs.select_email(sid)
-          user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+          user = Invidious::Database::Users.select!(email: email)
         end
 
         scopes = [":*"]

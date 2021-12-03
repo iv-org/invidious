@@ -94,7 +94,7 @@ module Invidious::Routes::API::V1::Authenticated
 
     if !user.subscriptions.includes? ucid
       get_channel(ucid, PG_DB, false, false)
-      PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_append(subscriptions,$1) WHERE email = $2", ucid, user.email)
+      Invidious::Database::Users.subscribe_channel(user, ucid)
     end
 
     # For Google accounts, access tokens don't have enough information to
@@ -110,7 +110,7 @@ module Invidious::Routes::API::V1::Authenticated
 
     ucid = env.params.url["ucid"]
 
-    PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_remove(subscriptions, $1) WHERE email = $2", ucid, user.email)
+    Invidious::Database::Users.unsubscribe_channel(user, ucid)
 
     env.response.status_code = 204
   end
