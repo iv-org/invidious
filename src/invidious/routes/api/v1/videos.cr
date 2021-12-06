@@ -239,7 +239,7 @@ module Invidious::Routes::API::V1::Videos
 
     case source
     when "archive"
-      if CONFIG.cache_annotations && (cached_annotation = PG_DB.query_one?("SELECT * FROM annotations WHERE id = $1", id, as: Annotation))
+      if CONFIG.cache_annotations && (cached_annotation = Invidious::Database::Annotations.select(id))
         annotations = cached_annotation.annotations
       else
         index = CHARS_SAFE.index(id[0]).not_nil!.to_s.rjust(2, '0')

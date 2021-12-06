@@ -183,7 +183,7 @@ def cache_annotation(db, id, annotations)
     end
   end
 
-  db.exec("INSERT INTO annotations VALUES ($1, $2) ON CONFLICT DO NOTHING", id, annotations) if has_legacy_annotations
+  Invidious::Database::Annotations.insert(id, annotations) if has_legacy_annotations
 end
 
 def create_notification_stream(env, topics, connection_channel)
