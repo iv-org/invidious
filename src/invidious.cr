@@ -656,7 +656,7 @@ get "/subscription_manager" do |env|
     if format == "json"
       env.response.content_type = "application/json"
       env.response.headers["content-disposition"] = "attachment"
-      playlists = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+      playlists = Invidious::Database::Playlists.select_like_iv(user.email)
 
       next JSON.build do |json|
         json.object do
@@ -672,7 +672,7 @@ get "/subscription_manager" do |env|
                   json.field "privacy", playlist.privacy.to_s
                   json.field "videos" do
                     json.array do
-                      PG_DB.query_all("SELECT id FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 500", playlist.id, playlist.index, as: String).each do |video_id|
+                      Invidious::Database::PlaylistVideos.select_ids(playlist.id, playlist.index, limit: 500).each do |video_id|
                         json.string video_id
                       end
                     end

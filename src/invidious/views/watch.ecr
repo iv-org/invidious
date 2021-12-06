@@ -138,7 +138,7 @@ we're going to need to do it here in order to allow for translations.
             </p>
 
             <% if user %>
-                <% playlists = PG_DB.query_all("SELECT id,title FROM playlists WHERE author = $1 AND id LIKE 'IV%'", user.email, as: {String, String}) %>
+                <% playlists = Invidious::Database::Playlists.select_user_created_playlists(user.email) %>
                 <% if !playlists.empty? %>
                     <form data-onsubmit="return_false" class="pure-form pure-form-stacked" action="/playlist_ajax" method="post">
                         <div class="pure-control-group">

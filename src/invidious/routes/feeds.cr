@@ -15,13 +15,14 @@ module Invidious::Routes::Feeds
 
     user = user.as(User)
 
-    items_created = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+    # TODO: make a single DB call and separate the items here?
+    items_created = Invidious::Database::Playlists.select_like_iv(user.email)
     items_created.map! do |item|
       item.author = ""
       item
     end
 
-    items_saved = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id NOT LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+    items_saved = Invidious::Database::Playlists.select_not_like_iv(user.email)
     items_saved.map! do |item|
       item.author = ""
       item

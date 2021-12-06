@@ -118,6 +118,39 @@ module Invidious::Database::Playlists
   end
 
   # -------------------
+  #  Salect (filtered)
+  # -------------------
+
+  def select_like_iv(email : String) : Array(InvidiousPlaylist)
+    request = <<-SQL
+      SELECT * FROM playlists
+      WHERE author = $1 AND id LIKE 'IV%'
+      ORDER BY created
+    SQL
+
+    PG_DB.query_all(request, email, as: InvidiousPlaylist)
+  end
+
+  def select_not_like_iv(email : String) : Array(InvidiousPlaylist)
+    request = <<-SQL
+      SELECT * FROM playlists
+      WHERE author = $1 AND id NOT LIKE 'IV%'
+      ORDER BY created
+    SQL
+
+    PG_DB.query_all(request, email, as: InvidiousPlaylist)
+  end
+
+  def select_user_created_playlists(email : String) : Array({String, String})
+    request = <<-SQL
+      SELECT id,title FROM playlists
+      WHERE author = $1 AND id LIKE 'IV%'
+    SQL
+
+    PG_DB.query_all(request, email, as: {String, String})
+  end
+
+  # -------------------
   #  Misc checks
   # -------------------
 
@@ -148,6 +181,8 @@ end
 module Invidious::Database::PlaylistVideos
   extend self
 
+  private alias VideoIndex = Int64 | Array(Int64)
+
   # -------------------
   #  Insert / Delete
   # -------------------
@@ -170,5 +205,53 @@ module Invidious::Database::PlaylistVideos
     SQL
 
     PG_DB.exec(request, index)
+  end
+
+  # -------------------
+  #  Salect
+  # -------------------
+
+  def select(plid : String, index : VideoIndex, offset, limit = 100) : Array(PlaylistVideo)
+    request = <<-SQL
+      SELECT * FROM playlist_videos
+      WHERE plid = $1
+      ORDER BY array_position($2, index)
+      LIMIT $3
+      OFFSET $4
+    SQL
+
+    return PG_DB.query_all(request, plid, index, limit, offset, as: PlaylistVideo)
+  end
+
+  def select_index(plid : String, vid : String) : Int64?
+    request = <<-SQL
+      SELECT index FROM playlist_videos
+      WHERE plid = $1 AND id = $2
+      LIMIT 1
+    SQL
+
+    return PG_DB.query_one?(request, plid, vid, as: Int64)
+  end
+
+  def select_one_id(plid : String, index : VideoIndex) : String?
+    request = <<-SQL
+      SELECT id FROM playlist_videos
+      WHERE plid = $1
+      ORDER BY array_position($2, index)
+      LIMIT 1
+    SQL
+
+    return PG_DB.query_one?(request, plid, index, as: String)
+  end
+
+  def select_ids(plid : String, index : VideoIndex, limit = 500) : Array(String)
+    request = <<-SQL
+      SELECT id FROM playlist_videos
+      WHERE plid = $1
+      ORDER BY array_position($2, index)
+      LIMIT $3
+    SQL
+
+    return PG_DB.query_all(request, plid, index, limit, as: String)
   end
 end

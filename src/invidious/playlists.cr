@@ -200,8 +200,8 @@ struct InvidiousPlaylist
 
       json.field "videos" do
         json.array do
-          if !offset || offset == 0
-            index = PG_DB.query_one?("SELECT index FROM playlist_videos WHERE plid = $1 AND id = $2 LIMIT 1", self.id, video_id, as: Int64)
+          if (!offset || offset == 0) && !video_id.nil?
+            index = Invidious::Database::PlaylistVideos.select_index(self.id, video_id)
             offset = self.index.index(index) || 0
           end
 
@@ -225,7 +225,8 @@ struct InvidiousPlaylist
   end
 
   def thumbnail
-    @thumbnail_id ||= PG_DB.query_one?("SELECT id FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 1", self.id, self.index, as: String) || "-----------"
+    # TODO: Get playlist thumbnail from playlist data rather than first video
+    @thumbnail_id ||= Invidious::Database::PlaylistVideos.select_one_id(self.id, self.index) || "-----------"
     "/vi/#{@thumbnail_id}/mqdefault.jpg"
   end
 
@@ -411,8 +412,7 @@ def get_playlist_videos(db, playlist, offset, locale = nil, video_id = nil)
   end
 
   if playlist.is_a? InvidiousPlaylist
-    db.query_all("SELECT * FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 100 OFFSET $3",
-      playlist.id, playlist.index, offset, as: PlaylistVideo)
+    Invidious::Database::PlaylistVideos.select(playlist.id, playlist.index, offset, limit: 100)
   else
     if video_id
       initial_data = YoutubeAPI.next({
