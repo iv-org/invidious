@@ -265,7 +265,7 @@ module Invidious::Routes::Feeds
 
     if plid.starts_with? "IV"
       if playlist = Invidious::Database::Playlists.select(id: plid)
-        videos = get_playlist_videos(PG_DB, playlist, offset: 0, locale: locale)
+        videos = get_playlist_videos(playlist, offset: 0, locale: locale)
 
         return XML.build(indent: "  ", encoding: "UTF-8") do |xml|
           xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",

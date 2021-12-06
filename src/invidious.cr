@@ -783,7 +783,7 @@ post "/data_control" do |env|
             next if !description
             next if !privacy
 
-            playlist = create_playlist(PG_DB, title, privacy, user)
+            playlist = create_playlist(title, privacy, user)
             Invidious::Database::Playlists.update_description(playlist.id, description)
 
             videos = item["videos"]?.try &.as_a?.try &.each_with_index do |video_id, idx|

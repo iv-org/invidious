@@ -150,7 +150,7 @@ module Invidious::Routes::API::V1::Authenticated
       return error_json(400, "User cannot have more than 100 playlists.")
     end
 
-    playlist = create_playlist(PG_DB, title, privacy, user)
+    playlist = create_playlist(title, privacy, user)
     env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/playlists/#{playlist.id}"
     env.response.status_code = 201
     {

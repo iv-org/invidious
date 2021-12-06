@@ -125,7 +125,7 @@ struct Playlist
 
       json.field "videos" do
         json.array do
-          videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, video_id: video_id)
+          videos = get_playlist_videos(self, offset: offset, locale: locale, video_id: video_id)
           videos.each do |video|
             video.to_json(json)
           end
@@ -205,7 +205,7 @@ struct InvidiousPlaylist
             offset = self.index.index(index) || 0
           end
 
-          videos = get_playlist_videos(PG_DB, self, offset: offset, locale: locale, video_id: video_id)
+          videos = get_playlist_videos(self, offset: offset, locale: locale, video_id: video_id)
           videos.each_with_index do |video, index|
             video.to_json(json, offset + index)
           end
@@ -247,7 +247,7 @@ struct InvidiousPlaylist
   end
 end
 
-def create_playlist(db, title, privacy, user)
+def create_playlist(title, privacy, user)
   plid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
 
   playlist = InvidiousPlaylist.new({
@@ -267,7 +267,7 @@ def create_playlist(db, title, privacy, user)
   return playlist
 end
 
-def subscribe_playlist(db, user, playlist)
+def subscribe_playlist(user, playlist)
   playlist = InvidiousPlaylist.new({
     title:       playlist.title.byte_slice(0, 150),
     id:          playlist.id,
@@ -322,7 +322,7 @@ def produce_playlist_continuation(id, index)
   return continuation
 end
 
-def get_playlist(db, plid, locale, refresh = true, force_refresh = false)
+def get_playlist(plid, locale, refresh = true, force_refresh = false)
   if plid.starts_with? "IV"
     if playlist = Invidious::Database::Playlists.select(id: plid)
       return playlist
@@ -404,7 +404,7 @@ def fetch_playlist(plid, locale)
   })
 end
 
-def get_playlist_videos(db, playlist, offset, locale = nil, video_id = nil)
+def get_playlist_videos(playlist, offset, locale = nil, video_id = nil)
   # Show empy playlist if requested page is out of range
   # (e.g, when a new playlist has been created, offset will be negative)
   if offset >= playlist.video_count || offset < 0
