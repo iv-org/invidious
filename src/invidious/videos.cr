@@ -885,42 +885,84 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
         }
   ).try { |a| JSON::Any.new(a) } || JSON::Any.new([] of JSON::Any)
 
-  primary_results = player_response.try &.["contents"]?.try &.["twoColumnWatchNextResults"]?.try &.["results"]?
-    .try &.["results"]?.try &.["contents"]?
-  sentiment_bar = primary_results.try &.as_a.select(&.["videoPrimaryInfoRenderer"]?)[0]?
-    .try &.["videoPrimaryInfoRenderer"]?
-      .try &.["sentimentBar"]?
-        .try &.["sentimentBarRenderer"]?
-          .try &.["tooltip"]?
-            .try &.as_s
+  # Top level elements
 
-  likes, dislikes = sentiment_bar.try &.split(" / ", 2).map &.gsub(/\D/, "").to_i64 || {0_i64, 0_i64}
-  params["likes"] = JSON::Any.new(likes)
-  params["dislikes"] = JSON::Any.new(dislikes)
+  primary_results = player_response
+    .dig?("contents", "twoColumnWatchNextResults", "results", "results", "contents")
 
-  params["descriptionHtml"] = JSON::Any.new(primary_results.try &.as_a.select(&.["videoSecondaryInfoRenderer"]?)[0]?
-    .try &.["videoSecondaryInfoRenderer"]?.try &.["description"]?.try &.["runs"]?
-      .try &.as_a.try { |t| content_to_comment_html(t).gsub("\n", "<br/>") } || "<p></p>")
+  video_primary_renderer = primary_results
+    .try &.as_a.find(&.["videoPrimaryInfoRenderer"]?)
+      .try &.["videoPrimaryInfoRenderer"]
 
-  metadata = primary_results.try &.as_a.select(&.["videoSecondaryInfoRenderer"]?)[0]?
-    .try &.["videoSecondaryInfoRenderer"]?
-      .try &.["metadataRowContainer"]?
-        .try &.["metadataRowContainerRenderer"]?
-          .try &.["rows"]?
-            .try &.as_a
+  video_secondary_renderer = primary_results
+    .try &.as_a.find(&.["videoSecondaryInfoRenderer"]?)
+      .try &.["videoSecondaryInfoRenderer"]
+
+  # Likes/dislikes
+
+  toplevel_buttons = video_primary_renderer
+    .try &.dig?("videoActions", "menuRenderer", "topLevelButtons")
+
+  if toplevel_buttons
+    likes_button = toplevel_buttons.as_a
+      .find(&.dig("toggleButtonRenderer", "defaultIcon", "iconType").as_s.== "LIKE")
+      .try &.["toggleButtonRenderer"]
+
+    if likes_button
+      likes_txt = (likes_button["defaultText"]? || likes_button["toggledText"]?)
+        .try &.dig?("accessibility", "accessibilityData", "label")
+      likes = likes_txt.as_s.gsub(/\D/, "").to_i64? if likes_txt
+
+      LOGGER.trace("extract_video_info: Found \"likes\" button. Button text is \"#{likes_txt}\"")
+      LOGGER.debug("extract_video_info: Likes count is #{likes}") if likes
+    end
+
+    dislikes_button = toplevel_buttons.as_a
+      .find(&.dig("toggleButtonRenderer", "defaultIcon", "iconType").as_s.== "DISLIKE")
+      .try &.["toggleButtonRenderer"]
+
+    if dislikes_button
+      dislikes_txt = (dislikes_button["defaultText"]? || dislikes_button["toggledText"]?)
+        .try &.dig?("accessibility", "accessibilityData", "label")
+      dislikes = dislikes_txt.as_s.gsub(/\D/, "").to_i64? if dislikes_txt
+
+      LOGGER.trace("extract_video_info: Found \"dislikes\" button. Button text is \"#{dislikes_txt}\"")
+      LOGGER.debug("extract_video_info: Dislikes count is #{dislikes}") if dislikes
+    end
+  end
+
+  if likes && likes != 0_i64 && (!dislikes || dislikes == 0_i64)
+    if rating = player_response.dig?("videoDetails", "averageRating").try { |x| x.as_i64? || x.as_f? }
+      dislikes = (likes * ((5 - rating)/(rating - 1))).round.to_i64
+      LOGGER.debug("extract_video_info: Dislikes count (using fallback method) is #{dislikes}")
+    end
+  end
+
+  params["likes"] = JSON::Any.new(likes || 0_i64)
+  params["dislikes"] = JSON::Any.new(dislikes || 0_i64)
+
+  # Description
+
+  description_html = video_secondary_renderer.try &.dig?("description", "runs")
+    .try &.as_a.try { |t| content_to_comment_html(t).gsub("\n", "<br/>") }
+
+  params["descriptionHtml"] = JSON::Any.new(description_html || "<p></p>")
+
+  # Video metadata
+
+  metadata = video_secondary_renderer
+    .try &.dig?("metadataRowContainer", "metadataRowContainerRenderer", "rows")
+      .try &.as_a
 
   params["genre"] = params["microformat"]?.try &.["playerMicroformatRenderer"]?.try &.["category"]? || JSON::Any.new("")
   params["genreUrl"] = JSON::Any.new(nil)
 
   metadata.try &.each do |row|
     title = row["metadataRowRenderer"]?.try &.["title"]?.try &.["simpleText"]?.try &.as_s
-    contents = row["metadataRowRenderer"]?
-      .try &.["contents"]?
-        .try &.as_a[0]?
+    contents = row.dig?("metadataRowRenderer", "contents", 0)
 
     if title.try &.== "Category"
-      contents = contents.try &.["runs"]?
-        .try &.as_a[0]?
+      contents = contents.try &.dig?("runs", 0)
 
       params["genre"] = JSON::Any.new(contents.try &.["text"]?.try &.as_s || "")
       params["genreUcid"] = JSON::Any.new(contents.try &.["navigationEndpoint"]?.try &.["browseEndpoint"]?
@@ -935,17 +977,19 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     end
   end
 
-  author_info = primary_results.try &.as_a.select(&.["videoSecondaryInfoRenderer"]?)[0]?
-    .try &.["videoSecondaryInfoRenderer"]?.try &.["owner"]?.try &.["videoOwnerRenderer"]?
+  # Author infos
 
-  params["authorThumbnail"] = JSON::Any.new(author_info.try &.["thumbnail"]?
-    .try &.["thumbnails"]?.try &.as_a[0]?.try &.["url"]?
-      .try &.as_s || "")
+  author_info = video_secondary_renderer.try &.dig?("owner", "videoOwnerRenderer")
+  author_thumbnail = author_info.try &.dig?("thumbnail", "thumbnails", 0, "url")
+
+  params["authorThumbnail"] = JSON::Any.new(author_thumbnail.try &.as_s || "")
 
   params["subCountText"] = JSON::Any.new(author_info.try &.["subscriberCountText"]?
-    .try { |t| t["simpleText"]? || t["runs"]?.try &.[0]?.try &.["text"]? }.try &.as_s.split(" ", 2)[0] || "-")
+    .try { |t| t["simpleText"]? || t.dig?("runs", 0, "text") }.try &.as_s.split(" ", 2)[0] || "-")
 
-  params
+  # Return data
+
+  return params
 end
 
 def get_video(id, db, refresh = true, region = nil, force_refresh = false)
