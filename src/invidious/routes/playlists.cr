@@ -12,7 +12,7 @@ module Invidious::Routes::Playlists
 
     user = user.as(User)
     sid = sid.as(String)
-    csrf_token = generate_response(sid, {":create_playlist"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":create_playlist"}, HMAC_KEY)
 
     templated "create_playlist"
   end
@@ -31,7 +31,7 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end
@@ -94,7 +94,7 @@ module Invidious::Routes::Playlists
       return env.redirect referer
     end
 
-    csrf_token = generate_response(sid, {":delete_playlist"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":delete_playlist"}, HMAC_KEY)
 
     templated "delete_playlist"
   end
@@ -116,7 +116,7 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end
@@ -166,7 +166,7 @@ module Invidious::Routes::Playlists
       videos = [] of PlaylistVideo
     end
 
-    csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY)
 
     templated "edit_playlist"
   end
@@ -188,7 +188,7 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end
@@ -286,7 +286,7 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       if redirect
         return error_template(400, ex)

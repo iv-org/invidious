@@ -29,31 +29,31 @@ struct User
   end
 end
 
-def get_user(sid, headers, db, refresh = true)
+def get_user(sid, headers, refresh = true)
   if email = Invidious::Database::SessionIDs.select_email(sid)
     user = Invidious::Database::Users.select!(email: email)
 
     if refresh && Time.utc - user.updated > 1.minute
-      user, sid = fetch_user(sid, headers, db)
+      user, sid = fetch_user(sid, headers)
 
       Invidious::Database::Users.insert(user, update_on_conflict: true)
       Invidious::Database::SessionIDs.insert(sid, user.email, handle_conflicts: true)
 
       begin
         view_name = "subscriptions_#{sha256(user.email)}"
-        db.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
+        PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
       rescue ex
       end
     end
   else
-    user, sid = fetch_user(sid, headers, db)
+    user, sid = fetch_user(sid, headers)
 
     Invidious::Database::Users.insert(user, update_on_conflict: true)
     Invidious::Database::SessionIDs.insert(sid, user.email, handle_conflicts: true)
 
     begin
       view_name = "subscriptions_#{sha256(user.email)}"
-      db.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
+      PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
     rescue ex
     end
   end
@@ -61,7 +61,7 @@ def get_user(sid, headers, db, refresh = true)
   return user, sid
 end
 
-def fetch_user(sid, headers, db)
+def fetch_user(sid, headers)
   feed = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
   feed = XML.parse_html(feed.body)
 
@@ -118,7 +118,7 @@ def create_user(sid, email, password)
   return user, sid
 end
 
-def generate_captcha(key, db)
+def generate_captcha(key)
   second = Random::Secure.rand(12)
   second_angle = second * 30
   second = second * 5
@@ -170,16 +170,16 @@ def generate_captcha(key, db)
 
   return {
     question: image,
-    tokens:   {generate_response(answer, {":login"}, key, db, use_nonce: true)},
+    tokens:   {generate_response(answer, {":login"}, key, use_nonce: true)},
   }
 end
 
-def generate_text_captcha(key, db)
+def generate_text_captcha(key)
   response = make_client(TEXTCAPTCHA_URL, &.get("/github.com/iv.org/invidious.json").body)
   response = JSON.parse(response)
 
   tokens = response["a"].as_a.map do |answer|
-    generate_response(answer.as_s, {":login"}, key, db, use_nonce: true)
+    generate_response(answer.as_s, {":login"}, key, use_nonce: true)
   end
 
   return {

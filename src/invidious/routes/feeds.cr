@@ -84,7 +84,7 @@ module Invidious::Routes::Feeds
     headers["Cookie"] = env.request.headers["Cookie"]
 
     if !user.password
-      user, sid = get_user(sid, headers, PG_DB)
+      user, sid = get_user(sid, headers)
     end
 
     max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)

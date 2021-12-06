@@ -275,7 +275,7 @@ module Invidious::Routes::Login
           raise "Couldn't get SID."
         end
 
-        user, sid = get_user(sid, headers, PG_DB)
+        user, sid = get_user(sid, headers)
 
         # We are now logged in
         traceback << "done.<br/>"
@@ -393,9 +393,9 @@ module Invidious::Routes::Login
             prompt = ""
 
             if captcha_type == "image"
-              captcha = generate_captcha(HMAC_KEY, PG_DB)
+              captcha = generate_captcha(HMAC_KEY)
             else
-              captcha = generate_text_captcha(HMAC_KEY, PG_DB)
+              captcha = generate_text_captcha(HMAC_KEY)
             end
 
             return templated "login"
@@ -412,7 +412,7 @@ module Invidious::Routes::Login
             answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
 
             begin
-              validate_request(tokens[0], answer, env.request, HMAC_KEY, PG_DB, locale)
+              validate_request(tokens[0], answer, env.request, HMAC_KEY, locale)
             rescue ex
               return error_template(400, ex)
             end
@@ -427,7 +427,7 @@ module Invidious::Routes::Login
             error_exception = Exception.new
             tokens.each do |token|
               begin
-                validate_request(token, answer, env.request, HMAC_KEY, PG_DB, locale)
+                validate_request(token, answer, env.request, HMAC_KEY, locale)
                 found_valid_captcha = true
               rescue ex
                 error_exception = ex
@@ -501,7 +501,7 @@ module Invidious::Routes::Login
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end

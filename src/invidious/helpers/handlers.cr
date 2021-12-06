@@ -97,7 +97,7 @@ class AuthHandler < Kemal::Handler
       if token = env.request.headers["Authorization"]?
         token = JSON.parse(URI.decode_www_form(token.lchop("Bearer ")))
         session = URI.decode_www_form(token["session"].as_s)
-        scopes, expire, signature = validate_request(token, session, env.request, HMAC_KEY, PG_DB, nil)
+        scopes, expire, signature = validate_request(token, session, env.request, HMAC_KEY, nil)
 
         if email = Invidious::Database::SessionIDs.select_email(session)
           user = Invidious::Database::Users.select!(email: email)

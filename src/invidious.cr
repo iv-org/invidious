@@ -256,7 +256,7 @@ before_all do |env|
           ":subscription_ajax",
           ":token_ajax",
           ":watch_ajax",
-        }, HMAC_KEY, PG_DB, 1.week)
+        }, HMAC_KEY, 1.week)
 
         preferences = user.preferences
         env.set "preferences", preferences
@@ -270,7 +270,7 @@ before_all do |env|
       headers["Cookie"] = env.request.headers["Cookie"]
 
       begin
-        user, sid = get_user(sid, headers, PG_DB, false)
+        user, sid = get_user(sid, headers, false)
         csrf_token = generate_response(sid, {
           ":authorize_token",
           ":playlist_ajax",
@@ -278,7 +278,7 @@ before_all do |env|
           ":subscription_ajax",
           ":token_ajax",
           ":watch_ajax",
-        }, HMAC_KEY, PG_DB, 1.week)
+        }, HMAC_KEY, 1.week)
 
         preferences = user.preferences
         env.set "preferences", preferences
@@ -438,7 +438,7 @@ post "/watch_ajax" do |env|
   end
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     if redirect
       next error_template(400, ex)
@@ -575,7 +575,7 @@ post "/subscription_ajax" do |env|
   token = env.params.body["csrf_token"]?
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     if redirect
       next error_template(400, ex)
@@ -639,7 +639,7 @@ get "/subscription_manager" do |env|
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    user, sid = get_user(sid, headers, PG_DB)
+    user, sid = get_user(sid, headers)
   end
 
   action_takeout = env.params.query["action_takeout"]?.try &.to_i?
@@ -906,7 +906,7 @@ get "/change_password" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
-  csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY, PG_DB)
+  csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY)
 
   templated "change_password"
 end
@@ -932,7 +932,7 @@ post "/change_password" do |env|
   end
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     next error_template(400, ex)
   end
@@ -980,7 +980,7 @@ get "/delete_account" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
-  csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY, PG_DB)
+  csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY)
 
   templated "delete_account"
 end
@@ -1001,7 +1001,7 @@ post "/delete_account" do |env|
   token = env.params.body["csrf_token"]?
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     next error_template(400, ex)
   end
@@ -1032,7 +1032,7 @@ get "/clear_watch_history" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
-  csrf_token = generate_response(sid, {":clear_watch_history"}, HMAC_KEY, PG_DB)
+  csrf_token = generate_response(sid, {":clear_watch_history"}, HMAC_KEY)
 
   templated "clear_watch_history"
 end
@@ -1053,7 +1053,7 @@ post "/clear_watch_history" do |env|
   token = env.params.body["csrf_token"]?
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     next error_template(400, ex)
   end
@@ -1075,7 +1075,7 @@ get "/authorize_token" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
-  csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, PG_DB)
+  csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY)
 
   scopes = env.params.query["scopes"]?.try &.split(",")
   scopes ||= [] of String
@@ -1106,7 +1106,7 @@ post "/authorize_token" do |env|
   token = env.params.body["csrf_token"]?
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     next error_template(400, ex)
   end
@@ -1115,7 +1115,7 @@ post "/authorize_token" do |env|
   callback_url = env.params.body["callbackUrl"]?
   expire = env.params.body["expire"]?.try &.to_i?
 
-  access_token = generate_token(user.email, scopes, expire, HMAC_KEY, PG_DB)
+  access_token = generate_token(user.email, scopes, expire, HMAC_KEY)
 
   if callback_url
     access_token = URI.encode_www_form(access_token)
@@ -1179,7 +1179,7 @@ post "/token_ajax" do |env|
   token = env.params.body["csrf_token"]?
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     if redirect
       next error_template(400, ex)

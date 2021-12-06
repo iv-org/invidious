@@ -353,7 +353,7 @@ module Invidious::Routes::API::V1::Authenticated
     if sid = env.get?("sid").try &.as(String)
       env.response.content_type = "text/html"
 
-      csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, PG_DB, use_nonce: true)
+      csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, use_nonce: true)
       return templated "authorize_token"
     else
       env.response.content_type = "application/json"
@@ -367,7 +367,7 @@ module Invidious::Routes::API::V1::Authenticated
         end
       end
 
-      access_token = generate_token(user.email, authorized_scopes, expire, HMAC_KEY, PG_DB)
+      access_token = generate_token(user.email, authorized_scopes, expire, HMAC_KEY)
 
       if callback_url
         access_token = URI.encode_www_form(access_token)

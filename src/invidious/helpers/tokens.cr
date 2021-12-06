@@ -1,6 +1,6 @@
 require "crypto/subtle"
 
-def generate_token(email, scopes, expire, key, db)
+def generate_token(email, scopes, expire, key)
   session = "v1:#{Base64.urlsafe_encode(Random::Secure.random_bytes(32))}"
   Invidious::Database::SessionIDs.insert(session, email)
 
@@ -19,7 +19,7 @@ def generate_token(email, scopes, expire, key, db)
   return token.to_json
 end
 
-def generate_response(session, scopes, key, db, expire = 6.hours, use_nonce = false)
+def generate_response(session, scopes, key, expire = 6.hours, use_nonce = false)
   expire = Time.utc + expire
 
   token = {
@@ -63,7 +63,7 @@ def sign_token(key, hash)
   return Base64.urlsafe_encode(OpenSSL::HMAC.digest(:sha256, key, string_to_sign)).strip
 end
 
-def validate_request(token, session, request, key, db, locale = nil)
+def validate_request(token, session, request, key, locale = nil)
   case token
   when String
     token = JSON.parse(URI.decode_www_form(token)).as_h
