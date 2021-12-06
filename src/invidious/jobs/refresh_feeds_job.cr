@@ -25,7 +25,7 @@ class Invidious::Jobs::RefreshFeedsJob < Invidious::Jobs::BaseJob
           spawn do
             begin
               # Drop outdated views
-              column_array = get_column_array(db, view_name)
+              column_array = Invidious::Database.get_column_array(db, view_name)
               ChannelVideo.type_array.each_with_index do |name, i|
                 if name != column_array[i]?
                   LOGGER.info("RefreshFeedsJob: DROP MATERIALIZED VIEW #{view_name}")
