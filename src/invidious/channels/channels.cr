@@ -114,7 +114,7 @@ class ChannelRedirect < Exception
   end
 end
 
-def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, max_threads = 10)
+def get_batch_channels(channels, refresh = false, pull_all_videos = true, max_threads = 10)
   finished_channel = Channel(String | Nil).new
 
   spawn do
@@ -130,7 +130,7 @@ def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, ma
       active_threads += 1
       spawn do
         begin
-          get_channel(ucid, db, refresh, pull_all_videos)
+          get_channel(ucid, refresh, pull_all_videos)
           finished_channel.send(ucid)
         rescue ex
           finished_channel.send(nil)
@@ -151,21 +151,21 @@ def get_batch_channels(channels, db, refresh = false, pull_all_videos = true, ma
   return final
 end
 
-def get_channel(id, db, refresh = true, pull_all_videos = true)
+def get_channel(id, refresh = true, pull_all_videos = true)
   if channel = Invidious::Database::Channels.select(id)
     if refresh && Time.utc - channel.updated > 10.minutes
-      channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
+      channel = fetch_channel(id, pull_all_videos: pull_all_videos)
       Invidious::Database::Channels.insert(channel, update_on_conflict: true)
     end
   else
-    channel = fetch_channel(id, db, pull_all_videos: pull_all_videos)
+    channel = fetch_channel(id, pull_all_videos: pull_all_videos)
     Invidious::Database::Channels.insert(channel)
   end
 
   return channel
 end
 
-def fetch_channel(ucid, db, pull_all_videos = true, locale = nil)
+def fetch_channel(ucid, pull_all_videos = true, locale = nil)
   LOGGER.debug("fetch_channel: #{ucid}")
   LOGGER.trace("fetch_channel: #{ucid} : pull_all_videos = #{pull_all_videos}, locale = #{locale}")
 

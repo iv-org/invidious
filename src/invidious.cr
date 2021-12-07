@@ -603,7 +603,7 @@ post "/subscription_ajax" do |env|
   case action
   when "action_create_subscription_to_channel"
     if !user.subscriptions.includes? channel_id
-      get_channel(channel_id, PG_DB, false, false)
+      get_channel(channel_id, false, false)
       Invidious::Database::Users.subscribe_channel(user, channel_id)
     end
   when "action_remove_subscriptions"
@@ -757,7 +757,7 @@ post "/data_control" do |env|
           user.subscriptions += body["subscriptions"].as_a.map(&.as_s)
           user.subscriptions.uniq!
 
-          user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+          user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
           Invidious::Database::Users.update_subscriptions(user)
         end
@@ -829,7 +829,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
         Invidious::Database::Users.update_subscriptions(user)
       when "import_freetube"
@@ -838,7 +838,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
         Invidious::Database::Users.update_subscriptions(user)
       when "import_newpipe_subscriptions"
@@ -857,7 +857,7 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
         Invidious::Database::Users.update_subscriptions(user)
       when "import_newpipe"
@@ -876,7 +876,7 @@ post "/data_control" do |env|
               user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map(&.lchop("https://www.youtube.com/channel/"))
               user.subscriptions.uniq!
 
-              user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+              user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
               Invidious::Database::Users.update_subscriptions(user)
 
