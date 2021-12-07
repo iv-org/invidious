@@ -220,7 +220,7 @@ def subscribe_ajax(channel_id, action, env_headers)
   end
 end
 
-def get_subscription_feed(db, user, max_results = 40, page = 1)
+def get_subscription_feed(user, max_results = 40, page = 1)
   limit = max_results.clamp(0, MAX_ITEMS_PER_PAGE)
   offset = (page - 1) * limit
 

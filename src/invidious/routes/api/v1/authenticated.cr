@@ -44,7 +44,7 @@ module Invidious::Routes::API::V1::Authenticated
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
-    videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
+    videos, notifications = get_subscription_feed(user, max_results, page)
 
     JSON.build do |json|
       json.object do

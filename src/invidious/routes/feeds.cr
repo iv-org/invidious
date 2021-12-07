@@ -94,7 +94,7 @@ module Invidious::Routes::Feeds
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
-    videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
+    videos, notifications = get_subscription_feed(user, max_results, page)
 
     # "updated" here is used for delivering new notifications, so if
     # we know a user has looked at their feed e.g. in the past 10 minutes,
@@ -234,7 +234,7 @@ module Invidious::Routes::Feeds
 
     params = HTTP::Params.parse(env.params.query["params"]? || "")
 
-    videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
+    videos, notifications = get_subscription_feed(user, max_results, page)
 
     XML.build(indent: "  ", encoding: "UTF-8") do |xml|
       xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
