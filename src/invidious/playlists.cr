@@ -242,7 +242,7 @@ struct InvidiousPlaylist
   end
 
   def description_html
-    HTML.escape(self.description).gsub("\n", "<br>")
+    HTML.escape(self.description)
   end
 end
 

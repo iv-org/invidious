@@ -257,14 +257,10 @@ we're going to need to do it here in order to allow for translations.
 
             <div id="description-box"> <!-- Description -->
                 <% if video.description.size < 200 || params.extend_desc %>
-                    <div id="descriptionWrapper">
-                        <%= video.description_html %>
-                    </div>
+                    <div id="descriptionWrapper"><%= video.description_html %></div>
                 <% else %>
                     <input id="descexpansionbutton" type="checkbox"/>
-                    <div id="descriptionWrapper">
-                        <%= video.description_html %>
-                    </div>
+                    <div id="descriptionWrapper"><%= video.description_html %></div>
                     <label for="descexpansionbutton">
                         <a></a>
                     </label>

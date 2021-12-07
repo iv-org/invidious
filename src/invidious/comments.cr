@@ -550,12 +550,12 @@ end
 
 def parse_content(content : JSON::Any) : String
   content["simpleText"]?.try &.as_s.rchop('\ufeff').try { |b| HTML.escape(b) }.to_s ||
-    content["runs"]?.try &.as_a.try { |r| content_to_comment_html(r).try &.to_s } || ""
+    content["runs"]?.try &.as_a.try { |r| content_to_comment_html(r).try &.to_s.gsub("\n", "<br>") } || ""
 end
 
 def content_to_comment_html(content)
   comment_html = content.map do |run|
-    text = HTML.escape(run["text"].as_s).gsub("\n", "<br>")
+    text = HTML.escape(run["text"].as_s)
 
     if run["bold"]?
       text = "<b>#{text}</b>"

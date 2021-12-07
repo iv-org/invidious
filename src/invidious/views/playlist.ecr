@@ -74,9 +74,7 @@
 </div>
 
 <div class="h-box">
-    <div id="descriptionWrapper">
-        <p><%= playlist.description_html %></p>
-    </div>
+    <div id="descriptionWrapper"><%= playlist.description_html %></div>
 </div>
 
 <% if playlist.is_a?(InvidiousPlaylist) && playlist.author == user.try &.email %>

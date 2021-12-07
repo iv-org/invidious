@@ -540,7 +540,8 @@ p,
 }
 
 #descriptionWrapper {
-       max-width: 600px;
+	max-width: 600px;
+	white-space: pre-wrap;
 }
 
 /* Center the "invidious" logo on the search page */
