@@ -39,7 +39,7 @@ module Invidious::Routes::Watch
     end
 
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
-    continuation = process_continuation(PG_DB, env.params.query, plid, id)
+    continuation = process_continuation(env.params.query, plid, id)
 
     nojs = env.params.query["nojs"]?
 
@@ -60,7 +60,7 @@ module Invidious::Routes::Watch
     env.params.query.delete_all("listen")
 
     begin
-      video = get_video(id, PG_DB, region: params.region)
+      video = get_video(id, region: params.region)
     rescue ex : VideoRedirect
       return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex

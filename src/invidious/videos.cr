@@ -993,7 +993,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   return params
 end
 
-def get_video(id, db, refresh = true, region = nil, force_refresh = false)
+def get_video(id, refresh = true, region = nil, force_refresh = false)
   if (video = Invidious::Database::Videos.select(id)) && !region
     # If record was last updated over 10 minutes ago, or video has since premiered,
     # refresh (expire param in response lasts for 6 hours)
@@ -1056,7 +1056,7 @@ def itag_to_metadata?(itag : JSON::Any)
   return VIDEO_FORMATS[itag.to_s]?
 end
 
-def process_continuation(db, query, plid, id)
+def process_continuation(query, plid, id)
   continuation = nil
   if plid
     if index = query["index"]?.try &.to_i?

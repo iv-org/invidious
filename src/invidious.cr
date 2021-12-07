@@ -793,7 +793,7 @@ post "/data_control" do |env|
               next if !video_id
 
               begin
-                video = get_video(video_id, PG_DB)
+                video = get_video(video_id)
               rescue ex
                 next
               end

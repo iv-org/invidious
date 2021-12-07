@@ -345,7 +345,7 @@ module Invidious::Routes::Playlists
       video_id = env.params.query["video_id"]
 
       begin
-        video = get_video(video_id, PG_DB)
+        video = get_video(video_id)
       rescue ex
         if redirect
           return error_template(500, ex)

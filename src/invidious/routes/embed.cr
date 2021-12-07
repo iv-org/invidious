@@ -30,7 +30,7 @@ module Invidious::Routes::Embed
     id = env.params.url["id"]
 
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
-    continuation = process_continuation(PG_DB, env.params.query, plid, id)
+    continuation = process_continuation(env.params.query, plid, id)
 
     if md = env.params.query["playlist"]?
          .try &.match(/[a-zA-Z0-9_-]{11}(,[a-zA-Z0-9_-]{11})*/)
@@ -119,7 +119,7 @@ module Invidious::Routes::Embed
     subscriptions ||= [] of String
 
     begin
-      video = get_video(id, PG_DB, region: params.region)
+      video = get_video(id, region: params.region)
     rescue ex : VideoRedirect
       return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex

@@ -245,7 +245,7 @@ module Invidious::Routes::API::V1::Authenticated
     end
 
     begin
-      video = get_video(video_id, PG_DB)
+      video = get_video(video_id)
     rescue ex
       return error_json(500, ex)
     end
