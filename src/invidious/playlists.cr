@@ -352,7 +352,7 @@ def fetch_playlist(plid, locale)
   playlist_info = playlist_sidebar_renderer[0]["playlistSidebarPrimaryInfoRenderer"]?
   raise InfoException.new("Could not extract playlist info") if !playlist_info
 
-  title = playlist_info["title"]?.try &.["runs"][0]?.try &.["text"]?.try &.as_s || ""
+  title = playlist_info.dig?("title", "runs", 0, "text").try &.as_s || ""
 
   desc_item = playlist_info["description"]?
 
