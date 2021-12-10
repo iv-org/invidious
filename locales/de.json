@@ -19,8 +19,8 @@
     "View playlist on YouTube": "Wiedergabeliste auf YouTube anzeigen",
     "newest": "neueste",
     "oldest": "älteste",
-    "popular": "beliebt",
-    "last": "letzte",
+    "popular": "beliebteste",
+    "last": "neueste",
     "Next page": "Nächste Seite",
     "Previous page": "Vorherige Seite",
     "Clear watch history?": "Verlauf löschen?",
@@ -72,7 +72,7 @@
     "preferences_volume_label": "Wiedergabelautstärke: ",
     "preferences_comments_label": "Standardkommentare: ",
     "youtube": "YouTube",
-    "reddit": "reddit",
+    "reddit": "Reddit",
     "preferences_captions_label": "Standarduntertitel: ",
     "Fallback captions: ": "Ersatzuntertitel: ",
     "preferences_related_videos_label": "Ähnliche Videos anzeigen? ",
@@ -84,7 +84,7 @@
     "Dark mode: ": "Nachtmodus: ",
     "preferences_dark_mode_label": "Modus: ",
     "dark": "Nachtmodus",
-    "light": "heller Modus",
+    "light": "Hellermodus",
     "preferences_thin_mode_label": "Schlanker Modus: ",
     "preferences_category_misc": "Sonstige Einstellungen",
     "preferences_automatic_instance_redirect_label": "Automatische Instanzweiterleitung (über redirect.invidious.io): ",
@@ -431,5 +431,6 @@
     "footer_documentation": "Dokumentation",
     "footer_source_code": "Quellcode",
     "adminprefs_modified_source_code_url_label": "URL zum Repositorie des modifizierten Quellcodes",
-    "short": "Kurz (< 4 Minuten)"
+    "short": "Kurz (< 4 Minuten)",
+    "preferences_region_label": "Land der Inhalte: "
 }
