@@ -87,7 +87,7 @@
     "light": "svijetlo",
     "preferences_thin_mode_label": "Pojednostavljen prikaz: ",
     "preferences_category_misc": "Razne postavke",
-    "preferences_automatic_instance_redirect_label": "Automatsko preusmjeravanje instance (u krajnjem slučaju koristi redirect.invidious.io): ",
+    "preferences_automatic_instance_redirect_label": "Automatsko preusmjeravanje instance (u krajnjem slučaju će se koristiti redirect.invidious.io): ",
     "preferences_category_subscription": "Postavke pretplata",
     "preferences_annotations_subscribed_label": "Standardno prikaži napomene za pretplaćene kanale: ",
     "Redirect homepage to feed: ": "Preusmjeri početnu stranicu na feed: ",
@@ -383,7 +383,7 @@
     "Movies": "Filmovi",
     "Download": "Preuzmi",
     "Download as: ": "Preuzmi kao: ",
-    "%A %B %-d, %Y": "%A, %-d. %B %Y.",
+    "%A %B %-d, %Y": "%A, %-d. %B %Y",
     "(edited)": "(uređeno)",
     "YouTube comment permalink": "Stalna poveznica YouTube komentara",
     "permalink": "stalna poveznica",
@@ -421,7 +421,7 @@
     "hdr": "hdr",
     "filter": "filtar",
     "Current version: ": "Trenutačna verzija: ",
-    "next_steps_error_message": "Nakon toga pokušaj sljedeće: ",
+    "next_steps_error_message": "Nakon toga bi trebali pokušati sljedeće: ",
     "next_steps_error_message_refresh": "Aktualiziraj stranicu",
     "next_steps_error_message_go_to_youtube": "Idi na YouTube",
     "footer_donate_page": "Doniraj",
@@ -433,5 +433,5 @@
     "footer_documentation": "Dokumentacija",
     "footer_original_source_code": "Izvoran izvorni kod",
     "preferences_region_label": "Zemlja sadržaja: ",
-    "preferences_quality_dash_label": "Preferirana kvaliteta dash-videa: "
+    "preferences_quality_dash_label": "Preferirana DASH videokvaliteta: "
 }
