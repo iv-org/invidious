@@ -190,7 +190,7 @@ def create_notification_stream(env, topics, connection_channel)
   connection = Channel(PQ::Notification).new(8)
   connection_channel.send({true, connection})
 
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   since = env.params.query["since"]?.try &.to_i?
   id = 0

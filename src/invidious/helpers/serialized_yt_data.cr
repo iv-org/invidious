@@ -64,7 +64,7 @@ struct SearchVideo
     end
   end
 
-  def to_json(locale : Hash(String, JSON::Any) | Nil, json : JSON::Builder)
+  def to_json(locale : String?, json : JSON::Builder)
     json.object do
       json.field "type", "video"
       json.field "title", self.title
@@ -96,7 +96,7 @@ struct SearchVideo
   end
 
   # TODO: remove the locale and follow the crystal convention
-  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
+  def to_json(locale : String?, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
     end
@@ -130,7 +130,7 @@ struct SearchPlaylist
   property videos : Array(SearchPlaylistVideo)
   property thumbnail : String?
 
-  def to_json(locale : Hash(String, JSON::Any) | Nil, json : JSON::Builder)
+  def to_json(locale : String?, json : JSON::Builder)
     json.object do
       json.field "type", "playlist"
       json.field "title", self.title
@@ -161,7 +161,7 @@ struct SearchPlaylist
   end
 
   # TODO: remove the locale and follow the crystal convention
-  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
+  def to_json(locale : String?, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
     end
@@ -183,7 +183,7 @@ struct SearchChannel
   property description_html : String
   property auto_generated : Bool
 
-  def to_json(locale : Hash(String, JSON::Any) | Nil, json : JSON::Builder)
+  def to_json(locale : String?, json : JSON::Builder)
     json.object do
       json.field "type", "channel"
       json.field "author", self.author
@@ -214,7 +214,7 @@ struct SearchChannel
   end
 
   # TODO: remove the locale and follow the crystal convention
-  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
+  def to_json(locale : String?, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
     end
@@ -234,7 +234,7 @@ class Category
   property description_html : String
   property badges : Array(Tuple(String, String))?
 
-  def to_json(locale : Hash(String, JSON::Any) | Nil, json : JSON::Builder)
+  def to_json(locale : String?, json : JSON::Builder)
     json.object do
       json.field "type", "category"
       json.field "title", self.title
@@ -249,7 +249,7 @@ class Category
   end
 
   # TODO: remove the locale and follow the crystal convention
-  def to_json(locale : Hash(String, JSON::Any) | Nil, _json : Nil)
+  def to_json(locale : String?, _json : Nil)
     JSON.build do |json|
       to_json(locale, json)
     end

@@ -51,7 +51,7 @@
                 <select name="quality" id="quality">
                     <% {"dash", "hd720", "medium", "small"}.each do |option| %>
                         <% if !(option == "dash" && CONFIG.disabled?("dash")) %>
-                            <option value="<%= option %>" <% if preferences.quality == option %> selected <% end %>><%= translate(locale, option) %></option>
+                            <option value="<%= option %>" <% if preferences.quality == option %> selected <% end %>><%= translate(locale, "preferences_quality_option_" + option) %></option>
                         <% end %>
                     <% end %>
                 </select>
@@ -62,7 +62,7 @@
                     <label for="quality_dash"><%= translate(locale, "preferences_quality_dash_label") %></label>
                     <select name="quality_dash" id="quality_dash">
                         <% {"auto", "best", "4320p", "2160p", "1440p", "1080p", "720p", "480p", "360p", "240p", "144p", "worst"}.each do |option| %>
-                            <option value="<%= option %>" <% if preferences.quality_dash == option %> selected <% end %>><%= translate(locale, option) %></option>
+                            <option value="<%= option %>" <% if preferences.quality_dash == option %> selected <% end %>><%= translate(locale, "preferences_quality_dash_option_" + option) %></option>
                         <% end %>
                     </select>
                 </div>
@@ -121,8 +121,8 @@
             <div class="pure-control-group">
                 <label for="locale"><%= translate(locale, "preferences_locale_label") %></label>
                 <select name="locale" id="locale">
-                    <% LOCALES.each_key do |option| %>
-                        <option value="<%= option %>" <% if preferences.locale == option %> selected <% end %>><%= option %></option>
+                    <% LOCALES_LIST.each do |iso_name, full_name| %>
+                        <option value="<%= iso_name %>" <% if preferences.locale == iso_name %> selected <% end %>><%= HTML.escape(full_name) %></option>
                     <% end %>
                 </select>
             </div>

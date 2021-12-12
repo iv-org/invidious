@@ -408,7 +408,7 @@ define_video_playback_routes()
 # Users
 
 post "/watch_ajax" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -478,7 +478,7 @@ end
 # /modify_notifications?receive_all_updates=false&receive_no_updates=false
 # will "unding" all subscriptions.
 get "/modify_notifications" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -551,7 +551,7 @@ get "/modify_notifications" do |env|
 end
 
 post "/subscription_ajax" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -621,7 +621,7 @@ post "/subscription_ajax" do |env|
 end
 
 get "/subscription_manager" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -724,7 +724,7 @@ get "/subscription_manager" do |env|
 end
 
 get "/data_control" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -739,7 +739,7 @@ get "/data_control" do |env|
 end
 
 post "/data_control" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   referer = get_referer(env)
@@ -902,7 +902,7 @@ post "/data_control" do |env|
 end
 
 get "/change_password" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -920,7 +920,7 @@ get "/change_password" do |env|
 end
 
 post "/change_password" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -976,7 +976,7 @@ post "/change_password" do |env|
 end
 
 get "/delete_account" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -994,7 +994,7 @@ get "/delete_account" do |env|
 end
 
 post "/delete_account" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -1028,7 +1028,7 @@ post "/delete_account" do |env|
 end
 
 get "/clear_watch_history" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -1046,7 +1046,7 @@ get "/clear_watch_history" do |env|
 end
 
 post "/clear_watch_history" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -1071,7 +1071,7 @@ post "/clear_watch_history" do |env|
 end
 
 get "/authorize_token" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -1099,7 +1099,7 @@ get "/authorize_token" do |env|
 end
 
 post "/authorize_token" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -1147,7 +1147,7 @@ post "/authorize_token" do |env|
 end
 
 get "/token_manager" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -1165,7 +1165,7 @@ get "/token_manager" do |env|
 end
 
 post "/token_ajax" do |env|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
 
   user = env.get? "user"
   sid = env.get? "sid"
@@ -1225,7 +1225,7 @@ end
 
 {"/channel/:ucid/live", "/user/:user/live", "/c/:user/live"}.each do |route|
   get route do |env|
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     # Appears to be a bug in routing, having several routes configured
     # as `/a/:a`, `/b/:a`, `/c/:a` results in 404
@@ -1347,7 +1347,7 @@ error 404 do |env|
 end
 
 error 500 do |env, ex|
-  locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+  locale = env.get("preferences").as(Preferences).locale
   error_template(500, ex)
 end
 

@@ -2,7 +2,7 @@
 
 module Invidious::Routes::PreferencesRoute
   def self.show(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     referer = get_referer(env)
 
@@ -12,7 +12,7 @@ module Invidious::Routes::PreferencesRoute
   end
 
   def self.update(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env)
 
     video_loop = env.params.body["video_loop"]?.try &.as(String)
@@ -227,7 +227,7 @@ module Invidious::Routes::PreferencesRoute
   end
 
   def self.toggle_theme(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env, unroll: false)
 
     redirect = env.params.query["redirect"]?

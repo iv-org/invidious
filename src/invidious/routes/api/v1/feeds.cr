@@ -1,6 +1,6 @@
 module Invidious::Routes::API::V1::Feeds
   def self.trending(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
 
@@ -25,7 +25,7 @@ module Invidious::Routes::API::V1::Feeds
   end
 
   def self.popular(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
 

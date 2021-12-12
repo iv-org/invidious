@@ -2,7 +2,7 @@
 
 module Invidious::Routes::Search
   def self.opensearch(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     env.response.content_type = "application/opensearchdescription+xml"
 
     XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -18,7 +18,7 @@ module Invidious::Routes::Search
   end
 
   def self.results(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     query = env.params.query["search_query"]?
     query ||= env.params.query["q"]?
@@ -37,7 +37,7 @@ module Invidious::Routes::Search
   end
 
   def self.search(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     region = env.params.query["region"]?
 
     query = env.params.query["search_query"]?

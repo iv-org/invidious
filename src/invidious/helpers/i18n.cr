@@ -1,45 +1,46 @@
 # "bn_BD"   => load_locale("bn_BD"),   # Bengali (Bangladesh)  [Incomplete]
 # "eu"      => load_locale("eu"),      # Basque  [Incomplete]
-# "si"      => load_locale("si"),      # Sinhala  [Incomplete]
 # "sk"      => load_locale("sk"),      # Slovak  [Incomplete]
 # "sr"      => load_locale("sr"),      # Serbian  [Incomplete]
 # "sr_Cyrl" => load_locale("sr_Cyrl"), # Serbian (cyrillic)  [Incomplete]
-LOCALES = {
-  "ar"    => load_locale("ar"),    # Arabic
-  "cs"    => load_locale("cs"),    # Czech
-  "da"    => load_locale("da"),    # Danish
-  "de"    => load_locale("de"),    # German
-  "el"    => load_locale("el"),    # Greek
-  "en-US" => load_locale("en-US"), # English (US)
-  "eo"    => load_locale("eo"),    # Esperanto
-  "es"    => load_locale("es"),    # Spanish
-  "fa"    => load_locale("fa"),    # Persian
-  "fi"    => load_locale("fi"),    # Finnish
-  "fr"    => load_locale("fr"),    # French
-  "he"    => load_locale("he"),    # Hebrew
-  "hr"    => load_locale("hr"),    # Croatian
-  "hu-HU" => load_locale("hu-HU"), # Hungarian
-  "id"    => load_locale("id"),    # Indonesian
-  "is"    => load_locale("is"),    # Icelandic
-  "it"    => load_locale("it"),    # Italian
-  "ja"    => load_locale("ja"),    # Japanese
-  "ko"    => load_locale("ko"),    # Korean
-  "lt"    => load_locale("lt"),    # Lithuanian
-  "nb-NO" => load_locale("nb-NO"), # Norwegian Bokmål
-  "nl"    => load_locale("nl"),    # Dutch
-  "pl"    => load_locale("pl"),    # Polish
-  "pt"    => load_locale("pt"),    # Portuguese
-  "pt-BR" => load_locale("pt-BR"), # Portuguese (Brazil)
-  "pt-PT" => load_locale("pt-PT"), # Portuguese (Portugal)
-  "ro"    => load_locale("ro"),    # Romanian
-  "ru"    => load_locale("ru"),    # Russian
-  "sv-SE" => load_locale("sv-SE"), # Swedish
-  "tr"    => load_locale("tr"),    # Turkish
-  "uk"    => load_locale("uk"),    # Ukrainian
-  "vi"    => load_locale("vi"),    # Vietnamese
-  "zh-CN" => load_locale("zh-CN"), # Chinese (Simplified)
-  "zh-TW" => load_locale("zh-TW"), # Chinese (Traditional)
+LOCALES_LIST = {
+  "ar"    => "العربية",               # Arabic
+  "cs"    => "Čeština",               # Czech
+  "da"    => "Dansk",                 # Danish
+  "de"    => "Deutsch",               # German
+  "el"    => "Ελληνικά",              # Greek
+  "en-US" => "English",               # English
+  "eo"    => "Esperanto",             # Esperanto
+  "es"    => "Español",               # Spanish
+  "fa"    => "فارسی",                 # Persian
+  "fi"    => "Suomi",                 # Finnish
+  "fr"    => "Français",              # French
+  "he"    => "עברית",                 # Hebrew
+  "hr"    => "Hrvatski",              # Croatian
+  "hu-HU" => "Magyar Nyelv",          # Hungarian
+  "id"    => "Bahasa Indonesia",      # Indonesian
+  "is"    => "Íslenska",              # Icelandic
+  "it"    => "Italiano",              # Italian
+  "ja"    => "日本語",                   # Japanese
+  "ko"    => "한국어",                   # Korean
+  "lt"    => "Lietuvių",              # Lithuanian
+  "nb-NO" => "Norsk bokmål",          # Norwegian Bokmål
+  "nl"    => "Nederlands",            # Dutch
+  "pl"    => "Polski",                # Polish
+  "pt"    => "Português",             # Portuguese
+  "pt-BR" => "Português Brasileiro",  # Portuguese (Brazil)
+  "pt-PT" => "Português de Portugal", # Portuguese (Portugal)
+  "ro"    => "Română",                # Romanian
+  "ru"    => "русский",               # Russian
+  "sv-SE" => "Svenska",               # Swedish
+  "tr"    => "Türkçe",                # Turkish
+  "uk"    => "Українська",            # Ukrainian
+  "vi"    => "Tiếng Việt",            # Vietnamese
+  "zh-CN" => "汉语",                    # Chinese (Simplified)
+  "zh-TW" => "漢語",                    # Chinese (Traditional)
 }
+
+LOCALES = load_all_locales()
 
 CONTENT_REGIONS = {
   "AE", "AR", "AT", "AU", "AZ", "BA", "BD", "BE", "BG", "BH", "BO", "BR", "BY",
@@ -53,35 +54,50 @@ CONTENT_REGIONS = {
   "YE", "ZA", "ZW",
 }
 
-def load_locale(name)
-  return JSON.parse(File.read("locales/#{name}.json")).as_h
+def load_all_locales
+  locales = {} of String => Hash(String, JSON::Any)
+
+  LOCALES_LIST.each_key do |name|
+    locales[name] = JSON.parse(File.read("locales/#{name}.json")).as_h
+  end
+
+  return locales
 end
 
-def translate(locale : Hash(String, JSON::Any) | Nil, translation : String, text : String | Nil = nil)
-  # if locale && !locale[translation]?
-  #   puts "Could not find translation for #{translation.dump}"
-  # end
+def translate(locale : String?, key : String, text : String | Nil = nil) : String
+  # Log a warning if "key" doesn't exist in en-US locale and return
+  # that key as the text, so this is more or less transparent to the user.
+  if !LOCALES["en-US"].has_key?(key)
+    LOGGER.warn("i18n: Missing translation key \"#{key}\"")
+    return key
+  end
 
-  if locale && locale[translation]?
-    case locale[translation]
-    when .as_h?
-      match_length = 0
+  # Default to english, whenever the locale doesn't exist,
+  # or the key requested has not been translated
+  if locale && LOCALES.has_key?(locale) && LOCALES[locale].has_key?(key)
+    raw_data = LOCALES[locale][key]
+  else
+    raw_data = LOCALES["en-US"][key]
+  end
 
-      locale[translation].as_h.each do |key, value|
-        if md = text.try &.match(/#{key}/)
-          if md[0].size >= match_length
-            translation = value.as_s
-            match_length = md[0].size
-          end
+  case raw_data
+  when .as_h?
+    # Init
+    translation = ""
+    match_length = 0
+
+    raw_data.as_h.each do |key, value|
+      if md = text.try &.match(/#{key}/)
+        if md[0].size >= match_length
+          translation = value.as_s
+          match_length = md[0].size
         end
       end
-    when .as_s?
-      if !locale[translation].as_s.empty?
-        translation = locale[translation].as_s
-      end
-    else
-      raise "Invalid translation #{translation}"
     end
+  when .as_s?
+    translation = raw_data.as_s
+  else
+    raise "Invalid translation \"#{raw_data}\""
   end
 
   if text
@@ -91,7 +107,7 @@ def translate(locale : Hash(String, JSON::Any) | Nil, translation : String, text
   return translation
 end
 
-def translate_bool(locale : Hash(String, JSON::Any) | Nil, translation : Bool)
+def translate_bool(locale : String?, translation : Bool)
   case translation
   when true
     return translate(locale, "Yes")

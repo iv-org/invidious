@@ -2,7 +2,7 @@
 
 module Invidious::Routes::Watch
   def self.handle(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
     region = env.params.query["region"]?
 
     if env.params.query.to_s.includes?("%20") || env.params.query.to_s.includes?("+")

@@ -104,7 +104,7 @@ module Invidious::Routes::Channels
 
   # Redirects brand url channels to a normal /channel/:ucid route
   def self.brand_redirect(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     # /attribution_link endpoint needs both the `a` and `u` parameter
     # and in order to avoid detection from YouTube we should only send the required ones
@@ -148,7 +148,7 @@ module Invidious::Routes::Channels
   end
 
   private def self.fetch_basic_information(env)
-    locale = LOCALES[env.get("preferences").as(Preferences).locale]?
+    locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
     if user
