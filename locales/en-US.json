@@ -106,7 +106,7 @@
     "light": "light",
     "preferences_thin_mode_label": "Thin mode: ",
     "preferences_category_misc": "Miscellaneous preferences",
-    "preferences_automatic_instance_redirect_label": "Automaticatic instance redirection (fallback to redirect.invidious.io): ",
+    "preferences_automatic_instance_redirect_label": "Automatic instance redirection (fallback to redirect.invidious.io): ",
     "preferences_category_subscription": "Subscription preferences",
     "preferences_annotations_subscribed_label": "Show annotations by default for subscribed channels? ",
     "Redirect homepage to feed: ": "Redirect homepage to feed: ",
