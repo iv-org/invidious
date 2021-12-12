@@ -73,7 +73,7 @@
     "preferences_quality_option_hd720": "HD720",
     "preferences_quality_option_medium": "Medium",
     "preferences_quality_option_small": "Small",
-    "preferences_quality_dash_label": "Preferred dash video quality: ",
+    "preferences_quality_dash_label": "Preferred DASH video quality: ",
     "preferences_quality_dash_option_auto": "Auto",
     "preferences_quality_dash_option_best": "Best",
     "preferences_quality_dash_option_worst": "Worst",
