@@ -49,6 +49,9 @@ private module Parsers
       if author_info = item_contents.dig?("ownerText", "runs", 0)
         author = author_info["text"].as_s
         author_id = HelperExtractors.get_browse_id(author_info)
+      elsif author_info = item_contents.dig?("shortBylineText", "runs", 0)
+        author = author_info["text"].as_s
+        author_id = HelperExtractors.get_browse_id(author_info)
       else
         author = author_fallback.name
         author_id = author_fallback.id
@@ -68,18 +71,25 @@ private module Parsers
       view_count = item_contents.dig?("viewCountText", "simpleText").try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
       description_html = item_contents["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
 
-      # The length information *should* only always exist in "lengthText". However, the legacy Invidious code
-      # extracts from "thumbnailOverlays" when it doesn't. More testing is needed to see if this is
-      # actually needed
+      # The length information generally exist in "lengthText". However, the info can sometimes
+      # be retrieved from "thumbnailOverlays" (e.g when the video is a "shorts" one).
       if length_container = item_contents["lengthText"]?
         length_seconds = decode_length_seconds(length_container["simpleText"].as_s)
       elsif length_container = item_contents["thumbnailOverlays"]?.try &.as_a.find(&.["thumbnailOverlayTimeStatusRenderer"]?)
         # This needs to only go down the `simpleText` path (if possible). If more situations came up that requires
         # a specific pathway then we should add an argument to extract_text that'll make this possible
-        length_seconds = length_container.dig?("thumbnailOverlayTimeStatusRenderer", "text", "simpleText")
+        length_text = length_container.dig?("thumbnailOverlayTimeStatusRenderer", "text", "simpleText")
 
-        if length_seconds
-          length_seconds = decode_length_seconds(length_seconds.as_s)
+        if length_text
+          length_text = length_text.as_s
+
+          if length_text == "SHORTS"
+            # Approximate length to one minute, as "shorts" generally don't exceed that length.
+            # TODO: Add some sort of metadata for the type of video (normal, live, premiere, shorts)
+            length_seconds = 60_i32
+          else
+            length_seconds = decode_length_seconds(length_text)
+          end
         else
           length_seconds = 0
         end
