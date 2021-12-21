@@ -107,6 +107,36 @@ def translate(locale : String?, key : String, text : String | Nil = nil) : Strin
   return translation
 end
 
+def translate_count(locale : String, key : String, count : Int) : String
+  # Fallback on english if locale doesn't exist
+  locale = "en-US" if !LOCALES.has_key?(locale)
+
+  # Retrieve suffix
+  suffix = I18next::Plurals::RESOLVER.get_suffix(locale, count)
+  plural_key = key + suffix
+
+  if LOCALES[locale].has_key?(plural_key)
+    translation = LOCALES[locale][plural_key].as_s
+  else
+    # Try #1: Fallback to singular in the same locale
+    singular_suffix = I18next::Plurals::RESOLVER.get_suffix(locale, 1)
+
+    if LOCALES[locale].has_key?(key + singular_suffix)
+      translation = LOCALES[locale][key + singular_suffix].as_s
+    else
+      # Try #2: Fallback to english (or return key we're already in english)
+      if locale == "en-US"
+        LOGGER.warn("i18n: Missing translation key \"#{key}\"")
+        return key
+      end
+
+      translation = translate_count("en-US", key, count)
+    end
+  end
+
+  return translation.gsub("{{count}}", count.to_s)
+end
+
 def translate_bool(locale : String?, translation : Bool)
   case translation
   when true
