@@ -433,5 +433,21 @@
     "long": "20 分以上",
     "preferences_region_label": "地域: ",
     "footer_donate_page": "寄付する",
-    "preferences_quality_dash_label": "優先するDash画質 : "
+    "preferences_quality_dash_label": "優先するDash画質 : ",
+    "preferences_quality_dash_option_4320p": "4320p",
+    "preferences_quality_dash_option_240p": "240p",
+    "preferences_quality_dash_option_144p": "144p",
+    "preferences_quality_option_hd720": "HD720",
+    "preferences_quality_option_medium": "中",
+    "preferences_quality_option_small": "小",
+    "invidious": "Invidious",
+    "preferences_quality_dash_option_auto": "自動",
+    "preferences_quality_dash_option_720p": "720p",
+    "preferences_quality_dash_option_360p": "360p",
+    "preferences_quality_dash_option_2160p": "2160p",
+    "preferences_quality_dash_option_1080p": "1080p",
+    "preferences_quality_dash_option_1440p": "1440p",
+    "preferences_quality_dash_option_480p": "480p",
+    "videoinfo_youTube_embed_link": "埋め込み",
+    "videoinfo_invidious_embed_link": "埋め込みリンク"
 }
