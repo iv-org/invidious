@@ -53,6 +53,7 @@ struct Preferences
   property video_loop : Bool = CONFIG.default_user_preferences.video_loop
   property extend_desc : Bool = CONFIG.default_user_preferences.extend_desc
   property volume : Int32 = CONFIG.default_user_preferences.volume
+  property save_player_pos : Bool = CONFIG.default_user_preferences.save_player_pos
 
   module BoolToString
     def self.to_json(value : String, json : JSON::Builder)

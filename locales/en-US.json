@@ -461,5 +461,6 @@
     "download_subtitles": "Subtitles - `x` (.vtt)",
     "user_created_playlists": "`x` created playlists",
     "user_saved_playlists": "`x` saved playlists",
-    "Video unavailable": "Video unavailable"
+    "Video unavailable": "Video unavailable",
+    "preferences_save_player_pos_label": "Save the current video time: "
 }

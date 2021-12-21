@@ -116,6 +116,11 @@
                 <input name="vr_mode" id="vr_mode" type="checkbox" <% if preferences.vr_mode %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="save_player_pos"><%= translate(locale, "preferences_save_player_pos_label") %></label>
+                <input name="save_player_pos" id="save_player_pos" type="checkbox" <% if preferences.save_player_pos %>checked<% end %>>
+            </div>
+
             <legend><%= translate(locale, "preferences_category_visual") %></legend>
 
             <div class="pure-control-group">

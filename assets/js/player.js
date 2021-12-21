@@ -38,6 +38,8 @@ embed_url.searchParams.delete('v');
 short_url = location.origin + '/' + video_data.id + embed_url.search;
 embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
+var save_player_pos_key = "save_player_pos";
+
 var shareOptions = {
     socials: ['fbFeed', 'tw', 'reddit', 'email'],
 
@@ -199,6 +201,32 @@ if (video_data.premiere_timestamp && Math.round(new Date() / 1000) < video_data.
     player.getChild('bigPlayButton').hide();
 }
 
+if (video_data.params.save_player_pos) {
+    const url = new URL(location);
+    const hasTimeParam = url.searchParams.has("t");
+    const remeberedTime = get_video_time();
+    let lastUpdated = 0;
+
+    if(!hasTimeParam) {
+        set_seconds_after_start(remeberedTime);
+    }
+
+    const updateTime = () => {
+        const raw = player.currentTime();
+        const time = Math.floor(raw);
+
+        if(lastUpdated !== time) {
+            save_video_time(time);
+            lastUpdated = time;
+        }
+    };
+
+    player.on("timeupdate", updateTime);
+}
+else {
+    remove_all_video_times();
+}
+
 if (video_data.params.autoplay) {
     var bpb = player.getChild('bigPlayButton');
     bpb.hide();
@@ -328,6 +356,55 @@ function skip_seconds(delta) {
         newTime = 0;
     }
     player.currentTime(newTime);
+}
+
+function set_seconds_after_start(delta) {
+    const start = video_data.params.video_start;
+    player.currentTime(start + delta);
+}
+
+function save_video_time(seconds) {
+    const videoId = video_data.id;
+    const all_video_times = get_all_video_times();
+
+    all_video_times[videoId] = seconds;
+
+    set_all_video_times(all_video_times);
+}
+
+function get_video_time() {
+    try {
+        const videoId = video_data.id;
+        const all_video_times = get_all_video_times();
+        const timestamp = all_video_times[videoId];
+
+        return timestamp || 0;
+    }
+    catch {
+        return 0;
+    }
+}
+
+function set_all_video_times(times) {
+    const json = JSON.stringify(times);
+
+    localStorage.setItem(save_player_pos_key, json);
+}
+
+function get_all_video_times() {
+    try {
+        const raw = localStorage.getItem(save_player_pos_key);
+        const times = JSON.parse(raw);
+
+        return times || {};
+    }
+    catch {
+        return {};
+    }
+}
+
+function remove_all_video_times() {
+    localStorage.removeItem(save_player_pos_key);
 }
 
 function set_time_percent(percent) {
