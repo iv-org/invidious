@@ -340,34 +340,13 @@
     "Yiddish": "Bahasa Yiddi",
     "Yoruba": "Bahasa Yoruba",
     "Zulu": "Bahasa Zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tahun",
-        "": "`x` tahun"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bulan",
-        "": "`x` bulan"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pekan",
-        "": "`x` pekan"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hari",
-        "": "`x` hari"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jam",
-        "": "`x` jam"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` menit",
-        "": "`x` menit"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` detik",
-        "": "`x` detik"
-    },
+    "generic_count_years_0": "{{count}} tahun",
+    "generic_count_months_0": "{{count}} bulan",
+    "generic_count_weeks_0": "{{count}} pekan",
+    "generic_count_days_0": "{{count}} hari",
+    "generic_count_hours_0": "{{count}} jam",
+    "generic_count_minutes_0": "{{count}} menit",
+    "generic_count_seconds_0": "{{count}} detik",
     "Fallback comments: ": "Komentar alternatif: ",
     "Popular": "Populer",
     "Search": "Cari",

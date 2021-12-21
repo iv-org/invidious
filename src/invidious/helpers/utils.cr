@@ -123,22 +123,20 @@ def recode_date(time : Time, locale)
   span = Time.utc - time
 
   if span.total_days > 365.0
-    span = translate(locale, "`x` years", (span.total_days.to_i // 365).to_s)
+    return translate_count(locale, "generic_count_years", span.total_days.to_i // 365)
   elsif span.total_days > 30.0
-    span = translate(locale, "`x` months", (span.total_days.to_i // 30).to_s)
+    return translate_count(locale, "generic_count_months", span.total_days.to_i // 30)
   elsif span.total_days > 7.0
-    span = translate(locale, "`x` weeks", (span.total_days.to_i // 7).to_s)
+    return translate_count(locale, "generic_count_weeks", span.total_days.to_i // 7)
   elsif span.total_hours > 24.0
-    span = translate(locale, "`x` days", (span.total_days.to_i).to_s)
+    return translate_count(locale, "generic_count_days", span.total_days.to_i)
   elsif span.total_minutes > 60.0
-    span = translate(locale, "`x` hours", (span.total_hours.to_i).to_s)
+    return translate_count(locale, "generic_count_hours", span.total_hours.to_i)
   elsif span.total_seconds > 60.0
-    span = translate(locale, "`x` minutes", (span.total_minutes.to_i).to_s)
+    return translate_count(locale, "generic_count_minutes", span.total_minutes.to_i)
   else
-    span = translate(locale, "`x` seconds", (span.total_seconds.to_i).to_s)
+    return translate_count(locale, "generic_count_seconds", span.total_seconds.to_i)
   end
-
-  return span
 end
 
 def number_with_separator(number)

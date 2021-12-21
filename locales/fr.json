@@ -340,34 +340,20 @@
     "Yiddish": "Yiddish",
     "Yoruba": "Yoruba",
     "Zulu": "Zoulou",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` an",
-        "": "`x` ans"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mois",
-        "": "`x` mois"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` semaine",
-        "": "`x` semaines"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jour",
-        "": "`x` jours"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` heure",
-        "": "`x` heures"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minute",
-        "": "`x` minutes"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` seconde",
-        "": "`x` secondes"
-    },
+    "generic_count_years": "{{count}} an",
+    "generic_count_years_plural": "{{count}} ans",
+    "generic_count_months": "{{count}} mois",
+    "generic_count_months_plural": "{{count}} mois",
+    "generic_count_weeks": "{{count}} semaine",
+    "generic_count_weeks_plural": "{{count}} semaines",
+    "generic_count_days": "{{count}} jour",
+    "generic_count_days_plural": "{{count}} jours",
+    "generic_count_hours": "{{count}} heure",
+    "generic_count_hours_plural": "{{count}} heures",
+    "generic_count_minutes": "{{count}} minute",
+    "generic_count_minutes_plural": "{{count}} minutes",
+    "generic_count_seconds": "{{count}} seconde",
+    "generic_count_seconds_plural": "{{count}} secondes",
     "Fallback comments: ": "Commentaires alternatifs : ",
     "Popular": "Populaire",
     "Search": "Rechercher",

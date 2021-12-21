@@ -340,34 +340,13 @@
     "Yiddish": "イディッシュ語",
     "Yoruba": "ヨルバ語",
     "Zulu": "ズール語",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`年",
-        "": "`x`年"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`ヶ月",
-        "": "`x`ヶ月"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`週",
-        "": "`x`週"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`日",
-        "": "`x`日"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`時間",
-        "": "`x`時間"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`分",
-        "": "`x`分"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`秒",
-        "": "`x`秒"
-    },
+    "generic_count_years_0": "{{count}}年",
+    "generic_count_months_0": "{{count}}ヶ月",
+    "generic_count_weeks_0": "{{count}}週",
+    "generic_count_days_0": "{{count}}日",
+    "generic_count_hours_0": "{{count}}時間",
+    "generic_count_minutes_0": "{{count}}分",
+    "generic_count_seconds_0": "{{count}}秒",
     "Fallback comments: ": "フォールバック時のコメント: ",
     "Popular": "人気",
     "Search": "検索",

@@ -336,36 +336,15 @@
     "Scottish Gaelic": "스코틀랜드 게일어",
     "Popular": "인기",
     "Fallback comments: ": "대체 댓글: ",
-    "`x` seconds": {
-        "": "`x` 초",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 초"
-    },
     "Swahili": "스와힐리어",
     "Sundanese": "순다어",
-    "`x` hours": {
-        "": "`x` 시",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 시"
-    },
-    "`x` minutes": {
-        "": "`x` 분",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 분"
-    },
-    "`x` days": {
-        "": "`x` 일",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 일"
-    },
-    "`x` weeks": {
-        "": "`x` 주",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 주"
-    },
-    "`x` months": {
-        "": "`x` 월",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 월"
-    },
-    "`x` years": {
-        "": "`x` 년",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 년"
-    },
+    "generic_count_years_0": "{{count}} 년",
+    "generic_count_months_0": "{{count}} 월",
+    "generic_count_weeks_0": "{{count}} 주",
+    "generic_count_days_0": "{{count}} 일",
+    "generic_count_hours_0": "{{count}} 시",
+    "generic_count_minutes_0": "{{count}} 분",
+    "generic_count_seconds_0": "{{count}} 초",
     "Zulu": "줄루어",
     "Yoruba": "요루바어",
     "Yiddish": "이디시어",

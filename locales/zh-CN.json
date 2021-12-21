@@ -340,34 +340,13 @@
     "Yiddish": "意第绪语",
     "Yoruba": "约鲁巴语",
     "Zulu": "祖鲁语",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 年",
-        "": "`x` 年"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 月",
-        "": "`x` 个月"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 周",
-        "": "`x` 周"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
-        "": "`x` 天"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 小时",
-        "": "`x` 小时"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 分钟",
-        "": "`x` 分钟"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 秒",
-        "": "`x` 秒"
-    },
+    "generic_count_years_0": "{{count}} 年",
+    "generic_count_months_0": "{{count}} 月",
+    "generic_count_weeks_0": "{{count}} 周",
+    "generic_count_days_0": "{{count}} 天",
+    "generic_count_hours_0": "{{count}} 小时",
+    "generic_count_minutes_0": "{{count}} 分钟",
+    "generic_count_seconds_0": "{{count}} 秒",
     "Fallback comments: ": "后备评论: ",
     "Popular": "热门频道",
     "Search": "搜索",
