@@ -44,6 +44,10 @@
   <a href="https://web.libera.chat/?channel=#invidious">
     <img alt="Libera.chat (IRC)" src="https://img.shields.io/badge/IRC%20%28Libera.chat%29-%23invidious-darkgreen">
   </a>
+  <br>
+  <a rel="me" href="https://social.tchncs.de/@invidious">
+  <img alt="Mastodon: @invidious@social.tchncs.de" src="https://img.shields.io/badge/Mastodon-%40invidious%40social.tchncs.de-darkgreen">
+  </a>
 </div>
 
 
