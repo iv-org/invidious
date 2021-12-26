@@ -11,7 +11,9 @@ toggle_theme.addEventListener('click', function () {
     xhr.open('GET', url, true);
 
     set_mode(dark_mode);
-    window.localStorage.setItem('dark_mode', dark_mode ? 'dark' : 'light');
+    try {
+        window.localStorage.setItem('dark_mode', dark_mode ? 'dark' : 'light');
+    } catch {}
 
     xhr.send();
 });
@@ -23,9 +25,12 @@ window.addEventListener('storage', function (e) {
 });
 
 window.addEventListener('DOMContentLoaded', function () {
-    window.localStorage.setItem('dark_mode', document.getElementById('dark_mode_pref').textContent);
-    // Update localStorage if dark mode preference changed on preferences page
-    update_mode(window.localStorage.dark_mode);
+    const dark_mode = document.getElementById('dark_mode_pref').textContent;
+    try {
+        // Update localStorage if dark mode preference changed on preferences page
+        window.localStorage.setItem('dark_mode', dark_mode);
+    } catch {}
+    update_mode(dark_mode);
 });
 
 
@@ -37,9 +42,11 @@ lightScheme.addListener(scheme_switch);
 
 function scheme_switch (e) {
   // ignore this method if we have a preference set
-  if (localStorage.getItem('dark_mode')) {
-    return;
-  }
+  try {
+    if (localStorage.getItem('dark_mode')) {
+      return;
+    }
+  } catch {}
   if (e.matches) {
     if (e.media.includes("dark")) {
       set_mode(true);
