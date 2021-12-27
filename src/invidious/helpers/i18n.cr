@@ -54,6 +54,14 @@ CONTENT_REGIONS = {
   "YE", "ZA", "ZW",
 }
 
+# Enum for the different types of number formats
+enum NumberFormatting
+  None      # Print the number as-is
+  Separator # Use a separator for thousands
+  Short     # Use short notation (k/M/B)
+  HtmlSpan  # Surround with <span id="count"></span>
+end
+
 def load_all_locales
   locales = {} of String => Hash(String, JSON::Any)
 
@@ -107,7 +115,7 @@ def translate(locale : String?, key : String, text : String | Nil = nil) : Strin
   return translation
 end
 
-def translate_count(locale : String, key : String, count : Int) : String
+def translate_count(locale : String, key : String, count : Int, format = NumberFormatting::None) : String
   # Fallback on english if locale doesn't exist
   locale = "en-US" if !LOCALES.has_key?(locale)
 
@@ -134,7 +142,14 @@ def translate_count(locale : String, key : String, count : Int) : String
     end
   end
 
-  return translation.gsub("{{count}}", count.to_s)
+  case format
+  when .separator? then count_txt = number_with_separator(count)
+  when .short?     then count_txt = number_to_short_text(count)
+  when .html_span? then count_txt = "<span id=\"count\">" + count.to_s + "</span>"
+  else                  count_txt = count.to_s
+  end
+
+  return translation.gsub("{{count}}", count_txt)
 end
 
 def translate_bool(locale : String?, translation : Bool)

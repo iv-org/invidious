@@ -1,16 +1,14 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonné",
-        "": "`x` abonnés"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vidéo",
-        "": "`x` vidéos"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` liste de lecture",
-        "": "`x` listes de lecture"
-    },
+    "generic_views_count": "{{count}} vue",
+    "generic_views_count_plural":"{{count}} vues",
+    "generic_videos_count": "{{count}} vidéo",
+    "generic_videos_count_plural": "{{count}} vidéos",
+    "generic_playlists_count": "{{count}} liste de lecture",
+    "generic_playlists_count_plural": "{{count}} listes de lecture",
+    "generic_subscribers_count": "{{count}} abonné",
+    "generic_subscribers_count_plural": "{{count}} abonnés",
+    "generic_subscriptions_count": "{{count}} abonnement",
+    "generic_subscriptions_count_plural": "{{count}} abonnements",
     "LIVE": "EN DIRECT",
     "Shared `x` ago": "Ajoutée il y a `x`",
     "Unsubscribe": "Se désabonner",
@@ -127,10 +125,6 @@
     "Subscription manager": "Gestionnaire d'abonnement",
     "Token manager": "Gestionnaire de token",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnements",
-        "": "`x` abonnements"
-    },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
         "": "`x` tokens"
@@ -176,10 +170,6 @@
     "Whitelisted regions: ": "Régions sur liste blanche : ",
     "Blacklisted regions: ": "Régions sur liste noire : ",
     "Shared `x`": "Ajoutée le `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vues",
-        "": "`x` vues"
-    },
     "Premieres in `x`": "Première dans `x`",
     "Premieres `x`": "Première le `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Il semblerait que JavaScript soit désactivé. Cliquez ici pour voir les commentaires, mais gardez à l'esprit que le chargement peut prendre plus de temps.",

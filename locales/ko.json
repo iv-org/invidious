@@ -81,18 +81,11 @@
     "Subscribe": "구독",
     "Unsubscribe": "구독 취소",
     "LIVE": "실시간",
-    "`x` playlists": {
-        "": "`x` 재생목록",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 재생목록"
-    },
-    "`x` videos": {
-        "": "`x` 동영상",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 동영상"
-    },
-    "`x` subscribers": {
-        "": "`x` 구독자",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 구독자"
-    },
+    "generic_views_count_0": "{{count}} 조회수",
+    "generic_videos_count_0": "{{count}} 동영상",
+    "generic_playlists_count_0": "{{count}} 재생목록",
+    "generic_subscribers_count_0": "{{count}} 구독자",
+    "generic_subscriptions_count_0": "{{count}} 구독",
     "playlist": "재생목록",
     "Korean": "한국어",
     "Japanese": "일본어",
@@ -157,10 +150,6 @@
     "`x` tokens": {
         "": "`x` 토큰",
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 토큰"
-    },
-    "`x` subscriptions": {
-        "": "`x` 구독",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 구독"
     },
     "Token": "토큰",
     "Token manager": "토큰 관리자",
@@ -300,10 +289,6 @@
     "Shared `x`": "공유된 `x`",
     "Whitelisted regions: ": "차단되지 않은 지역: ",
     "views": "조회수",
-    "`x` views": {
-        "": "`x` 조회수",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 조회수"
-    },
     "Please log in": "로그인하세요",
     "Password cannot be longer than 55 characters": "비밀번호는 55자 이하여야 합니다",
     "Password cannot be empty": "비밀번호는 비워둘 수 없습니다",

@@ -1,16 +1,9 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` دنبال کننده",
-        "": "`x` دنبال کننده"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ویدئو",
-        "": "`x` ویدئو"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` فهرست پخش",
-        "": "`x` فهرست پخش"
-    },
+    "generic_views_count_0": "{{count}} بازدید",
+    "generic_videos_count_0": "{{count}}  ویدئو",
+    "generic_playlists_count_0": "{{count}} فهرست پخش",
+    "generic_subscribers_count_0": "{{count}} دنبال کننده",
+    "generic_subscriptions_count_0": "{{count}} اشتراک ها",
     "LIVE": "زنده",
     "Shared `x` ago": "`x` پیش به اشتراک گذاشته شده",
     "Unsubscribe": "لغو اشتراک",
@@ -127,10 +120,6 @@
     "Subscription manager": "مدیریت اشتراک",
     "Token manager": "مدیر توکن",
     "Token": "توکن",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` اشتراک ها",
-        "": "`x` اشتراک ها"
-    },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` توکن ها",
         "": "`x` توکن ها"
@@ -176,10 +165,6 @@
     "Whitelisted regions: ": "مناطق لیست سفید: ",
     "Blacklisted regions: ": "مناطق لیست سیاه: ",
     "Shared `x`": "به اشتراک گذاشته شده `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` بازدید",
-        "": "`x` بازدید"
-    },
     "Premieres in `x`": "برای اولین بار در `x`",
     "Premieres `x`": "برای اولین بار `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "سلام! مثل اینکه تو جاوا اسکریپت رو خاموش کرده ای. اینجا کلیک کن تا نظرات را ببینی، این رو یادت باشه که ممکنه بارگذاری اونها کمی طول بکشه.",

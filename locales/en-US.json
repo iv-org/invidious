@@ -1,16 +1,14 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscriber",
-        "": "`x` subscribers"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` videos"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playlist",
-        "": "`x` playlists"
-    },
+    "generic_views_count": "{{count}} view",
+    "generic_views_count_plural": "{{count}} views",
+    "generic_videos_count": "{{count}} video",
+    "generic_videos_count_plural": "{{count}} videos",
+    "generic_playlists_count": "{{count}} playlist",
+    "generic_playlists_count_plural": "{{count}} playlists",
+    "generic_subscribers_count": "{{count}} subscriber",
+    "generic_subscribers_count_plural": "{{count}} subscribers",
+    "generic_subscriptions_count": "{{count}} subscription",
+    "generic_subscriptions_count_plural": "{{count}} subscriptions",
     "LIVE": "LIVE",
     "Shared `x` ago": "Shared `x` ago",
     "Unsubscribe": "Unsubscribe",
@@ -146,10 +144,6 @@
     "Subscription manager": "Subscription manager",
     "Token manager": "Token manager",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscription",
-        "": "`x` subscriptions"
-    },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
         "": "`x` tokens"
@@ -195,10 +189,6 @@
     "Whitelisted regions: ": "Whitelisted regions: ",
     "Blacklisted regions: ": "Blacklisted regions: ",
     "Shared `x`": "Shared `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` view",
-        "": "`x` views"
-    },
     "Premieres in `x`": "Premieres in `x`",
     "Premieres `x`": "Premieres `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.",

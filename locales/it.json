@@ -1,16 +1,10 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscritto",
-        "": "`x` iscritti"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` video"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playlist",
-        "": "`x` playlist"
-    },
+    "generic_subscribers_count": "{{count}} iscritto",
+    "generic_subscribers_count_plural": "{{count}} iscritti",
+    "generic_videos_count": "{{count}} video",
+    "generic_videos_count_plural": "{{count}} video",
+    "generic_playlists_count": "{{count}} playlist",
+    "generic_playlists_count_plural": "{{count}} playlist",
     "LIVE": "IN DIRETTA",
     "Shared `x` ago": "Condiviso `x` fa",
     "Unsubscribe": "Disiscriviti",
@@ -122,10 +116,8 @@
     "Subscription manager": "Gestione delle iscrizioni",
     "Token manager": "Gestione dei gettoni",
     "Token": "Gettone",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscrizione",
-        "": "`x` iscrizioni"
-    },
+    "generic_subscriptions_count": "{{count}} iscrizione",
+    "generic_subscriptions_count_plural": "{{count}} iscrizioni",
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gettone",
         "": "`x` gettoni"
@@ -166,10 +158,8 @@
     "Whitelisted regions: ": "Regioni in lista bianca: ",
     "Blacklisted regions: ": "Regioni in lista nera: ",
     "Shared `x`": "Condiviso `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizzazione",
-        "": "`x` visualizzazioni"
-    },
+    "generic_views_count": "{{count}} visualizzazione",
+    "generic_views_count_plural": "{{count}} visualizzazioni",
     "Premieres in `x`": "In anteprima in `x`",
     "Premieres `x`": "In anteprima `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Ciao! Sembra che tu abbia disattivato JavaScript. Clicca qui per visualizzare i commenti. Considera che potrebbe volerci più tempo.",

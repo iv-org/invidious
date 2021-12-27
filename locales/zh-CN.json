@@ -1,16 +1,9 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 位订阅者",
-        "": "`x` 位订阅者"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 个视频",
-        "": "`x` 个视频"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 个播放列表",
-        "": "`x` 个播放列表"
-    },
+    "generic_views_count_0": "{{count}} 播放",
+    "generic_videos_count_0": "{{count}} 个视频",
+    "generic_playlists_count_0": "{{count}} 个播放列表",
+    "generic_subscribers_count_0": "{{count}} 位订阅者",
+    "generic_subscriptions_count_0": "{{count}} 个订阅",
     "LIVE": "直播",
     "Shared `x` ago": "`x` 前分享",
     "Unsubscribe": "取消订阅",
@@ -127,10 +120,6 @@
     "Subscription manager": "订阅管理器",
     "Token manager": "令牌管理器",
     "Token": "令牌",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 个订阅",
-        "": "`x` 个订阅"
-    },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 个令牌",
         "": "`x` 个令牌"
@@ -176,10 +165,6 @@
     "Whitelisted regions: ": "白名单地区: ",
     "Blacklisted regions: ": "黑名单地区: ",
     "Shared `x`": "`x`发布",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 播放",
-        "": "`x` 次观看"
-    },
     "Premieres in `x`": "首映于 `x` 后",
     "Premieres `x`": "首映于 `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "你好！看起来你关闭了 JavaScript。点击这里阅读评论。注意它们加载的时间可能会稍长。",

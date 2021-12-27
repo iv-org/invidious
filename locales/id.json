@@ -1,16 +1,9 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pelanggan",
-        "": "`x` pelanggan"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` video"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` daftar putar",
-        "": "`x` daftar putar"
-    },
+    "generic_views_count_0": "{{count}} tampilan",
+    "generic_videos_count_0": "{{count}} video",
+    "generic_playlists_count_0": "{{count}} daftar putar",
+    "generic_subscribers_count_0": "{{count}} pelanggan",
+    "generic_subscriptions_count_0": "{{count}} langganan",
     "LIVE": "SIARAN LANGSUNG",
     "Shared `x` ago": "Dibagikan `x` yang lalu",
     "Unsubscribe": "Batal Langganan",
@@ -127,10 +120,6 @@
     "Subscription manager": "Pengatur langganan",
     "Token manager": "Pengatur token",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` langganan",
-        "": "`x` langganan"
-    },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
         "": "`x` token"
@@ -176,10 +165,6 @@
     "Whitelisted regions: ": "Wilayah daftar-putih: ",
     "Blacklisted regions: ": "Wilayah daftar-hitam: ",
     "Shared `x`": "Berbagi `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tampilan",
-        "": "`x` tampilan"
-    },
     "Premieres in `x`": "Tayang dalam `x`",
     "Premieres `x`": "Tayang `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hai! Kelihatannya JavaScript kamu dimatikan. Klik di sini untuk melihat komentar, perlu diingat hal ini mungkin membutuhkan waktu sedikit lebih lama untuk dimuat.",

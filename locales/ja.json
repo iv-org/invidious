@@ -1,16 +1,9 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 人の登録者",
-        "": "`x` 人の登録者"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個の動画",
-        "": "`x` 個の動画"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個の再生リスト",
-        "": "`x` 個の再生リスト"
-    },
+    "generic_views_count_0": "{{count}} 回視聴",
+    "generic_videos_count_0": "{{count}} 個の動画",
+    "generic_playlists_count_0": "{{count}} 個の再生リスト",
+    "generic_subscribers_count_0": "{{count}} 人の登録者",
+    "generic_subscriptions_count_0": "{{count}} 個の登録チャンネル",
     "LIVE": "ライブ",
     "Shared `x` ago": "`x`前に共有",
     "Unsubscribe": "登録解除",
@@ -127,10 +120,6 @@
     "Subscription manager": "登録チャンネルマネージャー",
     "Token manager": "トークンマネージャー",
     "Token": "トークン",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個の登録チャンネル",
-        "": "`x` 個の登録チャンネル"
-    },
     "`x` tokens": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個のトークン",
         "": "`x` 個のトークン"
@@ -176,10 +165,6 @@
     "Whitelisted regions: ": "ホワイトリストの地域: ",
     "Blacklisted regions: ": "ブラックリストの地域: ",
     "Shared `x`": "`x`に共有",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 回視聴",
-        "": "`x` 回視聴"
-    },
     "Premieres in `x`": "`x`後にプレミア公開",
     "Premieres `x`": "`x`にプレミア公開",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "やあ！君は JavaScript を無効にしているのかな？ここをクリックしてコメントを見れるけど、読み込みには少し時間がかかることがあるのを覚えておいてね。",

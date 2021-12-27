@@ -10,8 +10,8 @@
                 <% end %>
                 <p dir="auto"><%= HTML.escape(item.author) %></p>
             </a>
-            <p><%= translate(locale, "`x` subscribers", number_with_separator(item.subscriber_count)) %></p>
-            <% if !item.auto_generated %><p><%= translate(locale, "`x` videos", number_with_separator(item.video_count)) %></p><% end %>
+            <p><%= translate_count(locale, "generic_subscribers_count", item.subscriber_count, NumberFormatting::Separator) %></p>
+            <% if !item.auto_generated %><p><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p><% end %>
             <h5><%= item.description_html %></h5>
         <% when SearchPlaylist, InvidiousPlaylist %>
             <% if item.id.starts_with? "RD" %>
@@ -24,7 +24,7 @@
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <div class="thumbnail">
                         <img loading="lazy" class="thumbnail" src="<%= URI.parse(item.thumbnail || "/").request_target %>"/>
-                        <p class="length"><%= number_with_separator(item.video_count) %> videos</p>
+                        <p class="length"><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p>
                     </div>
                 <% end %>
                 <p dir="auto"><%= HTML.escape(item.title) %></p>
@@ -94,7 +94,7 @@
 
                 <% if item.responds_to?(:views) && item.views %>
                 <div class="flex-right">
-                    <p dir="auto"><%= translate(locale, "`x` views", number_to_short_text(item.views || 0)) %></p>
+                    <p dir="auto"><%= translate_count(locale, "generic_views_count", item.views || 0, NumberFormatting::Short) %></p>
                 </div>
                 <% end %>
             </div>
@@ -160,7 +160,7 @@
 
                 <% if item.responds_to?(:views) && item.views %>
                 <div class="flex-right">
-                    <p class="video-data" dir="auto"><%= translate(locale, "`x` views", number_to_short_text(item.views || 0)) %></p>
+                    <p class="video-data" dir="auto"><%= translate_count(locale, "generic_views_count", item.views || 0, NumberFormatting::Short) %></p>
                 </div>
                 <% end %>
             </div>

@@ -1,11 +1,6 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscribers",
-        "": "`x` subscribers"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video"
-    },
+    "generic_videos_count_0": "{{count}} video",
+    "generic_subscribers_count_0": "{{count}} subscribers",
     "LIVE": "TRỰC TIẾP",
     "Shared `x` ago": "Đã chia sẻ` x` trước",
     "Unsubscribe": "Hủy đăng ký",

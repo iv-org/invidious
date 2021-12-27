@@ -158,7 +158,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                         view_count = attachment["viewCountText"]?.try &.["simpleText"].as_s.gsub(/\D/, "").to_i64? || 0_i64
 
                         json.field "viewCount", view_count
-                        json.field "viewCountText", translate(locale, "`x` views", number_to_short_text(view_count))
+                        json.field "viewCountText", translate_count(locale, "generic_views_count", view_count, NumberFormatting::Short)
                       end
                     when .has_key?("backstageImageRenderer")
                       attachment = attachment["backstageImageRenderer"]
