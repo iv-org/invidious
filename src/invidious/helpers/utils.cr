@@ -21,10 +21,17 @@ def elapsed_text(elapsed)
 end
 
 def decode_length_seconds(string)
-  length_seconds = string.gsub(/[^0-9:]/, "").split(":").map &.to_i
+  length_seconds = string.gsub(/[^0-9:]/, "")
+  return 0_i32 if length_seconds.empty?
+
+  length_seconds = length_seconds.split(":").map { |x| x.to_i? || 0 }
   length_seconds = [0] * (3 - length_seconds.size) + length_seconds
-  length_seconds = Time::Span.new hours: length_seconds[0], minutes: length_seconds[1], seconds: length_seconds[2]
-  length_seconds = length_seconds.total_seconds.to_i
+
+  length_seconds = Time::Span.new(
+    hours: length_seconds[0],
+    minutes: length_seconds[1],
+    seconds: length_seconds[2]
+  ).total_seconds.to_i32
 
   return length_seconds
 end
