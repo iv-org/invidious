@@ -18,7 +18,7 @@ COPY ./.git/ ./.git/
 RUN crystal spec --warnings all \
     --link-flags "-lxml2 -llzma"
 
-RUN if [ ${release} == 1 ] ; then \
+RUN if [ "${release}" == 1 ] ; then \
         crystal build ./src/invidious.cr \
         --release \
         --static --warnings all \
