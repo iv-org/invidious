@@ -461,5 +461,6 @@
     "preferences_quality_dash_option_1080p": "1080p",
     "purchased": "Comprado",
     "360": "360°",
-    "videoinfo_watch_on_youTube": "Ver en YouTube"
+    "videoinfo_watch_on_youTube": "Ver en YouTube",
+    "preferences_save_player_pos_label": "Guardar el tiempo del vídeo actual: "
 }

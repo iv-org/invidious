@@ -461,5 +461,6 @@
     "purchased": "Satın alınan",
     "360": "360°",
     "videoinfo_watch_on_youTube": "YouTube'da izle",
-    "download_subtitles": "Alt yazılar - `x` (.vtt)"
+    "download_subtitles": "Alt yazılar - `x` (.vtt)",
+    "preferences_save_player_pos_label": "Geçerli video zamanını kaydet: "
 }

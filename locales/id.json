@@ -461,5 +461,6 @@
     "preferences_quality_dash_option_1440p": "1440p",
     "preferences_quality_dash_option_auto": "Otomatis",
     "preferences_quality_dash_option_480p": "480p",
-    "Video unavailable": "Video tidak tersedia"
+    "Video unavailable": "Video tidak tersedia",
+    "preferences_save_player_pos_label": "Simpan waktu video saat ini: "
 }
