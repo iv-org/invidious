@@ -461,5 +461,6 @@
     "preferences_quality_option_dash": "DASH (qualité adaptative)",
     "preferences_quality_dash_option_1440p": "1440p",
     "preferences_quality_dash_option_1080p": "1080p",
-    "user_created_playlists": "`x` listes de lecture créées"
+    "user_created_playlists": "`x` listes de lecture créées",
+    "preferences_save_player_pos_label": "Sauvegarder la durée actuelle de la vidéo : "
 }
