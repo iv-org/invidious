@@ -27,8 +27,8 @@ else
   FLAGS += --debug
 endif
 
-ifeq ($(DISABLE_LSQUIC), 1)
-  FLAGS += -Ddisable_lsquic
+ifeq ($(DISABLE_QUIC), 1)
+  FLAGS += -Ddisable_quic
 endif
 
 
@@ -108,7 +108,7 @@ help:
 	echo "RELEASE          Make a release build      (Default: 1)"
 	echo "STATIC           Link librariess tatically (Default: 1)"
 	echo ""
-	echo "DISABLE_LSQUIC   Don't use lsquic          (Default: 0)"
+	echo "DISABLE_QUIC     Disable support for QUIC  (Default: 0)"
 	echo "NO_DBG_SYMBOLS   Strip debug symbols       (Default: 0)"
 
 
