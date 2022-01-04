@@ -461,5 +461,6 @@
     "Video unavailable": "الفيديو غير متوفر",
     "360": "360°",
     "download_subtitles": "ترجمات - 'x' (.vtt)",
-    "invidious": "الخيالي"
+    "invidious": "الخيالي",
+    "preferences_save_player_pos_label": "احفظ وقت الفيديو الحالي: "
 }
