@@ -143,11 +143,11 @@ module Invidious::Database::Users
   def clear_notifications(user : User)
     request = <<-SQL
       UPDATE users
-      SET notifications = $1, updated = $2
-      WHERE email = $3
+      SET notifications = '{}', updated = $1
+      WHERE email = $2
     SQL
 
-    PG_DB.exec(request, [] of String, Time.utc, user)
+    PG_DB.exec(request, Time.utc, user.email)
   end
 
   # -------------------
