@@ -131,14 +131,13 @@ def translate_count(locale : String, key : String, count : Int, format = NumberF
 
     if LOCALES[locale].has_key?(key + singular_suffix)
       translation = LOCALES[locale][key + singular_suffix].as_s
-    else
-      # Try #2: Fallback to english (or return key we're already in english)
-      if locale == "en-US"
-        LOGGER.warn("i18n: Missing translation key \"#{key}\"")
-        return key
-      end
-
+    elsif locale != "en-US"
+      # Try #2: Fallback to english
       translation = translate_count("en-US", key, count)
+    else
+      # Return key if we're already in english, as the tranlation is missing
+      LOGGER.warn("i18n: Missing translation key \"#{key}\"")
+      return key
     end
   end
 

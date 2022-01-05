@@ -139,10 +139,7 @@ module I18next::Plurals
       self.init_rules
     end
 
-    def init_rules # : Hash(String, PluralForms)
-      # Init
-      # forms = {} of String => PluralForms
-
+    def init_rules
       # Look into sets
       PLURAL_SETS.each do |form, langs|
         langs.each { |lang| self.forms[lang] = form }
