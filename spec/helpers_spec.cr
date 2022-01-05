@@ -43,11 +43,11 @@ describe "Helper" do
 
   describe "#produce_playlist_continuation" do
     it "correctly produces ctoken for requesting index `x` of a playlist" do
-      produce_playlist_continuation("UUCla9fZca4I7KagBtgRGnOw", 100).should eq("4qmFsgJNEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoUQ0FGNkJsQlVPa05IVVElM0QlM0SaAhhVVUNsYTlmWmNhNEk3S2FnQnRnUkduT3c%3D")
+      produce_playlist_continuation("UUCla9fZca4I7KagBtgRGnOw", 100).should eq("4qmFsgJNEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoUQ0FGNkJsQlVPa05CUmNJR0FnZ0GaAhhVVUNsYTlmWmNhNEk3S2FnQnRnUkduT3c%3D")
 
-      produce_playlist_continuation("UCCla9fZca4I7KagBtgRGnOw", 200).should eq("4qmFsgJLEhpWTFVVQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoSQ0FKNkIxQlVPa05OWjBJJTNEmgIYVVVDbGE5ZlpjYTRJN0thZ0J0Z1JHbk93")
+      produce_playlist_continuation("UCCla9fZca4I7KagBtgRGnOw", 200).should eq("4qmFsgJNEhpWTFVDQ2xhOWZaY2E0STdLYWdCdGdSR25PdxoUQ0FGNkJsQlVPa05CU2NJR0FnZ0GaAhhVQ0NsYTlmWmNhNEk3S2FnQnRnUkduT3c%3D")
 
-      produce_playlist_continuation("PL55713C70BA91BD6E", 100).should eq("4qmFsgJBEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoUQ0FGNkJsQlVPa05IVVElM0QlM0SaAhJQTDU1NzEzQzcwQkE5MUJENkU%3D")
+      produce_playlist_continuation("PL55713C70BA91BD6E", 100).should eq("4qmFsgJDEhRWTFBMNTU3MTNDNzBCQTkxQkQ2RRoUQ0FGNkJsQlVPa05CUmNJR0FnZ0GaAhRVQ1BMNTU3MTNDNzBCQTkxQkQ2RQ%3D%3D")
     end
   end
 
