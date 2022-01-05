@@ -275,7 +275,7 @@ module Invidious::Routes::Login
           raise "Couldn't get SID."
         end
 
-        user, sid = get_user(sid, headers, PG_DB)
+        user, sid = get_user(sid, headers)
 
         # We are now logged in
         traceback << "done.<br/>"
@@ -303,8 +303,8 @@ module Invidious::Routes::Login
         end
 
         if env.request.cookies["PREFS"]?
-          preferences = env.get("preferences").as(Preferences)
-          PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+          user.preferences = env.get("preferences").as(Preferences)
+          Invidious::Database::Users.update_preferences(user)
 
           cookie = env.request.cookies["PREFS"]
           cookie.expires = Time.utc(1990, 1, 1)
@@ -327,7 +327,7 @@ module Invidious::Routes::Login
         return error_template(401, "Password is a required field")
       end
 
-      user = PG_DB.query_one?("SELECT * FROM users WHERE email = $1", email, as: User)
+      user = Invidious::Database::Users.select(email: email)
 
       if user
         if !user.password
@@ -336,7 +336,7 @@ module Invidious::Routes::Login
 
         if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-          PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
+          Invidious::Database::SessionIDs.insert(sid, email)
 
           if Kemal.config.ssl || CONFIG.https_only
             secure = true
@@ -393,9 +393,9 @@ module Invidious::Routes::Login
             prompt = ""
 
             if captcha_type == "image"
-              captcha = generate_captcha(HMAC_KEY, PG_DB)
+              captcha = generate_captcha(HMAC_KEY)
             else
-              captcha = generate_text_captcha(HMAC_KEY, PG_DB)
+              captcha = generate_text_captcha(HMAC_KEY)
             end
 
             return templated "login"
@@ -412,7 +412,7 @@ module Invidious::Routes::Login
             answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
 
             begin
-              validate_request(tokens[0], answer, env.request, HMAC_KEY, PG_DB, locale)
+              validate_request(tokens[0], answer, env.request, HMAC_KEY, locale)
             rescue ex
               return error_template(400, ex)
             end
@@ -427,7 +427,7 @@ module Invidious::Routes::Login
             error_exception = Exception.new
             tokens.each do |token|
               begin
-                validate_request(token, answer, env.request, HMAC_KEY, PG_DB, locale)
+                validate_request(token, answer, env.request, HMAC_KEY, locale)
                 found_valid_captcha = true
               rescue ex
                 error_exception = ex
@@ -449,13 +449,8 @@ module Invidious::Routes::Login
           end
         end
 
-        user_array = user.to_a
-        user_array[4] = user_array[4].to_json # User preferences
-
-        args = arg_array(user_array)
-
-        PG_DB.exec("INSERT INTO users VALUES (#{args})", args: user_array)
-        PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
+        Invidious::Database::Users.insert(user)
+        Invidious::Database::SessionIDs.insert(sid, email)
 
         view_name = "subscriptions_#{sha256(user.email)}"
         PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
@@ -475,8 +470,8 @@ module Invidious::Routes::Login
         end
 
         if env.request.cookies["PREFS"]?
-          preferences = env.get("preferences").as(Preferences)
-          PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", preferences.to_json, user.email)
+          user.preferences = env.get("preferences").as(Preferences)
+          Invidious::Database::Users.update_preferences(user)
 
           cookie = env.request.cookies["PREFS"]
           cookie.expires = Time.utc(1990, 1, 1)
@@ -506,12 +501,12 @@ module Invidious::Routes::Login
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end
 
-    PG_DB.exec("DELETE FROM session_ids * WHERE id = $1", sid)
+    Invidious::Database::SessionIDs.delete(sid: sid)
 
     env.request.cookies.each do |cookie|
       cookie.expires = Time.utc(1990, 1, 1)

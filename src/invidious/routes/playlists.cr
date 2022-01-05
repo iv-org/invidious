@@ -12,7 +12,7 @@ module Invidious::Routes::Playlists
 
     user = user.as(User)
     sid = sid.as(String)
-    csrf_token = generate_response(sid, {":create_playlist"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":create_playlist"}, HMAC_KEY)
 
     templated "create_playlist"
   end
@@ -31,7 +31,7 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end
@@ -46,11 +46,11 @@ module Invidious::Routes::Playlists
       return error_template(400, "Invalid privacy setting.")
     end
 
-    if PG_DB.query_one("SELECT count(*) FROM playlists WHERE author = $1", user.email, as: Int64) >= 100
+    if Invidious::Database::Playlists.count_owned_by(user.email) >= 100
       return error_template(400, "User cannot have more than 100 playlists.")
     end
 
-    playlist = create_playlist(PG_DB, title, privacy, user)
+    playlist = create_playlist(title, privacy, user)
 
     env.redirect "/playlist?list=#{playlist.id}"
   end
@@ -66,8 +66,8 @@ module Invidious::Routes::Playlists
     user = user.as(User)
 
     playlist_id = env.params.query["list"]
-    playlist = get_playlist(PG_DB, playlist_id, locale)
-    subscribe_playlist(PG_DB, user, playlist)
+    playlist = get_playlist(playlist_id, locale)
+    subscribe_playlist(user, playlist)
 
     env.redirect "/playlist?list=#{playlist.id}"
   end
@@ -85,12 +85,16 @@ module Invidious::Routes::Playlists
     sid = sid.as(String)
 
     plid = env.params.query["list"]?
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    if !plid || plid.empty?
+      return error_template(400, "A playlist ID is required")
+    end
+
+    playlist = Invidious::Database::Playlists.select(id: plid)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
 
-    csrf_token = generate_response(sid, {":delete_playlist"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":delete_playlist"}, HMAC_KEY)
 
     templated "delete_playlist"
   end
@@ -112,18 +116,17 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = Invidious::Database::Playlists.select(id: plid)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
 
-    PG_DB.exec("DELETE FROM playlist_videos * WHERE plid = $1", plid)
-    PG_DB.exec("DELETE FROM playlists * WHERE id = $1", plid)
+    Invidious::Database::Playlists.delete(plid)
 
     env.redirect "/feed/playlists"
   end
@@ -149,7 +152,7 @@ module Invidious::Routes::Playlists
     page ||= 1
 
     begin
-      playlist = PG_DB.query_one("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+      playlist = Invidious::Database::Playlists.select(id: plid, raise_on_fail: true)
       if !playlist || playlist.author != user.email
         return env.redirect referer
       end
@@ -158,12 +161,12 @@ module Invidious::Routes::Playlists
     end
 
     begin
-      videos = get_playlist_videos(PG_DB, playlist, offset: (page - 1) * 100, locale: locale)
+      videos = get_playlist_videos(playlist, offset: (page - 1) * 100, locale: locale)
     rescue ex
       videos = [] of PlaylistVideo
     end
 
-    csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY, PG_DB)
+    csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY)
 
     templated "edit_playlist"
   end
@@ -185,12 +188,12 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       return error_template(400, ex)
     end
 
-    playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+    playlist = Invidious::Database::Playlists.select(id: plid)
     if !playlist || playlist.author != user.email
       return env.redirect referer
     end
@@ -207,7 +210,7 @@ module Invidious::Routes::Playlists
       updated = playlist.updated
     end
 
-    PG_DB.exec("UPDATE playlists SET title = $1, privacy = $2, description = $3, updated = $4 WHERE id = $5", title, privacy, description, updated, plid)
+    Invidious::Database::Playlists.update(plid, title, privacy, description, updated)
 
     env.redirect "/playlist?list=#{plid}"
   end
@@ -233,7 +236,7 @@ module Invidious::Routes::Playlists
     page ||= 1
 
     begin
-      playlist = PG_DB.query_one("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
+      playlist = Invidious::Database::Playlists.select(id: plid, raise_on_fail: true)
       if !playlist || playlist.author != user.email
         return env.redirect referer
       end
@@ -283,7 +286,7 @@ module Invidious::Routes::Playlists
     token = env.params.body["csrf_token"]?
 
     begin
-      validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
       if redirect
         return error_template(400, ex)
@@ -311,7 +314,7 @@ module Invidious::Routes::Playlists
 
     begin
       playlist_id = env.params.query["playlist_id"]
-      playlist = get_playlist(PG_DB, playlist_id, locale).as(InvidiousPlaylist)
+      playlist = get_playlist(playlist_id, locale).as(InvidiousPlaylist)
       raise "Invalid user" if playlist.author != user.email
     rescue ex
       if redirect
@@ -342,7 +345,7 @@ module Invidious::Routes::Playlists
       video_id = env.params.query["video_id"]
 
       begin
-        video = get_video(video_id, PG_DB)
+        video = get_video(video_id)
       rescue ex
         if redirect
           return error_template(500, ex)
@@ -363,15 +366,12 @@ module Invidious::Routes::Playlists
         index:          Random::Secure.rand(0_i64..Int64::MAX),
       })
 
-      video_array = playlist_video.to_a
-      args = arg_array(video_array)
-
-      PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
-      PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index) + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist_id)
+      Invidious::Database::PlaylistVideos.insert(playlist_video)
+      Invidious::Database::Playlists.update_video_added(playlist_id, playlist_video.index)
     when "action_remove_video"
       index = env.params.query["set_video_id"]
-      PG_DB.exec("DELETE FROM playlist_videos * WHERE index = $1", index)
-      PG_DB.exec("UPDATE playlists SET index = array_remove(index, $1), video_count = cardinality(index) - 1, updated = $2 WHERE id = $3", index, Time.utc, playlist_id)
+      Invidious::Database::PlaylistVideos.delete(index)
+      Invidious::Database::Playlists.update_video_removed(playlist_id, index)
     when "action_move_video_before"
       # TODO: Playlist stub
     else
@@ -405,7 +405,7 @@ module Invidious::Routes::Playlists
     end
 
     begin
-      playlist = get_playlist(PG_DB, plid, locale)
+      playlist = get_playlist(plid, locale)
     rescue ex
       return error_template(500, ex)
     end
@@ -422,7 +422,7 @@ module Invidious::Routes::Playlists
     end
 
     begin
-      videos = get_playlist_videos(PG_DB, playlist, offset: (page - 1) * 100, locale: locale)
+      videos = get_playlist_videos(playlist, offset: (page - 1) * 100, locale: locale)
     rescue ex
       return error_template(500, "Error encountered while retrieving playlist videos.<br>#{ex.message}")
     end

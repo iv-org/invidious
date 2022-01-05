@@ -13,7 +13,7 @@ module Invidious::Routes::API::Manifest
     unique_res = env.params.query["unique_res"]?.try { |q| (q == "true" || q == "1").to_unsafe }
 
     begin
-      video = get_video(id, PG_DB, region: region)
+      video = get_video(id, region: region)
     rescue ex : VideoRedirect
       return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex

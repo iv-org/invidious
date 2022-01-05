@@ -97,18 +97,18 @@ class AuthHandler < Kemal::Handler
       if token = env.request.headers["Authorization"]?
         token = JSON.parse(URI.decode_www_form(token.lchop("Bearer ")))
         session = URI.decode_www_form(token["session"].as_s)
-        scopes, expire, signature = validate_request(token, session, env.request, HMAC_KEY, PG_DB, nil)
+        scopes, expire, signature = validate_request(token, session, env.request, HMAC_KEY, nil)
 
-        if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", session, as: String)
-          user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+        if email = Invidious::Database::SessionIDs.select_email(session)
+          user = Invidious::Database::Users.select!(email: email)
         end
       elsif sid = env.request.cookies["SID"]?.try &.value
         if sid.starts_with? "v1:"
           raise "Cannot use token as SID"
         end
 
-        if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
-          user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+        if email = Invidious::Database::SessionIDs.select_email(sid)
+          user = Invidious::Database::Users.select!(email: email)
         end
 
         scopes = [":*"]

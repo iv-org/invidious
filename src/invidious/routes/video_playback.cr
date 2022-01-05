@@ -263,7 +263,7 @@ module Invidious::Routes::VideoPlayback
       haltf env, status_code: 400, response: "TESTING"
     end
 
-    video = get_video(id, PG_DB, region: region)
+    video = get_video(id, region: region)
 
     fmt = video.fmt_stream.find(nil) { |f| f["itag"].as_i == itag } || video.adaptive_fmts.find(nil) { |f| f["itag"].as_i == itag }
     url = fmt.try &.["url"]?.try &.as_s

@@ -15,13 +15,14 @@ module Invidious::Routes::Feeds
 
     user = user.as(User)
 
-    items_created = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+    # TODO: make a single DB call and separate the items here?
+    items_created = Invidious::Database::Playlists.select_like_iv(user.email)
     items_created.map! do |item|
       item.author = ""
       item
     end
 
-    items_saved = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id NOT LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+    items_saved = Invidious::Database::Playlists.select_not_like_iv(user.email)
     items_saved.map! do |item|
       item.author = ""
       item
@@ -83,7 +84,7 @@ module Invidious::Routes::Feeds
     headers["Cookie"] = env.request.headers["Cookie"]
 
     if !user.password
-      user, sid = get_user(sid, headers, PG_DB)
+      user, sid = get_user(sid, headers)
     end
 
     max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)
@@ -93,14 +94,13 @@ module Invidious::Routes::Feeds
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
-    videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
+    videos, notifications = get_subscription_feed(user, max_results, page)
 
     # "updated" here is used for delivering new notifications, so if
     # we know a user has looked at their feed e.g. in the past 10 minutes,
     # they've already seen a video posted 20 minutes ago, and don't need
     # to be notified.
-    PG_DB.exec("UPDATE users SET notifications = $1, updated = $2 WHERE email = $3", [] of String, Time.utc,
-      user.email)
+    Invidious::Database::Users.clear_notifications(user)
     user.notifications = [] of String
     env.set "user", user
 
@@ -220,7 +220,7 @@ module Invidious::Routes::Feeds
       haltf env, status_code: 403
     end
 
-    user = PG_DB.query_one?("SELECT * FROM users WHERE token = $1", token.strip, as: User)
+    user = Invidious::Database::Users.select(token: token.strip)
     if !user
       haltf env, status_code: 403
     end
@@ -234,7 +234,7 @@ module Invidious::Routes::Feeds
 
     params = HTTP::Params.parse(env.params.query["params"]? || "")
 
-    videos, notifications = get_subscription_feed(PG_DB, user, max_results, page)
+    videos, notifications = get_subscription_feed(user, max_results, page)
 
     XML.build(indent: "  ", encoding: "UTF-8") do |xml|
       xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
@@ -264,8 +264,8 @@ module Invidious::Routes::Feeds
     path = env.request.path
 
     if plid.starts_with? "IV"
-      if playlist = PG_DB.query_one?("SELECT * FROM playlists WHERE id = $1", plid, as: InvidiousPlaylist)
-        videos = get_playlist_videos(PG_DB, playlist, offset: 0, locale: locale)
+      if playlist = Invidious::Database::Playlists.select(id: plid)
+        videos = get_playlist_videos(playlist, offset: 0, locale: locale)
 
         return XML.build(indent: "  ", encoding: "UTF-8") do |xml|
           xml.element("feed", "xmlns:yt": "http://www.youtube.com/xml/schemas/2015",
@@ -364,7 +364,7 @@ module Invidious::Routes::Feeds
     if ucid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["channel_id"]?
       PG_DB.exec("UPDATE channels SET subscribed = $1 WHERE id = $2", Time.utc, ucid)
     elsif plid = HTTP::Params.parse(URI.parse(topic).query.not_nil!)["playlist_id"]?
-      PG_DB.exec("UPDATE playlists SET subscribed = $1 WHERE id = $2", Time.utc, ucid)
+      Invidious::Database::Playlists.update_subscription_time(plid)
     else
       haltf env, status_code: 400
     end
@@ -393,7 +393,7 @@ module Invidious::Routes::Feeds
         published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
         updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
 
-        video = get_video(id, PG_DB, force_refresh: true)
+        video = get_video(id, force_refresh: true)
 
         # Deliver notifications to `/api/v1/auth/notifications`
         payload = {
@@ -416,13 +416,8 @@ module Invidious::Routes::Feeds
           views:              video.views,
         })
 
-        was_insert = PG_DB.query_one("INSERT INTO channel_videos VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-          ON CONFLICT (id) DO UPDATE SET title = $2, published = $3,
-          updated = $4, ucid = $5, author = $6, length_seconds = $7,
-          live_now = $8, premiere_timestamp = $9, views = $10 returning (xmax=0) as was_insert", *video.to_tuple, as: Bool)
-
-        PG_DB.exec("UPDATE users SET notifications = array_append(notifications, $1),
-          feed_needs_update = true WHERE $2 = ANY(subscriptions)", video.id, video.ucid) if was_insert
+        was_insert = Invidious::Database::ChannelVideos.insert(video, with_premiere_timestamp: true)
+        Invidious::Database::Users.add_notification(video) if was_insert
       end
     end
 

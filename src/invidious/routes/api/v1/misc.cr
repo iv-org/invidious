@@ -34,7 +34,7 @@ module Invidious::Routes::API::V1::Misc
     end
 
     begin
-      playlist = get_playlist(PG_DB, plid, locale)
+      playlist = get_playlist(plid, locale)
     rescue ex : InfoException
       return error_json(404, ex)
     rescue ex

@@ -29,43 +29,31 @@ struct User
   end
 end
 
-def get_user(sid, headers, db, refresh = true)
-  if email = db.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
-    user = db.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+def get_user(sid, headers, refresh = true)
+  if email = Invidious::Database::SessionIDs.select_email(sid)
+    user = Invidious::Database::Users.select!(email: email)
 
     if refresh && Time.utc - user.updated > 1.minute
-      user, sid = fetch_user(sid, headers, db)
-      user_array = user.to_a
-      user_array[4] = user_array[4].to_json # User preferences
-      args = arg_array(user_array)
+      user, sid = fetch_user(sid, headers)
 
-      db.exec("INSERT INTO users VALUES (#{args}) \
-      ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", args: user_array)
-
-      db.exec("INSERT INTO session_ids VALUES ($1,$2,$3) \
-      ON CONFLICT (id) DO NOTHING", sid, user.email, Time.utc)
+      Invidious::Database::Users.insert(user, update_on_conflict: true)
+      Invidious::Database::SessionIDs.insert(sid, user.email, handle_conflicts: true)
 
       begin
         view_name = "subscriptions_#{sha256(user.email)}"
-        db.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
+        PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
       rescue ex
       end
     end
   else
-    user, sid = fetch_user(sid, headers, db)
-    user_array = user.to_a
-    user_array[4] = user_array[4].to_json # User preferences
-    args = arg_array(user.to_a)
+    user, sid = fetch_user(sid, headers)
 
-    db.exec("INSERT INTO users VALUES (#{args}) \
-    ON CONFLICT (email) DO UPDATE SET updated = $1, subscriptions = $3", args: user_array)
-
-    db.exec("INSERT INTO session_ids VALUES ($1,$2,$3) \
-    ON CONFLICT (id) DO NOTHING", sid, user.email, Time.utc)
+    Invidious::Database::Users.insert(user, update_on_conflict: true)
+    Invidious::Database::SessionIDs.insert(sid, user.email, handle_conflicts: true)
 
     begin
       view_name = "subscriptions_#{sha256(user.email)}"
-      db.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
+      PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
     rescue ex
     end
   end
@@ -73,7 +61,7 @@ def get_user(sid, headers, db, refresh = true)
   return user, sid
 end
 
-def fetch_user(sid, headers, db)
+def fetch_user(sid, headers)
   feed = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
   feed = XML.parse_html(feed.body)
 
@@ -86,7 +74,7 @@ def fetch_user(sid, headers, db)
     end
   end
 
-  channels = get_batch_channels(channels, db, false, false)
+  channels = get_batch_channels(channels, false, false)
 
   email = feed.xpath_node(%q(//a[@class="yt-masthead-picker-header yt-masthead-picker-active-account"]))
   if email
@@ -130,7 +118,7 @@ def create_user(sid, email, password)
   return user, sid
 end
 
-def generate_captcha(key, db)
+def generate_captcha(key)
   second = Random::Secure.rand(12)
   second_angle = second * 30
   second = second * 5
@@ -182,16 +170,16 @@ def generate_captcha(key, db)
 
   return {
     question: image,
-    tokens:   {generate_response(answer, {":login"}, key, db, use_nonce: true)},
+    tokens:   {generate_response(answer, {":login"}, key, use_nonce: true)},
   }
 end
 
-def generate_text_captcha(key, db)
+def generate_text_captcha(key)
   response = make_client(TEXTCAPTCHA_URL, &.get("/github.com/iv.org/invidious.json").body)
   response = JSON.parse(response)
 
   tokens = response["a"].as_a.map do |answer|
-    generate_response(answer.as_s, {":login"}, key, db, use_nonce: true)
+    generate_response(answer.as_s, {":login"}, key, use_nonce: true)
   end
 
   return {
@@ -232,20 +220,16 @@ def subscribe_ajax(channel_id, action, env_headers)
   end
 end
 
-def get_subscription_feed(db, user, max_results = 40, page = 1)
+def get_subscription_feed(user, max_results = 40, page = 1)
   limit = max_results.clamp(0, MAX_ITEMS_PER_PAGE)
   offset = (page - 1) * limit
 
-  notifications = db.query_one("SELECT notifications FROM users WHERE email = $1", user.email,
-    as: Array(String))
+  notifications = Invidious::Database::Users.select_notifications(user)
   view_name = "subscriptions_#{sha256(user.email)}"
 
   if user.preferences.notifications_only && !notifications.empty?
     # Only show notifications
-
-    args = arg_array(notifications)
-
-    notifications = db.query_all("SELECT * FROM channel_videos WHERE id IN (#{args}) ORDER BY published DESC", args: notifications, as: ChannelVideo)
+    notifications = Invidious::Database::ChannelVideos.select(notifications)
     videos = [] of ChannelVideo
 
     notifications.sort_by!(&.published).reverse!
@@ -311,8 +295,7 @@ def get_subscription_feed(db, user, max_results = 40, page = 1)
     else nil # Ignore
     end
 
-    notifications = PG_DB.query_one("SELECT notifications FROM users WHERE email = $1", user.email, as: Array(String))
-
+    notifications = Invidious::Database::Users.select_notifications(user)
     notifications = videos.select { |v| notifications.includes? v.id }
     videos = videos - notifications
   end

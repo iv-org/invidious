@@ -8,7 +8,7 @@ module Invidious::Routes::API::V1::Videos
     region = env.params.query["region"]?
 
     begin
-      video = get_video(id, PG_DB, region: region)
+      video = get_video(id, region: region)
     rescue ex : VideoRedirect
       env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
       return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
@@ -36,7 +36,7 @@ module Invidious::Routes::API::V1::Videos
     # getting video info.
 
     begin
-      video = get_video(id, PG_DB, region: region)
+      video = get_video(id, region: region)
     rescue ex : VideoRedirect
       env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
       return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
@@ -157,7 +157,7 @@ module Invidious::Routes::API::V1::Videos
     region = env.params.query["region"]?
 
     begin
-      video = get_video(id, PG_DB, region: region)
+      video = get_video(id, region: region)
     rescue ex : VideoRedirect
       env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
       return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
@@ -239,7 +239,7 @@ module Invidious::Routes::API::V1::Videos
 
     case source
     when "archive"
-      if CONFIG.cache_annotations && (cached_annotation = PG_DB.query_one?("SELECT * FROM annotations WHERE id = $1", id, as: Annotation))
+      if CONFIG.cache_annotations && (cached_annotation = Invidious::Database::Annotations.select(id))
         annotations = cached_annotation.annotations
       else
         index = CHARS_SAFE.index(id[0]).not_nil!.to_s.rjust(2, '0')
@@ -271,7 +271,7 @@ module Invidious::Routes::API::V1::Videos
 
         annotations = response.body
 
-        cache_annotation(PG_DB, id, annotations)
+        cache_annotation(id, annotations)
       end
     else # "youtube"
       response = YT_POOL.client &.get("/annotations_invideo?video_id=#{id}")

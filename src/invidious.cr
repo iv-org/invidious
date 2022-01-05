@@ -20,12 +20,13 @@ require "kemal"
 require "athena-negotiation"
 require "openssl/hmac"
 require "option_parser"
-require "pg"
 require "sqlite3"
 require "xml"
 require "yaml"
 require "compress/zip"
 require "protodec/utils"
+
+require "./invidious/database/*"
 require "./invidious/helpers/*"
 require "./invidious/yt_backend/*"
 require "./invidious/*"
@@ -112,19 +113,19 @@ LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
 # Check table integrity
 if CONFIG.check_tables
-  check_enum(PG_DB, "privacy", PlaylistPrivacy)
+  Invidious::Database.check_enum(PG_DB, "privacy", PlaylistPrivacy)
 
-  check_table(PG_DB, "channels", InvidiousChannel)
-  check_table(PG_DB, "channel_videos", ChannelVideo)
-  check_table(PG_DB, "playlists", InvidiousPlaylist)
-  check_table(PG_DB, "playlist_videos", PlaylistVideo)
-  check_table(PG_DB, "nonces", Nonce)
-  check_table(PG_DB, "session_ids", SessionId)
-  check_table(PG_DB, "users", User)
-  check_table(PG_DB, "videos", Video)
+  Invidious::Database.check_table(PG_DB, "channels", InvidiousChannel)
+  Invidious::Database.check_table(PG_DB, "channel_videos", ChannelVideo)
+  Invidious::Database.check_table(PG_DB, "playlists", InvidiousPlaylist)
+  Invidious::Database.check_table(PG_DB, "playlist_videos", PlaylistVideo)
+  Invidious::Database.check_table(PG_DB, "nonces", Nonce)
+  Invidious::Database.check_table(PG_DB, "session_ids", SessionId)
+  Invidious::Database.check_table(PG_DB, "users", User)
+  Invidious::Database.check_table(PG_DB, "videos", Video)
 
   if CONFIG.cache_annotations
-    check_table(PG_DB, "annotations", Annotation)
+    Invidious::Database.check_table(PG_DB, "annotations", Annotation)
   end
 end
 
@@ -246,8 +247,8 @@ before_all do |env|
 
     # Invidious users only have SID
     if !env.request.cookies.has_key? "SSID"
-      if email = PG_DB.query_one?("SELECT email FROM session_ids WHERE id = $1", sid, as: String)
-        user = PG_DB.query_one("SELECT * FROM users WHERE email = $1", email, as: User)
+      if email = Invidious::Database::SessionIDs.select_email(sid)
+        user = Invidious::Database::Users.select!(email: email)
         csrf_token = generate_response(sid, {
           ":authorize_token",
           ":playlist_ajax",
@@ -255,7 +256,7 @@ before_all do |env|
           ":subscription_ajax",
           ":token_ajax",
           ":watch_ajax",
-        }, HMAC_KEY, PG_DB, 1.week)
+        }, HMAC_KEY, 1.week)
 
         preferences = user.preferences
         env.set "preferences", preferences
@@ -269,7 +270,7 @@ before_all do |env|
       headers["Cookie"] = env.request.headers["Cookie"]
 
       begin
-        user, sid = get_user(sid, headers, PG_DB, false)
+        user, sid = get_user(sid, headers, false)
         csrf_token = generate_response(sid, {
           ":authorize_token",
           ":playlist_ajax",
@@ -277,7 +278,7 @@ before_all do |env|
           ":subscription_ajax",
           ":token_ajax",
           ":watch_ajax",
-        }, HMAC_KEY, PG_DB, 1.week)
+        }, HMAC_KEY, 1.week)
 
         preferences = user.preferences
         env.set "preferences", preferences
@@ -437,7 +438,7 @@ post "/watch_ajax" do |env|
   end
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     if redirect
       next error_template(400, ex)
@@ -457,10 +458,10 @@ post "/watch_ajax" do |env|
   case action
   when "action_mark_watched"
     if !user.watched.includes? id
-      PG_DB.exec("UPDATE users SET watched = array_append(watched, $1) WHERE email = $2", id, user.email)
+      Invidious::Database::Users.mark_watched(user, id)
     end
   when "action_mark_unwatched"
-    PG_DB.exec("UPDATE users SET watched = array_remove(watched, $1) WHERE email = $2", id, user.email)
+    Invidious::Database::Users.mark_unwatched(user, id)
   else
     next error_json(400, "Unsupported action #{action}")
   end
@@ -574,7 +575,7 @@ post "/subscription_ajax" do |env|
   token = env.params.body["csrf_token"]?
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     if redirect
       next error_template(400, ex)
@@ -598,16 +599,15 @@ post "/subscription_ajax" do |env|
     # Sync subscriptions with YouTube
     subscribe_ajax(channel_id, action, env.request.headers)
   end
-  email = user.email
 
   case action
   when "action_create_subscription_to_channel"
     if !user.subscriptions.includes? channel_id
-      get_channel(channel_id, PG_DB, false, false)
-      PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_append(subscriptions, $1) WHERE email = $2", channel_id, email)
+      get_channel(channel_id, false, false)
+      Invidious::Database::Users.subscribe_channel(user, channel_id)
     end
   when "action_remove_subscriptions"
-    PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = array_remove(subscriptions, $1) WHERE email = $2", channel_id, email)
+    Invidious::Database::Users.unsubscribe_channel(user, channel_id)
   else
     next error_json(400, "Unsupported action #{action}")
   end
@@ -632,13 +632,14 @@ get "/subscription_manager" do |env|
   end
 
   user = user.as(User)
+  sid = sid.as(String)
 
   if !user.password
     # Refresh account
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    user, sid = get_user(sid, headers, PG_DB)
+    user, sid = get_user(sid, headers)
   end
 
   action_takeout = env.params.query["action_takeout"]?.try &.to_i?
@@ -648,20 +649,14 @@ get "/subscription_manager" do |env|
   format = env.params.query["format"]?
   format ||= "rss"
 
-  if user.subscriptions.empty?
-    values = "'{}'"
-  else
-    values = "VALUES #{user.subscriptions.map { |id| %(('#{id}')) }.join(",")}"
-  end
-
-  subscriptions = PG_DB.query_all("SELECT * FROM channels WHERE id = ANY(#{values})", as: InvidiousChannel)
+  subscriptions = Invidious::Database::Channels.select(user.subscriptions)
   subscriptions.sort_by!(&.author.downcase)
 
   if action_takeout
     if format == "json"
       env.response.content_type = "application/json"
       env.response.headers["content-disposition"] = "attachment"
-      playlists = PG_DB.query_all("SELECT * FROM playlists WHERE author = $1 AND id LIKE 'IV%' ORDER BY created", user.email, as: InvidiousPlaylist)
+      playlists = Invidious::Database::Playlists.select_like_iv(user.email)
 
       next JSON.build do |json|
         json.object do
@@ -677,7 +672,7 @@ get "/subscription_manager" do |env|
                   json.field "privacy", playlist.privacy.to_s
                   json.field "videos" do
                     json.array do
-                      PG_DB.query_all("SELECT id FROM playlist_videos WHERE plid = $1 ORDER BY array_position($2, index) LIMIT 500", playlist.id, playlist.index, as: String).each do |video_id|
+                      Invidious::Database::PlaylistVideos.select_ids(playlist.id, playlist.index, limit: 500).each do |video_id|
                         json.string video_id
                       end
                     end
@@ -762,20 +757,20 @@ post "/data_control" do |env|
           user.subscriptions += body["subscriptions"].as_a.map(&.as_s)
           user.subscriptions.uniq!
 
-          user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+          user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
-          PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+          Invidious::Database::Users.update_subscriptions(user)
         end
 
         if body["watch_history"]?
           user.watched += body["watch_history"].as_a.map(&.as_s)
           user.watched.uniq!
-          PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", user.watched, user.email)
+          Invidious::Database::Users.update_watch_history(user)
         end
 
         if body["preferences"]?
           user.preferences = Preferences.from_json(body["preferences"].to_json)
-          PG_DB.exec("UPDATE users SET preferences = $1 WHERE email = $2", user.preferences.to_json, user.email)
+          Invidious::Database::Users.update_preferences(user)
         end
 
         if playlists = body["playlists"]?.try &.as_a?
@@ -788,8 +783,8 @@ post "/data_control" do |env|
             next if !description
             next if !privacy
 
-            playlist = create_playlist(PG_DB, title, privacy, user)
-            PG_DB.exec("UPDATE playlists SET description = $1 WHERE id = $2", description, playlist.id)
+            playlist = create_playlist(title, privacy, user)
+            Invidious::Database::Playlists.update_description(playlist.id, description)
 
             videos = item["videos"]?.try &.as_a?.try &.each_with_index do |video_id, idx|
               raise InfoException.new("Playlist cannot have more than 500 videos") if idx > 500
@@ -798,7 +793,7 @@ post "/data_control" do |env|
               next if !video_id
 
               begin
-                video = get_video(video_id, PG_DB)
+                video = get_video(video_id)
               rescue ex
                 next
               end
@@ -815,11 +810,8 @@ post "/data_control" do |env|
                 index:          Random::Secure.rand(0_i64..Int64::MAX),
               })
 
-              video_array = playlist_video.to_a
-              args = arg_array(video_array)
-
-              PG_DB.exec("INSERT INTO playlist_videos VALUES (#{args})", args: video_array)
-              PG_DB.exec("UPDATE playlists SET index = array_append(index, $1), video_count = cardinality(index) + 1, updated = $2 WHERE id = $3", playlist_video.index, Time.utc, playlist.id)
+              Invidious::Database::PlaylistVideos.insert(playlist_video)
+              Invidious::Database::Playlists.update_video_added(playlist.id, playlist_video.index)
             end
           end
         end
@@ -837,18 +829,18 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
-        PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+        Invidious::Database::Users.update_subscriptions(user)
       when "import_freetube"
         user.subscriptions += body.scan(/"channelId":"(?<channel_id>[a-zA-Z0-9_-]{24})"/).map do |md|
           md["channel_id"]
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
-        PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+        Invidious::Database::Users.update_subscriptions(user)
       when "import_newpipe_subscriptions"
         body = JSON.parse(body)
         user.subscriptions += body["subscriptions"].as_a.compact_map do |channel|
@@ -865,9 +857,9 @@ post "/data_control" do |env|
         end
         user.subscriptions.uniq!
 
-        user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+        user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
-        PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+        Invidious::Database::Users.update_subscriptions(user)
       when "import_newpipe"
         Compress::Zip::Reader.open(IO::Memory.new(body)) do |file|
           file.each_entry do |entry|
@@ -879,14 +871,14 @@ post "/data_control" do |env|
               user.watched += db.query_all("SELECT url FROM streams", as: String).map(&.lchop("https://www.youtube.com/watch?v="))
               user.watched.uniq!
 
-              PG_DB.exec("UPDATE users SET watched = $1 WHERE email = $2", user.watched, user.email)
+              Invidious::Database::Users.update_watch_history(user)
 
               user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map(&.lchop("https://www.youtube.com/channel/"))
               user.subscriptions.uniq!
 
-              user.subscriptions = get_batch_channels(user.subscriptions, PG_DB, false, false)
+              user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
-              PG_DB.exec("UPDATE users SET feed_needs_update = true, subscriptions = $1 WHERE email = $2", user.subscriptions, user.email)
+              Invidious::Database::Users.update_subscriptions(user)
 
               db.close
               tempfile.delete
@@ -914,7 +906,7 @@ get "/change_password" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
-  csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY, PG_DB)
+  csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY)
 
   templated "change_password"
 end
@@ -940,7 +932,7 @@ post "/change_password" do |env|
   end
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     next error_template(400, ex)
   end
@@ -970,7 +962,7 @@ post "/change_password" do |env|
   end
 
   new_password = Crypto::Bcrypt::Password.create(new_password, cost: 10)
-  PG_DB.exec("UPDATE users SET password = $1 WHERE email = $2", new_password.to_s, user.email)
+  Invidious::Database::Users.update_password(user, new_password.to_s)
 
   env.redirect referer
 end
@@ -988,7 +980,7 @@ get "/delete_account" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
-  csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY, PG_DB)
+  csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY)
 
   templated "delete_account"
 end
@@ -1009,14 +1001,14 @@ post "/delete_account" do |env|
   token = env.params.body["csrf_token"]?
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     next error_template(400, ex)
   end
 
   view_name = "subscriptions_#{sha256(user.email)}"
-  PG_DB.exec("DELETE FROM users * WHERE email = $1", user.email)
-  PG_DB.exec("DELETE FROM session_ids * WHERE email = $1", user.email)
+  Invidious::Database::Users.delete(user)
+  Invidious::Database::SessionIDs.delete(email: user.email)
   PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
 
   env.request.cookies.each do |cookie|
@@ -1040,7 +1032,7 @@ get "/clear_watch_history" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
-  csrf_token = generate_response(sid, {":clear_watch_history"}, HMAC_KEY, PG_DB)
+  csrf_token = generate_response(sid, {":clear_watch_history"}, HMAC_KEY)
 
   templated "clear_watch_history"
 end
@@ -1061,12 +1053,12 @@ post "/clear_watch_history" do |env|
   token = env.params.body["csrf_token"]?
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     next error_template(400, ex)
   end
 
-  PG_DB.exec("UPDATE users SET watched = '{}' WHERE email = $1", user.email)
+  Invidious::Database::Users.clear_watch_history(user)
   env.redirect referer
 end
 
@@ -1083,7 +1075,7 @@ get "/authorize_token" do |env|
 
   user = user.as(User)
   sid = sid.as(String)
-  csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY, PG_DB)
+  csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY)
 
   scopes = env.params.query["scopes"]?.try &.split(",")
   scopes ||= [] of String
@@ -1114,7 +1106,7 @@ post "/authorize_token" do |env|
   token = env.params.body["csrf_token"]?
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     next error_template(400, ex)
   end
@@ -1123,7 +1115,7 @@ post "/authorize_token" do |env|
   callback_url = env.params.body["callbackUrl"]?
   expire = env.params.body["expire"]?.try &.to_i?
 
-  access_token = generate_token(user.email, scopes, expire, HMAC_KEY, PG_DB)
+  access_token = generate_token(user.email, scopes, expire, HMAC_KEY)
 
   if callback_url
     access_token = URI.encode_www_form(access_token)
@@ -1158,8 +1150,7 @@ get "/token_manager" do |env|
   end
 
   user = user.as(User)
-
-  tokens = PG_DB.query_all("SELECT id, issued FROM session_ids WHERE email = $1 ORDER BY issued DESC", user.email, as: {session: String, issued: Time})
+  tokens = Invidious::Database::SessionIDs.select_all(user.email)
 
   templated "token_manager"
 end
@@ -1188,7 +1179,7 @@ post "/token_ajax" do |env|
   token = env.params.body["csrf_token"]?
 
   begin
-    validate_request(token, sid, env.request, HMAC_KEY, PG_DB, locale)
+    validate_request(token, sid, env.request, HMAC_KEY, locale)
   rescue ex
     if redirect
       next error_template(400, ex)
@@ -1208,7 +1199,7 @@ post "/token_ajax" do |env|
 
   case action
   when .starts_with? "action_revoke_token"
-    PG_DB.exec("DELETE FROM session_ids * WHERE id = $1 AND email = $2", session, user.email)
+    Invidious::Database::SessionIDs.delete(sid: session, email: user.email)
   else
     next error_json(400, "Unsupported action #{action}")
   end
