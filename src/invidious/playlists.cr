@@ -243,7 +243,7 @@ struct InvidiousPlaylist
   end
 
   def description_html
-    HTML.escape(self.description).gsub("\n", "<br>")
+    HTML.escape(self.description)
   end
 end
 
@@ -300,16 +300,14 @@ def produce_playlist_continuation(id, index)
     .try { |i| Protodec::Any.from_json(i) }
     .try { |i| Base64.urlsafe_encode(i, padding: false) }
 
-  data_wrapper = {"1:varint" => request_count, "15:string" => "PT:#{data}"}
-    .try { |i| Protodec::Any.cast_json(i) }
-    .try { |i| Protodec::Any.from_json(i) }
-    .try { |i| Base64.urlsafe_encode(i) }
-    .try { |i| URI.encode_www_form(i) }
-
   object = {
     "80226972:embedded" => {
-      "2:string"  => plid,
-      "3:string"  => data_wrapper,
+      "2:string" => plid,
+      "3:base64" => {
+        "1:varint"     => request_count,
+        "15:string"    => "PT:#{data}",
+        "104:embedded" => {"1:0:varint" => 0_i64},
+      },
       "35:string" => id,
     },
   }
@@ -347,7 +345,7 @@ def fetch_playlist(plid, locale)
   playlist_info = playlist_sidebar_renderer[0]["playlistSidebarPrimaryInfoRenderer"]?
   raise InfoException.new("Could not extract playlist info") if !playlist_info
 
-  title = playlist_info["title"]?.try &.["runs"][0]?.try &.["text"]?.try &.as_s || ""
+  title = playlist_info.dig?("title", "runs", 0, "text").try &.as_s || ""
 
   desc_item = playlist_info["description"]?
 

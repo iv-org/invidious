@@ -59,7 +59,7 @@ def get_about_info(ucid, locale)
     banner = banners.try &.[-1]?.try &.["url"].as_s?
 
     description = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]["simpleText"].as_s
-    description_html = HTML.escape(description).gsub("\n", "<br>")
+    description_html = HTML.escape(description)
 
     is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map(&.as_s)
@@ -81,7 +81,7 @@ def get_about_info(ucid, locale)
     # end
 
     description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
-    description_html = HTML.escape(description).gsub("\n", "<br>")
+    description_html = HTML.escape(description)
 
     is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map(&.as_s)
