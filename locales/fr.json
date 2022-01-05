@@ -125,18 +125,14 @@
     "Subscription manager": "Gestionnaire d'abonnement",
     "Token manager": "Gestionnaire de token",
     "Token": "Token",
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` tokens"
-    },
+    "tokens_count": "{{count}} token",
+    "tokens_count_plural": "{{count}} tokens",
     "Import/export": "Importer/Exporter",
     "unsubscribe": "se désabonner",
     "revoke": "révoquer",
     "Subscriptions": "Abonnements",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notification non vue",
-        "": "`x` notifications non vues"
-    },
+    "subscriptions_unseen_notifs_count": "{{count}} notification non vue",
+    "subscriptions_unseen_notifs_count_plural": "{{count}} notifications non vues",
     "search": "rechercher",
     "Log out": "Se déconnecter",
     "Released under the AGPLv3 on Github.": "Publié sous licence AGPLv3 sur Github.",
@@ -203,16 +199,12 @@
     "This channel does not exist.": "Cette chaine n'existe pas.",
     "Could not get channel info.": "Impossible de charger les informations de cette chaîne.",
     "Could not fetch comments": "Impossible de charger les commentaires",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Voir `x` réponse",
-        "": "Voir `x` réponses"
-    },
+    "comments_view_x_replies": "Voir {{count}} réponse",
+    "comments_view_x_replies_plural": "Voir {{count}} réponses",
     "`x` ago": "il y a `x`",
     "Load more": "Voir plus",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` point",
-        "": "`x` points"
-    },
+    "comments_points_count": "{{count}} point",
+    "comments_points_count_plural": "{{count}} points",
     "Could not create mix.": "Impossible de charger cette liste de lecture.",
     "Empty playlist": "La liste de lecture est vide",
     "Not a playlist.": "La liste de lecture est invalide.",

@@ -120,18 +120,12 @@
     "Subscription manager": "مدیریت اشتراک",
     "Token manager": "مدیر توکن",
     "Token": "توکن",
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` توکن ها",
-        "": "`x` توکن ها"
-    },
+    "tokens_count_0": "{{count}} توکن ها",
     "Import/export": "وارد کردن/خارج کردن",
     "unsubscribe": "لغو اشتراک",
     "revoke": "ابطال",
     "Subscriptions": "اشتراک ها",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` اعلان نادیده",
-        "": "`x` اعلان نادیده"
-    },
+    "subscriptions_unseen_notifs_count_0": "{{count}} اعلان نادیده",
     "search": "جستجو",
     "Log out": "خروج",
     "Released under the AGPLv3 on Github.": "منتشر شده تحت پروانه AGPLv3 روی گیت‌هاب.",
@@ -198,16 +192,10 @@
     "This channel does not exist.": "این کانال وجود ندارد.",
     "Could not get channel info.": "نمیتوان اطلاعات کانال را دریافت کرد.",
     "Could not fetch comments": "نمیتوان نظرات را دریافت کرد",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "نمایش `x` پاسخ ها",
-        "": "نمایش `x` پاسخ ها"
-    },
+    "comments_view_x_replies_0": "نمایش {{count}} پاسخ ها",
     "`x` ago": "`x` پیش",
     "Load more": "بارگذاری بیشتر",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` نقطه ها",
-        "": "`x` نقطه ها"
-    },
+    "comments_points_count_0": "{{count}} نقطه ها",
     "Could not create mix.": "نمیتوان میکس ساخت.",
     "Empty playlist": "سیاههٔ پخش خالی",
     "Not a playlist.": "یک سیاههٔ پخش نیست.",

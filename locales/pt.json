@@ -191,10 +191,8 @@
     },
     "Subscriptions": "Subscrições",
     "revoke": "revogar",
-    "`x` tokens": {
-        "": "`x` tokens",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens"
-    },
+    "tokens_count": "{{count}} token",
+    "tokens_count_plural": "{{count}} tokens",
     "`x` subscriptions": {
         "": "`x` subscrições",
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscrições"

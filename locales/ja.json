@@ -120,18 +120,12 @@
     "Subscription manager": "登録チャンネルマネージャー",
     "Token manager": "トークンマネージャー",
     "Token": "トークン",
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個のトークン",
-        "": "`x` 個のトークン"
-    },
+    "tokens_count_0": "{{count}} 個のトークン",
     "Import/export": "インポート/エクスポート",
     "unsubscribe": "登録解除",
     "revoke": "取り消す",
     "Subscriptions": "登録チャンネル",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個の未読通知",
-        "": "`x` 個の未読通知"
-    },
+    "subscriptions_unseen_notifs_count_0": "{{count}} 個の未読通知",
     "search": "検索",
     "Log out": "ログアウト",
     "Released under the AGPLv3 on Github.": "GitHub 上で AGPLv3 の元で公開されています。",
@@ -198,16 +192,10 @@
     "This channel does not exist.": "このチャンネルは存在しません。",
     "Could not get channel info.": "チャンネル情報を取得できませんでした。",
     "Could not fetch comments": "コメントを取得できませんでした",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 件の返信を見る",
-        "": "`x` 件の返信を見る"
-    },
+    "comments_view_x_replies_0": "{{count}} 件の返信を見る",
     "`x` ago": "`x`前",
     "Load more": "もっと読み込む",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ポイント",
-        "": "`x` ポイント"
-    },
+    "comments_points_count_0": "{{count}} ポイント",
     "Could not create mix.": "ミックスを作成できませんでした。",
     "Empty playlist": "空の再生リスト",
     "Not a playlist.": "再生リストではありません。",

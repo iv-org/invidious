@@ -120,18 +120,12 @@
     "Subscription manager": "訂閱管理員",
     "Token manager": "Token 管理員",
     "Token": "Token",
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` 個存取金鑰"
-    },
+    "tokens_count_0": "{{count}} 個存取金鑰",
     "Import/export": "匯入／匯出",
     "unsubscribe": "取消訂閱",
     "revoke": "撤銷",
     "Subscriptions": "訂閱",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個未讀的通知",
-        "": "`x` 個未讀的通知"
-    },
+    "subscriptions_unseen_notifs_count_0": "{{count}} 個未讀的通知",
     "search": "搜尋",
     "Log out": "登出",
     "Released under the AGPLv3 on Github.": "在 GitHub 上以 AGPLv3 釋出。",
@@ -198,16 +192,10 @@
     "This channel does not exist.": "此頻道不存在。",
     "Could not get channel info.": "無法取得頻道資訊。",
     "Could not fetch comments": "無法擷取留言",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則回覆",
-        "": "檢視 `x` 則回覆"
-    },
+    "comments_view_x_replies_0": "檢視 {{count}} 則回覆",
     "`x` ago": "`x` 以前",
     "Load more": "載入更多",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 點",
-        "": "`x` 點"
-    },
+    "comments_points_count_0": "{{count}} 點",
     "Could not create mix.": "無法建立混合。",
     "Empty playlist": "空的播放清單",
     "Not a playlist.": "不是播放清單。",

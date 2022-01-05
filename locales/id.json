@@ -120,18 +120,12 @@
     "Subscription manager": "Pengatur langganan",
     "Token manager": "Pengatur token",
     "Token": "Token",
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` token"
-    },
+    "tokens_count_0": "{{count}} token",
     "Import/export": "Impor/ekspor",
     "unsubscribe": "batal langganan",
     "revoke": "cabut",
     "Subscriptions": "Langganan",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pemberitahuan belum dilihat",
-        "": "`x` pemberitahuan belum dilihat"
-    },
+    "subscriptions_unseen_notifs_count_0": "{{count}} pemberitahuan belum dilihat",
     "search": "cari",
     "Log out": "Keluar",
     "Released under the AGPLv3 on Github.": "Dirilis di bawah AGPLv3 di Github.",
@@ -198,16 +192,10 @@
     "This channel does not exist.": "Kanal ini tidak ada.",
     "Could not get channel info.": "Tidak bisa mendapatkan info kanal.",
     "Could not fetch comments": "Tidak dapat memuat komentar",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Lihat`x` balasan",
-        "": "Lihat `x` balasan"
-    },
+    "comments_view_x_replies_0": "Lihat {{count}} balasan",
     "`x` ago": "`x` lalu",
     "Load more": "Muat lebih banyak",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` poin",
-        "": "`x` poin"
-    },
+    "comments_points_count_0": "{{count}} poin",
     "Could not create mix.": "Tidak dapat membuat mix.",
     "Empty playlist": "Daftar putar kosong",
     "Not a playlist.": "Bukan daftar putar.",

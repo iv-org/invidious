@@ -131,10 +131,8 @@
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` inscrições",
         "": "`x` inscrições"
     },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens",
-        "": "Símbolos `x`"
-    },
+    "tokens_count": "{{count}} token",
+    "tokens_count_plural": "{{count}} tokens",
     "Import/export": "Importar/Exportar",
     "unsubscribe": "cancelar inscrição",
     "revoke": "revogar",

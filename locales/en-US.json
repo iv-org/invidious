@@ -144,18 +144,14 @@
     "Subscription manager": "Subscription manager",
     "Token manager": "Token manager",
     "Token": "Token",
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` tokens"
-    },
+    "tokens_count": "{{count}} token",
+    "tokens_count_plural": "{{count}} tokens",
     "Import/export": "Import/export",
     "unsubscribe": "unsubscribe",
     "revoke": "revoke",
     "Subscriptions": "Subscriptions",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` unseen notification",
-        "": "`x` unseen notifications"
-    },
+    "subscriptions_unseen_notifs_count": "{{count}} unseen notification",
+    "subscriptions_unseen_notifs_count_plural": "{{count}} unseen notifications",
     "search": "search",
     "Log out": "Log out",
     "Released under the AGPLv3 on Github.": "Released under the AGPLv3 on Github.",
@@ -222,16 +218,12 @@
     "This channel does not exist.": "This channel does not exist.",
     "Could not get channel info.": "Could not get channel info.",
     "Could not fetch comments": "Could not fetch comments",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "View `x` reply",
-        "": "View `x` replies"
-    },
+    "comments_view_x_replies": "View {{count}} reply",
+    "comments_view_x_replies_plural": "View {{count}} replies",
     "`x` ago": "`x` ago",
     "Load more": "Load more",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` point",
-        "": "`x` points"
-    },
+    "comments_points_count": "{{count}} point",
+    "comments_points_count_plural": "{{count}} points",
     "Could not create mix.": "Could not create mix.",
     "Empty playlist": "Empty playlist",
     "Not a playlist.": "Not a playlist.",

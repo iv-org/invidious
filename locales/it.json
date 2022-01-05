@@ -118,18 +118,14 @@
     "Token": "Gettone",
     "generic_subscriptions_count": "{{count}} iscrizione",
     "generic_subscriptions_count_plural": "{{count}} iscrizioni",
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gettone",
-        "": "`x` gettoni"
-    },
+    "tokens_count": "{{count}} gettone",
+    "tokens_count_plural": "{{count}} gettoni",
     "Import/export": "Importa/esporta",
     "unsubscribe": "disiscriviti",
     "revoke": "revoca",
     "Subscriptions": "Iscrizioni",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notifica non visualizzata",
-        "": "`x` notifiche non visualizzate"
-    },
+    "subscriptions_unseen_notifs_count": "{{count}} notifica non visualizzata",
+    "subscriptions_unseen_notifs_count_plural": "{{count}} notifiche non visualizzate",
     "search": "Cerca",
     "Log out": "Esci",
     "Source available here.": "Codice sorgente.",

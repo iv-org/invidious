@@ -120,18 +120,12 @@
     "Subscription manager": "订阅管理器",
     "Token manager": "令牌管理器",
     "Token": "令牌",
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 个令牌",
-        "": "`x` 个令牌"
-    },
+    "tokens_count_0": "{{count}} 个令牌",
     "Import/export": "导入/导出",
     "unsubscribe": "取消订阅",
     "revoke": "吊销",
     "Subscriptions": "订阅",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 条未读通知",
-        "": "`x` 条未读通知"
-    },
+    "subscriptions_unseen_notifs_count_0": "{{count}} 条未读通知",
     "search": "搜索",
     "Log out": "登出",
     "Released under the AGPLv3 on Github.": "依据 AGPLv3 许可证发布于 Github。",
@@ -198,16 +192,10 @@
     "This channel does not exist.": "频道不存在。",
     "Could not get channel info.": "无法获取频道信息。",
     "Could not fetch comments": "无法获取评论",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "查看 `x` 条回复",
-        "": "查看 `x` 条回复"
-    },
+    "comments_view_x_replies_0": "查看 {{count}} 条回复",
     "`x` ago": "`x` 前",
     "Load more": "加载更多",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 分",
-        "": "`x` 分"
-    },
+    "comments_points_count_0": "{{count}} 分",
     "Could not create mix.": "无法创建合集。",
     "Empty playlist": "空播放列表",
     "Not a playlist.": "非播放列表。",
