@@ -58,10 +58,79 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
 end
 
 def get_channel_videos_response(ucid, page = 1, auto_generated = nil, sort_by = "newest")
-  continuation = produce_channel_videos_continuation(ucid, page,
-    auto_generated: auto_generated, sort_by: sort_by, v2: true)
+  continuation = ""
+  initial_data = Hash(String, JSON::Any).new
 
-  return YoutubeAPI.browse(continuation)
+  # Manually generating the continuation works correctly for both 'newest' and 'popular' sort modes,
+  # and for page 1 when sorting by 'oldest'. So only fallback to using the db if not in either of these states.
+  if sort_by != "oldest" || page == 1
+    continuation = produce_channel_videos_continuation(ucid, page, auto_generated: auto_generated, sort_by: sort_by, v2: true)
+  elsif channel_continuation = PG_DB.query_one?("SELECT * FROM channel_continuations WHERE id = $1 AND page = $2 AND sort_by = $3", ucid, page, sort_by, as: ChannelContinuation)
+    continuation = channel_continuation.continuation
+  else
+    # This branch should not be needed in normal operation (navigating via the previous/next page buttons).
+    # This is just here as a fallback in case someone requests, for example, page 3 without previously requesting page 2.
+
+    # Iterate backwards from the wanted page to page 2 to find a stored continuation.
+    start = 1
+    ((page - 1)..2).each do |i|
+      if channel_continuation = PG_DB.query_one?("SELECT * FROM channel_continuations WHERE id = $1 AND page = $2 AND sort_by = $3", ucid, i, sort_by, as: ChannelContinuation)
+        start = i
+        continuation = channel_continuation.continuation
+        break
+      end
+    end
+
+    # If a continuation hasn't been found after getting to page 2, manually create the continuation for page 1.
+    if start == 1
+      continuation = produce_channel_videos_continuation(ucid, 1, auto_generated: auto_generated, sort_by: sort_by, v2: true)
+    end
+
+    # Iterate from the found/created continuation until we have the continuation for the wanted page or there are no more pages.
+    # Store the returned continuation each time so that it can be found in the db next time the current page is wanted.
+    (start..(page - 1)).each do |i|
+      initial_data = YoutubeAPI.browse(continuation)
+      continuation = fetch_continuation_token(initial_data)
+
+      break if continuation.nil? || continuation.empty?
+
+      channel_continuation = ChannelContinuation.new({
+        id:           ucid,
+        page:         i,
+        sort_by:      sort_by,
+        continuation: continuation,
+      })
+      PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
+        ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
+    end
+  end
+
+  # If we reached the channel's last page in the else loop above return an empty hash.
+  if continuation.nil? || continuation.empty?
+    initial_data.clear
+  else
+    # Get the wanted page and store the returned continuation for the next page,
+    # if there is one, so that it can be used the next time this function is called requesting that page.
+    initial_data = YoutubeAPI.browse(continuation)
+
+    # Only get the continuation and store it if the sort mode is 'oldest'.
+    if sort_by == "oldest"
+      continuation = fetch_continuation_token(initial_data)
+
+      if !continuation.nil? && !continuation.empty?
+        channel_continuation = ChannelContinuation.new({
+          id:           ucid,
+          page:         page + 1,
+          sort_by:      sort_by,
+          continuation: continuation,
+        })
+        PG_DB.exec("INSERT INTO channel_continuations VALUES ($1, $2, $3, $4) \
+         ON CONFLICT (id, page, sort_by) DO UPDATE SET continuation = $4", *channel_continuation.to_tuple)
+      end
+    end
+  end
+
+  return initial_data
 end
 
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")

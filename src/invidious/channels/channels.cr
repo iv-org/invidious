@@ -8,6 +8,23 @@ struct InvidiousChannel
   property subscribed : Time?
 end
 
+struct ChannelContinuation
+  include DB::Serializable
+
+  property id : String
+  property page : Int32
+  property sort_by : String
+  property continuation : String
+
+  def to_tuple
+    {% begin %}
+      {
+        {{*@type.instance_vars.map(&.name)}}
+      }
+    {% end %}
+  end
+end
+
 struct ChannelVideo
   include DB::Serializable
 
