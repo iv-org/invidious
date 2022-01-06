@@ -21,13 +21,12 @@ module Invidious::Database::Playlists
     PG_DB.exec(request, args: playlist_array)
   end
 
-  # this function is a bit special: it will also remove all videos
-  # related to the given playlist ID in the "playlist_videos" table,
-  # in addition to deleting said ID from "playlists".
+  # deletes the given playlist and connected playlist videos
   def delete(id : String)
+    PlaylistVideos.delete_by_playlist_id(id)
     request = <<-SQL
-      DELETE FROM playlist_videos * WHERE plid = $1;
-      DELETE FROM playlists * WHERE id = $1
+      DELETE FROM playlists *
+      WHERE id = $1
     SQL
 
     PG_DB.exec(request, id)
@@ -205,6 +204,15 @@ module Invidious::Database::PlaylistVideos
     SQL
 
     PG_DB.exec(request, index)
+  end
+
+  def delete_by_playlist_id(playlist_id)
+    request = <<-SQL
+      DELETE FROM playlist_videos *
+      WHERE plid = $1;
+    SQL
+
+    PG_DB.exec(request, playlist_id)
   end
 
   # -------------------
