@@ -42,6 +42,16 @@ module Invidious::Database::Channels
     PG_DB.exec(request, Time.utc, author, id)
   end
 
+  def update_subscription_time(id : String)
+    request = <<-SQL
+      UPDATE channels
+      SET subscribed = $1
+      WHERE id = $2
+    SQL
+
+    PG_DB.exec(request, Time.utc, id)
+  end
+
   def update_mark_deleted(id : String)
     request = <<-SQL
       UPDATE channels
