@@ -113,19 +113,19 @@ LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
 # Check table integrity
 if CONFIG.check_tables
-  Invidious::Database.check_enum(PG_DB, "privacy", PlaylistPrivacy)
+  Invidious::Database.check_enum("privacy", PlaylistPrivacy)
 
-  Invidious::Database.check_table(PG_DB, "channels", InvidiousChannel)
-  Invidious::Database.check_table(PG_DB, "channel_videos", ChannelVideo)
-  Invidious::Database.check_table(PG_DB, "playlists", InvidiousPlaylist)
-  Invidious::Database.check_table(PG_DB, "playlist_videos", PlaylistVideo)
-  Invidious::Database.check_table(PG_DB, "nonces", Nonce)
-  Invidious::Database.check_table(PG_DB, "session_ids", SessionId)
-  Invidious::Database.check_table(PG_DB, "users", User)
-  Invidious::Database.check_table(PG_DB, "videos", Video)
+  Invidious::Database.check_table("channels", InvidiousChannel)
+  Invidious::Database.check_table("channel_videos", ChannelVideo)
+  Invidious::Database.check_table("playlists", InvidiousPlaylist)
+  Invidious::Database.check_table("playlist_videos", PlaylistVideo)
+  Invidious::Database.check_table("nonces", Nonce)
+  Invidious::Database.check_table("session_ids", SessionId)
+  Invidious::Database.check_table("users", User)
+  Invidious::Database.check_table("videos", Video)
 
   if CONFIG.cache_annotations
-    Invidious::Database.check_table(PG_DB, "annotations", Annotation)
+    Invidious::Database.check_table("annotations", Annotation)
   end
 end
 
