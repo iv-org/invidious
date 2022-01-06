@@ -112,22 +112,7 @@ OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mo
 LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
 # Check table integrity
-if CONFIG.check_tables
-  Invidious::Database.check_enum("privacy", PlaylistPrivacy)
-
-  Invidious::Database.check_table("channels", InvidiousChannel)
-  Invidious::Database.check_table("channel_videos", ChannelVideo)
-  Invidious::Database.check_table("playlists", InvidiousPlaylist)
-  Invidious::Database.check_table("playlist_videos", PlaylistVideo)
-  Invidious::Database.check_table("nonces", Nonce)
-  Invidious::Database.check_table("session_ids", SessionId)
-  Invidious::Database.check_table("users", User)
-  Invidious::Database.check_table("videos", Video)
-
-  if CONFIG.cache_annotations
-    Invidious::Database.check_table("annotations", Annotation)
-  end
-end
+Invidious::Database.check_integrity(CONFIG)
 
 # Start jobs
 

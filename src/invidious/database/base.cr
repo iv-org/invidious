@@ -3,6 +3,32 @@ require "pg"
 module Invidious::Database
   extend self
 
+  # Checks table integrity
+  #
+  # Note: config is passed as a parameter to avoid complex
+  # dependencies between different parts of the software.
+  def check_integrity(cfg)
+    return if !cfg.check_tables
+    Invidious::Database.check_enum("privacy", PlaylistPrivacy)
+
+    Invidious::Database.check_table("channels", InvidiousChannel)
+    Invidious::Database.check_table("channel_videos", ChannelVideo)
+    Invidious::Database.check_table("playlists", InvidiousPlaylist)
+    Invidious::Database.check_table("playlist_videos", PlaylistVideo)
+    Invidious::Database.check_table("nonces", Nonce)
+    Invidious::Database.check_table("session_ids", SessionId)
+    Invidious::Database.check_table("users", User)
+    Invidious::Database.check_table("videos", Video)
+
+    if cfg.cache_annotations
+      Invidious::Database.check_table("annotations", Annotation)
+    end
+  end
+
+  #
+  # Table/enum integrity checks
+  #
+
   def check_enum(enum_name, struct_type = nil)
     return # TODO
 
