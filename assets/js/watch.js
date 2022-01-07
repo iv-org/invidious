@@ -7,6 +7,24 @@ String.prototype.supplant = function (o) {
     });
 }
 
+function set_real_dislike()
+{
+var xhr = new XMLHttpRequest();
+xhr.open('GET', 'https://returnyoutubedislikeapi.com/votes?videoId=' + video_data.id);
+xhr.onload = function() {
+    if (xhr.status === 200) {
+        var data = JSON.parse(xhr.responseText);
+	document.getElementById("dislikes").innerHTML = "<i class='icon ion-ios-thumbs-down'></i> " + data.dislikes.toLocaleString('en-US');
+	document.getElementById("rating").innerHTML = "Rating: " + Math.round(data.rating * 10) / 10 + " / 5";
+	
+    }
+    else {
+	document.getElementById("dislikes").innerHTML = "<i class='icon ion-ios-thumbs-down'></i> 0";
+    }
+};
+xhr.send();
+}
+
 function toggle_parent(target) {
     body = target.parentNode.parentNode.children[1];
     if (body.style.display === null || body.style.display === '') {
@@ -451,6 +469,9 @@ window.addEventListener('load', function (e) {
     if (video_data.plid) {
         get_playlist(video_data.plid);
     }
+
+    // Gets and sets the dislike count from 'returnyoutubedislikeapi.com'
+    set_real_dislike();
 
     if (video_data.params.comments[0] === 'youtube') {
         get_youtube_comments();

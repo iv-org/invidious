@@ -209,7 +209,7 @@ before_all do |env|
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",
     "font-src 'self' data:",
-    "connect-src 'self'",
+    "connect-src 'self' returnyoutubedislikeapi.com",
     "manifest-src 'self'",
     "media-src 'self' blob:" + extra_media_csp,
     "child-src 'self' blob:",
