@@ -151,12 +151,8 @@ module Invidious::Routes::Playlists
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
-    begin
-      playlist = Invidious::Database::Playlists.select(id: plid, raise_on_fail: true)
-      if !playlist || playlist.author != user.email
-        return env.redirect referer
-      end
-    rescue ex
+    playlist = Invidious::Database::Playlists.select(id: plid)
+    if !playlist || playlist.author != user.email
       return env.redirect referer
     end
 
@@ -235,12 +231,8 @@ module Invidious::Routes::Playlists
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
 
-    begin
-      playlist = Invidious::Database::Playlists.select(id: plid, raise_on_fail: true)
-      if !playlist || playlist.author != user.email
-        return env.redirect referer
-      end
-    rescue ex
+    playlist = Invidious::Database::Playlists.select(id: plid)
+    if !playlist || playlist.author != user.email
       return env.redirect referer
     end
 

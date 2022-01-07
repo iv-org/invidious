@@ -94,17 +94,13 @@ module Invidious::Database::Playlists
   #  Salect
   # -------------------
 
-  def select(*, id : String, raise_on_fail : Bool = false) : InvidiousPlaylist?
+  def select(*, id : String) : InvidiousPlaylist?
     request = <<-SQL
       SELECT * FROM playlists
       WHERE id = $1
     SQL
 
-    if raise_on_fail
-      return PG_DB.query_one(request, id, as: InvidiousPlaylist)
-    else
-      return PG_DB.query_one?(request, id, as: InvidiousPlaylist)
-    end
+    return PG_DB.query_one?(request, id, as: InvidiousPlaylist)
   end
 
   def select_all(*, author : String) : Array(InvidiousPlaylist)
