@@ -409,5 +409,16 @@
     "location": "Posizione",
     "hdr": "HDR",
     "filter": "Filtra",
-    "Current version: ": "Versione attuale: "
+    "Current version: ": "Versione attuale: ",
+    "preferences_quality_dash_option_240p": "240p",
+    "preferences_quality_dash_option_360p": "360p",
+    "preferences_quality_dash_option_480p": "480p",
+    "preferences_quality_dash_option_720p": "720p",
+    "preferences_quality_dash_option_1080p": "1080p",
+    "preferences_quality_dash_option_1440p": "1440p",
+    "preferences_quality_dash_option_2160p": "2160p",
+    "preferences_quality_dash_option_4320p": "4320p",
+    "360": "360°",
+    "preferences_quality_dash_option_144p": "144p",
+    "Released under the AGPLv3 on Github.": "Rilasciato su Github con licenza AGPLv3."
 }
