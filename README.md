@@ -51,7 +51,7 @@
   
   <h5>E-mail us:</h5>
   <ul>
-  <li>General Inquiries (forwarded to every team member): <code>contact [at] invidious [dot] io</code> (Note: before sending a bug reports please check that it hasn't already be reported on GitHub - bug reports sent to this address will be copied to GitHub)</li>
+  <li>General Inquiries (forwarded to every team member): <code>contact [at] invidious [dot] io</code> (Note: before sending a bug report please check that it hasn't already be reported on GitHub - bug reports sent to this address will be copied to GitHub)</li>
   <li>Security issues (forwarded to the two project owners, <a href="https://github.com/TheFrenchGhosty">@TheFrenchGhosty</a> and <a href="https://github.com/Perflyst">@Perflyst</a>): <code>security [at] invidious [dot] io</code></li>
   </ul>
     
