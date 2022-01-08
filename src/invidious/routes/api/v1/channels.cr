@@ -96,21 +96,23 @@ module Invidious::Routes::API::V1::Channels
 
         json.field "relatedChannels" do
           json.array do
-            channel.related_channels.each do |related_channel|
-              json.object do
-                json.field "author", related_channel.author
-                json.field "authorId", related_channel.ucid
-                json.field "authorUrl", related_channel.author_url
+            if related_channels = channel.related_channels
+              fetch_related_channels(related_channels).each do |related_channel|
+                json.object do
+                  json.field "author", related_channel.author
+                  json.field "authorId", related_channel.ucid
+                  json.field "authorUrl", related_channel.author_url
 
-                json.field "authorThumbnails" do
-                  json.array do
-                    qualities = {32, 48, 76, 100, 176, 512}
+                  json.field "authorThumbnails" do
+                    json.array do
+                      qualities = {32, 48, 76, 100, 176, 512}
 
-                    qualities.each do |quality|
-                      json.object do
-                        json.field "url", related_channel.author_thumbnail.gsub(/=\d+/, "=s#{quality}")
-                        json.field "width", quality
-                        json.field "height", quality
+                      qualities.each do |quality|
+                        json.object do
+                          json.field "url", related_channel.author_thumbnail.gsub(/=\d+/, "=s#{quality}")
+                          json.field "width", quality
+                          json.field "height", quality
+                        end
                       end
                     end
                   end
