@@ -440,7 +440,7 @@
     "features": "Jellemzők",
     "sort": "Rendezés módja",
     "preferences_category_misc": "További beállítások",
-    "%A %B %-d, %Y": "%Y. %B %-d. %A",
+    "%A %B %-d, %Y": "%Y. %B %-d %A",
     "long": "Hosszú (20 percnél hosszabb)",
     "year": "Ebben az évben",
     "hour": "Az elmúlt órában",
