@@ -13,7 +13,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
 
     loop do
       LOGGER.debug("RefreshChannelsJob: Refreshing all channels")
-      db.query("SELECT id FROM channels ORDER BY updated") do |rs|
+      PG_DB.query("SELECT id FROM channels ORDER BY updated") do |rs|
         rs.each do
           id = rs.read(String)
 
@@ -30,7 +30,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
           spawn do
             begin
               LOGGER.trace("RefreshChannelsJob: #{id} fiber : Fetching channel")
-              channel = fetch_channel(id, db, CONFIG.full_refresh)
+              channel = fetch_channel(id, CONFIG.full_refresh)
 
               lim_fibers = max_fibers
 
