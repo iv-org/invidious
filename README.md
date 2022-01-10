@@ -152,7 +152,7 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 
 ## Contact the team directly
 
-Every team member is available through GitHub or through the Matrix room (bridged to IRC), however, if you need/have too, you can contact the team directly via e-mail (remove `+SPAMGUARD` from the addresses):
+Every team member is available through GitHub or through the Matrix room (bridged to IRC), however, if you need/have to, you can contact the team directly via e-mail (remove `+SPAMGUARD` from the addresses):
 
 - General Inquiries (forwarded to every team member): `contact +SPAMGUARD [at] invidious [dot] io`
 
