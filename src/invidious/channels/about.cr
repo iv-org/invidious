@@ -12,12 +12,7 @@ record AboutChannel,
   joined : Time,
   is_family_friendly : Bool,
   allowed_regions : Array(String),
-  related_channels : RelatedChannels?,
   tabs : Array(String)
-
-record RelatedChannels,
-  browse_id : String,
-  params : String?
 
 record AboutRelatedChannel,
   ucid : String,
@@ -47,7 +42,6 @@ def get_about_info(ucid, locale) : AboutChannel
     auto_generated = true
   end
 
-  related_channels = nil
   if auto_generated
     author = initdata["header"]["interactiveTabbedHeaderRenderer"]["title"]["simpleText"].as_s
     author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
@@ -82,15 +76,6 @@ def get_about_info(ucid, locale) : AboutChannel
 
     is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map(&.as_s)
-
-    tabs = initdata.dig("contents", "twoColumnBrowseResultsRenderer", "tabs").as_a
-    if tab = tabs.find { |tab| tab.dig?("tabRenderer", "title").try(&.as_s?) == "Channels" }
-      browse_id = tab.dig?("tabRenderer", "endpoint", "browseEndpoint", "browseId").try(&.as_s?)
-      params = tab.dig?("tabRenderer", "endpoint", "browseEndpoint", "params").try(&.as_s?)
-      if browse_id
-        related_channels = RelatedChannels.new(browse_id: browse_id, params: params)
-      end
-    end
   end
 
   total_views = 0_i64
@@ -142,13 +127,13 @@ def get_about_info(ucid, locale) : AboutChannel
     joined: joined,
     is_family_friendly: is_family_friendly,
     allowed_regions: allowed_regions,
-    related_channels: related_channels,
     tabs: tabs,
   )
 end
 
-def fetch_related_channels(related_channels : RelatedChannels) : Array(AboutRelatedChannel)
-  channels = YoutubeAPI.browse(browse_id: related_channels.browse_id, params: related_channels.params || "")
+def fetch_related_channels(about_channel : AboutChannel) : Array(AboutRelatedChannel)
+  # params is {"2:string":"channels"} encoded
+  channels = YoutubeAPI.browse(browse_id: about_channel.ucid, params: "EghjaGFubmVscw%3D%3D")
 
   tabs = channels.dig?("contents", "twoColumnBrowseResultsRenderer", "tabs").try(&.as_a?) || [] of JSON::Any
   tab = tabs.find { |tab| tab.dig?("tabRenderer", "title").try(&.as_s?) == "Channels" }
