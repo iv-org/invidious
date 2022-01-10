@@ -50,7 +50,7 @@
   </a>
   <br>
   <a href="#contact-the-team-directly">
-  <img alt="Contact the team directly" src="https://img.shields.io/badge/Contact%20the%20team%20directly-darkgreen">
+  <img alt="Contact the team directly" src="https://img.shields.io/badge/E%2d%2dmail-darkgreen">
   </a>
 </div>
 
@@ -154,7 +154,7 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 
 Every team member is available through GitHub or through the Matrix room (bridged to IRC), however, if you need/have to, you can contact the team directly via e-mail (remove `+SPAMGUARD` from the addresses):
 
-- General Inquiries (forwarded to every team member): `contact +SPAMGUARD [at] invidious [dot] io`
+- General Inquiries (forwarded to all team members): `contact +SPAMGUARD [at] invidious [dot] io`
 
 Note: before sending a bug report please check that it hasn't already be reported on GitHub - bug reports sent to this address will be copied to GitHub
 
