@@ -1,16 +1,14 @@
 {
-    "`x` subscribers": {
-        "": "`x` feliratkozó",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` feliratkozó"
-    },
-    "`x` videos": {
-        "": "`x` videó",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videó"
-    },
-    "`x` playlists": {
-        "": "`x` lejátszási lista",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` lejátszási lista"
-    },
+    "generic_views_count": "{{count}} már látta",
+    "generic_views_count_plural": "{{count}} már látta",
+    "generic_videos_count": "{{count}} videó",
+    "generic_videos_count_plural": "{{count}} videó",
+    "generic_playlists_count": "{{count}} lejátszási lista",
+    "generic_playlists_count_plural": "{{count}} lejátszási lista",
+    "generic_subscribers_count": "{{count}} feliratkozó",
+    "generic_subscribers_count_plural": "{{count}} feliratkozó",
+    "generic_subscriptions_count": "{{count}} csatornára van feliratkozás",
+    "generic_subscriptions_count_plural": "{{count}} csatornára van feliratkozás",
     "LIVE": "ÉLŐ",
     "Shared `x` ago": "`x` ezelőtt megosztva",
     "Unsubscribe": "Leiratkozás",
@@ -124,22 +122,14 @@
     "Subscription manager": "Feliratkozások kezelője",
     "Token manager": "Tokenek kezelője",
     "Token": "Token",
-    "`x` subscriptions": {
-        "": "`x` csatornára van feliratkozás",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` csatornára van feliratkozás"
-    },
-    "`x` tokens": {
-        "": "`x` token",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token"
-    },
+    "tokens_count": "{{count}} token",
+    "tokens_count_plural": "{{count}} token",
     "Import/export": "Importálás/exportálás",
     "unsubscribe": "leiratkozás",
     "revoke": "visszavonás",
     "Subscriptions": "Feliratkozások",
-    "`x` unseen notifications": {
-        "": "`x` kimaradt értesítés",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` kimaradt értesítés"
-    },
+    "subscriptions_unseen_notifs_count": "{{count}} kimaradt értesítés",
+    "subscriptions_unseen_notifs_count_plural": "{{count}} kimaradt értesítés",
     "search": "Videó keresése",
     "Log out": "Kijelentkezés",
     "Source available here.": "A forráskód itt érhető el",
@@ -170,10 +160,6 @@
     "Whitelisted regions: ": "Engedélyezett régiók: ",
     "Blacklisted regions: ": "Tiltott régiók: ",
     "Shared `x`": "`x` napon osztották meg",
-    "`x` views": {
-        "": "`x` már látta",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` már látta"
-    },
     "Premieres in `x`": "`x` később lesz a premierje",
     "Premieres `x`": "`x` lesz a premierje",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Helló! Úgy tűnik a JavaScript ki van kapcsolva a böngészőben. Ide kattintva lehet olvasni a hozzászólásokat, de a betöltésük így kicsit több időbe telik.",
@@ -206,16 +192,12 @@
     "This channel does not exist.": "Nincs ilyen csatorna.",
     "Could not get channel info.": "Nem lehetett betölteni a csatorna adatait.",
     "Could not fetch comments": "Nem lehetett betölteni a hozzászólásokat.",
-    "View `x` replies": {
-        "": "`x` válasz olvasása",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` válasz olvasása"
-    },
+    "comments_view_x_replies": "{{count}} válasz olvasása",
+    "comments_view_x_replies_plural": "{{count}} válasz olvasása",
     "`x` ago": "`x` ezelőtt",
     "Load more": "Többi hozzászólás betöltése",
-    "`x` points": {
-        "": "`x` pont",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pont"
-    },
+    "comments_points_count": "{{count}} pont",
+    "comments_points_count_plural": "{{count}} pont",
     "Could not create mix.": "A válogatást nem lehetett elkészíteni.",
     "Empty playlist": "Üres lejátszási lista",
     "Not a playlist.": "Ez nem egy lejátszási lista.",
@@ -331,34 +313,20 @@
     "Yiddish": "jiddis",
     "Yoruba": "joruba",
     "Zulu": "zulu",
-    "`x` years": {
-        "": "`x` évvel",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` évvel"
-    },
-    "`x` months": {
-        "": "`x` hónappal",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hónappal"
-    },
-    "`x` weeks": {
-        "": "`x` héttel",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` héttel"
-    },
-    "`x` days": {
-        "": "`x` nappal",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` nappal"
-    },
-    "`x` hours": {
-        "": "`x` órával",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` órával"
-    },
-    "`x` minutes": {
-        "": "`x` perccel",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` perccel"
-    },
-    "`x` seconds": {
-        "": "`x` másodperccel",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` másodperccel"
-    },
+    "generic_count_years": "{{count}} évvel",
+    "generic_count_years_plural": "{{count}} évvel",
+    "generic_count_months": "{{count}} hónappal",
+    "generic_count_months_plural": "{{count}} hónappal",
+    "generic_count_weeks": "{{count}} héttel",
+    "generic_count_weeks_plural": "{{count}} héttel",
+    "generic_count_days": "{{count}} nappal",
+    "generic_count_days_plural": "{{count}} nappal",
+    "generic_count_hours": "{{count}} órával",
+    "generic_count_hours_plural": "{{count}} órával",
+    "generic_count_minutes": "{{count}} perccel",
+    "generic_count_minutes_plural": "{{count}} perccel",
+    "generic_count_seconds": "{{count}} másodperccel",
+    "generic_count_seconds_plural": "{{count}} másodperccel",
     "Fallback comments: ": "Másodlagos kommentek: ",
     "Popular": "Népszerű",
     "Search": "Keresési oldal",
