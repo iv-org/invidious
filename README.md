@@ -49,7 +49,7 @@
   <img alt="Mastodon: @invidious@social.tchncs.de" src="https://img.shields.io/badge/Mastodon-%40invidious%40social.tchncs.de-darkgreen">
   </a>
   <br>
-  <a href="#contact">
+  <a href="#contact-the-team-directly">
   <img alt="Contact the team directly" src="https://img.shields.io/badge/Contact%20the%20team%20directly-darkgreen">
   </a>
 </div>
