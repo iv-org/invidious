@@ -43,6 +43,8 @@ def error_template_helper(env : HTTP::Server::Context, locale : String?, status_
   url_faq = "https://github.com/iv-org/documentation/blob/master/FAQ.md"
   url_search_issues = "https://github.com/iv-org/invidious/issues"
 
+  url_switch = "https://redirect.invidious.io" + env.request.resource
+
   url_new_issue = "https://github.com/iv-org/invidious/issues/new"
   url_new_issue += "?labels=bug&template=bug_report.md&title="
   url_new_issue += URI.encode_www_form("[Bug] " + issue_title)
@@ -52,8 +54,10 @@ def error_template_helper(env : HTTP::Server::Context, locale : String?, status_
       <h2>#{translate(locale, "crash_page_you_found_a_bug")}</h2>
       <br/><br/>
 
-      <p>#{translate(locale, "crash_page_before_reporting")}</p>
+      <p><b>#{translate(locale, "crash_page_before_reporting")}</b></p>
       <ul>
+        <li><a href="#{env.request.resource}">#{translate(locale, "crash_page_refresh")}</a></li>
+        <li><a href="#{url_switch}">#{translate(locale, "crash_page_switch_instance")}</a></li>
         <li>#{translate(locale, "crash_page_read_the_faq", url_faq)}</li>
         <li>#{translate(locale, "crash_page_search_issue", url_search_issues)}</li>
       </ul>
@@ -66,7 +70,9 @@ def error_template_helper(env : HTTP::Server::Context, locale : String?, status_
     </div>
   END_HTML
 
-  next_steps = error_redirect_helper(env, locale)
+  # Don't show the usual "next steps" widget. The same options are
+  # proposed above the error message, just worded differently.
+  next_steps = ""
 
   return templated "error"
 end
