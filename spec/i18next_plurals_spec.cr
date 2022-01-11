@@ -1,7 +1,14 @@
-require "spec"
+require "spectator"
 require "../src/invidious/helpers/i18next.cr"
 
-resolver = I18next::Plurals::RESOLVER
+Spectator.configure do |config|
+  config.fail_blank
+  config.randomize
+end
+
+def resolver
+  I18next::Plurals::RESOLVER
+end
 
 FORM_TESTS = {
   "ach"   => I18next::Plurals::PluralForms::Single_gt_one,
@@ -30,7 +37,6 @@ FORM_TESTS = {
   "su"    => I18next::Plurals::PluralForms::None,
   "sk"    => I18next::Plurals::PluralForms::Special_Czech_Slovak,
   "sl"    => I18next::Plurals::PluralForms::Special_Slovenian,
-
 }
 
 SUFFIX_TESTS = {
@@ -187,20 +193,20 @@ SUFFIX_TESTS = {
   ],
 }
 
-describe "i18next_Plural_Resolver" do
+Spectator.describe "i18next_Plural_Resolver" do
   describe "get_plural_form" do
-    FORM_TESTS.each do |locale, form|
+    sample FORM_TESTS do |locale, form|
       it "returns the right plural form for locale '#{locale}'" do
-        resolver.get_plural_form(locale).should eq(form)
+        expect(resolver.get_plural_form(locale)).to eq(form)
       end
     end
   end
 
   describe "get_suffix" do
-    SUFFIX_TESTS.each do |locale, data|
+    sample SUFFIX_TESTS do |locale, tests|
       it "returns the right suffix for locale '#{locale}'" do
-        data.each do |d|
-          resolver.get_suffix(locale, d[:num]).should eq(d[:suffix])
+        tests.each do |d|
+          expect(resolver.get_suffix(locale, d[:num])).to eq(d[:suffix])
         end
       end
     end
