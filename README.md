@@ -48,6 +48,10 @@
   <a rel="me" href="https://social.tchncs.de/@invidious">
   <img alt="Mastodon: @invidious@social.tchncs.de" src="https://img.shields.io/badge/Mastodon-%40invidious%40social.tchncs.de-darkgreen">
   </a>
+  <br>
+  <a href="#contact-the-team-directly">
+  <img alt="Contact the team directly" src="https://img.shields.io/badge/E%2d%2dmail-darkgreen">
+  </a>
 </div>
 
 
@@ -144,6 +148,19 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 - [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
 - [HoloPlay](https://github.com/stephane-r/HoloPlay): Funny Android application connecting on Invidious API's with search, playlists and favorites.
+
+
+## Contact the team directly
+
+Every team member is available through GitHub or through the Matrix room (bridged to IRC), however, if you need/have to, you can contact the team directly via e-mail (remove `+SPAMGUARD` from the addresses):
+
+- General Inquiries (forwarded to all team members): `contact +SPAMGUARD [at] invidious [dot] io`
+
+Note: before sending a bug report please check that it hasn't already be reported on GitHub - bug reports sent to this address will be copied to GitHub
+
+- Security issues (forwarded to the two project owners, <a href="https://github.com/TheFrenchGhosty">@TheFrenchGhosty</a> and <a href="https://github.com/Perflyst">@Perflyst</a>): `security +SPAMGUARD [at] invidious [dot] io`
+
+Note: the creation of a PGP key for this address is planned
 
 
 ## Liability
