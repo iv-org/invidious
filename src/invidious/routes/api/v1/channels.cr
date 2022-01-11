@@ -96,7 +96,7 @@ module Invidious::Routes::API::V1::Channels
 
         json.field "relatedChannels" do
           json.array do
-            channel.related_channels.each do |related_channel|
+            fetch_related_channels(channel).each do |related_channel|
               json.object do
                 json.field "author", related_channel.author
                 json.field "authorId", related_channel.ucid
