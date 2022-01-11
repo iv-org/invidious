@@ -2,7 +2,7 @@
 
 -- DROP TABLE public.videos;
 
-CREATE TABLE IF NOT EXISTS public.videos
+CREATE UNLOGGED TABLE IF NOT EXISTS public.videos
 (
   id text NOT NULL,
   info text,
