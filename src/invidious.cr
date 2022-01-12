@@ -818,22 +818,29 @@ post "/data_control" do |env|
           end
         end
       when "import_youtube"
-        if type == "application/xml" || type == "text/xml"
+        filename = part.filename || ""
+        extension = filename.split(".").last
+
+        if extension == "xml" || type == "application/xml" || type == "text/xml"
           subscriptions = XML.parse(body)
           user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
             channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
           end
-        elsif type == "application/json"
+        elsif extension == "json" || type == "application/json"
           subscriptions = JSON.parse(body)
           user.subscriptions += subscriptions.as_a.compact_map do |entry|
             entry["snippet"]["resourceId"]["channelId"].as_s
           end
-        else
+        elsif extension == "csv" || type == "text/csv"
           subscriptions = parse_subscription_export_csv(body)
           user.subscriptions += subscriptions
+        else
+          halt(env, status_code: 415,
+            response: error_template(415, "Invalid subscription file uploaded")
+          )
         end
-        user.subscriptions.uniq!
 
+        user.subscriptions.uniq!
         user.subscriptions = get_batch_channels(user.subscriptions, false, false)
 
         Invidious::Database::Users.update_subscriptions(user)
