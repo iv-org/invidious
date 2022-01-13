@@ -142,4 +142,16 @@
         var csrf_token = target.parentNode.querySelector('input[name="csrf_token"]').value;
         xhr.send('csrf_token=' + csrf_token);
     }
+
+    // Handle keypresses
+    window.addEventListener('keydown', (event) => {
+        // Ignore modifier keys
+        if (event.ctrlKey || event.metaKey) { return; }
+
+        // Focus search bar on '/'
+        if (event.key == "/") {
+            document.getElementById('searchbox').focus();
+            event.preventDefault();
+        }
+    });
 })();
