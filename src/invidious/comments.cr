@@ -305,7 +305,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
       if child["replies"]?
         replies_count_text = translate_count(locale,
           "comments_view_x_replies",
-          child["replies"]["replyCount"].as_s.to_i? || 0,
+          child["replies"]["replyCount"].as_i64 || 0,
           NumberFormatting::Separator
         )
 
