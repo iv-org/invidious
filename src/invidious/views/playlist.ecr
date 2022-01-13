@@ -16,7 +16,7 @@
                 <% else %>
                 <%= author %> |
                 <% end %>
-                <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
+                <%= translate_count(locale, "generic_videos_count", playlist.video_count) %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %> |
                 <% case playlist.as(InvidiousPlaylist).privacy when %>
                 <% when PlaylistPrivacy::Public %>
@@ -30,7 +30,7 @@
         <% else %>
             <b>
                 <a href="/channel/<%= playlist.ucid %>"><%= author %></a> |
-                <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
+                <%= translate_count(locale, "generic_videos_count", playlist.video_count) %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %>
             </b>
         <% end %>

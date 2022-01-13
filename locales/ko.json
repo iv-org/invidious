@@ -81,18 +81,11 @@
     "Subscribe": "구독",
     "Unsubscribe": "구독 취소",
     "LIVE": "실시간",
-    "`x` playlists": {
-        "": "`x` 재생목록",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 재생목록"
-    },
-    "`x` videos": {
-        "": "`x` 동영상",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 동영상"
-    },
-    "`x` subscribers": {
-        "": "`x` 구독자",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 구독자"
-    },
+    "generic_views_count_0": "{{count}} 조회수",
+    "generic_videos_count_0": "{{count}} 동영상",
+    "generic_playlists_count_0": "{{count}} 재생목록",
+    "generic_subscribers_count_0": "{{count}} 구독자",
+    "generic_subscriptions_count_0": "{{count}} 구독",
     "playlist": "재생목록",
     "Korean": "한국어",
     "Japanese": "일본어",
@@ -146,22 +139,12 @@
     "Source available here.": "소스는 여기에서 사용할 수 있습니다.",
     "Log out": "로그아웃",
     "search": "검색",
-    "`x` unseen notifications": {
-        "": "`x` 읽지 않은 알림",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 읽지 않은 알림"
-    },
+    "subscriptions_unseen_notifs_count_0": "{{count}} 읽지 않은 알림",
     "Subscriptions": "구독",
     "revoke": "철회",
     "unsubscribe": "구독 취소",
     "Import/export": "가져오기/내보내기",
-    "`x` tokens": {
-        "": "`x` 토큰",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 토큰"
-    },
-    "`x` subscriptions": {
-        "": "`x` 구독",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 구독"
-    },
+    "tokens_count_0": "{{count}} 토큰",
     "Token": "토큰",
     "Token manager": "토큰 관리자",
     "Subscription manager": "구독 관리자",
@@ -262,10 +245,7 @@
     "Could not pull trending pages.": "인기 급상승 페이지를 가져올 수 없습니다.",
     "Could not create mix.": "믹스를 생성할 수 없습니다.",
     "`x` ago": "`x` 전",
-    "View `x` replies": {
-        "": "답글 `x`개 보기",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "답글 `x`개 보기"
-    },
+    "comments_view_x_replies_0": "답글 {{count}}개 보기",
     "View Reddit comments": "Reddit의 댓글 보기",
     "Engagement: ": "약속: ",
     "Wilson score: ": "Wilson Score: ",
@@ -300,10 +280,6 @@
     "Shared `x`": "공유된 `x`",
     "Whitelisted regions: ": "차단되지 않은 지역: ",
     "views": "조회수",
-    "`x` views": {
-        "": "`x` 조회수",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 조회수"
-    },
     "Please log in": "로그인하세요",
     "Password cannot be longer than 55 characters": "비밀번호는 55자 이하여야 합니다",
     "Password cannot be empty": "비밀번호는 비워둘 수 없습니다",
@@ -336,36 +312,15 @@
     "Scottish Gaelic": "스코틀랜드 게일어",
     "Popular": "인기",
     "Fallback comments: ": "대체 댓글: ",
-    "`x` seconds": {
-        "": "`x` 초",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 초"
-    },
     "Swahili": "스와힐리어",
     "Sundanese": "순다어",
-    "`x` hours": {
-        "": "`x` 시",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 시"
-    },
-    "`x` minutes": {
-        "": "`x` 분",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 분"
-    },
-    "`x` days": {
-        "": "`x` 일",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 일"
-    },
-    "`x` weeks": {
-        "": "`x` 주",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 주"
-    },
-    "`x` months": {
-        "": "`x` 월",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 월"
-    },
-    "`x` years": {
-        "": "`x` 년",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 년"
-    },
+    "generic_count_years_0": "{{count}} 년",
+    "generic_count_months_0": "{{count}} 월",
+    "generic_count_weeks_0": "{{count}} 주",
+    "generic_count_days_0": "{{count}} 일",
+    "generic_count_hours_0": "{{count}} 시",
+    "generic_count_minutes_0": "{{count}} 분",
+    "generic_count_seconds_0": "{{count}} 초",
     "Zulu": "줄루어",
     "Yoruba": "요루바어",
     "Yiddish": "이디시어",
@@ -383,10 +338,7 @@
     "Tajik": "타지크어",
     "Swedish": "스웨덴어",
     "Spanish (Latin America)": "스페인어 (라틴 아메리카)",
-    "`x` points": {
-        "": "`x` 포인트",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 포인트"
-    },
+    "comments_points_count_0": "{{count}} 포인트",
     "Invidious Private Feed for `x`": "`x` 에 대한 Invidious 비공개 피드",
     "Premieres `x`": "최초 공개 `x`",
     "Premieres in `x`": "`x` 에 최초 공개",

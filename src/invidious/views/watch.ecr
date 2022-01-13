@@ -323,7 +323,7 @@ we're going to need to do it here in order to allow for translations.
                                     <div class="pure-u-10-24" style="text-align:right">
                                         <% if views = rv["short_view_count_text"]?.try &.delete(", views watching") %>
                                             <% if !views.empty? %>
-                                                <b class="width:100%"><%= translate(locale, "`x` views", views) %></b>
+                                                <b class="width:100%"><%= translate_count(locale, "generic_views_count", views.to_i? || 0) %></b>
                                             <% end %>
                                         <% end %>
                                     </div>

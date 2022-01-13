@@ -24,7 +24,7 @@
 </div>
 
 <center>
-    <%= translate(locale, "`x` unseen notifications", "#{notifications.size}") %>
+    <%= translate_count(locale, "subscriptions_unseen_notifs_count", notifications.size) %>
 </center>
 
 <% if !notifications.empty? %>

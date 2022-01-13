@@ -1,16 +1,14 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonné",
-        "": "`x` abonnés"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vidéo",
-        "": "`x` vidéos"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` liste de lecture",
-        "": "`x` listes de lecture"
-    },
+    "generic_views_count": "{{count}} vue",
+    "generic_views_count_plural":"{{count}} vues",
+    "generic_videos_count": "{{count}} vidéo",
+    "generic_videos_count_plural": "{{count}} vidéos",
+    "generic_playlists_count": "{{count}} liste de lecture",
+    "generic_playlists_count_plural": "{{count}} listes de lecture",
+    "generic_subscribers_count": "{{count}} abonné",
+    "generic_subscribers_count_plural": "{{count}} abonnés",
+    "generic_subscriptions_count": "{{count}} abonnement",
+    "generic_subscriptions_count_plural": "{{count}} abonnements",
     "LIVE": "EN DIRECT",
     "Shared `x` ago": "Ajoutée il y a `x`",
     "Unsubscribe": "Se désabonner",
@@ -127,22 +125,14 @@
     "Subscription manager": "Gestionnaire d'abonnement",
     "Token manager": "Gestionnaire de token",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnements",
-        "": "`x` abonnements"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` tokens"
-    },
+    "tokens_count": "{{count}} token",
+    "tokens_count_plural": "{{count}} tokens",
     "Import/export": "Importer/Exporter",
     "unsubscribe": "se désabonner",
     "revoke": "révoquer",
     "Subscriptions": "Abonnements",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notification non vue",
-        "": "`x` notifications non vues"
-    },
+    "subscriptions_unseen_notifs_count": "{{count}} notification non vue",
+    "subscriptions_unseen_notifs_count_plural": "{{count}} notifications non vues",
     "search": "rechercher",
     "Log out": "Se déconnecter",
     "Released under the AGPLv3 on Github.": "Publié sous licence AGPLv3 sur Github.",
@@ -176,10 +166,6 @@
     "Whitelisted regions: ": "Régions sur liste blanche : ",
     "Blacklisted regions: ": "Régions sur liste noire : ",
     "Shared `x`": "Ajoutée le `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vues",
-        "": "`x` vues"
-    },
     "Premieres in `x`": "Première dans `x`",
     "Premieres `x`": "Première le `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Il semblerait que JavaScript soit désactivé. Cliquez ici pour voir les commentaires, mais gardez à l'esprit que le chargement peut prendre plus de temps.",
@@ -213,16 +199,12 @@
     "This channel does not exist.": "Cette chaine n'existe pas.",
     "Could not get channel info.": "Impossible de charger les informations de cette chaîne.",
     "Could not fetch comments": "Impossible de charger les commentaires",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Voir `x` réponse",
-        "": "Voir `x` réponses"
-    },
+    "comments_view_x_replies": "Voir {{count}} réponse",
+    "comments_view_x_replies_plural": "Voir {{count}} réponses",
     "`x` ago": "il y a `x`",
     "Load more": "Voir plus",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` point",
-        "": "`x` points"
-    },
+    "comments_points_count": "{{count}} point",
+    "comments_points_count_plural": "{{count}} points",
     "Could not create mix.": "Impossible de charger cette liste de lecture.",
     "Empty playlist": "La liste de lecture est vide",
     "Not a playlist.": "La liste de lecture est invalide.",
@@ -340,34 +322,20 @@
     "Yiddish": "Yiddish",
     "Yoruba": "Yoruba",
     "Zulu": "Zoulou",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` an",
-        "": "`x` ans"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mois",
-        "": "`x` mois"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` semaine",
-        "": "`x` semaines"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jour",
-        "": "`x` jours"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` heure",
-        "": "`x` heures"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minute",
-        "": "`x` minutes"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` seconde",
-        "": "`x` secondes"
-    },
+    "generic_count_years": "{{count}} an",
+    "generic_count_years_plural": "{{count}} ans",
+    "generic_count_months": "{{count}} mois",
+    "generic_count_months_plural": "{{count}} mois",
+    "generic_count_weeks": "{{count}} semaine",
+    "generic_count_weeks_plural": "{{count}} semaines",
+    "generic_count_days": "{{count}} jour",
+    "generic_count_days_plural": "{{count}} jours",
+    "generic_count_hours": "{{count}} heure",
+    "generic_count_hours_plural": "{{count}} heures",
+    "generic_count_minutes": "{{count}} minute",
+    "generic_count_minutes_plural": "{{count}} minutes",
+    "generic_count_seconds": "{{count}} seconde",
+    "generic_count_seconds_plural": "{{count}} secondes",
     "Fallback comments: ": "Commentaires alternatifs : ",
     "Popular": "Populaire",
     "Search": "Rechercher",

@@ -1,16 +1,9 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱者",
-        "": "`x` 個訂閱者"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 部影片",
-        "": "`x` 部影片"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 播放清單",
-        "": "`x` 播放清單"
-    },
+    "generic_views_count_0": "{{count}} 次檢視",
+    "generic_videos_count_0": "{{count}} 部影片",
+    "generic_playlists_count_0": "{{count}} 播放清單",
+    "generic_subscribers_count_0": "{{count}} 個訂閱者",
+    "generic_subscriptions_count_0": "{{count}} 個訂閱",
     "LIVE": "直播",
     "Shared `x` ago": "`x` 前分享",
     "Unsubscribe": "取消訂閱",
@@ -127,22 +120,12 @@
     "Subscription manager": "訂閱管理員",
     "Token manager": "Token 管理員",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個訂閱",
-        "": "`x` 個訂閱"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` 個存取金鑰"
-    },
+    "tokens_count_0": "{{count}} 個存取金鑰",
     "Import/export": "匯入／匯出",
     "unsubscribe": "取消訂閱",
     "revoke": "撤銷",
     "Subscriptions": "訂閱",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 個未讀的通知",
-        "": "`x` 個未讀的通知"
-    },
+    "subscriptions_unseen_notifs_count_0": "{{count}} 個未讀的通知",
     "search": "搜尋",
     "Log out": "登出",
     "Released under the AGPLv3 on Github.": "在 GitHub 上以 AGPLv3 釋出。",
@@ -176,10 +159,6 @@
     "Whitelisted regions: ": "白名單區域： ",
     "Blacklisted regions: ": "黑名單區域： ",
     "Shared `x`": "`x` 發佈",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 次檢視",
-        "": "`x` 次檢視"
-    },
     "Premieres in `x`": "首映於 `x`",
     "Premieres `x`": "首映於 `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "嗨！看來您將 JavaScript 關閉了。點擊這裡以檢視留言，請注意，它們可能需要比較長的時間載入。",
@@ -213,16 +192,10 @@
     "This channel does not exist.": "此頻道不存在。",
     "Could not get channel info.": "無法取得頻道資訊。",
     "Could not fetch comments": "無法擷取留言",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "檢視 `x` 則回覆",
-        "": "檢視 `x` 則回覆"
-    },
+    "comments_view_x_replies_0": "檢視 {{count}} 則回覆",
     "`x` ago": "`x` 以前",
     "Load more": "載入更多",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 點",
-        "": "`x` 點"
-    },
+    "comments_points_count_0": "{{count}} 點",
     "Could not create mix.": "無法建立混合。",
     "Empty playlist": "空的播放清單",
     "Not a playlist.": "不是播放清單。",
@@ -340,34 +313,13 @@
     "Yiddish": "意第緒語",
     "Yoruba": "約魯巴語",
     "Zulu": "祖魯語",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 年",
-        "": "`x` 年"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 月",
-        "": "`x` 月"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 週",
-        "": "`x` 週"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
-        "": "`x` 天"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 小時",
-        "": "`x` 小時"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 天",
-        "": "`x` 分鐘"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` 秒",
-        "": "`x` 秒"
-    },
+    "generic_count_years_0": "{{count}} 年",
+    "generic_count_months_0": "{{count}} 月",
+    "generic_count_weeks_0": "{{count}} 週",
+    "generic_count_days_0": "{{count}} 天",
+    "generic_count_hours_0": "{{count}} 小時",
+    "generic_count_minutes_0": "{{count}} 分鐘",
+    "generic_count_seconds_0": "{{count}} 秒",
     "Fallback comments: ": "汰退留言： ",
     "Popular": "熱門頻道",
     "Search": "搜尋",

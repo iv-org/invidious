@@ -1,16 +1,10 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscritto",
-        "": "`x` iscritti"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` video"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playlist",
-        "": "`x` playlist"
-    },
+    "generic_subscribers_count": "{{count}} iscritto",
+    "generic_subscribers_count_plural": "{{count}} iscritti",
+    "generic_videos_count": "{{count}} video",
+    "generic_videos_count_plural": "{{count}} video",
+    "generic_playlists_count": "{{count}} playlist",
+    "generic_playlists_count_plural": "{{count}} playlist",
     "LIVE": "IN DIRETTA",
     "Shared `x` ago": "Condiviso `x` fa",
     "Unsubscribe": "Disiscriviti",
@@ -122,22 +116,16 @@
     "Subscription manager": "Gestione delle iscrizioni",
     "Token manager": "Gestione dei gettoni",
     "Token": "Gettone",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` iscrizione",
-        "": "`x` iscrizioni"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gettone",
-        "": "`x` gettoni"
-    },
+    "generic_subscriptions_count": "{{count}} iscrizione",
+    "generic_subscriptions_count_plural": "{{count}} iscrizioni",
+    "tokens_count": "{{count}} gettone",
+    "tokens_count_plural": "{{count}} gettoni",
     "Import/export": "Importa/esporta",
     "unsubscribe": "disiscriviti",
     "revoke": "revoca",
     "Subscriptions": "Iscrizioni",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notifica non visualizzata",
-        "": "`x` notifiche non visualizzate"
-    },
+    "subscriptions_unseen_notifs_count": "{{count}} notifica non visualizzata",
+    "subscriptions_unseen_notifs_count_plural": "{{count}} notifiche non visualizzate",
     "search": "Cerca",
     "Log out": "Esci",
     "Source available here.": "Codice sorgente.",
@@ -166,10 +154,8 @@
     "Whitelisted regions: ": "Regioni in lista bianca: ",
     "Blacklisted regions: ": "Regioni in lista nera: ",
     "Shared `x`": "Condiviso `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizzazione",
-        "": "`x` visualizzazioni"
-    },
+    "generic_views_count": "{{count}} visualizzazione",
+    "generic_views_count_plural": "{{count}} visualizzazioni",
     "Premieres in `x`": "In anteprima in `x`",
     "Premieres `x`": "In anteprima `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Ciao! Sembra che tu abbia disattivato JavaScript. Clicca qui per visualizzare i commenti. Considera che potrebbe volerci più tempo.",
@@ -330,34 +316,20 @@
     "Yiddish": "Yiddish",
     "Yoruba": "Yoruba",
     "Zulu": "Zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` anno",
-        "": "`x` anni"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mese",
-        "": "`x` mesi"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` settimana",
-        "": "`x` settimane"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` giorno",
-        "": "`x` giorni"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ora",
-        "": "`x` ore"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuto",
-        "": "`x` minuti"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` secondo",
-        "": "`x` secondi"
-    },
+    "generic_count_years": "{{count}} anno",
+    "generic_count_years_plural": "{{count}} anni",
+    "generic_count_months": "{{count}} mese",
+    "generic_count_months_plural": "{{count}} mesi",
+    "generic_count_weeks": "{{count}} settimana",
+    "generic_count_weeks_plural": "{{count}} settimane",
+    "generic_count_days": "{{count}} giorno",
+    "generic_count_days_plural": "{{count}} giorni",
+    "generic_count_hours": "{{count}} ora",
+    "generic_count_hours_plural": "{{count}} ore",
+    "generic_count_minutes": "{{count}} minuto",
+    "generic_count_minutes_plural": "{{count}} minuti",
+    "generic_count_seconds": "{{count}} secondo",
+    "generic_count_seconds_plural": "{{count}} secondi",
     "Fallback comments: ": "Commenti alternativi: ",
     "Popular": "Popolare",
     "Search": "Cerca",

@@ -46,34 +46,20 @@
     "Default": "Predefinido",
     "Top": "Destaques",
     "Search": "Pesquisar",
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` segundo",
-        "": "`x` segundos"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuto",
-        "": "`x` minutos"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hora",
-        "": "`x` horas"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dia",
-        "": "`x` dias"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` seman",
-        "": "`x` semanas"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mês",
-        "": "`x` meses"
-    },
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ano",
-        "": "`x` anos"
-    },
+    "generic_count_years": "{{count}} segundo",
+    "generic_count_years_plural": "{{count}} segundos",
+    "generic_count_months": "{{count}} minuto",
+    "generic_count_months_plural": "{{count}} minutos",
+    "generic_count_weeks": "{{count}} hora",
+    "generic_count_weeks_plural": "{{count}} horas",
+    "generic_count_days": "{{count}} dia",
+    "generic_count_days_plural": "{{count}} dias",
+    "generic_count_hours": "{{count}} seman",
+    "generic_count_hours_plural": "{{count}} semanas",
+    "generic_count_minutes": "{{count}} mês",
+    "generic_count_minutes_plural": "{{count}} meses",
+    "generic_count_seconds": "{{count}} ano",
+    "generic_count_seconds_plural": "{{count}} anos",
     "Chinese (Traditional)": "Chinês (tradicional)",
     "Chinese (Simplified)": "Chinês (simplificado)",
     "Could not pull trending pages.": "Não foi possível obter as páginas de tendências.",
@@ -205,10 +191,8 @@
     },
     "Subscriptions": "Subscrições",
     "revoke": "revogar",
-    "`x` tokens": {
-        "": "`x` tokens",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens"
-    },
+    "tokens_count": "{{count}} token",
+    "tokens_count_plural": "{{count}} tokens",
     "`x` subscriptions": {
         "": "`x` subscrições",
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscrições"

@@ -1,16 +1,9 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pelanggan",
-        "": "`x` pelanggan"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` video"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` daftar putar",
-        "": "`x` daftar putar"
-    },
+    "generic_views_count_0": "{{count}} tampilan",
+    "generic_videos_count_0": "{{count}} video",
+    "generic_playlists_count_0": "{{count}} daftar putar",
+    "generic_subscribers_count_0": "{{count}} pelanggan",
+    "generic_subscriptions_count_0": "{{count}} langganan",
     "LIVE": "SIARAN LANGSUNG",
     "Shared `x` ago": "Dibagikan `x` yang lalu",
     "Unsubscribe": "Batal Langganan",
@@ -127,22 +120,12 @@
     "Subscription manager": "Pengatur langganan",
     "Token manager": "Pengatur token",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` langganan",
-        "": "`x` langganan"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` token"
-    },
+    "tokens_count_0": "{{count}} token",
     "Import/export": "Impor/ekspor",
     "unsubscribe": "batal langganan",
     "revoke": "cabut",
     "Subscriptions": "Langganan",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pemberitahuan belum dilihat",
-        "": "`x` pemberitahuan belum dilihat"
-    },
+    "subscriptions_unseen_notifs_count_0": "{{count}} pemberitahuan belum dilihat",
     "search": "cari",
     "Log out": "Keluar",
     "Released under the AGPLv3 on Github.": "Dirilis di bawah AGPLv3 di Github.",
@@ -176,10 +159,6 @@
     "Whitelisted regions: ": "Wilayah daftar-putih: ",
     "Blacklisted regions: ": "Wilayah daftar-hitam: ",
     "Shared `x`": "Berbagi `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tampilan",
-        "": "`x` tampilan"
-    },
     "Premieres in `x`": "Tayang dalam `x`",
     "Premieres `x`": "Tayang `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hai! Kelihatannya JavaScript kamu dimatikan. Klik di sini untuk melihat komentar, perlu diingat hal ini mungkin membutuhkan waktu sedikit lebih lama untuk dimuat.",
@@ -213,16 +192,10 @@
     "This channel does not exist.": "Kanal ini tidak ada.",
     "Could not get channel info.": "Tidak bisa mendapatkan info kanal.",
     "Could not fetch comments": "Tidak dapat memuat komentar",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Lihat`x` balasan",
-        "": "Lihat `x` balasan"
-    },
+    "comments_view_x_replies_0": "Lihat {{count}} balasan",
     "`x` ago": "`x` lalu",
     "Load more": "Muat lebih banyak",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` poin",
-        "": "`x` poin"
-    },
+    "comments_points_count_0": "{{count}} poin",
     "Could not create mix.": "Tidak dapat membuat mix.",
     "Empty playlist": "Daftar putar kosong",
     "Not a playlist.": "Bukan daftar putar.",
@@ -340,34 +313,13 @@
     "Yiddish": "Bahasa Yiddi",
     "Yoruba": "Bahasa Yoruba",
     "Zulu": "Bahasa Zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tahun",
-        "": "`x` tahun"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bulan",
-        "": "`x` bulan"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pekan",
-        "": "`x` pekan"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hari",
-        "": "`x` hari"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` jam",
-        "": "`x` jam"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` menit",
-        "": "`x` menit"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` detik",
-        "": "`x` detik"
-    },
+    "generic_count_years_0": "{{count}} tahun",
+    "generic_count_months_0": "{{count}} bulan",
+    "generic_count_weeks_0": "{{count}} pekan",
+    "generic_count_days_0": "{{count}} hari",
+    "generic_count_hours_0": "{{count}} jam",
+    "generic_count_minutes_0": "{{count}} menit",
+    "generic_count_seconds_0": "{{count}} detik",
     "Fallback comments: ": "Komentar alternatif: ",
     "Popular": "Populer",
     "Search": "Cari",

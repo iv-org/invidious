@@ -11,7 +11,7 @@
             <h3><input class="pure-input-1" maxlength="150" name="title" type="text" value="<%= title %>"></h3>
             <b>
                 <%= HTML.escape(playlist.author) %> |
-                <%= translate(locale, "`x` videos", "#{playlist.video_count}") %> |
+                <%= translate_count(locale, "generic_videos_count", playlist.video_count) %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %> |
                 <i class="icon <%= {"ion-md-globe", "ion-ios-unlock", "ion-ios-lock"}[playlist.privacy.value] %>"></i>
                 <select name="privacy">

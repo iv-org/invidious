@@ -1,16 +1,14 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscriber",
-        "": "`x` subscribers"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` videos"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playlist",
-        "": "`x` playlists"
-    },
+    "generic_views_count": "{{count}} view",
+    "generic_views_count_plural": "{{count}} views",
+    "generic_videos_count": "{{count}} video",
+    "generic_videos_count_plural": "{{count}} videos",
+    "generic_playlists_count": "{{count}} playlist",
+    "generic_playlists_count_plural": "{{count}} playlists",
+    "generic_subscribers_count": "{{count}} subscriber",
+    "generic_subscribers_count_plural": "{{count}} subscribers",
+    "generic_subscriptions_count": "{{count}} subscription",
+    "generic_subscriptions_count_plural": "{{count}} subscriptions",
     "LIVE": "LIVE",
     "Shared `x` ago": "Shared `x` ago",
     "Unsubscribe": "Unsubscribe",
@@ -146,22 +144,14 @@
     "Subscription manager": "Subscription manager",
     "Token manager": "Token manager",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscription",
-        "": "`x` subscriptions"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` tokens"
-    },
+    "tokens_count": "{{count}} token",
+    "tokens_count_plural": "{{count}} tokens",
     "Import/export": "Import/export",
     "unsubscribe": "unsubscribe",
     "revoke": "revoke",
     "Subscriptions": "Subscriptions",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` unseen notification",
-        "": "`x` unseen notifications"
-    },
+    "subscriptions_unseen_notifs_count": "{{count}} unseen notification",
+    "subscriptions_unseen_notifs_count_plural": "{{count}} unseen notifications",
     "search": "search",
     "Log out": "Log out",
     "Released under the AGPLv3 on Github.": "Released under the AGPLv3 on Github.",
@@ -195,10 +185,6 @@
     "Whitelisted regions: ": "Whitelisted regions: ",
     "Blacklisted regions: ": "Blacklisted regions: ",
     "Shared `x`": "Shared `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` view",
-        "": "`x` views"
-    },
     "Premieres in `x`": "Premieres in `x`",
     "Premieres `x`": "Premieres `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.",
@@ -232,16 +218,12 @@
     "This channel does not exist.": "This channel does not exist.",
     "Could not get channel info.": "Could not get channel info.",
     "Could not fetch comments": "Could not fetch comments",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "View `x` reply",
-        "": "View `x` replies"
-    },
+    "comments_view_x_replies": "View {{count}} reply",
+    "comments_view_x_replies_plural": "View {{count}} replies",
     "`x` ago": "`x` ago",
     "Load more": "Load more",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` point",
-        "": "`x` points"
-    },
+    "comments_points_count": "{{count}} point",
+    "comments_points_count_plural": "{{count}} points",
     "Could not create mix.": "Could not create mix.",
     "Empty playlist": "Empty playlist",
     "Not a playlist.": "Not a playlist.",
@@ -359,34 +341,20 @@
     "Yiddish": "Yiddish",
     "Yoruba": "Yoruba",
     "Zulu": "Zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` year",
-        "": "`x` years"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` month",
-        "": "`x` months"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` week",
-        "": "`x` weeks"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` day",
-        "": "`x` days"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hour",
-        "": "`x` hours"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minute",
-        "": "`x` minutes"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` second",
-        "": "`x` seconds"
-    },
+    "generic_count_years": "{{count}} year",
+    "generic_count_years_plural": "{{count}} years",
+    "generic_count_months": "{{count}} month",
+    "generic_count_months_plural": "{{count}} months",
+    "generic_count_weeks": "{{count}} week",
+    "generic_count_weeks_plural": "{{count}} weeks",
+    "generic_count_days": "{{count}} day",
+    "generic_count_days_plural": "{{count}} days",
+    "generic_count_hours": "{{count}} hour",
+    "generic_count_hours_plural": "{{count}} hours",
+    "generic_count_minutes": "{{count}} minute",
+    "generic_count_minutes_plural": "{{count}} minutes",
+    "generic_count_seconds": "{{count}} second",
+    "generic_count_seconds_plural": "{{count}} seconds",
     "Fallback comments: ": "Fallback comments: ",
     "Popular": "Popular",
     "Search": "Search",

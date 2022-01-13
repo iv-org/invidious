@@ -131,10 +131,8 @@
         "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscrições",
         "": "`x` subscrições"
     },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens",
-        "": "`x` tokens"
-    },
+    "tokens_count": "{{count}} token",
+    "tokens_count_plural": "{{count}} tokens",
     "Import/export": "Importar / exportar",
     "unsubscribe": "anular subscrição",
     "revoke": "revogar",
@@ -340,34 +338,20 @@
     "Yiddish": "Iídiche",
     "Yoruba": "Ioruba",
     "Zulu": "Zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ano",
-        "": "`x` anos"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mês",
-        "": "`x` meses"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` seman",
-        "": "`x` semanas"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dia",
-        "": "`x` dias"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hora",
-        "": "`x` horas"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuto",
-        "": "`x` minutos"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` segundo",
-        "": "`x` segundos"
-    },
+    "generic_count_years": "{{count}} ano",
+    "generic_count_years_plural": "{{count}} anos",
+    "generic_count_months": "{{count}} mês",
+    "generic_count_months_plural": "{{count}} meses",
+    "generic_count_weeks": "{{count}} seman",
+    "generic_count_weeks_plural": "{{count}} semanas",
+    "generic_count_days": "{{count}} dia",
+    "generic_count_days_plural": "{{count}} dias",
+    "generic_count_hours": "{{count}} hora",
+    "generic_count_hours_plural": "{{count}} horas",
+    "generic_count_minutes": "{{count}} minuto",
+    "generic_count_minutes_plural": "{{count}} minutos",
+    "generic_count_seconds": "{{count}} segundo",
+    "generic_count_seconds_plural": "{{count}} segundos",
     "Fallback comments: ": "Comentários alternativos: ",
     "Popular": "Popular",
     "Search": "Pesquisar",
