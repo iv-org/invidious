@@ -32,18 +32,20 @@ Spectator.describe "Invidious::User::Imports" do
     expect(subscriptions).to be_an(Array(String))
     expect(subscriptions.size).to eq(13)
 
-    expect(subscriptions).to contain("UC0hHW5Y08ggq-9kbrGgWj0A")
-    expect(subscriptions).to contain("UC0vBXGSyV14uvJ4hECDOl0Q")
-    expect(subscriptions).to contain("UC1sELGmy5jp5fQUugmuYlXQ")
-    expect(subscriptions).to contain("UC9kFnwdCRrX7oTjqKd6-tiQ")
-    expect(subscriptions).to contain("UCBa659QWEk1AI4Tg--mrJ2A")
-    expect(subscriptions).to contain("UCGu6_XQ64rXPR6nuitMQE_A")
-    expect(subscriptions).to contain("UCGwu0nbY2wSkW8N-cghnLpA")
-    expect(subscriptions).to contain("UCQ0OvZ54pCFZwsKxbltg_tg")
-    expect(subscriptions).to contain("UCRE6itj4Jte4manQEu3Y7OA")
-    expect(subscriptions).to contain("UCRLc6zsv_d0OEBO8OOkz-DA")
-    expect(subscriptions).to contain("UCSl5Uxu2LyaoAoMMGp6oTJA")
-    expect(subscriptions).to contain("UCXuqSBlHAE6Xw-yeJA0Tunw")
-    expect(subscriptions).to contain("UCZ5XnGb-3t7jCkXdawN2tkA")
+    expect(subscriptions).to contain_exactly(
+      "UC0hHW5Y08ggq-9kbrGgWj0A",
+      "UC0vBXGSyV14uvJ4hECDOl0Q",
+      "UC1sELGmy5jp5fQUugmuYlXQ",
+      "UC9kFnwdCRrX7oTjqKd6-tiQ",
+      "UCBa659QWEk1AI4Tg--mrJ2A",
+      "UCGu6_XQ64rXPR6nuitMQE_A",
+      "UCGwu0nbY2wSkW8N-cghnLpA",
+      "UCQ0OvZ54pCFZwsKxbltg_tg",
+      "UCRE6itj4Jte4manQEu3Y7OA",
+      "UCRLc6zsv_d0OEBO8OOkz-DA",
+      "UCSl5Uxu2LyaoAoMMGp6oTJA",
+      "UCXuqSBlHAE6Xw-yeJA0Tunw",
+      "UCZ5XnGb-3t7jCkXdawN2tkA",
+    ).in_order
   end
 end
