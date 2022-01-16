@@ -1,15 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` harpidedunak",
-        "": "`x` harpidedun"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bideoak",
-        "": "`x` bideo"
-    },
-    "`x` playlists": {
-        "": "`x` erreprodukzio-zerrenda"
-    },
     "LIVE": "ZUZENEAN",
     "Shared `x` ago": "Duela `x` partekatua",
     "Unsubscribe": "Harpidetza kendu",
