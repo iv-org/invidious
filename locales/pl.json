@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subskrybcji",
-        "": "`x` subskrybcji"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` filmów",
-        "": "`x` filmów"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playlist",
-        "": "`x` playlist"
-    },
     "LIVE": "NA ŻYWO",
     "Shared `x` ago": "Udostępniono `x` temu",
     "Unsubscribe": "Odsubskrybuj",
@@ -127,22 +115,10 @@
     "Subscription manager": "Manager subskrybcji",
     "Token manager": "Menedżer tokenów",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subskrybcji",
-        "": "`x` subskrybcji"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` token",
-        "": "`x` tokenów"
-    },
     "Import/export": "Import/Eksport",
     "unsubscribe": "odsubskrybuj",
     "revoke": "cofnij",
     "Subscriptions": "Subskrybcje",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` nowych powiadomień",
-        "": "`x` nowych powiadomień"
-    },
     "search": "szukaj",
     "Log out": "Wyloguj",
     "Source available here.": "Kod źródłowy dostępny tutaj.",
@@ -175,10 +151,6 @@
     "Whitelisted regions: ": "Dostępny na obszarach: ",
     "Blacklisted regions: ": "Niedostępny na obszarach: ",
     "Shared `x`": "Udostępniono `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` wyświetleń",
-        "": "`x` wyświetleń"
-    },
     "Premieres in `x`": "Publikacja za `x`",
     "Premieres `x`": "Publikacja za `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Cześć! Wygląda na to, że masz wyłączoną obsługę JavaScriptu. Kliknij tutaj, żeby zobaczyć komentarze. Pamiętaj, że wczytywanie może potrwać dłużej.",
@@ -212,16 +184,8 @@
     "This channel does not exist.": "Ten kanał nie istnieje.",
     "Could not get channel info.": "Nie udało się uzyskać informacji o kanale.",
     "Could not fetch comments": "Nie udało się pobrać komentarzy",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Wyświetl `x` odpowiedzi",
-        "": "Wyświetl `x` odpowiedzi"
-    },
     "`x` ago": "`x` temu",
     "Load more": "Wczytaj więcej",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` punktów",
-        "": "`x` punktów"
-    },
     "Could not create mix.": "Nie udało się utworzyć miksu.",
     "Empty playlist": "Lista odtwarzania jest pusta",
     "Not a playlist.": "Niepoprawna lista.",
@@ -339,34 +303,6 @@
     "Yiddish": "jidysz",
     "Yoruba": "joruba",
     "Zulu": "zuluski",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` lat",
-        "": "`x` lat"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` miesięcy",
-        "": "`x` miesięcy"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tygodni",
-        "": "`x` tygodni"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dni",
-        "": "`x` dni"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` godzin",
-        "": "`x` godzin"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minut",
-        "": "`x` minut"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekund",
-        "": "`x` sekund"
-    },
     "Fallback comments: ": "Zastępcze komentarze: ",
     "Popular": "Popularne",
     "Search": "Szukaj",
