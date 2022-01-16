@@ -117,16 +117,8 @@
     "Playlist does not exist.": "A lista de reprodução não existe.",
     "Not a playlist.": "Não é uma lista de reprodução.",
     "Empty playlist": "Lista de reprodução vazia",
-    "`x` points": {
-        "": "`x` pontos",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pontos"
-    },
     "Load more": "Carregar mais",
     "`x` ago": "`x` atrás",
-    "View `x` replies": {
-        "": "Ver `x` respostas",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` respostas"
-    },
     "Could not fetch comments": "Não foi possível obter os comentários",
     "Could not get channel info.": "Não foi possível obter as informações do canal.",
     "This channel does not exist.": "Este canal não existe.",
@@ -156,10 +148,6 @@
     "View YouTube comments": "Ver comentários do YouTube",
     "Premieres `x`": "Estreias 'x'",
     "Premieres in `x`": "Estreias em 'x'",
-    "`x` views": {
-        "": "`x` visualizações",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizações"
-    },
     "Shared `x`": "Partilhado `x`",
     "Blacklisted regions: ": "Regiões bloqueadas: ",
     "Whitelisted regions: ": "Regiões permitidas: ",
@@ -185,18 +173,10 @@
     "View JavaScript license information.": "Ver informações da licença do JavaScript.",
     "Source available here.": "Código-fonte disponível aqui.",
     "Log out": "Terminar sessão",
-    "`x` unseen notifications": {
-        "": "`x` notificações não vistas",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notificações não vistas"
-    },
     "Subscriptions": "Subscrições",
     "revoke": "revogar",
     "tokens_count": "{{count}} token",
     "tokens_count_plural": "{{count}} tokens",
-    "`x` subscriptions": {
-        "": "`x` subscrições",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscrições"
-    },
     "Token": "Token",
     "Token manager": "Gerir tokens",
     "Subscription manager": "Gerir subscrições",
@@ -396,18 +376,6 @@
     "Unsubscribe": "Anular subscrição",
     "Shared `x` ago": "Partilhado `x` atrás",
     "LIVE": "Em direto",
-    "`x` playlists": {
-        "": "`x` listas de reprodução",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` listas de reprodução"
-    },
-    "`x` videos": {
-        "": "`x` vídeos",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videos"
-    },
-    "`x` subscribers": {
-        "": "`x` subscritores",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` subscritores"
-    },
     "short": "Curto (< 4 minutos)",
     "long": "Longo (> 20 minutos)",
     "footer_source_code": "Código-fonte",
