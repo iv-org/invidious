@@ -1,8 +1,8 @@
 <form class="pure-form" action="/search" method="get">
 	<fieldset>
 		<input type="search" id="searchbox" autocomplete="off" autocorrect="off"
-		autocapitalize="none" spellcheck="false" autofocus name="q"
-		placeholder="<%= translate(locale, "search") %>"
+		autocapitalize="none" spellcheck="false" <% if autofocus %>autofocus<% end %>
+		name="q" placeholder="<%= translate(locale, "search") %>"
 		title="<%= translate(locale, "search") %>"
 		value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
 	</fieldset>
