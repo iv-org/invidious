@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` áskrifandar",
-        "": "`x` áskrifendur"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` myndband",
-        "": "`x` myndbönd"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` spilunarlist",
-        "": "`x` spilunarlistar"
-    },
     "LIVE": "BEINT",
     "Shared `x` ago": "Deilt `x` síðan",
     "Unsubscribe": "Afskrá",
@@ -122,22 +110,10 @@
     "Subscription manager": "Áskriftarstjóri",
     "Token manager": "Táknstjóri",
     "Token": "Tákn",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` áskriftur",
-        "": "`x` áskriftir"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tákn",
-        "": "`x` tákn"
-    },
     "Import/export": "Flytja inn/út",
     "unsubscribe": "afskrá",
     "revoke": "afturkalla",
     "Subscriptions": "Áskriftir",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` óséðar tilkynning",
-        "": "`x` óséðar tilkynningar"
-    },
     "search": "leita",
     "Log out": "Útskrá",
     "Source available here.": "Frumkóði aðgengilegur hér.",
@@ -166,10 +142,6 @@
     "Whitelisted regions: ": "Svæði á hvítum lista: ",
     "Blacklisted regions: ": "Svæði á svörtum lista: ",
     "Shared `x`": "Deilt `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` áhorf",
-        "": "`x` áhorf"
-    },
     "Premieres in `x`": "Frumflutt eftir `x`",
     "Premieres `x`": "Frumflutt `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hæ! Lítur út eins og þú hafir slökkt á JavaScript. Smelltu hér til að skoða ummæli, hafðu í huga að þær geta tekið aðeins lengri tíma að hlaða.",
@@ -203,16 +175,8 @@
     "This channel does not exist.": "Þessi rás er ekki til.",
     "Could not get channel info.": "Ekki tókst að fá rásarupplýsingar.",
     "Could not fetch comments": "Ekki tókst að sækja ummæli",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Skoða `x` svar",
-        "": "Skoða `x` svör"
-    },
     "`x` ago": "`x` síðan",
     "Load more": "Hlaða meira",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` stig",
-        "": "`x` stig"
-    },
     "Could not create mix.": "Ekki tókst að búa til blöndu.",
     "Empty playlist": "Tómur spilunarlisti",
     "Not a playlist.": "Ekki spilunarlisti.",
@@ -330,34 +294,6 @@
     "Yiddish": "Jiddíska",
     "Yoruba": "Jórúba",
     "Zulu": "Zúlú",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ár",
-        "": "`x` ár"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mánuð",
-        "": "`x` mánuði"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vika",
-        "": "`x` vikur"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dagur",
-        "": "`x` dagar"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` klukkustund",
-        "": "`x` klukkustundir"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mínúta",
-        "": "`x` mínútur"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekúnda",
-        "": "`x` sekúndur"
-    },
     "Fallback comments: ": "Vara ummæli: ",
     "Popular": "Vinsælt",
     "Top": "Topp",

@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` suscriptores",
-        "": "`x` suscriptores"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vídeos",
-        "": "`x` vídeos"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` listas de reproducción",
-        "": "`x` listas de reproducción"
-    },
     "LIVE": "DIRECTO",
     "Shared `x` ago": "Compartido hace `x`",
     "Unsubscribe": "Desuscribirse",
@@ -127,22 +115,10 @@
     "Subscription manager": "Gestor de suscripciones",
     "Token manager": "Gestor de tokens",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` suscripciones",
-        "": "`x` suscripciones"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens",
-        "": "`x` tokens"
-    },
     "Import/export": "Importar/Exportar",
     "unsubscribe": "Desuscribirse",
     "revoke": "revocar",
     "Subscriptions": "Suscripciones",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notificaciones sin ver",
-        "": "`x` notificaciones sin ver"
-    },
     "search": "buscar",
     "Log out": "Cerrar la sesión",
     "Released under the AGPLv3 on Github.": "Publicado bajo la AGPLv3 en Github.",
@@ -176,10 +152,6 @@
     "Whitelisted regions: ": "Regiones permitidas: ",
     "Blacklisted regions: ": "Regiones bloqueadas: ",
     "Shared `x`": "Compartido `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizaciones",
-        "": "`x` visualizaciones"
-    },
     "Premieres in `x`": "Se estrena en `x`",
     "Premieres `x`": "Estrenos `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "¡Hola! Parece que tiene JavaScript desactivado. Haga clic aquí para ver los comentarios, pero tenga en cuenta que pueden tardar un poco más en cargarse.",
@@ -213,16 +185,8 @@
     "This channel does not exist.": "El canal no existe.",
     "Could not get channel info.": "No se ha podido obtener información del canal.",
     "Could not fetch comments": "No se han podido recuperar los comentarios",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` respuestas",
-        "": "Ver `x` respuestas"
-    },
     "`x` ago": "hace `x`",
     "Load more": "Cargar más",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` puntos",
-        "": "`x` puntos"
-    },
     "Could not create mix.": "No se ha podido crear la mezcla.",
     "Empty playlist": "La lista de reproducción está vacía",
     "Not a playlist.": "Lista de reproducción no válida.",
@@ -340,34 +304,6 @@
     "Yiddish": "Yidis",
     "Yoruba": "Yoruba",
     "Zulu": "Zulú",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` año",
-        "": "`x` años"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` meses",
-        "": "`x` meses"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` semanas",
-        "": "`x` semanas"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` días",
-        "": "`x` días"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` horas",
-        "": "`x` horas"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutos",
-        "": "`x` minutos"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` segundos",
-        "": "`x` segundos"
-    },
     "Fallback comments: ": "Comentarios alternativos: ",
     "Popular": "Populares",
     "Search": "Buscar",
@@ -443,7 +379,7 @@
     "user_created_playlists": "`x` listas de reproducción creadas",
     "user_saved_playlists": "`x` listas de reproducción guardadas",
     "Video unavailable": "Vídeo no disponible",
-    "videoinfo_youTube_embed_link": "Embeber",
+    "videoinfo_youTube_embed_link": "Insertar",
     "preferences_quality_dash_option_2160p": "2160p",
     "preferences_quality_dash_option_4320p": "4320p",
     "invidious": "Invidious",
@@ -457,10 +393,40 @@
     "preferences_quality_dash_option_1440p": "1440p",
     "preferences_quality_dash_option_best": "La mejor",
     "preferences_quality_dash_option_worst": "La peor",
-    "videoinfo_invidious_embed_link": "Enlace para Embeber",
+    "videoinfo_invidious_embed_link": "Enlace para Insertar",
     "preferences_quality_dash_option_1080p": "1080p",
     "purchased": "Comprado",
     "360": "360°",
     "videoinfo_watch_on_youTube": "Ver en YouTube",
-    "preferences_save_player_pos_label": "Guardar el tiempo del vídeo actual: "
+    "preferences_save_player_pos_label": "Guardar posición de reproducción: ",
+    "generic_views_count": "{{count}} visualización",
+    "generic_views_count_plural": "{{count}} visualizaciones",
+    "generic_subscribers_count": "{{count}} suscriptor",
+    "generic_subscribers_count_plural": "{{count}} suscriptores",
+    "generic_subscriptions_count": "{{count}} suscripción",
+    "generic_subscriptions_count_plural": "{{count}} suscripciones",
+    "subscriptions_unseen_notifs_count": "{{count}} notificación no vista",
+    "subscriptions_unseen_notifs_count_plural": "{{count}} notificaciones no vistas",
+    "generic_count_days": "{{count}} día",
+    "generic_count_days_plural": "{{count}} días",
+    "comments_view_x_replies": "Ver {{count}} respuesta",
+    "comments_view_x_replies_plural": "Ver {{count}} respuestas",
+    "generic_count_weeks": "{{count}} semana",
+    "generic_count_weeks_plural": "{{count}} semanas",
+    "generic_playlists_count": "{{count}} lista de reproducción",
+    "generic_playlists_count_plural": "{{count}} listas de reproducción",
+    "generic_videos_count": "{{count}} vídeo",
+    "generic_videos_count_plural": "{{count}} vídeos",
+    "generic_count_months": "{{count}} mes",
+    "generic_count_months_plural": "{{count}} meses",
+    "comments_points_count": "{{count}} punto",
+    "comments_points_count_plural": "{{count}} puntos",
+    "generic_count_years": "{{count}} año",
+    "generic_count_years_plural": "{{count}} años",
+    "generic_count_hours": "{{count}} hora",
+    "generic_count_hours_plural": "{{count}} horas",
+    "generic_count_minutes": "{{count}} minuto",
+    "generic_count_minutes_plural": "{{count}} minutos",
+    "generic_count_seconds": "{{count}} segundo",
+    "generic_count_seconds_plural": "{{count}} segundos"
 }

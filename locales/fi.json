@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tilaaja",
-        "": "`x` tilaajaa"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` videota"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` soittolista",
-        "": "`x` soittolistaa"
-    },
     "LIVE": "SUORA",
     "Shared `x` ago": "Jaettu `x` sitten",
     "Unsubscribe": "Peruuta tilaus",
@@ -127,22 +115,10 @@
     "Subscription manager": "Tilausten hallinnoija",
     "Token manager": "Tunnusten hallinnoija",
     "Token": "Tunnus",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tilausta",
-        "": "`x` tilausta"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tunnistetta",
-        "": "`x` tunnistetta"
-    },
     "Import/export": "Tuo/vie",
     "unsubscribe": "peru tilaus",
     "revoke": "kumoa",
     "Subscriptions": "Tilaukset",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` näkemätöntä ilmoitusta",
-        "": "`x` näkemätöntä ilmoitusta"
-    },
     "search": "haku",
     "Log out": "Kirjaudu ulos",
     "Source available here.": "Lähdekoodi on saatavilla täällä.",
@@ -175,10 +151,6 @@
     "Whitelisted regions: ": "Sallitut alueet: ",
     "Blacklisted regions: ": "Estetyt alueet: ",
     "Shared `x`": "Jaettu `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` katselukerta",
-        "": "`x` katselukertaa"
-    },
     "Premieres in `x`": "Ensiesitykseen aikaa `x`",
     "Premieres `x`": "Ensiesitykseen `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hei! Vaikuttaa siltä, että sinulla on JavaScript pois käytöstä. Klikkaa tästä nähdäksesi kommentit, huomioi että lataamisessa voi kestää melko kauan.",
@@ -212,16 +184,8 @@
     "This channel does not exist.": "Tätä kanavaa ei ole olemassa.",
     "Could not get channel info.": "Kanavatietoa ei saatu ladattua.",
     "Could not fetch comments": "Kommenttien nouto epäonnistui",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Näytä `x` vastausta",
-        "": "Näytä `x` vastausta"
-    },
     "`x` ago": "`x` sitten",
     "Load more": "Lataa lisää",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pistettä",
-        "": "`x` pistettä"
-    },
     "Could not create mix.": "Sekoituksen luominen epäonnistui.",
     "Empty playlist": "Tyhjennä soittolista",
     "Not a playlist.": "Ei ole soittolista.",
@@ -339,34 +303,6 @@
     "Yiddish": "jiddiš",
     "Yoruba": "joruba",
     "Zulu": "zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vuotta",
-        "": "`x` vuotta"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` kuukautta",
-        "": "`x` kuukautta"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` viikkoa",
-        "": "`x` viikkoa"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` päivää",
-        "": "`x` päivää"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tuntia",
-        "": "`x` tuntia"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minuuttia",
-        "": "`x` minuuttia"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekuntia",
-        "": "`x` sekuntia"
-    },
     "Fallback comments: ": "Varakommentit: ",
     "Popular": "Suosittu",
     "Search": "Etsi",

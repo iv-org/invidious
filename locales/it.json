@@ -189,16 +189,8 @@
     "This channel does not exist.": "Questo canale non esiste.",
     "Could not get channel info.": "Impossibile ottenere le informazioni del canale.",
     "Could not fetch comments": "Impossibile recuperare i commenti",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Visualizza `x` risposta",
-        "": "Visualizza `x` risposte"
-    },
     "`x` ago": "`x` fa",
     "Load more": "Carica altro",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` punto",
-        "": "`x` punti"
-    },
     "Could not create mix.": "Impossibile creare il mix.",
     "Empty playlist": "Playlist vuota",
     "Not a playlist.": "Non è una playlist.",
@@ -392,5 +384,13 @@
     "preferences_quality_dash_option_4320p": "4320p",
     "360": "360°",
     "preferences_quality_dash_option_144p": "144p",
-    "Released under the AGPLv3 on Github.": "Rilasciato su Github con licenza AGPLv3."
+    "Released under the AGPLv3 on Github.": "Rilasciato su Github con licenza AGPLv3.",
+    "preferences_quality_option_medium": "Media",
+    "preferences_quality_option_small": "Piccola",
+    "preferences_quality_dash_option_best": "Migliore",
+    "preferences_quality_dash_option_worst": "Peggiore",
+    "invidious": "Invidious",
+    "preferences_quality_dash_label": "Qualità video DASH preferita ",
+    "preferences_quality_option_hd720": "HD720",
+    "preferences_quality_dash_option_auto": "Automatica"
 }

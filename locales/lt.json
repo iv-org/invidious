@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` prenumeratorius",
-        "": "`x` prenumeratoriai"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vaizdo įrašas",
-        "": "`x` vaizdo įrašai"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` grojaraštis",
-        "": "`x` grojaraščiai"
-    },
     "LIVE": "LIVE",
     "Shared `x` ago": "Pasidalino prieš `x`",
     "Unsubscribe": "Atšaukti prenumeratą",
@@ -127,22 +115,10 @@
     "Subscription manager": "Prenumeratų valdytojas",
     "Token manager": "Žetonų valdytojas",
     "Token": "Žetonas",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` prenumerata",
-        "": "`x` prenumeratos"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` žetonas",
-        "": "`x` žetonai"
-    },
     "Import/export": "Importuoti/ eksportuoti",
     "unsubscribe": "atšaukti prenumeratą",
     "revoke": "atšaukti",
     "Subscriptions": "Prenumeratos",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` nematytas pranešimas",
-        "": "`x` nematyti pranešimai"
-    },
     "search": "ieškoti",
     "Log out": "Atsijungti",
     "Released under the AGPLv3 on Github.": "Išleista pagal AGPLv3 licenciją Github.",
@@ -176,10 +152,6 @@
     "Whitelisted regions: ": "Prieinantys regionai: ",
     "Blacklisted regions: ": "Blokuojami regionai: ",
     "Shared `x`": "Pasidalino `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` peržiūrų",
-        "": "`x` peržiūrų"
-    },
     "Premieres in `x`": "Premjera už `x`",
     "Premieres `x`": "Premjera`x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Sveiki! Atrodo, kad turite išjungę \"JavaScript\". Spauskite čia norėdami peržiūrėti komentarus, turėkite omenyje, kad jų įkėlimas gali užtrukti.",
@@ -213,16 +185,8 @@
     "This channel does not exist.": "Šis kanalas neegzistuoja.",
     "Could not get channel info.": "Nepavyko gauti kanalo informacijos.",
     "Could not fetch comments": "Nepavyko atsiųsti komentarų",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Žiūrėti `x` atsakymus",
-        "": "Žiūrėti `x` atsakymus"
-    },
     "`x` ago": "`x` prieš",
     "Load more": "Pakrauti daugiau",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` taškai",
-        "": "`x` taškai"
-    },
     "Could not create mix.": "Nepavyko sukurti derinio.",
     "Empty playlist": "Tuščias grojaraštis",
     "Not a playlist.": "Ne grojaraštis.",
@@ -340,34 +304,6 @@
     "Yiddish": "Jidiš",
     "Yoruba": "Yorubiečių",
     "Zulu": "Zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` metus",
-        "": "`x` metus"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mėnesį",
-        "": "`x` mėnesius"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` savaitę",
-        "": "`x` savaites"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dieną",
-        "": "`x` dienas"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` valandą",
-        "": "`x` valandas"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minutę",
-        "": "`x` minutes"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekundę",
-        "": "`x` sekundes"
-    },
     "Fallback comments: ": "Atsarginiai komentarai: ",
     "Popular": "Populiaru",
     "Search": "Paieška",

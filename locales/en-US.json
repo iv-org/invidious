@@ -408,8 +408,8 @@
     "4k": "4K",
     "location": "Location",
     "hdr": "HDR",
-    "purchased" : "Purchased",
-    "360" : "360°",
+    "purchased": "Purchased",
+    "360": "360°",
     "filter": "Filter",
     "Current version: ": "Current version: ",
     "next_steps_error_message": "After which you should try to: ",
@@ -430,5 +430,5 @@
     "user_created_playlists": "`x` created playlists",
     "user_saved_playlists": "`x` saved playlists",
     "Video unavailable": "Video unavailable",
-    "preferences_save_player_pos_label": "Save the current video time: "
+    "preferences_save_player_pos_label": "Save playback position: "
 }

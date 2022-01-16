@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Abonnenten",
-        "": "`x` Abonnenten"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Videos",
-        "": "`x` Videos"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Wiedergabelisten",
-        "": "`x` Wiedergabelisten"
-    },
     "LIVE": "LIVE",
     "Shared `x` ago": "Vor `x` geteilt",
     "Unsubscribe": "Abo beenden",
@@ -127,22 +115,10 @@
     "Subscription manager": "Abonnementverwaltung",
     "Token manager": "Tokenverwalter",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Abonnements",
-        "": "`x` Abonnements"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Tokens",
-        "": "`x` Tokens"
-    },
     "Import/export": "Importieren/Exportieren",
     "unsubscribe": "abbestellen",
     "revoke": "widerrufen",
     "Subscriptions": "Abonnements",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ungesehene Benachrichtigungen",
-        "": "`x` ungesehene Benachrichtigungen"
-    },
     "search": "Suchen",
     "Log out": "Abmelden",
     "Released under the AGPLv3 on Github.": "Auf Github unter der AGPLv3 Lizenz veröffentlicht.",
@@ -176,10 +152,6 @@
     "Whitelisted regions: ": "Erlaubte Regionen: ",
     "Blacklisted regions: ": "Unerlaubte Regionen: ",
     "Shared `x`": "Geteilt `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Aufrufe",
-        "": "`x` Aufrufe"
-    },
     "Premieres in `x`": "Zuerst gesehen in `x`",
     "Premieres `x`": "Erster Start `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hallo! Anscheinend haben Sie JavaScript deaktiviert. Klicken Sie hier um Kommentare anzuzeigen, beachten sie dass es etwas länger dauern kann um sie zu laden.",
@@ -213,16 +185,8 @@
     "This channel does not exist.": "Dieser Kanal existiert nicht.",
     "Could not get channel info.": "Kanalinformationen konnten nicht geladen werden.",
     "Could not fetch comments": "Kommentare konnten nicht geladen werden",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Zeige `x` Antworten",
-        "": "Zeige `x` Antworten"
-    },
     "`x` ago": "vor `x`",
     "Load more": "Mehr laden",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Punkte",
-        "": "`x` Punkte"
-    },
     "Could not create mix.": "Mix konnte nicht erstellt werden.",
     "Empty playlist": "Wiedergabeliste ist leer",
     "Not a playlist.": "Ungültige Wiedergabeliste.",
@@ -340,34 +304,6 @@
     "Yiddish": "Jiddisch",
     "Yoruba": "Joruba",
     "Zulu": "Zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Jahre",
-        "": "`x` Jahre"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Monate",
-        "": "`x` Monate"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Wochen",
-        "": "`x` Wochen"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Tage",
-        "": "`x` Tage"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Stunden",
-        "": "`x` Stunden"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Minuten",
-        "": "`x` Minuten"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Sekunden",
-        "": "`x` Sekunden"
-    },
     "Fallback comments: ": "Alternative Kommentare: ",
     "Popular": "Populär",
     "Search": "Suchen",

@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` odběratelů",
-        "": "`x` odběratelů"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videí",
-        "": "`x` videí"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` playlist",
-        "": "`x` playlisty"
-    },
     "LIVE": "ŽIVĚ",
     "Shared `x` ago": "Sdíleno před `x`",
     "Unsubscribe": "Odhlásit odběr",
@@ -122,22 +110,10 @@
     "Subscription manager": "Správa Odběrů",
     "Token manager": "Správa klíčů",
     "Token": "Klíč",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Odběry",
-        "": "`x` Odebíraných kanálů"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` Klíčů",
-        "": "`x` klíčů"
-    },
     "Import/export": "Importovat/exportovat",
     "unsubscribe": "odhlásit odběr",
     "revoke": "vrátit zpět",
     "Subscriptions": "Odběry",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` nezhlédnutých oznámení",
-        "": "`x` nezhlédnutých oznámení"
-    },
     "search": "hledat",
     "Log out": "Odhlásit se",
     "Source available here.": "Zdrojový kód dostupný zde.",

@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnenter",
-        "": "`x` abonnenter"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videoer",
-        "": "`x` videoer"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` afspilningslister",
-        "": "`x` afspilningslister"
-    },
     "LIVE": "LIVE",
     "Shared `x` ago": "Delt for `x` siden",
     "Unsubscribe": "Opsig abonnement",
@@ -124,22 +112,10 @@
     "Subscription manager": "Abonnementsmanager",
     "Token manager": "Tokenmanager",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonnementer",
-        "": "`x`"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokens",
-        "": "`x` tokens"
-    },
     "Import/export": "Importer/eksporter",
     "unsubscribe": "opsig abonnement",
     "revoke": "tilbagekald",
     "Subscriptions": "Abonnementer",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` usete notifikationer",
-        "": "`x` usete notifikationer"
-    },
     "search": "søg",
     "Log out": "Log ud",
     "Source available here.": "Kilde tilgængelig her.",
@@ -170,10 +146,6 @@
     "Whitelisted regions: ": "Whitelistede regioner: ",
     "Blacklisted regions: ": "Blacklistede regioner: ",
     "Shared `x`": "Delt `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visninger.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` visninger"
-    },
     "Premieres in `x`": "Har premiere om `x`",
     "Premieres `x`": "Har premiere om `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hej! Det ser ud til at du har JavaScript slået fra. Klik her for at se kommentarer, vær opmærksom på at de kan tage længere om at indlæse.",
@@ -206,16 +178,8 @@
     "This channel does not exist.": "Denne kanal eksisterer ikke.",
     "Could not get channel info.": "Kunne ikke hente kanal info.",
     "Could not fetch comments": "Kunne ikke hente kommentarer",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` besvarelser",
-        "": "Vis 'x' besvarelser"
-    },
     "`x` ago": "'x' siden",
     "Load more": "Hent flere",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` point",
-        "": "'x' point"
-    },
     "Could not create mix.": "Kunne ikke skabe blanding.",
     "Empty playlist": "Tom playliste",
     "Not a playlist.": "Ikke en playliste.",
@@ -246,10 +210,6 @@
     "Malay": "Malaysisk",
     "Romanian": "Rumænsk",
     "Somali": "Somalisk",
-    "`x` years": {
-        "": "`x`år",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` år"
-    },
     "preferences_locale_label": "Sprog: ",
     "News": "Nyheder",
     "permalink": "permalink",
@@ -288,23 +248,11 @@
     "footer_modfied_source_code": "Modificeret Kildekode",
     "Released under the AGPLv3 on Github.": "Udgivet under AGPLv3 på Github.",
     "Tajik": "Tadsjikisk",
-    "`x` months": {
-        "": "`x`måneder",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`måned"
-    },
     "month": "Denne måned",
     "Hebrew": "Hebraisk",
     "Kannada": "Kannada",
-    "`x` weeks": {
-        "": "`x`uger",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`uge"
-    },
     "Current version: ": "Nuværende version: ",
     "Amharic": "Amharisk",
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`dag",
-        "": "`x`dage"
-    },
     "Swedish": "Svensk",
     "Corsican": "Korsikansk",
     "movie": "Film",
@@ -352,18 +300,6 @@
     "preferences_automatic_instance_redirect_label": "Automatisk eksempel omdirigering (Fallback til redirect.invidious.io): ",
     "Nepali": "Nepalesisk",
     "Norwegian Bokmål": "Norsk Bokmål",
-    "`x` hours": {
-        "": "`x` timer",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x`time"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minut",
-        "": "`x` minuter"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekund",
-        "": "`x` sekunder"
-    },
     "(edited)": "(ændret)",
     "preferences_show_nick_label": "Vis kælenavn på toppen: ",
     "Galician": "Galisisk",

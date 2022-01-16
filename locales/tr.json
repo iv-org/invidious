@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abone",
-        "": "`x` abone"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video",
-        "": "`x` video"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` oynatma listesi",
-        "": "`x` oynatma listesi"
-    },
     "LIVE": "CANLI",
     "Shared `x` ago": "`x` önce paylaşıldı",
     "Unsubscribe": "Abonelikten çık",
@@ -127,22 +115,10 @@
     "Subscription manager": "Abonelik yöneticisi",
     "Token manager": "Belirteç yöneticisi",
     "Token": "Belirteç",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` abonelik",
-        "": "`x` abonelik"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` belirteç",
-        "": "`x` belirteç"
-    },
     "Import/export": "İçe/dışa aktar",
     "unsubscribe": "abonelikten çık",
     "revoke": "geri al",
     "Subscriptions": "Abonelikler",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` okunmamış bildirim",
-        "": "`x` okunmamış bildirim"
-    },
     "search": "ara",
     "Log out": "Çıkış yap",
     "Released under the AGPLv3 on Github.": "Github'da AGPLv3 altında yayınlandı.",
@@ -176,10 +152,6 @@
     "Whitelisted regions: ": "Beyaz listeye alınan bölgeler: ",
     "Blacklisted regions: ": "Kara listeye alınan bölgeler: ",
     "Shared `x`": "`x` paylaşıldı",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` görüntüleme",
-        "": "`x` görüntüleme"
-    },
     "Premieres in `x`": "`x`içinde ilk gösterim",
     "Premieres `x`": "`x` ilk gösterim",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Merhaba! JavaScript'i kapatmış gibi görünüyorsun. Yorumları görüntülemek için buraya tıkla, yüklenmelerinin biraz uzun sürebileceğini unutma.",
@@ -213,16 +185,8 @@
     "This channel does not exist.": "Bu kanal mevcut değil.",
     "Could not get channel info.": "Kanal bilgisi alınamadı.",
     "Could not fetch comments": "Yorumlar alınamadı",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yanıtı görüntüle",
-        "": "`x` yanıtı görüntüle"
-    },
     "`x` ago": "`x` önce",
     "Load more": "Daha fazla yükle",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` puan",
-        "": "`x` puan"
-    },
     "Could not create mix.": "Mix oluşturulamadı.",
     "Empty playlist": "Boş oynatma listesi",
     "Not a playlist.": "Oynatma listesi değil.",
@@ -340,34 +304,6 @@
     "Yiddish": "Yiddiş",
     "Yoruba": "Yoruba dili",
     "Zulu": "Zuluca",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` yıl",
-        "": "`x` yıl"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` ay",
-        "": "`x` ay"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` hafta",
-        "": "`x` hafta"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gün",
-        "": "`x` gün"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saat",
-        "": "`x` saat"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dakika",
-        "": "`x` dakika"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` saniye",
-        "": "`x` saniye"
-    },
     "Fallback comments: ": "Yedek yorumlar: ",
     "Popular": "Popüler",
     "Search": "Ara",
@@ -462,5 +398,37 @@
     "360": "360°",
     "videoinfo_watch_on_youTube": "YouTube'da izle",
     "download_subtitles": "Alt yazılar - `x` (.vtt)",
-    "preferences_save_player_pos_label": "Geçerli video zamanını kaydet: "
+    "preferences_save_player_pos_label": "Oynatma konumunu kaydet: ",
+    "generic_views_count": "{{count}} görüntüleme",
+    "generic_views_count_plural": "{{count}} görüntüleme",
+    "generic_subscribers_count": "{{count}} abone",
+    "generic_subscribers_count_plural": "{{count}} abone",
+    "generic_subscriptions_count": "{{count}} abonelik",
+    "generic_subscriptions_count_plural": "{{count}} abonelik",
+    "subscriptions_unseen_notifs_count": "{{count}} okunmamış bildirim",
+    "subscriptions_unseen_notifs_count_plural": "{{count}} okunmamış bildirim",
+    "comments_points_count": "{{count}} puan",
+    "comments_points_count_plural": "{{count}} puan",
+    "generic_count_hours": "{{count}} saat",
+    "generic_count_hours_plural": "{{count}} saat",
+    "generic_count_minutes": "{{count}} dakika",
+    "generic_count_minutes_plural": "{{count}} dakika",
+    "generic_count_seconds": "{{count}} saniye",
+    "generic_count_seconds_plural": "{{count}} saniye",
+    "generic_playlists_count": "{{count}} oynatma listesi",
+    "generic_playlists_count_plural": "{{count}} oynatma listesi",
+    "tokens_count": "{{count}} belirteç",
+    "tokens_count_plural": "{{count}} belirteç",
+    "comments_view_x_replies": "{{count}} yanıtı görüntüle",
+    "comments_view_x_replies_plural": "{{count}} yanıtı görüntüle",
+    "generic_count_years": "{{count}} yıl",
+    "generic_count_years_plural": "{{count}} yıl",
+    "generic_count_months": "{{count}} ay",
+    "generic_count_months_plural": "{{count}} ay",
+    "generic_count_days": "{{count}} gün",
+    "generic_count_days_plural": "{{count}} gün",
+    "generic_videos_count": "{{count}} video",
+    "generic_videos_count_plural": "{{count}} video",
+    "generic_count_weeks": "{{count}} hafta",
+    "generic_count_weeks_plural": "{{count}} hafta"
 }

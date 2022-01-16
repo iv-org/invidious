@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pretplatnika",
-        "": "`x` pretplatnika"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` videa",
-        "": "`x` videa"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` zbirka",
-        "": "`x` zbirke"
-    },
     "LIVE": "UŽIVO",
     "Shared `x` ago": "Dijeljeno prije `x`",
     "Unsubscribe": "Odjavi pretplatu",
@@ -127,22 +115,10 @@
     "Subscription manager": "Upravljanje pretplatama",
     "Token manager": "Upravljanje tokenima",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pretplate",
-        "": "`x` pretplate"
-    },
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tokena",
-        "": "`x` tokena"
-    },
     "Import/export": "Uvezi/izvezi",
     "unsubscribe": "odjavi pretplatu",
     "revoke": "opozovi",
     "Subscriptions": "Pretplate",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` neviđene obavijesti",
-        "": "`x` neviđene obavijesti"
-    },
     "search": "traži",
     "Log out": "Odjavi se",
     "Released under the AGPLv3 on Github.": "Izdano pod licencom AGPLv3 na Github-u.",
@@ -176,10 +152,6 @@
     "Whitelisted regions: ": "Odobrene regije: ",
     "Blacklisted regions: ": "Blokirane regije: ",
     "Shared `x`": "Dijeljeno `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` gledanja.([^.,0-9]|^)1([^.,0-9]|$)",
-        "": "`x` gledanja"
-    },
     "Premieres in `x`": "Premijera za `x`",
     "Premieres `x`": "Premijera `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Bok! Izgleda da je JavaScript isključen. Pritisni ovdje za prikaz komentara. Učitavanje će možda trajati malo duže.",
@@ -213,16 +185,8 @@
     "This channel does not exist.": "Ovaj kanal ne postoji.",
     "Could not get channel info.": "Neuspjelo dobivanje podataka kanala.",
     "Could not fetch comments": "Neuspjelo dohvaćanje komentara",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Prikaži `x` odgovora",
-        "": "Prikaži `x` odgovora"
-    },
     "`x` ago": "prije `x`",
     "Load more": "Učitaj više",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` bodova",
-        "": "`x` bodova"
-    },
     "Could not create mix.": "Neuspjelo stvaranje miksa.",
     "Empty playlist": "Prazna zbirka",
     "Not a playlist.": "Nije zbirka.",
@@ -340,34 +304,6 @@
     "Yiddish": "Jidiš",
     "Yoruba": "Jorubški",
     "Zulu": "Zulu",
-    "`x` years": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` g",
-        "": "`x` g"
-    },
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mj",
-        "": "`x` mj"
-    },
-    "`x` weeks": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` tj",
-        "": "`x` tj"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dana",
-        "": "`x` dana"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` h",
-        "": "`x` h"
-    },
-    "`x` minutes": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` min",
-        "": "`x` min"
-    },
-    "`x` seconds": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` s",
-        "": "`x` s"
-    },
     "Fallback comments: ": "Alternativni komentari: ",
     "Popular": "Popularni",
     "Search": "Traži",

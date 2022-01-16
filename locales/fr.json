@@ -1,6 +1,6 @@
 {
     "generic_views_count": "{{count}} vue",
-    "generic_views_count_plural":"{{count}} vues",
+    "generic_views_count_plural": "{{count}} vues",
     "generic_videos_count": "{{count}} vidéo",
     "generic_videos_count_plural": "{{count}} vidéos",
     "generic_playlists_count": "{{count}} liste de lecture",
@@ -150,7 +150,7 @@
     "Create playlist": "Créer une liste de lecture",
     "Title": "Titre",
     "Playlist privacy": "Paramètres de confidentialité de la liste de lecture",
-    "Editing playlist `x`": "Liste de lecture modifier le `x`",
+    "Editing playlist `x`": "Modifier la liste de lecture `x`",
     "Show more": "Afficher plus",
     "Show less": "Afficher moins",
     "Watch on YouTube": "Voir la vidéo sur Youtube",
@@ -430,5 +430,5 @@
     "preferences_quality_dash_option_1440p": "1440p",
     "preferences_quality_dash_option_1080p": "1080p",
     "user_created_playlists": "`x` listes de lecture créées",
-    "preferences_save_player_pos_label": "Sauvegarder la durée actuelle de la vidéo : "
+    "preferences_save_player_pos_label": "Sauvegarder la position du lecteur : "
 }

@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` inscritos",
-        "": "`x` inscritos"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` vídeos",
-        "": "`x` vídeos"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` listas de reprodução",
-        "": "`x` listas de reprodução"
-    },
     "LIVE": "AO VIVO",
     "Shared `x` ago": "Compartilhado `x` atrás",
     "Unsubscribe": "Cancelar inscrição",
@@ -127,20 +115,12 @@
     "Subscription manager": "Gerenciador de inscrições",
     "Token manager": "Gerenciador de tokens",
     "Token": "Token",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` inscrições",
-        "": "`x` inscrições"
-    },
     "tokens_count": "{{count}} token",
     "tokens_count_plural": "{{count}} tokens",
     "Import/export": "Importar/Exportar",
     "unsubscribe": "cancelar inscrição",
     "revoke": "revogar",
     "Subscriptions": "Inscrições",
-    "`x` unseen notifications": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` notificações não visualizadas",
-        "": "`x` notificações não visualizadas"
-    },
     "search": "Pesquisar",
     "Log out": "Sair",
     "Released under the AGPLv3 on Github.": "Lançado sob a AGPLv3 no Github.",
@@ -174,10 +154,6 @@
     "Whitelisted regions: ": "Regiões permitidas: ",
     "Blacklisted regions: ": "Regiões bloqueadas: ",
     "Shared `x`": "Compartilhado `x`",
-    "`x` views": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` visualizações",
-        "": "`x` visualizações"
-    },
     "Premieres in `x`": "Estreia em `x`",
     "Premieres `x`": "Estreia `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Oi! Parece que seu JavaScript está desativado. Clique aqui para ver os comentários, entretanto eles podem levar um pouco mais de tempo para carregar.",
@@ -211,16 +187,8 @@
     "This channel does not exist.": "Este canal não existe.",
     "Could not get channel info.": "Não foi possível obter as informações do canal.",
     "Could not fetch comments": "Não foi possível obter os comentários",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` respostas",
-        "": "Ver `x` respostas"
-    },
     "`x` ago": "`x` atrás",
     "Load more": "Carregar mais",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pontos",
-        "": "`x` pontos"
-    },
     "Could not create mix.": "Não foi possível criar o mix.",
     "Empty playlist": "Lista de reprodução vazia",
     "Not a playlist.": "Não é uma lista de reprodução.",
