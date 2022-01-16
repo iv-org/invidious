@@ -1,16 +1,4 @@
 {
-    "`x` subscribers": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pratilac",
-        "": "`x` pratilaca"
-    },
-    "`x` videos": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` video zapis",
-        "": "`x` video zapisa"
-    },
-    "`x` playlists": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` spisak izvođenja",
-        "": "`x` spisaka izvođenja"
-    },
     "LIVE": "UŽIVO",
     "Shared `x` ago": "Podeljeno pre `x`",
     "Unsubscribe": "Prekini praćenje",
@@ -80,16 +68,8 @@
     "preferences_quality_dash_label": "Preferirani kvalitet DASH video formata: ",
     "Token manager": "Upravljanje žetonima",
     "Token": "Žeton",
-    "`x` tokens": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` žeton",
-        "": "`x` žetona"
-    },
     "Import/export": "Uvezi/Izvezi",
     "revoke": "opozovi",
-    "`x` unseen notifications": {
-        "": "`x` nepregledanih obaveštenja",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` nepregledanо obaveštenjе"
-    },
     "search": "pretraga",
     "Log out": "Odjava",
     "Source available here.": "Izvorna koda je ovde dostupna.",
@@ -105,10 +85,6 @@
     "Please log in": "Molimo vas da se prijavite",
     "channel:`x`": "kanal:`x`",
     "Could not fetch comments": "Uzimanje komentara nije uspelo",
-    "`x` points": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` poen",
-        "": "`x` poena"
-    },
     "Could not create mix.": "Pravljenje miksa nije uspelo.",
     "Empty playlist": "Prazna plej lista",
     "Not a playlist.": "Nije plej lista.",
@@ -145,14 +121,6 @@
     "Urdu": "Urdu",
     "Uzbek": "Uzbečki",
     "Vietnamese": "Vijetnamski",
-    "`x` minutes": {
-        "": "`x` minuta",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` minut"
-    },
-    "`x` seconds": {
-        "": "`x` sekundi",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sekunda"
-    },
     "Rating: ": "Ocena/e: ",
     "View as playlist": "Pogledaj kao plej listu",
     "Default": "Podrazumevan/o",
@@ -207,10 +175,6 @@
     "Engagement: ": "Angažovanje: ",
     "Whitelisted regions: ": "Dozvoljene oblasti: ",
     "Shared `x`": "Podeljeno `x`",
-    "`x` views": {
-        "": "`x` pregleda",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` pregled"
-    },
     "Premieres in `x`": "Premera u `x`",
     "Premieres `x`": "Premere u `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hej! Izgleda da ste onemogućili JavaScript. Kliknite ovde da vidite komentare, čuvajte na umu da ovo može da potraje duže dok se ne učitaju.",
@@ -248,22 +212,6 @@
     "Romanian": "Rumunski",
     "Welsh": "Velški",
     "Western Frisian": "Zapadnofrizijski",
-    "`x` years": {
-        "": "`x` godina",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` godina"
-    },
-    "`x` weeks": {
-        "": "`x` sedmica",
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sedmica"
-    },
-    "`x` days": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` dan",
-        "": "`x` dana"
-    },
-    "`x` hours": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` sat",
-        "": "`x` sati"
-    },
     "Fallback comments: ": "Komentari u slučaju otkazivanja: ",
     "Popular": "Popularno",
     "Search": "Pretraga",
@@ -291,10 +239,6 @@
     "`x` ago": "pre `x`",
     "Import/export data": "Uvezi/Izvezi podatke",
     "`x` uploaded a video": "`x` je otpremio/la video klip",
-    "View `x` replies": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Prikaži `x` odgovor",
-        "": "Prikaži `x` odgovora"
-    },
     "Delete account": "Obriši nalog",
     "preferences_default_home_label": "Podrazumevana početna stranica: ",
     "Serbian": "Srpski",
@@ -314,10 +258,6 @@
     "Dutch": "Holandski",
     "preferences_volume_label": "Jačina zvuka: ",
     "preferences_locale_label": "Jezik: ",
-    "`x` subscriptions": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` praćenje",
-        "": "`x` praćenja"
-    },
     "adminprefs_modified_source_code_url_label": "URL veza do skladišta sa Izmenjenom Izvornom Kodom",
     "Community": "Zajednica",
     "Video mode": "Video mod",
@@ -414,10 +354,6 @@
     "Korean": "Korejski",
     "Southern Sotho": "Južni Soto",
     "Thai": "Tajski",
-    "`x` months": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "`x` mesec",
-        "": "`x` meseci"
-    },
     "preferences_speed_label": "Podrazumevana brzina: ",
     "Dark mode: ": "Tamni režim: ",
     "dark": "tamno",
