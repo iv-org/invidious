@@ -330,18 +330,13 @@ module Invidious::Routes::API::V1::Videos
 
       begin
         comments, reddit_thread = fetch_reddit_comments(id, sort_by: sort_by)
-        content_html = template_reddit_comments(comments, locale)
-
-        content_html = fill_links(content_html, "https", "www.reddit.com")
-        content_html = replace_links(content_html)
       rescue ex
         comments = nil
         reddit_thread = nil
-        content_html = ""
       end
 
       if !reddit_thread || !comments
-        haltf env, 404
+        return error_json(404, "No reddit threads found")
       end
 
       if format == "json"
@@ -350,6 +345,9 @@ module Invidious::Routes::API::V1::Videos
 
         return reddit_thread.to_json
       else
+        content_html = template_reddit_comments(comments, locale)
+        content_html = fill_links(content_html, "https", "www.reddit.com")
+        content_html = replace_links(content_html)
         response = {
           "title"       => reddit_thread.title,
           "permalink"   => reddit_thread.permalink,
