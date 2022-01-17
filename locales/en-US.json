@@ -435,7 +435,7 @@
     "crash_page_before_reporting": "Before reporting a bug, make sure that you have:",
     "crash_page_refresh": "Tried to refresh the page",
     "crash_page_switch_instance": "Tried to use another instance",
-    "crash_page_read_the_faq": "looked at the <a href=\"`x`\">Frenquently Asked Queqtions (FAQ)</a>",
+    "crash_page_read_the_faq": "looked at the <a href=\"`x`\">Frenquently Asked Questions (FAQ)</a>",
     "crash_page_search_issue": "searched for <a href=\"`x`\">existing issues on Github</a>",
     "crash_page_report_issue": "If none of the above helped, please <a href=\"`x`\">open a new issue on GitHub</a> (preferably in English) and include the following text in your message (do NOT translate that text):"
 }
