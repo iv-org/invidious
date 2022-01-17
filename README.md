@@ -30,6 +30,8 @@
   <a href="https://invidious.io/">Website</a>
   &nbsp;•&nbsp; 
   <a href="https://instances.invidious.io/">Instances list</a>
+  &nbsp;•&nbsp;
+  <a href="https://docs.invidious.io/FAQ.md">FAQ</a>
   &nbsp;•&nbsp; 
   <a href="https://docs.invidious.io/">Documentation</a>
   &nbsp;•&nbsp;

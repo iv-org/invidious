@@ -430,5 +430,12 @@
     "user_created_playlists": "`x` created playlists",
     "user_saved_playlists": "`x` saved playlists",
     "Video unavailable": "Video unavailable",
-    "preferences_save_player_pos_label": "Save playback position: "
+    "preferences_save_player_pos_label": "Save playback position: ",
+    "crash_page_you_found_a_bug": "It looks like you found a bug in Invidious!",
+    "crash_page_before_reporting": "Before reporting a bug, make sure that you have:",
+    "crash_page_refresh": "tried to <a href=\"`x`\">refresh the page</a>",
+    "crash_page_switch_instance": "tried to <a href=\"`x`\">use another instance</a>",
+    "crash_page_read_the_faq": "read the <a href=\"`x`\">Frenquently Asked Questions (FAQ)</a>",
+    "crash_page_search_issue": "searched for <a href=\"`x`\">existing issues on Github</a>",
+    "crash_page_report_issue": "If none of the above helped, please <a href=\"`x`\">open a new issue on GitHub</a> (preferably in English) and include the following text in your message (do NOT translate that text):"
 }
