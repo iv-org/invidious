@@ -1,4 +1,7 @@
 class ChannelSearchException < InfoException
+  def initialize(channel : String)
+    super "Unable to find channel with id of '#{channel}'. Are you sure that's an actual channel id?"
+  end
 end
 
 def channel_search(query, page, channel)
@@ -9,7 +12,7 @@ def channel_search(query, page, channel)
     response = YT_POOL.client &.get("/c/#{channel}") if response.status_code == 404
     initial_data = extract_initial_data(response.body)
     ucid = initial_data.dig?("header", "c4TabbedHeaderRenderer", "channelId").try(&.as_s?)
-    raise ChannelSearchException.new("Impossible to extract channel ID from page") if !ucid
+    raise ChannelSearchException.new(channel) if !ucid
   else
     ucid = channel
   end
@@ -213,13 +216,7 @@ def process_search_query(query, page, user, region)
   search_query = (query.split(" ") - operators).join(" ")
 
   if channel
-    begin
-      count, items = channel_search(search_query, page, channel)
-    rescue ChannelSearchException
-      # most likely reason for this is that they provided an invalid channel id to the search
-      count = 0
-      items = [] of ChannelVideo
-    end
+    count, items = channel_search(search_query, page, channel)
   elsif subscriptions
     if view_name
       items = PG_DB.query_all("SELECT id,title,published,updated,ucid,author,length_seconds FROM (
