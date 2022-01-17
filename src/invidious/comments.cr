@@ -276,7 +276,7 @@ def fetch_reddit_comments(id, sort_by = "confidence")
 
     # For videos that have more than one thread, choose the one with the highest score
     threads = search_results.data.as(RedditListing).children
-    thread = threads.max_by? { |child| child.data.as(RedditLink).score }.try(&.data.as(RedditLink))
+    thread = threads.max_by?(&.data.as(RedditLink).score).try(&.data.as(RedditLink))
     result = thread.try do |t|
       body = client.get("/r/#{t.subreddit}/comments/#{t.id}.json?limit=100&sort=#{sort_by}", headers).body
       Array(RedditThing).from_json(body)
