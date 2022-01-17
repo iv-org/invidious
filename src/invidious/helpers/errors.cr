@@ -56,8 +56,8 @@ def error_template_helper(env : HTTP::Server::Context, locale : String?, status_
 
       <p><b>#{translate(locale, "crash_page_before_reporting")}</b></p>
       <ul>
-        <li><a href="#{env.request.resource}">#{translate(locale, "crash_page_refresh")}</a></li>
-        <li><a href="#{url_switch}">#{translate(locale, "crash_page_switch_instance")}</a></li>
+        <li>#{translate(locale, "crash_page_refresh", env.request.resource)}</li>
+        <li>#{translate(locale, "crash_page_switch_instance", url_switch)}</li>
         <li>#{translate(locale, "crash_page_read_the_faq", url_faq)}</li>
         <li>#{translate(locale, "crash_page_search_issue", url_search_issues)}</li>
       </ul>
