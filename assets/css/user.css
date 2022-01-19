@@ -1,0 +1,62 @@
+/*
+ * User pages CSS
+ *
+ * Used on all authenticated pages
+ * (subscriptions, account management, etc...)
+ *
+ * Part of invidious
+ * Copyright iv-org
+ * Licensed under AGPLv3
+*/
+
+/*
+ * User menu
+*/
+
+.user-menu, .user-tab {
+	margin: 10px 10px 20px 15px;
+	padding: 0;
+	background-color: #262626;
+}
+
+
+.user-menu ul {
+	padding: 0; margin: 0;
+}
+
+li.user-menu-tab {
+	padding: 2px 10px;
+	display: block;
+	border: 1px solid #7777;
+	border-bottom: none;
+}
+li.user-menu-tab:last-child {
+	border-bottom: 1px solid #7777;
+}
+
+li.user-menu-tab p,
+li.user-menu-tab a {
+	display: block;
+	padding: 2px;
+	margin: 8px 0;
+}
+
+li.user-menu-tab a:focus {
+	outline: 1px solid #129fea;
+}
+
+li.user-menu-tab.selected {
+	background-color: #363636;
+	font-weight: bold;
+	border: 1px solid #b0b0b0;
+}
+
+
+/*
+ * User "tab" (content container)
+*/
+
+.user-tab {
+	padding: 20px;
+	border: 1px solid #7777;
+}
