@@ -393,6 +393,11 @@ end
   # Support push notifications via PubSubHubbub
   Invidious::Routing.get "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_get
   Invidious::Routing.post "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_post
+
+  Invidious::Routing.get "/modify_notifications", Invidious::Routes::Notifications, :modify
+
+  Invidious::Routing.post "/subscription_ajax", Invidious::Routes::Subscriptions, :toggle_subscription
+  Invidious::Routing.get "/subscription_manager", Invidious::Routes::Subscriptions, :subscription_manager
 {% end %}
 
 Invidious::Routing.get "/ggpht/*", Invidious::Routes::Images, :ggpht
@@ -401,11 +406,6 @@ Invidious::Routing.get "/sb/:authority/:id/:storyboard/:index", Invidious::Route
 Invidious::Routing.get "/s_p/:id/:name", Invidious::Routes::Images, :s_p_image
 Invidious::Routing.get "/yts/img/:name", Invidious::Routes::Images, :yts_image
 Invidious::Routing.get "/vi/:id/:name", Invidious::Routes::Images, :thumbnails
-
-Invidious::Routing.get "/modify_notifications", Invidious::Routes::Notifications, :modify
-
-Invidious::Routing.post "/subscription_ajax", Invidious::Routes::Subscriptions, :toggle_subscription
-Invidious::Routing.get "/subscription_manager", Invidious::Routes::Subscriptions, :subscription_manager
 
 # API routes (macro)
 define_v1_api_routes()
