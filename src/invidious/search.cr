@@ -1,6 +1,7 @@
 class ChannelSearchException < InfoException
-  def initialize(channel : String)
-    super "Unable to find channel with id of '#{channel}'. Are you sure that's an actual channel id?"
+  getter channel : String
+
+  def initialize(@channel)
   end
 end
 
