@@ -14,7 +14,7 @@ module Invidious::Routes::API::V1::Misc
   # APIv1 currently uses the same logic for both
   # user playlists and Invidious playlists. This means that we can't
   # reasonably split them yet. This should be addressed in APIv2
-  def self.get_playlist(env)
+  def self.get_playlist(env : HTTP::Server::Context)
     locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
@@ -34,7 +34,7 @@ module Invidious::Routes::API::V1::Misc
     end
 
     begin
-      playlist = get_playlist(plid, locale)
+      playlist = get_playlist(plid)
     rescue ex : InfoException
       return error_json(404, ex)
     rescue ex
@@ -49,7 +49,7 @@ module Invidious::Routes::API::V1::Misc
     # includes into the playlist a maximum of 20 videos, before the offset
     if offset > 0
       lookback = offset < 50 ? offset : 50
-      response = playlist.to_json(offset - lookback, locale)
+      response = playlist.to_json(offset - lookback)
       json_response = JSON.parse(response)
     else
       #  Unless the continuation is really the offset 0, it becomes expensive.
@@ -58,13 +58,13 @@ module Invidious::Routes::API::V1::Misc
       #  it shouldn't happen often though
 
       lookback = 0
-      response = playlist.to_json(offset, locale, video_id: video_id)
+      response = playlist.to_json(offset, video_id: video_id)
       json_response = JSON.parse(response)
 
       if json_response["videos"].as_a[0]["index"] != offset
         offset = json_response["videos"].as_a[0]["index"].as_i
         lookback = offset < 50 ? offset : 50
-        response = playlist.to_json(offset - lookback, locale)
+        response = playlist.to_json(offset - lookback)
         json_response = JSON.parse(response)
       end
     end

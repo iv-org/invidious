@@ -125,7 +125,7 @@ module Invidious::Routes::API::V1::Authenticated
     JSON.build do |json|
       json.array do
         playlists.each do |playlist|
-          playlist.to_json(0, locale, json)
+          playlist.to_json(0, json)
         end
       end
     end

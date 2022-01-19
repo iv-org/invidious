@@ -90,7 +90,7 @@ struct Playlist
   property updated : Time
   property thumbnail : String?
 
-  def to_json(offset, locale, json : JSON::Builder, video_id : String? = nil)
+  def to_json(offset, json : JSON::Builder, video_id : String? = nil)
     json.object do
       json.field "type", "playlist"
       json.field "title", self.title
@@ -125,7 +125,7 @@ struct Playlist
 
       json.field "videos" do
         json.array do
-          videos = get_playlist_videos(self, offset: offset, locale: locale, video_id: video_id)
+          videos = get_playlist_videos(self, offset: offset, video_id: video_id)
           videos.each do |video|
             video.to_json(json)
           end
@@ -134,13 +134,9 @@ struct Playlist
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder? = nil, video_id : String? = nil)
-    if json
-      to_json(offset, locale, json, video_id: video_id)
-    else
-      JSON.build do |json|
-        to_json(offset, locale, json, video_id: video_id)
-      end
+  def to_json(offset, _json : Nil = nil, video_id : String? = nil)
+    JSON.build do |json|
+      to_json(offset, json, video_id: video_id)
     end
   end
 
@@ -179,7 +175,7 @@ struct InvidiousPlaylist
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder, video_id : String? = nil)
+  def to_json(offset, json : JSON::Builder, video_id : String? = nil)
     json.object do
       json.field "type", "invidiousPlaylist"
       json.field "title", self.title
@@ -205,7 +201,7 @@ struct InvidiousPlaylist
             offset = self.index.index(index) || 0
           end
 
-          videos = get_playlist_videos(self, offset: offset, locale: locale, video_id: video_id)
+          videos = get_playlist_videos(self, offset: offset, video_id: video_id)
           videos.each_with_index do |video, index|
             video.to_json(json, offset + index)
           end
@@ -214,13 +210,9 @@ struct InvidiousPlaylist
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder? = nil, video_id : String? = nil)
-    if json
-      to_json(offset, locale, json, video_id: video_id)
-    else
-      JSON.build do |json|
-        to_json(offset, locale, json, video_id: video_id)
-      end
+  def to_json(offset, _json : Nil = nil, video_id : String? = nil)
+    JSON.build do |json|
+      to_json(offset, json, video_id: video_id)
     end
   end
 
@@ -320,7 +312,7 @@ def produce_playlist_continuation(id, index)
   return continuation
 end
 
-def get_playlist(plid, locale, refresh = true, force_refresh = false)
+def get_playlist(plid : String)
   if plid.starts_with? "IV"
     if playlist = Invidious::Database::Playlists.select(id: plid)
       return playlist
@@ -328,11 +320,11 @@ def get_playlist(plid, locale, refresh = true, force_refresh = false)
       raise InfoException.new("Playlist does not exist.")
     end
   else
-    return fetch_playlist(plid, locale)
+    return fetch_playlist(plid)
   end
 end
 
-def fetch_playlist(plid, locale)
+def fetch_playlist(plid : String)
   if plid.starts_with? "UC"
     plid = "UU#{plid.lchop("UC")}"
   end
@@ -402,7 +394,7 @@ def fetch_playlist(plid, locale)
   })
 end
 
-def get_playlist_videos(playlist, offset, locale = nil, video_id = nil)
+def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32, video_id = nil)
   # Show empy playlist if requested page is out of range
   # (e.g, when a new playlist has been created, offset will be negative)
   if offset >= playlist.video_count || offset < 0
