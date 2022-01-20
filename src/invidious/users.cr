@@ -65,7 +65,6 @@ def fetch_user(sid, headers)
   feed = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
   feed = XML.parse_html(feed.body)
 
-  channels = [] of String
   channels = feed.xpath_nodes(%q(//ul[@id="guide-channels"]/li/a)).compact_map do |channel|
     if {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? channel["title"]
       nil
@@ -157,12 +156,11 @@ def generate_captcha(key)
   </svg>
   END_SVG
 
-  image = ""
-  convert = Process.run(%(rsvg-convert -w 400 -h 400 -b none -f png), shell: true,
-    input: IO::Memory.new(clock_svg), output: Process::Redirect::Pipe) do |proc|
-    image = proc.output.gets_to_end
-    image = Base64.strict_encode(image)
-    image = "data:image/png;base64,#{image}"
+  image = "data:image/png;base64,"
+  image += Process.run(%(rsvg-convert -w 400 -h 400 -b none -f png), shell: true,
+    input: IO::Memory.new(clock_svg), output: Process::Redirect::Pipe
+  ) do |proc|
+    Base64.strict_encode(proc.output.gets_to_end)
   end
 
   answer = "#{hour}:#{minute.to_s.rjust(2, '0')}:#{second.to_s.rjust(2, '0')}"

@@ -463,7 +463,6 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
       plid = i["navigationEndpoint"]["watchEndpoint"]["playlistId"].as_s
       index = i["navigationEndpoint"]["watchEndpoint"]["index"].as_i64
 
-      thumbnail = i["thumbnail"]["thumbnails"][0]["url"].as_s
       title = i["title"].try { |t| t["simpleText"]? || t["runs"]?.try &.[0]["text"]? }.try &.as_s || ""
       author = i["shortBylineText"]?.try &.["runs"][0]["text"].as_s || ""
       ucid = i["shortBylineText"]?.try &.["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s || ""
