@@ -54,7 +54,7 @@ module Invidious::Routes::Search
       user = env.get? "user"
 
       begin
-        search_query, count, videos, operators = process_search_query(query, page, user, region: region)
+        search_query, videos, operators = process_search_query(query, page, user, region: region)
       rescue ex : ChannelSearchException
         return error_template(404, "Unable to find channel with id of '#{HTML.escape(ex.channel)}'. Are you sure that's an actual channel id? It should look like 'UC4QobU6STFB0P71PMvOGN5A'.")
       rescue ex

@@ -247,15 +247,13 @@ module Invidious::Routes::Playlists
     query = env.params.query["q"]?
     if query
       begin
-        search_query, count, items, operators = process_search_query(query, page, user, region: nil)
+        search_query, items, operators = process_search_query(query, page, user, region: nil)
         videos = items.select(SearchVideo).map(&.as(SearchVideo))
       rescue ex
         videos = [] of SearchVideo
-        count = 0
       end
     else
       videos = [] of SearchVideo
-      count = 0
     end
 
     env.set "add_playlist_items", plid

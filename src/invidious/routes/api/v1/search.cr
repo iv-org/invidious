@@ -32,7 +32,7 @@ module Invidious::Routes::API::V1::Search
       return error_json(400, ex)
     end
 
-    count, search_results = search(query, search_params, region).as(Tuple)
+    search_results = search(query, search_params, region)
     JSON.build do |json|
       json.array do
         search_results.each do |item|
