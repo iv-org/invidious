@@ -202,8 +202,8 @@ struct InvidiousPlaylist
           end
 
           videos = get_playlist_videos(self, offset: offset, video_id: video_id)
-          videos.each_with_index do |video, index|
-            video.to_json(json, offset + index)
+          videos.each_with_index do |video, idx|
+            video.to_json(json, offset + idx)
           end
         end
       end

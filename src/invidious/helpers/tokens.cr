@@ -42,6 +42,9 @@ end
 def sign_token(key, hash)
   string_to_sign = [] of String
 
+  # TODO: figure out which "key" variable is used
+  # Ameba reports a warning for "Lint/ShadowingOuterLocalVar" on this
+  # variable, but its preferrable to not touch that (works fine atm).
   hash.each do |key, value|
     next if key == "signature"
 

@@ -661,8 +661,8 @@ struct Video
     url = URI.parse(storyboards.shift)
     params = HTTP::Params.parse(url.query || "")
 
-    storyboards.each_with_index do |storyboard, i|
-      width, height, count, storyboard_width, storyboard_height, interval, _, sigh = storyboard.split("#")
+    storyboards.each_with_index do |sb, i|
+      width, height, count, storyboard_width, storyboard_height, interval, _, sigh = sb.split("#")
       params["sigh"] = sigh
       url.query = params.to_s
 

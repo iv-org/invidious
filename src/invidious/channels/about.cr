@@ -96,7 +96,7 @@ def get_about_info(ucid, locale) : AboutChannel
         total_views = channel_about_meta["viewCountText"]?.try &.["simpleText"]?.try &.as_s.gsub(/\D/, "").to_i64? || 0_i64
 
         # The joined text is split to several sub strings. The reduce joins those strings before parsing the date.
-        joined = channel_about_meta["joinedDateText"]?.try &.["runs"]?.try &.as_a.reduce("") { |acc, node| acc + node["text"].as_s }
+        joined = channel_about_meta["joinedDateText"]?.try &.["runs"]?.try &.as_a.reduce("") { |acc, nd| acc + nd["text"].as_s }
           .try { |text| Time.parse(text, "Joined %b %-d, %Y", Time::Location.local) } || Time.unix(0)
 
         # Normal Auto-generated channels
@@ -136,7 +136,8 @@ def fetch_related_channels(about_channel : AboutChannel) : Array(AboutRelatedCha
   channels = YoutubeAPI.browse(browse_id: about_channel.ucid, params: "EghjaGFubmVscw%3D%3D")
 
   tabs = channels.dig?("contents", "twoColumnBrowseResultsRenderer", "tabs").try(&.as_a?) || [] of JSON::Any
-  tab = tabs.find { |tab| tab.dig?("tabRenderer", "title").try(&.as_s?) == "Channels" }
+  tab = tabs.find(&.dig?("tabRenderer", "title").try(&.as_s?).try(&.== "Channels"))
+
   return [] of AboutRelatedChannel if tab.nil?
 
   items = tab.dig?("tabRenderer", "content", "sectionListRenderer", "contents", 0, "itemSectionRenderer", "contents", 0, "gridRenderer", "items").try(&.as_a?) || [] of JSON::Any
