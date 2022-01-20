@@ -44,13 +44,9 @@ struct ChannelVideo
     end
   end
 
-  def to_json(locale, json : JSON::Builder | Nil = nil)
-    if json
+  def to_json(locale, _json : Nil = nil)
+    JSON.build do |json|
       to_json(locale, json)
-    else
-      JSON.build do |json|
-        to_json(locale, json)
-      end
     end
   end
 
@@ -88,13 +84,9 @@ struct ChannelVideo
     end
   end
 
-  def to_xml(locale, xml : XML::Builder | Nil = nil)
-    if xml
+  def to_xml(locale, _xml : Nil = nil)
+    XML.build do |xml|
       to_xml(locale, xml)
-    else
-      XML.build do |xml|
-        to_xml(locale, xml)
-      end
     end
   end
 
