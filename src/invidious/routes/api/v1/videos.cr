@@ -20,8 +20,6 @@ module Invidious::Routes::API::V1::Videos
   end
 
   def self.captions(env)
-    locale = env.get("preferences").as(Preferences).locale
-
     env.response.content_type = "application/json"
 
     id = env.params.url["id"]
@@ -149,8 +147,6 @@ module Invidious::Routes::API::V1::Videos
   # thumbnails for individual scenes in a video.
   # See https://support.jwplayer.com/articles/how-to-add-preview-thumbnails
   def self.storyboards(env)
-    locale = env.get("preferences").as(Preferences).locale
-
     env.response.content_type = "application/json"
 
     id = env.params.url["id"]
@@ -223,8 +219,6 @@ module Invidious::Routes::API::V1::Videos
   end
 
   def self.annotations(env)
-    locale = env.get("preferences").as(Preferences).locale
-
     env.response.content_type = "text/xml"
 
     id = env.params.url["id"]

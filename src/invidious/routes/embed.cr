@@ -2,8 +2,6 @@
 
 module Invidious::Routes::Embed
   def self.redirect(env)
-    locale = env.get("preferences").as(Preferences).locale
-
     if plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
       begin
         playlist = get_playlist(plid)
@@ -26,7 +24,6 @@ module Invidious::Routes::Embed
   end
 
   def self.show(env)
-    locale = env.get("preferences").as(Preferences).locale
     id = env.params.url["id"]
 
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")

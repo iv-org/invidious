@@ -1,7 +1,6 @@
 module Invidious::Routes::API::V1::Misc
   # Stats API endpoint for Invidious
   def self.stats(env)
-    locale = env.get("preferences").as(Preferences).locale
     env.response.content_type = "application/json"
 
     if !CONFIG.statistics_enabled
@@ -15,8 +14,6 @@ module Invidious::Routes::API::V1::Misc
   # user playlists and Invidious playlists. This means that we can't
   # reasonably split them yet. This should be addressed in APIv2
   def self.get_playlist(env : HTTP::Server::Context)
-    locale = env.get("preferences").as(Preferences).locale
-
     env.response.content_type = "application/json"
     plid = env.params.url["plid"]
 
