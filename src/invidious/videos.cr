@@ -687,7 +687,7 @@ struct Video
   end
 
   def paid
-    reason = info.dig?("playabilityStatus", "reason") || ""
+    reason = info.dig?("playabilityStatus", "reason").try &.as_s || ""
     return reason.includes? "requires payment"
   end
 
@@ -712,7 +712,7 @@ struct Video
   end
 
   def description
-    description = info!
+    description = info
       .dig?("microformat", "playerMicroformatRenderer", "description", "simpleText")
       .try &.as_s || ""
   end

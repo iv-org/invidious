@@ -27,10 +27,9 @@ def channel_search(query, page, channel) : Array(SearchItem)
   return [] of SearchItem if !continuation_items
 
   items = [] of SearchItem
-  continuation_items.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each { |item|
-    extract_item(item["itemSectionRenderer"]["contents"].as_a[0])
-      .try { |t| items << t }
-  }
+  continuation_items.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each do |item|
+    extract_item(item["itemSectionRenderer"]["contents"].as_a[0]).try { |t| items << t }
+  end
 
   return items
 end
