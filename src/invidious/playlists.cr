@@ -331,10 +331,10 @@ def fetch_playlist(plid : String)
 
   initial_data = YoutubeAPI.browse("VL" + plid, params: "")
 
-  playlist_sidebar_renderer = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?
+  playlist_sidebar_renderer = initial_data.dig?("sidebar", "playlistSidebarRenderer", "items")
   raise InfoException.new("Could not extract playlistSidebarRenderer.") if !playlist_sidebar_renderer
 
-  playlist_info = playlist_sidebar_renderer[0]["playlistSidebarPrimaryInfoRenderer"]?
+  playlist_info = playlist_sidebar_renderer.dig?(0, "playlistSidebarPrimaryInfoRenderer")
   raise InfoException.new("Could not extract playlist info") if !playlist_info
 
   title = playlist_info.dig?("title", "runs", 0, "text").try &.as_s || ""
@@ -347,12 +347,15 @@ def fetch_playlist(plid : String)
   description_html = desc_item.try &.["runs"]?.try &.as_a
     .try { |run| content_to_comment_html(run).try &.to_s } || "<p></p>"
 
-  thumbnail = playlist_info["thumbnailRenderer"]?.try &.["playlistVideoThumbnailRenderer"]?
-    .try &.["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s
+  thumbnail = playlist_info.dig?(
+    "thumbnailRenderer", "playlistVideoThumbnailRenderer",
+    "thumbnail", "thumbnails", 0, "url"
+  ).try &.as_s
 
   views = 0_i64
   updated = Time.utc
   video_count = 0
+
   playlist_info["stats"]?.try &.as_a.each do |stat|
     text = stat["runs"]?.try &.as_a.map(&.["text"].as_s).join("") || stat["simpleText"]?.try &.as_s
     next if !text
@@ -371,12 +374,15 @@ def fetch_playlist(plid : String)
     author_thumbnail = ""
     ucid = ""
   else
-    author_info = playlist_sidebar_renderer[1]["playlistSidebarSecondaryInfoRenderer"]?.try &.["videoOwner"]["videoOwnerRenderer"]?
+    author_info = playlist_sidebar_renderer[1].dig?(
+      "playlistSidebarSecondaryInfoRenderer", "videoOwner", "videoOwnerRenderer"
+    )
+
     raise InfoException.new("Could not extract author info") if !author_info
 
-    author = author_info["title"]["runs"][0]["text"]?.try &.as_s || ""
-    author_thumbnail = author_info["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s || ""
-    ucid = author_info["title"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"]?.try &.as_s || ""
+    author = author_info.dig?("title", "runs", 0, "text").try &.as_s || ""
+    author_thumbnail = author_info.dig?("thumbnail", "thumbnails", 0, "url").try &.as_s || ""
+    ucid = author_info.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
   end
 
   return Playlist.new({
