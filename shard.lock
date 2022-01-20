@@ -48,3 +48,6 @@ shards:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
     version: 0.18.0
 
+  ameba:
+    git: https://github.com/crystal-ameba/ameba.git
+    version: 0.14.3
