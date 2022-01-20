@@ -138,7 +138,7 @@ module Invidious::Routes::API::V1::Authenticated
       return error_json(400, "Invalid title.")
     end
 
-    privacy = env.params.json["privacy"]?.try { |privacy| PlaylistPrivacy.parse(privacy.as(String).downcase) }
+    privacy = env.params.json["privacy"]?.try { |p| PlaylistPrivacy.parse(p.as(String).downcase) }
     if !privacy
       return error_json(400, "Invalid privacy setting.")
     end
@@ -175,7 +175,7 @@ module Invidious::Routes::API::V1::Authenticated
     end
 
     title = env.params.json["title"].try &.as(String).delete("<>").byte_slice(0, 150) || playlist.title
-    privacy = env.params.json["privacy"]?.try { |privacy| PlaylistPrivacy.parse(privacy.as(String).downcase) } || playlist.privacy
+    privacy = env.params.json["privacy"]?.try { |p| PlaylistPrivacy.parse(p.as(String).downcase) } || playlist.privacy
     description = env.params.json["description"]?.try &.as(String).delete("\r") || playlist.description
 
     if title != playlist.title ||

@@ -71,9 +71,9 @@ module Invidious::Routes::API::V1::Videos
     env.response.content_type = "text/vtt; charset=UTF-8"
 
     if lang
-      caption = captions.select { |caption| caption.language_code == lang }
+      caption = captions.select(&.language_code.== lang)
     else
-      caption = captions.select { |caption| caption.name == label }
+      caption = captions.select(&.name.== label)
     end
 
     if caption.empty?
@@ -179,7 +179,7 @@ module Invidious::Routes::API::V1::Videos
 
     env.response.content_type = "text/vtt"
 
-    storyboard = storyboards.select { |storyboard| width == "#{storyboard[:width]}" || height == "#{storyboard[:height]}" }
+    storyboard = storyboards.select { |sb| width == "#{sb[:width]}" || height == "#{sb[:height]}" }
 
     if storyboard.empty?
       haltf env, 404
