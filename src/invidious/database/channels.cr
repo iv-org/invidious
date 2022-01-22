@@ -82,7 +82,7 @@ module Invidious::Database::Channels
       SELECT * FROM channels
     SQL
 
-    return PG_DB.query_all(rqeuest, as: InvidiousChannel)
+    return PG_DB.query_all(request, as: InvidiousChannel)
   end
 end
 

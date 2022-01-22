@@ -132,7 +132,7 @@ end
 # Start jobs
 
 if CONFIG.channel_threads > 0
-  Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new(PG_DB)
+  Invidious::Jobs.register Invidious::Jobs::RefreshChannelsJob.new
 end
 
 if CONFIG.feed_threads > 0

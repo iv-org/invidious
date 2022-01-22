@@ -1,9 +1,4 @@
 class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
-  private getter db : DB::Database
-
-  def initialize(@db)
-  end
-
   def begin
     max_fibers = CONFIG.channel_threads
     lim_fibers = max_fibers
