@@ -92,7 +92,7 @@ module Invidious::Routes::API::V1::Authenticated
     ucid = env.params.url["ucid"]
 
     if !user.subscriptions.includes? ucid
-      get_channel(ucid, false, false)
+      get_channel(ucid)
       Invidious::Database::Users.subscribe_channel(user, ucid)
     end
 

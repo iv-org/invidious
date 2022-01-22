@@ -51,7 +51,7 @@ module Invidious::Routes::Subscriptions
     case action
     when "action_create_subscription_to_channel"
       if !user.subscriptions.includes? channel_id
-        get_channel(channel_id, false, false)
+        get_channel(channel_id)
         Invidious::Database::Users.subscribe_channel(user, channel_id)
       end
     when "action_remove_subscriptions"

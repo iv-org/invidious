@@ -327,7 +327,7 @@ module Invidious::Routes::PreferencesRoute
             user.subscriptions += body["subscriptions"].as_a.map(&.as_s)
             user.subscriptions.uniq!
 
-            user.subscriptions = get_batch_channels(user.subscriptions, false, false)
+            user.subscriptions = get_batch_channels(user.subscriptions)
 
             Invidious::Database::Users.update_subscriptions(user)
           end
@@ -409,7 +409,7 @@ module Invidious::Routes::PreferencesRoute
           end
 
           user.subscriptions.uniq!
-          user.subscriptions = get_batch_channels(user.subscriptions, false, false)
+          user.subscriptions = get_batch_channels(user.subscriptions)
 
           Invidious::Database::Users.update_subscriptions(user)
         when "import_freetube"
@@ -418,7 +418,7 @@ module Invidious::Routes::PreferencesRoute
           end
           user.subscriptions.uniq!
 
-          user.subscriptions = get_batch_channels(user.subscriptions, false, false)
+          user.subscriptions = get_batch_channels(user.subscriptions)
 
           Invidious::Database::Users.update_subscriptions(user)
         when "import_newpipe_subscriptions"
@@ -437,7 +437,7 @@ module Invidious::Routes::PreferencesRoute
           end
           user.subscriptions.uniq!
 
-          user.subscriptions = get_batch_channels(user.subscriptions, false, false)
+          user.subscriptions = get_batch_channels(user.subscriptions)
 
           Invidious::Database::Users.update_subscriptions(user)
         when "import_newpipe"
@@ -456,7 +456,7 @@ module Invidious::Routes::PreferencesRoute
                 user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map(&.lchop("https://www.youtube.com/channel/"))
                 user.subscriptions.uniq!
 
-                user.subscriptions = get_batch_channels(user.subscriptions, false, false)
+                user.subscriptions = get_batch_channels(user.subscriptions)
 
                 Invidious::Database::Users.update_subscriptions(user)
 
