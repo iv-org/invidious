@@ -76,6 +76,14 @@ module Invidious::Database::Channels
 
     return PG_DB.query_all(request, as: InvidiousChannel)
   end
+
+  def select_all : Array(InvidiousChannel)
+    request = <<-SQL
+      SELECT * FROM channels
+    SQL
+
+    return PG_DB.query_all(rqeuest, as: InvidiousChannel)
+  end
 end
 
 #
