@@ -2,7 +2,7 @@
 
 -- DROP TABLE public.playlist_videos;
 
-CREATE TABLE IF NOT EXISTS playlist_videos
+CREATE TABLE IF NOT EXISTS public.playlist_videos
 (
     title text,
     id text,
