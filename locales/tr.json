@@ -430,5 +430,12 @@
     "generic_videos_count": "{{count}} video",
     "generic_videos_count_plural": "{{count}} video",
     "generic_count_weeks": "{{count}} hafta",
-    "generic_count_weeks_plural": "{{count}} hafta"
+    "generic_count_weeks_plural": "{{count}} hafta",
+    "crash_page_you_found_a_bug": "Görünüşe göre Invidious'ta bir hata buldunuz!",
+    "crash_page_before_reporting": "Bir hatayı bildirmeden önce, şunları yaptığınızdan emin olun:",
+    "crash_page_refresh": "<a href=\"`x`\">sayfayı yenilemeye</a> çalıştınız",
+    "crash_page_switch_instance": "<a href=\"`x`\">başka bir örnek kullanmaya</a> çalıştınız",
+    "crash_page_read_the_faq": "<a href=\"`x`\">Sık Sorulan Soruları (SSS)</a> okudunuz",
+    "crash_page_search_issue": "<a href=\"`x`\">Github'daki sorunlarda</a> aradınız",
+    "crash_page_report_issue": "Yukarıdakilerin hiçbiri yardımcı olmadıysa, lütfen <a href=\"`x`\">GitHub'da yeni bir sorun açın</a> (tercihen İngilizce) ve mesajınıza aşağıdaki metni ekleyin (bu metni ÇEVİRMEYİN):"
 }
