@@ -428,5 +428,12 @@
     "generic_count_minutes": "{{count}} minuto",
     "generic_count_minutes_plural": "{{count}} minutos",
     "generic_count_seconds": "{{count}} segundo",
-    "generic_count_seconds_plural": "{{count}} segundos"
+    "generic_count_seconds_plural": "{{count}} segundos",
+    "crash_page_before_reporting": "Antes de notificar un error asegúrate de que has:",
+    "crash_page_switch_instance": "probado a <a href=\"`x`\">usar otra instancia</a>",
+    "crash_page_read_the_faq": "leído las <a href=\"`x`\">Preguntas Frecuentes</a>",
+    "crash_page_search_issue": "buscado <a href=\"`x`\">problemas existentes en Github</a>",
+    "crash_page_you_found_a_bug": "¡Parece que has encontrado un error en Invidious!",
+    "crash_page_refresh": "probado a <a href=\"`x`\">recargar la página</a>",
+    "crash_page_report_issue": "Si nada de lo anterior ha sido de ayuda, por favor, <a href=\"`x`\">abre una nueva incidencia en GitHub</a> (preferiblemente en inglés) e incluye el siguiente texto en tu mensaje (NO traduzcas este texto):"
 }
