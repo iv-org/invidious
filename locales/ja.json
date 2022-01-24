@@ -80,7 +80,7 @@
     "light": "ライト",
     "preferences_thin_mode_label": "最小モード: ",
     "preferences_category_misc": "雑設定",
-    "preferences_automatic_instance_redirect_label": "自動インスタンスの移転（redirect.invidious.ioにフォールバック）： ",
+    "preferences_automatic_instance_redirect_label": "自動的なインスタンスの移転（redirect.invidious.ioにフォールバック）： ",
     "preferences_category_subscription": "登録チャンネル設定",
     "preferences_annotations_subscribed_label": "デフォルトで登録チャンネルのアノテーションを表示しますか？ ",
     "Redirect homepage to feed: ": "ホームからフィードにリダイレクト: ",
@@ -401,5 +401,15 @@
     "preferences_quality_dash_option_1440p": "1440p",
     "preferences_quality_dash_option_480p": "480p",
     "videoinfo_youTube_embed_link": "埋め込み",
-    "videoinfo_invidious_embed_link": "埋め込みリンク"
+    "videoinfo_invidious_embed_link": "埋め込みリンク",
+    "none": "なし",
+    "download_subtitles": "字幕 - `x` (.vtt)",
+    "purchased": "購入済み",
+    "preferences_quality_option_dash": "DASH (適切な品質)",
+    "preferences_quality_dash_option_worst": "最悪",
+    "preferences_quality_dash_option_best": "最高",
+    "videoinfo_started_streaming_x_ago": "`x`分前に配信を開始",
+    "videoinfo_watch_on_youTube": "YouTube上で見る",
+    "user_created_playlists": "`x`が作成したプレイリスト",
+    "Video unavailable": "ビデオは利用できません"
 }
