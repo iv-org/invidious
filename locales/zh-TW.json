@@ -414,5 +414,12 @@
     "preferences_quality_option_medium": "中等",
     "preferences_quality_dash_option_auto": "自動",
     "preferences_quality_dash_option_best": "最佳",
-    "preferences_save_player_pos_label": "儲存播放位置： "
+    "preferences_save_player_pos_label": "儲存播放位置： ",
+    "crash_page_you_found_a_bug": "看來您在 Invidious 中發現了一隻臭蟲！",
+    "crash_page_refresh": "嘗試過<a href=\"`x`\">重新整理頁面</a>",
+    "crash_page_switch_instance": "嘗試<a href=\"`x`\">使用其他站台</a>",
+    "crash_page_read_the_faq": "閱讀<a href=\"`x`\">常見問題解答 (FAQ)</a>",
+    "crash_page_search_issue": "搜尋 <a href=\"`x`\">GitHub 上既有的問題</a>",
+    "crash_page_report_issue": "若以上的動作都沒有幫到忙，請<a href=\"`x`\">在 GitHub 上開啟新的議題</a>（請盡量使用英文）並在您的訊息中包含以下文字（不要翻譯文字）：",
+    "crash_page_before_reporting": "在回報臭蟲之前，請確保您有："
 }
