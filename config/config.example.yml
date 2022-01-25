@@ -157,10 +157,6 @@ https_only: false
 ## Note 2: Using QUIC prevents some captcha challenges from appearing.
 ## See: https://github.com/iv-org/invidious/issues/957#issuecomment-576424042
 ##
-## Note 3: As of 2021-11-12, Google seems to have disabled QUIC on
-## their servers. The default has been changed to 'false'.Read more
-## at: https://github.com/iv-org/invidious/issues/2577
-##
 ## Accepted values: true, false
 ## Default: false
 ##
