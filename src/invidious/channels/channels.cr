@@ -152,12 +152,14 @@ def get_batch_channels(channels)
   return final
 end
 
-def get_channel(id)
+def get_channel(id) : InvidiousChannel
   channel = Invidious::Database::Channels.select(id)
-  return channel if channel
 
-  channel = fetch_channel(id, pull_all_videos: false)
-  Invidious::Database::Channels.insert(channel)
+  if channel.nil? || (Time.utc - channel.updated) > 2.days
+    channel = fetch_channel(id, pull_all_videos: false)
+    Invidious::Database::Channels.insert(channel, update_on_conflict: true)
+  end
+
   return channel
 end
 

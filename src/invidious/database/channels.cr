@@ -10,13 +10,20 @@ module Invidious::Database::Channels
   #  Insert / delete
   # -------------------
 
-  def insert(channel : InvidiousChannel)
+  def insert(channel : InvidiousChannel, update_on_conflict : Bool = false)
     channel_array = channel.to_a
 
     request = <<-SQL
       INSERT INTO channels
       VALUES (#{arg_array(channel_array)})
     SQL
+
+    if update_on_conflict
+      request += <<-SQL
+        ON CONFLICT (id) DO UPDATE
+        SET author = $2, updated = $3
+      SQL
+    end
 
     PG_DB.exec(request, args: channel_array)
   end
