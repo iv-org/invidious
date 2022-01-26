@@ -77,14 +77,13 @@ module Invidious::Database::Channels
 
   def select(ids : Array(String)) : Array(InvidiousChannel)?
     return [] of InvidiousChannel if ids.empty?
-    values = ids.map { |id| %(('#{id}')) }.join(",")
 
     request = <<-SQL
       SELECT * FROM channels
-      WHERE id = ANY(VALUES #{values})
+      WHERE id = ANY($1)
     SQL
 
-    return PG_DB.query_all(request, as: InvidiousChannel)
+    return PG_DB.query_all(request, ids, as: InvidiousChannel)
   end
 end
 
@@ -127,11 +126,11 @@ module Invidious::Database::ChannelVideos
 
     request = <<-SQL
       SELECT * FROM channel_videos
-      WHERE id IN (#{arg_array(ids)})
+      WHERE id = ANY($1)
       ORDER BY published DESC
     SQL
 
-    return PG_DB.query_all(request, args: ids, as: ChannelVideo)
+    return PG_DB.query_all(request, ids, as: ChannelVideo)
   end
 
   def select_notfications(ucid : String, since : Time) : Array(ChannelVideo)
