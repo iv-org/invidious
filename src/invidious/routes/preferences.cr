@@ -316,7 +316,7 @@ module Invidious::Routes::PreferencesRoute
         body = part.body.gets_to_end
         type = part.headers["Content-Type"]
 
-        return if body.empty?
+        next if body.empty?
 
         # TODO: Unify into single import based on content-type
         case part.name
@@ -349,9 +349,9 @@ module Invidious::Routes::PreferencesRoute
               description = item["description"]?.try &.as_s?.try &.delete("\r")
               privacy = item["privacy"]?.try &.as_s?.try { |privacy| PlaylistPrivacy.parse? privacy }
 
-              return if !title
-              return if !description
-              return if !privacy
+              next if !title
+              next if !description
+              next if !privacy
 
               playlist = create_playlist(title, privacy, user)
               Invidious::Database::Playlists.update_description(playlist.id, description)
@@ -360,12 +360,12 @@ module Invidious::Routes::PreferencesRoute
                 raise InfoException.new("Playlist cannot have more than 500 videos") if idx > 500
 
                 video_id = video_id.try &.as_s?
-                return if !video_id
+                next if !video_id
 
                 begin
                   video = get_video(video_id)
                 rescue ex
-                  return
+                  next
                 end
 
                 playlist_video = PlaylistVideo.new({
@@ -425,12 +425,12 @@ module Invidious::Routes::PreferencesRoute
           body = JSON.parse(body)
           user.subscriptions += body["subscriptions"].as_a.compact_map do |channel|
             if match = channel["url"].as_s.match(/\/channel\/(?<channel>UC[a-zA-Z0-9_-]{22})/)
-              return match["channel"]
+              next match["channel"]
             elsif match = channel["url"].as_s.match(/\/user\/(?<user>.+)/)
               response = YT_POOL.client &.get("/user/#{match["user"]}?disable_polymer=1&hl=en&gl=US")
               html = XML.parse_html(response.body)
               ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
-              return ucid if ucid
+              next ucid if ucid
             end
 
             nil
