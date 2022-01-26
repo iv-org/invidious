@@ -35,31 +35,31 @@ module Invidious::Database::Channels
   def update_author(id : String, author : String)
     request = <<-SQL
       UPDATE channels
-      SET updated = $1, author = $2, deleted = false
-      WHERE id = $3
+      SET updated = now(), author = $1, deleted = false
+      WHERE id = $2
     SQL
 
-    PG_DB.exec(request, Time.utc, author, id)
+    PG_DB.exec(request, author, id)
   end
 
   def update_subscription_time(id : String)
     request = <<-SQL
       UPDATE channels
-      SET subscribed = $1
-      WHERE id = $2
+      SET subscribed = now()
+      WHERE id = $1
     SQL
 
-    PG_DB.exec(request, Time.utc, id)
+    PG_DB.exec(request, id)
   end
 
   def update_mark_deleted(id : String)
     request = <<-SQL
       UPDATE channels
-      SET updated = $1, deleted = true
-      WHERE id = $2
+      SET updated = now(), deleted = true
+      WHERE id = $1
     SQL
 
-    PG_DB.exec(request, Time.utc, id)
+    PG_DB.exec(request, id)
   end
 
   # -------------------

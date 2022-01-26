@@ -59,11 +59,11 @@ module Invidious::Database::Playlists
   def update_subscription_time(id : String)
     request = <<-SQL
       UPDATE playlists
-      SET subscribed = $1
-      WHERE id = $2
+      SET subscribed = now()
+      WHERE id = $1
     SQL
 
-    PG_DB.exec(request, Time.utc, id)
+    PG_DB.exec(request, id)
   end
 
   def update_video_added(id : String, index : String | Int64)
@@ -71,11 +71,11 @@ module Invidious::Database::Playlists
       UPDATE playlists
       SET index = array_append(index, $1),
           video_count = cardinality(index) + 1,
-          updated = $2
-      WHERE id = $3
+          updated = now()
+      WHERE id = $2
     SQL
 
-    PG_DB.exec(request, index, Time.utc, id)
+    PG_DB.exec(request, index, id)
   end
 
   def update_video_removed(id : String, index : String | Int64)
@@ -83,11 +83,11 @@ module Invidious::Database::Playlists
       UPDATE playlists
       SET index = array_remove(index, $1),
           video_count = cardinality(index) - 1,
-          updated = $2
-      WHERE id = $3
+          updated = now()
+      WHERE id = $2
     SQL
 
-    PG_DB.exec(request, index, Time.utc, id)
+    PG_DB.exec(request, index, id)
   end
 
   # -------------------
