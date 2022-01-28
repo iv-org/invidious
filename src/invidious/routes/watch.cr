@@ -200,4 +200,70 @@ module Invidious::Routes::Watch
 
     return env.redirect url
   end
+
+  def self.mark_watched(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    sid = env.get? "sid"
+    referer = get_referer(env, "/feed/subscriptions")
+
+    redirect = env.params.query["redirect"]?
+    redirect ||= "true"
+    redirect = redirect == "true"
+
+    if !user
+      if redirect
+        return env.redirect referer
+      else
+        return error_json(403, "No such user")
+      end
+    end
+
+    user = user.as(User)
+    sid = sid.as(String)
+    token = env.params.body["csrf_token"]?
+
+    id = env.params.query["id"]?
+    if !id
+      env.response.status_code = 400
+      return
+    end
+
+    begin
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
+    rescue ex
+      if redirect
+        return error_template(400, ex)
+      else
+        return error_json(400, ex)
+      end
+    end
+
+    if env.params.query["action_mark_watched"]?
+      action = "action_mark_watched"
+    elsif env.params.query["action_mark_unwatched"]?
+      action = "action_mark_unwatched"
+    else
+      return env.redirect referer
+    end
+
+    case action
+    when "action_mark_watched"
+      if !user.watched.includes? id
+        Invidious::Database::Users.mark_watched(user, id)
+      end
+    when "action_mark_unwatched"
+      Invidious::Database::Users.mark_unwatched(user, id)
+    else
+      return error_json(400, "Unsupported action #{action}")
+    end
+
+    if redirect
+      env.redirect referer
+    else
+      env.response.content_type = "application/json"
+      "{}"
+    end
+  end
 end

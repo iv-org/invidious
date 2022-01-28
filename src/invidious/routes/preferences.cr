@@ -285,4 +285,191 @@ module Invidious::Routes::PreferencesRoute
       "{}"
     end
   end
+
+  def self.data_control(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    referer = get_referer(env)
+
+    if !user
+      return env.redirect referer
+    end
+
+    user = user.as(User)
+
+    templated "data_control"
+  end
+
+  def self.update_data_control(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+    referer = get_referer(env)
+
+    if user
+      user = user.as(User)
+
+      # TODO: Find a way to prevent browser timeout
+
+      HTTP::FormData.parse(env.request) do |part|
+        body = part.body.gets_to_end
+        type = part.headers["Content-Type"]
+
+        next if body.empty?
+
+        # TODO: Unify into single import based on content-type
+        case part.name
+        when "import_invidious"
+          body = JSON.parse(body)
+
+          if body["subscriptions"]?
+            user.subscriptions += body["subscriptions"].as_a.map(&.as_s)
+            user.subscriptions.uniq!
+
+            user.subscriptions = get_batch_channels(user.subscriptions, false, false)
+
+            Invidious::Database::Users.update_subscriptions(user)
+          end
+
+          if body["watch_history"]?
+            user.watched += body["watch_history"].as_a.map(&.as_s)
+            user.watched.uniq!
+            Invidious::Database::Users.update_watch_history(user)
+          end
+
+          if body["preferences"]?
+            user.preferences = Preferences.from_json(body["preferences"].to_json)
+            Invidious::Database::Users.update_preferences(user)
+          end
+
+          if playlists = body["playlists"]?.try &.as_a?
+            playlists.each do |item|
+              title = item["title"]?.try &.as_s?.try &.delete("<>")
+              description = item["description"]?.try &.as_s?.try &.delete("\r")
+              privacy = item["privacy"]?.try &.as_s?.try { |privacy| PlaylistPrivacy.parse? privacy }
+
+              next if !title
+              next if !description
+              next if !privacy
+
+              playlist = create_playlist(title, privacy, user)
+              Invidious::Database::Playlists.update_description(playlist.id, description)
+
+              videos = item["videos"]?.try &.as_a?.try &.each_with_index do |video_id, idx|
+                raise InfoException.new("Playlist cannot have more than 500 videos") if idx > 500
+
+                video_id = video_id.try &.as_s?
+                next if !video_id
+
+                begin
+                  video = get_video(video_id)
+                rescue ex
+                  next
+                end
+
+                playlist_video = PlaylistVideo.new({
+                  title:          video.title,
+                  id:             video.id,
+                  author:         video.author,
+                  ucid:           video.ucid,
+                  length_seconds: video.length_seconds,
+                  published:      video.published,
+                  plid:           playlist.id,
+                  live_now:       video.live_now,
+                  index:          Random::Secure.rand(0_i64..Int64::MAX),
+                })
+
+                Invidious::Database::PlaylistVideos.insert(playlist_video)
+                Invidious::Database::Playlists.update_video_added(playlist.id, playlist_video.index)
+              end
+            end
+          end
+        when "import_youtube"
+          filename = part.filename || ""
+          extension = filename.split(".").last
+
+          if extension == "xml" || type == "application/xml" || type == "text/xml"
+            subscriptions = XML.parse(body)
+            user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
+              channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
+            end
+          elsif extension == "json" || type == "application/json"
+            subscriptions = JSON.parse(body)
+            user.subscriptions += subscriptions.as_a.compact_map do |entry|
+              entry["snippet"]["resourceId"]["channelId"].as_s
+            end
+          elsif extension == "csv" || type == "text/csv"
+            subscriptions = parse_subscription_export_csv(body)
+            user.subscriptions += subscriptions
+          else
+            haltf(env, status_code: 415,
+              response: error_template(415, "Invalid subscription file uploaded")
+            )
+          end
+
+          user.subscriptions.uniq!
+          user.subscriptions = get_batch_channels(user.subscriptions, false, false)
+
+          Invidious::Database::Users.update_subscriptions(user)
+        when "import_freetube"
+          user.subscriptions += body.scan(/"channelId":"(?<channel_id>[a-zA-Z0-9_-]{24})"/).map do |md|
+            md["channel_id"]
+          end
+          user.subscriptions.uniq!
+
+          user.subscriptions = get_batch_channels(user.subscriptions, false, false)
+
+          Invidious::Database::Users.update_subscriptions(user)
+        when "import_newpipe_subscriptions"
+          body = JSON.parse(body)
+          user.subscriptions += body["subscriptions"].as_a.compact_map do |channel|
+            if match = channel["url"].as_s.match(/\/channel\/(?<channel>UC[a-zA-Z0-9_-]{22})/)
+              next match["channel"]
+            elsif match = channel["url"].as_s.match(/\/user\/(?<user>.+)/)
+              response = YT_POOL.client &.get("/user/#{match["user"]}?disable_polymer=1&hl=en&gl=US")
+              html = XML.parse_html(response.body)
+              ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
+              next ucid if ucid
+            end
+
+            nil
+          end
+          user.subscriptions.uniq!
+
+          user.subscriptions = get_batch_channels(user.subscriptions, false, false)
+
+          Invidious::Database::Users.update_subscriptions(user)
+        when "import_newpipe"
+          Compress::Zip::Reader.open(IO::Memory.new(body)) do |file|
+            file.each_entry do |entry|
+              if entry.filename == "newpipe.db"
+                tempfile = File.tempfile(".db")
+                File.write(tempfile.path, entry.io.gets_to_end)
+                db = DB.open("sqlite3://" + tempfile.path)
+
+                user.watched += db.query_all("SELECT url FROM streams", as: String).map(&.lchop("https://www.youtube.com/watch?v="))
+                user.watched.uniq!
+
+                Invidious::Database::Users.update_watch_history(user)
+
+                user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map(&.lchop("https://www.youtube.com/channel/"))
+                user.subscriptions.uniq!
+
+                user.subscriptions = get_batch_channels(user.subscriptions, false, false)
+
+                Invidious::Database::Users.update_subscriptions(user)
+
+                db.close
+                tempfile.delete
+              end
+            end
+          end
+        else nil # Ignore
+        end
+      end
+    end
+
+    env.redirect referer
+  end
 end
