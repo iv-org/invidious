@@ -35,21 +35,31 @@ module Invidious::Database::Channels
   def update_author(id : String, author : String)
     request = <<-SQL
       UPDATE channels
-      SET updated = $1, author = $2, deleted = false
-      WHERE id = $3
+      SET updated = now(), author = $1, deleted = false
+      WHERE id = $2
     SQL
 
-    PG_DB.exec(request, Time.utc, author, id)
+    PG_DB.exec(request, author, id)
+  end
+
+  def update_subscription_time(id : String)
+    request = <<-SQL
+      UPDATE channels
+      SET subscribed = now()
+      WHERE id = $1
+    SQL
+
+    PG_DB.exec(request, id)
   end
 
   def update_mark_deleted(id : String)
     request = <<-SQL
       UPDATE channels
-      SET updated = $1, deleted = true
-      WHERE id = $2
+      SET updated = now(), deleted = true
+      WHERE id = $1
     SQL
 
-    PG_DB.exec(request, Time.utc, id)
+    PG_DB.exec(request, id)
   end
 
   # -------------------
@@ -67,14 +77,13 @@ module Invidious::Database::Channels
 
   def select(ids : Array(String)) : Array(InvidiousChannel)?
     return [] of InvidiousChannel if ids.empty?
-    values = ids.map { |id| %(('#{id}')) }.join(",")
 
     request = <<-SQL
       SELECT * FROM channels
-      WHERE id = ANY(VALUES #{values})
+      WHERE id = ANY($1)
     SQL
 
-    return PG_DB.query_all(request, as: InvidiousChannel)
+    return PG_DB.query_all(request, ids, as: InvidiousChannel)
   end
 end
 
@@ -117,11 +126,11 @@ module Invidious::Database::ChannelVideos
 
     request = <<-SQL
       SELECT * FROM channel_videos
-      WHERE id IN (#{arg_array(ids)})
+      WHERE id = ANY($1)
       ORDER BY published DESC
     SQL
 
-    return PG_DB.query_all(request, args: ids, as: ChannelVideo)
+    return PG_DB.query_all(request, ids, as: ChannelVideo)
   end
 
   def select_notfications(ucid : String, since : Time) : Array(ChannelVideo)

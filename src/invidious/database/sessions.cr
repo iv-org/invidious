@@ -10,12 +10,12 @@ module Invidious::Database::SessionIDs
   def insert(sid : String, email : String, handle_conflicts : Bool = false)
     request = <<-SQL
       INSERT INTO session_ids
-      VALUES ($1, $2, $3)
+      VALUES ($1, $2, now())
     SQL
 
     request += " ON CONFLICT (id) DO NOTHING" if handle_conflicts
 
-    PG_DB.exec(request, sid, email, Time.utc)
+    PG_DB.exec(request, sid, email)
   end
 
   # -------------------
