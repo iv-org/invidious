@@ -23,7 +23,7 @@ var options = {
     },
     html5: {
         preloadTextTracks: false,
-        hls: {
+        vhs: {
             overrideNative: true
         }
     }
@@ -50,7 +50,7 @@ var shareOptions = {
     embedCode: "<iframe id='ivplayer' width='640' height='360' src='" + embed_url + "' style='border:none;'></iframe>"
 }
 
-videojs.Hls.xhr.beforeRequest = function(options) {
+videojs.Vhs.xhr.beforeRequest = function(options) {
     if (options.uri.indexOf('videoplayback') === -1 && options.uri.indexOf('local=true') === -1) {
         options.uri = options.uri + '?local=true';
     }
