@@ -74,7 +74,7 @@ def fetch_user(sid, headers)
     end
   end
 
-  channels = get_batch_channels(channels, false, false)
+  channels = get_batch_channels(channels)
 
   email = feed.xpath_node(%q(//a[@class="yt-masthead-picker-header yt-masthead-picker-active-account"]))
   if email

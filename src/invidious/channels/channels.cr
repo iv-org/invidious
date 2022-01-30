@@ -114,8 +114,9 @@ class ChannelRedirect < Exception
   end
 end
 
-def get_batch_channels(channels, refresh = false, pull_all_videos = true, max_threads = 10)
+def get_batch_channels(channels)
   finished_channel = Channel(String | Nil).new
+  max_threads = 10
 
   spawn do
     active_threads = 0
@@ -130,7 +131,7 @@ def get_batch_channels(channels, refresh = false, pull_all_videos = true, max_th
       active_threads += 1
       spawn do
         begin
-          get_channel(ucid, refresh, pull_all_videos)
+          get_channel(ucid)
           finished_channel.send(ucid)
         rescue ex
           finished_channel.send(nil)
@@ -151,23 +152,20 @@ def get_batch_channels(channels, refresh = false, pull_all_videos = true, max_th
   return final
 end
 
-def get_channel(id, refresh = true, pull_all_videos = true)
-  if channel = Invidious::Database::Channels.select(id)
-    if refresh && Time.utc - channel.updated > 10.minutes
-      channel = fetch_channel(id, pull_all_videos: pull_all_videos)
-      Invidious::Database::Channels.insert(channel, update_on_conflict: true)
-    end
-  else
-    channel = fetch_channel(id, pull_all_videos: pull_all_videos)
-    Invidious::Database::Channels.insert(channel)
+def get_channel(id) : InvidiousChannel
+  channel = Invidious::Database::Channels.select(id)
+
+  if channel.nil? || (Time.utc - channel.updated) > 2.days
+    channel = fetch_channel(id, pull_all_videos: false)
+    Invidious::Database::Channels.insert(channel, update_on_conflict: true)
   end
 
   return channel
 end
 
-def fetch_channel(ucid, pull_all_videos = true, locale = nil)
+def fetch_channel(ucid, pull_all_videos : Bool)
   LOGGER.debug("fetch_channel: #{ucid}")
-  LOGGER.trace("fetch_channel: #{ucid} : pull_all_videos = #{pull_all_videos}, locale = #{locale}")
+  LOGGER.trace("fetch_channel: #{ucid} : pull_all_videos = #{pull_all_videos}")
 
   LOGGER.trace("fetch_channel: #{ucid} : Downloading RSS feed")
   rss = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{ucid}").body

@@ -30,7 +30,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
           spawn do
             begin
               LOGGER.trace("RefreshChannelsJob: #{id} fiber : Fetching channel")
-              channel = fetch_channel(id, CONFIG.full_refresh)
+              channel = fetch_channel(id, pull_all_videos: CONFIG.full_refresh)
 
               lim_fibers = max_fibers
 
