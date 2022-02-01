@@ -93,10 +93,6 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
     end
     contents = body["contents"]?
     header = body["header"]?
-    if body["continuations"]?
-      # Removable? Doesn't seem like this is used.
-      more_replies_continuation = body["continuations"][0]["nextContinuationData"]["continuation"].as_s
-    end
   else
     raise InfoException.new("Could not fetch comments")
   end

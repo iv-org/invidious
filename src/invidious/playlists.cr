@@ -90,7 +90,7 @@ struct Playlist
   property updated : Time
   property thumbnail : String?
 
-  def to_json(offset, locale, json : JSON::Builder, video_id : String? = nil)
+  def to_json(offset, json : JSON::Builder, video_id : String? = nil)
     json.object do
       json.field "type", "playlist"
       json.field "title", self.title
@@ -125,7 +125,7 @@ struct Playlist
 
       json.field "videos" do
         json.array do
-          videos = get_playlist_videos(self, offset: offset, locale: locale, video_id: video_id)
+          videos = get_playlist_videos(self, offset: offset, video_id: video_id)
           videos.each do |video|
             video.to_json(json)
           end
@@ -134,13 +134,9 @@ struct Playlist
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder? = nil, video_id : String? = nil)
-    if json
-      to_json(offset, locale, json, video_id: video_id)
-    else
-      JSON.build do |json|
-        to_json(offset, locale, json, video_id: video_id)
-      end
+  def to_json(offset, _json : Nil = nil, video_id : String? = nil)
+    JSON.build do |json|
+      to_json(offset, json, video_id: video_id)
     end
   end
 
@@ -179,7 +175,7 @@ struct InvidiousPlaylist
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder, video_id : String? = nil)
+  def to_json(offset, json : JSON::Builder, video_id : String? = nil)
     json.object do
       json.field "type", "invidiousPlaylist"
       json.field "title", self.title
@@ -205,22 +201,18 @@ struct InvidiousPlaylist
             offset = self.index.index(index) || 0
           end
 
-          videos = get_playlist_videos(self, offset: offset, locale: locale, video_id: video_id)
-          videos.each_with_index do |video, index|
-            video.to_json(json, offset + index)
+          videos = get_playlist_videos(self, offset: offset, video_id: video_id)
+          videos.each_with_index do |video, idx|
+            video.to_json(json, offset + idx)
           end
         end
       end
     end
   end
 
-  def to_json(offset, locale, json : JSON::Builder? = nil, video_id : String? = nil)
-    if json
-      to_json(offset, locale, json, video_id: video_id)
-    else
-      JSON.build do |json|
-        to_json(offset, locale, json, video_id: video_id)
-      end
+  def to_json(offset, _json : Nil = nil, video_id : String? = nil)
+    JSON.build do |json|
+      to_json(offset, json, video_id: video_id)
     end
   end
 
@@ -320,7 +312,7 @@ def produce_playlist_continuation(id, index)
   return continuation
 end
 
-def get_playlist(plid, locale, refresh = true, force_refresh = false)
+def get_playlist(plid : String)
   if plid.starts_with? "IV"
     if playlist = Invidious::Database::Playlists.select(id: plid)
       return playlist
@@ -328,21 +320,21 @@ def get_playlist(plid, locale, refresh = true, force_refresh = false)
       raise InfoException.new("Playlist does not exist.")
     end
   else
-    return fetch_playlist(plid, locale)
+    return fetch_playlist(plid)
   end
 end
 
-def fetch_playlist(plid, locale)
+def fetch_playlist(plid : String)
   if plid.starts_with? "UC"
     plid = "UU#{plid.lchop("UC")}"
   end
 
   initial_data = YoutubeAPI.browse("VL" + plid, params: "")
 
-  playlist_sidebar_renderer = initial_data["sidebar"]?.try &.["playlistSidebarRenderer"]?.try &.["items"]?
+  playlist_sidebar_renderer = initial_data.dig?("sidebar", "playlistSidebarRenderer", "items")
   raise InfoException.new("Could not extract playlistSidebarRenderer.") if !playlist_sidebar_renderer
 
-  playlist_info = playlist_sidebar_renderer[0]["playlistSidebarPrimaryInfoRenderer"]?
+  playlist_info = playlist_sidebar_renderer.dig?(0, "playlistSidebarPrimaryInfoRenderer")
   raise InfoException.new("Could not extract playlist info") if !playlist_info
 
   title = playlist_info.dig?("title", "runs", 0, "text").try &.as_s || ""
@@ -355,12 +347,15 @@ def fetch_playlist(plid, locale)
   description_html = desc_item.try &.["runs"]?.try &.as_a
     .try { |run| content_to_comment_html(run).try &.to_s } || "<p></p>"
 
-  thumbnail = playlist_info["thumbnailRenderer"]?.try &.["playlistVideoThumbnailRenderer"]?
-    .try &.["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s
+  thumbnail = playlist_info.dig?(
+    "thumbnailRenderer", "playlistVideoThumbnailRenderer",
+    "thumbnail", "thumbnails", 0, "url"
+  ).try &.as_s
 
   views = 0_i64
   updated = Time.utc
   video_count = 0
+
   playlist_info["stats"]?.try &.as_a.each do |stat|
     text = stat["runs"]?.try &.as_a.map(&.["text"].as_s).join("") || stat["simpleText"]?.try &.as_s
     next if !text
@@ -379,12 +374,15 @@ def fetch_playlist(plid, locale)
     author_thumbnail = ""
     ucid = ""
   else
-    author_info = playlist_sidebar_renderer[1]["playlistSidebarSecondaryInfoRenderer"]?.try &.["videoOwner"]["videoOwnerRenderer"]?
+    author_info = playlist_sidebar_renderer[1].dig?(
+      "playlistSidebarSecondaryInfoRenderer", "videoOwner", "videoOwnerRenderer"
+    )
+
     raise InfoException.new("Could not extract author info") if !author_info
 
-    author = author_info["title"]["runs"][0]["text"]?.try &.as_s || ""
-    author_thumbnail = author_info["thumbnail"]["thumbnails"][0]["url"]?.try &.as_s || ""
-    ucid = author_info["title"]["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"]?.try &.as_s || ""
+    author = author_info.dig?("title", "runs", 0, "text").try &.as_s || ""
+    author_thumbnail = author_info.dig?("thumbnail", "thumbnails", 0, "url").try &.as_s || ""
+    ucid = author_info.dig?("title", "runs", 0, "navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
   end
 
   return Playlist.new({
@@ -402,7 +400,7 @@ def fetch_playlist(plid, locale)
   })
 end
 
-def get_playlist_videos(playlist, offset, locale = nil, video_id = nil)
+def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32, video_id = nil)
   # Show empy playlist if requested page is out of range
   # (e.g, when a new playlist has been created, offset will be negative)
   if offset >= playlist.video_count || offset < 0
@@ -465,7 +463,6 @@ def extract_playlist_videos(initial_data : Hash(String, JSON::Any))
       plid = i["navigationEndpoint"]["watchEndpoint"]["playlistId"].as_s
       index = i["navigationEndpoint"]["watchEndpoint"]["index"].as_i64
 
-      thumbnail = i["thumbnail"]["thumbnails"][0]["url"].as_s
       title = i["title"].try { |t| t["simpleText"]? || t["runs"]?.try &.[0]["text"]? }.try &.as_s || ""
       author = i["shortBylineText"]?.try &.["runs"][0]["text"].as_s || ""
       ucid = i["shortBylineText"]?.try &.["runs"][0]["navigationEndpoint"]["browseEndpoint"]["browseId"].as_s || ""

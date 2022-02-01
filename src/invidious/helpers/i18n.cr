@@ -94,8 +94,8 @@ def translate(locale : String?, key : String, text : String | Nil = nil) : Strin
     translation = ""
     match_length = 0
 
-    raw_data.as_h.each do |key, value|
-      if md = text.try &.match(/#{key}/)
+    raw_data.as_h.each do |hash_key, value|
+      if md = text.try &.match(/#{hash_key}/)
         if md[0].size >= match_length
           translation = value.as_s
           match_length = md[0].size

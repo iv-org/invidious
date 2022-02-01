@@ -75,8 +75,8 @@ module Invidious::Routes::VideoPlayback
       end
 
       begin
-        client.get(url, headers) do |response|
-          response.headers.each do |key, value|
+        client.get(url, headers) do |resp|
+          resp.headers.each do |key, value|
             if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
               env.response.headers[key] = value
             end
@@ -84,7 +84,7 @@ module Invidious::Routes::VideoPlayback
 
           env.response.headers["Access-Control-Allow-Origin"] = "*"
 
-          if location = response.headers["Location"]?
+          if location = resp.headers["Location"]?
             location = URI.parse(location)
             location = "#{location.request_target}&host=#{location.host}"
 
@@ -95,7 +95,7 @@ module Invidious::Routes::VideoPlayback
             return env.redirect location
           end
 
-          IO.copy(response.body_io, env.response)
+          IO.copy(resp.body_io, env.response)
         end
       rescue ex
       end
@@ -132,15 +132,15 @@ module Invidious::Routes::VideoPlayback
         headers["Range"] = "bytes=#{chunk_start}-#{chunk_end}"
 
         begin
-          client.get(url, headers) do |response|
+          client.get(url, headers) do |resp|
             if first_chunk
-              if !env.request.headers["Range"]? && response.status_code == 206
+              if !env.request.headers["Range"]? && resp.status_code == 206
                 env.response.status_code = 200
               else
-                env.response.status_code = response.status_code
+                env.response.status_code = resp.status_code
               end
 
-              response.headers.each do |key, value|
+              resp.headers.each do |key, value|
                 if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase) && key.downcase != "content-range"
                   env.response.headers[key] = value
                 end
@@ -148,7 +148,7 @@ module Invidious::Routes::VideoPlayback
 
               env.response.headers["Access-Control-Allow-Origin"] = "*"
 
-              if location = response.headers["Location"]?
+              if location = resp.headers["Location"]?
                 location = URI.parse(location)
                 location = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
 
@@ -161,8 +161,8 @@ module Invidious::Routes::VideoPlayback
                 env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.encode_www_form(title)}\"; filename*=UTF-8''#{URI.encode_www_form(title)}"
               end
 
-              if !response.headers.includes_word?("Transfer-Encoding", "chunked")
-                content_length = response.headers["Content-Range"].split("/")[-1].to_i64
+              if !resp.headers.includes_word?("Transfer-Encoding", "chunked")
+                content_length = resp.headers["Content-Range"].split("/")[-1].to_i64
                 if env.request.headers["Range"]?
                   env.response.headers["Content-Range"] = "bytes #{range_start}-#{range_end || (content_length - 1)}/#{content_length}"
                   env.response.content_length = ((range_end.try &.+ 1) || content_length) - range_start
@@ -172,7 +172,7 @@ module Invidious::Routes::VideoPlayback
               end
             end
 
-            proxy_file(response, env)
+            proxy_file(resp, env)
           end
         rescue ex
           if ex.message != "Error reading socket: Connection reset by peer"

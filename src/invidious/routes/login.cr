@@ -425,9 +425,9 @@ module Invidious::Routes::Login
 
             found_valid_captcha = false
             error_exception = Exception.new
-            tokens.each do |token|
+            tokens.each do |tok|
               begin
-                validate_request(token, answer, env.request, HMAC_KEY, locale)
+                validate_request(tok, answer, env.request, HMAC_KEY, locale)
                 found_valid_captcha = true
               rescue ex
                 error_exception = ex

@@ -497,7 +497,7 @@ struct Video
   end
 
   def length_seconds : Int32
-    info["microformat"]?.try &.["playerMicroformatRenderer"]?.try &.["lengthSeconds"]?.try &.as_s.to_i ||
+    info.dig?("microformat", "playerMicroformatRenderer", "lengthSeconds").try &.as_s.to_i ||
       info["videoDetails"]["lengthSeconds"]?.try &.as_s.to_i || 0
   end
 
@@ -519,7 +519,9 @@ struct Video
   end
 
   def published : Time
-    info["microformat"]?.try &.["playerMicroformatRenderer"]?.try &.["publishDate"]?.try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) } || Time.utc
+    info
+      .dig?("microformat", "playerMicroformatRenderer", "publishDate")
+      .try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) } || Time.utc
   end
 
   def published=(other : Time)
@@ -545,8 +547,9 @@ struct Video
   end
 
   def premiere_timestamp : Time?
-    info["microformat"]?.try &.["playerMicroformatRenderer"]?
-      .try &.["liveBroadcastDetails"]?.try &.["startTimestamp"]?.try { |t| Time.parse_rfc3339(t.as_s) }
+    info
+      .dig?("microformat", "playerMicroformatRenderer", "liveBroadcastDetails", "startTimestamp")
+      .try { |t| Time.parse_rfc3339(t.as_s) }
   end
 
   def keywords
@@ -558,8 +561,9 @@ struct Video
   end
 
   def allowed_regions
-    info["microformat"]?.try &.["playerMicroformatRenderer"]?
-      .try &.["availableCountries"]?.try &.as_a.map &.as_s || [] of String
+    info
+      .dig("microformat", "playerMicroformatRenderer", "availableCountries")
+      .try &.as_a.map &.as_s || [] of String
   end
 
   def author_thumbnail : String
@@ -621,18 +625,11 @@ struct Video
   end
 
   def storyboards
-    storyboards = info["storyboards"]?
-      .try &.as_h
-        .try &.["playerStoryboardSpecRenderer"]?
-          .try &.["spec"]?
-            .try &.as_s.split("|")
+    storyboards = info.dig?("storyboards", "playerStoryboardSpecRenderer", "spec")
+      .try &.as_s.split("|")
 
     if !storyboards
-      if storyboard = info["storyboards"]?
-           .try &.as_h
-             .try &.["playerLiveStoryboardSpecRenderer"]?
-               .try &.["spec"]?
-                 .try &.as_s
+      if storyboard = info.dig?("storyboards", "playerLiveStoryboardSpecRenderer", "spec").try &.as_s
         return [{
           url:               storyboard.split("#")[0],
           width:             106,
@@ -661,8 +658,8 @@ struct Video
     url = URI.parse(storyboards.shift)
     params = HTTP::Params.parse(url.query || "")
 
-    storyboards.each_with_index do |storyboard, i|
-      width, height, count, storyboard_width, storyboard_height, interval, _, sigh = storyboard.split("#")
+    storyboards.each_with_index do |sb, i|
+      width, height, count, storyboard_width, storyboard_height, interval, _, sigh = sb.split("#")
       params["sigh"] = sigh
       url.query = params.to_s
 
@@ -690,9 +687,8 @@ struct Video
   end
 
   def paid
-    reason = info["playabilityStatus"]?.try &.["reason"]?
-    paid = reason == "This video requires payment to watch." ? true : false
-    paid
+    reason = info.dig?("playabilityStatus", "reason").try &.as_s || ""
+    return reason.includes? "requires payment"
   end
 
   def premium
@@ -716,8 +712,9 @@ struct Video
   end
 
   def description
-    description = info["microformat"]?.try &.["playerMicroformatRenderer"]?
-      .try &.["description"]?.try &.["simpleText"]?.try &.as_s || ""
+    description = info
+      .dig?("microformat", "playerMicroformatRenderer", "description", "simpleText")
+      .try &.as_s || ""
   end
 
   # TODO
@@ -738,11 +735,11 @@ struct Video
   end
 
   def hls_manifest_url : String?
-    info["streamingData"]?.try &.["hlsManifestUrl"]?.try &.as_s
+    info.dig?("streamingData", "hlsManifestUrl").try &.as_s
   end
 
   def dash_manifest_url
-    info["streamingData"]?.try &.["dashManifestUrl"]?.try &.as_s
+    info.dig?("streamingData", "dashManifestUrl").try &.as_s
   end
 
   def genre : String
@@ -758,7 +755,7 @@ struct Video
   end
 
   def is_family_friendly : Bool
-    info["microformat"]?.try &.["playerMicroformatRenderer"]["isFamilySafe"]?.try &.as_bool || false
+    info.dig?("microformat", "playerMicroformatRenderer", "isFamilySafe").try &.as_bool || false
   end
 
   def is_vr : Bool?

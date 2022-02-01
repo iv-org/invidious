@@ -6,8 +6,12 @@
 class InfoException < Exception
 end
 
+# -------------------
+#  Issue template
+# -------------------
+
 macro error_template(*args)
-  error_template_helper(env, locale, {{*args}})
+  error_template_helper(env, {{*args}})
 end
 
 def github_details(summary : String, content : String)
@@ -22,10 +26,12 @@ def github_details(summary : String, content : String)
   return HTML.escape(details)
 end
 
-def error_template_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, exception : Exception)
+def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
   if exception.is_a?(InfoException)
-    return error_template_helper(env, locale, status_code, exception.message || "")
+    return error_template_helper(env, status_code, exception.message || "")
   end
+
+  locale = env.get("preferences").as(Preferences).locale
 
   env.response.content_type = "text/html"
   env.response.status_code = status_code
@@ -77,70 +83,100 @@ def error_template_helper(env : HTTP::Server::Context, locale : String?, status_
   return templated "error"
 end
 
-def error_template_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, message : String)
+def error_template_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
   env.response.content_type = "text/html"
   env.response.status_code = status_code
+
+  locale = env.get("preferences").as(Preferences).locale
+
   error_message = translate(locale, message)
-  next_steps = error_redirect_helper(env, locale)
+  next_steps = error_redirect_helper(env)
+
   return templated "error"
 end
 
+# -------------------
+#  Atom feeds
+# -------------------
+
 macro error_atom(*args)
-  error_atom_helper(env, locale, {{*args}})
+  error_atom_helper(env, {{*args}})
 end
 
-def error_atom_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, exception : Exception)
+def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
   if exception.is_a?(InfoException)
-    return error_atom_helper(env, locale, status_code, exception.message || "")
+    return error_atom_helper(env, status_code, exception.message || "")
   end
+
   env.response.content_type = "application/atom+xml"
   env.response.status_code = status_code
+
   return "<error>#{exception.inspect_with_backtrace}</error>"
 end
 
-def error_atom_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, message : String)
+def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, message : String)
   env.response.content_type = "application/atom+xml"
   env.response.status_code = status_code
+
   return "<error>#{message}</error>"
 end
 
+# -------------------
+#  JSON
+# -------------------
+
 macro error_json(*args)
-  error_json_helper(env, locale, {{*args}})
+  error_json_helper(env, {{*args}})
 end
 
-def error_json_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, exception : Exception, additional_fields : Hash(String, Object) | Nil)
+def error_json_helper(
+  env : HTTP::Server::Context,
+  status_code : Int32,
+  exception : Exception,
+  additional_fields : Hash(String, Object) | Nil = nil
+)
   if exception.is_a?(InfoException)
-    return error_json_helper(env, locale, status_code, exception.message || "", additional_fields)
+    return error_json_helper(env, status_code, exception.message || "", additional_fields)
   end
+
   env.response.content_type = "application/json"
   env.response.status_code = status_code
+
   error_message = {"error" => exception.message, "errorBacktrace" => exception.inspect_with_backtrace}
+
   if additional_fields
     error_message = error_message.merge(additional_fields)
   end
+
   return error_message.to_json
 end
 
-def error_json_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, exception : Exception)
-  return error_json_helper(env, locale, status_code, exception, nil)
-end
-
-def error_json_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, message : String, additional_fields : Hash(String, Object) | Nil)
+def error_json_helper(
+  env : HTTP::Server::Context,
+  status_code : Int32,
+  message : String,
+  additional_fields : Hash(String, Object) | Nil = nil
+)
   env.response.content_type = "application/json"
   env.response.status_code = status_code
+
   error_message = {"error" => message}
+
   if additional_fields
     error_message = error_message.merge(additional_fields)
   end
+
   return error_message.to_json
 end
 
-def error_json_helper(env : HTTP::Server::Context, locale : String?, status_code : Int32, message : String)
-  error_json_helper(env, locale, status_code, message, nil)
-end
+# -------------------
+#  Redirect
+# -------------------
 
-def error_redirect_helper(env : HTTP::Server::Context, locale : String?)
+def error_redirect_helper(env : HTTP::Server::Context)
   request_path = env.request.path
+
+  locale = env.get("preferences").as(Preferences).locale
 
   if request_path.starts_with?("/search") || request_path.starts_with?("/watch") ||
      request_path.starts_with?("/channel") || request_path.starts_with?("/playlist?list=PL")

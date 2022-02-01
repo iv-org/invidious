@@ -2,13 +2,11 @@
 
 module Invidious::Routes::Embed
   def self.redirect(env)
-    locale = env.get("preferences").as(Preferences).locale
-
     if plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
       begin
-        playlist = get_playlist(plid, locale: locale)
+        playlist = get_playlist(plid)
         offset = env.params.query["index"]?.try &.to_i? || 0
-        videos = get_playlist_videos(playlist, offset: offset, locale: locale)
+        videos = get_playlist_videos(playlist, offset: offset)
       rescue ex
         return error_template(500, ex)
       end
@@ -26,7 +24,6 @@ module Invidious::Routes::Embed
   end
 
   def self.show(env)
-    locale = env.get("preferences").as(Preferences).locale
     id = env.params.url["id"]
 
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
@@ -60,9 +57,9 @@ module Invidious::Routes::Embed
 
       if plid
         begin
-          playlist = get_playlist(plid, locale: locale)
+          playlist = get_playlist(plid)
           offset = env.params.query["index"]?.try &.to_i? || 0
-          videos = get_playlist_videos(playlist, offset: offset, locale: locale)
+          videos = get_playlist_videos(playlist, offset: offset)
         rescue ex
           return error_template(500, ex)
         end

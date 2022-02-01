@@ -5,7 +5,7 @@ class ChannelSearchException < InfoException
   end
 end
 
-def channel_search(query, page, channel)
+def channel_search(query, page, channel) : Array(SearchItem)
   response = YT_POOL.client &.get("/channel/#{channel}")
 
   if response.status_code == 404
@@ -24,25 +24,23 @@ def channel_search(query, page, channel)
   continuation_items = response_json["onResponseReceivedActions"]?
     .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
 
-  return 0, [] of SearchItem if !continuation_items
+  return [] of SearchItem if !continuation_items
 
   items = [] of SearchItem
-  continuation_items.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each { |item|
-    extract_item(item["itemSectionRenderer"]["contents"].as_a[0])
-      .try { |t| items << t }
-  }
+  continuation_items.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each do |item|
+    extract_item(item["itemSectionRenderer"]["contents"].as_a[0]).try { |t| items << t }
+  end
 
-  return items.size, items
+  return items
 end
 
-def search(query, search_params = produce_search_params(content_type: "all"), region = nil)
-  return 0, [] of SearchItem if query.empty?
+def search(query, search_params = produce_search_params(content_type: "all"), region = nil) : Array(SearchItem)
+  return [] of SearchItem if query.empty?
 
   client_config = YoutubeAPI::ClientConfig.new(region: region)
   initial_data = YoutubeAPI.search(query, search_params, client_config: client_config)
-  items = extract_items(initial_data)
 
-  return items.size, items
+  return extract_items(initial_data)
 end
 
 def produce_search_params(page = 1, sort : String = "relevance", date : String = "", content_type : String = "",
@@ -217,7 +215,7 @@ def process_search_query(query, page, user, region)
   search_query = (query.split(" ") - operators).join(" ")
 
   if channel
-    count, items = channel_search(search_query, page, channel)
+    items = channel_search(search_query, page, channel)
   elsif subscriptions
     if view_name
       items = PG_DB.query_all("SELECT id,title,published,updated,ucid,author,length_seconds FROM (
@@ -227,16 +225,14 @@ def process_search_query(query, page, user, region)
       as document
       FROM #{view_name}
       ) v_search WHERE v_search.document @@ plainto_tsquery($1) LIMIT 20 OFFSET $2;", search_query, (page - 1) * 20, as: ChannelVideo)
-      count = items.size
     else
       items = [] of ChannelVideo
-      count = 0
     end
   else
     search_params = produce_search_params(page: page, sort: sort, date: date, content_type: content_type,
       duration: duration, features: features)
 
-    count, items = search(search_query, search_params, region).as(Tuple)
+    items = search(search_query, search_params, region)
   end
 
   # Light processing to flatten search results out of Categories.
@@ -254,5 +250,5 @@ def process_search_query(query, page, user, region)
     end
   end
 
-  {search_query, items_without_category.size, items_without_category, operators}
+  {search_query, items_without_category, operators}
 end

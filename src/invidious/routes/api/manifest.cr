@@ -98,7 +98,7 @@ module Invidious::Routes::API::Manifest
                 height = fmt["height"].as_i
 
                 # Resolutions reported by YouTube player (may not accurately reflect source)
-                height = potential_heights.min_by { |i| (height - i).abs }
+                height = potential_heights.min_by { |x| (height - x).abs }
                 next if unique_res && heights.includes? height
                 heights << height
 

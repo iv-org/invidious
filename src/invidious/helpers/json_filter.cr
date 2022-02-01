@@ -98,9 +98,9 @@ module JSONFilter
           end
         end
 
-        group_name.split('/').each do |group_name|
+        group_name.split('/').each do |name|
           nest_stack.push({
-            group_name:            group_name,
+            group_name:            name,
             closing_bracket_index: closing_bracket_index,
           })
         end

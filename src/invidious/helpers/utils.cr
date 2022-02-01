@@ -292,8 +292,8 @@ def parse_range(range)
   end
 
   ranges = range.lchop("bytes=").split(',')
-  ranges.each do |range|
-    start_range, end_range = range.split('-')
+  ranges.each do |r|
+    start_range, end_range = r.split('-')
 
     start_range = start_range.to_i64? || 0_i64
     end_range = end_range.to_i64?

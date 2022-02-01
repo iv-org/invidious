@@ -416,10 +416,9 @@ module YoutubeAPI
     # Send the POST request
     if {{ !flag?(:disable_quic) }} && CONFIG.use_quic
       # Using QUIC client
-      response = YT_POOL.client(client_config.proxy_region,
+      body = YT_POOL.client(client_config.proxy_region,
         &.post(url, headers: headers, body: data.to_json)
-      )
-      body = response.body
+      ).body
     else
       # Using HTTP client
       body = YT_POOL.client(client_config.proxy_region) do |client|
