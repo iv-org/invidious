@@ -266,4 +266,19 @@ module Invidious::Routes::Watch
       "{}"
     end
   end
+
+  def self.clip(env)
+    clip_id = env.params.url["clip"]?
+
+    return error_template(400, "A clip ID is required") if !clip_id
+
+    response = YoutubeAPI.resolve_url("https://www.youtube.com/clip/#{clip_id}")
+    return error_template(400, "Invalid clip ID") if response["error"]?
+
+    if video_id = response.dig?("endpoint", "watchEndpoint", "videoId")
+      return env.redirect "/watch?v=#{video_id}&#{env.params.query}"
+    else
+      return error_template(404, "The requested clip doesn't exist")
+    end
+  end
 end
