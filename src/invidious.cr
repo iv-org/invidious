@@ -339,6 +339,7 @@ end
   Invidious::Routing.post "/watch_ajax", Invidious::Routes::Watch, :mark_watched
   Invidious::Routing.get "/watch/:id", Invidious::Routes::Watch, :redirect
   Invidious::Routing.get "/shorts/:id", Invidious::Routes::Watch, :redirect
+  Invidious::Routing.get "/clip/:clip", Invidious::Routes::Watch, :clip
   Invidious::Routing.get "/w/:id", Invidious::Routes::Watch, :redirect
   Invidious::Routing.get "/v/:id", Invidious::Routes::Watch, :redirect
   Invidious::Routing.get "/e/:id", Invidious::Routes::Watch, :redirect
