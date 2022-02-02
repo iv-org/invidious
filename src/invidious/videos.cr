@@ -890,8 +890,11 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   raise BrokenTubeException.new("twoColumnWatchNextResults") if !main_results
 
   primary_results = main_results.dig?("results", "results", "contents")
+  secondary_results = main_results
+    .dig?("secondaryResults", "secondaryResults", "results")
 
   raise BrokenTubeException.new("results") if !primary_results
+  raise BrokenTubeException.new("secondaryResults") if !secondary_results
 
   video_primary_renderer = primary_results
     .as_a.find(&.["videoPrimaryInfoRenderer"]?)
