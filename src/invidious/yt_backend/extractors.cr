@@ -505,7 +505,7 @@ end
 #
 # Mostly used to extract out repeated structures to deal with code
 # repetition.
-private module HelperExtractors
+module HelperExtractors
   # Retrieves the amount of videos present within the given InnerTube data.
   #
   # Returns a 0 when it's unable to do so
