@@ -885,16 +885,24 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 
   # Top level elements
 
-  primary_results = player_response
-    .dig?("contents", "twoColumnWatchNextResults", "results", "results", "contents")
+  main_results = player_response.dig?("contents", "twoColumnWatchNextResults")
+
+  raise BrokenTubeException.new("twoColumnWatchNextResults") if !main_results
+
+  primary_results = main_results.dig?("results", "results", "contents")
+
+  raise BrokenTubeException.new("results") if !primary_results
 
   video_primary_renderer = primary_results
-    .try &.as_a.find(&.["videoPrimaryInfoRenderer"]?)
-      .try &.["videoPrimaryInfoRenderer"]
+    .as_a.find(&.["videoPrimaryInfoRenderer"]?)
+    .try &.["videoPrimaryInfoRenderer"]
 
   video_secondary_renderer = primary_results
-    .try &.as_a.find(&.["videoSecondaryInfoRenderer"]?)
-      .try &.["videoSecondaryInfoRenderer"]
+    .as_a.find(&.["videoSecondaryInfoRenderer"]?)
+    .try &.["videoSecondaryInfoRenderer"]
+
+  raise BrokenTubeException.new("videoPrimaryInfoRenderer") if !video_primary_renderer
+  raise BrokenTubeException.new("videoSecondaryInfoRenderer") if !video_secondary_renderer
 
   # Likes/dislikes
 
