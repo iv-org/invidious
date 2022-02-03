@@ -505,7 +505,7 @@ end
 #
 # Mostly used to extract out repeated structures to deal with code
 # repetition.
-private module HelperExtractors
+module HelperExtractors
   # Retrieves the amount of videos present within the given InnerTube data.
   #
   # Returns a 0 when it's unable to do so
@@ -517,6 +517,20 @@ private module HelperExtractors
     else
       return 0
     end
+  end
+
+  # Retrieves the amount of views/viewers a video has.
+  # Seems to be used on related videos only
+  #
+  # Returns "0" when unable to parse
+  def self.get_short_view_count(container : JSON::Any) : String
+    box = container["shortViewCountText"]?
+    return "0" if !box
+
+    # Simpletext: "4M views"
+    # runs: {"text": "1.1K"},{"text":" watching"}
+    return box["simpleText"]?.try &.as_s.sub(" views", "") ||
+      box.dig?("runs", 0, "text").try &.as_s || "0"
   end
 
   # Retrieve lowest quality thumbnail from InnerTube data

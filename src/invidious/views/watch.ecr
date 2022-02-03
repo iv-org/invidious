@@ -321,11 +321,11 @@ we're going to need to do it here in order to allow for translations.
                                     </div>
 
                                     <div class="pure-u-10-24" style="text-align:right">
-                                        <% if views = rv["short_view_count_text"]?.try &.delete(", views watching") %>
-                                            <% if !views.empty? %>
-                                                <b class="width:100%"><%= translate_count(locale, "generic_views_count", views.to_i? || 0) %></b>
-                                            <% end %>
-                                        <% end %>
+                                        <b class="width:100%"><%=
+                                            views = rv["view_count"]?.try &.to_i?
+                                            views ||= rv["view_count_short"]?.try { |x| short_text_to_number(x) }
+                                            translate_count(locale, "generic_views_count", views || 0, NumberFormatting::Short)
+                                        %></b>
                                     </div>
                                 </h5>
                             </a>

@@ -446,7 +446,7 @@ struct Video
                 end
 
                 json.field "author", rv["author"]
-                json.field "authorUrl", rv["author_url"]?
+                json.field "authorUrl", "/channel/#{rv["ucid"]?}"
                 json.field "authorId", rv["ucid"]?
                 if rv["author_thumbnail"]?
                   json.field "authorThumbnails" do
@@ -455,7 +455,7 @@ struct Video
 
                       qualities.each do |quality|
                         json.object do
-                          json.field "url", rv["author_thumbnail"]?.try &.gsub(/s\d+-/, "s#{quality}-")
+                          json.field "url", rv["author_thumbnail"].gsub(/s\d+-/, "s#{quality}-")
                           json.field "width", quality
                           json.field "height", quality
                         end
@@ -465,7 +465,7 @@ struct Video
                 end
 
                 json.field "lengthSeconds", rv["length_seconds"]?.try &.to_i
-                json.field "viewCountText", rv["short_view_count_text"]?
+                json.field "viewCountText", rv["short_view_count"]?
                 json.field "viewCount", rv["view_count"]?.try &.empty? ? nil : rv["view_count"].to_i64
               end
             end
@@ -802,23 +802,50 @@ class VideoRedirect < Exception
   end
 end
 
-def parse_related(r : JSON::Any) : JSON::Any?
-  # TODO: r["endScreenPlaylistRenderer"], etc.
-  return if !r["endScreenVideoRenderer"]?
-  r = r["endScreenVideoRenderer"].as_h
+# Use to parse both "compactVideoRenderer" and "endScreenVideoRenderer".
+# The former is preferred as it has more videos in it. The second has
+# the same 11 first entries as the compact rendered.
+#
+# TODO: "compactRadioRenderer" (Mix) and
+def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
+  return nil if !related["videoId"]?
 
-  return if !r["lengthInSeconds"]?
+  # The compact renderer has video length in seconds, where the end
+  # screen rendered has a full text version ("42:40")
+  length = related["lengthInSeconds"]?.try &.as_i.to_s
+  length ||= related.dig?("lengthText", "simpleText").try do |box|
+    decode_length_seconds(box.as_s).to_s
+  end
 
-  rv = {} of String => JSON::Any
-  rv["author"] = r["shortBylineText"]["runs"][0]?.try &.["text"] || JSON::Any.new("")
-  rv["ucid"] = r["shortBylineText"]["runs"][0]?.try &.["navigationEndpoint"]["browseEndpoint"]["browseId"] || JSON::Any.new("")
-  rv["author_url"] = JSON::Any.new("/channel/#{rv["ucid"]}")
-  rv["length_seconds"] = JSON::Any.new(r["lengthInSeconds"].as_i.to_s)
-  rv["title"] = r["title"]["simpleText"]
-  rv["short_view_count_text"] = JSON::Any.new(r["shortViewCountText"]?.try &.["simpleText"]?.try &.as_s || "")
-  rv["view_count"] = JSON::Any.new(r["title"]["accessibility"]?.try &.["accessibilityData"]["label"].as_s.match(/(?<views>[1-9](\d+,?)*) views/).try &.["views"].gsub(/\D/, "") || "")
-  rv["id"] = r["videoId"]
-  JSON::Any.new(rv)
+  # Both have "short", so the "long" option shouldn't be required
+  channel_info = (related["shortBylineText"]? || related["longBylineText"]?)
+    .try &.dig?("runs", 0)
+
+  author = channel_info.try &.dig?("text")
+  ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
+
+  # "4,088,033 views", only available on compact renderer
+  # and when video is not a livestream
+  view_count = related.dig?("viewCountText", "simpleText")
+    .try &.as_s.gsub(/\D/, "")
+
+  short_view_count = related.try do |r|
+    HelperExtractors.get_short_view_count(r).to_s
+  end
+
+  LOGGER.trace("parse_related_video: Found \"watchNextEndScreenRenderer\" container")
+
+  # TODO: when refactoring video types, make a struct for related videos
+  # or reuse an existing type, if that fits.
+  return {
+    "id"               => related["videoId"],
+    "title"            => related["title"]["simpleText"],
+    "author"           => author || JSON::Any.new(""),
+    "ucid"             => JSON::Any.new(ucid || ""),
+    "length_seconds"   => JSON::Any.new(length || "0"),
+    "view_count"       => JSON::Any.new(view_count || "0"),
+    "short_view_count" => JSON::Any.new(short_view_count || "0"),
+  }
 end
 
 def extract_video_info(video_id : String, proxy_region : String? = nil, context_screen : String? = nil)
@@ -871,30 +898,61 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     params[f] = player_response[f] if player_response[f]?
   end
 
-  params["relatedVideos"] = (
-    player_response
-      .dig?("playerOverlays", "playerOverlayRenderer", "endScreen", "watchNextEndScreenRenderer", "results")
-      .try &.as_a.compact_map { |r| parse_related r } || \
-       player_response
-        .dig?("webWatchNextResponseExtensionData", "relatedVideoArgs")
-        .try &.as_s.split(",").map { |r|
-          r = HTTP::Params.parse(r).to_h
-          JSON::Any.new(Hash.zip(r.keys, r.values.map { |v| JSON::Any.new(v) }))
-        }
-  ).try { |a| JSON::Any.new(a) } || JSON::Any.new([] of JSON::Any)
-
   # Top level elements
 
-  primary_results = player_response
-    .dig?("contents", "twoColumnWatchNextResults", "results", "results", "contents")
+  main_results = player_response.dig?("contents", "twoColumnWatchNextResults")
+
+  raise BrokenTubeException.new("twoColumnWatchNextResults") if !main_results
+
+  primary_results = main_results.dig?("results", "results", "contents")
+  secondary_results = main_results
+    .dig?("secondaryResults", "secondaryResults", "results")
+
+  raise BrokenTubeException.new("results") if !primary_results
+  raise BrokenTubeException.new("secondaryResults") if !secondary_results
 
   video_primary_renderer = primary_results
-    .try &.as_a.find(&.["videoPrimaryInfoRenderer"]?)
-      .try &.["videoPrimaryInfoRenderer"]
+    .as_a.find(&.["videoPrimaryInfoRenderer"]?)
+    .try &.["videoPrimaryInfoRenderer"]
 
   video_secondary_renderer = primary_results
-    .try &.as_a.find(&.["videoSecondaryInfoRenderer"]?)
-      .try &.["videoSecondaryInfoRenderer"]
+    .as_a.find(&.["videoSecondaryInfoRenderer"]?)
+    .try &.["videoSecondaryInfoRenderer"]
+
+  raise BrokenTubeException.new("videoPrimaryInfoRenderer") if !video_primary_renderer
+  raise BrokenTubeException.new("videoSecondaryInfoRenderer") if !video_secondary_renderer
+
+  # Related videos
+
+  LOGGER.debug("extract_video_info: parsing related videos...")
+
+  related = [] of JSON::Any
+
+  # Parse "compactVideoRenderer" items (under secondary results)
+  secondary_results.as_a.each do |element|
+    if item = element["compactVideoRenderer"]?
+      related_video = parse_related_video(item)
+      related << JSON::Any.new(related_video) if related_video
+    end
+  end
+
+  # If nothing was found previously, fall back to end screen renderer
+  if related.empty?
+    # Container for "endScreenVideoRenderer" items
+    player_overlays = player_response.dig?(
+      "playerOverlays", "playerOverlayRenderer",
+      "endScreen", "watchNextEndScreenRenderer", "results"
+    )
+
+    player_overlays.try &.as_a.each do |element|
+      if item = element["endScreenVideoRenderer"]?
+        related_video = parse_related_video(item)
+        related << JSON::Any.new(related_video) if related_video
+      end
+    end
+  end
+
+  params["relatedVideos"] = JSON::Any.new(related)
 
   # Likes/dislikes
 
