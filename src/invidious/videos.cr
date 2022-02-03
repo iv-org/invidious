@@ -455,7 +455,7 @@ struct Video
 
                       qualities.each do |quality|
                         json.object do
-                          json.field "url", rv["author_thumbnail"].try &.gsub(/s\d+-/, "s#{quality}-")
+                          json.field "url", rv["author_thumbnail"].gsub(/s\d+-/, "s#{quality}-")
                           json.field "width", quality
                           json.field "height", quality
                         end
@@ -944,7 +944,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
       "endScreen", "watchNextEndScreenRenderer", "results"
     )
 
-    secondary_results.try &.as_a.each do |element|
+    player_overlays.try &.as_a.each do |element|
       if item = element["endScreenVideoRenderer"]?
         related_video = parse_related_video(item)
         related << JSON::Any.new(related_video) if related_video
