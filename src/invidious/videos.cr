@@ -446,7 +446,7 @@ struct Video
                 end
 
                 json.field "author", rv["author"]
-                json.field "authorUrl", rv["author_url"]?
+                json.field "authorUrl", "/channel/#{rv["ucid"]?}"
                 json.field "authorId", rv["ucid"]?
                 if rv["author_thumbnail"]?
                   json.field "authorThumbnails" do
@@ -455,7 +455,7 @@ struct Video
 
                       qualities.each do |quality|
                         json.object do
-                          json.field "url", rv["author_thumbnail"]?.try &.gsub(/s\d+-/, "s#{quality}-")
+                          json.field "url", rv["author_thumbnail"].try &.gsub(/s\d+-/, "s#{quality}-")
                           json.field "width", quality
                           json.field "height", quality
                         end
@@ -465,7 +465,7 @@ struct Video
                 end
 
                 json.field "lengthSeconds", rv["length_seconds"]?.try &.to_i
-                json.field "viewCountText", rv["short_view_count_text"]?
+                json.field "viewCountText", rv["short_view_count"]?
                 json.field "viewCount", rv["view_count"]?.try &.empty? ? nil : rv["view_count"].to_i64
               end
             end
