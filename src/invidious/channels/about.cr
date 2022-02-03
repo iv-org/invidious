@@ -63,7 +63,7 @@ def get_about_info(ucid, locale) : AboutChannel
     author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
 
     ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
-  
+
     # Raises a KeyError on failure.
     banners = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
     banner = banners.try &.[-1]?.try &.["url"].as_s?
@@ -73,7 +73,7 @@ def get_about_info(ucid, locale) : AboutChannel
     # end
     badges = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["badges"]?
     if !badges.nil?
-      verified=true
+      verified = true
     end
     description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
     description_html = HTML.escape(description)

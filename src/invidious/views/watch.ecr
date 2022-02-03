@@ -240,7 +240,7 @@ we're going to need to do it here in order to allow for translations.
                     <% if !video.author_thumbnail.empty? %>
                         <img src="/ggpht<%= URI.parse(video.author_thumbnail).request_target %>">
                     <% end %>
-                    <span id="channel-name"><%= author %></span>
+                    <span id="channel-name"><%= author %><% if video.author_verified %><i class="icon ion ion-md-checkmark-circle"></i><% end %></span>
                 </div>
             </a>
 
