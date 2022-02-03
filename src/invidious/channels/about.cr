@@ -12,7 +12,8 @@ record AboutChannel,
   joined : Time,
   is_family_friendly : Bool,
   allowed_regions : Array(String),
-  tabs : Array(String)
+  tabs : Array(String),
+  verified : Bool
 
 record AboutRelatedChannel,
   ucid : String,
@@ -41,7 +42,7 @@ def get_about_info(ucid, locale) : AboutChannel
   if !initdata.has_key?("metadata")
     auto_generated = true
   end
-
+  verified = false
   if auto_generated
     author = initdata["header"]["interactiveTabbedHeaderRenderer"]["title"]["simpleText"].as_s
     author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
@@ -62,7 +63,7 @@ def get_about_info(ucid, locale) : AboutChannel
     author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
 
     ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
-
+  
     # Raises a KeyError on failure.
     banners = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
     banner = banners.try &.[-1]?.try &.["url"].as_s?
@@ -70,7 +71,10 @@ def get_about_info(ucid, locale) : AboutChannel
     # if banner.includes? "channels/c4/default_banner"
     #  banner = nil
     # end
-
+    badges = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["badges"]?
+    if !badges.nil?
+      verified=true
+    end
     description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
     description_html = HTML.escape(description)
 
@@ -128,6 +132,7 @@ def get_about_info(ucid, locale) : AboutChannel
     is_family_friendly: is_family_friendly,
     allowed_regions: allowed_regions,
     tabs: tabs,
+    verified: verified,
   )
 end
 

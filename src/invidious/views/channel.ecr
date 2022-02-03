@@ -21,6 +21,9 @@
         <div class="channel-profile">
             <img src="/ggpht<%= URI.parse(channel.author_thumbnail).request_target %>">
             <span><%= author %></span>
+            <% if channel.verified %>
+                <i class="icon ion ion-md-checkmark-circle"></i>
+            <% end %>
         </div>
     </div>
     <div class="pure-u-1-3">
