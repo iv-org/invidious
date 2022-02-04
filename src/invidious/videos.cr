@@ -1047,7 +1047,9 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 
   author_info = video_secondary_renderer.try &.dig?("owner", "videoOwnerRenderer")
   author_thumbnail = author_info.try &.dig?("thumbnail", "thumbnails", 0, "url")
-  params["authorVerified"] = JSON::Any.new(author_info.try &.["badges"]? != nil)
+  author_verified_badge = author_info.try &.["badges"]?
+
+  params["authorVerified"] = JSON::Any.new((author_verified_badge && author_verified_badge.size > 0) || false)
   params["authorThumbnail"] = JSON::Any.new(author_thumbnail.try &.as_s || "")
 
   params["subCountText"] = JSON::Any.new(author_info.try &.["subscriberCountText"]?

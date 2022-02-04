@@ -102,7 +102,11 @@ private module Parsers
       premium = false
 
       premiere_timestamp = item_contents.dig?("upcomingEventData", "startTime").try { |t| Time.unix(t.as_s.to_i64) }
+      author_verified_badge = item_contents["ownerBadges"]?.try do |badges_array|
+        badges_array.as_a.find(&.dig("metadataBadgeRenderer", "tooltip").as_s.== "Verified")
+      end
 
+      author_verified = (author_verified_badge && author_verified_badge.size > 0)
       item_contents["badges"]?.try &.as_a.each do |badge|
         b = badge["metadataBadgeRenderer"]
         case b["label"].as_s
@@ -129,6 +133,7 @@ private module Parsers
         live_now:           live_now,
         premium:            premium,
         premiere_timestamp: premiere_timestamp,
+        author_verified:    author_verified || false,
       })
     end
 
@@ -156,7 +161,11 @@ private module Parsers
     private def self.parse(item_contents, author_fallback)
       author = extract_text(item_contents["title"]) || author_fallback.name
       author_id = item_contents["channelId"]?.try &.as_s || author_fallback.id
+      author_verified_badge = item_contents["ownerBadges"]?.try do |badges_array|
+        badges_array.as_a.find(&.dig("metadataBadgeRenderer", "tooltip").as_s.== "Verified")
+      end
 
+      author_verified = (author_verified_badge && author_verified_badge.size > 0)
       author_thumbnail = HelperExtractors.get_thumbnails(item_contents)
       # When public subscriber count is disabled, the subscriberCountText isn't sent by InnerTube.
       # Always simpleText
@@ -179,6 +188,7 @@ private module Parsers
         video_count:      video_count,
         description_html: description_html,
         auto_generated:   auto_generated,
+        author_verified:  author_verified || false,
       })
     end
 
@@ -206,18 +216,23 @@ private module Parsers
     private def self.parse(item_contents, author_fallback)
       title = extract_text(item_contents["title"]) || ""
       plid = item_contents["playlistId"]?.try &.as_s || ""
+      author_verified_badge = item_contents["ownerBadges"]?.try do |badges_array|
+        badges_array.as_a.find(&.dig("metadataBadgeRenderer", "tooltip").as_s.== "Verified")
+      end
 
+      author_verified = (author_verified_badge && author_verified_badge.size > 0)
       video_count = HelperExtractors.get_video_count(item_contents)
       playlist_thumbnail = HelperExtractors.get_thumbnails(item_contents)
 
       SearchPlaylist.new({
-        title:       title,
-        id:          plid,
-        author:      author_fallback.name,
-        ucid:        author_fallback.id,
-        video_count: video_count,
-        videos:      [] of SearchPlaylistVideo,
-        thumbnail:   playlist_thumbnail,
+        title:           title,
+        id:              plid,
+        author:          author_fallback.name,
+        ucid:            author_fallback.id,
+        video_count:     video_count,
+        videos:          [] of SearchPlaylistVideo,
+        thumbnail:       playlist_thumbnail,
+        author_verified: author_verified || false,
       })
     end
 
@@ -251,7 +266,11 @@ private module Parsers
       author_info = item_contents.dig?("shortBylineText", "runs", 0)
       author = author_info.try &.["text"].as_s || author_fallback.name
       author_id = author_info.try { |x| HelperExtractors.get_browse_id(x) } || author_fallback.id
+      author_verified_badge = item_contents["ownerBadges"]?.try do |badges_array|
+        badges_array.as_a.find(&.dig("metadataBadgeRenderer", "tooltip").as_s.== "Verified")
+      end
 
+      author_verified = (author_verified_badge && author_verified_badge.size > 0)
       videos = item_contents["videos"]?.try &.as_a.map do |v|
         v = v["childVideoRenderer"]
         v_title = v.dig?("title", "simpleText").try &.as_s || ""
@@ -267,13 +286,14 @@ private module Parsers
       # TODO: item_contents["publishedTimeText"]?
 
       SearchPlaylist.new({
-        title:       title,
-        id:          plid,
-        author:      author,
-        ucid:        author_id,
-        video_count: video_count,
-        videos:      videos,
-        thumbnail:   playlist_thumbnail,
+        title:           title,
+        id:              plid,
+        author:          author,
+        ucid:            author_id,
+        video_count:     video_count,
+        videos:          videos,
+        thumbnail:       playlist_thumbnail,
+        author_verified: author_verified || false,
       })
     end
 

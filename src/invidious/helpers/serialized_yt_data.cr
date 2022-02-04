@@ -12,6 +12,7 @@ struct SearchVideo
   property live_now : Bool
   property premium : Bool
   property premiere_timestamp : Time?
+  property author_verified : Bool
 
   def to_xml(auto_generated, query_params, xml : XML::Builder)
     query_params["v"] = self.id
@@ -129,6 +130,7 @@ struct SearchPlaylist
   property video_count : Int32
   property videos : Array(SearchPlaylistVideo)
   property thumbnail : String?
+  property author_verified : Bool
 
   def to_json(locale : String?, json : JSON::Builder)
     json.object do
@@ -140,7 +142,7 @@ struct SearchPlaylist
       json.field "author", self.author
       json.field "authorId", self.ucid
       json.field "authorUrl", "/channel/#{self.ucid}"
-
+      json.field "authorVerified", self.author_verified
       json.field "videoCount", self.video_count
       json.field "videos" do
         json.array do
@@ -182,6 +184,7 @@ struct SearchChannel
   property video_count : Int32
   property description_html : String
   property auto_generated : Bool
+  property author_verified : Bool
 
   def to_json(locale : String?, json : JSON::Builder)
     json.object do
@@ -189,7 +192,7 @@ struct SearchChannel
       json.field "author", self.author
       json.field "authorId", self.ucid
       json.field "authorUrl", "/channel/#{self.ucid}"
-
+      json.field "authorVerified", self.author_verified
       json.field "authorThumbnails" do
         json.array do
           qualities = {32, 48, 76, 100, 176, 512}

@@ -182,6 +182,7 @@ module Invidious::Routes::Feeds
         paid:               false,
         premium:            false,
         premiere_timestamp: nil,
+        author_verified: false, #TODO real value
       })
     end
 
@@ -414,6 +415,7 @@ module Invidious::Routes::Feeds
           live_now:           video.live_now,
           premiere_timestamp: video.premiere_timestamp,
           views:              video.views,
+          author_verified: false, #TODO dummy for components/item.ecr
         })
 
         was_insert = Invidious::Database::ChannelVideos.insert(video, with_premiere_timestamp: true)

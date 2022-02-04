@@ -42,7 +42,7 @@ def get_about_info(ucid, locale) : AboutChannel
   if !initdata.has_key?("metadata")
     auto_generated = true
   end
-  verified = false
+
   if auto_generated
     author = initdata["header"]["interactiveTabbedHeaderRenderer"]["title"]["simpleText"].as_s
     author_url = initdata["microformat"]["microformatDataRenderer"]["urlCanonical"].as_s
@@ -71,10 +71,9 @@ def get_about_info(ucid, locale) : AboutChannel
     # if banner.includes? "channels/c4/default_banner"
     #  banner = nil
     # end
-    badges = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["badges"]?
-    if !badges.nil?
-      verified = true
-    end
+    author_verified_badges = initdata["header"]?.try &.["c4TabbedHeaderRenderer"]?.try &.["badges"]?
+
+    author_verified = (author_verified_badges && author_verified_badges.size > 0)
     description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
     description_html = HTML.escape(description)
 
@@ -132,7 +131,7 @@ def get_about_info(ucid, locale) : AboutChannel
     is_family_friendly: is_family_friendly,
     allowed_regions: allowed_regions,
     tabs: tabs,
-    verified: verified,
+    verified: author_verified || false,
   )
 end
 

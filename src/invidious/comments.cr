@@ -144,8 +144,8 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
 
               content_html = node_comment["contentText"]?.try { |t| parse_content(t) } || ""
               author = node_comment["authorText"]?.try &.["simpleText"]? || ""
-              verified = node_comment["authorCommentBadge"]? != nil
-              json.field "verified", verified
+              verified = (node_comment["authorCommentBadge"]? != nil)
+              json.field "verified", (verified || false)
               json.field "author", author
               json.field "authorThumbnails" do
                 json.array do
@@ -329,7 +329,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
       end
 
       author_name = HTML.escape(child["author"].as_s)
-      if child["verified"].as_bool
+      if child["verified"]?.try &.as_bool
         author_name += "<i class=\"icon ion ion-md-checkmark-circle\"></i>"
       end
       html << <<-END_HTML

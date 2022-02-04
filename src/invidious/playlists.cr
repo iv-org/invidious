@@ -234,6 +234,10 @@ struct InvidiousPlaylist
     0_i64
   end
 
+  def author_verified
+    false # TODO dummy for components/item.ecr
+  end
+
   def description_html
     HTML.escape(self.description)
   end
@@ -252,6 +256,7 @@ def create_playlist(title, privacy, user)
     updated:     Time.utc,
     privacy:     privacy,
     index:       [] of Int64,
+    author_verified: false, # TODO dummy for components/item.ecr
   })
 
   Invidious::Database::Playlists.insert(playlist)
@@ -270,6 +275,7 @@ def subscribe_playlist(user, playlist)
     updated:     playlist.updated,
     privacy:     PlaylistPrivacy::Private,
     index:       [] of Int64,
+    author_verified: false, # TODO dummy for components/item.ecr
   })
 
   Invidious::Database::Playlists.insert(playlist)
