@@ -38,14 +38,13 @@ require "./invidious/jobs/**"
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
-PG_DB           = DB.open CONFIG.database_url
-ARCHIVE_URL     = URI.parse("https://archive.org")
-LOGIN_URL       = URI.parse("https://accounts.google.com")
-PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
-REDDIT_URL      = URI.parse("https://www.reddit.com")
-TEXTCAPTCHA_URL = URI.parse("https://textcaptcha.com")
-YT_URL          = URI.parse("https://www.youtube.com")
-HOST_URL        = make_host_url(Kemal.config)
+PG_DB       = DB.open CONFIG.database_url
+ARCHIVE_URL = URI.parse("https://archive.org")
+LOGIN_URL   = URI.parse("https://accounts.google.com")
+PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
+REDDIT_URL  = URI.parse("https://www.reddit.com")
+YT_URL      = URI.parse("https://www.youtube.com")
+HOST_URL    = make_host_url(Kemal.config)
 
 CHARS_SAFE         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}

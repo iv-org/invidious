@@ -393,9 +393,9 @@ module Invidious::Routes::Login
             prompt = ""
 
             if captcha_type == "image"
-              captcha = generate_captcha(HMAC_KEY)
+              captcha = Invidious::User::Captcha.generate_image(HMAC_KEY)
             else
-              captcha = generate_text_captcha(HMAC_KEY)
+              captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
             end
 
             return templated "login"
