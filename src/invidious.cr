@@ -364,29 +364,8 @@ end
   Invidious::Routing.get "/results", Invidious::Routes::Search, :results
   Invidious::Routing.get "/search", Invidious::Routes::Search, :search
 
-  # User login/out
-  Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
-  Invidious::Routing.post "/login", Invidious::Routes::Login, :login
-  Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
-
-  # User preferences
-  Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show
-  Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
-  Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
-  Invidious::Routing.get "/data_control", Invidious::Routes::PreferencesRoute, :data_control
-  Invidious::Routing.post "/data_control", Invidious::Routes::PreferencesRoute, :update_data_control
-
-  # User account management
-  Invidious::Routing.get "/change_password", Invidious::Routes::Account, :get_change_password
-  Invidious::Routing.post "/change_password", Invidious::Routes::Account, :post_change_password
-  Invidious::Routing.get "/delete_account", Invidious::Routes::Account, :get_delete
-  Invidious::Routing.post "/delete_account", Invidious::Routes::Account, :post_delete
-  Invidious::Routing.get "/clear_watch_history", Invidious::Routes::Account, :get_clear_history
-  Invidious::Routing.post "/clear_watch_history", Invidious::Routes::Account, :post_clear_history
-  Invidious::Routing.get "/authorize_token", Invidious::Routes::Account, :get_authorize_token
-  Invidious::Routing.post "/authorize_token", Invidious::Routes::Account, :post_authorize_token
-  Invidious::Routing.get "/token_manager", Invidious::Routes::Account, :token_manager
-  Invidious::Routing.post "/token_ajax", Invidious::Routes::Account, :token_ajax
+  # User routes
+  define_user_routes()
 
   # Feeds
   Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Feeds, :view_all_playlists_redirect
