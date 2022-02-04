@@ -548,7 +548,7 @@ add_handler AuthHandler.new
 add_handler DenyFrame.new
 add_context_storage_type(Array(String))
 add_context_storage_type(Preferences)
-add_context_storage_type(User)
+add_context_storage_type(Invidious::User)
 
 Kemal.config.logger = LOGGER
 Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding

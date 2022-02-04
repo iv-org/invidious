@@ -3,32 +3,6 @@ require "crypto/bcrypt/password"
 # Materialized views may not be defined using bound parameters (`$1` as used elsewhere)
 MATERIALIZED_VIEW_SQL = ->(email : String) { "SELECT cv.* FROM channel_videos cv WHERE EXISTS (SELECT subscriptions FROM users u WHERE cv.ucid = ANY (u.subscriptions) AND u.email = E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}') ORDER BY published DESC" }
 
-struct User
-  include DB::Serializable
-
-  property updated : Time
-  property notifications : Array(String)
-  property subscriptions : Array(String)
-  property email : String
-
-  @[DB::Field(converter: User::PreferencesConverter)]
-  property preferences : Preferences
-  property password : String?
-  property token : String
-  property watched : Array(String)
-  property feed_needs_update : Bool?
-
-  module PreferencesConverter
-    def self.from_rs(rs)
-      begin
-        Preferences.from_json(rs.read(String))
-      rescue ex
-        Preferences.from_json("{}")
-      end
-    end
-  end
-end
-
 def get_user(sid, headers, refresh = true)
   if email = Invidious::Database::SessionIDs.select_email(sid)
     user = Invidious::Database::Users.select!(email: email)
@@ -84,7 +58,7 @@ def fetch_user(sid, headers)
 
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new({
+  user = Invidious::User.new({
     updated:           Time.utc,
     notifications:     [] of String,
     subscriptions:     channels,
@@ -102,7 +76,7 @@ def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new({
+  user = Invidious::User.new({
     updated:           Time.utc,
     notifications:     [] of String,
     subscriptions:     [] of String,
