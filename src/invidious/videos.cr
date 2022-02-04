@@ -826,7 +826,11 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     .try &.dig?("runs", 0)
 
   author = channel_info.try &.dig?("text")
-  authorVerified = channel_info.try &.dig?("ownerBadges") != nil 
+  author_verified_badge = related["ownerBadges"]?.try do |badges_array|
+    badges_array.as_a.find(&.dig("metadataBadgeRenderer", "tooltip").as_s.== "Verified")
+  end
+
+  author_verified = (author_verified_badge && author_verified_badge.size > 0).to_s
   ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
   # "4,088,033 views", only available on compact renderer
@@ -850,7 +854,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     "length_seconds"   => JSON::Any.new(length || "0"),
     "view_count"       => JSON::Any.new(view_count || "0"),
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
-    "author_verified" => JSON::Any.new(authorVerified), 
+    "author_verified"  => JSON::Any.new(author_verified),
   }
 end
 
