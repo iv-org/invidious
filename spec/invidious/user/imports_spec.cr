@@ -25,9 +25,9 @@ def csv_sample
   CSV
 end
 
-Spectator.describe "Invidious::User::Imports" do
+Spectator.describe Invidious::User::Import do
   it "imports CSV" do
-    subscriptions = parse_subscription_export_csv(csv_sample)
+    subscriptions = Invidious::User::Import.parse_subscription_export_csv(csv_sample)
 
     expect(subscriptions).to be_an(Array(String))
     expect(subscriptions.size).to eq(13)
