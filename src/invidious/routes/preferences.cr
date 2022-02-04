@@ -214,19 +214,7 @@ module Invidious::Routes::PreferencesRoute
         File.write("config/config.yml", CONFIG.to_yaml)
       end
     else
-      if Kemal.config.ssl || CONFIG.https_only
-        secure = true
-      else
-        secure = false
-      end
-
-      if CONFIG.domain
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: URI.encode_www_form(preferences.to_json), expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      else
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: URI.encode_www_form(preferences.to_json), expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      end
+      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
     end
 
     env.redirect referer
@@ -261,21 +249,7 @@ module Invidious::Routes::PreferencesRoute
         preferences.dark_mode = "dark"
       end
 
-      preferences = preferences.to_json
-
-      if Kemal.config.ssl || CONFIG.https_only
-        secure = true
-      else
-        secure = false
-      end
-
-      if CONFIG.domain
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: URI.encode_www_form(preferences), expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      else
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: URI.encode_www_form(preferences), expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      end
+      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
     end
 
     if redirect

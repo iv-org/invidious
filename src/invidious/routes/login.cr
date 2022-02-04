@@ -282,18 +282,8 @@ module Invidious::Routes::Login
 
         host = URI.parse(env.request.headers["Host"]).host
 
-        if Kemal.config.ssl || CONFIG.https_only
-          secure = true
-        else
-          secure = false
-        end
-
         cookies.each do |cookie|
-          if Kemal.config.ssl || CONFIG.https_only
-            cookie.secure = secure
-          else
-            cookie.secure = secure
-          end
+          cookie.secure = Invidious::User::Cookies::SECURE
 
           if cookie.extension
             cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
@@ -338,19 +328,7 @@ module Invidious::Routes::Login
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           Invidious::Database::SessionIDs.insert(sid, email)
 
-          if Kemal.config.ssl || CONFIG.https_only
-            secure = true
-          else
-            secure = false
-          end
-
-          if CONFIG.domain
-            env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{CONFIG.domain}", value: sid, expires: Time.utc + 2.years,
-              secure: secure, http_only: true)
-          else
-            env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
-              secure: secure, http_only: true)
-          end
+          env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
         else
           return error_template(401, "Wrong username or password")
         end
@@ -455,19 +433,7 @@ module Invidious::Routes::Login
         view_name = "subscriptions_#{sha256(user.email)}"
         PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
 
-        if Kemal.config.ssl || CONFIG.https_only
-          secure = true
-        else
-          secure = false
-        end
-
-        if CONFIG.domain
-          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{CONFIG.domain}", value: sid, expires: Time.utc + 2.years,
-            secure: secure, http_only: true)
-        else
-          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
-            secure: secure, http_only: true)
-        end
+        env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
 
         if env.request.cookies["PREFS"]?
           user.preferences = env.get("preferences").as(Preferences)
