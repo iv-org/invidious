@@ -8,7 +8,7 @@ module Invidious::Routes::PreferencesRoute
 
     preferences = env.get("preferences").as(Preferences)
 
-    templated "preferences"
+    templated "user/preferences"
   end
 
   def self.update(env)
@@ -272,7 +272,7 @@ module Invidious::Routes::PreferencesRoute
 
     user = user.as(User)
 
-    templated "data_control"
+    templated "user/data_control"
   end
 
   def self.update_data_control(env)

@@ -163,6 +163,6 @@ module Invidious::Routes::Subscriptions
       end
     end
 
-    templated "subscription_manager"
+    templated "user/subscription_manager"
   end
 end

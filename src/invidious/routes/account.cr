@@ -23,7 +23,7 @@ module Invidious::Routes::Account
     sid = sid.as(String)
     csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY)
 
-    templated "change_password"
+    templated "user/change_password"
   end
 
   # Handle the password change (POST request)
@@ -103,7 +103,7 @@ module Invidious::Routes::Account
     sid = sid.as(String)
     csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY)
 
-    templated "delete_account"
+    templated "user/delete_account"
   end
 
   # Handle the account deletion (POST request)
@@ -161,7 +161,7 @@ module Invidious::Routes::Account
     sid = sid.as(String)
     csrf_token = generate_response(sid, {":clear_watch_history"}, HMAC_KEY)
 
-    templated "clear_watch_history"
+    templated "user/clear_watch_history"
   end
 
   # Handle the watch history clearing (POST request)
@@ -220,7 +220,7 @@ module Invidious::Routes::Account
 
     expire = env.params.query["expire"]?.try &.to_i?
 
-    templated "authorize_token"
+    templated "user/authorize_token"
   end
 
   # Handle token authorization (POST request)
@@ -268,7 +268,7 @@ module Invidious::Routes::Account
     else
       csrf_token = ""
       env.set "access_token", access_token
-      templated "authorize_token"
+      templated "user/authorize_token"
     end
   end
 
@@ -291,7 +291,7 @@ module Invidious::Routes::Account
     user = user.as(User)
     tokens = Invidious::Database::SessionIDs.select_all(user.email)
 
-    templated "token_manager"
+    templated "user/token_manager"
   end
 
   # -------------------

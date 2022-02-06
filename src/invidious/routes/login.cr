@@ -27,7 +27,7 @@ module Invidious::Routes::Login
     tfa = env.params.query["tfa"]?
     prompt = nil
 
-    templated "login"
+    templated "user/login"
   end
 
   def self.login(env)
@@ -133,7 +133,7 @@ module Invidious::Routes::Login
           tfa = tfa_code
           captcha = {tokens: [token], question: ""}
 
-          return templated "login"
+          return templated "user/login"
         end
 
         if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
@@ -190,7 +190,7 @@ module Invidious::Routes::Login
 
             tfa = nil
             captcha = nil
-            return templated "login"
+            return templated "user/login"
           end
 
           tl = challenge_results[1][2]
@@ -376,7 +376,7 @@ module Invidious::Routes::Login
               captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
             end
 
-            return templated "login"
+            return templated "user/login"
           end
 
           tokens = env.params.body.select { |k, _| k.match(/^token\[\d+\]$/) }.map { |_, v| v }
