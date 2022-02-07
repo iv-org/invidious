@@ -612,6 +612,9 @@ window.addEventListener('keydown', e => {
         case '7':
         case '8':
         case '9':
+            // Ignore numpad numbers
+            if (code > 57) break;
+
             const percent = (code - 48) * 10;
             action = set_time_percent.bind(this, percent);
             break;
