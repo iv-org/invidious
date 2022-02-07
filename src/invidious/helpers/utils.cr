@@ -161,11 +161,11 @@ def short_text_to_number(short_text : String) : Int32
 end
 
 def number_to_short_text(number)
-  seperated = number_with_separator(number).gsub(",", ".").split("")
-  text = seperated.first(2).join
+  separated = number_with_separator(number).gsub(",", ".").split("")
+  text = separated.first(2).join
 
-  if seperated[2]? && seperated[2] != "."
-    text += seperated[2]
+  if separated[2]? && separated[2] != "."
+    text += separated[2]
   end
 
   text = text.rchop(".0")
@@ -323,8 +323,8 @@ def fetch_random_instance
   instance_list.each do |data|
     # TODO Check if current URL is onion instance and use .onion types if so.
     if data[1]["type"] == "https"
-      # Instances can have statisitics disabled, which is an requirement of version validation.
-      # as_nil? doesn't exist. Thus we'll have to handle the error rasied if as_nil fails.
+      # Instances can have statistics disabled, which is an requirement of version validation.
+      # as_nil? doesn't exist. Thus we'll have to handle the error raised if as_nil fails.
       begin
         data[1]["stats"].as_nil
         next

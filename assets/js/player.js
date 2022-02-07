@@ -86,7 +86,7 @@ if (location.pathname.startsWith('/embed/')) {
     });
 }
 
-// Detect mobile users and initalize mobileUi for better UX
+// Detect mobile users and initialize mobileUi for better UX
 // Detection code taken from https://stackoverflow.com/a/20293441
 
 function isMobile() {
@@ -119,7 +119,7 @@ if (isMobile()) {
     operations_bar_element.className += " mobile-operations-bar"
     player.addChild(operations_bar)
 
-    // Playback menu doesn't work when its initalized outside of the primary control bar
+    // Playback menu doesn't work when it's initialized outside of the primary control bar
     playback_element = document.getElementsByClassName("vjs-playback-rate")[0]
     operations_bar_element.append(playback_element)
 
@@ -138,7 +138,7 @@ if (isMobile()) {
 player.on('error', function (event) {
     if (player.error().code === 2 || player.error().code === 4) {
         setTimeout(function (event) {
-            console.log('An error occured in the player, reloading...');
+            console.log('An error occurred in the player, reloading...');
 
             var currentTime = player.currentTime();
             var playbackRate = player.playbackRate();

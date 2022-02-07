@@ -136,7 +136,7 @@ module Invidious::Routes::PreferencesRoute
     notifications_only ||= "off"
     notifications_only = notifications_only == "on"
 
-    # Convert to JSON and back again to take advantage of converters used for compatability
+    # Convert to JSON and back again to take advantage of converters used for compatibility
     preferences = Preferences.from_json({
       annotations:                 annotations,
       annotations_subscribed:      annotations_subscribed,

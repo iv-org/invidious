@@ -401,7 +401,7 @@ def fetch_playlist(plid : String)
 end
 
 def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32, video_id = nil)
-  # Show empy playlist if requested page is out of range
+  # Show empty playlist if requested page is out of range
   # (e.g, when a new playlist has been created, offset will be negative)
   if offset >= playlist.video_count || offset < 0
     return [] of PlaylistVideo
