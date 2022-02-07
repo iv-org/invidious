@@ -330,7 +330,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
 
       author_name = HTML.escape(child["author"].as_s)
       if child["verified"]?.try &.as_bool
-        author_name += "<i class=\"icon ion ion-md-checkmark-circle\"></i>"
+        author_name += " <i class=\"icon ion ion-md-checkmark-circle\"></i>"
       end
       html << <<-END_HTML
       <div class="pure-g" style="width:100%">
