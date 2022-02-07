@@ -8,10 +8,7 @@ struct MixVideo
   property length_seconds : Int32
   property index : Int32
   property rdid : String
-
-  def author_verified
-    false #TODO dummy
-  end
+  
 end
 
 struct Mix
