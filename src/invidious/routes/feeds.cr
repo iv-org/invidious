@@ -156,7 +156,7 @@ module Invidious::Routes::Feeds
 
     response = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{channel.ucid}")
     rss = XML.parse_html(response.body)
-    print(response)
+
     videos = rss.xpath_nodes("//feed/entry").map do |entry|
       video_id = entry.xpath_node("videoid").not_nil!.content
       title = entry.xpath_node("title").not_nil!.content
@@ -182,7 +182,7 @@ module Invidious::Routes::Feeds
         paid:               false,
         premium:            false,
         premiere_timestamp: nil,
-        author_verified: false, # 	¯\_(ツ)_/¯
+        author_verified:    false, # 	¯\_(ツ)_/¯
       })
     end
 

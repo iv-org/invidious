@@ -8,7 +8,6 @@ struct MixVideo
   property length_seconds : Int32
   property index : Int32
   property rdid : String
-  
 end
 
 struct Mix
