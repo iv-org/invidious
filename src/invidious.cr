@@ -114,16 +114,18 @@ LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 # Check table integrity
 Invidious::Database.check_integrity(CONFIG)
 
-# Resolve player dependencies. This is done at compile time.
-#
-# Running the script by itself would show some colorful feedback while this doesn't.
-# Perhaps we should just move the script to runtime in order to get that feedback?
+{% unless flag?(:dont_fetch_videojs) %}
+  # Resolve player dependencies. This is done at compile time.
+  #
+  # Running the script by itself would show some colorful feedback while this doesn't.
+  # Perhaps we should just move the script to runtime in order to get that feedback?
 
-{% puts "\nChecking player dependencies...\n" %}
-{% if flag?(:minified_player_dependencies) %}
-  {% puts run("../scripts/fetch-player-dependencies.cr", "--minified").stringify %}
-{% else %}
-  {% puts run("../scripts/fetch-player-dependencies.cr").stringify %}
+  {% puts "\nChecking player dependencies...\n" %}
+  {% if flag?(:minified_player_dependencies) %}
+    {% puts run("../scripts/fetch-player-dependencies.cr", "--minified").stringify %}
+  {% else %}
+    {% puts run("../scripts/fetch-player-dependencies.cr").stringify %}
+  {% end %}
 {% end %}
 
 # Start jobs

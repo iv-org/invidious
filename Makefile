@@ -62,7 +62,8 @@ test:
 	crystal spec
 
 verify:
-	crystal build src/invidious.cr --no-codegen --progress --stats --error-trace
+	crystal build src/invidious.cr -Ddont_fetch_videojs \
+	  --no-codegen --progress --stats --error-trace
 
 
 # -----------------------
