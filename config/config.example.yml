@@ -163,7 +163,7 @@ https_only: false
 #use_quic: false
 
 ##
-## Additionnal cookies to be sent when requesting the youtube API.
+## Additional cookies to be sent when requesting the youtube API.
 ##
 ## Accepted values: a string in the format "name1=value1; name2=value2..."
 ## Default: <none>
@@ -188,7 +188,7 @@ https_only: false
 
 ##
 ## Path to log file. Can be absolute or relative to the invidious
-## binary. This is overriden if "-o OUTPUT" or "--output=OUTPUT"
+## binary. This is overridden if "-o OUTPUT" or "--output=OUTPUT"
 ## are passed on the command line.
 ##
 ## Accepted values: a filesystem path or 'STDOUT'
@@ -197,7 +197,7 @@ https_only: false
 #output: STDOUT
 
 ##
-## Logging Verbosity. This is overriden if "-l LEVEL" or
+## Logging Verbosity. This is overridden if "-l LEVEL" or
 ## "--log-level=LEVEL" are passed on the command line.
 ##
 ## Accepted values: All, Trace, Debug, Info, Warn, Error, Fatal, Off
@@ -306,7 +306,7 @@ https_only: false
 ##
 ## Notes:
 ##  - Setting this to 0 will disable the channel videos crawl job.
-##  - This setting is overriden if "-c THREADS" or
+##  - This setting is overridden if "-c THREADS" or
 ##    "--channel-threads=THREADS" are passed on the command line.
 ##
 ## Accepted values: a positive integer
@@ -328,7 +328,7 @@ full_refresh: false
 ##
 ## Notes:
 ##  - Setting this to 0 will disable the channel videos crawl job.
-##  - This setting is overriden if "-f THREADS" or
+##  - This setting is overridden if "-f THREADS" or
 ##    "--feed-threads=THREADS" are passed on the command line.
 ##
 ## Accepted values: a positive integer
@@ -371,7 +371,7 @@ feed_threads: 1
 
 
 # -----------------------------
-#  Miscellanous
+#  Miscellaneous
 # -----------------------------
 
 ##
@@ -433,7 +433,7 @@ feed_threads: 1
 #cache_annotations: false
 
 ##
-## Source code URL. If your instance is running a modfied source
+## Source code URL. If your instance is running a modified source
 ## code, you MUST publish it somewhere and set this option.
 ##
 ## Accepted values: a string
@@ -520,9 +520,9 @@ default_user_preferences:
   #region: US
 
   ##
-  ## Top 3 prefered languages for video captions.
+  ## Top 3 preferred languages for video captions.
   ##
-  ## Note: overridin the default (no preferred
+  ## Note: overriding the default (no preferred
   ## caption language) is not recommended, in order
   ## to not penalize people using other languages.
   ##
@@ -594,7 +594,7 @@ default_user_preferences:
   #feed_menu: ["Popular", "Trending", "Subscriptions", "Playlists"]
 
   ##
-  ## Default feed to diplay on the home page.
+  ## Default feed to display on the home page.
   ##
   ## Note: setting this option to "Popular" has no
   ## effect when 'popular_enabled' is set to false.
@@ -812,7 +812,7 @@ default_user_preferences:
 
 
   # -----------------------------
-  #  Miscellanous
+  #  Miscellaneous
   # -----------------------------
 
   ##

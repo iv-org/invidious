@@ -77,7 +77,7 @@ function update_mode (mode) {
         // If preference for dark mode indicated
         set_mode(true);
     }
-	else if (mode === 'false' /* for backwards compaibility */ || mode === 'light') {
+	else if (mode === 'false' /* for backwards compatibility */ || mode === 'light') {
 		// If preference for light mode indicated
 		set_mode(false);
 	}

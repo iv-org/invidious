@@ -90,7 +90,7 @@ module YoutubeAPI
     property client_type : ClientType
 
     # Region to provide to youtube, e.g to alter search results
-    # (this is passed as the `gl` parmeter).
+    # (this is passed as the `gl` parameter).
     property region : String | Nil
 
     # ISO code of country where the proxy is located.
@@ -205,7 +205,7 @@ module YoutubeAPI
   # :ditto:
   def browse(
     browse_id : String,
-    *, # Force the following paramters to be passed by name
+    *, # Force the following parameters to be passed by name
     params : String,
     client_config : ClientConfig | Nil = nil
   )
@@ -215,7 +215,7 @@ module YoutubeAPI
       "context"  => self.make_context(client_config),
     }
 
-    # Append the additionnal parameters if those were provided
+    # Append the additional parameters if those were provided
     # (this is required for channel info, playlist and community, e.g)
     if params != ""
       data["params"] = params
@@ -292,14 +292,14 @@ module YoutubeAPI
   # and POST data in order to get a JSON reply.
   #
   # The requested data is a video ID (`v=` parameter), with some
-  # additional paramters, formatted as a base64 string.
+  # additional parameters, formatted as a base64 string.
   #
   # An optional ClientConfig parameter can be passed, too (see
   # `struct ClientConfig` above for more details).
   #
   def player(
     video_id : String,
-    *, # Force the following paramters to be passed by name
+    *, # Force the following parameters to be passed by name
     params : String,
     client_config : ClientConfig | Nil = nil
   )
@@ -309,7 +309,7 @@ module YoutubeAPI
       "context" => self.make_context(client_config),
     }
 
-    # Append the additionnal parameters if those were provided
+    # Append the additional parameters if those were provided
     if params != ""
       data["params"] = params
     end
@@ -363,7 +363,7 @@ module YoutubeAPI
   # order to get non-US results.
   #
   # The requested data is a search string, with some additional
-  # paramters, formatted as a base64 string.
+  # parameters, formatted as a base64 string.
   #
   # An optional ClientConfig parameter can be passed, too (see
   # `struct ClientConfig` above for more details).
