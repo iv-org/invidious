@@ -54,7 +54,7 @@
                         <img loading="lazy" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                         <% if plid = env.get?("remove_playlist_items") %>
                             <form data-onsubmit="return_false" action="/playlist_ajax?action_remove_video=1&set_video_id=<%= item.index %>&playlist_id=<%= plid %>&referer=<%= env.get("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                                <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
                                     <a data-onclick="remove_playlist_item" data-index="<%= item.index %>" data-plid="<%= plid %>" href="javascript:void(0)">
                                         <button type="submit" style="all:unset">
@@ -106,7 +106,7 @@
                         <img loading="lazy" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                         <% if env.get? "show_watched" %>
                             <form data-onsubmit="return_false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                                <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
                                     <a data-onclick="mark_watched" data-id="<%= item.id %>" href="javascript:void(0)">
                                         <button type="submit" style="all:unset">
@@ -119,7 +119,7 @@
                             </form>
                         <% elsif plid = env.get? "add_playlist_items" %>
                             <form data-onsubmit="return_false" action="/playlist_ajax?action_add_video=1&video_id=<%= item.id %>&playlist_id=<%= plid %>&referer=<%= env.get("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                                <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
                                     <a data-onclick="add_playlist_item" data-id="<%= item.id %>" data-plid="<%= plid %>" href="javascript:void(0)">
                                         <button type="submit" style="all:unset">
