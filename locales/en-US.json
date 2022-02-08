@@ -94,7 +94,7 @@
     "preferences_related_videos_label": "Show related videos: ",
     "preferences_annotations_label": "Show annotations by default: ",
     "preferences_extend_desc_label": "Automatically extend video description: ",
-    "preferences_vr_mode_label": "Interactive 360 degree videos: ",
+    "preferences_vr_mode_label": "Interactive 360 degree videos (requires WebGL): ",
     "preferences_category_visual": "Visual preferences",
     "preferences_region_label": "Content country: ",
     "preferences_player_style_label": "Player style: ",
