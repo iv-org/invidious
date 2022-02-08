@@ -114,7 +114,7 @@ LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 # Check table integrity
 Invidious::Database.check_integrity(CONFIG)
 
-{% unless flag?(:dont_fetch_videojs) %}
+{% if !flag?(:skip_videojs_download) %}
   # Resolve player dependencies. This is done at compile time.
   #
   # Running the script by itself would show some colorful feedback while this doesn't.
