@@ -34,6 +34,7 @@ require "./invidious/channels/*"
 require "./invidious/user/*"
 require "./invidious/routes/**"
 require "./invidious/jobs/**"
+require "./invidious/migrations/*"
 
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
@@ -111,6 +112,8 @@ end
 OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mode: "a")
 LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
+# Run migrations
+Invidious::Migrator.new(PG_DB).migrate
 # Check table integrity
 Invidious::Database.check_integrity(CONFIG)
 
