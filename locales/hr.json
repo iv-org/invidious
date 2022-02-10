@@ -446,5 +446,12 @@
     "generic_views_count_2": "{{count}} prikaza",
     "comments_view_x_replies_0": "Prikaži {{count}} odgovor",
     "comments_view_x_replies_1": "Prikaži {{count}} odgovora",
-    "comments_view_x_replies_2": "Prikaži {{count}} odgovora"
+    "comments_view_x_replies_2": "Prikaži {{count}} odgovora",
+    "crash_page_you_found_a_bug": "Čini se da si pronašao/la grešku u Invidiousu!",
+    "crash_page_before_reporting": "Prije prijavljivanja greške:",
+    "crash_page_refresh": "pokušaj <a href=\"`x`\">aktualizirati stranicu</a>",
+    "crash_page_switch_instance": "pokušaj <a href=\"`x`\">koristiti jednu drugu instancu</a>",
+    "crash_page_read_the_faq": "pročitaj <a href=\"`x`\">Često postavljena pitanja (ČPP)</a>",
+    "crash_page_search_issue": "pretraži <a href=\"`x`\">postojeće probleme na Github-u</a>",
+    "crash_page_report_issue": "Ako ništa od gore navedenog ne pomaže, <a href=\"`x`\">prijavi novi problem na GitHub-u</a> (po mogućnosti na engleskom) i uključi sljedeći tekst u poruku (NEMOJ prevoditi taj tekst):"
 }
