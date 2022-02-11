@@ -14,12 +14,18 @@ module Invidious::Routes::VideoPlayback
     end
 
     if query_params["host"]? && !query_params["host"].empty?
-      host = "https://#{query_params["host"]}"
+      host = query_params["host"]
       query_params.delete("host")
     else
-      host = "https://r#{fvip}---#{mns.pop}.googlevideo.com"
+      host = "r#{fvip}---#{mns.pop}.googlevideo.com"
     end
 
+    # Sanity check, to avoid being used as an open proxy
+    if !host.matches?(/[\w-]+.googlevideo.com/)
+      return error_template(400, "Invalid \"host\" parameter.")
+    end
+
+    host = "https://#{host}"
     url = "/videoplayback?#{query_params}"
 
     headers = HTTP::Headers.new
