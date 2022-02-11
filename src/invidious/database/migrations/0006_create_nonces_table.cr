@@ -1,6 +1,6 @@
-module Invidious::Migrations
+module Invidious::Database::Migrations
   class CreateNoncesTable < Migration
-    version 5
+    version 6
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL

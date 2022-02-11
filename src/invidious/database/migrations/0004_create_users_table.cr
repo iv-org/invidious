@@ -1,6 +1,6 @@
-module Invidious::Migrations
+module Invidious::Database::Migrations
   class CreateUsersTable < Migration
-    version 3
+    version 4
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL

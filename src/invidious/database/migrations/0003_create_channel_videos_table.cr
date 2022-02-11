@@ -1,6 +1,6 @@
-module Invidious::Migrations
+module Invidious::Database::Migrations
   class CreateChannelVideosTable < Migration
-    version 2
+    version 3
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL

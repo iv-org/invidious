@@ -1,6 +1,6 @@
-abstract class Invidious::Migration
+abstract class Invidious::Database::Migration
   macro inherited
-    Invidious::Migrator.migrations << self
+    Migrator.migrations << self
   end
 
   @@version : Int64?
@@ -33,6 +33,6 @@ abstract class Invidious::Migration
   end
 
   private def track(conn : DB::Connection)
-    conn.exec("INSERT INTO #{Invidious::Migrator::MIGRATIONS_TABLE}(version) VALUES ($1)", version)
+    conn.exec("INSERT INTO #{Migrator::MIGRATIONS_TABLE} (version) VALUES ($1)", version)
   end
 end

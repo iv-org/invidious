@@ -27,6 +27,7 @@ require "compress/zip"
 require "protodec/utils"
 
 require "./invidious/database/*"
+require "./invidious/database/migrations/*"
 require "./invidious/helpers/*"
 require "./invidious/yt_backend/*"
 require "./invidious/*"
@@ -34,7 +35,6 @@ require "./invidious/channels/*"
 require "./invidious/user/*"
 require "./invidious/routes/**"
 require "./invidious/jobs/**"
-require "./invidious/migrations/*"
 
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
@@ -113,7 +113,7 @@ OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mo
 LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
 # Run migrations
-Invidious::Migrator.new(PG_DB).migrate
+Invidious::Database::Migrator.new(PG_DB).migrate
 # Check table integrity
 Invidious::Database.check_integrity(CONFIG)
 

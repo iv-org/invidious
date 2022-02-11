@@ -1,6 +1,6 @@
-module Invidious::Migrations
+module Invidious::Database::Migrations
   class CreateSessionIdsTable < Migration
-    version 4
+    version 5
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL

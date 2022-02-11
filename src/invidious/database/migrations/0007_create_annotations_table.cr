@@ -1,6 +1,6 @@
-module Invidious::Migrations
+module Invidious::Database::Migrations
   class CreateAnnotationsTable < Migration
-    version 6
+    version 7
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL
