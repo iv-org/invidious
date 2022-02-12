@@ -677,3 +677,6 @@ if (window.location.pathname.startsWith("/embed/")) {
     cb = player.getChild('ControlBar')
     cb.addChild(watch_on_invidious_button)
 };
+
+// Add usage of videojs-persist
+player.persist();
