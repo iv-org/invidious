@@ -105,12 +105,25 @@ struct Invidious::User
     #  Youtube
     # -------------------
 
+    private def is_opml?(mimetype : String, extension : String)
+      opml_mimetypes = [
+        "application/xml",
+        "text/xml",
+        "text/x-opml",
+        "text/x-opml+xml",
+      ]
+
+      opml_extensions = ["xml", "opml"]
+
+      return opml_mimetypes.any?(&.== mimetype) || opml_extensions.any?(&.== extension)
+    end
+
     # Import subscribed channels from Youtube
     # Returns success status
     def from_youtube(user : User, body : String, filename : String, type : String) : Bool
       extension = filename.split(".").last
 
-      if extension == "xml" || type == "application/xml" || type == "text/xml"
+      if is_opml?(type, extension)
         subscriptions = XML.parse(body)
         user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
           channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
