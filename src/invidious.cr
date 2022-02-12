@@ -116,11 +116,6 @@ end
 OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mode: "a")
 LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
-# Run migrations
-if Invidious::Database::Migrator.new(PG_DB).pending_migrations?
-  puts "There are pending migrations. Run `invidious --migrate` to apply the migrations."
-  exit 46
-end
 # Check table integrity
 Invidious::Database.check_integrity(CONFIG)
 
