@@ -30,7 +30,7 @@ struct Invidious::User
         value: URI.encode_www_form(preferences.to_json),
         expires: Time.utc + 2.years,
         secure: SECURE,
-        http_only: true
+        http_only: false
       )
     end
   end

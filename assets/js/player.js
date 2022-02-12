@@ -176,16 +176,54 @@ if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
     player.currentTime(video_data.params.video_start);
 }
 
-/*
-    If the video settings are default, we enable the management of the settings by
-    the videojs-persist module otherwise we apply the preferences.
-*/
-if (video_data.params.volume == 100 && video_data.params.speed == "1.0")
-    player.persist();
-else {
-    player.volume(video_data.params.volume / 100);
-    player.playbackRate(video_data.params.speed);
+player.volume(video_data.params.volume / 100);
+player.playbackRate(video_data.params.speed);
+
+/**
+ * Method for get content of Cookie
+ * @param {String} name Name of cookie
+ * @returns cookieValue
+ */
+function getCookieValue(name) {
+    var value = document.cookie.split(";").filter(item => {
+        return item.includes(name + "=");
+    });
+    return value != null && value.length >= 1 ? value[0].substring((name + "=").length, value[0].length) : null;
 }
+
+/**
+ * Method for update Prefs cookie (Or create if missing)
+ * @param {number} newVolume New Volume defined (Null if unchanged)
+ * @param {number} newSpeed New Speed defined (Null if unchanged)
+ */
+function updateCookie(newVolume, newSpeed) {
+    var volumeValue = newVolume != null ? newVolume : video_data.params.volume;
+    var speedValue = newSpeed != null ? newSpeed : video_data.params.speed;
+    var cookieValue = getCookieValue('PREFS');
+    if (cookieValue != null) {
+        var cookieJson = JSON.parse(decodeURIComponent(cookieValue));
+        cookieJson.volume = volumeValue;
+        cookieJson.speed = speedValue;
+        document.cookie = document.cookie.replace(getCookieValue('PREFS'), encodeURIComponent(JSON.stringify(cookieJson)));
+    } else {
+        var date = new Date();
+        //Set expiration in 2 year
+        date.setTime(date.getTime() + 63115200);
+        document.cookie = 'PREFS=' +
+            encodeURIComponent(JSON.stringify({ 'volume': volumeValue, 'speed': speedValue })) +
+            '; expires=' + date.toGMTString() + '; SameSite=Strict; path=/';
+    }
+    video_data.params.volume = volumeValue;
+    video_data.params.speed = speedValue;
+}
+
+player.on('ratechange', function () {
+    updateCookie(null, player.playbackRate());
+});
+
+player.on('volumechange', function () {
+    updateCookie(Math.ceil(player.volume() * 100), null);
+});
 
 player.on('waiting', function () {
     if (player.playbackRate() > 1 && player.liveTracker.isLive() && player.liveTracker.atLiveEdge()) {

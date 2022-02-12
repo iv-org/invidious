@@ -25,10 +25,6 @@ videojs-overlay:
   version: 2.1.4
   shasum: 5a103b25374dbb753eb87960d8360c2e8f39cc05
 
-videojs-persist:
-  version: 0.1.2
-  shasum: 44da05aced1fbf15693a36b7cce3cc4a9960dabe
-
 videojs-share:
   version: 3.2.1
   shasum: 0a3024b981387b9d21c058c829760a72c14b8ceb
