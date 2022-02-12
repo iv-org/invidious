@@ -22,6 +22,13 @@ class Invidious::Database::Migrator
     puts "No migrations to run." unless ran_migration
   end
 
+  def pending_migrations? : Bool
+    versions = load_versions
+
+    load_migrations.sort_by(&.version)
+      .any? { |migration| !versions.includes?(migration.version) }
+  end
+
   private def load_migrations : Array(Invidious::Database::Migration)
     self.class.migrations.map(&.new(@db))
   end

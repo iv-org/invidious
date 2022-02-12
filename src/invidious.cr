@@ -102,6 +102,10 @@ Kemal.config.extra_options do |parser|
     puts SOFTWARE.to_pretty_json
     exit
   end
+  parser.on("--migrate", "Run any migrations") do
+    Invidious::Database::Migrator.new(PG_DB).migrate
+    exit
+  end
 end
 
 Kemal::CLI.new ARGV
@@ -113,7 +117,10 @@ OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mo
 LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
 # Run migrations
-Invidious::Database::Migrator.new(PG_DB).migrate
+if Invidious::Database::Migrator.new(PG_DB).pending_migrations?
+  puts "There are pending migrations. Run `invidious --migrate` to apply the migrations."
+  exit 46
+end
 # Check table integrity
 Invidious::Database.check_integrity(CONFIG)
 
