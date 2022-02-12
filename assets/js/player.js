@@ -176,8 +176,16 @@ if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
     player.currentTime(video_data.params.video_start);
 }
 
-player.volume(video_data.params.volume / 100);
-player.playbackRate(video_data.params.speed);
+/*
+    If the video settings are default, we enable the management of the settings by
+    the videojs-persist module otherwise we apply the preferences.
+*/
+if (video_data.params.volume == 100 && video_data.params.speed == "1.0")
+    player.persist();
+else {
+    player.volume(video_data.params.volume / 100);
+    player.playbackRate(video_data.params.speed);
+}
 
 player.on('waiting', function () {
     if (player.playbackRate() > 1 && player.liveTracker.isLive() && player.liveTracker.atLiveEdge()) {
@@ -677,6 +685,3 @@ if (window.location.pathname.startsWith("/embed/")) {
     cb = player.getChild('ControlBar')
     cb.addChild(watch_on_invidious_button)
 };
-
-// Add usage of videojs-persist
-player.persist();
