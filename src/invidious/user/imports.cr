@@ -152,9 +152,16 @@ struct Invidious::User
     # -------------------
 
     def from_freetube(user : User, body : String)
+      # Legacy import?
       matches = body.scan(/"channelId":"(?<channel_id>[a-zA-Z0-9_-]{24})"/)
+      subs = matches.map(&.["channel_id"])
 
-      user.subscriptions += matches.map(&.["channel_id"])
+      if subs.empty?
+        data = JSON.parse(body)["subscriptions"]
+        subs = data.as_a.map(&.["id"].as_s)
+      end
+
+      user.subscriptions += subs
       user.subscriptions.uniq!
       user.subscriptions = get_batch_channels(user.subscriptions)
 
