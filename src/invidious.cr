@@ -63,7 +63,7 @@ RESPONSE_HEADERS_BLACKLIST = {
   "access-control-allow-origin",
   "alt-svc",
   "server",
-  "content-security-polic",
+  "content-security-policy",
   "x-content-type-options",
   "x-frame-options",
   "x-xss-protection",
