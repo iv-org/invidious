@@ -8,7 +8,7 @@ module Invidious::Routes::PreferencesRoute
 
     preferences = env.get("preferences").as(Preferences)
 
-    templated "preferences"
+    templated "user/preferences"
   end
 
   def self.update(env)
@@ -214,19 +214,7 @@ module Invidious::Routes::PreferencesRoute
         File.write("config/config.yml", CONFIG.to_yaml)
       end
     else
-      if Kemal.config.ssl || CONFIG.https_only
-        secure = true
-      else
-        secure = false
-      end
-
-      if CONFIG.domain
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: URI.encode_www_form(preferences.to_json), expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      else
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: URI.encode_www_form(preferences.to_json), expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      end
+      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
     end
 
     env.redirect referer
@@ -261,21 +249,7 @@ module Invidious::Routes::PreferencesRoute
         preferences.dark_mode = "dark"
       end
 
-      preferences = preferences.to_json
-
-      if Kemal.config.ssl || CONFIG.https_only
-        secure = true
-      else
-        secure = false
-      end
-
-      if CONFIG.domain
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", domain: "#{CONFIG.domain}", value: URI.encode_www_form(preferences), expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      else
-        env.response.cookies["PREFS"] = HTTP::Cookie.new(name: "PREFS", value: URI.encode_www_form(preferences), expires: Time.utc + 2.years,
-          secure: secure, http_only: true)
-      end
+      env.response.cookies["PREFS"] = Invidious::User::Cookies.prefs(CONFIG.domain, preferences)
     end
 
     if redirect
@@ -298,7 +272,7 @@ module Invidious::Routes::PreferencesRoute
 
     user = user.as(User)
 
-    templated "data_control"
+    templated "user/data_control"
   end
 
   def self.update_data_control(env)
@@ -321,149 +295,27 @@ module Invidious::Routes::PreferencesRoute
         # TODO: Unify into single import based on content-type
         case part.name
         when "import_invidious"
-          body = JSON.parse(body)
-
-          if body["subscriptions"]?
-            user.subscriptions += body["subscriptions"].as_a.map(&.as_s)
-            user.subscriptions.uniq!
-
-            user.subscriptions = get_batch_channels(user.subscriptions)
-
-            Invidious::Database::Users.update_subscriptions(user)
-          end
-
-          if body["watch_history"]?
-            user.watched += body["watch_history"].as_a.map(&.as_s)
-            user.watched.uniq!
-            Invidious::Database::Users.update_watch_history(user)
-          end
-
-          if body["preferences"]?
-            user.preferences = Preferences.from_json(body["preferences"].to_json)
-            Invidious::Database::Users.update_preferences(user)
-          end
-
-          if playlists = body["playlists"]?.try &.as_a?
-            playlists.each do |item|
-              title = item["title"]?.try &.as_s?.try &.delete("<>")
-              description = item["description"]?.try &.as_s?.try &.delete("\r")
-              privacy = item["privacy"]?.try &.as_s?.try { |privacy| PlaylistPrivacy.parse? privacy }
-
-              next if !title
-              next if !description
-              next if !privacy
-
-              playlist = create_playlist(title, privacy, user)
-              Invidious::Database::Playlists.update_description(playlist.id, description)
-
-              videos = item["videos"]?.try &.as_a?.try &.each_with_index do |video_id, idx|
-                raise InfoException.new("Playlist cannot have more than 500 videos") if idx > 500
-
-                video_id = video_id.try &.as_s?
-                next if !video_id
-
-                begin
-                  video = get_video(video_id)
-                rescue ex
-                  next
-                end
-
-                playlist_video = PlaylistVideo.new({
-                  title:          video.title,
-                  id:             video.id,
-                  author:         video.author,
-                  ucid:           video.ucid,
-                  length_seconds: video.length_seconds,
-                  published:      video.published,
-                  plid:           playlist.id,
-                  live_now:       video.live_now,
-                  index:          Random::Secure.rand(0_i64..Int64::MAX),
-                })
-
-                Invidious::Database::PlaylistVideos.insert(playlist_video)
-                Invidious::Database::Playlists.update_video_added(playlist.id, playlist_video.index)
-              end
-            end
-          end
+          Invidious::User::Import.from_invidious(user, body)
         when "import_youtube"
           filename = part.filename || ""
-          extension = filename.split(".").last
+          success = Invidious::User::Import.from_youtube(user, body, filename, type)
 
-          if extension == "xml" || type == "application/xml" || type == "text/xml"
-            subscriptions = XML.parse(body)
-            user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
-              channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
-            end
-          elsif extension == "json" || type == "application/json"
-            subscriptions = JSON.parse(body)
-            user.subscriptions += subscriptions.as_a.compact_map do |entry|
-              entry["snippet"]["resourceId"]["channelId"].as_s
-            end
-          elsif extension == "csv" || type == "text/csv"
-            subscriptions = parse_subscription_export_csv(body)
-            user.subscriptions += subscriptions
-          else
+          if !success
             haltf(env, status_code: 415,
               response: error_template(415, "Invalid subscription file uploaded")
             )
           end
-
-          user.subscriptions.uniq!
-          user.subscriptions = get_batch_channels(user.subscriptions)
-
-          Invidious::Database::Users.update_subscriptions(user)
         when "import_freetube"
-          user.subscriptions += body.scan(/"channelId":"(?<channel_id>[a-zA-Z0-9_-]{24})"/).map do |md|
-            md["channel_id"]
-          end
-          user.subscriptions.uniq!
-
-          user.subscriptions = get_batch_channels(user.subscriptions)
-
-          Invidious::Database::Users.update_subscriptions(user)
+          Invidious::User::Import.from_freetube(user, body)
         when "import_newpipe_subscriptions"
-          body = JSON.parse(body)
-          user.subscriptions += body["subscriptions"].as_a.compact_map do |channel|
-            if match = channel["url"].as_s.match(/\/channel\/(?<channel>UC[a-zA-Z0-9_-]{22})/)
-              next match["channel"]
-            elsif match = channel["url"].as_s.match(/\/user\/(?<user>.+)/)
-              response = YT_POOL.client &.get("/user/#{match["user"]}?disable_polymer=1&hl=en&gl=US")
-              html = XML.parse_html(response.body)
-              ucid = html.xpath_node(%q(//link[@rel="canonical"])).try &.["href"].split("/")[-1]
-              next ucid if ucid
-            end
-
-            nil
-          end
-          user.subscriptions.uniq!
-
-          user.subscriptions = get_batch_channels(user.subscriptions)
-
-          Invidious::Database::Users.update_subscriptions(user)
+          Invidious::User::Import.from_newpipe_subs(user, body)
         when "import_newpipe"
-          Compress::Zip::Reader.open(IO::Memory.new(body)) do |file|
-            file.each_entry do |entry|
-              if entry.filename == "newpipe.db"
-                tempfile = File.tempfile(".db")
-                File.write(tempfile.path, entry.io.gets_to_end)
-                db = DB.open("sqlite3://" + tempfile.path)
+          success = Invidious::User::Import.from_newpipe(user, body)
 
-                user.watched += db.query_all("SELECT url FROM streams", as: String).map(&.lchop("https://www.youtube.com/watch?v="))
-                user.watched.uniq!
-
-                Invidious::Database::Users.update_watch_history(user)
-
-                user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String).map(&.lchop("https://www.youtube.com/channel/"))
-                user.subscriptions.uniq!
-
-                user.subscriptions = get_batch_channels(user.subscriptions)
-
-                Invidious::Database::Users.update_subscriptions(user)
-
-                db.close
-                tempfile.delete
-              end
-            end
+          if !success
+            haltf(env, status_code: 415,
+              response: error_template(415, "Uploaded file is too large")
+            )
           end
         else nil # Ignore
         end

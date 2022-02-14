@@ -3,32 +3,6 @@ require "crypto/bcrypt/password"
 # Materialized views may not be defined using bound parameters (`$1` as used elsewhere)
 MATERIALIZED_VIEW_SQL = ->(email : String) { "SELECT cv.* FROM channel_videos cv WHERE EXISTS (SELECT subscriptions FROM users u WHERE cv.ucid = ANY (u.subscriptions) AND u.email = E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}') ORDER BY published DESC" }
 
-struct User
-  include DB::Serializable
-
-  property updated : Time
-  property notifications : Array(String)
-  property subscriptions : Array(String)
-  property email : String
-
-  @[DB::Field(converter: User::PreferencesConverter)]
-  property preferences : Preferences
-  property password : String?
-  property token : String
-  property watched : Array(String)
-  property feed_needs_update : Bool?
-
-  module PreferencesConverter
-    def self.from_rs(rs)
-      begin
-        Preferences.from_json(rs.read(String))
-      rescue ex
-        Preferences.from_json("{}")
-      end
-    end
-  end
-end
-
 def get_user(sid, headers, refresh = true)
   if email = Invidious::Database::SessionIDs.select_email(sid)
     user = Invidious::Database::Users.select!(email: email)
@@ -84,7 +58,7 @@ def fetch_user(sid, headers)
 
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new({
+  user = Invidious::User.new({
     updated:           Time.utc,
     notifications:     [] of String,
     subscriptions:     channels,
@@ -102,7 +76,7 @@ def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
 
-  user = User.new({
+  user = Invidious::User.new({
     updated:           Time.utc,
     notifications:     [] of String,
     subscriptions:     [] of String,
@@ -115,75 +89,6 @@ def create_user(sid, email, password)
   })
 
   return user, sid
-end
-
-def generate_captcha(key)
-  second = Random::Secure.rand(12)
-  second_angle = second * 30
-  second = second * 5
-
-  minute = Random::Secure.rand(12)
-  minute_angle = minute * 30
-  minute = minute * 5
-
-  hour = Random::Secure.rand(12)
-  hour_angle = hour * 30 + minute_angle.to_f / 12
-  if hour == 0
-    hour = 12
-  end
-
-  clock_svg = <<-END_SVG
-  <svg viewBox="0 0 100 100" width="200px" height="200px">
-  <circle cx="50" cy="50" r="45" fill="#eee" stroke="black" stroke-width="2"></circle>
-
-  <text x="69"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 1</text>
-  <text x="82.909" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 2</text>
-  <text x="88"     y="53"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 3</text>
-  <text x="82.909" y="72"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 4</text>
-  <text x="69"     y="85.909" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 5</text>
-  <text x="50"     y="91"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 6</text>
-  <text x="31"     y="85.909" text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 7</text>
-  <text x="17.091" y="72"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 8</text>
-  <text x="12"     y="53"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px"> 9</text>
-  <text x="17.091" y="34"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px">10</text>
-  <text x="31"     y="20.091" text-anchor="middle" fill="black" font-family="Arial" font-size="10px">11</text>
-  <text x="50"     y="15"     text-anchor="middle" fill="black" font-family="Arial" font-size="10px">12</text>
-
-  <circle cx="50" cy="50" r="3" fill="black"></circle>
-  <line id="second" transform="rotate(#{second_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="12" fill="black" stroke="black" stroke-width="1"></line>
-  <line id="minute" transform="rotate(#{minute_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="16" fill="black" stroke="black" stroke-width="2"></line>
-  <line id="hour"   transform="rotate(#{hour_angle}, 50, 50)" x1="50" y1="50" x2="50" y2="24" fill="black" stroke="black" stroke-width="2"></line>
-  </svg>
-  END_SVG
-
-  image = "data:image/png;base64,"
-  image += Process.run(%(rsvg-convert -w 400 -h 400 -b none -f png), shell: true,
-    input: IO::Memory.new(clock_svg), output: Process::Redirect::Pipe
-  ) do |proc|
-    Base64.strict_encode(proc.output.gets_to_end)
-  end
-
-  answer = "#{hour}:#{minute.to_s.rjust(2, '0')}:#{second.to_s.rjust(2, '0')}"
-  answer = OpenSSL::HMAC.hexdigest(:sha256, key, answer)
-
-  return {
-    question: image,
-    tokens:   {generate_response(answer, {":login"}, key, use_nonce: true)},
-  }
-end
-
-def generate_text_captcha(key)
-  response = make_client(TEXTCAPTCHA_URL, &.get("/github.com/iv.org/invidious.json").body)
-  response = JSON.parse(response)
-
-  tokens = response["a"].as_a.map do |answer|
-    generate_response(answer.as_s, {":login"}, key, use_nonce: true)
-  end
-
-  return {
-    question: response["q"].as_s,
-    tokens:   tokens,
-  }
 end
 
 def subscribe_ajax(channel_id, action, env_headers)

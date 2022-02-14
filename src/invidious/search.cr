@@ -176,7 +176,7 @@ end
 
 def process_search_query(query, page, user, region)
   if user
-    user = user.as(User)
+    user = user.as(Invidious::User)
     view_name = "subscriptions_#{sha256(user.email)}"
   end
 

@@ -38,14 +38,13 @@ require "./invidious/jobs/**"
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
-PG_DB           = DB.open CONFIG.database_url
-ARCHIVE_URL     = URI.parse("https://archive.org")
-LOGIN_URL       = URI.parse("https://accounts.google.com")
-PUBSUB_URL      = URI.parse("https://pubsubhubbub.appspot.com")
-REDDIT_URL      = URI.parse("https://www.reddit.com")
-TEXTCAPTCHA_URL = URI.parse("https://textcaptcha.com")
-YT_URL          = URI.parse("https://www.youtube.com")
-HOST_URL        = make_host_url(Kemal.config)
+PG_DB       = DB.open CONFIG.database_url
+ARCHIVE_URL = URI.parse("https://archive.org")
+LOGIN_URL   = URI.parse("https://accounts.google.com")
+PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
+REDDIT_URL  = URI.parse("https://www.reddit.com")
+YT_URL      = URI.parse("https://www.youtube.com")
+HOST_URL    = make_host_url(Kemal.config)
 
 CHARS_SAFE         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
@@ -366,15 +365,8 @@ end
   Invidious::Routing.get "/results", Invidious::Routes::Search, :results
   Invidious::Routing.get "/search", Invidious::Routes::Search, :search
 
-  Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
-  Invidious::Routing.post "/login", Invidious::Routes::Login, :login
-  Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
-
-  Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show
-  Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
-  Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
-  Invidious::Routing.get "/data_control", Invidious::Routes::PreferencesRoute, :data_control
-  Invidious::Routing.post "/data_control", Invidious::Routes::PreferencesRoute, :update_data_control
+  # User routes
+  define_user_routes()
 
   # Feeds
   Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Feeds, :view_all_playlists_redirect
@@ -413,325 +405,6 @@ define_v1_api_routes()
 # Video playback (macros)
 define_api_manifest_routes()
 define_video_playback_routes()
-
-get "/change_password" do |env|
-  locale = env.get("preferences").as(Preferences).locale
-
-  user = env.get? "user"
-  sid = env.get? "sid"
-  referer = get_referer(env)
-
-  if !user
-    next env.redirect referer
-  end
-
-  user = user.as(User)
-  sid = sid.as(String)
-  csrf_token = generate_response(sid, {":change_password"}, HMAC_KEY)
-
-  templated "change_password"
-end
-
-post "/change_password" do |env|
-  locale = env.get("preferences").as(Preferences).locale
-
-  user = env.get? "user"
-  sid = env.get? "sid"
-  referer = get_referer(env)
-
-  if !user
-    next env.redirect referer
-  end
-
-  user = user.as(User)
-  sid = sid.as(String)
-  token = env.params.body["csrf_token"]?
-
-  # We don't store passwords for Google accounts
-  if !user.password
-    next error_template(400, "Cannot change password for Google accounts")
-  end
-
-  begin
-    validate_request(token, sid, env.request, HMAC_KEY, locale)
-  rescue ex
-    next error_template(400, ex)
-  end
-
-  password = env.params.body["password"]?
-  if !password
-    next error_template(401, "Password is a required field")
-  end
-
-  new_passwords = env.params.body.select { |k, v| k.match(/^new_password\[\d+\]$/) }.map { |k, v| v }
-
-  if new_passwords.size <= 1 || new_passwords.uniq.size != 1
-    next error_template(400, "New passwords must match")
-  end
-
-  new_password = new_passwords.uniq[0]
-  if new_password.empty?
-    next error_template(401, "Password cannot be empty")
-  end
-
-  if new_password.bytesize > 55
-    next error_template(400, "Password cannot be longer than 55 characters")
-  end
-
-  if !Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
-    next error_template(401, "Incorrect password")
-  end
-
-  new_password = Crypto::Bcrypt::Password.create(new_password, cost: 10)
-  Invidious::Database::Users.update_password(user, new_password.to_s)
-
-  env.redirect referer
-end
-
-get "/delete_account" do |env|
-  locale = env.get("preferences").as(Preferences).locale
-
-  user = env.get? "user"
-  sid = env.get? "sid"
-  referer = get_referer(env)
-
-  if !user
-    next env.redirect referer
-  end
-
-  user = user.as(User)
-  sid = sid.as(String)
-  csrf_token = generate_response(sid, {":delete_account"}, HMAC_KEY)
-
-  templated "delete_account"
-end
-
-post "/delete_account" do |env|
-  locale = env.get("preferences").as(Preferences).locale
-
-  user = env.get? "user"
-  sid = env.get? "sid"
-  referer = get_referer(env)
-
-  if !user
-    next env.redirect referer
-  end
-
-  user = user.as(User)
-  sid = sid.as(String)
-  token = env.params.body["csrf_token"]?
-
-  begin
-    validate_request(token, sid, env.request, HMAC_KEY, locale)
-  rescue ex
-    next error_template(400, ex)
-  end
-
-  view_name = "subscriptions_#{sha256(user.email)}"
-  Invidious::Database::Users.delete(user)
-  Invidious::Database::SessionIDs.delete(email: user.email)
-  PG_DB.exec("DROP MATERIALIZED VIEW #{view_name}")
-
-  env.request.cookies.each do |cookie|
-    cookie.expires = Time.utc(1990, 1, 1)
-    env.response.cookies << cookie
-  end
-
-  env.redirect referer
-end
-
-get "/clear_watch_history" do |env|
-  locale = env.get("preferences").as(Preferences).locale
-
-  user = env.get? "user"
-  sid = env.get? "sid"
-  referer = get_referer(env)
-
-  if !user
-    next env.redirect referer
-  end
-
-  user = user.as(User)
-  sid = sid.as(String)
-  csrf_token = generate_response(sid, {":clear_watch_history"}, HMAC_KEY)
-
-  templated "clear_watch_history"
-end
-
-post "/clear_watch_history" do |env|
-  locale = env.get("preferences").as(Preferences).locale
-
-  user = env.get? "user"
-  sid = env.get? "sid"
-  referer = get_referer(env)
-
-  if !user
-    next env.redirect referer
-  end
-
-  user = user.as(User)
-  sid = sid.as(String)
-  token = env.params.body["csrf_token"]?
-
-  begin
-    validate_request(token, sid, env.request, HMAC_KEY, locale)
-  rescue ex
-    next error_template(400, ex)
-  end
-
-  Invidious::Database::Users.clear_watch_history(user)
-  env.redirect referer
-end
-
-get "/authorize_token" do |env|
-  locale = env.get("preferences").as(Preferences).locale
-
-  user = env.get? "user"
-  sid = env.get? "sid"
-  referer = get_referer(env)
-
-  if !user
-    next env.redirect referer
-  end
-
-  user = user.as(User)
-  sid = sid.as(String)
-  csrf_token = generate_response(sid, {":authorize_token"}, HMAC_KEY)
-
-  scopes = env.params.query["scopes"]?.try &.split(",")
-  scopes ||= [] of String
-
-  callback_url = env.params.query["callback_url"]?
-  if callback_url
-    callback_url = URI.parse(callback_url)
-  end
-
-  expire = env.params.query["expire"]?.try &.to_i?
-
-  templated "authorize_token"
-end
-
-post "/authorize_token" do |env|
-  locale = env.get("preferences").as(Preferences).locale
-
-  user = env.get? "user"
-  sid = env.get? "sid"
-  referer = get_referer(env)
-
-  if !user
-    next env.redirect referer
-  end
-
-  user = env.get("user").as(User)
-  sid = sid.as(String)
-  token = env.params.body["csrf_token"]?
-
-  begin
-    validate_request(token, sid, env.request, HMAC_KEY, locale)
-  rescue ex
-    next error_template(400, ex)
-  end
-
-  scopes = env.params.body.select { |k, v| k.match(/^scopes\[\d+\]$/) }.map { |k, v| v }
-  callback_url = env.params.body["callbackUrl"]?
-  expire = env.params.body["expire"]?.try &.to_i?
-
-  access_token = generate_token(user.email, scopes, expire, HMAC_KEY)
-
-  if callback_url
-    access_token = URI.encode_www_form(access_token)
-    url = URI.parse(callback_url)
-
-    if url.query
-      query = HTTP::Params.parse(url.query.not_nil!)
-    else
-      query = HTTP::Params.new
-    end
-
-    query["token"] = access_token
-    url.query = query.to_s
-
-    env.redirect url.to_s
-  else
-    csrf_token = ""
-    env.set "access_token", access_token
-    templated "authorize_token"
-  end
-end
-
-get "/token_manager" do |env|
-  locale = env.get("preferences").as(Preferences).locale
-
-  user = env.get? "user"
-  sid = env.get? "sid"
-  referer = get_referer(env, "/subscription_manager")
-
-  if !user
-    next env.redirect referer
-  end
-
-  user = user.as(User)
-  tokens = Invidious::Database::SessionIDs.select_all(user.email)
-
-  templated "token_manager"
-end
-
-post "/token_ajax" do |env|
-  locale = env.get("preferences").as(Preferences).locale
-
-  user = env.get? "user"
-  sid = env.get? "sid"
-  referer = get_referer(env)
-
-  redirect = env.params.query["redirect"]?
-  redirect ||= "true"
-  redirect = redirect == "true"
-
-  if !user
-    if redirect
-      next env.redirect referer
-    else
-      next error_json(403, "No such user")
-    end
-  end
-
-  user = user.as(User)
-  sid = sid.as(String)
-  token = env.params.body["csrf_token"]?
-
-  begin
-    validate_request(token, sid, env.request, HMAC_KEY, locale)
-  rescue ex
-    if redirect
-      next error_template(400, ex)
-    else
-      next error_json(400, ex)
-    end
-  end
-
-  if env.params.query["action_revoke_token"]?
-    action = "action_revoke_token"
-  else
-    next env.redirect referer
-  end
-
-  session = env.params.query["session"]?
-  session ||= ""
-
-  case action
-  when .starts_with? "action_revoke_token"
-    Invidious::Database::SessionIDs.delete(sid: session, email: user.email)
-  else
-    next error_json(400, "Unsupported action #{action}")
-  end
-
-  if redirect
-    env.redirect referer
-  else
-    env.response.content_type = "application/json"
-    "{}"
-  end
-end
 
 # Channels
 
@@ -876,7 +549,7 @@ add_handler AuthHandler.new
 add_handler DenyFrame.new
 add_context_storage_type(Array(String))
 add_context_storage_type(Preferences)
-add_context_storage_type(User)
+add_context_storage_type(Invidious::User)
 
 Kemal.config.logger = LOGGER
 Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding

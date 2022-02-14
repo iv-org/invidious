@@ -252,7 +252,7 @@
                 <% end %>
             <% end %>
 
-            <% if env.get?("user") && CONFIG.admins.includes? env.get?("user").as(User).email %>
+            <% if env.get?("user") && CONFIG.admins.includes? env.get?("user").as(Invidious::User).email %>
                 <legend><%= translate(locale, "preferences_category_admin") %></legend>
 
                 <div class="pure-control-group">
