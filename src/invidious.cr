@@ -51,9 +51,23 @@ CHARS_SAFE         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
 TEST_IDS           = {"AgbeGFYluEA", "BaW_jenozKc", "a9LDPn-MO4I", "ddFvjfvPnqk", "iqKdEhx-dD4"}
 MAX_ITEMS_PER_PAGE = 1500
 
-REQUEST_HEADERS_WHITELIST  = {"accept", "accept-encoding", "cache-control", "content-length", "if-none-match", "range"}
-RESPONSE_HEADERS_BLACKLIST = {"access-control-allow-origin", "alt-svc", "server"}
-HTTP_CHUNK_SIZE            = 10485760 # ~10MB
+REQUEST_HEADERS_WHITELIST = {
+  "accept",
+  "accept-encoding",
+  "cache-control",
+  "content-length",
+  "if-none-match",
+  "range",
+}
+RESPONSE_HEADERS_BLACKLIST = {
+  "access-control-allow-origin",
+  "alt-svc",
+  "server",
+  "content-security-polic",
+  "x-content-type-options",
+  "x-frame-options",
+  "x-xss-protection",
+}
 
 CURRENT_BRANCH  = {{ "#{`git branch | sed -n '/* /s///p'`.strip}" }}
 CURRENT_COMMIT  = {{ "#{`git rev-list HEAD --max-count=1 --abbrev-commit`.strip}" }}

@@ -111,75 +111,44 @@ module Invidious::Routes::VideoPlayback
         return error_template(403, "Administrator has disabled this endpoint.")
       end
 
-      content_length = nil
-      first_chunk = true
-      range_start, range_end = parse_range(env.request.headers["Range"]?)
-      chunk_start = range_start
-      chunk_end = range_end
+      request_range = env.request.headers["Range"]?
+      range_start, range_end = parse_range(request_range)
+      headers["Range"] = "bytes=#{range_start}-#{range_end}"
 
-      if !chunk_end || chunk_end - chunk_start > HTTP_CHUNK_SIZE
-        chunk_end = chunk_start + HTTP_CHUNK_SIZE - 1
-      end
-
-      # TODO: Record bytes written so we can restart after a chunk fails
-      while true
-        if !range_end && content_length
-          range_end = content_length
-        end
-
-        if range_end && chunk_start > range_end
-          break
-        end
-
-        if range_end && chunk_end > range_end
-          chunk_end = range_end
-        end
-
-        headers["Range"] = "bytes=#{chunk_start}-#{chunk_end}"
-
+      # Try once normally, and retry if a region is required.
+      2.times do
         begin
           client.get(url, headers) do |resp|
-            if first_chunk
-              if !env.request.headers["Range"]? && resp.status_code == 206
-                env.response.status_code = 200
-              else
-                env.response.status_code = resp.status_code
+            if !env.request.headers["Range"]? && resp.status_code == 206
+              env.response.status_code = 200
+            else
+              env.response.status_code = resp.status_code
+            end
+
+            resp.headers.each do |key, value|
+              if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase) && key.downcase != "content-range"
+                env.response.headers[key] = value
               end
+            end
 
-              resp.headers.each do |key, value|
-                if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase) && key.downcase != "content-range"
-                  env.response.headers[key] = value
-                end
-              end
+            env.response.headers["Access-Control-Allow-Origin"] = "*"
 
-              env.response.headers["Access-Control-Allow-Origin"] = "*"
+            if location = resp.headers["Location"]?
+              location = URI.parse(location)
+              location = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
 
-              if location = resp.headers["Location"]?
-                location = URI.parse(location)
-                location = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
+              env.redirect location
+              break
+            end
 
-                env.redirect location
-                break
-              end
-
-              if title = query_params["title"]?
-                # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-                env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.encode_www_form(title)}\"; filename*=UTF-8''#{URI.encode_www_form(title)}"
-              end
-
-              if !resp.headers.includes_word?("Transfer-Encoding", "chunked")
-                content_length = resp.headers["Content-Range"].split("/")[-1].to_i64
-                if env.request.headers["Range"]?
-                  env.response.headers["Content-Range"] = "bytes #{range_start}-#{range_end || (content_length - 1)}/#{content_length}"
-                  env.response.content_length = ((range_end.try &.+ 1) || content_length) - range_start
-                else
-                  env.response.content_length = content_length
-                end
-              end
+            if title = query_params["title"]?
+              # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+              env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.encode_www_form(title)}\"; filename*=UTF-8''#{URI.encode_www_form(title)}"
             end
 
             proxy_file(resp, env)
           end
+          break
         rescue ex
           if ex.message != "Error reading socket: Connection reset by peer"
             break
@@ -188,12 +157,9 @@ module Invidious::Routes::VideoPlayback
             client = make_client(URI.parse(host), region)
           end
         end
-
-        chunk_start = chunk_end + 1
-        chunk_end += HTTP_CHUNK_SIZE
-        first_chunk = false
       end
     end
+
     client.close
   end
 
