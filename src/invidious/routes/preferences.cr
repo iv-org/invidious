@@ -74,6 +74,10 @@ module Invidious::Routes::PreferencesRoute
     save_player_pos ||= "off"
     save_player_pos = save_player_pos == "on"
 
+    clip_urls = env.params.body["clip_urls"]?.try &.as(String)
+    clip_urls ||= "off"
+    clip_urls = clip_urls == "on"
+
     show_nick = env.params.body["show_nick"]?.try &.as(String)
     show_nick ||= "off"
     show_nick = show_nick == "on"
@@ -170,6 +174,7 @@ module Invidious::Routes::PreferencesRoute
       vr_mode:                     vr_mode,
       show_nick:                   show_nick,
       save_player_pos:             save_player_pos,
+      clip_urls:                   clip_urls,
     }.to_json)
 
     if user = env.get? "user"

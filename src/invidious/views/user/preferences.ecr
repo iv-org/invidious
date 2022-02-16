@@ -121,6 +121,11 @@
                 <input name="save_player_pos" id="save_player_pos" type="checkbox" <% if preferences.save_player_pos %>checked<% end %>>
             </div>
 
+            <div class="pure-control-group">
+                <label for="clip_urls"><%= translate(locale, "preferences_clip_urls_label") %></label>
+                <input name="clip_urls" id="clip_urls" type="checkbox" <% if preferences.clip_urls %>checked<% end %>>
+            </div>
+
             <legend><%= translate(locale, "preferences_category_visual") %></legend>
 
             <div class="pure-control-group">
