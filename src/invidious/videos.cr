@@ -871,7 +871,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   }
 end
 
-def extract_video_info(video_id : String, proxy_region : String? = nil, context_screen : String? = nil)
+def extract_video_info(video_id : String, proxy_region : String? = nil, context_screen : String? = nil, clip_urls : Bool? = true)
   params = {} of String => JSON::Any
 
   client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
@@ -1024,7 +1024,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   # Description
 
   description_html = video_secondary_renderer.try &.dig?("description", "runs")
-    .try &.as_a.try { |t| content_to_comment_html(t) }
+    .try &.as_a.try { |t| content_to_comment_html(t, clip_urls) }
 
   params["descriptionHtml"] = JSON::Any.new(description_html || "<p></p>")
 
@@ -1072,7 +1072,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   return params
 end
 
-def get_video(id, refresh = true, region = nil, force_refresh = false)
+def get_video(id, refresh = true, region = nil, force_refresh = false, clip_urls = true)
   if (video = Invidious::Database::Videos.select(id)) && !region
     # If record was last updated over 10 minutes ago, or video has since premiered,
     # refresh (expire param in response lasts for 6 hours)
@@ -1081,7 +1081,7 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
        (video.premiere_timestamp.try &.< Time.utc)) ||
        force_refresh
       begin
-        video = fetch_video(id, region)
+        video = fetch_video(id, region, clip_urls)
         Invidious::Database::Videos.update(video)
       rescue ex
         Invidious::Database::Videos.delete(id)
@@ -1089,15 +1089,15 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
       end
     end
   else
-    video = fetch_video(id, region)
+    video = fetch_video(id, region, clip_urls)
     Invidious::Database::Videos.insert(video) if !region
   end
 
   return video
 end
 
-def fetch_video(id, region)
-  info = extract_video_info(video_id: id)
+def fetch_video(id, region, clip_urls)
+  info = extract_video_info(video_id: id, clip_urls: clip_urls)
 
   allowed_regions = info
     .dig?("microformat", "playerMicroformatRenderer", "availableCountries")
@@ -1108,7 +1108,7 @@ def fetch_video(id, region)
     bypass_regions = PROXY_LIST.keys & allowed_regions
     if !bypass_regions.empty?
       region = bypass_regions[rand(bypass_regions.size)]
-      region_info = extract_video_info(video_id: id, proxy_region: region)
+      region_info = extract_video_info(video_id: id, proxy_region: region, clip_urls: clip_urls)
       region_info["region"] = JSON::Any.new(region) if region
       info = region_info if !region_info["reason"]?
     end
@@ -1116,7 +1116,7 @@ def fetch_video(id, region)
 
   # Try to fetch video info using an embedded client
   if info["reason"]?
-    embed_info = extract_video_info(video_id: id, context_screen: "embed")
+    embed_info = extract_video_info(video_id: id, context_screen: "embed", clip_urls: clip_urls)
     info = embed_info if !embed_info["reason"]?
   end
 

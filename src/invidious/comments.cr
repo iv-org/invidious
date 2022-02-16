@@ -553,12 +553,12 @@ def fill_links(html, scheme, host)
   return html.to_xml(options: XML::SaveOptions::NO_DECL)
 end
 
-def parse_content(content : JSON::Any) : String
+def parse_content(content : JSON::Any, clip_urls : Bool = true) : String
   content["simpleText"]?.try &.as_s.rchop('\ufeff').try { |b| HTML.escape(b) }.to_s ||
-    content["runs"]?.try &.as_a.try { |r| content_to_comment_html(r).try &.to_s.gsub("\n", "<br>") } || ""
+    content["runs"]?.try &.as_a.try { |r| content_to_comment_html(r, clip_urls).try &.to_s.gsub("\n", "<br>") } || ""
 end
 
-def content_to_comment_html(content)
+def content_to_comment_html(content : Array(JSON::Any), clip_urls : Bool = true)
   comment_html = content.map do |run|
     text = HTML.escape(run["text"].as_s)
 
@@ -586,7 +586,11 @@ def content_to_comment_html(content)
           end
         end
 
-        text = %(<a href="#{url}">#{text}</a>)
+        if clip_urls
+          text = %(<a href="#{url}">#{text}</a>)
+        else
+          text = %(<a href="#{url}">#{url}</a>)
+        end
       elsif watch_endpoint = run["navigationEndpoint"]["watchEndpoint"]?
         length_seconds = watch_endpoint["startTimeSeconds"]?
         video_id = watch_endpoint["videoId"].as_s
@@ -597,7 +601,11 @@ def content_to_comment_html(content)
           text = %(<a href="/watch?v=#{video_id}">#{text}</a>)
         end
       elsif url = run.dig?("navigationEndpoint", "commandMetadata", "webCommandMetadata", "url").try &.as_s
-        text = %(<a href="#{url}">#{text}</a>)
+        if clip_urls
+          text = %(<a href="#{url}">#{text}</a>)
+        else
+          text = %(<a href="#{url}">#{url}</a>)
+        end
       end
     end
 
