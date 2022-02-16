@@ -47,6 +47,10 @@ module Invidious::Routes::PreferencesRoute
     local ||= "off"
     local = local == "on"
 
+    watch_history = env.params.body["watch_history"]?.try &.as(String)
+    watch_history ||= "off"
+    watch_history = watch_history == "on"
+
     speed = env.params.body["speed"]?.try &.as(String).to_f32?
     speed ||= CONFIG.default_user_preferences.speed
 
@@ -149,6 +153,7 @@ module Invidious::Routes::PreferencesRoute
       latest_only:                 latest_only,
       listen:                      listen,
       local:                       local,
+      watch_history:               watch_history,
       locale:                      locale,
       max_results:                 max_results,
       notifications_only:          notifications_only,

@@ -23,6 +23,7 @@ struct Preferences
   property latest_only : Bool = CONFIG.default_user_preferences.latest_only
   property listen : Bool = CONFIG.default_user_preferences.listen
   property local : Bool = CONFIG.default_user_preferences.local
+  property watch_history : Bool = CONFIG.default_user_preferences.watch_history
   property vr_mode : Bool = CONFIG.default_user_preferences.vr_mode
   property show_nick : Bool = CONFIG.default_user_preferences.show_nick
 
