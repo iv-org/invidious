@@ -60,7 +60,7 @@ module Invidious::Routes::Watch
     env.params.query.delete_all("listen")
 
     begin
-      video = get_video(id, region: params.region)
+      video = get_video(id, region: params.region, clip_urls: preferences.clip_urls)
     rescue ex : VideoRedirect
       return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex

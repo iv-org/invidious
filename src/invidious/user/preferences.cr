@@ -54,6 +54,7 @@ struct Preferences
   property extend_desc : Bool = CONFIG.default_user_preferences.extend_desc
   property volume : Int32 = CONFIG.default_user_preferences.volume
   property save_player_pos : Bool = CONFIG.default_user_preferences.save_player_pos
+  property clip_urls : Bool = CONFIG.default_user_preferences.clip_urls
 
   module BoolToString
     def self.to_json(value : String, json : JSON::Builder)
