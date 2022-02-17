@@ -185,9 +185,7 @@ player.playbackRate(video_data.params.speed);
  * @returns cookieValue
  */
 function getCookieValue(name) {
-    var value = document.cookie.split(";").filter(item => {
-        return item.includes(name + "=");
-    });
+    var value = document.cookie.split(";").filter(item => item.includes(name + "="));
     return value != null && value.length >= 1 ? value[0].substring((name + "=").length, value[0].length) : null;
 }
 
@@ -207,7 +205,7 @@ function updateCookie(newVolume, newSpeed) {
         document.cookie = document.cookie.replace(getCookieValue('PREFS'), encodeURIComponent(JSON.stringify(cookieJson)));
     } else {
         var date = new Date();
-        //Set expiration in 2 year
+        // Set expiration in 2 year
         date.setTime(date.getTime() + 63115200);
         document.cookie = 'PREFS=' +
             encodeURIComponent(JSON.stringify({ 'volume': volumeValue, 'speed': speedValue })) +
