@@ -402,7 +402,7 @@
     "adminprefs_modified_source_code_url_label": "URL du dépôt du code source modifié",
     "footer_documentation": "Documentation",
     "footer_original_source_code": "Code source original",
-    "preferences_clip_urls_label":"Tronquer les liens affichés : ",
+    "preferences_clip_urls_label": "Tronquer les liens affichés : ",
     "preferences_quality_option_medium": "Moyenne",
     "preferences_quality_option_small": "Petite",
     "preferences_quality_dash_option_auto": "Auto",
