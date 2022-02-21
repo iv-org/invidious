@@ -315,7 +315,7 @@ https_only: false
 channel_threads: 1
 
 ##
-## Time between channel_refresh
+## Time between two jobs for crawling videos from channels
 ##
 ## Accepted values: a valid time interval (hours:min:seconds)
 ## Default: 00:30:00

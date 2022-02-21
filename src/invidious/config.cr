@@ -58,7 +58,7 @@ class Config
 
   property channel_threads : Int32 = 1 # Number of threads to use for crawling videos from channels (for updating subscriptions)
   @[YAML::Field(converter: TimeSpanConverter)]
-  property channel_refresh_time : Time::Span = 30.minutes # Time between channel_refresh
+  property channel_refresh_time : Time::Span = 30.minutes # Time between two jobs for crawling videos from channels
   property feed_threads : Int32 = 1                       # Number of threads to use for updating feeds
   property output : String = "STDOUT"                     # Log file path or STDOUT
   property log_level : LogLevel = LogLevel::Info          # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
