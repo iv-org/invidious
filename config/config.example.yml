@@ -315,6 +315,14 @@ https_only: false
 channel_threads: 1
 
 ##
+## Time between channel_refresh
+##
+## Accepted values: a valid time interval (hours:min:seconds)
+## Default: 00:30:00
+##
+channel_refresh_time: 00:30:00
+
+##
 ## Forcefully dump and re-download the entire list of uploaded
 ## videos when crawling channel (during subscriptions update).
 ##

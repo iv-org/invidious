@@ -18,23 +18,39 @@ def elapsed_text(elapsed)
   "#{(millis * 1000).round(2)}µs"
 end
 
-def decode_length_seconds(string)
-  length_seconds = string.gsub(/[^0-9:]/, "")
-  return 0_i32 if length_seconds.empty?
+module TimeSpanConverter
+  def self.to_yaml(value : Time::Span, yaml : YAML::Nodes::Builder)
+    return yaml.scalar recode_length_seconds(value.total_seconds.to_i32)
+  end
 
-  length_seconds = length_seconds.split(":").map { |x| x.to_i? || 0 }
-  length_seconds = [0] * (3 - length_seconds.size) + length_seconds
-
-  length_seconds = Time::Span.new(
-    hours: length_seconds[0],
-    minutes: length_seconds[1],
-    seconds: length_seconds[2]
-  ).total_seconds.to_i32
-
-  return length_seconds
+  def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Time::Span
+    if node.is_a?(YAML::Nodes::Scalar)
+      return decode_time_span(node.value)
+    else
+      node.raise "Expected scalar, not #{node.class}"
+    end
+  end
 end
 
-def recode_length_seconds(time)
+def decode_time_span(string : String) : Time::Span
+  time_span = string.gsub(/[^0-9:]/, "")
+  return Time::Span.new(seconds: 0) if time_span.empty?
+
+  time_span = time_span.split(":").map { |x| x.to_i? || 0 }
+  time_span = [0] * (3 - time_span.size) + time_span
+
+  return Time::Span.new(
+    hours: time_span[0],
+    minutes: time_span[1],
+    seconds: time_span[2]
+  )
+end
+
+def decode_length_seconds(string : String) : Int32
+  return decode_time_span(string).total_seconds.to_i32
+end
+
+def recode_length_seconds(time : Int32) : String
   if time <= 0
     return ""
   else

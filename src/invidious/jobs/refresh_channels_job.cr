@@ -58,9 +58,8 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
         end
       end
 
-      # TODO: make this configurable
-      LOGGER.debug("RefreshChannelsJob: Done, sleeping for thirty minutes")
-      sleep 30.minutes
+      LOGGER.debug("RefreshChannelsJob: Done, sleeping for #{CONFIG.channel_refresh_time}")
+      sleep CONFIG.channel_refresh_time
       Fiber.yield
     end
   end
