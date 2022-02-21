@@ -35,20 +35,10 @@ if (player_data.aspect_ratio) {
 
 var embed_url = new URL(location);
 embed_url.searchParams.delete('v');
-short_url = location.origin + '/' + video_data.id + embed_url.search;
+var short_url = location.origin + '/' + video_data.id + embed_url.search;
 embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
 var save_player_pos_key = "save_player_pos";
-
-var shareOptions = {
-    socials: ['fbFeed', 'tw', 'reddit', 'email'],
-
-    url: short_url,
-    title: player_data.title,
-    description: player_data.description,
-    image: player_data.thumbnail,
-    embedCode: "<iframe id='ivplayer' width='640' height='360' src='" + embed_url + "' style='border:none;'></iframe>"
-}
 
 videojs.Vhs.xhr.beforeRequest = function(options) {
     if (options.uri.indexOf('videoplayback') === -1 && options.uri.indexOf('local=true') === -1) {
@@ -58,6 +48,37 @@ videojs.Vhs.xhr.beforeRequest = function(options) {
 };
 
 var player = videojs('player', options);
+
+/**
+ * Function for add time argument to url
+ * @param {String} url
+ * @returns urlWithTimeArg
+ */
+function addCurrentTimeToURL(url) {
+    var urlUsed = new URL(url);
+    urlUsed.searchParams.delete('start');
+    var currentTime = Math.ceil(player.currentTime());
+    if (currentTime > 0)
+        urlUsed.searchParams.set('t', currentTime);
+    else if (urlUsed.searchParams.has('t'))
+        urlUsed.searchParams.delete('t');
+    return urlUsed;
+}
+
+var shareOptions = {
+    socials: ['fbFeed', 'tw', 'reddit', 'email'],
+
+    get url() {
+        return addCurrentTimeToURL(short_url);
+    },
+    title: player_data.title,
+    description: player_data.description,
+    image: player_data.thumbnail,
+    get embedCode() {
+        return "<iframe id='ivplayer' width='640' height='360' src='" +
+            addCurrentTimeToURL(embed_url) + "' style='border:none;'></iframe>";
+    }
+};
 
 const storage = (() => {
     try { if (localStorage.length !== -1) return localStorage; }
