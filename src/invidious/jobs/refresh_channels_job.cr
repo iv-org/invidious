@@ -58,8 +58,8 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
         end
       end
 
-      LOGGER.debug("RefreshChannelsJob: Done, sleeping for #{CONFIG.channel_refresh_time}")
-      sleep CONFIG.channel_refresh_time
+      LOGGER.debug("RefreshChannelsJob: Done, sleeping for #{CONFIG.channel_refresh_interval}")
+      sleep CONFIG.channel_refresh_interval
       Fiber.yield
     end
   end

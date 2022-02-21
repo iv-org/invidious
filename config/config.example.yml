@@ -320,7 +320,7 @@ channel_threads: 1
 ## Accepted values: a valid time interval (hours:min:seconds)
 ## Default: 00:30:00
 ##
-channel_refresh_time: 00:30:00
+channel_refresh_interval: 00:30:00
 
 ##
 ## Forcefully dump and re-download the entire list of uploaded
