@@ -60,9 +60,8 @@ function addCurrentTimeToURL(url) {
     var currentTime = Math.ceil(player.currentTime());
     if (currentTime > 0)
         urlUsed.searchParams.set('t', currentTime);
-    else
-        if (urlUsed.searchParams.has('t'))
-            urlUsed.searchParams.delete('t');
+    else if (urlUsed.searchParams.has('t'))
+        urlUsed.searchParams.delete('t');
     return urlUsed;
 }
 
