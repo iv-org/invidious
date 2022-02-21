@@ -51,7 +51,7 @@ var player = videojs('player', options);
 
 /**
  * Function for add time argument to url
- * @param {String} url 
+ * @param {String} url
  * @returns urlWithTimeArg
  */
 function addCurrentTimeToURL(url) {
