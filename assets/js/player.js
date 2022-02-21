@@ -77,7 +77,7 @@ var shareOptions = {
     image: player_data.thumbnail,
     get embedCode() {
         return "<iframe id='ivplayer' width='640' height='360' src='" +
-            addCurrentTimeToURL(embed_url) + "' style='border:none;'></iframe>";    
+            addCurrentTimeToURL(embed_url) + "' style='border:none;'></iframe>";
     }
 };
 
