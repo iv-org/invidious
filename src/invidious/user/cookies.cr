@@ -17,7 +17,8 @@ struct Invidious::User
         value: sid,
         expires: Time.utc + 2.years,
         secure: SECURE,
-        http_only: true
+        http_only: true,
+        samesite: HTTP::Cookie::SameSite::Strict
       )
     end
 
@@ -30,7 +31,8 @@ struct Invidious::User
         value: URI.encode_www_form(preferences.to_json),
         expires: Time.utc + 2.years,
         secure: SECURE,
-        http_only: false
+        http_only: false,
+        samesite: HTTP::Cookie::SameSite::Strict
       )
     end
   end
