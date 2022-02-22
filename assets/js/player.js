@@ -209,7 +209,7 @@ function updateCookie(newVolume, newSpeed) {
         date.setTime(date.getTime() + 63115200);
         document.cookie = 'PREFS=' +
             encodeURIComponent(JSON.stringify({ 'volume': volumeValue, 'speed': speedValue })) +
-            '; expires=' + date.toGMTString() + '; SameSite=Strict; path=/';
+            '; SameSite=Strict; path=/; expires=' + date.toGMTString() + ';';
     }
     video_data.params.volume = volumeValue;
     video_data.params.speed = speedValue;
