@@ -52,11 +52,11 @@
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <div class="thumbnail">
                         <img loading="lazy" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
-                        <% if plid = env.get?("remove_playlist_items") %>
-                            <form data-onsubmit="return_false" action="/playlist_ajax?action_remove_video=1&set_video_id=<%= item.index %>&playlist_id=<%= plid %>&referer=<%= env.get("current_page") %>" method="post">
+                        <% if plid_form = env.get?("remove_playlist_items") %>
+                            <form data-onsubmit="return_false" action="/playlist_ajax?action_remove_video=1&set_video_id=<%= item.index %>&playlist_id=<%= plid_form %>&referer=<%= env.get("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
-                                    <a data-onclick="remove_playlist_item" data-index="<%= item.index %>" data-plid="<%= plid %>" href="javascript:void(0)">
+                                    <a data-onclick="remove_playlist_item" data-index="<%= item.index %>" data-plid="<%= plid_form %>" href="javascript:void(0)">
                                         <button type="submit" style="all:unset">
                                             <i class="icon ion-md-trash"></i>
                                         </button>
@@ -117,11 +117,11 @@
                                     </a>
                                 </p>
                             </form>
-                        <% elsif plid = env.get? "add_playlist_items" %>
-                            <form data-onsubmit="return_false" action="/playlist_ajax?action_add_video=1&video_id=<%= item.id %>&playlist_id=<%= plid %>&referer=<%= env.get("current_page") %>" method="post">
+                        <% elsif plid_form = env.get? "add_playlist_items" %>
+                            <form data-onsubmit="return_false" action="/playlist_ajax?action_add_video=1&video_id=<%= item.id %>&playlist_id=<%= plid_form %>&referer=<%= env.get("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
-                                    <a data-onclick="add_playlist_item" data-id="<%= item.id %>" data-plid="<%= plid %>" href="javascript:void(0)">
+                                    <a data-onclick="add_playlist_item" data-id="<%= item.id %>" data-plid="<%= plid_form %>" href="javascript:void(0)">
                                         <button type="submit" style="all:unset">
                                             <i class="icon ion-md-add"></i>
                                         </button>
