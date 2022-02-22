@@ -1,4 +1,8 @@
-# This docker-compose file is made for development purpose and build an image from source, if you want to use Invidious in production, see the documentation.
+# Warning: This docker-compose file is made for development purposes.
+# Using it will build an image from the locally cloned repository.
+#
+# If you want to use Invidious in production, see the docker-compose.yml file provided
+# in the installation documentation: https://docs.invidious.io/Installation.md
 
 version: "3"
 services:
