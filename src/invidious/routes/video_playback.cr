@@ -242,31 +242,25 @@ module Invidious::Routes::VideoPlayback
   # YouTube /videoplayback links expire after 6 hours,
   # so we have a mechanism here to redirect to the latest version
   def self.latest_version(env)
-    if env.params.query["download_widget"]?
-      download_widget = JSON.parse(env.params.query["download_widget"])
+    id = env.params.query["id"]?
+    itag = env.params.query["itag"]?.try &.to_i?
 
-      id = download_widget["id"].as_s
-      title = URI.decode_www_form(download_widget["title"].as_s)
-
-      if label = download_widget["label"]?
-        return env.redirect "/api/v1/captions/#{id}?label=#{label}&title=#{title}"
-      else
-        itag = download_widget["itag"].as_s.to_i
-        local = "true"
-      end
+    # Sanity checks
+    if id.nil? || id.size != 11 || !id.matches?(/^[\w-]+$/)
+      return error_template(400, "Invalid video ID")
     end
 
-    id ||= env.params.query["id"]?
-    itag ||= env.params.query["itag"]?.try &.to_i
+    if itag.nil? || itag <= 0 || itag >= 1000
+      return error_template(400, "Invalid itag")
+    end
 
     region = env.params.query["region"]?
+    local = (env.params.query["local"]? == "true")
 
-    local ||= env.params.query["local"]?
-    local ||= "false"
-    local = local == "true"
+    title = env.params.query["title"]?
 
-    if !id || !itag
-      haltf env, status_code: 400, response: "TESTING"
+    if title && CONFIG.disabled?("downloads")
+      return error_template(403, "Administrator has disabled this endpoint.")
     end
 
     video = get_video(id, region: region)
@@ -278,8 +272,10 @@ module Invidious::Routes::VideoPlayback
       haltf env, status_code: 404
     end
 
-    url = URI.parse(url).request_target.not_nil! if local
-    url = "#{url}&title=#{title}" if title
+    if local
+      url = URI.parse(url).request_target.not_nil!
+      url += "&title=#{URI.encode_www_form(title, space_to_plus: false)}" if title
+    end
 
     return env.redirect url
   end

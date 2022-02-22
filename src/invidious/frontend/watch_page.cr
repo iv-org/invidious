@@ -26,11 +26,15 @@ module Invidious::Frontend::WatchPage
     return String.build(4000) do |str|
       str << "<form"
       str << " class=\"pure-form pure-form-stacked\""
-      str << " action='/latest_version'"
-      str << " method='get'"
+      str << " action='/download'"
+      str << " method='post'"
       str << " rel='noopener'"
       str << " target='_blank'>"
       str << '\n'
+
+      # Hidden inputs for video id and title
+      str << "<input type='hidden' name='id' value='" << video.id << "'/>\n"
+      str << "<input type='hidden' name='title' value='" << HTML.escape(video.title) << "'/>\n"
 
       str << "\t<div class=\"pure-control-group\">\n"
 
@@ -48,8 +52,7 @@ module Invidious::Frontend::WatchPage
 
         height = itag_to_metadata?(option["itag"]).try &.["height"]?
 
-        title = URI.encode_www_form("#{video.title}-#{video.id}.#{mimetype.split("/")[1]}")
-        value = {"id": video.id, "itag": option["itag"], "title": title}.to_json
+        value = {"itag": option["itag"], "ext": mimetype.split("/")[1]}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
         str << (height || "~240") << "p - " << mimetype
@@ -61,8 +64,7 @@ module Invidious::Frontend::WatchPage
       video_assets.video_streams.each do |option|
         mimetype = option["mimeType"].as_s.split(";")[0]
 
-        title = URI.encode_www_form("#{video.title}-#{video.id}.#{mimetype.split("/")[1]}")
-        value = {"id": video.id, "itag": option["itag"], "title": title}.to_json
+        value = {"itag": option["itag"], "ext": mimetype.split("/")[1]}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
         str << option["qualityLabel"] << " - " << mimetype << " @ " << option["fps"] << "fps - video only"
@@ -74,8 +76,7 @@ module Invidious::Frontend::WatchPage
       video_assets.audio_streams.each do |option|
         mimetype = option["mimeType"].as_s.split(";")[0]
 
-        title = URI.encode_www_form("#{video.title}-#{video.id}.#{mimetype.split("/")[1]}")
-        value = {"id": video.id, "itag": option["itag"], "title": title}.to_json
+        value = {"itag": option["itag"], "ext": mimetype.split("/")[1]}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
         str << mimetype << " @ " << (option["bitrate"]?.try &.as_i./ 1000) << "k - audio only"
@@ -85,8 +86,7 @@ module Invidious::Frontend::WatchPage
       # Subtitles (a.k.a "closed captions")
 
       video_assets.captions.each do |caption|
-        title = URI.encode_www_form("#{video.title}-#{video.id}.#{caption.language_code}.vtt")
-        value = {"id": video.id, "label": caption.name, "title": title}.to_json
+        value = {"label": caption.name, "ext": "#{caption.language_code}.vtt"}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
         str << translate(locale, "download_subtitles", translate(locale, caption.name))
