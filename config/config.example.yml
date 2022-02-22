@@ -315,12 +315,13 @@ https_only: false
 channel_threads: 1
 
 ##
-## Time between two jobs for crawling videos from channels
+## Time interval between two executions of the job that crawls
+## channel videos (subscriptions update).
 ##
-## Accepted values: a valid time interval (like 1h30m or 90min)
+## Accepted values: a valid time interval (like 1h30m or 90m)
 ## Default: 30m
 ##
-channel_refresh_interval: 30min
+#channel_refresh_interval: 30m
 
 ##
 ## Forcefully dump and re-download the entire list of uploaded

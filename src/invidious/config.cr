@@ -58,7 +58,7 @@ class Config
 
   # Number of threads to use for crawling videos from channels (for updating subscriptions)
   property channel_threads : Int32 = 1
-  # Time between two jobs for crawling videos from channels
+  # Time interval between two executions of the job that crawls channel videos (subscriptions update).
   @[YAML::Field(converter: Preferences::TimeSpanConverter)]
   property channel_refresh_interval : Time::Span = 30.minutes
   # Number of threads to use for updating feeds
