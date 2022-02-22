@@ -18,25 +18,23 @@ def elapsed_text(elapsed)
   "#{(millis * 1000).round(2)}µs"
 end
 
-def decode_time_span(string : String) : Time::Span
-  time_span = string.gsub(/[^0-9:]/, "")
-  return Time::Span.new(seconds: 0) if time_span.empty?
+def decode_length_seconds(string)
+  length_seconds = string.gsub(/[^0-9:]/, "")
+  return 0_i32 if length_seconds.empty?
 
-  time_span = time_span.split(":").map { |x| x.to_i? || 0 }
-  time_span = [0] * (3 - time_span.size) + time_span
+  length_seconds = length_seconds.split(":").map { |x| x.to_i? || 0 }
+  length_seconds = [0] * (3 - length_seconds.size) + length_seconds
 
-  return Time::Span.new(
-    hours: time_span[0],
-    minutes: time_span[1],
-    seconds: time_span[2]
-  )
+  length_seconds = Time::Span.new(
+    hours: length_seconds[0],
+    minutes: length_seconds[1],
+    seconds: length_seconds[2]
+  ).total_seconds.to_i32
+
+  return length_seconds
 end
 
-def decode_length_seconds(string : String) : Int32
-  return decode_time_span(string).total_seconds.to_i32
-end
-
-def recode_length_seconds(time : Int32) : String
+def recode_length_seconds(time)
   if time <= 0
     return ""
   else
