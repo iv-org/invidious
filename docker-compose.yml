@@ -4,7 +4,6 @@ version: "3"
 services:
 
   invidious:
-    container_name: invidious
     build:
       context: .
       dockerfile: docker/Dockerfile
@@ -36,7 +35,6 @@ services:
       - invidious-db
 
   invidious-db:
-    container_name: invidious-db
     image: postgres:14-alpine
     restart: unless-stopped
     volumes:
