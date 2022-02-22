@@ -25,7 +25,7 @@ services:
       INVIDIOUS_CONFIG: |
         log_level: Info
         channel_threads: 1
-        channel_refresh_interval: 00:30:00
+        channel_refresh_interval: 30m
         check_tables: true
         feed_threads: 1
         db:

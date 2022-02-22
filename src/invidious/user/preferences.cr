@@ -259,12 +259,12 @@ struct Preferences
 
   module TimeSpanConverter
     def self.to_yaml(value : Time::Span, yaml : YAML::Nodes::Builder)
-      return yaml.scalar recode_length_seconds(value.total_seconds.to_i32)
+      return yaml.scalar value.total_minutes.to_i32
     end
 
     def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Time::Span
       if node.is_a?(YAML::Nodes::Scalar)
-        return decode_time_span(node.value)
+        return decode_interval(node.value)
       else
         node.raise "Expected scalar, not #{node.class}"
       end

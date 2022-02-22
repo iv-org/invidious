@@ -53,6 +53,24 @@ def recode_length_seconds(time : Int32) : String
   end
 end
 
+def decode_interval(string : String) : Time::Span
+  rawMinutes = string.try &.to_i32?
+
+  if !rawMinutes
+    hours = /(?<hours>\d+)h/.match(string).try &.["hours"].try &.to_i32
+    hours ||= 0
+
+    minutes = /(?<minutes>\d+)m(?!s)/.match(string).try &.["minutes"].try &.to_i32
+    minutes ||= 0
+
+    time = Time::Span.new(hours: hours, minutes: minutes)
+  else
+    time = Time::Span.new(minutes: rawMinutes)
+  end
+
+  return time
+end
+
 def decode_time(string)
   time = string.try &.to_f?
 

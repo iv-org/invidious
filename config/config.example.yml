@@ -317,10 +317,10 @@ channel_threads: 1
 ##
 ## Time between two jobs for crawling videos from channels
 ##
-## Accepted values: a valid time interval (hours:min:seconds)
-## Default: 00:30:00
+## Accepted values: a valid time interval (like 1h30m or 90min)
+## Default: 30m
 ##
-channel_refresh_interval: 00:30:00
+channel_refresh_interval: 30min
 
 ##
 ## Forcefully dump and re-download the entire list of uploaded
