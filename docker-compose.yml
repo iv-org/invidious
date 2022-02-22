@@ -1,3 +1,5 @@
+# This docker-compose file is made for development purpose and build an image from source, if you want to use Invidious in production, see the documentation.
+
 version: "3"
 services:
 
