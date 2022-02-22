@@ -189,6 +189,14 @@ module Invidious::Routes::Watch
       return env.redirect url
     end
 
+    # Structure used for the download widget
+    video_assets = Invidious::Frontend::WatchPage::VideoAssets.new(
+      full_videos: fmt_stream,
+      video_streams: video_streams,
+      audio_streams: audio_streams,
+      captions: video.captions
+    )
+
     templated "watch"
   end
 

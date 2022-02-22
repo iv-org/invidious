@@ -29,6 +29,8 @@ require "protodec/utils"
 require "./invidious/database/*"
 require "./invidious/helpers/*"
 require "./invidious/yt_backend/*"
+require "./invidious/frontend/*"
+
 require "./invidious/*"
 require "./invidious/channels/*"
 require "./invidious/user/*"
