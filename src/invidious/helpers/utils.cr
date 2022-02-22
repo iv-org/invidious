@@ -18,20 +18,6 @@ def elapsed_text(elapsed)
   "#{(millis * 1000).round(2)}µs"
 end
 
-module TimeSpanConverter
-  def self.to_yaml(value : Time::Span, yaml : YAML::Nodes::Builder)
-    return yaml.scalar recode_length_seconds(value.total_seconds.to_i32)
-  end
-
-  def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Time::Span
-    if node.is_a?(YAML::Nodes::Scalar)
-      return decode_time_span(node.value)
-    else
-      node.raise "Expected scalar, not #{node.class}"
-    end
-  end
-end
-
 def decode_time_span(string : String) : Time::Span
   time_span = string.gsub(/[^0-9:]/, "")
   return Time::Span.new(seconds: 0) if time_span.empty?
