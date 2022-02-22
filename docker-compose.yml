@@ -23,9 +23,7 @@ services:
     environment:
       # Adapted from ./config/config.yml
       INVIDIOUS_CONFIG: |
-        log_level: Info
         channel_threads: 1
-        channel_refresh_interval: 30m
         check_tables: true
         feed_threads: 1
         db:
