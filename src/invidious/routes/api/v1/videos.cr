@@ -136,7 +136,7 @@ module Invidious::Routes::API::V1::Videos
       #
       # See: https://github.com/iv-org/invidious/issues/2391
       webvtt = YT_POOL.client &.get("#{url}&format=vtt").body
-        .gsub(/([0-9:.]+ --> [0-9:.]+).+/, "\\1")
+        .gsub(/([0-9:.]{12} --> [0-9:.]{12}).+/, "\\1")
     end
 
     if title = env.params.query["title"]?
