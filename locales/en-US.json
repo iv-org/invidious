@@ -65,7 +65,7 @@
     "preferences_continue_autoplay_label": "Autoplay next video: ",
     "preferences_listen_label": "Listen by default: ",
     "preferences_local_label": "Proxy videos: ",
-    "preferences_watch_history": "Enable watch history: ",
+    "preferences_watch_history_label": "Enable watch history: ",
     "preferences_speed_label": "Default speed: ",
     "preferences_quality_label": "Preferred video quality: ",
     "preferences_quality_option_dash": "DASH (adaptative quality)",
