@@ -154,8 +154,8 @@ if CONFIG.popular_enabled
   Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 end
 
-connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
-Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(connection_channel, CONFIG.database_url)
+CONNECTION_CHANNEL = Channel({Bool, Channel(PQ::Notification)}).new(32)
+Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(CONNECTION_CHANNEL, CONFIG.database_url)
 
 Invidious::Jobs.start_all
 
@@ -360,6 +360,7 @@ end
   Invidious::Routing.post "/playlist_ajax", Invidious::Routes::Playlists, :playlist_ajax
   Invidious::Routing.get "/playlist", Invidious::Routes::Playlists, :show
   Invidious::Routing.get "/mix", Invidious::Routes::Playlists, :mix
+  Invidious::Routing.get "/watch_videos", Invidious::Routes::Playlists, :watch_videos
 
   Invidious::Routing.get "/opensearch.xml", Invidious::Routes::Search, :opensearch
   Invidious::Routing.get "/results", Invidious::Routes::Search, :results
@@ -390,6 +391,8 @@ end
 
   Invidious::Routing.post "/subscription_ajax", Invidious::Routes::Subscriptions, :toggle_subscription
   Invidious::Routing.get "/subscription_manager", Invidious::Routes::Subscriptions, :subscription_manager
+
+  Invidious::Routing.get "/Captcha", Invidious::Routes::Captcha, :get
 {% end %}
 
 Invidious::Routing.get "/ggpht/*", Invidious::Routes::Images, :ggpht
@@ -405,52 +408,12 @@ Invidious::Routing.get "/c/:user/live", Invidious::Routes::Live, :check
 
 # API routes (macro)
 define_v1_api_routes()
+Invidious::Routing.get "/api/v1/auth/notifications", Invidious::Routes::API::V1::Authenticated, :notifications_get
+Invidious::Routing.post "/api/v1/auth/notifications", Invidious::Routes::API::V1::Authenticated, :notifications_post
 
 # Video playback (macros)
 define_api_manifest_routes()
 define_video_playback_routes()
-
-# Authenticated endpoints
-
-# The notification APIs can't be extracted yet
-# due to the requirement of the `connection_channel`
-# used by the `NotificationJob`
-
-get "/api/v1/auth/notifications" do |env|
-  env.response.content_type = "text/event-stream"
-
-  topics = env.params.query["topics"]?.try &.split(",").uniq.first(1000)
-  topics ||= [] of String
-
-  create_notification_stream(env, topics, connection_channel)
-end
-
-post "/api/v1/auth/notifications" do |env|
-  env.response.content_type = "text/event-stream"
-
-  topics = env.params.body["topics"]?.try &.split(",").uniq.first(1000)
-  topics ||= [] of String
-
-  create_notification_stream(env, topics, connection_channel)
-end
-
-get "/Captcha" do |env|
-  headers = HTTP::Headers{":authority" => "accounts.google.com"}
-  response = YT_POOL.client &.get(env.request.resource, headers)
-  env.response.headers["Content-Type"] = response.headers["Content-Type"]
-  response.body
-end
-
-# Undocumented, creates anonymous playlist with specified 'video_ids', max 50 videos
-get "/watch_videos" do |env|
-  response = YT_POOL.client &.get(env.request.resource)
-  if url = response.headers["Location"]?
-    url = URI.parse(url).request_target
-    next env.redirect url
-  end
-
-  env.response.status_code = response.status_code
-end
 
 error 404 do |env|
   if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)
