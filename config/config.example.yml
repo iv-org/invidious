@@ -847,3 +847,13 @@ default_user_preferences:
   ## Default: false
   ##
   #automatic_instance_redirect: false
+  
+  ##
+  ## Show the entire video description by default (when set to 'false',
+  ## only the first few lines of the description are shown and a
+  ## "show more" button allows to expand it).
+  ##
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #extend_desc: false
