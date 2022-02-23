@@ -399,49 +399,16 @@ Invidious::Routing.get "/s_p/:id/:name", Invidious::Routes::Images, :s_p_image
 Invidious::Routing.get "/yts/img/:name", Invidious::Routes::Images, :yts_image
 Invidious::Routing.get "/vi/:id/:name", Invidious::Routes::Images, :thumbnails
 
+Invidious::Routing.get "/channel/:ucid/live", Invidious::Routes::Live, :check
+Invidious::Routing.get "/user/:user/live", Invidious::Routes::Live, :check
+Invidious::Routing.get "/c/:user/live", Invidious::Routes::Live, :check
+
 # API routes (macro)
 define_v1_api_routes()
 
 # Video playback (macros)
 define_api_manifest_routes()
 define_video_playback_routes()
-
-# Channels
-
-{"/channel/:ucid/live", "/user/:user/live", "/c/:user/live"}.each do |route|
-  get route do |env|
-    locale = env.get("preferences").as(Preferences).locale
-
-    # Appears to be a bug in routing, having several routes configured
-    # as `/a/:a`, `/b/:a`, `/c/:a` results in 404
-    value = env.request.resource.split("/")[2]
-    body = ""
-    {"channel", "user", "c"}.each do |type|
-      response = YT_POOL.client &.get("/#{type}/#{value}/live?disable_polymer=1")
-      if response.status_code == 200
-        body = response.body
-      end
-    end
-
-    video_id = body.match(/'VIDEO_ID': "(?<id>[a-zA-Z0-9_-]{11})"/).try &.["id"]?
-    if video_id
-      params = [] of String
-      env.params.query.each do |k, v|
-        params << "#{k}=#{v}"
-      end
-      params = params.join("&")
-
-      url = "/watch?v=#{video_id}"
-      if !params.empty?
-        url += "&#{params}"
-      end
-
-      env.redirect url
-    else
-      env.redirect "/channel/#{value}"
-    end
-  end
-end
 
 # Authenticated endpoints
 
