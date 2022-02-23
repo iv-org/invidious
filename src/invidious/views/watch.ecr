@@ -320,7 +320,12 @@ we're going to need to do it here in order to allow for translations.
                                         <% end %>
                                     </div>
 
-                                    <div class="pure-u-10-24" style="text-align:right">
+                                    <div class="pure-u-4-24">
+                                        <% endpoint_params = "?v=#{rv["id"]}" %>
+                                        <%= rendered "components/video-context-buttons" %>
+                                    </div>
+
+                                    <div class="pure-u-6-24" style="text-align:right">
                                         <b class="width:100%"><%=
                                             views = rv["view_count"]?.try &.to_i?
                                             views ||= rv["view_count_short"]?.try { |x| short_text_to_number(x) }
