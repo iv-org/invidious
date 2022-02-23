@@ -23,11 +23,6 @@
             </div>
 
             <div class="pure-control-group">
-                <label for="watch_history"><%= translate(locale, "preferences_watch_history") %></label>
-                <input name="watch_history" id="watch_history" type="checkbox" <% if preferences.watch_history %>checked<% end %>>
-            </div>
-
-            <div class="pure-control-group">
                 <label for="continue_autoplay"><%= translate(locale, "preferences_continue_autoplay_label") %></label>
                 <input name="continue_autoplay" id="continue_autoplay" type="checkbox" <% if preferences.continue_autoplay %>checked<% end %>>
             </div>
@@ -210,6 +205,11 @@
 
             <% if env.get? "user" %>
                 <legend><%= translate(locale, "preferences_category_subscription") %></legend>
+
+                <div class="pure-control-group">
+                    <label for="watch_history"><%= translate(locale, "preferences_watch_history") %></label>
+                    <input name="watch_history" id="watch_history" type="checkbox" <% if preferences.watch_history %>checked<% end %>>
+                </div>
 
                 <div class="pure-control-group">
                     <label for="annotations_subscribed"><%= translate(locale, "preferences_annotations_subscribed_label") %></label>
