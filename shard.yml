@@ -12,10 +12,10 @@ targets:
 dependencies:
   pg:
     github: will/crystal-pg
-    version: ~> 0.24.0
+    version: ~> 0.26.0
   sqlite3:
     github: crystal-lang/crystal-sqlite3
-    version: ~> 0.18.0
+    version: ~> 0.19.0
   kemal:
     github: kemalcr/kemal
     version: ~> 1.1.0
