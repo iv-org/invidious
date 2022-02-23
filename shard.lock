@@ -42,7 +42,7 @@ shards:
 
   spectator:
     git: https://github.com/icy-arctic-fox/spectator.git
-    version: 0.10.4
+    version: 0.10.5
 
   sqlite3:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
