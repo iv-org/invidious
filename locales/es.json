@@ -458,5 +458,6 @@
     "Chinese (China)": "Chino (China)",
     "Korean (auto-generated)": "Coreano (generados automáticamente)",
     "Spanish (Mexico)": "Español (Méjico)",
-    "Spanish (auto-generated)": "Español (generados automáticamente)"
+    "Spanish (auto-generated)": "Español (generados automáticamente)",
+    "preferences_watch_history_label": "Habilitar historial de reproducciones: "
 }
