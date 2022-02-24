@@ -57,20 +57,35 @@ end
 class Config
   include YAML::Serializable
 
-  property channel_threads : Int32 = 1           # Number of threads to use for crawling videos from channels (for updating subscriptions)
-  property feed_threads : Int32 = 1              # Number of threads to use for updating feeds
-  property output : String = "STDOUT"            # Log file path or STDOUT
-  property log_level : LogLevel = LogLevel::Info # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
-  property db : DBConfig? = nil                  # Database configuration with separate parameters (username, hostname, etc)
+  # Number of threads to use for crawling videos from channels (for updating subscriptions)
+  property channel_threads : Int32 = 1
+  # Time interval between two executions of the job that crawls channel videos (subscriptions update).
+  @[YAML::Field(converter: Preferences::TimeSpanConverter)]
+  property channel_refresh_interval : Time::Span = 30.minutes
+  # Number of threads to use for updating feeds
+  property feed_threads : Int32 = 1
+  # Log file path or STDOUT
+  property output : String = "STDOUT"
+  # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
+  property log_level : LogLevel = LogLevel::Info
+  # Database configuration with separate parameters (username, hostname, etc)
+  property db : DBConfig? = nil
 
+  # Database configuration using 12-Factor "Database URL" syntax
   @[YAML::Field(converter: Preferences::URIConverter)]
-  property database_url : URI = URI.parse("")      # Database configuration using 12-Factor "Database URL" syntax
-  property decrypt_polling : Bool = true           # Use polling to keep decryption function up to date
-  property full_refresh : Bool = false             # Used for crawling channels: threads should check all videos uploaded by a channel
-  property https_only : Bool?                      # Used to tell Invidious it is behind a proxy, so links to resources should be https://
-  property hmac_key : String?                      # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
-  property domain : String?                        # Domain to be used for links to resources on the site where an absolute URL is required
-  property use_pubsub_feeds : Bool | Int32 = false # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
+  property database_url : URI = URI.parse("")
+  # Use polling to keep decryption function up to date
+  property decrypt_polling : Bool = true
+  # Used for crawling channels: threads should check all videos uploaded by a channel
+  property full_refresh : Bool = false
+  # Used to tell Invidious it is behind a proxy, so links to resources should be https://
+  property https_only : Bool?
+  # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
+  property hmac_key : String?
+  # Domain to be used for links to resources on the site where an absolute URL is required
+  property domain : String?
+  # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
+  property use_pubsub_feeds : Bool | Int32 = false
   property popular_enabled : Bool = true
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
@@ -79,28 +94,42 @@ class Config
   property admins : Array(String) = [] of String
   property external_port : Int32? = nil
   property default_user_preferences : ConfigPreferences = ConfigPreferences.from_yaml("")
-  property dmca_content : Array(String) = [] of String    # For compliance with DMCA, disables download widget using list of video IDs
-  property check_tables : Bool = false                    # Check table integrity, automatically try to add any missing columns, create tables, etc.
-  property cache_annotations : Bool = false               # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
-  property banner : String? = nil                         # Optional banner to be displayed along top of page for announcements, etc.
-  property hsts : Bool? = true                            # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
-  property disable_proxy : Bool? | Array(String)? = false # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
+  # For compliance with DMCA, disables download widget using list of video IDs
+  property dmca_content : Array(String) = [] of String
+  # Check table integrity, automatically try to add any missing columns, create tables, etc.
+  property check_tables : Bool = false
+  # Cache annotations requested from IA, will not cache empty annotations or annotations that only contain cards
+  property cache_annotations : Bool = false
+  # Optional banner to be displayed along top of page for announcements, etc.
+  property banner : String? = nil
+  # Enables 'Strict-Transport-Security'. Ensure that `domain` and all subdomains are served securely
+  property hsts : Bool? = true
+  # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
+  property disable_proxy : Bool? | Array(String)? = false
 
   # URL to the modified source code to be easily AGPL compliant
   # Will display in the footer, next to the main source code link
   property modified_source_code_url : String? = nil
 
+  # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
   @[YAML::Field(converter: Preferences::FamilyConverter)]
-  property force_resolve : Socket::Family = Socket::Family::UNSPEC # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
-  property port : Int32 = 3000                                     # Port to listen for connections (overridden by command line argument)
-  property host_binding : String = "0.0.0.0"                       # Host to bind (overridden by command line argument)
-  property pool_size : Int32 = 100                                 # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
-  property use_quic : Bool = false                                 # Use quic transport for youtube api
+  property force_resolve : Socket::Family = Socket::Family::UNSPEC
+  # Port to listen for connections (overridden by command line argument)
+  property port : Int32 = 3000
+  # Host to bind (overridden by command line argument)
+  property host_binding : String = "0.0.0.0"
+  # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
+  property pool_size : Int32 = 100
+  # Use quic transport for youtube api
+  property use_quic : Bool = false
 
+  # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
-  property cookies : HTTP::Cookies = HTTP::Cookies.new               # Saved cookies in "name1=value1; name2=value2..." format
-  property captcha_key : String? = nil                               # Key for Anti-Captcha
-  property captcha_api_url : String = "https://api.anti-captcha.com" # API URL for Anti-Captcha
+  property cookies : HTTP::Cookies = HTTP::Cookies.new
+  # Key for Anti-Captcha
+  property captcha_key : String? = nil
+  # API URL for Anti-Captcha
+  property captcha_api_url : String = "https://api.anti-captcha.com"
 
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
