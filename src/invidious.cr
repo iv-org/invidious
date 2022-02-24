@@ -324,6 +324,9 @@ end
   Invidious::Routing.get "/channel/:ucid/playlists", Invidious::Routes::Channels, :playlists
   Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, :community
   Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
+  Invidious::Routing.get "/channel/:ucid/live", Invidious::Routes::Channels, :live
+  Invidious::Routing.get "/user/:user/live", Invidious::Routes::Channels, :live
+  Invidious::Routing.get "/c/:user/live", Invidious::Routes::Channels, :live
 
   ["", "/videos", "/playlists", "/community", "/about"].each do |path|
     # /c/LinusTechTips
@@ -399,10 +402,6 @@ Invidious::Routing.get "/sb/:authority/:id/:storyboard/:index", Invidious::Route
 Invidious::Routing.get "/s_p/:id/:name", Invidious::Routes::Images, :s_p_image
 Invidious::Routing.get "/yts/img/:name", Invidious::Routes::Images, :yts_image
 Invidious::Routing.get "/vi/:id/:name", Invidious::Routes::Images, :thumbnails
-
-Invidious::Routing.get "/channel/:ucid/live", Invidious::Routes::Live, :check
-Invidious::Routing.get "/user/:user/live", Invidious::Routes::Live, :check
-Invidious::Routing.get "/c/:user/live", Invidious::Routes::Live, :check
 
 # API routes (macro)
 define_v1_api_routes()
