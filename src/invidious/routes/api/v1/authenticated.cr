@@ -397,4 +397,14 @@ module Invidious::Routes::API::V1::Authenticated
 
     env.response.status_code = 204
   end
+
+  def self.notifications(env)
+    env.response.content_type = "text/event-stream"
+
+    raw_topics = env.params.body["topics"]? || env.params.query["topics"]?
+    topics = raw_topics.try &.split(",").uniq.first(1000)
+    topics ||= [] of String
+
+    create_notification_stream(env, topics, CONNECTION_CHANNEL)
+  end
 end

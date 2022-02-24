@@ -15,6 +15,7 @@ macro define_user_routes
   Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
   Invidious::Routing.post "/login", Invidious::Routes::Login, :login
   Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
+  Invidious::Routing.get "/Captcha", Invidious::Routes::Login, :captcha
 
   # User preferences
   Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show
@@ -94,6 +95,9 @@ macro define_v1_api_routes
   Invidious::Routing.get "/api/v1/auth/tokens", {{namespace}}::Authenticated, :get_tokens
   Invidious::Routing.post "/api/v1/auth/tokens/register", {{namespace}}::Authenticated, :register_token
   Invidious::Routing.post "/api/v1/auth/tokens/unregister", {{namespace}}::Authenticated, :unregister_token
+
+  Invidious::Routing.get "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
+  Invidious::Routing.post "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
 
   # Misc
   Invidious::Routing.get "/api/v1/stats", {{namespace}}::Misc, :stats

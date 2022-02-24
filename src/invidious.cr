@@ -154,8 +154,8 @@ if CONFIG.popular_enabled
   Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 end
 
-connection_channel = Channel({Bool, Channel(PQ::Notification)}).new(32)
-Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(connection_channel, CONFIG.database_url)
+CONNECTION_CHANNEL = Channel({Bool, Channel(PQ::Notification)}).new(32)
+Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(CONNECTION_CHANNEL, CONFIG.database_url)
 
 Invidious::Jobs.start_all
 
@@ -324,6 +324,9 @@ end
   Invidious::Routing.get "/channel/:ucid/playlists", Invidious::Routes::Channels, :playlists
   Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, :community
   Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
+  Invidious::Routing.get "/channel/:ucid/live", Invidious::Routes::Channels, :live
+  Invidious::Routing.get "/user/:user/live", Invidious::Routes::Channels, :live
+  Invidious::Routing.get "/c/:user/live", Invidious::Routes::Channels, :live
 
   ["", "/videos", "/playlists", "/community", "/about"].each do |path|
     # /c/LinusTechTips
@@ -360,6 +363,7 @@ end
   Invidious::Routing.post "/playlist_ajax", Invidious::Routes::Playlists, :playlist_ajax
   Invidious::Routing.get "/playlist", Invidious::Routes::Playlists, :show
   Invidious::Routing.get "/mix", Invidious::Routes::Playlists, :mix
+  Invidious::Routing.get "/watch_videos", Invidious::Routes::Playlists, :watch_videos
 
   Invidious::Routing.get "/opensearch.xml", Invidious::Routes::Search, :opensearch
   Invidious::Routing.get "/results", Invidious::Routes::Search, :results
@@ -405,85 +409,6 @@ define_v1_api_routes()
 # Video playback (macros)
 define_api_manifest_routes()
 define_video_playback_routes()
-
-# Channels
-
-{"/channel/:ucid/live", "/user/:user/live", "/c/:user/live"}.each do |route|
-  get route do |env|
-    locale = env.get("preferences").as(Preferences).locale
-
-    # Appears to be a bug in routing, having several routes configured
-    # as `/a/:a`, `/b/:a`, `/c/:a` results in 404
-    value = env.request.resource.split("/")[2]
-    body = ""
-    {"channel", "user", "c"}.each do |type|
-      response = YT_POOL.client &.get("/#{type}/#{value}/live?disable_polymer=1")
-      if response.status_code == 200
-        body = response.body
-      end
-    end
-
-    video_id = body.match(/'VIDEO_ID': "(?<id>[a-zA-Z0-9_-]{11})"/).try &.["id"]?
-    if video_id
-      params = [] of String
-      env.params.query.each do |k, v|
-        params << "#{k}=#{v}"
-      end
-      params = params.join("&")
-
-      url = "/watch?v=#{video_id}"
-      if !params.empty?
-        url += "&#{params}"
-      end
-
-      env.redirect url
-    else
-      env.redirect "/channel/#{value}"
-    end
-  end
-end
-
-# Authenticated endpoints
-
-# The notification APIs can't be extracted yet
-# due to the requirement of the `connection_channel`
-# used by the `NotificationJob`
-
-get "/api/v1/auth/notifications" do |env|
-  env.response.content_type = "text/event-stream"
-
-  topics = env.params.query["topics"]?.try &.split(",").uniq.first(1000)
-  topics ||= [] of String
-
-  create_notification_stream(env, topics, connection_channel)
-end
-
-post "/api/v1/auth/notifications" do |env|
-  env.response.content_type = "text/event-stream"
-
-  topics = env.params.body["topics"]?.try &.split(",").uniq.first(1000)
-  topics ||= [] of String
-
-  create_notification_stream(env, topics, connection_channel)
-end
-
-get "/Captcha" do |env|
-  headers = HTTP::Headers{":authority" => "accounts.google.com"}
-  response = YT_POOL.client &.get(env.request.resource, headers)
-  env.response.headers["Content-Type"] = response.headers["Content-Type"]
-  response.body
-end
-
-# Undocumented, creates anonymous playlist with specified 'video_ids', max 50 videos
-get "/watch_videos" do |env|
-  response = YT_POOL.client &.get(env.request.resource)
-  if url = response.headers["Location"]?
-    url = URI.parse(url).request_target
-    next env.redirect url
-  end
-
-  env.response.status_code = response.status_code
-end
 
 error 404 do |env|
   if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)

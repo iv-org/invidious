@@ -481,4 +481,11 @@ module Invidious::Routes::Login
 
     env.redirect referer
   end
+
+  def self.captcha(env)
+    headers = HTTP::Headers{":authority" => "accounts.google.com"}
+    response = YT_POOL.client &.get(env.request.resource, headers)
+    env.response.headers["Content-Type"] = response.headers["Content-Type"]
+    response.body
+  end
 end
