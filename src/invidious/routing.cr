@@ -15,6 +15,7 @@ macro define_user_routes
   Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
   Invidious::Routing.post "/login", Invidious::Routes::Login, :login
   Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
+  Invidious::Routing.get "/Captcha", Invidious::Routes::Login, :captcha
 
   # User preferences
   Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show

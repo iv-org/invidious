@@ -391,8 +391,6 @@ end
 
   Invidious::Routing.post "/subscription_ajax", Invidious::Routes::Subscriptions, :toggle_subscription
   Invidious::Routing.get "/subscription_manager", Invidious::Routes::Subscriptions, :subscription_manager
-
-  Invidious::Routing.get "/Captcha", Invidious::Routes::Captcha, :get
 {% end %}
 
 Invidious::Routing.get "/ggpht/*", Invidious::Routes::Images, :ggpht
