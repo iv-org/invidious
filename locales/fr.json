@@ -39,7 +39,7 @@
     "Export": "Exporter",
     "Export subscriptions as OPML": "Exporter les abonnements au format OPML",
     "Export subscriptions as OPML (for NewPipe & FreeTube)": "Exporter les abonnements au format OPML (pour NewPipe & FreeTube)",
-    "Export data as JSON": "Exporter les données au format JSON",
+    "Export data as JSON": "Exporter les données Invidious au format JSON",
     "Delete account?": "Êtes-vous sûr de vouloir supprimer votre compte ?",
     "History": "Historique",
     "An alternative front-end to YouTube": "Un front-end alternatif à YouTube",
@@ -460,5 +460,6 @@
     "Italian (auto-generated)": "Italien (auto-généré)",
     "Vietnamese (auto-generated)": "Vietnamien (auto-généré)",
     "Russian (auto-generated)": "Russe (auto-généré)",
-    "Spanish (Spain)": "Espagnol (Espagne)"
+    "Spanish (Spain)": "Espagnol (Espagne)",
+    "preferences_watch_history_label": "Activer l'historique de visionnage : "
 }
