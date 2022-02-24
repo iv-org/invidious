@@ -23,7 +23,11 @@ module Invidious::Routes::API::V1::Videos
     env.response.content_type = "application/json"
 
     id = env.params.url["id"]
-    region = env.params.query["region"]?
+    region = env.params.query["region"]? || env.params.body["region"]?
+
+    if id.nil? || id.size != 11 || !id.matches?(/^[\w-]+$/)
+      return error_json(400, "Invalid video ID")
+    end
 
     # See https://github.com/ytdl-org/youtube-dl/blob/6ab30ff50bf6bd0585927cb73c7421bef184f87a/youtube_dl/extractor/youtube.py#L1354
     # It is possible to use `/api/timedtext?type=list&v=#{id}` and

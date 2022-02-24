@@ -29,6 +29,8 @@ require "protodec/utils"
 require "./invidious/database/*"
 require "./invidious/helpers/*"
 require "./invidious/yt_backend/*"
+require "./invidious/frontend/*"
+
 require "./invidious/*"
 require "./invidious/channels/*"
 require "./invidious/user/*"
@@ -234,6 +236,7 @@ before_all do |env|
             "/api/manifest/",
             "/videoplayback",
             "/latest_version",
+            "/download",
           }.any? { |r| env.request.resource.starts_with? r }
 
   if env.request.cookies.has_key? "SID"
@@ -348,6 +351,8 @@ end
   Invidious::Routing.get "/v/:id", Invidious::Routes::Watch, :redirect
   Invidious::Routing.get "/e/:id", Invidious::Routes::Watch, :redirect
   Invidious::Routing.get "/redirect", Invidious::Routes::Misc, :cross_instance_redirect
+
+  Invidious::Routing.post "/download", Invidious::Routes::Watch, :download
 
   Invidious::Routing.get "/embed/", Invidious::Routes::Embed, :redirect
   Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed, :show
