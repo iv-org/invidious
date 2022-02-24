@@ -96,6 +96,9 @@ macro define_v1_api_routes
   Invidious::Routing.post "/api/v1/auth/tokens/register", {{namespace}}::Authenticated, :register_token
   Invidious::Routing.post "/api/v1/auth/tokens/unregister", {{namespace}}::Authenticated, :unregister_token
 
+  Invidious::Routing.get "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
+  Invidious::Routing.post "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
+
   # Misc
   Invidious::Routing.get "/api/v1/stats", {{namespace}}::Misc, :stats
   Invidious::Routing.get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist

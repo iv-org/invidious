@@ -405,8 +405,6 @@ Invidious::Routing.get "/vi/:id/:name", Invidious::Routes::Images, :thumbnails
 
 # API routes (macro)
 define_v1_api_routes()
-Invidious::Routing.get "/api/v1/auth/notifications", Invidious::Routes::API::V1::Authenticated, :notifications_get
-Invidious::Routing.post "/api/v1/auth/notifications", Invidious::Routes::API::V1::Authenticated, :notifications_post
 
 # Video playback (macros)
 define_api_manifest_routes()
