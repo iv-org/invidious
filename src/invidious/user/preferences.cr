@@ -2,6 +2,43 @@ struct Preferences
   include JSON::Serializable
   include YAML::Serializable
 
+  # -------------------
+  #  Constants
+  # -------------------
+
+  SPEEDS = {2.0, 1.75, 1.5, 1.25, 1.0, 0.75, 0.5, 0.25}
+
+  QUALITIES = {"dash", "hd720", "medium", "small"}
+
+  DASH_QUALITIES = {
+    "auto", "best", "4320p", "2160p", "1440p", "1080p",
+    "720p", "480p", "360p", "240p", "144p", "worst",
+  }
+
+  COMMENT_SOURCES = {"none", "youtube", "reddit"}
+
+  THEMES        = {"auto", "light", "dark"}
+  PLAYER_STYLES = {"invidious", "youtube"}
+
+  FEED_OPTIONS      = {"none", "Popular", "trending"}
+  FEED_OPTIONS_USER = {"none", "Popular", "trending", "Subscriptions", "Playlists"}
+
+  HOMEPAGES      = {"Search", "Popular", "trending"}
+  HOMEPAGES_USER = {"Search", "Popular", "trending", "Subscriptions", "Playlists"}
+
+  SORT_OPTIONS = {
+    "published",
+    "published - reverse",
+    "alphabetically",
+    "alphabetically - reverse",
+    "channel name",
+    "channel name - reverse",
+  }
+
+  # -------------------
+  #  Properties
+  # -------------------
+
   property annotations : Bool = CONFIG.default_user_preferences.annotations
   property annotations_subscribed : Bool = CONFIG.default_user_preferences.annotations_subscribed
   property autoplay : Bool = CONFIG.default_user_preferences.autoplay
@@ -55,6 +92,10 @@ struct Preferences
   property extend_desc : Bool = CONFIG.default_user_preferences.extend_desc
   property volume : Int32 = CONFIG.default_user_preferences.volume
   property save_player_pos : Bool = CONFIG.default_user_preferences.save_player_pos
+
+  # -------------------
+  #  Converter modules
+  # -------------------
 
   module BoolToString
     def self.to_json(value : String, json : JSON::Builder)

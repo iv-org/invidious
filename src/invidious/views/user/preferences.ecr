@@ -40,20 +40,20 @@
             <div class="pure-control-group">
                 <label for="speed"><%= translate(locale, "preferences_speed_label") %></label>
                 <select name="speed" id="speed">
-                    <% {2.0, 1.75, 1.5, 1.25, 1.0, 0.75, 0.5, 0.25}.each do |option| %>
+                    <%- Preferences::SPEEDS.each do |option| -%>
                         <option <% if preferences.speed == option %> selected <% end %>><%= option %></option>
-                    <% end %>
+                    <%- end -%>
                 </select>
             </div>
 
             <div class="pure-control-group">
                 <label for="quality"><%= translate(locale, "preferences_quality_label") %></label>
                 <select name="quality" id="quality">
-                    <% {"dash", "hd720", "medium", "small"}.each do |option| %>
-                        <% if !(option == "dash" && CONFIG.disabled?("dash")) %>
+                    <%- Preferences::QUALITIES.each do |option| -%>
+                        <%- if !(option == "dash" && CONFIG.disabled?("dash")) -%>
                             <option value="<%= option %>" <% if preferences.quality == option %> selected <% end %>><%= translate(locale, "preferences_quality_option_" + option) %></option>
-                        <% end %>
-                    <% end %>
+                        <%- end -%>
+                    <%- end -%>
                 </select>
             </div>
 
@@ -61,9 +61,9 @@
                 <div class="pure-control-group">
                     <label for="quality_dash"><%= translate(locale, "preferences_quality_dash_label") %></label>
                     <select name="quality_dash" id="quality_dash">
-                        <% {"auto", "best", "4320p", "2160p", "1440p", "1080p", "720p", "480p", "360p", "240p", "144p", "worst"}.each do |option| %>
+                        <%- Preferences::DASH_QUALITIES.each do |option| -%>
                             <option value="<%= option %>" <% if preferences.quality_dash == option %> selected <% end %>><%= translate(locale, "preferences_quality_dash_option_" + option) %></option>
-                        <% end %>
+                        <%- end -%>
                     </select>
                 </div>
             <% end %>
@@ -78,9 +78,9 @@
                 <label for="comments[0]"><%= translate(locale, "preferences_comments_label") %></label>
                 <% preferences.comments.each_with_index do |comments, index| %>
                     <select name="comments[<%= index %>]" id="comments[<%= index %>]">
-                        <% {"", "youtube", "reddit"}.each do |option| %>
-                            <option value="<%= option %>" <% if preferences.comments[index] == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
-                        <% end %>
+                        <%- Preferences::COMMENT_SOURCES.each do |option| -%>
+                            <option value="<%= option %>" <% if preferences.comments[index] == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <%- end -%>
                     </select>
                 <% end %>
             </div>
@@ -144,18 +144,18 @@
             <div class="pure-control-group">
                 <label for="player_style"><%= translate(locale, "preferences_player_style_label") %></label>
                 <select name="player_style" id="player_style">
-                    <% {"invidious", "youtube"}.each do |option| %>
+                    <%- Preferences::PLAYER_STYLES.each do |option| -%>
                         <option value="<%= option %>" <% if preferences.player_style == option %> selected <% end %>><%= translate(locale, option) %></option>
-                    <% end %>
+                    <%- end -%>
                 </select>
             </div>
 
             <div class="pure-control-group">
                 <label for="dark_mode"><%= translate(locale, "preferences_dark_mode_label") %></label>
                 <select name="dark_mode" id="dark_mode">
-                    <% {"", "light", "dark"}.each do |option| %>
-                        <option value="<%= option %>" <% if preferences.dark_mode == option %> selected <% end %>><%= translate(locale, option.blank? ? "auto" : option) %></option>
-                    <% end %>
+                    <%- Preferences::THEMES.each do |option| -%>
+                        <option value="<%= option %>" <% if preferences.dark_mode == option %> selected <% end %>><%= translate(locale, option) %></option>
+                    <%- end -%>
                 </select>
             </div>
 
@@ -164,30 +164,34 @@
                 <input name="thin_mode" id="thin_mode" type="checkbox" <% if preferences.thin_mode %>checked<% end %>>
             </div>
 
-            <% if env.get?("user") %>
-                <% feed_options = {"", "Popular", "Trending", "Subscriptions", "Playlists"} %>
-            <% else %>
-                <% feed_options = {"", "Popular", "Trending"} %>
-            <% end %>
+            <%-
+              if env.get?("user")
+                feed_options = Preferences::FEED_OPTIONS_USER
+                homepages = Preferences::HOMEPAGES_USER
+              else
+                feed_options = Preferences::FEED_OPTIONS
+                homepages = Preferences::HOMEPAGES
+              end
+            -%>
 
             <div class="pure-control-group">
                 <label for="default_home"><%= translate(locale, "preferences_default_home_label") %></label>
                 <select name="default_home" id="default_home">
-                    <% feed_options.each do |option| %>
-                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "Search" : option) %></option>
-                    <% end %>
+                    <%- homepages.each do |option| -%>
+                        <option value="<%= option %>" <% if preferences.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
+                    <%- end -%>
                 </select>
             </div>
 
             <div class="pure-control-group">
                 <label for="feed_menu"><%= translate(locale, "preferences_feed_menu_label") %></label>
-                <% (feed_options.size - 1).times do |index| %>
+                <%- (feed_options.size - 1).times do |index| -%>
                     <select name="feed_menu[<%= index %>]" id="feed_menu[<%= index %>]">
-                        <% feed_options.each do |option| %>
-                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option.blank? ? "Search" : option) %></option>
-                        <% end %>
+                        <%- feed_options.each do |option| -%>
+                            <option value="<%= option %>" <% if preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <%- end -%>
                     </select>
-                <% end %>
+                <%- end -%>
             </div>
             <% if env.get? "user" %>
                 <div class="pure-control-group">
@@ -224,9 +228,9 @@
                 <div class="pure-control-group">
                     <label for="sort"><%= translate(locale, "preferences_sort_label") %></label>
                     <select name="sort" id="sort">
-                        <% {"published", "published - reverse", "alphabetically", "alphabetically - reverse", "channel name", "channel name - reverse"}.each do |option| %>
+                        <%- Preferences::SORT_OPTIONS.each do |option| -%>
                             <option value="<%= option %>" <% if preferences.sort == option %> selected <% end %>><%= translate(locale, option) %></option>
-                        <% end %>
+                        <%- end -%>
                     </select>
                 </div>
 
@@ -265,21 +269,21 @@
                 <div class="pure-control-group">
                     <label for="admin_default_home"><%= translate(locale, "preferences_default_home_label") %></label>
                     <select name="admin_default_home" id="admin_default_home">
-                        <% feed_options.each do |option| %>
-                            <option value="<%= option %>" <% if CONFIG.default_user_preferences.default_home == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
-                        <% end %>
+                        <%- homepages.each do |option| -%>
+                            <option value="<%= option %>" <% if CONFIG.default_user_preferences.default_home == option %> selected <% end %>><%= translate(locale, option) %></option>
+                        <%- end -%>
                     </select>
                 </div>
 
                 <div class="pure-control-group">
                     <label for="admin_feed_menu"><%= translate(locale, "preferences_feed_menu_label") %></label>
-                    <% (feed_options.size - 1).times do |index| %>
+                    <%- (feed_options.size - 1).times do |index| -%>
                         <select name="admin_feed_menu[<%= index %>]" id="admin_feed_menu[<%= index %>]">
-                            <% feed_options.each do |option| %>
-                                <option value="<%= option %>" <% if CONFIG.default_user_preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option.blank? ? "none" : option) %></option>
-                            <% end %>
+                            <%- feed_options.each do |option| -%>
+                                <option value="<%= option %>" <% if CONFIG.default_user_preferences.feed_menu[index]? == option %> selected <% end %>><%= translate(locale, option) %></option>
+                            <%- end -%>
                         </select>
-                    <% end %>
+                    <%- end -%>
                 </div>
 
                 <div class="pure-control-group">
