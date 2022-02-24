@@ -304,12 +304,9 @@ module Invidious::Routes::Watch
     end
 
     download_widget = JSON.parse(selection)
-    extension = download_widget["ext"].as_s
 
-    filename = URI.encode_www_form(
-      "#{video_id}-#{title}.#{extension}",
-      space_to_plus: false
-    )
+    extension = download_widget["ext"].as_s
+    filename = "#{video_id}-#{title}.#{extension}"
 
     # Pass form parameters as URL parameters for the handlers of both
     # /latest_version and /api/v1/captions. This avoids an un-necessary

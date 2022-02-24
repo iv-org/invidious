@@ -164,7 +164,9 @@ module Invidious::Routes::VideoPlayback
 
               if title = query_params["title"]?
                 # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
-                env.response.headers["Content-Disposition"] = "attachment; filename=\"#{URI.encode_www_form(title)}\"; filename*=UTF-8''#{URI.encode_www_form(title)}"
+                filename = URI.encode_www_form(title, space_to_plus: false)
+                header = "attachment; filename=\"#{filename}\"; filename*=UTF-8''#{filename}"
+                env.response.headers["Content-Disposition"] = header
               end
 
               if !resp.headers.includes_word?("Transfer-Encoding", "chunked")
