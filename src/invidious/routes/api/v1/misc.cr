@@ -4,10 +4,10 @@ module Invidious::Routes::API::V1::Misc
     env.response.content_type = "application/json"
 
     if !CONFIG.statistics_enabled
-      return error_json(400, "Statistics are not enabled.")
+      return {"software" => SOFTWARE}.to_json
+    else
+      return Invidious::Jobs::StatisticsRefreshJob::STATISTICS.to_json
     end
-
-    Invidious::Jobs::StatisticsRefreshJob::STATISTICS.to_json
   end
 
   # APIv1 currently uses the same logic for both

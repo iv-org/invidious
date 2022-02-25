@@ -35,20 +35,10 @@ if (player_data.aspect_ratio) {
 
 var embed_url = new URL(location);
 embed_url.searchParams.delete('v');
-short_url = location.origin + '/' + video_data.id + embed_url.search;
+var short_url = location.origin + '/' + video_data.id + embed_url.search;
 embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
 var save_player_pos_key = "save_player_pos";
-
-var shareOptions = {
-    socials: ['fbFeed', 'tw', 'reddit', 'email'],
-
-    url: short_url,
-    title: player_data.title,
-    description: player_data.description,
-    image: player_data.thumbnail,
-    embedCode: "<iframe id='ivplayer' width='640' height='360' src='" + embed_url + "' style='border:none;'></iframe>"
-}
 
 videojs.Vhs.xhr.beforeRequest = function(options) {
     if (options.uri.indexOf('videoplayback') === -1 && options.uri.indexOf('local=true') === -1) {
@@ -59,34 +49,55 @@ videojs.Vhs.xhr.beforeRequest = function(options) {
 
 var player = videojs('player', options);
 
-const storage = (() => {
-    try {
-        if (localStorage.length !== -1) {
-            return localStorage;
-        }
-    } catch (e) {
-        console.info('No storage available: ' + e);
+/**
+ * Function for add time argument to url
+ * @param {String} url
+ * @returns urlWithTimeArg
+ */
+function addCurrentTimeToURL(url) {
+    var urlUsed = new URL(url);
+    urlUsed.searchParams.delete('start');
+    var currentTime = Math.ceil(player.currentTime());
+    if (currentTime > 0)
+        urlUsed.searchParams.set('t', currentTime);
+    else if (urlUsed.searchParams.has('t'))
+        urlUsed.searchParams.delete('t');
+    return urlUsed;
+}
+
+var shareOptions = {
+    socials: ['fbFeed', 'tw', 'reddit', 'email'],
+
+    get url() {
+        return addCurrentTimeToURL(short_url);
+    },
+    title: player_data.title,
+    description: player_data.description,
+    image: player_data.thumbnail,
+    get embedCode() {
+        return "<iframe id='ivplayer' width='640' height='360' src='" +
+            addCurrentTimeToURL(embed_url) + "' style='border:none;'></iframe>";
     }
+};
+
+const storage = (() => {
+    try { if (localStorage.length !== -1) return localStorage; }
+    catch (e) { console.info('No storage available: ' + e); }
+
     return undefined;
 })();
 
 if (location.pathname.startsWith('/embed/')) {
+    var overlay_content = '<h1><a rel="noopener" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
     player.overlay({
-        overlays: [{
-            start: 'loadstart',
-            content: '<h1><a rel="noopener" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>',
-            end: 'playing',
-            align: 'top'
-        }, {
-            start: 'pause',
-            content: '<h1><a rel="noopener" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>',
-            end: 'playing',
-            align: 'top'
-        }]
+        overlays: [
+            { start: 'loadstart', content: overlay_content, end: 'playing', align: 'top'},
+            { start: 'pause',     content: overlay_content, end: 'playing', align: 'top'}
+        ]
     });
 }
 
-// Detect mobile users and initalize mobileUi for better UX
+// Detect mobile users and initialize mobileUi for better UX
 // Detection code taken from https://stackoverflow.com/a/20293441
 
 function isMobile() {
@@ -99,9 +110,7 @@ if (isMobile()) {
 
     buttons = ["playToggle", "volumePanel", "captionsButton"];
 
-    if (video_data.params.quality !== 'dash') {
-        buttons.push("qualitySelector")
-    }
+    if (video_data.params.quality !== 'dash') buttons.push("qualitySelector")
 
     // Create new control bar object for operation buttons
     const ControlBar = videojs.getComponent("controlBar");
@@ -119,7 +128,7 @@ if (isMobile()) {
     operations_bar_element.className += " mobile-operations-bar"
     player.addChild(operations_bar)
 
-    // Playback menu doesn't work when its initalized outside of the primary control bar
+    // Playback menu doesn't work when it's initialized outside of the primary control bar
     playback_element = document.getElementsByClassName("vjs-playback-rate")[0]
     operations_bar_element.append(playback_element)
 
@@ -138,7 +147,7 @@ if (isMobile()) {
 player.on('error', function (event) {
     if (player.error().code === 2 || player.error().code === 4) {
         setTimeout(function (event) {
-            console.log('An error occured in the player, reloading...');
+            console.log('An error occurred in the player, reloading...');
 
             var currentTime = player.currentTime();
             var playbackRate = player.playbackRate();
@@ -146,16 +155,12 @@ player.on('error', function (event) {
 
             player.load();
 
-            if (currentTime > 0.5) {
-                currentTime -= 0.5;
-            }
+            if (currentTime > 0.5) currentTime -= 0.5;
 
             player.currentTime(currentTime);
             player.playbackRate(playbackRate);
 
-            if (!paused) {
-                player.play();
-            }
+            if (!paused) player.play();
         }, 5000);
     }
 });
@@ -183,13 +188,8 @@ if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
 
     player.markers({
         onMarkerReached: function (marker) {
-            if (marker.text === 'End') {
-                if (player.loop()) {
-                    player.markers.prev('Start');
-                } else {
-                    player.pause();
-                }
-            }
+            if (marker.text === 'End')
+                player.loop() ? player.markers.prev('Start') : player.pause();
         },
         markers: markers
     });
@@ -217,9 +217,7 @@ if (video_data.params.save_player_pos) {
     const remeberedTime = get_video_time();
     let lastUpdated = 0;
 
-    if(!hasTimeParam) {
-        set_seconds_after_start(remeberedTime);
-    }
+    if(!hasTimeParam) set_seconds_after_start(remeberedTime);
 
     const updateTime = () => {
         const raw = player.currentTime();
@@ -233,9 +231,7 @@ if (video_data.params.save_player_pos) {
 
     player.on("timeupdate", updateTime);
 }
-else {
-    remove_all_video_times();
-}
+else remove_all_video_times();
 
 if (video_data.params.autoplay) {
     var bpb = player.getChild('bigPlayButton');
@@ -433,26 +429,10 @@ function set_time_percent(percent) {
     player.currentTime(newTime);
 }
 
-function play() {
-    player.play();
-}
-
-function pause() {
-    player.pause();
-}
-
-function stop() {
-    player.pause();
-    player.currentTime(0);
-}
-
-function toggle_play() {
-    if (player.paused()) {
-        play();
-    } else {
-        pause();
-    }
-}
+function play()  { player.play(); }
+function pause() { player.pause(); }
+function stop()  { player.pause(); player.currentTime(0); }
+function toggle_play() { player.paused() ? play() : pause(); }
 
 const toggle_captions = (function () {
     let toggledTrack = null;
@@ -490,9 +470,7 @@ const toggle_captions = (function () {
         const tracks = player.textTracks();
         for (let i = 0; i < tracks.length; i++) {
             const track = tracks[i];
-            if (track.kind !== 'captions') {
-                continue;
-            }
+            if (track.kind !== 'captions') continue;
 
             if (fallbackCaptionsTrack === null) {
                 fallbackCaptionsTrack = track;
@@ -513,11 +491,7 @@ const toggle_captions = (function () {
 })();
 
 function toggle_fullscreen() {
-    if (player.isFullscreen()) {
-        player.exitFullscreen();
-    } else {
-        player.requestFullscreen();
-    }
+    player.isFullscreen() ? player.exitFullscreen() : player.requestFullscreen();
 }
 
 function increase_playback_rate(steps) {
@@ -560,27 +534,15 @@ window.addEventListener('keydown', e => {
             action = toggle_play;
             break;
 
-        case 'MediaPlay':
-            action = play;
-            break;
-
-        case 'MediaPause':
-            action = pause;
-            break;
-
-        case 'MediaStop':
-            action = stop;
-            break;
+        case 'MediaPlay':  action = play; break;
+        case 'MediaPause': action = pause; break;
+        case 'MediaStop':  action = stop; break;
 
         case 'ArrowUp':
-            if (isPlayerFocused) {
-                action = increase_volume.bind(this, 0.1);
-            }
+            if (isPlayerFocused) action = increase_volume.bind(this, 0.1);
             break;
         case 'ArrowDown':
-            if (isPlayerFocused) {
-                action = increase_volume.bind(this, -0.1);
-            }
+            if (isPlayerFocused) action = increase_volume.bind(this, -0.1);
             break;
 
         case 'm':
@@ -612,16 +574,15 @@ window.addEventListener('keydown', e => {
         case '7':
         case '8':
         case '9':
+            // Ignore numpad numbers
+            if (code > 57) break;
+
             const percent = (code - 48) * 10;
             action = set_time_percent.bind(this, percent);
             break;
 
-        case 'c':
-            action = toggle_captions;
-            break;
-        case 'f':
-            action = toggle_fullscreen;
-            break;
+        case 'c': action = toggle_captions; break;
+        case 'f': action = toggle_fullscreen; break;
 
         case 'N':
         case 'MediaTrackNext':
@@ -639,12 +600,8 @@ window.addEventListener('keydown', e => {
             // TODO: Add support for previous-frame-stepping.
             break;
 
-        case '>':
-            action = increase_playback_rate.bind(this, 1);
-            break;
-        case '<':
-            action = increase_playback_rate.bind(this, -1);
-            break;
+        case '>': action = increase_playback_rate.bind(this, 1); break;
+        case '<': action = increase_playback_rate.bind(this, -1); break;
 
         default:
             console.info('Unhandled key down event: %s:', decoratedKey, e);

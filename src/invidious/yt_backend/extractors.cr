@@ -588,7 +588,7 @@ def extract_item(item : JSON::Any, author_fallback : String? = "",
 
   # Cycles through all of the item parsers and attempt to parse the raw YT JSON data.
   # Each parser automatically validates the data given to see if the data is
-  # applicable to itself. If not nil is returned and the next parser is attemped.
+  # applicable to itself. If not nil is returned and the next parser is attempted.
   ITEM_PARSERS.each do |parser|
     LOGGER.trace("extract_item: Attempting to parse item using \"#{parser.parser_name}\" (cycling...)")
 

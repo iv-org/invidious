@@ -78,7 +78,8 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
         when "RELOAD_CONTINUATION_SLOT_HEADER"
           header = item["reloadContinuationItemsCommand"]["continuationItems"][0]
         when "RELOAD_CONTINUATION_SLOT_BODY"
-          contents = item["reloadContinuationItemsCommand"]["continuationItems"]
+          # continuationItems is nil when video has no comments
+          contents = item["reloadContinuationItemsCommand"]["continuationItems"]?
         end
       elsif item["appendContinuationItemsAction"]?
         contents = item["appendContinuationItemsAction"]["continuationItems"]

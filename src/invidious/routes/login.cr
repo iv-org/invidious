@@ -27,7 +27,7 @@ module Invidious::Routes::Login
     tfa = env.params.query["tfa"]?
     prompt = nil
 
-    templated "login"
+    templated "user/login"
   end
 
   def self.login(env)
@@ -133,7 +133,7 @@ module Invidious::Routes::Login
           tfa = tfa_code
           captcha = {tokens: [token], question: ""}
 
-          return templated "login"
+          return templated "user/login"
         end
 
         if challenge_results[0][-1]?.try &.[5] == "INCORRECT_ANSWER_ENTERED"
@@ -190,7 +190,7 @@ module Invidious::Routes::Login
 
             tfa = nil
             captcha = nil
-            return templated "login"
+            return templated "user/login"
           end
 
           tl = challenge_results[1][2]
@@ -282,18 +282,8 @@ module Invidious::Routes::Login
 
         host = URI.parse(env.request.headers["Host"]).host
 
-        if Kemal.config.ssl || CONFIG.https_only
-          secure = true
-        else
-          secure = false
-        end
-
         cookies.each do |cookie|
-          if Kemal.config.ssl || CONFIG.https_only
-            cookie.secure = secure
-          else
-            cookie.secure = secure
-          end
+          cookie.secure = Invidious::User::Cookies::SECURE
 
           if cookie.extension
             cookie.extension = cookie.extension.not_nil!.gsub(".youtube.com", host)
@@ -338,19 +328,7 @@ module Invidious::Routes::Login
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           Invidious::Database::SessionIDs.insert(sid, email)
 
-          if Kemal.config.ssl || CONFIG.https_only
-            secure = true
-          else
-            secure = false
-          end
-
-          if CONFIG.domain
-            env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{CONFIG.domain}", value: sid, expires: Time.utc + 2.years,
-              secure: secure, http_only: true)
-          else
-            env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
-              secure: secure, http_only: true)
-          end
+          env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
         else
           return error_template(401, "Wrong username or password")
         end
@@ -393,12 +371,12 @@ module Invidious::Routes::Login
             prompt = ""
 
             if captcha_type == "image"
-              captcha = generate_captcha(HMAC_KEY)
+              captcha = Invidious::User::Captcha.generate_image(HMAC_KEY)
             else
-              captcha = generate_text_captcha(HMAC_KEY)
+              captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
             end
 
-            return templated "login"
+            return templated "user/login"
           end
 
           tokens = env.params.body.select { |k, _| k.match(/^token\[\d+\]$/) }.map { |_, v| v }
@@ -455,19 +433,7 @@ module Invidious::Routes::Login
         view_name = "subscriptions_#{sha256(user.email)}"
         PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
 
-        if Kemal.config.ssl || CONFIG.https_only
-          secure = true
-        else
-          secure = false
-        end
-
-        if CONFIG.domain
-          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", domain: "#{CONFIG.domain}", value: sid, expires: Time.utc + 2.years,
-            secure: secure, http_only: true)
-        else
-          env.response.cookies["SID"] = HTTP::Cookie.new(name: "SID", value: sid, expires: Time.utc + 2.years,
-            secure: secure, http_only: true)
-        end
+        env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
 
         if env.request.cookies["PREFS"]?
           user.preferences = env.get("preferences").as(Preferences)
@@ -514,5 +480,12 @@ module Invidious::Routes::Login
     end
 
     env.redirect referer
+  end
+
+  def self.captcha(env)
+    headers = HTTP::Headers{":authority" => "accounts.google.com"}
+    response = YT_POOL.client &.get(env.request.resource, headers)
+    env.response.headers["Content-Type"] = response.headers["Content-Type"]
+    response.body
   end
 end

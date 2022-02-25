@@ -62,7 +62,8 @@ test:
 	crystal spec
 
 verify:
-	crystal build src/invidious.cr --no-codegen --progress --stats --error-trace
+	crystal build src/invidious.cr -Dskip_videojs_download \
+	  --no-codegen --progress --stats --error-trace
 
 
 # -----------------------
@@ -88,28 +89,28 @@ distclean: clean
 # -----------------------
 
 help:
-	echo "Targets available in this Makefile:"
-	echo ""
-	echo "get-libs         Fetch Crystal libraries"
-	echo "invidious        Build Invidious"
-	echo "run              Launch Invidious"
-	echo ""
-	echo "format           Run the Crystal formatter"
-	echo "test             Run tests"
-	echo "verify           Just make sure that the code compiles, but without"
-	echo "                 generating any binaries. Useful to search for errors"
-	echo ""
-	echo "clean            Remove build artifacts"
-	echo "distclean        Remove build artifacts and libraries"
-	echo ""
-	echo ""
-	echo "Build options available for this Makefile:"
-	echo ""
-	echo "RELEASE          Make a release build      (Default: 1)"
-	echo "STATIC           Link libraries statically (Default: 0)"
-	echo ""
-	echo "DISABLE_QUIC     Disable support for QUIC  (Default: 0)"
-	echo "NO_DBG_SYMBOLS   Strip debug symbols       (Default: 0)"
+	@echo "Targets available in this Makefile:"
+	@echo ""
+	@echo "  get-libs         Fetch Crystal libraries"
+	@echo "  invidious        Build Invidious"
+	@echo "  run              Launch Invidious"
+	@echo ""
+	@echo "  format           Run the Crystal formatter"
+	@echo "  test             Run tests"
+	@echo "  verify           Just make sure that the code compiles, but without"
+	@echo "                   generating any binaries. Useful to search for errors"
+	@echo ""
+	@echo "  clean            Remove build artifacts"
+	@echo "  distclean        Remove build artifacts and libraries"
+	@echo ""
+	@echo ""
+	@echo "Build options available for this Makefile:"
+	@echo ""
+	@echo "  RELEASE          Make a release build      (Default: 1)"
+	@echo "  STATIC           Link libraries statically (Default: 0)"
+	@echo ""
+	@echo "  DISABLE_QUIC     Disable support for QUIC  (Default: 0)"
+	@echo "  NO_DBG_SYMBOLS   Strip debug symbols       (Default: 0)"
 
 
 

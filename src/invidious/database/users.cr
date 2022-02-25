@@ -171,7 +171,7 @@ module Invidious::Database::Users
       WHERE email = $2
     SQL
 
-    PG_DB.exec(request, user.email, pass)
+    PG_DB.exec(request, pass, user.email)
   end
 
   # -------------------

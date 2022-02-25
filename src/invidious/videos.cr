@@ -2,6 +2,8 @@ CAPTION_LANGUAGES = {
   "",
   "English",
   "English (auto-generated)",
+  "English (United Kingdom)",
+  "English (United States)",
   "Afrikaans",
   "Albanian",
   "Amharic",
@@ -14,23 +16,31 @@ CAPTION_LANGUAGES = {
   "Bosnian",
   "Bulgarian",
   "Burmese",
+  "Cantonese (Hong Kong)",
   "Catalan",
   "Cebuano",
+  "Chinese",
+  "Chinese (China)",
+  "Chinese (Hong Kong)",
   "Chinese (Simplified)",
+  "Chinese (Taiwan)",
   "Chinese (Traditional)",
   "Corsican",
   "Croatian",
   "Czech",
   "Danish",
   "Dutch",
+  "Dutch (auto-generated)",
   "Esperanto",
   "Estonian",
   "Filipino",
   "Finnish",
   "French",
+  "French (auto-generated)",
   "Galician",
   "Georgian",
   "German",
+  "German (auto-generated)",
   "Greek",
   "Gujarati",
   "Haitian Creole",
@@ -43,14 +53,19 @@ CAPTION_LANGUAGES = {
   "Icelandic",
   "Igbo",
   "Indonesian",
+  "Indonesian (auto-generated)",
+  "Interlingue",
   "Irish",
   "Italian",
+  "Italian (auto-generated)",
   "Japanese",
+  "Japanese (auto-generated)",
   "Javanese",
   "Kannada",
   "Kazakh",
   "Khmer",
   "Korean",
+  "Korean (auto-generated)",
   "Kurdish",
   "Kyrgyz",
   "Lao",
@@ -73,9 +88,12 @@ CAPTION_LANGUAGES = {
   "Persian",
   "Polish",
   "Portuguese",
+  "Portuguese (auto-generated)",
+  "Portuguese (Brazil)",
   "Punjabi",
   "Romanian",
   "Russian",
+  "Russian (auto-generated)",
   "Samoan",
   "Scottish Gaelic",
   "Serbian",
@@ -87,7 +105,10 @@ CAPTION_LANGUAGES = {
   "Somali",
   "Southern Sotho",
   "Spanish",
+  "Spanish (auto-generated)",
   "Spanish (Latin America)",
+  "Spanish (Mexico)",
+  "Spanish (Spain)",
   "Sundanese",
   "Swahili",
   "Swedish",
@@ -96,10 +117,12 @@ CAPTION_LANGUAGES = {
   "Telugu",
   "Thai",
   "Turkish",
+  "Turkish (auto-generated)",
   "Ukrainian",
   "Urdu",
   "Uzbek",
   "Vietnamese",
+  "Vietnamese (auto-generated)",
   "Welsh",
   "Western Frisian",
   "Xhosa",
@@ -868,11 +891,13 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 
   player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
 
-  if player_response["playabilityStatus"]?.try &.["status"]?.try &.as_s != "OK"
-    reason = player_response["playabilityStatus"]["errorScreen"]?.try &.["playerErrorMessageRenderer"]?.try &.["subreason"]?.try { |s|
-      s["simpleText"]?.try &.as_s || s["runs"].as_a.map { |r| r["text"] }.join("")
-    } || player_response["playabilityStatus"]["reason"].as_s
+  if player_response.dig?("playabilityStatus", "status").try &.as_s != "OK"
+    subreason = player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "subreason")
+    reason = subreason.try &.[]?("simpleText").try &.as_s
+    reason ||= subreason.try &.[]("runs").as_a.map(&.[]("text")).join("")
+    reason ||= player_response.dig("playabilityStatus", "reason").as_s
     params["reason"] = JSON::Any.new(reason)
+    return params
   end
 
   params["shortDescription"] = player_response.dig?("videoDetails", "shortDescription") || JSON::Any.new(nil)
@@ -915,11 +940,8 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   raise BrokenTubeException.new("twoColumnWatchNextResults") if !main_results
 
   primary_results = main_results.dig?("results", "results", "contents")
-  secondary_results = main_results
-    .dig?("secondaryResults", "secondaryResults", "results")
 
   raise BrokenTubeException.new("results") if !primary_results
-  raise BrokenTubeException.new("secondaryResults") if !secondary_results
 
   video_primary_renderer = primary_results
     .as_a.find(&.["videoPrimaryInfoRenderer"]?)
@@ -939,7 +961,9 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   related = [] of JSON::Any
 
   # Parse "compactVideoRenderer" items (under secondary results)
-  secondary_results.as_a.each do |element|
+  secondary_results = main_results
+    .dig?("secondaryResults", "secondaryResults", "results")
+  secondary_results.try &.as_a.each do |element|
     if item = element["compactVideoRenderer"]?
       related_video = parse_related_video(item)
       related << JSON::Any.new(related_video) if related_video
@@ -1108,7 +1132,9 @@ def fetch_video(id, region)
     info = embed_info if !embed_info["reason"]?
   end
 
-  raise InfoException.new(info["reason"]?.try &.as_s || "") if !info["videoDetails"]?
+  if reason = info["reason"]?
+    raise InfoException.new(reason.as_s || "")
+  end
 
   video = Video.new({
     id:      id,

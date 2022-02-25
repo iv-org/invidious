@@ -30,6 +30,7 @@ LOCALES_LIST = {
   "pt-PT"   => "Português de Portugal", # Portuguese (Portugal)
   "ro"      => "Română",                # Romanian
   "ru"      => "русский",               # Russian
+  "sq"      => "Shqip",                 # Albanian
   "sr"      => "srpski (latinica)",     # Serbian (Latin)
   "sr_Cyrl" => "српски (ћирилица)",     # Serbian (Cyrillic)
   "sv-SE"   => "Svenska",               # Swedish
@@ -135,7 +136,7 @@ def translate_count(locale : String, key : String, count : Int, format = NumberF
       # Try #2: Fallback to english
       translation = translate_count("en-US", key, count)
     else
-      # Return key if we're already in english, as the tranlation is missing
+      # Return key if we're already in english, as the translation is missing
       LOGGER.warn("i18n: Missing translation key \"#{key}\"")
       return key
     end

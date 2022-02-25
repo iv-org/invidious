@@ -325,7 +325,7 @@
     "Search": "Cari",
     "Top": "Teratas",
     "About": "Tentang",
-    "Rating: ": "Rating: ",
+    "Rating: ": "Penilaian: ",
     "preferences_locale_label": "Bahasa: ",
     "View as playlist": "Lihat sebagai daftar putar",
     "Default": "Baku",
@@ -346,7 +346,7 @@
     "Playlists": "Daftar putar",
     "Community": "Komunitas",
     "relevance": "Relevansi",
-    "rating": "Rating",
+    "rating": "Penilaian",
     "date": "Tanggal unggah",
     "views": "Jumlah ditonton",
     "content_type": "Tipe",
@@ -414,5 +414,7 @@
     "preferences_quality_dash_option_auto": "Otomatis",
     "preferences_quality_dash_option_480p": "480p",
     "Video unavailable": "Video tidak tersedia",
-    "preferences_save_player_pos_label": "Simpan posisi pemutaran: "
+    "preferences_save_player_pos_label": "Simpan posisi pemutaran: ",
+    "crash_page_you_found_a_bug": "Sepertinya kamu telah menemukan masalah di invidious!",
+    "crash_page_before_reporting": "Sebelum melaporkan masalah, pastikan anda memiliki:"
 }

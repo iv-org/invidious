@@ -52,7 +52,7 @@
                         </div>
                         <div class="pure-u-1-4">
                             <a id="notification_ticker" title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
-                                <% notification_count = env.get("user").as(User).notifications.size %>
+                                <% notification_count = env.get("user").as(Invidious::User).notifications.size %>
                                 <% if notification_count > 0 %>
                                     <span id="notification_count"><%= notification_count %></span> <i class="icon ion-ios-notifications"></i>
                                 <% else %>
@@ -67,12 +67,12 @@
                         </div>
                         <% if env.get("preferences").as(Preferences).show_nick %>
                             <div class="pure-u-1-4">
-                                <span id="user_name"><%= env.get("user").as(User).email %></span>
+                                <span id="user_name"><%= env.get("user").as(Invidious::User).email %></span>
                             </div>
                         <% end %>
                         <div class="pure-u-1-4">
                             <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                                <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <a class="pure-menu-heading" href="#">
                                     <input style="all:unset" type="submit" value="<%= translate(locale, "Log out") %>">
                                 </a>

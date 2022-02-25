@@ -23,6 +23,7 @@ struct Preferences
   property latest_only : Bool = CONFIG.default_user_preferences.latest_only
   property listen : Bool = CONFIG.default_user_preferences.listen
   property local : Bool = CONFIG.default_user_preferences.local
+  property watch_history : Bool = CONFIG.default_user_preferences.watch_history
   property vr_mode : Bool = CONFIG.default_user_preferences.vr_mode
   property show_nick : Bool = CONFIG.default_user_preferences.show_nick
 
@@ -254,6 +255,20 @@ struct Preferences
       end
 
       cookies
+    end
+  end
+
+  module TimeSpanConverter
+    def self.to_yaml(value : Time::Span, yaml : YAML::Nodes::Builder)
+      return yaml.scalar value.total_minutes.to_i32
+    end
+
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Time::Span
+      if node.is_a?(YAML::Nodes::Scalar)
+        return decode_interval(node.value)
+      else
+        node.raise "Expected scalar, not #{node.class}"
+      end
     end
   end
 end

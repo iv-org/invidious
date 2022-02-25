@@ -21,8 +21,8 @@
     "No": "Nei",
     "Import and Export Data": "Importer- og eksporter data",
     "Import": "Importer",
-    "Import Invidious data": "Importer Invidious-data",
-    "Import YouTube subscriptions": "Importer YouTube-abonnementer",
+    "Import Invidious data": "Importer Invidious-JSON-data",
+    "Import YouTube subscriptions": "Importer YouTube/OPML-abonnementer",
     "Import FreeTube subscriptions (.db)": "Importer FreeTube-abonnementer (.db)",
     "Import NewPipe subscriptions (.json)": "Importer NewPipe-abonnementer (.json)",
     "Import NewPipe data (.zip)": "Importer NewPipe-data (.zip)",
@@ -430,5 +430,12 @@
     "generic_count_minutes": "{{count}} minutt",
     "generic_count_minutes_plural": "{{count}} minutter",
     "generic_count_years": "{{count}} år",
-    "generic_count_years_plural": "{{count}} år"
+    "generic_count_years_plural": "{{count}} år",
+    "crash_page_read_the_faq": "lest de <a href=\"`x`\">Ofte stilte spørsmålene (OSS/FAQ)</a>",
+    "crash_page_search_issue": "søkt etter <a href=\"`x`\">eksisterende utfordringer på Github</a>",
+    "crash_page_you_found_a_bug": "Det ser ut til at du fant en feil i Invidious!",
+    "crash_page_refresh": "forsøkt å <a href=\"`x`\">laste siden på nytt</a>",
+    "crash_page_switch_instance": "forsøkt et <a href=\"`x`\">annet eksemplar</a>",
+    "crash_page_before_reporting": "Før du rapporterer en feil, sikre at du har:",
+    "crash_page_report_issue": "Hvis intet av det overnevnte hjalp, <a href=\"`x`\">lag en ny utfordring på Github</a> (fortrinnsvis på engelsk) og ta med følgende tekstbit i meldingen dit (IKKE oversett denne teksten):"
 }

@@ -38,12 +38,15 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
 
   issue_title = "#{exception.message} (#{exception.class})"
 
-  issue_template = %(Title: `#{issue_title}`)
-  issue_template += %(\nDate: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`)
-  issue_template += %(\nRoute: `#{env.request.resource}`)
-  issue_template += %(\nVersion: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`)
-  # issue_template += github_details("Preferences", env.get("preferences").as(Preferences).to_pretty_json)
-  issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
+  issue_template = <<-TEXT
+  Title: `#{HTML.escape(issue_title)}`
+  Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`
+  Route: `#{HTML.escape(env.request.resource)}`
+  Version: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`
+
+  TEXT
+
+  issue_template += github_details("Backtrace", HTML.escape(exception.inspect_with_backtrace))
 
   # URLs for the error message below
   url_faq = "https://github.com/iv-org/documentation/blob/master/FAQ.md"

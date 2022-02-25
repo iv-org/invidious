@@ -207,6 +207,11 @@
                 <legend><%= translate(locale, "preferences_category_subscription") %></legend>
 
                 <div class="pure-control-group">
+                    <label for="watch_history"><%= translate(locale, "preferences_watch_history_label") %></label>
+                    <input name="watch_history" id="watch_history" type="checkbox" <% if preferences.watch_history %>checked<% end %>>
+                </div>
+
+                <div class="pure-control-group">
                     <label for="annotations_subscribed"><%= translate(locale, "preferences_annotations_subscribed_label") %></label>
                     <input name="annotations_subscribed" id="annotations_subscribed" type="checkbox" <% if preferences.annotations_subscribed %>checked<% end %>>
                 </div>
@@ -252,7 +257,7 @@
                 <% end %>
             <% end %>
 
-            <% if env.get?("user") && CONFIG.admins.includes? env.get?("user").as(User).email %>
+            <% if env.get?("user") && CONFIG.admins.includes? env.get?("user").as(Invidious::User).email %>
                 <legend><%= translate(locale, "preferences_category_admin") %></legend>
 
                 <div class="pure-control-group">
