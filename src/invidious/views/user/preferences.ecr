@@ -207,6 +207,11 @@
                 <legend><%= translate(locale, "preferences_category_subscription") %></legend>
 
                 <div class="pure-control-group">
+                    <label for="notifications"><%= translate(locale, "preferences_notifications_label") %></label>
+                    <input name="notifications" id="notifications" type="checkbox" <% if preferences.notifications %>checked<% end %>>
+                </div>
+
+                <div class="pure-control-group">
                     <label for="watch_history"><%= translate(locale, "preferences_watch_history_label") %></label>
                     <input name="watch_history" id="watch_history" type="checkbox" <% if preferences.watch_history %>checked<% end %>>
                 </div>

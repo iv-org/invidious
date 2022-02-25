@@ -226,7 +226,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
     # meaning the above timestamp is always null
     was_insert = Invidious::Database::ChannelVideos.insert(video)
 
-    if was_insert
+    if preferences.notifications && was_insert
       LOGGER.trace("fetch_channel: #{ucid} : video #{video_id} : Inserted, updating subscriptions")
       Invidious::Database::Users.add_notification(video)
     else
@@ -264,7 +264,9 @@ def fetch_channel(ucid, pull_all_videos : Bool)
         # so since they don't provide a published date here we can safely ignore them.
         if Time.utc - video.published > 1.minute
           was_insert = Invidious::Database::ChannelVideos.insert(video)
-          Invidious::Database::Users.add_notification(video) if was_insert
+          if preferences.notifications && was_insert
+            Invidious::Database::Users.add_notification(video)
+          end
         end
       end
 

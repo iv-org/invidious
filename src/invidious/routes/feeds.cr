@@ -100,7 +100,9 @@ module Invidious::Routes::Feeds
     # we know a user has looked at their feed e.g. in the past 10 minutes,
     # they've already seen a video posted 20 minutes ago, and don't need
     # to be notified.
-    Invidious::Database::Users.clear_notifications(user)
+    if preferences.notifications
+      Invidious::Database::Users.clear_notifications(user)
+    end
     user.notifications = [] of String
     env.set "user", user
 
@@ -417,7 +419,9 @@ module Invidious::Routes::Feeds
         })
 
         was_insert = Invidious::Database::ChannelVideos.insert(video, with_premiere_timestamp: true)
-        Invidious::Database::Users.add_notification(video) if was_insert
+        if preferences.notifications && was_insert
+          Invidious::Database::Users.add_notification(video)
+        end
       end
     end
 

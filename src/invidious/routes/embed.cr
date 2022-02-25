@@ -134,7 +134,9 @@ module Invidious::Routes::Embed
     # end
 
     if notifications && notifications.includes? id
-      Invidious::Database::Users.remove_notification(user.as(User), id)
+      if preferences.notifications
+        Invidious::Database::Users.remove_notification(user.as(User), id)
+      end
       env.get("user").as(User).notifications.delete(id)
       notifications.delete(id)
     end

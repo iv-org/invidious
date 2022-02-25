@@ -24,6 +24,7 @@ struct Preferences
   property listen : Bool = CONFIG.default_user_preferences.listen
   property local : Bool = CONFIG.default_user_preferences.local
   property watch_history : Bool = CONFIG.default_user_preferences.watch_history
+  property notifications : Bool = CONFIG.default_user_preferences.notifications
   property vr_mode : Bool = CONFIG.default_user_preferences.vr_mode
   property show_nick : Bool = CONFIG.default_user_preferences.show_nick
 
