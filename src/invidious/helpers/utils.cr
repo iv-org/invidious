@@ -366,13 +366,10 @@ def fetch_random_instance
   return filtered_instance_list.sample(1)[0]
 end
 
-def reduce_uri(uri : URI | String, max_length : Int32? = 50, suffix : String? = "...") : String
+def reduce_uri(uri : URI | String, max_length : Int32 = 50, suffix : String = "…") : String
   str = uri.to_s.sub(/https?:\/\//, "")
-  if !max_length.nil? && str.size > max_length
-    str = str[0, max_length]
-    if !suffix.nil?
-      str = "#{str}#{suffix}"
-    end
+  if str.size > max_length
+    str = "#{str[0, max_length]}#{suffix}"
   end
   return str
 end
