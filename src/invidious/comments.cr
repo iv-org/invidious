@@ -573,26 +573,24 @@ def content_to_comment_html(content)
 
     if run["navigationEndpoint"]?
       if url = run["navigationEndpoint"]["urlEndpoint"]?.try &.["url"].as_s
-        base_url = URI.parse(url)
         url = URI.parse(url)
+        displayed_url = url
 
         if url.host == "youtu.be"
-          url = "youtube.com/watch?v=#{url.request_target.lstrip('/')}"
+          url = "/watch?v=#{url.request_target.lstrip('/')}"
+          displayed_url = "youtube.com#{url}"
         elsif url.host.nil? || url.host.not_nil!.ends_with?("youtube.com")
           if url.path == "/redirect"
             # Sometimes, links can be corrupted (why?) so make sure to fallback
             # nicely. See https://github.com/iv-org/invidious/issues/2682
             url = HTTP::Params.parse(url.query.not_nil!)["q"]? || ""
+            displayed_url = url
           else
             url = url.request_target
+            displayed_url = "youtube.com#{url}"
           end
         end
 
-        if base_url.host.not_nil!.ends_with?("youtube.com") && base_url.path != "/redirect"
-          displayed_url = "youtube.com#{base_url.request_target}"
-        else
-          displayed_url = url
-        end
         text = %(<a href="#{url}">#{reduce_uri(displayed_url)}</a>)
       elsif watch_endpoint = run["navigationEndpoint"]["watchEndpoint"]?
         length_seconds = watch_endpoint["startTimeSeconds"]?
