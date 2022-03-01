@@ -14,7 +14,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 50
 
 service:
-  type: clusterIP
+  type: ClusterIP
   port: 3000
   #loadBalancerIP:
 
@@ -34,12 +34,17 @@ securityContext:
 
 # See https://github.com/helm/charts/tree/master/stable/postgresql
 postgresql:
-  postgresqlUsername: kemal
-  postgresqlPassword: kemal
-  postgresqlDatabase: invidious
-  initdbUsername: kemal
-  initdbPassword: kemal
-  initdbScriptsConfigMap: invidious-postgresql-init
+  image:
+    registry: quay.io
+  auth:
+    username: kemal
+    password: kemal
+    database: invidious
+  primary:
+    initdb:
+      username: kemal
+      password: kemal
+      scriptsConfigMap: invidious-postgresql-init
 
 # Adapted from ../config/config.yml
 config:
