@@ -32,7 +32,7 @@ securityContext:
   runAsGroup: 1000
   fsGroup: 1000
 
-# See https://github.com/helm/charts/tree/master/stable/postgresql
+# See https://github.com/bitnami/charts/tree/master/bitnami/postgresql
 postgresql:
   image:
     registry: quay.io
