@@ -1,3 +1,6 @@
+require "protodec/utils"
+require "http/params"
+
 module Invidious::Search
   struct Filters
     # Values correspond to { "2:embedded": { "1:varint": <X> }}
@@ -74,6 +77,63 @@ module Invidious::Search
       @features : Features = Features::None,
       @sort : Sort = Sort::Relevance
     )
+    # -------------------
+    #  Youtube params
+    # -------------------
+
+    # Produce the youtube search parameters for the
+    # innertube API (base64-encoded protobuf object).
+    def to_yt_params(page : Int = 1) : String
+      # Initialize the embedded protobuf object
+      embedded = {} of String => Int64
+
+      # Add these field only if associated parameter is selected
+      embedded["1:varint"] = @date.to_i64 if !@date.none?
+      embedded["2:varint"] = @type.to_i64 if !@type.all?
+      embedded["3:varint"] = @duration.to_i64 if !@duration.none?
+
+      if !@features.none?
+        # All features have a value of "1" when enabled, and
+        # the field is omitted when the feature is no selected.
+        embedded["4:varint"] = 1_i64 if @features.includes?(Features::HD)
+        embedded["5:varint"] = 1_i64 if @features.includes?(Features::Subtitles)
+        embedded["6:varint"] = 1_i64 if @features.includes?(Features::CCommons)
+        embedded["7:varint"] = 1_i64 if @features.includes?(Features::ThreeD)
+        embedded["8:varint"] = 1_i64 if @features.includes?(Features::Live)
+        embedded["9:varint"] = 1_i64 if @features.includes?(Features::Purchased)
+        embedded["14:varint"] = 1_i64 if @features.includes?(Features::FourK)
+        embedded["15:varint"] = 1_i64 if @features.includes?(Features::ThreeSixty)
+        embedded["23:varint"] = 1_i64 if @features.includes?(Features::Location)
+        embedded["25:varint"] = 1_i64 if @features.includes?(Features::HDR)
+        embedded["26:varint"] = 1_i64 if @features.includes?(Features::VR180)
+      end
+
+      # Initialize an empty protobuf object
+      object = {} of String => (Int64 | String | Hash(String, Int64))
+
+      # As usual, everything can be omitted if it has no value
+      object["2:embedded"] = embedded if !embedded.empty?
+
+      # Default sort is "relevance", so when this option is selected,
+      # the associated field can be omitted.
+      if !@sort.relevance?
+        object["1:varint"] = @sort.to_i64
+      end
+
+      # Add page number (if provided)
+      if page > 1
+        object["9:varint"] = ((page - 1) * 20).to_i64
+      end
+
+      # If the object is empty, return an empty string,
+      # otherwise encode to protobuf then to base64
+      return "" if object.empty?
+
+      return object
+        .try { |i| Protodec::Any.cast_json(i) }
+        .try { |i| Protodec::Any.from_json(i) }
+        .try { |i| Base64.urlsafe_encode(i) }
+        .try { |i| URI.encode_www_form(i) }
     end
   end
 end
