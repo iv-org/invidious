@@ -135,5 +135,67 @@ module Invidious::Search
         .try { |i| Base64.urlsafe_encode(i) }
         .try { |i| URI.encode_www_form(i) }
     end
+
+    # Function to parse the `sp` URL parameter from Youtube
+    # search page. It's a base64-encoded protobuf object.
+    def self.from_yt_params(params : HTTP::Params) : Filters
+      # Initialize output variable
+      filters = Filters.new
+
+      # Get parameter, and check emptyness
+      search_params = params["sp"]?
+
+      if search_params.nil? || search_params.empty?
+        return filters
+      end
+
+      # Decode protobuf object
+      object = search_params
+        .try { |i| URI.decode_www_form(i) }
+        .try { |i| Base64.decode(i) }
+        .try { |i| IO::Memory.new(i) }
+        .try { |i| Protodec::Any.parse(i) }
+
+      # Parse items from embedded object
+      if embedded = object["2:0:embedded"]?
+        # All the following fields (date, type, duration) are optional.
+        if date = embedded["1:0:varint"]?
+          filters.date = Date.from_value?(date.as_i) || Date::None
+        end
+
+        if type = embedded["2:0:varint"]?
+          filters.type = Type.from_value?(type.as_i) || Type::All
+        end
+
+        if duration = embedded["3:0:varint"]?
+          filters.duration = Duration.from_value?(duration.as_i) || Duration::None
+        end
+
+        # All features should have a value of "1" when enabled, and
+        # the field should be omitted when the feature is no selected.
+        features = 0
+        features += (embedded["4:0:varint"]?.try &.as_i == 1_i64) ? Features::HD.value : 0
+        features += (embedded["5:0:varint"]?.try &.as_i == 1_i64) ? Features::Subtitles.value : 0
+        features += (embedded["6:0:varint"]?.try &.as_i == 1_i64) ? Features::CCommons.value : 0
+        features += (embedded["7:0:varint"]?.try &.as_i == 1_i64) ? Features::ThreeD.value : 0
+        features += (embedded["8:0:varint"]?.try &.as_i == 1_i64) ? Features::Live.value : 0
+        features += (embedded["9:0:varint"]?.try &.as_i == 1_i64) ? Features::Purchased.value : 0
+        features += (embedded["14:0:varint"]?.try &.as_i == 1_i64) ? Features::FourK.value : 0
+        features += (embedded["15:0:varint"]?.try &.as_i == 1_i64) ? Features::ThreeSixty.value : 0
+        features += (embedded["23:0:varint"]?.try &.as_i == 1_i64) ? Features::Location.value : 0
+        features += (embedded["25:0:varint"]?.try &.as_i == 1_i64) ? Features::HDR.value : 0
+        features += (embedded["26:0:varint"]?.try &.as_i == 1_i64) ? Features::VR180.value : 0
+
+        filters.features = Features.from_value?(features) || Features::None
+      end
+
+      if sort = object["1:0:varint"]?
+        filters.sort = Sort.from_value?(sort.as_i) || Sort::Relevance
+      end
+
+      # Remove URL parameter and return result
+      params.delete("sp")
+      return filters
+    end
   end
 end

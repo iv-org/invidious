@@ -89,4 +89,55 @@ Spectator.describe Invidious::Search::Filters do
       end
     end
   end
+
+  # -------------------
+  #  Decode YT params
+  # -------------------
+
+  describe "#from_yt_params" do
+    sample DATE_FILTERS do |value, encoded|
+      it "Decodes upload date filter '#{value}'" do
+        params = HTTP::Params.parse("sp=#{encoded}")
+
+        expect(described_class.from_yt_params(params))
+          .to eq(described_class.new(date: value))
+      end
+    end
+
+    sample TYPE_FILTERS do |value, encoded|
+      it "Decodes content type filter '#{value}'" do
+        params = HTTP::Params.parse("sp=#{encoded}")
+
+        expect(described_class.from_yt_params(params))
+          .to eq(described_class.new(type: value))
+      end
+    end
+
+    sample DURATION_FILTERS do |value, encoded|
+      it "Decodes duration filter '#{value}'" do
+        params = HTTP::Params.parse("sp=#{encoded}")
+
+        expect(described_class.from_yt_params(params))
+          .to eq(described_class.new(duration: value))
+      end
+    end
+
+    sample FEATURE_FILTERS do |value, encoded|
+      it "Decodes feature filter '#{value}'" do
+        params = HTTP::Params.parse("sp=#{encoded}")
+
+        expect(described_class.from_yt_params(params))
+          .to eq(described_class.new(features: value))
+      end
+    end
+
+    sample SORT_FILTERS do |value, encoded|
+      it "Decodes sort filter '#{value}'" do
+        params = HTTP::Params.parse("sp=#{encoded}")
+
+        expect(described_class.from_yt_params(params))
+          .to eq(described_class.new(sort: value))
+      end
+    end
+  end
 end
