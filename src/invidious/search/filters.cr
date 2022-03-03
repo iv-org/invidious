@@ -77,6 +77,121 @@ module Invidious::Search
       @features : Features = Features::None,
       @sort : Sort = Sort::Relevance
     )
+    end
+
+    # -------------------
+    #  Invidious params
+    # -------------------
+
+    def self.parse_features(raw : Array(String)) : Features
+      # Initialize return variable
+      features = Features.new(0)
+
+      raw.each do |ft|
+        case ft.downcase
+        when "live", "livestream"
+          features = features | Features::Live
+        when "4k"        then features = features | Features::FourK
+        when "hd"        then features = features | Features::HD
+        when "subtitles" then features = features | Features::Subtitles
+        when "creative_commons", "commons", "cc"
+          features = features | Features::CCommons
+        when "360"       then features = features | Features::ThreeSixty
+        when "vr180"     then features = features | Features::VR180
+        when "3d"        then features = features | Features::ThreeD
+        when "hdr"       then features = features | Features::HDR
+        when "location"  then features = features | Features::Location
+        when "purchased" then features = features | Features::Purchased
+        end
+      end
+
+      return features
+    end
+
+    def self.format_features(features : Features) : String
+      # Directly return an empty string if there are no features
+      return "" if features.none?
+
+      # Initialize return variable
+      str = [] of String
+
+      str << "live" if features.live?
+      str << "4k" if features.four_k?
+      str << "hd" if features.hd?
+      str << "subtitles" if features.subtitles?
+      str << "commons" if features.c_commons?
+      str << "360" if features.three_sixty?
+      str << "vr180" if features.vr180?
+      str << "3d" if features.three_d?
+      str << "hdr" if features.hdr?
+      str << "location" if features.location?
+      str << "purchased" if features.purchased?
+
+      return str.join(',')
+    end
+
+    def self.from_legacy_filters(str : String) : {Filters, String, String, Bool}
+      # Split search query on spaces
+      members = str.split(' ')
+
+      # Output variables
+      channel = ""
+      filters = Filters.new
+      subscriptions = false
+
+      # Array to hold the non-filter members
+      query = [] of String
+
+      # Parse!
+      members.each do |substr|
+        # Separator operators
+        operators = substr.split(':')
+
+        case operators[0]
+        when "user", "channel"
+          next if operators.size != 2
+          channel = operators[1]
+          #
+        when "type", "content_type"
+          next if operators.size != 2
+          type = Type.parse?(operators[1])
+          filters.type = type if !type.nil?
+          #
+        when "date"
+          next if operators.size != 2
+          date = Date.parse?(operators[1])
+          filters.date = date if !date.nil?
+          #
+        when "duration"
+          next if operators.size != 2
+          duration = Duration.parse?(operators[1])
+          filters.duration = duration if !duration.nil?
+          #
+        when "feature", "features"
+          next if operators.size != 2
+          features = parse_features(operators[1].split(','))
+          filters.features = features if !features.nil?
+          #
+        when "sort"
+          next if operators.size != 2
+          sort = Sort.parse?(operators[1])
+          filters.sort = sort if !sort.nil?
+          #
+        when "subscriptions"
+          next if operators.size != 2
+          subscriptions = {"true", "on", "yes", "1"}.any?(&.== operators[1])
+          #
+        else
+          query << substr
+        end
+      end
+
+      # Re-assemble query (without filters)
+      cleaned_query = query.join(' ')
+
+      return {filters, channel, cleaned_query, subscriptions}
+    end
+
     # -------------------
     #  Youtube params
     # -------------------
