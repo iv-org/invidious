@@ -35,6 +35,7 @@ require "./invidious/frontend/*"
 require "./invidious/*"
 require "./invidious/channels/*"
 require "./invidious/user/*"
+require "./invidious/search/*"
 require "./invidious/routes/**"
 require "./invidious/jobs/**"
 
