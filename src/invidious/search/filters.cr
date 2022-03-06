@@ -192,6 +192,42 @@ module Invidious::Search
       return {filters, channel, cleaned_query, subscriptions}
     end
 
+    def self.from_iv_params(params : HTTP::Params) : Filters
+      # Temporary variables
+      filters = Filters.new
+
+      if type = params["type"]?
+        filters.type = Type.parse?(type) || Type::All
+        params.delete("type")
+      end
+
+      if date = params["date"]?
+        filters.date = Date.parse?(date) || Date::None
+        params.delete("date")
+      end
+
+      if duration = params["duration"]?
+        filters.duration = Duration.parse?(duration) || Duration::None
+        params.delete("duration")
+      end
+
+      features = params.fetch_all("features")
+      if !features.empty?
+        # Un-array input so it can be treated as a comma-separated list
+        features = features[0].split(',') if features.size == 1
+
+        filters.features = parse_features(features) || Features::None
+        params.delete_all("features")
+      end
+
+      if sort = params["sort"]?
+        filters.sort = Sort.parse?(sort) || Sort::Relevance
+        params.delete("sort")
+      end
+
+      return filters
+    end
+
     # -------------------
     #  Youtube params
     # -------------------

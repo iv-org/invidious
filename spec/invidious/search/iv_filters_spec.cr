@@ -175,4 +175,83 @@ Spectator.describe Invidious::Search::Filters do
       expect(subs).to be_false
     end
   end
+
+  # -------------------
+  #  Decode (URL)
+  # -------------------
+
+  describe "#from_iv_params" do
+    it "Decodes type= filter" do
+      Invidious::Search::Filters::Type.each do |value|
+        params = HTTP::Params.parse("type=#{value}")
+
+        expect(described_class.from_iv_params(params))
+          .to eq(described_class.new(type: value))
+      end
+    end
+
+    it "Decodes date= filter" do
+      Invidious::Search::Filters::Date.each do |value|
+        params = HTTP::Params.parse("date=#{value}")
+
+        expect(described_class.from_iv_params(params))
+          .to eq(described_class.new(date: value))
+      end
+    end
+
+    it "Decodes duration= filter" do
+      Invidious::Search::Filters::Duration.each do |value|
+        params = HTTP::Params.parse("duration=#{value}")
+
+        expect(described_class.from_iv_params(params))
+          .to eq(described_class.new(duration: value))
+      end
+    end
+
+    it "Decodes features= filter (single)" do
+      Invidious::Search::Filters::Features.each do |value|
+        string = described_class.format_features(value)
+        params = HTTP::Params.parse("features=#{string}")
+
+        expect(described_class.from_iv_params(params))
+          .to eq(described_class.new(features: value))
+      end
+    end
+
+    it "Decodes features= filter (multiple - comma separated)" do
+      features = Invidious::Search::Filters::Features.flags(HDR, VR180, CCommons)
+      params = HTTP::Params.parse("features=vr180%2Ccc%2Chdr") # %2C is a comma
+
+      expect(described_class.from_iv_params(params))
+        .to eq(described_class.new(features: features))
+    end
+
+    it "Decodes features= filter (multiple - URL parameters)" do
+      features = Invidious::Search::Filters::Features.flags(ThreeSixty, HD, FourK)
+      params = HTTP::Params.parse("features=4k&features=360&features=hd")
+
+      expect(described_class.from_iv_params(params))
+        .to eq(described_class.new(features: features))
+    end
+
+    it "Decodes sort= filter" do
+      Invidious::Search::Filters::Sort.each do |value|
+        params = HTTP::Params.parse("sort=#{value}")
+
+        expect(described_class.from_iv_params(params))
+          .to eq(described_class.new(sort: value))
+      end
+    end
+
+    it "Ignores junk data" do
+      params = HTTP::Params.parse("foo=bar&sort=views&answer=42&type=channel")
+
+      expect(described_class.from_iv_params(params)).to eq(
+        described_class.new(
+          sort: Invidious::Search::Filters::Sort::Views,
+          type: Invidious::Search::Filters::Type::Channel
+        )
+      )
+    end
+  end
 end
