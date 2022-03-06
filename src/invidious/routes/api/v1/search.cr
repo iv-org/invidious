@@ -43,20 +43,20 @@ module Invidious::Routes::API::V1::Search
   end
 
   def self.search_suggestions(env)
-    locale = env.get("preferences").as(Preferences).locale
-    region = env.params.query["region"]?
+    preferences = env.get("preferences").as(Preferences)
+    region = env.params.query["region"]? || preferences.region
 
     env.response.content_type = "application/json"
 
-    query = env.params.query["q"]?
-    query ||= ""
+    query = env.params.query["q"]? || ""
 
     begin
-      headers = HTTP::Headers{":authority" => "suggestqueries.google.com"}
-      response = YT_POOL.client &.get("/complete/search?hl=en&gl=#{region}&client=youtube&ds=yt&q=#{URI.encode_www_form(query)}&callback=suggestCallback", headers).body
+      client = HTTP::Client.new("suggestqueries-clients6.youtube.com")
+      url = "/complete/search?client=youtube&hl=en&gl=#{region}&q=#{URI.encode_www_form(query)}&xssi=t&gs_ri=youtube&ds=yt"
 
-      body = response[35..-2]
-      body = JSON.parse(body).as_a
+      response = client.get(url).body
+
+      body = JSON.parse(response[5..-1]).as_a
       suggestions = body[1].as_a[0..-2]
 
       JSON.build do |json|
