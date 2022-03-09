@@ -369,5 +369,8 @@
     "footer_modfied_source_code": "Pakeistas pirminis kodas",
     "footer_donate_page": "Paaukoti",
     "preferences_region_label": "Turinio šalis: ",
-    "preferences_quality_dash_label": "Pageidaujama DASH vaizdo kokybė: "
+    "preferences_quality_dash_label": "Pageidaujama DASH vaizdo kokybė: ",
+    "preferences_quality_dash_option_best": "Geriausia",
+    "preferences_quality_dash_option_worst": "Blogiausia",
+    "preferences_quality_dash_option_auto": "Automatinis"
 }

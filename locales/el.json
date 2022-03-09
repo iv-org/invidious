@@ -448,5 +448,6 @@
     "none": "κανένα",
     "videoinfo_youTube_embed_link": "Ενσωμάτωση",
     "videoinfo_invidious_embed_link": "Σύνδεσμος Ενσωμάτωσης",
-    "show": "Μπάρα προόδου διαβάσματος"
+    "show": "Μπάρα προόδου διαβάσματος",
+    "preferences_watch_history_label": "Ενεργοποίηση ιστορικού παρακολούθησης: "
 }

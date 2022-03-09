@@ -88,7 +88,7 @@
     "channel name": "ime kanala",
     "channel name - reverse": "ime kanala – obrnuto",
     "Only show latest video from channel: ": "Prikaži samo najnovija videa kanala: ",
-    "Only show latest unwatched video from channel: ": "Prikaži samo najnovija nepogledana videa kanala: ",
+    "Only show latest unwatched video from channel: ": "Prikaži samo najnovija nepogledana videa od kanala: ",
     "preferences_unseen_only_label": "Prikaži samo nepogledane: ",
     "preferences_notifications_only_label": "Prikaži samo obavijesti (ako ih ima): ",
     "Enable web notifications": "Aktiviraj web-obavijesti",
@@ -476,5 +476,6 @@
     "Chinese (Hong Kong)": "Kineski (Hong Kong)",
     "Korean (auto-generated)": "Korejski (automatski generiran)",
     "Portuguese (auto-generated)": "Portugalski (automatski generiran)",
-    "Spanish (auto-generated)": "Španjolski (automatski generiran)"
+    "Spanish (auto-generated)": "Španjolski (automatski generiran)",
+    "preferences_watch_history_label": "Aktiviraj povijest gledanja: "
 }
