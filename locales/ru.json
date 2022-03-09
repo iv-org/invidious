@@ -476,5 +476,6 @@
     "360": "360°",
     "Video unavailable": "Видео недоступно",
     "preferences_save_player_pos_label": "Запоминать позицию: ",
-    "preferences_region_label": "Страна: "
+    "preferences_region_label": "Страна: ",
+    "preferences_watch_history_label": "Включить историю просмотров "
 }
