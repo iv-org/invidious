@@ -27,6 +27,7 @@ require "compress/zip"
 require "protodec/utils"
 
 require "./invidious/database/*"
+require "./invidious/database/migrations/*"
 require "./invidious/helpers/*"
 require "./invidious/yt_backend/*"
 require "./invidious/frontend/*"
@@ -100,6 +101,10 @@ Kemal.config.extra_options do |parser|
   end
   parser.on("-v", "--version", "Print version") do
     puts SOFTWARE.to_pretty_json
+    exit
+  end
+  parser.on("--migrate", "Run any migrations") do
+    Invidious::Database::Migrator.new(PG_DB).migrate
     exit
   end
 end
