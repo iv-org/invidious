@@ -228,6 +228,25 @@ module Invidious::Search
       return filters
     end
 
+    def to_iv_params : HTTP::Params
+      # Temporary variables
+      raw_params = {} of String => Array(String)
+
+      raw_params["date"] = [@date.to_s.underscore] if !@date.none?
+      raw_params["type"] = [@type.to_s.underscore] if !@type.all?
+      raw_params["sort"] = [@sort.to_s.underscore] if !@sort.relevance?
+
+      if !@duration.none?
+        raw_params["duration"] = [@duration.to_s.underscore]
+      end
+
+      if !@features.none?
+        raw_params["features"] = [Filters.format_features(@features)]
+      end
+
+      return HTTP::Params.new(raw_params)
+    end
+
     # -------------------
     #  Youtube params
     # -------------------

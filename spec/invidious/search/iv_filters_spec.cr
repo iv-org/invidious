@@ -254,4 +254,118 @@ Spectator.describe Invidious::Search::Filters do
       )
     end
   end
+
+  # -------------------
+  #  Encode (URL)
+  # -------------------
+
+  describe "#to_iv_params" do
+    it "Encodes date filter" do
+      Invidious::Search::Filters::Date.each do |value|
+        filters = described_class.new(date: value)
+        params = filters.to_iv_params
+
+        if value.none?
+          expect("#{params}").to eq("")
+        else
+          expect("#{params}").to eq("date=#{value.to_s.underscore}")
+        end
+      end
+    end
+
+    it "Encodes type filter" do
+      Invidious::Search::Filters::Type.each do |value|
+        filters = described_class.new(type: value)
+        params = filters.to_iv_params
+
+        if value.all?
+          expect("#{params}").to eq("")
+        else
+          expect("#{params}").to eq("type=#{value.to_s.underscore}")
+        end
+      end
+    end
+
+    it "Encodes duration filter" do
+      Invidious::Search::Filters::Duration.each do |value|
+        filters = described_class.new(duration: value)
+        params = filters.to_iv_params
+
+        if value.none?
+          expect("#{params}").to eq("")
+        else
+          expect("#{params}").to eq("duration=#{value.to_s.underscore}")
+        end
+      end
+    end
+
+    it "Encodes features filter (single)" do
+      Invidious::Search::Filters::Features.each do |value|
+        string = described_class.format_features(value)
+        filters = described_class.new(features: value)
+
+        expect("#{filters.to_iv_params}")
+          .to eq("features=" + FEATURES_TEXT[value])
+      end
+    end
+
+    it "Encodes features filter (multiple)" do
+      features = Invidious::Search::Filters::Features.flags(Subtitles, Live, ThreeSixty)
+      filters = described_class.new(features: features)
+
+      expect("#{filters.to_iv_params}")
+        .to eq("features=live%2Csubtitles%2C360") # %2C is a comma
+    end
+
+    it "Encodes sort filter" do
+      Invidious::Search::Filters::Sort.each do |value|
+        filters = described_class.new(sort: value)
+        params = filters.to_iv_params
+
+        if value.relevance?
+          expect("#{params}").to eq("")
+        else
+          expect("#{params}").to eq("sort=#{value.to_s.underscore}")
+        end
+      end
+    end
+
+    it "Encodes multiple filters" do
+      filters = described_class.new(
+        date: Invidious::Search::Filters::Date::Today,
+        duration: Invidious::Search::Filters::Duration::Medium,
+        features: Invidious::Search::Filters::Features.flags(Location, Purchased),
+        sort: Invidious::Search::Filters::Sort::Relevance
+      )
+
+      params = filters.to_iv_params
+
+      # Check the `date` param
+      expect(params).to have_key("date")
+      expect(params.fetch_all("date")).to contain_exactly("today")
+
+      # Check the `type` param
+      expect(params).to_not have_key("type")
+      expect(params["type"]?).to be_nil
+
+      # Check the `duration` param
+      expect(params).to have_key("duration")
+      expect(params.fetch_all("duration")).to contain_exactly("medium")
+
+      # Check the `features` param
+      expect(params).to have_key("features")
+      expect(params.fetch_all("features")).to contain_exactly("location,purchased")
+
+      # Check the `sort` param
+      expect(params).to_not have_key("sort")
+      expect(params["sort"]?).to be_nil
+
+      # Check if there aren't other parameters
+      params.delete("date")
+      params.delete("duration")
+      params.delete("features")
+
+      expect(params).to be_empty
+    end
+  end
 end
