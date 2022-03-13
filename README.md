@@ -150,6 +150,7 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 - [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
 - [HoloPlay](https://github.com/stephane-r/HoloPlay): Funny Android application connecting on Invidious API's with search, playlists and favorites.
+- [ytmenu](https://github.com/DemonKingSwarn/ytmenu): YouTube CLI for privacy.
 
 
 ## Liability
