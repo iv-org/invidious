@@ -71,9 +71,10 @@ def get_about_info(ucid, locale) : AboutChannel
     # if banner.includes? "channels/c4/default_banner"
     #  banner = nil
     # end
-    author_verified_badges = initdata["header"]?.try &.["c4TabbedHeaderRenderer"]?.try &.["badges"]?
+    # author_verified_badges = initdata["header"]?.try &.["c4TabbedHeaderRenderer"]?.try &.["badges"]?
+    author_verified_badge = initdata["header"].dig?("c4TabbedHeaderRenderer", "badges", 0, "metadataBadgeRenderer", "tooltip")
+    author_verified = (author_verified_badge && author_verified_badge == "Verified")
 
-    author_verified = (author_verified_badges && author_verified_badges.size > 0)
     description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
     description_html = HTML.escape(description)
 

@@ -142,7 +142,9 @@ struct SearchPlaylist
       json.field "author", self.author
       json.field "authorId", self.ucid
       json.field "authorUrl", "/channel/#{self.ucid}"
+
       json.field "authorVerified", self.author_verified
+
       json.field "videoCount", self.video_count
       json.field "videos" do
         json.array do

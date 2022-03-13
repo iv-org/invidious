@@ -145,8 +145,9 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
 
               content_html = node_comment["contentText"]?.try { |t| parse_content(t) } || ""
               author = node_comment["authorText"]?.try &.["simpleText"]? || ""
-              verified = (node_comment["authorCommentBadge"]? != nil)
-              json.field "verified", (verified || false)
+
+              json.field "verified", (node_comment["authorCommentBadge"]? != nil)
+
               json.field "author", author
               json.field "authorThumbnails" do
                 json.array do
