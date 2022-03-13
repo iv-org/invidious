@@ -10,7 +10,7 @@ module Invidious::Routes::Channels
     if !data.is_a?(Tuple)
       return data
     end
-    locale, user, subscriptions, continuation, ucid, channel = data
+    locale, user, subscriptions, continuation, ucid, channel, description = data
 
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
@@ -201,6 +201,8 @@ module Invidious::Routes::Channels
       return error_template(500, ex)
     end
 
-    return {locale, user, subscriptions, continuation, ucid, channel}
+    description = make_html_with_links(channel.description_html)
+
+    return {locale, user, subscriptions, continuation, ucid, channel, description}
   end
 end
