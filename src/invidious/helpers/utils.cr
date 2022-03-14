@@ -391,11 +391,3 @@ def reduce_uri(uri : URI | String, max_length : Int32 = 50, suffix : String = "â
   end
   return str
 end
-
-def make_html_with_links(baseText : String) : String
-  returnValue = baseText.dup
-  returnValue.scan(/https?:\/\/[^ \n]*/).each do |match|
-    returnValue = returnValue.sub(match[0], "<a href=\"#{match[0]}\">#{match[0]}</a>")
-  end
-  return returnValue
-end

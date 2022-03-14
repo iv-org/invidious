@@ -560,6 +560,32 @@ def fill_links(html, scheme, host)
   return html.to_xml(options: XML::SaveOptions::NO_DECL)
 end
 
+def text_to_parsed_content(text : String) : JSON::Any
+  nodes = [] of JSON::Any
+  text.split('\n').each do |line|
+    currentNodes = [] of JSON::Any
+    initialNode = {"text" => line}
+    currentNodes << (JSON.parse(initialNode.to_json))
+    line.scan(/https?:\/\/[^ ]*/).each do |uriMatch|
+      lastNode = currentNodes[currentNodes.size - 1].as_h
+      splittedLastNode = lastNode["text"].as_s.split(uriMatch[0])
+      lastNode["text"] = JSON.parse(splittedLastNode[0].to_json)
+      currentNodes[currentNodes.size - 1] = JSON.parse(lastNode.to_json)
+      currentNode = {"text" => uriMatch[0], "navigationEndpoint" => {"urlEndpoint" => {"url" => uriMatch[0]}}}
+      currentNodes << (JSON.parse(currentNode.to_json))
+      afterNode = {"text" => splittedLastNode.size > 0 ? splittedLastNode[1] : ""}
+      currentNodes << (JSON.parse(afterNode.to_json))
+    end
+    lastNode = currentNodes[currentNodes.size - 1].as_h
+    lastNode["text"] = JSON.parse("#{currentNodes[currentNodes.size - 1]["text"]}\n".to_json)
+    currentNodes[currentNodes.size - 1] = JSON.parse(lastNode.to_json)
+    currentNodes.each do |node|
+      nodes << (node)
+    end
+  end
+  return JSON.parse({"runs" => nodes}.to_json)
+end
+
 def parse_content(content : JSON::Any, video_id : String? = "") : String
   content["simpleText"]?.try &.as_s.rchop('\ufeff').try { |b| HTML.escape(b) }.to_s ||
     content["runs"]?.try &.as_a.try { |r| content_to_comment_html(r, video_id).try &.to_s.gsub("\n", "<br>") } || ""

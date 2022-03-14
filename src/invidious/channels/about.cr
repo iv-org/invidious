@@ -6,6 +6,7 @@ record AboutChannel,
   author_url : String,
   author_thumbnail : String,
   banner : String?,
+  description : String,
   description_html : String,
   total_views : Int64,
   sub_count : Int32,
@@ -52,8 +53,7 @@ def get_about_info(ucid, locale) : AboutChannel
     banners = initdata["header"]["interactiveTabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
     banner = banners.try &.[-1]?.try &.["url"].as_s?
 
-    description = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]["simpleText"].as_s
-    description_html = HTML.escape(description)
+    description_node = initdata["header"]["interactiveTabbedHeaderRenderer"]["description"]
 
     is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map(&.as_s)
@@ -75,11 +75,22 @@ def get_about_info(ucid, locale) : AboutChannel
     author_verified_badge = initdata["header"].dig?("c4TabbedHeaderRenderer", "badges", 0, "metadataBadgeRenderer", "tooltip")
     author_verified = (author_verified_badge && author_verified_badge == "Verified")
 
-    description = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?.try &.as_s? || ""
-    description_html = HTML.escape(description)
+    description_node = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?
 
     is_family_friendly = initdata["microformat"]["microformatDataRenderer"]["familySafe"].as_bool
     allowed_regions = initdata["microformat"]["microformatDataRenderer"]["availableCountries"].as_a.map(&.as_s)
+  end
+
+  description = !description_node.nil? ? description_node.as_s : ""
+  description_html = HTML.escape(description)
+  if !description_node.nil?
+    if description_node.as_h?.nil?
+      description_node = text_to_parsed_content(description_node.as_s)
+    end
+    description_html = parse_content(description_node)
+    if description_html == "" && description != ""
+      description_html = HTML.escape(description)
+    end
   end
 
   total_views = 0_i64
@@ -125,6 +136,7 @@ def get_about_info(ucid, locale) : AboutChannel
     author_url: author_url,
     author_thumbnail: author_thumbnail,
     banner: banner,
+    description: description,
     description_html: description_html,
     total_views: total_views,
     sub_count: sub_count,
