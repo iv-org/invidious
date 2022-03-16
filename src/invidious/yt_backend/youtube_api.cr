@@ -401,7 +401,7 @@ module YoutubeAPI
     client_config ||= DEFAULT_CLIENT_CONFIG
 
     # Query parameters
-    url = "#{endpoint}?key=#{client_config.api_key}"
+    url = "#{endpoint}?key=#{client_config.api_key}&prettyPrint=false"
 
     headers = HTTP::Headers{
       "Content-Type"    => "application/json; charset=UTF-8",
