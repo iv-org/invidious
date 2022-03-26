@@ -251,18 +251,22 @@ module Invidious::Routes::API::V1::Channels
 
   def self.search(env)
     locale = env.get("preferences").as(Preferences).locale
+    region = env.params.query["region"]?
 
     env.response.content_type = "application/json"
 
-    ucid = env.params.url["ucid"]
+    query = Invidious::Search::Query.new(env.params.query, :channel, region)
 
-    query = env.params.query["q"]?
-    query ||= ""
+    # Required because we can't (yet) pass multiple parameter to the
+    # `Search::Query` initializer (in this case, an URL segment)
+    query.channel = env.params.url["ucid"]
 
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
+    begin
+      search_results = query.process
+    rescue ex
+      return error_json(400, ex)
+    end
 
-    search_results = Invidious::Search::Processors.channel(query, page, ucid)
     JSON.build do |json|
       json.array do
         search_results.each do |item|

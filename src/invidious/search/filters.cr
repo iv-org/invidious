@@ -79,7 +79,7 @@ module Invidious::Search
     )
     end
 
-    def is_default? : Bool
+    def default? : Bool
       return @date.none? && @type.all? && @duration.none? && \
          @features.none? && @sort.relevance?
     end

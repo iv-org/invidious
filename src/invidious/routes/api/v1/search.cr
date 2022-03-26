@@ -5,34 +5,14 @@ module Invidious::Routes::API::V1::Search
 
     env.response.content_type = "application/json"
 
-    query = env.params.query["q"]?
-    query ||= ""
-
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
-
-    sort_by = env.params.query["sort_by"]?.try &.downcase
-    sort_by ||= "relevance"
-
-    date = env.params.query["date"]?.try &.downcase
-    date ||= ""
-
-    duration = env.params.query["duration"]?.try &.downcase
-    duration ||= ""
-
-    features = env.params.query["features"]?.try &.split(",").map(&.downcase)
-    features ||= [] of String
-
-    content_type = env.params.query["type"]?.try &.downcase
-    content_type ||= "video"
+    query = Invidious::Search::Query.new(env.params.query, :regular, region)
 
     begin
-      search_params = produce_search_params(page, sort_by, date, content_type, duration, features)
+      search_results = query.process
     rescue ex
       return error_json(400, ex)
     end
 
-    search_results = search(query, search_params, region)
     JSON.build do |json|
       json.array do
         search_results.each do |item|

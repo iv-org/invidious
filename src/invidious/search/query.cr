@@ -110,11 +110,10 @@ module Invidious::Search
 
       case @type
       when .regular?, .playlist?
-        all_items = search(@query, @filters, @page, @region)
-        items = unnest_items(all_items)
+        items = unnest_items(Processors.regular(self))
         #
       when .channel?
-        items = Processors.channel(@query, @page, @channel)
+        items = Processors.channel(self)
         #
       when .subscriptions?
         if user

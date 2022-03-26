@@ -212,7 +212,10 @@ module Invidious::Routes::Playlists
   end
 
   def self.add_playlist_items_page(env)
-    locale = env.get("preferences").as(Preferences).locale
+    prefs = env.get("preferences").as(Preferences)
+    locale = prefs.locale
+
+    region = env.params.query["region"]? || prefs.region
 
     user = env.get? "user"
     sid = env.get? "sid"
@@ -236,15 +239,10 @@ module Invidious::Routes::Playlists
       return env.redirect referer
     end
 
-    query = env.params.query["q"]?
-    if query
-      begin
-        search_query, items, operators = process_search_query(query, page, user, region: nil)
-        videos = items.select(SearchVideo).map(&.as(SearchVideo))
-      rescue ex
-        videos = [] of SearchVideo
-      end
-    else
+    begin
+      query = Invidious::Search::Query.new(env.params.query, :playlist, region)
+      videos = query.process.select(SearchVideo).map(&.as(SearchVideo))
+    rescue ex
       videos = [] of SearchVideo
     end
 
