@@ -77,10 +77,6 @@ Metrics/CyclomaticComplexity:
   # process_video_params(query, preferences) => [20/10]
   - src/invidious/videos.cr
 
-  # produce_search_params(page, sort, ...) => [29/10]
-  # process_search_query(query, page, ...) => [14/10]
-  - src/invidious/search.cr
-
 
 
 #src/invidious/playlists.cr:327:5

@@ -8,7 +8,7 @@ require "../src/invidious/channels/*"
 require "../src/invidious/videos"
 require "../src/invidious/comments"
 require "../src/invidious/playlists"
-require "../src/invidious/search"
+require "../src/invidious/search/ctoken"
 require "../src/invidious/trending"
 require "spectator"
 
