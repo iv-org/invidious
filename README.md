@@ -31,7 +31,7 @@
   &nbsp;•&nbsp; 
   <a href="https://instances.invidious.io/">Instances list</a>
   &nbsp;•&nbsp;
-  <a href="https://docs.invidious.io/FAQ/">FAQ</a>
+  <a href="https://docs.invidious.io/faq/">FAQ</a>
   &nbsp;•&nbsp; 
   <a href="https://docs.invidious.io/">Documentation</a>
   &nbsp;•&nbsp;
@@ -88,7 +88,7 @@
 
 **Technical features**
 - Embedded video support
-- [Developer API](https://docs.invidious.io/API/)
+- [Developer API](https://docs.invidious.io/api/)
 - Does not use official YouTube APIs
 - No Contributor License Agreement (CLA)
 
@@ -101,7 +101,7 @@
 
 **Hosting invidious:**
 
-- [Follow the installation instructions](https://docs.invidious.io/Installation/)
+- [Follow the installation instructions](https://docs.invidious.io/installation/)
 
 
 ## Documentation
@@ -119,7 +119,7 @@ embedded youtube videos on other websites with invidious.
 
 The documentation contains a list of browser extensions that we recommended to use along with Invidious.
 
-You can read more here: https://docs.invidious.io/Extensions/
+You can read more here: https://docs.invidious.io/applications/
 
 
 ## Contribute
