@@ -585,7 +585,7 @@ struct Video
 
   def allowed_regions
     info
-      .dig("microformat", "playerMicroformatRenderer", "availableCountries")
+      .dig?("microformat", "playerMicroformatRenderer", "availableCountries")
       .try &.as_a.map &.as_s || [] of String
   end
 
@@ -876,7 +876,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 
   client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
   if context_screen == "embed"
-    client_config.client_type = YoutubeAPI::ClientType::WebScreenEmbed
+    client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
   end
 
   player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
