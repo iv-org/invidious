@@ -14,6 +14,7 @@ module YoutubeAPI
     Android
     AndroidEmbeddedPlayer
     AndroidScreenEmbed
+    TvHtml5ScreenEmbed
   end
 
   # List of hard-coded values used by the different clients
@@ -57,6 +58,12 @@ module YoutubeAPI
     ClientType::AndroidScreenEmbed => {
       name:    "ANDROID", # 3
       version: "16.20",
+      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      screen:  "EMBED",
+    },
+    ClientType::TvHtml5ScreenEmbed => {
+      name:    "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+      version: "2.0",
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
       screen:  "EMBED",
     },
