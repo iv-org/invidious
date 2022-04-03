@@ -599,7 +599,7 @@ def content_to_comment_html(content)
         if length_seconds && length_seconds.as_i > 0
           text = %(<a href="javascript:void(0)" data-onclick="jump_to_time" data-jump-time="#{length_seconds}">#{text}</a>)
         else
-          text = %(<a href="/watch?v=#{video_id}">#{reduce_uri("youtube.com/watch?v=#{video_id}")}</a>)
+          text = %(<a href="/watch?v=#{video_id}">#{"youtube.com/watch?v=#{video_id}"}</a>)
         end
       elsif url = run.dig?("navigationEndpoint", "commandMetadata", "webCommandMetadata", "url").try &.as_s
         text = %(<a href="#{url}">#{reduce_uri(url)}</a>)
