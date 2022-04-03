@@ -675,8 +675,8 @@ if (player_data.preferred_caption_found) {
 if (navigator.vendor == "Apple Computer, Inc." && video_data.params.listen) {
     player.on('loadedmetadata', function () {
         player.on('timeupdate', function () {
-            if (player.remainingTime() < player.duration() / 2) {
-                player.currentTime(player.duration() + 1);
+            if (player.remainingTime() < player.duration() / 2 && player.remainingTime() >= 2) {
+                player.currentTime(player.duration() - 1);
             }
         });
     });
