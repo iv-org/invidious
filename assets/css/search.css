@@ -23,7 +23,6 @@ details[open] > summary:before { content: "[ ‒ ]"; }
 
 
 #filters-box {
-	background: #373737;
 	padding: 10px 20px 20px 10px;
 	margin: 10px 15px;
 }
@@ -63,13 +62,6 @@ fieldset, legend {
 	text-align: start;
 }
 
-/* TODO: move that to the main file */
-.underlined {
-	border-bottom: 1px solid;
-	margin-bottom: 20px;
-}
-
-
 .filter-options div { margin: 6px 0; }
 .filter-options div * { vertical-align: middle; }
 .filter-options label { margin: 0 10px; }
@@ -77,6 +69,7 @@ fieldset, legend {
 
 #filters-apply { text-align: end; }
 
+/* Responsive rules */
 
 @media only screen and (max-width: 800px) {
 	summary { font-size: 1.30em; }
@@ -87,5 +80,29 @@ fieldset, legend {
 	#filters-apply {
 		text-align: center;
 		padding: 15px;
+	}
+}
+
+/* Light theme */
+
+.light-theme #filters-box {
+	background: #dfdfdf;
+}
+
+@media (prefers-color-scheme: light) {
+	.no-theme #filters-box {
+		background: #dfdfdf;
+	}
+}
+
+/* Dark theme */
+
+.dark-theme #filters-box {
+	background: #373737;
+}
+
+@media (prefers-color-scheme: dark) {
+	.no-theme #filters-box {
+		background: #373737;
 	}
 }

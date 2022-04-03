@@ -15,6 +15,11 @@ body {
   background-color: rgb(255, 0, 0, 0.5);
 }
 
+.underlined {
+  border-bottom: 1px solid;
+  margin-bottom: 20px;
+}
+
 .channel-profile > * {
   font-size: 1.17em;
   font-weight: bold;
@@ -473,30 +478,6 @@ body.dark-theme {
     background-color: inherit;
     color: inherit;
   }
-}
-
-#filters {
-  display: inline;
-  margin-top: 15px;
-}
-
-#filters > div {
-  display: inline-block;
-}
-
-#filters > summary {
-  display: block;
-  margin-bottom: 15px;
-}
-
-#filters > summary::before {
-  content: "[ + ]";
-  font-size: 1.5em;
-}
-
-#filters[open] > summary::before {
-  content: "[ - ]";
-  font-size: 1.5em;
 }
 
 /*With commit d9528f5 all contents of the page is now within a flexbox. However,
