@@ -390,7 +390,7 @@
     "crash_page_before_reporting": "Varmista ennen bugin ilmoittamista, että sinä olet:",
     "crash_page_refresh": "yrittänyt <a href=\"`x`\">päivittää sivun</a>",
     "crash_page_read_the_faq": "lukenut <a href=\"`x`\">Usein kysytyt kysymykset (FAQ)</a>",
-    "crash_page_search_issue": "etsinyt <a href=\"`x`\">olemassa olevia issueita Githubissa</a>",
+    "crash_page_search_issue": "etsinyt <a href=\"`x`\">olemassa olevia issueita GitHubissa</a>",
     "generic_views_count": "{{count}} katselu",
     "generic_views_count_plural": "{{count}} katselua",
     "preferences_quality_dash_option_720p": "720p",

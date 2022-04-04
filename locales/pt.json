@@ -8,7 +8,7 @@
     "Switch Invidious Instance": "Mudar a instância do Invidious",
     "Show less": "Mostrar menos",
     "Show more": "Mostrar mais",
-    "Released under the AGPLv3 on Github.": "Lançado sob a AGPLv3 no Github.",
+    "Released under the AGPLv3 on Github.": "Lançado sob a AGPLv3 no GitHub.",
     "preferences_show_nick_label": "Mostrar nome de utilizador em cima: ",
     "preferences_automatic_instance_redirect_label": "Redirecionamento de instância automática (solução de último recurso para redirect.invidious.io): ",
     "preferences_category_misc": "Preferências diversas",
@@ -435,7 +435,7 @@
     "crash_page_refresh": "tentou <a href=\"`x`\">recarregar a página</a>",
     "crash_page_switch_instance": "tentou <a href=\"`x`\">usar outra instância</a>",
     "crash_page_read_the_faq": "leu as <a href=\"`x`\">Perguntas frequentes (FAQ)</a>",
-    "crash_page_search_issue": "procurou se <a href=\"`x`\">o erro já foi reportado no Github</a>",
+    "crash_page_search_issue": "procurou se <a href=\"`x`\">o erro já foi reportado no GitHub</a>",
     "crash_page_report_issue": "Se nenhuma opção acima ajudou, por favor <a href=\"`x`\">abra um novo problema no Github</a> (preferencialmente em inglês) e inclua o seguinte texto tal qual (NÃO o traduza):",
     "user_created_playlists": "`x` listas de reprodução criadas"
 }

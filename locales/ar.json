@@ -121,7 +121,7 @@
     "Subscriptions": "الاشتراكات",
     "search": "بحث",
     "Log out": "تسجيل الخروج",
-    "Released under the AGPLv3 on Github.": "صدر تحت AGPLv3 على Github.",
+    "Released under the AGPLv3 on Github.": "صدر تحت AGPLv3 على GitHub.",
     "Source available here.": "الأكواد متوفرة هنا.",
     "View JavaScript license information.": "مشاهدة معلومات حول تراخيص الجافاسكريبت.",
     "View privacy policy.": "عرض سياسة الخصوصية.",
@@ -459,5 +459,5 @@
     "Portuguese (Brazil)": "البرتغالية (البرازيل)",
     "Russian (auto-generated)": "الروسية (منشأة تلقائيا)",
     "Spanish (Spain)": "الإسبانية (إسبانيا)",
-    "crash_page_search_issue": "بحثت عن <a href=\"`x`\"> المشكلات الموجودة على Github </a>"
+    "crash_page_search_issue": "بحثت عن <a href=\"`x`\"> المشكلات الموجودة على GitHub </a>"
 }
