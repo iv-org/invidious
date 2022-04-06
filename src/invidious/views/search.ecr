@@ -9,18 +9,13 @@
 
   url_prev_page = "/search?q=#{search_query_encoded}&#{filter_params}&page=#{query.page - 1}"
   url_next_page = "/search?q=#{search_query_encoded}&#{filter_params}&page=#{query.page + 1}"
+
+  redirect_url = Invidious::Frontend::Misc.redirect_url(env)
 -%>
 
 <!-- Search redirection and filtering UI -->
-<% if videos.size == 0 %>
-    <h3 style="text-align: center">
-        <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Broken? Try another Invidious Instance!") %></a>
-    </h3>
-<%- else -%>
-    <%= Invidious::Frontend::SearchFilters.generate(query.filters, query.text, query.page, locale) %>
-<%- end -%>
-
-<% if videos.size == 0 %><hr style="margin: 0;"/><% else %><hr/><% end %>
+<%= Invidious::Frontend::SearchFilters.generate(query.filters, query.text, query.page, locale) %>
+<hr/>
 
 <div class="pure-g h-box v-box">
     <div class="pure-u-1 pure-u-lg-1-5">
@@ -36,11 +31,21 @@
     </div>
 </div>
 
-<div class="pure-g">
-    <% videos.each do |item| %>
-        <%= rendered "components/item" %>
-    <% end %>
+<%- if videos.empty? -%>
+<div class="h-box no-results-error">
+    <div>
+        <%= translate(locale, "search_message_no_results") %><br/><br/>
+        <%= translate(locale, "search_message_change_filters_or_query") %><br/><br/>
+        <%= translate(locale, "search_message_use_another_instance", redirect_url) %>
+    </div>
 </div>
+<%- else -%>
+<div class="pure-g">
+    <%- videos.each do |item| -%>
+        <%= rendered "components/item" %>
+    <%- end -%>
+</div>
+<%- end -%>
 
 <div class="pure-g h-box">
     <div class="pure-u-1 pure-u-lg-1-5">

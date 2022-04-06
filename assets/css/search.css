@@ -69,6 +69,15 @@ fieldset, legend {
 
 #filters-apply { text-align: end; }
 
+/* Error message */
+
+.no-results-error {
+	text-align: center;
+	line-height: 180%;
+	font-size: 110%;
+	padding: 15px 15px 125px 15px;
+}
+
 /* Responsive rules */
 
 @media only screen and (max-width: 800px) {
