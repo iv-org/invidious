@@ -29,20 +29,6 @@ Spectator.describe "Helper" do
     end
   end
 
-  describe "#produce_search_params" do
-    it "correctly produces token for searching with specified filters" do
-      expect(produce_search_params).to eq("CAASAhABSAA%3D")
-
-      expect(produce_search_params(sort: "upload_date", content_type: "video")).to eq("CAISAhABSAA%3D")
-
-      expect(produce_search_params(content_type: "playlist")).to eq("CAASAhADSAA%3D")
-
-      expect(produce_search_params(sort: "date", content_type: "video", features: ["hd", "cc", "purchased", "hdr"])).to eq("CAISCxABIAEwAUgByAEBSAA%3D")
-
-      expect(produce_search_params(content_type: "channel")).to eq("CAASAhACSAA%3D")
-    end
-  end
-
   describe "#produce_comment_continuation" do
     it "correctly produces a continuation token for comments" do
       expect(produce_comment_continuation("_cE8xSu6swE", "ADSJ_i2qvJeFtL0htmS5_K5Ctj3eGFVBMWL9Wd42o3kmUL6_mAzdLp85-liQZL0mYr_16BhaggUqX652Sv9JqV6VXinShSP-ZT6rL4NolPBaPXVtJsO5_rA_qE3GubAuLFw9uzIIXU2-HnpXbdgPLWTFavfX206hqWmmpHwUOrmxQV_OX6tYkM3ux3rPAKCDrT8eWL7MU3bLiNcnbgkW8o0h8KYLL_8BPa8LcHbTv8pAoNkjerlX1x7K4pqxaXPoyz89qNlnh6rRx6AXgAzzoHH1dmcyQ8CIBeOHg-m4i8ZxdX4dP88XWrIFg-jJGhpGP8JUMDgZgavxVx225hUEYZMyrLGler5em4FgbG62YWC51moLDLeYEA")).to eq("EkMSC19jRTh4U3U2c3dFyAEA4AEBogINKP___________wFAAMICHQgEGhdodHRwczovL3d3dy55b3V0dWJlLmNvbSIAGAYyjAMK9gJBRFNKX2kycXZKZUZ0TDBodG1TNV9LNUN0ajNlR0ZWQk1XTDlXZDQybzNrbVVMNl9tQXpkTHA4NS1saVFaTDBtWXJfMTZCaGFnZ1VxWDY1MlN2OUpxVjZWWGluU2hTUC1aVDZyTDROb2xQQmFQWFZ0SnNPNV9yQV9xRTNHdWJBdUxGdzl1eklJWFUyLUhucFhiZGdQTFdURmF2ZlgyMDZocVdtbXBId1VPcm14UVZfT1g2dFlrTTN1eDNyUEFLQ0RyVDhlV0w3TVUzYkxpTmNuYmdrVzhvMGg4S1lMTF84QlBhOExjSGJUdjhwQW9Oa2plcmxYMXg3SzRwcXhhWFBveXo4OXFObG5oNnJSeDZBWGdBenpvSEgxZG1jeVE4Q0lCZU9IZy1tNGk4WnhkWDRkUDg4WFdySUZnLWpKR2hwR1A4SlVNRGdaZ2F2eFZ4MjI1aFVFWVpNeXJMR2xlcjVlbTRGZ2JHNjJZV0M1MW1vTERMZVlFQSIPIgtfY0U4eFN1NnN3RTAAKBQ%3D")

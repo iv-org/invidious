@@ -37,37 +37,29 @@ module Invidious::Routes::Search
   end
 
   def self.search(env)
-    locale = env.get("preferences").as(Preferences).locale
-    region = env.params.query["region"]?
+    prefs = env.get("preferences").as(Preferences)
+    locale = prefs.locale
 
-    query = env.params.query["search_query"]?
-    query ||= env.params.query["q"]?
+    region = env.params.query["region"]? || prefs.region
 
-    if !query || query.empty?
+    query = Invidious::Search::Query.new(env.params.query, :regular, region)
+
+    if query.empty?
       # Display the full page search box implemented in #1977
       env.set "search", ""
       templated "search_homepage", navbar_search: false
     else
-      page = env.params.query["page"]?.try &.to_i?
-      page ||= 1
-
       user = env.get? "user"
 
       begin
-        search_query, videos, operators = process_search_query(query, page, user, region: region)
+        videos = query.process
       rescue ex : ChannelSearchException
         return error_template(404, "Unable to find channel with id of '#{HTML.escape(ex.channel)}'. Are you sure that's an actual channel id? It should look like 'UC4QobU6STFB0P71PMvOGN5A'.")
       rescue ex
         return error_template(500, ex)
       end
 
-      operator_hash = {} of String => String
-      operators.each do |operator|
-        key, value = operator.downcase.split(":")
-        operator_hash[key] = value
-      end
-
-      env.set "search", query
+      env.set "search", query.text
       templated "search"
     end
   end

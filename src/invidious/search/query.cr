@@ -1,0 +1,148 @@
+module Invidious::Search
+  class Query
+    enum Type
+      # Types related to YouTube
+      Regular # Youtube search page
+      Channel # Youtube channel search box
+
+      # Types specific to Invidious
+      Subscriptions # Search user subscriptions
+      Playlist      # "Add playlist item" search
+    end
+
+    @type : Type = Type::Regular
+
+    @raw_query : String
+    @query : String = ""
+
+    property filters : Filters = Filters.new
+    property page : Int32
+    property region : String?
+    property channel : String = ""
+
+    # Return true if @raw_query is either `nil` or empty
+    private def empty_raw_query?
+      return @raw_query.empty?
+    end
+
+    # Same as `empty_raw_query?`, but named for external use
+    def empty?
+      return self.empty_raw_query?
+    end
+
+    # Getter for the query string.
+    # It is named `text` to reduce confusion (`search_query.text` makes more
+    # sense than `search_query.query`)
+    def text
+      return @query
+    end
+
+    # Initialize a new search query.
+    # Parameters are used to get the query string, the page number
+    # and the search filters (if any). Type tells this function
+    # where it is being called from (See `Type` above).
+    def initialize(
+      params : HTTP::Params,
+      @type : Type = Type::Regular,
+      @region : String? = nil
+    )
+      # Get the raw search query string (common to all search types). In
+      # Regular search mode, also look for the `search_query` URL parameter
+      if @type.regular?
+        @raw_query = params["q"]? || params["search_query"]? || ""
+      else
+        @raw_query = params["q"]? || ""
+      end
+
+      # Get the page number (also common to all search types)
+      @page = params["page"]?.try &.to_i? || 1
+
+      # Stop here is raw query in empty
+      # NOTE: maybe raise in the future?
+      return if self.empty_raw_query?
+
+      # Specific handling
+      case @type
+      when .playlist?, .channel?
+        # In "add playlist item" mode, filters are parsed from the query
+        # string itself (legacy), and the channel is ignored.
+        #
+        # In "channel search" mode, filters are ignored, but we still parse
+        # the query prevent transmission of legacy filters to youtube.
+        #
+        @filters, @query, @channel, _ = Filters.from_legacy_filters(@raw_query || "")
+        #
+      when .subscriptions?, .regular?
+        if params["sp"]?
+          # Parse the `sp` URL parameter (youtube compatibility)
+          @filters = Filters.from_yt_params(params)
+          @query = @raw_query || ""
+        else
+          # Parse invidious URL parameters (sort, date, etc...)
+          @filters = Filters.from_iv_params(params)
+          @channel = params["channel"]? || ""
+
+          if @filters.default? && @raw_query.includes?(':')
+            # Parse legacy filters from query
+            @filters, @query, @channel, subs = Filters.from_legacy_filters(@raw_query || "")
+          else
+            @query = @raw_query || ""
+          end
+
+          if !@channel.empty?
+            # Switch to channel search mode (filters will be ignored)
+            @type = Type::Channel
+          elsif subs
+            # Switch to subscriptions search mode
+            @type = Type::Subscriptions
+          end
+        end
+      end
+    end
+
+    # Run the search query using the corresponding search processor.
+    # Returns either the results or an empty array of `SearchItem`.
+    def process(user : Invidious::User? = nil) : Array(SearchItem) | Array(ChannelVideo)
+      items = [] of SearchItem
+
+      # Don't bother going further if search query is empty
+      return items if self.empty_raw_query?
+
+      case @type
+      when .regular?, .playlist?
+        items = unnest_items(Processors.regular(self))
+        #
+      when .channel?
+        items = Processors.channel(self)
+        #
+      when .subscriptions?
+        if user
+          items = Processors.subscriptions(self, user.as(Invidious::User))
+        end
+      end
+
+      return items
+    end
+
+    # TODO: clean code
+    private def unnest_items(all_items) : Array(SearchItem)
+      items = [] of SearchItem
+
+      # Light processing to flatten search results out of Categories.
+      # They should ideally be supported in the future.
+      all_items.each do |i|
+        if i.is_a? Category
+          i.contents.each do |nest_i|
+            if !nest_i.is_a? Video
+              items << nest_i
+            end
+          end
+        else
+          items << i
+        end
+      end
+
+      return items
+    end
+  end
+end
