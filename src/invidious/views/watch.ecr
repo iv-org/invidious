@@ -64,7 +64,8 @@ we're going to need to do it here in order to allow for translations.
     "preferences" => preferences,
     "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
     "vr" => video.is_vr,
-    "projection_type" => video.projection_type
+    "projection_type" => video.projection_type,
+    "local_disabled" => CONFIG.disabled?("local")
 }.to_pretty_json
 %>
 </script>

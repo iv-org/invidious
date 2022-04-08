@@ -7,8 +7,19 @@
         <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="livestream">
     <% else %>
         <% if params.listen %>
-            <% audio_streams.each_with_index do |fmt, i| %>
-                <source src="/latest_version?id=<%= video.id %>&itag=<%= fmt["itag"] %><% if params.local %>&local=true<% end %>" type='<%= fmt["mimeType"] %>' label="<%= fmt["bitrate"] %>k" selected="<%= i == 0 ? true : false %>">
+            <% audio_streams.each_with_index do |fmt, i|
+                src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
+                src_url += "&local=true" if params.local
+
+                bitrate = fmt["bitrate"]
+                mimetype = HTML.escape(fmt["mimeType"].as_s)
+
+                selected = i == 0 ? true : false
+            %>
+                <source src="<%= src_url %>" type='<%= mimetype %>' label="<%= bitrate %>k" selected="<%= selected %>">
+                <% if !params.local && !CONFIG.disabled?("local") %>
+                <source src="<%= src_url %>&local=true" type='<%= mimetype %>' hidequalityoption="true">
+                <% end %>
             <% end %>
         <% else %>
             <% if params.quality == "dash" %>
@@ -28,6 +39,9 @@
                 selected = params.quality ? (params.quality == quality) : (i == 0)
             %>
                 <source src="<%= src_url %>" type="<%= mimetype %>" label="<%= quality %>" selected="<%= selected %>">
+                <% if !params.local && !CONFIG.disabled?("local") %>
+                <source src="<%= src_url %>&local=true" type="<%= mimetype %>" hidequalityoption="true">
+                <% end %>
             <% end %>
         <% end %>
 
