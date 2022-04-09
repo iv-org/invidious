@@ -180,25 +180,32 @@ player.volume(video_data.params.volume / 100);
 player.playbackRate(video_data.params.speed);
 
 /**
- * Method for get content of Cookie
+ * Method for getting the contents of a cookie
+ *
  * @param {String} name Name of cookie
  * @returns cookieValue
  */
 function getCookieValue(name) {
     var value = document.cookie.split(";").filter(item => item.includes(name + "="));
-    return value != null && value.length >= 1 ? value[0].substring((name + "=").length, value[0].length) : null;
+
+    return (value != null && value.length >= 1)
+        ? value[0].substring((name + "=").length, value[0].length)
+        : null;
 }
 
 /**
- * Method for update Prefs cookie (Or create if missing)
- * @param {number} newVolume New Volume defined (Null if unchanged)
- * @param {number} newSpeed New Speed defined (Null if unchanged)
+ * Method for updating the "PREFS" cookie (or creating it if missing)
+ *
+ * @param {number} newVolume New volume defined (null if unchanged)
+ * @param {number} newSpeed New speed defined (null if unchanged)
  */
 function updateCookie(newVolume, newSpeed) {
     var volumeValue = newVolume != null ? newVolume : video_data.params.volume;
     var speedValue = newSpeed != null ? newSpeed : video_data.params.speed;
+
     var cookieValue = getCookieValue('PREFS');
     var cookieData;
+
     if (cookieValue != null) {
         var cookieJson = JSON.parse(decodeURIComponent(cookieValue));
         cookieJson.volume = volumeValue;
@@ -207,15 +214,20 @@ function updateCookie(newVolume, newSpeed) {
     } else {
         cookieData = encodeURIComponent(JSON.stringify({ 'volume': volumeValue, 'speed': speedValue }));
     }
-    var date = new Date();
+
     // Set expiration in 2 year
+    var date = new Date();
     date.setTime(date.getTime() + 63115200);
+
     var ipRegex = /^((\d+\.){3}\d+|[A-Fa-f0-9]*:[A-Fa-f0-9:]*:[A-Fa-f0-9:]+)$/;
     var domainUsed = window.location.hostname;
+
     if (!ipRegex.test(domainUsed) && domainUsed != 'localhost')
         domainUsed = '.' + window.location.hostname;
+
     document.cookie = 'PREFS=' + cookieData + '; SameSite=Strict; path=/; domain=' +
         domainUsed + '; expires=' + date.toGMTString() + ';';
+
     video_data.params.volume = volumeValue;
     video_data.params.speed = speedValue;
 }
