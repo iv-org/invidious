@@ -1094,6 +1094,10 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
   end
 
   return video
+rescue DB::Error
+  # Avoid common `DB::PoolRetryAttemptsExceeded` error and friends
+  # Note: All DB errors inherit from `DB::Error`
+  return fetch_video(id, region)
 end
 
 def fetch_video(id, region)
