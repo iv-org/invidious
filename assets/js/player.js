@@ -222,7 +222,8 @@ function updateCookie(newVolume, newSpeed) {
     var ipRegex = /^((\d+\.){3}\d+|[A-Fa-f0-9]*:[A-Fa-f0-9:]*:[A-Fa-f0-9:]+)$/;
     var domainUsed = window.location.hostname;
 
-    if (!ipRegex.test(domainUsed) && domainUsed != 'localhost')
+    // Fix for a bug in FF where the leading dot in the FQDN is not ignored
+    if (domainUsed.charAt(0) != '.' && !ipRegex.test(domainUsed) && domainUsed != 'localhost')
         domainUsed = '.' + window.location.hostname;
 
     document.cookie = 'PREFS=' + cookieData + '; SameSite=Strict; path=/; domain=' +
