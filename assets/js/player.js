@@ -200,6 +200,68 @@ if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
 player.volume(video_data.params.volume / 100);
 player.playbackRate(video_data.params.speed);
 
+/**
+ * Method for getting the contents of a cookie
+ *
+ * @param {String} name Name of cookie
+ * @returns cookieValue
+ */
+function getCookieValue(name) {
+    var value = document.cookie.split(";").filter(item => item.includes(name + "="));
+
+    return (value != null && value.length >= 1)
+        ? value[0].substring((name + "=").length, value[0].length)
+        : null;
+}
+
+/**
+ * Method for updating the "PREFS" cookie (or creating it if missing)
+ *
+ * @param {number} newVolume New volume defined (null if unchanged)
+ * @param {number} newSpeed New speed defined (null if unchanged)
+ */
+function updateCookie(newVolume, newSpeed) {
+    var volumeValue = newVolume != null ? newVolume : video_data.params.volume;
+    var speedValue = newSpeed != null ? newSpeed : video_data.params.speed;
+
+    var cookieValue = getCookieValue('PREFS');
+    var cookieData;
+
+    if (cookieValue != null) {
+        var cookieJson = JSON.parse(decodeURIComponent(cookieValue));
+        cookieJson.volume = volumeValue;
+        cookieJson.speed = speedValue;
+        cookieData = encodeURIComponent(JSON.stringify(cookieJson));
+    } else {
+        cookieData = encodeURIComponent(JSON.stringify({ 'volume': volumeValue, 'speed': speedValue }));
+    }
+
+    // Set expiration in 2 year
+    var date = new Date();
+    date.setTime(date.getTime() + 63115200);
+
+    var ipRegex = /^((\d+\.){3}\d+|[A-Fa-f0-9]*:[A-Fa-f0-9:]*:[A-Fa-f0-9:]+)$/;
+    var domainUsed = window.location.hostname;
+
+    // Fix for a bug in FF where the leading dot in the FQDN is not ignored
+    if (domainUsed.charAt(0) != '.' && !ipRegex.test(domainUsed) && domainUsed != 'localhost')
+        domainUsed = '.' + window.location.hostname;
+
+    document.cookie = 'PREFS=' + cookieData + '; SameSite=Strict; path=/; domain=' +
+        domainUsed + '; expires=' + date.toGMTString() + ';';
+
+    video_data.params.volume = volumeValue;
+    video_data.params.speed = speedValue;
+}
+
+player.on('ratechange', function () {
+    updateCookie(null, player.playbackRate());
+});
+
+player.on('volumechange', function () {
+    updateCookie(Math.ceil(player.volume() * 100), null);
+});
+
 player.on('waiting', function () {
     if (player.playbackRate() > 1 && player.liveTracker.isLive() && player.liveTracker.atLiveEdge()) {
         console.log('Player has caught up to source, resetting playbackRate.')
