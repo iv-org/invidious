@@ -21,6 +21,7 @@ require "file_utils"
 require "kemal"
 require "kilt"
 require "./ext/kemal_content_for.cr"
+require "./ext/kemal_static_file_handler.cr"
 
 require "athena-negotiation"
 require "openssl/hmac"
