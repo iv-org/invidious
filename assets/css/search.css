@@ -20,7 +20,7 @@ summary:before {
 	width: 40px;
 }
 
-details[open] > summary:before { content: "[ ‒ ]"; }
+details[open] > summary:before { content: "[ − ]"; }
 
 
 #filters-box {
