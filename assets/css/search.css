@@ -5,6 +5,7 @@ summary {
 	font-size: 1.17em;
 	font-weight: bold;
 	margin: 0 auto 10px auto;
+	cursor: pointer;
 }
 
 summary::-webkit-details-marker,
