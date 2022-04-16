@@ -574,20 +574,24 @@ def content_to_comment_html(content)
     if run["navigationEndpoint"]?
       if url = run["navigationEndpoint"]["urlEndpoint"]?.try &.["url"].as_s
         url = URI.parse(url)
+        displayed_url = url
 
         if url.host == "youtu.be"
           url = "/watch?v=#{url.request_target.lstrip('/')}"
+          displayed_url = "youtube.com#{url}"
         elsif url.host.nil? || url.host.not_nil!.ends_with?("youtube.com")
           if url.path == "/redirect"
             # Sometimes, links can be corrupted (why?) so make sure to fallback
             # nicely. See https://github.com/iv-org/invidious/issues/2682
             url = HTTP::Params.parse(url.query.not_nil!)["q"]? || ""
+            displayed_url = url
           else
             url = url.request_target
+            displayed_url = "youtube.com#{url}"
           end
         end
 
-        text = %(<a href="#{url}">#{text}</a>)
+        text = %(<a href="#{url}">#{reduce_uri(displayed_url)}</a>)
       elsif watch_endpoint = run["navigationEndpoint"]["watchEndpoint"]?
         length_seconds = watch_endpoint["startTimeSeconds"]?
         video_id = watch_endpoint["videoId"].as_s
@@ -595,10 +599,10 @@ def content_to_comment_html(content)
         if length_seconds && length_seconds.as_i > 0
           text = %(<a href="javascript:void(0)" data-onclick="jump_to_time" data-jump-time="#{length_seconds}">#{text}</a>)
         else
-          text = %(<a href="/watch?v=#{video_id}">#{text}</a>)
+          text = %(<a href="/watch?v=#{video_id}">#{"youtube.com/watch?v=#{video_id}"}</a>)
         end
       elsif url = run.dig?("navigationEndpoint", "commandMetadata", "webCommandMetadata", "url").try &.as_s
-        text = %(<a href="#{url}">#{text}</a>)
+        text = %(<a href="#{url}">#{reduce_uri(url)}</a>)
       end
     end
 
