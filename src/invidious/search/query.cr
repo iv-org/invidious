@@ -10,7 +10,7 @@ module Invidious::Search
       Playlist      # "Add playlist item" search
     end
 
-    @type : Type = Type::Regular
+    getter type : Type = Type::Regular
 
     @raw_query : String
     @query : String = ""
@@ -63,14 +63,17 @@ module Invidious::Search
 
       # Specific handling
       case @type
-      when .playlist?, .channel?
-        # In "add playlist item" mode, filters are parsed from the query
-        # string itself (legacy), and the channel is ignored.
-        #
+      when .channel?
         # In "channel search" mode, filters are ignored, but we still parse
         # the query prevent transmission of legacy filters to youtube.
         #
-        @filters, @query, @channel, _ = Filters.from_legacy_filters(@raw_query || "")
+        _, _, @query, _ = Filters.from_legacy_filters(@raw_query)
+        #
+      when .playlist?
+        # In "add playlist item" mode, filters are parsed from the query
+        # string itself (legacy), and the channel is ignored.
+        #
+        @filters, _, @query, _ = Filters.from_legacy_filters(@raw_query)
         #
       when .subscriptions?, .regular?
         if params["sp"]?
@@ -84,7 +87,7 @@ module Invidious::Search
 
           if @filters.default? && @raw_query.includes?(':')
             # Parse legacy filters from query
-            @filters, @query, @channel, subs = Filters.from_legacy_filters(@raw_query || "")
+            @filters, @channel, @query, subs = Filters.from_legacy_filters(@raw_query)
           else
             @query = @raw_query || ""
           end
