@@ -106,7 +106,7 @@ module Invidious::Frontend::SearchFilters
         {% feature = value.underscore %}
 
         str << "\t\t\t\t\t\t<div>"
-        str << "<input type='checkbox' name='features' id='filter-features-{{feature}}' value='{{feature}}'"
+        str << "<input type='checkbox' name='features' id='filter-feature-{{feature}}' value='{{feature}}'"
         str << " checked" if value.{{feature}}?
         str << '>'
 
