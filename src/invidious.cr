@@ -16,7 +16,13 @@
 
 require "digest/md5"
 require "file_utils"
+
+# Require kemal, kilt, then our own overrides
 require "kemal"
+require "kilt"
+require "./ext/kemal_content_for.cr"
+require "./ext/kemal_static_file_handler.cr"
+
 require "athena-negotiation"
 require "openssl/hmac"
 require "option_parser"
