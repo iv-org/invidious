@@ -602,7 +602,13 @@ def content_to_comment_html(content)
           text = %(<a href="/watch?v=#{video_id}">#{"youtube.com/watch?v=#{video_id}"}</a>)
         end
       elsif url = run.dig?("navigationEndpoint", "commandMetadata", "webCommandMetadata", "url").try &.as_s
-        text = %(<a href="#{url}">#{reduce_uri(url)}</a>)
+        if text.starts_with?(/\s?@/)
+          # Handle "pings" in comments differently
+          # See: https://github.com/iv-org/invidious/issues/3038
+          text = %(<a href="#{url}">#{text}</a>)
+        else
+          text = %(<a href="#{url}">#{reduce_uri(url)}</a>)
+        end
       end
     end
 
