@@ -13,9 +13,7 @@ struct PlaylistVideo
 
   def to_xml(xml : XML::Builder)
     xml.element("entry") do
-      xml.element("id") { xml.text "yt:video:#{self.id}" }
-      xml.element("yt:videoId") { xml.text self.id }
-      xml.element("yt:channelId") { xml.text self.ucid }
+      xml.element("id") { xml.text "ni://invidious/sha-256;" + sha256("video/#{self.id}") }
       xml.element("title") { xml.text self.title }
       xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?v=#{self.id}")
 

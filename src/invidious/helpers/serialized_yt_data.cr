@@ -18,7 +18,7 @@ struct SearchVideo
     query_params["v"] = self.id
 
     xml.element("entry") do
-      xml.element("id") { xml.text self.id }
+      xml.element("id") { xml.text "ni://invidious/sha-256;" + sha256("video/#{self.id}") }
       xml.element("title") { xml.text self.title }
       xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?#{query_params}")
 
