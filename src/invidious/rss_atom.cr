@@ -110,7 +110,62 @@ module Invidious::RssAtom
         end
 
         # Video entries
-        videos.each { |video| video.to_xml(xml, params) }
+        videos.each do |video|
+          xml.element("entry") { atom_video(xml, video, params) }
+        end
+      end
+    end
+  end
+
+  def atom_video(xml : XML::Builder, video : AnyVideo, query_params : HTTP::Params)
+    # URLs that are reused below
+    video_url = "#{HOST_URL}/watch?v=#{video.id}&#{query_params}"
+    video_thumb = "#{HOST_URL}/vi/#{video.id}/mqdefault.jpg"
+
+    description = video.is_a?(SearchVideo) ? video.description_html : ""
+
+    xml.element("id") { xml.text "ni://invidious/sha-256;" + sha256("video/#{video.id}") }
+    xml.element("title") { xml.text video.title }
+    xml.element("link", rel: "alternate", href: video_url)
+
+    xml.element("author") do
+      xml.element("name") { xml.text video.author }
+      xml.element("uri") { xml.text "#{HOST_URL}/channel/#{video.ucid}" }
+    end
+
+    xml.element("content", type: "xhtml") do
+      xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
+        # Link to video
+        xml.element("a", href: video_url) do
+          xml.element("img", src: video_thumb)
+        end
+
+        # Video sescription (SearchVideo only)
+        if video.is_a?(SearchVideo)
+          xml.element("p", style: "white-space:pre-wrap") { xml.text description }
+        end
+      end
+    end
+
+    # Feed creation (if available) and update (ChannelVideo only) dates
+    xml.element("published") { xml.text video.published.to_rfc3339 }
+    xml.element("updated") { xml.text video.updated.to_rfc3339 } if video.is_a?(ChannelVideo)
+
+    # Media properties
+    xml.element("media:group") do
+      xml.element("media:title") { xml.text video.title }
+      xml.element("media:thumbnail", url: video_thumb, width: "320", height: "180")
+
+      # Video sescription (SearchVideo only)
+      if video.is_a?(SearchVideo)
+        xml.element("media:description") { xml.text description }
+      end
+    end
+
+    # Views count (all except PlaylistVideo)
+    if !video.is_a?(PlaylistVideo)
+      xml.element("media:community") do
+        xml.element("media:statistics", views: video.views)
       end
     end
   end

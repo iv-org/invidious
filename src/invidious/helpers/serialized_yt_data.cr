@@ -14,44 +14,6 @@ struct SearchVideo
   property premiere_timestamp : Time?
   property author_verified : Bool
 
-  def to_xml(xml : XML::Builder, query_params : HTTP::Params)
-    xml.element("entry") do
-      xml.element("id") { xml.text "ni://invidious/sha-256;" + sha256("video/#{self.id}") }
-      xml.element("title") { xml.text self.title }
-      xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?#{query_params}")
-
-      xml.element("author") do
-        xml.element("name") { xml.text self.author }
-        xml.element("uri") { xml.text "#{HOST_URL}/channel/#{self.ucid}" }
-      end
-
-      xml.element("content", type: "xhtml") do
-        xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-          xml.element("a", href: "#{HOST_URL}/watch?v=#{self.id}&#{query_params}") do
-            xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
-          end
-
-          xml.element("p", style: "white-space:pre-wrap") do
-            xml.text html_to_content(self.description_html)
-          end
-        end
-      end
-
-      xml.element("published") { xml.text self.published.to_s("%Y-%m-%dT%H:%M:%S%:z") }
-
-      xml.element("media:group") do
-        xml.element("media:title") { xml.text self.title }
-        xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg",
-          width: "320", height: "180")
-        xml.element("media:description") { xml.text html_to_content(self.description_html) }
-      end
-
-      xml.element("media:community") do
-        xml.element("media:statistics", views: self.views)
-      end
-    end
-  end
-
   def to_json(locale : String?, json : JSON::Builder)
     json.object do
       json.field "type", "video"
