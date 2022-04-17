@@ -110,14 +110,7 @@ module Invidious::RssAtom
         end
 
         # Video entries
-        # TODO: Unify `.to_xml` methods
-        videos.each do |video|
-          case video
-          when .is_a?(PlaylistVideo) then video.to_xml(xml)
-          when .is_a?(ChannelVideo)  then video.to_xml(locale, params, xml)
-          when .is_a?(SearchVideo)   then video.to_xml(false, params, xml)
-          end
-        end
+        videos.each { |video| video.to_xml(xml, params) }
       end
     end
   end

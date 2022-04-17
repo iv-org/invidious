@@ -11,7 +11,7 @@ struct PlaylistVideo
   property index : Int64
   property live_now : Bool
 
-  def to_xml(xml : XML::Builder)
+  def to_xml(xml : XML::Builder, query_params : HTTP::Params)
     xml.element("entry") do
       xml.element("id") { xml.text "ni://invidious/sha-256;" + sha256("video/#{self.id}") }
       xml.element("title") { xml.text self.title }
@@ -24,7 +24,7 @@ struct PlaylistVideo
 
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-          xml.element("a", href: "#{HOST_URL}/watch?v=#{self.id}") do
+          xml.element("a", href: "#{HOST_URL}/watch?v=#{self.id}&#{query_params}") do
             xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
           end
         end
@@ -38,10 +38,6 @@ struct PlaylistVideo
           width: "320", height: "180")
       end
     end
-  end
-
-  def to_xml(_xml : Nil = nil)
-    XML.build { |xml| to_xml(xml) }
   end
 
   def to_json(json : JSON::Builder, index : Int32? = nil)

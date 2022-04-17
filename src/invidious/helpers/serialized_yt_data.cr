@@ -14,9 +14,7 @@ struct SearchVideo
   property premiere_timestamp : Time?
   property author_verified : Bool
 
-  def to_xml(auto_generated, query_params, xml : XML::Builder)
-    query_params["v"] = self.id
-
+  def to_xml(xml : XML::Builder, query_params : HTTP::Params)
     xml.element("entry") do
       xml.element("id") { xml.text "ni://invidious/sha-256;" + sha256("video/#{self.id}") }
       xml.element("title") { xml.text self.title }
@@ -29,7 +27,7 @@ struct SearchVideo
 
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-          xml.element("a", href: "#{HOST_URL}/watch?#{query_params}") do
+          xml.element("a", href: "#{HOST_URL}/watch?v=#{self.id}&#{query_params}") do
             xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
           end
 
@@ -51,12 +49,6 @@ struct SearchVideo
       xml.element("media:community") do
         xml.element("media:statistics", views: self.views)
       end
-    end
-  end
-
-  def to_xml(auto_generated, query_params, _xml : Nil)
-    XML.build do |xml|
-      to_xml(auto_generated, query_params, xml)
     end
   end
 

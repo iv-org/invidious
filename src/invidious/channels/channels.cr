@@ -50,9 +50,7 @@ struct ChannelVideo
     end
   end
 
-  def to_xml(locale, query_params, xml : XML::Builder)
-    query_params["v"] = self.id
-
+  def to_xml(xml : XML::Builder, query_params : HTTP::Params)
     xml.element("entry") do
       xml.element("id") { xml.text "ni://invidious/sha-256;" + sha256("video/#{self.id}") }
       xml.element("title") { xml.text self.title }
@@ -65,7 +63,7 @@ struct ChannelVideo
 
       xml.element("content", type: "xhtml") do
         xml.element("div", xmlns: "http://www.w3.org/1999/xhtml") do
-          xml.element("a", href: "#{HOST_URL}/watch?#{query_params}") do
+          xml.element("a", href: "#{HOST_URL}/watch?v=#{self.id}&#{query_params}") do
             xml.element("img", src: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg")
           end
         end
@@ -79,12 +77,6 @@ struct ChannelVideo
         xml.element("media:thumbnail", url: "#{HOST_URL}/vi/#{self.id}/mqdefault.jpg",
           width: "320", height: "180")
       end
-    end
-  end
-
-  def to_xml(locale, _xml : Nil = nil)
-    XML.build do |xml|
-      to_xml(locale, xml)
     end
   end
 
