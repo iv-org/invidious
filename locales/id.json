@@ -148,7 +148,6 @@
     "Show less": "Tampilkan lebih sedikit",
     "Watch on YouTube": "Tonton di YouTube",
     "Switch Invidious Instance": "Ganti peladen Invidious",
-    "Broken? Try another Invidious Instance": "Rusak? Coba peladen Invidious yang lain",
     "Hide annotations": "Sembunyikan anotasi",
     "Show annotations": "Tampilkan anotasi",
     "Genre: ": "Genre: ",
@@ -371,7 +370,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "Lokasi",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "Saring",
     "Current version: ": "Versi saat ini: ",
     "next_steps_error_message": "Setelah itu Anda harus mencoba: ",
     "next_steps_error_message_refresh": "Segarkan",
@@ -419,5 +417,6 @@
     "crash_page_before_reporting": "Sebelum melaporkan masalah, pastikan anda memiliki:",
     "English (United States)": "Inggris (US)",
     "preferences_watch_history_label": "Aktifkan riwayat tontonan: ",
-    "English (United Kingdom)": "Inggris (UK)"
+    "English (United Kingdom)": "Inggris (UK)",
+    "search_filters_title": "Saring"
 }
