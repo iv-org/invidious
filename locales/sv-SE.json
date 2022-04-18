@@ -139,7 +139,6 @@
     "Show less": "Visa mindre",
     "Watch on YouTube": "Titta på YouTube",
     "Switch Invidious Instance": "Byt Invidious Instans",
-    "Broken? Try another Invidious Instance": "Trasig? Prova en annan Invidious Instance",
     "Hide annotations": "Dölj länkar-i-video",
     "Show annotations": "Visa länkar-i-video",
     "Genre: ": "Genre: ",
@@ -353,7 +352,6 @@
     "search_filters_features_option_four_k": "4k",
     "search_filters_features_option_location": "plats",
     "search_filters_features_option_hdr": "hdr",
-    "search_filters_label": "Filter",
     "Current version: ": "Nuvarande version: ",
     "next_steps_error_message_refresh": "Uppdatera",
     "next_steps_error_message_go_to_youtube": "Gå till Youtube",
@@ -361,5 +359,6 @@
     "footer_source_code": "Källkod",
     "search_filters_duration_option_long": "Lång (> 20 minuter)",
     "footer_documentation": "Dokumentation",
-    "search_filters_duration_option_short": "Kort (< 4 minuter)"
+    "search_filters_duration_option_short": "Kort (< 4 minuter)",
+    "search_filters_title": "Filter"
 }
