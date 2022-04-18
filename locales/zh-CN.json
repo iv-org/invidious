@@ -148,7 +148,6 @@
     "Show less": "显示较少",
     "Watch on YouTube": "在 YouTube 观看",
     "Switch Invidious Instance": "切换 Invidious 实例",
-    "Broken? Try another Invidious Instance": "无法正常工作？ 尝试另一个 Invidious 实例",
     "Hide annotations": "隐藏注释",
     "Show annotations": "显示注释",
     "Genre: ": "风格: ",
@@ -371,7 +370,6 @@
     "search_filters_features_option_four_k": "4k",
     "search_filters_features_option_location": "位置",
     "search_filters_features_option_hdr": "hdr",
-    "search_filters_label": "过滤器",
     "Current version: ": "当前版本: ",
     "next_steps_error_message": "在此之后你应尝试： ",
     "next_steps_error_message_refresh": "刷新",
@@ -445,5 +443,16 @@
     "French (auto-generated)": "法语 (自动生成)",
     "Turkish (auto-generated)": "土耳其语 (自动生成)",
     "Spanish (Spain)": "西班牙语 (西班牙)",
-    "preferences_watch_history_label": "启用观看历史： "
+    "preferences_watch_history_label": "启用观看历史： ",
+    "search_message_use_another_instance": " 你也可以 <a href=\"`x`\">在另一实例上搜索</a>。",
+    "search_filters_title": "过滤器",
+    "search_filters_date_label": "上传日期",
+    "search_filters_apply_button": "应用所选过滤器",
+    "search_message_no_results": "没找到结果。",
+    "search_filters_duration_option_medium": "中等（4-20 分钟）",
+    "search_filters_date_option_none": "任意日期",
+    "search_message_change_filters_or_query": "尝试扩大你的搜索查询和/或更改过滤器。",
+    "search_filters_duration_option_none": "任意时长",
+    "search_filters_type_option_all": "任意类型",
+    "search_filters_features_option_vr180": "VR180"
 }
