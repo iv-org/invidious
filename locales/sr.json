@@ -150,7 +150,6 @@
     "search_filters_features_option_c_commons": "Creative Commons (Licenca)",
     "search_filters_features_option_three_d": "3D",
     "search_filters_features_option_hdr": "Video Visoke Rezolucije",
-    "search_filters_label": "Filter",
     "next_steps_error_message": "Nakon čega bi trebali probati: ",
     "next_steps_error_message_go_to_youtube": "Idi na YouTube",
     "footer_documentation": "Dokumentacija",
@@ -226,7 +225,6 @@
     "preferences_captions_label": "Podrazumevani titl: ",
     "Music": "Muzika",
     "search_filters_type_label": "Tip",
-    "Broken? Try another Invidious Instance": "Ne funkcioniše ispravno? Probajte drugu Invidious instancu",
     "Tamil": "Tamilski",
     "Save preferences": "Sačuvaj podešavanja",
     "Only show latest unwatched video from channel: ": "Prikaži samo poslednje video klipove koji nisu pogledani sa kanala: ",
@@ -369,5 +367,6 @@
     "unsubscribe": "prekini sa praćenjem",
     "Blacklisted regions: ": "Zabranjene oblasti: ",
     "Polish": "Poljski",
-    "Yoruba": "Joruba"
+    "Yoruba": "Joruba",
+    "search_filters_title": "Filter"
 }
