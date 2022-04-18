@@ -140,7 +140,6 @@
     "Show less": "Pokaż mniej",
     "Watch on YouTube": "Zobacz film na YouTube",
     "Switch Invidious Instance": "Przełącz instancję Invidious",
-    "Broken? Try another Invidious Instance": "Nie działa? Spróbuj innej instancji Invidious",
     "Hide annotations": "Ukryj adnotacje",
     "Show annotations": "Pokaż adnotacje",
     "Genre: ": "Gatunek: ",
@@ -354,7 +353,6 @@
     "search_filters_features_option_four_k": "4k",
     "search_filters_features_option_location": "Lokalizacja",
     "search_filters_features_option_hdr": "hdr",
-    "search_filters_label": "filtr",
     "Current version: ": "Aktualna wersja: ",
     "next_steps_error_message": "Po czym powinien*ś spróbować: ",
     "next_steps_error_message_refresh": "Odśwież",
@@ -476,5 +474,6 @@
     "Japanese (auto-generated)": "japoński (wygenerowany automatycznie)",
     "Russian (auto-generated)": "rosyjski (wygenerowany automatycznie)",
     "Portuguese (auto-generated)": "portugalski (wygenerowany automatycznie)",
-    "Portuguese (Brazil)": "portugalski (Brazylia)"
+    "Portuguese (Brazil)": "portugalski (Brazylia)",
+    "search_filters_title": "Filtr"
 }
