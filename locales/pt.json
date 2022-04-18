@@ -4,7 +4,6 @@
     "search_filters_sort_option_date": "Data de envio",
     "search_filters_sort_option_rating": "Avaliação",
     "search_filters_sort_option_relevance": "Relevância",
-    "Broken? Try another Invidious Instance": "Falhou? Tente outra Instância do Invidious",
     "Switch Invidious Instance": "Mudar a instância do Invidious",
     "Show less": "Mostrar menos",
     "Show more": "Mostrar mais",
@@ -17,7 +16,6 @@
     "next_steps_error_message_go_to_youtube": "Ir ao YouTube",
     "next_steps_error_message": "Pode tentar as seguintes opções: ",
     "next_steps_error_message_refresh": "Atualizar",
-    "search_filters_label": "Filtro",
     "search_filters_features_option_hdr": "HDR",
     "search_filters_features_option_location": "Localização",
     "search_filters_features_option_four_k": "4K",
@@ -437,5 +435,6 @@
     "crash_page_read_the_faq": "leu as <a href=\"`x`\">Perguntas frequentes (FAQ)</a>",
     "crash_page_search_issue": "procurou se <a href=\"`x`\">o erro já foi reportado no GitHub</a>",
     "crash_page_report_issue": "Se nenhuma opção acima ajudou, por favor <a href=\"`x`\">abra um novo problema no Github</a> (preferencialmente em inglês) e inclua o seguinte texto tal qual (NÃO o traduza):",
-    "user_created_playlists": "`x` listas de reprodução criadas"
+    "user_created_playlists": "`x` listas de reprodução criadas",
+    "search_filters_title": "Filtro"
 }
