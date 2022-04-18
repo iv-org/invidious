@@ -155,7 +155,6 @@
     "Show less": "Afficher moins",
     "Watch on YouTube": "Voir la vidéo sur Youtube",
     "Switch Invidious Instance": "Changer d'instance",
-    "Broken? Try another Invidious Instance": "Instance Invidious défectueuse ? Essayez-en une autre",
     "Hide annotations": "Masquer les annotations",
     "Show annotations": "Afficher les annotations",
     "Genre: ": "Genre : ",
@@ -387,7 +386,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "emplacement",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "filtrer",
     "Current version: ": "Version actuelle : ",
     "next_steps_error_message": "Vous pouvez essayer de : ",
     "next_steps_error_message_refresh": "Rafraîchir la page",
@@ -461,5 +459,6 @@
     "Vietnamese (auto-generated)": "Vietnamien (auto-généré)",
     "Russian (auto-generated)": "Russe (auto-généré)",
     "Spanish (Spain)": "Espagnol (Espagne)",
-    "preferences_watch_history_label": "Activer l'historique de visionnage : "
+    "preferences_watch_history_label": "Activer l'historique de visionnage : ",
+    "search_filters_title": "Filtres"
 }
