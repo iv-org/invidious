@@ -148,7 +148,6 @@
     "Show less": "顯示較少",
     "Watch on YouTube": "在 YouTube 上觀看",
     "Switch Invidious Instance": "切換 Invidious 站台",
-    "Broken? Try another Invidious Instance": "故障了嗎？試試看其他 Invidious 站台吧",
     "Hide annotations": "隱藏註釋",
     "Show annotations": "顯示註釋",
     "Genre: ": "風格： ",
@@ -371,7 +370,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "位置",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "篩選條件",
     "Current version: ": "目前版本： ",
     "next_steps_error_message": "之後您應該嘗試： ",
     "next_steps_error_message_refresh": "重新整理",
@@ -445,5 +443,16 @@
     "Portuguese (Brazil)": "葡萄牙語（巴西）",
     "Japanese (auto-generated)": "日語（自動產生）",
     "Portuguese (auto-generated)": "葡萄牙語（自動產生）",
-    "preferences_watch_history_label": "啟用觀看紀錄： "
+    "preferences_watch_history_label": "啟用觀看紀錄： ",
+    "search_message_change_filters_or_query": "嘗試擴大您的查詢字詞與/或變更過濾條件。",
+    "search_filters_apply_button": "套用選定的過濾條件",
+    "search_message_no_results": "找不到結果。",
+    "search_filters_duration_option_none": "任何時長",
+    "search_filters_duration_option_medium": "中等（4到20分鐘）",
+    "search_filters_features_option_vr180": "VR180",
+    "search_message_use_another_instance": " 您也可以<a href=\"`x`\">在其他站台上搜尋</a>。",
+    "search_filters_title": "過濾條件",
+    "search_filters_date_label": "上傳日期",
+    "search_filters_type_option_all": "任何類型",
+    "search_filters_date_option_none": "任何日期"
 }
