@@ -566,12 +566,12 @@ def text_to_parsed_content(text : String) : JSON::Any
     currentNodes = [] of JSON::Any
     initialNode = {"text" => line}
     currentNodes << (JSON.parse(initialNode.to_json))
-    line.scan(/https?:\/\/[^ ]*/).each do |uriMatch|
+    line.scan(/https?:\/\/[^ ]*/).each do |urlMatch|
       lastNode = currentNodes[currentNodes.size - 1].as_h
-      splittedLastNode = lastNode["text"].as_s.split(uriMatch[0])
+      splittedLastNode = lastNode["text"].as_s.split(urlMatch[0])
       lastNode["text"] = JSON.parse(splittedLastNode[0].to_json)
       currentNodes[currentNodes.size - 1] = JSON.parse(lastNode.to_json)
-      currentNode = {"text" => uriMatch[0], "navigationEndpoint" => {"urlEndpoint" => {"url" => uriMatch[0]}}}
+      currentNode = {"text" => urlMatch[0], "navigationEndpoint" => {"urlEndpoint" => {"url" => urlMatch[0]}}}
       currentNodes << (JSON.parse(currentNode.to_json))
       afterNode = {"text" => splittedLastNode.size > 0 ? splittedLastNode[1] : ""}
       currentNodes << (JSON.parse(afterNode.to_json))
