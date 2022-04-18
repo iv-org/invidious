@@ -562,23 +562,39 @@ end
 
 def text_to_parsed_content(text : String) : JSON::Any
   nodes = [] of JSON::Any
+  # For each line convert line to array of nodes
   text.split('\n').each do |line|
+    # In first case line is just a simple node before
+    # check patterns inside line
+    # { 'text': line }
     currentNodes = [] of JSON::Any
     initialNode = {"text" => line}
     currentNodes << (JSON.parse(initialNode.to_json))
+
+    # For each match with url pattern, get last node and preserve
+    # last node before create new node with url information
+    # { 'text': match, 'navigationEndpoint': { 'urlEndpoint' : 'url': match } }
     line.scan(/https?:\/\/[^ ]*/).each do |urlMatch|
+      # Retrieve last node and update node without match
       lastNode = currentNodes[currentNodes.size - 1].as_h
       splittedLastNode = lastNode["text"].as_s.split(urlMatch[0])
       lastNode["text"] = JSON.parse(splittedLastNode[0].to_json)
       currentNodes[currentNodes.size - 1] = JSON.parse(lastNode.to_json)
+      # Create new node with match and navigation infos
       currentNode = {"text" => urlMatch[0], "navigationEndpoint" => {"urlEndpoint" => {"url" => urlMatch[0]}}}
       currentNodes << (JSON.parse(currentNode.to_json))
+      # If text remain after match create new simple node with text after match
       afterNode = {"text" => splittedLastNode.size > 0 ? splittedLastNode[1] : ""}
       currentNodes << (JSON.parse(afterNode.to_json))
     end
+
+    # After processing of matches inside line
+    # Add \n at end of last node for preserve carriage return
     lastNode = currentNodes[currentNodes.size - 1].as_h
     lastNode["text"] = JSON.parse("#{currentNodes[currentNodes.size - 1]["text"]}\n".to_json)
     currentNodes[currentNodes.size - 1] = JSON.parse(lastNode.to_json)
+
+    # Finally add final nodes to nodes returned
     currentNodes.each do |node|
       nodes << (node)
     end
