@@ -141,7 +141,6 @@
     "Show less": "Показать меньше",
     "Watch on YouTube": "Смотреть на YouTube",
     "Switch Invidious Instance": "Сменить экземпляр Invidious",
-    "Broken? Try another Invidious Instance": "Сломался? Попробуйте другой экземпляр Invidious",
     "Hide annotations": "Скрыть аннотации",
     "Show annotations": "Показать аннотации",
     "Genre: ": "Жанр: ",
@@ -355,7 +354,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "Местоположение",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "Фильтр",
     "Current version: ": "Текущая версия: ",
     "next_steps_error_message": "После чего следует попробовать: ",
     "next_steps_error_message_refresh": "Обновить",
@@ -477,5 +475,6 @@
     "Video unavailable": "Видео недоступно",
     "preferences_save_player_pos_label": "Запоминать позицию: ",
     "preferences_region_label": "Страна: ",
-    "preferences_watch_history_label": "Включить историю просмотров "
+    "preferences_watch_history_label": "Включить историю просмотров ",
+    "search_filters_title": "Фильтр"
 }
