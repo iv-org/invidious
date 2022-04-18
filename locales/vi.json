@@ -138,7 +138,6 @@
     "Show less": "Hiện ít hơn",
     "Watch on YouTube": "Xem trên YouTube",
     "Switch Invidious Instance": "Chuyển phiên bản Invidious",
-    "Broken? Try another Invidious Instance": "Bị hỏng? Hãy thử một Phiên bản Invidious khác",
     "Hide annotations": "Ẩn chú thích",
     "Show annotations": "Hiển thị chú thích",
     "Genre: ": "Thể loại: ",
@@ -341,6 +340,6 @@
     "search_filters_features_option_four_k": "4k",
     "search_filters_features_option_location": "vị trí",
     "search_filters_features_option_hdr": "hdr",
-    "search_filters_label": "bộ lọc",
-    "Current version: ": "Phiên bản hiện tại: "
+    "Current version: ": "Phiên bản hiện tại: ",
+    "search_filters_title": "bộ lọc"
 }
