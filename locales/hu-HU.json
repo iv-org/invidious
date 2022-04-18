@@ -389,7 +389,6 @@
     "Released under the AGPLv3 on Github.": "AGPLv3 licenc alapján a GitHubon",
     "search_filters_features_option_three_d": "3D-ben",
     "search_filters_features_option_live": "Élőben",
-    "search_filters_label": "Szűrők",
     "next_steps_error_message_refresh": "Újratöltés",
     "footer_donate_page": "Adakozás",
     "footer_source_code": "Forráskód",
@@ -414,7 +413,6 @@
     "search_filters_date_option_hour": "Az elmúlt órában",
     "search_filters_type_option_movie": "Film",
     "search_filters_features_option_hdr": "HDR",
-    "Broken? Try another Invidious Instance": "Nem működik? Próbáld meg egy másik Invidious oldallal.",
     "search_filters_duration_label": "Játékidő",
     "next_steps_error_message": "Az alábbi lehetőségek állnak rendelkezésre: ",
     "Xhosa": "xhosza",
@@ -460,5 +458,6 @@
     "Italian (auto-generated)": "olasz (automatikusan generált)",
     "Dutch (auto-generated)": "holland (automatikusan generált)",
     "French (auto-generated)": "francia (automatikusan generált)",
-    "Vietnamese (auto-generated)": "vietnámi (automatikusan generált)"
+    "Vietnamese (auto-generated)": "vietnámi (automatikusan generált)",
+    "search_filters_title": "Szűrők"
 }

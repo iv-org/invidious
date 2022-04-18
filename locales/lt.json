@@ -141,7 +141,6 @@
     "Show less": "Rodyti mažiau",
     "Watch on YouTube": "Žiaurėti Youtube",
     "Switch Invidious Instance": "Keisti Invidious šaltinį",
-    "Broken? Try another Invidious Instance": "Neveikia? Bandyk kitą Invidious šaltinį",
     "Hide annotations": "Slėpti anotacijas",
     "Show annotations": "Rodyti anotacijas",
     "Genre: ": "Žanras: ",
@@ -355,7 +354,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "Vietovė",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "Filtras",
     "Current version: ": "Dabartinė versija: ",
     "next_steps_error_message": "Po to turėtumėte pabandyti: ",
     "next_steps_error_message_refresh": "Atnaujinti",
@@ -372,5 +370,6 @@
     "preferences_quality_dash_label": "Pageidaujama DASH vaizdo kokybė: ",
     "preferences_quality_dash_option_best": "Geriausia",
     "preferences_quality_dash_option_worst": "Blogiausia",
-    "preferences_quality_dash_option_auto": "Automatinis"
+    "preferences_quality_dash_option_auto": "Automatinis",
+    "search_filters_title": "Filtras"
 }

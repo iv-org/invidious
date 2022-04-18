@@ -141,7 +141,6 @@
     "Show less": "Montri malpli",
     "Watch on YouTube": "Vidi filmeton en JuTubo",
     "Switch Invidious Instance": "Ŝanĝi instalaĵon de Indivious",
-    "Broken? Try another Invidious Instance": "Ĉu misfunkcio? Provu alian instalaĵon de Indivious",
     "Hide annotations": "Kaŝi prinotojn",
     "Show annotations": "Montri prinotojn",
     "Genre: ": "Ĝenro: ",
@@ -355,7 +354,6 @@
     "search_filters_features_option_four_k": "4k",
     "search_filters_features_option_location": "loko",
     "search_filters_features_option_hdr": "granddinamikgama",
-    "search_filters_label": "filtri",
     "Current version: ": "Nuna versio: ",
     "next_steps_error_message": "Poste, vi provu: ",
     "next_steps_error_message_refresh": "Reŝargi",
@@ -369,5 +367,6 @@
     "footer_original_source_code": "Originala fontkodo",
     "footer_donate_page": "Donaci",
     "preferences_region_label": "Lando de la enhavo: ",
-    "preferences_quality_dash_label": "Preferata DASH-a videkvalito: "
+    "preferences_quality_dash_label": "Preferata DASH-a videkvalito: ",
+    "search_filters_title": "Filtri"
 }

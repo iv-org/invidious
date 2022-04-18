@@ -199,7 +199,6 @@
     "search_filters_features_option_three_d": "3D",
     "search_filters_features_option_location": "지역",
     "search_filters_features_option_four_k": "4K",
-    "search_filters_label": "필터",
     "search_filters_features_option_hdr": "HDR",
     "Current version: ": "현재 버전: ",
     "next_steps_error_message_refresh": "새로 고침",
@@ -298,7 +297,6 @@
     "Empty playlist": "재생목록 비어 있음",
     "Show annotations": "주석 보이기",
     "Hide annotations": "주석 숨기기",
-    "Broken? Try another Invidious Instance": "안되나요? 다른 Invidious 인스턴스를 시도해보세요",
     "Switch Invidious Instance": "Invidious 인스턴스 변경",
     "Spanish": "스페인어",
     "Southern Sotho": "소토어",
@@ -382,5 +380,6 @@
     "footer_source_code": "소스 코드",
     "footer_original_source_code": "원본 소스 코드",
     "footer_modfied_source_code": "수정된 소스 코드",
-    "adminprefs_modified_source_code_url_label": "수정된 소스 코드 저장소의 URL"
+    "adminprefs_modified_source_code_url_label": "수정된 소스 코드 저장소의 URL",
+    "search_filters_title": "필터"
 }

@@ -215,7 +215,6 @@
     "permalink": "permalink",
     "search_filters_sort_option_date": "Upload dato",
     "search_filters_features_label": "Funktioner",
-    "search_filters_label": "Filter",
     "Khmer": "Khmer",
     "Finnish": "Finsk",
     "search_filters_date_option_week": "Denne uge",
@@ -349,7 +348,6 @@
     "next_steps_error_message": "Efter det burde du prøve at: ",
     "Sinhala": "Singalesisk (Sinhala)",
     "Thai": "Thai",
-    "Broken? Try another Invidious Instance": "I stykker? Prøv en anden Invidious instans",
     "No such user": "Brugeren findes ikke",
     "Token is expired, please try again": "Token er udløbet, prøv igen",
     "Catalan": "Catalansk",
@@ -461,5 +459,6 @@
     "generic_count_weeks_plural": "{{count}} uger",
     "crash_page_you_found_a_bug": "Det ser ud til, at du har fundet en fejl i Invidious!",
     "crash_page_read_the_faq": "læs <a href=\"`x`\">Ofte stillede spørgsmål (FAQ)</a>",
-    "crash_page_search_issue": "søgte efter <a href=\"`x`\">eksisterende problemer på GitHub</a>"
+    "crash_page_search_issue": "søgte efter <a href=\"`x`\">eksisterende problemer på GitHub</a>",
+    "search_filters_title": "Filter"
 }

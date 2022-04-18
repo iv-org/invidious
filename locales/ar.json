@@ -141,7 +141,6 @@
     "Show less": "عرض اقل",
     "Watch on YouTube": "مشاهدة الفيديو على اليوتيوب",
     "Switch Invidious Instance": "تبديل المثيل Invidious",
-    "Broken? Try another Invidious Instance": "معطل؟ جرب مثيل Invidious آخر",
     "Hide annotations": "إخفاء الملاحظات في الفيديو",
     "Show annotations": "عرض الملاحظات في الفيديو",
     "Genre: ": "النوع: ",
@@ -355,7 +354,6 @@
     "search_filters_features_option_four_k": "4k",
     "search_filters_features_option_location": "الأماكن",
     "search_filters_features_option_hdr": "وضع التباين العالي",
-    "search_filters_label": "معامل الفرز",
     "Current version: ": "الإصدار الحالي: ",
     "next_steps_error_message": "بعد ذلك يجب أن تحاول: ",
     "next_steps_error_message_refresh": "تحديث",
@@ -459,5 +457,6 @@
     "Portuguese (Brazil)": "البرتغالية (البرازيل)",
     "Russian (auto-generated)": "الروسية (منشأة تلقائيا)",
     "Spanish (Spain)": "الإسبانية (إسبانيا)",
-    "crash_page_search_issue": "بحثت عن <a href=\"`x`\"> المشكلات الموجودة على GitHub </a>"
+    "crash_page_search_issue": "بحثت عن <a href=\"`x`\"> المشكلات الموجودة على GitHub </a>",
+    "search_filters_title": "معامل الفرز"
 }

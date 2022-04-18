@@ -148,7 +148,6 @@
     "Show less": "表示を減らす",
     "Watch on YouTube": "YouTube で視聴",
     "Switch Invidious Instance": "Invidiousインスタンスの変更",
-    "Broken? Try another Invidious Instance": "壊れる？違うInvidiousインスタンスを試してみる",
     "Hide annotations": "アノテーションを隠す",
     "Show annotations": "アノテーションを表示",
     "Genre: ": "ジャンル: ",
@@ -371,7 +370,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "場所",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "フィルタ",
     "Current version: ": "現在のバージョン: ",
     "next_steps_error_message": "下記のものを試して下さい： ",
     "next_steps_error_message_refresh": "再読込",
@@ -434,5 +432,6 @@
     "Spanish (Mexico)": "スペイン語 (メキシコ)",
     "Spanish (Spain)": "スペイン語 (スペイン)",
     "Vietnamese (auto-generated)": "ベトナム語 (自動生成)",
-    "360": "360°"
+    "search_filters_title": "フィルタ",
+    "search_filters_features_option_three_sixty": "360°"
 }

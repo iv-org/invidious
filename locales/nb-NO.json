@@ -141,7 +141,6 @@
     "Show less": "Vis mindre",
     "Watch on YouTube": "Vis video på YouTube",
     "Switch Invidious Instance": "Bytt Invidious-instans",
-    "Broken? Try another Invidious Instance": "Knekt? Forsøk en annen Invidious-instans",
     "Hide annotations": "Skjul merknader",
     "Show annotations": "Vis merknader",
     "Genre: ": "Sjanger: ",
@@ -355,7 +354,6 @@
     "search_filters_features_option_four_k": "4k",
     "search_filters_features_option_location": "sted",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "filtrer",
     "Current version: ": "Gjeldende versjon: ",
     "next_steps_error_message": "Etterpå bør du prøve dette: ",
     "next_steps_error_message_refresh": "Gjenoppfrisk",
@@ -461,5 +459,6 @@
     "Portuguese (auto-generated)": "Portugisisk (laget automatisk)",
     "Russian (auto-generated)": "Russisk (laget automatisk)",
     "Dutch (auto-generated)": "Nederlandsk (laget automatisk)",
-    "Turkish (auto-generated)": "Tyrkisk (laget automatisk)"
+    "Turkish (auto-generated)": "Tyrkisk (laget automatisk)",
+    "search_filters_title": "Filtrer"
 }

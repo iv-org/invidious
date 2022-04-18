@@ -349,7 +349,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "locatie",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "verfijnen",
     "Current version: ": "Huidige versie: ",
     "Switch Invidious Instance": "Schakel tussen de Invidious Instanties",
     "preferences_automatic_instance_redirect_label": "Automatische instantie-omleiding (terugval naar redirect.invidious.io): ",
@@ -366,7 +365,6 @@
     "footer_original_source_code": "Originele bron-code",
     "footer_modfied_source_code": "Gewijzigde bron-code",
     "adminprefs_modified_source_code_url_label": "URL naar gewijzigde bron-code-opslagplaats",
-    "Broken? Try another Invidious Instance": "Kapot? Probeer een andere Invidious Instantie",
     "next_steps_error_message": "Waarna u moet proberen om: ",
     "footer_source_code": "Bron-code",
     "search_filters_duration_option_long": "Lang (> 20 minuten)",
@@ -398,5 +396,6 @@
     "preferences_save_player_pos_label": "Huidig afspeeltijdstip opslaan: ",
     "none": "geen",
     "search_filters_features_option_purchased": "Gekocht",
-    "search_filters_features_option_three_sixty": "360º"
+    "search_filters_features_option_three_sixty": "360º",
+    "search_filters_title": "Verfijnen"
 }

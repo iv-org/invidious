@@ -140,7 +140,6 @@
     "Show less": "Näytä vähemmän",
     "Watch on YouTube": "Katso YouTubessa",
     "Switch Invidious Instance": "Vaihda Invidious-instanssia",
-    "Broken? Try another Invidious Instance": "Rikki? Kokeile toista Invidious-instanssia",
     "Hide annotations": "Piilota merkkaukset",
     "Show annotations": "Näytä merkkaukset",
     "Genre: ": "Genre: ",
@@ -354,7 +353,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "Sijainti",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "Suodatin",
     "Current version: ": "Tämänhetkinen versio: ",
     "next_steps_error_message": "Sinun tulisi kokeilla seuraavia: ",
     "next_steps_error_message_refresh": "Päivitä",
@@ -461,5 +459,6 @@
     "Spanish (Mexico)": "Espanja (Meksiko)",
     "Spanish (Spain)": "Espanja (Espanja)",
     "Turkish (auto-generated)": "Turkki (automaattisesti luotu)",
-    "Vietnamese (auto-generated)": "Vietnam (automaattisesti luotu)"
+    "Vietnamese (auto-generated)": "Vietnam (automaattisesti luotu)",
+    "search_filters_title": "Suodatin"
 }

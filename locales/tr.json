@@ -141,7 +141,6 @@
     "Show less": "Daha az göster",
     "Watch on YouTube": "YouTube'da izle",
     "Switch Invidious Instance": "Invidious Örneğini Değiştir",
-    "Broken? Try another Invidious Instance": "Bozuk mu? Başka bir Invidious örneğini deneyin",
     "Hide annotations": "Ek açıklamaları gizle",
     "Show annotations": "Ek açıklamaları göster",
     "Genre: ": "Tür: ",
@@ -355,7 +354,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "Konum",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "Filtrele",
     "Current version: ": "Şu anki sürüm: ",
     "next_steps_error_message": "Bundan sonra şunları denemelisiniz: ",
     "next_steps_error_message_refresh": "Yenile",
@@ -461,5 +459,16 @@
     "Portuguese (auto-generated)": "Portekizce (otomatik oluşturuldu)",
     "Spanish (Spain)": "İspanyolca (İspanya)",
     "Vietnamese (auto-generated)": "Vietnamca (otomatik oluşturuldu)",
-    "preferences_watch_history_label": "İzleme geçmişini etkinleştir: "
+    "preferences_watch_history_label": "İzleme geçmişini etkinleştir: ",
+    "search_message_use_another_instance": " Ayrıca <a href=\"`x`\">başka bir örnekte arayabilirsiniz</a>.",
+    "search_filters_type_option_all": "Herhangi bir tür",
+    "search_filters_duration_option_none": "Herhangi bir süre",
+    "search_message_no_results": "Sonuç bulunamadı.",
+    "search_filters_date_label": "Yükleme tarihi",
+    "search_filters_apply_button": "Seçili filtreleri uygula",
+    "search_filters_date_option_none": "Herhangi bir tarih",
+    "search_filters_duration_option_medium": "Orta (4 - 20 dakika)",
+    "search_filters_features_option_vr180": "VR180",
+    "search_filters_title": "Filtreler",
+    "search_message_change_filters_or_query": "Arama sorgunuzu genişletmeyi ve/veya filtreleri değiştirmeyi deneyin."
 }

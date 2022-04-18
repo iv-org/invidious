@@ -405,7 +405,6 @@
     "search_filters_date_option_month": "Αυτόν τον μήνα",
     "Released under the AGPLv3 on Github.": "Κυκλοφορεί υπό την AGPLv3 στο GitHub.",
     "search_filters_sort_label": "Ταξινόμηση κατά",
-    "search_filters_label": "Φίλτρο",
     "search_filters_type_option_movie": "Ταινία",
     "footer_modfied_source_code": "Τροποποιημένος πηγαίος κώδικας",
     "search_filters_features_label": "Χαρακτηριστικά",
@@ -449,5 +448,6 @@
     "videoinfo_youTube_embed_link": "Ενσωμάτωση",
     "videoinfo_invidious_embed_link": "Σύνδεσμος Ενσωμάτωσης",
     "search_filters_type_option_show": "Μπάρα προόδου διαβάσματος",
-    "preferences_watch_history_label": "Ενεργοποίηση ιστορικού παρακολούθησης: "
+    "preferences_watch_history_label": "Ενεργοποίηση ιστορικού παρακολούθησης: ",
+    "search_filters_title": "Φίλτρο"
 }

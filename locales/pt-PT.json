@@ -143,7 +143,6 @@
     "Show less": "Mostrar menos",
     "Watch on YouTube": "Ver no YouTube",
     "Switch Invidious Instance": "Mudar a instância do Invidious",
-    "Broken? Try another Invidious Instance": "Falhou? Tente outra Instância do Invidious",
     "Hide annotations": "Ocultar anotações",
     "Show annotations": "Mostrar anotações",
     "Genre: ": "Género: ",
@@ -371,9 +370,9 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "Localização",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "Filtro",
     "Current version: ": "Versão atual: ",
     "next_steps_error_message": "Pode tentar as seguintes opções: ",
     "next_steps_error_message_refresh": "Atualizar",
-    "next_steps_error_message_go_to_youtube": "Ir ao YouTube"
+    "next_steps_error_message_go_to_youtube": "Ir ao YouTube",
+    "search_filters_title": "Filtro"
 }

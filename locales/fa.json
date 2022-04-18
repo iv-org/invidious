@@ -148,7 +148,6 @@
     "Show less": "نمایش کم‌تر",
     "Watch on YouTube": "تماشا در یوتیوب",
     "Switch Invidious Instance": "تعویض نمونه اینویدیوس",
-    "Broken? Try another Invidious Instance": "کار نمی‌کند؟ نمونه دیگری از اینویدیوس را امتحان کنید",
     "Hide annotations": "مخفی کردن حاشیه نویسی ها",
     "Show annotations": "نمایش حاشیه نویسی ها",
     "Genre: ": "ژانر: ",
@@ -371,7 +370,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "مکان",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "پالایه",
     "Current version: ": "نسخه فعلی: ",
     "next_steps_error_message": "اکنون بایستی یکی از این موارد را امتحان کنید: ",
     "next_steps_error_message_refresh": "تازه‌سازی",
@@ -412,5 +410,6 @@
     "footer_original_source_code": "کد منبع اصلی",
     "search_filters_duration_option_long": "بلند (> 20 دقیقه)",
     "adminprefs_modified_source_code_url_label": "URL مخزن کد منبع ویریش شده",
-    "search_filters_duration_option_short": "کوتاه (< 4 دقیقه)"
+    "search_filters_duration_option_short": "کوتاه (< 4 دقیقه)",
+    "search_filters_title": "پالایه"
 }
