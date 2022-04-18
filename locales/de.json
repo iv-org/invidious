@@ -141,7 +141,6 @@
     "Show less": "Weniger anzeigen",
     "Watch on YouTube": "Video auf YouTube ansehen",
     "Switch Invidious Instance": "Invidious Instanz wechseln",
-    "Broken? Try another Invidious Instance": "Kaputt? Versuche eine andere Invidious Instanz",
     "Hide annotations": "Anmerkungen ausblenden",
     "Show annotations": "Anmerkungen anzeigen",
     "Genre: ": "Genre: ",
@@ -355,7 +354,6 @@
     "search_filters_features_option_four_k": "4K",
     "search_filters_features_option_location": "Standort",
     "search_filters_features_option_hdr": "HDR",
-    "search_filters_label": "Filtern",
     "Current version: ": "Aktuelle Version: ",
     "next_steps_error_message": "Danach folgendes versuchen: ",
     "next_steps_error_message_refresh": "Aktualisieren",
@@ -461,5 +459,6 @@
     "Chinese (China)": "Chinesisch (China)",
     "Chinese (Taiwan)": "Chinesisch (Taiwan)",
     "Korean (auto-generated)": "Koreanisch (automatisch generiert)",
-    "Portuguese (auto-generated)": "Portugiesisch (automatisch generiert)"
+    "Portuguese (auto-generated)": "Portugiesisch (automatisch generiert)",
+    "search_filters_title": "Filtern"
 }
