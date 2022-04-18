@@ -141,7 +141,6 @@
     "Show less": "Pokaži manje",
     "Watch on YouTube": "Gledaj na YouTubeu",
     "Switch Invidious Instance": "Promijeni Invidious instancu",
-    "Broken? Try another Invidious Instance": "Pokvarena? Probaj jednu drugu Invidious instancu",
     "Hide annotations": "Sakrij napomene",
     "Show annotations": "Prikaži napomene",
     "Genre: ": "Žanr: ",
@@ -355,7 +354,6 @@
     "search_filters_features_option_four_k": "4k",
     "search_filters_features_option_location": "lokacija",
     "search_filters_features_option_hdr": "hdr",
-    "search_filters_label": "filtar",
     "Current version: ": "Trenutačna verzija: ",
     "next_steps_error_message": "Nakon toga bi trebali pokušati sljedeće: ",
     "next_steps_error_message_refresh": "Aktualiziraj stranicu",
@@ -477,5 +475,6 @@
     "Korean (auto-generated)": "Korejski (automatski generiran)",
     "Portuguese (auto-generated)": "Portugalski (automatski generiran)",
     "Spanish (auto-generated)": "Španjolski (automatski generiran)",
-    "preferences_watch_history_label": "Aktiviraj povijest gledanja: "
+    "preferences_watch_history_label": "Aktiviraj povijest gledanja: ",
+    "search_filters_title": "Filtar"
 }
