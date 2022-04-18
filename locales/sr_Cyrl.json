@@ -189,7 +189,6 @@
     "search_filters_features_option_c_commons": "Creative Commons (Лиценца)",
     "search_filters_features_option_live": "Уживо",
     "search_filters_features_option_location": "Локација",
-    "search_filters_label": "Филтер",
     "next_steps_error_message": "Након чега би требали пробати: ",
     "footer_donate_page": "Донирај",
     "footer_documentation": "Документација",
@@ -345,7 +344,6 @@
     "search_filters_features_option_subtitles": "Титл/Превод",
     "preferences_extend_desc_label": "Аутоматски прикажи цео опис видеа: ",
     "Show less": "Прикажи мање",
-    "Broken? Try another Invidious Instance": "Не функционише исправно? Пробајте другу Invidious инстанцу",
     "Family friendly? ": "Погодно за породицу? ",
     "Premieres `x`": "Премерe у `x`",
     "Bosnian": "Босански",
@@ -369,5 +367,6 @@
     "Hebrew": "Хебрејски",
     "Korean": "Корејски",
     "Kurdish": "Курдски",
-    "Malay": "Малајски"
+    "Malay": "Малајски",
+    "search_filters_title": "Филтер"
 }
