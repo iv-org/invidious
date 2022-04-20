@@ -39,7 +39,7 @@ embed_url.searchParams.delete('v');
 var short_url = location.origin + '/' + video_data.id + embed_url.search;
 embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
-var save_player_pos_key = "save_player_pos";
+var save_player_pos_key = 'save_player_pos';
 
 videojs.Vhs.xhr.beforeRequest = function(options) {
     if (options.uri.indexOf('videoplayback') === -1 && options.uri.indexOf('local=true') === -1) {
@@ -112,8 +112,8 @@ var shareOptions = {
     description: player_data.description,
     image: player_data.thumbnail,
     get embedCode() {
-        return "<iframe id='ivplayer' width='640' height='360' src='" +
-            addCurrentTimeToURL(embed_url) + "' style='border:none;'></iframe>";
+        return '<iframe id="ivplayer" width="640" height="360" src="' +
+            addCurrentTimeToURL(embed_url) + '" style="border:none;"></iframe>';
     }
 };
 
@@ -138,19 +138,19 @@ if (location.pathname.startsWith('/embed/')) {
 // Detection code taken from https://stackoverflow.com/a/20293441
 
 function isMobile() {
-  try{ document.createEvent("TouchEvent"); return true; }
+  try{ document.createEvent('TouchEvent'); return true; }
   catch(e){ return false; }
 }
 
 if (isMobile()) {
     player.mobileUi();
 
-    buttons = ["playToggle", "volumePanel", "captionsButton"];
+    buttons = ['playToggle', 'volumePanel', 'captionsButton'];
 
-    if (video_data.params.quality !== 'dash') buttons.push("qualitySelector");
+    if (video_data.params.quality !== 'dash') buttons.push('qualitySelector');
 
     // Create new control bar object for operation buttons
-    const ControlBar = videojs.getComponent("controlBar");
+    const ControlBar = videojs.getComponent('controlBar');
     let operations_bar = new ControlBar(player, {
       children: [],
       playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
@@ -158,24 +158,24 @@ if (isMobile()) {
     buttons.slice(1).forEach(function (child) {operations_bar.addChild(child);});
 
     // Remove operation buttons from primary control bar
-    primary_control_bar = player.getChild("controlBar");
+    primary_control_bar = player.getChild('controlBar');
     buttons.forEach(function (child) {primary_control_bar.removeChild(child);});
 
     operations_bar_element = operations_bar.el();
-    operations_bar_element.className += " mobile-operations-bar";
+    operations_bar_element.className += ' mobile-operations-bar';
     player.addChild(operations_bar);
 
     // Playback menu doesn't work when it's initialized outside of the primary control bar
-    playback_element = document.getElementsByClassName("vjs-playback-rate")[0];
+    playback_element = document.getElementsByClassName('vjs-playback-rate')[0];
     operations_bar_element.append(playback_element);
 
     // The share and http source selector element can't be fetched till the players ready.
-    player.one("playing", function () {
-  	    share_element = document.getElementsByClassName("vjs-share-control")[0];
+    player.one('playing', function () {
+  	    share_element = document.getElementsByClassName('vjs-share-control')[0];
   	    operations_bar_element.append(share_element);
 
   	    if (video_data.params.quality === 'dash') {
-        		http_source_selector = document.getElementsByClassName("vjs-http-source-selector vjs-menu-button")[0];
+        		http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
         		operations_bar_element.append(http_source_selector);
   	    }
   	});
@@ -183,12 +183,12 @@ if (isMobile()) {
 
 // Enable VR video support
 if (!video_data.params.listen && video_data.vr && video_data.params.vr_mode) {
-    player.crossOrigin("anonymous");
+    player.crossOrigin('anonymous');
     switch (video_data.projection_type) {
-        case "EQUIRECTANGULAR":
-            player.vr({projection: "equirectangular"});
-        default: // Should only be "MESH" but we'll use this as a fallback.
-            player.vr({projection: "EAC"});
+        case 'EQUIRECTANGULAR':
+            player.vr({projection: 'equirectangular'});
+        default: // Should only be 'MESH' but we'll use this as a fallback.
+            player.vr({projection: 'EAC'});
     }
 }
 
@@ -223,15 +223,15 @@ player.playbackRate(video_data.params.speed);
  * @returns cookieValue
  */
 function getCookieValue(name) {
-    var value = document.cookie.split(";").filter(function (item) {return item.includes(name + "=");});
+    var value = document.cookie.split(';').filter(function (item) {return item.includes(name + '=');});
 
     return (value.length >= 1)
-        ? value[0].substring((name + "=").length, value[0].length)
+        ? value[0].substring((name + '=').length, value[0].length)
         : null;
 }
 
 /**
- * Method for updating the "PREFS" cookie (or creating it if missing)
+ * Method for updating the 'PREFS' cookie (or creating it if missing)
  *
  * @param {number} newVolume New volume defined (null if unchanged)
  * @param {number} newSpeed New speed defined (null if unchanged)
@@ -291,7 +291,7 @@ if (video_data.premiere_timestamp && Math.round(new Date() / 1000) < video_data.
 
 if (video_data.params.save_player_pos) {
     const url = new URL(location);
-    const hasTimeParam = url.searchParams.has("t");
+    const hasTimeParam = url.searchParams.has('t');
     const remeberedTime = get_video_time();
     let lastUpdated = 0;
 
@@ -307,7 +307,7 @@ if (video_data.params.save_player_pos) {
         }
     };
 
-    player.on("timeupdate", updateTime);
+    player.on('timeupdate', updateTime);
 }
 else remove_all_video_times();
 
@@ -334,16 +334,16 @@ if (video_data.params.autoplay) {
 if (!video_data.params.listen && video_data.params.quality === 'dash') {
     player.httpSourceSelector();
 
-    if (video_data.params.quality_dash !== "auto") {
+    if (video_data.params.quality_dash !== 'auto') {
         player.ready(function () {
-            player.on("loadedmetadata", function () {
+            player.on('loadedmetadata', function () {
                 const qualityLevels = Array.from(player.qualityLevels()).sort(function (a, b) {return a.height - b.height;});
                 let targetQualityLevel;
                 switch (video_data.params.quality_dash) {
-                    case "best":
+                    case 'best':
                         targetQualityLevel = qualityLevels.length - 1;
                         break;
-                    case "worst":
+                    case 'worst':
                         targetQualityLevel = 0;
                         break;
                     default:
@@ -734,7 +734,7 @@ window.addEventListener('keydown', function (e) {
     };
 
     player.on('mousewheel', mouseScroll);
-    player.on("DOMMouseScroll", mouseScroll);
+    player.on('DOMMouseScroll', mouseScroll);
 }());
 
 // Since videojs-share can sometimes be blocked, we defer it until last
@@ -750,7 +750,7 @@ if (player_data.preferred_caption_found) {
 }
 
 // Safari audio double duration fix
-if (navigator.vendor === "Apple Computer, Inc." && video_data.params.listen) {
+if (navigator.vendor === 'Apple Computer, Inc.' && video_data.params.listen) {
     player.on('loadedmetadata', function () {
         player.on('timeupdate', function () {
             if (player.remainingTime() < player.duration() / 2 && player.remainingTime() >= 2) {
@@ -761,17 +761,17 @@ if (navigator.vendor === "Apple Computer, Inc." && video_data.params.listen) {
 }
 
 // Watch on Invidious link
-if (window.location.pathname.startsWith("/embed/")) {
+if (window.location.pathname.startsWith('/embed/')) {
     const Button = videojs.getComponent('Button');
     let watch_on_invidious_button = new Button(player);
 
     // Create hyperlink for current instance
-    redirect_element = document.createElement("a");
-    redirect_element.setAttribute("href", `//${window.location.host}/watch?v=${window.location.pathname.replace("/embed/","")}`);
-    redirect_element.appendChild(document.createTextNode("Invidious"));
+    redirect_element = document.createElement('a');
+    redirect_element.setAttribute('href', `//${window.location.host}/watch?v=${window.location.pathname.replace('/embed/','')}`);
+    redirect_element.appendChild(document.createTextNode('Invidious'));
 
     watch_on_invidious_button.el().appendChild(redirect_element);
-    watch_on_invidious_button.addClass("watch-on-invidious");
+    watch_on_invidious_button.addClass('watch-on-invidious');
 
     cb = player.getChild('ControlBar');
     cb.addChild(watch_on_invidious_button);

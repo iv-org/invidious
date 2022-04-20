@@ -152,14 +152,14 @@
         let focused_tag = document.activeElement.tagName.toLowerCase();
         const allowed = /^(button|checkbox|file|radio|submit)$/;
 
-        if (focused_tag === "textarea") return;
-        if (focused_tag === "input") {
+        if (focused_tag === 'textarea') return;
+        if (focused_tag === 'input') {
             let focused_type = document.activeElement.type.toLowerCase();
             if (!focused_type.match(allowed)) return;
         }
 
         // Focus search bar on '/'
-        if (event.key === "/") {
+        if (event.key === '/') {
             document.getElementById('searchbox').focus();
             event.preventDefault();
         }

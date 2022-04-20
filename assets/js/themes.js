@@ -3,7 +3,7 @@ var toggle_theme = document.getElementById('toggle_theme');
 toggle_theme.href = 'javascript:void(0);';
 
 toggle_theme.addEventListener('click', function () {
-    var dark_mode = document.body.classList.contains("light-theme");
+    var dark_mode = document.body.classList.contains('light-theme');
 
     var url = '/toggle_theme?redirect=false';
     var xhr = new XMLHttpRequest();
@@ -49,9 +49,9 @@ function scheme_switch (e) {
     }
   } catch {}
   if (e.matches) {
-    if (e.media.includes("dark")) {
+    if (e.media.includes('dark')) {
       set_mode(true);
-    } else if (e.media.includes("light")) {
+    } else if (e.media.includes('light')) {
       set_mode(false);
     }
   }
