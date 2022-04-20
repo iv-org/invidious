@@ -9,12 +9,13 @@ function get_playlist(plid, retries) {
         return;
     }
 
+    var plid_url;
     if (plid.startsWith('RD')) {
-        var plid_url = '/api/v1/mixes/' + plid +
+        plid_url = '/api/v1/mixes/' + plid +
             '?continuation=' + video_data.id +
             '&format=html&hl=' + video_data.preferences.locale;
     } else {
-        var plid_url = '/api/v1/playlists/' + plid +
+        plid_url = '/api/v1/playlists/' + plid +
             '?index=' + video_data.index +
             '&continuation' + video_data.id +
             '&format=html&hl=' + video_data.preferences.locale;
