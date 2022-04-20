@@ -35,17 +35,17 @@ function subscribe(retries = 5) {
                 subscribe_button.innerHTML = fallback;
             }
         }
-    }
+    };
 
     xhr.onerror = function () {
         console.log('Subscribing failed... ' + retries + '/5');
-        setTimeout(function () { subscribe(retries - 1) }, 1000);
-    }
+        setTimeout(function () { subscribe(retries - 1); }, 1000);
+    };
 
     xhr.ontimeout = function () {
         console.log('Subscribing failed... ' + retries + '/5');
         subscribe(retries - 1);
-    }
+    };
 
     xhr.send('csrf_token=' + subscribe_data.csrf_token);
 }
@@ -75,17 +75,17 @@ function unsubscribe(retries = 5) {
                 subscribe_button.innerHTML = fallback;
             }
         }
-    }
+    };
 
     xhr.onerror = function () {
         console.log('Unsubscribing failed... ' + retries + '/5');
-        setTimeout(function () { unsubscribe(retries - 1) }, 1000);
-    }
+        setTimeout(function () { unsubscribe(retries - 1); }, 1000);
+    };
 
     xhr.ontimeout = function () {
         console.log('Unsubscribing failed... ' + retries + '/5');
         unsubscribe(retries - 1);
-    }
+    };
 
     xhr.send('csrf_token=' + subscribe_data.csrf_token);
 }

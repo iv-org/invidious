@@ -76,7 +76,7 @@
     });
 
     n2a(document.querySelectorAll('[data-onrange="update_volume_value"]')).forEach(function (e) {
-        var cb = function () { update_volume_value(e); }
+        var cb = function () { update_volume_value(e); };
         e.oninput = cb;
         e.onchange = cb;
     });
@@ -108,7 +108,7 @@
                     row.style.display = '';
                 }
             }
-        }
+        };
 
         var csrf_token = target.parentNode.querySelector('input[name="csrf_token"]').value;
         xhr.send('csrf_token=' + csrf_token);
@@ -137,7 +137,7 @@
                     row.style.display = '';
                 }
             }
-        }
+        };
 
         var csrf_token = target.parentNode.querySelector('input[name="csrf_token"]').value;
         xhr.send('csrf_token=' + csrf_token);

@@ -58,17 +58,17 @@ function get_playlist(plid, retries) {
                 }
             }
         }
-    }
+    };
 
     xhr.onerror = function () {
         console.log('Pulling playlist failed... ' + retries + '/5');
-        setTimeout(function () { get_playlist(plid, retries - 1) }, 1000);
-    }
+        setTimeout(function () { get_playlist(plid, retries - 1); }, 1000);
+    };
 
     xhr.ontimeout = function () {
         console.log('Pulling playlist failed... ' + retries + '/5');
         get_playlist(plid, retries - 1);
-    }
+    };
 
     xhr.send();
 }
@@ -97,7 +97,7 @@ window.addEventListener('load', function (e) {
             }
 
             if (video_data.video_series.length !== 0) {
-                url.searchParams.set('playlist', video_data.video_series.join(','))
+                url.searchParams.set('playlist', video_data.video_series.join(','));
             }
 
             location.assign(url.pathname + url.search);

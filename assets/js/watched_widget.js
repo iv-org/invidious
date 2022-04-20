@@ -19,7 +19,7 @@ function mark_watched(target) {
                 tile.style.display = '';
             }
         }
-    }
+    };
 
     xhr.send('csrf_token=' + watched_data.csrf_token);
 }
@@ -27,7 +27,7 @@ function mark_watched(target) {
 function mark_unwatched(target) {
     var tile = target.parentNode.parentNode.parentNode.parentNode.parentNode;
     tile.style.display = 'none';
-    var count = document.getElementById('count')
+    var count = document.getElementById('count');
     count.innerText = count.innerText - 1;
 
     var url = '/watch_ajax?action_mark_unwatched=1&redirect=false' +
@@ -45,7 +45,7 @@ function mark_unwatched(target) {
                 tile.style.display = '';
             }
         }
-    }
+    };
 
     xhr.send('csrf_token=' + watched_data.csrf_token);
 }

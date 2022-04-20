@@ -6,7 +6,7 @@ String.prototype.supplant = function (o) {
         var r = o[b];
         return typeof r === 'string' || typeof r === 'number' ? r : a;
     });
-}
+};
 
 function toggle_parent(target) {
     body = target.parentNode.parentNode.children[1];
@@ -128,7 +128,7 @@ function get_playlist(plid, retries) {
 
     playlist.innerHTML = ' \
         <h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3> \
-        <hr>'
+        <hr>';
 
     if (plid.startsWith('RD')) {
         var plid_url = '/api/v1/mixes/' + plid +
@@ -186,7 +186,7 @@ function get_playlist(plid, retries) {
                 document.getElementById('continue').style.display = '';
             }
         }
-    }
+    };
 
     xhr.onerror = function () {
         playlist = document.getElementById('playlist');
@@ -194,8 +194,8 @@ function get_playlist(plid, retries) {
             '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3><hr>';
 
         console.log('Pulling playlist timed out... ' + retries + '/5');
-        setTimeout(function () { get_playlist(plid, retries - 1) }, 1000);
-    }
+        setTimeout(function () { get_playlist(plid, retries - 1); }, 1000);
+    };
 
     xhr.ontimeout = function () {
         playlist = document.getElementById('playlist');
@@ -204,7 +204,7 @@ function get_playlist(plid, retries) {
 
         console.log('Pulling playlist timed out... ' + retries + '/5');
         get_playlist(plid, retries - 1);
-    }
+    };
 
     xhr.send();
 }
@@ -265,23 +265,23 @@ function get_reddit_comments(retries) {
             } else {
                 if (video_data.params.comments[1] === 'youtube') {
                     console.log('Pulling comments failed... ' + retries + '/5');
-                    setTimeout(function () { get_youtube_comments(retries - 1) }, 1000);
+                    setTimeout(function () { get_youtube_comments(retries - 1); }, 1000);
                 } else {
                     comments.innerHTML = fallback;
                 }
             }
         }
-    }
+    };
 
     xhr.onerror = function () {
         console.log('Pulling comments failed... ' + retries + '/5');
-        setTimeout(function () { get_reddit_comments(retries - 1) }, 1000);
-    }
+        setTimeout(function () { get_reddit_comments(retries - 1); }, 1000);
+    };
 
     xhr.ontimeout = function () {
         console.log('Pulling comments failed... ' + retries + '/5');
         get_reddit_comments(retries - 1);
-    }
+    };
 
     xhr.send();
 }
@@ -337,27 +337,27 @@ function get_youtube_comments(retries) {
                 comments.children[0].children[1].children[0].onclick = swap_comments;
             } else {
                 if (video_data.params.comments[1] === 'youtube') {
-                    setTimeout(function () { get_youtube_comments(retries - 1) }, 1000);
+                    setTimeout(function () { get_youtube_comments(retries - 1); }, 1000);
                 } else {
                     comments.innerHTML = '';
                 }
             }
         }
-    }
+    };
 
     xhr.onerror = function () {
         comments.innerHTML =
             '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
         console.log('Pulling comments failed... ' + retries + '/5');
-        setTimeout(function () { get_youtube_comments(retries - 1) }, 1000);
-    }
+        setTimeout(function () { get_youtube_comments(retries - 1); }, 1000);
+    };
 
     xhr.ontimeout = function () {
         comments.innerHTML =
             '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
         console.log('Pulling comments failed... ' + retries + '/5');
         get_youtube_comments(retries - 1);
-    }
+    };
 
     xhr.send();
 }
@@ -374,7 +374,7 @@ function get_youtube_replies(target, load_more, load_replies) {
         '?format=html' +
         '&hl=' + video_data.preferences.locale +
         '&thin_mode=' + video_data.preferences.thin_mode +
-        '&continuation=' + continuation
+        '&continuation=' + continuation;
     if (load_replies) {
         url += '&action=action_get_comment_replies';
     }
@@ -413,12 +413,12 @@ function get_youtube_replies(target, load_more, load_replies) {
                 body.innerHTML = fallback;
             }
         }
-    }
+    };
 
     xhr.ontimeout = function () {
         console.log('Pulling comments failed.');
         body.innerHTML = fallback;
-    }
+    };
 
     xhr.send();
 }

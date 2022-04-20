@@ -6,7 +6,7 @@ String.prototype.supplant = function (o) {
         var r = o[b];
         return typeof r === 'string' || typeof r === 'number' ? r : a;
     });
-}
+};
 
 function hide_youtube_replies(event) {
     var target = event.target;
@@ -93,12 +93,12 @@ function get_youtube_replies(target, load_more) {
                 body.innerHTML = fallback;
             }
         }
-    }
+    };
 
     xhr.ontimeout = function () {
         console.log('Pulling comments failed.');
         body.innerHTML = fallback;
-    }
+    };
 
     xhr.send();
 }

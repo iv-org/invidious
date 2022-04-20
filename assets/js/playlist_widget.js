@@ -20,7 +20,7 @@ function add_playlist_video(target) {
                 option.innerText = '✓' + option.innerText;
             }
         }
-    }
+    };
 
     xhr.send('csrf_token=' + playlist_data.csrf_token);
 }
@@ -44,7 +44,7 @@ function add_playlist_item(target) {
                 tile.style.display = '';
             }
         }
-    }
+    };
 
     xhr.send('csrf_token=' + playlist_data.csrf_token);
 }
@@ -68,7 +68,7 @@ function remove_playlist_item(target) {
                 tile.style.display = '';
             }
         }
-    }
+    };
 
     xhr.send('csrf_token=' + playlist_data.csrf_token);
 }
