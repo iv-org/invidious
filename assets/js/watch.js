@@ -14,7 +14,7 @@ function toggle_parent(target) {
         target.textContent = '[ + ]';
         body.style.display = 'none';
     } else {
-        target.textContent = '[ - ]';
+        target.textContent = '[ − ]';
         body.style.display = '';
     }
 }
@@ -26,7 +26,7 @@ function toggle_comments(event) {
         target.textContent = '[ + ]';
         body.style.display = 'none';
     } else {
-        target.textContent = '[ - ]';
+        target.textContent = '[ − ]';
         body.style.display = '';
     }
 }
@@ -238,7 +238,7 @@ function get_reddit_comments(retries) {
                 comments.innerHTML = ' \
                 <div> \
                     <h3> \
-                        <a href="javascript:void(0)">[ - ]</a> \
+                        <a href="javascript:void(0)">[ − ]</a> \
                         {title} \
                     </h3> \
                     <p> \
@@ -316,7 +316,7 @@ function get_youtube_comments(retries) {
                 comments.innerHTML = ' \
                 <div> \
                     <h3> \
-                        <a href="javascript:void(0)">[ - ]</a> \
+                        <a href="javascript:void(0)">[ − ]</a> \
                         {commentsText}  \
                     </h3> \
                     <b> \
