@@ -11,10 +11,10 @@ String.prototype.supplant = function (o) {
 function hide_youtube_replies(event) {
     var target = event.target;
 
-    sub_text = target.getAttribute('data-inner-text');
-    inner_text = target.getAttribute('data-sub-text');
+    var sub_text = target.getAttribute('data-inner-text');
+    var inner_text = target.getAttribute('data-sub-text');
 
-    body = target.parentNode.parentNode.children[1];
+    var body = target.parentNode.parentNode.children[1];
     body.style.display = 'none';
 
     target.innerHTML = sub_text;
@@ -26,10 +26,10 @@ function hide_youtube_replies(event) {
 function show_youtube_replies(event) {
     var target = event.target;
 
-    sub_text = target.getAttribute('data-inner-text');
-    inner_text = target.getAttribute('data-sub-text');
+    var sub_text = target.getAttribute('data-inner-text');
+    var inner_text = target.getAttribute('data-sub-text');
 
-    body = target.parentNode.parentNode.children[1];
+    var body = target.parentNode.parentNode.children[1];
     body.style.display = '';
 
     target.innerHTML = sub_text;

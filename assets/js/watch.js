@@ -9,7 +9,7 @@ String.prototype.supplant = function (o) {
 };
 
 function toggle_parent(target) {
-    body = target.parentNode.parentNode.children[1];
+    var body = target.parentNode.parentNode.children[1];
     if (body.style.display === null || body.style.display === '') {
         target.innerHTML = '[ + ]';
         body.style.display = 'none';
@@ -21,7 +21,7 @@ function toggle_parent(target) {
 
 function toggle_comments(event) {
     var target = event.target;
-    body = target.parentNode.parentNode.parentNode.children[1];
+    var body = target.parentNode.parentNode.parentNode.children[1];
     if (body.style.display === null || body.style.display === '') {
         target.innerHTML = '[ + ]';
         body.style.display = 'none';
@@ -44,10 +44,10 @@ function swap_comments(event) {
 function hide_youtube_replies(event) {
     var target = event.target;
 
-    sub_text = target.getAttribute('data-inner-text');
-    inner_text = target.getAttribute('data-sub-text');
+    var sub_text = target.getAttribute('data-inner-text');
+    var inner_text = target.getAttribute('data-sub-text');
 
-    body = target.parentNode.parentNode.children[1];
+    var body = target.parentNode.parentNode.children[1];
     body.style.display = 'none';
 
     target.innerHTML = sub_text;
@@ -59,10 +59,10 @@ function hide_youtube_replies(event) {
 function show_youtube_replies(event) {
     var target = event.target;
 
-    sub_text = target.getAttribute('data-inner-text');
-    inner_text = target.getAttribute('data-sub-text');
+    var sub_text = target.getAttribute('data-inner-text');
+    var inner_text = target.getAttribute('data-sub-text');
 
-    body = target.parentNode.parentNode.children[1];
+    var body = target.parentNode.parentNode.children[1];
     body.style.display = '';
 
     target.innerHTML = sub_text;
@@ -118,7 +118,7 @@ function number_with_separator(val) {
 
 function get_playlist(plid, retries) {
     if (retries === undefined) retries = 5;
-    playlist = document.getElementById('playlist');
+    var playlist = document.getElementById('playlist');
 
     if (retries <= 0) {
         console.log('Failed to pull playlist');
@@ -212,7 +212,7 @@ function get_playlist(plid, retries) {
 
 function get_reddit_comments(retries) {
     if (retries === undefined) retries = 5;
-    comments = document.getElementById('comments');
+    var comments = document.getElementById('comments');
 
     if (retries <= 0) {
         console.log('Failed to pull comments');
@@ -289,7 +289,7 @@ function get_reddit_comments(retries) {
 
 function get_youtube_comments(retries) {
     if (retries === undefined) retries = 5;
-    comments = document.getElementById('comments');
+    var comments = document.getElementById('comments');
 
     if (retries <= 0) {
         console.log('Failed to pull comments');
@@ -463,7 +463,7 @@ window.addEventListener('load', function (e) {
     } else if (video_data.params.comments[1] === 'reddit') {
         get_reddit_comments();
     } else {
-        comments = document.getElementById('comments');
+        var comments = document.getElementById('comments');
         comments.innerHTML = '';
     }
 });

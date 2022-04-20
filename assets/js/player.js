@@ -145,7 +145,7 @@ function isMobile() {
 if (isMobile()) {
     player.mobileUi();
 
-    buttons = ['playToggle', 'volumePanel', 'captionsButton'];
+    var buttons = ['playToggle', 'volumePanel', 'captionsButton'];
 
     if (video_data.params.quality !== 'dash') buttons.push('qualitySelector');
 
@@ -158,24 +158,24 @@ if (isMobile()) {
     buttons.slice(1).forEach(function (child) {operations_bar.addChild(child);});
 
     // Remove operation buttons from primary control bar
-    primary_control_bar = player.getChild('controlBar');
+    var primary_control_bar = player.getChild('controlBar');
     buttons.forEach(function (child) {primary_control_bar.removeChild(child);});
 
-    operations_bar_element = operations_bar.el();
+    var operations_bar_element = operations_bar.el();
     operations_bar_element.className += ' mobile-operations-bar';
     player.addChild(operations_bar);
 
     // Playback menu doesn't work when it's initialized outside of the primary control bar
-    playback_element = document.getElementsByClassName('vjs-playback-rate')[0];
+    var playback_element = document.getElementsByClassName('vjs-playback-rate')[0];
     operations_bar_element.append(playback_element);
 
     // The share and http source selector element can't be fetched till the players ready.
     player.one('playing', function () {
-  	    share_element = document.getElementsByClassName('vjs-share-control')[0];
+  	    var share_element = document.getElementsByClassName('vjs-share-control')[0];
   	    operations_bar_element.append(share_element);
 
   	    if (video_data.params.quality === 'dash') {
-        		http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
+        		var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
         		operations_bar_element.append(http_source_selector);
   	    }
   	});
@@ -766,13 +766,13 @@ if (window.location.pathname.startsWith('/embed/')) {
     let watch_on_invidious_button = new Button(player);
 
     // Create hyperlink for current instance
-    redirect_element = document.createElement('a');
+    var redirect_element = document.createElement('a');
     redirect_element.setAttribute('href', location.pathname.replace('/embed/', '/watch?v='));
     redirect_element.appendChild(document.createTextNode('Invidious'));
 
     watch_on_invidious_button.el().appendChild(redirect_element);
     watch_on_invidious_button.addClass('watch-on-invidious');
 
-    cb = player.getChild('ControlBar');
+    var cb = player.getChild('ControlBar');
     cb.addChild(watch_on_invidious_button);
 }

@@ -18,7 +18,7 @@ function get_subscriptions(callback, retries) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                subscriptions = xhr.response;
+                var subscriptions = xhr.response;
                 callback(subscriptions);
             }
         }
