@@ -144,7 +144,7 @@
     }
 
     // Handle keypresses
-    window.addEventListener('keydown', (event) => {
+    window.addEventListener('keydown', function (event) {
         // Ignore modifier keys
         if (event.ctrlKey || event.metaKey) return;
 

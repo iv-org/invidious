@@ -117,7 +117,7 @@ var shareOptions = {
     }
 };
 
-const storage = (() => {
+const storage = (function () {
     try { if (localStorage.length !== -1) return localStorage; }
     catch (e) { console.info('No storage available: ' + e); }
 
@@ -155,11 +155,11 @@ if (isMobile()) {
       children: [],
       playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
     });
-    buttons.slice(1).forEach(child => operations_bar.addChild(child));
+    buttons.slice(1).forEach(function (child) {operations_bar.addChild(child);});
 
     // Remove operation buttons from primary control bar
     primary_control_bar = player.getChild("controlBar");
-    buttons.forEach(child => primary_control_bar.removeChild(child));
+    buttons.forEach(function (child) {primary_control_bar.removeChild(child);});
 
     operations_bar_element = operations_bar.el();
     operations_bar_element.className += " mobile-operations-bar";
@@ -170,7 +170,7 @@ if (isMobile()) {
     operations_bar_element.append(playback_element);
 
     // The share and http source selector element can't be fetched till the players ready.
-    player.one("playing", () => {
+    player.one("playing", function () {
   	    share_element = document.getElementsByClassName("vjs-share-control")[0];
   	    operations_bar_element.append(share_element);
 
@@ -223,7 +223,7 @@ player.playbackRate(video_data.params.speed);
  * @returns cookieValue
  */
 function getCookieValue(name) {
-    var value = document.cookie.split(";").filter(item => item.includes(name + "="));
+    var value = document.cookie.split(";").filter(function (item) {return item.includes(name + "=");});
 
     return (value.length >= 1)
         ? value[0].substring((name + "=").length, value[0].length)
@@ -297,7 +297,7 @@ if (video_data.params.save_player_pos) {
 
     if(!hasTimeParam) set_seconds_after_start(remeberedTime);
 
-    const updateTime = () => {
+    const updateTime = function () {
         const raw = player.currentTime();
         const time = Math.floor(raw);
 
@@ -317,13 +317,13 @@ if (video_data.params.autoplay) {
 
     player.ready(function () {
         new Promise(function (resolve, reject) {
-            setTimeout(() => resolve(1), 1);
+            setTimeout(function () {resolve(1);}, 1);
         }).then(function (result) {
             var promise = player.play();
 
             if (promise !== undefined) {
-                promise.then(_ => {
-                }).catch(error => {
+                promise.then(function () {
+                }).catch(function (error) {
                     bpb.show();
                 });
             }
@@ -335,9 +335,9 @@ if (!video_data.params.listen && video_data.params.quality === 'dash') {
     player.httpSourceSelector();
 
     if (video_data.params.quality_dash !== "auto") {
-        player.ready(() => {
-            player.on("loadedmetadata", () => {
-                const qualityLevels = Array.from(player.qualityLevels()).sort((a, b) => a.height - b.height);
+        player.ready(function () {
+            player.on("loadedmetadata", function () {
+                const qualityLevels = Array.from(player.qualityLevels()).sort(function (a, b) {return a.height - b.height;});
                 let targetQualityLevel;
                 switch (video_data.params.quality_dash) {
                     case "best":
@@ -391,9 +391,9 @@ if (!video_data.params.listen && video_data.params.annotations) {
                     }
                 }
             }
-        }
+        };
 
-        window.addEventListener('__ar_annotation_click', e => {
+        window.addEventListener('__ar_annotation_click', function (e) {
             const { url, target, seconds } = e.detail;
             var path = new URL(url);
 
@@ -584,7 +584,7 @@ function increase_playback_rate(steps) {
     player.playbackRate(options.playbackRates[newIndex]);
 }
 
-window.addEventListener('keydown', e => {
+window.addEventListener('keydown', function (e) {
     if (e.target.tagName.toLowerCase() === 'input') {
         // Ignore input when focus is on certain elements, e.g. form fields.
         return;
@@ -744,7 +744,7 @@ if (player.share) {
 
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {
-    player.ready(() => {
+    player.ready(function () {
         player.textTracks()[1].mode = 'showing';
     });
 }
