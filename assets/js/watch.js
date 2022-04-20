@@ -1,5 +1,5 @@
 'use strict';
-var video_data = JSON.parse(document.getElementById('video_data').innerHTML);
+var video_data = JSON.parse(document.getElementById('video_data').textContent);
 
 String.prototype.supplant = function (o) {
     return this.replace(/{([^{}]*)}/g, function (a, b) {
@@ -11,10 +11,10 @@ String.prototype.supplant = function (o) {
 function toggle_parent(target) {
     var body = target.parentNode.parentNode.children[1];
     if (body.style.display === null || body.style.display === '') {
-        target.innerHTML = '[ + ]';
+        target.textContent = '[ + ]';
         body.style.display = 'none';
     } else {
-        target.innerHTML = '[ - ]';
+        target.textContent = '[ - ]';
         body.style.display = '';
     }
 }
@@ -23,10 +23,10 @@ function toggle_comments(event) {
     var target = event.target;
     var body = target.parentNode.parentNode.parentNode.children[1];
     if (body.style.display === null || body.style.display === '') {
-        target.innerHTML = '[ + ]';
+        target.textContent = '[ + ]';
         body.style.display = 'none';
     } else {
-        target.innerHTML = '[ - ]';
+        target.textContent = '[ - ]';
         body.style.display = '';
     }
 }
@@ -50,7 +50,7 @@ function hide_youtube_replies(event) {
     var body = target.parentNode.parentNode.children[1];
     body.style.display = 'none';
 
-    target.innerHTML = sub_text;
+    target.textContent = sub_text;
     target.onclick = show_youtube_replies;
     target.setAttribute('data-inner-text', inner_text);
     target.setAttribute('data-sub-text', sub_text);
@@ -65,7 +65,7 @@ function show_youtube_replies(event) {
     var body = target.parentNode.parentNode.children[1];
     body.style.display = '';
 
-    target.innerHTML = sub_text;
+    target.textContent = sub_text;
     target.onclick = hide_youtube_replies;
     target.setAttribute('data-inner-text', inner_text);
     target.setAttribute('data-sub-text', sub_text);

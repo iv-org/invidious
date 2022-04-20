@@ -1,5 +1,5 @@
 'use strict';
-var community_data = JSON.parse(document.getElementById('community_data').innerHTML);
+var community_data = JSON.parse(document.getElementById('community_data').textContent);
 
 String.prototype.supplant = function (o) {
     return this.replace(/{([^{}]*)}/g, function (a, b) {

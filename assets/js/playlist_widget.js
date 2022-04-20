@@ -1,5 +1,5 @@
 'use strict';
-var playlist_data = JSON.parse(document.getElementById('playlist_data').innerHTML);
+var playlist_data = JSON.parse(document.getElementById('playlist_data').textContent);
 
 function add_playlist_video(target) {
     var select = target.parentNode.children[0].children[1];

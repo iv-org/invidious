@@ -1,5 +1,5 @@
 'use strict';
-var video_data = JSON.parse(document.getElementById('video_data').innerHTML);
+var video_data = JSON.parse(document.getElementById('video_data').textContent);
 
 function get_playlist(plid, retries) {
     if (retries === undefined) retries = 5;

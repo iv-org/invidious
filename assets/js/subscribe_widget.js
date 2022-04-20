@@ -1,5 +1,5 @@
 'use strict';
-var subscribe_data = JSON.parse(document.getElementById('subscribe_data').innerHTML);
+var subscribe_data = JSON.parse(document.getElementById('subscribe_data').textContent);
 
 var subscribe_button = document.getElementById('subscribe');
 subscribe_button.parentNode['action'] = 'javascript:void(0)';

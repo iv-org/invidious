@@ -1,5 +1,5 @@
 'use strict';
-var watched_data = JSON.parse(document.getElementById('watched_data').innerHTML);
+var watched_data = JSON.parse(document.getElementById('watched_data').textContent);
 
 function mark_watched(target) {
     var tile = target.parentNode.parentNode.parentNode.parentNode.parentNode;
