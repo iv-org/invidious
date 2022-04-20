@@ -14,7 +14,7 @@ toggle_theme.addEventListener('click', function () {
     set_mode(dark_mode);
     try {
         window.localStorage.setItem('dark_mode', dark_mode ? 'dark' : 'light');
-    } catch {}
+    } catch (e) {}
 
     xhr.send();
 });
@@ -30,7 +30,7 @@ window.addEventListener('DOMContentLoaded', function () {
     try {
         // Update localStorage if dark mode preference changed on preferences page
         window.localStorage.setItem('dark_mode', dark_mode);
-    } catch {}
+    } catch (e) {}
     update_mode(dark_mode);
 });
 
@@ -47,7 +47,7 @@ function scheme_switch (e) {
     if (localStorage.getItem('dark_mode')) {
       return;
     }
-  } catch {}
+  } catch (exception) {}
   if (e.matches) {
     if (e.media.includes('dark')) {
       set_mode(true);

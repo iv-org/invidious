@@ -466,7 +466,7 @@ function get_video_time() {
 
         return timestamp || 0;
     }
-    catch {
+    catch (e) {
         return 0;
     }
 }
