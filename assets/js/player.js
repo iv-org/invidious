@@ -394,7 +394,9 @@ if (!video_data.params.listen && video_data.params.annotations) {
         };
 
         window.addEventListener('__ar_annotation_click', function (e) {
-            const { url, target, seconds } = e.detail;
+            const url = e.detail.url,
+                  target = e.detail.target,
+                  seconds = e.detail.seconds;
             var path = new URL(url);
 
             if (path.href.startsWith('https://www.youtube.com/watch?') && seconds) {
