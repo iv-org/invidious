@@ -5,7 +5,7 @@ function get_playlist(plid, retries) {
     if (retries === undefined) retries = 5;
 
     if (retries <= 0) {
-        console.log('Failed to pull playlist');
+        console.warn('Failed to pull playlist');
         return;
     }
 
@@ -62,12 +62,12 @@ function get_playlist(plid, retries) {
     };
 
     xhr.onerror = function () {
-        console.log('Pulling playlist failed... ' + retries + '/5');
+        console.warn('Pulling playlist failed... ' + retries + '/5');
         setTimeout(function () { get_playlist(plid, retries - 1); }, 1000);
     };
 
     xhr.ontimeout = function () {
-        console.log('Pulling playlist failed... ' + retries + '/5');
+        console.warn('Pulling playlist failed... ' + retries + '/5');
         get_playlist(plid, retries - 1);
     };
 

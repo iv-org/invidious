@@ -96,7 +96,7 @@ function get_youtube_replies(target, load_more) {
     };
 
     xhr.ontimeout = function () {
-        console.log('Pulling comments failed.');
+        console.warn('Pulling comments failed.');
         body.innerHTML = fallback;
     };
 

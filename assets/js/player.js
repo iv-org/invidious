@@ -280,7 +280,7 @@ player.on('volumechange', function () {
 
 player.on('waiting', function () {
     if (player.playbackRate() > 1 && player.liveTracker.isLive() && player.liveTracker.atLiveEdge()) {
-        console.log('Player has caught up to source, resetting playbackRate.');
+        console.info('Player has caught up to source, resetting playbackRate.');
         player.playbackRate(1);
     }
 });
@@ -477,7 +477,7 @@ function set_all_video_times(times) {
             try {
                 storage.setItem(save_player_pos_key, JSON.stringify(times));
             } catch (e) {
-                console.debug('set_all_video_times: ' + e);
+                console.warn('set_all_video_times: ' + e);
             }
         } else {
             storage.removeItem(save_player_pos_key);
@@ -492,7 +492,7 @@ function get_all_video_times() {
             try {
                 return JSON.parse(raw);
             } catch (e) {
-                console.debug('get_all_video_times: ' + e);
+                console.warn('get_all_video_times: ' + e);
             }
         }
     }

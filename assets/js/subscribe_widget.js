@@ -14,7 +14,7 @@ function subscribe(retries) {
     if (retries === undefined) retries = 5;
 
     if (retries <= 0) {
-        console.log('Failed to subscribe.');
+        console.warn('Failed to subscribe.');
         return;
     }
 
@@ -40,12 +40,12 @@ function subscribe(retries) {
     };
 
     xhr.onerror = function () {
-        console.log('Subscribing failed... ' + retries + '/5');
+        console.warn('Subscribing failed... ' + retries + '/5');
         setTimeout(function () { subscribe(retries - 1); }, 1000);
     };
 
     xhr.ontimeout = function () {
-        console.log('Subscribing failed... ' + retries + '/5');
+        console.warn('Subscribing failed... ' + retries + '/5');
         subscribe(retries - 1);
     };
 
@@ -57,7 +57,7 @@ function unsubscribe(retries) {
         retries = 5;
 
     if (retries <= 0) {
-        console.log('Failed to subscribe');
+        console.warn('Failed to subscribe');
         return;
     }
 
@@ -83,12 +83,12 @@ function unsubscribe(retries) {
     };
 
     xhr.onerror = function () {
-        console.log('Unsubscribing failed... ' + retries + '/5');
+        console.warn('Unsubscribing failed... ' + retries + '/5');
         setTimeout(function () { unsubscribe(retries - 1); }, 1000);
     };
 
     xhr.ontimeout = function () {
-        console.log('Unsubscribing failed... ' + retries + '/5');
+        console.warn('Unsubscribing failed... ' + retries + '/5');
         unsubscribe(retries - 1);
     };
 

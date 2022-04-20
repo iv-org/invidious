@@ -25,12 +25,12 @@ function get_subscriptions(callback, retries) {
     };
 
     xhr.onerror = function () {
-        console.log('Pulling subscriptions failed... ' + retries + '/5');
+        console.warn('Pulling subscriptions failed... ' + retries + '/5');
         setTimeout(function () { get_subscriptions(callback, retries - 1); }, 1000);
     };
 
     xhr.ontimeout = function () {
-        console.log('Pulling subscriptions failed... ' + retries + '/5');
+        console.warn('Pulling subscriptions failed... ' + retries + '/5');
         get_subscriptions(callback, retries - 1);
     };
 
@@ -54,7 +54,7 @@ function create_notification_stream(subscriptions) {
         }
 
         var notification = JSON.parse(event.data);
-        console.log('Got notification:', notification);
+        console.info('Got notification:', notification);
 
         if (start_time < notification.published && !delivered.includes(notification.videoId)) {
             if (Notification.permission === 'granted') {
@@ -90,7 +90,7 @@ function create_notification_stream(subscriptions) {
 }
 
 function handle_notification_error(event) {
-    console.log('Something went wrong with notifications, trying to reconnect...');
+    console.warn('Something went wrong with notifications, trying to reconnect...');
     notifications = { close: function () { } };
     setTimeout(function () { get_subscriptions(create_notification_stream); }, 1000);
 }
