@@ -4,7 +4,7 @@ var notification_data = JSON.parse(document.getElementById('notification_data').
 var notifications, delivered;
 
 function get_subscriptions(callback, retries) {
-    if (retries == undefined) retries = 5;
+    if (retries === undefined) retries = 5;
 
     if (retries <= 0) {
         return;

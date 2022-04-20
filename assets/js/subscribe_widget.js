@@ -29,8 +29,8 @@ function subscribe(retries = 5) {
     subscribe_button.innerHTML = '<b>' + subscribe_data.unsubscribe_text + ' | ' + subscribe_data.sub_count_text + '</b>';
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status !== 200) {
                 subscribe_button.onclick = subscribe;
                 subscribe_button.innerHTML = fallback;
             }
@@ -69,8 +69,8 @@ function unsubscribe(retries = 5) {
     subscribe_button.innerHTML = '<b>' + subscribe_data.subscribe_text + ' | ' + subscribe_data.sub_count_text + '</b>';
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status !== 200) {
                 subscribe_button.onclick = unsubscribe;
                 subscribe_button.innerHTML = fallback;
             }

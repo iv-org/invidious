@@ -102,8 +102,8 @@
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
-                if (xhr.status != 200) {
+            if (xhr.readyState === 4) {
+                if (xhr.status !== 200) {
                     count.innerText = parseInt(count.innerText) + 1;
                     row.style.display = '';
                 }
@@ -131,8 +131,8 @@
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
-                if (xhr.status != 200) {
+            if (xhr.readyState === 4) {
+                if (xhr.status !== 200) {
                     count.innerText = parseInt(count.innerText) + 1;
                     row.style.display = '';
                 }
@@ -159,7 +159,7 @@
         }
 
         // Focus search bar on '/'
-        if (event.key == "/") {
+        if (event.key === "/") {
             document.getElementById('searchbox').focus();
             event.preventDefault();
         }

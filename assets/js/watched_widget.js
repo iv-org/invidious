@@ -14,8 +14,8 @@ function mark_watched(target) {
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status !== 200) {
                 tile.style.display = '';
             }
         }
@@ -39,8 +39,8 @@ function mark_unwatched(target) {
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status !== 200) {
                 count.innerText = count.innerText - 1 + 2;
                 tile.style.display = '';
             }

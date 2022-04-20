@@ -117,7 +117,7 @@ function number_with_separator(val) {
 }
 
 function get_playlist(plid, retries) {
-    if (retries == undefined) retries = 5;
+    if (retries === undefined) retries = 5;
     playlist = document.getElementById('playlist');
 
     if (retries <= 0) {
@@ -147,8 +147,8 @@ function get_playlist(plid, retries) {
     xhr.open('GET', plid_url, true);
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
                 playlist.innerHTML = xhr.response.playlistHtml;
                 var nextVideo = document.getElementById(xhr.response.nextVideo);
                 nextVideo.parentNode.parentNode.scrollTop = nextVideo.offsetTop;
@@ -210,7 +210,7 @@ function get_playlist(plid, retries) {
 }
 
 function get_reddit_comments(retries) {
-    if (retries == undefined) retries = 5;
+    if (retries === undefined) retries = 5;
     comments = document.getElementById('comments');
 
     if (retries <= 0) {
@@ -232,8 +232,8 @@ function get_reddit_comments(retries) {
     xhr.open('GET', url, true);
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
                 comments.innerHTML = ' \
                 <div> \
                     <h3> \
@@ -287,7 +287,7 @@ function get_reddit_comments(retries) {
 }
 
 function get_youtube_comments(retries) {
-    if (retries == undefined) retries = 5;
+    if (retries === undefined) retries = 5;
     comments = document.getElementById('comments');
 
     if (retries <= 0) {
@@ -310,8 +310,8 @@ function get_youtube_comments(retries) {
     xhr.open('GET', url, true);
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
                 comments.innerHTML = ' \
                 <div> \
                     <h3> \
@@ -384,8 +384,8 @@ function get_youtube_replies(target, load_more, load_replies) {
     xhr.open('GET', url, true);
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
                 if (load_more) {
                     body = body.parentNode.parentNode;
                     body.removeChild(body.lastElementChild);

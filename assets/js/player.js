@@ -225,7 +225,7 @@ player.playbackRate(video_data.params.speed);
 function getCookieValue(name) {
     var value = document.cookie.split(";").filter(item => item.includes(name + "="));
 
-    return (value != null && value.length >= 1)
+    return (value.length >= 1)
         ? value[0].substring((name + "=").length, value[0].length)
         : null;
 }
@@ -237,13 +237,13 @@ function getCookieValue(name) {
  * @param {number} newSpeed New speed defined (null if unchanged)
  */
 function updateCookie(newVolume, newSpeed) {
-    var volumeValue = newVolume != null ? newVolume : video_data.params.volume;
-    var speedValue = newSpeed != null ? newSpeed : video_data.params.speed;
+    var volumeValue = newVolume !== null ? newVolume : video_data.params.volume;
+    var speedValue = newSpeed !== null ? newSpeed : video_data.params.speed;
 
     var cookieValue = getCookieValue('PREFS');
     var cookieData;
 
-    if (cookieValue != null) {
+    if (cookieValue !== null) {
         var cookieJson = JSON.parse(decodeURIComponent(cookieValue));
         cookieJson.volume = volumeValue;
         cookieJson.speed = speedValue;
@@ -260,7 +260,7 @@ function updateCookie(newVolume, newSpeed) {
     var domainUsed = window.location.hostname;
 
     // Fix for a bug in FF where the leading dot in the FQDN is not ignored
-    if (domainUsed.charAt(0) != '.' && !ipRegex.test(domainUsed) && domainUsed != 'localhost')
+    if (domainUsed.charAt(0) !== '.' && !ipRegex.test(domainUsed) && domainUsed !== 'localhost')
         domainUsed = '.' + window.location.hostname;
 
     document.cookie = 'PREFS=' + cookieData + '; SameSite=Strict; path=/; domain=' +
@@ -334,7 +334,7 @@ if (video_data.params.autoplay) {
 if (!video_data.params.listen && video_data.params.quality === 'dash') {
     player.httpSourceSelector();
 
-    if (video_data.params.quality_dash != "auto") {
+    if (video_data.params.quality_dash !== "auto") {
         player.ready(() => {
             player.on("loadedmetadata", () => {
                 const qualityLevels = Array.from(player.qualityLevels()).sort((a, b) => a.height - b.height);
@@ -357,7 +357,7 @@ if (!video_data.params.listen && video_data.params.quality === 'dash') {
                         }
                 }
                 for (let i = 0; i < qualityLevels.length; i++) {
-                    qualityLevels[i].enabled = (i == targetQualityLevel);
+                    qualityLevels[i].enabled = (i === targetQualityLevel);
                 }
             });
         });
@@ -703,7 +703,7 @@ window.addEventListener('keydown', e => {
 
     var volumeHover = false;
     var volumeSelector = pEl.querySelector('.vjs-volume-menu-button') || pEl.querySelector('.vjs-volume-panel');
-    if (volumeSelector != null) {
+    if (volumeSelector !== null) {
         volumeSelector.onmouseover = function () { volumeHover = true; };
         volumeSelector.onmouseout = function () { volumeHover = false; };
     }
@@ -723,9 +723,9 @@ window.addEventListener('keydown', e => {
                     var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
                     event.preventDefault();
 
-                    if (delta == 1) {
+                    if (delta === 1) {
                         increase_volume(volumeStep);
-                    } else if (delta == -1) {
+                    } else if (delta === -1) {
                         increase_volume(-volumeStep);
                     }
                 }
@@ -750,7 +750,7 @@ if (player_data.preferred_caption_found) {
 }
 
 // Safari audio double duration fix
-if (navigator.vendor == "Apple Computer, Inc." && video_data.params.listen) {
+if (navigator.vendor === "Apple Computer, Inc." && video_data.params.listen) {
     player.on('loadedmetadata', function () {
         player.on('timeupdate', function () {
             if (player.remainingTime() < player.duration() / 2 && player.remainingTime() >= 2) {

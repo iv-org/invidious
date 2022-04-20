@@ -2,7 +2,7 @@
 var video_data = JSON.parse(document.getElementById('video_data').innerHTML);
 
 function get_playlist(plid, retries) {
-    if (retries == undefined) retries = 5;
+    if (retries === undefined) retries = 5;
 
     if (retries <= 0) {
         console.log('Failed to pull playlist');

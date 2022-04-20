@@ -64,8 +64,8 @@ function get_youtube_replies(target, load_more) {
     xhr.open('GET', url, true);
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
                 if (load_more) {
                     body = body.parentNode.parentNode;
                     body.removeChild(body.lastElementChild);
