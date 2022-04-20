@@ -767,7 +767,7 @@ if (window.location.pathname.startsWith('/embed/')) {
 
     // Create hyperlink for current instance
     redirect_element = document.createElement('a');
-    redirect_element.setAttribute('href', `//${window.location.host}/watch?v=${window.location.pathname.replace('/embed/','')}`);
+    redirect_element.setAttribute('href', location.pathname.replace('/embed/', '/watch?v='));
     redirect_element.appendChild(document.createTextNode('Invidious'));
 
     watch_on_invidious_button.el().appendChild(redirect_element);
