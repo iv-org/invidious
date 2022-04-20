@@ -10,7 +10,9 @@ if (subscribe_button.getAttribute('data-type') === 'subscribe') {
     subscribe_button.onclick = unsubscribe;
 }
 
-function subscribe(retries = 5) {
+function subscribe(retries) {
+    if (retries === undefined) retries = 5;
+
     if (retries <= 0) {
         console.log('Failed to subscribe.');
         return;
@@ -50,7 +52,10 @@ function subscribe(retries = 5) {
     xhr.send('csrf_token=' + subscribe_data.csrf_token);
 }
 
-function unsubscribe(retries = 5) {
+function unsubscribe(retries) {
+    if (retries === undefined)
+        retries = 5;
+
     if (retries <= 0) {
         console.log('Failed to subscribe');
         return;
