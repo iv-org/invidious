@@ -1,3 +1,4 @@
+'use strict';
 var watched_data = JSON.parse(document.getElementById('watched_data').innerHTML);
 
 function mark_watched(target) {

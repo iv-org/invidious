@@ -1,3 +1,4 @@
+'use strict';
 var notification_data = JSON.parse(document.getElementById('notification_data').innerHTML);
 
 var notifications, delivered;

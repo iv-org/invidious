@@ -1,3 +1,4 @@
+'use strict';
 var toggle_theme = document.getElementById('toggle_theme');
 toggle_theme.href = 'javascript:void(0);';
 

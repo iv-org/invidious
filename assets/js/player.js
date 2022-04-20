@@ -1,3 +1,4 @@
+'use strict';
 var player_data = JSON.parse(document.getElementById('player_data').innerHTML);
 var video_data = JSON.parse(document.getElementById('video_data').innerHTML);
 

@@ -1,3 +1,4 @@
+'use strict';
 var playlist_data = JSON.parse(document.getElementById('playlist_data').innerHTML);
 
 function add_playlist_video(target) {

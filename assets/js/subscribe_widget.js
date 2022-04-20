@@ -1,3 +1,4 @@
+'use strict';
 var subscribe_data = JSON.parse(document.getElementById('subscribe_data').innerHTML);
 
 var subscribe_button = document.getElementById('subscribe');

@@ -1,3 +1,4 @@
+'use strict';
 var community_data = JSON.parse(document.getElementById('community_data').innerHTML);
 
 String.prototype.supplant = function (o) {
