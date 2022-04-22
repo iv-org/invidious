@@ -49,6 +49,42 @@ videojs.Vhs.xhr.beforeRequest = function(options) {
 
 var player = videojs('player', options);
 
+player.on('error', () => {
+    if (video_data.params.quality !== 'dash') {
+        if (!player.currentSrc().includes("local=true") && !video_data.local_disabled) {
+            var currentSources = player.currentSources();
+            for (var i = 0; i < currentSources.length; i++) {
+                currentSources[i]["src"] += "&local=true"
+            }
+            player.src(currentSources)
+        }
+        else if (player.error().code === 2 || player.error().code === 4) {
+            setTimeout(function (event) {
+                console.log('An error occurred in the player, reloading...');
+    
+                var currentTime = player.currentTime();
+                var playbackRate = player.playbackRate();
+                var paused = player.paused();
+    
+                player.load();
+    
+                if (currentTime > 0.5) currentTime -= 0.5;
+    
+                player.currentTime(currentTime);
+                player.playbackRate(playbackRate);
+    
+                if (!paused) player.play();
+            }, 10000);
+        }
+    }
+});
+
+if (video_data.params.quality == 'dash') {
+    player.reloadSourceOnError({
+        errorInterval: 10
+    });
+}
+
 /**
  * Function for add time argument to url
  * @param {String} url
@@ -143,27 +179,6 @@ if (isMobile()) {
   	    }
   	})
 }
-
-player.on('error', function (event) {
-    if (player.error().code === 2 || player.error().code === 4) {
-        setTimeout(function (event) {
-            console.log('An error occurred in the player, reloading...');
-
-            var currentTime = player.currentTime();
-            var playbackRate = player.playbackRate();
-            var paused = player.paused();
-
-            player.load();
-
-            if (currentTime > 0.5) currentTime -= 0.5;
-
-            player.currentTime(currentTime);
-            player.playbackRate(playbackRate);
-
-            if (!paused) player.play();
-        }, 5000);
-    }
-});
 
 // Enable VR video support
 if (!video_data.params.listen && video_data.vr && video_data.params.vr_mode) {

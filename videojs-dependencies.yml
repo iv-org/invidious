@@ -1,9 +1,7 @@
-# Due to an firefox issue, we're stuck on 7.11.0. If you're hosting a private instance
-# and you're using a chromium based browser, feel free to bump this to the latest version
-# in order to get support for higher resolutions on more videos.
+# Due to a 'video append of' error (see #3011), we're stuck on 7.12.1.
 video.js:
-  version: 7.11.0
-  shasum: e20747d890716085e7255a90d73c00f32324a224
+  version: 7.12.1
+  shasum: 1d12eeb1f52e3679e8e4c987d9b9eb37e2247fa2
 
 videojs-contrib-quality-levels:
   version: 2.1.0
