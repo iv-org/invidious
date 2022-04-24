@@ -460,5 +460,15 @@
     "Spanish (Spain)": "Espanja (Espanja)",
     "Turkish (auto-generated)": "Turkki (automaattisesti luotu)",
     "Vietnamese (auto-generated)": "Vietnam (automaattisesti luotu)",
-    "search_filters_title": "Suodatin"
+    "search_filters_title": "Suodatin",
+    "search_message_no_results": "Ei tuloksia löydetty.",
+    "search_message_change_filters_or_query": "Yritä hakukyselysi laajentamista ja/tai suodattimien muuttamista.",
+    "search_filters_duration_option_none": "Mikä tahansa kesto",
+    "search_filters_features_option_vr180": "VR180",
+    "search_filters_apply_button": "Ota valitut suodattimet käyttöön",
+    "search_filters_date_label": "Latausaika",
+    "search_filters_duration_option_medium": "Keskipituinen (4 - 20 minuuttia)",
+    "search_message_use_another_instance": " Voit myös <a href=\"`x`\">hakea toisella instanssilla</a>.",
+    "search_filters_date_option_none": "Milloin tahansa",
+    "search_filters_type_option_all": "Mikä tahansa tyyppi"
 }
