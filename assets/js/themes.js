@@ -88,5 +88,3 @@ function update_mode (mode) {
     }
     // else do nothing, falling back to the mode defined by the `dark_mode` preference on the preferences page (backend)
 }
-
-
