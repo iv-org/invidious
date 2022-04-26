@@ -374,18 +374,25 @@ struct Video
         json.array do
           self.adaptive_fmts.each do |fmt|
             json.object do
-              json.field "index", "#{fmt["indexRange"]["start"]}-#{fmt["indexRange"]["end"]}"
-              json.field "bitrate", fmt["bitrate"].as_i.to_s
-              json.field "init", "#{fmt["initRange"]["start"]}-#{fmt["initRange"]["end"]}"
+              # Only available on regular videos, not livestreams/OFT streams
+              if init_range = fmt["initRange"]?
+                json.field "init", "#{init_range["start"]}-#{init_range["end"]}"
+              end
+              if index_range = fmt["indexRange"]?
+                json.field "index", "#{index_range["start"]}-#{index_range["end"]}"
+              end
+
+              # Not available on MPEG-4 Timed Text (`text/mp4`) streams (livestreams only)
+              json.field "bitrate", fmt["bitrate"].as_i.to_s if fmt["bitrate"]?
+
               json.field "url", fmt["url"]
               json.field "itag", fmt["itag"].as_i.to_s
               json.field "type", fmt["mimeType"]
-              json.field "clen", fmt["contentLength"]
+              json.field "clen", fmt["contentLength"]? || "-1"
               json.field "lmt", fmt["lastModified"]
               json.field "projectionType", fmt["projectionType"]
 
-              fmt_info = itag_to_metadata?(fmt["itag"])
-              if fmt_info
+              if fmt_info = itag_to_metadata?(fmt["itag"])
                 fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
                 json.field "fps", fps
                 json.field "container", fmt_info["ext"]
@@ -612,6 +619,7 @@ struct Video
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&region=#{self.info["region"]}") if self.info["region"]?
     end
+
     fmt_stream.sort_by! { |f| f["width"]?.try &.as_i || 0 }
     @fmt_stream = fmt_stream
     return @fmt_stream.as(Array(Hash(String, JSON::Any)))
@@ -631,9 +639,7 @@ struct Video
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")
       fmt["url"] = JSON::Any.new("#{fmt["url"]}&region=#{self.info["region"]}") if self.info["region"]?
     end
-    # See https://github.com/TeamNewPipe/NewPipe/issues/2415
-    # Some streams are segmented by URL `sq/` rather than index, for now we just filter them out
-    fmt_stream.reject! { |f| !f["indexRange"]? }
+
     fmt_stream.sort_by! { |f| f["width"]?.try &.as_i || 0 }
     @adaptive_fmts = fmt_stream
     return @adaptive_fmts.as(Array(Hash(String, JSON::Any)))
