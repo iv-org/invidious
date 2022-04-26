@@ -412,6 +412,15 @@ struct Video
                   end
                 end
               end
+
+              # Audio-related data
+              json.field "audioQuality", fmt["audioQuality"] if fmt.has_key?("audioQuality")
+              json.field "audioSampleRate", fmt["audioSampleRate"].as_s.to_i if fmt.has_key?("audioSampleRate")
+              json.field "audioChannels", fmt["audioChannels"] if fmt.has_key?("audioChannels")
+
+              # Extra misc stuff
+              json.field "colorInfo", fmt["colorInfo"] if fmt.has_key?("colorInfo")
+              json.field "captionTrack", fmt["captionTrack"] if fmt.has_key?("captionTrack")
             end
           end
         end
