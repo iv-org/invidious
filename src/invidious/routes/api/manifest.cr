@@ -62,7 +62,7 @@ module Invidious::Routes::API::Manifest
 
             xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true) do
               mime_streams.each do |fmt|
-                # OFT streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
+                # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
                 next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
 
                 codecs = fmt["mimeType"].as_s.split("codecs=")[1].strip('"')
@@ -93,7 +93,7 @@ module Invidious::Routes::API::Manifest
             heights = [] of Int32
             xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
               mime_streams.each do |fmt|
-                # OFT streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
+                # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
                 next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
 
                 codecs = fmt["mimeType"].as_s.split("codecs=")[1].strip('"')

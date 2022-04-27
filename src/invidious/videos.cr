@@ -374,7 +374,7 @@ struct Video
         json.array do
           self.adaptive_fmts.each do |fmt|
             json.object do
-              # Only available on regular videos, not livestreams/OFT streams
+              # Only available on regular videos, not livestreams/OTF streams
               if init_range = fmt["initRange"]?
                 json.field "init", "#{init_range["start"]}-#{init_range["end"]}"
               end
