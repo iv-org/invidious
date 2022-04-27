@@ -78,10 +78,10 @@ function update_mode (mode) {
         // If preference for dark mode indicated
         set_mode(true);
     }
-	else if (mode === 'false' /* for backwards compatibility */ || mode === 'light') {
-		// If preference for light mode indicated
-		set_mode(false);
-	}
+    else if (mode === 'false' /* for backwards compatibility */ || mode === 'light') {
+        // If preference for light mode indicated
+        set_mode(false);
+    }
     else if (document.getElementById('dark_mode_pref').textContent === '' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         // If no preference indicated here and no preference indicated on the preferences page (backend), but the browser tells us that the operating system has a dark theme
         set_mode(true);
