@@ -1,19 +1,20 @@
-var community_data = JSON.parse(document.getElementById('community_data').innerHTML);
+'use strict';
+var community_data = JSON.parse(document.getElementById('community_data').textContent);
 
 String.prototype.supplant = function (o) {
     return this.replace(/{([^{}]*)}/g, function (a, b) {
         var r = o[b];
         return typeof r === 'string' || typeof r === 'number' ? r : a;
     });
-}
+};
 
 function hide_youtube_replies(event) {
     var target = event.target;
 
-    sub_text = target.getAttribute('data-inner-text');
-    inner_text = target.getAttribute('data-sub-text');
+    var sub_text = target.getAttribute('data-inner-text');
+    var inner_text = target.getAttribute('data-sub-text');
 
-    body = target.parentNode.parentNode.children[1];
+    var body = target.parentNode.parentNode.children[1];
     body.style.display = 'none';
 
     target.innerHTML = sub_text;
@@ -25,10 +26,10 @@ function hide_youtube_replies(event) {
 function show_youtube_replies(event) {
     var target = event.target;
 
-    sub_text = target.getAttribute('data-inner-text');
-    inner_text = target.getAttribute('data-sub-text');
+    var sub_text = target.getAttribute('data-inner-text');
+    var inner_text = target.getAttribute('data-sub-text');
 
-    body = target.parentNode.parentNode.children[1];
+    var body = target.parentNode.parentNode.children[1];
     body.style.display = '';
 
     target.innerHTML = sub_text;
@@ -63,8 +64,8 @@ function get_youtube_replies(target, load_more) {
     xhr.open('GET', url, true);
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
                 if (load_more) {
                     body = body.parentNode.parentNode;
                     body.removeChild(body.lastElementChild);
@@ -92,12 +93,12 @@ function get_youtube_replies(target, load_more) {
                 body.innerHTML = fallback;
             }
         }
-    }
+    };
 
     xhr.ontimeout = function () {
-        console.log('Pulling comments failed.');
+        console.warn('Pulling comments failed.');
         body.innerHTML = fallback;
-    }
+    };
 
     xhr.send();
 }

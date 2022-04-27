@@ -1,9 +1,10 @@
-var notification_data = JSON.parse(document.getElementById('notification_data').innerHTML);
+'use strict';
+var notification_data = JSON.parse(document.getElementById('notification_data').textContent);
 
 var notifications, delivered;
 
 function get_subscriptions(callback, retries) {
-    if (retries == undefined) retries = 5;
+    if (retries === undefined) retries = 5;
 
     if (retries <= 0) {
         return;
@@ -17,21 +18,21 @@ function get_subscriptions(callback, retries) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
-                subscriptions = xhr.response;
+                var subscriptions = xhr.response;
                 callback(subscriptions);
             }
         }
-    }
+    };
 
     xhr.onerror = function () {
-        console.log('Pulling subscriptions failed... ' + retries + '/5');
-        setTimeout(function () { get_subscriptions(callback, retries - 1) }, 1000);
-    }
+        console.warn('Pulling subscriptions failed... ' + retries + '/5');
+        setTimeout(function () { get_subscriptions(callback, retries - 1); }, 1000);
+    };
 
     xhr.ontimeout = function () {
-        console.log('Pulling subscriptions failed... ' + retries + '/5');
+        console.warn('Pulling subscriptions failed... ' + retries + '/5');
         get_subscriptions(callback, retries - 1);
-    }
+    };
 
     xhr.send();
 }
@@ -40,7 +41,7 @@ function create_notification_stream(subscriptions) {
     notifications = new SSE(
         '/api/v1/auth/notifications?fields=videoId,title,author,authorId,publishedText,published,authorThumbnails,liveNow', {
             withCredentials: true,
-            payload: 'topics=' + subscriptions.map(function (subscription) { return subscription.authorId }).join(','),
+            payload: 'topics=' + subscriptions.map(function (subscription) { return subscription.authorId; }).join(','),
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
     delivered = [];
@@ -53,7 +54,7 @@ function create_notification_stream(subscriptions) {
         }
 
         var notification = JSON.parse(event.data);
-        console.log('Got notification:', notification);
+        console.info('Got notification:', notification);
 
         if (start_time < notification.published && !delivered.includes(notification.videoId)) {
             if (Notification.permission === 'granted') {
@@ -67,7 +68,7 @@ function create_notification_stream(subscriptions) {
 
                 system_notification.onclick = function (event) {
                     window.open('/watch?v=' + event.currentTarget.tag, '_blank');
-                }
+                };
             }
 
             delivered.push(notification.videoId);
@@ -82,16 +83,16 @@ function create_notification_stream(subscriptions) {
                     '<i class="icon ion-ios-notifications-outline"></i>';
             }
         }
-    }
+    };
 
     notifications.addEventListener('error', handle_notification_error);
     notifications.stream();
 }
 
 function handle_notification_error(event) {
-    console.log('Something went wrong with notifications, trying to reconnect...');
+    console.warn('Something went wrong with notifications, trying to reconnect...');
     notifications = { close: function () { } };
-    setTimeout(function () { get_subscriptions(create_notification_stream) }, 1000);
+    setTimeout(function () { get_subscriptions(create_notification_stream); }, 1000);
 }
 
 window.addEventListener('load', function (e) {

@@ -1,8 +1,9 @@
+'use strict';
 var toggle_theme = document.getElementById('toggle_theme');
 toggle_theme.href = 'javascript:void(0);';
 
 toggle_theme.addEventListener('click', function () {
-    var dark_mode = document.body.classList.contains("light-theme");
+    var dark_mode = document.body.classList.contains('light-theme');
 
     var url = '/toggle_theme?redirect=false';
     var xhr = new XMLHttpRequest();
@@ -13,7 +14,7 @@ toggle_theme.addEventListener('click', function () {
     set_mode(dark_mode);
     try {
         window.localStorage.setItem('dark_mode', dark_mode ? 'dark' : 'light');
-    } catch {}
+    } catch (e) {}
 
     xhr.send();
 });
@@ -29,7 +30,7 @@ window.addEventListener('DOMContentLoaded', function () {
     try {
         // Update localStorage if dark mode preference changed on preferences page
         window.localStorage.setItem('dark_mode', dark_mode);
-    } catch {}
+    } catch (e) {}
     update_mode(dark_mode);
 });
 
@@ -46,11 +47,11 @@ function scheme_switch (e) {
     if (localStorage.getItem('dark_mode')) {
       return;
     }
-  } catch {}
+  } catch (exception) {}
   if (e.matches) {
-    if (e.media.includes("dark")) {
+    if (e.media.includes('dark')) {
       set_mode(true);
-    } else if (e.media.includes("light")) {
+    } else if (e.media.includes('light')) {
       set_mode(false);
     }
   }
@@ -77,15 +78,13 @@ function update_mode (mode) {
         // If preference for dark mode indicated
         set_mode(true);
     }
-	else if (mode === 'false' /* for backwards compatibility */ || mode === 'light') {
-		// If preference for light mode indicated
-		set_mode(false);
-	}
+    else if (mode === 'false' /* for backwards compatibility */ || mode === 'light') {
+        // If preference for light mode indicated
+        set_mode(false);
+    }
     else if (document.getElementById('dark_mode_pref').textContent === '' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         // If no preference indicated here and no preference indicated on the preferences page (backend), but the browser tells us that the operating system has a dark theme
         set_mode(true);
     }
     // else do nothing, falling back to the mode defined by the `dark_mode` preference on the preferences page (backend)
 }
-
-

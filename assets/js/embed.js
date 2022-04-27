@@ -1,19 +1,21 @@
-var video_data = JSON.parse(document.getElementById('video_data').innerHTML);
+'use strict';
+var video_data = JSON.parse(document.getElementById('video_data').textContent);
 
 function get_playlist(plid, retries) {
-    if (retries == undefined) retries = 5;
+    if (retries === undefined) retries = 5;
 
     if (retries <= 0) {
-        console.log('Failed to pull playlist');
+        console.warn('Failed to pull playlist');
         return;
     }
 
+    var plid_url;
     if (plid.startsWith('RD')) {
-        var plid_url = '/api/v1/mixes/' + plid +
+        plid_url = '/api/v1/mixes/' + plid +
             '?continuation=' + video_data.id +
             '&format=html&hl=' + video_data.preferences.locale;
     } else {
-        var plid_url = '/api/v1/playlists/' + plid +
+        plid_url = '/api/v1/playlists/' + plid +
             '?index=' + video_data.index +
             '&continuation' + video_data.id +
             '&format=html&hl=' + video_data.preferences.locale;
@@ -57,17 +59,17 @@ function get_playlist(plid, retries) {
                 }
             }
         }
-    }
+    };
 
     xhr.onerror = function () {
-        console.log('Pulling playlist failed... ' + retries + '/5');
-        setTimeout(function () { get_playlist(plid, retries - 1) }, 1000);
-    }
+        console.warn('Pulling playlist failed... ' + retries + '/5');
+        setTimeout(function () { get_playlist(plid, retries - 1); }, 1000);
+    };
 
     xhr.ontimeout = function () {
-        console.log('Pulling playlist failed... ' + retries + '/5');
+        console.warn('Pulling playlist failed... ' + retries + '/5');
         get_playlist(plid, retries - 1);
-    }
+    };
 
     xhr.send();
 }
@@ -96,7 +98,7 @@ window.addEventListener('load', function (e) {
             }
 
             if (video_data.video_series.length !== 0) {
-                url.searchParams.set('playlist', video_data.video_series.join(','))
+                url.searchParams.set('playlist', video_data.video_series.join(','));
             }
 
             location.assign(url.pathname + url.search);

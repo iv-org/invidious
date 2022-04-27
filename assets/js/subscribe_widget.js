@@ -1,4 +1,5 @@
-var subscribe_data = JSON.parse(document.getElementById('subscribe_data').innerHTML);
+'use strict';
+var subscribe_data = JSON.parse(document.getElementById('subscribe_data').textContent);
 
 var subscribe_button = document.getElementById('subscribe');
 subscribe_button.parentNode['action'] = 'javascript:void(0)';
@@ -9,9 +10,11 @@ if (subscribe_button.getAttribute('data-type') === 'subscribe') {
     subscribe_button.onclick = unsubscribe;
 }
 
-function subscribe(retries = 5) {
+function subscribe(retries) {
+    if (retries === undefined) retries = 5;
+
     if (retries <= 0) {
-        console.log('Failed to subscribe.');
+        console.warn('Failed to subscribe.');
         return;
     }
 
@@ -28,30 +31,33 @@ function subscribe(retries = 5) {
     subscribe_button.innerHTML = '<b>' + subscribe_data.unsubscribe_text + ' | ' + subscribe_data.sub_count_text + '</b>';
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status !== 200) {
                 subscribe_button.onclick = subscribe;
                 subscribe_button.innerHTML = fallback;
             }
         }
-    }
+    };
 
     xhr.onerror = function () {
-        console.log('Subscribing failed... ' + retries + '/5');
-        setTimeout(function () { subscribe(retries - 1) }, 1000);
-    }
+        console.warn('Subscribing failed... ' + retries + '/5');
+        setTimeout(function () { subscribe(retries - 1); }, 1000);
+    };
 
     xhr.ontimeout = function () {
-        console.log('Subscribing failed... ' + retries + '/5');
+        console.warn('Subscribing failed... ' + retries + '/5');
         subscribe(retries - 1);
-    }
+    };
 
     xhr.send('csrf_token=' + subscribe_data.csrf_token);
 }
 
-function unsubscribe(retries = 5) {
+function unsubscribe(retries) {
+    if (retries === undefined)
+        retries = 5;
+
     if (retries <= 0) {
-        console.log('Failed to subscribe');
+        console.warn('Failed to subscribe');
         return;
     }
 
@@ -68,23 +74,23 @@ function unsubscribe(retries = 5) {
     subscribe_button.innerHTML = '<b>' + subscribe_data.subscribe_text + ' | ' + subscribe_data.sub_count_text + '</b>';
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status !== 200) {
                 subscribe_button.onclick = unsubscribe;
                 subscribe_button.innerHTML = fallback;
             }
         }
-    }
+    };
 
     xhr.onerror = function () {
-        console.log('Unsubscribing failed... ' + retries + '/5');
-        setTimeout(function () { unsubscribe(retries - 1) }, 1000);
-    }
+        console.warn('Unsubscribing failed... ' + retries + '/5');
+        setTimeout(function () { unsubscribe(retries - 1); }, 1000);
+    };
 
     xhr.ontimeout = function () {
-        console.log('Unsubscribing failed... ' + retries + '/5');
+        console.warn('Unsubscribing failed... ' + retries + '/5');
         unsubscribe(retries - 1);
-    }
+    };
 
     xhr.send('csrf_token=' + subscribe_data.csrf_token);
 }

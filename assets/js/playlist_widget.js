@@ -1,4 +1,5 @@
-var playlist_data = JSON.parse(document.getElementById('playlist_data').innerHTML);
+'use strict';
+var playlist_data = JSON.parse(document.getElementById('playlist_data').textContent);
 
 function add_playlist_video(target) {
     var select = target.parentNode.children[0].children[1];
@@ -14,12 +15,12 @@ function add_playlist_video(target) {
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
                 option.innerText = '✓' + option.innerText;
             }
         }
-    }
+    };
 
     xhr.send('csrf_token=' + playlist_data.csrf_token);
 }
@@ -38,12 +39,12 @@ function add_playlist_item(target) {
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status !== 200) {
                 tile.style.display = '';
             }
         }
-    }
+    };
 
     xhr.send('csrf_token=' + playlist_data.csrf_token);
 }
@@ -62,12 +63,12 @@ function remove_playlist_item(target) {
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status != 200) {
+        if (xhr.readyState === 4) {
+            if (xhr.status !== 200) {
                 tile.style.display = '';
             }
         }
-    }
+    };
 
     xhr.send('csrf_token=' + playlist_data.csrf_token);
 }
