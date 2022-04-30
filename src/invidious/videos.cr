@@ -609,6 +609,10 @@ struct Video
     info["authorThumbnail"]?.try &.as_s || ""
   end
 
+  def author_verified : Bool
+    info["authorVerified"].try &.as_bool || false
+  end
+
   def sub_count_text : String
     info["subCountText"]?.try &.as_s || "-"
   end
@@ -860,6 +864,12 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     .try &.dig?("runs", 0)
 
   author = channel_info.try &.dig?("text")
+  author_verified_badge = related["ownerBadges"]?.try do |badges_array|
+    badges_array.as_a.find(&.dig("metadataBadgeRenderer", "tooltip").as_s.== "Verified")
+  end
+
+  author_verified = (author_verified_badge && author_verified_badge.size > 0).to_s
+
   ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
   # "4,088,033 views", only available on compact renderer
@@ -883,6 +893,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     "length_seconds"   => JSON::Any.new(length || "0"),
     "view_count"       => JSON::Any.new(view_count || "0"),
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
+    "author_verified"  => JSON::Any.new(author_verified),
   }
 end
 
@@ -1076,6 +1087,9 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 
   author_info = video_secondary_renderer.try &.dig?("owner", "videoOwnerRenderer")
   author_thumbnail = author_info.try &.dig?("thumbnail", "thumbnails", 0, "url")
+
+  author_verified_badge = author_info.try &.dig?("badges", 0, "metadataBadgeRenderer", "tooltip")
+  params["authorVerified"] = JSON::Any.new((author_verified_badge && author_verified_badge == "Verified"))
 
   params["authorThumbnail"] = JSON::Any.new(author_thumbnail.try &.as_s || "")
 

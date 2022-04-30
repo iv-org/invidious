@@ -20,7 +20,7 @@
     <div class="pure-u-2-3">
         <div class="channel-profile">
             <img src="/ggpht<%= URI.parse(channel.author_thumbnail).request_target %>">
-            <span><%= author %></span>
+            <span><%= author %></span><% if !channel.verified.nil? && channel.verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %>
         </div>
     </div>
     <div class="pure-u-1-3">

@@ -207,7 +207,7 @@ we're going to need to do it here in order to allow for translations.
                     <% if !video.author_thumbnail.empty? %>
                         <img src="/ggpht<%= URI.parse(video.author_thumbnail).request_target %>">
                     <% end %>
-                    <span id="channel-name"><%= author %></span>
+                    <span id="channel-name"><%= author %><% if !video.author_verified.nil? && video.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></span>
                 </div>
             </a>
 
@@ -281,9 +281,9 @@ we're going to need to do it here in order to allow for translations.
                                 <h5 class="pure-g">
                                     <div class="pure-u-14-24">
                                         <% if rv["ucid"]? %>
-                                            <b style="width:100%"><a href="/channel/<%= rv["ucid"] %>"><%= rv["author"]? %></a></b>
+                                            <b style="width:100%"><a href="/channel/<%= rv["ucid"] %>"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></a></b>
                                         <% else %>
-                                            <b style="width:100%"><%= rv["author"]? %></b>
+                                            <b style="width:100%"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b>
                                         <% end %>
                                     </div>
 
