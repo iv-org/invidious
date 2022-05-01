@@ -13,20 +13,23 @@
     // For dynamically inserted elements
     document.addEventListener('click', function (e) {
         if (!e || !e.target) { return; }
-        e = e.target;
-        var handler_name = e.getAttribute('data-onclick');
+
+        var t = e.target;
+        var handler_name = t.getAttribute('data-onclick');
+
         switch (handler_name) {
             case 'jump_to_time':
-                var time = e.getAttribute('data-jump-time');
+                e.preventDefault();
+                var time = t.getAttribute('data-jump-time');
                 player.currentTime(time);
                 break;
             case 'get_youtube_replies':
-                var load_more = e.getAttribute('data-load-more') !== null;
-                var load_replies = e.getAttribute('data-load-replies') !== null;
-                get_youtube_replies(e, load_more, load_replies);
+                var load_more = t.getAttribute('data-load-more') !== null;
+                var load_replies = t.getAttribute('data-load-replies') !== null;
+                get_youtube_replies(t, load_more, load_replies);
                 break;
             case 'toggle_parent':
-                toggle_parent(e);
+                toggle_parent(t);
                 break;
             default:
                 break;

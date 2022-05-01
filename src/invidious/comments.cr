@@ -560,30 +560,21 @@ def parse_content(content : JSON::Any, video_id : String? = "") : String
 end
 
 def content_to_comment_html(content, video_id : String? = "")
-  comment_html = content.map do |run|
+  html_array = content.map do |run|
     text = HTML.escape(run["text"].as_s)
-
-    if run["bold"]?
-      text = "<b>#{text}</b>"
-    end
-
-    if run["italics"]?
-      text = "<i>#{text}</i>"
-    end
 
     if run["navigationEndpoint"]?
       if url = run["navigationEndpoint"]["urlEndpoint"]?.try &.["url"].as_s
         url = URI.parse(url)
-        displayed_url = url
+        displayed_url = text
 
         if url.host == "youtu.be"
           url = "/watch?v=#{url.request_target.lstrip('/')}"
-          displayed_url = "youtube.com#{url}"
         elsif url.host.nil? || url.host.not_nil!.ends_with?("youtube.com")
           if url.path == "/redirect"
             # Sometimes, links can be corrupted (why?) so make sure to fallback
             # nicely. See https://github.com/iv-org/invidious/issues/2682
-            url = HTTP::Params.parse(url.query.not_nil!)["q"]? || ""
+            url = url.query_params["q"]? || ""
             displayed_url = url
           else
             url = url.request_target
@@ -623,10 +614,13 @@ def content_to_comment_html(content, video_id : String? = "")
       end
     end
 
-    text
-  end.join("").delete('\ufeff')
+    text = "<b>#{text}</b>" if run["bold"]?
+    text = "<i>#{text}</i>" if run["italics"]?
 
-  return comment_html
+    text
+  end
+
+  return html_array.join("").delete('\ufeff')
 end
 
 def produce_comment_continuation(video_id, cursor = "", sort_by = "top")
