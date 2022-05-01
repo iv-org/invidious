@@ -476,5 +476,15 @@
     "preferences_save_player_pos_label": "Запоминать позицию: ",
     "preferences_region_label": "Страна: ",
     "preferences_watch_history_label": "Включить историю просмотров ",
-    "search_filters_title": "Фильтр"
+    "search_filters_title": "Фильтр",
+    "search_filters_duration_option_none": "Любой длины",
+    "search_filters_type_option_all": "Любого типа",
+    "search_filters_date_option_none": "Любой даты",
+    "search_filters_date_label": "Дата загрузки",
+    "search_message_no_results": "Ничего не найдено.",
+    "search_message_use_another_instance": " Дополнительно вы можете <a href=\"`x`\">поискать на других зеркалах</a>.",
+    "search_filters_features_option_vr180": "VR180",
+    "search_message_change_filters_or_query": "Попробуйте расширить поисковый запрос и изменить фильтры.",
+    "search_filters_duration_option_medium": "Средние (4 - 20 минут)",
+    "search_filters_apply_button": "Применить фильтры"
 }
