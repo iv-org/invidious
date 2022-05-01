@@ -69,7 +69,7 @@ private module Parsers
       # TODO change default value to nil and typical encoding type to tuple storing type (watchers, views, etc)
       # and count
       view_count = item_contents.dig?("viewCountText", "simpleText").try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
-      description_html = item_contents["descriptionSnippet"]?.try { |t| parse_content(t) } || ""
+      description_html = item_contents["descriptionSnippet"]?.try { |t| parse_content(t, video_id) } || ""
 
       # The length information generally exist in "lengthText". However, the info can sometimes
       # be retrieved from "thumbnailOverlays" (e.g when the video is a "shorts" one).

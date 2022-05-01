@@ -143,7 +143,7 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
                 node_comment = node["commentRenderer"]
               end
 
-              content_html = node_comment["contentText"]?.try { |t| parse_content(t) } || ""
+              content_html = node_comment["contentText"]?.try { |t| parse_content(t, id) } || ""
               author = node_comment["authorText"]?.try &.["simpleText"]? || ""
 
               json.field "author", author
@@ -554,12 +554,12 @@ def fill_links(html, scheme, host)
   return html.to_xml(options: XML::SaveOptions::NO_DECL)
 end
 
-def parse_content(content : JSON::Any) : String
+def parse_content(content : JSON::Any, video_id : String? = "") : String
   content["simpleText"]?.try &.as_s.rchop('\ufeff').try { |b| HTML.escape(b) }.to_s ||
-    content["runs"]?.try &.as_a.try { |r| content_to_comment_html(r).try &.to_s.gsub("\n", "<br>") } || ""
+    content["runs"]?.try &.as_a.try { |r| content_to_comment_html(r, video_id).try &.to_s.gsub("\n", "<br>") } || ""
 end
 
-def content_to_comment_html(content)
+def content_to_comment_html(content, video_id : String? = "")
   comment_html = content.map do |run|
     text = HTML.escape(run["text"].as_s)
 
@@ -593,13 +593,22 @@ def content_to_comment_html(content)
 
         text = %(<a href="#{url}">#{reduce_uri(displayed_url)}</a>)
       elsif watch_endpoint = run["navigationEndpoint"]["watchEndpoint"]?
-        length_seconds = watch_endpoint["startTimeSeconds"]?
-        video_id = watch_endpoint["videoId"].as_s
+        start_time = watch_endpoint["startTimeSeconds"]?.try &.as_i
+        link_video_id = watch_endpoint["videoId"].as_s
 
-        if length_seconds && length_seconds.as_i >= 0
-          text = %(<a href="javascript:void(0)" data-onclick="jump_to_time" data-jump-time="#{length_seconds}">#{text}</a>)
+        url = "/watch?v=#{link_video_id}"
+        url += "&t=#{start_time}" if !start_time.nil?
+
+        # If the current video ID (passed through from the caller function)
+        # is the same as the video ID in the link, add HTML attributes for
+        # the JS handler function that bypasses page reload.
+        #
+        # See: https://github.com/iv-org/invidious/issues/3063
+        if link_video_id == video_id
+          start_time ||= 0
+          text = %(<a href="#{url}" data-onclick="jump_to_time" data-jump-time="#{start_time}">#{reduce_uri(text)}</a>)
         else
-          text = %(<a href="/watch?v=#{video_id}">#{"youtube.com/watch?v=#{video_id}"}</a>)
+          text = %(<a href="#{url}">#{text}</a>)
         end
       elsif url = run.dig?("navigationEndpoint", "commandMetadata", "webCommandMetadata", "url").try &.as_s
         if text.starts_with?(/\s?[@#]/)
