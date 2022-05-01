@@ -614,7 +614,7 @@ struct Video
   end
 
   def author_verified : Bool
-    info["authorVerified"].try &.as_bool || false
+    info["authorVerified"]?.try &.as_bool || false
   end
 
   def sub_count_text : String
@@ -1093,7 +1093,8 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   author_thumbnail = author_info.try &.dig?("thumbnail", "thumbnails", 0, "url")
 
   author_verified_badge = author_info.try &.dig?("badges", 0, "metadataBadgeRenderer", "tooltip")
-  params["authorVerified"] = JSON::Any.new((author_verified_badge && author_verified_badge == "Verified"))
+  author_verified = (!author_verified_badge.nil? && author_verified_badge == "Verified")
+  params["authorVerified"] = JSON::Any.new(author_verified)
 
   params["authorThumbnail"] = JSON::Any.new(author_thumbnail.try &.as_s || "")
 
