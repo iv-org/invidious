@@ -413,6 +413,10 @@ struct Video
                 end
               end
 
+              # Livestream chunk infos
+              json.field "targetDurationSec", fmt["targetDurationSec"].as_i if fmt.has_key?("targetDurationSec")
+              json.field "maxDvrDurationSec", fmt["maxDvrDurationSec"].as_i if fmt.has_key?("maxDvrDurationSec")
+
               # Audio-related data
               json.field "audioQuality", fmt["audioQuality"] if fmt.has_key?("audioQuality")
               json.field "audioSampleRate", fmt["audioSampleRate"].as_s.to_i if fmt.has_key?("audioSampleRate")
