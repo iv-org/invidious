@@ -68,7 +68,7 @@
     "preferences_watch_history_label": "Enable watch history: ",
     "preferences_speed_label": "Default speed: ",
     "preferences_quality_label": "Preferred video quality: ",
-    "preferences_quality_option_dash": "DASH (adaptative quality)",
+    "preferences_quality_option_dash": "DASH (adaptive quality)",
     "preferences_quality_option_hd720": "HD720",
     "preferences_quality_option_medium": "Medium",
     "preferences_quality_option_small": "Small",
