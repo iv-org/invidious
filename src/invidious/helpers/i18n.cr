@@ -14,6 +14,7 @@ LOCALES_LIST = {
   "fi"      => "Suomi",                 # Finnish
   "fr"      => "Français",              # French
   "he"      => "עברית",                 # Hebrew
+  "hi"      => "हिन्दी",                # Hindi
   "hr"      => "Hrvatski",              # Croatian
   "hu-HU"   => "Magyar Nyelv",          # Hungarian
   "id"      => "Bahasa Indonesia",      # Indonesian
