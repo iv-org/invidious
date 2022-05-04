@@ -31,6 +31,7 @@ LOCALES_LIST = {
   "pt-PT"   => "Português de Portugal", # Portuguese (Portugal)
   "ro"      => "Română",                # Romanian
   "ru"      => "Русский",               # Russian
+  "sl"      => "Slovenščina",           # Slovenian
   "sq"      => "Shqip",                 # Albanian
   "sr"      => "Srpski (latinica)",     # Serbian (Latin)
   "sr_Cyrl" => "Српски (ћирилица)",     # Serbian (Cyrillic)
