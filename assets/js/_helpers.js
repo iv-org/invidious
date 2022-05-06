@@ -171,7 +171,7 @@ window.helpers = window.helpers || {
      */
 
     /**
-     * Universal storage proxy. Uses inside localStorage or cookies
+     * Universal storage, stores and returns JS objects. Uses inside localStorage or cookies
      * @type {invidiousStorage}
      */
     storage: (function () {
@@ -181,8 +181,8 @@ window.helpers = window.helpers || {
 
         if (localStorageIsUsable) {
             return {
-                get: function (key) { return localStorage[key]; },
-                set: function (key, value) { localStorage[key] = value; },
+                get: function (key) { if (localStorage[key]) return JSON.parse(decodeURIComponent(localStorage[key])); },
+                set: function (key, value) { localStorage[key] = encodeURIComponent(JSON.stringify(value)); },
                 remove: function (key) { localStorage.removeItem(key); }
             };
         }
@@ -192,27 +192,21 @@ window.helpers = window.helpers || {
             get: function (key) {
                 const cookiePrefix = key + '=';
                 function findCallback(cookie) {return cookie.startsWith(cookiePrefix);}
-                const matchedCookie = document.cookie.split(';').find(findCallback);
-                if (matchedCookie)
-                    return matchedCookie.replace(cookiePrefix, '');
-                return null;
+                const matchedCookie = document.cookie.split('; ').find(findCallback);
+                if (matchedCookie) {
+                    const cookieBody = matchedCookie.replace(cookiePrefix, '');
+                    if (cookieBody.length === 0) return;
+                    return JSON.parse(decodeURIComponent(cookieBody));
+                }
             },
             set: function (key, value) {
                 const cookie_data = encodeURIComponent(JSON.stringify(value));
 
                 // Set expiration in 2 year
                 const date = new Date();
-                date.setTime(date.getTime() + 2*365.25*24*60*60);
+                date.setFullYear(date.getFullYear()+2);
 
-                const ip_regex = /^((\d+\.){3}\d+|[A-Fa-f0-9]*:[A-Fa-f0-9:]*:[A-Fa-f0-9:]+)$/;
-                let domain_used = location.hostname;
-
-                // Fix for a bug in FF where the leading dot in the FQDN is not ignored
-                if (domain_used.charAt(0) !== '.' && !ip_regex.test(domain_used) && domain_used !== 'localhost')
-                    domain_used = '.' + location.hostname;
-
-                document.cookie = key + '=' + cookie_data + '; SameSite=Strict; path=/; domain=' +
-                    domain_used + '; expires=' + date.toGMTString() + ';';
+                document.cookie = key + '=' + cookie_data + '; expires=' + date.toGMTString();
             },
             remove: function (key) {
                 document.cookie = key + '=; Max-Age=0';

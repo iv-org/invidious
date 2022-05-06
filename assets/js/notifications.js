@@ -48,7 +48,7 @@ function create_notification_stream(subscriptions) {
             }
 
             delivered.push(notification.videoId);
-            helpers.storage.set('notification_count', parseInt(helpers.storage.get('notification_count') || '0') + 1);
+            helpers.storage.set('notification_count', (helpers.storage.get('notification_count') || 0) + 1);
             var notification_ticker = document.getElementById('notification_ticker');
 
             if (parseInt(helpers.storage.get('notification_count')) > 0) {
@@ -72,7 +72,12 @@ function handle_notification_error(event) {
 }
 
 addEventListener('load', function (e) {
-    helpers.storage.set('notification_count', document.getElementById('notification_count') ? document.getElementById('notification_count').innerText : '0');
+    var notification_count = document.getElementById('notification_count');
+    if (notification_count) {
+        helpers.storage.set('notification_count', parseInt(notification_count.innerText));
+    } else {
+        helpers.storage.set('notification_count', 0);
+    }
 
     if (helpers.storage.get('stream')) {
         helpers.storage.remove('stream');

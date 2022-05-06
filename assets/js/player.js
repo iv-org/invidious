@@ -432,7 +432,7 @@ function save_video_time(seconds) {
 
     all_video_times[videoId] = seconds;
 
-    helpers.storage.set(save_player_pos_key, JSON.stringify(all_video_times));
+    helpers.storage.set(save_player_pos_key, all_video_times);
 }
 
 function get_video_time() {
@@ -444,8 +444,7 @@ function get_video_time() {
 }
 
 function get_all_video_times() {
-    const raw = helpers.storage.get(save_player_pos_key);
-    return raw ? JSON.parse(raw) : {};
+    return helpers.storage.get(save_player_pos_key) || {};
 }
 
 function remove_all_video_times() {
