@@ -2,42 +2,20 @@
 var notification_data = JSON.parse(document.getElementById('notification_data').textContent);
 
 var notifications, delivered;
+var notifications_substitution = { close: function () { } };
 
-function get_subscriptions(callback, retries) {
-    if (retries === undefined) retries = 5;
-
-    if (retries <= 0) {
-        return;
-    }
-
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'json';
-    xhr.timeout = 10000;
-    xhr.open('GET', '/api/v1/auth/subscriptions?fields=authorId', true);
-
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                var subscriptions = xhr.response;
-                callback(subscriptions);
-            }
-        }
-    };
-
-    xhr.onerror = function () {
-        console.warn('Pulling subscriptions failed... ' + retries + '/5');
-        setTimeout(function () { get_subscriptions(callback, retries - 1); }, 1000);
-    };
-
-    xhr.ontimeout = function () {
-        console.warn('Pulling subscriptions failed... ' + retries + '/5');
-        get_subscriptions(callback, retries - 1);
-    };
-
-    xhr.send();
+function get_subscriptions() {
+    helpers.xhr('GET', '/api/v1/auth/subscriptions?fields=authorId', {
+        retries: 5,
+        entity_name: 'subscriptions'
+    }, {
+        on200: create_notification_stream
+    });
 }
 
 function create_notification_stream(subscriptions) {
+    // sse.js can't be replaced to EventSource in place as it lack support of payload and headers
+    // see https://developer.mozilla.org/en-US/docs/Web/API/EventSource/EventSource
     notifications = new SSE(
         '/api/v1/auth/notifications?fields=videoId,title,author,authorId,publishedText,published,authorThumbnails,liveNow', {
             withCredentials: true,
@@ -49,9 +27,7 @@ function create_notification_stream(subscriptions) {
     var start_time = Math.round(new Date() / 1000);
 
     notifications.onmessage = function (event) {
-        if (!event.id) {
-            return;
-        }
+        if (!event.id) return;
 
         var notification = JSON.parse(event.data);
         console.info('Got notification:', notification);
@@ -67,17 +43,17 @@ function create_notification_stream(subscriptions) {
                     });
 
                 system_notification.onclick = function (event) {
-                    window.open('/watch?v=' + event.currentTarget.tag, '_blank');
+                    open('/watch?v=' + event.currentTarget.tag, '_blank');
                 };
             }
 
             delivered.push(notification.videoId);
-            localStorage.setItem('notification_count', parseInt(localStorage.getItem('notification_count') || '0') + 1);
+            helpers.storage.set('notification_count', parseInt(helpers.storage.get('notification_count') || '0') + 1);
             var notification_ticker = document.getElementById('notification_ticker');
 
-            if (parseInt(localStorage.getItem('notification_count')) > 0) {
+            if (parseInt(helpers.storage.get('notification_count')) > 0) {
                 notification_ticker.innerHTML =
-                    '<span id="notification_count">' + localStorage.getItem('notification_count') + '</span> <i class="icon ion-ios-notifications"></i>';
+                    '<span id="notification_count">' + helpers.storage.get('notification_count') + '</span> <i class="icon ion-ios-notifications"></i>';
             } else {
                 notification_ticker.innerHTML =
                     '<i class="icon ion-ios-notifications-outline"></i>';
@@ -91,35 +67,35 @@ function create_notification_stream(subscriptions) {
 
 function handle_notification_error(event) {
     console.warn('Something went wrong with notifications, trying to reconnect...');
-    notifications = { close: function () { } };
-    setTimeout(function () { get_subscriptions(create_notification_stream); }, 1000);
+    notifications = notifications_substitution;
+    setTimeout(get_subscriptions, 1000);
 }
 
-window.addEventListener('load', function (e) {
-    localStorage.setItem('notification_count', document.getElementById('notification_count') ? document.getElementById('notification_count').innerText : '0');
+addEventListener('load', function (e) {
+    helpers.storage.set('notification_count', document.getElementById('notification_count') ? document.getElementById('notification_count').innerText : '0');
 
-    if (localStorage.getItem('stream')) {
-        localStorage.removeItem('stream');
+    if (helpers.storage.get('stream')) {
+        helpers.storage.remove('stream');
     } else {
         setTimeout(function () {
-            if (!localStorage.getItem('stream')) {
-                notifications = { close: function () { } };
-                localStorage.setItem('stream', true);
-                get_subscriptions(create_notification_stream);
+            if (!helpers.storage.get('stream')) {
+                notifications = notifications_substitution;
+                helpers.storage.set('stream', true);
+                get_subscriptions();
             }
         }, Math.random() * 1000 + 50);
     }
 
-    window.addEventListener('storage', function (e) {
+    addEventListener('storage', function (e) {
         if (e.key === 'stream' && !e.newValue) {
             if (notifications) {
-                localStorage.setItem('stream', true);
+                helpers.storage.set('stream', true);
             } else {
                 setTimeout(function () {
-                    if (!localStorage.getItem('stream')) {
-                        notifications = { close: function () { } };
-                        localStorage.setItem('stream', true);
-                        get_subscriptions(create_notification_stream);
+                    if (!helpers.storage.get('stream')) {
+                        notifications = notifications_substitution;
+                        helpers.storage.set('stream', true);
+                        get_subscriptions();
                     }
                 }, Math.random() * 1000 + 50);
             }
@@ -137,8 +113,6 @@ window.addEventListener('load', function (e) {
     });
 });
 
-window.addEventListener('unload', function (e) {
-    if (notifications) {
-        localStorage.removeItem('stream');
-    }
+addEventListener('unload', function (e) {
+    if (notifications) helpers.storage.remove('stream');
 });

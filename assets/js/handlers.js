@@ -1,8 +1,6 @@
 'use strict';
 
 (function () {
-    var n2a = function (n) { return Array.prototype.slice.call(n); };
-
     var video_player = document.getElementById('player_html5_api');
     if (video_player) {
         video_player.onmouseenter = function () { video_player['data-title'] = video_player['title']; video_player['title'] = ''; };
@@ -11,8 +9,8 @@
     }
 
     // For dynamically inserted elements
-    document.addEventListener('click', function (e) {
-        if (!e || !e.target) { return; }
+    addEventListener('click', function (e) {
+        if (!e || !e.target) return;
 
         var t = e.target;
         var handler_name = t.getAttribute('data-onclick');
@@ -29,6 +27,7 @@
                 get_youtube_replies(t, load_more, load_replies);
                 break;
             case 'toggle_parent':
+                e.preventDefault();
                 toggle_parent(t);
                 break;
             default:
@@ -36,118 +35,98 @@
         }
     });
 
-    n2a(document.querySelectorAll('[data-mouse="switch_classes"]')).forEach(function (e) {
-        var classes = e.getAttribute('data-switch-classes').split(',');
-        var ec = classes[0];
-        var lc = classes[1];
-        var onoff = function (on, off) {
-            var cs = e.getAttribute('class');
-            cs = cs.split(off).join(on);
-            e.setAttribute('class', cs);
-        };
-        e.onmouseenter = function () { onoff(ec, lc); };
-        e.onmouseleave = function () { onoff(lc, ec); };
+    document.querySelectorAll('[data-mouse="switch_classes"]').forEach(function (el) {
+        var classes = el.getAttribute('data-switch-classes').split(',');
+        var classOnEnter = classes[0];
+        var classOnLeave = classes[1];
+        function toggle_classes(toAdd, toRemove) {
+            el.classList.add(toAdd);
+            el.classList.remove(toRemove);
+        }
+        el.onmouseenter = function () { toggle_classes(classOnEnter, classOnLeave); };
+        el.onmouseleave = function () { toggle_classes(classOnLeave, classOnEnter); };
     });
 
-    n2a(document.querySelectorAll('[data-onsubmit="return_false"]')).forEach(function (e) {
-        e.onsubmit = function () { return false; };
+    document.querySelectorAll('[data-onsubmit="return_false"]').forEach(function (el) {
+        el.onsubmit = function () { return false; };
     });
 
-    n2a(document.querySelectorAll('[data-onclick="mark_watched"]')).forEach(function (e) {
-        e.onclick = function () { mark_watched(e); };
+    document.querySelectorAll('[data-onclick="mark_watched"]').forEach(function (el) {
+        el.onclick = function () { mark_watched(el); };
     });
-    n2a(document.querySelectorAll('[data-onclick="mark_unwatched"]')).forEach(function (e) {
-        e.onclick = function () { mark_unwatched(e); };
+    document.querySelectorAll('[data-onclick="mark_unwatched"]').forEach(function (el) {
+        el.onclick = function () { mark_unwatched(el); };
     });
-    n2a(document.querySelectorAll('[data-onclick="add_playlist_video"]')).forEach(function (e) {
-        e.onclick = function () { add_playlist_video(e); };
+    document.querySelectorAll('[data-onclick="add_playlist_video"]').forEach(function (el) {
+        el.onclick = function () { add_playlist_video(el); };
     });
-    n2a(document.querySelectorAll('[data-onclick="add_playlist_item"]')).forEach(function (e) {
-        e.onclick = function () { add_playlist_item(e); };
+    document.querySelectorAll('[data-onclick="add_playlist_item"]').forEach(function (el) {
+        el.onclick = function () { add_playlist_item(el); };
     });
-    n2a(document.querySelectorAll('[data-onclick="remove_playlist_item"]')).forEach(function (e) {
-        e.onclick = function () { remove_playlist_item(e); };
+    document.querySelectorAll('[data-onclick="remove_playlist_item"]').forEach(function (el) {
+        el.onclick = function () { remove_playlist_item(el); };
     });
-    n2a(document.querySelectorAll('[data-onclick="revoke_token"]')).forEach(function (e) {
-        e.onclick = function () { revoke_token(e); };
+    document.querySelectorAll('[data-onclick="revoke_token"]').forEach(function (el) {
+        el.onclick = function () { revoke_token(el); };
     });
-    n2a(document.querySelectorAll('[data-onclick="remove_subscription"]')).forEach(function (e) {
-        e.onclick = function () { remove_subscription(e); };
+    document.querySelectorAll('[data-onclick="remove_subscription"]').forEach(function (el) {
+        el.onclick = function () { remove_subscription(el); };
     });
-    n2a(document.querySelectorAll('[data-onclick="notification_requestPermission"]')).forEach(function (e) {
-        e.onclick = function () { Notification.requestPermission(); };
-    });
-
-    n2a(document.querySelectorAll('[data-onrange="update_volume_value"]')).forEach(function (e) {
-        var cb = function () { update_volume_value(e); };
-        e.oninput = cb;
-        e.onchange = cb;
+    document.querySelectorAll('[data-onclick="notification_requestPermission"]').forEach(function (el) {
+        el.onclick = function () { Notification.requestPermission(); };
     });
 
-    function update_volume_value(element) {
-        document.getElementById('volume-value').innerText = element.value;
-    }
+    document.querySelectorAll('[data-onrange="update_volume_value"]').forEach(function (el) {
+        function update_volume_value() {
+            document.getElementById('volume-value').innerText = el.value;
+        }
+        el.oninput = update_volume_value;
+        el.onchange = update_volume_value;
+    });
+
 
     function revoke_token(target) {
         var row = target.parentNode.parentNode.parentNode.parentNode.parentNode;
         row.style.display = 'none';
         var count = document.getElementById('count');
-        count.innerText = count.innerText - 1;
+        count.innerText = parseInt(count.innerText) - 1;
 
-        var referer = window.encodeURIComponent(document.location.href);
         var url = '/token_ajax?action_revoke_token=1&redirect=false' +
-            '&referer=' + referer +
+            '&referer=' + encodeURIComponent(location.href) +
             '&session=' + target.getAttribute('data-session');
-        var xhr = new XMLHttpRequest();
-        xhr.responseType = 'json';
-        xhr.timeout = 10000;
-        xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status !== 200) {
-                    count.innerText = parseInt(count.innerText) + 1;
-                    row.style.display = '';
-                }
+        var payload = 'csrf_token=' + target.parentNode.querySelector('input[name="csrf_token"]').value;
+
+        helpers.xhr('POST', url, {payload: payload}, {
+            onNon200: function (xhr) {
+                count.innerText = parseInt(count.innerText) + 1;
+                row.style.display = '';
             }
-        };
-
-        var csrf_token = target.parentNode.querySelector('input[name="csrf_token"]').value;
-        xhr.send('csrf_token=' + csrf_token);
+        });
     }
 
     function remove_subscription(target) {
         var row = target.parentNode.parentNode.parentNode.parentNode.parentNode;
         row.style.display = 'none';
         var count = document.getElementById('count');
-        count.innerText = count.innerText - 1;
+        count.innerText = parseInt(count.innerText) - 1;
 
-        var referer = window.encodeURIComponent(document.location.href);
         var url = '/subscription_ajax?action_remove_subscriptions=1&redirect=false' +
-            '&referer=' + referer +
+            '&referer=' + encodeURIComponent(location.href) +
             '&c=' + target.getAttribute('data-ucid');
-        var xhr = new XMLHttpRequest();
-        xhr.responseType = 'json';
-        xhr.timeout = 10000;
-        xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status !== 200) {
-                    count.innerText = parseInt(count.innerText) + 1;
-                    row.style.display = '';
-                }
+        var payload = 'csrf_token=' + target.parentNode.querySelector('input[name="csrf_token"]').value;
+
+        helpers.xhr('POST', url, {payload: payload}, {
+            onNon200: function (xhr) {
+                count.innerText = parseInt(count.innerText) + 1;
+                row.style.display = '';
             }
-        };
-
-        var csrf_token = target.parentNode.querySelector('input[name="csrf_token"]').value;
-        xhr.send('csrf_token=' + csrf_token);
+        });
     }
 
     // Handle keypresses
-    window.addEventListener('keydown', function (event) {
+    addEventListener('keydown', function (event) {
         // Ignore modifier keys
         if (event.ctrlKey || event.metaKey) return;
 

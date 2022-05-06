@@ -42,7 +42,7 @@ embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 var save_player_pos_key = 'save_player_pos';
 
 videojs.Vhs.xhr.beforeRequest = function(options) {
-    if (options.uri.indexOf('videoplayback') === -1 && options.uri.indexOf('local=true') === -1) {
+    if (options.uri.includes('videoplayback') && options.uri.includes('local=true')) {
         options.uri = options.uri + '?local=true';
     }
     return options;
@@ -50,37 +50,38 @@ videojs.Vhs.xhr.beforeRequest = function(options) {
 
 var player = videojs('player', options);
 
-player.on('error', () => {
-    if (video_data.params.quality !== 'dash') {
-        if (!player.currentSrc().includes("local=true") && !video_data.local_disabled) {
-            var currentSources = player.currentSources();
-            for (var i = 0; i < currentSources.length; i++) {
-                currentSources[i]["src"] += "&local=true"
-            }
-            player.src(currentSources)
-        }
-        else if (player.error().code === 2 || player.error().code === 4) {
-            setTimeout(function (event) {
-                console.log('An error occurred in the player, reloading...');
+player.on('error', function () {
+    if (video_data.params.quality === 'dash') return;
     
-                var currentTime = player.currentTime();
-                var playbackRate = player.playbackRate();
-                var paused = player.paused();
-    
-                player.load();
-    
-                if (currentTime > 0.5) currentTime -= 0.5;
-    
-                player.currentTime(currentTime);
-                player.playbackRate(playbackRate);
-    
-                if (!paused) player.play();
-            }, 10000);
-        }
+    var localNotDisabled = !player.currentSrc().includes('local=true') && !video_data.local_disabled;
+    var reloadMakesSense = player.error().code === MediaError.MEDIA_ERR_NETWORK || player.error().code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED;
+
+    if (localNotDisabled) {
+        // add local=true to all current sources
+        player.src(player.currentSources().map(function (source) {
+            source.src += '&local=true';
+        }));
+    } else if (reloadMakesSense) {
+        setTimeout(function (event) {
+            console.log('An error occurred in the player, reloading...');
+
+            var currentTime = player.currentTime();
+            var playbackRate = player.playbackRate();
+            var paused = player.paused();
+
+            player.load();
+
+            if (currentTime > 0.5) currentTime -= 0.5;
+
+            player.currentTime(currentTime);
+            player.playbackRate(playbackRate);
+
+            if (!paused) player.play();
+        }, 10000);
     }
 });
 
-if (video_data.params.quality == 'dash') {
+if (video_data.params.quality === 'dash') {
     player.reloadSourceOnError({
         errorInterval: 10
     });
@@ -89,7 +90,7 @@ if (video_data.params.quality == 'dash') {
 /**
  * Function for add time argument to url
  * @param {String} url
- * @returns urlWithTimeArg
+ * @returns {URL} urlWithTimeArg
  */
 function addCurrentTimeToURL(url) {
     var urlUsed = new URL(url);
@@ -116,13 +117,6 @@ var shareOptions = {
             addCurrentTimeToURL(embed_url) + '" style="border:none;"></iframe>';
     }
 };
-
-const storage = (function () {
-    try { if (localStorage.length !== -1) return localStorage; }
-    catch (e) { console.info('No storage available: ' + e); }
-
-    return undefined;
-})();
 
 if (location.pathname.startsWith('/embed/')) {
     var overlay_content = '<h1><a rel="noopener" target="_blank" href="' + location.origin + '/watch?v=' + video_data.id + '">' + player_data.title + '</a></h1>';
@@ -162,7 +156,7 @@ if (isMobile()) {
     buttons.forEach(function (child) {primary_control_bar.removeChild(child);});
 
     var operations_bar_element = operations_bar.el();
-    operations_bar_element.className += ' mobile-operations-bar';
+    operations_bar_element.classList.add('mobile-operations-bar');
     player.addChild(operations_bar);
 
     // Playback menu doesn't work when it's initialized outside of the primary control bar
@@ -175,8 +169,8 @@ if (isMobile()) {
         operations_bar_element.append(share_element);
 
         if (video_data.params.quality === 'dash') {
-                var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
-                operations_bar_element.append(http_source_selector);
+            var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
+            operations_bar_element.append(http_source_selector);
         }
     });
 }
@@ -220,14 +214,14 @@ player.playbackRate(video_data.params.speed);
  * Method for getting the contents of a cookie
  *
  * @param {String} name Name of cookie
- * @returns cookieValue
+ * @returns {String|null} cookieValue
  */
 function getCookieValue(name) {
-    var value = document.cookie.split(';').filter(function (item) {return item.includes(name + '=');});
-
-    return (value.length >= 1)
-        ? value[0].substring((name + '=').length, value[0].length)
-        : null;
+    var cookiePrefix = name + '=';
+    var matchedCookie = document.cookie.split(';').find(function (item) {return item.includes(cookiePrefix);});
+    if (matchedCookie)
+        return matchedCookie.replace(cookiePrefix, '');
+    return null;
 }
 
 /**
@@ -257,11 +251,11 @@ function updateCookie(newVolume, newSpeed) {
     date.setTime(date.getTime() + 63115200);
 
     var ipRegex = /^((\d+\.){3}\d+|[A-Fa-f0-9]*:[A-Fa-f0-9:]*:[A-Fa-f0-9:]+)$/;
-    var domainUsed = window.location.hostname;
+    var domainUsed = location.hostname;
 
     // Fix for a bug in FF where the leading dot in the FQDN is not ignored
     if (domainUsed.charAt(0) !== '.' && !ipRegex.test(domainUsed) && domainUsed !== 'localhost')
-        domainUsed = '.' + window.location.hostname;
+        domainUsed = '.' + location.hostname;
 
     document.cookie = 'PREFS=' + cookieData + '; SameSite=Strict; path=/; domain=' +
         domainUsed + '; expires=' + date.toGMTString() + ';';
@@ -280,7 +274,7 @@ player.on('volumechange', function () {
 
 player.on('waiting', function () {
     if (player.playbackRate() > 1 && player.liveTracker.isLive() && player.liveTracker.atLiveEdge()) {
-        console.info('Player has caught up to source, resetting playbackRate.');
+        console.info('Player has caught up to source, resetting playbackRate');
         player.playbackRate(1);
     }
 });
@@ -292,12 +286,12 @@ if (video_data.premiere_timestamp && Math.round(new Date() / 1000) < video_data.
 if (video_data.params.save_player_pos) {
     const url = new URL(location);
     const hasTimeParam = url.searchParams.has('t');
-    const remeberedTime = get_video_time();
+    const rememberedTime = get_video_time();
     let lastUpdated = 0;
 
-    if(!hasTimeParam) set_seconds_after_start(remeberedTime);
+    if(!hasTimeParam) set_seconds_after_start(rememberedTime);
 
-    const updateTime = function () {
+    player.on('timeupdate', function () {
         const raw = player.currentTime();
         const time = Math.floor(raw);
 
@@ -305,9 +299,7 @@ if (video_data.params.save_player_pos) {
             save_video_time(time);
             lastUpdated = time;
         }
-    };
-
-    player.on('timeupdate', updateTime);
+    });
 }
 else remove_all_video_times();
 
@@ -347,53 +339,31 @@ if (!video_data.params.listen && video_data.params.quality === 'dash') {
                         targetQualityLevel = 0;
                         break;
                     default:
-                        const targetHeight = Number.parseInt(video_data.params.quality_dash, 10);
+                        const targetHeight = parseInt(video_data.params.quality_dash, 10);
                         for (let i = 0; i < qualityLevels.length; i++) {
-                            if (qualityLevels[i].height <= targetHeight) {
+                            if (qualityLevels[i].height <= targetHeight)
                                 targetQualityLevel = i;
-                            } else {
+                            else
                                 break;
-                            }
                         }
                 }
-                for (let i = 0; i < qualityLevels.length; i++) {
-                    qualityLevels[i].enabled = (i === targetQualityLevel);
-                }
+                qualityLevels.forEach(function (level, index) {
+                    level.enabled = (index === targetQualityLevel);
+                });
             });
         });
     }
 }
 
 player.vttThumbnails({
-    src: location.origin + '/api/v1/storyboards/' + video_data.id + '?height=90',
+    src: '/api/v1/storyboards/' + video_data.id + '?height=90',
     showTimestamp: true
 });
 
 // Enable annotations
 if (!video_data.params.listen && video_data.params.annotations) {
-    window.addEventListener('load', function (e) {
-        var video_container = document.getElementById('player');
-        let xhr = new XMLHttpRequest();
-        xhr.responseType = 'text';
-        xhr.timeout = 60000;
-        xhr.open('GET', '/api/v1/annotations/' + video_data.id, true);
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    videojs.registerPlugin('youtubeAnnotationsPlugin', youtubeAnnotationsPlugin);
-                    if (!player.paused()) {
-                        player.youtubeAnnotationsPlugin({ annotationXml: xhr.response, videoContainer: video_container });
-                    } else {
-                        player.one('play', function (event) {
-                            player.youtubeAnnotationsPlugin({ annotationXml: xhr.response, videoContainer: video_container });
-                        });
-                    }
-                }
-            }
-        };
-
-        window.addEventListener('__ar_annotation_click', function (e) {
+    addEventListener('load', function (e) {
+        addEventListener('__ar_annotation_click', function (e) {
             const url = e.detail.url,
                   target = e.detail.target,
                   seconds = e.detail.seconds;
@@ -406,41 +376,48 @@ if (!video_data.params.listen && video_data.params.annotations) {
             path = path.pathname + path.search;
 
             if (target === 'current') {
-                window.location.href = path;
+                location.href = path;
             } else if (target === 'new') {
-                window.open(path, '_blank');
+                open(path, '_blank');
             }
         });
 
-        xhr.send();
+        helpers.xhr('GET', '/api/v1/annotations/' + video_data.id, {
+            responseType: 'text',
+            timeout: 60000
+        }, {
+            on200: function (response) {
+                var video_container = document.getElementById('player');
+                videojs.registerPlugin('youtubeAnnotationsPlugin', youtubeAnnotationsPlugin);
+                if (player.paused()) {
+                    player.one('play', function (event) {
+                        player.youtubeAnnotationsPlugin({ annotationXml: response, videoContainer: video_container });
+                    });
+                } else {
+                    player.youtubeAnnotationsPlugin({ annotationXml: response, videoContainer: video_container });
+                }
+            }
+        });
+
     });
 }
 
 function increase_volume(delta) {
     const curVolume = player.volume();
-    let newVolume = curVolume + delta;
-    if (newVolume > 1) {
-        newVolume = 1;
-    } else if (newVolume < 0) {
-        newVolume = 0;
-    }
+    const newVolume = curVolume + delta;
+    helpers.clamp(newVolume, 0, 1);
     player.volume(newVolume);
 }
 
 function toggle_muted() {
-    const isMuted = player.muted();
-    player.muted(!isMuted);
+    player.muted(!player.muted());
 }
 
 function skip_seconds(delta) {
     const duration = player.duration();
     const curTime = player.currentTime();
-    let newTime = curTime + delta;
-    if (newTime > duration) {
-        newTime = duration;
-    } else if (newTime < 0) {
-        newTime = 0;
-    }
+    const newTime = curTime + delta;
+    helpers.clamp(newTime, 0, duration);
     player.currentTime(newTime);
 }
 
@@ -455,52 +432,24 @@ function save_video_time(seconds) {
 
     all_video_times[videoId] = seconds;
 
-    set_all_video_times(all_video_times);
+    helpers.storage.set(save_player_pos_key, JSON.stringify(all_video_times));
 }
 
 function get_video_time() {
-    try {
-        const videoId = video_data.id;
-        const all_video_times = get_all_video_times();
-        const timestamp = all_video_times[videoId];
+    const videoId = video_data.id;
+    const all_video_times = get_all_video_times();
+    const timestamp = all_video_times[videoId];
 
-        return timestamp || 0;
-    }
-    catch (e) {
-        return 0;
-    }
-}
-
-function set_all_video_times(times) {
-    if (storage) {
-        if (times) {
-            try {
-                storage.setItem(save_player_pos_key, JSON.stringify(times));
-            } catch (e) {
-                console.warn('set_all_video_times: ' + e);
-            }
-        } else {
-            storage.removeItem(save_player_pos_key);
-        }
-    }
+    return timestamp || 0;
 }
 
 function get_all_video_times() {
-    if (storage) {
-        const raw = storage.getItem(save_player_pos_key);
-        if (raw !== null) {
-            try {
-                return JSON.parse(raw);
-            } catch (e) {
-                console.warn('get_all_video_times: ' + e);
-            }
-        }
-    }
-    return {};
+    const raw = helpers.storage.get(save_player_pos_key);
+    return raw ? JSON.parse(raw) : {};
 }
 
 function remove_all_video_times() {
-    set_all_video_times(null);
+    helpers.storage.remove(save_player_pos_key);
 }
 
 function set_time_percent(percent) {
@@ -516,21 +465,23 @@ function toggle_play() { player.paused() ? play() : pause(); }
 
 const toggle_captions = (function () {
     let toggledTrack = null;
-    const onChange = function (e) {
-        toggledTrack = null;
-    };
-    const bindChange = function (onOrOff) {
-        player.textTracks()[onOrOff]('change', onChange);
-    };
+    
+    function bindChange(onOrOff) {
+        player.textTracks()[onOrOff]('change', function (e) {
+            toggledTrack = null;
+        });
+    }
+
     // Wrapper function to ignore our own emitted events and only listen
     // to events emitted by Video.js on click on the captions menu items.
-    const setMode = function (track, mode) {
+    function setMode(track, mode) {
         bindChange('off');
         track.mode = mode;
-        window.setTimeout(function () {
+        setTimeout(function () {
             bindChange('on');
         }, 0);
-    };
+    }
+    
     bindChange('on');
     return function () {
         if (toggledTrack !== null) {
@@ -577,16 +528,12 @@ function toggle_fullscreen() {
 function increase_playback_rate(steps) {
     const maxIndex = options.playbackRates.length - 1;
     const curIndex = options.playbackRates.indexOf(player.playbackRate());
-    let newIndex = curIndex + steps;
-    if (newIndex > maxIndex) {
-        newIndex = maxIndex;
-    } else if (newIndex < 0) {
-        newIndex = 0;
-    }
+    const newIndex = curIndex + steps;
+    helpers.clamp(newIndex, 0, maxIndex);
     player.playbackRate(options.playbackRates[newIndex]);
 }
 
-window.addEventListener('keydown', function (e) {
+addEventListener('keydown', function (e) {
     if (e.target.tagName.toLowerCase() === 'input') {
         // Ignore input when focus is on certain elements, e.g. form fields.
         return;
@@ -673,12 +620,11 @@ window.addEventListener('keydown', function (e) {
             // TODO: Add support to play back previous video.
             break;
 
-        case '.':
-            // TODO: Add support for next-frame-stepping.
-            break;
-        case ',':
-            // TODO: Add support for previous-frame-stepping.
-            break;
+        // TODO: More precise step. Now FPS is taken equal to 29.97
+        // Common FPS: https://forum.videohelp.com/threads/81868#post323588
+        // Possible solution is new HTMLVideoElement.requestVideoFrameCallback() https://wicg.github.io/video-rvfc/
+        case '.': action = function () { pause(); skip_seconds(-1/29.97); }; break;
+        case ',': action = function () { pause(); skip_seconds( 1/29.97); }; break;
 
         case '>': action = increase_playback_rate.bind(this, 1); break;
         case '<': action = increase_playback_rate.bind(this, -1); break;
@@ -697,10 +643,6 @@ window.addEventListener('keydown', function (e) {
 // Add support for controlling the player volume by scrolling over it. Adapted from
 // https://github.com/ctd1500/videojs-hotkeys/blob/bb4a158b2e214ccab87c2e7b95f42bc45c6bfd87/videojs.hotkeys.js#L292-L328
 (function () {
-    const volumeStep = 0.05;
-    const enableVolumeScroll = true;
-    const enableHoverScroll = true;
-    const doc = document;
     const pEl = document.getElementById('player');
 
     var volumeHover = false;
@@ -710,39 +652,23 @@ window.addEventListener('keydown', function (e) {
         volumeSelector.onmouseout = function () { volumeHover = false; };
     }
 
-    var mouseScroll = function mouseScroll(event) {
-        var activeEl = doc.activeElement;
-        if (enableHoverScroll) {
-            // If we leave this undefined then it can match non-existent elements below
-            activeEl = 0;
-        }
-
+    function mouseScroll(event) {
         // When controls are disabled, hotkeys will be disabled as well
-        if (player.controls()) {
-            if (volumeHover) {
-                if (enableVolumeScroll) {
-                    event = window.event || event;
-                    var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
-                    event.preventDefault();
+        if (!player.controls() || !volumeHover) return;
 
-                    if (delta === 1) {
-                        increase_volume(volumeStep);
-                    } else if (delta === -1) {
-                        increase_volume(-volumeStep);
-                    }
-                }
-            }
-        }
-    };
+        event.preventDefault();
+        var wheelMove = event.wheelDelta || -event.detail;
+        var volumeSign = Math.sign(wheelMove);
+
+        increase_volume(volumeSign * 0.05); // decrease/increase by 5%
+    }
 
     player.on('mousewheel', mouseScroll);
     player.on('DOMMouseScroll', mouseScroll);
 }());
 
 // Since videojs-share can sometimes be blocked, we defer it until last
-if (player.share) {
-    player.share(shareOptions);
-}
+if (player.share) player.share(shareOptions);
 
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {
@@ -763,7 +689,7 @@ if (navigator.vendor === 'Apple Computer, Inc.' && video_data.params.listen) {
 }
 
 // Watch on Invidious link
-if (window.location.pathname.startsWith('/embed/')) {
+if (location.pathname.startsWith('/embed/')) {
     const Button = videojs.getComponent('Button');
     let watch_on_invidious_button = new Button(player);
 
