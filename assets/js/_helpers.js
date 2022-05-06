@@ -165,9 +165,9 @@ window.helpers = window.helpers || {
 
     /**
      * @typedef {Object} invidiousStorage
-     * @property {(key:String) => Object|null} get
-     * @property {(key:String, value:Object) => null} set
-     * @property {(key:String) => null} remove
+     * @property {(key:String) => Object} get
+     * @property {(key:String, value:Object)} set
+     * @property {(key:String)} remove
      */
 
     /**
