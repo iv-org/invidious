@@ -25,7 +25,7 @@ Math.sign = Math.sign || function(x) {
 };
 
 // Monstrous global variable for handy code
-helpers = helpers || {
+window.helpers = window.helpers || {
     /**
      * https://en.wikipedia.org/wiki/Clamping_(graphics)
      * @param {Number} num Source number
@@ -38,9 +38,9 @@ helpers = helpers || {
             var t = max; max = min; min = t; // swap max and min
         }
 
-        if (max > num)
+        if (max < num)
             return max;
-        if (min < num)
+        if (min > num)
             return min;
         return num;
     },
@@ -62,14 +62,17 @@ helpers = helpers || {
         if (method === 'POST')
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200)
-                    if (callbacks.on200)
-                        callbacks.on200(xhr.response);
-                else
-                    if (callbacks.onNon200)
-                        callbacks.onNon200(xhr);
+        // better than onreadystatechange because of 404 codes https://stackoverflow.com/a/36182963
+        xhr.onloadend = function () {
+            if (xhr.status === 200) {
+                if (callbacks.on200)
+                    callbacks.on200(xhr.response);
+            } else {
+                // handled by onerror
+                if (xhr.status === 0) return;
+
+                if (callbacks.onNon200)
+                    callbacks.onNon200(xhr);
             }
         };
 
@@ -89,14 +92,14 @@ helpers = helpers || {
             xhr.send();
     },
     /** @private */
-    _xhrRetry(method, url, options, callbacks) {
+    _xhrRetry: function(method, url, options, callbacks) {
         if (options.retries <= 0) {
             console.warn('Failed to pull', options.entity_name);
             if (callbacks.onTotalFail)
                 callbacks.onTotalFail();
             return;
         }
-        helpers.xhr(method, url, options, callbacks);
+        helpers._xhr(method, url, options, callbacks);
     },
     /**
      * @callback callbackXhrOn200
@@ -123,18 +126,19 @@ helpers = helpers || {
      * @param {callbackXhrError} [callbacks.onError]
      * @param {callbackXhrError} [callbacks.onTotalFail] - if failed after all retries
      */
-     xhr(method, url, options, callbacks) {
-        if (options.retries > 1) {
+     xhr: function(method, url, options, callbacks) {
+        if (!options.retries || options.retries <= 1) {
             helpers._xhr(method, url, options, callbacks);
             return;
         }
 
         if (!options.entity_name) options.entity_name = 'unknown';
-        if (!options.retry_timeout) options.retry_timeout = 1;
+        if (!options.retry_timeout) options.retry_timeout = 1000;
         const retries_total = options.retries;
+        let currentTry = 1;
 
         const retry = function () {
-            console.warn('Pulling ' + options.entity_name + ' failed... ' + options.retries + '/' + retries_total);
+            console.warn('Pulling ' + options.entity_name + ' failed... ' + (currentTry++) + '/' + retries_total);
             setTimeout(function () {
                 options.retries--;
                 helpers._xhrRetry(method, url, options, callbacks);
