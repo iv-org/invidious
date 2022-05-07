@@ -308,25 +308,26 @@ module Invidious::Routes::Watch
     extension = download_widget["ext"].as_s
     filename = "#{video_id}-#{title}.#{extension}"
 
-    # Pass form parameters as URL parameters for the handlers of both
-    # /latest_version and /api/v1/captions. This avoids an un-necessary
-    # redirect and duplicated (and hazardous) sanity checks.
-    env.params.query["id"] = video_id
-    env.params.query["title"] = filename
-
-    # Delete the useless ones
+    # Delete the now useless URL parameters
     env.params.body.delete("id")
     env.params.body.delete("title")
     env.params.body.delete("download_widget")
 
+    # Pass form parameters as URL parameters for the handlers of both
+    # /latest_version and /api/v1/captions. This avoids an un-necessary
+    # redirect and duplicated (and hazardous) sanity checks.
     if label = download_widget["label"]?
       # URL params specific to /api/v1/captions/:id
-      env.params.query["label"] = URI.encode_www_form(label.as_s, space_to_plus: false)
+      env.params.url["id"] = video_id
+      env.params.query["title"] = filename
+      env.params.query["label"] = URI.decode_www_form(label.as_s)
 
       return Invidious::Routes::API::V1::Videos.captions(env)
     elsif itag = download_widget["itag"]?.try &.as_i
       # URL params specific to /latest_version
+      env.params.query["id"] = video_id
       env.params.query["itag"] = itag.to_s
+      env.params.query["title"] = filename
       env.params.query["local"] = "true"
 
       return Invidious::Routes::VideoPlayback.latest_version(env)
