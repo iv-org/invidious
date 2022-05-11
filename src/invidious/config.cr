@@ -161,16 +161,13 @@ class Config
         {% env_id = "INVIDIOUS_#{ivar.id.upcase}" %}
 
         if ENV.has_key?({{env_id}})
-            # puts %(Config.{{ivar.id}} : Loading from env var {{env_id}})
             env_value = ENV.fetch({{env_id}})
             success = false
 
             # Use YAML converter if specified
             {% ann = ivar.annotation(::YAML::Field) %}
             {% if ann && ann[:converter] %}
-                puts %(Config.{{ivar.id}} : Parsing "#{env_value}" as {{ivar.type}} with {{ann[:converter]}} converter)
                 config.{{ivar.id}} = {{ann[:converter]}}.from_yaml(YAML::ParseContext.new, YAML::Nodes.parse(ENV.fetch({{env_id}})).nodes[0])
-                puts %(Config.{{ivar.id}} : Set to #{config.{{ivar.id}}})
                 success = true
 
             # Use regular YAML parser otherwise
@@ -181,9 +178,7 @@ class Config
                 {{ivar_types}}.each do |ivar_type|
                     if !success
                         begin
-                            # puts %(Config.{{ivar.id}} : Trying to parse "#{env_value}" as #{ivar_type})
                             config.{{ivar.id}} = ivar_type.from_yaml(env_value)
-                            puts %(Config.{{ivar.id}} : Set to #{config.{{ivar.id}}} (#{ivar_type}))
                             success = true
                         rescue
                             # nop
