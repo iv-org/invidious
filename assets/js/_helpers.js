@@ -145,16 +145,14 @@ window.helpers = window.helpers || {
             }, options.retry_timeout);
         };
         
-        if (callbacks.onError)
-            callbacks._onError = callbacks.onError;
+        callbacks._onError = callbacks.onError;
         callbacks.onError = function (xhr) {
             if (callbacks._onError)
                 callbacks._onError();
             retry();
         };
 
-        if (callbacks.onTimeout)
-            callbacks._onTimeout = callbacks.onTimeout;
+        callbacks._onTimeout = callbacks.onTimeout;
         callbacks.onTimeout = function (xhr) {
             if (callbacks._onTimeout)
                 callbacks._onTimeout();

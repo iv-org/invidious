@@ -102,13 +102,6 @@ function continue_autoplay(event) {
     }
 }
 
-function number_with_separator(val) {
-    while (/(\d+)(\d{3})/.test(val.toString())) {
-        val = val.toString().replace(/(\d+)(\d{3})/, '$1' + ',' + '$2');
-    }
-    return val;
-}
-
 function get_playlist(plid) {
     var playlist = document.getElementById('playlist');
 
@@ -248,9 +241,13 @@ function get_youtube_comments() {
             <hr>'.supplant({
                 contentHtml: response.contentHtml,
                 redditComments: video_data.reddit_comments_text,
-                commentsText: video_data.comments_text.supplant(
-                    { commentCount: number_with_separator(response.commentCount) }
-                )
+                commentsText: video_data.comments_text.supplant({
+                    // toLocaleString correctly splits number with local thousands separator. e.g.:
+                    // '1,234,567.89' for user with English locale
+                    // '1 234 567,89' for user with Russian locale
+                    // '1.234.567,89' for user with Portuguese locale
+                    commentCount: response.commentCount.toLocaleString()
+                })
             });
 
             comments.children[0].children[0].children[0].onclick = toggle_comments;

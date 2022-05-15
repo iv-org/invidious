@@ -42,9 +42,10 @@ embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 var save_player_pos_key = 'save_player_pos';
 
 videojs.Vhs.xhr.beforeRequest = function(options) {
-    if (options.uri.includes('videoplayback') && options.uri.includes('local=true')) {
-        options.uri = options.uri + '?local=true';
-    }
+    // set local if requested not videoplayback
+    if (!options.uri.includes('videoplayback'))
+        if (!options.uri.includes('local=true'))
+            options.uri += '?local=true';
     return options;
 };
 
@@ -402,7 +403,7 @@ if (!video_data.params.listen && video_data.params.annotations) {
     });
 }
 
-function increase_volume(delta) {
+function change_volume(delta) {
     const curVolume = player.volume();
     const newVolume = curVolume + delta;
     helpers.clamp(newVolume, 0, 1);
@@ -565,10 +566,10 @@ addEventListener('keydown', function (e) {
         case 'MediaStop':  action = stop; break;
 
         case 'ArrowUp':
-            if (isPlayerFocused) action = increase_volume.bind(this, 0.1);
+            if (isPlayerFocused) action = change_volume.bind(this, 0.1);
             break;
         case 'ArrowDown':
-            if (isPlayerFocused) action = increase_volume.bind(this, -0.1);
+            if (isPlayerFocused) action = change_volume.bind(this, -0.1);
             break;
 
         case 'm':
@@ -659,7 +660,7 @@ addEventListener('keydown', function (e) {
         var wheelMove = event.wheelDelta || -event.detail;
         var volumeSign = Math.sign(wheelMove);
 
-        increase_volume(volumeSign * 0.05); // decrease/increase by 5%
+        change_volume(volumeSign * 0.05); // decrease/increase by 5%
     }
 
     player.on('mousewheel', mouseScroll);
