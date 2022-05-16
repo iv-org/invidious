@@ -5,7 +5,6 @@ toggle_theme.href = 'javascript:void(0)';
 const STORAGE_KEY_THEME = 'dark_mode';
 const THEME_DARK = 'dark';
 const THEME_LIGHT = 'light';
-const THEME_SYSTEM = '';
 
 // TODO: theme state controlled by system
 toggle_theme.addEventListener('click', function () {
@@ -16,28 +15,16 @@ toggle_theme.addEventListener('click', function () {
     helpers.xhr('GET', '/toggle_theme?redirect=false', {}, {});
 });
 
-
-// Ask system about dark theme
-var systemDarkTheme = matchMedia('(prefers-color-scheme: dark)');
-systemDarkTheme.addListener(function () {
-    // Ignore system events if theme set manually
-    if (!helpers.storage.get(STORAGE_KEY_THEME))
-        setTheme(THEME_SYSTEM);
-});
-
-
-/** @param {THEME_DARK|THEME_LIGHT|THEME_SYSTEM} theme */
+/** @param {THEME_DARK|THEME_LIGHT} theme */
 function setTheme(theme) {
-    if (theme === THEME_DARK || (theme === THEME_SYSTEM && systemDarkTheme.matches)) {
-        toggle_theme.children[0].setAttribute('class', 'icon ion-ios-sunny');
-        document.body.classList.remove('no-theme');
-        document.body.classList.remove('light-theme');
-        document.body.classList.add('dark-theme');
+    // By default body element has .no-theme class that uses OS theme via CSS @media rules
+    // It rewrites using hard className below
+    if (theme === THEME_DARK) {
+        toggle_theme.children[0].className = 'icon ion-ios-sunny';
+        document.body.className = 'dark-theme';
     } else {
-        toggle_theme.children[0].setAttribute('class', 'icon ion-ios-moon');
-        document.body.classList.remove('no-theme');
-        document.body.classList.remove('dark-theme');
-        document.body.classList.add('light-theme');
+        toggle_theme.children[0].className = 'icon ion-ios-moon';
+        document.body.className = 'light-theme';
     }
 }
 
@@ -50,6 +37,8 @@ addEventListener('storage', function (e) {
 // Set theme from preferences on page load
 addEventListener('DOMContentLoaded', function () {
     const prefTheme = document.getElementById('dark_mode_pref').textContent;
-    setTheme(prefTheme);
-    helpers.storage.set(STORAGE_KEY_THEME, prefTheme);
+    if (prefTheme) {
+        setTheme(prefTheme);
+        helpers.storage.set(STORAGE_KEY_THEME, prefTheme);
+    }
 });
