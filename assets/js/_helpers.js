@@ -23,6 +23,20 @@ Math.sign = Math.sign || function(x) {
     if (!x) return x; // 0 and NaN
     return x > 0 ? 1 : -1;
 };
+if (!window.hasOwnProperty('HTMLDetailsElement') && !window.hasOwnProperty('mockHTMLDetailsElement')) {
+    window.mockHTMLDetailsElement = true;
+    const style = 'details:not([open]) > :not(summary) {display: none}';
+    document.head.appendChild(document.createElement('style')).textContent = style;
+
+    addEventListener('click', function (e) {
+        if (e.target.nodeName !== 'SUMMARY') return;
+        const details = e.target.parentElement;
+        if (details.hasAttribute('open'))
+            details.removeAttribute('open');
+        else
+            details.setAttribute('open', '');
+    });
+}
 
 // Monstrous global variable for handy code
 window.helpers = window.helpers || {
@@ -65,8 +79,13 @@ window.helpers = window.helpers || {
         // better than onreadystatechange because of 404 codes https://stackoverflow.com/a/36182963
         xhr.onloadend = function () {
             if (xhr.status === 200) {
-                if (callbacks.on200)
-                    callbacks.on200(xhr.response);
+                if (callbacks.on200) {
+                    // fix for IE11. It doesn't convert response to JSON
+                    if (xhr.responseType === '' && typeof(xhr.response) === 'string')
+                        callbacks.on200(JSON.parse(xhr.response));
+                    else
+                        callbacks.on200(xhr.response);
+                }
             } else {
                 // handled by onerror
                 if (xhr.status === 0) return;

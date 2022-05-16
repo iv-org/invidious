@@ -10,7 +10,9 @@ const THEME_SYSTEM = '';
 // TODO: theme state controlled by system
 toggle_theme.addEventListener('click', function () {
     const isDarkTheme = helpers.storage.get(STORAGE_KEY_THEME) === THEME_DARK;
-    setTheme(isDarkTheme ? THEME_LIGHT : THEME_DARK);
+    const newTheme = isDarkTheme ? THEME_LIGHT : THEME_DARK;
+    setTheme(newTheme);
+    helpers.storage.set(STORAGE_KEY_THEME, newTheme);
     helpers.xhr('GET', '/toggle_theme?redirect=false', {}, {});
 });
 
@@ -26,9 +28,6 @@ systemDarkTheme.addListener(function () {
 
 /** @param {THEME_DARK|THEME_LIGHT|THEME_SYSTEM} theme */
 function setTheme(theme) {
-    if (theme !== THEME_SYSTEM)
-        helpers.storage.set(STORAGE_KEY_THEME, theme);
-
     if (theme === THEME_DARK || (theme === THEME_SYSTEM && systemDarkTheme.matches)) {
         toggle_theme.children[0].setAttribute('class', 'icon ion-ios-sunny');
         document.body.classList.remove('no-theme');
@@ -44,11 +43,13 @@ function setTheme(theme) {
 
 // Handles theme change event caused by other tab
 addEventListener('storage', function (e) {
-    if (e.key === STORAGE_KEY_THEME) setTheme(e.newValue);
+    if (e.key === STORAGE_KEY_THEME)
+        setTheme(helpers.storage.get(STORAGE_KEY_THEME));
 });
 
 // Set theme from preferences on page load
 addEventListener('DOMContentLoaded', function () {
     const prefTheme = document.getElementById('dark_mode_pref').textContent;
     setTheme(prefTheme);
+    helpers.storage.set(STORAGE_KEY_THEME, prefTheme);
 });

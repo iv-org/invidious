@@ -623,8 +623,8 @@ addEventListener('keydown', function (e) {
         // TODO: More precise step. Now FPS is taken equal to 29.97
         // Common FPS: https://forum.videohelp.com/threads/81868#post323588
         // Possible solution is new HTMLVideoElement.requestVideoFrameCallback() https://wicg.github.io/video-rvfc/
-        case '.': action = function () { pause(); skip_seconds(-1/29.97); }; break;
-        case ',': action = function () { pause(); skip_seconds( 1/29.97); }; break;
+        case ',': action = function () { pause(); skip_seconds(-1/29.97); }; break;
+        case '.': action = function () { pause(); skip_seconds( 1/29.97); }; break;
 
         case '>': action = increase_playback_rate.bind(this, 1); break;
         case '<': action = increase_playback_rate.bind(this, -1); break;
