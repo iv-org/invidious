@@ -63,9 +63,10 @@ player.on('error', function () {
             source.src += '&local=true';
         }));
     } else if (reloadMakesSense) {
-        setTimeout(function (event) {
-            console.log('An error occurred in the player, reloading...');
+        setTimeout(function () {
+            console.warn('An error occurred in the player, reloading...');
 
+            // After load() all parameters are reset. Save them
             var currentTime = player.currentTime();
             var playbackRate = player.playbackRate();
             var paused = player.paused();
@@ -76,9 +77,8 @@ player.on('error', function () {
 
             player.currentTime(currentTime);
             player.playbackRate(playbackRate);
-
             if (!paused) player.play();
-        }, 10000);
+        }, 5000);
     }
 });
 
