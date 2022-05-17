@@ -114,8 +114,9 @@ var shareOptions = {
     description: player_data.description,
     image: player_data.thumbnail,
     get embedCode() {
-        return '<iframe id="ivplayer" width="640" height="360" src="' +
-            addCurrentTimeToURL(embed_url) + '" style="border:none;"></iframe>';
+        // Single quotes inside here required. HTML inserted as is into value attribute of input
+        return "<iframe id='ivplayer' width='640' height='360' src='" +
+            addCurrentTimeToURL(embed_url) + "' style='border:none;'></iframe>";
     }
 };
 
