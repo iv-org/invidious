@@ -279,24 +279,24 @@ we're going to need to do it here in order to allow for translations.
                                     </div>
                                 <% end %>
                                 <p style="width:100%"><%= rv["title"] %></p>
-                                <h5 class="pure-g">
-                                    <div class="pure-u-14-24">
-                                        <% if rv["ucid"]? %>
-                                            <b style="width:100%"><a href="/channel/<%= rv["ucid"] %>"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></a></b>
-                                        <% else %>
-                                            <b style="width:100%"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b>
-                                        <% end %>
-                                    </div>
-
-                                    <div class="pure-u-10-24" style="text-align:right">
-                                        <b class="width:100%"><%=
-                                            views = rv["view_count"]?.try &.to_i?
-                                            views ||= rv["view_count_short"]?.try { |x| short_text_to_number(x) }
-                                            translate_count(locale, "generic_views_count", views || 0, NumberFormatting::Short)
-                                        %></b>
-                                    </div>
-                                </h5>
                             </a>
+                            <h5 class="pure-g">
+                                <div class="pure-u-14-24">
+                                    <% if rv["ucid"]? %>
+                                        <b style="width:100%"><a href="/channel/<%= rv["ucid"] %>"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></a></b>
+                                    <% else %>
+                                        <b style="width:100%"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b>
+                                    <% end %>
+                                </div>
+
+                                <div class="pure-u-10-24" style="text-align:right">
+                                    <b class="width:100%"><%=
+                                        views = rv["view_count"]?.try &.to_i?
+                                        views ||= rv["view_count_short"]?.try { |x| short_text_to_number(x) }
+                                        translate_count(locale, "generic_views_count", views || 0, NumberFormatting::Short)
+                                    %></b>
+                                </div>
+                            </h5>
                         <% end %>
                     <% end %>
                 </div>
