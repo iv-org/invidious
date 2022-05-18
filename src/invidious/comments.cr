@@ -567,6 +567,10 @@ end
 
 def content_to_comment_html(content, video_id : String? = "")
   html_array = content.map do |run|
+    # Sometimes, there is an empty element.
+    # See: https://github.com/iv-org/invidious/issues/3096
+    next if run.as_h.empty?
+
     text = HTML.escape(run["text"].as_s)
 
     if run["navigationEndpoint"]?
