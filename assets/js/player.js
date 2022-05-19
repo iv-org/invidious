@@ -54,8 +54,13 @@ var player = videojs('player', options);
 player.on('error', function () {
     if (video_data.params.quality === 'dash') return;
     
-    var localNotDisabled = !player.currentSrc().includes('local=true') && !video_data.local_disabled;
-    var reloadMakesSense = player.error().code === MediaError.MEDIA_ERR_NETWORK || player.error().code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED;
+    var localNotDisabled = (
+        !player.currentSrc().includes('local=true') && !video_data.local_disabled
+    );
+    var reloadMakesSense = (
+        player.error().code === MediaError.MEDIA_ERR_NETWORK || 
+        player.error().code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED
+    );
 
     if (localNotDisabled) {
         // add local=true to all current sources
