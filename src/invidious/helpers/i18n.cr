@@ -10,6 +10,7 @@ LOCALES_LIST = {
   "en-US"   => "English",               # English
   "eo"      => "Esperanto",             # Esperanto
   "es"      => "Español",               # Spanish
+  "et"      => "Eesti keel",            # Estonian
   "fa"      => "فارسی",                 # Persian
   "fi"      => "Suomi",                 # Finnish
   "fr"      => "Français",              # French
