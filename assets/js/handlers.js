@@ -78,7 +78,7 @@
 
     document.querySelectorAll('[data-onrange="update_volume_value"]').forEach(function (el) {
         function update_volume_value() {
-            document.getElementById('volume-value').innerText = el.value;
+            document.getElementById('volume-value').textContent = el.value;
         }
         el.oninput = update_volume_value;
         el.onchange = update_volume_value;
@@ -89,7 +89,7 @@
         var row = target.parentNode.parentNode.parentNode.parentNode.parentNode;
         row.style.display = 'none';
         var count = document.getElementById('count');
-        count.innerText = parseInt(count.innerText) - 1;
+        count.textContent--;
 
         var url = '/token_ajax?action_revoke_token=1&redirect=false' +
             '&referer=' + encodeURIComponent(location.href) +
@@ -99,7 +99,7 @@
 
         helpers.xhr('POST', url, {payload: payload}, {
             onNon200: function (xhr) {
-                count.innerText = parseInt(count.innerText) + 1;
+                count.textContent++;
                 row.style.display = '';
             }
         });
@@ -109,7 +109,7 @@
         var row = target.parentNode.parentNode.parentNode.parentNode.parentNode;
         row.style.display = 'none';
         var count = document.getElementById('count');
-        count.innerText = parseInt(count.innerText) - 1;
+        count.textContent--;
 
         var url = '/subscription_ajax?action_remove_subscriptions=1&redirect=false' +
             '&referer=' + encodeURIComponent(location.href) +
@@ -119,7 +119,7 @@
 
         helpers.xhr('POST', url, {payload: payload}, {
             onNon200: function (xhr) {
-                count.innerText = parseInt(count.innerText) + 1;
+                count.textContent++;
                 row.style.display = '';
             }
         });

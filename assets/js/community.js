@@ -62,7 +62,7 @@ function get_youtube_replies(target, load_more) {
                 a.onclick = hide_youtube_replies;
                 a.setAttribute('data-sub-text', community_data.hide_replies_text);
                 a.setAttribute('data-inner-text', community_data.show_replies_text);
-                a.innerText = community_data.hide_replies_text;
+                a.textContent = community_data.hide_replies_text;
 
                 var div = document.createElement('div');
                 div.innerHTML = response.contentHtml;

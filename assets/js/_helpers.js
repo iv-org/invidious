@@ -39,6 +39,7 @@ if (!window.hasOwnProperty('HTMLDetailsElement') && !window.hasOwnProperty('mock
 }
 
 // Monstrous global variable for handy code
+// Includes: clamp, xhr, storage.{get,set,remove}
 window.helpers = window.helpers || {
     /**
      * https://en.wikipedia.org/wiki/Clamping_(graphics)
@@ -164,19 +165,20 @@ window.helpers = window.helpers || {
             }, options.retry_timeout);
         };
         
+        // Pack retry() call into error handlers
         callbacks._onError = callbacks.onError;
         callbacks.onError = function (xhr) {
             if (callbacks._onError)
-                callbacks._onError();
+                callbacks._onError(xhr);
             retry();
         };
-
         callbacks._onTimeout = callbacks.onTimeout;
         callbacks.onTimeout = function (xhr) {
             if (callbacks._onTimeout)
-                callbacks._onTimeout();
+                callbacks._onTimeout(xhr);
             retry();
-        };    
+        };
+
         helpers._xhrRetry(method, url, options, callbacks);
     },
 
@@ -198,13 +200,22 @@ window.helpers = window.helpers || {
 
         if (localStorageIsUsable) {
             return {
-                get: function (key) { if (localStorage[key]) return JSON.parse(decodeURIComponent(localStorage[key])); },
+                get: function (key) {
+                    if (!localStorage[key]) return;
+                    try {
+                        return JSON.parse(decodeURIComponent(localStorage[key]));
+                    } catch(e) {
+                        // Erase non parsable value
+                        helpers.storage.remove(key);
+                    }
+                },
                 set: function (key, value) { localStorage[key] = encodeURIComponent(JSON.stringify(value)); },
                 remove: function (key) { localStorage.removeItem(key); }
             };
         }
 
-        console.info('Storage: localStorage is disabled or unaccessible trying cookies');
+        // TODO: fire 'storage' event for cookies
+        console.info('Storage: localStorage is disabled or unaccessible. Cookies used as fallback');
         return {
             get: function (key) {
                 const cookiePrefix = key + '=';
@@ -213,7 +224,12 @@ window.helpers = window.helpers || {
                 if (matchedCookie) {
                     const cookieBody = matchedCookie.replace(cookiePrefix, '');
                     if (cookieBody.length === 0) return;
-                    return JSON.parse(decodeURIComponent(cookieBody));
+                    try {
+                        return JSON.parse(decodeURIComponent(cookieBody));
+                    } catch(e) {
+                        // Erase non parsable value
+                        helpers.storage.remove(key);
+                    }
                 }
             },
             set: function (key, value) {

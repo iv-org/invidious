@@ -12,7 +12,7 @@ function add_playlist_video(target) {
 
     helpers.xhr('POST', url, {payload: payload}, {
         on200: function (response) {
-            option.innerText = '✓' + option.innerText;
+            option.textContent = '✓' + option.textContent;
         }
     });
 }

@@ -294,7 +294,7 @@ function get_youtube_replies(target, load_more, load_replies) {
                 a.onclick = hide_youtube_replies;
                 a.setAttribute('data-sub-text', video_data.hide_replies_text);
                 a.setAttribute('data-inner-text', video_data.show_replies_text);
-                a.innerText = video_data.hide_replies_text;
+                a.textContent = video_data.hide_replies_text;
 
                 var div = document.createElement('div');
                 div.innerHTML = response.contentHtml;

@@ -43,9 +43,10 @@ var save_player_pos_key = 'save_player_pos';
 
 videojs.Vhs.xhr.beforeRequest = function(options) {
     // set local if requested not videoplayback
-    if (!options.uri.includes('videoplayback'))
+    if (!options.uri.includes('videoplayback')) {
         if (!options.uri.includes('local=true'))
             options.uri += '?local=true';
+    }
     return options;
 };
 
@@ -346,7 +347,7 @@ if (!video_data.params.listen && video_data.params.quality === 'dash') {
                         targetQualityLevel = 0;
                         break;
                     default:
-                        const targetHeight = parseInt(video_data.params.quality_dash, 10);
+                        const targetHeight = parseInt(video_data.params.quality_dash);
                         for (let i = 0; i < qualityLevels.length; i++) {
                             if (qualityLevels[i].height <= targetHeight)
                                 targetQualityLevel = i;
@@ -411,8 +412,8 @@ if (!video_data.params.listen && video_data.params.annotations) {
 
 function change_volume(delta) {
     const curVolume = player.volume();
-    const newVolume = curVolume + delta;
-    helpers.clamp(newVolume, 0, 1);
+    let newVolume = curVolume + delta;
+    newVolume = helpers.clamp(newVolume, 0, 1);
     player.volume(newVolume);
 }
 
@@ -423,8 +424,8 @@ function toggle_muted() {
 function skip_seconds(delta) {
     const duration = player.duration();
     const curTime = player.currentTime();
-    const newTime = curTime + delta;
-    helpers.clamp(newTime, 0, duration);
+    let newTime = curTime + delta;
+    newTime = helpers.clamp(newTime, 0, duration);
     player.currentTime(newTime);
 }
 
@@ -434,20 +435,13 @@ function set_seconds_after_start(delta) {
 }
 
 function save_video_time(seconds) {
-    const videoId = video_data.id;
     const all_video_times = get_all_video_times();
-
-    all_video_times[videoId] = seconds;
-
+    all_video_times[video_data.id] = seconds;
     helpers.storage.set(save_player_pos_key, all_video_times);
 }
 
 function get_video_time() {
-    const videoId = video_data.id;
-    const all_video_times = get_all_video_times();
-    const timestamp = all_video_times[videoId];
-
-    return timestamp || 0;
+    return get_all_video_times()[video_data.id] || 0;
 }
 
 function get_all_video_times() {
@@ -534,8 +528,8 @@ function toggle_fullscreen() {
 function increase_playback_rate(steps) {
     const maxIndex = options.playbackRates.length - 1;
     const curIndex = options.playbackRates.indexOf(player.playbackRate());
-    const newIndex = curIndex + steps;
-    helpers.clamp(newIndex, 0, maxIndex);
+    let newIndex = curIndex + steps;
+    newIndex = helpers.clamp(newIndex, 0, maxIndex);
     player.playbackRate(options.playbackRates[newIndex]);
 }
 

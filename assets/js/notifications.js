@@ -1,8 +1,13 @@
 'use strict';
 var notification_data = JSON.parse(document.getElementById('notification_data').textContent);
 
+/** Boolean meaning 'some tab have stream' */
+const STORAGE_KEY_STREAM = 'stream';
+/** Number of notifications. May be increased or reset */
+const STORAGE_KEY_NOTIF_COUNT = 'notification_count';
+
 var notifications, delivered;
-var notifications_substitution = { close: function () { } };
+var notifications_mock = { close: function () { } };
 
 function get_subscriptions() {
     helpers.xhr('GET', '/api/v1/auth/subscriptions?fields=authorId', {
@@ -32,92 +37,96 @@ function create_notification_stream(subscriptions) {
         var notification = JSON.parse(event.data);
         console.info('Got notification:', notification);
 
-        if (start_time < notification.published && !delivered.includes(notification.videoId)) {
-            if (Notification.permission === 'granted') {
-                var system_notification =
-                    new Notification((notification.liveNow ? notification_data.live_now_text : notification_data.upload_text).replace('`x`', notification.author), {
-                        body: notification.title,
-                        icon: '/ggpht' + new URL(notification.authorThumbnails[2].url).pathname,
-                        img: '/ggpht' + new URL(notification.authorThumbnails[4].url).pathname,
-                        tag: notification.videoId
-                    });
+        // Ignore not actual and delivered notifications
+        if (start_time > notification.published || delivered.includes(notification.videoId)) return;
 
-                system_notification.onclick = function (event) {
-                    open('/watch?v=' + event.currentTarget.tag, '_blank');
-                };
-            }
+        delivered.push(notification.videoId);
 
-            delivered.push(notification.videoId);
-            helpers.storage.set('notification_count', (helpers.storage.get('notification_count') || 0) + 1);
-            var notification_ticker = document.getElementById('notification_ticker');
+        let notification_count = helpers.storage.get(STORAGE_KEY_NOTIF_COUNT) || 0;
+        notification_count++;
+        helpers.storage.set(STORAGE_KEY_NOTIF_COUNT, notification_count);
 
-            if (parseInt(helpers.storage.get('notification_count')) > 0) {
-                notification_ticker.innerHTML =
-                    '<span id="notification_count">' + helpers.storage.get('notification_count') + '</span> <i class="icon ion-ios-notifications"></i>';
-            } else {
-                notification_ticker.innerHTML =
-                    '<i class="icon ion-ios-notifications-outline"></i>';
-            }
+        update_ticker_count();
+
+        // TODO: ask permission to show notifications via Notification.requestPermission
+        // https://developer.mozilla.org/en-US/docs/Web/API/notification
+        if (window.Notification && Notification.permission === 'granted') {
+            var notification_text = notification.liveNow ? notification_data.live_now_text : notification_data.upload_text;
+            notification_text = notification_text.replace('`x`', notification.author);
+        
+            var system_notification = new Notification(notification_text, {
+                body: notification.title,
+                icon: '/ggpht' + new URL(notification.authorThumbnails[2].url).pathname,
+                img: '/ggpht' + new URL(notification.authorThumbnails[4].url).pathname
+            });
+        
+            system_notification.onclick = function (e) {
+                open('/watch?v=' + notification.videoId, '_blank');
+            };        
         }
     };
 
-    notifications.addEventListener('error', handle_notification_error);
+    notifications.addEventListener('error', function (e) {
+        console.warn('Something went wrong with notifications, trying to reconnect...');
+        notifications = notifications_mock;
+        setTimeout(get_subscriptions, 1000);
+    });
+
     notifications.stream();
 }
 
-function handle_notification_error(event) {
-    console.warn('Something went wrong with notifications, trying to reconnect...');
-    notifications = notifications_substitution;
-    setTimeout(get_subscriptions, 1000);
+function update_ticker_count() {
+    var notification_ticker = document.getElementById('notification_ticker');
+
+    const notification_count = helpers.storage.get(STORAGE_KEY_STREAM);
+    if (notification_count > 0) {
+        notification_ticker.innerHTML =
+            '<span id="notification_count">' + notification_count + '</span> <i class="icon ion-ios-notifications"></i>';
+    } else {
+        notification_ticker.innerHTML =
+            '<i class="icon ion-ios-notifications-outline"></i>';
+    }
 }
 
-addEventListener('load', function (e) {
-    var notification_count = document.getElementById('notification_count');
-    if (notification_count) {
-        helpers.storage.set('notification_count', parseInt(notification_count.innerText));
-    } else {
-        helpers.storage.set('notification_count', 0);
-    }
-
-    if (helpers.storage.get('stream')) {
-        helpers.storage.remove('stream');
-    } else {
-        setTimeout(function () {
-            if (!helpers.storage.get('stream')) {
-                notifications = notifications_substitution;
-                helpers.storage.set('stream', true);
-                get_subscriptions();
-            }
-        }, Math.random() * 1000 + 50);
-    }
-
-    addEventListener('storage', function (e) {
-        if (e.key === 'stream' && !e.newValue) {
-            if (notifications) {
-                helpers.storage.set('stream', true);
-            } else {
-                setTimeout(function () {
-                    if (!helpers.storage.get('stream')) {
-                        notifications = notifications_substitution;
-                        helpers.storage.set('stream', true);
-                        get_subscriptions();
-                    }
-                }, Math.random() * 1000 + 50);
-            }
-        } else if (e.key === 'notification_count') {
-            var notification_ticker = document.getElementById('notification_ticker');
-
-            if (parseInt(e.newValue) > 0) {
-                notification_ticker.innerHTML =
-                    '<span id="notification_count">' + e.newValue + '</span> <i class="icon ion-ios-notifications"></i>';
-            } else {
-                notification_ticker.innerHTML =
-                    '<i class="icon ion-ios-notifications-outline"></i>';
-            }
+function start_stream_if_needed() {
+    // random wait for other tabs set 'stream' flag
+    setTimeout(function () {
+        if (!helpers.storage.get(STORAGE_KEY_STREAM)) {
+            // if no one set 'stream', set it by yourself and start stream
+            helpers.storage.set(STORAGE_KEY_STREAM, true);
+            notifications = notifications_mock;
+            get_subscriptions();
         }
-    });
+    }, Math.random() * 1000 + 50); // [0.050 .. 1.050) second
+}
+
+
+addEventListener('storage', function (e) {
+    if (e.key === STORAGE_KEY_NOTIF_COUNT)
+        update_ticker_count();
+
+    // if 'stream' key was removed
+    if (e.key === STORAGE_KEY_STREAM && !helpers.storage.get(STORAGE_KEY_STREAM)) {
+        if (notifications) {
+            // restore it if we have active stream
+            helpers.storage.set(STORAGE_KEY_STREAM, true);
+        } else {
+            start_stream_if_needed();
+        }
+    }
 });
 
-addEventListener('unload', function (e) {
-    if (notifications) helpers.storage.remove('stream');
+addEventListener('load', function () {
+    var notification_count_el = document.getElementById('notification_count');
+    var notification_count = notification_count_el ? parseInt(notification_count_el.textContent) : 0;
+    helpers.storage.set(STORAGE_KEY_NOTIF_COUNT, notification_count);
+
+    if (helpers.storage.get(STORAGE_KEY_STREAM))
+        helpers.storage.remove(STORAGE_KEY_STREAM);
+    start_stream_if_needed();
+});
+
+addEventListener('unload', function () {
+    // let chance to other tabs to be a streamer via firing 'storage' event
+    if (notifications) helpers.storage.remove(STORAGE_KEY_STREAM);
 });

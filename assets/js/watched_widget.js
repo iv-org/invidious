@@ -20,14 +20,14 @@ function mark_unwatched(target) {
     var tile = target.parentNode.parentNode.parentNode.parentNode.parentNode;
     tile.style.display = 'none';
     var count = document.getElementById('count');
-    count.innerText = parseInt(count.innerText) - 1;
+    count.textContent--;
 
     var url = '/watch_ajax?action_mark_unwatched=1&redirect=false' +
         '&id=' + target.getAttribute('data-id');
 
     helpers.xhr('POST', url, {payload: payload}, {
         onNon200: function (xhr) {
-            count.innerText = parseInt(count.innerText) + 1;
+            count.textContent++;
             tile.style.display = '';
         }
     });
