@@ -39,3 +39,22 @@ else
 	sudo -u postgres -- psql -c "CREATE DATABASE invidious WITH OWNER kemal;"
 	sudo -u postgres -- psql -c "GRANT ALL ON DATABASE invidious TO kemal;"
 fi
+
+
+#
+# Instructions for modification of pg_hba.conf
+#
+
+if [ "$interactive" = "true" ]; then
+	echo
+	echo "-------------"
+	echo "   NOTICE    "
+	echo "-------------"
+	echo
+	echo "Make sure that your postgreSQL's pg_hba.conf file contains the follwong"
+	echo "lines before previous 'host' configurations:"
+	echo
+	echo "host  invidious  kemal  127.0.0.1/32  md5"
+	echo "host  invidious  kemal  ::1/128       md5"
+	echo
+fi
