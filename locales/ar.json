@@ -458,5 +458,6 @@
     "Russian (auto-generated)": "الروسية (منشأة تلقائيا)",
     "Spanish (Spain)": "الإسبانية (إسبانيا)",
     "crash_page_search_issue": "بحثت عن <a href=\"`x`\"> المشكلات الموجودة على GitHub </a>",
-    "search_filters_title": "معامل الفرز"
+    "search_filters_title": "معامل الفرز",
+    "search_message_no_results": "لا توجد نتائج."
 }
