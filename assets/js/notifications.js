@@ -48,8 +48,7 @@ function create_notification_stream(subscriptions) {
 
         update_ticker_count();
 
-        // TODO: ask permission to show notifications via Notification.requestPermission
-        // https://developer.mozilla.org/en-US/docs/Web/API/notification
+        // permission for notifications handled on settings page. JS handler is in handlers.js
         if (window.Notification && Notification.permission === 'granted') {
             var notification_text = notification.liveNow ? notification_data.live_now_text : notification_data.upload_text;
             notification_text = notification_text.replace('`x`', notification.author);
@@ -62,7 +61,7 @@ function create_notification_stream(subscriptions) {
         
             system_notification.onclick = function (e) {
                 open('/watch?v=' + notification.videoId, '_blank');
-            };        
+            };
         }
     };
 
