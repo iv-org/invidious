@@ -37,6 +37,7 @@ require "./invidious/database/migrations/*"
 require "./invidious/helpers/*"
 require "./invidious/yt_backend/*"
 require "./invidious/frontend/*"
+require "./invidious/videos/*"
 
 require "./invidious/*"
 require "./invidious/channels/*"

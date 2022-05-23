@@ -50,7 +50,7 @@ module Invidious::Frontend::WatchPage
       video_assets.full_videos.each do |option|
         mimetype = option["mimeType"].as_s.split(";")[0]
 
-        height = itag_to_metadata?(option["itag"]).try &.["height"]?
+        height = Invidious::Videos::Formats.itag_to_metadata?(option["itag"]).try &.["height"]?
 
         value = {"itag": option["itag"], "ext": mimetype.split("/")[1]}.to_json
 
