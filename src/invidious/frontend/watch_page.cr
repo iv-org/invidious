@@ -7,7 +7,7 @@ module Invidious::Frontend::WatchPage
     getter full_videos : Array(Hash(String, JSON::Any))
     getter video_streams : Array(Hash(String, JSON::Any))
     getter audio_streams : Array(Hash(String, JSON::Any))
-    getter captions : Array(Caption)
+    getter captions : Array(Invidious::Videos::Caption)
 
     def initialize(
       @full_videos,

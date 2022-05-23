@@ -1,136 +1,3 @@
-CAPTION_LANGUAGES = {
-  "",
-  "English",
-  "English (auto-generated)",
-  "English (United Kingdom)",
-  "English (United States)",
-  "Afrikaans",
-  "Albanian",
-  "Amharic",
-  "Arabic",
-  "Armenian",
-  "Azerbaijani",
-  "Bangla",
-  "Basque",
-  "Belarusian",
-  "Bosnian",
-  "Bulgarian",
-  "Burmese",
-  "Cantonese (Hong Kong)",
-  "Catalan",
-  "Cebuano",
-  "Chinese",
-  "Chinese (China)",
-  "Chinese (Hong Kong)",
-  "Chinese (Simplified)",
-  "Chinese (Taiwan)",
-  "Chinese (Traditional)",
-  "Corsican",
-  "Croatian",
-  "Czech",
-  "Danish",
-  "Dutch",
-  "Dutch (auto-generated)",
-  "Esperanto",
-  "Estonian",
-  "Filipino",
-  "Finnish",
-  "French",
-  "French (auto-generated)",
-  "Galician",
-  "Georgian",
-  "German",
-  "German (auto-generated)",
-  "Greek",
-  "Gujarati",
-  "Haitian Creole",
-  "Hausa",
-  "Hawaiian",
-  "Hebrew",
-  "Hindi",
-  "Hmong",
-  "Hungarian",
-  "Icelandic",
-  "Igbo",
-  "Indonesian",
-  "Indonesian (auto-generated)",
-  "Interlingue",
-  "Irish",
-  "Italian",
-  "Italian (auto-generated)",
-  "Japanese",
-  "Japanese (auto-generated)",
-  "Javanese",
-  "Kannada",
-  "Kazakh",
-  "Khmer",
-  "Korean",
-  "Korean (auto-generated)",
-  "Kurdish",
-  "Kyrgyz",
-  "Lao",
-  "Latin",
-  "Latvian",
-  "Lithuanian",
-  "Luxembourgish",
-  "Macedonian",
-  "Malagasy",
-  "Malay",
-  "Malayalam",
-  "Maltese",
-  "Maori",
-  "Marathi",
-  "Mongolian",
-  "Nepali",
-  "Norwegian Bokmål",
-  "Nyanja",
-  "Pashto",
-  "Persian",
-  "Polish",
-  "Portuguese",
-  "Portuguese (auto-generated)",
-  "Portuguese (Brazil)",
-  "Punjabi",
-  "Romanian",
-  "Russian",
-  "Russian (auto-generated)",
-  "Samoan",
-  "Scottish Gaelic",
-  "Serbian",
-  "Shona",
-  "Sindhi",
-  "Sinhala",
-  "Slovak",
-  "Slovenian",
-  "Somali",
-  "Southern Sotho",
-  "Spanish",
-  "Spanish (auto-generated)",
-  "Spanish (Latin America)",
-  "Spanish (Mexico)",
-  "Spanish (Spain)",
-  "Sundanese",
-  "Swahili",
-  "Swedish",
-  "Tajik",
-  "Tamil",
-  "Telugu",
-  "Thai",
-  "Turkish",
-  "Turkish (auto-generated)",
-  "Ukrainian",
-  "Urdu",
-  "Uzbek",
-  "Vietnamese",
-  "Vietnamese (auto-generated)",
-  "Welsh",
-  "Western Frisian",
-  "Xhosa",
-  "Yiddish",
-  "Yoruba",
-  "Zulu",
-}
-
 struct Video
   include DB::Serializable
 
@@ -141,7 +8,7 @@ struct Video
   property updated : Time
 
   @[DB::Field(ignore: true)]
-  property captions : Array(Caption)?
+  @captions = [] of Invidious::Videos::Caption
 
   @[DB::Field(ignore: true)]
   property adaptive_fmts : Array(Hash(String, JSON::Any))?
@@ -595,20 +462,12 @@ struct Video
     keywords.includes? "YouTube Red"
   end
 
-  def captions : Array(Caption)
-    return @captions.as(Array(Caption)) if @captions
-    captions = info["captions"]?.try &.["playerCaptionsTracklistRenderer"]?.try &.["captionTracks"]?.try &.as_a.map do |caption|
-      name = caption["name"]["simpleText"]? || caption["name"]["runs"][0]["text"]
-      language_code = caption["languageCode"].to_s
-      base_url = caption["baseUrl"].to_s
-
-      caption = Caption.new(name.to_s, language_code, base_url)
-      caption.name = caption.name.split(" - ")[0]
-      caption
+  def captions : Array(Invidious::Videos::Caption)
+    if @captions.empty? && @info.has_key?("captions")
+      @captions = Invidious::Videos::Caption.from_yt_json(info["captions"])
     end
-    captions ||= [] of Caption
-    @captions = captions
-    return @captions.as(Array(Caption))
+
+    return @captions
   end
 
   def description
@@ -669,21 +528,6 @@ struct Video
 
   def reason : String?
     info["reason"]?.try &.as_s
-  end
-end
-
-struct Caption
-  property name
-  property language_code
-  property base_url
-
-  getter name : String
-  getter language_code : String
-  getter base_url : String
-
-  setter name
-
-  def initialize(@name, @language_code, @base_url)
   end
 end
 
