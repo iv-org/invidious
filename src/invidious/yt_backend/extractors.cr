@@ -1,3 +1,5 @@
+require "../helpers/serialized_yt_data"
+
 # This file contains helper methods to parse the Youtube API json data into
 # neat little packages we can use
 
@@ -14,6 +16,7 @@ private ITEM_PARSERS = {
   Parsers::GridPlaylistRendererParser,
   Parsers::PlaylistRendererParser,
   Parsers::CategoryRendererParser,
+  Parsers::RichItemRendererParser,
 }
 
 record AuthorFallback, name : String, id : String
@@ -368,6 +371,29 @@ private module Parsers
         url:              url,
         badges:           badges,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube richItemRenderer into a SearchVideo.
+  # Returns nil when the given object isn't a shelfRenderer
+  #
+  # A richItemRenderer seems to be a simple wrapper for a videoRenderer, used
+  # by the result page for hashtags. It is located inside a continuationItems
+  # container.
+  #
+  module RichItemRendererParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item.dig?("richItemRenderer", "content")
+        return self.parse(item_contents, author_fallback)
+      end
+    end
+
+    private def self.parse(item_contents, author_fallback)
+      return VideoRendererParser.process(item_contents, author_fallback)
     end
 
     def self.parser_name

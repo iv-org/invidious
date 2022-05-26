@@ -63,4 +63,35 @@ module Invidious::Routes::Search
       templated "search"
     end
   end
+
+  def self.hashtag(env : HTTP::Server::Context)
+    locale = env.get("preferences").as(Preferences).locale
+
+    hashtag = env.params.url["hashtag"]?
+    if hashtag.nil? || hashtag.empty?
+      return error_template(400, "Invalid request")
+    end
+
+    page = env.params.query["page"]?
+    if page.nil?
+      page = 1
+    else
+      page = Math.max(1, page.to_i)
+      env.params.query.delete_all("page")
+    end
+
+    begin
+      videos = Invidious::Hashtag.fetch(hashtag, page)
+    rescue ex
+      return error_template(500, ex)
+    end
+
+    params = env.params.query.empty? ? "" : "&#{env.params.query}"
+
+    hashtag_encoded = URI.encode_www_form(hashtag, space_to_plus: false)
+    url_prev_page = "/hashtag/#{hashtag_encoded}?page=#{page - 1}#{params}"
+    url_next_page = "/hashtag/#{hashtag_encoded}?page=#{page + 1}#{params}"
+
+    templated "hashtag"
+  end
 end
