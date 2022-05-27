@@ -13,6 +13,8 @@ module Invidious::Routes::API::V1::Channels
     rescue ex : ChannelRedirect
       env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
       return error_json(302, "Channel is unavailable", {"authorId" => ex.channel_id})
+    rescue ex : NotFoundException
+      return error_json(404, ex)
     rescue ex
       return error_json(500, ex)
     end
@@ -170,6 +172,8 @@ module Invidious::Routes::API::V1::Channels
     rescue ex : ChannelRedirect
       env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
       return error_json(302, "Channel is unavailable", {"authorId" => ex.channel_id})
+    rescue ex : NotFoundException
+      return error_json(404, ex)
     rescue ex
       return error_json(500, ex)
     end
@@ -205,6 +209,8 @@ module Invidious::Routes::API::V1::Channels
     rescue ex : ChannelRedirect
       env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
       return error_json(302, "Channel is unavailable", {"authorId" => ex.channel_id})
+    rescue ex : NotFoundException
+      return error_json(404, ex)
     rescue ex
       return error_json(500, ex)
     end

@@ -237,6 +237,8 @@ module Invidious::Routes::API::V1::Authenticated
 
     begin
       video = get_video(video_id)
+    rescue ex : NotFoundException
+      return error_json(404, ex)
     rescue ex
       return error_json(500, ex)
     end

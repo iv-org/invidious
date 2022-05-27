@@ -95,7 +95,7 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
     contents = body["contents"]?
     header = body["header"]?
   else
-    raise InfoException.new("Could not fetch comments")
+    raise NotFoundException.new("Comments not found.")
   end
 
   if !contents
@@ -290,7 +290,7 @@ def fetch_reddit_comments(id, sort_by = "confidence")
 
     thread = result[0].data.as(RedditListing).children[0].data.as(RedditLink)
   else
-    raise InfoException.new("Could not fetch comments")
+    raise NotFoundException.new("Comments not found.")
   end
 
   client.close

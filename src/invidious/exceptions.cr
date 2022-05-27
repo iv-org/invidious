@@ -18,3 +18,7 @@ class BrokenTubeException < Exception
     return "Missing JSON element \"#{@element}\""
   end
 end
+
+# Exception used to hold the bogus UCID during a channel search.
+class NotFoundException < InfoException
+end
