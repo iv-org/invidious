@@ -153,6 +153,7 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 - [WatchTube](https://github.com/WatchTubeTeam/WatchTube): Powerful YouTube client for Apple Watch.
 - [Yattee](https://github.com/yattee/yattee): Alternative YouTube frontend for iPhone, iPad, Mac and Apple TV.
 
+
 ## Liability
 
 We take no responsibility for the use of our tool, or external instances
