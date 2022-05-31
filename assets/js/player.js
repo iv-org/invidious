@@ -705,8 +705,10 @@ if (location.pathname.startsWith('/embed/')) {
     cb.addChild(watch_on_invidious_button);
 }
 
-// Save time during redirection on another instance
-const changeInstanceLink = document.querySelector('#watch-on-another-invidious-instance > a');
-if (changeInstanceLink) changeInstanceLink.addEventListener('click', function () {
-    changeInstanceLink.href = addCurrentTimeToURL(changeInstanceLink.href);
+addEventListener('DOMContentLoaded', function () {
+    // Save time during redirection on another instance
+    const changeInstanceLink = document.querySelector('#watch-on-another-invidious-instance > a');
+    if (changeInstanceLink) changeInstanceLink.addEventListener('click', function () {
+        changeInstanceLink.href = addCurrentTimeToURL(changeInstanceLink.href);
+    });
 });
