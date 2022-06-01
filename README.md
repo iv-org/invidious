@@ -152,6 +152,7 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 - [HoloPlay](https://github.com/stephane-r/HoloPlay): Funny Android application connecting on Invidious API's with search, playlists and favorites.
 - [WatchTube](https://github.com/WatchTubeTeam/WatchTube): Powerful YouTube client for Apple Watch.
 - [Yattee](https://github.com/yattee/yattee): Alternative YouTube frontend for iPhone, iPad, Mac and Apple TV.
+- [TubiTui](https://codeberg.org/777/TubiTui): A lightweight, libre, TUI-based YouTube client.
 
 
 ## Liability
