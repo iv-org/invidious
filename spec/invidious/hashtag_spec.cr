@@ -23,7 +23,7 @@ Spectator.describe Invidious::Hashtag do
     expect(video_11.author).to eq("Martin Garrix")
     expect(video_11.author_verified).to be_true
 
-    expect(video_11.published).to eq(Time.utc - 3.years)
+    expect(video_11.published).to be_close(Time.utc - 3.years, 1.second)
     expect(video_11.length_seconds).to eq((56.minutes + 41.seconds).total_seconds.to_i32)
     expect(video_11.views).to eq(40_504_893)
 
@@ -45,7 +45,7 @@ Spectator.describe Invidious::Hashtag do
     expect(video_35.author).to eq("Martin Garrix")
     expect(video_35.author_verified).to be_true
 
-    expect(video_35.published).to eq(Time.utc - 3.years)
+    expect(video_35.published).to be_close(Time.utc - 3.years, 1.second)
     expect(video_35.length_seconds).to eq((3.minutes + 14.seconds).total_seconds.to_i32)
     expect(video_35.views).to eq(30_790_049)
 
@@ -76,7 +76,7 @@ Spectator.describe Invidious::Hashtag do
     expect(video_41.author).to eq("Martin Garrix")
     expect(video_41.author_verified).to be_true
 
-    expect(video_41.published).to eq(Time.utc - 2.months)
+    expect(video_41.published).to be_close(Time.utc - 2.months, 1.second)
     expect(video_41.length_seconds).to eq((1.hour).total_seconds.to_i32)
     expect(video_41.views).to eq(63_240)
 
@@ -98,7 +98,7 @@ Spectator.describe Invidious::Hashtag do
     expect(video_48.author).to eq("SAKUL")
     expect(video_48.author_verified).to be_false
 
-    expect(video_48.published).to eq(Time.utc - 3.weeks)
+    expect(video_48.published).to be_close(Time.utc - 3.weeks, 1.second)
     expect(video_48.length_seconds).to eq((35.minutes + 46.seconds).total_seconds.to_i32)
     expect(video_48.views).to eq(68_704)
 
