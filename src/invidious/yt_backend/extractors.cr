@@ -517,6 +517,8 @@ private module Extractors
         self.extract(target)
       elsif target = initial_data["appendContinuationItemsAction"]?
         self.extract(target)
+      elsif target = initial_data["reloadContinuationItemsCommand"]?
+        self.extract(target)
       end
     end
 
