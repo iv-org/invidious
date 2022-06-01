@@ -61,6 +61,7 @@ def get_about_info(ucid, locale) : AboutChannel
     author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
     author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
     author_thumbnail = initdata["metadata"]["channelMetadataRenderer"]["avatar"]["thumbnails"][0]["url"].as_s
+    author_verified = has_verified_badge?(initdata.dig?("header", "c4TabbedHeaderRenderer", "badges"))
 
     ucid = initdata["metadata"]["channelMetadataRenderer"]["externalId"].as_s
 
@@ -71,9 +72,6 @@ def get_about_info(ucid, locale) : AboutChannel
     # if banner.includes? "channels/c4/default_banner"
     #  banner = nil
     # end
-    # author_verified_badges = initdata["header"]?.try &.["c4TabbedHeaderRenderer"]?.try &.["badges"]?
-    author_verified_badge = initdata["header"].dig?("c4TabbedHeaderRenderer", "badges", 0, "metadataBadgeRenderer", "tooltip")
-    author_verified = (author_verified_badge && author_verified_badge == "Verified")
 
     description_node = initdata["metadata"]["channelMetadataRenderer"]?.try &.["description"]?
 

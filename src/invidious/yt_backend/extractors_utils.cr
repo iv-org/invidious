@@ -29,6 +29,45 @@ def extract_text(item : JSON::Any?) : String?
   end
 end
 
+# Check if an "ownerBadges" or a "badges" element contains a verified badge.
+# There is currently two known types of verified badges:
+#
+# "ownerBadges": [{
+#   "metadataBadgeRenderer": {
+#     "icon": { "iconType": "CHECK_CIRCLE_THICK" },
+#     "style": "BADGE_STYLE_TYPE_VERIFIED",
+#     "tooltip": "Verified",
+#     "accessibilityData": { "label": "Verified" }
+#    }
+# }],
+#
+# "ownerBadges": [{
+#   "metadataBadgeRenderer": {
+#     "icon": { "iconType": "OFFICIAL_ARTIST_BADGE" },
+#     "style": "BADGE_STYLE_TYPE_VERIFIED_ARTIST",
+#     "tooltip": "Official Artist Channel",
+#     "accessibilityData": { "label": "Official Artist Channel" }
+#   }
+# }],
+#
+def has_verified_badge?(badges : JSON::Any?)
+  return false if badges.nil?
+
+  badges.as_a.each do |badge|
+    style = badge.dig("metadataBadgeRenderer", "style").as_s
+
+    return true if style == "BADGE_STYLE_TYPE_VERIFIED"
+    return true if style == "BADGE_STYLE_TYPE_VERIFIED_ARTIST"
+  end
+
+  return false
+rescue ex
+  LOGGER.debug("Unable to parse owner badges. Got exception: #{ex.message}")
+  LOGGER.trace("Owner badges data: #{badges.to_json}")
+
+  return false
+end
+
 def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil)
   extracted = extract_items(initial_data, author_fallback, author_id_fallback)
 

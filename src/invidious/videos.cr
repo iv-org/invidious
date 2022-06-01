@@ -868,11 +868,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     .try &.dig?("runs", 0)
 
   author = channel_info.try &.dig?("text")
-  author_verified_badge = related["ownerBadges"]?.try do |badges_array|
-    badges_array.as_a.find(&.dig("metadataBadgeRenderer", "tooltip").as_s.== "Verified")
-  end
-
-  author_verified = (author_verified_badge && author_verified_badge.size > 0).to_s
+  author_verified = has_verified_badge?(related["ownerBadges"]?)
 
   ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
@@ -1089,17 +1085,19 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 
   # Author infos
 
-  author_info = video_secondary_renderer.try &.dig?("owner", "videoOwnerRenderer")
-  author_thumbnail = author_info.try &.dig?("thumbnail", "thumbnails", 0, "url")
+  if author_info = video_secondary_renderer.try &.dig?("owner", "videoOwnerRenderer")
+    author_thumbnail = author_info.dig?("thumbnail", "thumbnails", 0, "url")
+    params["authorThumbnail"] = JSON::Any.new(author_thumbnail.try &.as_s || "")
 
-  author_verified_badge = author_info.try &.dig?("badges", 0, "metadataBadgeRenderer", "tooltip")
-  author_verified = (!author_verified_badge.nil? && author_verified_badge == "Verified")
-  params["authorVerified"] = JSON::Any.new(author_verified)
+    author_verified = has_verified_badge?(author_info["badges"]?)
+    params["authorVerified"] = JSON::Any.new(author_verified)
 
-  params["authorThumbnail"] = JSON::Any.new(author_thumbnail.try &.as_s || "")
+    subs_text = author_info["subscriberCountText"]?
+      .try { |t| t["simpleText"]? || t.dig?("runs", 0, "text") }
+      .try &.as_s.split(" ", 2)[0]
 
-  params["subCountText"] = JSON::Any.new(author_info.try &.["subscriberCountText"]?
-    .try { |t| t["simpleText"]? || t.dig?("runs", 0, "text") }.try &.as_s.split(" ", 2)[0] || "-")
+    params["subCountText"] = JSON::Any.new(subs_text || "-")
+  end
 
   # Return data
 

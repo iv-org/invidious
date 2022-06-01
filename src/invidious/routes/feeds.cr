@@ -182,7 +182,7 @@ module Invidious::Routes::Feeds
         paid:               false,
         premium:            false,
         premiere_timestamp: nil,
-        author_verified:    false, # 	¯\_(ツ)_/¯
+        author_verified:    false,
       })
     end
 
