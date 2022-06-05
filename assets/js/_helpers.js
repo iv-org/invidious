@@ -164,7 +164,7 @@ window.helpers = window.helpers || {
                 helpers._xhrRetry(method, url, options, callbacks);
             }, options.retry_timeout);
         };
-        
+
         // Pack retry() call into error handlers
         callbacks._onError = callbacks.onError;
         callbacks.onError = function (xhr) {

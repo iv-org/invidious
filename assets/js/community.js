@@ -38,7 +38,7 @@ function get_youtube_replies(target, load_more) {
     var fallback = body.innerHTML;
     body.innerHTML =
         '<h3 style="text-align:center"><div class="loading"><i class="icon ion-ios-refresh"></i></div></h3>';
-    
+
     var url = '/api/v1/channels/comments/' + community_data.ucid +
         '?format=html' +
         '&hl=' + community_data.preferences.locale +

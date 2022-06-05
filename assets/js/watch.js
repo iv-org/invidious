@@ -172,7 +172,7 @@ function get_reddit_comments() {
     var onNon200 = function (xhr) { comments.innerHTML = fallback; };
     if (video_data.params.comments[1] === 'youtube')
         onNon200 = function (xhr) {};
-    
+
     helpers.xhr('GET', url, {retries: 5, entity_name: ''}, {
         on200: function (response) {
             comments.innerHTML = ' \
@@ -218,11 +218,11 @@ function get_youtube_comments() {
         '?format=html' +
         '&hl=' + video_data.preferences.locale +
         '&thin_mode=' + video_data.preferences.thin_mode;
-    
+
     var onNon200 = function (xhr) { comments.innerHTML = fallback; };
     if (video_data.params.comments[1] === 'youtube')
         onNon200 = function (xhr) {};
-    
+
     helpers.xhr('GET', url, {retries: 5, entity_name: 'comments'}, {
         on200: function (response) {
             comments.innerHTML = ' \
@@ -304,11 +304,11 @@ function get_youtube_replies(target, load_more, load_replies) {
             }
         },
         onNon200: function (xhr) {
-            body.innerHTML = fallback;            
+            body.innerHTML = fallback;
         },
         onTimeout: function (xhr) {
             console.warn('Pulling comments failed');
-            body.innerHTML = fallback;    
+            body.innerHTML = fallback;
         }
     });
 }

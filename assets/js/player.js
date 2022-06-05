@@ -54,12 +54,12 @@ var player = videojs('player', options);
 
 player.on('error', function () {
     if (video_data.params.quality === 'dash') return;
-    
+
     var localNotDisabled = (
         !player.currentSrc().includes('local=true') && !video_data.local_disabled
     );
     var reloadMakesSense = (
-        player.error().code === MediaError.MEDIA_ERR_NETWORK || 
+        player.error().code === MediaError.MEDIA_ERR_NETWORK ||
         player.error().code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED
     );
 
@@ -465,7 +465,7 @@ function toggle_play() { player.paused() ? play() : pause(); }
 
 const toggle_captions = (function () {
     let toggledTrack = null;
-    
+
     function bindChange(onOrOff) {
         player.textTracks()[onOrOff]('change', function (e) {
             toggledTrack = null;
@@ -481,7 +481,7 @@ const toggle_captions = (function () {
             bindChange('on');
         }, 0);
     }
-    
+
     bindChange('on');
     return function () {
         if (toggledTrack !== null) {

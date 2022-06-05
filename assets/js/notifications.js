@@ -52,13 +52,13 @@ function create_notification_stream(subscriptions) {
         if (window.Notification && Notification.permission === 'granted') {
             var notification_text = notification.liveNow ? notification_data.live_now_text : notification_data.upload_text;
             notification_text = notification_text.replace('`x`', notification.author);
-        
+
             var system_notification = new Notification(notification_text, {
                 body: notification.title,
                 icon: '/ggpht' + new URL(notification.authorThumbnails[2].url).pathname,
                 img: '/ggpht' + new URL(notification.authorThumbnails[4].url).pathname
             });
-        
+
             system_notification.onclick = function (e) {
                 open('/watch?v=' + notification.videoId, '_blank');
             };
