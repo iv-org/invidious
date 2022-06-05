@@ -204,7 +204,8 @@ img.thumbnail {
 	margin: 1px;
 
 	border: 1px solid;
-	border-color: #0000 #0000 #CCC #0000;
+	border-color: rgba(0,0,0,0);
+	border-bottom-color: #CCC;
 	border-radius: 0;
 
 	box-shadow: none;
@@ -214,7 +215,8 @@ img.thumbnail {
 .searchbar input[type="search"]:focus {
 	margin: 0 0 0.5px 0;
 	border: 2px solid;
-	border-color: #0000 #0000 #FED #0000;
+	border-color: rgba(0,0,0,0);
+	border-bottom-color: #FED;
 }
 
 /* https://stackoverflow.com/a/55170420 */
@@ -234,7 +236,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .user-field div {
-  width: initial;
+  width: auto;
 }
 
 .user-field div:not(:last-child) {
@@ -527,3 +529,5 @@ p,
 
 /* Center the "invidious" logo on the search page */
 #logo > h1 { text-align: center; }
+
+:-ms-input-placeholder { color: #888; }
