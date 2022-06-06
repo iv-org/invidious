@@ -68,7 +68,10 @@ fieldset, legend {
 .filter-options label { margin: 0 10px; }
 
 
-#filters-apply { text-align: right; }
+#filters-apply {
+	text-align: right; /* IE11 only */
+	text-align: end;   /* Override for compatible browsers */
+}
 
 /* Error message */
 
