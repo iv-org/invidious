@@ -59,9 +59,6 @@ module Invidious::RssAtom
     id : String,
     properties : AtomProperties
   )
-    locale = env.get("preferences").as(Preferences).locale
-    params = HTTP::Params.parse(env.params.query["params"]? || "")
-
     return XML.build(indent: "  ", encoding: "UTF-8") do |xml|
       xml.element("feed",
         xmlns: "http://www.w3.org/2005/Atom",
@@ -111,7 +108,7 @@ module Invidious::RssAtom
 
         # Video entries
         videos.each do |video|
-          xml.element("entry") { atom_video(xml, video, params) }
+          xml.element("entry") { atom_video(xml, video, env.params.query) }
         end
       end
     end
@@ -122,7 +119,7 @@ module Invidious::RssAtom
     video_url = "#{HOST_URL}/watch?v=#{video.id}&#{query_params}"
     video_thumb = "#{HOST_URL}/vi/#{video.id}/mqdefault.jpg"
 
-    description = video.is_a?(SearchVideo) ? video.description_html : ""
+    description = video.is_a?(SearchVideo) ? video.description_html.gsub('\n', "<br/>\n") : ""
 
     xml.element("id") { xml.text "ni://invidious/sha-256;" + sha256("video/#{video.id}") }
     xml.element("title") { xml.text video.title }
