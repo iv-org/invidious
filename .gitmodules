@@ -1,0 +1,3 @@
+[submodule "mocks"]
+	path = mocks
+	url = ../mocks

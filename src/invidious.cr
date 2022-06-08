@@ -385,6 +385,7 @@ end
   Invidious::Routing.get "/opensearch.xml", Invidious::Routes::Search, :opensearch
   Invidious::Routing.get "/results", Invidious::Routes::Search, :results
   Invidious::Routing.get "/search", Invidious::Routes::Search, :search
+  Invidious::Routing.get "/hashtag/:hashtag", Invidious::Routes::Search, :hashtag
 
   # User routes
   define_user_routes()
