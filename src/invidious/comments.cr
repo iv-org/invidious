@@ -500,6 +500,12 @@ def template_reddit_comments(root, locale)
 end
 
 def replace_links(html)
+  # Check if the document is empty
+  # Prevents edge-case bug with Reddit comments, see issue #3115
+  if html.nil? || html.empty?
+    return html
+  end
+
   html = XML.parse_html(html)
 
   html.xpath_nodes(%q(//a)).each do |anchor|
@@ -541,6 +547,12 @@ def replace_links(html)
 end
 
 def fill_links(html, scheme, host)
+  # Check if the document is empty
+  # Prevents edge-case bug with Reddit comments, see issue #3115
+  if html.nil? || html.empty?
+    return html
+  end
+
   html = XML.parse_html(html)
 
   html.xpath_nodes("//a").each do |match|
