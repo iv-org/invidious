@@ -853,6 +853,7 @@ end
 # the same 11 first entries as the compact rendered.
 #
 # TODO: "compactRadioRenderer" (Mix) and
+# TODO: Use a proper struct/class instead of a hacky JSON object
 def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   return nil if !related["videoId"]?
 
@@ -868,7 +869,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     .try &.dig?("runs", 0)
 
   author = channel_info.try &.dig?("text")
-  author_verified = has_verified_badge?(related["ownerBadges"]?)
+  author_verified = has_verified_badge?(related["ownerBadges"]?).to_s
 
   ucid = channel_info.try { |ci| HelperExtractors.get_browse_id(ci) }
 
