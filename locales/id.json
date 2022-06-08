@@ -418,5 +418,8 @@
     "English (United States)": "Inggris (US)",
     "preferences_watch_history_label": "Aktifkan riwayat tontonan: ",
     "English (United Kingdom)": "Inggris (UK)",
-    "search_filters_title": "Saring"
+    "search_filters_title": "Saring",
+    "search_message_no_results": "Tidak ada hasil yang ditemukan.",
+    "search_message_change_filters_or_query": "Coba perbanyak kueri pencarian dan/atau ubah filter Anda.",
+    "search_message_use_another_instance": " Anda juga bisa <a href=\"`x`\">mencari di peladen lain</a>."
 }
