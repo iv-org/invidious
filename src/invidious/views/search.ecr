@@ -3,16 +3,6 @@
 <link rel="stylesheet" href="/css/search.css?v=<%= ASSET_COMMIT %>">
 <% end %>
 
-<%-
-  search_query_encoded = URI.encode_www_form(query.text, space_to_plus: true)
-  filter_params = query.filters.to_iv_params
-
-  url_prev_page = "/search?q=#{search_query_encoded}&#{filter_params}&page=#{query.page - 1}"
-  url_next_page = "/search?q=#{search_query_encoded}&#{filter_params}&page=#{query.page + 1}"
-
-  redirect_url = Invidious::Frontend::Misc.redirect_url(env)
--%>
-
 <!-- Search redirection and filtering UI -->
 <%= Invidious::Frontend::SearchFilters.generate(query.filters, query.text, query.page, locale) %>
 <hr/>

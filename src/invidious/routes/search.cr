@@ -59,6 +59,12 @@ module Invidious::Routes::Search
         return error_template(500, ex)
       end
 
+      params = query.to_http_params
+      url_prev_page = "/search?#{params}&page=#{query.page - 1}"
+      url_next_page = "/search?#{params}&page=#{query.page + 1}"
+
+      redirect_url = Invidious::Frontend::Misc.redirect_url(env)
+
       env.set "search", query.text
       templated "search"
     end
