@@ -173,7 +173,7 @@ we're going to need to do it here in order to allow for translations.
 
             <p id="views"><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
             <p id="likes"><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
-            <p id="dislikes"></p>
+            <p id="dislikes" style="display: none; visibility: hidden;"></p>
             <p id="genre"><%= translate(locale, "Genre: ") %>
                 <% if !video.genre_url %>
                     <%= video.genre %>
@@ -185,9 +185,9 @@ we're going to need to do it here in order to allow for translations.
                 <p id="license"><%= translate(locale, "License: ") %><%= video.license %></p>
             <% end %>
             <p id="family_friendly"><%= translate(locale, "Family friendly? ") %><%= translate_bool(locale, video.is_family_friendly) %></p>
-            <p id="wilson"><%= translate(locale, "Wilson score: ") %><%= video.wilson_score %></p>
-            <p id="rating"></p>
-            <p id="engagement"><%= translate(locale, "Engagement: ") %><%= video.engagement %>%</p>
+            <p id="wilson" style="display: none; visibility: hidden;"></p>
+            <p id="rating" style="display: none; visibility: hidden;"></p>
+            <p id="engagement" style="display: none; visibility: hidden;"></p>
             <% if video.allowed_regions.size != REGIONS.size %>
                 <p id="allowed_regions">
                     <% if video.allowed_regions.size < REGIONS.size // 2 %>

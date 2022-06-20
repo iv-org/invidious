@@ -323,7 +323,7 @@ struct Video
 
       json.field "viewCount", self.views
       json.field "likeCount", self.likes
-      json.field "dislikeCount", self.dislikes
+      json.field "dislikeCount", 0_i64
 
       json.field "paid", self.paid
       json.field "premium", self.premium
@@ -354,7 +354,7 @@ struct Video
 
       json.field "lengthSeconds", self.length_seconds
       json.field "allowRatings", self.allow_ratings
-      json.field "rating", self.average_rating
+      json.field "rating", 0_i64
       json.field "isListed", self.is_listed
       json.field "liveNow", self.live_now
       json.field "isUpcoming", self.is_upcoming
@@ -554,11 +554,6 @@ struct Video
 
   def dislikes : Int64
     info["dislikes"]?.try &.as_i64 || 0_i64
-  end
-
-  def average_rating : Float64
-    # (likes / (likes + dislikes) * 4 + 1)
-    info["videoDetails"]["averageRating"]?.try { |t| t.as_f? || t.as_i64?.try &.to_f64 }.try &.round(4) || 0.0
   end
 
   def published : Time
@@ -813,14 +808,6 @@ struct Video
     return info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
   end
 
-  def wilson_score : Float64
-    ci_lower_bound(likes, likes + dislikes).round(4)
-  end
-
-  def engagement : Float64
-    (((likes + dislikes) / views) * 100).round(4)
-  end
-
   def reason : String?
     info["reason"]?.try &.as_s
   end
@@ -1005,7 +992,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 
   params["relatedVideos"] = JSON::Any.new(related)
 
-  # Likes/dislikes
+  # Likes
 
   toplevel_buttons = video_primary_renderer
     .try &.dig?("videoActions", "menuRenderer", "topLevelButtons")
@@ -1023,30 +1010,10 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
       LOGGER.trace("extract_video_info: Found \"likes\" button. Button text is \"#{likes_txt}\"")
       LOGGER.debug("extract_video_info: Likes count is #{likes}") if likes
     end
-
-    dislikes_button = toplevel_buttons.as_a
-      .find(&.dig("toggleButtonRenderer", "defaultIcon", "iconType").as_s.== "DISLIKE")
-      .try &.["toggleButtonRenderer"]
-
-    if dislikes_button
-      dislikes_txt = (dislikes_button["defaultText"]? || dislikes_button["toggledText"]?)
-        .try &.dig?("accessibility", "accessibilityData", "label")
-      dislikes = dislikes_txt.as_s.gsub(/\D/, "").to_i64? if dislikes_txt
-
-      LOGGER.trace("extract_video_info: Found \"dislikes\" button. Button text is \"#{dislikes_txt}\"")
-      LOGGER.debug("extract_video_info: Dislikes count is #{dislikes}") if dislikes
-    end
-  end
-
-  if likes && likes != 0_i64 && (!dislikes || dislikes == 0_i64)
-    if rating = player_response.dig?("videoDetails", "averageRating").try { |x| x.as_i64? || x.as_f? }
-      dislikes = (likes * ((5 - rating)/(rating - 1))).round.to_i64
-      LOGGER.debug("extract_video_info: Dislikes count (using fallback method) is #{dislikes}")
-    end
   end
 
   params["likes"] = JSON::Any.new(likes || 0_i64)
-  params["dislikes"] = JSON::Any.new(dislikes || 0_i64)
+  params["dislikes"] = JSON::Any.new(0_i64)
 
   # Description
 
