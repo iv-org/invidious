@@ -71,7 +71,7 @@ module Invidious::Routes::API::Manifest
                   best_m4a_stream = fmt
                 end
               end
-      
+
               [best_m4a_stream].each do |fmt|
                 # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
                 next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
