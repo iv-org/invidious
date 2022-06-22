@@ -61,7 +61,18 @@ module Invidious::Routes::API::Manifest
             next if mime_streams.empty?
 
             xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true) do
+              # ignore the 64k m4a stream, only consider the 128k m4a stream
+              best_m4a_stream = mime_streams[0]
+              best_m4a_stream_bitrate = 0
               mime_streams.each do |fmt|
+                bandwidth = fmt["bitrate"].as_i
+                if (bandwidth > best_m4a_stream_bitrate)
+                  best_m4a_stream_bitrate = bandwidth
+                  best_m4a_stream = fmt
+                end
+              end
+      
+              [best_m4a_stream].each do |fmt|
                 # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
                 next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
 
