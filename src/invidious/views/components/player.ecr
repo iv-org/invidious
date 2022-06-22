@@ -14,7 +14,10 @@
                 bitrate = fmt["bitrate"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
 
-                selected = i == 0 ? true : false
+                # select audio quality according to video quality. 0 is 64k m4a, 1 is 128k m4a.
+                qy = params.quality
+                qyd = params.quality_dash
+                selected = i == (qy == "medium" || qy == "small" || (qy == "dash" && (qyd == "240p" || qyd == "144p" || qyd == "worst")) ? 0 : 1)
             %>
                 <source src="<%= src_url %>" type='<%= mimetype %>' label="<%= bitrate %>k" selected="<%= selected %>">
                 <% if !params.local && !CONFIG.disabled?("local") %>
