@@ -145,7 +145,7 @@ function isMobile() {
 }
 
 if (isMobile()) {
-    player.mobileUi();
+    player.mobileUi({ touchControls: { seekSeconds: 5 * player.playbackRate() } });
 
     var buttons = ['playToggle', 'volumePanel', 'captionsButton'];
 
@@ -274,6 +274,9 @@ function updateCookie(newVolume, newSpeed) {
 
 player.on('ratechange', function () {
     updateCookie(null, player.playbackRate());
+    if (isMobile()) {
+        player.mobileUi({ touchControls: { seekSeconds: 5 * player.playbackRate() } });
+    }
 });
 
 player.on('volumechange', function () {
