@@ -270,7 +270,7 @@ we're going to need to do it here in order to allow for translations.
 
                     <% video.related_videos.each do |rv| %>
                         <% if rv["id"]? %>
-                            <a href="/watch?v=<%= rv["id"] %>">
+                            <a href="/watch?v=<%= rv["id"] %>&listen=<%= params.listen %>">
                                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                                     <div class="thumbnail">
                                         <img loading="lazy" class="thumbnail" src="/vi/<%= rv["id"] %>/mqdefault.jpg">
