@@ -673,7 +673,7 @@ if (player.share) player.share(shareOptions);
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {
     player.ready(function () {
-        player.textTracks()[1].mode = 'showing';
+        player.textTracks()[0].mode = 'showing';
     });
 }
 
