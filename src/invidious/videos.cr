@@ -895,13 +895,20 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
 
   player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
 
-  if player_response.dig?("playabilityStatus", "status").try &.as_s != "OK"
+  playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
+
+  if playability_status != "OK"
     subreason = player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "subreason")
     reason = subreason.try &.[]?("simpleText").try &.as_s
     reason ||= subreason.try &.[]("runs").as_a.map(&.[]("text")).join("")
     reason ||= player_response.dig("playabilityStatus", "reason").as_s
+
     params["reason"] = JSON::Any.new(reason)
-    return params
+
+    # Stop here if video is not a scheduled livestream
+    if playability_status != "LIVE_STREAM_OFFLINE"
+      return params
+    end
   end
 
   params["shortDescription"] = player_response.dig?("videoDetails", "shortDescription") || JSON::Any.new(nil)
