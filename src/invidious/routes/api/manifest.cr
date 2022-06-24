@@ -46,7 +46,7 @@ module Invidious::Routes::API::Manifest
       end
     end
 
-    audio_streams = video.audio_streams
+    audio_streams = video.audio_streams.sort_by { |stream| {stream["bitrate"].as_i} }.reverse!
     video_streams = video.video_streams.sort_by { |stream| {stream["width"].as_i, stream["fps"].as_i} }.reverse!
 
     manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -60,19 +60,8 @@ module Invidious::Routes::API::Manifest
             mime_streams = audio_streams.select { |stream| stream["mimeType"].as_s.starts_with? mime_type }
             next if mime_streams.empty?
 
-            xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true) do
-              # ignore the 64k m4a stream, only consider the 128k m4a stream
-              best_m4a_stream = mime_streams[0]
-              best_m4a_stream_bitrate = 0
-              mime_streams.each do |fmt|
-                bandwidth = fmt["bitrate"].as_i
-                if (bandwidth > best_m4a_stream_bitrate)
-                  best_m4a_stream_bitrate = bandwidth
-                  best_m4a_stream = fmt
-                end
-              end
-
-              [best_m4a_stream].each do |fmt|
+            mime_streams.each do |fmt|
+              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, lang: i.to_s) do
                 # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
                 next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
 
@@ -90,9 +79,8 @@ module Invidious::Routes::API::Manifest
                   end
                 end
               end
+              i += 1
             end
-
-            i += 1
           end
 
           potential_heights = {4320, 2160, 1440, 1080, 720, 480, 360, 240, 144}
