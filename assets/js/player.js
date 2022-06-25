@@ -148,9 +148,10 @@ function isMobile() {
 if (isMobile()) {
     player.mobileUi();
 
-    var buttons = ['playToggle', 'volumePanel', 'captionsButton', 'audioTrackButton'];
+    var buttons = ['playToggle', 'volumePanel', 'captionsButton'];
 
-    if (video_data.params.quality !== 'dash') buttons.push('qualitySelector');
+    if (!video_data.params.listen && video_data.params.quality === 'dash') buttons.push('audioTrackButton');
+    if (video_data.params.listen || video_data.params.quality !== 'dash') buttons.push('qualitySelector');
 
     // Create new control bar object for operation buttons
     const ControlBar = videojs.getComponent('controlBar');
@@ -177,7 +178,7 @@ if (isMobile()) {
         var share_element = document.getElementsByClassName('vjs-share-control')[0];
         operations_bar_element.append(share_element);
 
-        if (video_data.params.quality === 'dash') {
+        if (!video_data.params.listen && video_data.params.quality === 'dash') {
             var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
             operations_bar_element.append(http_source_selector);
         }
