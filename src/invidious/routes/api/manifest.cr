@@ -61,7 +61,7 @@ module Invidious::Routes::API::Manifest
             next if mime_streams.empty?
 
             mime_streams.each do |fmt|
-              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: i.to_s) do
+              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: fmt["bitrate"].to_s + "k") do
                 # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
                 next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
 
@@ -69,6 +69,8 @@ module Invidious::Routes::API::Manifest
                 bandwidth = fmt["bitrate"].as_i
                 itag = fmt["itag"].as_i
                 url = fmt["url"].as_s
+
+                xml.element("Role", schemeIdUri: "urn:mpeg:dash:role:2011", value: i == 0 ? "main" : "alternate")
 
                 xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
                   xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
