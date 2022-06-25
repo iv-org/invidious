@@ -148,7 +148,7 @@ function isMobile() {
 if (isMobile()) {
     player.mobileUi();
 
-    var buttons = ['playToggle', 'volumePanel', 'captionsButton'];
+    var buttons = ['playToggle', 'volumePanel', 'captionsButton', 'audioTrackButton'];
 
     if (video_data.params.quality !== 'dash') buttons.push('qualitySelector');
 
