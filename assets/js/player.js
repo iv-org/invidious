@@ -17,6 +17,7 @@ var options = {
             'remainingTimeDisplay',
             'Spacer',
             'captionsButton',
+            'audioTrackButton',
             'qualitySelector',
             'playbackRateMenuButton',
             'fullscreenToggle'
