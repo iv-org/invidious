@@ -7,7 +7,7 @@
         <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="livestream">
     <% else %>
         <% if params.listen %>
-            <% # ignore the 64k m4a stream, only consider the 128k m4a stream
+            <% # default to 128k m4a stream
                best_m4a_stream_index = 0
                best_m4a_stream_bitrate = 0
                audio_streams.each_with_index do |fmt, i|
