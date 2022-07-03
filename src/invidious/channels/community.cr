@@ -13,7 +13,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
 
   if !continuation || continuation.empty?
     initial_data = extract_initial_data(response.body)
-    body = initial_data["contents"]?.try &.["twoColumnBrowseResultsRenderer"]["tabs"].as_a.select { |tab| tab["tabRenderer"]?.try &.["selected"].as_bool.== true }[0]?
+    body = initial_data["contents"]?.try &.["twoColumnBrowseResultsRenderer"]["tabs"].as_a.select { |tab| tab["tabRenderer"]?.try &.["selected"]?.try &.as_bool == true }[0]?
 
     if !body
       raise InfoException.new("Could not extract community tab.")
