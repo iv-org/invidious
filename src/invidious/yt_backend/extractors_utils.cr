@@ -84,7 +84,7 @@ end
 
 def extract_selected_tab(tabs)
   # Extract the selected tab from the array of tabs Youtube returns
-  return selected_target = tabs.as_a.select(&.["tabRenderer"]?.try &.["selected"].as_bool)[0]["tabRenderer"]
+  return selected_target = tabs.as_a.select(&.["tabRenderer"]?.try &.["selected"]?.try &.as_bool)[0]["tabRenderer"]
 end
 
 def fetch_continuation_token(items : Array(JSON::Any))
