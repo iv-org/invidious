@@ -113,9 +113,9 @@ https://github.com/iv-org/documentation
 
 ### Extensions
 
-We highly recommend the use of [Privacy Redirect](https://github.com/SimonBrazell/privacy-redirect#get),
+We highly recommend the use of [LibRedirect](https://github.com/libredirect/libredirect),
 a browser extension that automatically redirects Youtube URLs to any Invidious instance and replaces
-embedded youtube videos on other websites with invidious.
+embedded YouTube videos on other websites with Invidious.
 
 The documentation contains a list of browser extensions that we recommended to use along with Invidious.
 
