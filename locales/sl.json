@@ -502,5 +502,6 @@
     "crash_page_refresh": "poskušal/a <a href=\"`x`\">osvežiti stran</a>",
     "crash_page_before_reporting": "Preden prijaviš napako, se prepričaj, da si:",
     "crash_page_search_issue": "preiskal/a <a href=\"`x`\">obstoječe težave na GitHubu</a>",
-    "crash_page_report_issue": "Če nič od navedenega ni pomagalo, prosim <a href=\"`x`\">odpri novo težavo v GitHubu</a> (po možnosti v angleščini) in v svoje sporočilo vključi naslednje besedilo (tega besedila NE prevajaj):"
+    "crash_page_report_issue": "Če nič od navedenega ni pomagalo, prosim <a href=\"`x`\">odpri novo težavo v GitHubu</a> (po možnosti v angleščini) in v svoje sporočilo vključi naslednje besedilo (tega besedila NE prevajaj):",
+    "Popular enabled: ": "Priljubljeni omogočeni: "
 }
