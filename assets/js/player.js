@@ -673,7 +673,12 @@ if (player.share) player.share(shareOptions);
 // show the preferred caption by default
 if (player_data.preferred_caption_found) {
     player.ready(function () {
-        player.textTracks()[1].mode = 'showing';
+        if (!video_data.params.listen && video_data.params.quality === 'dash') {
+            // play.textTracks()[0] on DASH mode is showing some debug messages
+            player.textTracks()[1].mode = 'showing';
+        } else {
+            player.textTracks()[0].mode = 'showing';
+        }
     });
 }
 
