@@ -470,5 +470,6 @@
     "search_filters_date_label": "Data de publicação",
     "search_filters_date_option_none": "Qualquer data",
     "search_filters_type_option_all": "Qualquer tipo",
-    "search_filters_duration_option_none": "Qualquer duração"
+    "search_filters_duration_option_none": "Qualquer duração",
+    "Popular enabled: ": "Página \"popular\" ativada: "
 }
