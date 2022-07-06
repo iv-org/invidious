@@ -75,11 +75,11 @@
     "light": "светлая",
     "preferences_thin_mode_label": "Облегчённое оформление: ",
     "preferences_category_misc": "Прочие настройки",
-    "preferences_automatic_instance_redirect_label": "Автоматическое перенаправление на зеркало сайта (переход на redirect.invidious.io): ",
+    "preferences_automatic_instance_redirect_label": "Автоматическая смена зеркала (переход на redirect.invidious.io): ",
     "preferences_category_subscription": "Настройки подписок",
     "preferences_annotations_subscribed_label": "Всегда показывать аннотации на каналах из ваших подписок? ",
-    "Redirect homepage to feed: ": "Отображать видео с каналов, на которые вы подписаны, как главную страницу: ",
-    "preferences_max_results_label": "Число видео, на которые вы подписаны, в ленте: ",
+    "Redirect homepage to feed: ": "Показывать подписки на главной странице: ",
+    "preferences_max_results_label": "Число видео в ленте: ",
     "preferences_sort_label": "Сортировать видео: ",
     "published": "по дате публикации",
     "published - reverse": "по дате публикации в обратном порядке",
@@ -158,7 +158,7 @@
     "View more comments on Reddit": "Посмотреть больше комментариев на Reddit",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Показано `x` комментариев",
-        "": "Показано`x` комментариев"
+        "": "Показано `x` комментариев"
     },
     "View Reddit comments": "Смотреть комментарии с Reddit",
     "Hide replies": "Скрыть ответы",
@@ -186,7 +186,7 @@
     "Could not fetch comments": "Не удаётся загрузить комментарии",
     "`x` ago": "`x` назад",
     "Load more": "Загрузить ещё",
-    "Could not create mix.": "Не удаётся создать микс.",
+    "Could not create mix.": "Не удалось создать микс.",
     "Empty playlist": "Плейлист пуст",
     "Not a playlist.": "Некорректный плейлист.",
     "Playlist does not exist.": "Плейлист не существует.",
@@ -486,5 +486,6 @@
     "search_filters_features_option_vr180": "VR180",
     "search_message_change_filters_or_query": "Попробуйте расширить поисковый запрос или изменить фильтры.",
     "search_filters_duration_option_medium": "Средние (4 - 20 минут)",
-    "search_filters_apply_button": "Применить фильтры"
+    "search_filters_apply_button": "Применить фильтры",
+    "Popular enabled: ": "Популярное включено: "
 }

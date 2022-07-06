@@ -107,7 +107,7 @@
     "preferences_feed_menu_label": "Izbornik za feedove: ",
     "preferences_show_nick_label": "Prikaži nadimak na vrhu: ",
     "Top enabled: ": "Najbolji aktivirani: ",
-    "CAPTCHA enabled: ": "Aktivirani CAPTCHA: ",
+    "CAPTCHA enabled: ": "CAPTCHA aktiviran: ",
     "Login enabled: ": "Prijava aktivirana: ",
     "Registration enabled: ": "Registracija aktivirana: ",
     "Report statistics: ": "Izvještaj o statistici: ",
@@ -486,5 +486,6 @@
     "search_filters_duration_option_none": "Bilo koje duljine",
     "search_filters_duration_option_medium": "Srednje (4 – 20 minuta)",
     "search_filters_apply_button": "Primijeni odabrane filtre",
-    "search_filters_type_option_all": "Bilo koja vrsta"
+    "search_filters_type_option_all": "Bilo koja vrsta",
+    "Popular enabled: ": "Popularni aktivirani: "
 }

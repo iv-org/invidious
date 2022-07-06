@@ -486,5 +486,6 @@
     "search_filters_features_option_purchased": "Придбано",
     "search_filters_sort_option_relevance": "Відповідні",
     "search_filters_sort_option_rating": "Рейтингові",
-    "search_filters_sort_option_views": "Популярні"
+    "search_filters_sort_option_views": "Популярні",
+    "Popular enabled: ": "Популярне ввімкнено: "
 }

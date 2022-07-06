@@ -88,7 +88,7 @@
     "Only show latest unwatched video from channel: ": "Zobrazit jen nejnovější nezhlédnuté video z daného kanálu: ",
     "preferences_unseen_only_label": "Zobrazit jen již nezhlédnuté: ",
     "preferences_notifications_only_label": "Zobrazit pouze upozornění (pokud nějaká jsou): ",
-    "Enable web notifications": "Povolit webové upozornění",
+    "Enable web notifications": "Povolit webová upozornění",
     "`x` uploaded a video": "`x` nahrál(a) video",
     "`x` is live": "`x` je živě",
     "preferences_category_data": "Nastavení dat",
@@ -486,5 +486,6 @@
     "search_filters_features_option_purchased": "Zakoupeno",
     "search_filters_sort_label": "Řadit dle",
     "search_filters_sort_option_relevance": "Relevantnost",
-    "search_filters_apply_button": "Použít vybrané filtry"
+    "search_filters_apply_button": "Použít vybrané filtry",
+    "Popular enabled: ": "Populární povoleno: "
 }
