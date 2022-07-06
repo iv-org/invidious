@@ -470,5 +470,6 @@
     "search_filters_duration_option_medium": "Keskipituinen (4 - 20 minuuttia)",
     "search_message_use_another_instance": " Voit myös <a href=\"`x`\">hakea toisella instanssilla</a>.",
     "search_filters_date_option_none": "Milloin tahansa",
-    "search_filters_type_option_all": "Mikä tahansa tyyppi"
+    "search_filters_type_option_all": "Mikä tahansa tyyppi",
+    "Popular enabled: ": "Suosittu käytössä: "
 }
