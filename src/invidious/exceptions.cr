@@ -19,6 +19,6 @@ class BrokenTubeException < Exception
   end
 end
 
-# Exception used to hold the bogus UCID during a channel search.
+# Exception threw when an element is not found.
 class NotFoundException < InfoException
 end
