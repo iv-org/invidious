@@ -470,5 +470,6 @@
     "search_filters_duration_option_medium": "Orta (4 - 20 dakika)",
     "search_filters_features_option_vr180": "VR180",
     "search_filters_title": "Filtreler",
-    "search_message_change_filters_or_query": "Arama sorgunuzu genişletmeyi ve/veya filtreleri değiştirmeyi deneyin."
+    "search_message_change_filters_or_query": "Arama sorgunuzu genişletmeyi ve/veya filtreleri değiştirmeyi deneyin.",
+    "Popular enabled: ": "Popüler etkin: "
 }
