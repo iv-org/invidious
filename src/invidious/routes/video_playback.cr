@@ -265,7 +265,13 @@ module Invidious::Routes::VideoPlayback
       return error_template(403, "Administrator has disabled this endpoint.")
     end
 
-    video = get_video(id, region: region)
+    begin
+      video = get_video(id, region: region)
+    rescue ex : NotFoundException
+      return error_template(404, ex)
+    rescue ex
+      return error_template(500, ex)
+    end
 
     fmt = video.fmt_stream.find(nil) { |f| f["itag"].as_i == itag } || video.adaptive_fmts.find(nil) { |f| f["itag"].as_i == itag }
     url = fmt.try &.["url"]?.try &.as_s

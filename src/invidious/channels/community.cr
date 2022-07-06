@@ -6,7 +6,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
   end
 
   if response.status_code != 200
-    raise InfoException.new("This channel does not exist.")
+    raise NotFoundException.new("This channel does not exist.")
   end
 
   ucid = response.body.match(/https:\/\/www.youtube.com\/channel\/(?<ucid>UC[a-zA-Z0-9_-]{22})/).not_nil!["ucid"]
@@ -47,7 +47,11 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
     error_message = (message["text"]["simpleText"]? ||
                      message["text"]["runs"]?.try &.[0]?.try &.["text"]?)
       .try &.as_s || ""
-    raise InfoException.new(error_message)
+    if error_message == "This channel does not exist."
+      raise NotFoundException.new(error_message)
+    else
+      raise InfoException.new(error_message)
+    end
   end
 
   response = JSON.build do |json|

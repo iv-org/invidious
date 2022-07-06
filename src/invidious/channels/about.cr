@@ -31,7 +31,12 @@ def get_about_info(ucid, locale) : AboutChannel
   end
 
   if initdata.dig?("alerts", 0, "alertRenderer", "type") == "ERROR"
-    raise InfoException.new(initdata["alerts"][0]["alertRenderer"]["text"]["simpleText"].as_s)
+    error_message = initdata["alerts"][0]["alertRenderer"]["text"]["simpleText"].as_s
+    if error_message == "This channel does not exist."
+      raise NotFoundException.new(error_message)
+    else
+      raise InfoException.new(error_message)
+    end
   end
 
   if browse_endpoint = initdata["onResponseReceivedActions"]?.try &.[0]?.try &.["navigateAction"]?.try &.["endpoint"]?.try &.["browseEndpoint"]?

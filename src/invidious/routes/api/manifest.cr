@@ -16,6 +16,8 @@ module Invidious::Routes::API::Manifest
       video = get_video(id, region: region)
     rescue ex : VideoRedirect
       return env.redirect env.request.resource.gsub(id, ex.video_id)
+    rescue ex : NotFoundException
+      haltf env, status_code: 404
     rescue ex
       haltf env, status_code: 403
     end

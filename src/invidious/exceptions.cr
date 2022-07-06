@@ -18,3 +18,7 @@ class BrokenTubeException < Exception
     return "Missing JSON element \"#{@element}\""
   end
 end
+
+# Exception threw when an element is not found.
+class NotFoundException < InfoException
+end

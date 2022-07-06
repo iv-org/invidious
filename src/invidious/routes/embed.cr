@@ -7,6 +7,8 @@ module Invidious::Routes::Embed
         playlist = get_playlist(plid)
         offset = env.params.query["index"]?.try &.to_i? || 0
         videos = get_playlist_videos(playlist, offset: offset)
+      rescue ex : NotFoundException
+        return error_template(404, ex)
       rescue ex
         return error_template(500, ex)
       end
@@ -60,6 +62,8 @@ module Invidious::Routes::Embed
           playlist = get_playlist(plid)
           offset = env.params.query["index"]?.try &.to_i? || 0
           videos = get_playlist_videos(playlist, offset: offset)
+        rescue ex : NotFoundException
+          return error_template(404, ex)
         rescue ex
           return error_template(500, ex)
         end
@@ -119,6 +123,8 @@ module Invidious::Routes::Embed
       video = get_video(id, region: params.region)
     rescue ex : VideoRedirect
       return env.redirect env.request.resource.gsub(id, ex.video_id)
+    rescue ex : NotFoundException
+      return error_template(404, ex)
     rescue ex
       return error_template(500, ex)
     end

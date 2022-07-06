@@ -85,6 +85,9 @@ module Invidious::Routes::Channels
     rescue ex : InfoException
       env.response.status_code = 500
       error_message = ex.message
+    rescue ex : NotFoundException
+      env.response.status_code = 404
+      error_message = ex.message
     rescue ex
       return error_template(500, ex)
     end
@@ -118,7 +121,7 @@ module Invidious::Routes::Channels
       resolved_url = YoutubeAPI.resolve_url("https://youtube.com#{env.request.path}#{yt_url_params.size > 0 ? "?#{yt_url_params}" : ""}")
       ucid = resolved_url["endpoint"]["browseEndpoint"]["browseId"]
     rescue ex : InfoException | KeyError
-      raise InfoException.new(translate(locale, "This channel does not exist."))
+      return error_template(404, translate(locale, "This channel does not exist."))
     end
 
     selected_tab = env.request.path.split("/")[-1]
@@ -141,7 +144,7 @@ module Invidious::Routes::Channels
 
     user = env.params.query["user"]?
     if !user
-      raise InfoException.new("This channel does not exist.")
+      return error_template(404, "This channel does not exist.")
     else
       env.redirect "/user/#{user}#{uri_params}"
     end
@@ -197,6 +200,8 @@ module Invidious::Routes::Channels
       channel = get_about_info(ucid, locale)
     rescue ex : ChannelRedirect
       return env.redirect env.request.resource.gsub(ucid, ex.channel_id)
+    rescue ex : NotFoundException
+      return error_template(404, ex)
     rescue ex
       return error_template(500, ex)
     end

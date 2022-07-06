@@ -1158,7 +1158,11 @@ def fetch_video(id, region)
   end
 
   if reason = info["reason"]?
-    raise InfoException.new(reason.as_s || "")
+    if reason == "Video unavailable"
+      raise NotFoundException.new(reason.as_s || "")
+    else
+      raise InfoException.new(reason.as_s || "")
+    end
   end
 
   video = Video.new({

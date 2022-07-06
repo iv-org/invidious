@@ -66,7 +66,13 @@ module Invidious::Routes::Playlists
     user = user.as(User)
 
     playlist_id = env.params.query["list"]
-    playlist = get_playlist(playlist_id)
+    begin
+      playlist = get_playlist(playlist_id)
+    rescue ex : NotFoundException
+      return error_template(404, ex)
+    rescue ex
+      return error_template(500, ex)
+    end
     subscribe_playlist(user, playlist)
 
     env.redirect "/playlist?list=#{playlist.id}"
@@ -304,6 +310,8 @@ module Invidious::Routes::Playlists
       playlist_id = env.params.query["playlist_id"]
       playlist = get_playlist(playlist_id).as(InvidiousPlaylist)
       raise "Invalid user" if playlist.author != user.email
+    rescue ex : NotFoundException
+      return error_json(404, ex)
     rescue ex
       if redirect
         return error_template(400, ex)
@@ -334,6 +342,8 @@ module Invidious::Routes::Playlists
 
       begin
         video = get_video(video_id)
+      rescue ex : NotFoundException
+        return error_json(404, ex)
       rescue ex
         if redirect
           return error_template(500, ex)
@@ -394,6 +404,8 @@ module Invidious::Routes::Playlists
 
     begin
       playlist = get_playlist(plid)
+    rescue ex : NotFoundException
+      return error_template(404, ex)
     rescue ex
       return error_template(500, ex)
     end
