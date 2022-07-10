@@ -25,7 +25,7 @@
                 bitrate = fmt["bitrate"]
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
 
-                selected = i == best_m4a_stream_index ? true : false
+                selected = (i == best_m4a_stream_index)
             %>
                 <source src="<%= src_url %>" type='<%= mimetype %>' label="<%= bitrate %>k" selected="<%= selected %>">
                 <% if !params.local && !CONFIG.disabled?("local") %>
