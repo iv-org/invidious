@@ -61,10 +61,10 @@ module Invidious::Routes::API::Manifest
             next if mime_streams.empty?
 
             mime_streams.each do |fmt|
-              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: fmt["bitrate"].to_s + "k") do
-                # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
-                next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
+              # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
+              next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
 
+              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: fmt["bitrate"].to_s + "k") do
                 codecs = fmt["mimeType"].as_s.split("codecs=")[1].strip('"')
                 bandwidth = fmt["bitrate"].as_i
                 itag = fmt["itag"].as_i
