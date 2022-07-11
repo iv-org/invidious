@@ -48,7 +48,7 @@ module Invidious::Routes::API::Manifest
       end
     end
 
-    audio_streams = video.audio_streams
+    audio_streams = video.audio_streams.sort_by { |stream| {stream["bitrate"].as_i} }.reverse!
     video_streams = video.video_streams.sort_by { |stream| {stream["width"].as_i, stream["fps"].as_i} }.reverse!
 
     manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
@@ -62,15 +62,21 @@ module Invidious::Routes::API::Manifest
             mime_streams = audio_streams.select { |stream| stream["mimeType"].as_s.starts_with? mime_type }
             next if mime_streams.empty?
 
-            xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true) do
-              mime_streams.each do |fmt|
-                # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
-                next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
+            mime_streams.each do |fmt|
+              # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
+              next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
 
+              # Different representations of the same audio should be groupped into one AdaptationSet.
+              # However, most players don't support auto quality switching, so we have to trick them
+              # into providing a quality selector.
+              # See https://github.com/iv-org/invidious/issues/3074 for more details.
+              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: fmt["bitrate"].to_s + "k") do
                 codecs = fmt["mimeType"].as_s.split("codecs=")[1].strip('"')
                 bandwidth = fmt["bitrate"].as_i
                 itag = fmt["itag"].as_i
                 url = fmt["url"].as_s
+
+                xml.element("Role", schemeIdUri: "urn:mpeg:dash:role:2011", value: i == 0 ? "main" : "alternate")
 
                 xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
                   xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
@@ -81,9 +87,8 @@ module Invidious::Routes::API::Manifest
                   end
                 end
               end
+              i += 1
             end
-
-            i += 1
           end
 
           potential_heights = {4320, 2160, 1440, 1080, 720, 480, 360, 240, 144}

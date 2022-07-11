@@ -101,21 +101,25 @@ ul.vjs-menu-content::-webkit-scrollbar {
   order: 2;
 }
 
-.vjs-quality-selector,
-.video-js .vjs-http-source-selector {
+.vjs-audio-button {
   order: 3;
 }
 
-.vjs-playback-rate {
+.vjs-quality-selector,
+.video-js .vjs-http-source-selector {
   order: 4;
 }
 
-.vjs-share-control {
+.vjs-playback-rate {
   order: 5;
 }
 
-.vjs-fullscreen-control {
+.vjs-share-control {
   order: 6;
+}
+
+.vjs-fullscreen-control {
+  order: 7;
 }
 
 .vjs-playback-rate > .vjs-menu {
