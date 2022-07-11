@@ -57,7 +57,7 @@ module Invidious::Search
       # Get the page number (also common to all search types)
       @page = params["page"]?.try &.to_i? || 1
 
-      # Stop here is raw query in empty
+      # Stop here if raw query is empty
       # NOTE: maybe raise in the future?
       return if self.empty_raw_query?
 
@@ -125,6 +125,16 @@ module Invidious::Search
       end
 
       return items
+    end
+
+    # Return the HTTP::Params corresponding to this Query (invidious format)
+    def to_http_params : HTTP::Params
+      params = @filters.to_iv_params
+
+      params["q"] = @query
+      params["channel"] = @channel if !@channel.empty?
+
+      return params
     end
 
     # TODO: clean code

@@ -197,4 +197,46 @@ Spectator.describe Invidious::Search::Query do
       )
     end
   end
+
+  describe "#to_http_params" do
+    it "formats regular search" do
+      query = described_class.new(
+        HTTP::Params.parse("q=The+Simpsons+hiding+in+bush&duration=short"),
+        Invidious::Search::Query::Type::Regular, nil
+      )
+
+      params = query.to_http_params
+
+      expect(params).to have_key("duration")
+      expect(params["duration"]?).to eq("short")
+
+      expect(params).to have_key("q")
+      expect(params["q"]?).to eq("The Simpsons hiding in bush")
+
+      # Check if there aren't other parameters
+      params.delete("duration")
+      params.delete("q")
+      expect(params).to be_empty
+    end
+
+    it "formats channel search" do
+      query = described_class.new(
+        HTTP::Params.parse("q=channel:UC2DjFE7Xf11URZqWBigcVOQ%20multimeter"),
+        Invidious::Search::Query::Type::Regular, nil
+      )
+
+      params = query.to_http_params
+
+      expect(params).to have_key("channel")
+      expect(params["channel"]?).to eq("UC2DjFE7Xf11URZqWBigcVOQ")
+
+      expect(params).to have_key("q")
+      expect(params["q"]?).to eq("multimeter")
+
+      # Check if there aren't other parameters
+      params.delete("channel")
+      params.delete("q")
+      expect(params).to be_empty
+    end
+  end
 end

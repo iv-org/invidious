@@ -6,7 +6,7 @@
 
 interactive=true
 
-if [ "$1" == "--no-interactive" ]; then
+if [ "$1" = "--no-interactive" ]; then
 	interactive=false
 fi
 
@@ -21,7 +21,7 @@ sudo systemctl enable postgresql.service
 # Create databse and user
 #
 
-if [ "$interactive" == "true" ]; then
+if [ "$interactive" = "true" ]; then
 	sudo -u postgres -- createuser -P kemal
 	sudo -u postgres -- createdb -O kemal invidious
 else

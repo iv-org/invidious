@@ -74,7 +74,7 @@ install_apt() {
 	sudo apt-get install --yes --no-install-recommends \
 		libssl-dev libxml2-dev libyaml-dev libgmp-dev libevent-dev \
 		libpcre3-dev libreadline-dev libsqlite3-dev zlib1g-dev \
-		crystal postgres git librsvg2-bin make
+		crystal postgresql-13 git librsvg2-bin make
 }
 
 install_yum() {
