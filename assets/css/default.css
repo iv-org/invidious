@@ -527,3 +527,6 @@ p,
 
 /* Center the "invidious" logo on the search page */
 #logo > h1 { text-align: center; }
+
+/* Wider settings name to less word wrap */
+.pure-form-aligned .pure-control-group label { width: 19em; }
