@@ -914,7 +914,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   params["shortDescription"] = player_response.dig?("videoDetails", "shortDescription") || JSON::Any.new(nil)
 
   # Don't fetch the next endpoint if the video is unavailable.
-  if !params["reason"]?
+  if {"OK", "LIVE_STREAM_OFFLINE"}.any?(playability_status)
     next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
     player_response = player_response.merge(next_response)
   end
