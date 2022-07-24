@@ -1,3 +1,9 @@
+enum VideoType
+  Video
+  Livestream
+  Scheduled
+end
+
 struct Video
   include DB::Serializable
 
@@ -27,7 +33,7 @@ struct Video
 
   def to_json(locale : String?, json : JSON::Builder)
     json.object do
-      json.field "type", "video"
+      json.field "type", self.video_type
 
       json.field "title", self.title
       json.field "videoId", self.id
@@ -253,61 +259,22 @@ struct Video
     to_json(nil, json)
   end
 
-  def title
-    info["videoDetails"]["title"]?.try &.as_s || ""
-  end
-
-  def ucid
-    info["videoDetails"]["channelId"]?.try &.as_s || ""
-  end
-
-  def author
-    info["videoDetails"]["author"]?.try &.as_s || ""
-  end
-
-  def length_seconds : Int32
-    info.dig?("microformat", "playerMicroformatRenderer", "lengthSeconds").try &.as_s.to_i ||
-      info["videoDetails"]["lengthSeconds"]?.try &.as_s.to_i || 0
-  end
-
-  def views : Int64
-    info["videoDetails"]["viewCount"]?.try &.as_s.to_i64 || 0_i64
-  end
-
-  def likes : Int64
-    info["likes"]?.try &.as_i64 || 0_i64
-  end
-
-  def dislikes : Int64
-    info["dislikes"]?.try &.as_i64 || 0_i64
+  def video_type : VideoType
+    video_type = info["videoType"]?.try &.as_s || "video"
+    return VideoType.parse?(video_type) || VideoType::Video
   end
 
   def published : Time
-    info
-      .dig?("microformat", "playerMicroformatRenderer", "publishDate")
+    return info["published"]?
       .try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) } || Time.utc
   end
 
   def published=(other : Time)
-    info["microformat"].as_h["playerMicroformatRenderer"].as_h["publishDate"] = JSON::Any.new(other.to_s("%Y-%m-%d"))
-  end
-
-  def allow_ratings
-    r = info["videoDetails"]["allowRatings"]?.try &.as_bool
-    r.nil? ? false : r
+    info["published"] = JSON::Any.new(other.to_s("%Y-%m-%d"))
   end
 
   def live_now
-    info["microformat"]?.try &.["playerMicroformatRenderer"]?
-      .try &.["liveBroadcastDetails"]?.try &.["isLiveNow"]?.try &.as_bool || false
-  end
-
-  def is_listed
-    info["videoDetails"]["isCrawlable"]?.try &.as_bool || false
-  end
-
-  def is_upcoming
-    info["videoDetails"]["isUpcoming"]?.try &.as_bool || false
+    return (self.video_type == VideoType::Livestream)
   end
 
   def premiere_timestamp : Time?
@@ -316,31 +283,11 @@ struct Video
       .try { |t| Time.parse_rfc3339(t.as_s) }
   end
 
-  def keywords
-    info["videoDetails"]["keywords"]?.try &.as_a.map &.as_s || [] of String
-  end
-
   def related_videos
     info["relatedVideos"]?.try &.as_a.map { |h| h.as_h.transform_values &.as_s } || [] of Hash(String, String)
   end
 
-  def allowed_regions
-    info
-      .dig?("microformat", "playerMicroformatRenderer", "availableCountries")
-      .try &.as_a.map &.as_s || [] of String
-  end
-
-  def author_thumbnail : String
-    info["authorThumbnail"]?.try &.as_s || ""
-  end
-
-  def author_verified : Bool
-    info["authorVerified"]?.try &.as_bool || false
-  end
-
-  def sub_count_text : String
-    info["subCountText"]?.try &.as_s || "-"
-  end
+  # Methods for parsing streaming data
 
   def fmt_stream
     return @fmt_stream.as(Array(Hash(String, JSON::Any))) if @fmt_stream
@@ -390,6 +337,8 @@ struct Video
   def audio_streams
     adaptive_fmts.select &.["mimeType"]?.try &.as_s.starts_with?("audio")
   end
+
+  # Misc. methods
 
   def storyboards
     storyboards = info.dig?("storyboards", "playerStoryboardSpecRenderer", "spec")
@@ -454,8 +403,7 @@ struct Video
   end
 
   def paid
-    reason = info.dig?("playabilityStatus", "reason").try &.as_s || ""
-    return reason.includes? "requires payment"
+    return (self.reason || "").includes? "requires payment"
   end
 
   def premium
@@ -470,29 +418,6 @@ struct Video
     return @captions
   end
 
-  def description
-    description = info
-      .dig?("microformat", "playerMicroformatRenderer", "description", "simpleText")
-      .try &.as_s || ""
-  end
-
-  # TODO
-  def description=(value : String)
-    @description = value
-  end
-
-  def description_html
-    info["descriptionHtml"]?.try &.as_s || "<p></p>"
-  end
-
-  def description_html=(value : String)
-    info["descriptionHtml"] = JSON::Any.new(value)
-  end
-
-  def short_description
-    info["shortDescription"]?.try &.as_s? || ""
-  end
-
   def hls_manifest_url : String?
     info.dig?("streamingData", "hlsManifestUrl").try &.as_s
   end
@@ -501,25 +426,12 @@ struct Video
     info.dig?("streamingData", "dashManifestUrl").try &.as_s
   end
 
-  def genre : String
-    info["genre"]?.try &.as_s || ""
-  end
-
   def genre_url : String?
     info["genreUcid"]? ? "/channel/#{info["genreUcid"]}" : nil
   end
 
-  def license : String?
-    info["license"]?.try &.as_s
-  end
-
-  def is_family_friendly : Bool
-    info.dig?("microformat", "playerMicroformatRenderer", "isFamilySafe").try &.as_bool || false
-  end
-
   def is_vr : Bool?
-    projection_type = info.dig?("streamingData", "adaptiveFormats", 0, "projectionType").try &.as_s
-    return {"EQUIRECTANGULAR", "MESH"}.includes? projection_type
+    return {"EQUIRECTANGULAR", "MESH"}.includes? self.projection_type
   end
 
   def projection_type : String?
@@ -529,6 +441,91 @@ struct Video
   def reason : String?
     info["reason"]?.try &.as_s
   end
+
+  # Macros defining getters/setters for various types of data
+
+  private macro getset_string(name)
+    # Return {{name.stringify}} from `info`
+    def {{name.id.underscore}} : String
+      return info[{{name.stringify}}]?.try &.as_s || ""
+    end
+
+    # Update {{name.stringify}} into `info`
+    def {{name.id.underscore}}=(value : String)
+      info[{{name.stringify}}] = JSON::Any.new(value)
+    end
+
+    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+  end
+
+  private macro getset_string_array(name)
+    # Return {{name.stringify}} from `info`
+    def {{name.id.underscore}} : Array(String)
+      return info[{{name.stringify}}]?.try &.as_a.map &.as_s || [] of String
+    end
+
+    # Update {{name.stringify}} into `info`
+    def {{name.id.underscore}}=(value : Array(String))
+      info[{{name.stringify}}] = JSON::Any.new(value)
+    end
+
+    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+  end
+
+  {% for op, type in {i32: Int32, i64: Int64} %}
+    private macro getset_{{op}}(name)
+      def \{{name.id.underscore}} : {{type}}
+        return info[\{{name.stringify}}]?.try &.as_i.to_{{op}} || 0_{{op}}
+      end
+
+      def \{{name.id.underscore}}=(value : Int)
+        info[\{{name.stringify}}] = JSON::Any.new(value.to_i64)
+      end
+
+      \{% if flag?(:debug_macros) %} \{{debug}} \{% end %}
+    end
+  {% end %}
+
+  private macro getset_bool(name)
+    # Return {{name.stringify}} from `info`
+    def {{name.id.underscore}} : Bool
+      return info[{{name.stringify}}]?.try &.as_bool || false
+    end
+
+    # Update {{name.stringify}} into `info`
+    def {{name.id.underscore}}=(value : Bool)
+      info[{{name.stringify}}] = JSON::Any.new(value)
+    end
+
+    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+  end
+
+  # Method definitions, using the macros above
+
+  getset_string author
+  getset_string authorThumbnail
+  getset_string description
+  getset_string descriptionHtml
+  getset_string genre
+  getset_string genreUcid
+  getset_string license
+  getset_string shortDescription
+  getset_string subCountText
+  getset_string title
+  getset_string ucid
+
+  getset_string_array allowedRegions
+  getset_string_array keywords
+
+  getset_i32 lengthSeconds
+  getset_i64 likes
+  getset_i64 views
+
+  getset_bool allowRatings
+  getset_bool authorVerified
+  getset_bool isFamilyFriendly
+  getset_bool isListed
+  getset_bool isUpcoming
 end
 
 class VideoRedirect < Exception
@@ -684,6 +681,42 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   raise BrokenTubeException.new("videoPrimaryInfoRenderer") if !video_primary_renderer
   raise BrokenTubeException.new("videoSecondaryInfoRenderer") if !video_secondary_renderer
 
+  video_details = player_response.dig?("videoDetails")
+  microformat = player_response.dig?("microformat", "playerMicroformatRenderer")
+
+  raise BrokenTubeException.new("videoDetails") if !video_details
+  raise BrokenTubeException.new("microformat") if !microformat
+
+  # Basic video infos
+
+  title = video_details["title"]?.try &.as_s
+  views = video_details["viewCount"]?.try &.as_s.to_i64
+
+  length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"])
+    .try &.as_s.to_i64
+
+  published = microformat["publishDate"]?
+    .try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) } || Time.utc
+
+  premiere_timestamp = microformat.dig?("liveBroadcastDetails", "startTimestamp")
+    .try { |t| Time.parse_rfc3339(t.as_s) }
+
+  live_now = microformat.dig?("liveBroadcastDetails", "isLiveNow")
+    .try &.as_bool || false
+
+  # Extra video infos
+
+  allowed_regions = microformat["availableCountries"]?
+    .try &.as_a.map &.as_s || [] of String
+
+  allow_ratings = video_details["allowRatings"]?.try &.as_bool
+  family_friendly = microformat["isFamilySafe"].try &.as_bool
+  is_listed = video_details["isCrawlable"]?.try &.as_bool
+  is_upcoming = video_details["isUpcoming"]?.try &.as_bool
+
+  keywords = video_details["keywords"]?
+    .try &.as_a.map &.as_s || [] of String
+
   # Related videos
 
   LOGGER.debug("extract_video_info: parsing related videos...")
@@ -738,6 +771,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   # Description
 
+  description = microformat.dig?("description", "simpleText").try &.as_s || ""
   short_description = player_response.dig?("videoDetails", "shortDescription")
 
   description_html = video_secondary_renderer.try &.dig?("description", "runs")
@@ -749,7 +783,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .try &.dig?("metadataRowContainer", "metadataRowContainerRenderer", "rows")
       .try &.as_a
 
-  genre = player_response.dig?("microformat", "playerMicroformatRenderer", "category")
+  genre = microformat["category"]?
   genre_ucid = nil
   license = nil
 
@@ -771,6 +805,9 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   # Author infos
 
+  author = video_details["author"]?.try &.as_s
+  ucid = video_details["channelId"]?.try &.as_s
+
   if author_info = video_secondary_renderer.try &.dig?("owner", "videoOwnerRenderer")
     author_thumbnail = author_info.dig?("thumbnail", "thumbnails", 0, "url")
     author_verified = has_verified_badge?(author_info["badges"]?)
@@ -782,19 +819,46 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   # Return data
 
+  if live_now
+    video_type = VideoType::Livestream
+  elsif premiere_timestamp.not_nil!
+    video_type = VideoType::Scheduled
+    published = premiere_timestamp || Time.utc
+  else
+    video_type = VideoType::Video
+  end
+
   params = {
-    "shortDescription" => JSON::Any.new(short_description.try &.as_s || nil),
-    "relatedVideos"    => JSON::Any.new(related),
-    "likes"            => JSON::Any.new(likes || 0_i64),
-    "dislikes"         => JSON::Any.new(0_i64),
+    "videoType" => JSON::Any.new(video_type.to_s),
+    # Basic video infos
+    "title"         => JSON::Any.new(title || ""),
+    "views"         => JSON::Any.new(views || 0_i64),
+    "likes"         => JSON::Any.new(likes || 0_i64),
+    "lengthSeconds" => JSON::Any.new(length_txt || 0_i64),
+    "published"     => JSON::Any.new(published.to_rfc3339),
+    # Extra video infos
+    "allowedRegions"   => JSON::Any.new(allowed_regions.map { |v| JSON::Any.new(v) }),
+    "allowRatings"     => JSON::Any.new(allow_ratings || false),
+    "isFamilyFriendly" => JSON::Any.new(family_friendly || false),
+    "isListed"         => JSON::Any.new(is_listed || false),
+    "isUpcoming"       => JSON::Any.new(is_upcoming || false),
+    "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
+    # Related videos
+    "relatedVideos" => JSON::Any.new(related),
+    # Description
+    "description"      => JSON::Any.new(description || ""),
     "descriptionHtml"  => JSON::Any.new(description_html || "<p></p>"),
-    "genre"            => JSON::Any.new(genre.try &.as_s || ""),
-    "genreUrl"         => JSON::Any.new(nil),
-    "genreUcid"        => JSON::Any.new(genre_ucid.try &.as_s || ""),
-    "license"          => JSON::Any.new(license.try &.as_s || ""),
-    "authorThumbnail"  => JSON::Any.new(author_thumbnail.try &.as_s || ""),
-    "authorVerified"   => JSON::Any.new(author_verified),
-    "subCountText"     => JSON::Any.new(subs_text || "-"),
+    "shortDescription" => JSON::Any.new(short_description.try &.as_s || nil),
+    # Video metadata
+    "genre"     => JSON::Any.new(genre.try &.as_s || ""),
+    "genreUcid" => JSON::Any.new(genre_ucid.try &.as_s || ""),
+    "license"   => JSON::Any.new(license.try &.as_s || ""),
+    # Author infos
+    "author"          => JSON::Any.new(author || ""),
+    "ucid"            => JSON::Any.new(ucid || ""),
+    "authorThumbnail" => JSON::Any.new(author_thumbnail.try &.as_s || ""),
+    "authorVerified"  => JSON::Any.new(author_verified),
+    "subCountText"    => JSON::Any.new(subs_text || "-"),
   }
 
   return params

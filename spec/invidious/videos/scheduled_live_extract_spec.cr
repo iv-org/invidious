@@ -22,7 +22,6 @@ Spectator.describe Invidious::Hashtag do
     expect(info["likes"].as_i).to eq(2_283)
 
     expect(info["genre"].as_s).to eq("Gaming")
-    expect(info["genreUrl"].raw).to be_nil
     expect(info["genreUcid"].as_s).to be_empty
     expect(info["license"].as_s).to be_empty
 
@@ -81,7 +80,6 @@ Spectator.describe Invidious::Hashtag do
     expect(info["likes"].as_i).to eq(22)
 
     expect(info["genre"].as_s).to eq("Entertainment")
-    expect(info["genreUrl"].raw).to be_nil
     expect(info["genreUcid"].as_s).to be_empty
     expect(info["license"].as_s).to be_empty
 
