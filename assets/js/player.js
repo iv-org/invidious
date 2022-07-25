@@ -68,6 +68,7 @@ player.on('error', function () {
         // add local=true to all current sources
         player.src(player.currentSources().map(function (source) {
             source.src += '&local=true';
+            return source;
         }));
     } else if (reloadMakesSense) {
         setTimeout(function () {
