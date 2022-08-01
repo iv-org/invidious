@@ -48,7 +48,7 @@
                 <p dir="auto"><b><%= HTML.escape(item.author) %></b></p>
             </a>
         <% when PlaylistVideo %>
-            <a style="width:100%" href="/watch?v=<%= item.id %>&list=<%= item.plid %>&index=<%= item.index %>">
+            <a style="width:100%; display: block;" href="/watch?v=<%= item.id %>&list=<%= item.plid %>&index=<%= item.index %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
                     <div class="thumbnail">
                         <img loading="lazy" tabindex="-1" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
@@ -80,7 +80,7 @@
                 <%= rendered "components/video-context-buttons" %>
             </div>
 
-            <div class="video-card-row flexible">
+            <div class="video-card-row">
                 <div class="flex-left">
                     <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
                         <p dir="auto"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
