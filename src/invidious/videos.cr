@@ -690,7 +690,11 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # Basic video infos
 
   title = video_details["title"]?.try &.as_s
-  views = video_details["viewCount"]?.try &.as_s.to_i64
+
+  views = video_primary_renderer
+    .dig?("viewCount", "videoViewCountRenderer", "viewCount", "runs", 0, "text")
+    .try &.as_s.to_i64
+  views ||= video_details["viewCount"]?.try &.as_s.to_i64
 
   length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"])
     .try &.as_s.to_i64
