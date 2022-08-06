@@ -25,6 +25,7 @@ module YoutubeAPI
     IOSEmbedded
     IOSMusic
 
+    TvHtml5
     TvHtml5ScreenEmbed
   end
 
@@ -96,8 +97,13 @@ module YoutubeAPI
 
     # TV app
 
+    ClientType::TvHtml5 => {
+      name:    "TVHTML5", # 7
+      version: "7.20220325",
+      api_key: DEFAULT_API_KEY,
+    },
     ClientType::TvHtml5ScreenEmbed => {
-      name:    "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+      name:    "TVHTML5_SIMPLY_EMBEDDED_PLAYER", # 85
       version: "2.0",
       api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
