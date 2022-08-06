@@ -18,7 +18,7 @@ struct Invidious::User
         expires: Time.utc + 2.years,
         secure: SECURE,
         http_only: true,
-        samesite: HTTP::Cookie::SameSite::Strict
+        samesite: HTTP::Cookie::SameSite::Lax
       )
     end
 
@@ -32,7 +32,7 @@ struct Invidious::User
         expires: Time.utc + 2.years,
         secure: SECURE,
         http_only: false,
-        samesite: HTTP::Cookie::SameSite::Strict
+        samesite: HTTP::Cookie::SameSite::Lax
       )
     end
   end
