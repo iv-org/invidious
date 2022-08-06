@@ -5,15 +5,27 @@
 module YoutubeAPI
   extend self
 
+  private DEFAULT_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+
+  private ANDROID_APP_VERSION = "17.29.35"
+  private IOS_APP_VERSION     = "17.30.1"
+
   # Enumerate used to select one of the clients supported by the API
   enum ClientType
     Web
     WebEmbeddedPlayer
     WebMobile
     WebScreenEmbed
+
     Android
     AndroidEmbeddedPlayer
     AndroidScreenEmbed
+
+    IOS
+    IOSEmbedded
+    IOSMusic
+
+    TvHtml5
     TvHtml5ScreenEmbed
   end
 
@@ -21,50 +33,76 @@ module YoutubeAPI
   HARDCODED_CLIENTS = {
     ClientType::Web => {
       name:    "WEB",
-      version: "2.20210721.00.00",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      version: "2.20220804.07.00",
+      api_key: DEFAULT_API_KEY,
       screen:  "WATCH_FULL_SCREEN",
     },
     ClientType::WebEmbeddedPlayer => {
       name:    "WEB_EMBEDDED_PLAYER", # 56
-      version: "1.20210721.1.0",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      version: "1.20220803.01.00",
+      api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
     },
     ClientType::WebMobile => {
       name:    "MWEB",
-      version: "2.20210726.08.00",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-      screen:  "", # None
+      version: "2.20220805.01.00",
+      api_key: DEFAULT_API_KEY,
     },
     ClientType::WebScreenEmbed => {
       name:    "WEB",
-      version: "2.20210721.00.00",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      version: "2.20220804.00.00",
+      api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
     },
+
+    # Android
+
     ClientType::Android => {
       name:    "ANDROID",
-      version: "16.20",
+      version: ANDROID_APP_VERSION,
       api_key: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
-      screen:  "", # ??
     },
     ClientType::AndroidEmbeddedPlayer => {
       name:    "ANDROID_EMBEDDED_PLAYER", # 55
-      version: "16.20",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
-      screen:  "", # None?
+      version: ANDROID_APP_VERSION,
+      api_key: DEFAULT_API_KEY,
     },
     ClientType::AndroidScreenEmbed => {
       name:    "ANDROID", # 3
-      version: "16.20",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      version: ANDROID_APP_VERSION,
+      api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
     },
+
+    # IOS
+
+    ClientType::IOS => {
+      name:    "IOS", # 5
+      version: IOS_APP_VERSION,
+      api_key: "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
+    },
+    ClientType::IOSEmbedded => {
+      name:    "IOS_MESSAGES_EXTENSION", # 66
+      version: IOS_APP_VERSION,
+      api_key: DEFAULT_API_KEY,
+    },
+    ClientType::IOSMusic => {
+      name:    "IOS_MUSIC", # 26
+      version: "4.32",
+      api_key: "AIzaSyBAETezhkwP0ZWA02RsqT1zu78Fpt0bC_s",
+    },
+
+    # TV app
+
+    ClientType::TvHtml5 => {
+      name:    "TVHTML5", # 7
+      version: "7.20220325",
+      api_key: DEFAULT_API_KEY,
+    },
     ClientType::TvHtml5ScreenEmbed => {
-      name:    "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+      name:    "TVHTML5_SIMPLY_EMBEDDED_PLAYER", # 85
       version: "2.0",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
     },
   }
@@ -131,7 +169,7 @@ module YoutubeAPI
 
     # :ditto:
     def screen : String
-      HARDCODED_CLIENTS[@client_type][:screen]
+      HARDCODED_CLIENTS[@client_type][:screen]? || ""
     end
 
     # Convert to string, for logging purposes
