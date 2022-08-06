@@ -204,6 +204,12 @@ module Invidious::Routes::Feeds
           xml.element("uri") { xml.text "#{HOST_URL}/channel/#{channel.ucid}" }
         end
 
+        xml.element("image") do
+          xml.element("url") { xml.text channel.author_thumbnail }
+          xml.element("title") { xml.text channel.author }
+          xml.element("link", rel: "self", href: "#{HOST_URL}#{env.request.resource}")
+        end
+
         videos.each do |video|
           video.to_xml(channel.auto_generated, params, xml)
         end
