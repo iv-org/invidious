@@ -47,7 +47,6 @@ module YoutubeAPI
       name:    "MWEB",
       version: "2.20220805.01.00",
       api_key: DEFAULT_API_KEY,
-      screen:  "", # None
     },
     ClientType::WebScreenEmbed => {
       name:    "WEB",
@@ -62,13 +61,11 @@ module YoutubeAPI
       name:    "ANDROID",
       version: ANDROID_APP_VERSION,
       api_key: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
-      screen:  "", # ??
     },
     ClientType::AndroidEmbeddedPlayer => {
       name:    "ANDROID_EMBEDDED_PLAYER", # 55
       version: ANDROID_APP_VERSION,
       api_key: DEFAULT_API_KEY,
-      screen:  "", # None?
     },
     ClientType::AndroidScreenEmbed => {
       name:    "ANDROID", # 3
