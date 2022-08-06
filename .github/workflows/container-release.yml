@@ -27,7 +27,7 @@ jobs:
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1.6.0
         with:
-          crystal: 1.2.2
+          crystal: 1.5.0
 
       - name: Run lint
         run: |
