@@ -23,25 +23,25 @@ module YoutubeAPI
   HARDCODED_CLIENTS = {
     ClientType::Web => {
       name:    "WEB",
-      version: "2.20210721.00.00",
+      version: "2.20220804.07.00",
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
       screen:  "WATCH_FULL_SCREEN",
     },
     ClientType::WebEmbeddedPlayer => {
       name:    "WEB_EMBEDDED_PLAYER", # 56
-      version: "1.20210721.1.0",
+      version: "1.20220803.01.00",
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
       screen:  "EMBED",
     },
     ClientType::WebMobile => {
       name:    "MWEB",
-      version: "2.20210726.08.00",
+      version: "2.20220805.01.00",
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
       screen:  "", # None
     },
     ClientType::WebScreenEmbed => {
       name:    "WEB",
-      version: "2.20210721.00.00",
+      version: "2.20220804.00.00",
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
       screen:  "EMBED",
     },
