@@ -5,6 +5,8 @@
 module YoutubeAPI
   extend self
 
+  private ANDROID_APP_VERSION = "17.29.35"
+
   # Enumerate used to select one of the clients supported by the API
   enum ClientType
     Web
@@ -45,19 +47,19 @@ module YoutubeAPI
     },
     ClientType::Android => {
       name:    "ANDROID",
-      version: "16.20",
+      version: ANDROID_APP_VERSION,
       api_key: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
       screen:  "", # ??
     },
     ClientType::AndroidEmbeddedPlayer => {
       name:    "ANDROID_EMBEDDED_PLAYER", # 55
-      version: "16.20",
+      version: ANDROID_APP_VERSION,
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
       screen:  "", # None?
     },
     ClientType::AndroidScreenEmbed => {
       name:    "ANDROID", # 3
-      version: "16.20",
+      version: ANDROID_APP_VERSION,
       api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
       screen:  "EMBED",
     },
