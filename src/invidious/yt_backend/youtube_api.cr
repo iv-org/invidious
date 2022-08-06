@@ -8,6 +8,7 @@ module YoutubeAPI
   private DEFAULT_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 
   private ANDROID_APP_VERSION = "17.29.35"
+  private IOS_APP_VERSION     = "17.30.1"
 
   # Enumerate used to select one of the clients supported by the API
   enum ClientType
@@ -15,9 +16,15 @@ module YoutubeAPI
     WebEmbeddedPlayer
     WebMobile
     WebScreenEmbed
+
     Android
     AndroidEmbeddedPlayer
     AndroidScreenEmbed
+
+    IOS
+    IOSEmbedded
+    IOSMusic
+
     TvHtml5ScreenEmbed
   end
 
@@ -47,6 +54,9 @@ module YoutubeAPI
       api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
     },
+
+    # Android
+
     ClientType::Android => {
       name:    "ANDROID",
       version: ANDROID_APP_VERSION,
@@ -65,6 +75,27 @@ module YoutubeAPI
       api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
     },
+
+    # IOS
+
+    ClientType::IOS => {
+      name:    "IOS", # 5
+      version: IOS_APP_VERSION,
+      api_key: "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
+    },
+    ClientType::IOSEmbedded => {
+      name:    "IOS_MESSAGES_EXTENSION", # 66
+      version: IOS_APP_VERSION,
+      api_key: DEFAULT_API_KEY,
+    },
+    ClientType::IOSMusic => {
+      name:    "IOS_MUSIC", # 26
+      version: "4.32",
+      api_key: "AIzaSyBAETezhkwP0ZWA02RsqT1zu78Fpt0bC_s",
+    },
+
+    # TV app
+
     ClientType::TvHtml5ScreenEmbed => {
       name:    "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
       version: "2.0",
@@ -135,7 +166,7 @@ module YoutubeAPI
 
     # :ditto:
     def screen : String
-      HARDCODED_CLIENTS[@client_type][:screen]
+      HARDCODED_CLIENTS[@client_type][:screen]? || ""
     end
 
     # Convert to string, for logging purposes
