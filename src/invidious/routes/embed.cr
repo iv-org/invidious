@@ -2,11 +2,16 @@
 
 module Invidious::Routes::Embed
   def self.redirect(env)
+    locale = env.get("preferences").as(Preferences).locale
     if plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
       begin
         playlist = get_playlist(plid)
         offset = env.params.query["index"]?.try &.to_i? || 0
         videos = get_playlist_videos(playlist, offset: offset)
+        if videos.empty?
+          url = "/playlist?list=#{plid}"
+          raise NotFoundException.new(translate(locale, "video_not_exist_in_playlist", url))
+        end
       rescue ex : NotFoundException
         return error_template(404, ex)
       rescue ex
@@ -26,6 +31,7 @@ module Invidious::Routes::Embed
   end
 
   def self.show(env)
+    locale = env.get("preferences").as(Preferences).locale
     id = env.params.url["id"]
 
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
@@ -62,6 +68,10 @@ module Invidious::Routes::Embed
           playlist = get_playlist(plid)
           offset = env.params.query["index"]?.try &.to_i? || 0
           videos = get_playlist_videos(playlist, offset: offset)
+          if videos.empty?
+            url = "/playlist?list=#{plid}"
+            raise NotFoundException.new(translate(locale, "video_not_exist_in_playlist", url))
+          end
         rescue ex : NotFoundException
           return error_template(404, ex)
         rescue ex
