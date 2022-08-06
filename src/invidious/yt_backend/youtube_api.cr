@@ -5,6 +5,8 @@
 module YoutubeAPI
   extend self
 
+  private DEFAULT_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+
   private ANDROID_APP_VERSION = "17.29.35"
 
   # Enumerate used to select one of the clients supported by the API
@@ -24,25 +26,25 @@ module YoutubeAPI
     ClientType::Web => {
       name:    "WEB",
       version: "2.20220804.07.00",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      api_key: DEFAULT_API_KEY,
       screen:  "WATCH_FULL_SCREEN",
     },
     ClientType::WebEmbeddedPlayer => {
       name:    "WEB_EMBEDDED_PLAYER", # 56
       version: "1.20220803.01.00",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
     },
     ClientType::WebMobile => {
       name:    "MWEB",
       version: "2.20220805.01.00",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      api_key: DEFAULT_API_KEY,
       screen:  "", # None
     },
     ClientType::WebScreenEmbed => {
       name:    "WEB",
       version: "2.20220804.00.00",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
     },
     ClientType::Android => {
@@ -54,19 +56,19 @@ module YoutubeAPI
     ClientType::AndroidEmbeddedPlayer => {
       name:    "ANDROID_EMBEDDED_PLAYER", # 55
       version: ANDROID_APP_VERSION,
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      api_key: DEFAULT_API_KEY,
       screen:  "", # None?
     },
     ClientType::AndroidScreenEmbed => {
       name:    "ANDROID", # 3
       version: ANDROID_APP_VERSION,
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
     },
     ClientType::TvHtml5ScreenEmbed => {
       name:    "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
       version: "2.0",
-      api_key: "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8",
+      api_key: DEFAULT_API_KEY,
       screen:  "EMBED",
     },
   }
