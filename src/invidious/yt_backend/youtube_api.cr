@@ -8,6 +8,7 @@ module YoutubeAPI
   private DEFAULT_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 
   private ANDROID_APP_VERSION = "17.29.35"
+  private ANDROID_SDK_VERSION = 30_i64
   private IOS_APP_VERSION     = "17.30.1"
 
   # Enumerate used to select one of the clients supported by the API
@@ -58,9 +59,10 @@ module YoutubeAPI
     # Android
 
     ClientType::Android => {
-      name:    "ANDROID",
-      version: ANDROID_APP_VERSION,
-      api_key: "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
+      name:                "ANDROID",
+      version:             ANDROID_APP_VERSION,
+      api_key:             "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
+      android_sdk_version: ANDROID_SDK_VERSION,
     },
     ClientType::AndroidEmbeddedPlayer => {
       name:    "ANDROID_EMBEDDED_PLAYER", # 55
@@ -68,10 +70,11 @@ module YoutubeAPI
       api_key: DEFAULT_API_KEY,
     },
     ClientType::AndroidScreenEmbed => {
-      name:    "ANDROID", # 3
-      version: ANDROID_APP_VERSION,
-      api_key: DEFAULT_API_KEY,
-      screen:  "EMBED",
+      name:                "ANDROID", # 3
+      version:             ANDROID_APP_VERSION,
+      api_key:             DEFAULT_API_KEY,
+      screen:              "EMBED",
+      android_sdk_version: ANDROID_SDK_VERSION,
     },
 
     # IOS
@@ -172,6 +175,10 @@ module YoutubeAPI
       HARDCODED_CLIENTS[@client_type][:screen]? || ""
     end
 
+    def android_sdk_version : Int64?
+      HARDCODED_CLIENTS[@client_type][:android_sdk_version]?
+    end
+
     # Convert to string, for logging purposes
     def to_s
       return {
@@ -201,7 +208,7 @@ module YoutubeAPI
         "gl"            => client_config.region || "US", # Can't be empty!
         "clientName"    => client_config.name,
         "clientVersion" => client_config.version,
-      },
+      } of String => String | Int64,
     }
 
     # Add some more context if it exists in the client definitions
@@ -212,7 +219,11 @@ module YoutubeAPI
     if client_config.screen == "EMBED"
       client_context["thirdParty"] = {
         "embedUrl" => "https://www.youtube.com/embed/dQw4w9WgXcQ",
-      }
+      } of String => String | Int64
+    end
+
+    if android_sdk_version = client_config.android_sdk_version
+      client_context["client"]["androidSdkVersion"] = android_sdk_version
     end
 
     return client_context
