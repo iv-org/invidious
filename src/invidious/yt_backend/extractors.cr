@@ -435,20 +435,22 @@ private module Extractors
       raw_items = [] of JSON::Any
       content = extract_selected_tab(target["tabs"])["content"]
 
-      content["sectionListRenderer"]["contents"].as_a.each do |renderer_container|
-        renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"][0]
+      if section_list_contents = content.dig?("sectionListRenderer", "contents")
+        section_list_contents.as_a.each do |renderer_container|
+          renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"][0]
 
-        # Category extraction
-        if items_container = renderer_container_contents["shelfRenderer"]?
-          raw_items << renderer_container_contents
-          next
-        elsif items_container = renderer_container_contents["gridRenderer"]?
-        else
-          items_container = renderer_container_contents
-        end
+          # Category extraction
+          if items_container = renderer_container_contents["shelfRenderer"]?
+            raw_items << renderer_container_contents
+            next
+          elsif items_container = renderer_container_contents["gridRenderer"]?
+          else
+            items_container = renderer_container_contents
+          end
 
-        items_container["items"]?.try &.as_a.each do |item|
-          raw_items << item
+          items_container["items"]?.try &.as_a.each do |item|
+            raw_items << item
+          end
         end
       end
 
