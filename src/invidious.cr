@@ -333,23 +333,10 @@ end
   Invidious::Routing.get "/", Invidious::Routes::Misc, :home
   Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
   Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
-
-  Invidious::Routing.register_channel_routes
-
-  Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
-  Invidious::Routing.post "/watch_ajax", Invidious::Routes::Watch, :mark_watched
-  Invidious::Routing.get "/watch/:id", Invidious::Routes::Watch, :redirect
-  Invidious::Routing.get "/shorts/:id", Invidious::Routes::Watch, :redirect
-  Invidious::Routing.get "/clip/:clip", Invidious::Routes::Watch, :clip
-  Invidious::Routing.get "/w/:id", Invidious::Routes::Watch, :redirect
-  Invidious::Routing.get "/v/:id", Invidious::Routes::Watch, :redirect
-  Invidious::Routing.get "/e/:id", Invidious::Routes::Watch, :redirect
   Invidious::Routing.get "/redirect", Invidious::Routes::Misc, :cross_instance_redirect
 
-  Invidious::Routing.post "/download", Invidious::Routes::Watch, :download
-
-  Invidious::Routing.get "/embed/", Invidious::Routes::Embed, :redirect
-  Invidious::Routing.get "/embed/:id", Invidious::Routes::Embed, :show
+  Invidious::Routing.register_channel_routes
+  Invidious::Routing.register_watch_routes
 
   Invidious::Routing.get "/create_playlist", Invidious::Routes::Playlists, :new
   Invidious::Routing.post "/create_playlist", Invidious::Routes::Playlists, :create

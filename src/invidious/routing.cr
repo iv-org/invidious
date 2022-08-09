@@ -71,6 +71,22 @@ module Invidious::Routing
     end
   end
 
+  def register_watch_routes
+    get "/watch", Routes::Watch, :handle
+    post "/watch_ajax", Routes::Watch, :mark_watched
+    get "/watch/:id", Routes::Watch, :redirect
+    get "/shorts/:id", Routes::Watch, :redirect
+    get "/clip/:clip", Routes::Watch, :clip
+    get "/w/:id", Routes::Watch, :redirect
+    get "/v/:id", Routes::Watch, :redirect
+    get "/e/:id", Routes::Watch, :redirect
+
+    post "/download", Routes::Watch, :download
+
+    get "/embed/", Routes::Embed, :redirect
+    get "/embed/:id", Routes::Embed, :show
+  end
+
   def register_api_manifest_routes
     get "/api/manifest/dash/id/:id", Routes::API::Manifest, :get_dash_video_id
 
