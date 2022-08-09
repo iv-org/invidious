@@ -44,6 +44,18 @@ module Invidious::Routing
     get "/subscription_manager", Routes::Subscriptions, :subscription_manager
   end
 
+  def register_iv_playlist_routes
+    get "/create_playlist", Routes::Playlists, :new
+    post "/create_playlist", Routes::Playlists, :create
+    get "/subscribe_playlist", Routes::Playlists, :subscribe
+    get "/delete_playlist", Routes::Playlists, :delete_page
+    post "/delete_playlist", Routes::Playlists, :delete
+    get "/edit_playlist", Routes::Playlists, :edit
+    post "/edit_playlist", Routes::Playlists, :update
+    get "/add_playlist_items", Routes::Playlists, :add_playlist_items_page
+    post "/playlist_ajax", Routes::Playlists, :playlist_ajax
+  end
+
   # -------------------
   #  Youtube routes
   # -------------------
@@ -85,6 +97,12 @@ module Invidious::Routing
 
     get "/embed/", Routes::Embed, :redirect
     get "/embed/:id", Routes::Embed, :show
+  end
+
+  def register_yt_playlist_routes
+    get "/playlist", Routes::Playlists, :show
+    get "/mix", Routes::Playlists, :mix
+    get "/watch_videos", Routes::Playlists, :watch_videos
   end
 
   def register_api_manifest_routes

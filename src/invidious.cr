@@ -338,18 +338,8 @@ end
   Invidious::Routing.register_channel_routes
   Invidious::Routing.register_watch_routes
 
-  Invidious::Routing.get "/create_playlist", Invidious::Routes::Playlists, :new
-  Invidious::Routing.post "/create_playlist", Invidious::Routes::Playlists, :create
-  Invidious::Routing.get "/subscribe_playlist", Invidious::Routes::Playlists, :subscribe
-  Invidious::Routing.get "/delete_playlist", Invidious::Routes::Playlists, :delete_page
-  Invidious::Routing.post "/delete_playlist", Invidious::Routes::Playlists, :delete
-  Invidious::Routing.get "/edit_playlist", Invidious::Routes::Playlists, :edit
-  Invidious::Routing.post "/edit_playlist", Invidious::Routes::Playlists, :update
-  Invidious::Routing.get "/add_playlist_items", Invidious::Routes::Playlists, :add_playlist_items_page
-  Invidious::Routing.post "/playlist_ajax", Invidious::Routes::Playlists, :playlist_ajax
-  Invidious::Routing.get "/playlist", Invidious::Routes::Playlists, :show
-  Invidious::Routing.get "/mix", Invidious::Routes::Playlists, :mix
-  Invidious::Routing.get "/watch_videos", Invidious::Routes::Playlists, :watch_videos
+  Invidious::Routing.register_iv_playlist_routes
+  Invidious::Routing.register_yt_playlist_routes
 
   Invidious::Routing.get "/opensearch.xml", Invidious::Routes::Search, :opensearch
   Invidious::Routing.get "/results", Invidious::Routes::Search, :results
