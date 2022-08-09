@@ -393,12 +393,7 @@ end
   Invidious::Routing.get "/modify_notifications", Invidious::Routes::Notifications, :modify
 {% end %}
 
-Invidious::Routing.get "/ggpht/*", Invidious::Routes::Images, :ggpht
-Invidious::Routing.options "/sb/:authority/:id/:storyboard/:index", Invidious::Routes::Images, :options_storyboard
-Invidious::Routing.get "/sb/:authority/:id/:storyboard/:index", Invidious::Routes::Images, :get_storyboard
-Invidious::Routing.get "/s_p/:id/:name", Invidious::Routes::Images, :s_p_image
-Invidious::Routing.get "/yts/img/:name", Invidious::Routes::Images, :yts_image
-Invidious::Routing.get "/vi/:id/:name", Invidious::Routes::Images, :thumbnails
+Invidious::Routing.register_image_routes
 
 # API routes (macro)
 Invidious::Routing.register_api_v1_routes

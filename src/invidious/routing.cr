@@ -94,6 +94,15 @@ module Invidious::Routing
     get "/latest_version", Routes::VideoPlayback, :latest_version
   end
 
+  def register_image_routes
+    get "/ggpht/*", Routes::Images, :ggpht
+    options "/sb/:authority/:id/:storyboard/:index", Routes::Images, :options_storyboard
+    get "/sb/:authority/:id/:storyboard/:index", Routes::Images, :get_storyboard
+    get "/s_p/:id/:name", Routes::Images, :s_p_image
+    get "/yts/img/:name", Routes::Images, :yts_image
+    get "/vi/:id/:name", Routes::Images, :thumbnails
+  end
+
   # -------------------
   #  API routes
   # -------------------
