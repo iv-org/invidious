@@ -893,7 +893,8 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   end
 
   # Fetch data from the player endpoint
-  player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
+  # 8AEB param for fetching YouTube stories
+  player_response = YoutubeAPI.player(video_id: video_id, params: "8AEB", client_config: client_config)
 
   playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
 
@@ -931,7 +932,8 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     else
       client_config.client_type = YoutubeAPI::ClientType::Android
     end
-    android_player = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
+    # 8AEB param for fetching YouTube stories
+    android_player = YoutubeAPI.player(video_id: video_id, params: "8AEB", client_config: client_config)
 
     # Sometime, the video is available from the web client, but not on Android, so check
     # that here, and fallback to the streaming data from the web client if needed.
