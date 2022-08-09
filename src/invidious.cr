@@ -329,40 +329,7 @@ before_all do |env|
   env.set "current_page", URI.encode_www_form(current_page)
 end
 
-{% unless flag?(:api_only) %}
-  Invidious::Routing.get "/", Invidious::Routes::Misc, :home
-  Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
-  Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
-  Invidious::Routing.get "/redirect", Invidious::Routes::Misc, :cross_instance_redirect
-
-  Invidious::Routing.register_channel_routes
-  Invidious::Routing.register_watch_routes
-
-  Invidious::Routing.register_iv_playlist_routes
-  Invidious::Routing.register_yt_playlist_routes
-
-  Invidious::Routing.register_search_routes
-
-  # User routes
-  Invidious::Routing.register_user_routes
-
-  Invidious::Routing.register_feed_routes
-
-  # Support push notifications via PubSubHubbub
-  Invidious::Routing.get "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_get
-  Invidious::Routing.post "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_post
-
-  Invidious::Routing.get "/modify_notifications", Invidious::Routes::Notifications, :modify
-{% end %}
-
-Invidious::Routing.register_image_routes
-
-# API routes (macro)
-Invidious::Routing.register_api_v1_routes
-
-# Video playback (macros)
-Invidious::Routing.register_api_manifest_routes
-Invidious::Routing.register_video_playback_routes
+Invidious::Routing.register_all
 
 error 404 do |env|
   if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)

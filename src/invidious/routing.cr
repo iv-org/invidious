@@ -11,6 +11,37 @@ module Invidious::Routing
 
   {% end %}
 
+  def register_all
+    {% unless flag?(:api_only) %}
+      get "/", Routes::Misc, :home
+      get "/privacy", Routes::Misc, :privacy
+      get "/licenses", Routes::Misc, :licenses
+      get "/redirect", Routes::Misc, :cross_instance_redirect
+
+      self.register_channel_routes
+      self.register_watch_routes
+
+      self.register_iv_playlist_routes
+      self.register_yt_playlist_routes
+
+      self.register_search_routes
+
+      self.register_user_routes
+      self.register_feed_routes
+
+      # Support push notifications via PubSubHubbub
+      get "/feed/webhook/:token", Routes::Feeds, :push_notifications_get
+      post "/feed/webhook/:token", Routes::Feeds, :push_notifications_post
+
+      get "/modify_notifications", Routes::Notifications, :modify
+    {% end %}
+
+    self.register_image_routes
+    self.register_api_v1_routes
+    self.register_api_manifest_routes
+    self.register_video_playback_routes
+  end
+
   # -------------------
   #  Invidious routes
   # -------------------
