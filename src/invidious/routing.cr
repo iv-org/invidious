@@ -1,5 +1,5 @@
 module Invidious::Routing
-  {% for http_method in {"get", "post", "delete", "options", "patch", "put", "head"} %}
+  {% for http_method in {"get", "post", "delete", "options", "patch", "put"} %}
 
     macro {{http_method.id}}(path, controller, method = :handle)
       {{http_method.id}} \{{ path }} do |env|
