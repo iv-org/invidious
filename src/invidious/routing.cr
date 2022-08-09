@@ -105,6 +105,17 @@ module Invidious::Routing
     get "/watch_videos", Routes::Playlists, :watch_videos
   end
 
+  def register_search_routes
+    get "/opensearch.xml", Routes::Search, :opensearch
+    get "/results", Routes::Search, :results
+    get "/search", Routes::Search, :search
+    get "/hashtag/:hashtag", Routes::Search, :hashtag
+  end
+
+  # -------------------
+  #  Media proxy routes
+  # -------------------
+
   def register_api_manifest_routes
     get "/api/manifest/dash/id/:id", Routes::API::Manifest, :get_dash_video_id
 

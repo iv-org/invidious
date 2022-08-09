@@ -341,10 +341,7 @@ end
   Invidious::Routing.register_iv_playlist_routes
   Invidious::Routing.register_yt_playlist_routes
 
-  Invidious::Routing.get "/opensearch.xml", Invidious::Routes::Search, :opensearch
-  Invidious::Routing.get "/results", Invidious::Routes::Search, :results
-  Invidious::Routing.get "/search", Invidious::Routes::Search, :search
-  Invidious::Routing.get "/hashtag/:hashtag", Invidious::Routes::Search, :hashtag
+  Invidious::Routing.register_search_routes
 
   # User routes
   Invidious::Routing.register_user_routes
