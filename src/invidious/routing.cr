@@ -11,6 +11,10 @@ module Invidious::Routing
 
   {% end %}
 
+  # -------------------
+  #  Invidious routes
+  # -------------------
+
   def register_user_routes
     # User login/out
     get "/login", Routes::Login, :login_page
@@ -39,75 +43,78 @@ module Invidious::Routing
     post "/subscription_ajax", Routes::Subscriptions, :toggle_subscription
     get "/subscription_manager", Routes::Subscriptions, :subscription_manager
   end
-end
 
-macro define_v1_api_routes
-  {{namespace = Invidious::Routes::API::V1}}
-  # Videos
-  Invidious::Routing.get "/api/v1/videos/:id", {{namespace}}::Videos, :videos
-  Invidious::Routing.get "/api/v1/storyboards/:id", {{namespace}}::Videos, :storyboards
-  Invidious::Routing.get "/api/v1/captions/:id", {{namespace}}::Videos, :captions
-  Invidious::Routing.get "/api/v1/annotations/:id", {{namespace}}::Videos, :annotations
-  Invidious::Routing.get "/api/v1/comments/:id", {{namespace}}::Videos, :comments
+  # -------------------
+  #  API routes
+  # -------------------
 
-  # Feeds
-  Invidious::Routing.get "/api/v1/trending", {{namespace}}::Feeds, :trending
-  Invidious::Routing.get "/api/v1/popular", {{namespace}}::Feeds, :popular
+  def register_api_v1_routes
+    {% begin %}
+      {{namespace = Routes::API::V1}}
 
-  # Channels
-  Invidious::Routing.get "/api/v1/channels/:ucid", {{namespace}}::Channels, :home
-  {% for route in {"videos", "latest", "playlists", "community", "search"} %}
-    Invidious::Routing.get "/api/v1/channels/#{{{route}}}/:ucid", {{namespace}}::Channels, :{{route}}
-    Invidious::Routing.get "/api/v1/channels/:ucid/#{{{route}}}", {{namespace}}::Channels, :{{route}}
-  {% end %}
+      # Videos
+      get "/api/v1/videos/:id", {{namespace}}::Videos, :videos
+      get "/api/v1/storyboards/:id", {{namespace}}::Videos, :storyboards
+      get "/api/v1/captions/:id", {{namespace}}::Videos, :captions
+      get "/api/v1/annotations/:id", {{namespace}}::Videos, :annotations
+      get "/api/v1/comments/:id", {{namespace}}::Videos, :comments
 
-  # 301 redirects to new /api/v1/channels/community/:ucid and /:ucid/community
-  Invidious::Routing.get "/api/v1/channels/comments/:ucid", {{namespace}}::Channels, :channel_comments_redirect
-  Invidious::Routing.get "/api/v1/channels/:ucid/comments", {{namespace}}::Channels, :channel_comments_redirect
+      # Feeds
+      get "/api/v1/trending", {{namespace}}::Feeds, :trending
+      get "/api/v1/popular", {{namespace}}::Feeds, :popular
 
+      # Channels
+      get "/api/v1/channels/:ucid", {{namespace}}::Channels, :home
+      {% for route in {"videos", "latest", "playlists", "community", "search"} %}
+        get "/api/v1/channels/#{{{route}}}/:ucid", {{namespace}}::Channels, :{{route}}
+        get "/api/v1/channels/:ucid/#{{{route}}}", {{namespace}}::Channels, :{{route}}
+      {% end %}
 
-  # Search
-  Invidious::Routing.get "/api/v1/search", {{namespace}}::Search, :search
-  Invidious::Routing.get "/api/v1/search/suggestions", {{namespace}}::Search, :search_suggestions
+      # 301 redirects to new /api/v1/channels/community/:ucid and /:ucid/community
+      get "/api/v1/channels/comments/:ucid", {{namespace}}::Channels, :channel_comments_redirect
+      get "/api/v1/channels/:ucid/comments", {{namespace}}::Channels, :channel_comments_redirect
 
-  # Authenticated
+      # Search
+      get "/api/v1/search", {{namespace}}::Search, :search
+      get "/api/v1/search/suggestions", {{namespace}}::Search, :search_suggestions
 
-  # The notification APIs cannot be extracted yet! They require the *local* notifications constant defined in invidious.cr
-  #
-  # Invidious::Routing.get "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
-  # Invidious::Routing.post "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
+      # Authenticated
 
-  Invidious::Routing.get "/api/v1/auth/preferences", {{namespace}}::Authenticated, :get_preferences
-  Invidious::Routing.post "/api/v1/auth/preferences", {{namespace}}::Authenticated, :set_preferences
+      # The notification APIs cannot be extracted yet! They require the *local* notifications constant defined in invidious.cr
+      #
+      # Invidious::Routing.get "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
+      # Invidious::Routing.post "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
 
-  Invidious::Routing.get "/api/v1/auth/feed", {{namespace}}::Authenticated, :feed
+      get "/api/v1/auth/preferences", {{namespace}}::Authenticated, :get_preferences
+      post "/api/v1/auth/preferences", {{namespace}}::Authenticated, :set_preferences
 
-  Invidious::Routing.get "/api/v1/auth/subscriptions", {{namespace}}::Authenticated, :get_subscriptions
-  Invidious::Routing.post "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :subscribe_channel
-  Invidious::Routing.delete "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :unsubscribe_channel
+      get "/api/v1/auth/feed", {{namespace}}::Authenticated, :feed
 
+      get "/api/v1/auth/subscriptions", {{namespace}}::Authenticated, :get_subscriptions
+      post "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :subscribe_channel
+      delete "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :unsubscribe_channel
 
-  Invidious::Routing.get "/api/v1/auth/playlists", {{namespace}}::Authenticated, :list_playlists
-  Invidious::Routing.post "/api/v1/auth/playlists", {{namespace}}::Authenticated, :create_playlist
-  Invidious::Routing.patch "/api/v1/auth/playlists/:plid",{{namespace}}:: Authenticated, :update_playlist_attribute
-  Invidious::Routing.delete "/api/v1/auth/playlists/:plid", {{namespace}}::Authenticated, :delete_playlist
+      get "/api/v1/auth/playlists", {{namespace}}::Authenticated, :list_playlists
+      post "/api/v1/auth/playlists", {{namespace}}::Authenticated, :create_playlist
+      patch "/api/v1/auth/playlists/:plid",{{namespace}}:: Authenticated, :update_playlist_attribute
+      delete "/api/v1/auth/playlists/:plid", {{namespace}}::Authenticated, :delete_playlist
+      post "/api/v1/auth/playlists/:plid/videos", {{namespace}}::Authenticated, :insert_video_into_playlist
+      delete "/api/v1/auth/playlists/:plid/videos/:index", {{namespace}}::Authenticated, :delete_video_in_playlist
 
+      get "/api/v1/auth/tokens", {{namespace}}::Authenticated, :get_tokens
+      post "/api/v1/auth/tokens/register", {{namespace}}::Authenticated, :register_token
+      post "/api/v1/auth/tokens/unregister", {{namespace}}::Authenticated, :unregister_token
 
-  Invidious::Routing.post "/api/v1/auth/playlists/:plid/videos", {{namespace}}::Authenticated, :insert_video_into_playlist
-  Invidious::Routing.delete "/api/v1/auth/playlists/:plid/videos/:index", {{namespace}}::Authenticated, :delete_video_in_playlist
+      get "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
+      post "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
 
-  Invidious::Routing.get "/api/v1/auth/tokens", {{namespace}}::Authenticated, :get_tokens
-  Invidious::Routing.post "/api/v1/auth/tokens/register", {{namespace}}::Authenticated, :register_token
-  Invidious::Routing.post "/api/v1/auth/tokens/unregister", {{namespace}}::Authenticated, :unregister_token
-
-  Invidious::Routing.get "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
-  Invidious::Routing.post "/api/v1/auth/notifications", {{namespace}}::Authenticated, :notifications
-
-  # Misc
-  Invidious::Routing.get "/api/v1/stats", {{namespace}}::Misc, :stats
-  Invidious::Routing.get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist
-  Invidious::Routing.get "/api/v1/auth/playlists/:plid", {{namespace}}::Misc, :get_playlist
-  Invidious::Routing.get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes
+      # Misc
+      get "/api/v1/stats", {{namespace}}::Misc, :stats
+      get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist
+      get "/api/v1/auth/playlists/:plid", {{namespace}}::Misc, :get_playlist
+      get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes
+    {% end %}
+  end
 end
 
 macro define_api_manifest_routes

@@ -420,7 +420,7 @@ Invidious::Routing.get "/yts/img/:name", Invidious::Routes::Images, :yts_image
 Invidious::Routing.get "/vi/:id/:name", Invidious::Routes::Images, :thumbnails
 
 # API routes (macro)
-define_v1_api_routes()
+Invidious::Routing.register_api_v1_routes
 
 # Video playback (macros)
 define_api_manifest_routes()
