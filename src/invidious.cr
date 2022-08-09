@@ -191,7 +191,6 @@ error 404 do |env|
 end
 
 error 500 do |env, ex|
-  locale = env.get("preferences").as(Preferences).locale
   error_template(500, ex)
 end
 
