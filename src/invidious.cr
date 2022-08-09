@@ -389,7 +389,7 @@ end
   Invidious::Routing.get "/hashtag/:hashtag", Invidious::Routes::Search, :hashtag
 
   # User routes
-  define_user_routes()
+  Invidious::Routing.register_user_routes
 
   # Feeds
   Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Feeds, :view_all_playlists_redirect
@@ -410,9 +410,6 @@ end
   Invidious::Routing.post "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_post
 
   Invidious::Routing.get "/modify_notifications", Invidious::Routes::Notifications, :modify
-
-  Invidious::Routing.post "/subscription_ajax", Invidious::Routes::Subscriptions, :toggle_subscription
-  Invidious::Routing.get "/subscription_manager", Invidious::Routes::Subscriptions, :subscription_manager
 {% end %}
 
 Invidious::Routing.get "/ggpht/*", Invidious::Routes::Images, :ggpht

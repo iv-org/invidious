@@ -1,4 +1,6 @@
 module Invidious::Routing
+  extend self
+
   {% for http_method in {"get", "post", "delete", "options", "patch", "put"} %}
 
     macro {{http_method.id}}(path, controller, method = :handle)
@@ -8,33 +10,35 @@ module Invidious::Routing
     end
 
   {% end %}
-end
 
-macro define_user_routes
-  # User login/out
-  Invidious::Routing.get "/login", Invidious::Routes::Login, :login_page
-  Invidious::Routing.post "/login", Invidious::Routes::Login, :login
-  Invidious::Routing.post "/signout", Invidious::Routes::Login, :signout
-  Invidious::Routing.get "/Captcha", Invidious::Routes::Login, :captcha
+  def register_user_routes
+    # User login/out
+    get "/login", Routes::Login, :login_page
+    post "/login", Routes::Login, :login
+    post "/signout", Routes::Login, :signout
+    get "/Captcha", Routes::Login, :captcha
 
-  # User preferences
-  Invidious::Routing.get "/preferences", Invidious::Routes::PreferencesRoute, :show
-  Invidious::Routing.post "/preferences", Invidious::Routes::PreferencesRoute, :update
-  Invidious::Routing.get "/toggle_theme", Invidious::Routes::PreferencesRoute, :toggle_theme
-  Invidious::Routing.get "/data_control", Invidious::Routes::PreferencesRoute, :data_control
-  Invidious::Routing.post "/data_control", Invidious::Routes::PreferencesRoute, :update_data_control
+    # User preferences
+    get "/preferences", Routes::PreferencesRoute, :show
+    post "/preferences", Routes::PreferencesRoute, :update
+    get "/toggle_theme", Routes::PreferencesRoute, :toggle_theme
+    get "/data_control", Routes::PreferencesRoute, :data_control
+    post "/data_control", Routes::PreferencesRoute, :update_data_control
 
-  # User account management
-  Invidious::Routing.get "/change_password", Invidious::Routes::Account, :get_change_password
-  Invidious::Routing.post "/change_password", Invidious::Routes::Account, :post_change_password
-  Invidious::Routing.get "/delete_account", Invidious::Routes::Account, :get_delete
-  Invidious::Routing.post "/delete_account", Invidious::Routes::Account, :post_delete
-  Invidious::Routing.get "/clear_watch_history", Invidious::Routes::Account, :get_clear_history
-  Invidious::Routing.post "/clear_watch_history", Invidious::Routes::Account, :post_clear_history
-  Invidious::Routing.get "/authorize_token", Invidious::Routes::Account, :get_authorize_token
-  Invidious::Routing.post "/authorize_token", Invidious::Routes::Account, :post_authorize_token
-  Invidious::Routing.get "/token_manager", Invidious::Routes::Account, :token_manager
-  Invidious::Routing.post "/token_ajax", Invidious::Routes::Account, :token_ajax
+    # User account management
+    get "/change_password", Routes::Account, :get_change_password
+    post "/change_password", Routes::Account, :post_change_password
+    get "/delete_account", Routes::Account, :get_delete
+    post "/delete_account", Routes::Account, :post_delete
+    get "/clear_watch_history", Routes::Account, :get_clear_history
+    post "/clear_watch_history", Routes::Account, :post_clear_history
+    get "/authorize_token", Routes::Account, :get_authorize_token
+    post "/authorize_token", Routes::Account, :post_authorize_token
+    get "/token_manager", Routes::Account, :token_manager
+    post "/token_ajax", Routes::Account, :token_ajax
+    post "/subscription_ajax", Routes::Subscriptions, :toggle_subscription
+    get "/subscription_manager", Routes::Subscriptions, :subscription_manager
+  end
 end
 
 macro define_v1_api_routes
