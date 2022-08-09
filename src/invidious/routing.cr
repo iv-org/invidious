@@ -56,6 +56,22 @@ module Invidious::Routing
     post "/playlist_ajax", Routes::Playlists, :playlist_ajax
   end
 
+  def register_feed_routes
+    # Feeds
+    get "/view_all_playlists", Routes::Feeds, :view_all_playlists_redirect
+    get "/feed/playlists", Routes::Feeds, :playlists
+    get "/feed/popular", Routes::Feeds, :popular
+    get "/feed/trending", Routes::Feeds, :trending
+    get "/feed/subscriptions", Routes::Feeds, :subscriptions
+    get "/feed/history", Routes::Feeds, :history
+
+    # RSS Feeds
+    get "/feed/channel/:ucid", Routes::Feeds, :rss_channel
+    get "/feed/private", Routes::Feeds, :rss_private
+    get "/feed/playlist/:plid", Routes::Feeds, :rss_playlist
+    get "/feeds/videos.xml", Routes::Feeds, :rss_videos
+  end
+
   # -------------------
   #  Youtube routes
   # -------------------

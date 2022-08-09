@@ -346,19 +346,7 @@ end
   # User routes
   Invidious::Routing.register_user_routes
 
-  # Feeds
-  Invidious::Routing.get "/view_all_playlists", Invidious::Routes::Feeds, :view_all_playlists_redirect
-  Invidious::Routing.get "/feed/playlists", Invidious::Routes::Feeds, :playlists
-  Invidious::Routing.get "/feed/popular", Invidious::Routes::Feeds, :popular
-  Invidious::Routing.get "/feed/trending", Invidious::Routes::Feeds, :trending
-  Invidious::Routing.get "/feed/subscriptions", Invidious::Routes::Feeds, :subscriptions
-  Invidious::Routing.get "/feed/history", Invidious::Routes::Feeds, :history
-
-  # RSS Feeds
-  Invidious::Routing.get "/feed/channel/:ucid", Invidious::Routes::Feeds, :rss_channel
-  Invidious::Routing.get "/feed/private", Invidious::Routes::Feeds, :rss_private
-  Invidious::Routing.get "/feed/playlist/:plid", Invidious::Routes::Feeds, :rss_playlist
-  Invidious::Routing.get "/feeds/videos.xml", Invidious::Routes::Feeds, :rss_videos
+  Invidious::Routing.register_feed_routes
 
   # Support push notifications via PubSubHubbub
   Invidious::Routing.get "/feed/webhook/:token", Invidious::Routes::Feeds, :push_notifications_get
