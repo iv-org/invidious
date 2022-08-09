@@ -48,6 +48,29 @@ module Invidious::Routing
   #  Youtube routes
   # -------------------
 
+  def register_channel_routes
+    get "/channel/:ucid", Routes::Channels, :home
+    get "/channel/:ucid/home", Routes::Channels, :home
+    get "/channel/:ucid/videos", Routes::Channels, :videos
+    get "/channel/:ucid/playlists", Routes::Channels, :playlists
+    get "/channel/:ucid/community", Routes::Channels, :community
+    get "/channel/:ucid/about", Routes::Channels, :about
+    get "/channel/:ucid/live", Routes::Channels, :live
+    get "/user/:user/live", Routes::Channels, :live
+    get "/c/:user/live", Routes::Channels, :live
+
+    ["", "/videos", "/playlists", "/community", "/about"].each do |path|
+      # /c/LinusTechTips
+      get "/c/:user#{path}", Routes::Channels, :brand_redirect
+      # /user/linustechtips | Not always the same as /c/
+      get "/user/:user#{path}", Routes::Channels, :brand_redirect
+      # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
+      get "/attribution_link#{path}", Routes::Channels, :brand_redirect
+      # /profile?user=linustechtips
+      get "/profile/#{path}", Routes::Channels, :profile
+    end
+  end
+
   def register_api_manifest_routes
     get "/api/manifest/dash/id/:id", Routes::API::Manifest, :get_dash_video_id
 

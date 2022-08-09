@@ -334,26 +334,7 @@ end
   Invidious::Routing.get "/privacy", Invidious::Routes::Misc, :privacy
   Invidious::Routing.get "/licenses", Invidious::Routes::Misc, :licenses
 
-  Invidious::Routing.get "/channel/:ucid", Invidious::Routes::Channels, :home
-  Invidious::Routing.get "/channel/:ucid/home", Invidious::Routes::Channels, :home
-  Invidious::Routing.get "/channel/:ucid/videos", Invidious::Routes::Channels, :videos
-  Invidious::Routing.get "/channel/:ucid/playlists", Invidious::Routes::Channels, :playlists
-  Invidious::Routing.get "/channel/:ucid/community", Invidious::Routes::Channels, :community
-  Invidious::Routing.get "/channel/:ucid/about", Invidious::Routes::Channels, :about
-  Invidious::Routing.get "/channel/:ucid/live", Invidious::Routes::Channels, :live
-  Invidious::Routing.get "/user/:user/live", Invidious::Routes::Channels, :live
-  Invidious::Routing.get "/c/:user/live", Invidious::Routes::Channels, :live
-
-  ["", "/videos", "/playlists", "/community", "/about"].each do |path|
-    # /c/LinusTechTips
-    Invidious::Routing.get "/c/:user#{path}", Invidious::Routes::Channels, :brand_redirect
-    # /user/linustechtips | Not always the same as /c/
-    Invidious::Routing.get "/user/:user#{path}", Invidious::Routes::Channels, :brand_redirect
-    # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
-    Invidious::Routing.get "/attribution_link#{path}", Invidious::Routes::Channels, :brand_redirect
-    # /profile?user=linustechtips
-    Invidious::Routing.get "/profile/#{path}", Invidious::Routes::Channels, :profile
-  end
+  Invidious::Routing.register_channel_routes
 
   Invidious::Routing.get "/watch", Invidious::Routes::Watch, :handle
   Invidious::Routing.post "/watch_ajax", Invidious::Routes::Watch, :mark_watched
