@@ -423,8 +423,8 @@ Invidious::Routing.get "/vi/:id/:name", Invidious::Routes::Images, :thumbnails
 Invidious::Routing.register_api_v1_routes
 
 # Video playback (macros)
-define_api_manifest_routes()
-define_video_playback_routes()
+Invidious::Routing.register_api_manifest_routes
+Invidious::Routing.register_video_playback_routes
 
 error 404 do |env|
   if md = env.request.path.match(/^\/(?<id>([a-zA-Z0-9_-]{11})|(\w+))$/)

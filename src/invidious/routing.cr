@@ -45,6 +45,33 @@ module Invidious::Routing
   end
 
   # -------------------
+  #  Youtube routes
+  # -------------------
+
+  def register_api_manifest_routes
+    get "/api/manifest/dash/id/:id", Routes::API::Manifest, :get_dash_video_id
+
+    get "/api/manifest/dash/id/videoplayback", Routes::API::Manifest, :get_dash_video_playback
+    get "/api/manifest/dash/id/videoplayback/*", Routes::API::Manifest, :get_dash_video_playback_greedy
+
+    options "/api/manifest/dash/id/videoplayback", Routes::API::Manifest, :options_dash_video_playback
+    options "/api/manifest/dash/id/videoplayback/*", Routes::API::Manifest, :options_dash_video_playback
+
+    get "/api/manifest/hls_playlist/*", Routes::API::Manifest, :get_hls_playlist
+    get "/api/manifest/hls_variant/*", Routes::API::Manifest, :get_hls_variant
+  end
+
+  def register_video_playback_routes
+    get "/videoplayback", Routes::VideoPlayback, :get_video_playback
+    get "/videoplayback/*", Routes::VideoPlayback, :get_video_playback_greedy
+
+    options "/videoplayback", Routes::VideoPlayback, :options_video_playback
+    options "/videoplayback/*", Routes::VideoPlayback, :options_video_playback
+
+    get "/latest_version", Routes::VideoPlayback, :latest_version
+  end
+
+  # -------------------
   #  API routes
   # -------------------
 
@@ -115,27 +142,4 @@ module Invidious::Routing
       get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes
     {% end %}
   end
-end
-
-macro define_api_manifest_routes
-  Invidious::Routing.get "/api/manifest/dash/id/:id", Invidious::Routes::API::Manifest, :get_dash_video_id
-
-  Invidious::Routing.get "/api/manifest/dash/id/videoplayback", Invidious::Routes::API::Manifest, :get_dash_video_playback
-  Invidious::Routing.get "/api/manifest/dash/id/videoplayback/*", Invidious::Routes::API::Manifest, :get_dash_video_playback_greedy
-
-  Invidious::Routing.options "/api/manifest/dash/id/videoplayback", Invidious::Routes::API::Manifest, :options_dash_video_playback
-  Invidious::Routing.options "/api/manifest/dash/id/videoplayback/*", Invidious::Routes::API::Manifest, :options_dash_video_playback
-
-  Invidious::Routing.get "/api/manifest/hls_playlist/*", Invidious::Routes::API::Manifest, :get_hls_playlist
-  Invidious::Routing.get "/api/manifest/hls_variant/*", Invidious::Routes::API::Manifest, :get_hls_variant
-end
-
-macro define_video_playback_routes
-  Invidious::Routing.get "/videoplayback", Invidious::Routes::VideoPlayback, :get_video_playback
-  Invidious::Routing.get "/videoplayback/*", Invidious::Routes::VideoPlayback, :get_video_playback_greedy
-
-  Invidious::Routing.options "/videoplayback", Invidious::Routes::VideoPlayback, :options_video_playback
-  Invidious::Routing.options "/videoplayback/*", Invidious::Routes::VideoPlayback, :options_video_playback
-
-  Invidious::Routing.get "/latest_version", Invidious::Routes::VideoPlayback, :latest_version
 end
