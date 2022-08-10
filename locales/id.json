@@ -126,7 +126,7 @@
     "revoke": "cabut",
     "Subscriptions": "Langganan",
     "subscriptions_unseen_notifs_count_0": "{{count}} pemberitahuan belum dilihat",
-    "search": "cari",
+    "search": "Telusuri",
     "Log out": "Keluar",
     "Released under the AGPLv3 on Github.": "Dirilis di bawah AGPLv3 di GitHub.",
     "Source available here.": "Sumber tersedia di sini.",
@@ -447,5 +447,6 @@
     "Dutch (auto-generated)": "Belanda (dihasilkan secara otomatis)",
     "search_filters_date_option_none": "Tanggal berapa pun",
     "search_filters_duration_option_none": "Durasi berapa pun",
-    "search_filters_duration_option_medium": "Sedang (4 - 20 menit)"
+    "search_filters_duration_option_medium": "Sedang (4 - 20 menit)",
+    "Cantonese (Hong Kong)": "Bahasa Kanton (Hong Kong)"
 }
