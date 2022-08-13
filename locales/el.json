@@ -449,5 +449,6 @@
     "videoinfo_invidious_embed_link": "Σύνδεσμος Ενσωμάτωσης",
     "search_filters_type_option_show": "Μπάρα προόδου διαβάσματος",
     "preferences_watch_history_label": "Ενεργοποίηση ιστορικού παρακολούθησης: ",
-    "search_filters_title": "Φίλτρο"
+    "search_filters_title": "Φίλτρο",
+    "search_message_no_results": "Δεν"
 }
