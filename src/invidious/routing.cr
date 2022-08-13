@@ -4,7 +4,7 @@ module Invidious::Routing
   {% for http_method in {"get", "post", "delete", "options", "patch", "put"} %}
 
     macro {{http_method.id}}(path, controller, method = :handle)
-      unless !Kemal::Utils.path_starts_with_slash?(\{{path}})
+      unless Kemal::Utils.path_starts_with_slash?(\{{path}})
         raise Kemal::Exceptions::InvalidPathStartException.new({{http_method}}, \{{path}})
       end
 
