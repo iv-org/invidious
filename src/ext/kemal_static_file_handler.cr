@@ -149,7 +149,9 @@ module Kemal
 
         send_file(context, file_path, file[:data], file[:filestat])
       else
-        is_dir = Dir.exists? file_path
+        file_info = File.info?(file_path)
+        is_dir = file_info.try &.directory? || false
+        is_file = file_info.try &.file? || false
 
         if request_path != expanded_path
           redirect_to context, expanded_path
@@ -157,15 +159,17 @@ module Kemal
           redirect_to context, expanded_path + '/'
         end
 
-        if Dir.exists?(file_path)
+        return call_next(context) if file_info.nil?
+
+        if is_dir
           if config.is_a?(Hash) && config["dir_listing"] == true
             context.response.content_type = "text/html"
             directory_listing(context.response, request_path, file_path)
           else
             call_next(context)
           end
-        elsif File.exists?(file_path)
-          last_modified = modification_time(file_path)
+        elsif is_file
+          last_modified = file_info.modification_time
           add_cache_headers(context.response.headers, last_modified)
 
           if cache_request?(context, last_modified)
@@ -177,14 +181,12 @@ module Kemal
             data = Bytes.new(size)
             File.open(file_path, &.read(data))
 
-            filestat = File.info(file_path)
-
-            @cached_files[file_path] = {data: data, filestat: filestat}
-            send_file(context, file_path, data, filestat)
+            @cached_files[file_path] = {data: data, filestat: file_info}
+            send_file(context, file_path, data, file_info)
           else
             send_file(context, file_path)
           end
-        else
+        else # Not a normal file (FIFO/device/socket)
           call_next(context)
         end
       end
