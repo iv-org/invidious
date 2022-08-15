@@ -1012,7 +1012,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   if toplevel_buttons
     likes_button = toplevel_buttons.as_a
-      .find(&.dig("toggleButtonRenderer", "defaultIcon", "iconType").as_s.== "LIKE")
+      .find(&.dig?("toggleButtonRenderer", "defaultIcon", "iconType").=== "LIKE")
       .try &.["toggleButtonRenderer"]
 
     if likes_button
