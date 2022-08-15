@@ -111,7 +111,7 @@ module Kemal
         if @fallthrough
           call_next(context)
         else
-          context.response.status_code = 405
+          context.response.status = HTTP::Status::METHOD_NOT_ALLOWED
           context.response.headers.add("Allow", "GET, HEAD")
         end
         return
@@ -124,7 +124,7 @@ module Kemal
       # File path cannot contains '\0' (NUL) because all filesystem I know
       # don't accept '\0' character as file name.
       if request_path.includes? '\0'
-        context.response.status_code = 400
+        context.response.status = HTTP::Status::BAD_REQUEST
         return
       end
 
@@ -143,7 +143,7 @@ module Kemal
         add_cache_headers(context.response.headers, last_modified)
 
         if cache_request?(context, last_modified)
-          context.response.status_code = 304
+          context.response.status = HTTP::Status::NOT_MODIFIED
           return
         end
 
@@ -173,7 +173,7 @@ module Kemal
           add_cache_headers(context.response.headers, last_modified)
 
           if cache_request?(context, last_modified)
-            context.response.status_code = 304
+            context.response.status = HTTP::Status::NOT_MODIFIED
             return
           end
 
