@@ -470,5 +470,6 @@
     "tokens_count": "{{count}} token",
     "tokens_count_plural": "{{count}} tokens",
     "search_message_use_another_instance": " También puede <a href=\"`x`\">buscar en otra instancia</a>.",
-    "search_filters_duration_option_medium": "Medio (4 - 20 minutes)"
+    "search_filters_duration_option_medium": "Medio (4 - 20 minutes)",
+    "Popular enabled: ": "¿Habilitar la sección popular? "
 }
