@@ -666,20 +666,20 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   raise BrokenTubeException.new("twoColumnWatchNextResults") if !main_results
 
-  primary_results = main_results.dig?("results", "results", "contents")
+  # Primary results are not available on Music videos
+  # See: https://github.com/iv-org/invidious/pull/3238#issuecomment-1207193725
+  if primary_results = main_results.dig?("results", "results", "contents")
+    video_primary_renderer = primary_results
+      .as_a.find(&.["videoPrimaryInfoRenderer"]?)
+      .try &.["videoPrimaryInfoRenderer"]
 
-  raise BrokenTubeException.new("results") if !primary_results
+    video_secondary_renderer = primary_results
+      .as_a.find(&.["videoSecondaryInfoRenderer"]?)
+      .try &.["videoSecondaryInfoRenderer"]
 
-  video_primary_renderer = primary_results
-    .as_a.find(&.["videoPrimaryInfoRenderer"]?)
-    .try &.["videoPrimaryInfoRenderer"]
-
-  video_secondary_renderer = primary_results
-    .as_a.find(&.["videoSecondaryInfoRenderer"]?)
-    .try &.["videoSecondaryInfoRenderer"]
-
-  raise BrokenTubeException.new("videoPrimaryInfoRenderer") if !video_primary_renderer
-  raise BrokenTubeException.new("videoSecondaryInfoRenderer") if !video_secondary_renderer
+    raise BrokenTubeException.new("videoPrimaryInfoRenderer") if !video_primary_renderer
+    raise BrokenTubeException.new("videoSecondaryInfoRenderer") if !video_secondary_renderer
+  end
 
   video_details = player_response.dig?("videoDetails")
   microformat = player_response.dig?("microformat", "playerMicroformatRenderer")
@@ -691,9 +691,12 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   title = video_details["title"]?.try &.as_s
 
+  # We have to try to extract viewCount from videoPrimaryInfoRenderer first,
+  # then from videoDetails, as the latter is "0" for livestreams (we want
+  # to get the amount of viewers watching).
   views = video_primary_renderer
-    .dig?("viewCount", "videoViewCountRenderer", "viewCount", "runs", 0, "text")
-    .try &.as_s.to_i64
+    .try &.dig?("viewCount", "videoViewCountRenderer", "viewCount", "runs", 0, "text")
+      .try &.as_s.to_i64
   views ||= video_details["viewCount"]?.try &.as_s.to_i64
 
   length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"])
@@ -825,7 +828,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   if live_now
     video_type = VideoType::Livestream
-  elsif premiere_timestamp.not_nil!
+  elsif !premiere_timestamp.nil?
     video_type = VideoType::Scheduled
     published = premiere_timestamp || Time.utc
   else
@@ -861,7 +864,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "author"          => JSON::Any.new(author || ""),
     "ucid"            => JSON::Any.new(ucid || ""),
     "authorThumbnail" => JSON::Any.new(author_thumbnail.try &.as_s || ""),
-    "authorVerified"  => JSON::Any.new(author_verified),
+    "authorVerified"  => JSON::Any.new(author_verified || false),
     "subCountText"    => JSON::Any.new(subs_text || "-"),
   }
 
