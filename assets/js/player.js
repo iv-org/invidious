@@ -259,7 +259,7 @@ function updateCookie(newVolume, newSpeed) {
 
     // Set expiration in 2 year
     var date = new Date();
-    date.setTime(date.getTime() + 63115200);
+    date.setFullYear(date.getFullYear() + 2);
 
     var ipRegex = /^((\d+\.){3}\d+|[A-Fa-f0-9]*:[A-Fa-f0-9:]*:[A-Fa-f0-9:]+)$/;
     var domainUsed = location.hostname;
@@ -268,8 +268,10 @@ function updateCookie(newVolume, newSpeed) {
     if (domainUsed.charAt(0) !== '.' && !ipRegex.test(domainUsed) && domainUsed !== 'localhost')
         domainUsed = '.' + location.hostname;
 
-    document.cookie = 'PREFS=' + cookieData + '; SameSite=Strict; path=/; domain=' +
-        domainUsed + '; expires=' + date.toGMTString() + ';';
+    var secure = location.protocol.startsWith("https") ? " Secure;" : "";
+
+    document.cookie = 'PREFS=' + cookieData + '; SameSite=Lax; path=/; domain=' +
+        domainUsed + '; expires=' + date.toGMTString() + ';' + secure;
 
     video_data.params.volume = volumeValue;
     video_data.params.speed = speedValue;
