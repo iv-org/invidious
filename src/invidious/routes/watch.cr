@@ -61,8 +61,6 @@ module Invidious::Routes::Watch
 
     begin
       video = get_video(id, region: params.region)
-    rescue ex : VideoRedirect
-      return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex : NotFoundException
       LOGGER.error("get_video not found: #{id} : #{ex.message}")
       return error_template(404, ex)

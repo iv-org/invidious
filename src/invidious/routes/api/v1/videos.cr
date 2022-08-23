@@ -9,9 +9,6 @@ module Invidious::Routes::API::V1::Videos
 
     begin
       video = get_video(id, region: region)
-    rescue ex : VideoRedirect
-      env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
-      return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
     rescue ex : NotFoundException
       return error_json(404, ex)
     rescue ex
@@ -41,9 +38,6 @@ module Invidious::Routes::API::V1::Videos
 
     begin
       video = get_video(id, region: region)
-    rescue ex : VideoRedirect
-      env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
-      return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
     rescue ex : NotFoundException
       haltf env, 404
     rescue ex
@@ -168,9 +162,6 @@ module Invidious::Routes::API::V1::Videos
 
     begin
       video = get_video(id, region: region)
-    rescue ex : VideoRedirect
-      env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
-      return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
     rescue ex : NotFoundException
       haltf env, 404
     rescue ex

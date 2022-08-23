@@ -319,13 +319,6 @@ struct Video
   getset_bool isUpcoming
 end
 
-class VideoRedirect < Exception
-  property video_id : String
-
-  def initialize(@video_id)
-  end
-end
-
 def get_video(id, refresh = true, region = nil, force_refresh = false)
   if (video = Invidious::Database::Videos.select(id)) && !region
     # If record was last updated over 10 minutes ago, or video has since premiered,

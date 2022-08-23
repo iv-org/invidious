@@ -131,8 +131,6 @@ module Invidious::Routes::Embed
 
     begin
       video = get_video(id, region: params.region)
-    rescue ex : VideoRedirect
-      return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex : NotFoundException
       return error_template(404, ex)
     rescue ex
