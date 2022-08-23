@@ -30,3 +30,6 @@ end
 # Exception threw when an element is not found.
 class NotFoundException < InfoException
 end
+
+class VideoNotAvailableException < Exception
+end
