@@ -31,233 +31,24 @@ struct Video
     end
   end
 
+  # Methods for API v1 JSON
+
   def to_json(locale : String?, json : JSON::Builder)
-    json.object do
-      json.field "type", self.video_type
-
-      json.field "title", self.title
-      json.field "videoId", self.id
-
-      json.field "error", info["reason"] if info["reason"]?
-
-      json.field "videoThumbnails" do
-        generate_thumbnails(json, self.id)
-      end
-      json.field "storyboards" do
-        generate_storyboards(json, self.id, self.storyboards)
-      end
-
-      json.field "description", self.description
-      json.field "descriptionHtml", self.description_html
-      json.field "published", self.published.to_unix
-      json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
-      json.field "keywords", self.keywords
-
-      json.field "viewCount", self.views
-      json.field "likeCount", self.likes
-      json.field "dislikeCount", 0_i64
-
-      json.field "paid", self.paid
-      json.field "premium", self.premium
-      json.field "isFamilyFriendly", self.is_family_friendly
-      json.field "allowedRegions", self.allowed_regions
-      json.field "genre", self.genre
-      json.field "genreUrl", self.genre_url
-
-      json.field "author", self.author
-      json.field "authorId", self.ucid
-      json.field "authorUrl", "/channel/#{self.ucid}"
-
-      json.field "authorThumbnails" do
-        json.array do
-          qualities = {32, 48, 76, 100, 176, 512}
-
-          qualities.each do |quality|
-            json.object do
-              json.field "url", self.author_thumbnail.gsub(/=s\d+/, "=s#{quality}")
-              json.field "width", quality
-              json.field "height", quality
-            end
-          end
-        end
-      end
-
-      json.field "subCountText", self.sub_count_text
-
-      json.field "lengthSeconds", self.length_seconds
-      json.field "allowRatings", self.allow_ratings
-      json.field "rating", 0_i64
-      json.field "isListed", self.is_listed
-      json.field "liveNow", self.live_now
-      json.field "isUpcoming", self.is_upcoming
-
-      if self.premiere_timestamp
-        json.field "premiereTimestamp", self.premiere_timestamp.try &.to_unix
-      end
-
-      if hlsvp = self.hls_manifest_url
-        hlsvp = hlsvp.gsub("https://manifest.googlevideo.com", HOST_URL)
-        json.field "hlsUrl", hlsvp
-      end
-
-      json.field "dashUrl", "#{HOST_URL}/api/manifest/dash/id/#{id}"
-
-      json.field "adaptiveFormats" do
-        json.array do
-          self.adaptive_fmts.each do |fmt|
-            json.object do
-              # Only available on regular videos, not livestreams/OTF streams
-              if init_range = fmt["initRange"]?
-                json.field "init", "#{init_range["start"]}-#{init_range["end"]}"
-              end
-              if index_range = fmt["indexRange"]?
-                json.field "index", "#{index_range["start"]}-#{index_range["end"]}"
-              end
-
-              # Not available on MPEG-4 Timed Text (`text/mp4`) streams (livestreams only)
-              json.field "bitrate", fmt["bitrate"].as_i.to_s if fmt["bitrate"]?
-
-              json.field "url", fmt["url"]
-              json.field "itag", fmt["itag"].as_i.to_s
-              json.field "type", fmt["mimeType"]
-              json.field "clen", fmt["contentLength"]? || "-1"
-              json.field "lmt", fmt["lastModified"]
-              json.field "projectionType", fmt["projectionType"]
-
-              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
-                json.field "fps", fps
-                json.field "container", fmt_info["ext"]
-                json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
-
-                if fmt_info["height"]?
-                  json.field "resolution", "#{fmt_info["height"]}p"
-
-                  quality_label = "#{fmt_info["height"]}p"
-                  if fps > 30
-                    quality_label += "60"
-                  end
-                  json.field "qualityLabel", quality_label
-
-                  if fmt_info["width"]?
-                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                  end
-                end
-              end
-
-              # Livestream chunk infos
-              json.field "targetDurationSec", fmt["targetDurationSec"].as_i if fmt.has_key?("targetDurationSec")
-              json.field "maxDvrDurationSec", fmt["maxDvrDurationSec"].as_i if fmt.has_key?("maxDvrDurationSec")
-
-              # Audio-related data
-              json.field "audioQuality", fmt["audioQuality"] if fmt.has_key?("audioQuality")
-              json.field "audioSampleRate", fmt["audioSampleRate"].as_s.to_i if fmt.has_key?("audioSampleRate")
-              json.field "audioChannels", fmt["audioChannels"] if fmt.has_key?("audioChannels")
-
-              # Extra misc stuff
-              json.field "colorInfo", fmt["colorInfo"] if fmt.has_key?("colorInfo")
-              json.field "captionTrack", fmt["captionTrack"] if fmt.has_key?("captionTrack")
-            end
-          end
-        end
-      end
-
-      json.field "formatStreams" do
-        json.array do
-          self.fmt_stream.each do |fmt|
-            json.object do
-              json.field "url", fmt["url"]
-              json.field "itag", fmt["itag"].as_i.to_s
-              json.field "type", fmt["mimeType"]
-              json.field "quality", fmt["quality"]
-
-              fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
-              if fmt_info
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
-                json.field "fps", fps
-                json.field "container", fmt_info["ext"]
-                json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
-
-                if fmt_info["height"]?
-                  json.field "resolution", "#{fmt_info["height"]}p"
-
-                  quality_label = "#{fmt_info["height"]}p"
-                  if fps > 30
-                    quality_label += "60"
-                  end
-                  json.field "qualityLabel", quality_label
-
-                  if fmt_info["width"]?
-                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-
-      json.field "captions" do
-        json.array do
-          self.captions.each do |caption|
-            json.object do
-              json.field "label", caption.name
-              json.field "language_code", caption.language_code
-              json.field "url", "/api/v1/captions/#{id}?label=#{URI.encode_www_form(caption.name)}"
-            end
-          end
-        end
-      end
-
-      json.field "recommendedVideos" do
-        json.array do
-          self.related_videos.each do |rv|
-            if rv["id"]?
-              json.object do
-                json.field "videoId", rv["id"]
-                json.field "title", rv["title"]
-                json.field "videoThumbnails" do
-                  generate_thumbnails(json, rv["id"])
-                end
-
-                json.field "author", rv["author"]
-                json.field "authorUrl", "/channel/#{rv["ucid"]?}"
-                json.field "authorId", rv["ucid"]?
-                if rv["author_thumbnail"]?
-                  json.field "authorThumbnails" do
-                    json.array do
-                      qualities = {32, 48, 76, 100, 176, 512}
-
-                      qualities.each do |quality|
-                        json.object do
-                          json.field "url", rv["author_thumbnail"].gsub(/s\d+-/, "s#{quality}-")
-                          json.field "width", quality
-                          json.field "height", quality
-                        end
-                      end
-                    end
-                  end
-                end
-
-                json.field "lengthSeconds", rv["length_seconds"]?.try &.to_i
-                json.field "viewCountText", rv["short_view_count"]?
-                json.field "viewCount", rv["view_count"]?.try &.empty? ? nil : rv["view_count"].to_i64
-              end
-            end
-          end
-        end
-      end
-    end
+    Invidious::JSONify::APIv1.video(self, json, locale: locale)
   end
 
   # TODO: remove the locale and follow the crystal convention
   def to_json(locale : String?, _json : Nil)
-    JSON.build { |json| to_json(locale, json) }
+    JSON.build do |json|
+      Invidious::JSONify::APIv1.video(self, json, locale: locale)
+    end
   end
 
   def to_json(json : JSON::Builder | Nil = nil)
     to_json(nil, json)
   end
+
+  # Misc methods
 
   def video_type : VideoType
     video_type = info["videoType"]?.try &.as_s || "video"
@@ -630,35 +421,4 @@ def build_thumbnails(id)
     {host: HOST_URL, height: 90, width: 120, name: "middle", url: "2"},
     {host: HOST_URL, height: 90, width: 120, name: "end", url: "3"},
   }
-end
-
-def generate_thumbnails(json, id)
-  json.array do
-    build_thumbnails(id).each do |thumbnail|
-      json.object do
-        json.field "quality", thumbnail[:name]
-        json.field "url", "#{thumbnail[:host]}/vi/#{id}/#{thumbnail["url"]}.jpg"
-        json.field "width", thumbnail[:width]
-        json.field "height", thumbnail[:height]
-      end
-    end
-  end
-end
-
-def generate_storyboards(json, id, storyboards)
-  json.array do
-    storyboards.each do |storyboard|
-      json.object do
-        json.field "url", "/api/v1/storyboards/#{id}?width=#{storyboard[:width]}&height=#{storyboard[:height]}"
-        json.field "templateUrl", storyboard[:url]
-        json.field "width", storyboard[:width]
-        json.field "height", storyboard[:height]
-        json.field "count", storyboard[:count]
-        json.field "interval", storyboard[:interval]
-        json.field "storyboardWidth", storyboard[:storyboard_width]
-        json.field "storyboardHeight", storyboard[:storyboard_height]
-        json.field "storyboardCount", storyboard[:storyboard_count]
-      end
-    end
-  end
 end

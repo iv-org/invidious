@@ -124,7 +124,7 @@ module Invidious::Routes::API::V1::Misc
 
                 json.field "videoThumbnails" do
                   json.array do
-                    generate_thumbnails(json, video.id)
+                    Invidious::JSONify::APIv1.thumbnails(json, video.id)
                   end
                 end
 

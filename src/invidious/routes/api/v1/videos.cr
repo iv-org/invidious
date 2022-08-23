@@ -185,7 +185,7 @@ module Invidious::Routes::API::V1::Videos
       response = JSON.build do |json|
         json.object do
           json.field "storyboards" do
-            generate_storyboards(json, id, storyboards)
+            Invidious::JSONify::APIv1.storyboards(json, id, storyboards)
           end
         end
       end

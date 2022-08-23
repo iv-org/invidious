@@ -39,6 +39,8 @@ require "./invidious/yt_backend/*"
 require "./invidious/frontend/*"
 require "./invidious/videos/*"
 
+require "./invidious/jsonify/**"
+
 require "./invidious/*"
 require "./invidious/channels/*"
 require "./invidious/user/*"
