@@ -909,6 +909,10 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
         "reason" => JSON::Any.new(reason),
       }
     end
+  elsif video_id != player_response.dig("videoDetails", "videoId")
+    # YouTube may return a different video player response than expected.
+    # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
+    raise VideoNotAvailableException.new("The video returned by YouTube isn't the requested one.")
   else
     reason = nil
   end
