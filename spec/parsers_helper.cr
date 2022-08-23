@@ -12,6 +12,7 @@ require "../src/invidious/helpers/logger"
 require "../src/invidious/helpers/utils"
 
 require "../src/invidious/videos"
+require "../src/invidious/videos/*"
 require "../src/invidious/comments"
 
 require "../src/invidious/helpers/serialized_yt_data"
