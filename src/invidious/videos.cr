@@ -912,7 +912,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   elsif video_id != player_response.dig("videoDetails", "videoId")
     # YouTube may return a different video player response than expected.
     # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
-    raise VideoNotAvailableException.new("The video returned by YouTube isn't the requested one.")
+    raise VideoNotAvailableException.new("The video returned by YouTube isn't the requested one. (WEB client)")
   else
     reason = nil
   end
@@ -937,10 +937,14 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     end
     android_player = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
 
-    # Sometime, the video is available from the web client, but not on Android, so check
+    # Sometimes, the video is available from the web client, but not on Android, so check
     # that here, and fallback to the streaming data from the web client if needed.
     # See: https://github.com/iv-org/invidious/issues/2549
-    if android_player["playabilityStatus"]["status"] == "OK"
+    if video_id != android_player.dig("videoDetails", "videoId")
+      # YouTube may return a different video player response than expected.
+      # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
+      raise VideoNotAvailableException.new("The video returned by YouTube isn't the requested one. (ANDROID client)")
+    elsif android_player["playabilityStatus"]["status"] == "OK"
       params["streamingData"] = android_player["streamingData"]? || JSON::Any.new("")
     else
       params["streamingData"] = player_response["streamingData"]? || JSON::Any.new("")
