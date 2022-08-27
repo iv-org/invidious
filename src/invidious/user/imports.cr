@@ -71,7 +71,7 @@ struct Invidious::User
           Invidious::Database::Playlists.update_description(playlist.id, description)
 
           videos = item["videos"]?.try &.as_a?.try &.each_with_index do |video_id, idx|
-            raise InfoException.new("Playlist cannot have more than 500 videos") if idx > 500
+            raise InfoException.new("Playlist cannot have more than #{CONFIG.playlist_length_limit} videos") if idx > 500
 
             video_id = video_id.try &.as_s?
             next if !video_id

@@ -131,6 +131,9 @@ class Config
   # API URL for Anti-Captcha
   property captcha_api_url : String = "https://api.anti-captcha.com"
 
+  # Playlist length limit
+  property playlist_length_limit : Int32 = 500
+
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool

@@ -226,8 +226,8 @@ module Invidious::Routes::API::V1::Authenticated
       return error_json(403, "Invalid user")
     end
 
-    if playlist.index.size >= 500
-      return error_json(400, "Playlist cannot have more than 500 videos")
+    if playlist.index.size >= CONFIG.playlist_length_limit
+      return error_json(400, "Playlist cannot have more than #{CONFIG.playlist_length_limit} videos")
     end
 
     video_id = env.params.json["videoId"].try &.as(String)

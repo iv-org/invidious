@@ -869,3 +869,11 @@ default_user_preferences:
   ## Default: false
   ##
   #extend_desc: false
+
+  ##
+  ## Maximum custom playlist length limit.
+  ##
+  ## Accepted values: Integer
+  ## Default: 500
+  ##
+  #playlist_length_limit: 500

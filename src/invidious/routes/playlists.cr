@@ -330,11 +330,11 @@ module Invidious::Routes::Playlists
     when "action_edit_playlist"
       # TODO: Playlist stub
     when "action_add_video"
-      if playlist.index.size >= 500
+      if playlist.index.size >= CONFIG.playlist_length_limit
         if redirect
-          return error_template(400, "Playlist cannot have more than 500 videos")
+          return error_template(400, "Playlist cannot have more than #{CONFIG.playlist_length_limit} videos")
         else
-          return error_json(400, "Playlist cannot have more than 500 videos")
+          return error_json(400, "Playlist cannot have more than #{CONFIG.playlist_length_limit} videos")
         end
       end
 
