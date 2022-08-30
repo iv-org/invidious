@@ -7,9 +7,12 @@ module YoutubeAPI
 
   private DEFAULT_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 
-  private ANDROID_APP_VERSION = "17.29.35"
-  private ANDROID_SDK_VERSION = 30_i64
-  private IOS_APP_VERSION     = "17.30.1"
+  private ANDROID_APP_VERSION = "17.33.42"
+  private ANDROID_USER_AGENT  = "com.google.android.youtube/17.33.42 (Linux; U; Android 12; US)"
+  private ANDROID_SDK_VERSION = 31_i64
+  private ANDROID_VERSION     = "12"
+  private IOS_APP_VERSION     = "17.33.2"
+  private WINDOWS_VERSION     = "10.0"
 
   # Enumerate used to select one of the clients supported by the API
   enum ClientType
@@ -33,27 +36,39 @@ module YoutubeAPI
   # List of hard-coded values used by the different clients
   HARDCODED_CLIENTS = {
     ClientType::Web => {
-      name:    "WEB",
-      version: "2.20220804.07.00",
-      api_key: DEFAULT_API_KEY,
-      screen:  "WATCH_FULL_SCREEN",
+      name:       "WEB",
+      version:    "2.20220804.07.00",
+      api_key:    DEFAULT_API_KEY,
+      screen:     "WATCH_FULL_SCREEN",
+      os_name:    "Windows",
+      os_version: WINDOWS_VERSION,
+      platform:   "DESKTOP",
     },
     ClientType::WebEmbeddedPlayer => {
-      name:    "WEB_EMBEDDED_PLAYER", # 56
-      version: "1.20220803.01.00",
-      api_key: DEFAULT_API_KEY,
-      screen:  "EMBED",
+      name:       "WEB_EMBEDDED_PLAYER", # 56
+      version:    "1.20220803.01.00",
+      api_key:    DEFAULT_API_KEY,
+      screen:     "EMBED",
+      os_name:    "Windows",
+      os_version: WINDOWS_VERSION,
+      platform:   "DESKTOP",
     },
     ClientType::WebMobile => {
-      name:    "MWEB",
-      version: "2.20220805.01.00",
-      api_key: DEFAULT_API_KEY,
+      name:       "MWEB",
+      version:    "2.20220805.01.00",
+      api_key:    DEFAULT_API_KEY,
+      os_name:    "Android",
+      os_version: ANDROID_VERSION,
+      platform:   "MOBILE",
     },
     ClientType::WebScreenEmbed => {
-      name:    "WEB",
-      version: "2.20220804.00.00",
-      api_key: DEFAULT_API_KEY,
-      screen:  "EMBED",
+      name:       "WEB",
+      version:    "2.20220804.00.00",
+      api_key:    DEFAULT_API_KEY,
+      screen:     "EMBED",
+      os_name:    "Windows",
+      os_version: WINDOWS_VERSION,
+      platform:   "DESKTOP",
     },
 
     # Android
@@ -63,6 +78,10 @@ module YoutubeAPI
       version:             ANDROID_APP_VERSION,
       api_key:             "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
       android_sdk_version: ANDROID_SDK_VERSION,
+      user_agent:          ANDROID_USER_AGENT,
+      os_name:             "Android",
+      os_version:          ANDROID_VERSION,
+      platform:            "MOBILE",
     },
     ClientType::AndroidEmbeddedPlayer => {
       name:    "ANDROID_EMBEDDED_PLAYER", # 55
@@ -75,6 +94,10 @@ module YoutubeAPI
       api_key:             DEFAULT_API_KEY,
       screen:              "EMBED",
       android_sdk_version: ANDROID_SDK_VERSION,
+      user_agent:          ANDROID_USER_AGENT,
+      os_name:             "Android",
+      os_version:          ANDROID_VERSION,
+      platform:            "MOBILE",
     },
 
     # IOS
@@ -179,6 +202,22 @@ module YoutubeAPI
       HARDCODED_CLIENTS[@client_type][:android_sdk_version]?
     end
 
+    def user_agent : String?
+      HARDCODED_CLIENTS[@client_type][:user_agent]?
+    end
+
+    def os_name : String?
+      HARDCODED_CLIENTS[@client_type][:os_name]?
+    end
+
+    def os_version : String?
+      HARDCODED_CLIENTS[@client_type][:os_version]?
+    end
+
+    def platform : String?
+      HARDCODED_CLIENTS[@client_type][:platform]?
+    end
+
     # Convert to string, for logging purposes
     def to_s
       return {
@@ -224,6 +263,18 @@ module YoutubeAPI
 
     if android_sdk_version = client_config.android_sdk_version
       client_context["client"]["androidSdkVersion"] = android_sdk_version
+    end
+
+    if os_name = client_config.os_name
+      client_context["client"]["osName"] = os_name
+    end
+
+    if os_version = client_config.os_version
+      client_context["client"]["osVersion"] = os_version
+    end
+
+    if platform = client_config.platform
+      client_context["client"]["platform"] = platform
     end
 
     return client_context
@@ -361,8 +412,18 @@ module YoutubeAPI
   )
     # JSON Request data, required by the API
     data = {
-      "videoId" => video_id,
-      "context" => self.make_context(client_config),
+      "contentCheckOk" => true,
+      "videoId"        => video_id,
+      "context"        => self.make_context(client_config),
+      "racyCheckOk"    => true,
+      "user"           => {
+        "lockedSafetyMode" => false,
+      },
+      "playbackContext" => {
+        "contentPlaybackContext" => {
+          "html5Preference": "HTML5_PREF_WANTS",
+        },
+      },
     }
 
     # Append the additional parameters if those were provided
@@ -460,9 +521,14 @@ module YoutubeAPI
     url = "#{endpoint}?key=#{client_config.api_key}&prettyPrint=false"
 
     headers = HTTP::Headers{
-      "Content-Type"    => "application/json; charset=UTF-8",
-      "Accept-Encoding" => "gzip, deflate",
+      "Content-Type"              => "application/json; charset=UTF-8",
+      "Accept-Encoding"           => "gzip, deflate",
+      "x-goog-api-format-version" => "2",
     }
+
+    if user_agent = client_config.user_agent
+      headers["User-Agent"] = user_agent
+    end
 
     # Logging
     LOGGER.debug("YoutubeAPI: Using endpoint: \"#{endpoint}\"")

@@ -7,17 +7,19 @@
 {% end %}
 
 def add_yt_headers(request)
-  request.headers["user-agent"] ||= "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
-  request.headers["accept-charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
-  request.headers["accept"] ||= "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-  request.headers["accept-language"] ||= "en-us,en;q=0.5"
+  if request.headers["User-Agent"] == "Crystal"
+    request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+  end
+  request.headers["Accept-Charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
+  request.headers["Accept"] ||= "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+  request.headers["Accept-Language"] ||= "en-us,en;q=0.5"
   return if request.resource.starts_with? "/sorry/index"
   request.headers["x-youtube-client-name"] ||= "1"
   request.headers["x-youtube-client-version"] ||= "2.20200609"
   # Preserve original cookies and add new YT consent cookie for EU servers
-  request.headers["cookie"] = "#{request.headers["cookie"]?}; CONSENT=YES+"
+  request.headers["Cookie"] = "#{request.headers["cookie"]?}; CONSENT=YES+"
   if !CONFIG.cookies.empty?
-    request.headers["cookie"] = "#{(CONFIG.cookies.map { |c| "#{c.name}=#{c.value}" }).join("; ")}; #{request.headers["cookie"]?}"
+    request.headers["Cookie"] = "#{(CONFIG.cookies.map { |c| "#{c.name}=#{c.value}" }).join("; ")}; #{request.headers["cookie"]?}"
   end
 end
 
