@@ -22,6 +22,15 @@ module Invidious::Database::Videos
     PG_DB.exec(request, id)
   end
 
+  def delete_expired
+    request = <<-SQL
+      DELETE FROM videos *
+      WHERE updated < (now() - interval '6 hours')
+    SQL
+
+    PG_DB.exec(request)
+  end
+
   def update(video : Video)
     request = <<-SQL
       UPDATE videos
