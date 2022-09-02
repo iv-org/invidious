@@ -67,7 +67,7 @@
                             </a>
                         </div>
                         <% if env.get("preferences").as(Preferences).show_nick %>
-                            <div class="pure-u-1-4">
+                            <div class="pure-u-1-4" style="overflow: hidden; white-space: nowrap;">
                                 <span id="user_name"><%= HTML.escape(env.get("user").as(Invidious::User).email) %></span>
                             </div>
                         <% end %>
