@@ -13,9 +13,6 @@ def add_yt_headers(request)
   request.headers["Accept-Charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
   request.headers["Accept"] ||= "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
   request.headers["Accept-Language"] ||= "en-us,en;q=0.5"
-  return if request.resource.starts_with? "/sorry/index"
-  request.headers["x-youtube-client-name"] ||= "1"
-  request.headers["x-youtube-client-version"] ||= "2.20200609"
   # Preserve original cookies and add new YT consent cookie for EU servers
   request.headers["Cookie"] = "#{request.headers["cookie"]?}; CONSENT=YES+"
   if !CONFIG.cookies.empty?
