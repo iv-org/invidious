@@ -227,11 +227,21 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .try &.dig?("videoActions", "menuRenderer", "topLevelButtons")
 
   if toplevel_buttons
-    likes_button = toplevel_buttons.as_a
+    likes_button = toplevel_buttons.try &.as_a
       .find(&.dig?("toggleButtonRenderer", "defaultIcon", "iconType").=== "LIKE")
       .try &.["toggleButtonRenderer"]
 
+    # New format as of september 2022
+    likes_button ||= toplevel_buttons.try &.as_a
+      .find(&.["segmentedLikeDislikeButtonRenderer"]?)
+      .try &.dig?(
+        "segmentedLikeDislikeButtonRenderer",
+        "likeButton", "toggleButtonRenderer"
+      )
+
     if likes_button
+      # Note: The like count from `toggledText` is off by one, as it would
+      # represent the new like count in the event where the user clicks on "like".
       likes_txt = (likes_button["defaultText"]? || likes_button["toggledText"]?)
         .try &.dig?("accessibility", "accessibilityData", "label")
       likes = likes_txt.as_s.gsub(/\D/, "").to_i64? if likes_txt
