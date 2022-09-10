@@ -471,5 +471,6 @@
     "search_filters_duration_option_medium": "Media (4 - 20 minuti)",
     "search_filters_features_option_vr180": "VR180",
     "search_filters_apply_button": "Applica filtri selezionati",
-    "crash_page_refresh": "provato a <a href=\"`x`\">ricaricare la pagina</a>"
+    "crash_page_refresh": "provato a <a href=\"`x`\">ricaricare la pagina</a>",
+    "error_video_not_in_playlist": "Il video richiesto non esiste in questa playlist. <a href=\"`x`\">Fai clic qui per la pagina iniziale della playlist.</a>"
 }
