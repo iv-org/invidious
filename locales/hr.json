@@ -487,5 +487,6 @@
     "search_filters_duration_option_medium": "Srednje (4 – 20 minuta)",
     "search_filters_apply_button": "Primijeni odabrane filtre",
     "search_filters_type_option_all": "Bilo koja vrsta",
-    "Popular enabled: ": "Popularni aktivirani: "
+    "Popular enabled: ": "Popularni aktivirani: ",
+    "error_video_not_in_playlist": "Traženi video ne postoji u ovoj zbirci. <a href=\"`x`\">Pritisni ovdje za početnu stranicu zbirke.</a>"
 }
