@@ -471,5 +471,6 @@
     "tokens_count_plural": "{{count}} tokens",
     "search_message_use_another_instance": " También puede <a href=\"`x`\">buscar en otra instancia</a>.",
     "search_filters_duration_option_medium": "Medio (4 - 20 minutes)",
-    "Popular enabled: ": "¿Habilitar la sección popular? "
+    "Popular enabled: ": "¿Habilitar la sección popular? ",
+    "error_video_not_in_playlist": "El vídeo solicitado no existe en esta lista de reproducción. <a href=\"`x`\">Haga clic aquí para acceder a la página de inicio de la lista de reproducción.</a>"
 }
