@@ -487,5 +487,6 @@
     "search_filters_sort_option_relevance": "Відповідні",
     "search_filters_sort_option_rating": "Рейтингові",
     "search_filters_sort_option_views": "Популярні",
-    "Popular enabled: ": "Популярне ввімкнено: "
+    "Popular enabled: ": "Популярне ввімкнено: ",
+    "error_video_not_in_playlist": "Запитуваного відео в цьому списку відтворення не існує. <a href=\"`x`\">Клацніть тут, щоб переглянути домашню сторінку списку відтворення.</a>"
 }

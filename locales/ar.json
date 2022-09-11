@@ -535,5 +535,6 @@
     "generic_count_seconds_2": "{{count}} ثانية",
     "generic_count_seconds_3": "{{count}} ثانية",
     "generic_count_seconds_4": "{{count}} ثوانٍ",
-    "generic_count_seconds_5": "{{count}} ثانية"
+    "generic_count_seconds_5": "{{count}} ثانية",
+    "error_video_not_in_playlist": "الفيديو المطلوب غير موجود في قائمة التشغيل هذه. <a href=\"`x`\"> انقر هنا للحصول على الصفحة الرئيسية لقائمة التشغيل. </a>"
 }

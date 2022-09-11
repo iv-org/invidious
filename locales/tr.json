@@ -471,5 +471,6 @@
     "search_filters_features_option_vr180": "VR180",
     "search_filters_title": "Filtreler",
     "search_message_change_filters_or_query": "Arama sorgunuzu genişletmeyi ve/veya filtreleri değiştirmeyi deneyin.",
-    "Popular enabled: ": "Popüler etkin: "
+    "Popular enabled: ": "Popüler etkin: ",
+    "error_video_not_in_playlist": "İstenen video bu oynatma listesinde yok. <a href=\"`x`\">Oynatma listesi ana sayfası için buraya tıklayın.</a>"
 }

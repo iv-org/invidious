@@ -487,5 +487,6 @@
     "search_filters_sort_label": "Řadit dle",
     "search_filters_sort_option_relevance": "Relevantnost",
     "search_filters_apply_button": "Použít vybrané filtry",
-    "Popular enabled: ": "Populární povoleno: "
+    "Popular enabled: ": "Populární povoleno: ",
+    "error_video_not_in_playlist": "Požadované video v tomto playlistu neexistuje. <a href=\"`x`\">Klikněte sem pro navštívení domovské stránky playlistu.</a>"
 }
