@@ -159,10 +159,10 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # We have to try to extract viewCount from videoPrimaryInfoRenderer first,
   # then from videoDetails, as the latter is "0" for livestreams (we want
   # to get the amount of viewers watching).
-  views = video_primary_renderer
+  views_txt = video_primary_renderer
     .try &.dig?("viewCount", "videoViewCountRenderer", "viewCount", "runs", 0, "text")
-      .try &.as_s.to_i64
-  views ||= video_details["viewCount"]?.try &.as_s.to_i64
+  views_txt ||= video_details["viewCount"]?
+  views = views_txt.try &.as_s.gsub(/\D/, "").to_i64?
 
   length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"])
     .try &.as_s.to_i64
@@ -270,7 +270,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   license = nil
 
   metadata.try &.each do |row|
-    metadata_title = row.dig?("metadataRowRenderer", "title", "simpleText").try &.as_s
+    metadata_title = extract_text(row.dig?("metadataRowRenderer", "title"))
     contents = row.dig?("metadataRowRenderer", "contents", 0)
 
     if metadata_title == "Category"

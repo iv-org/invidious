@@ -93,7 +93,16 @@ module Invidious::JSONify::APIv1
               json.field "itag", fmt["itag"].as_i.to_s
               json.field "type", fmt["mimeType"]
               json.field "clen", fmt["contentLength"]? || "-1"
-              json.field "lmt", fmt["lastModified"]
+
+              # Last modified is a unix timestamp with µS, with the dot omitted.
+              # E.g: 1638056732(.)141582
+              #
+              # On livestreams, it's not present, so always fall back to the
+              # current unix timestamp (up to mS precision) for compatibility.
+              last_modified = fmt["lastModified"]?
+              last_modified ||= "#{Time.utc.to_unix_ms.to_s}000"
+              json.field "lmt", last_modified
+
               json.field "projectionType", fmt["projectionType"]
 
               if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
