@@ -7,9 +7,17 @@ module YoutubeAPI
 
   private DEFAULT_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 
-  private ANDROID_APP_VERSION = "17.29.35"
-  private ANDROID_SDK_VERSION = 30_i64
-  private IOS_APP_VERSION     = "17.30.1"
+  private ANDROID_APP_VERSION = "17.33.42"
+  # github.com/TeamNewPipe/NewPipeExtractor/blob/943b7c033bb9d07ead63ddab4441c287653e4384/extractor/src/main/java/org/schabi/newpipe/extractor/services/youtube/YoutubeParsingHelper.java#L1308
+  private ANDROID_USER_AGENT  = "com.google.android.youtube/17.33.42 (Linux; U; Android 12; US) gzip"
+  private ANDROID_SDK_VERSION = 31_i64
+  private ANDROID_VERSION     = "12"
+  private IOS_APP_VERSION     = "17.33.2"
+  # github.com/TeamNewPipe/NewPipeExtractor/blob/943b7c033bb9d07ead63ddab4441c287653e4384/extractor/src/main/java/org/schabi/newpipe/extractor/services/youtube/YoutubeParsingHelper.java#L1330
+  private IOS_USER_AGENT = "com.google.ios.youtube/17.33.2 (iPhone14,5; U; CPU iOS 15_6 like Mac OS X;)"
+  # github.com/TeamNewPipe/NewPipeExtractor/blob/943b7c033bb9d07ead63ddab4441c287653e4384/extractor/src/main/java/org/schabi/newpipe/extractor/services/youtube/YoutubeParsingHelper.java#L1224
+  private IOS_VERSION     = "15.6.0.19G71"
+  private WINDOWS_VERSION = "10.0"
 
   # Enumerate used to select one of the clients supported by the API
   enum ClientType
@@ -33,80 +41,130 @@ module YoutubeAPI
   # List of hard-coded values used by the different clients
   HARDCODED_CLIENTS = {
     ClientType::Web => {
-      name:    "WEB",
-      version: "2.20220804.07.00",
-      api_key: DEFAULT_API_KEY,
-      screen:  "WATCH_FULL_SCREEN",
+      name:       "WEB",
+      name_proto: "1",
+      version:    "2.20220804.07.00",
+      api_key:    DEFAULT_API_KEY,
+      screen:     "WATCH_FULL_SCREEN",
+      os_name:    "Windows",
+      os_version: WINDOWS_VERSION,
+      platform:   "DESKTOP",
     },
     ClientType::WebEmbeddedPlayer => {
-      name:    "WEB_EMBEDDED_PLAYER", # 56
-      version: "1.20220803.01.00",
-      api_key: DEFAULT_API_KEY,
-      screen:  "EMBED",
+      name:       "WEB_EMBEDDED_PLAYER",
+      name_proto: "56",
+      version:    "1.20220803.01.00",
+      api_key:    DEFAULT_API_KEY,
+      screen:     "EMBED",
+      os_name:    "Windows",
+      os_version: WINDOWS_VERSION,
+      platform:   "DESKTOP",
     },
     ClientType::WebMobile => {
-      name:    "MWEB",
-      version: "2.20220805.01.00",
-      api_key: DEFAULT_API_KEY,
+      name:       "MWEB",
+      name_proto: "2",
+      version:    "2.20220805.01.00",
+      api_key:    DEFAULT_API_KEY,
+      os_name:    "Android",
+      os_version: ANDROID_VERSION,
+      platform:   "MOBILE",
     },
     ClientType::WebScreenEmbed => {
-      name:    "WEB",
-      version: "2.20220804.00.00",
-      api_key: DEFAULT_API_KEY,
-      screen:  "EMBED",
+      name:       "WEB",
+      name_proto: "1",
+      version:    "2.20220804.00.00",
+      api_key:    DEFAULT_API_KEY,
+      screen:     "EMBED",
+      os_name:    "Windows",
+      os_version: WINDOWS_VERSION,
+      platform:   "DESKTOP",
     },
 
     # Android
 
     ClientType::Android => {
       name:                "ANDROID",
+      name_proto:          "3",
       version:             ANDROID_APP_VERSION,
       api_key:             "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
       android_sdk_version: ANDROID_SDK_VERSION,
+      user_agent:          ANDROID_USER_AGENT,
+      os_name:             "Android",
+      os_version:          ANDROID_VERSION,
+      platform:            "MOBILE",
     },
     ClientType::AndroidEmbeddedPlayer => {
-      name:    "ANDROID_EMBEDDED_PLAYER", # 55
-      version: ANDROID_APP_VERSION,
-      api_key: DEFAULT_API_KEY,
+      name:       "ANDROID_EMBEDDED_PLAYER",
+      name_proto: "55",
+      version:    ANDROID_APP_VERSION,
+      api_key:    DEFAULT_API_KEY,
     },
     ClientType::AndroidScreenEmbed => {
-      name:                "ANDROID", # 3
+      name:                "ANDROID",
+      name_proto:          "3",
       version:             ANDROID_APP_VERSION,
       api_key:             DEFAULT_API_KEY,
       screen:              "EMBED",
       android_sdk_version: ANDROID_SDK_VERSION,
+      user_agent:          ANDROID_USER_AGENT,
+      os_name:             "Android",
+      os_version:          ANDROID_VERSION,
+      platform:            "MOBILE",
     },
 
     # IOS
 
     ClientType::IOS => {
-      name:    "IOS", # 5
-      version: IOS_APP_VERSION,
-      api_key: "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
+      name:         "IOS",
+      name_proto:   "5",
+      version:      IOS_APP_VERSION,
+      api_key:      "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
+      user_agent:   IOS_USER_AGENT,
+      device_make:  "Apple",
+      device_model: "iPhone14,5",
+      os_name:      "iPhone",
+      os_version:   IOS_VERSION,
+      platform:     "MOBILE",
     },
     ClientType::IOSEmbedded => {
-      name:    "IOS_MESSAGES_EXTENSION", # 66
-      version: IOS_APP_VERSION,
-      api_key: DEFAULT_API_KEY,
+      name:         "IOS_MESSAGES_EXTENSION",
+      name_proto:   "66",
+      version:      IOS_APP_VERSION,
+      api_key:      DEFAULT_API_KEY,
+      user_agent:   IOS_USER_AGENT,
+      device_make:  "Apple",
+      device_model: "iPhone14,5",
+      os_name:      "iPhone",
+      os_version:   IOS_VERSION,
+      platform:     "MOBILE",
     },
     ClientType::IOSMusic => {
-      name:    "IOS_MUSIC", # 26
-      version: "4.32",
-      api_key: "AIzaSyBAETezhkwP0ZWA02RsqT1zu78Fpt0bC_s",
+      name:         "IOS_MUSIC",
+      name_proto:   "26",
+      version:      "5.21",
+      api_key:      "AIzaSyBAETezhkwP0ZWA02RsqT1zu78Fpt0bC_s",
+      user_agent:   "com.google.ios.youtubemusic/5.21 (iPhone14,5; U; CPU iOS 15_6 like Mac OS X;)",
+      device_make:  "Apple",
+      device_model: "iPhone14,5",
+      os_name:      "iPhone",
+      os_version:   IOS_VERSION,
+      platform:     "MOBILE",
     },
 
     # TV app
 
     ClientType::TvHtml5 => {
-      name:    "TVHTML5", # 7
-      version: "7.20220325",
-      api_key: DEFAULT_API_KEY,
+      name:       "TVHTML5",
+      name_proto: "7",
+      version:    "7.20220325",
+      api_key:    DEFAULT_API_KEY,
     },
     ClientType::TvHtml5ScreenEmbed => {
-      name:    "TVHTML5_SIMPLY_EMBEDDED_PLAYER", # 85
-      version: "2.0",
-      api_key: DEFAULT_API_KEY,
-      screen:  "EMBED",
+      name:       "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+      name_proto: "85",
+      version:    "2.0",
+      api_key:    DEFAULT_API_KEY,
+      screen:     "EMBED",
     },
   }
 
@@ -160,6 +218,10 @@ module YoutubeAPI
       HARDCODED_CLIENTS[@client_type][:name]
     end
 
+    def name_proto : String
+      HARDCODED_CLIENTS[@client_type][:name_proto]
+    end
+
     # :ditto:
     def version : String
       HARDCODED_CLIENTS[@client_type][:version]
@@ -177,6 +239,30 @@ module YoutubeAPI
 
     def android_sdk_version : Int64?
       HARDCODED_CLIENTS[@client_type][:android_sdk_version]?
+    end
+
+    def user_agent : String?
+      HARDCODED_CLIENTS[@client_type][:user_agent]?
+    end
+
+    def os_name : String?
+      HARDCODED_CLIENTS[@client_type][:os_name]?
+    end
+
+    def device_make : String?
+      HARDCODED_CLIENTS[@client_type][:device_make]?
+    end
+
+    def device_model : String?
+      HARDCODED_CLIENTS[@client_type][:device_model]?
+    end
+
+    def os_version : String?
+      HARDCODED_CLIENTS[@client_type][:os_version]?
+    end
+
+    def platform : String?
+      HARDCODED_CLIENTS[@client_type][:platform]?
     end
 
     # Convert to string, for logging purposes
@@ -224,6 +310,26 @@ module YoutubeAPI
 
     if android_sdk_version = client_config.android_sdk_version
       client_context["client"]["androidSdkVersion"] = android_sdk_version
+    end
+
+    if device_make = client_config.device_make
+      client_context["client"]["deviceMake"] = device_make
+    end
+
+    if device_model = client_config.device_model
+      client_context["client"]["deviceModel"] = device_model
+    end
+
+    if os_name = client_config.os_name
+      client_context["client"]["osName"] = os_name
+    end
+
+    if os_version = client_config.os_version
+      client_context["client"]["osVersion"] = os_version
+    end
+
+    if platform = client_config.platform
+      client_context["client"]["platform"] = platform
     end
 
     return client_context
@@ -361,8 +467,18 @@ module YoutubeAPI
   )
     # JSON Request data, required by the API
     data = {
-      "videoId" => video_id,
-      "context" => self.make_context(client_config),
+      "contentCheckOk" => true,
+      "videoId"        => video_id,
+      "context"        => self.make_context(client_config),
+      "racyCheckOk"    => true,
+      "user"           => {
+        "lockedSafetyMode" => false,
+      },
+      "playbackContext" => {
+        "contentPlaybackContext" => {
+          "html5Preference": "HTML5_PREF_WANTS",
+        },
+      },
     }
 
     # Append the additional parameters if those were provided
@@ -460,9 +576,16 @@ module YoutubeAPI
     url = "#{endpoint}?key=#{client_config.api_key}&prettyPrint=false"
 
     headers = HTTP::Headers{
-      "Content-Type"    => "application/json; charset=UTF-8",
-      "Accept-Encoding" => "gzip, deflate",
+      "Content-Type"              => "application/json; charset=UTF-8",
+      "Accept-Encoding"           => "gzip, deflate",
+      "x-goog-api-format-version" => "2",
+      "x-youtube-client-name"     => client_config.name_proto,
+      "x-youtube-client-version"  => client_config.version,
     }
+
+    if user_agent = client_config.user_agent
+      headers["User-Agent"] = user_agent
+    end
 
     # Logging
     LOGGER.debug("YoutubeAPI: Using endpoint: \"#{endpoint}\"")
