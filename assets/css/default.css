@@ -372,6 +372,10 @@ span > select {
 }
 
 @media (prefers-color-scheme: light) {
+  html {
+    scrollbar-color: #303030 #f0f0f0;
+  }
+
   .no-theme a:hover,
   .no-theme a:active,
   .no-theme summary:hover  {
@@ -443,6 +447,10 @@ body.dark-theme {
 }
 
 @media (prefers-color-scheme: dark) {
+  html {
+    scrollbar-color: #f0f0f0 rgb(45, 45, 45);
+  }
+
   .no-theme a:hover,
   .no-theme a:active {
     color: rgb(0, 182, 240);
