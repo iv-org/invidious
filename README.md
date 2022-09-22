@@ -147,7 +147,7 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 
 - [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
 - [CloudTube](https://sr.ht/~cadence/tube/): A JavaScript-rich alternate YouTube player.
-- [PeerTubeify](https://gitlab.com/Cha_deL/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
+- [PeerTubeify](https://gitlab.com/Cha_de_L/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
 - [HoloPlay](https://github.com/stephane-r/HoloPlay): Funny Android application connecting on Invidious API's with search, playlists and favorites.
 - [WatchTube](https://github.com/WatchTubeTeam/WatchTube): Powerful YouTube client for Apple Watch.
