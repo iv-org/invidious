@@ -487,5 +487,6 @@
     "search_message_change_filters_or_query": "Попробуйте расширить поисковый запрос или изменить фильтры.",
     "search_filters_duration_option_medium": "Средние (4 - 20 минут)",
     "search_filters_apply_button": "Применить фильтры",
-    "Popular enabled: ": "Популярное включено: "
+    "Popular enabled: ": "Популярное включено: ",
+    "error_video_not_in_playlist": "Запрошенного видео нет в этом плейлисте. <a href=\"`x`\">Нажмите тут, чтобы вернуться к странице плейлиста.</a>"
 }

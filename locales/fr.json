@@ -471,5 +471,6 @@
     "search_filters_type_option_all": "Tous les types",
     "search_filters_date_label": "Date d'ajout",
     "search_filters_features_option_vr180": "VR180",
-    "search_filters_duration_option_none": "Toutes les durées"
+    "search_filters_duration_option_none": "Toutes les durées",
+    "error_video_not_in_playlist": "La vidéo demandée n'existe pas dans cette liste de lecture. <a href=\"`x`\">Cliquez ici pour retourner à la liste de lecture.</a>"
 }

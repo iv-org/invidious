@@ -471,5 +471,6 @@
     "search_filters_date_option_none": "Qualquer data",
     "search_filters_type_option_all": "Qualquer tipo",
     "search_filters_duration_option_none": "Qualquer duração",
-    "Popular enabled: ": "Página \"popular\" ativada: "
+    "Popular enabled: ": "Página \"popular\" ativada: ",
+    "error_video_not_in_playlist": "O vídeo pedido não existe nesta lista de reprodução. <a href=\"`x`\">Clique aqui para a página inicial da lista de reprodução.</a>"
 }
