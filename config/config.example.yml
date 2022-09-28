@@ -453,7 +453,13 @@ feed_threads: 1
 ##
 #modified_source_code_url: ""
 
-
+##
+## Maximum custom playlist length limit.
+##
+## Accepted values: Integer
+## Default: 500
+##
+#playlist_length_limit: 500
 
 #########################################
 #
@@ -859,7 +865,7 @@ default_user_preferences:
   ## Default: false
   ##
   #automatic_instance_redirect: false
-  
+
   ##
   ## Show the entire video description by default (when set to 'false',
   ## only the first few lines of the description are shown and a
