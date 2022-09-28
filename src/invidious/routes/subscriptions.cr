@@ -120,7 +120,7 @@ module Invidious::Routes::Subscriptions
                     json.field "privacy", playlist.privacy.to_s
                     json.field "videos" do
                       json.array do
-                        Invidious::Database::PlaylistVideos.select_ids(playlist.id, playlist.index, limit: CONFIG.playlist_length_limit).each do |video_id|
+                        Invidious::Database::PlaylistVideos.select_ids(playlist.id, playlist.index, limit: 500).each do |video_id|
                           json.string video_id
                         end
                       end

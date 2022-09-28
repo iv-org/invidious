@@ -248,7 +248,7 @@ module Invidious::Database::PlaylistVideos
     return PG_DB.query_one?(request, plid, index, as: String)
   end
 
-  def select_ids(plid : String, index : VideoIndex, limit = CONFIG.playlist_length_limit) : Array(String)
+  def select_ids(plid : String, index : VideoIndex, limit = 500) : Array(String)
     request = <<-SQL
       SELECT id FROM playlist_videos
       WHERE plid = $1
