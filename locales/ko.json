@@ -72,7 +72,7 @@
     "Previous page": "이전 페이지",
     "Next page": "다음 페이지",
     "last": "마지막",
-    "Shared `x` ago": "`x` 전에 공유",
+    "Shared `x` ago": "`x` 전",
     "popular": "인기",
     "oldest": "오래된순",
     "newest": "최신순",
@@ -313,10 +313,10 @@
     "Swahili": "스와힐리어",
     "Sundanese": "순다어",
     "generic_count_years_0": "{{count}} 년",
-    "generic_count_months_0": "{{count}} 월",
+    "generic_count_months_0": "{{count}} 개월",
     "generic_count_weeks_0": "{{count}} 주",
     "generic_count_days_0": "{{count}} 일",
-    "generic_count_hours_0": "{{count}} 시",
+    "generic_count_hours_0": "{{count}} 시간",
     "generic_count_minutes_0": "{{count}} 분",
     "generic_count_seconds_0": "{{count}} 초",
     "Zulu": "줄루어",
@@ -438,5 +438,6 @@
     "search_filters_type_option_all": "모든 유형",
     "footer_donate_page": "기부하기",
     "preferences_quality_option_dash": "DASH (적절한 화질)",
-    "preferences_quality_dash_option_360p": "360p"
+    "preferences_quality_dash_option_360p": "360p",
+    "preferences_save_player_pos_label": "이어서 보기 활성화 "
 }
