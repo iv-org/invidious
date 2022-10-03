@@ -71,7 +71,8 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     # Stop here if video is not a scheduled livestream
     if playability_status != "LIVE_STREAM_OFFLINE"
       return {
-        "reason" => JSON::Any.new(reason),
+        "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
+        "reason"  => JSON::Any.new(reason),
       }
     end
   elsif video_id != player_response.dig("videoDetails", "videoId")
@@ -120,6 +121,9 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   {"captions", "microformat", "playabilityStatus", "storyboards", "videoDetails"}.each do |f|
     params[f] = player_response[f] if player_response[f]?
   end
+
+  # Data structure version, for cache control
+  params["version"] = JSON::Any.new(Video::SCHEMA_VERSION.to_i64)
 
   return params
 end
