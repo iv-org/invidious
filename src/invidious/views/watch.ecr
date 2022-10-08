@@ -9,7 +9,7 @@
 <meta name="keywords" content="<%= video.keywords.join(",") %>">
 <meta property="og:site_name" content="Invidious">
 <meta property="og:url" content="<%= HOST_URL %>/watch?v=<%= video.id %>">
-<meta property="og:title" content="<%= title %>">
+<meta property="og:title" content="<%= title %> by <%= author %>">
 <meta property="og:image" content="/vi/<%= video.id %>/maxres.jpg">
 <meta property="og:description" content="<%= HTML.escape(video.short_description) %>">
 <meta property="og:type" content="video.other">
