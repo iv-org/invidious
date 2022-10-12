@@ -4,7 +4,7 @@ module Invidious::Database::Nonces
   extend self
 
   # -------------------
-  #  Insert
+  #  Insert / Delete
   # -------------------
 
   def insert(nonce : String, expire : Time)
@@ -15,6 +15,15 @@ module Invidious::Database::Nonces
     SQL
 
     PG_DB.exec(request, nonce, expire)
+  end
+
+  def delete_expired
+    request = <<-SQL
+      DELETE FROM nonces *
+      WHERE expire < now()
+    SQL
+
+    PG_DB.exec(request)
   end
 
   # -------------------

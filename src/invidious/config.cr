@@ -78,6 +78,10 @@ class Config
   property decrypt_polling : Bool = false
   # Used for crawling channels: threads should check all videos uploaded by a channel
   property full_refresh : Bool = false
+
+  # Jobs config structure. See jobs.cr and jobs/base_job.cr
+  property jobs = Invidious::Jobs::JobsConfig.new
+
   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
   property https_only : Bool?
   # HMAC signing key for CSRF tokens and verifying pubsub subscriptions

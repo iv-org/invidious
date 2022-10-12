@@ -304,10 +304,8 @@ https_only: false
 ## Number of threads to use when crawling channel videos (during
 ## subscriptions update).
 ##
-## Notes:
-##  - Setting this to 0 will disable the channel videos crawl job.
-##  - This setting is overridden if "-c THREADS" or
-##    "--channel-threads=THREADS" are passed on the command line.
+## Notes: This setting is overridden if either "-c THREADS" or
+## "--channel-threads=THREADS" is passed on the command line.
 ##
 ## Accepted values: a positive integer
 ## Default: 1
@@ -335,10 +333,8 @@ full_refresh: false
 ##
 ## Number of threads to use when updating RSS feeds.
 ##
-## Notes:
-##  - Setting this to 0 will disable the channel videos crawl job.
-##  - This setting is overridden if "-f THREADS" or
-##    "--feed-threads=THREADS" are passed on the command line.
+## Notes: This setting is overridden if either "-f THREADS" or
+## "--feed-threads=THREADS" is passed on the command line.
 ##
 ## Accepted values: a positive integer
 ## Default: 1
@@ -359,6 +355,39 @@ feed_threads: 1
 ## Default: false
 ##
 #decrypt_polling: false
+
+
+jobs:
+
+  ## Options for the database cleaning job
+  clear_expired_items:
+
+    ## Enable/Disable job
+    ##
+    ## Accepted values: true, false
+    ## Default: true
+    ##
+    enable: true
+
+  ## Options for the channels updater job
+  refresh_channels:
+
+    ## Enable/Disable job
+    ##
+    ## Accepted values: true, false
+    ## Default: true
+    ##
+    enable: true
+
+  ## Options for the RSS feeds updater job
+  refresh_feeds:
+
+    ## Enable/Disable job
+    ##
+    ## Accepted values: true, false
+    ## Default: true
+    ##
+    enable: true
 
 
 # -----------------------------
