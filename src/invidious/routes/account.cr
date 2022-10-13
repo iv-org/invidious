@@ -48,9 +48,9 @@ module Invidious::Routes::Account
       return error_template(400, ex)
     end
 
-    password = env.params.body["password"]?
-    if password.nil? || password.empty?
-      return error_template(401, "Password is a required field")
+    old_password = env.params.body["password"]?
+    if old_password.nil? || old_password.empty?
+      return error_template(401, "error_required_field_password")
     end
 
     new_passwords = env.params.body.select { |k, v| k.match(/^new_password\[\d+\]$/) }.map { |k, v| v }
@@ -68,7 +68,7 @@ module Invidious::Routes::Account
       return error_template(400, "Password cannot be longer than 55 characters")
     end
 
-    if !Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
+    if !user.validate_password(old_password)
       return error_template(401, "Incorrect password")
     end
 

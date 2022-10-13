@@ -1,0 +1,39 @@
+<div class="captcha flexible">
+
+	<input type='hidden' name='captcha_type' value="<%= captcha.type %>">
+
+<%- captcha.tokens.each do |tok| -%>
+	<input type='hidden' name='tokens' value="<%= HTML.escape(tok) %>">
+<%- end -%>
+
+<%- if captcha.type.image? %>
+
+	<div class="left">
+		<img src="<%= captcha.question %>"/>
+	</div>
+
+	<div class="right">
+		<fieldset class="pure-form-stacked">
+			<div class="pure-control-group">
+				<label for='answer'><%= translate(locale, "Time (h:mm:ss):") %></label><input
+					type='text' name='answer' type='text' placeholder="hh:mm:ss">
+			</div>
+		</fieldset>
+
+		<a src="<%= url %>&captcha_type=text"><%= translate(locale, "login_page_request_text_captcha") %></a>
+	</div>
+
+<%- else # type.text? %>
+
+	<fieldset class="pure-form-stacked">
+		<div class="pure-control-group">
+			<label for='answer' lang="en"><%= captcha.question %></label><input
+				type='text' name='answer' type='text' placeholder="<%= translate(locale, "Answer") %>">
+		</div>
+	</fieldset>
+
+	<a src=") << url << %(&captcha_type=image"><%= translate(locale, "login_page_request_image_captcha") %></a>
+
+<%- end %>
+
+</div>

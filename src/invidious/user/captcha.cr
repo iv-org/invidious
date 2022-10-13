@@ -1,12 +1,57 @@
 require "openssl/hmac"
 
 struct Invidious::User
-  module Captcha
-    extend self
-
+  struct Captcha
     private TEXTCAPTCHA_URL = URI.parse("https://textcaptcha.com")
 
-    def generate_image(key)
+    # Structure that holds the type, the question string and the
+    # cryptographically signed response(s).
+    getter type : Type
+    getter question : String
+    getter tokens : Array(String)
+
+    def initialize(@type, @question, @tokens)
+    end
+
+    # -------------------
+    #  Type parsing
+    # -------------------
+
+    enum Type
+      None
+      Text
+      Image
+    end
+
+    def self.parse_type(params : HTTP::Params) : Type
+      if CONFIG.captcha_enabled
+        type_text = params["captcha"]? || "image"
+        type = Type.parse?(type_text) || Type::Image
+
+        # You opened the dev tools, didn't you? :P
+        type = Type::Image if type.none?
+      else
+        type = Type::None
+      end
+
+      return type
+    end
+
+    # -------------------
+    #  Generators
+    # -------------------
+
+    # High-level method that calls the captcha generator for the given type.
+    def self.generate(type : Type) : Captcha?
+      case type
+      when .image? then return gen_image_captcha(HMAC_KEY)
+      when .text?  then return gen_text_captcha(HMAC_KEY)
+      else
+        return nil
+      end
+    end
+
+    private def self.gen_image_captcha(key) : Captcha
       second = Random::Secure.rand(12)
       second_angle = second * 30
       second = second * 5
@@ -17,9 +62,6 @@ struct Invidious::User
 
       hour = Random::Secure.rand(12)
       hour_angle = hour * 30 + minute_angle.to_f / 12
-      if hour == 0
-        hour = 12
-      end
 
       clock_svg = <<-END_SVG
       <svg viewBox="0 0 100 100" width="200px" height="200px">
@@ -52,16 +94,43 @@ struct Invidious::User
         Base64.strict_encode(proc.output.gets_to_end)
       end
 
-      answer = "#{hour}:#{minute.to_s.rjust(2, '0')}:#{second.to_s.rjust(2, '0')}"
-      answer = OpenSSL::HMAC.hexdigest(:sha256, key, answer)
+      answer_raw = self.format_time(hour, minute, second, validate: false)
+      answer = OpenSSL::HMAC.hexdigest(:sha256, key, answer_raw)
 
-      return {
+      LOGGER.trace("Captcha: image question is #{answer_raw} (anwser digest: #{answer})")
+
+      return Captcha.new(
+        type: Type::Image,
         question: image,
-        tokens:   {generate_response(answer, {":login"}, key, use_nonce: true)},
-      }
+        tokens: [generate_response(answer, {":login"}, key, use_nonce: true)],
+      )
     end
 
-    def generate_text(key)
+    private def self.format_time(hours : Int, minutes : Int, seconds : Int, *, validate : Bool)
+      # Check for incorrect answers
+      if validate
+        raise Exception.new if !(0..23).includes?(hours)
+        raise Exception.new if !(0..59).includes?(minutes)
+        raise Exception.new if !(0..59).includes?(seconds)
+      end
+
+      # Normalize hours
+      case hours
+      when .zero? then hours = 12
+      when .> 12  then hours -= 12
+      end
+
+      # Craft answer string
+      return String.build(8) do |answer|
+        answer << hours.to_s(precision: 2)
+        answer << ':'
+        answer << minutes.to_s(precision: 2)
+        answer << ':'
+        answer << seconds.to_s(precision: 2)
+      end
+    end
+
+    private def self.gen_text_captcha(key) : Captcha
       response = make_client(TEXTCAPTCHA_URL, &.get("/github.com/iv.org/invidious.json").body)
       response = JSON.parse(response)
 
@@ -69,10 +138,70 @@ struct Invidious::User
         generate_response(answer.as_s, {":login"}, key, use_nonce: true)
       end
 
-      return {
-        question: response["q"].as_s,
-        tokens:   tokens,
-      }
+      question = response["q"].as_s
+
+      LOGGER.trace("Captcha: text question is #{question}: (answers digests: #{tokens})")
+
+      return Captcha.new(
+        type: Type::Text,
+        question: question,
+        tokens: tokens,
+      )
+    end
+
+    # -------------------
+    #  Validation
+    # -------------------
+
+    # Return true if the captcha was succesfully validated
+    # Otherwise, raise the appropriate Exception
+    def self.verify(env) : Bool
+      captcha_type = self.parse_type(env.params.body)
+
+      answer = env.params.body["answer"]? || ""
+      tokens = env.params.body.fetch_all("token")
+
+      if answer.empty? || tokens.empty?
+        LOGGER.debug("Captcha: validate: got error_invalid_captcha, answer or token is empty")
+        raise InfoException.new("error_invalid_captcha")
+      end
+
+      case captcha_type
+      when .image?
+        begin
+          hours, minutes, seconds = answer.split(':').map &.to_i
+          answer = self.format_time(hours, minutes, seconds, validate: true)
+        rescue ex
+          LOGGER.debug("Captcha: validate: got error_invalid_captcha, answer to image captcha failed to parse")
+          raise InfoException.new("error_invalid_captcha")
+        end
+
+        answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
+
+        # Raises on error
+        validate_request(tokens[0], answer, env.request, HMAC_KEY)
+        return true
+      when .text?
+        answer = Digest::MD5.hexdigest(answer.downcase.strip)
+
+        error_exception = InfoException.new
+
+        tokens.each do |tok|
+          begin
+            # Raises on error
+            validate_request(tok, answer, env.request, HMAC_KEY)
+            return true
+          rescue ex
+            error_exception = ex
+          end
+        end
+
+        LOGGER.debug("Captcha: validate: bad answer to text captcha")
+        raise error_exception
+      end
+
+      # Just to be safe
+      return false
     end
   end
 end

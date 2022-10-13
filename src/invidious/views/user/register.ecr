@@ -1,0 +1,10 @@
+<% content_for "header" do %>
+<title><%= translate(locale, "login_page_title_register") %> - Invidious</title>
+<link rel="stylesheet" href="/css/user.css?v=<%= ASSET_COMMIT %>">
+<% end %>
+
+<div class="h-box">
+	<div class="register-container">
+		<%= Invidious::Frontend::LoginRegister.gen_register_form(env, captcha) %>
+	</div>
+</div>

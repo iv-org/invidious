@@ -9,6 +9,74 @@
  * Licensed under AGPLv3
 */
 
+
+/*
+ * login/Register pages
+*/
+
+.login-container,
+.register-container {
+    width: max-content;
+    margin: 12vh auto;
+    text-align: end;
+    padding: 2em;
+    border: 1px solid;
+}
+
+.login-container label,
+.register-container label {
+    width: max-content !important;
+    margin-right: 1.5em !important;
+}
+
+.login-container .login-submit-button,
+.register-container .register-submit-button {
+    width: max-content;
+    margin: 1.75em auto 1em auto;
+    font-weight: bold;
+}
+
+.login-container p,
+.register-container p {
+    margin: 0 auto;
+    text-align: center;
+}
+
+.login-container .username-pass,
+.register-container .username-pass {
+	width: max-content;
+	margin: auto;
+	padding: 0 2em;
+}
+
+.captcha {
+	margin: 2em 0.5em;
+	text-align: center;
+	padding: 1em;
+}
+
+/* Background color accent using transparency */
+/* TODO: handle themes better, ffs */
+.light-theme .captcha { background-color: #0002; }
+.dark-theme  .captcha { background-color: #fff2; }
+
+@media (prefers-color-scheme: light) { .no-theme .captcha { background-color: #0002; } }
+@media (prefers-color-scheme: dark)  { .no-theme .captcha { background-color: #fff2; } }
+
+
+.captcha div {
+	padding: 0.5em;
+}
+.captcha img {
+	width: 10.5em;
+	height: auto;
+}
+.captcha label {
+	width: auto !important;
+	margin: .4em 0 !important;;
+}
+
+
 /*
  * User menu
 */
