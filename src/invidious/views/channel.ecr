@@ -1,7 +1,21 @@
 <% ucid = channel.ucid %>
 <% author = HTML.escape(channel.author) %>
+<% channel_profile_pic = URI.parse(channel.author_thumbnail).request_target %>
 
 <% content_for "header" do %>
+<meta name="description" content="<%= channel.description %>">
+<meta property="og:site_name" content="Invidious">
+<meta property="og:url" content="<%= HOST_URL %>/channel/<%= ucid %>">
+<meta property="og:title" content="<%= author %>">
+<meta property="og:image" content="/ggpht<%= channel_profile_pic %>">
+<meta property="og:description" content="<%= channel.description %>">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@omarroth1">
+<meta name="twitter:url" content="<%= HOST_URL %>/channel/<%= ucid %>">
+<meta name="twitter:title" content="<%= author %>">
+<meta name="twitter:description" content="<%= channel.description %>">
+<meta name="twitter:image" content="/ggpht<%= channel_profile_pic %>">
+<link rel="alternate" href="https://www.youtube.com/channel/<%= ucid %>">
 <title><%= author %> - Invidious</title>
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/channel/<%= ucid %>" />
 <% end %>
@@ -19,7 +33,7 @@
 <div class="pure-g h-box">
     <div class="pure-u-2-3">
         <div class="channel-profile">
-            <img src="/ggpht<%= URI.parse(channel.author_thumbnail).request_target %>">
+            <img src="/ggpht<%= channel_profile_pic %>">
             <span><%= author %></span><% if !channel.verified.nil? && channel.verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %>
         </div>
     </div>
