@@ -636,7 +636,6 @@ body.dark-theme {
 
   .no-theme a {
     color: #a0a0a0;
-    text-decoration: none;
   }
 
   body.no-theme {
