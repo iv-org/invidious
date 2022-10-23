@@ -44,6 +44,24 @@ db:
 
 #########################################
 #
+#  Cache configuration
+#
+#########################################
+
+cache:
+  ##
+  ## URL of the caching server. To not use a caching server,
+  ## set to an empty string or leave empty.
+  ##
+  ## Note: The same "long" format as the 'db' parameter is
+  ## also supported.
+  ##
+  url: ""
+
+
+
+#########################################
+#
 #  Server config
 #
 #########################################
