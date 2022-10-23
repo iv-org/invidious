@@ -177,7 +177,7 @@
     "Not a playlist.": "Không phải danh sách phát.",
     "Playlist does not exist.": "Danh sách phát không tồn tại.",
     "Could not pull trending pages.": "Không thể kéo các trang thịnh hành.",
-    "Hidden field \"challenge\" is a required field": "Trường ẩn  \"challenge\" là trường bắt buộc",
+    "Hidden field \"challenge\" is a required field": "Trường ẩn \"challenge\" là trường bắt buộc",
     "Hidden field \"token\" is a required field": "Trường ẩn \"token\" là trường bắt buộc",
     "Erroneous challenge": "Thử thách sai",
     "Erroneous token": "Mã thông báo bị lỗi",
@@ -341,5 +341,10 @@
     "search_filters_features_option_location": "vị trí",
     "search_filters_features_option_hdr": "hdr",
     "Current version: ": "Phiên bản hiện tại: ",
-    "search_filters_title": "bộ lọc"
+    "search_filters_title": "bộ lọc",
+    "generic_playlists_count": "{{count}} danh sách phát",
+    "generic_views_count": "{{count}} lượt xem",
+    "View `x` comments": {
+        "": "Xem `x` bình luận"
+    }
 }
