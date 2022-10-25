@@ -34,8 +34,6 @@ securityContext:
 
 # See https://github.com/bitnami/charts/tree/master/bitnami/postgresql
 postgresql:
-  image:
-    registry: quay.io
   auth:
     username: kemal
     password: kemal
