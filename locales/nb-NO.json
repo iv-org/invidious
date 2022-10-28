@@ -471,5 +471,6 @@
     "search_filters_date_label": "Opplastningsdato",
     "search_filters_apply_button": "Bruk valgte filtre",
     "search_filters_date_option_none": "Siden begynnelsen",
-    "search_filters_features_option_vr180": "VR180"
+    "search_filters_features_option_vr180": "VR180",
+    "error_video_not_in_playlist": "Forespurt video finnes ikke i denne spillelisten. <a href=\"`x`\">Trykk her for spillelistens hjemmeside.</a>"
 }
