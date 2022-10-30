@@ -38,10 +38,10 @@ jobs:
       matrix:
         stable: [true]
         crystal:
-          - 1.2.2
           - 1.3.2
-          - 1.4.0
-          - 1.5.0
+          - 1.4.1
+          - 1.5.1
+          - 1.6.1
         include:
           - crystal: nightly
             stable: false
@@ -52,7 +52,7 @@ jobs:
           submodules: true
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1.6.0
+        uses: crystal-lang/install-crystal@v1.7.0
         with:
           crystal: ${{ matrix.crystal }}
 
