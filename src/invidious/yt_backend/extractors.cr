@@ -17,6 +17,7 @@ private ITEM_PARSERS = {
   Parsers::PlaylistRendererParser,
   Parsers::CategoryRendererParser,
   Parsers::RichItemRendererParser,
+  Parsers::ReelItemRendererParser,
 }
 
 record AuthorFallback, name : String, id : String
@@ -369,7 +370,7 @@ private module Parsers
   end
 
   # Parses an InnerTube richItemRenderer into a SearchVideo.
-  # Returns nil when the given object isn't a shelfRenderer
+  # Returns nil when the given object isn't a RichItemRenderer
   #
   # A richItemRenderer seems to be a simple wrapper for a videoRenderer, used
   # by the result page for hashtags. It is located inside a continuationItems
@@ -384,6 +385,90 @@ private module Parsers
 
     private def self.parse(item_contents, author_fallback)
       return VideoRendererParser.process(item_contents, author_fallback)
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube reelItemRenderer into a SearchVideo.
+  # Returns nil when the given object isn't a reelItemRenderer
+  #
+  # reelItemRenderer items are used in the new (2022) channel layout,
+  # in the "shorts" tab.
+  #
+  module ReelItemRendererParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["reelItemRenderer"]?
+        return self.parse(item_contents, author_fallback)
+      end
+    end
+
+    private def self.parse(item_contents, author_fallback)
+      video_id = item_contents["videoId"].as_s
+
+      video_details_container = item_contents.dig(
+        "navigationEndpoint", "reelWatchEndpoint",
+        "overlay", "reelPlayerOverlayRenderer",
+        "reelPlayerHeaderSupportedRenderers",
+        "reelPlayerHeaderRenderer"
+      )
+
+      # Author infos
+
+      author = video_details_container
+        .dig?("channelTitleText", "runs", 0, "text")
+        .try &.as_s || author_fallback.name
+
+      ucid = video_details_container
+        .dig?("channelNavigationEndpoint", "browseEndpoint", "browseId")
+        .try &.as_s || author_fallback.id
+
+      # Title & publication date
+
+      title = video_details_container.dig?("reelTitleText")
+        .try { |t| extract_text(t) } || ""
+
+      published = video_details_container
+        .dig?("timestampText", "simpleText")
+        .try { |t| decode_date(t.as_s) } || Time.utc
+
+      # View count
+
+      view_count_text = video_details_container.dig?("viewCountText", "simpleText")
+      view_count_text ||= video_details_container
+        .dig?("viewCountText", "accessibility", "accessibilityData", "label")
+
+      view_count = view_count_text.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
+
+      # Duration
+
+      a11y_data = item_contents
+        .dig?("accessibility", "accessibilityData", "label")
+        .try &.as_s || ""
+
+      regex_match = /- (?<min>\d+ minutes? )?(?<sec>\d+ seconds?)+ -/.match(a11y_data)
+
+      minutes = regex_match.try &.["min"].to_i(strict: false) || 0
+      seconds = regex_match.try &.["sec"].to_i(strict: false) || 0
+
+      duration = (minutes*60 + seconds)
+
+      SearchVideo.new({
+        title:              title,
+        id:                 video_id,
+        author:             author,
+        ucid:               ucid,
+        published:          published,
+        views:              view_count,
+        description_html:   "",
+        length_seconds:     duration,
+        live_now:           false,
+        premium:            false,
+        premiere_timestamp: Time.unix(0),
+        author_verified:    false,
+      })
     end
 
     def self.parser_name
