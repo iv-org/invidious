@@ -436,21 +436,31 @@ private module Extractors
       content = extract_selected_tab(target["tabs"])["content"]
 
       if section_list_contents = content.dig?("sectionListRenderer", "contents")
-        section_list_contents.as_a.each do |renderer_container|
-          renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"][0]
+        raw_items = unpack_section_list(section_list_contents)
+      elsif rich_grid_contents = content.dig?("richGridRenderer", "contents")
+        raw_items = rich_grid_contents.as_a
+      end
 
-          # Category extraction
-          if items_container = renderer_container_contents["shelfRenderer"]?
-            raw_items << renderer_container_contents
-            next
-          elsif items_container = renderer_container_contents["gridRenderer"]?
-          else
-            items_container = renderer_container_contents
-          end
+      return raw_items
+    end
 
-          items_container["items"]?.try &.as_a.each do |item|
-            raw_items << item
-          end
+    private def self.unpack_section_list(contents)
+      raw_items = [] of JSON::Any
+
+      contents.as_a.each do |renderer_container|
+        renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"][0]
+
+        # Category extraction
+        if items_container = renderer_container_contents["shelfRenderer"]?
+          raw_items << renderer_container_contents
+          next
+        elsif items_container = renderer_container_contents["gridRenderer"]?
+        else
+          items_container = renderer_container_contents
+        end
+
+        items_container["items"]?.try &.as_a.each do |item|
+          raw_items << item
         end
       end
 
@@ -525,14 +535,11 @@ private module Extractors
     end
 
     private def self.extract(target)
-      raw_items = [] of JSON::Any
-      if content = target["gridContinuation"]?
-        raw_items = content["items"].as_a
-      elsif content = target["continuationItems"]?
-        raw_items = content.as_a
-      end
+      content = target["continuationItems"]?
+      content ||= target.dig?("gridContinuation", "items")
+      content ||= target.dig?("richGridContinuation", "contents")
 
-      return raw_items
+      return content.nil? ? [] of JSON::Any : content.as_a
     end
 
     def self.extractor_name
