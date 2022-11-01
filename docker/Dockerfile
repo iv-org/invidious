@@ -2,6 +2,7 @@ FROM crystallang/crystal:1.4.1-alpine AS builder
 RUN apk add --no-cache sqlite-static yaml-static
 
 ARG release
+ARG disable_quic
 
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
@@ -23,7 +24,13 @@ COPY ./videojs-dependencies.yml ./videojs-dependencies.yml
 RUN crystal spec --warnings all \
     --link-flags "-lxml2 -llzma"
 
-RUN if [ "${release}" == 1 ] ; then \
+RUN if [[ "${release}" == 1 && "${disable_quic}" == 1 ]] ; then \
+        crystal build ./src/invidious.cr \
+        --release \
+        -Ddisable_quic \
+        --static --warnings all \
+        --link-flags "-lxml2 -llzma"; \
+    elif [[ "${release}" == 1 ]] ; then \
         crystal build ./src/invidious.cr \
         --release \
         --static --warnings all \
@@ -35,7 +42,7 @@ RUN if [ "${release}" == 1 ] ; then \
     fi
 
 
-FROM alpine:latest
+FROM alpine:3.16
 RUN apk add --no-cache librsvg ttf-opensans
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
