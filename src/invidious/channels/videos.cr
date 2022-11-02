@@ -1,53 +1,48 @@
 def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
-  object = {
-    "80226972:embedded" => {
-      "2:string" => ucid,
-      "3:base64" => {
-        "2:string"  => "videos",
-        "6:varint"  => 2_i64,
-        "7:varint"  => 1_i64,
-        "12:varint" => 1_i64,
-        "13:string" => "",
-        "23:varint" => 0_i64,
+  object_inner_2 = {
+    "2:0:embedded" => {
+      "1:0:varint" => 0_i64,
+    },
+    "5:varint"  => 50_i64,
+    "6:varint"  => 1_i64,
+    "7:varint"  => (page * 30).to_i64,
+    "9:varint"  => 1_i64,
+    "10:varint" => 0_i64,
+  }
+
+  object_inner_2_encoded = object_inner_2
+    .try { |i| Protodec::Any.cast_json(i) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
+
+  object_inner_1 = {
+    "110:embedded" => {
+      "3:embedded" => {
+        "15:embedded" => {
+          "1:embedded" => {
+            "1:string" => object_inner_2_encoded,
+            "2:string" => "00000000-0000-0000-0000-000000000000",
+          },
+          "3:varint" => 1_i64,
+        },
       },
     },
   }
 
-  if !v2
-    if auto_generated
-      seed = Time.unix(1525757349)
-      until seed >= Time.utc
-        seed += 1.month
-      end
-      timestamp = seed - (page - 1).months
+  object_inner_1_encoded = object_inner_1
+    .try { |i| Protodec::Any.cast_json(i) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
 
-      object["80226972:embedded"]["3:base64"].as(Hash)["4:varint"] = 0x36_i64
-      object["80226972:embedded"]["3:base64"].as(Hash)["15:string"] = "#{timestamp.to_unix}"
-    else
-      object["80226972:embedded"]["3:base64"].as(Hash)["4:varint"] = 0_i64
-      object["80226972:embedded"]["3:base64"].as(Hash)["15:string"] = "#{page}"
-    end
-  else
-    object["80226972:embedded"]["3:base64"].as(Hash)["4:varint"] = 0_i64
-
-    object["80226972:embedded"]["3:base64"].as(Hash)["61:string"] = Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
-      "1:string" => Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json({
-        "1:varint" => 30_i64 * (page - 1),
-      }))),
-    })))
-  end
-
-  case sort_by
-  when "newest"
-  when "popular"
-    object["80226972:embedded"]["3:base64"].as(Hash)["3:varint"] = 0x01_i64
-  when "oldest"
-    object["80226972:embedded"]["3:base64"].as(Hash)["3:varint"] = 0x02_i64
-  else nil # Ignore
-  end
-
-  object["80226972:embedded"]["3:string"] = Base64.urlsafe_encode(Protodec::Any.from_json(Protodec::Any.cast_json(object["80226972:embedded"]["3:base64"])))
-  object["80226972:embedded"].delete("3:base64")
+  object = {
+    "80226972:embedded" => {
+      "2:string"  => ucid,
+      "3:string"  => object_inner_1_encoded,
+      "35:string" => "browse-feed#{ucid}videos102",
+    },
+  }
 
   continuation = object.try { |i| Protodec::Any.cast_json(i) }
     .try { |i| Protodec::Any.from_json(i) }
@@ -67,10 +62,11 @@ end
 def get_60_videos(ucid, author, page, auto_generated, sort_by = "newest")
   videos = [] of SearchVideo
 
-  2.times do |i|
-    initial_data = get_channel_videos_response(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
-    videos.concat extract_videos(initial_data, author, ucid)
-  end
+  # 2.times do |i|
+  # initial_data = get_channel_videos_response(ucid, page * 2 + (i - 1), auto_generated: auto_generated, sort_by: sort_by)
+  initial_data = get_channel_videos_response(ucid, 1, auto_generated: auto_generated, sort_by: sort_by)
+  videos = extract_videos(initial_data, author, ucid)
+  # end
 
   return videos.size, videos
 end

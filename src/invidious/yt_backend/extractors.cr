@@ -17,6 +17,7 @@ private ITEM_PARSERS = {
   Parsers::PlaylistRendererParser,
   Parsers::CategoryRendererParser,
   Parsers::RichItemRendererParser,
+  Parsers::ReelItemRendererParser,
 }
 
 record AuthorFallback, name : String, id : String
@@ -369,7 +370,7 @@ private module Parsers
   end
 
   # Parses an InnerTube richItemRenderer into a SearchVideo.
-  # Returns nil when the given object isn't a shelfRenderer
+  # Returns nil when the given object isn't a RichItemRenderer
   #
   # A richItemRenderer seems to be a simple wrapper for a videoRenderer, used
   # by the result page for hashtags. It is located inside a continuationItems
@@ -384,6 +385,90 @@ private module Parsers
 
     private def self.parse(item_contents, author_fallback)
       return VideoRendererParser.process(item_contents, author_fallback)
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube reelItemRenderer into a SearchVideo.
+  # Returns nil when the given object isn't a reelItemRenderer
+  #
+  # reelItemRenderer items are used in the new (2022) channel layout,
+  # in the "shorts" tab.
+  #
+  module ReelItemRendererParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["reelItemRenderer"]?
+        return self.parse(item_contents, author_fallback)
+      end
+    end
+
+    private def self.parse(item_contents, author_fallback)
+      video_id = item_contents["videoId"].as_s
+
+      video_details_container = item_contents.dig(
+        "navigationEndpoint", "reelWatchEndpoint",
+        "overlay", "reelPlayerOverlayRenderer",
+        "reelPlayerHeaderSupportedRenderers",
+        "reelPlayerHeaderRenderer"
+      )
+
+      # Author infos
+
+      author = video_details_container
+        .dig?("channelTitleText", "runs", 0, "text")
+        .try &.as_s || author_fallback.name
+
+      ucid = video_details_container
+        .dig?("channelNavigationEndpoint", "browseEndpoint", "browseId")
+        .try &.as_s || author_fallback.id
+
+      # Title & publication date
+
+      title = video_details_container.dig?("reelTitleText")
+        .try { |t| extract_text(t) } || ""
+
+      published = video_details_container
+        .dig?("timestampText", "simpleText")
+        .try { |t| decode_date(t.as_s) } || Time.utc
+
+      # View count
+
+      view_count_text = video_details_container.dig?("viewCountText", "simpleText")
+      view_count_text ||= video_details_container
+        .dig?("viewCountText", "accessibility", "accessibilityData", "label")
+
+      view_count = view_count_text.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
+
+      # Duration
+
+      a11y_data = item_contents
+        .dig?("accessibility", "accessibilityData", "label")
+        .try &.as_s || ""
+
+      regex_match = /- (?<min>\d+ minutes? )?(?<sec>\d+ seconds?)+ -/.match(a11y_data)
+
+      minutes = regex_match.try &.["min"].to_i(strict: false) || 0
+      seconds = regex_match.try &.["sec"].to_i(strict: false) || 0
+
+      duration = (minutes*60 + seconds)
+
+      SearchVideo.new({
+        title:              title,
+        id:                 video_id,
+        author:             author,
+        ucid:               ucid,
+        published:          published,
+        views:              view_count,
+        description_html:   "",
+        length_seconds:     duration,
+        live_now:           false,
+        premium:            false,
+        premiere_timestamp: Time.unix(0),
+        author_verified:    false,
+      })
     end
 
     def self.parser_name
@@ -436,21 +521,31 @@ private module Extractors
       content = extract_selected_tab(target["tabs"])["content"]
 
       if section_list_contents = content.dig?("sectionListRenderer", "contents")
-        section_list_contents.as_a.each do |renderer_container|
-          renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"][0]
+        raw_items = unpack_section_list(section_list_contents)
+      elsif rich_grid_contents = content.dig?("richGridRenderer", "contents")
+        raw_items = rich_grid_contents.as_a
+      end
 
-          # Category extraction
-          if items_container = renderer_container_contents["shelfRenderer"]?
-            raw_items << renderer_container_contents
-            next
-          elsif items_container = renderer_container_contents["gridRenderer"]?
-          else
-            items_container = renderer_container_contents
-          end
+      return raw_items
+    end
 
-          items_container["items"]?.try &.as_a.each do |item|
-            raw_items << item
-          end
+    private def self.unpack_section_list(contents)
+      raw_items = [] of JSON::Any
+
+      contents.as_a.each do |renderer_container|
+        renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"][0]
+
+        # Category extraction
+        if items_container = renderer_container_contents["shelfRenderer"]?
+          raw_items << renderer_container_contents
+          next
+        elsif items_container = renderer_container_contents["gridRenderer"]?
+        else
+          items_container = renderer_container_contents
+        end
+
+        items_container["items"]?.try &.as_a.each do |item|
+          raw_items << item
         end
       end
 
@@ -525,14 +620,11 @@ private module Extractors
     end
 
     private def self.extract(target)
-      raw_items = [] of JSON::Any
-      if content = target["gridContinuation"]?
-        raw_items = content["items"].as_a
-      elsif content = target["continuationItems"]?
-        raw_items = content.as_a
-      end
+      content = target["continuationItems"]?
+      content ||= target.dig?("gridContinuation", "items")
+      content ||= target.dig?("richGridContinuation", "contents")
 
-      return raw_items
+      return content.nil? ? [] of JSON::Any : content.as_a
     end
 
     def self.extractor_name
