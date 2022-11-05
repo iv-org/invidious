@@ -1,18 +1,7 @@
 def fetch_channel_playlists(ucid, author, continuation, sort_by)
   if continuation
     response_json = YoutubeAPI.browse(continuation)
-    continuation_items = response_json["onResponseReceivedActions"]?
-      .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
-
-    return [] of SearchItem, nil if !continuation_items
-
-    items = [] of SearchItem
-    continuation_items.as_a.select(&.as_h.has_key?("gridPlaylistRenderer")).each { |item|
-      parse_item(item, author, ucid).try { |t| items << t }
-    }
-
-    continuation = continuation_items.as_a.last["continuationItemRenderer"]?
-      .try &.["continuationEndpoint"]["continuationCommand"]["token"].as_s
+    items, continuation = extract_items(response_json, author, ucid)
   else
     url = "/channel/#{ucid}/playlists?flow=list&view=1"
 
@@ -30,8 +19,7 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
     initial_data = extract_initial_data(response.body)
     return [] of SearchItem, nil if !initial_data
 
-    items = extract_items(initial_data, author, ucid)
-    continuation = response.body.match(/"token":"(?<continuation>[^"]+)"/).try &.["continuation"]?
+    items, continuation = extract_items(initial_data, author, ucid)
   end
 
   return items, continuation

@@ -7,7 +7,7 @@ require "../helpers/serialized_yt_data"
 private ITEM_CONTAINER_EXTRACTOR = {
   Extractors::YouTubeTabs,
   Extractors::SearchResults,
-  Extractors::Continuation,
+  Extractors::ContinuationContent,
 }
 
 private ITEM_PARSERS = {
@@ -18,6 +18,7 @@ private ITEM_PARSERS = {
   Parsers::CategoryRendererParser,
   Parsers::RichItemRendererParser,
   Parsers::ReelItemRendererParser,
+  Parsers::ContinuationItemRendererParser,
 }
 
 private alias InitialData = Hash(String, JSON::Any)
@@ -347,14 +348,9 @@ private module Parsers
         content_container = item_contents["contents"]
       end
 
-      raw_contents = content_container["items"]?.try &.as_a
-      if !raw_contents.nil?
-        raw_contents.each do |item|
-          result = parse_item(item)
-          if !result.nil?
-            contents << result
-          end
-        end
+      content_container["items"]?.try &.as_a.each do |item|
+        result = parse_item(item, author_fallback.name, author_fallback.id)
+        contents << result if result.is_a?(SearchItem)
       end
 
       Category.new({
@@ -471,6 +467,35 @@ private module Parsers
         premiere_timestamp: Time.unix(0),
         author_verified:    false,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube continuationItemRenderer into a Continuation.
+  # Returns nil when the given object isn't a continuationItemRenderer.
+  #
+  # continuationItemRenderer contains various metadata ued to load more
+  # content (i.e when the user scrolls down). The interesting bit is the
+  # protobuf object known as the "continutation token". Previously, those
+  # were generated from sratch, but recent (as of 11/2022) Youtube changes
+  # are forcing us to extract them from replies.
+  #
+  module ContinuationItemRendererParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["continuationItemRenderer"]?
+        return self.parse(item_contents)
+      end
+    end
+
+    private def self.parse(item_contents)
+      token = item_contents
+        .dig?("continuationEndpoint", "continuationCommand", "token")
+        .try &.as_s
+
+      return Continuation.new(token) if token
     end
 
     def self.parser_name
@@ -746,13 +771,18 @@ def extract_items(
   initial_data : InitialData,
   author_fallback : String? = nil,
   author_id_fallback : String? = nil
-) : Array(SearchItem)
+) : {Array(SearchItem), String?}
   items = [] of SearchItem
+  continuation = nil
 
   extract_items(initial_data) do |item|
     parsed = parse_item(item, author_fallback, author_id_fallback)
-    items << parsed if !parsed.nil?
+
+    case parsed
+    when .is_a?(Continuation) then continuation = parsed.token
+    when .is_a?(SearchItem)   then items << parsed
+    end
   end
 
-  return items
+  return items, continuation
 end

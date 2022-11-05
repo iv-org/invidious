@@ -265,4 +265,11 @@ class Category
   end
 end
 
+struct Continuation
+  getter token
+
+  def initialize(@token : String)
+  end
+end
+
 alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist | Category
