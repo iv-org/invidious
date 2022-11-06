@@ -380,12 +380,6 @@ def fetch_video(id, region)
     end
   end
 
-  # Try to fetch video info using an embedded client
-  if info["reason"]?
-    embed_info = extract_video_info(video_id: id, context_screen: "embed")
-    info = embed_info if !embed_info["reason"]?
-  end
-
   if reason = info["reason"]?
     if reason == "Video unavailable"
       raise NotFoundException.new(reason.as_s || "")

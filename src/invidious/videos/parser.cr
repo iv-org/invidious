@@ -50,12 +50,9 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   }
 end
 
-def extract_video_info(video_id : String, proxy_region : String? = nil, context_screen : String? = nil)
+def extract_video_info(video_id : String, proxy_region : String? = nil)
   # Init client config for the API
   client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
-  if context_screen == "embed"
-    client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
-  end
 
   # Fetch data from the player endpoint
   player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
@@ -69,7 +66,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
     reason ||= player_response.dig("playabilityStatus", "reason").as_s
 
     # Stop here if video is not a scheduled livestream
-    if playability_status != "LIVE_STREAM_OFFLINE"
+    if !{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
       return {
         "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
         "reason"  => JSON::Any.new(reason),
@@ -84,7 +81,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   end
 
   # Don't fetch the next endpoint if the video is unavailable.
-  if {"OK", "LIVE_STREAM_OFFLINE"}.any?(playability_status)
+  if {"OK", "LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
     next_response = YoutubeAPI.next({"videoId": video_id, "params": ""})
     player_response = player_response.merge(next_response)
   end
@@ -92,33 +89,34 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
 
-  # Fetch the video streams using an Android client in order to get the decrypted URLs and
-  # maybe fix throttling issues (#2194).See for the explanation about the decrypted URLs:
-  # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-  if reason.nil?
-    if context_screen == "embed"
-      client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
-    else
-      client_config.client_type = YoutubeAPI::ClientType::Android
-    end
-    android_player = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
+  new_player_response = nil
 
-    # Sometimes, the video is available from the web client, but not on Android, so check
-    # that here, and fallback to the streaming data from the web client if needed.
-    # See: https://github.com/iv-org/invidious/issues/2549
-    if video_id != android_player.dig("videoDetails", "videoId")
-      # YouTube may return a different video player response than expected.
-      # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
-      raise VideoNotAvailableException.new("The video returned by YouTube isn't the requested one. (ANDROID client)")
-    elsif android_player["playabilityStatus"]["status"] == "OK"
-      params["streamingData"] = android_player["streamingData"]? || JSON::Any.new("")
-    else
-      params["streamingData"] = player_response["streamingData"]? || JSON::Any.new("")
-    end
+  if reason.nil?
+    # Fetch the video streams using an Android client in order to get the
+    # decrypted URLs and maybe fix throttling issues (#2194). See the
+    # following issue for an explanation about decrypted URLs:
+    # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
+    client_config.client_type = YoutubeAPI::ClientType::Android
+    new_player_response = try_fetch_streaming_data(video_id, client_config)
+  elsif !reason.includes?("your country") # Handled separately
+    # The Android embedded client could help here
+    client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
+    new_player_response = try_fetch_streaming_data(video_id, client_config)
   end
 
-  # TODO: clean that up
-  {"captions", "microformat", "playabilityStatus", "storyboards", "videoDetails"}.each do |f|
+  # Last hope
+  if new_player_response.nil?
+    client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
+    new_player_response = try_fetch_streaming_data(video_id, client_config)
+  end
+
+  # Replace player response and reset reason
+  if !new_player_response.nil?
+    player_response = new_player_response
+    params.delete("reason")
+  end
+
+  {"captions", "playabilityStatus", "playerConfig", "storyboards", "streamingData"}.each do |f|
     params[f] = player_response[f] if player_response[f]?
   end
 
@@ -126,6 +124,26 @@ def extract_video_info(video_id : String, proxy_region : String? = nil, context_
   params["version"] = JSON::Any.new(Video::SCHEMA_VERSION.to_i64)
 
   return params
+end
+
+def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?
+  LOGGER.debug("try_fetch_streaming_data: [#{id}] Using #{client_config.client_type} client.")
+  response = YoutubeAPI.player(video_id: id, params: "", client_config: client_config)
+
+  playability_status = response["playabilityStatus"]["status"]
+  LOGGER.debug("try_fetch_streaming_data: [#{id}] Got playabilityStatus == #{playability_status}.")
+
+  if id != response.dig("videoDetails", "videoId")
+    # YouTube may return a different video player response than expected.
+    # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
+    raise VideoNotAvailableException.new(
+      "The video returned by YouTube isn't the requested one. (#{client_config.client_type} client)"
+    )
+  elsif playability_status == "OK"
+    return response
+  else
+    return nil
+  end
 end
 
 def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any)) : Hash(String, JSON::Any)
