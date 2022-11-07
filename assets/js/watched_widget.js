@@ -32,3 +32,30 @@ function mark_unwatched(target) {
         }
     });
 }
+
+
+var save_player_pos_key = 'save_player_pos';
+
+function get_all_video_times() {
+    return helpers.storage.get(save_player_pos_key) || {};
+}
+
+var watchedIndicators = document.getElementsByClassName('watched-indicator');
+for (var i = 0; i < watchedIndicators.length; i++) {
+    var indicator = watchedIndicators[i];
+
+    var watched_part = get_all_video_times()[indicator.getAttribute('data-id')];
+    var total = parseInt(indicator.getAttribute('data-length'), 10);
+
+    var percentage = Math.round((watched_part / total) * 100);
+
+
+    if (percentage < 5) {
+        percentage = 5;
+    }
+    if (percentage > 90) {
+        percentage = 100;
+    }
+
+    indicator.style.width = percentage + '%';
+}

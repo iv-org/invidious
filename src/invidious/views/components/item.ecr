@@ -99,7 +99,8 @@
         <% else %>
             <a style="width:100%" href="/watch?v=<%= item.id %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
-                    <div class="thumbnail<%= env.get("user").as(User).watched.index!() { |x| x == item.id } ? " watched" : "" %>">
+                    <% item_watched = env.get("user") && env.get("user").as(User).watched && env.get("user").as(User).watched.index(item.id) != nil %>
+                    <div class="thumbnail<%= item_watched ? " thumbnail-watched" : "" %>">
                         <img loading="lazy" tabindex="-1" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                         <% if env.get? "show_watched" %>
                             <form data-onsubmit="return_false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
@@ -123,6 +124,10 @@
                             <p class="length" dir="auto"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
                         <% elsif item.length_seconds != 0 %>
                             <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
+                        <% end %>
+
+                        <% if item_watched %>
+                            <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
                         <% end %>
                     </div>
                 <% end %>

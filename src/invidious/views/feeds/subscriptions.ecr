@@ -50,13 +50,14 @@
 }.to_pretty_json
 %>
 </script>
-<script src="/js/watched_widget.js"></script>
 
 <div class="pure-g">
 <% videos.each do |item| %>
     <%= rendered "components/item" %>
 <% end %>
 </div>
+
+<script src="/js/watched_widget.js"></script>
 
 <div class="pure-g h-box">
     <div class="pure-u-1 pure-u-lg-1-5">

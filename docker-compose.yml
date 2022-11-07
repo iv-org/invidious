@@ -13,7 +13,7 @@ services:
       dockerfile: docker/Dockerfile
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3003:3000"
     environment:
       # Please read the following file for a comprehensive list of all available
       # configuration options and their associated syntax:
@@ -23,7 +23,7 @@ services:
           dbname: invidious
           user: kemal
           password: kemal
-          host: invidious-db
+          host: invidious-invidious-db-1
           port: 5432
         check_tables: true
         # external_port:
