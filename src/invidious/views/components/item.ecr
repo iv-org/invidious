@@ -99,7 +99,7 @@
         <% else %>
             <a style="width:100%" href="/watch?v=<%= item.id %>">
                 <% if !env.get("preferences").as(Preferences).thin_mode %>
-                    <div class="thumbnail">
+                    <div class="thumbnail<%= env.get("user").as(User).watched.index!() { |x| x == item.id } ? " watched" : "" %>">
                         <img loading="lazy" tabindex="-1" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg"/>
                         <% if env.get? "show_watched" %>
                             <form data-onsubmit="return_false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
