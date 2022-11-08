@@ -135,9 +135,7 @@ div.thumbnail {
   position: relative;
   box-sizing: border-box;
 }
-div.thumbnail.thumbnail-watched {
-  background-color: rgba(255,255,255,.4);
-}
+
 
 img.thumbnail {
   position: absolute;
@@ -146,7 +144,15 @@ img.thumbnail {
   left: 0;
   top: 0;
   object-fit: cover;
-  z-index: -1;
+}
+
+div.watched-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255,255,255,.4);
 }
 
 div.watched-indicator {
@@ -155,7 +161,7 @@ div.watched-indicator {
   bottom: 0;
   height: 4px;
   width: 100%;
-  background: red;
+  background-color: red;
 }
 
 .length {
