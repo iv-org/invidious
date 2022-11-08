@@ -33,7 +33,6 @@ function mark_unwatched(target) {
     });
 }
 
-
 var save_player_pos_key = 'save_player_pos';
 
 function get_all_video_times() {
