@@ -41,7 +41,6 @@ function get_all_video_times() {
 }
 
 var watchedIndicators = document.getElementsByClassName('watched-indicator');
-console.log('indicators', watchedIndicators.length);
 for (var i = 0; i < watchedIndicators.length; i++) {
     var indicator = watchedIndicators[i];
     var watched_part = get_all_video_times()[indicator.getAttribute('data-id')];
