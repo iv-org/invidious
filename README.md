@@ -41,7 +41,7 @@
 
   <h5>Chat with us:</h5>
   <a href="https://matrix.to/#/#invidious:matrix.org">
-    <img alt="Matrix" src="https://img.shields.io/matrix/invidious:matrix.org?label=Matrix&color=darkgreen">
+    <img alt="Matrix" src="https://img.shields.io/matrix/invidious:matrix.pussthecat.org?label=Matrix&color=darkgreen">
   </a>
   <a href="https://web.libera.chat/?channel=#invidious">
     <img alt="Libera.chat (IRC)" src="https://img.shields.io/badge/IRC%20%28Libera.chat%29-%23invidious-darkgreen">
