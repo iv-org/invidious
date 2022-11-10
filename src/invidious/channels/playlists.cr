@@ -8,7 +8,7 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
 
     items = [] of SearchItem
     continuation_items.as_a.select(&.as_h.has_key?("gridPlaylistRenderer")).each { |item|
-      extract_item(item, author, ucid).try { |t| items << t }
+      parse_item(item, author, ucid).try { |t| items << t }
     }
 
     continuation = continuation_items.as_a.last["continuationItemRenderer"]?
