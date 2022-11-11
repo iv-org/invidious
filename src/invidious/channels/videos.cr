@@ -122,4 +122,54 @@ module Invidious::Channel::Tabs
 
     return items, next_continuation
   end
+
+  # -------------------
+  #  Shorts
+  # -------------------
+
+  def get_shorts(channel : AboutChannel, continuation : String? = nil)
+    if continuation.nil?
+      # EgZzaG9ydHPyBgUKA5oBAA%3D%3D is the protobuf object to load "shorts"
+      # TODO: try to extract the continuation tokens that allows other sorting options
+      initial_data = YoutubeAPI.browse(channel.ucid, params: "EgZzaG9ydHPyBgUKA5oBAA%3D%3D")
+    else
+      initial_data = YoutubeAPI.browse(continuation: continuation)
+    end
+
+    return extract_items(initial_data, channel.author, channel.ucid)
+  end
+
+  # -------------------
+  #  Livestreams
+  # -------------------
+
+  def get_livestreams(channel : AboutChannel, continuation : String? = nil)
+    if continuation.nil?
+      # EgdzdHJlYW1z8gYECgJ6AA%3D%3D is the protobuf object to load "streams"
+      initial_data = YoutubeAPI.browse(channel.ucid, params: "EgdzdHJlYW1z8gYECgJ6AA%3D%3D")
+    else
+      initial_data = YoutubeAPI.browse(continuation: continuation)
+    end
+
+    return extract_items(initial_data, channel.author, channel.ucid)
+  end
+
+  def get_60_livestreams(channel : AboutChannel, continuation : String? = nil)
+    if continuation.nil?
+      # Fetch the first "page" of streams
+      items, next_continuation = get_livestreams(channel)
+    else
+      # Fetch a "page" of streams using the given continuation token
+      items, next_continuation = get_livestreams(channel, continuation: continuation)
+    end
+
+    # If there is more to load, then load a second "page"
+    # and replace the previous continuation token
+    if !next_continuation.nil?
+      items_2, next_continuation = get_livestreams(channel, continuation: next_continuation)
+      items.concat items_2
+    end
+
+    return items, next_continuation
+  end
 end
