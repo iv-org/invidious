@@ -32,7 +32,9 @@ module Invidious::Routes::Channels
       sort_options = {"newest", "oldest", "popular"}
       sort_by ||= "newest"
 
-      count, items = get_60_videos(channel.ucid, channel.author, 1, channel.auto_generated, sort_by)
+      items, continuation = Channel::Tabs.get_60_videos(
+        channel, continuation: continuation, sort_by: sort_by
+      )
     end
 
     templated "channel"

@@ -5,8 +5,6 @@ module Invidious::Routes::API::V1::Channels
     env.response.content_type = "application/json"
 
     ucid = env.params.url["ucid"]
-    sort_by = env.params.query["sort_by"]?.try &.downcase
-    sort_by ||= "newest"
 
     begin
       channel = get_about_info(ucid, locale)
@@ -19,16 +17,13 @@ module Invidious::Routes::API::V1::Channels
       return error_json(500, ex)
     end
 
-    page = 1
-    if channel.auto_generated
-      videos = [] of SearchVideo
-      count = 0
-    else
-      begin
-        count, videos = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
-      rescue ex
-        return error_json(500, ex)
-      end
+    # Retrieve "sort by" setting from URL parameters
+    sort_by = env.params.query["sort_by"]?.try &.downcase || "newest"
+
+    begin
+      videos, _ = Channel::Tabs.get_videos(channel, sort_by: sort_by)
+    rescue ex
+      return error_json(500, ex)
     end
 
     JSON.build do |json|
@@ -134,25 +129,11 @@ module Invidious::Routes::API::V1::Channels
   end
 
   def self.latest(env)
-    locale = env.get("preferences").as(Preferences).locale
+    # Remove parameters that could affect this endpoint's behavior
+    env.params.query.delete("sort_by") if env.params.query.has_key?("sort_by")
+    env.params.query.delete("continuation") if env.params.query.has_key?("continuation")
 
-    env.response.content_type = "application/json"
-
-    ucid = env.params.url["ucid"]
-
-    begin
-      videos = get_latest_videos(ucid)
-    rescue ex
-      return error_json(500, ex)
-    end
-
-    JSON.build do |json|
-      json.array do
-        videos.each do |video|
-          video.to_json(locale, json)
-        end
-      end
-    end
+    return self.videos(env)
   end
 
   def self.videos(env)
@@ -161,11 +142,6 @@ module Invidious::Routes::API::V1::Channels
     env.response.content_type = "application/json"
 
     ucid = env.params.url["ucid"]
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
-    sort_by = env.params.query["sort"]?.try &.downcase
-    sort_by ||= env.params.query["sort_by"]?.try &.downcase
-    sort_by ||= "newest"
 
     begin
       channel = get_about_info(ucid, locale)
@@ -178,17 +154,27 @@ module Invidious::Routes::API::V1::Channels
       return error_json(500, ex)
     end
 
+    # Retrieve some URL parameters
+    sort_by = env.params.query["sort_by"]?.try &.downcase || "newest"
+    continuation = env.params.query["continuation"]?
+
     begin
-      count, videos = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
+      videos, next_continuation = Channel::Tabs.get_60_videos(
+        channel, continuation: continuation, sort_by: sort_by
+      )
     rescue ex
       return error_json(500, ex)
     end
 
-    JSON.build do |json|
-      json.array do
-        videos.each do |video|
-          video.to_json(locale, json)
+    return JSON.build do |json|
+      json.object do
+        json.field "videos" do
+          json.array do
+            videos.each &.to_json(locale, json)
+          end
         end
+
+        json.field "continuation", next_continuation if next_continuation
       end
     end
   end

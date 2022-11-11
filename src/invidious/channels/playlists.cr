@@ -24,7 +24,7 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
     initial_data = YoutubeAPI.browse(ucid, params: params || "")
   end
 
-  return extract_items(initial_data, ucid, author)
+  return extract_items(initial_data, author, ucid)
 end
 
 # ## NOTE: DEPRECATED
