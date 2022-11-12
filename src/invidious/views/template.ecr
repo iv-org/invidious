@@ -31,92 +31,105 @@
 
 <body class="<%= dark_mode.blank? ? "no" : dark_mode %>-theme">
     <span style="display:none" id="dark_mode_pref"><%= env.get("preferences").as(Preferences).dark_mode %></span>
-    <div class="pure-g">
-        <div class="pure-u-1 pure-u-md-2-24"></div>
-        <div class="pure-u-1 pure-u-md-20-24" id="contents">
-            <div class="pure-g navbar h-box">
-                <% if navbar_search %>
-                    <div class="pure-u-1 pure-u-md-4-24">
-                        <a href="/" class="index-link pure-menu-heading">Invidious</a>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-12-24 searchbar">
-                        <% autofocus = false %><%= rendered "components/search_box" %>
-                    </div>
-                <% end %>
-
-                <div class="pure-u-1 pure-u-md-8-24 user-field">
-                    <% if env.get? "user" %>
-                        <div class="pure-u-1-4">
-                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                <% if env.get("preferences").as(Preferences).dark_mode == "dark" %>
-                                    <i class="icon ion-ios-sunny"></i>
-                                <% else %>
-                                    <i class="icon ion-ios-moon"></i>
-                                <% end %>
-                            </a>
-                        </div>
-                        <div class="pure-u-1-4">
-                            <a id="notification_ticker" title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
-                                <% notification_count = env.get("user").as(Invidious::User).notifications.size %>
-                                <% if notification_count > 0 %>
-                                    <span id="notification_count"><%= notification_count %></span> <i class="icon ion-ios-notifications"></i>
-                                <% else %>
-                                    <i class="icon ion-ios-notifications-outline"></i>
-                                <% end %>
-                            </a>
-                        </div>
-                        <div class="pure-u-1-4">
-                            <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                <i class="icon ion-ios-cog"></i>
-                            </a>
-                        </div>
-                        <% if env.get("preferences").as(Preferences).show_nick %>
-                            <div class="pure-u-1-4" style="overflow: hidden; white-space: nowrap;">
-                                <span id="user_name"><%= HTML.escape(env.get("user").as(Invidious::User).email) %></span>
-                            </div>
-                        <% end %>
-                        <div class="pure-u-1-4">
-                            <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                                <a class="pure-menu-heading" href="#">
-                                    <input style="all:unset" type="submit" value="<%= translate(locale, "Log out") %>">
-                                </a>
-                            </form>
-                        </div>
-                    <% else %>
-                        <div class="pure-u-1-3">
-                            <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                <% if env.get("preferences").as(Preferences).dark_mode == "dark" %>
-                                    <i class="icon ion-ios-sunny"></i>
-                                <% else %>
-                                    <i class="icon ion-ios-moon"></i>
-                                <% end %>
-                            </a>
-                        </div>
-                        <div class="pure-u-1-3">
-                            <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                <i class="icon ion-ios-cog"></i>
-                            </a>
-                        </div>
-                        <% if CONFIG.login_enabled %>
-                            <div class="pure-u-1-3">
-                                <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                    <%= translate(locale, "Log in") %>
-                                </a>
-                            </div>
-                        <% end %>
-                    <% end %>
-                </div>
+    <input type="checkbox" id="check">
+    <!--header area start-->
+    <header>
+    <label for="check">
+        <i class="icon ion-ios-menu" id="sidebar_btn"></i>
+    </label>
+    <div class="pure-g navbar h-box">
+        <% if navbar_search %>
+        <div class="left_area">
+            <div class="pure-u-1 pure-u-md-4-24">
+                <a href="/" class="index-link pure-menu-heading"><h3><t1>Invidious</t1> | <span>UTNW</span></h3></a>
             </div>
-
-            <% if CONFIG.banner %>
+        </div>
+        <div class="pure-u-1 pure-u-md-12-24 searchbar">
+            <% autofocus = false %><%= rendered "components/search_box" %>
+        </div>
+        <% end %>
+        <div class="right_area">
+            <div class="pure-u-1 pure-u-md-8-24 user-field">
+                <% if env.get? "user" %>
+                <div class="pure-u-1-4">
+                    <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                        <% if env.get("preferences").as(Preferences).dark_mode == "dark" %>
+                        <i class="icon ion-ios-sunny"></i>
+                        <% else %>
+                        <i class="icon ion-ios-moon"></i>
+                        <% end %>
+                    </a>
+                </div>
+                <div class="pure-u-1-4">
+                    <a id="notification_ticker" title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
+                        <% notification_count = env.get("user").as(Invidious::User).notifications.size %>
+                        <% if notification_count > 0 %>
+                        <span id="notification_count"><%= notification_count %></span> <i class="icon ion-ios-notifications"></i>
+                        <% else %>
+                        <i class="icon ion-ios-notifications-outline"></i>
+                        <% end %>
+                    </a>
+                </div>
+                <div class="pure-u-1-4">
+                    <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                        <i class="icon ion-ios-cog"></i>
+                    </a>
+                </div>
+                <% if env.get("preferences").as(Preferences).show_nick %>
+                <div class="pure-u-1-4">
+                    <span id="user_name"><%= env.get("user").as(Invidious::User).email %></span>
+                </div>
+                <% end %>
+                <div class="pure-u-1-4">
+                    <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
+                        <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                        <a class="pure-menu-heading login-buttom" href="#">
+                            <input style="all:unset" type="submit" value="<%= translate(locale, "Log out") %>">
+                        </a>
+                    </form>
+                </div>
+                <% else %>
+                <div class="pure-u-1-3">
+                    <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                        <% if env.get("preferences").as(Preferences).dark_mode == "dark" %>
+                        <i class="icon ion-ios-sunny"></i>
+                        <% else %>
+                        <i class="icon ion-ios-moon"></i>
+                        <% end %>
+                    </a>
+                </div>
+                <div class="pure-u-1-3">
+                    <a title="<%= translate(locale, "Preferences") %>" href="/preferences?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                        <i class="icon ion-ios-cog"></i>
+                    </a>
+                </div>
+                <% if CONFIG.login_enabled %>
+                <div class="pure-u-1-3 login-buttom">
+                    <a href="/login?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
+                        <%= translate(locale, "Log in") %>
+                    </a>
+                </div>
+                <% end %>
+                <% end %>
+            </div>
+        </div>
+    </header>
+    <!--sidebar start-->
+    <div class="sidebar">
+        <%= rendered "components/feed_menu" %>
+    </div>
+    <!--sidebar end-->
+    <div class="content">
+        <div class="pure-g">
+            <div class="pure-u-1 pure-u-md-20-24" id="contents">
+                <% if CONFIG.banner %>
                 <div class="h-box">
                     <h3><%= CONFIG.banner %></h3>
                 </div>
-            <% end %>
-
-            <%= content %>
-
+                <% end %>
+                <%= content %>
+            </div>
+        </div>
             <footer>
                 <div class="pure-g">
                     <div class="pure-u-1 pure-u-md-1-3">
@@ -177,5 +190,29 @@
         <script src="/js/notifications.js?v=<%= ASSET_COMMIT %>"></script>
     <% end %>
 </body>
-
+<script type="text/javascript">
+    $(document).ready(function() {
+    $('.nav_btn').click(function() {
+        $('.mobile_nav_items').toggleClass('active');
+    });
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+      //jquery for toggle sub menus
+    $('.sub-btn').click(function() {
+        $(this).next('.sub-menu').slideToggle();
+        $(this).find('.dropdown').toggleClass('rotate');
+        });
+      //jquery for expand and collapse the sidebar
+    $('.menu-btn').click(function() {
+        $('.side-bar').addClass('active');
+        $('.menu-btn').css("visibility", "hidden");
+        });
+    $('.close-btn').click(function() {
+        $('.side-bar').removeClass('active');
+        $('.menu-btn').css("visibility", "visible");
+        });
+    });
+</script>
 </html>
