@@ -280,7 +280,7 @@ struct Video
   {% for op, type in {i32: Int32, i64: Int64} %}
     private macro getset_{{op}}(name)
       def \{{name.id.underscore}} : {{type}}
-        return info[\{{name.stringify}}]?.try &.as_i.to_{{op}} || 0_{{op}}
+        return info[\{{name.stringify}}]?.try &.as_i64.to_{{op}} || 0_{{op}}
       end
 
       def \{{name.id.underscore}}=(value : Int)
