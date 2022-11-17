@@ -29,7 +29,7 @@ struct ChannelVideo
       json.field "title", self.title
       json.field "videoId", self.id
       json.field "videoThumbnails" do
-        generate_thumbnails(json, self.id)
+        Invidious::JSONify::APIv1.thumbnails(json, self.id)
       end
 
       json.field "lengthSeconds", self.length_seconds
