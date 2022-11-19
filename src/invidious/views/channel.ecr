@@ -64,6 +64,13 @@
                 <a href="https://redirect.invidious.io<%= env.request.path %>"><%= translate(locale, "Switch Invidious Instance") %></a>
             <% end %>
         </div>
+        <div class="pure-u-1 pure-md-1-3">
+	        <% if channel.auto_generated %>
+                <b><%= translate(locale, "View as Playlist") %></b>
+            <% else %>
+		        <a href="/playlist?list=<%= ucid %>"><%= translate(locale, "View as Playlist") %></a>
+            <% end %>
+        </div>
         <% if !channel.auto_generated %>
             <div class="pure-u-1 pure-md-1-3">
                 <b><%= translate(locale, "Videos") %></b>
