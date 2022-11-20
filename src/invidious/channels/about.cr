@@ -130,8 +130,9 @@ def get_about_info(ucid, locale) : AboutChannel
     tabs = tabs_json.reject { |node| node["tabRenderer"]?.nil? }.map(&.["tabRenderer"]["title"].as_s.downcase)
   end
 
-  sub_count = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["subscriberCountText"]?.try &.["simpleText"]?.try &.as_s?
-    .try { |text| short_text_to_number(text.split(" ")[0]) } || 0
+  sub_count = initdata
+    .dig?("header", "c4TabbedHeaderRenderer", "subscriberCountText", "simpleText").try &.as_s?
+    .try { |text| short_text_to_number(text.split(" ")[0]).to_i32 } || 0
 
   AboutChannel.new(
     ucid: ucid,
