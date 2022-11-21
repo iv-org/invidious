@@ -170,7 +170,7 @@ private module Parsers
       # Always simpleText
       # TODO change default value to nil
       subscriber_count = item_contents.dig?("subscriberCountText", "simpleText")
-        .try { |s| short_text_to_number(s.as_s.split(" ")[0]) } || 0
+        .try { |s| short_text_to_number(s.as_s.split(" ")[0]).to_i32 } || 0
 
       # Auto-generated channels doesn't have videoCountText
       # Taken from: https://github.com/iv-org/invidious/pull/2228#discussion_r717620922
