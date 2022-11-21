@@ -55,7 +55,8 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
   client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
 
   # Fetch data from the player endpoint
-  player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
+  # 8AEB param is used to fetch YouTube stories
+  player_response = YoutubeAPI.player(video_id: video_id, params: "8AEB", client_config: client_config)
 
   playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
 
@@ -128,7 +129,8 @@ end
 
 def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Using #{client_config.client_type} client.")
-  response = YoutubeAPI.player(video_id: id, params: "", client_config: client_config)
+  # 8AEB param is used to fetch YouTube stories
+  response = YoutubeAPI.player(video_id: id, params: "8AEB", client_config: client_config)
 
   playability_status = response["playabilityStatus"]["status"]
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Got playabilityStatus == #{playability_status}.")
