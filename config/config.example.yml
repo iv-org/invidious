@@ -613,7 +613,7 @@ default_user_preferences:
   ##
   ## Enable/Disable dark mode.
   ##
-  ## Accepted values: true, false
+  ## Accepted values: "dark"
   ## Default: <none>
   ##
   #dark_mode:
