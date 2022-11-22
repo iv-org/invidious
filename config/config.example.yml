@@ -613,10 +613,10 @@ default_user_preferences:
   ##
   ## Enable/Disable dark mode.
   ##
-  ## Accepted values: true, false
-  ## Default: <none>
+  ## Accepted values: "dark", "light", "auto"
+  ## Default: "auto"
   ##
-  #dark_mode:
+  #dark_mode: "auto"
 
   ##
   ## Enable/Disable thin mode (no video thumbnails).
