@@ -50,19 +50,8 @@
                 <a href="https://redirect.invidious.io<%= env.request.resource %>"><%= translate(locale, "Switch Invidious Instance") %></a>
             <% end %>
         </div>
-        <% if !channel.auto_generated %>
-            <div class="pure-u-1 pure-md-1-3">
-                <a href="/channel/<%= channel.ucid %>"><%= translate(locale, "Videos") %></a>
-            </div>
-        <% end %>
-        <div class="pure-u-1 pure-md-1-3">
-            <a href="/channel/<%= channel.ucid %>/playlists"><%= translate(locale, "Playlists") %></a>
-        </div>
-        <div class="pure-u-1 pure-md-1-3">
-            <% if channel.tabs.includes? "community" %>
-                <b><%= translate(locale, "Community") %></b>
-            <% end %>
-        </div>
+
+        <%= Invidious::Frontend::ChannelPage.generate_tabs_links(locale, channel, Invidious::Frontend::ChannelPage::TabsAvailable::Community) %>
     </div>
     <div class="pure-u-2-3"></div>
 </div>

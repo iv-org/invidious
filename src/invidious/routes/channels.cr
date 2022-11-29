@@ -18,7 +18,7 @@ module Invidious::Routes::Channels
       sort_options = {"last", "oldest", "newest"}
       sort_by ||= "last"
 
-      items, continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
+      items, next_continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
       items.uniq! do |item|
         if item.responds_to?(:title)
           item.title
@@ -32,11 +32,59 @@ module Invidious::Routes::Channels
       sort_options = {"newest", "oldest", "popular"}
       sort_by ||= "newest"
 
-      items, continuation = Channel::Tabs.get_60_videos(
+      # Fetch items and continuation token
+      items, next_continuation = Channel::Tabs.get_videos(
         channel, continuation: continuation, sort_by: sort_by
       )
     end
 
+    selected_tab = Frontend::ChannelPage::TabsAvailable::Videos
+    templated "channel"
+  end
+
+  def self.shorts(env)
+    data = self.fetch_basic_information(env)
+    return data if !data.is_a?(Tuple)
+
+    locale, user, subscriptions, continuation, ucid, channel = data
+
+    if !channel.tabs.includes? "shorts"
+      return env.redirect "/channel/#{channel.ucid}"
+    end
+
+    # TODO: support sort option for shorts
+    sort_by = ""
+    sort_options = [] of String
+
+    # Fetch items and continuation token
+    items, next_continuation = Channel::Tabs.get_shorts(
+      channel, continuation: continuation
+    )
+
+    selected_tab = Frontend::ChannelPage::TabsAvailable::Shorts
+    templated "channel"
+  end
+
+  def self.streams(env)
+    data = self.fetch_basic_information(env)
+    return data if !data.is_a?(Tuple)
+
+    locale, user, subscriptions, continuation, ucid, channel = data
+
+    if !channel.tabs.includes? "streams"
+      return env.redirect "/channel/#{channel.ucid}"
+    end
+
+    # TODO: support sort option for livestreams
+    sort_by = ""
+    sort_options = [] of String
+
+    # Fetch items and continuation token
+    items, next_continuation = Channel::Tabs.get_60_livestreams(
+      channel, continuation: continuation
+    )
+
+    selected_tab = Frontend::ChannelPage::TabsAvailable::Streams
     templated "channel"
   end
 
@@ -124,7 +172,7 @@ module Invidious::Routes::Channels
     end
 
     selected_tab = env.request.path.split("/")[-1]
-    if ["home", "videos", "playlists", "community", "channels", "about"].includes? selected_tab
+    if {"home", "videos", "shorts", "streams", "playlists", "community", "channels", "about"}.includes? selected_tab
       url = "/channel/#{ucid}/#{selected_tab}"
     else
       url = "/channel/#{ucid}"

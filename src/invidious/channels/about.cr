@@ -104,8 +104,14 @@ def get_about_info(ucid, locale) : AboutChannel
 
   if tabs_json = initdata["contents"]["twoColumnBrowseResultsRenderer"]["tabs"]?
     # Get the name of the tabs available on this channel
-    tab_names = tabs_json.as_a
-      .compact_map(&.dig?("tabRenderer", "title").try &.as_s.downcase)
+    tab_names = tabs_json.as_a.compact_map do |entry|
+      name = entry.dig?("tabRenderer", "title").try &.as_s.downcase
+
+      # This is a small fix to not add extra code on the HTML side
+      # I.e, the URL for the "live" tab is .../streams, so use "streams"
+      # everywhere for the sake of simplicity
+      (name == "live") ? "streams" : name
+    end
 
     # Get the currently active tab ("About")
     about_tab = extract_selected_tab(tabs_json)
