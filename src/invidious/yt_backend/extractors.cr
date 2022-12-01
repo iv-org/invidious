@@ -382,7 +382,9 @@ private module Parsers
     end
 
     private def self.parse(item_contents, author_fallback)
-      return VideoRendererParser.process(item_contents, author_fallback)
+      child = VideoRendererParser.process(item_contents, author_fallback)
+      child ||= ReelItemRendererParser.process(item_contents, author_fallback)
+      return child
     end
 
     def self.parser_name
@@ -406,12 +408,18 @@ private module Parsers
     private def self.parse(item_contents, author_fallback)
       video_id = item_contents["videoId"].as_s
 
-      video_details_container = item_contents.dig(
-        "navigationEndpoint", "reelWatchEndpoint",
-        "overlay", "reelPlayerOverlayRenderer",
-        "reelPlayerHeaderSupportedRenderers",
-        "reelPlayerHeaderRenderer"
-      )
+      begin
+        video_details_container = item_contents.dig(
+          "navigationEndpoint", "reelWatchEndpoint",
+          "overlay", "reelPlayerOverlayRenderer",
+          "reelPlayerHeaderSupportedRenderers",
+          "reelPlayerHeaderRenderer"
+        )
+      rescue ex : KeyError
+        # Extract key name from original message
+        key = /"([^"]+)"/.match(ex.message || "").try &.[1]?
+        raise BrokenTubeException.new(key || "reelPlayerOverlayRenderer")
+      end
 
       # Author infos
 
@@ -434,9 +442,9 @@ private module Parsers
 
       # View count
 
-      view_count_text = video_details_container.dig?("viewCountText", "simpleText")
-      view_count_text ||= video_details_container
-        .dig?("viewCountText", "accessibility", "accessibilityData", "label")
+      # View count used to be in the reelWatchEndpoint, but that changed?
+      view_count_text = item_contents.dig?("viewCountText", "simpleText")
+      view_count_text ||= video_details_container.dig?("viewCountText", "simpleText")
 
       view_count = view_count_text.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
 
@@ -448,8 +456,8 @@ private module Parsers
 
       regex_match = /- (?<min>\d+ minutes? )?(?<sec>\d+ seconds?)+ -/.match(a11y_data)
 
-      minutes = regex_match.try &.["min"].to_i(strict: false) || 0
-      seconds = regex_match.try &.["sec"].to_i(strict: false) || 0
+      minutes = regex_match.try &.["min"]?.try &.to_i(strict: false) || 0
+      seconds = regex_match.try &.["sec"]?.try &.to_i(strict: false) || 0
 
       duration = (minutes*60 + seconds)
 
