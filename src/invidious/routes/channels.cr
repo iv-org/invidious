@@ -12,9 +12,6 @@ module Invidious::Routes::Channels
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
-
     sort_by = env.params.query["sort_by"]?.try &.downcase
 
     if channel.auto_generated
@@ -35,7 +32,7 @@ module Invidious::Routes::Channels
       sort_options = {"newest", "oldest", "popular"}
       sort_by ||= "newest"
 
-      count, items = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
+      count, items = get_60_videos(channel.ucid, channel.author, 1, channel.auto_generated, sort_by)
     end
 
     templated "channel"
