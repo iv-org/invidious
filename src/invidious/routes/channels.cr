@@ -7,18 +7,19 @@ module Invidious::Routes::Channels
 
   def self.videos(env)
     data = self.fetch_basic_information(env)
-    if !data.is_a?(Tuple)
-      return data
-    end
+    return data if !data.is_a?(Tuple)
+
     locale, user, subscriptions, continuation, ucid, channel = data
 
     sort_by = env.params.query["sort_by"]?.try &.downcase
 
     if channel.auto_generated
       sort_options = {"last", "oldest", "newest"}
-      sort_by ||= "last"
 
-      items, next_continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
+      items, next_continuation = fetch_channel_playlists(
+        channel.ucid, channel.author, continuation, (sort_by || "last")
+      )
+
       items.uniq! do |item|
         if item.responds_to?(:title)
           item.title
@@ -30,11 +31,10 @@ module Invidious::Routes::Channels
       items.each(&.author = "")
     else
       sort_options = {"newest", "oldest", "popular"}
-      sort_by ||= "newest"
 
       # Fetch items and continuation token
       items, next_continuation = Channel::Tabs.get_videos(
-        channel, continuation: continuation, sort_by: sort_by
+        channel, continuation: continuation, sort_by: (sort_by || "newest")
       )
     end
 
@@ -90,24 +90,26 @@ module Invidious::Routes::Channels
 
   def self.playlists(env)
     data = self.fetch_basic_information(env)
-    if !data.is_a?(Tuple)
-      return data
-    end
+    return data if !data.is_a?(Tuple)
+
     locale, user, subscriptions, continuation, ucid, channel = data
 
     sort_options = {"last", "oldest", "newest"}
     sort_by = env.params.query["sort_by"]?.try &.downcase
-    sort_by ||= "last"
 
     if channel.auto_generated
       return env.redirect "/channel/#{channel.ucid}"
     end
 
-    items, continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
+    items, next_continuation = fetch_channel_playlists(
+      channel.ucid, channel.author, continuation, (sort_by || "last")
+    )
+
     items = items.select(SearchPlaylist).map(&.as(SearchPlaylist))
     items.each(&.author = "")
 
-    templated "playlists"
+    selected_tab = Frontend::ChannelPage::TabsAvailable::Playlists
+    templated "channel"
   end
 
   def self.community(env)
@@ -121,11 +123,14 @@ module Invidious::Routes::Channels
     thin_mode = thin_mode == "true"
 
     continuation = env.params.query["continuation"]?
-    # sort_by = env.params.query["sort_by"]?.try &.downcase
 
     if !channel.tabs.includes? "community"
       return env.redirect "/channel/#{channel.ucid}"
     end
+
+    # TODO: support sort options for community posts
+    sort_by = ""
+    sort_options = [] of String
 
     begin
       items = JSON.parse(fetch_channel_community(ucid, continuation, locale, "json", thin_mode))
