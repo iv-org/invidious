@@ -119,6 +119,7 @@ module Invidious::Routing
     get "/channel/:ucid/streams", Routes::Channels, :streams
     get "/channel/:ucid/playlists", Routes::Channels, :playlists
     get "/channel/:ucid/community", Routes::Channels, :community
+    get "/channel/:ucid/channels", Routes::Channels, :channels
     get "/channel/:ucid/about", Routes::Channels, :about
     get "/channel/:ucid/live", Routes::Channels, :live
     get "/user/:user/live", Routes::Channels, :live

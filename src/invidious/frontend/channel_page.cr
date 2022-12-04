@@ -7,6 +7,7 @@ module Invidious::Frontend::ChannelPage
     Streams
     Playlists
     Community
+    Channels
   end
 
   def generate_tabs_links(locale : String, channel : AboutChannel, selected_tab : TabsAvailable)

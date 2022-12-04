@@ -16,12 +16,6 @@ record AboutChannel,
   tabs : Array(String),
   verified : Bool
 
-record AboutRelatedChannel,
-  ucid : String,
-  author : String,
-  author_url : String,
-  author_thumbnail : String
-
 def get_about_info(ucid, locale) : AboutChannel
   begin
     # "EgVhYm91dA==" is the base64-encoded protobuf object {"2:string":"about"}
@@ -165,41 +159,15 @@ def get_about_info(ucid, locale) : AboutChannel
   )
 end
 
-def fetch_related_channels(about_channel : AboutChannel) : Array(AboutRelatedChannel)
-  # params is {"2:string":"channels"} encoded
-  channels = YoutubeAPI.browse(browse_id: about_channel.ucid, params: "EghjaGFubmVscw%3D%3D")
-
-  tabs = channels.dig?("contents", "twoColumnBrowseResultsRenderer", "tabs").try(&.as_a?) || [] of JSON::Any
-  tab = tabs.find(&.dig?("tabRenderer", "title").try(&.as_s?).try(&.== "Channels"))
-
-  return [] of AboutRelatedChannel if tab.nil?
-
-  items = tab.dig?(
-    "tabRenderer", "content",
-    "sectionListRenderer", "contents", 0,
-    "itemSectionRenderer", "contents", 0,
-    "gridRenderer", "items"
-  ).try &.as_a?
-
-  related = [] of AboutRelatedChannel
-  return related if (items.nil? || items.empty?)
-
-  items.each do |item|
-    renderer = item["gridChannelRenderer"]?
-    next if !renderer
-
-    related_id = renderer.dig("channelId").as_s
-    related_title = renderer.dig("title", "simpleText").as_s
-    related_author_url = renderer.dig("navigationEndpoint", "browseEndpoint", "canonicalBaseUrl").as_s
-    related_author_thumbnail = HelperExtractors.get_thumbnails(renderer)
-
-    related << AboutRelatedChannel.new(
-      ucid: related_id,
-      author: related_title,
-      author_url: related_author_url,
-      author_thumbnail: related_author_thumbnail,
-    )
+def fetch_related_channels(about_channel : AboutChannel, continuation : String? = nil) : {Array(SearchChannel), String?}
+  if continuation.nil?
+    # params is {"2:string":"channels"} encoded
+    initial_data = YoutubeAPI.browse(browse_id: about_channel.ucid, params: "EghjaGFubmVscw%3D%3D")
+  else
+    initial_data = YoutubeAPI.browse(continuation)
   end
 
-  return related
+  items, continuation = extract_items(initial_data)
+
+  return items.select(SearchChannel), continuation
 end

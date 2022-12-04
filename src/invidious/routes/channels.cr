@@ -147,6 +147,26 @@ module Invidious::Routes::Channels
     templated "community"
   end
 
+  def self.channels(env)
+    data = self.fetch_basic_information(env)
+    return data if !data.is_a?(Tuple)
+
+    locale, user, subscriptions, continuation, ucid, channel = data
+
+    if channel.auto_generated
+      return env.redirect "/channel/#{channel.ucid}"
+    end
+
+    items, next_continuation = fetch_related_channels(channel, continuation)
+
+    # Featured/related channels can't be sorted
+    sort_options = [] of String
+    sort_by = nil
+
+    selected_tab = Frontend::ChannelPage::TabsAvailable::Channels
+    templated "channel"
+  end
+
   def self.about(env)
     data = self.fetch_basic_information(env)
     if !data.is_a?(Tuple)
