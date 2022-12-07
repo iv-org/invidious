@@ -54,7 +54,7 @@
                         <div class="pure-u-1-4">
                             <a id="notification_ticker" title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
                                 <% notification_count = env.get("user").as(Invidious::User).notifications.size %>
-                                <% if notification_count > 0 %>
+                                <% if CONFIG.enable_user_notifications && notification_count > 0 %>
                                     <span id="notification_count"><%= notification_count %></span> <i class="icon ion-ios-notifications"></i>
                                 <% else %>
                                     <i class="icon ion-ios-notifications-outline"></i>
@@ -170,7 +170,9 @@
         }.to_pretty_json
         %>
         </script>
+        <% if CONFIG.enable_user_notifications %>
         <script src="/js/notifications.js?v=<%= ASSET_COMMIT %>"></script>
+        <% end %>
     <% end %>
 </body>
 
