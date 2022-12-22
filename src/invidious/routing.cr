@@ -225,6 +225,7 @@ module Invidious::Routing
       get "/api/v1/channels/:ucid", {{namespace}}::Channels, :home
       get "/api/v1/channels/:ucid/shorts", {{namespace}}::Channels, :shorts
       get "/api/v1/channels/:ucid/streams", {{namespace}}::Channels, :streams
+      get "/api/v1/channels/:ucid/channels", {{namespace}}::Channels, :channels
 
       {% for route in {"videos", "latest", "playlists", "community", "search"} %}
         get "/api/v1/channels/#{{{route}}}/:ucid", {{namespace}}::Channels, :{{route}}

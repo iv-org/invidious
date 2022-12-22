@@ -283,6 +283,37 @@ module Invidious::Routes::API::V1::Channels
     end
   end
 
+  def self.channels(env)
+    locale = env.get("preferences").as(Preferences).locale
+    ucid = env.params.url["ucid"]
+
+    env.response.content_type = "application/json"
+
+    # Use the macro defined above
+    channel = nil # Make the compiler happy
+    get_channel()
+
+    continuation = env.params.query["continuation"]?
+
+    begin
+      items, next_continuation = fetch_related_channels(channel, continuation)
+    rescue ex
+      return error_json(500, ex)
+    end
+
+    JSON.build do |json|
+      json.object do
+        json.field "relatedChannels" do
+          json.array do
+            items.each &.to_json(locale, json)
+          end
+        end
+
+        json.field "continuation", next_continuation if next_continuation
+      end
+    end
+  end
+
   def self.search(env)
     locale = env.get("preferences").as(Preferences).locale
     region = env.params.query["region"]?
