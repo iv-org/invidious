@@ -470,5 +470,7 @@
     "search_filters_duration_option_none": "Mindegy",
     "search_filters_duration_option_medium": "Átlagos (4 és 20 perc között)",
     "search_filters_features_option_vr180": "180°-os virtuális valóság",
-    "search_filters_apply_button": "Keresés a megadott szűrőkkel"
+    "search_filters_apply_button": "Keresés a megadott szűrőkkel",
+    "Popular enabled: ": "Népszerű engedélyezve ",
+    "error_video_not_in_playlist": "A lejátszási listában keresett videó nem létezik. <a href=\"`x`\">Kattintson ide a lejátszási listához jutáshoz.</a>"
 }
