@@ -30,7 +30,60 @@ module Invidious::Videos
 
       return captions_list
     end
-
+	
+	def timedtext_to_vtt(timedtext : String, tlang = nil) : String
+		#In the future, we could just directly work with the url. This is more of a POC
+		cues = [] of XML::Node
+		tree = XML.parse(timedtext)
+		tree = tree.children.first()
+		
+		tree.children.each do |item|
+			if item.name == "body"
+				item.children.each do |cue|
+					if cue.name == "p"
+					cues << cue
+					end
+				end
+				break
+			end
+		end
+		result = String.build do |result|
+			result << <<-END_VTT
+			WEBVTT
+			Kind: captions
+			Language: #{tlang || @language_code}
+	
+	
+			END_VTT
+			cues.each_with_index do |node,i|
+				start_time = node["t"].to_f.milliseconds
+				
+				duration = node["d"]?.try &.to_f.milliseconds
+				
+				duration ||= start_time
+				
+				if cues.size > i + 1
+				  end_time = cues[i + 1]["t"].to_f.milliseconds
+				else
+				  end_time = start_time + duration
+				end
+				
+				start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
+				
+				end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
+				text = String.build do |text|
+					node.children.each do |s|
+						text << s.content
+					end
+				end
+				result << start_time + " --> " + end_time + "\n"
+				result << text + "\n"
+				result << "\n"
+			end
+		end
+		return result
+	end
+	
     # List of all caption languages available on Youtube.
     LANGUAGES = {
       "",
@@ -164,5 +217,6 @@ module Invidious::Videos
       "Yoruba",
       "Zulu",
     }
+    	
   end
 end
