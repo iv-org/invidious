@@ -92,50 +92,50 @@ module Invidious::Routes::API::V1::Videos
       caption_xml = YT_POOL.client &.get(url).body
 
       if caption_xml.starts_with?("<?xml")
-      	webvtt =caption.timedtext_to_vtt(caption_xml,tlang)
+        webvtt = caption.timedtext_to_vtt(caption_xml, tlang)
       else
-	      caption_xml = XML.parse(caption_xml)
-	
-	      webvtt = String.build do |str|
-	        str << <<-END_VTT
+        caption_xml = XML.parse(caption_xml)
+
+        webvtt = String.build do |str|
+          str << <<-END_VTT
 	        WEBVTT
 	        Kind: captions
 	        Language: #{tlang || caption.language_code}
 	
 	
 	        END_VTT
-	
-	        caption_nodes = caption_xml.xpath_nodes("//transcript/text")
-	        caption_nodes.each_with_index do |node, i|
-	          start_time = node["start"].to_f.seconds
-	          duration = node["dur"]?.try &.to_f.seconds
-	          duration ||= start_time
-	
-	          if caption_nodes.size > i + 1
-	            end_time = caption_nodes[i + 1]["start"].to_f.seconds
-	          else
-	            end_time = start_time + duration
-	          end
-	
-	          start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
-	          end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
-	
-	          text = HTML.unescape(node.content)
-	          text = text.gsub(/<font color="#[a-fA-F0-9]{6}">/, "")
-	          text = text.gsub(/<\/font>/, "")
-	          if md = text.match(/(?<name>.*) : (?<text>.*)/)
-	            text = "<v #{md["name"]}>#{md["text"]}</v>"
-	          end
-	
-	          str << <<-END_CUE
+
+          caption_nodes = caption_xml.xpath_nodes("//transcript/text")
+          caption_nodes.each_with_index do |node, i|
+            start_time = node["start"].to_f.seconds
+            duration = node["dur"]?.try &.to_f.seconds
+            duration ||= start_time
+
+            if caption_nodes.size > i + 1
+              end_time = caption_nodes[i + 1]["start"].to_f.seconds
+            else
+              end_time = start_time + duration
+            end
+
+            start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
+            end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
+
+            text = HTML.unescape(node.content)
+            text = text.gsub(/<font color="#[a-fA-F0-9]{6}">/, "")
+            text = text.gsub(/<\/font>/, "")
+            if md = text.match(/(?<name>.*) : (?<text>.*)/)
+              text = "<v #{md["name"]}>#{md["text"]}</v>"
+            end
+
+            str << <<-END_CUE
 	          #{start_time} --> #{end_time}
 	          #{text}
 	
 	
 	          END_CUE
-	        end
-	      end
-	  end
+          end
+        end
+      end
     else
       # Some captions have "align:[start/end]" and "position:[num]%"
       # attributes. Those are causing issues with VideoJS, which is unable
@@ -144,11 +144,11 @@ module Invidious::Routes::API::V1::Videos
       # See: https://github.com/iv-org/invidious/issues/2391
       webvtt = YT_POOL.client &.get("#{url}&format=vtt").body
       if webvtt.starts_with?("<?xml")
-		webvtt = caption.timedtext_to_vtt(webvtt)
+        webvtt = caption.timedtext_to_vtt(webvtt)
       else
-	      webvtt = YT_POOL.client &.get("#{url}&format=vtt").body
-	        .gsub(/([0-9:.]{12} --> [0-9:.]{12}).+/, "\\1")
-	  end 
+        webvtt = YT_POOL.client &.get("#{url}&format=vtt").body
+          .gsub(/([0-9:.]{12} --> [0-9:.]{12}).+/, "\\1")
+      end
     end
 
     if title = env.params.query["title"]?
