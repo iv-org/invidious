@@ -41,7 +41,9 @@ module Invidious::Videos
         if item.name == "body"
           item.children.each do |cue|
             if cue.name == "p"
-              cues << cue
+              if !(cue.children.size == 1 && cue.children[0].content == "\n")
+                cues << cue
+              end
             end
           end
           break
@@ -71,13 +73,13 @@ module Invidious::Videos
           start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
 
           end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
-          text = String.build do |text|
-            node.children.each do |s|
-              text << s.content
-            end
-          end
+
           result << start_time + " --> " + end_time + "\n"
-          result << text + "\n"
+
+          node.children.each do |s|
+            result << s.content
+          end
+          result << "\n"
           result << "\n"
         end
       end
