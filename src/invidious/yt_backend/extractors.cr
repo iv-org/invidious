@@ -169,7 +169,12 @@ private module Parsers
       # When public subscriber count is disabled, the subscriberCountText isn't sent by InnerTube.
       # Always simpleText
       # TODO change default value to nil
+
       subscriber_count = item_contents.dig?("subscriberCountText", "simpleText")
+      if !subscriber_count || !subscriber_count.as_s.includes? " subscriber"
+        subscriber_count = item_contents.dig?("videoCountText", "simpleText")
+      end
+      subscriber_count = subscriber_count
         .try { |s| short_text_to_number(s.as_s.split(" ")[0]).to_i32 } || 0
 
       # Auto-generated channels doesn't have videoCountText
