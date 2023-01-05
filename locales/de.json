@@ -471,5 +471,6 @@
     "search_filters_apply_button": "Ausgewählte Filter anwenden",
     "search_filters_duration_option_none": "Beliebige Länge",
     "search_filters_date_label": "Upload-Datum",
-    "search_filters_date_option_none": "Beliebiges Datum"
+    "search_filters_date_option_none": "Beliebiges Datum",
+    "error_video_not_in_playlist": "Das angeforderte Video existiert nicht in dieser Wiedergabeliste. <a href=\"`x`\">Klicken Sie hier, um zur Startseite der Wiedergabeliste zu gelangen.</a>"
 }

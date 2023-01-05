@@ -411,5 +411,18 @@
     "search_filters_duration_option_long": "بلند (> 20 دقیقه)",
     "adminprefs_modified_source_code_url_label": "URL مخزن کد منبع ویریش شده",
     "search_filters_duration_option_short": "کوتاه (< 4 دقیقه)",
-    "search_filters_title": "پالایه"
+    "search_filters_title": "پالایه",
+    "Chinese (Hong Kong)": "چینی (هنگ‌کنگ)",
+    "Dutch (auto-generated)": "هلندی (تولید خودکار)",
+    "preferences_watch_history_label": "فعال‌سازی تاریخچه‌ی پخش ",
+    "Indonesian (auto-generated)": "اندونزیایی (تولید خودکار)",
+    "English (United States)": "انگلیسی (ایالات متحده)",
+    "Chinese": "چینی",
+    "Chinese (Taiwan)": "چینی (تایوان)",
+    "French (auto-generated)": "فرانسوی (تولید خودکار)",
+    "English (United Kingdom)": "انگلیسی (ایالات بریتانیا)",
+    "search_message_no_results": "نتیجه‌ای یافت نشد.",
+    "search_message_change_filters_or_query": "سعی کنید جست‌و‌جوی خود را وسیع‌تر کنید و/یا فیلترها را تغییر دهید.",
+    "Chinese (China)": "چینی (چین)",
+    "German (auto-generated)": "آلمانی (تولید خودکار)"
 }
