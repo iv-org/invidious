@@ -80,7 +80,7 @@ module Invidious::Routes::Watch
       Invidious::Database::Users.mark_watched(user.as(User), id)
     end
 
-    if notifications && notifications.includes? id
+    if CONFIG.enable_user_notifications && notifications && notifications.includes? id
       Invidious::Database::Users.remove_notification(user.as(User), id)
       env.get("user").as(User).notifications.delete(id)
       notifications.delete(id)

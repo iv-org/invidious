@@ -244,6 +244,7 @@
                     <input name="unseen_only" id="unseen_only" type="checkbox" <% if preferences.unseen_only %>checked<% end %>>
                 </div>
 
+                <% if CONFIG.enable_user_notifications %>
                 <div class="pure-control-group">
                     <label for="notifications_only"><%= translate(locale, "preferences_notifications_only_label") %></label>
                     <input name="notifications_only" id="notifications_only" type="checkbox" <% if preferences.notifications_only %>checked<% end %>>
@@ -254,6 +255,7 @@
                     <div class="pure-control-group">
                         <a href="#" data-onclick="notification_requestPermission"><%= translate(locale, "Enable web notifications") %></a>
                     </div>
+                <% end %>
                 <% end %>
             <% end %>
 
