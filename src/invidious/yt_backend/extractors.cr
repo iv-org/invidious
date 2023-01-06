@@ -171,6 +171,11 @@ private module Parsers
       # TODO change default value to nil
 
       subscriber_count = item_contents.dig?("subscriberCountText", "simpleText")
+
+      # Since youtube added channel handles, `VideoCountText` holds the number of
+      # subscribers and `subscriberCountText` holds the handle, except when the
+      # channel doesn't have a handle (e.g: some topic music channels).
+      # See https://github.com/iv-org/invidious/issues/3394#issuecomment-1321261688
       if !subscriber_count || !subscriber_count.as_s.includes? " subscriber"
         subscriber_count = item_contents.dig?("videoCountText", "simpleText")
       end
