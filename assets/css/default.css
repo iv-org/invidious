@@ -504,13 +504,13 @@ hr {
   height: 100%;
 }
 
-#descexpansionbutton:hover {
-  cursor: pointer;
-}
-
 #descexpansionbutton ~ label {
   order: 1;
   margin-top: 20px;
+}
+
+label[for="descexpansionbutton"]:hover {
+  cursor: pointer;
 }
 
 /* Bidi (bidirectional text) support */
