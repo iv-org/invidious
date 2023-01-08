@@ -408,18 +408,22 @@ private module Parsers
     private def self.parse(item_contents, author_fallback)
       video_id = item_contents["videoId"].as_s
 
-      begin
-        video_details_container = item_contents.dig(
-          "navigationEndpoint", "reelWatchEndpoint",
-          "overlay", "reelPlayerOverlayRenderer",
-          "reelPlayerHeaderSupportedRenderers",
-          "reelPlayerHeaderRenderer"
-        )
-      rescue ex : KeyError
-        # Extract key name from original message
-        key = /"([^"]+)"/.match(ex.message || "").try &.[1]?
-        raise BrokenTubeException.new(key || "reelPlayerOverlayRenderer")
+      reel_player_overlay = item_contents.dig(
+        "navigationEndpoint", "reelWatchEndpoint",
+        "overlay", "reelPlayerOverlayRenderer"
+      )
+
+      # Sometimes, the "reelPlayerOverlayRenderer" object is missing the
+      # important part of the response. We use this exception to tell
+      # the calling function to fetch the content again.
+      if !reel_player_overlay.as_h.has_key?("reelPlayerHeaderSupportedRenderers")
+        raise RetryOnceException.new
       end
+
+      video_details_container = reel_player_overlay.dig(
+        "reelPlayerHeaderSupportedRenderers",
+        "reelPlayerHeaderRenderer"
+      )
 
       # Author infos
 

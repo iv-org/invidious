@@ -127,16 +127,38 @@ module Invidious::Channel::Tabs
   #  Shorts
   # -------------------
 
-  def get_shorts(channel : AboutChannel, continuation : String? = nil)
+  private def fetch_shorts_data(ucid : String, continuation : String? = nil)
     if continuation.nil?
       # EgZzaG9ydHPyBgUKA5oBAA%3D%3D is the protobuf object to load "shorts"
       # TODO: try to extract the continuation tokens that allows other sorting options
-      initial_data = YoutubeAPI.browse(channel.ucid, params: "EgZzaG9ydHPyBgUKA5oBAA%3D%3D")
+      return YoutubeAPI.browse(ucid, params: "EgZzaG9ydHPyBgUKA5oBAA%3D%3D")
     else
-      initial_data = YoutubeAPI.browse(continuation: continuation)
+      return YoutubeAPI.browse(continuation: continuation)
     end
+  end
 
-    return extract_items(initial_data, channel.author, channel.ucid)
+  def get_shorts(channel : AboutChannel, continuation : String? = nil)
+    initial_data = self.fetch_shorts_data(channel.ucid, continuation)
+
+    begin
+      # Try to parse the initial data fetched above
+      return extract_items(initial_data, channel.author, channel.ucid)
+    rescue ex : RetryOnceException
+      # Sometimes, for a completely unknown reason, the "reelItemRenderer"
+      # object is missing some critical information (it happens once in about
+      # 20 subsequent requests). Refreshing the page is required to properly
+      # show the "shorts" tab.
+      #
+      # In order to make the experience smoother for the user, we simulate
+      # said page refresh by fetching again the JSON. If that still doesn't
+      # work, we raise a BrokenTubeException, as something is really broken.
+      begin
+        initial_data = self.fetch_shorts_data(channel.ucid, continuation)
+        return extract_items(initial_data, channel.author, channel.ucid)
+      rescue ex : RetryOnceException
+        raise BrokenTubeException.new "reelPlayerHeaderSupportedRenderers"
+      end
+    end
   end
 
   # -------------------
