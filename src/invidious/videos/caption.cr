@@ -40,8 +40,7 @@ module Invidious::Videos
       tree.children.each do |item|
         if item.name == "body"
           item.children.each do |cue|
-            if cue.name == "p"
-              if !(cue.children.size == 1 && cue.children[0].content == "\n")
+            if cue.name == "p" && !(cue.children.size == 1 && cue.children[0].content == "\n")
                 cues << cue
               end
             end
@@ -51,12 +50,15 @@ module Invidious::Videos
       end
       result = String.build do |result|
         result << <<-END_VTT
-			WEBVTT
-			Kind: captions
-			Language: #{tlang || @language_code}
-	
-	
-			END_VTT
+		WEBVTT
+		Kind: captions
+		Language: #{tlang || @language_code}
+
+
+		END_VTT
+
+		result << "\n\n"
+		
         cues.each_with_index do |node, i|
           start_time = node["t"].to_f.milliseconds
 
@@ -70,11 +72,21 @@ module Invidious::Videos
             end_time = start_time + duration
           end
 
-          start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
+          # start_time
+          result << start_time.hours.to_s.rjust(2, '0')
+          result << ':' << start_time.minutes.to_s.rjust(2, '0')
+          result << ':' << start_time.seconds.to_s.rjust(2, '0')
+          result << '.' << start_time.milliseconds.to_s.rjust(3, '0')
 
-          end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
+          result << " --> "
 
-          result << start_time + " --> " + end_time + "\n"
+          # end_time
+          result << end_time.hours.to_s.rjust(2, '0')
+          result << ':' << end_time.minutes.to_s.rjust(2, '0')
+          result << ':' << end_time.seconds.to_s.rjust(2, '0')
+          result << '.' << end_time.milliseconds.to_s.rjust(3, '0')
+
+          result << "\n"
 
           node.children.each do |s|
             result << s.content

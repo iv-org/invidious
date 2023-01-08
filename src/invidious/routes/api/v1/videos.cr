@@ -128,11 +128,11 @@ module Invidious::Routes::API::V1::Videos
             end
 
             str << <<-END_CUE
-	          #{start_time} --> #{end_time}
-	          #{text}
+	        #{start_time} --> #{end_time}
+	        #{text}
 	
 	
-	          END_CUE
+	        END_CUE
           end
         end
       end
