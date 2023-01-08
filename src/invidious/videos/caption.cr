@@ -41,7 +41,7 @@ module Invidious::Videos
         if item.name == "body"
           item.children.each do |cue|
             if cue.name == "p" && !(cue.children.size == 1 && cue.children[0].content == "\n")
-                cues << cue
+              cues << cue
             end
           end
           break
@@ -56,8 +56,8 @@ module Invidious::Videos
 
 		END_VTT
 
-		result << "\n\n"
-		
+        result << "\n\n"
+
         cues.each_with_index do |node, i|
           start_time = node["t"].to_f.milliseconds
 
