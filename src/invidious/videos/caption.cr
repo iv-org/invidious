@@ -42,7 +42,6 @@ module Invidious::Videos
           item.children.each do |cue|
             if cue.name == "p" && !(cue.children.size == 1 && cue.children[0].content == "\n")
                 cues << cue
-              end
             end
           end
           break
