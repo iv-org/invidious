@@ -4,7 +4,7 @@ Spectator.describe Invidious::Hashtag do
   it "parses richItemRenderer containers (test 1)" do
     # Enable mock
     test_content = load_mock("hashtag/martingarrix_page1")
-    videos = extract_items(test_content)
+    videos, _ = extract_items(test_content)
 
     expect(typeof(videos)).to eq(Array(SearchItem))
     expect(videos.size).to eq(60)
@@ -57,7 +57,7 @@ Spectator.describe Invidious::Hashtag do
   it "parses richItemRenderer containers (test 2)" do
     # Enable mock
     test_content = load_mock("hashtag/martingarrix_page2")
-    videos = extract_items(test_content)
+    videos, _ = extract_items(test_content)
 
     expect(typeof(videos)).to eq(Array(SearchItem))
     expect(videos.size).to eq(60)

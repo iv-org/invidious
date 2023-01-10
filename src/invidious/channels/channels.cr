@@ -180,11 +180,16 @@ def fetch_channel(ucid, pull_all_videos : Bool)
 
   LOGGER.trace("fetch_channel: #{ucid} : author = #{author}, auto_generated = #{auto_generated}")
 
-  page = 1
+  channel = InvidiousChannel.new({
+    id:         ucid,
+    author:     author,
+    updated:    Time.utc,
+    deleted:    false,
+    subscribed: nil,
+  })
 
   LOGGER.trace("fetch_channel: #{ucid} : Downloading channel videos page")
-  initial_data = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
-  videos = extract_videos(initial_data, author, ucid)
+  videos, continuation = IV::Channel::Tabs.get_videos(channel)
 
   LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel RSS feed")
   rss.xpath_nodes("//feed/entry").each do |entry|
@@ -197,7 +202,9 @@ def fetch_channel(ucid, pull_all_videos : Bool)
     views = entry.xpath_node("group/community/statistics").try &.["views"]?.try &.to_i64?
     views ||= 0_i64
 
-    channel_video = videos.select { |video| video.id == video_id }[0]?
+    channel_video = videos
+      .select(SearchVideo)
+      .select(&.id.== video_id)[0]?
 
     length_seconds = channel_video.try &.length_seconds
     length_seconds ||= 0
@@ -239,30 +246,25 @@ def fetch_channel(ucid, pull_all_videos : Bool)
   end
 
   if pull_all_videos
-    page += 1
-
-    ids = [] of String
-
     loop do
-      initial_data = get_channel_videos_response(ucid, page, auto_generated: auto_generated)
-      videos = extract_videos(initial_data, author, ucid)
+      # Keep fetching videos using the continuation token retrieved earlier
+      videos, continuation = IV::Channel::Tabs.get_videos(channel, continuation: continuation)
 
-      count = videos.size
-      videos = videos.map { |video| ChannelVideo.new({
-        id:                 video.id,
-        title:              video.title,
-        published:          video.published,
-        updated:            Time.utc,
-        ucid:               video.ucid,
-        author:             video.author,
-        length_seconds:     video.length_seconds,
-        live_now:           video.live_now,
-        premiere_timestamp: video.premiere_timestamp,
-        views:              video.views,
-      }) }
-
-      videos.each do |video|
-        ids << video.id
+      count = 0
+      videos.select(SearchVideo).each do |video|
+        count += 1
+        video = ChannelVideo.new({
+          id:                 video.id,
+          title:              video.title,
+          published:          video.published,
+          updated:            Time.utc,
+          ucid:               video.ucid,
+          author:             video.author,
+          length_seconds:     video.length_seconds,
+          live_now:           video.live_now,
+          premiere_timestamp: video.premiere_timestamp,
+          views:              video.views,
+        })
 
         # We are notified of Red videos elsewhere (PubSub), which includes a correct published date,
         # so since they don't provide a published date here we can safely ignore them.
@@ -279,17 +281,10 @@ def fetch_channel(ucid, pull_all_videos : Bool)
       end
 
       break if count < 25
-      page += 1
+      sleep 500.milliseconds
     end
   end
 
-  channel = InvidiousChannel.new({
-    id:         ucid,
-    author:     author,
-    updated:    Time.utc,
-    deleted:    false,
-    subscribed: nil,
-  })
-
+  channel.updated = Time.utc
   return channel
 end

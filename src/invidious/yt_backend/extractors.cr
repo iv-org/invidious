@@ -7,7 +7,7 @@ require "../helpers/serialized_yt_data"
 private ITEM_CONTAINER_EXTRACTOR = {
   Extractors::YouTubeTabs,
   Extractors::SearchResults,
-  Extractors::Continuation,
+  Extractors::ContinuationContent,
 }
 
 private ITEM_PARSERS = {
@@ -18,7 +18,10 @@ private ITEM_PARSERS = {
   Parsers::CategoryRendererParser,
   Parsers::RichItemRendererParser,
   Parsers::ReelItemRendererParser,
+  Parsers::ContinuationItemRendererParser,
 }
+
+private alias InitialData = Hash(String, JSON::Any)
 
 record AuthorFallback, name : String, id : String
 
@@ -345,14 +348,9 @@ private module Parsers
         content_container = item_contents["contents"]
       end
 
-      raw_contents = content_container["items"]?.try &.as_a
-      if !raw_contents.nil?
-        raw_contents.each do |item|
-          result = extract_item(item)
-          if !result.nil?
-            contents << result
-          end
-        end
+      content_container["items"]?.try &.as_a.each do |item|
+        result = parse_item(item, author_fallback.name, author_fallback.id)
+        contents << result if result.is_a?(SearchItem)
       end
 
       Category.new({
@@ -384,7 +382,9 @@ private module Parsers
     end
 
     private def self.parse(item_contents, author_fallback)
-      return VideoRendererParser.process(item_contents, author_fallback)
+      child = VideoRendererParser.process(item_contents, author_fallback)
+      child ||= ReelItemRendererParser.process(item_contents, author_fallback)
+      return child
     end
 
     def self.parser_name
@@ -408,9 +408,19 @@ private module Parsers
     private def self.parse(item_contents, author_fallback)
       video_id = item_contents["videoId"].as_s
 
-      video_details_container = item_contents.dig(
+      reel_player_overlay = item_contents.dig(
         "navigationEndpoint", "reelWatchEndpoint",
-        "overlay", "reelPlayerOverlayRenderer",
+        "overlay", "reelPlayerOverlayRenderer"
+      )
+
+      # Sometimes, the "reelPlayerOverlayRenderer" object is missing the
+      # important part of the response. We use this exception to tell
+      # the calling function to fetch the content again.
+      if !reel_player_overlay.as_h.has_key?("reelPlayerHeaderSupportedRenderers")
+        raise RetryOnceException.new
+      end
+
+      video_details_container = reel_player_overlay.dig(
         "reelPlayerHeaderSupportedRenderers",
         "reelPlayerHeaderRenderer"
       )
@@ -436,9 +446,9 @@ private module Parsers
 
       # View count
 
-      view_count_text = video_details_container.dig?("viewCountText", "simpleText")
-      view_count_text ||= video_details_container
-        .dig?("viewCountText", "accessibility", "accessibilityData", "label")
+      # View count used to be in the reelWatchEndpoint, but that changed?
+      view_count_text = item_contents.dig?("viewCountText", "simpleText")
+      view_count_text ||= video_details_container.dig?("viewCountText", "simpleText")
 
       view_count = view_count_text.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
 
@@ -450,8 +460,8 @@ private module Parsers
 
       regex_match = /- (?<min>\d+ minutes? )?(?<sec>\d+ seconds?)+ -/.match(a11y_data)
 
-      minutes = regex_match.try &.["min"].to_i(strict: false) || 0
-      seconds = regex_match.try &.["sec"].to_i(strict: false) || 0
+      minutes = regex_match.try &.["min"]?.try &.to_i(strict: false) || 0
+      seconds = regex_match.try &.["sec"]?.try &.to_i(strict: false) || 0
 
       duration = (minutes*60 + seconds)
 
@@ -469,6 +479,35 @@ private module Parsers
         premiere_timestamp: Time.unix(0),
         author_verified:    false,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube continuationItemRenderer into a Continuation.
+  # Returns nil when the given object isn't a continuationItemRenderer.
+  #
+  # continuationItemRenderer contains various metadata ued to load more
+  # content (i.e when the user scrolls down). The interesting bit is the
+  # protobuf object known as the "continutation token". Previously, those
+  # were generated from sratch, but recent (as of 11/2022) Youtube changes
+  # are forcing us to extract them from replies.
+  #
+  module ContinuationItemRendererParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["continuationItemRenderer"]?
+        return self.parse(item_contents)
+      end
+    end
+
+    private def self.parse(item_contents)
+      token = item_contents
+        .dig?("continuationEndpoint", "continuationCommand", "token")
+        .try &.as_s
+
+      return Continuation.new(token) if token
     end
 
     def self.parser_name
@@ -510,7 +549,7 @@ private module Extractors
   # }]
   #
   module YouTubeTabs
-    def self.process(initial_data : Hash(String, JSON::Any))
+    def self.process(initial_data : InitialData)
       if target = initial_data["twoColumnBrowseResultsRenderer"]?
         self.extract(target)
       end
@@ -575,7 +614,7 @@ private module Extractors
   # }
   #
   module SearchResults
-    def self.process(initial_data : Hash(String, JSON::Any))
+    def self.process(initial_data : InitialData)
       if target = initial_data["twoColumnSearchResultsRenderer"]?
         self.extract(target)
       end
@@ -608,8 +647,8 @@ private module Extractors
   # The way they are structured is too varied to be accurately written down here.
   # However, they all eventually lead to an array of parsable items after traversing
   # through the JSON structure.
-  module Continuation
-    def self.process(initial_data : Hash(String, JSON::Any))
+  module ContinuationContent
+    def self.process(initial_data : InitialData)
       if target = initial_data["continuationContents"]?
         self.extract(target)
       elsif target = initial_data["appendContinuationItemsAction"]?
@@ -691,8 +730,7 @@ end
 
 # Parses an item from Youtube's JSON response into a more usable structure.
 # The end result can either be a SearchVideo, SearchPlaylist or SearchChannel.
-def extract_item(item : JSON::Any, author_fallback : String? = "",
-                 author_id_fallback : String? = "")
+def parse_item(item : JSON::Any, author_fallback : String? = "", author_id_fallback : String? = "")
   # We "allow" nil values but secretly use empty strings instead. This is to save us the
   # hassle of modifying every author_fallback and author_id_fallback arg usage
   # which is more often than not nil.
@@ -702,24 +740,23 @@ def extract_item(item : JSON::Any, author_fallback : String? = "",
   # Each parser automatically validates the data given to see if the data is
   # applicable to itself. If not nil is returned and the next parser is attempted.
   ITEM_PARSERS.each do |parser|
-    LOGGER.trace("extract_item: Attempting to parse item using \"#{parser.parser_name}\" (cycling...)")
+    LOGGER.trace("parse_item: Attempting to parse item using \"#{parser.parser_name}\" (cycling...)")
 
     if result = parser.process(item, author_fallback)
-      LOGGER.debug("extract_item: Successfully parsed via #{parser.parser_name}")
-
+      LOGGER.debug("parse_item: Successfully parsed via #{parser.parser_name}")
       return result
     else
-      LOGGER.trace("extract_item: Parser \"#{parser.parser_name}\" does not apply. Cycling to the next one...")
+      LOGGER.trace("parse_item: Parser \"#{parser.parser_name}\" does not apply. Cycling to the next one...")
     end
   end
 end
 
 # Parses multiple items from YouTube's initial JSON response into a more usable structure.
 # The end result is an array of SearchItem.
-def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil,
-                  author_id_fallback : String? = nil) : Array(SearchItem)
-  items = [] of SearchItem
-
+#
+# This function yields the container so that items can be parsed separately.
+#
+def extract_items(initial_data : InitialData, &block)
   if unpackaged_data = initial_data["contents"]?.try &.as_h
   elsif unpackaged_data = initial_data["response"]?.try &.as_h
   elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 0).try &.as_h
@@ -727,24 +764,37 @@ def extract_items(initial_data : Hash(String, JSON::Any), author_fallback : Stri
     unpackaged_data = initial_data
   end
 
-  # This is identical to the parser cycling of extract_item().
+  # This is identical to the parser cycling of parse_item().
   ITEM_CONTAINER_EXTRACTOR.each do |extractor|
     LOGGER.trace("extract_items: Attempting to extract item container using \"#{extractor.extractor_name}\" (cycling...)")
 
     if container = extractor.process(unpackaged_data)
       LOGGER.debug("extract_items: Successfully unpacked container with \"#{extractor.extractor_name}\"")
       # Extract items in container
-      container.each do |item|
-        if parsed_result = extract_item(item, author_fallback, author_id_fallback)
-          items << parsed_result
-        end
-      end
-
-      break
+      container.each { |item| yield item }
     else
       LOGGER.trace("extract_items: Extractor \"#{extractor.extractor_name}\" does not apply. Cycling to the next one...")
     end
   end
+end
 
-  return items
+# Wrapper using the block function above
+def extract_items(
+  initial_data : InitialData,
+  author_fallback : String? = nil,
+  author_id_fallback : String? = nil
+) : {Array(SearchItem), String?}
+  items = [] of SearchItem
+  continuation = nil
+
+  extract_items(initial_data) do |item|
+    parsed = parse_item(item, author_fallback, author_id_fallback)
+
+    case parsed
+    when .is_a?(Continuation) then continuation = parsed.token
+    when .is_a?(SearchItem)   then items << parsed
+    end
+  end
+
+  return items, continuation
 end

@@ -48,6 +48,13 @@ require "./invidious/search/*"
 require "./invidious/routes/**"
 require "./invidious/jobs/**"
 
+# Declare the base namespace for invidious
+module Invidious
+end
+
+# Simple alias to make code easier to read
+alias IV = Invidious
+
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
 
@@ -172,7 +179,7 @@ if CONFIG.popular_enabled
   Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 end
 
-CONNECTION_CHANNEL = Channel({Bool, Channel(PQ::Notification)}).new(32)
+CONNECTION_CHANNEL = ::Channel({Bool, ::Channel(PQ::Notification)}).new(32)
 Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(CONNECTION_CHANNEL, CONFIG.database_url)
 
 Invidious::Jobs.register Invidious::Jobs::ClearExpiredItemsJob.new

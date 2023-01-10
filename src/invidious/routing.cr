@@ -117,14 +117,17 @@ module Invidious::Routing
     get "/channel/:ucid", Routes::Channels, :home
     get "/channel/:ucid/home", Routes::Channels, :home
     get "/channel/:ucid/videos", Routes::Channels, :videos
+    get "/channel/:ucid/shorts", Routes::Channels, :shorts
+    get "/channel/:ucid/streams", Routes::Channels, :streams
     get "/channel/:ucid/playlists", Routes::Channels, :playlists
     get "/channel/:ucid/community", Routes::Channels, :community
+    get "/channel/:ucid/channels", Routes::Channels, :channels
     get "/channel/:ucid/about", Routes::Channels, :about
     get "/channel/:ucid/live", Routes::Channels, :live
     get "/user/:user/live", Routes::Channels, :live
     get "/c/:user/live", Routes::Channels, :live
 
-    ["", "/videos", "/playlists", "/community", "/about"].each do |path|
+    {"", "/videos", "/shorts", "/streams", "/playlists", "/community", "/about"}.each do |path|
       # /c/LinusTechTips
       get "/c/:user#{path}", Routes::Channels, :brand_redirect
       # /user/linustechtips | Not always the same as /c/
@@ -222,6 +225,10 @@ module Invidious::Routing
 
       # Channels
       get "/api/v1/channels/:ucid", {{namespace}}::Channels, :home
+      get "/api/v1/channels/:ucid/shorts", {{namespace}}::Channels, :shorts
+      get "/api/v1/channels/:ucid/streams", {{namespace}}::Channels, :streams
+      get "/api/v1/channels/:ucid/channels", {{namespace}}::Channels, :channels
+
       {% for route in {"videos", "latest", "playlists", "community", "search"} %}
         get "/api/v1/channels/#{{{route}}}/:ucid", {{namespace}}::Channels, :{{route}}
         get "/api/v1/channels/:ucid/#{{{route}}}", {{namespace}}::Channels, :{{route}}
