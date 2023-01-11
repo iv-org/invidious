@@ -49,12 +49,12 @@ module Invidious::Videos
       end
       result = String.build do |result|
         result << <<-END_VTT
-		WEBVTT
-		Kind: captions
-		Language: #{tlang || @language_code}
+        WEBVTT
+        Kind: captions
+        Language: #{tlang || @language_code}
 
 
-		END_VTT
+        END_VTT
 
         result << "\n\n"
 
