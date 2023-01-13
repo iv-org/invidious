@@ -42,7 +42,7 @@ module Invidious::Routes::API::Manifest
 
     if local
       adaptive_fmts.each do |fmt|
-        fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target)
+        fmt["url"] = JSON::Any.new("#{HOST_URL}#{URI.parse(fmt["url"].as_s).request_target}")
       end
     end
 
