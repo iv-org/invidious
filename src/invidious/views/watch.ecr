@@ -196,6 +196,15 @@ we're going to need to do it here in order to allow for translations.
                     <% end %>
                 </p>
             <% end %>
+            <% if !video.music_artist.empty? %>
+                <p id="music_artist"><%= translate(locale, "Music artist: ") %><%= video.music_artist %></p>
+            <% end %>
+            <% if !video.music_album.empty? %>
+                <p id="music_album"><%= translate(locale, "Music album: ") %><%= video.music_album %></p>
+            <% end %>
+            <% if !video.music_licenses.empty? %>
+                <p id="music_licenses"><%= translate(locale, "Music licenses: ") %><%= video.music_licenses %></p>
+            <% end %>
         </div>
     </div>
 

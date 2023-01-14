@@ -309,6 +309,24 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     end
   end
 
+  # Music section
+
+  music_desc = player_response.dig?("engagementPanels", 1, "engagementPanelSectionListRenderer", "content", "structuredDescriptionContentRenderer", "items", 2, "videoDescriptionMusicSectionRenderer", "carouselLockups", 0, "carouselLockupRenderer", "infoRows").try &.as_a
+  artist = nil
+  album = nil
+  music_licenses = nil
+
+  music_desc.try &.each do |desc|
+    desc_title = extract_text(desc.dig?("infoRowRenderer", "title"))
+    if desc_title == "ARTIST"
+      artist = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
+    elsif desc_title == "ALBUM"
+      album = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
+    elsif desc_title == "LICENSES"
+      music_licenses = extract_text(desc.dig?("infoRowRenderer", "expandedMetadata"))
+    end
+  end
+
   # Author infos
 
   author = video_details["author"]?.try &.as_s
@@ -359,6 +377,10 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "genre"     => JSON::Any.new(genre.try &.as_s || ""),
     "genreUcid" => JSON::Any.new(genre_ucid.try &.as_s || ""),
     "license"   => JSON::Any.new(license.try &.as_s || ""),
+    # Music section
+    "music_artist"   => JSON::Any.new(artist || ""),
+    "music_album"    => JSON::Any.new(album || ""),
+    "music_licenses" => JSON::Any.new(music_licenses || ""),
     # Author infos
     "author"          => JSON::Any.new(author || ""),
     "ucid"            => JSON::Any.new(ucid || ""),

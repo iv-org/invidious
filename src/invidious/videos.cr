@@ -314,6 +314,9 @@ struct Video
   getset_string genre
   getset_string genreUcid
   getset_string license
+  getset_string music_artist
+  getset_string music_album
+  getset_string music_licenses
   getset_string shortDescription
   getset_string subCountText
   getset_string title
