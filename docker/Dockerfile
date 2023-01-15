@@ -43,7 +43,7 @@ RUN if [[ "${release}" == 1 && "${disable_quic}" == 1 ]] ; then \
 
 
 FROM alpine:3.16
-RUN apk add --no-cache librsvg ttf-opensans
+RUN apk add --no-cache librsvg ttf-opensans tini
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
     adduser -u 1000 -S invidious -G invidious
@@ -58,4 +58,5 @@ RUN chmod o+rX -R ./assets ./config ./locales
 
 EXPOSE 3000
 USER invidious
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD [ "/invidious/invidious" ]
