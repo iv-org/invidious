@@ -315,9 +315,9 @@
     "`x` marked it with a ❤": "`x` merkti það með ❤",
     "Audio mode": "Hljóð ham",
     "Video mode": "Myndband ham",
-    "Videos": "Myndbönd",
+    "channel_tab_videos_label": "Myndbönd",
     "Playlists": "Spilunarlistar",
-    "Community": "Samfélag",
+    "channel_tab_community_label": "Samfélag",
     "Current version: ": "Núverandi útgáfa: ",
     "preferences_watch_history_label": "Virkja áhorfssögu: "
 }
