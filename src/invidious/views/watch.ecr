@@ -181,7 +181,7 @@ we're going to need to do it here in order to allow for translations.
                 <% end %>
             </p>
             <% if video.license %>
-                <% if video.license == "" %>
+                <% if video.license.empty? %>
                     <p id="license"><%= translate(locale, "License: ") %><%= translate(locale, "Standard YouTube license") %></p>
                 <% else %>
                     <p id="license"><%= translate(locale, "License: ") %><%= video.license %></p>
