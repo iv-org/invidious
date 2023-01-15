@@ -91,14 +91,8 @@ module Invidious::Routes::VideoPlayback
           env.response.headers["Access-Control-Allow-Origin"] = "*"
 
           if location = resp.headers["Location"]?
-            location = URI.parse(location)
-            location = "#{location.request_target}&host=#{location.host}"
-
-            if region
-              location += "&region=#{region}"
-            end
-
-            return env.redirect location
+            url = Invidious::HttpServer::Utils.proxy_video_url(location, region: region)
+            return env.redirect url
           end
 
           IO.copy(resp.body_io, env.response)
