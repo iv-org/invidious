@@ -30,6 +30,75 @@ struct Invidious::User
       return subscriptions
     end
 
+    # Parse a youtube CSV playlist file and create the playlist
+    #NEW - Done
+    def parse_playlist_export_csv(user : User, csv_content : String)
+      rows = CSV.new(csv_content, headers: false)
+      if rows.size >= 2
+        title = rows[1][4]?.try &.as_s?.try
+        descripton = rows[1][5]?.try &.as_s?.try
+        visibility = rows[1][6]?.try &.as_s?.try
+        
+        if visibility.compare("Public", case_insensitive: true) == 0
+          privacy = PlaylistPrivacy:Public
+        else
+          privacy = PlaylistPrivacy:Private
+        end
+
+        if title && privacy && user
+          playlist = create_playlist(title, privacy, user) 
+        end
+
+        if playlist && descripton
+          Invidious::Database::Playlists.update_description(playlist.id, description)
+        end
+      end
+
+      return playlist
+    end
+
+    # Parse a youtube CSV playlist file and add videos from it to a playlist
+    #NEW - done
+    def parse_playlist_videos_export_csv(playlist : Playlist, csv_content : String)
+      rows = CSV.new(csv_content, headers: false)
+      if rows.size >= 5
+        offset = env.params.query["index"]?.try &.to_i? || 0
+        row_counter = 0
+        rows.each do |row|
+          if row_counter >= 4
+            video_id = row[0]?.try &.as_s?.try
+          end
+          row_counter += 1
+          next if !video_id
+
+          begin
+            video = get_video(video_id)
+          rescue ex
+            next
+          end
+
+          playlist_video = PlaylistVideo.new({
+            title:          video.title,
+            id:             video.id,
+            author:         video.author,
+            ucid:           video.ucid,
+            length_seconds: video.length_seconds,
+            published:      video.published,
+            plid:           playlist.id,
+            live_now:       video.live_now,
+            index:          Random::Secure.rand(0_i64..Int64::MAX),
+          })
+
+          Invidious::Database::PlaylistVideos.insert(playlist_video)
+          Invidious::Database::Playlists.update_video_added(playlist.id, playlist_video.index)
+        end
+
+        videos = get_playlist_videos(playlist, offset: offset)
+      end
+      
+      return videos
+    end
+
     # -------------------
     #  Invidious
     # -------------------
@@ -146,6 +215,22 @@ struct Invidious::User
       user.subscriptions = get_batch_channels(user.subscriptions)
 
       Invidious::Database::Users.update_subscriptions(user)
+      return true
+    end
+
+    # Import playlist from Youtube
+    # Returns success status
+    #NEW
+    def from_youtube_pl(user : User, body : String, filename : String, type : String) : Bool
+      extension = filename.split(".").last
+
+      if extension == "csv" || type == "text/csv"
+        playlist = parse_playlist_export_csv(user, body)
+        playlist = parse_playlist_videos_export_csv(playlist, body)
+      else
+        return false
+      end
+
       return true
     end
 
