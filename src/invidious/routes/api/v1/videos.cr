@@ -98,12 +98,12 @@ module Invidious::Routes::API::V1::Videos
 
         webvtt = String.build do |str|
           str << <<-END_VTT
-            WEBVTT
-            Kind: captions
-            Language: #{tlang || caption.language_code}
-    
-    
-            END_VTT
+          WEBVTT
+          Kind: captions
+          Language: #{tlang || caption.language_code}
+
+
+          END_VTT
 
           caption_nodes = caption_xml.xpath_nodes("//transcript/text")
           caption_nodes.each_with_index do |node, i|
@@ -128,11 +128,11 @@ module Invidious::Routes::API::V1::Videos
             end
 
             str << <<-END_CUE
-              #{start_time} --> #{end_time}
-              #{text}
-    
-    
-              END_CUE
+            #{start_time} --> #{end_time}
+            #{text}
+
+
+            END_CUE
           end
         end
       end
