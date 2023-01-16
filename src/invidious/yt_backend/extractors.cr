@@ -652,7 +652,6 @@ module HelperExtractors
   #
   # Returns a 0 when it's unable to do so
   def self.get_video_count(container : JSON::Any) : Int32
-    puts container
     if box = container["videoCountText"]?
       if (extracted_text = extract_text(box)) && !extracted_text.includes? " subscriber"
         return extracted_text.gsub(/\D/, "").to_i
