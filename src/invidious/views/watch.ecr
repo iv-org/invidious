@@ -34,11 +34,13 @@
 we're going to need to do it here in order to allow for translations.
  -->
 <style>
-#descexpansionbutton ~ label > a::after {
+#descexpansionbutton ~ label > a::after,
+#musicdescexpansionbutton ~ label > a::after {
     content: "<%= translate(locale, "Show more") %>"
 }
 
-#descexpansionbutton:checked ~ label > a::after {
+#descexpansionbutton:checked ~ label > a::after,
+#musicdescexpansionbutton:checked ~ label > a::after {
     content: "<%= translate(locale, "Show less") %>"
 }
 </style>
@@ -196,15 +198,6 @@ we're going to need to do it here in order to allow for translations.
                     <% end %>
                 </p>
             <% end %>
-            <% if !video.music_artist.empty? %>
-                <p id="music_artist"><%= translate(locale, "Music artist: ") %><%= video.music_artist %></p>
-            <% end %>
-            <% if !video.music_album.empty? %>
-                <p id="music_album"><%= translate(locale, "Music album: ") %><%= video.music_album %></p>
-            <% end %>
-            <% if !video.music_licenses.empty? %>
-                <p id="music_licenses"><%= translate(locale, "Music licenses: ") %><%= video.music_licenses %></p>
-            <% end %>
         </div>
     </div>
 
@@ -244,6 +237,33 @@ we're going to need to do it here in order to allow for translations.
 
             <hr>
 
+            <% if !video.music.empty? %>
+                <h3 id="music-description-title"><%= translate(locale, "Music") %></h3>
+                <div id="music-description-box">
+                    <% if video.music.size == 1 %>
+                        <div id="musicDescriptionWrapper">
+                            <p id="music-artist"><%= translate(locale, "Artist: ") %><%= video.music[0].artist %></p>
+                            <p id="music-album"><%= translate(locale, "Album: ") %><%= video.music[0].album %></p>
+                            <p id="music-license"><%= translate(locale, "License: ") %><%= video.music[0].license %></p>
+                        </div>
+                    <% else %>
+                        <input id="musicdescexpansionbutton" type="checkbox"/>
+                        <div id="musicDescriptionWrapper">
+                            <% video.music.each do |music| %>
+                                <p id="music-artist"><%= translate(locale, "Artist: ") %><%= music.artist %></p>
+                                <p id="music-album"><%= translate(locale, "Album: ") %><%= music.album %></p>
+                                <p id="music-license"><%= translate(locale, "License: ") %><%= music.license %></p>
+                                <hr>
+                            <% end %>
+                        </div>
+                        <label for="musicdescexpansionbutton">
+                            <a></a>
+                        </label>
+                    <% end %>
+                </div>
+            <hr>
+
+            <% end %>
             <div id="comments">
                 <% if nojs %>
                     <%= comment_html %>

@@ -490,26 +490,31 @@ hr {
 }
 
 /* Description Expansion Styling*/
-#descexpansionbutton {
+#descexpansionbutton,
+#musicdescexpansionbutton {
   display: none
 }
 
-#descexpansionbutton ~ div {
+#descexpansionbutton ~ div,
+#musicdescexpansionbutton ~ div {
   overflow: hidden;
   height: 8.3em;
 }
 
-#descexpansionbutton:checked ~ div {
+#descexpansionbutton:checked ~ div,
+#musicdescexpansionbutton:checked ~ div {
   overflow: unset;
   height: 100%;
 }
 
-#descexpansionbutton ~ label {
+#descexpansionbutton ~ label,
+#musicdescexpansionbutton ~ label {
   order: 1;
   margin-top: 20px;
 }
 
-label[for="descexpansionbutton"]:hover {
+label[for="descexpansionbutton"]:hover,
+label[for="musicdescexpansionbutton"]:hover {
   cursor: pointer;
 }
 
@@ -521,14 +526,24 @@ h4,
 h5,
 p,
 #descriptionWrapper,
-#description-box {
-	unicode-bidi: plaintext;
-	text-align: start;
+#description-box,
+#music-description-box,
+#musicDescriptionWrapper {
+  unicode-bidi: plaintext;
+  text-align: start;
 }
 
 #descriptionWrapper {
-	max-width: 600px;
-	white-space: pre-wrap;
+  max-width: 600px;
+  white-space: pre-wrap;
+}
+
+#musicDescriptionWrapper {
+  max-width: 600px;
+}
+
+#music-description-title {
+  margin-bottom: 0px;
 }
 
 /* Center the "invidious" logo on the search page */

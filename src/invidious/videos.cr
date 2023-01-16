@@ -247,6 +247,15 @@ struct Video
     info["reason"]?.try &.as_s
   end
 
+  def music : Array(VideoMusic)
+    music_list = Array(VideoMusic).new
+
+    info["music"].as_a.each do |music_json|
+      music_list << VideoMusic.new(music_json["album"].as_s, music_json["artist"].as_s, music_json["license"].as_s)
+    end
+    return music_list
+  end
+
   # Macros defining getters/setters for various types of data
 
   private macro getset_string(name)
@@ -314,9 +323,6 @@ struct Video
   getset_string genre
   getset_string genreUcid
   getset_string license
-  getset_string music_artist
-  getset_string music_album
-  getset_string music_licenses
   getset_string shortDescription
   getset_string subCountText
   getset_string title

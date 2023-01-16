@@ -311,20 +311,25 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   # Music section
 
-  music_desc = player_response.dig?("engagementPanels", 1, "engagementPanelSectionListRenderer", "content", "structuredDescriptionContentRenderer", "items", 2, "videoDescriptionMusicSectionRenderer", "carouselLockups", 0, "carouselLockupRenderer", "infoRows").try &.as_a
-  artist = nil
-  album = nil
-  music_licenses = nil
+  music_list = [] of VideoMusic
+  music_desclist = player_response.dig?("engagementPanels", 1, "engagementPanelSectionListRenderer", "content", "structuredDescriptionContentRenderer", "items", 2, "videoDescriptionMusicSectionRenderer", "carouselLockups").try &.as_a
+  music_desclist.try &.each do |music_desc|
+    artist = nil
+    album = nil
+    music_license = nil
 
-  music_desc.try &.each do |desc|
-    desc_title = extract_text(desc.dig?("infoRowRenderer", "title"))
-    if desc_title == "ARTIST"
-      artist = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
-    elsif desc_title == "ALBUM"
-      album = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
-    elsif desc_title == "LICENSES"
-      music_licenses = extract_text(desc.dig?("infoRowRenderer", "expandedMetadata"))
+    music_desc.dig?("carouselLockupRenderer", "infoRows").try &.as_a.try &.each do |desc|
+      desc_title = extract_text(desc.dig?("infoRowRenderer", "title"))
+      if desc_title == "ARTIST"
+        artist = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
+      elsif desc_title == "ALBUM"
+        album = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
+      elsif desc_title == "LICENSES"
+        music_license = extract_text(desc.dig?("infoRowRenderer", "expandedMetadata"))
+      end
     end
+    music = VideoMusic.new(album.to_s, artist.to_s, music_license.to_s)
+    music_list << music
   end
 
   # Author infos
@@ -378,9 +383,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "genreUcid" => JSON::Any.new(genre_ucid.try &.as_s || ""),
     "license"   => JSON::Any.new(license.try &.as_s || ""),
     # Music section
-    "music_artist"   => JSON::Any.new(artist || ""),
-    "music_album"    => JSON::Any.new(album || ""),
-    "music_licenses" => JSON::Any.new(music_licenses || ""),
+    "music" => JSON.parse(music_list.to_json),
     # Author infos
     "author"          => JSON::Any.new(author || ""),
     "ucid"            => JSON::Any.new(ucid || ""),
