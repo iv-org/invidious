@@ -29,7 +29,7 @@ module Invidious::Routes::API::Manifest
 
         if local
           uri = URI.parse(url)
-          url = "#{uri.request_target}host/#{uri.host}/"
+          url = "#{HOST_URL}#{uri.request_target}host/#{uri.host}/"
         end
 
         "<BaseURL>#{url}</BaseURL>"
