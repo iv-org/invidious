@@ -6,6 +6,7 @@ module Invidious::Routes::API::V1::Videos
 
     id = env.params.url["id"]
     region = env.params.query["region"]?
+    proxy = {"1", "true"}.any? &.== env.params.query["local"]?
 
     begin
       video = get_video(id, region: region)
@@ -15,7 +16,9 @@ module Invidious::Routes::API::V1::Videos
       return error_json(500, ex)
     end
 
-    video.to_json(locale, nil)
+    return JSON.build do |json|
+      Invidious::JSONify::APIv1.video(video, json, locale: locale, proxy: proxy)
+    end
   end
 
   def self.captions(env)
