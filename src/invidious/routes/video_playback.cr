@@ -35,6 +35,13 @@ module Invidious::Routes::VideoPlayback
       end
     end
 
+    # See: https://github.com/iv-org/invidious/issues/3302
+    range_header = env.request.headers["Range"]?
+    if range_header.nil?
+      range_for_head = query_params["range"]? || "0-640"
+      headers["Range"] = "bytes=#{range_for_head}"
+    end
+
     client = make_client(URI.parse(host), region)
     response = HTTP::Client::Response.new(500)
     error = ""
@@ -69,6 +76,9 @@ module Invidious::Routes::VideoPlayback
         error = ex.message
       end
     end
+
+    # Remove the Range header added previously.
+    headers.delete("Range") if range_header.nil?
 
     if response.status_code >= 400
       env.response.content_type = "text/plain"
