@@ -26,6 +26,11 @@ module Invidious::Routes::API::V1::Misc
     end
   end
 
+  def self.metrics(env)
+    env.response.content_type = "text/plain"
+    return to_prometheus_metrics(Invidious::Jobs::StatisticsRefreshJob::STATISTICS_PROMETHEUS)
+  end
+
   # APIv1 currently uses the same logic for both
   # user playlists and Invidious playlists. This means that we can't
   # reasonably split them yet. This should be addressed in APIv2

@@ -310,6 +310,9 @@ module Invidious::Routing
 
       # Misc
       get "/api/v1/stats", {{namespace}}::Misc, :stats
+      if CONFIG.statistics_enabled
+        get "/api/v1/metrics", {{namespace}}::Misc, :metrics
+      end
       get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/auth/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes
