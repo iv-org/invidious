@@ -66,8 +66,10 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
     reason ||= subreason.try &.[]("runs").as_a.map(&.[]("text")).join("")
     reason ||= player_response.dig("playabilityStatus", "reason").as_s
 
-    # Stop here if video is not a scheduled livestream
-    if !{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
+    # Stop here if video is not a scheduled livestream or
+    # for LOGIN_REQUIRED when videoDetails element is not found because retrying won't help
+    if !{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status) ||
+       playability_status == "LOGIN_REQUIRED" && !player_response.dig?("videoDetails")
       return {
         "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
         "reason"  => JSON::Any.new(reason),
