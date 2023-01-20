@@ -1,11 +1,10 @@
-# Due to a 'video append of' error (see #3011), we're stuck on 7.12.1.
 video.js:
-  version: 7.12.1
-  shasum: 1d12eeb1f52e3679e8e4c987d9b9eb37e2247fa2
+  version: 7.21.1
+  shasum: c018e1d0f0643661fcebd5ca355e9723cc82312a
 
 videojs-contrib-quality-levels:
-  version: 2.1.0
-  shasum: 046e9e21ed01043f512b83a1916001d552457083
+  version: 3.0.0
+  shasum: bc66f1333b763754b4425455bee4ef6e5ba53984
 
 videojs-http-source-selector:
   version: 1.1.6
@@ -16,20 +15,20 @@ videojs-markers:
   shasum: d7f8d804253fd587813271f8db308a22b9f7df34
 
 videojs-mobile-ui:
-  version: 0.6.1
-  shasum: 0e146c4c481cbee0729cb5e162e558b455562cd0
+  version: 1.0.1
+  shasum: f198397f7f5e680a94835428ce1e97693ced1fa2
 
 videojs-overlay:
-  version: 2.1.4
-  shasum: 5a103b25374dbb753eb87960d8360c2e8f39cc05
+  version: 3.0.0
+  shasum: 546ce34d72cdbb07c33eb189e94a37847dfbebe8
 
 videojs-share:
   version: 3.2.1
   shasum: 0a3024b981387b9d21c058c829760a72c14b8ceb
 
 videojs-vr:
-  version: 1.8.0
-  shasum: 7f2f07f760d8a329c615acd316e49da6ee8edd34
+  version: 1.10.1
+  shasum: fd9a2900bcda4d0faa1c7295ee5d5d60be6f5473
 
 videojs-vtt-thumbnails:
   version: 0.0.13

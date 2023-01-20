@@ -217,7 +217,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
   object-fit: cover;
 }
 
-.player-dimensions.vjs-fluid {
+.player-dimensions.vjs-fluid:not(.vjs-audio-only-mode) {
   padding-top: 82vh;
 }
 
