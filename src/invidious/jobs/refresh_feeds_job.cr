@@ -7,7 +7,7 @@ class Invidious::Jobs::RefreshFeedsJob < Invidious::Jobs::BaseJob
   def begin
     max_fibers = CONFIG.feed_threads
     active_fibers = 0
-    active_channel = Channel(Bool).new
+    active_channel = ::Channel(Bool).new
 
     loop do
       db.query("SELECT email FROM users WHERE feed_needs_update = true OR feed_needs_update IS NULL") do |rs|

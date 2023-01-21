@@ -9,7 +9,8 @@ module Invidious::Search
       client_config = YoutubeAPI::ClientConfig.new(region: query.region)
       initial_data = YoutubeAPI.search(query.text, search_params, client_config: client_config)
 
-      return extract_items(initial_data)
+      items, _ = extract_items(initial_data)
+      return items
     end
 
     # Search a youtube channel
@@ -30,16 +31,7 @@ module Invidious::Search
       continuation = produce_channel_search_continuation(ucid, query.text, query.page)
       response_json = YoutubeAPI.browse(continuation)
 
-      continuation_items = response_json["onResponseReceivedActions"]?
-        .try &.[0]["appendContinuationItemsAction"]["continuationItems"]
-
-      return [] of SearchItem if !continuation_items
-
-      items = [] of SearchItem
-      continuation_items.as_a.select(&.as_h.has_key?("itemSectionRenderer")).each do |item|
-        extract_item(item["itemSectionRenderer"]["contents"].as_a[0]).try { |t| items << t }
-      end
-
+      items, _ = extract_items(response_json, "", ucid)
       return items
     end
 

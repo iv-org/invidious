@@ -8,7 +8,7 @@ class Invidious::Jobs::RefreshChannelsJob < Invidious::Jobs::BaseJob
     max_fibers = CONFIG.channel_threads
     lim_fibers = max_fibers
     active_fibers = 0
-    active_channel = Channel(Bool).new
+    active_channel = ::Channel(Bool).new
     backoff = 2.minutes
 
     loop do

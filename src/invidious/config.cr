@@ -110,6 +110,8 @@ class Config
   property hsts : Bool? = true
   # Disable proxying server-wide: options: 'dash', 'livestreams', 'downloads', 'local'
   property disable_proxy : Bool? | Array(String)? = false
+  # Enable the user notifications for all users
+  property enable_user_notifications : Bool = true
 
   # URL to the modified source code to be easily AGPL compliant
   # Will display in the footer, next to the main source code link

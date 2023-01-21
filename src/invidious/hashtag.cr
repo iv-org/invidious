@@ -8,7 +8,8 @@ module Invidious::Hashtag
     client_config = YoutubeAPI::ClientConfig.new(region: region)
     response = YoutubeAPI.browse(continuation: ctoken, client_config: client_config)
 
-    return extract_items(response)
+    items, _ = extract_items(response)
+    return items
   end
 
   def generate_continuation(hashtag : String, cursor : Int)

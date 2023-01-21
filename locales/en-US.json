@@ -404,9 +404,7 @@
     "`x` marked it with a ❤": "`x` marked it with a ❤",
     "Audio mode": "Audio mode",
     "Video mode": "Video mode",
-    "Videos": "Videos",
     "Playlists": "Playlists",
-    "Community": "Community",
     "search_filters_title": "Filters",
     "search_filters_date_label": "Upload date",
     "search_filters_date_option_none": "Any date",
@@ -472,5 +470,11 @@
     "crash_page_read_the_faq": "read the <a href=\"`x`\">Frequently Asked Questions (FAQ)</a>",
     "crash_page_search_issue": "searched for <a href=\"`x`\">existing issues on GitHub</a>",
     "crash_page_report_issue": "If none of the above helped, please <a href=\"`x`\">open a new issue on GitHub</a> (preferably in English) and include the following text in your message (do NOT translate that text):",
-    "error_video_not_in_playlist": "The requested video doesn't exist in this playlist. <a href=\"`x`\">Click here for the playlist home page.</a>"
+    "error_video_not_in_playlist": "The requested video doesn't exist in this playlist. <a href=\"`x`\">Click here for the playlist home page.</a>",
+    "channel_tab_videos_label": "Videos",
+    "channel_tab_shorts_label": "Shorts",
+    "channel_tab_streams_label": "Livestreams",
+    "channel_tab_playlists_label": "Playlists",
+    "channel_tab_community_label": "Community",
+    "channel_tab_channels_label": "Channels"
 }

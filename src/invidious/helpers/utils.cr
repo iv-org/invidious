@@ -161,21 +161,19 @@ def number_with_separator(number)
   number.to_s.reverse.gsub(/(\d{3})(?=\d)/, "\\1,").reverse
 end
 
-def short_text_to_number(short_text : String) : Int32
-  case short_text
-  when .ends_with? "M"
-    number = short_text.rstrip(" mM").to_f
-    number *= 1000000
-  when .ends_with? "K"
-    number = short_text.rstrip(" kK").to_f
-    number *= 1000
-  else
-    number = short_text.rstrip(" ")
+def short_text_to_number(short_text : String) : Int64
+  matches = /(?<number>\d+(\.\d+)?)\s?(?<suffix>[mMkKbB])?/.match(short_text)
+  number = matches.try &.["number"].to_f || 0.0
+
+  case matches.try &.["suffix"].downcase
+  when "k" then number *= 1_000
+  when "m" then number *= 1_000_000
+  when "b" then number *= 1_000_000_000
   end
 
-  number = number.to_i
-
-  return number
+  return number.to_i64
+rescue ex
+  return 0_i64
 end
 
 def number_to_short_text(number)

@@ -14,8 +14,6 @@ module Invidious::Routes::API::Manifest
 
     begin
       video = get_video(id, region: region)
-    rescue ex : VideoRedirect
-      return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex : NotFoundException
       haltf env, status_code: 404
     rescue ex
@@ -31,7 +29,7 @@ module Invidious::Routes::API::Manifest
 
         if local
           uri = URI.parse(url)
-          url = "#{uri.request_target}host/#{uri.host}/"
+          url = "#{HOST_URL}#{uri.request_target}host/#{uri.host}/"
         end
 
         "<BaseURL>#{url}</BaseURL>"
@@ -44,7 +42,7 @@ module Invidious::Routes::API::Manifest
 
     if local
       adaptive_fmts.each do |fmt|
-        fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target)
+        fmt["url"] = JSON::Any.new("#{HOST_URL}#{URI.parse(fmt["url"].as_s).request_target}")
       end
     end
 

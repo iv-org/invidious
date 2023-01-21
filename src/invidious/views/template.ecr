@@ -187,7 +187,9 @@
         }.to_pretty_json
         %>
         </script>
+        <% if CONFIG.enable_user_notifications %>
         <script src="/js/notifications.js?v=<%= ASSET_COMMIT %>"></script>
+        <% end %>
     <% end %>
 </body>
 <script type="text/javascript">

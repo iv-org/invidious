@@ -23,6 +23,8 @@
     </div>
 </div>
 
+<% if CONFIG.enable_user_notifications %>
+
 <center>
     <%= translate_count(locale, "subscriptions_unseen_notifs_count", notifications.size) %>
 </center>
@@ -38,6 +40,8 @@
     <%= rendered "components/item" %>
 <% end %>
 </div>
+
+<% end %>
 
 <div class="h-box">
     <hr>

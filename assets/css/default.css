@@ -509,6 +509,10 @@ hr {
   margin-top: 20px;
 }
 
+label[for="descexpansionbutton"]:hover {
+  cursor: pointer;
+}
+
 /* Bidi (bidirectional text) support */
 h1,
 h2,

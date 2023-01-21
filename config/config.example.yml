@@ -295,6 +295,17 @@ https_only: false
 ##
 #admins: [""]
 
+##
+## Enable/Disable the user notifications for all users
+##
+## Note: On large instances, it is recommended to set this option to 'false'
+## in order to reduce the amount of data written to the database, and hence
+## improve the overall performance of the instance.
+##
+## Accepted values: true, false
+## Default: true
+##
+#enable_user_notifications: true
 
 # -----------------------------
 #  Background jobs
@@ -613,10 +624,10 @@ default_user_preferences:
   ##
   ## Enable/Disable dark mode.
   ##
-  ## Accepted values: true, false
-  ## Default: <none>
+  ## Accepted values: "dark", "light", "auto"
+  ## Default: "auto"
   ##
-  #dark_mode:
+  #dark_mode: "auto"
 
   ##
   ## Enable/Disable thin mode (no video thumbnails).

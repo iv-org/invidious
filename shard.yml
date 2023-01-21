@@ -24,7 +24,7 @@ dependencies:
     version: ~> 0.6.1
   protodec:
     github: iv-org/protodec
-    version: ~> 0.1.4
+    version: ~> 0.1.5
   lsquic:
     github: iv-org/lsquic.cr
     version: ~> 2.18.1-2

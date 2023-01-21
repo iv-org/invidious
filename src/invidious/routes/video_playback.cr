@@ -35,6 +35,13 @@ module Invidious::Routes::VideoPlayback
       end
     end
 
+    # See: https://github.com/iv-org/invidious/issues/3302
+    range_header = env.request.headers["Range"]?
+    if range_header.nil?
+      range_for_head = query_params["range"]? || "0-640"
+      headers["Range"] = "bytes=#{range_for_head}"
+    end
+
     client = make_client(URI.parse(host), region)
     response = HTTP::Client::Response.new(500)
     error = ""
@@ -70,6 +77,9 @@ module Invidious::Routes::VideoPlayback
       end
     end
 
+    # Remove the Range header added previously.
+    headers.delete("Range") if range_header.nil?
+
     if response.status_code >= 400
       env.response.content_type = "text/plain"
       haltf env, response.status_code
@@ -91,14 +101,8 @@ module Invidious::Routes::VideoPlayback
           env.response.headers["Access-Control-Allow-Origin"] = "*"
 
           if location = resp.headers["Location"]?
-            location = URI.parse(location)
-            location = "#{location.request_target}&host=#{location.host}"
-
-            if region
-              location += "&region=#{region}"
-            end
-
-            return env.redirect location
+            url = Invidious::HttpServer::Utils.proxy_video_url(location, region: region)
+            return env.redirect url
           end
 
           IO.copy(resp.body_io, env.response)

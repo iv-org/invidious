@@ -5,13 +5,13 @@ CONFIG = Config.from_yaml(File.open("config/config.example.yml"))
 Spectator.describe "Helper" do
   describe "#produce_channel_videos_url" do
     it "correctly produces url for requesting page `x` of a channel's videos" do
-      expect(produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw")).to eq("/browse_ajax?continuation=4qmFsgI8EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0V4&gl=US&hl=en")
+      # expect(produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw")).to eq("/browse_ajax?continuation=4qmFsgI8EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0V4&gl=US&hl=en")
+      #
+      # expect(produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw", sort_by: "popular")).to eq("/browse_ajax?continuation=4qmFsgJAEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaJEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0V4R0FFPQ%3D%3D&gl=US&hl=en")
 
-      expect(produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw", sort_by: "popular")).to eq("/browse_ajax?continuation=4qmFsgJAEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaJEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0V4R0FFPQ%3D%3D&gl=US&hl=en")
+      # expect(produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw", page: 20)).to eq("/browse_ajax?continuation=4qmFsgJAEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaJEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0l5TUE9PQ%3D%3D&gl=US&hl=en")
 
-      expect(produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw", page: 20)).to eq("/browse_ajax?continuation=4qmFsgJAEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaJEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0l5TUE9PQ%3D%3D&gl=US&hl=en")
-
-      expect(produce_channel_videos_url(ucid: "UC-9-kyTW8ZkZNDHQJ6FgpwQ", page: 20, sort_by: "popular")).to eq("/browse_ajax?continuation=4qmFsgJAEhhVQy05LWt5VFc4WmtaTkRIUUo2Rmdwd1EaJEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0l5TUJnQg%3D%3D&gl=US&hl=en")
+      # expect(produce_channel_videos_url(ucid: "UC-9-kyTW8ZkZNDHQJ6FgpwQ", page: 20, sort_by: "popular")).to eq("/browse_ajax?continuation=4qmFsgJAEhhVQy05LWt5VFc4WmtaTkRIUUo2Rmdwd1EaJEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0l5TUJnQg%3D%3D&gl=US&hl=en")
     end
   end
 
@@ -20,12 +20,6 @@ Spectator.describe "Helper" do
       expect(produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100)).to eq("4qmFsgJqEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FUZ0JZQUY2QkVkS2IxaTRBUUE9WgCaAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")
 
       expect(produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "По ожиशुपतिरपि子而時ஸ்றீனி", 0)).to eq("4qmFsgKoARIYVUNYdXFTQmxIQUU2WHcteWVKQTBUdW53GiBFZ1p6WldGeVkyZ3dBVGdCWUFGNkJFZEJRVDI0QVFBPVo-0J_QviDQvtC20LjgpLbgpYHgpKrgpKTgpL_gpLDgpKrgpL_lrZDogIzmmYLgrrjgr43grrHgr4Dgrqngrr-aAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")
-    end
-  end
-
-  describe "#produce_channel_playlists_url" do
-    it "correctly produces a /browse_ajax URL with the given UCID and cursor" do
-      expect(produce_channel_playlists_url("UCCj956IF62FbT7Gouszaj9w", "AIOkY9EQpi_gyn1_QrFuZ1reN81_MMmI1YmlBblw8j7JHItEFG5h7qcJTNd4W9x5Quk_CVZ028gW")).to eq("/browse_ajax?continuation=4qmFsgLNARIYVUNDajk1NklGNjJGYlQ3R291c3phajl3GrABRWdsd2JHRjViR2x6ZEhNd0FqZ0JZQUZxQUxnQkFIcG1VVlZzVUdFeGF6VlNWa1ozWVZZNWJtVlhOSGhZTVVaNVVtNVdZVTFZU214VWFtZDRXREF4VG1KVmEzaFhWekZ6VVcxS2MyUjZhSEZPTUhCSlUxaFNSbEpyWXpGaFJHUjRXVEJ3VlZSdFVUQldlbXcwVGxaR01XRXhPVVJXYkc5M1RXcG9ibFozSUFFWUF3PT0%3D&gl=US&hl=en")
     end
   end
 

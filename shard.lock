@@ -34,7 +34,7 @@ shards:
 
   protodec:
     git: https://github.com/iv-org/protodec.git
-    version: 0.1.4
+    version: 0.1.5
 
   radix:
     git: https://github.com/luislavena/radix.git
