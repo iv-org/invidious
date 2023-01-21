@@ -20,7 +20,7 @@ module JSONFilter
       /^\(|\(\(|\/\(/
     end
 
-    def self.parse_fields(fields_text : String) : Nil
+    def self.parse_fields(fields_text : String, &) : Nil
       if fields_text.empty?
         raise FieldsParser::ParseError.new "Fields is empty"
       end
@@ -42,7 +42,7 @@ module JSONFilter
       parse_nest_groups(fields_text) { |nest_list| yield nest_list }
     end
 
-    def self.parse_single_nests(fields_text : String) : Nil
+    def self.parse_single_nests(fields_text : String, &) : Nil
       single_nests = remove_nest_groups(fields_text)
 
       if !single_nests.empty?
@@ -60,7 +60,7 @@ module JSONFilter
       end
     end
 
-    def self.parse_nest_groups(fields_text : String) : Nil
+    def self.parse_nest_groups(fields_text : String, &) : Nil
       nest_stack = [] of NamedTuple(group_name: String, closing_bracket_index: Int64)
       bracket_pairs = get_bracket_pairs(fields_text, true)
 
