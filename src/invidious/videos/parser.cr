@@ -312,13 +312,18 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # Music section
 
   music_list = [] of VideoMusic
-  music_desclist = player_response.dig?("engagementPanels", 1, "engagementPanelSectionListRenderer", "content", "structuredDescriptionContentRenderer", "items", 2, "videoDescriptionMusicSectionRenderer", "carouselLockups").try &.as_a
-  music_desclist.try &.each do |music_desc|
+  music_desclist = player_response.dig?(
+    "engagementPanels", 1, "engagementPanelSectionListRenderer",
+    "content", "structuredDescriptionContentRenderer", "items", 2,
+    "videoDescriptionMusicSectionRenderer", "carouselLockups"
+  )
+
+  music_desclist.try &.as_a.each do |music_desc|
     artist = nil
     album = nil
     music_license = nil
 
-    music_desc.dig?("carouselLockupRenderer", "infoRows").try &.as_a.try &.each do |desc|
+    music_desc.dig?("carouselLockupRenderer", "infoRows").try &.as_a.each do |desc|
       desc_title = extract_text(desc.dig?("infoRowRenderer", "title"))
       if desc_title == "ARTIST"
         artist = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
@@ -328,8 +333,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
         music_license = extract_text(desc.dig?("infoRowRenderer", "expandedMetadata"))
       end
     end
-    music = VideoMusic.new(album.to_s, artist.to_s, music_license.to_s)
-    music_list << music
+    music_list << VideoMusic.new(album.to_s, artist.to_s, music_license.to_s)
   end
 
   # Author infos

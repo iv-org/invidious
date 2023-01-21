@@ -248,12 +248,9 @@ struct Video
   end
 
   def music : Array(VideoMusic)
-    music_list = Array(VideoMusic).new
-
-    info["music"].as_a.each do |music_json|
-      music_list << VideoMusic.new(music_json["album"].as_s, music_json["artist"].as_s, music_json["license"].as_s)
-    end
-    return music_list
+    info["music"].as_a.map { |music_json|
+      VideoMusic.new(music_json["album"].as_s, music_json["artist"].as_s, music_json["license"].as_s)
+    }
   end
 
   # Macros defining getters/setters for various types of data
