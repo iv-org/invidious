@@ -174,7 +174,7 @@ img.thumbnail {
  */
 
 .navbar {
-  margin: 1em 0;
+  /*margin: 1em 0;*/
   display: flex; /* this is also defined in framework, but in case of future changes */
   align-items: center;
   justify-content: space-between;
