@@ -1,0 +1,37 @@
+@media (min-width: 1200px) {
+.video-title{
+  width: 78%
+  }
+.video-infos{
+  width:60%;
+}
+.video-playlist{
+  right: 0;
+  position: absolute;
+  width: 20%;
+  top:9vh;
+  background-color: ;
+}
+#player-container{
+  width: 80%;
+  left: 0;
+  position: sticky;
+  margin: 0;
+}
+.content {
+	margin-top: 50px;
+	margin-left: 45px;
+  width: 95%;
+}
+  #contents {
+    width: 100%;
+  }
+footer{
+  width: 80%;
+}
+}
+
+.dark-theme .video-title{background-color: #444;}
+.dark-theme .video-settings{background-color: #28323D;}
+.dark-theme .video-infos{ background-color: #333;}
+.dark-theme .video-playlist{background-color: #28323D;}
