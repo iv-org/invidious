@@ -6,19 +6,19 @@ module Invidious::Routes::API::V1::Videos
 
     id = env.params.url["id"]
     region = env.params.query["region"]?
+    proxy = {"1", "true"}.any? &.== env.params.query["local"]?
 
     begin
       video = get_video(id, region: region)
-    rescue ex : VideoRedirect
-      env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
-      return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
     rescue ex : NotFoundException
       return error_json(404, ex)
     rescue ex
       return error_json(500, ex)
     end
 
-    video.to_json(locale, nil)
+    return JSON.build do |json|
+      Invidious::JSONify::APIv1.video(video, json, locale: locale, proxy: proxy)
+    end
   end
 
   def self.captions(env)
@@ -41,9 +41,6 @@ module Invidious::Routes::API::V1::Videos
 
     begin
       video = get_video(id, region: region)
-    rescue ex : VideoRedirect
-      env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
-      return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
     rescue ex : NotFoundException
       haltf env, 404
     rescue ex
@@ -168,9 +165,6 @@ module Invidious::Routes::API::V1::Videos
 
     begin
       video = get_video(id, region: region)
-    rescue ex : VideoRedirect
-      env.response.headers["Location"] = env.request.resource.gsub(id, ex.video_id)
-      return error_json(302, "Video is unavailable", {"videoId" => ex.video_id})
     rescue ex : NotFoundException
       haltf env, 404
     rescue ex
@@ -185,7 +179,7 @@ module Invidious::Routes::API::V1::Videos
       response = JSON.build do |json|
         json.object do
           json.field "storyboards" do
-            generate_storyboards(json, id, storyboards)
+            Invidious::JSONify::APIv1.storyboards(json, id, storyboards)
           end
         end
       end

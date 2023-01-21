@@ -76,7 +76,7 @@ struct SearchVideo
       json.field "authorUrl", "/channel/#{self.ucid}"
 
       json.field "videoThumbnails" do
-        generate_thumbnails(json, self.id)
+        Invidious::JSONify::APIv1.thumbnails(json, self.id)
       end
 
       json.field "description", html_to_content(self.description_html)
@@ -155,7 +155,7 @@ struct SearchPlaylist
               json.field "lengthSeconds", video.length_seconds
 
               json.field "videoThumbnails" do
-                generate_thumbnails(json, video.id)
+                Invidious::JSONify::APIv1.thumbnails(json, video.id)
               end
             end
           end
@@ -262,6 +262,13 @@ class Category
 
   def to_json(json : JSON::Builder)
     to_json(nil, json)
+  end
+end
+
+struct Continuation
+  getter token
+
+  def initialize(@token : String)
   end
 end
 

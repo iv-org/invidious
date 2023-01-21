@@ -154,6 +154,16 @@ module Invidious::Database::Users
   #  Update (misc)
   # -------------------
 
+  def feed_needs_update(video : ChannelVideo)
+    request = <<-SQL
+      UPDATE users
+      SET feed_needs_update = true
+      WHERE $1 = ANY(subscriptions)
+    SQL
+
+    PG_DB.exec(request, video.ucid)
+  end
+
   def update_preferences(user : User)
     request = <<-SQL
       UPDATE users

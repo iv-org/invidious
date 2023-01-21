@@ -138,7 +138,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                         json.field "title", video_title
                         json.field "videoId", video_id
                         json.field "videoThumbnails" do
-                          generate_thumbnails(json, video_id)
+                          Invidious::JSONify::APIv1.thumbnails(json, video_id)
                         end
 
                         json.field "lengthSeconds", decode_length_seconds(attachment["lengthText"]["simpleText"].as_s)

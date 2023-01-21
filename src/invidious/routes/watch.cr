@@ -61,8 +61,6 @@ module Invidious::Routes::Watch
 
     begin
       video = get_video(id, region: params.region)
-    rescue ex : VideoRedirect
-      return env.redirect env.request.resource.gsub(id, ex.video_id)
     rescue ex : NotFoundException
       LOGGER.error("get_video not found: #{id} : #{ex.message}")
       return error_template(404, ex)
@@ -82,7 +80,7 @@ module Invidious::Routes::Watch
       Invidious::Database::Users.mark_watched(user.as(User), id)
     end
 
-    if notifications && notifications.includes? id
+    if CONFIG.enable_user_notifications && notifications && notifications.includes? id
       Invidious::Database::Users.remove_notification(user.as(User), id)
       env.get("user").as(User).notifications.delete(id)
       notifications.delete(id)

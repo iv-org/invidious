@@ -1,13 +1,7 @@
 module Invidious::Routes::API::V1::Channels
-  def self.home(env)
-    locale = env.get("preferences").as(Preferences).locale
-
-    env.response.content_type = "application/json"
-
-    ucid = env.params.url["ucid"]
-    sort_by = env.params.query["sort_by"]?.try &.downcase
-    sort_by ||= "newest"
-
+  # Macro to avoid duplicating some code below
+  # This sets the `channel` variable, or handles Exceptions.
+  private macro get_channel
     begin
       channel = get_about_info(ucid, locale)
     rescue ex : ChannelRedirect
@@ -18,17 +12,25 @@ module Invidious::Routes::API::V1::Channels
     rescue ex
       return error_json(500, ex)
     end
+  end
 
-    page = 1
-    if channel.auto_generated
-      videos = [] of SearchVideo
-      count = 0
-    else
-      begin
-        count, videos = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
-      rescue ex
-        return error_json(500, ex)
-      end
+  def self.home(env)
+    locale = env.get("preferences").as(Preferences).locale
+    ucid = env.params.url["ucid"]
+
+    env.response.content_type = "application/json"
+
+    # Use the private macro defined above.
+    channel = nil # Make the compiler happy
+    get_channel()
+
+    # Retrieve "sort by" setting from URL parameters
+    sort_by = env.params.query["sort_by"]?.try &.downcase || "newest"
+
+    begin
+      videos, _ = Channel::Tabs.get_videos(channel, sort_by: sort_by)
+    rescue ex
+      return error_json(500, ex)
     end
 
     JSON.build do |json|
@@ -100,31 +102,13 @@ module Invidious::Routes::API::V1::Channels
           json.array do
             # Fetch related channels
             begin
-              related_channels = fetch_related_channels(channel)
+              related_channels, _ = fetch_related_channels(channel)
             rescue ex
-              related_channels = [] of AboutRelatedChannel
+              related_channels = [] of SearchChannel
             end
 
             related_channels.each do |related_channel|
-              json.object do
-                json.field "author", related_channel.author
-                json.field "authorId", related_channel.ucid
-                json.field "authorUrl", related_channel.author_url
-
-                json.field "authorThumbnails" do
-                  json.array do
-                    qualities = {32, 48, 76, 100, 176, 512}
-
-                    qualities.each do |quality|
-                      json.object do
-                        json.field "url", related_channel.author_thumbnail.gsub(/=\d+/, "=s#{quality}")
-                        json.field "width", quality
-                        json.field "height", quality
-                      end
-                    end
-                  end
-                end
-              end
+              related_channel.to_json(locale, json)
             end
           end
         end # relatedChannels
@@ -134,61 +118,112 @@ module Invidious::Routes::API::V1::Channels
   end
 
   def self.latest(env)
-    locale = env.get("preferences").as(Preferences).locale
+    # Remove parameters that could affect this endpoint's behavior
+    env.params.query.delete("sort_by") if env.params.query.has_key?("sort_by")
+    env.params.query.delete("continuation") if env.params.query.has_key?("continuation")
 
-    env.response.content_type = "application/json"
-
-    ucid = env.params.url["ucid"]
-
-    begin
-      videos = get_latest_videos(ucid)
-    rescue ex
-      return error_json(500, ex)
-    end
-
-    JSON.build do |json|
-      json.array do
-        videos.each do |video|
-          video.to_json(locale, json)
-        end
-      end
-    end
+    return self.videos(env)
   end
 
   def self.videos(env)
     locale = env.get("preferences").as(Preferences).locale
+    ucid = env.params.url["ucid"]
 
     env.response.content_type = "application/json"
 
-    ucid = env.params.url["ucid"]
-    page = env.params.query["page"]?.try &.to_i?
-    page ||= 1
-    sort_by = env.params.query["sort"]?.try &.downcase
-    sort_by ||= env.params.query["sort_by"]?.try &.downcase
-    sort_by ||= "newest"
+    # Use the private macro defined above.
+    channel = nil # Make the compiler happy
+    get_channel()
+
+    # Retrieve some URL parameters
+    sort_by = env.params.query["sort_by"]?.try &.downcase || "newest"
+    continuation = env.params.query["continuation"]?
 
     begin
-      channel = get_about_info(ucid, locale)
-    rescue ex : ChannelRedirect
-      env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
-      return error_json(302, "Channel is unavailable", {"authorId" => ex.channel_id})
-    rescue ex : NotFoundException
-      return error_json(404, ex)
+      videos, next_continuation = Channel::Tabs.get_60_videos(
+        channel, continuation: continuation, sort_by: sort_by
+      )
     rescue ex
       return error_json(500, ex)
     end
 
-    begin
-      count, videos = get_60_videos(channel.ucid, channel.author, page, channel.auto_generated, sort_by)
-    rescue ex
-      return error_json(500, ex)
-    end
-
-    JSON.build do |json|
-      json.array do
-        videos.each do |video|
-          video.to_json(locale, json)
+    return JSON.build do |json|
+      json.object do
+        json.field "videos" do
+          json.array do
+            videos.each &.to_json(locale, json)
+          end
         end
+
+        json.field "continuation", next_continuation if next_continuation
+      end
+    end
+  end
+
+  def self.shorts(env)
+    locale = env.get("preferences").as(Preferences).locale
+    ucid = env.params.url["ucid"]
+
+    env.response.content_type = "application/json"
+
+    # Use the private macro defined above.
+    channel = nil # Make the compiler happy
+    get_channel()
+
+    # Retrieve continuation from URL parameters
+    continuation = env.params.query["continuation"]?
+
+    begin
+      videos, next_continuation = Channel::Tabs.get_shorts(
+        channel, continuation: continuation
+      )
+    rescue ex
+      return error_json(500, ex)
+    end
+
+    return JSON.build do |json|
+      json.object do
+        json.field "videos" do
+          json.array do
+            videos.each &.to_json(locale, json)
+          end
+        end
+
+        json.field "continuation", next_continuation if next_continuation
+      end
+    end
+  end
+
+  def self.streams(env)
+    locale = env.get("preferences").as(Preferences).locale
+    ucid = env.params.url["ucid"]
+
+    env.response.content_type = "application/json"
+
+    # Use the private macro defined above.
+    channel = nil # Make the compiler happy
+    get_channel()
+
+    # Retrieve continuation from URL parameters
+    continuation = env.params.query["continuation"]?
+
+    begin
+      videos, next_continuation = Channel::Tabs.get_60_livestreams(
+        channel, continuation: continuation
+      )
+    rescue ex
+      return error_json(500, ex)
+    end
+
+    return JSON.build do |json|
+      json.object do
+        json.field "videos" do
+          json.array do
+            videos.each &.to_json(locale, json)
+          end
+        end
+
+        json.field "continuation", next_continuation if next_continuation
       end
     end
   end
@@ -204,16 +239,9 @@ module Invidious::Routes::API::V1::Channels
               env.params.query["sort_by"]?.try &.downcase ||
               "last"
 
-    begin
-      channel = get_about_info(ucid, locale)
-    rescue ex : ChannelRedirect
-      env.response.headers["Location"] = env.request.resource.gsub(ucid, ex.channel_id)
-      return error_json(302, "Channel is unavailable", {"authorId" => ex.channel_id})
-    rescue ex : NotFoundException
-      return error_json(404, ex)
-    rescue ex
-      return error_json(500, ex)
-    end
+    # Use the macro defined above
+    channel = nil # Make the compiler happy
+    get_channel()
 
     items, continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
 
@@ -252,6 +280,37 @@ module Invidious::Routes::API::V1::Channels
       fetch_channel_community(ucid, continuation, locale, format, thin_mode)
     rescue ex
       return error_json(500, ex)
+    end
+  end
+
+  def self.channels(env)
+    locale = env.get("preferences").as(Preferences).locale
+    ucid = env.params.url["ucid"]
+
+    env.response.content_type = "application/json"
+
+    # Use the macro defined above
+    channel = nil # Make the compiler happy
+    get_channel()
+
+    continuation = env.params.query["continuation"]?
+
+    begin
+      items, next_continuation = fetch_related_channels(channel, continuation)
+    rescue ex
+      return error_json(500, ex)
+    end
+
+    JSON.build do |json|
+      json.object do
+        json.field "relatedChannels" do
+          json.array do
+            items.each &.to_json(locale, json)
+          end
+        end
+
+        json.field "continuation", next_continuation if next_continuation
+      end
     end
   end
 

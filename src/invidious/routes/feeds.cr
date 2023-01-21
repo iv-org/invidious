@@ -96,12 +96,14 @@ module Invidious::Routes::Feeds
 
     videos, notifications = get_subscription_feed(user, max_results, page)
 
-    # "updated" here is used for delivering new notifications, so if
-    # we know a user has looked at their feed e.g. in the past 10 minutes,
-    # they've already seen a video posted 20 minutes ago, and don't need
-    # to be notified.
-    Invidious::Database::Users.clear_notifications(user)
-    user.notifications = [] of String
+    if CONFIG.enable_user_notifications
+      # "updated" here is used for delivering new notifications, so if
+      # we know a user has looked at their feed e.g. in the past 10 minutes,
+      # they've already seen a video posted 20 minutes ago, and don't need
+      # to be notified.
+      Invidious::Database::Users.clear_notifications(user)
+      user.notifications = [] of String
+    end
     env.set "user", user
 
     templated "feeds/subscriptions"
@@ -404,13 +406,15 @@ module Invidious::Routes::Feeds
 
         video = get_video(id, force_refresh: true)
 
-        # Deliver notifications to `/api/v1/auth/notifications`
-        payload = {
-          "topic"     => video.ucid,
-          "videoId"   => video.id,
-          "published" => published.to_unix,
-        }.to_json
-        PG_DB.exec("NOTIFY notifications, E'#{payload}'")
+        if CONFIG.enable_user_notifications
+          # Deliver notifications to `/api/v1/auth/notifications`
+          payload = {
+            "topic"     => video.ucid,
+            "videoId"   => video.id,
+            "published" => published.to_unix,
+          }.to_json
+          PG_DB.exec("NOTIFY notifications, E'#{payload}'")
+        end
 
         video = ChannelVideo.new({
           id:                 id,
@@ -426,7 +430,13 @@ module Invidious::Routes::Feeds
         })
 
         was_insert = Invidious::Database::ChannelVideos.insert(video, with_premiere_timestamp: true)
-        Invidious::Database::Users.add_notification(video) if was_insert
+        if was_insert
+          if CONFIG.enable_user_notifications
+            Invidious::Database::Users.add_notification(video)
+          else
+            Invidious::Database::Users.feed_needs_update(video)
+          end
+        end
       end
     end
 

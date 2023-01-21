@@ -324,9 +324,9 @@
     "`x` marked it with a ❤": "`x` merkkasi ❤:llä",
     "Audio mode": "Äänitila",
     "Video mode": "Videotila",
-    "Videos": "Videot",
+    "channel_tab_videos_label": "Videot",
     "Playlists": "Soittolistat",
-    "Community": "Yhteisö",
+    "channel_tab_community_label": "Yhteisö",
     "search_filters_sort_option_relevance": "Osuvuus",
     "search_filters_sort_option_rating": "Arvostelu",
     "search_filters_sort_option_date": "Latauspäivämäärä",
@@ -471,5 +471,6 @@
     "search_message_use_another_instance": " Voit myös <a href=\"`x`\">hakea toisella instanssilla</a>.",
     "search_filters_date_option_none": "Milloin tahansa",
     "search_filters_type_option_all": "Mikä tahansa tyyppi",
-    "Popular enabled: ": "Suosittu käytössä: "
+    "Popular enabled: ": "Suosittu käytössä: ",
+    "error_video_not_in_playlist": "Pyydettyä videota ei löydy tästä soittolistasta. <a href=\"`x`\">Klikkaa tähän päästäksesi soittolistan etusivulle.</a>"
 }
