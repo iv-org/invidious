@@ -133,7 +133,7 @@ header {
  font-size: 20px;
  font-weight: 900;
  z-index: 1;
- position: fixed;
+ /*position: fixed;*/
  cursor: pointer;
  left: 50px;
  font-size: 20px;
