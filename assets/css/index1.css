@@ -387,3 +387,66 @@ label #sidebar_btn:hover {
     display: block;
   }
 }
+/*Cookie Banner*/
+
+#footer-cookie,
+#footer-cookie * {
+  box-sizing: border-box;
+}
+
+#footer-cookie {
+  display: none;
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  height: 60px;
+  padding-left: 30px;
+  padding-right: 30px;
+  line-height: 60px;
+  background: #303030;
+  color: #fff;
+  z-index: 1001;
+}
+
+#footer-cookie a {
+  color: #fff;
+}
+
+#footer-cookie #description {
+  float: left;
+}
+
+#footer-cookie #accept {
+  float: right;
+}
+
+#footer-cookie #accept a {
+  border: 1px solid #fff;
+  padding: 5px 10px;
+  text-decoration: none;
+}
+
+@media (max-width: 1200px) {
+  #footer-cookie {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    line-height: inherit;
+    height: auto;
+  }
+
+  #footer-cookie #description {
+    width: 100%;
+  }
+
+  #footer-cookie #accept {
+    width: 100%;
+    margin-top: 15px;
+  }
+
+  #footer-cookie #accept a {
+    width: 100%;
+    display: block;
+    text-align: center;
+  }
+}
