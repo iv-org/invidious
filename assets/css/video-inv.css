@@ -19,9 +19,10 @@
   margin: 0;
 }
 .content {
-	margin-top: 50px;
-	margin-left: 45px;
-  width: 95%;
+ margin-top: 50px;
+ margin-left: 45px;
+ width: 95%;
+ padding: 20px;
 }
   #contents {
     width: 100%;
