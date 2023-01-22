@@ -35,3 +35,90 @@ footer{
 .dark-theme .video-settings{background-color: #28323D;}
 .dark-theme .video-infos{ background-color: #333;}
 .dark-theme .video-playlist{background-color: #28323D;}
+
+/*Class*/
+  .pure-g:not(.h-box) > .pure-u-md-1-4 .h-box,
+    .pure-g:not(.searchbar) > .searchbar,
+    .pure-u-lg-1-5 > .h-box,
+    .pure-form-aligned
+  {
+    border-radius: 5px;
+    /*padding: 0px;*/
+    box-shadow: 0px 1px 13px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+  }
+
+  .pure-g:not(.h-box) > .pure-u-md-1-4 .h-box:hover,
+    .pure-g:not(.searchbar) > .searchbar:hover
+  {
+    transform: scale(1.025);
+    transition: all 0.2s;
+    opacity: 1;
+    background: #272727;
+        /*Change from "#272727" to "inherit 
+        ONLY if using https://youtube.076.ne.jp/")*/
+    box-shadow: 0px 1px 20px rgba(0, 0, 0, 0.3);
+    z-index: 99999;
+  }
+
+  .pure-u-md-20-24m > .h-box > img
+  {
+    border-radius: 50px;
+    background: #2a2a2a;
+        /*Change from "#2a2a2a" to "inherit" 
+        ONLY if using https://youtube.076.ne.jp/")*/
+        padding: 3px;
+        margin: 5px;
+        opacity: 0.8;
+        box-shadow: 0px 1px 13px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s
+    }
+    .pure-g:not(.h-box) > .pure-u-md-1-4 .h-box {
+	    margin: 10px;
+	    min-height: 95%;
+    }
+    .pure-form legend {
+        text-align: center;
+        border-bottom: hidden
+    }
+    .searchbar .pure-form input[type="search"] {
+        border-bottom: 0px !important;
+        text-transform: capitalize
+    }
+    .channel-profiled {
+        margin-top: 10px;
+        margin-left: 5px;
+    }
+    .pure-control-group {
+        margin-top: 3px;
+        margin-bottom: 7px
+    }
+
+    /*ID*/
+    #subscribe {
+        background-color: #2a2a2a;
+        /*Change from "#2a2a2a" to "inherit" 
+        ONLY if using https://youtube.076.ne.jp/")*/
+    color: #d1d1d1;
+    border-radius: 6px;
+    float: right;
+    padding: 7.5px;
+    margin-top: -55px;
+  }
+
+  #player-container
+  {
+    box-shadow: 0px 10px 17px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+  }
+
+    /*Hidden*/
+  .pure-g.h-box > .pure-u-1-3,
+    center,
+    hr,
+    #comments > div > h3,
+    #comments > div > b,
+    #watch-on-another-invidious-instance
+  {
+    display: none;
+  }
