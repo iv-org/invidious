@@ -114,12 +114,13 @@ body {
 }
 @media screen and (min-width: 780px) {
 header {
-  z-index: 2000;
-  position: fixed;
-  padding: 20px;
-  width: calc(100% - 0%);
-  top: 0;
-  height: 30px;
+ z-index: 1000000;
+ position: fixed;
+ background: #22242a;
+ padding: 20px;
+ width: calc(100% - 0%);
+ top: 0;
+ height: 30px;
 }
 }
 header {
@@ -127,11 +128,18 @@ header {
  padding: 20px;	
 }
 .left_area h3 {
-  color: #fff;
-  margin: 0;
-  text-transform: uppercase;
-  font-size: 22px;
-  font-weight: 900;
+ color: #fff;
+ text-transform: uppercase;
+ font-size: 20px;
+ font-weight: 900;
+ z-index: 1;
+ position: fixed;
+ cursor: pointer;
+ left: 50px;
+ font-size: 20px;
+ margin: -10px 0;
+ transition: 0.5s;
+ transition-property: color;
 }
 
 .left_area span {
@@ -222,15 +230,15 @@ header {
 }
 
 label #sidebar_btn {
-  z-index: 1;
-  color: #fff;
-  position: fixed;
-  cursor: pointer;
-  left: 300px;
-  font-size: 20px;
-  margin: 5px 0;
-  transition: 0.5s;
-  transition-property: color;
+ z-index: 1;
+ color: #fff;
+ position: fixed;
+ cursor: pointer;
+ left: 20px;
+ font-size: 20px;
+ margin: 5px 0;
+ transition: 0.5s;
+ transition-property: color;
 }
 
 label #sidebar_btn:hover {
@@ -269,7 +277,7 @@ label #sidebar_btn:hover {
 .content {
   width: (100% - 250px);
   margin-top: 60px;
-  padding: 20px;
+  /*padding: 20px;*/
   margin-left: 60px;
   min-height: 100vh;
   transition: 0.5s;
