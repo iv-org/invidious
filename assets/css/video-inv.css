@@ -1,7 +1,10 @@
 @media (min-width: 1200px) {
+.left_area h3{
+ position: fixed;
+ }
 .video-title{
   width: 78%
-  }
+}
 .video-infos{
   width:60%;
 }
