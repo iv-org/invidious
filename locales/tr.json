@@ -472,5 +472,9 @@
     "search_filters_title": "Filtreler",
     "search_message_change_filters_or_query": "Arama sorgunuzu genişletmeyi ve/veya filtreleri değiştirmeyi deneyin.",
     "Popular enabled: ": "Popüler Etkin: ",
-    "error_video_not_in_playlist": "İstenen video bu oynatma listesinde yok. <a href=\"`x`\">Oynatma listesi ana sayfası için buraya tıklayın.</a>"
+    "error_video_not_in_playlist": "İstenen video bu oynatma listesinde yok. <a href=\"`x`\">Oynatma listesi ana sayfası için buraya tıklayın.</a>",
+    "channel_tab_channels_label": "Kanallar",
+    "channel_tab_shorts_label": "Kısa Çekimler",
+    "channel_tab_streams_label": "Canlı Yayınlar",
+    "channel_tab_playlists_label": "Oynatma Listeleri"
 }

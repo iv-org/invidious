@@ -324,7 +324,7 @@
     "`x` marked it with a ❤": "`x` oznaczonych ❤",
     "Audio mode": "Tryb audio",
     "Video mode": "Tryb wideo",
-    "channel_tab_videos_label": "Filmy",
+    "channel_tab_videos_label": "Wideo",
     "Playlists": "Playlisty",
     "channel_tab_community_label": "Społeczność",
     "search_filters_sort_option_relevance": "Trafność",
@@ -488,5 +488,9 @@
     "search_message_use_another_instance": " Możesz także <a href=\"`x`\">wyszukać w innej instancji</a>.",
     "search_filters_type_option_all": "Dowolny typ",
     "search_filters_duration_option_none": "Dowolna długość",
-    "search_filters_duration_option_medium": "Średnia (4-20 minut)"
+    "search_filters_duration_option_medium": "Średnia (4-20 minut)",
+    "channel_tab_streams_label": "Na żywo",
+    "channel_tab_channels_label": "Kanały",
+    "channel_tab_playlists_label": "Playlisty",
+    "channel_tab_shorts_label": "Shorts"
 }

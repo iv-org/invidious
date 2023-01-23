@@ -63,7 +63,7 @@
     "reddit": "Reddit",
     "preferences_captions_label": "Výchozí titulky: ",
     "Fallback captions: ": "Záložní titulky: ",
-    "preferences_related_videos_label": "Zobrazit podobné videa: ",
+    "preferences_related_videos_label": "Zobrazit podobná videa: ",
     "preferences_annotations_label": "Zobrazovat poznámky ve výchozím nastavení: ",
     "preferences_extend_desc_label": "Rozšířit automaticky popis u videa: ",
     "preferences_category_visual": "Nastavení vzhledu",
@@ -488,5 +488,9 @@
     "search_filters_sort_option_relevance": "Relevantnost",
     "search_filters_apply_button": "Použít vybrané filtry",
     "Popular enabled: ": "Populární povoleno: ",
-    "error_video_not_in_playlist": "Požadované video v tomto playlistu neexistuje. <a href=\"`x`\">Klikněte sem pro navštívení domovské stránky playlistu.</a>"
+    "error_video_not_in_playlist": "Požadované video v tomto playlistu neexistuje. <a href=\"`x`\">Klikněte sem pro navštívení domovské stránky playlistu.</a>",
+    "channel_tab_shorts_label": "Shorts",
+    "channel_tab_playlists_label": "Playlisty",
+    "channel_tab_channels_label": "Kanály",
+    "channel_tab_streams_label": "Živé přenosy"
 }

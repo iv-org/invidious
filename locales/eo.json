@@ -325,7 +325,7 @@
     "`x` marked it with a ❤": "`x` markis ĝin per ❤",
     "Audio mode": "Aŭda reĝimo",
     "Video mode": "Videa reĝimo",
-    "channel_tab_videos_label": "Filmetoj",
+    "channel_tab_videos_label": "Videoj",
     "Playlists": "Ludlistoj",
     "channel_tab_community_label": "Komunumo",
     "search_filters_sort_option_relevance": "rilateco",
@@ -472,5 +472,9 @@
     "generic_subscribers_count_plural": "{{count}} abonantoj",
     "generic_count_months": "{{count}} monato",
     "generic_count_months_plural": "{{count}} monatoj",
-    "preferences_save_player_pos_label": "Konservi ludadan pozicion: "
+    "preferences_save_player_pos_label": "Konservi ludadan pozicion: ",
+    "channel_tab_streams_label": "Tujelsendoj",
+    "channel_tab_playlists_label": "Ludlistoj",
+    "channel_tab_channels_label": "Kanaloj",
+    "channel_tab_shorts_label": "Mallongaj"
 }
