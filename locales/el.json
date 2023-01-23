@@ -315,9 +315,7 @@
     "`x` marked it with a ❤": "Ο χρηστης `x` έβαλε ❤",
     "Audio mode": "Λειτουργία ήχου",
     "Video mode": "Λειτουργία βίντεο",
-    "channel_tab_videos_label": "Βίντεο",
     "Playlists": "Λίστες Αναπαραγωγής",
-    "channel_tab_community_label": "Κοινότητα",
     "Current version: ": "Τρέχουσα έκδοση: ",
     "generic_playlists_count": "{{count}} λίστα αναπαραγωγής",
     "generic_playlists_count_plural": "{{count}} λίστες αναπαραγωγής",
@@ -450,5 +448,11 @@
     "search_filters_type_option_show": "Μπάρα προόδου διαβάσματος",
     "preferences_watch_history_label": "Ενεργοποίηση ιστορικού παρακολούθησης: ",
     "search_filters_title": "Φίλτρο",
-    "search_message_no_results": "Δεν"
+    "search_message_no_results": "Δεν",
+    "comments_points_count": "",
+    "comments_points_count_plural": "",
+    "subscriptions_unseen_notifs_count": "",
+    "subscriptions_unseen_notifs_count_plural": "",
+    "tokens_count": "",
+    "tokens_count_plural": ""
 }
