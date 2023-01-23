@@ -1,6 +1,6 @@
 {
-    "generic_videos_count_0": "{{count}} video",
-    "generic_subscribers_count_0": "{{count}} subscribers",
+    "generic_videos_count": "{{count}} video",
+    "generic_subscribers_count": "{{count}} subscribers",
     "LIVE": "TRỰC TIẾP",
     "Shared `x` ago": "Đã chia sẻ` x` trước",
     "Unsubscribe": "Hủy đăng ký",
@@ -311,9 +311,7 @@
     "`x` marked it with a ❤": "` x` đã đánh dấu nó bằng một ❤",
     "Audio mode": "Chế độ âm thanh",
     "Video mode": "Chế độ quay",
-    "channel_tab_videos_label": "Video",
     "Playlists": "Danh sách phát",
-    "channel_tab_community_label": "Cộng đồng",
     "search_filters_sort_option_relevance": "liên quan",
     "search_filters_sort_option_rating": "Xếp hạng",
     "search_filters_sort_option_date": "ngày",
