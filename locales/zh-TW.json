@@ -456,5 +456,9 @@
     "search_filters_type_option_all": "任何類型",
     "search_filters_date_option_none": "任何日期",
     "Popular enabled: ": "已啟用人氣： ",
-    "error_video_not_in_playlist": "此播放清單不存在請求的影片。<a href=\"`x`\">點擊此處檢視播放清單首頁。</a>"
+    "error_video_not_in_playlist": "此播放清單不存在請求的影片。<a href=\"`x`\">點擊此處檢視播放清單首頁。</a>",
+    "channel_tab_shorts_label": "短片",
+    "channel_tab_playlists_label": "播放清單",
+    "channel_tab_channels_label": "頻道",
+    "channel_tab_streams_label": "直播"
 }
