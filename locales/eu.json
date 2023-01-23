@@ -273,5 +273,19 @@
     "Private": "Pribatua",
     "Editing playlist `x`": "'x' zerrenda editatu",
     "Could not pull trending pages.": "Ezin ekarri orri arrakastatsuak.",
-    "crash_page_read_the_faq": "Bide <a href=\"`x`\"> (FAQ) ohiko galderak</a>"
+    "crash_page_read_the_faq": "Bide <a href=\"`x`\"> (FAQ) ohiko galderak</a>",
+    "generic_count_years": "",
+    "generic_count_years_plural": "",
+    "generic_count_weeks": "",
+    "generic_count_weeks_plural": "",
+    "generic_count_minutes": "",
+    "generic_count_minutes_plural": "",
+    "generic_count_seconds": "",
+    "generic_count_seconds_plural": "",
+    "generic_count_months": "",
+    "generic_count_months_plural": "",
+    "generic_count_hours": "",
+    "generic_count_hours_plural": "",
+    "generic_count_days": "",
+    "generic_count_days_plural": ""
 }
