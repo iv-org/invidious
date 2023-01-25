@@ -69,7 +69,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
             next if !post
 
             content_html = post["contentText"]?.try { |t| parse_content(t) } || ""
-            author = post["authorText"]?.try &.["simpleText"]? || ""
+            author = post["authorText"]["runs"]?.try &.[0]?.try &.["text"]? || ""
 
             json.object do
               json.field "author", author
