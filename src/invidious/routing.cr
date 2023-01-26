@@ -132,6 +132,8 @@ module Invidious::Routing
       get "/c/:user#{path}", Routes::Channels, :brand_redirect
       # /user/linustechtips | Not always the same as /c/
       get "/user/:user#{path}", Routes::Channels, :brand_redirect
+      # /@LinusTechTips | Handle
+      get "/@:user#{path}", Routes::Channels, :brand_redirect
       # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
       get "/attribution_link#{path}", Routes::Channels, :brand_redirect
       # /profile?user=linustechtips
