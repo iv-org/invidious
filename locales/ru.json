@@ -488,5 +488,9 @@
     "search_filters_duration_option_medium": "Средние (4 - 20 минут)",
     "search_filters_apply_button": "Применить фильтры",
     "Popular enabled: ": "Популярное включено: ",
-    "error_video_not_in_playlist": "Запрошенного видео нет в этом плейлисте. <a href=\"`x`\">Нажмите тут, чтобы вернуться к странице плейлиста.</a>"
+    "error_video_not_in_playlist": "Запрошенного видео нет в этом плейлисте. <a href=\"`x`\">Нажмите тут, чтобы вернуться к странице плейлиста.</a>",
+    "channel_tab_playlists_label": "Плейлисты",
+    "channel_tab_channels_label": "Каналы",
+    "channel_tab_streams_label": "Живое вещание",
+    "channel_tab_shorts_label": "Shorts"
 }
