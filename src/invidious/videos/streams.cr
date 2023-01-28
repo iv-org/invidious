@@ -267,4 +267,46 @@ module Invidious::Videos
   class AdaptativeTextStream < AdaptativeStream
     include TrackProperties
   end
+
+  # ------------------------
+  #  High-level functions
+  # ------------------------
+
+  def self.parse_progressive_formats(formats : JSON::Any) : Array(ProgressiveHttpStream)
+    return formats.as_a.map do |format|
+      label = format["quality"].to_s
+      ProgressiveHttpStream.new(format, label)
+    end
+  end
+
+  def self.parse_adaptative_formats(formats : JSON::Any) : Array(AdaptativeStream)
+    return formats.as_a.compact_map do |format|
+      # "Encrypted" video URLs are not supported. They require some logic
+      # to extract the JS and run it in a dedicated JS engine like ducktape.
+      # See: https://github.com/iv-org/invidious/issues/3245
+      next if (format["cipher"]? || format["signatureCipher"]?)
+
+      # OTF streams are not supported either.
+      # See https://github.com/TeamNewPipe/NewPipe/issues/2415
+      next if format["type"]? == "FORMAT_STREAM_TYPE_OTF"
+
+      # Handle the various types of adaptative formats
+      case format["mimeType"].as_s
+      when .starts_with?("audio/")
+        label = format["audioQuality"].as_s.lchop("AUDIO_QUALITY_").downcase
+
+        if format["audioTrack"]?
+          AdaptativeAudioTrackStream.new(format, label)
+        else
+          AdaptativeAudioStream.new(format, label)
+        end
+      when .starts_with?("video/")
+        label = format["qualityLabel"].to_s
+        AdaptativeVideoStream.new(format, label)
+      when .starts_with?("text/")
+        label = format.dig("captionTrack", "displayName").as_s
+        AdaptativeTextStream.new(format, label)
+      end
+    end
+  end
 end
