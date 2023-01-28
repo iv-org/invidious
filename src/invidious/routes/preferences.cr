@@ -310,7 +310,6 @@ module Invidious::Routes::PreferencesRoute
               response: error_template(415, "Invalid subscription file uploaded")
             )
           end
-        # Gavin Johnson (thtmnisamnstr), 20230127: Call the Youtube playlist import function
         when "import_youtube_pl"
           filename = part.filename || ""
           success = Invidious::User::Import.from_youtube_pl(user, body, filename, type)
