@@ -30,7 +30,6 @@ struct Invidious::User
       return subscriptions
     end
 
-    # Gavin Johnson (thtmnisamnstr), 20230127: Parse a youtube CSV playlist file and create the playlist
     def parse_playlist_export_csv(user : User, csv_content : String)
       rows = CSV.new(csv_content, headers: true)
       row_counter = 0
@@ -215,7 +214,6 @@ struct Invidious::User
       return true
     end
 
-    # Gavin Johnson (thtmnisamnstr), 20230127: Import playlist from Youtube export. Returns success status.
     def from_youtube_pl(user : User, body : String, filename : String, type : String) : Bool
       extension = filename.split(".").last
 
