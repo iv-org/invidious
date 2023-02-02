@@ -235,6 +235,28 @@ we're going to need to do it here in order to allow for translations.
 
             <hr>
 
+            <% if !video.music.empty? %>
+                <input id="music-desc-expansion" type="checkbox"/>
+                <label for="music-desc-expansion">
+                    <h3 id="music-description-title">
+                        <%= translate(locale, "Music in this video") %>
+                        <span class="icon ion-ios-arrow-up"></span>
+                        <span class="icon ion-ios-arrow-down"></span>
+                    </h3>
+                </label>
+
+                <div id="music-description-box">
+                    <% video.music.each do |music| %>
+                        <div class="music-item">
+                            <p id="music-artist"><%= translate(locale, "Artist: ") %><%= music.artist %></p>
+                            <p id="music-album"><%= translate(locale, "Album: ") %><%= music.album %></p>
+                            <p id="music-license"><%= translate(locale, "License: ") %><%= music.license %></p>
+                        </div>
+                    <% end %>
+                </div>
+            <hr>
+
+            <% end %>
             <div id="comments">
                 <% if nojs %>
                     <%= comment_html %>

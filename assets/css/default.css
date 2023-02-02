@@ -490,8 +490,9 @@ hr {
 }
 
 /* Description Expansion Styling*/
-#descexpansionbutton {
-  display: none
+#descexpansionbutton,
+#music-desc-expansion {
+  display: none;
 }
 
 #descexpansionbutton ~ div {
@@ -509,7 +510,8 @@ hr {
   margin-top: 20px;
 }
 
-label[for="descexpansionbutton"]:hover {
+label[for="descexpansionbutton"]:hover,
+label[for="music-desc-expansion"]:hover {
   cursor: pointer;
 }
 
@@ -521,14 +523,38 @@ h4,
 h5,
 p,
 #descriptionWrapper,
-#description-box {
-	unicode-bidi: plaintext;
-	text-align: start;
+#description-box,
+#music-description-box {
+  unicode-bidi: plaintext;
+  text-align: start;
 }
 
 #descriptionWrapper {
-	max-width: 600px;
-	white-space: pre-wrap;
+  max-width: 600px;
+  white-space: pre-wrap;
+}
+
+#music-description-box {
+  display: none;
+}
+
+#music-desc-expansion:checked ~ #music-description-box {
+  display: block;
+}
+
+#music-desc-expansion ~ label > h3 > .ion-ios-arrow-up,
+#music-desc-expansion:checked ~ label > h3 > .ion-ios-arrow-down {
+  display: none;
+}
+
+#music-desc-expansion:checked ~ label > h3 > .ion-ios-arrow-up,
+#music-desc-expansion ~ label > h3 > .ion-ios-arrow-down {
+  display: inline;
+}
+
+/* Select all the music items except the first one */
+.music-item + .music-item {
+  border-top: 1px solid #ffffff;
 }
 
 /* Center the "invidious" logo on the search page */
