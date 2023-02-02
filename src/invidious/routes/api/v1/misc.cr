@@ -161,12 +161,11 @@ module Invidious::Routes::API::V1::Misc
     begin
       resolved_url = YoutubeAPI.resolve_url(url.as(String))
       endpoint = resolved_url["endpoint"]
+      pageType = endpoint.dig?("commandMetadata", "webCommandMetadata", "webPageType").try &.as_s || ""
       if resolved_ucid = endpoint.dig?("watchEndpoint", "videoId")
       elsif resolved_ucid = endpoint.dig?("browseEndpoint", "browseId")
-      elsif pageType = endpoint.dig?("commandMetadata", "webCommandMetadata", "webPageType").try &.as_s || ""
-        if pageType == "WEB_PAGE_TYPE_UNKNOWN"
-          return error_json(400, "Unknown url")
-        end
+      elsif pageType == "WEB_PAGE_TYPE_UNKNOWN"
+        return error_json(400, "Unknown url")
       end
     rescue ex
       return error_json(500, ex)
@@ -174,6 +173,7 @@ module Invidious::Routes::API::V1::Misc
     JSON.build do |json|
       json.object do
         json.field "ucid", resolved_ucid.try &.as_s || ""
+        json.field "pageType", pageType
       end
     end
   end
