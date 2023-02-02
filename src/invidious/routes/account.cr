@@ -203,7 +203,7 @@ module Invidious::Routes::Account
     referer = get_referer(env)
 
     if !user
-      return env.redirect referer
+      return env.redirect "/login?referer=#{URI.encode_path_segment(env.request.resource)}"
     end
 
     user = user.as(User)
