@@ -281,6 +281,7 @@ module Invidious::Routing
       get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/auth/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes
+      get "/api/v1/resolveurl", {{namespace}}::Misc, :resolve_url
     {% end %}
   end
 end
