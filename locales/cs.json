@@ -492,5 +492,8 @@
     "channel_tab_shorts_label": "Shorts",
     "channel_tab_playlists_label": "Playlisty",
     "channel_tab_channels_label": "Kanály",
-    "channel_tab_streams_label": "Živé přenosy"
+    "channel_tab_streams_label": "Živé přenosy",
+    "Music in this video": "Hudba v tomto videu",
+    "Artist: ": "Umělec: ",
+    "Album: ": "Album: "
 }
