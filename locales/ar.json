@@ -540,5 +540,8 @@
     "channel_tab_shorts_label": "الفيديوهات القصيرة",
     "channel_tab_streams_label": "البث المباشر",
     "channel_tab_playlists_label": "قوائم التشغيل",
-    "channel_tab_channels_label": "القنوات"
+    "channel_tab_channels_label": "القنوات",
+    "Music in this video": "الموسيقى في هذا الفيديو",
+    "Album: ": "الألبوم: ",
+    "Artist: ": "الفنان: "
 }
