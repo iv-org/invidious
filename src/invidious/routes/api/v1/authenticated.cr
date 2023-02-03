@@ -31,6 +31,55 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.status_code = 204
   end
 
+  def self.export_invidious(env)
+    env.response.content_type = "application/json"
+    user = env.get("user").as(User)
+
+    playlists = Invidious::Database::Playlists.select_like_iv(user.email)
+
+    return JSON.build do |json|
+      json.object do
+        json.field "subscriptions", user.subscriptions
+        json.field "watch_history", user.watched
+        json.field "preferences", user.preferences
+        json.field "playlists" do
+          json.array do
+            playlists.each do |playlist|
+              json.object do
+                json.field "title", playlist.title
+                json.field "description", html_to_content(playlist.description_html)
+                json.field "privacy", playlist.privacy.to_s
+                json.field "videos" do
+                  json.array do
+                    Invidious::Database::PlaylistVideos.select_ids(playlist.id, playlist.index, limit: 500).each do |video_id|
+                      json.string video_id
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def self.import_invidious(env)
+    user = env.get("user").as(User)
+
+    begin
+      if body = env.request.body
+        body = env.request.body.not_nil!.gets_to_end
+      else
+        body = "{}"
+      end
+      Invidious::User::Import.from_invidious(user, body)
+    rescue
+    end
+
+    env.response.status_code = 204
+  end
+
   def self.feed(env)
     env.response.content_type = "application/json"
 
