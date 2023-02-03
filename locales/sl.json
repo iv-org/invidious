@@ -508,5 +508,8 @@
     "channel_tab_playlists_label": "Seznami predvajanja",
     "channel_tab_shorts_label": "Kratki videoposnetki",
     "channel_tab_channels_label": "Kanali",
-    "channel_tab_streams_label": "Prenosi v živo"
+    "channel_tab_streams_label": "Prenosi v živo",
+    "Artist: ": "Umetnik/ca: ",
+    "Music in this video": "Glasba v tem videoposnetku",
+    "Album: ": "Album: "
 }
