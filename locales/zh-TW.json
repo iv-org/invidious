@@ -460,5 +460,8 @@
     "channel_tab_shorts_label": "短片",
     "channel_tab_playlists_label": "播放清單",
     "channel_tab_channels_label": "頻道",
-    "channel_tab_streams_label": "直播"
+    "channel_tab_streams_label": "直播",
+    "Artist: ": "藝術家： ",
+    "Album: ": "專輯： ",
+    "Music in this video": "此影片中的音樂"
 }
