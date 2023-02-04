@@ -460,5 +460,8 @@
     "channel_tab_playlists_label": "再生リスト",
     "error_video_not_in_playlist": "要求された動画はこの再生リスト内に存在しません。<a href=\"`x`\">再生リストのホームへ。</a>",
     "channel_tab_shorts_label": "ショート",
-    "channel_tab_channels_label": "チャンネル"
+    "channel_tab_channels_label": "チャンネル",
+    "Music in this video": "この動画の音楽",
+    "Artist: ": "アーティスト: ",
+    "Album: ": "アルバム: "
 }
