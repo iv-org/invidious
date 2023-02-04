@@ -12,19 +12,19 @@
                best_m4a_stream_index = 0
                best_m4a_stream_bitrate = 0
                audio_streams.each_with_index do |fmt, i|
-                 bandwidth = fmt["bitrate"].as_i
-                 if (fmt["mimeType"].as_s.starts_with?("audio/mp4") && bandwidth > best_m4a_stream_bitrate)
+                 bandwidth = fmt.bitrate
+                 if (fmt.mime_type == "audio/mp4" && bandwidth > best_m4a_stream_bitrate)
                    best_m4a_stream_bitrate = bandwidth
                    best_m4a_stream_index = i
                  end
                end
 
                audio_streams.each_with_index do |fmt, i|
-                src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
+                src_url  = "/latest_version?id=#{video.id}&itag=#{fmt.itag}"
                 src_url += "&local=true" if params.local
 
-                bitrate = fmt["bitrate"]
-                mimetype = HTML.escape(fmt["mimeType"].as_s)
+                bitrate = fmt.bitrate // 1000
+                mimetype = HTML.escape(fmt.raw_mime_type)
 
                 selected = (i == best_m4a_stream_index)
             %>
@@ -39,14 +39,14 @@
             <% end %>
 
             <%
-            fmt_stream.reject! { |f| f["itag"] == 17 }
-            fmt_stream.sort_by! {|f| params.quality == f["quality"] ? 0 : 1 }
+            fmt_stream.reject!(&.itag.== 17)
+            fmt_stream.sort_by! { |f| params.quality == f.label ? 0 : 1 }
             fmt_stream.each_with_index do |fmt, i|
-                src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
+                src_url  = "/latest_version?id=#{video.id}&itag=#{fmt.itag}"
                 src_url += "&local=true" if params.local
 
-                quality = fmt["quality"]
-                mimetype = HTML.escape(fmt["mimeType"].as_s)
+                quality = fmt.label
+                mimetype = HTML.escape(fmt.raw_mime_type)
 
                 selected = params.quality ? (params.quality == quality) : (i == 0)
             %>

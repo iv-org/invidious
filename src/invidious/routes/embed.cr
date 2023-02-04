@@ -157,8 +157,8 @@ module Invidious::Routes::Embed
     adaptive_fmts = video.adaptive_fmts
 
     if params.local
-      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
-      adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
+      fmt_stream.each { |fmt| fmt.url = HttpServer::Utils.proxy_video_url(fmt.url) }
+      adaptive_fmts.each { |fmt| fmt.url = HttpServer::Utils.proxy_video_url(fmt.url) }
     end
 
     video_streams = video.video_streams
@@ -192,10 +192,10 @@ module Invidious::Routes::Embed
     thumbnail = "/vi/#{video.id}/maxres.jpg"
 
     if params.raw
-      url = fmt_stream[0]["url"].as_s
+      url = fmt_stream[0].url
 
       fmt_stream.each do |fmt|
-        url = fmt["url"].as_s if fmt["quality"].as_s == params.quality
+        url = fmt.url if fmt.label == params.quality
       end
 
       return env.redirect url

@@ -4,9 +4,9 @@ module Invidious::Frontend::WatchPage
   # A handy structure to pass many elements at
   # once to the download widget function
   struct VideoAssets
-    getter full_videos : Array(Hash(String, JSON::Any))
-    getter video_streams : Array(Hash(String, JSON::Any))
-    getter audio_streams : Array(Hash(String, JSON::Any))
+    getter full_videos : Array(Videos::ProgressiveHttpStream)
+    getter video_streams : Array(Videos::AdaptativeVideoStream)
+    getter audio_streams : Array(Videos::AdaptativeAudioStream)
     getter captions : Array(Invidious::Videos::Captions::Metadata)
 
     def initialize(
@@ -47,38 +47,33 @@ module Invidious::Frontend::WatchPage
       # Non-DASH videos (audio+video)
 
       video_assets.full_videos.each do |option|
-        mimetype = option["mimeType"].as_s.split(";")[0]
+        height = Invidious::Videos::Formats.itag_to_metadata?(option.itag).try &.["height"]?
 
-        height = Invidious::Videos::Formats.itag_to_metadata?(option["itag"]).try &.["height"]?
-
-        value = {"itag": option["itag"], "ext": mimetype.split("/")[1]}.to_json
+        value = {"itag": option.itag, "ext": option.mime_type.split("/")[1]}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
-        str << (height || "~240") << "p - " << mimetype
+        str << (height || option.video_height) << "p - " << option.mime_type
         str << "</option>\n"
       end
 
       # DASH video streams
 
       video_assets.video_streams.each do |option|
-        mimetype = option["mimeType"].as_s.split(";")[0]
-
-        value = {"itag": option["itag"], "ext": mimetype.split("/")[1]}.to_json
+        value = {"itag": option.itag, "ext": option.mime_type.split("/")[1]}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
-        str << option["qualityLabel"] << " - " << mimetype << " @ " << option["fps"] << "fps - video only"
+        str << option.label << " - " << option.mime_type
+        str << " @ " << option.video_fps << "fps - video only"
         str << "</option>\n"
       end
 
       # DASH audio streams
 
       video_assets.audio_streams.each do |option|
-        mimetype = option["mimeType"].as_s.split(";")[0]
-
-        value = {"itag": option["itag"], "ext": mimetype.split("/")[1]}.to_json
+        value = {"itag": option.itag, "ext": option.mime_type.split("/")[1]}.to_json
 
         str << "\t\t\t<option value='" << value << "'>"
-        str << mimetype << " @ " << (option["bitrate"]?.try &.as_i./ 1000) << "k - audio only"
+        str << option.mime_type << " @ " << (option.bitrate // 1000) << "kbps - audio only"
         str << "</option>\n"
       end
 

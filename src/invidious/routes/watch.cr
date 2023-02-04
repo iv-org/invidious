@@ -121,8 +121,8 @@ module Invidious::Routes::Watch
     adaptive_fmts = video.adaptive_fmts
 
     if params.local
-      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
-      adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
+      fmt_stream.each { |fmt| fmt.url = HttpServer::Utils.proxy_video_url(fmt.url) }
+      adaptive_fmts.each { |fmt| fmt.url = HttpServer::Utils.proxy_video_url(fmt.url) }
     end
 
     video_streams = video.video_streams
@@ -160,21 +160,21 @@ module Invidious::Routes::Watch
 
     if params.raw
       if params.listen
-        url = audio_streams[0]["url"].as_s
+        url = audio_streams[0].url
 
         if params.quality.ends_with? "k"
           audio_streams.each do |fmt|
-            if fmt["bitrate"].as_i == params.quality.rchop("k").to_i
-              url = fmt["url"].as_s
+            if fmt.bitrate == params.quality.rchop("k").to_i
+              url = fmt.url
             end
           end
         end
       else
-        url = fmt_stream[0]["url"].as_s
+        url = fmt_stream[0].url
 
         fmt_stream.each do |fmt|
-          if fmt["quality"].as_s == params.quality
-            url = fmt["url"].as_s
+          if fmt.label == params.quality
+            url = fmt.url
           end
         end
       end

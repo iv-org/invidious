@@ -285,13 +285,14 @@ module Invidious::Routes::VideoPlayback
     if itag.nil?
       fmt = video.fmt_stream[-1]?
     else
-      fmt = video.fmt_stream.find(nil) { |f| f["itag"].as_i == itag } || video.adaptive_fmts.find(nil) { |f| f["itag"].as_i == itag }
+      fmt = video.fmt_stream.find(nil, &.itag.== itag) || video.adaptive_fmts.find(nil, &.itag.== itag)
     end
-    url = fmt.try &.["url"]?.try &.as_s
 
-    if !url
+    if !fmt
       haltf env, status_code: 404
     end
+
+    url = fmt.url
 
     if local
       url = URI.parse(url).request_target.not_nil!

@@ -1,5 +1,5 @@
 module Invidious::Videos::Formats
-  def self.itag_to_metadata?(itag : JSON::Any)
+  def self.itag_to_metadata?(itag : Int)
     return FORMATS[itag.to_s]?
   end
 

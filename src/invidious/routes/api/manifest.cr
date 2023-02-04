@@ -4,7 +4,7 @@ module Invidious::Routes::API::Manifest
     env.response.headers.add("Access-Control-Allow-Origin", "*")
     env.response.content_type = "application/dash+xml"
 
-    local = env.params.query["local"]?.try &.== "true"
+    local = (env.params.query["local"]? == "true")
     id = env.params.url["id"]
     region = env.params.query["region"]?
 
@@ -44,18 +44,18 @@ module Invidious::Routes::API::Manifest
       return manifest
     end
 
-    adaptive_fmts = video.adaptive_fmts
-
+    # Transform URLs for proxying
     if local
-      adaptive_fmts.each do |fmt|
-        fmt["url"] = JSON::Any.new("#{HOST_URL}#{URI.parse(fmt["url"].as_s).request_target}")
+      video.adaptive_fmts.each do |fmt|
+        fmt.url = "#{HOST_URL}#{URI.parse(fmt.url).request_target}"
       end
     end
 
-    audio_streams = video.audio_streams.sort_by { |stream| {stream["bitrate"].as_i} }.reverse!
-    video_streams = video.video_streams.sort_by { |stream| {stream["width"].as_i, stream["fps"].as_i} }.reverse!
+    audio_streams = video.audio_streams.sort_by(&.bitrate).reverse!
+    video_streams = video.video_streams.sort_by { |fmt| {fmt.video_width, fmt.video_fps} }.reverse!
 
-    manifest = XML.build(indent: "  ", encoding: "UTF-8") do |xml|
+    # Build the manifest
+    return XML.build(indent: "  ", encoding: "UTF-8") do |xml|
       xml.element("MPD", "xmlns": "urn:mpeg:dash:schema:mpd:2011",
         "profiles": "urn:mpeg:dash:profile:full:2011", minBufferTime: "PT1.5S", type: "static",
         mediaPresentationDuration: "PT#{video.length_seconds}S") do
@@ -63,34 +63,28 @@ module Invidious::Routes::API::Manifest
           i = 0
 
           {"audio/mp4"}.each do |mime_type|
-            mime_streams = audio_streams.select { |stream| stream["mimeType"].as_s.starts_with? mime_type }
-            next if mime_streams.empty?
+            formats = audio_streams.select(&.mime_type.== mime_type)
+            next if formats.empty?
 
-            mime_streams.each do |fmt|
+            formats.each do |fmt|
               # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
-              next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
+              next if (fmt.index_range.nil? || fmt.init_range.nil?)
 
               # Different representations of the same audio should be groupped into one AdaptationSet.
               # However, most players don't support auto quality switching, so we have to trick them
               # into providing a quality selector.
               # See https://github.com/iv-org/invidious/issues/3074 for more details.
-              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: fmt["bitrate"].to_s + "k") do
-                codecs = fmt["mimeType"].as_s.split("codecs=")[1].strip('"')
-                bandwidth = fmt["bitrate"].as_i
-                itag = fmt["itag"].as_i
-                url = fmt["url"].as_s
-
+              xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, label: "#{(fmt.bitrate // 1000)} kbps") do
                 xml.element("Role", schemeIdUri: "urn:mpeg:dash:role:2011", value: i == 0 ? "main" : "alternate")
-
-                xml.element("Representation", id: fmt["itag"], codecs: codecs, bandwidth: bandwidth) do
-                  xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011",
-                    value: "2")
-                  xml.element("BaseURL") { xml.text url }
-                  xml.element("SegmentBase", indexRange: "#{fmt["indexRange"]["start"]}-#{fmt["indexRange"]["end"]}") do
-                    xml.element("Initialization", range: "#{fmt["initRange"]["start"]}-#{fmt["initRange"]["end"]}")
+                xml.element("Representation", id: fmt.itag, codecs: fmt.codecs, bandwidth: fmt.bitrate) do
+                  xml.element("AudioChannelConfiguration", schemeIdUri: "urn:mpeg:dash:23003:3:audio_channel_configuration:2011", value: fmt.audio_channels)
+                  xml.element("BaseURL") { xml.text fmt.url }
+                  xml.element("SegmentBase", indexRange: fmt.index_range.to_s) do
+                    xml.element("Initialization", range: fmt.init_range.to_s)
                   end
                 end
               end
+
               i += 1
             end
           end
@@ -98,33 +92,26 @@ module Invidious::Routes::API::Manifest
           potential_heights = {4320, 2160, 1440, 1080, 720, 480, 360, 240, 144}
 
           {"video/mp4"}.each do |mime_type|
-            mime_streams = video_streams.select { |stream| stream["mimeType"].as_s.starts_with? mime_type }
+            mime_streams = video_streams.select(&.mime_type.== mime_type)
             next if mime_streams.empty?
 
             heights = [] of Int32
+
             xml.element("AdaptationSet", id: i, mimeType: mime_type, startWithSAP: 1, subsegmentAlignment: true, scanType: "progressive") do
               mime_streams.each do |fmt|
                 # OTF streams aren't supported yet (See https://github.com/TeamNewPipe/NewPipe/issues/2415)
-                next if !(fmt.has_key?("indexRange") && fmt.has_key?("initRange"))
-
-                codecs = fmt["mimeType"].as_s.split("codecs=")[1].strip('"')
-                bandwidth = fmt["bitrate"].as_i
-                itag = fmt["itag"].as_i
-                url = fmt["url"].as_s
-                width = fmt["width"].as_i
-                height = fmt["height"].as_i
+                next if (fmt.index_range.nil? || fmt.init_range.nil?)
 
                 # Resolutions reported by YouTube player (may not accurately reflect source)
-                height = potential_heights.min_by { |x| (height - x).abs }
+                height = potential_heights.min_by { |x| (fmt.video_height.to_i32 - x).abs }
                 next if unique_res && heights.includes? height
                 heights << height
 
-                xml.element("Representation", id: itag, codecs: codecs, width: width, height: height,
-                  startWithSAP: "1", maxPlayoutRate: "1",
-                  bandwidth: bandwidth, frameRate: fmt["fps"]) do
-                  xml.element("BaseURL") { xml.text url }
-                  xml.element("SegmentBase", indexRange: "#{fmt["indexRange"]["start"]}-#{fmt["indexRange"]["end"]}") do
-                    xml.element("Initialization", range: "#{fmt["initRange"]["start"]}-#{fmt["initRange"]["end"]}")
+                xml.element("Representation", id: fmt.itag, codecs: fmt.codecs, width: fmt.video_width, height: height,
+                  startWithSAP: "1", maxPlayoutRate: "1", bandwidth: fmt.bitrate, frameRate: fmt.video_fps) do
+                  xml.element("BaseURL") { xml.text fmt.url }
+                  xml.element("SegmentBase", indexRange: fmt.index_range.to_s) do
+                    xml.element("Initialization", range: fmt.init_range.to_s)
                   end
                 end
               end
@@ -135,8 +122,6 @@ module Invidious::Routes::API::Manifest
         end
       end
     end
-
-    return manifest
   end
 
   # /api/manifest/dash/id/videoplayback
