@@ -492,5 +492,8 @@
     "channel_tab_streams_label": "Prijenosi uživo",
     "channel_tab_playlists_label": "Zbirke",
     "channel_tab_channels_label": "Kanali",
-    "channel_tab_shorts_label": "Kratka videa"
+    "channel_tab_shorts_label": "Kratka videa",
+    "Music in this video": "Glazba u ovom videu",
+    "Album: ": "Album: ",
+    "Artist: ": "Izvođač: "
 }
