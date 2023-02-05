@@ -104,7 +104,6 @@ module Invidious::Routes::Subscriptions
       if format == "json"
         env.response.content_type = "application/json"
         env.response.headers["content-disposition"] = "attachment"
-        playlists = Invidious::Database::Playlists.select_like_iv(user.email)
 
         return Invidious::User::Export.to_invidious(user)
       else
