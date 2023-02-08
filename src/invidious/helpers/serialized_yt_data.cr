@@ -74,6 +74,7 @@ struct SearchVideo
       json.field "author", self.author
       json.field "authorId", self.ucid
       json.field "authorUrl", "/channel/#{self.ucid}"
+      json.field "authorVerified", self.author_verified
 
       json.field "videoThumbnails" do
         Invidious::JSONify::APIv1.thumbnails(json, self.id)
