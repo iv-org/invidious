@@ -476,5 +476,8 @@
     "channel_tab_playlists_label": "Listas de reprodução",
     "channel_tab_channels_label": "Canais",
     "channel_tab_shorts_label": "Curtos",
-    "channel_tab_streams_label": "Diretos"
+    "channel_tab_streams_label": "Diretos",
+    "Music in this video": "Música neste vídeo",
+    "Artist: ": "Artista: ",
+    "Album: ": "Álbum: "
 }
