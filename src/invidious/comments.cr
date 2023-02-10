@@ -181,6 +181,8 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
               json.field "content", html_to_content(content_html)
               json.field "contentHtml", content_html
 
+              json.field "isPinned", (node_comment["pinnedCommentBadge"]?.try(&.as_bool) == true)
+
               json.field "published", published.to_unix
               json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
 
@@ -670,6 +672,7 @@ def content_to_comment_html(content, video_id : String? = "")
     end
 
     text = "<b>#{text}</b>" if run["bold"]?
+    text = "<s>#{text}</s>" if run["strikethrough"]?
     text = "<i>#{text}</i>" if run["italics"]?
 
     text
