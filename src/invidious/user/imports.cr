@@ -48,11 +48,11 @@ struct Invidious::User
           else
             privacy = PlaylistPrivacy::Private
           end
-    
+
           if title && privacy && user
-            playlist = create_playlist(title, privacy, user) 
+            playlist = create_playlist(title, privacy, user)
           end
-    
+
           if playlist && description
             Invidious::Database::Playlists.update_description(playlist.id, description)
           end
