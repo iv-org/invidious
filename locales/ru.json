@@ -492,5 +492,8 @@
     "channel_tab_playlists_label": "Плейлисты",
     "channel_tab_channels_label": "Каналы",
     "channel_tab_streams_label": "Живое вещание",
-    "channel_tab_shorts_label": "Shorts"
+    "channel_tab_shorts_label": "Shorts",
+    "Music in this video": "Музыка в этом видео",
+    "Artist: ": "Исполнитель: ",
+    "Album: ": "Альбом: "
 }
