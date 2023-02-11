@@ -4,14 +4,12 @@ def fetch_trending(trending_type, region, locale)
 
   plid = nil
 
-  trending_type ||= "default"
-  trending_type = trending_type.downcase
-
-  if trending_type == "music"
+  case trending_type.try &.downcase
+  when "music"
     params = "4gINGgt5dG1hX2NoYXJ0cw%3D%3D"
-  elsif trending_type == "gaming"
+  when "gaming"
     params = "4gIcGhpnYW1pbmdfY29ycHVzX21vc3RfcG9wdWxhcg%3D%3D"
-  elsif trending_type == "movies"
+  when "movies"
     params = "4gIKGgh0cmFpbGVycw%3D%3D"
   else # Default
     params = ""
