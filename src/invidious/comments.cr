@@ -181,7 +181,7 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
               json.field "content", html_to_content(content_html)
               json.field "contentHtml", content_html
 
-              json.field "isPinned", (node_comment["pinnedCommentBadge"]?.try(&.as_bool) == true)
+              json.field "isPinned", (node_comment["pinnedCommentBadge"]? != nil)
 
               json.field "published", published.to_unix
               json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
