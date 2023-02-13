@@ -472,5 +472,12 @@
     "search_filters_type_option_all": "Qualquer tipo",
     "search_filters_duration_option_none": "Qualquer duração",
     "Popular enabled: ": "Página \"popular\" ativada: ",
-    "error_video_not_in_playlist": "O vídeo pedido não existe nesta lista de reprodução. <a href=\"`x`\">Clique aqui para a página inicial da lista de reprodução.</a>"
+    "error_video_not_in_playlist": "O vídeo pedido não existe nesta lista de reprodução. <a href=\"`x`\">Clique aqui para a página inicial da lista de reprodução.</a>",
+    "channel_tab_playlists_label": "Listas de reprodução",
+    "channel_tab_channels_label": "Canais",
+    "channel_tab_shorts_label": "Curtos",
+    "channel_tab_streams_label": "Diretos",
+    "Music in this video": "Música neste vídeo",
+    "Artist: ": "Artista: ",
+    "Album: ": "Álbum: "
 }

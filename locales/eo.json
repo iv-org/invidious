@@ -476,5 +476,8 @@
     "channel_tab_streams_label": "Tujelsendoj",
     "channel_tab_playlists_label": "Ludlistoj",
     "channel_tab_channels_label": "Kanaloj",
-    "channel_tab_shorts_label": "Mallongaj"
+    "channel_tab_shorts_label": "Mallongaj",
+    "Music in this video": "Muziko en ĉi tiu video",
+    "Artist: ": "Artisto: ",
+    "Album: ": "Albumo: "
 }

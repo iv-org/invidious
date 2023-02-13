@@ -379,7 +379,7 @@
     "Turkish (auto-generated)": "Турецкий (созданы автоматически)",
     "Vietnamese (auto-generated)": "Вьетнамский (созданы автоматически)",
     "footer_documentation": "Документация",
-    "adminprefs_modified_source_code_url_label": "Ссылка на нашу ветку репозитория",
+    "adminprefs_modified_source_code_url_label": "URL-адрес репозитория измененного исходного кода",
     "none": "ничего",
     "videoinfo_watch_on_youTube": "Смотреть на YouTube",
     "videoinfo_youTube_embed_link": "Версия для встраивания",
@@ -488,5 +488,12 @@
     "search_filters_duration_option_medium": "Средние (4 - 20 минут)",
     "search_filters_apply_button": "Применить фильтры",
     "Popular enabled: ": "Популярное включено: ",
-    "error_video_not_in_playlist": "Запрошенного видео нет в этом плейлисте. <a href=\"`x`\">Нажмите тут, чтобы вернуться к странице плейлиста.</a>"
+    "error_video_not_in_playlist": "Запрошенного видео нет в этом плейлисте. <a href=\"`x`\">Нажмите тут, чтобы вернуться к странице плейлиста.</a>",
+    "channel_tab_playlists_label": "Плейлисты",
+    "channel_tab_channels_label": "Каналы",
+    "channel_tab_streams_label": "Живое вещание",
+    "channel_tab_shorts_label": "Shorts",
+    "Music in this video": "Музыка в этом видео",
+    "Artist: ": "Исполнитель: ",
+    "Album: ": "Альбом: "
 }

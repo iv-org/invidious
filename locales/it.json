@@ -476,5 +476,8 @@
     "channel_tab_playlists_label": "Playlist",
     "channel_tab_channels_label": "Canali",
     "channel_tab_streams_label": "Livestream",
-    "channel_tab_community_label": "Comunità"
+    "channel_tab_community_label": "Comunità",
+    "Music in this video": "Musica in questo video",
+    "Artist: ": "Artista: ",
+    "Album: ": "Album: "
 }

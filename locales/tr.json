@@ -397,8 +397,8 @@
     "videoinfo_watch_on_youTube": "YouTube'da İzle",
     "download_subtitles": "Alt Yazılar - `x` (.vtt)",
     "preferences_save_player_pos_label": "Oynatma Konumunu Kaydet: ",
-    "generic_views_count": "{{count}} Görüntüleme",
-    "generic_views_count_plural": "{{count}} Görüntüleme",
+    "generic_views_count": "{{count}} Görüntülenme",
+    "generic_views_count_plural": "{{count}} Görüntülenme",
     "generic_subscribers_count": "{{count}} Abone",
     "generic_subscribers_count_plural": "{{count}} Abone",
     "generic_subscriptions_count": "{{count}} Abonelik",
@@ -476,5 +476,8 @@
     "channel_tab_channels_label": "Kanallar",
     "channel_tab_shorts_label": "Kısa Çekimler",
     "channel_tab_streams_label": "Canlı Yayınlar",
-    "channel_tab_playlists_label": "Oynatma Listeleri"
+    "channel_tab_playlists_label": "Oynatma Listeleri",
+    "Album: ": "Albüm: ",
+    "Music in this video": "Bu videodaki müzik",
+    "Artist: ": "Sanatçı: "
 }

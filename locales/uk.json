@@ -492,5 +492,8 @@
     "channel_tab_shorts_label": "Shorts",
     "channel_tab_streams_label": "Прямі трансляції",
     "channel_tab_playlists_label": "Добірки",
-    "channel_tab_channels_label": "Канали"
+    "channel_tab_channels_label": "Канали",
+    "Music in this video": "Музика в цьому відео",
+    "Artist: ": "Виконавець: ",
+    "Album: ": "Альбом: "
 }
