@@ -191,7 +191,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                     when .has_key?("pollRenderer")
                       attachment = attachment["pollRenderer"]
                       json.field "type", "poll"
-                      json.field "totalVotes", attachment["totalVotes"]["simpleText"].as_s
+                      json.field "totalVotes", short_text_to_number(attachment["totalVotes"]["simpleText"].as_s.split(" ")[0])
                       json.field "choices" do
                         json.array do
                           attachment["choices"].as_a.each do |choice|
