@@ -182,7 +182,11 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
               json.field "contentHtml", content_html
 
               json.field "isPinned", (node_comment["pinnedCommentBadge"]? != nil)
-
+              json.field "isMember", (node_comment["sponsorCommentBadge"]? != nil)
+              if node_comment["sponsorCommentBadge"]?
+                # Member icon thumbnails always have one object and there's only ever the url property in it
+                json.field "memberIconUrl", node_comment["sponsorCommentBadge"]["sponsorCommentBadgeRenderer"]["customBadge"]["thumbnails"][0]["url"].to_s
+              end
               json.field "published", published.to_unix
               json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
 
@@ -674,6 +678,14 @@ def content_to_comment_html(content, video_id : String? = "")
     text = "<b>#{text}</b>" if run["bold"]?
     text = "<s>#{text}</s>" if run["strikethrough"]?
     text = "<i>#{text}</i>" if run["italics"]?
+    if emojiImage = run.dig?("emoji", "image")
+      emojiAlt = emojiImage.dig?("accessibility", "accessibilityData", "label").try &.as_s || text
+      emojiThumb = emojiImage["thumbnails"][0]
+      emojiUrl = "/ggpht#{URI.parse(emojiThumb["url"].as_s).request_target}"
+      emojiWidth = emojiThumb["width"]
+      emojiHeight = emojiThumb["height"]
+      text = "<img alt=\"#{emojiAlt}\" src=\"#{emojiUrl}\" width=\"#{emojiWidth}\" height=\"#{emojiHeight}\" style=\"margin-right:2px;margin-left:2px;\" />"
+    end
 
     text
   end
