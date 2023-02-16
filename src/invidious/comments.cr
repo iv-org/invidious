@@ -328,10 +328,20 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
       end
 
       author_name = HTML.escape(child["author"].as_s)
+      member_icon = ""
       if child["verified"]?.try &.as_bool && child["authorIsChannelOwner"]?.try &.as_bool
         author_name += "&nbsp;<i class=\"icon ion ion-md-checkmark-circle\"></i>"
       elsif child["verified"]?.try &.as_bool
         author_name += "&nbsp;<i class=\"icon ion ion-md-checkmark\"></i>"
+      end
+      if child["isMember"]?.try &.as_bool
+        member_icon = "<img
+          alt=\"\"
+          src=\"/ggpht#{URI.parse(child["memberIconUrl"].as_s).request_target}\"
+          width=\"16\"
+          height=\"16\"
+          title=\"#{translate(locale, "Member")}\"
+        />"
       end
       html << <<-END_HTML
       <div class="pure-g" style="width:100%">
@@ -343,6 +353,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
             <b>
               <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{author_name}</a>
             </b>
+            #{member_icon}
             <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
       END_HTML
 
@@ -678,13 +689,17 @@ def content_to_comment_html(content, video_id : String? = "")
     text = "<b>#{text}</b>" if run["bold"]?
     text = "<s>#{text}</s>" if run["strikethrough"]?
     text = "<i>#{text}</i>" if run["italics"]?
-    if emojiImage = run.dig?("emoji", "image")
-      emojiAlt = emojiImage.dig?("accessibility", "accessibilityData", "label").try &.as_s || text
-      emojiThumb = emojiImage["thumbnails"][0]
-      emojiUrl = "/ggpht#{URI.parse(emojiThumb["url"].as_s).request_target}"
-      emojiWidth = emojiThumb["width"]
-      emojiHeight = emojiThumb["height"]
-      text = "<img alt=\"#{emojiAlt}\" src=\"#{emojiUrl}\" width=\"#{emojiWidth}\" height=\"#{emojiHeight}\" style=\"margin-right:2px;margin-left:2px;\" />"
+    if run["emoji"]?
+      if run["emoji"]["isCustomEmoji"]?.try &.as_bool
+        if emojiImage = run.dig?("emoji", "image")
+          emojiAlt = emojiImage.dig?("accessibility", "accessibilityData", "label").try &.as_s || text
+          emojiThumb = emojiImage["thumbnails"][0]
+          text = "<img alt=\"#{emojiAlt}\" src=\"/ggpht#{URI.parse(emojiThumb["url"].as_s).request_target}\" title=\"#{emojiAlt}\" width=\"#{emojiThumb["width"]}\" height=\"#{emojiThumb["height"]}\" style=\"margin-right:2px;margin-left:2px;\"/>"
+        else
+          # Hide deleted channel emoji
+          text = ""
+        end
+      end
     end
 
     text
