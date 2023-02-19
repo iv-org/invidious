@@ -23,4 +23,4 @@ jobs:
         stale-pr-label: "stale"
         ascending: true
         # Never mark feature requests/enhancements as stale
-        exempt-issue-labels: "feature-request,enhancement"
+        exempt-issue-labels: "feature-request,enhancement,exempt-stale"
