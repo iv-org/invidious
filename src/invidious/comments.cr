@@ -336,10 +336,10 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
       end
       if child["isSponsor"].as_bool
         sponsor_icon = String.build do |str|
-          str << %(<img alt="")
-          str << %(src="/ggpht) << URI.parse(child["sponsorIconUrl"].as_s).request_target << '"'
-          str << %(title=") << translate(locale, "Channel Sponsor") << '"'
-          str << %(width="16" height="16"/>)
+          str << %(<img alt="" )
+          str << %(src="/ggpht) << URI.parse(child["sponsorIconUrl"].as_s).request_target << "\" "
+          str << %(title=") << translate(locale, "Channel Sponsor") << "\" "
+          str << %(width="16" height="16" />)
         end
       end
       html << <<-END_HTML
@@ -696,12 +696,12 @@ def content_to_comment_html(content, video_id : String? = "")
           emojiAlt = emojiImage.dig?("accessibility", "accessibilityData", "label").try &.as_s || text
           emojiThumb = emojiImage["thumbnails"][0]
           text = String.build do |str|
-            str << %(<img alt=") << emojiAlt << '"'
-            str << %(src="/ggpht) << URI.parse(emojiThumb["url"].as_s).request_target << '"'
-            str << %(title=") << emojiAlt << '"'
-            str << %(width=") << emojiThumb["width"] << '"'
-            str << %(height=") << emojiThumb["height"] << '"'
-            str << %( style="margin-right:2px;margin-left:2px;"/>)
+            str << %(<img alt=") << emojiAlt << "\" "
+            str << %(src="/ggpht) << URI.parse(emojiThumb["url"].as_s).request_target << "\" "
+            str << %(title=") << emojiAlt << "\" "
+            str << %(width=") << emojiThumb["width"] << "\" "
+            str << %(height=") << emojiThumb["height"] << "\" "
+            str << %(style="margin-right:2px;margin-left:2px;"/>)
           end
         else
           # Hide deleted channel emoji
