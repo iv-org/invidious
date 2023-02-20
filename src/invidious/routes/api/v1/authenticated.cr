@@ -76,6 +76,10 @@ module Invidious::Routes::API::V1::Authenticated
   def self.mark_watched(env)
     user = env.get("user").as(User)
 
+    if !user.preferences.watch_history
+      return error_json(409, "Watch history is disabled in preferences.")
+    end
+
     id = env.params.url["id"]?.try &.as(String)
     if !id
       return error_json(400, "Invalid video id.")
