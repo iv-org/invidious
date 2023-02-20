@@ -50,6 +50,7 @@ module Invidious::Database::Users
   end
 
   def mark_watched(user : User, vid : String)
+    mark_unwatched(user, vid)
     request = <<-SQL
       UPDATE users
       SET watched = array_append(watched, $1)
