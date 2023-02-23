@@ -98,6 +98,22 @@ db:
 domain:
 
 ##
+## A list of domains where external proxy servers. This is used
+## to build the urls used for proxing videos.
+## When none is set invidious will be used for proxiying.
+## This generally only needs to be set for bigger instances,
+## a example proxy url would be like ['proxy.example.com'].
+## Using a list urls might look like this:
+## ['proxy-eu1.example.com','proxy-eu2.example.com']
+## Invidious would then choose at random which request gets one
+## of the proxy servers
+##
+## Accepted values: a list of fully qualified domain names (FQDN)
+## Default: [""]
+##
+proxy_domains: [""]
+
+##
 ## Tell Invidious that it is behind a proxy that provides only
 ## HTTPS, so all links must use the https:// scheme. This
 ## setting MUST be set to true if invidious is behind a
