@@ -10,12 +10,12 @@
     </div>
     <div class="pure-u-1-3">
         <h3 style="text-align:center">
-            <a href="/create_playlist?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Create playlist") %></a>
+            <a href="/create_playlist?referer=<%= URI.encode_www_form("/feed/playlists") %>"><%= translate(locale, "Create playlist") %></a>
         </h3>
     </div>
     <div class="pure-u-1-3">
         <h3 style="text-align:right">
-            <a href="/data_control?referer=<%= URI.encode_www_form(referer) %>">
+            <a href="/data_control?referer=<%= URI.encode_www_form("/feed/playlists") %>">
                 <%= translate(locale, "Import/export") %>
             </a>
         </h3>

@@ -30,43 +30,44 @@ struct Invidious::User
       return subscriptions
     end
 
-    def parse_playlist_export_csv(user : User, csv_content : String)
-      rows = CSV.new(csv_content, headers: true)
-      row_counter = 0
+    def parse_playlist_export_csv(user : User, raw_input : String)
       playlist = uninitialized InvidiousPlaylist
       title = uninitialized String
       description = uninitialized String
       visibility = uninitialized String
-      rows.each do |row|
-        if row_counter == 0
-          title = row[4]
-          description = row[5]
-          visibility = row[6]
+      privacy = uninitialized PlaylistPrivacy
 
-          if visibility.compare("Public", case_insensitive: true) == 0
-            privacy = PlaylistPrivacy::Public
-          else
-            privacy = PlaylistPrivacy::Private
-          end
+      # Split the input into head and body content
+      raw_head, raw_body = raw_input.split("\n\n", limit: 2, remove_empty: true)
 
-          if title && privacy && user
-            playlist = create_playlist(title, privacy, user)
-          end
+      # Create the playlist from the head content
+      csv_head = CSV.new(raw_head, headers: true)
+      csv_head.next
+      title = csv_head[4]
+      description = csv_head[5]
+      visibility = csv_head[6]
+      
+      if visibility.compare("Public", case_insensitive: true) == 0
+        privacy = PlaylistPrivacy::Public
+      else
+        privacy = PlaylistPrivacy::Private
+      end
 
-          if playlist && description
-            Invidious::Database::Playlists.update_description(playlist.id, description)
-          end
+      if title && privacy && user
+        playlist = create_playlist(title, privacy, user)
+      end
 
-          row_counter += 1
-        end
-        if row_counter > 0 && row_counter < 3
-          row_counter += 1
-        end
-        if row_counter >= 3
+      if playlist && description
+        Invidious::Database::Playlists.update_description(playlist.id, description)
+      end
+
+      # Add each video to the playlist from the body content
+      CSV.each_row(raw_body) do |row|
+        if row.size >= 1
+          video_id = row[0]
           if playlist
-            video_id = row[0]
-            row_counter += 1
             next if !video_id
+            next if video_id == "Video Id"
 
             begin
               video = get_video(video_id)
