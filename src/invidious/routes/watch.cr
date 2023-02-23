@@ -129,8 +129,14 @@ module Invidious::Routes::Watch
     adaptive_fmts = video.adaptive_fmts
 
     if params.local
-      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
-      adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
+      proxy_url = HOST_URL
+
+      if CONFIG.proxy_domains.size > 0 && params.local
+        proxy_url = ("https:///" + CONFIG.proxy_domains.[Random.rand(CONFIG.proxy_domains.size)])
+      end
+
+      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(proxy_url + URI.parse(fmt["url"].as_s).request_target) }
+      adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(proxy_url + URI.parse(fmt["url"].as_s).request_target) }
     end
 
     video_streams = video.video_streams

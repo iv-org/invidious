@@ -7,6 +7,11 @@ module Invidious::Routes::API::Manifest
     local = env.params.query["local"]?.try &.== "true"
     id = env.params.url["id"]
     region = env.params.query["region"]?
+    proxy_url = HOST_URL
+
+    if CONFIG.proxy_domains.size > 0 && local
+      proxy_url = ("https:///" + CONFIG.proxy_domains.[Random.rand(CONFIG.proxy_domains.size)])
+    end
 
     # Since some implementations create playlists based on resolution regardless of different codecs,
     # we can opt to only add a source to a representation if it has a unique height within that representation
@@ -29,7 +34,7 @@ module Invidious::Routes::API::Manifest
 
         if local
           uri = URI.parse(url)
-          url = "#{HOST_URL}#{uri.request_target}host/#{uri.host}/"
+          url = "#{proxy_url}#{uri.request_target}host/#{uri.host}/"
         end
 
         "<BaseURL>#{url}</BaseURL>"
@@ -42,7 +47,7 @@ module Invidious::Routes::API::Manifest
 
     if local
       adaptive_fmts.each do |fmt|
-        fmt["url"] = JSON::Any.new("#{HOST_URL}#{URI.parse(fmt["url"].as_s).request_target}")
+        fmt["url"] = JSON::Any.new("#{proxy_url}#{URI.parse(fmt["url"].as_s).request_target}")
       end
     end
 
@@ -164,6 +169,11 @@ module Invidious::Routes::API::Manifest
     end
 
     local = env.params.query["local"]?.try &.== "true"
+    proxy_url = HOST_URL
+
+    if CONFIG.proxy_domains.size > 0 && local
+      proxy_url = ("https:///" + CONFIG.proxy_domains.[Random.rand(CONFIG.proxy_domains.size)])
+    end
 
     env.response.content_type = "application/x-mpegURL"
     env.response.headers.add("Access-Control-Allow-Origin", "*")
@@ -203,7 +213,7 @@ module Invidious::Routes::API::Manifest
 
         raw_params["local"] = "true"
 
-        "#{HOST_URL}/videoplayback?#{raw_params}"
+        "#{proxy_url}/videoplayback?#{raw_params}"
       end
     end
 
@@ -219,6 +229,11 @@ module Invidious::Routes::API::Manifest
     end
 
     local = env.params.query["local"]?.try &.== "true"
+    proxy_url = HOST_URL
+
+    if CONFIG.proxy_domains.size > 0 && local
+      proxy_url = ("https:///" + CONFIG.proxy_domains.[Random.rand(CONFIG.proxy_domains.size)])
+    end
 
     env.response.content_type = "application/x-mpegURL"
     env.response.headers.add("Access-Control-Allow-Origin", "*")
@@ -226,7 +241,7 @@ module Invidious::Routes::API::Manifest
     manifest = response.body
 
     if local
-      manifest = manifest.gsub("https://www.youtube.com", HOST_URL)
+      manifest = manifest.gsub("https://www.youtube.com", proxy_url)
       manifest = manifest.gsub("index.m3u8", "index.m3u8?local=true")
     end
 

@@ -262,6 +262,11 @@ module Invidious::Routes::VideoPlayback
 
     region = env.params.query["region"]?
     local = (env.params.query["local"]? == "true")
+    proxy_url = HOST_URL
+
+    if CONFIG.proxy_domains.size > 0 && local
+      proxy_url = ("https:///" + CONFIG.proxy_domains.[Random.rand(CONFIG.proxy_domains.size)])
+    end
 
     title = env.params.query["title"]?
 
@@ -285,7 +290,7 @@ module Invidious::Routes::VideoPlayback
     end
 
     if local
-      url = URI.parse(url).request_target.not_nil!
+      url = proxy_url + URI.parse(url).request_target.not_nil!
       url += "&title=#{URI.encode_www_form(title, space_to_plus: false)}" if title
     end
 
