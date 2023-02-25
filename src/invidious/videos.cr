@@ -27,10 +27,10 @@ struct Video
   @captions = [] of Invidious::Videos::Captions::Metadata
 
   @[DB::Field(ignore: true)]
-  @adaptive_fmts = [] of IV::Videos::AdaptativeStream
+  @adaptive_fmts = [] of Invidious::Videos::AdaptativeStream
 
   @[DB::Field(ignore: true)]
-  @fmt_stream = [] of IV::Videos::ProgressiveHttpStream
+  @fmt_stream = [] of Invidious::Videos::ProgressiveHttpStream
 
   @[DB::Field(ignore: true)]
   property description : String?
@@ -98,32 +98,32 @@ struct Video
 
   # Methods for parsing streaming data
 
-  def fmt_stream : Array(IV::Videos::ProgressiveHttpStream)
+  def fmt_stream : Array(Invidious::Videos::ProgressiveHttpStream)
     if @fmt_stream.empty?
       if formats = info.dig?("streamingData", "formats")
-        @fmt_stream = IV::Videos.parse_progressive_formats(formats)
+        @fmt_stream = Invidious::Videos.parse_progressive_formats(formats)
       end
     end
 
     return @fmt_stream
   end
 
-  def adaptive_fmts : Array(IV::Videos::AdaptativeStream)
+  def adaptive_fmts : Array(Invidious::Videos::AdaptativeStream)
     if @adaptive_fmts.empty?
       if formats = info.dig?("streamingData", "adaptiveFormats")
-        @adaptive_fmts = IV::Videos.parse_adaptative_formats(formats)
+        @adaptive_fmts = Invidious::Videos.parse_adaptative_formats(formats)
       end
     end
 
     return @adaptive_fmts
   end
 
-  def video_streams : Array(IV::Videos::AdaptativeVideoStream)
-    self.adaptive_fmts.select(IV::Videos::AdaptativeVideoStream)
+  def video_streams : Array(Invidious::Videos::AdaptativeVideoStream)
+    self.adaptive_fmts.select(Invidious::Videos::AdaptativeVideoStream)
   end
 
-  def audio_streams : Array(IV::Videos::AdaptativeAudioStream)
-    self.adaptive_fmts.select(IV::Videos::AdaptativeAudioStream)
+  def audio_streams : Array(Invidious::Videos::AdaptativeAudioStream)
+    self.adaptive_fmts.select(Invidious::Videos::AdaptativeAudioStream)
   end
 
   # Misc. methods
