@@ -1,0 +1,6 @@
+version: "3"
+
+services:
+  invidious:
+    ports:
+      - "127.0.0.1:3000:3000"
