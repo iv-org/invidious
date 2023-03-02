@@ -1,3 +1,5 @@
+private IMAGE_QUALITIES = {320, 560, 640, 1280, 2000}
+
 # TODO: Add "sort_by"
 def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
   response = YT_POOL.client &.get("/channel/#{ucid}/community?gl=US&hl=en")
@@ -75,10 +77,9 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
               json.field "author", author
               json.field "authorThumbnails" do
                 json.array do
-                  qualities = {32, 48, 76, 100, 176, 512}
                   author_thumbnail = post["authorThumbnail"]["thumbnails"].as_a[0]["url"].as_s
 
-                  qualities.each do |quality|
+                  IMAGE_QUALITIES.each do |quality|
                     json.object do
                       json.field "url", author_thumbnail.gsub(/s\d+-/, "s#{quality}-")
                       json.field "width", quality
@@ -177,9 +178,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                           aspect_ratio = (width.to_f / height.to_f)
                           url = thumbnail["url"].as_s.gsub(/=w\d+-h\d+(-p)?(-nd)?(-df)?(-rwa)?/, "=s640")
 
-                          qualities = {320, 560, 640, 1280, 2000}
-
-                          qualities.each do |quality|
+                          IMAGE_QUALITIES.each do |quality|
                             json.object do
                               json.field "url", url.gsub(/=s\d+/, "=s#{quality}")
                               json.field "width", quality
@@ -196,7 +195,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                         json.array do
                           attachment["choices"].as_a.each do |choice|
                             json.object do
-                              json.field "text", choice["text"]["runs"][0]["text"].as_s
+                              json.field "text", choice.dig("text", "runs", 0, "text").as_s
                               # A choice can have an image associated with it.
                               # Ex post: https://www.youtube.com/post/UgkxD4XavXUD4NQiddJXXdohbwOwcVqrH9Re
                               if choice["image"]?
@@ -205,10 +204,9 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                                 height = thumbnail["height"].as_i
                                 aspect_ratio = (width.to_f / height.to_f)
                                 url = thumbnail["url"].as_s.gsub(/=w\d+-h\d+(-p)?(-nd)?(-df)?(-rwa)?/, "=s640")
-                                qualities = {320, 560, 640, 1280, 2000}
                                 json.field "image" do
                                   json.array do
-                                    qualities.each do |quality|
+                                    IMAGE_QUALITIES.each do |quality|
                                       json.object do
                                         json.field "url", url.gsub(/=s\d+/, "=s#{quality}")
                                         json.field "width", quality
@@ -235,9 +233,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                               aspect_ratio = (width.to_f / height.to_f)
                               url = thumbnail["url"].as_s.gsub(/=w\d+-h\d+(-p)?(-nd)?(-df)?(-rwa)?/, "=s640")
 
-                              qualities = {320, 560, 640, 1280, 2000}
-
-                              qualities.each do |quality|
+                              IMAGE_QUALITIES.each do |quality|
                                 json.object do
                                   json.field "url", url.gsub(/=s\d+/, "=s#{quality}")
                                   json.field "width", quality
