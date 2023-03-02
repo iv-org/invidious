@@ -701,7 +701,7 @@ def content_to_comment_html(content, video_id : String? = "")
             str << %(title=") << emojiAlt << "\" "
             str << %(width=") << emojiThumb["width"] << "\" "
             str << %(height=") << emojiThumb["height"] << "\" "
-            str << %(style="margin-right:2px;margin-left:2px;"/>)
+            str << %(class="channel-emoji"/>)
           end
         else
           # Hide deleted channel emoji
