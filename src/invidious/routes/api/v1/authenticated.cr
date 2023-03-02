@@ -58,15 +58,16 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
 
-    page = env.params.query["page"]?.try &.to_i?
+    page = env.params.query["page"]?.try &.to_i?.try &.clamp(0, Int32::MAX)
     page ||= 1
 
     max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)
     max_results ||= user.preferences.max_results
     max_results ||= CONFIG.default_user_preferences.max_results
 
-    if user.watched[(page - 1) * max_results]?
-      watched = user.watched.reverse[(page - 1) * max_results, max_results]
+    start_index = (page - 1) * max_results
+    if user.watched[start_index]?
+      watched = user.watched.reverse[start_index, max_results]
     end
     watched ||= [] of String
 
