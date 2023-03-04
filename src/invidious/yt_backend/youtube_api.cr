@@ -593,7 +593,7 @@ module YoutubeAPI
     LOGGER.trace("YoutubeAPI: POST data: #{data}")
 
     # Send the POST request
-    if {{ !flag?(:disable_quic) }} && CONFIG.use_quic
+    if CONFIG.use_quic
       # Using QUIC client
       body = YT_POOL.client(client_config.proxy_region,
         &.post(url, headers: headers, body: data.to_json)

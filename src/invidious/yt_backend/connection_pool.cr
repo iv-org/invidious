@@ -63,11 +63,7 @@ struct YoutubeConnectionPool
     DB::Pool(HTTPClientType).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
       conn = nil # Declare
       {% unless flag?(:disable_quic) %}
-        if use_quic
-          conn = QUIC::Client.new(url)
-        else
-          conn = HTTP::Client.new(url)
-        end
+        conn = CONFIG.use_quic ? QUIC::Client.new(url) : HTTP::Client.new(url)
       {% else %}
         conn = HTTP::Client.new(url)
       {% end %}
