@@ -366,7 +366,7 @@
     "preferences_quality_option_hd720": "HD720",
     "preferences_quality_option_medium": "Μεσαία",
     "preferences_quality_option_small": "Μικρό",
-    "preferences_quality_option_dash": "DASH (προσαρμοστική ποιότητα)",
+    "preferences_quality_option_dash": "DASH (προσαρμόσιμη ποιότητα)",
     "preferences_quality_dash_option_4320p": "4320p",
     "preferences_quality_dash_option_720p": "720p",
     "invidious": "Invidious",
@@ -450,5 +450,5 @@
     "search_filters_type_option_show": "Μπάρα προόδου διαβάσματος",
     "preferences_watch_history_label": "Ενεργοποίηση ιστορικού παρακολούθησης: ",
     "search_filters_title": "Φίλτρο",
-    "search_message_no_results": "Δεν"
+    "search_message_no_results": "Δε βρέθηκαν αποτελέσματα."
 }
