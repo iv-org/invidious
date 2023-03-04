@@ -472,5 +472,12 @@
     "search_message_change_filters_or_query": "Tente alargar os termos genéricos da pesquisa e/ou alterar os filtros.",
     "crash_page_refresh": "tentou <a href=\"`x`\">recarregar a página</a>",
     "crash_page_switch_instance": "tentou <a href=\"`x`\">usar outra instância</a>",
-    "error_video_not_in_playlist": "O vídeo pedido não existe nesta lista de reprodução. <a href=\"`x`\">Clique aqui para a página inicial da lista de reprodução.</a>"
+    "error_video_not_in_playlist": "O vídeo pedido não existe nesta lista de reprodução. <a href=\"`x`\">Clique aqui para a página inicial da lista de reprodução.</a>",
+    "Artist: ": "Artista: ",
+    "Album: ": "Álbum: ",
+    "channel_tab_streams_label": "Diretos",
+    "channel_tab_playlists_label": "Listas de reprodução",
+    "channel_tab_channels_label": "Canais",
+    "Music in this video": "Música neste vídeo",
+    "channel_tab_shorts_label": "Curtos"
 }
