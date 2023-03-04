@@ -6,22 +6,14 @@ module Invidious::Routes::Images
     headers = HTTP::Headers.new
     headers[":authority"] = "yt3.ggpht.com" if CONFIG.use_quic
 
-    REQUEST_HEADERS_WHITELIST.each do |header|
-      if env.request.headers[header]?
-        headers[header] = env.request.headers[header]
-      end
-    end
+    MediaProxy.copy_request_headers(from: env.request.headers, to: headers)
 
     # We're encapsulating this into a proc in order to easily reuse this
     # portion of the code for each request block below.
     request_proc = ->(response : HTTP::Client::Response) {
       env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
 
+      MediaProxy.copy_response_headers(from: response.headers, to: env.response.headers)
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       if response.status_code >= 300
@@ -64,20 +56,12 @@ module Invidious::Routes::Images
     headers = HTTP::Headers.new
     headers[":authority"] = "#{authority}.ytimg.com" if CONFIG.use_quic
 
-    REQUEST_HEADERS_WHITELIST.each do |header|
-      if env.request.headers[header]?
-        headers[header] = env.request.headers[header]
-      end
-    end
+    MediaProxy.copy_request_headers(from: env.request.headers, to: headers)
 
     request_proc = ->(response : HTTP::Client::Response) {
       env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
 
+      MediaProxy.copy_response_headers(from: response.headers, to: env.response.headers)
       env.response.headers["Connection"] = "close"
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
@@ -112,20 +96,12 @@ module Invidious::Routes::Images
     headers = HTTP::Headers.new
     headers[":authority"] = "i9.ytimg.com" if CONFIG.use_quic
 
-    REQUEST_HEADERS_WHITELIST.each do |header|
-      if env.request.headers[header]?
-        headers[header] = env.request.headers[header]
-      end
-    end
+    MediaProxy.copy_request_headers(from: env.request.headers, to: headers)
 
     request_proc = ->(response : HTTP::Client::Response) {
       env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
 
+      MediaProxy.copy_response_headers(from: response.headers, to: env.response.headers)
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       if response.status_code >= 300 && response.status_code != 404
@@ -152,21 +128,13 @@ module Invidious::Routes::Images
 
   def self.yts_image(env)
     headers = HTTP::Headers.new
-    REQUEST_HEADERS_WHITELIST.each do |header|
-      if env.request.headers[header]?
-        headers[header] = env.request.headers[header]
-      end
-    end
+    MediaProxy.copy_request_headers(from: env.request.headers, to: headers)
 
     begin
       YT_POOL.client &.get(env.request.resource, headers) do |response|
         env.response.status_code = response.status_code
-        response.headers.each do |key, value|
-          if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-            env.response.headers[key] = value
-          end
-        end
 
+        MediaProxy.copy_response_headers(from: response.headers, to: env.response.headers)
         env.response.headers["Access-Control-Allow-Origin"] = "*"
 
         if response.status_code >= 300 && response.status_code != 404
@@ -209,20 +177,12 @@ module Invidious::Routes::Images
 
     url = "/vi/#{id}/#{name}"
 
-    REQUEST_HEADERS_WHITELIST.each do |header|
-      if env.request.headers[header]?
-        headers[header] = env.request.headers[header]
-      end
-    end
+    MediaProxy.copy_request_headers(from: env.request.headers, to: headers)
 
     request_proc = ->(response : HTTP::Client::Response) {
       env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
 
+      MediaProxy.copy_response_headers(from: response.headers, to: env.response.headers)
       env.response.headers["Access-Control-Allow-Origin"] = "*"
 
       if response.status_code >= 300 && response.status_code != 404

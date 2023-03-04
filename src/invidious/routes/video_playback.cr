@@ -29,11 +29,7 @@ module Invidious::Routes::VideoPlayback
     url = "/videoplayback?#{query_params}"
 
     headers = HTTP::Headers.new
-    REQUEST_HEADERS_WHITELIST.each do |header|
-      if env.request.headers[header]?
-        headers[header] = env.request.headers[header]
-      end
-    end
+    MediaProxy.copy_request_headers(from: env.request.headers, to: headers)
 
     # See: https://github.com/iv-org/invidious/issues/3302
     range_header = env.request.headers["Range"]?
@@ -92,12 +88,7 @@ module Invidious::Routes::VideoPlayback
 
       begin
         client.get(url, headers) do |resp|
-          resp.headers.each do |key, value|
-            if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-              env.response.headers[key] = value
-            end
-          end
-
+          MediaProxy.copy_response_headers(from: resp.headers, to: env.response.headers)
           env.response.headers["Access-Control-Allow-Origin"] = "*"
 
           if location = resp.headers["Location"]?
@@ -150,12 +141,8 @@ module Invidious::Routes::VideoPlayback
                 env.response.status_code = resp.status_code
               end
 
-              resp.headers.each do |key, value|
-                if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase) && key.downcase != "content-range"
-                  env.response.headers[key] = value
-                end
-              end
-
+              MediaProxy.copy_response_headers(from: resp.headers, to: env.response.headers)
+              env.response.headers.delete("Content-Range") # Important!
               env.response.headers["Access-Control-Allow-Origin"] = "*"
 
               if location = resp.headers["Location"]?
