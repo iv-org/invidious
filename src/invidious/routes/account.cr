@@ -262,6 +262,7 @@ module Invidious::Routes::Account
       end
 
       query["token"] = access_token
+      query["username"] = URI.encode_path_segment(user.email)
       url.query = query.to_s
 
       env.redirect url.to_s

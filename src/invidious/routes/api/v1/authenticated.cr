@@ -31,6 +31,29 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.status_code = 204
   end
 
+  def self.export_invidious(env)
+    env.response.content_type = "application/json"
+    user = env.get("user").as(User)
+
+    return Invidious::User::Export.to_invidious(user)
+  end
+
+  def self.import_invidious(env)
+    user = env.get("user").as(User)
+
+    begin
+      if body = env.request.body
+        body = env.request.body.not_nil!.gets_to_end
+      else
+        body = "{}"
+      end
+      Invidious::User::Import.from_invidious(user, body)
+    rescue
+    end
+
+    env.response.status_code = 204
+  end
+
   def self.feed(env)
     env.response.content_type = "application/json"
 
