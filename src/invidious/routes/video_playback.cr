@@ -167,7 +167,7 @@ module Invidious::Routes::VideoPlayback
               env.response.headers["Access-Control-Allow-Origin"] = "*"
 
               if title
-                # https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
+                # http://web.archive.org/web/20150701003254/https://blog.fastmail.com/2011/06/24/download-non-english-filenames/
                 filename = URI.encode_www_form(title, space_to_plus: false)
                 header = "attachment; filename=\"#{filename}\"; filename*=UTF-8''#{filename}"
                 env.response.headers["Content-Disposition"] = header
