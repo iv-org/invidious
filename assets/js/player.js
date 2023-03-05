@@ -43,6 +43,14 @@ embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 var save_player_pos_key = 'save_player_pos';
 
 videojs.Vhs.xhr.beforeRequest = function(options) {
+    // Pass range as an URL parameter, not as a header
+    if (options.headers){
+        if (options.headers.Range) {
+            options.uri = options.uri + '&range=' + options.headers.Range.split("=")[1];
+            delete options.headers.Range;
+        }
+    }
+
     // set local if requested not videoplayback
     if (!options.uri.includes('videoplayback')) {
         if (!options.uri.includes('local=true'))

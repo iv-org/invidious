@@ -35,4 +35,36 @@ module Invidious::MediaProxy
       end
     end
   end
+
+  # -------------------
+  #  Proxy functions
+  # -------------------
+
+  def proxy_dash_chunk(
+    env : HTTP::Server::Context,
+    client : HTTP::Client,
+    url : URI | String,
+    region : String?
+  )
+    headers = HTTP::Headers.new
+    self.copy_request_headers(from: env.request.headers, to: headers)
+
+    # Make sure to remove a potential range header, to avoid throttling
+    headers.delete("Range")
+
+    client.get(url, headers) do |resp|
+      env.response.status_code = resp.status_code
+
+      self.copy_response_headers(from: resp.headers, to: env.response.headers)
+      env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+      if location = resp.headers["Location"]?
+        url = HttpServer::Utils.proxy_video_url(location, region: region)
+        env.redirect url
+      else
+        IO.copy(resp.body_io, env.response)
+      end
+    end
+  rescue ex
+  end
 end
