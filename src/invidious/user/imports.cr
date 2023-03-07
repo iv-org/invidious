@@ -31,12 +31,6 @@ struct Invidious::User
     end
 
     def parse_playlist_export_csv(user : User, raw_input : String)
-      playlist = uninitialized InvidiousPlaylist
-      title = uninitialized String
-      description = uninitialized String
-      visibility = uninitialized String
-      privacy = uninitialized PlaylistPrivacy
-
       # Split the input into head and body content
       raw_head, raw_body = raw_input.split("\n\n", limit: 2, remove_empty: true)
 
@@ -53,13 +47,8 @@ struct Invidious::User
         privacy = PlaylistPrivacy::Private
       end
 
-      if title && privacy && user
-        playlist = create_playlist(title, privacy, user)
-      end
-
-      if playlist && description
-        Invidious::Database::Playlists.update_description(playlist.id, description)
-      end
+      playlist = create_playlist(title, privacy, user)
+      Invidious::Database::Playlists.update_description(playlist.id, description)
 
       # Add each video to the playlist from the body content
       CSV.each_row(raw_body) do |row|
