@@ -82,7 +82,7 @@ module Invidious::Routes::API::V1::Authenticated
     end
 
     id = env.params.url["id"]
-    if !id.match(/[a-zA-Z0-9_-]{11}/)
+    if !id.match(/^[a-zA-Z0-9_-]{11}$/)
       return error_json(400, "Invalid video id.")
     end
 
@@ -98,7 +98,7 @@ module Invidious::Routes::API::V1::Authenticated
     end
 
     id = env.params.url["id"]
-    if !id.match(/[a-zA-Z0-9_-]{11}/)
+    if !id.match(/^[a-zA-Z0-9_-]{11}$/)
       return error_json(400, "Invalid video id.")
     end
 
