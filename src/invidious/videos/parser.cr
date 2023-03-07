@@ -322,9 +322,16 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   music_desclist.try &.as_a.each do |music_desc|
     artist = nil
-    song = nil
     album = nil
     music_license = nil
+
+    # used when multiple songs
+    song = music_desc.dig?("carouselLockupRenderer", "videoLockup", "compactVideoRenderer", "title", "simpleText")
+
+    # used when multiple songs and the song has a link
+    if !song
+      song = music_desc.dig("carouselLockupRenderer", "videoLockup", "compactVideoRenderer", "title", "runs", 0, "text")
+    end
 
     music_desc.dig?("carouselLockupRenderer", "infoRows").try &.as_a.each do |desc|
       desc_title = extract_text(desc.dig?("infoRowRenderer", "title"))
