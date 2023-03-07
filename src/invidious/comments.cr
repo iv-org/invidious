@@ -334,7 +334,8 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
       elsif child["verified"]?.try &.as_bool
         author_name += "&nbsp;<i class=\"icon ion ion-md-checkmark\"></i>"
       end
-      if child["isSponsor"].as_bool
+
+      if child["isSponsor"]?.try &.as_bool
         sponsor_icon = String.build do |str|
           str << %(<img alt="" )
           str << %(src="/ggpht) << URI.parse(child["sponsorIconUrl"].as_s).request_target << "\" "
