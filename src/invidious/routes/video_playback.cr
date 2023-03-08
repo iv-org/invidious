@@ -53,11 +53,7 @@ module Invidious::Routes::VideoPlayback
     headers = HTTP::Headers.new
     MediaProxy.copy_request_headers(from: env.request.headers, to: headers)
 
-    if has_range_param
-      url += "&range=#{range}"
-    else
-      headers["Range"] = "bytes=#{range || "0-"}"
-    end
+    headers["Range"] = "bytes=" + (range || "0-")
 
     client = make_client(URI.parse(host), region)
     response = HTTP::Client::Response.new(500)
@@ -107,13 +103,16 @@ module Invidious::Routes::VideoPlayback
         return error_template(403, "Administrator has disabled this endpoint.")
       end
 
+      # Add back the range header. Important!
+      headers["Range"] = "bytes=" + (range || "0-")
+
       MediaProxy.proxy_dash_chunk(env, client, url, region)
     elsif has_range_param
       if CONFIG.disabled?("dash")
         return error_template(403, "Administrator has disabled this endpoint.")
       end
 
-      MediaProxy.proxy_dash_chunk(env, client, url, region)
+      MediaProxy.proxy_dash_chunk(env, client, url + "&range=#{range}", region)
     else
       if (title && CONFIG.disabled?("downloads")) || (title.nil? && CONFIG.disabled?("local"))
         return error_template(403, "Administrator has disabled this endpoint.")
