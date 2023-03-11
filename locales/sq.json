@@ -286,7 +286,7 @@
     "search_filters_type_option_show": "Shfaqe",
     "search_filters_duration_option_short": "E shkurtër (< 4 minuta)",
     "search_filters_features_option_purchased": "Të blera",
-    "footer_modfied_source_code": "Kod Burim i ndryshuar",
+    "footer_modfied_source_code": "Kod burim i ndryshuar",
     "adminprefs_modified_source_code_url_label": "URL e depos së ndryshuar të kodit burim",
     "none": "asnjë",
     "videoinfo_started_streaming_x_ago": "Filloi transmetimin `x` më parë",
@@ -463,5 +463,12 @@
     "search_filters_duration_option_none": "Çfarëdo kohëzgjatjeje",
     "search_filters_duration_option_medium": "Mesatare (4 - 20 minuta)",
     "search_filters_features_option_vr180": "VR180",
-    "search_filters_apply_button": "Apliko filtrat e përzgjedhur"
+    "search_filters_apply_button": "Apliko filtrat e përzgjedhur",
+    "channel_tab_playlists_label": "Luajlista",
+    "Artist: ": "Artist: ",
+    "Album: ": "Album: ",
+    "channel_tab_channels_label": "Kanale",
+    "Music in this video": "Muzikë në këtë video",
+    "channel_tab_shorts_label": "Të shkurtra",
+    "channel_tab_streams_label": "Transmetime të drejtpërdrejta"
 }

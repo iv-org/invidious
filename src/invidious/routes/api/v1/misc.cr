@@ -150,4 +150,31 @@ module Invidious::Routes::API::V1::Misc
 
     response
   end
+
+  # resolve channel and clip urls, return the UCID
+  def self.resolve_url(env)
+    env.response.content_type = "application/json"
+    url = env.params.query["url"]?
+
+    return error_json(400, "Missing URL to resolve") if !url
+
+    begin
+      resolved_url = YoutubeAPI.resolve_url(url.as(String))
+      endpoint = resolved_url["endpoint"]
+      pageType = endpoint.dig?("commandMetadata", "webCommandMetadata", "webPageType").try &.as_s || ""
+      if resolved_ucid = endpoint.dig?("watchEndpoint", "videoId")
+      elsif resolved_ucid = endpoint.dig?("browseEndpoint", "browseId")
+      elsif pageType == "WEB_PAGE_TYPE_UNKNOWN"
+        return error_json(400, "Unknown url")
+      end
+    rescue ex
+      return error_json(500, ex)
+    end
+    JSON.build do |json|
+      json.object do
+        json.field "ucid", resolved_ucid.try &.as_s || ""
+        json.field "pageType", pageType
+      end
+    end
+  end
 end

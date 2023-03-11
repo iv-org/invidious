@@ -172,7 +172,17 @@ private module Parsers
       # When public subscriber count is disabled, the subscriberCountText isn't sent by InnerTube.
       # Always simpleText
       # TODO change default value to nil
+
       subscriber_count = item_contents.dig?("subscriberCountText", "simpleText")
+
+      # Since youtube added channel handles, `VideoCountText` holds the number of
+      # subscribers and `subscriberCountText` holds the handle, except when the
+      # channel doesn't have a handle (e.g: some topic music channels).
+      # See https://github.com/iv-org/invidious/issues/3394#issuecomment-1321261688
+      if !subscriber_count || !subscriber_count.as_s.includes? " subscriber"
+        subscriber_count = item_contents.dig?("videoCountText", "simpleText")
+      end
+      subscriber_count = subscriber_count
         .try { |s| short_text_to_number(s.as_s.split(" ")[0]).to_i32 } || 0
 
       # Auto-generated channels doesn't have videoCountText
@@ -682,7 +692,11 @@ module HelperExtractors
   # Returns a 0 when it's unable to do so
   def self.get_video_count(container : JSON::Any) : Int32
     if box = container["videoCountText"]?
-      return extract_text(box).try &.gsub(/\D/, "").to_i || 0
+      if (extracted_text = extract_text(box)) && !extracted_text.includes? " subscriber"
+        return extracted_text.gsub(/\D/, "").to_i
+      else
+        return 0
+      end
     elsif box = container["videoCount"]?
       return box.as_s.to_i
     else

@@ -470,5 +470,14 @@
     "crash_page_switch_instance": "<a href=\"`x`\">किसी दूसरे उदाहरण का इस्तेमाल करें</a>",
     "crash_page_read_the_faq": "<a href=\"`x`\">अक्सर पूछे जाने वाले प्रश्न (FAQ)</a> पढ़ें",
     "crash_page_refresh": "<a href=\"`x`\">पृष्ठ को एक बार साफ़ करें</a>",
-    "crash_page_search_issue": "<a href=\"`x`\">GitHub पर मौजूदा मुद्दे</a> ढूँढ़ें"
+    "crash_page_search_issue": "<a href=\"`x`\">GitHub पर मौजूदा मुद्दे</a> ढूँढ़ें",
+    "Popular enabled: ": "लोकप्रिय सक्षम: ",
+    "Artist: ": "कलाकार: ",
+    "Music in this video": "इस वीडियो में संगीत",
+    "Album: ": "एल्बम: ",
+    "error_video_not_in_playlist": "अनुरोधित वीडियो इस प्लेलिस्ट में मौजूद नहीं है। <a href=\"`x`\">प्लेलिस्ट के मुखपृष्ठ पर जाने के लिए यहाँ क्लिक करें।</a>",
+    "channel_tab_shorts_label": "शॉर्ट्स",
+    "channel_tab_streams_label": "लाइवस्ट्रीम्स",
+    "channel_tab_playlists_label": "प्लेलिस्ट्स",
+    "channel_tab_channels_label": "चैनल्स"
 }

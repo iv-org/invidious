@@ -472,5 +472,12 @@
     "search_filters_duration_option_none": "Beliebige Länge",
     "search_filters_date_label": "Upload-Datum",
     "search_filters_date_option_none": "Beliebiges Datum",
-    "error_video_not_in_playlist": "Das angeforderte Video existiert nicht in dieser Wiedergabeliste. <a href=\"`x`\">Klicken Sie hier, um zur Startseite der Wiedergabeliste zu gelangen.</a>"
+    "error_video_not_in_playlist": "Das angeforderte Video existiert nicht in dieser Wiedergabeliste. <a href=\"`x`\">Klicken Sie hier, um zur Startseite der Wiedergabeliste zu gelangen.</a>",
+    "channel_tab_shorts_label": "Shorts",
+    "channel_tab_streams_label": "Livestreams",
+    "Music in this video": "Musik in diesem Video",
+    "Artist: ": "Künstler: ",
+    "Album: ": "Album: ",
+    "channel_tab_playlists_label": "Wiedergabelisten",
+    "channel_tab_channels_label": "Kanäle"
 }

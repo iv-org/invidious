@@ -69,7 +69,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
             next if !post
 
             content_html = post["contentText"]?.try { |t| parse_content(t) } || ""
-            author = post["authorText"]?.try &.["simpleText"]? || ""
+            author = post["authorText"]["runs"]?.try &.[0]?.try &.["text"]? || ""
 
             json.object do
               json.field "author", author
@@ -189,6 +189,32 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                       # when .has_key?("pollRenderer")
                       #   attachment = attachment["pollRenderer"]
                       #   json.field "type", "poll"
+                    when .has_key?("postMultiImageRenderer")
+                      attachment = attachment["postMultiImageRenderer"]
+                      json.field "type", "multiImage"
+                      json.field "images" do
+                        json.array do
+                          attachment["images"].as_a.each do |image|
+                            json.array do
+                              thumbnail = image["backstageImageRenderer"]["image"]["thumbnails"][0].as_h
+                              width = thumbnail["width"].as_i
+                              height = thumbnail["height"].as_i
+                              aspect_ratio = (width.to_f / height.to_f)
+                              url = thumbnail["url"].as_s.gsub(/=w\d+-h\d+(-p)?(-nd)?(-df)?(-rwa)?/, "=s640")
+
+                              qualities = {320, 560, 640, 1280, 2000}
+
+                              qualities.each do |quality|
+                                json.object do
+                                  json.field "url", url.gsub(/=s\d+/, "=s#{quality}")
+                                  json.field "width", quality
+                                  json.field "height", (quality / aspect_ratio).ceil.to_i
+                                end
+                              end
+                            end
+                          end
+                        end
+                      end
                     else
                       json.field "type", "unknown"
                       json.field "error", "Unrecognized attachment type."
