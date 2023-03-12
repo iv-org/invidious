@@ -248,9 +248,9 @@ we're going to need to do it here in order to allow for translations.
                 <div id="music-description-box">
                     <% video.music.each do |music| %>
                         <div class="music-item">
-                            <p id="music-artist"><%= translate(locale, "Artist: ") %><%= music.artist %></p>
-                            <p id="music-album"><%= translate(locale, "Album: ") %><%= music.album %></p>
-                            <p id="music-license"><%= translate(locale, "License: ") %><%= music.license %></p>
+                            <p class="music-song"><%= translate(locale, "Song: ") %><%= music.song %></p>
+                            <p class="music-artist"><%= translate(locale, "Artist: ") %><%= music.artist %></p>
+                            <p class="music-album"><%= translate(locale, "Album: ") %><%= music.album %></p>
                         </div>
                     <% end %>
                 </div>
