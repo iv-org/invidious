@@ -278,7 +278,7 @@ module Invidious::Routes::VideoPlayback
     end
 
     if itag.nil?
-      fmt = video.fmt_stream[-1]
+      fmt = video.fmt_stream[-1]?
     else
       fmt = video.fmt_stream.find(nil) { |f| f["itag"].as_i == itag } || video.adaptive_fmts.find(nil) { |f| f["itag"].as_i == itag }
     end
