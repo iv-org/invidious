@@ -267,7 +267,12 @@ input[type="search"]::-webkit-search-cancel-button {
   }
 
   #player-container {
+    position: sticky;
+    top: 0;
+    margin-left: 0;
+    margin-right: 0;
     padding-bottom: 46.86% !important;
+    z-index: 1;
   }
 }
 
