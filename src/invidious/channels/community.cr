@@ -77,9 +77,10 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
               json.field "author", author
               json.field "authorThumbnails" do
                 json.array do
+                  qualities = {32, 48, 76, 100, 176, 512}
                   author_thumbnail = post["authorThumbnail"]["thumbnails"].as_a[0]["url"].as_s
 
-                  IMAGE_QUALITIES.each do |quality|
+                  qualities.each do |quality|
                     json.object do
                       json.field "url", author_thumbnail.gsub(/s\d+-/, "s#{quality}-")
                       json.field "width", quality
