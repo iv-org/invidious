@@ -243,6 +243,7 @@ module Invidious::Routing
       # Search
       get "/api/v1/search", {{namespace}}::Search, :search
       get "/api/v1/search/suggestions", {{namespace}}::Search, :search_suggestions
+      get "/api/v1/hashtag/:hashtag", {{namespace}}::Search, :hashtag
 
       # Authenticated
 
