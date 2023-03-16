@@ -463,5 +463,7 @@
     "channel_tab_streams_label": "直播",
     "Album: ": "专辑： ",
     "channel_tab_shorts_label": "短视频",
-    "channel_tab_channels_label": "频道"
+    "channel_tab_channels_label": "频道",
+    "Song: ": "歌曲： ",
+    "Channel Sponsor": "频道赞助者"
 }
