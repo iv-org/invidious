@@ -197,6 +197,21 @@ module Invidious::JSONify::APIv1
         end
       end
 
+      if !video.music.empty?
+        json.field "musicTracks" do
+          json.array do
+            video.music.each do |music|
+              json.object do
+                json.field "song", music.song
+                json.field "artist", music.artist
+                json.field "album", music.album
+                json.field "license", music.license
+              end
+            end
+          end
+        end
+      end
+
       json.field "recommendedVideos" do
         json.array do
           video.related_videos.each do |rv|

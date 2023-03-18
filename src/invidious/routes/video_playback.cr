@@ -256,7 +256,7 @@ module Invidious::Routes::VideoPlayback
       return error_template(400, "Invalid video ID")
     end
 
-    if itag.nil? || itag <= 0 || itag >= 1000
+    if !itag.nil? && (itag <= 0 || itag >= 1000)
       return error_template(400, "Invalid itag")
     end
 
@@ -277,7 +277,11 @@ module Invidious::Routes::VideoPlayback
       return error_template(500, ex)
     end
 
-    fmt = video.fmt_stream.find(nil) { |f| f["itag"].as_i == itag } || video.adaptive_fmts.find(nil) { |f| f["itag"].as_i == itag }
+    if itag.nil?
+      fmt = video.fmt_stream[-1]?
+    else
+      fmt = video.fmt_stream.find(nil) { |f| f["itag"].as_i == itag } || video.adaptive_fmts.find(nil) { |f| f["itag"].as_i == itag }
+    end
     url = fmt.try &.["url"]?.try &.as_s
 
     if !url

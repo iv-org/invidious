@@ -249,7 +249,12 @@ struct Video
 
   def music : Array(VideoMusic)
     info["music"].as_a.map { |music_json|
-      VideoMusic.new(music_json["album"].as_s, music_json["artist"].as_s, music_json["license"].as_s)
+      VideoMusic.new(
+        music_json["song"].as_s,
+        music_json["album"].as_s,
+        music_json["artist"].as_s,
+        music_json["license"].as_s
+      )
     }
   end
 

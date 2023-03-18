@@ -325,17 +325,25 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     album = nil
     music_license = nil
 
+    # Used when the video has multiple songs
+    if song_title = music_desc.dig?("carouselLockupRenderer", "videoLockup", "compactVideoRenderer", "title")
+      # "simpleText" for plain text / "runs" when song has a link
+      song = song_title["simpleText"]? || song_title.dig("runs", 0, "text")
+    end
+
     music_desc.dig?("carouselLockupRenderer", "infoRows").try &.as_a.each do |desc|
       desc_title = extract_text(desc.dig?("infoRowRenderer", "title"))
       if desc_title == "ARTIST"
         artist = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
+      elsif desc_title == "SONG"
+        song = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
       elsif desc_title == "ALBUM"
         album = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
       elsif desc_title == "LICENSES"
         music_license = extract_text(desc.dig?("infoRowRenderer", "expandedMetadata"))
       end
     end
-    music_list << VideoMusic.new(album.to_s, artist.to_s, music_license.to_s)
+    music_list << VideoMusic.new(song.to_s, album.to_s, artist.to_s, music_license.to_s)
   end
 
   # Author infos
