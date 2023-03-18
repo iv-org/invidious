@@ -475,5 +475,11 @@
     "generic_subscribers_count": "{{count}} subscriptor",
     "generic_subscribers_count_plural": "{{count}} subscriptors",
     "Sindhi": "Sindhi",
-    "Slovenian": "Eslovè"
+    "Slovenian": "Eslovè",
+    "preferences_feed_menu_label": "Menú del feed: ",
+    "Fallback comments: ": "Comentaris alternatius: ",
+    "Top": "Millors",
+    "preferences_max_results_label": "Nombre de vídeos mostrats al feed: ",
+    "Engagement: ": "Atracció: ",
+    "Redirect homepage to feed: ": "Redirigeix la pàgina d'inici al feed: "
 }
