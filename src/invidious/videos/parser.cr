@@ -185,10 +185,12 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # We have to try to extract viewCount from videoPrimaryInfoRenderer first,
   # then from videoDetails, as the latter is "0" for livestreams (we want
   # to get the amount of viewers watching).
-  views_txt = video_primary_renderer
-    .try &.dig?("viewCount", "videoViewCountRenderer", "viewCount", "simpleText")
-  views_txt ||= video_details["viewCount"]?
-  views = views_txt.try &.as_s.gsub(/\D/, "").to_i64?
+  views_txt = extract_text(
+    video_primary_renderer
+      .try &.dig?("viewCount", "videoViewCountRenderer", "viewCount")
+  )
+  views_txt ||= video_details["viewCount"]?.try &.as_s || ""
+  views = views_txt.gsub(/\D/, "").to_i64?
 
   length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"])
     .try &.as_s.to_i64
