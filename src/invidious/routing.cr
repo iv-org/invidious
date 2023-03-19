@@ -311,6 +311,7 @@ module Invidious::Routing
       # Misc
       get "/api/v1/stats", {{namespace}}::Misc, :stats
       if CONFIG.statistics_enabled
+        add_handler Metrics::METRICS_COLLECTOR
         get "/api/v1/metrics", {{namespace}}::Misc, :metrics
       end
       get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist

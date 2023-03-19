@@ -1,3 +1,5 @@
+require "../../../metrics.cr"
+
 module Invidious::Routes::API::V1::Misc
   # Stats API endpoint for Invidious
   def self.stats(env)
@@ -28,7 +30,30 @@ module Invidious::Routes::API::V1::Misc
 
   def self.metrics(env)
     env.response.content_type = "text/plain"
-    return to_prometheus_metrics(Invidious::Jobs::StatisticsRefreshJob::STATISTICS_PROMETHEUS)
+
+    return String.build do |str|
+      Metrics::REQUEST_COUNTERS.each do |metric_labels, value|
+        str << "http_requests_total{"
+        str << "method=\"" << metric_labels.request_method << "\" "
+        str << "route=\"" << metric_labels.request_route << "\" "
+        str << "response_code=\"" << metric_labels.response_code << "\""
+        str << "} "
+        str << value << "\n"
+      end
+
+      Metrics::REQUEST_DURATION_SECONDS_SUMS.each do |metric_labels, value|
+        str << "http_request_duration_seconds_sum{"
+        str << "method=\"" << metric_labels.request_method << "\" "
+        str << "route=\"" << metric_labels.request_route << "\" "
+        str << "response_code=\"" << metric_labels.response_code << "\""
+        str << "} "
+        str << value << "\n"
+      end
+
+      Invidious::Jobs::StatisticsRefreshJob::STATISTICS_PROMETHEUS.each.each do |key, value|
+        str << key << " " << value << "\n"
+      end
+    end
   end
 
   # APIv1 currently uses the same logic for both
