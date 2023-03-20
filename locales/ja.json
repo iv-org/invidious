@@ -445,7 +445,7 @@
     "search_message_use_another_instance": " <a href=\"`x`\">別のインスタンス上でも検索</a>できます。",
     "search_filters_apply_button": "選択したフィルターを適用",
     "user_saved_playlists": "`x` 個の保存した再生リスト",
-    "crash_page_you_found_a_bug": "Invidious でバグを見つけたようです。",
+    "crash_page_you_found_a_bug": "Invidious のバグのようです！",
     "crash_page_refresh": "<a href=\"`x`\">ページを更新</a>を試す",
     "preferences_watch_history_label": "再生履歴を有効化 ",
     "search_filters_date_option_none": "すべて",
@@ -463,5 +463,7 @@
     "channel_tab_channels_label": "チャンネル",
     "Music in this video": "この動画の音楽",
     "Artist: ": "アーティスト: ",
-    "Album: ": "アルバム: "
+    "Album: ": "アルバム: ",
+    "Song: ": "曲: ",
+    "Channel Sponsor": "チャンネルのスポンサー"
 }

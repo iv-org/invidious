@@ -414,8 +414,9 @@
     "generic_count_weeks_plural": "{{count}} semanas",
     "generic_playlists_count": "{{count}} lista de reproducción",
     "generic_playlists_count_plural": "{{count}} listas de reproducción",
-    "generic_videos_count": "{{count}} video",
-    "generic_videos_count_plural": "{{count}} videos",
+    "generic_videos_count_0": "{{count}} video",
+    "generic_videos_count_1": "{{count}} videos",
+    "generic_videos_count_2": "{{count}} videos",
     "generic_count_months": "{{count}} mes",
     "generic_count_months_plural": "{{count}} meses",
     "comments_points_count": "{{count}} punto",
@@ -479,5 +480,7 @@
     "channel_tab_playlists_label": "Listas de reproducción",
     "Music in this video": "Música en este video",
     "Artist: ": "Artista: ",
-    "Album: ": "Álbum: "
+    "Album: ": "Álbum: ",
+    "Song: ": "Canción: ",
+    "Channel Sponsor": "Patrocinador del canal"
 }
