@@ -8,7 +8,7 @@
             <legend><%= translate(locale, "Import") %></legend>
 
             <div class="pure-control-group">
-                <label for="import_youtube"><%= translate(locale, "Import Invidious data") %></label>
+                <label for="import_invidious"><%= translate(locale, "Import Invidious data") %></label>
                 <input type="file" id="import_invidious" name="import_invidious">
             </div>
 
@@ -19,6 +19,11 @@
                     </a>
                 </label>
                 <input type="file" id="import_youtube" name="import_youtube">
+            </div>
+
+            <div class="pure-control-group">
+                <label for="import_youtube_playlist"><%= translate(locale, "Import YouTube playlist") %></label>
+                <input type="file" id="import_youtube_playlist" name="import_youtube_playlist">
             </div>
 
             <div class="pure-control-group">
