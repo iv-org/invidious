@@ -237,6 +237,27 @@ struct InvidiousPlaylist
   def description_html
     HTML.escape(self.description)
   end
+
+  
+  def add_new_video(video : Video)
+    playlist_video = PlaylistVideo.new(
+      {
+        title:          video.title,
+        id:             video.id,
+        author:         video.author,
+        ucid:           video.ucid,
+        length_seconds: video.length_seconds,
+        published:      video.published,
+        plid:           @id,
+        live_now:       video.live_now,
+        index:          Random::Secure.rand(0_i64..Int64::MAX),
+      }
+    )
+
+    Invidious::Database::PlaylistVideos.insert(playlist_video)
+    Invidious::Database::Playlists.update_video_added(@id, playlist_video.index)
+  end
+
 end
 
 def create_playlist(title, privacy, user)
