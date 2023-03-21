@@ -260,14 +260,14 @@ struct InvidiousPlaylist
 
 end
 
-def create_playlist(title, privacy, user)
+def create_playlist(title, privacy, user, description = "")
   plid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
 
   playlist = InvidiousPlaylist.new({
     title:       title.byte_slice(0, 150),
     id:          plid,
     author:      user.email,
-    description: "", # Max 5000 characters
+    description: description[...5000], # Max 5000 characters
     video_count: 0,
     created:     Time.utc,
     updated:     Time.utc,
