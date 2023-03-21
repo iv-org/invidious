@@ -218,23 +218,21 @@ div.watched-indicator {
 .searchbar .pure-form fieldset { padding: 0; }
 
 .searchbar input[type="search"] {
-	width: 100%;
-	margin: 1px;
-
-	border: 1px solid;
-	border-color: rgba(0,0,0,0);
-	border-bottom-color: #CCC;
-	border-radius: 0;
-
-	box-shadow: none;
-	-webkit-appearance: none;
+  background-color: rgba(0,0,0, 0.06);
+  width: 100%;
+  margin: 2px;
+  margin-bottom: 1px;
+  border: none;
+  border-bottom: solid 2px #CCC;
+  border-radius: 0;
+  box-shadow: none;
+  -webkit-appearance: none;
 }
 
 .searchbar input[type="search"]:focus {
-	margin: 0;
-	border: 2px solid;
-	border-color: rgba(0,0,0,0);
-	border-bottom-color: #FED;
+  margin-bottom: 0;
+  border-bottom-width: 3px;
+  border-bottom-color: #FED;
 }
 
 /* https://stackoverflow.com/a/55170420 */
@@ -456,7 +454,7 @@ body.dark-theme {
 }
 
 .dark-theme .searchbar input {
-  background-color: inherit;
+  background-color: rgba(0,0,0, 0.25);
   color: inherit;
 }
 
@@ -495,7 +493,7 @@ body.dark-theme {
   }
 
   .no-theme .searchbar input {
-    background-color: inherit;
+    background-color: rgba(0,0,0, 0.25);
     color: inherit;
   }
 }
