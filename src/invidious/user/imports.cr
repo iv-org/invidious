@@ -150,6 +150,43 @@ struct Invidious::User
     end
 
     # -------------------
+    #  YouTube playlist
+    # -------------------
+
+    def from_youtube_playlist(user : User, body : String)
+      
+      csv = CSV.new(body, headers: true)
+      csv.next
+
+      playlist_title = csv[4]
+      playlist_description = csv[5]
+      playlist = create_playlist(playlist_title, PlaylistPrivacy::Private, user, playlist_description)
+      
+      # skip playlist data
+      csv.next
+
+      # skip the blank lines before the videos
+      until csv[0] != ""
+        csv.next
+      end
+      
+
+      while csv.next
+        # check if the string is a valid
+        #YouTube video ID
+        video_id = csv[0]
+        if /^[A-Za-z0-9_-]{11}$/ =~ video_id
+          begin
+            video = get_video(video_id)
+            playlist.add_new_video(video)
+          rescue ex : NotFoundException
+          rescue ex
+          end
+        end
+      end
+    end
+
+    # -------------------
     #  Freetube
     # -------------------
 
