@@ -284,8 +284,10 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   description = microformat.dig?("description", "simpleText").try &.as_s || ""
   short_description = player_response.dig?("videoDetails", "shortDescription")
 
-  description_html = video_secondary_renderer.try &.dig?("description", "runs")
-    .try &.as_a.try { |t| content_to_comment_html(t, video_id) }
+  # description_html = video_secondary_renderer.try &.dig?("description", "runs")
+  #  .try &.as_a.try { |t| content_to_comment_html(t, video_id) }
+
+  description_html = parse_description(video_secondary_renderer.try &.dig?("attributedDescription"))
 
   # Video metadata
 
