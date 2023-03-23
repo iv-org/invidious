@@ -21,8 +21,9 @@ def parse_command(command : JSON::Any?, string : String) : String?
 
     url = "/watch?v=#{video_id}&t=#{time}s"
 
-    # if text is a timestamp, use the string instead
-    if /(?:\d{2}:){1,2}\d{2}/ =~ string
+    # if string is a timestamp, use the string instead
+    # this is a lazy regex for validating timestamps
+    if /(?:\d{1,2}:){1,2}\d{2}/ =~ string
       return "<a href=\"#{url}\">#{string}</a>"
     else
       return "<a href=\"#{url}\">#{url}</a>"
@@ -33,7 +34,7 @@ def parse_command(command : JSON::Any?, string : String) : String?
 
     # remove unnecessary character in a channel name
     if browse_endpoint["webPageType"]?.try &.as_s == "WEB_PAGE_TYPE_CHANNEL"
-      name = string.match(/@[\w\d]+/)
+      name = string.match(/@[\w\d.-]+/)
       if name.try &.[0]?
         return "<a href=\"#{url}\">#{name.try &.[0]}</a>"
       end
