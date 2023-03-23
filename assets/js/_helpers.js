@@ -6,6 +6,7 @@
 Array.prototype.find = Array.prototype.find || function (condition) {
     return this.filter(condition)[0];
 };
+
 Array.from = Array.from || function (source) {
     return Array.prototype.slice.call(source);
 };
@@ -201,15 +202,16 @@ window.helpers = window.helpers || {
         if (localStorageIsUsable) {
             return {
                 get: function (key) {
-                    if (!localStorage[key]) return;
+                    let storageItem = localStorage.getItem(key)
+                    if (!storageItem) return;
                     try {
-                        return JSON.parse(decodeURIComponent(localStorage[key]));
+                        return JSON.parse(decodeURIComponent(storageItem));
                     } catch(e) {
                         // Erase non parsable value
                         helpers.storage.remove(key);
                     }
                 },
-                set: function (key, value) { localStorage[key] = encodeURIComponent(JSON.stringify(value)); },
+                set: function (key, value) { localStorage.setItem(key, encodeURIComponent(JSON.stringify(value))); },
                 remove: function (key) { localStorage.removeItem(key); }
             };
         }
