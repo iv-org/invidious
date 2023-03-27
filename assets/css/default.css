@@ -433,7 +433,7 @@ span > select {
 }
 
 body.dark-theme {
-  background-color: rgba(35, 35, 35, 1);
+  background-image: linear-gradient(#000, rgba(94,149,183,0.8));
   color: #f0f0f0;
 }
 
