@@ -433,7 +433,8 @@ span > select {
 }
 
 body.dark-theme {
-  background-image: linear-gradient(#000, rgba(94,149,183,0.8));
+  background-color: #03060b;
+  background-image: linear-gradient(0deg, transparent, transparent, transparent, rgba(47,121,160,1))
   color: #f0f0f0;
 }
 
@@ -472,7 +473,8 @@ body.dark-theme {
   }
 
   body.no-theme {
-    background-image: linear-gradient(#000, rgba(94,149,183,0.8));
+    background-color: #03060b;
+    background-image: linear-gradient(0deg, transparent, transparent, transparent, rgba(47,121,160,1))
     color: #f0f0f0;
   }
 
