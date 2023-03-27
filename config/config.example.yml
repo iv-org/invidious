@@ -62,7 +62,7 @@ db:
 ## Accepted values: 1-65535
 ## Default: 3000
 ##
-#port: 3000
+port: 3080
 
 ##
 ## When the invidious instance is behind a proxy, and the proxy
@@ -106,7 +106,7 @@ domain:
 ## Accepted values: true, false
 ## Default: false
 ##
-https_only: false
+https_only: true
 
 ##
 ## Enable/Disable 'Strict-Transport-Security'. Make sure that
@@ -216,7 +216,7 @@ https_only: false
 ## Accepted values: true, false
 ## Default: true
 ##
-#popular_enabled: true
+popular_enabled: false
 
 ##
 ## Enable/Disable statstics (available at /api/v1/stats).
@@ -560,7 +560,7 @@ default_user_preferences:
   ##
   ## Default: en-US
   ##
-  #locale: en-US
+  locale: de-DE
 
   ##
   ## Default geographical location for content.
@@ -625,9 +625,9 @@ default_user_preferences:
   ## Enable/Disable dark mode.
   ##
   ## Accepted values: "dark", "light", "auto"
-  ## Default: "auto"
+  ##Default: "auto"
   ##
-  #dark_mode: "auto"
+  dark_mode: "dark"
 
   ##
   ## Enable/Disable thin mode (no video thumbnails).
@@ -660,7 +660,7 @@ default_user_preferences:
   ## Accepted values: Popular, Trending, Subscriptions, Playlists, <none>
   ## Default: Popular
   ##
-  #default_home: Popular
+  default_home: Searching
 
   ##
   ## Default number of results to display per page.
@@ -729,7 +729,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #autoplay: false
+  autoplay: true
 
   ##
   ## Automatically load the "next" video (either next in
@@ -738,7 +738,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #continue: false
+  continue: true
 
   ##
   ## Autoplay next video by default.
@@ -748,7 +748,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: true
   ##
-  #continue_autoplay: true
+  continue_autoplay: true
 
   ##
   ## Play videos in Audio-only mode by default.
@@ -777,7 +777,7 @@ default_user_preferences:
   ## Accepted values: dash, hd720, medium, small
   ## Default: hd720
   ##
-  #quality: hd720
+  quality: dash
 
   ##
   ## Default dash video quality.
@@ -790,7 +790,7 @@ default_user_preferences:
   ##    720p, 480p, 360p, 240p, 144p, worst
   ## Default: auto
   ##
-  #quality_dash: auto
+  quality_dash: 1080p
 
   ##
   ## Default video playback speed.
@@ -816,7 +816,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: true
   ##
-  #vr_mode: true
+  vr_mode: false
 
   # -----------------------------
   #  Subscription feed
