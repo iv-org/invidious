@@ -1,6 +1,7 @@
 <div align="center">
   <img src="assets/CMovie.svg" width="192" height="192" alt="CMovie logo">
   <h1>CMovie Mediathek</h1>
+  <h3>a Invidious-Fork</h3>
 
   <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
     <img alt="License: AGPLv3" src="https://shields.io/badge/License-AGPL%20v3-blue.svg">
@@ -27,7 +28,7 @@
 
   <h3>An open source alternative front-end to YouTube</h3>
 
-  <a href="https://invidious.io/">Website</a>
+  <a href="https://cyberandi.tumblr.com/cmovie.htm">Website</a>
   &nbsp;•&nbsp;
   <a href="https://instances.invidious.io/">Instances list</a>
   &nbsp;•&nbsp;
@@ -51,7 +52,7 @@
   <img alt="Fediverse: @invidious@social.tchncs.de" src="https://img.shields.io/badge/Fediverse-%40invidious%40social.tchncs.de-darkgreen">
   </a>
   <br>
-  <a href="https://invidious.io/contact/">
+  <a href="mailto://cyberandi@outlook.com">
   <img alt="E-mail" src="https://img.shields.io/badge/E%2d%2dmail-darkgreen">
   </a>
 </div>
