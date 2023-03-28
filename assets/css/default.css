@@ -598,4 +598,11 @@ p,
   margin: 0 2px;
 }
 
+div.thumbnail {
+	padding: 28.125%;
+	position: relative;
+	box-sizing: border-box;
+	border: #ccc solid;
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 black);
+}
 
