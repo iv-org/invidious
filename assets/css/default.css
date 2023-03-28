@@ -196,6 +196,12 @@ div.watched-indicator {
   display: flex; /* this is also defined in framework, but in case of future changes */
   align-items: center;
   justify-content: space-between;
+  background-image: url('/ggpht/Y9lqlulO2ESV6lmeMNudwuxNSaotFBsEHttDOmzyDuDZ3B1ulRO5oK5VoMrIQ2klLZQsBLmSC7E=s900-c-k-c0x00ffffff-no-rj');
+  background-size: 8%;
+  background-position-y: center;
+  background-repeat: no-repeat;
+  background-position-x: 8rem;
+  overflow: overlay;
 }
 
 .navbar > div {
@@ -323,6 +329,7 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 
 footer {
   color: #919191;
+  color: #ffffff !important;
   margin-top: auto;
   padding: 1.5em 0;
   text-align: center;
@@ -428,7 +435,7 @@ span > select {
 }
 
 .dark-theme a {
-  color: #a0a0a0;
+  color: #c0c0c0;
   text-decoration: none;
 }
 
@@ -551,6 +558,7 @@ p,
 
 #descriptionWrapper {
   max-width: 600px;
+  max-width: 80%;
   white-space: pre-wrap;
 }
 
@@ -589,3 +597,5 @@ p,
 .channel-emoji {
   margin: 0 2px;
 }
+
+
