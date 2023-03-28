@@ -1,3 +1,5 @@
+@font-face{font-family:"OCR-A";src:url("../fonts/OCRAStd.woff");}
+@font-face{font-family:"ocr-a";src:url("../fonts/OCRAStd.woff");}
 html,
 body {
   font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
