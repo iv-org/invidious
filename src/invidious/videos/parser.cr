@@ -330,7 +330,10 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     # Used when the video has multiple songs
     if song_title = music_desc.dig?("carouselLockupRenderer", "videoLockup", "compactVideoRenderer", "title")
       # "simpleText" for plain text / "runs" when song has a link
-      song = song_title["simpleText"]? || song_title.dig("runs", 0, "text")
+      song = song_title["simpleText"]? || song_title.dig?("runs", 0, "text")
+
+      # some videos can have empty tracks. See: https://www.youtube.com/watch?v=eBGIQ7ZuuiU
+      next if !song
     end
 
     music_desc.dig?("carouselLockupRenderer", "infoRows").try &.as_a.each do |desc|
