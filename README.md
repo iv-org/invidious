@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="assets/invidious-colored-vector.svg" width="192" height="192" alt="Invidious logo">
-  <h1>Invidious</h1>
+  <img src="assets/CMovie.svg" width="192" height="192" alt="CMovie logo">
+  <h1>CMovie Mediathek</h1>
 
   <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
     <img alt="License: AGPLv3" src="https://shields.io/badge/License-AGPL%20v3-blue.svg">
