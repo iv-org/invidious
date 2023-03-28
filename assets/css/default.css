@@ -198,7 +198,7 @@ div.watched-indicator {
   display: flex; /* this is also defined in framework, but in case of future changes */
   align-items: center;
   justify-content: space-between;
-  background-image: url('/ggpht/Y9lqlulO2ESV6lmeMNudwuxNSaotFBsEHttDOmzyDuDZ3B1ulRO5oK5VoMrIQ2klLZQsBLmSC7E=s900-c-k-c0x00ffffff-no-rj');
+  background-image: url('/CMovie.svg');
   background-size: 8%;
   background-position-y: center;
   background-repeat: no-repeat;
@@ -423,6 +423,7 @@ span > select {
 
   .light-theme .pure-menu-heading {
     color: #565d64;
+    display: none;
   }
 }
 
@@ -454,12 +455,14 @@ body.dark-theme {
 
 .dark-theme .pure-menu-heading {
   color: #f0f0f0;
+  display: none;
 }
 
 .dark-theme input,
 .dark-theme select,
 .dark-theme textarea {
   color: rgba(35, 35, 35, 1);
+  color: #f0f0f0;
 }
 
 .dark-theme .pure-form input[type="file"] {
@@ -495,6 +498,7 @@ body.dark-theme {
 
   .no-theme .pure-menu-heading {
     color: #f0f0f0;
+    display: none;
   }
 
   .no-theme input,
@@ -599,7 +603,7 @@ div.thumbnail {
 	border-radius: 0.3em;
 }
 
-.h-box img:not(.thumbnail), div#player {
+.h-box img:not(.thumbnail), .video-js {
 	border: #ccc solid;
 	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 rgba(0,0,0,0.8);
 	border-radius: 0.3em;
@@ -618,13 +622,3 @@ div.thumbnail {
 .channel-emoji {
   margin: 0 2px;
 }
-
-
-div.thumbnail {
-	padding: 28.125%;
-	position: relative;
-	box-sizing: border-box;
-	border: #ccc solid;
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 rgba(0,0,0,0.8);
-}
-
