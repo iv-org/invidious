@@ -237,7 +237,7 @@ popular_enabled: false
 ## Accepted values: true, false
 ## Default: false
 ##
-#statistics_enabled: false
+statistics_enabled: true
 
 
 # -----------------------------
@@ -433,7 +433,7 @@ jobs:
 ## Accepted values: any string. HTML is accepted.
 ## Default: <none>
 ##
-#banner:
+banner: <img src="/CMovie.svg" alt="CMovie"> </img>
 
 ##
 ## Subscribe to channels using PubSubHub (Google PubSubHubbub service).
@@ -560,7 +560,7 @@ default_user_preferences:
   ##
   ## Default: en-US
   ##
-  locale: de-DE
+  locale: de
 
   ##
   ## Default geographical location for content.
@@ -575,7 +575,7 @@ default_user_preferences:
   ##
   ## Default: US
   ##
-  #region: US
+  region: DE
 
   ##
   ## Top 3 preferred languages for video captions.
@@ -649,7 +649,7 @@ default_user_preferences:
   ##
   ## Default: ["Popular", "Trending", "Subscriptions", "Playlists"]  (show all feeds)
   ##
-  #feed_menu: ["Popular", "Trending", "Subscriptions", "Playlists"]
+  feed_menu: ["Subscriptions", "Playlists"]
 
   ##
   ## Default feed to display on the home page.
@@ -660,7 +660,7 @@ default_user_preferences:
   ## Accepted values: Popular, Trending, Subscriptions, Playlists, <none>
   ## Default: Popular
   ##
-  default_home: Searching
+  default_home: Playlists
 
   ##
   ## Default number of results to display per page.
@@ -673,7 +673,7 @@ default_user_preferences:
   ## Accepted values: any positive integer
   ## Default: 40
   ##
-  #max_results: 40
+  max_results: 20
 
   ##
   ## Show/hide annotations.
@@ -707,7 +707,7 @@ default_user_preferences:
   ## Accepted values: invidious, youtube
   ## Default: invidious
   ##
-  #player_style: invidious
+  player_style: youtube
 
   ##
   ## Show/Hide the "related videos" sidebar when
@@ -716,7 +716,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: true
   ##
-  #related_videos: true
+  related_videos: true
 
 
   # -----------------------------
@@ -756,7 +756,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #listen: false
+  listen: false
 
   ##
   ## Loop videos automatically.
@@ -764,7 +764,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #video_loop: false
+  video_loop: false
 
 
   # -----------------------------
@@ -798,7 +798,7 @@ default_user_preferences:
   ## Accepted values: 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0
   ## Default: 1.0
   ##
-  #speed: 1.0
+  speed: 1.0
 
   ##
   ## Default volume.
@@ -806,7 +806,7 @@ default_user_preferences:
   ## Accepted values: 0-100
   ## Default: 100
   ##
-  #volume: 100
+  volume: 90
 
   ##
   ## Allow 360° videos to be played.
@@ -833,7 +833,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #latest_only: false
+  latest_only: false
 
   ##
   ## Enable/Disable user subscriptions desktop notifications.
@@ -851,7 +851,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #unseen_only: false
+  unseen_only: false
 
   ##
   ## Default sorting parameter for subscription feeds.
@@ -866,7 +866,7 @@ default_user_preferences:
   ##
   ## Default: published
   ##
-  #sort: published
+  sort: published
 
 
   # -----------------------------
@@ -884,7 +884,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #local: false
+  local: false
 
   ##
   ## Show the connected user's nick at the top right.
@@ -892,7 +892,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: true
   ##
-  #show_nick: true
+  show_nick: true
 
   ##
   ## Automatically redirect to a random instance when the user uses
