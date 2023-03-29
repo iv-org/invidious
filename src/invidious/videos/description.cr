@@ -64,8 +64,8 @@ def parse_description(desc : JSON::Any?) : String?
         length = command["length"].as_i
 
         if start_index > 0 && start_index - index > 0
-          str << content[index..(start_index - 1)]
-          index += start_index - index
+          str << content[index...start_index]
+          index = start_index
         end
 
         str << parse_command(command, content[start_index, length])
