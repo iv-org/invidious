@@ -22,9 +22,11 @@ function setTheme(theme) {
     if (theme === THEME_DARK) {
         toggle_theme.children[0].className = 'icon ion-ios-sunny';
         document.body.className = 'dark-theme';
-    } else {
+    } else if (theme === THEME_LIGHT) {
         toggle_theme.children[0].className = 'icon ion-ios-moon';
         document.body.className = 'light-theme';
+    } else {
+        document.body.className = 'no-theme';
     }
 }
 
