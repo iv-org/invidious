@@ -773,6 +773,7 @@ end
 def extract_items(initial_data : InitialData, &block)
   if unpackaged_data = initial_data["contents"]?.try &.as_h
   elsif unpackaged_data = initial_data["response"]?.try &.as_h
+  elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 1).try &.as_h
   elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 0).try &.as_h
   else
     unpackaged_data = initial_data
