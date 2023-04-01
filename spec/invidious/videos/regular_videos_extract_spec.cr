@@ -17,8 +17,8 @@ Spectator.describe "parse_video_info" do
     # Basic video infos
 
     expect(info["title"].as_s).to eq("I Gave My 100,000,000th Subscriber An Island")
-    expect(info["views"].as_i).to eq(32_846_329)
-    expect(info["likes"].as_i).to eq(2_611_650)
+    expect(info["views"].as_i).to eq(115_784_415)
+    expect(info["likes"].as_i).to eq(4_932_790)
 
     # For some reason the video length from VideoDetails and the
     # one from microformat differs by 1s...
@@ -46,14 +46,14 @@ Spectator.describe "parse_video_info" do
 
     # Related videos
 
-    expect(info["relatedVideos"].as_a.size).to eq(19)
+    expect(info["relatedVideos"].as_a.size).to eq(20)
 
-    expect(info["relatedVideos"][0]["id"]).to eq("tVWWp1PqDus")
-    expect(info["relatedVideos"][0]["title"]).to eq("100 Girls Vs 100 Boys For $500,000")
+    expect(info["relatedVideos"][0]["id"]).to eq("iogcY_4xGjo")
+    expect(info["relatedVideos"][0]["title"]).to eq("$1 vs $1,000,000 Hotel Room!")
     expect(info["relatedVideos"][0]["author"]).to eq("MrBeast")
     expect(info["relatedVideos"][0]["ucid"]).to eq("UCX6OQ3DkcsbYNE6H8uQQuVA")
-    expect(info["relatedVideos"][0]["view_count"]).to eq("49702799")
-    expect(info["relatedVideos"][0]["short_view_count"]).to eq("49M")
+    expect(info["relatedVideos"][0]["view_count"]).to eq("172972109")
+    expect(info["relatedVideos"][0]["short_view_count"]).to eq("172M")
     expect(info["relatedVideos"][0]["author_verified"]).to eq("true")
 
     # Description
@@ -76,11 +76,11 @@ Spectator.describe "parse_video_info" do
     expect(info["ucid"].as_s).to eq("UCX6OQ3DkcsbYNE6H8uQQuVA")
 
     expect(info["authorThumbnail"].as_s).to eq(
-      "https://yt3.ggpht.com/ytc/AMLnZu84dsnlYtuUFBMC8imQs0IUcTKA9khWAmUOgQZltw=s48-c-k-c0x00ffffff-no-rj"
+      "https://yt3.ggpht.com/ytc/AL5GRJUfhQdJS6n-YJtsAf-ouS2myDavDOq_zXBfebal3Q=s48-c-k-c0x00ffffff-no-rj"
     )
 
     expect(info["authorVerified"].as_bool).to be_true
-    expect(info["subCountText"].as_s).to eq("101M")
+    expect(info["subCountText"].as_s).to eq("135M")
   end
 
   it "parses a regular video with no descrition/comments" do
@@ -99,7 +99,7 @@ Spectator.describe "parse_video_info" do
     # Basic video infos
 
     expect(info["title"].as_s).to eq("Chris Rea - Auberge")
-    expect(info["views"].as_i).to eq(10_356_197)
+    expect(info["views"].as_i).to eq(10_698_554)
     expect(info["likes"].as_i).to eq(0)
     expect(info["lengthSeconds"].as_i).to eq(283_i64)
     expect(info["published"].as_s).to eq("2012-05-21T00:00:00Z")
@@ -132,16 +132,14 @@ Spectator.describe "parse_video_info" do
 
     # Related videos
 
-    expect(info["relatedVideos"].as_a.size).to eq(19)
+    expect(info["relatedVideos"].as_a.size).to eq(18)
 
-    expect(info["relatedVideos"][0]["id"]).to eq("0bkrY_V0yZg")
-    expect(info["relatedVideos"][0]["title"]).to eq(
-      "Chris Rea Best Songs Collection -  Chris Rea  Greatest Hits Full Album 2022"
-    )
-    expect(info["relatedVideos"][0]["author"]).to eq("Rock Ultimate")
-    expect(info["relatedVideos"][0]["ucid"]).to eq("UCekSc2A19di9koUIpj8gxlQ")
-    expect(info["relatedVideos"][0]["view_count"]).to eq("1992412")
-    expect(info["relatedVideos"][0]["short_view_count"]).to eq("1.9M")
+    expect(info["relatedVideos"][0]["id"]).to eq("rfyZrJUmzxU")
+    expect(info["relatedVideos"][0]["title"]).to eq("cheb mami - bekatni")
+    expect(info["relatedVideos"][0]["author"]).to eq("pelitovic")
+    expect(info["relatedVideos"][0]["ucid"]).to eq("UCsp6vFyJeGoLxgn-AsHp1tw")
+    expect(info["relatedVideos"][0]["view_count"]).to eq("13863619")
+    expect(info["relatedVideos"][0]["short_view_count"]).to eq("13M")
     expect(info["relatedVideos"][0]["author_verified"]).to eq("false")
 
     # Description

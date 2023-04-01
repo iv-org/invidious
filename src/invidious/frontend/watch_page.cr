@@ -20,7 +20,7 @@ module Invidious::Frontend::WatchPage
 
   def download_widget(locale : String, video : Video, video_assets : VideoAssets) : String
     if CONFIG.disabled?("downloads")
-      return "<p id=\"download\">#{translate(locale, "Download is disabled.")}</p>"
+      return "<p id=\"download\">#{translate(locale, "Download is disabled")}</p>"
     end
 
     return String.build(4000) do |str|

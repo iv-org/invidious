@@ -185,10 +185,12 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # We have to try to extract viewCount from videoPrimaryInfoRenderer first,
   # then from videoDetails, as the latter is "0" for livestreams (we want
   # to get the amount of viewers watching).
-  views_txt = video_primary_renderer
-    .try &.dig?("viewCount", "videoViewCountRenderer", "viewCount", "runs", 0, "text")
-  views_txt ||= video_details["viewCount"]?
-  views = views_txt.try &.as_s.gsub(/\D/, "").to_i64?
+  views_txt = extract_text(
+    video_primary_renderer
+      .try &.dig?("viewCount", "videoViewCountRenderer", "viewCount")
+  )
+  views_txt ||= video_details["viewCount"]?.try &.as_s || ""
+  views = views_txt.gsub(/\D/, "").to_i64?
 
   length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"])
     .try &.as_s.to_i64
@@ -328,7 +330,10 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     # Used when the video has multiple songs
     if song_title = music_desc.dig?("carouselLockupRenderer", "videoLockup", "compactVideoRenderer", "title")
       # "simpleText" for plain text / "runs" when song has a link
-      song = song_title["simpleText"]? || song_title.dig("runs", 0, "text")
+      song = song_title["simpleText"]? || song_title.dig?("runs", 0, "text")
+
+      # some videos can have empty tracks. See: https://www.youtube.com/watch?v=eBGIQ7ZuuiU
+      next if !song
     end
 
     music_desc.dig?("carouselLockupRenderer", "infoRows").try &.as_a.each do |desc|

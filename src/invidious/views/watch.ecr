@@ -181,7 +181,11 @@ we're going to need to do it here in order to allow for translations.
                 <% end %>
             </p>
             <% if video.license %>
-                <p id="license"><%= translate(locale, "License: ") %><%= video.license %></p>
+                <% if video.license.empty? %>
+                    <p id="license"><%= translate(locale, "License: ") %><%= translate(locale, "Standard YouTube license") %></p>
+                <% else %>
+                    <p id="license"><%= translate(locale, "License: ") %><%= video.license %></p>
+                <% end %>
             <% end %>
             <p id="family_friendly"><%= translate(locale, "Family friendly? ") %><%= translate_bool(locale, video.is_family_friendly) %></p>
             <p id="wilson" style="display: none; visibility: hidden;"></p>

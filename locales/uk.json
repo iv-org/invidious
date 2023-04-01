@@ -495,5 +495,7 @@
     "channel_tab_channels_label": "Канали",
     "Music in this video": "Музика в цьому відео",
     "Artist: ": "Виконавець: ",
-    "Album: ": "Альбом: "
+    "Album: ": "Альбом: ",
+    "Song: ": "Пісня: ",
+    "Channel Sponsor": "Спонсор каналу"
 }
