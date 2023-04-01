@@ -13,7 +13,7 @@ services:
       dockerfile: docker/Dockerfile
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"
     environment:
       # Please read the following file for a comprehensive list of all available
       # configuration options and their associated syntax:
@@ -25,10 +25,10 @@ services:
           password: kemal
           host: invidious-db
           port: 5432
-        check_tables: true
+          check_tables: true
         # external_port:
         # domain:
-        # https_only: false
+          https_only: true
         # statistics_enabled: false
     healthcheck:
       test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/comments/jNQXAC9IVRw || exit 1
