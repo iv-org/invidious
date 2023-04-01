@@ -515,6 +515,9 @@ hr {
 
 #descexpansionbutton ~ div {
   overflow: hidden;
+}
+
+#descexpansionbutton:not(:checked) ~ div {
   max-height: 8.3em;
 }
 
