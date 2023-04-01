@@ -1,0 +1,16 @@
+#search-widget {
+    text-align: center;
+    margin: 20vh 0 50px 0;
+}
+
+#logo > h1 {
+    font-size: 3.5em;
+    margin: 0;
+    padding: 0;
+}
+
+@media screen and (max-width: 1500px) and (max-height: 1000px) {
+    #logo > h1 {
+      font-size: 10vmin;
+    }
+}

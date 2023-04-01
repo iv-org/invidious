@@ -1,0 +1,26 @@
+#player {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -100;
+}
+
+.watch-on-invidious {
+  font-size: 1.3em !important;
+  font-weight: bold;
+  white-space: nowrap;
+  margin: 0 1em 0 1em !important;
+  order: 3;
+}
+
+.watch-on-invidious > a {
+  color: white;
+}
+
+.watch-on-invidious > a:hover {
+  color: rgba(0, 182, 240, 1);;
+}

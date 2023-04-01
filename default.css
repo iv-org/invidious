@@ -1,0 +1,773 @@
+@font-face{font-family:"OCR-A";src:url("../fonts/OCRAStd.woff");}
+@font-face{font-family:"ocr-a";src:url("../fonts/OCRAStd.woff");}
+
+html,
+body {
+	font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
+	Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica,
+	Arial, sans-serif;
+	height: 100vh;
+}
+
+#contents {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.deleted {
+	background-color: rgb(255, 0, 0, 0.5);
+}
+
+.underlined {
+	border-bottom: 1px solid;
+	margin-bottom: 20px;
+}
+
+.channel-profile > * {
+	font-size: 1.17em;
+	font-weight: bold;
+	vertical-align: middle;
+	border-radius: 50% !important;
+}
+
+.channel-profile > img {
+	width: 48px;
+	height: auto;
+	margin-right: 0.5em;
+}
+
+body a.channel-owner {
+	background-color: #008bec;
+	color: #fff;
+	border-radius: 9px;
+	padding: 1px 6px;
+}
+
+.creator-heart-container {
+	display: inline-block;
+	padding: 0px 7px 6px 0px;
+	margin: 0px -7px -4px 0px;
+}
+
+.creator-heart {
+	position: relative;
+	width: 16px;
+	height: 16px;
+	border: 2px none;
+}
+
+.creator-heart-background-hearted {
+	width: 16px;
+	height: 16px;
+	padding: 0px;
+	position: relative;
+}
+
+.creator-heart-small-hearted {
+	position: absolute;
+	right: -7px;
+	bottom: -4px;
+}
+
+.creator-heart-small-container {
+	position: relative;
+	width: 13px;
+	height: 13px;
+	color: rgb(255, 0, 0);
+}
+
+.feed-menu {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.feed-menu-item {
+	text-align: center;
+}
+
+@media screen and (max-width: 640px) {
+	.feed-menu-item {
+		flex: 0 0 40%;
+	}
+}
+
+.h-box {
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+.v-box {
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+div {
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+}
+
+.loading {
+	display: inline-block;
+	animation: spin 2s linear infinite;
+}
+
+.playlist-restricted {
+	height: 20em;
+	padding-right: 10px;
+}
+
+body a.pure-button {
+	color: rgba(0,0,0,.8);
+}
+
+button.pure-button-primary, body a.pure-button-primary, .channel-owner:hover {
+	background-color: rgba(200,200,200,0.8);
+	color: rgba(35, 35, 35, 1);
+	backdrop-filter: blur(2.5px);
+}
+
+button.pure-button-primary:hover,
+body a.pure-button-primary:hover {
+	background-color: rgba(0, 182, 240, 0.8);
+	color: #ffffff;
+}
+
+div.thumbnail {
+	padding: 28.125%;
+	position: relative;
+	box-sizing: border-box;
+}
+
+img.thumbnail {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	object-fit: cover;
+	border-radius: 0.5em;
+}
+
+div.watched-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(255,255,255,.4);
+}
+
+div.watched-indicator {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	height: 4px;
+	width: 100%;
+	background-color: red;
+}
+
+.length {
+	z-index: 100;
+	position: absolute;
+	background-color: rgba(35, 35, 35, 0.75);
+	color: #fff;
+	border-radius: 2px;
+	padding: 2px;
+	font-size: 16px;
+	right: 0.25em;
+	bottom: -0.75em;
+}
+
+.watched {
+	z-index: 100;
+	position: absolute;
+	background-color: rgba(35, 35, 35, 0.75);
+	color: #fff;
+	border-radius: 2px;
+	padding: 4px 8px 4px 8px;
+	font-size: 16px;
+	left: 0.2em;
+	top: -0.7em;
+}
+
+/*
+ * Navbar
+ */
+
+.navbar {
+	margin: 1em 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background-image: url('/CMovie.svg'), linear-gradient(to right, rgba(17,17,17,0.85), rgba(94,149,183,0.85));
+	background-size: 12%, auto;
+	background-position-y: 0.5rem,center;
+	background-repeat: no-repeat;
+	background-position-x: 8rem, 0px;
+	overflow-x: overlay;
+	overflow-y: clip;
+	position: sticky;
+	border-radius: 0.5em;
+	top: 1em;
+	backdrop-filter: blur(2.5px);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 rgba(0,0,0,0.8);
+	padding: 0.5em;
+	height: 2.25em;
+	z-index: 200;
+}
+
+.navbar > div {
+	flex: 1;
+}
+
+.searchbar {
+	flex-grow: 2; /* take double the space of the other items */
+}
+
+.navbar a {
+	padding: 0; /* this way it will stay aligned with content under */
+}
+
+.navbar .index-link {
+	font-weight: bold;
+	display: inline;
+}
+
+.searchbar .pure-form fieldset {
+	padding: 0;
+}
+
+.searchbar input[type="search"] {
+	width: 100%;
+	margin: 1px;
+	border: 1px solid;
+	border-color: rgba(0,0,0,0);
+	border-bottom-color: #CCC;
+	border-radius: 0.5em;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	box-shadow: none;
+	-webkit-appearance: none;
+	font-family: "OCR-A";
+	text-shadow: (0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 rgba(0,0,0,0.7) !important
+}
+
+.searchbar input[type="search"]:focus {
+	margin: 0;
+	border: 2px solid;
+	border-color: rgba(0,0,0,0);
+	border-bottom-color: #FED;
+}
+
+/* https://stackoverflow.com/a/55170420 */
+input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+	height: 14px;
+	width: 14px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAn0lEQVR42u3UMQrDMBBEUZ9WfQqDmm22EaTyjRMHAlM5K+Y7lb0wnUZPIKHlnutOa+25Z4D++MRBX98MD1V/trSppLKHqj9TTBWKcoUqffbUcbBBEhTjBOV4ja4l4OIAZThEOV6jHO8ARXD+gPPvKMABinGOrnu6gTNUawrcQKNCAQ7QeTxORzle3+sDfjJpPCqhJh7GixZq4rHcc9l5A9qZ+WeBhgEuAAAAAElFTkSuQmCC);
+	background-size: 14px;
+	color: #cccccc;
+}
+
+.user-field {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.user-field div {
+	width: auto;
+}
+
+.user-field div:not(:last-child) {
+	margin-right: 1em;
+}
+
+@media only screen and (max-aspect-ratio: 16/9) {
+	.player-dimensions.vjs-fluid {
+		padding-top: 46.86% !important;
+	}
+
+	#player-container {
+		padding-bottom: 46.86% !important;
+	}
+}
+
+@media screen and (max-width: 767px) {
+	.navbar {
+		flex-direction: column;
+	}
+
+	.navbar > div {
+		display: flex;
+		justify-content: center;
+	}
+
+	.navbar > div:not(:last-child) {
+		margin-bottom: 1em;
+ 	}
+
+	.navbar > .searchbar > form {
+		width: 60%;
+	}
+
+	h1 {
+		font-size: 1.25em;
+		margin: 0.42em 0;
+	}
+}
+
+@media screen and (max-width: 320px) {
+	 .navbar > .searchbar > form {
+		width: 100%;
+		margin: 0 1em;
+  	}
+}
+
+
+/*
+ * Video "cards" (results/playlist/channel videos)
+ */
+
+.video-card-row {
+	margin: 15px 0;
+}
+
+.flexible {
+	display: flex;
+}
+
+.flex-left {
+	flex: 1 1 100%;
+	flex-wrap: wrap;
+}
+
+.flex-right {
+	flex: 1 0 auto;
+	flex-wrap: nowrap;
+}
+
+p.channel-name { 
+	margin: 0;
+}
+
+p.video-data   {
+	margin: 0;
+	font-weight: bold;
+	font-size: 80%; 
+}
+
+
+/*
+ * Footer
+ */
+
+footer {
+	color: #919191;
+	color: #ffffff !important;
+	margin-top: auto;
+	padding: 1.5em 0;
+	text-align: center;
+	max-height: 30vh;
+}
+
+footer a {
+	color: #919191 !important;
+	text-decoration: underline;
+}
+
+footer span {
+	margin: 4px 0;
+	display: block;
+}
+
+/* keyframes */
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+  	100% {
+		transform: rotate(360deg);
+	}
+}
+
+fieldset > select,
+span > select {
+	color: rgba(49, 49, 51, 1);
+}
+
+.pure-control-group label {
+  	word-wrap: normal;
+}
+
+/*
+ * Light theme
+ */
+
+.light-theme a:hover,
+.light-theme a:active,
+.light-theme summary:hover {
+	color: #075A9E !important;
+}
+
+.light-theme a.pure-button-primary:hover {
+	color: #fff !important;
+}
+
+.light-theme a {
+	color: #335d7a;
+	text-decoration: none;
+}
+
+/* All links that do not fit with the default color goes here */
+.light-theme a:not([data-id]) > .icon,
+.light-theme .pure-u-lg-1-5 > .h-box > a[href^="/watch?"],
+.light-theme .playlist-restricted > ol > li > a {
+	color: #f0f0f0;
+}
+
+
+
+
+
+.light-theme .pure-menu-heading {
+	color: #f0f0f0;
+}
+
+@media (prefers-color-scheme: light) {
+
+	.no-theme a:hover,
+	.no-theme a:active {
+		color: rgb(0, 182, 240);
+	}
+
+	.no-theme a {
+		color: #a0a0a0;
+		text-decoration: none;
+	}
+
+	body.no-theme {
+		background-color: #03060b;
+		background-image: linear-gradient(0deg, transparent, transparent, transparent, rgba(47,121,160,1));
+    		color: #f0f0f0;
+    		background-attachment: fixed;
+	}
+
+	.no-theme .pure-form legend {
+		color: #f0f0f0;
+ 	}
+
+ 	.no-theme .pure-menu-heading {
+		color: #f0f0f0;
+		display: none;
+ 	}
+
+	.no-theme input,
+	.no-theme select,
+  	.no-theme textarea {
+		color: rgba(35, 35, 35, 1);
+	}
+
+	.no-theme .pure-form input[type="file"] {
+		color: #f0f0f0;
+	}
+
+	.no-theme .searchbar input {
+		background-color: inherit;
+		color: inherit;
+	}
+
+
+  	.light-theme .pure-menu-heading {
+    		color: #f0f0f0;
+    		display: none;
+  	}
+}
+
+/*
+ * Dark theme
+ */
+
+.dark-theme a:hover,
+.dark-theme a:active,
+.dark-theme summary:hover {
+	color: rgb(0, 182, 240);
+}
+
+.dark-theme a {
+	color: #c0c0c0;
+	text-decoration: none;
+}
+
+body.dark-theme {
+	background-color: #03060b;
+	background-image: linear-gradient(0deg, transparent, transparent, transparent, rgba(47,121,160,1));
+	color: #f0f0f0;
+	background-attachment: fixed;
+}
+
+.dark-theme .pure-form legend {
+	color: #f0f0f0;
+}
+
+.dark-theme .pure-menu-heading {
+	color: #f0f0f0;
+	display: none;
+}
+
+.dark-theme input,
+.dark-theme select,
+.dark-theme textarea {
+  	color: rgba(35, 35, 35, 1);
+}
+
+.dark-theme .pure-form input[type="file"] {
+	color: #f0f0f0;
+}
+
+.dark-theme .searchbar input {
+	background-color: inherit;
+	color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+	.no-theme a:hover,
+	.no-theme a:active {
+		color: rgb(0, 182, 240);
+	}
+
+	.no-theme a {
+		color: #a0a0a0;
+		text-decoration: none;
+	}
+
+	body.no-theme {
+		background-color: #03060b;
+		background-image: linear-gradient(0deg, transparent, transparent, transparent, rgba(47,121,160,1));
+    		color: #f0f0f0;
+    		background-attachment: fixed;
+	}
+
+	.no-theme .pure-form legend {
+		color: #f0f0f0;
+ 	}
+
+ 	.no-theme .pure-menu-heading {
+		color: #f0f0f0;
+		display: none;
+ 	}
+
+	.no-theme input,
+	.no-theme select,
+  	.no-theme textarea {
+		color: rgba(35, 35, 35, 1);
+	}
+
+	.no-theme .pure-form input[type="file"] {
+		color: #f0f0f0;
+	}
+
+	.no-theme .searchbar input {
+		background-color: inherit;
+		color: inherit;
+	}
+}
+
+/*With commit d9528f5 all contents of the page is now within a flexbox. However,
+the hr element is rendered improperly within one.
+See https://stackoverflow.com/a/34372979 for more info */
+hr {
+	margin: 10px 0 10px 0;
+}
+
+/* Description Expansion Styling*/
+#descexpansionbutton,
+#music-desc-expansion {
+ 	display: none;
+}
+
+#descexpansionbutton ~ div {
+	overflow: hidden;
+	max-height: 8.3em;
+}
+
+#descexpansionbutton:checked ~ div {
+	overflow: unset;
+	height: 100%;
+}
+
+#descexpansionbutton ~ label {
+	order: 1;
+	margin-top: 20px;
+}
+
+label[for="descexpansionbutton"]:hover,
+label[for="music-desc-expansion"]:hover {
+	cursor: pointer;
+}
+
+/* Bidi (bidirectional text) support */
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+#descriptionWrapper,
+#description-box,
+#music-description-box {
+	unicode-bidi: plaintext;
+	text-align: start;
+}
+
+#descriptionWrapper {
+	max-width: 600px;
+	max-width: 80%;
+	white-space: pre-wrap;
+	padding: 0.5em;
+	margin: 0.5em 0em;
+	background-color: rgba(230,230,230,0.2);
+	border-radius: 0.5em;
+}
+
+#music-description-box {
+	display: none;
+}
+
+#music-desc-expansion:checked ~ #music-description-box {
+	display: block;
+}
+
+#music-desc-expansion ~ label > h3 > .ion-ios-arrow-up,
+#music-desc-expansion:checked ~ label > h3 > .ion-ios-arrow-down {
+	display: none;
+}
+
+#music-desc-expansion:checked ~ label > h3 > .ion-ios-arrow-up,
+#music-desc-expansion ~ label > h3 > .ion-ios-arrow-down {
+	display: inline;
+}
+
+/* Select all the music items except the first one */
+.music-item + .music-item {
+  	border-top: 1px solid #ffffff;
+}
+
+
+div.thumbnail {
+	padding: 28.125%;
+	position: relative;
+	box-sizing: border-box;
+	border: 1px solid rgba(230,230,230,0.5) !important;
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 rgba(0,0,0,0.8) !important;
+	border-radius: 0.5em !important;
+	overflow: hidden;
+}
+/*
+.h-box img:not(.thumbnail), .video-js, #player-container, video {
+*/
+.h-box img:not(.thumbnail), .video-js, #player-container, video, .vjs-text-track-display {
+	border: 1px solid rgba(230,230,230,0.5) !important;
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 rgba(0,0,0,0.8) !important;
+	border-radius: 0.5em;
+	overflow: hidden;
+}
+
+.video-js, #player-container, video, .vjs-text-track-display {
+	aspect-ratio: 16 / 9 !important;
+}
+
+/*
+.h-box h1 {
+	padding-left: 1em;
+	padding-right: 1em;
+	position: relative;
+	top: -103px;
+	left: 4px;
+	width: calc(100% - 60px);
+	border-bottom-left-radius: 0.25em;
+	border-bottom-right-radius: 0.25em;
+	display: inline-block;
+	background-image: linear-gradient(to right, rgba(17,17,17,1), rgba(94,149,183,1));
+	line-height: 1em;
+	padding-top: 0.5em;
+	height: 2.5em;
+}*/
+
+input::-webkit-input-placeholder {
+	color: #cccccc;
+}
+
+input #placeholder {
+	color: #cccccc;
+}
+
+/* Center the "invidious" logo on the search page */
+#logo > h1 { 
+	text-align: center; 
+	font-family: "OCR-A";
+}
+
+/* IE11 fixes */
+:-ms-input-placeholder {
+	 color: #f0f0f0; 
+}
+
+/* Wider settings name to less word wrap */
+.pure-form-aligned .pure-control-group label {
+	 width: 19em; 
+}
+
+.channel-emoji {
+	margin: 0 2px;
+}
+
+.channel-profile {
+	font-family: "OCR-A";
+}
+
+a[href*="/channel/"] {
+	font-family: "OCR-A";
+}
+
+.video-js .vjs-big-play-button {
+	top: 50%;
+	left: 50%;
+	position: absolute;
+	cursor: pointer;
+	border: 0.06666em solid #fff;
+	border-radius: 50%;
+	margin: auto;
+	font-size: 2.6rem;
+	padding: 1vw;
+	display: inline-block;
+	opacity: 1;
+	transform: translateX(calc(-50%)) translateY(calc(-50%));
+	text-decoration: none !important;
+	box-shadow: 0 0 0.15em rgb(224 224 224 / 50%), 0.25em 0.25em 0.35em rgb(0 0 0 / 50%);
+	backdrop-filter: blur(2.5px);
+	-webkit-backdrop-filter: blur(2.5px);
+	background-color: rgba(47, 121,160,1);
+	background-size: 50%;
+	width: 80px;
+	height: 80px;
+	aspect-ratio: 1 / 1 !important; 
+	-webkit-aspect-ratio: 1 / 1 !important;
+	background-repeat: no-repeat;
+	background-position: center;
+	border: 0.7vmin solid #ddd;
+	text-shadow: none;
+	color: transparent;
+	-webkit-transition-timing-function: ease-in-out;
+	-webkit-transition-duration: 0.5s;
+	-webkit-transition-property: background, opacity;
+	transition-timing-function: ease-in-out;
+	transition-duration: 0.5s;
+	transition-property: background, opacity;
+	overflow: hidden;
+	background-image: url('/CMovie-Play.svg');
+}
