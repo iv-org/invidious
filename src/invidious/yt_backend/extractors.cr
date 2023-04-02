@@ -484,7 +484,7 @@ private module Parsers
       # View count used to be in the reelWatchEndpoint, but that changed?
       view_count_text ||= item_contents.dig?("viewCountText", "simpleText")
 
-      view_count = view_count_text.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
+      view_count = short_text_to_number(view_count_text.try &.as_s || "0")
 
       # Duration
 
