@@ -133,40 +133,6 @@ You can read more here: https://docs.invidious.io/applications/
 1.  Push to the branch (`git push origin my-new-feature`).
 1.  Create a new pull request ( https://github.com/iv-org/invidious/compare ).
 
-### Translations
-
-We use [Weblate](https://weblate.org) to manage Invidious translations.
-
-You can suggest new translations and/or correction here: https://hosted.weblate.org/engage/invidious/.
-
-Creating an account is not required, but recommended, especially if you want to contribute regularly.
-Weblate also allows you to log-in with major SSO providers like Github, Gitlab, BitBucket, Google, ...
-
-
-## Projects using Invidious
-
-- [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
-- [CloudTube](https://sr.ht/~cadence/tube/): A JavaScript-rich alternate YouTube player.
-- [PeerTubeify](https://gitlab.com/Cha_de_L/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
-- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
-- [HoloPlay](https://github.com/stephane-r/holoplay-wa): Progressive Web App connecting on Invidious API's with search, playlists and favorites.
-- [WatchTube](https://github.com/WatchTubeTeam/WatchTube): Powerful YouTube client for Apple Watch.
-- [Yattee](https://github.com/yattee/yattee): Alternative YouTube frontend for iPhone, iPad, Mac and Apple TV.
-- [TubiTui](https://codeberg.org/777/TubiTui): A lightweight, libre, TUI-based YouTube client.
-- [Ytfzf](https://github.com/pystardust/ytfzf): A posix script to find and watch youtube videos from the terminal. (Without API)
-- [Playlet](https://github.com/iBicha/playlet): Unofficial Youtube client for Roku TV
-- [Clipious](https://github.com/lamarios/clipious): Unofficial Invidious client for Android
-
-
-## Liability
-
-We take no responsibility for the use of our tool, or external instances
-provided by third parties. We strongly recommend you abide by the valid
-official regulations in your country. Furthermore, we refuse liability
-for any inappropriate use of Invidious, such as illegal downloading.
-This tool is provided to you in the spirit of free, open software.
-
-You may view the LICENSE in which this software is provided to you [here](./LICENSE).
 
 >   16. Limitation of Liability.
 >
