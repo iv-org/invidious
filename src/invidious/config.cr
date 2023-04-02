@@ -1,12 +1,5 @@
-struct DBConfig
-  include YAML::Serializable
-
-  property user : String
-  property password : String
-  property host : String
-  property port : Int32
-  property dbname : String
-end
+require "yaml"
+require "./config/*"
 
 struct ConfigPreferences
   include YAML::Serializable
@@ -69,7 +62,7 @@ class Config
   # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
   property log_level : LogLevel = LogLevel::Info
   # Database configuration with separate parameters (username, hostname, etc)
-  property db : DBConfig? = nil
+  property db : IV::Config::DBConfig? = nil
 
   # Database configuration using 12-Factor "Database URL" syntax
   @[YAML::Field(converter: Preferences::URIConverter)]
