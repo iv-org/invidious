@@ -1,128 +1,9 @@
-.login-buttom {
-	margin-right: 15px;
-	border: 1px solid;
-	padding: 10px;
-}
-/*/Modul/*/
-.d-modal {
-  z-index: 3;
-  display: none;
-  padding-top: 100px;
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgb(0, 0, 0);
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
-.d-modal-content {
-  margin: auto;
-  background-color: #fff;
-  position: relative;
-  padding: 0;
-  outline: 0;
-  width: 600px;
-}
-.d-container {
-  padding: 0.01em 16px;
-}
-.d-panel {
-  margin-top: 16px;
-  margin-bottom: 16px;
-}
-@media (max-width: 600px) {
-  .d-modal-content {
-    margin: 0 10px;
-    width: auto !important;
-  }
-  .d-modal {
-    padding-top: 30px;
-  }
-}
-@media (max-width: 768px) {
-  .d-modal-content {
-    width: 500px;
-  }
-  .d-modal {
-    padding-top: 50px;
-  }
-}
-@media (min-width: 993px) {
-  .d-modal-content {
-    width: 900px;
-  }
-  .d-hide-large {
-    display: none !important;
-  }
-}
-.d-teal,
-.hover-teal:hover {
-  color: #fff !important;
-  background-color: #009688 !important;
-}
-.d-button1 {
-  background-color: #000;
-  padding: 12px 12px;
-  text-align: center;
-  text-decoration: none;
-  font-size: 17px;
-  border: none;
-  color: #fff;
-  display: inline-block;
-  vertical-align: middle;
-  overflow: hidden;
-  text-decoration: none;
-  text-align: center;
-  cursor: pointer;
-  white-space: nowrap;
-}
-/*end*/
-x1 {
-  font-size: 30px;
-}
-.datenschutz {
-  margin-left: 250px;
-  bottom: 0;
-  display: block;
-  text-decoration: none;
-  font-size: 24px;
-  display: block;
-  background: #384859;
-  width: (100% - 250px);
-}
-.datenschutz a {
-  text-decoration: none;
-  font-size: 24px;
-  color: #ffffff;
-  background: #384859;
-}
-
-.sidebar .item .sub-menu {
-  background: rgba(255, 255, 255, 0.1);
-  display: none;
-}
-.rotate {
-  transform: rotate(90deg);
-}
-/**/
+/*Haupt Config*/
 body {
   padding: 0;
   overflow-x: hidden;
 }
-@media screen and (min-width: 780px) {
-header {
- z-index: 1000000;
- position: fixed;
- background: #22242a;
- padding: 20px;
- width: calc(100% - 0%);
- top: 0;
- height: 30px;
-}
-}
+
 header {
  background: #22242a;
  padding: 20px;	
@@ -183,31 +64,6 @@ header {
   overflow-y: auto;
 }
 
-.profile_info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.sidebar .profile_info .profile_image {
-  width: 100px;
-  height: 100px;
-  border-radius: 100px;
-  margin-bottom: 10px;
-}
-
-.sidebar .profile_info h4 {
-  color: #ccc;
-  margin-top: 0;
-  margin-bottom: 20px;
-}
-
-.sidebar .profile_info a {
-  padding-left: 0px;
-  display: block;
-}
-
 .sidebar a {
   color: #fff;
   display: block;
@@ -263,9 +119,8 @@ label #sidebar_btn:hover {
 }
 
 #check:checked ~ .sidebar a {
-  /*/font-size: 20px;/*/
+  font-size: 20px;
   margin-left: 0;
-  /*/width: 100%;/*/
 }
 
 .sidebar a {
@@ -281,18 +136,6 @@ label #sidebar_btn:hover {
   margin-left: 60px;
   min-height: 100vh;
   transition: 0.5s;
-}
-
-#check:checked ~ .content {
-  /*margin-left: 60px;*/
-}
-
-#check:checked ~ .sidebar .profile_info {
-  display: flex;
-}
-
-.sidebar .profile_info {
-  display: none;
 }
 
 #check {
@@ -312,6 +155,18 @@ label #sidebar_btn:hover {
 }
 
 /* Responsive CSS */
+
+@media screen and (min-width: 780px) {
+header {
+ z-index: 1000000;
+ position: fixed;
+ background: #22242a;
+ padding: 20px;
+ width: calc(100% - 0%);
+ top: 0;
+ height: 30px;
+}
+}
 
 @media screen and (max-width: 780px) {
   .sidebar {
@@ -393,68 +248,5 @@ label #sidebar_btn:hover {
 
   .active {
     display: block;
-  }
-}
-/*Cookie Banner*/
-
-#footer-cookie,
-#footer-cookie * {
-  box-sizing: border-box;
-}
-
-#footer-cookie {
-  display: none;
-  position: fixed;
-  bottom: 0px;
-  left: 0px;
-  width: 100%;
-  height: 60px;
-  padding-left: 30px;
-  padding-right: 30px;
-  line-height: 60px;
-  background: #303030;
-  color: #fff;
-  z-index: 1001;
-}
-
-#footer-cookie a {
-  color: #fff;
-}
-
-#footer-cookie #description {
-  float: left;
-}
-
-#footer-cookie #accept {
-  float: right;
-}
-
-#footer-cookie #accept a {
-  border: 1px solid #fff;
-  padding: 5px 10px;
-  text-decoration: none;
-}
-
-@media (max-width: 1200px) {
-  #footer-cookie {
-    padding-top: 30px;
-    padding-bottom: 30px;
-    line-height: inherit;
-    height: auto;
-  }
-
-  #footer-cookie #description {
-    width: 100%;
-  }
-
-  #footer-cookie #accept {
-    width: 100%;
-    margin-top: 15px;
-  }
-
-  #footer-cookie #accept a {
-    width: 100%;
-    display: block;
-    text-align: center;
   }
 }
