@@ -8,30 +8,13 @@
   &nbsp;•&nbsp;
   <a href="https://instances.invidious.io/">Instances list</a>
   &nbsp;•&nbsp;
-  <a href="https://docs.invidious.io/faq/">FAQ</a>
+  <a href="https://docs.invidious.io/faq/">FAQ from</a>
   &nbsp;•&nbsp;
-  <a href="https://docs.invidious.io/">Documentation</a>
+  <a href="https://docs.invidious.io/">Documentation from <a href="https://github.com/iv-org/invidious"> Invidious</a>
   &nbsp;•&nbsp;
-  <a href="#contribute">Contribute</a>
+  <a href="#contribute">Contribute from Invidious</a>
   &nbsp;•&nbsp;
-  <a href="https://invidious.io/donate/">Donate</a>
-
-  <h5>Chat with us:</h5>
-  <a href="https://matrix.to/#/#invidious:matrix.org">
-    <img alt="Matrix" src="https://img.shields.io/matrix/invidious:matrix.org?label=Matrix&color=darkgreen">
-  </a>
-  <a href="https://web.libera.chat/?channel=#invidious">
-    <img alt="Libera.chat (IRC)" src="https://img.shields.io/badge/IRC%20%28Libera.chat%29-%23invidious-darkgreen">
-  </a>
-  <br>
-  <a rel="me" href="https://social.tchncs.de/@invidious">
-  <img alt="Fediverse: @invidious@social.tchncs.de" src="https://img.shields.io/badge/Fediverse-%40invidious%40social.tchncs.de-darkgreen">
-  </a>
-  <br>
-  <a href="https://invidious.io/contact/">
-  <img alt="E-mail" src="https://img.shields.io/badge/E%2d%2dmail-darkgreen">
-  </a>
-</div>
+  <a href="https://invidious.io/donate/">Donate from Invidious</a>
 
 
 ## Screenshots
