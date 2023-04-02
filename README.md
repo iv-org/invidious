@@ -2,29 +2,6 @@
   <img src="assets/invidious-colored-vector.svg" width="192" height="192" alt="Invidious logo">
   <h1>Fork from Invidious</h1>
 
-  <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
-    <img alt="License: AGPLv3" src="https://shields.io/badge/License-AGPL%20v3-blue.svg">
-  </a>
-  <a href="https://github.com/iv-org/invidious/actions">
-    <img alt="Build Status" src="https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg">
-  </a>
-  <a href="https://github.com/iv-org/invidious/commits/master">
-    <img alt="GitHub commits" src="https://img.shields.io/github/commit-activity/y/iv-org/invidious?color=red&label=commits">
-  </a>
-  <a href="https://github.com/iv-org/invidious/issues">
-    <img alt="GitHub issues" src="https://img.shields.io/github/issues/iv-org/invidious?color=important">
-  </a>
-  <a href="https://github.com/iv-org/invidious/pulls">
-    <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/iv-org/invidious?color=blueviolet">
-  </a>
-  <a href="https://hosted.weblate.org/engage/invidious/">
-    <img alt="Translation Status" src="https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg">
-  </a>
-
-  <a href="https://github.com/humanetech-community/awesome-humane-tech">
-    <img alt="Awesome Humane Tech" src="https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true">
-  </a>
-
   <h3>An open source alternative front-end to YouTube</h3>
 
   <a href="https://invidious.io/">Website</a>
