@@ -30,7 +30,9 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
         "15:embedded" => {
           "1:embedded" => {
             "1:string" => object_inner_2_encoded,
-            "2:string" => "00000000-0000-0000-0000-000000000000",
+          },
+          "2:embedded" => {
+            "1:string" => "00000000-0000-0000-0000-000000000000",
           },
           "3:varint" => sort_by_numerical,
         },
