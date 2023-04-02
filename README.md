@@ -4,17 +4,17 @@
 
   <h3>An open source alternative front-end to YouTube</h3>
 
-  <a href="https://invidious.io/">Website</a>
+  <a href="https://invidious.io/">Website from <a href="https://github.com/iv-org/invidious"> Invidious</a>
   &nbsp;•&nbsp;
   <a href="https://instances.invidious.io/">Instances list</a>
   &nbsp;•&nbsp;
-  <a href="https://docs.invidious.io/faq/">FAQ from</a>
+  <a href="https://docs.invidious.io/faq/">FAQ from <a href="https://github.com/iv-org/invidious"> Invidious</a>
   &nbsp;•&nbsp;
   <a href="https://docs.invidious.io/">Documentation from <a href="https://github.com/iv-org/invidious"> Invidious</a>
   &nbsp;•&nbsp;
-  <a href="#contribute">Contribute from Invidious</a>
+  <a href="#contribute">Contribute from <a href="https://github.com/iv-org/invidious"> Invidious</a>
   &nbsp;•&nbsp;
-  <a href="https://invidious.io/donate/">Donate from Invidious</a>
+  <a href="https://invidious.io/donate/">Donate from <a href="https://github.com/iv-org/invidious"> Invidious</a>
 
 
 ## Screenshots
