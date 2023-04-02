@@ -18,6 +18,7 @@ private ITEM_PARSERS = {
   Parsers::CategoryRendererParser,
   Parsers::RichItemRendererParser,
   Parsers::ReelItemRendererParser,
+  Parsers::ItemSectionRendererParser,
   Parsers::ContinuationItemRendererParser,
 }
 
@@ -370,6 +371,30 @@ private module Parsers
         url:              url,
         badges:           badges,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube itemSectionRenderer into a SearchVideo.
+  # Returns nil when the given object isn't a ItemSectionRenderer
+  #
+  # A itemSectionRenderer seems to be a simple wrapper for a videoRenderer, used
+  # by the result page for channel searches. It is located inside a continuationItems
+  # container.It is very similar to RichItemRendererParser
+  #
+  module ItemSectionRendererParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item.dig?("itemSectionRenderer", "contents", 0)
+        return self.parse(item_contents, author_fallback)
+      end
+    end
+
+    private def self.parse(item_contents, author_fallback)
+      child = VideoRendererParser.process(item_contents, author_fallback)
+      return child
     end
 
     def self.parser_name
