@@ -53,7 +53,7 @@ class Config
   # Number of threads to use for crawling videos from channels (for updating subscriptions)
   property channel_threads : Int32 = 1
   # Time interval between two executions of the job that crawls channel videos (subscriptions update).
-  @[YAML::Field(converter: Preferences::TimeSpanConverter)]
+  @[YAML::Field(converter: IV::Config::TimeSpanConverter)]
   property channel_refresh_interval : Time::Span = 30.minutes
   # Number of threads to use for updating feeds
   property feed_threads : Int32 = 1
@@ -65,7 +65,7 @@ class Config
   property db : IV::Config::DBConfig? = nil
 
   # Database configuration using 12-Factor "Database URL" syntax
-  @[YAML::Field(converter: Preferences::URIConverter)]
+  @[YAML::Field(converter: IV::Config::URIConverter)]
   property database_url : URI = URI.parse("")
   # Use polling to keep decryption function up to date
   property decrypt_polling : Bool = false
@@ -111,8 +111,9 @@ class Config
   property modified_source_code_url : String? = nil
 
   # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
-  @[YAML::Field(converter: Preferences::FamilyConverter)]
+  @[YAML::Field(converter: IV::Config::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC
+
   # Port to listen for connections (overridden by command line argument)
   property port : Int32 = 3000
   # Host to bind (overridden by command line argument)
@@ -124,7 +125,7 @@ class Config
   property use_innertube_for_captions : Bool = false
 
   # Saved cookies in "name1=value1; name2=value2..." format
-  @[YAML::Field(converter: Preferences::StringToCookies)]
+  @[YAML::Field(converter: IV::Config::CookiesConverter)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new
 
   # Playlist length limit
