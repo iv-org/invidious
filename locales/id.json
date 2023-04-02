@@ -453,5 +453,6 @@
     "crash_page_switch_instance": "mencoba untuk <a href=\"`x`\">menggunakan peladen lainnya</a>",
     "crash_page_read_the_faq": "baca <a href=\"`x`\">Soal Sering Ditanya (SSD/FAQ)</a>",
     "crash_page_search_issue": "mencari <a href=\"`x`\">isu yang ada di GitHub</a>",
-    "crash_page_report_issue": "Jika yang di atas tidak membantu, <a href=\"`x`\">buka isu baru di GitHub</a> (sebaiknya dalam bahasa Inggris) dan sertakan teks berikut dalam pesan Anda (JANGAN terjemahkan teks tersebut):"
+    "crash_page_report_issue": "Jika yang di atas tidak membantu, <a href=\"`x`\">buka isu baru di GitHub</a> (sebaiknya dalam bahasa Inggris) dan sertakan teks berikut dalam pesan Anda (JANGAN terjemahkan teks tersebut):",
+    "Popular enabled: ": "Populer diaktifkan: "
 }
