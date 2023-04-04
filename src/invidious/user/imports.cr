@@ -40,7 +40,7 @@ struct Invidious::User
       title = csv_head[4]
       description = csv_head[5]
       visibility = csv_head[6]
-      
+
       if visibility.compare("Public", case_insensitive: true) == 0
         privacy = PlaylistPrivacy::Public
       else
@@ -51,34 +51,33 @@ struct Invidious::User
       Invidious::Database::Playlists.update_description(playlist.id, description)
 
       # Add each video to the playlist from the body content
-      CSV.each_row(raw_body) do |row|
-        if row.size >= 1
-          video_id = row[0]
-          if playlist
-            next if !video_id
-            next if video_id == "Video Id"
+      csv_body = CSV.new(raw_body, headers: true)
+      csv_body.each do |row|
+        video_id = row[0]
+        if playlist
+          next if !video_id
+          next if video_id == "Video Id"
 
-            begin
-              video = get_video(video_id)
-            rescue ex
-              next
-            end
-
-            playlist_video = PlaylistVideo.new({
-              title:          video.title,
-              id:             video.id,
-              author:         video.author,
-              ucid:           video.ucid,
-              length_seconds: video.length_seconds,
-              published:      video.published,
-              plid:           playlist.id,
-              live_now:       video.live_now,
-              index:          Random::Secure.rand(0_i64..Int64::MAX),
-            })
-
-            Invidious::Database::PlaylistVideos.insert(playlist_video)
-            Invidious::Database::Playlists.update_video_added(playlist.id, playlist_video.index)
+          begin
+            video = get_video(video_id)
+          rescue ex
+            next
           end
+
+          playlist_video = PlaylistVideo.new({
+            title:          video.title,
+            id:             video.id,
+            author:         video.author,
+            ucid:           video.ucid,
+            length_seconds: video.length_seconds,
+            published:      video.published,
+            plid:           playlist.id,
+            live_now:       video.live_now,
+            index:          Random::Secure.rand(0_i64..Int64::MAX),
+          })
+
+          Invidious::Database::PlaylistVideos.insert(playlist_video)
+          Invidious::Database::Playlists.update_video_added(playlist.id, playlist_video.index)
         end
       end
 
