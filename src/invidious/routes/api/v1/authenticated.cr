@@ -31,6 +31,88 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.status_code = 204
   end
 
+  def self.export_invidious(env)
+    env.response.content_type = "application/json"
+    user = env.get("user").as(User)
+
+    return Invidious::User::Export.to_invidious(user)
+  end
+
+  def self.import_invidious(env)
+    user = env.get("user").as(User)
+
+    begin
+      if body = env.request.body
+        body = env.request.body.not_nil!.gets_to_end
+      else
+        body = "{}"
+      end
+      Invidious::User::Import.from_invidious(user, body)
+    rescue
+    end
+
+    env.response.status_code = 204
+  end
+
+  def self.get_history(env)
+    env.response.content_type = "application/json"
+    user = env.get("user").as(User)
+
+    page = env.params.query["page"]?.try &.to_i?.try &.clamp(0, Int32::MAX)
+    page ||= 1
+
+    max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)
+    max_results ||= user.preferences.max_results
+    max_results ||= CONFIG.default_user_preferences.max_results
+
+    start_index = (page - 1) * max_results
+    if user.watched[start_index]?
+      watched = user.watched.reverse[start_index, max_results]
+    end
+    watched ||= [] of String
+
+    return watched.to_json
+  end
+
+  def self.mark_watched(env)
+    user = env.get("user").as(User)
+
+    if !user.preferences.watch_history
+      return error_json(409, "Watch history is disabled in preferences.")
+    end
+
+    id = env.params.url["id"]
+    if !id.match(/^[a-zA-Z0-9_-]{11}$/)
+      return error_json(400, "Invalid video id.")
+    end
+
+    Invidious::Database::Users.mark_watched(user, id)
+    env.response.status_code = 204
+  end
+
+  def self.mark_unwatched(env)
+    user = env.get("user").as(User)
+
+    if !user.preferences.watch_history
+      return error_json(409, "Watch history is disabled in preferences.")
+    end
+
+    id = env.params.url["id"]
+    if !id.match(/^[a-zA-Z0-9_-]{11}$/)
+      return error_json(400, "Invalid video id.")
+    end
+
+    Invidious::Database::Users.mark_unwatched(user, id)
+    env.response.status_code = 204
+  end
+
+  def self.clear_history(env)
+    user = env.get("user").as(User)
+
+    Invidious::Database::Users.clear_watch_history(user)
+    env.response.status_code = 204
+  end
+
   def self.feed(env)
     env.response.content_type = "application/json"
 

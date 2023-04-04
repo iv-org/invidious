@@ -132,6 +132,8 @@ module Invidious::Routing
       get "/c/:user#{path}", Routes::Channels, :brand_redirect
       # /user/linustechtips | Not always the same as /c/
       get "/user/:user#{path}", Routes::Channels, :brand_redirect
+      # /@LinusTechTips | Handle
+      get "/@:user#{path}", Routes::Channels, :brand_redirect
       # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
       get "/attribution_link#{path}", Routes::Channels, :brand_redirect
       # /profile?user=linustechtips
@@ -252,6 +254,14 @@ module Invidious::Routing
       get "/api/v1/auth/preferences", {{namespace}}::Authenticated, :get_preferences
       post "/api/v1/auth/preferences", {{namespace}}::Authenticated, :set_preferences
 
+      get "/api/v1/auth/export/invidious", {{namespace}}::Authenticated, :export_invidious
+      post "/api/v1/auth/import/invidious", {{namespace}}::Authenticated, :import_invidious
+
+      get "/api/v1/auth/history", {{namespace}}::Authenticated, :get_history
+      post "/api/v1/auth/history/:id", {{namespace}}::Authenticated, :mark_watched
+      delete "/api/v1/auth/history/:id", {{namespace}}::Authenticated, :mark_unwatched
+      delete "/api/v1/auth/history", {{namespace}}::Authenticated, :clear_history
+
       get "/api/v1/auth/feed", {{namespace}}::Authenticated, :feed
 
       get "/api/v1/auth/subscriptions", {{namespace}}::Authenticated, :get_subscriptions
@@ -279,6 +289,7 @@ module Invidious::Routing
       get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/auth/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes
+      get "/api/v1/resolveurl", {{namespace}}::Misc, :resolve_url
     {% end %}
   end
 end

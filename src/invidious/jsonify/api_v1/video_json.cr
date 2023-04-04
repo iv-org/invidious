@@ -3,7 +3,7 @@ require "json"
 module Invidious::JSONify::APIv1
   extend self
 
-  def video(video : Video, json : JSON::Builder, *, locale : String?)
+  def video(video : Video, json : JSON::Builder, *, locale : String?, proxy : Bool = false)
     json.object do
       json.field "type", video.video_type
 
@@ -89,7 +89,14 @@ module Invidious::JSONify::APIv1
               # Not available on MPEG-4 Timed Text (`text/mp4`) streams (livestreams only)
               json.field "bitrate", fmt["bitrate"].as_i.to_s if fmt["bitrate"]?
 
-              json.field "url", fmt["url"]
+              if proxy
+                json.field "url", Invidious::HttpServer::Utils.proxy_video_url(
+                  fmt["url"].to_s, absolute: true
+                )
+              else
+                json.field "url", fmt["url"]
+              end
+
               json.field "itag", fmt["itag"].as_i.to_s
               json.field "type", fmt["mimeType"]
               json.field "clen", fmt["contentLength"]? || "-1"
@@ -185,6 +192,21 @@ module Invidious::JSONify::APIv1
               json.field "label", caption.name
               json.field "language_code", caption.language_code
               json.field "url", "/api/v1/captions/#{video.id}?label=#{URI.encode_www_form(caption.name)}"
+            end
+          end
+        end
+      end
+
+      if !video.music.empty?
+        json.field "musicTracks" do
+          json.array do
+            video.music.each do |music|
+              json.object do
+                json.field "song", music.song
+                json.field "artist", music.artist
+                json.field "album", music.album
+                json.field "license", music.license
+              end
             end
           end
         end

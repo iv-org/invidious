@@ -129,7 +129,7 @@ dependencies_to_install.each do |dep|
     dep = "videojs.markers" if dep == "videojs-markers"
 
     if File.exists?("#{download_path}/package/dist/#{dep}.css")
-      if minified && File.exists?("#{tmp_dir_path}/#{dep}/package/dist/#{dep}.min.css")
+      if minified && File.exists?("#{download_path}/package/dist/#{dep}.min.css")
         `mv #{download_path}/package/dist/#{dep}.min.css #{dest_path}/#{dep}.css`
       else
         `mv #{download_path}/package/dist/#{dep}.css #{dest_path}/#{dep}.css`

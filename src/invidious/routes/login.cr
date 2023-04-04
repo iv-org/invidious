@@ -6,13 +6,13 @@ module Invidious::Routes::Login
 
     user = env.get? "user"
 
-    return env.redirect "/feed/subscriptions" if user
+    referer = get_referer(env, "/feed/subscriptions")
+
+    return env.redirect referer if user
 
     if !CONFIG.login_enabled
       return error_template(400, "Login has been disabled by administrator.")
     end
-
-    referer = get_referer(env, "/feed/subscriptions")
 
     email = nil
     password = nil

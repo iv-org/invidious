@@ -162,7 +162,7 @@ def number_with_separator(number)
 end
 
 def short_text_to_number(short_text : String) : Int64
-  matches = /(?<number>\d+(\.\d+)?)\s?(?<suffix>[mMkKbB])?/.match(short_text)
+  matches = /(?<number>\d+(\.\d+)?)\s?(?<suffix>[mMkKbB]?)/.match(short_text)
   number = matches.try &.["number"].to_f || 0.0
 
   case matches.try &.["suffix"].downcase
@@ -259,7 +259,7 @@ def get_referer(env, fallback = "/", unroll = true)
   end
 
   referer = referer.request_target
-  referer = "/" + referer.gsub(/[^\/?@&%=\-_.0-9a-zA-Z]/, "").lstrip("/\\")
+  referer = "/" + referer.gsub(/[^\/?@&%=\-_.:,0-9a-zA-Z]/, "").lstrip("/\\")
 
   if referer == env.request.path
     referer = fallback

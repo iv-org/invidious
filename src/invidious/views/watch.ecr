@@ -181,7 +181,11 @@ we're going to need to do it here in order to allow for translations.
                 <% end %>
             </p>
             <% if video.license %>
-                <p id="license"><%= translate(locale, "License: ") %><%= video.license %></p>
+                <% if video.license.empty? %>
+                    <p id="license"><%= translate(locale, "License: ") %><%= translate(locale, "Standard YouTube license") %></p>
+                <% else %>
+                    <p id="license"><%= translate(locale, "License: ") %><%= video.license %></p>
+                <% end %>
             <% end %>
             <p id="family_friendly"><%= translate(locale, "Family friendly? ") %><%= translate_bool(locale, video.is_family_friendly) %></p>
             <p id="wilson" style="display: none; visibility: hidden;"></p>
@@ -235,6 +239,28 @@ we're going to need to do it here in order to allow for translations.
 
             <hr>
 
+            <% if !video.music.empty? %>
+                <input id="music-desc-expansion" type="checkbox"/>
+                <label for="music-desc-expansion">
+                    <h3 id="music-description-title">
+                        <%= translate(locale, "Music in this video") %>
+                        <span class="icon ion-ios-arrow-up"></span>
+                        <span class="icon ion-ios-arrow-down"></span>
+                    </h3>
+                </label>
+
+                <div id="music-description-box">
+                    <% video.music.each do |music| %>
+                        <div class="music-item">
+                            <p class="music-song"><%= translate(locale, "Song: ") %><%= music.song %></p>
+                            <p class="music-artist"><%= translate(locale, "Artist: ") %><%= music.artist %></p>
+                            <p class="music-album"><%= translate(locale, "Album: ") %><%= music.album %></p>
+                        </div>
+                    <% end %>
+                </div>
+            <hr>
+
+            <% end %>
             <div id="comments">
                 <% if nojs %>
                     <%= comment_html %>

@@ -18,6 +18,7 @@ private ITEM_PARSERS = {
   Parsers::CategoryRendererParser,
   Parsers::RichItemRendererParser,
   Parsers::ReelItemRendererParser,
+  Parsers::ItemSectionRendererParser,
   Parsers::ContinuationItemRendererParser,
 }
 
@@ -172,7 +173,17 @@ private module Parsers
       # When public subscriber count is disabled, the subscriberCountText isn't sent by InnerTube.
       # Always simpleText
       # TODO change default value to nil
+
       subscriber_count = item_contents.dig?("subscriberCountText", "simpleText")
+
+      # Since youtube added channel handles, `VideoCountText` holds the number of
+      # subscribers and `subscriberCountText` holds the handle, except when the
+      # channel doesn't have a handle (e.g: some topic music channels).
+      # See https://github.com/iv-org/invidious/issues/3394#issuecomment-1321261688
+      if !subscriber_count || !subscriber_count.as_s.includes? " subscriber"
+        subscriber_count = item_contents.dig?("videoCountText", "simpleText")
+      end
+      subscriber_count = subscriber_count
         .try { |s| short_text_to_number(s.as_s.split(" ")[0]).to_i32 } || 0
 
       # Auto-generated channels doesn't have videoCountText
@@ -360,6 +371,30 @@ private module Parsers
         url:              url,
         badges:           badges,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an InnerTube itemSectionRenderer into a SearchVideo.
+  # Returns nil when the given object isn't a ItemSectionRenderer
+  #
+  # A itemSectionRenderer seems to be a simple wrapper for a videoRenderer, used
+  # by the result page for channel searches. It is located inside a continuationItems
+  # container.It is very similar to RichItemRendererParser
+  #
+  module ItemSectionRendererParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item.dig?("itemSectionRenderer", "contents", 0)
+        return self.parse(item_contents, author_fallback)
+      end
+    end
+
+    private def self.parse(item_contents, author_fallback)
+      child = VideoRendererParser.process(item_contents, author_fallback)
+      return child
     end
 
     def self.parser_name
@@ -682,7 +717,11 @@ module HelperExtractors
   # Returns a 0 when it's unable to do so
   def self.get_video_count(container : JSON::Any) : Int32
     if box = container["videoCountText"]?
-      return extract_text(box).try &.gsub(/\D/, "").to_i || 0
+      if (extracted_text = extract_text(box)) && !extracted_text.includes? " subscriber"
+        return extracted_text.gsub(/\D/, "").to_i
+      else
+        return 0
+      end
     elsif box = container["videoCount"]?
       return box.as_s.to_i
     else
@@ -759,6 +798,7 @@ end
 def extract_items(initial_data : InitialData, &block)
   if unpackaged_data = initial_data["contents"]?.try &.as_h
   elsif unpackaged_data = initial_data["response"]?.try &.as_h
+  elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 1).try &.as_h
   elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 0).try &.as_h
   else
     unpackaged_data = initial_data

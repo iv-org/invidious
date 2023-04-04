@@ -325,9 +325,9 @@
     "`x` marked it with a ❤": "`x` أعجب بهذا",
     "Audio mode": "الوضع الصوتي",
     "Video mode": "وضع الفيديو",
-    "Videos": "الفيديوهات",
+    "channel_tab_videos_label": "الفيديوهات",
     "Playlists": "قوائم التشغيل",
-    "Community": "المجتمع",
+    "channel_tab_community_label": "المجتمع",
     "search_filters_sort_option_relevance": "ملائمة",
     "search_filters_sort_option_rating": "تقييم",
     "search_filters_sort_option_date": "التاريخ",
@@ -536,5 +536,14 @@
     "generic_count_seconds_3": "{{count}} ثوانٍ",
     "generic_count_seconds_4": "{{count}} ثانية",
     "generic_count_seconds_5": "{{count}} ثانية",
-    "error_video_not_in_playlist": "الفيديو المطلوب غير موجود في قائمة التشغيل هذه. <a href=\"`x`\"> انقر هنا للحصول على الصفحة الرئيسية لقائمة التشغيل. </a>"
+    "error_video_not_in_playlist": "الفيديو المطلوب غير موجود في قائمة التشغيل هذه. <a href=\"`x`\"> انقر هنا للحصول على الصفحة الرئيسية لقائمة التشغيل. </a>",
+    "channel_tab_shorts_label": "الفيديوهات القصيرة",
+    "channel_tab_streams_label": "البث المباشر",
+    "channel_tab_playlists_label": "قوائم التشغيل",
+    "channel_tab_channels_label": "القنوات",
+    "Music in this video": "الموسيقى في هذا الفيديو",
+    "Album: ": "الألبوم: ",
+    "Artist: ": "الفنان: ",
+    "Song: ": "أغنية: ",
+    "Channel Sponsor": "راعي القناة"
 }

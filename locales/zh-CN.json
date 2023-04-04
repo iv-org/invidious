@@ -341,9 +341,9 @@
     "`x` marked it with a ❤": "`x` 为此加 ❤",
     "Audio mode": "音频模式",
     "Video mode": "视频模式",
-    "Videos": "视频",
+    "channel_tab_videos_label": "视频",
     "Playlists": "播放列表",
-    "Community": "社区",
+    "channel_tab_community_label": "社区",
     "search_filters_sort_option_relevance": "相关度",
     "search_filters_sort_option_rating": "评分",
     "search_filters_sort_option_date": "上传日期",
@@ -456,5 +456,14 @@
     "search_filters_type_option_all": "任意类型",
     "search_filters_features_option_vr180": "VR180",
     "Popular enabled: ": "已启用流行度： ",
-    "error_video_not_in_playlist": "此播放列表中不存在请求的视频。 <a href=\"`x`\">单击析出查看播放列表主页。</a>"
+    "error_video_not_in_playlist": "此播放列表中不存在请求的视频。 <a href=\"`x`\">单击析出查看播放列表主页。</a>",
+    "Music in this video": "此视频中的音乐",
+    "channel_tab_playlists_label": "播放列表",
+    "Artist: ": "艺术家： ",
+    "channel_tab_streams_label": "直播",
+    "Album: ": "专辑： ",
+    "channel_tab_shorts_label": "短视频",
+    "channel_tab_channels_label": "频道",
+    "Song: ": "歌曲： ",
+    "Channel Sponsor": "频道赞助者"
 }

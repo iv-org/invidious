@@ -358,9 +358,9 @@
     "`x` marked it with a ❤": "`x` l'a marqué d'un ❤",
     "Audio mode": "Mode audio",
     "Video mode": "Mode vidéo",
-    "Videos": "Vidéos",
+    "channel_tab_videos_label": "Vidéos",
     "Playlists": "Listes de lecture",
-    "Community": "Communauté",
+    "channel_tab_community_label": "Communauté",
     "search_filters_sort_option_relevance": "Pertinence",
     "search_filters_sort_option_rating": "Notation",
     "search_filters_sort_option_date": "Date d'ajout",
@@ -472,5 +472,9 @@
     "search_filters_date_label": "Date d'ajout",
     "search_filters_features_option_vr180": "VR180",
     "search_filters_duration_option_none": "Toutes les durées",
-    "error_video_not_in_playlist": "La vidéo demandée n'existe pas dans cette liste de lecture. <a href=\"`x`\">Cliquez ici pour retourner à la liste de lecture.</a>"
+    "error_video_not_in_playlist": "La vidéo demandée n'existe pas dans cette liste de lecture. <a href=\"`x`\">Cliquez ici pour retourner à la liste de lecture.</a>",
+    "channel_tab_shorts_label": "Clips",
+    "channel_tab_streams_label": "En direct",
+    "channel_tab_playlists_label": "Listes de lecture",
+    "channel_tab_channels_label": "Chaînes"
 }

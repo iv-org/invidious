@@ -34,6 +34,7 @@ require "protodec/utils"
 
 require "./invidious/database/*"
 require "./invidious/database/migrations/*"
+require "./invidious/http_server/*"
 require "./invidious/helpers/*"
 require "./invidious/yt_backend/*"
 require "./invidious/frontend/*"

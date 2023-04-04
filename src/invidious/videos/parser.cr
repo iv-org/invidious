@@ -66,8 +66,10 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
     reason ||= subreason.try &.[]("runs").as_a.map(&.[]("text")).join("")
     reason ||= player_response.dig("playabilityStatus", "reason").as_s
 
-    # Stop here if video is not a scheduled livestream
-    if !{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status)
+    # Stop here if video is not a scheduled livestream or
+    # for LOGIN_REQUIRED when videoDetails element is not found because retrying won't help
+    if !{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status) ||
+       playability_status == "LOGIN_REQUIRED" && !player_response.dig?("videoDetails")
       return {
         "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
         "reason"  => JSON::Any.new(reason),
@@ -183,10 +185,12 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # We have to try to extract viewCount from videoPrimaryInfoRenderer first,
   # then from videoDetails, as the latter is "0" for livestreams (we want
   # to get the amount of viewers watching).
-  views_txt = video_primary_renderer
-    .try &.dig?("viewCount", "videoViewCountRenderer", "viewCount", "runs", 0, "text")
-  views_txt ||= video_details["viewCount"]?
-  views = views_txt.try &.as_s.gsub(/\D/, "").to_i64?
+  views_txt = extract_text(
+    video_primary_renderer
+      .try &.dig?("viewCount", "videoViewCountRenderer", "viewCount")
+  )
+  views_txt ||= video_details["viewCount"]?.try &.as_s || ""
+  views = views_txt.gsub(/\D/, "").to_i64?
 
   length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"])
     .try &.as_s.to_i64
@@ -309,6 +313,44 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     end
   end
 
+  # Music section
+
+  music_list = [] of VideoMusic
+  music_desclist = player_response.dig?(
+    "engagementPanels", 1, "engagementPanelSectionListRenderer",
+    "content", "structuredDescriptionContentRenderer", "items", 2,
+    "videoDescriptionMusicSectionRenderer", "carouselLockups"
+  )
+
+  music_desclist.try &.as_a.each do |music_desc|
+    artist = nil
+    album = nil
+    music_license = nil
+
+    # Used when the video has multiple songs
+    if song_title = music_desc.dig?("carouselLockupRenderer", "videoLockup", "compactVideoRenderer", "title")
+      # "simpleText" for plain text / "runs" when song has a link
+      song = song_title["simpleText"]? || song_title.dig?("runs", 0, "text")
+
+      # some videos can have empty tracks. See: https://www.youtube.com/watch?v=eBGIQ7ZuuiU
+      next if !song
+    end
+
+    music_desc.dig?("carouselLockupRenderer", "infoRows").try &.as_a.each do |desc|
+      desc_title = extract_text(desc.dig?("infoRowRenderer", "title"))
+      if desc_title == "ARTIST"
+        artist = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
+      elsif desc_title == "SONG"
+        song = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
+      elsif desc_title == "ALBUM"
+        album = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
+      elsif desc_title == "LICENSES"
+        music_license = extract_text(desc.dig?("infoRowRenderer", "expandedMetadata"))
+      end
+    end
+    music_list << VideoMusic.new(song.to_s, album.to_s, artist.to_s, music_license.to_s)
+  end
+
   # Author infos
 
   author = video_details["author"]?.try &.as_s
@@ -359,6 +401,8 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "genre"     => JSON::Any.new(genre.try &.as_s || ""),
     "genreUcid" => JSON::Any.new(genre_ucid.try &.as_s || ""),
     "license"   => JSON::Any.new(license.try &.as_s || ""),
+    # Music section
+    "music" => JSON.parse(music_list.to_json),
     # Author infos
     "author"          => JSON::Any.new(author || ""),
     "ucid"            => JSON::Any.new(ucid || ""),

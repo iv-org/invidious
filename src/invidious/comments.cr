@@ -181,6 +181,12 @@ def fetch_youtube_comments(id, cursor, format, locale, thin_mode, region, sort_b
               json.field "content", html_to_content(content_html)
               json.field "contentHtml", content_html
 
+              json.field "isPinned", (node_comment["pinnedCommentBadge"]? != nil)
+              json.field "isSponsor", (node_comment["sponsorCommentBadge"]? != nil)
+              if node_comment["sponsorCommentBadge"]?
+                # Sponsor icon thumbnails always have one object and there's only ever the url property in it
+                json.field "sponsorIconUrl", node_comment.dig("sponsorCommentBadge", "sponsorCommentBadgeRenderer", "customBadge", "thumbnails", 0, "url").to_s
+              end
               json.field "published", published.to_unix
               json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
 
@@ -322,10 +328,20 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
       end
 
       author_name = HTML.escape(child["author"].as_s)
+      sponsor_icon = ""
       if child["verified"]?.try &.as_bool && child["authorIsChannelOwner"]?.try &.as_bool
         author_name += "&nbsp;<i class=\"icon ion ion-md-checkmark-circle\"></i>"
       elsif child["verified"]?.try &.as_bool
         author_name += "&nbsp;<i class=\"icon ion ion-md-checkmark\"></i>"
+      end
+
+      if child["isSponsor"]?.try &.as_bool
+        sponsor_icon = String.build do |str|
+          str << %(<img alt="" )
+          str << %(src="/ggpht) << URI.parse(child["sponsorIconUrl"].as_s).request_target << "\" "
+          str << %(title=") << translate(locale, "Channel Sponsor") << "\" "
+          str << %(width="16" height="16" />)
+        end
       end
       html << <<-END_HTML
       <div class="pure-g" style="width:100%">
@@ -337,6 +353,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
             <b>
               <a class="#{child["authorIsChannelOwner"] == true ? "channel-owner" : ""}" href="#{child["authorUrl"]}">#{author_name}</a>
             </b>
+            #{sponsor_icon}
             <p style="white-space:pre-wrap">#{child["contentHtml"]}</p>
       END_HTML
 
@@ -670,7 +687,29 @@ def content_to_comment_html(content, video_id : String? = "")
     end
 
     text = "<b>#{text}</b>" if run["bold"]?
+    text = "<s>#{text}</s>" if run["strikethrough"]?
     text = "<i>#{text}</i>" if run["italics"]?
+
+    # check for custom emojis
+    if run["emoji"]?
+      if run["emoji"]["isCustomEmoji"]?.try &.as_bool
+        if emojiImage = run.dig?("emoji", "image")
+          emojiAlt = emojiImage.dig?("accessibility", "accessibilityData", "label").try &.as_s || text
+          emojiThumb = emojiImage["thumbnails"][0]
+          text = String.build do |str|
+            str << %(<img alt=") << emojiAlt << "\" "
+            str << %(src="/ggpht) << URI.parse(emojiThumb["url"].as_s).request_target << "\" "
+            str << %(title=") << emojiAlt << "\" "
+            str << %(width=") << emojiThumb["width"] << "\" "
+            str << %(height=") << emojiThumb["height"] << "\" "
+            str << %(class="channel-emoji"/>)
+          end
+        else
+          # Hide deleted channel emoji
+          text = ""
+        end
+      end
+    end
 
     text
   end

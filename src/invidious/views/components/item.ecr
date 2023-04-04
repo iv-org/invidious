@@ -1,3 +1,5 @@
+<% item_watched = !item.is_a?(SearchChannel | SearchPlaylist | InvidiousPlaylist | Category) && env.get?("user").try &.as(User).watched.index(item.id) != nil %>
+
 <div class="pure-u-1 pure-u-md-1-4">
     <div class="h-box">
         <% case item when %>
@@ -40,6 +42,11 @@
                         <% if item.length_seconds != 0 %>
                             <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
                         <% end %>
+
+                        <% if item_watched %>
+                            <div class="watched-overlay"></div>
+                            <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
+                        <% end %>
                     </div>
                 <% end %>
                 <p dir="auto"><%= HTML.escape(item.title) %></p>
@@ -66,6 +73,11 @@
                             <p class="length"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
                         <% elsif item.length_seconds != 0 %>
                             <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
+                        <% end %>
+
+                        <% if item_watched %>
+                            <div class="watched-overlay"></div>
+                            <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
                         <% end %>
                     </div>
                 <% end %>
@@ -123,6 +135,11 @@
                             <p class="length" dir="auto"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
                         <% elsif item.length_seconds != 0 %>
                             <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
+                        <% end %>
+
+                        <% if item_watched %>
+                            <div class="watched-overlay"></div>
+                            <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
                         <% end %>
                     </div>
                 <% end %>

@@ -325,9 +325,9 @@
     "`x` marked it with a ❤": "`x` markierte es mit einem ❤",
     "Audio mode": "Audiomodus",
     "Video mode": "Videomodus",
-    "Videos": "Videos",
+    "channel_tab_videos_label": "Videos",
     "Playlists": "Wiedergabelisten",
-    "Community": "Gemeinschaft",
+    "channel_tab_community_label": "Gemeinschaft",
     "search_filters_sort_option_relevance": "Relevanz",
     "search_filters_sort_option_rating": "Bewertung",
     "search_filters_sort_option_date": "Datum",
@@ -472,5 +472,12 @@
     "search_filters_duration_option_none": "Beliebige Länge",
     "search_filters_date_label": "Upload-Datum",
     "search_filters_date_option_none": "Beliebiges Datum",
-    "error_video_not_in_playlist": "Das angeforderte Video existiert nicht in dieser Wiedergabeliste. <a href=\"`x`\">Klicken Sie hier, um zur Startseite der Wiedergabeliste zu gelangen.</a>"
+    "error_video_not_in_playlist": "Das angeforderte Video existiert nicht in dieser Wiedergabeliste. <a href=\"`x`\">Klicken Sie hier, um zur Startseite der Wiedergabeliste zu gelangen.</a>",
+    "channel_tab_shorts_label": "Shorts",
+    "channel_tab_streams_label": "Livestreams",
+    "Music in this video": "Musik in diesem Video",
+    "Artist: ": "Künstler: ",
+    "Album: ": "Album: ",
+    "channel_tab_playlists_label": "Wiedergabelisten",
+    "channel_tab_channels_label": "Kanäle"
 }
