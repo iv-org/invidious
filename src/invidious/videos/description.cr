@@ -46,37 +46,60 @@ def parse_command(command : JSON::Any?, string : String) : String?
   return "(unknown YouTube desc command)"
 end
 
-def parse_description(desc : JSON::Any?) : String?
-  if desc.nil?
-    return ""
+private def copy_string(str : String::Builder, iter : Iterator, count : Int) : Int
+  copied = 0
+  while copied < count
+    cp = iter.next
+    break if cp.is_a?(Iterator::Stop)
+
+    str << cp.chr
+
+    # A codepoint from the SMP counts twice
+    copied += 1 if cp > 0xFFFF
+    copied += 1
   end
+
+  return copied
+end
+
+def parse_description(desc : JSON::Any?) : String?
+  return "" if desc.nil?
 
   content = desc["content"].as_s
-  if content.empty?
-    return ""
-  end
+  return "" if content.empty?
 
-  if commands = desc["commandRuns"]?.try &.as_a
-    description = String.build do |str|
-      index = 0
-      commands.each do |command|
-        start_index = command["startIndex"].as_i
-        length = command["length"].as_i
+  commands = desc["commandRuns"]?.try &.as_a
+  return content if commands.nil?
 
-        if start_index > 0 && start_index - index > 0
-          str << content[index...start_index]
-          index = start_index
-        end
+  # Not everything is stored in UTF-8 on youtube's side. The SMP codepoints
+  # (0x10000 and above) are encoded as UTF-16 surrogate pairs, which are
+  # automatically decoded by the JSON parser. It means that we need to count
+  # copied byte in a special manner, preventing the use of regular string copy.
+  iter = content.each_codepoint
 
-        str << parse_command(command, content[start_index, length])
-        index += length
+  index = 0
+
+  return String.build do |str|
+    commands.each do |command|
+      cmd_start = command["startIndex"].as_i
+      cmd_length = command["length"].as_i
+
+      # Copy the text chunk between this command and the previous if needed.
+      length = cmd_start - index
+      index += copy_string(str, iter, length)
+
+      # We need to copy the command's text using the iterator
+      # and the special function defined above.
+      cmd_content = String.build(cmd_length) do |str2|
+        copy_string(str2, iter, cmd_length)
       end
-      if index < content.size
-        str << content[index..content.size]
-      end
+
+      str << parse_command(command, cmd_content)
+      index += cmd_length
     end
-    return description
-  end
 
-  return content
+    # Copy the end of the string (past the last command).
+    remaining_length = content.size - index
+    copy_string(str, iter, remaining_length) if remaining_length > 0
+  end
 end
