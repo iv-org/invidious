@@ -448,44 +448,43 @@ private module Parsers
         "overlay", "reelPlayerOverlayRenderer"
       )
 
-      # Sometimes, the "reelPlayerOverlayRenderer" object is missing the
-      # important part of the response. We use this exception to tell
-      # the calling function to fetch the content again.
-      if !reel_player_overlay.as_h.has_key?("reelPlayerHeaderSupportedRenderers")
-        raise RetryOnceException.new
+      if video_details_container = reel_player_overlay.dig?(
+           "reelPlayerHeaderSupportedRenderers",
+           "reelPlayerHeaderRenderer"
+         )
+        # Author infos
+
+        author = video_details_container
+          .dig?("channelTitleText", "runs", 0, "text")
+          .try &.as_s || author_fallback.name
+
+        ucid = video_details_container
+          .dig?("channelNavigationEndpoint", "browseEndpoint", "browseId")
+          .try &.as_s || author_fallback.id
+
+        # Title & publication date
+
+        title = video_details_container.dig?("reelTitleText")
+          .try { |t| extract_text(t) } || ""
+
+        published = video_details_container
+          .dig?("timestampText", "simpleText")
+          .try { |t| decode_date(t.as_s) } || Time.utc
+
+        # View count
+        view_count_text = video_details_container.dig?("viewCountText", "simpleText")
+      else
+        author = author_fallback.name
+        ucid = author_fallback.id
+        published = Time.utc
+        title = item_contents.dig?("headline", "simpleText").try &.as_s || ""
       end
-
-      video_details_container = reel_player_overlay.dig(
-        "reelPlayerHeaderSupportedRenderers",
-        "reelPlayerHeaderRenderer"
-      )
-
-      # Author infos
-
-      author = video_details_container
-        .dig?("channelTitleText", "runs", 0, "text")
-        .try &.as_s || author_fallback.name
-
-      ucid = video_details_container
-        .dig?("channelNavigationEndpoint", "browseEndpoint", "browseId")
-        .try &.as_s || author_fallback.id
-
-      # Title & publication date
-
-      title = video_details_container.dig?("reelTitleText")
-        .try { |t| extract_text(t) } || ""
-
-      published = video_details_container
-        .dig?("timestampText", "simpleText")
-        .try { |t| decode_date(t.as_s) } || Time.utc
-
       # View count
 
       # View count used to be in the reelWatchEndpoint, but that changed?
-      view_count_text = item_contents.dig?("viewCountText", "simpleText")
-      view_count_text ||= video_details_container.dig?("viewCountText", "simpleText")
+      view_count_text ||= item_contents.dig?("viewCountText", "simpleText")
 
-      view_count = view_count_text.try &.as_s.gsub(/\D+/, "").to_i64? || 0_i64
+      view_count = short_text_to_number(view_count_text.try &.as_s || "0")
 
       # Duration
 
