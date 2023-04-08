@@ -114,12 +114,12 @@ You can read more here: https://docs.invidious.io/applications/
 
 ### Code
 
-1.  Fork it ( https://github.com/iv-org/invidious/fork ).
+1.  Fork it ( https://github.com/CyberAndi/invidious_cmovie/fork ).
 1.  Create your feature branch (`git checkout -b my-new-feature`).
 1.  Stage your files (`git add .`).
 1.  Commit your changes (`git commit -am 'Add some feature'`).
 1.  Push to the branch (`git push origin my-new-feature`).
-1.  Create a new pull request ( https://github.com/iv-org/invidious/compare ).
+1.  Create a new pull request ( https://github.com/CyberAndi/invidious_cmovie/compare ).
 
 ### Translations
 
