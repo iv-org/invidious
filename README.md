@@ -62,7 +62,7 @@
 
 | Player                              | Preferences                         | Subscriptions                         |
 |-------------------------------------|-------------------------------------|---------------------------------------|
-| ![](screenshots/01_player.png)      | ![](screenshots/02_preferences.png) | ![](screenshots/03_subscriptions.png) |
+| ![](screenshots/CMovie_media_player.webp)      | ![](screenshots/02_preferences.png) | ![](screenshots/03_subscriptions.png) |
 | ![](screenshots/04_description.png) | ![](screenshots/05_preferences.png) | ![](screenshots/06_subscriptions.png) |
 
 
