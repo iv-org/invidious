@@ -30,28 +30,15 @@
 
   <a href="https://cyberandi.tumblr.com/cmovie.htm">Website</a>
   &nbsp;•&nbsp;
-  <a href="https://instances.invidious.io/">Instances list</a>
-  &nbsp;•&nbsp;
-  <a href="https://docs.invidious.io/faq/">FAQ</a>
+  <a href="https://cyberandi.tumblr.com/cmovie.htm#impressum">Impressum</a>
   &nbsp;•&nbsp;
   <a href="https://docs.invidious.io/">Documentation</a>
   &nbsp;•&nbsp;
   <a href="#contribute">Contribute</a>
   &nbsp;•&nbsp;
-  <a href="https://invidious.io/donate/">Donate</a>
+  <a href="https://cyberandi.tumblr.com/cmovie.htm#impressum">Donate</a>
 
   <h5>Chat with us:</h5>
-  <a href="https://matrix.to/#/#invidious:matrix.org">
-    <img alt="Matrix" src="https://img.shields.io/matrix/invidious:matrix.org?label=Matrix&color=darkgreen">
-  </a>
-  <a href="https://web.libera.chat/?channel=#invidious">
-    <img alt="Libera.chat (IRC)" src="https://img.shields.io/badge/IRC%20%28Libera.chat%29-%23invidious-darkgreen">
-  </a>
-  <br>
-  <a rel="me" href="https://social.tchncs.de/@invidious">
-  <img alt="Fediverse: @invidious@social.tchncs.de" src="https://img.shields.io/badge/Fediverse-%40invidious%40social.tchncs.de-darkgreen">
-  </a>
-  <br>
   <a href="mailto://cyberandi@outlook.com">
   <img alt="E-mail" src="https://img.shields.io/badge/E%2d%2dmail-darkgreen">
   </a>
