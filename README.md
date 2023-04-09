@@ -6,16 +6,16 @@
   <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
     <img alt="License: AGPLv3" src="https://shields.io/badge/License-AGPL%20v3-blue.svg">
   </a>
-  <a href="https://github.com/iv-org/invidious/actions">
+  <a href="https://github.com/CyberAndi/invidious_cmovie/actions">
     <img alt="Build Status" src="https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg">
   </a>
-  <a href="https://github.com/iv-org/invidious/commits/master">
+  <a href="https://github.com/CyberAndi/invidious_cmovie/commits/master">
     <img alt="GitHub commits" src="https://img.shields.io/github/commit-activity/y/iv-org/invidious?color=red&label=commits">
   </a>
-  <a href="https://github.com/iv-org/invidious/issues">
+  <a href="https://github.com/CyberAndi/invidious_cmovie/issues">
     <img alt="GitHub issues" src="https://img.shields.io/github/issues/iv-org/invidious?color=important">
   </a>
-  <a href="https://github.com/iv-org/invidious/pulls">
+  <a href="https://github.com/CyberAndi/invidious_cmovie/pulls">
     <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/iv-org/invidious?color=blueviolet">
   </a>
   <a href="https://hosted.weblate.org/engage/invidious/">
