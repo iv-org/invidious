@@ -22,10 +22,6 @@
     <img alt="Translation Status" src="https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg">
   </a>
 
-  <a href="https://github.com/humanetech-community/awesome-humane-tech">
-    <img alt="Awesome Humane Tech" src="https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true">
-  </a>
-
   <h3>An open source alternative front-end to YouTube</h3>
 
   <a href="https://cyberandi.tumblr.com/cmovie.htm">Website</a>
