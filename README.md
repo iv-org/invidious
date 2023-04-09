@@ -126,7 +126,7 @@ You can suggest new translations and/or correction here: https://hosted.weblate.
 Creating an account is not required, but recommended, especially if you want to contribute regularly.
 Weblate also allows you to log-in with major SSO providers like Github, Gitlab, BitBucket, Google, ...
 
-## Projects using original Invidious
+## Projects using original C`Movie Mediathek
 
 - [C`Movie Mediathek](https://github.com/CyberAndi/invidious_cmovie): A christian based YouTube GUI for privacy.
 
