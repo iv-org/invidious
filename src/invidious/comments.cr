@@ -346,7 +346,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
       html << <<-END_HTML
       <div class="pure-g" style="width:100%">
         <div class="channel-profile pure-u-4-24 pure-u-md-2-24">
-          <img loading="lazy" style="margin-right:1em;margin-top:1em;width:90%" src="#{author_thumbnail}">
+          <img loading="lazy" style="margin-right:1em;margin-top:1em;width:90%" src="#{author_thumbnail}" alt="" />
         </div>
         <div class="pure-u-20-24 pure-u-md-22-24">
           <p>
@@ -367,7 +367,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
           html << <<-END_HTML
           <div class="pure-g">
             <div class="pure-u-1 pure-u-md-1-2">
-              <img loading="lazy" style="width:100%" src="/ggpht#{URI.parse(attachment["url"].as_s).request_target}">
+              <img loading="lazy" style="width:100%" src="/ggpht#{URI.parse(attachment["url"].as_s).request_target}" alt="" />
             </div>
           </div>
           END_HTML
@@ -428,7 +428,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
         html << <<-END_HTML
           <span class="creator-heart-container" title="#{translate(locale, "`x` marked it with a ❤", child["creatorHeart"]["creatorName"].as_s)}">
               <div class="creator-heart">
-                  <img loading="lazy" class="creator-heart-background-hearted" src="#{creator_thumbnail}"></img>
+                  <img loading="lazy" class="creator-heart-background-hearted" src="#{creator_thumbnail}" alt="" />
                   <div class="creator-heart-small-hearted">
                       <div class="icon ion-ios-heart creator-heart-small-container"></div>
                   </div>
@@ -702,7 +702,7 @@ def content_to_comment_html(content, video_id : String? = "")
             str << %(title=") << emojiAlt << "\" "
             str << %(width=") << emojiThumb["width"] << "\" "
             str << %(height=") << emojiThumb["height"] << "\" "
-            str << %(class="channel-emoji"/>)
+            str << %(class="channel-emoji" />)
           end
         else
           # Hide deleted channel emoji
