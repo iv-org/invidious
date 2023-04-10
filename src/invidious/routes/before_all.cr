@@ -150,7 +150,7 @@ module Invidious::Routes::BeforeAll
     env.set "current_page", URI.encode_www_form(current_page)
 
     unregistered_path_whitelist = {"/", "/login", "/licenses", "/privacy"}
-    if !env.get?("user") && !unregistered_path_whitelist.includes?(env.request.path) && CONFIG.login_only
+    if CONFIG.login_only && !env.get?("user") && !unregistered_path_whitelist.includes?(env.request.path)
       env.response.headers["Location"] = "/login"
       haltf env, status_code: 302
     end
