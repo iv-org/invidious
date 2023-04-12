@@ -101,6 +101,16 @@ struct Invidious::User
           end
         end
       end
+
+      if youtube_playlists = data["youtube_playlists"]?.try &.as_a?
+        playlists.each do |item|
+          begin
+            playlist = get_playlist(item["id"])
+            subscribe_playlist(user, playlist)
+          rescue ex
+          end
+        end
+      end
     end
 
     # -------------------
