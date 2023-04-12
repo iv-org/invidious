@@ -604,7 +604,7 @@ def text_to_parsed_content(text : String) : JSON::Any
       currentNode = {"text" => urlMatch[0], "navigationEndpoint" => {"urlEndpoint" => {"url" => urlMatch[0]}}}
       currentNodes << (JSON.parse(currentNode.to_json))
       # If text remain after match create new simple node with text after match
-      afterNode = {"text" => splittedLastNode.size > 0 ? splittedLastNode[1] : ""}
+      afterNode = {"text" => splittedLastNode.size > 1 ? splittedLastNode[1] : ""}
       currentNodes << (JSON.parse(afterNode.to_json))
     end
 
