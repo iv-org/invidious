@@ -1,6 +1,6 @@
 <% if channel.banner %>
     <div class="h-box">
-        <img style="width:100%" src="/ggpht<%= URI.parse(channel.banner.not_nil!.gsub("=w1060-", "=w1280-")).request_target %>">
+        <img style="width:100%" src="/ggpht<%= URI.parse(channel.banner.not_nil!.gsub("=w1060-", "=w1280-")).request_target %>" alt="" />
     </div>
 
     <div class="h-box">
@@ -11,7 +11,7 @@
 <div class="pure-g h-box">
     <div class="pure-u-2-3">
         <div class="channel-profile">
-            <img src="/ggpht<%= channel_profile_pic %>">
+            <img src="/ggpht<%= channel_profile_pic %>" alt="" />
             <span><%= author %></span><% if !channel.verified.nil? && channel.verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %>
         </div>
     </div>

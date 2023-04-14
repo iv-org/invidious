@@ -137,7 +137,7 @@
         if (focused_tag === 'textarea') return;
         if (focused_tag === 'input') {
             let focused_type = document.activeElement.type.toLowerCase();
-            if (!focused_type.match(allowed)) return;
+            if (!allowed.test(focused_type)) return;
         }
 
         // Focus search bar on '/'
