@@ -12,7 +12,7 @@ body {
 	background-color: #03060b;
   	background-image: linear-gradient(0deg, transparent, transparent, transparent, rgba(47,121,160,1));
 	color: #f0f0f0;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 	background-attachment: fixed;
 }
 
@@ -50,8 +50,8 @@ body * {
 }
 
 body a.channel-owner {
-	background-color: #008bec;
-	color: #fff;
+	background-color: rgba(56,56,56,0.2);
+	color: #f0f0f0;
 	border-radius: 9px;
 	padding: 1px 6px;
 }
@@ -138,7 +138,7 @@ button.pure-button-primary, body a.pure-button-primary, .channel-owner:hover {
 	background-color: #a0a0a0;
 	background-color: rgba(160,160,160,0.8);
 	color: rgba(35, 35, 35, 1);
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(230,230,230,0.5);
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(230,230,230,0.5);
 }
 
 button.pure-button-primary:hover,
@@ -217,7 +217,7 @@ div.watched-indicator {
 	position: sticky;
 	top: 1em;
 	height: 3em;
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 	border-radius: 0.5em;
 	border: 0.5px solid rgba(230,230,230,0.2);
 	backdrop-filter: blur(2.5px);
@@ -239,8 +239,8 @@ a.index-link::before {
 	position: relative;
 	height: 2.5em;
 	top: 0.3em;
-	filter: drop-shadow(0.25em 0.25em 0.5em rgba(0,0,0,0.8));
-	-webkit-filter: drop-shadow(0.25em 0.25em 0.5em rgba(0,0,0,0.8));
+	filter: drop-shadow(0.25em 0.25em 0.05em rgba(0,0,0,0.5));
+	-webkit-filter: drop-shadow(0.25em 0.25em 0.05em rgba(0,0,0,0.5));
 }
 
 a.index-link {
@@ -257,12 +257,12 @@ a.index-link::after {
 	visibility: visible;
 	position: relative;
 	left: -5em;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 	top: -0.55em;
 }
 
 img {
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 	border-radius: 0.5em;
 	border: 0.5px solid rgba(230,230,230,0.2);
 }
@@ -294,7 +294,7 @@ img {
 	box-shadow: none;
 	background: none;
 	-webkit-appearance: none;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 	color: #f0f0f0 !important;
 }
 
@@ -326,7 +326,7 @@ img {
 	background: rgba(230,230,230,0.2);
 	border-radius: 0.5em;
 	backdrop-filter: blur(2.5px);
-	box-shadow: 0.25em 0.25em 0.75em rgba(0,0,0,0.8), 0em 0em 0.5em rgba(0,0,0,0.5);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0em 0em 0.05em rgba(0,0,0,0.5);
 }
 
 /* https://stackoverflow.com/a/55170420 */
@@ -470,7 +470,7 @@ footer span {
 
 body.light-theme {
 	color: #000000;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(230,230,230,0.5);
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(230,230,230,0.5);
 	background-color: #c0c0c0;
 }
 
@@ -506,16 +506,16 @@ body.light-theme {
 	background-color: #a0a0a0;
 	background-color: rgba(160,160,160,0.8);
 	color: rgba(35, 35, 35, 1);
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(230,230,230,0.5);
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(230,230,230,0.5);
 }
 
-.light-theme a[href*="/channel/"],
-.light-theme [alt*="/channel/"], 
+.light-theme a[href*="/channel/"]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]),
+.light-theme [alt*="/channel/"]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]), 
 .light-theme a > b,
 .light-theme #player-container + .h-box > h1 {
 	font-family: "OCR-A";
 	color: rgba(230,230,230,1) !important;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.75), 0 0 0.15em rgba(0,0,0,1) !important;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5) !important;
 }
 
 .light-theme #filters-box {
@@ -530,19 +530,19 @@ body.light-theme {
 
 .light-theme :not(.navbar) a:not(#toggle_theme,[title*="Preferences"],.pure-menu-heading).pure-button {
 	background-color: rgba(56,56,56,0.2);
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(230,230,230,0.8);
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(230,230,230,0.5);
 }
 
 .light-theme a:not(.pure-button):is(:hover,:active,:focus) {
-	color: rgba(94,149,183,1) !important;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.15em rgba(230,230,230,0.8) !important;
+	color: rgba(230,230,230,1) !important;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(230,230,230,0.5) !important;
 }
 
 .light-theme :not(.navbar) a:not(#toggle_theme,[title*="Preferences"],.pure-menu-heading).pure-button {
 	border-radius: 0.3em;
 	border: solid 0.5px rgba(230,230,230,0.5);
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.8);
-	padding: 0.5em 1em;
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	padding: 0.5em;
 	margin: 0.5em;
 }
 
@@ -553,17 +553,22 @@ body.light-theme {
 
 .light-theme #descriptionWrapper:has(:not(*:empty)) {
 	padding: 0.5em;
-	background-color: rgba(56,56,56,0.2);
+	background-color: rgba(230,230,230,0.2);
 	border-radius: 0.5em;
 	max-width: 80vw;
 	white-space: pre-wrap;
 }
 
-.light-theme a[href*="page"], .light-theme a[href*="?continuation="] {
+.light-theme a[href*="page"]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]), .light-theme a[href*="?continuation="]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]) {
 	background-color: rgba(56,56,56,0.2);
-	padding: 2px 4px 3px;
+	padding: 0.5em;
 	border-radius: 3px;
 	border: solid 0.5px rgba(56,56,56,0.2);
+}
+
+.light-theme a.channel-owner:is(:hover,:active,:focus) {
+	background-color: rgba(94,149,183,1) !important;
+	color: #f0f0f0 !important;
 }
 
 .light-theme button.pure-button-primary, 
@@ -571,9 +576,9 @@ body.light-theme {
 .light-theme .channel-owner {
 	background-color: rgba(56,56,56,0.2);
 	color: #f0f0f0;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-	padding: 0.5em 1em;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	padding: 0.5em;
 	margin: 0.5em;
 	border: solid 0.5px rgba(230,230,230,0.5);
 	border-radius: 0.3em;
@@ -585,9 +590,9 @@ body.light-theme {
 .light-theme .channel-owner:is(:hover,:active,:focus,:focus-within) {
 	background-color: rgba(94,149,183,0.8) !important;
 	color: #f0f0f0;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-	padding: 0.5em 1em;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	padding: 0.5em;
 	margin: 0.5em;
 	border: solid 0.5px rgba(230,230,230,0.5);
 	border-radius: 0.3em;
@@ -607,7 +612,7 @@ body.light-theme {
 	text-decoration: dotted;
 }
 
-.light-theme a[href*="/channel/"], .light-theme [alt*="/channel/"] {
+.light-theme a[href*="/channel/"]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]), .light-theme [alt*="/channel/"]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]) {
 	font-family: "OCR-A";
 	color: rgba(230,230,230,1) !important;
 }
@@ -620,13 +625,23 @@ body.light-theme {
 }
 
 .light-theme select#download_widget{
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.75), 0 0 0.15em rgba(0,0,0,1);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.75), 0 0 0.05em rgba(0,0,0,0.5);
 }
 
 .light-theme .channel-profile span {
 	color: #f0f0f0;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.8);
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 }
+
+.light-theme .pure-u-1.pure-md-1-3 b {
+	color: #f0f0f0 !important;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+}
+
+.light-theme a:not(:hover,:active,:hover) i.icon.ion-md-jet {
+	color: rgba(56,56,56,1) !important;
+}
+
 
 @media (prefers-color-scheme: light) {
 	.no-theme a:hover,
@@ -664,14 +679,14 @@ body.light-theme {
 
 	body.light-theme {
  		color: #000000;
- 		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(230,230,230,0.5);
+ 		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(230,230,230,0.5);
  		background-color: #c0c0c0;
 	}	
 
 	.no-theme button.pure-button-primary, body a.pure-button-primary, .channel-owner:hover {
 		background-color: rgba(160,160,160,0.8);
 		color: #f0f0f0;
-		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(230,230,230,0.5);
+		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(230,230,230,0.5);
 	}
 
 	.pure-u-1-3 a {
@@ -685,9 +700,9 @@ body.light-theme {
   	.no-theme button.pure-button-primary, .no-theme body a.pure-button-primary, .no-theme .channel-owner {
 		background-color: rgba(230,230,230,0.2);
 		color: #f0f0f0;
-		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-		box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-		padding: 0.5em 1em;
+		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+		box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+		padding: 0.5em;
 		margin: 0.5em;
 		border: solid 0.5px rgba(230,230,230,0.5);
 		border-radius: 0.3em;
@@ -696,9 +711,9 @@ body.light-theme {
 	.no-theme button.pure-button-primary:is(:hover,:active,:focus,:focus-within), .no-theme body a.pure-button-primary:is(:hover,:active,:focus,:focus-within), .no-theme .channel-owner:is(:hover,:active,:focus,:focus-within) {
 		background-color: rgba(94,149,183,0.8) !important;
 		color: #f0f0f0;
-		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-		box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-		padding: 0.5em 1em;
+		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+		box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+		padding: 0.5em;
 		margin: 0.5em;
 		border: solid 0.5px rgba(230,230,230,0.5);
 		border-radius: 0.3em;
@@ -712,7 +727,7 @@ body.light-theme {
 		color: #000000 !important;
 	}
 
-	.no-them .light-theme #descriptionWrapper:has(:not(*:empty)) {
+	.no-theme #descriptionWrapper:has(:not(*:empty)) {
 		padding: 0.5em;
 		background-color: rgba(230,230,230,0.2);
 		border-radius: 0.5em;
@@ -720,12 +735,20 @@ body.light-theme {
 		white-space: pre-wrap;
 	}
 	
-	.no-theme a[href*="page"],a[href*="?continuation="] {
+	.no-theme a[href*="page"]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]),a[href*="?continuation="]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]) {
 		background-color: rgba(230,230,230,0.2);
-		padding: 2px 4px 3px;
+		color: #f0f0f0 !important;
+		padding: 0.5em;
 		border-radius: 3px;
 		border: solid 0.5px rgba(56,56,56,0.2);
 	}
+
+	
+	.no-theme a.channel-owner:is(:hover,:active,:focus) {
+		background-color: rgba(94,149,183,1) !important;
+		color: #f0f0f0 !important;
+	}
+
 
 	.no-theme .pure-u-1.pure-u-lg-1-5 .h-box {
 		background-color: rgba(230,230,230,0.2);
@@ -756,7 +779,7 @@ body.light-theme {
 
 body.dark-theme {
 	color: #f0f0f0;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 	background-color: #03060b;
 }
 
@@ -787,9 +810,9 @@ body.dark-theme {
 .dark-theme button.pure-button-primary, body a.pure-button-primary, .channel-owner:hover {
 	background-color: rgba(230,230,230,0.2);
 	color: #f0f0f0;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-	padding: 0.5em 1em;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	padding: 0.5em;
 	margin: 0.5em;
 	border: solid 0.5px rgba(230,230,230,0.5);
 	border-radius: 0.3em;
@@ -810,8 +833,8 @@ body.dark-theme {
 .dark-theme :not(.navbar) a:not(#toggle_theme,[title*="Preferences"],.pure-menu-heading).pure-button {
 	border-radius: 0.3em;
 	border: solid 0.5px rgba(230,230,230,0.5);
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.8);
-	padding: 0.5em 1em;
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	padding: 0.5em;
 	margin: 0.5em;
 }
 
@@ -820,19 +843,20 @@ body.dark-theme {
 	border-radius: 0.3em !important;
 }
 
-.dark-theme a[href*="page"],a[href*="?continuation="] {
-	background-color: rgba(223,223,223,0.2);
-	padding: 2px 4px 3px;
+.dark-theme a[href*="page"]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]),a[href*="?continuation="]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]) {
+	background-color: rgba(230,230,230,0.2);
+	color: #f0f0f0 !important;
+	padding: 0.5em;
 	border-radius: 3px;
-	border: solid 0.5px rgba(223,233,233,0.2);
+	border: solid 0.5px rgba(230,230,230,0.2);
 }
 
 .dark-theme button.pure-button-primary, .dark-theme body a.pure-button-primary, .dark-theme .channel-owner {
 	background-color: rgba(230,230,230,0.2);
 	color: #f0f0f0;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-	padding: 0.5em 1em;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	padding: 0.5em;
 	margin: 0.5em;
 	border: solid 0.5px rgba(230,230,230,0.5);
 	border-radius: 0.3em;
@@ -841,21 +865,27 @@ body.dark-theme {
 .dark-theme button.pure-button-primary:is(:hover,:active,:focus,:focus-within), .dark-theme body a.pure-button-primary:is(:hover,:active,:focus,:focus-within), .dark-theme .channel-owner:is(:hover,:active,:focus,:focus-within) {
 	background-color: rgba(94,149,183,0.8) !important;
 	color: #f0f0f0;
-	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-	padding: 0.5em 1em;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	padding: 0.5em;
 	margin: 0.5em;
 	border: solid 0.5px rgba(230,230,230,0.5);
 	border-radius: 0.3em;
 }
 
 .dark-theme .pure-u-1.pure-u-lg-1-5 .h-box {
-	background-color: rgba(223,223,223,0.2);
+	background-color: rgba(230,230,230,0.2);
 	padding-top: 0.75em;
 	padding-bottom: 0.02em;
 	border-radius: 0.5em;
 	backdrop-filter: blur(2.5px);
 	margin-bottom: 0.75em;
+}
+
+
+.dark-theme a.channel-owner:is(:hover,:active,:focus) {
+	background-color: rgba(94,149,183,1) !important;
+	color: #f0f0f0 !important;
 }
 
 
@@ -874,7 +904,7 @@ body.dark-theme {
 	body.no-theme {
 		color: #f0f0f0;
 		background-color: #03060b;
-		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
+		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 	}
 
 	html, body {
@@ -911,9 +941,9 @@ body.dark-theme {
   	.no-theme button.pure-button-primary, .no-theme body a.pure-button-primary, .no-theme .channel-owner {
 		background-color: rgba(230,230,230,0.2);
 		color: #f0f0f0;
-		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-		box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-		padding: 0.5em 1em;
+		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+		box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+		padding: 0.5em;
 		margin: 0.5em;
 		border: solid 0.5px rgba(230,230,230,0.5);
 		border-radius: 0.3em;
@@ -922,9 +952,9 @@ body.dark-theme {
 	.no-theme button.pure-button-primary:is(:hover,:active,:focus,:focus-within), .no-theme body a.pure-button-primary:is(:hover,:active,:focus,:focus-within), .no-theme .channel-owner:is(:hover,:active,:focus,:focus-within) {
 		background-color: rgba(94,149,183,0.8) !important;
 		color: #f0f0f0;
-		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-		box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
-		padding: 0.5em 1em;
+		text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+		box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+		padding: 0.5em;
 		margin: 0.5em;
 		border: solid 0.5px rgba(230,230,230,0.5);
 		border-radius: 0.3em;
@@ -938,23 +968,31 @@ body.dark-theme {
 		color: #000000 !important;
 	}
 	
-	.no-theme #descriptionWrapper:has(:not(*:empty)) {
+	.no-them #descriptionWrapper:has(:not(*:empty)) {
 		padding: 0.5em;
 		background-color: rgba(230,230,230,0.2);
 		border-radius: 0.5em;
 		max-width: 80vw;
 		white-space: pre-wrap;
 	}
-	
-	.no-theme a[href*="page"],a[href*="?continuation="] {
-		background-color: rgba(223,223,223,0.2);
-		padding: 2px 4px 3px;
+
+	.no-theme a[href*="page"]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]),a[href*="?continuation="]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]) {
+		background-color: rgba(230,230,230,0.2);
+		color: #f0f0f0 !important;
+		padding: 0.5em;
 		border-radius: 3px;
-		border: solid 0.5px rgba(223,233,233,0.2);
+		border: solid 0.5px rgba(230,230,230,0.2);
 	}
 
+	
+	.no-theme a.channel-owner:is(:hover,:active,:focus) {
+		background-color: rgba(94,149,183,1) !important;
+		color: #f0f0f0 !important;
+	}
+
+
 	.no-theme .pure-u-1.pure-u-lg-1-5 .h-box {
-		background-color: rgba(223,223,223,0.2);
+		background-color: rgba(230,230,230,0.2);
 		padding-top: 0.75em;
 		padding-bottom: 0.02em;
 		border-radius: 0.5em;
@@ -1010,7 +1048,7 @@ hr {
 	left: calc(50%);
 	transform: translateX(calc(-50%)) translateY(calc(-50%));
 	text-decoration: none !important;
-	box-shadow: 0.23em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
+	box-shadow: 0.23em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 	backdrop-filter: blur(2.5px);
 }
 
@@ -1150,15 +1188,52 @@ a[href*="/channel/"], [alt*="/channel/"] {
 	color: #f0f0f0 !important;
 }
 
-a[href*="page"],a[href*="?continuation="] {
-	background-color: rgba(223,223,223,0.2);
-	padding: 2px 4px 3px;
-	border-radius: 3px;
-	border: solid 0.5px rgba(223,233,233,0.2);
+a[href*="redirect.invidious.io"], a[href*="?continuation="][href*="redirect.invidious.io"], a[href*="redirect"] {
+	color: #f0f0f0 !important;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 }
 
+a[href*="redirect.invidious.io"]:is(:hover,:active,:focus), a[href*="?continuation="][href*="redirect.invidious.io"]:is(:hover,:active,:focus), a[href*="redirect"]:is(:hover,:active,:focus) {
+	color: rgba(94,149,183,1) !important;
+}
+
+.pure-u-1.pure-u-lg-1-5[style*="text-align:left"] a, .pure-u-1.pure-u-lg-1-5[style*="text-align:right"] a, a[href*="/search?q="][href*="&page="], a[href*="page"]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]),a[href*="?continuation="]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]) {
+	/*background-color: rgba(230,230,230,0.2);
+	padding: 0.5emx;
+	border-radius: 3px;
+	border: solid 0.5px rgba(230,230,230,0.2);*/
+
+	background-color: rgba(56,56,56,0.2) !important;
+	color: #f0f0f0 !important;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	padding: 0.5em;
+	margin: 0.5em;
+	border: solid 0.5px rgba(230,230,230,0.5);
+	border-radius: 0.3em;
+}
+
+.pure-u-1.pure-u-lg-1-5[style*="text-align:left"] a:is(:hover,:active,:focus), .pure-u-1.pure-u-lg-1-5[style*="text-align:right"] a:is(:hover,:active,:focus), a[href*="/search?q="][href*="&page="]:is(:hover,:active,:focus), a[href*="page"]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]):is(:hover,:active,:focus),a[href*="?continuation="]:not([href*="redirect.invidious.io"],[href*="preferenc"],[href*="clear_watch_history"],[href*="change_password"],[href*="data_control"],[href*="delete_account"]):is(:hover,:active,:focus) {
+	/*background-color: rgba(230,230,230,0.2);
+	padding: 0.5em;
+	border-radius: 3px;
+	border: solid 0.5px rgba(230,230,230,0.2);
+	*/
+
+	background-color: rgba(94,149,183,0.8) !important;
+	color: #f0f0f0 !important;
+	text-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	padding: 0.5em;
+	margin: 0.5em;
+	border: solid 0.5px rgba(230,230,230,0.2);
+	border-radius: 0.3em;
+
+}
+
+
 .pure-u-1.pure-u-lg-1-5 .h-box {
-	background-color: rgba(223,223,223,0.2);
+	background-color: rgba(230,230,230,0.2);
 	padding-top: 0.75em;
 	padding-bottom: 0.02em;
 	border-radius: 0.5em;
@@ -1178,7 +1253,7 @@ a[href*="page"],a[href*="?continuation="] {
 	overflow: hidden;
 	border: solid 0.5px rgba(230,230,230,0.2);
 	background-image: radial-gradient( rgba(47,121,160,1),#03060b) !important;
-	box-shadow: 0.23em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.5);
+	box-shadow: 0.23em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
 	aspect-ratio: 16/9 !important;
 }
 
@@ -1253,7 +1328,6 @@ span > select {
 	white-space: pre-wrap;
 }
 
-
 #comments [style*="white-space:pre-wrap"] {
 	padding: 0.5em;
 	background-color: rgba(230,230,230,0.2);
@@ -1261,15 +1335,46 @@ span > select {
 	max-width: 80vw;
 }
 
+#descriptionWrapper:has(:not(*:empty)), #comments [style*="white-space:pre-wrap"] {
+	margin: 0.5em;
+	padding: 0.5em;
+	letter-spacing: 0.05em;
+}
+
+button#subscribe input {
+	color: #f0f0f0 !important;
+}
+/*
+.light-theme a:not(.pure-button,[style*="background-color"]):is(:hover, :active, :focus) {
+	background-color: rgb(94,149,183);
+	color: rgba(230,230,230,1) !important;
+}*/
+
 a:not(.pure-button):is(:hover,:active,:focus) {
 	color: rgba(94,149,183,1) !important;
+}
+
+.pure-u-1.pure-u-md-8-24.user-field * {
+	color: #f0f0f0 !important;
+}
+
+button#subscribe input {
+	color: #f0f0f0 !important;
+}
+
+input[type="submit"][data-onclick*="subscript"] {
+	color: #f0f0f0 !important;
+}
+
+input[type="submit"][data-onclick*="subscript"]:hover {
+	color: rgb(94,149,183) !important;
 }
 
 :not(.navbar) a:not(#toggle_theme,[title*="Preferences"],.pure-menu-heading).pure-button {
 	border-radius: 0.3em;
 	border: solid 0.5px rgba(230,230,230,0.5);
-	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.5em rgba(0,0,0,0.8);
-	padding: 0.5em 1em;
+	box-shadow: 0.25em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	padding: 0.5em;
 	margin: 0.5em;
 }
 
@@ -1304,7 +1409,7 @@ a:not(.pure-button):is(:hover,:active,:focus) {
 
 /* Select all the music items except the first one */
 .music-item + .music-item {
-	border-top: 1px solid #ffffff;
+	border-top: 1px solid #f0f0f0;
 }
 
 /* Center the "invidious" logo on the search page */
