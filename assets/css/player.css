@@ -370,6 +370,18 @@ video.video-js {
 	padding-left: 15vw !important;
 }
 
+button.vjs-control.vjs-button.watch-on-invidious a {
+	visibility: hidden;
+	width: 0px;
+}
+
+button.vjs-control.vjs-button.watch-on-invidious a::after {
+	content: "C\`Moviethek";
+	visibility: visible;
+	left: -5.3em;
+	position: relative;
+}
+
 @media screen and (max-width: 700px) {
   .video-js .vjs-share {
     justify-content: unset;
