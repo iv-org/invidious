@@ -1130,6 +1130,18 @@ hr {
 }
 
 
+button.vjs-control.vjs-button.watch-on-invidious a {
+	visibility: hidden;
+	width: 0px;
+}
+
+button.vjs-control.vjs-button.watch-on-invidious a::after {
+	content: "C\`Moviethek";
+	visibility: visible;
+	left: -5.3em;
+	position: relative;
+}
+
 /* Description Expansion Styling*/
 #descexpansionbutton,
 #music-desc-expansion {
