@@ -182,7 +182,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 }
 .video-js .vjs-overlay * {
   color: rgba(255, 255, 255, 1) !important;
-  text-align: center;
+  text-align: left;
 }
 
 /* ProgressBar marker */
@@ -249,6 +249,125 @@ video.video-js {
   position: absolute !important;
   bottom: unset !important;
   top: 1.5em;
+}
+
+
+.vjs-icon-play:before, .video-js .vjs-play-control .vjs-icon-placeholder:before, .video-js .vjs-big-play-button .vjs-icon-placeholder:before {
+	content: url('/CMovie-Play.svg') !important;
+	display: inline-block !important;
+	height: 1.25em !important;
+	width: 1.25em !important;
+	top: .16em !important;
+	left: 0.5em !important;
+}
+
+.video-js .vjs-play-control .vjs-icon-placeholder:before {
+	top: 0.15em !important;
+	left: 0.5em !important;
+}
+
+.video-js .vjs-big-play-button .vjs-icon-placeholder:before {
+	top: 0.47em !important;
+	left: 0.5em !important;
+}
+
+.video-js .vjs-big-play-button {
+	font-size: 3em;
+	line-height: 1.5em;
+	height: 2.5em;
+	width: 2.5em;
+	display: block;
+	position: absolute;
+	padding: 2vmin;
+	cursor: pointer;
+	border: 0.7vmin solid #f0f0f0;
+	background-color: rgba(94,149,183,0.8);
+	border-radius: 50%;
+	transition: all 0.4s;
+	aspect-ratio: 1/1;
+	top: calc(50%);
+	left: calc(50%);
+	transform: translateX(calc(-50%)) translateY(calc(-50%));
+	text-decoration: none !important;
+	box-shadow: 0.23em 0.25em 0.5em rgba(0,0,0,0.8), 0 0 0.05em rgba(0,0,0,0.5);
+	backdrop-filter: blur(2.5px);
+}
+
+.video-js .vjs-progress-control {
+	color: rgba(94,149,183,1) !important;
+}
+
+.video-js.player-style-invidious .vjs-play-progress {
+	background-color: rgba(94,149,183,1) !important;
+}
+
+.video-js .vjs-slider:hover, .video-js button:hover {
+	color: rgba(94,149,183,1) !important;
+}
+
+.vjs-menu li.vjs-menu-item:focus, .vjs-menu li.vjs-menu-item:hover {
+	color: #f0f0f0 !important;
+	background-color: rgba(94,149,183,0.8) !important;
+}
+
+.vjs-menu li.vjs-menu-item:focus, .vjs-menu li.vjs-menu-item:hover, .js-focus-visible .vjs-menu li.vjs-menu-item:hover {
+	background-color: rgba(94,149,183,0.8) !important;
+}
+
+.vjs-menu li.vjs-selected, .vjs-menu li.vjs-selected:focus, .vjs-menu li.vjs-selected:hover {
+	background-color: rgba(94,149,183,0.8) !important;
+	color: #f0f0f0 !important;
+}
+
+.vjs-has-started.vjs-user-inactive.vjs-playing .vjs-control-bar, .vjs-has-started.vjs-user-inactive.vjs-playing .vjs-big-play-button {
+	visibility: visible !important;
+	opacity: 0 !important;
+	transition: visibility 1s, opacity 1s !important;
+}
+
+.video-js .vjs-overlay-top {
+	left: unset !important;
+	margin-left: unset !important;
+	bottom: 5px !important;
+	top: unset !important;
+}
+
+.video-js .vjs-overlay-background {
+	background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1)) !important;
+	border-radius: 0px !important;
+	padding: 10px !important;
+	padding-left: 17.5% !important;
+	width: 100% !important;
+	height: calc(5em + 6px);
+}
+
+.video-js .vjs-overlay h1 {
+	color: rgba(255, 255, 255, 1) !important;
+	left: -20% !important;
+	position: relative !important;
+	width: 100% !important;
+	margin: 0;
+	padding: 0.5em;
+}
+
+.video-js .vjs-overlay::after {
+	content: url('/CMovie-Logo.png') !important;
+	display: block !important;
+	height: 166px;
+	box-sizing: border-box !important;
+	transform: scale(.75);
+	aspect-ratio: 16/9 !important;
+	border: solid 4px #f0f0f0 !important;
+	left: -24.5% !important;
+	top: calc(-166px + 3em) !important;
+	position: relative !important;
+	text-align: left !important;
+	overflow: hidden;
+}
+
+.video-js .vjs-overlay a {
+	text-align: left !important;
+	padding-left: 15vw !important;
 }
 
 @media screen and (max-width: 700px) {
