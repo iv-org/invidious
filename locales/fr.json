@@ -476,5 +476,7 @@
     "channel_tab_shorts_label": "Clips",
     "channel_tab_streams_label": "En direct",
     "channel_tab_playlists_label": "Listes de lecture",
-    "channel_tab_channels_label": "Chaînes"
+    "channel_tab_channels_label": "Chaînes",
+    "Song: ": "Chanson : ",
+    "Artist: ": "Artiste : "
 }
