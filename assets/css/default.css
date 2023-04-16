@@ -1124,6 +1124,12 @@ hr {
 	overflow: hidden;
 }
 
+.video-js .vjs-overlay a {
+	text-align: left !important;
+	padding-left: 15vw !important;
+}
+
+
 /* Description Expansion Styling*/
 #descexpansionbutton,
 #music-desc-expansion {
