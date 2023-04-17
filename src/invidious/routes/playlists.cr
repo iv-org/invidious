@@ -170,6 +170,13 @@ module Invidious::Routes::Playlists
 
     csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY)
 
+    # Pagination
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/playlist?list=#{playlist.id}",
+      current_page: page,
+      show_next: (videos.size == 100)
+    )
+
     templated "edit_playlist"
   end
 
@@ -251,6 +258,14 @@ module Invidious::Routes::Playlists
     rescue ex
       videos = [] of SearchVideo
     end
+
+    # Pagination
+    query_encoded = URI.encode_www_form(query.try &.text || "", space_to_plus: true)
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/add_playlist_items?list=#{playlist.id}&q=#{query_encoded}",
+      current_page: page,
+      show_next: (videos.size >= 20)
+    )
 
     env.set "add_playlist_items", plid
     templated "add_playlist_items"
@@ -426,6 +441,13 @@ module Invidious::Routes::Playlists
     if playlist.author == user.try &.email
       env.set "remove_playlist_items", plid
     end
+
+    # Pagination
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/playlist?list=#{playlist.id}",
+      current_page: page,
+      show_next: (page_count != 1 && page < page_count)
+    )
 
     templated "playlist"
   end
