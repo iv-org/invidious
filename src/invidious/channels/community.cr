@@ -146,7 +146,11 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                           Invidious::JSONify::APIv1.thumbnails(json, video_id)
                         end
 
-                        json.field "lengthSeconds", decode_length_seconds(attachment["lengthText"]["simpleText"].as_s)
+                        if length_text = attachment.dig?("lengthText", "simpleText").try &.as_s
+                          json.field "lengthSeconds", decode_length_seconds(length_text)
+                        else
+                          json.field "lengthSeconds", 0
+                        end
 
                         author_info = attachment["ownerText"]["runs"][0].as_h
 
@@ -155,14 +159,28 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                         json.field "authorUrl", author_info["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
 
                         # TODO: json.field "authorThumbnails", "channelThumbnailSupportedRenderers"
-                        # TODO: json.field "authorVerified", "ownerBadges"
+                        json.field "authorVerified", has_verified_badge?(attachment["ownerBadges"]?).to_s
 
-                        published = decode_date(attachment["publishedTimeText"]["simpleText"].as_s)
+                        if published_time_text = attachment.dig?("publishedTimeText", "simpleText").try &.as_s
+                          published = decode_date(published_time_text)
+                          json.field "published", published.to_unix
+                          json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
+                        else
+                          json.field "published", 0
+                          json.field "publishedText", ""
+                        end
 
-                        json.field "published", published.to_unix
-                        json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
+                        if thumbnail_overlay = attachment.dig?("thumbnailOverlays", 0, "thumbnailOverlayTimeStatusRenderer")
+                          overlay_style = thumbnail_overlay["style"].as_s
+                          json.field "liveNow", overlay_style == "LIVE"
+                          json.field "isUpcoming", overlay_style == "UPCOMING"
+                        else
+                          json.field "liveNow", false
+                          json.field "isUpcoming", false
+                        end
 
-                        view_count = attachment["viewCountText"]?.try &.["simpleText"].as_s.gsub(/\D/, "").to_i64? || 0_i64
+                        view_count = attachment.dig?("viewCountText", "simpleText").try &.as_s.gsub(/\D/, "").to_i64?
+                        view_count ||= attachment.dig?("viewCountText", "runs", 0, "text").try &.as_s.gsub(/\D/, "").to_i64? || 0_i64
 
                         json.field "viewCount", view_count
                         json.field "viewCountText", translate_count(locale, "generic_views_count", view_count, NumberFormatting::Short)
