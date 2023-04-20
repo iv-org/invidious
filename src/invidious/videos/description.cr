@@ -6,13 +6,19 @@ def parse_command(command : JSON::Any?, string : String) : String?
 
   # 3rd party URL, extract original URL from YouTube tracking URL
   if url_endpoint = on_tap.try &.["urlEndpoint"]?
-    youtube_url = URI.parse url_endpoint["url"].as_s
-
-    original_url = youtube_url.query_params["q"]?
-    if original_url.nil?
-      return ""
+    if url_endpoint["url"].as_s.includes? "youtube.com/redirect"
+      youtube_url = URI.parse url_endpoint["url"].as_s
+      original_url = youtube_url.query_params["q"]?
+      if original_url.nil?
+        return ""
+      else
+        return "<a href=\"#{original_url}\">#{original_url}</a>"
+      end
     else
-      return "<a href=\"#{original_url}\">#{original_url}</a>"
+      # not a redirect url, some first party url
+      # see https://github.com/iv-org/invidious/issues/3751
+      first_party_url = url_endpoint["url"].as_s
+      return "<a href=\"#{first_party_url.sub("https://www.youtube.com", "")}\">#{first_party_url}</a>"
     end
     # 1st party watch URL
   elsif watch_endpoint = on_tap.try &.["watchEndpoint"]?
