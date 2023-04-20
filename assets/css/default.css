@@ -115,6 +115,11 @@ div {
   padding-right: 10px;
 }
 
+
+/*
+ * Buttons
+ */
+
 body a.pure-button {
   color: rgba(0,0,0,.8);
 }
@@ -127,13 +132,35 @@ body a.pure-button-primary,
   color: rgba(35, 35, 35, 1);
 }
 
+.pure-button-primary,
+.pure-button-secondary {
+  border: 1px solid #a0a0a0;
+  border-radius: 3px;
+  margin: 0 .4em;
+}
+
+.dark-theme .pure-button-secondary {
+  background-color: #0002;
+  color: #ddd;
+}
+
 button.pure-button-primary:hover,
-body a.pure-button-primary:hover,
 button.pure-button-primary:focus,
+body a.pure-button-primary:hover,
 body a.pure-button-primary:focus {
   background-color: rgba(0, 182, 240, 1);
   color: #fff;
 }
+
+button.pure-button-secondary:hover,
+button.pure-button-secondary:focus {
+  border-color: rgba(0, 182, 240, 1);
+}
+
+
+/*
+ * Thumbnails
+ */
 
 div.thumbnail {
   padding: 28.125%;
@@ -191,6 +218,7 @@ div.watched-indicator {
   left: 0.2em;
   top: -0.7em;
 }
+
 
 /*
  * Navbar
@@ -347,6 +375,22 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
   border: none;
 }
 
+
+/*
+ * Page navigation
+ */
+
+.page-nav-container { margin: 15px 0 30px 0; }
+
+.page-prev-container { text-align: start; }
+.page-next-container { text-align: end; }
+
+.page-prev-container,
+.page-next-container {
+  display: inline-block;
+}
+
+
 /*
  * Footer
  */
@@ -388,6 +432,7 @@ span > select {
 .pure-control-group label {
   word-wrap: normal;
 }
+
 
 /*
  * Light theme
@@ -452,6 +497,7 @@ span > select {
     color: #565d64;
   }
 }
+
 
 /*
  * Dark theme
@@ -538,6 +584,12 @@ body.dark-theme {
     color: inherit;
   }
 }
+
+
+/*
+ * Miscellanous
+ */
+
 
 /*With commit d9528f5 all contents of the page is now within a flexbox. However,
 the hr element is rendered improperly within one.
