@@ -163,9 +163,9 @@ module Invidious::Routes::Playlists
     end
 
     begin
-      videos = get_playlist_videos(playlist, offset: (page - 1) * 100)
+      items = get_playlist_videos(playlist, offset: (page - 1) * 100)
     rescue ex
-      videos = [] of PlaylistVideo
+      items = [] of PlaylistVideo
     end
 
     csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY)
@@ -174,7 +174,7 @@ module Invidious::Routes::Playlists
     page_nav_html = Frontend::Pagination.nav_numeric(locale,
       base_url: "/playlist?list=#{playlist.id}",
       current_page: page,
-      show_next: (videos.size == 100)
+      show_next: (items.size == 100)
     )
 
     templated "edit_playlist"
@@ -254,9 +254,9 @@ module Invidious::Routes::Playlists
 
     begin
       query = Invidious::Search::Query.new(env.params.query, :playlist, region)
-      videos = query.process.select(SearchVideo).map(&.as(SearchVideo))
+      items = query.process.select(SearchVideo).map(&.as(SearchVideo))
     rescue ex
-      videos = [] of SearchVideo
+      items = [] of SearchVideo
     end
 
     # Pagination
@@ -264,7 +264,7 @@ module Invidious::Routes::Playlists
     page_nav_html = Frontend::Pagination.nav_numeric(locale,
       base_url: "/add_playlist_items?list=#{playlist.id}&q=#{query_encoded}",
       current_page: page,
-      show_next: (videos.size >= 20)
+      show_next: (items.size >= 20)
     )
 
     env.set "add_playlist_items", plid
@@ -433,7 +433,7 @@ module Invidious::Routes::Playlists
     end
 
     begin
-      videos = get_playlist_videos(playlist, offset: (page - 1) * 200)
+      items = get_playlist_videos(playlist, offset: (page - 1) * 200)
     rescue ex
       return error_template(500, "Error encountered while retrieving playlist videos.<br>#{ex.message}")
     end

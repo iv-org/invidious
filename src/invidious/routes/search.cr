@@ -52,7 +52,7 @@ module Invidious::Routes::Search
       user = env.get? "user"
 
       begin
-        videos = query.process
+        items = query.process
       rescue ex : ChannelSearchException
         return error_template(404, "Unable to find channel with id of '#{HTML.escape(ex.channel)}'. Are you sure that's an actual channel id? It should look like 'UC4QobU6STFB0P71PMvOGN5A'.")
       rescue ex
@@ -65,7 +65,7 @@ module Invidious::Routes::Search
       page_nav_html = Frontend::Pagination.nav_numeric(locale,
         base_url: "/search?#{query.to_http_params}",
         current_page: query.page,
-        show_next: (videos.size >= 20)
+        show_next: (items.size >= 20)
       )
 
       if query.type == Invidious::Search::Query::Type::Channel
@@ -95,7 +95,7 @@ module Invidious::Routes::Search
     end
 
     begin
-      videos = Invidious::Hashtag.fetch(hashtag, page)
+      items = Invidious::Hashtag.fetch(hashtag, page)
     rescue ex
       return error_template(500, ex)
     end
@@ -105,7 +105,7 @@ module Invidious::Routes::Search
     page_nav_html = Frontend::Pagination.nav_numeric(locale,
       base_url: "/hashtag/#{hashtag_encoded}",
       current_page: page,
-      show_next: (videos.size >= 60)
+      show_next: (items.size >= 60)
     )
 
     templated "hashtag"
