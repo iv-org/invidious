@@ -31,18 +31,16 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
       session_token: session_token,
     }
 
-    response = YT_POOL.client &.post("/comment_service_ajax?action_get_comments=1&ctoken=#{continuation}&continuation=#{continuation}&hl=en&gl=US", headers, form: post_req)
-    body = JSON.parse(response.body)
+    body = YoutubeAPI.browse(continuation)
 
-    body = body["response"]["continuationContents"]["itemSectionContinuation"]? ||
-           body["response"]["continuationContents"]["backstageCommentsContinuation"]?
+    body = body.dig?("continuationContents", "itemSectionContinuation") ||
+           body.dig?("continuationContents", "backstageCommentsContinuation")
 
     if !body
       raise InfoException.new("Could not extract continuation.")
     end
   end
 
-  continuation = body["continuations"]?.try &.[0]["nextContinuationData"]["continuation"].as_s
   posts = body["contents"].as_a
 
   if message = posts[0]["messageRenderer"]?
@@ -270,10 +268,8 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
           end
         end
       end
-
-      if body["continuations"]?
-        continuation = body["continuations"][0]["nextContinuationData"]["continuation"].as_s
-        json.field "continuation", extract_channel_community_cursor(continuation)
+      if cont = posts.dig?(-1, "continuationItemRenderer", "continuationEndpoint", "continuationCommand", "token")
+        json.field "continuation", extract_channel_community_cursor(cont.as_s)
       end
     end
   end
