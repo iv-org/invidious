@@ -219,7 +219,7 @@ div.thumbnail > .bottom-right-overlay {
 }
 
 .length, .top-left-overlay button {
-  background-color: rgba(35, 35, 35, 0.85);
+  background-color: rgba(35, 35, 35, 0.85) !important;
 }
 
 

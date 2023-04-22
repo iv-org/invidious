@@ -71,6 +71,11 @@
                 <%- if !env.get("preferences").as(Preferences).thin_mode -%>
                     <a tabindex="-1" href="<%= link_url %>">
                         <img loading="lazy" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg" alt="" />
+
+                        <% if item_watched %>
+                            <div class="watched-overlay"></div>
+                            <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
+                        <% end %>
                     </a>
                 <%- end -%>
 
@@ -109,11 +114,6 @@
                         <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
                     <%- end -%>
                 </div>
-
-                <% if item_watched %>
-                    <div class="watched-overlay"></div>
-                    <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
-                <% end %>
             </div>
 
             <div class="video-card-row">
