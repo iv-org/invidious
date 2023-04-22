@@ -34,26 +34,6 @@
             <a href="/channel/<%= item.ucid %>">
                 <p dir="auto"><b><%= HTML.escape(item.author) %><% if !item.is_a?(InvidiousPlaylist) && !item.author_verified.nil? && item.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b></p>
             </a>
-        <% when MixVideo %>
-            <a href="/watch?v=<%= item.id %>&list=<%= item.rdid %>">
-                <% if !env.get("preferences").as(Preferences).thin_mode %>
-                    <div class="thumbnail">
-                        <img loading="lazy" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg" alt="" />
-                        <% if item.length_seconds != 0 %>
-                            <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
-                        <% end %>
-
-                        <% if item_watched %>
-                            <div class="watched-overlay"></div>
-                            <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
-                        <% end %>
-                    </div>
-                <% end %>
-                <p dir="auto"><%= HTML.escape(item.title) %></p>
-            </a>
-            <a href="/channel/<%= item.ucid %>">
-                <p dir="auto"><b><%= HTML.escape(item.author) %></b></p>
-            </a>
         <% when Category %>
         <% else %>
             <%-
@@ -61,6 +41,9 @@
               if item.is_a?(PlaylistVideo)
                 link_url = "/watch?v=#{item.id}&list=#{item.plid}&index=#{item.index}"
                 endpoint_params = "?v=#{item.id}&list=#{item.plid}"
+              elsif item.is_a?(MixVideo)
+                link_url = "/watch?v=#{item.id}&list=#{item.rdid}"
+                endpoint_params = "?v=#{item.id}&list=#{item.rdid}"
               else
                 link_url = "/watch?v=#{item.id}"
                 endpoint_params = "?v=#{item.id}"
@@ -134,7 +117,7 @@
                 <div class="flex-left">
                     <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
                         <p class="video-data" dir="auto"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
-                    <% elsif Time.utc - item.published > 1.minute %>
+                    <% elsif item.responds_to?(:published) && (Time.utc - item.published) > 1.minute %>
                         <p class="video-data" dir="auto"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
                     <% end %>
                 </div>
