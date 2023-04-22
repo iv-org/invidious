@@ -152,9 +152,15 @@ body a.pure-button-primary:focus {
   color: #fff;
 }
 
-button.pure-button-secondary:hover,
-button.pure-button-secondary:focus {
-  border-color: rgba(0, 182, 240, 1);
+.pure-button-secondary:hover,
+.pure-button-secondary:focus {
+  color: rgb(0, 182, 240);
+  border-color: rgb(0, 182, 240);
+}
+
+.pure-button-secondary.low-profile {
+  padding: 5px 10px;
+  margin: 0;
 }
 
 
@@ -163,21 +169,19 @@ button.pure-button-secondary:focus {
  */
 
 div.thumbnail {
-  padding: 28.125%;
   position: relative;
+  width: 100%;
   box-sizing: border-box;
 }
 
 img.thumbnail {
-  position: absolute;
+  display: block; /* See: https://stackoverflow.com/a/11635197 */
   width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
   object-fit: cover;
 }
 
 div.watched-overlay {
+  z-index: 50;
   position: absolute;
   top: 0;
   left: 0;
@@ -195,28 +199,27 @@ div.watched-indicator {
   background-color: red;
 }
 
-.length {
+div.thumbnail > .top-left-overlay,
+div.thumbnail > .bottom-right-overlay {
   z-index: 100;
   position: absolute;
-  background-color: rgba(35, 35, 35, 0.75);
-  color: #fff;
-  border-radius: 2px;
-  padding: 2px;
+  padding: 0;
+  margin: 0;
   font-size: 16px;
-  right: 0.25em;
-  bottom: -0.75em;
 }
 
-.watched {
-  z-index: 100;
-  position: absolute;
-  background-color: rgba(35, 35, 35, 0.75);
+.top-left-overlay { top: 0.6em; left: 0.6em; }
+.bottom-right-overlay { bottom: 0.6em; right: 0.6em; }
+
+.length {
+  padding: 1px;
+  margin: -2px 0;
   color: #fff;
-  border-radius: 2px;
-  padding: 4px 8px 4px 8px;
-  font-size: 16px;
-  left: 0.2em;
-  top: -0.7em;
+  border-radius: 3px;
+}
+
+.length, .top-left-overlay button {
+  background-color: rgba(35, 35, 35, 0.85);
 }
 
 

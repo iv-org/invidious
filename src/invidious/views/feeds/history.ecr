@@ -35,12 +35,14 @@
                     <% if !env.get("preferences").as(Preferences).thin_mode %>
                         <div class="thumbnail">
                             <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg" alt="" />
+
+                            <div class="top-left-overlay"><div class="watched">
                             <form data-onsubmit="return_false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
-                                <p class="watched">
-                                    <button type="submit" style="all:unset" data-onclick="mark_unwatched" data-id="<%= item %>"><i class="icon ion-md-trash"></i></button>
-                                </p>
+                                <button type="submit" class="pure-button pure-button-secondary low-profile"
+                                        data-onclick="mark_unwatched" data-id="<%= item %>"><i class="icon ion-md-trash"></i></button>
                             </form>
+                            </div></div>
                         </div>
                         <p></p>
                     <% end %>
