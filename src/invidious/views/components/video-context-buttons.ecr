@@ -1,4 +1,4 @@
-<div class="flex-right">
+<div class="flex-right flexible">
     <div class="icon-buttons">
         <a title="<%=translate(locale, "videoinfo_watch_on_youTube")%>" href="https://www.youtube.com/watch<%=endpoint_params%>">
             <i class="icon ion-logo-youtube"></i>
@@ -6,7 +6,7 @@
         <a title="<%=translate(locale, "Audio mode")%>" href="/watch<%=endpoint_params%>&listen=1">
             <i class="icon ion-md-headset"></i>
         </a>
-        
+
         <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
             <a title="<%=translate(locale, "Switch Invidious Instance")%>" href="/redirect?referer=%2Fwatch<%=URI.encode_www_form(endpoint_params)%>">
                 <i class="icon ion-md-jet"></i>

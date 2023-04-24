@@ -1,3 +1,7 @@
+/*
+ * Common attributes
+ */
+
 html,
 body {
   font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
@@ -11,6 +15,16 @@ body {
   min-height: 100vh;
 }
 
+.h-box {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.v-box {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
 .deleted {
   background-color: rgb(255, 0, 0, 0.5);
 }
@@ -19,6 +33,34 @@ body {
   border-bottom: 1px solid;
   margin-bottom: 20px;
 }
+
+.title {
+  margin: 0.5em 0 1em 0;
+}
+
+/* A flex container */
+.flexible {
+  display: flex;
+  align-items: center;
+}
+
+.flex-left {
+  display: flex;
+  flex: 1 1 auto;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+}
+.flex-right {
+  display: flex;
+  flex: 2 0 auto;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+}
+
+
+/*
+ * Channel page
+ */
 
 .channel-profile > * {
   font-size: 1.17em;
@@ -90,16 +132,6 @@ body a.channel-owner {
   }
 }
 
-.h-box {
-  padding-left: 1em;
-  padding-right: 1em;
-}
-
-.v-box {
-  padding-top: 1em;
-  padding-bottom: 1em;
-}
-
 div {
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -144,9 +176,15 @@ body a.pure-button-primary,
   margin: 0;
 }
 
+/* Has to be combined with flex-left/right */
+.button-container {
+  flex-flow: wrap;
+  gap: 0.5em 0.75em;
+}
+
 
 /*
- * Thumbnails
+ * Video thumbnails
  */
 
 div.thumbnail {
@@ -280,6 +318,11 @@ input[type="search"]::-webkit-search-cancel-button {
   margin-right: 1em;
 }
 
+
+/*
+ * Responsive rules
+ */
+
 @media only screen and (max-aspect-ratio: 16/9) {
   .player-dimensions.vjs-fluid {
     padding-top: 46.86% !important;
@@ -298,20 +341,28 @@ input[type="search"]::-webkit-search-cancel-button {
   .navbar > div {
     display: flex;
     justify-content: center;
-  }
-
-  .navbar > div:not(:last-child) {
-    margin-bottom: 1em;
+    margin-bottom: 25px;
   }
 
   .navbar > .searchbar > form {
-    width: 60%;
+    width: 75%;
   }
 
   h1 {
     font-size: 1.25em;
     margin: 0.42em 0;
   }
+
+  /* Space out the subscribe & RSS buttons and align them to the left */
+  .title.flexible { display: block; }
+  .title.flexible > .flex-right { margin: 0.75em 0; justify-content: flex-start; }
+
+  /* Space out buttons to make them easier to tap */
+  .user-field { font-size: 125%; }
+  .user-field > :not(:last-child) { margin-right: 1.75em; }
+
+  .icon-buttons { font-size: 125%; }
+  .icon-buttons > :not(:last-child) { margin-right: 0.75em; }
 }
 
 @media screen and (max-width: 320px) {
@@ -327,10 +378,6 @@ input[type="search"]::-webkit-search-cancel-button {
  */
 
 .video-card-row { margin: 15px 0; }
-
-.flexible { display: flex; }
-.flex-left  { flex: 1 1 100%; flex-wrap: wrap;   }
-.flex-right { flex: 1 0 auto; flex-wrap: nowrap; }
 
 p.channel-name { margin: 0; }
 p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
@@ -659,12 +706,7 @@ label[for="music-desc-expansion"]:hover {
 }
 
 /* Bidi (bidirectional text) support */
-h1,
-h2,
-h3,
-h4,
-h5,
-p,
+h1, h2, h3, h4, h5, p,
 #descriptionWrapper,
 #description-box,
 #music-description-box {
