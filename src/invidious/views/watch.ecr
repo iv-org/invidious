@@ -204,19 +204,28 @@ we're going to need to do it here in order to allow for translations.
     </div>
 
     <div class="pure-u-1 <% if params.related_videos || plid %>pure-u-lg-3-5<% else %>pure-u-md-4-5<% end %>">
-        <div class="h-box">
-            <a href="/channel/<%= video.ucid %>" style="display:block;width:fit-content;width:-moz-fit-content">
-                <div class="channel-profile">
-                    <% if !video.author_thumbnail.empty? %>
-                        <img src="/ggpht<%= URI.parse(video.author_thumbnail).request_target %>" alt="" />
-                    <% end %>
-                    <span id="channel-name"><%= author %><% if !video.author_verified.nil? && video.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></span>
+
+        <div class="pure-g h-box flexible title">
+            <div class="pure-u-1-2 flex-left flexible">
+                <a href="/channel/<%= video.ucid %>">
+                    <div class="channel-profile">
+                        <% if !video.author_thumbnail.empty? %>
+                            <img src="/ggpht<%= URI.parse(video.author_thumbnail).request_target %>" alt="" />
+                        <% end %>
+                        <span id="channel-name"><%= author %><% if !video.author_verified.nil? && video.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="pure-u-1-2 flex-right flexible button-container">
+                <div class="pure-u">
+                    <% sub_count_text = video.sub_count_text %>
+                    <%= rendered "components/subscribe_widget" %>
                 </div>
-            </a>
+            </div>
+        </div>
 
-            <% sub_count_text = video.sub_count_text %>
-            <%= rendered "components/subscribe_widget" %>
-
+        <div class="h-box">
             <p id="published-date">
                 <% if video.premiere_timestamp.try &.> Time.utc %>
                     <b><%= video.premiere_timestamp.try { |t| translate(locale, "Premieres `x`", t.to_s("%B %-d, %R UTC")) } %></b>
