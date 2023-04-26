@@ -219,9 +219,7 @@ function get_youtube_comments() {
         '&hl=' + video_data.preferences.locale +
         '&thin_mode=' + video_data.preferences.thin_mode;
 
-    var onNon200 = function (xhr) { comments.innerHTML = fallback; };
-    if (video_data.params.comments[1] === 'youtube')
-        onNon200 = function (xhr) {};
+    var onNon200 = function (xhr) { comments.innerHTML = xhr.response.errorHtml; };
 
     helpers.xhr('GET', url, {retries: 5, entity_name: 'comments'}, {
         on200: function (response) {
