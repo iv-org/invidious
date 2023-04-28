@@ -28,48 +28,7 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
   env.response.content_type = "text/html"
   env.response.status_code = status_code
 
-  issue_title = "#{exception.message} (#{exception.class})"
-
-  issue_template = <<-TEXT
-  Title: `#{HTML.escape(issue_title)}`
-  Date: `#{Time::Format::ISO_8601_DATE_TIME.format(Time.utc)}`
-  Route: `#{HTML.escape(env.request.resource)}`
-  Version: `#{SOFTWARE["version"]} @ #{SOFTWARE["branch"]}`
-
-  TEXT
-
-  issue_template += github_details("Backtrace", exception.inspect_with_backtrace)
-
-  # URLs for the error message below
-  url_faq = "https://github.com/iv-org/documentation/blob/master/docs/faq.md"
-  url_search_issues = "https://github.com/iv-org/invidious/issues"
-
-  url_switch = "https://redirect.invidious.io" + env.request.resource
-
-  url_new_issue = "https://github.com/iv-org/invidious/issues/new"
-  url_new_issue += "?labels=bug&template=bug_report.md&title="
-  url_new_issue += URI.encode_www_form("[Bug] " + issue_title)
-
-  error_message = <<-END_HTML
-    <div class="error_message">
-      <h2>#{translate(locale, "crash_page_you_found_a_bug")}</h2>
-      <br/><br/>
-
-      <p><b>#{translate(locale, "crash_page_before_reporting")}</b></p>
-      <ul>
-        <li>#{translate(locale, "crash_page_refresh", env.request.resource)}</li>
-        <li>#{translate(locale, "crash_page_switch_instance", url_switch)}</li>
-        <li>#{translate(locale, "crash_page_read_the_faq", url_faq)}</li>
-        <li>#{translate(locale, "crash_page_search_issue", url_search_issues)}</li>
-      </ul>
-
-      <br/>
-      <p>#{translate(locale, "crash_page_report_issue", url_new_issue)}</p>
-
-      <!-- TODO: Add a "copy to clipboard" button -->
-      <pre style="padding: 20px; background: rgba(0, 0, 0, 0.12345);">#{issue_template}</pre>
-    </div>
-  END_HTML
+  error_message = error_template_message(env, exception)
 
   # Don't show the usual "next steps" widget. The same options are
   # proposed above the error message, just worded differently.
@@ -90,13 +49,8 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, mess
   return templated "error"
 end
 
-# -------------------
-#  Mini error templates (for components that had an error)
-# -------------------
-
-def mini_error_template(env : HTTP::Server::Context, exception : Exception)
+def error_template_message(env : HTTP::Server::Context, exception : Exception)
   String.build do |str|
-    # Copied from error_template_helper
     locale = env.get("preferences").as(Preferences).locale
     issue_title = "#{exception.message} (#{exception.class})"
 

@@ -104,7 +104,7 @@ module Invidious::Routes::Watch
               comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
               comment_html = Comments.replace_links(comment_html)
             else
-              comment_html = mini_error_template(env, ex)
+              comment_html = error_template_message(env, ex)
             end
           end
         elsif source == "reddit"
@@ -118,7 +118,7 @@ module Invidious::Routes::Watch
             if preferences.comments[1] == "youtube"
               comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
             else
-              comment_html = mini_error_template(env, ex)
+              comment_html = error_template_message(env, ex)
             end
           end
         end
