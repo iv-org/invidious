@@ -488,5 +488,6 @@
     "preferences_save_player_pos_label": "Išsaugoti atkūrimo padėtį: ",
     "videoinfo_youTube_embed_link": "Įterpti",
     "videoinfo_invidious_embed_link": "Įterpti nuorodą",
-    "crash_page_refresh": "pabandėte <a href=\"`x`\">atnaujinti puslapį</a>"
+    "crash_page_refresh": "pabandėte <a href=\"`x`\">atnaujinti puslapį</a>",
+    "Album: ": "Albumas "
 }

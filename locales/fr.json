@@ -474,7 +474,14 @@
     "search_filters_duration_option_none": "Toutes les durées",
     "error_video_not_in_playlist": "La vidéo demandée n'existe pas dans cette liste de lecture. <a href=\"`x`\">Cliquez ici pour retourner à la liste de lecture.</a>",
     "channel_tab_shorts_label": "Clips",
-    "channel_tab_streams_label": "En direct",
+    "channel_tab_streams_label": "Vidéos en direct",
     "channel_tab_playlists_label": "Listes de lecture",
-    "channel_tab_channels_label": "Chaînes"
+    "channel_tab_channels_label": "Chaînes",
+    "Song: ": "Chanson : ",
+    "Artist: ": "Artiste : ",
+    "Album: ": "Album : ",
+    "Standard YouTube license": "Licence YouTube Standard",
+    "Music in this video": "Musique dans cette vidéo",
+    "Channel Sponsor": "Soutien de la chaîne",
+    "Download is disabled": "Le téléchargement est désactivé"
 }
