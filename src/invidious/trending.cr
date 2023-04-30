@@ -17,7 +17,9 @@ def fetch_trending(trending_type, region, locale)
 
   client_config = YoutubeAPI::ClientConfig.new(region: region)
   initial_data = YoutubeAPI.browse("FEtrending", params: params, client_config: client_config)
-  trending = extract_videos(initial_data)
 
-  return {trending, plid}
+  items, _ = extract_items(initial_data)
+
+  # Return items, but ignore categories (e.g featured content)
+  return items.reject!(Category), plid
 end
