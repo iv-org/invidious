@@ -35,5 +35,6 @@ def fetch_trending(trending_type, region, locale)
     end
   end
 
-  return extracted, plid
+  # Deduplicate items before returning results
+  return extracted.select(SearchVideo).uniq!(&.id), plid
 end
