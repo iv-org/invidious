@@ -68,16 +68,17 @@ rescue ex
   return false
 end
 
-# This function extracts the SearchItems from a Category.
+# This function extracts SearchVideo items from a Category.
 # Categories are commonly returned in search results and trending pages.
 def extract_category(category : Category) : Array(SearchVideo)
-  items = [] of SearchItem
+  return category.contents.select(SearchVideo)
+end
 
-  category.contents.each do |item|
-    target << cate_i if item.is_a?(SearchItem)
+# :ditto:
+def extract_category(category : Category, &)
+  category.contents.select(SearchVideo).each do |item|
+    yield item
   end
-
-  return items
 end
 
 def extract_selected_tab(tabs)
