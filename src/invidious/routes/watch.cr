@@ -76,7 +76,7 @@ module Invidious::Routes::Watch
     end
     env.params.query.delete_all("iv_load_policy")
 
-    if watched && preferences.watch_history && !watched.includes? id
+    if watched && preferences.watch_history
       Invidious::Database::Users.mark_watched(user.as(User), id)
     end
 
@@ -259,9 +259,7 @@ module Invidious::Routes::Watch
 
     case action
     when "action_mark_watched"
-      if !user.watched.includes? id
-        Invidious::Database::Users.mark_watched(user, id)
-      end
+      Invidious::Database::Users.mark_watched(user, id)
     when "action_mark_unwatched"
       Invidious::Database::Users.mark_unwatched(user, id)
     else

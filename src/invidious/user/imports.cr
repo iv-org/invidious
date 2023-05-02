@@ -48,7 +48,7 @@ struct Invidious::User
 
       if data["watch_history"]?
         user.watched += data["watch_history"].as_a.map(&.as_s)
-        user.watched.uniq!
+        user.watched.reverse!.uniq!.reverse!
         Invidious::Database::Users.update_watch_history(user)
       end
 
