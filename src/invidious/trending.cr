@@ -20,6 +20,21 @@ def fetch_trending(trending_type, region, locale)
 
   items, _ = extract_items(initial_data)
 
-  # Return items, but ignore categories (e.g featured content)
-  return items.reject!(Category), plid
+  extracted = [] of SearchItem
+
+  items.each do |itm|
+    if itm.is_a?(Category)
+      # Ignore the smaller categories, as they generally contain a sponsored
+      # channel, which brings a lot of noise on the trending page.
+      # See: https://github.com/iv-org/invidious/issues/2989
+      next if itm.contents.size < 24
+
+      extracted.concat extract_category(itm)
+    else
+      extracted << itm
+    end
+  end
+
+  # Deduplicate items before returning results
+  return extracted.select(SearchVideo).uniq!(&.id), plid
 end
