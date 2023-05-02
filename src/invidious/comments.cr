@@ -635,55 +635,8 @@ def content_to_comment_html(content, video_id : String? = "")
 
     text = HTML.escape(run["text"].as_s)
 
-    if run["navigationEndpoint"]?
-      if url = run["navigationEndpoint"]["urlEndpoint"]?.try &.["url"].as_s
-        url = URI.parse(url)
-        displayed_url = text
-
-        if url.host == "youtu.be"
-          url = "/watch?v=#{url.request_target.lstrip('/')}"
-        elsif url.host.nil? || url.host.not_nil!.ends_with?("youtube.com")
-          if url.path == "/redirect"
-            # Sometimes, links can be corrupted (why?) so make sure to fallback
-            # nicely. See https://github.com/iv-org/invidious/issues/2682
-            url = url.query_params["q"]? || ""
-            displayed_url = url
-          else
-            url = url.request_target
-            displayed_url = "youtube.com#{url}"
-          end
-        end
-
-        text = %(<a href="#{url}">#{reduce_uri(displayed_url)}</a>)
-      elsif watch_endpoint = run["navigationEndpoint"]["watchEndpoint"]?
-        start_time = watch_endpoint["startTimeSeconds"]?.try &.as_i
-        link_video_id = watch_endpoint["videoId"].as_s
-
-        url = "/watch?v=#{link_video_id}"
-        url += "&t=#{start_time}" if !start_time.nil?
-
-        # If the current video ID (passed through from the caller function)
-        # is the same as the video ID in the link, add HTML attributes for
-        # the JS handler function that bypasses page reload.
-        #
-        # See: https://github.com/iv-org/invidious/issues/3063
-        if link_video_id == video_id
-          start_time ||= 0
-          text = %(<a href="#{url}" data-onclick="jump_to_time" data-jump-time="#{start_time}">#{reduce_uri(text)}</a>)
-        else
-          text = %(<a href="#{url}">#{text}</a>)
-        end
-      elsif url = run.dig?("navigationEndpoint", "commandMetadata", "webCommandMetadata", "url").try &.as_s
-        if text.starts_with?(/\s?[@#]/)
-          # Handle "pings" in comments and hasthags differently
-          # See:
-          #  - https://github.com/iv-org/invidious/issues/3038
-          #  - https://github.com/iv-org/invidious/issues/3062
-          text = %(<a href="#{url}">#{text}</a>)
-        else
-          text = %(<a href="#{url}">#{reduce_uri(url)}</a>)
-        end
-      end
+    if navigationEndpoint = run.dig?("navigationEndpoint")
+      text = parse_link_endpoint(navigationEndpoint, text, video_id)
     end
 
     text = "<b>#{text}</b>" if run["bold"]?

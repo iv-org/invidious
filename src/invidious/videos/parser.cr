@@ -287,7 +287,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # description_html = video_secondary_renderer.try &.dig?("description", "runs")
   #  .try &.as_a.try { |t| content_to_comment_html(t, video_id) }
 
-  description_html = parse_description(video_secondary_renderer.try &.dig?("attributedDescription"))
+  description_html = parse_description(video_secondary_renderer.try &.dig?("attributedDescription"), video_id)
 
   # Video metadata
 
