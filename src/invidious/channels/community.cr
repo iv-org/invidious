@@ -217,8 +217,10 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                       .as(SearchPlaylist)
                       .to_json(locale, json)
                   else
-                    json.field "type", "unknown"
-                    json.field "error", "Unrecognized attachment type."
+                    json.object do
+                      json.field "type", "unknown"
+                      json.field "error", "Unrecognized attachment type."
+                    end
                   end
                 end
               end
