@@ -99,7 +99,7 @@ module Invidious::Routes::Watch
           rescue ex
             if preferences.comments[1] == "reddit"
               comments, reddit_thread = Comments.fetch_reddit(id)
-              comment_html = template_reddit_comments(comments, locale)
+              comment_html = Frontend::Comments.template_reddit(comments, locale)
 
               comment_html = fill_links(comment_html, "https", "www.reddit.com")
               comment_html = replace_links(comment_html)
@@ -108,7 +108,7 @@ module Invidious::Routes::Watch
         elsif source == "reddit"
           begin
             comments, reddit_thread = Comments.fetch_reddit(id)
-            comment_html = template_reddit_comments(comments, locale)
+            comment_html = Frontend::Comments.template_reddit(comments, locale)
 
             comment_html = fill_links(comment_html, "https", "www.reddit.com")
             comment_html = replace_links(comment_html)
