@@ -345,7 +345,7 @@ module Invidious::Routes::API::V1::Videos
       sort_by ||= "confidence"
 
       begin
-        comments, reddit_thread = fetch_reddit_comments(id, sort_by: sort_by)
+        comments, reddit_thread = Comments.fetch_reddit(id, sort_by: sort_by)
       rescue ex
         comments = nil
         reddit_thread = nil
