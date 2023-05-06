@@ -390,6 +390,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
       end
 
       html << <<-END_HTML
+      <p>
         <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
         |
       END_HTML
@@ -408,6 +409,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
 
       html << <<-END_HTML
         <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
+      </p>
       END_HTML
 
       if child["creatorHeart"]?
