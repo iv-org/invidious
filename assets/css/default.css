@@ -322,6 +322,16 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 
 
 /*
+ * Comments & community posts
+ */
+
+#comments {
+  max-width: 800px;
+  margin: auto;
+}
+
+
+/*
  * Footer
  */
 
