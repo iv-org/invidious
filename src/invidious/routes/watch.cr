@@ -95,7 +95,7 @@ module Invidious::Routes::Watch
 
         if source == "youtube"
           begin
-            comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+            comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
           rescue ex
             if preferences.comments[1] == "reddit"
               comments, reddit_thread = fetch_reddit_comments(id)
@@ -114,12 +114,12 @@ module Invidious::Routes::Watch
             comment_html = replace_links(comment_html)
           rescue ex
             if preferences.comments[1] == "youtube"
-              comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+              comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
             end
           end
         end
       else
-        comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+        comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
       end
 
       comment_html ||= ""
