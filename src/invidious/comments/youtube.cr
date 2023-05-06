@@ -4,9 +4,9 @@ module Invidious::Comments
   def fetch_youtube(id, cursor, format, locale, thin_mode, region, sort_by = "top")
     case cursor
     when nil, ""
-      ctoken = produce_comment_continuation(id, cursor: "", sort_by: sort_by)
+      ctoken = Comments.produce_continuation(id, cursor: "", sort_by: sort_by)
     when .starts_with? "ADSJ"
-      ctoken = produce_comment_continuation(id, cursor: cursor, sort_by: sort_by)
+      ctoken = Comments.produce_continuation(id, cursor: cursor, sort_by: sort_by)
     else
       ctoken = cursor
     end
@@ -202,5 +202,49 @@ module Invidious::Comments
     end
 
     return response
+  end
+
+  def produce_continuation(video_id, cursor = "", sort_by = "top")
+    object = {
+      "2:embedded" => {
+        "2:string"    => video_id,
+        "25:varint"   => 0_i64,
+        "28:varint"   => 1_i64,
+        "36:embedded" => {
+          "5:varint" => -1_i64,
+          "8:varint" => 0_i64,
+        },
+        "40:embedded" => {
+          "1:varint" => 4_i64,
+          "3:string" => "https://www.youtube.com",
+          "4:string" => "",
+        },
+      },
+      "3:varint"   => 6_i64,
+      "6:embedded" => {
+        "1:string"   => cursor,
+        "4:embedded" => {
+          "4:string" => video_id,
+          "6:varint" => 0_i64,
+        },
+        "5:varint" => 20_i64,
+      },
+    }
+
+    case sort_by
+    when "top"
+      object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
+    when "new", "newest"
+      object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 1_i64
+    else # top
+      object["6:embedded"].as(Hash)["4:embedded"].as(Hash)["6:varint"] = 0_i64
+    end
+
+    continuation = object.try { |i| Protodec::Any.cast_json(i) }
+      .try { |i| Protodec::Any.from_json(i) }
+      .try { |i| Base64.urlsafe_encode(i) }
+      .try { |i| URI.encode_www_form(i) }
+
+    return continuation
   end
 end
