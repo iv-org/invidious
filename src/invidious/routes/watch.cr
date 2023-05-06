@@ -101,8 +101,8 @@ module Invidious::Routes::Watch
               comments, reddit_thread = Comments.fetch_reddit(id)
               comment_html = Frontend::Comments.template_reddit(comments, locale)
 
-              comment_html = fill_links(comment_html, "https", "www.reddit.com")
-              comment_html = replace_links(comment_html)
+              comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
+              comment_html = Comments.replace_links(comment_html)
             end
           end
         elsif source == "reddit"
@@ -110,8 +110,8 @@ module Invidious::Routes::Watch
             comments, reddit_thread = Comments.fetch_reddit(id)
             comment_html = Frontend::Comments.template_reddit(comments, locale)
 
-            comment_html = fill_links(comment_html, "https", "www.reddit.com")
-            comment_html = replace_links(comment_html)
+            comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
+            comment_html = Comments.replace_links(comment_html)
           rescue ex
             if preferences.comments[1] == "youtube"
               comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]

@@ -362,8 +362,8 @@ module Invidious::Routes::API::V1::Videos
         return reddit_thread.to_json
       else
         content_html = Frontend::Comments.template_reddit(comments, locale)
-        content_html = fill_links(content_html, "https", "www.reddit.com")
-        content_html = replace_links(content_html)
+        content_html = Comments.fill_links(content_html, "https", "www.reddit.com")
+        content_html = Comments.replace_links(content_html)
         response = {
           "title"       => reddit_thread.title,
           "permalink"   => reddit_thread.permalink,
