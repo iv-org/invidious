@@ -250,7 +250,7 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
 
   if format == "html"
     response = JSON.parse(response)
-    content_html = template_youtube_comments(response, locale, thin_mode)
+    content_html = IV::Frontend::Comments.template_youtube(response, locale, thin_mode)
 
     response = JSON.build do |json|
       json.object do
