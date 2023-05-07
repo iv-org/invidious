@@ -817,6 +817,16 @@ default_user_preferences:
   ## Default: true
   ##
   #vr_mode: true
+  
+  ##
+  ## Save the playback position
+  ## Allow to continue watching at the previous position when
+  ## watching the same video.
+  ##
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #save_player_pos: false
 
   # -----------------------------
   #  Subscription feed
