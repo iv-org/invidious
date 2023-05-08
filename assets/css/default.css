@@ -322,6 +322,30 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 
 
 /*
+ * Comments & community posts
+ */
+
+#comments {
+  max-width: 800px;
+  margin: auto;
+}
+
+.video-iframe-wrapper {
+  position: relative;
+  height: 0;
+  padding-bottom: 56.25%;
+}
+
+.video-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/*
  * Footer
  */
 

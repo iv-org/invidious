@@ -372,32 +372,25 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
           </div>
           END_HTML
         when "video"
-          html << <<-END_HTML
-            <div class="pure-g">
-              <div class="pure-u-1 pure-u-md-1-2">
-                <div style="position:relative;width:100%;height:0;padding-bottom:56.25%;margin-bottom:5px">
-          END_HTML
-
           if attachment["error"]?
             html << <<-END_HTML
+            <div class="pure-g video-iframe-wrapper">
               <p>#{attachment["error"]}</p>
+            </div>
             END_HTML
           else
             html << <<-END_HTML
-              <iframe id='ivplayer' style='position:absolute;width:100%;height:100%;left:0;top:0' src='/embed/#{attachment["videoId"]?}?autoplay=0' style='border:none;'></iframe>
+            <div class="pure-g video-iframe-wrapper">
+              <iframe class="video-iframe" src='/embed/#{attachment["videoId"]?}?autoplay=0'></iframe>
+            </div>
             END_HTML
           end
-
-          html << <<-END_HTML
-                </div>
-              </div>
-            </div>
-          END_HTML
         else nil # Ignore
         end
       end
 
       html << <<-END_HTML
+      <p>
         <span title="#{Time.unix(child["published"].as_i64).to_s(translate(locale, "%A %B %-d, %Y"))}">#{translate(locale, "`x` ago", recode_date(Time.unix(child["published"].as_i64), locale))} #{child["isEdited"] == true ? translate(locale, "(edited)") : ""}</span>
         |
       END_HTML
@@ -416,6 +409,7 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
 
       html << <<-END_HTML
         <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
+      </p>
       END_HTML
 
       if child["creatorHeart"]?
