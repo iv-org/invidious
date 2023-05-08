@@ -123,49 +123,13 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
 
               if attachment = post["backstageAttachment"]?
                 json.field "attachment" do
-                  json.object do
-                    case attachment.as_h
-                    when .has_key?("videoRenderer")
-                      attachment = attachment["videoRenderer"]
-                      json.field "type", "video"
-
-                      if !attachment["videoId"]?
-                        error_message = (attachment["title"]["simpleText"]? ||
-                                         attachment["title"]["runs"]?.try &.[0]?.try &.["text"]?)
-
-                        json.field "error", error_message
-                      else
-                        video_id = attachment["videoId"].as_s
-
-                        video_title = attachment["title"]["simpleText"]? || attachment["title"]["runs"]?.try &.[0]?.try &.["text"]?
-                        json.field "title", video_title
-                        json.field "videoId", video_id
-                        json.field "videoThumbnails" do
-                          Invidious::JSONify::APIv1.thumbnails(json, video_id)
-                        end
-
-                        json.field "lengthSeconds", decode_length_seconds(attachment["lengthText"]["simpleText"].as_s)
-
-                        author_info = attachment["ownerText"]["runs"][0].as_h
-
-                        json.field "author", author_info["text"].as_s
-                        json.field "authorId", author_info["navigationEndpoint"]["browseEndpoint"]["browseId"]
-                        json.field "authorUrl", author_info["navigationEndpoint"]["commandMetadata"]["webCommandMetadata"]["url"]
-
-                        # TODO: json.field "authorThumbnails", "channelThumbnailSupportedRenderers"
-                        # TODO: json.field "authorVerified", "ownerBadges"
-
-                        published = decode_date(attachment["publishedTimeText"]["simpleText"].as_s)
-
-                        json.field "published", published.to_unix
-                        json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
-
-                        view_count = attachment["viewCountText"]?.try &.["simpleText"].as_s.gsub(/\D/, "").to_i64? || 0_i64
-
-                        json.field "viewCount", view_count
-                        json.field "viewCountText", translate_count(locale, "generic_views_count", view_count, NumberFormatting::Short)
-                      end
-                    when .has_key?("backstageImageRenderer")
+                  case attachment.as_h
+                  when .has_key?("videoRenderer")
+                    parse_item(attachment)
+                      .as(SearchVideo)
+                      .to_json(locale, json)
+                  when .has_key?("backstageImageRenderer")
+                    json.object do
                       attachment = attachment["backstageImageRenderer"]
                       json.field "type", "image"
 
@@ -186,7 +150,9 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                           end
                         end
                       end
-                    when .has_key?("pollRenderer")
+                    end
+                  when .has_key?("pollRenderer")
+                    json.object do
                       attachment = attachment["pollRenderer"]
                       json.field "type", "poll"
                       json.field "totalVotes", short_text_to_number(attachment["totalVotes"]["simpleText"].as_s.split(" ")[0])
@@ -219,7 +185,9 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                           end
                         end
                       end
-                    when .has_key?("postMultiImageRenderer")
+                    end
+                  when .has_key?("postMultiImageRenderer")
+                    json.object do
                       attachment = attachment["postMultiImageRenderer"]
                       json.field "type", "multiImage"
                       json.field "images" do
@@ -243,7 +211,13 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                           end
                         end
                       end
-                    else
+                    end
+                  when .has_key?("playlistRenderer")
+                    parse_item(attachment)
+                      .as(SearchPlaylist)
+                      .to_json(locale, json)
+                  else
+                    json.object do
                       json.field "type", "unknown"
                       json.field "error", "Unrecognized attachment type."
                     end

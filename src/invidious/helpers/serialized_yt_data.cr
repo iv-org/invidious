@@ -84,6 +84,7 @@ struct SearchVideo
       json.field "descriptionHtml", self.description_html
 
       json.field "viewCount", self.views
+      json.field "viewCountText", translate_count(locale, "generic_views_count", self.views, NumberFormatting::Short)
       json.field "published", self.published.to_unix
       json.field "publishedText", translate(locale, "`x` ago", recode_date(self.published, locale))
       json.field "lengthSeconds", self.length_seconds
