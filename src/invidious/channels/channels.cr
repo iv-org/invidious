@@ -199,7 +199,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
 
   LOGGER.trace("fetch_channel: #{ucid} : Extracting videos from channel RSS feed")
   rss.xpath_nodes("//default:feed/default:entry", namespaces).each do |entry|
-    video_id = entry.xpath_node("yt:videoid", namespaces).not_nil!.content
+    video_id = entry.xpath_node("yt:videoId", namespaces).not_nil!.content
     title = entry.xpath_node("default:title", namespaces).not_nil!.content
 
     published = Time.parse_rfc3339(
@@ -210,7 +210,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
     )
 
     author = entry.xpath_node("default:author/default:name", namespaces).not_nil!.content
-    ucid = entry.xpath_node("yt:channelid", namespaces).not_nil!.content
+    ucid = entry.xpath_node("yt:channelId", namespaces).not_nil!.content
 
     views = entry
       .xpath_node("media:group/media:community/media:statistics", namespaces)
