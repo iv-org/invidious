@@ -17,21 +17,18 @@ module Invidious::Hashtag
       "80226972:embedded" => {
         "2:string" => "FEhashtag",
         "3:base64" => {
-          "1:varint" => cursor.to_i64,
-        },
-        "7:base64" => {
-          "325477796:embedded" => {
-            "1:embedded" => {
-              "2:0:embedded" => {
-                "2:string"  => '#' + hashtag,
-                "4:varint"  => 0_i64,
-                "11:string" => "",
-              },
-              "4:string" => "browse-feedFEhashtag",
-            },
-            "2:string" => hashtag,
+          "1:varint"  => 60_i64, # result count
+          "15:base64" => {
+            "1:varint" => cursor.to_i64,
+            "2:varint" => 0_i64,
+          },
+          "93:2:embedded" => {
+            "1:string" => hashtag,
+            "2:varint" => 0_i64,
+            "3:varint" => 1_i64,
           },
         },
+        "35:string" => "browse-feedFEhashtag",
       },
     }
 
