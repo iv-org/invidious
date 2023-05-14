@@ -59,10 +59,8 @@ module Invidious::Routes::API::V1::Search
   def self.hashtag(env)
     hashtag = env.params.url["hashtag"]
 
-    # page does not change anything.
-    # page = env.params.query["page"]?.try &.to_i?|| 1
+    page = env.params.query["page"]?.try &.to_i? || 1
 
-    page = 1
     locale = env.get("preferences").as(Preferences).locale
     region = env.params.query["region"]?
     env.response.content_type = "application/json"
