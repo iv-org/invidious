@@ -278,7 +278,7 @@ module Invidious::Routes::Channels
       return error_template(500, ex)
     end
 
-    env.set "search", "channel:" + ucid + " "
+    env.set "search", "channel:#{ucid} "
     return {locale, user, subscriptions, continuation, ucid, channel}
   end
 end

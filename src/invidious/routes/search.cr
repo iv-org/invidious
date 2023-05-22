@@ -66,7 +66,7 @@ module Invidious::Routes::Search
       redirect_url = Invidious::Frontend::Misc.redirect_url(env)
 
       if query.type == Invidious::Search::Query::Type::Channel
-        env.set "search", "channel:" + query.channel + " " + query.text
+        env.set "search", "channel:#{query.channel} #{query.text}"
       else
         env.set "search", query.text
       end
