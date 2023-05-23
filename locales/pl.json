@@ -499,5 +499,6 @@
     "Album: ": "Album: ",
     "Song: ": "Piosenka: ",
     "Channel Sponsor": "Sponsor kanału",
-    "Standard YouTube license": "Standardowa licencja YouTube"
+    "Standard YouTube license": "Standardowa licencja YouTube",
+    "Import YouTube playlist (.csv)": "Importuj playlistę YouTube (.csv)"
 }
