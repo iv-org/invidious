@@ -404,16 +404,16 @@
     "generic_subscribers_count_plural": "{{count}} suscriptores",
     "generic_subscriptions_count": "{{count}} suscripción",
     "generic_subscriptions_count_plural": "{{count}} suscripciones",
-    "subscriptions_unseen_notifs_count": "{{count}} notificación sin ver",
-    "subscriptions_unseen_notifs_count_plural": "{{count}} notificaciones sin ver",
+    "subscriptions_unseen_notifs_count": "{{count}} notificación no vista",
+    "subscriptions_unseen_notifs_count_plural": "{{count}} notificaciones no vistas",
     "generic_count_days": "{{count}} día",
     "generic_count_days_plural": "{{count}} días",
     "comments_view_x_replies": "Ver {{count}} respuesta",
     "comments_view_x_replies_plural": "Ver {{count}} respuestas",
     "generic_count_weeks": "{{count}} semana",
     "generic_count_weeks_plural": "{{count}} semanas",
-    "generic_playlists_count": "{{count}} reproducción",
-    "generic_playlists_count_plural": "{{count}} reproducciones",
+    "generic_playlists_count": "{{count}} lista de reproducción",
+    "generic_playlists_count_plural": "{{count}} listas de reproducciones",
     "generic_videos_count": "{{count}} video",
     "generic_videos_count_plural": "{{count}} videos",
     "generic_count_months": "{{count}} mes",
@@ -483,5 +483,6 @@
     "Song: ": "Canción: ",
     "Channel Sponsor": "Patrocinador del canal",
     "Standard YouTube license": "Licencia de YouTube estándar",
-    "Download is disabled": "La descarga está deshabilitada"
+    "Download is disabled": "La descarga está deshabilitada",
+    "Import YouTube playlist (.csv)": "Importar lista de reproducción de YouTube (.csv)"
 }

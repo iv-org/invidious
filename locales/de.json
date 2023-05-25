@@ -433,7 +433,7 @@
     "comments_points_count_plural": "{{count}} Punkte",
     "crash_page_you_found_a_bug": "Anscheinend haben Sie einen Fehler in Invidious gefunden!",
     "generic_count_months": "{{count}} Monat",
-    "generic_count_months_plural": "{{count}} Monate",
+    "generic_count_months_plural": "{{count}} Monaten",
     "Cantonese (Hong Kong)": "Kantonesisch (Hong Kong)",
     "Chinese (Hong Kong)": "Chinesisch (Hong Kong)",
     "generic_playlists_count": "{{count}} Wiedergabeliste",
@@ -482,5 +482,6 @@
     "channel_tab_channels_label": "Kanäle",
     "Channel Sponsor": "Kanalsponsor",
     "Standard YouTube license": "Standard YouTube-Lizenz",
-    "Song: ": "Musik: "
+    "Song: ": "Musik: ",
+    "Download is disabled": "Herunterladen ist deaktiviert"
 }
