@@ -46,6 +46,7 @@ body a.channel-owner {
 }
 
 .creator-heart {
+  display: inline-block;
   position: relative;
   width: 16px;
   height: 16px;
@@ -66,6 +67,7 @@ body a.channel-owner {
 }
 
 .creator-heart-small-container {
+  display: block;
   position: relative;
   width: 13px;
   height: 13px;

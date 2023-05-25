@@ -409,7 +409,6 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
 
       html << <<-END_HTML
         <i class="icon ion-ios-thumbs-up"></i> #{number_with_separator(child["likeCount"])}
-      </p>
       END_HTML
 
       if child["creatorHeart"]?
@@ -420,13 +419,14 @@ def template_youtube_comments(comments, locale, thin_mode, is_replies = false)
         end
 
         html << <<-END_HTML
+          &nbsp;
           <span class="creator-heart-container" title="#{translate(locale, "`x` marked it with a ❤", child["creatorHeart"]["creatorName"].as_s)}">
-              <div class="creator-heart">
+              <span class="creator-heart">
                   <img loading="lazy" class="creator-heart-background-hearted" src="#{creator_thumbnail}" alt="" />
-                  <div class="creator-heart-small-hearted">
-                      <div class="icon ion-ios-heart creator-heart-small-container"></div>
-                  </div>
-              </div>
+                  <span class="creator-heart-small-hearted">
+                      <span class="icon ion-ios-heart creator-heart-small-container"></span>
+                  </span>
+              </span>
           </span>
         END_HTML
       end
