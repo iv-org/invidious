@@ -95,31 +95,31 @@ module Invidious::Routes::Watch
 
         if source == "youtube"
           begin
-            comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+            comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
           rescue ex
             if preferences.comments[1] == "reddit"
-              comments, reddit_thread = fetch_reddit_comments(id)
-              comment_html = template_reddit_comments(comments, locale)
+              comments, reddit_thread = Comments.fetch_reddit(id)
+              comment_html = Frontend::Comments.template_reddit(comments, locale)
 
-              comment_html = fill_links(comment_html, "https", "www.reddit.com")
-              comment_html = replace_links(comment_html)
+              comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
+              comment_html = Comments.replace_links(comment_html)
             end
           end
         elsif source == "reddit"
           begin
-            comments, reddit_thread = fetch_reddit_comments(id)
-            comment_html = template_reddit_comments(comments, locale)
+            comments, reddit_thread = Comments.fetch_reddit(id)
+            comment_html = Frontend::Comments.template_reddit(comments, locale)
 
-            comment_html = fill_links(comment_html, "https", "www.reddit.com")
-            comment_html = replace_links(comment_html)
+            comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
+            comment_html = Comments.replace_links(comment_html)
           rescue ex
             if preferences.comments[1] == "youtube"
-              comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+              comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
             end
           end
         end
       else
-        comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+        comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
       end
 
       comment_html ||= ""

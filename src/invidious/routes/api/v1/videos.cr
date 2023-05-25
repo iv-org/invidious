@@ -333,7 +333,7 @@ module Invidious::Routes::API::V1::Videos
       sort_by ||= "top"
 
       begin
-        comments = fetch_youtube_comments(id, continuation, format, locale, thin_mode, region, sort_by: sort_by)
+        comments = Comments.fetch_youtube(id, continuation, format, locale, thin_mode, region, sort_by: sort_by)
       rescue ex : NotFoundException
         return error_json(404, ex)
       rescue ex
@@ -345,7 +345,7 @@ module Invidious::Routes::API::V1::Videos
       sort_by ||= "confidence"
 
       begin
-        comments, reddit_thread = fetch_reddit_comments(id, sort_by: sort_by)
+        comments, reddit_thread = Comments.fetch_reddit(id, sort_by: sort_by)
       rescue ex
         comments = nil
         reddit_thread = nil
@@ -361,9 +361,9 @@ module Invidious::Routes::API::V1::Videos
 
         return reddit_thread.to_json
       else
-        content_html = template_reddit_comments(comments, locale)
-        content_html = fill_links(content_html, "https", "www.reddit.com")
-        content_html = replace_links(content_html)
+        content_html = Frontend::Comments.template_reddit(comments, locale)
+        content_html = Comments.fill_links(content_html, "https", "www.reddit.com")
+        content_html = Comments.replace_links(content_html)
         response = {
           "title"       => reddit_thread.title,
           "permalink"   => reddit_thread.permalink,
