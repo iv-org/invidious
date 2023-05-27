@@ -467,5 +467,6 @@
     "Album: ": "앨범: ",
     "Music in this video": "동영상 속 음악",
     "Artist: ": "아티스트: ",
-    "Download is disabled": "다운로드가 비활성화 되어있음"
+    "Download is disabled": "다운로드가 비활성화 되어있음",
+    "Import YouTube playlist (.csv)": "유튜브 플레이리스트 가져오기 (.csv)"
 }
