@@ -17,6 +17,7 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
     "metadata" => {
       "updatedAt"              => Time.utc.to_unix,
       "lastChannelRefreshedAt" => 0_i64,
+      "hmacKeyConfigured"      => HMAC_KEY_CONFIGURED,
     },
   }
 
