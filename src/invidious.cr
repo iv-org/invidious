@@ -57,9 +57,9 @@ end
 # Simple alias to make code easier to read
 alias IV = Invidious
 
-CONFIG   = Config.load
+CONFIG              = Config.load
 HMAC_KEY_CONFIGURED = CONFIG.hmac_key != nil
-HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
+HMAC_KEY            = CONFIG.hmac_key || Random::Secure.hex(32)
 
 PG_DB       = DB.open CONFIG.database_url
 ARCHIVE_URL = URI.parse("https://archive.org")
