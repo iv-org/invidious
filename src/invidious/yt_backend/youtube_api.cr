@@ -7,9 +7,9 @@ module YoutubeAPI
 
   private DEFAULT_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 
-  private ANDROID_APP_VERSION = "17.33.42"
+  private ANDROID_APP_VERSION = "18.20.38"
   # github.com/TeamNewPipe/NewPipeExtractor/blob/943b7c033bb9d07ead63ddab4441c287653e4384/extractor/src/main/java/org/schabi/newpipe/extractor/services/youtube/YoutubeParsingHelper.java#L1308
-  private ANDROID_USER_AGENT  = "com.google.android.youtube/17.33.42 (Linux; U; Android 12; US) gzip"
+  private ANDROID_USER_AGENT  = "com.google.android.youtube/18.20.38 (Linux; U; Android 12; US) gzip"
   private ANDROID_SDK_VERSION = 31_i64
   private ANDROID_VERSION     = "12"
 
