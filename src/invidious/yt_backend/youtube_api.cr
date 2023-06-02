@@ -45,7 +45,7 @@ module YoutubeAPI
     ClientType::Web => {
       name:       "WEB",
       name_proto: "1",
-      version:    "2.20221118.01.00",
+      version:    "2.20230602.01.00",
       api_key:    DEFAULT_API_KEY,
       screen:     "WATCH_FULL_SCREEN",
       os_name:    "Windows",
@@ -65,7 +65,7 @@ module YoutubeAPI
     ClientType::WebMobile => {
       name:       "MWEB",
       name_proto: "2",
-      version:    "2.20220805.01.00",
+      version:    "2.20230531.05.00",
       api_key:    DEFAULT_API_KEY,
       os_name:    "Android",
       os_version: ANDROID_VERSION,
