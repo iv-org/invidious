@@ -12,11 +12,13 @@ module YoutubeAPI
   private ANDROID_USER_AGENT  = "com.google.android.youtube/17.33.42 (Linux; U; Android 12; US) gzip"
   private ANDROID_SDK_VERSION = 31_i64
   private ANDROID_VERSION     = "12"
-  private IOS_APP_VERSION     = "17.33.2"
+
+  private IOS_APP_VERSION = "18.21.3"
   # github.com/TeamNewPipe/NewPipeExtractor/blob/943b7c033bb9d07ead63ddab4441c287653e4384/extractor/src/main/java/org/schabi/newpipe/extractor/services/youtube/YoutubeParsingHelper.java#L1330
-  private IOS_USER_AGENT = "com.google.ios.youtube/17.33.2 (iPhone14,5; U; CPU iOS 15_6 like Mac OS X;)"
+  private IOS_USER_AGENT = "com.google.ios.youtube/18.21.3 (iPhone14,5; U; CPU iOS 15_6 like Mac OS X;)"
   # github.com/TeamNewPipe/NewPipeExtractor/blob/943b7c033bb9d07ead63ddab4441c287653e4384/extractor/src/main/java/org/schabi/newpipe/extractor/services/youtube/YoutubeParsingHelper.java#L1224
-  private IOS_VERSION     = "15.6.0.19G71"
+  private IOS_VERSION = "15.6.0.19G71"
+
   private WINDOWS_VERSION = "10.0"
 
   # Enumerate used to select one of the clients supported by the API
