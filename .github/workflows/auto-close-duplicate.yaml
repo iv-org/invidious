@@ -32,4 +32,5 @@ jobs:
               - #{{ number }} [accuracy: ({{ accuracy }}%)]
             {{/issues}}
             If this is a mistake please explain why and ping @\unixfox, @\SamantazFox and @\TheFrenchGhosty.
+            
             Please refrain from opening new issues, it won't help in solving your problem.
