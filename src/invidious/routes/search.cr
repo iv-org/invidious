@@ -105,7 +105,8 @@ module Invidious::Routes::Search
     end
 
     begin
-      items = Invidious::Hashtag.fetch(hashtag, page)
+      hashtagPage = Invidious::Hashtag.fetch(hashtag, page)
+      items = hashtagPage.videos
     rescue ex
       return error_template(500, ex)
     end
