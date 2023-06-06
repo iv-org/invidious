@@ -22,11 +22,11 @@ require "../src/invidious/yt_backend/extractors_utils"
 OUTPUT = File.open(File::NULL, "w")
 LOGGER = Invidious::LogHandler.new(OUTPUT, LogLevel::Off)
 
-def load_mock(file) : Hash(String, JSON::Any)
+def load_mock(file) : JSON::Any
   file = File.join(__DIR__, "..", "mocks", file + ".json")
   content = File.read(file)
 
-  return JSON.parse(content).as_h
+  return JSON.parse(content)
 end
 
 Spectator.configure do |config|

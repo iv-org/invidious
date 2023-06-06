@@ -3,8 +3,8 @@ require "../../parsers_helper.cr"
 Spectator.describe "parse_video_info" do
   it "parses a regular video" do
     # Enable mock
-    _player = load_mock("video/regular_mrbeast.player")
-    _next = load_mock("video/regular_mrbeast.next")
+    _player = load_mock("video/regular_mrbeast.player").as_h
+    _next = load_mock("video/regular_mrbeast.next").as_h
 
     raw_data = _player.merge!(_next)
     info = parse_video_info("2isYuQZMbdU", raw_data)
@@ -85,8 +85,8 @@ Spectator.describe "parse_video_info" do
 
   it "parses a regular video with no descrition/comments" do
     # Enable mock
-    _player = load_mock("video/regular_no-description.player")
-    _next = load_mock("video/regular_no-description.next")
+    _player = load_mock("video/regular_no-description.player").as_h
+    _next = load_mock("video/regular_no-description.next").as_h
 
     raw_data = _player.merge!(_next)
     info = parse_video_info("iuevw6218F0", raw_data)
