@@ -10,9 +10,19 @@ module Invidious::Videos
     Medium
   end
 
+  # "SPATIAL_AUDIO_TYPE_"
+  enum SpatialType
+    None
+    AmbisonicsQuad
+    Ambisonics_5_1
+    FoaWithNonDiegetic
+  end
+
   enum ProjType
+    Unknown
     Rectangular
     Equirectangular
+    EquirectangularThreedTopBottom
     Mesh
   end
 
@@ -39,12 +49,19 @@ module Invidious::Videos
       property audio_sample_rate : UInt32
       property audio_channels : UInt8
       property audio_loudness_db : Float64 = 0.0
+      property audio_spatial_type : SpatialType
 
       private macro init_audio_properties(format)
         @audio_quality = AudioQuality.parse(format["audioQuality"].as_s.lchop("AUDIO_QUALITY_"))
         @audio_sample_rate = format["audioSampleRate"].as_s.to_u32
         @audio_channels = format["audioChannels"].as_i.to_u8
-        @audio_loudness_db = format["loudnessDb"]?.try &.as_f || 0.0
+
+        if _loudness = format["loudnessDb"]?
+          @audio_loudness_db = _loudness.as_f? || _loudness.as_i64?.try &.to_f || 0.0
+        end
+
+        _spatial_type = format["spatialAudioType"]?.try &.as_s || "SPATIAL_AUDIO_TYPE_NONE"
+        @audio_spatial_type = SpatialType.parse(_spatial_type.lchop("SPATIAL_AUDIO_TYPE_"))
       end
     end
   end
@@ -110,9 +127,15 @@ module Invidious::Videos
 
           @track_id = id
           @track_name = audio_track["displayName"].as_s
-
-          @iso_code = id.gsub(".0", "")
           @default = audio_track["audioIsDefault"].as_bool
+
+          _xtags = format["xtags"]?
+            .try { |i| Base64.decode(URI.decode_www_form(i.as_s)) }
+            .try { |i| Protodec::Any.parse(IO::Memory.new(i)) }
+
+          @iso_code = _xtags
+            .try &.dig?("1:1:embedded", "2:2:string")
+            .try &.as_s || id.rchop(".0")
           #
         elsif caption_track = format["captionTrack"]?
           @track_name = caption_track["displayName"].as_s
