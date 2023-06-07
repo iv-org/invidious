@@ -631,7 +631,7 @@ default_user_preferences:
   ##
   ## Default: ["Popular", "Trending", "Subscriptions", "Playlists", "Compilations"]  (show all feeds)
   ##
-  feed_menu: ["Popular", "Trending", "Subscriptions", "Playlists", "Compilations"]
+  #feed_menu: ["Popular", "Trending", "Subscriptions", "Playlists", "Compilations"]
 
   ##
   ## Default feed to display on the home page.
