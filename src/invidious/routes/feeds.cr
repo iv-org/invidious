@@ -5,6 +5,10 @@ module Invidious::Routes::Feeds
     env.redirect "/feed/playlists"
   end
 
+  def self.compilations(env)
+    templated "feeds/compilations"
+  end
+
   def self.playlists(env)
     locale = env.get("preferences").as(Preferences).locale
 

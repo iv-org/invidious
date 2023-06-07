@@ -627,11 +627,11 @@ default_user_preferences:
   ##
   ## Accepted values: A list of strings
   ## Each entry can be one of: "Popular", "Trending",
-  ##    "Subscriptions", "Playlists"
+  ##    "Subscriptions", "Playlists", "Compilations"
   ##
-  ## Default: ["Popular", "Trending", "Subscriptions", "Playlists"]  (show all feeds)
+  ## Default: ["Popular", "Trending", "Subscriptions", "Playlists","Compilations"]  (show all feeds)
   ##
-  #feed_menu: ["Popular", "Trending", "Subscriptions", "Playlists"]
+  #feed_menu: ["Popular", "Trending", "Subscriptions", "Playlists","Compilations"]
 
   ##
   ## Default feed to display on the home page.

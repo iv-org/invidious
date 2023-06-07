@@ -99,6 +99,7 @@ module Invidious::Routing
     get "/feed/popular", Routes::Feeds, :popular
     get "/feed/trending", Routes::Feeds, :trending
     get "/feed/subscriptions", Routes::Feeds, :subscriptions
+    get "/feed/compilations", Routes::Feeds, :compilations
     get "/feed/history", Routes::Feeds, :history
 
     # RSS Feeds
