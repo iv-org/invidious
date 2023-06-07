@@ -282,7 +282,7 @@ function get_youtube_replies(target, load_more, load_replies) {
             if (load_more) {
                 body = body.parentNode.parentNode;
                 body.removeChild(body.lastElementChild);
-                body.innerHTML += response.contentHtml;
+                body.insertAdjacentHTML('beforeend', response.contentHtml);
             } else {
                 body.removeChild(body.lastElementChild);
 
