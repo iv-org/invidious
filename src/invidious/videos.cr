@@ -394,7 +394,9 @@ def fetch_video(id, region)
   if reason = info["reason"]?
     if reason == "Video unavailable"
       raise NotFoundException.new(reason.as_s || "")
-    else
+    elsif !reason.as_s.starts_with? "Premieres"
+      # dont error when it's a premiere.
+      # we already parsed most of the data and display the premiere date
       raise InfoException.new(reason.as_s || "")
     end
   end
