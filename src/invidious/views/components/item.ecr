@@ -82,11 +82,19 @@
             </div>
 
             <div class="video-card-row flexible">
-                <div class="flex-left"><a href="/channel/<%= item.ucid %>">
-                    <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
-                        <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
-                    </p>
-                </a></div>
+                <div class="flex-left">
+                    <% if !item.ucid.to_s.empty? %>
+                        <a href="/channel/<%= item.ucid %>">
+                            <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
+                                <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                            </p>
+                        </a>
+                    <% else %>
+                        <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
+                            <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                        </p>
+                    <% end %>
+                </div>
             </div>
         <% when Category %>
         <% else %>
@@ -160,11 +168,19 @@
             </div>
 
             <div class="video-card-row flexible">
-                <div class="flex-left"><a href="/channel/<%= item.ucid %>">
-                    <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
-                        <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
-                    </p>
-                </a></div>
+                <div class="flex-left">
+                    <% if !item.ucid.to_s.empty? %>
+                        <a href="/channel/<%= item.ucid %>">
+                            <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
+                                <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                            </p>
+                        </a>
+                    <% else %>
+                        <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
+                            <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                        </p>
+                    <% end %>
+                </div>
 
                 <%= rendered "components/video-context-buttons" %>
             </div>
