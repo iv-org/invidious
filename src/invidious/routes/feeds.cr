@@ -6,6 +6,8 @@ module Invidious::Routes::Feeds
   end
 
   def self.compilations(env)
+    locale = env.get("preferences").as(Preferences).locale
+
     templated "feeds/compilations"
   end
 
