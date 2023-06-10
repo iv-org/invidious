@@ -42,11 +42,6 @@ module Invidious::Routes::Account
     sid = sid.as(String)
     token = env.params.body["csrf_token"]?
 
-    # We don't store passwords for Google accounts
-    if !user.password
-      return error_template(400, "Cannot change password for Google accounts")
-    end
-
     begin
       validate_request(token, sid, env.request, HMAC_KEY, locale)
     rescue ex
@@ -54,7 +49,7 @@ module Invidious::Routes::Account
     end
 
     password = env.params.body["password"]?
-    if !password
+    if password.nil? || password.empty?
       return error_template(401, "Password is a required field")
     end
 
