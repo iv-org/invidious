@@ -80,49 +80,23 @@ module Invidious::Routes::BeforeAll
         raise "Cannot use token as SID"
       end
 
-      # Invidious users only have SID
-      if !env.request.cookies.has_key? "SSID"
-        if email = Invidious::Database::SessionIDs.select_email(sid)
-          user = Invidious::Database::Users.select!(email: email)
-          csrf_token = generate_response(sid, {
-            ":authorize_token",
-            ":playlist_ajax",
-            ":signout",
-            ":subscription_ajax",
-            ":token_ajax",
-            ":watch_ajax",
-          }, HMAC_KEY, 1.week)
+      if email = Database::SessionIDs.select_email(sid)
+        user = Database::Users.select!(email: email)
+        csrf_token = generate_response(sid, {
+          ":authorize_token",
+          ":playlist_ajax",
+          ":signout",
+          ":subscription_ajax",
+          ":token_ajax",
+          ":watch_ajax",
+        }, HMAC_KEY, 1.week)
 
-          preferences = user.preferences
-          env.set "preferences", preferences
+        preferences = user.preferences
+        env.set "preferences", preferences
 
-          env.set "sid", sid
-          env.set "csrf_token", csrf_token
-          env.set "user", user
-        end
-      else
-        headers = HTTP::Headers.new
-        headers["Cookie"] = env.request.headers["Cookie"]
-
-        begin
-          user, sid = get_user(sid, headers, false)
-          csrf_token = generate_response(sid, {
-            ":authorize_token",
-            ":playlist_ajax",
-            ":signout",
-            ":subscription_ajax",
-            ":token_ajax",
-            ":watch_ajax",
-          }, HMAC_KEY, 1.week)
-
-          preferences = user.preferences
-          env.set "preferences", preferences
-
-          env.set "sid", sid
-          env.set "csrf_token", csrf_token
-          env.set "user", user
-        rescue ex
-        end
+        env.set "sid", sid
+        env.set "csrf_token", csrf_token
+        env.set "user", user
       end
     end
 
