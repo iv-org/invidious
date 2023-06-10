@@ -91,38 +91,6 @@ def create_user(sid, email, password)
   return user, sid
 end
 
-def subscribe_ajax(channel_id, action, env_headers)
-  headers = HTTP::Headers.new
-  headers["Cookie"] = env_headers["Cookie"]
-
-  html = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
-
-  cookies = HTTP::Cookies.from_client_headers(headers)
-  html.cookies.each do |cookie|
-    if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
-      if cookies[cookie.name]?
-        cookies[cookie.name] = cookie
-      else
-        cookies << cookie
-      end
-    end
-  end
-  headers = cookies.add_request_headers(headers)
-
-  if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[^"]+)"/)
-    session_token = match["session_token"]
-
-    headers["content-type"] = "application/x-www-form-urlencoded"
-
-    post_req = {
-      session_token: session_token,
-    }
-    post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
-
-    YT_POOL.client &.post(post_url, headers, form: post_req)
-  end
-end
-
 def get_subscription_feed(user, max_results = 40, page = 1)
   limit = max_results.clamp(0, MAX_ITEMS_PER_PAGE)
   offset = (page - 1) * limit
