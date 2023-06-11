@@ -63,7 +63,6 @@ HMAC_KEY            = CONFIG.hmac_key || Random::Secure.hex(32)
 
 PG_DB       = DB.open CONFIG.database_url
 ARCHIVE_URL = URI.parse("https://archive.org")
-LOGIN_URL   = URI.parse("https://accounts.google.com")
 PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
 REDDIT_URL  = URI.parse("https://www.reddit.com")
 YT_URL      = URI.parse("https://www.youtube.com")

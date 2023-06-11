@@ -320,10 +320,6 @@ module Invidious::Routes::Playlists
       end
     end
 
-    if !user.password
-      # TODO: Playlist stub, sync with YouTube for Google accounts
-      # playlist_ajax(playlist_id, action, env.request.headers)
-    end
     email = user.email
 
     case action
