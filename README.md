@@ -153,9 +153,9 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 - [WatchTube](https://github.com/WatchTubeTeam/WatchTube): Powerful YouTube client for Apple Watch.
 - [Yattee](https://github.com/yattee/yattee): Alternative YouTube frontend for iPhone, iPad, Mac and Apple TV.
 - [TubiTui](https://codeberg.org/777/TubiTui): A lightweight, libre, TUI-based YouTube client.
-- [Ytfzf](https://github.com/pystardust/ytfzf): A posix script to find and watch youtube videos from the terminal. (Without API)
-- [Playlet](https://github.com/iBicha/playlet): Unofficial Youtube client for Roku TV
-- [Clipious](https://github.com/lamarios/clipious): Unofficial Invidious client for Android
+- [Ytfzf](https://github.com/pystardust/ytfzf): A posix script to find and watch youtube videos from the terminal. (Without API).
+- [Playlet](https://github.com/iBicha/playlet): Unofficial Youtube client for Roku TV.
+- [Clipious](https://github.com/lamarios/clipious): Unofficial Invidious client for Android.
 
 
 ## Liability
