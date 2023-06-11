@@ -48,8 +48,8 @@
     "preferences_category_player": "إعدادات المُشغِّل",
     "preferences_video_loop_label": "كرر المقطع المرئيّ دائما: ",
     "preferences_autoplay_label": "تشغيل تلقائي: ",
-    "preferences_continue_label": "شغل المقطع التالي تلقائيًا: ",
-    "preferences_continue_autoplay_label": "شغل المقطع التالي تلقائيًا: ",
+    "preferences_continue_label": "تشغيل المقطع التالي تلقائيًا: ",
+    "preferences_continue_autoplay_label": "شغل المقطع التالي تلقائيًا: . ",
     "preferences_listen_label": "تشغيل النسخة السمعية تلقائيًا: ",
     "preferences_local_label": "بروكسي المقاطع المرئيّة؟ ",
     "preferences_speed_label": "السرعة الافتراضية: ",
@@ -155,7 +155,7 @@
     "View more comments on Reddit": "عرض المزيد من التعليقات على\\من موقع ريديت",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "عرض `x` تعليقات",
-        "": "عرض `x` تعليقات"
+        "": "عرض `x` تعليقات."
     },
     "View Reddit comments": "عرض تعليقات ريديت",
     "Hide replies": "إخفاء الردود",
