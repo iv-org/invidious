@@ -491,7 +491,7 @@
     "error_video_not_in_playlist": "Запрошенного видео нет в этой подборке. <a href=\"`x`\">Нажмите тут, чтобы вернуться к странице подборки.</a>",
     "channel_tab_playlists_label": "Подборки",
     "channel_tab_channels_label": "Каналы",
-    "channel_tab_streams_label": "Живое вещание",
+    "channel_tab_streams_label": "Стримы",
     "channel_tab_shorts_label": "Shorts",
     "Music in this video": "Музыка в этом видео",
     "Artist: ": "Исполнитель: ",
@@ -499,5 +499,6 @@
     "Song: ": "Композиция: ",
     "Standard YouTube license": "Стандартная лицензия YouTube",
     "Channel Sponsor": "Спонсор канала",
-    "Download is disabled": "Загрузка отключена"
+    "Download is disabled": "Загрузка отключена",
+    "Import YouTube playlist (.csv)": "Импорт плейлиста YouTube (.csv)"
 }
