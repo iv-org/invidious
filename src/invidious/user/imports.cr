@@ -6,7 +6,7 @@ struct Invidious::User
 
     # Parse a youtube CSV subscription file
     def parse_subscription_export_csv(csv_content : String)
-      rows = CSV.new(csv_content, headers: true)
+      rows = CSV.new(csv_content.strip('\n'), headers: true)
       subscriptions = Array(String).new
 
       # Counter to limit the amount of imports.
@@ -32,10 +32,10 @@ struct Invidious::User
 
     def parse_playlist_export_csv(user : User, raw_input : String)
       # Split the input into head and body content
-      raw_head, raw_body = raw_input.split("\n\n", limit: 2, remove_empty: true)
+      raw_head, raw_body = raw_input.strip('\n').split("\n\n", limit: 2, remove_empty: true)
 
       # Create the playlist from the head content
-      csv_head = CSV.new(raw_head, headers: true)
+      csv_head = CSV.new(raw_head.strip('\n'), headers: true)
       csv_head.next
       title = csv_head[4]
       description = csv_head[5]
@@ -51,7 +51,7 @@ struct Invidious::User
       Invidious::Database::Playlists.update_description(playlist.id, description)
 
       # Add each video to the playlist from the body content
-      csv_body = CSV.new(raw_body, headers: true)
+      csv_body = CSV.new(raw_body.strip('\n'), headers: true)
       csv_body.each do |row|
         video_id = row[0]
         if playlist
