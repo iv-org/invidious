@@ -9,7 +9,7 @@ module Invidious::Routes::API::V1::Authentication
       user = Invidious::Database::Users.select(email: creds.username)
       old_sid = creds.token
       if user
-        if Crypto::Bcrypt::Password.new(creds.password).verify(password.byte_slice(0, 55))
+        if Crypto::Bcrypt::Password.new(creds.password).verify(creds.password.byte_slice(0, 55))
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           Invidious::Database::SessionIDs.insert(sid, email)
           if old_sid != ""
