@@ -11,11 +11,11 @@ module Invidious::Routes::API::V1::Authentication
       if user
         if Crypto::Bcrypt::Password.new(creds.password).verify(creds.password.byte_slice(0, 55))
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-          Invidious::Database::SessionIDs.insert(sid, creds.username)
+          Invidious::Database::SessionIDs.insert(sid: sid, email: creds.username)
           if old_sid != ""
             Invidious::Database::SessionIDs.delete(sid: old_sid)
           end
-          token = Invidious::Database::SessionIDs.select_token(sid)
+          token = Invidious::Database::SessionIDs.select_token(sid: sid)
           response = JSON.build do |json|
             json.object do
               json.field "session", token[:session]
