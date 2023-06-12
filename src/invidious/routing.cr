@@ -244,6 +244,10 @@ module Invidious::Routing
       get "/api/v1/search/suggestions", {{namespace}}::Search, :search_suggestions
       get "/api/v1/hashtag/:hashtag", {{namespace}}::Search, :hashtag
 
+      # Authentication
+      post "/api/v1/auth/login", {{namespace}}::Authentication, :login
+      post "/api/v1/auth/signout", {{namespace}}::Authentication, :signout
+
       # Authenticated
 
       # The notification APIs cannot be extracted yet! They require the *local* notifications constant defined in invidious.cr
