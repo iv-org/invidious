@@ -15,14 +15,17 @@ module Invidious::Routes::API::V1::Authentication
           if old_sid != ""
             Invidious::Database::SessionIDs.delete(sid: old_sid)
           end
-          token = Invidious::Database::SessionIDs.select_token(sid: sid)
-          response = JSON.build do |json|
-            json.object do
-              json.field "session", token[:session]
-              json.field "issued", token[:issued].to_unix
+          if token = Invidious::Database::SessionIDs.select_token(sid: sid)
+            response = JSON.build do |json|
+              json.object do
+                json.field "session", token[:session]
+                json.field "issued", token[:issued].to_unix
+              end
             end
+            return response
+          else
+            return error_json(500, "Token not found")
           end
-          return response
         else
           return error_json(401, "Wrong username or password")
         end
