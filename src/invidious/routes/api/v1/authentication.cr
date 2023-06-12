@@ -13,7 +13,7 @@ module Invidious::Routes::API::V1::Authentication
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           Invidious::Database::SessionIDs.insert(sid, creds.username)
           if old_sid != ""
-            Invidious::Database::SessionIDs.delete(old_sid)
+            Invidious::Database::SessionIDs.delete(sid: old_sid)
           end
           token = Invidious::Database::SessionIDs.select_token(sid)
           response = JSON.build do |json|
