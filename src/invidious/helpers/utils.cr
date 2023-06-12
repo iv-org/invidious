@@ -440,7 +440,7 @@ def parse_link_endpoint(endpoint : JSON::Any, text : String, video_id : String)
       #  - https://github.com/iv-org/invidious/issues/3062
       text = %(<a href="#{url}">#{text}</a>)
     else
-      text = %(<a href="#{url}">#{reduce_uri(url)}</a>)
+      text = %(<a href="#{url}">#{reduce_uri(text)}</a>)
     end
   end
   return text
