@@ -62,9 +62,9 @@ module Invidious::Database::SessionIDs
     PG_DB.query_one?(request, sid, as: String)
   end
 
-  def select_token(sid : String) : String?
+  def select_one(sid : String) : {session: String, issued: Time}
     request = <<-SQL
-      SELECT id FROM session_ids
+      SELECT id, issued FROM session_ids
       WHERE id = $1
     SQL
 

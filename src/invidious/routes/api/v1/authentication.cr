@@ -15,7 +15,7 @@ module Invidious::Routes::API::V1::Authentication
           if old_sid != ""
             Invidious::Database::SessionIDs.delete(sid: old_sid)
           end
-          if token = Invidious::Database::SessionIDs.select_token(sid: sid)
+          if token = Invidious::Database::SessionIDs.select_one(sid: sid)
             response = JSON.build do |json|
               json.object do
                 json.field "session", token[:session]
