@@ -11,11 +11,11 @@ module Invidious::Routes::API::V1::Authentication
         creds = nil
       end
 
-      begin
-        captcha_response = CaptchaResponse.from_json(env.request.body || "{}")
-      rescue JSON::SerializableError
-        captcha_response = nil
-      end
+      # begin
+      #   captcha_response = CaptchaResponse.from_json(env.request.body || "{}")
+      # rescue JSON::SerializableError
+      #   captcha_response = nil
+      # end
 
       if creds
         # user is registering
@@ -38,17 +38,17 @@ module Invidious::Routes::API::V1::Authentication
           return captcha
         end
       end
-      if captcha_response
-        # process captcha response
-        answer = captcha_response.answer
-        answer = answer.lstrip('0')
-        answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
-        begin
-          validate_request(tokens[0], answer, env.request, HMAC_KEY, locale)
-        rescue ex
-          return error_jsonror(400, ex)
-        end
-      end
+      # if captcha_response
+      #   # process captcha response
+      #   answer = captcha_response.answer
+      #   answer = answer.lstrip('0')
+      #   answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
+      #   begin
+      #     validate_request(, answer, env.request, HMAC_KEY, locale)
+      #   rescue ex
+      #     return error_jsonror(400, ex)
+      #   end
+      # end
       # create user if we made it past credentials and captcha
       sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
       user, sid = create_user(sid, email, password)
@@ -119,6 +119,7 @@ struct CaptchaResponse
   include YAML::Serializable
 
   property answer : String
+  property tokens : Array()
 end
 
 struct Credentials
