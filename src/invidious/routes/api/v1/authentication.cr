@@ -2,15 +2,13 @@ module Invidious::Routes::API::V1::Authentication
   def self.register(env)
     env.response.content_type = "application/json"
     if CONFIG.registration_enabled
+      creds = nil
       begin
         creds = Credentials.from_json(env.request.body || "{}")
-      rescue JSON::SerializableError
-        creds = nil
+      rescue
       end
       # get user info
       if creds
-        locale = env.get("preferences").as(Preferences).locale
-
         username = creds.username.downcase
         password = creds.password
         username = "" if username.nil?
@@ -37,34 +35,16 @@ module Invidious::Routes::API::V1::Authentication
         password = password.byte_slice(0, 55)
         # send captcha if enabled
         if CONFIG.captcha_enabled
-          begin
-            captcha_response = CaptchaResponse.from_json(env.request.body || "{}")
-          rescue JSON::SerializableError
-            captcha_response = nil
-          end
-          # check if user is responding to captcha
-          if captcha_response
-            # process captcha response
-            answer = captcha_response.answer
-            answer = answer.lstrip('0')
-            answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
-            begin
-              validate_request(captcha_response.tokens[0], answer, env.request, HMAC_KEY, locale)
-            rescue ex
-              return error_json(400, ex)
+          # send captcha
+          captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
+          # puts captcha
+          response = JSON.build do |json|
+            json.object do
+              json.field "question", captcha["question"]
+              json.field "tokens", captcha["tokens"]
             end
-          else
-            # send captcha
-            captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
-            # puts captcha
-            response = JSON.build do |json|
-              json.object do
-                json.field "question", captcha["question"]
-                json.field "tokens", captcha["tokens"]
-              end
-            end
-            return response
           end
+          return response
         end
         # create user
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
@@ -84,7 +64,7 @@ module Invidious::Routes::API::V1::Authentication
           return error_json(500, "Token not found")
         end
       else
-        return error_json(400, "No credentials")
+        return error_json(401, "No credentials")
       end
     else
       return error_json(400, "Registration has been disabled by administrator")
@@ -92,6 +72,51 @@ module Invidious::Routes::API::V1::Authentication
   end
 
   def self.captcha(env)
+    if CONFIG.registration_enabled
+      if CONFIG.captcha_enabled
+        captcha_response = nil
+        begin
+          captcha_response = CaptchaResponse.from_json(env.request.body || "{}")
+        rescue
+        end
+        if captcha_response
+          # process captcha response
+          locale = env.get("preferences").as(Preferences).locale
+
+          answer = captcha_response.answer
+          answer = answer.lstrip('0')
+          answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
+          begin
+            validate_request(captcha_response.tokens[0], answer, env.request, HMAC_KEY, locale)
+          rescue ex
+            return error_json(400, ex)
+          end
+          # create user
+          sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
+          user, sid = create_user(sid, username, password)
+          Invidious::Database::Users.insert(user)
+          Invidious::Database::SessionIDs.insert(sid, username)
+          # send user info
+          if token = Invidious::Database::SessionIDs.select_one(sid: sid)
+            response = JSON.build do |json|
+              json.object do
+                json.field "session", token[:session]
+                json.field "issued", token[:issued].to_unix
+              end
+            end
+            return response
+          else
+            return error_json(500, "Token not found")
+          end
+        else
+          return error_json(401, "No response")
+        end
+      else
+        return error_json(400, "Captcha has been disabled by administrator")
+      end
+    else
+      return error_json(400, "Registration has been disabled by administrator")
+    end
   end
 
   def self.login(env)
