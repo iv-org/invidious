@@ -86,11 +86,12 @@ def validate_request(token, session, request, key, locale = nil)
   end
 
   scopes = token["scopes"].as_a.map(&.as_s)
-  scope = ""
   if request.path.includes?("auth")
     scope = "#{request.method}:#{request.path.lchop("/api/v1/auth/").lstrip("/")}"
+  elsif request.path.includes?("v1")
+    scope = "#{request.method}:#{request.path.lchop("/api/v1/").lstrip("/")}"
   else
-    scope = "#{request.method}::#{request.path.lchop("/api/v1/").lstrip("/")}"
+    scope = "#{request.method}:#{request.path.lstrip("/")}"
   end
   if !scopes_include_scope(scopes, scope)
     raise InfoException.new("Invalid scope")
@@ -112,16 +113,11 @@ def validate_request(token, session, request, key, locale = nil)
 end
 
 def scope_includes_scope(scope, subset)
-  if scope.includes?("::")
-    methods, endpoint = scope.split("::")
-    subset_methods, subset_endpoint = subset.split("::")
-  else
-    methods, endpoint = scope.split(":")
-    subset_methods, subset_endpoint = subset.split(":")
-  end
+  methods, endpoint = scope.split(":")
   methods = methods.split(";").map(&.upcase).reject(&.empty?).sort!
   endpoint = endpoint.downcase
 
+  subset_methods, subset_endpoint = subset.split(":")
   subset_methods = subset_methods.split(";").map(&.upcase).sort!
   subset_endpoint = subset_endpoint.downcase
 
