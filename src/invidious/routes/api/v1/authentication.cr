@@ -250,19 +250,19 @@ struct CaptchaResponse
   property username : String
   property password : String
   property answer : String
-  property tokens : Array(CaptchaToken)
+  property tokens : Array(JSON::Any)
 end
 
-struct CaptchaToken
-  include JSON::Serializable
-  include YAML::Serializable
+# struct CaptchaToken
+#   include JSON::Serializable
+#   include YAML::Serializable
 
-  property session : String
-  property expire : Int64
-  property scopes : Array(String)
-  property nonce : String
-  property signature : String
-end
+#   property session : String
+#   property expire : Int64
+#   property scopes : Array(String)
+#   property nonce : String
+#   property signature : String
+# end
 
 struct Credentials
   include JSON::Serializable
