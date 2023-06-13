@@ -1,7 +1,11 @@
 module Invidious::Routes::API::V1::Authentication
   def self.register(env)
     env.response.content_type = "application/json"
-    body_json : String = env.request.body.gets_to_end
+    body_io = env.request.body
+    body_json = "{}"
+    if body_io
+      body_json = env.request.body!.gets_to_end
+    end
     if CONFIG.registration_enabled
       creds = nil
       begin
