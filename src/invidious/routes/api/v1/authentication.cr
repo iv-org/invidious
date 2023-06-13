@@ -38,10 +38,11 @@ module Invidious::Routes::API::V1::Authentication
         # send captcha if enabled
         if CONFIG.captcha_enabled
           captcha_response = nil
-          begin
-            captcha_response = CaptchaResponse.from_json(body_json)
-          rescue
-          end
+          captcha_response = CaptchaResponse.from_json(body_json)
+          # begin
+          # rescue ex
+
+          # end
           if captcha_response
             answer = captcha_response.answer
             tokens = captcha_response.tokens
