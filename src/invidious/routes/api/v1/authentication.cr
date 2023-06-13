@@ -69,13 +69,13 @@ module Invidious::Routes::API::V1::Authentication
             # send captcha
             captcha = Invidious::User::Captcha.generate_text(HMAC_KEY, ":register")
             # puts captcha
-            response = JSON.build do |json|
+            captcha_request = JSON.build do |json|
               json.object do
                 json.field "question", captcha["question"]
                 json.field "tokens", captcha["tokens"]
               end
             end
-            return response
+            return captcha_request
           end
         end
         # create user
