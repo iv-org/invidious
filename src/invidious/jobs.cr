@@ -2,7 +2,7 @@ module Invidious::Jobs
   JOBS = [] of BaseJob
 
   # Automatically generate a structure that wraps the various
-  # jobs' configs, so that the follwing YAML config can be used:
+  # jobs' configs, so that the following YAML config can be used:
   #
   # jobs:
   #   job_name:
