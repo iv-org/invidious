@@ -111,7 +111,7 @@ module Invidious::Routes::API::V1::Authentication
           answer = Digest::MD5.hexdigest(answer.downcase.strip)
 
           if tokens.empty?
-            return error_template(500, "Erroneous CAPTCHA")
+            return error_json(500, "Erroneous CAPTCHA")
           end
 
           found_valid_captcha = false
