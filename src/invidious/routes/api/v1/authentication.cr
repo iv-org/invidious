@@ -1,3 +1,5 @@
+require "json"
+
 module Invidious::Routes::API::V1::Authentication
   def self.register(env)
     env.response.content_type = "application/json"
