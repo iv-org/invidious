@@ -83,6 +83,31 @@ module Invidious::Routes::API::V1::Authentication
           # process captcha response
           locale = env.get("preferences").as(Preferences).locale
 
+          username = creds.username.downcase
+          password = creds.password
+          username = "" if username.nil?
+          password = "" if password.nil?
+
+          if username.empty?
+            return error_json(401, "Username cannot be empty")
+          end
+
+          if password.empty?
+            return error_json(401, "Password cannot be empty")
+          end
+
+          if username.bytesize > 254
+            return error_json(401, "Username cannot be longer than 254 characters")
+          end
+
+          # See https://security.stackexchange.com/a/39851
+          if password.bytesize > 55
+            return error_json(401, "Password cannot be longer than 55 characters")
+          end
+
+          username = username.byte_slice(0, 254)
+          password = password.byte_slice(0, 55)
+
           answer = captcha_response.answer
           answer = answer.lstrip('0')
           answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
