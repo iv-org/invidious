@@ -4,7 +4,7 @@ module Invidious::Routes::API::V1::Authentication
     body_io = env.request.body
     body_json = "{}"
     if body_io
-      body_json = env.request.body!.gets_to_end
+      body_json = env.request.body.not_nil!.gets_to_end
     end
     if CONFIG.registration_enabled
       creds = nil
