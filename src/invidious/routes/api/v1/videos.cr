@@ -334,8 +334,6 @@ module Invidious::Routes::API::V1::Videos
 
       begin
         comments = Comments.fetch_youtube(id, continuation, format, locale, thin_mode, region, sort_by: sort_by)
-      rescue ex : NotFoundException
-        return error_json(404, ex)
       rescue ex
         return error_json(500, ex, {"errorHtml" => error_template_message(env, ex)})
       end
