@@ -35,16 +35,45 @@ module Invidious::Routes::API::V1::Authentication
         password = password.byte_slice(0, 55)
         # send captcha if enabled
         if CONFIG.captcha_enabled
-          # send captcha
-          captcha = Invidious::User::Captcha.generate_text(HMAC_KEY, ":captcha")
-          # puts captcha
-          response = JSON.build do |json|
-            json.object do
-              json.field "question", captcha["question"]
-              json.field "tokens", captcha["tokens"]
-            end
+          captcha_response = nil
+          begin
+            captcha_response = CaptchaResponse.from_json(env.request.body || "{}")
+          rescue
           end
-          return response
+          if captcha_response
+            answer = captcha_response.answer
+            tokens = captcha_response.tokens
+            answer = Digest::MD5.hexdigest(answer.downcase.strip)
+            if tokens.empty?
+              return error_json(500, "Erroneous CAPTCHA")
+            end
+
+            found_valid_captcha = false
+            error_exception = Exception.new
+            tokens.each do |tok|
+              begin
+                validate_request(tok, answer, env.request, HMAC_KEY, locale)
+                found_valid_captcha = true
+              rescue ex
+                error_exception = ex
+              end
+            end
+
+            if !found_valid_captcha
+              return error_json(500, error_exception)
+            end
+          else
+            # send captcha
+            captcha = Invidious::User::Captcha.generate_text(HMAC_KEY, ":captcha")
+            # puts captcha
+            response = JSON.build do |json|
+              json.object do
+                json.field "question", captcha["question"]
+                json.field "tokens", captcha["tokens"]
+              end
+            end
+            return response
+          end
         end
         # create user
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
