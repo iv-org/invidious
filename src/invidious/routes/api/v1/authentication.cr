@@ -73,7 +73,7 @@ module Invidious::Routes::API::V1::Authentication
             end
           else
             # send captcha
-            captcha = Invidious::User::Captcha.generate_text(HMAC_KEY, "POST::register")
+            captcha = Invidious::User::Captcha.generate_text(HMAC_KEY, ":api_register")
             # Fix token formatting
             formatted_tokens : Array(JSON::Any) = Array(JSON::Any).new
             captcha["tokens"].each do |tok|
