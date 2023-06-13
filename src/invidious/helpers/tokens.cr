@@ -117,6 +117,7 @@ def scope_includes_scope(scope, subset)
     subset_methods, subset_endpoint = subset.split("::")
   else
     methods, endpoint = scope.split(":")
+    subset_methods, subset_endpoint = subset.split(":")
   end
   methods = methods.split(";").map(&.upcase).reject(&.empty?).sort!
   endpoint = endpoint.downcase
