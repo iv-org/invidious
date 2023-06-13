@@ -43,14 +43,14 @@ module Invidious::Routes::API::V1::Authentication
           # check if user is responding to captcha
           if captcha_response
             # process captcha response
-            # answer = captcha_response.answer
-            # answer = answer.lstrip('0')
-            # answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
-            # begin
-            #  validate_request(, answer, env.request, HMAC_KEY, locale)
-            # rescue ex
-            #  return error_jsonror(400, ex)
-            # end
+            answer = captcha_response.answer
+            answer = answer.lstrip('0')
+            answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
+            begin
+              validate_request(captcha_response.tokens[0], answer, env.request, HMAC_KEY, locale)
+            rescue ex
+              return error_jsonror(400, ex)
+            end
           else
             # send captcha
             captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
@@ -144,7 +144,7 @@ struct CaptchaResponse
   property username : String
   property password : String
   property answer : String
-  # property tokens : Array()
+  property tokens : Array(String)
 end
 
 struct Credentials
