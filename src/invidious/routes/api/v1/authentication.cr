@@ -83,8 +83,8 @@ module Invidious::Routes::API::V1::Authentication
           # process captcha response
           locale = env.get("preferences").as(Preferences).locale
 
-          username = creds.username.downcase
-          password = creds.password
+          username = captcha_response.username.downcase
+          password = captcha_response.password
           username = "" if username.nil?
           password = "" if password.nil?
 
