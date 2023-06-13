@@ -20,15 +20,9 @@ module Invidious::Routes::API::V1::Authentication
       if creds
         # user is registering
         username = creds.username
+        username ||= ""
         password = creds.password
-
-        if username.nil? || username.empty?
-          return error_json(401, "User ID is a required field")
-        end
-
-        if password.nil? || password.empty?
-          return error_json(401, "Password is a required field")
-        end
+        password ||= ""
 
         if username.empty?
           return error_json(401, "Username cannot be empty")
