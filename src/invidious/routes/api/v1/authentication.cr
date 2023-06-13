@@ -1,7 +1,7 @@
 module Invidious::Routes::API::V1::Authentication
   def self.register(env)
     env.response.content_type = "application/json"
-    body_json = env.request.body || "{}"
+    body_json : String = env.request.body || "{}"
     if CONFIG.registration_enabled
       creds = nil
       begin
@@ -38,6 +38,7 @@ module Invidious::Routes::API::V1::Authentication
         # send captcha if enabled
         if CONFIG.captcha_enabled
           # captcha_response = nil
+          put body_json
           captcha_response = CaptchaResponse.from_json(body_json)
           # begin
           # rescue ex
