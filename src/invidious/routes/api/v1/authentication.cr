@@ -12,7 +12,7 @@ module Invidious::Routes::API::V1::Authentication
       end
 
       begin
-        captcha_response = CaptchaRespone.from_json(env.request.body || "{}")
+        captcha_response = CaptchaResponse.from_json(env.request.body || "{}")
       rescue JSON::SerializableError
         captcha_response = nil
       end
