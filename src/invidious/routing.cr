@@ -246,6 +246,7 @@ module Invidious::Routing
 
       # Authentication
       post "/api/v1/register", {{namespace}}::Authentication, :register
+      post "/api/v1/captcha", {{namespace}}::Authentication, :captcha
       post "/api/v1/login", {{namespace}}::Authentication, :login
       post "/api/v1/signout", {{namespace}}::Authentication, :signout
 
