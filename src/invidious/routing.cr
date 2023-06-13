@@ -245,6 +245,7 @@ module Invidious::Routing
       get "/api/v1/hashtag/:hashtag", {{namespace}}::Search, :hashtag
 
       # Authentication
+      post "/api/v1/register", {{namespace}}::Authentication, :register
       post "/api/v1/login", {{namespace}}::Authentication, :login
       post "/api/v1/signout", {{namespace}}::Authentication, :signout
 
