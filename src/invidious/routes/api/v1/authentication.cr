@@ -19,16 +19,35 @@ module Invidious::Routes::API::V1::Authentication
 
       if creds
         # user is registering
-        password = creds.password
         username = creds.username
-        if creds.password.empty?
-          return error_json(401, "Password cannot be empty")
-        end
-        # See https://security.stackexchange.com/a/39851
-        if creds.password.bytesize > 55
-          return error_json(400, "Password cannot be longer than 55 characters")
+        password = creds.password
+
+        if username.nil? || username.empty?
+          return error_json(401, "User ID is a required field")
         end
 
+        if password.nil? || password.empty?
+          return error_json(401, "Password is a required field")
+        end
+
+        if username.empty?
+          return error_json(401, "Username cannot be empty")
+        end
+
+        if password.empty?
+          return error_json(401, "Password cannot be empty")
+        end
+
+        if username.bytesize > 254
+          return error_json(401)
+        end
+
+        # See https://security.stackexchange.com/a/39851
+        if password.bytesize > 55
+          return error_json(401, "Password cannot be longer than 55 characters")
+        end
+
+        username = username.byte_slice(0, 254)
         password = password.byte_slice(0, 55)
 
         if CONFIG.captcha_enabled
