@@ -464,5 +464,17 @@
     "search_filters_apply_button": "Bruk valgte filtre",
     "search_filters_date_option_none": "Siden begynnelsen",
     "search_filters_features_option_vr180": "VR180",
-    "error_video_not_in_playlist": "Forespurt video finnes ikke i denne spillelisten. <a href=\"`x`\">Trykk her for spillelistens hjemmeside.</a>"
+    "error_video_not_in_playlist": "Forespurt video finnes ikke i denne spillelisten. <a href=\"`x`\">Trykk her for spillelistens hjemmeside.</a>",
+    "Standard YouTube license": "Standard YouTube-lisens",
+    "Song: ": "Sang: ",
+    "channel_tab_streams_label": "Direktesendinger",
+    "channel_tab_shorts_label": "Kortvideoer",
+    "channel_tab_playlists_label": "Spillelister",
+    "Music in this video": "Musikk i denne videoen",
+    "channel_tab_channels_label": "Kanaler",
+    "Artist: ": "Artist: ",
+    "Album: ": "Album: ",
+    "Download is disabled": "Nedlasting er avskrudd",
+    "Channel Sponsor": "Kanalsponsor",
+    "Import YouTube playlist (.csv)": "Importer YouTube-spilleliste (.csv)"
 }
