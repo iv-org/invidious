@@ -92,7 +92,7 @@ module Invidious::Routes::API::V1::Authentication
     if !CONFIG.login_enabled
       return error_json(400, "Login has been disabled by administrator")
     else
-      creds = Login.from_json(env.request.body || "{}")
+      creds = {{namespace}}::Login.from_json(env.request.body || "{}")
       user = Invidious::Database::Users.select(email: creds.username)
       old_sid = creds.token
       if user
