@@ -92,7 +92,7 @@ module Invidious::Routes::API::V1::Authentication
     if !CONFIG.login_enabled
       return error_json(400, "Login has been disabled by administrator")
     else
-      creds = Invidious::Routes::API::V1::Authentication::Login.from_json(env.request.body || "{}")
+      creds = CredentialsLogin.from_json(env.request.body || "{}")
       user = Invidious::Database::Users.select(email: creds.username)
       old_sid = creds.token
       if user
@@ -149,7 +149,7 @@ struct Credentials
   property password : String
 end
 
-struct Login
+struct CredentialsLogin
   include JSON::Serializable
   include YAML::Serializable
 
