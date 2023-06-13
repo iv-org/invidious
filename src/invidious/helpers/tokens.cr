@@ -87,10 +87,10 @@ def validate_request(token, session, request, key, locale = nil)
 
   scopes = token["scopes"].as_a.map(&.as_s)
   scope = ""
-  if scopes.includes?("::")
-    scope = "#{request.method}::#{request.path.lchop("/api/v1/").lstrip("/")}"
-  else
+  if request.path.includes?("auth")
     scope = "#{request.method}:#{request.path.lchop("/api/v1/auth/").lstrip("/")}"
+  else
+    scope = "#{request.method}::#{request.path.lchop("/api/v1/").lstrip("/")}"
   end
   if !scopes_include_scope(scopes, scope)
     raise InfoException.new("Invalid scope")
