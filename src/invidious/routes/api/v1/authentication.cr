@@ -51,7 +51,7 @@ module Invidious::Routes::API::V1::Authentication
             begin
               validate_request(captcha_response.tokens[0], answer, env.request, HMAC_KEY, locale)
             rescue ex
-              return error_jsonror(400, ex)
+              return error_json(400, ex)
             end
           else
             # send captcha
