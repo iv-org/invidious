@@ -85,8 +85,8 @@ module Invidious::Routes::API::V1::Authentication
 
           username = captcha_response.username.downcase
           password = captcha_response.password
-          username = "" if username.nil?
-          password = "" if password.nil?
+          answer = captcha_response.answer
+          tokens = captcha_response.tokens
 
           if username.empty?
             return error_json(401, "Username cannot be empty")
@@ -108,13 +108,25 @@ module Invidious::Routes::API::V1::Authentication
           username = username.byte_slice(0, 254)
           password = password.byte_slice(0, 55)
 
-          answer = captcha_response.answer
-          answer = answer.lstrip('0')
-          answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
-          begin
-            validate_request(captcha_response.tokens[0], answer, env.request, HMAC_KEY, locale)
-          rescue ex
-            return error_json(400, ex)
+          answer = Digest::MD5.hexdigest(answer.downcase.strip)
+
+          if tokens.empty?
+            return error_template(500, "Erroneous CAPTCHA")
+          end
+
+          found_valid_captcha = false
+          error_exception = Exception.new
+          tokens.each do |tok|
+            begin
+              validate_request(tok, answer, env.request, HMAC_KEY, locale)
+              found_valid_captcha = true
+            rescue ex
+              error_exception = ex
+            end
+          end
+
+          if !found_valid_captcha
+            return error_template(500, error_exception)
           end
           # create user
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
