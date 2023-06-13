@@ -72,12 +72,15 @@ module Invidious::Routes::API::V1::Authentication
           else
             # send captcha
             captcha = Invidious::User::Captcha.generate_text(HMAC_KEY, ":register")
-            # TODO Fix the formatting of tokens when it is recieved
-            # from Captcha.generate_text
+            # Fix token formatting
+            formatted_tokens : Array(JSON::Any) = Array(JSON::Any).new
+            captcha["tokens"].each do |tok|
+              formatted_tokens << JSON.Parse(tok)
+            end
             captcha_request = JSON.build do |json|
               json.object do
                 json.field "question", captcha["question"]
-                json.field "tokens", Array(String).from_json(captcha["tokens"])
+                json.field "tokens", formatted_tokens
               end
             end
             return captcha_request
