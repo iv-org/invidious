@@ -19,10 +19,10 @@ module Invidious::Routes::API::V1::Authentication
 
       if creds
         # user is registering
-        username = "" if username.nil?
         username = creds.username.downcase
-        password = "" if password.nil?
         password = creds.password
+        username = "" if username.nil?
+        password = "" if password.nil?
 
         if username.empty?
           return error_json(401, "Username cannot be empty")
