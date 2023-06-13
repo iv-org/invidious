@@ -41,8 +41,7 @@ module Invidious::Routes::API::V1::Authentication
         password = password.byte_slice(0, 55)
         # send captcha if enabled
         if CONFIG.captcha_enabled
-          # captcha_response = nil
-          put body_json
+          captcha_response = nil
           captcha_response = CaptchaResponse.from_json(body_json)
           # begin
           # rescue ex
