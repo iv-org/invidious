@@ -58,6 +58,7 @@ module Invidious::Routes::API::V1::Authentication
             error_exception = Exception.new
             tokens.each do |tok|
               begin
+                # TO-DO fix formatting of tokens when recieved from Captcha.generate_text
                 validate_request(tok, answer, env.request, HMAC_KEY, locale)
                 found_valid_captcha = true
               rescue ex
@@ -71,11 +72,12 @@ module Invidious::Routes::API::V1::Authentication
           else
             # send captcha
             captcha = Invidious::User::Captcha.generate_text(HMAC_KEY, ":register")
-            # puts captcha
+            # TODO Fix the formatting of tokens when it is recieved
+            # from Captcha.generate_text
             captcha_request = JSON.build do |json|
               json.object do
                 json.field "question", captcha["question"]
-                json.field "tokens", captcha["tokens"]
+                json.field "tokens", Array(String).from_json(captcha["tokens"])
               end
             end
             return captcha_request
