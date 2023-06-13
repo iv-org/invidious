@@ -51,9 +51,9 @@ module Invidious::Routes::API::V1::Authentication
       # end
       # create user if we made it past credentials and captcha
       sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-      user, sid = create_user(sid, email, password)
+      user, sid = create_user(sid, username, password)
       Invidious::Database::Users.insert(user)
-      Invidious::Database::SessionIDs.insert(sid, email)
+      Invidious::Database::SessionIDs.insert(sid, username)
       # send user info
       if token = Invidious::Database::SessionIDs.select_one(sid: sid)
         response = JSON.build do |json|
