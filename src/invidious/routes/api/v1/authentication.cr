@@ -119,7 +119,7 @@ struct CaptchaResponse
   include YAML::Serializable
 
   property answer : String
-  property tokens : Array()
+  # property tokens : Array()
 end
 
 struct Credentials
