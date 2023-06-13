@@ -39,7 +39,7 @@ module Invidious::Routes::API::V1::Authentication
         end
 
         if username.bytesize > 254
-          return error_json(401)
+          return error_json(401, "Username cannot be longer than 254 characters")
         end
 
         # See https://security.stackexchange.com/a/39851
