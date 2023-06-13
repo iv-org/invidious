@@ -126,7 +126,7 @@ module Invidious::Routes::API::V1::Authentication
           end
 
           if !found_valid_captcha
-            return error_template(500, error_exception)
+            return error_json(500, error_exception)
           end
           # create user
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
