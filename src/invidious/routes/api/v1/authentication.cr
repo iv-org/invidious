@@ -9,6 +9,8 @@ module Invidious::Routes::API::V1::Authentication
       end
       # get user info
       if creds
+        locale = env.get("preferences").as(Preferences).locale
+
         username = creds.username.downcase
         password = creds.password
         username = "" if username.nil?
