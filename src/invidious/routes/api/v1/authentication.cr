@@ -1,7 +1,7 @@
 require "json"
 
 module Invidious::Routes::API::V1::Authentication
-  def self.register(env)
+  def self.api_register(env)
     env.response.content_type = "application/json"
     body_io = env.request.body
     body_json = "{}"
@@ -113,92 +113,7 @@ module Invidious::Routes::API::V1::Authentication
     end
   end
 
-  def self.captcha(env)
-    if CONFIG.registration_enabled
-      if CONFIG.captcha_enabled
-        captcha_response = nil
-        begin
-          captcha_response = CaptchaResponse.from_json(env.request.body || "{}")
-        rescue
-        end
-        if captcha_response
-          # process captcha response
-          locale = env.get("preferences").as(Preferences).locale
-
-          username = captcha_response.username.downcase
-          password = captcha_response.password
-          answer = captcha_response.answer
-          tokens = captcha_response.tokens
-
-          if username.empty?
-            return error_json(401, "Username cannot be empty")
-          end
-
-          if password.empty?
-            return error_json(401, "Password cannot be empty")
-          end
-
-          if username.bytesize > 254
-            return error_json(401, "Username cannot be longer than 254 characters")
-          end
-
-          # See https://security.stackexchange.com/a/39851
-          if password.bytesize > 55
-            return error_json(401, "Password cannot be longer than 55 characters")
-          end
-
-          username = username.byte_slice(0, 254)
-          password = password.byte_slice(0, 55)
-
-          answer = Digest::MD5.hexdigest(answer.downcase.strip)
-
-          if tokens.empty?
-            return error_json(500, "Erroneous CAPTCHA")
-          end
-
-          found_valid_captcha = false
-          error_exception = Exception.new
-          tokens.each do |tok|
-            begin
-              validate_request(tok, answer, env.request, HMAC_KEY, locale)
-              found_valid_captcha = true
-            rescue ex
-              error_exception = ex
-            end
-          end
-
-          if !found_valid_captcha
-            return error_json(500, error_exception)
-          end
-          # create user
-          sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-          user, sid = create_user(sid, username, password)
-          Invidious::Database::Users.insert(user)
-          Invidious::Database::SessionIDs.insert(sid, username)
-          # send user info
-          if token = Invidious::Database::SessionIDs.select_one(sid: sid)
-            response = JSON.build do |json|
-              json.object do
-                json.field "session", token[:session]
-                json.field "issued", token[:issued].to_unix
-              end
-            end
-            return response
-          else
-            return error_json(500, "Token not found")
-          end
-        else
-          return error_json(401, "No response")
-        end
-      else
-        return error_json(400, "Captcha has been disabled by administrator")
-      end
-    else
-      return error_json(400, "Registration has been disabled by administrator")
-    end
-  end
-
-  def self.login(env)
+  def self.api_login(env)
     env.response.content_type = "application/json"
     # locale = env.get("preferences").as(Preferences).locale
     if !CONFIG.login_enabled
@@ -234,7 +149,7 @@ module Invidious::Routes::API::V1::Authentication
     end
   end
 
-  def self.signout(env)
+  def self.api_signout(env)
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
     sid = env.request.cookies["SID"].value
@@ -252,17 +167,6 @@ struct CaptchaResponse
   property answer : String
   property tokens : Array(JSON::Any)
 end
-
-# struct CaptchaToken
-#   include JSON::Serializable
-#   include YAML::Serializable
-
-#   property session : String
-#   property expire : Int64
-#   property scopes : Array(String)
-#   property nonce : String
-#   property signature : String
-# end
 
 struct Credentials
   include JSON::Serializable
