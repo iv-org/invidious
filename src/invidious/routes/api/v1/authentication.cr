@@ -77,7 +77,7 @@ module Invidious::Routes::API::V1::Authentication
             # Fix token formatting
             formatted_tokens : Array(JSON::Any) = Array(JSON::Any).new
             captcha["tokens"].each do |tok|
-              formatted_tokens << JSON.Parse(tok)
+              formatted_tokens << JSON.parse(tok)
             end
             captcha_request = JSON.build do |json|
               json.object do
