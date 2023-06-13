@@ -36,7 +36,7 @@ module Invidious::Routes::API::V1::Authentication
         # send captcha if enabled
         if CONFIG.captcha_enabled
           # send captcha
-          captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
+          captcha = Invidious::User::Captcha.generate_text(HMAC_KEY, ":captcha")
           # puts captcha
           response = JSON.build do |json|
             json.object do

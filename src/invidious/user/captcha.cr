@@ -61,12 +61,12 @@ struct Invidious::User
       }
     end
 
-    def generate_text(key)
+    def generate_text(key, scope = ":login")
       response = make_client(TEXTCAPTCHA_URL, &.get("/github.com/iv.org/invidious.json").body)
       response = JSON.parse(response)
 
       tokens = response["a"].as_a.map do |answer|
-        generate_response(answer.as_s, {":login"}, key, use_nonce: true)
+        generate_response(answer.as_s, {scope}, key, use_nonce: true)
       end
 
       return {
