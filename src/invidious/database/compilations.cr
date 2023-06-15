@@ -3,7 +3,7 @@ require "./base.cr"
 #
 # This module contains functions related to the "playlists" table.
 #
-module Invidious::Database::Playlists
+module Invidious::Database::Compilations
   extend self
 
   # -------------------
@@ -173,16 +173,14 @@ end
 #
 # This module contains functions related to the "playlist_videos" table.
 #
-module Invidious::Database::PlaylistVideos
+module Invidious::Database::CompilationVideos
   extend self
-
-  private alias VideoIndex = Int64 | Array(Int64)
 
   # -------------------
   #  Insert / Delete
   # -------------------
 
-  def insert(video : PlaylistVideo)
+  def insert(video : CompilationVideo)
     video_array = video.to_a
 
     request = <<-SQL

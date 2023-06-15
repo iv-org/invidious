@@ -1,19 +1,8 @@
--- Type: public.privacy
+-- Table: public.compilations
 
--- DROP TYPE public.privacy;
+-- DROP TABLE public.compilations;
 
-CREATE TYPE public.privacy AS ENUM
-(
-    'Public',
-    'Unlisted',
-    'Private'
-);
-
--- Table: public.playlists
-
--- DROP TABLE public.playlists;
-
-CREATE TABLE IF NOT EXISTS public.playlists
+CREATE TABLE IF NOT EXISTS public.compilations
 (
     title text,
     id text primary key,
