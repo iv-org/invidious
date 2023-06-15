@@ -1,7 +1,7 @@
 require "./base.cr"
 
 #
-# This module contains functions related to the "playlists" table.
+# This module contains functions related to the "compilations" table.
 #
 module Invidious::Database::Compilations
   extend self
@@ -10,22 +10,22 @@ module Invidious::Database::Compilations
   #  Insert / delete
   # -------------------
 
-  def insert(playlist : InvidiousPlaylist)
-    playlist_array = playlist.to_a
+  def insert(compilation : InvidiousCompilation)
+    compilation_array = compilation.to_a
 
     request = <<-SQL
-      INSERT INTO playlists
-      VALUES (#{arg_array(playlist_array)})
+      INSERT INTO compilations
+      VALUES (#{arg_array(compilation_array)})
     SQL
 
-    PG_DB.exec(request, args: playlist_array)
+    PG_DB.exec(request, args: compilation_array)
   end
 
-  # deletes the given playlist and connected playlist videos
+  # deletes the given compilation and connected compilation videos
   def delete(id : String)
-    PlaylistVideos.delete_by_playlist(id)
+    CompilationVideos.delete_by_compilation(id)
     request = <<-SQL
-      DELETE FROM playlists *
+      DELETE FROM compilations *
       WHERE id = $1
     SQL
 
@@ -38,7 +38,7 @@ module Invidious::Database::Compilations
 
   def update(id : String, title : String, privacy, description, updated)
     request = <<-SQL
-      UPDATE playlists
+      UPDATE compilations
       SET title = $1, privacy = $2, description = $3, updated = $4
       WHERE id = $5
     SQL
@@ -48,7 +48,7 @@ module Invidious::Database::Compilations
 
   def update_description(id : String, description)
     request = <<-SQL
-      UPDATE playlists
+      UPDATE compilations
       SET description = $1
       WHERE id = $2
     SQL
@@ -56,19 +56,9 @@ module Invidious::Database::Compilations
     PG_DB.exec(request, description, id)
   end
 
-  def update_subscription_time(id : String)
-    request = <<-SQL
-      UPDATE playlists
-      SET subscribed = now()
-      WHERE id = $1
-    SQL
-
-    PG_DB.exec(request, id)
-  end
-
   def update_video_added(id : String, index : String | Int64)
     request = <<-SQL
-      UPDATE playlists
+      UPDATE compilations
       SET index = array_append(index, $1),
           video_count = cardinality(index) + 1,
           updated = now()
@@ -80,7 +70,7 @@ module Invidious::Database::Compilations
 
   def update_video_removed(id : String, index : String | Int64)
     request = <<-SQL
-      UPDATE playlists
+      UPDATE compilations
       SET index = array_remove(index, $1),
           video_count = cardinality(index) - 1,
           updated = now()
@@ -94,51 +84,51 @@ module Invidious::Database::Compilations
   #  Salect
   # -------------------
 
-  def select(*, id : String) : InvidiousPlaylist?
+  def select(*, id : String) : InvidiousCompilation?
     request = <<-SQL
-      SELECT * FROM playlists
+      SELECT * FROM compilations
       WHERE id = $1
     SQL
 
-    return PG_DB.query_one?(request, id, as: InvidiousPlaylist)
+    return PG_DB.query_one?(request, id, as: InvidiousCompilation)
   end
 
-  def select_all(*, author : String) : Array(InvidiousPlaylist)
+  def select_all(*, author : String) : Array(InvidiousCompilation)
     request = <<-SQL
-      SELECT * FROM playlists
+      SELECT * FROM compilations
       WHERE author = $1
     SQL
 
-    return PG_DB.query_all(request, author, as: InvidiousPlaylist)
+    return PG_DB.query_all(request, author, as: InvidiousCompilation)
   end
 
   # -------------------
   #  Salect (filtered)
   # -------------------
 
-  def select_like_iv(email : String) : Array(InvidiousPlaylist)
+  def select_like_iv(email : String) : Array(InvidiousCompilation)
     request = <<-SQL
-      SELECT * FROM playlists
+      SELECT * FROM compilation
       WHERE author = $1 AND id LIKE 'IV%'
       ORDER BY created
     SQL
 
-    PG_DB.query_all(request, email, as: InvidiousPlaylist)
+    PG_DB.query_all(request, email, as: InvidiousCompilation)
   end
 
-  def select_not_like_iv(email : String) : Array(InvidiousPlaylist)
+  def select_not_like_iv(email : String) : Array(InvidiousCompilation)
     request = <<-SQL
-      SELECT * FROM playlists
+      SELECT * FROM compilations
       WHERE author = $1 AND id NOT LIKE 'IV%'
       ORDER BY created
     SQL
 
-    PG_DB.query_all(request, email, as: InvidiousPlaylist)
+    PG_DB.query_all(request, email, as: InvidiousCompilation)
   end
 
-  def select_user_created_playlists(email : String) : Array({String, String})
+  def select_user_created_compilations(email : String) : Array({String, String})
     request = <<-SQL
-      SELECT id,title FROM playlists
+      SELECT id,title FROM compilations
       WHERE author = $1 AND id LIKE 'IV%'
     SQL
 
@@ -149,20 +139,20 @@ module Invidious::Database::Compilations
   #  Misc checks
   # -------------------
 
-  # Check if given playlist ID exists
+  # Check if given compilation ID exists
   def exists?(id : String) : Bool
     request = <<-SQL
-      SELECT id FROM playlists
+      SELECT id FROM compilations
       WHERE id = $1
     SQL
 
     return PG_DB.query_one?(request, id, as: String).nil?
   end
 
-  # Count how many playlist a user has created.
+  # Count how many compilations a user has created.
   def count_owned_by(author : String) : Int64
     request = <<-SQL
-      SELECT count(*) FROM playlists
+      SELECT count(*) FROM compilations
       WHERE author = $1
     SQL
 
@@ -171,7 +161,7 @@ module Invidious::Database::Compilations
 end
 
 #
-# This module contains functions related to the "playlist_videos" table.
+# This module contains functions related to the "compilation_videos" table.
 #
 module Invidious::Database::CompilationVideos
   extend self
@@ -184,7 +174,7 @@ module Invidious::Database::CompilationVideos
     video_array = video.to_a
 
     request = <<-SQL
-      INSERT INTO playlist_videos
+      INSERT INTO compilation_videos
       VALUES (#{arg_array(video_array)})
     SQL
 
@@ -193,67 +183,67 @@ module Invidious::Database::CompilationVideos
 
   def delete(index)
     request = <<-SQL
-      DELETE FROM playlist_videos *
+      DELETE FROM compilation_videos *
       WHERE index = $1
     SQL
 
     PG_DB.exec(request, index)
   end
 
-  def delete_by_playlist(plid : String)
+  def delete_by_compilation(compid : String)
     request = <<-SQL
-      DELETE FROM playlist_videos *
-      WHERE plid = $1
+      DELETE FROM compilation_videos *
+      WHERE compid = $1
     SQL
 
-    PG_DB.exec(request, plid)
+    PG_DB.exec(request, compid)
   end
 
   # -------------------
   #  Salect
   # -------------------
 
-  def select(plid : String, index : VideoIndex, offset, limit = 100) : Array(PlaylistVideo)
+  def select(compid : String, index : VideoIndex, offset, limit = 100) : Array(CompilationVideo)
     request = <<-SQL
-      SELECT * FROM playlist_videos
-      WHERE plid = $1
+      SELECT * FROM compilation_videos
+      WHERE compid = $1
       ORDER BY array_position($2, index)
       LIMIT $3
       OFFSET $4
     SQL
 
-    return PG_DB.query_all(request, plid, index, limit, offset, as: PlaylistVideo)
+    return PG_DB.query_all(request, compid, index, limit, offset, as: CompilationVideo)
   end
 
-  def select_index(plid : String, vid : String) : Int64?
+  def select_index(compid : String, vid : String) : Int64?
     request = <<-SQL
-      SELECT index FROM playlist_videos
-      WHERE plid = $1 AND id = $2
+      SELECT index FROM compilation_videos
+      WHERE compid = $1 AND id = $2
       LIMIT 1
     SQL
 
-    return PG_DB.query_one?(request, plid, vid, as: Int64)
+    return PG_DB.query_one?(request, compid, vid, as: Int64)
   end
 
-  def select_one_id(plid : String, index : VideoIndex) : String?
+  def select_one_id(compid : String, index : VideoIndex) : String?
     request = <<-SQL
-      SELECT id FROM playlist_videos
-      WHERE plid = $1
+      SELECT id FROM compilation_videos
+      WHERE compid = $1
       ORDER BY array_position($2, index)
       LIMIT 1
     SQL
 
-    return PG_DB.query_one?(request, plid, index, as: String)
+    return PG_DB.query_one?(request, compid, index, as: String)
   end
 
-  def select_ids(plid : String, index : VideoIndex, limit = 500) : Array(String)
+  def select_ids(compid : String, index : VideoIndex, limit = 500) : Array(String)
     request = <<-SQL
-      SELECT id FROM playlist_videos
-      WHERE plid = $1
+      SELECT id FROM compilation_videos
+      WHERE compid = $1
       ORDER BY array_position($2, index)
       LIMIT $3
     SQL
 
-    return PG_DB.query_all(request, plid, index, limit, as: String)
+    return PG_DB.query_all(request, compid, index, limit, as: String)
   end
 end

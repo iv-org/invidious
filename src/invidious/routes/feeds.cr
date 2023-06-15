@@ -8,6 +8,26 @@ module Invidious::Routes::Feeds
   def self.compilations(env)
     locale = env.get("preferences").as(Preferences).locale
 
+    user = env.get? "user"
+    referer = get_referer(env)
+
+    return env.redirect "/" if user.nil?
+
+    user = user.as(User)
+
+    # TODO: make a single DB call and separate the items here?
+    items_created = Invidious::Database::Compilations.select_like_iv(user.email)
+    items_created.map! do |item|
+      item.author = ""
+      item
+    end
+
+    items_saved = Invidious::Database::Compilations.select_not_like_iv(user.email)
+    items_saved.map! do |item|
+      item.author = ""
+      item
+    end
+
     templated "feeds/compilations"
   end
 

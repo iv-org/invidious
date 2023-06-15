@@ -159,7 +159,7 @@ module Invidious::Database::Playlists
     return PG_DB.query_one?(request, id, as: String).nil?
   end
 
-  # Count how many playlist a user has created.
+  # Count how many playlists a user has created.
   def count_owned_by(author : String) : Int64
     request = <<-SQL
       SELECT count(*) FROM playlists

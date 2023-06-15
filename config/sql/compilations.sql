@@ -1,3 +1,13 @@
+-- Type: public.privacy
+
+-- DROP TYPE public.privacy;
+
+CREATE TYPE public.privacy AS ENUM
+(
+    'Unlisted',
+    'Private'
+);
+
 -- Table: public.compilations
 
 -- DROP TABLE public.compilations;
@@ -15,4 +25,4 @@ CREATE TABLE IF NOT EXISTS public.compilations
     index int8[]
 );
 
-GRANT ALL ON public.playlists TO current_user;
+GRANT ALL ON public.compilations TO current_user;
