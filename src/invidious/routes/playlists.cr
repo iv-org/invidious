@@ -228,7 +228,7 @@ module Invidious::Routes::Playlists
     prefs = env.get("preferences").as(Preferences)
     locale = prefs.locale
 
-    region = env.params.query["region"]? || prefs.region
+    region = find_region(env.params.query["region"]?) || prefs.region
 
     user = env.get? "user"
     sid = env.get? "sid"

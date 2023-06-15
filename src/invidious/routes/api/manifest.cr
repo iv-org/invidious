@@ -6,7 +6,7 @@ module Invidious::Routes::API::Manifest
 
     local = env.params.query["local"]?.try &.== "true"
     id = env.params.url["id"]
-    region = env.params.query["region"]?
+    region = find_region(env.params.query["region"]?)
 
     # Since some implementations create playlists based on resolution regardless of different codecs,
     # we can opt to only add a source to a representation if it has a unique height within that representation

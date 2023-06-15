@@ -48,7 +48,7 @@ module Invidious::Routes::Feeds
     trending_type = env.params.query["type"]?
     trending_type ||= "Default"
 
-    region = env.params.query["region"]?
+    region = find_region(env.params.query["region"]?)
     region ||= env.get("preferences").as(Preferences).region
 
     begin

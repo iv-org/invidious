@@ -9,7 +9,7 @@ module Invidious::Routes::VideoPlayback
     mns ||= [] of String
 
     if query_params["region"]?
-      region = query_params["region"]
+      region = find_region(query_params["region"])
       query_params.delete("region")
     end
 
@@ -265,7 +265,7 @@ module Invidious::Routes::VideoPlayback
       return error_template(400, "Invalid itag")
     end
 
-    region = env.params.query["region"]?
+    region = find_region(env.params.query["region"]?)
     local = (env.params.query["local"]? == "true")
 
     title = env.params.query["title"]?

@@ -5,7 +5,7 @@ module Invidious::Routes::API::V1::Videos
     env.response.content_type = "application/json"
 
     id = env.params.url["id"]
-    region = env.params.query["region"]?
+    region = find_region(env.params.query["region"]?)
     proxy = {"1", "true"}.any? &.== env.params.query["local"]?
 
     begin
@@ -25,7 +25,7 @@ module Invidious::Routes::API::V1::Videos
     env.response.content_type = "application/json"
 
     id = env.params.url["id"]
-    region = env.params.query["region"]? || env.params.body["region"]?
+    region = find_region(env.params.query["region"]? || env.params.body["region"]?)
 
     if id.nil? || id.size != 11 || !id.matches?(/^[\w-]+$/)
       return error_json(400, "Invalid video ID")
@@ -177,7 +177,7 @@ module Invidious::Routes::API::V1::Videos
     env.response.content_type = "application/json"
 
     id = env.params.url["id"]
-    region = env.params.query["region"]?
+    region = find_region(env.params.query["region"]?)
 
     begin
       video = get_video(id, region: region)
@@ -306,7 +306,7 @@ module Invidious::Routes::API::V1::Videos
 
   def self.comments(env)
     locale = env.get("preferences").as(Preferences).locale
-    region = env.params.query["region"]?
+    region = find_region(env.params.query["region"]?)
 
     env.response.content_type = "application/json"
 

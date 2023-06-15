@@ -431,7 +431,7 @@ module Invidious::Routes::API::V1::Channels
 
   def self.search(env)
     locale = env.get("preferences").as(Preferences).locale
-    region = env.params.query["region"]?
+    region = find_region(env.params.query["region"]?)
 
     env.response.content_type = "application/json"
 

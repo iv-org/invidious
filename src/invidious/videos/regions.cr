@@ -25,3 +25,13 @@ REGIONS = {
   "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI",
   "VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW",
 }
+
+# Utility function that searches in the array above for a given input.
+def find_region(reg : String?) : String?
+  return nil if reg.nil?
+
+  # Normalize input
+  region = (reg || "").upcase[0..1]
+
+  return REGIONS.find(&.== region)
+end
