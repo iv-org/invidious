@@ -108,7 +108,7 @@ module Invidious::Database::Compilations
 
   def select_like_iv(email : String) : Array(InvidiousCompilation)
     request = <<-SQL
-      SELECT * FROM compilation
+      SELECT * FROM compilations
       WHERE author = $1 AND id LIKE 'IV%'
       ORDER BY created
     SQL
