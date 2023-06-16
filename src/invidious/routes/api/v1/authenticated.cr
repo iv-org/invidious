@@ -207,6 +207,32 @@ module Invidious::Routes::API::V1::Authenticated
     end
   end
 
+  def self.create_compilation(env)
+    env.response.content_type = "application/json"
+    user = env.get("user").as(User)
+
+    title = env.params.json["title"]?.try &.as(String).delete("<>").byte_slice(0, 150)
+    if !title
+      return error_json(400, "Invalid title.")
+    end
+
+    privacy = env.params.json["privacy"]?.try { |p| CompilationPrivacy.parse(p.as(String).downcase) }
+    if !privacy
+      return error_json(400, "Invalid privacy setting.")
+    end
+
+    if Invidious::Database::Compilations.count_owned_by(user.email) >= 100
+      return error_json(400, "User cannot have more than 100 compilations.")
+    end
+
+    compilation = create_compilation(title, privacy, user)
+    env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/compilations/#{playlist.id}"
+    env.response.status_code = 201
+    {
+      "title"      => title,
+      "compilationId" => compilation.id,
+    }.to_json
+
   def self.create_playlist(env)
     env.response.content_type = "application/json"
     user = env.get("user").as(User)

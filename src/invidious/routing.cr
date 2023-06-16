@@ -274,6 +274,8 @@ module Invidious::Routing
       post "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :subscribe_channel
       delete "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :unsubscribe_channel
 
+      get "/api/v1/auth/compilations", {{namespace}}::Authenticated, :create_compilation
+
       get "/api/v1/auth/playlists", {{namespace}}::Authenticated, :list_playlists
       post "/api/v1/auth/playlists", {{namespace}}::Authenticated, :create_playlist
       patch "/api/v1/auth/playlists/:plid",{{namespace}}:: Authenticated, :update_playlist_attribute

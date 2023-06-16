@@ -759,3 +759,10 @@ h1, h2, h3, h4, h5, p,
 .channel-emoji {
   margin: 0 2px;
 }
+
+div.compilation-video-panel {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  color: #d9d9d9;
+}
