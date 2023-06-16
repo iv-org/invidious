@@ -60,7 +60,6 @@ module Invidious::Routes::API::V1::Authentication
             error_exception = Exception.new
             tokens.each do |tok|
               begin
-                # TO-DO fix formatting of tokens when recieved from Captcha.generate_text
                 validate_request(tok, answer, env.request, HMAC_KEY, locale)
                 found_valid_captcha = true
               rescue ex
@@ -115,7 +114,6 @@ module Invidious::Routes::API::V1::Authentication
 
   def self.api_login(env)
     env.response.content_type = "application/json"
-    # locale = env.get("preferences").as(Preferences).locale
     if !CONFIG.login_enabled
       return error_json(400, "Login has been disabled by administrator")
     else
@@ -184,5 +182,3 @@ struct CredentialsLogin
   property password : String
   property token : String
 end
-
-text = "Ryan said, \"Hello!\""
