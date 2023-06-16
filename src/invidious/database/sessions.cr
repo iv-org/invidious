@@ -62,6 +62,15 @@ module Invidious::Database::SessionIDs
     PG_DB.query_one?(request, sid, as: String)
   end
 
+  def select_one(sid : String) : {session: String, issued: Time}?
+    request = <<-SQL
+      SELECT id, issued FROM session_ids
+      WHERE id = $1
+    SQL
+
+    PG_DB.query_one?(request, sid, as: {session: String, issued: Time})
+  end
+
   def select_all(email : String) : Array({session: String, issued: Time})
     request = <<-SQL
       SELECT id, issued FROM session_ids
