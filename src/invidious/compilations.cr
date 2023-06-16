@@ -240,9 +240,9 @@ struct InvidiousCompilation
 end
 
 def create_compilation(title, privacy, user)
-  plid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
+  compid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
 
-  playlist = InvidiousCompilation.new({
+  compilation = InvidiousCompilation.new({
     title:       title.byte_slice(0, 150),
     id:          compid,
     author:      user.email,

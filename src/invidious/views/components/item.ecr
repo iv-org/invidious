@@ -1,6 +1,6 @@
 <%-
   thin_mode = env.get("preferences").as(Preferences).thin_mode
-  item_watched = !item.is_a?(SearchChannel | SearchHashtag | SearchPlaylist | InvidiousPlaylist | Category) && env.get?("user").try &.as(User).watched.index(item.id) != nil
+  item_watched = !item.is_a?(SearchChannel | SearchHashtag | SearchPlaylist | InvidiousPlaylist | InvidiousCompilation | Category) && env.get?("user").try &.as(User).watched.index(item.id) != nil
   author_verified = item.responds_to?(:author_verified) && item.author_verified
 -%>
 
@@ -53,7 +53,7 @@
                     <p><%= translate_count(locale, "generic_channels_count", item.channel_count, NumberFormatting::Separator) %></p>
                 <%- end -%>
             </div>
-        <% when SearchPlaylist, InvidiousPlaylist %>
+        <% when SearchPlaylist, InvidiousPlaylist, InvidiousCompilation %>
             <%-
               if item.id.starts_with? "RD"
                 link_url = "/mix?list=#{item.id}&continuation=#{URI.parse(item.thumbnail || "/vi/-----------").request_target.split("/")[2]}"
@@ -87,6 +87,11 @@
                     </p>
                 </a></div>
             </div>
+        <% when CompilationVideo %>
+            <a style="width:100%" href="/watch?v=<%= item.id %>&list=<%= item.compid %>&index=<%= item.index %>">
+                <% if !env.get("preferences").as(Preferences).thin_mode %>
+                <% end %>
+            </a>          
         <% when Category %>
         <% else %>
             <%-

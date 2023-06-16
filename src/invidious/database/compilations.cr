@@ -166,6 +166,8 @@ end
 module Invidious::Database::CompilationVideos
   extend self
 
+  private alias VideoIndex = Int64 | Array(Int64)
+
   # -------------------
   #  Insert / Delete
   # -------------------
