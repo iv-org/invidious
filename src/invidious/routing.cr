@@ -80,6 +80,11 @@ module Invidious::Routing
     get "/subscription_manager", Routes::Subscriptions, :subscription_manager
   end
 
+  def register_iv_compilation_routes
+    get "/create_compilation", Routes::Compilations, :new
+    post "/create_compilation", Routes::Compilations, :create
+  end  
+
   def register_iv_playlist_routes
     get "/create_playlist", Routes::Playlists, :new
     post "/create_playlist", Routes::Playlists, :create

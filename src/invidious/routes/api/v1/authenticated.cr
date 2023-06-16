@@ -226,12 +226,13 @@ module Invidious::Routes::API::V1::Authenticated
     end
 
     compilation = create_compilation(title, privacy, user)
-    env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/compilations/#{playlist.id}"
+    env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/compilations/#{compilation.id}"
     env.response.status_code = 201
     {
       "title"      => title,
       "compilationId" => compilation.id,
     }.to_json
+  end  
 
   def self.create_playlist(env)
     env.response.content_type = "application/json"
