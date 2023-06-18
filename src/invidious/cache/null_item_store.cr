@@ -5,11 +5,11 @@ module Invidious::Cache
     def initialize
     end
 
-    def fetch(key : String, *, as : T.class) : T? forall T
+    def fetch(key : String) : String?
       return nil
     end
 
-    def store(key : String, value : CacheableItem, expires : Time::Span)
+    def store(key : String, value : CacheableItem | String, expires : Time::Span)
     end
 
     def delete(key : String)

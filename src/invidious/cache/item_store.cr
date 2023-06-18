@@ -7,10 +7,10 @@ module Invidious::Cache
   abstract class ItemStore
     # Retrieves an item from the store
     # Returns nil if item wasn't found or is expired
-    abstract def fetch(key : String, *, as : T.class)
+    abstract def fetch(key : String)
 
     # Stores a given item into cache
-    abstract def store(key : String, value : CacheableItem, expires : Time::Span)
+    abstract def store(key : String, value : CacheableItem | String, expires : Time::Span)
 
     # Prematurely deletes item(s) from the cache
     abstract def delete(key : String)

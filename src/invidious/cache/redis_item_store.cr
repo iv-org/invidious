@@ -5,19 +5,17 @@ require "redis"
 module Invidious::Cache
   class RedisItemStore < ItemStore
     @redis : Redis::PooledClient
-    @node_name : String
 
-    def initialize(url : URI, @node_name = "")
-      @redis = Redis::PooledClient.new url
+    def initialize(url : URI)
+      @redis = Redis::PooledClient.new(url: url.to_s)
     end
 
-    def fetch(key : String, *, as : T.class) : (T | Nil) forall T
-      value = @redis.get(key)
-      return nil if value.nil?
-      return T.from_json(JSON::PullParser.new(value))
+    def fetch(key : String) : String?
+      return @redis.get(key)
     end
 
-    def store(key : String, value : CacheableItem, expires : Time::Span)
+    def store(key : String, value : CacheableItem | String, expires : Time::Span)
+      value = value.to_json if value.is_a?(CacheableItem)
       @redis.set(key, value, ex: expires.to_i)
     end
 
