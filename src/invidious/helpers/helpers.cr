@@ -74,7 +74,7 @@ def create_notification_stream(env, topics, connection_channel)
           published = Time.utc - Time::Span.new(days: time_span[0], hours: time_span[1], minutes: time_span[2], seconds: time_span[3])
           video_id = TEST_IDS[rand(TEST_IDS.size)]
 
-          video = get_video(video_id)
+          video = Video.get(video_id)
           video.published = published
           response = JSON.parse(video.to_json(locale, nil))
 
@@ -133,7 +133,7 @@ def create_notification_stream(env, topics, connection_channel)
           next
         end
 
-        video = get_video(video_id)
+        video = Video.get(video_id)
         video.published = Time.unix(published)
         response = JSON.parse(video.to_json(locale, nil))
 

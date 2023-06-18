@@ -13,7 +13,7 @@ module Invidious::Routes::API::Manifest
     unique_res = env.params.query["unique_res"]?.try { |q| (q == "true" || q == "1").to_unsafe }
 
     begin
-      video = get_video(id, region: region)
+      video = Video.get(id, region: region)
     rescue ex : NotFoundException
       haltf env, status_code: 404
     rescue ex

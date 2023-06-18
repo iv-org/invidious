@@ -5,8 +5,6 @@ enum VideoType
 end
 
 struct Video
-  include DB::Serializable
-
   # Version of the JSON structure
   # It prevents us from loading an incompatible version from cache
   # (either newer or older, if instances with different versions run
@@ -18,27 +16,62 @@ struct Video
   SCHEMA_VERSION = 2
 
   property id : String
-
-  @[DB::Field(converter: Video::JSONConverter)]
   property info : Hash(String, JSON::Any)
-  property updated : Time
 
-  @[DB::Field(ignore: true)]
   @captions = [] of Invidious::Videos::Captions::Metadata
 
-  @[DB::Field(ignore: true)]
   property adaptive_fmts : Array(Hash(String, JSON::Any))?
-
-  @[DB::Field(ignore: true)]
   property fmt_stream : Array(Hash(String, JSON::Any))?
 
-  @[DB::Field(ignore: true)]
   property description : String?
 
   module JSONConverter
     def self.from_rs(rs)
       JSON.parse(rs.read(String)).as_h
     end
+  end
+
+  # Create new object from cache (JSON)
+  def initialize(@id, @info)
+  end
+
+  def self.get(id : String, *, force_refresh = false, region = nil)
+    key = "video:#{id}"
+    key += ":#{region}" if !region.nil?
+
+    # Fetch video from cache, unles a force refresh is requested
+    info = force_refresh ? nil : IV::Cache::INSTANCE.fetch(key)
+    updated = false
+
+    # Fetch video from youtube, if needed
+    if info.nil?
+      video = Video.new(id, fetch_video(id, region))
+      updated = true
+    else
+      video = Video.new(id, JSON.parse(info).as_h)
+
+      # If video has premiered, live has started or the format
+      # of the video data has changed, refresh the data.
+      outdated_data = (video.schema_version != Video::SCHEMA_VERSION)
+      live_started = (video.live_now && video.published < Time.utc)
+
+      if outdated_data || live_started
+        video = Video.new(id, fetch_video(id, region))
+        updated = true
+      end
+    end
+
+    # Store updated entry in cache
+    # TODO: finer cache control based on video type & publication date
+    if updated
+      if video.live_now || video.published < Time.utc
+        IV::Cache::INSTANCE.store(key, info.to_json, 10.minutes)
+      else
+        IV::Cache::INSTANCE.store(key, info.to_json, 2.hours)
+      end
+    end
+
+    return video
   end
 
   # Methods for API v1 JSON
@@ -362,35 +395,6 @@ struct Video
   getset_bool isUpcoming
 end
 
-def get_video(id, refresh = true, region = nil, force_refresh = false)
-  if (video = Invidious::Database::Videos.select(id)) && !region
-    # If record was last updated over 10 minutes ago, or video has since premiered,
-    # refresh (expire param in response lasts for 6 hours)
-    if (refresh &&
-       (Time.utc - video.updated > 10.minutes) ||
-       (video.premiere_timestamp.try &.< Time.utc)) ||
-       force_refresh ||
-       video.schema_version != Video::SCHEMA_VERSION # cache control
-      begin
-        video = fetch_video(id, region)
-        Invidious::Database::Videos.update(video)
-      rescue ex
-        Invidious::Database::Videos.delete(id)
-        raise ex
-      end
-    end
-  else
-    video = fetch_video(id, region)
-    Invidious::Database::Videos.insert(video) if !region
-  end
-
-  return video
-rescue DB::Error
-  # Avoid common `DB::PoolRetryAttemptsExceeded` error and friends
-  # Note: All DB errors inherit from `DB::Error`
-  return fetch_video(id, region)
-end
-
 def fetch_video(id, region)
   info = extract_video_info(video_id: id)
 
@@ -408,13 +412,7 @@ def fetch_video(id, region)
     end
   end
 
-  video = Video.new({
-    id:      id,
-    info:    info,
-    updated: Time.utc,
-  })
-
-  return video
+  return info
 end
 
 def process_continuation(query, plid, id)

@@ -352,7 +352,7 @@ module Invidious::Routes::Playlists
       video_id = env.params.query["video_id"]
 
       begin
-        video = get_video(video_id)
+        video = Video.get(video_id)
       rescue ex : NotFoundException
         return error_json(404, ex)
       rescue ex
