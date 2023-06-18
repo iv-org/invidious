@@ -26,6 +26,7 @@ module Invidious::Routing
       self.register_watch_routes
 
       self.register_iv_playlist_routes
+      self.register_iv_compilation_routes
       self.register_yt_playlist_routes
 
       self.register_search_routes
@@ -83,6 +84,7 @@ module Invidious::Routing
   def register_iv_compilation_routes
     get "/create_compilation", Routes::Compilations, :new
     post "/create_compilation", Routes::Compilations, :create
+    post "/compilation_ajax", Routes::Compilations, :compilation_ajax
   end  
 
   def register_iv_playlist_routes
@@ -279,7 +281,7 @@ module Invidious::Routing
       post "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :subscribe_channel
       delete "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :unsubscribe_channel
 
-      get "/api/v1/auth/compilations", {{namespace}}::Authenticated, :create_compilation
+      post "/api/v1/auth/compilations", {{namespace}}::Authenticated, :create_compilation
 
       get "/api/v1/auth/playlists", {{namespace}}::Authenticated, :list_playlists
       post "/api/v1/auth/playlists", {{namespace}}::Authenticated, :create_playlist

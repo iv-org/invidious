@@ -319,8 +319,6 @@ def get_compilation(compid : String)
     else
       raise NotFoundException.new("Compilation does not exist.")
     end
-  else
-    return fetch_compilation(compid)
   end
 end
 

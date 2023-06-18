@@ -1,8 +1,8 @@
--- Type: public.privacy
+-- Type: public.compilation_privacy
 
--- DROP TYPE public.privacy;
+-- DROP TYPE public.compilation_privacy;
 
-CREATE TYPE public.privacy AS ENUM
+CREATE TYPE public.compilation_privacy AS ENUM
 (
     'Unlisted',
     'Private'
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS public.compilations
     video_count integer,
     created timestamptz,
     updated timestamptz,
-    privacy privacy,
+    privacy compilation_privacy,
     index int8[]
 );
 

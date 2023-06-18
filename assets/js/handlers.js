@@ -60,11 +60,20 @@
     document.querySelectorAll('[data-onclick="add_playlist_video"]').forEach(function (el) {
         el.onclick = function () { add_playlist_video(el); };
     });
+    document.querySelectorAll('[data-onclick="add_compilation_video"]').forEach(function (el) {
+        el.onclick = function () { add_compilation_video(el); };
+    });
     document.querySelectorAll('[data-onclick="add_playlist_item"]').forEach(function (el) {
         el.onclick = function () { add_playlist_item(el); };
     });
+    document.querySelectorAll('[data-onclick="add_compilation_item"]').forEach(function (el) {
+        el.onclick = function () { add_compilation_item(el); };
+    });
     document.querySelectorAll('[data-onclick="remove_playlist_item"]').forEach(function (el) {
         el.onclick = function () { remove_playlist_item(el); };
+    });
+    document.querySelectorAll('[data-onclick="remove_compilation_item"]').forEach(function (el) {
+        el.onclick = function () { remove_compilation_item(el); };
     });
     document.querySelectorAll('[data-onclick="revoke_token"]').forEach(function (el) {
         el.onclick = function () { revoke_token(el); };

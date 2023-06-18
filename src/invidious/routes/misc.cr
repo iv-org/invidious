@@ -27,7 +27,7 @@ module Invidious::Routes::Misc
       if user
         env.redirect "/feed/compilations"
       else
-        env.redirect "/feed/popyular"
+        env.redirect "/feed/popular"
       end 
     else
       templated "search_homepage", navbar_search: false
