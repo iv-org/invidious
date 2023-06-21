@@ -20,7 +20,7 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
     case sort_by
     when "newest"  then 1_i64
     when "popular" then 2_i64
-    when "oldest"  then 3_i64 # Broken as of 10/2022 :c
+    when "oldest"  then 4_i64
     else                1_i64 # Fallback to "newest"
     end
 
