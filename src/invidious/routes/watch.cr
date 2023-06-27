@@ -2,6 +2,7 @@
 
 module Invidious::Routes::Watch
   def self.handle(env)
+    LOGGER.info("6. handle")
     locale = env.get("preferences").as(Preferences).locale
     region = env.params.query["region"]?
 
@@ -202,6 +203,7 @@ module Invidious::Routes::Watch
   end
 
   def self.redirect(env)
+    LOGGER.info("10? redirect")
     url = "/watch?v=#{env.params.url["id"]}"
     if env.params.query.size > 0
       url += "&#{env.params.query}"
@@ -275,6 +277,7 @@ module Invidious::Routes::Watch
   end
 
   def self.clip(env)
+    LOGGER.info("11? clip")
     clip_id = env.params.url["clip"]?
 
     return error_template(400, "A clip ID is required") if !clip_id

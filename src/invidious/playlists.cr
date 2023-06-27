@@ -240,6 +240,8 @@ struct InvidiousPlaylist
 end
 
 def create_playlist(title, privacy, user)
+  LOGGER.info("2. create_playlist")
+  LOGGER.info("create playlist inv/pl.cr")
   plid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
 
   playlist = InvidiousPlaylist.new({
@@ -313,6 +315,7 @@ def produce_playlist_continuation(id, index)
 end
 
 def get_playlist(plid : String)
+  LOGGER.info("8. get_playlist")
   if plid.starts_with? "IV"
     if playlist = Invidious::Database::Playlists.select(id: plid)
       return playlist
@@ -401,6 +404,8 @@ def fetch_playlist(plid : String)
 end
 
 def get_playlist_videos(playlist : InvidiousPlaylist | Playlist, offset : Int32, video_id = nil)
+  LOGGER.info("1. get_playlist_videos")
+  LOGGER.info("get_playlist_videos")
   # Show empty playlist if requested page is out of range
   # (e.g, when a new playlist has been created, offset will be negative)
   if offset >= playlist.video_count || offset < 0

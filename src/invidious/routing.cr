@@ -28,6 +28,7 @@ module Invidious::Routing
       self.register_iv_playlist_routes
       self.register_iv_compilation_routes
       self.register_yt_playlist_routes
+      self.register_compilation_routes
 
       self.register_search_routes
 
@@ -172,6 +173,10 @@ module Invidious::Routing
     get "/watch_videos", Routes::Playlists, :watch_videos
   end
 
+  def register_compilation_routes
+    get "/compilation", Routes::Compilations, :show
+  end
+
   def register_search_routes
     get "/opensearch.xml", Routes::Search, :opensearch
     get "/results", Routes::Search, :results
@@ -282,6 +287,7 @@ module Invidious::Routing
       delete "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :unsubscribe_channel
 
       post "/api/v1/auth/compilations", {{namespace}}::Authenticated, :create_compilation
+      get "/api/v1/auth/compilations", {{namespace}}::Authenticated, :list_compilations
 
       get "/api/v1/auth/playlists", {{namespace}}::Authenticated, :list_playlists
       post "/api/v1/auth/playlists", {{namespace}}::Authenticated, :create_playlist
@@ -303,6 +309,8 @@ module Invidious::Routing
       get "/api/v1/stats", {{namespace}}::Misc, :stats
       get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/auth/playlists/:plid", {{namespace}}::Misc, :get_playlist
+      get "/api/v1/compilations/:compid", {{namespace}}::Misc, :get_compilation
+      get "/api/v1/auth/compilations/:compid", {{namespace}}::Misc, :get_compilation
       get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes
       get "/api/v1/resolveurl", {{namespace}}::Misc, :resolve_url
     {% end %}

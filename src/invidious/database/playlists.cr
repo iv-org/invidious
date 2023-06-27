@@ -212,7 +212,7 @@ module Invidious::Database::PlaylistVideos
   end
 
   # -------------------
-  #  Salect
+  #  Select
   # -------------------
 
   def select(plid : String, index : VideoIndex, offset, limit = 100) : Array(PlaylistVideo)

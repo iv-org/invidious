@@ -192,6 +192,21 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.status_code = 204
   end
 
+  def self.list_compilations(env)
+    env.response.content_type = "application/json"
+    user = env.get("user").as(User)
+
+    compilations = Invidious::Database::Compilations.select_all(author: user.email)
+
+    JSON.build do |json|
+      json.array do
+        compilations.each do |compilation|
+          compilation.to_json(0, json)
+        end
+      end
+    end
+  end
+
   def self.list_playlists(env)
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
@@ -208,33 +223,40 @@ module Invidious::Routes::API::V1::Authenticated
   end
 
   def self.create_compilation(env)
+    LOGGER.info("creating comp in auth fashion")
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
+    LOGGER.info("app json compilation")
 
     title = env.params.json["title"]?.try &.as(String).delete("<>").byte_slice(0, 150)
     if !title
       return error_json(400, "Invalid title.")
     end
-
+    LOGGER.info("set title")
     privacy = env.params.json["privacy"]?.try { |p| CompilationPrivacy.parse(p.as(String).downcase) }
     if !privacy
       return error_json(400, "Invalid privacy setting.")
     end
+    LOGGER.info("set privacy")
 
     if Invidious::Database::Compilations.count_owned_by(user.email) >= 100
       return error_json(400, "User cannot have more than 100 compilations.")
     end
+    LOGGER.info("400 forgone")
 
     compilation = create_compilation(title, privacy, user)
     env.response.headers["Location"] = "#{HOST_URL}/api/v1/auth/compilations/#{compilation.id}"
     env.response.status_code = 201
+    LOGGER.info("location set")
     {
       "title"      => title,
       "compilationId" => compilation.id,
     }.to_json
+    LOGGER.info("Creating json")
   end  
 
   def self.create_playlist(env)
+    LOGGER.info("7. create_playlist")
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
 

@@ -240,7 +240,9 @@ struct InvidiousCompilation
 end
 
 def create_compilation(title, privacy, user)
+  LOGGER.info("2. create_compilation")
   compid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
+  LOGGER.info("generated compilation id")
 
   compilation = InvidiousCompilation.new({
     title:       title.byte_slice(0, 150),
@@ -253,8 +255,10 @@ def create_compilation(title, privacy, user)
     privacy:     privacy,
     index:       [] of Int64,
   })
+  LOGGER.info("Creating compilation db")
 
   Invidious::Database::Compilations.insert(compilation)
+  LOGGER.info("inserted compilation db entry")
 
   return compilation
 end
@@ -313,6 +317,7 @@ def produce_compilation_continuation(id, index)
 end
 
 def get_compilation(compid : String)
+  LOGGER.info("8. get_compilation")
   if compid.starts_with? "IV"
     if compilation = Invidious::Database::Compilations.select(id: compid)
       return compilation
@@ -323,6 +328,8 @@ def get_compilation(compid : String)
 end
 
 def get_compilation_videos(compilation : InvidiousCompilation | Compilation, offset : Int32, video_id = nil)
+  LOGGER.info("1. get_compilation")
+  LOGGER.info("Getting compilation")
   # Show empty compilation if requested page is out of range
   # (e.g, when a new compilation has been created, offset will be negative)
   if offset >= compilation.video_count || offset < 0
@@ -405,7 +412,7 @@ def extract_compilation_videos(initial_data : Hash(String, JSON::Any))
         starting_timestamp_seconds: starting_timestamp_seconds,
         ending_timestamp_seconds: ending_timestamp_seconds,
         published:      Time.utc,
-        compid:           plid,
+        compid:           compid,
         index:          index,
       })
     end

@@ -10,6 +10,7 @@ module Invidious::Routes::Feeds
   end
 
   def self.compilations(env)
+    LOGGER.info("5. compilations")
     locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
@@ -36,6 +37,8 @@ module Invidious::Routes::Feeds
   end
 
   def self.playlists(env)
+    LOGGER.info("5. playlists")
+    LOGGER.info("Generating the playlist items")
     locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"

@@ -3,49 +3,6 @@
 
 <% content_for "header" do %>
 <title><%= title %> - Invidious</title>
-<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/playlist/<%= plid %>" />
+<link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/compilation/<%= compid %>" />
 <% end %>
 
-<div class="pure-g h-box">
-    <div class="pure-u-2-3">
-        <h3><%= title %></h3>
-        <% if compilation.is_a? InvidiousCompilation %>
-            <b>
-                <% if compilation.author == user.try &.email %>
-                <a href="/feed/compilations"><%= author %></a> |
-                <% else %>
-                <%= author %> |
-                <% end %>
-                <%= translate_count(locale, "generic_videos_count", compilation.video_count) %> |
-                <%= translate(locale, "Updated `x` ago", recode_date(compilation.updated, locale)) %> |
-                <% case compilation.as(InvidiousCompilation).privacy when %>
-                <% when CompilationPrivacy::Unlisted %>
-                    <i class="icon ion-ios-unlock"></i> <%= translate(locale, "Unlisted") %>
-                <% when CompilationPrivacy::Private %>
-                    <i class="icon ion-ios-lock"></i> <%= translate(locale, "Private") %>
-                <% end %>
-            </b>
-        <% else %>
-            <b>
-                <a href="/channel/<%= compilation.ucid %>"><%= author %></a> |
-                <%= translate_count(locale, "generic_videos_count", compilation.video_count) %> |
-                <%= translate(locale, "Updated `x` ago", recode_date(compilation.updated, locale)) %>
-            </b>
-        <% end %>
-    </div>
-    <div class="pure-u-1-3" style="text-align:right">
-        <h3>
-            <div class="pure-g user-field">
-                <% if compilation.is_a?(InvidiousCompilation) && compilation.author == user.try &.email %>
-                    <div class="pure-u-1-3"><a href="/edit_compilation?list=<%= compid %>"><i class="icon ion-md-create"></i></a></div>
-                    <div class="pure-u-1-3"><a href="/delete_compilation?list=<%= compid %>"><i class="icon ion-md-trash"></i></a></div>
-                <% else %>
-                    <% if !Invidious::Database::Compilations.exists?(compilation.id) %>
-                        <div class="pure-u-1-3"><a href="/delete_compilation?list=<%= compid %>"><i class="icon ion-md-trash"></i></a></div>
-                    <% end %>
-                <% end %>
-                <div class="pure-u-1-3"><a href="/feed/playlist/<%= plid %>"><i class="icon ion-logo-rss"></i></a></div>
-            </div>
-        </h3>
-    </div>
-</div>

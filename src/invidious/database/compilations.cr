@@ -202,7 +202,7 @@ module Invidious::Database::CompilationVideos
   end
 
   # -------------------
-  #  Salect
+  #  Select
   # -------------------
 
   def select(compid : String, index : VideoIndex, offset, limit = 100) : Array(CompilationVideo)
