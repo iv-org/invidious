@@ -10,5 +10,6 @@
     "LIVE": "LEWENDIG",
     "generic_subscribers_count": "{{count}} intekenaar",
     "generic_subscribers_count_plural": "{{count}} intekenare",
-    "Shared `x` ago": "`x` gelede gedeel"
+    "Shared `x` ago": "`x` gelede gedeel",
+    "New passwords must match": "Nuwe wagwoord moet ooreenstem"
 }
