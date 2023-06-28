@@ -237,7 +237,6 @@ div.watched-indicator {
 }
 
 .searchbar input[type="search"]:focus {
-	margin: 0;
 	border: 2px solid;
 	border-color: rgba(0,0,0,0);
 	border-bottom-color: #FED;
