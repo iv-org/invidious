@@ -399,7 +399,6 @@ module Invidious::Routes::Playlists
 
   def self.show(env)
     LOGGER.info("4. show")
-    LOGGER.info("showing a play")
     locale = env.get("preferences").as(Preferences).locale
 
     user = env.get?("user").try &.as(User)

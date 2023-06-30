@@ -91,7 +91,7 @@ module Invidious::Database::Playlists
   end
 
   # -------------------
-  #  Salect
+  #  Select
   # -------------------
 
   def select(*, id : String) : InvidiousPlaylist?
@@ -113,7 +113,7 @@ module Invidious::Database::Playlists
   end
 
   # -------------------
-  #  Salect (filtered)
+  #  Select (filtered)
   # -------------------
 
   def select_like_iv(email : String) : Array(InvidiousPlaylist)

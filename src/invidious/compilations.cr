@@ -317,14 +317,13 @@ def produce_compilation_continuation(id, index)
 end
 
 def get_compilation(compid : String)
-  LOGGER.info("8. get_compilation")
-  if compid.starts_with? "IV"
+  #if compid.starts_with? "IV"
     if compilation = Invidious::Database::Compilations.select(id: compid)
       return compilation
     else
       raise NotFoundException.new("Compilation does not exist.")
     end
-  end
+  #end
 end
 
 def get_compilation_videos(compilation : InvidiousCompilation | Compilation, offset : Int32, video_id = nil)

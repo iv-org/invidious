@@ -81,7 +81,7 @@ module Invidious::Database::Compilations
   end
 
   # -------------------
-  #  Salect
+  #  Select
   # -------------------
 
   def select(*, id : String) : InvidiousCompilation?
@@ -103,7 +103,7 @@ module Invidious::Database::Compilations
   end
 
   # -------------------
-  #  Salect (filtered)
+  #  Select (filtered)
   # -------------------
 
   def select_like_iv(email : String) : Array(InvidiousCompilation)

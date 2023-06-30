@@ -1,9 +1,6 @@
 {% skip_file if flag?(:api_only) %}
 
 module Invidious::Routes::Compilations
-  def self.handle(env)
-    return "<htm><body><p>Hello</p></body></html>"
-  end
   def self.new(env)
     LOGGER.info("15. new")
     locale = env.get("preferences").as(Preferences).locale
@@ -54,8 +51,7 @@ module Invidious::Routes::Compilations
     if Invidious::Database::Compilations.count_owned_by(user.email) >= 100
       return error_template(400, "User cannot have more than 100 compilations.")
     end
-    LOGGER.info("creating a compilation")
-    # POST /create_compilation?referer=%2Ffeed%2Fcompilations 12.11ms
+    
     compilation = create_compilation(title, privacy, user)
 
     env.redirect "/compilation?list=#{compilation.id}"
@@ -370,26 +366,20 @@ module Invidious::Routes::Compilations
     LOGGER.info("4. show | comp")
     locale = env.get("preferences").as(Preferences).locale
 
-    LOGGER.info("set locale")   
     user = env.get?("user").try &.as(User)
-    LOGGER.info("got user")
     referer = get_referer(env)
-    LOGGER.info("got referer")
 
     compid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
-    LOGGER.info("got compid comp")
     if !compid
       return env.redirect "/"
     end
 
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
-    LOGGER.info("set page")
 
     if compid.starts_with? "RD"
       return env.redirect "/mix?list=#{compid}"
     end
-    LOGGER.info("RD comp")
 
     begin
       compilation = get_compilation(compid)
@@ -398,33 +388,27 @@ module Invidious::Routes::Compilations
     rescue ex
       return error_template(500, ex)
     end
-    LOGGER.info("got 200 comp")
 
     page_count = (compilation.video_count / 200).to_i
     page_count += 1 if (compilation.video_count % 200) > 0
-    LOGGER.info("set page count")
 
     if page > page_count
       return env.redirect "/compilation?list=#{compid}&page=#{page_count}"
     end
 
-
     if compilation.privacy == CompilationPrivacy::Private && compilation.author != user.try &.email
       return error_template(403, "This compilation is private.")
     end
-    LOGGER.info("set privacy")
 
     begin
       videos = get_compilation_videos(compilation, offset: (page - 1) * 200)
     rescue ex
       return error_template(500, "Error encountered while retrieving compilation videos.<br>#{ex.message}")
     end
-    LOGGER.info("set offset")
 
     if compilation.author == user.try &.email
       env.set "remove_compilation_items", compid
     end
-    LOGGER.info("showing author")
 
     templated "compilation"
   end  
