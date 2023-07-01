@@ -455,13 +455,17 @@ jobs:
 #use_pubsub_feeds: false
 
 ##
-## HMAC signing key used for CSRF tokens and pubsub
+## HMAC signing key used for CSRF tokens, cookies and pubsub
 ## subscriptions verification.
+##
+## Note: This parameter is mandatory and should be a random string.
+## Such random string can be generated on linux with the following
+## command: `pwdgen 20 1`
 ##
 ## Accepted values: a string
 ## Default: <none>
 ##
-#hmac_key:
+hmac_key: "CHANGE_ME!!"
 
 ##
 ## List of video IDs where the "download" widget must be
