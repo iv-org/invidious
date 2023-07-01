@@ -53,7 +53,7 @@
     "preferences_category_player": "プレイヤーの設定",
     "preferences_video_loop_label": "常にループ: ",
     "preferences_autoplay_label": "自動再生: ",
-    "preferences_continue_label": "次の動画を再生をオン: ",
+    "preferences_continue_label": "次の動画を自動再生: ",
     "preferences_continue_autoplay_label": "次の動画を自動再生: ",
     "preferences_listen_label": "音声モードを使用: ",
     "preferences_local_label": "動画視聴にプロキシを経由: ",
