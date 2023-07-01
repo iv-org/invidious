@@ -209,6 +209,9 @@ class Config
     if config.hmac_key.empty?
       puts "Config: 'hmac_key' is required/can't be empty"
       exit(1)
+    elsif config.hmac_key == "CHANGE_ME!!"
+      puts "Config: The value of 'hmac_key' needs to be changed!!"
+      exit(1)
     end
 
     # Build database_url from db.* if it's not set directly
