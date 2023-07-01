@@ -111,14 +111,6 @@
                 </div>
             <% end %>
 
-            <% if env.get? "user" %>
-                <% if !HMAC_KEY_CONFIGURED && CONFIG.admins.includes? env.get("user").as(Invidious::User).email %>
-                <div class="h-box">
-                        <h3><p>Message for admin: please configure hmac_key, <a href="https://github.com/iv-org/invidious/issues/3854">see more here</a>.</p></h3>
-                    </div>
-                <% end %>
-            <% end %>
-
             <%= content %>
 
             <footer>
