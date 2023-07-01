@@ -57,9 +57,8 @@ end
 # Simple alias to make code easier to read
 alias IV = Invidious
 
-CONFIG              = Config.load
-HMAC_KEY_CONFIGURED = CONFIG.hmac_key != nil
-HMAC_KEY            = CONFIG.hmac_key || Random::Secure.hex(32)
+CONFIG   = Config.load
+HMAC_KEY = CONFIG.hmac_key
 
 PG_DB       = DB.open CONFIG.database_url
 ARCHIVE_URL = URI.parse("https://archive.org")
@@ -229,10 +228,6 @@ Kemal.config.logger = LOGGER
 Kemal.config.host_binding = Kemal.config.host_binding != "0.0.0.0" ? Kemal.config.host_binding : CONFIG.host_binding
 Kemal.config.port = Kemal.config.port != 3000 ? Kemal.config.port : CONFIG.port
 Kemal.config.app_name = "Invidious"
-
-if !HMAC_KEY_CONFIGURED
-  LOGGER.warn("Please configure hmac_key by July 1st, see more here: https://github.com/iv-org/invidious/issues/3854")
-end
 
 # Use in kemal's production mode.
 # Users can also set the KEMAL_ENV environmental variable for this to be set automatically.
