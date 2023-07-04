@@ -761,8 +761,16 @@ h1, h2, h3, h4, h5, p,
 }
 
 div.compilation-video-panel {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  color: #d9d9d9;
+  padding: 28.125%;
+  position: relative;
+  box-sizing: border-box;
 }
+  
+img.compilation-video-panel {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  object-fit: cover;
+}    
