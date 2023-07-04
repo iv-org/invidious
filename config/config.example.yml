@@ -460,7 +460,7 @@ jobs:
 ##
 ## Note: This parameter is mandatory and should be a random string.
 ## Such random string can be generated on linux with the following
-## command: `pwdgen 20 1`
+## command: `pwgen 20 1`
 ##
 ## Accepted values: a string
 ## Default: <none>
