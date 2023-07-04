@@ -2,14 +2,25 @@
     <div class="h-box">
         <div style="display:flex; justify-content:flex-start; width:calc(100% - 20px); height:100px; border:1px solid black; margin: 10px; background: #d9d9d9;">
             <div style="display:flex; flex-direction:column; justify-content:space-between;">
-                <svg style="width:20px; height:50%; background-color: beige; margin: 10px;">
+                <svg style="border: solid black; width:20px; height:50%; background-color: beige; margin: 10px;">
                     <path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path>
                 </svg>
-                <svg style="width:20px; height:50%; background-color: beige; margin: 10px;">
+                <svg viewBox="-10 25 20 50" style="border: solid; width:20px; height:50%; background-color: beige; margin: 10px;">
                     <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"></path>
                 </svg>
             </div>
             <img loading="lazy" style="margin:10px;" src="/vi/<%= compilation_video.id %>/mqdefault.jpg" alt="" />
+            <div style="display:flex; flex-direction:column;">
+                <div style="display:flex; justify-content:flex-start;">
+                    <p style="text-overflow: ellipsis;white-space: nowrap;overflow: hidden;" dir="auto"><%= HTML.escape(compilation_video.title) %></p>
+                </div> 
+                <div style="display:flex; justify-content: space-around;">
+                    <p>from</p>
+                    <input value="00:00:00" type="time" step="1">
+                    <p>to</p>
+                    <input value="00:00:00" type="time" step="1">
+                </div>
+            </div>
         </div>
     </div>
 </div>
