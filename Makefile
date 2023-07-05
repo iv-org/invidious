@@ -86,6 +86,7 @@ clean:
 
 distclean: clean
 	rm -rf libs
+	rm -rf ~/.cache/{crystal,shards}
 
 
 # -----------------------
