@@ -1,20 +1,32 @@
 <div class="pure-u-1 pure-u-md-1">
     <div class="h-box">
-        <div style="display:flex; justify-content:flex-start; width:calc(100% - 20px); height:100px; border:1px solid black; margin: 10px; background: #d9d9d9;">
-            <div style="display:flex; flex-direction:column; justify-content:space-between;">
-                <svg style="border: solid black; width:20px; height:50%; background-color: beige; margin: 10px;">
+        <div class="compilation-video-panel">
+            <div class="compilation-order-swap-arrows">
+                <svg class="compilation-video-swap-arrow">
                     <path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path>
                 </svg>
-                <svg viewBox="-10 25 20 50" style="border: solid; width:20px; height:50%; background-color: beige; margin: 10px;">
+                <svg class="compilation-video-swap-arrow">
                     <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"></path>
                 </svg>
             </div>
             <img loading="lazy" style="margin:10px;" src="/vi/<%= compilation_video.id %>/mqdefault.jpg" alt="" />
-            <div style="display:flex; flex-direction:column;">
-                <div style="display:flex; justify-content:flex-start;">
-                    <p style="text-overflow: ellipsis;white-space: nowrap;overflow: hidden;" dir="auto"><%= HTML.escape(compilation_video.title) %></p>
+            <!-- <div class="compilation-video-thumbnail">
+                <img loading="lazy" style="margin:10px;" src="/vi/<%= compilation_video.id %>/mqdefault.jpg" alt="" />
+                <form data-onsubmit="return_false" action="/playlist_ajax?action_remove_video=1&set_video_id=<%= compilation_video.index %>&referer=<%= env.get("current_page") %>" method="post">
+                    <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                    <p class="watched">
+                        <button type="submit" style="all:unset" data-onclick="remove_playlist_item" data-index="<%= compilation_video.index %>"><i class="icon ion-md-trash"></i></button>
+                    </p>
+                </form>
+                <% if !compilation_video.responds_to?(:live_now) && compilation_video.length_seconds != 0 %>
+                    <p class="length"><%= recode_length_seconds(compilation_video.length_seconds) %></p>
+                <% end %>
+            </div> -->
+            <div class="compilation-video-input-panel">
+                <div class="compilation-video-title">
+                    <span class="compilation-video-title" dir="auto"><%= HTML.escape(compilation_video.title) %></span>
                 </div> 
-                <div style="display:flex; justify-content: space-around;">
+                <div class="compilation-video-timestamps">
                     <p>from</p>
                     <input value="00:00:00" type="time" step="1">
                     <p>to</p>
