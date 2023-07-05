@@ -31,20 +31,51 @@
     <% watched.each do |item| %>
         <div class="pure-u-1 pure-u-md-1-4">
             <div class="h-box">
-                <a style="width:100%" href="/watch?v=<%= item %>">
+                <a style="width:100%" href="/watch?v=<%= item.id %>">
                     <% if !env.get("preferences").as(Preferences).thin_mode %>
                         <div class="thumbnail">
-                            <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg" alt="" />
-                            <form data-onsubmit="return_false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
+                            <img loading="lazy" tabindex="-1" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg" alt="" />
+                            <% if item.responds_to?(:live_now) && item.live_now %>
+                                <p class="length" dir="auto"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
+                            <% elsif item.length_seconds != 0 %>
+                                <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
+                            <% end %>
+
+                            <form data-onsubmit="return_false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">
-                                    <button type="submit" style="all:unset" data-onclick="mark_unwatched" data-id="<%= item %>"><i class="icon ion-md-trash"></i></button>
+                                    <button type="submit" style="all:unset" data-onclick="mark_unwatched" data-id="<%= item.id %>"><i class="icon ion-md-trash"></i></button>
                                 </p>
                             </form>
                         </div>
-                        <p></p>
                     <% end %>
+                    <p dir="auto"><%= HTML.escape(item.title) %></p>
                 </a>
+
+                <div class="video-card-row flexible">
+                    <div class="flex-left"><a href="/channel/<%= item.ucid %>">
+                        <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %><% if !item.is_a?(ChannelVideo) && !item.author_verified.nil? && item.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></p>
+                    </a></div>
+
+                    <% endpoint_params = "?v=#{item.id}" %>
+                    <%= rendered "components/video-context-buttons" %>
+                </div>
+
+                <div class="video-card-row flexible">
+                    <div class="flex-left">
+                        <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
+                            <p class="video-data" dir="auto"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
+                        <% elsif Time.utc - item.published > 1.minute %>
+                            <p class="video-data" dir="auto"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
+                        <% end %>
+                    </div>
+
+                    <% if item.responds_to?(:views) && item.views %>
+                    <div class="flex-right">
+                        <p class="video-data" dir="auto"><%= translate_count(locale, "generic_views_count", item.views || 0, NumberFormatting::Short) %></p>
+                    </div>
+                    <% end %>
+                </div>
             </div>
         </div>
     <% end %>

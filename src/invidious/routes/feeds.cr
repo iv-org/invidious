@@ -128,6 +128,7 @@ module Invidious::Routes::Feeds
       watched = user.watched.reverse[(page - 1) * max_results, max_results]
     end
     watched ||= [] of String
+    watched = watched.map { |id| get_video(id) }
 
     templated "feeds/history"
   end
