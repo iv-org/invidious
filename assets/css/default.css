@@ -760,12 +760,17 @@ h1, h2, h3, h4, h5, p,
   margin: 0 2px;
 }
 
+input.compilation-video-timestamp {
+  width: 50px;
+  height: 20px;
+}
+
 div.compilation-video-panel {
   display:flex;
   justify-content:flex-start; 
   width:calc(100% - 20px); 
   height:100px; 
-  border:1px solid #f0f0f0; 
+  border:2px solid #ccc;
   margin: 10px; 
   /*background: #d9d9d9;*/
 }
@@ -802,11 +807,11 @@ span.compilation-video-title {
   overflow: hidden;
 }
 
-div.compilation-video-timestamps {
+div.compilation-video-timestamp-set {
   display:flex; 
   justify-content: flex-start;
+  align-items: center;
 }
-
 
 div.compilation-video-thumbnail {
   position: relative;

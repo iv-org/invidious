@@ -8,3 +8,5 @@
 /sentry
 /config/config.yml
 .DS_Store
+docker-compose.yml
+Dockerfile
