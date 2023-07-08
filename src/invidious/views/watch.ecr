@@ -311,6 +311,8 @@ we're going to need to do it here in order to allow for translations.
                                     <a tabindex="-1" href="/watch?v=<%= rv["id"] %>&listen=<%= params.listen %>">
                                         <img loading="lazy" class="thumbnail" src="/vi/<%= rv["id"] %>/mqdefault.jpg" alt="" />
                                     </a>
+                                <%- else -%>
+                                    <div class="thumbnail-placeholder"></div>
                                 <%- end -%>
 
                                 <div class="bottom-right-overlay">

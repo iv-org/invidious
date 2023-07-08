@@ -14,6 +14,8 @@
                         <img loading="lazy" style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target.gsub(/=s\d+/, "=s176") %>" alt="" />
                     </center>
                 </a>
+            <%- else -%>
+                <div class="thumbnail-placeholder" style="width:56.25%"></div>
             <% end %>
 
             <div class="video-card-row flexible">
@@ -41,6 +43,8 @@
                     <a tabindex="-1" href="<%= link_url %>">
                         <img loading="lazy" class="thumbnail" src="<%= URI.parse(item.thumbnail || "/").request_target %>" alt="" />
                     </a>
+                <%- else -%>
+                    <div class="thumbnail-placeholder"></div>
                 <%- end -%>
 
                 <div class="bottom-right-overlay">
@@ -76,7 +80,7 @@
             -%>
 
             <div class="thumbnail">
-                <%- if !env.get("preferences").as(Preferences).thin_mode -%>
+                <%- if !thin_mode -%>
                     <a tabindex="-1" href="<%= link_url %>">
                         <img loading="lazy" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg" alt="" />
 
@@ -85,6 +89,8 @@
                             <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
                         <% end %>
                     </a>
+                <%- else -%>
+                    <div class="thumbnail-placeholder"></div>
                 <%- end -%>
 
                 <div class="top-left-overlay">

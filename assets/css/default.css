@@ -199,6 +199,11 @@ img.thumbnail {
   object-fit: cover;
 }
 
+.thumbnail-placeholder {
+  min-height: 50px;
+  border: 2px dotted;
+}
+
 div.watched-overlay {
   z-index: 50;
   position: absolute;
