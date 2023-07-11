@@ -7,6 +7,17 @@
     <div class="pure-u-1 pure-u-lg-3-5">
         <div class="h-box">
             <% case account_type when %>
+            <% when "oauth" %>
+                <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=oauth" method="post">
+                    <fieldset>
+                        <select name="provider" id="provider">
+                            <% CONFIG.oauth.each_key do |k| %>
+                                <option value="<%= k %>"><%= k %></option>
+                            <% end %>
+                        </select>
+                        <button type="submit" class="pure-button pure-button-primary"><%= translate(locale, "Sign In via OAuth") %></button>
+                    </fieldset>
+                </form>
             <% else # "invidious" %>
                 <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
                     <fieldset>
@@ -67,6 +78,9 @@
                             <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
                                 <%= translate(locale, "Sign In") %>/<%= translate(locale, "Register") %>
                             </button>
+                        <% end %>
+                        <% if oauth %>
+                            <a class="pure-button pure-button-secondary" href="/login?referer=<%= URI.encode_www_form(referer) %>&type=oauth">OAuth</a>
                         <% end %>
                     </fieldset>
                 </form>

@@ -8,6 +8,18 @@ struct DBConfig
   property dbname : String
 end
 
+struct OAuthConfig
+  include YAML::Serializable
+
+  property host : String
+  property field : String = "email"
+  property auth_uri : String
+  property token_uri : String
+  property info_uri : String
+  property client_id : String
+  property client_secret : String
+end
+
 struct ConfigPreferences
   include YAML::Serializable
 
@@ -128,6 +140,9 @@ class Config
   property pool_size : Int32 = 100
   # Use quic transport for youtube api
   property use_quic : Bool = false
+
+  property auth_type : Array(String) = ["invidious", "oauth"]
+  property oauth = {} of String => OAuthConfig
 
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
