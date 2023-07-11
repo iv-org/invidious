@@ -14,6 +14,7 @@ struct Invidious::User
       return HTTP::Cookie.new(
         name: "SID",
         domain: domain,
+        path: "/",
         value: sid,
         expires: Time.utc + 2.years,
         secure: SECURE,
@@ -28,6 +29,7 @@ struct Invidious::User
       return HTTP::Cookie.new(
         name: "PREFS",
         domain: domain,
+        path: "/",
         value: URI.encode_www_form(preferences.to_json),
         expires: Time.utc + 2.years,
         secure: SECURE,

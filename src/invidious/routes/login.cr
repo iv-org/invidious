@@ -235,4 +235,49 @@ module Invidious::Routes::Login
 
     env.redirect referer
   end
+
+  def self.user_flow_existing(env, email)
+    sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
+    Invidious::Database::SessionIDs.insert(sid, email)
+    env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+
+    # Since this user has already registered, we don't want to overwrite their preferences
+    if env.request.cookies["PREFS"]?
+      cookie = env.request.cookies["PREFS"]
+      cookie.expires = Time.utc(1990, 1, 1)
+      env.response.cookies << cookie
+    end
+  end
+
+  def self.user_flow_new(env, email, password)
+    sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
+    if password
+      user, sid = create_user(sid, email, password)
+    else
+      user, sid = create_user(sid, email)
+    end
+
+    if language_header = env.request.headers["Accept-Language"]?
+      if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
+        user.preferences.locale = language.header
+      end
+    end
+
+    Invidious::Database::Users.insert(user)
+    Invidious::Database::SessionIDs.insert(sid, email)
+
+    view_name = "subscriptions_#{sha256(user.email)}"
+    PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
+
+    env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+
+    if env.request.cookies["PREFS"]?
+      user.preferences = env.get("preferences").as(Preferences)
+      Invidious::Database::Users.update_preferences(user)
+
+      cookie = env.request.cookies["PREFS"]
+      cookie.expires = Time.utc(1990, 1, 1)
+      env.response.cookies << cookie
+    end
+  end
 end
