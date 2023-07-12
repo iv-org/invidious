@@ -27,7 +27,7 @@ module Invidious::Routes::Channels
           item.author
         end
       end
-      items = items.select(SearchPlaylist).map(&.as(SearchPlaylist))
+      items = items.select(SearchPlaylist)
       items.each(&.author = "")
     else
       sort_options = {"newest", "oldest", "popular"}
@@ -105,10 +105,50 @@ module Invidious::Routes::Channels
       channel.ucid, channel.author, continuation, (sort_by || "last")
     )
 
-    items = items.select(SearchPlaylist).map(&.as(SearchPlaylist))
+    items = items.select(SearchPlaylist)
     items.each(&.author = "")
 
     selected_tab = Frontend::ChannelPage::TabsAvailable::Playlists
+    templated "channel"
+  end
+
+  def self.podcasts(env)
+    data = self.fetch_basic_information(env)
+    return data if !data.is_a?(Tuple)
+
+    locale, user, subscriptions, continuation, ucid, channel = data
+
+    sort_by = ""
+    sort_options = [] of String
+
+    items, next_continuation = fetch_channel_podcasts(
+      channel.ucid, channel.author, continuation
+    )
+
+    items = items.select(SearchPlaylist)
+    items.each(&.author = "")
+
+    selected_tab = Frontend::ChannelPage::TabsAvailable::Podcasts
+    templated "channel"
+  end
+
+  def self.releases(env)
+    data = self.fetch_basic_information(env)
+    return data if !data.is_a?(Tuple)
+
+    locale, user, subscriptions, continuation, ucid, channel = data
+
+    sort_by = ""
+    sort_options = [] of String
+
+    items, next_continuation = fetch_channel_releases(
+      channel.ucid, channel.author, continuation
+    )
+
+    items = items.select(SearchPlaylist)
+    items.each(&.author = "")
+
+    selected_tab = Frontend::ChannelPage::TabsAvailable::Releases
     templated "channel"
   end
 

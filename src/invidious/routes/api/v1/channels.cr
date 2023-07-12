@@ -245,7 +245,7 @@ module Invidious::Routes::API::V1::Channels
     channel = nil # Make the compiler happy
     get_channel()
 
-    items, continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
+    items, next_continuation = fetch_channel_playlists(channel.ucid, channel.author, continuation, sort_by)
 
     JSON.build do |json|
       json.object do
@@ -257,7 +257,65 @@ module Invidious::Routes::API::V1::Channels
           end
         end
 
-        json.field "continuation", continuation
+        json.field "continuation", next_continuation if next_continuation
+      end
+    end
+  end
+
+  def self.podcasts(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    env.response.content_type = "application/json"
+
+    ucid = env.params.url["ucid"]
+    continuation = env.params.query["continuation"]?
+
+    # Use the macro defined above
+    channel = nil # Make the compiler happy
+    get_channel()
+
+    items, next_continuation = fetch_channel_podcasts(channel.ucid, channel.author, continuation)
+
+    JSON.build do |json|
+      json.object do
+        json.field "playlists" do
+          json.array do
+            items.each do |item|
+              item.to_json(locale, json) if item.is_a?(SearchPlaylist)
+            end
+          end
+        end
+
+        json.field "continuation", next_continuation if next_continuation
+      end
+    end
+  end
+
+  def self.releases(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    env.response.content_type = "application/json"
+
+    ucid = env.params.url["ucid"]
+    continuation = env.params.query["continuation"]?
+
+    # Use the macro defined above
+    channel = nil # Make the compiler happy
+    get_channel()
+
+    items, next_continuation = fetch_channel_releases(channel.ucid, channel.author, continuation)
+
+    JSON.build do |json|
+      json.object do
+        json.field "playlists" do
+          json.array do
+            items.each do |item|
+              item.to_json(locale, json) if item.is_a?(SearchPlaylist)
+            end
+          end
+        end
+
+        json.field "continuation", next_continuation if next_continuation
       end
     end
   end
