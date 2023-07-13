@@ -3,10 +3,9 @@
 module Invidious::Routes::Login
   def self.login_page(env)
     locale = env.get("preferences").as(Preferences).locale
+    referer = get_referer(env, "/feed/subscriptions")
 
     user = env.get? "user"
-
-    referer = get_referer(env, "/feed/subscriptions")
 
     return env.redirect referer if user
 
@@ -19,17 +18,13 @@ module Invidious::Routes::Login
     captcha = nil
 
     account_type = env.params.query["type"]?
-    account_type ||= "invidious"
+    account_type ||= ""
 
-    if CONFIG.auth_type.find(&.== account_type).nil?
-      if CONFIG.auth_type.size == 0
-        account_type = "invidious"
-      else
-        account_type = CONFIG.auth_type[0]
-      end
+    if CONFIG.auth_type.size == 0
+      return error_template(401, "No authentication backend enabled.")
+    elsif CONFIG.auth_type.find(&.== account_type).nil? && CONFIG.auth_type.size == 1
+      account_type = CONFIG.auth_type[0]
     end
-
-    oauth = CONFIG.auth_type.find(&.== "oauth") && (CONFIG.oauth.size > 0)
 
     captcha_type = env.params.query["captcha"]?
     captcha_type ||= "image"
@@ -39,36 +34,36 @@ module Invidious::Routes::Login
 
   def self.login_oauth(env)
     locale = env.get("preferences").as(Preferences).locale
-
     referer = get_referer(env, "/feed/subscriptions")
 
     authorization_code = env.params.query["code"]?
     provider_k = env.params.url["provider"]
-    if authorization_code
-      begin
-        token = OAuthHelper.get(provider_k).get_access_token_using_authorization_code(authorization_code)
-        email = OAuthHelper.info_field(provider_k, token)
 
-        if email
-          user = Invidious::Database::Users.select(email: email)
-          if user
-            user_flow_existing(env, email)
-          else
-            user_flow_new(env, email, nil)
-          end
-        end
-      rescue ex
-        return error_template(500, "Internal Error" + (ex.message || ""))
-      end
-    else
+    if authorization_code.nil?
       return error_template(403, "Missing Authorization Code")
+    end
+    begin
+      token = OAuthHelper.make_client(provider_k).get_access_token_using_authorization_code(authorization_code)
+
+      if email = OAuthHelper.info_field(provider_k, token)
+        if user = Invidious::Database::Users.select(email: email)
+          if CONFIG.auth_enforce_source && user.password != ("oauth:" + provider_k)
+            return error_template(401, "Wrong provider")
+          else
+            user_flow_existing(env, email)
+          end
+        else
+          user_flow_new(env, email, nil, "oauth:" + provider_k)
+        end
+      end
+    rescue ex
+      return error_template(500, "Internal Error")
     end
     env.redirect referer
   end
 
   def self.login(env)
     locale = env.get("preferences").as(Preferences).locale
-
     referer = get_referer(env, "/feed/subscriptions")
 
     if !CONFIG.login_enabled
@@ -78,23 +73,20 @@ module Invidious::Routes::Login
     # https://stackoverflow.com/a/574698
     email = env.params.body["email"]?.try &.downcase.byte_slice(0, 254)
     password = env.params.body["password"]?
-    oauth = CONFIG.auth_type.find(&.== "oauth") && (CONFIG.oauth.size > 0)
 
     account_type = env.params.query["type"]?
-    account_type ||= "invidious"
+    account_type ||= ""
 
     if CONFIG.auth_type.size == 0
       return error_template(401, "No authentication backend enabled.")
-    end
-
-    if CONFIG.auth_type.find(&.== account_type).nil?
+    elsif CONFIG.auth_type.find(&.== account_type).nil? && CONFIG.auth_type.size == 1
       account_type = CONFIG.auth_type[0]
     end
 
     case account_type
     when "oauth"
       provider_k = env.params.body["provider"]
-      env.redirect OAuthHelper.get(provider_k).get_authorize_uri("openid email profile")
+      env.redirect OAuthHelper.make_client(provider_k).get_authorize_uri("openid email profile")
     when "saml"
       return error_template(501, "Not implemented")
     when "ldap"
@@ -108,18 +100,14 @@ module Invidious::Routes::Login
         return error_template(401, "Password is a required field")
       end
 
-      user = Invidious::Database::Users.select(email: email)
-
-      if user
-        if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
-          sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-          Invidious::Database::SessionIDs.insert(sid, email)
-
-          env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+      if user = Invidious::Database::Users.select(email: email)
+        if user.password.not_nil!.starts_with? "oauth"
+          return error_template(401, "Wrong provider")
+        elsif Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
+          user_flow_existing(env, email)
         else
           return error_template(401, "Wrong username or password")
         end
-        user_flow_existing(env, email)
       else
         if !CONFIG.registration_enabled
           return error_template(400, "Registration has been disabled by administrator.")
@@ -196,7 +184,7 @@ module Invidious::Routes::Login
             end
           end
         end
-        user_flow_new(env, email, password)
+        user_flow_new(env, email, password, "internal")
       end
 
       env.redirect referer
@@ -249,12 +237,12 @@ module Invidious::Routes::Login
     end
   end
 
-  def self.user_flow_new(env, email, password)
+  def self.user_flow_new(env, email, password, provider)
     sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-    if password
-      user, sid = create_user(sid, email, password)
+    if provider == "internal"
+      user, sid = create_internal_user(sid, email, password)
     else
-      user, sid = create_user(sid, email)
+      user, sid = create_user(sid, email, provider)
     end
 
     if language_header = env.request.headers["Accept-Language"]?

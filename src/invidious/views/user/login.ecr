@@ -11,14 +11,14 @@
                 <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=oauth" method="post">
                     <fieldset>
                         <select name="provider" id="provider">
-                            <% CONFIG.oauth.each_key do |k| %>
-                                <option value="<%= k %>"><%= k %></option>
+                            <% CONFIG.oauth.each_key do |key| %>
+                                <option value="<%= key %>"><%= key %></option>
                             <% end %>
                         </select>
                         <button type="submit" class="pure-button pure-button-primary"><%= translate(locale, "Sign In via OAuth") %></button>
                     </fieldset>
                 </form>
-            <% else # "invidious" %>
+            <% when "invidious" %>
                 <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
                     <fieldset>
                         <% if email %>
@@ -79,11 +79,16 @@
                                 <%= translate(locale, "Sign In") %>/<%= translate(locale, "Register") %>
                             </button>
                         <% end %>
-                        <% if oauth %>
-                            <a class="pure-button pure-button-secondary" href="/login?referer=<%= URI.encode_www_form(referer) %>&type=oauth">OAuth</a>
-                        <% end %>
                     </fieldset>
                 </form>
+            <% else %>
+                <% if CONFIG.auth_internal_enabled? %>
+                    <a class="pure-button pure-button-secondary" href="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious">Internal</a>
+                <% end %>
+                <% if CONFIG.auth_oauth_enabled? %>
+                    <a class="pure-button pure-button-secondary" href="/login?referer=<%= URI.encode_www_form(referer) %>&type=oauth">OAuth</a>
+                <% end %>
+                <label></label>
             <% end %>
         </div>
     </div>

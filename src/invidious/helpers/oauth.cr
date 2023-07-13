@@ -11,7 +11,7 @@ module Invidious::OAuthHelper
     end
   end
 
-  def get(key)
+  def make_client(key)
     if HOST_URL == ""
       raise Exception.new("Missing domain and port configuration")
     end
@@ -27,24 +27,22 @@ module Invidious::OAuthHelper
     )
   end
 
-  def get_uri_host_pair(host, uri)
-    if (uri.starts_with?("https://"))
-      res = uri.gsub(/https*\:\/\//, "").split('/', 2)
-      [res[0], "/" + res[1]]
+  def get_uri_host_pair(host, url)
+    if (url.starts_with?(/https*\:\/\//))
+      uri = URI.parse url
+      [uri.host || host, uri.path || "/"]
     else
-      [host, uri]
+      [host, url]
     end
   end
 
   def get_info(key, token)
     provider = self.get_provider(key)
     uri_host_pair = self.get_uri_host_pair(provider.host, provider.info_uri)
-    LOGGER.info(uri_host_pair[0] + " " + uri_host_pair[1])
     client = HTTP::Client.new(uri_host_pair[0], tls: true)
     token.authenticate(client)
     response = client.get uri_host_pair[1]
     client.close
-    LOGGER.info(response.body)
     response.body
   end
 

@@ -142,6 +142,7 @@ class Config
   property use_quic : Bool = false
 
   property auth_type : Array(String) = ["invidious", "oauth"]
+  property auth_enforce_source : Bool = true
   property oauth = {} of String => OAuthConfig
 
   # Saved cookies in "name1=value1; name2=value2..." format
@@ -168,6 +169,14 @@ class Config
     else
       return false
     end
+  end
+
+  def auth_oauth_enabled?
+    return (@auth_type.find(&.== "oauth") && @oauth.size > 0)
+  end
+
+  def auth_internal_enabled?
+    return (@auth_type.find(&.== "invidious"))
   end
 
   def self.load
