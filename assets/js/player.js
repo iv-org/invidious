@@ -37,7 +37,7 @@ if (player_data.aspect_ratio) {
 
 var embed_url = new URL(location);
 embed_url.searchParams.delete('v');
-var short_url = location.origin + '/' + video_data.id + embed_url.search;
+var short_url = location.origin + '/watch?v=' + video_data.id + embed_url.search;
 embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
 var save_player_pos_key = 'save_player_pos';
