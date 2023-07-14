@@ -61,6 +61,12 @@ module Invidious::Routes::BeforeAll
       env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
     end
 
+    unregistered_path_whitelist = {"/", "/login", "/licenses", "/privacy"}
+    if CONFIG.login_only && !env.get?("user") && !unregistered_path_whitelist.includes?(env.request.path)
+      env.response.headers["Location"] = "/login"
+      haltf env, status_code: 302
+    end
+
     return if {
                 "/sb/",
                 "/vi/",
@@ -122,11 +128,5 @@ module Invidious::Routes::BeforeAll
     end
 
     env.set "current_page", URI.encode_www_form(current_page)
-
-    unregistered_path_whitelist = {"/", "/login", "/licenses", "/privacy"}
-    if CONFIG.login_only && !env.get?("user") && !unregistered_path_whitelist.includes?(env.request.path)
-      env.response.headers["Location"] = "/login"
-      haltf env, status_code: 302
-    end
   end
 end
