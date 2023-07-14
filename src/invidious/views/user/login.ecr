@@ -7,42 +7,6 @@
     <div class="pure-u-1 pure-u-lg-3-5">
         <div class="h-box">
             <% case account_type when %>
-            <% when "google" %>
-                <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=google" method="post">
-                    <fieldset>
-                        <% if email %>
-                            <input name="email" type="hidden" value="<%= HTML.escape(email) %>">
-                        <% else %>
-                            <label for="email"><%= translate(locale, "E-mail") %> :</label>
-                            <input required class="pure-input-1" name="email" type="email" placeholder="<%= translate(locale, "E-mail") %>">
-                        <% end %>
-
-                        <% if password %>
-                            <input name="password" type="hidden" value="<%= HTML.escape(password) %>">
-                        <% else %>
-                            <label for="password"><%= translate(locale, "Password") %> :</label>
-                            <input required class="pure-input-1" name="password" type="password" placeholder="<%= translate(locale, "Password") %>">
-                        <% end %>
-
-                        <% if prompt %>
-                            <label for="tfa"><%= translate(locale, prompt) %> :</label>
-                            <input required class="pure-input-1" name="tfa" type="text" placeholder="<%= translate(locale, prompt) %>">
-                        <% end %>
-
-                        <% if tfa %>
-                            <input type="hidden" name="tfa" value="<%= tfa %>">
-                        <% end %>
-
-                        <% if captcha %>
-                            <img style="width:50%" src="/Captcha?v=2&ctoken=<%= captcha[:tokens][0] %>"/>
-                            <input type="hidden" name="token" value="<%= captcha[:tokens][0] %>">
-                            <label for="answer"><%= translate(locale, "Answer") %> :</label>
-                            <input type="text" name="answer" type="text" placeholder="<%= translate(locale, "Answer") %>">
-                        <% end %>
-
-                        <button type="submit" class="pure-button pure-button-primary"><%= translate(locale, "Sign In") %></button>
-                    </fieldset>
-                </form>
             <% else # "invidious" %>
                 <form class="pure-form pure-form-stacked" action="/login?referer=<%= URI.encode_www_form(referer) %>&type=invidious" method="post">
                     <fieldset>

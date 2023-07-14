@@ -255,8 +255,7 @@ https_only: false
 #registration_enabled: true
 
 ##
-## Allow/Forbid users to log-in. This setting affects the ability
-## to connect with BOTH Google and Invidious (local) accounts.
+## Allow/Forbid users to log-in.
 ##
 ## Accepted values: true, false
 ## Default: true
@@ -456,13 +455,17 @@ jobs:
 #use_pubsub_feeds: false
 
 ##
-## HMAC signing key used for CSRF tokens and pubsub
+## HMAC signing key used for CSRF tokens, cookies and pubsub
 ## subscriptions verification.
+##
+## Note: This parameter is mandatory and should be a random string.
+## Such random string can be generated on linux with the following
+## command: `pwgen 20 1`
 ##
 ## Accepted values: a string
 ## Default: <none>
 ##
-#hmac_key:
+hmac_key: "CHANGE_ME!!"
 
 ##
 ## List of video IDs where the "download" widget must be
@@ -817,6 +820,16 @@ default_user_preferences:
   ## Default: true
   ##
   #vr_mode: true
+  
+  ##
+  ## Save the playback position
+  ## Allow to continue watching at the previous position when
+  ## watching the same video.
+  ##
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #save_player_pos: false
 
   # -----------------------------
   #  Subscription feed

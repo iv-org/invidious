@@ -86,7 +86,7 @@ class Config
   property https_only : Bool?
   property login_only : Bool?
   # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
-  property hmac_key : String?
+  property hmac_key : String = ""
   # Domain to be used for links to resources on the site where an absolute URL is required
   property domain : String?
   # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
@@ -205,6 +205,16 @@ class Config
         end
     {% end %}
 
+    # HMAC_key is mandatory
+    # See: https://github.com/iv-org/invidious/issues/3854
+    if config.hmac_key.empty?
+      puts "Config: 'hmac_key' is required/can't be empty"
+      exit(1)
+    elsif config.hmac_key == "CHANGE_ME!!"
+      puts "Config: The value of 'hmac_key' needs to be changed!!"
+      exit(1)
+    end
+
     # Build database_url from db.* if it's not set directly
     if config.database_url.to_s.empty?
       if db = config.db
@@ -217,7 +227,7 @@ class Config
           path: db.dbname,
         )
       else
-        puts "Config : Either database_url or db.* is required"
+        puts "Config: Either database_url or db.* is required"
         exit(1)
       end
     end

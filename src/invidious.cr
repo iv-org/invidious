@@ -43,6 +43,7 @@ require "./invidious/videos/*"
 require "./invidious/jsonify/**"
 
 require "./invidious/*"
+require "./invidious/comments/*"
 require "./invidious/channels/*"
 require "./invidious/user/*"
 require "./invidious/search/*"
@@ -57,11 +58,10 @@ end
 alias IV = Invidious
 
 CONFIG   = Config.load
-HMAC_KEY = CONFIG.hmac_key || Random::Secure.hex(32)
+HMAC_KEY = CONFIG.hmac_key
 
 PG_DB       = DB.open CONFIG.database_url
 ARCHIVE_URL = URI.parse("https://archive.org")
-LOGIN_URL   = URI.parse("https://accounts.google.com")
 PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
 REDDIT_URL  = URI.parse("https://www.reddit.com")
 YT_URL      = URI.parse("https://www.youtube.com")

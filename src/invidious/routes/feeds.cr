@@ -83,10 +83,6 @@ module Invidious::Routes::Feeds
     headers = HTTP::Headers.new
     headers["Cookie"] = env.request.headers["Cookie"]
 
-    if !user.password
-      user, sid = get_user(sid, headers)
-    end
-
     max_results = env.params.query["max_results"]?.try &.to_i?.try &.clamp(0, MAX_ITEMS_PER_PAGE)
     max_results ||= user.preferences.max_results
     max_results ||= CONFIG.default_user_preferences.max_results

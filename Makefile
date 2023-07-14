@@ -31,6 +31,10 @@ ifeq ($(DISABLE_QUIC), 1)
   FLAGS += -Ddisable_quic
 endif
 
+ifeq ($(API_ONLY), 1)
+  FLAGS += -Dapi_only
+endif
+
 
 # -----------------------
 #  Main
@@ -82,6 +86,7 @@ clean:
 
 distclean: clean
 	rm -rf libs
+	rm -rf ~/.cache/{crystal,shards}
 
 
 # -----------------------
@@ -106,11 +111,12 @@ help:
 	@echo ""
 	@echo "Build options available for this Makefile:"
 	@echo ""
-	@echo "  RELEASE          Make a release build      (Default: 1)"
-	@echo "  STATIC           Link libraries statically (Default: 0)"
+	@echo "  RELEASE          Make a release build            (Default: 1)"
+	@echo "  STATIC           Link libraries statically       (Default: 0)"
 	@echo ""
-	@echo "  DISABLE_QUIC     Disable support for QUIC  (Default: 0)"
-	@echo "  NO_DBG_SYMBOLS   Strip debug symbols       (Default: 0)"
+	@echo "  API_ONLY         Build invidious without a GUI   (Default: 0)"
+	@echo "  DISABLE_QUIC     Disable support for QUIC        (Default: 0)"
+	@echo "  NO_DBG_SYMBOLS   Strip debug symbols             (Default: 0)"
 
 
 

@@ -46,6 +46,7 @@ body a.channel-owner {
 }
 
 .creator-heart {
+  display: inline-block;
   position: relative;
   width: 16px;
   height: 16px;
@@ -66,6 +67,7 @@ body a.channel-owner {
 }
 
 .creator-heart-small-container {
+  display: block;
   position: relative;
   width: 13px;
   height: 13px;
@@ -119,13 +121,16 @@ body a.pure-button {
 
 button.pure-button-primary,
 body a.pure-button-primary,
-.channel-owner:hover {
+.channel-owner:hover,
+.channel-owner:focus {
   background-color: #a0a0a0;
   color: rgba(35, 35, 35, 1);
 }
 
 button.pure-button-primary:hover,
-body a.pure-button-primary:hover {
+body a.pure-button-primary:hover,
+button.pure-button-primary:focus,
+body a.pure-button-primary:focus {
   background-color: rgba(0, 182, 240, 1);
   color: #fff;
 }
@@ -227,6 +232,7 @@ div.watched-indicator {
 	border-radius: 0;
 
 	box-shadow: none;
+	appearance: none;
 	-webkit-appearance: none;
 }
 
@@ -318,6 +324,30 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 
 
 /*
+ * Comments & community posts
+ */
+
+#comments {
+  max-width: 800px;
+  margin: auto;
+}
+
+.video-iframe-wrapper {
+  position: relative;
+  height: 0;
+  padding-bottom: 56.25%;
+}
+
+.video-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/*
  * Footer
  */
 
@@ -365,11 +395,14 @@ span > select {
 
 .light-theme a:hover,
 .light-theme a:active,
-.light-theme summary:hover {
+.light-theme summary:hover,
+.light-theme a:focus,
+.light-theme summary:focus {
   color: #075A9E !important;
 }
 
-.light-theme a.pure-button-primary:hover {
+.light-theme a.pure-button-primary:hover,
+.light-theme a.pure-button-primary:focus {
   color: #fff !important;
 }
 
@@ -392,11 +425,14 @@ span > select {
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
   .no-theme a:active,
-  .no-theme summary:hover  {
+  .no-theme summary:hover,
+  .no-theme a:focus,
+  .no-theme summary:focus {
     color: #075A9E !important;
   }
 
-  .no-theme a.pure-button-primary:hover {
+  .no-theme a.pure-button-primary:hover,
+  .no-theme a.pure-button-primary:focus {
     color: #fff !important;
   }
 
@@ -423,7 +459,9 @@ span > select {
 
 .dark-theme a:hover,
 .dark-theme a:active,
-.dark-theme summary:hover {
+.dark-theme summary:hover,
+.dark-theme a:focus,
+.dark-theme summary:focus {
   color: rgb(0, 182, 240);
 }
 
@@ -462,7 +500,8 @@ body.dark-theme {
 
 @media (prefers-color-scheme: dark) {
   .no-theme a:hover,
-  .no-theme a:active {
+  .no-theme a:active,
+  .no-theme a:focus {
     color: rgb(0, 182, 240);
   }
 

@@ -113,7 +113,7 @@ module Invidious::Search
 
       case @type
       when .regular?, .playlist?
-        items = unnest_items(Processors.regular(self))
+        items = Processors.regular(self)
         #
       when .channel?
         items = Processors.channel(self)
@@ -135,27 +135,6 @@ module Invidious::Search
       params["channel"] = @channel if !@channel.empty?
 
       return params
-    end
-
-    # TODO: clean code
-    private def unnest_items(all_items) : Array(SearchItem)
-      items = [] of SearchItem
-
-      # Light processing to flatten search results out of Categories.
-      # They should ideally be supported in the future.
-      all_items.each do |i|
-        if i.is_a? Category
-          i.contents.each do |nest_i|
-            if !nest_i.is_a? Video
-              items << nest_i
-            end
-          end
-        else
-          items << i
-        end
-      end
-
-      return items
     end
   end
 end

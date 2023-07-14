@@ -261,7 +261,7 @@ function updateCookie(newVolume, newSpeed) {
     var date = new Date();
     date.setFullYear(date.getFullYear() + 2);
 
-    var ipRegex = /^((\d+\.){3}\d+|[A-Fa-f0-9]*:[A-Fa-f0-9:]*:[A-Fa-f0-9:]+)$/;
+    var ipRegex = /^((\d+\.){3}\d+|[\dA-Fa-f]*:[\d:A-Fa-f]*:[\d:A-Fa-f]+)$/;
     var domainUsed = location.hostname;
 
     // Fix for a bug in FF where the leading dot in the FQDN is not ignored

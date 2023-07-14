@@ -55,4 +55,32 @@ module Invidious::Routes::API::V1::Search
       return error_json(500, ex)
     end
   end
+
+  def self.hashtag(env)
+    hashtag = env.params.url["hashtag"]
+
+    page = env.params.query["page"]?.try &.to_i? || 1
+
+    locale = env.get("preferences").as(Preferences).locale
+    region = env.params.query["region"]?
+    env.response.content_type = "application/json"
+
+    begin
+      results = Invidious::Hashtag.fetch(hashtag, page, region)
+    rescue ex
+      return error_json(400, ex)
+    end
+
+    JSON.build do |json|
+      json.object do
+        json.field "results" do
+          json.array do
+            results.each do |item|
+              item.to_json(locale, json)
+            end
+          end
+        end
+      end
+    end
+  end
 end

@@ -27,7 +27,7 @@
     </div>
 <% else %>
     <div class="h-box pure-g" id="comments">
-        <%= template_youtube_comments(items.not_nil!, locale, thin_mode) %>
+        <%= IV::Frontend::Comments.template_youtube(items.not_nil!, locale, thin_mode) %>
     </div>
 <% end %>
 

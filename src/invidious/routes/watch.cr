@@ -76,7 +76,7 @@ module Invidious::Routes::Watch
     end
     env.params.query.delete_all("iv_load_policy")
 
-    if watched && preferences.watch_history && !watched.includes? id
+    if watched && preferences.watch_history
       Invidious::Database::Users.mark_watched(user.as(User), id)
     end
 
@@ -95,31 +95,31 @@ module Invidious::Routes::Watch
 
         if source == "youtube"
           begin
-            comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+            comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
           rescue ex
             if preferences.comments[1] == "reddit"
-              comments, reddit_thread = fetch_reddit_comments(id)
-              comment_html = template_reddit_comments(comments, locale)
+              comments, reddit_thread = Comments.fetch_reddit(id)
+              comment_html = Frontend::Comments.template_reddit(comments, locale)
 
-              comment_html = fill_links(comment_html, "https", "www.reddit.com")
-              comment_html = replace_links(comment_html)
+              comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
+              comment_html = Comments.replace_links(comment_html)
             end
           end
         elsif source == "reddit"
           begin
-            comments, reddit_thread = fetch_reddit_comments(id)
-            comment_html = template_reddit_comments(comments, locale)
+            comments, reddit_thread = Comments.fetch_reddit(id)
+            comment_html = Frontend::Comments.template_reddit(comments, locale)
 
-            comment_html = fill_links(comment_html, "https", "www.reddit.com")
-            comment_html = replace_links(comment_html)
+            comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
+            comment_html = Comments.replace_links(comment_html)
           rescue ex
             if preferences.comments[1] == "youtube"
-              comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+              comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
             end
           end
         end
       else
-        comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+        comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
       end
 
       comment_html ||= ""
@@ -259,9 +259,7 @@ module Invidious::Routes::Watch
 
     case action
     when "action_mark_watched"
-      if !user.watched.includes? id
-        Invidious::Database::Users.mark_watched(user, id)
-      end
+      Invidious::Database::Users.mark_watched(user, id)
     when "action_mark_unwatched"
       Invidious::Database::Users.mark_unwatched(user, id)
     else

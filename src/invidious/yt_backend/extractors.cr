@@ -268,7 +268,7 @@ private module Parsers
     end
 
     private def self.parse(item_contents, author_fallback)
-      title = item_contents["title"]["simpleText"]?.try &.as_s || ""
+      title = extract_text(item_contents["title"]) || ""
       plid = item_contents["playlistId"]?.try &.as_s || ""
 
       video_count = HelperExtractors.get_video_count(item_contents)
@@ -381,7 +381,7 @@ private module Parsers
   # Parses an InnerTube itemSectionRenderer into a SearchVideo.
   # Returns nil when the given object isn't a ItemSectionRenderer
   #
-  # A itemSectionRenderer seems to be a simple wrapper for a videoRenderer, used
+  # A itemSectionRenderer seems to be a simple wrapper for a videoRenderer or a playlistRenderer, used
   # by the result page for channel searches. It is located inside a continuationItems
   # container.It is very similar to RichItemRendererParser
   #
@@ -394,6 +394,8 @@ private module Parsers
 
     private def self.parse(item_contents, author_fallback)
       child = VideoRendererParser.process(item_contents, author_fallback)
+      child ||= PlaylistRendererParser.process(item_contents, author_fallback)
+
       return child
     end
 

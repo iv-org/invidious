@@ -178,10 +178,6 @@ module Invidious::Routes::API::V1::Authenticated
       Invidious::Database::Users.subscribe_channel(user, ucid)
     end
 
-    # For Google accounts, access tokens don't have enough information to
-    # make a request on the user's behalf, which is why we don't sync with
-    # YouTube.
-
     env.response.status_code = 204
   end
 

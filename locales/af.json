@@ -1,1 +1,15 @@
-{}
+{
+    "generic_views_count": "{{count}} kyk",
+    "generic_views_count_plural": "{{count}} kyke",
+    "generic_videos_count": "{{count}} video",
+    "generic_videos_count_plural": "{{count}} videos",
+    "generic_playlists_count": "{{count}} snitlys",
+    "generic_playlists_count_plural": "{{count}} snitlyste",
+    "generic_subscriptions_count": "{{count}} intekening",
+    "generic_subscriptions_count_plural": "{{count}} intekeninge",
+    "LIVE": "LEWENDIG",
+    "generic_subscribers_count": "{{count}} intekenaar",
+    "generic_subscribers_count_plural": "{{count}} intekenare",
+    "Shared `x` ago": "`x` gelede gedeel",
+    "New passwords must match": "Nuwe wagwoord moet ooreenstem"
+}

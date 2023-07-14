@@ -34,7 +34,7 @@
                 <a style="width:100%" href="/watch?v=<%= item %>">
                     <% if !env.get("preferences").as(Preferences).thin_mode %>
                         <div class="thumbnail">
-                            <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg"/>
+                            <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg" alt="" />
                             <form data-onsubmit="return_false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
                                 <p class="watched">

@@ -310,6 +310,15 @@ module Invidious::Routes::PreferencesRoute
               response: error_template(415, "Invalid subscription file uploaded")
             )
           end
+        when "import_youtube_pl"
+          filename = part.filename || ""
+          success = Invidious::User::Import.from_youtube_pl(user, body, filename, type)
+
+          if !success
+            haltf(env, status_code: 415,
+              response: error_template(415, "Invalid playlist file uploaded")
+            )
+          end
         when "import_freetube"
           Invidious::User::Import.from_freetube(user, body)
         when "import_newpipe_subscriptions"

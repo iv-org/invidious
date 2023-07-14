@@ -57,7 +57,6 @@ module Invidious::Routing
     get "/login", Routes::Login, :login_page
     post "/login", Routes::Login, :login
     post "/signout", Routes::Login, :signout
-    get "/Captcha", Routes::Login, :captcha
 
     # User preferences
     get "/preferences", Routes::PreferencesRoute, :show
@@ -243,6 +242,7 @@ module Invidious::Routing
       # Search
       get "/api/v1/search", {{namespace}}::Search, :search
       get "/api/v1/search/suggestions", {{namespace}}::Search, :search_suggestions
+      get "/api/v1/hashtag/:hashtag", {{namespace}}::Search, :hashtag
 
       # Authenticated
 

@@ -21,6 +21,7 @@
   color: white;
 }
 
-.watch-on-invidious > a:hover {
+.watch-on-invidious > a:hover,
+.watch-on-invidious > a:focus {
   color: rgba(0, 182, 240, 1);;
 }
