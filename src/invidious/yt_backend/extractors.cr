@@ -11,15 +11,16 @@ private ITEM_CONTAINER_EXTRACTOR = {
 }
 
 private ITEM_PARSERS = {
+  Parsers::RichItemRendererParser,
   Parsers::VideoRendererParser,
   Parsers::ChannelRendererParser,
   Parsers::GridPlaylistRendererParser,
   Parsers::PlaylistRendererParser,
   Parsers::CategoryRendererParser,
-  Parsers::RichItemRendererParser,
   Parsers::ReelItemRendererParser,
   Parsers::ItemSectionRendererParser,
   Parsers::ContinuationItemRendererParser,
+  Parsers::HashtagRendererParser,
 }
 
 private alias InitialData = Hash(String, JSON::Any)
@@ -203,6 +204,56 @@ private module Parsers
         auto_generated:   auto_generated,
         author_verified:  author_verified,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an Innertube `hashtagTileRenderer` into a `SearchHashtag`.
+  # Returns `nil` when the given object is not a `hashtagTileRenderer`.
+  #
+  # A `hashtagTileRenderer` is a kind of search result.
+  # It can be found when searching for any hashtag (e.g "#hi" or "#shorts")
+  module HashtagRendererParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["hashtagTileRenderer"]?
+        return self.parse(item_contents)
+      end
+    end
+
+    private def self.parse(item_contents)
+      title = extract_text(item_contents["hashtag"]).not_nil! # E.g "#hi"
+
+      # E.g "/hashtag/hi"
+      url = item_contents.dig?("onTapCommand", "commandMetadata", "webCommandMetadata", "url").try &.as_s
+      url ||= URI.encode_path("/hashtag/#{title.lchop('#')}")
+
+      video_count_txt = extract_text(item_contents["hashtagVideoCount"]?)     # E.g "203K videos"
+      channel_count_txt = extract_text(item_contents["hashtagChannelCount"]?) # E.g "81K channels"
+
+      # Fallback for video/channel counts
+      if channel_count_txt.nil? || video_count_txt.nil?
+        # E.g: "203K videos • 81K channels"
+        info_text = extract_text(item_contents["hashtagInfoText"]?).try &.split(" • ")
+
+        if info_text && info_text.size == 2
+          video_count_txt ||= info_text[0]
+          channel_count_txt ||= info_text[1]
+        end
+      end
+
+      return SearchHashtag.new({
+        title:         title,
+        url:           url,
+        video_count:   short_text_to_number(video_count_txt || ""),
+        channel_count: short_text_to_number(channel_count_txt || ""),
+      })
+    rescue ex
+      LOGGER.debug("HashtagRendererParser: Failed to extract renderer.")
+      LOGGER.debug("HashtagRendererParser: Got exception: #{ex.message}")
+      return nil
     end
 
     def self.parser_name

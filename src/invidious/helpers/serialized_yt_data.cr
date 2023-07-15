@@ -232,6 +232,25 @@ struct SearchChannel
   end
 end
 
+struct SearchHashtag
+  include DB::Serializable
+
+  property title : String
+  property url : String
+  property video_count : Int64
+  property channel_count : Int64
+
+  def to_json(locale : String?, json : JSON::Builder)
+    json.object do
+      json.field "type", "hashtag"
+      json.field "title", self.title
+      json.field "url", self.url
+      json.field "videoCount", self.video_count
+      json.field "channelCount", self.channel_count
+    end
+  end
+end
+
 class Category
   include DB::Serializable
 
@@ -274,4 +293,4 @@ struct Continuation
   end
 end
 
-alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist | Category
+alias SearchItem = SearchVideo | SearchChannel | SearchPlaylist | SearchHashtag | Category
