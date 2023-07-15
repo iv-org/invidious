@@ -5,6 +5,7 @@ module Invidious::Routes::API::Manifest
     env.response.content_type = "application/dash+xml"
 
     local = env.params.query["local"]?.try &.== "true"
+    thumbnails = env.params.query["thumbnails"]?.try &.== "true"
     id = env.params.url["id"]
     region = env.params.query["region"]?
 
@@ -125,6 +126,62 @@ module Invidious::Routes::API::Manifest
             end
 
             i += 1
+          end
+
+          if thumbnails
+            # https://dashif.org/docs/DASH-IF-IOP-v4.3.pdf
+            {"image/jpeg"}.each do |mime_type|
+              storyboards = video.storyboards
+              next if storyboards.empty?
+
+              storyboards.each do |storyboard|
+                interval = storyboard[:interval].to_i
+                # interval can be 0 https://github.com/iv-org/invidious/issues/3441
+                next if interval == 0
+
+                storyboard_height = storyboard[:storyboard_height]
+
+                # BUG: storyboardHeight can be wrong https://github.com/iv-org/invidious/issues/3440
+                # this fix/assumption is only if we have storyboard[:storyboard_count] = 1
+                if storyboard[:storyboard_count] == 1
+                  storyboard_height = storyboard[:count] // storyboard[:storyboard_width]
+                  if storyboard[:count] % storyboard[:storyboard_width] > 0
+                    storyboard_height += 1
+                  end
+                end
+
+                tiles_per_page = storyboard[:storyboard_width] * storyboard_height
+                interval_seconds = interval // 1000
+
+                template_url = storyboard[:url]
+
+                # If the template changed from known format, abort.
+                next if !template_url.includes? "$M"
+
+                # Youtube template uses the var $M for tile pages
+                # DASH-IF uses $Number$ in the SegmentTemplate
+                url = template_url.gsub("$M", "$Number$")
+
+                storyboard_width = storyboard[:storyboard_width]
+                
+                tile_count = tiles_per_page
+                duration = tile_count * interval_seconds
+
+                width = storyboard[:width] * storyboard[:storyboard_width]
+                height = storyboard[:height] * storyboard_height
+
+                # Bandwidth is kind of a guess...
+                bandwidth = ((width * height * 0.5) / duration).to_i
+
+                xml.element("AdaptationSet", id: i, mimeType: mime_type, contentType: "image") do
+                  xml.element("SegmentTemplate", media: url, duration: duration, startNumber: "0")
+                  xml.element("Representation", id: "thumbnails_#{id}", bandwidth: bandwidth, width: width, height: height) do
+                    xml.element("EssentialProperty", schemeIdUri: "http://dashif.org/guidelines/thumbnail_tile", value: "#{storyboard_width}x#{storyboard_height}")
+                  end
+                end
+                i += 1
+              end          
+           end  
           end
         end
       end
