@@ -175,7 +175,7 @@ module Invidious::Routes::API::Manifest
 
                 xml.element("AdaptationSet", id: i, mimeType: mime_type, contentType: "image") do
                   xml.element("SegmentTemplate", media: url, duration: duration, startNumber: "0")
-                  xml.element("Representation", id: "thumbnails_#{id}", bandwidth: bandwidth, width: width, height: height) do
+                  xml.element("Representation", id: "thumbnails_#{i}", bandwidth: bandwidth, width: width, height: height) do
                     xml.element("EssentialProperty", schemeIdUri: "http://dashif.org/guidelines/thumbnail_tile", value: "#{storyboard_width}x#{storyboard_height}")
                   end
                 end
