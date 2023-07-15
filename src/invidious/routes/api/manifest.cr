@@ -163,7 +163,7 @@ module Invidious::Routes::API::Manifest
                 url = template_url.gsub("$M", "$Number$")
 
                 storyboard_width = storyboard[:storyboard_width]
-                
+
                 tile_count = tiles_per_page
                 duration = tile_count * interval_seconds
 
@@ -180,8 +180,8 @@ module Invidious::Routes::API::Manifest
                   end
                 end
                 i += 1
-              end          
-           end  
+              end
+            end
           end
         end
       end
