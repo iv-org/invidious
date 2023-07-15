@@ -111,24 +111,27 @@ def decode_date(string : String)
   else nil # Continue
   end
 
-  # String matches format "20 hours ago", "4 months ago"...
-  date = string.split(" ")[-3, 3]
-  delta = date[0].to_i
+  # String matches format "20 hours ago", "4 months ago", "20s ago", "15min ago"...
+  match = string.match(/(?<count>\d+) ?(?<span>[smhdwy]\w*) ago/)
 
-  case date[1]
-  when .includes? "second"
+  raise "Could not parse #{string}" if match.nil?
+
+  delta = match["count"].to_i
+
+  case match["span"]
+  when .starts_with? "s" # second(s)
     delta = delta.seconds
-  when .includes? "minute"
+  when .starts_with? "mi" # minute(s)
     delta = delta.minutes
-  when .includes? "hour"
+  when .starts_with? "h" # hour(s)
     delta = delta.hours
-  when .includes? "day"
+  when .starts_with? "d" # day(s)
     delta = delta.days
-  when .includes? "week"
+  when .starts_with? "w" # week(s)
     delta = delta.weeks
-  when .includes? "month"
+  when .starts_with? "mo" # month(s)
     delta = delta.months
-  when .includes? "year"
+  when .starts_with? "y" # year(s)
     delta = delta.years
   else
     raise "Could not parse #{string}"
@@ -437,7 +440,7 @@ def parse_link_endpoint(endpoint : JSON::Any, text : String, video_id : String)
       #  - https://github.com/iv-org/invidious/issues/3062
       text = %(<a href="#{url}">#{text}</a>)
     else
-      text = %(<a href="#{url}">#{reduce_uri(url)}</a>)
+      text = %(<a href="#{url}">#{reduce_uri(text)}</a>)
     end
   end
   return text

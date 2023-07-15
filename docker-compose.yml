@@ -30,6 +30,7 @@ services:
         # domain:
         # https_only: false
         # statistics_enabled: false
+        hmac_key: "CHANGE_ME!!"
     healthcheck:
       test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/comments/jNQXAC9IVRw || exit 1
       interval: 30s

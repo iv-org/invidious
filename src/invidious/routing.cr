@@ -57,7 +57,6 @@ module Invidious::Routing
     get "/login", Routes::Login, :login_page
     post "/login", Routes::Login, :login
     post "/signout", Routes::Login, :signout
-    get "/Captcha", Routes::Login, :captcha
 
     # User preferences
     get "/preferences", Routes::PreferencesRoute, :show

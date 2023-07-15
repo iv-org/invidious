@@ -320,10 +320,6 @@ module Invidious::Routes::Playlists
       end
     end
 
-    if !user.password
-      # TODO: Playlist stub, sync with YouTube for Google accounts
-      # playlist_ajax(playlist_id, action, env.request.headers)
-    end
     email = user.email
 
     case action
@@ -410,8 +406,8 @@ module Invidious::Routes::Playlists
       return error_template(500, ex)
     end
 
-    page_count = (playlist.video_count / 100).to_i
-    page_count += 1 if (playlist.video_count % 100) > 0
+    page_count = (playlist.video_count / 200).to_i
+    page_count += 1 if (playlist.video_count % 200) > 0
 
     if page > page_count
       return env.redirect "/playlist?list=#{plid}&page=#{page_count}"
@@ -422,7 +418,7 @@ module Invidious::Routes::Playlists
     end
 
     begin
-      videos = get_playlist_videos(playlist, offset: (page - 1) * 100)
+      videos = get_playlist_videos(playlist, offset: (page - 1) * 200)
     rescue ex
       return error_template(500, "Error encountered while retrieving playlist videos.<br>#{ex.message}")
     end

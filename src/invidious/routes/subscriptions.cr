@@ -43,11 +43,6 @@ module Invidious::Routes::Subscriptions
     channel_id = env.params.query["c"]?
     channel_id ||= ""
 
-    if !user.password
-      # Sync subscriptions with YouTube
-      subscribe_ajax(channel_id, action, env.request.headers)
-    end
-
     case action
     when "action_create_subscription_to_channel"
       if !user.subscriptions.includes? channel_id
@@ -81,14 +76,6 @@ module Invidious::Routes::Subscriptions
 
     user = user.as(User)
     sid = sid.as(String)
-
-    if !user.password
-      # Refresh account
-      headers = HTTP::Headers.new
-      headers["Cookie"] = env.request.headers["Cookie"]
-
-      user, sid = get_user(sid, headers)
-    end
 
     action_takeout = env.params.query["action_takeout"]?.try &.to_i?
     action_takeout ||= 0

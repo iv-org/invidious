@@ -8,7 +8,6 @@
     "Clear watch history?": "Izbrisati zgodovino ogledov?",
     "New password": "Novo geslo",
     "New passwords must match": "Nova gesla se morajo ujemati",
-    "Cannot change password for Google accounts": "Ni mogoče spremeniti gesla za račune Google",
     "Authorize token?": "Naj odobrim žeton?",
     "Yes": "Da",
     "Import and Export Data": "Uvoz in izvoz podatkov",
@@ -22,7 +21,6 @@
     "Export subscriptions as OPML (for NewPipe & FreeTube)": "Izvozi naročnine kot OPML (za NewPipe in FreeTube)",
     "Log in": "Prijava",
     "Log in/register": "Prijava/registracija",
-    "Log in with Google": "Prijavi se z Googlom",
     "User ID": "ID uporabnika",
     "Password": "Geslo",
     "Time (h:mm:ss):": "Čas (h:mm:ss):",
@@ -32,7 +30,6 @@
     "Sign In": "Prijavi se",
     "Register": "Registriraj se",
     "E-mail": "E-pošta",
-    "Google verification code": "Googlova koda za preverjanje",
     "Preferences": "Nastavitve",
     "preferences_video_loop_label": "Vedno v zanki: ",
     "preferences_autoplay_label": "Samodejno predvajanje: ",
@@ -120,9 +117,6 @@
         "([^.,0-9]|^)1([^.,0-9]|$)": "Poglej `x` komentar",
         "": "Poglej `x` komentarjev"
     },
-    "Quota exceeded, try again in a few hours": "Kvota je presežena, poskusi znova čez nekaj ur",
-    "Unable to log in, make sure two-factor authentication (Authenticator or SMS) is turned on.": "Ne morem se prijaviti, preveri, ali je vklopljeno dvofaktorsko preverjanje pristnosti (avtentikator ali SMS).",
-    "Please sign in using 'Log in with Google'": "Prijavi se z uporabo »Prijava z Googlom«",
     "Password cannot be empty": "Geslo ne sme biti prazno",
     "`x` ago": "`x` nazaj",
     "Load more": "Naloži več",
@@ -348,8 +342,6 @@
     "View Reddit comments": "Oglej si komentarje na Redditu",
     "This channel does not exist.": "Ta kanal ne obstaja.",
     "Hide replies": "Skrij odgovore",
-    "Invalid TFA code": "Neveljavna koda TFA",
-    "Login failed. This may be because two-factor authentication is not turned on for your account.": "Prijava ni uspela. To je lahko zato, ker za tvoj račun ni vklopljeno dvofaktorsko preverjanje pristnosti.",
     "Invidious Private Feed for `x`": "Invidious zasebni vir za `x`",
     "Deleted or invalid channel": "Izbrisan ali neveljaven kanal",
     "Empty playlist": "Prazen seznam predvajanja",
@@ -515,5 +507,6 @@
     "Song: ": "Pesem: ",
     "Standard YouTube license": "Standardna licenca YouTube",
     "Channel Sponsor": "Sponzor kanala",
-    "Download is disabled": "Prenos je onemogočen"
+    "Download is disabled": "Prenos je onemogočen",
+    "Import YouTube playlist (.csv)": "Uvoz seznama predvajanja YouTube (.csv)"
 }

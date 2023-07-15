@@ -22,31 +22,6 @@ struct Annotation
   property annotations : String
 end
 
-def login_req(f_req)
-  data = {
-    # Unfortunately there's not much information available on `bgRequest`; part of Google's BotGuard
-    # Generally this is much longer (>1250 characters), see also
-    # https://github.com/ytdl-org/youtube-dl/commit/baf67a604d912722b0fe03a40e9dc5349a2208cb .
-    # For now this can be empty.
-    "bgRequest"       => %|["identifier",""]|,
-    "pstMsg"          => "1",
-    "checkConnection" => "youtube",
-    "checkedDomains"  => "youtube",
-    "hl"              => "en",
-    "deviceinfo"      => %|[null,null,null,[],null,"US",null,null,[],"GlifWebSignIn",null,[null,null,[]]]|,
-    "f.req"           => f_req,
-    "flowName"        => "GlifWebSignIn",
-    "flowEntry"       => "ServiceLogin",
-    # "cookiesDisabled" => "false",
-    # "gmscoreversion"  => "undefined",
-    # "continue"        => "https://accounts.google.com/ManageAccount",
-    # "azt"             => "",
-    # "bgHash"          => "",
-  }
-
-  return HTTP::Params.encode(data)
-end
-
 def html_to_content(description_html : String)
   description = description_html.gsub(/(<br>)|(<br\/>)/, {
     "<br>":  "\n",

@@ -3,75 +3,6 @@ require "crypto/bcrypt/password"
 # Materialized views may not be defined using bound parameters (`$1` as used elsewhere)
 MATERIALIZED_VIEW_SQL = ->(email : String) { "SELECT cv.* FROM channel_videos cv WHERE EXISTS (SELECT subscriptions FROM users u WHERE cv.ucid = ANY (u.subscriptions) AND u.email = E'#{email.gsub({'\'' => "\\'", '\\' => "\\\\"})}') ORDER BY published DESC" }
 
-def get_user(sid, headers, refresh = true)
-  if email = Invidious::Database::SessionIDs.select_email(sid)
-    user = Invidious::Database::Users.select!(email: email)
-
-    if refresh && Time.utc - user.updated > 1.minute
-      user, sid = fetch_user(sid, headers)
-
-      Invidious::Database::Users.insert(user, update_on_conflict: true)
-      Invidious::Database::SessionIDs.insert(sid, user.email, handle_conflicts: true)
-
-      begin
-        view_name = "subscriptions_#{sha256(user.email)}"
-        PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
-      rescue ex
-      end
-    end
-  else
-    user, sid = fetch_user(sid, headers)
-
-    Invidious::Database::Users.insert(user, update_on_conflict: true)
-    Invidious::Database::SessionIDs.insert(sid, user.email, handle_conflicts: true)
-
-    begin
-      view_name = "subscriptions_#{sha256(user.email)}"
-      PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
-    rescue ex
-    end
-  end
-
-  return user, sid
-end
-
-def fetch_user(sid, headers)
-  feed = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
-  feed = XML.parse_html(feed.body)
-
-  channels = feed.xpath_nodes(%q(//ul[@id="guide-channels"]/li/a)).compact_map do |channel|
-    if {"Popular on YouTube", "Music", "Sports", "Gaming"}.includes? channel["title"]
-      nil
-    else
-      channel["href"].lstrip("/channel/")
-    end
-  end
-
-  channels = get_batch_channels(channels)
-
-  email = feed.xpath_node(%q(//a[@class="yt-masthead-picker-header yt-masthead-picker-active-account"]))
-  if email
-    email = email.content.strip
-  else
-    email = ""
-  end
-
-  token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-
-  user = Invidious::User.new({
-    updated:           Time.utc,
-    notifications:     [] of String,
-    subscriptions:     channels,
-    email:             email,
-    preferences:       Preferences.new(CONFIG.default_user_preferences.to_tuple),
-    password:          nil,
-    token:             token,
-    watched:           [] of String,
-    feed_needs_update: true,
-  })
-  return user, sid
-end
-
 def create_user(sid, email, password)
   password = Crypto::Bcrypt::Password.create(password, cost: 10)
   token = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
@@ -89,38 +20,6 @@ def create_user(sid, email, password)
   })
 
   return user, sid
-end
-
-def subscribe_ajax(channel_id, action, env_headers)
-  headers = HTTP::Headers.new
-  headers["Cookie"] = env_headers["Cookie"]
-
-  html = YT_POOL.client &.get("/subscription_manager?disable_polymer=1", headers)
-
-  cookies = HTTP::Cookies.from_client_headers(headers)
-  html.cookies.each do |cookie|
-    if {"VISITOR_INFO1_LIVE", "YSC", "SIDCC"}.includes? cookie.name
-      if cookies[cookie.name]?
-        cookies[cookie.name] = cookie
-      else
-        cookies << cookie
-      end
-    end
-  end
-  headers = cookies.add_request_headers(headers)
-
-  if match = html.body.match(/'XSRF_TOKEN': "(?<session_token>[^"]+)"/)
-    session_token = match["session_token"]
-
-    headers["content-type"] = "application/x-www-form-urlencoded"
-
-    post_req = {
-      session_token: session_token,
-    }
-    post_url = "/subscription_ajax?#{action}=1&c=#{channel_id}"
-
-    YT_POOL.client &.post(post_url, headers, form: post_req)
-  end
 end
 
 def get_subscription_feed(user, max_results = 40, page = 1)
