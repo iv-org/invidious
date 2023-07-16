@@ -165,3 +165,12 @@ def translate_bool(locale : String?, translation : Bool)
     return translate(locale, "No")
   end
 end
+
+def locale_is_rtl?(locale : String?)
+  # Fallback to en-US
+  return false if locale.nil?
+
+  # Arabic, Persian, Hebrew
+  # See https://en.wikipedia.org/wiki/Right-to-left_script#List_of_RTL_scripts
+  return {"ar", "fa", "he"}.includes? locale
+end

@@ -1,3 +1,7 @@
+/*
+ * Common attributes
+ */
+
 html,
 body {
   font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
@@ -11,6 +15,16 @@ body {
   min-height: 100vh;
 }
 
+.h-box {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.v-box {
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
 .deleted {
   background-color: rgb(255, 0, 0, 0.5);
 }
@@ -19,6 +33,34 @@ body {
   border-bottom: 1px solid;
   margin-bottom: 20px;
 }
+
+.title {
+  margin: 0.5em 0 1em 0;
+}
+
+/* A flex container */
+.flexible {
+  display: flex;
+  align-items: center;
+}
+
+.flex-left {
+  display: flex;
+  flex: 1 1 auto;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+}
+.flex-right {
+  display: flex;
+  flex: 2 0 auto;
+  flex-flow: row nowrap;
+  justify-content: flex-end;
+}
+
+
+/*
+ * Channel page
+ */
 
 .channel-profile > * {
   font-size: 1.17em;
@@ -90,16 +132,6 @@ body a.channel-owner {
   }
 }
 
-.h-box {
-  padding-left: 1em;
-  padding-right: 1em;
-}
-
-.v-box {
-  padding-top: 1em;
-  padding-bottom: 1em;
-}
-
 div {
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -115,6 +147,11 @@ div {
   padding-right: 10px;
 }
 
+
+/*
+ * Buttons
+ */
+
 body a.pure-button {
   color: rgba(0,0,0,.8);
 }
@@ -127,30 +164,48 @@ body a.pure-button-primary,
   color: rgba(35, 35, 35, 1);
 }
 
-button.pure-button-primary:hover,
-body a.pure-button-primary:hover,
-button.pure-button-primary:focus,
-body a.pure-button-primary:focus {
-  background-color: rgba(0, 182, 240, 1);
-  color: #fff;
+.pure-button-primary,
+.pure-button-secondary {
+  border: 1px solid #a0a0a0;
+  border-radius: 3px;
+  margin: 0 .4em;
 }
 
+.pure-button-secondary.low-profile {
+  padding: 5px 10px;
+  margin: 0;
+}
+
+/* Has to be combined with flex-left/right */
+.button-container {
+  flex-flow: wrap;
+  gap: 0.5em 0.75em;
+}
+
+
+/*
+ * Video thumbnails
+ */
+
 div.thumbnail {
-  padding: 28.125%;
   position: relative;
+  width: 100%;
   box-sizing: border-box;
 }
 
 img.thumbnail {
-  position: absolute;
+  display: block; /* See: https://stackoverflow.com/a/11635197 */
   width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
   object-fit: cover;
 }
 
+.thumbnail-placeholder {
+  min-height: 50px;
+  border: 2px dotted;
+}
+
 div.watched-overlay {
+  z-index: 50;
   position: absolute;
   top: 0;
   left: 0;
@@ -168,29 +223,30 @@ div.watched-indicator {
   background-color: red;
 }
 
-.length {
+div.thumbnail > .top-left-overlay,
+div.thumbnail > .bottom-right-overlay {
   z-index: 100;
   position: absolute;
-  background-color: rgba(35, 35, 35, 0.75);
-  color: #fff;
-  border-radius: 2px;
-  padding: 2px;
+  padding: 0;
+  margin: 0;
   font-size: 16px;
-  right: 0.25em;
-  bottom: -0.75em;
 }
 
-.watched {
-  z-index: 100;
-  position: absolute;
-  background-color: rgba(35, 35, 35, 0.75);
+.top-left-overlay { top: 0.6em; left: 0.6em; }
+.bottom-right-overlay { bottom: 0.6em; right: 0.6em; }
+
+.length {
+  padding: 1px;
+  margin: -2px 0;
   color: #fff;
-  border-radius: 2px;
-  padding: 4px 8px 4px 8px;
-  font-size: 16px;
-  left: 0.2em;
-  top: -0.7em;
+  border-radius: 3px;
 }
+
+.length, .top-left-overlay button {
+  color: #eee;
+  background-color: rgba(35, 35, 35, 0.85) !important;
+}
+
 
 /*
  * Navbar
@@ -267,6 +323,11 @@ input[type="search"]::-webkit-search-cancel-button {
   margin-right: 1em;
 }
 
+
+/*
+ * Responsive rules
+ */
+
 @media only screen and (max-aspect-ratio: 16/9) {
   .player-dimensions.vjs-fluid {
     padding-top: 46.86% !important;
@@ -285,20 +346,28 @@ input[type="search"]::-webkit-search-cancel-button {
   .navbar > div {
     display: flex;
     justify-content: center;
-  }
-
-  .navbar > div:not(:last-child) {
-    margin-bottom: 1em;
+    margin-bottom: 25px;
   }
 
   .navbar > .searchbar > form {
-    width: 60%;
+    width: 75%;
   }
 
   h1 {
     font-size: 1.25em;
     margin: 0.42em 0;
   }
+
+  /* Space out the subscribe & RSS buttons and align them to the left */
+  .title.flexible { display: block; }
+  .title.flexible > .flex-right { margin: 0.75em 0; justify-content: flex-start; }
+
+  /* Space out buttons to make them easier to tap */
+  .user-field { font-size: 125%; }
+  .user-field > :not(:last-child) { margin-right: 1.75em; }
+
+  .icon-buttons { font-size: 125%; }
+  .icon-buttons > :not(:last-child) { margin-right: 0.75em; }
 }
 
 @media screen and (max-width: 320px) {
@@ -314,10 +383,6 @@ input[type="search"]::-webkit-search-cancel-button {
  */
 
 .video-card-row { margin: 15px 0; }
-
-.flexible { display: flex; }
-.flex-left  { flex: 1 1 100%; flex-wrap: wrap;   }
-.flex-right { flex: 1 0 auto; flex-wrap: nowrap; }
 
 p.channel-name { margin: 0; }
 p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
@@ -346,6 +411,22 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
   height: 100%;
   border: none;
 }
+
+
+/*
+ * Page navigation
+ */
+
+.page-nav-container { margin: 15px 0 30px 0; }
+
+.page-prev-container { text-align: start; }
+.page-next-container { text-align: end; }
+
+.page-prev-container,
+.page-next-container {
+  display: inline-block;
+}
+
 
 /*
  * Footer
@@ -389,6 +470,7 @@ span > select {
   word-wrap: normal;
 }
 
+
 /*
  * Light theme
  */
@@ -401,9 +483,18 @@ span > select {
   color: #075A9E !important;
 }
 
-.light-theme a.pure-button-primary:hover,
-.light-theme a.pure-button-primary:focus {
+.light-theme .pure-button-primary:hover,
+.light-theme .pure-button-primary:focus,
+.light-theme .pure-button-secondary:hover,
+.light-theme .pure-button-secondary:focus {
   color: #fff !important;
+  border-color: rgba(0, 182, 240, 0.75) !important;
+  background-color: rgba(0, 182, 240, 0.75) !important;
+}
+
+.light-theme .pure-button-secondary:not(.low-profile) {
+  color: #335d7a;
+  background-color: #fff2;
 }
 
 .light-theme a {
@@ -431,9 +522,18 @@ span > select {
     color: #075A9E !important;
   }
 
-  .no-theme a.pure-button-primary:hover,
-  .no-theme a.pure-button-primary:focus {
+  .no-theme .pure-button-primary:hover,
+  .no-theme .pure-button-primary:focus,
+  .no-theme .pure-button-secondary:hover,
+  .no-theme .pure-button-secondary:focus {
     color: #fff !important;
+    border-color: rgba(0, 182, 240, 0.75) !important;
+    background-color: rgba(0, 182, 240, 0.75) !important;
+  }
+
+  .no-theme .pure-button-secondary:not(.low-profile) {
+    color: #335d7a;
+    background-color: #fff2;
   }
 
   .no-theme a {
@@ -453,6 +553,7 @@ span > select {
   }
 }
 
+
 /*
  * Dark theme
  */
@@ -463,6 +564,20 @@ span > select {
 .dark-theme a:focus,
 .dark-theme summary:focus {
   color: rgb(0, 182, 240);
+}
+
+.dark-theme .pure-button-primary:hover,
+.dark-theme .pure-button-primary:focus,
+.dark-theme .pure-button-secondary:hover,
+.dark-theme .pure-button-secondary:focus {
+  color: #fff !important;
+  border-color: rgb(0, 182, 240) !important;
+  background-color: rgba(0, 182, 240, 1) !important;
+}
+
+.dark-theme .pure-button-secondary {
+  background-color: #0002;
+  color: #ddd;
 }
 
 .dark-theme a {
@@ -505,6 +620,20 @@ body.dark-theme {
     color: rgb(0, 182, 240);
   }
 
+  .no-theme .pure-button-primary:hover,
+  .no-theme .pure-button-primary:focus,
+  .no-theme .pure-button-secondary:hover,
+  .no-theme .pure-button-secondary:focus {
+    color: #fff !important;
+    border-color: rgb(0, 182, 240) !important;
+    background-color: rgba(0, 182, 240, 1) !important;
+  }
+
+  .no-theme .pure-button-secondary {
+    background-color: #0002;
+    color: #ddd;
+  }
+
   .no-theme a {
     color: #a0a0a0;
     text-decoration: none;
@@ -538,6 +667,12 @@ body.dark-theme {
     color: inherit;
   }
 }
+
+
+/*
+ * Miscellanous
+ */
+
 
 /*With commit d9528f5 all contents of the page is now within a flexbox. However,
 the hr element is rendered improperly within one.
@@ -576,12 +711,7 @@ label[for="music-desc-expansion"]:hover {
 }
 
 /* Bidi (bidirectional text) support */
-h1,
-h2,
-h3,
-h4,
-h5,
-p,
+h1, h2, h3, h4, h5, p,
 #descriptionWrapper,
 #description-box,
 #music-description-box {

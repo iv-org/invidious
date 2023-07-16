@@ -204,19 +204,28 @@ we're going to need to do it here in order to allow for translations.
     </div>
 
     <div class="pure-u-1 <% if params.related_videos || plid %>pure-u-lg-3-5<% else %>pure-u-md-4-5<% end %>">
-        <div class="h-box">
-            <a href="/channel/<%= video.ucid %>" style="display:block;width:fit-content;width:-moz-fit-content">
-                <div class="channel-profile">
-                    <% if !video.author_thumbnail.empty? %>
-                        <img src="/ggpht<%= URI.parse(video.author_thumbnail).request_target %>" alt="" />
-                    <% end %>
-                    <span id="channel-name"><%= author %><% if !video.author_verified.nil? && video.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></span>
+
+        <div class="pure-g h-box flexible title">
+            <div class="pure-u-1-2 flex-left flexible">
+                <a href="/channel/<%= video.ucid %>">
+                    <div class="channel-profile">
+                        <% if !video.author_thumbnail.empty? %>
+                            <img src="/ggpht<%= URI.parse(video.author_thumbnail).request_target %>" alt="" />
+                        <% end %>
+                        <span id="channel-name"><%= author %><% if !video.author_verified.nil? && video.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="pure-u-1-2 flex-right flexible button-container">
+                <div class="pure-u">
+                    <% sub_count_text = video.sub_count_text %>
+                    <%= rendered "components/subscribe_widget" %>
                 </div>
-            </a>
+            </div>
+        </div>
 
-            <% sub_count_text = video.sub_count_text %>
-            <%= rendered "components/subscribe_widget" %>
-
+        <div class="h-box">
             <p id="published-date">
                 <% if video.premiere_timestamp.try &.> Time.utc %>
                     <b><%= video.premiere_timestamp.try { |t| translate(locale, "Premieres `x`", t.to_s("%B %-d, %R UTC")) } %></b>
@@ -295,15 +304,28 @@ we're going to need to do it here in order to allow for translations.
 
                     <% video.related_videos.each do |rv| %>
                         <% if rv["id"]? %>
-                            <a href="/watch?v=<%= rv["id"] %>&listen=<%= params.listen %>">
-                                <% if !env.get("preferences").as(Preferences).thin_mode %>
-                                    <div class="thumbnail">
+                            <div class="pure-u-1">
+
+                            <div class="thumbnail">
+                                <%- if !env.get("preferences").as(Preferences).thin_mode -%>
+                                    <a tabindex="-1" href="/watch?v=<%= rv["id"] %>&listen=<%= params.listen %>">
                                         <img loading="lazy" class="thumbnail" src="/vi/<%= rv["id"] %>/mqdefault.jpg" alt="" />
-                                        <p class="length"><%= recode_length_seconds(rv["length_seconds"]?.try &.to_i? || 0) %></p>
-                                    </div>
-                                <% end %>
-                                <p style="width:100%"><%= rv["title"] %></p>
-                            </a>
+                                    </a>
+                                <%- else -%>
+                                    <div class="thumbnail-placeholder"></div>
+                                <%- end -%>
+
+                                <div class="bottom-right-overlay">
+                                    <%- if (length_seconds = rv["length_seconds"]?.try &.to_i?) && length_seconds != 0 -%>
+                                        <p class="length"><%= recode_length_seconds(length_seconds) %></p>
+                                    <%- end -%>
+                                </div>
+                            </div>
+
+                            <div class="video-card-row">
+                                <a href="/watch?v=<%= rv["id"] %>&listen=<%= params.listen %>"><p dir="auto"><%= HTML.escape(rv["title"]) %></p></a>
+                            </div>
+
                             <h5 class="pure-g">
                                 <div class="pure-u-14-24">
                                     <% if rv["ucid"]? %>
@@ -321,6 +343,8 @@ we're going to need to do it here in order to allow for translations.
                                     %></b>
                                 </div>
                             </h5>
+
+                            </div>
                         <% end %>
                     <% end %>
                 </div>

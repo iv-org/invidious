@@ -31,33 +31,5 @@
 </script>
 <script src="/js/playlist_widget.js?v=<%= ASSET_COMMIT %>"></script>
 
-<div class="pure-g">
-    <% videos.each_slice(4) do |slice| %>
-            <% slice.each do |item| %>
-                <%= rendered "components/item" %>
-            <% end %>
-    <% end %>
-</div>
 
-<script src="/js/watched_indicator.js"></script>
-
-<% if query %>
-    <%- query_encoded = URI.encode_www_form(query.text, space_to_plus: true) -%>
-    <div class="pure-g h-box">
-        <div class="pure-u-1 pure-u-lg-1-5">
-            <% if query.page > 1 %>
-                <a href="/add_playlist_items?list=<%= plid %>&q=<%= query_encoded %>&page=<%= page - 1 %>">
-                    <%= translate(locale, "Previous page") %>
-                </a>
-            <% end %>
-        </div>
-        <div class="pure-u-1 pure-u-lg-3-5"></div>
-        <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
-            <% if videos.size >= 20 %>
-                <a href="/add_playlist_items?list=<%= plid %>&q=<%= query_encoded %>&page=<%= page + 1 %>">
-                    <%= translate(locale, "Next page") %>
-                </a>
-            <% end %>
-        </div>
-    </div>
-<% end %>
+<%= rendered "components/items_paginated" %>

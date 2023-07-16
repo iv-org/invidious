@@ -1,157 +1,146 @@
-<% item_watched = !item.is_a?(SearchChannel | SearchPlaylist | InvidiousPlaylist | Category) && env.get?("user").try &.as(User).watched.index(item.id) != nil %>
+<%-
+  thin_mode = env.get("preferences").as(Preferences).thin_mode
+  item_watched = !item.is_a?(SearchChannel | SearchPlaylist | InvidiousPlaylist | Category) && env.get?("user").try &.as(User).watched.index(item.id) != nil
+  author_verified = item.responds_to?(:author_verified) && item.author_verified
+-%>
 
 <div class="pure-u-1 pure-u-md-1-4">
     <div class="h-box">
         <% case item when %>
         <% when SearchChannel %>
-            <a href="/channel/<%= item.ucid %>">
-                <% if !env.get("preferences").as(Preferences).thin_mode %>
+            <% if !thin_mode %>
+                <a tabindex="-1" href="/channel/<%= item.ucid %>">
                     <center>
-                        <img loading="lazy" tabindex="-1" style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target.gsub(/=s\d+/, "=s176") %>" alt="" />
+                        <img loading="lazy" style="width:56.25%" src="/ggpht<%= URI.parse(item.author_thumbnail).request_target.gsub(/=s\d+/, "=s176") %>" alt="" />
                     </center>
-                <% end %>
-                <p dir="auto"><%= HTML.escape(item.author) %><% if !item.author_verified.nil? && item.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></p>
-            </a>
+                </a>
+            <%- else -%>
+                <div class="thumbnail-placeholder" style="width:56.25%"></div>
+            <% end %>
+
+            <div class="video-card-row flexible">
+                <div class="flex-left"><a href="/channel/<%= item.ucid %>">
+                    <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
+                        <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                    </p>
+                </a></div>
+            </div>
+
             <p><%= translate_count(locale, "generic_subscribers_count", item.subscriber_count, NumberFormatting::Separator) %></p>
             <% if !item.auto_generated %><p><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p><% end %>
             <h5><%= item.description_html %></h5>
         <% when SearchPlaylist, InvidiousPlaylist %>
-            <% if item.id.starts_with? "RD" %>
-                <% url = "/mix?list=#{item.id}&continuation=#{URI.parse(item.thumbnail || "/vi/-----------").request_target.split("/")[2]}" %>
-            <% else %>
-                <% url = "/playlist?list=#{item.id}" %>
-            <% end %>
+            <%-
+              if item.id.starts_with? "RD"
+                link_url = "/mix?list=#{item.id}&continuation=#{URI.parse(item.thumbnail || "/vi/-----------").request_target.split("/")[2]}"
+              else
+                link_url = "/playlist?list=#{item.id}"
+              end
+            -%>
 
-            <a style="width:100%" href="<%= url %>">
-                <% if !env.get("preferences").as(Preferences).thin_mode %>
-                    <div class="thumbnail">
-                        <img loading="lazy" tabindex="-1" class="thumbnail" src="<%= URI.parse(item.thumbnail || "/").request_target %>" alt="" />
-                        <p class="length"><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p>
-                    </div>
-                <% end %>
-                <p dir="auto"><%= HTML.escape(item.title) %></p>
-            </a>
-            <a href="/channel/<%= item.ucid %>">
-                <p dir="auto"><b><%= HTML.escape(item.author) %><% if !item.is_a?(InvidiousPlaylist) && !item.author_verified.nil? && item.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b></p>
-            </a>
-        <% when MixVideo %>
-            <a href="/watch?v=<%= item.id %>&list=<%= item.rdid %>">
-                <% if !env.get("preferences").as(Preferences).thin_mode %>
-                    <div class="thumbnail">
-                        <img loading="lazy" tabindex="-1" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg" alt="" />
-                        <% if item.length_seconds != 0 %>
-                            <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
-                        <% end %>
+            <div class="thumbnail">
+                <%- if !thin_mode %>
+                    <a tabindex="-1" href="<%= link_url %>">
+                        <img loading="lazy" class="thumbnail" src="<%= URI.parse(item.thumbnail || "/").request_target %>" alt="" />
+                    </a>
+                <%- else -%>
+                    <div class="thumbnail-placeholder"></div>
+                <%- end -%>
 
-                        <% if item_watched %>
-                            <div class="watched-overlay"></div>
-                            <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
-                        <% end %>
-                    </div>
-                <% end %>
-                <p dir="auto"><%= HTML.escape(item.title) %></p>
-            </a>
-            <a href="/channel/<%= item.ucid %>">
-                <p dir="auto"><b><%= HTML.escape(item.author) %></b></p>
-            </a>
-        <% when PlaylistVideo %>
-            <a style="width:100%" href="/watch?v=<%= item.id %>&list=<%= item.plid %>&index=<%= item.index %>">
-                <% if !env.get("preferences").as(Preferences).thin_mode %>
-                    <div class="thumbnail">
-                        <img loading="lazy" tabindex="-1" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg" alt="" />
+                <div class="bottom-right-overlay">
+                    <p class="length"><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p>
+                </div>
+            </div>
 
-                        <% if plid_form = env.get?("remove_playlist_items") %>
-                            <form data-onsubmit="return_false" action="/playlist_ajax?action_remove_video=1&set_video_id=<%= item.index %>&playlist_id=<%= plid_form %>&referer=<%= env.get("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                                <p class="watched">
-                                    <button type="submit" style="all:unset" data-onclick="remove_playlist_item" data-index="<%= item.index %>" data-plid="<%= plid_form %>"><i class="icon ion-md-trash"></i></button>
-                                </p>
-                            </form>
-                        <% end %>
-
-                        <% if item.responds_to?(:live_now) && item.live_now %>
-                            <p class="length"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
-                        <% elsif item.length_seconds != 0 %>
-                            <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
-                        <% end %>
-
-                        <% if item_watched %>
-                            <div class="watched-overlay"></div>
-                            <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
-                        <% end %>
-                    </div>
-                <% end %>
-                <p dir="auto"><%= HTML.escape(item.title) %></p>
-            </a>
-
-            <div class="video-card-row flexible">
-                <div class="flex-left"><a href="/channel/<%= item.ucid %>">
-                    <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %></p>
-                </a></div>
-                <% endpoint_params = "?v=#{item.id}&list=#{item.plid}" %>
-                <%= rendered "components/video-context-buttons" %>
+            <div class="video-card-row">
+                <a href="<%= link_url %>"><p dir="auto"><%= HTML.escape(item.title) %></p></a>
             </div>
 
             <div class="video-card-row flexible">
-                <div class="flex-left">
-                    <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
-                        <p dir="auto"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
-                    <% elsif Time.utc - item.published > 1.minute %>
-                        <p dir="auto"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
-                    <% end %>
-                </div>
-
-                <% if item.responds_to?(:views) && item.views %>
-                <div class="flex-right">
-                    <p dir="auto"><%= translate_count(locale, "generic_views_count", item.views || 0, NumberFormatting::Short) %></p>
-                </div>
-                <% end %>
+                <div class="flex-left"><a href="/channel/<%= item.ucid %>">
+                    <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
+                        <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                    </p>
+                </a></div>
             </div>
         <% when Category %>
         <% else %>
-            <a style="width:100%" href="/watch?v=<%= item.id %>">
-                <% if !env.get("preferences").as(Preferences).thin_mode %>
-                    <div class="thumbnail">
-                        <img loading="lazy" tabindex="-1" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg" alt="" />
-                        <% if env.get? "show_watched" %>
-                            <form data-onsubmit="return_false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                                <p class="watched">
-                                    <button type="submit" style="all:unset" data-onclick="mark_watched" data-id="<%= item.id %>">
-                                        <i data-mouse="switch_classes" data-switch-classes="ion-ios-eye-off,ion-ios-eye" class="icon ion-ios-eye"></i>
-                                    </button>
-                                </p>
-                            </form>
-                        <% elsif plid_form = env.get? "add_playlist_items" %>
-                            <form data-onsubmit="return_false" action="/playlist_ajax?action_add_video=1&video_id=<%= item.id %>&playlist_id=<%= plid_form %>&referer=<%= env.get("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                                <p class="watched">
-                                    <button type="submit" style="all:unset" data-onclick="add_playlist_item" data-id="<%= item.id %>" data-plid="<%= plid_form %>"><i class="icon ion-md-add"></i></button>
-                                </p>
-                            </form>
-                        <% end %>
+            <%-
+              # `endpoint_params` is used for the "video-context-buttons" component
+              if item.is_a?(PlaylistVideo)
+                link_url = "/watch?v=#{item.id}&list=#{item.plid}&index=#{item.index}"
+                endpoint_params = "?v=#{item.id}&list=#{item.plid}"
+              elsif item.is_a?(MixVideo)
+                link_url = "/watch?v=#{item.id}&list=#{item.rdid}"
+                endpoint_params = "?v=#{item.id}&list=#{item.rdid}"
+              else
+                link_url = "/watch?v=#{item.id}"
+                endpoint_params = "?v=#{item.id}"
+              end
+            -%>
 
-                        <% if item.responds_to?(:live_now) && item.live_now %>
-                            <p class="length" dir="auto"><i class="icon ion-ios-play-circle"></i> <%= translate(locale, "LIVE") %></p>
-                        <% elsif item.length_seconds != 0 %>
-                            <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
-                        <% end %>
+            <div class="thumbnail">
+                <%- if !thin_mode -%>
+                    <a tabindex="-1" href="<%= link_url %>">
+                        <img loading="lazy" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg" alt="" />
 
                         <% if item_watched %>
                             <div class="watched-overlay"></div>
                             <div class="watched-indicator" data-length="<%= item.length_seconds %>" data-id="<%= item.id %>"></div>
                         <% end %>
-                    </div>
-                <% end %>
-                <p dir="auto"><%= HTML.escape(item.title) %></p>
-            </a>
+                    </a>
+                <%- else -%>
+                    <div class="thumbnail-placeholder"></div>
+                <%- end -%>
+
+                <div class="top-left-overlay">
+                    <%- if env.get? "show_watched" -%>
+                        <form data-onsubmit="return_false" action="/watch_ajax?action_mark_watched=1&id=<%= item.id %>&referer=<%= env.get("current_page") %>" method="post">
+                            <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                            <button type="submit" class="pure-button pure-button-secondary low-profile"
+                                    data-onclick="mark_watched" data-id="<%= item.id %>">
+                                <i data-mouse="switch_classes" data-switch-classes="ion-ios-eye-off,ion-ios-eye" class="icon ion-ios-eye"></i>
+                            </button>
+                        </form>
+                    <%- end -%>
+
+                    <%- if plid_form = env.get?("add_playlist_items") -%>
+                        <%- form_parameters = "action_add_video=1&video_id=#{item.id}&playlist_id=#{plid_form}&referer=#{env.get("current_page")}" -%>
+                        <form data-onsubmit="return_false" action="/playlist_ajax?<%= form_parameters %>" method="post">
+                            <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                            <button type="submit" class="pure-button pure-button-secondary low-profile"
+                                    data-onclick="add_playlist_item" data-id="<%= item.id %>" data-plid="<%= plid_form %>"><i class="icon ion-md-add"></i></button>
+                        </form>
+                    <%- elsif item.is_a?(PlaylistVideo) && (plid_form = env.get?("remove_playlist_items")) -%>
+                        <%- form_parameters = "action_remove_video=1&set_video_id=#{item.index}&playlist_id=#{plid_form}&referer=#{env.get("current_page")}" -%>
+                        <form data-onsubmit="return_false" action="/playlist_ajax?<%= form_parameters %>" method="post">
+                            <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                            <button type="submit" class="pure-button pure-button-secondary low-profile"
+                                    data-onclick="remove_playlist_item" data-index="<%= item.index %>" data-plid="<%= plid_form %>"><i class="icon ion-md-trash"></i></button>
+                        </form>
+                    <%- end -%>
+                </div>
+
+                <div class="bottom-right-overlay">
+                    <%- if item.responds_to?(:live_now) && item.live_now -%>
+                        <p class="length" dir="auto"><i class="icon ion-ios-play-circle"></i>&nbsp;<%= translate(locale, "LIVE") %></p>
+                    <%- elsif item.length_seconds != 0 -%>
+                        <p class="length"><%= recode_length_seconds(item.length_seconds) %></p>
+                    <%- end -%>
+                </div>
+            </div>
+
+            <div class="video-card-row">
+                <a href="<%= link_url %>"><p dir="auto"><%= HTML.escape(item.title) %></p></a>
+            </div>
 
             <div class="video-card-row flexible">
                 <div class="flex-left"><a href="/channel/<%= item.ucid %>">
-                    <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %><% if !item.is_a?(ChannelVideo) && !item.author_verified.nil? && item.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></p>
+                    <p class="channel-name" dir="auto"><%= HTML.escape(item.author) %>
+                        <%- if author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end -%>
+                    </p>
                 </a></div>
 
-                <% endpoint_params = "?v=#{item.id}" %>
                 <%= rendered "components/video-context-buttons" %>
             </div>
 
@@ -159,7 +148,7 @@
                 <div class="flex-left">
                     <% if item.responds_to?(:premiere_timestamp) && item.premiere_timestamp.try &.> Time.utc %>
                         <p class="video-data" dir="auto"><%= translate(locale, "Premieres in `x`", recode_date((item.premiere_timestamp.as(Time) - Time.utc).ago, locale)) %></p>
-                    <% elsif Time.utc - item.published > 1.minute %>
+                    <% elsif item.responds_to?(:published) && (Time.utc - item.published) > 1.minute %>
                         <p class="video-data" dir="auto"><%= translate(locale, "Shared `x` ago", recode_date(item.published, locale)) %></p>
                     <% end %>
                 </div>

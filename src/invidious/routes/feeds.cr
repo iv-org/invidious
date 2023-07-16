@@ -102,6 +102,10 @@ module Invidious::Routes::Feeds
     end
     env.set "user", user
 
+    # Used for pagination links
+    base_url = "/feed/subscriptions"
+    base_url += "?max_results=#{max_results}" if env.params.query.has_key?("max_results")
+
     templated "feeds/subscriptions"
   end
 
@@ -128,6 +132,10 @@ module Invidious::Routes::Feeds
       watched = user.watched.reverse[(page - 1) * max_results, max_results]
     end
     watched ||= [] of String
+
+    # Used for pagination links
+    base_url = "/feed/history"
+    base_url += "?max_results=#{max_results}" if env.params.query.has_key?("max_results")
 
     templated "feeds/history"
   end
