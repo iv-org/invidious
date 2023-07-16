@@ -540,5 +540,13 @@
     "Channel Sponsor": "راعي القناة",
     "Standard YouTube license": "ترخيص YouTube القياسي",
     "Download is disabled": "تم تعطيل التحميلات",
-    "Import YouTube playlist (.csv)": "استيراد قائمة تشغيل YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "استيراد قائمة تشغيل YouTube (.csv)",
+    "generic_button_save": "حفظ",
+    "generic_button_delete": "حذف",
+    "generic_button_edit": "تحرير",
+    "generic_button_cancel": "الغاء",
+    "generic_button_rss": "RSS",
+    "channel_tab_releases_label": "الإصدارات",
+    "playlist_button_add_items": "إضافة مقاطع فيديو",
+    "channel_tab_podcasts_label": "البودكاست"
 }
