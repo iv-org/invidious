@@ -476,5 +476,13 @@
     "Song: ": "Şarkı: ",
     "Standard YouTube license": "Standart YouTube lisansı",
     "Download is disabled": "İndirme devre dışı",
-    "Import YouTube playlist (.csv)": "YouTube Oynatma Listesini İçe Aktar (.csv)"
+    "Import YouTube playlist (.csv)": "YouTube Oynatma Listesini İçe Aktar (.csv)",
+    "generic_button_delete": "Sil",
+    "generic_button_edit": "Düzenle",
+    "generic_button_save": "Kaydet",
+    "generic_button_cancel": "İptal",
+    "generic_button_rss": "RSS",
+    "channel_tab_releases_label": "Yayınlar",
+    "playlist_button_add_items": "Video ekle",
+    "channel_tab_podcasts_label": "Podcast'ler"
 }
