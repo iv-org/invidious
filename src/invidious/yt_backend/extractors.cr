@@ -408,8 +408,8 @@ private module Parsers
   # Returns nil when the given object isn't a RichItemRenderer
   #
   # A richItemRenderer seems to be a simple wrapper for a videoRenderer, used
-  # by the result page for hashtags. It is located inside a continuationItems
-  # container.
+  # by the result page for hashtags and for the podcast tab on channels.
+  # It is located inside a continuationItems container for hashtags.
   #
   module RichItemRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
@@ -421,6 +421,7 @@ private module Parsers
     private def self.parse(item_contents, author_fallback)
       child = VideoRendererParser.process(item_contents, author_fallback)
       child ||= ReelItemRendererParser.process(item_contents, author_fallback)
+      child ||= PlaylistRendererParser.process(item_contents, author_fallback)
       return child
     end
 
