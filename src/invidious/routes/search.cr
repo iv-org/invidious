@@ -116,7 +116,7 @@ module Invidious::Routes::Search
     page_nav_html = Frontend::Pagination.nav_numeric(locale,
       base_url: "/hashtag/#{hashtag_encoded}",
       current_page: page,
-      show_next: (items.size >= 60)
+      show_next: hashtagPage.has_next_continuation
     )
 
     templated "hashtag"
