@@ -476,5 +476,13 @@
     "Channel Sponsor": "Patrocinador del canal",
     "Standard YouTube license": "Licencia de YouTube estándar",
     "Download is disabled": "La descarga está deshabilitada",
-    "Import YouTube playlist (.csv)": "Importar lista de reproducción de YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "Importar lista de reproducción de YouTube (.csv)",
+    "playlist_button_add_items": "Añadir vídeos",
+    "generic_button_edit": "Editar",
+    "generic_button_save": "Guardar",
+    "generic_button_delete": "Borrar",
+    "generic_button_cancel": "Cancelar",
+    "generic_button_rss": "RSS",
+    "channel_tab_podcasts_label": "Podcasts",
+    "channel_tab_releases_label": "Publicaciones"
 }
