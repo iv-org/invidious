@@ -113,7 +113,7 @@
     "Token manager": "Gestor de tokens",
     "Token": "Ficha",
     "Import/export": "Importar/Exportar",
-    "unsubscribe": "Desuscribirse",
+    "unsubscribe": "desuscribirse",
     "revoke": "revocar",
     "Subscriptions": "Suscripciones",
     "search": "buscar",
@@ -154,7 +154,7 @@
     "View YouTube comments": "Ver los comentarios de YouTube",
     "View more comments on Reddit": "Ver más comentarios en Reddit",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` comentarios",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` comentario",
         "": "Ver `x` comentarios"
     },
     "View Reddit comments": "Ver los comentarios de Reddit",
