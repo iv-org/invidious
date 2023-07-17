@@ -26,12 +26,21 @@
                 <div class="compilation-video-title">
                     <span class="compilation-video-title" dir="auto"><%= HTML.escape(compilation_video.title) %></span>
                 </div> 
-                <div class="compilation-video-timestamp-set">
-                    <p style="margin-right:10px;">from</p>
-                    <input class="compilation-video-timestamp" placeholder="0:00" type="text">
-                    <p style="margin-right:10px; margin-left:10px">to</p>
-                    <input class="compilation-video-timestamp" placeholder="<%= recode_length_seconds(compilation_video.length_second) s%>" type="text">
-                </div>
+                <% if compid_form = env.get?("remove_compilation_items") %>
+                    <div class="compilation-video-timestamp-set">
+                        <p style="margin-right:10px;">from</p>
+                        <input class="compilation-video-timestamp" placeholder="0:00" disabled type="text">
+                        <p style="margin-right:10px; margin-left:10px">to</p>                
+                        <input class="compilation-video-timestamp" placeholder="<%= recode_length_seconds(compilation_video.length_seconds) %>" disabled type="text">
+                    </div>
+                <% else %>
+                    <div class="compilation-video-timestamp-set">
+                        <p style="margin-right:10px;">from</p>
+                        <input maxlength="8" name="<%= compilation_video.order_index %>_start_timestamp" class="compilation-video-timestamp" placeholder="0:00" type="text">
+                        <p style="margin-right:10px; margin-left:10px">to</p>                
+                        <input maxlength="8" name="<%= compilation_video.order_index %>_end_timestamp" class="compilation-video-timestamp" placeholder="<%= recode_length_seconds(compilation_video.length_seconds) %>" type="text">
+                    </div>
+                <% end %>
             </div>
         </div>
     </div>

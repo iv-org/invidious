@@ -11,6 +11,7 @@ struct CompilationVideo
   property published : Time
   property compid : String
   property index : Int64
+  property order_index : Int32
 
   def to_xml(xml : XML::Builder)
     xml.element("entry") do
@@ -18,6 +19,7 @@ struct CompilationVideo
       xml.element("yt:videoId") { xml.text self.id }
       xml.element("yt:channelId") { xml.text self.ucid }
       xml.element("title") { xml.text self.title }
+      xml.element("orderIndex") {xml.text self.order_index }
       xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?v=#{self.id}")
 
       xml.element("author") do
@@ -67,6 +69,7 @@ struct CompilationVideo
         json.field "index", self.index
       end
 
+      json.field "orderIndex", self.order_index
       json.field "lengthSeconds", self.length_seconds
       json.field "startingTimestampSeconds", self.starting_timestamp_seconds
       json.field "endingTimestampSeconds", self.ending_timestamp_seconds
@@ -413,6 +416,7 @@ def extract_compilation_videos(initial_data : Hash(String, JSON::Any))
         published:      Time.utc,
         compid:           compid,
         index:          index,
+        order_index:    order_index
       })
     end
   end

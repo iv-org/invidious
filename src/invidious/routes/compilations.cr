@@ -340,6 +340,7 @@ module Invidious::Routes::Compilations
         compid:                     compilation_id,
         live_now:                   video.live_now,
         index:                      Random::Secure.rand(0_i64..Int64::MAX),
+        order_index:                compilation.index.size 
       })
 
       Invidious::Database::CompilationVideos.insert(compilation_video)

@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS public.compilation_videos
     published timestamptz,
     compid text references compilations(id),
     index int8,
+    order_index integer,
     PRIMARY KEY (index,compid)
 );
 

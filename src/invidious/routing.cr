@@ -87,6 +87,8 @@ module Invidious::Routing
     post "/create_compilation", Routes::Compilations, :create
     post "/compilation_ajax", Routes::Compilations, :compilation_ajax
     get "/add_compilation_items", Routes::Compilations, :add_compilation_items_page
+    get "/edit_compilation", Routes::Compilations, :edit
+    post "/edit_compilation", Routes::Compilations, :update
   end  
 
   def register_iv_playlist_routes
