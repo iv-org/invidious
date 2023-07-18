@@ -150,11 +150,13 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 - [Yattee](https://github.com/yattee/yattee): Alternative YouTube frontend for iPhone, iPad, Mac and Apple TV.
 - [CloudTube](https://sr.ht/~cadence/tube/): A JavaScript-rich alternate online YouTube player.
 - [HoloPlay](https://github.com/stephane-r/holoplay-pwa): Progressive Web App for music connecting on Invidious API's with search, playlists and favorites.
+- [GTK+ Pipe Viewer](https://github.com/trizen/pipe-viewer): YouTube client for Linux.
+- [PlasmaTube](https://apps.kde.org/plasmatube/): YouTube client for Linux.
 - [WatchTube](https://github.com/WatchTubeTeam/): Powerful YouTube client for Apple Watch.
 - [TubiTui](https://codeberg.org/777/TubiTui): A lightweight, libre, TUI-based YouTube client. For desktop.
 - [Ytfzf](https://github.com/pystardust/ytfzf): A posix script to find and watch youtube videos from the terminal. (Without API).
 - [Playlet](https://github.com/iBicha/playlet): Unofficial Youtube client for Roku TV.
-- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube for Android.<!-- MusicPiped stopped in March 2022. Developer is not working on it. See the issue.-->
+- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube for Android. <!-- MusicPiped stopped in March 2022. Developer is not working on it. See the issue.-->
 <!--- Last change of the repository in 2020: [PeerTubeify](https://gitlab.com/Cha_de_L/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.-->
 
 
