@@ -64,7 +64,8 @@ we're going to need to do it here in order to allow for translations.
     "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
     "vr" => video.is_vr,
     "projection_type" => video.projection_type,
-    "local_disabled" => CONFIG.disabled?("local")
+    "local_disabled" => CONFIG.disabled?("local"),
+    "support_reddit" => true
 }.to_pretty_json
 %>
 </script>
@@ -270,7 +271,7 @@ we're going to need to do it here in order to allow for translations.
             <hr>
 
             <% end %>
-            <div id="comments">
+            <div id="comments" class="comments">
                 <% if nojs %>
                     <%= comment_html %>
                 <% else %>
@@ -352,4 +353,5 @@ we're going to need to do it here in order to allow for translations.
         </div>
     <% end %>
 </div>
+<script src="/js/comments.js?v=<%= ASSET_COMMIT %>"></script>
 <script src="/js/watch.js?v=<%= ASSET_COMMIT %>"></script>

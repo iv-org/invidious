@@ -1,0 +1,31 @@
+<% content_for "header" do %>
+<title>Invidious</title>
+<% end %>
+
+<div id="post" class="comments">
+    <%= IV::Frontend::Comments.template_youtube(post_response.not_nil!, locale, thin_mode) %>
+</div>
+<div id="comments" class="comments">
+</div>
+
+<script id="video_data" type="application/json">
+<%=
+{
+    "id" => id,
+    "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
+    "reddit_comments_text" => "",
+    "reddit_permalink_text" => "",
+    "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
+    "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),
+    "show_replies_text" => HTML.escape(translate(locale, "Show replies")),
+    "params" => {
+        "comments": ["youtube"]
+    },
+    "preferences" => prefs,
+    "base_url" => "/api/v1/post/" + id + "/comments",
+    "ucid" => ucid
+}.to_pretty_json
+%>
+</script>
+<script src="/js/comments.js?v=<%= ASSET_COMMIT %>"></script>
+<script src="/js/post.js?v=<%= ASSET_COMMIT %>"></script>

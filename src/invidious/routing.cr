@@ -127,6 +127,7 @@ module Invidious::Routing
     get "/channel/:ucid/live", Routes::Channels, :live
     get "/user/:user/live", Routes::Channels, :live
     get "/c/:user/live", Routes::Channels, :live
+    get "/post/:id", Routes::Channels, :post
 
     {"", "/videos", "/shorts", "/streams", "/playlists", "/community", "/about"}.each do |path|
       # /c/LinusTechTips
@@ -240,6 +241,10 @@ module Invidious::Routing
         get "/api/v1/channels/:ucid/#{{{route}}}", {{namespace}}::Channels, :{{route}}
       {% end %}
 
+      # Posts
+      get "/api/v1/post/:id", {{namespace}}::Channels, :post
+      get "/api/v1/post/:id/comments", {{namespace}}::Channels, :post_comments
+
       # 301 redirects to new /api/v1/channels/community/:ucid and /:ucid/community
       get "/api/v1/channels/comments/:ucid", {{namespace}}::Channels, :channel_comments_redirect
       get "/api/v1/channels/:ucid/comments", {{namespace}}::Channels, :channel_comments_redirect
@@ -248,6 +253,7 @@ module Invidious::Routing
       get "/api/v1/search", {{namespace}}::Search, :search
       get "/api/v1/search/suggestions", {{namespace}}::Search, :search_suggestions
       get "/api/v1/hashtag/:hashtag", {{namespace}}::Search, :hashtag
+
 
       # Authenticated
 
