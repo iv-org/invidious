@@ -87,6 +87,20 @@
                     </p>
                 </a></div>
             </div>
+        <% when InvidiousCompilation %>
+            <% link_url = "/compilation?list=#{item.id}" %>
+            <a style="width:100%" href="<%= link_url %>">
+                <% if !env.get("preferences").as(Preferences).thin_mode %>
+                    <div class="thumbnail">
+                        <img loading="lazy" tabindex="-1" class="thumbnail" src="<%= URI.parse(item.thumbnail || "/").request_target %>" alt="" />
+                        <p class="length"><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p>
+                    </div>
+                <% end %>
+                <p dir="auto"><%= HTML.escape(item.title) %></p>
+            </a>
+            <a href="/channel/<%= item.ucid %>">
+                <p dir="auto"><b><%= HTML.escape(item.author) %><% if !item.is_a?(InvidiousCompilation) && !item.is_a?(InvidiousPlaylist) && !item.author_verified.nil? && item.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b></p>
+            </a>  
         <% when Category %>
         <% else %>
             <%-
@@ -97,42 +111,7 @@
               elsif item.is_a?(MixVideo)
                 link_url = "/watch?v=#{item.id}&list=#{item.rdid}"
                 endpoint_params = "?v=#{item.id}&list=#{item.rdid}"
-              elsif item.is_a?(InvidiousCompilation)
-                <% when InvidiousCompilation %>
-                    <% url = "/compilation?list=#{item.id}" %>   
-                    <a style="width:100%" href="<%= url %>">
-                    <% if !env.get("preferences").as(Preferences).thin_mode %>
-                        <div class="thumbnail">
-                            <img loading="lazy" tabindex="-1" class="thumbnail" src="<%= URI.parse(item.thumbnail || "/").request_target %>" alt="" />
-                            <p class="length"><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p>
-                        </div>
-                    <% end %>
-                    <p dir="auto"><%= HTML.escape(item.title) %></p>
-              elsif item.is_a?(CompilationVideo)
-                <% when CompilationVideo %>
-                    <div style="width:100%; height:50px; border:1px solid black;">
-                    <!-- <a style="width:100%" href="/watch?v=<%= item.id %>&list=<%= item.compid %>&index=<%= item.index %>">
-                        <% if !env.get("preferences").as(Preferences).thin_mode %>
-                        <div class="thumbnail">
-                            <img loading="lazy" tabindex="-1" class="thumbnail" src="/vi/<%= item.id %>/mqdefault.jpg" alt="" />
-
-                            <% if compid_form = env.get?("remove_compilation_items") %>
-                                <form data-onsubmit="return_false" action="/compilation_ajax?action_remove_video=1&set_video_id=<%= item.index %>&compilation_id=<%= compid_form %>&referer=<%= env.get("current_page") %>" method="post">
-                                    <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                                    <p class="watched">
-                                        <button type="submit" style="all:unset" data-onclick="remove_compilation_item" data-index="<%= item.index %>" data-compid="<%= compid_form %>"><i class="icon ion-md-trash"></i></button>
-                                    </p>
-                                </form>
-                            <% end %>
-                        </div>
-                    <% end %>
-                    <p dir="auto"><%= HTML.escape(item.title) %></p>
-                    </a> -->
-                    </div>      
-                    </a>
-                    <a href="/channel/<%= item.ucid %>">
-                        <p dir="auto"><b><%= HTML.escape(item.author) %><% if !item.is_a?(InvidiousCompilation) && !item.is_a?(InvidiousPlaylist) && !item.author_verified.nil? && item.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b></p>
-                    </a>
+              # elsif item.is_a?(CompilationVideo)
               else
                 link_url = "/watch?v=#{item.id}"
                 endpoint_params = "?v=#{item.id}"

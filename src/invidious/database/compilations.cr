@@ -248,4 +248,15 @@ module Invidious::Database::CompilationVideos
 
     return PG_DB.query_all(request, compid, index, limit, as: String)
   end
+
+  # -------------------
+  #  Update
+  # -------------------
+
+  def update_start_timestamp(compid : String, index : VideoIndex, starting_timestamp_seconds : Int64)
+    request = <<-SQL
+      UPDATE compilation_videos
+      SET starting_timestamp_seconds = starting_timestamp_seconds
+      WHERE id = $2
+  end
 end
