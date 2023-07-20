@@ -32,7 +32,7 @@ module Invidious::Routes::API::V1::Misc
     env.response.content_type = "text/plain"
 
     return String.build do |str|
-      Metrics::REQUEST_COUNTERS.each do |metric_labels, value|
+      Metrics::RouteMetricsCollector.num_of_request_counters.each do |metric_labels, value|
         str << "http_requests_total{"
         str << "method=\"" << metric_labels.request_method << "\" "
         str << "route=\"" << metric_labels.request_route << "\" "
@@ -41,7 +41,7 @@ module Invidious::Routes::API::V1::Misc
         str << value << "\n"
       end
 
-      Metrics::REQUEST_DURATION_SECONDS_SUMS.each do |metric_labels, value|
+      Metrics::RouteMetricsCollector.request_duration_seconds_sums.each do |metric_labels, value|
         str << "http_request_duration_seconds_sum{"
         str << "method=\"" << metric_labels.request_method << "\" "
         str << "route=\"" << metric_labels.request_route << "\" "
