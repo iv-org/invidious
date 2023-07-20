@@ -492,5 +492,13 @@
     "Song: ": "Pjesma: ",
     "Standard YouTube license": "Standardna YouTube licenca",
     "Download is disabled": "Preuzimanje je deaktivirano",
-    "Import YouTube playlist (.csv)": "Uvezi YouTube zbirku (.csv)"
+    "Import YouTube playlist (.csv)": "Uvezi YouTube zbirku (.csv)",
+    "generic_button_delete": "Izbriši",
+    "playlist_button_add_items": "Dodaj videa",
+    "channel_tab_podcasts_label": "Podcasti",
+    "generic_button_edit": "Uredi",
+    "generic_button_save": "Spremi",
+    "generic_button_cancel": "Odustani",
+    "generic_button_rss": "RSS",
+    "channel_tab_releases_label": "Izdanja"
 }
