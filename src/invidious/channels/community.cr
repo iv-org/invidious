@@ -198,6 +198,22 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode)
                     parse_item(attachment)
                       .as(SearchPlaylist)
                       .to_json(locale, json)
+                  when .has_key?("quizRenderer")
+                    json.object do
+                      attachment = attachment["quizRenderer"]
+                      json.field "type", "quiz"
+                      json.field "totalVotes", short_text_to_number(attachment["totalVotes"]["simpleText"].as_s.split(" ")[0])
+                      json.field "choices" do
+                        json.array do
+                          attachment["choices"].as_a.each do |choice|
+                            json.object do
+                              json.field "text", choice.dig("text", "runs", 0, "text").as_s
+                              json.field "isCorrect", choice["isCorrect"].as_bool
+                            end
+                          end
+                        end
+                      end
+                    end
                   else
                     json.object do
                       json.field "type", "unknown"
