@@ -4,12 +4,12 @@ module Metrics
   record MetricLabels, request_method : String, request_route : String, response_code : Int32
 
   # Counts how many a given route was used
-  REQUEST_COUNTERS              = Hash(MetricLabels, Int64).new
+  REQUEST_COUNTERS = Hash(MetricLabels, Int64).new
 
   # Counts how much time was used to handle requests to each route
   REQUEST_DURATION_SECONDS_SUMS = Hash(MetricLabels, Float32).new
 
-  # The handler which will record metrics when registered in a Kemal application 
+  # The handler which will record metrics when registered in a Kemal application
   METRICS_COLLECTOR = RouteMetricsCollector.new(REQUEST_COUNTERS, REQUEST_DURATION_SECONDS_SUMS)
 
   class RouteMetricsCollector < Kemal::Handler
