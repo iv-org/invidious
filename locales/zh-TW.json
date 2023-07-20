@@ -460,5 +460,13 @@
     "Song: ": "歌曲： ",
     "Standard YouTube license": "標準 YouTube 授權條款",
     "Download is disabled": "已停用下載",
-    "Import YouTube playlist (.csv)": "匯入 YouTube 播放清單 (.csv)"
+    "Import YouTube playlist (.csv)": "匯入 YouTube 播放清單 (.csv)",
+    "generic_button_cancel": "取消",
+    "generic_button_edit": "編輯",
+    "generic_button_save": "儲存",
+    "generic_button_rss": "RSS",
+    "generic_button_delete": "刪除",
+    "playlist_button_add_items": "新增影片",
+    "channel_tab_podcasts_label": "Podcast",
+    "channel_tab_releases_label": "發布"
 }
