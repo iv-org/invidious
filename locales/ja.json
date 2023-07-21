@@ -81,7 +81,7 @@
     "preferences_category_subscription": "登録チャンネル設定",
     "preferences_annotations_subscribed_label": "最初から登録チャンネルのアノテーションを表示 ",
     "Redirect homepage to feed: ": "ホームからフィードにリダイレクト: ",
-    "preferences_max_results_label": "フィードに表示する動画の量: ",
+    "preferences_max_results_label": "フィードに表示する動画数: ",
     "preferences_sort_label": "動画を並び替え: ",
     "published": "投稿日",
     "published - reverse": "投稿日 - 逆順",
