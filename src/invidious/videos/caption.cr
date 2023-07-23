@@ -1,7 +1,7 @@
 require "json"
 
 module Invidious::Videos
-  struct Caption
+  struct CaptionMetadata
     property name : String
     property language_code : String
     property base_url : String
@@ -10,12 +10,12 @@ module Invidious::Videos
     end
 
     # Parse the JSON structure from Youtube
-    def self.from_yt_json(container : JSON::Any) : Array(Caption)
+    def self.from_yt_json(container : JSON::Any) : Array(CaptionMetadata)
       caption_tracks = container
         .dig?("playerCaptionsTracklistRenderer", "captionTracks")
         .try &.as_a
 
-      captions_list = [] of Caption
+      captions_list = [] of CaptionMetadata
       return captions_list if caption_tracks.nil?
 
       caption_tracks.each do |caption|
@@ -25,7 +25,7 @@ module Invidious::Videos
         language_code = caption["languageCode"].to_s
         base_url = caption["baseUrl"].to_s
 
-        captions_list << Caption.new(name, language_code, base_url)
+        captions_list << CaptionMetadata.new(name, language_code, base_url)
       end
 
       return captions_list
