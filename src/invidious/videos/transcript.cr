@@ -1,6 +1,8 @@
 module Invidious::Videos
   # Namespace for methods primarily relating to Transcripts
   module Transcript
+    record TranscriptLine, start_ms : Time::Span, end_ms : Time::Span, line : String
+
     def self.generate_param(video_id : String, language_code : String, auto_generated : Bool) : String
       if !auto_generated
         is_auto_generated = ""
@@ -29,6 +31,41 @@ module Invidious::Videos
         .try { |i| URI.encode_www_form(i) }
 
       return params
+    end
+
+    def self.convert_transcripts_to_vtt(initial_data : JSON::Any, target_language : String) : String
+      # Convert into TranscriptLine
+
+      vtt = String.build do |vtt|
+        result << <<-END_VTT
+        WEBVTT
+        Kind: captions
+        Language: #{tlang}
+
+
+        END_VTT
+
+        vtt << "\n\n"
+      end
+    end
+
+    def self.parse(initial_data : Hash(String, JSON::Any))
+      body = initial_data.dig("actions", 0, "updateEngagementPanelAction", "content", "transcriptRenderer",
+        "content", "transcriptSearchPanelRenderer", "body", "transcriptSegmentListRenderer",
+        "initialSegments").as_a
+
+      lines = [] of TranscriptLine
+      body.each do |line|
+        line = line["transcriptSegmentRenderer"]
+        start_ms = line["startMs"].as_s.to_i.millisecond
+        end_ms = line["endMs"].as_s.to_i.millisecond
+
+        text = extract_text(line["snippet"]) || ""
+
+        lines << TranscriptLine.new(start_ms, end_ms, text)
+      end
+
+      return lines
     end
   end
 end
