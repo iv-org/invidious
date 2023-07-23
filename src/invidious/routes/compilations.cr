@@ -225,33 +225,39 @@ module Invidious::Routes::Compilations
       updated = compilation.updated
     end
 
-    {1...Invidious::Database::Compilations.count_owned_by(user.email)} each do |index|
-      start_timestamp = env.params.json["_start_timestamp"]?.try &.as(String).byte_slice(0, 150) || compilation.title
+    #{1...Invidious::Database::Compilations.count_owned_by(user.email)}.each do |index|
+    #  start_timestamp = env.params.json["_start_timestamp"]?.try &.as(String).byte_slice(0, 150) || compilation.title
 
-    (1..Invidious::Database::Compilations.count_owned_by(user.email)).each do |index| {
-      compilation_video = Invidious::Database::CompilationVideos.select(order_index: index)
-      start_timestamp = env.params.json[index+"_start_timestamp"]?.try &.as(String).byte_slice(0, 8)
-      if !start_timestamp.empty?
+    (0..Invidious::Database::Compilations.count_owned_by(user.email)).each do |index|
+      compilation_video_id = Invidious::Database::CompilationVideos.select_id_from_order_index(order_index: index)
+      #compilation_video_index = Invidious::Database::CompilationVideos.select_index_from_order_index(order_index: index)
+      compilation_video = Invidious::Database::CompilationVideos.select(compid, compilation.index, 0, 1)
+      #numerical_string = index.to
+      json_timestamp_query = index.to_s + "_start_timestamp"
+      start_timestamp = env.params.json[json_timestamp_query]?.try &.as(String).byte_slice(0, 8)
+      if !start_timestamp.nil? && !compilation_video_id.nil?
         start_timestamp_seconds = decode_length_seconds(start_timestamp)
-        if !start_timestamp_seconds.empty
-          if start_timestamp_seconds >= 0 && start_timestamp_seconds <= compilation_video 
-            Invidious::Database::CompilationVideos.update_start_timestamp(compid, compilation_video.index, start_timestamp_seconds)
+        if !start_timestamp_seconds.nil?
+          if start_timestamp_seconds >= 0 && start_timestamp_seconds <= compilation_video[0].starting_timestamp_seconds 
+            Invidious::Database::CompilationVideos.update_start_timestamp(compilation_video_id, start_timestamp_seconds)
           end
         end
       end
 
-      end_timestamp = env.params.json[index+"_end_timestamp"]?.try &.as(String).byte_slice(0, 8)
-      if !end_timestamp.empty?
+      json_timestamp_query = index.to_s + "_end_timestamp"
+      end_timestamp = env.params.json[json_timestamp_query]?.try &.as(String).byte_slice(0, 8)
+      if !end_timestamp.nil? && !compilation_video_id.nil?
         end_timestamp_seconds = decode_length_seconds(end_timestamp)
-        if !end_timestamp_seconds.empty
-          if end_timestamp_seconds >= 0 && end_timestamp_seconds <= compilation_video 
-            Invidious::Database::CompilationVideos.update_end_timestamp(compid, compilation_video.index, end_timestamp_seconds)
+        if !end_timestamp_seconds.nil?
+          if end_timestamp_seconds >= 0 && end_timestamp_seconds <= compilation_video[0].ending_timestamp_seconds 
+            Invidious::Database::CompilationVideos.update_end_timestamp(compilation_video_id, end_timestamp_seconds)
           end
         end
       end
-    }
 
-
+    end
+  end
+    
 
   def self.add_compilation_items_page(env)
     LOGGER.info("13. add_compilation_items")

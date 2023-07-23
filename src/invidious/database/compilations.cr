@@ -217,6 +217,26 @@ module Invidious::Database::CompilationVideos
     return PG_DB.query_all(request, compid, index, limit, offset, as: CompilationVideo)
   end
 
+  def select_id_from_order_index(order_index : Int32)
+    request = <<-SQL
+      SELECT id FROM compilation_videos
+      WHERE order_index = $1
+      LIMIT 1
+    SQL
+
+    return PG_DB.query_one?(request, order_index, as: String)
+  end
+
+  def select_index_from_order_index(order_index : Int32)
+    request = <<-SQL
+      SELECT index FROM compilation_videos
+      WHERE order_index = $1
+      LIMIT 1
+    SQL
+
+    return PG_DB.query_one?(request, order_index, as: VideoIndex)
+  end
+
   def select_index(compid : String, vid : String) : Int64?
     request = <<-SQL
       SELECT index FROM compilation_videos
@@ -253,10 +273,23 @@ module Invidious::Database::CompilationVideos
   #  Update
   # -------------------
 
-  def update_start_timestamp(compid : String, index : VideoIndex, starting_timestamp_seconds : Int64)
+  def update_start_timestamp(id : String, starting_timestamp_seconds : Int32)
     request = <<-SQL
       UPDATE compilation_videos
       SET starting_timestamp_seconds = starting_timestamp_seconds
-      WHERE id = $2
+      WHERE id = $1
+    SQL
+
+    PG_DB.exec(request, id)
+  end
+
+  def update_end_timestamp(id : String, ending_timestamp_seconds : Int64)
+    request = <<-SQL
+      UPDATE compilation_videos
+      SET ending_timestamp_seconds = ending_timestamp_seconds
+      WHERE id = $1
+    SQL
+
+    PG_DB.exec(request, id)
   end
 end

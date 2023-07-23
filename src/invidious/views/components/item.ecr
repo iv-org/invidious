@@ -53,7 +53,7 @@
                     <p><%= translate_count(locale, "generic_channels_count", item.channel_count, NumberFormatting::Separator) %></p>
                 <%- end -%>
             </div>
-        <% when SearchPlaylist, InvidiousPlaylist %>
+        <% when SearchPlaylist, InvidiousPlaylist, InvidiousCompilation %>
             <%-
               if item.id.starts_with? "RD"
                 link_url = "/mix?list=#{item.id}&continuation=#{URI.parse(item.thumbnail || "/vi/-----------").request_target.split("/")[2]}"
@@ -87,20 +87,6 @@
                     </p>
                 </a></div>
             </div>
-        <% when InvidiousCompilation %>
-            <% link_url = "/compilation?list=#{item.id}" %>
-            <a style="width:100%" href="<%= link_url %>">
-                <% if !env.get("preferences").as(Preferences).thin_mode %>
-                    <div class="thumbnail">
-                        <img loading="lazy" tabindex="-1" class="thumbnail" src="<%= URI.parse(item.thumbnail || "/").request_target %>" alt="" />
-                        <p class="length"><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p>
-                    </div>
-                <% end %>
-                <p dir="auto"><%= HTML.escape(item.title) %></p>
-            </a>
-            <a href="/channel/<%= item.ucid %>">
-                <p dir="auto"><b><%= HTML.escape(item.author) %><% if !item.is_a?(InvidiousCompilation) && !item.is_a?(InvidiousPlaylist) && !item.author_verified.nil? && item.author_verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b></p>
-            </a>  
         <% when Category %>
         <% else %>
             <%-
