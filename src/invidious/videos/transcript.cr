@@ -33,23 +33,52 @@ module Invidious::Videos
       return params
     end
 
-    def self.convert_transcripts_to_vtt(initial_data : JSON::Any, target_language : String) : String
-      # Convert into TranscriptLine
+    def self.convert_transcripts_to_vtt(initial_data : Hash(String, JSON::Any), target_language : String) : String
+      # Convert into array of TranscriptLine
+      lines = self.parse(initial_data)
 
+      # Taken from Invidious::Videos::CaptionMetadata.timedtext_to_vtt()
       vtt = String.build do |vtt|
-        result << <<-END_VTT
+        vtt << <<-END_VTT
         WEBVTT
         Kind: captions
-        Language: #{tlang}
+        Language: #{target_language}
 
 
         END_VTT
 
         vtt << "\n\n"
+
+        lines.each do |line|
+          start_time = line.start_ms
+          end_time = line.end_ms
+
+          # start_time
+          vtt << start_time.hours.to_s.rjust(2, '0')
+          vtt << ':' << start_time.minutes.to_s.rjust(2, '0')
+          vtt << ':' << start_time.seconds.to_s.rjust(2, '0')
+          vtt << '.' << start_time.milliseconds.to_s.rjust(3, '0')
+
+          vtt << " --> "
+
+          # end_time
+          vtt << end_time.hours.to_s.rjust(2, '0')
+          vtt << ':' << end_time.minutes.to_s.rjust(2, '0')
+          vtt << ':' << end_time.seconds.to_s.rjust(2, '0')
+          vtt << '.' << end_time.milliseconds.to_s.rjust(3, '0')
+
+          vtt << "\n"
+          vtt << line.line
+
+          vtt << "\n"
+          vtt << "\n"
+        end
       end
+
+      return vtt
     end
 
-    def self.parse(initial_data : Hash(String, JSON::Any))
+    private def self.parse(initial_data : Hash(String, JSON::Any))
       body = initial_data.dig("actions", 0, "updateEngagementPanelAction", "content", "transcriptRenderer",
         "content", "transcriptSearchPanelRenderer", "body", "transcriptSegmentListRenderer",
         "initialSegments").as_a
