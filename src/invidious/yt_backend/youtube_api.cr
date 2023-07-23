@@ -558,7 +558,7 @@ module YoutubeAPI
   end
 
   ####################################################################
-  # transcript(params)
+  # get_transcript(params, client_config?)
   #
   # Requests the youtubei/v1/get_transcript endpoint with the required headers
   # and POST data in order to get a JSON reply.
@@ -569,7 +569,7 @@ module YoutubeAPI
   # `struct ClientConfig` above for more details).
   #
 
-  def transcript(
+  def get_transcript(
     params : String,
     client_config : ClientConfig | Nil = nil
   ) : Hash(String, JSON::Any)
