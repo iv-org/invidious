@@ -6,7 +6,9 @@ module Invidious::Videos
     property language_code : String
     property base_url : String
 
-    def initialize(@name, @language_code, @base_url)
+    property auto_generated : Bool
+
+    def initialize(@name, @language_code, @base_url, @auto_generated)
     end
 
     # Parse the JSON structure from Youtube
@@ -25,7 +27,12 @@ module Invidious::Videos
         language_code = caption["languageCode"].to_s
         base_url = caption["baseUrl"].to_s
 
-        captions_list << CaptionMetadata.new(name, language_code, base_url)
+        auto_generated = false
+        if caption["kind"]? && caption["kind"] == "asr"
+          auto_generated = true
+        end
+
+        captions_list << CaptionMetadata.new(name, language_code, base_url, auto_generated)
       end
 
       return captions_list

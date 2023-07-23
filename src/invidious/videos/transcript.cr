@@ -85,7 +85,13 @@ module Invidious::Videos
 
       lines = [] of TranscriptLine
       body.each do |line|
+        # Transcript section headers. They are not apart of the captions and as such we can safely skip them.
+        if line.as_h.has_key?("transcriptSectionHeaderRenderer")
+          next
+        end
+
         line = line["transcriptSegmentRenderer"]
+
         start_ms = line["startMs"].as_s.to_i.millisecond
         end_ms = line["endMs"].as_s.to_i.millisecond
 
