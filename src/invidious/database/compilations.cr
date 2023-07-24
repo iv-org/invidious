@@ -276,11 +276,11 @@ module Invidious::Database::CompilationVideos
   def update_start_timestamp(id : String, starting_timestamp_seconds : Int32)
     request = <<-SQL
       UPDATE compilation_videos
-      SET starting_timestamp_seconds = starting_timestamp_seconds
+      SET starting_timestamp_seconds = $2
       WHERE id = $1
     SQL
 
-    PG_DB.exec(request, id)
+    PG_DB.exec(request, id, starting_timestamp_seconds)
   end
 
   def update_end_timestamp(id : String, ending_timestamp_seconds : Int64)

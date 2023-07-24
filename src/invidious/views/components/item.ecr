@@ -58,7 +58,7 @@
               if item.id.starts_with? "RD"
                 link_url = "/mix?list=#{item.id}&continuation=#{URI.parse(item.thumbnail || "/vi/-----------").request_target.split("/")[2]}"
               else
-                link_url = "/playlist?list=#{item.id}"
+                link_url = "/compilation?list=#{item.id}"
               end
             -%>
 
