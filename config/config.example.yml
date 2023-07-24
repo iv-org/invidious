@@ -496,6 +496,15 @@ hmac_key: "CHANGE_ME!!"
 ##
 #playlist_length_limit: 500
 
+
+##
+## Email to contact the instance maintainer; used in a mailto: link within the footer. 
+## 
+## Accepted values: Email
+## Default: <none>
+##
+# instance_maintainer_email: 
+
 #########################################
 #
 #  Default user preferences

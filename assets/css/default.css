@@ -459,32 +459,44 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
  * Footer
  */
 
-footer {
-  margin-top: auto;
+ footer {
+  color: #919191;
+  margin-top: 2.5em;
   padding: 1.5em 0;
-  text-align: center;
-  max-height: 30vh;
 }
 
-.light-theme footer {
-  color: #7c7c7c;
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: -10px;
 }
 
-.dark-theme footer {
-  color: #adadad;
+footer .footer-content a {
+  color: #919191;
 }
 
-.light-theme footer a {
-  color: #7c7c7c !important;
+.footer-content #about-invidious-description > b {
+  font-size: 30px;
 }
 
-.dark-theme footer a {
-  color: #adadad !important;
+.footer-section {
+  margin-right: 20px;
+  margin-top: 20px;
 }
 
-footer span {
-  margin: 4px 0;
-  display: block;
+.footer-section-list {
+  margin-top: 8px;
+}
+
+.footer-section-item {
+  margin-bottom: 4px;
+}
+
+@media screen and (max-width: 929px) {
+  #about-invidious-description {
+    display: none;
+  }
 }
 
 /* keyframes */
@@ -550,6 +562,14 @@ span > select {
   color: #565d64;
 }
 
+.light-theme footer {
+  background: #f2f2f2;
+}
+
+.light-theme footer #about-invidious-description > b {
+  color: #7a7a7a;
+}
+
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
   .no-theme a:active,
@@ -595,6 +615,14 @@ span > select {
 
   .light-theme .pure-menu-heading {
     color: #565d64;
+  }
+
+  .no-theme footer {
+    background: #f2f2f2;
+  }
+  
+  .no-theme footer #about-invidious-description > b {
+    color: #7a7a7a;
   }
 }
 
@@ -658,6 +686,16 @@ body.dark-theme {
   color: inherit;
 }
 
+
+.dark-theme footer {
+  background: #16191a;
+}
+
+.dark-theme .footer-content #about-invidious-description > b {
+  color: #e5e5e5;
+}
+
+
 @media (prefers-color-scheme: dark) {
   .no-theme a:hover,
   .no-theme a:active,
@@ -713,11 +751,11 @@ body.dark-theme {
   }
 
   .no-theme footer {
-    color: #adadad;
+    background: #16191a;
   }
 
-  .no-theme footer a {
-    color: #adadad !important;
+  .no-theme footer #about-invidious-description > b {
+    color: #e5e5e5;
   }
 }
 
@@ -802,6 +840,17 @@ h1, h2, h3, h4, h5, p,
 
 /* Center the "invidious" logo on the search page */
 #logo > h1 { text-align: center; }
+
+#footer_buffer {
+  margin-top: 50vh;
+}
+
+@media screen and (max-width: 450px) {
+  #footer_buffer {
+    display: none;
+  }
+}
+
 
 /* IE11 fixes */
 :-ms-input-placeholder { color: #888; }

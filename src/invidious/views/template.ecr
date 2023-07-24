@@ -112,47 +112,9 @@
 
             <%= content %>
 
-            <footer>
-                <div class="pure-g">
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <span>
-                            <i class="icon ion-logo-github"></i>
-                        <% if CONFIG.modified_source_code_url %>
-                            <a href="https://github.com/iv-org/invidious"><%= translate(locale, "footer_original_source_code") %></a>&nbsp;/
-                            <a href="<%= CONFIG.modified_source_code_url %>"><%= translate(locale, "footer_modfied_source_code") %></a>
-                        <% else %>
-                            <a href="https://github.com/iv-org/invidious"><%= translate(locale, "footer_source_code") %></a>
-                        <% end %>
-                        </span>
-                        <span>
-                            <i class="icon ion-ios-paper"></i>
-                            <a href="https://github.com/iv-org/documentation"><%= translate(locale, "footer_documentation") %></a>
-                        </span>
-                    </div>
-
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <span>
-                            <a href="https://github.com/iv-org/invidious/blob/master/LICENSE"><%= translate(locale, "Released under the AGPLv3 on Github.") %></a>
-                        </span>
-                        <span>
-                            <i class="icon ion-logo-javascript"></i>
-                            <a rel="jslicense" href="/licenses"><%= translate(locale, "View JavaScript license information.") %></a>
-                        </span>
-                        <span>
-                            <i class="icon ion-ios-paper"></i>
-                            <a href="/privacy"><%= translate(locale, "View privacy policy.") %></a>
-                        </span>
-                    </div>
-
-                    <div class="pure-u-1 pure-u-md-1-3">
-                        <span>
-                            <i class="icon ion-ios-wallet"></i>
-                            <a href="https://invidious.io/donate/"><%= translate(locale, "footer_donate_page") %></a>
-                        </span>
-                        <span><%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %></span>
-                    </div>
-                </div>
-            </footer>
+            <% if buffer_footer %>
+                <div id="footer_buffer"></div>
+            <% end %>
 
         </div>
     </div>
@@ -172,6 +134,143 @@
         <script src="/js/notifications.js?v=<%= ASSET_COMMIT %>"></script>
         <% end %>
     <% end %>
+
+    <footer class="pure-g">
+        <div class="pure-u-1 pure-u-md-2-24"></div>
+        <div class="h-box pure-u-1 pure-u-md-20-24">
+            <div class="pure-u-1 footer-content">
+                <div class="footer-section pure-u-1-4" id="about-invidious-description">
+                    <b>Invidious</b>
+                    <p><%=translate(locale, "footer_invidious_project_description")%></p>
+                </div>
+                <div class="footer-section">
+                    <b class="footer-section-header"><%= translate(locale, "footer_navigation_section_header")%></b>
+                    <ul class="pure-menu-list footer-section-list">
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/" title="<%= translate(locale, "footer_home_link")%>">
+                                <%= translate(locale, "footer_home_link") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/feed/popular" title="<%= translate(locale, "Popular")%>">
+                                <%= translate(locale, "Popular") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/feed/trending" title="<%= translate(locale, "Trending")%>" style="">
+                                <%= translate(locale, "Trending") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/search" title="<%= translate(locale, "Search")%>">
+                                <%= translate(locale, "Search") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <br>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/preferences?referer=<%= env.get?("current_page") %>" title="<%= translate(locale, "Preferences")%>">
+                                <%= translate(locale, "Preferences") %>
+                            </a>
+                        </li>
+                        <% if CONFIG.login_enabled %>
+                            <li class="pure-menu-item footer-section-item">
+                                <% if env.get? "user" %>
+                                    <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
+                                        <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                                        <a href="#" title="<%= translate(locale, "Log out") %>">
+                                            <input style="all:unset" type="submit" value="<%= translate(locale, "Log out") %>">
+                                        </a>
+                                    </form>
+                                <% else %>
+                                    <a href="/login?referer=<%= env.get?("current_page") %>" title="<%= translate(locale, "Log in") %>">
+                                        <%= translate(locale, "Log in") %>
+                                    </a>
+                                <% end %>
+                            </li>
+                        <% end %>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <b class="footer-section-header">Invidious</b>
+                    <ul class="pure-menu-list footer-section-list">
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="https://invidious.io" title="<%= translate(locale, "footer_project_homepage_link")%>">
+                                <%= translate(locale, "footer_project_homepage_link") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="https://github.com/iv-org/invidious" title="<%= translate(locale, "footer_source_code_link")%>">
+                                <%= translate(locale, "footer_source_code_link") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="https://github.com/iv-org/invidious/issues" title="<%= translate(locale, "footer_issue_tracker_link")%>" style="">
+                                <%= translate(locale, "footer_issue_tracker_link") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="https://redirect.invidious.io" title="<%= translate(locale, "footer_public_instances_link")%>">
+                                <%= translate(locale, "footer_public_instances_link") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="https://invidious.io/donate" title="<%= translate(locale, "footer_donate_link")%>">
+                                <%= translate(locale, "footer_donate_link") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="https://matrix.to/#/#invidious:matrix.org" title="<%= translate(locale, "footer_matrix_link")%>">
+                                <%= translate(locale, "footer_matrix_link") %>
+                            </a>
+                        </li>
+
+                    </ul>                
+                </div>
+                <div class="footer-section">
+                    <b class="footer-section-header"><%= translate(locale, "footer_support_section_header")%></b>
+                    <ul class="pure-menu-list footer-section-list">
+                        <li class="pure-menu-item footer-section-item">
+                            <% link = CONFIG.instance_maintainer_email ? "mailto:#{CONFIG.instance_maintainer_email}" : "#"%>
+                            <a href=<%=link%> title="<%= translate(locale, "footer_contact_link")%>">
+                                <%= translate(locale, "footer_contact_link") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="https://github.com/iv-org/invidious/issues/new" title="<%= translate(locale, "footer_report_bug_link")%>">
+                                <%= translate(locale, "footer_report_bug_link") %>
+                            </a>
+                        </li>
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="#" title="<%= translate(locale, "footer_faq_link")%>" style="">
+                                <%= translate(locale, "footer_faq_link") %>
+                            </a>
+                        </li>
+                    </ul>                
+                </div>
+                <div class="footer-section">
+                    <b class="footer-section-header"><%= translate(locale, "footer_legal_section_header")%></b>
+                    <ul class="pure-menu-list footer-section-list">
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/licenses" title="<%= translate(locale, "footer_licences_link")%>">
+                                <%= translate(locale, "footer_licences_link") %>
+                            </a>
+                        </li>
+                        <!-- TODO -->
+                        <li class="pure-menu-item footer-section-item">
+                            <a href="/privacy" title="<%= translate(locale, "footer_privacy_policy_link")%>">
+                                <%= translate(locale, "footer_privacy_policy_link") %>
+                            </a>
+                        </li>
+                    </ul>                
+                </div>
+            </div>
+        </div>
+        <!-- <%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %> -->
+        </div>
+        <div class="pure-u-1 pure-u-md-2-24"></div>
+    </footer>
 </body>
 
 </html>

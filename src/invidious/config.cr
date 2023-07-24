@@ -156,6 +156,9 @@ class Config
   # Playlist length limit
   property playlist_length_limit : Int32 = 500
 
+  # Email to contact the instance maintainer. This is used within the footer as an mailto link.
+  property instance_maintainer_email : String? = nil
+
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool
