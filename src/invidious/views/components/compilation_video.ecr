@@ -2,12 +2,25 @@
     <div class="h-box">
         <div class="compilation-video-panel">
             <div class="compilation-order-swap-arrows">
-                <svg class="compilation-video-swap-arrow">
-                    <path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path>
-                </svg>
-                <svg class="compilation-video-swap-arrow">
-                    <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"></path>
-                </svg>
+                <%- form_parameters = "action_move_video_before=1&set_video_id=#{compilation_video.index}&compilation_id=#{compilation_video.compid}&referer=#{env.get("current_page")}" -%>
+                <form data-onsubmit="return_false" action="/compilation_ajax?<%= form_parameters %>" method="post">
+                    <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                    <button type="submit" style="margin:10px" class="pure-button pure-button-secondary low-profile"
+                                    data-onclick="move_compilation_video_before" data-index="<%= compilation_video.index %>" data-compid="<%= compilation_video.compid %>">
+                        <!-- <svg class="compilation-video-swap-arrow">
+                            <path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path>
+                        </svg> -->
+                        <i class="icon ion-md-arrow-up"></i>
+                    </button>
+                </form>
+                <%- form_parameters = "action_move_video_after=1&set_video_id=#{compilation_video.index}&compilation_id=#{compilation_video.compid}&referer=#{env.get("current_page")}" -%>
+                <form data-onsubmit="return_false" action="/compilation_ajax?<%= form_parameters %>" method="post">
+                    <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                    <button type="submit" style="margin:10px" class="pure-button pure-button-secondary low-profile"
+                                    data-onclick="move_compilation_video_after" data-index="<%= compilation_video.index %>" data-compid="<%= compilation_video.compid %>">
+                        <i class="icon ion-md-arrow-down"></i>
+                    </button>
+                </form>
             </div>
             <img loading="lazy" style="margin:10px;" src="/vi/<%= compilation_video.id %>/mqdefault.jpg" alt="" />
             <!-- <div class="compilation-video-thumbnail">

@@ -46,3 +46,18 @@ function remove_compilation_item(target) {
         }
     });
 }
+
+function move_compilation_video_before(target) {
+    var tile = target.parentNode.parentNode.parentNode.parentNode.parentNode;
+    tile.style.display = 'none';
+
+    var url = '/compilation_ajax?action_move_video_before=1&redirect=false' +
+        '&set_video_id=' + target.getAttribute('data-index') +
+        '&compilation_id=' + target.getAttribute('data-compid');
+
+    helpers.xhr('POST', url, {payload: payload}, {
+        onNon200: function (xhr) {
+            tile.style.display = '';
+        }
+    });
+}

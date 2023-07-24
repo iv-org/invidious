@@ -244,7 +244,7 @@ end
 
 def create_compilation(title, privacy, user)
   LOGGER.info("2. create_compilation")
-  compid = "IVPL#{Random::Secure.urlsafe_base64(24)[0, 31]}"
+  compid = "IVCMP#{Random::Secure.urlsafe_base64(24)[0, 31]}"
   LOGGER.info("generated compilation id")
 
   compilation = InvidiousCompilation.new({
@@ -320,7 +320,7 @@ def produce_compilation_continuation(id, index)
 end
 
 def get_compilation(compid : String)
-  #if compid.starts_with? "IV"
+  #if compid.starts_with? "IVCMP"
     if compilation = Invidious::Database::Compilations.select(id: compid)
       return compilation
     else

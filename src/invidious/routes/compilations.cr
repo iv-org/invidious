@@ -197,11 +197,31 @@ module Invidious::Routes::Compilations
   end
 
   def self.adjust_timestamps(env)
+    locale = env.get("preferences").as(Preferences).locale
     LOGGER.info("Handle POST request for edit compilation")
     env.response.content_type = "application/json"
-    user = env.get("user").as(User)
+    user = env.get("user")
+    sid = env.get? "sid"
+
+    referer = get_referer(env)
+
+    return env.redirect "/" if user.nil?
 
     compid = env.params.query["list"]?
+    return env.redirect referer if compid.nil?
+
+    user = user.as(User)
+
+    sid = sid.as(String)
+    token = env.params.body["csrf_token"]?
+
+    begin
+      validate_request(token, sid, env.request, HMAC_KEY, locale)
+    rescue ex
+      return error_template(400, ex)
+    end
+
+
     if !compid || compid.empty?
       return error_json(400, "A compilation ID is required")
     end
@@ -215,6 +235,9 @@ module Invidious::Routes::Compilations
       return error_json(403, "Invalid user")
     end
 
+    title = env.params.body["title"]?.try &.delete("<>") || ""
+    privacy = CompilationPrivacy.parse(env.params.body["privacy"]? || "Private")
+
     #title = env.params.json["title"].try &.as(String).delete("<>").byte_slice(0, 150) || compilation.title
     #privacy = env.params.json["privacy"]?.try { |p| CompilationPrivacy.parse(p.as(String).downcase) } || compilation.privacy
 
@@ -224,6 +247,8 @@ module Invidious::Routes::Compilations
     #else
     #  updated = compilation.updated
     #end
+
+    Invidious::Database::Compilations.update(compid, title, privacy, "", compilation.updated)
 
     #{1...Invidious::Database::Compilations.count_owned_by(user.email)}.each do |index|
     #  start_timestamp = env.params.json["_start_timestamp"]?.try &.as(String).byte_slice(0, 150) || compilation.title
@@ -238,7 +263,7 @@ module Invidious::Routes::Compilations
       json_timestamp_query = index.to_s + "_start_timestamp"
       LOGGER.info("adjust #{json_timestamp_query} ")
       start_timestamp = env.params.body[json_timestamp_query]?.try &.as(String).byte_slice(0, 8)
-      LOGGER.info("render #{env.params.body[json_timestamp_query]} ")
+      LOGGER.info("render #{env.params.body[json_timestamp_query]?} ")
       if !start_timestamp.nil? && !compilation_video_id.nil?
         LOGGER.info("adjust #{json_timestamp_query} which renders as #{start_timestamp}")
         start_timestamp_seconds = decode_length_seconds(start_timestamp)
@@ -353,6 +378,8 @@ module Invidious::Routes::Compilations
       action = "action_remove_video"
     elsif env.params.query["action_move_video_before"]?
       action = "action_move_video_before"
+    elsif env.params.query["action_move_video_after"]?
+      action = "action_move_video_after"  
     else
       return env.redirect referer
     end
