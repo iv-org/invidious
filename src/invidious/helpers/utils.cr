@@ -446,7 +446,6 @@ def parse_link_endpoint(endpoint : JSON::Any, text : String, video_id : String)
   return text
 end
 
-
 # Templates the 2fa validator page.
 #
 # Requires the env, user, sid and locale variables for
