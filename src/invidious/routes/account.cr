@@ -507,9 +507,9 @@ module Invidious::Routes::Account
       end
 
       if CONFIG.domain
-        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", domain: "#{CONFIG.domain}", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true, path: "/")
+        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", domain: "#{CONFIG.domain}", value: "1", expires: Time.utc + 5.minutes, secure: secure, http_only: true, path: "/")
       else
-        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", value: "1", expires: Time.utc + 1.hours, secure: secure, http_only: true, path: "/")
+        env.response.cookies["2faVerified"] = HTTP::Cookie.new(name: "2faVerified", value: "1", expires: Time.utc + 5.minutes, secure: secure, http_only: true, path: "/")
       end
     end
 
