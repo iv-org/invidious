@@ -80,6 +80,16 @@ module Invidious::Database::Compilations
     PG_DB.exec(request, index, id)
   end
 
+  def move_video_before(id : String, index : Array(Int64))
+    request = <<-SQL
+      UPDATE compilations
+      SET index = $2
+      WHERE id = $1
+    SQL
+
+    PG_DB.exec(request, id, index)
+  end 
+
   # -------------------
   #  Select
   # -------------------
@@ -215,6 +225,18 @@ module Invidious::Database::CompilationVideos
     SQL
 
     return PG_DB.query_all(request, compid, index, limit, offset, as: CompilationVideo)
+  end
+
+  def select_video(compid : String, index : VideoIndex, video_index, offset, limit = 100) : Array(CompilationVideo)
+    request = <<-SQL
+      SELECT * FROM compilation_videos
+      WHERE compid = $1 AND index = $3
+      ORDER BY array_position($2, index)
+      LIMIT $5
+      OFFSET $4
+    SQL
+
+    return PG_DB.query_all(request, compid, index, video_index, offset, limit, as: CompilationVideo)
   end
 
   def select_id_from_order_index(order_index : Int32)

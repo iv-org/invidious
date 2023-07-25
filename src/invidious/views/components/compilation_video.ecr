@@ -2,14 +2,10 @@
     <div class="h-box">
         <div class="compilation-video-panel">
             <div class="compilation-order-swap-arrows">
-                <%- form_parameters = "action_move_video_before=1&set_video_id=#{compilation_video.index}&compilation_id=#{compilation_video.compid}&referer=#{env.get("current_page")}" -%>
-                <form data-onsubmit="return_false" action="/compilation_ajax?<%= form_parameters %>" method="post">
+                <%- form_parameters = "action_move_video_before=1&video_index=#{compilation_video.index}&compilation_id=#{compilation_video.compid}" -%>
+                <form action="/compilation_ajax?<%= form_parameters %>" method="post">
                     <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                    <button type="submit" style="margin:10px" class="pure-button pure-button-secondary low-profile"
-                                    data-onclick="move_compilation_video_before" data-index="<%= compilation_video.index %>" data-compid="<%= compilation_video.compid %>">
-                        <!-- <svg class="compilation-video-swap-arrow">
-                            <path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path>
-                        </svg> -->
+                    <button type="submit" style="margin:10px" class="pure-button pure-button-secondary low-profile">
                         <i class="icon ion-md-arrow-up"></i>
                     </button>
                 </form>

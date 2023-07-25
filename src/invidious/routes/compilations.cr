@@ -451,6 +451,28 @@ module Invidious::Routes::Compilations
       Invidious::Database::Compilations.update_video_removed(compilation_id, index)
     when "action_move_video_before"
       # TODO: Compilation stub
+      #video_index = compilation.index
+      video_index = env.params.query["video_index"]
+      begin
+        #video_index = get_video(video_index)
+        compilation_video = Invidious::Database::CompilationVideos.select_video(compilation_id, compilation.index, video_index, 0, 1)
+        compilation_index_array = compilation.index
+      rescue ex : NotFoundException
+        return error_json(404, ex)
+      rescue ex
+        if redirect
+          return error_template(500, ex)
+        else
+          return error_json(500, ex)
+        end
+      end
+      compilation_index_array_position = compilation_index_array.index(compilation_video[0].index)
+      LOGGER.info("for #{compilation_index_array}, the item #{compilation_video[0].index} is a position #{compilation_index_array.index(compilation_video[0].index)}")
+      if !compilation_index_array_position.nil?
+        compilation_index_array.delete_at(compilation_index_array_position)
+        compilation_index_array.insert(compilation_index_array_position-1,compilation_video[0].index)
+        Invidious::Database::Compilations.move_video_before(compilation_id, compilation_index_array)
+      end
     else
       return error_json(400, "Unsupported action #{action}")
     end
