@@ -24,7 +24,7 @@ module Invidious::Routes::Account
     user = user.as(User)
     sid = sid.as(String)
 
-    if user.totp_secret && env.response.cookies["2faVerified"]?.try &.value != "1" || nil
+    if user.totp_secret && env.request.cookies["2faVerified"]?.try &.value != "1" || nil
       return call_totp_validator(env, user, sid, locale)
     end
 
@@ -461,15 +461,14 @@ module Invidious::Routes::Account
     end
 
     # There are two routes we can go here.
-    # 1. Where the user is already logged in and is
-    # confirming an dangerous task.
+    # 1. Where the user is already logged in and is confirming a dangerous task.
     # 2. The user is logging in.
     #
-    # This can be detected by the hidden email and password parameter
+    # The latter can be detected by the hidden email and password parameter
 
-    # https://stackoverflow.com/a/574698
+    # If we have the email and password variables set then that means we are currently logging in
     if email && password
-      # Verify the password again for extra security
+      # Verify the password
       if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)

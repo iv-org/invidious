@@ -1,1 +1,0 @@
-psql invidious kemal -c "ALTER TABLE users ADD COLUMN totp_secret VARCHAR(128)"
