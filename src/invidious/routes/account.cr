@@ -460,16 +460,21 @@ module Invidious::Routes::Account
       secure = false
     end
 
-    # There are two routes we can go here.
-    # 1. Where the user is already logged in and is confirming a dangerous task.
-    # 2. The user is logging in.
     #
-    # The latter can be detected by the hidden email and password parameter
+    # The validate_2fa method is used in two cases:
+    # 1. To authenticate the user when logging in
+    # 2. To verify that the user wishes to proceed with a dangerous action.
+    #
+    # As we've verified that the totp given is correct we can now proceed with
+    # authenticating and/or redirecting the user back to where they came from
+    #
 
-    # If we have the email and password variables set then that means we are currently logging in
-    if email && password
-      # Verify the password
-      if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
+    logging_in = (email && password)
+
+    if logging_in
+      # Authenticate the user. The rest follows the code in login.cr
+      if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.not_nil!.byte_slice(0, 55))
+        #
         sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
         PG_DB.exec("INSERT INTO session_ids VALUES ($1, $2, $3)", sid, email, Time.utc)
 

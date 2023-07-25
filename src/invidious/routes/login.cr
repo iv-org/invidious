@@ -59,7 +59,7 @@ module Invidious::Routes::Login
         if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
           # If the password is correct then we'll go ahead and begin 2fa if applicable
           if user.totp_secret
-            csrf_token = nil # setting this to false for compatibility reasons.
+            csrf_token = nil # setting this to nil for compatibility reasons.
             return templated "user/validate_2fa"
           end
 
