@@ -60,6 +60,8 @@ module Invidious::Routing
     get "/signup", Routes::Login, :signup_page
     post "/signup", Routes::Login, :signup
 
+    post "/captcha", Routes::Login, :captcha
+
     post "/signout", Routes::Login, :signout
 
     # User preferences

@@ -74,5 +74,22 @@ struct Invidious::User
         tokens:   tokens,
       }
     end
+
+    def get_captcha_display_info(env, change_type)
+      if change_type
+        captcha_type = change_type
+      end
+      captcha_type ||= "image"
+
+      account_type = "invidious"
+
+      if captcha_type == "image"
+        captcha = Invidious::User::Captcha.generate_image(HMAC_KEY)
+      else
+        captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
+      end
+
+      return captcha, captcha_type, change_type
+    end
   end
 end

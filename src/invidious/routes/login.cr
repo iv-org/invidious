@@ -124,90 +124,14 @@ module Invidious::Routes::Login
     password = password.byte_slice(0, 55)
 
     if CONFIG.captcha_enabled
-      captcha_type = env.params.body["captcha_type"]?
-      answer = env.params.body["answer"]?
-      change_type = env.params.body["change_type"]?
-
-      if !captcha_type || change_type
-        if change_type
-          captcha_type = change_type
-        end
-        captcha_type ||= "image"
-
-        account_type = "invidious"
-
-        if captcha_type == "image"
-          captcha = Invidious::User::Captcha.generate_image(HMAC_KEY)
-        else
-          captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
-        end
-
-        return templated "user/register"
-      end
-
-      tokens = env.params.body.select { |k, _| k.match(/^token\[\d+\]$/) }.map { |_, v| v }
-
-      answer ||= ""
-      captcha_type ||= "image"
-      case captcha_type
-      when "image"
-        answer = answer.lstrip('0')
-        answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
-
-        begin
-          validate_request(tokens[0], answer, env.request, HMAC_KEY, locale)
-        rescue ex
-          return error_template(400, ex)
-        end
-      else # "text"
-        answer = Digest::MD5.hexdigest(answer)
-
-        if tokens.empty?
-          return error_template(500, "Erroneous CAPTCHA")
-        end
-
-        found_valid_captcha = false
-        error_exception = Exception.new
-        tokens.each do |tok|
-          begin
-            validate_request(tok, answer, env.request, HMAC_KEY, locale)
-            found_valid_captcha = true
-          rescue ex
-            error_exception = ex
-          end
-        end
-
-        if !found_valid_captcha
-          return error_template(500, error_exception)
-        end
-      end
+      # Fetch information needed to initially display captcha
+      #
+      # We start out with an image captcha.
+      captcha, captcha_type, change_type = Invidious::User::Captcha.get_captcha_display_info(env, "image")
+      return templated "user/captcha"
     end
 
-    sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-    user, sid = create_user(sid, email, password)
-
-    if language_header = env.request.headers["Accept-Language"]?
-      if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
-        user.preferences.locale = language.header
-      end
-    end
-
-    Invidious::Database::Users.insert(user)
-    Invidious::Database::SessionIDs.insert(sid, email)
-
-    view_name = "subscriptions_#{sha256(user.email)}"
-    PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
-
-    env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
-
-    if env.request.cookies["PREFS"]?
-      user.preferences = env.get("preferences").as(Preferences)
-      Invidious::Database::Users.update_preferences(user)
-
-      cookie = env.request.cookies["PREFS"]
-      cookie.expires = Time.utc(1990, 1, 1)
-      env.response.cookies << cookie
-    end
+    self.register_user(env, email, password)
 
     env.redirect referer
   end
@@ -241,5 +165,104 @@ module Invidious::Routes::Login
     end
 
     env.redirect referer
+  end
+
+  def self.captcha(env)
+    if !CONFIG.captcha_enabled
+      error_template(403, "Administrator has disabled this endpoint")
+    end
+
+    begin
+      email = env.params.body["email"]?
+      password = env.params.body["password"]?
+    rescue ex : KeyError
+      return error_template(400, "Invalid request")
+    end
+
+    email = email.not_nil!
+    password = password.not_nil!
+
+    locale = env.get("preferences").as(Preferences).locale
+    referer = get_referer(env, "/feed/subscriptions")
+
+    captcha_type = env.params.body["captcha_type"]?
+    answer = env.params.body["answer"]?
+    change_type = env.params.body["change_type"]?
+
+    # User requests to change captcha
+    if !captcha_type || change_type
+      LOGGER.trace("User requests to change Captcha")
+
+      captcha, captcha_type, change_type = Invidious::User::Captcha.get_captcha_display_info(env, change_type)
+      return templated "user/captcha"
+    end
+
+    LOGGER.trace("Validating new user with Captcha")
+
+    tokens = env.params.body.select { |k, _| k.match(/^token\[\d+\]$/) }.map { |_, v| v }
+
+    answer ||= ""
+    captcha_type ||= "image"
+    case captcha_type
+    when "image"
+      answer = answer.lstrip('0')
+      answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
+
+      begin
+        validate_request(tokens[0], answer, env.request, HMAC_KEY, locale)
+      rescue ex
+        return error_template(400, "Erroneous CAPTCHA")
+      end
+    else # "text"
+      answer = Digest::MD5.hexdigest(answer)
+
+      if tokens.empty?
+        return error_template(400, "Erroneous CAPTCHA")
+      end
+
+      found_valid_captcha = false
+      tokens.each do |tok|
+        begin
+          validate_request(tok, answer, env.request, HMAC_KEY, locale)
+          found_valid_captcha = true
+        rescue ex
+          return error_template(400, "Erroneous CAPTCHA")
+        end
+      end
+    end
+
+    self.register_user(env, email, password)
+
+    env.redirect referer
+  end
+
+  private def self.register_user(env, email, password)
+    sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
+    user, sid = create_user(sid, email, password)
+
+    if language_header = env.request.headers["Accept-Language"]?
+      if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
+        user.preferences.locale = language.header
+      end
+    end
+
+    Invidious::Database::Users.insert(user)
+    Invidious::Database::SessionIDs.insert(sid, email)
+
+    view_name = "subscriptions_#{sha256(user.email)}"
+    PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
+
+    env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+
+    if env.request.cookies["PREFS"]?
+      user.preferences = env.get("preferences").as(Preferences)
+      Invidious::Database::Users.update_preferences(user)
+
+      cookie = env.request.cookies["PREFS"]
+      cookie.expires = Time.utc(1990, 1, 1)
+      env.response.cookies << cookie
+    end
+
+    LOGGER.debug("A new user has been registered")
   end
 end
