@@ -140,27 +140,6 @@ https_only: false
 ##
 #pool_size: 100
 
-##
-## Enable/Disable the use of QUIC (HTTP/3) when connecting
-## to the youtube API and websites ('youtube.com', 'ytimg.com').
-## QUIC's main advantages are its lower latency and lower bandwidth
-## use, compared to its predecessors. However, the current version
-## of QUIC used in invidious is still based on the IETF draft 31,
-## meaning that the underlying library may still not be fully
-## optimized. You can read more about QUIC at the link below:
-## https://datatracker.ietf.org/doc/html/draft-ietf-quic-transport-31
-##
-## Note: you should try both options and see what is the best for your
-## instance. In general QUIC is recommended for public instances. Your
-## mileage may vary.
-##
-## Note 2: Using QUIC prevents some captcha challenges from appearing.
-## See: https://github.com/iv-org/invidious/issues/957#issuecomment-576424042
-##
-## Accepted values: true, false
-## Default: false
-##
-#use_quic: false
 
 ##
 ## Additional cookies to be sent when requesting the youtube API.

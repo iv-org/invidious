@@ -25,9 +25,6 @@ dependencies:
   protodec:
     github: iv-org/protodec
     version: ~> 0.1.5
-  lsquic:
-    github: iv-org/lsquic.cr
-    version: ~> 2.18.1-2
   athena-negotiation:
     github: athena-framework/negotiation
     version: ~> 0.1.1
