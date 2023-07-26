@@ -14,20 +14,7 @@ module Invidious::Routes::Login
       return error_template(400, "Login has been disabled by administrator.")
     end
 
-    email = nil
-    password = nil
-    captcha = nil
-
-    account_type = env.params.query["type"]?
-    account_type ||= "invidious"
-
-    captcha_type = env.params.query["captcha"]?
-    captcha_type ||= "image"
-
     templated "user/login"
-  end
-
-  def self.signup_page(env)
   end
 
   def self.login(env)
@@ -84,6 +71,32 @@ module Invidious::Routes::Login
     end
   end
 
+  def self.signup_page(env)
+    locale = env.get("preferences").as(Preferences).locale
+
+    user = env.get? "user"
+
+    referer = get_referer(env, "/feed/subscriptions")
+
+    return env.redirect referer if user
+
+    if !CONFIG.registration_enabled
+      return error_template(400, "Registration has been disabled by administrator.")
+    end
+
+    email = nil
+    password = nil
+    captcha = nil
+
+    account_type = env.params.query["type"]?
+    account_type ||= "invidious"
+
+    captcha_type = env.params.query["captcha"]?
+    captcha_type ||= "image"
+
+    templated "user/register"
+  end
+
   def self.signup(env)
     locale = env.get("preferences").as(Preferences).locale
     referer = get_referer(env, "/feed/subscriptions")
@@ -95,12 +108,12 @@ module Invidious::Routes::Login
     email = env.params.body["email"]?.try &.downcase.byte_slice(0, 254)
     password = env.params.body["password"]?
 
-    if password.nil? || password.empty?
-      return error_template(401, "Password cannot be empty")
-    end
-
     if email.nil? || email.empty?
       return error_template(401, "User ID is a required field")
+    end
+
+    if password.nil? || password.empty?
+      return error_template(401, "Password cannot be empty")
     end
 
     # See https://security.stackexchange.com/a/39851
@@ -129,14 +142,13 @@ module Invidious::Routes::Login
           captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
         end
 
-        return templated "user/login"
+        return templated "user/register"
       end
 
       tokens = env.params.body.select { |k, _| k.match(/^token\[\d+\]$/) }.map { |_, v| v }
 
       answer ||= ""
       captcha_type ||= "image"
-
       case captcha_type
       when "image"
         answer = answer.lstrip('0')
