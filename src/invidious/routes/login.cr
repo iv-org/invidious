@@ -30,45 +30,37 @@ module Invidious::Routes::Login
     email = env.params.body["email"]?.try &.downcase.byte_slice(0, 254)
     password = env.params.body["password"]?
 
-    account_type = env.params.query["type"]?
-    account_type ||= "invidious"
+    if email.nil? || email.empty?
+      return error_template(401, "User ID is a required field")
+    end
 
-    case account_type
-    when "invidious"
-      if email.nil? || email.empty?
-        return error_template(401, "User ID is a required field")
-      end
+    if password.nil? || password.empty?
+      return error_template(401, "Password is a required field")
+    end
 
-      if password.nil? || password.empty?
-        return error_template(401, "Password is a required field")
-      end
+    user = Invidious::Database::Users.select(email: email)
 
-      user = Invidious::Database::Users.select(email: email)
+    if user
+      if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
+        sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
+        Invidious::Database::SessionIDs.insert(sid, email)
 
-      if user
-        if Crypto::Bcrypt::Password.new(user.password.not_nil!).verify(password.byte_slice(0, 55))
-          sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-          Invidious::Database::SessionIDs.insert(sid, email)
-
-          env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
-        else
-          return error_template(401, "Wrong username or password")
-        end
-
-        # Since this user has already registered, we don't want to overwrite their preferences
-        if env.request.cookies["PREFS"]?
-          cookie = env.request.cookies["PREFS"]
-          cookie.expires = Time.utc(1990, 1, 1)
-          env.response.cookies << cookie
-        end
+        env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
       else
         return error_template(401, "Wrong username or password")
       end
 
-      env.redirect referer
+      # Since this user has already registered, we don't want to overwrite their preferences
+      if env.request.cookies["PREFS"]?
+        cookie = env.request.cookies["PREFS"]
+        cookie.expires = Time.utc(1990, 1, 1)
+        env.response.cookies << cookie
+      end
     else
-      env.redirect referer
+      return error_template(401, "Wrong username or password")
     end
+
+    env.redirect referer
   end
 
   def self.signup_page(env)
@@ -87,9 +79,6 @@ module Invidious::Routes::Login
     email = nil
     password = nil
     captcha = nil
-
-    account_type = env.params.query["type"]?
-    account_type ||= "invidious"
 
     captcha_type = env.params.query["captcha"]?
     captcha_type ||= "image"

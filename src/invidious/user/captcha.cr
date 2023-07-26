@@ -81,8 +81,6 @@ struct Invidious::User
       end
       captcha_type ||= "image"
 
-      account_type = "invidious"
-
       if captcha_type == "image"
         captcha = Invidious::User::Captcha.generate_image(HMAC_KEY)
       else
