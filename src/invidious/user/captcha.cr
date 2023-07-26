@@ -57,7 +57,7 @@ struct Invidious::User
 
       return {
         question: image,
-        tokens:   {generate_response(answer, {":login"}, key, use_nonce: true)},
+        tokens:   {generate_response(answer, {":captcha"}, key, use_nonce: true)},
       }
     end
 
@@ -66,7 +66,7 @@ struct Invidious::User
       response = JSON.parse(response)
 
       tokens = response["a"].as_a.map do |answer|
-        generate_response(answer.as_s, {":login"}, key, use_nonce: true)
+        generate_response(answer.as_s, {":captcha"}, key, use_nonce: true)
       end
 
       return {

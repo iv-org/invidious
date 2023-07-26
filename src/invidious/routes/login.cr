@@ -198,6 +198,8 @@ module Invidious::Routes::Login
 
     case captcha_type
     when "image"
+      LOGGER.trace("Validating image Captcha")
+
       answer = answer.lstrip('0')
       answer = OpenSSL::HMAC.hexdigest(:sha256, HMAC_KEY, answer)
 
@@ -207,7 +209,7 @@ module Invidious::Routes::Login
         return error_template(400, "Erroneous CAPTCHA")
       end
     else # "text"
-      answer = Digest::MD5.hexdigest(answer)
+      answer = Digest::MD5.hexdigest(answer.downcase.strip)
 
       if tokens.empty?
         return error_template(400, "Erroneous CAPTCHA")
