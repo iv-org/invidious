@@ -1,5 +1,6 @@
 <% content_for "header" do %>
 <title><%= translate(locale, "Log in") %> - Invidious</title>
+<link rel="stylesheet" href="/css/signin-signout.css?v=<%= ASSET_COMMIT %>">
 <% end %>
 
 <div class="pure-g">
@@ -64,9 +65,13 @@
                                 </label>
                             <% end %>
                         <% else %>
-                            <button type="submit" name="action" value="signin" class="pure-button pure-button-primary">
-                                <%= translate(locale, "Sign In") %>/<%= translate(locale, "Register") %>
-                            </button>
+                            <div class="account-page-action-bar">
+                                <a href="/signup" id="signup-link"><%= translate(locale, ("Create an account")) %> </a>
+
+                                <button type="submit" name="action" value="signin" class="pure-button pure-button-primary" id="signin-button">
+                                    <%= translate(locale, "Sign In") %>
+                                </button>
+                            </div>
                         <% end %>
                     </fieldset>
                 </form>

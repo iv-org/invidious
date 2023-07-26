@@ -55,6 +55,7 @@ module Invidious::Routing
   def register_user_routes
     # User login/out
     get "/login", Routes::Login, :login_page
+    get "/signup", Routes::Login, :signup_page
     post "/login", Routes::Login, :login
     post "/signout", Routes::Login, :signout
 

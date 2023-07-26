@@ -27,6 +27,9 @@ module Invidious::Routes::Login
     templated "user/login"
   end
 
+  def self.signup_page(env)
+  end
+
   def self.login(env)
     locale = env.get("preferences").as(Preferences).locale
 
