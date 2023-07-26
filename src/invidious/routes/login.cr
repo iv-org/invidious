@@ -208,6 +208,8 @@ module Invidious::Routes::Login
       cookie.expires = Time.utc(1990, 1, 1)
       env.response.cookies << cookie
     end
+
+    env.redirect referer
   end
 
   def self.signout(env)
