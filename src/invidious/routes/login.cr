@@ -156,6 +156,7 @@ module Invidious::Routes::Login
     env.redirect referer
   end
 
+  # Validates and displays captchas to the end user
   def self.captcha(env)
     if !CONFIG.captcha_enabled
       error_template(403, "Administrator has disabled this endpoint")
@@ -178,7 +179,7 @@ module Invidious::Routes::Login
     answer = env.params.body["answer"]?
     change_type = env.params.body["change_type"]?
 
-    # User requests to change captcha
+    # User requests to change captcha displayed
     if !captcha_type || change_type
       LOGGER.trace("User requests to change Captcha")
 
@@ -190,8 +191,11 @@ module Invidious::Routes::Login
 
     tokens = env.params.body.select { |k, _| k.match(/^token\[\d+\]$/) }.map { |_, v| v }
 
+    # Captcha validation
+
     answer ||= ""
     captcha_type ||= "image"
+
     case captcha_type
     when "image"
       answer = answer.lstrip('0')
@@ -225,6 +229,8 @@ module Invidious::Routes::Login
     env.redirect referer
   end
 
+  # Private method to register an user within a database after
+  # validation
   private def self.register_user(env, email, password)
     sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
     user, sid = create_user(sid, email, password)
