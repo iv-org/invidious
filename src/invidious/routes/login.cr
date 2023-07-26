@@ -62,7 +62,7 @@ module Invidious::Routes::Login
           env.response.cookies << cookie
         end
       else
-        return self.signup(env)
+        return error_template(401, "Wrong username or password")
       end
 
       env.redirect referer
