@@ -30,7 +30,7 @@
                             <% end %>
                             <input type="hidden" name="captcha_type" value="text">
                             <label for="answer"><%= captcha[:question] %></label>
-                            <input type="text" name="answer" type="text" placeholder="<%= translate(locale, "Answer") %>">
+                            <input type="text" name="answer" type="text" placeholder="<%= translate(locale, "text_captcha_form_placeholder_text") %>">
                         <% end %>
 
                         <button type="submit" name="action" value="signup" class="pure-button pure-button-primary">

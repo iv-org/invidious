@@ -54,6 +54,7 @@
     "User ID": "User ID",
     "Password": "Password",
     "Time (h:mm:ss):": "Time (h:mm:ss):",
+    "text_captcha_form_placeholder_text": "Answer",
     "captcha_verification_page_title": "Human Verification",
     "Text CAPTCHA": "Text CAPTCHA",
     "Image CAPTCHA": "Image CAPTCHA",
