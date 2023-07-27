@@ -101,6 +101,11 @@ module Invidious::Routes::Login
       return error_template(401, "User ID is a required field")
     end
 
+    # Ensure user doesn't exist
+    if Invidious::Database::Users.select(email: email)
+      return error_template(401, "registration_user_id_has_been_taken_error")
+    end
+
     if password.nil? || password.empty?
       return error_template(401, "Password cannot be empty")
     end

@@ -61,6 +61,7 @@
     "Sign Up": "Sign Up",
     "create_account_link_label": "Create an account",
     "sign_up_page_title": "Sign Up",
+    "registration_user_id_has_been_taken_error": "User ID has been taken",
     "E-mail": "E-mail",
     "Preferences": "Preferences",
     "preferences_category_player": "Player preferences",
