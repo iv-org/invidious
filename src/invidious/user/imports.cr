@@ -228,8 +228,12 @@ struct Invidious::User
       subs = matches.map(&.["channel_id"])
 
       if subs.empty?
-        data = JSON.parse(body)["subscriptions"]
-        subs = data.as_a.map(&.["id"].as_s)
+        profiles = body.split('\n', remove_empty: true)
+        profiles.each do |profile|
+          if data = JSON.parse(profile)["subscriptions"]?
+            subs += data.as_a.map(&.["id"].as_s)
+          end
+        end
       end
 
       user.subscriptions += subs
