@@ -16,11 +16,11 @@ module Invidious::Comments
     return parse_youtube(id, response, format, locale, thin_mode, sort_by)
   end
 
-  def fetch_community_post_comments(ucid, postId)
+  def fetch_community_post_comments(ucid, post_id)
     object = {
       "2:string"    => "community",
       "25:embedded" => {
-        "22:string" => postId,
+        "22:string" => post_id,
       },
       "45:embedded" => {
         "2:varint" => 1_i64,
@@ -30,7 +30,7 @@ module Invidious::Comments
         "4:embedded" => {
           "6:varint"  => 0_i64,
           "27:varint" => 1_i64,
-          "29:string" => postId,
+          "29:string" => post_id,
           "30:string" => ucid,
         },
         "8:string" => "comments-section",

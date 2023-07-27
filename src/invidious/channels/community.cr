@@ -24,12 +24,12 @@ def fetch_channel_community(ucid, cursor, locale, format, thin_mode)
   return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode)
 end
 
-def fetch_channel_community_post(ucid, postId, locale, format, thin_mode, params : String | Nil = nil)
+def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode, params : String | Nil = nil)
   if params.nil?
     object = {
       "2:string"    => "community",
       "25:embedded" => {
-        "22:string" => postId.to_s,
+        "22:string" => post_id.to_s,
       },
       "45:embedded" => {
         "2:varint" => 1_i64,

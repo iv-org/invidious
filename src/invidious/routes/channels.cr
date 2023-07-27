@@ -161,7 +161,7 @@ module Invidious::Routes::Channels
 
     # redirect to post page
     if lb = env.params.query["lb"]?
-      env.redirect "/post/#{lb}?ucid=#{ucid}"
+      env.redirect "/post/#{URI.encode_www_form(lb)}?ucid=#{URI.encode_www_form(ucid)}"
     end
 
     thin_mode = env.params.query["thin_mode"]? || env.get("preferences").as(Preferences).thin_mode
