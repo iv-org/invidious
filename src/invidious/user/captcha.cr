@@ -6,7 +6,7 @@ struct Invidious::User
 
     private TEXTCAPTCHA_URL = URI.parse("https://textcaptcha.com")
 
-    def generate_image(key)
+    private def generate_image_captcha(key)
       second = Random::Secure.rand(12)
       second_angle = second * 30
       second = second * 5
@@ -61,7 +61,7 @@ struct Invidious::User
       }
     end
 
-    def generate_text(key)
+    private def generate_text_captcha(key)
       response = make_client(TEXTCAPTCHA_URL, &.get("/github.com/iv.org/invidious.json").body)
       response = JSON.parse(response)
 
@@ -82,9 +82,9 @@ struct Invidious::User
       captcha_type ||= "image"
 
       if captcha_type == "image"
-        captcha = Invidious::User::Captcha.generate_image(HMAC_KEY)
+        captcha = self.generate_image_captcha(HMAC_KEY)
       else
-        captcha = Invidious::User::Captcha.generate_text(HMAC_KEY)
+        captcha = self.generate_text_captcha(HMAC_KEY)
       end
 
       return captcha, captcha_type, change_type
