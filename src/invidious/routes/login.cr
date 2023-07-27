@@ -215,14 +215,26 @@ module Invidious::Routes::Login
         return error_template(400, "Erroneous CAPTCHA")
       end
 
+      # Text Captcha Validation
+      # There's a possibility that there could be multiple tokens and therefore we'd need to
+      # check them all and only error once we've made sure that none of them passes the check.
       found_valid_captcha = false
+      error_exception = Exception.new
+
       tokens.each do |tok|
         begin
           validate_request(tok, answer, env.request, HMAC_KEY, locale)
           found_valid_captcha = true
+
+          break
         rescue ex
-          return error_template(400, "Erroneous CAPTCHA")
+          error_exception = ex
         end
+      end
+
+      # Error when validation fail
+      if !found_valid_captcha
+        return error_template(400, "Erroneous CAPTCHA")
       end
     end
 
