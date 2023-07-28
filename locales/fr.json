@@ -1,4 +1,6 @@
 {
+    "generic_channels_count": "{{count}} chaîne",
+    "generic_channels_count_plural": "{{count}} chaînes",
     "generic_views_count": "{{count}} vue",
     "generic_views_count_plural": "{{count}} vues",
     "generic_videos_count": "{{count}} vidéo",
