@@ -151,10 +151,10 @@
                             <a href="https://invidious.io/donate/"><%= translate(locale, "footer_donate_page") %></a>
                         </span>
                         <% if CONFIG.donate_url %>
-                        <span>
-                            <i class="icon ion-ios-wallet"></i>
-                            <a href="<%= CONFIG.donate_url %>"><%= translate(locale, "footer_instance_donate_page") %></a>
-                        </span>
+                              <span>
+                                  <i class="icon ion-ios-wallet"></i>
+                                  <a href="<%= CONFIG.donate_url %>"><%= translate(locale, "footer_instance_donate_page") %></a>
+                              </span>
                         <% end %>
                         <span><%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %></span>
                     </div>
