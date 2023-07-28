@@ -491,5 +491,13 @@
     "Song: ": "Canzone: ",
     "Standard YouTube license": "Licenza standard di YouTube",
     "Channel Sponsor": "Sponsor del canale",
-    "Import YouTube playlist (.csv)": "Importa playlist di YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "Importa playlist di YouTube (.csv)",
+    "generic_button_edit": "Modifica",
+    "generic_button_cancel": "Annulla",
+    "generic_button_rss": "RSS",
+    "channel_tab_releases_label": "Pubblicazioni",
+    "generic_button_delete": "Elimina",
+    "generic_button_save": "Salva",
+    "playlist_button_add_items": "Aggiungi video",
+    "channel_tab_podcasts_label": "Podcast"
 }
