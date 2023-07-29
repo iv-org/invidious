@@ -460,5 +460,13 @@
     "Channel Sponsor": "频道赞助者",
     "Standard YouTube license": "标准 YouTube 许可证",
     "Download is disabled": "已禁用下载",
-    "Import YouTube playlist (.csv)": "导入 YouTube 播放列表（.csv）"
+    "Import YouTube playlist (.csv)": "导入 YouTube 播放列表（.csv）",
+    "generic_button_cancel": "取消",
+    "playlist_button_add_items": "添加视频",
+    "generic_button_delete": "删除",
+    "channel_tab_podcasts_label": "播客",
+    "generic_button_edit": "编辑",
+    "generic_button_save": "保存",
+    "generic_button_rss": "RSS",
+    "channel_tab_releases_label": "公告"
 }
