@@ -17,9 +17,6 @@ module Invidious::Frontend::ChannelPage
       base_url = "/channel/#{channel.ucid}"
 
       TabsAvailable.each do |tab|
-        # Ignore playlists, as it is not supported for auto-generated channels yet
-        next if (tab.playlists? && channel.auto_generated)
-
         tab_name = tab.to_s.downcase
 
         if channel.tabs.includes? tab_name

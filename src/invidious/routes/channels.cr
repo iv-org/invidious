@@ -100,15 +100,16 @@ module Invidious::Routes::Channels
 
     locale, user, subscriptions, continuation, ucid, channel = data
 
-    sort_options = {"last", "oldest", "newest"}
-    sort_by = env.params.query["sort_by"]?.try &.downcase
-
     if channel.auto_generated
-      return env.redirect "/channel/#{channel.ucid}"
+      sort_options = {"albums_and_singles", "created_playlists"}
+      sort_by = env.params.query["sort_by"]?.try &.downcase || sort_options[0]
+    else
+      sort_options = {"last", "oldest", "newest"}
+      sort_by = env.params.query["sort_by"]?.try &.downcase || sort_options[0]
     end
 
     items, next_continuation = fetch_channel_playlists(
-      channel.ucid, channel.author, continuation, (sort_by || "last")
+      channel.ucid, channel.author, continuation, (sort_by)
     )
 
     items = items.select(SearchPlaylist)

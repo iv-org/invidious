@@ -19,6 +19,10 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
         # Formerly "&sort=dd"
         # {"2:string": "playlists", "3:varint": 3, "4:varint": 1, "6:varint": 1}
         "EglwbGF5bGlzdHMYAyABMAE%3D"
+      when "albums_and_singles"
+        "EglwbGF5bGlzdHMgMnDNg9T2lpLClfUB"
+      when "created_playlists"
+        "EglwbGF5bGlzdHMgAQ%3D%3D"
       end
 
     initial_data = YoutubeAPI.browse(ucid, params: params || "")
