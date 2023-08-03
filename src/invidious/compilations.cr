@@ -95,6 +95,7 @@ struct Compilation
   property views : Int64
   property updated : Time
   property thumbnail : String?
+  property first_video_id : String
 
   def to_json(offset, json : JSON::Builder, video_id : String? = nil)
     json.object do
@@ -169,6 +170,7 @@ struct InvidiousCompilation
   @[DB::Field(converter: InvidiousCompilation::CompilationPrivacyConverter)]
   property privacy : CompilationPrivacy = CompilationPrivacy::Private
   property index : Array(Int64)
+  property first_video_id : String
 
   @[DB::Field(ignore: true)]
   property thumbnail_id : String?
@@ -248,15 +250,16 @@ def create_compilation(title, privacy, user)
   LOGGER.info("generated compilation id")
 
   compilation = InvidiousCompilation.new({
-    title:       title.byte_slice(0, 150),
-    id:          compid,
-    author:      user.email,
-    description: "", # Max 5000 characters
-    video_count: 0,
-    created:     Time.utc,
-    updated:     Time.utc,
-    privacy:     privacy,
-    index:       [] of Int64,
+    title:          title.byte_slice(0, 150),
+    id:             compid,
+    author:         user.email,
+    description:    "", # Max 5000 characters
+    video_count:    0,
+    created:        Time.utc,
+    updated:        Time.utc,
+    privacy:        privacy,
+    index:          [] of Int64,
+    first_video_id: ""
   })
   LOGGER.info("Creating compilation db")
 
@@ -268,15 +271,16 @@ end
 
 def subscribe_compilation(user, compilation)
   compilation = InvidiousCompilation.new({
-    title:       compilation.title.byte_slice(0, 150),
-    id:          compilation.id,
-    author:      user.email,
-    description: "", # Max 5000 characters
-    video_count: compilation.video_count,
-    created:     Time.utc,
-    updated:     compilation.updated,
-    privacy:     CompilationPrivacy::Private,
-    index:       [] of Int64,
+    title:          compilation.title.byte_slice(0, 150),
+    id:             compilation.id,
+    author:         user.email,
+    description:    "", # Max 5000 characters
+    video_count:    compilation.video_count,
+    created:        Time.utc,
+    updated:        compilation.updated,
+    privacy:        CompilationPrivacy::Private,
+    index:          [] of Int64,
+    first_video_id: ""
   })
 
   Invidious::Database::Compilations.insert(compilation)
@@ -327,6 +331,19 @@ def get_compilation(compid : String)
       raise NotFoundException.new("Compilation does not exist.")
     end
   #end
+end
+
+def update_first_video_id(compid : String)
+  if compilation = Invidious::Database::Compilations.select(id: compid)
+    compilation_index_array = compilation.index
+    first_index =  compilation_index_array[0]
+    first_id = Invidious::Database::CompilationVideos.select_id_from_index(first_index)
+    if !first_id.nil?
+      Invidious::Database::Compilations.update_first_video_id(compid, first_id)
+    end
+  else
+    raise NotFoundException.new("Compilation does not exist.")
+  end  
 end
 
 def get_compilation_videos(compilation : InvidiousCompilation | Compilation, offset : Int32, video_id = nil)

@@ -39,8 +39,13 @@ module Invidious::Routes::Watch
       embed_link += embed_params.to_s
     end
 
-    plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
-    continuation = process_continuation(env.params.query, plid, id)
+    if env.params.query["list"]?.try &.starts_with? "IVPL"
+      plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
+      continuation = process_continuation(env.params.query, plid, id)
+    elsif env.params.query["list"]?.try &.starts_with? "IVCMP"   
+      compid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
+      continuation = process_continuation(env.params.query, compid, id)
+    end  
 
     nojs = env.params.query["nojs"]?
 

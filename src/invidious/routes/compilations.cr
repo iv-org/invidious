@@ -129,7 +129,7 @@ module Invidious::Routes::Compilations
     sid = sid.as(String)
 
     compid = env.params.query["list"]?
-    if !compid || !compid.starts_with?("IV")
+    if !compid || !compid.starts_with?("IVCMP")
       return env.redirect referer
     end
 
@@ -238,50 +238,30 @@ module Invidious::Routes::Compilations
     title = env.params.body["title"]?.try &.delete("<>") || ""
     privacy = CompilationPrivacy.parse(env.params.body["privacy"]? || "Private")
 
-    #title = env.params.json["title"].try &.as(String).delete("<>").byte_slice(0, 150) || compilation.title
-    #privacy = env.params.json["privacy"]?.try { |p| CompilationPrivacy.parse(p.as(String).downcase) } || compilation.privacy
-
-    #if title != compilation.title ||
-    #   privacy != compilation.privacy
-    #  updated = Time.utc
-    #else
-    #  updated = compilation.updated
-    #end
-
     Invidious::Database::Compilations.update(compid, title, privacy, "", compilation.updated)
 
-    #{1...Invidious::Database::Compilations.count_owned_by(user.email)}.each do |index|
-    #  start_timestamp = env.params.json["_start_timestamp"]?.try &.as(String).byte_slice(0, 150) || compilation.title
-    compilation_video_cardinality = Invidious::Database::CompilationVideos.select_ids(compid, compilation.index).size
+    (0..compilation.index.size - 1).each do |index|
+      compilation_video_index = compilation.index[index]
+      compilation_video = Invidious::Database::CompilationVideos.select_video(compid, compilation.index, compilation_video_index, 0, 1)
+      json_timestamp_query_start = compilation_video_index.to_s + "_start_timestamp"
 
-    (0..compilation_video_cardinality-1).each do |index|
-      LOGGER.info("for loop cycle #{index} of #{Invidious::Database::Compilations.count_owned_by(user.email)}")
-      compilation_video_id = Invidious::Database::CompilationVideos.select_id_from_order_index(order_index: index)
-      #compilation_video_index = Invidious::Database::CompilationVideos.select_index_from_order_index(order_index: index)
-      compilation_video = Invidious::Database::CompilationVideos.select(compid, compilation.index, 0, 1)
-      #numerical_string = index.to
-      json_timestamp_query = index.to_s + "_start_timestamp"
-      LOGGER.info("adjust #{json_timestamp_query} ")
-      start_timestamp = env.params.body[json_timestamp_query]?.try &.as(String).byte_slice(0, 8)
-      LOGGER.info("render #{env.params.body[json_timestamp_query]?} ")
-      if !start_timestamp.nil? && !compilation_video_id.nil?
-        LOGGER.info("adjust #{json_timestamp_query} which renders as #{start_timestamp}")
+      start_timestamp = env.params.body[json_timestamp_query_start]?.try &.as(String).byte_slice(0, 8)
+      if !start_timestamp.nil? && !compilation_video[0].id.nil?
         start_timestamp_seconds = decode_length_seconds(start_timestamp)
         if !start_timestamp_seconds.nil?
           if start_timestamp_seconds >= 0 && start_timestamp_seconds <= compilation_video[0].length_seconds 
-            LOGGER.info("adjusting timestamps to #{start_timestamp_seconds} which is #{start_timestamp_seconds.to_i}")
-            Invidious::Database::CompilationVideos.update_start_timestamp(compilation_video_id, start_timestamp_seconds.to_i)
+            Invidious::Database::CompilationVideos.update_start_timestamp(compilation_video[0].id, start_timestamp_seconds.to_i)
           end
         end
       end
 
-      json_timestamp_query = index.to_s + "_end_timestamp"
-      end_timestamp = env.params.json[json_timestamp_query]?.try &.as(String).byte_slice(0, 8)
-      if !end_timestamp.nil? && !compilation_video_id.nil?
+      json_timestamp_query_end = compilation_video_index.to_s + "_end_timestamp"
+      end_timestamp = env.params.json[json_timestamp_query_end]?.try &.as(String).byte_slice(0, 8)
+      if !end_timestamp.nil? && !compilation_video[0].id.nil?
         end_timestamp_seconds = decode_length_seconds(end_timestamp)
         if !end_timestamp_seconds.nil?
-          if end_timestamp_seconds >= 0 && end_timestamp_seconds <= compilation_video[0].ending_timestamp_seconds 
-            Invidious::Database::CompilationVideos.update_end_timestamp(compilation_video_id, end_timestamp_seconds)
+          if end_timestamp_seconds >= 0 && end_timestamp_seconds <= compilation_video[0].ending_timestamp_seconds && end_timestamp_seconds > compilation_video[0].starting_timestamp_seconds
+            Invidious::Database::CompilationVideos.update_end_timestamp(compilation_video[0].id, end_timestamp_seconds)
           end
         end
       end
@@ -309,7 +289,7 @@ module Invidious::Routes::Compilations
     sid = sid.as(String)
 
     compid = env.params.query["list"]?
-    if !compid || !compid.starts_with?("IV")
+    if !compid || !compid.starts_with?("IVCMP")
       return env.redirect referer
     end
 
@@ -445,10 +425,12 @@ module Invidious::Routes::Compilations
 
       Invidious::Database::CompilationVideos.insert(compilation_video)
       Invidious::Database::Compilations.update_video_added(compilation_id, compilation_video.index)
+      update_first_video_id(compilation_id)
     when "action_remove_video"
       index = env.params.query["set_video_id"]
       Invidious::Database::CompilationVideos.delete(index)
       Invidious::Database::Compilations.update_video_removed(compilation_id, index)
+      update_first_video_id(compilation_id)
     when "action_move_video_before"
       # TODO: Compilation stub
       #video_index = compilation.index
@@ -473,6 +455,7 @@ module Invidious::Routes::Compilations
         compilation_index_array.insert(compilation_index_array_position-1,compilation_video[0].index)
         Invidious::Database::Compilations.move_video_before(compilation_id, compilation_index_array)
       end
+      update_first_video_id(compilation_id)
     else
       return error_json(400, "Unsupported action #{action}")
     end

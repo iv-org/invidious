@@ -90,6 +90,15 @@ module Invidious::Database::Compilations
     PG_DB.exec(request, id, index)
   end 
 
+  def update_first_video_id(id : String, first_video_id : String)
+    request = <<-SQL
+      UPDATE compilations
+      SET first_video_id = $2
+      WHERE id = $1
+    SQL
+
+    PG_DB.exec(request, id, first_video_id)
+  end  
   # -------------------
   #  Select
   # -------------------
@@ -111,6 +120,16 @@ module Invidious::Database::Compilations
 
     return PG_DB.query_all(request, author, as: InvidiousCompilation)
   end
+
+  def select_index_array(id : String)
+    request = <<-SQL
+      SELECT index FROM compilations
+      WHERE id = $1
+      LIMIT 1
+    SQL
+
+    PG_DB.query_one?(request, id, as: String)
+  end  
 
   # -------------------
   #  Select (filtered)
@@ -247,6 +266,16 @@ module Invidious::Database::CompilationVideos
     SQL
 
     return PG_DB.query_one?(request, order_index, as: String)
+  end
+
+  def select_id_from_index(index : Int64)
+    request = <<-SQL
+      SELECT id FROM compilation_videos
+      WHERE index = $1
+      LIMIT 1
+    SQL
+
+    return PG_DB.query_one?(request, index, as: String)
   end
 
   def select_index_from_order_index(order_index : Int32)

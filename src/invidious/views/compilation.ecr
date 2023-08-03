@@ -11,11 +11,13 @@
 
         <div class="flex-right button-container">
         <%- if compilation.is_a?(InvidiousCompilation) && compilation.author == user.try &.email -%>
-            <div class="pure-u">
-                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/play_compilation?list=<%= compid %>">
-                    <i class="icon ion-md-play"></i>&nbsp;<%= translate(locale, "compilation_button_play") %>
-                </a>
-            </div>
+            <%- if compilation.index.size > 0 -%>
+                <div class="pure-u">
+                    <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/watch?v=<%= compilation.first_video_id %>&list=<%= compid %>&index=<%= compilation.index[0] %>">
+                        <i class="icon ion-md-play"></i>&nbsp;<%= translate(locale, "compilation_button_play") %>
+                    </a>
+                </div>
+            <%- end -%>
             <div class="pure-u">
                 <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/add_compilation_items?list=<%= compid %>">
                     <i class="icon ion-md-add"></i>&nbsp;<%= translate(locale, "compilation_button_add_items") %>

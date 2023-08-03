@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS public.compilations
     created timestamptz,
     updated timestamptz,
     privacy compilation_privacy,
-    index int8[]
+    index int8[],
+    first_video_id text
 );
 
 GRANT ALL ON public.compilations TO current_user;

@@ -244,6 +244,7 @@
     "Not a playlist.": "Not a playlist.",
     "Playlist does not exist.": "Playlist does not exist.",
     "Could not pull trending pages.": "Could not pull trending pages.",
+    "Compilation does not exist.": "Compilation does not exist.",
     "Hidden field \"challenge\" is a required field": "Hidden field \"challenge\" is a required field",
     "Hidden field \"token\" is a required field": "Hidden field \"token\" is a required field",
     "Erroneous challenge": "Erroneous challenge",

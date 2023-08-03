@@ -24,7 +24,8 @@ module Invidious::Database::Migrations
         created timestamptz,
         updated timestamptz,
         privacy compilation_privacy,
-        index int8[]
+        index int8[],
+        first_video_id text
       );
       SQL
 
