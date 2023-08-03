@@ -138,12 +138,13 @@
                             <button type="submit" class="pure-button pure-button-secondary low-profile"
                                     data-onclick="add_playlist_item" data-id="<%= item.id %>" data-plid="<%= plid_form %>"><i class="icon ion-md-add"></i></button>
                         </form>
-                    <% elsif compid_form = env.get? "add_compilation_items" %>
-                        <form data-onsubmit="return_false" action="/compilation_ajax?action_add_video=1&video_id=<%= item.id %>&compilation_id=<%= compid_form %>&referer=<%= env.get("current_page") %>" method="post">
+                    <%- elsif compid_form = env.get?("add_compilation_items") -%>
+                         <%- form_parameters = "action_add_video=1&video_id=#{item.id}&compilation_id=#{compid_form}&referer=#{env.get("current_page")}" -%>
+                        <form data-onsubmit="return_false" action="/compilation_ajax?<%= form_parameters %>" method="post">
                             <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
-                            <p class="watched">
-                                <button type="submit" style="all:unset" data-onclick="add_compilation_item" data-id="<%= item.id %>" data-compid="<%= compid_form %>"><i class="icon ion-md-add"></i></button>
-                            </p>
+                            <button type="submit" class="pure-button pure-button-secondary low-profile"
+                                data-onclick="add_compilation_item" data-id="<%= item.id %>" data-compid="<%= compid_form %>"><i class="icon ion-md-add"></i>
+                            </button>
                         </form>
                     <%- elsif item.is_a?(PlaylistVideo) && (plid_form = env.get?("remove_playlist_items")) -%>
                         <%- form_parameters = "action_remove_video=1&set_video_id=#{item.index}&playlist_id=#{plid_form}&referer=#{env.get("current_page")}" -%>

@@ -244,7 +244,6 @@ module Invidious::Routes::Compilations
       compilation_video_index = compilation.index[index]
       compilation_video = Invidious::Database::CompilationVideos.select_video(compid, compilation.index, compilation_video_index, 0, 1)
       json_timestamp_query_start = compilation_video_index.to_s + "_start_timestamp"
-
       start_timestamp = env.params.body[json_timestamp_query_start]?.try &.as(String).byte_slice(0, 8)
       if !start_timestamp.nil? && !compilation_video[0].id.nil?
         start_timestamp_seconds = decode_length_seconds(start_timestamp)
@@ -254,14 +253,14 @@ module Invidious::Routes::Compilations
           end
         end
       end
-
+      compilation_video = Invidious::Database::CompilationVideos.select_video(compid, compilation.index, compilation_video_index, 0, 1)
       json_timestamp_query_end = compilation_video_index.to_s + "_end_timestamp"
       end_timestamp = env.params.json[json_timestamp_query_end]?.try &.as(String).byte_slice(0, 8)
       if !end_timestamp.nil? && !compilation_video[0].id.nil?
         end_timestamp_seconds = decode_length_seconds(end_timestamp)
         if !end_timestamp_seconds.nil?
-          if end_timestamp_seconds >= 0 && end_timestamp_seconds <= compilation_video[0].ending_timestamp_seconds && end_timestamp_seconds > compilation_video[0].starting_timestamp_seconds
-            Invidious::Database::CompilationVideos.update_end_timestamp(compilation_video[0].id, end_timestamp_seconds)
+          if end_timestamp_seconds >= 0 && end_timestamp_seconds <= compilation_video[0].length_seconds && end_timestamp_seconds > compilation_video[0].starting_timestamp_seconds
+            Invidious::Database::CompilationVideos.update_end_timestamp(compilation_video[0].id, end_timestamp_seconds.to_i)
           end
         end
       end
@@ -303,10 +302,17 @@ module Invidious::Routes::Compilations
 
     begin
       query = Invidious::Search::Query.new(env.params.query, :compilation, region)
-      videos = query.process.select(SearchVideo).map(&.as(SearchVideo))
+      items = query.process.select(SearchVideo).map(&.as(SearchVideo))
     rescue ex
-      videos = [] of SearchVideo
+      items = [] of SearchVideo
     end
+
+    query_encoded = URI.encode_www_form(query.try &.text || "", space_to_plus: true)
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/add_compilation_items?list=#{compilation.id}&q=#{query_encoded}",
+      current_page: page,
+      show_next: (items.size >= 20)
+    )
 
     env.set "add_compilation_items", compid
     templated "add_compilation_items"
@@ -414,7 +420,7 @@ module Invidious::Routes::Compilations
         author:                     video.author,
         ucid:                       video.ucid,
         length_seconds:             video.length_seconds,
-        starting_timestamp_seconds: video.length_seconds,
+        starting_timestamp_seconds: 0,
         ending_timestamp_seconds:   video.length_seconds,
         published:                  video.published,
         compid:                     compilation_id,

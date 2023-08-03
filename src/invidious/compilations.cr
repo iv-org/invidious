@@ -423,17 +423,17 @@ def extract_compilation_videos(initial_data : Hash(String, JSON::Any))
       end
 
       videos << CompilationVideo.new({
-        title:          title,
-        id:             video_id,
-        author:         author,
-        ucid:           ucid,
-        length_seconds: length_seconds,
+        title:                      title,
+        id:                         video_id,
+        author:                     author,
+        ucid:                       ucid,
+        length_seconds:             length_seconds,
         starting_timestamp_seconds: starting_timestamp_seconds,
-        ending_timestamp_seconds: ending_timestamp_seconds,
-        published:      Time.utc,
-        compid:           compid,
-        index:          index,
-        order_index:    order_index
+        ending_timestamp_seconds:   ending_timestamp_seconds,
+        published:                  Time.utc,
+        compid:                     compid,
+        index:                      index,
+        order_index:                order_index
       })
     end
   end

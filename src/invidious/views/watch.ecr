@@ -50,6 +50,7 @@ we're going to need to do it here in order to allow for translations.
     "id" => video.id,
     "index" => continuation,
     "plid" => plid,
+    "compid" => compid,
     "length_seconds" => video.length_seconds.to_f,
     "play_next" => !video.related_videos.empty? && !plid && params.continue,
     "next_video" => video.related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"],

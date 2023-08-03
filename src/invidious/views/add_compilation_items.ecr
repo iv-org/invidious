@@ -31,10 +31,4 @@
 </script>
 <script src="/js/compilation_widget.js?v=<%= ASSET_COMMIT %>"></script>
 
-<div class="pure-g">
-    <% videos.each_slice(4) do |slice| %>
-            <% slice.each do |item| %>
-                <%= rendered "components/item" %>
-            <% end %>
-    <% end %>
-</div>
+<%= rendered "components/items_paginated" %>
