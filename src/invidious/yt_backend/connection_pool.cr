@@ -1,11 +1,3 @@
-{% unless flag?(:disable_quic) %}
-  require "lsquic"
-
-  alias HTTPClientType = QUIC::Client | HTTP::Client
-{% else %}
-  alias HTTPClientType = HTTP::Client
-{% end %}
-
 def add_yt_headers(request)
   if request.headers["User-Agent"] == "Crystal"
     request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -26,11 +18,11 @@ struct YoutubeConnectionPool
   property! url : URI
   property! capacity : Int32
   property! timeout : Float64
-  property pool : DB::Pool(HTTPClientType)
+  property pool : DB::Pool(HTTP::Client)
 
-  def initialize(url : URI, @capacity = 5, @timeout = 5.0, use_quic = true)
+  def initialize(url : URI, @capacity = 5, @timeout = 5.0)
     @url = url
-    @pool = build_pool(use_quic)
+    @pool = build_pool()
   end
 
   def client(region = nil, &block)
@@ -43,11 +35,7 @@ struct YoutubeConnectionPool
         response = yield conn
       rescue ex
         conn.close
-        {% unless flag?(:disable_quic) %}
-          conn = CONFIG.use_quic ? QUIC::Client.new(url) : HTTP::Client.new(url)
-        {% else %}
-          conn = HTTP::Client.new(url)
-        {% end %}
+        conn = HTTP::Client.new(url)
 
         conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
         conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
@@ -61,19 +49,9 @@ struct YoutubeConnectionPool
     response
   end
 
-  private def build_pool(use_quic)
-    DB::Pool(HTTPClientType).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
-      conn = nil # Declare
-      {% unless flag?(:disable_quic) %}
-        if use_quic
-          conn = QUIC::Client.new(url)
-        else
-          conn = HTTP::Client.new(url)
-        end
-      {% else %}
-        conn = HTTP::Client.new(url)
-      {% end %}
-
+  private def build_pool
+    DB::Pool(HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
+      conn = HTTP::Client.new(url)
       conn.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::INET
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
@@ -83,7 +61,6 @@ struct YoutubeConnectionPool
 end
 
 def make_client(url : URI, region = nil)
-  # TODO: Migrate any applicable endpoints to QUIC
   client = HTTPClient.new(url, OpenSSL::SSL::Context::Client.insecure)
   client.family = (url.host == "www.youtube.com") ? CONFIG.force_resolve : Socket::Family::UNSPEC
   client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"

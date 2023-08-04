@@ -24,10 +24,6 @@ shards:
     git: https://github.com/jeromegn/kilt.git
     version: 0.6.1
 
-  lsquic:
-    git: https://github.com/iv-org/lsquic.cr.git
-    version: 2.18.1-2
-
   pg:
     git: https://github.com/will/crystal-pg.git
     version: 0.24.0
