@@ -102,11 +102,11 @@ module Invidious::Routes::Channels
 
     if channel.auto_generated
       sort_options = {"albums_and_singles", "created_playlists"}
-      sort_by = env.params.query["sort_by"]?.try &.downcase || sort_options[0]
     else
       sort_options = {"last", "oldest", "newest"}
-      sort_by = env.params.query["sort_by"]?.try &.downcase || sort_options[0]
     end
+
+    sort_by = env.params.query["sort_by"]?.try &.downcase || sort_options[0]
 
     items, next_continuation = fetch_channel_playlists(
       channel.ucid, channel.author, continuation, (sort_by)

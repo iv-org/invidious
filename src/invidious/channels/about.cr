@@ -59,7 +59,8 @@ def get_about_info(ucid, locale) : AboutChannel
     # ex: https://www.youtube.com/channel/UCQvWX73GQygcwXOTSf_VDVg/
     description_node = description_base_node.dig?("simpleText") || description_base_node
 
-    tags = initdata.dig?("header", "interactiveTabbedHeaderRenderer", "badges").try &.as_a.map(&.["metadataBadgeRenderer"]["label"].as_s) || [] of String
+    tags = initdata.dig?("header", "interactiveTabbedHeaderRenderer", "badges")
+      .try &.as_a.map(&.["metadataBadgeRenderer"]["label"].as_s) || [] of String
   else
     author = initdata["metadata"]["channelMetadataRenderer"]["title"].as_s
     author_url = initdata["metadata"]["channelMetadataRenderer"]["channelUrl"].as_s
