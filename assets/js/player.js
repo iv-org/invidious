@@ -200,12 +200,19 @@ if (!video_data.params.listen && video_data.vr && video_data.params.vr_mode) {
 // Add markers
 if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
     var markers = [{ time: video_data.params.video_start, text: 'Start' }];
-
-    if (video_data.params.video_end < 0) {
-        markers.push({ time: video_data.length_seconds - 0.5, text: 'End' });
-    } else {
-        markers.push({ time: video_data.params.video_end, text: 'End' });
+    if (video_data.starting_timestamp_seconds) {
+        markers = [{ time: video_data.starting_timestamp_seconds, text: 'Start' }];
     }
+
+    if (!video_data.ending_timestamp_seconds) {
+        if (video_data.params.video_end < 0) {
+            markers.push({ time: video_data.length_seconds - 0.5, text: 'End' });
+        } else {
+            markers.push({ time: video_data.params.video_end, text: 'End' });
+        }
+    } else {
+        markers.push({ time: video_data.ending_timestamp_seconds, text: 'End' });
+    }    
 
     player.markers({
         onMarkerReached: function (marker) {

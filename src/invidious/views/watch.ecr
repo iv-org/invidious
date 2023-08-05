@@ -51,6 +51,8 @@ we're going to need to do it here in order to allow for translations.
     "index" => continuation,
     "plid" => plid,
     "compid" => compid,
+    "starting_timestamp_seconds" => starting_timestamp_seconds,
+    "ending_timestamp_seconds" => ending_timestamp_seconds,
     "length_seconds" => video.length_seconds.to_f,
     "play_next" => !video.related_videos.empty? && !plid && params.continue,
     "next_video" => video.related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"],
@@ -313,16 +315,18 @@ we're going to need to do it here in order to allow for translations.
         </div>
     </div>
 
-    <% if params.related_videos || plid %>
+    <% if params.related_videos || plid || compid%>
         <div class="pure-u-1 pure-u-lg-1-5">
             <% if plid %>
                 <div id="playlist" class="h-box"></div>
+            <% elsif compid %>
+                <div id="compilation" class="h-box"></div>
             <% end %>
 
             <% if params.related_videos %>
                 <div class="h-box">
                     <% if !video.related_videos.empty? %>
-                        <div <% if plid %>style="display:none"<% end %>>
+                        <div <% if plid || compid %>style="display:none"<% end %>>
                             <div class="pure-control-group">
                                 <label for="continue"><%= translate(locale, "preferences_continue_label") %></label>
                                 <input name="continue" id="continue" type="checkbox" <% if params.continue %>checked<% end %>>

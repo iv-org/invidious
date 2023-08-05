@@ -258,6 +258,18 @@ module Invidious::Database::CompilationVideos
     return PG_DB.query_all(request, compid, index, video_index, offset, limit, as: CompilationVideo)
   end
 
+  def select_timestamps(compid : String, vid : String)
+
+    request = <<-SQL
+      SELECT starting_timestamp_seconds,ending_timestamp_seconds FROM compilation_videos
+      WHERE compid = $1 AND id = $2
+      LIMIT 1
+    SQL
+
+    return PG_DB.query_one?(request, compid, vid, as: {Int32,Int32})
+
+  end
+
   def select_id_from_order_index(order_index : Int32)
     request = <<-SQL
       SELECT id FROM compilation_videos
