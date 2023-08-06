@@ -68,14 +68,13 @@ module Invidious::Routes::API::V1::Misc
 
       response = {
         "compilationHtml" => compilation_html,
-        "index"        => index,
-        "nextVideo"    => next_video,
+        "index"           => index,
+        "nextVideo"       => next_video,
       }.to_json
     end
 
     response
   end
-
 
   # APIv1 currently uses the same logic for both
   # user playlists and Invidious playlists. This means that we can't

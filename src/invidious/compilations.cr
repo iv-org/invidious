@@ -19,7 +19,7 @@ struct CompilationVideo
       xml.element("yt:videoId") { xml.text self.id }
       xml.element("yt:channelId") { xml.text self.ucid }
       xml.element("title") { xml.text self.title }
-      xml.element("orderIndex") {xml.text self.order_index }
+      xml.element("orderIndex") { xml.text self.order_index }
       xml.element("link", rel: "alternate", href: "#{HOST_URL}/watch?v=#{self.id}")
 
       xml.element("author") do
@@ -263,7 +263,7 @@ def create_compilation(title, privacy, user)
     index:                                  [] of Int64,
     first_video_id:                         "",
     first_video_starting_timestamp_seconds: 0,
-    first_video_ending_timestamp_seconds:   0
+    first_video_ending_timestamp_seconds:   0,
   })
 
   Invidious::Database::Compilations.insert(compilation)
@@ -273,18 +273,18 @@ end
 
 def subscribe_compilation(user, compilation)
   compilation = InvidiousCompilation.new({
-    title:          compilation.title.byte_slice(0, 150),
-    id:             compilation.id,
-    author:         user.email,
-    description:    "", # Max 5000 characters
-    video_count:    compilation.video_count,
-    created:        Time.utc,
-    updated:        compilation.updated,
-    privacy:        CompilationPrivacy::Private,
-    index:          [] of Int64,
-    first_video_id: "",
+    title:                                  compilation.title.byte_slice(0, 150),
+    id:                                     compilation.id,
+    author:                                 user.email,
+    description:                            "", # Max 5000 characters
+    video_count:                            compilation.video_count,
+    created:                                Time.utc,
+    updated:                                compilation.updated,
+    privacy:                                CompilationPrivacy::Private,
+    index:                                  [] of Int64,
+    first_video_id:                         "",
     first_video_starting_timestamp_seconds: 0,
-    first_video_ending_timestamp_seconds:   0
+    first_video_ending_timestamp_seconds:   0,
   })
 
   Invidious::Database::Compilations.insert(compilation)
@@ -339,21 +339,21 @@ end
 def update_first_video_params(compid : String)
   if compilation = Invidious::Database::Compilations.select(id: compid)
     compilation_index_array = compilation.index
-    if (compilation_index_array.size > 0) 
+    if (compilation_index_array.size > 0)
       first_index = compilation_index_array[0]
       first_id = Invidious::Database::CompilationVideos.select_id_from_index(first_index)
       if !first_id.nil?
         timestamps = Invidious::Database::CompilationVideos.select_timestamps(compid, first_id)
         if (!timestamps.nil?)
-          starting_timestamp_seconds=timestamps[0]
-          ending_timestamp_seconds=timestamps[1]
+          starting_timestamp_seconds = timestamps[0]
+          ending_timestamp_seconds = timestamps[1]
           Invidious::Database::Compilations.update_first_video_params(compid, first_id, starting_timestamp_seconds, ending_timestamp_seconds)
         end
       end
-    end  
+    end
   else
     raise NotFoundException.new("Compilation does not exist.")
-  end  
+  end
 end
 
 def get_compilation_videos(compilation : InvidiousCompilation | Compilation, offset : Int32, video_id = nil)
@@ -368,7 +368,7 @@ def get_compilation_videos(compilation : InvidiousCompilation | Compilation, off
   else
     if video_id
       initial_data = YoutubeAPI.next({
-        "videoId"    => video_id,
+        "videoId"       => video_id,
         "compilationId" => compilation.id,
       })
       offset = initial_data.dig?("contents", "twoColumnWatchNextResults", "compilation", "compilation", "currentIndex").try &.as_i || offset
@@ -441,7 +441,7 @@ def extract_compilation_videos(initial_data : Hash(String, JSON::Any))
         published:                  Time.utc,
         compid:                     compid,
         index:                      index,
-        order_index:                order_index
+        order_index:                order_index,
       })
     end
   end

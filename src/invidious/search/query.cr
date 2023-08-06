@@ -81,7 +81,7 @@ module Invidious::Search
         # string itself (legacy), and the channel is ignored.
         #
         @filters, _, @query, _ = Filters.from_legacy_filters(@raw_query)
-        #  
+        #
       when .subscriptions?, .regular?
         if params["sp"]?
           # Parse the `sp` URL parameter (youtube compatibility)

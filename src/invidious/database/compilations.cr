@@ -88,7 +88,7 @@ module Invidious::Database::Compilations
     SQL
 
     PG_DB.exec(request, id, index)
-  end 
+  end
 
   def update_first_video_params(id : String, first_video_id : String, starting_timestamp_seconds : Int32, ending_timestamp_seconds : Int32)
     request = <<-SQL
@@ -100,7 +100,8 @@ module Invidious::Database::Compilations
     SQL
 
     PG_DB.exec(request, id, first_video_id, starting_timestamp_seconds, ending_timestamp_seconds)
-  end  
+  end
+
   # -------------------
   #  Select
   # -------------------
@@ -131,7 +132,7 @@ module Invidious::Database::Compilations
     SQL
 
     PG_DB.query_one?(request, id, as: Array(Int64))
-  end  
+  end
 
   # -------------------
   #  Select (filtered)
@@ -261,15 +262,13 @@ module Invidious::Database::CompilationVideos
   end
 
   def select_timestamps(compid : String, vid : String)
-
     request = <<-SQL
       SELECT starting_timestamp_seconds,ending_timestamp_seconds FROM compilation_videos
       WHERE compid = $1 AND id = $2
       LIMIT 1
     SQL
 
-    return PG_DB.query_one?(request, compid, vid, as: {Int32,Int32})
-
+    return PG_DB.query_one?(request, compid, vid, as: {Int32, Int32})
   end
 
   def select_id_from_order_index(order_index : Int32)

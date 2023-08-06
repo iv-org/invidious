@@ -89,7 +89,7 @@ module Invidious::Routing
     get "/add_compilation_items", Routes::Compilations, :add_compilation_items_page
     get "/edit_compilation", Routes::Compilations, :edit
     post "/edit_compilation", Routes::Compilations, :adjust_timestamps
-  end  
+  end
 
   def register_iv_playlist_routes
     get "/create_playlist", Routes::Playlists, :new

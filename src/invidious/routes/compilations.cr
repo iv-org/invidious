@@ -22,7 +22,7 @@ module Invidious::Routes::Compilations
 
     user = env.get? "user"
     sid = env.get? "sid"
-    referer = get_referer(env)  
+    referer = get_referer(env)
 
     return env.redirect "/" if user.nil?
 
@@ -49,7 +49,7 @@ module Invidious::Routes::Compilations
     if Invidious::Database::Compilations.count_owned_by(user.email) >= 100
       return error_template(400, "User cannot have more than 100 compilations.")
     end
-    
+
     compilation = create_compilation(title, privacy, user)
 
     env.redirect "/compilation?list=#{compilation.id}"
@@ -218,7 +218,6 @@ module Invidious::Routes::Compilations
       return error_template(400, ex)
     end
 
-
     if !compid || compid.empty?
       return error_json(400, "A compilation ID is required")
     end
@@ -245,7 +244,7 @@ module Invidious::Routes::Compilations
       if !start_timestamp.nil? && !compilation_video[0].id.nil?
         start_timestamp_seconds = decode_length_seconds(start_timestamp)
         if !start_timestamp_seconds.nil?
-          if start_timestamp_seconds >= 0 && start_timestamp_seconds <= compilation_video[0].length_seconds 
+          if start_timestamp_seconds >= 0 && start_timestamp_seconds <= compilation_video[0].length_seconds
             Invidious::Database::CompilationVideos.update_start_timestamp(compilation_video[0].id, start_timestamp_seconds.to_i)
           end
         end
@@ -261,14 +260,12 @@ module Invidious::Routes::Compilations
           end
         end
       end
-
     end
 
     update_first_video_params(compid)
 
     env.redirect "/compilation?list=#{compid}"
   end
-    
 
   def self.add_compilation_items_page(env)
     prefs = env.get("preferences").as(Preferences)
@@ -314,7 +311,7 @@ module Invidious::Routes::Compilations
 
     env.set "add_compilation_items", compid
     templated "add_compilation_items"
-  end 
+  end
 
   def self.compilation_ajax(env)
     locale = env.get("preferences").as(Preferences).locale
@@ -326,7 +323,7 @@ module Invidious::Routes::Compilations
     redirect = env.params.query["redirect"]?
     redirect ||= "true"
     redirect = redirect == "true"
-      if !user
+    if !user
       if redirect
         return env.redirect referer
       else
@@ -362,7 +359,7 @@ module Invidious::Routes::Compilations
     elsif env.params.query["action_move_video_before"]?
       action = "action_move_video_before"
     elsif env.params.query["action_move_video_after"]?
-      action = "action_move_video_after"  
+      action = "action_move_video_after"
     else
       return env.redirect referer
     end
@@ -422,7 +419,7 @@ module Invidious::Routes::Compilations
         compid:                     compilation_id,
         live_now:                   video.live_now,
         index:                      Random::Secure.rand(0_i64..Int64::MAX),
-        order_index:                compilation.index.size 
+        order_index:                compilation.index.size,
       })
 
       Invidious::Database::CompilationVideos.insert(compilation_video)
@@ -451,7 +448,7 @@ module Invidious::Routes::Compilations
       compilation_index_array_position = compilation_index_array.index(compilation_video[0].index)
       if !compilation_index_array_position.nil?
         compilation_index_array.delete_at(compilation_index_array_position)
-        compilation_index_array.insert(compilation_index_array_position-1,compilation_video[0].index)
+        compilation_index_array.insert(compilation_index_array_position - 1, compilation_video[0].index)
         Invidious::Database::Compilations.move_video_position(compilation_id, compilation_index_array)
       end
       update_first_video_params(compilation_id)
@@ -473,10 +470,14 @@ module Invidious::Routes::Compilations
       compilation_index_array_position = compilation_index_array.index(compilation_video[0].index)
       if !compilation_index_array_position.nil?
         compilation_index_array.delete_at(compilation_index_array_position)
-        compilation_index_array.insert(compilation_index_array_position+1,compilation_video[0].index)
+        if (compilation_index_array_position == compilation_index_array.size)
+          compilation_index_array.insert(compilation_index_array_position, compilation_video[0].index)
+        else
+          compilation_index_array.insert(compilation_index_array_position + 1, compilation_video[0].index)
+        end
         Invidious::Database::Compilations.move_video_position(compilation_id, compilation_index_array)
       end
-      update_first_video_params(compilation_id)  
+      update_first_video_params(compilation_id)
     else
       return error_json(400, "Unsupported action #{action}")
     end
@@ -537,5 +538,5 @@ module Invidious::Routes::Compilations
     end
 
     templated "compilation"
-  end  
+  end
 end
