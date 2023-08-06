@@ -26,7 +26,6 @@ services:
           host: invidious-db
           port: 5432
         check_tables: true
-        log_level: Info
         # external_port:
         # domain:
         # https_only: false
@@ -53,21 +52,6 @@ services:
       POSTGRES_PASSWORD: kemal
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-
-  invidious-pgadmin:
-    image: docker.io/dpage/pgadmin4:latest
-    restart: unless-stopped
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=*******
-      - PGADMIN_DEFAULT_PASSWORD=*******
-      - PGADMIN_DISABLE_POSTFIX=1
-      - GUNICORN_ACCESS_LOGFILE=/dev/null
-      - GUNICORN_THREADS=1
-    ports:
-      - "127.0.0.1:5050:80"
-    depends_on:
-      invidious-db:
-        condition: service_healthy          
 
 volumes:
   postgresdata:
