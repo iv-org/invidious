@@ -205,7 +205,7 @@ if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
         markers.push({ time: video_data.length_seconds - 0.5, text: 'End' });
     } else {
         markers.push({ time: video_data.params.video_end, text: 'End' });
-    }  
+    }
 
     player.markers({
         onMarkerReached: function (marker) {

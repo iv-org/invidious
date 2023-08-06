@@ -80,7 +80,7 @@ module Invidious::Database::Compilations
     PG_DB.exec(request, index, id)
   end
 
-  def move_video_before(id : String, index : Array(Int64))
+  def move_video_position(id : String, index : Array(Int64))
     request = <<-SQL
       UPDATE compilations
       SET index = $2

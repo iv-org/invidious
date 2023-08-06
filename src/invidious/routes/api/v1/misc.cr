@@ -11,10 +11,8 @@ module Invidious::Routes::API::V1::Misc
   end
 
   def self.get_compilation(env : HTTP::Server::Context)
-    LOGGER.info("15. get_compilation")
     env.response.content_type = "application/json"
     compid = env.params.url["compid"]
-    LOGGER.info("the compid is #{compid}")
     offset = env.params.query["index"]?.try &.to_i?
     offset ||= env.params.query["page"]?.try &.to_i?.try { |page| (page - 1) * 100 }
     offset ||= 0

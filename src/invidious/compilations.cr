@@ -249,9 +249,7 @@ struct InvidiousCompilation
 end
 
 def create_compilation(title, privacy, user)
-  LOGGER.info("2. create_compilation")
   compid = "IVCMP#{Random::Secure.urlsafe_base64(24)[0, 31]}"
-  LOGGER.info("generated compilation id")
 
   compilation = InvidiousCompilation.new({
     title:                                  title.byte_slice(0, 150),
@@ -267,10 +265,8 @@ def create_compilation(title, privacy, user)
     first_video_starting_timestamp_seconds: 0,
     first_video_ending_timestamp_seconds:   0
   })
-  LOGGER.info("Creating compilation db")
 
   Invidious::Database::Compilations.insert(compilation)
-  LOGGER.info("inserted compilation db entry")
 
   return compilation
 end
@@ -332,14 +328,12 @@ def produce_compilation_continuation(id, index)
 end
 
 def get_compilation(compid : String)
-  #if compid.starts_with? "IVCMP"
-    if compilation = Invidious::Database::Compilations.select(id: compid)
-      update_first_video_params(compid)
-      return compilation
-    else
-      raise NotFoundException.new("Compilation does not exist.")
-    end
-  #end
+  if compilation = Invidious::Database::Compilations.select(id: compid)
+    update_first_video_params(compid)
+    return compilation
+  else
+    raise NotFoundException.new("Compilation does not exist.")
+  end
 end
 
 def update_first_video_params(compid : String)
@@ -361,8 +355,6 @@ def update_first_video_params(compid : String)
 end
 
 def get_compilation_videos(compilation : InvidiousCompilation | Compilation, offset : Int32, video_id = nil)
-  LOGGER.info("1. get_compilation")
-  LOGGER.info("Getting compilation")
   # Show empty compilation if requested page is out of range
   # (e.g, when a new compilation has been created, offset will be negative)
   if offset >= compilation.video_count || offset < 0

@@ -2,7 +2,6 @@
 
 module Invidious::Routes::Compilations
   def self.new(env)
-    LOGGER.info("15. new")
     locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
@@ -19,7 +18,6 @@ module Invidious::Routes::Compilations
   end
 
   def self.create(env)
-    LOGGER.info("3. create")
     locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
@@ -198,7 +196,6 @@ module Invidious::Routes::Compilations
 
   def self.adjust_timestamps(env)
     locale = env.get("preferences").as(Preferences).locale
-    LOGGER.info("Handle POST request for edit compilation")
     env.response.content_type = "application/json"
     user = env.get("user")
     sid = env.get? "sid"
@@ -274,7 +271,6 @@ module Invidious::Routes::Compilations
     
 
   def self.add_compilation_items_page(env)
-    LOGGER.info("13. add_compilation_items")
     prefs = env.get("preferences").as(Preferences)
     locale = prefs.locale
 
@@ -321,7 +317,6 @@ module Invidious::Routes::Compilations
   end 
 
   def self.compilation_ajax(env)
-    LOGGER.info("14. compilation_ajax")
     locale = env.get("preferences").as(Preferences).locale
 
     user = env.get? "user"
@@ -391,7 +386,6 @@ module Invidious::Routes::Compilations
     case action
     when "action_edit_compilation"
       # TODO: Compilation stub
-      LOGGER.info("Begin handling of Compilation edit")
 
     when "action_add_video"
       if compilation.index.size >= CONFIG.compilation_length_limit
@@ -441,10 +435,8 @@ module Invidious::Routes::Compilations
       update_first_video_params(compilation_id)
     when "action_move_video_before"
       # TODO: Compilation stub
-      #video_index = compilation.index
       video_index = env.params.query["video_index"]
       begin
-        #video_index = get_video(video_index)
         compilation_video = Invidious::Database::CompilationVideos.select_video(compilation_id, compilation.index, video_index, 0, 1)
         compilation_index_array = compilation.index
       rescue ex : NotFoundException
@@ -457,13 +449,34 @@ module Invidious::Routes::Compilations
         end
       end
       compilation_index_array_position = compilation_index_array.index(compilation_video[0].index)
-      LOGGER.info("for #{compilation_index_array}, the item #{compilation_video[0].index} is a position #{compilation_index_array.index(compilation_video[0].index)}")
       if !compilation_index_array_position.nil?
         compilation_index_array.delete_at(compilation_index_array_position)
         compilation_index_array.insert(compilation_index_array_position-1,compilation_video[0].index)
-        Invidious::Database::Compilations.move_video_before(compilation_id, compilation_index_array)
+        Invidious::Database::Compilations.move_video_position(compilation_id, compilation_index_array)
       end
       update_first_video_params(compilation_id)
+    when "action_move_video_after"
+      # TODO: Compilation stub
+      video_index = env.params.query["video_index"]
+      begin
+        compilation_video = Invidious::Database::CompilationVideos.select_video(compilation_id, compilation.index, video_index, 0, 1)
+        compilation_index_array = compilation.index
+      rescue ex : NotFoundException
+        return error_json(404, ex)
+      rescue ex
+        if redirect
+          return error_template(500, ex)
+        else
+          return error_json(500, ex)
+        end
+      end
+      compilation_index_array_position = compilation_index_array.index(compilation_video[0].index)
+      if !compilation_index_array_position.nil?
+        compilation_index_array.delete_at(compilation_index_array_position)
+        compilation_index_array.insert(compilation_index_array_position+1,compilation_video[0].index)
+        Invidious::Database::Compilations.move_video_position(compilation_id, compilation_index_array)
+      end
+      update_first_video_params(compilation_id)  
     else
       return error_json(400, "Unsupported action #{action}")
     end
@@ -477,7 +490,6 @@ module Invidious::Routes::Compilations
   end
 
   def self.show(env)
-    LOGGER.info("4. show | comp")
     locale = env.get("preferences").as(Preferences).locale
 
     user = env.get?("user").try &.as(User)

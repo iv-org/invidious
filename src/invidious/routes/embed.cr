@@ -31,7 +31,6 @@ module Invidious::Routes::Embed
   end
 
   def self.show(env)
-    LOGGER.info("9? show")
     locale = env.get("preferences").as(Preferences).locale
     id = env.params.url["id"]
 

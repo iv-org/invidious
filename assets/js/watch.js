@@ -111,10 +111,7 @@ function get_compilation(compid) {
     compid_url = '/api/v1/compilations/' + compid +
         '?index=' + video_data.index +
         '&continuation=' + video_data.id +
-        //'&t=' + video_data.video_data.starting_timestamp_seconds +
-        '&format=html&hl=' + video_data.preferences.locale;
-
-    console.log("Send "+compid_url);   
+        '&format=html&hl=' + video_data.preferences.locale; 
 
     helpers.xhr('GET', compid_url, {retries: 5, entity_name: 'compilation'}, {
         on200: function (response) {
