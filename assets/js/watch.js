@@ -111,6 +111,7 @@ function get_compilation(compid) {
     compid_url = '/api/v1/compilations/' + compid +
         '?index=' + video_data.index +
         '&continuation=' + video_data.id +
+        //'&t=' + video_data.video_data.starting_timestamp_seconds +
         '&format=html&hl=' + video_data.preferences.locale;
 
     console.log("Send "+compid_url);   
@@ -138,6 +139,7 @@ function get_compilation(compid) {
                     url.searchParams.set('speed', video_data.params.speed);
                 if (video_data.params.local !== video_data.preferences.local)
                     url.searchParams.set('local', video_data.params.local);
+                url.searchParams.set('t',video_data.starting_timestamp_seconds);    
         
                 location.assign(url.pathname + url.search);
             });

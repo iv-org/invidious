@@ -128,7 +128,7 @@ module Invidious::Database::Compilations
       LIMIT 1
     SQL
 
-    PG_DB.query_one?(request, id, as: String)
+    PG_DB.query_one?(request, id, as: Array(Int64))
   end  
 
   # -------------------

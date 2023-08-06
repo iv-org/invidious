@@ -45,11 +45,26 @@ module Invidious::Routes::Watch
     elsif env.params.query["list"]?.try &.starts_with? "IVCMP"   
       compid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
       if (!compid.nil?)
-        timestamps = Invidious::Database::CompilationVideos.select_timestamps(compid, id)
-        if (!timestamps.nil?)
-          starting_timestamp_seconds=timestamps[0]
-          ending_timestamp_seconds=timestamps[1]
-        end
+        index=Invidious::Database::CompilationVideos.select_index(compid,id)
+        indices_array=Invidious::Database::Compilations.select_index_array(compid)
+        if (!indices_array.nil?)
+          position_of_index=indices_array.index(index)
+          if (!position_of_index.nil? && position_of_index != indices_array.size - 1)
+            next_index=indices_array[position_of_index+1]
+          else
+            next_index=indices_array[0]
+          end  
+          if (!next_index.nil?)
+            next_id=Invidious::Database::CompilationVideos.select_id_from_index(next_index)
+            if (!next_id.nil?)
+              timestamps = Invidious::Database::CompilationVideos.select_timestamps(compid, next_id)
+              if (!timestamps.nil?)
+                starting_timestamp_seconds=timestamps[0]
+                ending_timestamp_seconds=timestamps[1]
+              end
+            end  
+          end  
+        end  
       end  
       continuation = process_continuation(env.params.query, compid, id)
     end  
