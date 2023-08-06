@@ -140,6 +140,7 @@ function get_compilation(compid) {
                 if (video_data.params.local !== video_data.preferences.local)
                     url.searchParams.set('local', video_data.params.local);
                 url.searchParams.set('t',video_data.starting_timestamp_seconds);    
+                url.searchParams.set('end',video_data.ending_timestamp_seconds);   
         
                 location.assign(url.pathname + url.search);
             });

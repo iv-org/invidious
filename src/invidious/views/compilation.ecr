@@ -13,7 +13,7 @@
         <%- if compilation.is_a?(InvidiousCompilation) && compilation.author == user.try &.email -%>
             <%- if compilation.index.size > 0 -%>
                 <div class="pure-u">
-                    <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/watch?v=<%= compilation.first_video_id %>&list=<%= compid %>&index=<%= compilation.index[0] %>">
+                    <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/watch?v=<%= compilation.first_video_id %>&list=<%= compid %>&index=<%= compilation.index[0] %>&t=<%= compilation.first_video_starting_timestamp_seconds %>&end=<%= compilation.first_video_ending_timestamp_seconds %>">
                         <i class="icon ion-md-play"></i>&nbsp;<%= translate(locale, "compilation_button_play") %>
                     </a>
                 </div>

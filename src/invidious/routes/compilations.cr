@@ -255,7 +255,7 @@ module Invidious::Routes::Compilations
       end
       compilation_video = Invidious::Database::CompilationVideos.select_video(compid, compilation.index, compilation_video_index, 0, 1)
       json_timestamp_query_end = compilation_video_index.to_s + "_end_timestamp"
-      end_timestamp = env.params.json[json_timestamp_query_end]?.try &.as(String).byte_slice(0, 8)
+      end_timestamp = env.params.body[json_timestamp_query_end]?.try &.as(String).byte_slice(0, 8)
       if !end_timestamp.nil? && !compilation_video[0].id.nil?
         end_timestamp_seconds = decode_length_seconds(end_timestamp)
         if !end_timestamp_seconds.nil?
@@ -266,6 +266,8 @@ module Invidious::Routes::Compilations
       end
 
     end
+
+    update_first_video_params(compid)
 
     env.redirect "/compilation?list=#{compid}"
   end
@@ -431,12 +433,12 @@ module Invidious::Routes::Compilations
 
       Invidious::Database::CompilationVideos.insert(compilation_video)
       Invidious::Database::Compilations.update_video_added(compilation_id, compilation_video.index)
-      update_first_video_id(compilation_id)
+      update_first_video_params(compilation_id)
     when "action_remove_video"
       index = env.params.query["set_video_id"]
       Invidious::Database::CompilationVideos.delete(index)
       Invidious::Database::Compilations.update_video_removed(compilation_id, index)
-      update_first_video_id(compilation_id)
+      update_first_video_params(compilation_id)
     when "action_move_video_before"
       # TODO: Compilation stub
       #video_index = compilation.index
@@ -461,7 +463,7 @@ module Invidious::Routes::Compilations
         compilation_index_array.insert(compilation_index_array_position-1,compilation_video[0].index)
         Invidious::Database::Compilations.move_video_before(compilation_id, compilation_index_array)
       end
-      update_first_video_id(compilation_id)
+      update_first_video_params(compilation_id)
     else
       return error_json(400, "Unsupported action #{action}")
     end

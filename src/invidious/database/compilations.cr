@@ -90,14 +90,16 @@ module Invidious::Database::Compilations
     PG_DB.exec(request, id, index)
   end 
 
-  def update_first_video_id(id : String, first_video_id : String)
+  def update_first_video_params(id : String, first_video_id : String, starting_timestamp_seconds : Int32, ending_timestamp_seconds : Int32)
     request = <<-SQL
       UPDATE compilations
-      SET first_video_id = $2
+      SET first_video_id = $2,
+          first_video_starting_timestamp_seconds = $3,
+          first_video_ending_timestamp_seconds = $4
       WHERE id = $1
     SQL
 
-    PG_DB.exec(request, id, first_video_id)
+    PG_DB.exec(request, id, first_video_id, starting_timestamp_seconds, ending_timestamp_seconds)
   end  
   # -------------------
   #  Select
