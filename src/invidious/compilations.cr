@@ -339,16 +339,18 @@ end
 def update_first_video_params(compid : String)
   if compilation = Invidious::Database::Compilations.select(id: compid)
     compilation_index_array = compilation.index
-    first_index =  compilation_index_array[0]
-    first_id = Invidious::Database::CompilationVideos.select_id_from_index(first_index)
-    if !first_id.nil?
-      timestamps = Invidious::Database::CompilationVideos.select_timestamps(compid, first_id)
-      if (!timestamps.nil?)
-        starting_timestamp_seconds=timestamps[0]
-        ending_timestamp_seconds=timestamps[1]
-        Invidious::Database::Compilations.update_first_video_params(compid, first_id, starting_timestamp_seconds, ending_timestamp_seconds)
+    if (compilation_index_array.size > 0) 
+      first_index = compilation_index_array[0]
+      first_id = Invidious::Database::CompilationVideos.select_id_from_index(first_index)
+      if !first_id.nil?
+        timestamps = Invidious::Database::CompilationVideos.select_timestamps(compid, first_id)
+        if (!timestamps.nil?)
+          starting_timestamp_seconds=timestamps[0]
+          ending_timestamp_seconds=timestamps[1]
+          Invidious::Database::Compilations.update_first_video_params(compid, first_id, starting_timestamp_seconds, ending_timestamp_seconds)
+        end
       end
-    end
+    end  
   else
     raise NotFoundException.new("Compilation does not exist.")
   end  
