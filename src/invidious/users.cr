@@ -17,6 +17,7 @@ def create_user(sid, email, password)
     token:             token,
     watched:           [] of String,
     feed_needs_update: true,
+    totp_secret:       nil,
   })
 
   return user, sid

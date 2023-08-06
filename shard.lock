@@ -1,12 +1,24 @@
 version: 2.0
 shards:
+  ameba:
+    git: https://github.com/crystal-ameba/ameba.git
+    version: 0.14.4
+
   athena-negotiation:
     git: https://github.com/athena-framework/negotiation.git
-    version: 0.1.1
+    version: 0.1.3
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
-    version: 1.2.1
+    version: 1.2.2
+
+  base32:
+    git: https://github.com/philnash/base32.git
+    version: 0.1.1+git.commit.0a21c1d90731fdefcb3f0db4913f49d3d25350ac
+
+  crotp:
+    git: https://github.com/philnash/crotp.git
+    version: 1.0.0
 
   db:
     git: https://github.com/crystal-lang/crystal-db.git
@@ -38,12 +50,9 @@ shards:
 
   spectator:
     git: https://github.com/icy-arctic-fox/spectator.git
-    version: 0.10.4
+    version: 0.10.6
 
   sqlite3:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
     version: 0.18.0
 
-  ameba:
-    git: https://github.com/crystal-ameba/ameba.git
-    version: 0.14.3

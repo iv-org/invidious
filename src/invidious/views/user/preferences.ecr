@@ -346,6 +346,14 @@
                 </div>
 
                 <div class="pure-control-group">
+                    <% if env.get?("user").as(User).totp_secret %>
+                        <a href="/2fa/remove?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "remove_totp_header") %></a>
+                    <% else %>
+                        <a href="/2fa/setup?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "setup_totp_form_header") %></a>
+                    <% end %>
+                </div>
+
+                <div class="pure-control-group">
                     <a href="/delete_account?referer=<%= URI.encode_www_form(referer) %>"><%= translate(locale, "Delete account") %></a>
                 </div>
             <% end %>

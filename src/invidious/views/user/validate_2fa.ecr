@@ -1,0 +1,37 @@
+<% content_for "header" do %>
+<title><%= translate(locale, "setup_totp_form_header") %> - Invidious</title>
+<% end %>
+
+<div class="pure-g">
+    <div class="pure-u-1 pure-u-lg-1-5"></div>
+    <div class="pure-u-1 pure-u-lg-3-5">
+        <div class="h-box">
+            <form class="pure-form pure-form-aligned" action="/2fa/validate?referer=<%= URI.encode_www_form(referer) %>" method="post">
+                <legend><%= translate(locale, "general_totp_enter_code_header") %></legend>
+                <fieldset>
+                
+                <!-- Hidden fields used for sign-in authentication-->
+                <% if email %>
+                    <input name="email" type="hidden" value="<%= email %>">
+                <% end %>
+                <% if password %>
+                    <input name="password" type="hidden" value="<%= HTML.escape(password) %>">
+                <% end %>
+
+                <input required class="pure-input-1" name="totp_code" placeholder="<%= translate(locale, "general_totp_enter_code_field") %>">
+
+                <% if csrf_token %>
+                    <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(csrf_token) %>">
+                <% end %>
+
+
+                <button type="submit" name="action" class="pure-button pure-button-primary">
+                    <%= translate(locale, "general_totp_verify_button") %>
+                </button>
+
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div class="pure-u-1 pure-u-lg-1-5"></div>
+</div>

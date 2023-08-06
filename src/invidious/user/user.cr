@@ -7,6 +7,7 @@ struct Invidious::User
   property notifications : Array(String)
   property subscriptions : Array(String)
   property email : String
+  property totp_secret : String?
 
   @[DB::Field(converter: Invidious::User::PreferencesConverter)]
   property preferences : Preferences
