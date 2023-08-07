@@ -24,23 +24,21 @@ def fetch_channel_community(ucid, cursor, locale, format, thin_mode)
   return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode)
 end
 
-def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode, params : String | Nil = nil)
-  if params.nil?
-    object = {
-      "2:string"    => "community",
-      "25:embedded" => {
-        "22:string" => post_id.to_s,
-      },
-      "45:embedded" => {
-        "2:varint" => 1_i64,
-        "3:varint" => 1_i64,
-      },
-    }
-    params = object.try { |i| Protodec::Any.cast_json(i) }
-      .try { |i| Protodec::Any.from_json(i) }
-      .try { |i| Base64.urlsafe_encode(i) }
-      .try { |i| URI.encode_www_form(i) }
-  end
+def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode)
+  object = {
+    "2:string"    => "community",
+    "25:embedded" => {
+      "22:string" => post_id.to_s,
+    },
+    "45:embedded" => {
+      "2:varint" => 1_i64,
+      "3:varint" => 1_i64,
+    },
+  }
+  params = object.try { |i| Protodec::Any.cast_json(i) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
 
   initial_data = YoutubeAPI.browse(ucid, params: params)
 

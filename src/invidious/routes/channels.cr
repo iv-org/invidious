@@ -216,8 +216,7 @@ module Invidious::Routes::Channels
       return error_template(400, "Invalid post ID") if response["error"]?
 
       ucid = response.dig("endpoint", "browseEndpoint", "browseId").as_s
-      params = response.dig("endpoint", "browseEndpoint", "params").as_s
-      post_response = fetch_channel_community_post(ucid, id, locale, "json", thin_mode, params: params)
+      post_response = fetch_channel_community_post(ucid, id, locale, "json", thin_mode)
     end
 
     post_response = JSON.parse(post_response)
