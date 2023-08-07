@@ -71,3 +71,5 @@ config:
   full_refresh: false
   https_only: false
   domain:
+  #-- Generate a key using `pwgen 20 1` for example
+  hmac_key: CHANGEME
