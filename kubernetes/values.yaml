@@ -26,7 +26,8 @@ ingress:
     - host: invidious.mydomain.local
       path: /
   tls:
-    - host: invidious.mydomain.local
+    - hosts:
+      - invidious.mydomain.local
       secretName: my-tls
 
 
