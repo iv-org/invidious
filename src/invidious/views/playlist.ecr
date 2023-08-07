@@ -73,7 +73,8 @@
                 <% if !author.empty? %>
                     <a href="/channel/<%= playlist.ucid %>"><%= author %></a> |
                 <% elsif !playlist.subtitle.nil? %>
-                    <span><%= playlist.subtitle.try &.split(" • ")[0] %></span> |
+                    <% subtitle = playlist.subtitle || "" %>
+                    <span><%= HTML.escape(subtitle[0..subtitle.rindex(" • ") || subtitle.size]) %></span> |
                 <% end %>
                 <%= translate_count(locale, "generic_videos_count", playlist.video_count) %> |
                 <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %>
