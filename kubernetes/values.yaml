@@ -53,6 +53,10 @@ postgresql:
     username: kemal
     password: kemal
     database: invidious
+  primary:
+    initdb:
+      username: kemal
+      password: kemal
 
 # Adapted from ../config/config.yml
 config:
