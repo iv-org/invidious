@@ -30,6 +30,18 @@ spec:
           - /bin/sh
           - -c
           - until pg_isready -h {{ .Values.config.db.host }} -p {{ .Values.config.db.port }} -U {{ .Values.config.db.user }}; do echo waiting for database; sleep 2; done;
+        - name: db-migration
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: INVIDIOUS_CONFIG
+            valueFrom:
+              configMapKeyRef:
+                key: INVIDIOUS_CONFIG
+                name: {{ template "invidious.fullname" . }}
+          command:
+            - /invidious/invidious
+            - --migrate
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -47,8 +59,7 @@ spec:
           capabilities:
             drop:
             - ALL
-        resources:
-{{ toYaml .Values.resources | indent 10 }}
+        resources: {{ toYaml .Values.resources | nindent 10 }}
         readinessProbe:
           httpGet:
             port: 3000
