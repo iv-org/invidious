@@ -1,3 +1,12 @@
+{{- define "invidious.pghost_inject" -}}
+{{- if empty .Values.config.db.host -}}
+config:
+  db:
+    host: {{ template "invidious.pghost" . }}
+{{- end -}}
+{{- end -}}
+{{ $_ := mergeOverwrite .Values (include "invidious.pghost_inject" . | fromYaml) -}}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:

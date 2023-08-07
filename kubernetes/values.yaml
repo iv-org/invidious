@@ -65,7 +65,8 @@ config:
   db:
     user: kemal
     password: kemal
-    host: invidious-postgresql
+    #-- Leave empty if you use embeded postgresql server
+    host:
     port: 5432
     dbname: invidious
   full_refresh: false
