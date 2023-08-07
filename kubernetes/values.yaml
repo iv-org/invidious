@@ -19,7 +19,7 @@ service:
   #loadBalancerIP:
 
 ingress:
-  enabled: true
+  enabled: false
   annotations: {}
   ingressClassName:
   hosts:
