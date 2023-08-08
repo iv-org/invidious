@@ -55,9 +55,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
   client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
 
   # Fetch data from the player endpoint
-  # CgIQBg is a workaround for streaming URLs that returns a 403.
-  # See https://github.com/iv-org/invidious/issues/4027#issuecomment-1666944520
-  player_response = YoutubeAPI.player(video_id: video_id, params: "CgIQBg", client_config: client_config)
+  player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
 
   playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
 
@@ -120,6 +118,9 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
 
   # Replace player response and reset reason
   if !new_player_response.nil?
+    # Preserve storyboard data before replacement
+    new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
+
     player_response = new_player_response
     params.delete("reason")
   end
