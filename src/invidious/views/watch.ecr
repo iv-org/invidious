@@ -300,7 +300,7 @@ we're going to need to do it here in order to allow for translations.
             <div id="comments" class="comments">
                 <% if (params.comments <=> ["", ""]) == 0 %>
                     <div id="comments-disabled-message" class="h-box v-box">
-                        <p><b><%=translate(locale, "invidious_comments_disabled_text")%></b></p>
+                        <p><b><%=HTML.escape(translate(locale, "invidious_comments_disabled_text"))%></b></p>
                     </div>
                 <% else %>
                     <% if video.comments? %>
@@ -315,7 +315,7 @@ we're going to need to do it here in order to allow for translations.
                         <% end %>
                     <% else %>
                         <div id="comments-turned-off-on-video-message" class="h-box v-box">
-                            <p><b><%=translate(locale, "youtube_comments_disabled_text")%></b></p>                            
+                            <p><b><%=HTML.escape(translate(locale, "youtube_comments_disabled_text"))%></b></p>                            
 
                             <p>
                                 <b> 
