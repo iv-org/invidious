@@ -295,6 +295,20 @@ module Invidious::Videos::Parser
           "likeButton", "toggleButtonRenderer"
         )
 
+      # Comments enabled?
+      comments_enabled = true
+
+      # When comments are enabled the primary results should contain either the comments-entry-point
+      # or comment-item-section section
+      if primary_results
+        section = primary_results.as_a.find { |s| s.dig?("itemSectionRenderer", "sectionIdentifier") == "comment-item-section" }
+
+        # messageRenderer should say "Comments are turned off."
+        if section && section.dig?("itemSectionRenderer", "contents", 0, "messageRenderer")
+          comments_enabled = false
+        end
+      end
+
       if likes_button
         likes_txt = likes_button.dig?("accessibilityText")
         # Note: The like count from `toggledText` is off by one, as it would
@@ -441,6 +455,7 @@ module Invidious::Videos::Parser
       "authorThumbnail" => JSON::Any.new(author_thumbnail.try &.as_s || ""),
       "authorVerified"  => JSON::Any.new(author_verified || false),
       "subCountText"    => JSON::Any.new(subs_text || "-"),
+      "commentsEnabled" => JSON::Any.new(comments_enabled),
     }
 
     return params

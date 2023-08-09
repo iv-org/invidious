@@ -193,6 +193,11 @@ struct Video
     }
   end
 
+  # Returns true if comments are enabled on the video
+  def comments?
+    return info["commentsEnabled"].as_bool
+  end
+
   # Macros defining getters/setters for various types of data
 
   private macro getset_string(name)

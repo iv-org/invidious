@@ -418,7 +418,7 @@ p.channel-name { margin: 0; overflow-wrap: anywhere;}
 p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 
 .channel-profile > .channel-name,
-.channel-profile > .channel-name-pronouns >  .channel-name 
+.channel-profile > .channel-name-pronouns >  .channel-name
 {
   overflow-wrap: anywhere;
 }
@@ -909,4 +909,8 @@ h1, h2, h3, h4, h5, p,
   padding-left: 10px;
   display: inline-block;
   vertical-align: top;
+}
+
+#comments-turned-off-on-video-message > p, #comments-disabled-message > p {
+  text-align: center;
 }
