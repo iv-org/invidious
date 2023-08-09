@@ -42,6 +42,12 @@ we're going to need to do it here in order to allow for translations.
     content: "<%= translate(locale, "Show less") %>"
 }
 </style>
+
+<% 
+    # Disable the try reddit link if javascript is disabled 
+%>
+<noscript><style> #try-reddit-comments-link { display: none } </style></noscript>
+
 <% end %>
 
 <script id="video_data" type="application/json">
@@ -56,6 +62,8 @@ we're going to need to do it here in order to allow for translations.
     "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
     "reddit_comments_text" => HTML.escape(translate(locale, "View Reddit comments")),
     "reddit_permalink_text" => HTML.escape(translate(locale, "View more comments on Reddit")),
+    "youtube_comments_disabled_text" => HTML.escape(translate(locale, "youtube_comments_disabled_text")),
+    "youtube_comments_disabled_try_reddit" => HTML.escape(translate(locale, "youtube_comments_disabled_try_reddit")),
     "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
     "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),
     "show_replies_text" => HTML.escape(translate(locale, "Show replies")),
@@ -307,7 +315,15 @@ we're going to need to do it here in order to allow for translations.
                         <% end %>
                     <% else %>
                         <div id="comments-turned-off-on-video-message" class="h-box v-box">
-                            <p><b><%=translate(locale, "youtube_comments_disabled_text")%></b></p>
+                            <p><b><%=translate(locale, "youtube_comments_disabled_text")%></b></p>                            
+
+                            <p>
+                                <b> 
+                                    <a href="javascript:void(0)" data-comments="reddit" id="try-reddit-comments-link"> 
+                                        <%=HTML.escape(translate(locale, "youtube_comments_disabled_try_reddit"))%>
+                                    </a> 
+                                </b>
+                            </p> 
                         </div>
                     <% end %>
                 <% end %>

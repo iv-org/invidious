@@ -178,6 +178,10 @@ addEventListener('load', function (e) {
     if (video_data.plid)
         get_playlist(video_data.plid);
 
+    if (!video_data.comments_enabled && video_data.params.comments.includes("youtube")) {
+        return;
+    }
+
     if (video_data.params.comments[0] === 'youtube') {
         get_youtube_comments();
     } else if (video_data.params.comments[0] === 'reddit') {
@@ -188,3 +192,5 @@ addEventListener('load', function (e) {
         get_reddit_comments();
     } 
 });
+
+document.getElementById("try-reddit-comments-link").onclick = swap_comments
