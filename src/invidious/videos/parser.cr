@@ -416,6 +416,20 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
       .try &.as_s.split(" ", 2)[0]
   end
 
+  # Comments enabled?
+  comments_enabled = true
+
+  # When comments are enabled the primary results should contain either the comments-entry-point
+  # or comment-item-section section
+  if primary_results
+    section = primary_results.as_a.find { |s| s.dig?("itemSectionRenderer", "sectionIdentifier") == "comment-item-section" }
+
+    # messageRenderer should say "Comments are turned off."
+    if section && section.dig?("itemSectionRenderer", "contents", 0, "messageRenderer")
+      comments_enabled = false
+    end
+  end
+
   # Return data
 
   if live_now
@@ -461,6 +475,8 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "authorThumbnail" => JSON::Any.new(author_thumbnail.try &.as_s || ""),
     "authorVerified"  => JSON::Any.new(author_verified || false),
     "subCountText"    => JSON::Any.new(subs_text || "-"),
+
+    "commentsEnabled" => JSON::Any.new(comments_enabled),
   }
 
   return params

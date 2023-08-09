@@ -186,8 +186,5 @@ addEventListener('load', function (e) {
         get_youtube_comments();
     } else if (video_data.params.comments[1] === 'reddit') {
         get_reddit_comments();
-    } else {
-        var comments = document.getElementById('comments');
-        comments.innerHTML = '';
-    }
+    } 
 });

@@ -219,6 +219,8 @@
     "View Reddit comments": "View Reddit comments",
     "Hide replies": "Hide replies",
     "Show replies": "Show replies",
+    "youtube_comments_disabled_text": "Comments are turned off on this video",
+    "invidious_comments_disabled_text": "Comments are hidden as per configuration",
     "Incorrect password": "Incorrect password",
     "Wrong answer": "Wrong answer",
     "Erroneous CAPTCHA": "Erroneous CAPTCHA",

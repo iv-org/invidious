@@ -63,6 +63,7 @@ we're going to need to do it here in order to allow for translations.
     "preferences" => preferences,
     "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
     "vr" => video.vr?,
+    "comments_enabled" => video.comments?,
     "projection_type" => video.projection_type,
     "local_disabled" => CONFIG.disabled?("local"),
     "support_reddit" => true
@@ -289,14 +290,26 @@ we're going to need to do it here in order to allow for translations.
 
             <% end %>
             <div id="comments" class="comments">
-                <% if nojs %>
-                    <%= comment_html %>
+                <% if (params.comments <=> ["", ""]) == 0 %>
+                    <div id="comments-disabled-message" class="h-box v-box">
+                        <p><b><%=translate(locale, "invidious_comments_disabled_text")%></b></p>
+                    </div>
                 <% else %>
-                    <noscript>
-                        <a href="/watch?<%= env.params.query %>&nojs=1">
-                            <%= translate(locale, "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.") %>
-                        </a>
-                    </noscript>
+                    <% if video.comments? %>
+                        <% if nojs %>
+                            <%= comment_html %>
+                        <% else %>
+                            <noscript>
+                                <a href="/watch?<%= env.params.query %>&nojs=1">
+                                    <%= translate(locale, "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.") %>
+                                </a>
+                            </noscript>
+                        <% end %>
+                    <% else %>
+                        <div id="comments-turned-off-on-video-message" class="h-box v-box">
+                            <p><b><%=translate(locale, "youtube_comments_disabled_text")%></b></p>
+                        </div>
+                    <% end %>
                 <% end %>
             </div>
         </div>
