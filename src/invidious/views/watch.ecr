@@ -42,6 +42,12 @@ we're going to need to do it here in order to allow for translations.
     content: "<%= I18n.translate(locale, "Show less") %>"
 }
 </style>
+
+<%
+    # Disable the try reddit link if javascript is disabled
+%>
+<noscript><style> #try-reddit-comments-link { display: none } </style></noscript>
+
 <% end %>
 
 <script id="video_data" type="application/json">
@@ -54,6 +60,8 @@ we're going to need to do it here in order to allow for translations.
     "play_next" => !video.related_videos.empty? && !plid && params.continue,
     "next_video" => video.related_videos.select { |rv| rv["id"]? }[0]?.try &.["id"],
     "youtube_comments_text" => HTML.escape(I18n.translate(locale, "View YouTube comments")),
+    "youtube_comments_disabled_text" => HTML.escape(I18n.translate(locale, "youtube_comments_disabled_text")),
+    "youtube_comments_disabled_try_reddit" => HTML.escape(I18n.translate(locale, "youtube_comments_disabled_try_reddit")),
     "reddit_comments_text" => HTML.escape(I18n.translate(locale, "View Reddit comments")),
     "reddit_permalink_text" => HTML.escape(I18n.translate(locale, "View more comments on Reddit")),
     "comments_text" => HTML.escape(I18n.translate(locale, "View `x` comments", "{commentCount}")),
@@ -308,6 +316,13 @@ we're going to need to do it here in order to allow for translations.
                     <% else %>
                         <div id="comments-turned-off-on-video-message" class="h-box v-box">
                             <p><b><%= I18n.translate(locale, "youtube_comments_disabled_text") %></b></p>
+                            <p>
+                                <b>
+                                    <a href="javascript:void(0)" data-comments="reddit" id="try-reddit-comments-link">
+                                        <%=HTML.escape(I18n.translate(locale, "youtube_comments_disabled_try_reddit"))%>
+                                    </a>
+                                </b>
+                            </p>
                         </div>
                     <% end %>
                 <% end %>
