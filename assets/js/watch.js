@@ -193,4 +193,4 @@ addEventListener('load', function (e) {
     } 
 });
 
-document.getElementById("try-reddit-comments-link").onclick = swap_comments
+document.getElementById("try-reddit-comments-link").onclick = swap_comments;

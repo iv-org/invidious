@@ -87,7 +87,7 @@ function get_youtube_comments() {
                 </p> 
             </div>`;
 
-            document.getElementById("try-reddit-comments-link").onclick = swap_comments 
+            document.getElementById("try-reddit-comments-link").onclick = swap_comments;
         } else {
             comments.innerHTML = fallback; 
         }
