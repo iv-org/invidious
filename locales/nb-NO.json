@@ -154,7 +154,7 @@
     "View YouTube comments": "Vis YouTube-kommentarer",
     "View more comments on Reddit": "Vis flere kommenterer på Reddit",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` kommentarer",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Vis `x` kommentar",
         "": "Vis `x` kommentarer"
     },
     "View Reddit comments": "Vis Reddit-kommentarer",
@@ -476,5 +476,13 @@
     "Album: ": "Album: ",
     "Download is disabled": "Nedlasting er avskrudd",
     "Channel Sponsor": "Kanalsponsor",
-    "Import YouTube playlist (.csv)": "Importer YouTube-spilleliste (.csv)"
+    "Import YouTube playlist (.csv)": "Importer YouTube-spilleliste (.csv)",
+    "channel_tab_podcasts_label": "Podkaster",
+    "channel_tab_releases_label": "Utgaver",
+    "generic_button_delete": "Slett",
+    "generic_button_edit": "Endre",
+    "generic_button_save": "Lagre",
+    "generic_button_cancel": "Avbryt",
+    "generic_button_rss": "RSS",
+    "playlist_button_add_items": "Legg til videoer"
 }
