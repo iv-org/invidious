@@ -486,6 +486,10 @@ module Invidious::Routes::API::V1::Videos
       end
 
       return response
+    else
+      env.response.content_type = "text/vtt; charset=UTF-8"
+
+      return Invidious::Videos::Chapters.chapters_to_vtt(chapters)
     end
   end
 end
