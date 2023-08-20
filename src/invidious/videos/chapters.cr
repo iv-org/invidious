@@ -46,4 +46,41 @@ module Invidious::Videos::Chapters
 
     return segments
   end
+
+  # Converts an array of Chapter objects to a webvtt file
+  def self.chapters_to_vtt(chapters : Array(Chapter))
+    vtt = String.build do |vtt|
+      vtt << <<-END_VTT
+      WEBVTT
+
+
+      END_VTT
+
+      # Taken from Invidious::Videos::Caption.timedtext_to_vtt()
+      chapters.each do |chapter|
+        start_time = chapter.start_ms.milliseconds
+        end_time = chapter.end_ms.milliseconds
+
+        # start_time
+        vtt << start_time.hours.to_s.rjust(2, '0')
+        vtt << ':' << start_time.minutes.to_s.rjust(2, '0')
+        vtt << ':' << start_time.seconds.to_s.rjust(2, '0')
+        vtt << '.' << start_time.milliseconds.to_s.rjust(3, '0')
+
+        vtt << " --> "
+
+        # end_time
+        vtt << end_time.hours.to_s.rjust(2, '0')
+        vtt << ':' << end_time.minutes.to_s.rjust(2, '0')
+        vtt << ':' << end_time.seconds.to_s.rjust(2, '0')
+        vtt << '.' << end_time.milliseconds.to_s.rjust(3, '0')
+
+        vtt << "\n"
+        vtt << chapter.title
+
+        vtt << "\n"
+        vtt << "\n"
+      end
+    end
+  end
 end
