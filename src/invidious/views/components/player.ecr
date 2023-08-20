@@ -64,6 +64,10 @@
         <% captions.each do |caption| %>
             <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name %>" label="<%= caption.name %>">
         <% end %>
+
+        <% if !chapters.empty? %>
+            <track kind="chapters" src="/api/v1/chapters/<%= video.id %>">
+        <% end %>
     <% end %>
 </video>
 
