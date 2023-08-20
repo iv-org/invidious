@@ -476,5 +476,11 @@
     "Standard YouTube license": "Standard YouTube-Lizenz",
     "Song: ": "Musik: ",
     "Download is disabled": "Herunterladen ist deaktiviert",
-    "Import YouTube playlist (.csv)": "YouTube Playlist Importieren (.csv)"
+    "Import YouTube playlist (.csv)": "YouTube Playlist Importieren (.csv)",
+    "generic_button_delete": "Löschen",
+    "generic_button_edit": "Bearbeiten",
+    "generic_button_save": "Speichern",
+    "generic_button_cancel": "Abbrechen",
+    "generic_button_rss": "RSS",
+    "playlist_button_add_items": "Videos hinzufügen"
 }
