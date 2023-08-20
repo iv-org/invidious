@@ -380,10 +380,10 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # Yes, `decoratedPlayerBarRenderer` is repeated twice.
   if player_bar = player_overlays.try &.dig?("decoratedPlayerBarRenderer", "decoratedPlayerBarRenderer", "playerBar")
     if markers = player_bar.dig?("multiMarkersPlayerBarRenderer", "markersMap")
-      potential_chapters_array = markers.as_a.find { |m| m["key"] == "DESCRIPTION_CHAPTERS" }
+      potential_chapters_array = markers.as_a.find { |m| m["key"]? == "DESCRIPTION_CHAPTERS" }
 
       if potential_chapters_array
-        chapters_array = potential_chapters_array.as_a
+        chapters_array = potential_chapters_array["value"]["chapters"].as_a
       end
     end
   end

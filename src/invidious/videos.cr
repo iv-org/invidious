@@ -27,6 +27,9 @@ struct Video
   @captions = [] of Invidious::Videos::Caption
 
   @[DB::Field(ignore: true)]
+  @chapters = [] of Invidious::Videos::Chapters::Chapter
+
+  @[DB::Field(ignore: true)]
   property adaptive_fmts : Array(Hash(String, JSON::Any))?
 
   @[DB::Field(ignore: true)]
@@ -221,6 +224,14 @@ struct Video
     end
 
     return @captions
+  end
+
+  def chapters
+    if @chapters.empty?
+      @chapters = Invidious::Videos::Chapters.parse(@info["chapters"].as_a, self.length_seconds)
+    end
+
+    return @chapters
   end
 
   def hls_manifest_url : String?

@@ -221,6 +221,7 @@ module Invidious::Routing
       get "/api/v1/captions/:id", {{namespace}}::Videos, :captions
       get "/api/v1/annotations/:id", {{namespace}}::Videos, :annotations
       get "/api/v1/comments/:id", {{namespace}}::Videos, :comments
+      get "/api/v1/chapters/:id", {{namespace}}::Videos, :chapters
 
       # Feeds
       get "/api/v1/trending", {{namespace}}::Feeds, :trending
