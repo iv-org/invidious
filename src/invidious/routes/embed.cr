@@ -191,6 +191,8 @@ module Invidious::Routes::Embed
 
     thumbnail = "/vi/#{video.id}/maxres.jpg"
 
+    chapters = video.chapters
+
     if params.raw
       url = fmt_stream[0]["url"].as_s
 
