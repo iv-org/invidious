@@ -270,11 +270,12 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     end
   end
 
+  player_overlays = player_response.dig?("playerOverlays", "playerOverlayRenderer")
+
   # If nothing was found previously, fall back to end screen renderer
   if related.empty?
     # Container for "endScreenVideoRenderer" items
-    player_overlays = player_response.dig?(
-      "playerOverlays", "playerOverlayRenderer",
+    end_screen_watch_next_array = player_overlays.try &.dig?(
       "endScreen", "watchNextEndScreenRenderer", "results"
     )
 
@@ -416,6 +417,20 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
       .try &.as_s.split(" ", 2)[0]
   end
 
+  # Chapters
+  chapters_array = [] of JSON::Any
+
+  # Yes, `decoratedPlayerBarRenderer` is repeated twice.
+  if player_bar = player_overlays.try &.dig?("decoratedPlayerBarRenderer", "decoratedPlayerBarRenderer", "playerBar")
+    if markers = player_bar.dig?("multiMarkersPlayerBarRenderer", "markersMap")
+      potential_chapters_array = markers.as_a.find { |m| m["key"] == "DESCRIPTION_CHAPTERS" }
+
+      if potential_chapters_array
+        chapters_array = potential_chapters_array.as_a
+      end
+    end
+  end
+
   # Return data
 
   if live_now
@@ -461,6 +476,8 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "authorThumbnail" => JSON::Any.new(author_thumbnail.try &.as_s || ""),
     "authorVerified"  => JSON::Any.new(author_verified || false),
     "subCountText"    => JSON::Any.new(subs_text || "-"),
+
+    "chapters" => JSON::Any.new(chapters_array),
   }
 
   return params
