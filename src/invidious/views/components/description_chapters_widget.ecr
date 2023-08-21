@@ -10,7 +10,7 @@
                     <a href="/watch?v=<%= video.id %>&t=<%=chapter.start_ms.milliseconds.total_seconds %>">
                         <div class="thumbnail">
                             <% if !env.get("preferences").as(Preferences).thin_mode %>
-                                <img loading="lazy" class="thumbnail" src="/vi/" alt="" />
+                                <img loading="lazy" class="thumbnail" src="<%=URI.parse(chapter.thumbnails[-1]["url"].to_s).request_target %>" alt="" />
                             <%- else -%>
                                 <div class="thumbnail-placeholder"></div>
                             <%- end -%>

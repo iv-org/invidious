@@ -160,6 +160,16 @@ module Invidious::Routes::Images
     id = env.params.url["id"]
     name = env.params.url["name"]
 
+    # Sometimes required to fetch image. IE for chapter thumbnails
+    query_params = HTTP::Params.new
+    if sqp = env.params.query["sqp"]?
+      query_params["sqp"] = sqp
+    end
+
+    if rs = env.params.query["rs"]?
+      query_params["rs"] = rs
+    end
+
     headers = HTTP::Headers.new
 
     if name == "maxres.jpg"
@@ -173,7 +183,7 @@ module Invidious::Routes::Images
       end
     end
 
-    url = "/vi/#{id}/#{name}"
+    url = "/vi/#{id}/#{name}?#{query_params}"
 
     REQUEST_HEADERS_WHITELIST.each do |header|
       if env.request.headers[header]?
