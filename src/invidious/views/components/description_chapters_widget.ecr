@@ -1,23 +1,20 @@
 <% if !chapters.empty? %>
     <hr class="description-content-separator"/>
     <div class="description-chapters-section">
-        <p class="description-chapter">
         <h5>Chapters</h5>
-
         <div class="description-chapters-content-container">
             <% chapters.each do | chapter |%>
                 <div class="chapter">
-                    <a href="/watch?v=<%= video.id %>&t=<%=chapter.start_ms.milliseconds.total_seconds %>">
+                    <a href="/watch?v=<%= video.id %>&t=<%=chapter.start_ms.milliseconds.total_seconds.to_i %>">
                         <div class="thumbnail">
-                            <% if !env.get("preferences").as(Preferences).thin_mode %>
-                                <img loading="lazy" class="thumbnail" src="<%=URI.parse(chapter.thumbnails[-1]["url"].to_s).request_target %>" alt="" />
+                            <%- if !env.get("preferences").as(Preferences).thin_mode -%>
+                                <img loading="lazy" class="thumbnail" src="<%-=URI.parse(chapter.thumbnails[-1]["url"].to_s).request_target %>" alt="" />
                             <%- else -%>
                                 <div class="thumbnail-placeholder"></div>
                             <%- end -%>
                         </div>
-
-                        <p><%= recode_length_seconds(chapter.start_ms.milliseconds.total_seconds) %></p>
-                        <p><%=chapter.title%></p>
+                        <p><%-= recode_length_seconds(chapter.start_ms.milliseconds.total_seconds) %></p>
+                        <p><%-=chapter.title%></p>
                     </a>
                 </div>
             <% end %>
