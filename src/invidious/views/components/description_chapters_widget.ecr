@@ -6,20 +6,20 @@
             <% chapters.each do | chapter | %>
                 <%- start_in_seconds = chapter.start_ms.milliseconds.total_seconds.to_i %>
                 <a href="/watch?v=<%-= video.id %>&t=<%=start_in_seconds %>">
-                    <div class="chapter">
+                    <div class="chapter" data-onclick="jump_to_time" data-jump-time="<%=start_in_seconds%>">
                         <div class="thumbnail">
                             <%- if !env.get("preferences").as(Preferences).thin_mode -%>
-                                <img loading="lazy" class="thumbnail" src="<%-=URI.parse(chapter.thumbnails[-1]["url"].to_s).request_target %>" alt="" />
+                                <img loading="lazy" class="thumbnail" src="<%-=URI.parse(chapter.thumbnails[-1]["url"].to_s).request_target %>" alt="" data-onclick="jump_to_time" data-jump-time="<%=start_in_seconds%>"/>
                             <%- else -%>
-                                <div class="thumbnail-placeholder"></div>
+                                <div class="thumbnail-placeholder" data-onclick="jump_to_time" data-jump-time="<%=start_in_seconds%>"></div>
                             <%- end -%>
                         </div>
                         <%- if start_in_seconds > 0 -%>
-                            <p><%-= recode_length_seconds(start_in_seconds) -%></p>
+                            <p data-onclick="jump_to_time" data-jump-time="<%=start_in_seconds%>"><%-= recode_length_seconds(start_in_seconds) -%></p>
                         <%- else -%>
-                            <p>0:00</p>
+                            <p data-onclick="jump_to_time" data-jump-time="<%=start_in_seconds%>">0:00</p>
                         <%- end -%>
-                        <p><%-=chapter.title-%></p>
+                        <p data-onclick="jump_to_time" data-jump-time="<%=start_in_seconds%>"><%-=chapter.title-%></p>
                     </div>
                 </a>
             <% end %>
