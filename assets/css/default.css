@@ -159,7 +159,9 @@ body a.pure-button {
 button.pure-button-primary,
 body a.pure-button-primary,
 .channel-owner:hover,
-.channel-owner:focus {
+.channel-owner:focus,
+.chapter:hover,
+.chapter:focus {
   background-color: #a0a0a0;
   color: rgba(35, 35, 35, 1);
 }
@@ -760,7 +762,23 @@ h1, h2, h3, h4, h5, p,
   margin: 0 2px;
 }
 
+.description-chapters-section {
+  white-space: normal;
+}
+
 .description-chapters-content-container {
   display: flex;
   flex-direction: row;
+  gap: 5px;
+  overflow: scroll;
+
+  overflow-y: hidden;
+}
+
+.chapter {
+  padding: 3px;
+}
+
+.chapter .thumbnail {
+  width: 200px;
 }
