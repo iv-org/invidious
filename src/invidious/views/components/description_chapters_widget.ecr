@@ -3,8 +3,9 @@
         <hr class="description-content-separator"/>
         <h4>Chapters</h4>
         <div class="description-chapters-content-container">
-            <% chapters.each do | chapter |%>
-                <a href="/watch?v=<%= video.id %>&t=<%=chapter.start_ms.milliseconds.total_seconds.to_i %>">
+            <% chapters.each do | chapter | %>
+                <%- start_in_seconds = chapter.start_ms.milliseconds.total_seconds.to_i %>
+                <a href="/watch?v=<%-= video.id %>&t=<%=start_in_seconds %>">
                     <div class="chapter">
                         <div class="thumbnail">
                             <%- if !env.get("preferences").as(Preferences).thin_mode -%>
@@ -13,7 +14,11 @@
                                 <div class="thumbnail-placeholder"></div>
                             <%- end -%>
                         </div>
-                        <p><%-= recode_length_seconds(chapter.start_ms.milliseconds.total_seconds) -%></p>
+                        <%- if start_in_seconds > 0 -%>
+                            <p><%-= recode_length_seconds(start_in_seconds) -%></p>
+                        <%- else -%>
+                            <p>0:00</p>
+                        <%- end -%>
                         <p><%-=chapter.title-%></p>
                     </div>
                 </a>
