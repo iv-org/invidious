@@ -484,5 +484,7 @@
     "channel_tab_releases_label": "Releases",
     "channel_tab_playlists_label": "Playlists",
     "channel_tab_community_label": "Community",
-    "channel_tab_channels_label": "Channels"
+    "channel_tab_channels_label": "Channels",
+    "video_chapters_label": "Chapters",
+    "video_chapters_auto_generated_label": "These chapters are auto-generated"
 }
