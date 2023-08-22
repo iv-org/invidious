@@ -2,6 +2,11 @@
     <div class="description-chapters-section">
         <hr class="description-content-separator"/>
         <h4>Chapters</h4>
+
+        <% if video.automatically_generated_chapters? %> 
+          <h5>Chapters are automatically generated </h5>
+        <% end %>
+
         <div class="description-chapters-content-container">
             <% chapters.each do | chapter | %>
                 <%- start_in_seconds = chapter.start_ms.milliseconds.total_seconds.to_i %>
