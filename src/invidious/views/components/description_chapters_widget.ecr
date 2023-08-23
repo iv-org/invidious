@@ -1,10 +1,10 @@
 <% if !chapters.empty? %>
     <div class="description-chapters-section">
         <hr class="description-content-separator"/>
-        <h4><%=translate(locale, "video_chapters_label")%></h4>
+        <h4><%=HTML.escape(translate(locale, "video_chapters_label"))%></h4>
 
         <% if video.automatically_generated_chapters? %> 
-          <h5><%=translate(locale, "video_chapters_auto_generated_label")%> </h5>
+          <h5><%=HTML.escape(translate(locale, "video_chapters_auto_generated_label"))%> </h5>
         <% end %>
 
         <div class="description-chapters-content-container">
