@@ -18,7 +18,7 @@ Spectator.describe "WebVTT::Builder" do
   it "correctly builds a vtt file" do
     result = WebVTT.build do |vtt|
       MockLines.each do |line|
-        vtt.line(line["start_time"], line["end_time"], line["text"])
+        vtt.cue(line["start_time"], line["end_time"], line["text"])
       end
     end
 
@@ -43,7 +43,7 @@ Spectator.describe "WebVTT::Builder" do
 
     result = WebVTT.build(setting_fields) do |vtt|
       MockLines.each do |line|
-        vtt.line(line["start_time"], line["end_time"], line["text"])
+        vtt.cue(line["start_time"], line["end_time"], line["text"])
       end
     end
 

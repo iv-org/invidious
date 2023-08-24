@@ -42,7 +42,7 @@ module Invidious::Videos
       # Taken from Invidious::Videos::Captions::Metadata.timedtext_to_vtt()
       vtt = WebVTT.build(settings_field) do |vtt|
         lines.each do |line|
-          vtt.line(line.start_ms, line.end_ms, line.line)
+          vtt.cue(line.start_ms, line.end_ms, line.line)
         end
       end
 

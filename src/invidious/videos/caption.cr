@@ -78,7 +78,7 @@ module Invidious::Videos
               end
             end
 
-            vtt.line(start_time, end_time, text)
+            vtt.cue(start_time, end_time, text)
           end
         end
 

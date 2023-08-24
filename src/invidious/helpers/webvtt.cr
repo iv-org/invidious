@@ -7,8 +7,8 @@ module WebVTT
     def initialize(@io : IO)
     end
 
-    # Writes an vtt line with the specified time stamp and contents
-    def line(start_time : Time::Span, end_time : Time::Span, text : String)
+    # Writes an vtt cue with the specified time stamp and contents
+    def cue(start_time : Time::Span, end_time : Time::Span, text : String)
       timestamp(start_time, end_time)
       @io << text
       @io << "\n\n"
@@ -48,8 +48,8 @@ module WebVTT
   #
   # ```
   # string = WebVTT.build do |io|
-  #   vtt.line(Time::Span.new(seconds: 1), Time::Span.new(seconds: 2), "Line 1")
-  #   vtt.line(Time::Span.new(seconds: 2), Time::Span.new(seconds: 3), "Line 2")
+  #   vtt.cue(Time::Span.new(seconds: 1), Time::Span.new(seconds: 2), "Line 1")
+  #   vtt.cue(Time::Span.new(seconds: 2), Time::Span.new(seconds: 3), "Line 2")
   # end
   #
   # string # => "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\nLine 1\n\n00:00:02.000 --> 00:00:03.000\nLine 2\n\n"

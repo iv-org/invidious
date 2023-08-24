@@ -131,7 +131,7 @@ module Invidious::Routes::API::V1::Videos
                 text = "<v #{md["name"]}>#{md["text"]}</v>"
               end
 
-              webvtt.line(start_time, end_time, text)
+              webvtt.cue(start_time, end_time, text)
             end
           end
         end
@@ -217,7 +217,7 @@ module Invidious::Routes::API::V1::Videos
         storyboard[:storyboard_height].times do |j|
           storyboard[:storyboard_width].times do |k|
             current_cue_url = "#{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width] - 2},#{storyboard[:height]}"
-            vtt.line(start_time, end_time, current_cue_url)
+            vtt.cue(start_time, end_time, current_cue_url)
 
             start_time += storyboard[:interval].milliseconds
             end_time += storyboard[:interval].milliseconds
