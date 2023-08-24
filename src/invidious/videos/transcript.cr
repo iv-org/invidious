@@ -37,7 +37,7 @@ module Invidious::Videos
       # Convert into array of TranscriptLine
       lines = self.parse(initial_data)
 
-      # Taken from Invidious::Videos::CaptionMetadata.timedtext_to_vtt()
+      # Taken from Invidious::Videos::Captions::Metadata.timedtext_to_vtt()
       vtt = String.build do |vtt|
         vtt << <<-END_VTT
         WEBVTT
