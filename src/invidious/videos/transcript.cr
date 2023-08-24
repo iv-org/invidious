@@ -4,16 +4,13 @@ module Invidious::Videos
     record TranscriptLine, start_ms : Time::Span, end_ms : Time::Span, line : String
 
     def self.generate_param(video_id : String, language_code : String, auto_generated : Bool) : String
-      if !auto_generated
-        is_auto_generated = ""
-      elsif is_auto_generated = "asr"
-      end
+      kind = auto_generated ? "asr" : ""
 
       object = {
         "1:0:string" => video_id,
 
         "2:base64" => {
-          "1:string" => is_auto_generated,
+          "1:string" => kind,
           "2:string" => language_code,
           "3:string" => "",
         },
