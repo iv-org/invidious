@@ -44,10 +44,10 @@ module WebVTT
     end
   end
 
-  # Returns the resulting `String` of writing WebVTT to the yielded WebVTT::Builder
+  # Returns the resulting `String` of writing WebVTT to the yielded `WebVTT::Builder`
   #
   # ```
-  # string = WebVTT.build do |io|
+  # string = WebVTT.build do |vtt|
   #   vtt.cue(Time::Span.new(seconds: 1), Time::Span.new(seconds: 2), "Line 1")
   #   vtt.cue(Time::Span.new(seconds: 2), Time::Span.new(seconds: 3), "Line 2")
   # end
