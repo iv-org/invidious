@@ -28,10 +28,7 @@ module Invidious::Videos
           language_code = caption["languageCode"].to_s
           base_url = caption["baseUrl"].to_s
 
-          auto_generated = false
-          if caption["kind"]? && caption["kind"] == "asr"
-            auto_generated = true
-          end
+          auto_generated = (caption["kind"]? == "asr")
 
           captions_list << Captions::Metadata.new(name, language_code, base_url, auto_generated)
         end
