@@ -371,7 +371,7 @@ class invidious_embed{
         this.message_wait = {getvolume:[],getmutestatus:[],getduration:[],getcurrenttime:[],getplaybackrate:[],getavailableplaybackrates:[],gettitle:[]};
     }
     async getVideoData(){
-        return {video_id:this.videoId,title:this.promise_send_event('gettitle')};
+        return {video_id:this.videoId,title:await this.promise_send_event('gettitle')};
     }
 }
 function invidious_ready(func){
