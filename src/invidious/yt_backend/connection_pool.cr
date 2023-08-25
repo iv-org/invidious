@@ -26,12 +26,14 @@ struct YoutubeConnectionPool
 
   def client(&block)
     conn = pool.checkout
+    conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
     begin
       response = yield conn
     rescue ex
       conn.close
       conn = HTTP::Client.new(url)
 
+      conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
       conn.family = CONFIG.force_resolve
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
@@ -46,6 +48,7 @@ struct YoutubeConnectionPool
   private def build_pool
     DB::Pool(HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
       conn = HTTP::Client.new(url)
+      conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
       conn.family = CONFIG.force_resolve
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
@@ -66,6 +69,8 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false)
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
 
+  client.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+
   return client
 end
 
@@ -76,4 +81,17 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, &block)
   ensure
     client.close
   end
+end
+
+def make_configured_http_proxy_client
+  # This method is only called when configuration for an HTTP proxy are set
+  config_proxy = CONFIG.http_proxy.not_nil!
+
+  return HTTP::Proxy::Client.new(
+    config_proxy.host,
+    config_proxy.port,
+
+    username: config_proxy.user,
+    password: config_proxy.password,
+  )
 end
