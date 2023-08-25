@@ -26,6 +26,8 @@ class invidious_embed{
     Player(element,options){
         this.player_status = -1;
         this.error_code = 0;
+        this.volume = 100;
+        this.eventobject = {ready:[],ended:[],error:[],ratechange:[],volumechange:[],waiting:[],timeupdate:[],loadedmetadata:[],play:[],seeking:[],seeked:[],playerresize:[],pause:[],statechange:[]};
         var replace_elemnt;
         if(element===undefined||element===null){
             throw 'please set element id or HTMLElement';
@@ -79,6 +81,7 @@ class invidious_embed{
         this.player_iframe = document.createElement("iframe");
         this.loaded = false;
         this.addEventListener('loadedmetadata',()=>{this.event_executor('ready');this.loaded=true});
+        this.addEventListener('loadedmetadata',()=>{this.setVolume(this.volume)});
         this.player_iframe.src = iframe_src;
         if(options.width!==undefined&&typeof options.width==='number'){
             this.player_iframe.width = options.width;
@@ -98,7 +101,6 @@ class invidious_embed{
             this.player_iframe.height = this.player_iframe.width * (9/16);
         }
         this.player_iframe.style.border = "none";
-        this.eventobject = {ready:[],ended:[],error:[],ratechange:[],volumechange:[],waiting:[],timeupdate:[],loadedmetadata:[],play:[],seeking:[],seeked:[],playerresize:[],pause:[],statechange:[]};
         replace_elemnt.replaceWith(this.player_iframe);
         this.eventdata = {};
         return this;
@@ -198,6 +200,7 @@ class invidious_embed{
     }
     setVolume(volume){
         volume = Number(volume);
+        this.volume = volume;
         if(volume!==NaN&&volume!=undefined&&volume>=0&&volume<=100){
             this.postMessage({eventname:'setvolume',value:volume/100});
         }
@@ -276,7 +279,7 @@ class invidious_embed{
                 startSeconds = option.startSeconds;
             }
             if(option.endSeconds!==undefined&&typeof option.endSeconds==='number'&&option.endSeconds>=0){
-                startSeconds = option.endSeconds;
+                endSeconds = option.endSeconds;
             }
         }
         if(mediaContetUrl.length>0){
@@ -355,9 +358,6 @@ class invidious_embed{
     getVideoUrl(){
         return this.target_origin + "/watch?v=" + this.videoId;
     }
-    getVideoTitle(){//original function
-        return this.promise_send_event('gettitle');
-    }
     async getVideoEmbedCode(){
         var title = await this.getVideoTitle();
         return '<iframe width="560" height="315" src="' + this.target_origin + "/embed/" + this.videoId + '" title="' + title.replace('"','') + '" frameborder="0" allow="autoplay;encrypted-media;picture-in-picture; web-share" allowfullscreen></iframe>';
@@ -369,6 +369,9 @@ class invidious_embed{
         this.Player(element,options);
         window.addEventListener('message',(ms)=>{this.receiveMessage(ms)});
         this.message_wait = {getvolume:[],getmutestatus:[],getduration:[],getcurrenttime:[],getplaybackrate:[],getavailableplaybackrates:[],gettitle:[]};
+    }
+    async getVideoData(){
+        return {video_id:this.videoId,title:this.promise_send_event('gettitle')};
     }
 }
 function invidious_ready(func){
