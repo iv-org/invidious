@@ -1,6 +1,6 @@
 <%-
   thin_mode = env.get("preferences").as(Preferences).thin_mode
-  item_watched = !item.is_a?(SearchChannel | SearchPlaylist | InvidiousPlaylist | Category) && env.get?("user").try &.as(User).watched.index(item.id) != nil
+  item_watched = !item.is_a?(SearchChannel | SearchHashtag | SearchPlaylist | InvidiousPlaylist | Category) && env.get?("user").try &.as(User).watched.index(item.id) != nil
   author_verified = item.responds_to?(:author_verified) && item.author_verified
 -%>
 
@@ -29,6 +29,30 @@
             <p><%= translate_count(locale, "generic_subscribers_count", item.subscriber_count, NumberFormatting::Separator) %></p>
             <% if !item.auto_generated %><p><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p><% end %>
             <h5><%= item.description_html %></h5>
+        <% when SearchHashtag %>
+            <% if !thin_mode %>
+                <a tabindex="-1" href="<%= item.url %>">
+                    <center><img style="width:56.25%" src="/hashtag.svg" alt="" /></center>
+                </a>
+            <%- else -%>
+                <div class="thumbnail-placeholder" style="width:56.25%"></div>
+            <% end %>
+
+            <div class="video-card-row">
+                <div class="flex-left"><a href="<%= item.url %>"><%= HTML.escape(item.title) %></a></div>
+            </div>
+
+            <div class="video-card-row">
+                <%- if item.video_count != 0 -%>
+                    <p><%= translate_count(locale, "generic_videos_count", item.video_count, NumberFormatting::Separator) %></p>
+                <%- end -%>
+            </div>
+
+            <div class="video-card-row">
+                <%- if item.channel_count != 0 -%>
+                    <p><%= translate_count(locale, "generic_channels_count", item.channel_count, NumberFormatting::Separator) %></p>
+                <%- end -%>
+            </div>
         <% when SearchPlaylist, InvidiousPlaylist %>
             <%-
               if item.id.starts_with? "RD"
