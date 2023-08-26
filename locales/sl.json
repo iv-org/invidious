@@ -222,7 +222,7 @@
     "search_filters_date_option_week": "Ta teden",
     "search_filters_type_label": "Vrsta",
     "search_filters_type_option_all": "Katerakoli vrsta",
-    "search_filters_type_option_playlist": "Seznami predvajanja",
+    "search_filters_type_option_playlist": "Seznam predvajanja",
     "search_filters_features_option_subtitles": "Podnapisi/CC",
     "search_filters_features_option_location": "Lokacija",
     "footer_donate_page": "Prispevaj",
@@ -508,5 +508,13 @@
     "Standard YouTube license": "Standardna licenca YouTube",
     "Channel Sponsor": "Sponzor kanala",
     "Download is disabled": "Prenos je onemogočen",
-    "Import YouTube playlist (.csv)": "Uvoz seznama predvajanja YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "Uvoz seznama predvajanja YouTube (.csv)",
+    "generic_button_delete": "Izbriši",
+    "generic_button_edit": "Uredi",
+    "generic_button_save": "Shrani",
+    "generic_button_cancel": "Prekliči",
+    "generic_button_rss": "RSS",
+    "playlist_button_add_items": "Dodaj videoposnetke",
+    "channel_tab_podcasts_label": "Poddaje",
+    "channel_tab_releases_label": "Izdaje"
 }

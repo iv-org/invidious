@@ -460,5 +460,13 @@
     "Music in this video": "동영상 속 음악",
     "Artist: ": "아티스트: ",
     "Download is disabled": "다운로드가 비활성화 되어있음",
-    "Import YouTube playlist (.csv)": "유튜브 플레이리스트 가져오기 (.csv)"
+    "Import YouTube playlist (.csv)": "유튜브 플레이리스트 가져오기 (.csv)",
+    "playlist_button_add_items": "동영상 추가",
+    "channel_tab_podcasts_label": "팟캐스트",
+    "generic_button_delete": "삭제",
+    "generic_button_edit": "편집",
+    "generic_button_save": "저장",
+    "generic_button_cancel": "취소",
+    "generic_button_rss": "RSS",
+    "channel_tab_releases_label": "출시"
 }

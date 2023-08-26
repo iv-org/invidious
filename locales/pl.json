@@ -148,12 +148,12 @@
     "Blacklisted regions: ": "Niedostępny na obszarach: ",
     "Shared `x`": "Udostępniono `x`",
     "Premieres in `x`": "Publikacja za `x`",
-    "Premieres `x`": "Publikacja za `x`",
+    "Premieres `x`": "Publikacja `x`",
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Cześć! Wygląda na to, że masz wyłączoną obsługę JavaScriptu. Kliknij tutaj, żeby zobaczyć komentarze. Pamiętaj, że wczytywanie może potrwać dłużej.",
     "View YouTube comments": "Wyświetl komentarze z YouTube",
     "View more comments on Reddit": "Wyświetl więcej komentarzy na Reddicie",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Wyświetl `x` komentarzy",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Wyświetl `x` komentarz",
         "": "Wyświetl `x` komentarzy"
     },
     "View Reddit comments": "Wyświetl komentarze z Redditta",
@@ -492,5 +492,13 @@
     "Song: ": "Piosenka: ",
     "Channel Sponsor": "Sponsor kanału",
     "Standard YouTube license": "Standardowa licencja YouTube",
-    "Import YouTube playlist (.csv)": "Importuj playlistę YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "Importuj playlistę YouTube (.csv)",
+    "generic_button_edit": "Edytuj",
+    "generic_button_cancel": "Anuluj",
+    "generic_button_rss": "RSS",
+    "channel_tab_podcasts_label": "Podkasty",
+    "channel_tab_releases_label": "Wydania",
+    "generic_button_delete": "Usuń",
+    "generic_button_save": "Zapisz",
+    "playlist_button_add_items": "Dodaj filmy"
 }

@@ -113,7 +113,7 @@
     "Token manager": "Gestor de tokens",
     "Token": "Ficha",
     "Import/export": "Importar/Exportar",
-    "unsubscribe": "Desuscribirse",
+    "unsubscribe": "desuscribirse",
     "revoke": "revocar",
     "Subscriptions": "Suscripciones",
     "search": "buscar",
@@ -154,7 +154,7 @@
     "View YouTube comments": "Ver los comentarios de YouTube",
     "View more comments on Reddit": "Ver más comentarios en Reddit",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` comentarios",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Ver `x` comentario",
         "": "Ver `x` comentarios"
     },
     "View Reddit comments": "Ver los comentarios de Reddit",
@@ -476,5 +476,13 @@
     "Channel Sponsor": "Patrocinador del canal",
     "Standard YouTube license": "Licencia de YouTube estándar",
     "Download is disabled": "La descarga está deshabilitada",
-    "Import YouTube playlist (.csv)": "Importar lista de reproducción de YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "Importar lista de reproducción de YouTube (.csv)",
+    "playlist_button_add_items": "Añadir vídeos",
+    "generic_button_edit": "Editar",
+    "generic_button_save": "Guardar",
+    "generic_button_delete": "Borrar",
+    "generic_button_cancel": "Cancelar",
+    "generic_button_rss": "RSS",
+    "channel_tab_podcasts_label": "Podcasts",
+    "channel_tab_releases_label": "Publicaciones"
 }

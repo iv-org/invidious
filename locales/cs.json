@@ -492,5 +492,13 @@
     "Song: ": "Skladba: ",
     "Standard YouTube license": "Standardní licence YouTube",
     "Download is disabled": "Stahování je zakázáno",
-    "Import YouTube playlist (.csv)": "Importovat YouTube playlist (.csv)"
+    "Import YouTube playlist (.csv)": "Importovat YouTube playlist (.csv)",
+    "generic_button_save": "Uložit",
+    "generic_button_delete": "Odstranit",
+    "generic_button_cancel": "Zrušit",
+    "channel_tab_podcasts_label": "Podcasty",
+    "channel_tab_releases_label": "Vydání",
+    "generic_button_edit": "Upravit",
+    "generic_button_rss": "RSS",
+    "playlist_button_add_items": "Přidat videa"
 }

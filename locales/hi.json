@@ -471,5 +471,18 @@
     "channel_tab_shorts_label": "शॉर्ट्स",
     "channel_tab_streams_label": "लाइवस्ट्रीम्स",
     "channel_tab_playlists_label": "प्लेलिस्ट्स",
-    "channel_tab_channels_label": "चैनल्स"
+    "channel_tab_channels_label": "चैनल्स",
+    "generic_button_save": "सहेजें",
+    "generic_button_cancel": "रद्द करें",
+    "generic_button_rss": "आरएसएस",
+    "generic_button_edit": "संपादित करें",
+    "generic_button_delete": "मिटाएं",
+    "playlist_button_add_items": "वीडियो जोड़ें",
+    "Song: ": "गाना: ",
+    "channel_tab_podcasts_label": "पाॅडकास्ट",
+    "channel_tab_releases_label": "रिलीज़ेस्",
+    "Import YouTube playlist (.csv)": "YouTube प्लेलिस्ट (.csv) आयात करें",
+    "Standard YouTube license": "मानक यूट्यूब लाइसेंस",
+    "Channel Sponsor": "चैनल प्रायोजक",
+    "Download is disabled": "डाउनलोड करना अक्षम है"
 }
