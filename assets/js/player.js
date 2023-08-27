@@ -701,6 +701,21 @@ if (navigator.vendor === 'Apple Computer, Inc.' && video_data.params.listen) {
     });
 }
 
+// Safari screen timeout on looped video playback fix
+if (navigator.vendor === 'Apple Computer, Inc.' && !video_data.params.listen && video_data.params.video_loop) {
+    player.loop(false);
+    player.on('loadedmetadata', function () {
+        player.on('timeupdate', function () {
+            if (player.remainingTime() < 2) {
+                player.loop(true);
+                setTimeout(() => {
+                    player.loop(false);
+                }, 2000 / player.playbackRate());
+            }
+        });
+    });
+}
+
 // Watch on Invidious link
 if (location.pathname.startsWith('/embed/')) {
     const Button = videojs.getComponent('Button');
