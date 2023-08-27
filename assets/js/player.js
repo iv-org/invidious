@@ -219,6 +219,7 @@ if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
 }
 
 player.volume(video_data.params.volume / 100);
+player.muted(video_data.params.volume === 0);
 player.playbackRate(video_data.params.speed);
 
 /**
