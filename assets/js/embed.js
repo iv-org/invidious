@@ -81,10 +81,7 @@ function return_message(message,target_window){
         additional_info['value'] = {geterrorcode:player.error().code};
     }
     message = Object.assign(additional_info,message);
-    let target_origin = url_params.get('origin');
-    if(target_origin===null){
-        target_origin = '*';
-    }
+    let target_origin = url_params.get('origin') || '*';
     target_window.postMessage(message,target_origin);
 }
 
