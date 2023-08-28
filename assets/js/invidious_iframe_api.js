@@ -30,7 +30,7 @@ class invidious_embed{
         this.eventobject = {ready:[],ended:[],error:[],ratechange:[],volumechange:[],waiting:[],timeupdate:[],loadedmetadata:[],play:[],seeking:[],seeked:[],playerresize:[],pause:[],statechange:[]};
         var replace_elemnt;
         if(element===undefined||element===null){
-            throw 'please set element id or HTMLElement';
+            throw 'Please, pass element id or HTMLElement as first argument';
         }
         else if(typeof element==='string'){
             replace_elemnt = document.getElementById(element);
