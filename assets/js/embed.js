@@ -78,8 +78,7 @@ function return_message(message,target_window){
         additional_info['value'] = add_value;
     }
     if(message.eventname==='error'){
-        let add_value = {geterrorcode:player.error().code};
-        additional_info['value'] = add_value;
+        additional_info['value'] = {geterrorcode:player.error().code};
     }
     message = Object.assign(additional_info,message);
     let target_origin = url_params.get('origin');
