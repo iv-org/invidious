@@ -346,7 +346,7 @@ class invidious_embed{
     cueVideoById(option,startSeconds){
         this.playOtherVideoById(option,false,startSeconds);
     }
-    cuevVideoByUrl(option,startSeconds){
+    cueVideoByUrl(option,startSeconds){
         this.playOtherVideoById(option,false,startSeconds);
     }
     loadVideoByUrl(option,startSeconds){
