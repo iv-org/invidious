@@ -14,7 +14,7 @@ class invidious_embed{
         }
     }
     removeEventListner(eventname,func){
-        var internal_eventname;
+        let internal_eventname;
         if(eventname in invidious_embed.eventname_table){
             internal_eventname = invidious_embed.eventname_table[eventname];
         }
@@ -63,7 +63,7 @@ class invidious_embed{
         search_params.append('enablejsapi','1');
         if(typeof options.playerVars==='object'){
             this.option_playerVars = options.playerVars;
-            for(var x in options.playerVars){
+            for (let x in options.playerVars){
                 if(typeof x==='string'&&typeof options.playerVars[x]==='string'){
                     search_params.append(x,options.playerVars[x]);
                 }
