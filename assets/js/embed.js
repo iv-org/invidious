@@ -63,87 +63,61 @@ addEventListener('load', function (e) {
     }
 });
 
-function return_message(message,target_window){
-    if(target_window===undefined){
+function return_message(message, target_window) {
+    if (target_window === undefined) {
         target_window = window.parent;
     }
     let url_params = new URLSearchParams(location.search);
     let widgetid = url_params.get('widgetid');
-    let additional_info = {from:'invidious_control'};
-    if(widgetid!==null){
+    let additional_info = { from: 'invidious_control' };
+    if (widgetid !== null) {
         additional_info.widgetid = widgetid;
     }
-    if(message.message_kind==='event'&&message.eventname==='timeupdate'||message.eventname==='loadedmetadata'){
-        let add_value = {getvolume:player.volume(),getduration:player.duration(),getcurrenttime:player.currentTime(),getplaystatus:player.paused(),getplaybackrate:player.playbackRate(),getloopstatus:player.loop(),getmutestatus:player.muted(),getfullscreenstatus:player.isFullscreen(),getavailableplaybackrates:options.playbackRates,gettitle:player_data.title};
-        additional_info['value'] = add_value;
+    if (message.message_kind === 'event') {
+        if (message.eventname === 'timeupdate' || message.eventname === 'loadedmetadata') {
+            additional_info['value'] = { getvolume: player.volume(), getduration: player.duration(), getcurrenttime: player.currentTime(), getplaystatus: player.paused(), getplaybackrate: player.playbackRate(), getloopstatus: player.loop(), getmutestatus: player.muted(), getfullscreenstatus: player.isFullscreen(), getavailableplaybackrates: options.playbackRates, gettitle: player_data.title };
+        }
     }
-    if(message.eventname==='error'){
-        additional_info['value'] = {geterrorcode:player.error().code};
+    if (message.eventname === 'error') {
+        additional_info['value'] = { geterrorcode: player.error().code };
     }
-    message = Object.assign(additional_info,message);
+    message = Object.assign(additional_info, message);
     let target_origin = url_params.get('origin') || '*';
-    target_window.postMessage(message,target_origin);
+    target_window.postMessage(message, target_origin);
 }
 
-function control_embed_iframe(message){
-    let url_params = new URLSearchParams(location.search);
-    let origin = url_params.get('origin');
-    if(origin===null||origin===message.origin){
-        let widgetid = url_params.get('widgetid');
-        if((widgetid===null&&message.data.widgetid===null)||widgetid===message.data.widgetid&&message.data.target==='invidious_control'){
-            switch(message.data.eventname){
+function control_embed_iframe(message) {
+    const url_params = new URLSearchParams(location.search);
+    const origin = url_params.get('origin');
+    const origin_equal = origin === null || origin === message.origin;
+    if (origin_equal) {
+        const widgetid = url_params.get('widgetid');
+        const widgetid_equal = (widgetid === null && message.data.widgetid === null) || widgetid === message.data.widgetid;
+        const target_name_equal = message.data.target === 'invidious_control';
+        const eventname_string_check = typeof message.data.eventname === 'string';
+        if (widgetid_equal && target_name_equal && eventname_string_check) {
+            let message_return_value;
+            switch (message.data.eventname) {
                 case 'play':
                     player.play();
                     break;
                 case 'pause':
                     player.pause();
                     break;
-                case 'getvolume':
-                    return_message({command:'getvolume',value:player.volume(),message_kind:'info_return'},message.source);
-                    break;
+
                 case 'setvolume':
                     player.volume(message.data.value);
-                    break;
-                case 'getduration':
-                    return_message({command:'getduration',value:player.duration(),message_kind:'info_return'},message.source);
-                    break;
-                case 'getcurrenttime':
-                    return_message({command:'getcurrenttime',value:player.currentTime(),message_kind:'info_return'},message.source);
                     break;
                 case 'seek':
                     const duration = player.duration();
                     let newTime = helpers.clamp(message.data.value, 0, duration);
                     player.currentTime(newTime);
                     break;
-                case 'getplaystatus':
-                    return_message({command:'getplaystatus',value:player.paused(),message_kind:'info_return'},message.source);
-                    break;
-                case 'getplaybackrate':
-                    return_message({command:'getplaybackrate',value:player.playbackRate(),message_kind:'info_return'},message.source);
-                    break;
                 case 'setplaybackrate':
                     player.playbackRate(message.data.value);
                     break;
-                case 'getavailableplaybackrates':
-                    return_message({command:'getavailableplaybackrates',value:options.playbackRates,message_kind:'info_return'},message.source);
-                    break;
-                case 'getloopstatus':
-                    return_message({command:'getloopstatus',value:player.loop(),message_kind:'info_return'},message.source);
-                    break;
                 case 'setloopstatus':
                     player.loop(message.data.value);
-                    break;
-                case 'getmutestatus':
-                    return_message({command:'getmutestatus',value:player.muted(),message_kind:'info_return'},message.source);
-                    break;
-                case 'setmutestatus':
-                    player.muted(message.data.value);
-                    break;
-                case 'gettitle':
-                    return_message({command:'gettitle',value:player_data.title,message_kind:'info_return'},message.source);
-                    break;
-                case 'getfullscreenstatus':
-                    return_message({command:'getfullscreenstatus',value:player.isFullscreen(),message_kind:'info_return'},message.source);
                     break;
                 case 'requestfullscreen':
                     player.requestFullscreen();
@@ -151,28 +125,55 @@ function control_embed_iframe(message){
                 case 'exitfullscreen':
                     player.exitFullscreen();
                     break;
-                case 'geterrorcode':
-                    return_message({command:'geterrorcode',value:player.error().code,message_kind:'info_return'},message.source);
-                    break;
-                case 'getplaylist':
 
+                case 'getvolume':
+                    message_return_value = player.volume();
+                    break;
+                case 'getduration':
+                    message_return_value = player.duration();
+                    break;
+                case 'getcurrenttime':
+                    message_return_value = player.currentTime();
+                    break;
+                case 'getplaystatus':
+                    message_return_value = player.paused();
+                    break;
+                case 'getplaybackrate':
+                    message_return_value = player.playbackRate();
+                    break;
+                case 'getavailableplaybackrates':
+                    message_return_value = options.playbackRates;
+                    break;
+                case 'getloopstatus':
+                    message_return_value = player.loop();
+                    break;
+                case 'getmutestatus':
+                    message_return_value = player.muted();
+                    break;
+                case 'gettitle':
+                    message_return_value = player_data.title;
+                    break;
+                case 'getfullscreenstatus':
+                    message_return_value = player.isFullscreen();
+                    break;
+                case 'geterrorcode':
+                    message_return_value = player.error().code;
+                    break;
+                default:
+                    console.info("Unhandled event name: " + message.data.eventname);
+                    break;
+            }
+            if (message_return_value !== undefined) {
+                return_message({ command: message.data.eventname, value: message_return_value, message_kind: 'info_return' }, message.source);
             }
         }
     }
 }
 
-if(new URLSearchParams(location.search).get('enablejsapi')==='1'){
-    window.addEventListener('message',control_embed_iframe);
-    player.on('ended',function(){return_message({message_kind:'event',eventname:'ended'})});
-    player.on('error',function(){return_message({message_kind:'event',eventname:'error'})});
-    player.on('ratechange',function(){return_message({message_kind:'event',eventname:'ratechange'})});
-    player.on('volumechange',function(){return_message({message_kind:'event',eventname:'volumechange'})});
-    player.on('waiting',function(){return_message({message_kind:'event',eventname:'waiting'})});
-    player.on('timeupdate',function(){return_message({message_kind:'event',eventname:'timeupdate'})});
-    player.on('loadedmetadata',function(){return_message({message_kind:'event',eventname:'loadedmetadata'})});
-    player.on('play',function(){return_message({message_kind:'event',eventname:'play'})});
-    player.on('seeking',function(){return_message({message_kind:'event',eventname:'seeking'})});
-    player.on('seeked',function(){return_message({message_kind:'event',eventname:'seeked'})});
-    player.on('playerresize',function(){return_message({message_kind:'event',eventname:'playerresize'})});
-    player.on('pause',function(){return_message({message_kind:'event',eventname:'pause'})});
+if (new URLSearchParams(location.search).get('enablejsapi') === '1') {
+    window.addEventListener('message', control_embed_iframe);
+    const event_list = ['ended', 'error', 'ratechange', 'volumechange', 'waiting', 'timeupdate', 'loadedmetadata', 'play', 'seeking', 'seeked', 'playerresize', 'pause'];
+    event_list.forEach(event_name => {
+        player.on(event_name, function () { return_message({ message_kind: 'event', eventname: event_name }) });
+    });
 }

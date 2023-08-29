@@ -1,149 +1,156 @@
-class invidious_embed{
+class invidious_embed {
     static widgetid = 0;
-    static eventname_table = {onPlaybackRateChange:'ratechange',onStateChange:'statechange',onerror:'error'};
+    static eventname_table = { onPlaybackRateChange: 'ratechange', onStateChange: 'statechange', onerror: 'error' };
+    static available_event_name = ['ended', 'error', 'ratechange', 'volumechange', 'waiting', 'timeupdate', 'loadedmetadata', 'play', 'seeking', 'seeked', 'playerresize', 'pause'];
     static api_promise = false;
-    addEventListener(eventname,func){
-        if(eventname in invidious_embed.eventname_table){
+    static invidious_instance = '';
+    addEventListener(eventname, func) {
+        if (eventname in invidious_embed.eventname_table) {
             this.eventobject[invidious_embed.eventname_table[eventname]].push(func);
         }
-        else{
-            try{
-                this.eventobject[eventname].push(func);
-            }
-            catch{}
+        else {
+            this.eventobject[eventname].push(func);
         }
     }
-    removeEventListner(eventname,func){
+
+    removeEventListner(eventname, func) {
         let internal_eventname;
-        if(eventname in invidious_embed.eventname_table){
+        if (eventname in invidious_embed.eventname_table) {
             internal_eventname = invidious_embed.eventname_table[eventname];
         }
-        else{
+        else if (invidious_embed.available_event_name.includes(eventname)) {
             internal_eventname = eventname;
         }
-        this.eventobject[internal_eventname] = this.eventobject[internal_eventname].fillter(x=>x!==func);
+        this.eventobject[internal_eventname] = this.eventobject[internal_eventname].fillter(x => x !== func);
     }
-    Player(element,options){
+
+    Player(element, options) {
         this.player_status = -1;
         this.error_code = 0;
         this.volume = 100;
-        this.eventobject = {ready:[],ended:[],error:[],ratechange:[],volumechange:[],waiting:[],timeupdate:[],loadedmetadata:[],play:[],seeking:[],seeked:[],playerresize:[],pause:[],statechange:[]};
-        var replace_elemnt;
-        if(element===undefined||element===null){
+        this.eventobject = { ready: [], ended: [], error: [], ratechange: [], volumechange: [], waiting: [], timeupdate: [], loadedmetadata: [], play: [], seeking: [], seeked: [], playerresize: [], pause: [], statechange: [] };
+        let replace_elemnt;
+        if (element === undefined || element === null) {
             throw 'Please, pass element id or HTMLElement as first argument';
         }
-        else if(typeof element==='string'){
+        else if (typeof element === 'string') {
             replace_elemnt = document.getElementById(element);
         }
-        else{
+        else {
             replace_elemnt = element;
         }
-        var iframe_src = '';
-        if(options.host!==undefined&&options.host!==""){
+        let iframe_src = '';
+        if (options.host !== undefined && options.host !== "") {
             iframe_src = new URL(options.host).origin;
         }
-        else{
+        else if (invidious_embed.invidious_instance !== '') {
+            iframe_src = invidious_embed.invidious_instance;
+        }
+        else {
             iframe_src = 'https://vid.puffyan.us';//I set most hot instanse but this may need discuss or change ay to default instanse
         }
         this.target_origin = iframe_src.slice();
         iframe_src += '/embed/';
-        if(typeof options.videoId==='string'&&options.videoId.length===11){
+        if (typeof options.videoId === 'string' && options.videoId.length === 11) {
             iframe_src += options.videoId;
             this.videoId = options.videoId;
         }
-        else{
+        else {
             this.error_code = 2;
             this.event_executor('error');
             return;
         }
-        var search_params = new URLSearchParams('');
-        search_params.append('widgetid',invidious_embed.widgetid);
+        let search_params = new URLSearchParams('');
+        search_params.append('widgetid', invidious_embed.widgetid);
         this.widgetid = invidious_embed.widgetid;
         invidious_embed.widgetid++;
-        search_params.append('origin',location.origin);
-        search_params.append('enablejsapi','1');
-        if(typeof options.playerVars==='object'){
+        search_params.append('origin', location.origin);
+        search_params.append('enablejsapi', '1');
+        if (typeof options.playerVars === 'object') {
             this.option_playerVars = options.playerVars;
-            for (let x in options.playerVars){
-                if(typeof x==='string'&&typeof options.playerVars[x]==='string'){
-                    search_params.append(x,options.playerVars[x]);
+            for (let x in options.playerVars) {
+                if (typeof x === 'string' && typeof options.playerVars[x] === 'string') {
+                    search_params.append(x, options.playerVars[x]);
                 }
             }
-            if(options.playerVars.autoplay===undefined){
-                search_params.append('autoplay','0');
+            if (options.playerVars.autoplay === undefined) {
+                search_params.append('autoplay', '0');
             }
         }
         iframe_src += "?" + search_params.toString();
-        if(options.events!==undefined&&typeof options.events==='object'){
-            for(let x in options.events){
-                this.addEventListener(x,options.events[x]);
+        if (typeof options.events === 'object') {
+            for (let x in options.events) {
+                this.addEventListener(x, options.events[x]);
             }
         }
         this.player_iframe = document.createElement("iframe");
         this.loaded = false;
-        this.addEventListener('loadedmetadata',()=>{this.event_executor('ready');this.loaded=true});
-        this.addEventListener('loadedmetadata',()=>{this.setVolume(this.volume)});
+        this.addEventListener('loadedmetadata', () => { this.event_executor('ready'); this.loaded = true });
+        this.addEventListener('loadedmetadata', () => { this.setVolume(this.volume) });
         this.player_iframe.src = iframe_src;
-        if (typeof options.width === 'number'){
+        if (typeof options.width === 'number') {
             this.player_iframe.width = options.width;
         }
-        else{
-            if(document.body.clientWidth < 640){
+        else {
+            if (document.body.clientWidth < 640) {
                 this.player_iframe.width = document.body.clientWidth;
             }
-            else{
+            else {
                 this.player_iframe.width = 640;
             }
         }
-        if(options.width!==undefined&&typeof options.width==='number'){
+        if (typeof options.width === 'number') {
             this.player_iframe.width = options.width;
         }
-        else{
-            this.player_iframe.height = this.player_iframe.width * (9/16);
+        else {
+            this.player_iframe.height = this.player_iframe.width * (9 / 16);
         }
         this.player_iframe.style.border = "none";
         replace_elemnt.replaceWith(this.player_iframe);
         this.eventdata = {};
         return this;
     }
-    postMessage(data){
-        var additionalInfo = {'origin':location.origin,'widgetid':String(this.widgetid),'target':'invidious_control'};
-        data = Object.assign(additionalInfo,data);
-        this.player_iframe.contentWindow.postMessage(data,this.target_origin);
+
+    postMessage(data) {
+        const additionalInfo = { 'origin': location.origin, 'widgetid': this.widgetid.toString(), 'target': 'invidious_control' };
+        data = Object.assign(additionalInfo, data);
+        this.player_iframe.contentWindow.postMessage(data, this.target_origin);
     }
-    event_executor(eventname){
-        var execute_functions = this.eventobject[eventname];
-        var return_data = {data:undefined,target:this};
-        if(eventname==='statechange'){
+
+    event_executor(eventname) {
+        const execute_functions = this.eventobject[eventname];
+        let return_data = { data: undefined, target: this };
+        if (eventname === 'statechange') {
             return_data.data = this.getPlayerState();
         }
-        for(var x=0;x<execute_functions.length;x++){
-            try{
+        for (let x = 0; x < execute_functions.length; x++) {
+            try {
                 execute_functions[x](return_data);
             }
-            catch{}
+            catch { }
         }
     }
-    receiveMessage(message){
-        if(message.data.from==='invidious_control'&&message.data.widgetid===String(this.widgetid)){
-            switch(message.data.message_kind){
+
+    receiveMessage(message) {
+        if (message.data.from === 'invidious_control' && message.data.widgetid === String(this.widgetid)) {
+            switch (message.data.message_kind) {
                 case 'info_return':
-                    var promise_array = this.message_wait[message.data.command];
-                    for(var x=0;x<promise_array.length;x++){
-                        if(message.data.command==='getvolume'){
-                            promise_array[x](message.data.value*100);
+                    const promise_array = this.message_wait[message.data.command];
+                    promise_array.forEach(element => {
+                        if (message.data.command === 'getvolume') {
+                            element(message.data.value * 100);
                         }
-                        else{
-                            promise_array[x](message.data.value);
+                        else {
+                            element(message.data.value);
                         }
-                    }
+                    });
                     this.message_wait[message.data.command] = [];
                     break;
                 case 'event':
                     if (typeof message.data.eventname === 'string') {
                         this.event_executor(message.data.eventname);
-                        var previous_status = this.player_status;
-                        switch(message.data.eventname){
+                        const previous_status = this.player_status;
+                        switch (message.data.eventname) {
                             case 'ended':
                                 this.player_status = 0;
                                 break;
@@ -152,7 +159,7 @@ class invidious_embed{
                                 break;
                             case 'timeupdate':
                                 this.player_status = 1;
-                                this.eventdata = Object.assign({},this.eventdata,message.data.value);
+                                this.eventdata = Object.assign({}, this.eventdata, message.data.value);
                                 break;
                             case 'pause':
                                 this.player_status = 2;
@@ -161,222 +168,251 @@ class invidious_embed{
                                 this.player_status = 3;
                                 break;
                             case 'loadedmetadata':
-                                this.eventdata = Object.assign({},this.eventdata,message.data.value);
+                                this.eventdata = Object.assign({}, this.eventdata, message.data.value);
                                 break;
                         }
-                        if(previous_status!==this.player_status){
+                        if (previous_status !== this.player_status) {
                             this.event_executor('statechange');
                         }
                     }
             }
         }
     }
-    promise_resolve(){
-        var res_outer;
-        var pro = new Promise((res,rej)=>{res_outer=res});
-        return {'promise':pro,'resolve':res_outer};
-    }
-    promise_send_event(event_name){
-        if(invidious_embed.api_promise){
-            var pro_object = this.promise_resolve();
-            this.message_wait[event_name].push(pro_object.resolve);
-            this.postMessage({eventname:event_name});
-            return pro_object.promise;
+
+    promise_send_event(event_name) {
+        if (invidious_embed.api_promise) {
+            const promise_object = new Promise((resolve, reject) => { this.message_wait[event_name].push(resolve) });
+            this.postMessage({ eventname: event_name });
+            return promise_object;
         }
-        else{
+        else {
             return this.eventdata[event_name];
         }
     }
-    getPlayerState(){
+
+    getPlayerState() {
         return this.player_status;
     }
-    playVideo(){
-        this.postMessage({eventname:'play'});
+
+    playVideo() {
+        this.postMessage({ eventname: 'play' });
     }
-    pauseVideo(){
-        this.postMessage({eventname:'pause'});
+
+    pauseVideo() {
+        this.postMessage({ eventname: 'pause' });
     }
-    getVolume(){
+
+    getVolume() {
         return this.promise_send_event('getvolume');
     }
-    setVolume(volume){
-        volume = Number(volume);
-        this.volume = volume;
-        if(volume!==NaN&&volume!=undefined&&volume>=0&&volume<=100){
-            this.postMessage({eventname:'setvolume',value:volume/100});
+
+    setVolume(volume) {
+        if (typeof volume === 'number') {
+            this.volume = volume;
+            if (volume !== NaN && volume != undefined && volume >= 0 && volume <= 100) {
+                this.postMessage({ eventname: 'setvolume', value: volume / 100 });
+            }
+        }
+        else {
+            console.warn("setVolume first argument must be number");
         }
     }
-    getIframe(){
+
+    getIframe() {
         return this.player_iframe;
     }
-    destroy(){
+
+    destroy() {
         this.player_iframe.remove();
     }
-    mute(){
-        this.postMessage({eventname:'setmutestatus',value:true});
+
+    mute() {
+        this.postMessage({ eventname: 'setmutestatus', value: true });
     }
-    unMute(){
-        this.postMessage({eventname:'setmutestatus',value:false});
+
+    unMute() {
+        this.postMessage({ eventname: 'setmutestatus', value: false });
     }
-    isMuted(){
+
+    isMuted() {
         return this.promise_send_event('getmutestatus');
     }
-    seekTo(seconds,allowSeekAhead){//seconds must be a number and allowSeekAhead is ignore
+
+    seekTo(seconds, allowSeekAhead) {//seconds must be a number and allowSeekAhead is ignore
         seconds = Number(seconds);
-        if(seconds!==NaN&&seconds!==undefined){
-            this.postMessage({eventname:'seek',value:seconds});
+        if (seconds !== NaN && seconds !== undefined) {
+            this.postMessage({ eventname: 'seek', value: seconds });
         }
     }
-    setSize(width,height){//width and height must be Number
+
+    setSize(width, height) {//width and height must be Number
         this.player_iframe.width = Number(width);
         this.player_iframe.height = Number(height);
     }
-    getPlaybackRate(){
+
+    getPlaybackRate() {
         return this.promise_send_event('getplaybackrate');
     }
-    setPlaybackRate(suggestedRate){//suggestedRate must be number.this player allow not available playback rate such as 1.4
+
+    setPlaybackRate(suggestedRate) {//suggestedRate must be number.this player allow not available playback rate such as 1.4
         suggestedRate = Number(suggestedRate);
-        if(suggestedRate!==NaN&&suggestedRate!==undefined){
-            this.postMessage({eventname:'setplaybackrate',value:suggestedRate});
+        if (suggestedRate !== NaN && suggestedRate !== undefined) {
+            this.postMessage({ eventname: 'setplaybackrate', value: suggestedRate });
         }
     }
-    getAvailablePlaybackRates(){
+
+    getAvailablePlaybackRates() {
         return this.promise_send_event('getavailableplaybackrates');
     }
-    playOtherVideoById(option,autoplay,startSeconds_arg){//internal fuction
+
+    playOtherVideoById(option, autoplay, startSeconds_arg) {//internal fuction
         let videoId = '';
-        let startSeconds = -1;
+        let startSeconds = 0;
         let endSeconds = -1;
         let mediaContetUrl = '';
-        if(typeof option==='string'){
-            if(option.length===11){
+        if (typeof option === 'string') {
+            if (option.length === 11) {
                 videoId = option
             }
-            else{
+            else {
                 mediaContetUrl = option;
             }
             if (typeof startSeconds_arg === 'number') {
                 startSeconds = startSeconds_arg;
             }
         }
-        else if(typeof option==='object'){
-            if(option.videoId!==undefined&&typeof option.videoId==='string'){
-                if(option.videoId.length==11){
+        else if (typeof option === 'object') {
+            if (typeof option.videoId === 'string') {
+                if (option.videoId.length == 11) {
                     videoId = option.videoId;
                 }
-                else{
+                else {
                     this.error_code = 2;
                     this.event_executor('error');
+                    return;
                 }
             }
             else if (typeof option.mediaContentUrl === 'string') {
                 mediaContetUrl = option.mediaContentUrl;
             }
-            else{
+            else {
                 this.error_code = 2;
                 this.event_executor('error');
+                return;
             }
-            if(option.startSeconds!==undefined&&typeof option.startSeconds==='number'&&option.startSeconds>=0){
+            if (typeof option.startSeconds === 'number' && option.startSeconds >= 0) {
                 startSeconds = option.startSeconds;
             }
-            if(option.endSeconds!==undefined&&typeof option.endSeconds==='number'&&option.endSeconds>=0){
+            if (typeof option.endSeconds === 'number' && option.endSeconds >= 0) {
                 endSeconds = option.endSeconds;
             }
         }
-        if(mediaContetUrl.length>0){
+        if (mediaContetUrl.length > 0) {
             var tmp_videoId = '';
-            if(mediaContetUrl.indexOf('/v/')!==-1){
-                var end_pos = mediaContetUrl.length-1;
-                if(mediaContetUrl.indexOf('?')!==-1){
+            if (mediaContetUrl.indexOf('/v/') !== -1) {
+                var end_pos = mediaContetUrl.length - 1;
+                if (mediaContetUrl.indexOf('?') !== -1) {
                     end_pos = mediaContetUrl.indexOf('?');
                 }
-                tmp_videoId = mediaContetUrl.substring(mediaContetUrl.indexOf('/v/'),end_pos);
+                tmp_videoId = mediaContetUrl.substring(mediaContetUrl.indexOf('/v/'), end_pos);
             }
-            else{
+            else {
                 tmp_videoId = new URL(mediaContetUrl).searchParams.get('v');
             }
-            if(tmp_videoId===null||tmp_videoId.length!==11){
+            if (tmp_videoId === null || tmp_videoId.length !== 11) {
                 this.error_code = 2;
                 this.event_executor('error');
+                return;
             }
             videoId = tmp_videoId;
         }
-        var iframe_sorce = this.target_origin.slice();
+        let iframe_sorce = this.target_origin.slice();
         iframe_sorce += "/embed/" + videoId;
         this.videoId = videoId;
-        var search_params = new URLSearchParams('');
-        search_params.append('origin',location.origin);
-        search_params.append('enablejsapi','1');
-        search_params.append('widgetid',invidious_embed.widgetid);
+        let search_params = new URLSearchParams('');
+        search_params.append('origin', location.origin);
+        search_params.append('enablejsapi', '1');
+        search_params.append('widgetid', invidious_embed.widgetid);
         this.widgetid = invidious_embed.widgetid;
         invidious_embed.widgetid++;
         search_params.append('autoplay', Number(autoplay));
-        if(this.option_playerVars!==undefined){
-            for(var x in this.option_playerVars){
-                if(x!=='autoplay'&&x!=='start'&&x!=='end'){
-                    search_params.append(x,this.option_playerVars[x]);
+        if (this.option_playerVars !== undefined) {
+            Object.keys(this.option_playerVars).forEach(key => {
+                if (key !== 'autoplay' && key !== 'start' && key !== 'end') {
+                    search_params.append(key, this.option_playerVars[key]);
                 }
-            }
+            })
         }
-        if(startSeconds!==-1&&startSeconds>=0){
-            search_params.append('start',startSeconds);
+        if (startSeconds > 0) {
+            search_params.append('start', startSeconds);
         }
-        if(endSeconds!==-1&&endSeconds>=0){
-            if(endSeconds>startSeconds){
-                search_params.append('end',endSeconds);
+        if (endSeconds !== -1 && endSeconds >= 0) {
+            if (endSeconds > startSeconds) {
+                search_params.append('end', endSeconds);
             }
-            else{
-                throw 'invalid end seconds';
+            else {
+                throw 'Invalid end seconds because end seconds before start seconds';
             }
         }
         iframe_sorce += "?" + search_params.toString();
         this.player_iframe.src = iframe_sorce;
-        if(autoplay){
+        if (autoplay) {
             this.player_status = 5;
         }
         this.eventdata = {};
     }
-    loadVideoById(option,startSeconds){
-        this.playOtherVideoById(option,true,startSeconds);
+
+    loadVideoById(option, startSeconds) {
+        this.playOtherVideoById(option, true, startSeconds);
     }
-    cueVideoById(option,startSeconds){
-        this.playOtherVideoById(option,false,startSeconds);
+
+    cueVideoById(option, startSeconds) {
+        this.playOtherVideoById(option, false, startSeconds);
     }
-    cueVideoByUrl(option,startSeconds){
-        this.playOtherVideoById(option,false,startSeconds);
+
+    cueVideoByUrl(option, startSeconds) {
+        this.playOtherVideoById(option, false, startSeconds);
     }
-    loadVideoByUrl(option,startSeconds){
-        this.playOtherVideoById(option,true,startSeconds);
+
+    loadVideoByUrl(option, startSeconds) {
+        this.playOtherVideoById(option, true, startSeconds);
     }
-    getDuration(){
+
+    getDuration() {
         return this.promise_send_event('getduration');
     }
-    getVideoUrl(){
+
+    getVideoUrl() {
         return this.target_origin + "/watch?v=" + this.videoId;
     }
-    async getVideoEmbedCode(){
+
+    async getVideoEmbedCode() {
         var title = await this.getVideoTitle();
-        return '<iframe width="560" height="315" src="' + this.target_origin + '/embed/' + this.videoId + '" title="' + title.replace('"',"'") + '" frameborder="0" allow="autoplay;encrypted-media;picture-in-picture;web-share" allowfullscreen></iframe>';
+        return '<iframe width="560" height="315" src="' + this.target_origin + '/embed/' + this.videoId + '" title="' + title.replace('"', "'") + '" frameborder="0" allow="autoplay;encrypted-media;picture-in-picture;web-share" allowfullscreen></iframe>';
     }
-    getCurrentTime(){
+
+    getCurrentTime() {
         return this.promise_send_event('getcurrenttime');
     }
-    constructor(element,options){
-        this.Player(element,options);
-        window.addEventListener('message',(ms)=>{this.receiveMessage(ms)});
-        this.message_wait = {getvolume:[],getmutestatus:[],getduration:[],getcurrenttime:[],getplaybackrate:[],getavailableplaybackrates:[],gettitle:[]};
+
+    constructor(element, options) {
+        this.Player(element, options);
+        window.addEventListener('message', (ms) => { this.receiveMessage(ms) });
+        this.message_wait = { getvolume: [], getmutestatus: [], getduration: [], getcurrenttime: [], getplaybackrate: [], getavailableplaybackrates: [], gettitle: [] };
     }
-    async getVideoData(){
-        return {video_id:this.videoId,title:await this.promise_send_event('gettitle')};
+    
+    async getVideoData() {
+        return { video_id: this.videoId, title: await this.promise_send_event('gettitle') };
     }
 }
-function invidious_ready(func){
-    if(typeof func==='function'){
+function invidious_ready(func) {
+    if (typeof func === 'function') {
         func();
     }
 }
-const invidious = {Player:invidious_embed,PlayerState:{ENDED:0,PLAYING:1,PAUSED:2,BUFFERING:3,CUED:5},ready:invidious_ready};
-try{
+invidious_embed.invidious_instance = new URL(document.currentScript.src).origin;
+const invidious = { Player: invidious_embed, PlayerState: { ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 }, ready: invidious_ready };
+try {
     onInvidiousIframeAPIReady();
 }
-catch{}
+catch { }
