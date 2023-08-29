@@ -54,6 +54,7 @@ class invidious_embed{
         else{
             this.error_code = 2;
             this.event_executor('error');
+            return;
         }
         var search_params = new URLSearchParams('');
         search_params.append('widgetid',invidious_embed.widgetid);
