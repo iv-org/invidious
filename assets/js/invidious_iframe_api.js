@@ -310,12 +310,7 @@ class invidious_embed{
         search_params.append('widgetid',invidious_embed.widgetid);
         this.widgetid = invidious_embed.widgetid;
         invidious_embed.widgetid++;
-        if(autoplay){
-            search_params.append('autoplay',1);
-        }
-        else{
-            search_params.append('autoplay',0);
-        }
+        search_params.append('autoplay', Number(autoplay));
         if(this.option_playerVars!==undefined){
             for(var x in this.option_playerVars){
                 if(x!=='autoplay'&&x!=='start'&&x!=='end'){
@@ -361,7 +356,7 @@ class invidious_embed{
     }
     async getVideoEmbedCode(){
         var title = await this.getVideoTitle();
-        return '<iframe width="560" height="315" src="' + this.target_origin + "/embed/" + this.videoId + '" title="' + title.replace('"','') + '" frameborder="0" allow="autoplay;encrypted-media;picture-in-picture; web-share" allowfullscreen></iframe>';
+        return '<iframe width="560" height="315" src="' + this.target_origin + '/embed/' + this.videoId + '" title="' + title.replace('"',"'") + '" frameborder="0" allow="autoplay;encrypted-media;picture-in-picture;web-share" allowfullscreen></iframe>';
     }
     getCurrentTime(){
         return this.promise_send_event('getcurrenttime');
