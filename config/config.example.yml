@@ -345,6 +345,16 @@ feed_threads: 1
 ##
 #decrypt_polling: false
 
+#
+# Time interval between two executions of the job that checks
+# whether or not Invidious has been blocked by YouTube
+#
+# Accepted values: a valid time interval (like 1h30m or 90m)
+# Default: 30m
+#
+#blockage_check_interval: 30m
+
+
 
 jobs:
 

@@ -291,6 +291,7 @@ module Invidious::Routing
 
       # Misc
       get "/api/v1/stats", {{namespace}}::Misc, :stats
+      get "/api/v1/information/status/blocked", {{namespace}}::Misc, :blockage
       get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/auth/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes

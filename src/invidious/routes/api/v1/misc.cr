@@ -10,6 +10,12 @@ module Invidious::Routes::API::V1::Misc
     end
   end
 
+  # Endpoint for checking whether or not a specific instance has been blocked
+  def self.blockage(env)
+    env.response.content_type = "application/json"
+    return Invidious::Jobs::CheckBlockageStatusJob::BLOCKAGE_STATUS.to_json
+  end
+
   # APIv1 currently uses the same logic for both
   # user playlists and Invidious playlists. This means that we can't
   # reasonably split them yet. This should be addressed in APIv2

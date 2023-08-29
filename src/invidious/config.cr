@@ -138,6 +138,9 @@ class Config
   # Playlist length limit
   property playlist_length_limit : Int32 = 500
 
+  @[YAML::Field(converter: Preferences::TimeSpanConverter)]
+  property blockage_check_interval : Time::Span = 30.minutes
+
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
     when Bool

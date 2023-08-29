@@ -185,6 +185,8 @@ Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(CONNECTION_CHANNEL
 
 Invidious::Jobs.register Invidious::Jobs::ClearExpiredItemsJob.new
 
+Invidious::Jobs.register Invidious::Jobs::CheckBlockageStatusJob.new(PG_DB)
+
 Invidious::Jobs.start_all
 
 def popular_videos
