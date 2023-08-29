@@ -15,14 +15,14 @@ module WebVTT
     end
 
     private def timestamp(start_time : Time::Span, end_time : Time::Span)
-      add_timestamp_component(start_time)
+      timestamp_component(start_time)
       @io << " --> "
-      add_timestamp_component(end_time)
+      timestamp_component(end_time)
 
       @io << '\n'
     end
 
-    private def add_timestamp_component(timestamp : Time::Span)
+    private def timestamp_component(timestamp : Time::Span)
       @io << timestamp.hours.to_s.rjust(2, '0')
       @io << ':' << timestamp.minutes.to_s.rjust(2, '0')
       @io << ':' << timestamp.seconds.to_s.rjust(2, '0')
