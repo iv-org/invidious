@@ -34,7 +34,7 @@ module WebVTT
 
       if setting_fields
         setting_fields.each do |name, value|
-          @io << "#{name}: #{value}\n"
+          @io << name << ": " << value << '\n'
         end
       end
 
