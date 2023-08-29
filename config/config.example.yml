@@ -187,7 +187,7 @@ https_only: false
 ##
 ## Useful for larger instances as InnerTube is **not ratelimited**. See https://github.com/iv-org/invidious/issues/2567
 ##
-## Subtitle experience may differ slightly on Invidious.  
+## Subtitle experience may differ slightly on Invidious.
 ##
 ## Accepted values: true, false
 ## Default: false
