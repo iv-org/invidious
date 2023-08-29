@@ -83,7 +83,7 @@ class invidious_embed{
         this.addEventListener('loadedmetadata',()=>{this.event_executor('ready');this.loaded=true});
         this.addEventListener('loadedmetadata',()=>{this.setVolume(this.volume)});
         this.player_iframe.src = iframe_src;
-        if(options.width!==undefined&&typeof options.width==='number'){
+        if (typeof options.width === 'number'){
             this.player_iframe.width = options.width;
         }
         else{
@@ -139,7 +139,7 @@ class invidious_embed{
                     this.message_wait[message.data.command] = [];
                     break;
                 case 'event':
-                    if(message.data.eventname!==undefined&&typeof message.data.eventname==='string'){
+                    if (typeof message.data.eventname === 'string') {
                         this.event_executor(message.data.eventname);
                         var previous_status = this.player_status;
                         switch(message.data.eventname){
@@ -254,7 +254,7 @@ class invidious_embed{
             else{
                 mediaContetUrl = option;
             }
-            if(startSeconds_arg!==undefined&&typeof startSeconds_arg==='number'){
+            if (typeof startSeconds_arg === 'number') {
                 startSeconds = startSeconds_arg;
             }
         }
@@ -268,7 +268,7 @@ class invidious_embed{
                     this.event_executor('error');
                 }
             }
-            else if(option.mediaContentUrl!==undefined&&typeof option.mediaContentUrl==='string'){
+            else if (typeof option.mediaContentUrl === 'string') {
                 mediaContetUrl = option.mediaContentUrl;
             }
             else{
