@@ -37,14 +37,14 @@ module Invidious::Comments
       },
     }
 
-    objectParsed = object.try { |i| Protodec::Any.cast_json(i) }
+    object_parsed = object.try { |i| Protodec::Any.cast_json(i) }
       .try { |i| Protodec::Any.from_json(i) }
       .try { |i| Base64.urlsafe_encode(i) }
 
     object2 = {
       "80226972:embedded" => {
         "2:string" => ucid,
-        "3:string" => objectParsed,
+        "3:string" => object_parsed,
       },
     }
 

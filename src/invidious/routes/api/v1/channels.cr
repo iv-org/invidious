@@ -347,15 +347,22 @@ module Invidious::Routes::API::V1::Channels
     locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
-
     id = env.params.url["id"].to_s
-    ucid = env.params.query["ucid"]
+    ucid = env.params.query["ucid"]?
 
     thin_mode = env.params.query["thin_mode"]?
     thin_mode = thin_mode == "true"
 
     format = env.params.query["format"]?
     format ||= "json"
+
+    if ucid.nil?
+      response = YoutubeAPI.resolve_url("https://www.youtube.com/post/#{id}")
+      return error_json(400, "Invalid post ID") if response["error"]?
+      ucid = response.dig("endpoint", "browseEndpoint", "browseId").as_s
+    else
+      ucid = ucid.to_s
+    end
 
     begin
       fetch_channel_community_post(ucid, id, locale, format, thin_mode)

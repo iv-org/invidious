@@ -205,8 +205,6 @@ module Invidious::Routes::Channels
     thin_mode = env.params.query["thin_mode"]? || prefs.thin_mode
     thin_mode = thin_mode == "true"
 
-    client_config = YoutubeAPI::ClientConfig.new(region: region)
-
     if !ucid.nil?
       ucid = ucid.to_s
       post_response = fetch_channel_community_post(ucid, id, locale, "json", thin_mode)
