@@ -20,21 +20,7 @@ module Invidious::Routes::Channels
     sort_by = env.params.query["sort_by"]?.try &.downcase
 
     if channel.auto_generated
-      sort_options = {"last", "oldest", "newest"}
-
-      items, next_continuation = fetch_channel_playlists(
-        channel.ucid, channel.author, continuation, (sort_by || "last")
-      )
-
-      items.uniq! do |item|
-        if item.responds_to?(:title)
-          item.title
-        elsif item.responds_to?(:author)
-          item.author
-        end
-      end
-      items = items.select(SearchPlaylist)
-      items.each(&.author = "")
+      return env.redirect "/channel/#{ucid}/playlists"
     else
       sort_options = {"newest", "oldest", "popular"}
 
