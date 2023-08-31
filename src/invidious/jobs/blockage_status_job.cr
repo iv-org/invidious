@@ -14,7 +14,7 @@ class Invidious::Jobs::CheckBlockageStatusJob < Invidious::Jobs::BaseJob
     loop do
       begin
         # TODO find performant way of fetching a random video from the videos table.
-        video = fetch_video("zj82_v2R6ts", nil)
+        video = fetch_video("jNQXAC9IVRw", nil)
 
         if !video.nil?
           # Assume unblocked
