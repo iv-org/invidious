@@ -80,7 +80,7 @@ module Invidious::Routes::VideoPlayback
     # Remove the Range header added previously.
     headers.delete("Range") if range_header.nil?
 
-    playback_statistics = get_playback_statistic().as(Hash(String, Int64 | Float64))
+    playback_statistics = get_playback_statistic()
     playback_statistics["totalRequests"] += 1
 
     if response.status_code >= 400

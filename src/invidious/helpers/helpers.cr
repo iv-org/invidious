@@ -223,5 +223,5 @@ def get_playback_statistic
     Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"] = tracker
   end
 
-  return tracker
+  return tracker.as(Hash(String, Int64 | Float64))
 end
