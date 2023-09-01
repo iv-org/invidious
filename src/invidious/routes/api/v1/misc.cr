@@ -6,6 +6,22 @@ module Invidious::Routes::API::V1::Misc
     if !CONFIG.statistics_enabled
       return {"software" => SOFTWARE}.to_json
     else
+      # Calculate playback success rate
+      if (tracker = Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"]?)
+        tracker = tracker.as(Hash(String, Int64 | Float64))
+
+        if !tracker.empty?
+          total_requests = tracker["totalRequests"]
+          success_count = tracker["successfulRequests"]
+
+          if total_requests.zero?
+            tracker["ratio"] = 1_i64
+          else
+            tracker["ratio"] = (success_count / (total_requests)).round(2)
+          end
+        end
+      end
+
       return Invidious::Jobs::StatisticsRefreshJob::STATISTICS.to_json
     end
   end

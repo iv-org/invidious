@@ -18,6 +18,13 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
       "updatedAt"              => Time.utc.to_unix,
       "lastChannelRefreshedAt" => 0_i64,
     },
+
+    #
+    #    "totalRequests" => 0_i64,
+    #    "successfulRequests" => 0_i64
+    #    "ratio"   => 0_i64
+    #
+    "playback" => {} of String => Int64 | Float64,
   }
 
   private getter db : DB::Database
@@ -56,5 +63,8 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
       "updatedAt"              => Time.utc.to_unix,
       "lastChannelRefreshedAt" => Invidious::Database::Statistics.channel_last_update.try &.to_unix || 0_i64,
     }
+
+    # Reset playback requests tracker
+    STATISTICS["playback"] = {} of String => Int64 | Float64
   end
 end
