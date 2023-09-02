@@ -1,6 +1,6 @@
 class invidious_embed {
     static widgetid = 0;
-    static eventname_table = { onPlaybackRateChange: 'ratechange', onStateChange: 'statechange', onError: 'error' ,onReady: 'ready'};
+    static eventname_table = { onPlaybackRateChange: 'ratechange', onStateChange: 'statechange', onError: 'error', onReady: 'ready' };
     static available_event_name = ['ready', 'ended', 'error', 'ratechange', 'volumechange', 'waiting', 'timeupdate', 'loadedmetadata', 'play', 'seeking', 'seeked', 'playerresize', 'pause'];
     static api_promise = false;
     static invidious_instance = '';
@@ -11,15 +11,12 @@ class invidious_embed {
         if (typeof func === 'function') {
             if (eventname in invidious_embed.eventname_table) {
                 this.eventobject[invidious_embed.eventname_table[eventname]].push(func);
-            }
-            else if (invidious_embed.available_event_name.includes(eventname)) {
+            } else if (invidious_embed.available_event_name.includes(eventname)) {
                 this.eventobject[eventname].push(func);
-            }
-            else {
+            } else {
                 console.warn('addEventListener cannot find such eventname : ' + eventname);
             }
-        }
-        else {
+        } else {
             console.warn("addEventListner secound args must be function");
         }
     }
@@ -29,11 +26,9 @@ class invidious_embed {
             let internal_eventname;
             if (eventname in invidious_embed.eventname_table) {
                 internal_eventname = invidious_embed.eventname_table[eventname];
-            }
-            else if (invidious_embed.available_event_name.includes(eventname)) {
+            } else if (invidious_embed.available_event_name.includes(eventname)) {
                 internal_eventname = eventname;
-            }
-            else {
+            } else {
                 console.warn('removeEventListner cannot find such eventname : ' + eventname);
                 return;
             }
@@ -41,13 +36,11 @@ class invidious_embed {
                 const arrowFunctionDetected = x.toString()[0] === '(';
                 if (arrowFunctionDetected) {
                     x.toString() !== func.toString();
-                }
-                else{
+                } else {
                     x !== func;
                 }
             });
-        }
-        else {
+        } else {
             console.warn("removeEventListener secound args must be function");
         }
     }
@@ -56,28 +49,24 @@ class invidious_embed {
         let return_status;
         const status_cahce_exist = instance_origin in invidious_embed.instance_status_list;
         if (!status_cahce_exist) {
-            try{
+            try {
                 const instance_stats = await fetch(instance_origin + '/api/v1/stats');
                 if (instance_stats.ok) {
                     const instance_stats_json = await instance_stats.json();
                     if (instance_stats_json.software.name === 'invidious') {
                         return_status = true;
-                    }
-                    else {
+                    } else {
                         return_status = false;
                     }
-                }
-                else {
+                } else {
                     return_status = false;
                 }
-            }
-            catch{
+            } catch {
                 return_status = false;
             }
             invidious_embed.instance_status_list[instance_origin] = return_status;
             return return_status;
-        }
-        else {
+        } else {
             return invidious_embed.instance_status_list[instance_origin];
         }
     }
@@ -98,45 +87,35 @@ class invidious_embed {
         });
     }
 
-    async auto_instance_select(){
-        if (await this.instance_access_check(invidious_embed.invidious_instance)){
+    async auto_instance_select() {
+        if (await this.instance_access_check(invidious_embed.invidious_instance)) {
             return;
-        }
-        else{
+        } else {
             if (invidious_embed.api_instance_list.length === 0) {
                 await this.get_instance_list();
             }
-            for (let x=0;x<invidious_embed.api_instance_list.length;x++) {
-                if(await this.instance_access_check(invidious_embed.api_instance_list[x])){
+            for (let x = 0; x < invidious_embed.api_instance_list.length; x++) {
+                if (await this.instance_access_check(invidious_embed.api_instance_list[x])) {
                     invidious_embed.invidious_instance = invidious_embed.api_instance_list[x];
                     break;
                 }
             }
-            /*
-            invidious_embed.api_instance_list.forEach(async (instance_origin) => {
-                if(await this.instance_access_check(instance_origin)){
-                    invidious_embed.invidious_instance = instance_origin;
-                    return;
-                }
-            });
-            */
         }
     }
 
-    async videoid_accessable_check(videoid){
+    async videoid_accessable_check(videoid) {
         const video_api_response = await fetch(invidious_embed.invidious_instance + "/api/v1/videos/" + videoid);
         return video_api_response.ok;
     }
 
     async getPlaylistVideoids(playlistid) {
         const playlist_api_response = await fetch(invidious_embed.invidious_instance + "/api/v1/playlists/" + playlistid);
-        if (playlist_api_response.ok){
+        if (playlist_api_response.ok) {
             const playlist_api_json = await playlist_api_response.json();
             let tmp_videoid_list = [];
-            playlist_api_json.videos.forEach(videodata=>tmp_videoid_list.push(videodata.videoId));
+            playlist_api_json.videos.forEach(videodata => tmp_videoid_list.push(videodata.videoId));
             return tmp_videoid_list;
-        }
-        else{
+        } else {
             return [];
         }
     }
@@ -149,18 +128,15 @@ class invidious_embed {
         let replace_elemnt;
         if (element === undefined || element === null) {
             throw 'Please, pass element id or HTMLElement as first argument';
-        }
-        else if (typeof element === 'string') {
+        } else if (typeof element === 'string') {
             replace_elemnt = document.getElementById(element);
-        }
-        else {
+        } else {
             replace_elemnt = element;
         }
         let iframe_src = '';
         if (options.host !== undefined && options.host !== "") {
             iframe_src = new URL(options.host).origin;
-        }
-        else if (invidious_embed.invidious_instance !== '') {
+        } else if (invidious_embed.invidious_instance !== '') {
             iframe_src = invidious_embed.invidious_instance;
         }
         if (!await this.instance_access_check(iframe_src)) {
@@ -178,8 +154,7 @@ class invidious_embed {
                 this.event_executor('error');
                 return;
             }
-        }
-        else {
+        } else {
             this.error_code = 2;
             this.event_executor('error');
             return;
@@ -215,19 +190,16 @@ class invidious_embed {
         this.player_iframe.src = iframe_src;
         if (typeof options.width === 'number') {
             this.player_iframe.width = options.width;
-        }
-        else {
+        } else {
             if (document.body.clientWidth < 640) {
                 this.player_iframe.width = document.body.clientWidth;
-            }
-            else {
+            } else {
                 this.player_iframe.width = 640;
             }
         }
         if (typeof options.width === 'number') {
             this.player_iframe.width = options.width;
-        }
-        else {
+        } else {
             this.player_iframe.height = this.player_iframe.width * (9 / 16);
         }
         this.player_iframe.style.border = "none";
@@ -249,10 +221,9 @@ class invidious_embed {
             return_data.data = this.getPlayerState();
         }
         execute_functions.forEach(func => {
-            try{
+            try {
                 func(return_data);
-            }
-            catch(e){
+            } catch (e) {
                 console.error(e);
             }
         });
@@ -266,8 +237,7 @@ class invidious_embed {
                     promise_array.forEach(element => {
                         if (message.data.command === 'getvolume') {
                             element(message.data.value * 100);
-                        }
-                        else {
+                        } else {
                             element(message.data.value);
                         }
                     });
@@ -311,8 +281,7 @@ class invidious_embed {
             const promise_object = new Promise((resolve, reject) => { this.message_wait[event_name].push(resolve) });
             this.postMessage({ eventname: event_name });
             return promise_object;
-        }
-        else {
+        } else {
             return this.eventdata[event_name];
         }
     }
@@ -339,8 +308,7 @@ class invidious_embed {
             if (volume !== NaN && volume != undefined && volume >= 0 && volume <= 100) {
                 this.postMessage({ eventname: 'setvolume', value: volume / 100 });
             }
-        }
-        else {
+        } else {
             console.warn("setVolume first argument must be number");
         }
     }
@@ -370,18 +338,16 @@ class invidious_embed {
             if (seconds !== NaN && seconds !== undefined) {
                 this.postMessage({ eventname: 'seek', value: seconds });
             }
-        }
-        else {
+        } else {
             console.warn('seekTo first argument type must be number')
         }
     }
 
     setSize(width, height) {//width and height must be Number
-        if (typeof width === 'number' && typeof height === 'number'){
+        if (typeof width === 'number' && typeof height === 'number') {
             this.player_iframe.width = width;
             this.player_iframe.height = height;
-        }
-        else {
+        } else {
             console.warn('setSize first and secound argument type must be number');
         }
     }
@@ -391,15 +357,13 @@ class invidious_embed {
     }
 
     setPlaybackRate(suggestedRate) {//suggestedRate must be number.this player allow not available playback rate such as 1.4
-        if (typeof suggestedRate === 'number'){
+        if (typeof suggestedRate === 'number') {
             if (suggestedRate !== NaN) {
                 this.postMessage({ eventname: 'setplaybackrate', value: suggestedRate });
-            }
-            else {
+            } else {
                 console.warn('setPlaybackRate first argument NaN is no valid');
             }
-        }
-        else{
+        } else {
             console.warn('setPlaybackRate first argument type must be number');
         }
     }
@@ -416,29 +380,24 @@ class invidious_embed {
         if (typeof option === 'string') {
             if (option.length === 11) {
                 videoId = option
-            }
-            else {
+            } else {
                 mediaContetUrl = option;
             }
             if (typeof startSeconds_arg === 'number') {
                 startSeconds = startSeconds_arg;
             }
-        }
-        else if (typeof option === 'object') {
+        } else if (typeof option === 'object') {
             if (typeof option.videoId === 'string') {
                 if (option.videoId.length == 11) {
                     videoId = option.videoId;
-                }
-                else {
+                } else {
                     this.error_code = 2;
                     this.event_executor('error');
                     return;
                 }
-            }
-            else if (typeof option.mediaContentUrl === 'string') {
+            } else if (typeof option.mediaContentUrl === 'string') {
                 mediaContetUrl = option.mediaContentUrl;
-            }
-            else {
+            } else {
                 this.error_code = 2;
                 this.event_executor('error');
                 return;
@@ -452,10 +411,9 @@ class invidious_embed {
         }
         if (mediaContetUrl.length > 0) {
             const match_result = mediaContetUrl.match(/\/([A-Za-z0-9]{11})\//);
-            if (match_result !== null && match_result.length === 2){
+            if (match_result !== null && match_result.length === 2) {
                 videoId = match_result[1];
-            }
-            else{
+            } else {
                 this.error_code = 2;
                 this.event_executor('error');
                 return;
@@ -489,8 +447,7 @@ class invidious_embed {
         if (endSeconds !== -1 && endSeconds >= 0) {
             if (endSeconds > startSeconds) {
                 search_params.append('end', endSeconds);
-            }
-            else {
+            } else {
                 throw 'Invalid end seconds because end seconds before start seconds';
             }
         }
@@ -536,7 +493,7 @@ class invidious_embed {
     }
 
     async getVideoData() {
-        return { video_id: this.videoId, title: await this.promise_send_event('gettitle'), list:this.promise_send_event('getplaylistid') };
+        return { video_id: this.videoId, title: await this.promise_send_event('gettitle'), list: this.promise_send_event('getplaylistid') };
     }
 
     getPlaylistIndex() {
@@ -563,8 +520,6 @@ function invidious_ready(func) {
 }
 invidious_embed.invidious_instance = new URL(document.currentScript.src).origin;
 const invidious = { Player: invidious_embed, PlayerState: { ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 }, ready: invidious_ready };
-if (typeof onInvidiousIframeAPIReady === 'function'){
+if (typeof onInvidiousIframeAPIReady === 'function') {
     onInvidiousIframeAPIReady();
 }
-
-const YT = invidious;
