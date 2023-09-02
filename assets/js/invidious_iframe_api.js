@@ -1,30 +1,147 @@
 class invidious_embed {
     static widgetid = 0;
-    static eventname_table = { onPlaybackRateChange: 'ratechange', onStateChange: 'statechange', onerror: 'error' };
-    static available_event_name = ['ended', 'error', 'ratechange', 'volumechange', 'waiting', 'timeupdate', 'loadedmetadata', 'play', 'seeking', 'seeked', 'playerresize', 'pause'];
+    static eventname_table = { onPlaybackRateChange: 'ratechange', onStateChange: 'statechange', onError: 'error' ,onReady: 'ready'};
+    static available_event_name = ['ready', 'ended', 'error', 'ratechange', 'volumechange', 'waiting', 'timeupdate', 'loadedmetadata', 'play', 'seeking', 'seeked', 'playerresize', 'pause'];
     static api_promise = false;
     static invidious_instance = '';
+    static api_instance_list = [];
+    static instance_status_list = {};
+
     addEventListener(eventname, func) {
-        if (eventname in invidious_embed.eventname_table) {
-            this.eventobject[invidious_embed.eventname_table[eventname]].push(func);
+        if (typeof func === 'function') {
+            if (eventname in invidious_embed.eventname_table) {
+                this.eventobject[invidious_embed.eventname_table[eventname]].push(func);
+            }
+            else if (invidious_embed.available_event_name.includes(eventname)) {
+                this.eventobject[eventname].push(func);
+            }
+            else {
+                console.warn('addEventListener cannot find such eventname : ' + eventname);
+            }
         }
         else {
-            this.eventobject[eventname].push(func);
+            console.warn("addEventListner secound args must be function");
         }
     }
 
-    removeEventListner(eventname, func) {
-        let internal_eventname;
-        if (eventname in invidious_embed.eventname_table) {
-            internal_eventname = invidious_embed.eventname_table[eventname];
+    removeEventListener(eventname, func) {
+        if (typeof func === 'function') {
+            let internal_eventname;
+            if (eventname in invidious_embed.eventname_table) {
+                internal_eventname = invidious_embed.eventname_table[eventname];
+            }
+            else if (invidious_embed.available_event_name.includes(eventname)) {
+                internal_eventname = eventname;
+            }
+            else {
+                console.warn('removeEventListner cannot find such eventname : ' + eventname);
+                return;
+            }
+            this.eventobject[internal_eventname] = this.eventobject[internal_eventname].filter(x => {
+                const arrowFunctionDetected = x.toString()[0] === '(';
+                if (arrowFunctionDetected) {
+                    x.toString() !== func.toString();
+                }
+                else{
+                    x !== func;
+                }
+            });
         }
-        else if (invidious_embed.available_event_name.includes(eventname)) {
-            internal_eventname = eventname;
+        else {
+            console.warn("removeEventListener secound args must be function");
         }
-        this.eventobject[internal_eventname] = this.eventobject[internal_eventname].fillter(x => x !== func);
     }
 
-    Player(element, options) {
+    async instance_access_check(instance_origin) {
+        let return_status;
+        const status_cahce_exist = instance_origin in invidious_embed.instance_status_list;
+        if (!status_cahce_exist) {
+            try{
+                const instance_stats = await fetch(instance_origin + '/api/v1/stats');
+                if (instance_stats.ok) {
+                    const instance_stats_json = await instance_stats.json();
+                    if (instance_stats_json.software.name === 'invidious') {
+                        return_status = true;
+                    }
+                    else {
+                        return_status = false;
+                    }
+                }
+                else {
+                    return_status = false;
+                }
+            }
+            catch{
+                return_status = false;
+            }
+            invidious_embed.instance_status_list[instance_origin] = return_status;
+            return return_status;
+        }
+        else {
+            return invidious_embed.instance_status_list[instance_origin];
+        }
+    }
+
+    async get_instance_list() {
+        invidious_embed.api_instance_list = [];
+        const instance_list_api = await (await fetch('https://api.invidious.io/instances.json?pretty=1&sort_by=type,users')).json();
+        instance_list_api.forEach(instance_data => {
+            const http_check = instance_data[1]['type'] === 'https';
+            let status_check_api_data;
+            if (instance_data[1]['monitor'] !== null) {
+                status_check_api_data = instance_data[1]['monitor']['statusClass'] === 'success';
+            }
+            const api_available = instance_data[1]['api'] && instance_data[1]['cors'];
+            if (http_check && status_check_api_data && api_available) {
+                invidious_embed.api_instance_list.push(instance_data[1]['uri']);
+            }
+        });
+    }
+
+    async auto_instance_select(){
+        if (await this.instance_access_check(invidious_embed.invidious_instance)){
+            return;
+        }
+        else{
+            if (invidious_embed.api_instance_list.length === 0) {
+                await this.get_instance_list();
+            }
+            for (let x=0;x<invidious_embed.api_instance_list.length;x++) {
+                if(await this.instance_access_check(invidious_embed.api_instance_list[x])){
+                    invidious_embed.invidious_instance = invidious_embed.api_instance_list[x];
+                    break;
+                }
+            }
+            /*
+            invidious_embed.api_instance_list.forEach(async (instance_origin) => {
+                if(await this.instance_access_check(instance_origin)){
+                    invidious_embed.invidious_instance = instance_origin;
+                    return;
+                }
+            });
+            */
+        }
+    }
+
+    async videoid_accessable_check(videoid){
+        const video_api_response = await fetch(invidious_embed.invidious_instance + "/api/v1/videos/" + videoid);
+        return video_api_response.ok;
+    }
+
+    async getPlaylistVideoids(playlistid) {
+        const playlist_api_response = await fetch(invidious_embed.invidious_instance + "/api/v1/playlists/" + playlistid);
+        if (playlist_api_response.ok){
+            const playlist_api_json = await playlist_api_response.json();
+            let tmp_videoid_list = [];
+            playlist_api_json.videos.forEach(videodata=>tmp_videoid_list.push(videodata.videoId));
+            return tmp_videoid_list;
+        }
+        else{
+            return [];
+        }
+    }
+
+    async Player(element, options) {
         this.player_status = -1;
         this.error_code = 0;
         this.volume = 100;
@@ -46,14 +163,21 @@ class invidious_embed {
         else if (invidious_embed.invidious_instance !== '') {
             iframe_src = invidious_embed.invidious_instance;
         }
-        else {
-            iframe_src = 'https://vid.puffyan.us';//I set most hot instanse but this may need discuss or change ay to default instanse
+        if (!await this.instance_access_check(iframe_src)) {
+            await this.auto_instance_select();
+            iframe_src = invidious_embed.invidious_instance;
         }
-        this.target_origin = iframe_src.slice();
+        invidious_embed.invidious_instance = iframe_src;
+        this.target_origin = iframe_src;
         iframe_src += '/embed/';
         if (typeof options.videoId === 'string' && options.videoId.length === 11) {
             iframe_src += options.videoId;
             this.videoId = options.videoId;
+            if (!await this.videoid_accessable_check(options.videoId)) {
+                this.error_code = 100;
+                this.event_executor('error');
+                return;
+            }
         }
         else {
             this.error_code = 2;
@@ -85,8 +209,9 @@ class invidious_embed {
         }
         this.player_iframe = document.createElement("iframe");
         this.loaded = false;
-        this.addEventListener('loadedmetadata', () => { this.event_executor('ready'); this.loaded = true });
-        this.addEventListener('loadedmetadata', () => { this.setVolume(this.volume) });
+        this.addEventListener('loadedmetadata', () => { this.event_executor('ready'); this.loaded = true; });
+        this.addEventListener('loadedmetadata', () => { this.setVolume(this.volume); });
+        this.addEventListener('loadedmetadata', async () => { const plid = await this.promise_send_event('getplaylistid'); (plid === null || plid === undefined) ? this.playlistVideoIds = [] : this.playlistVideoIds = await this.getPlaylistVideoids(plid); })
         this.player_iframe.src = iframe_src;
         if (typeof options.width === 'number') {
             this.player_iframe.width = options.width;
@@ -123,12 +248,14 @@ class invidious_embed {
         if (eventname === 'statechange') {
             return_data.data = this.getPlayerState();
         }
-        for (let x = 0; x < execute_functions.length; x++) {
-            try {
-                execute_functions[x](return_data);
+        execute_functions.forEach(func => {
+            try{
+                func(return_data);
             }
-            catch { }
-        }
+            catch(e){
+                console.error(e);
+            }
+        });
     }
 
     receiveMessage(message) {
@@ -239,15 +366,24 @@ class invidious_embed {
     }
 
     seekTo(seconds, allowSeekAhead) {//seconds must be a number and allowSeekAhead is ignore
-        seconds = Number(seconds);
-        if (seconds !== NaN && seconds !== undefined) {
-            this.postMessage({ eventname: 'seek', value: seconds });
+        if (typeof seconds === 'number') {
+            if (seconds !== NaN && seconds !== undefined) {
+                this.postMessage({ eventname: 'seek', value: seconds });
+            }
+        }
+        else {
+            console.warn('seekTo first argument type must be number')
         }
     }
 
     setSize(width, height) {//width and height must be Number
-        this.player_iframe.width = Number(width);
-        this.player_iframe.height = Number(height);
+        if (typeof width === 'number' && typeof height === 'number'){
+            this.player_iframe.width = width;
+            this.player_iframe.height = height;
+        }
+        else {
+            console.warn('setSize first and secound argument type must be number');
+        }
     }
 
     getPlaybackRate() {
@@ -255,9 +391,16 @@ class invidious_embed {
     }
 
     setPlaybackRate(suggestedRate) {//suggestedRate must be number.this player allow not available playback rate such as 1.4
-        suggestedRate = Number(suggestedRate);
-        if (suggestedRate !== NaN && suggestedRate !== undefined) {
-            this.postMessage({ eventname: 'setplaybackrate', value: suggestedRate });
+        if (typeof suggestedRate === 'number'){
+            if (suggestedRate !== NaN) {
+                this.postMessage({ eventname: 'setplaybackrate', value: suggestedRate });
+            }
+            else {
+                console.warn('setPlaybackRate first argument NaN is no valid');
+            }
+        }
+        else{
+            console.warn('setPlaybackRate first argument type must be number');
         }
     }
 
@@ -265,7 +408,7 @@ class invidious_embed {
         return this.promise_send_event('getavailableplaybackrates');
     }
 
-    playOtherVideoById(option, autoplay, startSeconds_arg) {//internal fuction
+    async playOtherVideoById(option, autoplay, startSeconds_arg) {//internal fuction
         let videoId = '';
         let startSeconds = 0;
         let endSeconds = -1;
@@ -308,27 +451,24 @@ class invidious_embed {
             }
         }
         if (mediaContetUrl.length > 0) {
-            var tmp_videoId = '';
-            if (mediaContetUrl.indexOf('/v/') !== -1) {
-                var end_pos = mediaContetUrl.length - 1;
-                if (mediaContetUrl.indexOf('?') !== -1) {
-                    end_pos = mediaContetUrl.indexOf('?');
-                }
-                tmp_videoId = mediaContetUrl.substring(mediaContetUrl.indexOf('/v/'), end_pos);
+            const match_result = mediaContetUrl.match(/\/([A-Za-z0-9]{11})\//);
+            if (match_result !== null && match_result.length === 2){
+                videoId = match_result[1];
             }
-            else {
-                tmp_videoId = new URL(mediaContetUrl).searchParams.get('v');
-            }
-            if (tmp_videoId === null || tmp_videoId.length !== 11) {
+            else{
                 this.error_code = 2;
                 this.event_executor('error');
                 return;
             }
-            videoId = tmp_videoId;
         }
         let iframe_sorce = this.target_origin.slice();
         iframe_sorce += "/embed/" + videoId;
         this.videoId = videoId;
+        if (!await this.videoid_accessable_check(videoId)) {
+            this.error_code = 100;
+            this.event_executor('error');
+            return;
+        }
         let search_params = new URLSearchParams('');
         search_params.append('origin', location.origin);
         search_params.append('enablejsapi', '1');
@@ -387,7 +527,7 @@ class invidious_embed {
     }
 
     async getVideoEmbedCode() {
-        var title = await this.getVideoTitle();
+        const title = await this.getVideoTitle();
         return '<iframe width="560" height="315" src="' + this.target_origin + '/embed/' + this.videoId + '" title="' + title.replace('"', "'") + '" frameborder="0" allow="autoplay;encrypted-media;picture-in-picture;web-share" allowfullscreen></iframe>';
     }
 
@@ -395,24 +535,36 @@ class invidious_embed {
         return this.promise_send_event('getcurrenttime');
     }
 
+    async getVideoData() {
+        return { video_id: this.videoId, title: await this.promise_send_event('gettitle'), list:this.promise_send_event('getplaylistid') };
+    }
+
+    getPlaylistIndex() {
+        return this.promise_send_event('getplaylistindex');
+    }
+
+    getPlaylist() {
+        return this.playlistVideoIds !== undefined ? this.playlistVideoIds : [];
+    }
+
     constructor(element, options) {
         this.Player(element, options);
         window.addEventListener('message', (ms) => { this.receiveMessage(ms) });
         this.message_wait = { getvolume: [], getmutestatus: [], getduration: [], getcurrenttime: [], getplaybackrate: [], getavailableplaybackrates: [], gettitle: [] };
-    }
-    
-    async getVideoData() {
-        return { video_id: this.videoId, title: await this.promise_send_event('gettitle') };
     }
 }
 function invidious_ready(func) {
     if (typeof func === 'function') {
         func();
     }
+    else {
+        console.warn('invidious.ready first argument must be function');
+    }
 }
 invidious_embed.invidious_instance = new URL(document.currentScript.src).origin;
 const invidious = { Player: invidious_embed, PlayerState: { ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 }, ready: invidious_ready };
-try {
+if (typeof onInvidiousIframeAPIReady === 'function'){
     onInvidiousIframeAPIReady();
 }
-catch { }
+
+const YT = invidious;

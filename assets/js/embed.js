@@ -75,7 +75,7 @@ function return_message(message, target_window) {
     }
     if (message.message_kind === 'event') {
         if (message.eventname === 'timeupdate' || message.eventname === 'loadedmetadata') {
-            additional_info['value'] = { getvolume: player.volume(), getduration: player.duration(), getcurrenttime: player.currentTime(), getplaystatus: player.paused(), getplaybackrate: player.playbackRate(), getloopstatus: player.loop(), getmutestatus: player.muted(), getfullscreenstatus: player.isFullscreen(), getavailableplaybackrates: options.playbackRates, gettitle: player_data.title };
+            additional_info['value'] = { getvolume: player.volume(), getduration: player.duration(), getcurrenttime: player.currentTime(), getplaystatus: player.paused(), getplaybackrate: player.playbackRate(), getloopstatus: player.loop(), getmutestatus: player.muted(), getfullscreenstatus: player.isFullscreen(), getavailableplaybackrates: options.playbackRates, gettitle: player_data.title, getplaylistindex: video_data.index, getplaylistid: video_data.plid};
         }
     }
     if (message.eventname === 'error') {
@@ -92,7 +92,7 @@ function control_embed_iframe(message) {
     const origin_equal = origin === null || origin === message.origin;
     if (origin_equal) {
         const widgetid = url_params.get('widgetid');
-        const widgetid_equal = (widgetid === null && message.data.widgetid === null) || widgetid === message.data.widgetid;
+        const widgetid_equal = widgetid === message.data.widgetid;
         const target_name_equal = message.data.target === 'invidious_control';
         const eventname_string_check = typeof message.data.eventname === 'string';
         if (widgetid_equal && target_name_equal && eventname_string_check) {
@@ -158,6 +158,12 @@ function control_embed_iframe(message) {
                     break;
                 case 'geterrorcode':
                     message_return_value = player.error().code;
+                    break;
+                case 'getplaylistindex':
+                    message_return_value = video_data.index;
+                    break;
+                case 'getplaylistid':
+                    message_return_value = video_data.plid;
                     break;
                 default:
                     console.info("Unhandled event name: " + message.data.eventname);
