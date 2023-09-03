@@ -8,41 +8,17 @@ class invidious_embed {
     static instance_status_list = {};
 
     addEventListener(eventname, func) {
-        if (typeof func === 'function') {
-            if (eventname in invidious_embed.eventname_table) {
-                this.eventobject[invidious_embed.eventname_table[eventname]].push(func);
-            } else if (invidious_embed.available_event_name.includes(eventname)) {
-                this.eventobject[eventname].push(func);
-            } else {
-                console.warn('addEventListener cannot find such eventname : ' + eventname);
-            }
-        } else {
-            console.warn("addEventListner secound args must be function");
+        if (eventname in invidious_embed.eventname_table) {
+            eventname = invidious_embed.eventname_table[eventname];
         }
+        this.eventElement.addEventListener(eventname,func);
     }
 
     removeEventListener(eventname, func) {
-        if (typeof func === 'function') {
-            let internal_eventname;
-            if (eventname in invidious_embed.eventname_table) {
-                internal_eventname = invidious_embed.eventname_table[eventname];
-            } else if (invidious_embed.available_event_name.includes(eventname)) {
-                internal_eventname = eventname;
-            } else {
-                console.warn('removeEventListner cannot find such eventname : ' + eventname);
-                return;
-            }
-            this.eventobject[internal_eventname] = this.eventobject[internal_eventname].filter(x => {
-                const allowFunctionDetected = x.toString()[0] === '(';
-                if (allowFunctionDetected) {
-                    x.toString() !== func.toString();
-                } else {
-                    x !== func;
-                }
-            });
-        } else {
-            console.warn("removeEventListener secound args must be function");
+        if (eventname in invidious_embed.eventname_table) {
+            eventname = invidious_embed.eventname_table[eventname];
         }
+        this.eventElement.removeEventListener(eventname,func);
     }
 
     async instance_access_check(instance_origin) {
@@ -121,6 +97,7 @@ class invidious_embed {
     }
 
     async Player(element, options) {
+        this.eventElement = document.createElement("span");
         this.player_status = -1;
         this.error_code = 0;
         this.volume = 100;
@@ -215,18 +192,7 @@ class invidious_embed {
     }
 
     event_executor(eventname) {
-        const execute_functions = this.eventobject[eventname];
-        let return_data = { data: undefined, target: this };
-        if (eventname === 'statechange') {
-            return_data.data = this.getPlayerState();
-        }
-        execute_functions.forEach(func => {
-            try {
-                func(return_data);
-            } catch (e) {
-                console.error(e);
-            }
-        });
+        this.eventElement.dispatchEvent(new Event(eventname));
     }
 
     receiveMessage(message) {
@@ -527,3 +493,5 @@ if (typeof onInvidiousIframeAPIReady === 'function') {
         console.error(e);
     }
 }
+
+const YT = invidious;
