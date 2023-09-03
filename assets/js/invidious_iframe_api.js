@@ -33,8 +33,8 @@ class invidious_embed {
                 return;
             }
             this.eventobject[internal_eventname] = this.eventobject[internal_eventname].filter(x => {
-                const arrowFunctionDetected = x.toString()[0] === '(';
-                if (arrowFunctionDetected) {
+                const allowFunctionDetected = x.toString()[0] === '(';
+                if (allowFunctionDetected) {
                     x.toString() !== func.toString();
                 } else {
                     x !== func;
@@ -305,7 +305,7 @@ class invidious_embed {
     setVolume(volume) {
         if (typeof volume === 'number') {
             this.volume = volume;
-            if (volume !== NaN && volume != undefined && volume >= 0 && volume <= 100) {
+            if (volume !== NaN && volume >= 0 && volume <= 100) {
                 this.postMessage({ eventname: 'setvolume', value: volume / 100 });
             }
         } else {
@@ -521,5 +521,9 @@ function invidious_ready(func) {
 invidious_embed.invidious_instance = new URL(document.currentScript.src).origin;
 const invidious = { Player: invidious_embed, PlayerState: { ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 }, ready: invidious_ready };
 if (typeof onInvidiousIframeAPIReady === 'function') {
-    onInvidiousIframeAPIReady();
+    try{
+        onInvidiousIframeAPIReady();
+    } catch(e) {
+        console.error(e);
+    }
 }
