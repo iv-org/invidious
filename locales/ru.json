@@ -492,5 +492,13 @@
     "Standard YouTube license": "Стандартная лицензия YouTube",
     "Channel Sponsor": "Спонсор канала",
     "Download is disabled": "Загрузка отключена",
-    "Import YouTube playlist (.csv)": "Импорт плейлиста YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "Импорт плейлиста YouTube (.csv)",
+    "channel_tab_releases_label": "Релизы",
+    "generic_button_delete": "Удалить",
+    "generic_button_edit": "Редактировать",
+    "generic_button_save": "Сохранить",
+    "generic_button_cancel": "Отменить",
+    "generic_button_rss": "RSS",
+    "playlist_button_add_items": "Добавить видео",
+    "channel_tab_podcasts_label": "Подкасты"
 }

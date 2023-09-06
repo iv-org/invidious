@@ -492,5 +492,13 @@
     "Channel Sponsor": "Спонсор каналу",
     "Standard YouTube license": "Стандартна ліцензія YouTube",
     "Download is disabled": "Завантаження вимкнено",
-    "Import YouTube playlist (.csv)": "Імпорт списку відтворення YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "Імпорт списку відтворення YouTube (.csv)",
+    "channel_tab_podcasts_label": "Подкасти",
+    "playlist_button_add_items": "Додати відео",
+    "generic_button_cancel": "Скасувати",
+    "generic_button_rss": "RSS",
+    "channel_tab_releases_label": "Випуски",
+    "generic_button_delete": "Видалити",
+    "generic_button_edit": "Змінити",
+    "generic_button_save": "Зберегти"
 }

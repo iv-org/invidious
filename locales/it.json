@@ -13,7 +13,7 @@
     "View playlist on YouTube": "Vedi playlist su YouTube",
     "newest": "più recente",
     "oldest": "più vecchio",
-    "popular": "Tendenze",
+    "popular": "popolare",
     "last": "ultimo",
     "Next page": "Pagina successiva",
     "Previous page": "Pagina precedente",
@@ -467,7 +467,7 @@
     "channel_tab_shorts_label": "Short",
     "channel_tab_playlists_label": "Playlist",
     "channel_tab_channels_label": "Canali",
-    "channel_tab_streams_label": "Livestream",
+    "channel_tab_streams_label": "Trasmissioni in diretta",
     "channel_tab_community_label": "Comunità",
     "Music in this video": "Musica in questo video",
     "Artist: ": "Artista: ",
@@ -476,5 +476,13 @@
     "Song: ": "Canzone: ",
     "Standard YouTube license": "Licenza standard di YouTube",
     "Channel Sponsor": "Sponsor del canale",
-    "Import YouTube playlist (.csv)": "Importa playlist di YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "Importa playlist di YouTube (.csv)",
+    "generic_button_edit": "Modifica",
+    "generic_button_cancel": "Annulla",
+    "generic_button_rss": "RSS",
+    "channel_tab_releases_label": "Pubblicazioni",
+    "generic_button_delete": "Elimina",
+    "generic_button_save": "Salva",
+    "playlist_button_add_items": "Aggiungi video",
+    "channel_tab_podcasts_label": "Podcast"
 }
