@@ -160,11 +160,23 @@ class invidious_embed {
         let no_start_parameter = true;
         if (typeof options.playerVars === 'object') {
             this.option_playerVars = options.playerVars;
-            for (let x in options.playerVars) {
-                if (typeof x === 'string' && typeof options.playerVars[x] === 'string') {
-                    search_params.append(x, options.playerVars[x]);
+            Object.keys(options.playerVars).forEach(key=>{
+                if (typeof key === 'string') {
+                    let keyValue = options.playerVars[key];
+                    switch (typeof keyValue) {
+                        case 'number':
+                            keyValue = keyValue.toString();
+                            break;
+                        case 'string':
+                            break;
+                        default :
+                            console.warn('player vars key value must be string or number');
+                    }
+                    search_params.append(key, keyValue);
+                } else {
+                    console.warn('player vars key must be string');
                 }
-            }
+            })
             if (options.playerVars.start !== undefined) {
                 no_start_parameter = false;
             }
@@ -191,11 +203,8 @@ class invidious_embed {
         if (typeof options.width === 'number') {
             this.player_iframe.width = options.width;
         } else {
-            if (document.body.clientWidth < 640) {
-                this.player_iframe.width = document.body.clientWidth;
-            } else {
-                this.player_iframe.width = 640;
-            }
+            this.player_iframe.width = 640;
+            this.player_iframe.style.maxWidth = '100%';
         }
         if (typeof options.width === 'number') {
             this.player_iframe.width = options.width;
@@ -225,7 +234,8 @@ class invidious_embed {
     }
 
     receiveMessage(message) {
-        if (message.data.from === 'invidious_control' && message.data.widgetid === String(this.widgetid)) {
+        const onControlAndHasWidgetId = message.data.from==='invidious_control' && message.data.widgetid===this.widgetid.toString();
+        if (onControlAndHasWidgetId) {
             switch (message.data.message_kind) {
                 case 'info_return':
                     const promise_array = this.message_wait[message.data.command];
