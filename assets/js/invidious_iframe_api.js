@@ -6,6 +6,7 @@ class invidious_embed {
     static invidious_instance = '';
     static api_instance_list = [];
     static instance_status_list = {};
+    static videodata_cahce = {};
 
     addEventListener(eventname, func) {
         if (eventname in invidious_embed.eventname_table) {
@@ -79,9 +80,21 @@ class invidious_embed {
         }
     }
 
+    async videodata_api(videoid) {
+        const not_in_videodata_cahce = !(videoid in invidious_embed.videodata_cahce);
+        if (not_in_videodata_cahce) {
+            const video_api_response = await fetch(invidious_embed.invidious_instance + "/api/v1/videos/" + videoid + "?fields=title,videoId,paid,premium,isFamilyFriendly,isListed,liveNow");
+            if (video_api_response.ok) {
+                invidious_embed.videodata_cahce[videoid] = Object.assign({},{status:true},await video_api_response.json());
+            } else {
+                invidious_embed.videodata_cahce[videoid] = {status:false};
+            }
+        }
+        return invidious_embed.videodata_cahce[videoid];
+    }
+
     async videoid_accessable_check(videoid) {
-        const video_api_response = await fetch(invidious_embed.invidious_instance + "/api/v1/videos/" + videoid);
-        return video_api_response.ok;
+        return (await this.videodata_api(videoid)).status;
     }
 
     async getPlaylistVideoids(playlistid) {
@@ -101,6 +114,8 @@ class invidious_embed {
         this.player_status = -1;
         this.error_code = 0;
         this.volume = 100;
+        this.loop = false;
+        this.playlistVideoIds = [];
         this.eventobject = { ready: [], ended: [], error: [], ratechange: [], volumechange: [], waiting: [], timeupdate: [], loadedmetadata: [], play: [], seeking: [], seeked: [], playerresize: [], pause: [], statechange: [] };
         let replace_elemnt;
         if (element === undefined || element === null) {
@@ -142,6 +157,7 @@ class invidious_embed {
         invidious_embed.widgetid++;
         search_params.append('origin', location.origin);
         search_params.append('enablejsapi', '1');
+        let no_start_parameter = true;
         if (typeof options.playerVars === 'object') {
             this.option_playerVars = options.playerVars;
             for (let x in options.playerVars) {
@@ -149,9 +165,17 @@ class invidious_embed {
                     search_params.append(x, options.playerVars[x]);
                 }
             }
+            if (options.playerVars.start !== undefined) {
+                no_start_parameter = false;
+            }
             if (options.playerVars.autoplay === undefined) {
                 search_params.append('autoplay', '0');
             }
+        } else {
+            search_params.append('autoplay', '0');
+        }
+        if (no_start_parameter) {
+            search_params.append('start', '0');
         }
         iframe_src += "?" + search_params.toString();
         if (typeof options.events === 'object') {
@@ -163,7 +187,6 @@ class invidious_embed {
         this.loaded = false;
         this.addEventListener('loadedmetadata', () => { this.event_executor('ready'); this.loaded = true; });
         this.addEventListener('loadedmetadata', () => { this.setVolume(this.volume); });
-        this.addEventListener('loadedmetadata', async () => { const plid = await this.promise_send_event('getplaylistid'); (plid === null || plid === undefined) ? this.playlistVideoIds = [] : this.playlistVideoIds = await this.getPlaylistVideoids(plid); })
         this.player_iframe.src = iframe_src;
         if (typeof options.width === 'number') {
             this.player_iframe.width = options.width;
@@ -192,7 +215,13 @@ class invidious_embed {
     }
 
     event_executor(eventname) {
-        this.eventElement.dispatchEvent(new Event(eventname));
+        let event_parameter = {detail:undefined};
+        if (eventname === 'statechange') {
+            event_parameter.detail = this.getPlayerState();
+        } else if (eventname === 'error'){
+            event_parameter.detail = this.error_code;
+        }
+        this.eventElement.dispatchEvent(new Event(eventname,event_parameter));
     }
 
     receiveMessage(message) {
@@ -299,7 +328,7 @@ class invidious_embed {
         return this.promise_send_event('getmutestatus');
     }
 
-    seekTo(seconds, allowSeekAhead) {//seconds must be a number and allowSeekAhead is ignore
+    async seekTo(seconds, allowSeekAhead) {//seconds must be a number and allowSeekAhead is ignore
         if (typeof seconds === 'number') {
             if (seconds !== NaN && seconds !== undefined) {
                 this.postMessage({ eventname: 'seek', value: seconds });
@@ -338,7 +367,7 @@ class invidious_embed {
         return this.promise_send_event('getavailableplaybackrates');
     }
 
-    async playOtherVideoById(option, autoplay, startSeconds_arg) {//internal fuction
+    async playOtherVideoById(option, autoplay, startSeconds_arg, additional_argument) {//internal fuction
         let videoId = '';
         let startSeconds = 0;
         let endSeconds = -1;
@@ -401,15 +430,22 @@ class invidious_embed {
         invidious_embed.widgetid++;
         search_params.append('autoplay', Number(autoplay));
         if (this.option_playerVars !== undefined) {
+            const ignore_keys = ['autoplay', 'start', 'end', 'index', 'list'];
             Object.keys(this.option_playerVars).forEach(key => {
-                if (key !== 'autoplay' && key !== 'start' && key !== 'end') {
+                if (!ignore_keys.includes(key)) {
                     search_params.append(key, this.option_playerVars[key]);
                 }
             })
         }
-        if (startSeconds > 0) {
-            search_params.append('start', startSeconds);
+        if (typeof additional_argument === 'object') {
+            const ignore_keys = ['autoplay', 'start', 'end'];
+            Object.keys(additional_argument).forEach(key => {
+                if (!ignore_keys.includes(key)) {
+                    search_params.append(key, additional_argument[key]);
+                }
+            })
         }
+        search_params.append('start', startSeconds);
         if (endSeconds !== -1 && endSeconds >= 0) {
             if (endSeconds > startSeconds) {
                 search_params.append('end', endSeconds);
@@ -426,19 +462,134 @@ class invidious_embed {
     }
 
     loadVideoById(option, startSeconds) {
-        this.playOtherVideoById(option, true, startSeconds);
+        this.playOtherVideoById(option, true, startSeconds, {});
     }
 
     cueVideoById(option, startSeconds) {
-        this.playOtherVideoById(option, false, startSeconds);
+        this.playOtherVideoById(option, false, startSeconds, {});
     }
 
     cueVideoByUrl(option, startSeconds) {
-        this.playOtherVideoById(option, false, startSeconds);
+        this.playOtherVideoById(option, false, startSeconds, {});
     }
 
     loadVideoByUrl(option, startSeconds) {
-        this.playOtherVideoById(option, true, startSeconds);
+        this.playOtherVideoById(option, true, startSeconds, {});
+    }
+
+    async playPlaylist(playlistData,autoplay,index,startSeconds) {
+        let playlistId;
+        if (typeof playlistData === 'string') {
+            this.playlistVideoIds = await this.getPlaylistVideoids(playlistData);
+            playlistId = playlistData;
+        } else if (typeof playlistData === 'object') {
+            if (Array.isArray(playlistData)) {
+                this.playlistVideoIds = playlistData;
+            } else {
+                index = playlistData['index'];
+                let listType = 'playlist';
+                if (typeof playlistData['listType'] === 'string'){
+                    listType = playlistData['listType'];
+                }
+                switch (listType) {
+                    case 'playlist':
+                        if (Array.isArray(playlistData['list'])) {
+                            this.playlistVideoIds = playlistData['list'];
+                        } else if(typeof playlistData['list'] === 'string') {
+                            this.playlistVideoIds = await this.getPlaylistVideoids(playlistData['list']);
+                            playlistId = playlistData['list'];
+                        } else {
+                            console.error('playlist data list must be string or array of strings');
+                            return;
+                        }
+                        break;
+                    case 'user_uploads':
+                        console.warn('sorry user_uploads not support');
+                        return;
+                    default:
+                        console.error('listType : ' + listType + ' is unknown');
+                        return;
+                }
+            }
+        } else {
+            console.error('playlist function first argument must be string or array of string');
+            return;
+        }
+        if (this.playlistVideoIds.length === 0){
+            console.error('playlist length 0 is invalid');
+            return;
+        }
+        let parameter = {index:0};
+        if (typeof index === 'undefined') {
+            index = 0;
+        } else if (typeof index === 'number'){
+            parameter.index = index;
+        } else{
+            console.error('index must be number of undefined');
+        }
+        if (typeof playlistId === 'string') { 
+            parameter['list'] = playlistId;
+            this.playlistId = playlistId;
+        }
+        this.playOtherVideoById(this.playlistVideoIds[index],autoplay,startSeconds,parameter);
+    }
+
+    cuePlaylist(data,index,startSeconds) {
+        this.playPlaylist(data,false,index,startSeconds);
+    }
+
+    loadPlaylist(data,index,startSeconds) {
+        this.playPlaylist(data,true,index,startSeconds);
+    }
+
+    playVideoAt(index) {
+        if (typeof index === 'number') {
+            let parameter = {index:index};
+            if (this.playlistId !== undefined) {
+                parameter['list'] = this.playlistId;
+            }
+            this.playOtherVideoById(this.playlistVideoIds[index],true,0,parameter);
+        } else {
+            console.error('playVideoAt first argument must be number');
+        }
+    }
+
+    async nextVideo() {
+        let now_index = this.promise_send_event('getplaylistindex');
+        if (now_index === this.playlistVideoIds.length -1) {
+            if (this.loop) {
+                now_index = 0;
+            } else {
+                console.log('end of playlist');
+                return;
+            }
+        } else {
+            now_index++;
+        }
+        let parameter = {index:now_index};
+        if (this.playlistId !== undefined) {
+            parameter['list'] = this.playlistId;
+        }
+        this.playOtherVideoById(this.playlistVideoIds[now_index],true,0,parameter);
+    }
+
+    async previousVideo() {
+        let now_index = this.promise_send_event('getplaylistindex');
+        if (now_index === 0) {
+            if (this.loop) {
+                now_index = this.playlistVideoIds.length -1;
+            } else {
+                console.log('back to start of playlist');
+                return;
+            }
+        } else {
+            now_index--;
+        }
+        let parameter = {index:now_index};
+        if (this.playlistId !== undefined) {
+            parameter['list'] = this.playlistId;
+        }
+        this.playOtherVideoById(this.playlistVideoIds[now_index],true,0,parameter);
     }
 
     getDuration() {
@@ -459,7 +610,8 @@ class invidious_embed {
     }
 
     async getVideoData() {
-        return { video_id: this.videoId, title: await this.promise_send_event('gettitle'), list: this.promise_send_event('getplaylistid') };
+        const videoData = await this.videodata_api(this.videoId);
+        return { video_id: this.videoId, title: await this.promise_send_event('gettitle'), list: await this.promise_send_event('getplaylistid'), isListed:videoData.isListed, isLive:videoData.liveNow, isPremiere:videoData.premium};
     }
 
     getPlaylistIndex() {
@@ -470,12 +622,21 @@ class invidious_embed {
         return this.playlistVideoIds !== undefined ? this.playlistVideoIds : [];
     }
 
+    setLoop(loopStatus) {
+        if (typeof loopStatus === 'boolean') {
+            this.loop = loopStatus;
+        } else {
+            console.error('setLoop first argument must be bool');
+        }
+    }
+
     constructor(element, options) {
         this.Player(element, options);
         window.addEventListener('message', (ms) => { this.receiveMessage(ms) });
         this.message_wait = { getvolume: [], getmutestatus: [], getduration: [], getcurrenttime: [], getplaybackrate: [], getavailableplaybackrates: [], gettitle: [] };
     }
 }
+
 function invidious_ready(func) {
     if (typeof func === 'function') {
         func();
@@ -484,6 +645,7 @@ function invidious_ready(func) {
         console.warn('invidious.ready first argument must be function');
     }
 }
+
 invidious_embed.invidious_instance = new URL(document.currentScript.src).origin;
 const invidious = { Player: invidious_embed, PlayerState: { ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 }, ready: invidious_ready };
 if (typeof onInvidiousIframeAPIReady === 'function') {
@@ -493,5 +655,3 @@ if (typeof onInvidiousIframeAPIReady === 'function') {
         console.error(e);
     }
 }
-
-const YT = invidious;

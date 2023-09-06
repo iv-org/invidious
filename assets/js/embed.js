@@ -111,6 +111,9 @@ function control_embed_iframe(message) {
                 case 'seek':
                     const duration = player.duration();
                     let newTime = helpers.clamp(message.data.value, 0, duration);
+                    if (player.paused() && player.currentTime() === 0) {
+                        player.play();
+                    }
                     player.currentTime(newTime);
                     break;
                 case 'setplaybackrate':
