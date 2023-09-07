@@ -9,17 +9,41 @@ class invidious_embed {
     static videodata_cahce = {};
 
     addEventListener(eventname, func) {
-        if (eventname in invidious_embed.eventname_table) {
-            eventname = invidious_embed.eventname_table[eventname];
+        if (typeof func === 'function') {
+            if (eventname in invidious_embed.eventname_table) {
+                this.eventobject[invidious_embed.eventname_table[eventname]].push(func);
+            } else if (invidious_embed.available_event_name.includes(eventname)) {
+                this.eventobject[eventname].push(func);
+            } else {
+                console.warn('addEventListener cannot find such eventname : ' + eventname);
+            }
+        } else {
+            console.warn("addEventListner secound args must be function");
         }
-        this.eventElement.addEventListener(eventname,func);
     }
 
     removeEventListener(eventname, func) {
-        if (eventname in invidious_embed.eventname_table) {
-            eventname = invidious_embed.eventname_table[eventname];
+        if (typeof func === 'function') {
+            let internal_eventname;
+            if (eventname in invidious_embed.eventname_table) {
+                internal_eventname = invidious_embed.eventname_table[eventname];
+            } else if (invidious_embed.available_event_name.includes(eventname)) {
+                internal_eventname = eventname;
+            } else {
+                console.warn('removeEventListner cannot find such eventname : ' + eventname);
+                return;
+            }
+            this.eventobject[internal_eventname] = this.eventobject[internal_eventname].filter(x => {
+                const allowFunctionDetected = x.toString()[0] === '(';
+                if (allowFunctionDetected) {
+                    x.toString() !== func.toString();
+                } else {
+                    x !== func;
+                }
+            });
+        } else {
+            console.warn("removeEventListener secound args must be function");
         }
-        this.eventElement.removeEventListener(eventname,func);
     }
 
     async instance_access_check(instance_origin) {
@@ -85,9 +109,9 @@ class invidious_embed {
         if (not_in_videodata_cahce) {
             const video_api_response = await fetch(invidious_embed.invidious_instance + "/api/v1/videos/" + videoid + "?fields=title,videoId,paid,premium,isFamilyFriendly,isListed,liveNow");
             if (video_api_response.ok) {
-                invidious_embed.videodata_cahce[videoid] = Object.assign({},{status:true},await video_api_response.json());
+                invidious_embed.videodata_cahce[videoid] = Object.assign({}, { status: true }, await video_api_response.json());
             } else {
-                invidious_embed.videodata_cahce[videoid] = {status:false};
+                invidious_embed.videodata_cahce[videoid] = { status: false };
             }
         }
         return invidious_embed.videodata_cahce[videoid];
@@ -110,7 +134,6 @@ class invidious_embed {
     }
 
     async Player(element, options) {
-        this.eventElement = document.createElement("span");
         this.player_status = -1;
         this.error_code = 0;
         this.volume = 100;
@@ -118,6 +141,7 @@ class invidious_embed {
         this.playlistVideoIds = [];
         this.eventobject = { ready: [], ended: [], error: [], ratechange: [], volumechange: [], waiting: [], timeupdate: [], loadedmetadata: [], play: [], seeking: [], seeked: [], playerresize: [], pause: [], statechange: [] };
         let replace_elemnt;
+        this.isPlaylistVideoList = false;
         if (element === undefined || element === null) {
             throw 'Please, pass element id or HTMLElement as first argument';
         } else if (typeof element === 'string') {
@@ -160,7 +184,7 @@ class invidious_embed {
         let no_start_parameter = true;
         if (typeof options.playerVars === 'object') {
             this.option_playerVars = options.playerVars;
-            Object.keys(options.playerVars).forEach(key=>{
+            Object.keys(options.playerVars).forEach(key => {
                 if (typeof key === 'string') {
                     let keyValue = options.playerVars[key];
                     switch (typeof keyValue) {
@@ -169,14 +193,14 @@ class invidious_embed {
                             break;
                         case 'string':
                             break;
-                        default :
+                        default:
                             console.warn('player vars key value must be string or number');
                     }
                     search_params.append(key, keyValue);
                 } else {
                     console.warn('player vars key must be string');
                 }
-            })
+            });
             if (options.playerVars.start !== undefined) {
                 no_start_parameter = false;
             }
@@ -191,14 +215,19 @@ class invidious_embed {
         }
         iframe_src += "?" + search_params.toString();
         if (typeof options.events === 'object') {
-            for (let x in options.events) {
-                this.addEventListener(x, options.events[x]);
-            }
+            Object.keys(options.events).forEach(key => {
+                if (typeof options.events[key] === 'function') {
+                    this.addEventListener(key, options.events[key]);
+                } else {
+                    console.warn('event function must be function');
+                }
+            });
         }
         this.player_iframe = document.createElement("iframe");
         this.loaded = false;
         this.addEventListener('loadedmetadata', () => { this.event_executor('ready'); this.loaded = true; });
         this.addEventListener('loadedmetadata', () => { this.setVolume(this.volume); });
+        this.addEventListener('ended', () => { if (this.isPlaylistVideoList) { this.nextVideo() } })
         this.player_iframe.src = iframe_src;
         if (typeof options.width === 'number') {
             this.player_iframe.width = options.width;
@@ -206,8 +235,8 @@ class invidious_embed {
             this.player_iframe.width = 640;
             this.player_iframe.style.maxWidth = '100%';
         }
-        if (typeof options.width === 'number') {
-            this.player_iframe.width = options.width;
+        if (typeof options.height === 'number') {
+            this.player_iframe.height = options.height;
         } else {
             this.player_iframe.height = this.player_iframe.width * (9 / 16);
         }
@@ -224,17 +253,26 @@ class invidious_embed {
     }
 
     event_executor(eventname) {
-        let event_parameter = {detail:undefined};
-        if (eventname === 'statechange') {
-            event_parameter.detail = this.getPlayerState();
-        } else if (eventname === 'error'){
-            event_parameter.detail = this.error_code;
+        const execute_functions = this.eventobject[eventname];
+        let return_data = { type: eventname, data: null, target: this };
+        switch (eventname) {
+            case 'statechange':
+                return_data.data = this.getPlayerState();
+                break;
+            case 'error':
+                return_data.data = this.error_code;
         }
-        this.eventElement.dispatchEvent(new Event(eventname,event_parameter));
+        execute_functions.forEach(func => {
+            try {
+                func(return_data);
+            } catch (e) {
+                console.error(e);
+            }
+        });
     }
 
     receiveMessage(message) {
-        const onControlAndHasWidgetId = message.data.from==='invidious_control' && message.data.widgetid===this.widgetid.toString();
+        const onControlAndHasWidgetId = message.data.from === 'invidious_control' && message.data.widgetid === this.widgetid.toString();
         if (onControlAndHasWidgetId) {
             switch (message.data.message_kind) {
                 case 'info_return':
@@ -415,7 +453,7 @@ class invidious_embed {
             }
         }
         if (mediaContetUrl.length > 0) {
-            const match_result = mediaContetUrl.match(/\/([A-Za-z0-9]{11})\//);
+            const match_result = mediaContetUrl.match(/\/([A-Za-z0-9]{11})/);
             if (match_result !== null && match_result.length === 2) {
                 videoId = match_result[1];
             } else {
@@ -472,44 +510,47 @@ class invidious_embed {
     }
 
     loadVideoById(option, startSeconds) {
+        this.isPlaylistVideoList = false;
         this.playOtherVideoById(option, true, startSeconds, {});
     }
 
     cueVideoById(option, startSeconds) {
+        this.isPlaylistVideoList = false;
         this.playOtherVideoById(option, false, startSeconds, {});
     }
 
     cueVideoByUrl(option, startSeconds) {
+        this.isPlaylistVideoList = false;
         this.playOtherVideoById(option, false, startSeconds, {});
     }
 
     loadVideoByUrl(option, startSeconds) {
+        this.isPlaylistVideoList = false;
         this.playOtherVideoById(option, true, startSeconds, {});
     }
 
-    async playPlaylist(playlistData,autoplay,index,startSeconds) {
+    async playPlaylist(playlistData, autoplay, index, startSeconds) {
         let playlistId;
         if (typeof playlistData === 'string') {
-            this.playlistVideoIds = await this.getPlaylistVideoids(playlistData);
-            playlistId = playlistData;
+            this.playlistVideoIds = [playlistData];
+            this.isPlaylistVideoList = true;
         } else if (typeof playlistData === 'object') {
             if (Array.isArray(playlistData)) {
                 this.playlistVideoIds = playlistData;
+                this.isPlaylistVideoList = true;
             } else {
                 index = playlistData['index'];
                 let listType = 'playlist';
-                if (typeof playlistData['listType'] === 'string'){
+                if (typeof playlistData['listType'] === 'string') {
                     listType = playlistData['listType'];
                 }
                 switch (listType) {
                     case 'playlist':
-                        if (Array.isArray(playlistData['list'])) {
-                            this.playlistVideoIds = playlistData['list'];
-                        } else if(typeof playlistData['list'] === 'string') {
+                        if (typeof playlistData['list'] === 'string') {
                             this.playlistVideoIds = await this.getPlaylistVideoids(playlistData['list']);
                             playlistId = playlistData['list'];
                         } else {
-                            console.error('playlist data list must be string or array of strings');
+                            console.error('playlist data list must be string');
                             return;
                         }
                         break;
@@ -521,44 +562,52 @@ class invidious_embed {
                         return;
                 }
             }
+            if (typeof playlistData.startSeconds === 'number') {
+                startSeconds = playlistData.startSeconds;
+            }
         } else {
             console.error('playlist function first argument must be string or array of string');
             return;
         }
-        if (this.playlistVideoIds.length === 0){
+        if (this.playlistVideoIds.length === 0) {
             console.error('playlist length 0 is invalid');
             return;
         }
-        let parameter = {index:0};
+        let parameter = { index: 0 };
         if (typeof index === 'undefined') {
             index = 0;
-        } else if (typeof index === 'number'){
+        } else if (typeof index === 'number') {
             parameter.index = index;
-        } else{
+        } else {
             console.error('index must be number of undefined');
         }
-        if (typeof playlistId === 'string') { 
+        if (typeof playlistId === 'string') {
             parameter['list'] = playlistId;
             this.playlistId = playlistId;
         }
-        this.playOtherVideoById(this.playlistVideoIds[index],autoplay,startSeconds,parameter);
+        this.sub_index = parameter.index;
+        if (index >= this.playlistVideoIds.length) {
+            index = 0;
+            parameter.index = 0;
+        }
+        this.playOtherVideoById(this.playlistVideoIds[index], autoplay, startSeconds, parameter);
     }
 
-    cuePlaylist(data,index,startSeconds) {
-        this.playPlaylist(data,false,index,startSeconds);
+    cuePlaylist(data, index, startSeconds) {
+        this.playPlaylist(data, false, index, startSeconds);
     }
 
-    loadPlaylist(data,index,startSeconds) {
-        this.playPlaylist(data,true,index,startSeconds);
+    loadPlaylist(data, index, startSeconds) {
+        this.playPlaylist(data, true, index, startSeconds);
     }
 
     playVideoAt(index) {
         if (typeof index === 'number') {
-            let parameter = {index:index};
+            let parameter = { index: index };
             if (this.playlistId !== undefined) {
                 parameter['list'] = this.playlistId;
             }
-            this.playOtherVideoById(this.playlistVideoIds[index],true,0,parameter);
+            this.playOtherVideoById(this.playlistVideoIds[index], true, 0, parameter);
         } else {
             console.error('playVideoAt first argument must be number');
         }
@@ -566,7 +615,10 @@ class invidious_embed {
 
     async nextVideo() {
         let now_index = this.promise_send_event('getplaylistindex');
-        if (now_index === this.playlistVideoIds.length -1) {
+        if (now_index === null) {
+            now_index = this.sub_index;
+        }
+        if (now_index === this.playlistVideoIds.length - 1) {
             if (this.loop) {
                 now_index = 0;
             } else {
@@ -576,18 +628,22 @@ class invidious_embed {
         } else {
             now_index++;
         }
-        let parameter = {index:now_index};
+        this.sub_index = now_index;
+        let parameter = { index: now_index };
         if (this.playlistId !== undefined) {
             parameter['list'] = this.playlistId;
         }
-        this.playOtherVideoById(this.playlistVideoIds[now_index],true,0,parameter);
+        this.playOtherVideoById(this.playlistVideoIds[now_index], true, 0, parameter);
     }
 
     async previousVideo() {
         let now_index = this.promise_send_event('getplaylistindex');
+        if (now_index === null) {
+            now_index = this.sub_index;
+        }
         if (now_index === 0) {
             if (this.loop) {
-                now_index = this.playlistVideoIds.length -1;
+                now_index = this.playlistVideoIds.length - 1;
             } else {
                 console.log('back to start of playlist');
                 return;
@@ -595,11 +651,12 @@ class invidious_embed {
         } else {
             now_index--;
         }
-        let parameter = {index:now_index};
+        this.sub_index = now_index;
+        let parameter = { index: now_index };
         if (this.playlistId !== undefined) {
             parameter['list'] = this.playlistId;
         }
-        this.playOtherVideoById(this.playlistVideoIds[now_index],true,0,parameter);
+        this.playOtherVideoById(this.playlistVideoIds[now_index], true, 0, parameter);
     }
 
     getDuration() {
@@ -621,7 +678,7 @@ class invidious_embed {
 
     async getVideoData() {
         const videoData = await this.videodata_api(this.videoId);
-        return { video_id: this.videoId, title: await this.promise_send_event('gettitle'), list: await this.promise_send_event('getplaylistid'), isListed:videoData.isListed, isLive:videoData.liveNow, isPremiere:videoData.premium};
+        return { video_id: this.videoId, title: await this.promise_send_event('gettitle'), list: await this.promise_send_event('getplaylistid'), isListed: videoData.isListed, isLive: videoData.liveNow, isPremiere: videoData.premium };
     }
 
     getPlaylistIndex() {
@@ -659,9 +716,9 @@ function invidious_ready(func) {
 invidious_embed.invidious_instance = new URL(document.currentScript.src).origin;
 const invidious = { Player: invidious_embed, PlayerState: { ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3, CUED: 5 }, ready: invidious_ready };
 if (typeof onInvidiousIframeAPIReady === 'function') {
-    try{
+    try {
         onInvidiousIframeAPIReady();
-    } catch(e) {
+    } catch (e) {
         console.error(e);
     }
 }

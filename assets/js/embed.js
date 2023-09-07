@@ -22,6 +22,8 @@ function get_playlist(plid) {
             player.on('ended', function () {
                 var url = new URL('https://example.com/embed/' + response.nextVideo);
 
+                const search_params = new URLSearchParams(location.search);
+
                 url.searchParams.set('list', plid);
                 if (!plid.startsWith('RD'))
                     url.searchParams.set('index', response.index);
@@ -33,6 +35,12 @@ function get_playlist(plid) {
                     url.searchParams.set('speed', video_data.params.speed);
                 if (video_data.params.local !== video_data.preferences.local)
                     url.searchParams.set('local', video_data.params.local);
+                if (search_params.get('widgetid') !== null)
+                    url.searchParams.set('widgetid', search_params.get('widgetid'));
+                if (search_params.get('origin') !== null)
+                    url.searchParams.set('origin', search_params.get('origin'));
+                if (search_params.get('enablejsapi') !== null)
+                    url.searchParams.set('enablejsapi', search_params.get('enablejsapi'));
 
                 location.assign(url.pathname + url.search);
             });
