@@ -289,49 +289,63 @@ module Invidious::Routes::Watch
     end
   end
 
-  def self.download(env)
-    if CONFIG.disabled?("downloads")
-      return error_template(403, "Administrator has disabled this endpoint.")
-    end
-
-    title = env.params.body["title"]? || ""
-    video_id = env.params.body["id"]? || ""
-    selection = env.params.body["download_widget"]?
-
-    if title.empty? || video_id.empty? || selection.nil?
-      return error_template(400, "Missing form data")
-    end
-
-    download_widget = JSON.parse(selection)
-
-    extension = download_widget["ext"].as_s
-    filename = "#{title}-#{video_id}.#{extension}"
-
-    # Delete the now useless URL parameters
-    env.params.body.delete("id")
-    env.params.body.delete("title")
-    env.params.body.delete("download_widget")
-
-    # Pass form parameters as URL parameters for the handlers of both
-    # /latest_version and /api/v1/captions. This avoids an un-necessary
-    # redirect and duplicated (and hazardous) sanity checks.
-    if label = download_widget["label"]?
-      # URL params specific to /api/v1/captions/:id
-      env.params.url["id"] = video_id
-      env.params.query["title"] = filename
-      env.params.query["label"] = URI.decode_www_form(label.as_s)
-
-      return Invidious::Routes::API::V1::Videos.captions(env)
-    elsif itag = download_widget["itag"]?.try &.as_i
-      # URL params specific to /latest_version
-      env.params.query["id"] = video_id
-      env.params.query["itag"] = itag.to_s
-      env.params.query["title"] = filename
-      env.params.query["local"] = "true"
-
-      return Invidious::Routes::VideoPlayback.latest_version(env)
-    else
-      return error_template(400, "Invalid label or itag")
-    end
+def self.download(env)
+  if CONFIG.disabled?("downloads")
+    return error_template(403, "Administrator has disabled this endpoint.")
   end
+
+  title = env.params.body["title"] || ""
+  video_id = env.params.body["id"] || ""
+  selection = env.params.body["download_widget"]
+
+  if title.empty? || video_id.empty? || selection.nil?
+    return error_template(400, "Missing form data")
+  end
+
+  begin
+    # Check if the JSON data starts with '{' (indicating an object) or '[' (indicating an array).
+    json_data = selection.strip
+    if json_data.start_with?('{', '[')
+      download_widget = JSON.parse(json_data)
+      # Your existing code for processing the JSON data goes here
+    else
+      # Handle the case where the JSON data is not correctly formatted.
+      return error_template(400, "Invalid JSON format")
+    end
+  rescue JSON::ParserError => e
+    # Handle any JSON parsing errors
+    return error_template(400, "Invalid JSON: #{e.message}")
+  end
+
+  extension = download_widget["ext"].as_s
+  filename = "#{title}-#{video_id}.#{extension}"
+
+  # Delete the now useless URL parameters
+  env.params.body.delete("id")
+  env.params.body.delete("title")
+  env.params.body.delete("download_widget")
+
+  # Pass form parameters as URL parameters for the handlers of both
+  # /latest_version and /api/v1/captions. This avoids an unnecessary
+  # redirect and duplicated (and hazardous) sanity checks.
+  if label = download_widget["label"]?
+    # URL params specific to /api/v1/captions/:id
+    env.params.url["id"] = video_id
+    env.params.query["title"] = filename
+    env.params.query["label"] = URI.decode_www_form(label.as_s)
+
+    return Invidious::Routes::API::V1::Videos.captions(env)
+  elsif itag = download_widget["itag"]?.try &.as_i
+    # URL params specific to /latest_version
+    env.params.query["id"] = video_id
+    env.params.query["itag"] = itag.to_s
+    env.params.query["title"] = filename
+    env.params.query["local"] = "true"
+
+    return Invidious::Routes::VideoPlayback.latest_version(env)
+  else
+    return error_template(400, "Invalid label or itag")
+  end
+end
+
 end
