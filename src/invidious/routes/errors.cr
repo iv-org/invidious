@@ -26,7 +26,7 @@ module Invidious::Routes::ErrorRoutes
       end
     end
 
-    # TODO: create a proper 404 page
-    haltf env, status_code: 404
+    env.response.status_code = 404
+    templated "error_code"
   end
 end

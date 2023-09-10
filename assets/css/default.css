@@ -327,6 +327,28 @@ input[type="search"]::-webkit-search-cancel-button {
 
 
 /*
+ * Error page
+ */
+
+div.center-hv {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+}
+
+p#error-code, p#error-message {
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+p#error-code    { font-size: 8em; bottom: 3vh; right: 5vw; }
+p#error-message { font-size: 2em; bottom: 2vh; left: 3vw;  }
+
+
+/*
  * Responsive rules
  */
 
