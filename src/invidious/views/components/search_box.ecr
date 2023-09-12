@@ -5,5 +5,6 @@
 		name="q" placeholder="<%= translate(locale, "search") %>"
 		title="<%= translate(locale, "search") %>"
 		value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
+		<input type="submit" value="<%= translate(locale, "search") %>">
 	</fieldset>
 </form>
