@@ -124,22 +124,34 @@ module Invidious::Routing
     get "/channel/:ucid/community", Routes::Channels, :community
     get "/channel/:ucid/channels", Routes::Channels, :channels
     get "/channel/:ucid/about", Routes::Channels, :about
+
     get "/channel/:ucid/live", Routes::Channels, :live
     get "/user/:user/live", Routes::Channels, :live
     get "/c/:user/live", Routes::Channels, :live
 
-    {"", "/videos", "/shorts", "/streams", "/playlists", "/community", "/about"}.each do |path|
-      # /c/LinusTechTips
-      get "/c/:user#{path}", Routes::Channels, :brand_redirect
-      # /user/linustechtips | Not always the same as /c/
-      get "/user/:user#{path}", Routes::Channels, :brand_redirect
-      # /@LinusTechTips | Handle
-      get "/@:user#{path}", Routes::Channels, :brand_redirect
-      # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
-      get "/attribution_link#{path}", Routes::Channels, :brand_redirect
-      # /profile?user=linustechtips
-      get "/profile/#{path}", Routes::Channels, :profile
-    end
+    # Channel catch-all, to redirect future routes to the channel's home
+    # NOTE: defined last in order to be processed after the other routes
+    get "/channel/:ucid/*", Routes::Channels, :home
+
+    # /c/LinusTechTips
+    get "/c/:user", Routes::Channels, :brand_redirect
+    get "/c/:user/:tab", Routes::Channels, :brand_redirect
+
+    # /user/linustechtips (Not always the same as /c/)
+    get "/user/:user", Routes::Channels, :brand_redirect
+    get "/user/:user/:tab", Routes::Channels, :brand_redirect
+
+    # /@LinusTechTips (Handle)
+    get "/@:user", Routes::Channels, :brand_redirect
+    get "/@:user/:tab", Routes::Channels, :brand_redirect
+
+    # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
+    get "/attribution_link", Routes::Channels, :brand_redirect
+    get "/attribution_link/:tab", Routes::Channels, :brand_redirect
+
+    # /profile?user=linustechtips
+    get "/profile", Routes::Channels, :profile
+    get "/profile/*", Routes::Channels, :profile
   end
 
   def register_watch_routes
