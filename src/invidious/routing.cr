@@ -158,6 +158,7 @@ module Invidious::Routing
     get "/watch", Routes::Watch, :handle
     post "/watch_ajax", Routes::Watch, :mark_watched
     get "/watch/:id", Routes::Watch, :redirect
+    get "/live/:id", Routes::Watch, :redirect
     get "/shorts/:id", Routes::Watch, :redirect
     get "/clip/:clip", Routes::Watch, :clip
     get "/w/:id", Routes::Watch, :redirect
