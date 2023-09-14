@@ -33,7 +33,7 @@ RUN if [[ "${release}" == 1 ]] ; then \
     fi
 
 
-FROM alpine:3.16
+FROM alpine:3.18
 RUN apk add --no-cache librsvg ttf-opensans tini
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
