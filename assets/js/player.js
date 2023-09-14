@@ -112,6 +112,21 @@ function addCurrentTimeToURL(url) {
     return urlUsed;
 }
 
+/**
+ * Timer that updates the timestamp on "watch on youtube" and "embed" links
+ */
+player.ready(function () {
+    let elem_watch = document.getElementById('link-yt-watch');
+    let elem_embed = document.getElementById('link-yt-embed');
+
+    let base_url_watch = elem_watch.getAttribute('data-base-url');
+    let base_url_embed = elem_embed.getAttribute('data-base-url');
+
+    setTimeout(() => { elem_watch.setAttribute('href') = addCurrentTimeToURL(base_url_watch); }, 5000);
+    setTimeout(() => { elem_embed.setAttribute('href') = addCurrentTimeToURL(base_url_embed); }, 5000);
+});
+
+
 var shareOptions = {
     socials: ['fbFeed', 'tw', 'reddit', 'email'],
 
