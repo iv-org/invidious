@@ -113,20 +113,34 @@ function addCurrentTimeToURL(url) {
 }
 
 /**
- * Timer that updates the timestamp on "watch on youtube" and "embed" links
+ * Timer that updates the timestamp on all external links
  */
 player.ready(function () {
+    // YouTube links
+
     let elem_yt_watch = document.getElementById('link-yt-watch');
     let elem_yt_embed = document.getElementById('link-yt-embed');
-    let elem_iv_embed = document.getElementById('link-iv-embed');
 
     let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
     let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
-    let base_url_iv_embed = elem_iv_embed.getAttribute('data-base-url');
 
-    setTimeout(() => { elem_yt_watch.setAttribute('href') = addCurrentTimeToURL(base_url_yt_watch); }, 5000);
-    setTimeout(() => { elem_yt_embed.setAttribute('href') = addCurrentTimeToURL(base_url_yt_embed); }, 5000);
-    setTimeout(() => { elem_iv_embed.setAttribute('href') = addCurrentTimeToURL(base_url_iv_embed); }, 5000);
+    setTimeout(() => {
+        elem_yt_watch.setAttribute('href') = addCurrentTimeToURL(base_url_yt_watch);
+        elem_yt_embed.setAttribute('href') = addCurrentTimeToURL(base_url_yt_embed);
+    }, 5000);
+
+    // Invidious links
+
+    let elem_iv_embed = document.getElementById('link-iv-embed');
+    let elem_iv_other = document.getElementById('link-iv-other');
+
+    let base_url_iv_embed = elem_iv_embed.getAttribute('data-base-url');
+    let base_url_iv_other = elem_iv_other.getAttribute('data-base-url');
+
+    setTimeout(() => {
+        elem_iv_embed.setAttribute('href') = addCurrentTimeToURL(base_url_iv_embed);
+        elem_iv_other.setAttribute('href') = addCurrentTimeToURL(base_url_iv_other);
+    }, 5000);
 });
 
 

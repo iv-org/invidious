@@ -127,11 +127,8 @@ we're going to need to do it here in order to allow for translations.
             </span>
 
             <p id="watch-on-another-invidious-instance">
-            <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
-                <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
-            <% else %>
-                <a href="https://redirect.invidious.io<%= env.request.resource %>"><%= translate(locale, "Switch Invidious Instance") %></a>
-            <% end %>
+                <%- link_iv_other = IV::Frontend::Misc.redirect_url(env) -%>
+                <a id="link-iv-other" data-base-url="<%= link_iv_other %>" href="<%= link_iv_other %>"><%= translate(locale, "Switch Invidious Instance") %></a>
             </p>
 
             <p id="embed-link">
