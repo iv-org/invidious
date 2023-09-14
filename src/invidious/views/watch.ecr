@@ -125,6 +125,7 @@ we're going to need to do it here in order to allow for translations.
                 <a id="link-yt-watch" data-base-url="<%= link_yt_watch %>" href="<%= link_yt_watch %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
                 (<a id="link-yt-embed" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
             </span>
+
             <p id="watch-on-another-invidious-instance">
             <% if env.get("preferences").as(Preferences).automatic_instance_redirect%>
                 <a href="/redirect?referer=<%= env.get?("current_page") %>"><%= translate(locale, "Switch Invidious Instance") %></a>
@@ -132,9 +133,18 @@ we're going to need to do it here in order to allow for translations.
                 <a href="https://redirect.invidious.io<%= env.request.resource %>"><%= translate(locale, "Switch Invidious Instance") %></a>
             <% end %>
             </p>
+
             <p id="embed-link">
-                <a href="<%= embed_link %>"><%= translate(locale, "videoinfo_invidious_embed_link") %></a>
+                <%-
+                    params_iv_embed = env.params.query.dup
+                    params_iv_embed.delete_all("v")
+
+                    link_iv_embed = URI.new(path: "/embed/#{id}")
+                    link_iv_embed = IV::HttpServer::Utils.add_params_to_url(link_iv_embed, params_iv_embed)
+                -%>
+                <a id="link-iv-embed" data-base-url="<%= link_iv_embed %>" href="<%= link_iv_embed %>"><%= translate(locale, "videoinfo_invidious_embed_link") %></a>
             </p>
+
             <p id="annotations">
                 <% if params.annotations %>
                     <a href="/watch?<%= env.params.query %>&iv_load_policy=3">
