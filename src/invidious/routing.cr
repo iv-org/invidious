@@ -131,7 +131,7 @@ module Invidious::Routing
 
     # Channel catch-all, to redirect future routes to the channel's home
     # NOTE: defined last in order to be processed after the other routes
-    get "/channel/:ucid/*", Routes::Channels, :home
+    get "/channel/:ucid/*", Routes::Channels, :redirect_home
 
     # /c/LinusTechTips
     get "/c/:user", Routes::Channels, :brand_redirect

@@ -1,6 +1,12 @@
 {% skip_file if flag?(:api_only) %}
 
 module Invidious::Routes::Channels
+  # Redirection for unsupported routes ("tabs")
+  def self.redirect_home(env)
+    ucid = env.params.url["ucid"]
+    return env.redirect "/channel/#{URI.encode_www_form(ucid)}"
+  end
+
   def self.home(env)
     self.videos(env)
   end
