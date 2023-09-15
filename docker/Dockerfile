@@ -25,6 +25,7 @@ RUN if [[ "${release}" == 1 ]] ; then \
         --static --warnings all \
         --link-flags "-lxml2 -llzma"; \
     fi
+
 FROM alpine:3.18
 RUN apk add --no-cache librsvg ttf-opensans tini
 WORKDIR /invidious
