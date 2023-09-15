@@ -1,26 +1,20 @@
-FROM crystallang/crystal:1.4.1-alpine AS builder
+FROM crystallang/crystal:1.8.2-alpine AS builder
 RUN apk add --no-cache sqlite-static yaml-static
-
 ARG release
-
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
 COPY ./shard.lock ./shard.lock
 RUN shards install --production
-
 COPY ./src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
 COPY ./.git/ ./.git/
-
 # Required for fetching player dependencies
 COPY ./scripts/ ./scripts/
 COPY ./assets/ ./assets/
 COPY ./videojs-dependencies.yml ./videojs-dependencies.yml
-
 RUN crystal spec --warnings all \
     --link-flags "-lxml2 -llzma"
-
 RUN if [[ "${release}" == 1 ]] ; then \
         crystal build ./src/invidious.cr \
         --release \
@@ -31,8 +25,6 @@ RUN if [[ "${release}" == 1 ]] ; then \
         --static --warnings all \
         --link-flags "-lxml2 -llzma"; \
     fi
-
-
 FROM alpine:3.18
 RUN apk add --no-cache librsvg ttf-opensans tini
 WORKDIR /invidious
@@ -46,7 +38,6 @@ COPY ./locales/ ./locales/
 COPY --from=builder /invidious/assets ./assets/
 COPY --from=builder /invidious/invidious .
 RUN chmod o+rX -R ./assets ./config ./locales
-
 EXPOSE 3000
 USER invidious
 ENTRYPOINT ["/sbin/tini", "--"]
