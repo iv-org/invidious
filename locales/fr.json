@@ -1,4 +1,6 @@
 {
+    "generic_channels_count": "{{count}} chaîne",
+    "generic_channels_count_plural": "{{count}} chaînes",
     "generic_views_count": "{{count}} vue",
     "generic_views_count_plural": "{{count}} vues",
     "generic_videos_count": "{{count}} vidéo",
@@ -55,10 +57,10 @@
     "Password": "Mot de passe",
     "Time (h:mm:ss):": "Heure (h:mm:ss) :",
     "Text CAPTCHA": "CAPTCHA textuel",
-    "Image CAPTCHA": "CAPTCHA graphique",
-    "Sign In": "Se connecter",
+    "Image CAPTCHA": "CAPTCHA pictural",
+    "Sign In": "S'identifier",
     "Register": "S'inscrire",
-    "E-mail": "E-mail",
+    "E-mail": "Courriel",
     "Preferences": "Préférences",
     "preferences_category_player": "Préférences du lecteur",
     "preferences_video_loop_label": "Lire en boucle : ",
@@ -128,8 +130,8 @@
     "Subscription manager": "Gestionnaire d'abonnement",
     "Token manager": "Gestionnaire de token",
     "Token": "Token",
-    "tokens_count": "{{count}} token",
-    "tokens_count_plural": "{{count}} tokens",
+    "tokens_count": "{{count}} jeton",
+    "tokens_count_plural": "{{count}} jetons",
     "Import/export": "Importer/Exporter",
     "unsubscribe": "se désabonner",
     "revoke": "révoquer",
@@ -482,5 +484,7 @@
     "Music in this video": "Musique dans cette vidéo",
     "Channel Sponsor": "Soutien de la chaîne",
     "Download is disabled": "Le téléchargement est désactivé",
-    "Import YouTube playlist (.csv)": "Importer des listes de lecture de Youtube (.csv)"
+    "Import YouTube playlist (.csv)": "Importer des listes de lecture de Youtube (.csv)",
+    "channel_tab_releases_label": "Parutions",
+    "channel_tab_podcasts_label": "Émissions audio"
 }

@@ -154,7 +154,7 @@
     "View YouTube comments": "Vidi komentojn de JuTubo",
     "View more comments on Reddit": "Vidi pli komentoj en Reddit",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Vidi `x` komentojn",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Vidi `x` komenton",
         "": "Vidi `x` komentojn"
     },
     "View Reddit comments": "Vidi komentojn de Reddit",
@@ -447,8 +447,8 @@
     "French (auto-generated)": "Franca (aŭtomate generita)",
     "Spanish (Mexico)": "Hispana (Meksiko)",
     "Spanish (auto-generated)": "Hispana (aŭtomate generita)",
-    "generic_count_days": "{{count}} jaro",
-    "generic_count_days_plural": "{{count}} jaroj",
+    "generic_count_days": "{{count}} tago",
+    "generic_count_days_plural": "{{count}} tagoj",
     "search_filters_type_option_all": "Ajna speco",
     "search_filters_duration_option_none": "Ajna daŭro",
     "search_filters_apply_button": "Uzi elektitajn filtrilojn",
@@ -476,5 +476,13 @@
     "Song: ": "Muzikaĵo: ",
     "Standard YouTube license": "Implicita YouTube-licenco",
     "Download is disabled": "Elŝuto estas malebligita",
-    "Import YouTube playlist (.csv)": "Importi YouTube-ludliston (.csv)"
+    "Import YouTube playlist (.csv)": "Importi YouTube-ludliston (.csv)",
+    "generic_button_edit": "Redakti",
+    "playlist_button_add_items": "Aldoni videojn",
+    "generic_button_rss": "RSS",
+    "generic_button_delete": "Forigi",
+    "channel_tab_podcasts_label": "Podkastoj",
+    "generic_button_cancel": "Nuligi",
+    "channel_tab_releases_label": "Eldonoj",
+    "generic_button_save": "Konservi"
 }
