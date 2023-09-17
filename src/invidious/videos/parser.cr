@@ -421,7 +421,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   # When comments are enabled there should be a comments-entry-point section in the primary results
   if primary_results
-    section = primary_results.as_a.find { |s| s.dig?("itemSectionRenderer", "sectionIdentifier") == "comments-entry-point" }
+    section = primary_results.as_a.find(&.dig?("itemSectionRenderer", "sectionIdentifier").== "comments-entry-point")
 
     if section
       comments_enabled = true
