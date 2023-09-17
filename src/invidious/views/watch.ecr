@@ -62,8 +62,8 @@ we're going to need to do it here in order to allow for translations.
     "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
     "reddit_comments_text" => HTML.escape(translate(locale, "View Reddit comments")),
     "reddit_permalink_text" => HTML.escape(translate(locale, "View more comments on Reddit")),
-    "youtube_comments_disabled_text" => HTML.escape(translate(locale, "youtube_comments_disabled_text")),
-    "youtube_comments_disabled_try_reddit" => HTML.escape(translate(locale, "youtube_comments_disabled_try_reddit")),
+    "comments_youtube_disabled_text" => HTML.escape(translate(locale, "comments_youtube_disabled_text")),
+    "comments_youtube_disabled_try_reddit" => HTML.escape(translate(locale, "comments_youtube_disabled_try_reddit")),
     "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
     "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),
     "show_replies_text" => HTML.escape(translate(locale, "Show replies")),
@@ -300,7 +300,7 @@ we're going to need to do it here in order to allow for translations.
             <div id="comments" class="comments">
                 <% if (params.comments <=> ["", ""]) == 0 %>
                     <div id="comments-disabled-message" class="h-box v-box">
-                        <p><b><%=HTML.escape(translate(locale, "invidious_comments_disabled_text"))%></b></p>
+                        <p><b><%=HTML.escape(translate(locale, "comments_invidious_disabled_text"))%></b></p>
                     </div>
                 <% else %>
                     <% if video.comments? %>
@@ -315,12 +315,12 @@ we're going to need to do it here in order to allow for translations.
                         <% end %>
                     <% else %>
                         <div id="comments-turned-off-on-video-message" class="h-box v-box">
-                            <p><b><%=HTML.escape(translate(locale, "youtube_comments_disabled_text"))%></b></p>                            
+                            <p><b><%=HTML.escape(translate(locale, "comments_youtube_disabled_text"))%></b></p>                            
 
                             <p>
                                 <b> 
                                     <a href="javascript:void(0)" data-comments="reddit" id="try-reddit-comments-link"> 
-                                        <%=HTML.escape(translate(locale, "youtube_comments_disabled_try_reddit"))%>
+                                        <%=HTML.escape(translate(locale, "comments_youtube_disabled_try_reddit"))%>
                                     </a> 
                                 </b>
                             </p> 

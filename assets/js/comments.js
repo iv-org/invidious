@@ -76,10 +76,10 @@ function get_youtube_comments() {
         if (!video_data.comments_enabled) {
             comments.innerHTML = `
             <div id="comments-turned-off-on-video-message" class="h-box v-box">
-                <p><b>${video_data.youtube_comments_disabled_text}</b></p>
+                <p><b>${video_data.comments_youtube_disabled_text}</b></p>
 
                 <p><b><a href="javascript:void(0)" data-comments="reddit" id="try-reddit-comments-link">
-                    ${video_data.youtube_comments_disabled_try_reddit}
+                    ${video_data.comments_youtube_disabled_try_reddit}
                 </a></b></p>
             </div>`;
 
