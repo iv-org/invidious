@@ -78,13 +78,9 @@ function get_youtube_comments() {
             <div id="comments-turned-off-on-video-message" class="h-box v-box">
                 <p><b>${video_data.youtube_comments_disabled_text}</b></p>
 
-                <p>
-                    <b> 
-                        <a href="javascript:void(0)" data-comments="reddit" id="try-reddit-comments-link"> 
-                            ${video_data.youtube_comments_disabled_try_reddit}
-                        </a> 
-                    </b>
-                </p> 
+                <p><b><a href="javascript:void(0)" data-comments="reddit" id="try-reddit-comments-link">
+                    ${video_data.youtube_comments_disabled_try_reddit}
+                </a></b></p>
             </div>`;
 
             document.getElementById("try-reddit-comments-link").onclick = swap_comments;
