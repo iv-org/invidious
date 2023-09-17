@@ -127,8 +127,8 @@ player.on('timeupdate', function () {
     let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
     let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
 
-    elem_yt_watch.setAttribute('href') = addCurrentTimeToURL(base_url_yt_watch);
-    elem_yt_embed.setAttribute('href') = addCurrentTimeToURL(base_url_yt_embed);
+    elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
+    elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
 
     // Invidious links
 
@@ -138,8 +138,8 @@ player.on('timeupdate', function () {
     let base_url_iv_embed = elem_iv_embed.getAttribute('data-base-url');
     let base_url_iv_other = elem_iv_other.getAttribute('data-base-url');
 
-    elem_iv_embed.setAttribute('href') = addCurrentTimeToURL(base_url_iv_embed);
-    elem_iv_other.setAttribute('href') = addCurrentTimeToURL(base_url_iv_other);
+    elem_iv_embed.href = addCurrentTimeToURL(base_url_iv_embed);
+    elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other);
 });
 
 
