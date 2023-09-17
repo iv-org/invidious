@@ -453,7 +453,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "isFamilyFriendly" => JSON::Any.new(family_friendly || false),
     "isListed"         => JSON::Any.new(is_listed || false),
     "isUpcoming"       => JSON::Any.new(is_upcoming || false),
-    "commentsEnabled" => JSON::Any.new(comments_enabled),
+    "commentsEnabled"  => JSON::Any.new(comments_enabled),
     "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
     "isPostLiveDvr"    => JSON::Any.new(post_live_dvr),
     # Related videos
