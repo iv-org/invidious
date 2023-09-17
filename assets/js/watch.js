@@ -190,7 +190,7 @@ addEventListener('load', function (e) {
         get_youtube_comments();
     } else if (video_data.params.comments[1] === 'reddit') {
         get_reddit_comments();
-    } 
+    }
 });
 
 document.getElementById("try-reddit-comments-link").onclick = swap_comments;
