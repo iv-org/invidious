@@ -314,17 +314,24 @@ we're going to need to do it here in order to allow for translations.
                             </noscript>
                         <% end %>
                     <% else %>
-                        <div id="comments-turned-off-on-video-message" class="h-box v-box">
-                            <p><b><%=HTML.escape(translate(locale, "comments_youtube_disabled_text"))%></b></p>                            
+                        <% if !nojs %>
+                            <div id="comments-turned-off-on-video-message" class="h-box v-box">
+                                <p><b><%=HTML.escape(translate(locale, "comments_youtube_disabled_text"))%></b></p>
+                                <p><b><button data-comments="reddit" id="try-reddit-comments-link" class="simulated_a">
+                                    <%=HTML.escape(translate(locale, "comments_youtube_disabled_try_reddit"))%>
+                                </button></b></p>
+                            </div>
+                        <% end %>
 
-                            <p>
-                                <b> 
-                                    <button data-comments="reddit" id="try-reddit-comments-link" class="simulated_a"> 
-                                        <%=HTML.escape(translate(locale, "comments_youtube_disabled_try_reddit"))%>
-                                    </button> 
-                                </b>
-                            </p> 
-                        </div>
+                        <noscript>
+                            <% if nojs %>
+                                <%= comment_html %>
+                            <% else %>
+                                <a href="/watch?<%= env.params.query %>&nojs=1">
+                                    <%= translate(locale, "comments_youtube_disabled_try_reddit_no_js") %>
+                                </a>
+                            <% end %>
+                        </noscript>
                     <% end %>
                 <% end %>
             </div>
