@@ -13,10 +13,12 @@ COPY ./src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
 COPY ./.git/ ./.git/
+
 # Required for fetching player dependencies
 COPY ./scripts/ ./scripts/
 COPY ./assets/ ./assets/
 COPY ./videojs-dependencies.yml ./videojs-dependencies.yml
+
 RUN crystal spec --warnings all \
     --link-flags "-lxml2 -llzma"
 RUN if [[ "${release}" == 1 ]] ; then \
