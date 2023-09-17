@@ -1,7 +1,7 @@
 FROM alpine:3.18 AS builder
 
 RUN apk add --no-cache gcc make yaml-static libxml2-static sqlite-static zlib-static \
-    xz-static openssl-libs-static openssl-dev pcre-dev gc-dev libevent-static musl-dev
+    xz-static openssl-libs-static openssl-dev pcre-dev pcre2-dev gc-dev libevent-static musl-dev
 
 ARG release
 

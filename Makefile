@@ -77,25 +77,25 @@ run: invidious
 #  - armhf       (arm-linux-gnueabihf)
 
 invidious-cross-amd64-glibc:
-	crystal build src/invidious.cr $(FLAGS) -Dskip_videojs_download \
+	crystal build src/invidious.cr $(FLAGS) -Duse_pcre -Dskip_videojs_download \
 		--cross-compile --target='x86_64-linux-gnu' -o invidious-amd64-glibc
 
 invidious-cross-amd64-musl:
-	crystal build src/invidious.cr $(FLAGS) -Dskip_videojs_download \
+	crystal build src/invidious.cr $(FLAGS) -Duse_pcre -Dskip_videojs_download \
 		--cross-compile --target='x86_64-linux-musl' -o invidious-amd64-musl
 
 
 invidious-cross-arm64-glibc:
-	crystal build src/invidious.cr $(FLAGS) -Dskip_videojs_download \
+	crystal build src/invidious.cr $(FLAGS) -Duse_pcre -Dskip_videojs_download \
 		--cross-compile --target='aarch64-linux-gnu' -o invidious-arm64-glibc
 
 invidious-cross-arm64-musl:
-	crystal build src/invidious.cr $(FLAGS) -Dskip_videojs_download \
+	crystal build src/invidious.cr $(FLAGS) -Duse_pcre -Dskip_videojs_download \
 		--cross-compile --target='aarch64-linux-musl' -o invidious-arm64-musl
 
 
 invidious-cross-armhf:
-	crystal build src/invidious.cr $(FLAGS) -Dskip_videojs_download \
+	crystal build src/invidious.cr $(FLAGS) -Duse_pcre -Dskip_videojs_download \
 		--cross-compile --target='arm-linux-gnueabihf' -o invidious-armhf
 
 
