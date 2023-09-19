@@ -432,17 +432,30 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
  * Footer
  */
 
-footer {
-  color: #919191;
+.light-theme footer {
+  color: #7c7c7c;
   margin-top: auto;
   padding: 1.5em 0;
   text-align: center;
   max-height: 30vh;
 }
 
-footer a {
-  color: #919191 !important;
-  text-decoration: underline;
+.dark-theme footer {
+  color: #adadad;
+  margin-top: auto;
+  padding: 1.5em 0;
+  text-align: center;
+  max-height: 30vh;
+}
+
+.light-theme footer a {
+  color: #7c7c7c !important;
+/*text-decoration: underline;*/
+}
+
+.dark-theme footer a {
+  color: #adadad !important;
+/*text-decoration: underline;*/
 }
 
 footer span {
@@ -546,6 +559,19 @@ span > select {
   .no-theme .pure-u-lg-1-5 > .h-box > a[href^="/watch?"],
   .no-theme .playlist-restricted > ol > li > a {
     color: #303030;
+  }
+
+  .no-theme footer {
+    color: #7c7c7c;
+    margin-top: auto;
+    padding: 1.5em 0;
+    text-align: center;
+    max-height: 30vh;
+  }
+
+  .no-theme footer a {
+    color: #7c7c7c !important;
+/*  text-decoration: underline;*/
   }
 
   .light-theme .pure-menu-heading {
@@ -665,6 +691,19 @@ body.dark-theme {
   .no-theme .searchbar input {
     background-color: inherit;
     color: inherit;
+  }
+
+  .no-theme footer {
+    color: #adadad;
+    margin-top: auto;
+    padding: 1.5em 0;
+    text-align: center;
+    max-height: 30vh;
+  }
+
+  .no-theme footer a {
+    color: #adadad !important;
+  /*text-decoration: underline;*/
   }
 }
 
