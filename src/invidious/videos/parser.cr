@@ -424,11 +424,11 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # Yes,`decoratedPlayerBarRenderer` is repeated twice.
   if player_bar = player_overlays.try &.dig?("decoratedPlayerBarRenderer", "decoratedPlayerBarRenderer", "playerBar")
     if markers = player_bar.dig?("multiMarkersPlayerBarRenderer", "markersMap")
-      potential_chapters_array = markers.as_a.find { |m| m["key"]? == "DESCRIPTION_CHAPTERS" }
+      potential_chapters_array = markers.as_a.find(&.["key"]?.try &.== "DESCRIPTION_CHAPTERS")
 
-      # Let manual chapters have higher precedence than automatically generated ones.
+      # Chapters that are manually created should have a higher precedence than automatically generated chapters
       if !potential_chapters_array
-        potential_chapters_array = markers.as_a.find { |m| m["key"]? == "AUTO_CHAPTERS" }
+        potential_chapters_array = markers.as_a.find(&.["key"]?.try &.== "AUTO_CHAPTERS")
       end
 
       if potential_chapters_array
