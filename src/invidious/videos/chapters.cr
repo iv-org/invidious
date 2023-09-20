@@ -98,7 +98,7 @@ module Invidious::Videos::Chapters
               json.array do
                 chapter.thumbnails.each do |thumbnail|
                   json.object do
-                    json.field "url", thumbnail["url"]
+                    json.field "url", URI.parse(thumbnail["url"].as(String)).request_target
                     json.field "width", thumbnail["width"]
                     json.field "height", thumbnail["height"]
                   end
