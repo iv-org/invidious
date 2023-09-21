@@ -35,6 +35,8 @@ struct Invidious::User
                 json.object do
                   json.field "title", playlist.title
                   json.field "id", playlist.id
+                  json.field "video_count", playlist.video_count
+                  json.field "updated", playlist.updated
                 end
               end
             end
