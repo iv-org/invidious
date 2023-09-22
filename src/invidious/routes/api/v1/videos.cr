@@ -87,70 +87,78 @@ module Invidious::Routes::API::V1::Videos
       caption = caption[0]
     end
 
-    url = URI.parse("#{caption.base_url}&tlang=#{tlang}").request_target
+    if CONFIG.use_innertube_for_captions
+      params = Invidious::Videos::Transcript.generate_param(id, caption.language_code, caption.auto_generated)
+      initial_data = YoutubeAPI.get_transcript(params)
 
-    # Auto-generated captions often have cues that aren't aligned properly with the video,
-    # as well as some other markup that makes it cumbersome, so we try to fix that here
-    if caption.name.includes? "auto-generated"
-      caption_xml = YT_POOL.client &.get(url).body
+      webvtt = Invidious::Videos::Transcript.convert_transcripts_to_vtt(initial_data, caption.language_code)
+    else
+      # Timedtext API handling
+      url = URI.parse("#{caption.base_url}&tlang=#{tlang}").request_target
 
-      if caption_xml.starts_with?("<?xml")
-        webvtt = caption.timedtext_to_vtt(caption_xml, tlang)
-      else
-        caption_xml = XML.parse(caption_xml)
+      # Auto-generated captions often have cues that aren't aligned properly with the video,
+      # as well as some other markup that makes it cumbersome, so we try to fix that here
+      if caption.name.includes? "auto-generated"
+        caption_xml = YT_POOL.client &.get(url).body
 
-        webvtt = String.build do |str|
-          str << <<-END_VTT
-          WEBVTT
-          Kind: captions
-          Language: #{tlang || caption.language_code}
+        if caption_xml.starts_with?("<?xml")
+          webvtt = caption.timedtext_to_vtt(caption_xml, tlang)
+        else
+          caption_xml = XML.parse(caption_xml)
+
+          webvtt = String.build do |str|
+            str << <<-END_VTT
+            WEBVTT
+            Kind: captions
+            Language: #{tlang || caption.language_code}
 
 
-          END_VTT
+            END_VTT
 
-          caption_nodes = caption_xml.xpath_nodes("//transcript/text")
-          caption_nodes.each_with_index do |node, i|
-            start_time = node["start"].to_f.seconds
-            duration = node["dur"]?.try &.to_f.seconds
-            duration ||= start_time
+            caption_nodes = caption_xml.xpath_nodes("//transcript/text")
+            caption_nodes.each_with_index do |node, i|
+              start_time = node["start"].to_f.seconds
+              duration = node["dur"]?.try &.to_f.seconds
+              duration ||= start_time
 
-            if caption_nodes.size > i + 1
-              end_time = caption_nodes[i + 1]["start"].to_f.seconds
-            else
-              end_time = start_time + duration
+              if caption_nodes.size > i + 1
+                end_time = caption_nodes[i + 1]["start"].to_f.seconds
+              else
+                end_time = start_time + duration
+              end
+
+              start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
+              end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
+
+              text = HTML.unescape(node.content)
+              text = text.gsub(/<font color="#[a-fA-F0-9]{6}">/, "")
+              text = text.gsub(/<\/font>/, "")
+              if md = text.match(/(?<name>.*) : (?<text>.*)/)
+                text = "<v #{md["name"]}>#{md["text"]}</v>"
+              end
+
+              str << <<-END_CUE
+              #{start_time} --> #{end_time}
+              #{text}
+
+
+              END_CUE
             end
-
-            start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
-            end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
-
-            text = HTML.unescape(node.content)
-            text = text.gsub(/<font color="#[a-fA-F0-9]{6}">/, "")
-            text = text.gsub(/<\/font>/, "")
-            if md = text.match(/(?<name>.*) : (?<text>.*)/)
-              text = "<v #{md["name"]}>#{md["text"]}</v>"
-            end
-
-            str << <<-END_CUE
-            #{start_time} --> #{end_time}
-            #{text}
-
-
-            END_CUE
           end
         end
-      end
-    else
-      # Some captions have "align:[start/end]" and "position:[num]%"
-      # attributes. Those are causing issues with VideoJS, which is unable
-      # to properly align the captions on the video, so we remove them.
-      #
-      # See: https://github.com/iv-org/invidious/issues/2391
-      webvtt = YT_POOL.client &.get("#{url}&format=vtt").body
-      if webvtt.starts_with?("<?xml")
-        webvtt = caption.timedtext_to_vtt(webvtt)
       else
+        # Some captions have "align:[start/end]" and "position:[num]%"
+        # attributes. Those are causing issues with VideoJS, which is unable
+        # to properly align the captions on the video, so we remove them.
+        #
+        # See: https://github.com/iv-org/invidious/issues/2391
         webvtt = YT_POOL.client &.get("#{url}&format=vtt").body
-          .gsub(/([0-9:.]{12} --> [0-9:.]{12}).+/, "\\1")
+        if webvtt.starts_with?("<?xml")
+          webvtt = caption.timedtext_to_vtt(webvtt)
+        else
+          webvtt = YT_POOL.client &.get("#{url}&format=vtt").body
+            .gsub(/([0-9:.]{12} --> [0-9:.]{12}).+/, "\\1")
+        end
       end
     end
 

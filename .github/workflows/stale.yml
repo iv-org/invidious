@@ -14,7 +14,7 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-stale: 365
-        days-before-pr-stale: 45 # PRs should be active. Anything that hasn't had activity in more than 45 days should be considered abandoned.
+        days-before-pr-stale: 90 
         days-before-close: 30
         exempt-pr-labels: blocked
         stale-issue-message: 'This issue has been automatically marked as stale and will be closed in 30 days because it has not had recent activity and is much likely outdated. If you think this issue is still relevant and applicable, you just have to post a comment and it will be unmarked.'
