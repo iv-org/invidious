@@ -358,8 +358,8 @@ struct Video
   getset_bool isUpcoming
 end
 
-def get_video(id, refresh = true, region = nil, force_refresh = false)
-  if (video = Invidious::Database::Videos.select(id)) && !region
+def get_video(id, refresh = true, region = nil, force_hls = false, force_refresh = false)
+  if (video = Invidious::Database::Videos.select(id)) && !region && !force_hls
     # If record was last updated over 10 minutes ago, or video has since premiered,
     # refresh (expire param in response lasts for 6 hours)
     if (refresh &&
@@ -376,8 +376,8 @@ def get_video(id, refresh = true, region = nil, force_refresh = false)
       end
     end
   else
-    video = fetch_video(id, region)
-    Invidious::Database::Videos.insert(video) if !region
+    video = fetch_video(id, region, force_hls)
+    Invidious::Database::Videos.insert(video) if !region && !force_hls
   end
 
   return video
@@ -387,8 +387,8 @@ rescue DB::Error
   return fetch_video(id, region)
 end
 
-def fetch_video(id, region)
-  info = extract_video_info(video_id: id)
+def fetch_video(id, region, force_hls = false)
+  info = extract_video_info(video_id: id, force_hls: force_hls)
 
   allowed_regions = info
     .dig?("microformat", "playerMicroformatRenderer", "availableCountries")
