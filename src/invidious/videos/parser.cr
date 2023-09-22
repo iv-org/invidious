@@ -50,7 +50,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   }
 end
 
-def extract_video_info(video_id : String)
+def extract_video_info(video_id : String, force_hls : Bool = false)
   # Init client config for the API
   client_config = YoutubeAPI::ClientConfig.new
 
@@ -101,16 +101,29 @@ def extract_video_info(video_id : String)
   params["reason"] = JSON::Any.new(reason) if reason
 
   new_player_response = nil
-
-  # Don't use Android test suite client if po_token is passed because po_token doesn't
-  # work for Android test suite client.
-  if reason.nil? && CONFIG.po_token.nil?
-    # Fetch the video streams using an Android client in order to get the
-    # decrypted URLs and maybe fix throttling issues (#2194). See the
-    # following issue for an explanation about decrypted URLs:
-    # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-    client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
+  if force_hls
+    client_config.client_type = YoutubeAPI::ClientType::IOS
     new_player_response = try_fetch_streaming_data(video_id, client_config)
+  else
+    # Don't use Android test suite client if po_token is passed because po_token doesn't
+    # work for Android test suite client.
+    if reason.nil? && CONFIG.po_token.nil?
+      # Fetch the video streams using an Android client in order to get the
+      # decrypted URLs and maybe fix throttling issues (#2194). See the
+      # following issue for an explanation about decrypted URLs:
+      # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
+      client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    else
+      if reason.nil?
+        # Fetch the video streams using an Android client in order to get the
+        # decrypted URLs and maybe fix throttling issues (#2194). See the
+        # following issue for an explanation about decrypted URLs:
+        # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
+        client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
+        new_player_response = try_fetch_streaming_data(video_id, client_config)
+      end
+    end
   end
 
   # Replace player response and reset reason

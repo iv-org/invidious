@@ -4,8 +4,10 @@
     <% if params.autoplay %>autoplay<% end %>
     <% if params.video_loop %>loop<% end %>
     <% if params.controls %>controls<% end %>>
-    <% if (hlsvp = video.hls_manifest_url) && !CONFIG.disabled?("livestreams") %>
+    <% if (hlsvp = video.hls_manifest_url) && video.live_now && !CONFIG.disabled?("livestreams") %>
         <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="livestream">
+    <% elsif (hlsvp = video.hls_manifest_url) && params.quality == "hls" %>
+        <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="HLS">
     <% else %>
         <% if params.listen %>
             <% # default to 128k m4a stream
