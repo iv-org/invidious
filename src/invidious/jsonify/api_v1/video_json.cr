@@ -55,6 +55,10 @@ module Invidious::JSONify::APIv1
         end
       end
 
+      if watermark = video.watermark?
+        json.field "authorWatermark", watermark
+      end
+
       json.field "subCountText", video.sub_count_text
 
       json.field "lengthSeconds", video.length_seconds
