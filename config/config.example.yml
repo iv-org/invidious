@@ -823,6 +823,15 @@ default_user_preferences:
   ##
   #save_player_pos: false
 
+  ##
+  ## Show the channel's watermark on the bottom-rght corner of videos
+  ##
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #show_channel_watermark: true
+
+
   # -----------------------------
   #  Subscription feed
   # -----------------------------

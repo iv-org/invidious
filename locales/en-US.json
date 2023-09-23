@@ -472,6 +472,7 @@
     "user_saved_playlists": "`x` saved playlists",
     "Video unavailable": "Video unavailable",
     "preferences_save_player_pos_label": "Save playback position: ",
+    "preferences_show_channel_watermark_label": "Show channel watermark: ",
     "crash_page_you_found_a_bug": "It looks like you found a bug in Invidious!",
     "crash_page_before_reporting": "Before reporting a bug, make sure that you have:",
     "crash_page_refresh": "tried to <a href=\"`x`\">refresh the page</a>",
