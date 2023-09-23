@@ -54,11 +54,7 @@ class invidious_embed {
                 const instance_stats = await fetch(instance_origin + '/api/v1/stats');
                 if (instance_stats.ok) {
                     const instance_stats_json = await instance_stats.json();
-                    if (instance_stats_json.software.name === 'invidious') {
-                        return_status = true;
-                    } else {
-                        return_status = false;
-                    }
+                    return_status = (instance_stats_json.software.name === 'invidious');
                 } else {
                     return_status = false;
                 }
@@ -139,7 +135,24 @@ class invidious_embed {
         this.volume = 100;
         this.loop = false;
         this.playlistVideoIds = [];
-        this.eventobject = { ready: [], ended: [], error: [], ratechange: [], volumechange: [], waiting: [], timeupdate: [], loadedmetadata: [], play: [], seeking: [], seeked: [], playerresize: [], pause: [], statechange: [] };
+
+        this.eventobject = {
+            ready: [],
+            ended: [],
+            error: [],
+            ratechange: [],
+            volumechange: [],
+            waiting: [],
+            timeupdate: [],
+            loadedmetadata: [],
+            play: [],
+            seeking: [],
+            seeked: [],
+            playerresize: [],
+            pause: [],
+            statechange: []
+        };
+
         let replace_elemnt;
         this.isPlaylistVideoList = false;
         if (element === undefined || element === null) {

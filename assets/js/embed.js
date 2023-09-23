@@ -83,7 +83,20 @@ function return_message(message, target_window) {
     }
     if (message.message_kind === 'event') {
         if (message.eventname === 'timeupdate' || message.eventname === 'loadedmetadata') {
-            additional_info['value'] = { getvolume: player.volume(), getduration: player.duration(), getcurrenttime: player.currentTime(), getplaystatus: player.paused(), getplaybackrate: player.playbackRate(), getloopstatus: player.loop(), getmutestatus: player.muted(), getfullscreenstatus: player.isFullscreen(), getavailableplaybackrates: options.playbackRates, gettitle: player_data.title, getplaylistindex: video_data.index, getplaylistid: video_data.plid };
+            additional_info['value'] = {
+                getvolume: player.volume(),
+                getduration: player.duration(),
+                getcurrenttime: player.currentTime(),
+                getplaystatus: player.paused(),
+                getplaybackrate: player.playbackRate(),
+                getloopstatus: player.loop(),
+                getmutestatus: player.muted(),
+                getfullscreenstatus: player.isFullscreen(),
+                getavailableplaybackrates: options.playbackRates,
+                gettitle: player_data.title,
+                getplaylistindex: video_data.index,
+                getplaylistid: video_data.plid
+            };
         }
     }
     if (message.eventname === 'error') {
