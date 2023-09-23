@@ -35,8 +35,8 @@ module Invidious::Videos
       lines = self.parse(initial_data)
 
       settings_field = {
-        "Kind" => "captions",
-        "Language" => target_language
+        "Kind"     => "captions",
+        "Language" => target_language,
       }
 
       # Taken from Invidious::Videos::Captions::Metadata.timedtext_to_vtt()
