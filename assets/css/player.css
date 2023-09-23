@@ -264,21 +264,16 @@ video.video-js {
 }
 
 
-.video-js div.channel-watermark-container {
+.video-js div.channel-watermark {
   background-color: transparent !important;
 }
 
-.channel-watermark-container {
+.channel-watermark {
   margin: 0 35px;
   opacity: 0.7;
   transition: opacity .25s cubic-bezier(0,0,.2,1);
 }
 
-.channel-watermark-container:hover {
+.channel-watermark:hover {
   opacity: 1
-}
-
-.channel-watermark {
-  width: 40px;
-  height: 40px;
 }

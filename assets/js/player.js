@@ -766,7 +766,7 @@ if (location.pathname.startsWith('/embed/')) {
 
 // Channel watermark
 if (video_data.watermark && video_data.preferences.show_channel_watermark) {
-    const watermark_html = `<a href="/channel/${video_data.ucid}"><img class="channel-watermark" src="${video_data.watermark.thumbnailUrl}"/></a>`;
+    const watermark_html = `<a href="/channel/${video_data.ucid}"><img src="${video_data.watermark.thumbnailUrl}" height="${video_data.watermark.thumbnailHeight}" width="${video_data.watermark.thumbnailWidth}"/></a>`;
     
     player.overlay({
         overlays: [
@@ -776,7 +776,7 @@ if (video_data.watermark && video_data.preferences.show_channel_watermark) {
                 end: Math.round(parseInt(video_data.watermark.endTimeMs) / 1000), 
                 align: 'bottom-right',
                 showBackground: false,
-                class: "channel-watermark-container"
+                class: "channel-watermark"
             },
         ]
     });

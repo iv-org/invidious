@@ -381,10 +381,14 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # Channel watermark
   # Annotations is different from legacy annotations
   if watermark = player_response.dig?("annotations", 0, "playerAnnotationsExpandedRenderer", "featuredChannel")
+    watermark_thumbnail = watermark["watermark"]["thumbnails"][0]
+
     watermark_data = {
-      "startTimeMs"  => watermark["startTimeMs"],
-      "endTimeMs"    => watermark["endTimeMs"],
-      "thumbnailUrl" => JSON::Any.new(URI.parse(watermark["watermark"]["thumbnails"][0]["url"].as_s).request_target),
+      "startTimeMs"     => watermark["startTimeMs"],
+      "endTimeMs"       => watermark["endTimeMs"],
+      "thumbnailWidth"  => watermark_thumbnail["width"],
+      "thumbnailHeight" => watermark_thumbnail["height"],
+      "thumbnailUrl"    => JSON::Any.new(URI.parse(watermark_thumbnail["url"].as_s).request_target),
     }
   else
     watermark_data = {} of String => JSON::Any
