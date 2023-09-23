@@ -206,4 +206,44 @@ module Invidious::Routes::Images
     rescue ex
     end
   end
+
+  # i.ytimg.com/an/* used for the thumbnail of channel watermarks
+  def self.yt_an_image(env)
+    id = env.params.url["id"]
+    name = env.params.url["name"]
+
+    url = "https://i.ytimg.com/an/#{id}/#{name}"
+    url += "?#{env.params.query}" if !env.params.query.empty?
+
+    headers = HTTP::Headers.new
+
+    REQUEST_HEADERS_WHITELIST.each do |header|
+      if env.request.headers[header]?
+        headers[header] = env.request.headers[header]
+      end
+    end
+
+    begin
+      # TODO deduplicate repeated image proxy logic
+      HTTP::Client.get(url) do |response|
+        env.response.status_code = response.status_code
+
+        response.headers.each do |key, value|
+          if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
+            env.response.headers[key] = value
+          end
+        end
+
+        env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+        if response.status_code >= 300
+          env.response.headers.delete("Transfer-Encoding")
+          return
+        end
+
+        return proxy_file(response, env)
+      end
+    rescue ex
+    end
+  end
 end

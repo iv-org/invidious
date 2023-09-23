@@ -219,6 +219,7 @@ module Invidious::Routing
     get "/s_p/:id/:name", Routes::Images, :s_p_image
     get "/yts/img/:name", Routes::Images, :yts_image
     get "/vi/:id/:name", Routes::Images, :thumbnails
+    get "/an/:id/:name", Routes::Images, :yt_an_image
   end
 
   # -------------------

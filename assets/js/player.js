@@ -764,6 +764,24 @@ if (location.pathname.startsWith('/embed/')) {
     cb.addChild(watch_on_invidious_button);
 }
 
+// Channel watermark
+if (video_data.watermark) {
+    const watermark_html = `<a href="/channel/${video_data.ucid}"><img class="channel-watermark" src="${video_data.watermark.thumbnailURL}"/></a>`;
+    
+    player.overlay({
+        overlays: [
+            { 
+                start: Math.round(parseInt(video_data.watermark.startTimeMs) / 1000), 
+                content: watermark_html, 
+                end: Math.round(parseInt(video_data.watermark.endTimeMs) / 1000), 
+                align: 'bottom-right',
+                showBackground: false,
+                class: "channel-watermark-container"
+            },
+        ]
+    });
+};
+
 addEventListener('DOMContentLoaded', function () {
     // Save time during redirection on another instance
     const changeInstanceLink = document.querySelector('#watch-on-another-invidious-instance > a');

@@ -383,8 +383,8 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   if watermark = player_response.dig?("annotations", 0, "playerAnnotationsExpandedRenderer", "featuredChannel")
     watermark_data = {
       "startTimeMs"  => watermark["startTimeMs"],
-      "endTimeMS"    => watermark["endTimeMs"],
-      "thumbnailURL" => watermark["watermark"]["thumbnails"][0]["url"],
+      "endTimeMs"    => watermark["endTimeMs"],
+      "thumbnailURL" => JSON::Any.new(URI.parse(watermark["watermark"]["thumbnails"][0]["url"].as_s).request_target),
     }
   else
     watermark_data = {} of String => JSON::Any
