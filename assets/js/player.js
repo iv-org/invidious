@@ -766,7 +766,7 @@ if (location.pathname.startsWith('/embed/')) {
 
 // Channel watermark
 if (video_data.watermark) {
-    const watermark_html = `<a href="/channel/${video_data.ucid}"><img class="channel-watermark" src="${video_data.watermark.thumbnailURL}"/></a>`;
+    const watermark_html = `<a href="/channel/${video_data.ucid}"><img class="channel-watermark" src="${video_data.watermark.thumbnailUrl}"/></a>`;
     
     player.overlay({
         overlays: [

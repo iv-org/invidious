@@ -384,7 +384,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     watermark_data = {
       "startTimeMs"  => watermark["startTimeMs"],
       "endTimeMs"    => watermark["endTimeMs"],
-      "thumbnailURL" => JSON::Any.new(URI.parse(watermark["watermark"]["thumbnails"][0]["url"].as_s).request_target),
+      "thumbnailUrl" => JSON::Any.new(URI.parse(watermark["watermark"]["thumbnails"][0]["url"].as_s).request_target),
     }
   else
     watermark_data = {} of String => JSON::Any
