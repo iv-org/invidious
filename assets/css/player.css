@@ -269,7 +269,7 @@ video.video-js {
 }
 
 .channel-watermark-container {
-  margin: 5px;
+  margin: 0 35px;
   opacity: 0.7;
   transition: opacity .25s cubic-bezier(0,0,.2,1);
 }
