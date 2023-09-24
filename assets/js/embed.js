@@ -78,9 +78,11 @@ function return_message(message, target_window) {
     let url_params = new URLSearchParams(location.search);
     let widgetid = url_params.get('widgetid');
     let additional_info = { from: 'invidious_control' };
+
     if (widgetid !== null) {
         additional_info.widgetid = widgetid;
     }
+
     if (message.message_kind === 'event') {
         if (message.eventname === 'timeupdate' || message.eventname === 'loadedmetadata') {
             additional_info['value'] = {
@@ -99,9 +101,11 @@ function return_message(message, target_window) {
             };
         }
     }
+
     if (message.eventname === 'error') {
         additional_info['value'] = { geterrorcode: player.error().code };
     }
+
     message = Object.assign(additional_info, message);
     let target_origin = url_params.get('origin') || '*';
     target_window.postMessage(message, target_origin);
@@ -193,6 +197,7 @@ function control_embed_iframe(message) {
                     console.info("Unhandled event name: " + message.data.eventname);
                     break;
             }
+
             if (message_return_value !== undefined) {
                 return_message({ command: message.data.eventname, value: message_return_value, message_kind: 'info_return' }, message.source);
             }
@@ -202,8 +207,23 @@ function control_embed_iframe(message) {
 
 if (new URLSearchParams(location.search).get('enablejsapi') === '1') {
     window.addEventListener('message', control_embed_iframe);
-    const event_list = ['ended', 'error', 'ratechange', 'volumechange', 'waiting', 'timeupdate', 'loadedmetadata', 'play', 'seeking', 'seeked', 'playerresize', 'pause'];
+    const event_list = [
+        'ended', 
+        'error', 
+        'ratechange', 
+        'volumechange', 
+        'waiting', 
+        'timeupdate', 
+        'loadedmetadata', 
+        'play', 
+        'seeking', 
+        'seeked', 
+        'playerresize', 
+        'pause'
+    ];
     event_list.forEach(event_name => {
-        player.on(event_name, function () { return_message({ message_kind: 'event', eventname: event_name }) });
+        player.on(event_name, function () { 
+            return_message({ message_kind: 'event', eventname: event_name }) 
+        });
     });
 }
