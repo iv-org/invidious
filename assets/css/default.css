@@ -432,20 +432,19 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
  * Footer
  */
 
-.light-theme footer {
-  color: #7c7c7c;
+footer {
   margin-top: auto;
   padding: 1.5em 0;
   text-align: center;
   max-height: 30vh;
 }
 
+.light-theme footer {
+  color: #7c7c7c;
+}
+
 .dark-theme footer {
   color: #adadad;
-  margin-top: auto;
-  padding: 1.5em 0;
-  text-align: center;
-  max-height: 30vh;
 }
 
 .light-theme footer a {
@@ -563,10 +562,6 @@ span > select {
 
   .no-theme footer {
     color: #7c7c7c;
-    margin-top: auto;
-    padding: 1.5em 0;
-    text-align: center;
-    max-height: 30vh;
   }
 
   .no-theme footer a {
@@ -695,10 +690,6 @@ body.dark-theme {
 
   .no-theme footer {
     color: #adadad;
-    margin-top: auto;
-    padding: 1.5em 0;
-    text-align: center;
-    max-height: 30vh;
   }
 
   .no-theme footer a {
