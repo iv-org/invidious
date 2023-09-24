@@ -28,9 +28,13 @@ struct YoutubeConnectionPool
   def client(region = nil, &block)
     if !CONFIG.http_proxy && region
       conn = make_client(url, region)
+      conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+
       response = yield conn
     else
       conn = pool.checkout
+      conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+
       begin
         response = yield conn
       rescue ex
