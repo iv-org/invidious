@@ -103,7 +103,7 @@ class invidious_embed {
     async videodata_api(videoid) {
         const not_in_videodata_cahce = !(videoid in invidious_embed.videodata_cahce);
         if (not_in_videodata_cahce) {
-            const video_api_response = await fetch(invidious_embed.invidious_instance + "/api/v1/videos/" + videoid + "?fields=title,videoId,paid,premium,isFamilyFriendly,isListed,liveNow");
+            const video_api_response = await fetch(invidious_embed.invidious_instance + "/api/v1/videos/" + videoid);
             if (video_api_response.ok) {
                 invidious_embed.videodata_cahce[videoid] = Object.assign({}, { status: true }, await video_api_response.json());
             } else {
@@ -680,9 +680,37 @@ class invidious_embed {
         return this.target_origin + "/watch?v=" + this.videoId;
     }
 
-    async getVideoEmbedCode() {
-        const title = await this.getVideoTitle();
-        return '<iframe width="560" height="315" src="' + this.target_origin + '/embed/' + this.videoId + '" title="' + title.replace('"', "'") + '" frameborder="0" allow="autoplay;encrypted-media;picture-in-picture;web-share" allowfullscreen></iframe>';
+    getTitle(){
+        return this.promise_send_event('gettitle');
+    }
+
+    getVideoEmbedCode() {
+        //const title = invidious_embed.api_promise? this.getTitle():await this.getTitle();]
+        const embed_url = encodeURI(`${this.target_origin}/embed/${this.videoId}`);
+        const html_escape = (html)=>{
+            const html_escaped = html.replace(/[&'`"<>]/g, match=>{
+                return {
+                    '&': '&amp;',
+                    "'": '&#x27;',
+                    '`': '&#x60;',
+                    '"': '&quot;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+            }[match]});
+            return html_escaped;
+        }
+        const iframe_constractor = (raw_title)=>{
+            const html_escaped_title = html_escape(raw_title);
+            return `<iframe width="560" height="315" src="${ embed_url }" title="${ html_escaped_title }" frameborder="0" allow="autoplay;encrypted-media;picture-in-picture;web-share" allowfullscreen></iframe>`;
+        }
+        if(invidious_embed.api_promise){
+            return new Promise(async(resolve,reject)=>{
+                resolve(iframe_constractor(await this.getTitle()));
+            })
+        }
+        else{
+            return iframe_constractor(this.getTitle());
+        }
     }
 
     getCurrentTime() {
