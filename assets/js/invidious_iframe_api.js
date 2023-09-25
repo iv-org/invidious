@@ -24,18 +24,32 @@ class invidious_embed {
         'pause'
     ];
 
+    /**
+     * Recive event response synchronization or asynchronous.
+     * 
+     * Default false mean synchronization
+     * @type {boolean}
+     */
     static api_promise = false;
     static invidious_instance = '';
+    /**
+     * @type {[string]}
+     */
     static api_instance_list = [];
     static instance_status_list = {};
     static videodata_cahce = {};
 
-    addEventListener(eventname, func) {
-        if (typeof func === 'function') {
+    /**
+     * Add event execute function for player
+     * @param {string} eventname 
+     * @param {Function} event_execute_function 
+     */
+    addEventListener(eventname, event_execute_function) {
+        if (typeof event_execute_function === 'function') {
             if (eventname in invidious_embed.eventname_table) {
-                this.eventobject[invidious_embed.eventname_table[eventname]].push(func);
+                this.eventobject[invidious_embed.eventname_table[eventname]].push(event_execute_function);
             } else if (invidious_embed.available_event_name.includes(eventname)) {
-                this.eventobject[eventname].push(func);
+                this.eventobject[eventname].push(event_execute_function);
             } else {
                 console.warn('addEventListener cannot find such eventname : ' + eventname);
             }
@@ -44,8 +58,13 @@ class invidious_embed {
         }
     }
 
-    removeEventListener(eventname, func) {
-        if (typeof func === 'function') {
+    /**
+     * remove spacific event execute function
+     * @param {string} eventname 
+     * @param {Function} delete_event_function 
+     */
+    removeEventListener(eventname, delete_event_function) {
+        if (typeof delete_event_function === 'function') {
             let internal_eventname;
             if (eventname in invidious_embed.eventname_table) {
                 internal_eventname = invidious_embed.eventname_table[eventname];
@@ -59,9 +78,9 @@ class invidious_embed {
             this.eventobject[internal_eventname] = this.eventobject[internal_eventname].filter(listed_function => {
                 const allowFunctionDetected = listed_function.toString()[0] === '(';
                 if (allowFunctionDetected) {
-                    listed_function.toString() !== func.toString();
+                    listed_function.toString() !== delete_event_function.toString();
                 } else {
-                    listed_function !== func;
+                    listed_function !== delete_event_function;
                 }
             });
         } else {
@@ -69,6 +88,11 @@ class invidious_embed {
         }
     }
 
+    /**
+     * return whether instance_origin origin can use or not
+     * @param {string} instance_origin 
+     * @returns {Promise<boolean>}
+     */
     async instance_access_check(instance_origin) {
         let return_status;
         const status_cahce_exist = instance_origin in invidious_embed.instance_status_list;
@@ -91,6 +115,13 @@ class invidious_embed {
         }
     }
 
+    /**
+     * Need to use await
+     * 
+     * Add invidious_embed.api_instance_list
+     * 
+     * fetch from api.invidious.io
+     */
     async get_instance_list() {
         invidious_embed.api_instance_list = [];
         const instance_list_api = await (await fetch('https://api.invidious.io/instances.json?pretty=1&sort_by=type,users')).json();
@@ -107,6 +138,11 @@ class invidious_embed {
         });
     }
 
+    /**
+     * Need to use await
+     * 
+     * Auto select invidious instance and set invidious_embed.invidious_instance
+     */
     async auto_instance_select() {
         if (await this.instance_access_check(invidious_embed.invidious_instance)) {
             return;
@@ -123,6 +159,112 @@ class invidious_embed {
         }
     }
 
+    /**
+     * Need to use await
+     * Return videoData using invidious videos api
+     * @param {string} videoid 
+     * @returns {Promise<{
+     * title:string,
+     * videoId:string,
+     * videoThumbnails:[{
+     * quarity:string,
+     * url:string,
+     * height:number,
+     * width:number
+     * }],
+     * storyboards:[{
+     * url:string,
+     * templateUrl:string,
+     * width:number,
+     * height:number,
+     * count:number,
+     * interval:number,
+     * storyboardWidth:number,
+     * storyboardHeight:number,
+     * storyboardCount:number
+     * }]
+     * description:string,
+     * descriptionHtml:string,
+     * published:number,
+     * publishedText:string,
+     * keywords:[string],
+     * viewCount:number,
+     * likeCount:number,
+     * dislikeCount:number,
+     * paid:boolean,
+     * premium:boolean,
+     * isFamilyFriendly:boolean,
+     * allowedRegions:[string],
+     * genre:string,
+     * genreUrl:string,
+     * author:string,
+     * authorId:string,
+     * authorUrl:string,
+     * authorThumbnails:[{
+     * url:string,
+     * width:number,
+     * height:number
+     * }]
+     * subCountText:string,
+     * lengthSeconds:number,
+     * allowRatings:string,
+     * rating:number,
+     * isListed:boolean,
+     * liveNow:boolean,
+     * isUpcoming:boolean,
+     * dashUrl:string,
+     * adaptiveFormats:[{
+     * init:string,
+     * index:string,
+     * bitrate:string,
+     * url:string,
+     * itag:string,
+     * type:string,
+     * clen:string,
+     * lmt:string,
+     * projectionType:string,
+     * fps:number,
+     * container:string,
+     * encoding:string,
+     * audioQuality:string,
+     * audioSampleRate:number,
+     * audioChannels:number
+     * }]
+     * formatStreams:[{
+     * url:string,
+     * itag:string,
+     * type:string,
+     * quarity:string,
+     * fps:number,
+     * container:string,
+     * encoding:string,
+     * resolution:string,
+     * qualityLabel:string,
+     * size:string
+     * }]
+     * captions:[{
+     * label:string,
+     * language_code:string,
+     * url:string
+     * }]
+     * recommendedVideos:[{
+     * videoId:string,
+     * title:string,
+     * videoThumbnails:[{
+     * quarity:string,
+     * url:string,
+     * height:number,
+     * width:number
+     * }],
+     * author:string,
+     * authorId:string,
+     * authorUrl:string,
+     * lengthSeconds:number,
+     * viewCountText:string,
+     * viewCount:number
+     * }]
+     * }>}
+     */
     async videodata_api(videoid) {
         const not_in_videodata_cahce = !(videoid in invidious_embed.videodata_cahce);
         if (not_in_videodata_cahce) {
@@ -136,10 +278,22 @@ class invidious_embed {
         return invidious_embed.videodata_cahce[videoid];
     }
 
+    /**
+     * Need to use await
+     * check whether videoid exist or not
+     * @param {string} videoid 
+     * @returns {promise<boolean>}
+     */
     async videoid_accessable_check(videoid) {
         return (await this.videodata_api(videoid)).status;
     }
 
+    /**
+     * Need to use await
+     * return array of videoid in playlistid
+     * @param {string} playlistid 
+     * @returns {Promise<[string]>}
+     */
     async getPlaylistVideoids(playlistid) {
         const playlist_api_response = await fetch(invidious_embed.invidious_instance + "/api/v1/playlists/" + playlistid);
         if (playlist_api_response.ok) {
@@ -152,6 +306,26 @@ class invidious_embed {
         }
     }
 
+    /**
+     * 
+     * @param {string|Node} element 
+     * @param {{
+     * videoId:string,
+     * host:string,
+     * playerVars:{
+     * start:number|string,
+     * end:number|string,
+     * autoplay:number|string
+     * },
+     * events:{
+     * onReady:Function,
+     * onError:Function,
+     * onStateChange:Function,
+     * onPlaybackRateChange:Function
+     * }
+     * }} options 
+     * @returns 
+     */
     async Player(element, options) {
         this.player_status = -1;
         this.error_code = 0;
@@ -182,6 +356,10 @@ class invidious_embed {
             throw 'Please, pass element id or HTMLElement as first argument';
         } else if (typeof element === 'string') {
             replace_elemnt = document.getElementById(element);
+
+            if(replace_elemnt === null){
+                throw 'Can not find spacific element'
+            }
         } else {
             replace_elemnt = element;
         }
@@ -294,6 +472,9 @@ class invidious_embed {
 
         this.player_iframe.style.border = "none";
         replace_elemnt.replaceWith(this.player_iframe);
+        /**
+         * @type {Object.<string,string>}
+         */
         this.eventdata = {};
         return this;
     }
@@ -308,6 +489,10 @@ class invidious_embed {
         this.player_iframe.contentWindow.postMessage(data, this.target_origin);
     }
 
+    /**
+     * execute eventname event
+     * @param {string} eventname 
+     */
     event_executor(eventname) {
         const execute_functions = this.eventobject[eventname];
         let return_data = { 
@@ -331,6 +516,19 @@ class invidious_embed {
         });
     }
 
+    /**
+     * 
+     * @param {{
+     * data:{
+     * from:string,
+     * message_kind:string,
+     * widgetid:string,
+     * command:string,
+     * value:string|number|object|null,
+     * eventname:string
+     * }
+     * }} message 
+     */
     receiveMessage(message) {
         const onControlAndHasWidgetId = message.data.from === 'invidious_control' && message.data.widgetid === this.widgetid.toString();
         if (onControlAndHasWidgetId) {
@@ -379,6 +577,15 @@ class invidious_embed {
         }
     }
 
+    /**
+     * Default return no Promise value.
+     * 
+     * But if set invidious_embed.api_promise true, return Promise value
+     * 
+     * send eventname event to player iframe
+     * @param {'getvolume'|'setvolume'|'getmutestatus'|'getplaybackrate'|'getavailableplaybackrates'|'getplaylistindex'|'getduration'|'gettitle'|'getplaylistid'|'getcurrenttime'} event_name 
+     * @returns {number|boolean|[number]|string|Promise<number>|Promise<boolean>|Promise<[number]>|Promise<string>}
+     */
     promise_send_event(event_name) {
         if (invidious_embed.api_promise) {
             const promise_object = new Promise((resolve, reject) => this.message_wait[event_name].push(resolve) );
@@ -391,22 +598,69 @@ class invidious_embed {
         }
     }
 
+    /**
+     * return playerstatus same as youtube iframe api
+     * 
+     * -1:unstarted
+     * 
+     * 0:ended
+     * 
+     * 1:playing
+     * 
+     * 2:paused
+     * 
+     * 3:buffering
+     * 
+     * 5:video cued
+     * @returns {number}
+     * @example
+     * const player_statrus = player.getPlayerState();
+     * //player_statrus = 1;
+     */
     getPlayerState() {
         return this.player_status;
     }
 
+    /**
+     * send play command to iframe player
+     * @example
+     * player.playVideo();
+     */
     playVideo() {
         this.postMessage({ eventname: 'play' });
     }
 
+    /**
+     * send pause command to iframe player
+     * @example
+     * player.pauseVideo();
+     */
     pauseVideo() {
         this.postMessage({ eventname: 'pause' });
     }
 
+    /**
+     * Default return number range 0 to 100
+     * 
+     * But if set invidious_embed.api_promise true, return Promise<number>
+     * @returns {number|Promise<number>}
+     * @example
+     * const volume = player.getVolume();//invidious_embed.api_promise is false
+     * const volume = await player.getVolume();//invidious_embed.api_promise is true
+     * //volume = 100
+     */
     getVolume() {
         return this.promise_send_event('getvolume');
     }
 
+    /**
+     * Send set volume event to iframe player
+     * 
+     * volume must be range 0 to 100
+     * @param {number} volume 
+     * @example
+     * player.setVolume(50);//set volume 50%
+     */
     setVolume(volume) {
         if (typeof volume === 'number') {
             this.volume = volume;
@@ -418,27 +672,69 @@ class invidious_embed {
         }
     }
 
+    /**
+     * Get player iframe node
+     * @returns {Node}
+     * @example
+     * const invidious_player_node = player.getIframe();
+     */
     getIframe() {
         return this.player_iframe;
     }
 
+    /**
+     * delete player iframe
+     * @example
+     * player.destroy();
+     */
     destroy() {
         this.player_iframe.remove();
     }
 
+    /**
+     * send mute event to iframe player
+     * @example
+     * player.mute();
+     */
     mute() {
         this.postMessage({ eventname: 'setmutestatus', value: true });
     }
 
+    /**
+     * send unmute event to iframe player
+     * @example
+     * player.unMute();
+     */
     unMute() {
         this.postMessage({ eventname: 'setmutestatus', value: false });
     }
 
+    /**
+     * Whether mute or not.
+     * 
+     * Default return boolean.
+     * 
+     * But if set invidious_embed.api_promise true, return Promise<boolean>.
+     * @returns {boolean|Promise<boolean>}
+     * @example
+     * const muteStatus = player.isMuted();//invidious_embed.api_promise false
+     * const muteStatus = await player.isMuted();//invidious_embed.api_promise true
+     * //muteStatus = false
+     */
     isMuted() {
         return this.promise_send_event('getmutestatus');
     }
 
-    seekTo(seconds, allowSeekAhead) {//seconds must be a number and allowSeekAhead is ignore
+    /**
+     * send command seek video to seconds to iframe player.
+     * 
+     * seconds count start with video 0 seconds.
+     * @param {number} seconds
+     * @param {boolean} allowSeekAhead ignore. only maintained for compatibility of youtube iframe player
+     * @example
+     * player.seekTo(100);//seek to 100 seconds of video which counts start with 0 seconds of the video
+     */
+    seekTo(seconds, allowSeekAhead) {
         if (typeof seconds === 'number') {
             if (seconds !== NaN && seconds !== undefined) {
                 this.postMessage({ eventname: 'seek', value: seconds });
@@ -448,7 +744,14 @@ class invidious_embed {
         }
     }
 
-    setSize(width, height) {//width and height must be Number
+    /**
+     * set iframe size
+     * @param {number} width 
+     * @param {number} height 
+     * @example
+     * player.setSize(480,270);
+     */
+    setSize(width, height) {
         if (typeof width === 'number' && typeof height === 'number') {
             this.player_iframe.width = width;
             this.player_iframe.height = height;
@@ -457,11 +760,30 @@ class invidious_embed {
         }
     }
 
+    /**
+     * get playback rate.
+     * 
+     * Default return number.
+     * 
+     * But if set invidious_embed.api_promise true, return Promise<number>.
+     * @returns {number|Promise<number>}
+     * @example
+     * const now_playback_rate = player.getPlaybackRate();//invidious_embed.api_promise is false
+     * const now_playback_rate = await player.getPlaybackRate();//invidious_embed.api_promise is true
+     * //now_playback_rate = 1.0
+     */
     getPlaybackRate() {
         return this.promise_send_event('getplaybackrate');
     }
 
-    setPlaybackRate(suggestedRate) {//suggestedRate must be number.this player allow not available playback rate such as 1.4
+    /**
+     * Set video play back rate
+     * @param {number} suggestedRate 
+     * @example
+     * player.setPlaybackRate(0.5);//play video 0.5x
+     * player.setPlaybackRate(1.2);//play video 1.2x
+     */
+    setPlaybackRate(suggestedRate) {
         if (typeof suggestedRate === 'number') {
             if (suggestedRate !== NaN) {
                 this.postMessage({ eventname: 'setplaybackrate', value: suggestedRate });
@@ -473,10 +795,35 @@ class invidious_embed {
         }
     }
 
+    /**
+     * get available playback rates.
+     * 
+     * Default return [number].
+     * 
+     * But if set invidious_embed.api_promise true, return Promise<[number]>
+     * @returns {[number]|Promise<[number]>}
+     * @example
+     * const available_playback_rates = player.getAvailablePlaybackRates();//invidious_embed.api_promise is false
+     * const available_playback_rates = player.getAvailablePlaybackRates();//invidious_embed.api_promise is true
+     * //available_playback_rates = [0.25,0.5,0.75,1,1.25,1.5,1.75,2.0];
+     */
     getAvailablePlaybackRates() {
         return this.promise_send_event('getavailableplaybackrates');
     }
 
+    /**
+     * 
+     * @param {string|{
+     * videoId:string|undefined,
+     * mediaContentUrl:string|undefined,
+     * startSeconds:number,
+     * endSeconds:number
+     * }} option 
+     * @param {boolean} autoplay 
+     * @param {number|undefined} startSeconds_arg 
+     * @param {Object.<string,string>} additional_argument 
+     * @returns 
+     */
     async playOtherVideoById(option, autoplay, startSeconds_arg, additional_argument) {//internal fuction
         let videoId = '';
         let startSeconds = 0;
@@ -584,27 +931,97 @@ class invidious_embed {
         this.eventdata = {};
     }
 
+    /**
+     * Load video using videoId
+     * @param {string|{
+     * videoId:string,
+     * startSeconds:number|undefined,
+     * endSeconds:number|undefined
+     * }} option 
+     * @param {number|undefined} startSeconds 
+     * @example
+     * player.loadVideoById('INHasAVlzI8');//load video INHasAVlzI8
+     * player.loadVideoById('INHasAVlzI8',52);//load video INHasAVlzI8 and start with 52 seconds
+     * player.loadVideoById({videoId:'INHasAVlzI8',startSeconds:52,endSeconds:76});//load video INHasAVlzI8 ,start with 52 seconds and end 76 seconds
+     */
     loadVideoById(option, startSeconds) {
         this.isPlaylistVideoList = false;
         this.playOtherVideoById(option, true, startSeconds, {});
     }
 
+    /**
+     * Cue video using videoId
+     * 
+     * Cue mean before playing video only show video thumbnail and title
+     * @param {string|{
+     * videoId:string,
+     * startSeconds:number|undefined,
+     * endSeconds:number|undefined
+     * }} option 
+     * @param {number|undefined} startSeconds 
+     * @example
+     * player.cueVideoById('INHasAVlzI8');//load video INHasAVlzI8
+     * player.cueVideoById('INHasAVlzI8',52);//load video INHasAVlzI8 and start with 52 seconds
+     * player.cueVideoById({videoId:'INHasAVlzI8',startSeconds:52,endSeconds:76});//load video INHasAVlzI8 ,start with 52 seconds and end 76 seconds
+     */
     cueVideoById(option, startSeconds) {
         this.isPlaylistVideoList = false;
         this.playOtherVideoById(option, false, startSeconds, {});
     }
 
+    /**
+     * Cue video using media content url
+     * 
+     * Cue mean before playing video only show video thumbnail and title
+     * 
+     * Media content url like https://youtube.com/v/INHasAVlzI8 .Cannot run like https://youtube.com/watch/?v=INHasAVlzI8 this behavior is same as youtube iframe api
+     * @param {string|{
+     * mediaContentUrl:string,
+     * startSeconds:number|undefined,
+     * endSeconds:number|undefined
+     * }} option 
+     * @param {number|undefined} startSeconds 
+     * @example
+     * player.cueVideoByUrl('https://youtube.com/v/INHasAVlzI8');//load video INHasAVlzI8
+     * player.cueVideoByUrl('https://youtube.com/v/INHasAVlzI8',52);//load video INHasAVlzI8 and start with 52 seconds
+     * player.cueVideoByUrl({mediaContentUrl:'https://youtube.com/v/INHasAVlzI8',startSeconds:52,endSeconds:76});//load video INHasAVlzI8 ,start with 52 seconds and end 76 seconds
+     */
     cueVideoByUrl(option, startSeconds) {
         this.isPlaylistVideoList = false;
         this.playOtherVideoById(option, false, startSeconds, {});
     }
 
+    /**
+     * Load video using media content url
+     * 
+     * Media content url like https://youtube.com/v/INHasAVlzI8 .Cannot run like https://youtube.com/watch/?v=INHasAVlzI8 this behavior is same as youtube iframe api
+     * @param {string|{
+     * mediaContentUrl:string,
+     * startSeconds:number|undefined,
+     * endSeconds:number|undefined
+     * }} option 
+     * @param {number|undefined} startSeconds 
+     * @example
+     * player.loadVideoByUrl('https://youtube.com/v/INHasAVlzI8');//load video INHasAVlzI8
+     * player.loadVideoByUrl('https://youtube.com/v/INHasAVlzI8',52);//load video INHasAVlzI8 and start with 52 seconds
+     * player.loadVideoByUrl({mediaContentUrl:'https://youtube.com/v/INHasAVlzI8',startSeconds:52,endSeconds:76});//load video INHasAVlzI8 ,start with 52 seconds and end 76 seconds
+     */
     loadVideoByUrl(option, startSeconds) {
         this.isPlaylistVideoList = false;
         this.playOtherVideoById(option, true, startSeconds, {});
     }
 
+    /**
+     * 
+     * @param {string|[string]|{index:number|undefined,list:string,listType:string|undefined}} playlistData 
+     * @param {boolean} autoplay 
+     * @param {number} index 
+     * @param {number} startSeconds 
+     */
     async playPlaylist(playlistData, autoplay, index, startSeconds) {
+        /**
+         * @type {string}
+         */
         let playlistId;
         if (typeof playlistData === 'string') {
             this.playlistVideoIds = [playlistData];
@@ -673,14 +1090,42 @@ class invidious_embed {
         this.playOtherVideoById(this.playlistVideoIds[index], autoplay, startSeconds, parameter);
     }
 
+    /**
+     * Cue playlist and play video at index number
+     * @param {string|[string]|{index:number|undefined,list:string,listType:string|undefined}} data 
+     * @param {number|undefined} index count start with 0
+     * @param {number|undefined} startSeconds only affect first video
+     * @example
+     * player.loadPlaylist('i50sUufNbzY');//play i50sUufNbzY video start with 0 second
+     * player.loadPlaylist(['i50sUufNbzY','BgNVwiX7K8E','L7PCS7afS3Y'],1,10);//play index second playlist (BgNVwiX7K8E) and play start with 10 seconds
+     * player.loadPlaylist({list:'PL84LbRiy3noqhbyqr-IcCKhyXE6mFoQzF'});//play playlist first index of PL84LbRiy3noqhbyqr-IcCKhyXE6mFoQzF and start with 0 second
+     */
     cuePlaylist(data, index, startSeconds) {
         this.playPlaylist(data, false, index, startSeconds);
     }
 
+    /**
+     * Load playlist and play video at index number
+     * 
+     * Cue mean before playing video only show video thumbnail and title
+     * @param {string|[string]|{index:number|undefined,list:string,listType:string|undefined}} data 
+     * @param {number|undefined} index count start with 0
+     * @param {number|undefined} startSeconds only affect first video
+     * @example
+     * player.loadPlaylist('i50sUufNbzY');//play i50sUufNbzY video start with 0 second
+     * player.loadPlaylist(['i50sUufNbzY','BgNVwiX7K8E','L7PCS7afS3Y'],1,10);//play index second playlist (BgNVwiX7K8E) and play start with 10 seconds
+     * player.loadPlaylist({list:'PL84LbRiy3noqhbyqr-IcCKhyXE6mFoQzF'});//play playlist first index of PL84LbRiy3noqhbyqr-IcCKhyXE6mFoQzF and start with 0 second
+     */
     loadPlaylist(data, index, startSeconds) {
         this.playPlaylist(data, true, index, startSeconds);
     }
 
+    /**
+     * Play video spacific number of index
+     * @param {number} index count start with 0
+     * @example
+     * player.playVideoAt(5);//play video playlist index 6th
+     */
     playVideoAt(index) {
         if (typeof index === 'number') {
             let parameter = { index: index };
@@ -693,6 +1138,13 @@ class invidious_embed {
         }
     }
 
+    /**
+     * play next video of playlist
+     * 
+     * if end of playlist,if loop is true, load first video of playlist.
+     * @example
+     * player.nextVideo();
+     */
     async nextVideo() {
         let now_index = this.promise_send_event('getplaylistindex');
         if (now_index === null) {
@@ -717,6 +1169,13 @@ class invidious_embed {
         this.playOtherVideoById(this.playlistVideoIds[now_index], true, 0, parameter);
     }
 
+    /**
+     * play previous video of playlist
+     * 
+     * if start of playlist,if loop is true, load end video of playlist.
+     * @example
+     * player.previousVideo();
+     */
     async previousVideo() {
         let now_index = this.promise_send_event('getplaylistindex');
         if (now_index === null) {
@@ -740,18 +1199,61 @@ class invidious_embed {
         this.playOtherVideoById(this.playlistVideoIds[now_index], true, 0, parameter);
     }
 
+    /**
+    * Get dulation of video
+    * 
+    * Default return number
+    * 
+    * But if set invidious_embed.api_promise true, return Promise<number>.
+    * @returns {number|Promise<number>}
+    * @example
+    * const player_dulation = player.getDuration();//invidious_embed.api_promise is false
+    * const player_dulation = await player.getDuration();//invidious_embed.api_promise is true
+    * //player_dulation = 80
+    */
     getDuration() {
         return this.promise_send_event('getduration');
     }
 
+    /**
+     * Get url of loaded video
+     * @returns {string}
+     * @example
+     * const video_url = player.getVideoUrl();
+     * //video_url = "https://yewtu.be/watch?v=KqE7Bwhd-rE"
+     */
     getVideoUrl() {
         return this.target_origin + "/watch?v=" + this.videoId;
     }
 
+    /**
+     * Get title of loaded video.
+     * 
+     * Default return string
+     * 
+     * But if set invidious_embed.api_promise true, return Promise<string>.
+     * @returns {string,Promise<string>}
+     * @example
+     * const title = player.getTitle();//invidious_embed.api_promise is false
+     * const title = await player.getTitle();//invidious_embed.api_promise is true
+     * //title = "【夏の終わりに】夏祭り/ときのそら【歌ってみた】"
+     */
     getTitle() {
         return this.promise_send_event('gettitle');
     }
 
+    /**
+     * Get video embed iframe string
+     * 
+     * Default return string
+     * 
+     * But if set invidious_embed.api_promise true, return Promise<string>.
+     * @returns {string,Promise<string>}
+     * @example
+     * const embed_code = player.getVideoEmbedCode();//invidious_embed.api_promise is false
+     * const embed_code = await player.getVideoEmbedCode();//invidious_embed.api_promise is true
+     * //embed_code = `<iframe width="560" height="315" src="https://yewtu.be/embed/KqE7Bwhd-rE" title="【夏の終わりに】夏祭り/ときのそら【歌ってみた】" frameborder="0" allow="autoplay;encrypted-media;picture-in-picture;web-share" allowfullscreen></iframe>`
+     */
     getVideoEmbedCode() {
         const embed_url = encodeURI(`${this.target_origin}/embed/${this.videoId}`);
         const html_escape = (html) => {
@@ -781,10 +1283,38 @@ class invidious_embed {
         }
     }
 
+    /**
+     * Get current playing time start with video 0 seconds
+     * 
+     * Default return number
+     * 
+     * But if set invidious_embed.api_promise true, return Promise<number>.
+     * @returns {number|Promise<number>}
+     * @example
+     * const player_time = player.getCurrentTime();//invidious_embed.api_promise is false
+     * const player_time = await player.getCurrentTime();//invidious_embed.api_promise is true
+     * //player_time = 80
+     */
     getCurrentTime() {
         return this.promise_send_event('getcurrenttime');
     }
 
+    /**
+     * Get video related data.
+     * 
+     * This function is not compatible with youtube iframe api
+     * @returns {Promise<{
+     * video_id:string,
+     * title:string,
+     * list:?string,
+     * isListed:boolean,
+     * isLibe:boolean,
+     * isPremiere:boolean
+     * }>}
+     * @example
+     * const video_data = await player.getVideoData();
+     * //video_data = {"video_id": "KqE7Bwhd-rE","title": "【夏の終わりに】夏祭り/ときのそら【歌ってみた】","list": null,"isListed": true,"isLive": false,"isPremiere": false}
+     */
     async getVideoData() {
         const videoData = await this.videodata_api(this.videoId);
         return { 
@@ -797,14 +1327,39 @@ class invidious_embed {
         };
     }
 
+    /**
+     * Get playlist index which count start with 0
+     * 
+     * Default return number
+     * 
+     * But if set invidious_embed.api_promise true, return Promise<number>.
+     * @returns {number|Promise<number>}
+     * @example
+     * const playlist_index = player.getPlaylistIndex();//invidious_embed.api_promise is false
+     * const playlist_index = await player.getPlaylistIndex();//invidious_embed.api_promise is true
+     * //playlist_index = 3
+     */
     getPlaylistIndex() {
         return this.promise_send_event('getplaylistindex');
     }
 
+    /**
+     * Get playlist videoIds
+     * @returns {[string]|undefined}
+     * @example
+     * const playlist_videoids = player.getPlaylist();
+     * //playlist_videoids = ['i50sUufNbzY','BgNVwiX7K8E','L7PCS7afS3Y'];
+     */
     getPlaylist() {
         return this.playlistVideoIds !== undefined ? this.playlistVideoIds : [];
     }
 
+    /**
+     * set loop video or not
+     * @param {boolean} loopStatus 
+     * @example
+     * player.setLoop(true);
+     */
     setLoop(loopStatus) {
         if (typeof loopStatus === 'boolean') {
             this.loop = loopStatus;
@@ -828,6 +1383,12 @@ class invidious_embed {
     }
 }
 
+/**
+ * After load iFrame api,function will execute
+ * 
+ * But this function always execute imidiretry because iframe api ready mean load complete this js file
+ * @param {Function} func 
+ */
 function invidious_ready(func) {
     if (typeof func === 'function') {
         func();
@@ -837,7 +1398,7 @@ function invidious_ready(func) {
     }
 }
 
-invidious_embed.invidious_instance = new URL(document.currentScript.src).origin;
+invidious_embed.invidious_instance = new URL(document.currentScript.src).origin;//set default instance using load origin of js file instance
 
 const invidious = {
     Player: invidious_embed,
