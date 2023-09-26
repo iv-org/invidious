@@ -2,6 +2,7 @@ struct VideoPreferences
   include JSON::Serializable
 
   property annotations : Bool
+  property preload : Bool
   property autoplay : Bool
   property comments : Array(String)
   property continue : Bool
@@ -28,6 +29,7 @@ end
 
 def process_video_params(query, preferences)
   annotations = query["iv_load_policy"]?.try &.to_i?
+  preload = query["preload"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   autoplay = query["autoplay"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   comments = query["comments"]?.try &.split(",").map(&.downcase)
   continue = query["continue"]?.try { |q| (q == "true" || q == "1").to_unsafe }
@@ -50,6 +52,7 @@ def process_video_params(query, preferences)
   if preferences
     # region ||= preferences.region
     annotations ||= preferences.annotations.to_unsafe
+    preload ||= preferences.preload.to_unsafe
     autoplay ||= preferences.autoplay.to_unsafe
     comments ||= preferences.comments
     continue ||= preferences.continue.to_unsafe
@@ -70,6 +73,7 @@ def process_video_params(query, preferences)
   end
 
   annotations ||= CONFIG.default_user_preferences.annotations.to_unsafe
+  preload ||= CONFIG.default_user_preferences.preload.to_unsafe
   autoplay ||= CONFIG.default_user_preferences.autoplay.to_unsafe
   comments ||= CONFIG.default_user_preferences.comments
   continue ||= CONFIG.default_user_preferences.continue.to_unsafe
@@ -89,6 +93,7 @@ def process_video_params(query, preferences)
   save_player_pos ||= CONFIG.default_user_preferences.save_player_pos.to_unsafe
 
   annotations = annotations == 1
+  preload = preload == 1
   autoplay = autoplay == 1
   continue = continue == 1
   continue_autoplay = continue_autoplay == 1
@@ -128,6 +133,7 @@ def process_video_params(query, preferences)
 
   params = VideoPreferences.new({
     annotations:        annotations,
+    preload:            preload,
     autoplay:           autoplay,
     comments:           comments,
     continue:           continue,

@@ -719,6 +719,20 @@ default_user_preferences:
   # -----------------------------
 
   ##
+  ## Automatically preload video on page load. This option controls the
+  ## value for the "preload" attribute of the HTML5 <video> element.
+  ##
+  ## If disabled, no video data will be loaded until the user explicitly
+  ## starts the video by hitting the "Play" button. If enabled, the web
+  ## browser decides how much of the video data will be preloaded.
+  ##
+  ## See: https://www.w3schools.com/tags/att_video_preload.asp
+  ##
+  ## Accepted values: true, false
+  ## Default: true
+  #preload: true
+
+  ##
   ## Automatically play videos on page load.
   ##
   ## Accepted values: true, false

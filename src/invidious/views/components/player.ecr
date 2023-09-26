@@ -1,5 +1,6 @@
 <video style="outline:none;width:100%;background-color:#000" playsinline poster="<%= thumbnail %>"
     id="player" class="on-video_player video-js player-style-<%= params.player_style %>"
+    preload="<% if params.preload %>auto<% else %>none<% end %>"
     <% if params.autoplay %>autoplay<% end %>
     <% if params.video_loop %>loop<% end %>
     <% if params.controls %>controls<% end %>>
@@ -73,7 +74,8 @@
     "title" => video.title,
     "description" => HTML.escape(video.short_description),
     "thumbnail" => thumbnail,
-    "preferred_caption_found" => !preferred_captions.empty?
+    "preferred_caption_found" => !preferred_captions.empty?,
+    "preload" => params.preload ? "auto" : "none"
 }.to_pretty_json
 %>
 </script>
