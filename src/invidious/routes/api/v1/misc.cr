@@ -173,8 +173,8 @@ module Invidious::Routes::API::V1::Misc
     end
     JSON.build do |json|
       json.object do
-        json.field "ucid", sub_endpoint["browseId"].try &.as_s if sub_endpoint["browseId"]?
-        json.field "videoId", sub_endpoint["videoId"].try &.as_s if sub_endpoint["videoId"]?
+        json.field "ucid", sub_endpoint["browseId"].as_s if sub_endpoint["browseId"]?
+        json.field "videoId", sub_endpoint["videoId"].as_s if sub_endpoint["videoId"]?
         json.field "params", params.try &.as_s
         json.field "pageType", pageType
       end
