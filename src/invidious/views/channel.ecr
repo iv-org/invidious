@@ -20,7 +20,8 @@
 
   page_nav_html = IV::Frontend::Pagination.nav_ctoken(locale,
     base_url: relative_url,
-    ctoken: next_continuation
+    ctoken: next_continuation,
+	 first_page: continuation
   )
 %>
 

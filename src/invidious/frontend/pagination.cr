@@ -3,6 +3,15 @@ require "uri"
 module Invidious::Frontend::Pagination
   extend self
 
+  private def first_page(str : String::Builder, locale : String?, url : String)
+    str << %(<a href=") << url << %(" class="pure-button pure-button-secondary">)
+
+    str << translate(locale, "First page")
+    str << "&nbsp;&nbsp;"
+    str << %(<i class="icon ion-ios-arrow-back"></i>)
+    str << "</a>"
+  end
+
   private def previous_page(str : String::Builder, locale : String?, url : String)
     # Link
     str << %(<a href=") << url << %(" class="pure-button pure-button-secondary">)
@@ -72,12 +81,18 @@ module Invidious::Frontend::Pagination
     end
   end
 
-  def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?)
+  def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?, first_page : String?)
     return String.build do |str|
       str << %(<div class="h-box">\n)
       str << %(<div class="page-nav-container flexible">\n)
 
-      str << %(<div class="page-prev-container flex-left"></div>\n)
+      str << %(<div class="page-prev-container flex-left">)
+
+		if !first_page.nil?
+		  self.first_page(str, locale, base_url.to_s)
+		end
+
+		str << %(</div>\n)
 
       str << %(<div class="page-next-container flex-right">)
 
