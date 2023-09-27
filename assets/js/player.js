@@ -98,11 +98,13 @@ if (video_data.params.quality === 'dash') {
 
 /**
  * Function for add time argument to url
+ *
  * @param {String} url
+ * @param {String} [base]
  * @returns {URL} urlWithTimeArg
  */
-function addCurrentTimeToURL(url) {
-    var urlUsed = new URL(url);
+function addCurrentTimeToURL(url, base) {
+    var urlUsed = new URL(url, base);
     urlUsed.searchParams.delete('start');
     var currentTime = Math.ceil(player.currentTime());
     if (currentTime > 0)
@@ -132,14 +134,16 @@ player.on('timeupdate', function () {
 
     // Invidious links
 
+    let domain = window.location.origin;
+
     let elem_iv_embed = document.getElementById('link-iv-embed');
     let elem_iv_other = document.getElementById('link-iv-other');
 
     let base_url_iv_embed = elem_iv_embed.getAttribute('data-base-url');
     let base_url_iv_other = elem_iv_other.getAttribute('data-base-url');
 
-    elem_iv_embed.href = addCurrentTimeToURL(base_url_iv_embed);
-    elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other);
+    elem_iv_embed.href = addCurrentTimeToURL(base_url_iv_embed, domain);
+    elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other, domain);
 });
 
 
