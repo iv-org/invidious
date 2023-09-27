@@ -97,7 +97,7 @@ module Invidious::Frontend::Pagination
 
       str << %(<div class="page-prev-container flex-left">)
 
-      if !first_page?
+      if !first_page
         self.first_page(str, locale, base_url.to_s)
       end
 
