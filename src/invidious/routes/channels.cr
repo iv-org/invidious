@@ -200,10 +200,14 @@ module Invidious::Routes::Channels
     prefs = env.get("preferences").as(Preferences)
 
     locale = prefs.locale
-    region = env.params.query["region"]? || prefs.region
 
     thin_mode = env.params.query["thin_mode"]? || prefs.thin_mode
     thin_mode = thin_mode == "true"
+
+    nojs = env.params.query["nojs"]?
+
+    nojs ||= "0"
+    nojs = nojs == "1"
 
     if !ucid.nil?
       ucid = ucid.to_s
@@ -218,6 +222,11 @@ module Invidious::Routes::Channels
     end
 
     post_response = JSON.parse(post_response)
+
+    if nojs
+      comments = Comments.fetch_community_post_comments(ucid, id)
+      comment_html = JSON.parse(Comments.parse_youtube(id, comments, "html", locale, thin_mode, isPost: true))["contentHtml"]
+    end
     templated "post"
   end
 

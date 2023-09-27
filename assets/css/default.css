@@ -397,6 +397,14 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
   margin: auto;
 }
 
+/*
+ * We don't want the top and bottom margin on the post page.
+ */
+.comments.post-comments {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
 .video-iframe-wrapper {
   position: relative;
   height: 0;
