@@ -105,8 +105,12 @@ def process_video_params(query, preferences)
   vr_mode = vr_mode == 1
   save_player_pos = save_player_pos == 1
 
-  if CONFIG.disabled?("dash") && quality == "dash"
-    quality = "high"
+  # Force set quality to "high" if dash or hls has been disabled by the server
+  {"dash", "hls"}.each do |disabled_quality|
+    if CONFIG.disabled?("dash") && quality == "dash"
+      quality = "high"
+      break
+    end
   end
 
   if CONFIG.disabled?("local") && local
