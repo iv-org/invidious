@@ -34,10 +34,6 @@ if (player_data.aspect_ratio) {
     options.aspectRatio = player_data.aspect_ratio;
 }
 
-if (player_data.preload) {
-    options.preload = player_data.preload
-}
-
 var embed_url = new URL(location);
 embed_url.searchParams.delete('v');
 var short_url = location.origin + '/' + video_data.id + embed_url.search;
