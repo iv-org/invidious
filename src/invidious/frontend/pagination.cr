@@ -5,7 +5,7 @@ module Invidious::Frontend::Pagination
 
   private def first_page(str : String::Builder, locale : String?, url : String)
     str << %(<a href=") << url << %(" class="pure-button pure-button-secondary">)
-    
+
     if locale_is_rtl?(locale)
       # Inverted arrow ("first" points to the right)
       str << translate(locale, "First page")
