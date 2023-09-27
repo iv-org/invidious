@@ -90,14 +90,14 @@ module Invidious::Frontend::Pagination
     end
   end
 
-  def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?, first_page : String?)
+  def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?, first_page : Bool?)
     return String.build do |str|
       str << %(<div class="h-box">\n)
       str << %(<div class="page-nav-container flexible">\n)
 
       str << %(<div class="page-prev-container flex-left">)
 
-      if !first_page.nil?
+      if !first_page?
         self.first_page(str, locale, base_url.to_s)
       end
 
