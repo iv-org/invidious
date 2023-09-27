@@ -12,7 +12,7 @@ module Invidious::Frontend::Pagination
       str << "&nbsp;&nbsp;"
       str << %(<i class="icon ion-ios-arrow-forward"></i>)
     else
-		    # Regular arrow ("first" points to the left)
+      # Regular arrow ("first" points to the left)
       str << %(<i class="icon ion-ios-arrow-back"></i>)
       str << "&nbsp;&nbsp;"
       str << translate(locale, "First page")
