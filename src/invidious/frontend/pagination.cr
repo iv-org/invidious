@@ -5,11 +5,20 @@ module Invidious::Frontend::Pagination
 
   private def first_page(str : String::Builder, locale : String?, url : String)
     str << %(<a href=") << url << %(" class="pure-button pure-button-secondary">)
+    
+	 if locale_is_rtl?(locale)
+	   # Inverted arrow ("first" points to the right)
+      str << translate(locale, "First page")
+      str << "&nbsp;&nbsp;"
+      str << %(<i class="icon ion-ios-arrow-forward"></i>)
+    else
+		# Regular arrow ("first" points to the left)
+	   str << %(<i class="icon ion-ios-arrow-back"></i>) 
+      str << "&nbsp;&nbsp;"
+      str << translate(locale, "First page")
+	 end
 
-    str << translate(locale, "First page")
-    str << "&nbsp;&nbsp;"
-    str << %(<i class="icon ion-ios-arrow-back"></i>)
-    str << "</a>"
+	 str << "</a>"
   end
 
   private def previous_page(str : String::Builder, locale : String?, url : String)
