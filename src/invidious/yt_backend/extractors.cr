@@ -720,8 +720,11 @@ private module Extractors
       raw_items = [] of Array(JSON::Any)
 
       target.dig("primaryContents", "sectionListRenderer", "contents").as_a.each do |node|
-        if node = node["itemSectionRenderer"]?
-          raw_items << node["contents"].as_a
+        if new_node = node["itemSectionRenderer"]?
+          raw_items << new_node["contents"].as_a
+        end
+        if node["continuationItemRenderer"]?
+          raw_items.push([node])
         end
       end
 

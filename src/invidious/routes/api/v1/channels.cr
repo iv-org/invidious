@@ -440,7 +440,7 @@ module Invidious::Routes::API::V1::Channels
     query.channel = env.params.url["ucid"]
 
     begin
-      search_results = query.process
+      search_results, _ = query.process
     rescue ex
       return error_json(400, ex)
     end

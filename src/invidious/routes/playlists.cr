@@ -254,9 +254,11 @@ module Invidious::Routes::Playlists
 
     begin
       query = Invidious::Search::Query.new(env.params.query, :playlist, region)
-      items = query.process.select(SearchVideo).map(&.as(SearchVideo))
+      processed_query, has_continuation = query.process
+      items = processed_query.select(SearchVideo).map(&.as(SearchVideo))
     rescue ex
       items = [] of SearchVideo
+      has_continuation = false
     end
 
     # Pagination
@@ -264,7 +266,7 @@ module Invidious::Routes::Playlists
     page_nav_html = Frontend::Pagination.nav_numeric(locale,
       base_url: "/add_playlist_items?list=#{playlist.id}&q=#{query_encoded}",
       current_page: page,
-      show_next: (items.size >= 20)
+      show_next: has_continuation
     )
 
     env.set "add_playlist_items", plid

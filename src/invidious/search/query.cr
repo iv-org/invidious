@@ -105,26 +105,28 @@ module Invidious::Search
 
     # Run the search query using the corresponding search processor.
     # Returns either the results or an empty array of `SearchItem`.
-    def process(user : Invidious::User? = nil) : Array(SearchItem) | Array(ChannelVideo)
+    def process(user : Invidious::User? = nil) : {Array(SearchItem) | Array(ChannelVideo), Bool}
       items = [] of SearchItem
 
+      has_continuation = false
       # Don't bother going further if search query is empty
-      return items if self.empty_raw_query?
+      return items, has_continuation if self.empty_raw_query?
 
       case @type
       when .regular?, .playlist?
-        items = Processors.regular(self)
+        items, has_continuation = Processors.regular(self)
         #
       when .channel?
-        items = Processors.channel(self)
+        items, has_continuation = Processors.channel(self)
         #
       when .subscriptions?
         if user
           items = Processors.subscriptions(self, user.as(Invidious::User))
+          has_continuation = items.size >= 20
         end
       end
 
-      return items
+      return items, has_continuation
     end
 
     # Return the HTTP::Params corresponding to this Query (invidious format)

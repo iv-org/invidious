@@ -52,7 +52,7 @@ module Invidious::Routes::Search
       user = env.get? "user"
 
       begin
-        items = query.process
+        items, has_continuation = query.process
       rescue ex : ChannelSearchException
         return error_template(404, "Unable to find channel with id of '#{HTML.escape(ex.channel)}'. Are you sure that's an actual channel id? It should look like 'UC4QobU6STFB0P71PMvOGN5A'.")
       rescue ex
@@ -65,7 +65,7 @@ module Invidious::Routes::Search
       page_nav_html = Frontend::Pagination.nav_numeric(locale,
         base_url: "/search?#{query.to_http_params}",
         current_page: query.page,
-        show_next: (items.size >= 20)
+        show_next: has_continuation
       )
 
       if query.type == Invidious::Search::Query::Type::Channel

@@ -8,7 +8,7 @@ module Invidious::Routes::API::V1::Search
     query = Invidious::Search::Query.new(env.params.query, :regular, region)
 
     begin
-      search_results = query.process
+      search_results, _ = query.process
     rescue ex
       return error_json(400, ex)
     end
