@@ -32,138 +32,19 @@ class invidious_embed {
      */
     static api_promise = false;
     static invidious_instance = '';
+
     /**
      * @type {[string]}
      */
     static api_instance_list = [];
+
+    /**
+     *  @type {Object<string,boolean>}
+     */
     static instance_status_list = {};
-    static videodata_cahce = {};
 
     /**
-     * Add event execute function for player
-     * @param {string} eventname 
-     * @param {Function} event_execute_function 
-     */
-    addEventListener(eventname, event_execute_function) {
-        if (typeof event_execute_function === 'function') {
-            if (eventname in invidious_embed.eventname_table) {
-                this.eventobject[invidious_embed.eventname_table[eventname]].push(event_execute_function);
-            } else if (invidious_embed.available_event_name.includes(eventname)) {
-                this.eventobject[eventname].push(event_execute_function);
-            } else {
-                console.warn('addEventListener cannot find such eventname : ' + eventname);
-            }
-        } else {
-            console.warn("addEventListner secound args must be function");
-        }
-    }
-
-    /**
-     * remove spacific event execute function
-     * @param {string} eventname 
-     * @param {Function} delete_event_function 
-     */
-    removeEventListener(eventname, delete_event_function) {
-        if (typeof delete_event_function === 'function') {
-            let internal_eventname;
-            if (eventname in invidious_embed.eventname_table) {
-                internal_eventname = invidious_embed.eventname_table[eventname];
-            } else if (invidious_embed.available_event_name.includes(eventname)) {
-                internal_eventname = eventname;
-            } else {
-                console.warn('removeEventListner cannot find such eventname : ' + eventname);
-                return;
-            }
-
-            this.eventobject[internal_eventname] = this.eventobject[internal_eventname].filter(listed_function => {
-                const allowFunctionDetected = listed_function.toString()[0] === '(';
-                if (allowFunctionDetected) {
-                    listed_function.toString() !== delete_event_function.toString();
-                } else {
-                    listed_function !== delete_event_function;
-                }
-            });
-        } else {
-            console.warn("removeEventListener secound args must be function");
-        }
-    }
-
-    /**
-     * return whether instance_origin origin can use or not
-     * @param {string} instance_origin 
-     * @returns {Promise<boolean>}
-     */
-    async instance_access_check(instance_origin) {
-        let return_status;
-        const status_cahce_exist = instance_origin in invidious_embed.instance_status_list;
-        if (!status_cahce_exist) {
-            try {
-                const instance_stats = await fetch(instance_origin + '/api/v1/stats');
-                if (instance_stats.ok) {
-                    const instance_stats_json = await instance_stats.json();
-                    return_status = (instance_stats_json.software.name === 'invidious');
-                } else {
-                    return_status = false;
-                }
-            } catch {
-                return_status = false;
-            }
-            invidious_embed.instance_status_list[instance_origin] = return_status;
-            return return_status;
-        } else {
-            return invidious_embed.instance_status_list[instance_origin];
-        }
-    }
-
-    /**
-     * Need to use await
-     * 
-     * Add invidious_embed.api_instance_list
-     * 
-     * fetch from api.invidious.io
-     */
-    async get_instance_list() {
-        invidious_embed.api_instance_list = [];
-        const instance_list_api = await (await fetch('https://api.invidious.io/instances.json?pretty=1&sort_by=type,users')).json();
-        instance_list_api.forEach(instance_data => {
-            const http_check = instance_data[1]['type'] === 'https';
-            let status_check_api_data;
-            if (instance_data[1]['monitor'] !== null) {
-                status_check_api_data = instance_data[1]['monitor']['statusClass'] === 'success';
-            }
-            const api_available = instance_data[1]['api'] && instance_data[1]['cors'];
-            if (http_check && status_check_api_data && api_available) {
-                invidious_embed.api_instance_list.push(instance_data[1]['uri']);
-            }
-        });
-    }
-
-    /**
-     * Need to use await
-     * 
-     * Auto select invidious instance and set invidious_embed.invidious_instance
-     */
-    async auto_instance_select() {
-        if (await this.instance_access_check(invidious_embed.invidious_instance)) {
-            return;
-        } else {
-            if (invidious_embed.api_instance_list.length === 0) {
-                await this.get_instance_list();
-            }
-            for (let x = 0; x < invidious_embed.api_instance_list.length; x++) {
-                if (await this.instance_access_check(invidious_embed.api_instance_list[x])) {
-                    invidious_embed.invidious_instance = invidious_embed.api_instance_list[x];
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
-     * Need to use await
-     * Return videoData using invidious videos api
-     * @param {string} videoid 
-     * @returns {Promise<{
+     * @typedef {{
      * title:string,
      * videoId:string,
      * videoThumbnails:[{
@@ -263,7 +144,138 @@ class invidious_embed {
      * viewCountText:string,
      * viewCount:number
      * }]
-     * }>}
+     * }} videoDataApi
+     */
+
+    /**
+     * @type {Object<string,videoDataApi>}
+     */
+    static videodata_cahce = {};
+
+    /**
+     * Add event execute function for player
+     * @param {string} eventname 
+     * @param {Function} event_execute_function 
+     */
+    addEventListener(eventname, event_execute_function) {
+        if (typeof event_execute_function === 'function') {
+            if (eventname in invidious_embed.eventname_table) {
+                this.eventobject[invidious_embed.eventname_table[eventname]].push(event_execute_function);
+            } else if (invidious_embed.available_event_name.includes(eventname)) {
+                this.eventobject[eventname].push(event_execute_function);
+            } else {
+                console.warn('addEventListener cannot find such eventname : ' + eventname);
+            }
+        } else {
+            console.warn("addEventListner secound args must be function");
+        }
+    }
+
+    /**
+     * remove spacific event execute function
+     * @param {string} eventname 
+     * @param {Function} delete_event_function 
+     */
+    removeEventListener(eventname, delete_event_function) {
+        if (typeof delete_event_function === 'function') {
+            let internal_eventname;
+            if (eventname in invidious_embed.eventname_table) {
+                internal_eventname = invidious_embed.eventname_table[eventname];
+            } else if (invidious_embed.available_event_name.includes(eventname)) {
+                internal_eventname = eventname;
+            } else {
+                console.warn('removeEventListner cannot find such eventname : ' + eventname);
+                return;
+            }
+
+            this.eventobject[internal_eventname] = this.eventobject[internal_eventname].filter(listed_function => {
+                const allowFunctionDetected = listed_function.toString()[0] === '(';
+                if (allowFunctionDetected) {
+                    listed_function.toString() !== delete_event_function.toString();
+                } else {
+                    listed_function !== delete_event_function;
+                }
+            });
+        } else {
+            console.warn("removeEventListener secound args must be function");
+        }
+    }
+
+    /**
+     * return whether instance_origin origin can use or not
+     * @param {string} instance_origin 
+     * @returns {Promise<boolean>}
+     */
+    async instance_access_check(instance_origin) {
+        let return_status;
+        const status_cahce_exist = instance_origin in invidious_embed.instance_status_list;
+        if (status_cahce_exist) {
+            return invidious_embed.instance_status_list[instance_origin];
+        }
+
+        try {
+            const instance_stats = await fetch(instance_origin + '/api/v1/stats');
+            if (instance_stats.ok) {
+                const instance_stats_json = await instance_stats.json();
+                return_status = (instance_stats_json.software.name === 'invidious');
+            } else {
+                return_status = false;
+            }
+        } catch {
+            return_status = false;
+        }
+        invidious_embed.instance_status_list[instance_origin] = return_status;
+        return return_status;
+    }
+
+    /**
+     * Need to use await
+     * 
+     * Add invidious_embed.api_instance_list
+     * 
+     * fetch from api.invidious.io
+     */
+    async get_instance_list() {
+        invidious_embed.api_instance_list = [];
+        const instance_list_api = await (await fetch('https://api.invidious.io/instances.json?pretty=1&sort_by=type,users')).json();
+        instance_list_api.forEach(instance_data => {
+            const http_check = instance_data[1]['type'] === 'https';
+            let status_check_api_data;
+            if (instance_data[1]['monitor'] !== null) {
+                status_check_api_data = instance_data[1]['monitor']['statusClass'] === 'success';
+            }
+            const api_available = instance_data[1]['api'] && instance_data[1]['cors'];
+            if (http_check && status_check_api_data && api_available) {
+                invidious_embed.api_instance_list.push(instance_data[1]['uri']);
+            }
+        });
+    }
+
+    /**
+     * Need to use await
+     * 
+     * Auto select invidious instance and set invidious_embed.invidious_instance
+     */
+    async auto_instance_select() {
+        if (await this.instance_access_check(invidious_embed.invidious_instance)) {
+            return;
+        } else {
+            if (invidious_embed.api_instance_list.length === 0) {
+                await this.get_instance_list();
+            }
+            for (let x = 0; x < invidious_embed.api_instance_list.length; x++) {
+                if (await this.instance_access_check(invidious_embed.api_instance_list[x])) {
+                    invidious_embed.invidious_instance = invidious_embed.api_instance_list[x];
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Return videoData using invidious videos api
+     * @param {string} videoid 
+     * @returns {Promise<videoDataApi>}
      */
     async videodata_api(videoid) {
         const not_in_videodata_cahce = !(videoid in invidious_embed.videodata_cahce);
@@ -279,7 +291,6 @@ class invidious_embed {
     }
 
     /**
-     * Need to use await
      * check whether videoid exist or not
      * @param {string} videoid 
      * @returns {promise<boolean>}
@@ -289,7 +300,6 @@ class invidious_embed {
     }
 
     /**
-     * Need to use await
      * return array of videoid in playlistid
      * @param {string} playlistid 
      * @returns {Promise<[string]>}
@@ -312,6 +322,8 @@ class invidious_embed {
      * @param {{
      * videoId:string,
      * host:string,
+     * width:number,
+     * height:number,
      * playerVars:{
      * start:number|string,
      * end:number|string,
@@ -331,8 +343,30 @@ class invidious_embed {
         this.error_code = 0;
         this.volume = 100;
         this.loop = false;
+
+        /**
+         * @type {[string]}
+         */
         this.playlistVideoIds = [];
 
+        /**
+         * @type {{
+         * ready:Function,
+         * ended:Function,
+         * error:Function,
+         * ratechange:Function,
+         * volumechange:Function,
+         * waiting:Function,
+         * timeupdate:Function,
+         * loadedmetadata:Function,
+         * play:Function,
+         * seeking:Function,
+         * seeked:Function,
+         * playerresize:Function,
+         * pause:Function,
+         * statechange:Function
+         * }}
+         */
         this.eventobject = {
             ready: [],
             ended: [],
@@ -357,7 +391,7 @@ class invidious_embed {
         } else if (typeof element === 'string') {
             replace_elemnt = document.getElementById(element);
 
-            if(replace_elemnt === null){
+            if (replace_elemnt === null) {
                 throw 'Can not find spacific element'
             }
         } else {
@@ -479,11 +513,15 @@ class invidious_embed {
         return this;
     }
 
+    /**
+     * send message to iframe player
+     * @param {Object} data 
+     */
     postMessage(data) {
-        const additionalInfo = { 
-            'origin': location.origin, 
-            'widgetid': this.widgetid.toString(), 
-            'target': 'invidious_control' 
+        const additionalInfo = {
+            'origin': location.origin,
+            'widgetid': this.widgetid.toString(),
+            'target': 'invidious_control'
         };
         data = Object.assign(additionalInfo, data);
         this.player_iframe.contentWindow.postMessage(data, this.target_origin);
@@ -495,10 +533,10 @@ class invidious_embed {
      */
     event_executor(eventname) {
         const execute_functions = this.eventobject[eventname];
-        let return_data = { 
-            type: eventname, 
-            data: null, 
-            target: this 
+        let return_data = {
+            type: eventname,
+            data: null,
+            target: this
         };
         switch (eventname) {
             case 'statechange':
@@ -517,7 +555,7 @@ class invidious_embed {
     }
 
     /**
-     * 
+     * recieve message from iframe player
      * @param {{
      * data:{
      * from:string,
@@ -588,9 +626,9 @@ class invidious_embed {
      */
     promise_send_event(event_name) {
         if (invidious_embed.api_promise) {
-            const promise_object = new Promise((resolve, reject) => this.message_wait[event_name].push(resolve) );
+            const promise_object = new Promise((resolve, reject) => this.message_wait[event_name].push(resolve));
             this.postMessage({
-                eventname: event_name 
+                eventname: event_name
             });
             return promise_object;
         } else {
@@ -812,7 +850,7 @@ class invidious_embed {
     }
 
     /**
-     * 
+     * Internal function, so use such as loadVideoById() instead of this function.
      * @param {string|{
      * videoId:string|undefined,
      * mediaContentUrl:string|undefined,
@@ -1012,7 +1050,7 @@ class invidious_embed {
     }
 
     /**
-     * 
+     * Internal function, so use such as loadPlaylist() instead of this function.
      * @param {string|[string]|{index:number|undefined,list:string,listType:string|undefined}} playlistData 
      * @param {boolean} autoplay 
      * @param {number} index 
@@ -1317,13 +1355,13 @@ class invidious_embed {
      */
     async getVideoData() {
         const videoData = await this.videodata_api(this.videoId);
-        return { 
-            video_id: this.videoId, 
-            title: await this.promise_send_event('gettitle'), 
-            list: await this.promise_send_event('getplaylistid'), 
-            isListed: videoData.isListed, 
-            isLive: videoData.liveNow, 
-            isPremiere: videoData.premium 
+        return {
+            video_id: this.videoId,
+            title: await this.promise_send_event('gettitle'),
+            list: await this.promise_send_event('getplaylistid'),
+            isListed: videoData.isListed,
+            isLive: videoData.liveNow,
+            isPremiere: videoData.premium
         };
     }
 
@@ -1386,7 +1424,7 @@ class invidious_embed {
 /**
  * After load iFrame api,function will execute
  * 
- * But this function always execute imidiretry because iframe api ready mean load complete this js file
+ * But this function always execute immediately because iframe api ready mean load complete this js file
  * @param {Function} func 
  */
 function invidious_ready(func) {
