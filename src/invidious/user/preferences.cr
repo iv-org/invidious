@@ -55,6 +55,7 @@ struct Preferences
   property extend_desc : Bool = CONFIG.default_user_preferences.extend_desc
   property volume : Int32 = CONFIG.default_user_preferences.volume
   property save_player_pos : Bool = CONFIG.default_user_preferences.save_player_pos
+  property previous_page_button : Bool = CONFIG.default_user_preferences.previous_page_button
 
   module BoolToString
     def self.to_json(value : String, json : JSON::Builder)

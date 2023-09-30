@@ -21,7 +21,8 @@
   page_nav_html = IV::Frontend::Pagination.nav_ctoken(locale,
     base_url: relative_url,
     ctoken: next_continuation,
-    first_page: continuation.nil?
+    first_page: continuation.nil?,
+    previous_page_button: env.get("preferences").as(Preferences).previous_page_button
   )
 %>
 
@@ -39,6 +40,10 @@
 <meta name="twitter:description" content="<%= channel.description %>">
 <meta name="twitter:image" content="/ggpht<%= channel_profile_pic %>">
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/channel/<%= ucid %>" />
+<%- end -%>
+
+<%- if env.get("preferences").as(Preferences).previous_page_button -%>
+<script src="/js/pagination.js?v=<%= ASSET_COMMIT %>"></script>
 <%- end -%>
 
 <link rel="alternate" href="<%= youtube_url %>">
