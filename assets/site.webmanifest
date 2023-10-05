@@ -17,5 +17,15 @@
     "background_color": "#575757",
     "display": "standalone",
     "description": "An alternative front-end to YouTube",
-    "start_url": "/"
+    "start_url": "/",
+    "shortcuts": [
+        {
+            "name": "Popular",
+            "url": "/feed/popular"
+        },
+        {
+            "name": "Trending",
+            "url": "/feed/trending"
+        }
+    ]
 }
