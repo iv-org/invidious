@@ -500,5 +500,8 @@
     "generic_button_save": "Spremi",
     "generic_button_cancel": "Odustani",
     "generic_button_rss": "RSS",
-    "channel_tab_releases_label": "Izdanja"
+    "channel_tab_releases_label": "Izdanja",
+    "generic_channels_count_0": "{{count}} kanal",
+    "generic_channels_count_1": "{{count}} kanala",
+    "generic_channels_count_2": "{{count}} kanala"
 }
