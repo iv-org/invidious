@@ -500,5 +500,8 @@
     "generic_button_cancel": "Отменить",
     "generic_button_rss": "RSS",
     "playlist_button_add_items": "Добавить видео",
-    "channel_tab_podcasts_label": "Подкасты"
+    "channel_tab_podcasts_label": "Подкасты",
+    "generic_channels_count_0": "{{count}} канал",
+    "generic_channels_count_1": "{{count}} канала",
+    "generic_channels_count_2": "{{count}} каналов"
 }
