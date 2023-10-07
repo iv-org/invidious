@@ -165,6 +165,11 @@ module Invidious::Routes::Channels
     end
     locale, user, subscriptions, continuation, ucid, channel = data
 
+    # redirect to post page
+    if lb = env.params.query["lb"]?
+      env.redirect "/post/#{URI.encode_www_form(lb)}?ucid=#{URI.encode_www_form(ucid)}"
+    end
+
     thin_mode = env.params.query["thin_mode"]? || env.get("preferences").as(Preferences).thin_mode
     thin_mode = thin_mode == "true"
 
@@ -191,6 +196,44 @@ module Invidious::Routes::Channels
     end
 
     templated "community"
+  end
+
+  def self.post(env)
+    # /post/{postId}
+    id = env.params.url["id"]
+    ucid = env.params.query["ucid"]?
+
+    prefs = env.get("preferences").as(Preferences)
+
+    locale = prefs.locale
+
+    thin_mode = env.params.query["thin_mode"]? || prefs.thin_mode
+    thin_mode = thin_mode == "true"
+
+    nojs = env.params.query["nojs"]?
+
+    nojs ||= "0"
+    nojs = nojs == "1"
+
+    if !ucid.nil?
+      ucid = ucid.to_s
+      post_response = fetch_channel_community_post(ucid, id, locale, "json", thin_mode)
+    else
+      # resolve the url to get the author's UCID
+      response = YoutubeAPI.resolve_url("https://www.youtube.com/post/#{id}")
+      return error_template(400, "Invalid post ID") if response["error"]?
+
+      ucid = response.dig("endpoint", "browseEndpoint", "browseId").as_s
+      post_response = fetch_channel_community_post(ucid, id, locale, "json", thin_mode)
+    end
+
+    post_response = JSON.parse(post_response)
+
+    if nojs
+      comments = Comments.fetch_community_post_comments(ucid, id)
+      comment_html = JSON.parse(Comments.parse_youtube(id, comments, "html", locale, thin_mode, isPost: true))["contentHtml"]
+    end
+    templated "post"
   end
 
   def self.channels(env)
