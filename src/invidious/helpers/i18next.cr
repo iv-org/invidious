@@ -37,6 +37,8 @@ module I18next::Plurals
     Special_Odia             = 23
 
     # Mixed v3/v4 rules in Weblate
+    # `es`, `pt` and `pt-PT` doesn't seem to have been refreshed
+    # by weblate yet, but I suspect it will happen one day.
     # See: https://github.com/translate/translate/issues/4873
     Special_French_Portuguese
     Special_Hungarian_Serbian
@@ -46,11 +48,11 @@ module I18next::Plurals
   private PLURAL_SETS = {
     PluralForms::Single_gt_one => [
       "ach", "ak", "am", "arn", "br", "fil", "gun", "ln", "mfe", "mg",
-      "mi", "oc", "tg", "tl", "ti", "tr", "uz", "wa",
+      "mi", "oc", "pt", "tg", "tl", "ti", "tr", "uz", "wa",
     ],
     PluralForms::Single_not_one => [
       "af", "an", "ast", "az", "bg", "bn", "ca", "da", "de", "dev", "el", "en",
-      "eo", "et", "eu", "fi", "fo", "fur", "fy", "gl", "gu", "ha", "hi",
+      "eo", "es", "et", "eu", "fi", "fo", "fur", "fy", "gl", "gu", "ha", "hi",
       "hu", "hy", "ia", "kk", "kn", "ku", "lb", "mai", "ml", "mn", "mr",
       "nah", "nap", "nb", "ne", "nl", "nn", "no", "nso", "pa", "pap", "pms",
       "ps", "rm", "sco", "se", "si", "so", "son", "sq", "sv", "sw",
@@ -88,12 +90,11 @@ module I18next::Plurals
     "sk"  => PluralForms::Special_Czech_Slovak,
     "sl"  => PluralForms::Special_Slovenian,
     # Mixed v3/v4 rules
-    "es" => PluralForms::Special_Spanish_Italian,
-    "fr" => PluralForms::Special_French_Portuguese,
-    "hr" => PluralForms::Special_Hungarian_Serbian,
-    "it" => PluralForms::Special_Spanish_Italian,
-    "pt" => PluralForms::Special_French_Portuguese,
-    "sr" => PluralForms::Special_Hungarian_Serbian,
+    "fr"    => PluralForms::Special_French_Portuguese,
+    "hr"    => PluralForms::Special_Hungarian_Serbian,
+    "it"    => PluralForms::Special_Spanish_Italian,
+    "pt-BR" => PluralForms::Special_French_Portuguese,
+    "sr"    => PluralForms::Special_Hungarian_Serbian,
   }
 
   # These are the v1 and v2 compatible suffixes.
@@ -164,7 +165,9 @@ module I18next::Plurals
 
     def get_plural_form(locale : String) : PluralForms
       # Extract the ISO 639-1 or 639-2 code from an RFC 5646 language code
-      locale = locale.split('-')[0]
+      if !locale.matches?(/^pt-BR$/)
+        locale = locale.split('-')[0]
+      end
 
       return self.forms[locale] if self.forms[locale]?
 
