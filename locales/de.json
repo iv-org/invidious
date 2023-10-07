@@ -97,7 +97,7 @@
     "Change password": "Passwort ändern",
     "Manage subscriptions": "Abonnements verwalten",
     "Manage tokens": "Tokens verwalten",
-    "Watch history": "Verlauf",
+    "Watch history": "Wiedergabeverlauf",
     "Delete account": "Account löschen",
     "preferences_category_admin": "Administrator-Einstellungen",
     "preferences_default_home_label": "Standard-Startseite: ",
@@ -476,11 +476,15 @@
     "Standard YouTube license": "Standard YouTube-Lizenz",
     "Song: ": "Musik: ",
     "Download is disabled": "Herunterladen ist deaktiviert",
-    "Import YouTube playlist (.csv)": "YouTube Playlist Importieren (.csv)",
+    "Import YouTube playlist (.csv)": "YouTube Wiedergabeliste importieren (.csv)",
     "generic_button_delete": "Löschen",
     "generic_button_edit": "Bearbeiten",
     "generic_button_save": "Speichern",
     "generic_button_cancel": "Abbrechen",
     "generic_button_rss": "RSS",
-    "playlist_button_add_items": "Videos hinzufügen"
+    "playlist_button_add_items": "Videos hinzufügen",
+    "channel_tab_podcasts_label": "Podcasts",
+    "channel_tab_releases_label": "Veröffentlichungen",
+    "generic_channels_count": "{{count}} Kanal",
+    "generic_channels_count_plural": "{{count}} Kanäle"
 }
