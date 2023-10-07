@@ -500,5 +500,8 @@
     "channel_tab_releases_label": "Vydání",
     "generic_button_edit": "Upravit",
     "generic_button_rss": "RSS",
-    "playlist_button_add_items": "Přidat videa"
+    "playlist_button_add_items": "Přidat videa",
+    "generic_channels_count_0": "{{count}} kanál",
+    "generic_channels_count_1": "{{count}} kanály",
+    "generic_channels_count_2": "{{count}} kanálů"
 }
