@@ -1,6 +1,12 @@
 {% skip_file if flag?(:api_only) %}
 
 module Invidious::Routes::Channels
+  # Redirection for unsupported routes ("tabs")
+  def self.redirect_home(env)
+    ucid = env.params.url["ucid"]
+    return env.redirect "/channel/#{URI.encode_www_form(ucid)}"
+  end
+
   def self.home(env)
     self.videos(env)
   end
@@ -217,6 +223,11 @@ module Invidious::Routes::Channels
     env.redirect "/channel/#{ucid}"
   end
 
+  private KNOWN_TABS = {
+    "home", "videos", "shorts", "streams", "podcasts",
+    "releases", "playlists", "community", "channels", "about",
+  }
+
   # Redirects brand url channels to a normal /channel/:ucid route
   def self.brand_redirect(env)
     locale = env.get("preferences").as(Preferences).locale
@@ -227,7 +238,10 @@ module Invidious::Routes::Channels
     yt_url_params = URI::Params.encode(env.params.query.to_h.select(["a", "u", "user"]))
 
     # Retrieves URL params that only Invidious uses
-    invidious_url_params = URI::Params.encode(env.params.query.to_h.select!(["a", "u", "user"]))
+    invidious_url_params = env.params.query.dup
+    invidious_url_params.delete_all("a")
+    invidious_url_params.delete_all("u")
+    invidious_url_params.delete_all("user")
 
     begin
       resolved_url = YoutubeAPI.resolve_url("https://youtube.com#{env.request.path}#{yt_url_params.size > 0 ? "?#{yt_url_params}" : ""}")
@@ -236,14 +250,17 @@ module Invidious::Routes::Channels
       return error_template(404, translate(locale, "This channel does not exist."))
     end
 
-    selected_tab = env.request.path.split("/")[-1]
-    if {"home", "videos", "shorts", "streams", "playlists", "community", "channels", "about"}.includes? selected_tab
+    selected_tab = env.params.url["tab"]?
+
+    if KNOWN_TABS.includes? selected_tab
       url = "/channel/#{ucid}/#{selected_tab}"
     else
       url = "/channel/#{ucid}"
     end
 
-    env.redirect url
+    url += "?#{invidious_url_params}" if !invidious_url_params.empty?
+
+    return env.redirect url
   end
 
   # Handles redirects for the /profile endpoint
