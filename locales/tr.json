@@ -484,5 +484,7 @@
     "generic_button_rss": "RSS",
     "channel_tab_releases_label": "Yayınlar",
     "playlist_button_add_items": "Video ekle",
-    "channel_tab_podcasts_label": "Podcast'ler"
+    "channel_tab_podcasts_label": "Podcast'ler",
+    "generic_channels_count": "{{count}} kanal",
+    "generic_channels_count_plural": "{{count}} kanal"
 }

@@ -500,5 +500,8 @@
     "channel_tab_releases_label": "Wydania",
     "generic_button_delete": "Usuń",
     "generic_button_save": "Zapisz",
-    "playlist_button_add_items": "Dodaj filmy"
+    "playlist_button_add_items": "Dodaj filmy",
+    "generic_channels_count_0": "{{count}} kanał",
+    "generic_channels_count_1": "{{count}} kanały",
+    "generic_channels_count_2": "{{count}} kanałów"
 }

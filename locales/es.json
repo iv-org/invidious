@@ -484,5 +484,7 @@
     "generic_button_cancel": "Cancelar",
     "generic_button_rss": "RSS",
     "channel_tab_podcasts_label": "Podcasts",
-    "channel_tab_releases_label": "Publicaciones"
+    "channel_tab_releases_label": "Publicaciones",
+    "generic_channels_count": "{{count}} canal",
+    "generic_channels_count_plural": "{{count}} canales"
 }

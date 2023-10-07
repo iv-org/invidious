@@ -476,5 +476,15 @@
     "Redirect homepage to feed: ": "Redirigeix la pàgina d'inici al feed: ",
     "Standard YouTube license": "Llicència estàndard de YouTube",
     "Download is disabled": "Les baixades s'han inhabilitat",
-    "Import YouTube playlist (.csv)": "Importar llista de reproducció de YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "Importar llista de reproducció de YouTube (.csv)",
+    "channel_tab_podcasts_label": "Podcasts",
+    "playlist_button_add_items": "Afegeix vídeos",
+    "generic_button_save": "Desa",
+    "generic_button_cancel": "Cancel·la",
+    "channel_tab_releases_label": "Publicacions",
+    "generic_channels_count": "{{count}} canal",
+    "generic_channels_count_plural": "{{count}} canals",
+    "generic_button_edit": "Edita",
+    "generic_button_rss": "RSS",
+    "generic_button_delete": "Suprimeix"
 }
