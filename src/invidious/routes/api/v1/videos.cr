@@ -101,20 +101,17 @@ module Invidious::Routes::API::V1::Videos
       if caption.name.includes? "auto-generated"
         caption_xml = YT_POOL.client &.get(url).body
 
+        settings_field = {
+          "Kind"     => "captions",
+          "Language" => "#{tlang || caption.language_code}",
+        }
+
         if caption_xml.starts_with?("<?xml")
           webvtt = caption.timedtext_to_vtt(caption_xml, tlang)
         else
           caption_xml = XML.parse(caption_xml)
 
-          webvtt = String.build do |str|
-            str << <<-END_VTT
-            WEBVTT
-            Kind: captions
-            Language: #{tlang || caption.language_code}
-
-
-            END_VTT
-
+          webvtt = WebVTT.build(settings_field) do |webvtt|
             caption_nodes = caption_xml.xpath_nodes("//transcript/text")
             caption_nodes.each_with_index do |node, i|
               start_time = node["start"].to_f.seconds
@@ -127,9 +124,6 @@ module Invidious::Routes::API::V1::Videos
                 end_time = start_time + duration
               end
 
-              start_time = "#{start_time.hours.to_s.rjust(2, '0')}:#{start_time.minutes.to_s.rjust(2, '0')}:#{start_time.seconds.to_s.rjust(2, '0')}.#{start_time.milliseconds.to_s.rjust(3, '0')}"
-              end_time = "#{end_time.hours.to_s.rjust(2, '0')}:#{end_time.minutes.to_s.rjust(2, '0')}:#{end_time.seconds.to_s.rjust(2, '0')}.#{end_time.milliseconds.to_s.rjust(3, '0')}"
-
               text = HTML.unescape(node.content)
               text = text.gsub(/<font color="#[a-fA-F0-9]{6}">/, "")
               text = text.gsub(/<\/font>/, "")
@@ -137,12 +131,7 @@ module Invidious::Routes::API::V1::Videos
                 text = "<v #{md["name"]}>#{md["text"]}</v>"
               end
 
-              str << <<-END_CUE
-              #{start_time} --> #{end_time}
-              #{text}
-
-
-              END_CUE
+              webvtt.cue(start_time, end_time, text)
             end
           end
         end
@@ -215,11 +204,7 @@ module Invidious::Routes::API::V1::Videos
       storyboard = storyboard[0]
     end
 
-    String.build do |str|
-      str << <<-END_VTT
-      WEBVTT
-      END_VTT
-
+    WebVTT.build do |vtt|
       start_time = 0.milliseconds
       end_time = storyboard[:interval].milliseconds
 
@@ -231,12 +216,8 @@ module Invidious::Routes::API::V1::Videos
 
         storyboard[:storyboard_height].times do |j|
           storyboard[:storyboard_width].times do |k|
-            str << <<-END_CUE
-            #{start_time}.000 --> #{end_time}.000
-            #{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width] - 2},#{storyboard[:height]}
-
-
-            END_CUE
+            current_cue_url = "#{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width] - 2},#{storyboard[:height]}"
+            vtt.cue(start_time, end_time, current_cue_url)
 
             start_time += storyboard[:interval].milliseconds
             end_time += storyboard[:interval].milliseconds
