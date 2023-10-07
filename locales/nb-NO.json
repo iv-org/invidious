@@ -484,5 +484,7 @@
     "generic_button_save": "Lagre",
     "generic_button_cancel": "Avbryt",
     "generic_button_rss": "RSS",
-    "playlist_button_add_items": "Legg til videoer"
+    "playlist_button_add_items": "Legg til videoer",
+    "generic_channels_count": "{{count}} kanal",
+    "generic_channels_count_plural": "{{count}} kanaler"
 }
