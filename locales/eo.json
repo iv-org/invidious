@@ -484,5 +484,7 @@
     "channel_tab_podcasts_label": "Podkastoj",
     "generic_button_cancel": "Nuligi",
     "channel_tab_releases_label": "Eldonoj",
-    "generic_button_save": "Konservi"
+    "generic_button_save": "Konservi",
+    "generic_channels_count": "{{count}} kanalo",
+    "generic_channels_count_plural": "{{count}} kanaloj"
 }
