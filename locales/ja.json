@@ -468,5 +468,6 @@
     "generic_button_edit": "編集",
     "generic_button_save": "保存",
     "generic_button_rss": "RSS",
-    "playlist_button_add_items": "動画を追加"
+    "playlist_button_add_items": "動画を追加",
+    "generic_channels_count_0": "{{count}}個のチャンネル"
 }
