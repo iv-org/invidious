@@ -6,7 +6,7 @@ require "json"
 #
 # TODO: "compactRadioRenderer" (Mix) and
 # TODO: Use a proper struct/class instead of a hacky JSON object
-def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
+def parse_related_video(related : JSON::Any, published) : Hash(String, JSON::Any)?
   return nil if !related["videoId"]?
 
   # The compact renderer has video length in seconds, where the end
@@ -47,6 +47,48 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     "view_count"       => JSON::Any.new(view_count || "0"),
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
     "author_verified"  => JSON::Any.new(author_verified),
+    "published"        => published,
+  }
+end
+
+def fetch_published(video_id : String, proxy_region : String? = nil)
+  client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
+  player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
+  playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
+  if playability_status != "OK"
+    subreason = player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "subreason")
+    reason = subreason.try &.[]?("simpleText").try &.as_s
+    reason ||= subreason.try &.[]("runs").as_a.map(&.[]("text")).join("")
+    reason ||= player_response.dig("playabilityStatus", "reason").as_s
+
+    # Stop here if video is not a scheduled livestream or
+    # for LOGIN_REQUIRED when videoDetails element is not found because retrying won't help
+    if !{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status) ||
+       playability_status == "LOGIN_REQUIRED" && !player_response.dig?("videoDetails")
+      return {
+        "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
+        "reason"  => JSON::Any.new(reason),
+      }
+    end
+  elsif video_id != player_response.dig("videoDetails", "videoId")
+    # YouTube may return a different video player response than expected.
+    # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
+    # Line to be reverted if one day we solve the video not available issue.
+    return {
+      "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
+      "reason"  => JSON::Any.new("Can't load the video on this Invidious instance. YouTube is currently trying to block Invidious instances. <a href=\"https://github.com/iv-org/invidious/issues/3822\">Click here for more info about the issue.</a>"),
+    }
+  else
+    reason = nil
+  end
+  microformat1 = player_response.dig?("microformat", "playerMicroformatRenderer")
+  if !microformat1.nil?
+    published1 = microformat1["publishDate"]
+  else
+    published1 = JSON::Any.new("")
+  end
+  return {
+    "published" => published1,
   }
 end
 
@@ -92,7 +134,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
     player_response = player_response.merge(next_response)
   end
 
-  params = parse_video_info(video_id, player_response)
+  params = parse_video_info(video_id, player_response, proxy_region)
   params["reason"] = JSON::Any.new(reason) if reason
 
   new_player_response = nil
@@ -157,7 +199,7 @@ def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConf
   end
 end
 
-def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any)) : Hash(String, JSON::Any)
+def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any), proxy_region : String? = nil) : Hash(String, JSON::Any)
   # Top level elements
 
   main_results = player_response.dig?("contents", "twoColumnWatchNextResults")
@@ -235,7 +277,8 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .dig?("secondaryResults", "secondaryResults", "results")
   secondary_results.try &.as_a.each do |element|
     if item = element["compactVideoRenderer"]?
-      related_video = parse_related_video(item)
+      published1 = fetch_published(item["videoId"].to_s, proxy_region)["published"]
+      related_video = parse_related_video(item, published1)
       related << JSON::Any.new(related_video) if related_video
     end
   end
@@ -250,7 +293,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
     player_overlays.try &.as_a.each do |element|
       if item = element["endScreenVideoRenderer"]?
-        related_video = parse_related_video(item)
+        related_video = parse_related_video(item, JSON::Any.new(""))
         related << JSON::Any.new(related_video) if related_video
       end
     end
