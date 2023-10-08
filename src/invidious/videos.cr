@@ -178,7 +178,7 @@ struct Video
 
   def storyboards
     container = info.dig?("storyboards") || JSON::Any.new("{}")
-    return IV::Videos::Storyboard.from_yt_json(container)
+    return IV::Videos::Storyboard.from_yt_json(container, self.length_seconds)
   end
 
   def paid

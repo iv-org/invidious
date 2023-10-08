@@ -30,7 +30,7 @@ module Invidious::Videos
     end
 
     # Parse the JSON structure from Youtube
-    def self.from_yt_json(container : JSON::Any) : Array(Storyboard)
+    def self.from_yt_json(container : JSON::Any, length_seconds : Int32) : Array(Storyboard)
       # Livestream storyboards are a bit different
       # TODO: document exactly how
       if storyboard = container.dig?("playerLiveStoryboardSpecRenderer", "spec").try &.as_s
@@ -70,8 +70,9 @@ module Invidious::Videos
         # columns/rows: maximum amount of thumbnails that can be stuffed in a
         #   single image, horizontally and vertically.
         # interval: interval between two thumbnails, in milliseconds
+        # name: storyboard filename. Usually "M$M" or "default"
         # sigh: URL cryptographic signature
-        width, height, count, columns, rows, interval, _, sigh = sb.split("#")
+        width, height, count, columns, rows, interval, name, sigh = sb.split("#")
 
         width = width.to_i
         height = height.to_i
@@ -85,7 +86,7 @@ module Invidious::Videos
         url.query = params.to_s
 
         # Replace the template parts with what we have
-        url.path = url.path.sub("$L", i).sub("$N", "M$M")
+        url.path = url.path.sub("$L", i).sub("$N", name)
 
         # This value represents the maximum amount of thumbnails that can fit
         # in a single image. The last image (or the only one for short videos)
@@ -95,6 +96,12 @@ module Invidious::Videos
         # This value represents the total amount of storyboards required to
         # hold all of the thumbnails. It can't be less than 1.
         images_count = (count / thumbnails_per_image).ceil.to_i
+
+        # Compute the interval when needed (in general, that's only required
+        # for the first "default" storyboard).
+        if interval == 0
+          interval = ((length_seconds / count) * 1_000).to_i
+        end
 
         Storyboard.new(
           url: url,
