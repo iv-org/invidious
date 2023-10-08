@@ -8,29 +8,30 @@
     </div>
 <% end %>
 
-<div class="pure-g h-box">
-    <div class="pure-u-2-3">
+<div class="pure-g h-box flexible title">
+    <div class="pure-u-1-2 flex-left flexible">
         <div class="channel-profile">
             <img src="/ggpht<%= channel_profile_pic %>" alt="" />
             <span><%= author %></span><% if !channel.verified.nil? && channel.verified %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %>
         </div>
     </div>
-    <div class="pure-u-1-3">
-        <h3 style="text-align:right">
-            <a href="/feed/channel/<%= ucid %>"><i class="icon ion-logo-rss"></i></a>
-        </h3>
+
+    <div class="pure-u-1-2 flex-right flexible button-container">
+        <div class="pure-u">
+            <% sub_count_text = number_to_short_text(channel.sub_count) %>
+            <%= rendered "components/subscribe_widget" %>
+        </div>
+
+        <div class="pure-u">
+            <a class="pure-button pure-button-secondary" dir="auto" href="/feed/channel/<%= ucid %>">
+                <i class="icon ion-logo-rss"></i>&nbsp;<%= translate(locale, "generic_button_rss") %>
+            </a>
+        </div>
     </div>
 </div>
 
 <div class="h-box">
-    <div id="descriptionWrapper">
-        <p><span style="white-space:pre-wrap"><%= channel.description_html %></span></p>
-    </div>
-</div>
-
-<div class="h-box">
-    <% sub_count_text = number_to_short_text(channel.sub_count) %>
-    <%= rendered "components/subscribe_widget" %>
+    <div id="descriptionWrapper"><p><span style="white-space:pre-wrap"><%= channel.description_html %></span></p></div>
 </div>
 
 <div class="pure-g h-box">

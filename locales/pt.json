@@ -19,7 +19,7 @@
     "search_filters_features_option_hdr": "HDR",
     "search_filters_features_option_location": "Localização",
     "search_filters_features_option_four_k": "4K",
-    "search_filters_features_option_live": "Em direto",
+    "search_filters_features_option_live": "Ao Vivo",
     "search_filters_features_option_three_d": "3D",
     "search_filters_features_option_c_commons": "Creative Commons",
     "search_filters_features_option_subtitles": "Legendas",
@@ -365,7 +365,7 @@
     "Subscribe": "Subscrever",
     "Unsubscribe": "Anular subscrição",
     "Shared `x` ago": "Partilhado `x` atrás",
-    "LIVE": "Em direto",
+    "LIVE": "AO VIVO",
     "search_filters_duration_option_short": "Curto (< 4 minutos)",
     "search_filters_duration_option_long": "Longo (> 20 minutos)",
     "footer_source_code": "Código-fonte",
@@ -476,5 +476,13 @@
     "Channel Sponsor": "Patrocinador do canal",
     "Standard YouTube license": "Licença padrão do YouTube",
     "Download is disabled": "A descarga está desativada",
-    "Import YouTube playlist (.csv)": "Importar lista de reprodução do YouTube (.csv)"
+    "Import YouTube playlist (.csv)": "Importar lista de reprodução do YouTube (.csv)",
+    "generic_button_delete": "Deletar",
+    "generic_button_edit": "Editar",
+    "generic_button_rss": "RSS",
+    "channel_tab_podcasts_label": "Podcasts",
+    "channel_tab_releases_label": "Lançamentos",
+    "generic_button_save": "Salvar",
+    "generic_button_cancel": "Cancelar",
+    "playlist_button_add_items": "Adicionar vídeos"
 }

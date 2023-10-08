@@ -163,12 +163,19 @@ module Invidious::Routes::Playlists
     end
 
     begin
-      videos = get_playlist_videos(playlist, offset: (page - 1) * 100)
+      items = get_playlist_videos(playlist, offset: (page - 1) * 100)
     rescue ex
-      videos = [] of PlaylistVideo
+      items = [] of PlaylistVideo
     end
 
     csrf_token = generate_response(sid, {":edit_playlist"}, HMAC_KEY)
+
+    # Pagination
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/playlist?list=#{playlist.id}",
+      current_page: page,
+      show_next: (items.size == 100)
+    )
 
     templated "edit_playlist"
   end
@@ -247,10 +254,18 @@ module Invidious::Routes::Playlists
 
     begin
       query = Invidious::Search::Query.new(env.params.query, :playlist, region)
-      videos = query.process.select(SearchVideo).map(&.as(SearchVideo))
+      items = query.process.select(SearchVideo).map(&.as(SearchVideo))
     rescue ex
-      videos = [] of SearchVideo
+      items = [] of SearchVideo
     end
+
+    # Pagination
+    query_encoded = URI.encode_www_form(query.try &.text || "", space_to_plus: true)
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/add_playlist_items?list=#{playlist.id}&q=#{query_encoded}",
+      current_page: page,
+      show_next: (items.size >= 20)
+    )
 
     env.set "add_playlist_items", plid
     templated "add_playlist_items"
@@ -406,8 +421,13 @@ module Invidious::Routes::Playlists
       return error_template(500, ex)
     end
 
-    page_count = (playlist.video_count / 200).to_i
-    page_count += 1 if (playlist.video_count % 200) > 0
+    if playlist.is_a? InvidiousPlaylist
+      page_count = (playlist.video_count / 100).to_i
+      page_count += 1 if (playlist.video_count % 100) > 0
+    else
+      page_count = (playlist.video_count / 200).to_i
+      page_count += 1 if (playlist.video_count % 200) > 0
+    end
 
     if page > page_count
       return env.redirect "/playlist?list=#{plid}&page=#{page_count}"
@@ -418,7 +438,11 @@ module Invidious::Routes::Playlists
     end
 
     begin
-      videos = get_playlist_videos(playlist, offset: (page - 1) * 200)
+      if playlist.is_a? InvidiousPlaylist
+        items = get_playlist_videos(playlist, offset: (page - 1) * 100)
+      else
+        items = get_playlist_videos(playlist, offset: (page - 1) * 200)
+      end
     rescue ex
       return error_template(500, "Error encountered while retrieving playlist videos.<br>#{ex.message}")
     end
@@ -426,6 +450,13 @@ module Invidious::Routes::Playlists
     if playlist.author == user.try &.email
       env.set "remove_playlist_items", plid
     end
+
+    # Pagination
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/playlist?list=#{playlist.id}",
+      current_page: page,
+      show_next: (page_count != 1 && page < page_count)
+    )
 
     templated "playlist"
   end

@@ -3,7 +3,7 @@ version: 0.20.1
 
 authors:
   - Omar Roth <omarroth@protonmail.com>
-  - Invidous team
+  - Invidious team
 
 targets:
   invidious:
@@ -25,9 +25,6 @@ dependencies:
   protodec:
     github: iv-org/protodec
     version: ~> 0.1.5
-  lsquic:
-    github: iv-org/lsquic.cr
-    version: ~> 2.18.1-2
   athena-negotiation:
     github: athena-framework/negotiation
     version: ~> 0.1.1
@@ -38,7 +35,7 @@ development_dependencies:
     version: ~> 0.10.4
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 0.14.3
+    version: ~> 1.5.0
 
 crystal: ">= 1.0.0, < 2.0.0"
 

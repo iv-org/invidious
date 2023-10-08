@@ -1,0 +1,48 @@
+<% content_for "header" do %>
+<title>Invidious</title>
+<% end %>
+
+<div>
+    <div id="post" class="comments post-comments">
+        <%= IV::Frontend::Comments.template_youtube(post_response.not_nil!, locale, thin_mode) %>
+    </div>
+
+    <% if nojs %>
+        <hr>
+    <% end %>
+    <br />
+
+    <div id="comments" class="comments post-comments">
+        <% if nojs %>
+            <%= comment_html %>
+        <% else %>
+            <noscript>
+                <a href="/post/<%= id %>?ucid=<%= ucid %>&nojs=1">
+                    <%= translate(locale, "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.") %>
+                </a>
+            </noscript>
+        <% end %>
+    </div>
+</div>
+
+<script id="video_data" type="application/json">
+<%=
+{
+    "id" => id,
+    "youtube_comments_text" => HTML.escape(translate(locale, "View YouTube comments")),
+    "reddit_comments_text" => "",
+    "reddit_permalink_text" => "",
+    "comments_text" => HTML.escape(translate(locale, "View `x` comments", "{commentCount}")),
+    "hide_replies_text" => HTML.escape(translate(locale, "Hide replies")),
+    "show_replies_text" => HTML.escape(translate(locale, "Show replies")),
+    "params" => {
+        "comments": ["youtube"]
+    },
+    "preferences" => prefs,
+    "base_url" => "/api/v1/post/#{URI.encode_www_form(id)}/comments",
+    "ucid" => ucid
+}.to_pretty_json
+%>
+</script>
+<script src="/js/comments.js?v=<%= ASSET_COMMIT %>"></script>
+<script src="/js/post.js?v=<%= ASSET_COMMIT %>"></script>

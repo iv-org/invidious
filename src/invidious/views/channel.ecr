@@ -9,13 +9,20 @@
     when .streams?   then "/channel/#{ucid}/streams"
     when .playlists? then "/channel/#{ucid}/playlists"
     when .channels?  then "/channel/#{ucid}/channels"
+    when .podcasts?  then "/channel/#{ucid}/podcasts"
+    when .releases?  then "/channel/#{ucid}/releases"
     else
       "/channel/#{ucid}"
     end
 
   youtube_url = "https://www.youtube.com#{relative_url}"
   redirect_url = Invidious::Frontend::Misc.redirect_url(env)
--%>
+
+  page_nav_html = IV::Frontend::Pagination.nav_ctoken(locale,
+    base_url: relative_url,
+    ctoken: next_continuation
+  )
+%>
 
 <% content_for "header" do %>
 <%- if selected_tab.videos? -%>
@@ -43,21 +50,5 @@
     <hr>
 </div>
 
-<div class="pure-g">
-<% items.each do |item| %>
-    <%= rendered "components/item" %>
-<% end %>
-</div>
 
-<script src="/js/watched_indicator.js"></script>
-
-<div class="pure-g h-box">
-    <div class="pure-u-1 pure-u-md-4-5"></div>
-    <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
-        <% if next_continuation %>
-            <a href="<%= relative_url %>?continuation=<%= next_continuation %><% if sort_options.any? sort_by %>&sort_by=<%= sort_by %><% end %>">
-                <%= translate(locale, "Next page") %>
-            </a>
-        <% end %>
-    </div>
-</div>
+<%= rendered "components/items_paginated" %>

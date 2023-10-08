@@ -133,7 +133,7 @@ struct Invidious::User
             next if !video_id
 
             begin
-              video = get_video(video_id)
+              video = get_video(video_id, false)
             rescue ex
               next
             end

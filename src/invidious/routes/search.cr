@@ -52,24 +52,28 @@ module Invidious::Routes::Search
       user = env.get? "user"
 
       begin
-        videos = query.process
+        items = query.process
       rescue ex : ChannelSearchException
         return error_template(404, "Unable to find channel with id of '#{HTML.escape(ex.channel)}'. Are you sure that's an actual channel id? It should look like 'UC4QobU6STFB0P71PMvOGN5A'.")
       rescue ex
         return error_template(500, ex)
       end
 
-      params = query.to_http_params
-      url_prev_page = "/search?#{params}&page=#{query.page - 1}"
-      url_next_page = "/search?#{params}&page=#{query.page + 1}"
-
       redirect_url = Invidious::Frontend::Misc.redirect_url(env)
+
+      # Pagination
+      page_nav_html = Frontend::Pagination.nav_numeric(locale,
+        base_url: "/search?#{query.to_http_params}",
+        current_page: query.page,
+        show_next: (items.size >= 20)
+      )
 
       if query.type == Invidious::Search::Query::Type::Channel
         env.set "search", "channel:#{query.channel} #{query.text}"
       else
         env.set "search", query.text
       end
+
       templated "search"
     end
   end
@@ -91,16 +95,18 @@ module Invidious::Routes::Search
     end
 
     begin
-      videos = Invidious::Hashtag.fetch(hashtag, page)
+      items = Invidious::Hashtag.fetch(hashtag, page)
     rescue ex
       return error_template(500, ex)
     end
 
-    params = env.params.query.empty? ? "" : "&#{env.params.query}"
-
+    # Pagination
     hashtag_encoded = URI.encode_www_form(hashtag, space_to_plus: false)
-    url_prev_page = "/hashtag/#{hashtag_encoded}?page=#{page - 1}#{params}"
-    url_next_page = "/hashtag/#{hashtag_encoded}?page=#{page + 1}#{params}"
+    page_nav_html = Frontend::Pagination.nav_numeric(locale,
+      base_url: "/hashtag/#{hashtag_encoded}",
+      current_page: page,
+      show_next: (items.size >= 60)
+    )
 
     templated "hashtag"
   end

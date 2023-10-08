@@ -24,7 +24,7 @@ struct Video
   property updated : Time
 
   @[DB::Field(ignore: true)]
-  @captions = [] of Invidious::Videos::Caption
+  @captions = [] of Invidious::Videos::Captions::Metadata
 
   @[DB::Field(ignore: true)]
   property adaptive_fmts : Array(Hash(String, JSON::Any))?
@@ -215,9 +215,9 @@ struct Video
     keywords.includes? "YouTube Red"
   end
 
-  def captions : Array(Invidious::Videos::Caption)
+  def captions : Array(Invidious::Videos::Captions::Metadata)
     if @captions.empty? && @info.has_key?("captions")
-      @captions = Invidious::Videos::Caption.from_yt_json(info["captions"])
+      @captions = Invidious::Videos::Captions::Metadata.from_yt_json(info["captions"])
     end
 
     return @captions

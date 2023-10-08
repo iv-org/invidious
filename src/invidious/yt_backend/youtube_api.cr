@@ -558,6 +558,30 @@ module YoutubeAPI
   end
 
   ####################################################################
+  # get_transcript(params, client_config?)
+  #
+  # Requests the youtubei/v1/get_transcript endpoint with the required headers
+  # and POST data in order to get a JSON reply.
+  #
+  # The requested data is a specially encoded protobuf string that denotes the specific language requested.
+  #
+  # An optional ClientConfig parameter can be passed, too (see
+  # `struct ClientConfig` above for more details).
+  #
+
+  def get_transcript(
+    params : String,
+    client_config : ClientConfig | Nil = nil
+  ) : Hash(String, JSON::Any)
+    data = {
+      "context" => self.make_context(client_config),
+      "params"  => params,
+    }
+
+    return self._post_json("/youtubei/v1/get_transcript", data, client_config)
+  end
+
+  ####################################################################
   # _post_json(endpoint, data, client_config?)
   #
   # Internal function that does the actual request to youtube servers
@@ -595,17 +619,9 @@ module YoutubeAPI
     LOGGER.trace("YoutubeAPI: POST data: #{data}")
 
     # Send the POST request
-    if {{ !flag?(:disable_quic) }} && CONFIG.use_quic
-      # Using QUIC client
-      body = YT_POOL.client(client_config.proxy_region,
-        &.post(url, headers: headers, body: data.to_json)
-      ).body
-    else
-      # Using HTTP client
-      body = YT_POOL.client(client_config.proxy_region) do |client|
-        client.post(url, headers: headers, body: data.to_json) do |response|
-          self._decompress(response.body_io, response.headers["Content-Encoding"]?)
-        end
+    body = YT_POOL.client(client_config.proxy_region) do |client|
+      client.post(url, headers: headers, body: data.to_json) do |response|
+        self._decompress(response.body_io, response.headers["Content-Encoding"]?)
       end
     end
 

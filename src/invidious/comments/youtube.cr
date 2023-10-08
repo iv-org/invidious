@@ -13,6 +13,51 @@ module Invidious::Comments
 
     client_config = YoutubeAPI::ClientConfig.new(region: region)
     response = YoutubeAPI.next(continuation: ctoken, client_config: client_config)
+    return parse_youtube(id, response, format, locale, thin_mode, sort_by)
+  end
+
+  def fetch_community_post_comments(ucid, post_id)
+    object = {
+      "2:string"    => "community",
+      "25:embedded" => {
+        "22:string" => post_id,
+      },
+      "45:embedded" => {
+        "2:varint" => 1_i64,
+        "3:varint" => 1_i64,
+      },
+      "53:embedded" => {
+        "4:embedded" => {
+          "6:varint"  => 0_i64,
+          "27:varint" => 1_i64,
+          "29:string" => post_id,
+          "30:string" => ucid,
+        },
+        "8:string" => "comments-section",
+      },
+    }
+
+    object_parsed = object.try { |i| Protodec::Any.cast_json(i) }
+      .try { |i| Protodec::Any.from_json(i) }
+      .try { |i| Base64.urlsafe_encode(i) }
+
+    object2 = {
+      "80226972:embedded" => {
+        "2:string" => ucid,
+        "3:string" => object_parsed,
+      },
+    }
+
+    continuation = object2.try { |i| Protodec::Any.cast_json(i) }
+      .try { |i| Protodec::Any.from_json(i) }
+      .try { |i| Base64.urlsafe_encode(i) }
+      .try { |i| URI.encode_www_form(i) }
+
+    initial_data = YoutubeAPI.browse(continuation: continuation)
+    return initial_data
+  end
+
+  def parse_youtube(id, response, format, locale, thin_mode, sort_by = "top", isPost = false)
     contents = nil
 
     if on_response_received_endpoints = response["onResponseReceivedEndpoints"]?
@@ -68,7 +113,11 @@ module Invidious::Comments
           json.field "commentCount", comment_count
         end
 
-        json.field "videoId", id
+        if isPost
+          json.field "postId", id
+        else
+          json.field "videoId", id
+        end
 
         json.field "comments" do
           json.array do

@@ -126,8 +126,9 @@ class Config
   property host_binding : String = "0.0.0.0"
   # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property pool_size : Int32 = 100
-  # Use quic transport for youtube api
-  property use_quic : Bool = false
+
+  # Use Innertube's transcripts API instead of timedtext for closed captions
+  property use_innertube_for_captions : Bool = false
 
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]

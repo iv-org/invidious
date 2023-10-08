@@ -89,6 +89,7 @@ struct Playlist
   property views : Int64
   property updated : Time
   property thumbnail : String?
+  property subtitle : String?
 
   def to_json(offset, json : JSON::Builder, video_id : String? = nil)
     json.object do
@@ -100,6 +101,7 @@ struct Playlist
       json.field "author", self.author
       json.field "authorId", self.ucid
       json.field "authorUrl", "/channel/#{self.ucid}"
+      json.field "subtitle", self.subtitle
 
       json.field "authorThumbnails" do
         json.array do
@@ -356,6 +358,8 @@ def fetch_playlist(plid : String)
   updated = Time.utc
   video_count = 0
 
+  subtitle = extract_text(initial_data.dig?("header", "playlistHeaderRenderer", "subtitle"))
+
   playlist_info["stats"]?.try &.as_a.each do |stat|
     text = stat["runs"]?.try &.as_a.map(&.["text"].as_s).join("") || stat["simpleText"]?.try &.as_s
     next if !text
@@ -397,6 +401,7 @@ def fetch_playlist(plid : String)
     views:            views,
     updated:          updated,
     thumbnail:        thumbnail,
+    subtitle:         subtitle,
   })
 end
 

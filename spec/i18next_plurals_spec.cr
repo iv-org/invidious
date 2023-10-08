@@ -15,12 +15,15 @@ FORM_TESTS = {
   "ar"    => I18next::Plurals::PluralForms::Special_Arabic,
   "be"    => I18next::Plurals::PluralForms::Dual_Slavic,
   "cy"    => I18next::Plurals::PluralForms::Special_Welsh,
+  "fr"    => I18next::Plurals::PluralForms::Special_French_Portuguese,
   "en"    => I18next::Plurals::PluralForms::Single_not_one,
-  "fr"    => I18next::Plurals::PluralForms::Single_gt_one,
+  "es"    => I18next::Plurals::PluralForms::Single_not_one,
   "ga"    => I18next::Plurals::PluralForms::Special_Irish,
   "gd"    => I18next::Plurals::PluralForms::Special_Scottish_Gaelic,
   "he"    => I18next::Plurals::PluralForms::Special_Hebrew,
+  "hr"    => I18next::Plurals::PluralForms::Special_Hungarian_Serbian,
   "is"    => I18next::Plurals::PluralForms::Special_Icelandic,
+  "it"    => I18next::Plurals::PluralForms::Special_Spanish_Italian,
   "jv"    => I18next::Plurals::PluralForms::Special_Javanese,
   "kw"    => I18next::Plurals::PluralForms::Special_Cornish,
   "lt"    => I18next::Plurals::PluralForms::Special_Lithuanian,
@@ -31,12 +34,12 @@ FORM_TESTS = {
   "or"    => I18next::Plurals::PluralForms::Special_Odia,
   "pl"    => I18next::Plurals::PluralForms::Special_Polish_Kashubian,
   "pt"    => I18next::Plurals::PluralForms::Single_gt_one,
-  "pt-PT" => I18next::Plurals::PluralForms::Single_not_one,
-  "pt-BR" => I18next::Plurals::PluralForms::Single_gt_one,
+  "pt-BR" => I18next::Plurals::PluralForms::Special_French_Portuguese,
   "ro"    => I18next::Plurals::PluralForms::Special_Romanian,
-  "su"    => I18next::Plurals::PluralForms::None,
   "sk"    => I18next::Plurals::PluralForms::Special_Czech_Slovak,
   "sl"    => I18next::Plurals::PluralForms::Special_Slovenian,
+  "su"    => I18next::Plurals::PluralForms::None,
+  "sr"    => I18next::Plurals::PluralForms::Special_Hungarian_Serbian,
 }
 
 SUFFIX_TESTS = {
@@ -73,10 +76,18 @@ SUFFIX_TESTS = {
     {num: 1, suffix: ""},
     {num: 10, suffix: "_plural"},
   ],
-  "fr" => [
-    {num: 0, suffix: ""},
+  "es" => [
+    {num: 0, suffix: "_plural"},
     {num: 1, suffix: ""},
     {num: 10, suffix: "_plural"},
+    {num: 6_000_000, suffix: "_plural"},
+  ],
+  "fr" => [
+    {num: 0, suffix: "_0"},
+    {num: 1, suffix: "_0"},
+    {num: 10, suffix: "_2"},
+    {num: 4_000_000, suffix: "_1"},
+    {num: 6_260_000, suffix: "_2"},
   ],
   "ga" => [
     {num: 1, suffix: "_0"},
@@ -155,30 +166,23 @@ SUFFIX_TESTS = {
     {num: 1, suffix: "_0"},
     {num: 5, suffix: "_2"},
   ],
-  "pt" => [
-    {num: 0, suffix: ""},
-    {num: 1, suffix: ""},
-    {num: 10, suffix: "_plural"},
+  "pt-BR" => [
+    {num: 0, suffix: "_0"},
+    {num: 1, suffix: "_0"},
+    {num: 10, suffix: "_2"},
+    {num: 42, suffix: "_2"},
+    {num: 9_000_000, suffix: "_1"},
   ],
   "pt-PT" => [
-    {num: 0, suffix: "_plural"},
-    {num: 1, suffix: ""},
-    {num: 10, suffix: "_plural"},
-  ],
-  "pt-BR" => [
     {num: 0, suffix: ""},
     {num: 1, suffix: ""},
     {num: 10, suffix: "_plural"},
+    {num: 9_000_000, suffix: "_plural"},
   ],
   "ro" => [
     {num: 0, suffix: "_1"},
     {num: 1, suffix: "_0"},
     {num: 20, suffix: "_2"},
-  ],
-  "su" => [
-    {num: 0, suffix: "_0"},
-    {num: 1, suffix: "_0"},
-    {num: 10, suffix: "_0"},
   ],
   "sk" => [
     {num: 0, suffix: "_2"},
@@ -190,6 +194,18 @@ SUFFIX_TESTS = {
     {num: 1, suffix: "_1"},
     {num: 2, suffix: "_2"},
     {num: 3, suffix: "_3"},
+  ],
+  "su" => [
+    {num: 0, suffix: "_0"},
+    {num: 1, suffix: "_0"},
+    {num: 10, suffix: "_0"},
+  ],
+  "sr" => [
+    {num: 1, suffix: "_0"},
+    {num: 51, suffix: "_0"},
+    {num: 32, suffix: "_1"},
+    {num: 100, suffix: "_2"},
+    {num: 100_000, suffix: "_2"},
   ],
 }
 

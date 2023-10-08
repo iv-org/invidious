@@ -2,14 +2,11 @@ FROM crystallang/crystal:1.4.1-alpine AS builder
 RUN apk add --no-cache sqlite-static yaml-static
 
 ARG release
-ARG disable_quic
 
 WORKDIR /invidious
 COPY ./shard.yml ./shard.yml
 COPY ./shard.lock ./shard.lock
 RUN shards install --production
-
-COPY --from=quay.io/invidious/lsquic-compiled /root/liblsquic.a ./lib/lsquic/src/lsquic/ext/liblsquic.a
 
 COPY ./src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
@@ -24,13 +21,7 @@ COPY ./videojs-dependencies.yml ./videojs-dependencies.yml
 RUN crystal spec --warnings all \
     --link-flags "-lxml2 -llzma"
 
-RUN if [[ "${release}" == 1 && "${disable_quic}" == 1 ]] ; then \
-        crystal build ./src/invidious.cr \
-        --release \
-        -Ddisable_quic \
-        --static --warnings all \
-        --link-flags "-lxml2 -llzma"; \
-    elif [[ "${release}" == 1 ]] ; then \
+RUN if [[ "${release}" == 1 ]] ; then \
         crystal build ./src/invidious.cr \
         --release \
         --static --warnings all \

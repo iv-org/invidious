@@ -1,49 +1,57 @@
 private IMAGE_QUALITIES = {320, 560, 640, 1280, 2000}
 
 # TODO: Add "sort_by"
-def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
-  response = YT_POOL.client &.get("/channel/#{ucid}/community?gl=US&hl=en")
-  if response.status_code != 200
-    response = YT_POOL.client &.get("/user/#{ucid}/community?gl=US&hl=en")
-  end
+def fetch_channel_community(ucid, cursor, locale, format, thin_mode)
+  if cursor.nil?
+    # Egljb21tdW5pdHk%3D is the protobuf object to load "community"
+    initial_data = YoutubeAPI.browse(ucid, params: "Egljb21tdW5pdHk%3D")
 
-  if response.status_code != 200
-    raise NotFoundException.new("This channel does not exist.")
-  end
-
-  ucid = response.body.match(/https:\/\/www.youtube.com\/channel\/(?<ucid>UC[a-zA-Z0-9_-]{22})/).not_nil!["ucid"]
-
-  if !continuation || continuation.empty?
-    initial_data = extract_initial_data(response.body)
-    body = extract_selected_tab(initial_data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"])["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]
-
-    if !body
-      raise InfoException.new("Could not extract community tab.")
+    items = [] of JSON::Any
+    extract_items(initial_data) do |item|
+      items << item
     end
   else
-    continuation = produce_channel_community_continuation(ucid, continuation)
+    continuation = produce_channel_community_continuation(ucid, cursor)
+    initial_data = YoutubeAPI.browse(continuation: continuation)
 
-    headers = HTTP::Headers.new
-    headers["cookie"] = response.cookies.add_request_headers(headers)["cookie"]
+    container = initial_data.dig?("continuationContents", "itemSectionContinuation", "contents")
 
-    session_token = response.body.match(/"XSRF_TOKEN":"(?<session_token>[^"]+)"/).try &.["session_token"]? || ""
-    post_req = {
-      session_token: session_token,
-    }
+    raise InfoException.new("Can't extract community data") if container.nil?
 
-    body = YoutubeAPI.browse(continuation)
-
-    body = body.dig?("continuationContents", "itemSectionContinuation") ||
-           body.dig?("continuationContents", "backstageCommentsContinuation")
-
-    if !body
-      raise InfoException.new("Could not extract continuation.")
-    end
+    items = container.as_a
   end
 
-  posts = body["contents"].as_a
+  return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode)
+end
 
-  if message = posts[0]["messageRenderer"]?
+def fetch_channel_community_post(ucid, post_id, locale, format, thin_mode)
+  object = {
+    "2:string"    => "community",
+    "25:embedded" => {
+      "22:string" => post_id.to_s,
+    },
+    "45:embedded" => {
+      "2:varint" => 1_i64,
+      "3:varint" => 1_i64,
+    },
+  }
+  params = object.try { |i| Protodec::Any.cast_json(i) }
+    .try { |i| Protodec::Any.from_json(i) }
+    .try { |i| Base64.urlsafe_encode(i) }
+    .try { |i| URI.encode_www_form(i) }
+
+  initial_data = YoutubeAPI.browse(ucid, params: params)
+
+  items = [] of JSON::Any
+  extract_items(initial_data) do |item|
+    items << item
+  end
+
+  return extract_channel_community(items, ucid: ucid, locale: locale, format: format, thin_mode: thin_mode, is_single_post: true)
+end
+
+def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_single_post : Bool = false)
+  if message = items[0]["messageRenderer"]?
     error_message = (message["text"]["simpleText"]? ||
                      message["text"]["runs"]?.try &.[0]?.try &.["text"]?)
       .try &.as_s || ""
@@ -57,9 +65,12 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
   response = JSON.build do |json|
     json.object do
       json.field "authorId", ucid
+      if is_single_post
+        json.field "singlePost", true
+      end
       json.field "comments" do
         json.array do
-          posts.each do |post|
+          items.each do |post|
             comments = post["backstagePostThreadRenderer"]?.try &.["comments"]? ||
                        post["backstageCommentsContinuation"]?
 
@@ -216,6 +227,22 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
                     parse_item(attachment)
                       .as(SearchPlaylist)
                       .to_json(locale, json)
+                  when .has_key?("quizRenderer")
+                    json.object do
+                      attachment = attachment["quizRenderer"]
+                      json.field "type", "quiz"
+                      json.field "totalVotes", short_text_to_number(attachment["totalVotes"]["simpleText"].as_s.split(" ")[0])
+                      json.field "choices" do
+                        json.array do
+                          attachment["choices"].as_a.each do |choice|
+                            json.object do
+                              json.field "text", choice.dig("text", "runs", 0, "text").as_s
+                              json.field "isCorrect", choice["isCorrect"].as_bool
+                            end
+                          end
+                        end
+                      end
+                    end
                   else
                     json.object do
                       json.field "type", "unknown"
@@ -242,8 +269,10 @@ def fetch_channel_community(ucid, continuation, locale, format, thin_mode)
           end
         end
       end
-      if cont = posts.dig?(-1, "continuationItemRenderer", "continuationEndpoint", "continuationCommand", "token")
-        json.field "continuation", extract_channel_community_cursor(cont.as_s)
+      if !is_single_post
+        if cont = items.dig?(-1, "continuationItemRenderer", "continuationEndpoint", "continuationCommand", "token")
+          json.field "continuation", extract_channel_community_cursor(cont.as_s)
+        end
       end
     end
   end

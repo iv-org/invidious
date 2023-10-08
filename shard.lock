@@ -1,5 +1,9 @@
 version: 2.0
 shards:
+  ameba:
+    git: https://github.com/crystal-ameba/ameba.git
+    version: 1.5.0
+
   athena-negotiation:
     git: https://github.com/athena-framework/negotiation.git
     version: 0.1.1
@@ -24,10 +28,6 @@ shards:
     git: https://github.com/jeromegn/kilt.git
     version: 0.6.1
 
-  lsquic:
-    git: https://github.com/iv-org/lsquic.cr.git
-    version: 2.18.1-2
-
   pg:
     git: https://github.com/will/crystal-pg.git
     version: 0.24.0
@@ -48,6 +48,3 @@ shards:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
     version: 0.18.0
 
-  ameba:
-    git: https://github.com/crystal-ameba/ameba.git
-    version: 0.14.3

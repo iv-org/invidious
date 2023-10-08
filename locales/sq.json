@@ -257,7 +257,7 @@
     "Video mode": "Mënyrë video",
     "channel_tab_videos_label": "Video",
     "search_filters_sort_option_rating": "Vlerësim",
-    "search_filters_sort_option_date": "Datë ngarkimi",
+    "search_filters_sort_option_date": "Datë Ngarkimi",
     "search_filters_sort_option_views": "Numër parjesh",
     "search_filters_type_label": "Lloj",
     "search_filters_duration_label": "Kohëzgjatje",
@@ -345,7 +345,7 @@
     "View YouTube comments": "Shihni komente Youtube",
     "View more comments on Reddit": "Shihni më tepër komente në Reddit",
     "View `x` comments": {
-        "([^.,0-9]|^)1([^.,0-9]|$)": "Shihni `x` komente",
+        "([^.,0-9]|^)1([^.,0-9]|$)": "Shihni `x` koment",
         "": "Shihni `x` komente"
     },
     "View Reddit comments": "Shihni komente Reddit",
@@ -462,5 +462,20 @@
     "channel_tab_channels_label": "Kanale",
     "Music in this video": "Muzikë në këtë video",
     "channel_tab_shorts_label": "Të shkurtra",
-    "channel_tab_streams_label": "Transmetime të drejtpërdrejta"
+    "channel_tab_streams_label": "Transmetime të drejtpërdrejta",
+    "generic_button_cancel": "Anuloje",
+    "generic_channels_count": "{{count}} kanal",
+    "generic_channels_count_plural": "{{count}} kanale",
+    "generic_button_rss": "RSS",
+    "generic_button_delete": "Fshije",
+    "generic_button_save": "Ruaje",
+    "generic_button_edit": "Përpunoni",
+    "playlist_button_add_items": "Shtoni video",
+    "Report statistics: ": "Statistika raportimesh: ",
+    "Download is disabled": "Shkarkimi është i çaktivizuar",
+    "Channel Sponsor": "Sponsor Kanali",
+    "channel_tab_releases_label": "Hedhje në qarkullim",
+    "Song: ": "Pjesë: ",
+    "Import YouTube playlist (.csv)": "Importoni luajlistë YouTube (.csv)",
+    "Standard YouTube license": "Licencë YouTube standarde"
 }

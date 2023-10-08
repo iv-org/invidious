@@ -31,39 +31,29 @@
     <% watched.each do |item| %>
         <div class="pure-u-1 pure-u-md-1-4">
             <div class="h-box">
-                <a style="width:100%" href="/watch?v=<%= item %>">
-                    <% if !env.get("preferences").as(Preferences).thin_mode %>
-                        <div class="thumbnail">
-                            <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg" alt="" />
-                            <form data-onsubmit="return_false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
-                                <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
-                                <p class="watched">
-                                    <button type="submit" style="all:unset" data-onclick="mark_unwatched" data-id="<%= item %>"><i class="icon ion-md-trash"></i></button>
-                                </p>
-                            </form>
-                        </div>
-                        <p></p>
-                    <% end %>
-                </a>
+                <div class="thumbnail">
+                    <a style="width:100%" href="/watch?v=<%= item %>">
+                        <img class="thumbnail" src="/vi/<%= item %>/mqdefault.jpg" alt="" />
+                    </a>
+
+                    <div class="top-left-overlay"><div class="watched">
+                    <form data-onsubmit="return_false" action="/watch_ajax?action_mark_unwatched=1&id=<%= item %>&referer=<%= env.get("current_page") %>" method="post">
+                        <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
+                        <button type="submit" class="pure-button pure-button-secondary low-profile"
+                                data-onclick="mark_unwatched" data-id="<%= item %>"><i class="icon ion-md-trash"></i></button>
+                    </form>
+                    </div></div>
+                </div>
+                <p></p>
             </div>
         </div>
     <% end %>
 </div>
 
-<div class="pure-g h-box">
-    <div class="pure-u-1 pure-u-lg-1-5">
-        <% if page > 1 %>
-            <a href="/feed/history?page=<%= page - 1 %><% if env.params.query["max_results"]? %>&max_results=<%= max_results %><% end %>">
-                <%= translate(locale, "Previous page") %>
-            </a>
-        <% end %>
-    </div>
-    <div class="pure-u-1 pure-u-lg-3-5"></div>
-    <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
-        <% if watched.size >= max_results %>
-            <a href="/feed/history?page=<%= page + 1 %><% if env.params.query["max_results"]? %>&max_results=<%= max_results %><% end %>">
-                <%= translate(locale, "Next page") %>
-            </a>
-        <% end %>
-    </div>
-</div>
+<%=
+  IV::Frontend::Pagination.nav_numeric(locale,
+    base_url: base_url,
+    current_page: page,
+    show_next: (watched.size >= max_results)
+  )
+%>

@@ -102,6 +102,10 @@ module Invidious::Routes::Feeds
     end
     env.set "user", user
 
+    # Used for pagination links
+    base_url = "/feed/subscriptions"
+    base_url += "?max_results=#{max_results}" if env.params.query.has_key?("max_results")
+
     templated "feeds/subscriptions"
   end
 
@@ -129,6 +133,10 @@ module Invidious::Routes::Feeds
     end
     watched ||= [] of String
 
+    # Used for pagination links
+    base_url = "/feed/history"
+    base_url += "?max_results=#{max_results}" if env.params.query.has_key?("max_results")
+
     templated "feeds/history"
   end
 
@@ -154,20 +162,26 @@ module Invidious::Routes::Feeds
       return error_atom(500, ex)
     end
 
+    namespaces = {
+      "yt"      => "http://www.youtube.com/xml/schemas/2015",
+      "media"   => "http://search.yahoo.com/mrss/",
+      "default" => "http://www.w3.org/2005/Atom",
+    }
+
     response = YT_POOL.client &.get("/feeds/videos.xml?channel_id=#{channel.ucid}")
-    rss = XML.parse_html(response.body)
+    rss = XML.parse(response.body)
 
-    videos = rss.xpath_nodes("//feed/entry").map do |entry|
-      video_id = entry.xpath_node("videoid").not_nil!.content
-      title = entry.xpath_node("title").not_nil!.content
+    videos = rss.xpath_nodes("//default:feed/default:entry", namespaces).map do |entry|
+      video_id = entry.xpath_node("yt:videoId", namespaces).not_nil!.content
+      title = entry.xpath_node("default:title", namespaces).not_nil!.content
 
-      published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
-      updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
+      published = Time.parse_rfc3339(entry.xpath_node("default:published", namespaces).not_nil!.content)
+      updated = Time.parse_rfc3339(entry.xpath_node("default:updated", namespaces).not_nil!.content)
 
-      author = entry.xpath_node("author/name").not_nil!.content
-      ucid = entry.xpath_node("channelid").not_nil!.content
-      description_html = entry.xpath_node("group/description").not_nil!.to_s
-      views = entry.xpath_node("group/community/statistics").not_nil!.["views"].to_i64
+      author = entry.xpath_node("default:author/default:name", namespaces).not_nil!.content
+      ucid = entry.xpath_node("yt:channelId", namespaces).not_nil!.content
+      description_html = entry.xpath_node("media:group/media:description", namespaces).not_nil!.to_s
+      views = entry.xpath_node("media:group/media:community/media:statistics", namespaces).not_nil!.["views"].to_i64
 
       SearchVideo.new({
         title:              title,
