@@ -205,7 +205,7 @@ module Invidious::Routes::API::V1::Videos
 
     env.response.content_type = "text/vtt"
 
-    storyboard = storyboards.select { |sb| width == "#{sb[:width]}" || height == "#{sb[:height]}" }
+    storyboard = storyboards.select { |sb| width == "#{sb.width}" || height == "#{sb.height}" }
 
     if storyboard.empty?
       haltf env, 404
@@ -215,21 +215,22 @@ module Invidious::Routes::API::V1::Videos
 
     WebVTT.build do |vtt|
       start_time = 0.milliseconds
-      end_time = storyboard[:interval].milliseconds
+      end_time = storyboard.interval.milliseconds
 
-      storyboard[:storyboard_count].times do |i|
-        url = storyboard[:url]
+      storyboard.storyboard_count.times do |i|
+        url = storyboard.url
         authority = /(i\d?).ytimg.com/.match!(url)[1]?
+
         url = url.gsub("$M", i).gsub(%r(https://i\d?.ytimg.com/sb/), "")
         url = "#{HOST_URL}/sb/#{authority}/#{url}"
 
-        storyboard[:storyboard_height].times do |j|
-          storyboard[:storyboard_width].times do |k|
-            current_cue_url = "#{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width] - 2},#{storyboard[:height]}"
+        storyboard.storyboard_height.times do |j|
+          storyboard.storyboard_width.times do |k|
+            current_cue_url = "#{url}#xywh=#{storyboard.width * k},#{storyboard.height * j},#{storyboard.width - 2},#{storyboard.height}"
             vtt.cue(start_time, end_time, current_cue_url)
 
-            start_time += storyboard[:interval].milliseconds
-            end_time += storyboard[:interval].milliseconds
+            start_time += storyboard.interval.milliseconds
+            end_time += storyboard.interval.milliseconds
           end
         end
       end

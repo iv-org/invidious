@@ -3,6 +3,21 @@ require "http/params"
 
 module Invidious::Videos
   struct Storyboard
+    getter url : String
+    getter width : Int32
+    getter height : Int32
+    getter count : Int32
+    getter interval : Int32
+    getter storyboard_width : Int32
+    getter storyboard_height : Int32
+    getter storyboard_count : Int32
+
+    def initialize(
+      *, @url, @width, @height, @count, @interval,
+      @storyboard_width, @storyboard_height, @storyboard_count
+    )
+    end
+
     # Parse the JSON structure from Youtube
     def self.from_yt_json(container : JSON::Any)
       storyboards = container.dig?("playerStoryboardSpecRenderer", "spec")
@@ -10,28 +25,20 @@ module Invidious::Videos
 
       if !storyboards
         if storyboard = container.dig?("playerLiveStoryboardSpecRenderer", "spec").try &.as_s
-          return [{
-            url:               storyboard.split("#")[0],
-            width:             106,
-            height:            60,
-            count:             -1,
-            interval:          5000,
-            storyboard_width:  3,
+          return [Storyboard.new(
+            url: storyboard.split("#")[0],
+            width: 106,
+            height: 60,
+            count: -1,
+            interval: 5000,
+            storyboard_width: 3,
             storyboard_height: 3,
-            storyboard_count:  -1,
-          }]
+            storyboard_count: -1,
+          )]
         end
       end
 
-      items = [] of NamedTuple(
-        url: String,
-        width: Int32,
-        height: Int32,
-        count: Int32,
-        interval: Int32,
-        storyboard_width: Int32,
-        storyboard_height: Int32,
-        storyboard_count: Int32)
+      items = [] of Storyboard
 
       return items if !storyboards
 
@@ -51,16 +58,16 @@ module Invidious::Videos
         storyboard_height = storyboard_height.to_i
         storyboard_count = (count / (storyboard_width * storyboard_height)).ceil.to_i
 
-        items << {
-          url:               url.to_s.sub("$L", i).sub("$N", "M$M"),
-          width:             width,
-          height:            height,
-          count:             count,
-          interval:          interval,
-          storyboard_width:  storyboard_width,
+        items << Storyboard.new(
+          url: url.to_s.sub("$L", i).sub("$N", "M$M"),
+          width: width,
+          height: height,
+          count: count,
+          interval: interval,
+          storyboard_width: storyboard_width,
           storyboard_height: storyboard_height,
-          storyboard_count:  storyboard_count,
-        }
+          storyboard_count: storyboard_count
+        )
       end
 
       items

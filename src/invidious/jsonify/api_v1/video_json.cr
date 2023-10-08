@@ -273,15 +273,15 @@ module Invidious::JSONify::APIv1
     json.array do
       storyboards.each do |storyboard|
         json.object do
-          json.field "url", "/api/v1/storyboards/#{id}?width=#{storyboard[:width]}&height=#{storyboard[:height]}"
-          json.field "templateUrl", storyboard[:url]
-          json.field "width", storyboard[:width]
-          json.field "height", storyboard[:height]
-          json.field "count", storyboard[:count]
-          json.field "interval", storyboard[:interval]
-          json.field "storyboardWidth", storyboard[:storyboard_width]
-          json.field "storyboardHeight", storyboard[:storyboard_height]
-          json.field "storyboardCount", storyboard[:storyboard_count]
+          json.field "url", "/api/v1/storyboards/#{id}?width=#{storyboard.width}&height=#{storyboard.height}"
+          json.field "templateUrl", storyboard.url
+          json.field "width", storyboard.width
+          json.field "height", storyboard.height
+          json.field "count", storyboard.count
+          json.field "interval", storyboard.interval
+          json.field "storyboardWidth", storyboard.storyboard_width
+          json.field "storyboardHeight", storyboard.storyboard_height
+          json.field "storyboardCount", storyboard.storyboard_count
         end
       end
     end
