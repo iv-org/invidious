@@ -548,5 +548,11 @@
     "generic_button_rss": "RSS",
     "channel_tab_releases_label": "الإصدارات",
     "playlist_button_add_items": "إضافة مقاطع فيديو",
-    "channel_tab_podcasts_label": "البودكاست"
+    "channel_tab_podcasts_label": "البودكاست",
+    "generic_channels_count_0": "{{count}} قناة",
+    "generic_channels_count_1": "{{count}} قناة",
+    "generic_channels_count_2": "{{count}} قناتان",
+    "generic_channels_count_3": "{{count}} قنوات",
+    "generic_channels_count_4": "{{count}} قنوات",
+    "generic_channels_count_5": "{{count}} قناة"
 }

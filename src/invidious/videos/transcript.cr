@@ -34,41 +34,15 @@ module Invidious::Videos
       # Convert into array of TranscriptLine
       lines = self.parse(initial_data)
 
+      settings_field = {
+        "Kind"     => "captions",
+        "Language" => target_language,
+      }
+
       # Taken from Invidious::Videos::Captions::Metadata.timedtext_to_vtt()
-      vtt = String.build do |vtt|
-        vtt << <<-END_VTT
-        WEBVTT
-        Kind: captions
-        Language: #{target_language}
-
-
-        END_VTT
-
-        vtt << "\n\n"
-
+      vtt = WebVTT.build(settings_field) do |vtt|
         lines.each do |line|
-          start_time = line.start_ms
-          end_time = line.end_ms
-
-          # start_time
-          vtt << start_time.hours.to_s.rjust(2, '0')
-          vtt << ':' << start_time.minutes.to_s.rjust(2, '0')
-          vtt << ':' << start_time.seconds.to_s.rjust(2, '0')
-          vtt << '.' << start_time.milliseconds.to_s.rjust(3, '0')
-
-          vtt << " --> "
-
-          # end_time
-          vtt << end_time.hours.to_s.rjust(2, '0')
-          vtt << ':' << end_time.minutes.to_s.rjust(2, '0')
-          vtt << ':' << end_time.seconds.to_s.rjust(2, '0')
-          vtt << '.' << end_time.milliseconds.to_s.rjust(3, '0')
-
-          vtt << "\n"
-          vtt << line.line
-
-          vtt << "\n"
-          vtt << "\n"
+          vtt.cue(line.start_ms, line.end_ms, line.line)
         end
       end
 

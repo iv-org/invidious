@@ -500,5 +500,8 @@
     "channel_tab_releases_label": "Випуски",
     "generic_button_delete": "Видалити",
     "generic_button_edit": "Змінити",
-    "generic_button_save": "Зберегти"
+    "generic_button_save": "Зберегти",
+    "generic_channels_count_0": "{{count}} канал",
+    "generic_channels_count_1": "{{count}} канали",
+    "generic_channels_count_2": "{{count}} каналів"
 }

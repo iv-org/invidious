@@ -468,5 +468,6 @@
     "generic_button_save": "저장",
     "generic_button_cancel": "취소",
     "generic_button_rss": "RSS",
-    "channel_tab_releases_label": "출시"
+    "channel_tab_releases_label": "출시",
+    "generic_channels_count_0": "{{count}} 채널"
 }

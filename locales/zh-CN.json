@@ -468,5 +468,6 @@
     "generic_button_edit": "编辑",
     "generic_button_save": "保存",
     "generic_button_rss": "RSS",
-    "channel_tab_releases_label": "公告"
+    "channel_tab_releases_label": "公告",
+    "generic_channels_count_0": "{{count}} 个频道"
 }

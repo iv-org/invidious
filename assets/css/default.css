@@ -392,9 +392,17 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
  * Comments & community posts
  */
 
-#comments {
+.comments {
   max-width: 800px;
   margin: auto;
+}
+
+/*
+ * We don't want the top and bottom margin on the post page.
+ */
+.comments.post-comments {
+  margin-bottom: 0;
+  margin-top: 0;
 }
 
 .video-iframe-wrapper {

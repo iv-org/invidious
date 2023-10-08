@@ -23,6 +23,24 @@ module Invidious::Frontend::Comments
             </div>
           </div>
           END_HTML
+        elsif comments["authorId"]? && !comments["singlePost"]?
+          # for posts we should display a link to the post
+          replies_count_text = translate_count(locale,
+            "comments_view_x_replies",
+            child["replyCount"].as_i64 || 0,
+            NumberFormatting::Separator
+          )
+
+          replies_html = <<-END_HTML
+          <div class="pure-g">
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-23-24">
+              <p>
+                <a href="/post/#{child["commentId"]}?ucid=#{comments["authorId"]}">#{replies_count_text}</a>
+              </p>
+            </div>
+          </div>
+          END_HTML
         end
 
         if !thin_mode

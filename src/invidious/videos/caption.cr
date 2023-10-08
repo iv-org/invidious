@@ -52,17 +52,13 @@ module Invidious::Videos
             break
           end
         end
-        result = String.build do |result|
-          result << <<-END_VTT
-          WEBVTT
-          Kind: captions
-          Language: #{tlang || @language_code}
 
+        settings_field = {
+          "Kind"     => "captions",
+          "Language" => "#{tlang || @language_code}",
+        }
 
-          END_VTT
-
-          result << "\n\n"
-
+        result = WebVTT.build(settings_field) do |vtt|
           cues.each_with_index do |node, i|
             start_time = node["t"].to_f.milliseconds
 
@@ -76,29 +72,16 @@ module Invidious::Videos
               end_time = start_time + duration
             end
 
-            # start_time
-            result << start_time.hours.to_s.rjust(2, '0')
-            result << ':' << start_time.minutes.to_s.rjust(2, '0')
-            result << ':' << start_time.seconds.to_s.rjust(2, '0')
-            result << '.' << start_time.milliseconds.to_s.rjust(3, '0')
-
-            result << " --> "
-
-            # end_time
-            result << end_time.hours.to_s.rjust(2, '0')
-            result << ':' << end_time.minutes.to_s.rjust(2, '0')
-            result << ':' << end_time.seconds.to_s.rjust(2, '0')
-            result << '.' << end_time.milliseconds.to_s.rjust(3, '0')
-
-            result << "\n"
-
-            node.children.each do |s|
-              result << s.content
+            text = String.build do |io|
+              node.children.each do |s|
+                io << s.content
+              end
             end
-            result << "\n"
-            result << "\n"
+
+            vtt.cue(start_time, end_time, text)
           end
         end
+
         return result
       end
     end
