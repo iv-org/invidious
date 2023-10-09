@@ -236,7 +236,11 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .dig?("secondaryResults", "secondaryResults", "results")
   secondary_results.try &.as_a.each do |element|
     if item = element["compactVideoRenderer"]?
-      time_string = item["publishedTimeText"]["simpleText"]?
+      time_text = item["publishedTimeText"]?
+      time_string = nil
+      if !time_text.nil?
+        time_string = time_text["simpleText"]?
+      end
       if !time_string.nil? && time_string.to_s.ends_with?("hour ago")
         time = Time.utc.to_unix - 3600
       end
