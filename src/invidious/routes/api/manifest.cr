@@ -171,7 +171,7 @@ module Invidious::Routes::API::Manifest
 
                 # Bandwidth is kind of a guess...
                 bandwidth = ((storyboard_width_pixels * storyboard_height_pixels * 0.5) / duration).to_i
-              
+
                 xml.element("AdaptationSet", id: i, mimeType: mime_type, contentType: "image") do
                   xml.element("SegmentTemplate", media: url, duration: duration, startNumber: "0")
                   xml.element("Representation", id: "thumbnails_#{i}", bandwidth: bandwidth, width: storyboard_width_pixels, height: storyboard_height_pixels) do
