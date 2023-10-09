@@ -51,47 +51,6 @@ def parse_related_video(related : JSON::Any, published) : Hash(String, JSON::Any
   }
 end
 
-def fetch_published(video_id : String, proxy_region : String? = nil)
-  client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
-  player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
-  playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
-  if playability_status != "OK"
-    subreason = player_response.dig?("playabilityStatus", "errorScreen", "playerErrorMessageRenderer", "subreason")
-    reason = subreason.try &.[]?("simpleText").try &.as_s
-    reason ||= subreason.try &.[]("runs").as_a.map(&.[]("text")).join("")
-    reason ||= player_response.dig("playabilityStatus", "reason").as_s
-
-    # Stop here if video is not a scheduled livestream or
-    # for LOGIN_REQUIRED when videoDetails element is not found because retrying won't help
-    if !{"LIVE_STREAM_OFFLINE", "LOGIN_REQUIRED"}.any?(playability_status) ||
-       playability_status == "LOGIN_REQUIRED" && !player_response.dig?("videoDetails")
-      return {
-        "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
-        "reason"  => JSON::Any.new(reason),
-      }
-    end
-  elsif video_id != player_response.dig("videoDetails", "videoId")
-    # YouTube may return a different video player response than expected.
-    # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
-    # Line to be reverted if one day we solve the video not available issue.
-    return {
-      "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
-      "reason"  => JSON::Any.new("Can't load the video on this Invidious instance. YouTube is currently trying to block Invidious instances. <a href=\"https://github.com/iv-org/invidious/issues/3822\">Click here for more info about the issue.</a>"),
-    }
-  else
-    reason = nil
-  end
-  microformat1 = player_response.dig?("microformat", "playerMicroformatRenderer")
-  if !microformat1.nil?
-    published1 = microformat1["publishDate"]
-  else
-    published1 = JSON::Any.new("")
-  end
-  return {
-    "published" => published1,
-  }
-end
-
 def extract_video_info(video_id : String, proxy_region : String? = nil)
   # Init client config for the API
   client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
@@ -277,7 +236,63 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .dig?("secondaryResults", "secondaryResults", "results")
   secondary_results.try &.as_a.each do |element|
     if item = element["compactVideoRenderer"]?
-      published1 = fetch_published(item["videoId"].to_s, proxy_region)["published"]
+      time_string = item["publishedTimeText"]["simpleText"]?
+      if !time_string.nil? && time_string.to_s.ends_with?("hour ago")
+        time = Time.utc.to_unix - 3600
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("hours ago") && !time_string.to_s.starts_with?("Streamed")
+        hours = time_string.to_s.rchop(" hours ago").to_i
+        time = Time.utc.to_unix - 3600*hours
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("hours ago") && time_string.to_s.starts_with?("Streamed")
+        hours = time_string.to_s.lchop("Streamed ").rchop(" hours ago").to_i
+        time = Time.utc.to_unix - 3600*hours
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("day ago")
+        time = Time.utc.to_unix - 86400
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("days ago") && !time_string.to_s.starts_with?("Streamed")
+        days = time_string.to_s.rchop(" days ago").to_i
+        time = Time.utc.to_unix - 86400*days
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("days ago") && time_string.to_s.starts_with?("Streamed")
+        days = time_string.to_s.lchop("Streamed ").rchop(" days ago").to_i
+        time = Time.utc.to_unix - 86400*days
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("week ago")
+        time = Time.utc.to_unix - 604800
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("weeks ago") && !time_string.to_s.starts_with?("Streamed")
+        weeks = time_string.to_s.rchop(" weeks ago").to_i
+        time = Time.utc.to_unix - 604800*weeks
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("weeks ago") && time_string.to_s.starts_with?("Streamed")
+        weeks = time_string.to_s.lchop("Streamed ").rchop(" weeks ago").to_i
+        time = Time.utc.to_unix - 604800*weeks
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("month ago")
+        time = Time.utc.to_unix - 2629743
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("months ago") && !time_string.to_s.starts_with?("Streamed")
+        months = time_string.to_s.rchop(" months ago").to_i
+        time = Time.utc.to_unix - 2629743*months
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("months ago") && time_string.to_s.starts_with?("Streamed")
+        months = time_string.to_s.lchop("Streamed ").rchop(" months ago").to_i
+        time = Time.utc.to_unix - 2629743*months
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("year ago")
+        time = Time.utc.to_unix - 31556926
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("years ago") && !time_string.to_s.starts_with?("Streamed")
+        years = time_string.to_s.rchop(" years ago").to_i
+        time = Time.utc.to_unix - 31556926*years
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("years ago") && time_string.to_s.starts_with?("Streamed")
+        years = time_string.to_s.lchop("Streamed ").rchop(" years ago").to_i
+        time = Time.utc.to_unix - 31556926*years
+      end
+      published1 = JSON::Any.new(time.to_s)
       related_video = parse_related_video(item, published1)
       related << JSON::Any.new(related_video) if related_video
     end
