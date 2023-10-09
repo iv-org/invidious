@@ -158,6 +158,85 @@ def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConf
   end
 end
 
+def parse_published_string(item)
+  time_text = item["publishedTimeText"]?
+  time_string = nil
+  if !time_text.nil?
+    time_string = time_text["simpleText"]?
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("minute ago")
+    time = Time.utc.to_unix - 60
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("minutes ago") && !time_string.to_s.starts_with?("Streamed")
+    minutes = time_string.to_s.rchop(" minutes ago").to_i
+    time = Time.utc.to_unix - 60*minutes
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("minutes ago") && time_string.to_s.starts_with?("Streamed")
+    minutes = time_string.to_s.lchop("Streamed ").rchop(" minutes ago").to_i
+    time = Time.utc.to_unix - 60*minutes
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("hour ago")
+    time = Time.utc.to_unix - 3600
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("hours ago") && !time_string.to_s.starts_with?("Streamed")
+    hours = time_string.to_s.rchop(" hours ago").to_i
+    time = Time.utc.to_unix - 3600*hours
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("hours ago") && time_string.to_s.starts_with?("Streamed")
+    hours = time_string.to_s.lchop("Streamed ").rchop(" hours ago").to_i
+    time = Time.utc.to_unix - 3600*hours
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("day ago")
+    time = Time.utc.to_unix - 86400
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("days ago") && !time_string.to_s.starts_with?("Streamed")
+    days = time_string.to_s.rchop(" days ago").to_i
+    time = Time.utc.to_unix - 86400*days
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("days ago") && time_string.to_s.starts_with?("Streamed")
+    days = time_string.to_s.lchop("Streamed ").rchop(" days ago").to_i
+    time = Time.utc.to_unix - 86400*days
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("week ago")
+    time = Time.utc.to_unix - 604800
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("weeks ago") && !time_string.to_s.starts_with?("Streamed")
+    weeks = time_string.to_s.rchop(" weeks ago").to_i
+    time = Time.utc.to_unix - 604800*weeks
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("weeks ago") && time_string.to_s.starts_with?("Streamed")
+    weeks = time_string.to_s.lchop("Streamed ").rchop(" weeks ago").to_i
+    time = Time.utc.to_unix - 604800*weeks
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("month ago")
+    time = Time.utc.to_unix - 2629743
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("months ago") && !time_string.to_s.starts_with?("Streamed")
+    months = time_string.to_s.rchop(" months ago").to_i
+    time = Time.utc.to_unix - 2629743*months
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("months ago") && time_string.to_s.starts_with?("Streamed")
+    months = time_string.to_s.lchop("Streamed ").rchop(" months ago").to_i
+    time = Time.utc.to_unix - 2629743*months
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("year ago")
+    time = Time.utc.to_unix - 31556926
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("years ago") && !time_string.to_s.starts_with?("Streamed")
+    years = time_string.to_s.rchop(" years ago").to_i
+    time = Time.utc.to_unix - 31556926*years
+  end
+  if !time_string.nil? && time_string.to_s.ends_with?("years ago") && time_string.to_s.starts_with?("Streamed")
+    years = time_string.to_s.lchop("Streamed ").rchop(" years ago").to_i
+    time = Time.utc.to_unix - 31556926*years
+  end
+  if time_string.nil?
+    time = nil
+  end
+
+  return time
+end
+
 def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any), proxy_region : String? = nil) : Hash(String, JSON::Any)
   # Top level elements
 
@@ -236,77 +315,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .dig?("secondaryResults", "secondaryResults", "results")
   secondary_results.try &.as_a.each do |element|
     if item = element["compactVideoRenderer"]?
-      time_text = item["publishedTimeText"]?
-      time_string = nil
-      if !time_text.nil?
-        time_string = time_text["simpleText"]?
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("minute ago")
-        time = Time.utc.to_unix - 60
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("minutes ago") && !time_string.to_s.starts_with?("Streamed")
-        minutes = time_string.to_s.rchop(" minutes ago").to_i
-        time = Time.utc.to_unix - 60*minutes
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("minutes ago") && time_string.to_s.starts_with?("Streamed")
-        minutes = time_string.to_s.lchop("Streamed ").rchop(" minutes ago").to_i
-        time = Time.utc.to_unix - 60*minutes
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("hour ago")
-        time = Time.utc.to_unix - 3600
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("hours ago") && !time_string.to_s.starts_with?("Streamed")
-        hours = time_string.to_s.rchop(" hours ago").to_i
-        time = Time.utc.to_unix - 3600*hours
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("hours ago") && time_string.to_s.starts_with?("Streamed")
-        hours = time_string.to_s.lchop("Streamed ").rchop(" hours ago").to_i
-        time = Time.utc.to_unix - 3600*hours
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("day ago")
-        time = Time.utc.to_unix - 86400
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("days ago") && !time_string.to_s.starts_with?("Streamed")
-        days = time_string.to_s.rchop(" days ago").to_i
-        time = Time.utc.to_unix - 86400*days
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("days ago") && time_string.to_s.starts_with?("Streamed")
-        days = time_string.to_s.lchop("Streamed ").rchop(" days ago").to_i
-        time = Time.utc.to_unix - 86400*days
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("week ago")
-        time = Time.utc.to_unix - 604800
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("weeks ago") && !time_string.to_s.starts_with?("Streamed")
-        weeks = time_string.to_s.rchop(" weeks ago").to_i
-        time = Time.utc.to_unix - 604800*weeks
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("weeks ago") && time_string.to_s.starts_with?("Streamed")
-        weeks = time_string.to_s.lchop("Streamed ").rchop(" weeks ago").to_i
-        time = Time.utc.to_unix - 604800*weeks
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("month ago")
-        time = Time.utc.to_unix - 2629743
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("months ago") && !time_string.to_s.starts_with?("Streamed")
-        months = time_string.to_s.rchop(" months ago").to_i
-        time = Time.utc.to_unix - 2629743*months
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("months ago") && time_string.to_s.starts_with?("Streamed")
-        months = time_string.to_s.lchop("Streamed ").rchop(" months ago").to_i
-        time = Time.utc.to_unix - 2629743*months
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("year ago")
-        time = Time.utc.to_unix - 31556926
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("years ago") && !time_string.to_s.starts_with?("Streamed")
-        years = time_string.to_s.rchop(" years ago").to_i
-        time = Time.utc.to_unix - 31556926*years
-      end
-      if !time_string.nil? && time_string.to_s.ends_with?("years ago") && time_string.to_s.starts_with?("Streamed")
-        years = time_string.to_s.lchop("Streamed ").rchop(" years ago").to_i
-        time = Time.utc.to_unix - 31556926*years
-      end
+      time = parse_published_string(item)
       published1 = JSON::Any.new(time.to_s)
       related_video = parse_related_video(item, published1)
       related << JSON::Any.new(related_video) if related_video
