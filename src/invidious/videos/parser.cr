@@ -241,6 +241,17 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
       if !time_text.nil?
         time_string = time_text["simpleText"]?
       end
+      if !time_string.nil? && time_string.to_s.ends_with?("minute ago")
+        time = Time.utc.to_unix - 60
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("minutes ago") && !time_string.to_s.starts_with?("Streamed")
+        minutes = time_string.to_s.rchop(" minutes ago").to_i
+        time = Time.utc.to_unix - 60*minutes
+      end
+      if !time_string.nil? && time_string.to_s.ends_with?("minutes ago") && time_string.to_s.starts_with?("Streamed")
+        minutes = time_string.to_s.lchop("Streamed ").rchop(" minutes ago").to_i
+        time = Time.utc.to_unix - 60*minutes
+      end
       if !time_string.nil? && time_string.to_s.ends_with?("hour ago")
         time = Time.utc.to_unix - 3600
       end
