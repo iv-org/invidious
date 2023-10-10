@@ -2,6 +2,8 @@ name: Build and release container
 
 on:
   push:
+    tags:        
+      - "*.*.*"
     branches:
       - "master"
     paths-ignore:
@@ -11,7 +13,6 @@ on:
       - invidious.service
       - .git*
       - .editorconfig
-
       - screenshots/*
       - .github/ISSUE_TEMPLATE/*
       - kubernetes/**
@@ -52,28 +53,52 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: quay.io/invidious/invidious
+          tags: |
+            type=sha
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+          labels: |
+            quay.expires-after=12w
+
       - name: Build and push Docker AMD64 image for Push Event
-        if: github.ref == 'refs/heads/master'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v3
         with:
           context: .
           file: docker/Dockerfile
           platforms: linux/amd64
-          labels: quay.expires-after=12w
+          labels: ${{ steps.meta.outputs.labels }}
           push: true
-          tags: quay.io/invidious/invidious:${{ github.sha }},quay.io/invidious/invidious:latest
+          tags: ${{ steps.meta.outputs.tags }}
           build-args: |
             "release=1"
 
+      - name: Docker meta
+        id: meta-arm64
+        uses: docker/metadata-action@v5
+        with:
+          images: quay.io/invidious/invidious
+          flavor: |
+            suffix=-arm64
+          tags: |
+            type=sha
+            type=semver,pattern={{version}}
+            type=raw,value=latest-arm64,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+          labels: |
+            quay.expires-after=12w
+
       - name: Build and push Docker ARM64 image for Push Event
-        if: github.ref == 'refs/heads/master'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v3
         with:
           context: .
           file: docker/Dockerfile.arm64
           platforms: linux/arm64/v8
-          labels: quay.expires-after=12w
+          labels: ${{ steps.meta-arm64.outputs.labels }}
           push: true
-          tags: quay.io/invidious/invidious:${{ github.sha }}-arm64,quay.io/invidious/invidious:latest-arm64
+          tags: ${{ steps.meta-arm64.outputs.tags }}
           build-args: |
             "release=1"
