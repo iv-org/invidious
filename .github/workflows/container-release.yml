@@ -57,7 +57,7 @@ jobs:
         with:
           images: quay.io/invidious/invidious
           tags: |
-            type=sha
+            type=sha,format=short
             type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
           labels: |
@@ -83,7 +83,7 @@ jobs:
           flavor: |
             suffix=-arm64
           tags: |
-            type=sha
+            type=sha,format=short
             type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
           labels: |
