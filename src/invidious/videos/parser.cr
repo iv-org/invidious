@@ -236,8 +236,13 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .dig?("secondaryResults", "secondaryResults", "results")
   secondary_results.try &.as_a.each do |element|
     if item = element["compactVideoRenderer"]?
-		 time = decode_date(item["publishedTimeText"].to_s)
-		published1 = JSON::Any.new(time.to_unix.to_s)
+      time_text = item["publishedTimeText"]?
+      if !time_text.nil?
+        time = decode_date(item["publishedTimeText"].to_s)
+        published1 = JSON::Any.new(time.to_unix.to_s)
+      else
+        published1 = JSON::Any.new("")
+      end
       related_video = parse_related_video(item, published1)
       related << JSON::Any.new(related_video) if related_video
     end
