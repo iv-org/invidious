@@ -138,7 +138,6 @@ end
 def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Using #{client_config.client_type} client.")
   # 2AMBCgIQBg is a workaround for streaming URLs that returns a 403.
-  # See https://github.com/iv-org/invidious/issues/4027#issuecomment-1666944520
   response = YoutubeAPI.player(video_id: id, params: "2AMBCgIQBg", client_config: client_config)
 
   playability_status = response["playabilityStatus"]["status"]
