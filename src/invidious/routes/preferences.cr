@@ -19,6 +19,10 @@ module Invidious::Routes::PreferencesRoute
     video_loop ||= "off"
     video_loop = video_loop == "on"
 
+    preserves_pitch = env.params.body["preserves_pitch"]?.try &.as(String)
+    preserves_pitch ||= "off"
+    preserves_pitch = preserves_pitch == "on"
+
     annotations = env.params.body["annotations"]?.try &.as(String)
     annotations ||= "off"
     annotations = annotations == "on"
@@ -170,6 +174,7 @@ module Invidious::Routes::PreferencesRoute
       thin_mode:                   thin_mode,
       unseen_only:                 unseen_only,
       video_loop:                  video_loop,
+      preserves_pitch:             preserves_pitch,
       volume:                      volume,
       extend_desc:                 extend_desc,
       vr_mode:                     vr_mode,

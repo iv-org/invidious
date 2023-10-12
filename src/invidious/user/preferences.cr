@@ -52,6 +52,7 @@ struct Preferences
   property thin_mode : Bool = CONFIG.default_user_preferences.thin_mode
   property unseen_only : Bool = CONFIG.default_user_preferences.unseen_only
   property video_loop : Bool = CONFIG.default_user_preferences.video_loop
+  property preserves_pitch : Bool = CONFIG.default_user_preferences.preserves_pitch
   property extend_desc : Bool = CONFIG.default_user_preferences.extend_desc
   property volume : Int32 = CONFIG.default_user_preferences.volume
   property save_player_pos : Bool = CONFIG.default_user_preferences.save_player_pos

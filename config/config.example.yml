@@ -761,6 +761,14 @@ default_user_preferences:
   ##
   #video_loop: false
 
+  ##
+  ## Detether payback speed from pitch.
+  ##
+  ## Accepted values: true, false
+  ## Default: true
+  ##
+  #preserves_pitch: true
+
 
   # -----------------------------
   #  Video playback settings

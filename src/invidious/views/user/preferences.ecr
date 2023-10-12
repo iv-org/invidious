@@ -13,6 +13,11 @@
             </div>
 
             <div class="pure-control-group">
+                <label for="preserves_pitch"><%= translate(locale, "preferences_preserves_pitch_label") %></label>
+                <input name="preserves_pitch" id="preserves_pitch" type="checkbox" <% if preferences.preserves_pitch %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
                 <label for="autoplay"><%= translate(locale, "preferences_autoplay_label") %></label>
                 <input name="autoplay" id="autoplay" type="checkbox" <% if preferences.autoplay %>checked<% end %>>
             </div>

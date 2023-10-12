@@ -19,6 +19,7 @@ struct VideoPreferences
   property speed : Float32 | Float64
   property video_end : Float64 | Int32
   property video_loop : Bool
+  property preserves_pitch : Bool
   property extend_desc : Bool
   property video_start : Float64 | Int32
   property volume : Int32
@@ -42,6 +43,7 @@ def process_video_params(query, preferences)
   related_videos = query["related_videos"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   speed = query["speed"]?.try &.rchop("x").to_f?
   video_loop = query["loop"]?.try { |q| (q == "true" || q == "1").to_unsafe }
+  preserves_pitch = query["preserves_pitch"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   extend_desc = query["extend_desc"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   volume = query["volume"]?.try &.to_i?
   vr_mode = query["vr_mode"]?.try { |q| (q == "true" || q == "1").to_unsafe }
@@ -63,6 +65,7 @@ def process_video_params(query, preferences)
     related_videos ||= preferences.related_videos.to_unsafe
     speed ||= preferences.speed
     video_loop ||= preferences.video_loop.to_unsafe
+    preserves_pitch ||= preferences.preserves_pitch.to_unsafe
     extend_desc ||= preferences.extend_desc.to_unsafe
     volume ||= preferences.volume
     vr_mode ||= preferences.vr_mode.to_unsafe
@@ -83,6 +86,7 @@ def process_video_params(query, preferences)
   related_videos ||= CONFIG.default_user_preferences.related_videos.to_unsafe
   speed ||= CONFIG.default_user_preferences.speed
   video_loop ||= CONFIG.default_user_preferences.video_loop.to_unsafe
+  preserves_pitch ||= CONFIG.default_user_preferences.preserves_pitch.to_unsafe
   extend_desc ||= CONFIG.default_user_preferences.extend_desc.to_unsafe
   volume ||= CONFIG.default_user_preferences.volume
   vr_mode ||= CONFIG.default_user_preferences.vr_mode.to_unsafe
@@ -96,6 +100,7 @@ def process_video_params(query, preferences)
   local = local == 1
   related_videos = related_videos == 1
   video_loop = video_loop == 1
+  preserves_pitch = preserves_pitch == 1
   extend_desc = extend_desc == 1
   vr_mode = vr_mode == 1
   save_player_pos = save_player_pos == 1
@@ -145,6 +150,7 @@ def process_video_params(query, preferences)
     speed:              speed,
     video_end:          video_end,
     video_loop:         video_loop,
+    preserves_pitch:    preserves_pitch,
     extend_desc:        extend_desc,
     video_start:        video_start,
     volume:             volume,

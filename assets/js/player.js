@@ -221,6 +221,9 @@ if (video_data.params.video_start > 0 || video_data.params.video_end > 0) {
 player.volume(video_data.params.volume / 100);
 player.playbackRate(video_data.params.speed);
 
+// Dirty hack to set a property in <video/> element that Video.js doesn't currently native support.
+player.tech_.el_.preservesPitch = video_data.params.preserves_pitch;
+
 /**
  * Method for getting the contents of a cookie
  *

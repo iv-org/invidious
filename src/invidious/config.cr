@@ -39,6 +39,7 @@ struct ConfigPreferences
   property thin_mode : Bool = false
   property unseen_only : Bool = false
   property video_loop : Bool = false
+  property preserves_pitch : Bool = true
   property extend_desc : Bool = false
   property volume : Int32 = 100
   property vr_mode : Bool = true
