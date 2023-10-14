@@ -104,13 +104,10 @@ module Invidious::Routes::BeforeAll
     thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
     thin_mode = thin_mode == "true"
     locale = env.params.query["hl"]? || preferences.locale
-    previous_page_button = env.params.query["previous_page_button"]? || preferences.previous_page_button.to_s
-    previous_page_button = previous_page_button == "true"
 
     preferences.dark_mode = dark_mode
     preferences.thin_mode = thin_mode
     preferences.locale = locale
-    preferences.previous_page_button = previous_page_button
     env.set "preferences", preferences
 
     current_page = env.request.path
