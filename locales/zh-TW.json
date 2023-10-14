@@ -461,6 +461,7 @@
     "Standard YouTube license": "標準 YouTube 授權條款",
     "Download is disabled": "已停用下載",
     "Import YouTube playlist (.csv)": "匯入 YouTube 播放清單 (.csv)",
+    "Import YouTube watch history (.json)": "匯入 YouTube 觀看歷史 (.json)",
     "generic_button_cancel": "取消",
     "generic_button_edit": "編輯",
     "generic_button_save": "儲存",
