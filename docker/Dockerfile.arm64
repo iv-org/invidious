@@ -1,5 +1,5 @@
-FROM alpine:3.16 AS builder
-RUN apk add --no-cache 'crystal=1.4.1-r0' shards sqlite-static yaml-static yaml-dev libxml2-dev zlib-static openssl-libs-static openssl-dev musl-dev
+FROM alpine:3.18 AS builder
+RUN apk add --no-cache 'crystal=1.8.2-r0' shards sqlite-static yaml-static yaml-dev libxml2-static zlib-static openssl-libs-static openssl-dev musl-dev xz-static
 
 ARG release
 
@@ -32,7 +32,7 @@ RUN if [[ "${release}" == 1 ]] ; then \
         --link-flags "-lxml2 -llzma"; \
     fi
 
-FROM alpine:3.16
+FROM alpine:3.18
 RUN apk add --no-cache librsvg ttf-opensans tini
 WORKDIR /invidious
 RUN addgroup -g 1000 -S invidious && \
