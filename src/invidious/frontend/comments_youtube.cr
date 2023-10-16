@@ -1,7 +1,7 @@
 module Invidious::Frontend::Comments
   extend self
 
-  def template_youtube(comments, locale, thin_mode, is_replies = false)
+  def template_youtube(comments, locale, thin_mode, id, type="video", is_replies = false)
     String.build do |html|
       root = comments["comments"].as_a
       root.each do |child|
@@ -13,11 +13,15 @@ module Invidious::Frontend::Comments
           )
 
           replies_html = <<-END_HTML
-          <div id="replies" class="pure-g">
+          <div class="pure-g replies">
             <div class="pure-u-1-24"></div>
             <div class="pure-u-23-24">
               <p>
-                <a href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
+                <noscript>
+                  <!-- We open the replies/new comments in a new tab. We could also be using an iframe for comments when js is disabled but that would mean duplicate code.-->
+                  <a target="_blank" href="/comment_viewer?continuation=#{child["replies"]["continuation"]}&id=#{id}&type=#{type}">#{replies_count_text}</a>
+                </noscript>
+                <a class="jsOnly" href="javascript:void(0)" data-continuation="#{child["replies"]["continuation"]}"
                   data-onclick="get_youtube_replies" data-load-replies>#{replies_count_text}</a>
               </p>
             </div>
@@ -196,7 +200,10 @@ module Invidious::Frontend::Comments
         <div class="pure-g">
           <div class="pure-u-1">
             <p>
-              <a href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
+              <noscript>
+                <a href="/comment_viewer?continuation=#{comments["continuation"]}&id=#{id}&type=#{type}" target="_blank">#{translate(locale, "Load more")}</a>
+              </noscript>
+              <a class="jsOnly" href="javascript:void(0)" data-continuation="#{comments["continuation"]}"
                 data-onclick="get_youtube_replies" data-load-more #{"data-load-replies" if is_replies}>#{translate(locale, "Load more")}</a>
             </p>
           </div>

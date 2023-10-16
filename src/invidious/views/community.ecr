@@ -13,6 +13,7 @@
 <% content_for "header" do %>
 <link rel="alternate" href="<%= youtube_url %>">
 <title><%= author %> - Invidious</title>
+<noscript><style>.jsOnly { display: none;}</style></noscript>
 <% end %>
 
 <%= rendered "components/channel_info" %>
@@ -27,7 +28,7 @@
     </div>
 <% else %>
     <div class="h-box pure-g comments" id="comments">
-        <%= IV::Frontend::Comments.template_youtube(items.not_nil!, locale, thin_mode) %>
+        <%= IV::Frontend::Comments.template_youtube(items.not_nil!, locale, thin_mode, ucid, "community") %>
     </div>
 <% end %>
 
