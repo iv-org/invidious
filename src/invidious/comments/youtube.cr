@@ -61,7 +61,7 @@ module Invidious::Comments
     return initial_data
   end
 
-  def parse_youtube(id, response, format, locale, thin_mode, type="video", sort_by = "top")
+  def parse_youtube(id, response, format, locale, thin_mode, sort_by = "top", type = "video", ucid = nil)
     contents = nil
 
     if on_response_received_endpoints = response["onResponseReceivedEndpoints"]?
@@ -117,6 +117,10 @@ module Invidious::Comments
           comment_count = (count_text["simpleText"]? || count_text["runs"]?.try &.[0]?.try &.["text"]?)
             .try &.as_s.gsub(/\D/, "").to_i? || 0
           json.field "commentCount", comment_count
+        end
+
+        if !ucid.nil?
+          json.field "authorId", ucid
         end
 
         if type == "post"

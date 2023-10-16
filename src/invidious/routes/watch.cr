@@ -376,7 +376,7 @@ module Invidious::Routes::Watch
       else
         comments = YoutubeAPI.browse(continuation: continuation)
       end
-      comment_html = JSON.parse(Comments.parse_youtube(id, comments, "html", locale, thin_mode, "post"))["contentHtml"]
+      comment_html = JSON.parse(Comments.parse_youtube(id, comments, "html", locale, thin_mode, type: "post", ucid: ucid))["contentHtml"]
     else
       # video comments
       if source == "youtube"

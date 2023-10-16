@@ -472,8 +472,7 @@ module Invidious::Routes::API::V1::Channels
     else
       comments = YoutubeAPI.browse(continuation: continuation)
     end
-
-    return Comments.parse_youtube(id, comments, format, locale, thin_mode, "post")
+    return Comments.parse_youtube(id, comments, format, locale, thin_mode, type: "post", ucid: ucid)
   end
 
   def self.channels(env)

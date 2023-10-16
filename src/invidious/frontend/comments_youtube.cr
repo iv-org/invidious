@@ -1,7 +1,7 @@
 module Invidious::Frontend::Comments
   extend self
 
-  def template_youtube(comments, locale, thin_mode, id, type="video", is_replies = false)
+  def template_youtube(comments, locale, thin_mode, id, type = "video", is_replies = false)
     String.build do |html|
       root = comments["comments"].as_a
       root.each do |child|
@@ -27,7 +27,7 @@ module Invidious::Frontend::Comments
             </div>
           </div>
           END_HTML
-        elsif comments["authorId"]? && !comments["singlePost"]?
+        elsif comments["authorId"]? && !comments["singlePost"]? && type != "post"
           # for posts we should display a link to the post
           replies_count_text = translate_count(locale,
             "comments_view_x_replies",
@@ -151,7 +151,12 @@ module Invidious::Frontend::Comments
           |
         END_HTML
 
-        if comments["videoId"]?
+        if type == "post" && !comments["singlePost"]?
+          html << <<-END_HTML
+            <a href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{id}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+            |
+          END_HTML
+        elsif comments["videoId"]?
           html << <<-END_HTML
             <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
