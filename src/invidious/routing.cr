@@ -170,6 +170,8 @@ module Invidious::Routing
 
     get "/embed/", Routes::Embed, :redirect
     get "/embed/:id", Routes::Embed, :show
+    # currently only for fetching continuations when js is disabled.
+    get "/comment_viewer", Routes::Watch, :comments
   end
 
   def register_yt_playlist_routes
