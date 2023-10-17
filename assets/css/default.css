@@ -449,12 +449,10 @@ footer {
 
 .light-theme footer a {
   color: #7c7c7c !important;
-/*text-decoration: underline;*/
 }
 
 .dark-theme footer a {
   color: #adadad !important;
-/*text-decoration: underline;*/
 }
 
 footer span {
@@ -566,7 +564,6 @@ span > select {
 
   .no-theme footer a {
     color: #7c7c7c !important;
-/*  text-decoration: underline;*/
   }
 
   .light-theme .pure-menu-heading {
@@ -694,7 +691,6 @@ body.dark-theme {
 
   .no-theme footer a {
     color: #adadad !important;
-  /*text-decoration: underline;*/
   }
 }
 
