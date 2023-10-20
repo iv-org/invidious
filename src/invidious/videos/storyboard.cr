@@ -25,7 +25,7 @@ module Invidious::Videos
       authority = /(i\d?).ytimg.com/.match(@url.host.not_nil!).not_nil![1]?
 
       @proxied_url = URI.parse(HOST_URL)
-      @proxied_url.path = "/sb/#{authority}#{@url.path}"
+      @proxied_url.path = "/sb/#{authority}/#{@url.path.lchop("/sb/")}"
       @proxied_url.query = @url.query
     end
 
@@ -60,8 +60,7 @@ module Invidious::Videos
       return [] of Storyboard if !storyboards
 
       # The base URL is the first chunk
-      url = URI.parse(storyboards.shift)
-      params = url.query_params
+      base_url = URI.parse(storyboards.shift)
 
       return storyboards.map_with_index do |sb, i|
         # Separate the different storyboard parameters:
@@ -81,9 +80,13 @@ module Invidious::Videos
         columns = columns.to_i
         rows = rows.to_i
 
+        # Copy base URL object, so that we can modify it
+        url = base_url.dup
+
         # Add the signature to the URL
+        params = url.query_params
         params["sigh"] = sigh
-        url.query = params.to_s
+        url.query_params = params
 
         # Replace the template parts with what we have
         url.path = url.path.sub("$L", i).sub("$N", name)
