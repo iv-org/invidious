@@ -43,7 +43,7 @@ function button_press(){
 };
 
 addEventListener('DOMContentLoaded', function(){
-    const pagination_data = JSON.parse(document.getElementById('pagination_locale_strings').textContent);
+    const pagination_data = JSON.parse(document.getElementById('pagination-data').textContent);
     const next_page_containers = document.getElementsByClassName("page-next-container");
 
     for (let container of next_page_containers){
