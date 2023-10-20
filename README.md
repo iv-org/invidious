@@ -149,7 +149,7 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 - [CloudTube](https://sr.ht/~cadence/tube/): A JavaScript-rich alternate YouTube player.
 - [PeerTubeify](https://gitlab.com/Cha_de_L/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
 - [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
-- [HoloPlay](https://github.com/stephane-r/holoplay-wa): Progressive Web App connecting on Invidious API's with search, playlists and favorites.
+- [HoloPlay](https://github.com/stephane-r/holoplay-pwa): Progressive Web App connecting on Invidious API's with search, playlists and favorites.
 - [WatchTube](https://github.com/WatchTubeTeam/WatchTube): Powerful YouTube client for Apple Watch.
 - [Yattee](https://github.com/yattee/yattee): Alternative YouTube frontend for iPhone, iPad, Mac and Apple TV.
 - [TubiTui](https://codeberg.org/777/TubiTui): A lightweight, libre, TUI-based YouTube client.
