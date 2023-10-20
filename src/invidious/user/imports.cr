@@ -226,7 +226,6 @@ struct Invidious::User
         watched = data.as_a.compact_map do |item|
           next unless url = item["titleUrl"]?
           next unless match = url.as_s.match(/\?v=(?<video_id>[a-zA-Z0-9_-]+)$/)
-          puts match["video_id"]
           match["video_id"]
         end
         watched.reverse! # YouTube have newest first
