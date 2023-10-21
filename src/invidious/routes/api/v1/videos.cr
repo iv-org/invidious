@@ -136,17 +136,17 @@ module Invidious::Routes::API::V1::Videos
           end
         end
       else
-        # Some captions have "align:[start/end]" and "position:[num]%"
-        # attributes. Those are causing issues with VideoJS, which is unable
-        # to properly align the captions on the video, so we remove them.
-        #
-        # See: https://github.com/iv-org/invidious/issues/2391
-        webvtt = YT_POOL.client &.get("#{url}&format=vtt").body
+        webvtt = YT_POOL.client &.get("#{url}&fmt=vtt").body
+
         if webvtt.starts_with?("<?xml")
           webvtt = caption.timedtext_to_vtt(webvtt)
         else
-          webvtt = YT_POOL.client &.get("#{url}&format=vtt").body
-            .gsub(/([0-9:.]{12} --> [0-9:.]{12}).+/, "\\1")
+          # Some captions have "align:[start/end]" and "position:[num]%"
+          # attributes. Those are causing issues with VideoJS, which is unable
+          # to properly align the captions on the video, so we remove them.
+          #
+          # See: https://github.com/iv-org/invidious/issues/2391
+          webvtt = webvtt.gsub(/([0-9:.]{12} --> [0-9:.]{12}).+/, "\\1")
         end
       end
     end
