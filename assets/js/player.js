@@ -98,11 +98,13 @@ if (video_data.params.quality === 'dash') {
 
 /**
  * Function for add time argument to url
+ *
  * @param {String} url
+ * @param {String} [base]
  * @returns {URL} urlWithTimeArg
  */
-function addCurrentTimeToURL(url) {
-    var urlUsed = new URL(url);
+function addCurrentTimeToURL(url, base) {
+    var urlUsed = new URL(url, base);
     urlUsed.searchParams.delete('start');
     var currentTime = Math.ceil(player.currentTime());
     if (currentTime > 0)
@@ -111,6 +113,50 @@ function addCurrentTimeToURL(url) {
         urlUsed.searchParams.delete('t');
     return urlUsed;
 }
+
+/**
+ * Global variable to save the last timestamp (in full seconds) at which the external
+ * links were updated by the 'timeupdate' callback below.
+ *
+ * It is initialized to 5s so that the video will always restart from the beginning
+ * if the user hasn't really started watching before switching to the other website.
+ */
+var timeupdate_last_ts = 5;
+
+/**
+ * Callback that updates the timestamp on all external links
+ */
+player.on('timeupdate', function () {
+    // Only update once every second
+    let current_ts = Math.floor(player.currentTime());
+    if (current_ts > timeupdate_last_ts) timeupdate_last_ts = current_ts;
+    else return;
+
+    // YouTube links
+
+    let elem_yt_watch = document.getElementById('link-yt-watch');
+    let elem_yt_embed = document.getElementById('link-yt-embed');
+
+    let base_url_yt_watch = elem_yt_watch.getAttribute('data-base-url');
+    let base_url_yt_embed = elem_yt_embed.getAttribute('data-base-url');
+
+    elem_yt_watch.href = addCurrentTimeToURL(base_url_yt_watch);
+    elem_yt_embed.href = addCurrentTimeToURL(base_url_yt_embed);
+
+    // Invidious links
+
+    let domain = window.location.origin;
+
+    let elem_iv_embed = document.getElementById('link-iv-embed');
+    let elem_iv_other = document.getElementById('link-iv-other');
+
+    let base_url_iv_embed = elem_iv_embed.getAttribute('data-base-url');
+    let base_url_iv_other = elem_iv_other.getAttribute('data-base-url');
+
+    elem_iv_embed.href = addCurrentTimeToURL(base_url_iv_embed, domain);
+    elem_iv_other.href = addCurrentTimeToURL(base_url_iv_other, domain);
+});
+
 
 var shareOptions = {
     socials: ['fbFeed', 'tw', 'reddit', 'email'],
