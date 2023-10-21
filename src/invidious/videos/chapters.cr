@@ -1,6 +1,6 @@
 # Namespace for methods and objects relating to chapters
 module Invidious::Videos::Chapters
-  record Chapter, start_ms : Int32, end_ms : Int32, title : String, thumbnails : Array(Hash(String, Int32 | String))
+  record Chapter, start_ms : Time::Span, end_ms : Time::Span, title : String, thumbnails : Array(Hash(String, Int32 | String))
 
   # Parse raw chapters data into an array of Chapter structs
   #
@@ -37,8 +37,8 @@ module Invidious::Videos::Chapters
       end
 
       segments << Chapter.new(
-        start_ms: start_ms,
-        end_ms: end_ms,
+        start_ms: start_ms.milliseconds,
+        end_ms: end_ms.milliseconds,
         title: title,
         thumbnails: thumbnails,
       )
@@ -51,7 +51,7 @@ module Invidious::Videos::Chapters
   def self.chapters_to_vtt(chapters : Array(Chapter))
     vtt = WebVTT.build do |build|
       chapters.each do |chapter|
-        build.cue(chapter.start_ms.milliseconds, chapter.end_ms.milliseconds, chapter.title)
+        build.cue(chapter.start_ms, chapter.end_ms, chapter.title)
       end
     end
   end
@@ -63,8 +63,8 @@ module Invidious::Videos::Chapters
         chapters.each do |chapter|
           json.object do
             json.field "title", chapter.title
-            json.field "startMs", chapter.start_ms
-            json.field "endMs", chapter.end_ms
+            json.field "startMs", chapter.start_ms.total_milliseconds
+            json.field "endMs", chapter.end_ms.total_milliseconds
 
             json.field "thumbnails" do
               json.array do
