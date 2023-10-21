@@ -9,7 +9,7 @@
 
         <div class="description-chapters-content-container">
             <% chapters.each do | chapter | %>
-                <%- start_in_seconds = chapter.start_ms.milliseconds.total_seconds.to_i %>
+                <%- start_in_seconds = chapter.start_ms.total_seconds.to_i %>
                 <a href="/watch?v=<%-= video.id %>&t=<%=start_in_seconds %>">
                     <div class="chapter" data-onclick="jump_to_time" data-jump-time="<%=start_in_seconds%>">
                         <div class="thumbnail">
