@@ -39,6 +39,7 @@ module Invidious::JSONify::APIv1
       json.field "author", video.author
       json.field "authorId", video.ucid
       json.field "authorUrl", "/channel/#{video.ucid}"
+      json.field "authorVerified", video.author_verified
 
       json.field "authorThumbnails" do
         json.array do
