@@ -218,6 +218,26 @@ struct Invidious::User
       end
     end
 
+    def from_youtube_wh(user : User, body : String, filename : String, type : String) : Bool
+      extension = filename.split(".").last
+
+      if extension == "json" || type == "application/json"
+        data = JSON.parse(body)
+        watched = data.as_a.compact_map do |item|
+          next unless url = item["titleUrl"]?
+          next unless match = url.as_s.match(/\?v=(?<video_id>[a-zA-Z0-9_-]+)$/)
+          match["video_id"]
+        end
+        watched.reverse! # YouTube have newest first
+        user.watched += watched
+        user.watched.uniq!
+        Invidious::Database::Users.update_watch_history(user)
+        return true
+      else
+        return false
+      end
+    end
+
     # -------------------
     #  Freetube
     # -------------------
@@ -228,8 +248,12 @@ struct Invidious::User
       subs = matches.map(&.["channel_id"])
 
       if subs.empty?
-        data = JSON.parse(body)["subscriptions"]
-        subs = data.as_a.map(&.["id"].as_s)
+        profiles = body.split('\n', remove_empty: true)
+        profiles.each do |profile|
+          if data = JSON.parse(profile)["subscriptions"]?
+            subs += data.as_a.map(&.["id"].as_s)
+          end
+        end
       end
 
       user.subscriptions += subs

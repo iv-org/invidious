@@ -40,6 +40,7 @@
     "Import Invidious data": "Import Invidious JSON data",
     "Import YouTube subscriptions": "Import YouTube/OPML subscriptions",
     "Import YouTube playlist (.csv)": "Import YouTube playlist (.csv)",
+    "Import YouTube watch history (.json)": "Import YouTube watch history (.json)",
     "Import FreeTube subscriptions (.db)": "Import FreeTube subscriptions (.db)",
     "Import NewPipe subscriptions (.json)": "Import NewPipe subscriptions (.json)",
     "Import NewPipe data (.zip)": "Import NewPipe data (.zip)",

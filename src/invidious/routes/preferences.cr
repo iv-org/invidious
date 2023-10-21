@@ -319,6 +319,15 @@ module Invidious::Routes::PreferencesRoute
               response: error_template(415, "Invalid playlist file uploaded")
             )
           end
+        when "import_youtube_wh"
+          filename = part.filename || ""
+          success = Invidious::User::Import.from_youtube_wh(user, body, filename, type)
+
+          if !success
+            haltf(env, status_code: 415,
+              response: error_template(415, "Invalid watch history file uploaded")
+            )
+          end
         when "import_freetube"
           Invidious::User::Import.from_freetube(user, body)
         when "import_newpipe_subscriptions"

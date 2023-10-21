@@ -461,6 +461,7 @@
     "Standard YouTube license": "标准 YouTube 许可证",
     "Download is disabled": "已禁用下载",
     "Import YouTube playlist (.csv)": "导入 YouTube 播放列表（.csv）",
+    "Import YouTube watch history (.json)": "导入 YouTube 观看历史（.json）",
     "generic_button_cancel": "取消",
     "playlist_button_add_items": "添加视频",
     "generic_button_delete": "删除",

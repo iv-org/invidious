@@ -42,8 +42,7 @@ module Invidious::Frontend::WatchPage
       str << translate(locale, "Download as: ")
       str << "</label>\n"
 
-      # TODO: remove inline style
-      str << "\t\t<select style=\"width:100%\" name='download_widget' id='download_widget'>\n"
+      str << "\t\t<select name='download_widget' id='download_widget'>\n"
 
       # Non-DASH videos (audio+video)
 

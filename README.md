@@ -82,7 +82,7 @@
 
 **Data import/export**
 - Import subscriptions from YouTube, NewPipe and Freetube
-- Import watch history from NewPipe
+- Import watch history from YouTube and NewPipe
 - Export subscriptions to NewPipe and Freetube
 - Import/Export Invidious user data
 
