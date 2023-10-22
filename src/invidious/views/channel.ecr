@@ -22,7 +22,6 @@
     base_url: relative_url,
     ctoken: next_continuation,
     first_page: continuation.nil?,
-    previous_page_button: env.get("preferences").as(Preferences).previous_page_button
   )
 %>
 
@@ -42,9 +41,7 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/channel/<%= ucid %>" />
 <%- end -%>
 
-<%- if env.get("preferences").as(Preferences).previous_page_button -%>
 <script src="/js/pagination.js?v=<%= ASSET_COMMIT %>"></script>
-<%- end -%>
 
 <link rel="alternate" href="<%= youtube_url %>">
 <title><%= author %> - Invidious</title>

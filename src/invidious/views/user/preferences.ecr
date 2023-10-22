@@ -190,11 +190,6 @@
                 <% end %>
             </div>
 
-	    <div class="pure-control-group">
-               <label for="previous_page_button"><%= translate(locale, "preferences_previous_page_button_label") %></label>
-	       <input name="previous_page_button" id="previous_page_button" type="checkbox" <% if preferences.previous_page_button %>checked<% end %>>
-	    </div>
-
             <% if env.get? "user" %>
                 <div class="pure-control-group">
                     <label for="show_nick"><%= translate(locale, "preferences_show_nick_label") %></label>

@@ -3,10 +3,7 @@ require "uri"
 module Invidious::Frontend::Pagination
   extend self
 
-  private def first_page(str : String::Builder, locale : String?, url : String, previous_page_button : Bool)
-    if previous_page_button
-      str << %(<noscript>)
-    end
+  private def first_page(str : String::Builder, locale : String?, url : String)
     str << %(<a href=") << url << %(" class="pure-button pure-button-secondary">)
 
     if locale_is_rtl?(locale)
@@ -22,9 +19,6 @@ module Invidious::Frontend::Pagination
     end
 
     str << "</a>"
-    if previous_page_button
-      str << "</noscript>"
-    end
   end
 
   private def previous_page(str : String::Builder, locale : String?, url : String)
@@ -96,7 +90,7 @@ module Invidious::Frontend::Pagination
     end
   end
 
-  def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?, first_page : Bool, previous_page_button : Bool)
+  def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?, first_page : Bool)
     return String.build do |str|
       str << %(<div class="h-box">\n)
       str << %(<div class="page-nav-container flexible">\n)
@@ -104,7 +98,7 @@ module Invidious::Frontend::Pagination
       str << %(<div class="page-prev-container flex-left">)
 
       if !first_page
-        self.first_page(str, locale, base_url.to_s, previous_page_button)
+        self.first_page(str, locale, base_url.to_s)
       end
 
       str << %(</div>\n)

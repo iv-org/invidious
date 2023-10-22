@@ -140,10 +140,6 @@ module Invidious::Routes::PreferencesRoute
     notifications_only ||= "off"
     notifications_only = notifications_only == "on"
 
-    previous_page_button = env.params.body["previous_page_button"]?.try &.as(String)
-    previous_page_button ||= "off"
-    previous_page_button = previous_page_button == "on"
-
     # Convert to JSON and back again to take advantage of converters used for compatibility
     preferences = Preferences.from_json({
       annotations:                 annotations,
@@ -179,7 +175,6 @@ module Invidious::Routes::PreferencesRoute
       vr_mode:                     vr_mode,
       show_nick:                   show_nick,
       save_player_pos:             save_player_pos,
-      previous_page_button:        previous_page_button,
     }.to_json)
 
     if user = env.get? "user"
