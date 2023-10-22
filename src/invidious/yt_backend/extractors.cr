@@ -717,14 +717,14 @@ private module Extractors
     end
 
     private def self.extract(target)
-      raw_items = [] of Array(JSON::Any)
+      raw_items = [] of JSON::Any
 
       target.dig("primaryContents", "sectionListRenderer", "contents").as_a.each do |node|
         if new_node = node["itemSectionRenderer"]?
-          raw_items << new_node["contents"].as_a
-        end
-        if node["continuationItemRenderer"]?
-          raw_items.push([node])
+          raw_items += new_node["contents"].as_a
+        elsif node["continuationItemRenderer"]?
+          # we put the node in an array so the ContinuationItemRendererParser is able to parse it
+          raw_items << node
         end
       end
 
