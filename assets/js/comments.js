@@ -10,6 +10,10 @@ String.prototype.supplant = function (o) {
     });
 };
 
+function updateReplyLinkHtml(contentHtml) {
+    return contentHtml.replace(/target="_blank" href="\/comment_viewer\?[^"]*"/g, 'href="javascript:void(0)"');
+};
+
 function toggle_comments(event) {
     var target = event.target;
     var body = target.parentNode.parentNode.parentNode.children[1];
@@ -93,7 +97,7 @@ function get_youtube_comments() {
             <div>{contentHtml}</div> \
             <hr>'
             commentInnerHtml = commentInnerHtml.supplant({
-                contentHtml: response.contentHtml,
+                contentHtml: updateReplyLinkHtml(response.contentHtml),
                 redditComments: video_data.reddit_comments_text,
                 commentsText: video_data.comments_text.supplant({
                     // toLocaleString correctly splits number with local thousands separator. e.g.:
@@ -142,7 +146,7 @@ function get_youtube_replies(target, load_more, load_replies) {
             if (load_more) {
                 body = body.parentNode.parentNode;
                 body.removeChild(body.lastElementChild);
-                body.insertAdjacentHTML('beforeend', response.contentHtml);
+                body.insertAdjacentHTML('beforeend', updateReplyLinkHtml(response.contentHtml));
             } else {
                 body.removeChild(body.lastElementChild);
 
@@ -157,7 +161,7 @@ function get_youtube_replies(target, load_more, load_replies) {
                 a.textContent = video_data.hide_replies_text;
 
                 var div = document.createElement('div');
-                div.innerHTML = response.contentHtml;
+                div.innerHTML = updateReplyLinkHtml(response.contentHtml);
 
                 body.appendChild(p);
                 body.appendChild(div);
