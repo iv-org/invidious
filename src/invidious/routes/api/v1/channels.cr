@@ -462,10 +462,18 @@ module Invidious::Routes::API::V1::Channels
     format ||= "json"
 
     continuation = env.params.query["continuation"]?
+    ucid = env.params.query["ucid"]?
+
+    if ucid.nil?
+      response = YoutubeAPI.resolve_url("https://www.youtube.com/post/#{id}")
+      return error_json(400, "Invalid post ID") if response["error"]?
+      ucid = response.dig("endpoint", "browseEndpoint", "browseId").as_s
+    else
+      ucid = ucid.to_s
+    end
 
     case continuation
     when nil, ""
-      ucid = env.params.query["ucid"]
       comments = Comments.fetch_community_post_comments(ucid, id)
     else
       comments = YoutubeAPI.browse(continuation: continuation)
