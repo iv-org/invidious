@@ -163,7 +163,7 @@ module Invidious::Routes::API::V1::Misc
       if head_response.headers["location"]?
         url = head_response.headers["location"]
       end
-    
+
       resolved_url = YoutubeAPI.resolve_url(url.as(String))
       endpoint = resolved_url["endpoint"]
       pageType = endpoint.dig?("commandMetadata", "webCommandMetadata", "webPageType").try &.as_s || ""
