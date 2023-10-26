@@ -32,14 +32,22 @@ function button_press(){
     // On the first page, the stored continuation token is null.
     if (prev_ctoken === null) {
         sessionStorage.removeItem(CONT_CACHE_KEY);
-        window.location.href = window.location.href.split('?')[0];
+        let url = window.location.href.split('?')[0];
+        let params = window.location.href.split('?')[1];
+        let url_params = new URLSearchParams(params);
+        url_params.delete('continuation');
+        window.location.href = `${url}?${url_params.toString()}`;
 
         return;
     }
 
     sessionStorage.setItem(CONT_CACHE_KEY, JSON.stringify(prev_data));
+    let url = window.location.href.split('?')[0];
+    let params = window.location.href.split('?')[1];
+    let url_params = new URLSearchParams(params);
+    url_params.set("continuation", prev_ctoken);
 
-    window.location.href = `${window.location.pathname}?continuation=${prev_ctoken}`;
+    window.location.href = `${url}?${url_params.toString()}`;
 };
 
 addEventListener('DOMContentLoaded', function(){

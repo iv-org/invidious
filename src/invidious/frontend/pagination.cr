@@ -90,7 +90,7 @@ module Invidious::Frontend::Pagination
     end
   end
 
-  def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?, first_page : Bool)
+  def nav_ctoken(locale : String?, *, base_url : String | URI, ctoken : String?, first_page : Bool, params : URI::Params)
     return String.build do |str|
       str << %(<div class="h-box">\n)
       str << %(<div class="page-nav-container flexible">\n)
@@ -106,8 +106,8 @@ module Invidious::Frontend::Pagination
       str << %(<div class="page-next-container flex-right">)
 
       if !ctoken.nil?
-        params_next = URI::Params{"continuation" => ctoken}
-        url_next = HttpServer::Utils.add_params_to_url(base_url, params_next)
+        params["continuation"] = ctoken
+        url_next = HttpServer::Utils.add_params_to_url(base_url, params)
 
         self.next_page(str, locale, url_next.to_s)
       end
