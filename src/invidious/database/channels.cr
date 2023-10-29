@@ -89,7 +89,7 @@ module Invidious::Database::Channels
   # Select channels sorted by last published video
   def select_sorted(ids : Array(String)) : Array(InvidiousChannel)?
     return [] of InvidiousChannel if ids.empty?
-  
+
     request = <<-SQL
       WITH max_published AS (
         SELECT ucid, MAX(published) AS last_published
@@ -101,7 +101,7 @@ module Invidious::Database::Channels
       WHERE channels.id = ANY($1)
       ORDER BY max_published.last_published DESC NULLS LAST;
     SQL
-  
+
     return PG_DB.query_all(request, ids, as: InvidiousChannel)
   end
 end
