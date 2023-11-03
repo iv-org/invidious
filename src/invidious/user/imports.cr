@@ -16,7 +16,7 @@ struct Invidious::User
       rows.each do |row|
         # Limit to 1200
         row_counter += 1
-        break if row_counter > 1_200
+        break if row_counter > 1200
 
         # Channel ID is the first column in the csv export we can't use the header
         # name, because the header name is localized depending on the
