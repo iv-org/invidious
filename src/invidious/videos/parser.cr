@@ -78,6 +78,11 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
     # YouTube may return a different video player response than expected.
     # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
     # Line to be reverted if one day we solve the video not available issue.
+
+    # Although technically not a call to /videoplayback the fact that YouTube is returning the
+    # wrong video means that we should count it as a failure.
+    get_playback_statistic()["totalRequests"] += 1
+
     return {
       "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
       "reason"  => JSON::Any.new("Can't load the video on this Invidious instance. YouTube is currently trying to block Invidious instances. <a href=\"https://github.com/iv-org/invidious/issues/3822\">Click here for more info about the issue.</a>"),
