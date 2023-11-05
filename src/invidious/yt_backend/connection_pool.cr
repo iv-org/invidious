@@ -35,7 +35,14 @@ struct YoutubeConnectionPool
         response = yield conn
       rescue ex
         conn.close
-        conn = HTTP::Client.new(url)
+
+        tls_context = OpenSSL::SSL::Context::Client.new
+        if CONFIG.openssl_ca_certs_dir != nil
+          tls_context.ca_certificates_path = CONFIG.openssl_ca_certs_dir.not_nil!
+        elsif CONFIG.openssl_ca_certs_file != nil
+          tls_context.ca_certificates = CONFIG.openssl_ca_certs_file.not_nil!
+        end
+        conn = HTTP::Client.new(url, tls: tls_context)
 
         conn.family = CONFIG.force_resolve
         conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
@@ -51,7 +58,13 @@ struct YoutubeConnectionPool
 
   private def build_pool
     DB::Pool(HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
-      conn = HTTP::Client.new(url)
+      tls_context = OpenSSL::SSL::Context::Client.new
+      if CONFIG.openssl_ca_certs_dir != nil
+        tls_context.ca_certificates_path = CONFIG.openssl_ca_certs_dir.not_nil!
+      elsif CONFIG.openssl_ca_certs_file != nil
+        tls_context.ca_certificates = CONFIG.openssl_ca_certs_file.not_nil!
+      end
+      conn = HTTP::Client.new(url, tls: tls_context)
       conn.family = CONFIG.force_resolve
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"

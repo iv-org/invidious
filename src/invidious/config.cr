@@ -126,6 +126,10 @@ class Config
   property host_binding : String = "0.0.0.0"
   # Pool size for HTTP requests to youtube.com and ytimg.com (each domain has a separate pool of `pool_size`)
   property pool_size : Int32 = 100
+  # CA certificates file for OpenSSL
+  property openssl_ca_certs_file : String? = nil
+  # CA certificates folder for OpenSSL
+  property openssl_ca_certs_dir : String? = nil
 
   # Use Innertube's transcripts API instead of timedtext for closed captions
   property use_innertube_for_captions : Bool = false
@@ -230,6 +234,12 @@ class Config
         puts "Config: Either database_url or db.* is required"
         exit(1)
       end
+    end
+
+    # We can only have openssl_ca_certs_file or openssl_ca_certs_dir, not both
+    if !(config.openssl_ca_certs_file.nil? || config.openssl_ca_certs_dir.nil?)
+      puts "Config: You can't have both openssl_ca_certs_file and openssl_ca_certs_folder."
+      exit(1)
     end
 
     return config

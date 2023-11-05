@@ -140,6 +140,28 @@ https_only: false
 ##
 #pool_size: 100
 
+##
+## File containing the Certificate Authorities, in the PEM format
+## as expected by OpenSSL. For example, /etc/ssl1.1/certs.pem on Alpine.
+## By default, Invidious by using Crystal standard library will use
+## the default setting from the crystal binary it was compiled with.
+## This option is incompatible with openssl_ca_certs_dir.
+##
+## Default: <none>
+##
+#openssl_ca_certs_file:
+
+##
+## Folder containing the Certificate Authorities, in the PEM format
+## as expected by OpenSSL. For example, /etc/ssl/certs/ on Debian.
+## By default, Invidious by using Crystal standard library will use
+## the default setting from the crystal binary it was compiled with.
+## This option is incompatible with openssl_ca_certs_file.
+##
+## Default: <none>
+##
+#openssl_ca_certs_dir:
+
 
 ##
 ## Additional cookies to be sent when requesting the youtube API.
