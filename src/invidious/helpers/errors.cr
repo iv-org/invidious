@@ -3,7 +3,7 @@
 # -------------------
 
 macro error_template(*args)
-  error_template_helper(env, {{*args}})
+  error_template_helper(env, {{args.splat}})
 end
 
 def github_details(summary : String, content : String)
