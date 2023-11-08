@@ -93,7 +93,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
     player_response = player_response.merge(next_response)
   end
 
-  params = parse_video_info(video_id, player_response, proxy_region)
+  params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
 
   new_player_response = nil
@@ -158,7 +158,7 @@ def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConf
   end
 end
 
-def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any), proxy_region : String? = nil) : Hash(String, JSON::Any)
+def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any)) : Hash(String, JSON::Any)
   # Top level elements
 
   main_results = player_response.dig?("contents", "twoColumnWatchNextResults")
