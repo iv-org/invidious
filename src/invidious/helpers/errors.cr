@@ -121,7 +121,7 @@ end
 # -------------------
 
 macro error_json(*args)
-  error_json_helper(env, {{*args}})
+  error_json_helper(env, {{args.splat}})
 end
 
 def error_json_helper(
