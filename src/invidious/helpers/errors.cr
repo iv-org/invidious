@@ -95,7 +95,7 @@ end
 # -------------------
 
 macro error_atom(*args)
-  error_atom_helper(env, {{*args}})
+  error_atom_helper(env, {{args.splat}})
 end
 
 def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
