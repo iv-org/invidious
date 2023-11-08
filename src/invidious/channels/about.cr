@@ -18,8 +18,8 @@ record AboutChannel,
 
 def get_about_info(ucid, locale) : AboutChannel
   begin
-    # "EgVhYm91dA==" is the base64-encoded protobuf object {"2:string":"about"}
-    initdata = YoutubeAPI.browse(browse_id: ucid, params: "EgVhYm91dA==")
+    # "EgVhYm91dPIGBAoCEgA=" is the base64-encoded protobuf object {"2:0:string":"about","110:1:embedded":{"1:0:embedded":{"2:0:string":""}}}
+    initdata = YoutubeAPI.browse(browse_id: ucid, params: "EgVhYm91dPIGBAoCEgA=")
   rescue
     raise InfoException.new("Could not get channel info.")
   end
