@@ -68,7 +68,7 @@ addEventListener('DOMContentLoaded', function(){
         const prev_page_containers = document.getElementsByClassName("page-prev-container")
 
         for (let container of prev_page_containers) {
-            if (pagination_data.is_locale_rtl) {
+            if (pagination_data.is_rtl) {
                 container.innerHTML = `<button class="pure-button pure-button-secondary">${pagination_data.prev_page}&nbsp;&nbsp;<i class="icon ion-ios-arrow-forward"></i></button>`
             } else {
                 container.innerHTML = `<button class="pure-button pure-button-secondary"><i class="icon ion-ios-arrow-back"></i>&nbsp;&nbsp;${pagination_data.prev_page}</button>`
