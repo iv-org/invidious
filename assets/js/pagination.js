@@ -32,23 +32,37 @@ function button_press(){
     // On the first page, the stored continuation token is null.
     if (prev_ctoken === null) {
         sessionStorage.removeItem(CONT_CACHE_KEY);
-        let url = window.location.href.split('?')[0];
-        let params = window.location.href.split('?')[1];
-        let url_params = new URLSearchParams(params);
-        url_params.delete('continuation');
-        window.location.href = `${url}?${url_params.toString()}`;
+        let url = set_continuation();
+        window.location.href = url;
 
         return;
     }
 
     sessionStorage.setItem(CONT_CACHE_KEY, JSON.stringify(prev_data));
+    let url = set_continuation(prev_ctoken);
+
+    window.location.href = url;
+};
+
+// Method to set the current page's continuation token
+// Removes the continuation parameter when a continuation token is not given
+function set_continuation(prev_ctoken = null){
     let url = window.location.href.split('?')[0];
     let params = window.location.href.split('?')[1];
     let url_params = new URLSearchParams(params);
-    url_params.set("continuation", prev_ctoken);
 
-    window.location.href = `${url}?${url_params.toString()}`;
-};
+    if (prev_ctoken) {
+        url_params.set("continuation", prev_ctoken);
+    } else {
+        url_params.delete('continuation');
+    };
+
+    if(Array.from(url_params).length > 0){
+        return `${url}?${url_params.toString()}`;
+    } else {
+        return url;
+    }
+}
 
 addEventListener('DOMContentLoaded', function(){
     const pagination_data = JSON.parse(document.getElementById('pagination-data').textContent);
