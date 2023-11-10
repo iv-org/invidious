@@ -39,7 +39,6 @@ services:
     depends_on:
       invidious-db:
         condition: service_healthy
-        restart: true
 
   invidious-db:
     image: docker.io/library/postgres:14
