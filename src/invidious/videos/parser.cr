@@ -48,7 +48,7 @@ def parse_related_video(related : JSON::Any, published : String? = nil, publishe
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
     "author_verified"  => JSON::Any.new(author_verified),
     "published"        => JSON::Any.new(published || ""),
-    "publishedText"    => JSON::Any.new(publishedText || ""),
+    "publishedText"    => JSON::Any.new(translate(locale, "`x` ago", recode_date(video.published, locale)) || ""),
   }
 end
 
