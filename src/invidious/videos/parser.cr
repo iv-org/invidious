@@ -6,7 +6,7 @@ require "json"
 #
 # TODO: "compactRadioRenderer" (Mix) and
 # TODO: Use a proper struct/class instead of a hacky JSON object
-def parse_related_video(related : JSON::Any, published : String? = nil) : Hash(String, JSON::Any)?
+def parse_related_video(related : JSON::Any, published : String? = nil, publishedText : String? = nil) : Hash(String, JSON::Any)?
   return nil if !related["videoId"]?
 
   # The compact renderer has video length in seconds, where the end
@@ -48,6 +48,7 @@ def parse_related_video(related : JSON::Any, published : String? = nil) : Hash(S
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
     "author_verified"  => JSON::Any.new(author_verified),
     "published"        => JSON::Any.new(published || ""),
+    "publishedText"    => JSON::Any.new(publishedText || ""),
   }
 end
 
@@ -237,12 +238,13 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   secondary_results.try &.as_a.each do |element|
     if item = element["compactVideoRenderer"]?
       if item["publishedTimeText"]?
+        rv_published_time_text = item["publishedTimeText"].to_s
         rv_decoded_time = decode_date(item["publishedTimeText"].to_s)
         rv_published_timestamp = rv_decoded_time.to_unix.to_s
       else
         rv_published_timestamp = nil
       end
-      related_video = parse_related_video(item, published: rv_published_timestamp)
+      related_video = parse_related_video(item, published: rv_published_timestamp, publishedText: rv_published_time_text)
       related << JSON::Any.new(related_video) if related_video
     end
   end
