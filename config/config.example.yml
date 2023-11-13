@@ -237,6 +237,32 @@ https_only: false
 # -----------------------------
 
 ##
+## Allow/Forbid the usage of the Invidious Instance without an account.
+## Only /login and /privacy are accessible on such instances for unregistered
+## users on the web interface. Moreover, certain API endpoints are accessible,
+## to allow third-party clients to add the instance and login to an existing
+## account.
+##
+## To avoid any data leakage it is recommended to set popular_enabled and
+## statistics_enabled to 'false'. Furthermore, registration_enabled should be
+## set to 'false' to only allow existing users to access the instance.
+##
+## Accepted values: true, false
+## Default: false
+##
+#private_instance: false
+
+##
+## Redirect request to the login page on private instances. Also requires
+## login_enabled to be 'true', otherwise the server sends status code 401
+## and closes the connection.
+##
+## Accepted values: true, false
+## Default: false
+##
+#redirect_login: false
+
+##
 ## Allow/Forbid Invidious (local) account creation. Invidious
 ## accounts allow users to subscribe to channels and to create
 ## playlists without a Google account.
@@ -777,7 +803,7 @@ default_user_preferences:
   ##
   ## Default dash video quality.
   ##
-  ## Note: this setting only takes effet if the
+  ## Note: this setting only takes effect if the
   ## 'quality' parameter is set to "dash".
   ##
   ## Accepted values:
@@ -812,7 +838,7 @@ default_user_preferences:
   ## Default: true
   ##
   #vr_mode: true
-  
+
   ##
   ## Save the playback position
   ## Allow to continue watching at the previous position when

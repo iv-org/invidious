@@ -61,18 +61,6 @@ module Invidious::Routes::BeforeAll
       env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
     end
 
-    return if {
-                "/sb/",
-                "/vi/",
-                "/s_p/",
-                "/yts/",
-                "/ggpht/",
-                "/api/manifest/",
-                "/videoplayback",
-                "/latest_version",
-                "/download",
-              }.any? { |r| env.request.resource.starts_with? r }
-
     if env.request.cookies.has_key? "SID"
       sid = env.request.cookies["SID"].value
 
@@ -99,6 +87,43 @@ module Invidious::Routes::BeforeAll
         env.set "user", user
       end
     end
+
+    unregistered_path_whitelist = {
+      "/login",
+      "/privacy"
+      "/api/v1/stats",
+      # TODO: popular and trending are here for clients that require these endpoints to be accessible e.g. Clipious
+      # can be removed as soon as those clients can handele these request on private instances
+      "/api/v1/popular",
+      "/api/v1/trending",
+      "/feed/webhook/v1:",
+      "/api/v1/videos/dQw4w9WgXcQ",
+      "/api/v1/comments/jNQXAC9IVRw",
+      }
+
+    if CONFIG.private_instance && !env.get?("user") && !unregistered_path_whitelist.any? { |r| env.request.path.starts_with? r }
+      if CONFIG.redirect_login && CONFIG.login_enabled
+        env.response.headers["Location"] = "/login"
+        haltf env, status_code: 302
+      else
+        env.response.status_code = 401
+        env.response.close
+      end
+    end
+
+    return if {
+      "/sb/",
+      "/vi/",
+      "/s_p/",
+      "/yts/",
+      "/ggpht/",
+      "/download",
+      "/licenses",
+      "/api/manifest/",
+      "/videoplayback",
+      "/latest_version",
+      "/opensearch.xml",
+    }.any? { |r| env.request.resource.starts_with? r }
 
     dark_mode = convert_theme(env.params.query["dark_mode"]?) || preferences.dark_mode.to_s
     thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
