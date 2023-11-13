@@ -253,16 +253,6 @@ https_only: false
 #private_instance: false
 
 ##
-## Redirect request to the login page on private instances. Also requires
-## login_enabled to be 'true', otherwise the server sends status code 401
-## and closes the connection.
-##
-## Accepted values: true, false
-## Default: false
-##
-#redirect_login: false
-
-##
 ## Allow/Forbid Invidious (local) account creation. Invidious
 ## accounts allow users to subscribe to channels and to create
 ## playlists without a Google account.

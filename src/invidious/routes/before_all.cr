@@ -99,31 +99,26 @@ module Invidious::Routes::BeforeAll
       "/feed/webhook/v1:",
       "/api/v1/videos/dQw4w9WgXcQ",
       "/api/v1/comments/jNQXAC9IVRw",
-      }
+    }
 
     if CONFIG.private_instance && !env.get?("user") && !unregistered_path_whitelist.any? { |r| env.request.path.starts_with? r }
-      if CONFIG.redirect_login && CONFIG.login_enabled
-        env.response.headers["Location"] = "/login"
-        haltf env, status_code: 302
-      else
-        env.response.status_code = 401
-        env.response.close
-      end
+      env.response.headers["Location"] = "/login"
+      haltf env, status_code: 302
     end
 
     return if {
-      "/sb/",
-      "/vi/",
-      "/s_p/",
-      "/yts/",
-      "/ggpht/",
-      "/download",
-      "/licenses",
-      "/api/manifest/",
-      "/videoplayback",
-      "/latest_version",
-      "/opensearch.xml",
-    }.any? { |r| env.request.resource.starts_with? r }
+                "/sb/",
+                "/vi/",
+                "/s_p/",
+                "/yts/",
+                "/ggpht/",
+                "/download",
+                "/licenses",
+                "/api/manifest/",
+                "/videoplayback",
+                "/latest_version",
+                "/opensearch.xml",
+              }.any? { |r| env.request.resource.starts_with? r }
 
     dark_mode = convert_theme(env.params.query["dark_mode"]?) || preferences.dark_mode.to_s
     thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
