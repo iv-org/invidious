@@ -88,11 +88,11 @@ module Invidious::Routes::BeforeAll
       end
     end
 
-    # TODO: popular and trending are here for clients that require these endpoints to be accessible e.g. Clipious
+    # TODO: popular and trending are whitelisted for clients that require these endpoints to be accessible e.g. Clipious
     # can be removed as soon as those clients can handele these request on private instances
     unregistered_path_whitelist = {
       "/login",
-      "/privacy"
+      "/privacy",
       "/api/v1/stats",
       "/api/v1/popular",
       "/api/v1/trending",
