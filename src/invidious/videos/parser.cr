@@ -38,7 +38,7 @@ def parse_related_video(related : JSON::Any, published : String? = nil) : Hash(S
 
   publishedText = related["publishedTimeText"]?
   if !publishedText.nil?
-    publishedSimpleText = publishedText["simpleText"]
+	  publishedSimpleText = publishedText["simpleText"].to_s
   else
     publishedSimpleText = nil
   end
