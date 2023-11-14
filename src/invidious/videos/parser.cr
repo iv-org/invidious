@@ -239,8 +239,8 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .dig?("secondaryResults", "secondaryResults", "results")
   secondary_results.try &.as_a.each do |element|
     if item = element["compactVideoRenderer"]?
-      if rv_published_time_text = item["publishedTimeText"]["simpleText"]?
-        rv_decoded_time = decode_date(rv_published_time_text.to_s)
+      if rv_published_time_text = item["publishedTimeText"]?
+        rv_decoded_time = decode_date(rv_published_time_text["simpleText"].to_s)
         rv_published_timestamp = rv_decoded_time.to_unix.to_s
       else
         rv_published_timestamp = nil
