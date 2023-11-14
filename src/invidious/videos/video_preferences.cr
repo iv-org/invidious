@@ -102,7 +102,7 @@ def process_video_params(query, preferences)
 
   # Force set quality to "high" if dash or hls has been disabled by the server
   {"dash", "hls"}.each do |disabled_quality|
-    if CONFIG.disabled?("dash") && quality == "dash"
+    if CONFIG.disabled?(disabled_quality) && quality == disabled_quality
       quality = "high"
       break
     end
