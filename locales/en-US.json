@@ -499,5 +499,11 @@
     "toggle_theme": "Toggle Theme",
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
-    "carousel_go_to": "Go to slide `x`"
+    "carousel_go_to": "Go to slide `x`",
+    "video_quality_livestream_label": "Livestreams",
+    "video_quality_hls_label": "HLS",
+    "video_quality_dash_label": "DASH",
+    "video_quality_hd720_label": "hd720",
+    "video_quality_medium_label": "medium",
+    "video_quality_small_label": "small"
 }

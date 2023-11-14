@@ -5,9 +5,9 @@
     <% if params.video_loop %>loop<% end %>
     <% if params.controls %>controls<% end %>>
     <% if (hlsvp = video.hls_manifest_url) && video.live_now && !CONFIG.disabled?("livestreams") %>
-        <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="livestream">
+        <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="<%= HTML.escape(translate(locale,"video_quality_livestream_label")) %>">
     <% elsif (hlsvp = video.hls_manifest_url) && params.quality == "hls" && !CONFIG.disabled?("hls") %>
-        <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="HLS">
+        <source src="<%= URI.parse(hlsvp).request_target %><% if params.local %>?local=true<% end %>" type="application/x-mpegURL" label="<%= HTML.escape(translate(locale,"video_quality_hls_label")) %>">
     <% else %>
         <% if params.listen %>
             <% # default to 128k m4a stream
@@ -37,7 +37,7 @@
             <% end %>
         <% else %>
             <% if params.quality == "dash" %>
-                <source src="/api/manifest/dash/id/<%= video.id %>?local=true&unique_res=1" type='application/dash+xml' label="dash">
+                <source src="/api/manifest/dash/id/<%= video.id %>?local=true&unique_res=1" type='application/dash+xml' label="<%= HTML.escape(translate(locale,"video_quality_dash_label")) %>">
             <% end %>
 
             <%
@@ -52,7 +52,7 @@
 
                 selected = params.quality ? (params.quality == quality) : (i == 0)
             %>
-                <source src="<%= src_url %>" type="<%= mimetype %>" label="<%= quality %>" selected="<%= selected %>">
+                <source src="<%= src_url %>" type="<%= mimetype %>" label="<%= HTML.escape(translate(locale,"video_quality_#{quality}_label")) %>" selected="<%= selected %>">
                 <% if !params.local && !CONFIG.disabled?("local") %>
                 <source src="<%= src_url %>&local=true" type="<%= mimetype %>" hidequalityoption="true">
                 <% end %>
