@@ -52,11 +52,7 @@ module Invidious::Routes::Watch
     env.params.query.delete_all("listen")
 
     begin
-      if params.quality == "hls"
-        video = get_video(id, region: params.region, force_hls: true)
-      else
-        video = get_video(id, region: params.region)
-      end
+      video = get_video(id, region: params.region, force_hls: (params.quality == "hls"))
     rescue ex : NotFoundException
       LOGGER.error("get_video not found: #{id} : #{ex.message}")
       return error_template(404, ex)
