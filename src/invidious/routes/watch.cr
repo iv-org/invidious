@@ -275,6 +275,22 @@ module Invidious::Routes::Watch
     return error_template(400, "Invalid clip ID") if response["error"]?
 
     if video_id = response.dig?("endpoint", "watchEndpoint", "videoId")
+      if params = response.dig?("endpoint", "watchEndpoint", "params").try &.as_s
+        decoded_protobuf = params.try { |i| URI.decode_www_form(i) }
+          .try { |i| Base64.decode(i) }
+          .try { |i| IO::Memory.new(i) }
+          .try { |i| Protodec::Any.parse(i) }
+
+        start_time = decoded_protobuf
+          .try(&.["50:0:embedded"]["2:1:varint"].as_i64)
+
+        end_time = decoded_protobuf
+          .try(&.["50:0:embedded"]["3:2:varint"].as_i64)
+
+        env.params.query["start"] = (start_time / 1000).to_s
+        env.params.query["end"] = (end_time / 1000).to_s
+      end
+
       return env.redirect "/watch?v=#{video_id}&#{env.params.query}"
     else
       return error_template(404, "The requested clip doesn't exist")
