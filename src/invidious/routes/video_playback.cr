@@ -80,9 +80,14 @@ module Invidious::Routes::VideoPlayback
     # Remove the Range header added previously.
     headers.delete("Range") if range_header.nil?
 
+    playback_statistics = get_playback_statistic()
+    playback_statistics["totalRequests"] += 1
+
     if response.status_code >= 400
       env.response.content_type = "text/plain"
       haltf env, response.status_code
+    else
+      playback_statistics["successfulRequests"] += 1
     end
 
     if url.includes? "&file=seg.ts"
