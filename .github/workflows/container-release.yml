@@ -54,7 +54,7 @@ jobs:
 
       - name: Build and push Docker AMD64 image for Push Event
         if: github.ref == 'refs/heads/master'
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/Dockerfile
@@ -67,7 +67,7 @@ jobs:
 
       - name: Build and push Docker ARM64 image for Push Event
         if: github.ref == 'refs/heads/master'
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/Dockerfile.arm64
