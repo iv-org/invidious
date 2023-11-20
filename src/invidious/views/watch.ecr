@@ -76,15 +76,6 @@ we're going to need to do it here in order to allow for translations.
 <div class="h-box">
     <h1>
         <%= title %>
-        <% if params.listen %>
-            <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
-                <i class="icon ion-ios-videocam"></i>
-            </a>
-        <% else %>
-            <a title="<%=translate(locale, "Audio mode")%>" href="/watch?<%= env.params.query %>&listen=1">
-                <i class="icon ion-md-headset"></i>
-            </a>
-        <% end %>
         <span class="length-watch-page"> 
             <% time_span_length = video.length_seconds.seconds %>
 
@@ -98,6 +89,15 @@ we're going to need to do it here in order to allow for translations.
                 <%= time_span_length.seconds %> seconds
             <% end %>
         </span>
+        <% if params.listen %>
+            <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
+                <i class="icon ion-ios-videocam"></i>
+            </a>
+        <% else %>
+            <a title="<%=translate(locale, "Audio mode")%>" href="/watch?<%= env.params.query %>&listen=1">
+                <i class="icon ion-md-headset"></i>
+            </a>
+        <% end %>
     </h1>
     
 
