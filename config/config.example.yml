@@ -393,27 +393,6 @@ jobs:
 
 
 # -----------------------------
-#  Captcha API
-# -----------------------------
-
-##
-## URL of the captcha solving service.
-##
-## Accepted values: any URL
-## Default: https://api.anti-captcha.com
-##
-#captcha_api_url: https://api.anti-captcha.com
-
-##
-## API key for the captcha solving service.
-##
-## Accepted values: a string
-## Default: <none>
-##
-#captcha_key:
-
-
-# -----------------------------
 #  Miscellaneous
 # -----------------------------
 
