@@ -5,6 +5,17 @@ body {
     Arial, sans-serif;
 }
 
+.length-watch-page{
+  position: relative;
+  background-color: rgba(35, 35, 35, 0.75);
+  color: #fff;
+  border-radius: 2px;
+  padding: 4px;
+  font-size: 20px;
+  right: 0.25em;
+  bottom: 0.25em;
+}
+
 #contents {
   display: flex;
   flex-direction: column;

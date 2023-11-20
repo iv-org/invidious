@@ -85,7 +85,15 @@ we're going to need to do it here in order to allow for translations.
                 <i class="icon ion-md-headset"></i>
             </a>
         <% end %>
+        <span class="length-watch-page"> 
+            <% if (video.length_seconds // 60) < 60 %>
+                <%= video.length_seconds // 60 %> min 
+            <% else %>
+                <%= video.length_seconds // 3600 %> hr <%= (video.length_seconds % 3600) // 60 %> min 
+            <% end %>
+        </span>
     </h1>
+    
 
     <% if !video.is_listed %>
         <h3>
