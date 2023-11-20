@@ -86,10 +86,16 @@ we're going to need to do it here in order to allow for translations.
             </a>
         <% end %>
         <span class="length-watch-page"> 
-            <% if (video.length_seconds // 60) < 60 %>
-                <%= video.length_seconds // 60 %> min 
+            <% time_span_length = video.length_seconds.seconds %>
+
+            <% if time_span_length.days > 0 %>
+                <%= time_span_length.days %> d <%= time_span_length.hours %> hr <%= time_span_length.minutes %> min 
+            <% elsif time_span_length.hours > 0 %>
+                <%= time_span_length.hours %> hr <%= time_span_length.minutes %> min 
+            <% elsif time_span_length.minutes > 0 %>
+                <%= time_span_length.minutes %> min
             <% else %>
-                <%= video.length_seconds // 3600 %> hr <%= (video.length_seconds % 3600) // 60 %> min 
+                <%= time_span_length.seconds %> seconds
             <% end %>
         </span>
     </h1>
