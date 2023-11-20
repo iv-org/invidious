@@ -88,17 +88,18 @@ module Invidious::Videos
       property bitrate_avg : UInt64?
 
       # Itag 22 sometimes doesn't have a contentLength ?!
+      # Not present on livestreams
       property content_length : UInt64?
 
       private macro init_av_common_properties(format)
         @bitrate = format["bitrate"].as_i.to_u64
         @bitrate_avg = format["averageBitrate"]?.try &.as_i.to_u64
-        @content_length = format["contentLength"].try &.as_s.to_u64
+        @content_length = format["contentLength"]?.try &.as_s.to_u64
       end
     end
   end
 
-  # Properties that only applies to mulit-lingual adaptative streams.
+  # Properties that only applies to multi-lingual adaptative streams.
   # They apply to audio and text streams (notably text/mp4).
   #
   # Sample JSON for an audio track:
@@ -213,7 +214,7 @@ module Invidious::Videos
       @codecs = raw_codecs.lchop(" codecs=\"").rchop('"')
 
       # Last modified is not present on livestreams
-      if last_modified = format["lastModified"].as_s
+      if last_modified = format["lastModified"]?.try &.as_s
         # E.g "1670664306(.)849305"
         # Note: (.) is not present in the input data, it's used here to show
         # the demarcation between seconds and microseconds.
