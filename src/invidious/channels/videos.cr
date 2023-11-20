@@ -132,12 +132,6 @@ def produce_channel_livestreams_continuation(ucid, page = 1, auto_generated = ni
   return continuation
 end
 
-# Used in bypass_captcha_job.cr
-def produce_channel_livestream_url(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
-  continuation = produce_channel_livestreams_continuation(ucid, page, auto_generated, sort_by, v2)
-  return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
-end
-
 module Invidious::Channel::Tabs
   extend self
 
