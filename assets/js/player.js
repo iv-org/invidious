@@ -579,7 +579,7 @@ function toggle_fullscreen() {
     player.isFullscreen() ? player.exitFullscreen() : player.requestFullscreen();
 }
 
-function increase_playback_rate(steps, scrollAction=false) {
+function increase_playback_rate(steps) {
     let speed = player.playbackRate();
 
     // Considering 1/-1 as step against pre-defined speeds, 
