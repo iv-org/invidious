@@ -49,6 +49,7 @@ struct Preferences
   @[JSON::Field(converter: Preferences::ProcessString)]
   property sort : String = CONFIG.default_user_preferences.sort
   property speed : Float32 = CONFIG.default_user_preferences.speed
+  property toggle_speed_onscroll : Bool = CONFIG.default_user_preferences.toggle_speed_onscroll
   property thin_mode : Bool = CONFIG.default_user_preferences.thin_mode
   property unseen_only : Bool = CONFIG.default_user_preferences.unseen_only
   property video_loop : Bool = CONFIG.default_user_preferences.video_loop

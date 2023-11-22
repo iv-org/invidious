@@ -579,7 +579,7 @@ function toggle_fullscreen() {
     player.isFullscreen() ? player.exitFullscreen() : player.requestFullscreen();
 }
 
-function increase_playback_rate(steps) {
+function increase_playback_rate(steps, scrollAction=false) {
     let speed = player.playbackRate();
 
     // Considering 1/-1 as step against pre-defined speeds, 
@@ -592,9 +592,15 @@ function increase_playback_rate(steps) {
         else {
             const maxIndex = options.playbackRates.length - 1;
             const curIndex = options.playbackRates.indexOf(player.playbackRate());
-            let newIndex = curIndex + steps;
-            newIndex = helpers.clamp(newIndex, 0, maxIndex);
-            speed = options.playbackRates[newIndex]
+            // Reset speed if maximum selected
+            if (curIndex == maxIndex) {
+                speed = 1;
+            }
+            else{
+                let newIndex = curIndex + steps;
+                newIndex = helpers.clamp(newIndex, 0, maxIndex);
+                speed = options.playbackRates[newIndex];
+            }
         }
     }
     else {
@@ -744,16 +750,17 @@ addEventListener('keydown', function (e) {
 
     var speedHover = false;
     var speedSelector = pEl.querySelector('.vjs-playback-rate');
+    var allowscroll = video_data.preferences.toggle_speed_onscroll;
     if (speedSelector !== null) {
         speedSelector.onmouseover = function () { speedHover = true; };
         speedSelector.onmouseout = function () { speedHover = false; };
-        // Increase speed by a single step when pre-defined, or reset
-        speedSelector.onclick = function() { increase_playback_rate(1); };
+        // Increase speed by a single step, or reset when scrollable
+        speedSelector.onclick = function() { allowscroll ? player.playbackRate(video_data.preferences.speed) : increase_playback_rate(1); };
     }
 
     function mouseScroll(event) {
         // When controls are disabled, hotkeys will be disabled as well
-        if (!player.controls() || !speedHover) return;
+        if (!player.controls() || !speedHover || !allowscroll) return;
 
         event.preventDefault();
         var wheelMove = event.wheelDelta || -event.detail;
@@ -762,8 +769,8 @@ addEventListener('keydown', function (e) {
         increase_playback_rate(speedSign * 0.10); // increase speed by .10
     }
 
-    player.on('mousewheel', mouseScroll);
-    player.on('DOMMouseScroll', mouseScroll);
+        player.on('mousewheel', mouseScroll);
+        player.on('DOMMouseScroll', mouseScroll);
 }());
 
 // Since videojs-share can sometimes be blocked, we defer it until last
