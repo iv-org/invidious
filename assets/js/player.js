@@ -580,11 +580,29 @@ function toggle_fullscreen() {
 }
 
 function increase_playback_rate(steps) {
-    const maxIndex = options.playbackRates.length - 1;
-    const curIndex = options.playbackRates.indexOf(player.playbackRate());
-    let newIndex = curIndex + steps;
-    newIndex = helpers.clamp(newIndex, 0, maxIndex);
-    player.playbackRate(options.playbackRates[newIndex]);
+    let speed = player.playbackRate();
+
+    // Considering 1/-1 as step against pre-defined speeds, 
+    // otherwise treat as absolute change
+    if (steps == 1 || steps == -1) {
+        // If current speed is not pre-defined, reset it to 1
+        if (!options.playbackRates.includes(speed)) {
+            speed = 1;
+        }
+        else {
+            const maxIndex = options.playbackRates.length - 1;
+            const curIndex = options.playbackRates.indexOf(player.playbackRate());
+            let newIndex = curIndex + steps;
+            newIndex = helpers.clamp(newIndex, 0, maxIndex);
+            speed = options.playbackRates[newIndex]
+        }
+    }
+    else {
+        speed += steps;
+        speed = parseFloat(speed.toFixed(2));
+    }
+
+    player.playbackRate(speed);
 }
 
 addEventListener('keydown', function (e) {
@@ -715,6 +733,33 @@ addEventListener('keydown', function (e) {
         var volumeSign = Math.sign(wheelMove);
 
         change_volume(volumeSign * 0.05); // decrease/increase by 5%
+    }
+
+    player.on('mousewheel', mouseScroll);
+    player.on('DOMMouseScroll', mouseScroll);
+}());
+
+(function () {
+    const pEl = document.getElementById('player');
+
+    var speedHover = false;
+    var speedSelector = pEl.querySelector('.vjs-playback-rate');
+    if (speedSelector !== null) {
+        speedSelector.onmouseover = function () { speedHover = true; };
+        speedSelector.onmouseout = function () { speedHover = false; };
+        // Increase speed by a single step when pre-defined, or reset
+        speedSelector.onclick = function() { increase_playback_rate(1); };
+    }
+
+    function mouseScroll(event) {
+        // When controls are disabled, hotkeys will be disabled as well
+        if (!player.controls() || !speedHover) return;
+
+        event.preventDefault();
+        var wheelMove = event.wheelDelta || -event.detail;
+        var speedSign = Math.sign(wheelMove);
+
+        increase_playback_rate(speedSign * 0.10); // increase speed by .10
     }
 
     player.on('mousewheel', mouseScroll);
