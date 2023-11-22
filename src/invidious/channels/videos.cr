@@ -1,4 +1,4 @@
-def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
+def produce_channel_content_continuation(ucid, content, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
   object_inner_2 = {
     "2:0:embedded" => {
       "1:0:varint" => 0_i64,
@@ -16,6 +16,13 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
+  content_numerical =
+    case content
+    when "videos"  then 15
+    when "livestreams" then 14
+    else                15 # Fallback to "videos"
+    end
+
   sort_by_numerical =
     case sort_by
     when "newest"  then 1_i64
@@ -27,7 +34,7 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
   object_inner_1 = {
     "110:embedded" => {
       "3:embedded" => {
-        "15:embedded" => {
+        "#{content_numerical}:embedded" => {
           "1:embedded" => {
             "1:string" => object_inner_2_encoded,
           },
@@ -60,76 +67,16 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
     .try { |i| URI.encode_www_form(i) }
 
   return continuation
+end
+
+def make_initial_content_ctoken(ucid, content, sort_by) : String
+  return produce_channel_content_continuation(ucid, content, sort_by: sort_by)
 end
 
 # Used in bypass_captcha_job.cr
 def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
-  continuation = produce_channel_videos_continuation(ucid, page, auto_generated, sort_by, v2)
+  continuation = produce_channel_content_continuation(ucid, "videos", page, auto_generated, sort_by, v2)
   return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
-end
-
-def produce_channel_livestreams_continuation(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
-  object_inner_2 = {
-    "2:0:embedded" => {
-      "1:0:varint" => 0_i64,
-    },
-    "5:varint"  => 50_i64,
-    "6:varint"  => 1_i64,
-    "7:varint"  => (page * 30).to_i64,
-    "9:varint"  => 1_i64,
-    "10:varint" => 0_i64,
-  }
-
-  object_inner_2_encoded = object_inner_2
-    .try { |i| Protodec::Any.cast_json(i) }
-    .try { |i| Protodec::Any.from_json(i) }
-    .try { |i| Base64.urlsafe_encode(i) }
-    .try { |i| URI.encode_www_form(i) }
-
-  sort_by_numerical =
-    case sort_by
-    when "newest"  then 1_i64
-    when "popular" then 2_i64
-    when "oldest"  then 4_i64
-    else                1_i64 # Fallback to "newest"
-    end
-
-  object_inner_1 = {
-    "110:embedded" => {
-      "3:embedded" => {
-        "14:embedded" => {
-          "1:embedded" => {
-            "1:string" => object_inner_2_encoded,
-          },
-          "2:embedded" => {
-            "1:string" => "00000000-0000-0000-0000-000000000000",
-          },
-          "3:varint" => sort_by_numerical,
-        },
-      },
-    },
-  }
-
-  object_inner_1_encoded = object_inner_1
-    .try { |i| Protodec::Any.cast_json(i) }
-    .try { |i| Protodec::Any.from_json(i) }
-    .try { |i| Base64.urlsafe_encode(i) }
-    .try { |i| URI.encode_www_form(i) }
-
-  object = {
-    "80226972:embedded" => {
-      "2:string"  => ucid,
-      "3:string"  => object_inner_1_encoded,
-      "35:string" => "browse-feed#{ucid}videos102",
-    },
-  }
-
-  continuation = object.try { |i| Protodec::Any.cast_json(i) }
-    .try { |i| Protodec::Any.from_json(i) }
-    .try { |i| Base64.urlsafe_encode(i) }
-    .try { |i| URI.encode_www_form(i) }
-
-  return continuation
 end
 
 module Invidious::Channel::Tabs
@@ -138,10 +85,6 @@ module Invidious::Channel::Tabs
   # -------------------
   #  Regular videos
   # -------------------
-
-  def make_initial_video_ctoken(ucid, sort_by) : String
-    return produce_channel_videos_continuation(ucid, sort_by: sort_by)
-  end
 
   # Wrapper for AboutChannel, as we still need to call get_videos with
   # an author name and ucid directly (e.g in RSS feeds).
@@ -164,7 +107,7 @@ module Invidious::Channel::Tabs
   end
 
   def get_videos(author : String, ucid : String, *, continuation : String? = nil, sort_by = "newest")
-    continuation ||= make_initial_video_ctoken(ucid, sort_by)
+    continuation ||= make_initial_content_ctoken(ucid, "videos", sort_by)
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
     return extract_items(initial_data, author, ucid)
@@ -208,13 +151,9 @@ module Invidious::Channel::Tabs
   #  Livestreams
   # -------------------
 
-  def make_initial_livestream_ctoken(ucid, sort_by) : String
-    return produce_channel_livestreams_continuation(ucid, sort_by: sort_by)
-  end
-
   def get_livestreams(channel : AboutChannel, continuation : String? = nil, sort_by = "newest")
     if continuation.nil?
-      continuation ||= make_initial_livestream_ctoken(channel.ucid, sort_by)
+      continuation ||= make_initial_content_ctoken(channel.ucid, "livestreams", sort_by)
     end
 
     initial_data = YoutubeAPI.browse(continuation: continuation)
