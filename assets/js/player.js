@@ -592,15 +592,14 @@ function increase_playback_rate(steps) {
         else {
             const maxIndex = options.playbackRates.length - 1;
             const curIndex = options.playbackRates.indexOf(player.playbackRate());
-            // Reset speed if maximum selected
-            if (curIndex == maxIndex) {
-                speed = 1;
-            }
-            else{
-                let newIndex = curIndex + steps;
-                newIndex = helpers.clamp(newIndex, 0, maxIndex);
-                speed = options.playbackRates[newIndex];
-            }
+            let newIndex = curIndex;
+            // Set speed to minimum if at max speed
+            if (curIndex >= maxIndex)
+                newIndex = 0;
+            else
+                newIndex = curIndex + steps;
+
+            speed = options.playbackRates[newIndex];
         }
     }
     else {
