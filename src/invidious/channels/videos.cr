@@ -18,9 +18,9 @@ def produce_channel_content_continuation(ucid, content, page = 1, auto_generated
 
   content_numerical =
     case content
-    when "videos"  then 15
+    when "videos"      then 15
     when "livestreams" then 14
-    else                15 # Fallback to "videos"
+    else                    15 # Fallback to "videos"
     end
 
   sort_by_numerical =
