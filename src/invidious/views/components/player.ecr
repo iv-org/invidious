@@ -22,12 +22,16 @@
                 src_url  = "/latest_version?id=#{video.id}&itag=#{fmt["itag"]}"
                 src_url += "&local=true" if params.local
 
-                bitrate = fmt["bitrate"]
+                codec = fmt["mimeType"].as_s.split(";")[0].split("/")[1]
+                codec = codec == "webm" ? "opus" : codec
+
+                bitrate = ( fmt["bitrate"].as_i / 1000 ).round(0).to_i.to_s
+                quality_audio = "#{codec} @ #{bitrate}k"
                 mimetype = HTML.escape(fmt["mimeType"].as_s)
 
                 selected = (i == best_m4a_stream_index)
             %>
-                <source src="<%= src_url %>" type='<%= mimetype %>' label="<%= bitrate %>k" selected="<%= selected %>">
+                <source src="<%= src_url %>" type='<%= mimetype %>' label="<%= quality_audio %>" selected="<%= selected %>">
                 <% if !params.local && !CONFIG.disabled?("local") %>
                 <source src="<%= src_url %>&local=true" type='<%= mimetype %>' hidequalityoption="true">
                 <% end %>
