@@ -145,9 +145,7 @@ Weblate also allows you to log-in with major SSO providers like Github, Gitlab, 
 
 ## Projects using Invidious
 
-A list of projects and extensions for or utilizing Invidious can be found here
-
-https://docs.invidious.io/applications/
+A list of projects and extensions for or utilizing Invidious can be found in the documentation: https://docs.invidious.io/applications/
 
 ## Liability
 
