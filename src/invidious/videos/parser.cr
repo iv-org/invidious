@@ -6,7 +6,7 @@ require "json"
 #
 # TODO: "compactRadioRenderer" (Mix) and
 # TODO: Use a proper struct/class instead of a hacky JSON object
-def parse_related_video(related : JSON::Any, published : String? = nil) : Hash(String, JSON::Any)?
+def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   return nil if !related["videoId"]?
 
   # The compact renderer has video length in seconds, where the end
@@ -36,11 +36,12 @@ def parse_related_video(related : JSON::Any, published : String? = nil) : Hash(S
 
   LOGGER.trace("parse_related_video: Found \"watchNextEndScreenRenderer\" container")
 
-  publishedText = related["publishedTimeText"]?
-  if !publishedText.nil?
-    publishedSimpleText = publishedText["simpleText"].to_s
+  if published_time_text = related["publishedTimeText"]?
+    decoded_time = decode_date(published_time_text["simpleText"].to_s)
+    published = decoded_time.to_unix.to_s
+    published_time_text = published_time_text["simpleText"].to_s
   else
-    publishedSimpleText = nil
+    published = nil
   end
 
   # TODO: when refactoring video types, make a struct for related videos
@@ -55,7 +56,7 @@ def parse_related_video(related : JSON::Any, published : String? = nil) : Hash(S
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
     "author_verified"  => JSON::Any.new(author_verified),
     "published"        => JSON::Any.new(published || ""),
-    "publishedText"    => JSON::Any.new(publishedSimpleText || ""),
+    "publishedText"    => JSON::Any.new(published_time_text || ""),
   }
 end
 
@@ -244,13 +245,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .dig?("secondaryResults", "secondaryResults", "results")
   secondary_results.try &.as_a.each do |element|
     if item = element["compactVideoRenderer"]?
-      if rv_published_time_text = item["publishedTimeText"]?
-        rv_decoded_time = decode_date(rv_published_time_text["simpleText"].to_s)
-        rv_published_timestamp = rv_decoded_time.to_unix.to_s
-      else
-        rv_published_timestamp = nil
-      end
-      related_video = parse_related_video(item, published: rv_published_timestamp)
+      related_video = parse_related_video(item)
       related << JSON::Any.new(related_video) if related_video
     end
   end
