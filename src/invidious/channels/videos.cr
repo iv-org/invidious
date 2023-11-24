@@ -1,4 +1,4 @@
-def produce_channel_content_continuation(ucid, content, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
+def produce_channel_content_continuation(ucid, content_type, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
   object_inner_2 = {
     "2:0:embedded" => {
       "1:0:varint" => 0_i64,
@@ -16,8 +16,8 @@ def produce_channel_content_continuation(ucid, content, page = 1, auto_generated
     .try { |i| Base64.urlsafe_encode(i) }
     .try { |i| URI.encode_www_form(i) }
 
-  content_numerical =
-    case content
+  content_type_numerical =
+    case content_type
     when "videos"      then 15
     when "livestreams" then 14
     else                    15 # Fallback to "videos"
@@ -34,7 +34,7 @@ def produce_channel_content_continuation(ucid, content, page = 1, auto_generated
   object_inner_1 = {
     "110:embedded" => {
       "3:embedded" => {
-        "#{content_numerical}:embedded" => {
+        "#{content_type_numerical}:embedded" => {
           "1:embedded" => {
             "1:string" => object_inner_2_encoded,
           },
@@ -69,8 +69,8 @@ def produce_channel_content_continuation(ucid, content, page = 1, auto_generated
   return continuation
 end
 
-def make_initial_content_ctoken(ucid, content, sort_by) : String
-  return produce_channel_content_continuation(ucid, content, sort_by: sort_by)
+def make_initial_content_ctoken(ucid, content_type, sort_by) : String
+  return produce_channel_content_continuation(ucid, content_type, sort_by: sort_by)
 end
 
 # Used in bypass_captcha_job.cr
