@@ -152,9 +152,7 @@ module Invidious::Channel::Tabs
   # -------------------
 
   def get_livestreams(channel : AboutChannel, continuation : String? = nil, sort_by = "newest")
-    if continuation.nil?
-      continuation ||= make_initial_content_ctoken(channel.ucid, "livestreams", sort_by)
-    end
+    continuation ||= make_initial_content_ctoken(channel.ucid, "livestreams", sort_by)
 
     initial_data = YoutubeAPI.browse(continuation: continuation)
 
