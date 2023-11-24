@@ -11,6 +11,22 @@ def ci_lower_bound(pos, n)
   return (phat + z*z/(2*n) - z * Math.sqrt((phat*(1 - phat) + z*z/(4*n))/n))/(1 + z*z/n)
 end
 
+def video_length_abbreviated(length)
+  length_abbreviated = ""
+  if  length.days > 0
+    length_abbreviated = "#{length.days} d #{length.hours} hr #{length.minutes} min"
+  elsif length.hours > 0
+    length_abbreviated = "#{length.hours} h #{length.minutes} min"
+  elsif length.minutes > 0
+    length_abbreviated = "#{length.minutes} min"
+  else
+    length_abbreviated = "#{length.seconds} seconds"
+  end
+
+  return length_abbreviated
+
+end
+
 def elapsed_text(elapsed)
   millis = elapsed.total_milliseconds
   return "#{millis.round(2)}ms" if millis >= 1
