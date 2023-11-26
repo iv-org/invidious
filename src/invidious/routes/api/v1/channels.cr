@@ -90,6 +90,7 @@ module Invidious::Routes::API::V1::Channels
 
         json.field "allowedRegions", channel.allowed_regions
         json.field "tabs", channel.tabs
+        json.field "tags", channel.tags
         json.field "authorVerified", channel.verified
 
         json.field "latestVideos" do
