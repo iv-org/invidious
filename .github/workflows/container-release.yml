@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1.8
+        uses: crystal-lang/install-crystal@v1.8.0
         with:
           crystal: 1.9.2
 

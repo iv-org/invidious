@@ -52,7 +52,7 @@ jobs:
           submodules: true
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1.8
+        uses: crystal-lang/install-crystal@v1.8.0
         with:
           crystal: ${{ matrix.crystal }}
 
