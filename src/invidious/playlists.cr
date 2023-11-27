@@ -46,8 +46,14 @@ struct PlaylistVideo
     XML.build { |xml| to_xml(xml) }
   end
 
+  def to_json(locale : String?, json : JSON::Builder)
+    to_json(json)
+  end
+
   def to_json(json : JSON::Builder, index : Int32? = nil)
     json.object do
+      json.field "type", "video"
+
       json.field "title", self.title
       json.field "videoId", self.id
 
@@ -67,6 +73,7 @@ struct PlaylistVideo
       end
 
       json.field "lengthSeconds", self.length_seconds
+      json.field "liveNow", self.live_now
     end
   end
 
