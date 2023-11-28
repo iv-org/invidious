@@ -6,9 +6,13 @@ var initialLoadMore = document.querySelector('a[data-onclick="get_youtube_replie
 initialLoadMore.setAttribute('href', 'javascript:void(0);');
 initialLoadMore.removeAttribute('target');
 
-function updateReplyLinkHtml(contentHtml) {
-    return contentHtml.replace(/target="_blank" href="\/comment_viewer\?[^"]*"/g, 'href="javascript:void(0)"');
-};
+function updateReplyLinks() {
+    document.querySelectorAll("a[href^='/comment_viewer']").forEach(function (replyLink) {
+        replyLink.setAttribute("href", "javascript:void(0)");
+        replyLink.removeAttribute("target");
+    });
+}
+updateReplyLinks()
 
 function get_youtube_replies(target) {
     var continuation = target.getAttribute('data-continuation');
@@ -28,7 +32,8 @@ function get_youtube_replies(target) {
         on200: function (response) {
             body = body.parentNode.parentNode;
             body.removeChild(body.lastElementChild);
-            body.insertAdjacentHTML('beforeend', updateReplyLinkHtml(response.contentHtml));
+            body.insertAdjacentHTML('beforeend', response.contentHtml);
+            updateReplyLinks()
         },
         onNon200: function (xhr) {
             body.innerHTML = fallback;

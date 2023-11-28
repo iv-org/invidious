@@ -10,9 +10,13 @@ String.prototype.supplant = function (o) {
     });
 };
 
-function updateReplyLinkHtml(contentHtml) {
-    return contentHtml.replace(/target="_blank" href="\/comment_viewer\?[^"]*"/g, 'href="javascript:void(0)"');
-};
+function updateReplyLinks() {
+    document.querySelectorAll("a[href^='/comment_viewer']").forEach(function (replyLink) {
+        replyLink.setAttribute("href", "javascript:void(0)");
+        replyLink.removeAttribute("target");
+    });
+}
+updateReplyLinks()
 
 function toggle_comments(event) {
     var target = event.target;
@@ -97,7 +101,7 @@ function get_youtube_comments() {
             <div>{contentHtml}</div> \
             <hr>'
             commentInnerHtml = commentInnerHtml.supplant({
-                contentHtml: updateReplyLinkHtml(response.contentHtml),
+                contentHtml: response.contentHtml,
                 redditComments: video_data.reddit_comments_text,
                 commentsText: video_data.comments_text.supplant({
                     // toLocaleString correctly splits number with local thousands separator. e.g.:
@@ -108,6 +112,7 @@ function get_youtube_comments() {
                 })
             });
             comments.innerHTML = commentInnerHtml;
+            updateReplyLinks()
             comments.children[0].children[0].children[0].onclick = toggle_comments;
             if (video_data.support_reddit) {
                 comments.children[0].children[1].children[0].onclick = swap_comments;
@@ -146,7 +151,8 @@ function get_youtube_replies(target, load_more, load_replies) {
             if (load_more) {
                 body = body.parentNode.parentNode;
                 body.removeChild(body.lastElementChild);
-                body.insertAdjacentHTML('beforeend', updateReplyLinkHtml(response.contentHtml));
+                body.insertAdjacentHTML('beforeend', response.contentHtml);
+                updateReplyLinks()
             } else {
                 body.removeChild(body.lastElementChild);
 
@@ -161,10 +167,11 @@ function get_youtube_replies(target, load_more, load_replies) {
                 a.textContent = video_data.hide_replies_text;
 
                 var div = document.createElement('div');
-                div.innerHTML = updateReplyLinkHtml(response.contentHtml);
+                div.innerHTML = response.contentHtml;
 
                 body.appendChild(p);
                 body.appendChild(div);
+                updateReplyLinks()
             }
         },
         onNon200: function (xhr) {
