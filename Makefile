@@ -35,14 +35,17 @@ endif
 #  Main
 # -----------------------
 
-all: invidious
+all: get-player-dependencies invidious
 
 get-libs:
 	shards install --production
 
+get-player-dependencies:
+	crystal run scripts/fetch-player-dependencies.cr
+
 # TODO: add support for ARM64 via cross-compilation
 invidious: get-libs
-	crystal build src/invidious.cr $(FLAGS) --progress --stats --error-trace
+	crystal build src/invidious.cr $(FLAGS) --progress --stats --error-trace -Dskip_videojs_download
 
 
 run: invidious
