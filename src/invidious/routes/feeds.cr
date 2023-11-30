@@ -309,8 +309,9 @@ module Invidious::Routes::Feeds
     end
 
     response = YT_POOL.client &.get("/feeds/videos.xml?playlist_id=#{plid}")
-    document = XML.parse(response.body)
+    return error_atom(404, NotFoundException.new("Playlist does not exist.")) if response.status_code == 404
 
+    document = XML.parse(response.body)
     document.xpath_nodes(%q(//*[@href]|//*[@url])).each do |node|
       node.attributes.each do |attribute|
         case attribute.name
