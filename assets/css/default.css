@@ -14,6 +14,8 @@ body {
   font-size: 20px;
   right: 0.25em;
   bottom: 0.25em;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 #contents {
