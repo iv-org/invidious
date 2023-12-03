@@ -64,7 +64,7 @@ jobs:
             quay.expires-after=12w
 
       - name: Build and push Docker AMD64 image for Push Event
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/Dockerfile
@@ -90,7 +90,7 @@ jobs:
             quay.expires-after=12w
 
       - name: Build and push Docker ARM64 image for Push Event
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/Dockerfile.arm64
