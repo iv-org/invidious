@@ -30,7 +30,7 @@ services:
         # domain:
         # https_only: false
         # statistics_enabled: false
-        hmac_key: "CHANGE_ME!!"
+        hmac_key: "83646b9f96e6823d2c6e275911ade98f5e9436fa"
     healthcheck:
       test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/comments/jNQXAC9IVRw || exit 1
       interval: 30s

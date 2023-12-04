@@ -73,7 +73,7 @@ function get_compilation(compid) {
             player.on('ended', function () {
                 var url = new URL('https://example.com/watch?v=' + response.nextVideo);
         
-                url.searchParams.set('list', compid);
+                url.searchParams.set('comp', compid);
                 if (!compid.startsWith('RD'))
                     url.searchParams.set('index', response.index);
                 if (video_data.params.autoplay || video_data.params.continue_autoplay)

@@ -67,7 +67,7 @@ module Invidious::Routes::Compilations
     user = user.as(User)
     sid = sid.as(String)
 
-    compid = env.params.query["list"]?
+    compid = env.params.query["comp"]?
     if !compid || compid.empty?
       return error_template(400, "A compilation ID is required")
     end
@@ -91,7 +91,7 @@ module Invidious::Routes::Compilations
 
     return env.redirect "/" if user.nil?
 
-    compid = env.params.query["list"]?
+    compid = env.params.query["comp"]?
     return env.redirect referer if compid.nil?
 
     user = user.as(User)
@@ -126,7 +126,7 @@ module Invidious::Routes::Compilations
     user = user.as(User)
     sid = sid.as(String)
 
-    compid = env.params.query["list"]?
+    compid = env.params.query["comp"]?
     if !compid || !compid.starts_with?("IVCMP")
       return env.redirect referer
     end
@@ -159,7 +159,7 @@ module Invidious::Routes::Compilations
 
     return env.redirect "/" if user.nil?
 
-    compid = env.params.query["list"]?
+    compid = env.params.query["comp"]?
     return env.redirect referer if compid.nil?
 
     user = user.as(User)
@@ -191,7 +191,7 @@ module Invidious::Routes::Compilations
 
     Invidious::Database::Compilations.update(compid, title, privacy, description, updated)
 
-    env.redirect "/compilation?list=#{compid}"
+    env.redirect "/compilation?comp=#{compid}"
   end
 
   def self.adjust_timestamps(env)
@@ -204,7 +204,7 @@ module Invidious::Routes::Compilations
 
     return env.redirect "/" if user.nil?
 
-    compid = env.params.query["list"]?
+    compid = env.params.query["comp"]?
     return env.redirect referer if compid.nil?
 
     user = user.as(User)
@@ -282,7 +282,7 @@ module Invidious::Routes::Compilations
     user = user.as(User)
     sid = sid.as(String)
 
-    compid = env.params.query["list"]?
+    compid = env.params.query["comp"]?
     if !compid || !compid.starts_with?("IVCMP")
       return env.redirect referer
     end
@@ -304,7 +304,7 @@ module Invidious::Routes::Compilations
 
     query_encoded = URI.encode_www_form(query.try &.text || "", space_to_plus: true)
     page_nav_html = Frontend::Pagination.nav_numeric(locale,
-      base_url: "/add_compilation_items?list=#{compilation.id}&q=#{query_encoded}",
+      base_url: "/add_compilation_items?comp=#{compilation.id}&q=#{query_encoded}",
       current_page: page,
       show_next: (items.size >= 20)
     )
@@ -516,7 +516,7 @@ module Invidious::Routes::Compilations
     page_count += 1 if (compilation.video_count % 200) > 0
 
     if page > page_count
-      return env.redirect "/compilation?list=#{compid}&page=#{page_count}"
+      return env.redirect "/compilation?comp=#{compid}&page=#{page_count}"
     end
 
     if compilation.privacy == CompilationPrivacy::Private && compilation.author != user.try &.email

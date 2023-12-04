@@ -41,8 +41,8 @@ module Invidious::Routes::Watch
     if env.params.query["list"]?.try &.starts_with? "IVPL"
       plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
       continuation = process_continuation(env.params.query, plid, id)
-    elsif env.params.query["list"]?.try &.starts_with? "IVCMP"
-      compid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
+    elsif env.params.query["comp"]?.try &.starts_with? "IVCMP"
+      compid = env.params.query["comp"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
       if (!compid.nil?)
         index = Invidious::Database::CompilationVideos.select_index(compid, id)
         indices_array = Invidious::Database::Compilations.select_index_array(compid)
