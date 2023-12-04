@@ -5,11 +5,11 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="/feed/compilation/<%= compid %>" />
 <% end %>
 
-<form action="/edit_compilation?list=<%= compid %>" method="post">
+<form action="/edit_compilation?comp=<%= compid %>" method="post">
     <div class="h-box flexible">
         <div class="flex-right button-container">
             <div class="pure-u">
-                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/compilation?list=<%= compid %>">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/compilation?comp=<%= compid %>">
                     <i class="icon ion-md-close"></i>&nbsp;<%= translate(locale, "generic_button_cancel") %>
                 </a>
             </div>
@@ -19,7 +19,7 @@
                 </button>
             </div>
             <div class="pure-u">
-                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_compilation?list=<%= compid %>">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_compilation?comp=<%= compid %>">
                     <i class="icon ion-md-trash"></i>&nbsp;<%= translate(locale, "generic_button_delete") %>
                 </a>
             </div>

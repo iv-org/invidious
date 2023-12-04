@@ -452,7 +452,7 @@ end
 def template_compilation(compilation)
   html = <<-END_HTML
   <h3>
-    <a href="/compilation?list=#{compilation["compilationId"]}">
+    <a href="/compilation?comp=#{compilation["compilationId"]}">
       #{compilation["title"]}
     </a>
   </h3>
@@ -463,7 +463,7 @@ def template_compilation(compilation)
   compilation["videos"].as_a.each do |video|
     html += <<-END_HTML
       <li class="pure-menu-item" id="#{video["videoId"]}">
-        <a href="/watch?v=#{video["videoId"]}&list=#{compilation["compilationId"]}&index=#{video["index"]}">
+        <a href="/watch?v=#{video["videoId"]}&comp=#{compilation["compilationId"]}&index=#{video["index"]}">
           <div class="thumbnail">
               <img loading="lazy" class="thumbnail" src="/vi/#{video["videoId"]}/mqdefault.jpg" alt="" />
               <p class="length">#{recode_length_seconds(video["lengthSeconds"].as_i)}</p>

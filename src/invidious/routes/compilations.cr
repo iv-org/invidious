@@ -52,7 +52,7 @@ module Invidious::Routes::Compilations
 
     compilation = create_compilation(title, privacy, user)
 
-    env.redirect "/compilation?list=#{compilation.id}"
+    env.redirect "/compilation?comp=#{compilation.id}"
   end
 
   def self.delete_page(env)
@@ -264,7 +264,7 @@ module Invidious::Routes::Compilations
 
     update_first_video_params(compid)
 
-    env.redirect "/compilation?list=#{compid}"
+    env.redirect "/compilation?comp=#{compid}"
   end
 
   def self.add_compilation_items_page(env)
@@ -496,17 +496,13 @@ module Invidious::Routes::Compilations
     user = env.get?("user").try &.as(User)
     referer = get_referer(env)
 
-    compid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
+    compid = env.params.query["comp"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
     if !compid
       return env.redirect "/"
     end
 
     page = env.params.query["page"]?.try &.to_i?
     page ||= 1
-
-    if compid.starts_with? "RD"
-      return env.redirect "/mix?list=#{compid}"
-    end
 
     begin
       compilation = get_compilation(compid)

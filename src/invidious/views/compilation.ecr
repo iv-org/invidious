@@ -13,23 +13,23 @@
         <%- if compilation.is_a?(InvidiousCompilation) && compilation.author == user.try &.email -%>
             <%- if compilation.index.size > 0 -%>
                 <div class="pure-u">
-                    <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/watch?v=<%= compilation.first_video_id %>&list=<%= compid %>&index=<%= compilation.index[0] %>&t=<%= compilation.first_video_starting_timestamp_seconds %>&end=<%= compilation.first_video_ending_timestamp_seconds %>">
+                    <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/watch?v=<%= compilation.first_video_id %>&comp=<%= compid %>&index=<%= compilation.index[0] %>&t=<%= compilation.first_video_starting_timestamp_seconds %>&end=<%= compilation.first_video_ending_timestamp_seconds %>">
                         <i class="icon ion-md-play"></i>&nbsp;<%= translate(locale, "compilation_button_play") %>
                     </a>
                 </div>
             <%- end -%>
             <div class="pure-u">
-                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/add_compilation_items?list=<%= compid %>">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/add_compilation_items?comp=<%= compid %>">
                     <i class="icon ion-md-add"></i>&nbsp;<%= translate(locale, "compilation_button_add_items") %>
                 </a>
             </div>
             <div class="pure-u">
-                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/edit_compilation?list=<%= compid %>">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/edit_compilation?comp=<%= compid %>">
                     <i class="icon ion-md-create"></i>&nbsp;<%= translate(locale, "generic_button_edit") %>
                 </a>
             </div>
             <div class="pure-u">
-                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_compilation?list=<%= compid %>">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_compilation?comp=<%= compid %>">
                     <i class="icon ion-md-trash"></i>&nbsp;<%= translate(locale, "generic_button_delete") %>
                 </a>
             </div>
