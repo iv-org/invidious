@@ -48,7 +48,7 @@ struct ConfigPreferences
   def to_tuple
     {% begin %}
       {
-        {{*@type.instance_vars.map { |var| "#{var.name}: #{var.name}".id }}}
+        {{(@type.instance_vars.map { |var| "#{var.name}: #{var.name}".id }).splat}}
       }
     {% end %}
   end
