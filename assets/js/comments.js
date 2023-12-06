@@ -53,10 +53,6 @@ function show_youtube_replies(event) {
 }
 
 function get_youtube_comments() {
-    if (!video_data.comments_enabled) {
-        return;
-    };
-
     var comments = document.getElementById('comments');
 
     var fallback = comments.innerHTML;
