@@ -58,7 +58,10 @@ class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
   # Fetches information regarding instances from api.invidious.io or an otherwise configured URL
   private def fetch_instances : Array(JSON::Any)
     begin
-      instance_api_client = make_client(URI.parse("https://api.invidious.io"))
+      # We directly call the stdlib HTTP::Client here as it allows us to negate the effects
+      # of the force_resolve config option. This is needed as api.invidious.io does not support ipv6
+      # and as such the following request raises if we were to use force_resolve with the ipv6 value.
+      instance_api_client = HTTP::Client.new(URI.parse("https://api.invidious.io"))
 
       # Timeouts
       instance_api_client.connect_timeout = 10.seconds
