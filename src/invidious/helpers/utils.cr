@@ -325,7 +325,7 @@ end
 
 def fetch_random_instance
   begin
-    instance_api_client = make_client(URI.parse("https://api.invidious.io"))
+    instance_api_client = HTTP::Client.new(URI.parse("https://api.invidious.io"))
 
     # Timeouts
     instance_api_client.connect_timeout = 10.seconds
