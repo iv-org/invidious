@@ -69,7 +69,7 @@ class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
 
       raw_instance_list = JSON.parse(instance_api_client.get("/instances.json").body).as_a
       instance_api_client.close
-    rescue Socket::ConnectError | IO::TimeoutError | JSON::ParseException
+    rescue ex : Socket::ConnectError | IO::TimeoutError | JSON::ParseException
       raw_instance_list = [] of JSON::Any
     end
 
@@ -89,9 +89,9 @@ class Invidious::Jobs::InstanceListRefreshJob < Invidious::Jobs::BaseJob
 
   # Checks if the uptime of the target instance is greater than 90% over a 30 day period
   private def bad_uptime?(target_instance_health_monitor) : Bool
-    return false if !target_instance_health_monitor["statusClass"] == "success"
-    return false if target_instance_health_monitor["30dRatio"]["ratio"].as_s.to_f < 90
+    return true if !target_instance_health_monitor["statusClass"] == "success"
+    return true if target_instance_health_monitor["30dRatio"]["ratio"].as_s.to_f < 90
 
-    return true
+    return false
   end
 end
