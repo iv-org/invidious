@@ -153,8 +153,8 @@ module Invidious::Routes::API::V1::Authenticated
     env.response.content_type = "application/json"
     user = env.get("user").as(User)
 
-    sorted = env.params.query["sorted"]?.try &.== "true"
-    if sorted
+    sort = env.params.query["sort"]?.try &.== "last"
+    if sort
       subscriptions = Invidious::Database::Channels.select_sorted(user.subscriptions)
     else
       subscriptions = Invidious::Database::Channels.select(user.subscriptions)
