@@ -32,7 +32,7 @@ module Invidious::Routes::Images
     }
 
     begin
-      HTTP::Client.get("https://yt3.ggpht.com#{url}") do |resp|
+      GGPHT_POOL.client &.get(url) do |resp|
         return request_proc.call(resp)
       end
     rescue ex
@@ -80,7 +80,7 @@ module Invidious::Routes::Images
     }
 
     begin
-      HTTP::Client.get("https://#{authority}.ytimg.com#{url}") do |resp|
+      get_ytimg_pool(authority).client &.get(url) do |resp|
         return request_proc.call(resp)
       end
     rescue ex
@@ -119,7 +119,7 @@ module Invidious::Routes::Images
     }
 
     begin
-      HTTP::Client.get("https://i9.ytimg.com#{url}") do |resp|
+      get_ytimg_pool("i9").client &.get(url) do |resp|
         return request_proc.call(resp)
       end
     rescue ex
@@ -165,8 +165,7 @@ module Invidious::Routes::Images
     if name == "maxres.jpg"
       build_thumbnails(id).each do |thumb|
         thumbnail_resource_path = "/vi/#{id}/#{thumb[:url]}.jpg"
-        # This can likely be optimized into a (small) pool sometime in the future.
-        if HTTP::Client.head("https://i.ytimg.com#{thumbnail_resource_path}").status_code == 200
+        if get_ytimg_pool("i9").client &.head(thumbnail_resource_path).status_code == 200
           name = thumb[:url] + ".jpg"
           break
         end
@@ -199,8 +198,7 @@ module Invidious::Routes::Images
     }
 
     begin
-      # This can likely be optimized into a (small) pool sometime in the future.
-      HTTP::Client.get("https://i.ytimg.com#{url}") do |resp|
+      get_ytimg_pool("i").client &.get(url) do |resp|
         return request_proc.call(resp)
       end
     rescue ex
