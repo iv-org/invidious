@@ -12,7 +12,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      GGPHT_POOL.client &.get(url) do |resp|
+      GGPHT_POOL.client &.get(url, headers) do |resp|
         return self.proxy_image(env, resp)
       end
     rescue ex
@@ -42,7 +42,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      get_ytimg_pool(authority).client &.get(url) do |resp|
+      get_ytimg_pool(authority).client &.get(url, headers) do |resp|
         return self.proxy_image(env, resp)
       end
     rescue ex
@@ -64,7 +64,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      get_ytimg_pool("i9").client &.get(url) do |resp|
+      get_ytimg_pool("i9").client &.get(url, headers) do |resp|
         return self.proxy_image(env, resp)
       end
     rescue ex
@@ -110,7 +110,7 @@ module Invidious::Routes::Images
     if name == "maxres.jpg"
       build_thumbnails(id).each do |thumb|
         thumbnail_resource_path = "/vi/#{id}/#{thumb[:url]}.jpg"
-        if get_ytimg_pool("i9").client &.head(thumbnail_resource_path).status_code == 200
+        if get_ytimg_pool("i9").client &.head(thumbnail_resource_path, headers).status_code == 200
           name = thumb[:url] + ".jpg"
           break
         end
@@ -126,7 +126,7 @@ module Invidious::Routes::Images
     end
 
     begin
-      get_ytimg_pool("i").client &.get(url) do |resp|
+      get_ytimg_pool("i").client &.get(url, headers) do |resp|
         return self.proxy_image(env, resp)
       end
     rescue ex
