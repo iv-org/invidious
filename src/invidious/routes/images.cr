@@ -11,29 +11,9 @@ module Invidious::Routes::Images
       end
     end
 
-    # We're encapsulating this into a proc in order to easily reuse this
-    # portion of the code for each request block below.
-    request_proc = ->(response : HTTP::Client::Response) {
-      env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      if response.status_code >= 300
-        env.response.headers.delete("Transfer-Encoding")
-        return
-      end
-
-      proxy_file(response, env)
-    }
-
     begin
       GGPHT_POOL.client &.get(url) do |resp|
-        return request_proc.call(resp)
+        return self.proxy_image(env, resp)
       end
     rescue ex
     end
@@ -61,27 +41,9 @@ module Invidious::Routes::Images
       end
     end
 
-    request_proc = ->(response : HTTP::Client::Response) {
-      env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
-
-      env.response.headers["Connection"] = "close"
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      if response.status_code >= 300
-        return env.response.headers.delete("Transfer-Encoding")
-      end
-
-      proxy_file(response, env)
-    }
-
     begin
       get_ytimg_pool(authority).client &.get(url) do |resp|
-        return request_proc.call(resp)
+        return self.proxy_image(env, resp)
       end
     rescue ex
     end
@@ -101,26 +63,9 @@ module Invidious::Routes::Images
       end
     end
 
-    request_proc = ->(response : HTTP::Client::Response) {
-      env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      if response.status_code >= 300 && response.status_code != 404
-        return env.response.headers.delete("Transfer-Encoding")
-      end
-
-      proxy_file(response, env)
-    }
-
     begin
       get_ytimg_pool("i9").client &.get(url) do |resp|
-        return request_proc.call(resp)
+        return self.proxy_image(env, resp)
       end
     rescue ex
     end
@@ -180,28 +125,28 @@ module Invidious::Routes::Images
       end
     end
 
-    request_proc = ->(response : HTTP::Client::Response) {
-      env.response.status_code = response.status_code
-      response.headers.each do |key, value|
-        if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
-          env.response.headers[key] = value
-        end
-      end
-
-      env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-      if response.status_code >= 300 && response.status_code != 404
-        return env.response.headers.delete("Transfer-Encoding")
-      end
-
-      proxy_file(response, env)
-    }
-
     begin
       get_ytimg_pool("i").client &.get(url) do |resp|
-        return request_proc.call(resp)
+        return self.proxy_image(env, resp)
       end
     rescue ex
     end
+  end
+
+  private def self.proxy_image(env, response)
+    env.response.status_code = response.status_code
+    response.headers.each do |key, value|
+      if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
+        env.response.headers[key] = value
+      end
+    end
+
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
+
+    if response.status_code >= 300
+      return env.response.headers.delete("Transfer-Encoding")
+    end
+
+    return proxy_file(response, env)
   end
 end
