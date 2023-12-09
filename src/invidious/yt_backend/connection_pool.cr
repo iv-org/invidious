@@ -77,3 +77,18 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, &)
     client.close
   end
 end
+
+# Fetches a HTTP pool for the specified subdomain of ytimg.com
+#
+# Creates a new one when the specified pool for the subdomain does not exist
+def get_ytimg_pool(subdomain)
+  if pool = YTIMG_POOLS[subdomain]?
+    return pool
+  else
+    LOGGER.info("ytimg_pool: Creating a new HTTP pool for \"https://#{subdomain}.ytimg.com\"")
+    pool = YoutubeConnectionPool.new(URI.parse("https://#{subdomain}.ytimg.com"), capacity: CONFIG.pool_size)
+    YTIMG_POOLS[subdomain] = pool
+
+    return pool
+  end
+end
