@@ -256,13 +256,13 @@ module Invidious::Routes::API::V1::Videos
 
         file = URI.encode_www_form("#{id[0, 3]}/#{id}.xml")
 
-        location = make_client(ARCHIVE_URL, &.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}"))
+        location = make_client(ARCHIVE_URL, force_resolve: false, &.get("/download/youtubeannotations_#{index}/#{id[0, 2]}.tar/#{file}"))
 
         if !location.headers["Location"]?
           env.response.status_code = location.status_code
         end
 
-        response = make_client(URI.parse(location.headers["Location"]), &.get(location.headers["Location"]))
+        response = make_client(URI.parse(location.headers["Location"]), force_resolve: false, &.get(location.headers["Location"]))
 
         if response.body.empty?
           haltf env, 404
