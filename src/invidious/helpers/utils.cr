@@ -302,7 +302,7 @@ def subscribe_pubsub(topic, key)
     "hub.secret"        => key.to_s,
   }
 
-  return make_client(PUBSUB_URL, force_resolve: false, &.post("/subscribe", form: body))
+  return make_client(PUBSUB_URL, &.post("/subscribe", form: body))
 end
 
 def parse_range(range)
