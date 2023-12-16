@@ -19,6 +19,8 @@ module Invidious::Routes::API::V1::Misc
           else
             tracker["ratio"] = (success_count / (total_requests)).round(2)
           end
+        else
+          return (Invidious::Jobs::StatisticsRefreshJob::STATISTICS.merge Invidious::Jobs::StatisticsRefreshJob::LATCHED_PLAYBACK_STATS).to_json
         end
       end
 
