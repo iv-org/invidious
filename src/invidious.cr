@@ -138,6 +138,9 @@ LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 # Check table integrity
 Invidious::Database.check_integrity(CONFIG)
 
+# Run migration
+Invidious::Database::Migrator.new(PG_DB).migrate
+
 {% if !flag?(:skip_videojs_download) %}
   # Resolve player dependencies. This is done at compile time.
   #
