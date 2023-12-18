@@ -269,7 +269,7 @@ Hello everyone! This past month there have been [130 commits](https://github.com
 
 There have also been significant changes in preparation of native notifications (see [#195](https://github.com/omarroth/invidious/issues/195), [#469](https://github.com/omarroth/invidious/issues/469), [#473](https://github.com/omarroth/invidious/issues/473), and [#502](https://github.com/omarroth/invidious/issues/502)), and playlists. I expect to see both of these to be added in the next release.
 
-I'm quite happy to mention that new translations have been added for Esperanto (`eo`) and Ukranian (`uk`). Support for pluralization has also been added, so it should now be possible to make a more native experience for speakers in other languages. The system currently in place is a bit cumbersome, so for any help using this feature please get in touch!
+I'm quite happy to mention that new translations have been added for Esperanto (`eo`) and Ukrainian (`uk`). Support for pluralization has also been added, so it should now be possible to make a more native experience for speakers in other languages. The system currently in place is a bit cumbersome, so for any help using this feature please get in touch!
 
 ## For Administrators
 
