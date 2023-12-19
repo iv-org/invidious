@@ -1,0 +1,24 @@
+{
+  "name": "invidious-lint",
+  "version": "1.0.0",
+  "description": "Lint invidious js and css files",
+  "scripts": {
+    "lint-js": "eslint --ext .js ./assets/js/",
+    "lint-css": "stylelint \"./assets/**/*.css\""
+  },
+  "devDependencies": {
+    "@double-great/stylelint-a11y": "^2.0.2",
+    "eslint": "^8.56.0",
+    "eslint-plugin-compat": "^4.2.0",
+    "stylelint": "^15.11.0"
+  },
+  "browserslist": [
+    "ie >= 9",
+    "chrome >= 45",
+    "ChromeAndroid >= 45",
+    "Firefox >= 45",
+    "samsung 4",
+    "safari >= 10",
+    "ios >= 8"
+  ]
+}

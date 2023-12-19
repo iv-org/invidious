@@ -1,0 +1,36 @@
+{
+    "plugins": ["compat"],
+    "extends": ["plugin:compat/recommended"],
+    "env": {
+      "browser": true,
+      "es6": true
+    },
+    "ignorePatterns":[
+      "/assets/js/sse.js",
+      "/assets/js/polyfills/*.js",
+      "/assets/videojs/*",
+      "**/*.min.js"
+    ],
+    "rules": {
+      "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+      "eol-last": ["error", "always"],
+      "indent": ["error", 4, { "SwitchCase": 1 }],
+      "linebreak-style": ["error", "unix"],
+      "no-multiple-empty-lines": "error",
+      "no-trailing-spaces": "error",
+      "no-mixed-spaces-and-tabs": "error",
+      "operator-linebreak": ["error", "after"],
+      "semi": ["error", "always"],
+      "comma-dangle": ["error", "never"]
+    },
+    "settings": {
+      "polyfills": [
+        "Array.from",
+        "Math.sign",
+        "URL",
+        "URLSearchParams",
+        "Symbol.iterator",
+        "location.origin"
+      ]
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "plugins": [
+        "@double-great/stylelint-a11y"
+    ],
+    "ignoreFiles": [
+        "assets/**/quality-selector.css",
+        "assets/**/*min.css",
+        "assets/videojs/**"
+    ],
+    "rules": {
+        "a11y/media-prefers-reduced-motion": true,
+        "color-no-invalid-hex": true,
+        "font-family-no-duplicate-names": true,
+        "function-calc-no-unspaced-operator": true,
+        "length-zero-no-unit": true,
+        "media-query-no-invalid": true,
+        "no-invalid-double-slash-comments": true,
+        "no-irregular-whitespace": true,
+        "string-no-newline": true
+    }
+}
