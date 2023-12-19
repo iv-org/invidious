@@ -8,7 +8,7 @@ on:
       - "master"
       - "api-only"
   pull_request:
-    branches: "*"
+    branches: ["*"]
     paths-ignore:
       - "*.md"
       - LICENCE
@@ -16,6 +16,10 @@ on:
       - invidious.service
       - .git*
       - .editorconfig
+      - .eslintrc.json
+      - .stylelintrc.json
+      - .package.json
+      - .package-lock.json
 
       - screenshots/*
       - assets/**
