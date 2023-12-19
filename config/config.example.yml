@@ -827,7 +827,7 @@ default_user_preferences:
   ## Show the channel's watermark on the bottom-right corner of videos
   ##
   ## Accepted values: true, false
-  ## Default: false
+  ## Default: true
   ##
   #show_channel_watermark: true
 
