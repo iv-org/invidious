@@ -83,8 +83,8 @@ body a.channel-owner {
 
 .creator-heart-container {
   display: inline-block;
-  padding: 0px 7px 6px 0px;
-  margin: 0px -7px -4px 0px;
+  padding: 0 7px 6px 0;
+  margin: 0 -7px -4px 0;
 }
 
 .creator-heart {
@@ -98,7 +98,7 @@ body a.channel-owner {
 .creator-heart-background-hearted {
   width: 16px;
   height: 16px;
-  padding: 0px;
+  padding: 0;
   position: relative;
 }
 
@@ -140,6 +140,12 @@ div {
 .loading {
   display: inline-block;
   animation: spin 2s linear infinite;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .loading {
+    animation: none;
+  }
 }
 
 .playlist-restricted {

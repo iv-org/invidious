@@ -4,7 +4,7 @@ var spinnerHTML = '<h3 style="text-align:center"><div class="loading"><i class="
 var spinnerHTMLwithHR = spinnerHTML + '<hr>';
 
 String.prototype.supplant = function (o) {
-    return this.replace(/{([^{}]*)}/g, function (a, b) {
+    return this.replace(/\{([^{}]*)\}/g, function (a, b) {
         var r = o[b];
         return typeof r === 'string' || typeof r === 'number' ? r : a;
     });
@@ -58,14 +58,14 @@ function get_youtube_comments() {
     var fallback = comments.innerHTML;
     comments.innerHTML = spinnerHTML;
 
-    var baseUrl = video_data.base_url || '/api/v1/comments/'+ video_data.id
+    var baseUrl = video_data.base_url || '/api/v1/comments/'+ video_data.id;
     var url = baseUrl +
         '?format=html' +
         '&hl=' + video_data.preferences.locale +
         '&thin_mode=' + video_data.preferences.thin_mode;
 
     if (video_data.ucid) {
-        url += '&ucid=' + video_data.ucid
+        url += '&ucid=' + video_data.ucid;
     }
 
     var onNon200 = function (xhr) { comments.innerHTML = fallback; };
@@ -81,17 +81,17 @@ function get_youtube_comments() {
                     {commentsText}  \
                 </h3> \
                 <b> \
-                '
-                if (video_data.support_reddit) {
-                    commentInnerHtml += ' <a href="javascript:void(0)" data-comments="reddit"> \
+                ';
+            if (video_data.support_reddit) {
+                commentInnerHtml += ' <a href="javascript:void(0)" data-comments="reddit"> \
                         {redditComments} \
                     </a> \
-                    '
-                }
-                commentInnerHtml += ' </b> \
+                    ';
+            }
+            commentInnerHtml += ' </b> \
             </div> \
             <div>{contentHtml}</div> \
-            <hr>'
+            <hr>';
             commentInnerHtml = commentInnerHtml.supplant({
                 contentHtml: response.contentHtml,
                 redditComments: video_data.reddit_comments_text,
@@ -125,7 +125,7 @@ function get_youtube_replies(target, load_more, load_replies) {
     var body = target.parentNode.parentNode;
     var fallback = body.innerHTML;
     body.innerHTML = spinnerHTML;
-    var baseUrl = video_data.base_url || '/api/v1/comments/'+ video_data.id
+    var baseUrl = video_data.base_url || '/api/v1/comments/'+ video_data.id;
     var url = baseUrl +
         '?format=html' +
         '&hl=' + video_data.preferences.locale +
@@ -133,7 +133,7 @@ function get_youtube_replies(target, load_more, load_replies) {
         '&continuation=' + continuation;
 
     if (video_data.ucid) {
-        url += '&ucid=' + video_data.ucid
+        url += '&ucid=' + video_data.ucid;
     }
     if (load_replies) url += '&action=action_get_comment_replies';
 

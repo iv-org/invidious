@@ -142,17 +142,17 @@ function get_reddit_comments() {
             </div> \
             <div>{contentHtml}</div> \
             <hr>'.supplant({
-                title: response.title,
-                youtubeCommentsText: video_data.youtube_comments_text,
-                redditPermalinkText: video_data.reddit_permalink_text,
-                permalink: response.permalink,
-                contentHtml: response.contentHtml
-            });
+                    title: response.title,
+                    youtubeCommentsText: video_data.youtube_comments_text,
+                    redditPermalinkText: video_data.reddit_permalink_text,
+                    permalink: response.permalink,
+                    contentHtml: response.contentHtml
+                });
 
             comments.children[0].children[0].children[0].onclick = toggle_comments;
             comments.children[0].children[1].children[0].onclick = swap_comments;
         },
-        onNon200: onNon200, // declared above
+        onNon200: onNon200 // declared above
     });
 }
 

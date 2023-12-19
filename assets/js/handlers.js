@@ -73,6 +73,7 @@
         el.onclick = function () { remove_subscription(el); };
     });
     document.querySelectorAll('[data-onclick="notification_requestPermission"]').forEach(function (el) {
+        // eslint-disable-next-line compat/compat
         el.onclick = function () { Notification.requestPermission(); };
     });
 
@@ -132,7 +133,7 @@
 
         // Ignore shortcuts if any text input is focused
         let focused_tag = document.activeElement.tagName.toLowerCase();
-        const allowed = /^(button|checkbox|file|radio|submit)$/;
+        const allowed = /^(?:button|checkbox|file|radio|submit)$/;
 
         if (focused_tag === 'textarea') return;
         if (focused_tag === 'input') {

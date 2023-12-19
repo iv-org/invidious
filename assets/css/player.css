@@ -207,9 +207,9 @@ ul.vjs-menu-content::-webkit-scrollbar {
 }
 
 .video-js .vjs-time-divider {
-  min-width: 0px;
-  padding-left: 0px;
-  padding-right: 0px;
+  min-width: 0;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .video-js .vjs-poster {

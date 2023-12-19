@@ -147,7 +147,7 @@ window.helpers = window.helpers || {
      * @param {callbackXhrError} [callbacks.onError]
      * @param {callbackXhrError} [callbacks.onTotalFail] - if failed after all retries
      */
-     xhr: function(method, url, options, callbacks) {
+    xhr: function(method, url, options, callbacks) {
         if (!options.retries || options.retries <= 1) {
             helpers._xhr(method, url, options, callbacks);
             return;
@@ -202,7 +202,7 @@ window.helpers = window.helpers || {
         if (localStorageIsUsable) {
             return {
                 get: function (key) {
-                    let storageItem = localStorage.getItem(key)
+                    let storageItem = localStorage.getItem(key);
                     if (!storageItem) return;
                     try {
                         return JSON.parse(decodeURIComponent(storageItem));
@@ -211,9 +211,9 @@ window.helpers = window.helpers || {
                         helpers.storage.remove(key);
                     }
                 },
-                set: function (key, value) { 
-                    let encoded_value = encodeURIComponent(JSON.stringify(value))
-                    localStorage.setItem(key, encoded_value); 
+                set: function (key, value) {
+                    let encoded_value = encodeURIComponent(JSON.stringify(value));
+                    localStorage.setItem(key, encoded_value);
                 },
                 remove: function (key) { localStorage.removeItem(key); }
             };

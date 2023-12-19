@@ -188,8 +188,12 @@ if (location.pathname.startsWith('/embed/')) {
 // Detection code taken from https://stackoverflow.com/a/20293441
 
 function isMobile() {
-  try{ document.createEvent('TouchEvent'); return true; }
-  catch(e){ return false; }
+    try {
+        document.createEvent('TouchEvent');
+        return true;
+    } catch(e) {
+        return false;
+    }
 }
 
 if (isMobile()) {
@@ -203,8 +207,8 @@ if (isMobile()) {
     // Create new control bar object for operation buttons
     const ControlBar = videojs.getComponent('controlBar');
     let operations_bar = new ControlBar(player, {
-      children: [],
-      playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+        children: [],
+        playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
     });
     buttons.slice(1).forEach(function (child) {operations_bar.addChild(child);});
 
@@ -307,7 +311,7 @@ function updateCookie(newVolume, newSpeed) {
     var date = new Date();
     date.setFullYear(date.getFullYear() + 2);
 
-    var ipRegex = /^((\d+\.){3}\d+|[\dA-Fa-f]*:[\d:A-Fa-f]*:[\d:A-Fa-f]+)$/;
+    var ipRegex = /^(?:(?:\d+\.){3}\d+|[\dA-F]*:[\dA-F]*:[\d:A-F]+)$/i;
     var domainUsed = location.hostname;
 
     // Fix for a bug in FF where the leading dot in the FQDN is not ignored
@@ -362,8 +366,9 @@ if (video_data.params.save_player_pos) {
             lastUpdated = time;
         }
     });
+} else {
+    remove_all_video_times();
 }
-else remove_all_video_times();
 
 if (video_data.params.autoplay) {
     var bpb = player.getChild('bigPlayButton');
@@ -427,8 +432,8 @@ if (!video_data.params.listen && video_data.params.annotations) {
     addEventListener('load', function (e) {
         addEventListener('__ar_annotation_click', function (e) {
             const url = e.detail.url,
-                  target = e.detail.target,
-                  seconds = e.detail.seconds;
+                target = e.detail.target,
+                seconds = e.detail.seconds;
             var path = new URL(url);
 
             if (path.href.startsWith('https://www.youtube.com/watch?') && seconds) {
@@ -593,20 +598,20 @@ addEventListener('keydown', function (e) {
         return;
     }
     // See https://github.com/ctd1500/videojs-hotkeys/blob/bb4a158b2e214ccab87c2e7b95f42bc45c6bfd87/videojs.hotkeys.js#L310-L313
-    const isPlayerFocused = false
-        || e.target === document.querySelector('.video-js')
-        || e.target === document.querySelector('.vjs-tech')
-        || e.target === document.querySelector('.iframeblocker')
-        || e.target === document.querySelector('.vjs-control-bar')
+    const isPlayerFocused = false ||
+        e.target === document.querySelector('.video-js') ||
+        e.target === document.querySelector('.vjs-tech') ||
+        e.target === document.querySelector('.iframeblocker') ||
+        e.target === document.querySelector('.vjs-control-bar')
         ;
     let action = null;
 
     const code = e.keyCode;
     const decoratedKey =
-        e.key
-        + (e.altKey ? '+alt' : '')
-        + (e.ctrlKey ? '+ctrl' : '')
-        + (e.metaKey ? '+meta' : '')
+        e.key +
+        (e.altKey ? '+alt' : '') +
+        (e.ctrlKey ? '+ctrl' : '') +
+        (e.metaKey ? '+meta' : '')
         ;
     switch (decoratedKey) {
         case ' ':
