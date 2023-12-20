@@ -290,42 +290,38 @@ struct Invidious::User
     end
 
     def from_newpipe(user : User, body : String) : Bool
-      io = IO::Memory.new(body)
-
-      Compress::Zip::File.open(io) do |file|
+      Compress::Zip::File.open(IO::Memory.new(body), true) do |file|
         file.entries.each do |entry|
           entry.open do |file_io|
+            next if entry.filename != "newpipe.db"
+
             # Ensure max size of 4MB
             io_sized = IO::Sized.new(file_io, 0x400000)
 
-            next if entry.filename != "newpipe.db"
+            temp = File.tempfile(".db") do |tempfile|
+              begin
+                File.write(tempfile.path, io_sized.gets_to_end)
+              rescue
+                return false
+              end
 
-            tempfile = File.tempfile(".db")
+              DB.open("sqlite3://" + tempfile.path) do |db|
+                user.watched += db.query_all("SELECT url FROM streams", as: String)
+                  .map(&.lchop("https://www.youtube.com/watch?v="))
 
-            begin
-              File.write(tempfile.path, io_sized.gets_to_end)
-            rescue
-              return false
+                user.watched.uniq!
+                Invidious::Database::Users.update_watch_history(user)
+
+                user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String)
+                  .map(&.lchop("https://www.youtube.com/channel/"))
+
+                user.subscriptions.uniq!
+                user.subscriptions = get_batch_channels(user.subscriptions)
+
+                Invidious::Database::Users.update_subscriptions(user)
+              end
             end
-
-            db = DB.open("sqlite3://" + tempfile.path)
-
-            user.watched += db.query_all("SELECT url FROM streams", as: String)
-              .map(&.lchop("https://www.youtube.com/watch?v="))
-
-            user.watched.uniq!
-            Invidious::Database::Users.update_watch_history(user)
-
-            user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String)
-              .map(&.lchop("https://www.youtube.com/channel/"))
-
-            user.subscriptions.uniq!
-            user.subscriptions = get_batch_channels(user.subscriptions)
-
-            Invidious::Database::Users.update_subscriptions(user)
-
-            db.close
-            tempfile.delete
+            temp.delete
           end
         end
       end
