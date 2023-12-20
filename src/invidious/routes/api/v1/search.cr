@@ -37,6 +37,7 @@ module Invidious::Routes::API::V1::Search
       url = "/complete/search?client=youtube&hl=en&gl=#{region}&q=#{URI.encode_www_form(query)}&gs_ri=youtube&ds=yt"
 
       response = client.get(url).body
+      client.close
 
       body = JSON.parse(response[19..-2]).as_a
       suggestions = body[1].as_a[0..-2]
