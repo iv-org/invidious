@@ -277,8 +277,8 @@ module Invidious::Routes::Watch
     if video_id = response.dig?("endpoint", "watchEndpoint", "videoId")
       if params = response.dig?("endpoint", "watchEndpoint", "params").try &.as_s
         start_time, end_time, _ = parse_clip_parameters(params)
-        env.params.query["start"] = start_time.to_s
-        env.params.query["end"] = end_time.to_s
+        env.params.query["start"] = start_time.to_s if start_time != nil
+        env.params.query["end"] = end_time.to_s if end_time != nil
       end
 
       return env.redirect "/watch?v=#{video_id}&#{env.params.query}"
