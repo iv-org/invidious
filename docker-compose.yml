@@ -37,7 +37,8 @@ services:
       timeout: 5s
       retries: 2
     depends_on:
-      - invidious-db
+      invidious-db:
+        condition: service_healthy
 
   invidious-db:
     image: docker.io/library/postgres:14
