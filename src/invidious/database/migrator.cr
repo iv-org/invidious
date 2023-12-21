@@ -10,9 +10,17 @@ class Invidious::Database::Migrator
     versions = load_versions
 
     ran_migration = false
+    backed_up = false
     load_migrations.sort_by(&.version)
       .each do |migration|
         next if versions.includes?(migration.version)
+
+      
+        if !backed_up
+          puts "New migration(s) found: creating database backup"
+          back_up_database
+          backed_up = true
+        end  
 
         puts "Running migration: #{migration.class.name}"
         migration.migrate
@@ -46,4 +54,33 @@ class Invidious::Database::Migrator
       )
     SQL
   end
+
+  private def back_up_database
+    table_names_request = <<-SQL
+      SELECT tablename FROM pg_catalog.pg_tables
+      WHERE schemaname = 'public'
+    SQL
+    
+    table_names = @db.query_all(table_names_request, as: String)
+
+    table_names.try &.each do |name|
+      copy_table(name)
+    end  
+  end  
+
+  private def copy_table(table_name : String)
+    @db.exec <<-SQL
+      CREATE TABLE IF NOT EXISTS backup.#{table_name} (
+        id bigserial PRIMARY KEY
+      )
+    SQL
+
+    @db.exec("DROP TABLE backup.#{table_name}")
+  
+    @db.exec <<-SQL
+      SELECT * INTO backup.#{table_name}
+      FROM public.#{table_name}
+    SQL
+  end  
+
 end
