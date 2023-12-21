@@ -262,7 +262,7 @@ def get_referer(env, fallback = "/", unroll = true)
   end
 
   referer = referer.request_target
-  referer = "/" + referer.gsub(/[^\/?@&%=\-_.:,0-9a-zA-Z]/, "").lstrip("/\\")
+  referer = "/" + referer.gsub(/[^\/?@&%=\-_.:,*0-9a-zA-Z]/, "").lstrip("/\\")
 
   if referer == env.request.path
     referer = fallback
