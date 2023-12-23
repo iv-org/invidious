@@ -96,10 +96,6 @@ YT_POOL = YoutubeConnectionPool.new(YT_URL, capacity: CONFIG.pool_size)
 
 GGPHT_POOL = YoutubeConnectionPool.new(URI.parse("https://yt3.ggpht.com"), capacity: CONFIG.pool_size)
 
-# Mapping of subdomain => YoutubeConnectionPool
-# This is needed as we may need to access arbitrary subdomains of ytimg
-YTIMG_POOLS = {} of String => YoutubeConnectionPool
-
 # CLI
 Kemal.config.extra_options do |parser|
   parser.banner = "Usage: invidious [arguments]"
