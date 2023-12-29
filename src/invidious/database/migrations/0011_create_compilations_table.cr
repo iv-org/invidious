@@ -3,7 +3,7 @@ module Invidious::Database::Migrations
     version 11
 
     def up(conn : DB::Connection)
-      if !privacy_type_exists?(conn)
+      if !compilation_privacy_type_exists?(conn)
         conn.exec <<-SQL
         CREATE TYPE public.compilation_privacy AS ENUM
         (
@@ -36,13 +36,13 @@ module Invidious::Database::Migrations
       SQL
     end
 
-    private def privacy_type_exists?(conn : DB::Connection) : Bool
+    private def compilation_privacy_type_exists?(conn : DB::Connection) : Bool
       request = <<-SQL
         SELECT 1 AS one
         FROM pg_type
         INNER JOIN pg_namespace ON pg_namespace.oid = pg_type.typnamespace
         WHERE pg_namespace.nspname = 'public'
-          AND pg_type.typname = 'privacy'
+          AND pg_type.typname = 'compilation_privacy'
         LIMIT 1;
       SQL
 
