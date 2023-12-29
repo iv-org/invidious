@@ -1,6 +1,6 @@
 module Invidious::Database::Migrations
   class CreateCompilationsTable < Migration
-    version 8
+    version 11
 
     def up(conn : DB::Connection)
       if !privacy_type_exists?(conn)
