@@ -1,5 +1,6 @@
 module Invidious::Jobs
-  JOBS = [] of BaseJob
+  JOBS      = [] of BaseJob
+  SEMAPHORE = ::Channel(Nil).new(5) # Max 5 jobs running at once
 
   # Automatically generate a structure that wraps the various
   # jobs' configs, so that the following YAML config can be used:
@@ -31,10 +32,19 @@ module Invidious::Jobs
 
   def self.start_all
     JOBS.each do |job|
-      # Don't run the main rountine if the job is disabled by config
-      next if job.disabled?
+      SEMAPHORE.send(nil) # Acquire a "slot"
+      spawn do
+        begin
+          # Don't run the main routine if the job is disabled by config
+          next if job.disabled?
 
-      spawn { job.begin }
+          job.begin
+        rescue ex
+          Log.error { "Job failed: #{ex.message}" }
+        ensure
+          SEMAPHORE.receive # Release the "slot"
+        end
+      end
     end
   end
 end
