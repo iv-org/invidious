@@ -76,7 +76,7 @@ struct Invidious::User
           title = csv_head[6]
           description = "Playlist was imported from file '#{filename}'\n\nCreated on #{csv_head[8]}\nLast updated on #{csv_head[9]}\n"          # TODO i8n
           visibility = csv_head[11]
-        else if csv_head[6]
+        elsif csv_head[6]
           LOGGER.info("parse_playlist_export_csv: 03.2 raw_head is filled, doing dual csv playlist info scan. google takeout format before october 2023 (roughly).")
           title = csv_head[4]
           description = csv_head[5]
