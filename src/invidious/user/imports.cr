@@ -55,31 +55,34 @@ struct Invidious::User
       # TODO create an import-feature (elsewhere), which works for the original google export format, ie. the playlists/ subdirectory content as a ZIP file.. or a complete youtube music export file, but this goes way beyond the scope of a playlist import.
 
       # defaults
-      title = "title not set"
-      description = "from #{filename}"
+      title = "title not set"                   # TODO i8n
+      description = "from #{filename}"          # TODO i8n
       visibility = "Private"
       privacy = PlaylistPrivacy::Private
 
       if (raw_head != "")
 
-	# XXX in 2023/2024 this looked like this:
+        ### XXX for documentation of current file format of playlists.csv (today it's 2024-01-07):
         #0           1                     2                                 3                    4                       5                      6                         7                                  8                         9                         10                   11
         #Playlist ID,Add new videos to top,Playlist image 1 Create timestamp,Playlist image 1 URL,Playlist image 1 Height,Playlist image 1 Width,Playlist title (original),Playlist title (original) language,Playlist create timestamp,Playlist update timestamp,Playlist video order,Playlist visibility
         #PLc5oiabcabcabcabcabcrOvXgzabcabcm,False,,,,,display name of playlist,,2015-01-01T01:02:03+00:00,2022-10-28T02:23:15+00:00,Manual,Public' ---
-    
-        # Create the playlist from the head content
+        ###/documentation
+
+        # Create the playlist from the head content (if it seems to be valid):
         csv_head = CSV.new(raw_head.strip('\n'), headers: true)
         csv_head.next
         if csv_head[11]
-          LOGGER.info("parse_playlist_export_csv: 03.1 raw_head is filled, doing dual csv playlist info scan. this seems to be one line out of the google export's playlists.csv file, but google never adds these to the several playlist files in an export.")
+          LOGGER.info("parse_playlist_export_csv: 03.1 raw_head is filled, doing dual csv playlist info scan. google takeout format after october 2023 (format seems to be one line of playlist metadata taken out of the google export's playlists.csv file, added above the actual playlist.csv content, separated by an empty line)")
           title = csv_head[6]
-          description = "Playlist was imported from file '#{filename}'\n\nCreated on #{csv_head[8]}\nLast updated on #{csv_head[9]}\n"
+          description = "Playlist was imported from file '#{filename}'\n\nCreated on #{csv_head[8]}\nLast updated on #{csv_head[9]}\n"          # TODO i8n
           visibility = csv_head[11]
-        else
-          LOGGER.info("parse_playlist_export_csv: 03.2 raw_head is filled, doing old default behaviour.")			# XXX no idea why though.
+        else if csv_head[6]
+          LOGGER.info("parse_playlist_export_csv: 03.2 raw_head is filled, doing dual csv playlist info scan. google takeout format before october 2023 (roughly).")
           title = csv_head[4]
           description = csv_head[5]
           visibility = csv_head[6]
+        else                                # we are using the defaults defined above instead.
+          LOGGER.info("parse_playlist_export_csv: 03.3 raw_head is filled, but in an unknown format. Using base defaults instead.")
         end
 
         if visibility.compare("Public", case_insensitive: true) == 0
@@ -110,7 +113,7 @@ struct Invidious::User
         video_id = row[0]
         if playlist
           next if !video_id
-          next if video_id == "Video Id"
+          next if video_id == "Video Id"                    # TODO i8n
 
           begin
             video = get_video(video_id)
