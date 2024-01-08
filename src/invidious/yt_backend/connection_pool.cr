@@ -26,7 +26,7 @@ struct YoutubeConnectionPool
 
   def client(region = nil, &block)
     if region
-      conn = make_client(url, region)
+      conn = make_client(url, region, force_resolve = true)
       response = yield conn
     else
       conn = pool.checkout
@@ -59,7 +59,7 @@ struct YoutubeConnectionPool
   end
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = true)
+def make_client(url : URI, region = nil, force_resolve : Bool = false)
   client = HTTPClient.new(url, OpenSSL::SSL::Context::Client.insecure)
 
   # Some services do not support IPv6.
@@ -85,7 +85,7 @@ def make_client(url : URI, region = nil, force_resolve : Bool = true)
   return client
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = true, &block)
+def make_client(url : URI, region = nil, force_resolve : Bool = false, &block)
   client = make_client(url, region, force_resolve)
   begin
     yield client
