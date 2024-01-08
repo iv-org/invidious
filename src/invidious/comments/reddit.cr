@@ -2,7 +2,7 @@ module Invidious::Comments
   extend self
 
   def fetch_reddit(id, sort_by = "confidence")
-    client = make_client(REDDIT_URL, force_resolve: false)
+    client = make_client(REDDIT_URL)
     headers = HTTP::Headers{"User-Agent" => "web:invidious:v#{CURRENT_VERSION} (by github.com/iv-org/invidious)"}
 
     # TODO: Use something like #479 for a static list of instances to use here
