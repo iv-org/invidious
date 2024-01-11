@@ -1,5 +1,13 @@
 <!DOCTYPE html>
-<html lang="<%= env.get("preferences").as(Preferences).locale %>">
+<%-
+  user = env.get?("user").try &.as(IV::User)
+  prefs = env.get?("preferences").try &.as(Preferences)
+
+  locale = prefs.try &.locale || "en-US"
+  dark_mode = prefs.try &.dark_mode || "auto"
+  show_nick = prefs.try &.show_nick || false
+-%>
+<html lang="<%= locale %>">
 
 <head>
     <meta charset="utf-8">
@@ -20,13 +28,8 @@
     <script src="/js/_helpers.js?v=<%= ASSET_COMMIT %>"></script>
 </head>
 
-<%
-  locale = env.get("preferences").as(Preferences).locale
-  dark_mode = env.get("preferences").as(Preferences).dark_mode
-%>
-
 <body class="<%= dark_mode.blank? ? "no" : dark_mode %>-theme">
-    <span style="display:none" id="dark_mode_pref"><%= env.get("preferences").as(Preferences).dark_mode %></span>
+    <span style="display:none" id="dark_mode_pref"><%= dark_mode %></span>
     <div class="pure-g">
         <div class="pure-u-1 pure-u-md-2-24"></div>
         <div class="pure-u-1 pure-u-md-20-24" id="contents">
@@ -41,10 +44,10 @@
                 <% end %>
 
                 <div class="pure-u-1 pure-u-md-8-24 user-field">
-                    <% if env.get? "user" %>
+                    <% if user %>
                         <div class="pure-u-1-4">
                             <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                <% if env.get("preferences").as(Preferences).dark_mode == "dark" %>
+                                <% if dark_mode == "dark" %>
                                     <i class="icon ion-ios-sunny"></i>
                                 <% else %>
                                     <i class="icon ion-ios-moon"></i>
@@ -53,7 +56,7 @@
                         </div>
                         <div class="pure-u-1-4">
                             <a id="notification_ticker" title="<%= translate(locale, "Subscriptions") %>" href="/feed/subscriptions" class="pure-menu-heading">
-                                <% notification_count = env.get("user").as(Invidious::User).notifications.size %>
+                                <% notification_count = user.try &.notifications.size || 0 %>
                                 <% if CONFIG.enable_user_notifications && notification_count > 0 %>
                                     <span id="notification_count"><%= notification_count %></span> <i class="icon ion-ios-notifications"></i>
                                 <% else %>
@@ -66,11 +69,11 @@
                                 <i class="icon ion-ios-cog"></i>
                             </a>
                         </div>
-                        <% if env.get("preferences").as(Preferences).show_nick %>
+                        <%- if show_nick -%>
                             <div class="pure-u-1-4" style="overflow: hidden; white-space: nowrap;">
-                                <span id="user_name"><%= HTML.escape(env.get("user").as(Invidious::User).email) %></span>
+                                <span id="user_name"><%= HTML.escape(user.try &.email) %></span>
                             </div>
-                        <% end %>
+                        <%- end -%>
                         <div class="pure-u-1-4">
                             <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
                                 <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
@@ -82,7 +85,7 @@
                     <% else %>
                         <div class="pure-u-1-3">
                             <a id="toggle_theme" href="/toggle_theme?referer=<%= env.get?("current_page") %>" class="pure-menu-heading">
-                                <% if env.get("preferences").as(Preferences).dark_mode == "dark" %>
+                                <% if dark_mode == "dark" %>
                                     <i class="icon ion-ios-sunny"></i>
                                 <% else %>
                                     <i class="icon ion-ios-moon"></i>
@@ -160,7 +163,7 @@
     </div>
     <script src="/js/handlers.js?v=<%= ASSET_COMMIT %>"></script>
     <script src="/js/themes.js?v=<%= ASSET_COMMIT %>"></script>
-    <% if env.get? "user" %>
+    <% if user %>
         <script src="/js/sse.js?v=<%= ASSET_COMMIT %>"></script>
         <script id="notification_data" type="application/json">
         <%=
