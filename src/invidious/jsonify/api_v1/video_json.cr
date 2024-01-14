@@ -218,10 +218,10 @@ module Invidious::JSONify::APIv1
         end
       end
 
-      if !video.chapters.empty?
+      if !video.chapters.nil?
         json.field "chapters" do
           json.object do
-            Invidious::Videos::Chapters.to_json(json, video.chapters, video.automatically_generated_chapters?.as(Bool))
+            video.chapters.to_json(json)
           end
         end
       end

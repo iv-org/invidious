@@ -454,16 +454,16 @@ module Invidious::Routes::API::V1::Videos
       haltf env, 500
     end
 
+    if chapters.nil?
+      return error_json(404, "No chapters are defined in video \"#{id}\"")
+    end
+
     if format == "json"
       env.response.content_type = "application/json"
-
-      response = Invidious::Videos::Chapters.to_json(chapters, video.automatically_generated_chapters?.as(Bool))
-
-      return response
+      return chapters.to_json
     else
       env.response.content_type = "text/vtt; charset=UTF-8"
-
-      return Invidious::Videos::Chapters.chapters_to_vtt(chapters)
+      return chapters.to_vtt
     end
   end
 end

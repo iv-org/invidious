@@ -65,7 +65,7 @@
             <track kind="captions" src="/api/v1/captions/<%= video.id %>?label=<%= caption.name %>" label="<%= caption.name %>">
         <% end %>
 
-        <% if !chapters.empty? %>
+        <% if !chapters.nil? %>
             <track kind="chapters" src="/api/v1/chapters/<%= video.id %>">
         <% end %>
     <% end %>
