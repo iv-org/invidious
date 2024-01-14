@@ -397,8 +397,8 @@ module Invidious::Routes::API::V1::Videos
 
     return JSON.build do |json|
       json.object do
-        json.field "startTime", start_time
-        json.field "endTime", end_time
+        json.field "startTimeSeconds", start_time
+        json.field "endTimeSeconds", end_time
         json.field "clipTitle", clip_title
         json.field "video" do
           Invidious::JSONify::APIv1.video(video, json, locale: locale, proxy: proxy)
