@@ -29,6 +29,8 @@ services:
         # external_port:
         # domain:
           https_only: true
+          banner: C`Movie das Hoffnungsportal
+          hmac_key: Iethoht3riong4thie5a
         # statistics_enabled: false
     healthcheck:
       test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/comments/jNQXAC9IVRw || exit 1
@@ -39,7 +41,7 @@ services:
       - invidious-db
 
   invidious-db:
-    image: docker.io/library/postgres:13
+    image: docker.io/library/postgres:14
     restart: unless-stopped
     volumes:
       - postgresdata:/var/lib/postgresql/data
