@@ -1,57 +1,41 @@
 <div align="center">
-  <img src="assets/invidious-colored-vector.svg" width="192" height="192" alt="Invidious logo">
-  <h1>Invidious</h1>
+  <img src="assets/CMovie.svg" width="192" height="192" alt="CMovie logo">
+  <h1>C`Movie Mediathek</h1>
+  <h3>based on Invidious</h3>
 
   <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
     <img alt="License: AGPLv3" src="https://shields.io/badge/License-AGPL%20v3-blue.svg">
   </a>
-  <a href="https://github.com/iv-org/invidious/actions">
+  <a href="https://github.com/CyberAndi/invidious_cmovie/actions">
     <img alt="Build Status" src="https://github.com/iv-org/invidious/workflows/Invidious%20CI/badge.svg">
   </a>
-  <a href="https://github.com/iv-org/invidious/commits/master">
+  <a href="https://github.com/CyberAndi/invidious_cmovie/commits/master">
     <img alt="GitHub commits" src="https://img.shields.io/github/commit-activity/y/iv-org/invidious?color=red&label=commits">
   </a>
-  <a href="https://github.com/iv-org/invidious/issues">
+  <a href="https://github.com/CyberAndi/invidious_cmovie/issues">
     <img alt="GitHub issues" src="https://img.shields.io/github/issues/iv-org/invidious?color=important">
   </a>
-  <a href="https://github.com/iv-org/invidious/pulls">
+  <a href="https://github.com/CyberAndi/invidious_cmovie/pulls">
     <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/iv-org/invidious?color=blueviolet">
   </a>
   <a href="https://hosted.weblate.org/engage/invidious/">
     <img alt="Translation Status" src="https://hosted.weblate.org/widgets/invidious/-/translations/svg-badge.svg">
   </a>
 
-  <a href="https://github.com/humanetech-community/awesome-humane-tech">
-    <img alt="Awesome Humane Tech" src="https://raw.githubusercontent.com/humanetech-community/awesome-humane-tech/main/humane-tech-badge.svg?sanitize=true">
-  </a>
-
   <h3>An open source alternative front-end to YouTube</h3>
 
-  <a href="https://invidious.io/">Website</a>
+  <a href="https://cyberandi.tumblr.com/cmovie.htm">Website</a>
   &nbsp;•&nbsp;
-  <a href="https://instances.invidious.io/">Instances list</a>
-  &nbsp;•&nbsp;
-  <a href="https://docs.invidious.io/faq/">FAQ</a>
+  <a href="https://cyberandi.tumblr.com/cmovie.htm#impressum">Impressum</a>
   &nbsp;•&nbsp;
   <a href="https://docs.invidious.io/">Documentation</a>
   &nbsp;•&nbsp;
   <a href="#contribute">Contribute</a>
   &nbsp;•&nbsp;
-  <a href="https://invidious.io/donate/">Donate</a>
+  <a href="https://cyberandi.tumblr.com/cmovie.htm#impressum">Donate</a>
 
   <h5>Chat with us:</h5>
-  <a href="https://matrix.to/#/#invidious:matrix.org">
-    <img alt="Matrix" src="https://img.shields.io/matrix/invidious:matrix.org?label=Matrix&color=darkgreen">
-  </a>
-  <a href="https://web.libera.chat/?channel=#invidious">
-    <img alt="Libera.chat (IRC)" src="https://img.shields.io/badge/IRC%20%28Libera.chat%29-%23invidious-darkgreen">
-  </a>
-  <br>
-  <a rel="me" href="https://social.tchncs.de/@invidious">
-  <img alt="Fediverse: @invidious@social.tchncs.de" src="https://img.shields.io/badge/Fediverse-%40invidious%40social.tchncs.de-darkgreen">
-  </a>
-  <br>
-  <a href="https://invidious.io/contact/">
+  <a href="mailto://cyberandi@outlook.com">
   <img alt="E-mail" src="https://img.shields.io/badge/E%2d%2dmail-darkgreen">
   </a>
 </div>
@@ -61,8 +45,8 @@
 
 | Player                              | Preferences                         | Subscriptions                         |
 |-------------------------------------|-------------------------------------|---------------------------------------|
-| ![](screenshots/01_player.png)      | ![](screenshots/02_preferences.png) | ![](screenshots/03_subscriptions.png) |
-| ![](screenshots/04_description.png) | ![](screenshots/05_preferences.png) | ![](screenshots/06_subscriptions.png) |
+| ![](screenshots/CMovie_media_player.webp)      | ![](screenshots/CMovie_media_settings.webp) | ![](screenshots/CMovie_media_playlist2.webp) |
+| ![](screenshots/CMovie_media_playlist.webp) | ![](screenshots/CMovie_media_search.webp) | ![]() |
 
 
 ## Features
@@ -82,7 +66,7 @@
 
 **Data import/export**
 - Import subscriptions from YouTube, NewPipe and Freetube
-- Import watch history from YouTube and NewPipe
+- Import watch history from NewPipe
 - Export subscriptions to NewPipe and Freetube
 - Import/Export Invidious user data
 
@@ -126,12 +110,12 @@ You can read more here: https://docs.invidious.io/applications/
 
 ### Code
 
-1.  Fork it ( https://github.com/iv-org/invidious/fork ).
+1.  Fork it ( https://github.com/CyberAndi/invidious_cmovie/fork ).
 1.  Create your feature branch (`git checkout -b my-new-feature`).
 1.  Stage your files (`git add .`).
 1.  Commit your changes (`git commit -am 'Add some feature'`).
 1.  Push to the branch (`git push origin my-new-feature`).
-1.  Create a new pull request ( https://github.com/iv-org/invidious/compare ).
+1.  Create a new pull request ( https://github.com/CyberAndi/invidious_cmovie/compare ).
 
 ### Translations
 
@@ -142,10 +126,25 @@ You can suggest new translations and/or correction here: https://hosted.weblate.
 Creating an account is not required, but recommended, especially if you want to contribute regularly.
 Weblate also allows you to log-in with major SSO providers like Github, Gitlab, BitBucket, Google, ...
 
+## Projects using original C`Movie Mediathek
 
-## Projects using Invidious
+- [C`Movie Mediathek](https://github.com/CyberAndi/invidious_cmovie): A christian based YouTube GUI for privacy.
 
-A list of projects and extensions for or utilizing Invidious can be found in the documentation: https://docs.invidious.io/applications/
+
+## Projects using original Invidious
+
+- [FreeTube](https://github.com/FreeTubeApp/FreeTube): A libre software YouTube app for privacy.
+- [CloudTube](https://sr.ht/~cadence/tube/): A JavaScript-rich alternate YouTube player.
+- [PeerTubeify](https://gitlab.com/Cha_de_L/peertubeify): On YouTube, displays a link to the same video on PeerTube, if it exists.
+- [MusicPiped](https://github.com/deep-gaurav/MusicPiped): A material design music player that streams music from YouTube.
+- [HoloPlay](https://github.com/stephane-r/holoplay-wa): Progressive Web App connecting on Invidious API's with search, playlists and favorites.
+- [WatchTube](https://github.com/WatchTubeTeam/WatchTube): Powerful YouTube client for Apple Watch.
+- [Yattee](https://github.com/yattee/yattee): Alternative YouTube frontend for iPhone, iPad, Mac and Apple TV.
+- [TubiTui](https://codeberg.org/777/TubiTui): A lightweight, libre, TUI-based YouTube client.
+- [Ytfzf](https://github.com/pystardust/ytfzf): A posix script to find and watch youtube videos from the terminal. (Without API)
+- [Playlet](https://github.com/iBicha/playlet): Unofficial Youtube client for Roku TV
+- [Clipious](https://github.com/lamarios/clipious): Unofficial Invidious client for Android
+
 
 ## Liability
 
