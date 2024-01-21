@@ -1,6 +1,31 @@
 {% skip_file if flag?(:api_only) %}
 
 module Invidious::Routes::Login
+  def self.log_user_in(env, email, sid = nil)
+    sid ||= Base64.urlsafe_encode(Random::Secure.random_bytes(32))
+    Invidious::Database::SessionIDs.insert(sid, email)
+    env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+  end
+
+  def self.register_user(env, email, password)
+    sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
+    user, sid = create_user(sid, email, password)
+
+    if language_header = env.request.headers["Accept-Language"]?
+      if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
+        user.preferences.locale = language.header
+      end
+    end
+
+    Invidious::Database::Users.insert(user)
+
+    view_name = "subscriptions_#{sha256(user.email)}"
+    PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
+
+    log_user_in(env, email, sid)
+    return user
+  end
+
   def self.login_page(env)
     locale = env.get("preferences").as(Preferences).locale
 
@@ -17,6 +42,22 @@ module Invidious::Routes::Login
     email = nil
     password = nil
     captcha = nil
+
+    if CONFIG.reverse_proxy_auth_enabled
+      user ||= env.request.headers[CONFIG.reverse_proxy_auth_user_header]
+      email ||= env.request.headers[CONFIG.reverse_proxy_auth_email_header]
+
+      user = Invidious::Database::Users.select(email: email)
+      if user
+        log_user_in(env, email)
+      elsif CONFIG.reverse_proxy_registration_enabled
+        # In case users are also allowed to register and log in normally, we want to ensure that this user has a secure password
+        # They'll never use it if they're logging in via reverse proxy, though.
+        generated_password = Random::Secure.base64(55).byte_slice(0, 55)
+        register_user(env, email, generated_password)
+      end
+      env.redirect referer
+    end
 
     account_type = env.params.query["type"]?
     account_type ||= "invidious"
@@ -60,7 +101,7 @@ module Invidious::Routes::Login
           sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
           Invidious::Database::SessionIDs.insert(sid, email)
 
-          env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+          log_user_in(env, email, sid)
         else
           return error_template(401, "Wrong username or password")
         end
@@ -148,22 +189,7 @@ module Invidious::Routes::Login
           end
         end
 
-        sid = Base64.urlsafe_encode(Random::Secure.random_bytes(32))
-        user, sid = create_user(sid, email, password)
-
-        if language_header = env.request.headers["Accept-Language"]?
-          if language = ANG.language_negotiator.best(language_header, LOCALES.keys)
-            user.preferences.locale = language.header
-          end
-        end
-
-        Invidious::Database::Users.insert(user)
-        Invidious::Database::SessionIDs.insert(sid, email)
-
-        view_name = "subscriptions_#{sha256(user.email)}"
-        PG_DB.exec("CREATE MATERIALIZED VIEW #{view_name} AS #{MATERIALIZED_VIEW_SQL.call(user.email)}")
-
-        env.response.cookies["SID"] = Invidious::User::Cookies.sid(CONFIG.domain, sid)
+        user = register_user(env, email, password)
 
         if env.request.cookies["PREFS"]?
           user.preferences = env.get("preferences").as(Preferences)

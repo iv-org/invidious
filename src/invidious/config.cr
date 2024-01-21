@@ -113,6 +113,13 @@ class Config
   # Enable the user notifications for all users
   property enable_user_notifications : Bool = true
 
+  # Enable logging in via headers that are set by your reverse proxy
+  property reverse_proxy_auth_enabled : Bool = false
+  # Enable auto-registration when logging in with reverse proxy auth
+  property reverse_proxy_registration_enabled : Bool = false
+  # Header that will contain the username, email address,
+  property reverse_proxy_auth_header : String = "Remote-User"
+
   # URL to the modified source code to be easily AGPL compliant
   # Will display in the footer, next to the main source code link
   property modified_source_code_url : String? = nil
