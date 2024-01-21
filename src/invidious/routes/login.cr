@@ -44,8 +44,26 @@ module Invidious::Routes::Login
     captcha = nil
 
     if CONFIG.reverse_proxy_auth_enabled
-      user ||= env.request.headers[CONFIG.reverse_proxy_auth_user_header]
-      email ||= env.request.headers[CONFIG.reverse_proxy_auth_email_header]
+      user = env.request.headers[CONFIG.reverse_proxy_auth_user_header]
+      email = env.request.headers[CONFIG.reverse_proxy_auth_email_header]
+      domain = CONFIG.reverse_proxy_auth_domain
+      email_regex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+      has_valid_email = email && email_regex.match(email)
+
+      if !domain
+        # Do nothing; here to enable flattening the conditional structure
+      elsif CONFIG.reverse_proxy_auth_require_user
+        email = "#{user}@#{domain}"
+        has_valid_email = email && email_regex.match(email)
+      elsif CONFIG.reverse_proxy_auth_prefer_user
+        if user
+          email = "#{user}@#{domain}"
+          has_valid_email = email && email_regex.match(email)
+        end
+      elsif !has_valid_email && user
+        email = "#{user}@#{domain}"
+        has_valid_email = email && email_regex.match(email)
+      end
 
       user = Invidious::Database::Users.select(email: email)
       if user

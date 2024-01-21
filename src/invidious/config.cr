@@ -118,7 +118,20 @@ class Config
   # Enable auto-registration when logging in with reverse proxy auth
   property reverse_proxy_registration_enabled : Bool = false
   # Header that will contain the username, email address,
-  property reverse_proxy_auth_header : String = "Remote-User"
+  property reverse_proxy_auth_user_header : String = "Remote-User"
+  property reverse_proxy_auth_email_header : String = "Remote-Email"
+  # If set to false, ignore the User header and only use the Email header.
+  # If set to a string, then this behavior will be used:
+  # if the email is blank, the email will instead be set to ${User}@${Domain}, where
+  # ${User} is the value in the Remote-User header and ${Domain} is the value of this property.
+  property reverse_proxy_auth_domain : Bool | String = false
+  # Does nothing if the reverse_proxy_auth_domain property is false.
+  # Does nothing if the reverse_proxy_auth_require_user property is true.
+  # If set to true, then the User header is preferred over the Email header.
+  property reverse_proxy_auth_prefer_user : Bool = false
+  # Does nothing if the reverse_proxy_auth_domain property is false.
+  # If set to true, then the Email header is ignored.
+  property reverse_proxy_auth_require_user : Bool = false
 
   # URL to the modified source code to be easily AGPL compliant
   # Will display in the footer, next to the main source code link
