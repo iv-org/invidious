@@ -191,3 +191,9 @@ addEventListener('load', function (e) {
         comments.innerHTML = '';
     }
 });
+
+const chapter_widget_buttons = document.getElementsByClassName("chapter-widget-buttons")
+Array.from(chapter_widget_buttons).forEach(e => e.addEventListener("click", function (event) {
+    event.preventDefault();
+    player.currentTime(e.getAttribute('data-jump-time'));
+}))
