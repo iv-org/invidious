@@ -13,7 +13,7 @@ services:
       dockerfile: docker/Dockerfile
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"
     environment:
       # Please read the following file for a comprehensive list of all available
       # configuration options and their associated syntax:
@@ -28,9 +28,10 @@ services:
         check_tables: true
         # external_port:
         # domain:
-        # https_only: false
+        banner: C`Movie das Hoffnungsportal
+        https_only: true
         # statistics_enabled: false
-        hmac_key: "CHANGE_ME!!"
+        hmac_key: Aikiequ5yohx7iN4chei
     healthcheck:
       test: wget -nv --tries=1 --spider http://127.0.0.1:3000/api/v1/comments/jNQXAC9IVRw || exit 1
       interval: 30s
