@@ -26,7 +26,7 @@ struct YoutubeConnectionPool
 
   def client(region = nil, &block)
     if region
-      conn = make_client(url, region)
+      conn = make_client(url, region, force_resolve = true)
       response = yield conn
     else
       conn = pool.checkout
@@ -59,9 +59,14 @@ struct YoutubeConnectionPool
   end
 end
 
-def make_client(url : URI, region = nil)
+def make_client(url : URI, region = nil, force_resolve : Bool = false)
   client = HTTPClient.new(url, OpenSSL::SSL::Context::Client.insecure)
-  client.family = CONFIG.force_resolve
+
+  # Some services do not support IPv6.
+  if force_resolve
+    client.family = CONFIG.force_resolve
+  end
+
   client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
@@ -80,8 +85,8 @@ def make_client(url : URI, region = nil)
   return client
 end
 
-def make_client(url : URI, region = nil, &block)
-  client = make_client(url, region)
+def make_client(url : URI, region = nil, force_resolve : Bool = false, &block)
+  client = make_client(url, region, force_resolve)
   begin
     yield client
   ensure
