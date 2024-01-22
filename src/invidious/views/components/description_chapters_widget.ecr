@@ -1,4 +1,4 @@
-<% if !chapters.nil? %>
+<% if chapters = video.chapters %>
     <div class="description-chapters-section">
         <hr class="description-content-separator"/>
         <h4><%=HTML.escape(translate(locale, "video_chapters_label"))%></h4>
