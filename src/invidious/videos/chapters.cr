@@ -10,8 +10,8 @@ module Invidious::Videos
     # Constructs a chapters object from InnerTube's JSON object for chapters
     #
     # Requires the length of the video the chapters are associated to in order to construct correct ending time
-    def Chapters.from_raw_chapters(raw_chapters : Array(JSON::Any), video_length_seconds : Int32, is_auto_generated : Bool = false)
-      video_length_milliseconds = video_length_seconds.seconds.total_milliseconds
+    def Chapters.from_raw_chapters(raw_chapters : Array(JSON::Any), video_length : Int32, is_auto_generated : Bool = false)
+      video_length_milliseconds = video_length.seconds.total_milliseconds
 
       parsed_chapters = [] of Chapter
 
@@ -21,10 +21,8 @@ module Invidious::Videos
         title = chapter["title"]["simpleText"].as_s
 
         raw_thumbnails = chapter["thumbnail"]["thumbnails"].as_a
-        thumbnails = [] of Hash(String, Int32 | String)
-
-        raw_thumbnails.each do |thumbnail|
-          thumbnails << {
+        thumbnails = raw_thumbnails.map do |thumbnail|
+          {
             "url"    => thumbnail["url"].as_s,
             "width"  => thumbnail["width"].as_i,
             "height" => thumbnail["height"].as_i,

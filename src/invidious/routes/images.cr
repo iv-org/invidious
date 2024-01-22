@@ -160,14 +160,10 @@ module Invidious::Routes::Images
     id = env.params.url["id"]
     name = env.params.url["name"]
 
-    # Sometimes required to fetch image. IE for chapter thumbnails
+    # Some thumbnails such as the ones for chapters requires some additional queries.
     query_params = HTTP::Params.new
-    if sqp = env.params.query["sqp"]?
-      query_params["sqp"] = sqp
-    end
-
-    if rs = env.params.query["rs"]?
-      query_params["rs"] = rs
+    {"sqp", "rs"}.each do |name|
+      query_params[name] = env.params.query[name] if env.params.query[name]?
     end
 
     headers = HTTP::Headers.new

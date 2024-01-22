@@ -158,8 +158,6 @@ module Invidious::Routes::Watch
 
     thumbnail = "/vi/#{video.id}/maxres.jpg"
 
-    chapters = video.chapters
-
     if params.raw
       if params.listen
         url = audio_streams[0]["url"].as_s
