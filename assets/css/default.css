@@ -7,6 +7,9 @@ body {
   font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica,
     Arial, sans-serif;
+}
+
+body {
     background-image: linear-gradient(0deg, transparent, transparent, rgba(47,121,160,1), rgba(47,121,160,1)) !important;
     background-color: #03060b !important;
   color: #f0f0f0;
