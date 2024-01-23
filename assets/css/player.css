@@ -201,8 +201,8 @@ ul.vjs-menu-content::-webkit-scrollbar {
 	margin: auto;
 	display: inline-block;
 	position: absolute;
-	top: calc(50% - 1.5em)!important;
-	left: calc(50% - 1.5em) !important;
+	top: calc(50% - 1.5em);
+	left: calc(50% - 1.5em);
 	padding: 1.45em !important;
 	cursor: pointer;
 	opacity: 1;
@@ -269,6 +269,20 @@ video.video-js {
   position: absolute !important;
   bottom: unset !important;
   top: 1.5em;
+}
+
+.video-js .vjs-control-bar::before {
+	content: '';
+	display: block;
+	width: calc(16.3vw * 0.75);
+	height: calc(8.645833vw * 0.75);
+	border: solid;
+	position: relative;
+	top: calc(0px - 8.645833vw * 0.75);
+	background-image: url(CMovie.svg), url(Wasser.png);
+	background-repeat: no-repeat;
+	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
+	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
 }
 
 @media screen and (max-width: 700px) {
