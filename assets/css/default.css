@@ -626,6 +626,11 @@ body.dark-theme {
   color: #f0f0f0;
 }
 
+.dark-theme #headerHidden a {
+  color: inherit !important;
+  text-align: center !important;
+}
+
 .dark-theme .pure-form legend {
   color: #f0f0f0;
 }
