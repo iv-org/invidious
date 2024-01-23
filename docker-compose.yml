@@ -28,7 +28,7 @@ services:
         check_tables: true
         # external_port:
         # domain:
-        banner:<header class="header" id="headerHidden" role="banner" style="text-align:center;"><a class="containerHeader" href="#"></a><div class="headerText"><a class="containerHeader" href="#"><h1>Willkommen bei C`Movie dem Hoffnungsportal</h1><h3>Der Gegenpol zu Chaos und Panik seitens der Medien und Politik</h3></a><h4><a class="containerHeader" href="#"></a><a href="https://www.bibleserver.com/LUT/Offenbarung13%2C1" target="_blank">Sei vorbereitet, auf das was kommt</a>.</h4></div></header>
+        banner: <header class="header" id="headerHidden" role="banner" style="text-align:center;"><a class="containerHeader" href="#"></a><div class="headerText"><a class="containerHeader" href="#"><h1>Willkommen bei C`Movie dem Hoffnungsportal</h1><h3>Der Gegenpol zu Chaos und Panik seitens der Medien und Politik</h3></a><h4><a class="containerHeader" href="#"></a><a href="https://www.bibleserver.com/LUT/Offenbarung13%2C1" target="_blank">Sei vorbereitet, auf das was kommt</a>.</h4></div></header>
         https_only: true
         # statistics_enabled: false
         hmac_key: Aikiequ5yohx7iN4chei
