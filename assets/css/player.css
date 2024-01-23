@@ -285,6 +285,13 @@ video.video-js {
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
 }
 
+#contents #player-container ~ .h-box h1 {
+	background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1));
+	position: relative;
+	top: -4em;
+	padding-left: 200px;
+}
+
 @media screen and (max-width: 700px) {
   .video-js .vjs-share {
     justify-content: unset;
