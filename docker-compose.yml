@@ -28,7 +28,7 @@ services:
         check_tables: true
         # external_port:
         # domain:
-        banner: C`Movie das Hoffnungsportal
+        banner: Willkommen bei C'Movie das Hoffnungsportal - Der Gegenpol zu Chaos und Panik seitens der Medien und Politik
         https_only: true
         # statistics_enabled: false
         hmac_key: Aikiequ5yohx7iN4chei
@@ -42,7 +42,7 @@ services:
         condition: service_healthy
 
   invidious-db:
-    image: docker.io/library/postgres:14
+    image: docker.io/library/postgres:13
     restart: unless-stopped
     volumes:
       - postgresdata:/var/lib/postgresql/data
