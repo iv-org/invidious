@@ -29,6 +29,11 @@ module Invidious::Routes::API::V1::Misc
   end
 
   def self.metrics(env)
+    if !CONFIG.statistics_enabled
+      env.response.status_code = 204
+      return
+    end
+
     env.response.content_type = "text/plain"
 
     return String.build do |str|
