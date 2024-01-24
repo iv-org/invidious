@@ -654,6 +654,17 @@ body.dark-theme {
   color: inherit;
 }
 
+.dark-theme .pure-menu-heading:nth-child(1)::before {
+	display: block;
+	background-image: url(CMovie.svg);
+	background-repeat: no-repeat;
+	height: 2.35em;
+	content: "";
+	position: relative;
+	top: 0.75em;
+	/* left: 350px; */
+}
+
 @media (prefers-color-scheme: dark) {
   .no-theme a:hover,
   .no-theme a:active,
