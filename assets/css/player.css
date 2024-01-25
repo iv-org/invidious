@@ -279,7 +279,7 @@ video.video-js {
 	border: solid;
 	position: relative;
 	top: calc(0px - 8.645833vw * 0.75);
-	background-image: url(CMovie.svg), url(Wasser.png);
+	background-image: url(../CMovie.svg), url(../Wasser.png);
 	background-repeat: no-repeat;
 	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
