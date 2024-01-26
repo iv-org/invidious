@@ -283,6 +283,7 @@ video.video-js {
 	background-repeat: no-repeat;
 	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
+	z-index: 100;
 }
 
 #contents #player-container ~ .h-box h1 {
@@ -290,6 +291,7 @@ video.video-js {
 	position: relative;
 	top: -2.8em;
 	padding-left: 200px;
+	z-index: 90;
 }
 
 @media screen and (max-width: 700px) {
