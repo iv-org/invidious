@@ -288,7 +288,7 @@ video.video-js {
 #contents #player-container ~ .h-box h1 {
 	background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1));
 	position: relative;
-	top: -1.8em;
+	top: -2.8em;
 	padding-left: 200px;
 }
 
