@@ -526,7 +526,7 @@ span > select {
 }
 
 .light-theme a {
-  color: #335d7a;
+  color: inherit;
   text-decoration: none;
 }
 
@@ -565,7 +565,7 @@ span > select {
   }
 
   .no-theme a {
-    color: #335d7a;
+    color: inherit;
     text-decoration: none;
   }
 
@@ -617,7 +617,7 @@ span > select {
 }
 
 .dark-theme a {
-  color: #adadad;
+  color: inherit;
   text-decoration: none;
 }
 
@@ -687,7 +687,7 @@ body.dark-theme {
   }
 
   .no-theme a {
-    color: #adadad;
+    color: inherit;
     text-decoration: none;
   }
 
