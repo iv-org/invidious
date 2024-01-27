@@ -272,7 +272,7 @@ video.video-js {
   top: 1.5em;
 }
 
-/*.video-js .vjs-control-bar */
+/*.video-js .vjs-control-bar 
 #contents #player-container ~ .h-box h1::before {
 	content: '';
 	display: block;
@@ -281,18 +281,45 @@ video.video-js {
 	border: solid;
 	position: relative;
 	top: calc(0px - 8.645833vw * 0.75);
+	left: calc(0px - 16.3vw * 0.75);
 	background-image: url(../CMovie.svg), url(../Wasser.png);
 	background-repeat: no-repeat;
 	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
 	z-index: 100;
-}
+}*/
 
+#contents #player-container ~ .h-box::before {
+	content: '';
+	display: block;
+	width: calc(16.3vw * 0.75);
+	height: calc(8.645833vw * 0.75);
+	border: solid;
+	position: relative;
+	bottom: calc(-3px + 8.645833vw * 0.75);
+	background-image: url(
+	../CMovie.svg), url(../Wasser.png);
+	background-repeat: no-repeat;
+	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
+	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
+	z-index: 100;
+}
+/*
 #contents #player-container ~ .h-box h1 {
 	background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1));
 	position: relative;
+	height: calc(0px - 8.645833vw * 0.75);
 	top: -2.8em;
-	padding-left: 200px;
+	padding-left: calc(200px + 1em);
+	z-index: 90;
+}*/
+#contents #player-container ~ .h-box h1 {
+	background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1));
+	position: relative;
+	display: block;
+	bottom: calc(3em + 8.645833vw * 0.75 - 6px);
+	height: auto;
+	padding-left: calc(200px + 1em);
 	z-index: 90;
 }
 
