@@ -508,7 +508,8 @@ span > select {
 .light-theme summary:hover,
 .light-theme a:focus,
 .light-theme summary:focus {
-  color: #075A9E !important;
+   color: inherit;
+   text-decoration: underline;
 }
 
 .light-theme .pure-button-primary:hover,
@@ -547,7 +548,8 @@ span > select {
   .no-theme summary:hover,
   .no-theme a:focus,
   .no-theme summary:focus {
-    color: #075A9E !important;
+    color: inherit;
+    text-decoration: underline
   }
 
   .no-theme .pure-button-primary:hover,
@@ -599,7 +601,8 @@ span > select {
 .dark-theme summary:hover,
 .dark-theme a:focus,
 .dark-theme summary:focus {
-  color: rgb(0, 182, 240);
+   color: inherit;
+   text-decoration: underline;
 }
 
 .dark-theme .pure-button-primary:hover,
@@ -669,7 +672,8 @@ body.dark-theme {
   .no-theme a:hover,
   .no-theme a:active,
   .no-theme a:focus {
-    color: rgb(0, 182, 240);
+    color: inherit;
+    text-decoration: underline;
   }
 
   .no-theme .pure-button-primary:hover,
