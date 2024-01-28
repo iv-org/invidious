@@ -62,8 +62,8 @@
   */
   top: 50%;
   left: 50%;
-  margin-top: -0.81666em;
-  margin-left: -1.5em;
+  /*margin-top: -0.81666em;
+  margin-left: -1.5em;*/
 }
 
 .video-js.player-style-youtube .vjs-menu-button-popup .vjs-menu {
@@ -188,7 +188,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 
 /* ProgressBar marker */
 .vjs-marker {
-  background-color: rgba(255, 255, 255, 1);
+  background-color: rgba(230, 230, 230, 1);
   z-index: 0;
 }
 
@@ -208,7 +208,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 	cursor: pointer;
 	/*opacity: 1;*/
 	border: 0.7vmin solid #dddddd;
-	background-color: rgba(47, 121, 160, 1);
+	background-color: rgba(32, 32, 32, 0.5);
 	background-size: 50%;
 	backgound-repeate: no-repeat;
 	aspect-ratio: 1 / 1 !important;
@@ -218,7 +218,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 }
 
 .video-js:hover .vjs-big-play-button {
-  background-color: rgba(35, 35, 35, 0.5);
+	background-color: rgba(47, 121, 160, 0.5);
 }
 
 .video-js .vjs-current-time,
@@ -234,8 +234,11 @@ ul.vjs-menu-content::-webkit-scrollbar {
 }
 
 .video-js .vjs-poster {
-  background-size: cover;
-  object-fit: cover;
+	background-size: cover;
+	object-fit: cover;
+	border-radius: 13px;
+	border: solid 0.75px rgba(32,32,32,0.5);
+        box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
 }
 
 .player-dimensions.vjs-fluid {
@@ -368,7 +371,7 @@ video#player_html5_api {
 	font-family: Arial, Helvetica, sans-serif;
 	word-break: initial;
 	border-radius: 13px;
-	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
+	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
 	border: solid 0.75px rgba(32,32,32,0.5);
 }
 
@@ -387,7 +390,7 @@ a:not([data-id]) > .icon, .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .playlis
 	background-image: url(../CMovie.svg), url(../Wasser.png);
 	background-repeat: no-repeat;
 	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
-	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
+	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
 	z-index: 100;
 }
 
