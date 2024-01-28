@@ -372,8 +372,23 @@ video#player_html5_api {
 	border: solid 0.75px rgba(32,32,32,0.5);
 }
 
-a:not([data-id]) > .icon, .no-theme .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .no-theme .playlist-restricted > ol > li > a {
+a:not([data-id]) > .icon, .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .playlist-restricted > ol > li > a {
 	color: #c0c0c0;
+}
+
+.video-js.vjs-fullscreen .vjs-control-bar::before {
+	content: '';
+	display: block;
+	width: calc(16.3vw * 0.75);
+	height: calc(8.645833vw * 0.75);
+	border: solid 3px rgb(230,230,230);
+	position: relative;
+	bottom: calc(6px + 8.645833vw * 0.75);
+	background-image: url(../CMovie.svg), url(../Wasser.png);
+	background-repeat: no-repeat;
+	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
+	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
+	z-index: 100;
 }
 
 @media screen and (max-width: 700px) {
