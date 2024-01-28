@@ -83,7 +83,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 
 .video-js .vjs-text-track-display > div > div > div {
   background-color: rgba(0, 0, 0, 0.75) !important;
-  border-radius: 9px !important;
+  border-radius: 7px !important;
   padding: 5px !important;
 }
 
@@ -160,7 +160,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 
 /* Progress Bar */
 .video-js .vjs-slider {
-  background-color: rgba(15, 15, 15, 0.5);
+  background-color: rgba(32, 32, 32, 0.5);
 }
 
 .video-js .vjs-load-progress,
@@ -179,10 +179,10 @@ ul.vjs-menu-content::-webkit-scrollbar {
 
 /* Overlay */
 .video-js .vjs-overlay {
-  background-color: rgba(35, 35, 35, 0.75) !important;
+  background-color: rgba(32, 32, 32, 0.8) !important;
 }
 .video-js .vjs-overlay * {
-  color: rgba(255, 255, 255, 1) !important;
+  color: rgba(230, 230, 230, 1) !important;
   text-align: center;
 }
 
