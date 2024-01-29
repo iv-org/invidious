@@ -9,7 +9,7 @@ body {
     Arial, sans-serif;
 }
 
-html {
+body {
   background-image: linear-gradient(0deg, transparent, transparent, rgba(47,121,160,1), rgba(47,121,160,1)) !important;
   background-color: #03060b;
   color: #f0f0f0;
@@ -17,12 +17,6 @@ html {
   background-repeat: no-repeat !important;
   background-attachment: fixed !important;
   height: 100vh !important;
-  overflow-y: clip !important;
-}
-
-body {
-  height: 100% !important;
-  overflow-y: auto;
 }
 
 #contents {
