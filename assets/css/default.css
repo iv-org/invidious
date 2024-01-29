@@ -288,6 +288,18 @@ div.thumbnail > .bottom-right-overlay {
 .navbar .index-link {
   font-weight: bold;
   display: inline;
+  color: transparent;
+}
+
+a.index-link.pure-menu-heading::before {
+	background-size: cover;
+	position: relative;
+	content: '';
+	left: 2em;
+	background-image: url(../CMovie.svg);
+	background-repeat: no-repeat;
+	height: 30px !important;
+	display: inline-block !important;
 }
 
 .searchbar .pure-form fieldset { padding: 0; }
