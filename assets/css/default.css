@@ -364,7 +364,7 @@ input[type="search"]::-webkit-search-cancel-button {
   margin-right: 1em;
 }
 
-header#headerHidden::after {
+/*header#headerHidden::after {
 	content: '';
 	display: block;
 	top: 2em;
@@ -379,7 +379,7 @@ header#headerHidden::after {
 	border: solid 3px rgba(230,230,230,1);
 	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
 }
-
+*/
 footer {
 	display: none !important;
 }
