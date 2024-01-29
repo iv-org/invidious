@@ -288,17 +288,24 @@ div.thumbnail > .bottom-right-overlay {
 .navbar .index-link {
   font-weight: bold;
   display: inline;
-  color: transparent;
+  color: transparent !important;
+}
+
+
+a.feed-menu-item.pure-menu-heading {
+	display: none !important;
 }
 
 a.index-link.pure-menu-heading::before {
 	background-size: cover;
 	position: relative;
 	content: '';
+	top: 10px;
 	left: 2em;
+	width: 100px;
 	background-image: url(../CMovie.svg);
 	background-repeat: no-repeat;
-	height: 30px !important;
+	height: 2rem !important;
 	display: inline-block !important;
 }
 
@@ -349,6 +356,25 @@ input[type="search"]::-webkit-search-cancel-button {
   margin-right: 1em;
 }
 
+header#headerHidden::after {
+	content: '';
+	display: block;
+	top: 2em;
+	left: calc(50% - 16.3vw * 0.75);
+	width: calc(16.3vw * 1.5);
+	height: calc(8.645833vw * 1.5);
+	position: relative;
+	background-image: url(../CMovie.svg), url(../Wasser.png);
+	background-repeat: no-repeat;
+	border-radius: 13px;
+	background-position-y: calc(8.645833vw * 1.5 * 0.22), 0;
+	border: solid 3px rgba(230,230,230,1);
+	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
+}
+
+footer {
+	display: none !important;
+}
 
 /*
  * Responsive rules
@@ -456,6 +482,10 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 
 a:not([data-id]) > .icon, .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .playlist-restricted > ol > li > a {
 	color: inherit !important;
+}
+
+a.feed-menu-item.pure-menu-heading {
+	display: none !important;
 }
 
 /*
