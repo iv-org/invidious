@@ -152,9 +152,17 @@ div {
   animation: spin 2s linear infinite;
 }
 
+#playlist {
+	height: 100vh !important;
+}
+
 .playlist-restricted {
-  height: 20em;
-  padding-right: 10px;
+	padding-right: 10px;
+}
+
+#playlist ~ .h-box {
+	display: none !important;
+	height: 0px !important;
 }
 
 
