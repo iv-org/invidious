@@ -204,9 +204,13 @@ div.thumbnail {
 }
 
 img.thumbnail {
-  display: block; /* See: https://stackoverflow.com/a/11635197 */
+  display: block;
   width: 100%;
   object-fit: cover;
+  border-radius: 7px;
+  box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
+  border: solid 0.75px rgba(32,32,32,0.5);
+}
 }
 
 .thumbnail-placeholder {
@@ -430,6 +434,17 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
   border: none;
 }
 
+.headerText :is(h1,h2,h3,h4) {
+	text-align: center !important;
+}
+
+.pure-menu-heading {
+	color: inherit !important;
+}
+
+a:not([data-id]) > .icon, .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .playlist-restricted > ol > li > a {
+	color: inherit !important;
+}
 
 /*
  * Page navigation
