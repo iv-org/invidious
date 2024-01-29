@@ -9,14 +9,20 @@ body {
     Arial, sans-serif;
 }
 
-body {
+html {
   background-image: linear-gradient(0deg, transparent, transparent, rgba(47,121,160,1), rgba(47,121,160,1)) !important;
   background-color: #03060b !important;
   color: #f0f0f0;
   background-size: cover !important;
-  background-repeat: no-repeat !important;  
+  background-repeat: no-repeat !important;
   background-attachment: fixed !important;
-  height: 100vh !important;	
+  height: 100vh !important;
+  overflow-y: clip !important;
+}
+
+body {
+  height: 100vh !important;
+  overflow-y: auto;
 }
 
 #contents {
@@ -512,7 +518,33 @@ a.feed-menu-item.pure-menu-heading {
   display: inline-block;
 }
 
+.searchbar input[type="search"] {
+	width: 100%;
+	font-weight: 650;
+	color: #505050;
+	margin: 1px;
+	border: 1px solid;
+	border-color: rgba(0,0,0,0.5);
+	border-bottom-color: #CCC;
+	border-radius: 1em;
+	box-shadow: none;
+	appearance: none;
+	-webkit-appearance: none;
+}
 
+.theme-light .searchbar input[type="search"] {
+	width: 100%;
+	font-weight: 650;
+	color: #505050;
+	margin: 1px;
+	border: 1px solid;
+	border-color: rgba(0,0,0,0.5);
+	border-bottom-color: #CCC;
+	border-radius: 1em;
+	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
+	appearance: none;
+	-webkit-appearance: none;
+}
 /*
  * Footer
  */
