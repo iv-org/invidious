@@ -883,7 +883,7 @@ h1, h2, h3, h4, h5, p,
 }
 
 #descriptionWrapper {
-  max-width: 600px;
+  max-width: 80%;
   white-space: pre-wrap;
 }
 
