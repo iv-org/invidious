@@ -10,8 +10,8 @@ body {
 }
 
 body {
-    background-image: linear-gradient(0deg, transparent, transparent, rgba(47,121,160,1), rgba(47,121,160,1)) !important;
-    background-color: #03060b !important;
+  background-image: linear-gradient(0deg, transparent, transparent, rgba(47,121,160,1), rgba(47,121,160,1)) !important;
+  background-color: #03060b !important;
   color: #f0f0f0;
   background-size: cover !important;
   background-repeat: no-repeat !important;  
@@ -153,16 +153,16 @@ div {
 }
 
 #playlist {
-	height: 100vh !important;
+  height: 100vh !important;
 }
 
 .playlist-restricted {
-	padding-right: 10px;
+  padding-right: 10px;
 }
 
 #playlist ~ .h-box {
-	display: none !important;
-	height: 0px !important;
+  display: none !important;
+  height: 0px !important;
 }
 
 
@@ -215,7 +215,7 @@ img.thumbnail {
   display: block;
   width: 100%;
   object-fit: cover;
-  border-radius: 7px;
+  border-radius: 9px;
   box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
   border: solid 0.75px rgba(32,32,32,0.5);
 }
@@ -390,11 +390,13 @@ footer {
 
 @media only screen and (max-aspect-ratio: 16/9) {
   .player-dimensions.vjs-fluid {
-    padding-top: 46.86% !important;
+    padding-top: 46.86%;
+    padding-top: 56.25% !important;
   }
 
   #player-container {
-    padding-bottom: 46.86% !important;
+    padding-bottom: 46.86% ;
+    padding-bottom: 56.25% !important;
   }
 }
 
