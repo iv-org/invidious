@@ -146,7 +146,11 @@ module Invidious::Routes::Feeds
     env.response.headers["Content-Type"] = "application/atom+xml"
     env.response.content_type = "application/atom+xml"
 
-    ucid = env.params.url["ucid"]
+    if env.params.url["ucid"].matches?(/^[\w-]+$/)
+      ucid = env.params.url["ucid"]
+    else
+      return error_atom(400, InfoException.new("Invalid channel ucid provided."))
+    end
 
     params = HTTP::Params.parse(env.params.query["params"]? || "")
 
