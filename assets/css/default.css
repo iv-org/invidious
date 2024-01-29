@@ -518,9 +518,9 @@ a.feed-menu-item.pure-menu-heading {
 	color: #505050;
 	margin: 1px;
 	border: 1px solid;
-	border-color: rgba(0,0,0,0.5);
+	border-color: rgba(0,0,0,0);
 	border-bottom-color: #CCC;
-	border-radius: 1em;
+	border-radius: 0;
 	box-shadow: none;
 	appearance: none;
 	-webkit-appearance: none;
@@ -534,8 +534,8 @@ a.feed-menu-item.pure-menu-heading {
 	border: 1px solid;
 	border-color: rgba(0,0,0,0.5);
 	border-bottom-color: #CCC;
-	border-radius: 1em;
-	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
+	border-radius: 0;
+	/*box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8); */
 	appearance: none;
 	-webkit-appearance: none;
 }
