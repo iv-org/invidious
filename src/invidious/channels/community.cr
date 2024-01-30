@@ -57,6 +57,17 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
       .try &.as_s || ""
     if error_message == "This channel does not exist."
       raise NotFoundException.new(error_message)
+    elsif error_message == "This channel hasn't posted yet"
+      response = JSON.build do |json|
+        json.object do
+          json.field "authorId", ucid
+          json.field "comments" do
+            json.array do
+            end
+          end
+        end
+      end
+      return response
     else
       raise InfoException.new(error_message)
     end
