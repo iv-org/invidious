@@ -1,6 +1,13 @@
 /*
  * Common attributes
  */
+@font-face {
+	font-family: "ocr-a";
+	src: url("../fonts/OCR-A.ttf");
+	src: url("../fonts/OCR-A.woff") format("woff"),url("../fonts/OCR-A.ttf") format("tff");
+	font-weight: normal;
+	font-style: normal
+}
 
 html,
 body {
@@ -219,7 +226,6 @@ img.thumbnail {
   box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
   border: solid 0.75px rgba(32,32,32,0.5);
 }
-}
 
 .thumbnail-placeholder {
   min-height: 50px;
@@ -380,6 +386,47 @@ input[type="search"]::-webkit-search-cancel-button {
 	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
 }
 */
+
+.headerText {
+	font-family: "ocr-a";
+}
+
+.headerText {
+	font-family: "ocr-a";
+}
+
+.h-box.flexible.title {
+	font-family: "ocr-a";
+	font-size: 10pt;
+}
+
+.channel-name {
+	font-family: "ocr-a";
+	font-size: 10pt;
+}
+
+.thumbnail ~ p ~ p b {
+	font-size: 10pt;
+	font-family: "ocr-a";
+}
+
+.channel-profile.pure-u-4-24.pure-u-md-2-24 ~ .pure-u-20-24.pure-u-md-22-24 > p > b {
+	font-size: 10pt;
+	font-family: "ocr-a";
+}
+
+span#channel-name {
+	font-family: "ocr-a";
+	font-size: 12pt;
+}
+
+#download_widget {
+	width: 100%;
+	color: #505050;
+	font-weight: 550;
+}
+
+
 footer {
 	display: none !important;
 }
