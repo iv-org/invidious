@@ -889,6 +889,7 @@ body {
   background-repeat: no-repeat !important;
   background-attachment: fixed !important;
   height: 100vh !important;
+  font-size: 10pt;
   text-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 75%), 0 0 0.2em #000000;
 }
 
