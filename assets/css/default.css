@@ -896,6 +896,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  padding-top: 5.5em;
 }
 
 .h-box {
@@ -1180,7 +1181,7 @@ div.thumbnail > .bottom-right-overlay {
 a.feed-menu-item.pure-menu-heading {
 	display: none !important;
 }
-
+/*
 a.index-link.pure-menu-heading::before {
 	background-size: cover;
 	position: relative;
@@ -1192,7 +1193,7 @@ a.index-link.pure-menu-heading::before {
 	background-repeat: no-repeat;
 	height: 2rem !important;
 	display: inline-block !important;
-}
+}*/
 
 .searchbar .pure-form fieldset { padding: 0; }
 
@@ -1276,6 +1277,7 @@ input[type="search"]::-webkit-search-cancel-button {
 	height: var(--calcHeaderHeight);
 	text-align: var(--headerAlign);
 	top: var(--headerTop);
+	left: 0px;
 	margin: var(--noMarginPadding) var(--centerMargin);
 	display: var(--displayBlock);
 	overflow: var(--overflowHidden);
