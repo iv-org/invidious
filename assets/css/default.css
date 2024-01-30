@@ -896,7 +896,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-top: 5.5em;
+  padding-top: 6.5em;
 }
 
 .h-box {
@@ -1292,7 +1292,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .h-box h3:has(header) {
-	margin: 0px !important;
+	height: 4.5em;
 }
 
 .h-box.flexible.title {
