@@ -24,6 +24,7 @@ body {
   background-repeat: no-repeat !important;
   background-attachment: fixed !important;
   height: 100vh !important;
+  text-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 75%), 0 0 0.2em #000000;
 }
 
 #contents {
@@ -531,6 +532,19 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 
 .headerText :is(h1,h2,h3,h4) {
 	text-align: center !important;
+	margin: unset
+}
+
+.headerText h1 {
+	font-size: 20pt;
+}
+
+.headerText h3 {
+	font-size: 14pt;
+} 
+
+.headerText h4 {
+	font-size: 11pt;
 }
 
 .pure-menu-heading {
