@@ -180,6 +180,7 @@ div {
 
 body a.pure-button {
   color: rgba(0,0,0,.8);
+  text-shadow: none;
 }
 
 button.pure-button-primary,
@@ -266,10 +267,12 @@ div.thumbnail > .bottom-right-overlay {
 .bottom-right-overlay { bottom: 0.6em; right: 0.6em; }
 
 .length {
-  padding: 1px;
-  margin: -2px 0;
-  color: #fff;
-  border-radius: 3px;
+	padding: 0.35em;
+	margin: -0.3em 0px;
+	color: #fff;
+	border-radius: 3px;
+	width: fit-content;
+	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
 }
 
 .length, .top-left-overlay button {
