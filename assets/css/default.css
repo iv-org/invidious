@@ -1127,7 +1127,7 @@ div.thumbnail > .bottom-right-overlay {
   position: absolute;
   padding: 0;
   margin: 0;
-  font-size: 16px;
+  font-size: 1.6em;
 }
 
 .top-left-overlay { top: 0.6em; left: 0.6em; }
@@ -1298,27 +1298,27 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .h-box.flexible.title {
 	font-family: "ocr-a";
-	font-size: 10pt;
+	font-size: 1em;
 }
 
 .channel-name {
 	font-family: "ocr-a";
-	font-size: 10pt;
+	font-size: 1em;
 }
 
 .thumbnail ~ p ~ p b {
-	font-size: 10pt;
+	font-size: 1em;
 	font-family: "ocr-a";
 }
 
 .channel-profile.pure-u-4-24.pure-u-md-2-24 ~ .pure-u-20-24.pure-u-md-22-24 > p > b {
-	font-size: 10pt;
+	font-size: 1em;
 	font-family: "ocr-a";
 }
 
 span#channel-name {
 	font-family: "ocr-a";
-	font-size: 12pt;
+	font-size: 1.2em;
 }
 
 #download_widget {
@@ -1436,15 +1436,15 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 }
 
 .headerText h1 {
-	font-size: 20pt;
+	/*font-size: 20pt; */
 }
 
 .headerText h3 {
-	font-size: 14pt;
+	/*font-size: 14pt; */
 } 
 
 .headerText h4 {
-	font-size: 11pt;
+	/*font-size: 11pt; */
 }
 
 .pure-menu-heading {
