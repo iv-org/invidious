@@ -1045,8 +1045,7 @@ div {
  * Buttons
  */
 
-body a.pure-button {
-  color: rgba(0,0,0,1);
+.pure-button, button {
   text-shadow: none;
   box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.6);
 }
