@@ -1046,6 +1046,7 @@ div {
  */
 
 .pure-button, button {
+  color: #000000;
   text-decoration: none !important;
   text-shadow: none;
   box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.6);
@@ -1055,6 +1056,7 @@ div {
   text-decoration: none !important;
   text-shadow: none;
 }
+
 button.pure-button-primary,
 body a.pure-button-primary,
 .channel-owner:hover,
