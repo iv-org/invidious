@@ -897,7 +897,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-top: 6.5em;
+  padding-top: 9em;
 }
 
 .h-box {
@@ -1302,7 +1302,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .h-box h3:has(header) {
-	height: 4.5em;
+	height: auto;
 }
 
 .h-box.flexible.title {
@@ -1454,6 +1454,7 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
 
 .headerText h4 {
 	/*font-size: 11pt; */
+	padding: 0.5em 0em;
 }
 
 .pure-menu-heading {
