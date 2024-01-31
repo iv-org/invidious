@@ -1046,7 +1046,7 @@ div {
  */
 
 .pure-button, button {
-  color: #000000;
+  color: #000000 !important;
   text-decoration: none !important;
   text-shadow: none;
   box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.6);
