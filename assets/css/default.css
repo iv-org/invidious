@@ -1046,8 +1046,9 @@ div {
  */
 
 body a.pure-button {
-  color: rgba(0,0,0,.8);
+  color: rgba(0,0,0,1);
   text-shadow: none;
+  box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.6);
 }
 
 button.pure-button-primary,
@@ -1136,10 +1137,12 @@ div.thumbnail > .bottom-right-overlay {
 .length {
 	padding: 0.35em;
 	margin: -0.3em 0px;
-	color: #fff;
+	color: #fff !important;
 	border-radius: 3px;
 	width: fit-content;
 	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
+	font-size: .8rem !important;
+	background-color: rgba(0,0,0,0.65) !important;
 }
 
 .length, .top-left-overlay button {
