@@ -140,16 +140,24 @@ ul.vjs-menu-content::-webkit-scrollbar {
   font-size: 18px;
 }
 
-.video-js .vjs-control-bar,
-.vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+.video-js .vjs-control-bar {
   background-color: transparent;
   z-index: 100;
 }
+
+.vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+  background-color: rgba(0,0,0,0.75);
+  border-radius: 5px !important;
+  border: 0.5 solid rgba(230,230,230,0.8);
+  z-index: 100;
+}
+
 
 .vjs-menu li.vjs-menu-item:focus,
 .vjs-menu li.vjs-menu-item:hover {
   background-color: rgba(255, 255, 255, 0.75);
   color: rgba(49, 49, 51, 0.75);
+  
 }
 
 .vjs-menu li.vjs-selected,
