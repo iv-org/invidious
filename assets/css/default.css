@@ -1352,7 +1352,7 @@ span#channel-name {
 	font-weight: 550;
 }
 
-.pure-button, button, .searchbar input[type="search"], [href*="/login"] {
+.pure-button:not([class*="vjs"]), button:not([class*="vjs"]), .searchbar input[type="search"], [href*="/login"] {
 	color: #ffffff !important;
 	background-color: rgba(230,230,230,0.5) !important;
 	text-decoration: none !important;
@@ -1363,7 +1363,7 @@ span#channel-name {
 	padding: 0.35em 0.8em !important;
 }
 
-:is(.pure-button, button, .searchbar input[type="search"], [href*="/login"] ):is(:hover,:active,:focus){
+:is(.pure-button:not([class*="vjs"]), button:not([class*="vjs"]), .searchbar input[type="search"], [href*="/login"] ):is(:hover,:active,:focus){
 	background-color: rgba(0, 182, 240, 0.5) !important;
 }
 
