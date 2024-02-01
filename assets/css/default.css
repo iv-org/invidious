@@ -1104,6 +1104,10 @@ img.thumbnail {
   border: solid 0.75px rgba(32,32,32,0.5);
 }
 
+img.thumbnail:is(:hover, :active, :focus) {
+	border: solid 1.5px rgba(230,230,230,0.5) !important;
+}
+
 .thumbnail-placeholder {
   min-height: 50px;
   border: 2px dotted;
@@ -1210,22 +1214,22 @@ a.index-link.pure-menu-heading::before {
 .searchbar input[type="search"] {
 	width: 100%;
 	margin: 1px;
-
+/*
 	border: 1px solid;
 	border-color: rgba(0,0,0,0);
 	border-bottom-color: #CCC;
 	border-radius: 0;
 
-	box-shadow: none;
+	box-shadow: none; */
 	appearance: none;
 	-webkit-appearance: none;
 }
 
 .searchbar input[type="search"]:focus {
 	margin: 0;
-	border: 2px solid;
+	/*border: 2px solid;
 	border-color: rgba(0,0,0,0);
-	border-bottom-color: #FED;
+	border-bottom-color: #FED;*/
 }
 
 /* https://stackoverflow.com/a/55170420 */
@@ -1336,6 +1340,19 @@ span#channel-name {
 	font-weight: 550;
 }
 
+.pure-button, button, .searchbar input[type="search"], [href*="/login"] {
+	color: #ffffff !important;
+	background-color: rgba(230,230,230,0.5) !important;
+	text-decoration: none !important;
+	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.6) !important;
+	border-radius: 1em !important;
+	border: 0.5px solid rgba(0,0,0,0.5) !important;
+	padding: 0.35em 0.8em !important;
+}
+
+:is(.pure-button, button, .searchbar input[type="search"], [href*="/login"] ):is(:hover,:active,:focus){
+	background-color: rgba(0, 182, 240, 0.5) !important;
+}
 
 footer {
 	display: none !important;
@@ -1723,7 +1740,7 @@ body.dark-theme {
 
 .dark-theme .pure-menu-heading:nth-child(1)::before {
 	display: block;
-	background-image: url(CMovie.svg);
+	background-image: url(../CMovie.svg);
 	background-repeat: no-repeat;
 	height: 2.35em;
 	content: "";
