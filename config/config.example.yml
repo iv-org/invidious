@@ -106,7 +106,7 @@ domain:
 ## Accepted values: true, false
 ## Default: false
 ##
-https_only: false
+https_only: true
 
 ##
 ## Enable/Disable 'Strict-Transport-Security'. Make sure that
@@ -208,7 +208,7 @@ https_only: false
 ## Accepted values: true, false
 ## Default: true
 ##
-#popular_enabled: true
+popular_enabled: false
 
 ##
 ## Enable/Disable statstics (available at /api/v1/stats).
@@ -229,7 +229,7 @@ https_only: false
 ## Accepted values: true, false
 ## Default: false
 ##
-#statistics_enabled: false
+statistics_enabled: false
 
 
 # -----------------------------
@@ -252,7 +252,7 @@ https_only: false
 ## Accepted values: true, false
 ## Default: true
 ##
-#login_enabled: true
+login_enabled: true
 
 ##
 ## Enable/Disable the captcha challenge on the login page.
@@ -321,7 +321,7 @@ channel_threads: 1
 ## Accepted values: a valid time interval (like 1h30m or 90m)
 ## Default: 30m
 ##
-#channel_refresh_interval: 30m
+channel_refresh_interval: 30m
 
 ##
 ## Forcefully dump and re-download the entire list of uploaded
@@ -403,7 +403,7 @@ jobs:
 ## Accepted values: any string. HTML is accepted.
 ## Default: <none>
 ##
-#banner:
+banner:<header class="header" id="headerHidden" role="banner"><a class="containerHeader" href="#"></a><div class="headerText"><a class="containerHeader" href="#"><h1 style="color: #f0f0f0; text-align: center;">Willkommen bei C`Movie dem Hoffnungsportal</h1><h3 style="color: #f0f0f0; text-align: center;">Der Gegenpol zu Chaos und Panik seitens der Medien und Politik.</h3></a><h4><a class="containerHeader" href="#" style="color: #f0f0f0; text-align: center;"></a><a href="https://www.bibleserver.com/LUT/Offenbarung13%2C1" target="_blank">Sei vorbereitet, auf das was kommt</a>.</h4></div></header>
 
 ##
 ## Subscribe to channels using PubSubHub (Google PubSubHubbub service).
@@ -423,7 +423,7 @@ jobs:
 ## Accepted values: true, false, a positive integer
 ## Default: false
 ##
-#use_pubsub_feeds: false
+use_pubsub_feeds: true
 
 ##
 ## HMAC signing key used for CSRF tokens, cookies and pubsub
@@ -436,7 +436,7 @@ jobs:
 ## Accepted values: a string
 ## Default: <none>
 ##
-hmac_key: "CHANGE_ME!!"
+hmac_key: Aikiequ5yohx7iN4chei
 
 ##
 ## List of video IDs where the "download" widget must be
@@ -465,7 +465,7 @@ hmac_key: "CHANGE_ME!!"
 ## Accepted values: a string
 ## Default: <none>
 ##
-#modified_source_code_url: ""
+modified_source_code_url: "https://github.com/CyberAndi/invidious_cmovie?tab=readme-ov-file#readme"
 
 ##
 ## Maximum custom playlist length limit.
@@ -534,7 +534,7 @@ default_user_preferences:
   ##
   ## Default: en-US
   ##
-  #locale: en-US
+  locale: de
 
   ##
   ## Default geographical location for content.
@@ -549,7 +549,7 @@ default_user_preferences:
   ##
   ## Default: US
   ##
-  #region: US
+  region: US, DE, AT, CH
 
   ##
   ## Top 3 preferred languages for video captions.
@@ -601,7 +601,7 @@ default_user_preferences:
   ## Accepted values: "dark", "light", "auto"
   ## Default: "auto"
   ##
-  #dark_mode: "auto"
+  dark_mode: "dark"
 
   ##
   ## Enable/Disable thin mode (no video thumbnails).
@@ -690,7 +690,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: true
   ##
-  #related_videos: true
+  related_videos: false
 
 
   # -----------------------------
@@ -703,7 +703,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #autoplay: false
+  autoplay: true
 
   ##
   ## Automatically load the "next" video (either next in
@@ -712,7 +712,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #continue: false
+  continue: true
 
   ##
   ## Autoplay next video by default.
@@ -722,7 +722,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: true
   ##
-  #continue_autoplay: true
+  continue_autoplay: true
 
   ##
   ## Play videos in Audio-only mode by default.
@@ -730,7 +730,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #listen: false
+  listen: false
 
   ##
   ## Loop videos automatically.
@@ -751,7 +751,7 @@ default_user_preferences:
   ## Accepted values: dash, hd720, medium, small
   ## Default: hd720
   ##
-  #quality: hd720
+  quality: dash
 
   ##
   ## Default dash video quality.
@@ -764,7 +764,7 @@ default_user_preferences:
   ##    720p, 480p, 360p, 240p, 144p, worst
   ## Default: auto
   ##
-  #quality_dash: auto
+  quality_dash: 1080p
 
   ##
   ## Default video playback speed.
@@ -800,7 +800,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #save_player_pos: false
+  save_player_pos: true
 
   # -----------------------------
   #  Subscription feed
@@ -876,7 +876,7 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: true
   ##
-  #show_nick: true
+  show_nick: false
 
   ##
   ## Automatically redirect to a random instance when the user uses
@@ -898,4 +898,4 @@ default_user_preferences:
   ## Accepted values: true, false
   ## Default: false
   ##
-  #extend_desc: false
+  extend_desc: true
