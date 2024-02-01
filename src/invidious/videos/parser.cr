@@ -100,6 +100,29 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
   params = parse_video_info(video_id, player_response)
   params["reason"] = JSON::Any.new(reason) if reason
 
+  # Workaround for #4415
+  if params["relatedVideos"].as_a.empty?
+    continuation = player_response.dig?("contents", "twoColumnWatchNextResults", "secondaryResults",
+      "secondaryResults", "results", 0, "continuationItemRenderer",
+      "continuationEndpoint", "continuationCommand", "token")
+
+    if continuation
+      raw_related_videos = YoutubeAPI.next(continuation: continuation.as_s)
+      raw_related_videos = raw_related_videos.dig?("onResponseReceivedEndpoints", 0, "appendContinuationItemsAction", "continuationItems")
+
+      related = [] of JSON::Any
+
+      raw_related_videos.try &.as_a.each do |element|
+        if item = element["compactVideoRenderer"]?
+          related_video = parse_related_video(item)
+          related << JSON::Any.new(related_video) if related_video
+        end
+      end
+
+      params["relatedVideos"] = JSON::Any.new(related)
+    end
+  end
+
   new_player_response = nil
 
   if reason.nil?
