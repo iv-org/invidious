@@ -1226,25 +1226,18 @@ a.index-link.pure-menu-heading::before {
 .searchbar input[type="search"] {
 	width: 100%;
 	margin: 1px;
-/*
-	border: 1px solid;
-	border-color: rgba(0,0,0,0);
-	border-bottom-color: #CCC;
-	border-radius: 0;
-
-	box-shadow: none; */
 	appearance: none;
 	-webkit-appearance: none;
 }
 
 .searchbar input[type="search"]:focus {
 	margin: 0;
-	/*border: 2px solid;
-	border-color: rgba(0,0,0,0);
-	border-bottom-color: #FED;*/
 }
 
-/* https://stackoverflow.com/a/55170420 */
+input[type="search"]::placeholder{
+	color: #ffffff;
+}
+
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
   height: 14px;
@@ -1908,8 +1901,10 @@ h1, h2, h3, h4, h5, p,
 /* Center the "invidious" logo on the search page */
 #logo > h1 { text-align: center; }
 
+
+
 /* IE11 fixes */
-:-ms-input-placeholder { color: #888; }
+:-ms-input-placeholder { color: #ffffff; }
 
 /* Wider settings name to less word wrap */
 .pure-form-aligned .pure-control-group label { width: 19em; }
