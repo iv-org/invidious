@@ -1357,6 +1357,7 @@ span#channel-name {
 	background-color: rgba(230,230,230,0.5) !important;
 	text-decoration: none !important;
 	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.6) !important;
+	text-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 75%), 0 0 0.2em #000000;
 	border-radius: 1em !important;
 	border: 0.5px solid rgba(0,0,0,0.5) !important;
 	padding: 0.35em 0.8em !important;
@@ -1529,13 +1530,13 @@ a.feed-menu-item.pure-menu-heading {
 .theme-light .searchbar input[type="search"] {
 	width: 100%;
 	font-weight: 650;
-	color: #505050;
+	/*color: #505050;
 	margin: 1px;
 	border: 1px solid;
 	border-color: rgba(0,0,0,0.5);
 	border-bottom-color: #CCC;
 	border-radius: 0;
-	/*box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8); */
+	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8); */
 	appearance: none;
 	-webkit-appearance: none;
 }
