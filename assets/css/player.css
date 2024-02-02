@@ -300,6 +300,7 @@ video.video-js {
 	z-index: 100;
 }
 */
+
 .on-video_player::after {
 	content: '';
 	display: block;
@@ -307,17 +308,15 @@ video.video-js {
 	height: calc(8.645833vw * 0.75);
 	border: solid 3px rgb(230,230,230);
 	position: relative;
-	bottom: calc(6px + 8.645833vw * 0.75);
-	background-image: url(
-	../CMovie.svg), url(../Wasser.png);
+	top: calc(100% - (6px + 8.645833vw * 0.75));
+	background-image: url(../CMovie.svg), url(../Wasser.png);
 	background-repeat: no-repeat;
 	border-bottom-left-radius: 13px;
 	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
 	z-index: 9001 !important;
-	visibility: visible !important;
-	opacity: 1 !important;
 }
+
 /*
 #contents #player-container ~ .h-box h1 {
 	background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1));
@@ -382,7 +381,7 @@ video#player_html5_api {
 a:not([data-id]) > .icon, .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .playlist-restricted > ol > li > a {
 	color: #c0c0c0;
 }
-
+/*
 .video-js.vjs-fullscreen .vjs-control-bar::before {
 	content: '';
 	display: block !important;
@@ -399,7 +398,7 @@ a:not([data-id]) > .icon, .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .playlis
 	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
 	z-index: 100;
 }
-
+*/
 .video-js .vjs-vtt-thumbnail-display{
 	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,1) !important;
 	border-radius: 7px !important;
