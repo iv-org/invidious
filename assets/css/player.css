@@ -141,9 +141,17 @@ ul.vjs-menu-content::-webkit-scrollbar {
 }
 
 .video-js .vjs-control-bar {
-  background-color: transparent;
+  border-bottom-right-radius: 13px;
+  border-bottom-left-radius: 13px;
+  background-color: rgba(0,0,0,0.2);
+  backdrop-filter: blur(2.5px);
   z-index: 100;
 }
+
+.video-js :is(button, .vjs-control) {
+  text-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 75%), 0 0 0.2em #000000 !important;
+}
+
 
 .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
   background-color: rgba(0,0,0,0.75);
@@ -377,11 +385,12 @@ video.video-js {
 	position: relative;
 	display: flex;
 	line-height: 1.1em;
-	bottom: calc(8.645833vw * 0.75 + 6px - 1.2em);
+	bottom: calc(8.645833vw * 0.75 + 6px - 1.7em);
 	vertical-align: middle;
 	height: 4.5em;
 	padding-left: calc(200px + 2em);
-	z-index: 9;
+	width: 80vw;
+	z-index: 11;
 }
 
 img.thumbnail {
