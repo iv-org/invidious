@@ -102,24 +102,37 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
 
   # Workaround for #4415
   if params["relatedVideos"].as_a.empty?
-    continuation = player_response.dig?("contents", "twoColumnWatchNextResults", "secondaryResults",
-      "secondaryResults", "results", 0, "continuationItemRenderer",
-      "continuationEndpoint", "continuationCommand", "token")
+    secondary_results = player_response.dig?("contents", "twoColumnWatchNextResults", "secondaryResults", "secondaryResults")
 
-    if continuation
-      raw_related_videos = YoutubeAPI.next(continuation: continuation.as_s)
-      raw_related_videos = raw_related_videos.dig?("onResponseReceivedEndpoints", 0, "appendContinuationItemsAction", "continuationItems")
+    if secondary_results
+      # The continuation token can be in either continuationItemRenderer or a nextContinuationData object
+      continuation_renderer = secondary_results["results"].as_a.find(&.dig?("continuationItemRenderer"))
 
-      related = [] of JSON::Any
+      continuation = continuation_renderer.try &.["continuationItemRenderer"].dig?(
+        "onResponseReceivedEndpoints", 0, "appendContinuationItemsAction", "continuationItems"
+      )
 
-      raw_related_videos.try &.as_a.each do |element|
-        if item = element["compactVideoRenderer"]?
-          related_video = parse_related_video(item)
-          related << JSON::Any.new(related_video) if related_video
-        end
+      # Try to parse the continuation token from the nextContinuationData object
+      if !continuation
+        next_continuation_data_container = secondary_results.dig?("continuations").try &.as_a.find(&.["nextContinuationData"]?)
+        continuation = next_continuation_data_container.try &.dig?("nextContinuationData", "continuation")
       end
 
-      params["relatedVideos"] = JSON::Any.new(related)
+      if continuation
+        raw_related_videos = YoutubeAPI.next(continuation: continuation.as_s)
+        raw_related_videos = raw_related_videos.dig?("onResponseReceivedEndpoints", 0, "appendContinuationItemsAction", "continuationItems")
+
+        related = [] of JSON::Any
+
+        raw_related_videos.try &.as_a.each do |element|
+          if item = element["compactVideoRenderer"]?
+            related_video = parse_related_video(item)
+            related << JSON::Any.new(related_video) if related_video
+          end
+        end
+
+        params["relatedVideos"] = JSON::Any.new(related)
+      end
     end
   end
 
