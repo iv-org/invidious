@@ -282,7 +282,7 @@ video.video-js {
   bottom: unset !important;
   top: 1.5em;
 }
-
+/*
 #contents #player-container ~ .h-box::before {
 	content: '';
 	display: block;
@@ -299,7 +299,26 @@ video.video-js {
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
 	z-index: 100;
 }
-
+*/
+.on-video_player::after {
+	content: '';
+	display: block;
+	width: calc(16.3vw * 0.75);
+	height: calc(8.645833vw * 0.75);
+	border: solid 3px rgb(230,230,230);
+	position: relative;
+	bottom: calc(6px + 8.645833vw * 0.75);
+	background-image: url(
+	../CMovie.svg), url(../Wasser.png);
+	background-repeat: no-repeat;
+	border-bottom-left-radius: 13px;
+	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
+	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
+	z-index: 9001 !important;
+	visibility: visible !important;
+	opacity: 1 !important;
+}
+/*
 #contents #player-container ~ .h-box h1 {
 	background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1));
 	position: relative;
@@ -311,6 +330,20 @@ video.video-js {
 	padding-left: calc(200px + 1em);
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
 	z-index: 90;
+}
+*/
+#contents #player-container ~ .h-box h1 {
+	background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1));
+	position: relative;
+	display: block;
+	line-height: 1.1em;
+	bottom: calc(8.645833vw * 0.75 + 6px);
+	vertical-align: middle;
+	height: 2.25em;
+	backdrop-filter: blur(2.5px);
+	padding-left: calc(200px + 1em);
+	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
+	z-index: 9000;
 }
 
 img.thumbnail {
