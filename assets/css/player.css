@@ -300,7 +300,7 @@ video.video-js {
 	z-index: 100;
 }
 */
-
+/*
 .on-video_player::after {
 	content: '';
 	display: block;
@@ -314,9 +314,21 @@ video.video-js {
 	border-bottom-left-radius: 13px;
 	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
-	z-index: 9001 !important;
+	z-index: 9 !important;
 }
-
+*/
+.on-video_player::before {
+	display: flex;
+	content: "";
+	background-image: linear-gradient(32.5deg, rgba(17,17,17,.65), rgba(94,149,183,1));
+	position: relative;
+	top: calc(100% - 7.5em);
+	width: 100%;
+	backdrop-filter: blur(2.5px);
+	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8), 0em -0.15em 0.25em rgba(230,230,230,0.35);
+	height: 4.5em;
+	z-index: 10;
+}
 /*
 #contents #player-container ~ .h-box h1 {
 	background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1));
@@ -332,7 +344,7 @@ video.video-js {
 }
 */
 #contents #player-container ~ .h-box h1 {
-	background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1));
+	/*background-image: linear-gradient(to right, rgba(17,17,17,.9), rgba(94,149,183,1));
 	position: relative;
 	display: block;
 	line-height: 1.1em;
@@ -342,7 +354,18 @@ video.video-js {
 	backdrop-filter: blur(2.5px);
 	padding-left: calc(200px + 1em);
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
-	z-index: 9000;
+	z-index: 9000;*/
+}
+
+#contents #player-container ~ .h-box {
+	position: relative;
+	display: flex;
+	line-height: 1.1em;
+	bottom: calc(8.645833vw * 0.75 + 6px - 1.2em);
+	vertical-align: middle;
+	height: 4.5em;
+	padding-left: calc(200px + 2em);
+	z-index: 9;
 }
 
 img.thumbnail {
