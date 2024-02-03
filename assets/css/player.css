@@ -276,20 +276,44 @@ video.video-js {
   height: 0;
 }
 
-.on-video_player::after {
+#player {
+	border-radius: 13px;
+	border: 3px solid rgba(255,255,255,1);
+	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
+	background-color: rgba(0,0,0,0.8) !important;
+	backdrop-filter: blur(2.5px);
+}
+
+#player::after {
 	content: '';
 	display: block;
 	width: calc(16.3vw * 0.75);
 	height: calc(8.645833vw * 0.75);
 	border: solid 3px rgb(230,230,230);
 	position: relative;
-	top: calc(100% - (6px + 8.645833vw * 0.75) - 4.5em);
+	left: -3px;
+	top: calc(100% - (3px + 8.645833vw * 0.75) - 4.5em);
 	background-image: url(../CMovie.svg), url(../Wasser.png);
 	background-repeat: no-repeat;
 	border-bottom-left-radius: 13px;
 	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
 	z-index: 11 !important;
+}
+
+.vjs-modal-dialog.vjs-text-track-settings {
+	background-color: #2B333F;
+	background-color: rgba(43, 51, 63, 0.75);
+	color: #fff;
+	border-radius: 13px;
+	height: 70%;
+}
+
+.video-js .vjs-modal-dialog {
+	background: rgba(0, 0, 0, 0.8);
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0));
+	border-radius: 13px;
+	overflow: auto;
 }
 
 .mobile-operations-bar {
