@@ -366,7 +366,7 @@ video.video-js {
 	z-index: 9 !important;
 }
 */
-.on-video_player::before {
+#player::before {
 	display: flex;
 	content: "";
 	background-image: linear-gradient(32.5deg, rgba(17,17,17,.65), rgba(94,149,183,1));
