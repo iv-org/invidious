@@ -143,7 +143,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 .video-js .vjs-control-bar {
   border-bottom-right-radius: 13px;
   border-bottom-left-radius: 13px;
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(0,0,0,0.35);
   backdrop-filter: blur(2.5px);
   box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
   z-index: 100;
