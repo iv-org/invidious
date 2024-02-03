@@ -967,8 +967,8 @@ body {
 }
 
 .channel-profile > img {
-  width: 48px;
-  height: auto;
+	width: 82px;
+	height: auto;
 }
 
 body a.channel-owner {
