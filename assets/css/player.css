@@ -228,7 +228,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 	border: 0.7vmin solid #dddddd;
 	background-color: rgba(32, 32, 32, 0.5);
 	background-size: 50%;
-	backgound-repeate: no-repeat;
+	backgound-repeat: no-repeat;
 	aspect-ratio: 1 / 1 !important;
 	-webkit-aspect-ratio: 1 / 1 !important;
 	border-radius: 50%;
