@@ -946,14 +946,16 @@ body {
   flex: 1 1 auto;
   flex-flow: row wrap;
   justify-content: flex-start;
+  width: 38vw;
 }
+
 .flex-right {
   display: flex;
   flex: 2 0 auto;
   flex-flow: row nowrap;
   justify-content: flex-end;
+  width: auto !important;
 }
-
 
 /*
  * Channel page
@@ -1317,6 +1319,7 @@ input[type="search"]::-webkit-search-cancel-button {
 .h-box.flexible.title {
 	font-family: "ocr-a";
 	font-size: 1em;
+	width: 100%;
 }
 
 .channel-name {
