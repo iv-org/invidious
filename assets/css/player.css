@@ -275,6 +275,7 @@ video.video-js {
   margin-left: 1em;
   margin-right: 1em;
   padding-bottom: 82vh;
+  border-radius: 13px;
   height: 0;
   box-shadow: 9px 9px 15px rgba(0,0,0,0.8);
 }
