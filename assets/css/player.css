@@ -277,13 +277,12 @@ video.video-js {
   padding-bottom: 82vh;
   border-radius: 13px;
   height: 0;
-  box-shadow: 9px 9px 15px rgba(0,0,0,0.8);
 }
 
 #player {
 	border-radius: 13px;
 	border: 3px solid rgba(255,255,255,1);
-	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
+	box-shadow: 9px 9px 15px rgba(0,0,0,0.8);
 	background-color: rgba(0,0,0,0.8) !important;
 	backdrop-filter: blur(2.5px);
 }
