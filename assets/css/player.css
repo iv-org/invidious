@@ -290,16 +290,16 @@ video.video-js {
 #player::after {
 	content: '';
 	display: block;
-	width: calc(16.3vw * 0.75);
-	height: calc(8.645833vw * 0.75);
+	width: 200px;
+	height: 112.5px;
 	border: solid 3px rgb(230,230,230);
 	position: relative;
 	left: -3px;
-	top: calc(100% - (3px + 8.645833vw * 0.75) - 4.5em);
+	top: calc(100% - (3px + 112.5px) - 4.5em);
 	background-image: url(../CMovie.svg), url(../Wasser.png);
 	background-repeat: no-repeat;
 	border-bottom-left-radius: 13px;
-	background-position-y: calc(8.645833vw * 0.75 * 0.22), 0;
+	background-position-y: calc(112.5px * 0.22), 0;
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
 	z-index: 11 !important;
 }
