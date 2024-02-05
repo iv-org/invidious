@@ -276,6 +276,7 @@ video.video-js {
   margin-right: 1em;
   padding-bottom: 82vh;
   height: 0;
+  box-shadow: 9px 9px 15px rgba(0,0,0,0.8);
 }
 
 #player {
@@ -437,7 +438,7 @@ video#player_html5_api {
 	display: block;
 	vertical-align: top;
 	box-sizing: border-box;
-	color: #fff;
+	color: #dddddd;
 	background-color: transparent !important;
 	position: relative;
 	padding: 0;
@@ -448,7 +449,6 @@ video#player_html5_api {
 	font-family: Arial, Helvetica, sans-serif;
 	word-break: initial;
 	border-radius: 13px;
-	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
 	border: solid 0.75px rgba(32,32,32,0.5);
 }
 
