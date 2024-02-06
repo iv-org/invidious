@@ -402,6 +402,7 @@ a:not([data-id]) > .icon, .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .playlis
 	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,1) !important;
 	border-radius: 7px !important;
 	border: 1.5px solid rgba(230,230,230,0.8) !important;
+	z-index: 99;
 }
 
 .vjs-button {
