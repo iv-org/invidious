@@ -211,17 +211,16 @@ ul.vjs-menu-content::-webkit-scrollbar {
 
 .video-js .vjs-big-play-button {
 	font-size: 3em;
-	line-height: 3em;
-	height: 80px;
-	width: 80px;
+	line-height: 2.5em;
+	height: 80px !important;
+	width: 80px !important;
 	margin: auto;
 	display: inline-block;
 	position: absolute;
-	top: calc(50% - 1.5em);
-	left: calc(50% - 1.5em);
-	padding: 1.45em !important;
+	top: calc(50% - 15px);
+	left: calc(50% - 15px);
 	cursor: pointer;
-	/*opacity: 1;*/
+	/* opacity: 1; */
 	color: #dddddd !important;
 	border: 0.7vmin solid #dddddd;
 	background-color: rgba(32, 32, 32, 0.5);
@@ -409,18 +408,18 @@ a:not([data-id]) > .icon, .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .playlis
 	text-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 75%), 0 0 0.2em #000000;
 }
 
-.vjs-loading-spinner {
+.video-js .vjs-loading-spinner {
 	display: none;
 	box-sizing: border-box;
 	position: absolute;
-	top: calc(50% - 1.5em);
-	left: calc(50% - 1.5em);
-	height: 80px;
-	width: 80px;
+	top: calc(50% - 15px);
+	left: calc(50% - 15px);
+	height: 80px !important;
+	width: 80px !important;
 	margin: auto;
 	cursor: pointer;
 	border: 0.7vmin solid var(--colorBlueDrk);
-	color: #cccccc;
+	color: #dddddd !important;
 	background-color: transparent;
 	aspect-ratio: 1 / 1 !important;
 	-webkit-aspect-ratio: 1 / 1 !important;
@@ -429,6 +428,8 @@ a:not([data-id]) > .icon, .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .playlis
 	opacity: 0.85;
 	visibility: hidden;
 }
+
+
 
 @media screen and (max-width: 700px) {
   .video-js .vjs-share {
