@@ -357,7 +357,7 @@ video.video-js {
 	overflow: clip !important;
 	white-space: nowrap !important;
 	padding-left: calc(200px + 2.2em);
-	background-color: rgba(200,0,0,0.4);
+	/*background-color: rgba(200,0,0,0.4);*/
 	z-index: 0;
 }
 
