@@ -276,6 +276,14 @@ video.video-js {
   border-radius: 13px;
   height: 0;
 }
+/*
+#player {
+	border-radius: 13px;
+	border: 3px solid rgba(255,255,255,1);
+	box-shadow: 9px 9px 15px rgba(0,0,0,0.8);
+	background-color: rgba(0,0,0,0.8) !important;
+	backdrop-filter: blur(2.5px);
+}*/
 
 #player {
 	border-radius: 13px;
@@ -283,6 +291,13 @@ video.video-js {
 	box-shadow: 9px 9px 15px rgba(0,0,0,0.8);
 	background-color: rgba(0,0,0,0.8) !important;
 	backdrop-filter: blur(2.5px);
+	aspect-ratio: 16 / 9 !important;
+	height: calc(100vh - 140px) !important;
+	left: calc((100vh - 140px) * 0.5625 * 0.5);
+	--posBannerHeight: calc(100vh - 140px);
+	--posBannerWidth: calc((100vh - 140px) * 1.78);
+	--posBannerLeft: calc((100vh - 140px) * 0.5625 * 0.5);
+	width: auto !important;
 }
 
 #player::after {
