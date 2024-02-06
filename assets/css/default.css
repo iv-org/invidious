@@ -846,6 +846,9 @@
 	--zIndexInfo: 55;
 	--zIndexMain: 0;
 	--zIndexMenu: 50;
+	--posBannerHeight: calc(100vh - 140px);
+	--posBannerWidth: calc((100vh - 140px) * 1.78);
+	--posBannerLeft: calc((100vh - 140px) * 0.5625 * 0.5);
 	--ticking: false;
 	--videoPlay: 0;
 	--runFade: 0;
