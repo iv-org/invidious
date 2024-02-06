@@ -291,8 +291,10 @@ video.video-js {
 	content: "";
 	background-image: linear-gradient(32.5deg, rgba(17,17,17,.65), rgba(94,149,183,1));
 	position: relative;
-	top: calc(100% - 7.5em);
-	width: 100%;
+	/*top: calc(100% - 7.5em); */
+	top: calc(var(--posPlayerHeight) - 7.5em);
+	/*width: 100%; */
+	width: var(--posBannerWidth);
 	backdrop-filter: blur(2.5px);
 	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8), 0em -0.15em 0.25em rgba(230,230,230,0.35);
 	height: 45px;
@@ -307,8 +309,8 @@ video.video-js {
 	backdrop-filter: blur(2.5px);
 	aspect-ratio: 16 / 9 !important;
 	height: var(--posPlayerHeight) !important;
-	left: var(--posBannerLeft) !important;
-	width: var(--posBannerWidth) !important;
+	left: var(--posPlayerLeft) !important;
+	width: var(--posPlayerWidth) !important;
 }
 
 #player::after {
