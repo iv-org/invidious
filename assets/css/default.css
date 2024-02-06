@@ -846,9 +846,13 @@
 	--zIndexInfo: 55;
 	--zIndexMain: 0;
 	--zIndexMenu: 50;
+	--posBannerTopAbs: calc(var(--posPlayerTopAbs) + var(--posPlayerHeight) - 7.5em);
+	--posBannerTopRel: calc(var(--posPlayerHeight) - 7.5em);
 	--posBannerHeight: calc(100vh - 140px);
 	--posBannerWidth: var(--posPlayerWidth);
 	--posBannerLeft: var(--posPlayerLeft);
+	--posPlayerTopAbs: 140px;
+	--posPlayerTopRel: 0px;
 	--posPlayerHeight: calc(100vh - 140px);
 	--posPlayerWidth: calc((100vh - 140px) * 1.78);
 	--posPlayerLeft: calc((100vh - 140px) * 0.5625 * 0.5);
