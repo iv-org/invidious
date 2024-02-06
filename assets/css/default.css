@@ -847,8 +847,11 @@
 	--zIndexMain: 0;
 	--zIndexMenu: 50;
 	--posBannerHeight: calc(100vh - 140px);
-	--posBannerWidth: calc((100vh - 140px) * 1.78);
-	--posBannerLeft: calc((100vh - 140px) * 0.5625 * 0.5);
+	--posBannerWidth: var(--posPlayerWidth);
+	--posBannerLeft: var(--posPlayerLeft);
+	--posPlayerHeight: calc(100vh - 140px);
+	--posPlayerWidth: calc((100vh - 140px) * 1.78);
+	--posPlayerLeft: calc((100vh - 140px) * 0.5625 * 0.5);
 	--ticking: false;
 	--videoPlay: 0;
 	--runFade: 0;
