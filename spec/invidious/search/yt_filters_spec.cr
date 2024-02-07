@@ -12,45 +12,45 @@ end
 # page of Youtube with any browser devtools HTML inspector.
 
 DATE_FILTERS = {
-  Invidious::Search::Filters::Date::Hour  => "EgIIAQ%3D%3D",
-  Invidious::Search::Filters::Date::Today => "EgIIAg%3D%3D",
-  Invidious::Search::Filters::Date::Week  => "EgIIAw%3D%3D",
-  Invidious::Search::Filters::Date::Month => "EgIIBA%3D%3D",
-  Invidious::Search::Filters::Date::Year  => "EgIIBQ%3D%3D",
+  Invidious::Search::Filters::Date::Hour  => "EgIIAfABAQ%3D%3D",
+  Invidious::Search::Filters::Date::Today => "EgIIAvABAQ%3D%3D",
+  Invidious::Search::Filters::Date::Week  => "EgIIA_ABAQ%3D%3D",
+  Invidious::Search::Filters::Date::Month => "EgIIBPABAQ%3D%3D",
+  Invidious::Search::Filters::Date::Year  => "EgIIBfABAQ%3D%3D",
 }
 
 TYPE_FILTERS = {
-  Invidious::Search::Filters::Type::Video    => "EgIQAQ%3D%3D",
-  Invidious::Search::Filters::Type::Channel  => "EgIQAg%3D%3D",
-  Invidious::Search::Filters::Type::Playlist => "EgIQAw%3D%3D",
-  Invidious::Search::Filters::Type::Movie    => "EgIQBA%3D%3D",
+  Invidious::Search::Filters::Type::Video    => "EgIQAfABAQ%3D%3D",
+  Invidious::Search::Filters::Type::Channel  => "EgIQAvABAQ%3D%3D",
+  Invidious::Search::Filters::Type::Playlist => "EgIQA_ABAQ%3D%3D",
+  Invidious::Search::Filters::Type::Movie    => "EgIQBPABAQ%3D%3D",
 }
 
 DURATION_FILTERS = {
-  Invidious::Search::Filters::Duration::Short  => "EgIYAQ%3D%3D",
-  Invidious::Search::Filters::Duration::Medium => "EgIYAw%3D%3D",
-  Invidious::Search::Filters::Duration::Long   => "EgIYAg%3D%3D",
+  Invidious::Search::Filters::Duration::Short  => "EgIYAfABAQ%3D%3D",
+  Invidious::Search::Filters::Duration::Medium => "EgIYA_ABAQ%3D%3D",
+  Invidious::Search::Filters::Duration::Long   => "EgIYAvABAQ%3D%3D",
 }
 
 FEATURE_FILTERS = {
-  Invidious::Search::Filters::Features::Live       => "EgJAAQ%3D%3D",
-  Invidious::Search::Filters::Features::FourK      => "EgJwAQ%3D%3D",
-  Invidious::Search::Filters::Features::HD         => "EgIgAQ%3D%3D",
-  Invidious::Search::Filters::Features::Subtitles  => "EgIoAQ%3D%3D",
-  Invidious::Search::Filters::Features::CCommons   => "EgIwAQ%3D%3D",
-  Invidious::Search::Filters::Features::ThreeSixty => "EgJ4AQ%3D%3D",
-  Invidious::Search::Filters::Features::VR180      => "EgPQAQE%3D",
-  Invidious::Search::Filters::Features::ThreeD     => "EgI4AQ%3D%3D",
-  Invidious::Search::Filters::Features::HDR        => "EgPIAQE%3D",
-  Invidious::Search::Filters::Features::Location   => "EgO4AQE%3D",
-  Invidious::Search::Filters::Features::Purchased  => "EgJIAQ%3D%3D",
+  Invidious::Search::Filters::Features::Live       => "EgJAAfABAQ%3D%3D",
+  Invidious::Search::Filters::Features::FourK      => "EgJwAfABAQ%3D%3D",
+  Invidious::Search::Filters::Features::HD         => "EgIgAfABAQ%3D%3D",
+  Invidious::Search::Filters::Features::Subtitles  => "EgIoAfABAQ%3D%3D",
+  Invidious::Search::Filters::Features::CCommons   => "EgIwAfABAQ%3D%3D",
+  Invidious::Search::Filters::Features::ThreeSixty => "EgJ4AfABAQ%3D%3D",
+  Invidious::Search::Filters::Features::VR180      => "EgPQAQHwAQE%3D",
+  Invidious::Search::Filters::Features::ThreeD     => "EgI4AfABAQ%3D%3D",
+  Invidious::Search::Filters::Features::HDR        => "EgPIAQHwAQE%3D",
+  Invidious::Search::Filters::Features::Location   => "EgO4AQHwAQE%3D",
+  Invidious::Search::Filters::Features::Purchased  => "EgJIAfABAQ%3D%3D",
 }
 
 SORT_FILTERS = {
-  Invidious::Search::Filters::Sort::Relevance => "",
-  Invidious::Search::Filters::Sort::Date      => "CAI%3D",
-  Invidious::Search::Filters::Sort::Views     => "CAM%3D",
-  Invidious::Search::Filters::Sort::Rating    => "CAE%3D",
+  Invidious::Search::Filters::Sort::Relevance => "8AEB",
+  Invidious::Search::Filters::Sort::Date      => "CALwAQE%3D",
+  Invidious::Search::Filters::Sort::Views     => "CAPwAQE%3D",
+  Invidious::Search::Filters::Sort::Rating    => "CAHwAQE%3D",
 }
 
 Spectator.describe Invidious::Search::Filters do
