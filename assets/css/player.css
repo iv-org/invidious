@@ -310,7 +310,7 @@ video.video-js {
 	width: var(--posPlayerWidth) !important;
 }
 
-#player::after {
+/*#player::after {
 	content: '';
 	display: block;
 	width: 200px;
@@ -319,6 +319,23 @@ video.video-js {
 	position: relative;
 	left: -3px;
 	top: calc(100% - (3px + 112.5px) - 4.5em);
+	background-image: url(../CMovie.svg), url(../Wasser.png);
+	background-repeat: no-repeat;
+	border-bottom-left-radius: 13px;
+	background-position-y: calc(112.5px * 0.22), 0;
+	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
+	z-index: 11 !important;
+}*/
+
+#player::after {
+	content: '';
+	display: block;
+	width: 200px;
+	height: 112.5px;
+	border: solid 3px rgb(230,230,230);
+	position: relative;
+	left: -3px;
+	top: calc(100% - (3px + 112.5px) - 6.5em);
 	background-image: url(../CMovie.svg), url(../Wasser.png);
 	background-repeat: no-repeat;
 	border-bottom-left-radius: 13px;
