@@ -918,7 +918,8 @@ html {
 
 body {
   height: max-content;
-  overflow: auto;
+  overflow-y: auto;
+  background: unset !important;
 }
 
 #contents {
