@@ -419,7 +419,11 @@ module Invidious::Routes::Feeds
         published = Time.parse_rfc3339(entry.xpath_node("default:published", namespaces).not_nil!.content)
         updated = Time.parse_rfc3339(entry.xpath_node("default:updated", namespaces).not_nil!.content)
 
-        video = get_video(id, force_refresh: true)
+        begin
+          video = get_video(id, force_refresh: true)
+        rescue
+          next # skip this video since it raised an exception (e.g. it is a scheduled live event)
+        end
 
         if CONFIG.enable_user_notifications
           # Deliver notifications to `/api/v1/auth/notifications`
