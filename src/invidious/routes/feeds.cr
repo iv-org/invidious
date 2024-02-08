@@ -407,12 +407,17 @@ module Invidious::Routes::Feeds
     end
 
     spawn do
-      rss = XML.parse_html(body)
-      rss.xpath_nodes("//feed/entry").each do |entry|
-        id = entry.xpath_node("videoid").not_nil!.content
-        author = entry.xpath_node("author/name").not_nil!.content
-        published = Time.parse_rfc3339(entry.xpath_node("published").not_nil!.content)
-        updated = Time.parse_rfc3339(entry.xpath_node("updated").not_nil!.content)
+      # TODO: unify this with the other almost identical looking parts in this and channels.cr somehow?
+      namespaces = {
+        "yt"      => "http://www.youtube.com/xml/schemas/2015",
+        "default" => "http://www.w3.org/2005/Atom",
+      }
+      rss = XML.parse(body)
+      rss.xpath_nodes("//default:feed/default:entry", namespaces).each do |entry|
+        id = entry.xpath_node("yt:videoId", namespaces).not_nil!.content
+        author = entry.xpath_node("default:author/default:name", namespaces).not_nil!.content
+        published = Time.parse_rfc3339(entry.xpath_node("default:published", namespaces).not_nil!.content)
+        updated = Time.parse_rfc3339(entry.xpath_node("default:updated", namespaces).not_nil!.content)
 
         video = get_video(id, force_refresh: true)
 
