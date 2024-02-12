@@ -275,6 +275,12 @@ module Invidious::Routes::Watch
     return error_template(400, "Invalid clip ID") if response["error"]?
 
     if video_id = response.dig?("endpoint", "watchEndpoint", "videoId")
+      if params = response.dig?("endpoint", "watchEndpoint", "params").try &.as_s
+        start_time, end_time, _ = parse_clip_parameters(params)
+        env.params.query["start"] = start_time.to_s if start_time != nil
+        env.params.query["end"] = end_time.to_s if end_time != nil
+      end
+
       return env.redirect "/watch?v=#{video_id}&#{env.params.query}"
     else
       return error_template(404, "The requested clip doesn't exist")
