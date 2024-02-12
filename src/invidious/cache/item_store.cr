@@ -10,7 +10,7 @@ module Invidious::Cache
     abstract def fetch(key : String)
 
     # Stores a given item into cache
-    abstract def store(key : String, value : CacheableItem | String, expires : Time::Span)
+    abstract def store(key : String, value : String, expires : Time::Span)
 
     # Prematurely deletes item(s) from the cache
     abstract def delete(key : String)

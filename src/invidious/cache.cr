@@ -3,7 +3,7 @@ require "./cache/*"
 module Invidious::Cache
   extend self
 
-  INSTANCE = self.init(CONFIG.cache)
+  private INSTANCE = self.init(CONFIG.cache)
 
   def init(cfg : Config::CacheConfig) : ItemStore
     # Environment variable takes precedence over local config
@@ -26,4 +26,11 @@ module Invidious::Cache
       raise InvalidConfigException.new "Invalid cache url. Only redis:// URL are currently supported."
     end
   end
+
+  # Shortcut methods to not have to specify INSTANCE everywhere in the code
+  {% for method in ["fetch", "store", "delete", "clear"] %}
+    def {{method.id}}(*args, **kwargs)
+      INSTANCE.{{method.id}}(*args, **kwargs)
+    end
+  {% end %}
 end

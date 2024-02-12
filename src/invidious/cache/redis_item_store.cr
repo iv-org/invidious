@@ -14,8 +14,7 @@ module Invidious::Cache
       return @redis.get(key)
     end
 
-    def store(key : String, value : CacheableItem | String, expires : Time::Span)
-      value = value.to_json if value.is_a?(CacheableItem)
+    def store(key : String, value : String, expires : Time::Span)
       @redis.set(key, value, ex: expires.to_i)
     end
 

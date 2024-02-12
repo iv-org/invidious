@@ -9,7 +9,7 @@ module Invidious::Cache
       return nil
     end
 
-    def store(key : String, value : CacheableItem | String, expires : Time::Span)
+    def store(key : String, value : String, expires : Time::Span)
     end
 
     def delete(key : String)

@@ -14,6 +14,7 @@ struct Video
   # the `params` structure in videos/parser.cr!!!
   #
   SCHEMA_VERSION = 2
+  CACHE_KEY = "video_v#{SCHEMA_VERSION}"
 
   property id : String
   property info : Hash(String, JSON::Any)
@@ -36,7 +37,7 @@ struct Video
   end
 
   def self.get(id : String, *, force_refresh = false, region = nil)
-    key = "video:#{id}"
+    key = "#{CACHE_KEY}:#{id}"
     key += ":#{region}" if !region.nil?
 
     # Fetch video from cache, unles a force refresh is requested
@@ -50,12 +51,8 @@ struct Video
     else
       video = Video.new(id, JSON.parse(info).as_h)
 
-      # If video has premiered, live has started or the format
-      # of the video data has changed, refresh the data.
-      outdated_data = (video.schema_version != Video::SCHEMA_VERSION)
-      live_started = (video.live_now && video.published < Time.utc)
-
-      if outdated_data || live_started
+      # If the video has premiered or the live has started, refresh the data.
+      if (video.live_now && video.published < Time.utc)
         video = Video.new(id, fetch_video(id, region))
         updated = true
       end
@@ -71,7 +68,7 @@ struct Video
       end
     end
 
-    return video
+    return Video.new(id, info)
   end
 
   # Methods for API v1 JSON
