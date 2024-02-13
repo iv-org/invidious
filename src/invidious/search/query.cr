@@ -20,6 +20,9 @@ module Invidious::Search
     property region : String?
     property channel : String = ""
 
+    # Flag that indicates if the smart search features have been disabled.
+    @inhibit_ssf : Bool = false
+
     # Return true if @raw_query is either `nil` or empty
     private def empty_raw_query?
       return @raw_query.empty?
@@ -54,6 +57,13 @@ module Invidious::Search
 
       # Remove surrounding whitespaces. Mostly useful for copy/pasted URLs.
       @raw_query = _raw_query.strip
+
+      # Check for smart features (ex: URL search) inhibitor (exclamation mark).
+      # If inhibitor is present, remove it.
+      if @raw_query.starts_with?('!')
+        @inhibit_ssf = true
+        @raw_query = @raw_query[1..]
+      end
 
       # Get the page number (also common to all search types)
       @page = params["page"]?.try &.to_i? || 1
@@ -140,6 +150,9 @@ module Invidious::Search
 
     # Checks if the query is a standalone URL
     def is_url? : Bool
+      # If the smart features have been inhibited, don't go further.
+      return false if @inhibit_ssf
+
       # Only supported in regular search mode
       return false if !@type.regular?
 
