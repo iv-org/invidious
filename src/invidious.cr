@@ -217,6 +217,7 @@ public_folder "assets"
 
 Kemal.config.powered_by_header = false
 add_handler FilteredCompressHandler.new
+add_handler APIHandler.new
 add_handler AuthHandler.new
 add_handler DenyFrame.new
 add_context_storage_type(Array(String))

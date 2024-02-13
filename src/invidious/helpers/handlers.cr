@@ -134,6 +134,19 @@ class AuthHandler < Kemal::Handler
   end
 end
 
+class APIHandler < Kemal::Handler
+  {% for method in %w(GET POST PUT HEAD DELETE PATCH OPTIONS) %}
+  only ["/api/v1/*"], {{method}}
+  {% end %}
+  exclude ["/api/v1/auth/notifications"], "GET"
+  exclude ["/api/v1/auth/notifications"], "POST"
+
+  def call(env)
+    env.response.headers["Access-Control-Allow-Origin"] = "*" if only_match?(env)
+    call_next env
+  end
+end
+
 class DenyFrame < Kemal::Handler
   exclude ["/embed/*"]
 
