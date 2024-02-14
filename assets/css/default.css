@@ -1512,6 +1512,24 @@ a.feed-menu-item.pure-menu-heading {
 	display: none !important;
 }
 
+.video-js .vjs-touch-overlay .vjs-icon-placeholder:before {
+	border: 0.7vmin solid #dddddd !important;
+	background-color: rgba(32, 32, 32, 0.8) !important;
+	border-radius: 50% !important;
+	height: 80px !important;
+	width: 80px !important;
+	left: 50% !important;
+	top: 50% !important;
+	transition: all 0.4s;
+	transform: translate(-50%,-50%) !important;
+	aspect-ratio: 1 / 1 !important;
+	-webkit-aspect-ratio: 1 / 1;
+}
+
+.video-js .vjs-touch-overlay .vjs-icon-placeholder:before:is(:hover,:active,:focus) {
+	background-color: rgba(47, 121, 160, 0.8) !important;
+}
+
 /*
  * Page navigation
  */
