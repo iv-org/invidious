@@ -503,5 +503,6 @@
     "channel_tab_podcasts_label": "Podcast",
     "generic_channels_count_0": "{{count}} canale",
     "generic_channels_count_1": "{{count}} canali",
-    "generic_channels_count_2": "{{count}} canali"
+    "generic_channels_count_2": "{{count}} canali",
+    "Import YouTube watch history (.json)": "Importa la cronologia delle visualizzazioni di YouTube (.json)"
 }
