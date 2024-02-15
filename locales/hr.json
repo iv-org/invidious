@@ -503,5 +503,6 @@
     "channel_tab_releases_label": "Izdanja",
     "generic_channels_count_0": "{{count}} kanal",
     "generic_channels_count_1": "{{count}} kanala",
-    "generic_channels_count_2": "{{count}} kanala"
+    "generic_channels_count_2": "{{count}} kanala",
+    "Import YouTube watch history (.json)": "Uvezi YouTube povijest gledanja (.json)"
 }
