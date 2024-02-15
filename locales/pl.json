@@ -492,7 +492,7 @@
     "Song: ": "Piosenka: ",
     "Channel Sponsor": "Sponsor kanału",
     "Standard YouTube license": "Standardowa licencja YouTube",
-    "Import YouTube playlist (.csv)": "Importuj playlistę YouTube (.csv)",
+    "Import YouTube playlist (.csv)": "Importuj playlistę z YouTube (.csv)",
     "generic_button_edit": "Edytuj",
     "generic_button_cancel": "Anuluj",
     "generic_button_rss": "RSS",
@@ -503,5 +503,7 @@
     "playlist_button_add_items": "Dodaj filmy",
     "generic_channels_count_0": "{{count}} kanał",
     "generic_channels_count_1": "{{count}} kanały",
-    "generic_channels_count_2": "{{count}} kanałów"
+    "generic_channels_count_2": "{{count}} kanałów",
+    "Import YouTube watch history (.json)": "Importuj historię oglądania z YouTube (.json)",
+    "toggle_theme": "Przełącz motyw"
 }
