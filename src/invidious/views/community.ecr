@@ -25,6 +25,10 @@
     <div class="h-box">
         <p><%= error_message %></p>
     </div>
+<% elsif items.not_nil!["comments"].as_a.empty? %>
+    <div class="h-box">
+        <%= translate(locale, "channel_has_no_posts") %>
+    </div>
 <% else %>
     <div class="h-box pure-g comments" id="comments">
         <%= IV::Frontend::Comments.template_youtube(items.not_nil!, locale, thin_mode) %>
