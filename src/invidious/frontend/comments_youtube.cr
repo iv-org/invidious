@@ -117,7 +117,7 @@ module Invidious::Frontend::Comments
 
             image_array.each_index do |i|
               html << <<-END_HTML
-                  <div class="slides-item slide-#{i + 1}" id="#{child["commentId"]}-slide-#{i + 1}" aria-label="#{translate(locale, "carousel_slide", nil, {"current" => (i + 1).to_s, "total" => image_array.size.to_s})}" tabindex="0">
+                  <div class="slides-item slide-#{i + 1}" id="#{child["commentId"]}-slide-#{i + 1}" aria-label="#{translate(locale, "carousel_slide", {"current" => (i + 1).to_s, "total" => image_array.size.to_s})}" tabindex="0">
                     <img loading="lazy" src="/ggpht#{URI.parse(image_array[i][1]["url"].as_s).request_target}" alt="" />
                   </div>
                 END_HTML
