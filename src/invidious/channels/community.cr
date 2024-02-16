@@ -61,10 +61,7 @@ def extract_channel_community(items, *, ucid, locale, format, thin_mode, is_sing
       response = JSON.build do |json|
         json.object do
           json.field "authorId", ucid
-          json.field "comments" do
-            json.array do
-            end
-          end
+          json.field "comments", json.array { }
         end
       end
       return response
