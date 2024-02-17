@@ -1,4 +1,4 @@
- /* Youtube player style */
+/* Youtube player style */
 .video-js.player-style-youtube .vjs-progress-control {
   height: 0;
 }
@@ -12,7 +12,7 @@
 }
 
 .video-js.player-style-youtube .vjs-control-bar {
-  background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.5));
+  background: linear-gradient(rgba(0,0,0,0.1), rgba(0, 0, 0,0.5));
 }
 
 .video-js.player-style-youtube .vjs-slider {
@@ -60,8 +60,10 @@
     Styles copied from video-js.min.css, definition of
     .vjs-big-play-centered .vjs-big-play-button
   */
-  top: calc(50% - 1.5em);
-  left: calc(50% - 1.5em);
+  top: 50%;
+  left: 50%;
+  margin-top: -0.81666em;
+  margin-left: -1.5em;
 }
 
 .video-js.player-style-youtube .vjs-menu-button-popup .vjs-menu {
@@ -81,7 +83,7 @@ ul.vjs-menu-content::-webkit-scrollbar {
 
 .video-js .vjs-text-track-display > div > div > div {
   background-color: rgba(0, 0, 0, 0.75) !important;
-  border-radius: 7px !important;
+  border-radius: 9px !important;
   padding: 5px !important;
 }
 
@@ -138,45 +140,26 @@ ul.vjs-menu-content::-webkit-scrollbar {
   font-size: 18px;
 }
 
-.video-js .vjs-control-bar {
-	border-bottom-right-radius: 13px;
-	border-bottom-left-radius: 13px;
-	background-color: rgba(0,0,0,0.35);
-	backdrop-filter: blur(2.5px);
-	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
-	height: 30px !important;
-	z-index: 100;
-}
-
-.video-js :is(button, .vjs-control) {
-  text-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 75%), 0 0 0.2em #000000 !important;
-}
-
-
+.video-js .vjs-control-bar,
 .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
-  background-color: rgba(0,0,0,0.75);
-  border-radius: 5px !important;
-  border: 0.5 solid rgba(230,230,230,0.8);
-  z-index: 100;
+  background-color: rgba(35, 35, 35, 0.75);
 }
 
 .vjs-menu li.vjs-menu-item:focus,
 .vjs-menu li.vjs-menu-item:hover {
   background-color: rgba(255, 255, 255, 0.75);
-  color: rgba(49, 49, 51, 1);
-  text-shadow:none;
+  color: rgba(49, 49, 51, 0.75);
 }
 
 .vjs-menu li.vjs-selected,
 .vjs-menu li.vjs-selected:focus,
 .vjs-menu li.vjs-selected:hover {
   background-color: rgba(0, 182, 240, 0.75);
-  color: rgba(255,255,255,1)
 }
 
 /* Progress Bar */
 .video-js .vjs-slider {
-  background-color: rgba(32, 32, 32, 0.5);
+  background-color: rgba(15, 15, 15, 0.5);
 }
 
 .video-js .vjs-load-progress,
@@ -195,46 +178,26 @@ ul.vjs-menu-content::-webkit-scrollbar {
 
 /* Overlay */
 .video-js .vjs-overlay {
-  background-color: rgba(32, 32, 32, 0.8) !important;
+  background-color: rgba(35, 35, 35, 0.75) !important;
 }
 .video-js .vjs-overlay * {
-  color: rgba(230, 230, 230, 1) !important;
+  color: rgba(255, 255, 255, 1) !important;
   text-align: center;
 }
 
 /* ProgressBar marker */
 .vjs-marker {
-  background-color: rgba(230, 230, 230, 1);
+  background-color: rgba(255, 255, 255, 1);
   z-index: 0;
 }
 
 /* Big "Play" Button */
-
 .video-js .vjs-big-play-button {
-	font-size: 3em;
-	line-height: 2.5em;
-	height: 80px !important;
-	width: 80px !important;
-	margin: auto;
-	display: inline-block;
-	position: absolute;
-	top: calc(50% - 15px);
-	left: calc(50% - 15px);
-	cursor: pointer;
-	/* opacity: 1; */
-	color: #dddddd !important;
-	border: 0.7vmin solid #dddddd;
-	background-color: rgba(32, 32, 32, 0.5);
-	background-size: 50%;
-	backgound-repeat: no-repeat;
-	aspect-ratio: 1 / 1 !important;
-	-webkit-aspect-ratio: 1 / 1 !important;
-	border-radius: 50%;
-	transition: all 0.4s;
+  background-color: rgba(35, 35, 35, 0.5);
 }
 
 .video-js:hover .vjs-big-play-button {
-	background-color: rgba(47, 121, 160, 0.5);
+  background-color: rgba(35, 35, 35, 0.75);
 }
 
 .video-js .vjs-current-time,
@@ -250,11 +213,8 @@ ul.vjs-menu-content::-webkit-scrollbar {
 }
 
 .video-js .vjs-poster {
-	background-size: cover;
-	object-fit: cover;
-	border-radius: 13px;
-	border: solid 0.75px rgba(32,32,32,0.5);
-        box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,0.8);
+  background-size: cover;
+  object-fit: cover;
 }
 
 .player-dimensions.vjs-fluid {
@@ -273,90 +233,7 @@ video.video-js {
   margin-left: 1em;
   margin-right: 1em;
   padding-bottom: 82vh;
-  border-radius: 13px;
   height: 0;
-}
-/*
-#player {
-	border-radius: 13px;
-	border: 3px solid rgba(255,255,255,1);
-	box-shadow: 9px 9px 15px rgba(0,0,0,0.8);
-	background-color: rgba(0,0,0,0.8) !important;
-	backdrop-filter: blur(2.5px);
-}*/
-
-#player::before {
-	display: flex;
-	content: "";
-	background-image: linear-gradient(32.5deg, rgba(17,17,17,.65), rgba(94,149,183,1));
-	position: relative;
-	top: -85px;
-	width: calc(var(--posBannerWidth) - 10px);
-	backdrop-filter: blur(2.5px);
-	box-shadow: 0em -0.15em 0.25em rgba(230,230,230,0.35), 0.5em 0em 0.5em rgba(94,149,183,1), 0.75em 0.75em 0.75em rgba(32,32,32,0.8);
-	height: 65px;
-	z-index: 10;
-}
-
-#player {
-	border-radius: 13px;
-	border: 3px solid rgba(255,255,255,1);
-	box-shadow: 9px 9px 15px rgba(0,0,0,0.8);
-	background-color: rgba(0,0,0,0.8) !important;
-	backdrop-filter: blur(2.5px);
-	aspect-ratio: 16 / 9 !important;
-	height: var(--posPlayerHeight) !important;
-	left: var(--posPlayerLeft) !important;
-	width: var(--posPlayerWidth) !important;
-}
-
-/*#player::after {
-	content: '';
-	display: block;
-	width: 200px;
-	height: 112.5px;
-	border: solid 3px rgb(230,230,230);
-	position: relative;
-	left: -3px;
-	top: calc(100% - (3px + 112.5px) - 4.5em);
-	background-image: url(../CMovie.svg), url(../Wasser.png);
-	background-repeat: no-repeat;
-	border-bottom-left-radius: 13px;
-	background-position-y: calc(112.5px * 0.22), 0;
-	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
-	z-index: 11 !important;
-}*/
-
-#player::after {
-	content: '';
-	display: block;
-	width: 200px;
-	height: 112.5px;
-	border: solid 3px rgb(230,230,230);
-	position: relative;
-	left: -3px;
-	top: calc(100% - (3px + 112.5px) - 6.5em);
-	background-image: url(../CMovie.svg), url(../Wasser.png);
-	background-repeat: no-repeat;
-	border-bottom-left-radius: 13px;
-	background-position-y: calc(112.5px * 0.22), 0;
-	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
-	z-index: 11 !important;
-}
-
-.vjs-modal-dialog.vjs-text-track-settings {
-	background-color: #2B333F;
-	background-color: rgba(43, 51, 63, 0.75);
-	color: #fff;
-	border-radius: 13px;
-	height: 70%;
-}
-
-.video-js .vjs-modal-dialog {
-	background: rgba(0, 0, 0, 0.8);
-	background: linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0));
-	border-radius: 13px;
-	overflow: auto;
 }
 
 .mobile-operations-bar {
@@ -373,100 +250,6 @@ video.video-js {
   bottom: unset !important;
   top: 1.5em;
 }
-
-#contents #player-container ~ .h-box {
-	position: relative;
-	display: flex;
-	line-height: 1.1em;
-	top: calc(-1em - 67.5px);
-	left: var(--posBannerLeft);
-	vertical-align: middle;
-	height: 45px !important;
-	width: calc(var(--posBannerWidth) - 16px);
-	white-space: nowrap !important;
-	padding-left: calc(200px + 2.2em);
-	/* background-color: rgba(200,0,0,0.4); */
-	/* z-index: 0; */
-}
-
-#contents #player-container ~ .h-box h1 {
-	text-overflow: ellipsis !important;
-	width: calc(var(--posBannerWidth) - 230px);
-	overflow-x: clip;
-}
-
-img.thumbnail {
-	display: block;
-	width: 100%;
-	object-fit: cover;
-	border-radius: 7px;
-	box-shadow: 0.3em 0.3em 0.5em rgba(32,32,32,0.8);
-	border: solid 0.75px rgba(32,32,32,0.5);
-	z-index: 100;
-}
-
-video#player_html5_api {
-	background-color: transparent !important;
-	border-radius: 13px;
-}
-
-.video-js {
-	display: block;
-	vertical-align: top;
-	box-sizing: border-box;
-	color: #dddddd;
-	background-color: transparent !important;
-	position: relative;
-	padding: 0;
-	font-size: 10px;
-	line-height: 1;
-	font-weight: normal;
-	font-style: normal;
-	font-family: Arial, Helvetica, sans-serif;
-	word-break: initial;
-	border-radius: 13px;
-	border: solid 0.75px rgba(32,32,32,0.5);
-}
-
-a:not([data-id]) > .icon, .pure-u-lg-1-5 > .h-box > a[href^="/watch?"], .playlist-restricted > ol > li > a {
-	color: #c0c0c0;
-}
-
-.video-js .vjs-vtt-thumbnail-display{
-	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,1) !important;
-	border-radius: 7px !important;
-	border: 1.5px solid rgba(230,230,230,0.8) !important;
-	z-index: 99;
-}
-
-.vjs-button {
-	cursor: pointer;
-	color: #f0f0f0 !important;
-	text-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 75%), 0 0 0.2em #000000;
-}
-
-.video-js .vjs-loading-spinner {
-	display: none;
-	box-sizing: border-box;
-	position: absolute;
-	top: calc(50% - 15px);
-	left: calc(50% - 15px);
-	height: 80px !important;
-	width: 80px !important;
-	margin: auto;
-	cursor: pointer;
-	border: 0.7vmin solid var(--colorBlueDrk);
-	color: #dddddd !important;
-	background-color: transparent;
-	aspect-ratio: 1 / 1 !important;
-	-webkit-aspect-ratio: 1 / 1 !important;
-	box-shadow: 5px 5px 9px rgba(0,0,0,0.8), 0em 0em 0.5em rgba(0, 0, 0,0.5);
-	border-radius: 50%;
-	opacity: 0.85;
-	visibility: hidden;
-}
-
-
 
 @media screen and (max-width: 700px) {
   .video-js .vjs-share {
