@@ -16,23 +16,21 @@ module UrlSanitizer
     ],
   }
 
-  # Returns wether the given string is an ASCII word. This is the same as
+  # Returns whether the given string is an ASCII word. This is the same as
   # running the following regex in US-ASCII locale: /^[\w-]+$/
   private def ascii_word?(str : String) : Bool
-    if str.bytesize == str.size
-      str.each_byte do |byte|
-        next if 'a'.ord <= byte <= 'z'.ord
-        next if 'A'.ord <= byte <= 'Z'.ord
-        next if '0'.ord <= byte <= '9'.ord
-        next if byte == '-'.ord || byte == '_'.ord
+    return false if str.bytesize != str.size
 
-        return false
-      end
+    str.each_byte do |byte|
+      next if 'a'.ord <= byte <= 'z'.ord
+      next if 'A'.ord <= byte <= 'Z'.ord
+      next if '0'.ord <= byte <= '9'.ord
+      next if byte == '-'.ord || byte == '_'.ord
 
-      return true
-    else
       return false
     end
+
+    return true
   end
 
   # Return which kind of parameters are allowed based on the
@@ -74,12 +72,15 @@ module UrlSanitizer
     str = "https://#{str}" if !str.starts_with?(/https?:\/\//)
 
     unsafe_uri = URI.parse(str)
+    unsafe_host = unsafe_uri.host
+    unsafe_path = unsafe_uri.path
+
     new_uri = URI.new(path: "/")
 
     # Redirect to homepage for bogus URLs
-    return new_uri if (unsafe_uri.host.nil? || unsafe_uri.path.nil?)
+    return new_uri if (unsafe_host.nil? || unsafe_path.nil?)
 
-    breadcrumbs = unsafe_uri.path
+    breadcrumbs = unsafe_path
       .split('/', remove_empty: true)
       .compact_map do |bc|
         # Exclude attempts at path trasversal
@@ -96,7 +97,7 @@ module UrlSanitizer
     return new_uri if breadcrumbs.empty?
 
     # Replace the original query parameters with the sanitized ones
-    case unsafe_uri.host.not_nil!
+    case unsafe_host
     when .ends_with?("youtube.com")
       # Use our sanitized path (not forgetting the leading '/')
       new_uri.path = "/#{breadcrumbs.join('/')}"
@@ -115,7 +116,6 @@ module UrlSanitizer
       new_uri.query_params = new_params
     end
 
-    new_uri.host = nil # Safety measure
     return new_uri
   end
 end
