@@ -1385,6 +1385,63 @@ span#channel-name {
 	border-radius: 50% !important;
 }
 
+.containerSlider a.Navi {
+	border-radius: 50%;
+	position: var(--posAbsolute);
+	margin: var(--centerMargin);
+	font-size: 2.6rem;
+	padding: 1vw;
+	display: var(--displayInlineBlock);
+	opacity: 1;
+	bottom: calc( var(--calcSlideHeight) * .5 - 40px) !important;
+	transform: translateX(calc(-50%));
+	text-decoration: none !important;
+	box-shadow: var(--menuShadow);
+	backdrop-filter: var(--bgBlur);
+	-webkit-backdrop-filter: var(--bgBlur);
+	background-color: var(--colorBlue);
+	background-image: var(--imagePlay);
+	background-size: 50%;
+	width: 80px;
+	height: 80px;
+	aspect-ratio: var(--aspectRatioCircle) !important;
+	-webkit-aspect-ratio: var(--aspectRatioCircle) !important;
+	background-repeat: no-repeat;
+	background-position: center;
+	border: var(--borderLght);
+	text-shadow: none;
+	color: transparent;
+	-webkit-transition-timing-function: ease-in-out;
+	-webkit-transition-duration: 0.5s;
+	-webkit-transition-property: background, opacity;
+	transition-timing-function: ease-in-out;
+	transition-duration: 0.5s;
+	transition-property: background, opacity;
+	overflow: var(--overflowHidden);
+	float: left;
+	z-index: 30;
+}
+
+.video-js .vjs-big-play-button {
+	font-size: 3em;
+	line-height: 3em;
+	height: 2em;
+	width: 2em;
+	display: block;
+	position: absolute;
+	top: calc(50% - 1.5em)!important;
+	left: calc(50% - 1.5em) !important;
+	padding: 1.5em !important;
+	cursor: pointer;
+	opacity: 1;
+	border: 0.16666em solid #fff;
+	background-color: #2B333F;
+	background-color: rgba(43, 51, 63, 0.7);
+	border-radius: 50%;
+	transition: all 0.4s;
+}
+
+
 .channel-profile {
 	width: 48vw !important;
 }
