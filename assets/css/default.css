@@ -1380,6 +1380,135 @@ span#channel-name {
 	background-color: rgba(0, 182, 240, 0.5) !important;
 }
 
+.vjs-icon-play:before, .video-js .vjs-play-control .vjs-icon-placeholder:before, .video-js .vjs-big-play-button .vjs-icon-placeholder:before {
+	content: "\f101";
+	border-radius: 50% !important;
+}
+
+.channel-profile {
+	width: 48vw !important;
+}
+
+:is(.pure-button, button, .searchbar input[type="search"], [href*="/login"] ):is(:hover,:active,:focus){
+	background-color: rgba(0, 182, 240, 0.5) !important;
+}
+
+img.thumbnail:is(:hover, :active, :focus) {
+	border: solid 1.5px rgba(230,230,230,0.5) !important;
+}
+
+
+div#descriptionWrapper a {
+	text-decoration: underline !important;
+	text-decoration-color: #8888aa !important;
+}
+
+#descriptionWrapper {
+	max-width: 80%;
+	white-space: pre-wrap;
+}
+
+.headerText {
+	font-family: "ocr-a";
+}
+
+.headerText :is(h1,h2,h3,h4) {
+	text-align: center !important;
+	margin: unset;
+}
+
+.headerText h1 {
+	font-size: 20pt;
+}
+
+.headerText h3 {
+	font-size: 14pt;
+} 
+
+.headerText h4 {
+	font-size: 11pt;
+}
+
+.h-box.flexible.title {
+	font-family: "ocr-a";
+	font-size: 10pt;
+}
+
+.channel-name {
+	font-family: "ocr-a";
+	font-size: 10pt;
+}
+
+.thumbnail ~ p ~ p b {
+	font-size: 10pt;
+	font-family: "ocr-a";
+}
+
+.channel-profile.pure-u-4-24.pure-u-md-2-24 ~ .pure-u-20-24.pure-u-md-22-24 > p > b {
+	font-size: 10pt;
+	font-family: "ocr-a";
+}
+
+span#channel-name {
+	font-family: "ocr-a";
+	font-size: 12pt;
+}
+
+
+
+#download_widget {
+	width: 100%;
+	color: #505050;
+	font-weight: 550;
+}
+
+.video-js .vjs-vtt-thumbnail-display{
+	box-shadow: 0.3em 0.3em 0.5em rgba(0,0,0,1) !important;
+	border-radius: 7px !important;
+	border: 1.5px solid rgba(230,230,230,0.8) !important;
+}
+
+.vjs-button {
+	cursor: pointer;
+	color: #ffffff !important;
+	text-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 75%), 0 0 0.2em #000000;
+}
+
+.vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+  background-color: rgba(0,0,0,0.75);
+  border-radius: 3px;
+  z-index: 100;
+}
+
+.vjs-menu li.vjs-menu-item:focus,
+.vjs-menu li.vjs-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+  color: rgba(49, 49, 51, 1);
+  text-shadow:none;
+}
+
+.vjs-menu li.vjs-selected,
+.vjs-menu li.vjs-selected:focus,
+.vjs-menu li.vjs-selected:hover {
+  background-color: rgba(0, 182, 240, 0.75);
+  color: rgba(255,255,255,1)
+}
+
+video {
+	outline: none;
+	width: 100%;
+	background-color: rgba(0,0,0,0.75);
+	backdrop-filter: blur(2.5px);
+}
+
+video#player_html5_api {
+	background-color: rgba(0,0,0,0.75);
+	border-radius: 13px;
+	backdrop-filter: blur(2.5px);
+	outline: none;
+}
+
+
 footer {
 	display: none !important;
 }
