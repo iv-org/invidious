@@ -1531,6 +1531,10 @@ span#channel-name {
 	text-shadow: 0.2em 0.2em 0.5em rgb(0 0 0 / 75%), 0 0 0.2em #000000;
 }
 
+#player-container:has(.vjs-has-started.vjs-playing) :is(.vjs-big-play-button, .vjs-touch-overlay .vjs-play-contro) {
+	display: none !important;
+}
+
 .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
   background-color: rgba(0,0,0,0.75);
   border-radius: 3px;
