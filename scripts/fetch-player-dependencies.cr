@@ -58,26 +58,44 @@ end
 # different or the requested dependency just isn't present, then it needs to be
 # installed.
 
-# Since we can't know when videojs-youtube-annotations is updated, we'll just always fetch
-# a new copy each time.
 dependencies_to_install = [] of String
 
 required_dependencies.keys.each do |dep|
-  dep = dep.to_s
+  dep = dep.as_s
   path = "assets/videojs/#{dep}"
+
   # Check for missing dependencies
+  #
+  # Does the directory exist?
+  # Does the Javascript file exist?
+  # Does the CSS file exist?
+  #
+  # videojs-contrib-quality-levels.js is the only dependency that does not come with a CSS file so
+  # we skip the check there
   if !Dir.exists?(path)
     Dir.mkdir(path)
-    dependencies_to_install << dep
-  else
-    config = File.open("#{path}/versions.yml") do |file|
-      YAML.parse(file).as_h
+    next dependencies_to_install << dep
+  elsif !(File.exists?("#{path}/#{dep}.js") || File.exists?("#{path}/versions.yml"))
+    next dependencies_to_install << dep
+  elsif dep != "videojs-contrib-quality-levels" && !File.exists?("#{path}/#{dep}.css")
+    next dependencies_to_install << dep
+  end
+
+  # Check if we need to update the dependency
+
+  config = File.open("#{path}/versions.yml") do |file|
+    YAML.parse(file).as_h
+  end
+
+  if config["version"].as_s != required_dependencies[dep]["version"].as_s || config["minified"].as_bool != minified
+    # Clear directory
+    {"*.js", "*.css"}.each do |file_types|
+      Dir.glob("#{path}/#{file_types}").each do |file_path|
+        File.delete(file_path)
+      end
     end
 
-    if config["version"].as_s != required_dependencies[dep]["version"].as_s || config["minified"].as_bool != minified
-      `rm -rf #{path}/*.js #{path}/*.css`
-      dependencies_to_install << dep
-    end
+    dependencies_to_install << dep
   end
 end
 
