@@ -144,12 +144,25 @@ Invidious::Database.check_integrity(CONFIG)
   # Running the script by itself would show some colorful feedback while this doesn't.
   # Perhaps we should just move the script to runtime in order to get that feedback?
 
-  {% puts "\nChecking player dependencies, this may take more than 20 minutes... If it is stuck, check your internet connection.\n" %}
-  {% if flag?(:minified_player_dependencies) %}
-    {% puts run("../scripts/fetch-player-dependencies.cr", "--minified").stringify %}
-  {% else %}
-    {% puts run("../scripts/fetch-player-dependencies.cr").stringify %}
+  {% fetch_script_arguments = [] of StringLiteral %}
+
+  {%
+    potential_arguments = {
+      {:minified_player_dependencies, "--minified"},
+      {:skip_player_dependencies_checksum, "--skip-checksum"},
+    }
+  %}
+
+  {% for potential_argument in potential_arguments %}
+    {% flag_, script_argument = potential_argument %}
+
+    {% if flag?(flag_) %}
+      {% fetch_script_arguments << script_argument.id %}
+    {% end %}
   {% end %}
+
+  {% puts "\nChecking player dependencies, this may take more than 20 minutes... If it is stuck, check your internet connection.\n" %}
+  {% puts run("../scripts/fetch-player-dependencies.cr", fetch_script_arguments.splat).stringify %}
   {% puts "\nDone checking player dependencies, now compiling Invidious...\n" %}
 {% end %}
 

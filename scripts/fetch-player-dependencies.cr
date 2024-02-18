@@ -4,11 +4,22 @@ require "digest/sha1"
 require "option_parser"
 require "colorize"
 
+# Hacky solution to get separated arguments when called from invidious.cr
+if ARGV.size == 1
+  parser_args = [] of String
+  ARGV[0].split(",") { |str| parser_args << str.strip }
+else
+  parser_args = ARGV
+end
+
 # Taken from https://crystal-lang.org/api/1.1.1/OptionParser.html
 minified = false
-OptionParser.parse do |parser|
+skip_checksum = false
+
+OptionParser.parse(parser_args) do |parser|
   parser.banner = "Usage: Fetch VideoJS dependencies [arguments]"
   parser.on("-m", "--minified", "Use minified versions of VideoJS dependencies (performance and bandwidth benefit)") { minified = true }
+  parser.on("--skip-checksum", "Skips the checksum validation of downloaded files") { skip_checksum = true }
 
   parser.on("-h", "--help", "Show this help") do
     puts parser
@@ -89,7 +100,7 @@ dependencies_to_install.each do |dep|
       File.write("#{download_path}/package.tgz", data)
 
       # https://github.com/iv-org/invidious/pull/2397#issuecomment-922375908
-      if `sha1sum #{download_path}/package.tgz`.split(" ")[0] != required_dependencies[dep]["shasum"]
+      if !skip_checksum && `sha1sum #{download_path}/package.tgz`.split(" ")[0] != required_dependencies[dep]["shasum"]
         raise Exception.new("Checksum for '#{dep}' failed")
       end
     end
