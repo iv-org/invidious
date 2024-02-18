@@ -476,7 +476,7 @@
     "generic_button_cancel": "रद्द करें",
     "generic_button_rss": "आरएसएस",
     "generic_button_edit": "संपादित करें",
-    "generic_button_delete": "मिटाएं",
+    "generic_button_delete": "हटाएं",
     "playlist_button_add_items": "वीडियो जोड़ें",
     "Song: ": "गाना: ",
     "channel_tab_podcasts_label": "पाॅडकास्ट",
@@ -484,5 +484,8 @@
     "Import YouTube playlist (.csv)": "YouTube प्लेलिस्ट (.csv) आयात करें",
     "Standard YouTube license": "मानक यूट्यूब लाइसेंस",
     "Channel Sponsor": "चैनल प्रायोजक",
-    "Download is disabled": "डाउनलोड करना अक्षम है"
+    "Download is disabled": "डाउनलोड करना अक्षम है",
+    "generic_channels_count": "{{count}} चैनल",
+    "generic_channels_count_plural": "{{count}} चैनल",
+    "Import YouTube watch history (.json)": "YouTube पर देखने का इतिहास आयात करें (.json)"
 }

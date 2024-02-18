@@ -503,5 +503,7 @@
     "generic_button_save": "Зберегти",
     "generic_channels_count_0": "{{count}} канал",
     "generic_channels_count_1": "{{count}} канали",
-    "generic_channels_count_2": "{{count}} каналів"
+    "generic_channels_count_2": "{{count}} каналів",
+    "Import YouTube watch history (.json)": "Імпортувати історію переглядів YouTube (.json)",
+    "toggle_theme": "Перемкнути тему"
 }

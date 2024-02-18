@@ -503,5 +503,6 @@
     "crash_page_you_found_a_bug": "Izgleda da ste pronašli grešku u Invidious-u!",
     "generic_views_count_0": "{{count}} pregled",
     "generic_views_count_1": "{{count}} pregleda",
-    "generic_views_count_2": "{{count}} pregleda"
+    "generic_views_count_2": "{{count}} pregleda",
+    "Import YouTube watch history (.json)": "Uvezi YouTube istoriju gledanja (.json)"
 }

@@ -79,7 +79,7 @@
     "invidious": "Invidious",
     "preferences_captions_label": "Titra parazgjedhje: ",
     "preferences_extend_desc_label": "Zgjero automatikisht përshkrimin e videos: ",
-    "preferences_player_style_label": "Silt lojtësi: ",
+    "preferences_player_style_label": "Stil lojtësi: ",
     "Dark mode: ": "Mënyra e errët: ",
     "preferences_dark_mode_label": "Temë: ",
     "dark": "e errët",
@@ -477,5 +477,12 @@
     "channel_tab_releases_label": "Hedhje në qarkullim",
     "Song: ": "Pjesë: ",
     "Import YouTube playlist (.csv)": "Importoni luajlistë YouTube (.csv)",
-    "Standard YouTube license": "Licencë YouTube standarde"
+    "Standard YouTube license": "Licencë YouTube standarde",
+    "published - reverse": "publikuar më - së prapthi",
+    "channel_tab_podcasts_label": "Podcast-e",
+    "channel name - reverse": "emër kanali - së prapthi",
+    "Import YouTube watch history (.json)": "Importo historik parjesh YouTube (.json)",
+    "preferences_local_label": "Video përmes ndërmjetësi: ",
+    "Fallback captions: ": "Titra nga halli: ",
+    "Erroneous challenge": "Zgjidhje e gabuar"
 }
