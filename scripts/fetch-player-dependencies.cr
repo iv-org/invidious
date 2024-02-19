@@ -1,5 +1,6 @@
 require "http"
 require "yaml"
+require "file_utils"
 require "digest/sha1"
 require "option_parser"
 require "colorize"
@@ -20,16 +21,36 @@ class Dependency
     @destination_path = "assets/videojs/#{@dependency}"
   end
 
-  private def request
-    HTTP::Client.get("https://registry.npmjs.org/#{@dependency}/-/#{@dependency}-#{@dependency_config["version"]}.tgz") do |response|
-      Dir.mkdir(@download_path)
-      data = response.body_io.gets_to_end
-      File.write("#{@download_path}/package.tgz", data)
+  private def validate_checksum(io)
+    if !@skip_checksum && Digest::SHA1.hexdigest(io) != @dependency_config["shasum"]
+      raise IO::Error.new("Checksum for '#{@dependency}' failed")
+    end
+  end
 
-      # https://github.com/iv-org/invidious/pull/2397#issuecomment-922375908
-      if !@skip_checksum && Digest::SHA1.hexdigest(data) != @dependency_config["shasum"]
-        raise Exception.new("Checksum for '#{@dependency}' failed")
+  # Requests and downloads a specific dependency from NPM
+  #
+  # Validates a cached tarball if it already exists.
+  private def request
+    downloaded_package_path = "#{@download_path}/package.tgz"
+
+    # Create a download directory for the dependency if it does not already exist
+    if Dir.exists?(@download_path)
+      # Validate checksum of existing cached tarball
+      # Fetches a new one when the checksum fails.
+      if File.exists?(downloaded_package_path)
+        begin
+          return self.validate_checksum(File.open(downloaded_package_path))
+        rescue IO::Error
+        end
       end
+    else
+      Dir.mkdir(@download_path)
+    end
+
+    HTTP::Client.get("https://registry.npmjs.org/#{@dependency}/-/#{@dependency}-#{@dependency_config["version"]}.tgz") do |response|
+      data = response.body_io.gets_to_end
+      File.write(downloaded_package_path, data)
+      self.validate_checksum(data)
     end
   end
 
@@ -42,15 +63,13 @@ class Dependency
       target_path = sprintf(full_target_path, {"file_extension": ".#{extension}"})
     end
 
-    target_path = Path[target_path]
-
     if download_as = @dependency_config.dig?(YAML::Any.new("install_instructions"), YAML::Any.new("download_as"))
       destination_path = "#{@destination_path}/#{sprintf(download_as.as_s, {"file_extension": ".#{extension}"})}"
     else
-      destination_path = Path[@destination_path].join(target_path.basename)
+      destination_path = @destination_path
     end
 
-    File.copy(target_path, destination_path)
+    FileUtils.cp(target_path, destination_path)
   end
 
   private def fetch_path(is_css)
@@ -120,11 +139,13 @@ end
 # Taken from https://crystal-lang.org/api/1.1.1/OptionParser.html
 minified = false
 skip_checksum = false
+clear_cache = false
 
 OptionParser.parse(parser_args) do |parser|
   parser.banner = "Usage: Fetch VideoJS dependencies [arguments]"
   parser.on("-m", "--minified", "Use minified versions of VideoJS dependencies (performance and bandwidth benefit)") { minified = true }
   parser.on("--skip-checksum", "Skips the checksum validation of downloaded files") { skip_checksum = true }
+  parser.on("--clear-cache", "Clears the cache and re-downloads all dependency files") { clear_cache = true }
 
   parser.on("-h", "--help", "Show this help") do
     puts parser
@@ -221,4 +242,6 @@ else
 end
 
 # Cleanup
-`rm -rf #{tmp_dir_path}`
+if clear_cache
+  FileUtils.rm_r("#{tmp_dir_path}")
+end

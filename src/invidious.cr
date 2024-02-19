@@ -150,6 +150,7 @@ Invidious::Database.check_integrity(CONFIG)
     potential_arguments = {
       {:minified_player_dependencies, "--minified"},
       {:skip_player_dependencies_checksum, "--skip-checksum"},
+      {:clear_player_dependencies_cache, "--clear-cache"},
     }
   %}
 
