@@ -21,6 +21,9 @@ dependencies:
     version: 2.1.0
     shasum: 046e9e21ed01043f512b83a1916001d552457083
 
+    install_instructions:
+      no_styling: true
+
   videojs-http-source-selector:
     version: 1.1.6
     shasum: 073aadbea0106ba6c98d6b611094dbf8554ffa1f

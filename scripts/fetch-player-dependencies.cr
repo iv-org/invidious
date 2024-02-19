@@ -14,6 +14,7 @@ struct InstallInstruction
   property js_path : String? = nil
   property css_path : String? = nil
   property download_as : String? = nil
+  property no_styling : Bool = false
 end
 
 # Object representing a dependency specified within `videojs-dependencies.yml`
@@ -34,15 +35,12 @@ class ConfigDependency
     # Does the directory exist?
     # Does the Javascript file exist?
     # Does the CSS file exist?
-    #
-    # videojs-contrib-quality-levels.js is the only dependency that does not come with a CSS file so
-    # we skip the check there
     if !Dir.exists?(path)
       Dir.mkdir(path)
       return true
     elsif !(File.exists?("#{path}/#{name}.js") || File.exists?("#{path}/versions.yml"))
       return true
-    elsif name != "videojs-contrib-quality-levels" && !File.exists?("#{path}/#{name}.css")
+    elsif !(self.install_instructions.try &.no_styling) && !File.exists?("#{path}/#{name}.css")
       return true
     end
 
