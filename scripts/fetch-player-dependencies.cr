@@ -116,8 +116,11 @@ class Dependency
   end
 
   private def validate_checksum(io)
-    if !CONFIG.skip_checksum && Digest::SHA1.hexdigest(io) != @config.shasum
-      raise IO::Error.new("Checksum for '#{@dependency}' failed")
+    return if CONFIG.skip_checksum
+
+    digest = Digest::SHA1.hexdigest(io)
+    if digest != @config.shasum
+      raise IO::Error.new("Checksum for '#{@dependency}' failed. \"#{digest}\" does not match configured \"#{@config.shasum}\"")
     end
   end
 
