@@ -1,4 +1,5 @@
 version: 1
+registry_url: "https://registry.npmjs.org"
 dependencies:
   #Due to a 'video append of' error (see #3011), we're stuck on 7.12.1.
   video.js:

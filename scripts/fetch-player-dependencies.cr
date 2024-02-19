@@ -72,6 +72,7 @@ class PlayerDependenciesConfig
   include YAML::Serializable
 
   property version : String
+  property registry_url : String
   property dependencies : Hash(YAML::Any, ConfigDependency)
 
   def get_dependencies_to_fetch
@@ -131,7 +132,7 @@ class Dependency
       Dir.mkdir(@download_path)
     end
 
-    HTTP::Client.get("https://registry.npmjs.org/#{@dependency}/-/#{@dependency}-#{@config.version}.tgz") do |response|
+    HTTP::Client.get("#{CONFIG.dependency_config.registry_url}}/#{@dependency}/-/#{@dependency}-#{@config.version}.tgz") do |response|
       data = response.body_io.gets_to_end
       File.write(downloaded_package_path, data)
       self.validate_checksum(data)
