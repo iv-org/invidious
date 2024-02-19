@@ -1,5 +1,7 @@
 version: 1
 registry_url: "https://registry.npmjs.org"
+
+# Dependencies are stored as <dependency_name>/package.tgz
 cache_directory: "/tmp/invidious-videojs-dep-install"
 
 dependencies:

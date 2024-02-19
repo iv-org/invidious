@@ -126,7 +126,7 @@ class Dependency
   # Requests and downloads a specific dependency from NPM
   #
   # Validates a cached tarball if it already exists.
-  private def request
+  private def request_dependency
     downloaded_package_path = "#{@download_path}/package.tgz"
 
     # Create a download directory for the dependency if it does not already exist
@@ -150,6 +150,7 @@ class Dependency
     end
   end
 
+  # Moves a VideoJS dependency file of the given extension from extracted tarball to Invidious directory
   private def move_file(full_target_path, extension)
     minified_target_path = sprintf(full_target_path, {"file_extension": ".min.#{extension}"})
 
@@ -168,6 +169,7 @@ class Dependency
     FileUtils.cp(target_path, destination_path)
   end
 
+  # Fetch path of where a VideoJS dependency is located in the extracted tarball
   private def fetch_path(is_css)
     if is_css
       raw_target_path = @config.install_instructions.try &.css_path
@@ -182,10 +184,14 @@ class Dependency
     end
   end
 
+  # Wrapper around `#move_file` to move the dependency's JS file
   private def move_js_file
     return self.move_file(self.fetch_path(is_css: false), "js")
   end
 
+  # Wrapper around `#move_file` to move the dependency's CSS file
+  #
+  # Does nothing with the CSS file does not exist.
   private def move_css_file
     path = self.fetch_path(is_css: true)
 
@@ -194,6 +200,7 @@ class Dependency
     end
   end
 
+  # Updates the dependency's versions.yml with the current fetched version and its minified status
   private def update_versions_yaml
     File.open("#{@destination_path}/versions.yml", "w") do |io|
       YAML.build(io) do |builder|
@@ -209,8 +216,9 @@ class Dependency
     end
   end
 
-  def fetch
-    self.request
+  # Installs a VideoJS dependency into Invidious
+  def install
+    self.request_dependency
 
     # Crystal's stdlib provides no way of extracting a tarball
     `tar -vzxf '#{@download_path}/package.tgz' -C '#{@download_path}'`
@@ -252,15 +260,16 @@ OptionParser.parse(parser_args) do |parser|
   end
 end
 
-dependencies_to_install = CONFIG.dependency_config.get_dependencies_to_fetch
-
+# Create cache directory
 Dir.mkdir(CONFIG.cache_directory) if !Dir.exists? CONFIG.cache_directory
+
+dependencies_to_install = CONFIG.dependency_config.get_dependencies_to_fetch
 channel = Channel(String | Exception).new
 
 dependencies_to_install.each do |dep_name, dependency_config|
   spawn do
     dependency = Dependency.new(dependency_config, dep_name.as_s)
-    dependency.fetch
+    dependency.install
     channel.send(dep_name.as_s)
   rescue ex
     channel.send(ex)
