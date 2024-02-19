@@ -1,5 +1,7 @@
 version: 1
 registry_url: "https://registry.npmjs.org"
+cache_directory: "/tmp/invidious-videojs-dep-install"
+
 dependencies:
   #Due to a 'video append of' error (see #3011), we're stuck on 7.12.1.
   video.js:

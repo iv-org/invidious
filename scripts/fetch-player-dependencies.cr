@@ -73,6 +73,7 @@ class PlayerDependenciesConfig
 
   property version : String
   property registry_url : String
+  property cache_directory : String
   property dependencies : Hash(YAML::Any, ConfigDependency)
 
   def get_dependencies_to_fetch
@@ -95,14 +96,24 @@ class Config
 
     @dependency_config = PlayerDependenciesConfig.from_yaml(File.read(path))
   end
+
+  # Less verbose way to access @dependency_config.registry_url
+  def registry_url
+    return @dependency_config.registry_url
+  end
+
+  # Less verbose way to access @dependency_config.cache_directory
+  def cache_directory
+    return @dependency_config.cache_directory
+  end
 end
 
 # Object representing a player dependency
 class Dependency
   @config : ConfigDependency
 
-  def initialize(@config : ConfigDependency, @dependency : String, @tmp_dir_path : String)
-    @download_path = "#{@tmp_dir_path}/#{@dependency}"
+  def initialize(@config : ConfigDependency, @dependency : String)
+    @download_path = "#{CONFIG.cache_directory}/#{@dependency}"
     @destination_path = "assets/videojs/#{@dependency}"
   end
 
@@ -132,7 +143,7 @@ class Dependency
       Dir.mkdir(@download_path)
     end
 
-    HTTP::Client.get("#{CONFIG.dependency_config.registry_url}}/#{@dependency}/-/#{@dependency}-#{@config.version}.tgz") do |response|
+    HTTP::Client.get("#{CONFIG.registry_url}/#{@dependency}/-/#{@dependency}-#{@config.version}.tgz") do |response|
       data = response.body_io.gets_to_end
       File.write(downloaded_package_path, data)
       self.validate_checksum(data)
@@ -243,13 +254,12 @@ end
 
 dependencies_to_install = CONFIG.dependency_config.get_dependencies_to_fetch
 
-tmp_dir_path = "#{Dir.tempdir}/invidious-videojs-dep-install"
-Dir.mkdir(tmp_dir_path) if !Dir.exists? tmp_dir_path
+Dir.mkdir(CONFIG.cache_directory) if !Dir.exists? CONFIG.cache_directory
 channel = Channel(String | Exception).new
 
 dependencies_to_install.each do |dep_name, dependency_config|
   spawn do
-    dependency = Dependency.new(dependency_config, dep_name.as_s, tmp_dir_path)
+    dependency = Dependency.new(dependency_config, dep_name.as_s)
     dependency.fetch
     channel.send(dep_name.as_s)
   rescue ex
@@ -274,5 +284,5 @@ end
 
 # Cleanup
 if CONFIG.clear_cache
-  FileUtils.rm_r("#{tmp_dir_path}")
+  FileUtils.rm_r("#{CONFIG.cache_directory}")
 end
