@@ -42,14 +42,15 @@ class Dependency
       target_path = sprintf(full_target_path, {"file_extension": ".#{extension}"})
     end
 
+    target_path = Path[target_path]
+
     if download_as = @dependency_config.dig?(YAML::Any.new("install_instructions"), YAML::Any.new("download_as"))
       destination_path = "#{@destination_path}/#{sprintf(download_as.as_s, {"file_extension": ".#{extension}"})}"
     else
-      destination_path = @destination_path
+      destination_path = Path[@destination_path].join(target_path.basename)
     end
 
-    # https://github.com/crystal-lang/crystal/issues/7777
-    `mv #{target_path} #{destination_path}`
+    File.copy(target_path, destination_path)
   end
 
   private def fetch_path(is_css)
