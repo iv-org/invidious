@@ -27,7 +27,7 @@ class Dependency
       File.write("#{@download_path}/package.tgz", data)
 
       # https://github.com/iv-org/invidious/pull/2397#issuecomment-922375908
-      if !@skip_checksum && `sha1sum #{@download_path}/package.tgz`.split(" ")[0] != @dependency_config["shasum"]
+      if !@skip_checksum && Digest::SHA1.hexdigest(data) != @dependency_config["shasum"]
         raise Exception.new("Checksum for '#{@dependency}' failed")
       end
     end
