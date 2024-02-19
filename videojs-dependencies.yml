@@ -1,7 +1,14 @@
-# Due to a 'video append of' error (see #3011), we're stuck on 7.12.1.
+#Due to a 'video append of' error (see #3011), we're stuck on 7.12.1.
 video.js:
   version: 7.12.1
   shasum: 1d12eeb1f52e3679e8e4c987d9b9eb37e2247fa2
+  
+  install_instructions:
+    js_path: "dist/video%{file_extension}"
+    css_path: "dist/video-js%{file_extension}"
+
+    # Normalize names to simplify File.exists? check
+    download_as: "video.js%{file_extension}"
 
 videojs-contrib-quality-levels:
   version: 2.1.0
@@ -14,6 +21,10 @@ videojs-http-source-selector:
 videojs-markers:
   version: 1.0.1
   shasum: d7f8d804253fd587813271f8db308a22b9f7df34
+
+  install_instructions:
+    css_path: "dist/videojs.markers%{file_extension}"
+    download_as: "videojs-markers%{file_extension}"
 
 videojs-mobile-ui:
   version: 0.6.1
@@ -38,10 +49,15 @@ videojs-vtt-thumbnails:
 # We're using iv-org's fork of videojs-quality-selector,
 # which isn't published on NPM, and doesn't have any
 # easy way of fetching the compiled variant.
-#
+
 # silvermine-videojs-quality-selector:
 #   version: 1.1.2
 #   shasum: 94033ff9ee52ba6da1263b97c9a74d5b3dfdf711
+
+#   install_instructions:
+#     js_path: "dist/js/silvermine-videojs-quality-selector%{file_extension}"
+#     css_path: "dist/css/quality-selector%{file_extension}"
+#     download_as: silvermine-videojs-quality-selector%{file_extension}
 
 
 # Ditto. Although this extension contains the complied variant in its git repo, 

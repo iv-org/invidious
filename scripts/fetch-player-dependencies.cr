@@ -4,6 +4,110 @@ require "digest/sha1"
 require "option_parser"
 require "colorize"
 
+class Dependency
+  @dependency_config : Hash(YAML::Any, YAML::Any)
+
+  def initialize(
+    required_dependencies : Hash(YAML::Any, YAML::Any),
+    @dependency : String,
+    @tmp_dir_path : String,
+    @minified : Bool,
+    @skip_checksum : Bool
+  )
+    @dependency_config = required_dependencies[@dependency].as_h
+
+    @download_path = "#{@tmp_dir_path}/#{@dependency}"
+    @destination_path = "assets/videojs/#{@dependency}"
+  end
+
+  private def request
+    HTTP::Client.get("https://registry.npmjs.org/#{@dependency}/-/#{@dependency}-#{@dependency_config["version"]}.tgz") do |response|
+      Dir.mkdir(@download_path)
+      data = response.body_io.gets_to_end
+      File.write("#{@download_path}/package.tgz", data)
+
+      # https://github.com/iv-org/invidious/pull/2397#issuecomment-922375908
+      if !@skip_checksum && `sha1sum #{@download_path}/package.tgz`.split(" ")[0] != @dependency_config["shasum"]
+        raise Exception.new("Checksum for '#{@dependency}' failed")
+      end
+    end
+  end
+
+  private def move_file(full_target_path, extension)
+    minified_target_path = sprintf(full_target_path, {"file_extension": ".min.#{extension}"})
+
+    if @minified && File.exists?(minified_target_path)
+      target_path = minified_target_path
+    else
+      target_path = sprintf(full_target_path, {"file_extension": ".#{extension}"})
+    end
+
+    if download_as = @dependency_config.dig?(YAML::Any.new("install_instructions"), YAML::Any.new("download_as"))
+      destination_path = "#{@destination_path}/#{sprintf(download_as.as_s, {"file_extension": ".#{extension}"})}"
+    else
+      destination_path = @destination_path
+    end
+
+    # https://github.com/crystal-lang/crystal/issues/7777
+    `mv #{target_path} #{destination_path}`
+  end
+
+  private def fetch_path(is_css)
+    if is_css
+      instruction_path = "css_path"
+    else
+      instruction_path = "js_path"
+    end
+
+    # https://github.com/crystal-lang/crystal/issues/14305
+    if raw_target_path = @dependency_config.dig?(YAML::Any.new("install_instructions"), YAML::Any.new(instruction_path))
+      return "#{@download_path}/package/#{raw_target_path}"
+    else
+      return "#{@download_path}/package/dist/#{@dependency}%{file_extension}"
+    end
+  end
+
+  private def move_js_file
+    return self.move_file(self.fetch_path(is_css: false), "js")
+  end
+
+  private def move_css_file
+    path = self.fetch_path(is_css: true)
+
+    if File.exists?(sprintf(path, {"file_extension": ".css"}))
+      return move_file(path, "css")
+    end
+  end
+
+  private def update_versions_yaml
+    File.open("#{@destination_path}/versions.yml", "w") do |io|
+      YAML.build(io) do |builder|
+        builder.mapping do
+          # Versions
+          builder.scalar "version"
+          builder.scalar "#{@dependency_config["version"]}"
+
+          builder.scalar "minified"
+          builder.scalar @minified
+        end
+      end
+    end
+  end
+
+  def fetch
+    self.request
+
+    # Crystal's stdlib provides no way of extracting a tarball
+    `tar -vzxf '#{@download_path}/package.tgz' -C '#{@download_path}'`
+    raise "Extraction for #{@dependency} failed" if !$?.success?
+
+    self.move_js_file
+    self.move_css_file
+
+    self.update_versions_yaml
+  end
+end
+
 # Hacky solution to get separated arguments when called from invidious.cr
 if ARGV.size == 1
   parser_args = [] of String
@@ -35,21 +139,6 @@ end
 
 required_dependencies = File.open("videojs-dependencies.yml") do |file|
   YAML.parse(file).as_h
-end
-
-def update_versions_yaml(required_dependencies, minified, dep_name)
-  File.open("assets/videojs/#{dep_name}/versions.yml", "w") do |io|
-    YAML.build(io) do |builder|
-      builder.mapping do
-        # Versions
-        builder.scalar "version"
-        builder.scalar "#{required_dependencies[dep_name]["version"]}"
-
-        builder.scalar "minified"
-        builder.scalar minified
-      end
-    end
-  end
 end
 
 # The first step is to check which dependencies we'll need to install.
@@ -103,72 +192,13 @@ end
 # But first we'll setup a temp directory to store the plugins
 tmp_dir_path = "#{Dir.tempdir}/invidious-videojs-dep-install"
 Dir.mkdir(tmp_dir_path) if !Dir.exists? tmp_dir_path
-
 channel = Channel(String | Exception).new
 
 dependencies_to_install.each do |dep|
   spawn do
-    dep_name = dep
-    download_path = "#{tmp_dir_path}/#{dep}"
-    dest_path = "assets/videojs/#{dep}"
-
-    HTTP::Client.get("https://registry.npmjs.org/#{dep}/-/#{dep}-#{required_dependencies[dep]["version"]}.tgz") do |response|
-      Dir.mkdir(download_path)
-      data = response.body_io.gets_to_end
-      File.write("#{download_path}/package.tgz", data)
-
-      # https://github.com/iv-org/invidious/pull/2397#issuecomment-922375908
-      if !skip_checksum && `sha1sum #{download_path}/package.tgz`.split(" ")[0] != required_dependencies[dep]["shasum"]
-        raise Exception.new("Checksum for '#{dep}' failed")
-      end
-    end
-
-    # Unless we install an external dependency, crystal provides no way of extracting a tarball.
-    # Thus we'll go ahead and call a system command.
-    `tar -vzxf '#{download_path}/package.tgz' -C '#{download_path}'`
-    raise "Extraction for #{dep} failed" if !$?.success?
-
-    # Would use File.rename in the following steps but for some reason it just doesn't work here.
-    # Video.js itself is structured slightly differently
-    dep = "video" if dep == "video.js"
-
-    # This dep nests everything under an additional JS or CSS folder
-    if dep == "silvermine-videojs-quality-selector"
-      js_path = "js/"
-
-      # It also stores their quality selector as `quality-selector.css`
-      `mv #{download_path}/package/dist/css/quality-selector.css #{dest_path}/quality-selector.css`
-    else
-      js_path = ""
-    end
-
-    # Would use File.rename but for some reason it just doesn't work here.
-    if minified && File.exists?("#{download_path}/package/dist/#{js_path}#{dep}.min.js")
-      `mv #{download_path}/package/dist/#{js_path}#{dep}.min.js #{dest_path}/#{dep}.js`
-    else
-      `mv #{download_path}/package/dist/#{js_path}#{dep}.js #{dest_path}/#{dep}.js`
-    end
-
-    # Fetch CSS which isn't guaranteed to exist
-    #
-    # Also, video JS changes structure here once again...
-    dep = "video-js" if dep == "video"
-
-    # VideoJS marker uses a dot on the CSS files.
-    dep = "videojs.markers" if dep == "videojs-markers"
-
-    if File.exists?("#{download_path}/package/dist/#{dep}.css")
-      if minified && File.exists?("#{download_path}/package/dist/#{dep}.min.css")
-        `mv #{download_path}/package/dist/#{dep}.min.css #{dest_path}/#{dep}.css`
-      else
-        `mv #{download_path}/package/dist/#{dep}.css #{dest_path}/#{dep}.css`
-      end
-    end
-
-    # Update/create versions file for the dependency
-    update_versions_yaml(required_dependencies, minified, dep_name)
-
-    channel.send(dep_name)
+    dependency = Dependency.new(required_dependencies, dep, tmp_dir_path, minified, skip_checksum)
+    dependency.fetch
+    channel.send(dep)
   rescue ex
     channel.send(ex)
   end
