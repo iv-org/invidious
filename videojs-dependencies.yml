@@ -2,7 +2,7 @@ version: 1
 registry_url: "https://registry.npmjs.org"
 
 # Dependencies are stored as <dependency_name>/package.tgz
-cache_directory: "/tmp/invidious-videojs-dep-install"
+cache_directory: "./invidious-videojs-dep-install"
 
 dependencies:
   #Due to a 'video append of' error (see #3011), we're stuck on 7.12.1.
