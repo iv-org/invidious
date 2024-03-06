@@ -35,7 +35,7 @@
   <a href="https://cyberandi.tumblr.com/cmovie.htm#impressum">Donate</a>
 
   <h5>Chat with us:</h5>
-  <a href="mailto://cyberandi@outlook.com">
+  <a href="mailto://cyberandi_official@protonmail.com">
   <img alt="E-mail" src="https://img.shields.io/badge/E%2d%2dmail-darkgreen">
   </a>
 </div>
