@@ -30,7 +30,7 @@ module Invidious::Routes::BeforeAll
 
     # Only allow the pages at /embed/* to be embedded
     if env.request.resource.starts_with?("/embed")
-      frame_ancestors = "'self' http: https:"
+      frame_ancestors = "'self' file: http: https:"
     else
       frame_ancestors = "'none'"
     end
