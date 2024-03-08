@@ -8,8 +8,12 @@ module Invidious::Routes::API::V1::Videos
     region = env.params.query["region"]?
     proxy = {"1", "true"}.any? &.== env.params.query["local"]?
 
+    refresh = env.params.query["refresh"]?
+    refresh ||= "1"
+    refresh = refresh == "1" || refresh == "true"
+
     begin
-      video = get_video(id, region: region)
+      video = get_video(id, refresh: refresh, region: region)
     rescue ex : NotFoundException
       return error_json(404, ex)
     rescue ex
