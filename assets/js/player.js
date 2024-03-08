@@ -580,11 +580,34 @@ function toggle_fullscreen() {
 }
 
 function increase_playback_rate(steps) {
-    const maxIndex = options.playbackRates.length - 1;
-    const curIndex = options.playbackRates.indexOf(player.playbackRate());
-    let newIndex = curIndex + steps;
-    newIndex = helpers.clamp(newIndex, 0, maxIndex);
-    player.playbackRate(options.playbackRates[newIndex]);
+    let speed = player.playbackRate();
+
+    // Considering 1/-1 as step against pre-defined speeds, 
+    // otherwise treat as absolute change
+    if (steps == 1 || steps == -1) {
+        // If current speed is not pre-defined, reset it to 1
+        if (!options.playbackRates.includes(speed)) {
+            speed = 1;
+        }
+        else {
+            const maxIndex = options.playbackRates.length - 1;
+            const curIndex = options.playbackRates.indexOf(player.playbackRate());
+            let newIndex = curIndex;
+            // Set speed to minimum if at max speed
+            if (curIndex >= maxIndex)
+                newIndex = 0;
+            else
+                newIndex = curIndex + steps;
+
+            speed = options.playbackRates[newIndex];
+        }
+    }
+    else {
+        speed += steps;
+        speed = parseFloat(speed.toFixed(2));
+    }
+
+    player.playbackRate(speed);
 }
 
 addEventListener('keydown', function (e) {
@@ -719,6 +742,34 @@ addEventListener('keydown', function (e) {
 
     player.on('mousewheel', mouseScroll);
     player.on('DOMMouseScroll', mouseScroll);
+}());
+
+(function () {
+    const pEl = document.getElementById('player');
+
+    var speedHover = false;
+    var speedSelector = pEl.querySelector('.vjs-playback-rate');
+    var allowscroll = video_data.preferences.toggle_speed_onscroll;
+    if (speedSelector !== null) {
+        speedSelector.onmouseover = function () { speedHover = true; };
+        speedSelector.onmouseout = function () { speedHover = false; };
+        // Increase speed by a single step, or reset when scrollable
+        speedSelector.onclick = function() { allowscroll ? player.playbackRate(video_data.preferences.speed) : increase_playback_rate(1); };
+    }
+
+    function mouseScroll(event) {
+        // When controls are disabled, hotkeys will be disabled as well
+        if (!player.controls() || !speedHover || !allowscroll) return;
+
+        event.preventDefault();
+        var wheelMove = event.wheelDelta || -event.detail;
+        var speedSign = Math.sign(wheelMove);
+
+        increase_playback_rate(speedSign * 0.10); // increase speed by .10
+    }
+
+        player.on('mousewheel', mouseScroll);
+        player.on('DOMMouseScroll', mouseScroll);
 }());
 
 // Since videojs-share can sometimes be blocked, we defer it until last

@@ -36,6 +36,7 @@ struct ConfigPreferences
   property related_videos : Bool = true
   property sort : String = "published"
   property speed : Float32 = 1.0_f32
+  property toggle_speed_onscroll : Bool = false
   property thin_mode : Bool = false
   property unseen_only : Bool = false
   property video_loop : Bool = false

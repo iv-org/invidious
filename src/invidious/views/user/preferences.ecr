@@ -47,6 +47,11 @@
             </div>
 
             <div class="pure-control-group">
+                <label for="toggle_speed_onscroll"><%= translate(locale, "preferences_toggle_speed_onscroll_label") %></label>
+                <input name="toggle_speed_onscroll" id="toggle_speed_onscroll" type="checkbox" <% if preferences.toggle_speed_onscroll %>checked<% end %>>
+            </div>
+
+            <div class="pure-control-group">
                 <label for="quality"><%= translate(locale, "preferences_quality_label") %></label>
                 <select name="quality" id="quality">
                     <% {"dash", "hd720", "medium", "small"}.each do |option| %>

@@ -53,6 +53,7 @@
     "preferences_listen_label": "Режим «только аудио» по умолчанию: ",
     "preferences_local_label": "Проигрывать видео через прокси? ",
     "preferences_speed_label": "Скорость видео по умолчанию: ",
+    "toggle_speed_onscroll": "Разрешить изменения скорости по колесику мыши: ",
     "preferences_quality_label": "Предпочтительное качество видео: ",
     "preferences_volume_label": "Громкость видео: ",
     "preferences_comments_label": "Источник комментариев: ",

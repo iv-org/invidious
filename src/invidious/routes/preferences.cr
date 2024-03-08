@@ -54,6 +54,10 @@ module Invidious::Routes::PreferencesRoute
     speed = env.params.body["speed"]?.try &.as(String).to_f32?
     speed ||= CONFIG.default_user_preferences.speed
 
+    toggle_speed_onscroll = env.params.body["toggle_speed_onscroll"]?.try &.as(String)
+    toggle_speed_onscroll ||= "off"
+    toggle_speed_onscroll = toggle_speed_onscroll == "on"
+
     player_style = env.params.body["player_style"]?.try &.as(String)
     player_style ||= CONFIG.default_user_preferences.player_style
 
@@ -167,6 +171,7 @@ module Invidious::Routes::PreferencesRoute
       related_videos:              related_videos,
       sort:                        sort,
       speed:                       speed,
+      toggle_speed_onscroll:       toggle_speed_onscroll,
       thin_mode:                   thin_mode,
       unseen_only:                 unseen_only,
       video_loop:                  video_loop,
