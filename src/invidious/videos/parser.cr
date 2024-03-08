@@ -50,7 +50,7 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   }
 end
 
-def extract_video_info(video_id : String, proxy_region : String? = nil)
+def extract_video_info(video_id : String, proxy_region : String? = nil, force_hls : Bool = false)
   # Init client config for the API
   client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
 
@@ -102,23 +102,33 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
 
   new_player_response = nil
 
-  if reason.nil?
-    # Fetch the video streams using an Android client in order to get the
-    # decrypted URLs and maybe fix throttling issues (#2194). See the
-    # following issue for an explanation about decrypted URLs:
-    # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-    client_config.client_type = YoutubeAPI::ClientType::Android
+  # HLS streams for regular videos are only returned for the IOS clients. Trying to fetch
+  # streaming urls with other clients defeats the purpose of trying to force an HLS stream to
+  # use.
+  #
+  # TODO are there any IOS clients that offers the same "benefits" as some of the clients below?
+  if force_hls
+    client_config.client_type = YoutubeAPI::ClientType::IOS
     new_player_response = try_fetch_streaming_data(video_id, client_config)
-  elsif !reason.includes?("your country") # Handled separately
-    # The Android embedded client could help here
-    client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
+  else
+    if reason.nil?
+      # Fetch the video streams using an Android client in order to get the
+      # decrypted URLs and maybe fix throttling issues (#2194). See the
+      # following issue for an explanation about decrypted URLs:
+      # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
+      client_config.client_type = YoutubeAPI::ClientType::Android
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    elsif !reason.includes?("your country") # Handled separately
+      # The Android embedded client could help here
+      client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    end
 
-  # Last hope
-  if new_player_response.nil?
-    client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
+    # Last hope
+    if new_player_response.nil?
+      client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    end
   end
 
   # Replace player response and reset reason
