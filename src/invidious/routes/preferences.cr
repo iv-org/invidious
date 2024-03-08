@@ -27,6 +27,10 @@ module Invidious::Routes::PreferencesRoute
     annotations_subscribed ||= "off"
     annotations_subscribed = annotations_subscribed == "on"
 
+    preload = env.params.body["preload"]?.try &.as(String)
+    preload ||= "off"
+    preload = preload == "on"
+
     autoplay = env.params.body["autoplay"]?.try &.as(String)
     autoplay ||= "off"
     autoplay = autoplay == "on"
@@ -144,6 +148,7 @@ module Invidious::Routes::PreferencesRoute
     preferences = Preferences.from_json({
       annotations:                 annotations,
       annotations_subscribed:      annotations_subscribed,
+      preload:                     preload,
       autoplay:                    autoplay,
       captions:                    captions,
       comments:                    comments,

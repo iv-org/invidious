@@ -71,6 +71,7 @@
     "Preferences": "Preferences",
     "preferences_category_player": "Player preferences",
     "preferences_video_loop_label": "Always loop: ",
+    "preferences_preload_label": "Preload video data: ",
     "preferences_autoplay_label": "Autoplay: ",
     "preferences_continue_label": "Play next by default: ",
     "preferences_continue_autoplay_label": "Autoplay next video: ",
