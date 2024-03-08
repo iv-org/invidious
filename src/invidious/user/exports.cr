@@ -4,6 +4,7 @@ struct Invidious::User
 
     def to_invidious(user : User)
       playlists = Invidious::Database::Playlists.select_like_iv(user.email)
+      youtube_playlists = Invidious::Database::Playlists.select_not_like_iv(user.email)
 
       return JSON.build do |json|
         json.object do
@@ -24,6 +25,18 @@ struct Invidious::User
                       end
                     end
                   end
+                end
+              end
+            end
+          end
+          json.field "youtube_playlists" do
+            json.array do
+              youtube_playlists.each do |playlist|
+                json.object do
+                  json.field "title", playlist.title
+                  json.field "id", playlist.id
+                  json.field "video_count", playlist.video_count
+                  json.field "updated", playlist.updated
                 end
               end
             end
