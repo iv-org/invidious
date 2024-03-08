@@ -89,6 +89,14 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
     }
   else
     reason = nil
+
+    # Although technically not a call to /videoplayback, because we are counting requests
+    # in which YouTube returned a "this content is not available" video as a failure,
+    # we should also count requests that returned the correct video as a success
+    # in order to ensure a correct and accurate ratio
+    playback_stats = get_playback_statistic()
+    playback_stats["totalRequests"] += 1
+    playback_stats["successfulRequests"] += 1
   end
 
   # Don't fetch the next endpoint if the video is unavailable.
