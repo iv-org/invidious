@@ -256,31 +256,28 @@ private module Parsers
     include BaseParser
 
     def process(item : JSON::Any, author_fallback : AuthorFallback)
-      if item_contents = (item["hashtagTileRenderer"]? || item["hashtagHeaderRenderer"]?)
+      if item_contents = (item["hashtagTileRenderer"]? || item["hashtagHeaderRenderer"]? || item["pageHeaderRenderer"]?)
         return self.parse(item_contents)
       end
     end
 
     private def parse_internal(item_contents)
-      title = extract_text(item_contents["hashtag"]).not_nil! # E.g "#hi"
+      title = item_contents.dig?("pageTitle").try &.as_s
+      title ||= extract_text(item_contents["hashtag"]).not_nil! # E.g "#hi"
 
       # E.g "/hashtag/hi"
       url = item_contents.dig?("onTapCommand", "commandMetadata", "webCommandMetadata", "url").try &.as_s
       url ||= URI.encode_path("/hashtag/#{title.lchop('#')}")
 
-      if info = extract_text(item_contents.dig?("hashtagInfoText"))
-        regex_match = /(?<videos>\d+\S)\D+(?<channels>\d+\S)/.match(info)
-        videos = regex_match.try &.["videos"]?.try &.to_s
-        channels = regex_match.try &.["channels"]?.try &.to_s
-      else
-        video_count_txt = extract_text(item_contents["hashtagVideoCount"]?)     # E.g "203K videos"
-        channel_count_txt = extract_text(item_contents["hashtagChannelCount"]?) # E.g "81K channels"
-      end
+      video_count_txt = extract_text(item_contents["hashtagVideoCount"]?)     # E.g "203K videos"
+      channel_count_txt = extract_text(item_contents["hashtagChannelCount"]?) # E.g "81K channels"
 
       # Fallback for video/channel counts
       if channel_count_txt.nil? || video_count_txt.nil?
+        info_text = (item_contents.dig?("content", "pageHeaderViewModel", "metadata", "contentMetadataViewModel", "metadataRows", 0, "metadataParts", 0, "text", "content").try &.as_s ||
+                     extract_text(item_contents.dig?("hashtagInfoText"))).try &.split(" • ")
+
         # E.g: "203K videos • 81K channels"
-        info_text = extract_text(item_contents["hashtagInfoText"]?).try &.split(" • ")
 
         if info_text && info_text.size == 2
           video_count_txt ||= info_text[0]
