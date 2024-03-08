@@ -38,7 +38,9 @@ def process_video_params(query, preferences)
   preferred_captions = query["subtitles"]?.try &.split(",").map(&.downcase)
   quality = query["quality"]?
   quality_dash = query["quality_dash"]?
-  region = query["region"]?
+
+  region = find_region(query["region"]?)
+
   related_videos = query["related_videos"]?.try { |q| (q == "true" || q == "1").to_unsafe }
   speed = query["speed"]?.try &.rchop("x").to_f?
   video_loop = query["loop"]?.try { |q| (q == "true" || q == "1").to_unsafe }

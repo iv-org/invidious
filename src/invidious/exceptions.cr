@@ -38,3 +38,7 @@ end
 # some important informations, and that the query should be sent again.
 class RetryOnceException < Exception
 end
+
+# Exception used to indicate that the config file contains some errors
+class InvalidConfigException < Exception
+end

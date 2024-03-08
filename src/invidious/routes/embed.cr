@@ -130,7 +130,7 @@ module Invidious::Routes::Embed
     subscriptions ||= [] of String
 
     begin
-      video = get_video(id, region: params.region)
+      video = Video.get(id, region: params.region)
     rescue ex : NotFoundException
       return error_template(404, ex)
     rescue ex

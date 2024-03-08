@@ -1,12 +1,5 @@
-struct DBConfig
-  include YAML::Serializable
-
-  property user : String
-  property password : String
-  property host : String
-  property port : Int32
-  property dbname : String
-end
+require "yaml"
+require "./config/*"
 
 struct ConfigPreferences
   include YAML::Serializable
@@ -60,7 +53,7 @@ class Config
   # Number of threads to use for crawling videos from channels (for updating subscriptions)
   property channel_threads : Int32 = 1
   # Time interval between two executions of the job that crawls channel videos (subscriptions update).
-  @[YAML::Field(converter: Preferences::TimeSpanConverter)]
+  @[YAML::Field(converter: IV::Config::TimeSpanConverter)]
   property channel_refresh_interval : Time::Span = 30.minutes
   # Number of threads to use for updating feeds
   property feed_threads : Int32 = 1
@@ -69,10 +62,10 @@ class Config
   # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
   property log_level : LogLevel = LogLevel::Info
   # Database configuration with separate parameters (username, hostname, etc)
-  property db : DBConfig? = nil
+  property db : IV::Config::DBConfig? = nil
 
   # Database configuration using 12-Factor "Database URL" syntax
-  @[YAML::Field(converter: Preferences::URIConverter)]
+  @[YAML::Field(converter: IV::Config::URIConverter)]
   property database_url : URI = URI.parse("")
   # Use polling to keep decryption function up to date
   property decrypt_polling : Bool = false
@@ -81,6 +74,8 @@ class Config
 
   # Jobs config structure. See jobs.cr and jobs/base_job.cr
   property jobs = Invidious::Jobs::JobsConfig.new
+  # Cache configuration. See cache/cache.cr
+  property cache = Invidious::Config::CacheConfig.new
 
   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
   property https_only : Bool?
@@ -118,8 +113,9 @@ class Config
   property modified_source_code_url : String? = nil
 
   # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
-  @[YAML::Field(converter: Preferences::FamilyConverter)]
+  @[YAML::Field(converter: IV::Config::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC
+
   # Port to listen for connections (overridden by command line argument)
   property port : Int32 = 3000
   # Host to bind (overridden by command line argument)
@@ -131,7 +127,7 @@ class Config
   property use_innertube_for_captions : Bool = false
 
   # Saved cookies in "name1=value1; name2=value2..." format
-  @[YAML::Field(converter: Preferences::StringToCookies)]
+  @[YAML::Field(converter: IV::Config::CookiesConverter)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new
 
   # Playlist length limit
@@ -214,14 +210,8 @@ class Config
     # Build database_url from db.* if it's not set directly
     if config.database_url.to_s.empty?
       if db = config.db
-        config.database_url = URI.new(
-          scheme: "postgres",
-          user: db.user,
-          password: db.password,
-          host: db.host,
-          port: db.port,
-          path: db.dbname,
-        )
+        db.scheme = "postgres"
+        config.database_url = db.to_uri
       else
         puts "Config: Either database_url or db.* is required"
         exit(1)

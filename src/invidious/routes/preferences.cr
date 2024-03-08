@@ -110,7 +110,7 @@ module Invidious::Routes::PreferencesRoute
     automatic_instance_redirect ||= "off"
     automatic_instance_redirect = automatic_instance_redirect == "on"
 
-    region = env.params.body["region"]?.try &.as(String)
+    region = find_region(env.params.body["region"]?)
 
     locale = env.params.body["locale"]?.try &.as(String)
     locale ||= CONFIG.default_user_preferences.locale

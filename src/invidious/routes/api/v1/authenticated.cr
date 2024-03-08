@@ -314,7 +314,7 @@ module Invidious::Routes::API::V1::Authenticated
     end
 
     begin
-      video = get_video(video_id)
+      video = Video.get(video_id)
     rescue ex : NotFoundException
       return error_json(404, ex)
     rescue ex

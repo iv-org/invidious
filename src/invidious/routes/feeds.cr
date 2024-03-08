@@ -48,7 +48,7 @@ module Invidious::Routes::Feeds
     trending_type = env.params.query["type"]?
     trending_type ||= "Default"
 
-    region = env.params.query["region"]?
+    region = find_region(env.params.query["region"]?)
     region ||= env.get("preferences").as(Preferences).region
 
     begin
@@ -420,7 +420,7 @@ module Invidious::Routes::Feeds
         updated = Time.parse_rfc3339(entry.xpath_node("default:updated", namespaces).not_nil!.content)
 
         begin
-          video = get_video(id, force_refresh: true)
+          video = Video.get(id, force_refresh: true)
         rescue
           next # skip this video since it raised an exception (e.g. it is a scheduled live event)
         end

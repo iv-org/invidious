@@ -4,7 +4,7 @@ module Invidious::Routes::API::V1::Feeds
 
     env.response.content_type = "application/json"
 
-    region = env.params.query["region"]?
+    region = find_region(env.params.query["region"]?)
     trending_type = env.params.query["type"]?
 
     begin

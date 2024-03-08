@@ -6,14 +6,14 @@ module Invidious::Routes::API::Manifest
 
     local = env.params.query["local"]?.try &.== "true"
     id = env.params.url["id"]
-    region = env.params.query["region"]?
+    region = find_region(env.params.query["region"]?)
 
     # Since some implementations create playlists based on resolution regardless of different codecs,
     # we can opt to only add a source to a representation if it has a unique height within that representation
     unique_res = env.params.query["unique_res"]?.try { |q| (q == "true" || q == "1").to_unsafe }
 
     begin
-      video = get_video(id, region: region)
+      video = Video.get(id, region: region)
     rescue ex : NotFoundException
       haltf env, status_code: 404
     rescue ex
