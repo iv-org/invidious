@@ -49,7 +49,6 @@ postgresql:
 # Adapted from ../config/config.yml
 config:
   channel_threads: 1
-  feed_threads: 1
   db:
     user: kemal
     password: kemal
