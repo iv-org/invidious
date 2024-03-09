@@ -3,59 +3,79 @@ kind: Deployment
 metadata:
   name: {{ template "invidious.fullname" . }}
   labels:
-    app: {{ template "invidious.name" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: {{ .Release.Name }}
+    {{- include "invidious.labels" . | nindent 4 }}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
-      app: {{ template "invidious.name" . }}
-      release: {{ .Release.Name }}
+      {{- include "invidious.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
-        app: {{ template "invidious.name" . }}
-        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-        release: {{ .Release.Name }}
+        {{- include "invidious.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      enableServiceLinks: false
       securityContext:
-        runAsUser: {{ .Values.securityContext.runAsUser }}
-        runAsGroup: {{ .Values.securityContext.runAsGroup }}
-        fsGroup: {{ .Values.securityContext.fsGroup }}
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         - name: wait-for-postgresql
-          image: postgres
-          args:
-          - /bin/sh
-          - -c
-          - until pg_isready -h {{ .Values.config.db.host }} -p {{ .Values.config.db.port }} -U {{ .Values.config.db.user }}; do echo waiting for database; sleep 2; done;
+          image: actions/pg_isready
+          command:
+            - /bin/bash
+            - -c
+            - 'until pg_isready -h "{{ .Values.config.db.host }}" -p "{{ .Values.config.db.port }}" -U "{{ .Values.config.db.user }}"; do echo waiting for database; sleep 2; done'
       containers:
-      - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        ports:
-        - containerPort: 3000
-        env:
-        - name: INVIDIOUS_CONFIG
-          valueFrom:
-            configMapKeyRef:
-              key: INVIDIOUS_CONFIG
-              name: {{ template "invidious.fullname" . }}
-        securityContext:
-          allowPrivilegeEscalation: {{ .Values.securityContext.allowPrivilegeEscalation }}
-          capabilities:
-            drop:
-            - ALL
-        resources:
-{{ toYaml .Values.resources | indent 10 }}
-        readinessProbe:
-          httpGet:
-            port: 3000
-            path: /
-        livenessProbe:
-          httpGet:
-            port: 3000
-            path: /
-          initialDelaySeconds: 15
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.config.port }}
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: {{ template "invidious.fullname" . }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /
+          livenessProbe:
+            httpGet:
+              port: http
+              path: /
+          startupProbe:
+            httpGet:
+              port: http
+              path: /
+            periodSeconds: 5
+            failureThreshold: 30
       restartPolicy: Always
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

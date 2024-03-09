@@ -3,18 +3,16 @@ kind: Service
 metadata:
   name: {{ template "invidious.fullname" . }}
   labels:
-    app: {{ template "invidious.name" . }}
-    chart: {{ .Chart.Name }}
-    release: {{ .Release.Name }}
+    {{- include "invidious.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
+  {{- with .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
   ports:
   - name: http
     port: {{ .Values.service.port }}
-    targetPort: 3000
+    targetPort: http
+    protocol: TCP
   selector:
-    app: {{ template "invidious.name" . }}
-    release: {{ .Release.Name }}
-{{- if .Values.service.loadBalancerIP }}
-  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
-{{- end }}
+    {{- include "invidious.selectorLabels" . | nindent 4 }}
