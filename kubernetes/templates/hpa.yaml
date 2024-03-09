@@ -4,9 +4,7 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: {{ template "invidious.fullname" . }}
   labels:
-    app: {{ template "invidious.name" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: {{ .Release.Name }}
+    {{- include "invidious.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
