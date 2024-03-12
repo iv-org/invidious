@@ -262,3 +262,18 @@ video.video-js {
     overflow-x: hidden;
   }
 }
+
+
+.video-js div.channel-watermark {
+  background-color: transparent !important;
+}
+
+.channel-watermark {
+  margin: 0 35px;
+  opacity: 0.7;
+  transition: opacity .25s cubic-bezier(0,0,.2,1);
+}
+
+.channel-watermark:hover {
+  opacity: 1
+}

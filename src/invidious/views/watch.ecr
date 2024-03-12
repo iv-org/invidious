@@ -28,6 +28,12 @@
 <meta name="twitter:player:height" content="720">
 <link rel="alternate" href="https://www.youtube.com/watch?v=<%= video.id %>">
 <%= rendered "components/player_sources" %>
+
+<% if video.watermark? %>
+    <link rel="stylesheet" href="/videojs/videojs-overlay/videojs-overlay.css?v=<%= ASSET_COMMIT %>">
+    <script src="/videojs/videojs-overlay/videojs-overlay.js?v=<%= ASSET_COMMIT %>"></script>
+<% end %>
+
 <title><%= title %> - Invidious</title>
 
 <!-- Description expansion also updates the 'Show more' button to 'Show less' so
@@ -48,6 +54,7 @@ we're going to need to do it here in order to allow for translations.
 <%=
 {
     "id" => video.id,
+    "ucid" => video.ucid,
     "index" => continuation,
     "plid" => plid,
     "length_seconds" => video.length_seconds.to_f,
@@ -63,6 +70,7 @@ we're going to need to do it here in order to allow for translations.
     "preferences" => preferences,
     "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
     "vr" => video.is_vr,
+    "watermark" => video.watermark?,
     "projection_type" => video.projection_type,
     "local_disabled" => CONFIG.disabled?("local"),
     "support_reddit" => true

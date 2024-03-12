@@ -378,6 +378,22 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
       .try &.as_s.split(" ", 2)[0]
   end
 
+  # Channel watermark
+  # Annotations is different from legacy annotations
+  if watermark = player_response.dig?("annotations", 0, "playerAnnotationsExpandedRenderer", "featuredChannel")
+    watermark_thumbnail = watermark["watermark"]["thumbnails"][0]
+
+    watermark_data = {
+      "startTimeMs"     => watermark["startTimeMs"],
+      "endTimeMs"       => watermark["endTimeMs"],
+      "thumbnailWidth"  => watermark_thumbnail["width"],
+      "thumbnailHeight" => watermark_thumbnail["height"],
+      "thumbnailUrl"    => JSON::Any.new(URI.parse(watermark_thumbnail["url"].as_s).request_target),
+    }
+  else
+    watermark_data = {} of String => JSON::Any
+  end
+
   # Return data
 
   if live_now
@@ -422,6 +438,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "authorThumbnail" => JSON::Any.new(author_thumbnail.try &.as_s || ""),
     "authorVerified"  => JSON::Any.new(author_verified || false),
     "subCountText"    => JSON::Any.new(subs_text || "-"),
+    "watermark"       => JSON::Any.new(watermark_data),
   }
 
   return params

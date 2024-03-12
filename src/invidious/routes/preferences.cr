@@ -78,6 +78,10 @@ module Invidious::Routes::PreferencesRoute
     save_player_pos ||= "off"
     save_player_pos = save_player_pos == "on"
 
+    show_channel_watermark = env.params.body["show_channel_watermark"]?.try &.as(String)
+    show_channel_watermark ||= "off"
+    show_channel_watermark = show_channel_watermark == "on"
+
     show_nick = env.params.body["show_nick"]?.try &.as(String)
     show_nick ||= "off"
     show_nick = show_nick == "on"
@@ -175,6 +179,7 @@ module Invidious::Routes::PreferencesRoute
       vr_mode:                     vr_mode,
       show_nick:                   show_nick,
       save_player_pos:             save_player_pos,
+      show_channel_watermark:      show_channel_watermark,
     }.to_json)
 
     if user = env.get? "user"
