@@ -412,9 +412,8 @@ jobs:
     ##
     enable: true
 
-
 # -----------------------------
-#  Miscellaneous
+#  Instance customization
 # -----------------------------
 
 ##
@@ -425,6 +424,27 @@ jobs:
 ## Default: <none>
 ##
 #banner:
+
+##
+## Source code URL. If your instance is running a modified source
+## code, you MUST publish it somewhere and set this option.
+##
+## Accepted values: a string
+## Default: <none>
+##
+#modified_source_code_url: ""
+
+##
+## Email to contact the instance maintainer; used in a mailto: link within the footer. 
+## 
+## Accepted values: Email
+## Default: <none>
+##
+# instance_maintainer_email: 
+
+# -----------------------------
+#  Miscellaneous
+# -----------------------------
 
 ##
 ## Subscribe to channels using PubSubHub (Google PubSubHubbub service).
@@ -480,15 +500,6 @@ hmac_key: "CHANGE_ME!!"
 #cache_annotations: false
 
 ##
-## Source code URL. If your instance is running a modified source
-## code, you MUST publish it somewhere and set this option.
-##
-## Accepted values: a string
-## Default: <none>
-##
-#modified_source_code_url: ""
-
-##
 ## Maximum custom playlist length limit.
 ##
 ## Accepted values: Integer
@@ -496,14 +507,6 @@ hmac_key: "CHANGE_ME!!"
 ##
 #playlist_length_limit: 500
 
-
-##
-## Email to contact the instance maintainer; used in a mailto: link within the footer. 
-## 
-## Accepted values: Email
-## Default: <none>
-##
-# instance_maintainer_email: 
 
 #########################################
 #
