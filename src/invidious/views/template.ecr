@@ -137,7 +137,7 @@
 
     <footer class="pure-g">
         <div class="pure-u-1 pure-u-md-2-24"></div>
-        <div class="h-box pure-u-1 pure-u-md-20-24">
+        <div class="h-box pure-u-1 pure-u-md-20-24" id="footer-content-container">
             <div class="pure-u-1 footer-content">
                 <div class="footer-section pure-u-1-4" id="about-invidious-description">
                     <b>Invidious</b>
@@ -249,25 +249,17 @@
                         </li>
                     </ul>                
                 </div>
-                <div class="footer-section">
-                    <b class="footer-section-header"><%= translate(locale, "footer_legal_section_header")%></b>
-                    <ul class="pure-menu-list footer-section-list">
-                        <li class="pure-menu-item footer-section-item">
-                            <a href="/licenses" title="<%= translate(locale, "footer_licences_link")%>">
-                                <%= translate(locale, "footer_licences_link") %>
-                            </a>
-                        </li>
-                        <!-- TODO -->
-                        <li class="pure-menu-item footer-section-item">
-                            <a href="/privacy" title="<%= translate(locale, "footer_privacy_policy_link")%>">
-                                <%= translate(locale, "footer_privacy_policy_link") %>
-                            </a>
-                        </li>
-                    </ul>                
+            </div>
+            <hr/>
+            <div class="footer-footer">
+                <span class="left"><%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %></span>
+                <div class="right">
+                    <a href="/privacy" title="<%= translate(locale, "footer_privacy_policy_link")%>"><%= translate(locale, "footer_privacy_policy_link") %></a>
+                    <span> | </span>
+                    <a href="/licenses" title="<%= translate(locale, "footer_licences_link")%>"><%= translate(locale, "footer_licences_link") %></a>
                 </div>
             </div>
         </div>
-        <!-- <%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %> -->
         </div>
         <div class="pure-u-1 pure-u-md-2-24"></div>
     </footer>

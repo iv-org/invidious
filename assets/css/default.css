@@ -459,10 +459,21 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
  * Footer
  */
 
- footer {
+footer {
   color: #919191;
   margin-top: 2.5em;
   padding: 1.5em 0;
+}
+
+#footer-content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#footer-content-container > hr {
+  margin: 0;
+  color: rgb(241, 241, 241);
 }
 
 .footer-content {
@@ -472,7 +483,7 @@ p.video-data   { margin: 0; font-weight: bold; font-size: 80%; }
   margin-top: -10px;
 }
 
-footer .footer-content a {
+footer a {
   color: #919191;
 }
 
@@ -491,6 +502,20 @@ footer .footer-content a {
 
 .footer-section-item {
   margin-bottom: 4px;
+}
+
+.footer-footer .left {
+  float: left
+}
+
+.footer-footer .right {
+  float: right;
+  display: flex;
+  gap: 5px;;
+}
+
+.footer-right .right a {
+  color: #919191
 }
 
 @media screen and (max-width: 929px) {
@@ -563,11 +588,20 @@ span > select {
 }
 
 .light-theme footer {
+  color: #7a7a7a;
   background: #f2f2f2;
 }
 
+.light-theme #footer-content-container > hr {
+  color: rgb(241, 241, 241);
+}
+
+.light-theme footer a {
+  color: #7c7c7c !important;
+}
+
 .light-theme footer #about-invidious-description > b {
-  color: #7a7a7a;
+  color: #565D64;
 }
 
 @media (prefers-color-scheme: light) {
@@ -605,24 +639,21 @@ span > select {
     color: #303030;
   }
 
-  .no-theme footer {
-    color: #7c7c7c;
-  }
-
-  .no-theme footer a {
-    color: #7c7c7c !important;
-  }
-
   .light-theme .pure-menu-heading {
     color: #565d64;
   }
 
   .no-theme footer {
     background: #f2f2f2;
+    color: #7c7c7c;
   }
   
   .no-theme footer #about-invidious-description > b {
-    color: #7a7a7a;
+    color: #565D64;
+  }
+
+  .no-theme footer a {
+    color: #7c7c7c !important;
   }
 }
 
@@ -691,8 +722,12 @@ body.dark-theme {
   background: #16191a;
 }
 
+.dark-theme #footer-content-container > hr {
+  color: #313131;
+} 
+
 .dark-theme .footer-content #about-invidious-description > b {
-  color: #e5e5e5;
+  color: #ccc;
 }
 
 
@@ -752,10 +787,11 @@ body.dark-theme {
 
   .no-theme footer {
     background: #16191a;
+    color: #313131;
   }
 
   .no-theme footer #about-invidious-description > b {
-    color: #e5e5e5;
+    color: #ccc;
   }
 }
 
