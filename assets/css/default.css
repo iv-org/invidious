@@ -511,7 +511,7 @@ footer a {
 .footer-footer .right {
   float: right;
   display: flex;
-  gap: 5px;;
+  gap: 5px;
 }
 
 .footer-right .right a {
