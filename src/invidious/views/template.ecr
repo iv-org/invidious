@@ -171,30 +171,6 @@
                                 <%= translate(locale, "Search") %>
                             </a>
                         </li>
-                        <li class="pure-menu-item footer-section-item">
-                            <br>
-                        </li>
-                        <li class="pure-menu-item footer-section-item">
-                            <a href="/preferences?referer=<%= env.get?("current_page") %>" title="<%= translate(locale, "Preferences")%>">
-                                <%= translate(locale, "Preferences") %>
-                            </a>
-                        </li>
-                        <% if CONFIG.login_enabled %>
-                            <li class="pure-menu-item footer-section-item">
-                                <% if env.get? "user" %>
-                                    <form action="/signout?referer=<%= env.get?("current_page") %>" method="post">
-                                        <input type="hidden" name="csrf_token" value="<%= URI.encode_www_form(env.get?("csrf_token").try &.as(String) || "") %>">
-                                        <a href="#" title="<%= translate(locale, "Log out") %>">
-                                            <input style="all:unset" type="submit" value="<%= translate(locale, "Log out") %>">
-                                        </a>
-                                    </form>
-                                <% else %>
-                                    <a href="/login?referer=<%= env.get?("current_page") %>" title="<%= translate(locale, "Log in") %>">
-                                        <%= translate(locale, "Log in") %>
-                                    </a>
-                                <% end %>
-                            </li>
-                        <% end %>
                     </ul>
                 </div>
                 <div class="footer-section">
