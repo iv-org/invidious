@@ -272,6 +272,14 @@
                                 </li>
                             <% end %>
 
+                            <% if CONFIG.footer_instance_donate_link %>
+                                <li class="pure-menu-item footer-section-item">
+                                    <a href="<%=HTML.escape(CONFIG.footer_instance_donate_link.not_nil!)%>" title="<%= translate(locale, "footer_instance_section_donate")%>">
+                                        <%= translate(locale, "footer_instance_section_donate") %>
+                                    </a>
+                                </li>
+                            <% end %>
+
                             <% CONFIG.footer_instance_section_custom_fields.each do | field | %>
                                 <li class="pure-menu-item footer-section-item">
                                     <a href="<%=HTML.escape(field[1])%>" title="<%= HTML.escape(field[0]) %>">

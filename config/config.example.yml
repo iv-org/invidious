@@ -475,6 +475,16 @@ jobs:
 # footer_instance_privacy_policy_link:
 
 ##
+## Instance donation URL. If your instance has a donation option.
+## you can add it here so it will be present in the footer along
+## with the donation link for the project itself.
+##
+## Accepted values: a string
+## Default: <none>
+##
+#footer_instance_donate_link: ""
+
+##
 ## Custom fields to be displayed within the footer's instance section
 ##
 ## Accepted values: A nested array mapping field name and links together.

@@ -132,6 +132,8 @@ class Config
   property footer_instance_tos_link : String? = nil
   # Link to the privacy policy of the instance (if any). Will be displayed in the footer.
   property footer_instance_privacy_policy_link : String? = nil
+  # Instance donation URL displayed in the "Instance" section of the footer
+  property footer_instance_donate_link : String? = nil
   # Custom fields to be displayed within the footer's instance section
   property footer_instance_section_custom_fields : Array(Array(String)) = [] of Array(String)
 
