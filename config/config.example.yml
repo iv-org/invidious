@@ -426,6 +426,18 @@ jobs:
 #banner:
 
 ##
+## custom text displayed at the bottom of every page within Invidious' footer. This can
+## used for instance announcements, e.g
+##
+## When unset Invidious defaults to some text that describes what Invidious is. See
+## localization key default_invidious_footer_text 
+##
+## Accepted values: any string. HTML is accepted.
+## Default: <none>
+##
+#footer:
+
+##
 ## Source code URL. If your instance is running a modified source
 ## code, you MUST publish it somewhere and set this option.
 ##
@@ -440,7 +452,8 @@ jobs:
 ## Accepted values: Email
 ## Default: <none>
 ##
-# instance_maintainer_email: 
+# instance_maintainer_email:
+
 
 # -----------------------------
 #  Miscellaneous

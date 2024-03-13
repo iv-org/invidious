@@ -139,9 +139,14 @@
         <div class="pure-u-1 pure-u-md-2-24"></div>
         <div class="h-box pure-u-1 pure-u-md-20-24" id="footer-content-container">
             <div class="pure-u-1 footer-content">
-                <div class="footer-section pure-u-1-4" id="about-invidious-description">
+                <div class="footer-section pure-u-1-4" id="footer-custom-text">
                     <b>Invidious</b>
-                    <p><%=translate(locale, "footer_invidious_project_description")%></p>
+                    <% if CONFIG.footer %>
+                        <p><%=CONFIG.footer%></p>
+                    <% else %>
+                        <p><%=translate(locale, "default_invidious_footer_text")%></p>
+                    <% end %>
+                    
                 </div>
                 <div class="footer-section">
                     <b class="footer-section-header"><%= translate(locale, "footer_navigation_section_header")%></b>

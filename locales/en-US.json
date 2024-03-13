@@ -464,7 +464,7 @@
     "next_steps_error_message_refresh": "Refresh",
     "next_steps_error_message_go_to_youtube": "Go to YouTube",
 
-    "footer_invidious_project_description": "A free and open source frontend for Youtube that that respects your privacy! Now you can watch videos (ad-free), subscribe to channels, create playlist and much more all without the prying eyes of Google!",
+    "default_invidious_footer_text": "A free and open source frontend for Youtube that that respects your privacy! Now you can watch videos (ad-free), subscribe to channels, create playlist and much more all without the prying eyes of Google!",
     "footer_navigation_section_header": "Navigation",
     "footer_home_link": "Home",
     "footer_project_information_section_header": "Invidious",
