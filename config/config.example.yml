@@ -448,12 +448,40 @@ jobs:
 
 ##
 ## Email to contact the instance maintainer; used in a mailto: link within the footer. 
-## 
-## Accepted values: Email
+##
+## Accepted values: string
 ## Default: <none>
 ##
 # instance_maintainer_email:
 
+##
+## Link to the terms of service of the instance (if any)
+##
+## Displayed within the instance section of the footer
+##
+## Accepted values: String (link)
+## Default: <none>
+##
+# footer_instance_tos_link:
+
+##
+## Link to the privacy-policy of the instance (if any)
+##
+## Displayed within the instance section of the footer
+##
+## Accepted values: String (link)
+## Default: <none>
+##
+# footer_instance_privacy_policy_link:
+
+##
+## Custom fields to be displayed within the footer's instance section
+##
+## Accepted values: A nested array mapping field name and links together.
+## IE: [ ["field1", "https://example.com/1"], ["field2", "https://example.com/2"] ]
+## Default: <none>
+##
+# footer_instance_section_custom_fields: []
 
 # -----------------------------
 #  Miscellaneous

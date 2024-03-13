@@ -233,15 +233,59 @@
 
                     </ul>                
                 </div>
+                <% if CONFIG.instance_maintainer_email || CONFIG.modified_source_code_url || CONFIG.footer_instance_tos_link || CONFIG.footer_instance_privacy_policy_link %>
+                    <div class="footer-section">
+                        <b class="footer-section-header">
+                            <% if CONFIG.modified_source_code_url %>
+                                <%= translate(locale, "footer_instance_section_header_modified_source")%>
+                            <% else %>
+                                <%= translate(locale, "footer_instance_section_header")%>
+                            <% end %>
+                        </b>
+                        <ul class="pure-menu-list footer-section-list">
+                            <% if CONFIG.instance_maintainer_email %>
+                                <li class="pure-menu-item footer-section-item">
+                                    <a href="<%=HTML.escape("mailto:#{CONFIG.instance_maintainer_email.not_nil!}")%>" title="<%= translate(locale, "footer_contact_link")%>">
+                                        <%= translate(locale, "footer_contact_link") %>
+                                    </a>
+                                </li>
+                            <% end %>
+                            <% if CONFIG.modified_source_code_url %>
+                                <li class="pure-menu-item footer-section-item">
+                                    <a href="<%=HTML.escape(CONFIG.modified_source_code_url.not_nil!)%>" title="<%= translate(locale, "footer_instance_section_modified_source_code")%>">
+                                        <%= translate(locale, "footer_instance_section_modified_source_code") %>
+                                    </a>
+                                </li>
+                            <% end %>
+                            <% if CONFIG.footer_instance_tos_link %>
+                                <li class="pure-menu-item footer-section-item">
+                                    <a href="<%=HTML.escape(CONFIG.footer_instance_tos_link.not_nil!)%>" title="<%= translate(locale, "footer_instance_section_tos")%>">
+                                        <%= translate(locale, "footer_instance_section_tos") %>
+                                    </a>
+                                </li>
+                            <% end %>
+                            <% if CONFIG.footer_instance_privacy_policy_link %>
+                                <li class="pure-menu-item footer-section-item">
+                                    <a href="<%=HTML.escape(CONFIG.footer_instance_privacy_policy_link.not_nil!)%>" title="<%= translate(locale, "footer_instance_section_privacy_policy")%>">
+                                        <%= translate(locale, "footer_instance_section_privacy_policy") %>
+                                    </a>
+                                </li>
+                            <% end %>
+
+                            <% CONFIG.footer_instance_section_custom_fields.each do | field | %>
+                                <li class="pure-menu-item footer-section-item">
+                                    <a href="<%=HTML.escape(field[1])%>" title="<%= HTML.escape(field[0]) %>">
+                                        <%= HTML.escape(field[0]) %>
+                                    </a>
+                                </li>
+                            <% end %>
+                        </ul>
+                    </div>
+                <% end %>
+
                 <div class="footer-section">
                     <b class="footer-section-header"><%= translate(locale, "footer_support_section_header")%></b>
                     <ul class="pure-menu-list footer-section-list">
-                        <li class="pure-menu-item footer-section-item">
-                            <% link = CONFIG.instance_maintainer_email ? "mailto:#{CONFIG.instance_maintainer_email}" : "#"%>
-                            <a href=<%=link%> title="<%= translate(locale, "footer_contact_link")%>">
-                                <%= translate(locale, "footer_contact_link") %>
-                            </a>
-                        </li>
                         <li class="pure-menu-item footer-section-item">
                             <a href="https://github.com/iv-org/invidious/issues/new" title="<%= translate(locale, "footer_report_bug_link")%>">
                                 <%= translate(locale, "footer_report_bug_link") %>
