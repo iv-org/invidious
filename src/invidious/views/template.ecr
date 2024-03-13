@@ -309,7 +309,15 @@
             </div>
             <hr/>
             <div class="footer-footer">
-                <span class="left"><%= translate(locale, "Current version: ") %> <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %></span>
+                <span class="left">
+                    <% if CONFIG.modified_source_code_url %>
+                        <%= translate(locale, "footer_current_version_modified") %>
+                    <% else %>
+                        <%= translate(locale, "Current version: ") %>
+                    <% end %>
+                    
+                    <%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %> @ <%= CURRENT_BRANCH %>
+                </span>
                 <div class="right">
                     <a href="/privacy" title="<%= translate(locale, "footer_privacy_policy_link")%>"><%= translate(locale, "footer_privacy_policy_link") %></a>
                     <span> | </span>

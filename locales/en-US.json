@@ -460,6 +460,7 @@
     "search_filters_sort_option_views": "View count",
     "search_filters_apply_button": "Apply selected filters",
     "Current version: ": "Current version: ",
+    "footer_current_version_modified": "Current version (modified): ",
     "next_steps_error_message": "After which you should try to: ",
     "next_steps_error_message_refresh": "Refresh",
     "next_steps_error_message_go_to_youtube": "Go to YouTube",
