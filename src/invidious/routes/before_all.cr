@@ -85,6 +85,7 @@ module Invidious::Routes::BeforeAll
         csrf_token = generate_response(sid, {
           ":authorize_token",
           ":playlist_ajax",
+          ":compilation_ajax",
           ":signout",
           ":subscription_ajax",
           ":token_ajax",

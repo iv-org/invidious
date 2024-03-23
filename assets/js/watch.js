@@ -50,6 +50,59 @@ function continue_autoplay(event) {
     }
 }
 
+function get_compilation(compid) {
+    var compilation = document.getElementById('compilation');
+
+    compilation.innerHTML = spinnerHTMLwithHR;
+
+    var compid_url;
+    compid_url = '/api/v1/compilations/' + compid +
+        '?index=' + video_data.index +
+        '&continuation=' + video_data.id +
+        '&format=html&hl=' + video_data.preferences.locale; 
+
+    helpers.xhr('GET', compid_url, {retries: 5, entity_name: 'compilation'}, {
+        on200: function (response) {
+            compilation.innerHTML = response.compilationHtml;
+    
+            if (!response.nextVideo) return;
+        
+            var nextVideo = document.getElementById(response.nextVideo);
+            nextVideo.parentNode.parentNode.scrollTop = nextVideo.offsetTop;
+        
+            player.on('ended', function () {
+                var url = new URL('https://example.com/watch?v=' + response.nextVideo);
+        
+                url.searchParams.set('comp', compid);
+                if (!compid.startsWith('RD'))
+                    url.searchParams.set('index', response.index);
+                if (video_data.params.autoplay || video_data.params.continue_autoplay)
+                    url.searchParams.set('autoplay', '1');
+                if (video_data.params.listen !== video_data.preferences.listen)
+                    url.searchParams.set('listen', video_data.params.listen);
+                if (video_data.params.speed !== video_data.preferences.speed)
+                    url.searchParams.set('speed', video_data.params.speed);
+                if (video_data.params.local !== video_data.preferences.local)
+                    url.searchParams.set('local', video_data.params.local);
+                url.searchParams.set('t',video_data.starting_timestamp_seconds);    
+                url.searchParams.set('end',video_data.ending_timestamp_seconds);   
+        
+                location.assign(url.pathname + url.search);
+            });
+        },
+        onNon200: function (xhr) {
+            compilation.innerHTML = '';
+            document.getElementById('continue').style.display = '';
+        },
+        onError: function (xhr) {
+            compilation.innerHTML = spinnerHTMLwithHR;
+        },
+        onTimeout: function (xhr) {
+            compilation.innerHTML = spinnerHTMLwithHR;
+        }
+    });
+}
+
 function get_playlist(plid) {
     var playlist = document.getElementById('playlist');
 
@@ -177,7 +230,8 @@ if (video_data.play_next) {
 addEventListener('load', function (e) {
     if (video_data.plid)
         get_playlist(video_data.plid);
-
+    if (video_data.compid)
+        get_compilation(video_data.compid);
     if (video_data.params.comments[0] === 'youtube') {
         get_youtube_comments();
     } else if (video_data.params.comments[0] === 'reddit') {

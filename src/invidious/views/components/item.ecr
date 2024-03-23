@@ -1,6 +1,6 @@
 <%-
   thin_mode = env.get("preferences").as(Preferences).thin_mode
-  item_watched = !item.is_a?(SearchChannel | SearchHashtag | SearchPlaylist | InvidiousPlaylist | Category) && env.get?("user").try &.as(User).watched.index(item.id) != nil
+  item_watched = !item.is_a?(SearchChannel | SearchHashtag | SearchPlaylist | InvidiousPlaylist | InvidiousCompilation | Category) && env.get?("user").try &.as(User).watched.index(item.id) != nil
   author_verified = item.responds_to?(:author_verified) && item.author_verified
 -%>
 
@@ -54,10 +54,12 @@
                     <p><%= translate_count(locale, "generic_channels_count", item.channel_count, NumberFormatting::Separator) %></p>
                 <%- end -%>
             </div>
-        <% when SearchPlaylist, InvidiousPlaylist %>
+        <% when SearchPlaylist, InvidiousPlaylist, InvidiousCompilation %>
             <%-
               if item.id.starts_with? "RD"
                 link_url = "/mix?list=#{item.id}&continuation=#{URI.parse(item.thumbnail || "/vi/-----------").request_target.split("/")[2]}"
+              elsif item.id.starts_with? "IVCMP"
+                link_url = "/compilation?comp=#{item.id}"
               else
                 link_url = "/playlist?list=#{item.id}"
               end
@@ -143,6 +145,14 @@
                             <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
                             <button type="submit" class="pure-button pure-button-secondary low-profile"
                                     data-onclick="add_playlist_item" data-id="<%= item.id %>" data-plid="<%= plid_form %>"><i class="icon ion-md-add"></i></button>
+                        </form>
+                    <%- elsif compid_form = env.get?("add_compilation_items") -%>
+                         <%- form_parameters = "action_add_video=1&video_id=#{item.id}&compilation_id=#{compid_form}&referer=#{env.get("current_page")}" -%>
+                        <form data-onsubmit="return_false" action="/compilation_ajax?<%= form_parameters %>" method="post">
+                            <input type="hidden" name="csrf_token" value="<%= HTML.escape(env.get?("csrf_token").try &.as(String) || "") %>">
+                            <button type="submit" class="pure-button pure-button-secondary low-profile"
+                                data-onclick="add_compilation_item" data-id="<%= item.id %>" data-compid="<%= compid_form %>"><i class="icon ion-md-add"></i>
+                            </button>
                         </form>
                     <%- elsif item.is_a?(PlaylistVideo) && (plid_form = env.get?("remove_playlist_items")) -%>
                         <%- form_parameters = "action_remove_video=1&set_video_id=#{item.index}&playlist_id=#{plid_form}&referer=#{env.get("current_page")}" -%>
