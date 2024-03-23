@@ -822,9 +822,9 @@ module HelperExtractors
   end
 
   # Retrieves the ID required for querying the InnerTube browse endpoint.
-  # Raises when it's unable to do so
+  # Returns an empty string when it's unable to do so
   def self.get_browse_id(container)
-    return container.dig("navigationEndpoint", "browseEndpoint", "browseId").as_s
+    return container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
   end
 end
 

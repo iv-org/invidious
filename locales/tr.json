@@ -486,5 +486,7 @@
     "playlist_button_add_items": "Video ekle",
     "channel_tab_podcasts_label": "Podcast'ler",
     "generic_channels_count": "{{count}} kanal",
-    "generic_channels_count_plural": "{{count}} kanal"
+    "generic_channels_count_plural": "{{count}} kanal",
+    "Import YouTube watch history (.json)": "YouTube İzleme Geçmişini İçe Aktar (.json)",
+    "toggle_theme": "Temayı Değiştir"
 }

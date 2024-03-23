@@ -503,5 +503,7 @@
     "generic_button_rss": "RSS",
     "generic_channels_count_0": "{{count}} canal",
     "generic_channels_count_1": "{{count}} canais",
-    "generic_channels_count_2": "{{count}} canais"
+    "generic_channels_count_2": "{{count}} canais",
+    "Import YouTube watch history (.json)": "Importar histórico de reprodução do YouTube (.json)",
+    "toggle_theme": "Alternar Tema"
 }

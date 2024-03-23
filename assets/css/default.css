@@ -13,6 +13,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  margin: auto;
 }
 
 .h-box {
@@ -197,6 +198,7 @@ img.thumbnail {
   display: block; /* See: https://stackoverflow.com/a/11635197 */
   width: 100%;
   object-fit: cover;
+  aspect-ratio: 16 / 9;
 }
 
 .thumbnail-placeholder {
