@@ -81,13 +81,12 @@ module Invidious::Routes::Channels
       return env.redirect "/channel/#{channel.ucid}"
     end
 
-    # TODO: support sort option for livestreams
-    sort_by = ""
-    sort_options = [] of String
+    sort_by = env.params.query["sort_by"]?.try &.downcase || "newest"
+    sort_options = {"newest", "oldest", "popular"}
 
     # Fetch items and continuation token
     items, next_continuation = Channel::Tabs.get_60_livestreams(
-      channel, continuation: continuation
+      channel, continuation: continuation, sort_by: sort_by
     )
 
     selected_tab = Frontend::ChannelPage::TabsAvailable::Streams
