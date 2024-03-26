@@ -41,7 +41,7 @@
     "Time (h:mm:ss):": "الوقت (h:mm:ss):",
     "Text CAPTCHA": "نص الكابتشا",
     "Image CAPTCHA": "صورة الكابتشا",
-    "Sign In": "تسجيل الدخول",
+    "Sign In": "إنشاء حساب",
     "Register": "التسجيل",
     "E-mail": "البريد الإلكتروني",
     "Preferences": "الإعدادات",
@@ -554,5 +554,7 @@
     "generic_channels_count_2": "{{count}} قناتان",
     "generic_channels_count_3": "{{count}} قنوات",
     "generic_channels_count_4": "{{count}} قنوات",
-    "generic_channels_count_5": "{{count}} قناة"
+    "generic_channels_count_5": "{{count}} قناة",
+    "Import YouTube watch history (.json)": "استيراد سجل مشاهدة YouTube بصيغة (.json)",
+    "toggle_theme": "تبديل الموضوع"
 }

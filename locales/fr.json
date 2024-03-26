@@ -503,5 +503,6 @@
     "Download is disabled": "Le téléchargement est désactivé",
     "Import YouTube playlist (.csv)": "Importer des listes de lecture de Youtube (.csv)",
     "channel_tab_releases_label": "Parutions",
-    "channel_tab_podcasts_label": "Émissions audio"
+    "channel_tab_podcasts_label": "Émissions audio",
+    "Import YouTube watch history (.json)": "Importer l'historique de visionnement YouTube (.json)"
 }

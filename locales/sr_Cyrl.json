@@ -503,5 +503,7 @@
     "crash_page_you_found_a_bug": "Изгледа да сте пронашли грешку у Invidious-у!",
     "generic_views_count_0": "{{count}} преглед",
     "generic_views_count_1": "{{count}} прегледа",
-    "generic_views_count_2": "{{count}} прегледа"
+    "generic_views_count_2": "{{count}} прегледа",
+    "Import YouTube watch history (.json)": "Увези YouTube историју гледањa (.json)",
+    "toggle_theme": "Укључи тему"
 }

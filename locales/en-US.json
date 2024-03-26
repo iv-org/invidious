@@ -1,4 +1,9 @@
 {
+    "Add to playlist": "Add to playlist",
+    "Add to playlist: ": "Add to playlist: ",
+    "Answer": "Answer",
+    "Search for videos": "Search for videos",
+    "The Popular feed has been disabled by the administrator.": "The Popular feed has been disabled by the administrator.",
     "generic_channels_count": "{{count}} channel",
     "generic_channels_count_plural": "{{count}} channels",
     "generic_views_count": "{{count}} view",
@@ -487,5 +492,9 @@
     "channel_tab_releases_label": "Releases",
     "channel_tab_playlists_label": "Playlists",
     "channel_tab_community_label": "Community",
-    "channel_tab_channels_label": "Channels"
+    "channel_tab_channels_label": "Channels",
+    "toggle_theme": "Toggle Theme",
+    "carousel_slide": "Slide {{current}} of {{total}}",
+    "carousel_skip": "Skip the Carousel",
+    "carousel_go_to": "Go to slide `x`"
 }

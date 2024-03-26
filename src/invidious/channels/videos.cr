@@ -73,12 +73,6 @@ def make_initial_content_ctoken(ucid, content_type, sort_by) : String
   return produce_channel_content_continuation(ucid, content_type, sort_by: sort_by)
 end
 
-# Used in bypass_captcha_job.cr
-def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
-  continuation = produce_channel_content_continuation(ucid, "videos", page, auto_generated, sort_by, v2)
-  return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
-end
-
 module Invidious::Channel::Tabs
   extend self
 

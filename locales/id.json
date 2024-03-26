@@ -469,5 +469,6 @@
     "error_video_not_in_playlist": "Video yang diminta tidak ada dalam daftar putar ini. <a href=\"`x`\">Klik di sini untuk halaman beranda daftar putar.</a>",
     "generic_button_delete": "Hapus",
     "Import YouTube playlist (.csv)": "Impor daftar putar YouTube (.csv)",
-    "Standard YouTube license": "Lisensi YouTube standar"
+    "Standard YouTube license": "Lisensi YouTube standar",
+    "Import YouTube watch history (.json)": "Impor riwayat tontonan YouTube (.json)"
 }
