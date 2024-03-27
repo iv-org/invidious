@@ -486,5 +486,6 @@
     "preferences_annotations_label": "Покажи анотаций по подразбиране: ",
     "generic_views_count": "{{count}} гледане",
     "generic_views_count_plural": "{{count}} гледания",
-    "Next page": "Следваща страница"
+    "Next page": "Следваща страница",
+    "Import YouTube watch history (.json)": "Импортиране на историята на гледане от YouTube (.json)"
 }

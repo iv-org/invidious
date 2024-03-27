@@ -503,5 +503,7 @@
     "playlist_button_add_items": "Přidat videa",
     "generic_channels_count_0": "{{count}} kanál",
     "generic_channels_count_1": "{{count}} kanály",
-    "generic_channels_count_2": "{{count}} kanálů"
+    "generic_channels_count_2": "{{count}} kanálů",
+    "Import YouTube watch history (.json)": "Importovat historii sledování z YouTube (.json)",
+    "toggle_theme": "Přepnout motiv"
 }

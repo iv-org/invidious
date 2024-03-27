@@ -486,5 +486,6 @@
     "generic_button_rss": "RSS",
     "playlist_button_add_items": "Legg til videoer",
     "generic_channels_count": "{{count}} kanal",
-    "generic_channels_count_plural": "{{count}} kanaler"
+    "generic_channels_count_plural": "{{count}} kanaler",
+    "Import YouTube watch history (.json)": "Importere YouTube visningshistorikk (.json)"
 }

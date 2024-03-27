@@ -46,7 +46,7 @@
     "source": "출처",
     "JavaScript license information": "자바스크립트 라이선스 정보",
     "An alternative front-end to YouTube": "유튜브의 프론트엔드 대안",
-    "History": "역사",
+    "History": "시청 기록",
     "Delete account?": "계정을 삭제 하시겠습니까?",
     "Export data as JSON": "JSON으로 데이터 내보내기",
     "Export subscriptions as OPML (for NewPipe & FreeTube)": "OPML로 구독 내보내기 (뉴파이프 및 프리튜브)",
@@ -351,7 +351,7 @@
     "News": "뉴스",
     "Gaming": "게임",
     "Music": "음악",
-    "Default": "디폴트",
+    "Default": "전체",
     "Rating: ": "평점: ",
     "About": "정보",
     "Top": "최고",
@@ -469,5 +469,6 @@
     "generic_button_cancel": "취소",
     "generic_button_rss": "RSS",
     "channel_tab_releases_label": "출시",
-    "generic_channels_count_0": "{{count}} 채널"
+    "generic_channels_count_0": "{{count}} 채널",
+    "Import YouTube watch history (.json)": "유튜브 시청 기록 가져오기 (.json)"
 }
