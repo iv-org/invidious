@@ -556,5 +556,13 @@
     "generic_channels_count_4": "{{count}} قنوات",
     "generic_channels_count_5": "{{count}} قناة",
     "Import YouTube watch history (.json)": "استيراد سجل مشاهدة YouTube بصيغة (.json)",
-    "toggle_theme": "تبديل الموضوع"
+    "toggle_theme": "تبديل الموضوع",
+    "Add to playlist": "أضف إلى قائمة التشغيل",
+    "Add to playlist: ": "أضف إلى قائمة التشغيل: ",
+    "Answer": "الرد",
+    "Search for videos": "ابحث عن مقاطع الفيديو",
+    "The Popular feed has been disabled by the administrator.": "تم تعطيل الخلاصة الشائعة من قبل المسؤول.",
+    "carousel_slide": "‮الشريحة {{current}} من {{total}}",
+    "carousel_skip": "تخطي الكاروسيل",
+    "carousel_go_to": "انتقل إلى الشريحة \"x\""
 }
