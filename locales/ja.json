@@ -470,5 +470,14 @@
     "generic_button_rss": "RSS",
     "playlist_button_add_items": "動画を追加",
     "generic_channels_count_0": "{{count}}個のチャンネル",
-    "Import YouTube watch history (.json)": "YouTube 視聴履歴をインポート (.json)"
+    "Import YouTube watch history (.json)": "YouTube 視聴履歴をインポート (.json)",
+    "Add to playlist": "再生リストに追加",
+    "Add to playlist: ": "再生リストに追加: ",
+    "Answer": "回答",
+    "Search for videos": "動画を検索",
+    "The Popular feed has been disabled by the administrator.": "人気の動画のページは管理者によって無効にされています。",
+    "carousel_go_to": "スライド`x`を表示",
+    "carousel_slide": "スライド{{current}} / 全{{total}}個中",
+    "carousel_skip": "画像のスライド表示をスキップ",
+    "toggle_theme": "テーマの切り替え"
 }
