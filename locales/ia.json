@@ -37,5 +37,9 @@
     "E-mail": "E-mail",
     "Delete account?": "Deler conto?",
     "preferences_volume_label": "Volumine del reproductor: ",
-    "preferences_sort_label": "Ordinar le videos per: "
+    "preferences_sort_label": "Ordinar le videos per: ",
+    "Next page": "Pagina sequente",
+    "Previous page": "Pagina previe",
+    "Yes": "Si",
+    "Import": "Importar"
 }
