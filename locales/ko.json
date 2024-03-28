@@ -470,5 +470,14 @@
     "generic_button_rss": "RSS",
     "channel_tab_releases_label": "출시",
     "generic_channels_count_0": "{{count}} 채널",
-    "Import YouTube watch history (.json)": "유튜브 시청 기록 가져오기 (.json)"
+    "Import YouTube watch history (.json)": "유튜브 시청 기록 가져오기 (.json)",
+    "Add to playlist": "플레이리스트에 추가",
+    "Add to playlist: ": "플레이리스트에 추가: ",
+    "Answer": "답",
+    "The Popular feed has been disabled by the administrator.": "관리자가 인기 피드를 비활성화했습니다.",
+    "carousel_skip": "캐러셀 건너뛰기",
+    "carousel_go_to": "`x` 슬라이드로 이동",
+    "Search for videos": "비디오 검색",
+    "toggle_theme": "테마 전환",
+    "carousel_slide": "{{total}}의 슬라이드 {{current}}"
 }

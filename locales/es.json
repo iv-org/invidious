@@ -505,5 +505,13 @@
     "generic_channels_count_1": "{{count}} canales",
     "generic_channels_count_2": "{{count}} canales",
     "Import YouTube watch history (.json)": "Importar el historial de las visualizaciones de YouTube (.json)",
-    "toggle_theme": "Alternar tema"
+    "toggle_theme": "Alternar tema",
+    "Add to playlist: ": "Añadir a la lista de reproducción: ",
+    "Add to playlist": "Añadir a la lista de reproducción",
+    "Answer": "Respuesta",
+    "Search for videos": "Buscar por vídeos",
+    "The Popular feed has been disabled by the administrator.": "El feed Popular ha sido desactivado por el administrador.",
+    "carousel_slide": "Diapositiva {{current}} de {{total}}",
+    "carousel_skip": "Saltar el carrusel",
+    "carousel_go_to": "Ir a la diapositiva `x`"
 }
