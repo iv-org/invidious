@@ -102,16 +102,24 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
 
   new_player_response = nil
 
-  if reason.nil?
-    # Fetch the video streams using an Android client in order to get the
-    # decrypted URLs and maybe fix throttling issues (#2194). See the
-    # following issue for an explanation about decrypted URLs:
-    # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-    client_config.client_type = YoutubeAPI::ClientType::Android
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  elsif !reason.includes?("your country") # Handled separately
-    # The Android embedded client could help here
-    client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
+  begin
+    if reason.nil?
+      # Fetch the video streams using an Android client in order to get the
+      # decrypted URLs and maybe fix throttling issues (#2194). See the
+      # following issue for an explanation about decrypted URLs:
+      # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
+      client_config.client_type = YoutubeAPI::ClientType::Android
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    elsif !reason.includes?("your country") # Handled separately
+      # The Android embedded client could help here
+      client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
+      new_player_response = try_fetch_streaming_data(video_id, client_config)
+    end
+  rescue VideoNotAvailableException
+    # YouTube returns the "Video Not Available" video data instead of the
+    # video itself, but not on HTML5
+    Log.warn { "YouTube's Android client did not return the video we were looking for, Falling back on HTML5 client" }
+    client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
     new_player_response = try_fetch_streaming_data(video_id, client_config)
   end
 
