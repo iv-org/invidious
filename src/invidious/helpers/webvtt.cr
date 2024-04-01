@@ -4,13 +4,23 @@
 module WebVTT
   # A WebVTT builder generates WebVTT files
   private class Builder
+    # See https://developer.mozilla.org/en-US/docs/Web/API/WebVTT_API#cue_payload
+    private ESCAPE_SUBSTITUTIONS = {
+      '&'      => "&amp;",
+      '<'      => "&lt;",
+      '>'      => "&gt;",
+      '\u200E' => "&lrm;",
+      '\u200F' => "&rlm;",
+      '\u00A0' => "&nbsp;",
+    }
+
     def initialize(@io : IO)
     end
 
     # Writes an vtt cue with the specified time stamp and contents
     def cue(start_time : Time::Span, end_time : Time::Span, text : String)
       timestamp(start_time, end_time)
-      @io << text
+      @io << self.escape(text)
       @io << "\n\n"
     end
 
@@ -27,6 +37,10 @@ module WebVTT
       @io << ':' << timestamp.minutes.to_s.rjust(2, '0')
       @io << ':' << timestamp.seconds.to_s.rjust(2, '0')
       @io << '.' << timestamp.milliseconds.to_s.rjust(3, '0')
+    end
+
+    private def escape(text : String) : String
+      return text.gsub(ESCAPE_SUBSTITUTIONS)
     end
 
     def document(setting_fields : Hash(String, String)? = nil, &)

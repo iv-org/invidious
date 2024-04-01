@@ -118,7 +118,7 @@ we're going to need to do it here in order to allow for translations.
                     link_yt_embed = URI.new(scheme: "https", host: "www.youtube.com", path: "/embed/#{video.id}")
 
                     if !plid.nil? && !continuation.nil?
-                        link_yt_param = URI::Params{"plid" => [plid], "index" => [continuation.to_s]}
+                        link_yt_param = URI::Params{"list" => [plid], "index" => [continuation.to_s]}
                         link_yt_watch = IV::HttpServer::Utils.add_params_to_url(link_yt_watch, link_yt_param)
                         link_yt_embed = IV::HttpServer::Utils.add_params_to_url(link_yt_embed, link_yt_param)
                     end
@@ -346,7 +346,7 @@ we're going to need to do it here in order to allow for translations.
 
                             <h5 class="pure-g">
                                 <div class="pure-u-14-24">
-                                    <% if rv["ucid"]? %>
+                                    <% if !rv["ucid"].empty? %>
                                         <b style="width:100%"><a href="/channel/<%= rv["ucid"] %>"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></a></b>
                                     <% else %>
                                         <b style="width:100%"><%= rv["author"]? %><% if rv["author_verified"]? == "true" %>&nbsp;<i class="icon ion ion-md-checkmark-circle"></i><% end %></b>

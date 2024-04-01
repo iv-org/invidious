@@ -107,6 +107,36 @@ module Invidious::Frontend::Comments
               </div>
               END_HTML
             end
+          when "multiImage"
+            html << <<-END_HTML
+              <section class="carousel">
+              <a class="skip-link" href="#skip-#{child["commentId"]}">#{translate(locale, "carousel_skip")}</a>
+              <div class="slides">
+              END_HTML
+            image_array = attachment["images"].as_a
+
+            image_array.each_index do |i|
+              html << <<-END_HTML
+                  <div class="slides-item slide-#{i + 1}" id="#{child["commentId"]}-slide-#{i + 1}" aria-label="#{translate(locale, "carousel_slide", {"current" => (i + 1).to_s, "total" => image_array.size.to_s})}" tabindex="0">
+                    <img loading="lazy" src="/ggpht#{URI.parse(image_array[i][1]["url"].as_s).request_target}" alt="" />
+                  </div>
+                END_HTML
+            end
+
+            html << <<-END_HTML
+              </div>
+              <div class="carousel__nav">
+              END_HTML
+            attachment["images"].as_a.each_index do |i|
+              html << <<-END_HTML
+                  <a class="slider-nav" href="##{child["commentId"]}-slide-#{i + 1}" aria-label="#{translate(locale, "carousel_go_to", (i + 1).to_s)}" tabindex="-1" aria-hidden="true">#{i + 1}</a>
+                END_HTML
+            end
+            html << <<-END_HTML
+              </div>
+              <div id="skip-#{child["commentId"]}"></div>
+            </section>
+            END_HTML
           else nil # Ignore
           end
         end
