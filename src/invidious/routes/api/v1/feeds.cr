@@ -30,7 +30,8 @@ module Invidious::Routes::API::V1::Feeds
     env.response.content_type = "application/json"
 
     if !CONFIG.popular_enabled
-      return error_json(403, "Administrator has disabled this endpoint.")
+      error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
+      haltf env, 400, error_message
     end
 
     JSON.build do |json|
