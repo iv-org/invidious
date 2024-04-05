@@ -227,6 +227,7 @@ module Invidious::JSONify::APIv1
                 json.field "author", rv["author"]
                 json.field "authorUrl", "/channel/#{rv["ucid"]?}"
                 json.field "authorId", rv["ucid"]?
+                json.field "authorVerified", rv["author_verified"]
                 if rv["author_thumbnail"]?
                   json.field "authorThumbnails" do
                     json.array do
