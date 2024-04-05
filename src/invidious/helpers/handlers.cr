@@ -142,63 +142,8 @@ class APIHandler < Kemal::Handler
   exclude ["/api/v1/auth/notifications"], "POST"
 
   def call(env)
-    return call_next env unless only_match? env
-
-    env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-    # Since /api/v1/notifications is an event-stream, we don't want
-    # to wrap the response
-    return call_next env if exclude_match? env
-
-    # Here we swap out the socket IO so we can modify the response as needed
-    output = env.response.output
-    env.response.output = IO::Memory.new
-
-    begin
-      call_next env
-
-      env.response.output.rewind
-
-      if env.response.output.as(IO::Memory).size != 0 &&
-         env.response.headers.includes_word?("Content-Type", "application/json")
-        response = JSON.parse(env.response.output)
-
-        if fields_text = env.params.query["fields"]?
-          begin
-            JSONFilter.filter(response, fields_text)
-          rescue ex
-            env.response.status_code = 400
-            response = {"error" => ex.message}
-          end
-        end
-
-        if env.params.query["pretty"]?.try &.== "1"
-          response = response.to_pretty_json
-        else
-          response = response.to_json
-        end
-      else
-        response = env.response.output.gets_to_end
-      end
-    rescue ex
-      env.response.content_type = "application/json" if env.response.headers.includes_word?("Content-Type", "text/html")
-      env.response.status_code = 500
-
-      if env.response.headers.includes_word?("Content-Type", "application/json")
-        response = {"error" => ex.message || "Unspecified error"}
-
-        if env.params.query["pretty"]?.try &.== "1"
-          response = response.to_pretty_json
-        else
-          response = response.to_json
-        end
-      end
-    ensure
-      env.response.output = output
-      env.response.print response
-
-      env.response.flush
-    end
+    env.response.headers["Access-Control-Allow-Origin"] = "*" if only_match?(env)
+    call_next env
   end
 end
 

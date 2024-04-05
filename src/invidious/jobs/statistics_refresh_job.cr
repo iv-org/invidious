@@ -56,8 +56,8 @@ class Invidious::Jobs::StatisticsRefreshJob < Invidious::Jobs::BaseJob
     users = STATISTICS.dig("usage", "users").as(Hash(String, Int64))
 
     users["total"] = Invidious::Database::Statistics.count_users_total
-    users["activeHalfyear"] = Invidious::Database::Statistics.count_users_active_1m
-    users["activeMonth"] = Invidious::Database::Statistics.count_users_active_6m
+    users["activeHalfyear"] = Invidious::Database::Statistics.count_users_active_6m
+    users["activeMonth"] = Invidious::Database::Statistics.count_users_active_1m
 
     STATISTICS["metadata"] = {
       "updatedAt"              => Time.utc.to_unix,
