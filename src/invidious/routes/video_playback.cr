@@ -298,6 +298,7 @@ module Invidious::Routes::VideoPlayback
       url += "&title=#{URI.encode_www_form(title, space_to_plus: false)}" if title
     end
 
+    env.response.headers["Access-Control-Allow-Origin"] = "*"
     return env.redirect url
   end
 end
