@@ -394,17 +394,6 @@ def fetch_video(id, region)
     .dig?("microformat", "playerMicroformatRenderer", "availableCountries")
     .try &.as_a.map &.as_s || [] of String
 
-  # Check for region-blocks
-  if info["reason"]?.try &.as_s.includes?("your country")
-    bypass_regions = PROXY_LIST.keys & allowed_regions
-    if !bypass_regions.empty?
-      region = bypass_regions[rand(bypass_regions.size)]
-      region_info = extract_video_info(video_id: id, proxy_region: region)
-      region_info["region"] = JSON::Any.new(region) if region
-      info = region_info if !region_info["reason"]?
-    end
-  end
-
   if reason = info["reason"]?
     if reason == "Video unavailable"
       raise NotFoundException.new(reason.as_s || "")

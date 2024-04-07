@@ -24,25 +24,20 @@ struct YoutubeConnectionPool
     @pool = build_pool()
   end
 
-  def client(region = nil, &block)
-    if region
-      conn = make_client(url, region, force_resolve = true)
+  def client(&block)
+    conn = pool.checkout
+    begin
       response = yield conn
-    else
-      conn = pool.checkout
-      begin
-        response = yield conn
-      rescue ex
-        conn.close
-        conn = HTTP::Client.new(url)
+    rescue ex
+      conn.close
+      conn = HTTP::Client.new(url)
 
-        conn.family = CONFIG.force_resolve
-        conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
-        conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
-        response = yield conn
-      ensure
-        pool.release(conn)
-      end
+      conn.family = CONFIG.force_resolve
+      conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
+      conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
+      response = yield conn
+    ensure
+      pool.release(conn)
     end
 
     response
@@ -60,9 +55,9 @@ struct YoutubeConnectionPool
 end
 
 def make_client(url : URI, region = nil, force_resolve : Bool = false)
-  client = HTTPClient.new(url, OpenSSL::SSL::Context::Client.insecure)
+  client = HTTP::Client.new(url)
 
-  # Some services do not support IPv6.
+  # Force the usage of a specific configured IP Family
   if force_resolve
     client.family = CONFIG.force_resolve
   end
@@ -70,17 +65,6 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false)
   client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
-
-  if region
-    PROXY_LIST[region]?.try &.sample(40).each do |proxy|
-      begin
-        proxy = HTTPProxy.new(proxy_host: proxy[:ip], proxy_port: proxy[:port])
-        client.set_proxy(proxy)
-        break
-      rescue ex
-      end
-    end
-  end
 
   return client
 end
