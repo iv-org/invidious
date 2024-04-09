@@ -141,7 +141,8 @@ module Invidious::Comments
                     comment_mutation = mutations.find { |i| i.dig?("payload", "commentEntityPayload", "key") == comment_key }
                     toolbar_mutation = mutations.find { |i| i.dig?("entityKey") == toolbar_key }
                     if !comment_mutation.nil? && !toolbar_mutation.nil?
-                      html_content = comment_mutation.dig("payload", "commentEntityPayload", "properties", "content", "content").as_s
+                      # todo parse styleRuns, commandRuns and attachmentRuns for comments
+                      html_content = HTML.escape(comment_mutation.dig("payload", "commentEntityPayload", "properties", "content", "content").as_s)
                       if comment_author = comment_mutation.dig?("payload", "commentEntityPayload", "author")
                         json.field "authorId", comment_author["channelId"].as_s
                         json.field "authorUrl", "/channel/#{comment_author["channelId"].as_s}"
