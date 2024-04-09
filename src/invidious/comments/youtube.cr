@@ -104,6 +104,8 @@ module Invidious::Comments
       end
     end
 
+    mutations = response.dig?("frameworkUpdates", "entityBatchUpdate", "mutations").try &.as_a || [] of JSON::Any
+
     response = JSON.build do |json|
       json.object do
         if header
@@ -135,9 +137,9 @@ module Invidious::Comments
                   cvm = node.dig("commentViewModel", "commentViewModel")
                   comment_key = cvm["commentKey"]
                   toolbar_key = cvm["toolbarStateKey"]
-                  if mutations = response.dig?("frameworkUpdates", "entityBatchUpdate", "mutations")
-                    comment_mutation = mutations.as_a.find { |i| i.dig?("payload", "commentEntityPayload", "key") == comment_key}
-                    toolbar_mutation = mutations.as_a.find { |i| i.dig?("entityKey") == toolbar_key}
+                  if mutations.size != 0
+                    comment_mutation = mutations.find { |i| i.dig?("payload", "commentEntityPayload", "key") == comment_key }
+                    toolbar_mutation = mutations.find { |i| i.dig?("entityKey") == toolbar_key }
                     if !comment_mutation.nil? && !toolbar_mutation.nil?
                       html_content = comment_mutation.dig("payload", "commentEntityPayload", "properties", "content", "content").as_s
                       if comment_author = comment_mutation.dig?("payload", "commentEntityPayload", "author")
@@ -156,8 +158,8 @@ module Invidious::Comments
                             end
                           end
                         end
-                        json.field "authorIsChannelOwner",  comment_author["isCreator"].as_bool
-                        json.field "isSponsor", (comment_author["sponsorBadgeUrl"]?!= nil)
+                        json.field "authorIsChannelOwner", comment_author["isCreator"].as_bool
+                        json.field "isSponsor", (comment_author["sponsorBadgeUrl"]? != nil)
                         if comment_author["sponsorBadgeUrl"]?
                           # Sponsor icon thumbnails always have one object and there's only ever the url property in it
                           json.field "sponsorIconUrl", comment_author["sponsorBadgeUrl"].to_s
