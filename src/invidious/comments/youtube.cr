@@ -133,15 +133,16 @@ module Invidious::Comments
                   node_replies = node["replies"]["commentRepliesRenderer"]
                 end
 
-                if node["commentViewModel"]?
+                if cvm = node["commentViewModel"]?
                   # two commentViewModels for inital request
-                  cvm = node.dig?("commentViewModel", "commentViewModel")
                   # one commentViewModel when getting a replies to a comment
-                  cvm ||= node.dig("commentViewModel")
+                  cvm = cvm["commentViewModel"] if cvm["commentViewModel"]?
+
                   comment_key = cvm["commentKey"]
                   toolbar_key = cvm["toolbarStateKey"]
                   comment_mutation = mutations.find { |i| i.dig?("payload", "commentEntityPayload", "key") == comment_key }
                   toolbar_mutation = mutations.find { |i| i.dig?("entityKey") == toolbar_key }
+
                   if !comment_mutation.nil? && !toolbar_mutation.nil?
                     # todo parse styleRuns, commandRuns and attachmentRuns for comments
                     html_content = parse_description(comment_mutation.dig("payload", "commentEntityPayload", "properties", "content"), id)
@@ -160,17 +161,20 @@ module Invidious::Comments
                           end
                         end
                       end
-                      json.field "authorIsChannelOwner", comment_author["isCreator"].as_bool
-                      json.field "isSponsor", (comment_author["sponsorBadgeUrl"]? != nil)
-                      if sponsor_badge_url = comment_author["sponsorBadgeUrl"]?
-                        # Sponsor icon thumbnails always have one object and there's only ever the url property in it
-                        json.field "sponsorIconUrl", sponsor_badge_url
-                      end
+                    end
+
+                    json.field "authorIsChannelOwner", comment_author["isCreator"].as_bool
+                    json.field "isSponsor", (comment_author["sponsorBadgeUrl"]? != nil)
+
+                    if sponsor_badge_url = comment_author["sponsorBadgeUrl"]?
+                      # Sponsor icon thumbnails always have one object and there's only ever the url property in it
+                      json.field "sponsorIconUrl", sponsor_badge_url
                     end
 
                     comment_toolbar = comment_mutation.dig("payload", "commentEntityPayload", "toolbar")
                     json.field "likeCount", short_text_to_number(comment_toolbar["likeCountNotliked"].as_s)
                     reply_count = short_text_to_number(comment_toolbar["replyCount"]?.try &.as_s || "0")
+
                     if heart_state = toolbar_mutation.dig?("payload", "engagementToolbarStateEntityPayload", "heartState")
                       if heart_state.as_s == "TOOLBAR_HEART_STATE_HEARTED"
                         json.field "creatorHeart" do
@@ -181,8 +185,10 @@ module Invidious::Comments
                         end
                       end
                     end
+
                     published_text = comment_mutation.dig?("payload", "commentEntityPayload", "properties", "publishedTime").try &.as_s
                   end
+
                   json.field "isPinned", (cvm.dig?("pinnedText") != nil)
                   json.field "commentId", cvm["commentId"]
                 else
