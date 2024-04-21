@@ -61,11 +61,11 @@ Here is a non-exhaustive list of details that will help us:
   * **A clear and concise list of steps to reproduce the problem**
   * A link to the page where the bug happened
   * Browser/OS version, device type (mobile, desktop, etc..)
-  * Were you logged in?
+  * Are you logged in?
   * If the bug is caused by an external file (ex: when importing subscriptions), try to include
-    that too (Get in touch with us if you want to share these files privately).
+    it too ([Get in touch](https://invidious.io/contact/) with us if you want to share these files privately).
   * If you're hosting your own instance, include relevant config file(s).\
-    **Make sure to redact secrets like your DB password or HMAC key first!!**
+    **Make sure to redact secrets like your DB password and HMAC key first!!**
 
 
 **Note: Security-related issues should be reported by e-mail at
@@ -86,7 +86,7 @@ might not be as good as JavaScript-rich alternatives (like Freetube), that allow
 flexibility.
 
 
-### Feature resquests
+### Feature requests
 
 If you think that Invidious lacks some feature or another, you should open a "feature request".
 
@@ -159,8 +159,8 @@ changes) and code snippets (for API changes) as needed.
 Code contributions are handled through
 [Github's Pull Requests (PRs)](https://github.com/iv-org/invidious/pulls).
 
-Invidious' backend is developped in Crystal, a compiled language inspired from Ruby. The frontend
-is developped using Crystal's own templating engine (ECR) with some vanilla JS and CSS.
+Invidious' backend is developed in Crystal, a compiled language inspired from Ruby. The frontend
+is developed using Crystal's own templating engine (ECR) with some vanilla JS and CSS.
 
 Invidious follows more or less closely the [Crystal coding convention]
 (https://crystal-lang.org/reference/latest/conventions/coding_style.html#directory-and-file-names),
