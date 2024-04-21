@@ -126,7 +126,7 @@ module Invidious::JSONify::APIv1
               if height && width
                 json.field "size", "#{width}x#{height}"
 
-                quality_label = "#{width > height ? height : width}"
+                quality_label = "#{width > height ? height : width}p"
 
                 if fps && fps > 30
                   quality_label += fps.to_s
@@ -180,7 +180,7 @@ module Invidious::JSONify::APIv1
               if height && width
                 json.field "size", "#{width}x#{height}"
 
-                quality_label = "#{width > height ? height : width}"
+                quality_label = "#{width > height ? height : width}p"
 
                 if fps && fps > 30
                   quality_label += fps.to_s
