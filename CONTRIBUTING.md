@@ -19,7 +19,7 @@ with Invidious. Here is a summary:
 * [Testing](#testing): You're an advanced user, who is already running their own instance, is not
   worried of compiling Invidious from source, and wants to help us test bug fixes or new features.
 
-* [Development](#development): You're a developper and want to contribute code, or help with
+* [Development](#development): You're a developer and want to contribute code, or help with
   reviewing the code written by others.
 
 
@@ -148,7 +148,7 @@ with us on Matrix or IRC. We'll do our best to give you a better understanding o
 
 Once you have deployed the patch on your test instance, try the changes mentionned in the pull
 request. Often times, the linked issue might contain examples of channels/comments/videos impacted.
-Definitely use those to check that the behaviot you see is the expected one. After that, add a
+Definitely use those to check that the behavior you see is the expected one. After that, add a
 comment on that PR with your test methodology and your findings. Add screenshots (for interface
 changes) and code snippets (for API changes) as needed.
 
