@@ -84,9 +84,9 @@ class HTTPClient < HTTP::Client
   def proxy_connection_options
     opts = {} of Symbol => Float64 | Nil
 
-    opts[:dns_timeout] = @dns_timeout
-    opts[:connect_timeout] = @connect_timeout
-    opts[:read_timeout] = @read_timeout
+    opts[:dns_timeout] = @dns_timeout.try &.to_f
+    opts[:connect_timeout] = @connect_timeout.try &.to_f
+    opts[:read_timeout] = @read_timeout.try &.to_f
 
     return opts
   end
