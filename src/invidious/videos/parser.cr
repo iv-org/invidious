@@ -142,9 +142,7 @@ end
 
 def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Using #{client_config.client_type} client.")
-  # CgIIAdgDAQ%3D%3D is a workaround for streaming URLs that returns a 403.
-  # https://github.com/LuanRT/YouTube.js/pull/624
-  response = YoutubeAPI.player(video_id: id, params: "CgIIAdgDAQ%3D%3D", client_config: client_config)
+  response = YoutubeAPI.player(video_id: id, params: "", client_config: client_config)
 
   playability_status = response["playabilityStatus"]["status"]
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Got playabilityStatus == #{playability_status}.")
