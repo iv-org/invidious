@@ -21,7 +21,7 @@
     "Import and Export Data": "Verileri İçe ve Dışa Aktar",
     "Import": "İçe Aktar",
     "Import Invidious data": "Invidious JSON Verilerini İçe Aktar",
-    "Import YouTube subscriptions": "YouTube/OPML Aboneliklerini İçe Aktar",
+    "Import YouTube subscriptions": "YouTube CSV veya OPML Aboneliklerini İçe Aktar",
     "Import FreeTube subscriptions (.db)": "FreeTube Aboneliklerini İçe Aktar (.db)",
     "Import NewPipe subscriptions (.json)": "NewPipe Aboneliklerini İçe Aktar (.json)",
     "Import NewPipe data (.zip)": "NewPipe Verilerini İçe Aktar (.zip)",
@@ -488,5 +488,13 @@
     "generic_channels_count": "{{count}} kanal",
     "generic_channels_count_plural": "{{count}} kanal",
     "Import YouTube watch history (.json)": "YouTube İzleme Geçmişini İçe Aktar (.json)",
-    "toggle_theme": "Temayı Değiştir"
+    "toggle_theme": "Temayı Değiştir",
+    "Add to playlist": "Oynatma listesine ekle",
+    "Add to playlist: ": "Oynatma listesine ekle: ",
+    "Answer": "Yanıt",
+    "Search for videos": "Video ara",
+    "carousel_slide": "Sunum {{current}} / {{total}}",
+    "carousel_skip": "Kayar menüyü atla",
+    "carousel_go_to": "`x` sunumuna git",
+    "The Popular feed has been disabled by the administrator.": "Popüler akışı yönetici tarafından devre dışı bırakıldı."
 }
