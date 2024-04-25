@@ -487,5 +487,14 @@
     "generic_button_delete": "Verwijderen",
     "Import YouTube playlist (.csv)": "YouTube-afspeellijst importeren (.csv)",
     "Standard YouTube license": "Standaard YouTube-licentie",
-    "Import YouTube watch history (.json)": "YouTube-kijkgeschiedenis importeren (.json)"
+    "Import YouTube watch history (.json)": "YouTube-kijkgeschiedenis importeren (.json)",
+    "Add to playlist": "Aan afspeellijst toevoegen",
+    "The Popular feed has been disabled by the administrator.": "De Populaire feed werd uitgeschakeld door een beheerder.",
+    "carousel_slide": "Dia {{current}} van {{total}}",
+    "carousel_go_to": "Naar dia `x` gaan",
+    "Add to playlist: ": "Aan afspeellijst toevoegen: ",
+    "Answer": "Antwoorden",
+    "Search for videos": "Naar video's zoeken",
+    "carousel_skip": "Carousel overslaan",
+    "toggle_theme": "Thema omschakelen"
 }
