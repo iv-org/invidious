@@ -504,5 +504,14 @@
     "generic_channels_count_0": "{{count}} canale",
     "generic_channels_count_1": "{{count}} canali",
     "generic_channels_count_2": "{{count}} canali",
-    "Import YouTube watch history (.json)": "Importa la cronologia delle visualizzazioni di YouTube (.json)"
+    "Import YouTube watch history (.json)": "Importa la cronologia delle visualizzazioni di YouTube (.json)",
+    "Answer": "Risposta",
+    "toggle_theme": "Cambia Tema",
+    "Add to playlist": "Aggiungi alla playlist",
+    "Add to playlist: ": "Aggiungi alla playlist ",
+    "Search for videos": "Cerca dei video",
+    "The Popular feed has been disabled by the administrator.": "La sezione dei contenuti popolari è stata disabilitata dall'amministratore.",
+    "carousel_slide": "Fotogramma {{current}} di {{total}}",
+    "carousel_skip": "Salta la galleria",
+    "carousel_go_to": "Vai al fotogramma `x`"
 }
