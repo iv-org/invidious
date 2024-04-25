@@ -125,7 +125,7 @@ module Invidious::JSONify::APIv1
 
               if height && width
                 json.field "size", "#{width}x#{height}"
-                json.field "resolution" "#{height}p"
+                json.field "resolution", "#{height}p"
 
                 quality_label = "#{width > height ? height : width}p"
 
@@ -180,7 +180,7 @@ module Invidious::JSONify::APIv1
 
               if height && width
                 json.field "size", "#{width}x#{height}"
-                json.field "resolution" "#{height}p"
+                json.field "resolution", "#{height}p"
 
                 quality_label = "#{width > height ? height : width}p"
 
