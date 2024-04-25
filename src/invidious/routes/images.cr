@@ -41,14 +41,10 @@ module Invidious::Routes::Images
       end
     end
 
-    # A callable proc to be used inside #proxy_image
-    callable_proc = ->(env : HTTP::Server::Context) {
-      env.response.headers["Connection"] = "close"
-    }
-
     begin
       get_ytimg_pool(authority).client &.get(url, headers) do |resp|
-        return self.proxy_image(env, resp, callable_proc: callable_proc)
+        env.response.headers["Connection"] = "close"
+        return self.proxy_image(env, resp)
       end
     rescue ex
     end
@@ -138,7 +134,7 @@ module Invidious::Routes::Images
     end
   end
 
-  private def self.proxy_image(env, response, callable_proc = nil)
+  private def self.proxy_image(env, response)
     env.response.status_code = response.status_code
     response.headers.each do |key, value|
       if !RESPONSE_HEADERS_BLACKLIST.includes?(key.downcase)
@@ -147,10 +143,6 @@ module Invidious::Routes::Images
     end
 
     env.response.headers["Access-Control-Allow-Origin"] = "*"
-
-    if callable_proc
-      callable_proc.call(env)
-    end
 
     if response.status_code >= 300
       return env.response.headers.delete("Transfer-Encoding")
