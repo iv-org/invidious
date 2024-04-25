@@ -26,7 +26,7 @@
     "Import and Export Data": "匯入與匯出資料",
     "Import": "匯入",
     "Import Invidious data": "匯入 Invidious JSON 資料",
-    "Import YouTube subscriptions": "匯入 YouTube/OPML 訂閱",
+    "Import YouTube subscriptions": "匯入 YouTube CSV 或 OPML 訂閱",
     "Import FreeTube subscriptions (.db)": "匯入 FreeTube 訂閱 (.db)",
     "Import NewPipe subscriptions (.json)": "匯入 NewPipe 訂閱 (.json)",
     "Import NewPipe data (.zip)": "匯入 NewPipe 資料 (.zip)",
@@ -471,5 +471,13 @@
     "channel_tab_podcasts_label": "Podcast",
     "channel_tab_releases_label": "發布",
     "generic_channels_count_0": "{{count}} 個頻道",
-    "toggle_theme": "切換佈景主題"
+    "toggle_theme": "切換佈景主題",
+    "Add to playlist": "新增至播放清單",
+    "Add to playlist: ": "新增至播放清單： ",
+    "Answer": "答案",
+    "Search for videos": "搜尋影片",
+    "carousel_slide": "第 {{current}} 張投影片，共 {{total}} 張",
+    "carousel_skip": "略過輪播",
+    "carousel_go_to": "跳到投影片 `x`",
+    "The Popular feed has been disabled by the administrator.": "熱門 feed 已被管理員停用。"
 }
