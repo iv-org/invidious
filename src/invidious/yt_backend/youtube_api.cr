@@ -6,18 +6,22 @@ module YoutubeAPI
   extend self
 
   private DEFAULT_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+  private ANDROID_API_KEY = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
 
   # For Android versions, see https://en.wikipedia.org/wiki/Android_version_history
-  private ANDROID_APP_VERSION = "19.09.36"
-  private ANDROID_USER_AGENT  = "com.google.android.youtube/19.09.36 (Linux; U; Android 12; US) gzip"
+  private ANDROID_APP_VERSION = "19.14.42"
+  private ANDROID_USER_AGENT  = "com.google.android.youtube/19.14.42 (Linux; U; Android 12; US) gzip"
   private ANDROID_SDK_VERSION = 31_i64
   private ANDROID_VERSION     = "12"
+
+  private ANDROID_TS_APP_VERSION = "1.9"
+  private ANDROID_TS_USER_AGENT  = "com.google.android.youtube/1.9 (Linux; U; Android 12; US) gzip"
 
   # For Apple device names, see https://gist.github.com/adamawolf/3048717
   # For iOS versions, see https://en.wikipedia.org/wiki/IOS_version_history#Releases,
   # then go to the dedicated article of the major version you want.
-  private IOS_APP_VERSION = "19.09.3"
-  private IOS_USER_AGENT  = "com.google.ios.youtube/19.09.3 (iPhone14,5; U; CPU iOS 17_4 like Mac OS X;)"
+  private IOS_APP_VERSION = "19.16.3"
+  private IOS_USER_AGENT  = "com.google.ios.youtube/19.16.3 (iPhone14,5; U; CPU iOS 17_4 like Mac OS X;)"
   private IOS_VERSION     = "17.4.0.21E219" # Major.Minor.Patch.Build
 
   private WINDOWS_VERSION = "10.0"
@@ -32,6 +36,7 @@ module YoutubeAPI
     Android
     AndroidEmbeddedPlayer
     AndroidScreenEmbed
+    AndroidTestSuite
 
     IOS
     IOSEmbedded
@@ -89,7 +94,7 @@ module YoutubeAPI
       name:                "ANDROID",
       name_proto:          "3",
       version:             ANDROID_APP_VERSION,
-      api_key:             "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w",
+      api_key:             ANDROID_API_KEY,
       android_sdk_version: ANDROID_SDK_VERSION,
       user_agent:          ANDROID_USER_AGENT,
       os_name:             "Android",
@@ -110,6 +115,17 @@ module YoutubeAPI
       screen:              "EMBED",
       android_sdk_version: ANDROID_SDK_VERSION,
       user_agent:          ANDROID_USER_AGENT,
+      os_name:             "Android",
+      os_version:          ANDROID_VERSION,
+      platform:            "MOBILE",
+    },
+    ClientType::AndroidTestSuite => {
+      name:                "ANDROID_TESTSUITE",
+      name_proto:          "30",
+      version:             ANDROID_TS_APP_VERSION,
+      api_key:             ANDROID_API_KEY,
+      android_sdk_version: ANDROID_SDK_VERSION,
+      user_agent:          ANDROID_TS_USER_AGENT,
       os_name:             "Android",
       os_version:          ANDROID_VERSION,
       platform:            "MOBILE",

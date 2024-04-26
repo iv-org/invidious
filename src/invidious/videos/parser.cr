@@ -107,11 +107,7 @@ def extract_video_info(video_id : String)
     # decrypted URLs and maybe fix throttling issues (#2194). See the
     # following issue for an explanation about decrypted URLs:
     # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-    client_config.client_type = YoutubeAPI::ClientType::Android
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  elsif !reason.includes?("your country") # Handled separately
-    # The Android embedded client could help here
-    client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
+    client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
     new_player_response = try_fetch_streaming_data(video_id, client_config)
   end
 
@@ -123,8 +119,9 @@ def extract_video_info(video_id : String)
 
   # Replace player response and reset reason
   if !new_player_response.nil?
-    # Preserve storyboard data before replacement
+    # Preserve captions & storyboard data before replacement
     new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
+    new_player_response["captions"] = player_response["captions"] if player_response["captions"]?
 
     player_response = new_player_response
     params.delete("reason")
@@ -142,9 +139,7 @@ end
 
 def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Using #{client_config.client_type} client.")
-  # CgIIAdgDAQ%3D%3D is a workaround for streaming URLs that returns a 403.
-  # https://github.com/LuanRT/YouTube.js/pull/624
-  response = YoutubeAPI.player(video_id: id, params: "CgIIAdgDAQ%3D%3D", client_config: client_config)
+  response = YoutubeAPI.player(video_id: id, params: "2AMB", client_config: client_config)
 
   playability_status = response["playabilityStatus"]["status"]
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Got playabilityStatus == #{playability_status}.")
@@ -152,7 +147,7 @@ def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConf
   if id != response.dig("videoDetails", "videoId")
     # YouTube may return a different video player response than expected.
     # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
-    raise VideoNotAvailableException.new(
+    raise InfoException.new(
       "The video returned by YouTube isn't the requested one. (#{client_config.client_type} client)"
     )
   elsif playability_status == "OK"
