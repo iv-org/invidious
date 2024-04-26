@@ -188,10 +188,6 @@ module YoutubeAPI
   # conf_2 = ClientConfig.new(client_type: ClientType::Android)
   # YoutubeAPI::player(video_id: "dQw4w9WgXcQ", client_config: conf_2)
   #
-  # # Proxy request through russian proxies
-  # conf_3 = ClientConfig.new(proxy_region: "RU")
-  # YoutubeAPI::next({video_id: "dQw4w9WgXcQ"}, client_config: conf_3)
-  # ```
   #
   struct ClientConfig
     # Type of client to emulate.
@@ -202,16 +198,11 @@ module YoutubeAPI
     # (this is passed as the `gl` parameter).
     property region : String | Nil
 
-    # ISO code of country where the proxy is located.
-    # Used in case of geo-restricted videos.
-    property proxy_region : String | Nil
-
     # Initialization function
     def initialize(
       *,
       @client_type = ClientType::Web,
-      @region = "US",
-      @proxy_region = nil
+      @region = "US"
     )
     end
 
@@ -271,9 +262,8 @@ module YoutubeAPI
     # Convert to string, for logging purposes
     def to_s
       return {
-        client_type:  self.name,
-        region:       @region,
-        proxy_region: @proxy_region,
+        client_type: self.name,
+        region:      @region,
       }.to_s
     end
   end
@@ -620,7 +610,7 @@ module YoutubeAPI
     LOGGER.trace("YoutubeAPI: POST data: #{data}")
 
     # Send the POST request
-    body = YT_POOL.client(client_config.proxy_region) do |client|
+    body = YT_POOL.client() do |client|
       client.post(url, headers: headers, body: data.to_json) do |response|
         self._decompress(response.body_io, response.headers["Content-Encoding"]?)
       end

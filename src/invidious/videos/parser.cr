@@ -50,9 +50,9 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   }
 end
 
-def extract_video_info(video_id : String, proxy_region : String? = nil)
+def extract_video_info(video_id : String)
   # Init client config for the API
-  client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
+  client_config = YoutubeAPI::ClientConfig.new
 
   # Fetch data from the player endpoint
   player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
