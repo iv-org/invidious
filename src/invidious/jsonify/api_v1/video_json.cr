@@ -62,6 +62,7 @@ module Invidious::JSONify::APIv1
       json.field "rating", 0_i64
       json.field "isListed", video.is_listed
       json.field "liveNow", video.live_now
+      json.field "isPostLiveDvr", video.post_live_dvr
       json.field "isUpcoming", video.is_upcoming
 
       if video.premiere_timestamp

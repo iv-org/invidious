@@ -216,6 +216,9 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   live_now = microformat.dig?("liveBroadcastDetails", "isLiveNow")
     .try &.as_bool || false
 
+  post_live_dvr = video_details.dig?("isPostLiveDvr")
+    .try &.as_bool || false
+
   # Extra video infos
 
   allowed_regions = microformat["availableCountries"]?
@@ -417,6 +420,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "isListed"         => JSON::Any.new(is_listed || false),
     "isUpcoming"       => JSON::Any.new(is_upcoming || false),
     "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
+    "isPostLiveDvr"    => JSON::Any.new(post_live_dvr),
     # Related videos
     "relatedVideos" => JSON::Any.new(related),
     # Description

@@ -82,6 +82,10 @@ struct Video
     return (self.video_type == VideoType::Livestream)
   end
 
+  def post_live_dvr
+    return info["isPostLiveDvr"].as_bool
+  end
+
   def premiere_timestamp : Time?
     info
       .dig?("microformat", "playerMicroformatRenderer", "liveBroadcastDetails", "startTimestamp")
