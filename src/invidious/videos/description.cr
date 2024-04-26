@@ -7,7 +7,19 @@ private def copy_string(str : String::Builder, iter : Iterator, count : Int) : I
     cp = iter.next
     break if cp.is_a?(Iterator::Stop)
 
-    str << cp.chr
+    if cp == 0x26 # Ampersand (&)
+      str << "&amp;"
+    elsif cp == 0x27 # Single quote (')
+      str << "&#39;"
+    elsif cp == 0x22 # Double quote (")
+      str << "&quot;"
+    elsif cp == 0x3C # Less-than (<)
+      str << "&lt;"
+    elsif cp == 0x3E # Greater than (>)
+      str << "&gt;"
+    else
+      str << cp.chr
+    end
 
     # A codepoint from the SMP counts twice
     copied += 1 if cp > 0xFFFF
