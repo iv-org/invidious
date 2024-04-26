@@ -161,6 +161,8 @@ module Invidious::JSONify::APIv1
               json.field "type", fmt["mimeType"]
               json.field "quality", fmt["quality"]
 
+              json.field "bitrate", fmt["bitrate"].as_i.to_s if fmt["bitrate"]?
+
               fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
               if fmt_info
                 fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
