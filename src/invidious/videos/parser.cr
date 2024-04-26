@@ -109,10 +109,6 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
     # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
     client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
     new_player_response = try_fetch_streaming_data(video_id, client_config)
-  elsif !reason.includes?("your country") # Handled separately
-    # The Android embedded client could help here
-    client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
   end
 
   # Last hope
