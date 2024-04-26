@@ -123,8 +123,9 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
 
   # Replace player response and reset reason
   if !new_player_response.nil?
-    # Preserve storyboard data before replacement
+    # Preserve captions & storyboard data before replacement
     new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
+    new_player_response["captions"] = player_response["captions"] if player_response["captions"]?
 
     player_response = new_player_response
     params.delete("reason")
