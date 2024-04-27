@@ -5,9 +5,6 @@
 module YoutubeAPI
   extend self
 
-  private DEFAULT_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-  private ANDROID_API_KEY = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
-
   # For Android versions, see https://en.wikipedia.org/wiki/Android_version_history
   private ANDROID_APP_VERSION = "19.14.42"
   private ANDROID_USER_AGENT  = "com.google.android.youtube/19.14.42 (Linux; U; Android 12; US) gzip"
@@ -52,7 +49,6 @@ module YoutubeAPI
       name:       "WEB",
       name_proto: "1",
       version:    "2.20240304.00.00",
-      api_key:    DEFAULT_API_KEY,
       screen:     "WATCH_FULL_SCREEN",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
@@ -62,7 +58,6 @@ module YoutubeAPI
       name:       "WEB_EMBEDDED_PLAYER",
       name_proto: "56",
       version:    "1.20240303.00.00",
-      api_key:    DEFAULT_API_KEY,
       screen:     "EMBED",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
@@ -72,7 +67,6 @@ module YoutubeAPI
       name:       "MWEB",
       name_proto: "2",
       version:    "2.20240304.08.00",
-      api_key:    DEFAULT_API_KEY,
       os_name:    "Android",
       os_version: ANDROID_VERSION,
       platform:   "MOBILE",
@@ -81,7 +75,6 @@ module YoutubeAPI
       name:       "WEB",
       name_proto: "1",
       version:    "2.20240304.00.00",
-      api_key:    DEFAULT_API_KEY,
       screen:     "EMBED",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
@@ -94,7 +87,6 @@ module YoutubeAPI
       name:                "ANDROID",
       name_proto:          "3",
       version:             ANDROID_APP_VERSION,
-      api_key:             ANDROID_API_KEY,
       android_sdk_version: ANDROID_SDK_VERSION,
       user_agent:          ANDROID_USER_AGENT,
       os_name:             "Android",
@@ -105,13 +97,11 @@ module YoutubeAPI
       name:       "ANDROID_EMBEDDED_PLAYER",
       name_proto: "55",
       version:    ANDROID_APP_VERSION,
-      api_key:    "AIzaSyCjc_pVEDi4qsv5MtC2dMXzpIaDoRFLsxw",
     },
     ClientType::AndroidScreenEmbed => {
       name:                "ANDROID",
       name_proto:          "3",
       version:             ANDROID_APP_VERSION,
-      api_key:             DEFAULT_API_KEY,
       screen:              "EMBED",
       android_sdk_version: ANDROID_SDK_VERSION,
       user_agent:          ANDROID_USER_AGENT,
@@ -123,7 +113,6 @@ module YoutubeAPI
       name:                "ANDROID_TESTSUITE",
       name_proto:          "30",
       version:             ANDROID_TS_APP_VERSION,
-      api_key:             ANDROID_API_KEY,
       android_sdk_version: ANDROID_SDK_VERSION,
       user_agent:          ANDROID_TS_USER_AGENT,
       os_name:             "Android",
@@ -137,7 +126,6 @@ module YoutubeAPI
       name:         "IOS",
       name_proto:   "5",
       version:      IOS_APP_VERSION,
-      api_key:      "AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc",
       user_agent:   IOS_USER_AGENT,
       device_make:  "Apple",
       device_model: "iPhone14,5",
@@ -149,7 +137,6 @@ module YoutubeAPI
       name:         "IOS_MESSAGES_EXTENSION",
       name_proto:   "66",
       version:      IOS_APP_VERSION,
-      api_key:      DEFAULT_API_KEY,
       user_agent:   IOS_USER_AGENT,
       device_make:  "Apple",
       device_model: "iPhone14,5",
@@ -161,7 +148,6 @@ module YoutubeAPI
       name:         "IOS_MUSIC",
       name_proto:   "26",
       version:      "6.42",
-      api_key:      "AIzaSyBAETezhkwP0ZWA02RsqT1zu78Fpt0bC_s",
       user_agent:   "com.google.ios.youtubemusic/6.42 (iPhone14,5; U; CPU iOS 17_4 like Mac OS X;)",
       device_make:  "Apple",
       device_model: "iPhone14,5",
@@ -176,13 +162,11 @@ module YoutubeAPI
       name:       "TVHTML5",
       name_proto: "7",
       version:    "7.20240304.10.00",
-      api_key:    DEFAULT_API_KEY,
     },
     ClientType::TvHtml5ScreenEmbed => {
       name:       "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
       name_proto: "85",
       version:    "2.0",
-      api_key:    DEFAULT_API_KEY,
       screen:     "EMBED",
     },
   }
@@ -235,11 +219,6 @@ module YoutubeAPI
     # :ditto:
     def version : String
       HARDCODED_CLIENTS[@client_type][:version]
-    end
-
-    # :ditto:
-    def api_key : String
-      HARDCODED_CLIENTS[@client_type][:api_key]
     end
 
     # :ditto:
@@ -606,7 +585,7 @@ module YoutubeAPI
     client_config ||= DEFAULT_CLIENT_CONFIG
 
     # Query parameters
-    url = "#{endpoint}?key=#{client_config.api_key}&prettyPrint=false"
+    url = "#{endpoint}?prettyPrint=false"
 
     headers = HTTP::Headers{
       "Content-Type"              => "application/json; charset=UTF-8",
