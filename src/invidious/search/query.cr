@@ -58,9 +58,9 @@ module Invidious::Search
       # Remove surrounding whitespaces. Mostly useful for copy/pasted URLs.
       @raw_query = _raw_query.strip
 
-      # Check for smart features (ex: URL search) inhibitor (exclamation mark).
+      # Check for smart features (ex: URL search) inhibitor (backslash).
       # If inhibitor is present, remove it.
-      if @raw_query.starts_with?('!')
+      if @raw_query.starts_with?('\\')
         @inhibit_ssf = true
         @raw_query = @raw_query[1..]
       end
