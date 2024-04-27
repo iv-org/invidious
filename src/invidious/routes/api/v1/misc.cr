@@ -191,6 +191,8 @@ module Invidious::Routes::API::V1::Misc
       json.object do
         json.field "ucid", sub_endpoint["browseId"].as_s if sub_endpoint["browseId"]?
         json.field "videoId", sub_endpoint["videoId"].as_s if sub_endpoint["videoId"]?
+        json.field "playlistId", sub_endpoint["playlistId"].as_s if sub_endpoint["playlistId"]?
+        json.field "startTimeSeconds", sub_endpoint["startTimeSeconds"].as_i if sub_endpoint["startTimeSeconds"]?
         json.field "params", params.try &.as_s
         json.field "pageType", pageType
       end

@@ -47,19 +47,19 @@ module I18next::Plurals
 
   private PLURAL_SETS = {
     PluralForms::Single_gt_one => [
-      "ach", "ak", "am", "arn", "br", "fil", "gun", "ln", "mfe", "mg",
-      "mi", "oc", "pt", "tg", "tl", "ti", "tr", "uz", "wa",
+      "ach", "ak", "am", "arn", "br", "fa", "fil", "gun", "ln", "mfe", "mg",
+      "mi", "oc", "pt-PT", "tg", "tl", "ti", "tr", "uz", "wa",
     ],
     PluralForms::Single_not_one => [
       "af", "an", "ast", "az", "bg", "bn", "ca", "da", "de", "dev", "el", "en",
-      "eo", "es", "et", "eu", "fi", "fo", "fur", "fy", "gl", "gu", "ha", "hi",
+      "eo", "et", "eu", "fi", "fo", "fur", "fy", "gl", "gu", "ha", "hi",
       "hu", "hy", "ia", "kk", "kn", "ku", "lb", "mai", "ml", "mn", "mr",
       "nah", "nap", "nb", "ne", "nl", "nn", "no", "nso", "pa", "pap", "pms",
       "ps", "rm", "sco", "se", "si", "so", "son", "sq", "sv", "sw",
       "ta", "te", "tk", "ur", "yo",
     ],
     PluralForms::None => [
-      "ay", "bo", "cgg", "fa", "ht", "id", "ja", "jbo", "ka", "km", "ko", "ky",
+      "ay", "bo", "cgg", "ht", "id", "ja", "jbo", "ka", "km", "ko", "ky",
       "lo", "ms", "sah", "su", "th", "tt", "ug", "vi", "wo", "zh",
     ],
     PluralForms::Dual_Slavic => [
@@ -90,11 +90,13 @@ module I18next::Plurals
     "sk"  => PluralForms::Special_Czech_Slovak,
     "sl"  => PluralForms::Special_Slovenian,
     # Mixed v3/v4 rules
-    "fr"    => PluralForms::Special_French_Portuguese,
-    "hr"    => PluralForms::Special_Hungarian_Serbian,
-    "it"    => PluralForms::Special_Spanish_Italian,
-    "pt-BR" => PluralForms::Special_French_Portuguese,
-    "sr"    => PluralForms::Special_Hungarian_Serbian,
+    "es" => PluralForms::Special_Spanish_Italian,
+    "fr" => PluralForms::Special_French_Portuguese,
+    "hr" => PluralForms::Special_Hungarian_Serbian,
+    "it" => PluralForms::Special_Spanish_Italian,
+    "pt" => PluralForms::Special_French_Portuguese,
+    "pt" => PluralForms::Special_French_Portuguese,
+    "sr" => PluralForms::Special_Hungarian_Serbian,
   }
 
   # These are the v1 and v2 compatible suffixes.
@@ -165,7 +167,7 @@ module I18next::Plurals
 
     def get_plural_form(locale : String) : PluralForms
       # Extract the ISO 639-1 or 639-2 code from an RFC 5646 language code
-      if !locale.matches?(/^pt-BR$/)
+      if !locale.matches?(/^pt-PT$/)
         locale = locale.split('-')[0]
       end
 

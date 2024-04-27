@@ -520,5 +520,6 @@
     "generic_channels_count_0": "{{count}} kanal",
     "generic_channels_count_1": "{{count}} kanala",
     "generic_channels_count_2": "{{count}} kanali",
-    "generic_channels_count_3": "{{count}} kanalov"
+    "generic_channels_count_3": "{{count}} kanalov",
+    "Import YouTube watch history (.json)": "Uvozi zgodovino gledanja YouTube (.json)"
 }
