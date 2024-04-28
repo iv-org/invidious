@@ -27,7 +27,6 @@ module Invidious::JSONify::APIv1
 
       json.field "viewCount", video.views
       json.field "likeCount", video.likes
-      json.field "dislikeCount", 0_i64
 
       json.field "paid", video.paid
       json.field "premium", video.premium
