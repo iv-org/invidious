@@ -1,15 +1,15 @@
-# find the checksum of latest version using npm view package
+# find the checksum of latest version using npm view <package>
 video.js:
   version: 8.10.0
   shasum: 603a49909ef33f839264da8b73513f9daf592b57
 
 videojs-contrib-quality-levels:
-  version: 4.0.0
-  shasum: faa8096594cdbfc3ccbefe8572fc20531ba23f3d
+  version: 4.1.0
+  shasum: 44c2d2167114a5c8418548b10a25cb409d6cba51
 
 videojs-contrib-quality-menu:
-  version: 1.0.0
-  shasum: f5e8f855358e20854de23d7607634b5aabf4e9ac
+  version: 1.0.1
+  shasum: 991f641afabf1b346088f290efcf689688e42368
 
 videojs-markers:
   version: 1.0.1
