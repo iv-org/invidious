@@ -6,7 +6,7 @@ shards:
 
   athena-negotiation:
     git: https://github.com/athena-framework/negotiation.git
-    version: 0.1.3
+    version: 0.1.1
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
@@ -22,7 +22,7 @@ shards:
 
   http_proxy:
     git: https://github.com/mamantoha/http_proxy.git
-    version: 0.10.1
+    version: 0.10.3
 
   kemal:
     git: https://github.com/kemalcr/kemal.git
