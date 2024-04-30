@@ -91,6 +91,8 @@ class Config
   # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
   property use_pubsub_feeds : Bool | Int32 = false
   property popular_enabled : Bool = true
+  property trending_enabled : Bool = true
+  property search_enabled : Bool = true
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
   property registration_enabled : Bool = true

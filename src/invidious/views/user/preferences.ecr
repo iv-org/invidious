@@ -287,6 +287,15 @@
                     <input name="popular_enabled" id="popular_enabled" type="checkbox" <% if CONFIG.popular_enabled %>checked<% end %>>
                 </div>
 
+                <div class="pure-control-group">
+                    <label for="trending_enabled"><%= translate(locale, "Trending enabled: ") %></label>
+                    <input name="trending_enabled" id="trending_enabled" type="checkbox" <% if CONFIG.trending_enabled %>checked<% end %>>
+                </div>
+
+                <div class="pure-control-group">
+                    <label for="search_enabled"><%= translate(locale, "Search enabled: ") %></label>
+                    <input name="search_enabled" id="search_enabled" type="checkbox" <% if CONFIG.search_enabled %>checked<% end %>>
+                </div>
 
                 <div class="pure-control-group">
                     <label for="captcha_enabled"><%= translate(locale, "CAPTCHA enabled: ") %></label>

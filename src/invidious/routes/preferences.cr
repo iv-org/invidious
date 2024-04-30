@@ -198,6 +198,14 @@ module Invidious::Routes::PreferencesRoute
         popular_enabled ||= "off"
         CONFIG.popular_enabled = popular_enabled == "on"
 
+        trending_enabled = env.params.body["trending_enabled"]?.try &.as(String)
+        trending_enabled ||= "off"
+        CONFIG.trending_enabled = trending_enabled == "on"
+
+        search_enabled = env.params.body["search_enabled"]?.try &.as(String)
+        search_enabled ||= "off"
+        CONFIG.search_enabled = search_enabled == "on"
+
         captcha_enabled = env.params.body["captcha_enabled"]?.try &.as(String)
         captcha_enabled ||= "off"
         CONFIG.captcha_enabled = captcha_enabled == "on"
