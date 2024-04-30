@@ -298,30 +298,33 @@ struct Invidious::User
             # Ensure max size of 4MB
             io_sized = IO::Sized.new(file_io, 0x400000)
 
-            temp = File.tempfile(".db") do |tempfile|
-              begin
-                File.write(tempfile.path, io_sized.gets_to_end)
-              rescue
-                return false
+            begin
+              temp = File.tempfile(".db") do |tempfile|
+                begin
+                  File.write(tempfile.path, io_sized.gets_to_end)
+                rescue
+                  return false
+                end
+
+                DB.open("sqlite3://" + tempfile.path) do |db|
+                  user.watched += db.query_all("SELECT url FROM streams", as: String)
+                    .map(&.lchop("https://www.youtube.com/watch?v="))
+
+                  user.watched.uniq!
+                  Invidious::Database::Users.update_watch_history(user)
+
+                  user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String)
+                    .map(&.lchop("https://www.youtube.com/channel/"))
+
+                  user.subscriptions.uniq!
+                  user.subscriptions = get_batch_channels(user.subscriptions)
+
+                  Invidious::Database::Users.update_subscriptions(user)
+                end
               end
-
-              DB.open("sqlite3://" + tempfile.path) do |db|
-                user.watched += db.query_all("SELECT url FROM streams", as: String)
-                  .map(&.lchop("https://www.youtube.com/watch?v="))
-
-                user.watched.uniq!
-                Invidious::Database::Users.update_watch_history(user)
-
-                user.subscriptions += db.query_all("SELECT url FROM subscriptions", as: String)
-                  .map(&.lchop("https://www.youtube.com/channel/"))
-
-                user.subscriptions.uniq!
-                user.subscriptions = get_batch_channels(user.subscriptions)
-
-                Invidious::Database::Users.update_subscriptions(user)
-              end
+            ensure
+              temp.delete if !temp.nil?
             end
-            temp.delete
           end
         end
       end
