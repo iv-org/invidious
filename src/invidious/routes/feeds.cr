@@ -44,7 +44,7 @@ module Invidious::Routes::Feeds
 
   def self.trending(env)
     locale = env.get("preferences").as(Preferences).locale
-    
+
     if CONFIG.trending_enabled
       trending_type = env.params.query["type"]?
       trending_type ||= "Default"
