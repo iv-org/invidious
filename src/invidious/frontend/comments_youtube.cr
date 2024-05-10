@@ -149,7 +149,7 @@ module Invidious::Frontend::Comments
 
         if comments["videoId"]?
           html << <<-END_HTML
-            <a rel="noreferrer noopener" href="#{YT_URL.to_s}/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+            <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
           END_HTML
         elsif comments["authorId"]?
