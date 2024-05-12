@@ -11,7 +11,7 @@ User=invidious
 Group=invidious
 
 WorkingDirectory=/home/invidious/invidious
-ExecStart=/home/invidious/invidious/invidious -o invidious.log
+ExecStart=/home/invidious/invidious/invidious -b :: -o invidious.log
 
 Restart=always
 
