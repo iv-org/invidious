@@ -74,7 +74,9 @@ module Invidious::Routes::API::V1::Misc
       response = playlist.to_json(offset, video_id: video_id)
       json_response = JSON.parse(response)
 
-      if json_response["videos"].as_a[0]["index"] != offset
+      if json_response["videos"].as_a.empty?
+        json_response = JSON.parse(response)
+      elsif json_response["videos"].as_a[0]["index"] != offset
         offset = json_response["videos"].as_a[0]["index"].as_i
         lookback = offset < 50 ? offset : 50
         response = playlist.to_json(offset - lookback)
