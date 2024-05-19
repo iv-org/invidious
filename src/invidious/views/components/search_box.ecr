@@ -6,4 +6,5 @@
 		title="<%= translate(locale, "search") %>"
 		value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
 	</fieldset>
+	<button type="submit" id="searchbutton">Search</button>
 </form>
