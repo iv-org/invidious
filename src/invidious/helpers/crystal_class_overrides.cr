@@ -20,7 +20,7 @@ class HTTP::Client
 
   # Override stdlib to automatically initialize proxy if configured
   #
-  # Accurate as of crystal 1.10.1
+  # Accurate as of crystal 1.12.1
 
   def initialize(@host : String, port = nil, tls : TLSContext = nil)
     check_host_only(@host)
