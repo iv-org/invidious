@@ -327,7 +327,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
     if metadata_title == "Category"
       contents = contents.try &.dig?("runs", 0)
-      
+
       genre = contents.try &.["text"]?
       genre_ucid = contents.try &.dig?("navigationEndpoint", "browseEndpoint", "browseId")
     elsif metadata_title == "License"
