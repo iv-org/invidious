@@ -57,7 +57,7 @@ module Invidious::Comments
     return initial_data
   end
 
-  def parse_youtube(id, response, format, locale, thin_mode, sort_by = "top", isPost = false)
+  def parse_youtube(id, response, format, locale, thin_mode, sort_by = "top", is_post = false)
     contents = nil
 
     if on_response_received_endpoints = response["onResponseReceivedEndpoints"]?
@@ -104,6 +104,8 @@ module Invidious::Comments
       end
     end
 
+    mutations = response.dig?("frameworkUpdates", "entityBatchUpdate", "mutations").try &.as_a || [] of JSON::Any
+
     response = JSON.build do |json|
       json.object do
         if header
@@ -113,7 +115,7 @@ module Invidious::Comments
           json.field "commentCount", comment_count
         end
 
-        if isPost
+        if is_post
           json.field "postId", id
         else
           json.field "videoId", id
@@ -131,73 +133,138 @@ module Invidious::Comments
                   node_replies = node["replies"]["commentRepliesRenderer"]
                 end
 
-                if node["comment"]?
-                  node_comment = node["comment"]["commentRenderer"]
+                if cvm = node["commentViewModel"]?
+                  # two commentViewModels for inital request
+                  # one commentViewModel when getting a replies to a comment
+                  cvm = cvm["commentViewModel"] if cvm["commentViewModel"]?
+
+                  comment_key = cvm["commentKey"]
+                  toolbar_key = cvm["toolbarStateKey"]
+                  comment_mutation = mutations.find { |i| i.dig?("payload", "commentEntityPayload", "key") == comment_key }
+                  toolbar_mutation = mutations.find { |i| i.dig?("entityKey") == toolbar_key }
+
+                  if !comment_mutation.nil? && !toolbar_mutation.nil?
+                    # todo parse styleRuns, commandRuns and attachmentRuns for comments
+                    html_content = parse_description(comment_mutation.dig("payload", "commentEntityPayload", "properties", "content"), id)
+                    comment_author = comment_mutation.dig("payload", "commentEntityPayload", "author")
+                    json.field "authorId", comment_author["channelId"].as_s
+                    json.field "authorUrl", "/channel/#{comment_author["channelId"].as_s}"
+                    json.field "author", comment_author["displayName"].as_s
+                    json.field "verified", comment_author["isVerified"].as_bool
+                    json.field "authorThumbnails" do
+                      json.array do
+                        comment_mutation.dig?("payload", "commentEntityPayload", "avatar", "image", "sources").try &.as_a.each do |thumbnail|
+                          json.object do
+                            json.field "url", thumbnail["url"]
+                            json.field "width", thumbnail["width"]
+                            json.field "height", thumbnail["height"]
+                          end
+                        end
+                      end
+                    end
+
+                    json.field "authorIsChannelOwner", comment_author["isCreator"].as_bool
+                    json.field "isSponsor", (comment_author["sponsorBadgeUrl"]? != nil)
+
+                    if sponsor_badge_url = comment_author["sponsorBadgeUrl"]?
+                      # Sponsor icon thumbnails always have one object and there's only ever the url property in it
+                      json.field "sponsorIconUrl", sponsor_badge_url
+                    end
+
+                    comment_toolbar = comment_mutation.dig("payload", "commentEntityPayload", "toolbar")
+                    json.field "likeCount", short_text_to_number(comment_toolbar["likeCountNotliked"].as_s)
+                    reply_count = short_text_to_number(comment_toolbar["replyCount"]?.try &.as_s || "0")
+
+                    if heart_state = toolbar_mutation.dig?("payload", "engagementToolbarStateEntityPayload", "heartState")
+                      if heart_state.as_s == "TOOLBAR_HEART_STATE_HEARTED"
+                        json.field "creatorHeart" do
+                          json.object do
+                            json.field "creatorThumbnail", comment_toolbar["creatorThumbnailUrl"].as_s
+                            json.field "creatorName", comment_toolbar["heartActiveTooltip"].as_s.sub("❤ by ", "")
+                          end
+                        end
+                      end
+                    end
+
+                    published_text = comment_mutation.dig?("payload", "commentEntityPayload", "properties", "publishedTime").try &.as_s
+                  end
+
+                  json.field "isPinned", (cvm.dig?("pinnedText") != nil)
+                  json.field "commentId", cvm["commentId"]
                 else
-                  node_comment = node["commentRenderer"]
-                end
+                  if node["comment"]?
+                    node_comment = node["comment"]["commentRenderer"]
+                  else
+                    node_comment = node["commentRenderer"]
+                  end
+                  json.field "commentId", node_comment["commentId"]
+                  html_content = node_comment["contentText"]?.try { |t| parse_content(t, id) }
 
-                content_html = node_comment["contentText"]?.try { |t| parse_content(t, id) } || ""
-                author = node_comment["authorText"]?.try &.["simpleText"]? || ""
+                  json.field "verified", (node_comment["authorCommentBadge"]? != nil)
 
-                json.field "verified", (node_comment["authorCommentBadge"]? != nil)
-
-                json.field "author", author
-                json.field "authorThumbnails" do
-                  json.array do
-                    node_comment["authorThumbnail"]["thumbnails"].as_a.each do |thumbnail|
-                      json.object do
-                        json.field "url", thumbnail["url"]
-                        json.field "width", thumbnail["width"]
-                        json.field "height", thumbnail["height"]
+                  json.field "author", node_comment["authorText"]?.try &.["simpleText"]? || ""
+                  json.field "authorThumbnails" do
+                    json.array do
+                      node_comment["authorThumbnail"]["thumbnails"].as_a.each do |thumbnail|
+                        json.object do
+                          json.field "url", thumbnail["url"]
+                          json.field "width", thumbnail["width"]
+                          json.field "height", thumbnail["height"]
+                        end
                       end
                     end
                   end
+
+                  if comment_action_buttons_renderer = node_comment.dig?("actionButtons", "commentActionButtonsRenderer")
+                    json.field "likeCount", comment_action_buttons_renderer["likeButton"]["toggleButtonRenderer"]["accessibilityData"]["accessibilityData"]["label"].as_s.scan(/\d/).map(&.[0]).join.to_i
+                    if comment_action_buttons_renderer["creatorHeart"]?
+                      heart_data = comment_action_buttons_renderer["creatorHeart"]["creatorHeartRenderer"]["creatorThumbnail"]
+                      json.field "creatorHeart" do
+                        json.object do
+                          json.field "creatorThumbnail", heart_data["thumbnails"][-1]["url"]
+                          json.field "creatorName", heart_data["accessibility"]["accessibilityData"]["label"]
+                        end
+                      end
+                    end
+                  end
+
+                  if node_comment["authorEndpoint"]?
+                    json.field "authorId", node_comment["authorEndpoint"]["browseEndpoint"]["browseId"]
+                    json.field "authorUrl", node_comment["authorEndpoint"]["browseEndpoint"]["canonicalBaseUrl"]
+                  else
+                    json.field "authorId", ""
+                    json.field "authorUrl", ""
+                  end
+
+                  json.field "authorIsChannelOwner", node_comment["authorIsChannelOwner"]
+                  json.field "isPinned", (node_comment["pinnedCommentBadge"]? != nil)
+                  published_text = node_comment["publishedTimeText"]["runs"][0]["text"].as_s
+
+                  json.field "isSponsor", (node_comment["sponsorCommentBadge"]? != nil)
+                  if node_comment["sponsorCommentBadge"]?
+                    # Sponsor icon thumbnails always have one object and there's only ever the url property in it
+                    json.field "sponsorIconUrl", node_comment.dig("sponsorCommentBadge", "sponsorCommentBadgeRenderer", "customBadge", "thumbnails", 0, "url").to_s
+                  end
+
+                  reply_count = node_comment["replyCount"]?
                 end
 
-                if node_comment["authorEndpoint"]?
-                  json.field "authorId", node_comment["authorEndpoint"]["browseEndpoint"]["browseId"]
-                  json.field "authorUrl", node_comment["authorEndpoint"]["browseEndpoint"]["canonicalBaseUrl"]
-                else
-                  json.field "authorId", ""
-                  json.field "authorUrl", ""
-                end
-
-                published_text = node_comment["publishedTimeText"]["runs"][0]["text"].as_s
-                published = decode_date(published_text.rchop(" (edited)"))
-
-                if published_text.includes?(" (edited)")
-                  json.field "isEdited", true
-                else
-                  json.field "isEdited", false
-                end
-
+                content_html = html_content || ""
                 json.field "content", html_to_content(content_html)
                 json.field "contentHtml", content_html
 
-                json.field "isPinned", (node_comment["pinnedCommentBadge"]? != nil)
-                json.field "isSponsor", (node_comment["sponsorCommentBadge"]? != nil)
-                if node_comment["sponsorCommentBadge"]?
-                  # Sponsor icon thumbnails always have one object and there's only ever the url property in it
-                  json.field "sponsorIconUrl", node_comment.dig("sponsorCommentBadge", "sponsorCommentBadgeRenderer", "customBadge", "thumbnails", 0, "url").to_s
-                end
-                json.field "published", published.to_unix
-                json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
-
-                comment_action_buttons_renderer = node_comment["actionButtons"]["commentActionButtonsRenderer"]
-
-                json.field "likeCount", comment_action_buttons_renderer["likeButton"]["toggleButtonRenderer"]["accessibilityData"]["accessibilityData"]["label"].as_s.scan(/\d/).map(&.[0]).join.to_i
-                json.field "commentId", node_comment["commentId"]
-                json.field "authorIsChannelOwner", node_comment["authorIsChannelOwner"]
-
-                if comment_action_buttons_renderer["creatorHeart"]?
-                  hearth_data = comment_action_buttons_renderer["creatorHeart"]["creatorHeartRenderer"]["creatorThumbnail"]
-                  json.field "creatorHeart" do
-                    json.object do
-                      json.field "creatorThumbnail", hearth_data["thumbnails"][-1]["url"]
-                      json.field "creatorName", hearth_data["accessibility"]["accessibilityData"]["label"]
-                    end
+                if published_text != nil
+                  published_text = published_text.to_s
+                  if published_text.includes?(" (edited)")
+                    json.field "isEdited", true
+                    published = decode_date(published_text.rchop(" (edited)"))
+                  else
+                    json.field "isEdited", false
+                    published = decode_date(published_text)
                   end
+
+                  json.field "published", published.to_unix
+                  json.field "publishedText", translate(locale, "`x` ago", recode_date(published, locale))
                 end
 
                 if node_replies && !response["commentRepliesContinuation"]?
@@ -210,7 +277,7 @@ module Invidious::Comments
 
                   json.field "replies" do
                     json.object do
-                      json.field "replyCount", node_comment["replyCount"]? || 1
+                      json.field "replyCount", reply_count || 1
                       json.field "continuation", continuation
                     end
                   end
@@ -236,7 +303,6 @@ module Invidious::Comments
     if format == "html"
       response = JSON.parse(response)
       content_html = Frontend::Comments.template_youtube(response, locale, thin_mode)
-
       response = JSON.build do |json|
         json.object do
           json.field "contentHtml", content_html

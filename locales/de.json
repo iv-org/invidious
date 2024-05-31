@@ -487,5 +487,11 @@
     "channel_tab_releases_label": "Veröffentlichungen",
     "generic_channels_count": "{{count}} Kanal",
     "generic_channels_count_plural": "{{count}} Kanäle",
-    "Import YouTube watch history (.json)": "YouTube Wiedergabeverlauf importieren (.json)"
+    "Import YouTube watch history (.json)": "YouTube Wiedergabeverlauf importieren (.json)",
+    "Answer": "Antwort",
+    "The Popular feed has been disabled by the administrator.": "Der Angesagt-Feed wurde vom Administrator deaktiviert.",
+    "Add to playlist": "Einer Wiedergabeliste hinzufügen",
+    "Search for videos": "Nach Videos suchen",
+    "toggle_theme": "Thema wechseln",
+    "Add to playlist: ": "Einer Wiedergabeliste hinzufügen: "
 }

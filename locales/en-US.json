@@ -43,7 +43,7 @@
     "Import and Export Data": "Import and Export Data",
     "Import": "Import",
     "Import Invidious data": "Import Invidious JSON data",
-    "Import YouTube subscriptions": "Import YouTube/OPML subscriptions",
+    "Import YouTube subscriptions": "Import YouTube CSV or OPML subscriptions",
     "Import YouTube playlist (.csv)": "Import YouTube playlist (.csv)",
     "Import YouTube watch history (.json)": "Import YouTube watch history (.json)",
     "Import FreeTube subscriptions (.db)": "Import FreeTube subscriptions (.db)",

@@ -62,6 +62,7 @@ module Invidious::JSONify::APIv1
       json.field "rating", 0_i64
       json.field "isListed", video.is_listed
       json.field "liveNow", video.live_now
+      json.field "isPostLiveDvr", video.post_live_dvr
       json.field "isUpcoming", video.is_upcoming
 
       if video.premiere_timestamp
@@ -160,6 +161,8 @@ module Invidious::JSONify::APIv1
               json.field "type", fmt["mimeType"]
               json.field "quality", fmt["quality"]
 
+              json.field "bitrate", fmt["bitrate"].as_i.to_s if fmt["bitrate"]?
+
               fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
               if fmt_info
                 fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
@@ -227,6 +230,7 @@ module Invidious::JSONify::APIv1
                 json.field "author", rv["author"]
                 json.field "authorUrl", "/channel/#{rv["ucid"]?}"
                 json.field "authorId", rv["ucid"]?
+                json.field "authorVerified", rv["author_verified"] == "true"
                 if rv["author_thumbnail"]?
                   json.field "authorThumbnails" do
                     json.array do

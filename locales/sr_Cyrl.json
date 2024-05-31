@@ -21,7 +21,7 @@
     "Import and Export Data": "Увоз и извоз података",
     "Import": "Увези",
     "Import Invidious data": "Увези Invidious JSON податке",
-    "Import YouTube subscriptions": "Увези YouTube/OPML праћења",
+    "Import YouTube subscriptions": "Увези YouTube CSV или OPML праћења",
     "Import FreeTube subscriptions (.db)": "Увези FreeTube праћења (.db)",
     "Import NewPipe subscriptions (.json)": "Увези NewPipe праћења (.json)",
     "Import NewPipe data (.zip)": "Увези NewPipe податке (.zip)",
@@ -505,5 +505,13 @@
     "generic_views_count_1": "{{count}} прегледа",
     "generic_views_count_2": "{{count}} прегледа",
     "Import YouTube watch history (.json)": "Увези YouTube историју гледањa (.json)",
-    "toggle_theme": "Укључи тему"
+    "toggle_theme": "Укључи тему",
+    "Add to playlist": "Додај на плејлисту",
+    "Answer": "Одговор",
+    "Search for videos": "Претражите видео снимке",
+    "carousel_go_to": "Иди на слајд `x`",
+    "Add to playlist: ": "Додајте на плејлисту: ",
+    "carousel_skip": "Прескочи карусел",
+    "The Popular feed has been disabled by the administrator.": "Администратор је онемогућио фид „Популарно“.",
+    "carousel_slide": "Слајд {{current}} од {{total}}"
 }
