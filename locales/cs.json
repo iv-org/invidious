@@ -21,7 +21,7 @@
     "Import and Export Data": "Import a export dat",
     "Import": "Importovat",
     "Import Invidious data": "Importovat JSON údaje Invidious",
-    "Import YouTube subscriptions": "Importovat odběry z YouTube/OPML",
+    "Import YouTube subscriptions": "Importovat odběry z YouTube CSV nebo OPML",
     "Import FreeTube subscriptions (.db)": "Importovat odběry z FreeTube (.db)",
     "Import NewPipe subscriptions (.json)": "Importovat odběry z NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importovat údeje z NewPipe (.zip)",
@@ -505,5 +505,13 @@
     "generic_channels_count_1": "{{count}} kanály",
     "generic_channels_count_2": "{{count}} kanálů",
     "Import YouTube watch history (.json)": "Importovat historii sledování z YouTube (.json)",
-    "toggle_theme": "Přepnout motiv"
+    "toggle_theme": "Přepnout motiv",
+    "Add to playlist": "Přidat do playlistu",
+    "Add to playlist: ": "Přidat do playlistu: ",
+    "Answer": "Odpověď",
+    "Search for videos": "Hledat videa",
+    "The Popular feed has been disabled by the administrator.": "Kategorie Populární byla zakázána administrátorem.",
+    "carousel_slide": "Snímek {{current}} z {{total}}",
+    "carousel_skip": "Přeskočit galerii",
+    "carousel_go_to": "Přejít na snímek `x`"
 }

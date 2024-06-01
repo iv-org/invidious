@@ -21,7 +21,13 @@ module Invidious::Routes::API::Manifest
     end
 
     if dashmpd = video.dash_manifest_url
-      manifest = YT_POOL.client &.get(URI.parse(dashmpd).request_target).body
+      response = YT_POOL.client &.get(URI.parse(dashmpd).request_target)
+
+      if response.status_code != 200
+        haltf env, status_code: response.status_code
+      end
+
+      manifest = response.body
 
       manifest = manifest.gsub(/<BaseURL>[^<]+<\/BaseURL>/) do |baseurl|
         url = baseurl.lchop("<BaseURL>")

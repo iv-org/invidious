@@ -62,7 +62,7 @@
     "Import and Export Data": "डेटा को आयात और निर्यात करें",
     "Import": "आयात करें",
     "Import Invidious data": "Invidious JSON डेटा आयात करें",
-    "Import YouTube subscriptions": "YouTube/OPML सदस्यताएँ आयात करें",
+    "Import YouTube subscriptions": "YouTube CSV या OPML सदस्यताएँ आयात करें",
     "Import FreeTube subscriptions (.db)": "FreeTube सदस्यताएँ आयात करें (.db)",
     "Import NewPipe subscriptions (.json)": "NewPipe सदस्यताएँ आयात करें (.json)",
     "Import NewPipe data (.zip)": "NewPipe डेटा आयात करें (.zip)",
@@ -487,5 +487,14 @@
     "Download is disabled": "डाउनलोड करना अक्षम है",
     "generic_channels_count": "{{count}} चैनल",
     "generic_channels_count_plural": "{{count}} चैनल",
-    "Import YouTube watch history (.json)": "YouTube पर देखने का इतिहास आयात करें (.json)"
+    "Import YouTube watch history (.json)": "YouTube पर देखने का इतिहास आयात करें (.json)",
+    "Add to playlist": "प्लेलिस्ट में जोड़ें",
+    "Answer": "जवाब",
+    "The Popular feed has been disabled by the administrator.": "लोकप्रिय फ़ीड व्यवस्थापक द्वारा अक्षम कर दिया गया है।",
+    "toggle_theme": "थीम टॉगल करें",
+    "carousel_slide": "{{total}} में से स्लाइड {{current}}",
+    "carousel_skip": "कैरोसेल छोड़ें",
+    "Add to playlist: ": "प्लेलिस्ट में जोड़ें: ",
+    "Search for videos": "वीडियो खोजें",
+    "carousel_go_to": "स्लाइड `x` पर जाएँ"
 }

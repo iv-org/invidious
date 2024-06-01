@@ -460,7 +460,7 @@
     "Music in this video": "동영상 속 음악",
     "Artist: ": "아티스트: ",
     "Download is disabled": "다운로드가 비활성화 되어있음",
-    "Import YouTube playlist (.csv)": "유튜브 플레이리스트 가져오기 (.csv)",
+    "Import YouTube playlist (.csv)": "유튜브 재생목록 가져오기 (.csv)",
     "playlist_button_add_items": "동영상 추가",
     "channel_tab_podcasts_label": "팟캐스트",
     "generic_button_delete": "삭제",
@@ -468,7 +468,16 @@
     "generic_button_save": "저장",
     "generic_button_cancel": "취소",
     "generic_button_rss": "RSS",
-    "channel_tab_releases_label": "출시",
+    "channel_tab_releases_label": "발매",
     "generic_channels_count_0": "{{count}} 채널",
-    "Import YouTube watch history (.json)": "유튜브 시청 기록 가져오기 (.json)"
+    "Import YouTube watch history (.json)": "유튜브 시청 기록 가져오기 (.json)",
+    "Add to playlist": "재생목록에 추가",
+    "Add to playlist: ": "재생목록에 추가: ",
+    "Answer": "답",
+    "The Popular feed has been disabled by the administrator.": "관리자가 인기 피드를 비활성화했습니다.",
+    "carousel_skip": "캐러셀 건너뛰기",
+    "carousel_go_to": "`x` 슬라이드로 이동",
+    "Search for videos": "비디오 검색",
+    "toggle_theme": "테마 전환",
+    "carousel_slide": "{{total}}의 슬라이드 {{current}}"
 }

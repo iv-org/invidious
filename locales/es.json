@@ -21,7 +21,7 @@
     "Import and Export Data": "Importación y exportación de datos",
     "Import": "Importar",
     "Import Invidious data": "Importar datos JSON de Invidious",
-    "Import YouTube subscriptions": "Importar suscripciones de YouTube/OPML",
+    "Import YouTube subscriptions": "Importar suscripciones CSV u OPML de YouTube",
     "Import FreeTube subscriptions (.db)": "Importar suscripciones de FreeTube (.db)",
     "Import NewPipe subscriptions (.json)": "Importar suscripciones de NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importar datos de NewPipe (.zip)",
@@ -133,7 +133,7 @@
     "Create playlist": "Crear lista de reproducción",
     "Title": "Título",
     "Playlist privacy": "Privacidad de la lista de reproducción",
-    "Editing playlist `x`": "Editando la lista de reproducción 'x'",
+    "Editing playlist `x`": "Editando la lista de reproducción `x`",
     "Show more": "Mostrar más",
     "Show less": "Mostrar menos",
     "Watch on YouTube": "Ver en YouTube",
@@ -505,5 +505,13 @@
     "generic_channels_count_1": "{{count}} canales",
     "generic_channels_count_2": "{{count}} canales",
     "Import YouTube watch history (.json)": "Importar el historial de las visualizaciones de YouTube (.json)",
-    "toggle_theme": "Alternar tema"
+    "toggle_theme": "Alternar tema",
+    "Add to playlist: ": "Añadir a la lista de reproducción: ",
+    "Add to playlist": "Añadir a la lista de reproducción",
+    "Answer": "Respuesta",
+    "Search for videos": "Buscar por vídeos",
+    "The Popular feed has been disabled by the administrator.": "El feed Popular ha sido desactivado por el administrador.",
+    "carousel_slide": "Diapositiva {{current}} de {{total}}",
+    "carousel_skip": "Saltar el carrusel",
+    "carousel_go_to": "Ir a la diapositiva `x`"
 }

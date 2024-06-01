@@ -82,6 +82,10 @@ struct Video
     return (self.video_type == VideoType::Livestream)
   end
 
+  def post_live_dvr
+    return info["isPostLiveDvr"].as_bool
+  end
+
   def premiere_timestamp : Time?
     info
       .dig?("microformat", "playerMicroformatRenderer", "liveBroadcastDetails", "startTimestamp")
@@ -393,17 +397,6 @@ def fetch_video(id, region)
   allowed_regions = info
     .dig?("microformat", "playerMicroformatRenderer", "availableCountries")
     .try &.as_a.map &.as_s || [] of String
-
-  # Check for region-blocks
-  if info["reason"]?.try &.as_s.includes?("your country")
-    bypass_regions = PROXY_LIST.keys & allowed_regions
-    if !bypass_regions.empty?
-      region = bypass_regions[rand(bypass_regions.size)]
-      region_info = extract_video_info(video_id: id, proxy_region: region)
-      region_info["region"] = JSON::Any.new(region) if region
-      info = region_info if !region_info["reason"]?
-    end
-  end
 
   if reason = info["reason"]?
     if reason == "Video unavailable"

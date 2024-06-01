@@ -127,7 +127,7 @@
     "Create playlist": "Створити список відтворення",
     "Title": "Заголовок",
     "Playlist privacy": "Конфіденційність списку відтворення",
-    "Editing playlist `x`": "Редагування списку відтворення \"x\"",
+    "Editing playlist `x`": "Редагування списку відтворення `x`",
     "Watch on YouTube": "Дивитися на YouTube",
     "Hide annotations": "Приховати анотації",
     "Show annotations": "Показати анотації",
@@ -505,5 +505,13 @@
     "generic_channels_count_1": "{{count}} канали",
     "generic_channels_count_2": "{{count}} каналів",
     "Import YouTube watch history (.json)": "Імпортувати історію переглядів YouTube (.json)",
-    "toggle_theme": "Перемкнути тему"
+    "toggle_theme": "Перемкнути тему",
+    "Add to playlist": "Додати до списку відтворення",
+    "Add to playlist: ": "Додати до списку відтворення: ",
+    "Answer": "Відповідь",
+    "Search for videos": "Шукати відео",
+    "The Popular feed has been disabled by the administrator.": "Стрічка Популярні вимкнена адміністратором.",
+    "carousel_slide": "Слайд {{current}} з {{total}}",
+    "carousel_skip": "Пропустити карусель",
+    "carousel_go_to": "Перейти до слайда `x`"
 }

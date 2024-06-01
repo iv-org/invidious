@@ -26,7 +26,7 @@
     "Import and Export Data": "导入与导出数据",
     "Import": "导入",
     "Import Invidious data": "导入 Invidious JSON 数据",
-    "Import YouTube subscriptions": "导入 YouTube/OPML 订阅",
+    "Import YouTube subscriptions": "导入 YouTube CSV 或 OPML 订阅",
     "Import FreeTube subscriptions (.db)": "导入 FreeTube 订阅 (.db)",
     "Import NewPipe subscriptions (.json)": "导入 NewPipe 订阅 (.json)",
     "Import NewPipe data (.zip)": "导入 NewPipe 数据 (.zip)",
@@ -471,5 +471,13 @@
     "generic_button_rss": "RSS",
     "channel_tab_releases_label": "公告",
     "generic_channels_count_0": "{{count}} 个频道",
-    "toggle_theme": "切换主题"
+    "toggle_theme": "切换主题",
+    "Add to playlist": "添加到播放列表",
+    "Add to playlist: ": "添加到播放列表： ",
+    "Answer": "响应",
+    "Search for videos": "搜索视频",
+    "The Popular feed has been disabled by the administrator.": "“流行”源已被管理员禁用。",
+    "carousel_slide": "当前为第 {{current}} 张图，共 {{total}} 张图",
+    "carousel_skip": "跳过图集",
+    "carousel_go_to": "转到图 `x`"
 }
