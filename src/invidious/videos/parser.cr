@@ -103,16 +103,8 @@ def extract_video_info(video_id : String)
   new_player_response = nil
 
   if reason.nil?
-    # Fetch the video streams using an Android client in order to get the
-    # decrypted URLs and maybe fix throttling issues (#2194). See the
-    # following issue for an explanation about decrypted URLs:
-    # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-    client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  end
-
-  # Last hope
-  if new_player_response.nil?
+    # Fetch the video streams using an TV client in order to get the
+    # decrypted URLs and try fixing 4734.
     client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
     new_player_response = try_fetch_streaming_data(video_id, client_config)
   end
