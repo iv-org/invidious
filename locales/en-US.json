@@ -505,5 +505,6 @@
     "video_description_show_transcript_section_label": "Transcripts",
     "video_description_show_transcript_section_button": "Show transcript",
     "video_description_show_transcript_section_button_hide": "Hide transcript",
-    "error_transcripts_none_available": "No transcripts are available"
+    "error_transcripts_none_available": "No transcripts are available",
+    "transcript_widget_title": "Transcript"
 }

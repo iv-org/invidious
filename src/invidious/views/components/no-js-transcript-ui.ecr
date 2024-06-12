@@ -1,0 +1,23 @@
+<section class="video-transcript">
+    <header><h3><%=translate(locale, "transcript_widget_title")%></h3></header>
+    <div id="lines">
+        <% transcript_time_url_param = env.params.query.dup %>
+        <% transcript_time_url_param.delete_all("t") %>
+
+        <% transcript.lines.each do | line | %>
+            <% if line.is_a? Invidious::Videos::Transcript::HeadingLine %>
+                <div class="transcript-title-line"> <h4> <%= line.line %> </h4> </div>
+            <% else %>
+                <% jump_time = line.start_ms.total_seconds.to_s %>
+                <% transcript_time_url_param["t"] = jump_time %>
+                <a href="/watch?<%= transcript_time_url_param %>" data-onclick="jump_to_time" data-jump-time="<%=jump_time%>">
+                    <div class="transcript-line">
+                        <p class="length"><%= recode_length_seconds(line.start_ms.total_seconds) %></p>
+                        <p><%= line.line %></p>
+                    </div>
+                </a>
+            <% end %> 
+        <% end %>
+    </div>
+    <footer></footer>
+</section>

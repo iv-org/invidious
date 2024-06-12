@@ -833,3 +833,45 @@ h1, h2, h3, h4, h5, p,
 .description-show-transcript-widget > * {
   margin: 0;
 }
+
+.video-transcript {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  height: 30em;
+  padding: 10px;
+  border: 1px solid #a0a0a0;
+  border-radius: 10px;
+}
+
+.video-transcript header {
+  padding-bottom: 5px;
+  border-bottom: 1px solid #a0a0a0;
+} 
+
+.video-transcript > #lines {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+
+.transcript-line, .transcript-title-line {
+  display: flex;
+  align-items: center;
+  padding: 20px 10px;
+  gap: 10px;
+  border-radius: 10px;
+}
+
+.transcript-line > .length {
+  padding: 0px 5px;
+  background: #363636 !important;
+}
+
+.transcript-line > p, .video-transcript > header > h3, .transcript-title-line > h4 {
+  margin: 0;
+}
+
+.transcript-line:hover, .selected.transcript-line, .transcript-title-line:hover, .selected.transcript-title-line {
+  background: #cacaca;
+}
