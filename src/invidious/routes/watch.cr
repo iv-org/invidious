@@ -162,8 +162,26 @@ module Invidious::Routes::Watch
     captions = captions - preferred_captions
 
     if show_transcripts
-      # Placeholder
-      transcript = true
+      # The transcripts available are the exact same as the amount of captions available. Thus:
+      if !preferred_captions.empty?
+        chosen_transcript = preferred_captions[0]
+        transcript_request_param = Invidious::Videos::Transcript.generate_param(
+          id, chosen_transcript.language_code, chosen_transcript.auto_generated
+        )
+      elsif !captions.empty?
+        chosen_transcript = captions[0]
+        transcript_request_param = Invidious::Videos::Transcript.generate_param(
+          id, chosen_transcript.language_code, chosen_transcript.auto_generated
+        )
+      else
+        return error_template(404, "error_transcripts_none_available")
+      end
+
+      transcript = Invidious::Videos::Transcript.from_raw(
+        YoutubeAPI.get_transcript(transcript_request_param),
+        chosen_transcript.language_code,
+        chosen_transcript.auto_generated,
+      )
     else
       transcript = nil
     end
