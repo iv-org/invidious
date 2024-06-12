@@ -135,6 +135,9 @@ end
 OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mode: "a")
 LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
+# Check pending migrations
+Invidious::Database::Migrator.new(PG_DB).check_pending_migrations
+
 # Check table integrity
 Invidious::Database.check_integrity(CONFIG)
 
