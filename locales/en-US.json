@@ -501,5 +501,7 @@
     "toggle_theme": "Toggle Theme",
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
-    "carousel_go_to": "Go to slide `x`"
+    "carousel_go_to": "Go to slide `x`",
+    "video_description_show_transcript_section_label": "Transcripts",
+    "video_description_show_transcript_section_button": "Show transcript"
 }

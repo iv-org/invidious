@@ -256,7 +256,14 @@ we're going to need to do it here in order to allow for translations.
                     <div id="descriptionWrapper"><%= video.description_html %></div>
                 <% else %>
                     <input id="descexpansionbutton" type="checkbox"/>
-                    <div id="descriptionWrapper"><%= video.description_html %></div>
+                    <div id="descriptionWrapper"><%-= video.description_html %>
+                        <% if captions %>
+                            <div class="description-widget description-show-transcript-widget">
+                                <h4><%=HTML.escape(translate(locale, "video_description_show_transcript_section_label"))%></h4>
+                                <a class="pure-button pure-button-secondary"><%=HTML.escape(translate(locale, "video_description_show_transcript_section_button"))%></a>
+                            </div>
+                        <% end %>
+                    </div>
                     <label for="descexpansionbutton">
                         <a></a>
                     </label>
