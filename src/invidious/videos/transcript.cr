@@ -45,13 +45,19 @@ module Invidious::Videos
 
     # Constructs a Transcripts struct from the initial YouTube response
     def self.from_raw(initial_data : Hash(String, JSON::Any), language_code : String, auto_generated : Bool)
-      body = initial_data.dig("actions", 0, "updateEngagementPanelAction", "content", "transcriptRenderer",
-        "content", "transcriptSearchPanelRenderer", "body", "transcriptSegmentListRenderer",
-        "initialSegments").as_a
+      segment_list = initial_data.dig("actions", 0, "updateEngagementPanelAction", "content", "transcriptRenderer",
+        "content", "transcriptSearchPanelRenderer", "body", "transcriptSegmentListRenderer"
+      )
+
+      if !segment_list["initialSegments"]?
+        raise NotFoundException.new("Requested transcript does not exist")
+      end
+
+      initial_segments = segment_list["initialSegments"].as_a
 
       lines = [] of TranscriptLine
 
-      body.each do |line|
+      initial_segments.each do |line|
         if unpacked_line = line["transcriptSectionHeaderRenderer"]?
           line_type = HeadingLine
         else
