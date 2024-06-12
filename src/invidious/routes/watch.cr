@@ -38,6 +38,11 @@ module Invidious::Routes::Watch
     nojs ||= "0"
     nojs = nojs == "1"
 
+    show_transcripts = env.params.query["show_transcripts"]?
+
+    show_transcripts ||= "0"
+    show_transcripts = show_transcripts == "1"
+
     preferences = env.get("preferences").as(Preferences)
 
     user = env.get?("user").try &.as(User)
@@ -155,6 +160,13 @@ module Invidious::Routes::Watch
         params.preferred_captions.index(caption.language_code.split("-")[0])).not_nil!
     }
     captions = captions - preferred_captions
+
+    if show_transcripts
+      # Placeholder
+      transcript = true
+    else
+      transcript = nil
+    end
 
     aspect_ratio = "16:9"
 
