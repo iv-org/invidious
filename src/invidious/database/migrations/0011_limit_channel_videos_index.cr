@@ -1,6 +1,7 @@
 module Invidious::Database::Migrations
   class LimitChannelVideosIndex < Migration
     version 11
+    required false
 
     def up(conn : DB::Connection)
       conn.exec <<-SQL
