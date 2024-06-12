@@ -1,5 +1,5 @@
 class Invidious::Database::Migrator
-  MIGRATIONS_TABLE = "public.invidious_migrations"
+  MIGRATIONS_TABLE    = "public.invidious_migrations"
   MIGRATE_INSTRUCTION = "Run `invidious --migrate` to apply the migration(s)."
 
   class_getter migrations = [] of Invidious::Database::Migration.class
