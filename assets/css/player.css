@@ -68,6 +68,7 @@
 
 .video-js.player-style-youtube .vjs-menu-button-popup .vjs-menu {
   margin-bottom: 2em;
+  padding-top: 2em
 }
 
 .video-js.player-style-youtube .vjs-progress-control .vjs-progress-holder, .video-js.player-style-youtube .vjs-progress-control {height: 5px;
