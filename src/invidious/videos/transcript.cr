@@ -8,11 +8,16 @@ module Invidious::Videos
     alias TranscriptLine = HeadingLine | RegularLine
 
     property lines : Array(TranscriptLine)
+
     property language_code : String
     property auto_generated : Bool
 
+    # User friendly label for the current transcript.
+    # Example: "English (auto-generated)"
+    property label : String
+
     # Initializes a new Transcript struct with the contents and associated metadata describing it
-    def initialize(@lines : Array(TranscriptLine), @language_code : String, @auto_generated : Bool)
+    def initialize(@lines : Array(TranscriptLine), @language_code : String, @auto_generated : Bool, @label : String)
     end
 
     # Generates a protobuf string to fetch the requested transcript from YouTube
@@ -45,13 +50,28 @@ module Invidious::Videos
 
     # Constructs a Transcripts struct from the initial YouTube response
     def self.from_raw(initial_data : Hash(String, JSON::Any), language_code : String, auto_generated : Bool)
-      segment_list = initial_data.dig("actions", 0, "updateEngagementPanelAction", "content", "transcriptRenderer",
-        "content", "transcriptSearchPanelRenderer", "body", "transcriptSegmentListRenderer"
-      )
+      transcript_panel = initial_data.dig("actions", 0, "updateEngagementPanelAction", "content", "transcriptRenderer",
+        "content", "transcriptSearchPanelRenderer")
+
+      segment_list = transcript_panel.dig("body", "transcriptSegmentListRenderer")
 
       if !segment_list["initialSegments"]?
         raise NotFoundException.new("Requested transcript does not exist")
       end
+
+      # Extract user-friendly label for the current transcript
+
+      footer_language_menu = transcript_panel.dig?(
+        "footer", "transcriptFooterRenderer", "languageMenu", "sortFilterSubMenuRenderer", "subMenuItems"
+      )
+
+      if footer_language_menu
+        label = footer_language_menu.as_a.select(&.["selected"].as_bool)[0]["title"].as_s
+      else
+        label = language_code
+      end
+
+      # Extract transcript lines
 
       initial_segments = segment_list["initialSegments"].as_a
 
@@ -76,6 +96,7 @@ module Invidious::Videos
         lines: lines,
         language_code: language_code,
         auto_generated: auto_generated,
+        label: label
       )
     end
 
