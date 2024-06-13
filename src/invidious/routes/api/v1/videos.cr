@@ -421,10 +421,11 @@ module Invidious::Routes::API::V1::Videos
 
     id = env.params.url["id"]
     lang = env.params.query["lang"]?
+    label = env.params.query["label"]?
     auto_generated = env.params.query["autogen"]? ? true : false
 
     # Return all available transcript options when none is given
-    if !lang
+    if !label && !lang
       begin
         video = get_video(id)
       rescue ex : NotFoundException
@@ -460,6 +461,26 @@ module Invidious::Routes::API::V1::Videos
       end
 
       return response
+    end
+
+    # If lang is not given then we attempt to fetch
+    # the transcript through the given label
+    if lang.nil?
+      begin
+        video = get_video(id)
+      rescue ex : NotFoundException
+        return error_json(404, ex)
+      rescue ex
+        return error_json(500, ex)
+      end
+
+      target_transcript = video.captions.select(&.name.== label)
+      if target_transcript.empty?
+        return error_json(404, NotFoundException.new("Requested transcript does not exist"))
+      else
+        target_transcript = target_transcript[0]
+        lang, auto_generated = target_transcript.language_code, target_transcript.auto_generated
+      end
     end
 
     params = Invidious::Videos::Transcript.generate_param(id, lang, auto_generated)
