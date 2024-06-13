@@ -19,5 +19,28 @@
             <% end %> 
         <% end %>
     </div>
-    <footer></footer>
+    <footer>
+        <% transcript_select_args = env.params.query.dup %>
+        <% transcript_select_args.delete_all("use_this_transcript") %>
+        <form class="select-transcript" method="get" action="/watch?<%=transcript_select_args%>">
+            <% # Preserve query parameters %>
+            <% transcript_select_args.each do | k, v | %>
+                <input type="hidden" name="<%=k%>" value="<%=v%>">
+            <% end %>
+
+            <select name="use_this_transcript">
+                <% {preferred_captions, captions}.each do | transcript_list |%>
+                    <% transcript_list.each do | transcript_option | %>
+                        <% if target_transcript.not_nil!.name == transcript_option.name %>
+                            <option value="<%=URI.encode_www_form(transcript_option.name)%>" selected><%=transcript_option.name%></option>
+                        <% else%>
+                            <option value="<%=URI.encode_www_form(transcript_option.name)%>"><%=transcript_option.name%></option>
+                        <% end %>
+                    <% end %>
+                <% end  %>
+            </select>
+
+            <input type="submit" value="<%= translate(locale, "transcript_widget_no_js_change_transcript_btn") %>"/>
+        </form>
+    </footer>
 </section>

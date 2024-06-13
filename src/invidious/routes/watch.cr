@@ -43,6 +43,9 @@ module Invidious::Routes::Watch
     show_transcripts ||= "0"
     show_transcripts = show_transcripts == "1"
 
+    # Equal to a `caption.name` when set
+    selected_transcript = env.params.query["use_this_transcript"]?
+
     preferences = env.get("preferences").as(Preferences)
 
     user = env.get?("user").try &.as(User)
@@ -162,26 +165,55 @@ module Invidious::Routes::Watch
     captions = captions - preferred_captions
 
     if show_transcripts
-      # The transcripts available are the exact same as the amount of captions available. Thus:
-      if !preferred_captions.empty?
-        chosen_transcript = preferred_captions[0]
-        transcript_request_param = Invidious::Videos::Transcript.generate_param(
-          id, chosen_transcript.language_code, chosen_transcript.auto_generated
-        )
-      elsif !captions.empty?
-        chosen_transcript = captions[0]
-        transcript_request_param = Invidious::Videos::Transcript.generate_param(
-          id, chosen_transcript.language_code, chosen_transcript.auto_generated
-        )
+      # Transcripts can be mapped 1:1 to a video's captions.
+      # As such the amount of transcripts available is the same as the amount of captions available.
+      #
+      # To request transcripts we have to give a language code, and a boolean dictating whether or not
+      # it is auto-generated. These attributes can be retrieved from the video's caption metadata.
+
+      # First we check if a transcript has been explicitly selected.
+      # The `use_this_transcript` url parameter provides the label of the transcript the user wants.
+      if selected_transcript
+        selected_transcript = URI.decode_www_form(selected_transcript)
+        target_transcript = captions.select(&.name.== selected_transcript)
       else
-        return error_template(404, "error_transcripts_none_available")
+        target_transcript = nil
       end
 
-      transcript = Invidious::Videos::Transcript.from_raw(
-        YoutubeAPI.get_transcript(transcript_request_param),
-        chosen_transcript.language_code,
-        chosen_transcript.auto_generated,
+      # If the selected transcript has a match then we'll request that.
+      #
+      # If it does not match we'll try and request a transcript based on the user's
+      # preferred transcript
+      #
+      # If that also does not match then we'll just select the first transcript
+      # out of everything that's available.
+      #
+      # Raises when no matches are found
+      if target_transcript.is_a?(Array) && !target_transcript.empty?
+        target_transcript = target_transcript[0]
+      else
+        if !preferred_captions.empty?
+          target_transcript = preferred_captions[0]
+        elsif !captions.empty?
+          target_transcript = captions[0]
+        else
+          return error_template(404, "error_transcripts_none_available")
+        end
+      end
+
+      transcript_request_param = Invidious::Videos::Transcript.generate_param(
+        id, target_transcript.language_code, target_transcript.auto_generated
       )
+
+      begin
+        transcript = Invidious::Videos::Transcript.from_raw(
+          YoutubeAPI.get_transcript(transcript_request_param),
+          target_transcript.language_code,
+          target_transcript.auto_generated,
+        )
+      rescue NotFoundException
+        return error_template(404, "error_transcripts_none_available")
+      end
     else
       transcript = nil
     end

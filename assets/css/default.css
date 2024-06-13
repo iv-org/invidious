@@ -875,3 +875,17 @@ h1, h2, h3, h4, h5, p,
 .transcript-line:hover, .selected.transcript-line, .transcript-title-line:hover, .selected.transcript-title-line {
   background: #cacaca;
 }
+
+.video-transcript > footer {
+  padding-bottom: 14px;
+  border-top: 1px solid #a0a0a0
+}
+
+.video-transcript > footer > form {
+  display: flex;
+  justify-content: center;
+}
+
+.video-transcript > footer select {
+  width: 75%;
+}
