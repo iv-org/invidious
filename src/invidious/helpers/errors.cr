@@ -2,6 +2,10 @@
 #  Issue template
 # -------------------
 
+class ContextWithPreferences < HTTP::Server::Context
+  property preferences : Preferences?
+end
+
 macro error_template(*args)
   error_template_helper(env, {{args.splat}})
 end
@@ -168,33 +172,37 @@ end
 #  Redirect
 # -------------------
 
-def error_redirect_helper(env : HTTP::Server::Context)
+def error_redirect_helper(env : ContextWithPreferences)
   request_path = env.request.path
 
-  locale = env.get("preferences").as(Preferences).locale
+  locale = env.preferences.try &.locale
 
-  if request_path.starts_with?("/search") || request_path.starts_with?("/watch") ||
-     request_path.starts_with?("/channel") || request_path.starts_with?("/playlist?list=PL")
-    next_steps_text = translate(locale, "next_steps_error_message")
-    refresh = translate(locale, "next_steps_error_message_refresh")
-    go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
-    switch_instance = translate(locale, "Switch Invidious Instance")
+  display_on_path = %w[
+    /search
+    /channel
+    /watch
+    /playlist?list=PL
+    /embed
+  ]
 
-    return <<-END_HTML
-      <p style="margin-bottom: 4px;">#{next_steps_text}</p>
-      <ul>
-        <li>
-          <a href="#{env.request.resource}">#{refresh}</a>
-        </li>
-        <li>
-          <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
-        </li>
-        <li>
-          <a href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
-        </li>
-      </ul>
-    END_HTML
-  else
-    return ""
+  return "" if display_on_path.none? { |path| request_path.starts_with? path }
+
+  next_steps_text = translate(locale, "next_steps_error_message")
+  refresh = translate(locale, "next_steps_error_message_refresh")
+  go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
+  switch_instance = translate(locale, "Switch Invidious Instance")
+  steps = {
+    refresh => env.request.resource,
+    switch_instance => "/redirect?referer=#{env.get("current_page")}",
+    go_to_youtube => "https://youtube.com#{env.request.resource}"
+  }
+
+  if request_path.starts_with?("/embed")
+    open_embed_as_video = translate(locale, "next_steps_error_message_open_embed_as_video")
+
+    non_embed_url = env.request.resource.sub("/embed/", "/watch?v=")
+    steps[open_embed_as_video] = non_embed_url
   end
+
+  return rendered "components/error_redirect"
 end
