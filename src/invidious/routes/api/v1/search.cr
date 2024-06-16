@@ -31,9 +31,7 @@ module Invidious::Routes::API::V1::Search
     query = env.params.query["q"]? || ""
 
     begin
-      client = HTTP::Client.new("suggestqueries-clients6.youtube.com")
-      client.before_request { |r| add_yt_headers(r) }
-
+      client = make_client(URI.parse("https://suggestqueries-clients6.youtube.com"), force_youtube_headers: true)
       url = "/complete/search?client=youtube&hl=en&gl=#{region}&q=#{URI.encode_www_form(query)}&gs_ri=youtube&ds=yt"
 
       response = client.get(url).body
