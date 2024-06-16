@@ -49,7 +49,7 @@ struct YoutubeConnectionPool
   end
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = false, force_youtube_header : Bool = false)
+def make_client(url : URI, region = nil, force_resolve : Bool = false, force_youtube_headers : Bool = false)
   client = HTTP::Client.new(url)
 
   # Force the usage of a specific configured IP Family
@@ -57,7 +57,7 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, force_you
     client.family = CONFIG.force_resolve
   end
 
-  client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com" || force_youtube_header
+  client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com" || force_youtube_headers
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
 
