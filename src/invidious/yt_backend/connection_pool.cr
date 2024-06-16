@@ -42,7 +42,7 @@ struct YoutubeConnectionPool
 
   private def build_pool
     DB::Pool(HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
-      conn = make_client(url, force_resolve = true)
+      conn = make_client(url, force_resolve: true)
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn
     end
