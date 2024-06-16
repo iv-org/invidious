@@ -139,7 +139,9 @@ jobs:
       - name: Cache Shards
         uses: actions/cache@v3
         with:
-          path: ./lib
+          path: |
+            ./lib
+            ./bin
           key: shards-${{ hashFiles('shard.lock') }}
 
       - name: Install Shards
