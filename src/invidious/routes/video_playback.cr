@@ -42,7 +42,7 @@ module Invidious::Routes::VideoPlayback
       headers["Range"] = "bytes=#{range_for_head}"
     end
 
-    client = make_client(URI.parse(host), region, force_resolve = true)
+    client = make_client(URI.parse(host), region, force_resolve: true)
     response = HTTP::Client::Response.new(500)
     error = ""
     5.times do
@@ -57,7 +57,7 @@ module Invidious::Routes::VideoPlayback
           if new_host != host
             host = new_host
             client.close
-            client = make_client(URI.parse(new_host), region, force_resolve = true)
+            client = make_client(URI.parse(new_host), region, force_resolve: true)
           end
 
           url = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
@@ -71,7 +71,7 @@ module Invidious::Routes::VideoPlayback
         fvip = "3"
 
         host = "https://r#{fvip}---#{mn}.googlevideo.com"
-        client = make_client(URI.parse(host), region, force_resolve = true)
+        client = make_client(URI.parse(host), region, force_resolve: true)
       rescue ex
         error = ex.message
       end
@@ -196,7 +196,7 @@ module Invidious::Routes::VideoPlayback
             break
           else
             client.close
-            client = make_client(URI.parse(host), region, force_resolve = true)
+            client = make_client(URI.parse(host), region, force_resolve: true)
           end
         end
 
