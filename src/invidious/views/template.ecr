@@ -157,6 +157,7 @@
                                 <a href="https://github.com/iv-org/invidious/commit/<%= CURRENT_COMMIT %>"><%= CURRENT_VERSION %>-<%= CURRENT_COMMIT %></a>
                             <% end %>
                             @ <%= CURRENT_BRANCH %>
+                            <% if CURRENT_TAG != "" %>
                             (                                
                                 <% if CONFIG.modified_source_code_url %>
                                     <a href="<%= CONFIG.modified_source_code_url %>/releases/tag/<%= CURRENT_TAG %>"><%= CURRENT_TAG %></a>
@@ -164,6 +165,7 @@
                                     <a href="https://github.com/iv-org/invidious/releases/tag/<%= CURRENT_TAG %>"><%= CURRENT_TAG %></a>
                                 <% end %>
                             )
+                            <% end %>
                         </span>
                     </div>
                 </div>
