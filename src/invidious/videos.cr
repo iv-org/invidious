@@ -250,7 +250,7 @@ struct Video
   end
 
   def genre_url : String?
-    info["genreUcid"]? == "" ? nil : "/channel/#{info["genreUcid"]}"
+    info["genreUcid"].try &.as_s? ? "/channel/#{info["genreUcid"]}" : nil
   end
 
   def is_vr : Bool?
