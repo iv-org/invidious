@@ -60,7 +60,7 @@
     "reddit": "Reddit",
     "preferences_captions_label": "Подразумевани титлови: ",
     "Fallback captions: ": "Резервни титлови: ",
-    "preferences_related_videos_label": "Прикажи повезане видео снимке: ",
+    "preferences_related_videos_label": "Прикажи сродне видео снимке: ",
     "preferences_annotations_label": "Подразумевано прикажи напомене: ",
     "preferences_category_visual": "Визуелна подешавања",
     "preferences_player_style_label": "Стил плејера: ",
@@ -246,7 +246,7 @@
     "preferences_locale_label": "Језик: ",
     "Persian": "Персијски",
     "View `x` comments": {
-        "": "Погледај `x` коментаре",
+        "": "Погледај `x` коментара",
         "([^.,0-9]|^)1([^.,0-9]|$)": "Погледај `x` коментар"
     },
     "search_filters_type_option_channel": "Канал",
