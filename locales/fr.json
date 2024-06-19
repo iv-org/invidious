@@ -504,5 +504,10 @@
     "Import YouTube playlist (.csv)": "Importer des listes de lecture de Youtube (.csv)",
     "channel_tab_releases_label": "Parutions",
     "channel_tab_podcasts_label": "Émissions audio",
-    "Import YouTube watch history (.json)": "Importer l'historique de visionnement YouTube (.json)"
+    "Import YouTube watch history (.json)": "Importer l'historique de visionnement YouTube (.json)",
+    "Add to playlist: ": "Ajouter à la playlist : ",
+    "Add to playlist": "Ajouter à la playlist",
+    "Answer": "Répondre",
+    "Search for videos": "Rechercher des vidéos",
+    "The Popular feed has been disabled by the administrator.": "Le flux populaire a été désactivé par l'administrateur."
 }
