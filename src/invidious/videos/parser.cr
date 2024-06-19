@@ -424,7 +424,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "shortDescription" => JSON::Any.new(short_description.try &.as_s || nil),
     # Video metadata
     "genre"     => JSON::Any.new(genre.try &.as_s || ""),
-    "genreUcid" => JSON::Any.new(genre_ucid.try &.as_s || ""),
+    "genreUcid" => JSON::Any.new(genre_ucid.try &.as_s?),
     "license"   => JSON::Any.new(license.try &.as_s || ""),
     # Music section
     "music" => JSON.parse(music_list.to_json),
