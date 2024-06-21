@@ -1,7 +1,5 @@
 require "../spec_helper"
 
-CONFIG = Config.from_yaml(File.open("config/config.example.yml"))
-
 Spectator.describe "Helper" do
   describe "#produce_channel_search_continuation" do
     it "correctly produces token for searching a specific channel" do
