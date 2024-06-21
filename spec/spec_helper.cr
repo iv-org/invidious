@@ -17,8 +17,6 @@ require "../src/invidious/jobs/*"
 require "spectator"
 
 CONFIG = Config.from_yaml(File.open("config/config.example.yml"))
-OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mode: "a")
-LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
 
 Spectator.configure do |config|
   config.fail_blank
