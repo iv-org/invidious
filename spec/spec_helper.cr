@@ -12,6 +12,8 @@ require "../src/invidious/search/ctoken"
 require "../src/invidious/trending"
 require "../src/invidious/config"
 require "../src/invidious/user/preferences.cr"
+require "../src/invidious/jobs"
+require "../src/invidious/jobs/*"
 require "spectator"
 
 CONFIG = Config.from_yaml(File.open("config/config.example.yml"))

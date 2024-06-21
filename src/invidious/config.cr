@@ -80,7 +80,7 @@ class Config
   property full_refresh : Bool = false
 
   # Jobs config structure. See jobs.cr and jobs/base_job.cr
-  # property jobs = Invidious::Jobs::JobsConfig.new
+  property jobs = Invidious::Jobs::JobsConfig.new
 
   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
   property https_only : Bool?
