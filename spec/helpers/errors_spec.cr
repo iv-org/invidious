@@ -1,4 +1,4 @@
-require "../spec_helper"
+require "../env_helper"
 require "kilt"
 
 Spectator.describe "error_redirect_helper" do

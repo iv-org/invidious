@@ -22,12 +22,3 @@ Spectator.configure do |config|
   config.fail_blank
   config.randomize
 end
-
-def test_env(current_url : String, request_method : String = "GET", response : IO = String::Builder.new)
-    con = ContextWithPreferences.new(
-      HTTP::Request.new(request_method, current_url),
-      HTTP::Server::Response.new(response),
-    )
-    con.preferences = Preferences.new(CONFIG.default_user_preferences.to_tuple)
-    con
-end

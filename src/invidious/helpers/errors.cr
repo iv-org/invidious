@@ -2,10 +2,6 @@
 #  Issue template
 # -------------------
 
-class ContextWithPreferences < HTTP::Server::Context
-  property preferences : Preferences?
-end
-
 macro error_template(*args)
   error_template_helper(env, {{args.splat}})
 end
@@ -172,10 +168,10 @@ end
 #  Redirect
 # -------------------
 
-def error_redirect_helper(env : ContextWithPreferences)
+def error_redirect_helper(env : HTTP::Server::Context)
   request_path = env.request.path
 
-  locale = env.preferences.try &.locale
+  locale = env.get("preferences").as(Preferences).locale
 
   display_on_path = %w[
     /search
@@ -196,13 +192,6 @@ def error_redirect_helper(env : ContextWithPreferences)
     switch_instance => "/redirect?referer=#{env.get("current_page")}",
     go_to_youtube => "https://youtube.com#{env.request.resource}"
   }
-
-  if request_path.starts_with?("/embed")
-    open_embed_as_video = translate(locale, "next_steps_error_message_open_embed_as_video")
-
-    non_embed_url = env.request.resource.sub("/embed/", "/watch?v=")
-    steps[open_embed_as_video] = non_embed_url
-  end
 
   return rendered "components/error_redirect"
 end
