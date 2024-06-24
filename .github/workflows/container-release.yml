@@ -1,4 +1,4 @@
-name: Build and release container
+name: Build and release container directly from master
 
 on:
   push:
