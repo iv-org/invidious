@@ -90,9 +90,7 @@ class Config
   property domain : String?
   # Subscribe to channels using PubSubHubbub (requires domain, hmac_key)
   property use_pubsub_feeds : Bool | Int32 = false
-  property popular_enabled : Bool = true
-  property trending_enabled : Bool = true
-  property search_enabled : Bool = true
+  property pages_enabled : Hash(String, Bool) = {"trending" => true, "popular" => true, "search" => true}
   property captcha_enabled : Bool = true
   property login_enabled : Bool = true
   property registration_enabled : Bool = true
@@ -153,6 +151,11 @@ class Config
       return false
     end
   end
+
+  def page_enabled?(page : String) : Bool
+    @pages_enabled[page]? || false
+  end
+
 
   def self.load
     # Load config from file or YAML string env var

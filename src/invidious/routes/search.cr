@@ -40,7 +40,7 @@ module Invidious::Routes::Search
     prefs = env.get("preferences").as(Preferences)
     locale = prefs.locale
 
-    if CONFIG.search_enabled
+    if CONFIG.page_enabled?("search")
       region = env.params.query["region"]? || prefs.region
 
       query = Invidious::Search::Query.new(env.params.query, :regular, region)
