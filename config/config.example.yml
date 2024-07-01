@@ -204,11 +204,11 @@ https_only: false
 
 ##
 ## Enable/Disable specific pages on the main page.
-## Example:
-## pages_enabled:
-##   trending: true
-##   popular: true
-##   search: true
+##
+#pages_enabled:
+#  trending: true
+#  popular: true
+#  search: true
 ##
 
 ##
