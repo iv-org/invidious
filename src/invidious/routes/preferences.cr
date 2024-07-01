@@ -194,9 +194,12 @@ module Invidious::Routes::PreferencesRoute
         end
         CONFIG.default_user_preferences.feed_menu = admin_feed_menu
 
-        popular_enabled = env.params.body["popular_enabled"]?.try &.as(String)
-        popular_enabled ||= "off"
-        CONFIG.popular_enabled = popular_enabled == "on"
+        pages_enabled = {
+          "popular"  => (env.params.body["popular_enabled"]?.try &.as(String) || "off") == "on",
+          "trending" => (env.params.body["trending_enabled"]?.try &.as(String) || "off") == "on",
+          "search"   => (env.params.body["search_enabled"]?.try &.as(String) || "off") == "on",
+        }
+        CONFIG.pages_enabled = pages_enabled
 
         captcha_enabled = env.params.body["captcha_enabled"]?.try &.as(String)
         captcha_enabled ||= "off"

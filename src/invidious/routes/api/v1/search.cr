@@ -5,6 +5,11 @@ module Invidious::Routes::API::V1::Search
 
     env.response.content_type = "application/json"
 
+    if !CONFIG.page_enabled?("search")
+      error_message = {"error" => "Administrator has disabled this endpoint."}.to_json
+      haltf env, 403, error_message
+    end
+
     query = Invidious::Search::Query.new(env.params.query, :regular, region)
 
     begin
