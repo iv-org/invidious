@@ -288,12 +288,12 @@
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="trending_enabled"><%= translate(locale, "Trending enabled: ") %></label>
+                    <label for="trending_enabled"><%= translate(locale, "preferences_trending_enabled_label") %></label>
                     <input name="trending_enabled" id="trending_enabled" type="checkbox" <% if CONFIG.page_enabled?("trending") %>checked<% end %>>
                 </div>
 
                 <div class="pure-control-group">
-                    <label for="search_enabled"><%= translate(locale, "Search enabled: ") %></label>
+                    <label for="search_enabled"><%= translate(locale, "preferences_search_enabled_label") %></label>
                     <input name="search_enabled" id="search_enabled" type="checkbox" <% if CONFIG.page_enabled?("search") %>checked<% end %>>
                 </div>
 
