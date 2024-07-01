@@ -156,7 +156,6 @@ class Config
     @pages_enabled[page]? || false
   end
 
-
   def self.load
     # Load config from file or YAML string env var
     env_config_file = "INVIDIOUS_CONFIG_FILE"

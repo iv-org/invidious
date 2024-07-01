@@ -195,9 +195,9 @@ module Invidious::Routes::PreferencesRoute
         CONFIG.default_user_preferences.feed_menu = admin_feed_menu
 
         pages_enabled = {
-          "popular" => (env.params.body["popular_enabled"]?.try &.as(String) || "off") == "on",
+          "popular"  => (env.params.body["popular_enabled"]?.try &.as(String) || "off") == "on",
           "trending" => (env.params.body["trending_enabled"]?.try &.as(String) || "off") == "on",
-          "search" => (env.params.body["search_enabled"]?.try &.as(String) || "off") == "on"
+          "search"   => (env.params.body["search_enabled"]?.try &.as(String) || "off") == "on",
         }
         CONFIG.pages_enabled = pages_enabled
 
