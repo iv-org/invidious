@@ -1,8 +1,9 @@
 name: Build and release container
 
 on:
-  tags:
-    - "v*"
+  push:
+    tags:
+      - "v*"
 
 jobs:
   release:
