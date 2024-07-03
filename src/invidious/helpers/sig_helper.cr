@@ -3,6 +3,10 @@ require "socket"
 require "socket/tcp_socket"
 require "socket/unix_socket"
 
+{% if flag?(:advanced_debug) %}
+  require "io/hexdump"
+{% end %}
+
 private alias NetworkEndian = IO::ByteFormat::NetworkEndian
 
 class Invidious::SigHelper
@@ -20,58 +24,63 @@ class Invidious::SigHelper
   end
 
   struct StringPayload < Payload
-    getter value : String
+    getter string : String
 
     def initialize(str : String)
       raise Exception.new("SigHelper: String can't be empty") if str.empty?
-      @value = str
+      @string = str
     end
 
-    def self.from_io(io : IO)
-      size = io.read_bytes(UInt16, NetworkEndian)
+    def self.from_bytes(slice : Bytes)
+      size = IO::ByteFormat::NetworkEndian.decode(UInt16, slice)
       if size == 0 # Error code
         raise Exception.new("SigHelper: Server encountered an error")
       end
 
-      if str = io.gets(limit: size)
+      if (slice.bytesize - 2) != size
+        raise Exception.new("SigHelper: String size mismatch")
+      end
+
+      if str = String.new(slice[2..])
         return self.new(str)
       else
         raise Exception.new("SigHelper: Can't read string from socket")
       end
     end
 
-    def self.to_io(io : IO)
+    def to_io(io)
       # `.to_u16` raises if there is an overflow during the conversion
-      io.write_bytes(@value.bytesize.to_u16, NetworkEndian)
-      io.write(@value.to_slice)
+      io.write_bytes(@string.bytesize.to_u16, NetworkEndian)
+      io.write(@string.to_slice)
     end
   end
 
   private enum Opcode
-    FORCE_UPDATE = 0
-    DECRYPT_N_SIGNATURE = 1
-    DECRYPT_SIGNATURE = 2
+    FORCE_UPDATE            = 0
+    DECRYPT_N_SIGNATURE     = 1
+    DECRYPT_SIGNATURE       = 2
     GET_SIGNATURE_TIMESTAMP = 3
-    GET_PLAYER_STATUS = 4
+    GET_PLAYER_STATUS       = 4
   end
 
-  private struct Request
-    def initialize(@opcode : Opcode, @payload : Payload?)
-    end
-  end
+  private record Request,
+    opcode : Opcode,
+    payload : Payload?
 
   # ----------------------
   #  High-level functions
   # ----------------------
 
   module Client
+    extend self
+
     # Forces the server to re-fetch the YouTube player, and extract the necessary
     # components from it (nsig function code, sig function code, signature timestamp).
     def force_update : UpdateStatus
       request = Request.new(Opcode::FORCE_UPDATE, nil)
 
-      value = send_request(request) do |io|
-        io.read_bytes(UInt16, NetworkEndian)
+      value = send_request(request) do |bytes|
+        IO::ByteFormat::NetworkEndian.decode(UInt16, bytes)
       end
 
       case value
@@ -79,20 +88,18 @@ class Invidious::SigHelper
       when 0xFFFF then return UpdateStatus::UpdateNotRequired
       when 0xF44F then return UpdateStatus::Updated
       else
-        raise Exception.new("SigHelper: Invalid status code received")
+        code = value.nil? ? "nil" : value.to_s(base: 16)
+        raise Exception.new("SigHelper: Invalid status code received #{code}")
       end
     end
 
     # Decrypt a provided n signature using the server's current nsig function
     # code, and return the result (or an error).
-    def decrypt_n_param(n : String) : String
+    def decrypt_n_param(n : String) : String?
       request = Request.new(Opcode::DECRYPT_N_SIGNATURE, StringPayload.new(n))
 
-      n_dec = send_request(request) do |io|
-        StringPayload.from_io(io).string
-      rescue ex
-        LOGGER.debug(ex.message)
-        nil
+      n_dec = send_request(request) do |bytes|
+        StringPayload.from_bytes(bytes).string
       end
 
       return n_dec
@@ -103,11 +110,8 @@ class Invidious::SigHelper
     def decrypt_sig(sig : String) : String?
       request = Request.new(Opcode::DECRYPT_SIGNATURE, StringPayload.new(sig))
 
-      sig_dec = send_request(request) do |io|
-        StringPayload.from_io(io).string
-      rescue ex
-        LOGGER.debug(ex.message)
-        nil
+      sig_dec = send_request(request) do |bytes|
+        StringPayload.from_bytes(bytes).string
       end
 
       return sig_dec
@@ -117,29 +121,30 @@ class Invidious::SigHelper
     def get_sts : UInt64?
       request = Request.new(Opcode::GET_SIGNATURE_TIMESTAMP, nil)
 
-      return send_request(request) do |io|
-        io.read_bytes(UInt64, NetworkEndian)
+      return send_request(request) do |bytes|
+        IO::ByteFormat::NetworkEndian.decode(UInt64, bytes)
       end
     end
 
-    # Return the signature timestamp from the server's current player
+    # Return the current player's version
     def get_player : UInt32?
       request = Request.new(Opcode::GET_PLAYER_STATUS, nil)
 
-      send_request(request) do |io|
-        has_player = io.read_bytes(UInt8) == 0xFF
-        player_version = io.read_bytes(UInt32, NetworkEndian)
+      send_request(request) do |bytes|
+        has_player = (bytes[0] == 0xFF)
+        player_version = IO::ByteFormat::NetworkEndian.decode(UInt32, bytes[1..4])
       end
 
       return has_player ? player_version : nil
     end
 
-    private def send_request(request : Request, &block : IO)
-      channel = Multiplexor.send(request)
-      data_io = channel.receive
-      return yield data_io
+    private def send_request(request : Request, &)
+      channel = Multiplexor::INSTANCE.send(request)
+      slice = channel.receive
+      return yield slice
     rescue ex
-      LOGGER.debug(ex.message)
+      LOGGER.debug("SigHelper: Error when sending a request")
+      LOGGER.trace(ex.inspect_with_backtrace)
       return nil
     end
   end
@@ -152,18 +157,13 @@ class Invidious::SigHelper
     alias TransactionID = UInt32
     record Transaction, channel = ::Channel(Bytes).new
 
-    @prng  = Random.new
+    @prng = Random.new
     @mutex = Mutex.new
     @queue = {} of TransactionID => Transaction
 
     @conn : Connection
 
-    INSTANCE = new
-
-    def initialize
-      @conn = Connection.new
-      listen
-    end
+    INSTANCE = new("")
 
     def initialize(url : String)
       @conn = Connection.new(url)
@@ -173,22 +173,24 @@ class Invidious::SigHelper
     def listen : Nil
       raise "Socket is closed" if @conn.closed?
 
+      LOGGER.debug("SigHelper: Multiplexor listening")
+
       # TODO: reopen socket if unexpectedly closed
       spawn do
         loop do
           receive_data
-          Fiber.sleep
+          Fiber.yield
         end
       end
     end
 
-    def self.send(request : Request)
+    def send(request : Request)
       transaction = Transaction.new
       transaction_id = @prng.rand(TransactionID)
 
       # Add transaction to queue
       @mutex.synchronize do
-        # On a 64-bits random integer, this should never happen. Though, just in case, ...
+        # On a 32-bits random integer, this should never happen. Though, just in case, ...
         if @queue[transaction_id]?
           raise Exception.new("SigHelper: Duplicate transaction ID! You got a shiny pokemon!")
         end
@@ -201,75 +203,92 @@ class Invidious::SigHelper
       return transaction.channel
     end
 
-    def receive_data : Payload
-      # Read a single packet from socker
-      transaction_id, data_io = read_packet
+    def receive_data
+      transaction_id, slice = read_packet
 
-      # Remove transaction from queue
       @mutex.synchronize do
-        transaction = @queue.delete(transaction_id)
+        if transaction = @queue.delete(transaction_id)
+          # Remove transaction from queue and send data to the channel
+          transaction.channel.send(slice)
+          LOGGER.trace("SigHelper: Transaction unqueued and data sent to channel")
+        else
+          raise Exception.new("SigHelper: Received transaction was not in queue")
+        end
       end
-
-      # Send data to the channel
-      transaction.channel.send(data)
     end
 
     # Read a single packet from the socket
-    private def read_packet : {TransactionID, IO}
+    private def read_packet : {TransactionID, Bytes}
       # Header
-      transaction_id = @conn.read_u32
-      length = conn.read_u32
+      transaction_id = @conn.read_bytes(UInt32, NetworkEndian)
+      length = @conn.read_bytes(UInt32, NetworkEndian)
+
+      LOGGER.trace("SigHelper: Recv transaction 0x#{transaction_id.to_s(base: 16)} / length #{length}")
 
       if length > 67_000
         raise Exception.new("SigHelper: Packet longer than expected (#{length})")
       end
 
       # Payload
-      data_io = IO::Memory.new(1024)
-      IO.copy(@conn, data_io, limit: length)
+      slice = Bytes.new(length)
+      @conn.read(slice) if length > 0
 
-      # data = Bytes.new()
-      # conn.read(data)
+      LOGGER.trace("SigHelper: payload = #{slice}")
+      LOGGER.trace("SigHelper: Recv transaction 0x#{transaction_id.to_s(base: 16)} - Done")
 
-      return transaction_id, data_io
+      return transaction_id, slice
     end
 
     # Write a single packet to the socket
     private def write_packet(transaction_id : TransactionID, request : Request)
-      @conn.write_int(request.opcode)
-      @conn.write_int(transaction_id)
-      request.payload.to_io(@conn)
+      LOGGER.trace("SigHelper: Send transaction 0x#{transaction_id.to_s(base: 16)} / opcode #{request.opcode}")
+
+      io = IO::Memory.new(1024)
+      io.write_bytes(request.opcode.to_u8, NetworkEndian)
+      io.write_bytes(transaction_id, NetworkEndian)
+
+      if payload = request.payload
+        payload.to_io(io)
+      end
+
+      @conn.send(io)
+      @conn.flush
+
+      LOGGER.trace("SigHelper: Send transaction 0x#{transaction_id.to_s(base: 16)} - Done")
     end
   end
 
   class Connection
     @socket : UNIXSocket | TCPSocket
-    @mutex = Mutex.new
+
+    {% if flag?(:advanced_debug) %}
+      @io : IO::Hexdump
+    {% end %}
 
     def initialize(host_or_path : String)
       if host_or_path.empty?
-        host_or_path = default_path
-
-      begin
-        case host_or_path
-        when.starts_with?('/')
-          @socket = UNIXSocket.new(host_or_path)
-        when .starts_with?("tcp://")
-          uri = URI.new(host_or_path)
-          @socket = TCPSocket.new(uri.host, uri.port)
-        else
-          uri = URI.new("tcp://#{host_or_path}")
-          @socket = TCPSocket.new(uri.host, uri.port)
-        end
-
-        socket.sync = false
-      rescue ex
-        raise ConnectionError.new("Connection error", cause: ex)
+        host_or_path = "/tmp/inv_sig_helper.sock"
       end
-    end
 
-    private default_path
-      return "/tmp/inv_sig_helper.sock"
+      case host_or_path
+      when .starts_with?('/')
+        @socket = UNIXSocket.new(host_or_path)
+      when .starts_with?("tcp://")
+        uri = URI.new(host_or_path)
+        @socket = TCPSocket.new(uri.host.not_nil!, uri.port.not_nil!)
+      else
+        uri = URI.new("tcp://#{host_or_path}")
+        @socket = TCPSocket.new(uri.host.not_nil!, uri.port.not_nil!)
+      end
+
+      LOGGER.debug("SigHelper: Listening on '#{host_or_path}'")
+
+      {% if flag?(:advanced_debug) %}
+        @io = IO::Hexdump.new(@socket, output: STDERR, read: true, write: true)
+      {% end %}
+
+      @socket.sync = false
+      @socket.blocking = false
     end
 
     def closed? : Bool
@@ -284,20 +303,23 @@ class Invidious::SigHelper
       end
     end
 
-    def gets(*args, **options)
-      @socket.gets(*args, **options)
+    def flush(*args, **options)
+      @socket.flush(*args, **options)
     end
 
-    def read_bytes(*args, **options)
-      @socket.read_bytes(*args, **options)
+    def send(*args, **options)
+      @socket.send(*args, **options)
     end
 
-    def write(*args, **options)
-      @socket.write(*args, **options)
-    end
-
-    def write_bytes(*args, **options)
-      @socket.write_bytes(*args, **options)
-    end
+    # Wrap IO functions, with added debug tooling if needed
+    {% for function in %w(read read_bytes write write_bytes) %}
+      def {{function.id}}(*args, **options)
+        {% if flag?(:advanced_debug) %}
+          @io.{{function.id}}(*args, **options)
+        {% else %}
+          @socket.{{function.id}}(*args, **options)
+        {% end %}
+      end
+    {% end %}
   end
 end

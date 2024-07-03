@@ -17,6 +17,15 @@ struct Invidious::DecryptFunction
     end
   end
 
+  def decrypt_nsig(n : String) : String?
+    self.check_update
+    return SigHelper::Client.decrypt_n_param(n)
+  rescue ex
+    LOGGER.debug(ex.message || "Signature: Unknown error")
+    LOGGER.trace(ex.inspect_with_backtrace)
+    return nil
+  end
+
   def decrypt_signature(str : String) : String?
     self.check_update
     return SigHelper::Client.decrypt_sig(str)
