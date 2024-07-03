@@ -343,21 +343,6 @@ full_refresh: false
 ##
 feed_threads: 1
 
-##
-## Enable/Disable the polling job that keeps the decryption
-## function (for "secured" videos) up to date.
-##
-## Note: This part of the code generate a small amount of data every minute.
-## This may not be desired if you have bandwidth limits set by your ISP.
-##
-## Note 2: This part of the code is currently broken, so changing
-## this setting has no impact.
-##
-## Accepted values: true, false
-## Default: false
-##
-#decrypt_polling: false
-
 
 jobs:
 
