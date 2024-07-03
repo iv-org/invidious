@@ -34,4 +34,13 @@ struct Invidious::DecryptFunction
     LOGGER.trace(ex.inspect_with_backtrace)
     return nil
   end
+
+  def get_sts : UInt64?
+    self.check_update
+    return SigHelper::Client.get_sts
+  rescue ex
+    LOGGER.debug(ex.message || "Signature: Unknown error")
+    LOGGER.trace(ex.inspect_with_backtrace)
+    return nil
+  end
 end
