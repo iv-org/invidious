@@ -140,27 +140,6 @@ https_only: false
 ##
 #pool_size: 100
 
-##
-## Enable/Disable the use of QUIC (HTTP/3) when connecting
-## to the youtube API and websites ('youtube.com', 'ytimg.com').
-## QUIC's main advantages are its lower latency and lower bandwidth
-## use, compared to its predecessors. However, the current version
-## of QUIC used in invidious is still based on the IETF draft 31,
-## meaning that the underlying library may still not be fully
-## optimized. You can read more about QUIC at the link below:
-## https://datatracker.ietf.org/doc/html/draft-ietf-quic-transport-31
-##
-## Note: you should try both options and see what is the best for your
-## instance. In general QUIC is recommended for public instances. Your
-## mileage may vary.
-##
-## Note 2: Using QUIC prevents some captcha challenges from appearing.
-## See: https://github.com/iv-org/invidious/issues/957#issuecomment-576424042
-##
-## Accepted values: true, false
-## Default: false
-##
-#use_quic: false
 
 ##
 ## Additional cookies to be sent when requesting the youtube API.
@@ -180,6 +159,19 @@ https_only: false
 ## Default: <none>
 ##
 #force_resolve:
+
+
+##
+## Use Innertube's transcripts API instead of timedtext for closed captions
+##
+## Useful for larger instances as InnerTube is **not ratelimited**. See https://github.com/iv-org/invidious/issues/2567
+##
+## Subtitle experience may differ slightly on Invidious.
+##
+## Accepted values: true, false
+## Default: false
+##
+# use_innertube_for_captions: false
 
 
 # -----------------------------
@@ -255,8 +247,7 @@ https_only: false
 #registration_enabled: true
 
 ##
-## Allow/Forbid users to log-in. This setting affects the ability
-## to connect with BOTH Google and Invidious (local) accounts.
+## Allow/Forbid users to log-in.
 ##
 ## Accepted values: true, false
 ## Default: true
@@ -402,27 +393,6 @@ jobs:
 
 
 # -----------------------------
-#  Captcha API
-# -----------------------------
-
-##
-## URL of the captcha solving service.
-##
-## Accepted values: any URL
-## Default: https://api.anti-captcha.com
-##
-#captcha_api_url: https://api.anti-captcha.com
-
-##
-## API key for the captcha solving service.
-##
-## Accepted values: a string
-## Default: <none>
-##
-#captcha_key:
-
-
-# -----------------------------
 #  Miscellaneous
 # -----------------------------
 
@@ -456,13 +426,17 @@ jobs:
 #use_pubsub_feeds: false
 
 ##
-## HMAC signing key used for CSRF tokens and pubsub
+## HMAC signing key used for CSRF tokens, cookies and pubsub
 ## subscriptions verification.
+##
+## Note: This parameter is mandatory and should be a random string.
+## Such random string can be generated on linux with the following
+## command: `pwgen 20 1`
 ##
 ## Accepted values: a string
 ## Default: <none>
 ##
-#hmac_key:
+hmac_key: "CHANGE_ME!!"
 
 ##
 ## List of video IDs where the "download" widget must be
@@ -817,6 +791,16 @@ default_user_preferences:
   ## Default: true
   ##
   #vr_mode: true
+  
+  ##
+  ## Save the playback position
+  ## Allow to continue watching at the previous position when
+  ## watching the same video.
+  ##
+  ## Accepted values: true, false
+  ## Default: false
+  ##
+  #save_player_pos: false
 
   # -----------------------------
   #  Subscription feed

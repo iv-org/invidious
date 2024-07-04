@@ -10,7 +10,7 @@ var notifications, delivered;
 var notifications_mock = { close: function () { } };
 
 function get_subscriptions() {
-    helpers.xhr('GET', '/api/v1/auth/subscriptions?fields=authorId', {
+    helpers.xhr('GET', '/api/v1/auth/subscriptions', {
         retries: 5,
         entity_name: 'subscriptions'
     }, {
@@ -22,7 +22,7 @@ function create_notification_stream(subscriptions) {
     // sse.js can't be replaced to EventSource in place as it lack support of payload and headers
     // see https://developer.mozilla.org/en-US/docs/Web/API/EventSource/EventSource
     notifications = new SSE(
-        '/api/v1/auth/notifications?fields=videoId,title,author,authorId,publishedText,published,authorThumbnails,liveNow', {
+        '/api/v1/auth/notifications', {
             withCredentials: true,
             payload: 'topics=' + subscriptions.map(function (subscription) { return subscription.authorId; }).join(','),
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }

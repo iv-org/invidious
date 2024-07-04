@@ -50,13 +50,12 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
   }
 end
 
-def extract_video_info(video_id : String, proxy_region : String? = nil)
+def extract_video_info(video_id : String)
   # Init client config for the API
-  client_config = YoutubeAPI::ClientConfig.new(proxy_region: proxy_region)
+  client_config = YoutubeAPI::ClientConfig.new
 
   # Fetch data from the player endpoint
-  # 8AEB param is used to fetch YouTube stories
-  player_response = YoutubeAPI.player(video_id: video_id, params: "8AEB", client_config: client_config)
+  player_response = YoutubeAPI.player(video_id: video_id, params: "", client_config: client_config)
 
   playability_status = player_response.dig?("playabilityStatus", "status").try &.as_s
 
@@ -78,7 +77,16 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
   elsif video_id != player_response.dig("videoDetails", "videoId")
     # YouTube may return a different video player response than expected.
     # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
-    raise VideoNotAvailableException.new("The video returned by YouTube isn't the requested one. (WEB client)")
+    # Line to be reverted if one day we solve the video not available issue.
+
+    # Although technically not a call to /videoplayback the fact that YouTube is returning the
+    # wrong video means that we should count it as a failure.
+    get_playback_statistic()["totalRequests"] += 1
+
+    return {
+      "version" => JSON::Any.new(Video::SCHEMA_VERSION.to_i64),
+      "reason"  => JSON::Any.new("Can't load the video on this Invidious instance. YouTube is currently trying to block Invidious instances. <a href=\"https://github.com/iv-org/invidious/issues/3822\">Click here for more info about the issue.</a>"),
+    }
   else
     reason = nil
   end
@@ -99,11 +107,7 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
     # decrypted URLs and maybe fix throttling issues (#2194). See the
     # following issue for an explanation about decrypted URLs:
     # https://github.com/TeamNewPipe/NewPipeExtractor/issues/562
-    client_config.client_type = YoutubeAPI::ClientType::Android
-    new_player_response = try_fetch_streaming_data(video_id, client_config)
-  elsif !reason.includes?("your country") # Handled separately
-    # The Android embedded client could help here
-    client_config.client_type = YoutubeAPI::ClientType::AndroidScreenEmbed
+    client_config.client_type = YoutubeAPI::ClientType::AndroidTestSuite
     new_player_response = try_fetch_streaming_data(video_id, client_config)
   end
 
@@ -115,6 +119,10 @@ def extract_video_info(video_id : String, proxy_region : String? = nil)
 
   # Replace player response and reset reason
   if !new_player_response.nil?
+    # Preserve captions & storyboard data before replacement
+    new_player_response["storyboards"] = player_response["storyboards"] if player_response["storyboards"]?
+    new_player_response["captions"] = player_response["captions"] if player_response["captions"]?
+
     player_response = new_player_response
     params.delete("reason")
   end
@@ -131,8 +139,7 @@ end
 
 def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConfig) : Hash(String, JSON::Any)?
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Using #{client_config.client_type} client.")
-  # 8AEB param is used to fetch YouTube stories
-  response = YoutubeAPI.player(video_id: id, params: "8AEB", client_config: client_config)
+  response = YoutubeAPI.player(video_id: id, params: "2AMB", client_config: client_config)
 
   playability_status = response["playabilityStatus"]["status"]
   LOGGER.debug("try_fetch_streaming_data: [#{id}] Got playabilityStatus == #{playability_status}.")
@@ -140,7 +147,7 @@ def try_fetch_streaming_data(id : String, client_config : YoutubeAPI::ClientConf
   if id != response.dig("videoDetails", "videoId")
     # YouTube may return a different video player response than expected.
     # See: https://github.com/TeamNewPipe/NewPipe/issues/8713
-    raise VideoNotAvailableException.new(
+    raise InfoException.new(
       "The video returned by YouTube isn't the requested one. (#{client_config.client_type} client)"
     )
   elsif playability_status == "OK"
@@ -185,10 +192,12 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   # We have to try to extract viewCount from videoPrimaryInfoRenderer first,
   # then from videoDetails, as the latter is "0" for livestreams (we want
   # to get the amount of viewers watching).
-  views_txt = video_primary_renderer
-    .try &.dig?("viewCount", "videoViewCountRenderer", "viewCount", "runs", 0, "text")
-  views_txt ||= video_details["viewCount"]?
-  views = views_txt.try &.as_s.gsub(/\D/, "").to_i64?
+  views_txt = extract_text(
+    video_primary_renderer
+      .try &.dig?("viewCount", "videoViewCountRenderer", "viewCount")
+  )
+  views_txt ||= video_details["viewCount"]?.try &.as_s || ""
+  views = views_txt.gsub(/\D/, "").to_i64?
 
   length_txt = (microformat["lengthSeconds"]? || video_details["lengthSeconds"])
     .try &.as_s.to_i64
@@ -200,6 +209,9 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .try { |t| Time.parse_rfc3339(t.as_s) }
 
   live_now = microformat.dig?("liveBroadcastDetails", "isLiveNow")
+    .try &.as_bool || false
+
+  post_live_dvr = video_details.dig?("isPostLiveDvr")
     .try &.as_bool || false
 
   # Extra video infos
@@ -253,7 +265,18 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     .try &.dig?("videoActions", "menuRenderer", "topLevelButtons")
 
   if toplevel_buttons
-    likes_button = toplevel_buttons.try &.as_a
+    # New Format as of december 2023
+    likes_button = toplevel_buttons.dig?(0,
+      "segmentedLikeDislikeButtonViewModel",
+      "likeButtonViewModel",
+      "likeButtonViewModel",
+      "toggleButtonViewModel",
+      "toggleButtonViewModel",
+      "defaultButtonViewModel",
+      "buttonViewModel"
+    )
+
+    likes_button ||= toplevel_buttons.try &.as_a
       .find(&.dig?("toggleButtonRenderer", "defaultIcon", "iconType").=== "LIKE")
       .try &.["toggleButtonRenderer"]
 
@@ -266,9 +289,10 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
       )
 
     if likes_button
+      likes_txt = likes_button.dig?("accessibilityText")
       # Note: The like count from `toggledText` is off by one, as it would
       # represent the new like count in the event where the user clicks on "like".
-      likes_txt = (likes_button["defaultText"]? || likes_button["toggledText"]?)
+      likes_txt ||= (likes_button["defaultText"]? || likes_button["toggledText"]?)
         .try &.dig?("accessibility", "accessibilityData", "label")
       likes = likes_txt.as_s.gsub(/\D/, "").to_i64? if likes_txt
 
@@ -282,8 +306,10 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   description = microformat.dig?("description", "simpleText").try &.as_s || ""
   short_description = player_response.dig?("videoDetails", "shortDescription")
 
-  description_html = video_secondary_renderer.try &.dig?("description", "runs")
-    .try &.as_a.try { |t| content_to_comment_html(t, video_id) }
+  # description_html = video_secondary_renderer.try &.dig?("description", "runs")
+  #  .try &.as_a.try { |t| content_to_comment_html(t, video_id) }
+
+  description_html = parse_description(video_secondary_renderer.try &.dig?("attributedDescription"), video_id)
 
   # Video metadata
 
@@ -325,17 +351,28 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     album = nil
     music_license = nil
 
+    # Used when the video has multiple songs
+    if song_title = music_desc.dig?("carouselLockupRenderer", "videoLockup", "compactVideoRenderer", "title")
+      # "simpleText" for plain text / "runs" when song has a link
+      song = song_title["simpleText"]? || song_title.dig?("runs", 0, "text")
+
+      # some videos can have empty tracks. See: https://www.youtube.com/watch?v=eBGIQ7ZuuiU
+      next if !song
+    end
+
     music_desc.dig?("carouselLockupRenderer", "infoRows").try &.as_a.each do |desc|
       desc_title = extract_text(desc.dig?("infoRowRenderer", "title"))
       if desc_title == "ARTIST"
         artist = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
+      elsif desc_title == "SONG"
+        song = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
       elsif desc_title == "ALBUM"
         album = extract_text(desc.dig?("infoRowRenderer", "defaultMetadata"))
       elsif desc_title == "LICENSES"
         music_license = extract_text(desc.dig?("infoRowRenderer", "expandedMetadata"))
       end
     end
-    music_list << VideoMusic.new(album.to_s, artist.to_s, music_license.to_s)
+    music_list << VideoMusic.new(song.to_s, album.to_s, artist.to_s, music_license.to_s)
   end
 
   # Author infos
@@ -378,6 +415,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     "isListed"         => JSON::Any.new(is_listed || false),
     "isUpcoming"       => JSON::Any.new(is_upcoming || false),
     "keywords"         => JSON::Any.new(keywords.map { |v| JSON::Any.new(v) }),
+    "isPostLiveDvr"    => JSON::Any.new(post_live_dvr),
     # Related videos
     "relatedVideos" => JSON::Any.new(related),
     # Description

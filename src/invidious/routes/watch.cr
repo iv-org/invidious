@@ -30,14 +30,6 @@ module Invidious::Routes::Watch
       return env.redirect "/"
     end
 
-    embed_link = "/embed/#{id}"
-    if env.params.query.size > 1
-      embed_params = HTTP::Params.parse(env.params.query.to_s)
-      embed_params.delete_all("v")
-      embed_link += "?"
-      embed_link += embed_params.to_s
-    end
-
     plid = env.params.query["list"]?.try &.gsub(/[^a-zA-Z0-9_-]/, "")
     continuation = process_continuation(env.params.query, plid, id)
 
@@ -76,7 +68,7 @@ module Invidious::Routes::Watch
     end
     env.params.query.delete_all("iv_load_policy")
 
-    if watched && preferences.watch_history && !watched.includes? id
+    if watched && preferences.watch_history
       Invidious::Database::Users.mark_watched(user.as(User), id)
     end
 
@@ -95,31 +87,31 @@ module Invidious::Routes::Watch
 
         if source == "youtube"
           begin
-            comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+            comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
           rescue ex
             if preferences.comments[1] == "reddit"
-              comments, reddit_thread = fetch_reddit_comments(id)
-              comment_html = template_reddit_comments(comments, locale)
+              comments, reddit_thread = Comments.fetch_reddit(id)
+              comment_html = Frontend::Comments.template_reddit(comments, locale)
 
-              comment_html = fill_links(comment_html, "https", "www.reddit.com")
-              comment_html = replace_links(comment_html)
+              comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
+              comment_html = Comments.replace_links(comment_html)
             end
           end
         elsif source == "reddit"
           begin
-            comments, reddit_thread = fetch_reddit_comments(id)
-            comment_html = template_reddit_comments(comments, locale)
+            comments, reddit_thread = Comments.fetch_reddit(id)
+            comment_html = Frontend::Comments.template_reddit(comments, locale)
 
-            comment_html = fill_links(comment_html, "https", "www.reddit.com")
-            comment_html = replace_links(comment_html)
+            comment_html = Comments.fill_links(comment_html, "https", "www.reddit.com")
+            comment_html = Comments.replace_links(comment_html)
           rescue ex
             if preferences.comments[1] == "youtube"
-              comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+              comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
             end
           end
         end
       else
-        comment_html = JSON.parse(fetch_youtube_comments(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
+        comment_html = JSON.parse(Comments.fetch_youtube(id, nil, "html", locale, preferences.thin_mode, region))["contentHtml"]
       end
 
       comment_html ||= ""
@@ -259,9 +251,7 @@ module Invidious::Routes::Watch
 
     case action
     when "action_mark_watched"
-      if !user.watched.includes? id
-        Invidious::Database::Users.mark_watched(user, id)
-      end
+      Invidious::Database::Users.mark_watched(user, id)
     when "action_mark_unwatched"
       Invidious::Database::Users.mark_unwatched(user, id)
     else
@@ -285,6 +275,12 @@ module Invidious::Routes::Watch
     return error_template(400, "Invalid clip ID") if response["error"]?
 
     if video_id = response.dig?("endpoint", "watchEndpoint", "videoId")
+      if params = response.dig?("endpoint", "watchEndpoint", "params").try &.as_s
+        start_time, end_time, _ = parse_clip_parameters(params)
+        env.params.query["start"] = start_time.to_s if start_time != nil
+        env.params.query["end"] = end_time.to_s if end_time != nil
+      end
+
       return env.redirect "/watch?v=#{video_id}&#{env.params.query}"
     else
       return error_template(404, "The requested clip doesn't exist")

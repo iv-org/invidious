@@ -43,11 +43,6 @@ module Invidious::Routes::Subscriptions
     channel_id = env.params.query["c"]?
     channel_id ||= ""
 
-    if !user.password
-      # Sync subscriptions with YouTube
-      subscribe_ajax(channel_id, action, env.request.headers)
-    end
-
     case action
     when "action_create_subscription_to_channel"
       if !user.subscriptions.includes? channel_id
@@ -82,14 +77,6 @@ module Invidious::Routes::Subscriptions
     user = user.as(User)
     sid = sid.as(String)
 
-    if !user.password
-      # Refresh account
-      headers = HTTP::Headers.new
-      headers["Cookie"] = env.request.headers["Cookie"]
-
-      user, sid = get_user(sid, headers)
-    end
-
     action_takeout = env.params.query["action_takeout"]?.try &.to_i?
     action_takeout ||= 0
     action_takeout = action_takeout == 1
@@ -104,33 +91,8 @@ module Invidious::Routes::Subscriptions
       if format == "json"
         env.response.content_type = "application/json"
         env.response.headers["content-disposition"] = "attachment"
-        playlists = Invidious::Database::Playlists.select_like_iv(user.email)
 
-        return JSON.build do |json|
-          json.object do
-            json.field "subscriptions", user.subscriptions
-            json.field "watch_history", user.watched
-            json.field "preferences", user.preferences
-            json.field "playlists" do
-              json.array do
-                playlists.each do |playlist|
-                  json.object do
-                    json.field "title", playlist.title
-                    json.field "description", html_to_content(playlist.description_html)
-                    json.field "privacy", playlist.privacy.to_s
-                    json.field "videos" do
-                      json.array do
-                        Invidious::Database::PlaylistVideos.select_ids(playlist.id, playlist.index, limit: 500).each do |video_id|
-                          json.string video_id
-                        end
-                      end
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
+        return Invidious::User::Export.to_invidious(user)
       else
         env.response.content_type = "application/xml"
         env.response.headers["content-disposition"] = "attachment"

@@ -3,35 +3,11 @@ require "../spec_helper"
 CONFIG = Config.from_yaml(File.open("config/config.example.yml"))
 
 Spectator.describe "Helper" do
-  describe "#produce_channel_videos_url" do
-    it "correctly produces url for requesting page `x` of a channel's videos" do
-      # expect(produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw")).to eq("/browse_ajax?continuation=4qmFsgI8EhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0V4&gl=US&hl=en")
-      #
-      # expect(produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw", sort_by: "popular")).to eq("/browse_ajax?continuation=4qmFsgJAEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaJEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0V4R0FFPQ%3D%3D&gl=US&hl=en")
-
-      # expect(produce_channel_videos_url(ucid: "UCXuqSBlHAE6Xw-yeJA0Tunw", page: 20)).to eq("/browse_ajax?continuation=4qmFsgJAEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaJEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0l5TUE9PQ%3D%3D&gl=US&hl=en")
-
-      # expect(produce_channel_videos_url(ucid: "UC-9-kyTW8ZkZNDHQJ6FgpwQ", page: 20, sort_by: "popular")).to eq("/browse_ajax?continuation=4qmFsgJAEhhVQy05LWt5VFc4WmtaTkRIUUo2Rmdwd1EaJEVnWjJhV1JsYjNNd0FqZ0JZQUZxQUxnQkFDQUFlZ0l5TUJnQg%3D%3D&gl=US&hl=en")
-    end
-  end
-
   describe "#produce_channel_search_continuation" do
     it "correctly produces token for searching a specific channel" do
       expect(produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "", 100)).to eq("4qmFsgJqEhhVQ1h1cVNCbEhBRTZYdy15ZUpBMFR1bncaIEVnWnpaV0Z5WTJnd0FUZ0JZQUY2QkVkS2IxaTRBUUE9WgCaAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")
 
       expect(produce_channel_search_continuation("UCXuqSBlHAE6Xw-yeJA0Tunw", "По ожиशुपतिरपि子而時ஸ்றீனி", 0)).to eq("4qmFsgKoARIYVUNYdXFTQmxIQUU2WHcteWVKQTBUdW53GiBFZ1p6WldGeVkyZ3dBVGdCWUFGNkJFZEJRVDI0QVFBPVo-0J_QviDQvtC20LjgpLbgpYHgpKrgpKTgpL_gpLDgpKrgpL_lrZDogIzmmYLgrrjgr43grrHgr4Dgrqngrr-aAilicm93c2UtZmVlZFVDWHVxU0JsSEFFNlh3LXllSkEwVHVud3NlYXJjaA%3D%3D")
-    end
-  end
-
-  describe "#produce_comment_continuation" do
-    it "correctly produces a continuation token for comments" do
-      expect(produce_comment_continuation("_cE8xSu6swE", "ADSJ_i2qvJeFtL0htmS5_K5Ctj3eGFVBMWL9Wd42o3kmUL6_mAzdLp85-liQZL0mYr_16BhaggUqX652Sv9JqV6VXinShSP-ZT6rL4NolPBaPXVtJsO5_rA_qE3GubAuLFw9uzIIXU2-HnpXbdgPLWTFavfX206hqWmmpHwUOrmxQV_OX6tYkM3ux3rPAKCDrT8eWL7MU3bLiNcnbgkW8o0h8KYLL_8BPa8LcHbTv8pAoNkjerlX1x7K4pqxaXPoyz89qNlnh6rRx6AXgAzzoHH1dmcyQ8CIBeOHg-m4i8ZxdX4dP88XWrIFg-jJGhpGP8JUMDgZgavxVx225hUEYZMyrLGler5em4FgbG62YWC51moLDLeYEA")).to eq("EkMSC19jRTh4U3U2c3dFyAEA4AEBogINKP___________wFAAMICHQgEGhdodHRwczovL3d3dy55b3V0dWJlLmNvbSIAGAYyjAMK9gJBRFNKX2kycXZKZUZ0TDBodG1TNV9LNUN0ajNlR0ZWQk1XTDlXZDQybzNrbVVMNl9tQXpkTHA4NS1saVFaTDBtWXJfMTZCaGFnZ1VxWDY1MlN2OUpxVjZWWGluU2hTUC1aVDZyTDROb2xQQmFQWFZ0SnNPNV9yQV9xRTNHdWJBdUxGdzl1eklJWFUyLUhucFhiZGdQTFdURmF2ZlgyMDZocVdtbXBId1VPcm14UVZfT1g2dFlrTTN1eDNyUEFLQ0RyVDhlV0w3TVUzYkxpTmNuYmdrVzhvMGg4S1lMTF84QlBhOExjSGJUdjhwQW9Oa2plcmxYMXg3SzRwcXhhWFBveXo4OXFObG5oNnJSeDZBWGdBenpvSEgxZG1jeVE4Q0lCZU9IZy1tNGk4WnhkWDRkUDg4WFdySUZnLWpKR2hwR1A4SlVNRGdaZ2F2eFZ4MjI1aFVFWVpNeXJMR2xlcjVlbTRGZ2JHNjJZV0M1MW1vTERMZVlFQSIPIgtfY0U4eFN1NnN3RTAAKBQ%3D")
-
-      expect(produce_comment_continuation("_cE8xSu6swE", "ADSJ_i1yz21HI4xrtsYXVC-2_kfZ6kx1yjYQumXAAxqH3CAd7ZxKxfLdZS1__fqhCtOASRbbpSBGH_tH1J96Dxux-Qfjk-lUbupMqv08Q3aHzGu7p70VoUMHhI2-GoJpnbpmcOxkGzeIuenRS_ym2Y8fkDowhqLPFgsS0n4djnZ2UmC17F3Ch3N1S1UYf1ZVOc991qOC1iW9kJDzyvRQTWCPsJUPneSaAKW-Rr97pdesOkR4i8cNvHZRnQKe2HEfsvlJOb2C3lF1dJBfJeNfnQYeh5hv6_fZN7bt3-JL1Xk3Qc9NXNxmmbDpwAC_yFR8dthFfUJdyIO9Nu1D79MLYeR-H5HxqUJokkJiGIz4lTE_CXXbhAI")).to eq("EkMSC19jRTh4U3U2c3dFyAEA4AEBogINKP___________wFAAMICHQgEGhdodHRwczovL3d3dy55b3V0dWJlLmNvbSIAGAYyiQMK8wJBRFNKX2kxeXoyMUhJNHhydHNZWFZDLTJfa2ZaNmt4MXlqWVF1bVhBQXhxSDNDQWQ3WnhLeGZMZFpTMV9fZnFoQ3RPQVNSYmJwU0JHSF90SDFKOTZEeHV4LVFmamstbFVidXBNcXYwOFEzYUh6R3U3cDcwVm9VTUhoSTItR29KcG5icG1jT3hrR3plSXVlblJTX3ltMlk4ZmtEb3docUxQRmdzUzBuNGRqbloyVW1DMTdGM0NoM04xUzFVWWYxWlZPYzk5MXFPQzFpVzlrSkR6eXZSUVRXQ1BzSlVQbmVTYUFLVy1Scjk3cGRlc09rUjRpOGNOdkhaUm5RS2UySEVmc3ZsSk9iMkMzbEYxZEpCZkplTmZuUVllaDVodjZfZlpON2J0My1KTDFYazNRYzlOWE54bW1iRHB3QUNfeUZSOGR0aEZmVUpkeUlPOU51MUQ3OU1MWWVSLUg1SHhxVUpva2tKaUdJejRsVEVfQ1hYYmhBSSIPIgtfY0U4eFN1NnN3RTAAKBQ%3D")
-
-      expect(produce_comment_continuation("29-q7YnyUmY", "")).to eq("EkMSCzI5LXE3WW55VW1ZyAEA4AEBogINKP___________wFAAMICHQgEGhdodHRwczovL3d3dy55b3V0dWJlLmNvbSIAGAYyFQoAIg8iCzI5LXE3WW55VW1ZMAAoFA%3D%3D")
-
-      expect(produce_comment_continuation("CvFH_6DNRCY", "")).to eq("EkMSC0N2RkhfNkROUkNZyAEA4AEBogINKP___________wFAAMICHQgEGhdodHRwczovL3d3dy55b3V0dWJlLmNvbSIAGAYyFQoAIg8iC0N2RkhfNkROUkNZMAAoFA%3D%3D")
     end
   end
 

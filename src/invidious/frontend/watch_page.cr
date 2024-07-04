@@ -7,7 +7,7 @@ module Invidious::Frontend::WatchPage
     getter full_videos : Array(Hash(String, JSON::Any))
     getter video_streams : Array(Hash(String, JSON::Any))
     getter audio_streams : Array(Hash(String, JSON::Any))
-    getter captions : Array(Invidious::Videos::Caption)
+    getter captions : Array(Invidious::Videos::Captions::Metadata)
 
     def initialize(
       @full_videos,
@@ -20,7 +20,7 @@ module Invidious::Frontend::WatchPage
 
   def download_widget(locale : String, video : Video, video_assets : VideoAssets) : String
     if CONFIG.disabled?("downloads")
-      return "<p id=\"download\">#{translate(locale, "Download is disabled.")}</p>"
+      return "<p id=\"download\">#{translate(locale, "Download is disabled")}</p>"
     end
 
     return String.build(4000) do |str|
@@ -42,8 +42,7 @@ module Invidious::Frontend::WatchPage
       str << translate(locale, "Download as: ")
       str << "</label>\n"
 
-      # TODO: remove inline style
-      str << "\t\t<select style=\"width:100%\" name='download_widget' id='download_widget'>\n"
+      str << "\t\t<select name='download_widget' id='download_widget'>\n"
 
       # Non-DASH videos (audio+video)
 

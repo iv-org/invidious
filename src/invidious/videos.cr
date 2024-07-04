@@ -24,7 +24,7 @@ struct Video
   property updated : Time
 
   @[DB::Field(ignore: true)]
-  @captions = [] of Invidious::Videos::Caption
+  @captions = [] of Invidious::Videos::Captions::Metadata
 
   @[DB::Field(ignore: true)]
   property adaptive_fmts : Array(Hash(String, JSON::Any))?
@@ -80,6 +80,10 @@ struct Video
 
   def live_now
     return (self.video_type == VideoType::Livestream)
+  end
+
+  def post_live_dvr
+    return info["isPostLiveDvr"].as_bool
   end
 
   def premiere_timestamp : Time?
@@ -215,9 +219,9 @@ struct Video
     keywords.includes? "YouTube Red"
   end
 
-  def captions : Array(Invidious::Videos::Caption)
+  def captions : Array(Invidious::Videos::Captions::Metadata)
     if @captions.empty? && @info.has_key?("captions")
-      @captions = Invidious::Videos::Caption.from_yt_json(info["captions"])
+      @captions = Invidious::Videos::Captions::Metadata.from_yt_json(info["captions"])
     end
 
     return @captions
@@ -227,8 +231,22 @@ struct Video
     info.dig?("streamingData", "hlsManifestUrl").try &.as_s
   end
 
-  def dash_manifest_url
-    info.dig?("streamingData", "dashManifestUrl").try &.as_s
+  def dash_manifest_url : String?
+    raw_dash_url = info.dig?("streamingData", "dashManifestUrl").try &.as_s
+    return nil if raw_dash_url.nil?
+
+    # Use manifest v5 parameter to reduce file size
+    # See https://github.com/iv-org/invidious/issues/4186
+    dash_url = URI.parse(raw_dash_url)
+    dash_query = dash_url.query || ""
+
+    if dash_query.empty?
+      dash_url.path = "#{dash_url.path}/mpd_version/5"
+    else
+      dash_url.query = "#{dash_query}&mpd_version=5"
+    end
+
+    return dash_url.to_s
   end
 
   def genre_url : String?
@@ -249,7 +267,12 @@ struct Video
 
   def music : Array(VideoMusic)
     info["music"].as_a.map { |music_json|
-      VideoMusic.new(music_json["album"].as_s, music_json["artist"].as_s, music_json["license"].as_s)
+      VideoMusic.new(
+        music_json["song"].as_s,
+        music_json["album"].as_s,
+        music_json["artist"].as_s,
+        music_json["license"].as_s
+      )
     }
   end
 
@@ -375,21 +398,12 @@ def fetch_video(id, region)
     .dig?("microformat", "playerMicroformatRenderer", "availableCountries")
     .try &.as_a.map &.as_s || [] of String
 
-  # Check for region-blocks
-  if info["reason"]?.try &.as_s.includes?("your country")
-    bypass_regions = PROXY_LIST.keys & allowed_regions
-    if !bypass_regions.empty?
-      region = bypass_regions[rand(bypass_regions.size)]
-      region_info = extract_video_info(video_id: id, proxy_region: region)
-      region_info["region"] = JSON::Any.new(region) if region
-      info = region_info if !region_info["reason"]?
-    end
-  end
-
   if reason = info["reason"]?
     if reason == "Video unavailable"
       raise NotFoundException.new(reason.as_s || "")
-    else
+    elsif !reason.as_s.starts_with? "Premieres"
+      # dont error when it's a premiere.
+      # we already parsed most of the data and display the premiere date
       raise InfoException.new(reason.as_s || "")
     end
   end

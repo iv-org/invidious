@@ -20,7 +20,7 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
     case sort_by
     when "newest"  then 1_i64
     when "popular" then 2_i64
-    when "oldest"  then 3_i64 # Broken as of 10/2022 :c
+    when "oldest"  then 4_i64
     else                1_i64 # Fallback to "newest"
     end
 
@@ -30,7 +30,9 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
         "15:embedded" => {
           "1:embedded" => {
             "1:string" => object_inner_2_encoded,
-            "2:string" => "00000000-0000-0000-0000-000000000000",
+          },
+          "2:embedded" => {
+            "1:string" => "00000000-0000-0000-0000-000000000000",
           },
           "3:varint" => sort_by_numerical,
         },
@@ -58,12 +60,6 @@ def produce_channel_videos_continuation(ucid, page = 1, auto_generated = nil, so
     .try { |i| URI.encode_www_form(i) }
 
   return continuation
-end
-
-# Used in bypass_captcha_job.cr
-def produce_channel_videos_url(ucid, page = 1, auto_generated = nil, sort_by = "newest", v2 = false)
-  continuation = produce_channel_videos_continuation(ucid, page, auto_generated, sort_by, v2)
-  return "/browse_ajax?continuation=#{continuation}&gl=US&hl=en"
 end
 
 module Invidious::Channel::Tabs
@@ -127,38 +123,15 @@ module Invidious::Channel::Tabs
   #  Shorts
   # -------------------
 
-  private def fetch_shorts_data(ucid : String, continuation : String? = nil)
+  def get_shorts(channel : AboutChannel, continuation : String? = nil)
     if continuation.nil?
       # EgZzaG9ydHPyBgUKA5oBAA%3D%3D is the protobuf object to load "shorts"
       # TODO: try to extract the continuation tokens that allows other sorting options
-      return YoutubeAPI.browse(ucid, params: "EgZzaG9ydHPyBgUKA5oBAA%3D%3D")
+      initial_data = YoutubeAPI.browse(channel.ucid, params: "EgZzaG9ydHPyBgUKA5oBAA%3D%3D")
     else
-      return YoutubeAPI.browse(continuation: continuation)
+      initial_data = YoutubeAPI.browse(continuation: continuation)
     end
-  end
-
-  def get_shorts(channel : AboutChannel, continuation : String? = nil)
-    initial_data = self.fetch_shorts_data(channel.ucid, continuation)
-
-    begin
-      # Try to parse the initial data fetched above
-      return extract_items(initial_data, channel.author, channel.ucid)
-    rescue ex : RetryOnceException
-      # Sometimes, for a completely unknown reason, the "reelItemRenderer"
-      # object is missing some critical information (it happens once in about
-      # 20 subsequent requests). Refreshing the page is required to properly
-      # show the "shorts" tab.
-      #
-      # In order to make the experience smoother for the user, we simulate
-      # said page refresh by fetching again the JSON. If that still doesn't
-      # work, we raise a BrokenTubeException, as something is really broken.
-      begin
-        initial_data = self.fetch_shorts_data(channel.ucid, continuation)
-        return extract_items(initial_data, channel.author, channel.ucid)
-      rescue ex : RetryOnceException
-        raise BrokenTubeException.new "reelPlayerHeaderSupportedRenderers"
-      end
-    end
+    return extract_items(initial_data, channel.author, channel.ucid)
   end
 
   # -------------------

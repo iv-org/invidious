@@ -42,7 +42,7 @@ module Invidious::Routes::VideoPlayback
       headers["Range"] = "bytes=#{range_for_head}"
     end
 
-    client = make_client(URI.parse(host), region)
+    client = make_client(URI.parse(host), region, force_resolve = true)
     response = HTTP::Client::Response.new(500)
     error = ""
     5.times do
@@ -57,7 +57,7 @@ module Invidious::Routes::VideoPlayback
           if new_host != host
             host = new_host
             client.close
-            client = make_client(URI.parse(new_host), region)
+            client = make_client(URI.parse(new_host), region, force_resolve = true)
           end
 
           url = "#{location.request_target}&host=#{location.host}#{region ? "&region=#{region}" : ""}"
@@ -71,7 +71,7 @@ module Invidious::Routes::VideoPlayback
         fvip = "3"
 
         host = "https://r#{fvip}---#{mn}.googlevideo.com"
-        client = make_client(URI.parse(host), region)
+        client = make_client(URI.parse(host), region, force_resolve = true)
       rescue ex
         error = ex.message
       end
@@ -80,9 +80,14 @@ module Invidious::Routes::VideoPlayback
     # Remove the Range header added previously.
     headers.delete("Range") if range_header.nil?
 
+    playback_statistics = get_playback_statistic()
+    playback_statistics["totalRequests"] += 1
+
     if response.status_code >= 400
       env.response.content_type = "text/plain"
       haltf env, response.status_code
+    else
+      playback_statistics["successfulRequests"] += 1
     end
 
     if url.includes? "&file=seg.ts"
@@ -191,7 +196,7 @@ module Invidious::Routes::VideoPlayback
             break
           else
             client.close
-            client = make_client(URI.parse(host), region)
+            client = make_client(URI.parse(host), region, force_resolve = true)
           end
         end
 
@@ -256,7 +261,7 @@ module Invidious::Routes::VideoPlayback
       return error_template(400, "Invalid video ID")
     end
 
-    if itag.nil? || itag <= 0 || itag >= 1000
+    if !itag.nil? && (itag <= 0 || itag >= 1000)
       return error_template(400, "Invalid itag")
     end
 
@@ -277,7 +282,11 @@ module Invidious::Routes::VideoPlayback
       return error_template(500, ex)
     end
 
-    fmt = video.fmt_stream.find(nil) { |f| f["itag"].as_i == itag } || video.adaptive_fmts.find(nil) { |f| f["itag"].as_i == itag }
+    if itag.nil?
+      fmt = video.fmt_stream[-1]?
+    else
+      fmt = video.fmt_stream.find(nil) { |f| f["itag"].as_i == itag } || video.adaptive_fmts.find(nil) { |f| f["itag"].as_i == itag }
+    end
     url = fmt.try &.["url"]?.try &.as_s
 
     if !url

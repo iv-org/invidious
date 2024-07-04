@@ -6,7 +6,7 @@ struct Invidious::User
 
     # Parse a youtube CSV subscription file
     def parse_subscription_export_csv(csv_content : String)
-      rows = CSV.new(csv_content, headers: true)
+      rows = CSV.new(csv_content.strip('\n'), headers: true)
       subscriptions = Array(String).new
 
       # Counter to limit the amount of imports.
@@ -30,6 +30,60 @@ struct Invidious::User
       return subscriptions
     end
 
+    def parse_playlist_export_csv(user : User, raw_input : String)
+      # Split the input into head and body content
+      raw_head, raw_body = raw_input.strip('\n').split("\n\n", limit: 2, remove_empty: true)
+
+      # Create the playlist from the head content
+      csv_head = CSV.new(raw_head.strip('\n'), headers: true)
+      csv_head.next
+      title = csv_head[4]
+      description = csv_head[5]
+      visibility = csv_head[6]
+
+      if visibility.compare("Public", case_insensitive: true) == 0
+        privacy = PlaylistPrivacy::Public
+      else
+        privacy = PlaylistPrivacy::Private
+      end
+
+      playlist = create_playlist(title, privacy, user)
+      Invidious::Database::Playlists.update_description(playlist.id, description)
+
+      # Add each video to the playlist from the body content
+      csv_body = CSV.new(raw_body.strip('\n'), headers: true)
+      csv_body.each do |row|
+        video_id = row[0]
+        if playlist
+          next if !video_id
+          next if video_id == "Video Id"
+
+          begin
+            video = get_video(video_id)
+          rescue ex
+            next
+          end
+
+          playlist_video = PlaylistVideo.new({
+            title:          video.title,
+            id:             video.id,
+            author:         video.author,
+            ucid:           video.ucid,
+            length_seconds: video.length_seconds,
+            published:      video.published,
+            plid:           playlist.id,
+            live_now:       video.live_now,
+            index:          Random::Secure.rand(0_i64..Int64::MAX),
+          })
+
+          Invidious::Database::PlaylistVideos.insert(playlist_video)
+          Invidious::Database::Playlists.update_video_added(playlist.id, playlist_video.index)
+        end
+      end
+
+      return playlist
+    end
+
     # -------------------
     #  Invidious
     # -------------------
@@ -48,7 +102,7 @@ struct Invidious::User
 
       if data["watch_history"]?
         user.watched += data["watch_history"].as_a.map(&.as_s)
-        user.watched.uniq!
+        user.watched.reverse!.uniq!.reverse!
         Invidious::Database::Users.update_watch_history(user)
       end
 
@@ -79,7 +133,7 @@ struct Invidious::User
             next if !video_id
 
             begin
-              video = get_video(video_id)
+              video = get_video(video_id, false)
             rescue ex
               next
             end
@@ -149,6 +203,41 @@ struct Invidious::User
       return true
     end
 
+    def from_youtube_pl(user : User, body : String, filename : String, type : String) : Bool
+      extension = filename.split(".").last
+
+      if extension == "csv" || type == "text/csv"
+        playlist = parse_playlist_export_csv(user, body)
+        if playlist
+          return true
+        else
+          return false
+        end
+      else
+        return false
+      end
+    end
+
+    def from_youtube_wh(user : User, body : String, filename : String, type : String) : Bool
+      extension = filename.split(".").last
+
+      if extension == "json" || type == "application/json"
+        data = JSON.parse(body)
+        watched = data.as_a.compact_map do |item|
+          next unless url = item["titleUrl"]?
+          next unless match = url.as_s.match(/\?v=(?<video_id>[a-zA-Z0-9_-]+)$/)
+          match["video_id"]
+        end
+        watched.reverse! # YouTube have newest first
+        user.watched += watched
+        user.watched.uniq!
+        Invidious::Database::Users.update_watch_history(user)
+        return true
+      else
+        return false
+      end
+    end
+
     # -------------------
     #  Freetube
     # -------------------
@@ -159,8 +248,12 @@ struct Invidious::User
       subs = matches.map(&.["channel_id"])
 
       if subs.empty?
-        data = JSON.parse(body)["subscriptions"]
-        subs = data.as_a.map(&.["id"].as_s)
+        profiles = body.split('\n', remove_empty: true)
+        profiles.each do |profile|
+          if data = JSON.parse(profile)["subscriptions"]?
+            subs += data.as_a.map(&.["id"].as_s)
+          end
+        end
       end
 
       user.subscriptions += subs

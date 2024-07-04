@@ -68,19 +68,17 @@ rescue ex
   return false
 end
 
-def extract_videos(initial_data : Hash(String, JSON::Any), author_fallback : String? = nil, author_id_fallback : String? = nil) : Array(SearchVideo)
-  extracted, _ = extract_items(initial_data, author_fallback, author_id_fallback)
+# This function extracts SearchVideo items from a Category.
+# Categories are commonly returned in search results and trending pages.
+def extract_category(category : Category) : Array(SearchVideo)
+  return category.contents.select(SearchVideo)
+end
 
-  target = [] of (SearchItem | Continuation)
-  extracted.each do |i|
-    if i.is_a?(Category)
-      i.contents.each { |cate_i| target << cate_i if !cate_i.is_a? Video }
-    else
-      target << i
-    end
+# :ditto:
+def extract_category(category : Category, &)
+  category.contents.select(SearchVideo).each do |item|
+    yield item
   end
-
-  return target.select(SearchVideo)
 end
 
 def extract_selected_tab(tabs)

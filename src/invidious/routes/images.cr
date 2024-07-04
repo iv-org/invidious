@@ -3,17 +3,7 @@ module Invidious::Routes::Images
   def self.ggpht(env)
     url = env.request.path.lchop("/ggpht")
 
-    headers = (
-      {% unless flag?(:disable_quic) %}
-        if CONFIG.use_quic
-          HTTP::Headers{":authority" => "yt3.ggpht.com"}
-        else
-          HTTP::Headers.new
-        end
-      {% else %}
-        HTTP::Headers.new
-      {% end %}
-    )
+    headers = HTTP::Headers.new
 
     REQUEST_HEADERS_WHITELIST.each do |header|
       if env.request.headers[header]?
@@ -42,22 +32,9 @@ module Invidious::Routes::Images
     }
 
     begin
-      {% unless flag?(:disable_quic) %}
-        if CONFIG.use_quic
-          YT_POOL.client &.get(url, headers) do |resp|
-            return request_proc.call(resp)
-          end
-        else
-          HTTP::Client.get("https://yt3.ggpht.com#{url}") do |resp|
-            return request_proc.call(resp)
-          end
-        end
-      {% else %}
-        # This can likely be optimized into a (small) pool sometime in the future.
-        HTTP::Client.get("https://yt3.ggpht.com#{url}") do |resp|
-          return request_proc.call(resp)
-        end
-      {% end %}
+      HTTP::Client.get("https://yt3.ggpht.com#{url}") do |resp|
+        return request_proc.call(resp)
+      end
     rescue ex
     end
   end
@@ -77,10 +54,6 @@ module Invidious::Routes::Images
     url = "/sb/#{id}/#{storyboard}/#{index}?#{env.params.query}"
 
     headers = HTTP::Headers.new
-
-    {% unless flag?(:disable_quic) %}
-      headers[":authority"] = "#{authority}.ytimg.com"
-    {% end %}
 
     REQUEST_HEADERS_WHITELIST.each do |header|
       if env.request.headers[header]?
@@ -107,22 +80,9 @@ module Invidious::Routes::Images
     }
 
     begin
-      {% unless flag?(:disable_quic) %}
-        if CONFIG.use_quic
-          YT_POOL.client &.get(url, headers) do |resp|
-            return request_proc.call(resp)
-          end
-        else
-          HTTP::Client.get("https://#{authority}.ytimg.com#{url}") do |resp|
-            return request_proc.call(resp)
-          end
-        end
-      {% else %}
-        # This can likely be optimized into a (small) pool sometime in the future.
-        HTTP::Client.get("https://#{authority}.ytimg.com#{url}") do |resp|
-          return request_proc.call(resp)
-        end
-      {% end %}
+      HTTP::Client.get("https://#{authority}.ytimg.com#{url}") do |resp|
+        return request_proc.call(resp)
+      end
     rescue ex
     end
   end
@@ -133,17 +93,7 @@ module Invidious::Routes::Images
     name = env.params.url["name"]
     url = env.request.resource
 
-    headers = (
-      {% unless flag?(:disable_quic) %}
-        if CONFIG.use_quic
-          HTTP::Headers{":authority" => "i9.ytimg.com"}
-        else
-          HTTP::Headers.new
-        end
-      {% else %}
-        HTTP::Headers.new
-      {% end %}
-    )
+    headers = HTTP::Headers.new
 
     REQUEST_HEADERS_WHITELIST.each do |header|
       if env.request.headers[header]?
@@ -169,22 +119,9 @@ module Invidious::Routes::Images
     }
 
     begin
-      {% unless flag?(:disable_quic) %}
-        if CONFIG.use_quic
-          YT_POOL.client &.get(url, headers) do |resp|
-            return request_proc.call(resp)
-          end
-        else
-          HTTP::Client.get("https://i9.ytimg.com#{url}") do |resp|
-            return request_proc.call(resp)
-          end
-        end
-      {% else %}
-        # This can likely be optimized into a (small) pool sometime in the future.
-        HTTP::Client.get("https://i9.ytimg.com#{url}") do |resp|
-          return request_proc.call(resp)
-        end
-      {% end %}
+      HTTP::Client.get("https://i9.ytimg.com#{url}") do |resp|
+        return request_proc.call(resp)
+      end
     rescue ex
     end
   end
@@ -223,41 +160,16 @@ module Invidious::Routes::Images
     id = env.params.url["id"]
     name = env.params.url["name"]
 
-    headers = (
-      {% unless flag?(:disable_quic) %}
-        if CONFIG.use_quic
-          HTTP::Headers{":authority" => "i.ytimg.com"}
-        else
-          HTTP::Headers.new
-        end
-      {% else %}
-        HTTP::Headers.new
-      {% end %}
-    )
+    headers = HTTP::Headers.new
 
     if name == "maxres.jpg"
       build_thumbnails(id).each do |thumb|
         thumbnail_resource_path = "/vi/#{id}/#{thumb[:url]}.jpg"
-        # Logic here is short enough that manually typing them out should be fine.
-        {% unless flag?(:disable_quic) %}
-          if CONFIG.use_quic
-            if YT_POOL.client &.head(thumbnail_resource_path, headers).status_code == 200
-              name = thumb[:url] + ".jpg"
-              break
-            end
-          else
-            if HTTP::Client.head("https://i.ytimg.com#{thumbnail_resource_path}").status_code == 200
-              name = thumb[:url] + ".jpg"
-              break
-            end
-          end
-        {% else %}
-          # This can likely be optimized into a (small) pool sometime in the future.
-          if HTTP::Client.head("https://i.ytimg.com#{thumbnail_resource_path}").status_code == 200
-            name = thumb[:url] + ".jpg"
-            break
-          end
-        {% end %}
+        # This can likely be optimized into a (small) pool sometime in the future.
+        if HTTP::Client.head("https://i.ytimg.com#{thumbnail_resource_path}").status_code == 200
+          name = thumb[:url] + ".jpg"
+          break
+        end
       end
     end
 
@@ -287,22 +199,10 @@ module Invidious::Routes::Images
     }
 
     begin
-      {% unless flag?(:disable_quic) %}
-        if CONFIG.use_quic
-          YT_POOL.client &.get(url, headers) do |resp|
-            return request_proc.call(resp)
-          end
-        else
-          HTTP::Client.get("https://i.ytimg.com#{url}") do |resp|
-            return request_proc.call(resp)
-          end
-        end
-      {% else %}
-        # This can likely be optimized into a (small) pool sometime in the future.
-        HTTP::Client.get("https://i.ytimg.com#{url}") do |resp|
-          return request_proc.call(resp)
-        end
-      {% end %}
+      # This can likely be optimized into a (small) pool sometime in the future.
+      HTTP::Client.get("https://i.ytimg.com#{url}") do |resp|
+        return request_proc.call(resp)
+      end
     rescue ex
     end
   end

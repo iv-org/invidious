@@ -57,7 +57,6 @@ module Invidious::Routing
     get "/login", Routes::Login, :login_page
     post "/login", Routes::Login, :login
     post "/signout", Routes::Login, :signout
-    get "/Captcha", Routes::Login, :captcha
 
     # User preferences
     get "/preferences", Routes::PreferencesRoute, :show
@@ -119,32 +118,48 @@ module Invidious::Routing
     get "/channel/:ucid/videos", Routes::Channels, :videos
     get "/channel/:ucid/shorts", Routes::Channels, :shorts
     get "/channel/:ucid/streams", Routes::Channels, :streams
+    get "/channel/:ucid/podcasts", Routes::Channels, :podcasts
+    get "/channel/:ucid/releases", Routes::Channels, :releases
     get "/channel/:ucid/playlists", Routes::Channels, :playlists
     get "/channel/:ucid/community", Routes::Channels, :community
     get "/channel/:ucid/channels", Routes::Channels, :channels
     get "/channel/:ucid/about", Routes::Channels, :about
+
     get "/channel/:ucid/live", Routes::Channels, :live
     get "/user/:user/live", Routes::Channels, :live
     get "/c/:user/live", Routes::Channels, :live
+    get "/post/:id", Routes::Channels, :post
 
-    {"", "/videos", "/shorts", "/streams", "/playlists", "/community", "/about"}.each do |path|
-      # /c/LinusTechTips
-      get "/c/:user#{path}", Routes::Channels, :brand_redirect
-      # /user/linustechtips | Not always the same as /c/
-      get "/user/:user#{path}", Routes::Channels, :brand_redirect
-      # /@LinusTechTips | Handle
-      get "/@:user#{path}", Routes::Channels, :brand_redirect
-      # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
-      get "/attribution_link#{path}", Routes::Channels, :brand_redirect
-      # /profile?user=linustechtips
-      get "/profile/#{path}", Routes::Channels, :profile
-    end
+    # Channel catch-all, to redirect future routes to the channel's home
+    # NOTE: defined last in order to be processed after the other routes
+    get "/channel/:ucid/*", Routes::Channels, :redirect_home
+
+    # /c/LinusTechTips
+    get "/c/:user", Routes::Channels, :brand_redirect
+    get "/c/:user/:tab", Routes::Channels, :brand_redirect
+
+    # /user/linustechtips (Not always the same as /c/)
+    get "/user/:user", Routes::Channels, :brand_redirect
+    get "/user/:user/:tab", Routes::Channels, :brand_redirect
+
+    # /@LinusTechTips (Handle)
+    get "/@:user", Routes::Channels, :brand_redirect
+    get "/@:user/:tab", Routes::Channels, :brand_redirect
+
+    # /attribution_link?a=anything&u=/channel/UCZYTClx2T1of7BRZ86-8fow
+    get "/attribution_link", Routes::Channels, :brand_redirect
+    get "/attribution_link/:tab", Routes::Channels, :brand_redirect
+
+    # /profile?user=linustechtips
+    get "/profile", Routes::Channels, :profile
+    get "/profile/*", Routes::Channels, :profile
   end
 
   def register_watch_routes
     get "/watch", Routes::Watch, :handle
     post "/watch_ajax", Routes::Watch, :mark_watched
     get "/watch/:id", Routes::Watch, :redirect
+    get "/live/:id", Routes::Watch, :redirect
     get "/shorts/:id", Routes::Watch, :redirect
     get "/clip/:clip", Routes::Watch, :clip
     get "/w/:id", Routes::Watch, :redirect
@@ -220,6 +235,7 @@ module Invidious::Routing
       get "/api/v1/captions/:id", {{namespace}}::Videos, :captions
       get "/api/v1/annotations/:id", {{namespace}}::Videos, :annotations
       get "/api/v1/comments/:id", {{namespace}}::Videos, :comments
+      get "/api/v1/clips/:id", {{namespace}}::Videos, :clips
 
       # Feeds
       get "/api/v1/trending", {{namespace}}::Feeds, :trending
@@ -229,12 +245,19 @@ module Invidious::Routing
       get "/api/v1/channels/:ucid", {{namespace}}::Channels, :home
       get "/api/v1/channels/:ucid/shorts", {{namespace}}::Channels, :shorts
       get "/api/v1/channels/:ucid/streams", {{namespace}}::Channels, :streams
+      get "/api/v1/channels/:ucid/podcasts", {{namespace}}::Channels, :podcasts
+      get "/api/v1/channels/:ucid/releases", {{namespace}}::Channels, :releases
+
       get "/api/v1/channels/:ucid/channels", {{namespace}}::Channels, :channels
 
       {% for route in {"videos", "latest", "playlists", "community", "search"} %}
         get "/api/v1/channels/#{{{route}}}/:ucid", {{namespace}}::Channels, :{{route}}
         get "/api/v1/channels/:ucid/#{{{route}}}", {{namespace}}::Channels, :{{route}}
       {% end %}
+
+      # Posts
+      get "/api/v1/post/:id", {{namespace}}::Channels, :post
+      get "/api/v1/post/:id/comments", {{namespace}}::Channels, :post_comments
 
       # 301 redirects to new /api/v1/channels/community/:ucid and /:ucid/community
       get "/api/v1/channels/comments/:ucid", {{namespace}}::Channels, :channel_comments_redirect
@@ -243,6 +266,8 @@ module Invidious::Routing
       # Search
       get "/api/v1/search", {{namespace}}::Search, :search
       get "/api/v1/search/suggestions", {{namespace}}::Search, :search_suggestions
+      get "/api/v1/hashtag/:hashtag", {{namespace}}::Search, :hashtag
+
 
       # Authenticated
 
@@ -253,6 +278,14 @@ module Invidious::Routing
 
       get "/api/v1/auth/preferences", {{namespace}}::Authenticated, :get_preferences
       post "/api/v1/auth/preferences", {{namespace}}::Authenticated, :set_preferences
+
+      get "/api/v1/auth/export/invidious", {{namespace}}::Authenticated, :export_invidious
+      post "/api/v1/auth/import/invidious", {{namespace}}::Authenticated, :import_invidious
+
+      get "/api/v1/auth/history", {{namespace}}::Authenticated, :get_history
+      post "/api/v1/auth/history/:id", {{namespace}}::Authenticated, :mark_watched
+      delete "/api/v1/auth/history/:id", {{namespace}}::Authenticated, :mark_unwatched
+      delete "/api/v1/auth/history", {{namespace}}::Authenticated, :clear_history
 
       get "/api/v1/auth/feed", {{namespace}}::Authenticated, :feed
 
@@ -281,6 +314,7 @@ module Invidious::Routing
       get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/auth/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes
+      get "/api/v1/resolveurl", {{namespace}}::Misc, :resolve_url
     {% end %}
   end
 end

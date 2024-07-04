@@ -6,6 +6,22 @@ module Invidious::Routes::API::V1::Misc
     if !CONFIG.statistics_enabled
       return {"software" => SOFTWARE}.to_json
     else
+      # Calculate playback success rate
+      if (tracker = Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"]?)
+        tracker = tracker.as(Hash(String, Int64 | Float64))
+
+        if !tracker.empty?
+          total_requests = tracker["totalRequests"]
+          success_count = tracker["successfulRequests"]
+
+          if total_requests.zero?
+            tracker["ratio"] = 1_i64
+          else
+            tracker["ratio"] = (success_count / (total_requests)).round(2)
+          end
+        end
+      end
+
       return Invidious::Jobs::StatisticsRefreshJob::STATISTICS.to_json
     end
   end
@@ -149,5 +165,37 @@ module Invidious::Routes::API::V1::Misc
     end
 
     response
+  end
+
+  # resolve channel and clip urls, return the UCID
+  def self.resolve_url(env)
+    env.response.content_type = "application/json"
+    url = env.params.query["url"]?
+
+    return error_json(400, "Missing URL to resolve") if !url
+
+    begin
+      resolved_url = YoutubeAPI.resolve_url(url.as(String))
+      endpoint = resolved_url["endpoint"]
+      pageType = endpoint.dig?("commandMetadata", "webCommandMetadata", "webPageType").try &.as_s || ""
+      if pageType == "WEB_PAGE_TYPE_UNKNOWN"
+        return error_json(400, "Unknown url")
+      end
+
+      sub_endpoint = endpoint["watchEndpoint"]? || endpoint["browseEndpoint"]? || endpoint
+      params = sub_endpoint.try &.dig?("params")
+    rescue ex
+      return error_json(500, ex)
+    end
+    JSON.build do |json|
+      json.object do
+        json.field "ucid", sub_endpoint["browseId"].as_s if sub_endpoint["browseId"]?
+        json.field "videoId", sub_endpoint["videoId"].as_s if sub_endpoint["videoId"]?
+        json.field "playlistId", sub_endpoint["playlistId"].as_s if sub_endpoint["playlistId"]?
+        json.field "startTimeSeconds", sub_endpoint["startTimeSeconds"].as_i if sub_endpoint["startTimeSeconds"]?
+        json.field "params", params.try &.as_s
+        json.field "pageType", pageType
+      end
+    end
   end
 end
