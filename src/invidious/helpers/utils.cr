@@ -13,7 +13,7 @@ end
 
 def video_length_abbreviated(length)
   length_abbreviated = ""
-  if  length.days > 0
+  if length.days > 0
     length_abbreviated = "#{length.days} d #{length.hours} hr #{length.minutes} min"
   elsif length.hours > 0
     length_abbreviated = "#{length.hours} h #{length.minutes} min"
@@ -24,7 +24,6 @@ def video_length_abbreviated(length)
   end
 
   return length_abbreviated
-
 end
 
 def elapsed_text(elapsed)
