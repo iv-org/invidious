@@ -47,7 +47,7 @@ jobs:
         with:
           images: quay.io/invidious/invidious
           tags: |
-            type=semvar,pattern={{version}}
+            type=semver,pattern={{version}}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
           labels: |
             quay.expires-after=12w
@@ -72,7 +72,7 @@ jobs:
           flavor: |
             suffix=-arm64
           tags: |
-            type=semvar,pattern={{version}}
+            type=semver,pattern={{version}}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
           labels: |
             quay.expires-after=12w
