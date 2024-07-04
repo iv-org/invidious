@@ -274,10 +274,10 @@ class Invidious::SigHelper
       when .starts_with?('/')
         @socket = UNIXSocket.new(host_or_path)
       when .starts_with?("tcp://")
-        uri = URI.new(host_or_path)
+        uri = URI.parse(host_or_path)
         @socket = TCPSocket.new(uri.host.not_nil!, uri.port.not_nil!)
       else
-        uri = URI.new("tcp://#{host_or_path}")
+        uri = URI.parse("tcp://#{host_or_path}")
         @socket = TCPSocket.new(uri.host.not_nil!, uri.port.not_nil!)
       end
 
