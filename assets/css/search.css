@@ -38,7 +38,8 @@ details[open] > summary:before { content: "[ − ]"; }
 
 
 fieldset, legend {
-	display: contents !important;
+	display: flex !important;
+  	justify-content: space-around;
 	border: none !important;
 	margin: 0 !important;
 	padding: 0 !important;
