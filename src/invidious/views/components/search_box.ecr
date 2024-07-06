@@ -5,5 +5,9 @@
 		name="q" placeholder="<%= translate(locale, "search") %>"
 		title="<%= translate(locale, "search") %>"
 		value="<%= env.get?("search").try {|x| HTML.escape(x.as(String)) } %>">
+		<button type="submit">
+			<i class="ion-ios-search icon">
+			</i>
+		</button>
 	</fieldset>
 </form>

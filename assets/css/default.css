@@ -278,10 +278,14 @@ div.thumbnail > .bottom-right-overlay {
   display: inline;
 }
 
-.searchbar .pure-form fieldset { padding: 0; }
+.searchbar .pure-form fieldset {
+  padding: 0;
+  display: flex;
+  justify-content: space-around;
+}
 
 .searchbar input[type="search"] {
-	width: 100%;
+	width: 90%;
 	margin: 1px;
 
 	border: 1px solid;
@@ -300,6 +304,24 @@ div.thumbnail > .bottom-right-overlay {
 	border-color: rgba(0,0,0,0);
 	border-bottom-color: #FED;
 }
+
+.searchbar button[type="submit"]{
+  background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
+.searchbar .icon {
+  font-size: 24px;
+  position: relative;
+  top: 5px;
+  cursor: pointer;
+}
+
 
 /* https://stackoverflow.com/a/55170420 */
 input[type="search"]::-webkit-search-cancel-button {
