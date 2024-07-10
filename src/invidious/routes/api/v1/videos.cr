@@ -89,9 +89,14 @@ module Invidious::Routes::API::V1::Videos
 
     if CONFIG.use_innertube_for_captions
       params = Invidious::Videos::Transcript.generate_param(id, caption.language_code, caption.auto_generated)
-      initial_data = YoutubeAPI.get_transcript(params)
 
-      webvtt = Invidious::Videos::Transcript.convert_transcripts_to_vtt(initial_data, caption.language_code)
+      transcript = Invidious::Videos::Transcript.from_raw(
+        YoutubeAPI.get_transcript(params),
+        caption.language_code,
+        caption.auto_generated
+      )
+
+      webvtt = transcript.to_vtt
     else
       # Timedtext API handling
       url = URI.parse("#{caption.base_url}&tlang=#{tlang}").request_target
