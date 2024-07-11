@@ -33,7 +33,7 @@ struct Invidious::User
     # Parse a CSV Google Takeout - Youtube Playlist file
     def parse_playlist_export_csv(user : User, playlist_name : String, raw_input : String)
       # Split the input into head and body content
-      raw_head, raw_body = raw_input.strip('\n').split("\n\n", limit: 2, remove_empty: true)
+      raw_head, raw_body = raw_input.split("\n\n", limit: 2, remove_empty: true)
 
       # Create the playlist from the head content
       csv_head = CSV.new(raw_head.strip('\n'), headers: true)
@@ -205,7 +205,7 @@ struct Invidious::User
       extension = filename_array.last
 
       if extension == "csv" || type == "text/csv"
-        playlist = parse_playlist_export_csv(user, playlist_name,playlist_name, body)
+        playlist = parse_playlist_export_csv(user, playlist_name, body)
         if playlist
           return true
         else
@@ -217,7 +217,6 @@ struct Invidious::User
     end
 
     def from_youtube_wh(user : User, body : String, filename : String, type : String) : Bool
-      filename = filename.split(".")
       extension = filename.split(".").last
 
       if extension == "json" || type == "application/json"
