@@ -47,7 +47,7 @@ struct Invidious::User
       Invidious::Database::Playlists.update_description(playlist.id, description)
 
       # Add each video to the playlist from the body content
-      csv_body = CSV.new(raw_body.strip('\n'), headers: true)
+      csv_body = CSV.new(raw_body.strip('\n'), headers: false)
       csv_body.each do |row|
         video_id = row[0]
         if playlist
