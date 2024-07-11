@@ -33,7 +33,7 @@ struct Invidious::User
     # Parse a CSV Google Takeout - Youtube Playlist file
     def parse_playlist_export_csv(user : User, playlist_name : String, raw_input : String)
       # Split the input into head and body content
-      raw_head, raw_body = raw_input.split("\n\n", limit: 2, remove_empty: true)
+      raw_head, raw_body = raw_input.split("\n", limit: 2, remove_empty: true)
 
       # Create the playlist from the head content
       csv_head = CSV.new(raw_head.strip('\n'), headers: true)
