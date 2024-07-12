@@ -41,6 +41,13 @@ Style/ParenthesesAroundCondition:
 Naming/QueryBoolMethods:
   Enabled: false
 
+# Hides TODO comment warnings.
+#
+# Call `bin/ameba --only Documentation/DocumentationAdmonition` to
+# list them
+Documentation/DocumentationAdmonition:
+  Enabled: false
+
 
 #
 # Metrics
