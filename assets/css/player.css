@@ -138,10 +138,6 @@ ul.vjs-menu-content::-webkit-scrollbar {
   display: none;
 }
 
-.video-js .vjs-icon-cog {
-  font-size: 18px;
-}
-
 .video-js .vjs-control-bar,
 .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
   background-color: rgba(35, 35, 35, 0.75);

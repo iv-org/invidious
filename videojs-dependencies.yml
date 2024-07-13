@@ -8,8 +8,8 @@ videojs-contrib-quality-levels:
   shasum: 44c2d2167114a5c8418548b10a25cb409d6cba51
 
 videojs-contrib-quality-menu:
-  version: 1.0.1
-  shasum: 991f641afabf1b346088f290efcf689688e42368
+  version: 1.0.3
+  shasum: a15daff78170a332e5d1cd67601c82af2cd4c6da
 
 videojs-markers:
   version: 1.0.1

@@ -170,16 +170,6 @@ player.on('timeupdate', function () {
     }
 });
 
-player.one('playing', function () {
-
-    if (!video_data.params.listen && video_data.params.quality === 'dash') {
-        var quality_menu_button = document.getElementsByClassName('vjs-quality-menu-button');
-        for (var i = 0; i < quality_menu_button.length; i++) {
-            quality_menu_button[i].className += ' vjs-icon-cog';
-        }
-    }
-});
-
 
 var shareOptions = {
     socials: ['fbFeed', 'tw', 'reddit', 'email'],
