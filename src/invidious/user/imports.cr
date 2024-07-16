@@ -182,7 +182,7 @@ struct Invidious::User
       if is_opml?(type, extension)
         subscriptions = XML.parse(body)
         user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
-          channel["xmlUrl"].match(/UC[a-zA-Z0-9_-]{22}/).not_nil![0]
+          channel["xmlUrl"].match!(/UC[a-zA-Z0-9_-]{22}/)[0]
         end
       elsif extension == "json" || type == "application/json"
         subscriptions = JSON.parse(body)

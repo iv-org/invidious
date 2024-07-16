@@ -13,20 +13,20 @@ struct DecryptFunction
 
   private def fetch_decrypt_function(id = "CvFH_6DNRCY")
     document = YT_POOL.client &.get("/watch?v=#{id}&gl=US&hl=en").body
-    url = document.match(/src="(?<url>\/s\/player\/[^\/]+\/player_ias[^\/]+\/en_US\/base.js)"/).not_nil!["url"]
+    url = document.match!(/src="(?<url>\/s\/player\/[^\/]+\/player_ias[^\/]+\/en_US\/base.js)"/)["url"]
     player = YT_POOL.client &.get(url).body
 
-    function_name = player.match(/^(?<name>[^=]+)=function\(\w\){\w=\w\.split\(""\);[^\. ]+\.[^( ]+/m).not_nil!["name"]
-    function_body = player.match(/^#{Regex.escape(function_name)}=function\(\w\){(?<body>[^}]+)}/m).not_nil!["body"]
+    function_name = player.match!(/^(?<name>[^=]+)=function\(\w\){\w=\w\.split\(""\);[^\. ]+\.[^( ]+/m)["name"]
+    function_body = player.match!(/^#{Regex.escape(function_name)}=function\(\w\){(?<body>[^}]+)}/m)["body"]
     function_body = function_body.split(";")[1..-2]
 
     var_name = function_body[0][0, 2]
-    var_body = player.delete("\n").match(/var #{Regex.escape(var_name)}={(?<body>(.*?))};/).not_nil!["body"]
+    var_body = player.delete("\n").match!(/var #{Regex.escape(var_name)}={(?<body>(.*?))};/)["body"]
 
     operations = {} of String => SigProc
     var_body.split("},").each do |operation|
-      op_name = operation.match(/^[^:]+/).not_nil![0]
-      op_body = operation.match(/\{[^}]+/).not_nil![0]
+      op_name = operation.match!(/^[^:]+/)[0]
+      op_body = operation.match!(/\{[^}]+/)[0]
 
       case op_body
       when "{a.reverse()"
@@ -42,8 +42,8 @@ struct DecryptFunction
     function_body.each do |function|
       function = function.lchop(var_name).delete("[].")
 
-      op_name = function.match(/[^\(]+/).not_nil![0]
-      value = function.match(/\(\w,(?<value>[\d]+)\)/).not_nil!["value"].to_i
+      op_name = function.match!(/[^\(]+/)[0]
+      value = function.match!(/\(\w,(?<value>[\d]+)\)/)["value"].to_i
 
       decrypt_function << {operations[op_name], value}
     end
