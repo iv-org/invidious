@@ -23,6 +23,10 @@ Lint/ShadowingOuterLocalVar:
 Lint/NotNil:
   Enabled: false
 
+Lint/SpecFilename:
+  Excluded:
+    - spec/parsers_helper.cr
+
 
 #
 # Style
