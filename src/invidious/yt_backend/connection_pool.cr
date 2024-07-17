@@ -24,7 +24,7 @@ struct YoutubeConnectionPool
     @pool = build_pool()
   end
 
-  def client(&block)
+  def client(&)
     conn = pool.checkout
     begin
       response = yield conn

@@ -394,10 +394,6 @@ end
 def fetch_video(id, region)
   info = extract_video_info(video_id: id)
 
-  allowed_regions = info
-    .dig?("microformat", "playerMicroformatRenderer", "availableCountries")
-    .try &.as_a.map &.as_s || [] of String
-
   if reason = info["reason"]?
     if reason == "Video unavailable"
       raise NotFoundException.new(reason.as_s || "")

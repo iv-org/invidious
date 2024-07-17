@@ -109,7 +109,6 @@ private module Parsers
       end
 
       live_now = false
-      paid = false
       premium = false
 
       premiere_timestamp = item_contents.dig?("upcomingEventData", "startTime").try { |t| Time.unix(t.as_s.to_i64) }
