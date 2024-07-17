@@ -14,10 +14,10 @@ def text_to_parsed_content(text : String) : JSON::Any
     # { 'text': match, 'navigationEndpoint': { 'urlEndpoint' : 'url': match } }
     line.scan(/https?:\/\/[^ ]*/).each do |url_match|
       # Retrieve last node and update node without match
-      last_node = current_nodes[current_nodes.size - 1].as_h
+      last_node = current_nodes[-1].as_h
       splitted_last_node = last_node["text"].as_s.split(url_match[0])
       last_node["text"] = JSON.parse(splitted_last_node[0].to_json)
-      current_nodes[current_nodes.size - 1] = JSON.parse(last_node.to_json)
+      current_nodes[-1] = JSON.parse(last_node.to_json)
       # Create new node with match and navigation infos
       current_node = {"text" => url_match[0], "navigationEndpoint" => {"urlEndpoint" => {"url" => url_match[0]}}}
       current_nodes << (JSON.parse(current_node.to_json))
@@ -28,9 +28,9 @@ def text_to_parsed_content(text : String) : JSON::Any
 
     # After processing of matches inside line
     # Add \n at end of last node for preserve carriage return
-    last_node = current_nodes[current_nodes.size - 1].as_h
-    last_node["text"] = JSON.parse("#{current_nodes[current_nodes.size - 1]["text"]}\n".to_json)
-    current_nodes[current_nodes.size - 1] = JSON.parse(last_node.to_json)
+    last_node = current_nodes[-1].as_h
+    last_node["text"] = JSON.parse("#{last_node["text"]}\n".to_json)
+    current_nodes[-1] = JSON.parse(last_node.to_json)
 
     # Finally add final nodes to nodes returned
     current_nodes.each do |node|
