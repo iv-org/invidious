@@ -44,6 +44,9 @@ Naming/QueryBoolMethods:
 Naming/AccessorMethodName:
   Enabled: false
 
+Naming/BlockParameterName:
+  Enabled: false
+
 # Hides TODO comment warnings.
 #
 # Call `bin/ameba --only Documentation/DocumentationAdmonition` to
