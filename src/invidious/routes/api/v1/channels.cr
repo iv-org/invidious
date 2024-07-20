@@ -208,11 +208,12 @@ module Invidious::Routes::API::V1::Channels
     get_channel()
 
     # Retrieve continuation from URL parameters
+    sort_by = env.params.query["sort_by"]?.try &.downcase || "newest"
     continuation = env.params.query["continuation"]?
 
     begin
       videos, next_continuation = Channel::Tabs.get_60_livestreams(
-        channel, continuation: continuation
+        channel, continuation: continuation, sort_by: sort_by
       )
     rescue ex
       return error_json(500, ex)

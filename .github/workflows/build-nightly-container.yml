@@ -1,0 +1,100 @@
+name: Build and release container directly from master
+
+on:
+  push:
+    branches:
+      - "master"
+    paths-ignore:
+      - "*.md"
+      - LICENCE
+      - TRANSLATION
+      - invidious.service
+      - .git*
+      - .editorconfig
+      - screenshots/*
+      - .github/ISSUE_TEMPLATE/*
+      - kubernetes/**
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1.8.2
+        with:
+          crystal: 1.12.2
+
+      - name: Run lint
+        run: |
+          if ! crystal tool format --check; then
+            crystal tool format
+            git diff
+            exit 1
+          fi
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to registry
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: quay.io/invidious/invidious
+          tags: |
+            type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+            type=raw,value=master,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+          labels: |
+            quay.expires-after=12w
+
+      - name: Build and push Docker AMD64 image for Push Event
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile
+          platforms: linux/amd64
+          labels: ${{ steps.meta.outputs.labels }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            "release=1"
+
+      - name: Docker meta
+        id: meta-arm64
+        uses: docker/metadata-action@v5
+        with:
+          images: quay.io/invidious/invidious
+          flavor: |
+            suffix=-arm64
+          tags: |
+            type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+            type=raw,value=master,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+          labels: |
+            quay.expires-after=12w
+
+      - name: Build and push Docker ARM64 image for Push Event
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.arm64
+          platforms: linux/arm64/v8
+          labels: ${{ steps.meta-arm64.outputs.labels }}
+          push: true
+          tags: ${{ steps.meta-arm64.outputs.tags }}
+          build-args: |
+            "release=1"

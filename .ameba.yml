@@ -20,6 +20,9 @@ Lint/ShadowingOuterLocalVar:
   Excluded:
   - src/invidious/helpers/tokens.cr
 
+Lint/NotNil:
+  Enabled: false
+
 
 #
 # Style
@@ -31,6 +34,13 @@ Style/RedundantBegin:
 Style/RedundantReturn:
   Enabled: false
 
+Style/ParenthesesAroundCondition:
+  Enabled: false
+
+# This requires a rewrite of most data structs (and their usage) in Invidious.
+Style/QueryBoolMethods:
+  Enabled: false
+
 
 #
 # Metrics
@@ -39,50 +49,4 @@ Style/RedundantReturn:
 # Ignore function complexity (number of if/else & case/when branches)
 # For some functions that can hardly be simplified for now
 Metrics/CyclomaticComplexity:
-  Excluded:
-  # get_about_info(ucid, locale) => [17/10]
-  - src/invidious/channels/about.cr
-
-  # fetch_channel_community(ucid, continuation, ...) => [34/10]
-  - src/invidious/channels/community.cr
-
-  # create_notification_stream(env, topics, connection_channel) => [14/10]
-  - src/invidious/helpers/helpers.cr:84:5
-
-  # get_index(plural_form, count) => [25/10]
-  - src/invidious/helpers/i18next.cr
-
-  # call(context) => [18/10]
-  - src/invidious/helpers/static_file_handler.cr
-
-  # show(env) => [38/10]
-  - src/invidious/routes/embed.cr
-
-  # get_video_playback(env) => [45/10]
-  - src/invidious/routes/video_playback.cr
-
-  # handle(env) => [40/10]
-  - src/invidious/routes/watch.cr
-
-  # playlist_ajax(env) => [24/10]
-  - src/invidious/routes/playlists.cr
-
-  # fetch_youtube_comments(id, cursor, ....) => [40/10]
-  # template_youtube_comments(comments, locale, ...) => [16/10]
-  # content_to_comment_html(content) => [14/10]
-  - src/invidious/comments.cr
-
-  # to_json(locale, json) => [21/10]
-  # extract_video_info(video_id, ...) => [44/10]
-  # process_video_params(query, preferences) => [20/10]
-  - src/invidious/videos.cr
-
-
-
-#src/invidious/playlists.cr:327:5
-#[C] Metrics/CyclomaticComplexity: Cyclomatic complexity too high [19/10]
-# fetch_playlist(plid : String)
-
-#src/invidious/playlists.cr:436:5
-#[C] Metrics/CyclomaticComplexity: Cyclomatic complexity too high [11/10]
-# extract_playlist_videos(initial_data : Hash(String, JSON::Any))
+  Enabled: false
