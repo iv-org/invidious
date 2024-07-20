@@ -22,18 +22,21 @@ body {
   margin-right: 10px;
 }
 
-
 .dark-theme .length-watch-page{
-  position: relative;
   background-color: #fff;
   color: rgba(35, 35, 35, 1);
-  border-radius: 2px;
-  padding: 4px;
-  font-size: 20px;
-  right: 0.25em;
-  bottom: 0.25em;
-  margin-left: 10px;
-  margin-right: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .length-watch-page{
+    background-color: #fff;
+    color: rgba(35, 35, 35, 1);
+  }
+  
+  .light-theme .length-watch-page {
+    background-color: rgba(35, 35, 35, 0.75);
+    color: #fff;
+  }
 }
 
 #contents {
