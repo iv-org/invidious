@@ -11,16 +11,16 @@ def ci_lower_bound(pos, n)
   return (phat + z*z/(2*n) - z * Math.sqrt((phat*(1 - phat) + z*z/(4*n))/n))/(1 + z*z/n)
 end
 
-def video_length_abbreviated(length)
+def video_length_abbreviated(locale, length)
   length_abbreviated = ""
   if length.days > 0
-    length_abbreviated = "#{length.days} d #{length.hours} hr #{length.minutes} min"
+    length_abbreviated = "#{translate_count(locale, "generic_count_days_short", length.days)} #{translate_count(locale, "generic_count_hours_short", length.hours)} #{translate_count(locale, "generic_count_minutes_short", length.minutes)}"
   elsif length.hours > 0
-    length_abbreviated = "#{length.hours} h #{length.minutes} min"
+    length_abbreviated = "#{translate_count(locale, "generic_count_hours_short", length.hours)} #{translate_count(locale, "generic_count_minutes_short", length.minutes)}"
   elsif length.minutes > 0
-    length_abbreviated = "#{length.minutes} min"
+    length_abbreviated = translate_count(locale, "generic_count_minutes_short", length.minutes)
   else
-    length_abbreviated = "#{length.seconds} seconds"
+    length_abbreviated = translate_count(locale, "generic_count_seconds", length.seconds)
   end
 
   return length_abbreviated
