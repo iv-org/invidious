@@ -141,7 +141,11 @@ module Invidious::Routes::API::V1::Videos
           end
         end
       else
-        webvtt = YT_POOL.client &.get("#{url}&fmt=vtt").body
+        uri = URI.parse(url)
+        query_params = uri.query_params
+        query_params["fmt"] = "vtt"
+        uri.query_params = query_params
+        webvtt = YT_POOL.client &.get(uri.request_target).body
 
         if webvtt.starts_with?("<?xml")
           webvtt = caption.timedtext_to_vtt(webvtt)
