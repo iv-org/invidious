@@ -366,6 +366,8 @@ def fetch_playlist(plid : String)
 
     if text.includes? "video"
       video_count = text.gsub(/\D/, "").to_i? || 0
+    elsif text.includes? "episode"
+      video_count = text.gsub(/\D/, "").to_i? || 0
     elsif text.includes? "view"
       views = text.gsub(/\D/, "").to_i64? || 0_i64
     else
