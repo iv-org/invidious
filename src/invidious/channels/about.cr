@@ -72,6 +72,7 @@ def get_about_info(ucid, locale) : AboutChannel
 
     # Raises a KeyError on failure.
     banners = initdata["header"]["c4TabbedHeaderRenderer"]?.try &.["banner"]?.try &.["thumbnails"]?
+    banners ||= initdata.dig?("header", "pageHeaderRenderer", "content", "pageHeaderViewModel", "banner", "imageBannerViewModel", "image", "sources")
     banner = banners.try &.[-1]?.try &.["url"].as_s?
 
     # if banner.includes? "channels/c4/default_banner"
@@ -147,9 +148,17 @@ def get_about_info(ucid, locale) : AboutChannel
     end
   end
 
-  sub_count = initdata
-    .dig?("header", "c4TabbedHeaderRenderer", "subscriberCountText", "simpleText").try &.as_s?
-    .try { |text| short_text_to_number(text.split(" ")[0]).to_i32 } || 0
+  sub_count = 0
+
+  if (metadata_rows = initdata.dig?("header", "pageHeaderRenderer", "content", "pageHeaderViewModel", "metadata", "contentMetadataViewModel", "metadataRows").try &.as_a)
+    metadata_rows.each do |row|
+      metadata_part = row.dig?("metadataParts").try &.as_a.find { |i| i.dig?("text", "content").try &.as_s.includes?("subscribers") }
+      if !metadata_part.nil?
+        sub_count = short_text_to_number(metadata_part.dig("text", "content").as_s.split(" ")[0]).to_i32
+      end
+      break if sub_count != 0
+    end
+  end
 
   AboutChannel.new(
     ucid: ucid,
