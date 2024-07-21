@@ -114,25 +114,31 @@ module Invidious::JSONify::APIv1
 
               json.field "projectionType", fmt["projectionType"]
 
-              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
+              height = fmt["height"]?.try &.as_i
+              width = fmt["width"]?.try &.as_i
+
+              fps = fmt["fps"]?.try &.as_i
+
+              if fps
                 json.field "fps", fps
+              end
+
+              if height && width
+                json.field "size", "#{width}x#{height}"
+                json.field "resolution", "#{height}p"
+
+                quality_label = "#{width > height ? height : width}p"
+
+                if fps && fps > 30
+                  quality_label += fps.to_s
+                end
+
+                json.field "qualityLabel", quality_label
+              end
+
+              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
                 json.field "container", fmt_info["ext"]
                 json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
-
-                if fmt_info["height"]?
-                  json.field "resolution", "#{fmt_info["height"]}p"
-
-                  quality_label = "#{fmt_info["height"]}p"
-                  if fps > 30
-                    quality_label += "60"
-                  end
-                  json.field "qualityLabel", quality_label
-
-                  if fmt_info["width"]?
-                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                  end
-                end
               end
 
               # Livestream chunk infos
@@ -163,26 +169,31 @@ module Invidious::JSONify::APIv1
 
               json.field "bitrate", fmt["bitrate"].as_i.to_s if fmt["bitrate"]?
 
-              fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
-              if fmt_info
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
+              height = fmt["height"]?.try &.as_i
+              width = fmt["width"]?.try &.as_i
+
+              fps = fmt["fps"]?.try &.as_i
+
+              if fps
                 json.field "fps", fps
+              end
+
+              if height && width
+                json.field "size", "#{width}x#{height}"
+                json.field "resolution", "#{height}p"
+
+                quality_label = "#{width > height ? height : width}p"
+
+                if fps && fps > 30
+                  quality_label += fps.to_s
+                end
+
+                json.field "qualityLabel", quality_label
+              end
+
+              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
                 json.field "container", fmt_info["ext"]
                 json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
-
-                if fmt_info["height"]?
-                  json.field "resolution", "#{fmt_info["height"]}p"
-
-                  quality_label = "#{fmt_info["height"]}p"
-                  if fps > 30
-                    quality_label += "60"
-                  end
-                  json.field "qualityLabel", quality_label
-
-                  if fmt_info["width"]?
-                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                  end
-                end
               end
             end
           end
