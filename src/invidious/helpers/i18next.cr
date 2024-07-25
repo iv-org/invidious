@@ -95,7 +95,6 @@ module I18next::Plurals
     "hr" => PluralForms::Special_Hungarian_Serbian,
     "it" => PluralForms::Special_Spanish_Italian,
     "pt" => PluralForms::Special_French_Portuguese,
-    "pt" => PluralForms::Special_French_Portuguese,
     "sr" => PluralForms::Special_Hungarian_Serbian,
   }
 
