@@ -188,7 +188,7 @@ module I18next::Plurals
 
     # Emulate the `rule.numbers.size == 2 && rule.numbers[0] == 1` check
     # from original i18next code
-    private def is_simple_plural(form : PluralForms) : Bool
+    private def simple_plural?(form : PluralForms) : Bool
       case form
       when .single_gt_one?      then return true
       when .single_not_one?     then return true
@@ -210,7 +210,7 @@ module I18next::Plurals
       idx = SuffixIndex.get_index(plural_form, count)
 
       # Simple plurals are handled differently in all versions (but v4)
-      if @simplify_plural_suffix && is_simple_plural(plural_form)
+      if @simplify_plural_suffix && simple_plural?(plural_form)
         return (idx == 1) ? "_plural" : ""
       end
 
