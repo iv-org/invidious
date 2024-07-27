@@ -1,0 +1,8 @@
+<p style="margin-bottom: 4px;"><%= next_steps_text %></p>
+<ul>
+  <% steps.each do |label, href| %>
+    <li>
+      <a href="<%= href %>"><%= label %></a>
+    </li>
+  <% end %>
+</ul>
