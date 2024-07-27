@@ -63,7 +63,7 @@ module Invidious::JSONify::APIv1
       json.field "isListed", video.is_listed
       json.field "liveNow", video.live_now
       json.field "isPostLiveDvr", video.post_live_dvr
-      json.field "isUpcoming", video.is_upcoming
+      json.field "isUpcoming", video.upcoming?
 
       if video.premiere_timestamp
         json.field "premiereTimestamp", video.premiere_timestamp.try &.to_unix

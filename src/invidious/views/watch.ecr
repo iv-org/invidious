@@ -62,7 +62,7 @@ we're going to need to do it here in order to allow for translations.
     "params" => params,
     "preferences" => preferences,
     "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
-    "vr" => video.is_vr,
+    "vr" => video.vr?,
     "projection_type" => video.projection_type,
     "local_disabled" => CONFIG.disabled?("local"),
     "support_reddit" => true
