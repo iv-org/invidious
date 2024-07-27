@@ -23,6 +23,10 @@ Lint/ShadowingOuterLocalVar:
 Lint/NotNil:
   Enabled: false
 
+Lint/SpecFilename:
+  Excluded:
+    - spec/parsers_helper.cr
+
 
 #
 # Style
@@ -38,7 +42,20 @@ Style/ParenthesesAroundCondition:
   Enabled: false
 
 # This requires a rewrite of most data structs (and their usage) in Invidious.
-Style/QueryBoolMethods:
+Naming/QueryBoolMethods:
+  Enabled: false
+
+Naming/AccessorMethodName:
+  Enabled: false
+
+Naming/BlockParameterName:
+  Enabled: false
+
+# Hides TODO comment warnings.
+#
+# Call `bin/ameba --only Documentation/DocumentationAdmonition` to
+# list them
+Documentation/DocumentationAdmonition:
   Enabled: false
 
 
