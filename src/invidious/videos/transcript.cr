@@ -110,13 +110,13 @@ module Invidious::Videos
         "Language" => @language_code,
       }
 
-      vtt = WebVTT.build(settings_field) do |vtt|
+      vtt = WebVTT.build(settings_field) do |builder|
         @lines.each do |line|
           # Section headers are excluded from the VTT conversion as to
           # match the regular captions returned from YouTube as much as possible
           next if line.is_a? HeadingLine
 
-          vtt.cue(line.start_ms, line.end_ms, line.line)
+          builder.cue(line.start_ms, line.end_ms, line.line)
         end
       end
 

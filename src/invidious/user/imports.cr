@@ -115,7 +115,7 @@ struct Invidious::User
         playlists.each do |item|
           title = item["title"]?.try &.as_s?.try &.delete("<>")
           description = item["description"]?.try &.as_s?.try &.delete("\r")
-          privacy = item["privacy"]?.try &.as_s?.try { |privacy| PlaylistPrivacy.parse? privacy }
+          privacy = item["privacy"]?.try &.as_s?.try { |raw_pl_privacy_state| PlaylistPrivacy.parse? raw_pl_privacy_state }
 
           next if !title
           next if !description
