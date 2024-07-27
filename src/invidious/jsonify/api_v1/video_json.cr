@@ -109,7 +109,7 @@ module Invidious::JSONify::APIv1
               # On livestreams, it's not present, so always fall back to the
               # current unix timestamp (up to mS precision) for compatibility.
               last_modified = fmt["lastModified"]?
-              last_modified ||= "#{Time.utc.to_unix_ms.to_s}000"
+              last_modified ||= "#{Time.utc.to_unix_ms}000"
               json.field "lmt", last_modified
 
               json.field "projectionType", fmt["projectionType"]
