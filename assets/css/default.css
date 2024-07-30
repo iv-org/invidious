@@ -354,19 +354,26 @@ input[type="search"]::-webkit-search-cancel-button {
   }
 }
 
+.pure-button-primary, .pure-button-secondary{
+  margin:0
+}
 @media screen and (max-width: 767px) {
-  .navbar {
-    flex-direction: column;
+  body{
+    width: calc(100vw + 1em);
   }
-
-  .navbar > div {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
+  .navbar{
+    height: 70px;
   }
-
+  .navbar > .searchbar{
+    position: absolute;
+    margin-top: 44px;
+  }
   .navbar > .searchbar > form {
-    width: 75%;
+    width: calc(100% - 1em);
+  }
+  .navbar > .searchbar > input {
+    margin:0;
+    background: #e7e7e7;
   }
 
   h1 {
