@@ -273,6 +273,15 @@ div.thumbnail > .bottom-right-overlay {
 	.dark-theme .navbar{
 	    background: #232323;
 	}
+	.navbar > div{
+	    display:unset;
+	}
+	.navbar > .user-fields{
+	    position: absolute;
+            right: 16px;
+   	    width: unset;
+            top: 13px;
+	}
 }
 
 .navbar > div {
@@ -369,7 +378,7 @@ input[type="search"]::-webkit-search-cancel-button {
     margin-top: 44px;
   }
   .navbar > .searchbar > form {
-    width: calc(100% - 1em);
+    width: calc(100% - 2em);
   }
   .navbar > .searchbar > input {
     margin:0;
