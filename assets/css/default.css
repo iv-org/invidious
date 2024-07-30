@@ -8,7 +8,13 @@ body {
     Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica,
     Arial, sans-serif;
 }
-
+#filters-collapse summary{
+    font-size: .8rem;
+    font-weight: 500;
+    margin-left: 7.3px;
+    margin-top: 5px;
+    color: #545454;
+}
 #contents {
   display: flex;
   flex-direction: column;
