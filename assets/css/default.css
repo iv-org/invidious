@@ -260,6 +260,20 @@ div.thumbnail > .bottom-right-overlay {
   align-items: center;
   justify-content: space-between;
 }
+@media screen and (min-width: 767px) {
+	.navbar {
+	    top:0;
+	    position:sticky;	
+	    z-index: 10;
+	    width: calc(100% - 42px);
+	    margin: 0;
+	    padding: 12px 20px;
+	    background:white;
+	}
+	.dark-theme .navbar{
+	    background: #232323;
+	}
+}
 
 .navbar > div {
   flex: 1;
