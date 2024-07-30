@@ -139,6 +139,12 @@ body a.channel-owner {
   .feed-menu-item {
     flex: 0 0 40%;
   }
+	
+  #searchbox{
+    margin: 0 -16px;
+    width: calc(100vw - 17px);
+    padding: 15px 15.5px;
+  }
 }
 
 div {
