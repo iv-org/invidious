@@ -736,8 +736,6 @@ body.dark-theme {
     color: #adadad !important;
   }
 }
-
-
 /*
  * Miscellanous
  */
@@ -748,6 +746,7 @@ the hr element is rendered improperly within one.
 See https://stackoverflow.com/a/34372979 for more info */
 hr {
   margin: 10px 0 10px 0;
+  opacity:.5;
 }
 
 /* Description Expansion Styling*/
