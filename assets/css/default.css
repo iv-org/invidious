@@ -274,7 +274,7 @@ div.thumbnail > .bottom-right-overlay {
 	    background: #232323;
 	}
 	.navbar > div{
-	    display:unset;
+	    display:unset!important;
 	}
 	.navbar > .user-fields{
 	    position: absolute;
