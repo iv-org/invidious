@@ -264,7 +264,7 @@ div.thumbnail > .bottom-right-overlay {
 	.navbar {
 	    top:0;
 	    position: sticky;	
-	    z-index: 100;
+	    z-index: 101;
 	    width: calc(100% - 42px);
 	    margin: 0;
 	    padding: 12px 20px;
