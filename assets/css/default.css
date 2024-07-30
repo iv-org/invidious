@@ -263,8 +263,8 @@ div.thumbnail > .bottom-right-overlay {
 @media screen and (min-width: 767px) {
 	.navbar {
 	    top:0;
-	    position:sticky;	
-	    z-index: 10;
+	    position: sticky;	
+	    z-index: 100;
 	    width: calc(100% - 42px);
 	    margin: 0;
 	    padding: 12px 20px;
@@ -272,9 +272,6 @@ div.thumbnail > .bottom-right-overlay {
 	}
 	.dark-theme .navbar{
 	    background: #232323;
-	}
-	.navbar > div{
-	    display:unset!important;
 	}
 	.navbar > .user-fields{
 	    position: absolute;
