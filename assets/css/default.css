@@ -142,7 +142,7 @@ body a.channel-owner {
 	
   #searchbox{
     margin: 0 -16px;
-    width: calc(100vw - 17px);
+    width: 100vw;
     padding: 15px 15.5px;
   }
 }
