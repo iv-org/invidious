@@ -563,19 +563,7 @@ span > select {
 .light-theme .playlist-restricted > ol > li > a {
   color: #303030;
 }
-.navbar .pure-menu-heading{
-    background: #232323;
-    color: white;
-    font-size: .85rem;
-    font-weight: 400;
-    padding: 7px 9px 5.5px;
-    margin-top: -2px;
-    border-radius: 4px;
-}
-.light-theme .pure-menu-heading {
-    background: #232323;
-    color: white;
-}
+
 
 @media (prefers-color-scheme: light) {
   .no-theme a:hover,
@@ -662,10 +650,6 @@ body.dark-theme {
   color: #f0f0f0;
 }
 
-.dark-theme .pure-menu-heading {
-    background: white;
-    color: #232323;
-}
 
 .dark-theme input,
 .dark-theme select,
