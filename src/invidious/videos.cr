@@ -101,7 +101,7 @@ struct Video
   # Methods for parsing streaming data
 
   def convert_url(fmt)
-    if cfr = fmt["signatureCipher"]?.try { |h| HTTP::Params.parse(h.as_s) }
+    if cfr = fmt["signatureCipher"]?.try { |json| HTTP::Params.parse(json.as_s) }
       sp = cfr["sp"]
       url = URI.parse(cfr["url"])
       params = url.query_params

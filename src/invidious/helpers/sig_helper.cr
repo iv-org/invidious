@@ -9,7 +9,7 @@ require "socket/unix_socket"
 
 private alias NetworkEndian = IO::ByteFormat::NetworkEndian
 
-class Invidious::SigHelper
+module Invidious::SigHelper
   enum UpdateStatus
     Updated
     UpdateNotRequired
@@ -98,7 +98,7 @@ class Invidious::SigHelper
     def decrypt_n_param(n : String) : String?
       request = Request.new(Opcode::DECRYPT_N_SIGNATURE, StringPayload.new(n))
 
-      n_dec = send_request(request) do |bytes|
+      n_dec = self.send_request(request) do |bytes|
         StringPayload.from_bytes(bytes).string
       end
 
@@ -110,7 +110,7 @@ class Invidious::SigHelper
     def decrypt_sig(sig : String) : String?
       request = Request.new(Opcode::DECRYPT_SIGNATURE, StringPayload.new(sig))
 
-      sig_dec = send_request(request) do |bytes|
+      sig_dec = self.send_request(request) do |bytes|
         StringPayload.from_bytes(bytes).string
       end
 
@@ -118,10 +118,10 @@ class Invidious::SigHelper
     end
 
     # Return the signature timestamp from the server's current player
-    def get_sts : UInt64?
+    def get_signature_timestamp : UInt64?
       request = Request.new(Opcode::GET_SIGNATURE_TIMESTAMP, nil)
 
-      return send_request(request) do |bytes|
+      return self.send_request(request) do |bytes|
         IO::ByteFormat::NetworkEndian.decode(UInt64, bytes)
       end
     end
@@ -130,12 +130,12 @@ class Invidious::SigHelper
     def get_player : UInt32?
       request = Request.new(Opcode::GET_PLAYER_STATUS, nil)
 
-      send_request(request) do |bytes|
+      return self.send_request(request) do |bytes|
         has_player = (bytes[0] == 0xFF)
         player_version = IO::ByteFormat::NetworkEndian.decode(UInt32, bytes[1..4])
+        has_player ? player_version : nil
       end
 
-      return has_player ? player_version : nil
     end
 
     private def send_request(request : Request, &)
@@ -280,8 +280,7 @@ class Invidious::SigHelper
         uri = URI.parse("tcp://#{host_or_path}")
         @socket = TCPSocket.new(uri.host.not_nil!, uri.port.not_nil!)
       end
-
-      LOGGER.debug("SigHelper: Listening on '#{host_or_path}'")
+      LOGGER.info("SigHelper: Using helper at '#{host_or_path}'")
 
       {% if flag?(:advanced_debug) %}
         @io = IO::Hexdump.new(@socket, output: STDERR, read: true, write: true)
@@ -296,11 +295,7 @@ class Invidious::SigHelper
     end
 
     def close : Nil
-      if @socket.closed?
-        raise Exception.new("SigHelper: Can't close socket, it's already closed")
-      else
-        @socket.close
-      end
+      @socket.close if !@socket.closed?
     end
 
     def flush(*args, **options)

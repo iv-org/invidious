@@ -37,7 +37,7 @@ struct Invidious::DecryptFunction
 
   def get_sts : UInt64?
     self.check_update
-    return SigHelper::Client.get_sts
+    return SigHelper::Client.get_signature_timestamp
   rescue ex
     LOGGER.debug(ex.message || "Signature: Unknown error")
     LOGGER.trace(ex.inspect_with_backtrace)
