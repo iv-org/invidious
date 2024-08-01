@@ -486,5 +486,8 @@
     "Switch Invidious Instance": "Αλλαγή Instance Invidious",
     "Standard YouTube license": "Τυπική άδεια YouTube",
     "search_filters_duration_option_medium": "Μεσαία (4 - 20 λεπτά)",
-    "search_filters_date_label": "Ημερομηνία αναφόρτωσης"
+    "search_filters_date_label": "Ημερομηνία αναφόρτωσης",
+    "Search for videos": "Αναζήτηση βίντεο",
+    "The Popular feed has been disabled by the administrator.": "Η δημοφιλής ροή έχει απενεργοποιηθεί από τον διαχειριστή.",
+    "Answer": "Απάντηση"
 }
