@@ -1,6 +1,6 @@
 #########################################
 #
-#  Database configuration
+#  Database and other external servers
 #
 #########################################
 
@@ -40,6 +40,19 @@ db:
 ##
 #check_tables: false
 
+
+##
+## Path to an external signature resolver, used to emulate
+## the Youtube client's Javascript. If no such server is
+## available, some videos will not be playable.
+##
+## When this setting is commented out, no external
+## resolver will be used.
+##
+## Accepted values: a path to a UNIX socket or "<IP>:<Port>"
+## Default: <none>
+##
+#signature_server:
 
 
 #########################################

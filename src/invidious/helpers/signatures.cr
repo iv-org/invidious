@@ -2,18 +2,27 @@ require "http/params"
 require "./sig_helper"
 
 struct Invidious::DecryptFunction
-  @last_update = Time.monotonic - 42.days
+  @last_update : Time = Time.utc - 42.days
 
   def initialize
     self.check_update
   end
 
   def check_update
-    now = Time.monotonic
-    if (now - @last_update) > 60.seconds
+    now = Time.utc
+
+    # If we have updated in the last 5 minutes, do nothing
+    return if (now - @last_update) > 5.minutes
+
+    # Get the time when the player was updated, in the event where
+    # multiple invidious processes are run in parallel.
+    player_ts = Invidious::SigHelper::Client.get_player_timestamp
+    player_time = Time.unix(player_ts || 0)
+
+    if (now - player_time) > 5.minutes
       LOGGER.debug("Signature: Player might be outdated, updating")
       Invidious::SigHelper::Client.force_update
-      @last_update = Time.monotonic
+      @last_update = Time.utc
     end
   end
 

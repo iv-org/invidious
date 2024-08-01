@@ -61,6 +61,7 @@ module Invidious::SigHelper
     DECRYPT_SIGNATURE       = 2
     GET_SIGNATURE_TIMESTAMP = 3
     GET_PLAYER_STATUS       = 4
+    PLAYER_UPDATE_TIMESTAMP = 5
   end
 
   private record Request,
@@ -135,7 +136,15 @@ module Invidious::SigHelper
         player_version = IO::ByteFormat::NetworkEndian.decode(UInt32, bytes[1..4])
         has_player ? player_version : nil
       end
+    end
 
+    # Return when the player was last updated
+    def get_player_timestamp : UInt64?
+      request = Request.new(Opcode::GET_SIGNATURE_TIMESTAMP, nil)
+
+      return self.send_request(request) do |bytes|
+        IO::ByteFormat::NetworkEndian.decode(UInt64, bytes)
+      end
     end
 
     private def send_request(request : Request, &)
