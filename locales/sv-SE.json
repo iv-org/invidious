@@ -21,7 +21,7 @@
     "Import and Export Data": "Importera och exportera data",
     "Import": "Importera",
     "Import Invidious data": "Importera Invidious JSON data",
-    "Import YouTube subscriptions": "Importera YouTube/OPML prenumerationer",
+    "Import YouTube subscriptions": "Importera YouTube CSV eller OPML prenumerationer",
     "Import FreeTube subscriptions (.db)": "Importera FreeTube-prenumerationer (.db)",
     "Import NewPipe subscriptions (.json)": "Importera NewPipe-prenumerationer (.json)",
     "Import NewPipe data (.zip)": "Importera NewPipe-data (.zip)",
