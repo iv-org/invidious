@@ -30,7 +30,7 @@
     "Import and Export Data": "Importazione ed esportazione dati",
     "Import": "Importa",
     "Import Invidious data": "Importa dati Invidious in formato JSON",
-    "Import YouTube subscriptions": "Importa le iscrizioni da YouTube/OPML",
+    "Import YouTube subscriptions": "Importa iscrizioni in CSV o OPML di YouTube",
     "Import FreeTube subscriptions (.db)": "Importa le iscrizioni da FreeTube (.db)",
     "Import NewPipe subscriptions (.json)": "Importa le iscrizioni da NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importa i dati di NewPipe (.zip)",
