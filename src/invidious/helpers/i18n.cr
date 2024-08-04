@@ -78,7 +78,7 @@ def load_all_locales
   return locales
 end
 
-def translate(locale : String?, key : String, text : String | Nil = nil) : String
+def translate(locale : String?, key : String, text : String | Hash(String, String) | Nil = nil) : String
   # Log a warning if "key" doesn't exist in en-US locale and return
   # that key as the text, so this is more or less transparent to the user.
   if !LOCALES["en-US"].has_key?(key)
@@ -101,10 +101,12 @@ def translate(locale : String?, key : String, text : String | Nil = nil) : Strin
     match_length = 0
 
     raw_data.as_h.each do |hash_key, value|
-      if md = text.try &.match(/#{hash_key}/)
-        if md[0].size >= match_length
-          translation = value.as_s
-          match_length = md[0].size
+      if text.is_a?(String)
+        if md = text.try &.match(/#{hash_key}/)
+          if md[0].size >= match_length
+            translation = value.as_s
+            match_length = md[0].size
+          end
         end
       end
     end
@@ -114,8 +116,13 @@ def translate(locale : String?, key : String, text : String | Nil = nil) : Strin
     raise "Invalid translation \"#{raw_data}\""
   end
 
-  if text
+  if text.is_a?(String)
     translation = translation.gsub("`x`", text)
+  elsif text.is_a?(Hash(String, String))
+    # adds support for multi string interpolation. Based on i18next https://www.i18next.com/translation-function/interpolation#basic
+    text.each_key do |hash_key|
+      translation = translation.gsub("{{#{hash_key}}}", text[hash_key])
+    end
   end
 
   return translation

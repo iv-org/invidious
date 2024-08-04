@@ -300,9 +300,9 @@ module Invidious::Search
         object["9:varint"] = ((page - 1) * 20).to_i64
       end
 
-      # If the object is empty, return an empty string,
-      # otherwise encode to protobuf then to base64
-      return "" if object.empty?
+      # Prevent censoring of self harm topics
+      # See https://github.com/iv-org/invidious/issues/4398
+      object["30:varint"] = 1.to_i64
 
       return object
         .try { |i| Protodec::Any.cast_json(i) }

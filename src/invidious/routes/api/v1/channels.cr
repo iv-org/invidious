@@ -90,6 +90,7 @@ module Invidious::Routes::API::V1::Channels
 
         json.field "allowedRegions", channel.allowed_regions
         json.field "tabs", channel.tabs
+        json.field "tags", channel.tags
         json.field "authorVerified", channel.verified
 
         json.field "latestVideos" do
@@ -207,11 +208,12 @@ module Invidious::Routes::API::V1::Channels
     get_channel()
 
     # Retrieve continuation from URL parameters
+    sort_by = env.params.query["sort_by"]?.try &.downcase || "newest"
     continuation = env.params.query["continuation"]?
 
     begin
       videos, next_continuation = Channel::Tabs.get_60_livestreams(
-        channel, continuation: continuation
+        channel, continuation: continuation, sort_by: sort_by
       )
     rescue ex
       return error_json(500, ex)
@@ -393,7 +395,7 @@ module Invidious::Routes::API::V1::Channels
     else
       comments = YoutubeAPI.browse(continuation: continuation)
     end
-    return Comments.parse_youtube(id, comments, format, locale, thin_mode, isPost: true)
+    return Comments.parse_youtube(id, comments, format, locale, thin_mode, is_post: true)
   end
 
   def self.channels(env)

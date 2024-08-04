@@ -38,10 +38,10 @@ jobs:
       matrix:
         stable: [true]
         crystal:
-          - 1.7.3
-          - 1.8.2
           - 1.9.2
           - 1.10.1
+          - 1.11.2
+          - 1.12.1
         include:
           - crystal: nightly
             stable: false
@@ -124,4 +124,28 @@ jobs:
       - name: Test Docker
         run: while curl -Isf http://localhost:3000; do sleep 1; done
 
+  ameba_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
 
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1.8.0
+        with:
+          crystal: latest
+
+      - name: Cache Shards
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./lib
+            ./bin
+          key: shards-${{ hashFiles('shard.lock') }}
+
+      - name: Install Shards
+        run: shards install
+
+      - name: Run Ameba linter
+        run: bin/ameba

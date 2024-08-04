@@ -2,18 +2,8 @@ name: Build and release container
 
 on:
   push:
-    branches:
-      - "master"
-    paths-ignore:
-      - "*.md"
-      - LICENCE
-      - TRANSLATION
-      - invidious.service
-      - .git*
-      - .editorconfig
-      - screenshots/*
-      - .github/ISSUE_TEMPLATE/*
-      - kubernetes/**
+    tags:
+      - "v*"
 
 jobs:
   release:
@@ -24,9 +14,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1.8.0
+        uses: crystal-lang/install-crystal@v1.8.2
         with:
-          crystal: 1.9.2
+          crystal: 1.12.2
 
       - name: Run lint
         run: |
@@ -57,7 +47,7 @@ jobs:
         with:
           images: quay.io/invidious/invidious
           tags: |
-            type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+            type=semver,pattern={{version}}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
           labels: |
             quay.expires-after=12w
@@ -82,7 +72,7 @@ jobs:
           flavor: |
             suffix=-arm64
           tags: |
-            type=sha,format=short,prefix={{date 'YYYY.MM.DD'}}-,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+            type=semver,pattern={{version}}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
           labels: |
             quay.expires-after=12w
