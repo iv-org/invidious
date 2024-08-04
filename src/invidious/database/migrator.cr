@@ -88,6 +88,7 @@ class Invidious::Database::Migrator
       FROM backup.#{table_name}
     SQL
 
+    puts "Populating table backup.#{table_name}. Most recent version"
     @db.exec <<-SQL
       SELECT * INTO backup.#{table_name}
       FROM public.#{table_name}
