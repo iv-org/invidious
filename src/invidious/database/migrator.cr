@@ -68,17 +68,32 @@ class Invidious::Database::Migrator
   end
 
   private def copy_table(table_name : String)
+    puts "Creating a table backup.#{table_name}. Most recent version"
     @db.exec <<-SQL
       CREATE TABLE IF NOT EXISTS backup.#{table_name} (
         id bigserial PRIMARY KEY
       )
     SQL
 
-    @db.exec("DROP TABLE backup.#{table_name}")
+    puts "Creating a table backup.#{table_name}. Second most recent version"
+    @db.exec <<-SQL
+      CREATE TABLE IF NOT EXISTS backup.#{table_name}_second_most_recent (
+        id bigserial PRIMARY KEY
+      )
+    SQL
+
+    puts "Populating table backup.#{table_name}. Second most recent version"
+    @db.exec <<-SQL
+      SELECT * INTO backup.#{table_name}_second_most_recent
+      FROM backup.#{table_name}
+    SQL
 
     @db.exec <<-SQL
       SELECT * INTO backup.#{table_name}
       FROM public.#{table_name}
     SQL
+
+    puts "Deleting table backup.#{table_name}. Second most recent version"
+    @db.exec("DROP TABLE backup.#{table_name}_second_most_recent")
   end
 end
