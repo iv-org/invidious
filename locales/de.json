@@ -47,6 +47,7 @@
     "Preferences": "Einstellungen",
     "preferences_category_player": "Wiedergabeeinstellungen",
     "preferences_video_loop_label": "Immer wiederholen: ",
+    "preferences_preload_label": "Videodaten vorladen: ",
     "preferences_autoplay_label": "Automatisch abspielen: ",
     "preferences_continue_label": "Immer automatisch nächstes Video abspielen: ",
     "preferences_continue_autoplay_label": "Nächstes Video automatisch abspielen: ",
