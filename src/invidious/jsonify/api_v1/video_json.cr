@@ -261,6 +261,8 @@ module Invidious::JSONify::APIv1
                 json.field "lengthSeconds", rv["length_seconds"]?.try &.to_i
                 json.field "viewCountText", rv["short_view_count"]?
                 json.field "viewCount", rv["view_count"]?.try &.empty? ? nil : rv["view_count"].to_i64
+                json.field "published", rv["published"]?
+                json.field "publishedTimeText", translate(locale, "`x` ago", rv["publishedText"].to_s.gsub(" ago", ""))
               end
             end
           end
