@@ -1,0 +1,39 @@
+<% content_for "header" do %>
+<title><%= translate(locale, "Create compilation") %> - Invidious</title>
+<% end %>
+
+<div class="pure-g">
+    <div class="pure-u-1 pure-u-lg-1-5"></div>
+    <div class="pure-u-1 pure-u-lg-3-5">
+        <div class="h-box">
+            <form class="pure-form pure-form-aligned" action="/create_compilation?referer=<%= URI.encode_www_form(referer) %>" method="post">
+                <fieldset>
+                    <legend><%= translate(locale, "Create compilation") %></legend>
+
+                    <div class="pure-control-group">
+                        <label for="title"><%= translate(locale, "Title") %> :</label>
+                        <input required name="title" type="text" placeholder="<%= translate(locale, "Title") %>">
+                    </div>
+
+                    <div class="pure-control-group">
+                        <label for="privacy"><%= translate(locale, "Compilation privacy") %> :</label>
+                         <select name="privacy" id="privacy">
+                            <% CompilationPrivacy.names.each do |option| %>
+                                <option value="<%= option %>" <% if option == "Unlisted" %> selected <% end %>><%= translate(locale,  option) %></option>
+                            <% end %>
+                        </select>
+                    </div>
+
+                    <div class="pure-controls">
+                        <button type="submit" name="action" value="create_compilation" class="pure-button pure-button-primary">
+                            <%= translate(locale, "Create compilation") %>
+                        </button>
+                    </div>
+
+                    <input type="hidden" name="csrf_token" value="<%= HTML.escape(csrf_token) %>">
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div class="pure-u-1 pure-u-lg-1-5"></div>
+</div>
