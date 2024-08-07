@@ -144,7 +144,7 @@ module Invidious::SigHelper
 
     # Return when the player was last updated
     def get_player_timestamp : UInt64?
-      request = Request.new(Opcode::GET_SIGNATURE_TIMESTAMP, nil)
+      request = Request.new(Opcode::PLAYER_UPDATE_TIMESTAMP, nil)
 
       return self.send_request(request) do |bytes|
         IO::ByteFormat::NetworkEndian.decode(UInt64, bytes)

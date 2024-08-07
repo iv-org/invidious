@@ -15,11 +15,11 @@ class Invidious::DecryptFunction
     # If we have updated in the last 5 minutes, do nothing
     return if (now - @last_update) > 5.minutes
 
-    # Get the time when the player was updated, in the event where
-    # multiple invidious processes are run in parallel.
-    player_time = Time.unix(@client.get_player_timestamp || 0)
+    # Get the amount of time elapsed since when the player was updated, in the
+    # event where multiple invidious processes are run in parallel.
+    update_time_elapsed = (@client.get_player_timestamp || 301).seconds
 
-    if (now - player_time) > 5.minutes
+    if update_time_elapsed > 5.minutes
       LOGGER.debug("Signature: Player might be outdated, updating")
       @client.force_update
       @last_update = Time.utc
