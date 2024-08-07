@@ -72,8 +72,12 @@ module Invidious::SigHelper
   #  High-level functions
   # ----------------------
 
-  module Client
-    extend self
+  class Client
+    @mux : Multiplexor
+
+    def initialize(uri_or_path)
+      @mux = Multiplexor.new(uri_or_path)
+    end
 
     # Forces the server to re-fetch the YouTube player, and extract the necessary
     # components from it (nsig function code, sig function code, signature timestamp).
@@ -148,7 +152,7 @@ module Invidious::SigHelper
     end
 
     private def send_request(request : Request, &)
-      channel = Multiplexor::INSTANCE.send(request)
+      channel = @mux.send(request)
       slice = channel.receive
       return yield slice
     rescue ex
@@ -172,10 +176,8 @@ module Invidious::SigHelper
 
     @conn : Connection
 
-    INSTANCE = new("")
-
-    def initialize(url : String)
-      @conn = Connection.new(url)
+    def initialize(uri_or_path)
+      @conn = Connection.new(uri_or_path)
       listen
     end
 
@@ -275,13 +277,14 @@ module Invidious::SigHelper
     {% end %}
 
     def initialize(host_or_path : String)
-      if host_or_path.empty?
-        host_or_path = "/tmp/inv_sig_helper.sock"
-      end
-
       case host_or_path
       when .starts_with?('/')
-        @socket = UNIXSocket.new(host_or_path)
+        # Make sure that the file exists
+        if File.exists?(host_or_path)
+          @socket = UNIXSocket.new(host_or_path)
+        else
+          raise Exception.new("SigHelper: '#{host_or_path}' no such file")
+        end
       when .starts_with?("tcp://")
         uri = URI.parse(host_or_path)
         @socket = TCPSocket.new(uri.host.not_nil!, uri.port.not_nil!)

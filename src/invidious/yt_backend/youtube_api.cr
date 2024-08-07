@@ -2,8 +2,6 @@
 # This file contains youtube API wrappers
 #
 
-private STS_FETCHER = IV::DecryptFunction.new
-
 module YoutubeAPI
   extend self
 
@@ -462,7 +460,7 @@ module YoutubeAPI
     } of String => String | Int64
 
     if {"WEB", "TVHTML5"}.any? { |s| client_config.name.starts_with? s }
-      if sts = STS_FETCHER.get_sts
+      if sts = DECRYPT_FUNCTION.try &.get_sts
         playback_ctx["signatureTimestamp"] = sts.to_i64
       end
     end

@@ -1,5 +1,3 @@
-private DECRYPT_FUNCTION = IV::DecryptFunction.new
-
 enum VideoType
   Video
   Livestream
@@ -108,14 +106,14 @@ struct Video
 
       LOGGER.debug("Videos: Decoding '#{cfr}'")
 
-      unsig = DECRYPT_FUNCTION.decrypt_signature(cfr["s"])
+      unsig = DECRYPT_FUNCTION.try &.decrypt_signature(cfr["s"])
       params[sp] = unsig if unsig
     else
       url = URI.parse(fmt["url"].as_s)
       params = url.query_params
     end
 
-    n = DECRYPT_FUNCTION.decrypt_nsig(params["n"])
+    n = DECRYPT_FUNCTION.try &.decrypt_nsig(params["n"])
     params["n"] = n if n
 
     params["host"] = url.host.not_nil!
