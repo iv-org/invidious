@@ -43,4 +43,14 @@ module Invidious::Routes::Misc
     instance_url = fetch_random_instance
     env.redirect "https://#{instance_url}#{referer}"
   end
+
+  def self.confirm_leave(env)
+    locale = env.get("preferences").as(Preferences).locale
+    
+    link = env.params.query["link"]?
+
+    referer = get_referer(env)
+
+    templated "confirm_leave"
+  end
 end
