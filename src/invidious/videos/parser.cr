@@ -316,6 +316,9 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   description_html = parse_description(video_secondary_renderer.try &.dig?("attributedDescription"), video_id)
 
+  # use comments link_utils to replace external links with the confirmation page
+  description_html = Invidious::Comments.replace_external_links(description_html)
+
   # Video metadata
 
   metadata = video_secondary_renderer

@@ -73,4 +73,30 @@ module Invidious::Comments
 
     return html.to_xml(options: XML::SaveOptions::NO_DECL)
   end
+
+  def replace_external_links(html)
+    # Check if the document is empty
+    # Prevents edge-case bug with Reddit comments, see issue #3115
+    if html.nil? || html.empty?
+      return html
+    end
+
+    html = XML.parse_html(html)
+
+    html.xpath_nodes(%q(//a)).each do |anchor|
+      url = URI.parse(anchor["href"])
+
+      if !url.host.nil? && !url.host.not_nil!.ends_with?("youtube.com") && !url.host.not_nil!.ends_with?("youtu.be")
+        confirm_leave = "/confirm_leave?link=#{URI.encode_path(url.to_s)}"
+        anchor["href"] = confirm_leave
+      end
+    end
+
+    html = html.xpath_node(%q(//body)).not_nil!
+    if node = html.xpath_node(%q(./p))
+      html = node
+    end
+
+    return html.to_xml(options: XML::SaveOptions::NO_DECL)
+  end
 end
