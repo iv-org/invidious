@@ -123,8 +123,8 @@ we're going to need to do it here in order to allow for translations.
                         link_yt_embed = IV::HttpServer::Utils.add_params_to_url(link_yt_embed, link_yt_param)
                     end
                 -%>
-                <a id="link-yt-watch" data-base-url="<%= link_yt_watch %>" href="<%= link_yt_watch %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
-                (<a id="link-yt-embed" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
+                <a id="link-yt-watch" rel="noreferrer noopener" data-base-url="<%= link_yt_watch %>" href="<%= link_yt_watch %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
+                (<a id="link-yt-embed" rel="noreferrer noopener" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
             </span>
 
             <p id="watch-on-another-invidious-instance">
