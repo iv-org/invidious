@@ -1,11 +1,19 @@
+<%
+  dark_mode = env.get("preferences").as(Preferences).dark_mode
+%>
+
 <% content_for "header" do %>
 <title><%= "Error" %> - Invidious</title>
 <% end %>
 
 <div class="h-box">
-    <a id="error-parent">
+    <div style="display: flex; flex-direction: column;">
         <%= error_message %>
-    </a>
-    <%= unfound_tv_box_dark_theme %>
+        <% if dark_mode == "dark" %>
+            <%= unfound_tv_box_dark_theme %>  
+        <% else %>
+            <%= unfound_tv_box_light_theme %> 
+        <% end %>
+    </div>
     <%= next_steps %>
 </div>
