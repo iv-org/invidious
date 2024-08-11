@@ -109,7 +109,6 @@ private module Parsers
       end
 
       live_now = false
-      paid = false
       premium = false
 
       premiere_timestamp = item_contents.dig?("upcomingEventData", "startTime").try { |t| Time.unix(t.as_s.to_i64) }
@@ -856,7 +855,7 @@ end
 #
 # This function yields the container so that items can be parsed separately.
 #
-def extract_items(initial_data : InitialData, &block)
+def extract_items(initial_data : InitialData, &)
   if unpackaged_data = initial_data["contents"]?.try &.as_h
   elsif unpackaged_data = initial_data["response"]?.try &.as_h
   elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 1).try &.as_h

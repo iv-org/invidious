@@ -24,7 +24,7 @@ struct YoutubeConnectionPool
     @pool = build_pool()
   end
 
-  def client(&block)
+  def client(&)
     conn = pool.checkout
     begin
       response = yield conn
@@ -69,7 +69,7 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false)
   return client
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = false, &block)
+def make_client(url : URI, region = nil, force_resolve : Bool = false, &)
   client = make_client(url, region, force_resolve)
   begin
     yield client
