@@ -219,7 +219,7 @@ module Invidious::Routes::API::V1::Videos
 
       storyboard[:storyboard_count].times do |i|
         url = storyboard[:url]
-        authority = /(i\d?).ytimg.com/.match(url).not_nil![1]?
+        authority = /(i\d?).ytimg.com/.match!(url)[1]?
         url = url.gsub("$M", i).gsub(%r(https://i\d?.ytimg.com/sb/), "")
         url = "#{HOST_URL}/sb/#{authority}/#{url}"
 
@@ -254,7 +254,7 @@ module Invidious::Routes::API::V1::Videos
       if CONFIG.cache_annotations && (cached_annotation = Invidious::Database::Annotations.select(id))
         annotations = cached_annotation.annotations
       else
-        index = CHARS_SAFE.index(id[0]).not_nil!.to_s.rjust(2, '0')
+        index = CHARS_SAFE.index!(id[0]).to_s.rjust(2, '0')
 
         # IA doesn't handle leading hyphens,
         # so we use https://archive.org/details/youtubeannotations_64

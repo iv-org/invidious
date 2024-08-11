@@ -95,7 +95,6 @@ module I18next::Plurals
     "hr" => PluralForms::Special_Hungarian_Serbian,
     "it" => PluralForms::Special_Spanish_Italian,
     "pt" => PluralForms::Special_French_Portuguese,
-    "pt" => PluralForms::Special_French_Portuguese,
     "sr" => PluralForms::Special_Hungarian_Serbian,
   }
 
@@ -189,7 +188,7 @@ module I18next::Plurals
 
     # Emulate the `rule.numbers.size == 2 && rule.numbers[0] == 1` check
     # from original i18next code
-    private def is_simple_plural(form : PluralForms) : Bool
+    private def simple_plural?(form : PluralForms) : Bool
       case form
       when .single_gt_one?      then return true
       when .single_not_one?     then return true
@@ -211,7 +210,7 @@ module I18next::Plurals
       idx = SuffixIndex.get_index(plural_form, count)
 
       # Simple plurals are handled differently in all versions (but v4)
-      if @simplify_plural_suffix && is_simple_plural(plural_form)
+      if @simplify_plural_suffix && simple_plural?(plural_form)
         return (idx == 1) ? "_plural" : ""
       end
 
@@ -262,9 +261,9 @@ module I18next::Plurals
       when .special_hebrew?           then return special_hebrew(count)
       when .special_odia?             then return special_odia(count)
         # Mixed v3/v4 forms
-      when .special_spanish_italian?   then return special_cldr_Spanish_Italian(count)
-      when .special_french_portuguese? then return special_cldr_French_Portuguese(count)
-      when .special_hungarian_serbian? then return special_cldr_Hungarian_Serbian(count)
+      when .special_spanish_italian?   then return special_cldr_spanish_italian(count)
+      when .special_french_portuguese? then return special_cldr_french_portuguese(count)
+      when .special_hungarian_serbian? then return special_cldr_hungarian_serbian(count)
       else
         # default, if nothing matched above
         return 0_u8
@@ -535,7 +534,7 @@ module I18next::Plurals
     #
     # This rule is mostly compliant to CLDR v42
     #
-    def self.special_cldr_Spanish_Italian(count : Int) : UInt8
+    def self.special_cldr_spanish_italian(count : Int) : UInt8
       return 0_u8 if (count == 1)                           # one
       return 1_u8 if (count != 0 && count % 1_000_000 == 0) # many
       return 2_u8                                           # other
@@ -545,7 +544,7 @@ module I18next::Plurals
     #
     # This rule is mostly compliant to CLDR v42
     #
-    def self.special_cldr_French_Portuguese(count : Int) : UInt8
+    def self.special_cldr_french_portuguese(count : Int) : UInt8
       return 0_u8 if (count == 0 || count == 1) # one
       return 1_u8 if (count % 1_000_000 == 0)   # many
       return 2_u8                               # other
@@ -555,7 +554,7 @@ module I18next::Plurals
     #
     # This rule is mostly compliant to CLDR v42
     #
-    def self.special_cldr_Hungarian_Serbian(count : Int) : UInt8
+    def self.special_cldr_hungarian_serbian(count : Int) : UInt8
       n_mod_10 = count % 10
       n_mod_100 = count % 100
 
