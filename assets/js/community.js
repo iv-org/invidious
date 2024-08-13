@@ -12,7 +12,7 @@ function updateReplyLinks() {
         replyLink.removeAttribute("target");
     });
 }
-updateReplyLinks()
+updateReplyLinks();
 
 function get_youtube_replies(target) {
     var continuation = target.getAttribute('data-continuation');
@@ -33,7 +33,7 @@ function get_youtube_replies(target) {
             body = body.parentNode.parentNode;
             body.removeChild(body.lastElementChild);
             body.insertAdjacentHTML('beforeend', response.contentHtml);
-            updateReplyLinks()
+            updateReplyLinks();
         },
         onNon200: function (xhr) {
             body.innerHTML = fallback;
