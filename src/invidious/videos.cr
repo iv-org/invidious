@@ -115,7 +115,10 @@ struct Video
 
     n = DECRYPT_FUNCTION.try &.decrypt_nsig(params["n"])
     params["n"] = n if n
-    params["pot"] = CONFIG.po_token if CONFIG.po_token
+
+    if token = CONFIG.po_token
+      params["pot"] = token
+    end
 
     params["host"] = url.host.not_nil!
     if region = self.info["region"]?.try &.as_s
