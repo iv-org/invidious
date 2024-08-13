@@ -21,7 +21,7 @@
     "Import and Export Data": "Importer- og eksporter data",
     "Import": "Importer",
     "Import Invidious data": "Importer Invidious-JSON-data",
-    "Import YouTube subscriptions": "Importer YouTube/OPML-abonnementer",
+    "Import YouTube subscriptions": "Importer YouTube CSV eller OPML-abonnementer",
     "Import FreeTube subscriptions (.db)": "Importer FreeTube-abonnementer (.db)",
     "Import NewPipe subscriptions (.json)": "Importer NewPipe-abonnementer (.json)",
     "Import NewPipe data (.zip)": "Importer NewPipe-data (.zip)",
@@ -487,5 +487,12 @@
     "playlist_button_add_items": "Legg til videoer",
     "generic_channels_count": "{{count}} kanal",
     "generic_channels_count_plural": "{{count}} kanaler",
-    "Import YouTube watch history (.json)": "Importere YouTube visningshistorikk (.json)"
+    "Import YouTube watch history (.json)": "Importere YouTube visningshistorikk (.json)",
+    "carousel_go_to": "Gå til lysark `x`",
+    "Search for videos": "Søk i videoer",
+    "Answer": "Svar",
+    "carousel_slide": "Lysark {{current}} av {{total}}",
+    "carousel_skip": "Hopp over karusellen",
+    "Add to playlist": "Legg til i spilleliste",
+    "Add to playlist: ": "Legg til i spilleliste: "
 }

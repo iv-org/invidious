@@ -253,7 +253,7 @@
     "Import NewPipe data (.zip)": "Importar dados do NewPipe (.zip)",
     "Import NewPipe subscriptions (.json)": "Importar subscrições do NewPipe (.json)",
     "Import FreeTube subscriptions (.db)": "Importar subscrições do FreeTube (.db)",
-    "Import YouTube subscriptions": "Importar subscrições via YouTube/OPML",
+    "Import YouTube subscriptions": "Importar via YouTube csv ou subscrição OPML",
     "Import Invidious data": "Importar dados JSON do Invidious",
     "Import": "Importar",
     "No": "Não",

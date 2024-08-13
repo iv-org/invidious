@@ -487,5 +487,7 @@
     "generic_button_edit": "Edita",
     "generic_button_rss": "RSS",
     "generic_button_delete": "Suprimeix",
-    "Import YouTube watch history (.json)": "Importa l'historial de visualitzacions de YouTube (.json)"
+    "Import YouTube watch history (.json)": "Importa l'historial de visualitzacions de YouTube (.json)",
+    "Answer": "Resposta",
+    "toggle_theme": "Commuta el tema"
 }
