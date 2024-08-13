@@ -18,7 +18,7 @@
     "generic_subscriptions_count_1": "{{count}} d'abonnements",
     "generic_subscriptions_count_2": "{{count}} abonnements",
     "generic_button_delete": "Supprimer",
-    "generic_button_edit": "Editer",
+    "generic_button_edit": "Modifier",
     "generic_button_save": "Enregistrer",
     "generic_button_cancel": "Annuler",
     "generic_button_rss": "RSS",
@@ -44,7 +44,7 @@
     "Import and Export Data": "Importer et exporter des données",
     "Import": "Importer",
     "Import Invidious data": "Importer des données Invidious au format JSON",
-    "Import YouTube subscriptions": "Importer des abonnements YouTube/OPML",
+    "Import YouTube subscriptions": "Importer des abonnements YouTube aux formats OPML/CSV",
     "Import FreeTube subscriptions (.db)": "Importer des abonnements FreeTube (.db)",
     "Import NewPipe subscriptions (.json)": "Importer des abonnements NewPipe (.json)",
     "Import NewPipe data (.zip)": "Importer des données NewPipe (.zip)",
@@ -504,5 +504,14 @@
     "Import YouTube playlist (.csv)": "Importer des listes de lecture de Youtube (.csv)",
     "channel_tab_releases_label": "Parutions",
     "channel_tab_podcasts_label": "Émissions audio",
-    "Import YouTube watch history (.json)": "Importer l'historique de visionnement YouTube (.json)"
+    "Import YouTube watch history (.json)": "Importer l'historique de visionnement YouTube (.json)",
+    "Add to playlist: ": "Ajouter à la playlist : ",
+    "Add to playlist": "Ajouter à la playlist",
+    "Answer": "Répondre",
+    "Search for videos": "Rechercher des vidéos",
+    "The Popular feed has been disabled by the administrator.": "Le flux populaire a été désactivé par l'administrateur.",
+    "carousel_skip": "Passez le carrousel",
+    "carousel_slide": "Diapositive {{current}} sur {{total}}",
+    "carousel_go_to": "Aller à la diapositive `x`",
+    "toggle_theme": "Changer le Thème"
 }
