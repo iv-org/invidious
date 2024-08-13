@@ -799,3 +799,9 @@ h1, h2, h3, h4, h5, p,
 #download_widget {
     width: 100%;
 }
+
+/* 404 TV Box */
+.error-page {
+  width: 50%;
+  height: auto;
+}

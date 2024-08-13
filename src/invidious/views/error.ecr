@@ -10,9 +10,9 @@
     <div style="display: flex; flex-direction: column;">
         <%= error_message %>
         <% if dark_mode == "dark" %>
-            <%= unfound_tv_box_dark_theme %>  
+            <img src="assets/404_tv_box_dark_theme.svg" alt="SVG Image" class="error-page">
         <% else %>
-            <%= unfound_tv_box_light_theme %> 
+            <img src="assets/404_tv_box_light_theme.svg" alt="SVG Image" class="error-page">
         <% end %>
     </div>
     <%= next_steps %>
