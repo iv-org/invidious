@@ -132,6 +132,11 @@ class Config
   # Use Innertube's transcripts API instead of timedtext for closed captions
   property use_innertube_for_captions : Bool = false
 
+  # visitor data ID for Google session
+  property visitor_data : String? = nil
+  # poToken for passing bot attestation
+  property po_token : String? = nil
+
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new

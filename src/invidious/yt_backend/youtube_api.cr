@@ -320,6 +320,10 @@ module YoutubeAPI
       client_context["client"]["platform"] = platform
     end
 
+    if CONFIG.visitor_data.is_a?(String)
+      client_context["client"]["visitorData"] = CONFIG.visitor_data.as(String)
+    end
+
     return client_context
   end
 
@@ -477,6 +481,9 @@ module YoutubeAPI
       "playbackContext" => {
         "contentPlaybackContext" => playback_ctx,
       },
+      "serviceIntegrityDimensions" => {
+        "poToken" => CONFIG.po_token,
+      },
     }
 
     # Append the additional parameters if those were provided
@@ -607,6 +614,10 @@ module YoutubeAPI
 
     if user_agent = client_config.user_agent
       headers["User-Agent"] = user_agent
+    end
+
+    if CONFIG.visitor_data.is_a?(String)
+      headers["X-Goog-Visitor-Id"] = CONFIG.visitor_data.as(String)
     end
 
     # Logging
