@@ -272,7 +272,7 @@ module YoutubeAPI
   # Return, as a Hash, the "context" data required to request the
   # youtube API endpoints.
   #
-  private def make_context(client_config : ClientConfig | Nil) : Hash
+  private def make_context(client_config : ClientConfig | Nil, video_id = "dQw4w9WgXcQ") : Hash
     # Use the default client config if nil is passed
     client_config ||= DEFAULT_CLIENT_CONFIG
 
@@ -292,7 +292,7 @@ module YoutubeAPI
 
     if client_config.screen == "EMBED"
       client_context["thirdParty"] = {
-        "embedUrl" => "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "embedUrl" => "https://www.youtube.com/embed/#{video_id}",
       } of String => String | Int64
     end
 
@@ -453,19 +453,29 @@ module YoutubeAPI
     params : String,
     client_config : ClientConfig | Nil = nil
   )
+    # Playback context, separate because it can be different between clients
+    playback_ctx = {
+      "html5Preference" => "HTML5_PREF_WANTS",
+      "referer"         => "https://www.youtube.com/watch?v=#{video_id}",
+    } of String => String | Int64
+
+    if {"WEB", "TVHTML5"}.any? { |s| client_config.name.starts_with? s }
+      if sts = DECRYPT_FUNCTION.try &.get_sts
+        playback_ctx["signatureTimestamp"] = sts.to_i64
+      end
+    end
+
     # JSON Request data, required by the API
     data = {
       "contentCheckOk" => true,
       "videoId"        => video_id,
-      "context"        => self.make_context(client_config),
+      "context"        => self.make_context(client_config, video_id),
       "racyCheckOk"    => true,
       "user"           => {
         "lockedSafetyMode" => false,
       },
       "playbackContext" => {
-        "contentPlaybackContext" => {
-          "html5Preference": "HTML5_PREF_WANTS",
-        },
+        "contentPlaybackContext" => playback_ctx,
       },
     }
 

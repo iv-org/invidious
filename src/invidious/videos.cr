@@ -98,20 +98,47 @@ struct Video
 
   # Methods for parsing streaming data
 
+  def convert_url(fmt)
+    if cfr = fmt["signatureCipher"]?.try { |json| HTTP::Params.parse(json.as_s) }
+      sp = cfr["sp"]
+      url = URI.parse(cfr["url"])
+      params = url.query_params
+
+      LOGGER.debug("Videos: Decoding '#{cfr}'")
+
+      unsig = DECRYPT_FUNCTION.try &.decrypt_signature(cfr["s"])
+      params[sp] = unsig if unsig
+    else
+      url = URI.parse(fmt["url"].as_s)
+      params = url.query_params
+    end
+
+    n = DECRYPT_FUNCTION.try &.decrypt_nsig(params["n"])
+    params["n"] = n if n
+
+    params["host"] = url.host.not_nil!
+    if region = self.info["region"]?.try &.as_s
+      params["region"] = region
+    end
+
+    url.query_params = params
+    LOGGER.trace("Videos: new url is '#{url}'")
+
+    return url.to_s
+  rescue ex
+    LOGGER.debug("Videos: Error when parsing video URL")
+    LOGGER.trace(ex.inspect_with_backtrace)
+    return ""
+  end
+
   def fmt_stream
     return @fmt_stream.as(Array(Hash(String, JSON::Any))) if @fmt_stream
 
-    fmt_stream = info["streamingData"]?.try &.["formats"]?.try &.as_a.map &.as_h || [] of Hash(String, JSON::Any)
-    fmt_stream.each do |fmt|
-      if s = (fmt["cipher"]? || fmt["signatureCipher"]?).try { |h| HTTP::Params.parse(h.as_s) }
-        s.each do |k, v|
-          fmt[k] = JSON::Any.new(v)
-        end
-        fmt["url"] = JSON::Any.new("#{fmt["url"]}#{DECRYPT_FUNCTION.decrypt_signature(fmt)}")
-      end
+    fmt_stream = info.dig?("streamingData", "formats")
+      .try &.as_a.map &.as_h || [] of Hash(String, JSON::Any)
 
-      fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")
-      fmt["url"] = JSON::Any.new("#{fmt["url"]}&region=#{self.info["region"]}") if self.info["region"]?
+    fmt_stream.each do |fmt|
+      fmt["url"] = JSON::Any.new(self.convert_url(fmt))
     end
 
     fmt_stream.sort_by! { |f| f["width"]?.try &.as_i || 0 }
@@ -121,21 +148,17 @@ struct Video
 
   def adaptive_fmts
     return @adaptive_fmts.as(Array(Hash(String, JSON::Any))) if @adaptive_fmts
-    fmt_stream = info["streamingData"]?.try &.["adaptiveFormats"]?.try &.as_a.map &.as_h || [] of Hash(String, JSON::Any)
-    fmt_stream.each do |fmt|
-      if s = (fmt["cipher"]? || fmt["signatureCipher"]?).try { |h| HTTP::Params.parse(h.as_s) }
-        s.each do |k, v|
-          fmt[k] = JSON::Any.new(v)
-        end
-        fmt["url"] = JSON::Any.new("#{fmt["url"]}#{DECRYPT_FUNCTION.decrypt_signature(fmt)}")
-      end
 
-      fmt["url"] = JSON::Any.new("#{fmt["url"]}&host=#{URI.parse(fmt["url"].as_s).host}")
-      fmt["url"] = JSON::Any.new("#{fmt["url"]}&region=#{self.info["region"]}") if self.info["region"]?
+    fmt_stream = info.dig("streamingData", "adaptiveFormats")
+      .try &.as_a.map &.as_h || [] of Hash(String, JSON::Any)
+
+    fmt_stream.each do |fmt|
+      fmt["url"] = JSON::Any.new(self.convert_url(fmt))
     end
 
     fmt_stream.sort_by! { |f| f["width"]?.try &.as_i || 0 }
     @adaptive_fmts = fmt_stream
+
     return @adaptive_fmts.as(Array(Hash(String, JSON::Any)))
   end
 
