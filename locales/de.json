@@ -21,7 +21,7 @@
     "Import and Export Data": "Daten importieren und exportieren",
     "Import": "Importieren",
     "Import Invidious data": "Invidious-JSON-Daten importieren",
-    "Import YouTube subscriptions": "YouTube-/OPML-Abonnements importieren",
+    "Import YouTube subscriptions": "YouTube-CSV/OPML-Abonnements importieren",
     "Import FreeTube subscriptions (.db)": "FreeTube Abonnements importieren (.db)",
     "Import NewPipe subscriptions (.json)": "NewPipe Abonnements importieren (.json)",
     "Import NewPipe data (.zip)": "NewPipe Daten importieren (.zip)",
