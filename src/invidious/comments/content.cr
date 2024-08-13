@@ -5,35 +5,35 @@ def text_to_parsed_content(text : String) : JSON::Any
     # In first case line is just a simple node before
     # check patterns inside line
     # { 'text': line }
-    currentNodes = [] of JSON::Any
-    initialNode = {"text" => line}
-    currentNodes << (JSON.parse(initialNode.to_json))
+    current_nodes = [] of JSON::Any
+    initial_node = {"text" => line}
+    current_nodes << (JSON.parse(initial_node.to_json))
 
     # For each match with url pattern, get last node and preserve
     # last node before create new node with url information
     # { 'text': match, 'navigationEndpoint': { 'urlEndpoint' : 'url': match } }
-    line.scan(/https?:\/\/[^ ]*/).each do |urlMatch|
+    line.scan(/https?:\/\/[^ ]*/).each do |url_match|
       # Retrieve last node and update node without match
-      lastNode = currentNodes[currentNodes.size - 1].as_h
-      splittedLastNode = lastNode["text"].as_s.split(urlMatch[0])
-      lastNode["text"] = JSON.parse(splittedLastNode[0].to_json)
-      currentNodes[currentNodes.size - 1] = JSON.parse(lastNode.to_json)
+      last_node = current_nodes[-1].as_h
+      splitted_last_node = last_node["text"].as_s.split(url_match[0])
+      last_node["text"] = JSON.parse(splitted_last_node[0].to_json)
+      current_nodes[-1] = JSON.parse(last_node.to_json)
       # Create new node with match and navigation infos
-      currentNode = {"text" => urlMatch[0], "navigationEndpoint" => {"urlEndpoint" => {"url" => urlMatch[0]}}}
-      currentNodes << (JSON.parse(currentNode.to_json))
+      current_node = {"text" => url_match[0], "navigationEndpoint" => {"urlEndpoint" => {"url" => url_match[0]}}}
+      current_nodes << (JSON.parse(current_node.to_json))
       # If text remain after match create new simple node with text after match
-      afterNode = {"text" => splittedLastNode.size > 1 ? splittedLastNode[1] : ""}
-      currentNodes << (JSON.parse(afterNode.to_json))
+      after_node = {"text" => splitted_last_node.size > 1 ? splitted_last_node[1] : ""}
+      current_nodes << (JSON.parse(after_node.to_json))
     end
 
     # After processing of matches inside line
     # Add \n at end of last node for preserve carriage return
-    lastNode = currentNodes[currentNodes.size - 1].as_h
-    lastNode["text"] = JSON.parse("#{currentNodes[currentNodes.size - 1]["text"]}\n".to_json)
-    currentNodes[currentNodes.size - 1] = JSON.parse(lastNode.to_json)
+    last_node = current_nodes[-1].as_h
+    last_node["text"] = JSON.parse("#{last_node["text"]}\n".to_json)
+    current_nodes[-1] = JSON.parse(last_node.to_json)
 
     # Finally add final nodes to nodes returned
-    currentNodes.each do |node|
+    current_nodes.each do |node|
       nodes << (node)
     end
   end
@@ -53,8 +53,8 @@ def content_to_comment_html(content, video_id : String? = "")
 
     text = HTML.escape(run["text"].as_s)
 
-    if navigationEndpoint = run.dig?("navigationEndpoint")
-      text = parse_link_endpoint(navigationEndpoint, text, video_id)
+    if navigation_endpoint = run.dig?("navigationEndpoint")
+      text = parse_link_endpoint(navigation_endpoint, text, video_id)
     end
 
     text = "<b>#{text}</b>" if run["bold"]?
