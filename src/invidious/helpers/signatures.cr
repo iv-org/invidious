@@ -10,10 +10,8 @@ class Invidious::DecryptFunction
   end
 
   def check_update
-    now = Time.utc
-
     # If we have updated in the last 5 minutes, do nothing
-    return if (now - @last_update) > 5.minutes
+    return if (Time.utc - @last_update) < 5.minutes
 
     # Get the amount of time elapsed since when the player was updated, in the
     # event where multiple invidious processes are run in parallel.
