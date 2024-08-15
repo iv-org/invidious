@@ -665,8 +665,6 @@ module YoutubeAPI
       "x-goog-api-format-version" => "2",
       "x-youtube-client-name"     => client_config.name_proto,
       "x-youtube-client-version"  => client_config.version,
-      "accept"                    => "*",
-      "accept-language"           => "*",
     }
 
     if user_agent = client_config.user_agent
