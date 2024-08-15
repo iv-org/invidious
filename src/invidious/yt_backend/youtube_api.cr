@@ -21,6 +21,10 @@ module YoutubeAPI
   private IOS_USER_AGENT  = "com.google.ios.youtube/19.16.3 (iPhone14,5; U; CPU iOS 17_4 like Mac OS X;)"
   private IOS_VERSION     = "17.4.0.21E219" # Major.Minor.Patch.Build
 
+  # From reddit: https://web.archive.org/web/20210506123457/https://www.reddit.com/r/youtube/comments/n660l1/how_to_access_tv_mode_in_2020/
+  private YOUTUBE_TV_USER_AGENT = "Mozilla/5.0 (Web0S; Linux/SmartTV) AppleWebKit/538.2 (KHTML, like Gecko) Large Screen Safari/538.2 LG Browser/7.00.00(LGE; 24LF4820-BU; 03.20.14; 1; DTV_W15L); webOS.TV-2015; LG NetCast.TV-2013 Compatible (LGE, 24LF4820-BU, wireless),gzip(gfe)"
+
+  private WEB_USER_AGENT  = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36,gzip(gfe)"
   private WINDOWS_VERSION = "10.0"
 
   # Enumerate used to select one of the clients supported by the API
@@ -46,39 +50,51 @@ module YoutubeAPI
   # List of hard-coded values used by the different clients
   HARDCODED_CLIENTS = {
     ClientType::Web => {
-      name:       "WEB",
-      name_proto: "1",
-      version:    "2.20240304.00.00",
-      screen:     "WATCH_FULL_SCREEN",
-      os_name:    "Windows",
-      os_version: WINDOWS_VERSION,
-      platform:   "DESKTOP",
+      name:            "WEB",
+      name_proto:      "1",
+      version:         "2.20240304.00.00",
+      screen:          "WATCH_FULL_SCREEN",
+      os_name:         "Windows",
+      os_version:      WINDOWS_VERSION,
+      browser_name:    "Chrome",
+      browser_version: "128.0.0.0",
+      platform:        "DESKTOP",
+      user_agent:      WEB_USER_AGENT,
     },
     ClientType::WebEmbeddedPlayer => {
-      name:       "WEB_EMBEDDED_PLAYER",
-      name_proto: "56",
-      version:    "1.20240303.00.00",
-      screen:     "EMBED",
-      os_name:    "Windows",
-      os_version: WINDOWS_VERSION,
-      platform:   "DESKTOP",
+      name:            "WEB_EMBEDDED_PLAYER",
+      name_proto:      "56",
+      version:         "1.20240303.00.00",
+      screen:          "EMBED",
+      os_name:         "Windows",
+      os_version:      WINDOWS_VERSION,
+      browser_name:    "Chrome",
+      browser_version: "128.0.0.0",
+      platform:        "DESKTOP",
+      user_agent:      WEB_USER_AGENT,
     },
     ClientType::WebMobile => {
-      name:       "MWEB",
-      name_proto: "2",
-      version:    "2.20240304.08.00",
-      os_name:    "Android",
-      os_version: ANDROID_VERSION,
-      platform:   "MOBILE",
+      name:            "MWEB",
+      name_proto:      "2",
+      version:         "2.20240304.08.00",
+      os_name:         "Android",
+      os_version:      ANDROID_VERSION,
+      browser_name:    "Chrome",
+      browser_version: "128.0.0.0",
+      platform:        "MOBILE",
+      user_agent:      WEB_USER_AGENT,
     },
     ClientType::WebScreenEmbed => {
-      name:       "WEB",
-      name_proto: "1",
-      version:    "2.20240304.00.00",
-      screen:     "EMBED",
-      os_name:    "Windows",
-      os_version: WINDOWS_VERSION,
-      platform:   "DESKTOP",
+      name:            "WEB",
+      name_proto:      "1",
+      version:         "2.20240304.00.00",
+      screen:          "EMBED",
+      os_name:         "Windows",
+      os_version:      WINDOWS_VERSION,
+      browser_name:    "Chrome",
+      browser_version: "128.0.0.0",
+      platform:        "DESKTOP",
+      user_agent:      WEB_USER_AGENT,
     },
 
     # Android
@@ -97,6 +113,7 @@ module YoutubeAPI
       name:       "ANDROID_EMBEDDED_PLAYER",
       name_proto: "55",
       version:    ANDROID_APP_VERSION,
+      user_agent: ANDROID_USER_AGENT,
     },
     ClientType::AndroidScreenEmbed => {
       name:                "ANDROID",
@@ -162,12 +179,14 @@ module YoutubeAPI
       name:       "TVHTML5",
       name_proto: "7",
       version:    "7.20240304.10.00",
+      user_agent: YOUTUBE_TV_USER_AGENT,
     },
     ClientType::TvHtml5ScreenEmbed => {
       name:       "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
       name_proto: "85",
       version:    "2.0",
       screen:     "EMBED",
+      user_agent: YOUTUBE_TV_USER_AGENT,
     },
   }
 
@@ -230,8 +249,8 @@ module YoutubeAPI
       HARDCODED_CLIENTS[@client_type][:android_sdk_version]?
     end
 
-    def user_agent : String?
-      HARDCODED_CLIENTS[@client_type][:user_agent]?
+    def user_agent : String
+      HARDCODED_CLIENTS[@client_type][:user_agent]
     end
 
     def os_name : String?
@@ -248,6 +267,14 @@ module YoutubeAPI
 
     def os_version : String?
       HARDCODED_CLIENTS[@client_type][:os_version]?
+    end
+
+    def browser_name : String?
+      HARDCODED_CLIENTS[@client_type][:browser_name]?
+    end
+
+    def browser_version : String?
+      HARDCODED_CLIENTS[@client_type][:browser_version]?
     end
 
     def platform : String?
@@ -278,10 +305,19 @@ module YoutubeAPI
 
     client_context = {
       "client" => {
-        "hl"            => "en",
-        "gl"            => client_config.region || "US", # Can't be empty!
-        "clientName"    => client_config.name,
-        "clientVersion" => client_config.version,
+        "hl"                 => "en",
+        "gl"                 => client_config.region || "US", # Can't be empty!
+        "clientName"         => client_config.name,
+        "clientVersion"      => client_config.version,
+        "memoryTotalKbytes"  => "8000000",
+        "originalUrl"        => "https://www.youtube.com",
+        "screenDensityFloat" => 1,
+        "screenHeightPoints" => 1440,
+        "screenPixelDensity" => 1,
+        "screenWidthPoints"  => 2560,
+        "userInterfaceTheme" => "USER_INTERFACE_THEME_LIGHT",
+        "userAgent"          => client_config.user_agent,
+        "clientFormFactor"   => "SMALL_FORM_FACTOR",
       } of String => String | Int64,
     }
 
@@ -298,6 +334,14 @@ module YoutubeAPI
 
     if android_sdk_version = client_config.android_sdk_version
       client_context["client"]["androidSdkVersion"] = android_sdk_version
+    end
+
+    if browser_name = client_config.browser_name
+      client_context["client"]["osName"] = browser_name
+    end
+
+    if browser_version = client_config.browser_version
+      client_context["client"]["osVersion"] = browser_version
     end
 
     if device_make = client_config.device_make
@@ -459,9 +503,15 @@ module YoutubeAPI
   )
     # Playback context, separate because it can be different between clients
     playback_ctx = {
-      "html5Preference" => "HTML5_PREF_WANTS",
-      "referer"         => "https://www.youtube.com/watch?v=#{video_id}",
-    } of String => String | Int64
+      "html5Preference"       => "HTML5_PREF_WANTS",
+      "referer"               => "https://www.youtube.com/watch?v=#{video_id}",
+      "lactMilliseconds"      => "-1",
+      "splay"                 => false,
+      "vis"                   => 0,
+      "autoCaptionsDefaultOn" => false,
+      "autonavState"          => "STATE_ON",
+      "currentUrl"            => "/watch?v=#{video_id}",
+    } of String => String | Int64 | Bool
 
     if {"WEB", "TVHTML5"}.any? { |s| client_config.name.starts_with? s }
       if sts = DECRYPT_FUNCTION.try &.get_sts
@@ -477,6 +527,11 @@ module YoutubeAPI
       "racyCheckOk"    => true,
       "user"           => {
         "lockedSafetyMode" => false,
+        "enableSafetyMode" => false,
+      },
+      "request" => {
+        "internalExperimentFlags" => {} of String => Hash(Nil, Nil),
+        "useSsl"                  => true,
       },
       "playbackContext" => {
         "contentPlaybackContext" => playback_ctx,
@@ -610,6 +665,8 @@ module YoutubeAPI
       "x-goog-api-format-version" => "2",
       "x-youtube-client-name"     => client_config.name_proto,
       "x-youtube-client-version"  => client_config.version,
+      "accept"                    => "*",
+      "accept-language"           => "*",
     }
 
     if user_agent = client_config.user_agent
