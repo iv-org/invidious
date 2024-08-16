@@ -56,7 +56,6 @@ def parse_related_video(related : JSON::Any) : Hash(String, JSON::Any)?
     "short_view_count" => JSON::Any.new(short_view_count || "0"),
     "author_verified"  => JSON::Any.new(author_verified),
     "published"        => JSON::Any.new(published || ""),
-    "publishedText"    => JSON::Any.new(published_time_text || ""),
   }
 end
 
