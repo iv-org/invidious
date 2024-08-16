@@ -246,8 +246,8 @@ module Invidious::JSONify::APIv1
                 json.field "viewCountText", rv["short_view_count"]?
                 json.field "viewCount", rv["view_count"]?.try &.empty? ? nil : rv["view_count"].to_i64
                 json.field "published", rv["published"]?
-                if !rv[published].nil?
-                  json.field "publishedText", translate(locale, "`x` ago", recode_date(rv[published], locale))
+                if !rv["published"].nil?
+                  json.field "publishedText", translate(locale, "`x` ago", recode_date(rv["published"], locale))
                 else
                   json.field "publishedText", translate(locale, "`x` ago", "NaN")
                 end
