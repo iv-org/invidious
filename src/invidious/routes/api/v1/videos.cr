@@ -1,3 +1,5 @@
+require "html"
+
 module Invidious::Routes::API::V1::Videos
   def self.videos(env)
     locale = env.get("preferences").as(Preferences).locale
@@ -216,12 +218,14 @@ module Invidious::Routes::API::V1::Videos
     template_path = sb.proxied_url.path
 
     # Initialize cue timing variables
+    # NOTE: videojs-vtt-thumbnails gets lost when the start and end times are not 0:00:000.000
+    # TODO: Use proper end time when videojs-vtt-thumbnails is fixed
     time_delta = sb.interval.milliseconds
     start_time = 0.milliseconds
-    end_time = time_delta - 1.milliseconds
+    end_time = 0.milliseconds # time_delta - 1.milliseconds
 
     # Build a VTT file for VideoJS-vtt plugin
-    return WebVTT.build do |vtt|
+    vtt_file = WebVTT.build do |vtt|
       sb.images_count.times do |i|
         # Replace the variable component part of the path
         work_url.path = template_path.sub("$M", i)
@@ -233,12 +237,18 @@ module Invidious::Routes::API::V1::Videos
 
             vtt.cue(start_time, end_time, work_url.to_s)
 
-            start_time += time_delta
-            end_time += time_delta
+            # TODO: uncomment these when videojs-vtt-thumbnails is fixed
+            # start_time += time_delta
+            # end_time += time_delta
           end
         end
       end
     end
+
+    # videojs-vtt-thumbnails is not compliant to the VTT specification, it
+    # doesn't unescape the HTML entities, so we have to do it here:
+    # TODO: remove this when we migrate to VideoJS 8
+    return HTML.unescape(vtt_file)
   end
 
   def self.annotations(env)
