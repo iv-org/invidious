@@ -22,7 +22,7 @@ module Invidious::Videos
       *, @url, @width, @height, @count, @interval,
       @rows, @columns, @images_count
     )
-      authority = /(i\d?).ytimg.com/.match(@url.host.not_nil!).not_nil![1]?
+      authority = /(i\d?).ytimg.com/.match!(@url.host.not_nil!)[1]?
 
       @proxied_url = URI.parse(HOST_URL)
       @proxied_url.path = "/sb/#{authority}/#{@url.path.lchop("/sb/")}"
