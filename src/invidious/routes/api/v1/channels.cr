@@ -424,7 +424,7 @@ module Invidious::Routes::API::V1::Channels
     locale = env.get("preferences").as(Preferences).locale
 
     env.response.content_type = "application/json"
-    id = env.params.url["id"].to_s
+    id = URI.encode_www_form(env.params.url["id"].to_s)
     ucid = env.params.query["ucid"]?
 
     thin_mode = env.params.query["thin_mode"]?
@@ -438,7 +438,7 @@ module Invidious::Routes::API::V1::Channels
       return error_json(400, "Invalid post ID") if response["error"]?
       ucid = decode_ucid_from_post_protobuf(response.dig("endpoint", "browseEndpoint", "params").as_s)
     else
-      ucid = ucid.to_s
+      ucid = URI.encode_www_form(ucid.to_s)
     end
 
     begin
@@ -453,7 +453,7 @@ module Invidious::Routes::API::V1::Channels
 
     env.response.content_type = "application/json"
 
-    id = env.params.url["id"]
+    id = URI.encode_www_form(env.params.url["id"])
 
     thin_mode = env.params.query["thin_mode"]?
     thin_mode = thin_mode == "true"
@@ -469,9 +469,9 @@ module Invidious::Routes::API::V1::Channels
     if ucid.nil?
       response = YoutubeAPI.resolve_url("https://www.youtube.com/post/#{id}")
       return error_json(400, "Invalid post ID") if response["error"]?
-      ucid = response.dig("endpoint", "browseEndpoint", "browseId").as_s
+      ucid = URI.encode_www_form(response.dig("endpoint", "browseEndpoint", "browseId").as_s)
     else
-      ucid = ucid.to_s
+      ucid = URI.encode_www_form(ucid.to_s)
     end
 
     case continuation

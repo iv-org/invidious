@@ -349,7 +349,7 @@ module Invidious::Routes::Watch
     locale = env.get("preferences").as(Preferences).locale
     region = env.params.query["region"]?
 
-    id = env.params.query["id"]
+    id = URI.encode_www_form(env.params.query["id"])
     continuation = env.params.query["continuation"]?
 
     source = env.params.query["source"]? || "youtube"
@@ -366,9 +366,9 @@ module Invidious::Routes::Watch
       if ucid.nil?
         response = YoutubeAPI.resolve_url("https://www.youtube.com/post/#{id}")
         return error_json(400, "Invalid post ID") if response["error"]?
-        ucid = response.dig("endpoint", "browseEndpoint", "browseId").as_s
+        ucid = URI.encode_www_form(response.dig("endpoint", "browseEndpoint", "browseId").as_s)
       else
-        ucid = ucid.to_s
+        ucid = URI.encode_www_form(ucid.to_s)
       end
       case continuation
       when nil, ""
