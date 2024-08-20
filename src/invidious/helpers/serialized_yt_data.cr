@@ -13,6 +13,13 @@ struct SearchVideo
   property premium : Bool
   property premiere_timestamp : Time?
   property author_verified : Bool
+  property is_new : Bool
+  property is_4k : Bool
+  property is_8k : Bool
+  property is_vr180 : Bool
+  property is_vr360 : Bool
+  property is_3d : Bool
+  property has_captions : Bool
 
   def to_xml(auto_generated, query_params, xml : XML::Builder)
     query_params["v"] = self.id
@@ -95,6 +102,13 @@ struct SearchVideo
       if self.premiere_timestamp
         json.field "premiereTimestamp", self.premiere_timestamp.try &.to_unix
       end
+      json.field "isNew", self.is_new
+      json.field "is4k", self.is_4k
+      json.field "is8k", self.is_8k
+      json.field "isVR180", is_vr180
+      json.field "isVR360", is_vr360
+      json.field "is3d", is_3d
+      json.field "hasCaptions", self.has_captions
     end
   end
 

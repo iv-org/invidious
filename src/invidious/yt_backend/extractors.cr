@@ -110,6 +110,13 @@ private module Parsers
 
       live_now = false
       premium = false
+      is_new = false
+      is_4k = false
+      is_8k = false
+      is_vr180 = false
+      is_vr360 = false
+      is_3d = false
+      has_captions = false
 
       premiere_timestamp = item_contents.dig?("upcomingEventData", "startTime").try { |t| Time.unix(t.as_s.to_i64) }
 
@@ -118,12 +125,25 @@ private module Parsers
         case b["label"].as_s
         when "LIVE NOW"
           live_now = true
-        when "New", "4K", "CC"
-          # TODO
+        when "New"
+          is_new = true
+        when "4K"
+          is_4k = true
+        when "8K"
+          is_8k = true
+        when "VR180"
+          is_vr180 = true
+        when "360°"
+          is_vr360 = true
+        when "3D"
+          is_3d = true
+        when "CC"
+          has_captions = true
         when "Premium"
           # TODO: Potentially available as item_contents["topStandaloneBadge"]["metadataBadgeRenderer"]
           premium = true
-        else nil # Ignore
+        else # Ignore
+          puts b["label"].as_s
         end
       end
 
@@ -140,6 +160,13 @@ private module Parsers
         premium:            premium,
         premiere_timestamp: premiere_timestamp,
         author_verified:    author_verified,
+        is_new:             is_new,
+        is_4k:              is_4k,
+        is_8k:              is_8k,
+        is_vr180:           is_vr180,
+        is_vr360:           is_vr360,
+        is_3d:              is_3d,
+        has_captions:       has_captions,
       })
     end
 
@@ -567,6 +594,13 @@ private module Parsers
         premium:            false,
         premiere_timestamp: Time.unix(0),
         author_verified:    false,
+        is_new:             false,
+        is_4k:              false,
+        is_8k:              false,
+        is_vr180:           false,
+        is_vr360:           false,
+        is_3d:              false,
+        has_captions:       false,
       })
     end
 
