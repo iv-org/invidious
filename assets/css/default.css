@@ -282,7 +282,7 @@ div.thumbnail > .bottom-right-overlay {
   display: flex;
 }
 
-.searchbar .pure-form fieldset { 
+.searchbar .pure-form fieldset {
   padding: 0;
   flex: 1;
 }
