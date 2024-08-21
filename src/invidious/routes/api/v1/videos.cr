@@ -218,11 +218,11 @@ module Invidious::Routes::API::V1::Videos
     template_path = sb.proxied_url.path
 
     # Initialize cue timing variables
-    # NOTE: videojs-vtt-thumbnails gets lost when the start and end times are not 0:00:000.000
-    # TODO: Use proper end time when videojs-vtt-thumbnails is fixed
+    # NOTE: videojs-vtt-thumbnails gets lost when the cue times don't overlap
+    # (i.e: if cue[n] end time is 1:06:25.000, cue[n+1] start time should be 1:06:25.000)
     time_delta = sb.interval.milliseconds
     start_time = 0.milliseconds
-    end_time = 0.milliseconds # time_delta - 1.milliseconds
+    end_time = time_delta
 
     # Build a VTT file for VideoJS-vtt plugin
     vtt_file = WebVTT.build do |vtt|
@@ -237,9 +237,8 @@ module Invidious::Routes::API::V1::Videos
 
             vtt.cue(start_time, end_time, work_url.to_s)
 
-            # TODO: uncomment these when videojs-vtt-thumbnails is fixed
-            # start_time += time_delta
-            # end_time += time_delta
+            start_time += time_delta
+            end_time += time_delta
           end
         end
       end
