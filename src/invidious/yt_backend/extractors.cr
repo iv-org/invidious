@@ -108,42 +108,31 @@ private module Parsers
         length_seconds = 0
       end
 
-      live_now = false
-      premium = false
-      is_new = false
-      is_4k = false
-      is_8k = false
-      is_vr180 = false
-      is_vr360 = false
-      is_3d = false
-      has_captions = false
-
       premiere_timestamp = item_contents.dig?("upcomingEventData", "startTime").try { |t| Time.unix(t.as_s.to_i64) }
-
+      badges = VideoBadges::None
       item_contents["badges"]?.try &.as_a.each do |badge|
         b = badge["metadataBadgeRenderer"]
         case b["label"].as_s
         when "LIVE NOW"
-          live_now = true
+          badges |= VideoBadges::LiveNow
         when "New"
-          is_new = true
+          badges |= VideoBadges::New
         when "4K"
-          is_4k = true
+          badges |= VideoBadges::FourK
         when "8K"
-          is_8k = true
+          badges |= VideoBadges::EightK
         when "VR180"
-          is_vr180 = true
+          badges |= VideoBadges::VR180
         when "360°"
-          is_vr360 = true
+          badges |= VideoBadges::VR360
         when "3D"
-          is_3d = true
+          badges |= VideoBadges::ThreeD
         when "CC"
-          has_captions = true
+          badges |= VideoBadges::CCommons
         when "Premium"
           # TODO: Potentially available as item_contents["topStandaloneBadge"]["metadataBadgeRenderer"]
-          premium = true
-        else # Ignore
-          puts b["label"].as_s
+          badges |= VideoBadges::Premium
+        else nil # Ignore
         end
       end
 
@@ -156,17 +145,9 @@ private module Parsers
         views:              view_count,
         description_html:   description_html,
         length_seconds:     length_seconds,
-        live_now:           live_now,
-        premium:            premium,
         premiere_timestamp: premiere_timestamp,
         author_verified:    author_verified,
-        is_new:             is_new,
-        is_4k:              is_4k,
-        is_8k:              is_8k,
-        is_vr180:           is_vr180,
-        is_vr360:           is_vr360,
-        is_3d:              is_3d,
-        has_captions:       has_captions,
+        badges:             badges,
       })
     end
 
@@ -590,17 +571,9 @@ private module Parsers
         views:              view_count,
         description_html:   "",
         length_seconds:     duration,
-        live_now:           false,
-        premium:            false,
         premiere_timestamp: Time.unix(0),
         author_verified:    false,
-        is_new:             false,
-        is_4k:              false,
-        is_8k:              false,
-        is_vr180:           false,
-        is_vr360:           false,
-        is_3d:              false,
-        has_captions:       false,
+        badges:             VideoBadges::None,
       })
     end
 

@@ -192,18 +192,9 @@ module Invidious::Routes::Feeds
         views:              views,
         description_html:   description_html,
         length_seconds:     0,
-        live_now:           false,
-        paid:               false,
-        premium:            false,
         premiere_timestamp: nil,
         author_verified:    false,
-        is_new:             false,
-        is_4k:              false,
-        is_8k:              false,
-        is_vr180:           false,
-        is_vr360:           false,
-        is_3d:              false,
-        has_captions:       false,
+        badges:             VideoBadges::None,
       })
     end
 
