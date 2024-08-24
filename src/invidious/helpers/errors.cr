@@ -180,6 +180,9 @@ def error_redirect_helper(env : HTTP::Server::Context)
     go_to_youtube = translate(locale, "next_steps_error_message_go_to_youtube")
     switch_instance = translate(locale, "Switch Invidious Instance")
 
+    youtube_link = "https://youtube.com#{env.request.resource}"
+    youtube_link_confirm = "/confirm_leave?link=#{URI.encode_path(youtube_link)}"
+
     return <<-END_HTML
       <p style="margin-bottom: 4px;">#{next_steps_text}</p>
       <ul>
@@ -190,7 +193,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
           <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
         </li>
         <li>
-          <a rel="noreferrer noopener" href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
+          <a href="#{youtube_link_confirm}">#{go_to_youtube}</a>
         </li>
       </ul>
     END_HTML
