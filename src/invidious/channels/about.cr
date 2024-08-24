@@ -50,12 +50,12 @@ def get_about_info(ucid, locale) : AboutChannel
   total_views = 0_i64
   joined = Time.unix(0)
 
-  if ageGate = initdata.dig?("contents", "twoColumnBrowseResultsRenderer", "tabs", 0, "tabRenderer", "content", "sectionListRenderer", "contents", 0, "channelAgeGateRenderer")
+  if age_gate_renderer = initdata.dig?("contents", "twoColumnBrowseResultsRenderer", "tabs", 0, "tabRenderer", "content", "sectionListRenderer", "contents", 0, "channelAgeGateRenderer")
     description_node = nil
-    author = ageGate["channelTitle"].as_s
+    author = age_gate_renderer["channelTitle"].as_s
     ucid = initdata.dig("responseContext", "serviceTrackingParams", 0, "params", 0, "value").as_s
     author_url = "https://www.youtube.com/channel/#{ucid}"
-    author_thumbnail = ageGate.dig("avatar", "thumbnails", 0, "url").as_s
+    author_thumbnail = age_gate_renderer.dig("avatar", "thumbnails", 0, "url").as_s
     banner = nil
     is_family_friendly = false
     is_age_gated = true

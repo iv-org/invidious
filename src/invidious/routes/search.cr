@@ -53,7 +53,7 @@ module Invidious::Routes::Search
 
       # An URL was copy/pasted in the search box.
       # Redirect the user to the appropriate page.
-      if query.is_url?
+      if query.url?
         return env.redirect UrlSanitizer.process(query.text).to_s
       end
 
