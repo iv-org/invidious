@@ -149,7 +149,7 @@ module Invidious::Search
     end
 
     # Checks if the query is a standalone URL
-    def is_url? : Bool
+    def url? : Bool
       # If the smart features have been inhibited, don't go further.
       return false if @inhibit_ssf
 
