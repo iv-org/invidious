@@ -280,7 +280,7 @@ struct Video
     info["genreUcid"].try &.as_s? ? "/channel/#{info["genreUcid"]}" : nil
   end
 
-  def is_vr : Bool?
+  def vr? : Bool?
     return {"EQUIRECTANGULAR", "MESH"}.includes? self.projection_type
   end
 
@@ -361,6 +361,21 @@ struct Video
     {% if flag?(:debug_macros) %} {{debug}} {% end %}
   end
 
+  # Macro to generate ? and = accessor methods for attributes in `info`
+  private macro predicate_bool(method_name, name)
+    # Return {{name.stringify}} from `info`
+    def {{method_name.id.underscore}}? : Bool
+      return info[{{name.stringify}}]?.try &.as_bool || false
+    end
+
+    # Update {{name.stringify}} into `info`
+    def {{method_name.id.underscore}}=(value : Bool)
+      info[{{name.stringify}}] = JSON::Any.new(value)
+    end
+
+    {% if flag?(:debug_macros) %} {{debug}} {% end %}
+  end
+
   # Method definitions, using the macros above
 
   getset_string author
@@ -382,11 +397,12 @@ struct Video
   getset_i64 likes
   getset_i64 views
 
+  # TODO: Make predicate_bool the default as to adhere to Crystal conventions
   getset_bool allowRatings
   getset_bool authorVerified
   getset_bool isFamilyFriendly
   getset_bool isListed
-  getset_bool isUpcoming
+  predicate_bool upcoming, isUpcoming
 end
 
 def get_video(id, refresh = true, region = nil, force_refresh = false)

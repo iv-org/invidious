@@ -116,7 +116,7 @@ module Invidious::Routes::API::V1::Videos
         else
           caption_xml = XML.parse(caption_xml)
 
-          webvtt = WebVTT.build(settings_field) do |webvtt|
+          webvtt = WebVTT.build(settings_field) do |builder|
             caption_nodes = caption_xml.xpath_nodes("//transcript/text")
             caption_nodes.each_with_index do |node, i|
               start_time = node["start"].to_f.seconds
@@ -136,7 +136,7 @@ module Invidious::Routes::API::V1::Videos
                 text = "<v #{md["name"]}>#{md["text"]}</v>"
               end
 
-              webvtt.cue(start_time, end_time, text)
+              builder.cue(start_time, end_time, text)
             end
           end
         end

@@ -115,7 +115,7 @@ struct Invidious::User
         playlists.each do |item|
           title = item["title"]?.try &.as_s?.try &.delete("<>")
           description = item["description"]?.try &.as_s?.try &.delete("\r")
-          privacy = item["privacy"]?.try &.as_s?.try { |privacy| PlaylistPrivacy.parse? privacy }
+          privacy = item["privacy"]?.try &.as_s?.try { |raw_pl_privacy_state| PlaylistPrivacy.parse? raw_pl_privacy_state }
 
           next if !title
           next if !description
@@ -161,7 +161,7 @@ struct Invidious::User
     #  Youtube
     # -------------------
 
-    private def is_opml?(mimetype : String, extension : String)
+    private def opml?(mimetype : String, extension : String)
       opml_mimetypes = [
         "application/xml",
         "text/xml",
@@ -179,7 +179,7 @@ struct Invidious::User
     def from_youtube(user : User, body : String, filename : String, type : String) : Bool
       extension = filename.split(".").last
 
-      if is_opml?(type, extension)
+      if opml?(type, extension)
         subscriptions = XML.parse(body)
         user.subscriptions += subscriptions.xpath_nodes(%q(//outline[@type="rss"])).map do |channel|
           channel["xmlUrl"].match!(/UC[a-zA-Z0-9_-]{22}/)[0]

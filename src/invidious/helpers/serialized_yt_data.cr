@@ -90,7 +90,7 @@ struct SearchVideo
       json.field "lengthSeconds", self.length_seconds
       json.field "liveNow", self.live_now
       json.field "premium", self.premium
-      json.field "isUpcoming", self.is_upcoming
+      json.field "isUpcoming", self.upcoming?
 
       if self.premiere_timestamp
         json.field "premiereTimestamp", self.premiere_timestamp.try &.to_unix
@@ -109,7 +109,7 @@ struct SearchVideo
     to_json(nil, json)
   end
 
-  def is_upcoming
+  def upcoming?
     premiere_timestamp ? true : false
   end
 end
