@@ -105,8 +105,8 @@ module Invidious::Routes::Search
     end
 
     begin
-      hashtagPage = Invidious::Hashtag.fetch(hashtag, page)
-      items = hashtagPage.videos
+      hashtag_page = Invidious::Hashtag.fetch(hashtag, page)
+      items = hashtag_page.videos
     rescue ex
       return error_template(500, ex)
     end
@@ -116,7 +116,7 @@ module Invidious::Routes::Search
     page_nav_html = Frontend::Pagination.nav_numeric(locale,
       base_url: "/hashtag/#{hashtag_encoded}",
       current_page: page,
-      show_next: hashtagPage.has_next_continuation
+      show_next: hashtag_page.has_next_continuation
     )
 
     templated "hashtag"
