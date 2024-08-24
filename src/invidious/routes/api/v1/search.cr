@@ -67,13 +67,13 @@ module Invidious::Routes::API::V1::Search
     env.response.content_type = "application/json"
 
     begin
-      hashtagPage = Invidious::Hashtag.fetch(hashtag, page, region)
+      hashtag_page = Invidious::Hashtag.fetch(hashtag, page, region)
     rescue ex
       return error_json(400, ex)
     end
 
     JSON.build do |json|
-      hashtagPage.to_json(locale, json)
+      hashtag_page.to_json(locale, json)
     end
   end
 end
