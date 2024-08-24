@@ -48,9 +48,15 @@ module Invidious::Routes::Misc
     locale = env.get("preferences").as(Preferences).locale
     
     link = env.params.query["link"]?
+    link = HTML.escape(link.to_s)
 
     referer = get_referer(env)
 
-    templated "confirm_leave"
+    if link && !link.empty?
+      templated "confirm_leave"
+    else
+      env.redirect "#{referer}"
+    end
+
   end
 end
