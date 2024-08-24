@@ -1,3 +1,5 @@
+require "html"
+
 module Invidious::Routes::API::V1::Videos
   def self.videos(env)
     locale = env.get("preferences").as(Preferences).locale
@@ -187,15 +189,14 @@ module Invidious::Routes::API::V1::Videos
       haltf env, 500
     end
 
-    storyboards = video.storyboards
-    width = env.params.query["width"]?
-    height = env.params.query["height"]?
+    width = env.params.query["width"]?.try &.to_i
+    height = env.params.query["height"]?.try &.to_i
 
     if !width && !height
       response = JSON.build do |json|
         json.object do
           json.field "storyboards" do
-            Invidious::JSONify::APIv1.storyboards(json, id, storyboards)
+            Invidious::JSONify::APIv1.storyboards(json, id, video.storyboards)
           end
         end
       end
@@ -205,35 +206,48 @@ module Invidious::Routes::API::V1::Videos
 
     env.response.content_type = "text/vtt"
 
-    storyboard = storyboards.select { |sb| width == "#{sb[:width]}" || height == "#{sb[:height]}" }
+    # Select a storyboard matching the user's provided width/height
+    storyboard = video.storyboards.select { |x| x.width == width || x.height == height }
+    haltf env, 404 if storyboard.empty?
 
-    if storyboard.empty?
-      haltf env, 404
-    else
-      storyboard = storyboard[0]
-    end
+    # Alias variable, to make the code below esaier to read
+    sb = storyboard[0]
 
-    WebVTT.build do |vtt|
-      start_time = 0.milliseconds
-      end_time = storyboard[:interval].milliseconds
+    # Some base URL segments that we'll use to craft the final URLs
+    work_url = sb.proxied_url.dup
+    template_path = sb.proxied_url.path
 
-      storyboard[:storyboard_count].times do |i|
-        url = storyboard[:url]
-        authority = /(i\d?).ytimg.com/.match!(url)[1]?
-        url = url.gsub("$M", i).gsub(%r(https://i\d?.ytimg.com/sb/), "")
-        url = "#{HOST_URL}/sb/#{authority}/#{url}"
+    # Initialize cue timing variables
+    # NOTE: videojs-vtt-thumbnails gets lost when the cue times don't overlap
+    # (i.e: if cue[n] end time is 1:06:25.000, cue[n+1] start time should be 1:06:25.000)
+    time_delta = sb.interval.milliseconds
+    start_time = 0.milliseconds
+    end_time = time_delta
 
-        storyboard[:storyboard_height].times do |j|
-          storyboard[:storyboard_width].times do |k|
-            current_cue_url = "#{url}#xywh=#{storyboard[:width] * k},#{storyboard[:height] * j},#{storyboard[:width] - 2},#{storyboard[:height]}"
-            vtt.cue(start_time, end_time, current_cue_url)
+    # Build a VTT file for VideoJS-vtt plugin
+    vtt_file = WebVTT.build do |vtt|
+      sb.images_count.times do |i|
+        # Replace the variable component part of the path
+        work_url.path = template_path.sub("$M", i)
 
-            start_time += storyboard[:interval].milliseconds
-            end_time += storyboard[:interval].milliseconds
+        sb.rows.times do |j|
+          sb.columns.times do |k|
+            # The URL fragment represents the offset of the thumbnail inside the storyboard image
+            work_url.fragment = "xywh=#{sb.width * k},#{sb.height * j},#{sb.width - 2},#{sb.height}"
+
+            vtt.cue(start_time, end_time, work_url.to_s)
+
+            start_time += time_delta
+            end_time += time_delta
           end
         end
       end
     end
+
+    # videojs-vtt-thumbnails is not compliant to the VTT specification, it
+    # doesn't unescape the HTML entities, so we have to do it here:
+    # TODO: remove this when we migrate to VideoJS 8
+    return HTML.unescape(vtt_file)
   end
 
   def self.annotations(env)
