@@ -162,7 +162,13 @@ module Invidious::JSONify::APIv1
         json.array do
           video.fmt_stream.each do |fmt|
             json.object do
-              json.field "url", fmt["url"]
+              if proxy
+                json.field "url", Invidious::HttpServer::Utils.proxy_video_url(
+                  fmt["url"].to_s, absolute: true
+                )
+              else
+                json.field "url", fmt["url"]
+              end
               json.field "itag", fmt["itag"].as_i.to_s
               json.field "type", fmt["mimeType"]
               json.field "quality", fmt["quality"]
