@@ -1,6 +1,7 @@
 name: Build and release container
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "v*"
