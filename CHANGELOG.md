@@ -1,6 +1,18 @@
 # CHANGELOG
 
-## v2.20240825 (2024-08-25)
+## v2.20240825.1 (2024-08-25)
+
+Add patch component to be [semver] compliant and make github actions happy.
+
+[semver]: https://semver.org/
+
+### Full list of pull requests merged since the last release (newest first)
+
+Allow manual trigger of release-container build (#4877, thanks @syeopite)
+
+
+
+## v2.20240825.0 (2024-08-25)
 
 ### New features & important changes
 
