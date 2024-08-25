@@ -55,7 +55,7 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, force_you
     client.family = Socket::Family::INET if client.family == Socket::Family::UNSPEC
   end
 
-  client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com" || force_youtube_headers
+  client.before_request { |r| add_yt_headers(r) } if url.host.try &.ends_with?("youtube.com") || force_youtube_headers
   client.read_timeout = 10.seconds
   client.connect_timeout = 10.seconds
 
