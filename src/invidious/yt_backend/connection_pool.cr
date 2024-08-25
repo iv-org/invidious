@@ -31,7 +31,6 @@ struct YoutubeConnectionPool
     rescue ex
       conn.close
       conn = make_client(url)
-      conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       response = yield conn
     ensure
       pool.release(conn)
@@ -42,9 +41,7 @@ struct YoutubeConnectionPool
 
   private def build_pool
     DB::Pool(HTTP::Client).new(initial_pool_size: 0, max_pool_size: capacity, max_idle_pool_size: capacity, checkout_timeout: timeout) do
-      conn = make_client(url, force_resolve: true)
-      conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
-      conn
+      next make_client(url, force_resolve: true)
     end
   end
 end
@@ -55,6 +52,7 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, force_you
   # Force the usage of a specific configured IP Family
   if force_resolve
     client.family = CONFIG.force_resolve
+    client.family = Socket::Family::INET if client.family == Socket::Family::UNSPEC
   end
 
   client.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com" || force_youtube_headers
