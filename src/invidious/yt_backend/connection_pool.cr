@@ -30,7 +30,7 @@ struct YoutubeConnectionPool
       response = yield conn
     rescue ex
       conn.close
-      conn = make_client(url)
+      conn = make_client(url, force_resolve: true)
       response = yield conn
     ensure
       pool.release(conn)
