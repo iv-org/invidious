@@ -128,7 +128,7 @@ private module Parsers
         when "3D"
           badges |= VideoBadges::ThreeD
         when "CC"
-          badges |= VideoBadges::CCommons
+          badges |= VideoBadges::ClosedCaptions
         when "Premium"
           # TODO: Potentially available as item_contents["topStandaloneBadge"]["metadataBadgeRenderer"]
           badges |= VideoBadges::Premium
