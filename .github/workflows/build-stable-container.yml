@@ -47,9 +47,11 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: quay.io/invidious/invidious
+          flavor: |
+            latest=false
           tags: |
             type=semver,pattern={{version}}
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+            type=raw,value=latest
           labels: |
             quay.expires-after=12w
 
@@ -71,10 +73,11 @@ jobs:
         with:
           images: quay.io/invidious/invidious
           flavor: |
+            latest=false
             suffix=-arm64
           tags: |
             type=semver,pattern={{version}}
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
+            type=raw,value=latest
           labels: |
             quay.expires-after=12w
 
