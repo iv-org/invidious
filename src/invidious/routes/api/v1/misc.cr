@@ -42,8 +42,8 @@ module Invidious::Routes::API::V1::Misc
     format = env.params.query["format"]?
     format ||= "json"
 
-    listenParam = env.params.query["listen"]?
-    listen = (listenParam == "true" || listenParam == "1")
+    listen_param = env.params.query["listen"]?
+    listen = (listen_param == "true" || listen_param == "1")
 
     if plid.starts_with? "RD"
       return env.redirect "/api/v1/mixes/#{plid}"
@@ -114,8 +114,8 @@ module Invidious::Routes::API::V1::Misc
     format = env.params.query["format"]?
     format ||= "json"
 
-    listenParam = env.params.query["listen"]?
-    listen = (listenParam == "true" || listenParam == "1")
+    listen_param = env.params.query["listen"]?
+    listen = (listen_param == "true" || listen_param == "1")
 
     begin
       mix = fetch_mix(rdid, continuation, locale: locale)
