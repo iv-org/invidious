@@ -1,5 +1,18 @@
 # CHANGELOG
 
+
+## v2.20240825.2 (2024-08-26)
+
+This releases fixes the container tags pushed on quay.io.
+Previously, the ARM64 build was released under the `latest` tag, instead of `latest-arm64`.
+
+### Full list of pull requests merged since the last release (newest first)
+
+CI: Fix docker container tags ([#4883], by @SamantazFox)
+
+[#4877]: https://github.com/iv-org/invidious/pull/4877
+
+
 ## v2.20240825.1 (2024-08-25)
 
 Add patch component to be [semver] compliant and make github actions happy.
@@ -8,8 +21,9 @@ Add patch component to be [semver] compliant and make github actions happy.
 
 ### Full list of pull requests merged since the last release (newest first)
 
-Allow manual trigger of release-container build (#4877, thanks @syeopite)
+Allow manual trigger of release-container build ([#4877], thanks @syeopite)
 
+[#4877]: https://github.com/iv-org/invidious/pull/4877
 
 
 ## v2.20240825.0 (2024-08-25)
