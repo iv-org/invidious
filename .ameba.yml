@@ -38,6 +38,9 @@ Style/RedundantBegin:
 Style/RedundantReturn:
   Enabled: false
 
+Style/RedundantNext:
+  Enabled: false
+
 Style/ParenthesesAroundCondition:
   Enabled: false
 
