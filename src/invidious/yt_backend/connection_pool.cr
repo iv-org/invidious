@@ -1,6 +1,6 @@
 def add_yt_headers(request)
   request.headers.delete("User-Agent") if request.headers["User-Agent"] == "Crystal"
-  request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+  request.headers["User-Agent"] ||= "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
 
   request.headers["Accept-Charset"] ||= "ISO-8859-1,utf-8;q=0.7,*;q=0.7"
   request.headers["Accept"] ||= "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
@@ -24,7 +24,7 @@ struct YoutubeConnectionPool
     @pool = build_pool()
   end
 
-  def client(&block)
+  def client(&)
     conn = pool.checkout
     begin
       response = yield conn
@@ -69,7 +69,7 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false)
   return client
 end
 
-def make_client(url : URI, region = nil, force_resolve : Bool = false, &block)
+def make_client(url : URI, region = nil, force_resolve : Bool = false, &)
   client = make_client(url, region, force_resolve)
   begin
     yield client

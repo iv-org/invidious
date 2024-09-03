@@ -487,5 +487,11 @@
     "generic_views_count": "{{count}} гледане",
     "generic_views_count_plural": "{{count}} гледания",
     "Next page": "Следваща страница",
-    "Import YouTube watch history (.json)": "Импортиране на историята на гледане от YouTube (.json)"
+    "Import YouTube watch history (.json)": "Импортиране на историята на гледане от YouTube (.json)",
+    "toggle_theme": "Смени темата",
+    "Add to playlist": "Добави към плейлист",
+    "Add to playlist: ": "Добави към плейлист: ",
+    "Answer": "Отговор",
+    "Search for videos": "Търсене на видеа",
+    "The Popular feed has been disabled by the administrator.": "Популярната страница е деактивирана от администратора."
 }

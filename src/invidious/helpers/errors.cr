@@ -190,7 +190,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
           <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
         </li>
         <li>
-          <a href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
+          <a rel="noreferrer noopener" href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
         </li>
       </ul>
     END_HTML

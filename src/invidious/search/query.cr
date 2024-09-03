@@ -20,6 +20,9 @@ module Invidious::Search
     property region : String?
     property channel : String = ""
 
+    # Flag that indicates if the smart search features have been disabled.
+    @inhibit_ssf : Bool = false
+
     # Return true if @raw_query is either `nil` or empty
     private def empty_raw_query?
       return @raw_query.empty?
@@ -48,10 +51,18 @@ module Invidious::Search
     )
       # Get the raw search query string (common to all search types). In
       # Regular search mode, also look for the `search_query` URL parameter
-      if @type.regular?
-        @raw_query = params["q"]? || params["search_query"]? || ""
-      else
-        @raw_query = params["q"]? || ""
+      _raw_query = params["q"]?
+      _raw_query ||= params["search_query"]? if @type.regular?
+      _raw_query ||= ""
+
+      # Remove surrounding whitespaces. Mostly useful for copy/pasted URLs.
+      @raw_query = _raw_query.strip
+
+      # Check for smart features (ex: URL search) inhibitor (backslash).
+      # If inhibitor is present, remove it.
+      if @raw_query.starts_with?('\\')
+        @inhibit_ssf = true
+        @raw_query = @raw_query[1..]
       end
 
       # Get the page number (also common to all search types)
@@ -85,7 +96,7 @@ module Invidious::Search
           @filters = Filters.from_iv_params(params)
           @channel = params["channel"]? || ""
 
-          if @filters.default? && @raw_query.includes?(':')
+          if @filters.default? && @raw_query.index(/\w:\w/)
             # Parse legacy filters from query
             @filters, @channel, @query, subs = Filters.from_legacy_filters(@raw_query)
           else
@@ -135,6 +146,23 @@ module Invidious::Search
       params["channel"] = @channel if !@channel.empty?
 
       return params
+    end
+
+    # Checks if the query is a standalone URL
+    def url? : Bool
+      # If the smart features have been inhibited, don't go further.
+      return false if @inhibit_ssf
+
+      # Only supported in regular search mode
+      return false if !@type.regular?
+
+      # If filters are present, that's a regular search
+      return false if !@filters.default?
+
+      # Simple heuristics: domain name
+      return @raw_query.starts_with?(
+        /(https?:\/\/)?(www\.)?(m\.)?youtu(\.be|be\.com)\//
+      )
     end
   end
 end
