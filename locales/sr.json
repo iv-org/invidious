@@ -174,7 +174,7 @@
     "Hi! Looks like you have JavaScript turned off. Click here to view comments, keep in mind they may take a bit longer to load.": "Hej! Izgleda da ste isključili JavaScript. Kliknite ovde da biste videli komentare, imajte na umu da će možda potrajati malo duže da se učitaju.",
     "View `x` comments": {
         "([^.,0-9]|^)1([^.,0-9]|$)": "Pogledaj `x` komentar",
-        "": "Pogledaj`x` komentare"
+        "": "Pogledaj`x` komentara"
     },
     "View Reddit comments": "Pogledaj Reddit komentare",
     "CAPTCHA is a required field": "CAPTCHA je obavezno polje",
@@ -211,7 +211,7 @@
     "About": "O sajtu",
     "footer_source_code": "Izvorni kôd",
     "footer_original_source_code": "Originalni izvorni kôd",
-    "preferences_related_videos_label": "Prikaži povezane video snimke: ",
+    "preferences_related_videos_label": "Prikaži srodne video snimke: ",
     "preferences_annotations_label": "Podrazumevano prikaži napomene: ",
     "preferences_extend_desc_label": "Automatski proširi opis video snimka: ",
     "preferences_vr_mode_label": "Interaktivni video snimci od 360 stepeni (zahteva WebGl): ",

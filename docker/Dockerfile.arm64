@@ -1,5 +1,5 @@
-FROM alpine:3.18 AS builder
-RUN apk add --no-cache 'crystal=1.8.2-r0' shards sqlite-static yaml-static yaml-dev libxml2-static zlib-static openssl-libs-static openssl-dev musl-dev xz-static
+FROM alpine:3.19 AS builder
+RUN apk add --no-cache 'crystal=1.10.1-r0' shards sqlite-static yaml-static yaml-dev libxml2-static zlib-static openssl-libs-static openssl-dev musl-dev xz-static
 
 ARG release
 

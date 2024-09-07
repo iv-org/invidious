@@ -51,6 +51,12 @@ module Invidious::Routes::Search
     else
       user = env.get? "user"
 
+      # An URL was copy/pasted in the search box.
+      # Redirect the user to the appropriate page.
+      if query.url?
+        return env.redirect UrlSanitizer.process(query.text).to_s
+      end
+
       begin
         items = query.process
       rescue ex : ChannelSearchException

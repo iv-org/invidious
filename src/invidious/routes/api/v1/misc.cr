@@ -74,7 +74,9 @@ module Invidious::Routes::API::V1::Misc
       response = playlist.to_json(offset, video_id: video_id)
       json_response = JSON.parse(response)
 
-      if json_response["videos"].as_a[0]["index"] != offset
+      if json_response["videos"].as_a.empty?
+        json_response = JSON.parse(response)
+      elsif json_response["videos"].as_a[0]["index"] != offset
         offset = json_response["videos"].as_a[0]["index"].as_i
         lookback = offset < 50 ? offset : 50
         response = playlist.to_json(offset - lookback)
@@ -177,8 +179,8 @@ module Invidious::Routes::API::V1::Misc
     begin
       resolved_url = YoutubeAPI.resolve_url(url.as(String))
       endpoint = resolved_url["endpoint"]
-      pageType = endpoint.dig?("commandMetadata", "webCommandMetadata", "webPageType").try &.as_s || ""
-      if pageType == "WEB_PAGE_TYPE_UNKNOWN"
+      page_type = endpoint.dig?("commandMetadata", "webCommandMetadata", "webPageType").try &.as_s || ""
+      if page_type == "WEB_PAGE_TYPE_UNKNOWN"
         return error_json(400, "Unknown url")
       end
 
@@ -194,7 +196,7 @@ module Invidious::Routes::API::V1::Misc
         json.field "playlistId", sub_endpoint["playlistId"].as_s if sub_endpoint["playlistId"]?
         json.field "startTimeSeconds", sub_endpoint["startTimeSeconds"].as_i if sub_endpoint["startTimeSeconds"]?
         json.field "params", params.try &.as_s
-        json.field "pageType", pageType
+        json.field "pageType", page_type
       end
     end
   end

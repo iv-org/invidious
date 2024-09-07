@@ -232,7 +232,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
       id:                 video_id,
       title:              title,
       published:          published,
-      updated:            Time.utc,
+      updated:            updated,
       ucid:               ucid,
       author:             author,
       length_seconds:     length_seconds,

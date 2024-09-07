@@ -3,9 +3,9 @@
 # IPv6 addresses.
 #
 class TCPSocket
-  def initialize(host : String, port, dns_timeout = nil, connect_timeout = nil, family = Socket::Family::UNSPEC)
+  def initialize(host, port, dns_timeout = nil, connect_timeout = nil, blocking = false, family = Socket::Family::UNSPEC)
     Addrinfo.tcp(host, port, timeout: dns_timeout, family: family) do |addrinfo|
-      super(addrinfo.family, addrinfo.type, addrinfo.protocol)
+      super(addrinfo.family, addrinfo.type, addrinfo.protocol, blocking)
       connect(addrinfo, timeout: connect_timeout) do |error|
         close
         error
@@ -26,7 +26,7 @@ class HTTP::Client
     end
 
     hostname = @host.starts_with?('[') && @host.ends_with?(']') ? @host[1..-2] : @host
-    io = TCPSocket.new hostname, @port, @dns_timeout, @connect_timeout, @family
+    io = TCPSocket.new hostname, @port, @dns_timeout, @connect_timeout, family: @family
     io.read_timeout = @read_timeout if @read_timeout
     io.write_timeout = @write_timeout if @write_timeout
     io.sync = false
@@ -35,7 +35,7 @@ class HTTP::Client
       if tls = @tls
         tcp_socket = io
         begin
-          io = OpenSSL::SSL::Socket::Client.new(tcp_socket, context: tls, sync_close: true, hostname: @host)
+          io = OpenSSL::SSL::Socket::Client.new(tcp_socket, context: tls, sync_close: true, hostname: @host.rchop('.'))
         rescue exc
           # don't leak the TCP socket when the SSL connection failed
           tcp_socket.close
