@@ -131,7 +131,7 @@ module Invidious::Routes::VideoPlayback
       end
 
       # TODO: Record bytes written so we can restart after a chunk fails
-      while true
+      loop do
         if !range_end && content_length
           range_end = content_length
         end

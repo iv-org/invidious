@@ -140,6 +140,7 @@ module Invidious::Database::Playlists
     request = <<-SQL
       SELECT id,title FROM playlists
       WHERE author = $1 AND id LIKE 'IV%'
+      ORDER BY title
     SQL
 
     PG_DB.query_all(request, email, as: {String, String})

@@ -21,7 +21,7 @@
     "Import and Export Data": "Імпорт і експорт даних",
     "Import": "Імпорт",
     "Import Invidious data": "Імпортувати JSON-дані Invidious",
-    "Import YouTube subscriptions": "Імпортувати підписки з YouTube чи OPML",
+    "Import YouTube subscriptions": "Імпортувати підписки YouTube з CSV чи OPML",
     "Import FreeTube subscriptions (.db)": "Імпортувати підписки з FreeTube (.db)",
     "Import NewPipe subscriptions (.json)": "Імпортувати підписки з NewPipe (.json)",
     "Import NewPipe data (.zip)": "Імпортувати дані з NewPipe (.zip)",

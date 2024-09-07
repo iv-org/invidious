@@ -310,7 +310,7 @@
 
                 <div class="pure-control-group">
                     <label for="modified_source_code_url"><%= translate(locale, "adminprefs_modified_source_code_url_label") %></label>
-                    <input name="modified_source_code_url" id="modified_source_code_url" type="input" <% if CONFIG.modified_source_code_url %>checked<% end %>>
+                    <input name="modified_source_code_url" id="modified_source_code_url" type="url" value="<%= CONFIG.modified_source_code_url %>">
                 </div>
             <% end %>
 

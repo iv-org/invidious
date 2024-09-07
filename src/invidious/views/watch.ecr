@@ -10,7 +10,7 @@
 <meta property="og:site_name" content="<%= author %> | Invidious">
 <meta property="og:url" content="<%= HOST_URL %>/watch?v=<%= video.id %>">
 <meta property="og:title" content="<%= title %>">
-<meta property="og:image" content="/vi/<%= video.id %>/maxres.jpg">
+<meta property="og:image" content="<%= HOST_URL %>/vi/<%= video.id %>/maxres.jpg">
 <meta property="og:description" content="<%= HTML.escape(video.short_description) %>">
 <meta property="og:type" content="video.other">
 <meta property="og:video:url" content="<%= HOST_URL %>/embed/<%= video.id %>">
@@ -65,7 +65,7 @@ we're going to need to do it here in order to allow for translations.
     "params" => params,
     "preferences" => preferences,
     "premiere_timestamp" => video.premiere_timestamp.try &.to_unix,
-    "vr" => video.is_vr,
+    "vr" => video.vr?,
     "projection_type" => video.projection_type,
     "local_disabled" => CONFIG.disabled?("local"),
     "support_reddit" => true
@@ -126,8 +126,8 @@ we're going to need to do it here in order to allow for translations.
                         link_yt_embed = IV::HttpServer::Utils.add_params_to_url(link_yt_embed, link_yt_param)
                     end
                 -%>
-                <a id="link-yt-watch" data-base-url="<%= link_yt_watch %>" href="<%= link_yt_watch %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
-                (<a id="link-yt-embed" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
+                <a id="link-yt-watch" rel="noreferrer noopener" data-base-url="<%= link_yt_watch %>" href="<%= link_yt_watch %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
+                (<a id="link-yt-embed" rel="noreferrer noopener" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
             </span>
 
             <p id="watch-on-another-invidious-instance">

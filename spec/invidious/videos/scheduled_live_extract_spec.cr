@@ -94,7 +94,7 @@ Spectator.describe "parse_video_info" do
     # Video metadata
 
     expect(info["genre"].as_s).to eq("Entertainment")
-    expect(info["genreUcid"].as_s).to be_empty
+    expect(info["genreUcid"].as_s?).to be_nil
     expect(info["license"].as_s).to be_empty
 
     # Author infos

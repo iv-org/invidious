@@ -74,8 +74,6 @@ class Config
   # Database configuration using 12-Factor "Database URL" syntax
   @[YAML::Field(converter: Preferences::URIConverter)]
   property database_url : URI = URI.parse("")
-  # Use polling to keep decryption function up to date
-  property decrypt_polling : Bool = false
   # Used for crawling channels: threads should check all videos uploaded by a channel
   property full_refresh : Bool = false
 
@@ -120,6 +118,10 @@ class Config
   # Connect to YouTube over 'ipv6', 'ipv4'. Will sometimes resolve fix issues with rate-limiting (see https://github.com/ytdl-org/youtube-dl/issues/21729)
   @[YAML::Field(converter: Preferences::FamilyConverter)]
   property force_resolve : Socket::Family = Socket::Family::UNSPEC
+
+  # External signature solver server socket (either a path to a UNIX domain socket or "<IP>:<Port>")
+  property signature_server : String? = nil
+
   # Port to listen for connections (overridden by command line argument)
   property port : Int32 = 3000
   # Host to bind (overridden by command line argument)
@@ -129,6 +131,11 @@ class Config
 
   # Use Innertube's transcripts API instead of timedtext for closed captions
   property use_innertube_for_captions : Bool = false
+
+  # visitor data ID for Google session
+  property visitor_data : String? = nil
+  # poToken for passing bot attestation
+  property po_token : String? = nil
 
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
