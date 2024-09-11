@@ -5,7 +5,6 @@
 RELEASE  := 1
 STATIC   := 0
 
-DISABLE_QUIC := 1
 NO_DBG_SYMBOLS := 0
 
 
@@ -25,10 +24,6 @@ ifeq ($(NO_DBG_SYMBOLS), 1)
   FLAGS += --no-debug
 else
   FLAGS += --debug
-endif
-
-ifeq ($(DISABLE_QUIC), 1)
-  FLAGS += -Ddisable_quic
 endif
 
 ifeq ($(API_ONLY), 1)
@@ -115,7 +110,6 @@ help:
 	@echo "  STATIC           Link libraries statically       (Default: 0)"
 	@echo ""
 	@echo "  API_ONLY         Build invidious without a GUI   (Default: 0)"
-	@echo "  DISABLE_QUIC     Disable support for QUIC        (Default: 0)"
 	@echo "  NO_DBG_SYMBOLS   Strip debug symbols             (Default: 0)"
 
 

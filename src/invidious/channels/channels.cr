@@ -93,7 +93,7 @@ struct ChannelVideo
   def to_tuple
     {% begin %}
       {
-        {{*@type.instance_vars.map(&.name)}}
+        {{@type.instance_vars.map(&.name).splat}}
       }
     {% end %}
   end
@@ -232,7 +232,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
       id:                 video_id,
       title:              title,
       published:          published,
-      updated:            Time.utc,
+      updated:            updated,
       ucid:               ucid,
       author:             author,
       length_seconds:     length_seconds,

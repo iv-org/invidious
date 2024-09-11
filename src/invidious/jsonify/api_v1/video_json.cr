@@ -39,6 +39,7 @@ module Invidious::JSONify::APIv1
       json.field "author", video.author
       json.field "authorId", video.ucid
       json.field "authorUrl", "/channel/#{video.ucid}"
+      json.field "authorVerified", video.author_verified
 
       json.field "authorThumbnails" do
         json.array do
@@ -61,7 +62,8 @@ module Invidious::JSONify::APIv1
       json.field "rating", 0_i64
       json.field "isListed", video.is_listed
       json.field "liveNow", video.live_now
-      json.field "isUpcoming", video.is_upcoming
+      json.field "isPostLiveDvr", video.post_live_dvr
+      json.field "isUpcoming", video.upcoming?
 
       if video.premiere_timestamp
         json.field "premiereTimestamp", video.premiere_timestamp.try &.to_unix
@@ -107,30 +109,36 @@ module Invidious::JSONify::APIv1
               # On livestreams, it's not present, so always fall back to the
               # current unix timestamp (up to mS precision) for compatibility.
               last_modified = fmt["lastModified"]?
-              last_modified ||= "#{Time.utc.to_unix_ms.to_s}000"
+              last_modified ||= "#{Time.utc.to_unix_ms}000"
               json.field "lmt", last_modified
 
               json.field "projectionType", fmt["projectionType"]
 
-              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
+              height = fmt["height"]?.try &.as_i
+              width = fmt["width"]?.try &.as_i
+
+              fps = fmt["fps"]?.try &.as_i
+
+              if fps
                 json.field "fps", fps
+              end
+
+              if height && width
+                json.field "size", "#{width}x#{height}"
+                json.field "resolution", "#{height}p"
+
+                quality_label = "#{width > height ? height : width}p"
+
+                if fps && fps > 30
+                  quality_label += fps.to_s
+                end
+
+                json.field "qualityLabel", quality_label
+              end
+
+              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
                 json.field "container", fmt_info["ext"]
                 json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
-
-                if fmt_info["height"]?
-                  json.field "resolution", "#{fmt_info["height"]}p"
-
-                  quality_label = "#{fmt_info["height"]}p"
-                  if fps > 30
-                    quality_label += "60"
-                  end
-                  json.field "qualityLabel", quality_label
-
-                  if fmt_info["width"]?
-                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                  end
-                end
               end
 
               # Livestream chunk infos
@@ -154,31 +162,44 @@ module Invidious::JSONify::APIv1
         json.array do
           video.fmt_stream.each do |fmt|
             json.object do
-              json.field "url", fmt["url"]
+              if proxy
+                json.field "url", Invidious::HttpServer::Utils.proxy_video_url(
+                  fmt["url"].to_s, absolute: true
+                )
+              else
+                json.field "url", fmt["url"]
+              end
               json.field "itag", fmt["itag"].as_i.to_s
               json.field "type", fmt["mimeType"]
               json.field "quality", fmt["quality"]
 
-              fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
-              if fmt_info
-                fps = fmt_info["fps"]?.try &.to_i || fmt["fps"]?.try &.as_i || 30
+              json.field "bitrate", fmt["bitrate"].as_i.to_s if fmt["bitrate"]?
+
+              height = fmt["height"]?.try &.as_i
+              width = fmt["width"]?.try &.as_i
+
+              fps = fmt["fps"]?.try &.as_i
+
+              if fps
                 json.field "fps", fps
+              end
+
+              if height && width
+                json.field "size", "#{width}x#{height}"
+                json.field "resolution", "#{height}p"
+
+                quality_label = "#{width > height ? height : width}p"
+
+                if fps && fps > 30
+                  quality_label += fps.to_s
+                end
+
+                json.field "qualityLabel", quality_label
+              end
+
+              if fmt_info = Invidious::Videos::Formats.itag_to_metadata?(fmt["itag"])
                 json.field "container", fmt_info["ext"]
                 json.field "encoding", fmt_info["vcodec"]? || fmt_info["acodec"]
-
-                if fmt_info["height"]?
-                  json.field "resolution", "#{fmt_info["height"]}p"
-
-                  quality_label = "#{fmt_info["height"]}p"
-                  if fps > 30
-                    quality_label += "60"
-                  end
-                  json.field "qualityLabel", quality_label
-
-                  if fmt_info["width"]?
-                    json.field "size", "#{fmt_info["width"]}x#{fmt_info["height"]}"
-                  end
-                end
               end
             end
           end
@@ -226,6 +247,7 @@ module Invidious::JSONify::APIv1
                 json.field "author", rv["author"]
                 json.field "authorUrl", "/channel/#{rv["ucid"]?}"
                 json.field "authorId", rv["ucid"]?
+                json.field "authorVerified", rv["author_verified"] == "true"
                 if rv["author_thumbnail"]?
                   json.field "authorThumbnails" do
                     json.array do
@@ -255,17 +277,17 @@ module Invidious::JSONify::APIv1
 
   def storyboards(json, id, storyboards)
     json.array do
-      storyboards.each do |storyboard|
+      storyboards.each do |sb|
         json.object do
-          json.field "url", "/api/v1/storyboards/#{id}?width=#{storyboard[:width]}&height=#{storyboard[:height]}"
-          json.field "templateUrl", storyboard[:url]
-          json.field "width", storyboard[:width]
-          json.field "height", storyboard[:height]
-          json.field "count", storyboard[:count]
-          json.field "interval", storyboard[:interval]
-          json.field "storyboardWidth", storyboard[:storyboard_width]
-          json.field "storyboardHeight", storyboard[:storyboard_height]
-          json.field "storyboardCount", storyboard[:storyboard_count]
+          json.field "url", "/api/v1/storyboards/#{id}?width=#{sb.width}&height=#{sb.height}"
+          json.field "templateUrl", sb.url.to_s
+          json.field "width", sb.width
+          json.field "height", sb.height
+          json.field "count", sb.count
+          json.field "interval", sb.interval
+          json.field "storyboardWidth", sb.columns
+          json.field "storyboardHeight", sb.rows
+          json.field "storyboardCount", sb.images_count
         end
       end
     end

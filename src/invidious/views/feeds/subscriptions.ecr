@@ -56,6 +56,7 @@
 </script>
 <script src="/js/watched_widget.js"></script>
 
+
 <div class="pure-g">
 <% videos.each do |item| %>
     <%= rendered "components/item" %>
@@ -64,20 +65,10 @@
 
 <script src="/js/watched_indicator.js"></script>
 
-<div class="pure-g h-box">
-    <div class="pure-u-1 pure-u-lg-1-5">
-        <% if page > 1 %>
-            <a href="/feed/subscriptions?page=<%= page - 1 %><% if env.params.query["max_results"]? %>&max_results=<%= max_results %><% end %>">
-                <%= translate(locale, "Previous page") %>
-            </a>
-        <% end %>
-    </div>
-    <div class="pure-u-1 pure-u-lg-3-5"></div>
-    <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
-        <% if (videos.size + notifications.size) == max_results %>
-            <a href="/feed/subscriptions?page=<%= page + 1 %><% if env.params.query["max_results"]? %>&max_results=<%= max_results %><% end %>">
-                <%= translate(locale, "Next page") %>
-            </a>
-        <% end %>
-    </div>
-</div>
+<%=
+  IV::Frontend::Pagination.nav_numeric(locale,
+    base_url: base_url,
+    current_page: page,
+    show_next: ((videos.size + notifications.size) == max_results)
+  )
+%>

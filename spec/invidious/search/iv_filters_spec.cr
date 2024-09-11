@@ -301,7 +301,6 @@ Spectator.describe Invidious::Search::Filters do
 
     it "Encodes features filter (single)" do
       Invidious::Search::Filters::Features.each do |value|
-        string = described_class.format_features(value)
         filters = described_class.new(features: value)
 
         expect("#{filters.to_iv_params}")

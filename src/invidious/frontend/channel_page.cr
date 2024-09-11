@@ -5,6 +5,8 @@ module Invidious::Frontend::ChannelPage
     Videos
     Shorts
     Streams
+    Podcasts
+    Releases
     Playlists
     Community
     Channels

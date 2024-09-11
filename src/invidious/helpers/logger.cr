@@ -34,22 +34,9 @@ class Invidious::LogHandler < Kemal::BaseLogHandler
     context
   end
 
-  def puts(message : String)
-    @io << message << '\n'
-    @io.flush
-  end
-
   def write(message : String)
     @io << message
     @io.flush
-  end
-
-  def set_log_level(level : String)
-    @level = LogLevel.parse(level)
-  end
-
-  def set_log_level(level : LogLevel)
-    @level = level
   end
 
   {% for level in %w(trace debug info warn error fatal) %}

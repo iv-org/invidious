@@ -6,35 +6,43 @@
 <% end %>
 
 <form class="pure-form" action="/edit_playlist?list=<%= plid %>" method="post">
-    <div class="pure-g h-box">
-        <div class="pure-u-2-3">
+    <div class="h-box flexible">
+        <div class="flex-right button-container">
+            <div class="pure-u">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/playlist?list=<%= plid %>">
+                    <i class="icon ion-md-close"></i>&nbsp;<%= translate(locale, "generic_button_cancel") %>
+                </a>
+            </div>
+            <div class="pure-u">
+                <button class="pure-button pure-button-secondary low-profile" dir="auto" type="submit">
+                    <i class="icon ion-md-save"></i>&nbsp;<%= translate(locale, "generic_button_save") %>
+                </button>
+            </div>
+            <div class="pure-u">
+                <a class="pure-button pure-button-secondary low-profile" dir="auto" href="/delete_playlist?list=<%= plid %>">
+                    <i class="icon ion-md-trash"></i>&nbsp;<%= translate(locale, "generic_button_delete") %>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="h-box flexible title">
+        <div>
             <h3><input class="pure-input-1" maxlength="150" name="title" type="text" value="<%= title %>"></h3>
+        </div>
+    </div>
+
+    <div class="h-box">
+        <div class="pure-u-1-1">
             <b>
                 <%= HTML.escape(playlist.author) %> |
                 <%= translate_count(locale, "generic_videos_count", playlist.video_count) %> |
-                <%= translate(locale, "Updated `x` ago", recode_date(playlist.updated, locale)) %> |
-                <i class="icon <%= {"ion-md-globe", "ion-ios-unlock", "ion-ios-lock"}[playlist.privacy.value] %>"></i>
-                <select name="privacy">
-                <% {"Public", "Unlisted", "Private"}.each do |option| %>
-                    <option value="<%= option %>" <% if option == playlist.privacy.to_s %>selected<% end %>><%= translate(locale, option) %></option>
-                <% end %>
-                </select>
             </b>
-        </div>
-        <div class="pure-u-1-3" style="text-align:right">
-            <h3>
-                <div class="pure-g user-field">
-                    <div class="pure-u-1-3">
-                        <a href="javascript:void(0)">
-                            <button type="submit" style="all:unset">
-                                <i class="icon ion-md-save"></i>
-                            </button>
-                        </a>
-                    </div>
-                    <div class="pure-u-1-3"><a href="/delete_playlist?list=<%= plid %>"><i class="icon ion-md-trash"></i></a></div>
-                    <div class="pure-u-1-3"><a href="/feed/playlist/<%= plid %>"><i class="icon ion-logo-rss"></i></a></div>
-                </div>
-            </h3>
+            <select name="privacy">
+            <%- {"Public", "Unlisted", "Private"}.each do |option| -%>
+                <option value="<%= option %>" <% if option == playlist.privacy.to_s %>selected<% end %>><%= translate(locale, option) %></option>
+            <%- end -%>
+            </select>
         </div>
     </div>
 
@@ -44,40 +52,9 @@
     <input type="hidden" name="csrf_token" value="<%= HTML.escape(csrf_token) %>">
 </form>
 
-<% if playlist.is_a?(InvidiousPlaylist) && playlist.author == user.try &.email %>
-<div class="h-box" style="text-align:right">
-    <h3>
-        <a href="/add_playlist_items?list=<%= plid %>"><i class="icon ion-md-add"></i></a>
-    </h3>
-</div>
-<% end %>
-
 <div class="h-box">
     <hr>
 </div>
 
-<div class="pure-g">
-<% videos.each do |item| %>
-    <%= rendered "components/item" %>
-<% end %>
-</div>
 
-<script src="/js/watched_indicator.js"></script>
-
-<div class="pure-g h-box">
-    <div class="pure-u-1 pure-u-lg-1-5">
-        <% if page > 1 %>
-            <a href="/playlist?list=<%= playlist.id %>&page=<%= page - 1 %>">
-                <%= translate(locale, "Previous page") %>
-            </a>
-        <% end %>
-    </div>
-    <div class="pure-u-1 pure-u-lg-3-5"></div>
-    <div class="pure-u-1 pure-u-lg-1-5" style="text-align:right">
-        <% if videos.size == 100 %>
-            <a href="/playlist?list=<%= playlist.id %>&page=<%= page + 1 %>">
-                <%= translate(locale, "Next page") %>
-            </a>
-        <% end %>
-    </div>
-</div>
+<%= rendered "components/items_paginated" %>

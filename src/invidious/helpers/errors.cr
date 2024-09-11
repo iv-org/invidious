@@ -3,7 +3,7 @@
 # -------------------
 
 macro error_template(*args)
-  error_template_helper(env, {{*args}})
+  error_template_helper(env, {{args.splat}})
 end
 
 def github_details(summary : String, content : String)
@@ -95,7 +95,7 @@ end
 # -------------------
 
 macro error_atom(*args)
-  error_atom_helper(env, {{*args}})
+  error_atom_helper(env, {{args.splat}})
 end
 
 def error_atom_helper(env : HTTP::Server::Context, status_code : Int32, exception : Exception)
@@ -121,7 +121,7 @@ end
 # -------------------
 
 macro error_json(*args)
-  error_json_helper(env, {{*args}})
+  error_json_helper(env, {{args.splat}})
 end
 
 def error_json_helper(
@@ -190,7 +190,7 @@ def error_redirect_helper(env : HTTP::Server::Context)
           <a href="/redirect?referer=#{env.get("current_page")}">#{switch_instance}</a>
         </li>
         <li>
-          <a href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
+          <a rel="noreferrer noopener" href="https://youtube.com#{env.request.resource}">#{go_to_youtube}</a>
         </li>
       </ul>
     END_HTML
