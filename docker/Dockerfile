@@ -12,7 +12,7 @@ RUN shards install --production
 COPY ./services/invidious/src/ ./src/
 # TODO: .git folder is required for building – this is destructive.
 # See definition of CURRENT_BRANCH, CURRENT_COMMIT and CURRENT_VERSION.
-COPY ./services/invidious/.git/ ./.git/
+COPY ./.git/modules/services/invidious/ ./.git/
 RUN sed -i '/worktree/d' .git/config
 
 # Required for fetching player dependencies
