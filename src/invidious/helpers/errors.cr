@@ -74,8 +74,6 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, exce
   # Don't show the usual "next steps" widget. The same options are
   # proposed above the error message, just worded differently.
   next_steps = ""
-  unfound_tv_box_dark_theme = File.read("assets/404_tv_box_dark_theme.svg")
-  unfound_tv_box_light_theme = File.read("assets/404_tv_box_light_theme.svg")
 
   return templated "error"
 end
@@ -87,8 +85,6 @@ def error_template_helper(env : HTTP::Server::Context, status_code : Int32, mess
   locale = env.get("preferences").as(Preferences).locale
 
   error_message = translate(locale, message)
-  unfound_tv_box_dark_theme = File.read("assets/404_tv_box_dark_theme.svg")
-  unfound_tv_box_light_theme = File.read("assets/404_tv_box_light_theme.svg")
   next_steps = error_redirect_helper(env)
 
   return templated "error"
