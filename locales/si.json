@@ -89,7 +89,7 @@
     "preferences_quality_option_hd720": "HD720",
     "preferences_quality_dash_option_auto": "ස්වයංක්‍රීය",
     "preferences_quality_option_small": "කුඩා",
-    "preferences_quality_dash_option_best": "උසස්",
+    "preferences_quality_dash_option_best": "හොඳම",
     "preferences_quality_dash_option_2160p": "2160p",
     "preferences_quality_dash_option_1440p": "1440p",
     "preferences_quality_dash_option_720p": "720p",
@@ -119,5 +119,9 @@
     "Only show latest unwatched video from channel: ": "නාලිකාවේ නවතම නැරඹන නොලද වීඩියෝව පමණක් පෙන්වන්න: ",
     "preferences_category_data": "දත්ත මනාප",
     "Clear watch history": "නැරඹුම් ඉතිහාසය මකාදැමීම",
-    "Subscriptions": "දායකත්ව"
+    "Subscriptions": "දායකත්ව",
+    "generic_button_rss": "RSS",
+    "generic_button_save": "සුරකින්න",
+    "generic_button_cancel": "අවලංගු කරන්න",
+    "preferences_quality_dash_option_worst": "නරකම"
 }

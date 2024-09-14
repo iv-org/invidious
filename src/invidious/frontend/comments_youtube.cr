@@ -23,6 +23,24 @@ module Invidious::Frontend::Comments
             </div>
           </div>
           END_HTML
+        elsif comments["authorId"]? && !comments["singlePost"]?
+          # for posts we should display a link to the post
+          replies_count_text = translate_count(locale,
+            "comments_view_x_replies",
+            child["replyCount"].as_i64 || 0,
+            NumberFormatting::Separator
+          )
+
+          replies_html = <<-END_HTML
+          <div class="pure-g">
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-23-24">
+              <p>
+                <a href="/post/#{child["commentId"]}?ucid=#{comments["authorId"]}">#{replies_count_text}</a>
+              </p>
+            </div>
+          </div>
+          END_HTML
         end
 
         if !thin_mode
@@ -89,6 +107,36 @@ module Invidious::Frontend::Comments
               </div>
               END_HTML
             end
+          when "multiImage"
+            html << <<-END_HTML
+              <section class="carousel">
+              <a class="skip-link" href="#skip-#{child["commentId"]}">#{translate(locale, "carousel_skip")}</a>
+              <div class="slides">
+              END_HTML
+            image_array = attachment["images"].as_a
+
+            image_array.each_index do |i|
+              html << <<-END_HTML
+                  <div class="slides-item slide-#{i + 1}" id="#{child["commentId"]}-slide-#{i + 1}" aria-label="#{translate(locale, "carousel_slide", {"current" => (i + 1).to_s, "total" => image_array.size.to_s})}" tabindex="0">
+                    <img loading="lazy" src="/ggpht#{URI.parse(image_array[i][1]["url"].as_s).request_target}" alt="" />
+                  </div>
+                END_HTML
+            end
+
+            html << <<-END_HTML
+              </div>
+              <div class="carousel__nav">
+              END_HTML
+            attachment["images"].as_a.each_index do |i|
+              html << <<-END_HTML
+                  <a class="slider-nav" href="##{child["commentId"]}-slide-#{i + 1}" aria-label="#{translate(locale, "carousel_go_to", (i + 1).to_s)}" tabindex="-1" aria-hidden="true">#{i + 1}</a>
+                END_HTML
+            end
+            html << <<-END_HTML
+              </div>
+              <div id="skip-#{child["commentId"]}"></div>
+            </section>
+            END_HTML
           else nil # Ignore
           end
         end
@@ -101,12 +149,12 @@ module Invidious::Frontend::Comments
 
         if comments["videoId"]?
           html << <<-END_HTML
-            <a href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+            <a rel="noreferrer noopener" href="https://www.youtube.com/watch?v=#{comments["videoId"]}&lc=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
           END_HTML
         elsif comments["authorId"]?
           html << <<-END_HTML
-            <a href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
+            <a rel="noreferrer noopener" href="https://www.youtube.com/channel/#{comments["authorId"]}/community?lb=#{child["commentId"]}" title="#{translate(locale, "YouTube comment permalink")}">[YT]</a>
             |
           END_HTML
         end

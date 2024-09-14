@@ -7,7 +7,19 @@ private def copy_string(str : String::Builder, iter : Iterator, count : Int) : I
     cp = iter.next
     break if cp.is_a?(Iterator::Stop)
 
-    str << cp.chr
+    if cp == 0x26 # Ampersand (&)
+      str << "&amp;"
+    elsif cp == 0x27 # Single quote (')
+      str << "&#39;"
+    elsif cp == 0x22 # Double quote (")
+      str << "&quot;"
+    elsif cp == 0x3C # Less-than (<)
+      str << "&lt;"
+    elsif cp == 0x3E # Greater than (>)
+      str << "&gt;"
+    else
+      str << cp.chr
+    end
 
     # A codepoint from the SMP counts twice
     copied += 1 if cp > 0xFFFF
@@ -24,7 +36,13 @@ def parse_description(desc, video_id : String) : String?
   return "" if content.empty?
 
   commands = desc["commandRuns"]?.try &.as_a
-  return content if commands.nil?
+  if commands.nil?
+    # Slightly faster than HTML.escape, as we're only doing one pass on
+    # the string instead of five for the standard library
+    return String.build do |str|
+      copy_string(str, content.each_codepoint, content.size)
+    end
+  end
 
   # Not everything is stored in UTF-8 on youtube's side. The SMP codepoints
   # (0x10000 and above) are encoded as UTF-16 surrogate pairs, which are

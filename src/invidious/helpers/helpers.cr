@@ -78,15 +78,6 @@ def create_notification_stream(env, topics, connection_channel)
           video.published = published
           response = JSON.parse(video.to_json(locale, nil))
 
-          if fields_text = env.params.query["fields"]?
-            begin
-              JSONFilter.filter(response, fields_text)
-            rescue ex
-              env.response.status_code = 400
-              response = {"error" => ex.message}
-            end
-          end
-
           env.response.puts "id: #{id}"
           env.response.puts "data: #{response.to_json}"
           env.response.puts
@@ -112,15 +103,6 @@ def create_notification_stream(env, topics, connection_channel)
           when .match(/UC[A-Za-z0-9_-]{22}/)
             Invidious::Database::ChannelVideos.select_notfications(topic, since_unix).each do |video|
               response = JSON.parse(video.to_json(locale))
-
-              if fields_text = env.params.query["fields"]?
-                begin
-                  JSONFilter.filter(response, fields_text)
-                rescue ex
-                  env.response.status_code = 400
-                  response = {"error" => ex.message}
-                end
-              end
 
               env.response.puts "id: #{id}"
               env.response.puts "data: #{response.to_json}"
@@ -154,15 +136,6 @@ def create_notification_stream(env, topics, connection_channel)
         video = get_video(video_id)
         video.published = Time.unix(published)
         response = JSON.parse(video.to_json(locale, nil))
-
-        if fields_text = env.params.query["fields"]?
-          begin
-            JSONFilter.filter(response, fields_text)
-          rescue ex
-            env.response.status_code = 400
-            response = {"error" => ex.message}
-          end
-        end
 
         env.response.puts "id: #{id}"
         env.response.puts "data: #{response.to_json}"
@@ -207,4 +180,21 @@ def proxy_file(response, env)
   else
     IO.copy response.body_io, env.response
   end
+end
+
+# Fetch the playback requests tracker from the statistics endpoint.
+#
+# Creates a new tracker when unavailable.
+def get_playback_statistic
+  if (tracker = Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"]) && tracker.as(Hash).empty?
+    tracker = {
+      "totalRequests"      => 0_i64,
+      "successfulRequests" => 0_i64,
+      "ratio"              => 0_f64,
+    }
+
+    Invidious::Jobs::StatisticsRefreshJob::STATISTICS["playback"] = tracker
+  end
+
+  return tracker.as(Hash(String, Int64 | Float64))
 end

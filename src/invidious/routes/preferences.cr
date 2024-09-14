@@ -214,7 +214,7 @@ module Invidious::Routes::PreferencesRoute
         statistics_enabled ||= "off"
         CONFIG.statistics_enabled = statistics_enabled == "on"
 
-        CONFIG.modified_source_code_url = env.params.body["modified_source_code_url"]?.try &.as(String)
+        CONFIG.modified_source_code_url = env.params.body["modified_source_code_url"]?.presence
 
         File.write("config/config.yml", CONFIG.to_yaml)
       end
@@ -317,6 +317,15 @@ module Invidious::Routes::PreferencesRoute
           if !success
             haltf(env, status_code: 415,
               response: error_template(415, "Invalid playlist file uploaded")
+            )
+          end
+        when "import_youtube_wh"
+          filename = part.filename || ""
+          success = Invidious::User::Import.from_youtube_wh(user, body, filename, type)
+
+          if !success
+            haltf(env, status_code: 415,
+              response: error_template(415, "Invalid watch history file uploaded")
             )
           end
         when "import_freetube"

@@ -11,15 +11,16 @@ private ITEM_CONTAINER_EXTRACTOR = {
 }
 
 private ITEM_PARSERS = {
+  Parsers::RichItemRendererParser,
   Parsers::VideoRendererParser,
   Parsers::ChannelRendererParser,
   Parsers::GridPlaylistRendererParser,
   Parsers::PlaylistRendererParser,
   Parsers::CategoryRendererParser,
-  Parsers::RichItemRendererParser,
   Parsers::ReelItemRendererParser,
   Parsers::ItemSectionRendererParser,
   Parsers::ContinuationItemRendererParser,
+  Parsers::HashtagRendererParser,
 }
 
 private alias InitialData = Hash(String, JSON::Any)
@@ -108,7 +109,6 @@ private module Parsers
       end
 
       live_now = false
-      paid = false
       premium = false
 
       premiere_timestamp = item_contents.dig?("upcomingEventData", "startTime").try { |t| Time.unix(t.as_s.to_i64) }
@@ -174,17 +174,18 @@ private module Parsers
       # Always simpleText
       # TODO change default value to nil
 
-      subscriber_count = item_contents.dig?("subscriberCountText", "simpleText")
+      subscriber_count = item_contents.dig?("subscriberCountText", "simpleText").try &.as_s
+      channel_handle = subscriber_count if (subscriber_count.try &.starts_with? "@")
 
       # Since youtube added channel handles, `VideoCountText` holds the number of
       # subscribers and `subscriberCountText` holds the handle, except when the
       # channel doesn't have a handle (e.g: some topic music channels).
       # See https://github.com/iv-org/invidious/issues/3394#issuecomment-1321261688
-      if !subscriber_count || !subscriber_count.as_s.includes? " subscriber"
-        subscriber_count = item_contents.dig?("videoCountText", "simpleText")
+      if !subscriber_count || !subscriber_count.includes? " subscriber"
+        subscriber_count = item_contents.dig?("videoCountText", "simpleText").try &.as_s
       end
       subscriber_count = subscriber_count
-        .try { |s| short_text_to_number(s.as_s.split(" ")[0]).to_i32 } || 0
+        .try { |s| short_text_to_number(s.split(" ")[0]).to_i32 } || 0
 
       # Auto-generated channels doesn't have videoCountText
       # Taken from: https://github.com/iv-org/invidious/pull/2228#discussion_r717620922
@@ -199,10 +200,61 @@ private module Parsers
         author_thumbnail: author_thumbnail,
         subscriber_count: subscriber_count,
         video_count:      video_count,
+        channel_handle:   channel_handle,
         description_html: description_html,
         auto_generated:   auto_generated,
         author_verified:  author_verified,
       })
+    end
+
+    def self.parser_name
+      return {{@type.name}}
+    end
+  end
+
+  # Parses an Innertube `hashtagTileRenderer` into a `SearchHashtag`.
+  # Returns `nil` when the given object is not a `hashtagTileRenderer`.
+  #
+  # A `hashtagTileRenderer` is a kind of search result.
+  # It can be found when searching for any hashtag (e.g "#hi" or "#shorts")
+  module HashtagRendererParser
+    def self.process(item : JSON::Any, author_fallback : AuthorFallback)
+      if item_contents = item["hashtagTileRenderer"]?
+        return self.parse(item_contents)
+      end
+    end
+
+    private def self.parse(item_contents)
+      title = extract_text(item_contents["hashtag"]).not_nil! # E.g "#hi"
+
+      # E.g "/hashtag/hi"
+      url = item_contents.dig?("onTapCommand", "commandMetadata", "webCommandMetadata", "url").try &.as_s
+      url ||= URI.encode_path("/hashtag/#{title.lchop('#')}")
+
+      video_count_txt = extract_text(item_contents["hashtagVideoCount"]?)     # E.g "203K videos"
+      channel_count_txt = extract_text(item_contents["hashtagChannelCount"]?) # E.g "81K channels"
+
+      # Fallback for video/channel counts
+      if channel_count_txt.nil? || video_count_txt.nil?
+        # E.g: "203K videos • 81K channels"
+        info_text = extract_text(item_contents["hashtagInfoText"]?).try &.split(" • ")
+
+        if info_text && info_text.size == 2
+          video_count_txt ||= info_text[0]
+          channel_count_txt ||= info_text[1]
+        end
+      end
+
+      return SearchHashtag.new({
+        title:         title,
+        url:           url,
+        video_count:   short_text_to_number(video_count_txt || ""),
+        channel_count: short_text_to_number(channel_count_txt || ""),
+      })
+    rescue ex
+      LOGGER.debug("HashtagRendererParser: Failed to extract renderer.")
+      LOGGER.debug("HashtagRendererParser: Got exception: #{ex.message}")
+      return nil
     end
 
     def self.parser_name
@@ -408,8 +460,8 @@ private module Parsers
   # Returns nil when the given object isn't a RichItemRenderer
   #
   # A richItemRenderer seems to be a simple wrapper for a videoRenderer, used
-  # by the result page for hashtags. It is located inside a continuationItems
-  # container.
+  # by the result page for hashtags and for the podcast tab on channels.
+  # It is located inside a continuationItems container for hashtags.
   #
   module RichItemRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
@@ -421,6 +473,7 @@ private module Parsers
     private def self.parse(item_contents, author_fallback)
       child = VideoRendererParser.process(item_contents, author_fallback)
       child ||= ReelItemRendererParser.process(item_contents, author_fallback)
+      child ||= PlaylistRendererParser.process(item_contents, author_fallback)
       return child
     end
 
@@ -607,19 +660,25 @@ private module Extractors
     private def self.unpack_section_list(contents)
       raw_items = [] of JSON::Any
 
-      contents.as_a.each do |renderer_container|
-        renderer_container_contents = renderer_container["itemSectionRenderer"]["contents"][0]
-
-        # Category extraction
-        if items_container = renderer_container_contents["shelfRenderer"]?
-          raw_items << renderer_container_contents
-          next
-        elsif items_container = renderer_container_contents["gridRenderer"]?
+      contents.as_a.each do |item|
+        if item_section_content = item.dig?("itemSectionRenderer", "contents")
+          raw_items += self.unpack_item_section(item_section_content)
         else
-          items_container = renderer_container_contents
+          raw_items << item
         end
+      end
 
-        items_container["items"]?.try &.as_a.each do |item|
+      return raw_items
+    end
+
+    private def self.unpack_item_section(contents)
+      raw_items = [] of JSON::Any
+
+      contents.as_a.each do |item|
+        # Category extraction
+        if container = item.dig?("gridRenderer", "items") || item.dig?("items")
+          raw_items += container.as_a
+        else
           raw_items << item
         end
       end
@@ -762,9 +821,9 @@ module HelperExtractors
   end
 
   # Retrieves the ID required for querying the InnerTube browse endpoint.
-  # Raises when it's unable to do so
+  # Returns an empty string when it's unable to do so
   def self.get_browse_id(container)
-    return container.dig("navigationEndpoint", "browseEndpoint", "browseId").as_s
+    return container.dig?("navigationEndpoint", "browseEndpoint", "browseId").try &.as_s || ""
   end
 end
 
@@ -796,7 +855,7 @@ end
 #
 # This function yields the container so that items can be parsed separately.
 #
-def extract_items(initial_data : InitialData, &block)
+def extract_items(initial_data : InitialData, &)
   if unpackaged_data = initial_data["contents"]?.try &.as_h
   elsif unpackaged_data = initial_data["response"]?.try &.as_h
   elsif unpackaged_data = initial_data.dig?("onResponseReceivedActions", 1).try &.as_h

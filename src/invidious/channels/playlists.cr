@@ -26,3 +26,21 @@ def fetch_channel_playlists(ucid, author, continuation, sort_by)
 
   return extract_items(initial_data, author, ucid)
 end
+
+def fetch_channel_podcasts(ucid, author, continuation)
+  if continuation
+    initial_data = YoutubeAPI.browse(continuation)
+  else
+    initial_data = YoutubeAPI.browse(ucid, params: "Eghwb2RjYXN0c_IGBQoDugEA")
+  end
+  return extract_items(initial_data, author, ucid)
+end
+
+def fetch_channel_releases(ucid, author, continuation)
+  if continuation
+    initial_data = YoutubeAPI.browse(continuation)
+  else
+    initial_data = YoutubeAPI.browse(ucid, params: "EghyZWxlYXNlc_IGBQoDsgEA")
+  end
+  return extract_items(initial_data, author, ucid)
+end
