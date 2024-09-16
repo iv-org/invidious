@@ -53,8 +53,6 @@ end
 def extract_video_info(video_id : String)
   # Init client config for the API
   client_config = YoutubeAPI::ClientConfig.new
-  # use WEB screen embed for potoken functionality
-  client_config.client_type = YoutubeAPI::ClientType::WebEmbeddedPlayer
 
   # Fetch data from the player endpoint
   player_response = YoutubeAPI.player(video_id: video_id, params: "2AMB", client_config: client_config)
@@ -104,6 +102,12 @@ def extract_video_info(video_id : String)
 
   new_player_response = nil
 
+  # Use the WEB embed client when po_token is configured because it only works on this client
+  if CONFIG.po_token
+    client_config.client_type = YoutubeAPI::ClientType::WebEmbeddedPlayer
+    new_player_response = try_fetch_streaming_data(video_id, client_config)
+  end
+
   # Don't use Android client if po_token is passed because po_token doesn't
   # work for Android client.
   if reason.nil? && CONFIG.po_token.nil?
@@ -116,10 +120,9 @@ def extract_video_info(video_id : String)
   end
 
   # Last hope
-  # Only trigger if reason found and po_token or didn't work wth Android client.
-  # TvHtml5ScreenEmbed now requires sig helper for it to work but po_token is not required
-  # if the IP address is not blocked.
-  if CONFIG.po_token && reason || CONFIG.po_token.nil? && new_player_response.nil?
+  # Only trigger if reason found or didn't work wth Android client.
+  # TvHtml5ScreenEmbed now requires sig helper for it to work but doesn't work with po_token.
+  if reason && CONFIG.po_token.nil?
     client_config.client_type = YoutubeAPI::ClientType::TvHtml5ScreenEmbed
     new_player_response = try_fetch_streaming_data(video_id, client_config)
   end
