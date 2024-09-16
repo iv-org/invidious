@@ -53,6 +53,8 @@ end
 def extract_video_info(video_id : String)
   # Init client config for the API
   client_config = YoutubeAPI::ClientConfig.new
+  # use WEB screen embed for potoken functionality
+  client_config.client_type = YoutubeAPI::ClientType::WebEmbeddedPlayer
 
   # Fetch data from the player endpoint
   player_response = YoutubeAPI.player(video_id: video_id, params: "2AMB", client_config: client_config)
