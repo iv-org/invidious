@@ -291,8 +291,9 @@ module YoutubeAPI
     end
 
     if client_config.screen == "EMBED"
+      # embedUrl https://www.google.com allow loading video that are configured not embeddable
       client_context["thirdParty"] = {
-        "embedUrl" => "https://www.youtube.com/embed/#{video_id}",
+        "embedUrl" => "https://www.google.com/",
       } of String => String | Int64
     end
 
