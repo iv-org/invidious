@@ -106,7 +106,7 @@ def extract_video_info(video_id : String)
 
   new_player_response = nil
 
-  # Second try in case WEB_EMBEDDED_PLAYER doesn't work with po_token.
+  # Second try in case WEB_CREATOR doesn't work with po_token.
   # Only trigger if reason found and po_token configured.
   if reason && CONFIG.po_token
     client_config.client_type = YoutubeAPI::ClientType::WebEmbeddedPlayer
