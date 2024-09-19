@@ -84,7 +84,7 @@ module YoutubeAPI
     ClientType::WebCreator => {
       name:       "WEB_CREATOR",
       name_proto: "62",
-      version:    "1.20220918",
+      version:    "1.20240918.03.00",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
       platform:   "DESKTOP",
