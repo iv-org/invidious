@@ -226,11 +226,13 @@ https_only: false
 ## Enables colors in logs. Useful for debugging purposes
 ## This is overridden if "-k" or "--colorize" 
 ## are passed on the command line.
+## Colors are also disabled if the environment variable
+## NO_COLOR is present and has any value
 ##
 ## Accepted values: true, false
-## Default: false
+## Default: true
 ##
-#colorize_logs: false
+#colorize_logs: true
 
 # -----------------------------
 #  Features
