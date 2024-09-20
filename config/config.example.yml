@@ -222,6 +222,15 @@ https_only: false
 ##
 #log_level: Info
 
+##
+## Enables colors in logs. Useful for debugging purposes
+## This is overridden if "-k" or "--colorize" 
+## are passed on the command line.
+##
+## Accepted values: true, false
+## Default: false
+##
+#colorize_logs: false
 
 # -----------------------------
 #  Features

@@ -117,6 +117,9 @@ Kemal.config.extra_options do |parser|
   parser.on("-l LEVEL", "--log-level=LEVEL", "Log level, one of #{LogLevel.values} (default: #{CONFIG.log_level})") do |log_level|
     CONFIG.log_level = LogLevel.parse(log_level)
   end
+  parser.on("-k", "--colorize", "Colorize logs") do
+    CONFIG.colorize_logs = true
+  end
   parser.on("-v", "--version", "Print version") do
     puts SOFTWARE.to_pretty_json
     exit
@@ -133,7 +136,7 @@ if CONFIG.output.upcase != "STDOUT"
   FileUtils.mkdir_p(File.dirname(CONFIG.output))
 end
 OUTPUT = CONFIG.output.upcase == "STDOUT" ? STDOUT : File.open(CONFIG.output, mode: "a")
-LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level)
+LOGGER = Invidious::LogHandler.new(OUTPUT, CONFIG.log_level, CONFIG.colorize_logs)
 
 # Check table integrity
 Invidious::Database.check_integrity(CONFIG)
