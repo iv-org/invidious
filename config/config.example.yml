@@ -232,7 +232,7 @@ https_only: false
 ## Accepted values: true, false
 ## Default: true
 ##
-#colorize_logs: true
+#colorize_logs: false
 
 # -----------------------------
 #  Features
