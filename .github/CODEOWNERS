@@ -6,7 +6,7 @@ docker/ @unixfox
 kubernetes/ @unixfox
 
 README.md @thefrenchghosty
-config/config.example.yml @thefrenchghosty @SamantazFox @unixfox
+config/config.example.yml @SamantazFox @unixfox
 
 scripts/ @syeopite
 shards.lock @syeopite
