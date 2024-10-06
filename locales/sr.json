@@ -404,7 +404,7 @@
     "generic_count_months_0": "{{count}} mesec",
     "generic_count_months_1": "{{count}} meseca",
     "generic_count_months_2": "{{count}} meseci",
-    "search_message_use_another_instance": " Takođe, možete <a href=\"`x`\">pretraživati na drugoj instanci</a>.",
+    "search_message_use_another_instance": "Takođe, možete <a href=\"`x`\">pretraživati na drugoj instanci</a>.",
     "generic_subscribers_count_0": "{{count}} pratilac",
     "generic_subscribers_count_1": "{{count}} pratioca",
     "generic_subscribers_count_2": "{{count}} pratilaca",
