@@ -77,6 +77,9 @@ we're going to need to do it here in order to allow for translations.
 <div class="h-box">
     <h1>
         <%= title %>
+        <span class="length-watch-page">
+            <%= video_length_abbreviated(locale, video.length_seconds.seconds)%>
+        </span>
         <% if params.listen %>
             <a title="<%=translate(locale, "Video mode")%>" href="/watch?<%= env.params.query %>&listen=0">
                 <i class="icon ion-ios-videocam"></i>
@@ -87,6 +90,7 @@ we're going to need to do it here in order to allow for translations.
             </a>
         <% end %>
     </h1>
+
 
     <% if !video.is_listed %>
         <h3>
