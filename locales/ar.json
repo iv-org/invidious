@@ -483,7 +483,7 @@
     "comments_view_x_replies_3": "عرض رد {{count}}",
     "comments_view_x_replies_4": "عرض الردود {{count}}",
     "comments_view_x_replies_5": "عرض رد {{count}}",
-    "search_message_use_another_instance": " يمكنك أيضًا البحث عن <a href=\"`x`\"> في مثيل آخر </a>.",
+    "search_message_use_another_instance": "يمكنك أيضًا البحث عن <a href=\"`x`\"> في مثيل آخر </a>.",
     "comments_points_count_0": "{{count}} نقطة",
     "comments_points_count_1": "نقطة واحدة",
     "comments_points_count_2": "نقطتان",
