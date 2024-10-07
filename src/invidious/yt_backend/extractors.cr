@@ -113,7 +113,7 @@ private module Parsers
       item_contents["badges"]?.try &.as_a.each do |badge|
         b = badge["metadataBadgeRenderer"]
         case b["label"].as_s
-        when "LIVE NOW"
+        when "LIVE"
           badges |= VideoBadges::LiveNow
         when "New"
           badges |= VideoBadges::New
