@@ -27,8 +27,8 @@ Spectator.describe Invidious::Hashtag do
     expect(video_11.length_seconds).to eq((56.minutes + 41.seconds).total_seconds.to_i32)
     expect(video_11.views).to eq(40_504_893)
 
-    expect(video_11.live_now).to be_false
-    expect(video_11.premium).to be_false
+    expect(video_11.badges.live_now?).to be_false
+    expect(video_11.badges.premium?).to be_false
     expect(video_11.premiere_timestamp).to be_nil
 
     #
@@ -49,8 +49,8 @@ Spectator.describe Invidious::Hashtag do
     expect(video_35.length_seconds).to eq((3.minutes + 14.seconds).total_seconds.to_i32)
     expect(video_35.views).to eq(30_790_049)
 
-    expect(video_35.live_now).to be_false
-    expect(video_35.premium).to be_false
+    expect(video_35.badges.live_now?).to be_false
+    expect(video_35.badges.premium?).to be_false
     expect(video_35.premiere_timestamp).to be_nil
   end
 
@@ -80,8 +80,8 @@ Spectator.describe Invidious::Hashtag do
     expect(video_41.length_seconds).to eq((1.hour).total_seconds.to_i32)
     expect(video_41.views).to eq(63_240)
 
-    expect(video_41.live_now).to be_false
-    expect(video_41.premium).to be_false
+    expect(video_41.badges.live_now?).to be_false
+    expect(video_41.badges.premium?).to be_false
     expect(video_41.premiere_timestamp).to be_nil
 
     #
@@ -102,8 +102,8 @@ Spectator.describe Invidious::Hashtag do
     expect(video_48.length_seconds).to eq((35.minutes + 46.seconds).total_seconds.to_i32)
     expect(video_48.views).to eq(68_704)
 
-    expect(video_48.live_now).to be_false
-    expect(video_48.premium).to be_false
+    expect(video_48.badges.live_now?).to be_false
+    expect(video_48.badges.premium?).to be_false
     expect(video_48.premiere_timestamp).to be_nil
   end
 end

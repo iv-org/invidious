@@ -108,21 +108,30 @@ private module Parsers
         length_seconds = 0
       end
 
-      live_now = false
-      premium = false
-
       premiere_timestamp = item_contents.dig?("upcomingEventData", "startTime").try { |t| Time.unix(t.as_s.to_i64) }
-
+      badges = VideoBadges::None
       item_contents["badges"]?.try &.as_a.each do |badge|
         b = badge["metadataBadgeRenderer"]
         case b["label"].as_s
-        when "LIVE NOW"
-          live_now = true
-        when "New", "4K", "CC"
-          # TODO
+        when "LIVE"
+          badges |= VideoBadges::LiveNow
+        when "New"
+          badges |= VideoBadges::New
+        when "4K"
+          badges |= VideoBadges::FourK
+        when "8K"
+          badges |= VideoBadges::EightK
+        when "VR180"
+          badges |= VideoBadges::VR180
+        when "360°"
+          badges |= VideoBadges::VR360
+        when "3D"
+          badges |= VideoBadges::ThreeD
+        when "CC"
+          badges |= VideoBadges::ClosedCaptions
         when "Premium"
           # TODO: Potentially available as item_contents["topStandaloneBadge"]["metadataBadgeRenderer"]
-          premium = true
+          badges |= VideoBadges::Premium
         else nil # Ignore
         end
       end
@@ -136,10 +145,9 @@ private module Parsers
         views:              view_count,
         description_html:   description_html,
         length_seconds:     length_seconds,
-        live_now:           live_now,
-        premium:            premium,
         premiere_timestamp: premiere_timestamp,
         author_verified:    author_verified,
+        badges:             badges,
       })
     end
 
@@ -563,10 +571,9 @@ private module Parsers
         views:              view_count,
         description_html:   "",
         length_seconds:     duration,
-        live_now:           false,
-        premium:            false,
         premiere_timestamp: Time.unix(0),
         author_verified:    false,
+        badges:             VideoBadges::None,
       })
     end
 

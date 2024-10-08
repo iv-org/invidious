@@ -223,7 +223,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
     length_seconds = channel_video.try &.length_seconds
     length_seconds ||= 0
 
-    live_now = channel_video.try &.live_now
+    live_now = channel_video.try &.badges.live_now?
     live_now ||= false
 
     premiere_timestamp = channel_video.try &.premiere_timestamp
@@ -275,7 +275,7 @@ def fetch_channel(ucid, pull_all_videos : Bool)
           ucid:               video.ucid,
           author:             video.author,
           length_seconds:     video.length_seconds,
-          live_now:           video.live_now,
+          live_now:           video.badges.live_now?,
           premiere_timestamp: video.premiere_timestamp,
           views:              video.views,
         })
