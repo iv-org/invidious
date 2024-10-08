@@ -12,7 +12,9 @@ enum LogLevel
 end
 
 class Invidious::LogHandler < Kemal::BaseLogHandler
-  def initialize(@io : IO = STDOUT, @level = LogLevel::Debug, @use_color : Bool = true)
+  def initialize(@io : IO = STDOUT, @level = LogLevel::Debug, use_color : Bool = true)
+    Colorize.enabled = use_color
+    Colorize.on_tty_only!
   end
 
   def call(context : HTTP::Server::Context)
@@ -56,7 +58,7 @@ class Invidious::LogHandler < Kemal::BaseLogHandler
   {% for level in %w(trace debug info warn error fatal) %}
     def {{level.id}}(message : String)
       if LogLevel::{{level.id.capitalize}} >= @level
-        puts("#{Time.utc} [{{level.id}}] #{message}".colorize(color(LogLevel::{{level.id.capitalize}})).toggle(@use_color))
+        puts("#{Time.utc} [{{level.id}}] #{message}".colorize(color(LogLevel::{{level.id.capitalize}})))
       end
     end
   {% end %}
