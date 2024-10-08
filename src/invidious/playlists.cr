@@ -270,7 +270,7 @@ end
 
 def subscribe_playlist(user, playlist)
   playlist = InvidiousPlaylist.new({
-    title:       playlist.title.byte_slice(0, 150),
+    title:       playlist.title[..150],
     id:          playlist.id,
     author:      user.email,
     description: "", # Max 5000 characters
