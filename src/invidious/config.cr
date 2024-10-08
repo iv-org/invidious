@@ -13,6 +13,7 @@ struct ConfigPreferences
 
   property annotations : Bool = false
   property annotations_subscribed : Bool = false
+  property preload : Bool = true
   property autoplay : Bool = false
   property captions : Array(String) = ["", "", ""]
   property comments : Array(String) = ["youtube", ""]
