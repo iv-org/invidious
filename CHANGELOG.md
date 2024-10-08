@@ -1,5 +1,39 @@
 # CHANGELOG
 
+## vX.Y.0 (future)
+
+
+### Full list of pull requests merged since the last release (newest first)
+
+* Search: Fix 'youtu.be' URLs in sanitizer ([#4894], by @SamantazFox)
+* Ameba: Disable Style/RedundantNext rule ([#4888], thanks @syeopite)
+* Playlists: Fix 'invalid byte sequence' error when subscribing ([#4887], thanks @DmitrySandalov)
+* Parse more metadata badges for SearchVideos ([#4863], thanks @ChunkyProgrammer)
+* Translations update from Hosted Weblate ([#4862], thanks to our many translators)
+* Videos: Convert URL before putting result into cache ([#4850], by @SamantazFox)
+* HTML: Add error message to "search issues on GitHub" link ([#4652], thanks @tracedgod)
+* Preferences: Add option to control preloading of video data ([#4122], thanks @Nerdmind)
+* Performance: Improve speed of automatic instance redirection ([#4193], thanks @syeopite)
+* Remove myself from CODEOWNERS on the config file ([#4942], by @TheFrenchGhosty)
+* Update latest version WEB_CREATOR + fix comment web embed ([#4930], thanks @unixfox)
+* use WEB_CREATOR when po_token with WEB_EMBED as a fallback ([#4928], thanks @unixfox)
+* Revert "use web screen embed for fixing potoken functionality"
+* use web screen embed for fixing potoken functionality ([#4923], thanks @unixfox)
+
+[#4122]: https://github.com/iv-org/invidious/pull/4122
+[#4193]: https://github.com/iv-org/invidious/pull/4193
+[#4652]: https://github.com/iv-org/invidious/pull/4652
+[#4850]: https://github.com/iv-org/invidious/pull/4850
+[#4862]: https://github.com/iv-org/invidious/pull/4862
+[#4863]: https://github.com/iv-org/invidious/pull/4863
+[#4887]: https://github.com/iv-org/invidious/pull/4887
+[#4888]: https://github.com/iv-org/invidious/pull/4888
+[#4894]: https://github.com/iv-org/invidious/pull/4894
+[#4923]: https://github.com/iv-org/invidious/pull/4923
+[#4928]: https://github.com/iv-org/invidious/pull/4928
+[#4930]: https://github.com/iv-org/invidious/pull/4930
+[#4942]: https://github.com/iv-org/invidious/pull/4942
+
 
 ## v2.20240825.2 (2024-08-26)
 
