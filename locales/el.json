@@ -489,5 +489,10 @@
     "search_filters_date_label": "Ημερομηνία αναφόρτωσης",
     "Search for videos": "Αναζήτηση βίντεο",
     "The Popular feed has been disabled by the administrator.": "Η δημοφιλής ροή έχει απενεργοποιηθεί από τον διαχειριστή.",
-    "Answer": "Απάντηση"
+    "Answer": "Απάντηση",
+    "Add to playlist": "Λίιστα αναπαραγωγής",
+    "Add to playlist: ": "Λίστα αναπαραγωγής: ",
+    "carousel_slide": "Εικόνα {{current}}απο {{total}}",
+    "carousel_go_to": "Πήγαινε στην εικόνα`x`",
+    "toggle_theme": "Αλλαγή θέματος"
 }

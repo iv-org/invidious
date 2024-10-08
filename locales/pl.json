@@ -478,7 +478,7 @@
     "search_filters_date_label": "Data przesłania",
     "search_filters_features_option_vr180": "VR180",
     "search_filters_date_option_none": "Dowolna data",
-    "search_message_use_another_instance": " Możesz także <a href=\"`x`\">wyszukać w innej instancji</a>.",
+    "search_message_use_another_instance": "Możesz także <a href=\"`x`\">wyszukać w innej instancji</a>.",
     "search_filters_type_option_all": "Dowolny typ",
     "search_filters_duration_option_none": "Dowolna długość",
     "search_filters_duration_option_medium": "Średnia (4-20 minut)",

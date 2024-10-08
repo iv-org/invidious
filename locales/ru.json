@@ -509,6 +509,9 @@
     "Add to playlist: ": "Добавить в плейлист: ",
     "Answer": "Ответить",
     "Search for videos": "Поиск видео",
-    "The Popular feed has been disabled by the administrator.": "Популярная лента была отключена администратором.",
-    "toggle_theme": "Переключатель тем"
+    "The Popular feed has been disabled by the administrator.": "Лента популярного была отключена администратором.",
+    "toggle_theme": "Переключатель тем",
+    "carousel_slide": "Пролистано {{current}} из {{total}}",
+    "carousel_skip": "Пропустить всё",
+    "carousel_go_to": "Перейти к странице `x`"
 }

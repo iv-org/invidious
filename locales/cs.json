@@ -471,7 +471,7 @@
     "search_filters_title": "Filtry",
     "search_filters_duration_option_medium": "Střední (4 - 20 minut)",
     "search_filters_duration_option_long": "Dlouhá (> 20 minut)",
-    "search_message_use_another_instance": " Můžete také <a href=\"`x`\">hledat na jiné instanci</a>.",
+    "search_message_use_another_instance": "Můžete také <a href=\"`x`\">hledat na jiné instanci</a>.",
     "search_filters_features_label": "Vlastnosti",
     "search_filters_features_option_three_sixty": "360°",
     "search_filters_features_option_vr180": "VR180",
