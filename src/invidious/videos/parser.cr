@@ -142,8 +142,19 @@ def extract_video_info(video_id : String)
     params.delete("reason")
   end
 
-  {"captions", "playabilityStatus", "playerConfig", "storyboards", "streamingData"}.each do |f|
+  {"captions", "playabilityStatus", "playerConfig", "storyboards"}.each do |f|
     params[f] = player_response[f] if player_response[f]?
+  end
+
+  # Convert URLs, if those are present
+  if streaming_data = player_response["streamingData"]?
+    %w[formats adaptiveFormats].each do |key|
+      streaming_data.as_h[key]?.try &.as_a.each do |format|
+        format.as_h["url"] = JSON::Any.new(convert_url(format))
+      end
+    end
+
+    params["streamingData"] = streaming_data
   end
 
   # Data structure version, for cache control
@@ -453,4 +464,36 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   }
 
   return params
+end
+
+private def convert_url(fmt)
+  if cfr = fmt["signatureCipher"]?.try { |json| HTTP::Params.parse(json.as_s) }
+    sp = cfr["sp"]
+    url = URI.parse(cfr["url"])
+    params = url.query_params
+
+    LOGGER.debug("convert_url: Decoding '#{cfr}'")
+
+    unsig = DECRYPT_FUNCTION.try &.decrypt_signature(cfr["s"])
+    params[sp] = unsig if unsig
+  else
+    url = URI.parse(fmt["url"].as_s)
+    params = url.query_params
+  end
+
+  n = DECRYPT_FUNCTION.try &.decrypt_nsig(params["n"])
+  params["n"] = n if n
+
+  if token = CONFIG.po_token
+    params["pot"] = token
+  end
+
+  url.query_params = params
+  LOGGER.trace("convert_url: new url is '#{url}'")
+
+  return url.to_s
+rescue ex
+  LOGGER.debug("convert_url: Error when parsing video URL")
+  LOGGER.trace(ex.inspect_with_backtrace)
+  return ""
 end
