@@ -189,6 +189,8 @@ Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(CONNECTION_CHANNEL
 
 Invidious::Jobs.register Invidious::Jobs::ClearExpiredItemsJob.new
 
+Invidious::Jobs.register Invidious::Jobs::InstanceListRefreshJob.new
+
 Invidious::Jobs.start_all
 
 def popular_videos
