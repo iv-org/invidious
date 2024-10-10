@@ -513,5 +513,6 @@
     "Answer": "Resposta",
     "carousel_slide": "Slide {{current}} de {{total}}",
     "carousel_skip": "Ignorar carrossel",
-    "carousel_go_to": "Ir ao slide `x`"
+    "carousel_go_to": "Ir ao slide `x`",
+    "preferences_preload_label": "Pré-carregar dados do vídeo: "
 }
