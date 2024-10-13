@@ -51,6 +51,11 @@ jobs:
         with:
           submodules: true
 
+      - name: Install required APT packages
+        run: |
+          sudo apt install -y libsqlite3-dev 
+        shell: bash
+
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1.8.0
         with:
