@@ -497,5 +497,8 @@
     "toggle_theme": "Toggle Theme",
     "carousel_slide": "Slide {{current}} of {{total}}",
     "carousel_skip": "Skip the Carousel",
-    "carousel_go_to": "Go to slide `x`"
+    "carousel_go_to": "Go to slide `x`",
+    "error_from_youtube_unplayable": "Video unplayable due to an error from YouTube:",
+    "error_processing_data_youtube": "Error while processing the data sent by YouTube",
+    "refresh_page": "Refresh the page"
 }
