@@ -236,7 +236,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
   published = microformat["publishDate"]?
     .try { |t| Time.parse(t.as_s, "%Y-%m-%d", Time::Location::UTC) }
 
-  if !published
+  if published.nil?
     published_txt = video_primary_renderer
       .try &.dig?("dateText", "simpleText")
 
@@ -254,8 +254,10 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
 
   live_now = microformat.dig?("liveBroadcastDetails", "isLiveNow")
     .try &.as_bool
-  live_now ||= video_primary_renderer
-    .try &.dig?("viewCount", "videoViewCountRenderer", "isLive").try &.as_bool || false
+  if live_now.nil?
+    live_now = video_primary_renderer
+      .try &.dig?("viewCount", "videoViewCountRenderer", "isLive").try &.as_bool || false
+  end
 
   post_live_dvr = video_details.dig?("isPostLiveDvr")
     .try &.as_bool || false
@@ -279,7 +281,7 @@ def parse_video_info(video_id : String, player_response : Hash(String, JSON::Any
     else
       is_listed ||= true
     end
-  # if no badges but videoDetails not available then assume isListed
+    # if no badges but videoDetails not available then assume isListed
   else
     is_listed ||= true
   end
