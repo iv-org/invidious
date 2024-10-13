@@ -326,15 +326,16 @@ end
 def fetch_video(id, region)
   info = extract_video_info(video_id: id)
 
-  if info["reason"]?
+  if info["reason"]? && info["subreason"]?
     reason = info["reason"].as_s
-    if info.dig?("subreason")
+    puts info
+    if info.dig?("subreason").nil?
       subreason = info["subreason"].as_s
     else
       subreason = "No additional reason"
     end
     if reason == "Video unavailable"
-      raise NotFoundException.new(reason + ": " + subreason || "")
+      raise NotFoundException.new(reason + ": Video not found" || "")
     elsif {"Private video"}.any?(reason)
       raise InfoException.new(reason + ": " + subreason || "")
     end
