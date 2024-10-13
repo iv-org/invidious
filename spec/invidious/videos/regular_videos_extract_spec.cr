@@ -17,8 +17,8 @@ Spectator.describe "parse_video_info" do
     # Basic video infos
 
     expect(info["title"].as_s).to eq("I Gave My 100,000,000th Subscriber An Island")
-    expect(info["views"].as_i).to eq(126_573_823)
-    expect(info["likes"].as_i).to eq(5_157_654)
+    expect(info["views"].as_i).to eq(220_226_287)
+    expect(info["likes"].as_i).to eq(6_870_691)
 
     # For some reason the video length from VideoDetails and the
     # one from microformat differs by 1s...
@@ -48,12 +48,12 @@ Spectator.describe "parse_video_info" do
 
     expect(info["relatedVideos"].as_a.size).to eq(20)
 
-    expect(info["relatedVideos"][0]["id"]).to eq("Hwybp38GnZw")
-    expect(info["relatedVideos"][0]["title"]).to eq("I Built Willy Wonka's Chocolate Factory!")
+    expect(info["relatedVideos"][0]["id"]).to eq("krsBRQbOPQ4")
+    expect(info["relatedVideos"][0]["title"]).to eq("$1 vs $250,000,000 Private Island!")
     expect(info["relatedVideos"][0]["author"]).to eq("MrBeast")
     expect(info["relatedVideos"][0]["ucid"]).to eq("UCX6OQ3DkcsbYNE6H8uQQuVA")
-    expect(info["relatedVideos"][0]["view_count"]).to eq("179877630")
-    expect(info["relatedVideos"][0]["short_view_count"]).to eq("179M")
+    expect(info["relatedVideos"][0]["view_count"]).to eq("230617484")
+    expect(info["relatedVideos"][0]["short_view_count"]).to eq("230M")
     expect(info["relatedVideos"][0]["author_verified"]).to eq("true")
 
     # Description
@@ -76,11 +76,11 @@ Spectator.describe "parse_video_info" do
     expect(info["ucid"].as_s).to eq("UCX6OQ3DkcsbYNE6H8uQQuVA")
 
     expect(info["authorThumbnail"].as_s).to eq(
-      "https://yt3.ggpht.com/ytc/AL5GRJVuqw82ERvHzsmBxL7avr1dpBtsVIXcEzBPZaloFg=s48-c-k-c0x00ffffff-no-rj"
+      "https://yt3.ggpht.com/fxGKYucJAVme-Yz4fsdCroCFCrANWqw0ql4GYuvx8Uq4l_euNJHgE-w9MTkLQA805vWCi-kE0g=s48-c-k-c0x00ffffff-no-rj"
     )
 
     expect(info["authorVerified"].as_bool).to be_true
-    expect(info["subCountText"].as_s).to eq("143M")
+    expect(info["subCountText"].as_s).to eq("320M")
   end
 
   it "parses a regular video with no descrition/comments" do
@@ -99,8 +99,8 @@ Spectator.describe "parse_video_info" do
     # Basic video infos
 
     expect(info["title"].as_s).to eq("Chris Rea - Auberge")
-    expect(info["views"].as_i).to eq(10_943_126)
-    expect(info["likes"].as_i).to eq(0)
+    expect(info["views"].as_i).to eq(14_324_584)
+    expect(info["likes"].as_i).to eq(35_870)
     expect(info["lengthSeconds"].as_i).to eq(283_i64)
     expect(info["published"].as_s).to eq("2012-05-21T00:00:00Z")
 
@@ -132,14 +132,14 @@ Spectator.describe "parse_video_info" do
 
     # Related videos
 
-    expect(info["relatedVideos"].as_a.size).to eq(19)
+    expect(info["relatedVideos"].as_a.size).to eq(20)
 
-    expect(info["relatedVideos"][0]["id"]).to eq("Ww3KeZ2_Yv4")
-    expect(info["relatedVideos"][0]["title"]).to eq("Chris Rea")
-    expect(info["relatedVideos"][0]["author"]).to eq("PanMusic")
-    expect(info["relatedVideos"][0]["ucid"]).to eq("UCsKAPSuh1iNbLWUga_igPyA")
-    expect(info["relatedVideos"][0]["view_count"]).to eq("31581")
-    expect(info["relatedVideos"][0]["short_view_count"]).to eq("31K")
+    expect(info["relatedVideos"][0]["id"]).to eq("gUUdQfnshJ4")
+    expect(info["relatedVideos"][0]["title"]).to eq("Chris Rea - The Road To Hell 1989 Full Version")
+    expect(info["relatedVideos"][0]["author"]).to eq("NEA ZIXNH")
+    expect(info["relatedVideos"][0]["ucid"]).to eq("UCYMEOGcvav3gCgImK2J07CQ")
+    expect(info["relatedVideos"][0]["view_count"]).to eq("53298661")
+    expect(info["relatedVideos"][0]["short_view_count"]).to eq("53M")
     expect(info["relatedVideos"][0]["author_verified"]).to eq("false")
 
     # Description
@@ -156,11 +156,13 @@ Spectator.describe "parse_video_info" do
 
     # Author infos
 
-    expect(info["author"].as_s).to eq("ChrisReaOfficial")
+    expect(info["author"].as_s).to eq("ChrisReaVideos")
     expect(info["ucid"].as_s).to eq("UC_5q6nWPbD30-y6oiWF_oNA")
 
-    expect(info["authorThumbnail"].as_s).to be_empty
+    expect(info["authorThumbnail"].as_s).to eq(
+      "https://yt3.ggpht.com/ytc/AIdro_n71nsegpKfjeRKwn1JJmK5IVMh_7j5m_h3_1KnUUg=s48-c-k-c0x00ffffff-no-rj"
+    )
     expect(info["authorVerified"].as_bool).to be_false
-    expect(info["subCountText"].as_s).to eq("-")
+    expect(info["subCountText"].as_s).to eq("3.11K")
   end
 end
