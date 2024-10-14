@@ -5,6 +5,7 @@ var video_data = JSON.parse(document.getElementById('video_data').textContent);
 var options = {
     liveui: true,
     playbackRates: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0],
+    enableSourceset: false,
     controlBar: {
         children: [
             'playToggle',
@@ -18,6 +19,7 @@ var options = {
             'captionsButton',
             'audioTrackButton',
             'qualitySelector',
+            'QualityMenuButton',
             'playbackRateMenuButton',
             'fullscreenToggle'
         ]
@@ -41,7 +43,7 @@ embed_url = location.origin + '/embed/' + video_data.id + embed_url.search;
 
 var save_player_pos_key = 'save_player_pos';
 
-videojs.Vhs.xhr.beforeRequest = function(options) {
+videojs.Vhs.xhr.onRequest = function(options) {
     // set local if requested not videoplayback
     if (!options.uri.includes('videoplayback')) {
         if (!options.uri.includes('local=true'))
@@ -225,8 +227,9 @@ if (isMobile()) {
         operations_bar_element.append(share_element);
 
         if (!video_data.params.listen && video_data.params.quality === 'dash') {
-            var http_source_selector = document.getElementsByClassName('vjs-http-source-selector vjs-menu-button')[0];
+            var http_source_selector = document.getElementsByClassName('vjs-quality-menu-button vjs-menu-button')[0];
             operations_bar_element.append(http_source_selector);
+
         }
     });
 }
@@ -390,7 +393,6 @@ if (video_data.params.autoplay) {
 }
 
 if (!video_data.params.listen && video_data.params.quality === 'dash') {
-    player.httpSourceSelector();
 
     if (video_data.params.quality_dash !== 'auto') {
         player.ready(function () {
@@ -413,8 +415,8 @@ if (!video_data.params.listen && video_data.params.quality === 'dash') {
                                 break;
                         }
                 }
-                qualityLevels.forEach(function (level, index) {
-                    level.enabled = (index === targetQualityLevel);
+                player.qualityMenu({
+                    defaultResolution: qualityLevels[targetQualityLevel].height
                 });
             });
         });
