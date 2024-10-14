@@ -157,9 +157,11 @@ module Invidious::Routes::Embed
     adaptive_fmts = video.adaptive_fmts
 
     if params.local
-      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
-      adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
+      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s)) }
     end
+
+    # Always proxy DASH streams, otherwise youtube CORS headers will prevent playback
+    adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(HttpServer::Utils.proxy_video_url(fmt["url"].as_s)) }
 
     video_streams = video.video_streams
     audio_streams = video.audio_streams
