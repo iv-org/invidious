@@ -83,6 +83,7 @@ class Config
 
   # Used to tell Invidious it is behind a proxy, so links to resources should be https://
   property https_only : Bool?
+  property login_only : Bool?
   # HMAC signing key for CSRF tokens and verifying pubsub subscriptions
   property hmac_key : String = ""
   # Domain to be used for links to resources on the site where an absolute URL is required

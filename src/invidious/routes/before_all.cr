@@ -61,18 +61,6 @@ module Invidious::Routes::BeforeAll
       env.response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
     end
 
-    return if {
-                "/sb/",
-                "/vi/",
-                "/s_p/",
-                "/yts/",
-                "/ggpht/",
-                "/api/manifest/",
-                "/videoplayback",
-                "/latest_version",
-                "/download",
-              }.any? { |r| env.request.resource.starts_with? r }
-
     if env.request.cookies.has_key? "SID"
       sid = env.request.cookies["SID"].value
 
@@ -99,6 +87,24 @@ module Invidious::Routes::BeforeAll
         env.set "user", user
       end
     end
+
+    unregistered_path_whitelist = {"/", "/login", "/licenses", "/privacy"}
+    if CONFIG.login_only && !env.get?("user") && !unregistered_path_whitelist.includes?(env.request.path)
+      env.response.headers["Location"] = "/login"
+      haltf env, status_code: 302
+    end
+
+    return if {
+                "/sb/",
+                "/vi/",
+                "/s_p/",
+                "/yts/",
+                "/ggpht/",
+                "/api/manifest/",
+                "/videoplayback",
+                "/latest_version",
+                "/download",
+              }.any? { |r| env.request.resource.starts_with? r }
 
     dark_mode = convert_theme(env.params.query["dark_mode"]?) || preferences.dark_mode.to_s
     thin_mode = env.params.query["thin_mode"]? || preferences.thin_mode.to_s
