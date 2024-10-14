@@ -26,12 +26,16 @@ struct YoutubeConnectionPool
 
   def client(&)
     conn = pool.checkout
+    # Proxy needs to be reinstated every time we get a client from the pool
+    conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+
     begin
       response = yield conn
     rescue ex
       conn.close
-      conn = HTTP::Client.new(url)
 
+      conn = HTTP::Client.new(url)
+      conn.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
       conn.family = CONFIG.force_resolve
       conn.family = Socket::Family::INET if conn.family == Socket::Family::UNSPEC
       conn.before_request { |r| add_yt_headers(r) } if url.host == "www.youtube.com"
@@ -76,4 +80,17 @@ def make_client(url : URI, region = nil, force_resolve : Bool = false, &)
   ensure
     client.close
   end
+end
+
+def make_configured_http_proxy_client
+  # This method is only called when configuration for an HTTP proxy are set
+  config_proxy = CONFIG.http_proxy.not_nil!
+
+  return HTTP::Proxy::Client.new(
+    config_proxy.host,
+    config_proxy.port,
+
+    username: config_proxy.user,
+    password: config_proxy.password,
+  )
 end
