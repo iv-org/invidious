@@ -479,5 +479,6 @@
     "carousel_go_to": "スライド`x`を表示",
     "carousel_slide": "スライド{{current}} / 全{{total}}個中",
     "carousel_skip": "画像のスライド表示をスキップ",
-    "toggle_theme": "テーマの切り替え"
+    "toggle_theme": "テーマの切り替え",
+    "preferences_preload_label": "動画データを事前に読み込む: "
 }
