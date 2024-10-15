@@ -1,4 +1,4 @@
-class ReloadToken
+class ReloadTokens
 
   @@instance = new
   
