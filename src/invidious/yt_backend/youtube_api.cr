@@ -29,7 +29,6 @@ module YoutubeAPI
     WebEmbeddedPlayer
     WebMobile
     WebScreenEmbed
-    WebCreator
 
     Android
     AndroidEmbeddedPlayer
@@ -77,14 +76,6 @@ module YoutubeAPI
       name_proto: "1",
       version:    "2.20240814.00.00",
       screen:     "EMBED",
-      os_name:    "Windows",
-      os_version: WINDOWS_VERSION,
-      platform:   "DESKTOP",
-    },
-    ClientType::WebCreator => {
-      name:       "WEB_CREATOR",
-      name_proto: "62",
-      version:    "1.20240918.03.00",
       os_name:    "Windows",
       os_version: WINDOWS_VERSION,
       platform:   "DESKTOP",
@@ -300,9 +291,8 @@ module YoutubeAPI
     end
 
     if client_config.screen == "EMBED"
-      # embedUrl https://www.google.com allow loading almost all video that are configured not embeddable
       client_context["thirdParty"] = {
-        "embedUrl" => "https://www.google.com/",
+        "embedUrl" => "https://www.youtube.com/embed/#{video_id}",
       } of String => String | Int64
     end
 
