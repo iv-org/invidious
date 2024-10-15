@@ -7,6 +7,11 @@ STATIC   := 0
 
 NO_DBG_SYMBOLS := 0
 
+# Enable multi-threading.
+# Warning: Experimental feature!!
+# invidious is not stable when MT is enabled.
+MT := 0
+
 
 FLAGS ?=
 
@@ -17,6 +22,10 @@ endif
 
 ifeq ($(STATIC), 1)
   FLAGS += --static
+endif
+
+ifeq ($(MT), 1)
+  FLAGS += -Dpreview_mt
 endif
 
 
