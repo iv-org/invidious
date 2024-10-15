@@ -228,12 +228,13 @@ https_only: false
 # -----------------------------
 
 ##
-## Enable/Disable the "Popular" tab on the main page.
+## Enable/Disable specific pages on the main page.
 ##
-## Accepted values: true, false
-## Default: true
+#pages_enabled:
+#  trending: true
+#  popular: true
+#  search: true
 ##
-#popular_enabled: true
 
 ##
 ## Enable/Disable statstics (available at /api/v1/stats).

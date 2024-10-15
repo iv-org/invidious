@@ -180,7 +180,7 @@ if (CONFIG.use_pubsub_feeds.is_a?(Bool) && CONFIG.use_pubsub_feeds.as(Bool)) || 
   Invidious::Jobs.register Invidious::Jobs::SubscribeToFeedsJob.new(PG_DB, HMAC_KEY)
 end
 
-if CONFIG.popular_enabled
+if CONFIG.page_enabled?("popular")
   Invidious::Jobs.register Invidious::Jobs::PullPopularVideosJob.new(PG_DB)
 end
 
