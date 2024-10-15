@@ -63,8 +63,6 @@ class Config
   # Time interval between two executions of the job that crawls channel videos (subscriptions update).
   @[YAML::Field(converter: Preferences::TimeSpanConverter)]
   property channel_refresh_interval : Time::Span = 30.minutes
-  # Number of threads to use for updating feeds
-  property feed_threads : Int32 = 1
   # Log file path or STDOUT
   property output : String = "STDOUT"
   # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
