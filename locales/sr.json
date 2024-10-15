@@ -513,5 +513,6 @@
     "Answer": "Odgovor",
     "Search for videos": "Pretražite video snimke",
     "carousel_skip": "Preskoči karusel",
-    "toggle_theme": "Подеси тему"
+    "toggle_theme": "Подеси тему",
+    "preferences_preload_label": "Unapred učitaj podatke o video snimku: "
 }
