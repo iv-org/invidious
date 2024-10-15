@@ -479,5 +479,6 @@
     "The Popular feed has been disabled by the administrator.": "“流行”源已被管理员禁用。",
     "carousel_slide": "当前为第 {{current}} 张图，共 {{total}} 张图",
     "carousel_skip": "跳过图集",
-    "carousel_go_to": "转到图 `x`"
+    "carousel_go_to": "转到图 `x`",
+    "preferences_preload_label": "预加载视频数据： "
 }

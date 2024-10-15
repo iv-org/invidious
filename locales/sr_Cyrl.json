@@ -513,5 +513,6 @@
     "Add to playlist: ": "Додајте на плејлисту: ",
     "carousel_skip": "Прескочи карусел",
     "The Popular feed has been disabled by the administrator.": "Администратор је онемогућио фид „Популарно“.",
-    "carousel_slide": "Слајд {{current}} од {{total}}"
+    "carousel_slide": "Слајд {{current}} од {{total}}",
+    "preferences_preload_label": "Унапред учитај податке о видео снимку: "
 }
