@@ -330,8 +330,8 @@ module YoutubeAPI
       client_context["client"]["platform"] = platform
     end
 
-    if CONFIG.visitor_data.is_a?(String)
-      client_context["client"]["visitorData"] = CONFIG.visitor_data.as(String)
+    if ReloadPOToken.vdata.is_a?(String)
+      client_context["client"]["visitorData"] = ReloadPOToken.vdata.as(String)
     end
 
     return client_context
@@ -492,7 +492,7 @@ module YoutubeAPI
         "contentPlaybackContext" => playback_ctx,
       },
       "serviceIntegrityDimensions" => {
-        "poToken" => CONFIG.po_token,
+        "poToken" => ReloadPOToken.pot.as(String),
       },
     }
 
@@ -626,8 +626,8 @@ module YoutubeAPI
       headers["User-Agent"] = user_agent
     end
 
-    if CONFIG.visitor_data.is_a?(String)
-      headers["X-Goog-Visitor-Id"] = CONFIG.visitor_data.as(String)
+    if ReloadPOToken.vdata.is_a?(String)
+      headers["X-Goog-Visitor-Id"] = ReloadPOToken.vdata.as(String)
     end
 
     # Logging

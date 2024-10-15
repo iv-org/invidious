@@ -67,6 +67,9 @@
 
 ## Features
 
+**Patches**
+- token updater patch (mooleshacat)
+
 **User features**
 - Lightweight
 - No ads

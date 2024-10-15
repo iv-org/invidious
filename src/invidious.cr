@@ -189,6 +189,10 @@ Invidious::Jobs.register Invidious::Jobs::NotificationJob.new(CONNECTION_CHANNEL
 
 Invidious::Jobs.register Invidious::Jobs::ClearExpiredItemsJob.new
 
+ReloadPOToken.get_tokens #init
+
+Invidious::Jobs.register Invidious::Jobs::MonitorCfgPotokensJob.new()
+
 Invidious::Jobs.register Invidious::Jobs::InstanceListRefreshJob.new
 
 Invidious::Jobs.start_all
