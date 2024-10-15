@@ -513,5 +513,6 @@
     "Add to playlist: ": "Dodaj do playlisty: ",
     "carousel_slide": "Slajd {{current}} z {{total}}",
     "carousel_skip": "Pomiń karuzelę",
-    "carousel_go_to": "Przejdź do slajdu `x`"
+    "carousel_go_to": "Przejdź do slajdu `x`",
+    "preferences_preload_label": "Wstępne ładowanie danych wideo: "
 }
