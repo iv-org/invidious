@@ -67,6 +67,9 @@
 
 ## Features
 
+**Patches**
+- revert d9df90b
+
 **User features**
 - Lightweight
 - No ads
