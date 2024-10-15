@@ -68,6 +68,8 @@
 ## Features
 
 **Patches**
+
+- revert d9df90b
 - token updater patch (mooleshacat)
 
 **User features**
