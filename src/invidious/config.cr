@@ -8,6 +8,18 @@ struct DBConfig
   property dbname : String
 end
 
+struct OAuthConfig
+  include YAML::Serializable
+
+  property host : String
+  property field : String = "email"
+  property auth_uri : String
+  property token_uri : String
+  property info_uri : String
+  property client_id : String
+  property client_secret : String
+end
+
 struct ConfigPreferences
   include YAML::Serializable
 
@@ -138,6 +150,10 @@ class Config
   # poToken for passing bot attestation
   property po_token : String? = nil
 
+  property auth_type : Array(String) = ["invidious", "oauth"]
+  property auth_enforce_source : Bool = true
+  property oauth = {} of String => OAuthConfig
+
   # Saved cookies in "name1=value1; name2=value2..." format
   @[YAML::Field(converter: Preferences::StringToCookies)]
   property cookies : HTTP::Cookies = HTTP::Cookies.new
@@ -158,6 +174,14 @@ class Config
     else
       return false
     end
+  end
+
+  def auth_oauth_enabled?
+    return (@auth_type.find(&.== "oauth") && @oauth.size > 0)
+  end
+
+  def auth_internal_enabled?
+    return (@auth_type.find(&.== "invidious"))
   end
 
   def self.load

@@ -323,6 +323,40 @@ https_only: false
 ##
 #enable_user_notifications: true
 
+##
+## List of Enabled Authentication Backend
+## If not provided falls back to default
+##
+## Supported Values:
+##   - invidious
+##   - oauth
+##   - ldap (Not implemented !)
+##   - saml (Not implemented !)
+##
+## Default: ["invidious","oauth"]
+##
+# auth_type: ["oauth"]
+
+##
+## OAuth Configuration
+##
+## Notes: 
+##   - Supports multiple OAuth backends
+##   - Requires external_port and domain to be configured
+##
+## Default: []
+##
+# oauth:
+#   example:
+#     host: oauth.example.net
+#     field : email
+#     auth_uri: /oauth/authorize/
+#     token_uri: /oauth/token/
+#     info_uri: https://api.example.net/oauth/userinfo/
+#     client_id: CLIENT_ID
+#     client_secret: CLIENT_SECRET
+
+
 # -----------------------------
 #  Background jobs
 # -----------------------------
