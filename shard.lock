@@ -35,6 +35,10 @@ shards:
   pg:
     git: https://github.com/will/crystal-pg.git
     version: 0.24.0
+    
+  pool:
+    git: https://github.com/ysbaddaden/pool.git
+    version: 0.2.4
 
   protodec:
     git: https://github.com/iv-org/protodec.git
@@ -43,6 +47,10 @@ shards:
   radix:
     git: https://github.com/luislavena/radix.git
     version: 0.4.1
+
+  redis:
+    git: https://github.com/stefanwille/crystal-redis.git
+    version: 2.9.1
 
   spectator:
     git: https://github.com/icy-arctic-fox/spectator.git

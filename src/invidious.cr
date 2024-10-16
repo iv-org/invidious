@@ -32,6 +32,7 @@ require "xml"
 require "yaml"
 require "compress/zip"
 require "protodec/utils"
+require "redis"
 
 require "./invidious/database/*"
 require "./invidious/database/migrations/*"
@@ -61,7 +62,12 @@ alias IV = Invidious
 CONFIG   = Config.load
 HMAC_KEY = CONFIG.hmac_key
 
-PG_DB       = DB.open CONFIG.database_url
+PG_DB    = DB.open CONFIG.database_url
+REDIS_DB = Redis::PooledClient.new(unixsocket: CONFIG.redis_socket || nil, url: CONFIG.redis_url || nil)
+
+if REDIS_DB.ping
+  puts "Connected to redis"
+end
 ARCHIVE_URL = URI.parse("https://archive.org")
 PUBSUB_URL  = URI.parse("https://pubsubhubbub.appspot.com")
 REDDIT_URL  = URI.parse("https://www.reddit.com")

@@ -87,6 +87,9 @@ class Config
   # Used for crawling channels: threads should check all videos uploaded by a channel
   property full_refresh : Bool = false
 
+  property redis_url : String?
+  property redis_socket : String?
+
   # Jobs config structure. See jobs.cr and jobs/base_job.cr
   property jobs = Invidious::Jobs::JobsConfig.new
 

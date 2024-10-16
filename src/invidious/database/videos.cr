@@ -47,6 +47,15 @@ module Invidious::Database::Videos
       WHERE id = $1
     SQL
 
-    return PG_DB.query_one?(request, id, as: Video)
+    if ((info = REDIS_DB.get(id)) && (time = REDIS_DB.get(id + ":time")))
+      return Video.new({
+        id:      id,
+        info:    JSON.parse(info).as_h,
+        updated: Time.parse(time, "%Y-%m-%d %H:%M:%S %z", Time::Location::UTC),
+      })
+    else
+      return nil
+    end
+    
   end
 end
