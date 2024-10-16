@@ -18,6 +18,40 @@ end
 class HTTP::Client
   property family : Socket::Family = Socket::Family::UNSPEC
 
+  # Override stdlib to automatically initialize proxy if configured
+  #
+  # Accurate as of crystal 1.12.1
+
+  def initialize(@host : String, port = nil, tls : TLSContext = nil)
+    check_host_only(@host)
+
+    {% if flag?(:without_openssl) %}
+      if tls
+        raise "HTTP::Client TLS is disabled because `-D without_openssl` was passed at compile time"
+      end
+      @tls = nil
+    {% else %}
+      @tls = case tls
+             when true
+               OpenSSL::SSL::Context::Client.new
+             when OpenSSL::SSL::Context::Client
+               tls
+             when false, nil
+               nil
+             end
+    {% end %}
+
+    @port = (port || (@tls ? 443 : 80)).to_i
+
+    self.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+  end
+
+  def initialize(@io : IO, @host = "", @port = 80)
+    @reconnect = false
+
+    self.proxy = make_configured_http_proxy_client() if CONFIG.http_proxy
+  end
+
   private def io
     io = @io
     return io if io
