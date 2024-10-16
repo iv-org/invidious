@@ -10,7 +10,7 @@ shards:
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
-    version: 1.2.1
+    version: 1.2.2
 
   db:
     git: https://github.com/crystal-lang/crystal-db.git
@@ -19,6 +19,10 @@ shards:
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
     version: 0.2.2
+
+  http_proxy:
+    git: https://github.com/mamantoha/http_proxy.git
+    version: 0.10.3
 
   kemal:
     git: https://github.com/kemalcr/kemal.git
@@ -42,7 +46,7 @@ shards:
 
   spectator:
     git: https://github.com/icy-arctic-fox/spectator.git
-    version: 0.10.4
+    version: 0.10.6
 
   sqlite3:
     git: https://github.com/crystal-lang/crystal-sqlite3.git
