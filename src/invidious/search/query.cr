@@ -8,6 +8,7 @@ module Invidious::Search
       # Types specific to Invidious
       Subscriptions # Search user subscriptions
       Playlist      # "Add playlist item" search
+      Compilation   # "Add compilation item" search
     end
 
     getter type : Type = Type::Regular
@@ -86,6 +87,12 @@ module Invidious::Search
         #
         @filters, _, @query, _ = Filters.from_legacy_filters(@raw_query)
         #
+      when .compilation?
+        # In "add compilation item" mode, filters are parsed from the query
+        # string itself (legacy), and the channel is ignored.
+        #
+        @filters, _, @query, _ = Filters.from_legacy_filters(@raw_query)
+        #
       when .subscriptions?, .regular?
         if params["sp"]?
           # Parse the `sp` URL parameter (youtube compatibility)
@@ -123,7 +130,7 @@ module Invidious::Search
       return items if self.empty_raw_query?
 
       case @type
-      when .regular?, .playlist?
+      when .regular?, .playlist?, .compilation?
         items = Processors.regular(self)
         #
       when .channel?

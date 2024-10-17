@@ -485,6 +485,14 @@ hmac_key: "CHANGE_ME!!"
 ##
 #playlist_length_limit: 500
 
+##
+## Maximum custom compilation length limit.
+##
+## Accepted values: Integer
+## Default: 500
+##
+#compilation_length_limit: 500
+
 #########################################
 #
 #  Default user preferences

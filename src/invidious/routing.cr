@@ -26,7 +26,9 @@ module Invidious::Routing
       self.register_watch_routes
 
       self.register_iv_playlist_routes
+      self.register_iv_compilation_routes
       self.register_yt_playlist_routes
+      self.register_compilation_routes
 
       self.register_search_routes
 
@@ -80,6 +82,15 @@ module Invidious::Routing
     get "/subscription_manager", Routes::Subscriptions, :subscription_manager
   end
 
+  def register_iv_compilation_routes
+    get "/create_compilation", Routes::Compilations, :new
+    post "/create_compilation", Routes::Compilations, :create
+    post "/compilation_ajax", Routes::Compilations, :compilation_ajax
+    get "/add_compilation_items", Routes::Compilations, :add_compilation_items_page
+    get "/edit_compilation", Routes::Compilations, :edit
+    post "/edit_compilation", Routes::Compilations, :adjust_timestamps
+  end
+
   def register_iv_playlist_routes
     get "/create_playlist", Routes::Playlists, :new
     post "/create_playlist", Routes::Playlists, :create
@@ -99,6 +110,7 @@ module Invidious::Routing
     get "/feed/popular", Routes::Feeds, :popular
     get "/feed/trending", Routes::Feeds, :trending
     get "/feed/subscriptions", Routes::Feeds, :subscriptions
+    get "/feed/compilations", Routes::Feeds, :compilations
     get "/feed/history", Routes::Feeds, :history
 
     # RSS Feeds
@@ -176,6 +188,10 @@ module Invidious::Routing
     get "/playlist", Routes::Playlists, :show
     get "/mix", Routes::Playlists, :mix
     get "/watch_videos", Routes::Playlists, :watch_videos
+  end
+
+  def register_compilation_routes
+    get "/compilation", Routes::Compilations, :show
   end
 
   def register_search_routes
@@ -293,6 +309,9 @@ module Invidious::Routing
       post "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :subscribe_channel
       delete "/api/v1/auth/subscriptions/:ucid", {{namespace}}::Authenticated, :unsubscribe_channel
 
+      post "/api/v1/auth/compilations", {{namespace}}::Authenticated, :create_compilation
+      get "/api/v1/auth/compilations", {{namespace}}::Authenticated, :list_compilations
+
       get "/api/v1/auth/playlists", {{namespace}}::Authenticated, :list_playlists
       post "/api/v1/auth/playlists", {{namespace}}::Authenticated, :create_playlist
       patch "/api/v1/auth/playlists/:plid",{{namespace}}:: Authenticated, :update_playlist_attribute
@@ -313,6 +332,8 @@ module Invidious::Routing
       get "/api/v1/stats", {{namespace}}::Misc, :stats
       get "/api/v1/playlists/:plid", {{namespace}}::Misc, :get_playlist
       get "/api/v1/auth/playlists/:plid", {{namespace}}::Misc, :get_playlist
+      get "/api/v1/compilations/:compid", {{namespace}}::Misc, :get_compilation
+      get "/api/v1/auth/compilations/:compid", {{namespace}}::Misc, :get_compilation
       get "/api/v1/mixes/:rdid", {{namespace}}::Misc, :mixes
       get "/api/v1/resolveurl", {{namespace}}::Misc, :resolve_url
     {% end %}

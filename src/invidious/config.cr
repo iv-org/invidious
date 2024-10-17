@@ -31,7 +31,7 @@ struct ConfigPreferences
   property quality : String = "hd720"
   property quality_dash : String = "auto"
   property default_home : String? = "Popular"
-  property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists"]
+  property feed_menu : Array(String) = ["Popular", "Trending", "Subscriptions", "Playlists", "Compilations"]
   property automatic_instance_redirect : Bool = false
   property region : String = "US"
   property related_videos : Bool = true
@@ -144,6 +144,9 @@ class Config
 
   # Playlist length limit
   property playlist_length_limit : Int32 = 500
+
+  # Compilation length limit
+  property compilation_length_limit : Int32 = 500
 
   def disabled?(option)
     case disabled = CONFIG.disable_proxy
