@@ -70,9 +70,11 @@ we're going to need to do it here in order to allow for translations.
 %>
 </script>
 
+<% if video.reason.nil? %>
 <div id="player-container" class="h-box">
     <%= rendered "components/player" %>
 </div>
+<% end %>
 
 <div class="h-box">
     <h1>
@@ -96,7 +98,10 @@ we're going to need to do it here in order to allow for translations.
 
     <% if video.reason %>
         <h3>
-            <%= video.reason %>
+            <%= translate(locale, "error_from_youtube_unplayable") %> <%= video.reason %>
+        </h3>
+        <h3>
+            <%= translate(locale, "next_steps_error_message") %>
         </h3>
     <% elsif video.premiere_timestamp.try &.> Time.utc %>
         <h3>
@@ -112,7 +117,11 @@ we're going to need to do it here in order to allow for translations.
 <div class="pure-g">
     <div class="pure-u-1 pure-u-lg-1-5">
         <div class="h-box">
-            <span id="watch-on-youtube">
+            <span id="refresh-page">
+                <a href="<% env.request.resource %>"><%= translate(locale, "refresh_page") %></a>
+            </span>
+
+            <p id="watch-on-youtube">
                 <%-
                     link_yt_watch = URI.new(scheme: "https", host: "www.youtube.com", path: "/watch", query: "v=#{video.id}")
                     link_yt_embed = URI.new(scheme: "https", host: "www.youtube.com", path: "/embed/#{video.id}")
@@ -125,7 +134,7 @@ we're going to need to do it here in order to allow for translations.
                 -%>
                 <a id="link-yt-watch" rel="noreferrer noopener" data-base-url="<%= link_yt_watch %>" href="<%= link_yt_watch %>"><%= translate(locale, "videoinfo_watch_on_youTube") %></a>
                 (<a id="link-yt-embed" rel="noreferrer noopener" data-base-url="<%= link_yt_embed %>" href="<%= link_yt_embed %>"><%= translate(locale, "videoinfo_youTube_embed_link") %></a>)
-            </span>
+            </p>
 
             <p id="watch-on-another-invidious-instance">
                 <%- link_iv_other = IV::Frontend::Misc.redirect_url(env) -%>
@@ -186,11 +195,14 @@ we're going to need to do it here in order to allow for translations.
                 <% end %>
             <% end %>
 
+            <% if video_assets %>
             <%= Invidious::Frontend::WatchPage.download_widget(locale, video, video_assets) %>
+            <% end %>
 
             <p id="views"><i class="icon ion-ios-eye"></i> <%= number_with_separator(video.views) %></p>
             <p id="likes"><i class="icon ion-ios-thumbs-up"></i> <%= number_with_separator(video.likes) %></p>
             <p id="dislikes" style="display: none; visibility: hidden;"></p>
+            <% if video.genre %>
             <p id="genre"><%= translate(locale, "Genre: ") %>
                 <% if !video.genre_url %>
                     <%= video.genre %>
@@ -198,6 +210,7 @@ we're going to need to do it here in order to allow for translations.
                     <a href="<%= video.genre_url %>"><%= video.genre %></a>
                 <% end %>
             </p>
+            <% end %>
             <% if video.license %>
                 <% if video.license.empty? %>
                     <p id="license"><%= translate(locale, "License: ") %><%= translate(locale, "Standard YouTube license") %></p>

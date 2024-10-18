@@ -1,3 +1,4 @@
+<% if audio_streams && fmt_stream && preferred_captions && captions %>
 <video style="outline:none;width:100%;background-color:#000" playsinline poster="<%= thumbnail %>"
     id="player" class="on-video_player video-js player-style-<%= params.player_style %>"
     preload="<% if params.preload %>auto<% else %>none<% end %>"
@@ -79,3 +80,4 @@
 %>
 </script>
 <script src="/js/player.js?v=<%= ASSET_COMMIT %>"></script>
+<% end %>

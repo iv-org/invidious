@@ -117,78 +117,82 @@ module Invidious::Routes::Watch
       comment_html ||= ""
     end
 
-    fmt_stream = video.fmt_stream
-    adaptive_fmts = video.adaptive_fmts
+    if video.reason.nil?
+      fmt_stream = video.fmt_stream
+      adaptive_fmts = video.adaptive_fmts
 
-    if params.local
-      fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
-      adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
-    end
-
-    video_streams = video.video_streams
-    audio_streams = video.audio_streams
-
-    # Older videos may not have audio sources available.
-    # We redirect here so they're not unplayable
-    if audio_streams.empty? && !video.live_now
-      if params.quality == "dash"
-        env.params.query.delete_all("quality")
-        env.params.query["quality"] = "medium"
-        return env.redirect "/watch?#{env.params.query}"
-      elsif params.listen
-        env.params.query.delete_all("listen")
-        env.params.query["listen"] = "0"
-        return env.redirect "/watch?#{env.params.query}"
+      if params.local
+        fmt_stream.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
+        adaptive_fmts.each { |fmt| fmt["url"] = JSON::Any.new(URI.parse(fmt["url"].as_s).request_target) }
       end
-    end
 
-    captions = video.captions
+      video_streams = video.video_streams
+      audio_streams = video.audio_streams
 
-    preferred_captions = captions.select { |caption|
-      params.preferred_captions.includes?(caption.name) ||
-        params.preferred_captions.includes?(caption.language_code.split("-")[0])
-    }
-    preferred_captions.sort_by! { |caption|
-      (params.preferred_captions.index(caption.name) ||
-        params.preferred_captions.index(caption.language_code.split("-")[0])).not_nil!
-    }
-    captions = captions - preferred_captions
+      # Older videos may not have audio sources available.
+      # We redirect here so they're not unplayable
+      if audio_streams.empty? && !video.live_now
+        if params.quality == "dash"
+          env.params.query.delete_all("quality")
+          env.params.query["quality"] = "medium"
+          return env.redirect "/watch?#{env.params.query}"
+        elsif params.listen
+          env.params.query.delete_all("listen")
+          env.params.query["listen"] = "0"
+          return env.redirect "/watch?#{env.params.query}"
+        end
+      end
 
-    aspect_ratio = "16:9"
+      captions = video.captions
 
-    thumbnail = "/vi/#{video.id}/maxres.jpg"
+      preferred_captions = captions.select { |caption|
+        params.preferred_captions.includes?(caption.name) ||
+          params.preferred_captions.includes?(caption.language_code.split("-")[0])
+      }
+      preferred_captions.sort_by! { |caption|
+        (params.preferred_captions.index(caption.name) ||
+          params.preferred_captions.index(caption.language_code.split("-")[0])).not_nil!
+      }
+      captions = captions - preferred_captions
 
-    if params.raw
-      if params.listen
-        url = audio_streams[0]["url"].as_s
+      aspect_ratio = "16:9"
 
-        if params.quality.ends_with? "k"
-          audio_streams.each do |fmt|
-            if fmt["bitrate"].as_i == params.quality.rchop("k").to_i
+      thumbnail = "/vi/#{video.id}/maxres.jpg"
+
+      if params.raw
+        if params.listen
+          url = audio_streams[0]["url"].as_s
+
+          if params.quality.ends_with? "k"
+            audio_streams.each do |fmt|
+              if fmt["bitrate"].as_i == params.quality.rchop("k").to_i
+                url = fmt["url"].as_s
+              end
+            end
+          end
+        else
+          url = fmt_stream[0]["url"].as_s
+
+          fmt_stream.each do |fmt|
+            if fmt["quality"].as_s == params.quality
               url = fmt["url"].as_s
             end
           end
         end
-      else
-        url = fmt_stream[0]["url"].as_s
 
-        fmt_stream.each do |fmt|
-          if fmt["quality"].as_s == params.quality
-            url = fmt["url"].as_s
-          end
-        end
+        return env.redirect url
       end
 
-      return env.redirect url
+      # Structure used for the download widget
+      video_assets = Invidious::Frontend::WatchPage::VideoAssets.new(
+        full_videos: fmt_stream,
+        video_streams: video_streams,
+        audio_streams: audio_streams,
+        captions: video.captions
+      )
+    else
+      env.response.status_code = 500
     end
-
-    # Structure used for the download widget
-    video_assets = Invidious::Frontend::WatchPage::VideoAssets.new(
-      full_videos: fmt_stream,
-      video_streams: video_streams,
-      audio_streams: audio_streams,
-      captions: video.captions
-    )
 
     templated "watch"
   end
