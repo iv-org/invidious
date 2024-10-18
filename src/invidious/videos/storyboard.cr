@@ -20,7 +20,7 @@ module Invidious::Videos
 
     def initialize(
       *, @url, @width, @height, @count, @interval,
-      @rows, @columns, @images_count
+      @rows, @columns, @images_count,
     )
       authority = /(i\d?).ytimg.com/.match!(@url.host.not_nil!)[1]?
 

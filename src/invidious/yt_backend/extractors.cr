@@ -1024,7 +1024,7 @@ end
 def extract_items(
   initial_data : InitialData,
   author_fallback : String? = nil,
-  author_id_fallback : String? = nil
+  author_id_fallback : String? = nil,
 ) : {Array(SearchItem), String?}
   items = [] of SearchItem
   continuation = nil
