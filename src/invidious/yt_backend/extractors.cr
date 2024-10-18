@@ -225,15 +225,18 @@ private module Parsers
   #
   # A `hashtagTileRenderer` is a kind of search result.
   # It can be found when searching for any hashtag (e.g "#hi" or "#shorts")
+  #
+  # A `hashtagHeaderRenderer` is displayed on the first page of the hashtag page.
   module HashtagRendererParser
     def self.process(item : JSON::Any, author_fallback : AuthorFallback)
-      if item_contents = item["hashtagTileRenderer"]?
+      if item_contents = (item["hashtagTileRenderer"]? || item["hashtagHeaderRenderer"]? || item["pageHeaderRenderer"]?)
         return self.parse(item_contents)
       end
     end
 
     private def self.parse(item_contents)
-      title = extract_text(item_contents["hashtag"]).not_nil! # E.g "#hi"
+      title = item_contents.dig?("pageTitle").try &.as_s
+      title ||= extract_text(item_contents["hashtag"]).not_nil! # E.g "#hi"
 
       # E.g "/hashtag/hi"
       url = item_contents.dig?("onTapCommand", "commandMetadata", "webCommandMetadata", "url").try &.as_s
@@ -244,8 +247,10 @@ private module Parsers
 
       # Fallback for video/channel counts
       if channel_count_txt.nil? || video_count_txt.nil?
+        info_text = (item_contents.dig?("content", "pageHeaderViewModel", "metadata", "contentMetadataViewModel", "metadataRows", 0, "metadataParts", 0, "text", "content").try &.as_s ||
+                     extract_text(item_contents.dig?("hashtagInfoText"))).try &.split(" • ")
+
         # E.g: "203K videos • 81K channels"
-        info_text = extract_text(item_contents["hashtagInfoText"]?).try &.split(" • ")
 
         if info_text && info_text.size == 2
           video_count_txt ||= info_text[0]
