@@ -1,8 +1,23 @@
+<%
+  dark_mode = env.get("preferences").as(Preferences).dark_mode
+%>
+
 <% content_for "header" do %>
 <title><%= "Error" %> - Invidious</title>
 <% end %>
 
 <div class="h-box">
-    <%= error_message %>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <%= error_message %>
+        <% if dark_mode == "dark" %>
+            <div style="width: 100px; height: auto;">
+                <img src="/404_tv_box_dark_theme.svg" alt="SVG Image" style="width: 100px; height: auto;">
+            </div>
+        <% else %>
+            <div style="width: 100px; height: auto;">
+                <img src="/404_tv_box_light_theme.svg" alt="SVG Image" style="width: 100px; height: auto;">
+            </div>
+        <% end %>
+    </div>
     <%= next_steps %>
 </div>
