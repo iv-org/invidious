@@ -70,7 +70,7 @@
     "Next page": "다음 페이지",
     "last": "마지막",
     "Shared `x` ago": "`x` 전",
-    "popular": "인기",
+    "popular": "인기순",
     "oldest": "과거순",
     "newest": "최신순",
     "View playlist on YouTube": "유튜브에서 재생목록 보기",
@@ -479,5 +479,6 @@
     "carousel_go_to": "`x` 슬라이드로 이동",
     "Search for videos": "비디오 검색",
     "toggle_theme": "테마 전환",
-    "carousel_slide": "{{total}}의 슬라이드 {{current}}"
+    "carousel_slide": "{{total}}의 슬라이드 {{current}}",
+    "preferences_preload_label": "비디오 데이터 사전 로드: "
 }

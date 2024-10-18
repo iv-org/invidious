@@ -513,5 +513,6 @@
     "The Popular feed has been disabled by the administrator.": "Kategorie Populární byla zakázána administrátorem.",
     "carousel_slide": "Snímek {{current}} z {{total}}",
     "carousel_skip": "Přeskočit galerii",
-    "carousel_go_to": "Přejít na snímek `x`"
+    "carousel_go_to": "Přejít na snímek `x`",
+    "preferences_preload_label": "Předem načíst data videa: "
 }

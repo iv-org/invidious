@@ -496,5 +496,6 @@
     "footer_documentation": "Leiðbeiningar",
     "channel_tab_channels_label": "Rásir",
     "Import YouTube playlist (.csv)": "Flytja inn YouTube spilunarlista (.csv)",
-    "preferences_quality_option_dash": "DASH (aðlaganleg gæði)"
+    "preferences_quality_option_dash": "DASH (aðlaganleg gæði)",
+    "preferences_preload_label": "Forhlaða gögnum myndskeiðs: "
 }

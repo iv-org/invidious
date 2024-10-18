@@ -513,5 +513,6 @@
     "The Popular feed has been disabled by the administrator.": "Стрічка Популярні вимкнена адміністратором.",
     "carousel_slide": "Слайд {{current}} з {{total}}",
     "carousel_skip": "Пропустити карусель",
-    "carousel_go_to": "Перейти до слайда `x`"
+    "carousel_go_to": "Перейти до слайда `x`",
+    "preferences_preload_label": "Попереднє завантаження відеоданих: "
 }

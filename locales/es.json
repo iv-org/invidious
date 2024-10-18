@@ -513,5 +513,6 @@
     "The Popular feed has been disabled by the administrator.": "El feed Popular ha sido desactivado por el administrador.",
     "carousel_slide": "Diapositiva {{current}} de {{total}}",
     "carousel_skip": "Saltar el carrusel",
-    "carousel_go_to": "Ir a la diapositiva `x`"
+    "carousel_go_to": "Ir a la diapositiva `x`",
+    "preferences_preload_label": "Precargar datos del vídeo: "
 }
