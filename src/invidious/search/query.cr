@@ -47,7 +47,7 @@ module Invidious::Search
     def initialize(
       params : HTTP::Params,
       @type : Type = Type::Regular,
-      @region : String? = nil
+      @region : String? = nil,
     )
       # Get the raw search query string (common to all search types). In
       # Regular search mode, also look for the `search_query` URL parameter

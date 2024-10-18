@@ -13,7 +13,7 @@ module Invidious::Frontend::WatchPage
       @full_videos,
       @video_streams,
       @audio_streams,
-      @captions
+      @captions,
     )
     end
   end

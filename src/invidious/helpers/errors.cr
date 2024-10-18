@@ -130,7 +130,7 @@ def error_json_helper(
   env : HTTP::Server::Context,
   status_code : Int32,
   exception : Exception,
-  additional_fields : Hash(String, Object) | Nil = nil
+  additional_fields : Hash(String, Object) | Nil = nil,
 )
   if exception.is_a?(InfoException)
     return error_json_helper(env, status_code, exception.message || "", additional_fields)
@@ -152,7 +152,7 @@ def error_json_helper(
   env : HTTP::Server::Context,
   status_code : Int32,
   message : String,
-  additional_fields : Hash(String, Object) | Nil = nil
+  additional_fields : Hash(String, Object) | Nil = nil,
 )
   env.response.content_type = "application/json"
   env.response.status_code = status_code
