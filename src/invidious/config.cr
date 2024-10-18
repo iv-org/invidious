@@ -69,6 +69,8 @@ class Config
   property output : String = "STDOUT"
   # Default log level, valid YAML values are ints and strings, see src/invidious/helpers/logger.cr
   property log_level : LogLevel = LogLevel::Info
+  # Enables colors in logs. Useful for debugging purposes
+  property colorize_logs : Bool = false
   # Database configuration with separate parameters (username, hostname, etc)
   property db : DBConfig? = nil
 
